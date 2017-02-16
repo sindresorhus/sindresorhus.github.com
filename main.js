@@ -4,7 +4,6 @@
 
 	function injectScript(src, cb) {
 		const script = document.createElement('script');
-		script.async = true;
 		script.src = src;
 		script.addEventListener('load', cb);
 		document.head.appendChild(script);
