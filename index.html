@@ -19,8 +19,8 @@
 		<meta name="twitter:creator" content="@sindresorhus">
 		<title>Sindre Sorhus</title>
 		<link rel="alternate" type="application/rss+xml" title="Sindre Sorhus' blog" href="https://blog.sindresorhus.com/feed">
-		<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.3.1/css/bulma.min.css">
-		<link rel="stylesheet" href="main.css"> -->
+		<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.3.1/css/bulma.min.css">
+		<link rel="stylesheet" href="main.css">-->
 		<link rel="stylesheet" href="main.min.css">
 		<link rel="icon" href="favicon.png" sizes="32x32">
 		<script defer src="https://unpkg.com/anchor-scroller@1.1.1/distribution/AnchorScroller.js"></script>
@@ -37,7 +37,7 @@
 	</head>
 	<body>
 
-		<section class="hero is-fullheight is-default is-bold">
+		<section class="hero is-fullheight is-default">
 			<div class="hero-head">
 				<div class="container">
 					<nav class="nav has-shadow">
@@ -52,6 +52,7 @@
 							</span>
 							<div class="nav-right nav-menu">
 								<a class="nav-item is-tab" href="#projects">Projects</a>
+								<a class="nav-item is-tab" href="#apps">Apps</a>
 								<a class="nav-item is-tab" href="https://blog.sindresorhus.com/answering-anything-678ce5623798">Ask Me Anything</a>
 								<a class="nav-item is-tab" href="https://blog.sindresorhus.com/about-sindre-sorhus-42786d2e191b">About</a>
 								<span class="nav-item">
@@ -64,12 +65,12 @@
 			</div>
 			<div class="hero-body">
 				<div class="container has-text-centered">
-					<div class="columns is-vcentered ">
-						<div class="column is-half is-centered has-nice-link" itemscope itemtype="http://schema.org/Person">
+					<div class="columns is-vcentered">
+						<div class="column is-two-thirds is-centered has-nice-link" itemscope itemtype="http://schema.org/Person">
 							<img id="profile-pic" src="sindre-sorhus-small.jpg" width="140" height="140" itemprop="image">
 							<h1 class="title is-2" itemprop="name">Sindre Sorhus</h1>
 							<h2 class="subtitle is-4" itemprop="description">Open-sourcerer &amp; aspiring rebel</h2>
-							<p>I do open-source full-time—making modules, CLI tools, and apps.<br class="is-hidden-touch"> My favorite technologies right now are Node.js and Swift.</p>
+							<p>I do open-source full-time—making modules, CLI tools, and apps.<br class="is-hidden-small-screen"> My favorite technologies right now are Node.js and Swift.</p>
 							<br>
 							<p class="has-text-centered">
 								<a class="button is-large is-white" href="https://blog.sindresorhus.com">
@@ -114,7 +115,53 @@
 				<div class="container has-text-centered is-dark-text has-nice-link">
 					<img id="unicorn-icon" src="unicorn.svg" width="100" height="100">
 					<h3 class="title is-3">My main focus right now is <a href="https://ava.li"><strong>AVA</strong></a>—Concurrent JavaScript test runner</h3>
-					<p>I'm also <a href="https://twitter.com/sindresorhus/status/768509012795125760">working on</a> a couple of macOS apps that I'm launching soon. See <a class="no-underline" href="https://github.com/sindresorhus"><span class="icon"><i class="fa fa-github"></i></span></a> for what else I'm up to.</p>
+					<p>I'm also working on some <a href="#apps">macOS apps</a>. See <a class="no-underline" href="https://github.com/sindresorhus"><span class="icon"><i class="fa fa-github"></i></span></a> for what else I'm up to.</p>
+				</div>
+			</div>
+		</section>
+
+		<section class="section hero is-fullheight is-default is-bold has-nice-link">
+			<div id="apps" class="container">
+				<h1 class="title is-2">Apps</h1>
+				<div class="columns is-multiline">
+					<div class="column is-mobile is-half-tablet is-one-third-desktop">
+						<div class="box">
+							<figure class="image">
+								<img src="media/battery-indicator.png">
+							</figure>
+							<h2 class="title is-3"><a href="https://geo.itunes.apple.com/us/app/battery-indicator/id1206020918?mt=12">Battery Indicator</a></h2>
+							<p class="subtitle is-6">macOS app that shows the remaining battery time and percentage in the menu bar.</p>
+							<a class="no-underline" href="https://geo.itunes.apple.com/us/app/battery-indicator/id1206020918?mt=12" style="display:inline-block;overflow:hidden;background:url(https://linkmaker.itunes.apple.com/assets/shared/badges/en-us/macappstore-lrg.svg) no-repeat;width:165px;height:40px;background-size:contain;"></a>
+						</div>
+					</div>
+					<div class="column is-mobile is-half-tablet is-one-third-desktop">
+						<div class="box">
+							<figure class="image">
+								<img src="media/blear.jpg">
+							</figure>
+							<h2 class="title"><a href="https://github.com/sindresorhus/blear">Blear</a></h2>
+							<p class="subtitle is-6">Open-source iOS app that transforms your photos into stunning blurry wallpapers.</p>
+							<a class="no-underline" href="https://itunes.apple.com/us/app/blear/id994182280?mt=8" style="display:inline-block;overflow:hidden;background:url(https://linkmaker.itunes.apple.com/assets/shared/badges/en-us/appstore-lrg.svg) no-repeat;width:135px;height:40px;background-size:contain;"></a>
+						</div>
+					</div>
+					<div class="column is-mobile is-half-tablet is-one-third-desktop">
+						<div class="box">
+							<figure class="image">
+								<img src="media/caprine.jpg">
+							</figure>
+							<h2 class="title"><a href="https://github.com/sindresorhus/caprine">Caprine</a></h2>
+							<p class="subtitle is-6">Unofficial Facebook Messenger app. Cross-platform and open-source.</p>
+						</div>
+					</div>
+					<div class="column is-mobile is-half-tablet is-one-third-desktop">
+						<div class="box">
+							<figure class="image">
+								<img src="media/lungo.png">
+							</figure>
+							<h2 class="title">Lungo</h2>
+							<p class="subtitle is-6">macOS app. Coming soon.</p>
+						</div>
+					</div>
 				</div>
 			</div>
 		</section>
