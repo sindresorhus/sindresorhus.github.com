@@ -1,0 +1,98 @@
+---
+layout: default
+---
+
+<style>
+	#intro {
+		margin-top: -200px;
+	}
+
+	#intro .title {
+		line-height: 1.5;
+	}
+
+	#icon {
+		filter: drop-shadow(0px 1px 3px #D5D5D5);
+	}
+
+	.app-buttons {
+		text-align: center;
+	}
+
+	.app-buttons > div,
+	.app-buttons > div > a {
+		display: inline-block;
+	}
+
+	#screenshots {
+		text-align: center;
+		flex: auto;
+	}
+
+	#screenshots img {
+		box-sizing: border-box;
+		border-radius: 2px;
+		margin: 20px 0;
+		max-height: 600px;
+		max-width: 800px;
+	}
+
+	{% unless page.screenshot_frame == false %}
+	#screenshots img {
+		border: 1px solid rgba(0, 0, 0, 0.6);
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+	}
+	{% endunless %}
+</style>
+
+<section class="hero is-fullheight is-default">
+	<div class="hero-body">
+		<div class="container has-text-centered">
+			<div class="columns is-vcentered is-centered">
+				<div id="intro" class="column is-half is-narrow">
+					<p>
+						<img id="icon" src="{{ relative_path }}/assets/{{ page.slug }}/icon.png" width="256" height="256">
+					</p>
+					<h1 class="title is-1">{{ page.title }}</h1>
+					<h2 class="subtitle">{{ page.subtitle }}</h2>
+				</div>
+			</div>
+			<div class="columns is-vcentered is-centered is-text-centered">
+				<div class="column is-half is-narrow">
+					{{ content }}
+				</div>
+			</div>
+			{% if page.repo_url %}
+				<a class="button is-link" href="{{ page.repo_url }}">Source on GitHub</a>
+			{% else %}
+				<a class="button is-link" href="https://sindresorhus.com/feedback?product={{ page.title | url_encode }}">Support</a>
+			{% endif %}
+		</div>
+	</div>
+</section>
+
+<section class="hero">
+	<div class="hero-body">
+		<div class="container">
+			<div class="columns is-centered">
+				<div class="column is-half is-narrow">
+					<p>{{ page.description }}</p>
+				</div>
+			</div>
+			<div class="columns is-centered">
+				<div id="screenshots" class="column is-two-thirds is-narrow">
+					{% comment %}
+						This mess is needed because we don't know the extension of the screenshot upfront...
+					{% endcomment %}
+
+					{% for file in site.static_files %}
+						{% assign path = page.slug | append: "/screenshot" %}
+						{% if file.path contains path %}
+							<img src="{{ file.path }}">
+						{% endif %}
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

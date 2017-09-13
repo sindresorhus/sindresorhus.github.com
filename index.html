@@ -1,221 +1,128 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="author" content="Sindre Sorhus">
-		<meta name="description" content="Open-sourcerer & aspiring rebel">
-		<meta name="theme-color" content="#00d1b2">
-		<meta property="og:title" content="Sindre Sorhus">
-		<meta property="og:type" content="website">
-		<meta property="og:url" content="https://sindresorhus.com">
-		<meta property="og:image" content="https://sindresorhus.com/sindre-sorhus.jpg">
-		<meta property="og:image:type" content="image/jpeg">
-		<meta property="og:image:width" content="600">
-		<meta property="og:image:height" content="600">
-		<meta property="og:description" content="Open-sourcerer & aspiring rebel">
-		<meta name="twitter:card" content="summary">
-		<meta name="twitter:site" content="@sindresorhus">
-		<meta name="twitter:creator" content="@sindresorhus">
-		<title>Sindre Sorhus</title>
-		<link rel="alternate" type="application/rss+xml" title="Sindre Sorhus' blog" href="https://blog.sindresorhus.com/feed">
-		<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.3.1/css/bulma.min.css">
-		<link rel="stylesheet" href="main.css">-->
-		<link rel="stylesheet" href="main.min.css">
-		<link rel="icon" href="favicon.png" sizes="32x32">
-		<script defer src="https://unpkg.com/anchor-scroller@1.1.1/distribution/AnchorScroller.js"></script>
-		<script defer src="main.js"></script>
-		<script defer src="https://query.yahooapis.com/v1/public/yql?q=select%20channel.item.title%2Cchannel.item.link%20from%20xml%20where%20url%20%3D%20'https%3A%2F%2Fblog.sindresorhus.com%2Ffeed'%20limit%201&format=json&callback=handleRssPost"></script>
-		<!-- Google Analytics -->
-		<script>
-			window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-			ga('create', 'UA-25562592-1', 'auto');
-			ga('send', 'pageview');
-		</script>
-		<script async src="https://www.google-analytics.com/analytics.js"></script>
-		<!-- / Google Analytics -->
-		<!-- Setapp -->
-		<script>
-			window._setappBtn = window._setappBtn || [];
-			window._setappBtn.push({
-				vendorID: 181,
-				appID: 270,
-				selector: '.available-on-setapp-270'
-			});
-		</script>
-		<script defer src="https://developer.setapp.com/setapp-button/setapp.js"></script>
-		<!-- / Setapp -->
-		<style>
-			.app-store-badge {
-				float: left;
-				margin-right: 5px;
-			}
-		</style>
-	</head>
-	<body>
+---
+layout: default
+---
 
-		<section class="hero is-fullheight is-default">
-			<div class="hero-head">
-				<div class="container">
-					<nav class="nav has-shadow">
-						<div class="container">
-							<div class="nav-left">
-								<a id="unicorn-btn" class="nav-item" href="https://sindresorhus.com/unicorn" title="Click me!">🦄</a>
-							</div>
-							<span class="nav-toggle">
-								<span></span>
-								<span></span>
-								<span></span>
+<style>
+	#latest-repos-container h2 {
+		margin-bottom: 2rem;
+	}
+
+	#latest-repos h4 {
+		margin-bottom: 0.5rem;
+	}
+</style>
+
+<section class="hero is-fullheight is-default">
+	<div class="hero-body">
+		<div class="container has-text-centered">
+			<div class="columns is-vcentered">
+				<div class="column is-two-thirds is-centered has-nice-link" itemscope itemtype="http://schema.org/Person">
+					<img id="profile-pic" src="sindre-sorhus-small.jpg" width="160" height="160" itemprop="image">
+					<h1 class="title is-2" itemprop="name">Sindre Sorhus</h1>
+					<h2 class="subtitle is-4" itemprop="description">Open-sourcerer &amp; aspiring rebel</h2>
+					<p>I do open-source full-time—making modules, CLI tools, and apps.<br class="is-hidden-small-screen"> My favorite technologies right now are Node.js and Swift.</p>
+					<br>
+					<p class="has-text-centered">
+						<a class="button is-large is-white" href="https://blog.sindresorhus.com">
+							<span class="icon">
+								<i class="fa fa-pencil"></i>
 							</span>
-							<div class="nav-right nav-menu">
-								<a class="nav-item is-tab" href="#projects">Projects</a>
-								<a class="nav-item is-tab" href="#apps">Apps</a>
-								<a class="nav-item is-tab" href="https://blog.sindresorhus.com/answering-anything-678ce5623798">Ask Me Anything</a>
-								<a class="nav-item is-tab" href="https://blog.sindresorhus.com/about-sindre-sorhus-42786d2e191b">About</a>
-								<span class="nav-item">
-									<a class="button" href="https://github.com/sindresorhus/contact/blob/master/readme.md#contact">Contact</a>
-								</span>
-							</div>
-						</div>
-					</nav>
-				</div>
-			</div>
-			<div class="hero-body">
-				<div class="container has-text-centered">
-					<div class="columns is-vcentered">
-						<div class="column is-two-thirds is-centered has-nice-link" itemscope itemtype="http://schema.org/Person">
-							<img id="profile-pic" src="sindre-sorhus-small.jpg" width="140" height="140" itemprop="image">
-							<h1 class="title is-2" itemprop="name">Sindre Sorhus</h1>
-							<h2 class="subtitle is-4" itemprop="description">Open-sourcerer &amp; aspiring rebel</h2>
-							<p>I do open-source full-time—making modules, CLI tools, and apps.<br class="is-hidden-small-screen"> My favorite technologies right now are Node.js and Swift.</p>
-							<br>
-							<p class="has-text-centered">
-								<a class="button is-large is-white" href="https://blog.sindresorhus.com">
-									<span class="icon">
-										<i class="fa fa-pencil"></i>
-									</span>
-									<span>Writings</span>
-								</a>
-								<a class="button is-large is-white" href="https://github.com/sindresorhus">
-									<span class="icon">
-										<i class="fa fa-github"></i>
-									</span>
-									<span>Code</span>
-								</a>
-								<a class="button is-large is-white" href="https://twitter.com/sindresorhus">
-									<span class="icon">
-										<i class="fa fa-twitter"></i>
-									</span>
-									<span>Tweets</span>
-								</a>
-							</p>
-							<p id="latest-blog-post">Latest Writing: <span></span></p>
-						</div>
+							<span>Writings</span>
+						</a>
+						<a class="button is-large is-white" href="https://github.com/sindresorhus">
+							<span class="icon">
+								<i class="fa fa-github"></i>
+							</span>
+							<span>Code</span>
+						</a>
+						<a class="button is-large is-white" href="https://twitter.com/sindresorhus">
+							<span class="icon">
+								<i class="fa fa-twitter"></i>
+							</span>
+							<span>Tweets</span>
+						</a>
+					</p>
+					<hr id="latest-blog-post-separator">
+					<div id="latest-blog-post">
+						<h4 class="title is-4">
+							<a class="is-gray-link" href=""></a>
+							<span class="tag is-small">Latest writing</span>
+						</h4>
+						<p></p>
 					</div>
 				</div>
 			</div>
-			<div class="hero-foot">
-				<div class="container">
-					<div class="tabs is-centered">
-						<ul>
-							<li>
-								<i id="scroll-hint" class="fa fa-caret-down" aria-hidden="true"></i>
-							</li>
-						</ul>
-					</div>
-				</div>
+		</div>
+	</div>
+	<div class="hero-foot">
+		<div class="container">
+			<div class="tabs is-centered">
+				<ul>
+					<li>
+						<i id="scroll-hint" class="fa fa-caret-down" aria-hidden="true"></i>
+					</li>
+				</ul>
 			</div>
-		</section>
+		</div>
+	</div>
+</section>
 
-		<section class="hero is-fullheight is-primary">
-			<div id="projects" class="hero-body">
-				<div class="container has-text-centered is-dark-text has-nice-link">
-					<img id="unicorn-icon" src="unicorn.svg" width="100" height="100">
-					<h3 class="title is-3">My main focus right now is <a href="https://ava.li"><strong>AVA</strong></a>—Concurrent JavaScript test runner</h3>
-					<p>I'm also working on some <a href="#apps">macOS apps</a>. See <a class="no-underline" href="https://github.com/sindresorhus"><span class="icon"><i class="fa fa-github"></i></span></a> for what else I'm up to.</p>
-				</div>
+<section class="hero is-fullheight is-gray">
+	<div id="projects" class="hero-body container">
+		<div class="columns is-vcentered">
+			<div class="column has-text-centered has-nice-link">
+				<img id="unicorn-icon" src="unicorn.svg" width="100" height="100">
+				<h4 class="title is-4" style="font-weight: 400">My main focus right now is <a href="https://ava.li"><strong>AVA</strong></a>, macOS development, and maintaining all my <nobr>open-source</nobr> projects.</h4>
 			</div>
-		</section>
-
-		<section class="section hero is-fullheight is-default is-bold has-nice-link">
-			<div id="apps" class="container">
-				<h1 class="title is-2">Apps</h1>
-				<div class="columns is-multiline">
-					<div class="column is-mobile is-half-tablet is-one-third-desktop">
-						<div class="box">
-							<figure class="image">
-								<img src="media/shareful.png">
-							</figure>
-							<h2 class="title">
-								<a href="https://www.producthunt.com/upcoming/shareful">Shareful</a>
-								<span style="font-size:13px;vertical-align: middle;"><i>Prelaunch</i></span>
-							</h2>
-							<p class="subtitle is-6">Give the macOS Share menu superpowers.</p>
-							<p><a href="https://www.producthunt.com/upcoming/shareful">Subscribe</a> for early access.</p>
-						</div>
+			<div id="latest-repos-container" class="column is-half is-offset-1 has-nice-link">
+				<h2 class="title is-2">Latest repos</h2>
+				<template id="latest-repos-template">
+					<div class="column is-half">
+						<h4 class="title is-4">
+							<a class="latest-repos-title" href=""></a>
+							<span class="tag is-small latest-repos-language">¯\_(ツ)_/¯</span>
+						</h4>
+						<p class="latest-repos-description"></p>
 					</div>
-					<div class="column is-mobile is-half-tablet is-one-third-desktop">
-						<div class="box">
-							<figure class="image">
-								<img src="media/lungo.png">
-							</figure>
-							<h2 class="title">
-								<a href="https://blog.sindresorhus.com/lungo-b364a6c2745f">Lungo</a>
-							</h2>
-							<p class="subtitle is-6">macOS app that prevents your Mac from falling asleep and your screen from dimming.</p>
-							<a class="no-underline app-store-badge" href="https://itunes.apple.com/no/app/lungo/id1263070803?mt=12" style="display:inline-block;overflow:hidden;background:url(https://linkmaker.itunes.apple.com/assets/shared/badges/en-us/macappstore-lrg.svg) no-repeat;width:165px;height:40px;background-size:contain;"></a>
-							<span class="available-on-setapp-270"></span>
-						</div>
-					</div>
-					<div class="column is-mobile is-half-tablet is-one-third-desktop">
-						<div class="box">
-							<figure class="image">
-								<img src="media/battery-indicator.png">
-							</figure>
-							<h2 class="title is-3">
-								<a href="https://geo.itunes.apple.com/us/app/battery-indicator/id1206020918?mt=12">Battery Indicator</a>
-							</h2>
-							<p class="subtitle is-6">macOS app that shows the remaining battery time and percentage in the menu bar.</p>
-							<a class="no-underline" href="https://geo.itunes.apple.com/us/app/battery-indicator/id1206020918?mt=12" style="display:inline-block;overflow:hidden;background:url(https://linkmaker.itunes.apple.com/assets/shared/badges/en-us/macappstore-lrg.svg) no-repeat;width:165px;height:40px;background-size:contain;"></a>
-						</div>
-					</div>
-					<div class="column is-mobile is-half-tablet is-one-third-desktop">
-						<div class="box">
-							<figure class="image">
-								<img src="media/touch-bar-simulator.png">
-							</figure>
-							<h2 class="title">
-								<a href="https://sindresorhus.com/touch-bar-simulator">Touch Bar Simulator</a>
-							</h2>
-							<p class="subtitle is-6">Use the Touch Bar on any Mac and capture screenshots of it. Open-source.</p>
-						</div>
-					</div>
-					<div class="column is-mobile is-half-tablet is-one-third-desktop">
-						<div class="box">
-							<figure class="image">
-								<img src="media/caprine.jpg">
-							</figure>
-							<h2 class="title">
-								<a href="https://sindresorhus.com/caprine">Caprine</a>
-							</h2>
-							<p class="subtitle is-6">Elegant Facebook Messenger desktop app. Cross-platform and open-source.</p>
-						</div>
-					</div>
-					<div class="column is-mobile is-half-tablet is-one-third-desktop">
-						<div class="box">
-							<figure class="image">
-								<img src="media/blear.jpg">
-							</figure>
-							<h2 class="title">
-								<a href="https://github.com/sindresorhus/blear">Blear</a>
-							</h2>
-							<p class="subtitle is-6">iOS app that transforms your photos into stunning blurry wallpapers. Open-source.</p>
-							<a class="no-underline" href="https://itunes.apple.com/us/app/blear/id994182280?mt=8" style="display:inline-block;overflow:hidden;background:url(https://linkmaker.itunes.apple.com/assets/shared/badges/en-us/appstore-lrg.svg) no-repeat;width:135px;height:40px;background-size:contain;"></a>
-						</div>
-					</div>
-				</div>
+				</template>
+				<div id="latest-repos" class="columns is-multiline"></div>
 			</div>
-		</section>
+		</div>
+	</div>
+</section>
 
-	</body>
-</html>
+<section class="section hero is-fullheight is-default is-bold">
+	<div id="apps" class="container">
+		<h2 class="title is-2">Apps</h2>
+		<div class="columns is-multiline">
+			{% for app in site.apps reversed %}
+			<div class="column is-mobile is-half-tablet is-one-third-desktop">
+				<a href="{% if app.external_url %}{{ app.external_url }}{% else %}{{ app.url }}{% endif %}">
+					<div class="box">
+						<figure class="image">
+							{% comment %}
+								This mess is needed because we don't know the extension of the thumbnail upfront...
+							{% endcomment %}
+
+							{% for file in site.static_files %}
+								{% assign path = app.slug | append: "/thumbnail" %}
+								{% if file.path contains path %}
+									<img src="{{ file.path }}">
+								{% endif %}
+							{% endfor %}
+						</figure>
+						<h2 class="title">
+							<span>{{ app.title }}</span>
+							{% if app.is_prerelease %}
+								<span class="tag is-small is-info">Prerelease</span>
+							{% endif %}
+							<span class="tag is-small">{{ app.type }}</span>
+						</h2>
+						<p class="subtitle is-6">{{ app.subtitle }}</p>
+					</div>
+				</a>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+</section>

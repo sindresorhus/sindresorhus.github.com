@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Sindre Sorhus">
+		<meta name="description" content="Open-sourcerer & aspiring rebel">
+		<meta name="theme-color" content="#00d1b2">
+		<meta property="og:title" content="Sindre Sorhus">
+		<meta property="og:type" content="website">
+		<meta property="og:url" content="https://sindresorhus.com">
+		<meta property="og:image" content="https://sindresorhus.com/sindre-sorhus.jpg">
+		<meta property="og:image:type" content="image/jpeg">
+		<meta property="og:image:width" content="600">
+		<meta property="og:image:height" content="600">
+		<meta property="og:description" content="Open-sourcerer & aspiring rebel">
+		<meta name="twitter:card" content="summary">
+		<meta name="twitter:site" content="@sindresorhus">
+		<meta name="twitter:creator" content="@sindresorhus">
+		<title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+		<link rel="alternate" type="application/rss+xml" title="Sindre Sorhus' blog" href="https://blog.sindresorhus.com/feed">
+		<link rel="icon" href="favicon.png" sizes="32x32">
+		<link rel="stylesheet" href="{{ '/main.css' | relative_url }}">
+		<script defer src="{{ '/assets/javascript/AnchorScroller.js' | relative_url }}"></script>
+		<script defer src="main.js"></script>
+		<!-- Google Analytics -->
+		<script>
+			window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+			ga('create', 'UA-25562592-1', 'auto');
+			ga('send', 'pageview');
+		</script>
+		<script async src="https://www.google-analytics.com/analytics.js"></script>
+		<!-- / Google Analytics -->
+	</head>
+	<body>
+		<section class="hero">
+			<div class="hero-head">
+				<div class="container">
+					<nav class="nav has-shadow">
+						<div class="container">
+							<div class="nav-left">
+								{% if page.url == '/' %}
+									<a id="unicorn-btn" class="nav-item" href="https://sindresorhus.com/unicorn" title="Click me!">🦄</a>
+								{% else %}
+									<span class="nav-item">Sindre Sorhus</span>
+								{% endif %}
+							</div>
+							<span class="nav-toggle">
+								<span></span>
+								<span></span>
+								<span></span>
+							</span>
+							<div class="nav-right nav-menu">
+								<a class="nav-item is-tab" href="/">Home</a>
+								<a class="nav-item is-tab" href="/#projects">Projects</a>
+								<a class="nav-item is-tab" href="/#apps">Apps</a>
+								<a class="nav-item is-tab" href="https://blog.sindresorhus.com/answering-anything-678ce5623798">Ask Me Anything</a>
+								<a class="nav-item is-tab" href="https://blog.sindresorhus.com/about-sindre-sorhus-42786d2e191b">About</a>
+								<span class="nav-item">
+									<a class="button" href="/contact">Contact</a>
+								</span>
+							</div>
+						</div>
+					</nav>
+				</div>
+			</div>
+		</section>
+		{{ content }}
+	</body>
+</html>

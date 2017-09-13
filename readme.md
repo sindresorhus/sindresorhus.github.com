@@ -5,7 +5,7 @@
 *The website targets the latest version of Chrome, Safari, and Firefox.*
 
 <a href="https://sindresorhus.com">
-	<img src="screenshot.png" width="1040">
+	<img src="screenshot.jpg" width="600">
 </a>
 
 

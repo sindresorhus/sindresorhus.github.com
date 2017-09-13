@@ -1,0 +1,24 @@
+title: Sindre Sorhus
+baseurl: ""
+url: "https://sindresorhus.com"
+permalink: /:title
+collections:
+  apps:
+    output: true
+    permalink: /:title
+    include: app-assets
+defaults:
+  - scope:
+      path: ""
+      type: "apps"
+    values:
+      layout: "app"
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - readme.md
+  - license
+  - CNAME
+  - screenshot.jpg
+plugins:
+  - jekyll-sitemap
