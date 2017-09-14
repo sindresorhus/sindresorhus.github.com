@@ -3,12 +3,17 @@ layout: default
 ---
 
 <style>
-	#intro {
-		margin-top: -200px;
+	.hero-body {
+		padding-top: 2rem;
+	}
+
+	.hero-body > .container {
+		margin-bottom: 140px;
 	}
 
 	#intro .title {
-		line-height: 1.5;
+		margin-top: 10px;
+		margin-bottom: 1.8rem;
 	}
 
 	#icon {
@@ -77,27 +82,25 @@ layout: default
 	</div>
 </section>
 
-<section class="hero">
-	<div class="hero-body">
-		<div class="container">
-			<div class="columns is-centered">
-				<div class="column is-half is-narrow">
-					<p>{{ page.description }}</p>
-				</div>
+<section>
+	<div class="container">
+		<div class="columns is-centered">
+			<div class="column is-half is-narrow">
+				<p>{{ page.description }}</p>
 			</div>
-			<div class="columns is-centered">
-				<div id="screenshots" class="column is-two-thirds is-narrow">
-					{% comment %}
-						This mess is needed because we don't know the extension of the screenshot upfront...
-					{% endcomment %}
+		</div>
+		<div class="columns is-centered">
+			<div id="screenshots" class="column is-two-thirds is-narrow">
+				{% comment %}
+					This mess is needed because we don't know the extension of the screenshot upfront...
+				{% endcomment %}
 
-					{% for file in site.static_files %}
-						{% assign path = page.slug | append: "/screenshot" %}
-						{% if file.path contains path %}
-							<img src="{{ file.path }}">
-						{% endif %}
-					{% endfor %}
-				</div>
+				{% for file in site.static_files %}
+					{% assign path = page.slug | append: "/screenshot" %}
+					{% if file.path contains path %}
+						<img src="{{ file.path }}">
+					{% endif %}
+				{% endfor %}
 			</div>
 		</div>
 	</div>

@@ -116,16 +116,19 @@ body {
 	margin-right: auto;
 }
 
-#profile-pic {
-	margin-top: -120px;
-	margin-bottom: 10px;
-	border-radius: 140px;
+#info-container .columns {
+	margin-bottom: 60px;
 }
 
-@media screen and (max-width: 768px) {
-	#profile-pic {
-		margin-top: -60px;
+@media screen and (max-width: 500px) {
+	#info-container .columns {
+		margin-bottom: 20px;
 	}
+}
+
+#profile-pic {
+	margin-bottom: 10px;
+	border-radius: 80px;
 }
 
 #scroll-hint {
