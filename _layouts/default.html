@@ -5,10 +5,12 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="theme-color" content="#3273DC">
 		<meta name="author" content="Sindre Sorhus">
-		<meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+		{% capture description %}{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}{% endcapture %}
+		<meta name="description" content="{{ description }}">
 		<meta property="og:type" content="website">
 		<meta property="og:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
 		<meta property="og:url" content="{{ page.url | absolute_url }}">
+		<meta property="og:description" content="{{ description }}">
 		{% if page.collection == 'apps' %}
 			{% for file in site.static_files %}
 				{% assign path = '/assets/' | append: page.slug | append: '/icon' %}
