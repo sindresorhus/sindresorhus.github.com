@@ -3,34 +3,43 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="theme-color" content="#3273DC">
 		<meta name="author" content="Sindre Sorhus">
-		<meta name="description" content="Open-sourcerer & aspiring rebel">
-		<meta name="theme-color" content="#00d1b2">
-		<meta property="og:title" content="Sindre Sorhus">
+		<meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
 		<meta property="og:type" content="website">
-		<meta property="og:url" content="https://sindresorhus.com">
-		<meta property="og:image" content="https://sindresorhus.com/sindre-sorhus.jpg">
-		<meta property="og:image:type" content="image/jpeg">
-		<meta property="og:image:width" content="600">
-		<meta property="og:image:height" content="600">
-		<meta property="og:description" content="Open-sourcerer & aspiring rebel">
+		<meta property="og:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
+		<meta property="og:url" content="{{ page.url | absolute_url }}">
+		{% if page.collection == 'apps' %}
+			{% for file in site.static_files %}
+				{% assign path = '/assets/' | append: page.slug | append: '/icon' %}
+				{% if file.path contains path %}
+					<meta property="og:image" content="{{ file.path | absolute_url }}">
+				{% endif %}
+			{% endfor %}
+		{% else %}
+			<meta property="og:image" content="https://sindresorhus.com/sindre-sorhus.jpg">
+		{% endif %}
 		<meta name="twitter:card" content="summary">
 		<meta name="twitter:site" content="@sindresorhus">
 		<meta name="twitter:creator" content="@sindresorhus">
 		<meta name="x-build-time" content="{{ site.time | date_to_rfc822 }}">
 		<title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
 		<link rel="alternate" type="application/rss+xml" title="Sindre Sorhus' blog" href="https://blog.sindresorhus.com/feed">
-		<link rel="icon" href="favicon.png" sizes="32x32">
+		<link rel="preload" href="{{ '/font-awesome.woff' | relative_url }}" as="font" crossorigin>
+		<link rel="icon" href="{{ '/favicon.png' | relative_url }}" sizes="32x32">
 		<link rel="stylesheet" href="{{ '/main.css' | relative_url }}">
-		<script defer src="{{ '/assets/javascript/AnchorScroller.js' | relative_url }}"></script>
-		<script defer src="main.js"></script>
+		<script defer src="{{ '/main.js' | relative_url }}"></script>
+		{% if page.url == '/' %}
+			<script defer src="{{ '/assets/javascript/AnchorScroller.js' | relative_url }}"></script>
+			<script defer src="{{ '/index.js' | relative_url }}"></script>
+		{% endif %}
 		<!-- Google Analytics -->
 		<script>
 			window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
 			ga('create', 'UA-25562592-1', 'auto');
 			ga('send', 'pageview');
 		</script>
-		<script async src="https://www.google-analytics.com/analytics.js"></script>
+		<script defer src="https://www.google-analytics.com/analytics.js"></script>
 		<!-- / Google Analytics -->
 	</head>
 	<body>
@@ -52,13 +61,13 @@
 								<span></span>
 							</span>
 							<div class="nav-right nav-menu">
-								<a class="nav-item is-tab" href="/">Home</a>
-								<a class="nav-item is-tab" href="/#projects">Projects</a>
-								<a class="nav-item is-tab" href="/#apps">Apps</a>
+								<a class="nav-item is-tab" href="{% link index.html %}">Home</a>
+								<a class="nav-item is-tab" href="{% link index.html %}#projects">Projects</a>
+								<a class="nav-item is-tab" href="{% link index.html %}#apps">Apps</a>
 								<a class="nav-item is-tab" href="https://blog.sindresorhus.com/answering-anything-678ce5623798">Ask Me Anything</a>
 								<a class="nav-item is-tab" href="https://blog.sindresorhus.com/about-sindre-sorhus-42786d2e191b">About</a>
 								<span class="nav-item">
-									<a class="button" href="/contact">Contact</a>
+									<a class="button" href="{% link contact.md %}">Contact</a>
 								</span>
 							</div>
 						</div>

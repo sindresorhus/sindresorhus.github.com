@@ -105,7 +105,7 @@ layout: default
 							{% endcomment %}
 
 							{% for file in site.static_files %}
-								{% assign path = app.slug | append: "/thumbnail" %}
+								{% assign path = '/assets/' | append: app.slug | append: '/thumbnail' %}
 								{% if file.path contains path %}
 									<img src="{{ file.path }}">
 								{% endif %}

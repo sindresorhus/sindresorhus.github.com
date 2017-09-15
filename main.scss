@@ -1,22 +1,27 @@
 ---
 ---
 
-@import "sass/utilities/initial-variables";
+@import 'sass/utilities/initial-variables';
 
 $primary: $blue;
 
-@import "bulma";
+@import 'bulma';
+
 
 // My variables
-$gray-link: hsl(217, 25%, 35%);
+$gray-link: hsl(220, 40%, 40%);
 
 
 // Gray section
 .is-gray {
-	background-color: hsla(210, 10%, 97%, 1);
+	background-color: hsl(210, 10%, 97%);
 
 	a {
 		color: $gray-link;
+	}
+
+	a:hover {
+		color: $black;
 	}
 
 	.tag {
@@ -35,7 +40,7 @@ $gray-link: hsl(217, 25%, 35%);
 }
 
 .tag {
-	color: hsla(0, 0%, 25%, 1);
+	color: hsl(0, 0%, 25%);
 }
 
 body {
@@ -79,7 +84,7 @@ body {
 }
 
 .box .title a {
-	color: #008f79;
+	color: $primary;
 	box-shadow: inset 0 -2px 0 0 rgba(0, 0, 0, 0.1) !important;
 }
 
@@ -202,8 +207,8 @@ Generated with https://icomoon.io/app/
 	font-style: normal;
 }
 
-[class^="fa-"],
-[class*=" fa-"] {
+[class^='fa-'],
+[class*='fa-'] {
 	font-family: 'font-awesome' !important;
 	speak: none;
 	font-style: normal;

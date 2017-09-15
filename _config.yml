@@ -1,7 +1,8 @@
 title: Sindre Sorhus
-baseurl: ""
-url: "https://sindresorhus.com"
-permalink: /:title
+description: Open-sourcerer & aspiring rebel
+baseurl: ''
+url: https://sindresorhus.com
+permalink: slug
 collections:
   apps:
     output: true
@@ -9,10 +10,11 @@ collections:
     include: app-assets
 defaults:
   - scope:
-      path: ""
-      type: "apps"
+      path: ''
+      type: 'apps'
     values:
-      layout: "app"
+      layout: 'app'
+      type: 'app'
 exclude:
   - Gemfile
   - Gemfile.lock
@@ -22,3 +24,4 @@ exclude:
   - screenshot.jpg
 plugins:
   - jekyll-sitemap
+strict_front_matter: true
