@@ -115,6 +115,8 @@ layout: default
 							<span>{{ app.title }}</span>
 							{% if app.is_prerelease %}
 								<span class="tag is-small is-info">Prerelease</span>
+							{% elsif forloop.first %}
+								<span class="tag is-small is-success">New!</span>
 							{% endif %}
 							<span class="tag is-small">{{ app.type }}</span>
 						</h2>
