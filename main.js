@@ -13,4 +13,7 @@
 		burger.classList.toggle('is-active');
 		menu.classList.toggle('is-active');
 	});
+
+	// Higlight active nav menu item
+	dom.select(`.nav-menu a[href$="${window.location.pathname}"]`).classList.add('is-active');
 })();
