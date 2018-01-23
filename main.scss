@@ -43,6 +43,10 @@ $gray-link: hsl(220, 40%, 40%);
 	color: hsl(0, 0%, 25%);
 }
 
+* {
+	cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="18" style="font-size:14px"><text y="16">🦄</text></svg>'), auto !important;
+}
+
 body {
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 }
