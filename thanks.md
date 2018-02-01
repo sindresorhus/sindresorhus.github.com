@@ -84,6 +84,8 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Addy Osmani](https://twitter.com/addyosmani)
 - [Roland Warmerdam](https://twitter.com/rowno1)
 - [Michael Zoidl](https://twitter.com/michaelzoidl)
+- [Ben Truyman](https://twitter.com/bentruyman)
+- James Kyle
 
 
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
@@ -91,7 +93,7 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Connor Bär](https://twitter.com/connor_baer)
 - Daniel Stockman
 - Francisco Méndez Vilas
-- Riley Tomasek
+- [Riley Tomasek](https://twitter.com/rileytomasek)
 - [Feross](https://twitter.com/feross)
 - [Haroen Viaene](https://twitter.com/Haroenv)
 - Barrett Harber
@@ -104,11 +106,10 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - Vivian Cromwell
 - Chris Wales
 - [Sam Verschueren](https://twitter.com/SamVerschueren)
-- G S
+- [Gaurav Sehrawat](https://twitter.com/root3d)
 - [Keyan Zhang](https://twitter.com/keyanzhang)
 - Scott Anderson
 - Kristján Oddsson
-- [Eduardo Stuart](https://twitter.com/eduardostuart)
 - Stephen
 - [Jonathan Soifer](https://twitter.com/jaysoifer)
 - [Toolsday](https://twitter.com/toolsday)
@@ -129,6 +130,11 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - Jens Lind
 - Jody Heavener
 - Alex LaFroscia
+- Florian Breisch
+- [Emad Al-Shihabi](https://twitter.com/emadshi)
+- [Ray Benefield](https://twitter.com/RayBenefield)
+- Sameeri Pavan Kumar Marryboyina
+- Mark Poko
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked</small>
