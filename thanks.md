@@ -71,7 +71,7 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 
 ## Silver Sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
-<a href="https://www.miles.no" class="sponsor">
+<a href="https://www.miles.in" class="sponsor">
 	<img src="https://user-images.githubusercontent.com/170270/34912034-3332ae4c-f8d6-11e7-8569-65b11486d003.png" width="190">
 </a>
 <a href="https://moxy.studio" class="sponsor">
