@@ -45,6 +45,14 @@
 
 	// Latest GitHub repos
 	(async () => {
+		const textColorFromBackgroundColor = color => {
+			if (color.length < 5) {
+				color += color.slice(1);
+			}
+
+			return parseInt(color.replace('#', '0x'), 16) > (0xFFFFFF / 2) ? '#333' : '#fff';
+		};
+
 		const url = isDev ? 'http://localhost:3000' : 'https://gh-latest-repos-hbiycdtvej.now.sh';
 
 		const json = await (await fetch(url)).json();
@@ -62,6 +70,7 @@
 			if (repo.primaryLanguage) {
 				const lang = content.querySelector('.latest-repos-language');
 				lang.textContent = repo.primaryLanguage.name;
+				lang.style.color = textColorFromBackgroundColor(repo.primaryLanguage.color);
 				lang.style.backgroundColor = repo.primaryLanguage.color;
 			}
 
