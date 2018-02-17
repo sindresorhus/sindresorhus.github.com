@@ -36,7 +36,7 @@ title: Thanks!
 		box-sizing: border-box;
 		display: inline-block;
 		vertical-align: middle;
-		padding: 10px 0;
+		padding: 20px 0;
 		margin-right: 40px;
 	}
 
@@ -72,10 +72,13 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 ## Silver Sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
 <a href="https://www.miles.in" class="sponsor">
-	<img src="https://user-images.githubusercontent.com/170270/34912034-3332ae4c-f8d6-11e7-8569-65b11486d003.png" width="190">
+	<img src="https://user-images.githubusercontent.com/170270/34912034-3332ae4c-f8d6-11e7-8569-65b11486d003.png" width="180" alt="Miles">
 </a>
 <a href="https://moxy.studio" class="sponsor">
-	<img src="/assets/thanks/moxy-logo.svg" width="260">
+	<img src="/assets/thanks/moxy-logo.svg" width="260" alt="MOXY">
+</a>
+<a href="https://zeit.co" class="sponsor">
+	<img src="/assets/thanks/zeit-logo.svg" width="300" alt="ZEIT">
 </a>
 
 
