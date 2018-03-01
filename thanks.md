@@ -88,7 +88,8 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Roland Warmerdam](https://twitter.com/rowno1)
 - [Michael Zoidl](https://twitter.com/michaelzoidl)
 - [Ben Truyman](https://twitter.com/bentruyman)
-- James Kyle
+- [Jamie K](https://twitter.com/jamiebuilds)
+- [Bhargav Ponnapalli](https://twitter.com/imbhargav5)
 
 
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
@@ -96,25 +97,23 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Connor Bär](https://twitter.com/connor_baer)
 - Daniel Stockman
 - Francisco Méndez Vilas
-- [Riley Tomasek](https://twitter.com/rileytomasek)
 - [Feross](https://twitter.com/feross)
 - [Haroen Viaene](https://twitter.com/Haroenv)
 - Barrett Harber
 - [Sam Richard](https://twitter.com/snugug)
 - [Jen Downs](https://twitter.com/jenisora)
-- Maythee Anegboonlap
+- [Maythee Anegboonlap](https://twitter.com/llun)
 - Stefan Penner
-- Paul Irish
+- [Paul Irish](https://twitter.com/paul_irish)
 - Mike North
-- Vivian Cromwell
+- [Vivian Cromwell](https://twitter.com/viviancromwell)
 - Chris Wales
 - [Sam Verschueren](https://twitter.com/SamVerschueren)
-- [Gaurav Sehrawat](https://twitter.com/root3d)
 - [Keyan Zhang](https://twitter.com/keyanzhang)
 - Scott Anderson
 - Kristján Oddsson
 - Stephen
-- [Jonathan Soifer](https://twitter.com/jaysoifer)
+- [Jay Soifer](https://twitter.com/jaysoifer)
 - [Toolsday](https://twitter.com/toolsday)
 - [Lee Dohm](https://twitter.com/leedohm)
 - Mario Nebl
@@ -123,7 +122,7 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Rakan Nimer](https://twitter.com/rakannimer)
 - [Sasha Koss](https://twitter.com/kossnocorp)
 - Sturmgott
-- Manuel
+- [Manuel Bieh](https://twitter.com/manuelbieh)
 - [Bjarne Øverli](https://twitter.com/bjarneo_)
 - Paul Warelis
 - [Gabriel Csapo](https://github.com/gabrielcsapo)
@@ -138,6 +137,17 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Ray Benefield](https://twitter.com/RayBenefield)
 - Sameeri Pavan Kumar Marryboyina
 - Mark Poko
+- [An Phan](https://twitter.com/notphanan)
+- Eliseu
+- [CodePilot.ai Team](https://twitter.com/codepilotai)
+- [Claudio Santoro](https://twitter.com/ovflowd)
+- Keith
+- Suchipi
+- [Yoshiya Hinosawa](https://twitter.com/kt3k)
+- [Konrad Kruk](https://twitter.com/konradkpl)
+- [Riley Tomasek](https://twitter.com/rileytomasek)
+- Jimmy Moon
+- Pixelass
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked</small>
