@@ -90,6 +90,7 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Ben Truyman](https://twitter.com/bentruyman)
 - [Jamie K](https://twitter.com/jamiebuilds)
 - [Bhargav Ponnapalli](https://twitter.com/imbhargav5)
+- [CodePilot.ai Team](https://twitter.com/codepilotai)
 
 
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
@@ -132,14 +133,13 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - Jens Lind
 - Jody Heavener
 - Alex LaFroscia
-- Florian Breisch
+- [Florian Breisch](https://twitter.com/FlorianBreisch)
 - [Emad Al-Shihabi](https://twitter.com/emadshi)
 - [Ray Benefield](https://twitter.com/RayBenefield)
 - Sameeri Pavan Kumar Marryboyina
 - Mark Poko
 - [An Phan](https://twitter.com/notphanan)
 - Eliseu
-- [CodePilot.ai Team](https://twitter.com/codepilotai)
 - [Claudio Santoro](https://twitter.com/ovflowd)
 - Keith
 - Suchipi
@@ -148,6 +148,15 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Riley Tomasek](https://twitter.com/rileytomasek)
 - Jimmy Moon
 - Pixelass
+- Casey Watson
+- Ben Williams
+- [Donald Fischer](https://twitter.com/dff)
+- Martin Hansen
+- [Philipp Bosch](https://twitter.com/philippbosch)
+- Olivier Martin
+- [Mathieu Dutour](https://twitter.com/MathieuDutour)
+- [Marcos Moura](https://twitter.com/markinmoura)
+- Oliver Kopp
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked</small>
