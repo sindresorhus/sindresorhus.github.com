@@ -23,7 +23,10 @@ title: Thanks!
 	}
 
 	.reward-price {
-		font-size: 16px;
+		font-size: 13px;
+		position: relative;
+		bottom: 2px;
+		left: 2px;
 	}
 
 	#thanks-gif {
@@ -59,15 +62,12 @@ title: Thanks!
 I'm truly grateful to all the wonderful humans and companies [supporting](https://www.patreon.com/sindresorhus) my open source work.
 
 
-<!--
 ## 🦄 Sponsor <span class="reward-price">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>
 
-*[You](https://www.patreon.com/sindresorhus) could be the first!*
+<a href="https://github.com/wtgtybhertgeghgtwtg" class="sponsor">
+	<img src="/assets/thanks/wtgtybhertgeghgtwtg-logo.svg" width="400" alt="wtgtybhertgeghgtwtg">
+</a>
 
-## Gold Sponsor <span class="reward-price">[$500/month](https://www.patreon.com/bePatron?c=95723&rid=1917305)</span>
-
-*[You](https://www.patreon.com/sindresorhus) could be the first!*
--->
 
 ## Silver Sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
