@@ -61,6 +61,10 @@
 		const container = dom.select('#latest-repos');
 
 		for (const repo of json.reverse()) {
+			if (!repo.description) {
+				continue;
+			}
+
 			const content = template.cloneNode(true).content;
 
 			const a = content.querySelector('.latest-repos-title');
