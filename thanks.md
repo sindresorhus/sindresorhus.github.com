@@ -96,7 +96,7 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
 
 - [Connor Bär](https://twitter.com/connor_baer)
-- Daniel Stockman
+- [Daniel Stockman](https://twitter.com/evocateur)
 - Francisco Méndez Vilas
 - [Feross](https://twitter.com/feross)
 - [Haroen Viaene](https://twitter.com/Haroenv)
@@ -138,7 +138,7 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Ray Benefield](https://twitter.com/RayBenefield)
 - Sameeri Pavan Kumar Marryboyina
 - Mark Poko
-- [An Phan](https://twitter.com/notphanan)
+- [Phan An](https://twitter.com/notphanan)
 - Eliseu
 - [Claudio Santoro](https://twitter.com/ovflowd)
 - Keith
@@ -156,7 +156,9 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - Olivier Martin
 - [Mathieu Dutour](https://twitter.com/MathieuDutour)
 - [Marcos Moura](https://twitter.com/markinmoura)
-- Oliver Kopp
+- [Oliver Kopp](https://twitter.com/koppor)
+- [F1LT3R](https://twitter.com/F1LT3R_)
+- Carddamom
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked</small>
