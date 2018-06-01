@@ -137,11 +137,10 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Emad Al-Shihabi](https://twitter.com/emadshi)
 - [Ray Benefield](https://twitter.com/RayBenefield)
 - Sameeri Pavan Kumar Marryboyina
-- Mark Poko
 - [Phan An](https://twitter.com/notphanan)
 - Eliseu
 - [Claudio Santoro](https://twitter.com/ovflowd)
-- Keith
+- [Keith Ito](https://twitter.com/keeeto)
 - Suchipi
 - [Yoshiya Hinosawa](https://twitter.com/kt3k)
 - [Konrad Kruk](https://twitter.com/konradkpl)
@@ -158,7 +157,14 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Marcos Moura](https://twitter.com/markinmoura)
 - [Oliver Kopp](https://twitter.com/koppor)
 - [F1LT3R](https://twitter.com/F1LT3R_)
-- Carddamom
+- carddamom
+- [Matters](https://twitter.com/matterstech)
+- Siddharth Kshetrapal
+- Lovelin Edward
+- Suhas Karanth
+- Mikkel Trolle Larsen
+- Robert McGuinness
+- [Eric Lanehart](https://twitter.com/pushred)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked</small>
