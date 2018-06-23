@@ -30,13 +30,12 @@
 		<link rel="preload" href="{{ '/font-awesome.woff' | relative_url }}" as="font" crossorigin>
 		<link rel="icon" href="{{ '/favicon.png' | relative_url }}" sizes="32x32">
 		<link rel="stylesheet" href="{{ '/main.css' | relative_url }}">
-		<script defer src="{{ '/main.js' | relative_url }}"></script>
+		<script type="module" src="{{ '/main.js' | relative_url }}"></script>
 		{% if page.url == '/' %}
-			<script defer src="{{ '/assets/javascript/AnchorScroller.js' | relative_url }}"></script>
-			<script defer src="{{ '/index.js' | relative_url }}"></script>
+			<script type="module" src="{{ '/index.js' | relative_url }}"></script>
 		{% endif %}
 		<!-- Google Analytics -->
-		<script>
+		<script type="module">
 			window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
 			ga('create', 'UA-25562592-1', 'auto');
 			ga('send', 'pageview');

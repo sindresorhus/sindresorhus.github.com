@@ -1,9 +1,3 @@
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-	typeof define === 'function' && define.amd ? define(factory) :
-	(global.AnchorScroller = factory());
-}(this, (function () { 'use strict';
-
 class Scroller {
     constructor(options) {
         this.options = options;
@@ -48,7 +42,7 @@ class Scroller {
     }
 }
 
-class AnchorScroller {
+export default class AnchorScroller {
     constructor(optionalOptions) {
         this.optionalOptions = optionalOptions;
         this.options = Object.assign({ checkParent: false, class: undefined, animation: (time, start, change, duration) => {
@@ -95,7 +89,3 @@ class AnchorScroller {
         }
     }
 }
-
-return AnchorScroller;
-
-})));
