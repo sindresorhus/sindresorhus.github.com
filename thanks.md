@@ -110,7 +110,6 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Vivian Cromwell](https://twitter.com/viviancromwell)
 - Chris Wales
 - [Sam Verschueren](https://twitter.com/SamVerschueren)
-- [Keyan Zhang](https://twitter.com/keyanzhang)
 - Scott Anderson
 - Kristján Oddsson
 - Stephen
@@ -131,7 +130,6 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Andreas Pizsa](https://twitter.com/AndreasPizsa)
 - Jurgen Van de Moere
 - Jens Lind
-- Jody Heavener
 - Alex LaFroscia
 - [Florian Breisch](https://twitter.com/FlorianBreisch)
 - [Emad Al-Shihabi](https://twitter.com/emadshi)
@@ -146,11 +144,9 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Konrad Kruk](https://twitter.com/konradkpl)
 - [Riley Tomasek](https://twitter.com/rileytomasek)
 - Jimmy Moon
-- Pixelass
 - Casey Watson
 - Ben Williams
 - [Donald Fischer](https://twitter.com/dff)
-- Martin Hansen
 - [Philipp Bosch](https://twitter.com/philippbosch)
 - Olivier Martin
 - [Mathieu Dutour](https://twitter.com/MathieuDutour)
@@ -165,6 +161,8 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - Mikkel Trolle Larsen
 - Robert McGuinness
 - [Eric Lanehart](https://twitter.com/pushred)
+- [Agustin Diaz](https://twitter.com/HiroAgustin)
+- [Oliver Steele](https://twitter.com/osteele)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked</small>
