@@ -86,7 +86,7 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 
 - [Addy Osmani](https://twitter.com/addyosmani)
 - [Roland Warmerdam](https://twitter.com/rowno1)
-- [Michael Zoidl](https://twitter.com/michaelzoidl)
+- ["entwicklerstube"](https://entwicklerstube.com)
 - [Ben Truyman](https://twitter.com/bentruyman)
 - [Jamie K](https://twitter.com/jamiebuilds)
 - [Bhargav Ponnapalli](https://twitter.com/imbhargav5)
