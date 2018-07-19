@@ -20,9 +20,9 @@ $table-striped-row-even-background-color: $white-bis !default
 $table-striped-row-even-hover-background-color: $white-ter !default
 
 .table
+  +block
   background-color: $table-background-color
   color: $table-color
-  margin-bottom: 1.5rem
   td,
   th
     border: $table-cell-border
@@ -41,12 +41,16 @@ $table-striped-row-even-hover-background-color: $white-ter !default
     &.is-narrow
       white-space: nowrap
       width: 1%
+    &.is-selected
+      background-color: $table-row-active-background-color
+      color: $table-row-active-color
+      a,
+      strong
+        color: currentColor
   th
     color: $table-cell-heading-color
     text-align: left
   tr
-    &:hover
-      background-color: $table-row-hover-background-color
     &.is-selected
       background-color: $table-row-active-background-color
       color: $table-row-active-color
@@ -85,6 +89,16 @@ $table-striped-row-even-hover-background-color: $white-ter !default
           border-bottom-width: 1px
   &.is-fullwidth
     width: 100%
+  &.is-hoverable
+    tbody
+      tr:not(.is-selected)
+        &:hover
+          background-color: $table-row-hover-background-color
+    &.is-striped
+      tbody
+        tr:not(.is-selected)
+          &:hover
+            background-color: $table-striped-row-even-hover-background-color
   &.is-narrow
     td,
     th
@@ -94,5 +108,10 @@ $table-striped-row-even-hover-background-color: $white-ter !default
       tr:not(.is-selected)
         &:nth-child(even)
           background-color: $table-striped-row-even-background-color
-          &:hover
-            background-color: $table-striped-row-even-hover-background-color
+
+.table-container
+  +block
+  +overflow-touch
+  overflow: auto
+  overflow-y: hidden
+  max-width: 100%

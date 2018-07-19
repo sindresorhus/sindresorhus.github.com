@@ -7,12 +7,12 @@ const dom = {
 };
 
 // Burger menu toggle
-const burger = dom.select('.nav-toggle');
-const menu = dom.select('.nav-menu');
+const burger = dom.select('.navbar-burger');
+const menu = dom.select('.navbar-menu');
 burger.addEventListener('click', () => {
 	burger.classList.toggle('is-active');
 	menu.classList.toggle('is-active');
 });
 
 // Higlight active nav menu item
-dom.select(`.nav-menu a[href$="${window.location.pathname}"]`).classList.add('is-active');
+dom.select(`.navbar-menu a[href$="${window.location.pathname}"]`).classList.add('is-active');

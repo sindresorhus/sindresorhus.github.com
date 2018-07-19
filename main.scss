@@ -5,6 +5,8 @@
 
 $primary: $blue;
 
+// TODO: Set `$navbar-breakpoint: 900px;` when https://github.com/jgthms/bulma/pull/1183 is merged
+
 @import 'bulma';
 
 
@@ -44,20 +46,39 @@ $gray-link: hsl(220, 40%, 40%);
 }
 
 body {
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+	font-family:
+		-apple-system,
+		BlinkMacSystemFont,
+		'Segoe UI',
+		Roboto,
+		Helvetica,
+		Arial,
+		sans-serif,
+		'Apple Color Emoji',
+		'Segoe UI Emoji',
+		'Segoe UI Symbol';
 }
 
-.nav-left {
-	overflow: hidden;
+// Make the navbar narrower
+@media screen and (min-width: 1088px) {
+	.navbar {
+		margin-left: 8vw;
+		margin-right: 8vw;
+	}
 }
 
-.nav-right {
-	overflow: initial;
+// Spread the items out more than the default
+.navbar-item {
+	padding-left: 1rem;
+	padding-right: 1rem;
 }
 
-.nav-item.is-active {
-	border: none !important;
-	padding-bottom: calc(0.75rem - 1px) !important;
+.navbar-item.is-active {
+	border-color: transparent !important;
+}
+
+a.navbar-item:not(.button) {
+	color: #7a7a7a;
 }
 
 .has-nice-link a:not(.button):not(.no-underline) {

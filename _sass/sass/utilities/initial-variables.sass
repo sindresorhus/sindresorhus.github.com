@@ -18,6 +18,7 @@ $orange:       hsl(14,  100%, 53%) !default
 $yellow:       hsl(48,  100%, 67%) !default
 $green:        hsl(141, 71%,  48%) !default
 $turquoise:    hsl(171, 100%, 41%) !default
+$cyan:         hsl(204, 86%,  53%) !default
 $blue:         hsl(217, 71%,  53%) !default
 $purple:       hsl(271, 100%, 71%) !default
 $red:          hsl(348, 100%, 61%) !default
@@ -44,21 +45,28 @@ $weight-bold: 700 !default
 
 // Responsiveness
 
-// The container gap, which acts as the offset for breakpoints
-$gap: 24px !default
+// The container horizontal gap, which acts as the offset for breakpoints
+$gap: 64px !default
 // 960, 1152, and 1344 have been chosen because they are divisible by both 12 and 16
 $tablet: 769px !default
-// 960px container + 3rem
+// 960px container + 4rem
 $desktop: 960px + (2 * $gap) !default
-// 1152px container + 3rem
-$widescreen: 1152px + (2 * $gap)  !default
-// 1344px container + 3rem
-$fullhd: 1344px + (2 * $gap)  !default
+// 1152px container + 4rem
+$widescreen: 1152px + (2 * $gap) !default
+$widescreen-enabled: true !default
+// 1344px container + 4rem
+$fullhd: 1344px + (2 * $gap) !default
+$fullhd-enabled: true !default
 
 // Miscellaneous
 
 $easing: ease-out !default
 $radius-small: 2px !default
-$radius: 3px !default
-$radius-large: 5px !default
+$radius: 4px !default
+$radius-large: 6px !default
+$radius-rounded: 290486px !default
 $speed: 86ms !default
+
+// Flags
+
+$variable-columns: true !default

@@ -47,30 +47,28 @@
 		<section class="hero">
 			<div class="hero-head">
 				<div class="container">
-					<nav class="nav has-shadow">
-						<div class="container">
-							<div class="nav-left">
-								{% if page.url == '/' %}
-									<a id="unicorn-btn" class="nav-item" href="https://sindresorhus.com/unicorn" title="Click me!">🦄</a>
-								{% else %}
-									<span class="nav-item">Sindre Sorhus</span>
-								{% endif %}
-							</div>
-							<span class="nav-toggle">
-								<span></span>
-								<span></span>
-								<span></span>
-							</span>
-							<div class="nav-right nav-menu">
-								<a class="nav-item is-tab" href="{% link index.html %}">Home</a>
-								<a class="nav-item is-tab" href="{% link index.html %}#projects">Projects</a>
-								<a class="nav-item is-tab" href="{% link index.html %}#apps">Apps</a>
-								<a class="nav-item is-tab" href="{% link thanks.md %}">Supporters</a>
-								<a class="nav-item is-tab" href="https://blog.sindresorhus.com/answering-anything-678ce5623798">AMA</a>
-								<a class="nav-item is-tab" href="https://blog.sindresorhus.com/about-sindre-sorhus-42786d2e191b">About</a>
-								<span class="nav-item">
-									<a class="button" href="{% link contact.md %}">Contact</a>
-								</span>
+					<nav class="navbar has-shadow" role="navigation" aria-label="main navigation">
+						<div class="navbar-brand">
+							{% if page.url == '/' %}
+								<a id="unicorn-btn" class="navbar-item" href="https://sindresorhus.com/unicorn" title="Click me!">🦄</a>
+							{% else %}
+								<span class="navbar-item">Sindre Sorhus</span>
+							{% endif %}
+							<a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+								<span aria-hidden="true"></span>
+								<span aria-hidden="true"></span>
+								<span aria-hidden="true"></span>
+							</a>
+						</div>
+						<div class="navbar-menu">
+							<div class="navbar-end">
+								<a class="navbar-item is-tab" href="{% link index.html %}">Home</a>
+								<a class="navbar-item is-tab" href="{% link index.html %}#projects">Projects</a>
+								<a class="navbar-item is-tab" href="{% link index.html %}#apps">Apps</a>
+								<a class="navbar-item is-tab" href="{% link thanks.md %}">Supporters</a>
+								<a class="navbar-item is-tab" href="https://blog.sindresorhus.com/answering-anything-678ce5623798">AMA</a>
+								<a class="navbar-item is-tab" href="https://blog.sindresorhus.com/about-sindre-sorhus-42786d2e191b">About</a>
+								<a class="navbar-item is-tab" href="{% link contact.md %}">Contact</a>
 							</div>
 						</div>
 					</nav>
