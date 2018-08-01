@@ -91,13 +91,14 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Jamie K](https://twitter.com/jamiebuilds)
 - [Bhargav Ponnapalli](https://twitter.com/imbhargav5)
 - [CodePilot.ai Team](https://twitter.com/codepilotai)
+- [Jacob Gillespie](https://twitter.com/jacobwgillespie)
 
 
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
 
 - [Connor Bär](https://twitter.com/connor_baer)
 - [Daniel Stockman](https://twitter.com/evocateur)
-- Francisco Méndez Vilas
+- Fran Méndez
 - [Feross](https://twitter.com/feross)
 - [Haroen Viaene](https://twitter.com/Haroenv)
 - Barrett Harber
@@ -127,12 +128,11 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - Paul Warelis
 - [Gabriel Csapo](https://github.com/gabrielcsapo)
 - [Benjamin Charity](https://twitter.com/benjamincharity)
-- [Andreas Pizsa](https://twitter.com/AndreasPizsa)
+- [Andreas Pizsa](https://twitter.com/PodcastReader)
 - Jurgen Van de Moere
 - Jens Lind
 - Alex LaFroscia
 - [Florian Breisch](https://twitter.com/FlorianBreisch)
-- [Emad Al-Shihabi](https://twitter.com/emadshi)
 - [Ray Benefield](https://twitter.com/RayBenefield)
 - Sameeri Pavan Kumar Marryboyina
 - [Phan An](https://twitter.com/notphanan)
@@ -155,14 +155,15 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [F1LT3R](https://twitter.com/F1LT3R_)
 - carddamom
 - [Matters](https://twitter.com/matterstech)
-- Siddharth Kshetrapal
+- [Siddharth Kshetrapal](https://twitter.com/siddharthkp)
 - Lovelin Edward
 - Suhas Karanth
-- Mikkel Trolle Larsen
 - Robert McGuinness
 - [Eric Lanehart](https://twitter.com/pushred)
 - [Agustin Diaz](https://twitter.com/HiroAgustin)
 - [Oliver Steele](https://twitter.com/osteele)
+- [Ross Zurowski](https://twitter.com/rosszurowski)
+- [Robin van der Vleuten](https://twitter.com/robinvdvleuten)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked</small>
