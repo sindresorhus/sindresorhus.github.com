@@ -65,7 +65,10 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 ## 🦄 Sponsor <span class="reward-price">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>
 
 <a href="https://github.com/wtgtybhertgeghgtwtg" class="sponsor">
-	<img src="/assets/thanks/wtgtybhertgeghgtwtg-logo.svg" width="400" alt="wtgtybhertgeghgtwtg">
+	<img src="/assets/thanks/wtgtybhertgeghgtwtg-logo.svg" width="420" alt="wtgtybhertgeghgtwtg">
+</a>
+<a href="https://github.com/botpress/botpress" class="sponsor" style="padding-top:5px">
+	<img src="/assets/thanks/botpress-logo.svg" width="420" alt="Botpress">
 </a>
 
 

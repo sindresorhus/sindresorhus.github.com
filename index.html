@@ -10,6 +10,16 @@ layout: default
 	#latest-repos h4 {
 		margin-bottom: 0.5rem;
 	}
+
+	.sponsors {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.sponsors a:not(:first-child) {
+		margin-left: 10px;
+	}
 </style>
 
 <section class="hero is-fullheight is-default">
@@ -45,11 +55,16 @@ layout: default
 					<br>
 					<a href="{% link thanks.md %}">Huge thanks to all my amazing supporters!</a>
 					<br>
-					<small>Special thanks to:</small>
+					<small style="font-size:11px">Special thanks to:</small>
 					<br>
-					<a href="https://github.com/wtgtybhertgeghgtwtg" class="no-underline">
-						<img src="/assets/thanks/wtgtybhertgeghgtwtg-logo.svg" width="160" alt="wtgtybhertgeghgtwtg">
-					</a>
+					<div class="sponsors">
+						<a href="https://github.com/wtgtybhertgeghgtwtg" class="no-underline">
+							<img src="/assets/thanks/wtgtybhertgeghgtwtg-logo.svg" width="160" alt="wtgtybhertgeghgtwtg">
+						</a>
+						<a href="https://github.com/botpress/botpress" class="no-underline">
+							<img src="/assets/thanks/botpress-logo.svg" width="140" alt="Botpress">
+						</a>
+					</div>
 					<br>
 					<hr id="latest-blog-post-separator">
 					<div id="latest-blog-post">
