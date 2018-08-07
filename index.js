@@ -1,5 +1,4 @@
 /* eslint-env browser */
-import AnchorScroller from './assets/javascript/AnchorScroller.js';
 
 const isDev = ['localhost', '127.0.0.1'].includes(location.hostname);
 
@@ -94,9 +93,6 @@ dom.select('#unicorn-btn').addEventListener('click', event => {
 		setInterval(cornify, 1000);
 	});
 }, {once: true});
-
-// Smooth anchor scroll
-new AnchorScroller();
 
 {
 	function hideScrollHint() {

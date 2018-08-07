@@ -45,6 +45,10 @@ $gray-link: hsl(220, 40%, 40%);
 	color: hsl(0, 0%, 25%);
 }
 
+html {
+	scroll-behavior: smooth;
+}
+
 body {
 	font-family:
 		-apple-system,
