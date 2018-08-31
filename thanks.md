@@ -75,15 +75,17 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 ## Silver Sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
 <a href="https://www.miles.in" class="sponsor">
-	<img src="https://user-images.githubusercontent.com/170270/34912034-3332ae4c-f8d6-11e7-8569-65b11486d003.png" width="180" alt="Miles">
+	<img src="https://user-images.githubusercontent.com/170270/34912034-3332ae4c-f8d6-11e7-8569-65b11486d003.png" width="170" alt="Miles">
 </a>
 <a href="https://moxy.studio" class="sponsor">
-	<img src="/assets/thanks/moxy-logo.svg" width="260" alt="MOXY">
+	<img src="/assets/thanks/moxy-logo.svg" width="250" alt="MOXY">
 </a>
 <a href="https://zeit.co" class="sponsor">
-	<img src="/assets/thanks/zeit-logo.svg" width="300" alt="ZEIT">
+	<img src="/assets/thanks/zeit-logo.svg" width="260" alt="ZEIT">
 </a>
-
+<a href="https://codepilot.ai" class="sponsor">
+	<img src="/assets/thanks/codepilot-logo.svg" width="230" alt="CodePilot.ai">
+</a>
 
 ## Top Supporter <span class="reward-price">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
 
@@ -93,7 +95,6 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Ben Truyman](https://twitter.com/bentruyman)
 - [Jamie K](https://twitter.com/jamiebuilds)
 - [Bhargav Ponnapalli](https://twitter.com/imbhargav5)
-- [CodePilot.ai Team](https://twitter.com/codepilotai)
 - [Jacob Gillespie](https://twitter.com/jacobwgillespie)
 
 
@@ -136,7 +137,6 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - Jens Lind
 - Alex LaFroscia
 - [Florian Breisch](https://twitter.com/FlorianBreisch)
-- [Ray Benefield](https://twitter.com/RayBenefield)
 - Sameeri Pavan Kumar Marryboyina
 - [Phan An](https://twitter.com/notphanan)
 - Eliseu
@@ -148,7 +148,7 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Riley Tomasek](https://twitter.com/rileytomasek)
 - Jimmy Moon
 - Casey Watson
-- Ben Williams
+- [Ben Williams](https://twitter.com/719ben)
 - [Donald Fischer](https://twitter.com/dff)
 - [Philipp Bosch](https://twitter.com/philippbosch)
 - Olivier Martin
@@ -166,7 +166,11 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Agustin Diaz](https://twitter.com/HiroAgustin)
 - [Oliver Steele](https://twitter.com/osteele)
 - [Ross Zurowski](https://twitter.com/rosszurowski)
-- [Robin van der Vleuten](https://twitter.com/robinvdvleuten)
+- Veit Heller
+- [Limor Fried](https://twitter.com/adafruit)
+- [Robin Andersson](https://twitter.com/robinwassen)
+- [Chris Vogt](https://twitter.com/C1V0)
+- Kumar Harsh
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked</small>
