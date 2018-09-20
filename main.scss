@@ -224,6 +224,11 @@ a.navbar-item:not(.button) {
 	font-size: 16px;
 }
 
+/* inline codeblock */
+code.highlighter-rouge {
+	color: #8f3d74;
+}
+
 @media screen and (max-width: 500px) {
 	.is-hidden-small-screen {
 		display: none !important;
