@@ -128,7 +128,6 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Sasha Koss](https://twitter.com/kossnocorp)
 - Sturmgott
 - [Manuel Bieh](https://twitter.com/manuelbieh)
-- [Bjarne Øverli](https://twitter.com/bjarneo_)
 - Paul Warelis
 - [Gabriel Csapo](https://github.com/gabrielcsapo)
 - [Benjamin Charity](https://twitter.com/benjamincharity)
@@ -170,7 +169,11 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Limor Fried](https://twitter.com/adafruit)
 - [Robin Andersson](https://twitter.com/robinwassen)
 - [Chris Vogt](https://twitter.com/C1V0)
-- Kumar Harsh
+- Thomas Klemm
+- Alec Hale-Pletka
+- [Valia Walsk](https://twitter.com/valia_walsk)
+- Dylan Wight
+- [aggre](https://twitter.com/aggre_)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked</small>
