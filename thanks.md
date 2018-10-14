@@ -4,55 +4,44 @@ title: Thanks!
 ---
 
 <style>
-	.hero-body h1 {
-		font-size: 40px;
-	}
+.hero-body img {
+	margin-top: 7px;
+}
 
-	.hero-body h2 {
-		font-size: 27px;
-		margin-top: 24px;
-		padding: 5px 0;
-	}
+.reward-price {
+	font-size: 13px;
+	position: relative;
+	bottom: 2px;
+	left: 2px;
+}
 
-	.hero-body li {
-		padding: 2px 0;
-	}
+#thanks-gif {
+	margin-top: 5px;
+	margin-left: 10px;
+	border-radius: 50%;
+}
 
-	.hero-body img {
-		margin-top: 7px;
-	}
+.sponsor {
+	box-sizing: border-box;
+	display: inline-block;
+	vertical-align: middle;
+	padding: 20px 0;
+	margin-right: 40px;
+}
 
-	.reward-price {
-		font-size: 13px;
-		position: relative;
-		bottom: 2px;
-		left: 2px;
-	}
+.sponsor:last-of-type {
+	margin-right: 0;
+}
 
-	#thanks-gif {
-		margin-top: 5px;
-		margin-left: 10px;
-		border-radius: 50%;
-	}
+.sponsor img {
+	padding: 0;
+	margin: 0;
+}
 
-	.sponsor {
-		box-sizing: border-box;
-		display: inline-block;
-		vertical-align: middle;
-		padding: 20px 0;
-		margin-right: 40px;
-	}
-
-	.sponsor:last-of-type {
-		margin-right: 0;
-	}
-
-	.sponsor img {
-		padding: 0;
-		margin: 0;
-	}
-
-	/* TODO: The above rules should be made generic to the whole site */
+/* Fix the Twitter widget width on mobile */
+twitterwidget {
+	width: unset !important;
+}
 </style>
 
 <img id="thanks-gif" src="https://user-images.githubusercontent.com/170270/34912417-66acc388-f8e1-11e7-8350-8e7a321ef97f.gif" width="130" align="right">

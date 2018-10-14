@@ -235,6 +235,7 @@ a.navbar-item:not(.button) {
 /* inline codeblock */
 code.highlighter-rouge {
 	color: #8f3d74;
+	word-break: break-all;
 }
 
 @media screen and (max-width: 500px) {

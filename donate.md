@@ -5,34 +5,13 @@ title: Donate
 
 <style>
 .hero-body .column {
-	margin-bottom: 140px;
-}
-
-.hero-body h1 {
-	font-size: 40px;
-}
-
-.hero-body h2 {
-	font-size: 27px;
-	margin-top: 24px;
-	padding: 5px 0;
-}
-
-.hero-body p {
-	margin-top: 15px;
-	margin-bottom: 5px;
-}
-
-.hero-body li {
-	line-height: 1.7;
+	margin-bottom: 180px;
 }
 
 .hero-body .tagline {
 	font-size: 18px;
 	margin-top: 5px;
 }
-
-/* TODO: The above rules should be made generic to the whole site */
 </style>
 
 # Donate ❤️
