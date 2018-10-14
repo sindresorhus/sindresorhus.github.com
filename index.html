@@ -21,6 +21,13 @@ layout: default
 		margin-left: 10px;
 	}
 </style>
+<script type="module">
+// Temp redirect for old URL
+if (location.hash === '#apps') {
+	location.hash = '';
+	location.pathname = '/apps';
+}
+</script>
 
 <section class="hero is-fullheight is-default">
 	<div class="hero-body">
@@ -115,40 +122,3 @@ layout: default
 	</div>
 </section>
 
-<section class="section hero is-fullheight is-default is-bold">
-	<div id="apps" class="container">
-		<h2 class="title is-2">Apps</h2>
-		<div class="columns is-multiline">
-			{% for app in site.apps reversed %}
-			<div class="column is-mobile is-half-tablet is-one-third-desktop">
-				<a href="{% if app.external_url %}{{ app.external_url }}{% else %}{{ app.url }}{% endif %}">
-					<div class="box">
-						<figure class="image">
-							{% comment %}
-								This mess is needed because we don't know the extension of the thumbnail upfront...
-							{% endcomment %}
-
-							{% for file in site.static_files %}
-								{% assign path = '/assets/' | append: app.slug | append: '/thumbnail' %}
-								{% if file.path contains path %}
-									<img src="{{ file.path }}">
-								{% endif %}
-							{% endfor %}
-						</figure>
-						<h2 class="title">
-							<span>{{ app.title }}</span>
-							{% if app.is_prerelease %}
-								<span class="tag is-small is-info">Prerelease</span>
-							{% elsif forloop.first %}
-								<span class="tag is-small is-success">New!</span>
-							{% endif %}
-							<span class="tag is-small">{{ app.type }}</span>
-						</h2>
-						<p class="subtitle is-6">{{ app.subtitle }}</p>
-					</div>
-				</a>
-			</div>
-			{% endfor %}
-		</div>
-	</div>
-</section>
