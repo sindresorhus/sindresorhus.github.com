@@ -101,9 +101,18 @@ if (location.hash === '#apps') {
 <section class="hero is-fullheight is-gray">
 	<div id="projects" class="hero-body container">
 		<div class="columns is-vcentered">
-			<div class="column has-text-centered has-nice-link">
+			<div class="column has-text-centered">
 				<img id="unicorn-icon" src="unicorn.svg" width="100" height="100">
-				<h4 class="title is-4" style="font-weight: 400">My main focus right now is <a href="https://ava.li"><strong>AVA</strong></a>, macOS development, and maintaining all my <nobr>open-source</nobr> projects.</h4>
+				<h4 class="title is-4" style="font-weight: 400">Latest commit</h4>
+				<div id="latest-commit">
+					<a class="commit-title nice-link" href=""></a>
+					<br>
+					<span style="font-size: 12px">
+						<span class="commit-date"></span> in <a class="repo-title" href=""></a>
+					</span>
+				</div>
+				<br>
+				<a href="https://gitstalk.netlify.com/sindresorhus">Stalk me</a>
 			</div>
 			<div id="latest-repos-container" class="column is-three-fifths is-offset-1 has-nice-link">
 				<h2 class="title is-2">Latest repos</h2>
@@ -121,4 +130,3 @@ if (location.hash === '#apps') {
 		</div>
 	</div>
 </section>
-

@@ -43,6 +43,36 @@ function injectScript(src, cb) {
 	dom.select('#latest-blog-post').classList.add('visible');
 })();
 
+// Latest GitHub commit
+(async () => {
+	const username = 'sindresorhus';
+
+	const response = await fetch(`https://api.github.com/users/${username}/events/public`);
+	const json = await response.json();
+
+	const latestPushEvent = json.find(event => event.type === 'PushEvent');
+	const {repo, payload, created_at: createdAt} = latestPushEvent;
+
+	const latestCommit = payload.commits.reverse()[0];
+	if (!latestCommit) {
+		dom.select('#latest-commit').textContent = 'No commit';
+		return;
+	}
+
+	const repoUrl = `https://github.com/${repo.name}`;
+
+	const commitTitleElement = dom.select('#latest-commit .commit-title');
+	commitTitleElement.href = `${repoUrl}/commit/${latestCommit.sha}`;
+	commitTitleElement.textContent = latestCommit.message;
+
+	const commitDateElement = dom.select('#latest-commit .commit-date');
+	commitDateElement.textContent = timeago().format(createdAt);
+
+	const repoTitleElement = dom.select('#latest-commit .repo-title');
+	repoTitleElement.href = repoUrl;
+	repoTitleElement.textContent = repo.name.replace(new RegExp(`^${username}/`), '');
+})();
+
 // Latest GitHub repos
 (async () => {
 	const textColorFromBackgroundColor = color => {
