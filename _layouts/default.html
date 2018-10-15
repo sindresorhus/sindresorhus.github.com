@@ -36,12 +36,13 @@
 			<script type="module" src="{{ '/index.js' | relative_url }}"></script>
 		{% endif %}
 		<!-- Google Analytics -->
-		<script type="module">
-			window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-			ga('create', 'UA-25562592-1', 'auto');
-			ga('send', 'pageview');
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-25562592-1"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+			gtag('config', 'UA-25562592-1');
 		</script>
-		<script defer src="https://www.google-analytics.com/analytics.js"></script>
 		<!-- / Google Analytics -->
 	</head>
 	<body>
