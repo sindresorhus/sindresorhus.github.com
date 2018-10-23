@@ -29,6 +29,14 @@ layout: default
 		display: inline-block;
 	}
 
+	.app-main-button {
+		margin: 20px 0;
+	}
+
+	.app-links li {
+		margin: 10px 0;
+	}
+
 	#screenshots {
 		text-align: center;
 		flex: auto;
@@ -70,14 +78,44 @@ layout: default
 			</div>
 			<div class="columns is-vcentered is-centered is-text-centered">
 				<div class="column is-half is-narrow">
-					{{ content }}
+					{% if page.app_store_url or page.setapp_url %}
+						<div class="app-buttons">
+							<div>
+								{% if page.app_store_url %}
+									<a class="no-underline app-store-badge" href="{{ page.app_store_url }}" style="display:inline-block;overflow:hidden;background:url(https://linkmaker.itunes.apple.com/assets/shared/badges/en-us/macappstore-lrg.svg) no-repeat;width:165px;height:40px"></a>
+								{% endif %}
+								{% if page.setapp_url %}
+									<a href="{{ page.setapp_url }}"><span style="position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">Available on Setapp</span><img src="https://developer.setapp.com/setapp-button/setapp.svg" alt="Available on Setapp" style="margin: 0; padding: 0; display: block; width: 122px; height: 40px"></a>
+								{% endif %}
+							</div>
+						</div>
+					{% endif %}
+					{% if page.main_button %}
+						<p>
+							<a class="app-main-button button is-primary is-medium is-outlined" href="{{ page.main_button.url }}">{{ page.main_button.title }}</a>
+						</p>
+					{% endif %}
+					<ul class="app-links">
+						<li>
+							{% if page.repo_url %}
+								<a class="is-link" href="{{ page.repo_url }}">Source on GitHub</a>
+							{% else %}
+								{% unless page.is_prerelease %}
+									<a class="is-link" href="https://sindresorhus.com/feedback?product={{ page.title | url_encode }}">Support</a>
+								{% endunless %}
+							{% endif %}
+						</li>
+						{% for link in page.links %}
+							<li>
+								<a href="{{ link[1] }}">{{ link[0] }}</a>
+							</li>
+						{% endfor %}
+					</ul>
+					<div class="content">
+						{{ content }}
+					</div>
 				</div>
 			</div>
-			{% if page.repo_url %}
-				<a class="button is-link" href="{{ page.repo_url }}">Source on GitHub</a>
-			{% else %}
-				<a class="button is-link" href="https://sindresorhus.com/feedback?product={{ page.title | url_encode }}">Support</a>
-			{% endif %}
 		</div>
 	</div>
 </section>

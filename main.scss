@@ -9,6 +9,12 @@ $primary: $blue;
 
 @import 'bulma';
 
+// Bulma overrides
+.navbar > .container .navbar-menu,
+.container > .navbar .navbar-menu {
+	margin-right: unset;
+}
+//
 
 // My variables
 $gray-link: hsl(220, 40%, 40%);

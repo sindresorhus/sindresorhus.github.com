@@ -14,6 +14,23 @@ title: Contact
 }
 </style>
 
+<script type="module">
+// Forwards `subject` and `body` search params to the email link
+
+const originalSearchParams = new URLSearchParams(location.search);
+const element = document.querySelector('#email a');
+
+const searchParams = new URLSearchParams();
+if (originalSearchParams.has('subject')) {
+	searchParams.set('subject', originalSearchParams.get('subject'));
+}
+if (originalSearchParams.has('body')) {
+	searchParams.set('body', originalSearchParams.get('body'));
+}
+
+element.search = searchParams.toString();
+</script>
+
 # Contact
 
 I value my time, so make it worth it, and [keep it succinct.](https://www.google.com/search?q=succinct+emails)
