@@ -63,7 +63,9 @@ function injectScript(src, cb) {
 
 	const commitTitleElement = dom.select('#latest-commit .commit-title');
 	commitTitleElement.href = `${repoUrl}/commit/${latestCommit.sha}`;
-	commitTitleElement.textContent = latestCommit.message;
+	const commitMessageLines = latestCommit.message.trim().split('\n');
+	commitTitleElement.title = commitMessageLines.slice(1).join('\n').trim();
+	commitTitleElement.textContent = commitMessageLines[0].trim();
 
 	const commitDateElement = dom.select('#latest-commit .commit-date');
 	commitDateElement.textContent = timeago().format(createdAt);
