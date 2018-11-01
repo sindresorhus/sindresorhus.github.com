@@ -127,8 +127,6 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Florian Breisch](https://twitter.com/FlorianBreisch)
 - Sameeri Pavan Kumar Marryboyina
 - [Phan An](https://twitter.com/notphanan)
-- Eliseu
-- [Claudio Santoro](https://twitter.com/ovflowd)
 - [Keith Ito](https://twitter.com/keeeto)
 - Suchipi
 - [Yoshiya Hinosawa](https://twitter.com/kt3k)
@@ -145,8 +143,7 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Oliver Kopp](https://twitter.com/koppor)
 - [F1LT3R](https://twitter.com/F1LT3R_)
 - carddamom
-- [Matters](https://twitter.com/matterstech)
-- [Siddharth Kshetrapal](https://twitter.com/siddharthkp)
+- [Sid](https://twitter.com/siddharthkp)
 - Lovelin Edward
 - Suhas Karanth
 - Robert McGuinness
@@ -160,9 +157,9 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Chris Vogt](https://twitter.com/C1V0)
 - Thomas Klemm
 - Alec Hale-Pletka
-- [Valia Walsk](https://twitter.com/valia_walsk)
-- Dylan Wight
 - [aggre](https://twitter.com/aggre_)
+- [Xananax](https://twitter.com/xananax)
+- [Armen Mkrtchian](https://twitter.com/armen_mkrtchian)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked</small>
@@ -174,6 +171,31 @@ Support my open source work by [becoming a Patron](https://www.patreon.com/sindr
 
 <blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">I&#39;m launching a Patreon 🦄<br><br>For the past 3 years I&#39;ve been doing open source full-time while living off savings. Now I need your support. If you or your company use any of my projects or just like what I&#39;m doing, please consider backing me.<a href="https://t.co/jSNyFohpfN">https://t.co/jSNyFohpfN</a></p>&mdash; Sindre Sorhus 🇳🇴 (@sindresorhus) <a href="https://twitter.com/sindresorhus/status/941032894964883457?ref_src=twsrc%5Etfw">December 13, 2017</a></blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+
+## Previous supporters
+
+I'm forever thankful to these people and companies that have previously supported me.
+
+- [Keyan Zhang](https://twitter.com/keyanzhang)
+- Mikkel Trolle Larsen
+- [Emad Al-Shihabi](https://twitter.com/emadshi)
+- [Robin van der Vleuten](https://twitter.com/robinvdvleuten)
+- [Ray Benefield](https://twitter.com/RayBenefield)
+- [Bjarne Øverli](https://twitter.com/bjarneo_)
+- Kumar Harsh
+- Eliseu
+- [Claudio Santoro](https://twitter.com/ovflowd)
+- [Matters](https://twitter.com/matterstech)
+- [Siddharth Kshetrapal](https://twitter.com/siddharthkp)
+- [Valia Walsk](https://twitter.com/valia_walsk)
+- Dylan Wight
+- Jody Heavener
+- Pixelass
+- Martin Hansen
+- Mark Poko
+- [Gaurav Sehrawat](https://twitter.com/root3d)
+- [Eduardo Stuart](https://twitter.com/eduardostuart)
 
 
 ---
