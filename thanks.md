@@ -107,11 +107,9 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - Scott Anderson
 - Kristján Oddsson
 - Stephen
-- [Jay Soifer](https://twitter.com/jaysoifer)
 - [Toolsday](https://twitter.com/toolsday)
 - [Lee Dohm](https://twitter.com/leedohm)
 - Mario Nebl
-- [Pierre-Denis Vanduynslager](https://twitter.com/pvdlg_)
 - Laurie Voss
 - [Rakan Nimer](https://twitter.com/rakannimer)
 - [Sasha Koss](https://twitter.com/kossnocorp)
@@ -151,7 +149,6 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Agustin Diaz](https://twitter.com/HiroAgustin)
 - [Oliver Steele](https://twitter.com/osteele)
 - [Ross Zurowski](https://twitter.com/rosszurowski)
-- Veit Heller
 - [Limor Fried](https://twitter.com/adafruit)
 - [Robin Andersson](https://twitter.com/robinwassen)
 - [Chris Vogt](https://twitter.com/C1V0)
@@ -160,6 +157,8 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [aggre](https://twitter.com/aggre_)
 - [Xananax](https://twitter.com/xananax)
 - [Armen Mkrtchian](https://twitter.com/armen_mkrtchian)
+- [robertgrzonka](https://twitter.com/rgrzonka)
+- Mikkel Malmberg
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked</small>
@@ -196,6 +195,9 @@ I'm forever thankful to these people and companies that have previously supporte
 - Mark Poko
 - [Gaurav Sehrawat](https://twitter.com/root3d)
 - [Eduardo Stuart](https://twitter.com/eduardostuart)
+- [Jay Soifer](https://twitter.com/jaysoifer)
+- [Pierre-Denis Vanduynslager](https://twitter.com/pvdlg_)
+- Veit Heller
 
 
 ---
