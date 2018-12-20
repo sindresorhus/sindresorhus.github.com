@@ -70,11 +70,12 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 	<img src="/assets/thanks/moxy-logo.svg" width="250" alt="MOXY">
 </a>
 <a href="https://zeit.co" class="sponsor">
-	<img src="/assets/thanks/zeit-logo.svg" width="260" alt="ZEIT">
+	<img src="/assets/thanks/zeit-logo.svg" width="240" alt="ZEIT">
 </a>
-<a href="https://codepilot.ai" class="sponsor">
-	<img src="/assets/thanks/codepilot-logo.svg" width="230" alt="CodePilot.ai">
+<a href="https://issuehunt.io" class="sponsor">
+	<img src="/assets/thanks/issuehunt-logo.png" width="260" alt="IssueHunt">
 </a>
+
 
 ## Top Supporter <span class="reward-price">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
 
@@ -198,6 +199,7 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Jay Soifer](https://twitter.com/jaysoifer)
 - [Pierre-Denis Vanduynslager](https://twitter.com/pvdlg_)
 - Veit Heller
+- [CodePilot.ai](https://codepilot.ai)
 
 
 ---
