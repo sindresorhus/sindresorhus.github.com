@@ -167,7 +167,7 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 
 ## Become a Patron
 
-Support my open source work by [becoming a Patron](https://www.patreon.com/sindresorhus).
+Support my open source work by [becoming a Patron](https://www.patreon.com/sindresorhus).<br><sub>(I also have an [alternative to Patreon](https://donorbox.org/sindresorhus) if you don't want to use Patreon)</sub>
 
 <blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">I&#39;m launching a Patreon 🦄<br><br>For the past 3 years I&#39;ve been doing open source full-time while living off savings. Now I need your support. If you or your company use any of my projects or just like what I&#39;m doing, please consider backing me.<a href="https://t.co/jSNyFohpfN">https://t.co/jSNyFohpfN</a></p>&mdash; Sindre Sorhus 🇳🇴 (@sindresorhus) <a href="https://twitter.com/sindresorhus/status/941032894964883457?ref_src=twsrc%5Etfw">December 13, 2017</a></blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
