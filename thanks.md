@@ -38,6 +38,10 @@ title: Thanks!
 	margin: 0;
 }
 
+.silver-sponsor .sponsor {
+	display: block;
+}
+
 /* Fix the Twitter widget width on mobile */
 twitterwidget {
 	width: unset !important;
@@ -63,18 +67,23 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 
 ## Silver Sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
-<a href="https://www.miles.in" class="sponsor">
-	<img src="https://user-images.githubusercontent.com/170270/34912034-3332ae4c-f8d6-11e7-8569-65b11486d003.png" width="170" alt="Miles">
-</a>
-<a href="https://moxy.studio" class="sponsor">
-	<img src="/assets/thanks/moxy-logo.svg" width="250" alt="MOXY">
-</a>
-<a href="https://zeit.co" class="sponsor">
-	<img src="/assets/thanks/zeit-logo.svg" width="240" alt="ZEIT">
-</a>
-<a href="https://issuehunt.io" class="sponsor">
-	<img src="/assets/thanks/issuehunt-logo.png" width="260" alt="IssueHunt">
-</a>
+<div class="silver-sponsor">
+	<a href="https://www.miles.in" class="sponsor">
+		<img src="https://user-images.githubusercontent.com/170270/34912034-3332ae4c-f8d6-11e7-8569-65b11486d003.png" width="160" alt="Miles">
+	</a>
+	<a href="https://moxy.studio" class="sponsor">
+		<img src="/assets/thanks/moxy-logo.svg" width="240" alt="MOXY">
+	</a>
+	<a href="https://zeit.co" class="sponsor">
+		<img src="/assets/thanks/zeit-logo.svg" width="240" alt="ZEIT">
+	</a>
+	<a href="https://issuehunt.io" class="sponsor">
+		<img src="/assets/thanks/issuehunt-logo.png" width="260" alt="IssueHunt">
+	</a>
+	<a href="https://lunanode.com" class="sponsor">
+		<img src="/assets/thanks/lunanode-logo.svg" width="260" alt="LunaNode">
+	</a>
+</div>
 
 
 ## Top Supporter <span class="reward-price">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
