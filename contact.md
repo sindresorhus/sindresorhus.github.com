@@ -44,3 +44,5 @@ I value my time, so make it worth it, and [keep it succinct.](https://www.google
 ---
 
 Please no support questions, job offers, questionnaires, etc.
+
+If the answer to your question could be interesting to others, consider asking in my [AMA](https://github.com/sindresorhus/ama) instead.
