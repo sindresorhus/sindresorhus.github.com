@@ -85,7 +85,7 @@ function injectScript(src, cb) {
 		return parseInt(color.replace('#', '0x'), 16) > (0xFFFFFF / 2) ? '#333' : '#fff';
 	};
 
-	const url = isDev ? 'http://localhost:3000' : 'https://gh-latest-repos-hbiycdtvej.now.sh';
+	const url = isDev ? 'http://localhost:3000' : 'https://gh-latest-repos.now.sh';
 
 	const json = await (await fetch(url)).json();
 
