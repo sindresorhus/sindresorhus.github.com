@@ -60,14 +60,14 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 <a href="https://github.com/wtgtybhertgeghgtwtg" class="sponsor">
 	<img src="/assets/thanks/wtgtybhertgeghgtwtg-logo.svg" width="420" alt="wtgtybhertgeghgtwtg">
 </a>
-<a href="https://github.com/botpress/botpress" class="sponsor" style="padding-top:5px">
-	<img src="/assets/thanks/botpress-logo.svg" width="420" alt="Botpress">
-</a>
 
 
 ## Silver Sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
 <div class="silver-sponsor">
+	<a href="https://github.com/botpress/botpress" class="sponsor">
+		<img src="/assets/thanks/botpress-logo.svg" width="240" alt="Botpress">
+	</a>
 	<a href="https://www.miles.in" class="sponsor">
 		<img src="https://user-images.githubusercontent.com/170270/34912034-3332ae4c-f8d6-11e7-8569-65b11486d003.png" width="160" alt="Miles">
 	</a>
@@ -92,7 +92,6 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Roland Warmerdam](https://twitter.com/rowno1)
 - ["entwicklerstube"](https://entwicklerstube.com)
 - [Ben Truyman](https://twitter.com/bentruyman)
-- [Jamie K](https://twitter.com/jamiebuilds)
 - [Bhargav Ponnapalli](https://twitter.com/imbhargav5)
 - [Jacob Gillespie](https://twitter.com/jacobwgillespie)
 
@@ -102,10 +101,8 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Connor Bär](https://twitter.com/connor_baer)
 - [Daniel Stockman](https://twitter.com/evocateur)
 - Fran Méndez
-- [Feross](https://twitter.com/feross)
 - [Haroen Viaene](https://twitter.com/Haroenv)
 - [Sam Richard](https://twitter.com/snugug)
-- [Jen Downs](https://twitter.com/jenisora)
 - [Maythee Anegboonlap](https://twitter.com/llun)
 - Stefan Penner
 - [Paul Irish](https://twitter.com/paul_irish)
@@ -116,7 +113,6 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - Scott Anderson
 - Kristján Oddsson
 - Stephen
-- [Toolsday](https://twitter.com/toolsday)
 - [Lee Dohm](https://twitter.com/leedohm)
 - Mario Nebl
 - Laurie Voss
@@ -138,10 +134,8 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Konrad Kruk](https://twitter.com/konradkpl)
 - [Riley Tomasek](https://twitter.com/rileytomasek)
 - Jimmy Moon
-- Casey Watson
 - [Ben Williams](https://twitter.com/719ben)
 - [Donald Fischer](https://twitter.com/dff)
-- [Philipp Bosch](https://twitter.com/philippbosch)
 - Olivier Martin
 - [Mathieu Dutour](https://twitter.com/MathieuDutour)
 - [Marcos Moura](https://twitter.com/markinmoura)
@@ -153,7 +147,6 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - Robert McGuinness
 - [Eric Lanehart](https://twitter.com/pushred)
 - [Agustin Diaz](https://twitter.com/HiroAgustin)
-- [Ross Zurowski](https://twitter.com/rosszurowski)
 - [Limor Fried](https://twitter.com/adafruit)
 - [Robin Andersson](https://twitter.com/robinwassen)
 - [Chris Vogt](https://twitter.com/C1V0)
@@ -166,6 +159,10 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Derk-Jan Karrenbeld](https://twitter.com/SleeplessByte)
 - [Hoishin](https://twitter.com/hoishinxii)
 - Jered Sutton
+- Ruwan Geeganage
+- Bhabishya Kumar
+- [Ty-Lucas Kelley](https://twitter.com/tylucaskelley)
+- [Claudio Bernardo Rodriguez Rodriguez](https://twitter.com/claudiordgz)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked</small>
@@ -212,6 +209,13 @@ I'm forever thankful to these people and companies that have previously supporte
 - [F1LT3R](https://twitter.com/F1LT3R_)
 - [Oliver Steele](https://twitter.com/osteele)
 - Alec Hale-Pletka
+- [Jamie K](https://twitter.com/jamiebuilds)
+- [Feross](https://twitter.com/feross)
+- [Jen Downs](https://twitter.com/jenisora)
+- [Toolsday](https://twitter.com/toolsday)
+- Casey Watson
+- [Philipp Bosch](https://twitter.com/philippbosch)
+- [Ross Zurowski](https://twitter.com/rosszurowski)
 
 
 ---
