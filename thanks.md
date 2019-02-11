@@ -160,12 +160,12 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Hoishin](https://twitter.com/hoishinxii)
 - Jered Sutton
 - Ruwan Geeganage
-- Bhabishya Kumar
+- [Bhabishya Kumar](https://twitter.com/BhabishyaKumar)
 - [Ty-Lucas Kelley](https://twitter.com/tylucaskelley)
 - [Claudio Bernardo Rodriguez Rodriguez](https://twitter.com/claudiordgz)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
-<small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked</small>
+<small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
 
 
 ## Become a Patron
