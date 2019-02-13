@@ -46,19 +46,30 @@ function injectScript(src, cb) {
 // Latest GitHub commit
 (async () => {
 	const username = 'sindresorhus';
+	const email = 'sindresorhus@gmail.com';
 
 	const response = await fetch(`https://api.github.com/users/${username}/events/public`);
 	const json = await response.json();
 
-	const latestPushEvent = json.find(event => event.type === 'PushEvent');
-	const {repo, payload, created_at: createdAt} = latestPushEvent;
+	// TODO: Support pagination if no suitable event can be found in the first request:
+	// https://developer.github.com/v3/activity/events/#list-public-events-performed-by-a-user
+	let latestCommit;
+	const latestPushEvent = json.find(event => {
+		if (event.type !== 'PushEvent') {
+			return false;
+		}
 
-	const latestCommit = payload.commits.reverse()[0];
+		// Ensure the commit is authored by me and I'm not just a "committer"
+		latestCommit = event.payload.commits.reverse().find(commit => commit.author.email === email);
+		return Boolean(latestCommit);
+	});
+
 	if (!latestCommit) {
 		dom.select('#latest-commit').textContent = 'No commit';
 		return;
 	}
 
+	const {repo, created_at: createdAt} = latestPushEvent;
 	const repoUrl = `https://github.com/${repo.name}`;
 
 	const commitTitleElement = dom.select('#latest-commit .commit-title');
