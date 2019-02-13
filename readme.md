@@ -9,6 +9,13 @@
 </a>
 
 
+## Dev
+
+```
+$ ./start.sh
+```
+
+
 ## License
 
 MIT © [Sindre Sorhus](https://sindresorhus.com)
