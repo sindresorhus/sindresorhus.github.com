@@ -57,9 +57,7 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 
 ## 🦄 Sponsor <span class="reward-price">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>
 
-<a href="https://github.com/wtgtybhertgeghgtwtg" class="sponsor">
-	<img src="/assets/thanks/wtgtybhertgeghgtwtg-logo.svg" width="420" alt="wtgtybhertgeghgtwtg">
-</a>
+None
 
 
 ## Silver Sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
@@ -163,6 +161,13 @@ I'm truly grateful to all the wonderful humans and companies [supporting](https:
 - [Bhabishya Kumar](https://twitter.com/BhabishyaKumar)
 - [Ty-Lucas Kelley](https://twitter.com/tylucaskelley)
 - [Claudio Bernardo Rodriguez Rodriguez](https://twitter.com/claudiordgz)
+- Minh Nguyen
+- Kirill Groshkov
+- Fabio Spampinato
+- Ellery Addington-White
+- Ben Brook
+- Martin Kluska
+- Joshua Wenning
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -216,6 +221,7 @@ I'm forever thankful to these people and companies that have previously supporte
 - Casey Watson
 - [Philipp Bosch](https://twitter.com/philippbosch)
 - [Ross Zurowski](https://twitter.com/rosszurowski)
+- wtgtybhertgeghgtwtg
 
 
 ---
