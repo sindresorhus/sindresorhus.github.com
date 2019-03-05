@@ -16,12 +16,13 @@ title: Donate
 
 # Donate ❤️
 
-<p class="tagline">I'm a full-time open-sourcerer. <a href="https://twitter.com/sindresorhus/status/963478258808340482">Fully funded by the community</a>.</p>
+<p class="tagline">I'm a full-time open-sourcerer. <a href="https://twitter.com/sindresorhus/status/963478258808340482">My work is funded by the community.</a></p>
 
 You can read more about me and my open source work on my [Patreon page](https://www.patreon.com/sindresorhus).
 
 I also accept one-time donations:
 - [BuyMeACoffee.com](https://www.buymeacoffee.com/sindresorhus)
+- [Ko-Fi](https://ko-fi.com/sindresorhus)
 - [Donorbox](https://donorbox.org/sindresorhus)
 - [My PayPal](https://www.paypal.me/sindresorhus)
 - Bitcoin (BTC): `18h9q67KByyEWb7cAQbq8fDSZJqF4aeVMY`
