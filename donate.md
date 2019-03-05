@@ -25,6 +25,7 @@ I also accept one-time donations:
 - [Ko-Fi](https://ko-fi.com/sindresorhus)
 - [Donorbox](https://donorbox.org/sindresorhus)
 - [My PayPal](https://www.paypal.me/sindresorhus)
+- [tippin.me](https://tippin.me/@sindresorhus) <small>(Tip with BTC through the Lightning Network)</small>
 - Bitcoin (BTC): `18h9q67KByyEWb7cAQbq8fDSZJqF4aeVMY`
 - Litecoin (LTC): `LZTqq2KdLzD1xKXEPrEmRXSVrJwsT9VsJ1`
 - Ethereum (ETH): `0xc55d3d86Fb9E52613EFD7156DDd9eff8a1e6C199`
