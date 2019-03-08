@@ -8,12 +8,12 @@ const dom = {
 	slectAll: document.querySelectorAll.bind(document)
 };
 
-function injectScript(src, cb) {
+const injectScript = (source, callback) => {
 	const script = document.createElement('script');
-	script.src = src;
-	script.addEventListener('load', cb);
+	script.src = source;
+	script.addEventListener('load', callback);
 	document.head.appendChild(script);
-}
+};
 
 const insertHypenationHintsForCamelCase = string => string.replace(/([a-z])([A-Z])/g, '$1\u00AD$2');
 
