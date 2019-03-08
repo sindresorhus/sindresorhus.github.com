@@ -15,6 +15,8 @@ function injectScript(src, cb) {
 	document.head.appendChild(script);
 }
 
+const insertHypenationHintsForCamelCase = string => string.replace(/([a-z])([A-Z])/g, '$1\u00AD$2');
+
 // Latest blog post
 (async () => {
 	const username = 'sindresorhus';
@@ -112,7 +114,7 @@ function injectScript(src, cb) {
 
 		const a = content.querySelector('.latest-repos-title');
 		a.href = repo.url;
-		a.textContent = repo.name;
+		a.textContent = insertHypenationHintsForCamelCase(repo.name);
 
 		if (repo.primaryLanguage) {
 			const lang = content.querySelector('.latest-repos-language');
