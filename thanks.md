@@ -81,6 +81,9 @@ None
 	<a href="https://lunanode.com" class="sponsor">
 		<img src="/assets/thanks/lunanode-logo.svg" width="260" alt="LunaNode">
 	</a>
+	<a href="https://entwicklerstube.com" class="sponsor">
+		<img src="/assets/thanks/entwicklerstube-logo.svg" width="270" alt="entwicklerstube">
+	</a>
 </div>
 
 
@@ -88,7 +91,6 @@ None
 
 - [Addy Osmani](https://twitter.com/addyosmani)
 - [Roland Warmerdam](https://twitter.com/rowno1)
-- ["entwicklerstube"](https://entwicklerstube.com)
 - [Ben Truyman](https://twitter.com/bentruyman)
 - [Bhargav Ponnapalli](https://twitter.com/imbhargav5)
 - [Jacob Gillespie](https://twitter.com/jacobwgillespie)
