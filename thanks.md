@@ -94,6 +94,7 @@ None
 - [Ben Truyman](https://twitter.com/bentruyman)
 - [Bhargav Ponnapalli](https://twitter.com/imbhargav5)
 - [Jacob Gillespie](https://twitter.com/jacobwgillespie)
+- Zack Schuster
 
 
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
@@ -141,7 +142,6 @@ None
 - [Marcos Moura](https://twitter.com/markinmoura)
 - [Oliver Kopp](https://twitter.com/koppor)
 - carddamom
-- [Sid](https://twitter.com/siddharthkp)
 - Lovelin Edward
 - Suhas Karanth
 - Robert McGuinness
@@ -163,13 +163,13 @@ None
 - [Bhabishya Kumar](https://twitter.com/BhabishyaKumar)
 - [Ty-Lucas Kelley](https://twitter.com/tylucaskelley)
 - [Claudio Bernardo Rodriguez Rodriguez](https://twitter.com/claudiordgz)
-- Minh Nguyen
-- Kirill Groshkov
 - Fabio Spampinato
 - Ellery Addington-White
 - Ben Brook
 - Martin Kluska
 - Joshua Wenning
+- David Passarelli
+- Eric Nelson
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -224,6 +224,9 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Philipp Bosch](https://twitter.com/philippbosch)
 - [Ross Zurowski](https://twitter.com/rosszurowski)
 - wtgtybhertgeghgtwtg
+- [Sid](https://twitter.com/siddharthkp)
+- Minh Nguyen
+- Kirill Groshkov
 
 
 ---
