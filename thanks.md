@@ -94,7 +94,7 @@ None
 - [Ben Truyman](https://twitter.com/bentruyman)
 - [Bhargav Ponnapalli](https://twitter.com/imbhargav5)
 - [Jacob Gillespie](https://twitter.com/jacobwgillespie)
-- Zack Schuster
+- [Zack Schuster](https://twitter.com/destroyvegas)
 
 
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
