@@ -84,6 +84,9 @@ None
 	<a href="https://entwicklerstube.com" class="sponsor">
 		<img src="/assets/thanks/entwicklerstube-logo.svg" width="270" alt="entwicklerstube">
 	</a>
+	<a href="https://sebastian-software.de" class="sponsor">
+		<img src="/assets/thanks/sebastian-software-logo.svg" width="270" alt="Sebastian Software">
+	</a>
 </div>
 
 
