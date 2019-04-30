@@ -126,7 +126,6 @@ None
 - [Manuel Bieh](https://twitter.com/manuelbieh)
 - Paul Warelis
 - [Gabriel Csapo](https://github.com/gabrielcsapo)
-- Andreas Pizsa
 - Jurgen Van de Moere
 - Alex LaFroscia
 - [Florian Breisch](https://twitter.com/FlorianBreisch)
@@ -151,7 +150,6 @@ None
 - [Eric Lanehart](https://twitter.com/pushred)
 - [Agustin Diaz](https://twitter.com/HiroAgustin)
 - [Limor Fried](https://twitter.com/adafruit)
-- [Robin Andersson](https://twitter.com/robinwassen)
 - [Chris Vogt](https://twitter.com/C1V0)
 - Thomas Klemm
 - [aggre](https://twitter.com/aggre_)
@@ -161,7 +159,6 @@ None
 - Mikkel Malmberg
 - [Derk-Jan Karrenbeld](https://twitter.com/SleeplessByte)
 - [Hoishin](https://twitter.com/hoishinxii)
-- Jered Sutton
 - Ruwan Geeganage
 - [Bhabishya Kumar](https://twitter.com/BhabishyaKumar)
 - [Ty-Lucas Kelley](https://twitter.com/tylucaskelley)
@@ -170,9 +167,10 @@ None
 - Ellery Addington-White
 - Ben Brook
 - Martin Kluska
-- Joshua Wenning
 - David Passarelli
 - Eric Nelson
+- Claudio Santoro
+- Zhenhua Cao
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -230,6 +228,10 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Sid](https://twitter.com/siddharthkp)
 - Minh Nguyen
 - Kirill Groshkov
+- Andreas Pizsa
+- [Robin Andersson](https://twitter.com/robinwassen)
+- Jered Sutton
+- Joshua Wenning
 
 
 ---
