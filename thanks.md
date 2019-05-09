@@ -16,8 +16,8 @@ title: Thanks!
 }
 
 #thanks-gif {
-	margin-top: 5px;
-	margin-left: 10px;
+	margin-top: 30px;
+	margin-left: 20px;
 	border-radius: 50%;
 }
 
@@ -52,7 +52,7 @@ twitterwidget {
 
 # Thanks! ❤️🙌
 
-I'm truly grateful to all the wonderful humans and companies [supporting](https://www.patreon.com/sindresorhus) my open source work.
+I'm truly grateful to all the wonderful humans and companies supporting my open source work on [Patreon](https://www.patreon.com/sindresorhus) and [Open Collective](https://opencollective.com/sindresorhus).
 
 
 ## 🦄 Sponsor <span class="reward-price">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>
