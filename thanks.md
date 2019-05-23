@@ -52,7 +52,7 @@ twitterwidget {
 
 # Thanks! ❤️🙌
 
-I'm truly grateful to all the wonderful humans and companies supporting my open source work on [Patreon](https://www.patreon.com/sindresorhus) and [Open Collective](https://opencollective.com/sindresorhus).
+I'm truly grateful to all the wonderful humans and companies supporting my open source work on [GitHub Sponsors](https://github.com/users/sindresorhus/sponsorship), [Open Collective](https://opencollective.com/sindresorhus), and [Patreon](https://www.patreon.com/sindresorhus).
 
 
 ## 🦄 Sponsor <span class="reward-price">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>
@@ -60,7 +60,7 @@ I'm truly grateful to all the wonderful humans and companies supporting my open 
 None
 
 
-## Silver Sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
+## Silver sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
 <div class="silver-sponsor">
 	<a href="https://github.com/botpress/botpress" class="sponsor">
@@ -90,7 +90,7 @@ None
 </div>
 
 
-## Top Supporter <span class="reward-price">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
+## Top supporter <span class="reward-price">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
 
 - [Addy Osmani](https://twitter.com/addyosmani)
 - [Roland Warmerdam](https://twitter.com/rowno1)
@@ -176,11 +176,11 @@ None
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
 
 
-## Become a Patron
+## Become a supporter
 
-Support my open source work by [becoming a Patron](https://www.patreon.com/sindresorhus).<br><sub>(I also have an [alternative to Patreon](https://donorbox.org/sindresorhus) if you don't want to use Patreon)</sub>
+[Support my open source work 🙌](donate)
 
-<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">I&#39;m launching a Patreon 🦄<br><br>For the past 3 years I&#39;ve been doing open source full-time while living off savings. Now I need your support. If you or your company use any of my projects or just like what I&#39;m doing, please consider backing me.<a href="https://t.co/jSNyFohpfN">https://t.co/jSNyFohpfN</a></p>&mdash; Sindre Sorhus 🇳🇴 (@sindresorhus) <a href="https://twitter.com/sindresorhus/status/941032894964883457?ref_src=twsrc%5Etfw">December 13, 2017</a></blockquote>
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">I&#39;m launching a Patreon 🦄<br><br>For the past 3 years I&#39;ve been doing open source full-time while living off savings. Now I need your support. If you or your company use any of my projects or just like what I&#39;m doing, please consider backing me. <a href="https://t.co/jSNyFohpfN">https://t.co/jSNyFohpfN</a></p>&mdash; Sindre Sorhus 🇳🇴 (@sindresorhus) <a href="https://twitter.com/sindresorhus/status/941032894964883457?ref_src=twsrc%5Etfw">December 13, 2017</a></blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 

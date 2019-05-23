@@ -29,12 +29,13 @@ title: Donate
 
 [Read more about me and what I do.](https://www.patreon.com/sindresorhus)
 
-If you or your company are using any of my projects, consider supporting me so I can continue [my open source work](http://github.com/sindresorhus).
+If you or your company are using any of my projects, consider supporting me so I can continue [my open source work](https://github.com/sindresorhus).
 
 ### Monthly donations
 
-- [Patreon](https://www.patreon.com/sindresorhus)
+- [**GitHub Sponsors**](https://github.com/users/sindresorhus/sponsorship) <span style="font-size: 10px">(Preferred as GitHub will match donations for the first year)</span>
 - [Open Collective](https://opencollective.com/sindresorhus)
+- [Patreon](https://www.patreon.com/sindresorhus)
 
 ### One-time donations
 
