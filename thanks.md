@@ -98,16 +98,16 @@ None
 - [Bhargav Ponnapalli](https://twitter.com/imbhargav5)
 - [Jacob Gillespie](https://twitter.com/jacobwgillespie)
 - [Zack Schuster](https://twitter.com/destroyvegas)
+- [Vadim Demedes](https://github.com/vadimdemedes)
+- [Nat Friedman](https://github.com/nat)
 
 
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
 
-- [Connor Bär](https://twitter.com/connor_baer)
 - [Daniel Stockman](https://twitter.com/evocateur)
 - Fran Méndez
 - [Haroen Viaene](https://twitter.com/Haroenv)
 - [Sam Richard](https://twitter.com/snugug)
-- [Maythee Anegboonlap](https://twitter.com/llun)
 - Stefan Penner
 - [Paul Irish](https://twitter.com/paul_irish)
 - Mike North
@@ -115,38 +115,28 @@ None
 - Chris Wales
 - [Sam Verschueren](https://twitter.com/SamVerschueren)
 - Scott Anderson
-- Kristján Oddsson
 - Stephen
 - [Lee Dohm](https://twitter.com/leedohm)
 - Mario Nebl
 - Laurie Voss
 - [Rakan Nimer](https://twitter.com/rakannimer)
-- [Sasha Koss](https://twitter.com/kossnocorp)
-- Sturmgott
 - [Manuel Bieh](https://twitter.com/manuelbieh)
 - Paul Warelis
 - [Gabriel Csapo](https://github.com/gabrielcsapo)
 - Jurgen Van de Moere
-- Alex LaFroscia
-- [Florian Breisch](https://twitter.com/FlorianBreisch)
 - Sameeri Pavan Kumar Marryboyina
 - [Phan An](https://twitter.com/notphanan)
-- [Keith Ito](https://twitter.com/keeeto)
-- Suchipi
 - [Yoshiya Hinosawa](https://twitter.com/kt3k)
-- [Konrad Kruk](https://twitter.com/konradkpl)
 - [Riley Tomasek](https://twitter.com/rileytomasek)
 - Jimmy Moon
 - [Ben Williams](https://twitter.com/719ben)
 - [Donald Fischer](https://twitter.com/dff)
+- [Florian Breisch](https://twitter.com/FlorianBreisch)
 - Olivier Martin
 - [Mathieu Dutour](https://twitter.com/MathieuDutour)
-- [Marcos Moura](https://twitter.com/markinmoura)
-- [Oliver Kopp](https://twitter.com/koppor)
 - carddamom
 - Lovelin Edward
 - Suhas Karanth
-- Robert McGuinness
 - [Eric Lanehart](https://twitter.com/pushred)
 - [Agustin Diaz](https://twitter.com/HiroAgustin)
 - [Limor Fried](https://twitter.com/adafruit)
@@ -154,23 +144,41 @@ None
 - Thomas Klemm
 - [aggre](https://twitter.com/aggre_)
 - [Xananax](https://twitter.com/xananax)
-- [Armen Mkrtchian](https://twitter.com/armen_mkrtchian)
 - [robertgrzonka](https://twitter.com/rgrzonka)
-- Mikkel Malmberg
+- [Keith Ito](https://twitter.com/keeeto)
 - [Derk-Jan Karrenbeld](https://twitter.com/SleeplessByte)
 - [Hoishin](https://twitter.com/hoishinxii)
 - Ruwan Geeganage
 - [Bhabishya Kumar](https://twitter.com/BhabishyaKumar)
-- [Ty-Lucas Kelley](https://twitter.com/tylucaskelley)
 - [Claudio Bernardo Rodriguez Rodriguez](https://twitter.com/claudiordgz)
-- Fabio Spampinato
+- Alex LaFroscia
 - Ellery Addington-White
 - Ben Brook
 - Martin Kluska
 - David Passarelli
-- Eric Nelson
-- Claudio Santoro
 - Zhenhua Cao
+- [Pieter Levels](https://twitter.com/levelsio)
+- Matt R. Wilson
+- [Mikkel Malmberg](https://github.com/mikker)
+- [Matthew J. McCullough](https://github.com/matthewmccullough)
+- [Maythee Anegboonlap](https://github.com/llun)
+- [Sasha Koss](https://github.com/kossnocorp)
+- [Viktor Fonic](https://github.com/vfonic)
+- [Robert McGuinness](https://github.com/robmcguinness)
+- [Kristján Oddsson](https://github.com/koddsson)
+- [Mikael Finstad](https://github.com/mifi)
+- [David Csirmaz](https://github.com/csimi)
+- [Lee Dohm](https://github.com/lee-dohm)
+- [Oliver Kopp](https://github.com/koppor)
+- [Armen Mkrtchian](https://github.com/Armenm)
+- [Fabio Spampinato](https://github.com/fabiospampinato)
+- [MooYeol Prescott Lee](https://github.com/mooyoul)
+- [The Phantom Derpstorm](https://github.com/ThePhD)
+- [Junyoung Choi](https://github.com/Rokt33r)
+- [Haroen Viaene](https://github.com/Haroenv)
+- [Clay Nelson](https://github.com/ClayNelson)
+- [Claudio Wunder](https://github.com/ovflowd)
+- [Charles Kenney](https://github.com/Charliekenney23)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -232,6 +240,12 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Robin Andersson](https://twitter.com/robinwassen)
 - Jered Sutton
 - Joshua Wenning
+- [Connor Bär](https://twitter.com/connor_baer)
+- Suchipi
+- [Konrad Kruk](https://twitter.com/konradkpl)
+- [Marcos Moura](https://twitter.com/markinmoura)
+- [Ty-Lucas Kelley](https://twitter.com/tylucaskelley)
+- Eric Nelson
 
 
 ---
