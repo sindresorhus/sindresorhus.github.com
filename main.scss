@@ -4,6 +4,7 @@
 @import 'sass/utilities/initial-variables';
 
 $primary: $blue;
+$grey-darker: #111;
 
 // TODO: Set `$navbar-breakpoint: 900px;` when https://github.com/jgthms/bulma/pull/1183 is merged
 
@@ -17,7 +18,7 @@ $primary: $blue;
 //
 
 // My variables
-$gray-link: hsl(220, 40%, 40%);
+$gray-link: hsl(0, 0%, 10%);
 
 
 // Gray section
@@ -88,7 +89,7 @@ body {
 }
 
 a.navbar-item:not(.button) {
-	color: #7a7a7a;
+	color: hsla(0, 0%, 46%, 1);
 }
 
 .has-nice-link a:not(.button):not(.no-underline) {
@@ -151,7 +152,7 @@ a.navbar-item:not(.button) {
 
 #apps .box:hover {
 	box-shadow: 0 2px 10px rgba(10, 10, 10, 0.2),
-	            0 0 0 1px rgba(10, 10, 10, 0.1)
+		0 0 0 1px rgba(10, 10, 10, 0.1)
 }
 
 #apps .box:hover .title span:first-child {
@@ -202,19 +203,27 @@ a.navbar-item:not(.button) {
 }
 
 #latest-blog-post {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 	height: 80px;
+	max-width: 600px;
 	margin-top: 20px;
+	margin-left: auto;
+	margin-right: auto;
 	opacity: 0;
-	transition: opacity 1s ease-in;
+	transition: opacity 0.8s ease-in;
 }
 
 #latest-blog-post .title {
-	font-size: 1.5rem;
-	margin-bottom: 0.4rem;
+	font-size: 1.1rem;
+	margin-bottom: 0.5rem;
 }
 
 #latest-blog-post p {
 	font-size: 12px;
+	max-width: 400px;
+	text-align: center;
 }
 
 #latest-blog-post.visible {
@@ -232,6 +241,11 @@ a.navbar-item:not(.button) {
 #unicorn-icon {
 	margin-top: -80px;
 	margin-bottom: 20px;
+}
+
+#projects {
+	opacity: 0;
+	transition: opacity 0.5s ease-in;
 }
 
 #projects p {

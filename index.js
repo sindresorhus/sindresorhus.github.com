@@ -127,6 +127,8 @@ const insertHypenationHintsForCamelCase = string => string.replace(/([a-z])([A-Z
 
 		container.appendChild(document.importNode(content, true));
 	}
+
+	dom.select('#projects').style.opacity = 1;
 })();
 
 // Unicorn easteregg
