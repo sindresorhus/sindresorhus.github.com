@@ -106,7 +106,6 @@ None
 
 - [Daniel Stockman](https://twitter.com/evocateur)
 - Fran Méndez
-- [Haroen Viaene](https://twitter.com/Haroenv)
 - [Sam Richard](https://twitter.com/snugug)
 - Stefan Penner
 - [Paul Irish](https://twitter.com/paul_irish)
@@ -116,7 +115,6 @@ None
 - [Sam Verschueren](https://twitter.com/SamVerschueren)
 - Scott Anderson
 - Stephen
-- [Lee Dohm](https://twitter.com/leedohm)
 - Mario Nebl
 - Laurie Voss
 - [Rakan Nimer](https://twitter.com/rakannimer)
@@ -148,11 +146,9 @@ None
 - [Keith Ito](https://twitter.com/keeeto)
 - [Derk-Jan Karrenbeld](https://twitter.com/SleeplessByte)
 - [Hoishin](https://twitter.com/hoishinxii)
-- Ruwan Geeganage
 - [Bhabishya Kumar](https://twitter.com/BhabishyaKumar)
 - [Claudio Bernardo Rodriguez Rodriguez](https://twitter.com/claudiordgz)
 - Alex LaFroscia
-- Ellery Addington-White
 - Ben Brook
 - Martin Kluska
 - David Passarelli
@@ -179,6 +175,14 @@ None
 - [Clay Nelson](https://github.com/ClayNelson)
 - [Claudio Wunder](https://github.com/ovflowd)
 - [Charles Kenney](https://github.com/Charliekenney23)
+- [Stephen Belanger](https://github.com/Qard)
+- [Mikkel Trolle Larsen](https://github.com/trolster)
+- [Shukri Adams](https://github.com/shukriadams)
+- [Ellery Addington-White](https://github.com/eaddingtonwhite)
+- [Wolfgang](https://github.com/w01fgang)
+- [Yao Ding](https://github.com/yaodingyd)
+- [Marcos Griselli](https://github.com/marcosgriselli)
+- [Ahmad Rasyid Salim](https://github.com/ahmadrasyidsalim)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -197,14 +201,12 @@ None
 I'm forever thankful to these people and companies that have previously supported me.
 
 - [Keyan Zhang](https://twitter.com/keyanzhang)
-- Mikkel Trolle Larsen
 - [Emad Al-Shihabi](https://twitter.com/emadshi)
 - [Robin van der Vleuten](https://twitter.com/robinvdvleuten)
 - [Ray Benefield](https://twitter.com/RayBenefield)
 - [Bjarne Øverli](https://twitter.com/bjarneo_)
 - Kumar Harsh
 - Eliseu
-- [Claudio Santoro](https://twitter.com/ovflowd)
 - [Matters](https://twitter.com/matterstech)
 - [Siddharth Kshetrapal](https://twitter.com/siddharthkp)
 - [Valia Walsk](https://twitter.com/valia_walsk)
@@ -246,6 +248,7 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Marcos Moura](https://twitter.com/markinmoura)
 - [Ty-Lucas Kelley](https://twitter.com/tylucaskelley)
 - Eric Nelson
+- Ruwan Geeganage
 
 
 ---
