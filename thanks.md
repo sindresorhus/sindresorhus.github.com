@@ -87,6 +87,9 @@ None
 	<a href="https://sebastian-software.de" class="sponsor">
 		<img src="/assets/thanks/sebastian-software-logo.svg" width="270" alt="Sebastian Software">
 	</a>
+	<a href="https://www.gumlet.com" class="sponsor">
+		<img src="/assets/thanks/gumlet-logo.svg" width="280" alt="Gumlet">
+	</a>
 </div>
 
 
