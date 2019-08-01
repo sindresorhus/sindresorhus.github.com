@@ -97,7 +97,7 @@ None
 
 - [Addy Osmani](https://twitter.com/addyosmani)
 - [Roland Warmerdam](https://twitter.com/rowno1)
-- [Ben Truyman](https://twitter.com/bentruyman)
+- [Ben Truyman](https://github.com/bentruyman)
 - [Bhargav Ponnapalli](https://twitter.com/imbhargav5)
 - [Jacob Gillespie](https://twitter.com/jacobwgillespie)
 - [Zack Schuster](https://twitter.com/destroyvegas)
@@ -116,19 +116,16 @@ None
 - [Vivian Cromwell](https://twitter.com/viviancromwell)
 - Chris Wales
 - [Sam Verschueren](https://twitter.com/SamVerschueren)
-- Scott Anderson
 - Stephen
-- Mario Nebl
+- [Lee Dohm](https://twitter.com/leedohm)
 - Laurie Voss
 - [Rakan Nimer](https://twitter.com/rakannimer)
 - [Manuel Bieh](https://twitter.com/manuelbieh)
 - Paul Warelis
 - [Gabriel Csapo](https://github.com/gabrielcsapo)
-- Jurgen Van de Moere
 - Sameeri Pavan Kumar Marryboyina
 - [Phan An](https://twitter.com/notphanan)
 - [Yoshiya Hinosawa](https://twitter.com/kt3k)
-- [Riley Tomasek](https://twitter.com/rileytomasek)
 - Jimmy Moon
 - [Ben Williams](https://twitter.com/719ben)
 - [Donald Fischer](https://twitter.com/dff)
@@ -152,7 +149,6 @@ None
 - [Bhabishya Kumar](https://twitter.com/BhabishyaKumar)
 - [Claudio Bernardo Rodriguez Rodriguez](https://twitter.com/claudiordgz)
 - Alex LaFroscia
-- Ben Brook
 - Martin Kluska
 - David Passarelli
 - Zhenhua Cao
@@ -186,6 +182,10 @@ None
 - [Yao Ding](https://github.com/yaodingyd)
 - [Marcos Griselli](https://github.com/marcosgriselli)
 - [Ahmad Rasyid Salim](https://github.com/ahmadrasyidsalim)
+- [Jurgen Van de Moere](https://github.com/jvandemo)
+- [Riley Tomasek](https://github.com/RileyTomasek)
+- [Lee Dohm](https://github.com/lee-dohm)
+- [Benjamin S.](https://github.com/benjaminsuch)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -252,6 +252,9 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Ty-Lucas Kelley](https://twitter.com/tylucaskelley)
 - Eric Nelson
 - Ruwan Geeganage
+- Scott Anderson
+- Mario Nebl
+- Ben Brook
 
 
 ---
