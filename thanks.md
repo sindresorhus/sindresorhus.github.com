@@ -186,6 +186,7 @@ None
 - [Riley Tomasek](https://github.com/RileyTomasek)
 - [Lee Dohm](https://github.com/lee-dohm)
 - [Benjamin S.](https://github.com/benjaminsuch)
+- [Connor Bär](https://github.com/connor-baer)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -245,7 +246,6 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Robin Andersson](https://twitter.com/robinwassen)
 - Jered Sutton
 - Joshua Wenning
-- [Connor Bär](https://twitter.com/connor_baer)
 - Suchipi
 - [Konrad Kruk](https://twitter.com/konradkpl)
 - [Marcos Moura](https://twitter.com/markinmoura)
