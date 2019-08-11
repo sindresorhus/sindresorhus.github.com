@@ -119,9 +119,6 @@ layout: default
 							</li>
 						{% endfor %}
 					</ul>
-					<div class="content">
-						{{ content }}
-					</div>
 				</div>
 			</div>
 		</div>
@@ -133,6 +130,13 @@ layout: default
 		<div class="columns is-centered">
 			<div class="column is-half is-narrow">
 				<p>{{ page.description }}</p>
+			</div>
+		</div>
+		<div class="columns is-centered">
+			<div class="column is-half is-narrow">
+				<div class="content">
+					{{ content }}
+				</div>
 			</div>
 		</div>
 		<div class="columns is-centered">

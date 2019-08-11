@@ -303,3 +303,20 @@ Generated with https://icomoon.io/app/
 .fa-caret-down:before {
 	content: '\e900';
 }
+
+kbd {
+	font-family: -apple-system, system-ui, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+	background-color: #fafbfc;
+	border: 1px solid #c6cbd1;
+	border-bottom-color: #959da5;
+	border-radius: 3px;
+	box-shadow: inset 0 -1px 0 #959da5;
+	color: #444d56;
+	display: inline-block;
+	font-size: 11px;
+	line-height: 10px;
+	padding: 3px 5px;
+	vertical-align: middle;
+	position: relative;
+	top: -1px;
+}
