@@ -90,6 +90,9 @@ None
 	<a href="https://www.gumlet.com" class="sponsor">
 		<img src="/assets/thanks/gumlet-logo.svg" width="280" alt="Gumlet">
 	</a>
+	<a href="https://segment.com" class="sponsor">
+		<img src="/assets/thanks/segment-logo.svg" width="280" alt="Segment">
+	</a>
 </div>
 
 
