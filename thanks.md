@@ -98,11 +98,10 @@ None
 
 ## Top supporter <span class="reward-price">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
 
-- [Addy Osmani](https://twitter.com/addyosmani)
-- [Roland Warmerdam](https://twitter.com/rowno1)
+- [Roland Warmerdam](https://github.com/Rowno)
 - [Ben Truyman](https://github.com/bentruyman)
 - [Bhargav Ponnapalli](https://twitter.com/imbhargav5)
-- [Jacob Gillespie](https://twitter.com/jacobwgillespie)
+- [Jacob Gillespie](https://github.com/jacobwgillespie)
 - [Zack Schuster](https://twitter.com/destroyvegas)
 - [Vadim Demedes](https://github.com/vadimdemedes)
 - [Nat Friedman](https://github.com/nat)
@@ -120,7 +119,6 @@ None
 - Chris Wales
 - [Sam Verschueren](https://twitter.com/SamVerschueren)
 - Stephen
-- [Lee Dohm](https://twitter.com/leedohm)
 - Laurie Voss
 - [Rakan Nimer](https://twitter.com/rakannimer)
 - [Manuel Bieh](https://twitter.com/manuelbieh)
@@ -132,7 +130,6 @@ None
 - Jimmy Moon
 - [Ben Williams](https://twitter.com/719ben)
 - [Donald Fischer](https://twitter.com/dff)
-- [Florian Breisch](https://twitter.com/FlorianBreisch)
 - Olivier Martin
 - [Mathieu Dutour](https://twitter.com/MathieuDutour)
 - carddamom
@@ -144,19 +141,17 @@ None
 - [Chris Vogt](https://twitter.com/C1V0)
 - Thomas Klemm
 - [aggre](https://twitter.com/aggre_)
-- [Xananax](https://twitter.com/xananax)
 - [robertgrzonka](https://twitter.com/rgrzonka)
 - [Keith Ito](https://twitter.com/keeeto)
 - [Derk-Jan Karrenbeld](https://twitter.com/SleeplessByte)
 - [Hoishin](https://twitter.com/hoishinxii)
 - [Bhabishya Kumar](https://twitter.com/BhabishyaKumar)
 - [Claudio Bernardo Rodriguez Rodriguez](https://twitter.com/claudiordgz)
-- Alex LaFroscia
 - Martin Kluska
 - David Passarelli
 - Zhenhua Cao
 - [Pieter Levels](https://twitter.com/levelsio)
-- Matt R. Wilson
+- [Florian Breisch](https://github.com/florianb)
 - [Mikkel Malmberg](https://github.com/mikker)
 - [Matthew J. McCullough](https://github.com/matthewmccullough)
 - [Maythee Anegboonlap](https://github.com/llun)
@@ -177,6 +172,7 @@ None
 - [Clay Nelson](https://github.com/ClayNelson)
 - [Claudio Wunder](https://github.com/ovflowd)
 - [Charles Kenney](https://github.com/Charliekenney23)
+- [Alex LaFroscia](https://github.com/alexlafroscia)
 - [Stephen Belanger](https://github.com/Qard)
 - [Mikkel Trolle Larsen](https://github.com/trolster)
 - [Shukri Adams](https://github.com/shukriadams)
@@ -192,6 +188,9 @@ None
 - [Connor Bär](https://github.com/connor-baer)
 - [Richard Simpson](https://github.com/RichiCoder1)
 - [Noah Klayman](https://github.com/nklayman)
+- [Blai Pratdesaba](https://github.com/blaiprat)
+- [Sean](https://github.com/hammy2899)
+- [Bertrand Marron](https://github.com/tusbar)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -209,6 +208,7 @@ None
 
 I'm forever thankful to these people and companies that have previously supported me.
 
+- [Addy Osmani](https://twitter.com/addyosmani)
 - [Keyan Zhang](https://twitter.com/keyanzhang)
 - [Emad Al-Shihabi](https://twitter.com/emadshi)
 - [Robin van der Vleuten](https://twitter.com/robinvdvleuten)
@@ -260,6 +260,8 @@ I'm forever thankful to these people and companies that have previously supporte
 - Scott Anderson
 - Mario Nebl
 - Ben Brook
+- Matt R. Wilson
+- [Lee Dohm](https://twitter.com/leedohm)
 
 
 ---
