@@ -86,11 +86,14 @@ layout: default
 			</div>
 			<div class="columns is-vcentered is-centered is-text-centered">
 				<div class="column is-half is-narrow">
-					{% if page.app_store_url or page.setapp_url %}
+					{% if page.mac_app_store_url or page.app_store_url or page.setapp_url %}
 						<div class="app-buttons">
 							<div>
+								{% if page.mac_app_store_url %}
+									<a class="no-underline app-store-badge" href="{{ page.mac_app_store_url }}" style="display:inline-block;overflow:hidden;background:url(https://linkmaker.itunes.apple.com/assets/shared/badges/en-us/macappstore-lrg.svg) no-repeat;width:165px;height:40px"></a>
+								{% endif %}
 								{% if page.app_store_url %}
-									<a class="no-underline app-store-badge" href="{{ page.app_store_url }}" style="display:inline-block;overflow:hidden;background:url(https://linkmaker.itunes.apple.com/assets/shared/badges/en-us/macappstore-lrg.svg) no-repeat;width:165px;height:40px"></a>
+									<a class="no-underline app-store-badge" href="{{ page.app_store_url }}" style="display:inline-block;overflow:hidden;background:url(https://linkmaker.itunes.apple.com/en-us/badge-lrg.svg?kind=iossoftware&bubble=ios_apps) no-repeat;width:135px;height:40px"></a>
 								{% endif %}
 								{% if page.setapp_url %}
 									<a href="{{ page.setapp_url }}"><span style="position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">Available on Setapp</span><img src="https://developer.setapp.com/setapp-button/setapp.svg" alt="Available on Setapp" style="margin: 0; padding: 0; display: block; width: 122px; height: 40px"></a>

@@ -4,7 +4,7 @@ subtitle: Better menu bar clock with calendar and time zones
 description: Dato is a replacement for the system menu bar clock. By default, it looks exactly the same, but when you click it, you'll get a small calendar, ability to show the current time in various time zones (even with custom names), optionally show the week number, and more. <a href="https://sindresorhus.com/feedback/?product=Dato&referrer=Website">Let me know</a> what more you would like to see in the menu.
 type: macOS
 date: 2019-07-13
-app_store_url: https://apps.apple.com/us/app/dato/id1470584107?mt=12
+mac_app_store_url: https://apps.apple.com/us/app/dato/id1470584107?mt=12
 ---
 
 <br>
