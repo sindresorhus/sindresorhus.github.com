@@ -33,7 +33,7 @@ If you or your company are using any of my projects, consider supporting me so I
 
 ### Monthly donations
 
-- [**GitHub Sponsors**](https://github.com/users/sindresorhus/sponsorship) <span style="font-size: 10px">(Preferred as GitHub will match donations for the first year)</span>
+- [**GitHub Sponsors**](https://github.com/sponsors/sindresorhus)
 - [Open Collective](https://opencollective.com/sindresorhus)
 - [Patreon](https://www.patreon.com/sindresorhus)
 

@@ -52,7 +52,7 @@ twitterwidget {
 
 # Thanks! ❤️🙌
 
-I'm truly grateful to all the wonderful humans and companies supporting my open source work on [GitHub Sponsors](https://github.com/users/sindresorhus/sponsorship), [Open Collective](https://opencollective.com/sindresorhus), and [Patreon](https://www.patreon.com/sindresorhus).
+I'm truly grateful to all the wonderful humans and companies supporting my open source work on [GitHub Sponsors](https://github.com/sponsors/sindresorhus), [Open Collective](https://opencollective.com/sindresorhus), and [Patreon](https://www.patreon.com/sindresorhus).
 
 
 ## 🦄 Sponsor <span class="reward-price">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>

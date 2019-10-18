@@ -125,7 +125,7 @@ Dato adheres to what you have set in “System Preferences › Language and Regi
 
 All the date and time output and the calendar adhere to your locale preferences. I have no plans to localize the app itself.
 
-### I added a calendar to the Calendar app but it doesn't show up in Dato
+#### I added a calendar to the Calendar app but it doesn't show up in Dato
 
 You need to enable the calendar in “Dato › Preferences › Calendar Events”.
 
