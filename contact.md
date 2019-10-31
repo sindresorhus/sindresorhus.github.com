@@ -33,7 +33,7 @@ element.search = searchParams.toString();
 
 # Contact
 
-I value my time, so make it worth it, and [keep it succinct.](https://www.google.com/search?q=succinct+emails)
+I value my time, so make it worth it, and [keep it succinct](https://www.google.com/search?q=succinct+emails).
 
 ---
 
