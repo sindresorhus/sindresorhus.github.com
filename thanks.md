@@ -118,9 +118,7 @@ None
 - [Vivian Cromwell](https://twitter.com/viviancromwell)
 - Chris Wales
 - [Sam Verschueren](https://twitter.com/SamVerschueren)
-- Stephen
 - Laurie Voss
-- [Rakan Nimer](https://twitter.com/rakannimer)
 - [Manuel Bieh](https://twitter.com/manuelbieh)
 - Paul Warelis
 - [Gabriel Csapo](https://github.com/gabrielcsapo)
@@ -131,11 +129,9 @@ None
 - [Ben Williams](https://twitter.com/719ben)
 - [Donald Fischer](https://twitter.com/dff)
 - Olivier Martin
-- [Mathieu Dutour](https://twitter.com/MathieuDutour)
 - carddamom
 - Lovelin Edward
 - Suhas Karanth
-- [Eric Lanehart](https://twitter.com/pushred)
 - [Agustin Diaz](https://twitter.com/HiroAgustin)
 - [Limor Fried](https://twitter.com/adafruit)
 - [Chris Vogt](https://twitter.com/C1V0)
@@ -147,9 +143,7 @@ None
 - [Hoishin](https://twitter.com/hoishinxii)
 - [Bhabishya Kumar](https://twitter.com/BhabishyaKumar)
 - [Claudio Bernardo Rodriguez Rodriguez](https://twitter.com/claudiordgz)
-- Martin Kluska
 - David Passarelli
-- Zhenhua Cao
 - [Pieter Levels](https://twitter.com/levelsio)
 - [Florian Breisch](https://github.com/florianb)
 - [Mikkel Malmberg](https://github.com/mikker)
@@ -183,7 +177,6 @@ None
 - [Ahmad Rasyid Salim](https://github.com/ahmadrasyidsalim)
 - [Jurgen Van de Moere](https://github.com/jvandemo)
 - [Riley Tomasek](https://github.com/RileyTomasek)
-- [Lee Dohm](https://github.com/lee-dohm)
 - [Benjamin S.](https://github.com/benjaminsuch)
 - [Connor Bär](https://github.com/connor-baer)
 - [Richard Simpson](https://github.com/RichiCoder1)
@@ -191,6 +184,10 @@ None
 - [Blai Pratdesaba](https://github.com/blaiprat)
 - [Sean](https://github.com/hammy2899)
 - [Bertrand Marron](https://github.com/tusbar)
+- [Eric Lanehart](https://github.com/pushred)
+- [Keiichiro Amemiya](https://github.com/Hoishin)
+- [hilezi](https://github.com/hilezi)
+- [Mathieu Dutour](https://github.com/mathieudutour)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -261,7 +258,9 @@ I'm forever thankful to these people and companies that have previously supporte
 - Mario Nebl
 - Ben Brook
 - Matt R. Wilson
-- [Lee Dohm](https://twitter.com/leedohm)
+- [Rakan Nimer](https://twitter.com/rakannimer)
+- Martin Kluska
+- Zhenhua Cao
 
 
 ---
