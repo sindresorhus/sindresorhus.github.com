@@ -1,21 +1,37 @@
 ---
 title: Dato
 subtitle: Better menu bar clock with calendar and time zones
-description: Dato is a replacement for the system menu bar clock. By default, it looks exactly the same, but when you click it, you'll get a small calendar, ability to show the current time in various time zones (even with custom names), optionally show the week number, and more. <a href="https://sindresorhus.com/feedback/?product=Dato&referrer=Website">Let me know</a> what more you would like to see in the menu.
+description: Dato is a replacement for the system menu bar clock. By default, it looks exactly the same, but when you click it, you get a small calendar, calendar events, the current time in various time zones, and more.
 type: macOS
 date: 2019-07-13
 mac_app_store_url: https://apps.apple.com/us/app/dato/id1470584107?mt=12
 ---
 
+Dato supports all the locales and languages that macOS supports for dates, times, and the calendar, but the menus are English-only.
+
+<br>
+
+### Features
+
+- Calendar, optionally with week numbers and event indicators.
+- Your upcoming events for the next week (customizable) at a glance.
+- Time zones, optionally with custom names.
+- Fully customizable.
+- Search time zones by city (15k cities included offline).
+- Supports all calendar services that the system Calendar app supports (iCloud, Google, Outlook, etc).
+- Lots of in-app keyboard shortcuts for power users.
+- Global keyboard shortcut to open/close the app.
+- Supports calendar events with HTML formatted notes.
+- Show seconds in the menu bar clock. (Optional)
+- "Join Zoom Meeting" button on Zoom meeting calendar invites.
+
 <br>
 
 ### Roadmap
 
-- Custom date format.
 - Time slider for the time zones.
+- Custom date format.
 - Show the time for multiple time zones in the menu bar.
-- Customizable keyboard shortcut to open Dato.
-- Improved time zone management, including easier reordering.
 - A proper preferences window.
 - Timers and stopwatches (like the iOS Clock app, but including Pomodoro).
 - Maybe: Alarm clock.
@@ -132,10 +148,6 @@ You need to enable the calendar in “Dato › Preferences › Calendar Events�
 #### Dato doesn't show up in the menu bar
 
 When the menu bar grows too large, macOS hides overflowing items, so Dato might have been hidden. Try to close some of your other menu bar apps. There’s, unfortunately, no way for apps to detect this and warn the user.
-
-#### How can I reorder the time zones?
-
-You can change the order in “Preferences > Time Zones > [Some Time Zone] > Position”. The usability of this will be improved later this year with a new time zone management.
 
 #### Can you add support for Google Calendar?
 
