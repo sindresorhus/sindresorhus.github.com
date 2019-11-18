@@ -17,34 +17,6 @@ const injectScript = (source, callback) => {
 
 const insertHypenationHintsForCamelCase = string => string.replace(/([a-z])([A-Z])/g, '$1\u00AD$2');
 
-// Latest blog post
-(async () => {
-	const username = 'sindresorhus';
-	const graphql = `
-		query PostQuery($username: String!) {
-			posts(username: $username, limit: 1) {
-				title
-				url
-				subtitle
-			}
-		}
-	`;
-
-	const url = new URL('https://micro-medium-api-gqmwonovpk.now.sh/graphql');
-	url.searchParams.append('variables', JSON.stringify({username}));
-	url.searchParams.append('query', graphql);
-
-	const json = await (await fetch(url)).json();
-	const item = json.data.posts[0];
-
-	const title = dom.select('#latest-blog-post a');
-	title.href = item.url;
-	title.textContent = item.title;
-
-	dom.select('#latest-blog-post p').textContent = item.subtitle;
-	dom.select('#latest-blog-post').classList.add('visible');
-})();
-
 // Latest GitHub commit
 (async () => {
 	const username = 'sindresorhus';
