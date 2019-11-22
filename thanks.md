@@ -55,6 +55,12 @@ twitterwidget {
 I'm truly grateful to all the wonderful humans and companies supporting my open source work on [GitHub Sponsors](https://github.com/sponsors/sindresorhus), [Open Collective](https://opencollective.com/sindresorhus), and [Patreon](https://www.patreon.com/sindresorhus).
 
 
+## 🦄🌈 Sponsor <span class="reward-price">[$1500/month](https://github.com/sponsors/sindresorhus)</span>
+
+<a href="https://github.com/botpress/botpress" class="sponsor">
+	<img src="/assets/thanks/botpress-logo.svg" width="500" alt="Botpress">
+</a>
+
 ## 🦄 Sponsor <span class="reward-price">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>
 
 None
@@ -63,9 +69,6 @@ None
 ## Silver sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
 <div class="silver-sponsor">
-	<a href="https://github.com/botpress/botpress" class="sponsor">
-		<img src="/assets/thanks/botpress-logo.svg" width="240" alt="Botpress">
-	</a>
 	<a href="https://www.miles.in" class="sponsor">
 		<img src="https://user-images.githubusercontent.com/170270/34912034-3332ae4c-f8d6-11e7-8569-65b11486d003.png" width="160" alt="Miles">
 	</a>
