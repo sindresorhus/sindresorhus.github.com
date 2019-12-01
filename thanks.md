@@ -108,6 +108,7 @@ None
 - [Zack Schuster](https://twitter.com/destroyvegas)
 - [Vadim Demedes](https://github.com/vadimdemedes)
 - [Nat Friedman](https://github.com/nat)
+- [Ryan Chartrand](https://github.com/ryanchartrand)
 
 
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
@@ -126,7 +127,6 @@ None
 - Paul Warelis
 - [Gabriel Csapo](https://github.com/gabrielcsapo)
 - Sameeri Pavan Kumar Marryboyina
-- [Phan An](https://twitter.com/notphanan)
 - [Yoshiya Hinosawa](https://twitter.com/kt3k)
 - Jimmy Moon
 - [Ben Williams](https://twitter.com/719ben)
@@ -134,7 +134,6 @@ None
 - Olivier Martin
 - carddamom
 - Lovelin Edward
-- Suhas Karanth
 - [Agustin Diaz](https://twitter.com/HiroAgustin)
 - [Limor Fried](https://twitter.com/adafruit)
 - [Chris Vogt](https://twitter.com/C1V0)
@@ -145,9 +144,9 @@ None
 - [Derk-Jan Karrenbeld](https://twitter.com/SleeplessByte)
 - [Hoishin](https://twitter.com/hoishinxii)
 - [Bhabishya Kumar](https://twitter.com/BhabishyaKumar)
-- [Claudio Bernardo Rodriguez Rodriguez](https://twitter.com/claudiordgz)
 - David Passarelli
 - [Pieter Levels](https://twitter.com/levelsio)
+- Dmitry A.
 - [Florian Breisch](https://github.com/florianb)
 - [Mikkel Malmberg](https://github.com/mikker)
 - [Matthew J. McCullough](https://github.com/matthewmccullough)
@@ -191,6 +190,9 @@ None
 - [Keiichiro Amemiya](https://github.com/Hoishin)
 - [hilezi](https://github.com/hilezi)
 - [Mathieu Dutour](https://github.com/mathieudutour)
+- [Phan An](https://github.com/phanan)
+- [Luke Childs](https://github.com/lukechilds)
+- [Eddie Ramirez](https://github.com/ediardo)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -264,6 +266,8 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Rakan Nimer](https://twitter.com/rakannimer)
 - Martin Kluska
 - Zhenhua Cao
+- Suhas Karanth
+- [Claudio Bernardo Rodriguez Rodriguez](https://twitter.com/claudiordgz)
 
 
 ---
