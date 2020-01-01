@@ -127,7 +127,6 @@ None
 - Paul Warelis
 - [Gabriel Csapo](https://github.com/gabrielcsapo)
 - Sameeri Pavan Kumar Marryboyina
-- [Yoshiya Hinosawa](https://twitter.com/kt3k)
 - Jimmy Moon
 - [Ben Williams](https://twitter.com/719ben)
 - [Donald Fischer](https://twitter.com/dff)
@@ -142,7 +141,6 @@ None
 - [robertgrzonka](https://twitter.com/rgrzonka)
 - [Keith Ito](https://twitter.com/keeeto)
 - [Derk-Jan Karrenbeld](https://twitter.com/SleeplessByte)
-- [Hoishin](https://twitter.com/hoishinxii)
 - [Bhabishya Kumar](https://twitter.com/BhabishyaKumar)
 - David Passarelli
 - [Pieter Levels](https://twitter.com/levelsio)
@@ -193,6 +191,10 @@ None
 - [Phan An](https://github.com/phanan)
 - [Luke Childs](https://github.com/lukechilds)
 - [Eddie Ramirez](https://github.com/ediardo)
+- [Charlton Roberts](https://github.com/charltoons)
+- [Sergey Slipchenko](https://github.com/faergeek)
+- [RStudio](https://github.com/rstudio-sponsorship)
+- [Igor Savin](https://github.com/kibertoad)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -268,6 +270,8 @@ I'm forever thankful to these people and companies that have previously supporte
 - Zhenhua Cao
 - Suhas Karanth
 - [Claudio Bernardo Rodriguez Rodriguez](https://twitter.com/claudiordgz)
+- [Yoshiya Hinosawa](https://twitter.com/kt3k)
+- [Hoishin](https://twitter.com/hoishinxii)
 
 
 ---
