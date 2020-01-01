@@ -20,21 +20,20 @@ Dato supports all the locales and languages that macOS supports for dates, times
 - Search time zones by city (15k cities included offline).
 - Supports all calendar services that the system Calendar app supports (iCloud, Google, Outlook, etc).
 - Lots of in-app keyboard shortcuts for power users.
-- Global keyboard shortcut to open/close the app. *(macOS 10.15 only)*
+- Global keyboard shortcut to open/close the app. *(macOS 10.15 and later)*
 - Supports calendar events with HTML formatted notes.
 - Show seconds in the menu bar clock. (Optional)
 - "Join Zoom Meeting" button on Zoom meeting calendar invites.
+- Custom date & time format.
+- Highlight certain days of the week in the calendar.
 
 <br>
 
 ### Roadmap
 
 - Time slider for the time zones.
-- Custom date format.
 - Show the time for multiple time zones in the menu bar.
-- A proper preferences window.
-- Timers and stopwatches (like the iOS Clock app, but including Pomodoro).
-- Maybe: Alarm clock.
+- Maybe: Timers and stopwatches (like the iOS Clock app, but including Pomodoro).
 
 <br>
 
@@ -94,6 +93,14 @@ Dato supports all the locales and languages that macOS supports for dates, times
 		</td>
 		<td>Select today in the calendar</td>
 	</tr>
+	<!--
+	<tr>
+		<td>
+			<kbd>command</kbd> <kbd>o</kbd>
+		</td>
+		<td>Open the default calendar app</td>
+	</tr>
+	-->
 	<tr>
 		<td>
 			<kbd>command</kbd> <kbd>q</kbd>

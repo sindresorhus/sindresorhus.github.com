@@ -11,3 +11,31 @@ main_button:
 links:
   'Product Hunt post': https://www.producthunt.com/posts/heic-converter
 ---
+
+<br>
+
+
+<h3 id="faq">Frequently Asked Questions</h3>
+
+#### I have a feature request, bug report, or some feedback
+
+[Send it here.](https://sindresorhus.com/feedback/?product=HEIC+Converter&referrer=Website-FAQ)
+
+#### Where can I find the changelog?
+
+Go [here](https://apps.apple.com/us/app/heic-converter/id1294126402?mt=12) and click “Version History”.
+
+#### Can you add support for macOS 10.13 or older?
+
+No, but here's an [unsupported version for macOS 10.13](https://dsc.cloud/sindresorhus/HEIC-Converter-for-macOS-10.13-1575452738) if you cannot upgrade.
+
+#### Is this a native app?
+
+Yes, it’s a native app written in Swift.
+
+#### Can you port it to Windows/Linux?
+
+No, I’m a Mac developer.
+
+
+<br>
