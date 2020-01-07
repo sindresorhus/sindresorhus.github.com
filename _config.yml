@@ -15,6 +15,7 @@ defaults:
     values:
       layout: 'app'
       type: 'app'
+      show_support_link: true
 exclude:
   - Gemfile
   - Gemfile.lock

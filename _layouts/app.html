@@ -103,15 +103,18 @@ layout: default
 						</p>
 					{% endif %}
 					<ul class="app-links">
-						<li>
-							{% if page.repo_url %}
+						{% if page.repo_url %}
+							<li>
 								<a class="is-link" href="{{ page.repo_url }}">Source on GitHub</a>
-							{% else %}
-								{% unless page.is_prerelease %}
+							</li>
+						{% endif %}
+						{% unless page.is_prerelease %}
+							{% if page.show_support_link %}
+								<li>
 									<a class="is-link" href="https://sindresorhus.com/feedback?product={{ page.title | url_encode }}">Support</a>
-								{% endunless %}
+								</li>
 							{% endif %}
-						</li>
+						{% endunless %}
 						{% for link in page.links %}
 							<li>
 								<a href="{{ link[1] }}">{{ link[0] }}</a>

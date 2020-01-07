@@ -122,6 +122,8 @@ a.navbar-item:not(.button) {
 
 .box .image {
 	margin-bottom: 10px;
+	border-radius: 2px;
+	box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.6);
 }
 
 .box .image img {
@@ -129,7 +131,7 @@ a.navbar-item:not(.button) {
 }
 
 .box .title {
-	margin-bottom: 2rem;
+	margin-bottom: 1.8rem;
 }
 
 .box .title a {
