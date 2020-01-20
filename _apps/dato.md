@@ -93,14 +93,12 @@ Dato supports all the locales and languages that macOS supports for dates, times
 		</td>
 		<td>Select today in the calendar</td>
 	</tr>
-	<!--
 	<tr>
 		<td>
 			<kbd>command</kbd> <kbd>o</kbd>
 		</td>
 		<td>Open the default calendar app</td>
 	</tr>
-	-->
 	<tr>
 		<td>
 			<kbd>command</kbd> <kbd>q</kbd>
@@ -150,7 +148,7 @@ All the date and time output and the calendar adhere to your locale preferences.
 
 #### I added a calendar to the Calendar app but it doesn't show up in Dato
 
-You need to enable the calendar in “Dato › Preferences › Calendar Events”.
+You need to enable the calendar in “Dato › Preferences › Events”.
 
 #### Dato doesn't show up in the menu bar
 
@@ -159,6 +157,10 @@ When the menu bar grows too large, macOS hides overflowing items, so Dato might 
 #### Can you add support for Google Calendar?
 
 It's already supported. Just add your Google calendars to the Calendar app and then enable the calendars in the Dato preferences.
+
+#### How can I show the date and time in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format?
+
+Go to “Dato › Preferences › Advanced”, and in the “Date & Time Format” text field, write `YYYY-MM-DD  hh:mm:ss`.
 
 #### How can I make my calendar refresh more often?
 
@@ -194,7 +196,7 @@ It means "date" in Norwegian. I just wanted a short, unique, and relevant name.
 
 #### Do you plan to open-source it?
 
-I open-source [most things](https://github.com/sindresorhus) I make, but I don’t intend to open-source this app. Many open-source apps have problems with someone using the source to publish clones and it’s a hassle to get Apple to take down such clones. I also have my own private framework that makes it faster for me to build apps, but I don’t want to open-source it as then I would have to maintain it.
+I open-source [most things](https://github.com/sindresorhus) I make, but I don’t intend to open-source this app. Many open-source apps have problems with someone using the source to [publish clones](https://twitter.com/sindresorhus/status/1202144430477627394) and it’s a hassle to get Apple to take down such clones. I also have my own private framework that makes it faster for me to build apps, but I don’t want to open-source it as then I would have to maintain it.
 
 #### Can you add support for macOS 10.13 or older?
 
