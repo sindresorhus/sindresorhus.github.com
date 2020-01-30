@@ -18,7 +18,7 @@ Dato supports all the locales and languages that macOS supports for dates, times
 - Time zones, optionally with custom names.
 - Fully customizable.
 - Search time zones by city (15k cities included offline).
-- Supports all calendar services that the system Calendar app supports (iCloud, Google, Outlook, etc).
+- Supports all calendar services that the built-in Calendar app supports (iCloud, Google, Outlook, etc).
 - Lots of in-app keyboard shortcuts for power users.
 - Global keyboard shortcut to open/close the app. *(macOS 10.15 and later)*
 - Supports calendar events with HTML formatted notes.
@@ -26,6 +26,7 @@ Dato supports all the locales and languages that macOS supports for dates, times
 - "Join Zoom Meeting" button on Zoom meeting calendar invites.
 - Custom date & time format.
 - Highlight certain days of the week in the calendar.
+- Open calendar events from Google Calendar directly in Google Calendar.
 
 <br>
 
@@ -33,7 +34,8 @@ Dato supports all the locales and languages that macOS supports for dates, times
 
 - Time slider for the time zones.
 - Show the time for multiple time zones in the menu bar.
-- Maybe: Timers and stopwatches (like the iOS Clock app, but including Pomodoro).
+- A setting to increase text size.
+- How much time until next event.
 
 <br>
 
@@ -158,13 +160,27 @@ When the menu bar grows too large, macOS hides overflowing items, so Dato might 
 
 It's already supported. Just add your Google calendars to the Calendar app and then enable the calendars in the Dato preferences.
 
-#### How can I show the date and time in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format?
+#### How can I customize the menu bar date and time format?
+
+If you just want to toggle a certain component, like date or time, use the checkboxes in the “General” preferences.
+
+If you want something more custom, go to “Dato › Preferences › Advanced”, and in the “Date & Time Format” text field, you can specify a [datetime pattern](https://nsdateformatter.com).
+
+For example, you could display the full month name, the year, or the day of the year.
+
+#### How can I show the menu bar date and time in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format?
 
 Go to “Dato › Preferences › Advanced”, and in the “Date & Time Format” text field, write `YYYY-MM-DD  hh:mm:ss`.
 
+#### How can I open a calendar event in my favorite calendar app (Fantastical, BusyCal, etc.) instead of the built-in Calendar app?
+
+Dato uses the system default calendar app. To change the default calendar app, open the built-in Calendar app, open “Preferences…”, and in the “Default calendar app” preference, select the app you want.
+
+Dato supports opening calendar events directly in Calendar, Fantastical, BusyCal, and Google Calendar (web). For other apps, Dato will just open the app.
+
 #### How can I make my calendar refresh more often?
 
-Open the Calendar app, open its "Preferences", go to the "Accounts" tab, choose the relevant calendar service in the left sidebar, and then change the "Refresh Calendars" preference. Ideally, it should be set to "Push", but not all services support that, like Google.
+Open the Calendar app, open its “Preferences”, go to the “Accounts” tab, choose the relevant calendar service in the left sidebar, and then change the “Refresh Calendars” preference. Ideally, it should be set to “Push”, but not all services support that, like Google.
 
 #### Where can I find the changelog?
 
@@ -182,13 +198,17 @@ I have no plans to add that, but you can make it work by unchecking the "Time" p
 
 This is unfortunately not possible as Dato uses a menu, not a popover, which can’t be pinned.
 
+#### How can I copy a link from the event notes? I need to open it in a specific browser profile.
+
+If it's a plain URL, you can select the URL and choose “Copy Selected Text”. Otherwise, activate the correct browser profile and then drag and drop the link into the browser window.
+
 #### So this is like iStat Menus?
 
 iStat Menus does all the things. Dato is focused on date and time only. Dato also looks better.
 
 #### How is it different from Itsycal?
 
-Itsycal is a great app too. While Itsycal has more advanced calendar functionality, Dato is not just a calendar app, but also includes menu bar clock replacement, time zones, and in the future, timers.
+Itsycal is a great app too. While Itsycal has more advanced calendar functionality, Dato is not just a calendar app, but also includes menu bar clock replacement, time zones, and more.
 
 #### Why the name "Dato"?
 
