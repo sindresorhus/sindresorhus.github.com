@@ -93,6 +93,11 @@ const insertHypenationHintsForCamelCase = string => string.replace(/([a-z])([A-Z
 			lang.textContent = repo.primaryLanguage.name;
 			lang.style.color = textColorFromBackgroundColor(repo.primaryLanguage.color);
 			lang.style.backgroundColor = repo.primaryLanguage.color;
+
+			const query = `user:sindresorhus language:${repo.primaryLanguage.name.toLowerCase()}`;
+			const url = new URL('https://github.com/search');
+			url.searchParams.append('q', query);
+			lang.href = url;
 		}
 
 		content.querySelector('.latest-repos-description').textContent = repo.description;

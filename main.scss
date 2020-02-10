@@ -92,11 +92,11 @@ a.navbar-item:not(.button) {
 	color: hsla(0, 0%, 46%, 1);
 }
 
-.has-nice-link a:not(.button):not(.no-underline) {
+.has-nice-link a:not(.button):not(.no-underline):not(.tag) {
 	box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.1);
 }
 
-.has-nice-link a:not(.button):not(.no-underline):hover {
+.has-nice-link a:not(.button):not(.no-underline):not(.tag):hover {
 	box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.3);
 }
 
@@ -108,11 +108,11 @@ a.navbar-item:not(.button) {
 	}
 }
 
-.is-primary .has-nice-link a:not(.button):not(.no-underline) {
+.is-primary .has-nice-link a:not(.button):not(.no-underline):not(.tag) {
 	box-shadow: inset 0 -1px 0 0 rgba(255, 255, 255, 0.5);
 }
 
-.is-primary .has-nice-link a:not(.button):not(.no-underline):hover {
+.is-primary .has-nice-link a:not(.button):not(.no-underline):not(.tag):hover {
 	box-shadow: inset 0 -2px 0 0 rgba(255, 255, 255, 0.7);
 }
 
