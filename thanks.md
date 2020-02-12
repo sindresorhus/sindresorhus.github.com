@@ -84,8 +84,8 @@ None
 	<a href="https://lunanode.com" class="sponsor">
 		<img src="/assets/thanks/lunanode-logo.svg" width="260" alt="LunaNode">
 	</a>
-	<a href="https://entwicklerstube.com" class="sponsor">
-		<img src="/assets/thanks/entwicklerstube-logo.svg" width="270" alt="entwicklerstube">
+	<a href="https://alm.sh" class="sponsor">
+		<img src="/assets/thanks/alm-logo.svg" width="230" alt="alm">
 	</a>
 	<a href="https://sebastian-software.de" class="sponsor">
 		<img src="/assets/thanks/sebastian-software-logo.svg" width="270" alt="Sebastian Software">
