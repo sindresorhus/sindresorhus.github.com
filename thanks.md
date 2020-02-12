@@ -123,7 +123,6 @@ None
 - Chris Wales
 - [Sam Verschueren](https://twitter.com/SamVerschueren)
 - Laurie Voss
-- [Manuel Bieh](https://twitter.com/manuelbieh)
 - Paul Warelis
 - [Gabriel Csapo](https://github.com/gabrielcsapo)
 - Sameeri Pavan Kumar Marryboyina
@@ -145,6 +144,7 @@ None
 - David Passarelli
 - [Pieter Levels](https://twitter.com/levelsio)
 - Dmitry A.
+- Travis Fischer
 - [Florian Breisch](https://github.com/florianb)
 - [Mikkel Malmberg](https://github.com/mikker)
 - [Matthew J. McCullough](https://github.com/matthewmccullough)
@@ -195,6 +195,8 @@ None
 - [Sergey Slipchenko](https://github.com/faergeek)
 - [RStudio](https://github.com/rstudio-sponsorship)
 - [Igor Savin](https://github.com/kibertoad)
+- [Don Okuda](https://github.com/donokuda)
+- [Kuma Taro](https://github.com/km-tr)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -272,6 +274,7 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Claudio Bernardo Rodriguez Rodriguez](https://twitter.com/claudiordgz)
 - [Yoshiya Hinosawa](https://twitter.com/kt3k)
 - [Hoishin](https://twitter.com/hoishinxii)
+- [Manuel Bieh](https://twitter.com/manuelbieh)
 
 
 ---
