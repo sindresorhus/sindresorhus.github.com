@@ -16,17 +16,18 @@ Dato supports all the locales and languages that macOS supports for dates, times
 - Calendar, optionally with week numbers and event indicators.
 - Your upcoming events for the next week (customizable) at a glance.
 - Time zones, optionally with custom names.
-- Fully customizable.
+- Custom format for the date & time in the menu bar.
+- Highlight certain days of the week in the calendar.
 - Search time zones by city (15k cities included offline).
 - Supports all calendar services that the built-in Calendar app supports (iCloud, Google, Outlook, etc).
+- Fully customizable.
 - Lots of in-app keyboard shortcuts for power users.
 - Global keyboard shortcut to open/close the app. *(macOS 10.15 and later)*
 - Supports calendar events with HTML formatted notes.
-- Show seconds in the menu bar clock. (Optional)
+- Show seconds in the menu bar clock or in the menu. (Optional)
 - "Join Zoom Meeting" button on Zoom meeting calendar invites.
-- Custom date & time format.
-- Highlight certain days of the week in the calendar.
 - Open calendar events from Google Calendar directly in Google Calendar.
+- Custom color for the date & time menu bar text.
 
 <br>
 
@@ -49,6 +50,11 @@ Dato supports all the locales and languages that macOS supports for dates, times
 	<tr>
 		<td>
 			Hold <kbd>option</kbd> while clicking the calendar arrows to jump a year instead of a month.
+		</td>
+	</tr>
+	<tr>
+		<td>
+			In the event details, press <kbd>command</kbd> <kbd>c</kbd> to copy the selected text.
 		</td>
 	</tr>
 </table>
