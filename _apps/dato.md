@@ -178,6 +178,20 @@ For example, you could display the full month name, the year, or the day of the 
 
 Go to “Dato › Preferences › Advanced”, and in the “Date & Time Format” text field, write `YYYY-MM-DD  hh:mm:ss`.
 
+#### A calendar is missing
+
+First, ensure that you have added the calendar to the system. Open the built-in Calendar app, open its preferences, click the “Accounts” tab, and then check that the calendar is there. Dato can only show calendars added there.
+
+If it exists in the Calendar app, open the Dato preferences, click the “Events” tab, and make sure the calendar is enabled.
+
+If it exists in the Calendar app but not in Dato, macOS might have corrupted some permissions. This is unfortunately a common problem. Try to reset the permissions for Dato. Quit Dato, open the Terminal app, and paste in the following command and press <kbd>Enter</kbd>:
+
+```
+tccutil reset All com.sindresorhus.Dato
+```
+
+Then launch Dato again.
+
 #### How can I open a calendar event in my favorite calendar app (Fantastical, BusyCal, etc.) instead of the built-in Calendar app?
 
 Dato uses the system default calendar app. To change the default calendar app, open the built-in Calendar app, open “Preferences…”, and in the “Default calendar app” preference, select the app you want.
