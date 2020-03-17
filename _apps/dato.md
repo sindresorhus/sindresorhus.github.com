@@ -25,7 +25,7 @@ Dato supports all the locales and languages that macOS supports for dates, times
 - Global keyboard shortcut to open/close the app. *(macOS 10.15 and later)*
 - Supports calendar events with HTML formatted notes.
 - Show seconds in the menu bar clock or in the menu. (Optional)
-- "Join Zoom Meeting" button on Zoom meeting calendar invites.
+- “Join Zoom Meeting” button on Zoom meeting calendar invites.
 - Open calendar events from Google Calendar directly in Google Calendar.
 - Custom color for the date & time menu bar text.
 
@@ -44,7 +44,7 @@ Dato supports all the locales and languages that macOS supports for dates, times
 <table>
 	<tr>
 		<td>
-			Double-click a day in the calendar to open that day in the default calendar app.
+			Double-click a day in the calendar to open that day in the default calendar app. (Supports: Calendar, Fantastical 2, BusyCal, Outlook)
 		</td>
 	</tr>
 	<tr>
@@ -162,9 +162,9 @@ You need to enable the calendar in “Dato › Preferences › Events”.
 
 When the menu bar grows too large, macOS hides overflowing items, so Dato might have been hidden. Try to close some of your other menu bar apps. There’s, unfortunately, no way for apps to detect this and warn the user.
 
-#### Can you add support for Google Calendar?
+#### Can you add support for Google Calendar / Outlook 365 / Exchange?
 
-It's already supported. Just add your Google calendars to the Calendar app and then enable the calendars in the Dato preferences.
+It's already supported. Just add your calendars to the built-in Calendar app and then enable those calendars in the Dato preferences.
 
 #### How can I customize the menu bar date and time format?
 
@@ -196,7 +196,7 @@ Then launch Dato again.
 
 Dato uses the system default calendar app. To change the default calendar app, open the built-in Calendar app, open “Preferences…”, and in the “Default calendar app” preference, select the app you want.
 
-Dato supports opening calendar events directly in Calendar, Fantastical, BusyCal, and Google Calendar (web). For other apps, Dato will just open the app.
+Dato supports opening calendar events directly in Calendar, Fantastical, BusyCal, Outlook, and Google Calendar (web). For other apps, Dato will just open the app.
 
 #### How can I make my calendar refresh more often?
 
@@ -208,11 +208,11 @@ Go [here](https://apps.apple.com/us/app/dato/id1470584107?mt=12) and click “Ve
 
 #### Can you add support for showing an analog clock like the system clock?
 
-I have no plans to add that, but you can make it work by unchecking the "Time" preference in Dato and keep the system clock.
+I have no plans to add that, but you can make it work by unchecking the “Time” preference in Dato and keep the system clock.
 
 #### Can you add support for flashing the time separator like the system clock?
 
-I have no plans to add that, but you can make it work by unchecking the "Time" preference in Dato and keep the system clock.
+I have no plans to add that, but you can make it work by unchecking the “Time” preference in Dato and keep the system clock.
 
 #### Is it possible to pin Dato so it's always visible?
 
@@ -230,9 +230,9 @@ iStat Menus does all the things. Dato is focused on date and time only. Dato als
 
 Itsycal is a great app too. While Itsycal has more advanced calendar functionality, Dato is not just a calendar app, but also includes menu bar clock replacement, time zones, and more.
 
-#### Why the name "Dato"?
+#### Why the name “Dato”?
 
-It means "date" in Norwegian. I just wanted a short, unique, and relevant name.
+It means “date” in Norwegian. I just wanted a short, unique, and relevant name.
 
 #### Do you plan to open-source it?
 
