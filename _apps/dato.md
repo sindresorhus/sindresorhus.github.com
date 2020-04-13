@@ -44,6 +44,11 @@ Dato supports all the locales and languages that macOS supports for dates, times
 <table>
 	<tr>
 		<td>
+			Click the month & year label in the calendar (for example, “April 2020”) to change the selected day to “today”.
+		</td>
+	</tr>
+	<tr>
+		<td>
 			Double-click a day in the calendar to open that day in the default calendar app. (Supports: Calendar, Fantastical 2, BusyCal, Outlook)
 		</td>
 	</tr>
