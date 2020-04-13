@@ -48,6 +48,12 @@ mac_app_store_url: https://apps.apple.com/us/app/jiffy/id1502527999?mt=12
 <table>
 	<tr>
 		<td>
+			<kbd>command</kbd> <kbd>f</kbd>
+		</td>
+		<td>Focus the search field</td>
+	</tr>
+	<tr>
+		<td>
 			<kbd>shift</kbd> <kbd>command</kbd> <kbd>f</kbd>
 		</td>
 		<td>Toggle the favorites view</td>
