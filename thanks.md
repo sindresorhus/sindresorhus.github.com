@@ -105,7 +105,6 @@ None
 - [Ben Truyman](https://github.com/bentruyman)
 - [Bhargav Ponnapalli](https://twitter.com/imbhargav5)
 - [Jacob Gillespie](https://github.com/jacobwgillespie)
-- [Zack Schuster](https://twitter.com/destroyvegas)
 - [Vadim Demedes](https://github.com/vadimdemedes)
 - [Nat Friedman](https://github.com/nat)
 - [Ryan Chartrand](https://github.com/ryanchartrand)
@@ -131,20 +130,18 @@ None
 - [Donald Fischer](https://twitter.com/dff)
 - Olivier Martin
 - carddamom
-- Lovelin Edward
 - [Agustin Diaz](https://twitter.com/HiroAgustin)
-- [Limor Fried](https://twitter.com/adafruit)
 - [Chris Vogt](https://twitter.com/C1V0)
 - Thomas Klemm
 - [aggre](https://twitter.com/aggre_)
 - [robertgrzonka](https://twitter.com/rgrzonka)
 - [Keith Ito](https://twitter.com/keeeto)
 - [Derk-Jan Karrenbeld](https://twitter.com/SleeplessByte)
-- [Bhabishya Kumar](https://twitter.com/BhabishyaKumar)
 - David Passarelli
 - [Pieter Levels](https://twitter.com/levelsio)
 - Dmitry A.
 - Travis Fischer
+- [Josh Duff (TehShrike)](https://twitter.com/TehShrike)
 - [Florian Breisch](https://github.com/florianb)
 - [Mikkel Malmberg](https://github.com/mikker)
 - [Matthew J. McCullough](https://github.com/matthewmccullough)
@@ -197,6 +194,8 @@ None
 - [Igor Savin](https://github.com/kibertoad)
 - [Don Okuda](https://github.com/donokuda)
 - [Kuma Taro](https://github.com/km-tr)
+- [Hassy Veldstra](https://github.com/hassy)
+- [Hiroki](https://github.com/privatenumber)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -275,6 +274,10 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Yoshiya Hinosawa](https://twitter.com/kt3k)
 - [Hoishin](https://twitter.com/hoishinxii)
 - [Manuel Bieh](https://twitter.com/manuelbieh)
+- [Zack Schuster](https://twitter.com/destroyvegas)
+- [Bhabishya Kumar](https://twitter.com/BhabishyaKumar)
+- Lovelin Edward
+- [Limor Fried](https://twitter.com/adafruit)
 
 
 ---

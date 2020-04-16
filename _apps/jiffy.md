@@ -32,7 +32,7 @@ mac_app_store_url: https://apps.apple.com/us/app/jiffy/id1502527999?mt=12
 <table>
 	<tr>
 		<td>
-			Click a GIF for a larger preview. Click the preview to close it.
+			Click a GIF for a larger preview. Click the preview or press <kbd>esc</kbd> to close it.
 		</td>
 	</tr>
 	<tr>
