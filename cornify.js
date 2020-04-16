@@ -1,4 +1,4 @@
-// Adapted from http://www.cornify.com/js/cornify.js
+// Adapted from https://www.cornify.com/js/cornify.js
 (() => {
 	'use strict';
 
