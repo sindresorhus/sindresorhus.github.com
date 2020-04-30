@@ -5,6 +5,8 @@ description: 'Jiffy lets you quickly search and discover GIFs from GIPHY. When y
 type: macOS
 date: 2020-03-25
 mac_app_store_url: https://apps.apple.com/us/app/jiffy/id1502527999?mt=12
+links:
+  'Product Hunt post': https://www.producthunt.com/posts/jiffy-2
 ---
 
 <br>
