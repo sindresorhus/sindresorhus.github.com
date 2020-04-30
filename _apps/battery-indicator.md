@@ -21,8 +21,8 @@ Go [here](https://apps.apple.com/us/app/battery-indicator/id1206020918?mt=12) an
 
 #### Can you add support for macOS 10.14 or older?
 
-No, but you can get the last compatible version [here](https://github.com/sindresorhus/meta/files/4127047/Battery-Indicator-2.1.0-Mojave.zip).
+No, but you can get the last macOS 10.14 compatible version [here](https://github.com/sindresorhus/meta/files/4127047/Battery-Indicator-2.1.0-Mojave.zip) (free).
 
-### Can I contribute localizations?
+#### Can you localize the app into my language?
 
-No, I'm not interested in localizing the app.
+I don't have any immediate plans to localize the app.
