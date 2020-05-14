@@ -16,8 +16,8 @@ Dato supports all the locales and languages that macOS supports for dates, times
 - Calendar, optionally with week numbers and event indicators.
 - Your upcoming events for the next week (customizable) at a glance.
 - Time zones, optionally with custom names.
-- Custom format for the date & time in the menu bar.
-- Highlight certain days of the week in the calendar.
+- Custom format for the date & time in the menu bar. *(macOS 10.15 and later)*
+- Highlight certain days of the week in the calendar. *(macOS 10.15 and later)*
 - Search time zones by city (15k cities included offline).
 - Supports all calendar services that the built-in Calendar app supports (iCloud, Google, Outlook, etc).
 - Fully customizable.
@@ -27,7 +27,9 @@ Dato supports all the locales and languages that macOS supports for dates, times
 - Show seconds in the menu bar clock or in the menu. (Optional)
 - “Join Zoom Meeting” button on Zoom meeting calendar invites.
 - Open calendar events from Google Calendar directly in Google Calendar.
-- Custom color for the date & time menu bar text.
+- Custom color for the date & time menu bar text. *(macOS 10.15 and later)*
+- Comes with multiple menu bar icons to choose from: date in calendar, date with border (like Itsycal), static clock, none. *(macOS 10.15 and later)*
+- Comes with a Today widget in the Notification Center for time zones. *(macOS 10.15 and later)*
 
 <br>
 
@@ -179,9 +181,13 @@ If you want something more custom, go to “Dato › Preferences › Advanced”
 
 For example, you could display the full month name, the year, or the day of the year.
 
+*(macOS 10.15 and later only)*
+
 #### How can I show the menu bar date and time in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format?
 
 Go to “Dato › Preferences › Advanced”, and in the “Date & Time Format” text field, write `YYYY-MM-DD  hh:mm:ss`.
+
+*(macOS 10.15 and later only)*
 
 #### How can I open a calendar event in my favorite calendar app (Fantastical, BusyCal, etc.) instead of the built-in Calendar app?
 
