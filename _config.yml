@@ -23,6 +23,7 @@ exclude:
   - license
   - CNAME
   - screenshot.jpg
+  - vendor
 plugins:
   - jekyll-sitemap
 strict_front_matter: true

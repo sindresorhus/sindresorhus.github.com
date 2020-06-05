@@ -54,24 +54,17 @@ twitterwidget {
 
 I'm truly grateful to all the wonderful humans and companies supporting my open source work on [GitHub Sponsors](https://github.com/sponsors/sindresorhus), [Open Collective](https://opencollective.com/sindresorhus), and [Patreon](https://www.patreon.com/sindresorhus).
 
-
 ## 🦄🌈 Sponsor <span class="reward-price">[$1500/month](https://github.com/sponsors/sindresorhus)</span>
 
-<a href="https://github.com/botpress/botpress" class="sponsor">
-	<img src="/assets/thanks/botpress-logo.svg" width="500" alt="Botpress">
-</a>
+None
 
 ## 🦄 Sponsor <span class="reward-price">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>
 
 None
 
-
 ## Silver sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
 <div class="silver-sponsor">
-	<a href="https://www.miles.in" class="sponsor">
-		<img src="https://user-images.githubusercontent.com/170270/34912034-3332ae4c-f8d6-11e7-8569-65b11486d003.png" width="160" alt="Miles">
-	</a>
 	<a href="https://moxy.studio" class="sponsor">
 		<img src="/assets/thanks/moxy-logo.svg" width="240" alt="MOXY">
 	</a>
@@ -96,8 +89,10 @@ None
 	<a href="https://segment.com" class="sponsor">
 		<img src="/assets/thanks/segment-logo.svg" width="280" alt="Segment">
 	</a>
+	<a href="https://standardresume.co" class="sponsor">
+		<img src="/assets/thanks/standard-resume-logo.svg" width="200" alt="Standard Resume">
+	</a>
 </div>
-
 
 ## Top supporter <span class="reward-price">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
 
@@ -109,11 +104,9 @@ None
 - [Nat Friedman](https://github.com/nat)
 - [Ryan Chartrand](https://github.com/ryanchartrand)
 
-
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
 
 - [Daniel Stockman](https://twitter.com/evocateur)
-- Fran Méndez
 - [Sam Richard](https://twitter.com/snugug)
 - Stefan Penner
 - [Paul Irish](https://twitter.com/paul_irish)
@@ -130,16 +123,13 @@ None
 - [Donald Fischer](https://twitter.com/dff)
 - Olivier Martin
 - carddamom
-- [Agustin Diaz](https://twitter.com/HiroAgustin)
 - [Chris Vogt](https://twitter.com/C1V0)
-- Thomas Klemm
 - [aggre](https://twitter.com/aggre_)
 - [robertgrzonka](https://twitter.com/rgrzonka)
 - [Keith Ito](https://twitter.com/keeeto)
 - [Derk-Jan Karrenbeld](https://twitter.com/SleeplessByte)
 - David Passarelli
 - [Pieter Levels](https://twitter.com/levelsio)
-- Dmitry A.
 - Travis Fischer
 - [Josh Duff (TehShrike)](https://twitter.com/TehShrike)
 - [Florian Breisch](https://github.com/florianb)
@@ -197,10 +187,14 @@ None
 - [Hassy Veldstra](https://github.com/hassy)
 - [Hiroki](https://github.com/privatenumber)
 - [KaboHub](https://kabohub.co.nz)
+- [William Entriken](https://github.com/fulldecent)
+- [Colin Keany](https://github.com/colinkeany)
+- [Thomas Klemm](https://github.com/thomasklemm)
+- [Mark Waldron](https://github.com/MarkWaldron)
+- [Hilke Heremans](https://github.com/hilkeheremans)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
-
 
 ## Become a supporter
 
@@ -208,7 +202,6 @@ None
 
 <blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">I&#39;m launching a Patreon 🦄<br><br>For the past 3 years I&#39;ve been doing open source full-time while living off savings. Now I need your support. If you or your company use any of my projects or just like what I&#39;m doing, please consider backing me. <a href="https://t.co/jSNyFohpfN">https://t.co/jSNyFohpfN</a></p>&mdash; Sindre Sorhus 🇳🇴 (@sindresorhus) <a href="https://twitter.com/sindresorhus/status/941032894964883457?ref_src=twsrc%5Etfw">December 13, 2017</a></blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-
 
 ## Previous supporters
 
@@ -279,7 +272,9 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Bhabishya Kumar](https://twitter.com/BhabishyaKumar)
 - Lovelin Edward
 - [Limor Fried](https://twitter.com/adafruit)
-
+- Fran Méndez
+- Dmitry A.
+- [Agustin Diaz](https://twitter.com/HiroAgustin)
 
 ---
 

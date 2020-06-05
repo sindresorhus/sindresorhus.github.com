@@ -64,6 +64,11 @@ Dato supports all the locales and languages that macOS supports for dates, times
 			In the event details, press <kbd>command</kbd> <kbd>c</kbd> to copy the selected text.
 		</td>
 	</tr>
+	<tr>
+		<td>
+			While looking at an event, press <kbd>option</kbd> to see the name of the calendar it belongs to.
+		</td>
+	</tr>
 </table>
 
 <br>
