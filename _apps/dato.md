@@ -238,6 +238,10 @@ This is unfortunately not possible as Dato uses a menu, not a popover, which can
 
 If it's a non-clickable URL (not a link), you can select the URL and choose “Copy Selected Text”. Otherwise, activate the correct browser profile and then drag and drop the link into the browser window.
 
+#### How can I export / import / sync / backup preferences?
+
+I would recommend the [Syncalicious app](https://github.com/zenangst/Syncalicious) which works with any macOS app.
+
 #### How is this different from Fantastical?
 
 Fantastical is a full-blown calendar app, while Dato is a read-only view of your events. Fantastical is a replacement for the built-in Calendar app. You can use both Fantastical and Dato at the same time. Dato even has integration with Fantastical, so you can open events in Dato directly in Fantastical. Fantastical also has a menu bar item, but many people prefer the UI of Dato. Dato also shows time zones and has more customizability for what's shown in the menu bar. Dato can replace the system date/time, for example.
