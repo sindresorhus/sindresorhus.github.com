@@ -71,9 +71,6 @@ None
 	<a href="https://zeit.co" class="sponsor">
 		<img src="/assets/thanks/zeit-logo.svg" width="240" alt="ZEIT">
 	</a>
-	<a href="https://issuehunt.io" class="sponsor">
-		<img src="/assets/thanks/issuehunt-logo.png" width="260" alt="IssueHunt">
-	</a>
 	<a href="https://lunanode.com" class="sponsor">
 		<img src="/assets/thanks/lunanode-logo.svg" width="260" alt="LunaNode">
 	</a>
@@ -82,12 +79,6 @@ None
 	</a>
 	<a href="https://sebastian-software.de" class="sponsor">
 		<img src="/assets/thanks/sebastian-software-logo.svg" width="270" alt="Sebastian Software">
-	</a>
-	<a href="https://www.gumlet.com" class="sponsor">
-		<img src="/assets/thanks/gumlet-logo.svg" width="280" alt="Gumlet">
-	</a>
-	<a href="https://segment.com" class="sponsor">
-		<img src="/assets/thanks/segment-logo.svg" width="280" alt="Segment">
 	</a>
 	<a href="https://standardresume.co" class="sponsor">
 		<img src="/assets/thanks/standard-resume-logo.svg" width="200" alt="Standard Resume">
@@ -119,7 +110,6 @@ None
 - [Gabriel Csapo](https://github.com/gabrielcsapo)
 - Sameeri Pavan Kumar Marryboyina
 - Jimmy Moon
-- [Ben Williams](https://twitter.com/719ben)
 - [Donald Fischer](https://twitter.com/dff)
 - Olivier Martin
 - carddamom
@@ -192,6 +182,7 @@ None
 - [Thomas Klemm](https://github.com/thomasklemm)
 - [Mark Waldron](https://github.com/MarkWaldron)
 - [Hilke Heremans](https://github.com/hilkeheremans)
+- [Neal DeBuhr](https://github.com/ndebuhr)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -275,6 +266,7 @@ I'm forever thankful to these people and companies that have previously supporte
 - Fran Méndez
 - Dmitry A.
 - [Agustin Diaz](https://twitter.com/HiroAgustin)
+- [Ben Williams](https://twitter.com/719ben)
 
 ---
 
