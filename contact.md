@@ -28,7 +28,7 @@ if (originalSearchParams.has('body')) {
 	searchParams.set('body', originalSearchParams.get('body'));
 }
 
-element.search = searchParams.toString();
+element.href = `${element.href}?${searchParams.toString()}`;
 </script>
 
 # Contact
