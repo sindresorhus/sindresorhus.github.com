@@ -20,15 +20,15 @@ title: Contact
 const originalSearchParams = new URLSearchParams(location.search);
 const element = document.querySelector('#email a');
 
-const searchParams = new URLSearchParams();
+const url = new URL(element.href);
 if (originalSearchParams.has('subject')) {
-	searchParams.set('subject', originalSearchParams.get('subject'));
+	url.searchParams.set('subject', originalSearchParams.get('subject'));
 }
 if (originalSearchParams.has('body')) {
-	searchParams.set('body', originalSearchParams.get('body'));
+	url.searchParams.set('body', originalSearchParams.get('body'));
 }
 
-element.search = searchParams.toString();
+element.href = url.toString();
 </script>
 
 # Contact
