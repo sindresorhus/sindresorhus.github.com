@@ -83,6 +83,9 @@ None
 	<a href="https://standardresume.co" class="sponsor">
 		<img src="/assets/thanks/standard-resume-logo.svg" width="200" alt="Standard Resume">
 	</a>
+	<a href="https://eslint.org" class="sponsor">
+		<img src="/assets/thanks/eslint-logo.png" width="200" alt="ESLint">
+	</a>
 </div>
 
 ## Top supporter <span class="reward-price">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
