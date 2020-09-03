@@ -23,13 +23,17 @@ First, ensure the “Show recording in Finder after saving” preference is enab
 
 Preview the recording as described above and then click the trim button.
 
+#### How can I record system audio?
+
+Follow the instructions [here](https://github.com/ExistentialAudio/BlackHole#record-system-audio).
+
 #### How can I sync recordings to iCloud?
 
 Choose “iCloud Drive” as the output directory.
 
-#### How can I record system audio?
+#### Why 48 kHz and not 44.1 kHz?
 
-Follow the instructions [here](https://github.com/ExistentialAudio/BlackHole#record-system-audio).
+48 kHz is the standard for audio in today's video production. It's also the internal production standard for many audio production companies. 44.1 kHz was popularized by music CDs.
 
 #### Where can I find the changelog?
 
