@@ -120,7 +120,6 @@ None
 - [Chris Vogt](https://twitter.com/C1V0)
 - [aggre](https://twitter.com/aggre_)
 - [robertgrzonka](https://twitter.com/rgrzonka)
-- [Keith Ito](https://twitter.com/keeeto)
 - [Derk-Jan Karrenbeld](https://twitter.com/SleeplessByte)
 - David Passarelli
 - [Pieter Levels](https://twitter.com/levelsio)
@@ -131,6 +130,7 @@ None
 - [Mikkel Malmberg](https://github.com/mikker)
 - [Matthew J. McCullough](https://github.com/matthewmccullough)
 - [Maythee Anegboonlap](https://github.com/llun)
+- [Keith Ito](https://github.com/keithito)
 - [Sasha Koss](https://github.com/kossnocorp)
 - [Viktor Fonic](https://github.com/vfonic)
 - [Robert McGuinness](https://github.com/robmcguinness)
@@ -190,6 +190,7 @@ None
 - [Neal DeBuhr](https://github.com/ndebuhr)
 - [Kyle Gray](https://github.com/GoPro16)
 - [Charlie](https://github.com/charliegroll)
+- [Dominik Kundel](https://github.com/dkundel)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
