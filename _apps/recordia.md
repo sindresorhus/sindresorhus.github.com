@@ -25,7 +25,7 @@ Preview the recording as described above and then click the trim button.
 
 #### How can I record system audio?
 
-Follow the instructions [here](https://github.com/ExistentialAudio/BlackHole#record-system-audio).
+Follow the instructions [here](https://github.com/ExistentialAudio/BlackHole#record-system-audio). Then select “BlackHole 16ch” as the input device in Recordia.
 
 #### How can I sync recordings to iCloud?
 
@@ -34,6 +34,14 @@ Choose “iCloud Drive” as the output directory.
 #### Why 48 kHz and not 44.1 kHz?
 
 48 kHz is the standard for audio in today's video production. It's also the internal production standard for many audio production companies. 44.1 kHz was popularized by music CDs.
+
+#### Why WAV over ALAC/FLAC?
+
+WAV is supported everywhere.
+
+#### Can I use my iPhone as a microphone?
+
+Yes, follow the guide [here](https://www.switchingtomac.com/tutorials/how-to-use-your-iphone-as-a-microphone-on-a-mac/).
 
 #### Where can I find the changelog?
 

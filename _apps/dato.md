@@ -43,8 +43,6 @@ Dato supports all the locales and languages that macOS supports for dates, times
 
 <br>
 
-Dato requires macOS 10.15 or later. You can get the last macOS 10.14 compatible release [here](). TODO
-
 <br>
 
 <h3 id="tips">Tips</h3>
