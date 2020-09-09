@@ -54,13 +54,15 @@ twitterwidget {
 
 I'm truly grateful to all the wonderful humans and companies supporting my open source work on [GitHub Sponsors](https://github.com/sponsors/sindresorhus), [Open Collective](https://opencollective.com/sindresorhus), and [Patreon](https://www.patreon.com/sindresorhus).
 
-## 🦄🌈 Sponsor <span class="reward-price">[$1500/month](https://github.com/sponsors/sindresorhus)</span>
+<!-- ## 🦄🌈 Sponsor <span class="reward-price">[$1500/month](https://github.com/sponsors/sindresorhus)</span>
 
-None
+None -->
 
 ## 🦄 Sponsor <span class="reward-price">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>
 
-None
+<a href="https://standardresume.co" class="sponsor">
+	<img src="/assets/thanks/standard-resume-logo.svg" width="330" alt="Standard Resume">
+</a>
 
 ## Silver sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
@@ -79,9 +81,6 @@ None
 	</a>
 	<a href="https://sebastian-software.de" class="sponsor">
 		<img src="/assets/thanks/sebastian-software-logo.svg" width="270" alt="Sebastian Software">
-	</a>
-	<a href="https://standardresume.co" class="sponsor">
-		<img src="/assets/thanks/standard-resume-logo.svg" width="200" alt="Standard Resume">
 	</a>
 	<a href="https://eslint.org" class="sponsor">
 		<img src="/assets/thanks/eslint-logo.png" width="200" alt="ESLint">
