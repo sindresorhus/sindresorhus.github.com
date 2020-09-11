@@ -85,6 +85,9 @@ None -->
 	<a href="https://eslint.org" class="sponsor">
 		<img src="/assets/thanks/eslint-logo.png" width="200" alt="ESLint">
 	</a>
+	<a href="https://casino-academia.com" class="sponsor">
+		<img src="/assets/thanks/casino-academia-logo.png" width="280" alt="Casino Academia">
+	</a>
 </div>
 
 ## Top supporter <span class="reward-price">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
