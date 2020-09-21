@@ -22,6 +22,10 @@ layout: default
 	#icon {
 		filter: drop-shadow(0px 1px 3px #D5D5D5);
 		width: 200px;
+
+		{% if page.type == 'iOS' %}
+		border-radius: 40px;
+		{% endif %}
 	}
 
 	.app-buttons {
