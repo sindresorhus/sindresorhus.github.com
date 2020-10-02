@@ -106,7 +106,6 @@ None -->
 - [Daniel Stockman](https://twitter.com/evocateur)
 - [Sam Richard](https://twitter.com/snugug)
 - Stefan Penner
-- [Paul Irish](https://twitter.com/paul_irish)
 - Mike North
 - [Vivian Cromwell](https://twitter.com/viviancromwell)
 - Chris Wales
@@ -128,6 +127,7 @@ None -->
 - Travis Fischer
 - [Josh Duff (TehShrike)](https://twitter.com/TehShrike)
 - Christian Buratto
+- [Paul Irish](https://github.com/paulirish)
 - [Florian Breisch](https://github.com/florianb)
 - [Mikkel Malmberg](https://github.com/mikker)
 - [Matthew J. McCullough](https://github.com/matthewmccullough)
@@ -193,6 +193,7 @@ None -->
 - [Kyle Gray](https://github.com/GoPro16)
 - [Charlie](https://github.com/charliegroll)
 - [Dominik Kundel](https://github.com/dkundel)
+- [Jonas Sannewald](https://github.com/Suboptimierer)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
