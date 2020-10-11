@@ -9,6 +9,8 @@ mac_app_store_url: https://apps.apple.com/us/app/dato/id1470584107?mt=12
 
 Dato supports all the locales and languages that macOS supports for dates, times, and the calendar, but the menus are English-only.
 
+Important: On macOS 11, it’s no longer possible to hide the system menu bar clock. So Dato can only replace the date.
+
 <br>
 
 ### Features
@@ -34,14 +36,9 @@ Dato supports all the locales and languages that macOS supports for dates, times
 
 <br>
 
-### Roadmap
+Dato requires macOS 10.15 or later.
 
-- Time slider for the time zones.
-- Show the time for multiple time zones in the menu bar.
-- A setting to increase text size.
-- How much time until the next event.
-
-<br>
+You can get the last macOS 10.14 compatible release [here](https://github.com/sindresorhus/meta/files/5360452/Dato.1.14.9.-.Special.last.Mojave.compatible.release.zip).
 
 <br>
 
@@ -162,6 +159,20 @@ Dato supports all the locales and languages that macOS supports for dates, times
 #### I have a feature request, bug report, or some feedback
 
 [Send it here.](https://sindresorhus.com/feedback/?product=Dato&referrer=Website-FAQ)
+
+<a id="macos11-hide-clock"></a>
+#### How can I hide the built-in menu bar clock on macOS 11?
+
+On macOS 11, it's unfortunately no longer possible to disable the built-in menu bar clock. This means you can no longer use Dato's clock instead of the built-in clock...
+
+However, you have some options:
+1. In “System Preferences › Dock & Menu Bar › Clock”, choose the analog clock and disable showing the date. This gets you the closest to how it was on macOS 10.15 as you can use Dato for both date and time.
+2. Use Dato for showing the date and the built-in clock for the time.
+3. Only show an icon for Dato.
+
+I would really appreciate it if you could take a moment to [complain to Apple](https://www.apple.com/feedback/macos.html) that they should bring back the ability to disable the built-in menu bar clock. For reference, on macOS 10.15, there's a checkbox called “Show date and time in the menu bar” in “System Preferences › Date & Time › Clock”. This checkbox no longer exists on macOS 11.
+
+I have already [reported it to Apple](https://github.com/feedback-assistant/reports/issues/131), but I have yet to get a reply.
 
 #### How can I toggle AM/PM for the time?
 

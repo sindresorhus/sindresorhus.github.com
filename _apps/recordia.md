@@ -1,7 +1,7 @@
 ---
 title: Recordia
-subtitle: Quickly record input audio
-description: Record input audio directly from the menu bar or with a global keyboard shortcut.
+subtitle: Quickly record audio
+description: Record audio directly from the menu bar or with a global keyboard shortcut.
 type: macOS
 date: 2020-09-02
 mac_app_store_url: https://apps.apple.com/app/id1529006487

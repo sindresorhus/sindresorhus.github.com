@@ -32,6 +32,10 @@ If you use the “Album” widget, there’s no limit to the number of photos.
 
 This is not possible. App developers have no way to hide it.
 
+#### Can I show an animated GIF in a widget?
+
+This is not possible.
+
 #### How is this different from the built-in “Photos” widget?
 
 The built-in widget only shows photos from “Memories” and “Featured Photos” in your photo library. There is no way to customize it or pick the photos to be shown.
