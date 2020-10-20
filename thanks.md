@@ -85,7 +85,7 @@ None -->
 	<a href="https://eslint.org" class="sponsor">
 		<img src="/assets/thanks/eslint-logo.png" width="200" alt="ESLint">
 	</a>
-	<a href="https://casino-academia.com" class="sponsor">
+	<a href="https://casino-academia.jp" class="sponsor">
 		<img src="/assets/thanks/casino-academia-logo.png" width="280" alt="Casino Academia">
 	</a>
 </div>
@@ -127,6 +127,7 @@ None -->
 - Travis Fischer
 - [Josh Duff (TehShrike)](https://twitter.com/TehShrike)
 - Christian Buratto
+- [Addy Osmani](https://github.com/addyosmani)
 - [Paul Irish](https://github.com/paulirish)
 - [Florian Breisch](https://github.com/florianb)
 - [Mikkel Malmberg](https://github.com/mikker)
@@ -209,7 +210,6 @@ None -->
 
 I'm forever thankful to these people and companies that have previously supported me.
 
-- [Addy Osmani](https://twitter.com/addyosmani)
 - [Keyan Zhang](https://twitter.com/keyanzhang)
 - [Emad Al-Shihabi](https://twitter.com/emadshi)
 - [Robin van der Vleuten](https://twitter.com/robinvdvleuten)
