@@ -32,7 +32,7 @@ $navbar-dropdown-radius: $radius-large !default
 $navbar-dropdown-z: 20 !default
 
 $navbar-dropdown-boxed-radius: $radius-large !default
-$navbar-dropdown-boxed-shadow: 0 8px 8px rgba($scheme-invert, 0.1), 0 0 0 1px rgba($scheme-invert, 0.1) !default
+$navbar-dropdown-boxed-shadow: 0 8px 8px bulmaRgba($scheme-invert, 0.1), 0 0 0 1px bulmaRgba($scheme-invert, 0.1) !default
 
 $navbar-dropdown-item-hover-color: $scheme-invert !default
 $navbar-dropdown-item-hover-background-color: $background !default
@@ -46,6 +46,8 @@ $navbar-bottom-box-shadow-size: 0 -2px 0 0 !default
 
 $navbar-breakpoint: $desktop !default
 
+$navbar-colors: $colors !default
+
 =navbar-fixed
   left: 0
   position: fixed
@@ -57,7 +59,7 @@ $navbar-breakpoint: $desktop !default
   min-height: $navbar-height
   position: relative
   z-index: $navbar-z
-  @each $name, $pair in $colors
+  @each $name, $pair in $navbar-colors
     $color: nth($pair, 1)
     $color-invert: nth($pair, 2)
     &.is-#{$name}
@@ -72,7 +74,7 @@ $navbar-breakpoint: $desktop !default
           &:focus,
           &:hover,
           &.is-active
-            background-color: darken($color, 5%)
+            background-color: bulmaDarken($color, 5%)
             color: $color-invert
         .navbar-link
           &::after
@@ -90,7 +92,7 @@ $navbar-breakpoint: $desktop !default
             &:focus,
             &:hover,
             &.is-active
-              background-color: darken($color, 5%)
+              background-color: bulmaDarken($color, 5%)
               color: $color-invert
           .navbar-link
             &::after
@@ -98,7 +100,7 @@ $navbar-breakpoint: $desktop !default
         .navbar-item.has-dropdown:focus .navbar-link,
         .navbar-item.has-dropdown:hover .navbar-link,
         .navbar-item.has-dropdown.is-active .navbar-link
-          background-color: darken($color, 5%)
+          background-color: bulmaDarken($color, 5%)
           color: $color-invert
         .navbar-dropdown
           a.navbar-item
@@ -151,7 +153,7 @@ body
 .navbar-burger
   color: $navbar-burger-color
   +hamburger($navbar-height)
-  margin-left: auto
+  +ltr-property("margin", auto, false)
 
 .navbar-menu
   display: none
@@ -179,7 +181,6 @@ a.navbar-item,
     color: $navbar-item-hover-color
 
 .navbar-item
-  display: block
   flex-grow: 0
   flex-shrink: 0
   img
@@ -210,12 +211,12 @@ a.navbar-item,
   flex-shrink: 1
 
 .navbar-link:not(.is-arrowless)
-  padding-right: 2.5em
+  +ltr-property("padding", 2.5em)
   &::after
     @extend %arrow
     border-color: $navbar-dropdown-arrow
     margin-top: -0.375em
-    right: 1.125em
+    +ltr-position(1.125em)
 
 .navbar-dropdown
   font-size: 0.875rem
@@ -245,7 +246,7 @@ a.navbar-item,
       display: none
   .navbar-menu
     background-color: $navbar-background-color
-    box-shadow: 0 8px 16px rgba($scheme-invert, 0.1)
+    box-shadow: 0 8px 16px bulmaRgba($scheme-invert, 0.1)
     padding: 0.5rem 0
     &.is-active
       display: block
@@ -257,7 +258,7 @@ a.navbar-item,
     &.is-fixed-bottom-touch
       bottom: 0
       &.has-shadow
-        box-shadow: 0 -2px 3px rgba($scheme-invert, 0.1)
+        box-shadow: 0 -2px 3px bulmaRgba($scheme-invert, 0.1)
     &.is-fixed-top-touch
       top: 0
     &.is-fixed-top,
@@ -320,7 +321,6 @@ a.navbar-item,
     align-items: center
     display: flex
   .navbar-item
-    display: flex
     &.has-dropdown
       align-items: stretch
     &.has-dropdown-up
@@ -331,7 +331,7 @@ a.navbar-item,
         border-radius: $navbar-dropdown-radius $navbar-dropdown-radius 0 0
         border-top: none
         bottom: 100%
-        box-shadow: 0 -8px 8px rgba($scheme-invert, 0.1)
+        box-shadow: 0 -8px 8px bulmaRgba($scheme-invert, 0.1)
         top: auto
     &.is-active,
     &.is-hoverable:focus,
@@ -349,19 +349,19 @@ a.navbar-item,
     flex-shrink: 0
   .navbar-start
     justify-content: flex-start
-    margin-right: auto
+    +ltr-property("margin", auto)
   .navbar-end
     justify-content: flex-end
-    margin-left: auto
+    +ltr-property("margin", auto, false)
   .navbar-dropdown
     background-color: $navbar-dropdown-background-color
     border-bottom-left-radius: $navbar-dropdown-radius
     border-bottom-right-radius: $navbar-dropdown-radius
     border-top: $navbar-dropdown-border-top
-    box-shadow: 0 8px 8px rgba($scheme-invert, 0.1)
+    box-shadow: 0 8px 8px bulmaRgba($scheme-invert, 0.1)
     display: none
     font-size: 0.875rem
-    left: 0
+    +ltr-position(0, false)
     min-width: 100%
     position: absolute
     top: 100%
@@ -370,7 +370,7 @@ a.navbar-item,
       padding: 0.375rem 1rem
       white-space: nowrap
     a.navbar-item
-      padding-right: 3rem
+      +ltr-property("padding", 3rem)
       &:focus,
       &:hover
         background-color: $navbar-dropdown-item-hover-background-color
@@ -398,9 +398,9 @@ a.navbar-item,
   .navbar > .container,
   .container > .navbar
     .navbar-brand
-      margin-left: -.75rem
+      +ltr-property("margin", -.75rem, false)
     .navbar-menu
-      margin-right: -.75rem
+      +ltr-property("margin", -.75rem)
   // Fixed navbar
   .navbar
     &.is-fixed-bottom-desktop,
@@ -409,7 +409,7 @@ a.navbar-item,
     &.is-fixed-bottom-desktop
       bottom: 0
       &.has-shadow
-        box-shadow: 0 -2px 3px rgba($scheme-invert, 0.1)
+        box-shadow: 0 -2px 3px bulmaRgba($scheme-invert, 0.1)
     &.is-fixed-top-desktop
       top: 0
   html,

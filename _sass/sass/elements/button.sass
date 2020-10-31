@@ -14,12 +14,13 @@ $button-hover-border-color: $link-hover-border !default
 $button-focus-color: $link-focus !default
 $button-focus-border-color: $link-focus-border !default
 $button-focus-box-shadow-size: 0 0 0 0.125em !default
-$button-focus-box-shadow-color: rgba($link, 0.25) !default
+$button-focus-box-shadow-color: bulmaRgba($link, 0.25) !default
 
 $button-active-color: $link-active !default
 $button-active-border-color: $link-active-border !default
 
 $button-text-color: $text !default
+$button-text-decoration: underline !default
 $button-text-hover-background-color: $background !default
 $button-text-hover-color: $text-strong !default
 
@@ -31,6 +32,8 @@ $button-disabled-opacity: 0.5 !default
 $button-static-color: $text-light !default
 $button-static-background-color: $scheme-main-ter !default
 $button-static-border-color: $border !default
+
+$button-colors: $colors !default
 
 // The button sizes use mixins so they can be used at different breakpoints
 =button-small
@@ -70,11 +73,11 @@ $button-static-border-color: $border !default
       height: 1.5em
       width: 1.5em
     &:first-child:not(:last-child)
-      margin-left: calc(#{-1 / 2 * $button-padding-horizontal} - #{$button-border-width})
-      margin-right: $button-padding-horizontal / 4
+      +ltr-property("margin", calc(#{-1 / 2 * $button-padding-horizontal} - #{$button-border-width}), false)
+      +ltr-property("margin", $button-padding-horizontal / 4)
     &:last-child:not(:first-child)
-      margin-left: $button-padding-horizontal / 4
-      margin-right: calc(#{-1 / 2 * $button-padding-horizontal} - #{$button-border-width})
+      +ltr-property("margin", $button-padding-horizontal / 4, false)
+      +ltr-property("margin", calc(#{-1 / 2 * $button-padding-horizontal} - #{$button-border-width}))
     &:first-child:last-child
       margin-left: calc(#{-1 / 2 * $button-padding-horizontal} - #{$button-border-width})
       margin-right: calc(#{-1 / 2 * $button-padding-horizontal} - #{$button-border-width})
@@ -98,7 +101,7 @@ $button-static-border-color: $border !default
     background-color: transparent
     border-color: transparent
     color: $button-text-color
-    text-decoration: underline
+    text-decoration: $button-text-decoration
     &:hover,
     &.is-hovered,
     &:focus,
@@ -107,14 +110,14 @@ $button-static-border-color: $border !default
       color: $button-text-hover-color
     &:active,
     &.is-active
-      background-color: darken($button-text-hover-background-color, 5%)
+      background-color: bulmaDarken($button-text-hover-background-color, 5%)
       color: $button-text-hover-color
     &[disabled],
     fieldset[disabled] &
       background-color: transparent
       border-color: transparent
       box-shadow: none
-  @each $name, $pair in $colors
+  @each $name, $pair in $button-colors
     $color: nth($pair, 1)
     $color-invert: nth($pair, 2)
     &.is-#{$name}
@@ -123,7 +126,7 @@ $button-static-border-color: $border !default
       color: $color-invert
       &:hover,
       &.is-hovered
-        background-color: darken($color, 2.5%)
+        background-color: bulmaDarken($color, 2.5%)
         border-color: transparent
         color: $color-invert
       &:focus,
@@ -131,10 +134,10 @@ $button-static-border-color: $border !default
         border-color: transparent
         color: $color-invert
         &:not(:active)
-          box-shadow: $button-focus-box-shadow-size rgba($color, 0.25)
+          box-shadow: $button-focus-box-shadow-size bulmaRgba($color, 0.25)
       &:active,
       &.is-active
-        background-color: darken($color, 5%)
+        background-color: bulmaDarken($color, 5%)
         border-color: transparent
         color: $color-invert
       &[disabled],
@@ -147,7 +150,7 @@ $button-static-border-color: $border !default
         color: $color
         &:hover,
         &.is-hovered
-          background-color: darken($color-invert, 5%)
+          background-color: bulmaDarken($color-invert, 5%)
         &[disabled],
         fieldset[disabled] &
           background-color: $color-invert
@@ -215,12 +218,12 @@ $button-static-border-color: $border !default
           color: $color-dark
           &:hover,
           &.is-hovered
-            background-color: darken($color-light, 2.5%)
+            background-color: bulmaDarken($color-light, 2.5%)
             border-color: transparent
             color: $color-dark
           &:active,
           &.is-active
-            background-color: darken($color-light, 5%)
+            background-color: bulmaDarken($color-light, 5%)
             border-color: transparent
             color: $color-dark
   // Sizes
@@ -268,7 +271,7 @@ $button-static-border-color: $border !default
   .button
     margin-bottom: 0.5rem
     &:not(:last-child):not(.is-fullwidth)
-      margin-right: 0.5rem
+      +ltr-property("margin", 0.5rem)
   &:last-child
     margin-bottom: -0.5rem
   &:not(:last-child)
@@ -291,9 +294,9 @@ $button-static-border-color: $border !default
       &:not(:last-child)
         border-bottom-right-radius: 0
         border-top-right-radius: 0
-        margin-right: -1px
+        +ltr-property("margin", -1px)
       &:last-child
-        margin-right: 0
+        +ltr-property("margin", 0)
       &:hover,
       &.is-hovered
         z-index: 2

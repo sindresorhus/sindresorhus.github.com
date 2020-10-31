@@ -1,6 +1,6 @@
 $modal-z: 40 !default
 
-$modal-background-background-color: rgba($scheme-invert, 0.86) !default
+$modal-background-background-color: bulmaRgba($scheme-invert, 0.86) !default
 
 $modal-content-width: 640px !default
 $modal-content-margin-mobile: 20px !default
@@ -28,6 +28,8 @@ $modal-card-foot-border-top: 1px solid $border !default
 $modal-card-body-background-color: $scheme-main !default
 $modal-card-body-padding: 20px !default
 
+$modal-breakpoint: $tablet !default
+
 .modal
   @extend %overlay
   align-items: center
@@ -53,7 +55,7 @@ $modal-card-body-padding: 20px !default
   position: relative
   width: 100%
   // Responsiveness
-  +tablet
+  +from($modal-breakpoint)
     margin: 0 auto
     max-height: calc(100vh - #{$modal-content-spacing-tablet})
     width: $modal-content-width
@@ -63,7 +65,7 @@ $modal-card-body-padding: 20px !default
   background: none
   height: $modal-close-dimensions
   position: fixed
-  right: $modal-close-right
+  +ltr-position($modal-close-right)
   top: $modal-close-top
   width: $modal-close-dimensions
 
@@ -102,7 +104,7 @@ $modal-card-body-padding: 20px !default
   border-top: $modal-card-foot-border-top
   .button
     &:not(:last-child)
-      margin-right: 0.5em
+      +ltr-property("margin", 0.5em)
 
 .modal-card-body
   +overflow-touch

@@ -322,3 +322,7 @@ kbd {
 	position: relative;
 	top: -1px;
 }
+
+.is-unclickable {
+	pointer-events: none;
+}

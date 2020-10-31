@@ -88,8 +88,8 @@ const insertHypenationHintsForCamelCase = string => string.replace(/([a-z])([A-Z
 		a.href = repo.url;
 		a.textContent = insertHypenationHintsForCamelCase(repo.name);
 
+		const lang = content.querySelector('.latest-repos-language');
 		if (repo.primaryLanguage) {
-			const lang = content.querySelector('.latest-repos-language');
 			lang.textContent = repo.primaryLanguage.name;
 			lang.style.color = textColorFromBackgroundColor(repo.primaryLanguage.color);
 			lang.style.backgroundColor = repo.primaryLanguage.color;
@@ -98,6 +98,8 @@ const insertHypenationHintsForCamelCase = string => string.replace(/([a-z])([A-Z
 			const url = new URL('https://github.com/search');
 			url.searchParams.append('q', query);
 			lang.href = url;
+		} else {
+			lang.classList.add('is-unclickable');
 		}
 
 		content.querySelector('.latest-repos-description').textContent = repo.description;
