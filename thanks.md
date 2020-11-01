@@ -195,6 +195,7 @@ None -->
 - [Charlie](https://github.com/charliegroll)
 - [Dominik Kundel](https://github.com/dkundel)
 - [Jonas Sannewald](https://github.com/Suboptimierer)
+- [Eric Fletcher](https://github.com/iamericfletcher)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
