@@ -210,7 +210,11 @@ For example, you could display the full month name, the year, or the day of the 
 
 Either change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340) or go to “Dato › Preferences › Advanced”, and in the “Date & Time Format” text field, write `YYYY-MM-DD  hh:mm:ss`.
 
-#### How can I change the week number to [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format?
+#### Why is Dato not showing week 53?
+
+That is called [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date). See the below answer.
+
+#### How can I change the week number to [ISO 8601](https://en.wikipedia.org/wiki/ISO_week_date) format?
 
 Change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
 
@@ -261,6 +265,32 @@ If it's a non-clickable URL (not a link), you can select the URL and choose “C
 #### How can I export / import / sync / backup preferences?
 
 I would recommend the [Syncalicious app](https://github.com/zenangst/Syncalicious) which works with any macOS app.
+
+#### How can I open Google Meet links in a specific browser?
+
+You can use the [Finicky app](https://github.com/johnste/finicky) with this config:
+
+```js
+module.exports = {
+	defaultBrowser: 'Firefox',
+	handlers: [
+		{
+			browser: 'Google Chrome',
+			match: [
+				'https://meet.google.com/*'
+			]
+		},
+		{
+			browser: 'Google Chrome',
+			match: ({url}) => {
+				return url.host == 'accounts.google.com'
+					&& url.pathname == '/AccountChooser'
+					&& /continue=https%3A%2F%2Fmeet\.google\.com/.test(url.search);
+			}
+		}
+	]
+};
+```
 
 #### How is this different from Fantastical?
 
