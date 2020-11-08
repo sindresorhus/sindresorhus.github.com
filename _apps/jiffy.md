@@ -23,10 +23,9 @@ links:
 
 <br>
 
-### Roadmap
+### Older versions
 
-- Random GIF.
-- Infinite scrolling.
+[Last macOS 10.15 compatible version.](https://github.com/sindresorhus/meta/files/5507132/Jiffy-1-2-2-Mojave.zip)
 
 <br>
 
