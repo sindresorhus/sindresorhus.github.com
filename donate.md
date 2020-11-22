@@ -55,4 +55,5 @@ You can also support me by buying my apps.
 - [Dato](https://sindresorhus.com/dato)
 - [Lungo](https://sindresorhus.com/lungo)
 - [Battery Indicator](https://sindresorhus.com/battery-indicator)
+- [Recordia](https://sindresorhus.com/recordia)
 - [Black Out](https://sindresorhus.com/black-out)
