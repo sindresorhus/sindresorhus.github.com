@@ -4,7 +4,7 @@ subtitle: Remaining battery time in your menu bar
 description: Battery Indicator lets you quickly glance the remaining battery time or percentage right in your menu bar.
 type: macOS
 date: 2017-02-18
-app_store_url: https://apps.apple.com/us/app/battery-indicator/id1206020918?mt=12
+app_store_url: https://apps.apple.com/app/id1206020918
 links:
   'Product Hunt post': https://www.producthunt.com/posts/battery-indicator
 ---
@@ -17,7 +17,7 @@ links:
 
 #### Where can I find the changelog?
 
-Go [here](https://apps.apple.com/us/app/battery-indicator/id1206020918?mt=12) and click “Version History”.
+Go [here](https://apps.apple.com/app/id1206020918) and click “Version History”.
 
 #### Can you add support for macOS 10.14 or older?
 

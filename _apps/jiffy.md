@@ -4,10 +4,12 @@ subtitle: Discover & share the best GIFs from your menu bar
 description: 'Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found an awesome GIF, just drag and drop it into an app.'
 type: macOS
 date: 2020-03-25
-mac_app_store_url: https://apps.apple.com/us/app/jiffy/id1502527999?mt=12
+mac_app_store_url: https://apps.apple.com/app/id1502527999
 links:
   'Product Hunt post': https://www.producthunt.com/posts/jiffy-2
 ---
+
+Currently taken off the App Store because of users being mean.
 
 <br>
 
@@ -89,7 +91,7 @@ I don't have any immediate plans to localize the app.
 
 #### Where can I find the changelog?
 
-Go [here](https://apps.apple.com/us/app/jiffy/id1502527999?mt=12) and click “Version History”.
+Go [here](https://apps.apple.com/app/id1502527999) and click “Version History”.
 
 #### Why the name “Jiffy”?
 

@@ -4,7 +4,7 @@ subtitle: Better menu bar clock with calendar and time zones
 description: Dato is a replacement for the system menu bar clock. By default, it looks exactly the same, but when you click it, you get a small calendar, calendar events, the current time in various time zones, and more.
 type: macOS
 date: 2019-07-13
-mac_app_store_url: https://apps.apple.com/us/app/dato/id1470584107?mt=12
+mac_app_store_url: https://apps.apple.com/app/id1470584107
 ---
 
 Dato supports all the locales and languages that macOS supports for dates, times, and the calendar, but the menus are English-only.
@@ -230,7 +230,7 @@ Open the Calendar app, open its “Preferences”, go to the “Accounts” tab,
 
 #### Where can I find the changelog?
 
-Go [here](https://apps.apple.com/us/app/dato/id1470584107?mt=12) and click “Version History”.
+Go [here](https://apps.apple.com/app/id1470584107) and click “Version History”.
 
 #### Can you add support for showing an analog clock like the system clock?
 
