@@ -25,11 +25,13 @@ Currently taken off the App Store because of users being mean.
 
 <br>
 
+<!--
 ### Older versions
 
 [Last macOS 10.15 compatible version.](https://github.com/sindresorhus/meta/files/5507132/Jiffy-1-2-2-Mojave.zip)
 
 <br>
+-->
 
 <h3 id="tips">Tips</h3>
 <table>
