@@ -17,8 +17,9 @@ Important: On macOS 11, it’s no longer possible to hide the system menu bar cl
 
 - Calendar, optionally with week numbers and event indicators.
 - Your upcoming events for the next week (customizable) at a glance.
-- Time zones, optionally with custom names.
+- Time zones in the Dato menu, optionally with custom names.
 - Custom format for the date & time in the menu bar.
+- Clocks for multiple time zones in the menu bar.
 - Highlight certain days of the week in the calendar.
 - Search time zones by city (15k cities included offline).
 - Supports all calendar services that the built-in Calendar app supports (iCloud, Google, Outlook, etc).
@@ -27,11 +28,10 @@ Important: On macOS 11, it’s no longer possible to hide the system menu bar cl
 - Global keyboard shortcut to open/close the app.
 - Supports calendar events with HTML formatted notes.
 - Show seconds in the menu bar clock or in the menu. (Optional)
-- “Join Meeting” button on Google Meet and Zoom meeting calendar invites.
-- Open calendar events from Google Calendar directly in Google Calendar.
-- Custom color for the date & time menu bar text.
+- Zoom, Google Meet, and Microsoft Teams integration. (Shows icon on events and button to quickly join)
+- Open calendar events from Google Calendar directly in Google Calendar on the web.
+- Custom color for the date & time menu bar item. (macOS 10.15 only, not macOS 11)
 - Comes with multiple menu bar icons to choose from: date in calendar, date with border (like Itsycal), static clock, none.
-- Comes with a Today widget in the Notification Center for time zones.
 - Large text mode.
 
 <br>

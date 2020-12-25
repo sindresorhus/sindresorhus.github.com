@@ -29,7 +29,7 @@ Preview the recording as described above and then click the trim button.
 
 #### How can I record system audio?
 
-Follow the instructions [here](https://github.com/ExistentialAudio/BlackHole#record-system-audio). Then select “BlackHole 16ch” as the input device in Recordia.
+Follow the instructions [here](https://github.com/ExistentialAudio/BlackHole#record-system-audio). Then select “BlackHole” as the input device in Recordia.
 
 #### How can I sync recordings to iCloud?
 

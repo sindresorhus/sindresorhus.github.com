@@ -60,32 +60,32 @@ None -->
 
 ## 🦄 Sponsor <span class="reward-price">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>
 
-<a href="https://standardresume.co" class="sponsor">
+<a href="https://standardresume.co" class="sponsor" rel="nofollow">
 	<img src="/assets/thanks/standard-resume-logo.svg" width="330" alt="Standard Resume">
 </a>
 
 ## Silver sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
 <div class="silver-sponsor">
-	<a href="https://moxy.studio" class="sponsor">
+	<a href="https://moxy.studio" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/moxy-logo.svg" width="240" alt="MOXY">
 	</a>
-	<a href="https://zeit.co" class="sponsor">
+	<a href="https://zeit.co" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/zeit-logo.svg" width="240" alt="ZEIT">
 	</a>
-	<a href="https://lunanode.com" class="sponsor">
+	<a href="https://lunanode.com" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/lunanode-logo.svg" width="260" alt="LunaNode">
 	</a>
-	<a href="https://alm.sh" class="sponsor">
+	<a href="https://alm.sh" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/alm-logo.svg" width="230" alt="alm">
 	</a>
-	<a href="https://sebastian-software.de" class="sponsor">
+	<a href="https://sebastian-software.de" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/sebastian-software-logo.svg" width="270" alt="Sebastian Software">
 	</a>
-	<a href="https://eslint.org" class="sponsor">
+	<a href="https://eslint.org" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/eslint-logo.png" width="200" alt="ESLint">
 	</a>
-	<a href="https://casino-academia.jp" class="sponsor">
+	<a href="https://casino-academia.jp" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/casino-academia-logo.png" width="280" alt="Casino Academia">
 	</a>
 </div>
