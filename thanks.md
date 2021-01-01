@@ -88,6 +88,9 @@ None -->
 	<a href="https://casino-academia.jp" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/casino-academia-logo.png" width="280" alt="Casino Academia">
 	</a>
+	<a href="https://github.com/andrewgremlich" class="sponsor" rel="nofollow" style="font-size: 36px">
+		Andrew Gremlich
+	</a>
 </div>
 
 ## Top supporter <span class="reward-price">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
@@ -100,6 +103,7 @@ None -->
 - [Nat Friedman](https://github.com/nat)
 - [Ryan Chartrand](https://github.com/ryanchartrand)
 - [Loyalty Leo](https://www.loyaltyleo.com)
+- [Verti Studio](https://github.com/Codeinwp)
 
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
 
@@ -127,6 +131,7 @@ None -->
 - [Josh Duff (TehShrike)](https://twitter.com/TehShrike)
 - Christian Buratto
 - Fission Team
+- Manizheh and Nick
 - [Addy Osmani](https://github.com/addyosmani)
 - [Paul Irish](https://github.com/paulirish)
 - [Florian Breisch](https://github.com/florianb)
@@ -199,6 +204,13 @@ None -->
 - [Eric Fletcher](https://github.com/iamericfletcher)
 - [Aadit Kamat](https://github.com/aaditkamat)
 - [Tim Nolet](https://github.com/tnolet)
+- [jmnetizen](https://github.com/jmnetizen)
+- [Jered Sutton](https://github.com/jsutton)
+- [Aternos](https://github.com/aternosorg)
+- [Yuan Qing Lim](https://github.com/yuanqing)
+- [Vince Malone](https://github.com/VinceMalone)
+- [Ideal Postcodes](https://github.com/ideal-postcodes)
+- [Paul Warelis](https://github.com/pwarelis)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>

@@ -212,7 +212,11 @@ Either change [this system setting](https://apple.stackexchange.com/questions/19
 
 #### Why is Dato not showing week 53?
 
-That is called [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date). See the below answer.
+That is called [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date). Change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
+
+#### Why is Dato showing the last days of December as week 1?
+
+Same answer as above.
 
 #### How can I change the week number to [ISO 8601](https://en.wikipedia.org/wiki/ISO_week_date) format?
 
