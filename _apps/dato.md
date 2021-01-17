@@ -11,6 +11,8 @@ Dato supports all the locales and languages that macOS supports for dates, times
 
 Important: On macOS 11, it’s no longer possible to hide the system menu bar clock. So Dato can only replace the date.
 
+[MacStories review of Dato.](https://www.macstories.net/reviews/dato-review-calendar-events-and-time-zones-from-your-macs-menu-bar/)
+
 <br>
 
 ### Features
