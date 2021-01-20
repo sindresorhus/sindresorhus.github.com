@@ -60,7 +60,7 @@ None -->
 
 ## 🦄 Sponsor <span class="reward-price">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>
 
-<a href="https://standardresume.co" class="sponsor" rel="nofollow">
+<a href="https://standardresume.co/tech" class="sponsor" rel="nofollow">
 	<img src="/assets/thanks/standard-resume-logo.svg" width="330" alt="Standard Resume">
 </a>
 
