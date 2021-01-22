@@ -165,10 +165,10 @@ You can get the last macOS 10.14 compatible release [here](https://github.com/si
 <a id="macos11-hide-clock"></a>
 #### How can I hide the built-in menu bar clock on macOS 11?
 
-On macOS 11, it's unfortunately no longer possible to disable the built-in menu bar clock. This means you can no longer use Dato's clock instead of the built-in clock...
+On macOS 11, it's unfortunately no longer possible to disable the built-in menu bar clock.
 
 However, you have some options:
-1. In “System Preferences › Dock & Menu Bar › Clock”, choose the analog clock and disable showing the date. This gets you the closest to how it was on macOS 10.15 as you can use Dato for both date and time.
+1. **(Recommended)** In “System Preferences › Dock & Menu Bar › Clock”, choose the analog clock and disable showing the date. This gets you the closest to how it was on macOS 10.15 as you can use Dato for both date and time. <img width="258" src="https://user-images.githubusercontent.com/170270/105505537-a5044800-5cfb-11eb-979b-7a0b109f0c93.png"><br>This has the added benefit that while the system clock [shows as disabled](https://user-images.githubusercontent.com/170270/105506021-2c51bb80-5cfc-11eb-84a6-79b62d69d4bc.png) when you enable “Do Not Disturb” (which makes it pretty unreadable), Dato always shows it the same way.
 2. Use Dato for showing the date and the built-in clock for the time.
 3. Only show an icon for Dato.
 
