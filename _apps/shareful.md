@@ -6,6 +6,8 @@ date: 2020-09-08
 mac_app_store_url: https://apps.apple.com/app/id1522267256
 ---
 
+<a align="center" style="display:block" href="https://www.producthunt.com/posts/shareful?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-shareful" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=282336&theme=light" alt="Shareful - Supercharge the macOS share menu | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54"/></a>
+
 <h3 id="tips">Tips</h3>
 <table>
 	<tr>
