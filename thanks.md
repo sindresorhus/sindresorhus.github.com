@@ -61,7 +61,10 @@ None -->
 ## 🦄 Sponsor <span class="reward-price">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>
 
 <a href="https://standardresume.co/tech" class="sponsor" rel="nofollow">
-	<img src="/assets/thanks/standard-resume-logo.svg" width="330" alt="Standard Resume">
+	<img src="/assets/thanks/standard-resume-logo.svg" width="320" alt="Standard Resume">
+</a>
+<a href="https://retool.com/?utm_campaign=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-44px">
+	<img src="/assets/thanks/retool-logo.svg" width="410" alt="Retool">
 </a>
 
 ## Silver sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
@@ -104,6 +107,8 @@ None -->
 - [Ryan Chartrand](https://github.com/ryanchartrand)
 - [Loyalty Leo](https://www.loyaltyleo.com)
 - [Verti Studio](https://github.com/Codeinwp)
+- [Digital Attitude](https://github.com/dtttd)
+- [Passbolt](https://github.com/passbolt)
 
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
 
@@ -211,6 +216,8 @@ None -->
 - [Vince Malone](https://github.com/VinceMalone)
 - [Ideal Postcodes](https://github.com/ideal-postcodes)
 - [Paul Warelis](https://github.com/pwarelis)
+- [Dynobase](https://github.com/Dynobase)
+- [Yefim Vedernikoff](https://github.com/yefim)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>

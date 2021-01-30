@@ -29,13 +29,12 @@ Go [here](https://apps.apple.com/app/id1294126402) and click “Version History�
 
 No, but here's an [unsupported version for macOS 10.13](https://dsc.cloud/sindresorhus/HEIC-Converter-for-macOS-10.13-1575452738) if you cannot upgrade.
 
-#### Is this a native app?
+#### Does it preserve 10-bit depth?
 
-Yes, it’s a native app written in Swift.
+No. JPEG only supports 8-bit. PNG supports 8-bit and 16-bit, but macOS doesn't have a way to convert 10-bit HEIC to 16-bit PNG, so it ends up as 8-bit too.
 
-#### Can you port it to Windows/Linux?
+#### Does it support other HEIF variants like `.heif` or `.hif`?
 
-No, I’m a Mac developer.
-
+No. Only `.heic` is supported at the moment as macOS support for other variants is buggy.
 
 <br>
