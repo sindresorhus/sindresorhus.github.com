@@ -43,6 +43,10 @@ Choose “iCloud Drive” as the output directory.
 
 WAV is supported everywhere.
 
+#### Does it do noise reduction?
+
+macOS does some noise reduction by default. For stronger noise reduction, check out [this free app](https://www.utterly.app).
+
 #### Can I use my iPhone as a microphone?
 
 Yes, follow the guide [here](https://www.switchingtomac.com/tutorials/how-to-use-your-iphone-as-a-microphone-on-a-mac/).

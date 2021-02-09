@@ -66,6 +66,9 @@ None -->
 <a href="https://retool.com/?utm_campaign=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-44px">
 	<img src="/assets/thanks/retool-logo.svg" width="410" alt="Retool">
 </a>
+<a href="https://github.com" class="sponsor" rel="nofollow" style="position:relative;left:-3px">
+	<img src="/assets/thanks/github-logo.svg" width="310" alt="GitHub">
+</a>
 
 ## Silver sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
