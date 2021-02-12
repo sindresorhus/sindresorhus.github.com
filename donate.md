@@ -42,8 +42,7 @@ If you or your company are using any of my projects, consider supporting me so I
 - [My PayPal](https://www.paypal.me/sindresorhus)
 - [BuyMeACoffee.com](https://www.buymeacoffee.com/sindresorhus)
 - [Open Collective](https://opencollective.com/sindresorhus)
-- [Donorbox](https://donorbox.org/sindresorhus)
-- [tippin.me](https://tippin.me/@sindresorhus) <small>(Tip with BTC through the Lightning Network)</small>
+- [DEV](https://stakes.social/0x28201885e9E1F9AA069600bdbD3e0a90BaB82595)
 - Bitcoin (BTC): `18h9q67KByyEWb7cAQbq8fDSZJqF4aeVMY`
 - Litecoin (LTC): `LZTqq2KdLzD1xKXEPrEmRXSVrJwsT9VsJ1`
 - Ethereum (ETH): `0xc55d3d86Fb9E52613EFD7156DDd9eff8a1e6C199`
