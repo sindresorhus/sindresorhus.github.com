@@ -112,6 +112,7 @@ None -->
 - [Verti Studio](https://github.com/Codeinwp)
 - [Digital Attitude](https://github.com/dtttd)
 - [Passbolt](https://github.com/passbolt)
+- [Tripwire](https://github.com/Tripwire)
 
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
 
@@ -221,6 +222,9 @@ None -->
 - [Paul Warelis](https://github.com/pwarelis)
 - [Dynobase](https://github.com/Dynobase)
 - [Yefim Vedernikoff](https://github.com/yefim)
+- [Sami Koskimäki](https://github.com/koskimas)
+- [Checkly](https://github.com/checkly)
+- [Osama Khan](https://github.com/osamakhn)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
