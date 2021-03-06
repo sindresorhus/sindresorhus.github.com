@@ -27,9 +27,14 @@ First, ensure the “Show recording in Finder after saving” preference is enab
 
 Preview the recording as described above and then click the trim button.
 
+<a id="record-system-audio"></a>
 #### How can I record system audio?
 
-Follow the instructions [here](https://github.com/ExistentialAudio/BlackHole#record-system-audio). Then select “BlackHole” as the input device in Recordia.
+Recordia doesn't have a built-in way to record system audio because of App Store restrictions. However, you can achieve it by following the below steps:
+
+1. [Install the BlackHole audio driver](https://github.com/ExistentialAudio/BlackHole#installation-instructions)
+2. [Set up a multi-output device](https://github.com/ExistentialAudio/BlackHole/wiki/Multi-Output-Device)
+3. Select “BlackHole” as the input device in Recordia
 
 #### How can I sync recordings to iCloud?
 
