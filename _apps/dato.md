@@ -220,6 +220,10 @@ That is called [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date)
 
 Same answer as above.
 
+#### Dato is showing the incorrect week number
+
+Same answer as above.
+
 #### How can I change the week number to [ISO 8601](https://en.wikipedia.org/wiki/ISO_week_date) format?
 
 Change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
