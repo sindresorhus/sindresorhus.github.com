@@ -1,27 +1,37 @@
 ---
 title: Dato
 subtitle: Better menu bar clock with calendar and time zones
-description: Dato is a replacement for the system menu bar clock. By default, it looks exactly the same, but when you click it, you get a small calendar, calendar events, the current time in various time zones, and more.
+description: Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable. Dato also comes with some macOS 11 widgets.
 type: macOS
 date: 2019-07-13
 mac_app_store_url: https://apps.apple.com/app/id1470584107
 ---
 
-Dato supports all the locales and languages that macOS supports for dates, times, and the calendar, but the menus are English-only.
+**Want to see Dato included in [Setapp](https://setapp.com)?** Help make it happen by [requesting it here](https://support.setapp.com/hc/en-us/articles/213780569-Can-I-suggest-an-app-).
 
-Important: On macOS 11, it’s no longer possible to hide the system menu bar clock. So Dato can only replace the date.
+Dato is a one-time purchase with free upgrades forever. Dato will never be subscription-based.
+
+Dato supports all the locales and languages that macOS supports for the menu bar text, dates, times, and the calendar, but the menus and preferences are English-only.
 
 [MacStories review of Dato.](https://www.macstories.net/reviews/dato-review-calendar-events-and-time-zones-from-your-macs-menu-bar/)
 
 <br>
+
+<a id="trial"></a>
+### Trial
+
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-2.4.0-trial-1615789998). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. (The trial is only available for macOS 11 since Dato works best on macOS 11)
 
 ### Features
 
 - Calendar, optionally with week numbers and event indicators.
 - Your upcoming events for the next week (customizable) at a glance.
 - Time zones in the Dato menu, optionally with custom names.
-- Custom format for the date & time in the menu bar.
+- Show the upcoming event in the menu bar (like Fantastical, Meeter, and MeetingBar) *(macOS 11-only)*
+- Create events (even with a global keyboard shortcut) *(macOS 11-only)*
+- Join the next meeting (Zoom/Meet/Teams) with a customizable global keyboard shortcut *(macOS 11-only)*
 - Clocks for multiple time zones in the menu bar.
+- Custom format for the date & time in the menu bar.
 - Highlight certain days of the week in the calendar.
 - Search time zones by city (15k cities included offline).
 - Supports all calendar services that the built-in Calendar app supports (iCloud, Google, Outlook, etc).
