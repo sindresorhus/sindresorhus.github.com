@@ -20,7 +20,7 @@ Dato supports all the locales and languages that macOS supports for the menu bar
 <a id="trial"></a>
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-2.4.0-trial-1615789998). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. (The trial is only available for macOS 11 since Dato works best on macOS 11)
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-2.4.0-trial-1615789998). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. The trial is only available for macOS 11 since Dato works best on macOS 11. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 ### Features
 
@@ -335,11 +335,3 @@ I open-source [most things](https://github.com/sindresorhus) I make, but I don�
 #### Can you add support for macOS 10.13 or older?
 
 No, there were several bugs in 10.13 I could not work around.
-
-#### Is this a native app?
-
-Yes, it’s a native app written in Swift.
-
-#### Can you port it to Windows/Linux?
-
-No, I’m a Mac developer.
