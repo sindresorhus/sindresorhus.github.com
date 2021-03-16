@@ -2,25 +2,6 @@
 layout: default
 ---
 
-<style>
-	#latest-repos-container h2 {
-		margin-bottom: 2rem;
-	}
-
-	#latest-repos h4 {
-		margin-bottom: 0.5rem;
-	}
-
-	.sponsors {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.sponsors a:not(:first-child) {
-		margin-left: 10px;
-	}
-</style>
 <script type="module">
 // Temp redirect for old URL
 if (location.hash === '#apps') {
@@ -46,7 +27,7 @@ if (location.hash === '#apps') {
 							<span class="icon">
 								<i class="fa fa-pencil"></i>
 							</span>
-							<span>Writings</span>
+							<span>Words</span>
 						</a>
 						<a class="button is-large is-white" href="https://github.com/sindresorhus">
 							<span class="icon">
@@ -62,12 +43,12 @@ if (location.hash === '#apps') {
 						</a>
 					</p>
 					<br>
-					<a href="{% link thanks.md %}">Huge thanks to all my amazing supporters!</a>
+					I have a <a href="https://newsletter.sindresorhus.com">newsletter</a> if you want to follow what I'm working on.
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="hero-foot">
+	<!-- <div class="hero-foot">
 		<div class="container">
 			<div class="tabs is-centered">
 				<ul>
@@ -77,38 +58,6 @@ if (location.hash === '#apps') {
 				</ul>
 			</div>
 		</div>
-	</div>
+	</div> -->
 </section>
 
-<section class="hero is-fullheight is-gray">
-	<div id="projects" class="hero-body container">
-		<div class="columns is-vcentered">
-			<div class="column has-text-centered">
-				<img id="unicorn-icon" src="unicorn.svg" width="100" height="100">
-				<h4 class="title is-4" style="font-weight: 400">Latest commit</h4>
-				<div id="latest-commit">
-					<a class="commit-title nice-link" href=""></a>
-					<br>
-					<span style="font-size: 12px">
-						<span class="commit-date"></span> in <a class="repo-title" href=""></a>
-					</span>
-				</div>
-				<br>
-				<a href="https://gitstalk.netlify.com/sindresorhus">Stalk me</a>
-			</div>
-			<div id="latest-repos-container" class="column is-three-fifths is-offset-1 has-nice-link">
-				<h2 class="title is-2">Latest repos</h2>
-				<template id="latest-repos-template">
-					<div class="column is-half">
-						<h4 class="title is-4">
-							<a class="latest-repos-title" href=""></a>
-							<a class="tag is-small latest-repos-language">¯\_(ツ)_/¯</a>
-						</h4>
-						<p class="latest-repos-description"></p>
-					</div>
-				</template>
-				<div id="latest-repos" class="columns is-multiline"></div>
-			</div>
-		</div>
-	</div>
-</section>

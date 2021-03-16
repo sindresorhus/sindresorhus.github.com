@@ -17,9 +17,8 @@ My current focus is on macOS app development with Swift and Node.js-based packag
 
 ### Links
 
-- [GitHub](https://github.com/sindresorhus)
+- [Newsletter](https://newsletter.sindresorhus.com)
 - [Twitter](https://twitter.com/sindresorhus)
+- [GitHub](https://github.com/sindresorhus)
 - [Instagram](https://instagram.com/sindresorhus)
 - [Unsplash](https://unsplash.com/@sindresorhus)
-- [Patreon](https://www.patreon.com/sindresorhus)
-- [Email](/contact)

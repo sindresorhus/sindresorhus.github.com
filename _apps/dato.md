@@ -22,6 +22,8 @@ Dato supports all the locales and languages that macOS supports for the menu bar
 
 There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-2.4.0-trial-1615789998). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. The trial is only available for macOS 11 since Dato works best on macOS 11. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
+**If you're on macOS 11, please upgrade to macOS 11.2 before trying out Dato. There are a bunch of macOS bugs in earlier releases.**
+
 ### Features
 
 - Calendar, optionally with week numbers and event indicators.

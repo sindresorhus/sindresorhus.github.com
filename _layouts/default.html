@@ -31,8 +31,8 @@
 		<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦄</text></svg>">
 		<link rel="stylesheet" href="{{ '/main.css' | relative_url }}">
 		<script type="module" src="{{ '/main.js' | relative_url }}"></script>
+		<script src="{{ '/assets/javascript/timeago.min.js' | relative_url }}"></script>
 		{% if page.url == '/' %}
-			<script src="{{ '/assets/javascript/timeago.min.js' | relative_url }}"></script>
 			<script type="module" src="{{ '/index.js' | relative_url }}"></script>
 		{% endif %}
 		<script async src="https://gc.zgo.at/count.js" data-goatcounter="https://sindresorhus.goatcounter.com/count"></script>
@@ -57,13 +57,13 @@
 						<div class="navbar-menu">
 							<div class="navbar-end">
 								<a class="navbar-item is-tab" href="{% link index.html %}">Home</a>
-								<a class="navbar-item is-tab" href="{% link index.html %}#projects">Projects</a>
+								<a class="navbar-item is-tab" href="{% link projects.html %}">Projects</a>
 								<a class="navbar-item is-tab" href="{% link apps.html %}">Apps</a>
 								<a class="navbar-item is-tab" href="{% link donate.md %}">Donate</a>
 								<a class="navbar-item is-tab" href="{% link thanks.md %}">Supporters</a>
 								<a class="navbar-item is-tab" href="{% link about.md %}">About</a>
 								<a class="navbar-item is-tab" href="{% link contact.md %}">Contact</a>
-								<a class="navbar-item is-tab" href="https://blog.sindresorhus.com">Blog</a>
+								<a class="navbar-item is-tab" href="https://blog.sindresorhus.com">Blog ›</a>
 							</div>
 						</div>
 					</nav>
