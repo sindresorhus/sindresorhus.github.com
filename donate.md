@@ -23,7 +23,7 @@ title: Donate
 
 <img id="self-photo" src="/sindre-sorhus-small.jpg" align="right">
 
-# Donate ❤️
+# Donate <span class="no-dark-mode">❤️</span>
 
 <p class="tagline">I'm a full-time open-sourcerer and <a href="https://twitter.com/sindresorhus/status/963478258808340482">my work is funded by the community.</a></p>
 

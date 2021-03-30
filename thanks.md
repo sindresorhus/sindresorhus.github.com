@@ -38,6 +38,16 @@ title: Thanks!
 	margin: 0;
 }
 
+@media (prefers-color-scheme: dark) {
+	.sponsor {
+		background-color: #000;
+		border-radius: 5px;
+		margin: 20px 0;
+		padding: 20px;
+		position: unset !important;
+	}
+}
+
 .silver-sponsor .sponsor {
 	display: block;
 }
@@ -50,15 +60,15 @@ twitterwidget {
 
 <img id="thanks-gif" src="https://user-images.githubusercontent.com/170270/34912417-66acc388-f8e1-11e7-8350-8e7a321ef97f.gif" width="130" align="right">
 
-# Thanks! ❤️🙌
+# Thanks! <span class="no-dark-mode">❤️🙌</span>
 
 I'm truly grateful to all the wonderful humans and companies supporting my open source work on [GitHub Sponsors](https://github.com/sponsors/sindresorhus), [Open Collective](https://opencollective.com/sindresorhus), and [Patreon](https://www.patreon.com/sindresorhus).
 
-<!-- ## 🦄🌈 Sponsor <span class="reward-price">[$1500/month](https://github.com/sponsors/sindresorhus)</span>
+<!-- ## <span class="no-dark-mode">🦄🌈</span> Sponsor <span class="reward-price">[$1500/month](https://github.com/sponsors/sindresorhus)</span>
 
 None -->
 
-## 🦄 Sponsor <span class="reward-price">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>
+## <span class="no-dark-mode">🦄</span> Sponsor <span class="reward-price">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>
 
 <a href="https://standardresume.co/tech" class="sponsor" rel="nofollow">
 	<img src="/assets/thanks/standard-resume-logo.svg" width="320" alt="Standard Resume">

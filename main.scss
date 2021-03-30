@@ -126,6 +126,12 @@ a.navbar-item:not(.button) {
 	box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.6);
 }
 
+@media (prefers-color-scheme: dark) {
+	.box .image {
+		box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.2);
+	}
+}
+
 .box .image img {
 	border-radius: 2px;
 }
@@ -325,4 +331,30 @@ kbd {
 
 .is-unclickable {
 	pointer-events: none;
+}
+
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		background-color: #070707 !important;
+	}
+
+	// We only do it on body as `filter` doesn't apply to the overscroll.
+	body {
+		background-color: #fefefe;
+		filter: invert(100%) hue-rotate(-180deg) brightness(105%) contrast(95%);
+	}
+
+	* {
+		background-color: inherit;
+	}
+
+	img,
+	video,
+	iframe,
+	body * [style*="background-image"],
+	.no-dark-mode {
+		filter: invert(100%) hue-rotate(-180deg) brightness(105%) contrast(95%) !important;
+		background-color: unset !important;
+	}
 }
