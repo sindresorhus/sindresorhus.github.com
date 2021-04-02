@@ -14,6 +14,10 @@ app_store_url: https://apps.apple.com/app/id1532588789
 
 [Send it here.](https://sindresorhus.com/feedback/?product=Photo%20Widget&referrer=Website-FAQ)
 
+#### Where can I find the changelog?
+
+Go [here](https://apps.apple.com/app/id1532588789) and click “Version History”.
+
 #### How do I add a widget to the home screen?
 
 When on the home screen, long-press on the background (not on any icons), press the top-left “+” button, and select “Photo Widget”. [Read more.](https://support.apple.com/en-us/HT207122)
@@ -43,11 +47,3 @@ The built-in widget only shows photos from “Memories” and “Featured Photos
 #### Why is this app free without ads?
 
 I just enjoy making apps. I earn money on other apps.
-
-<!--
-
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1532588789) and click “Version History”.
-
--->

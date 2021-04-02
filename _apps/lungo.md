@@ -13,11 +13,16 @@ links:
   'Product Hunt post': https://www.producthunt.com/posts/lungo
 ---
 
+Lungo can be scripted. [More info.](https://blog.sindresorhus.com/lungo-b364a6c2745f#ec03)
+
 <br>
 
 ### Older versions
 
-[Last macOS 10.14 compatible version (free).](https://github.com/sindresorhus/meta/files/5507155/Lungo-1-7-0.zip)
+- [Last macOS 10.14 compatible version (free).](https://github.com/sindresorhus/meta/files/5507155/Lungo-1-7-0.zip)
+- [Last macOS 10.13 compatible version (free).](https://github.com/sindresorhus/meta/files/4556911/Lungo-1.6.0-High-Sierra.zip)
+
+*(These builds will not run on newer macOS versions)*
 
 <br>
 
@@ -30,10 +35,6 @@ links:
 #### Where can I find the changelog?
 
 Go [here](https://apps.apple.com/app/id1263070803) and click “Version History”.
-
-#### Can you add support for macOS 10.13 or older?
-
-No, but you can get the last macOS 10.13 compatible version [here](https://github.com/sindresorhus/meta/files/4556911/Lungo-1.6.0-High-Sierra.zip) (free).
 
 #### Can you localize the app into my language?
 

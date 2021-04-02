@@ -15,6 +15,8 @@ Dato supports all the locales and languages that macOS supports for the menu bar
 
 [MacStories review of Dato.](https://www.macstories.net/reviews/dato-review-calendar-events-and-time-zones-from-your-macs-menu-bar/)
 
+Dato requires macOS 10.15 or later.
+
 <br>
 
 <a id="trial"></a>
@@ -22,7 +24,7 @@ Dato supports all the locales and languages that macOS supports for the menu bar
 
 There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-2.4.0-trial-1615789998). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. The trial is only available for macOS 11 since Dato works best on macOS 11. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
-**If you're on macOS 11, please upgrade to macOS 11.2 before trying out Dato. There are a bunch of macOS bugs in earlier releases.**
+**If you're on macOS 11, please upgrade to macOS 11.3 before trying out Dato. There are a bunch of macOS bugs in earlier releases.**
 
 ### Features
 
@@ -50,9 +52,11 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 
 <br>
 
-Dato requires macOS 10.15 or later.
+### Older versions
 
-You can get the last macOS 10.14 compatible release [here](https://github.com/sindresorhus/meta/files/5360452/Dato.1.14.9.-.Special.last.Mojave.compatible.release.zip).
+- [Last macOS 10.14 compatible version (free).](https://github.com/sindresorhus/meta/files/5360452/Dato.1.14.9.-.Special.last.Mojave.compatible.release.zip)
+
+*(This build will not run on newer macOS versions)*
 
 <br>
 

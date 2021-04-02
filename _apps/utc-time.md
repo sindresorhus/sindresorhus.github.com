@@ -46,6 +46,6 @@ That is outside the scope of this app, but check out my app [Dato](https://sindr
 
 Same answer as above.
 
-#### Can I show seconds in the clock?
+#### Can it show seconds in the clock?
 
 Same answer as above.

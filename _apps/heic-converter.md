@@ -12,8 +12,11 @@ links:
   'Product Hunt post': https://www.producthunt.com/posts/heic-converter
 ---
 
-<br>
+### Older versions
 
+- [Last macOS 10.13 compatible version.](https://dsc.cloud/sindresorhus/HEIC-Converter-for-macOS-10.13-1575452738)
+
+<br>
 
 <h3 id="faq">Frequently Asked Questions</h3>
 
@@ -24,10 +27,6 @@ links:
 #### Where can I find the changelog?
 
 Go [here](https://apps.apple.com/app/id1294126402) and click “Version History”.
-
-#### Can you add support for macOS 10.13 or older?
-
-No, but here's an [unsupported version for macOS 10.13](https://dsc.cloud/sindresorhus/HEIC-Converter-for-macOS-10.13-1575452738) if you cannot upgrade.
 
 #### Does it preserve 10-bit depth?
 

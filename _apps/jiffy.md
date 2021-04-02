@@ -9,8 +9,6 @@ links:
   'Product Hunt post': https://www.producthunt.com/posts/jiffy-2
 ---
 
-Currently taken off the App Store because of users being mean.
-
 <br>
 
 ### Features

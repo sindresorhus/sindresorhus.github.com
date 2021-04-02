@@ -35,7 +35,6 @@ If you or your company are using any of my projects, consider supporting me so I
 
 - [**GitHub Sponsors**](https://github.com/sponsors/sindresorhus)
 - [Open Collective](https://opencollective.com/sindresorhus)
-- [Patreon](https://www.patreon.com/sindresorhus)
 
 ### One-time donations
 

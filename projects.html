@@ -111,7 +111,7 @@ layout: default
 			lang.style.color = textColorFromBackgroundColor(repo.primaryLanguage.color);
 			lang.style.backgroundColor = repo.primaryLanguage.color;
 
-			const query = `user:sindresorhus language:${repo.primaryLanguage.name.toLowerCase()}`;
+			const query = `user:sindresorhus user:chalk user:avajs user:xojs language:${repo.primaryLanguage.name.toLowerCase()} archived:false`;
 			const url = new URL('https://github.com/search');
 			url.searchParams.append('q', query);
 			lang.href = url;

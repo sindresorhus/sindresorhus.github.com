@@ -32,9 +32,15 @@ layout: default
 		text-align: center;
 	}
 
-	.app-buttons > div,
-	.app-buttons > div > a {
-		display: inline-block;
+	.app-buttons > div {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.app-buttons a {
+		display: block;
+		margin-bottom: 20px;
 	}
 
 	.app-main-button {
@@ -90,13 +96,13 @@ layout: default
 						<div class="app-buttons">
 							<div>
 								{% if page.mac_app_store_url %}
-									<a class="no-underline app-store-badge" href="{{ page.mac_app_store_url }}" style="display:inline-block;overflow:hidden;background:url(https://linkmaker.itunes.apple.com/assets/shared/badges/en-us/macappstore-lrg.svg) no-repeat;width:165px;height:40px"></a>
+									<a class="no-underline app-store-badge" href="{{ page.mac_app_store_url }}" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-mac-app-store/black/en-us?size=250x83&amp;releaseDate=1615852800&h=cee5f6c14d96943ca54840baf730b1f3" alt="Download on the Mac App Store" style="border-radius: 13px; width: 250px; height: 83px;"></a>
 								{% endif %}
 								{% if page.app_store_url %}
-									<a class="no-underline app-store-badge" href="{{ page.app_store_url }}" style="display:inline-block;overflow:hidden;background:url(https://linkmaker.itunes.apple.com/en-us/badge-lrg.svg?kind=iossoftware&bubble=ios_apps) no-repeat;width:135px;height:40px"></a>
+									<a class="no-underline app-store-badge" href="{{ page.app_store_url }}" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&amp;releaseDate=1433462400&h=67f8be2cbf136e75f7f13354db9f678f" alt="Download on the App Store" style="border-radius: 13px; width: 250px; height: 83px;"></a>
 								{% endif %}
 								{% if page.setapp_url %}
-									<a href="{{ page.setapp_url }}"><span style="position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">Available on Setapp</span><img src="https://developer.setapp.com/setapp-button/setapp.svg" alt="Available on Setapp" style="margin: 0; padding: 0; display: block; width: 122px; height: 40px"></a>
+									<a href="{{ page.setapp_url }}"><img src="https://developer.setapp.com/setapp-button/setapp.svg" alt="Available on Setapp" style="margin: 0; padding: 0; display: block; height: 60px;"></a>
 								{% endif %}
 							</div>
 						</div>

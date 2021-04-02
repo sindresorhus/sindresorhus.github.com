@@ -9,6 +9,14 @@ links:
   'Product Hunt post': https://www.producthunt.com/posts/battery-indicator
 ---
 
+### Older versions
+
+- [Last macOS 10.14 compatible version (free).](https://github.com/sindresorhus/meta/files/4127047/Battery-Indicator-2.1.0-Mojave.zip)
+
+*(This build will not run on newer macOS versions)*
+
+<br>
+
 <h3 id="faq">Frequently Asked Questions</h3>
 
 #### I have a feature request, bug report, or some feedback
@@ -18,10 +26,6 @@ links:
 #### Where can I find the changelog?
 
 Go [here](https://apps.apple.com/app/id1206020918) and click “Version History”.
-
-#### Can you add support for macOS 10.14 or older?
-
-No, but you can get the last macOS 10.14 compatible version [here](https://github.com/sindresorhus/meta/files/4127047/Battery-Indicator-2.1.0-Mojave.zip) (free).
 
 #### Can you localize the app into my language?
 
