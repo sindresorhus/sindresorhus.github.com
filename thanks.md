@@ -126,11 +126,11 @@ None -->
 - [Digital Attitude](https://github.com/dtttd)
 - [Passbolt](https://github.com/passbolt)
 - [Tripwire](https://github.com/Tripwire)
+- [Sideline Sports](https://github.com/SidelineSports)
 
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
 
 - [Daniel Stockman](https://twitter.com/evocateur)
-- [Sam Richard](https://twitter.com/snugug)
 - Stefan Penner
 - Mike North
 - [Vivian Cromwell](https://twitter.com/viviancromwell)
@@ -239,6 +239,11 @@ None -->
 - [Checkly](https://github.com/checkly)
 - [Osama Khan](https://github.com/osamakhn)
 - [Rafael Conde](https://github.com/rafaelconde)
+- [Kevin R. Whitley](https://github.com/kwhitley)
+- [Renuo](https://github.com/renuo)
+- [Joong Hyuk Im](https://github.com/Kooni-Boop)
+- [Joël Galeran](https://github.com/Jolg42)
+- [Bryan Mishkin](https://github.com/bmish)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -322,6 +327,7 @@ I'm forever thankful to these people and companies that have previously supporte
 - Dmitry A.
 - [Agustin Diaz](https://twitter.com/HiroAgustin)
 - [Ben Williams](https://twitter.com/719ben)
+- [Sam Richard](https://twitter.com/snugug)
 
 ---
 
