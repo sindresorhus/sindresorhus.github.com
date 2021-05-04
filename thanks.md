@@ -82,6 +82,9 @@ None -->
 <a href="https://doppler.com" class="sponsor" rel="nofollow" style="margin: 20px 0">
 	<img src="https://dashboard.doppler.com/imgs/logo-long.svg" width="400" alt="Doppler">
 </a>
+<a href="https://workos.com" class="sponsor" rel="nofollow" style="position:relative;left:-30px">
+	<img src="/assets/thanks/workos-logo.svg" width="380" alt="WorkOS">
+</a>
 
 ## Silver sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
