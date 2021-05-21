@@ -85,15 +85,15 @@ None -->
 <a href="https://workos.com" class="sponsor" rel="nofollow" style="position:relative;left:-30px">
 	<img src="/assets/thanks/workos-logo.svg" width="380" alt="WorkOS">
 </a>
+<a href="https://strapi.io/?ref=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
+	<img src="/assets/thanks/strapi-logo.svg" width="380" alt="Strapi">
+</a>
 
 ## Silver sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
 <div class="silver-sponsor">
 	<a href="https://moxy.studio" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/moxy-logo.svg" width="240" alt="MOXY">
-	</a>
-	<a href="https://zeit.co" class="sponsor" rel="nofollow">
-		<img src="/assets/thanks/zeit-logo.svg" width="240" alt="ZEIT">
 	</a>
 	<a href="https://lunanode.com" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/lunanode-logo.svg" width="260" alt="LunaNode">

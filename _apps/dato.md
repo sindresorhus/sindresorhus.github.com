@@ -135,7 +135,7 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 		<td>
 			<kbd>n</kbd>
 		</td>
-		<td>Create a new event (opens Calendar app to fill out the details)</td>
+		<td>Create a new event</td>
 	</tr>
 	<tr>
 		<td>
@@ -157,20 +157,19 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 <table>
 	<tr>
 		<td>
-			Swipe left/right
+			Swipe left/right on the calendar
 		</td>
 		<td>Previous/next month in the calendar</td>
 	</tr>
 	<tr>
 		<td>
-			<kbd>option</kbd> + Swipe left/right
+			<kbd>option</kbd> + Swipe left/right on the calendar
 		</td>
 		<td>Previous/next year in the calendar</td>
 	</tr>
 </table>
 
 <br>
-
 
 <h3 id="faq">Frequently Asked Questions</h3>
 
@@ -330,14 +329,10 @@ iStat Menus lets you show different kinds of info in the menu bar, like system s
 
 Itsycal is a good app too. While Itsycal has the ability to add calendar events, Dato is not just a calendar app, but also includes menu bar clock replacement, time zones, and more.
 
-#### Why the name “Dato”?
+#### Why the name “Dato”?
 
 It means “date” in Norwegian. I just wanted a short, unique, and relevant name.
 
 #### Do you plan to open-source it?
 
 I open-source [most things](https://github.com/sindresorhus) I make, but I don’t intend to open-source this app. Many open-source apps have problems with someone using the source to [publish clones](https://twitter.com/sindresorhus/status/1202144430477627394) and it’s a hassle to get Apple to take down such clones. I also have my own private framework that makes it faster for me to build apps, but I don’t want to open-source it as then I would have to maintain it.
-
-#### Can you add support for macOS 10.13 or older?
-
-No, there were several bugs in 10.13 I could not work around.
