@@ -13,6 +13,14 @@ mac_app_store_url: https://apps.apple.com/app/id1529006487
 
 <br>
 
+### Older versions
+
+- [Last macOS 10.15 compatible version (free).](https://github.com/sindresorhus/meta/files/6538283/Recordia.1.5.1.-.macOS.10.15.zip)
+
+*(This build will not run on newer macOS versions)*
+
+<br>
+
 <h3 id="faq">Frequently Asked Questions</h3>
 
 #### I have a feature request, bug report, or some feedback

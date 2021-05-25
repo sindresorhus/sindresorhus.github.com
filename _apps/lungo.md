@@ -83,7 +83,7 @@ $ open -g 'lungo:toggle'
 $ open -g 'lungo:toggle?minutes=10'
 ```
 
-Tip: Add `alias lungo="open -g 'lungo:toggle'"` to your `.bashrc` / `.zshrc` file to be able to toggle Lungo with just `$ lungo` on the command-line.
+Tip: Add `alias lungo="open -g 'lungo:toggle'"` to your `.bashrc` / `.zshrc` file to be able to toggle Lungo with just `$ lungo` on the command-line.
 
 #### Node.js
 
