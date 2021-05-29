@@ -54,17 +54,29 @@ Amphetamine has lots of features. Most of which I would never use. It ships with
 
 <h3 id="scripting">Scripting</h3>
 
-Lungo comes with custom URL scheme support. You can control Lungo with anything that supports opening a URL with a custom scheme.
+You can control Lungo using anything that supports opening a URL with a custom scheme.
 
-For example, in the Terminal app, you could run the following to activate Lungo for 10 minutes:
+For example, to activate Lungo for 10 minutes, run this terminal command:
 
 ```
 $ open -g 'lungo:activate?minutes=10'
 ```
 
-Lungo supports the commands `activate`, `deactivate`, and `toggle`. It supports the parameters `hours` and `minutes`, which can be used together or individually. If you don't specify a duration, it will use the default duration you have set in Lungo.
+#### Commands
 
-Some more command-line examples:
+- `activate`
+- `deactivate`
+- `toggle`
+
+The `activate` and `toggle` commands support the parameters `hours` and `minutes`, which can be used together or individually. If you don't specify a duration, it will use the default duration you have set in Lungo.
+
+#### Tools
+
+- [lungo-cli](https://github.com/sindresorhus/lungo-cli) - Command-line tool.
+
+#### Examples
+
+##### Shell
 
 ```
 # Deactivate Lungo
@@ -83,19 +95,15 @@ $ open -g 'lungo:toggle'
 $ open -g 'lungo:toggle?minutes=10'
 ```
 
-Tip: Add `alias lungo="open -g 'lungo:toggle'"` to your `.bashrc` / `.zshrc` file to be able to toggle Lungo with just `$ lungo` on the command-line.
-
-#### Node.js
+##### Node.js
 
 ```js
 import {execFileSync} from 'node:child_process';
 
-execFileSync('open', ['-g', 'lungo:toggle']);
+execFileSync('open', ['--background', 'lungo:toggle']);
 ```
 
-I have also published a [command-line tool for Lungo](https://github.com/sindresorhus/lungo-cli).
-
-#### Swift
+##### Swift
 
 ```swift
 import Cocoa
@@ -107,16 +115,16 @@ configuration.activates = false
 NSWorkspace.shared.open(URL(string: command)!, configuration: configuration)
 ```
 
-#### AppleScript
+##### AppleScript
 
 ```applescript
-do shell script "open -g 'lungo:toggle'"
+do shell script "open --background 'lungo:toggle'"
 ```
 
-#### Python
+##### Python
 
 ```python
 import subprocess
 
-subprocess.run(['open', '-g', 'lungo:toggle'])
+subprocess.run(['open', '--background', 'lungo:toggle'])
 ```

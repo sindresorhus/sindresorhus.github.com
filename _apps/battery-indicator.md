@@ -5,15 +5,14 @@ description: Battery Indicator lets you quickly glance the remaining battery tim
 type: macOS
 date: 2017-02-18
 app_store_url: https://apps.apple.com/app/id1206020918
-links:
-  'Product Hunt post': https://www.producthunt.com/posts/battery-indicator
 ---
 
 ### Older versions
 
+- [Last macOS 10.15 compatible version (free).](https://github.com/sindresorhus/meta/files/6565005/Battery.Indicator.2.7.1.-.macOS.10.15.zip)
 - [Last macOS 10.14 compatible version (free).](https://github.com/sindresorhus/meta/files/4127047/Battery-Indicator-2.1.0-Mojave.zip)
 
-*(This build will not run on newer macOS versions)*
+*(These builds will not run on newer macOS versions)*
 
 <br>
 
@@ -22,6 +21,18 @@ links:
 #### I have a feature request, bug report, or some feedback
 
 [Send it here.](https://sindresorhus.com/feedback/?product=Battery%20Indicator&referrer=Website-FAQ)
+
+#### The menu bar icon is vertically stretched when shown on a secondary display
+
+This is a macOS 11 bug. I have tried to work around this issue, but it's out of my control.
+
+#### Why does the menu bar icon show `…` when I unplug the power adapter?
+
+The system needs some time to accurately calculate the time remaining estimate.
+
+#### Can it show “apps using significant energy” like the built-in battery indicator?
+
+It can unfortunately not show this because of restrictions (sandboxing) imposed on apps in the App Store. However, you could change the menu bar item type to text instead of icon and use this app in combination with the system battery indicator.
 
 #### Where can I find the changelog?
 
