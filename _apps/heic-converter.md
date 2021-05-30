@@ -36,4 +36,8 @@ No. JPEG only supports 8-bit. PNG supports 8-bit and 16-bit, but macOS doesn't h
 
 No. Only `.heic` is supported at the moment as macOS support for other variants is buggy.
 
+#### Why is this free without ads?
+
+I just enjoy making Mac apps. I earn money on other apps.
+
 <br>

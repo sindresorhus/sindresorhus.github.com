@@ -8,8 +8,6 @@ mac_app_store_url: https://apps.apple.com/app/id1538245904
 
 This can be useful as a quick reference.
 
-The app requires macOS 11 or later.
-
 <br>
 
 <h3 id="faq">Frequently Asked Questions</h3>
@@ -49,3 +47,7 @@ Same answer as above.
 #### Can it show seconds in the clock?
 
 Same answer as above.
+
+#### Why is this free without ads?
+
+I just enjoy making Mac apps. I earn money on other apps.
