@@ -88,6 +88,12 @@ None -->
 <a href="https://strapi.io/?ref=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
 	<img src="/assets/thanks/strapi-logo.svg" width="380" alt="Strapi">
 </a>
+<a href="https://oss.capital" class="sponsor" rel="nofollow" style="position:relative;left:-5px;margin:10px 0">
+	<img src="/assets/thanks/oss-capital-logo.svg" width="400" alt="OSS Capital">
+</a>
+<a href="https://bit.io" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
+	<img src="/assets/thanks/bitio-logo.svg" width="300" alt="bit.io">
+</a>
 
 ## Silver sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
@@ -247,6 +253,14 @@ None -->
 - [Joong Hyuk Im](https://github.com/Kooni-Boop)
 - [Joël Galeran](https://github.com/Jolg42)
 - [Bryan Mishkin](https://github.com/bmish)
+- [Andreas Pizsa](https://github.com/AndreasPizsa)
+- [Spaceship](https://github.com/onspaceship)
+- [Ryan Sonshine](https://github.com/ryansonshine)
+- [Justin Lowery](https://github.com/cerebrl)
+- [Threema GmbH](https://github.com/threema-ch)
+- [OpenBayes](https://github.com/signcl)
+- [Eric Anderson](https://github.com/eanderson4)
+- [Guillermo Rodas](https://github.com/glrodasz)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>

@@ -15,7 +15,7 @@ Dato supports all the locales and languages that macOS supports for the menu bar
 
 [MacStories review of Dato.](https://www.macstories.net/reviews/dato-review-calendar-events-and-time-zones-from-your-macs-menu-bar/)
 
-Dato requires macOS 10.15 or later.
+Dato requires macOS 11 or later.
 
 <br>
 
@@ -46,7 +46,6 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 - Show seconds in the menu bar clock or in the menu. (Optional)
 - Zoom, Google Meet, and Microsoft Teams integration. (Shows icon on events and button to quickly join)
 - Open calendar events from Google Calendar directly in Google Calendar on the web.
-- Custom color for the date & time menu bar item. (macOS 10.15 only, not macOS 11)
 - Comes with multiple menu bar icons to choose from: date in calendar, date with border (like Itsycal), static clock, none.
 - Large text mode.
 
@@ -178,7 +177,7 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 [Send it here.](https://sindresorhus.com/feedback/?product=Dato&referrer=Website-FAQ)
 
 <a id="macos11-hide-clock"></a>
-#### How can I hide the built-in menu bar clock on macOS 11?
+#### How can I hide the built-in menu bar clock on macOS 11 or later?
 
 On macOS 11, it's unfortunately no longer possible to disable the built-in menu bar clock.
 
