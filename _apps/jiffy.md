@@ -1,6 +1,6 @@
 ---
 title: Jiffy
-subtitle: Discover & share the best GIFs from your menu bar
+subtitle: Discover & share the best GIFs
 description: 'Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found an awesome GIF, just drag and drop it into an app.'
 type: macOS
 date: 2020-03-25
@@ -15,6 +15,7 @@ links:
 
 - Trending GIFs.
 - Search GIFs.
+- Use it as a menu bar app or a normal app in the Dock.
 - Favorite GIFs and browse/search favorites.
 - Global keyboard shortcut to toggle the app.
 - Drag and drop a GIF into any app.
@@ -23,13 +24,13 @@ links:
 
 <br>
 
-<!--
 ### Older versions
 
-[Last macOS 10.15 compatible version.](https://github.com/sindresorhus/meta/files/5507132/Jiffy-1-2-2-Mojave.zip)
+[Last macOS 10.15 compatible version (free).](https://github.com/sindresorhus/meta/files/6626336/Jiffy.1.3.3.-.macOS.10.15.zip)
+
+*(This build will not run on newer macOS versions)*
 
 <br>
--->
 
 <h3 id="tips">Tips</h3>
 <table>
@@ -93,14 +94,6 @@ I don't have any immediate plans to localize the app.
 
 Go [here](https://apps.apple.com/app/id1502527999) and click “Version History”.
 
-#### Why the name “Jiffy”?
+#### Why the name “Jiffy”?
 
 Some people incorrectly pronounce GIF as “Jif”. The name is a pun on that. Also, “Jiffy” means to do something fast, which is what the app is all about.
-
-#### Can you add support for macOS 10.14 or older?
-
-No, the app uses SwiftUI, which requires macOS 10.15 or later.
-
-#### Is this a native app?
-
-It’s a native app written in Swift.
