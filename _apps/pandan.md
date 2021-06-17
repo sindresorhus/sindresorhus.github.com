@@ -3,6 +3,7 @@ title: Pandan
 subtitle: Time awareness in your menu bar
 type: macOS
 date: 2021-05-31
+app_store_app_id: 1569600264
 mac_app_store_url: https://apps.apple.com/app/id1569600264
 ---
 

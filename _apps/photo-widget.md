@@ -3,6 +3,7 @@ title: Photo Widget
 subtitle: Photos on your home screen using widgets
 type: iOS
 date: 2020-09-22
+app_store_app_id: 1532588789
 app_store_url: https://apps.apple.com/app/id1532588789
 ---
 

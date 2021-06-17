@@ -4,6 +4,7 @@ subtitle: Discover & share the best GIFs
 description: 'Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found an awesome GIF, just drag and drop it into an app.'
 type: macOS
 date: 2020-03-25
+app_store_app_id: 1502527999
 mac_app_store_url: https://apps.apple.com/app/id1502527999
 links:
   'Product Hunt post': https://www.producthunt.com/posts/jiffy-2

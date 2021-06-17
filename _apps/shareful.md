@@ -3,6 +3,7 @@ title: Shareful
 subtitle: Give the macOS share menu superpowers
 type: macOS
 date: 2020-09-08
+app_store_app_id: 1522267256
 mac_app_store_url: https://apps.apple.com/app/id1522267256
 ---
 

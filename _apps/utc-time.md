@@ -3,6 +3,7 @@ title: UTC Time
 subtitle: Show the time in UTC in the menu bar or a widget
 type: macOS
 date: 2021-03-16
+app_store_app_id: 1538245904
 mac_app_store_url: https://apps.apple.com/app/id1538245904
 ---
 

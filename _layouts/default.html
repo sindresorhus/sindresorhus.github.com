@@ -18,6 +18,10 @@
 					<meta property="og:image" content="{{ file.path | absolute_url }}">
 				{% endif %}
 			{% endfor %}
+			<!-- Safari on macOS doesn't show smart app banners -->
+			{% if page.app_store_app_id and page.type == 'iOS' %}
+			<meta name="apple-itunes-app" content="app-id={{ page.app_store_app_id }}">
+			{% endif %}
 		{% else %}
 			<meta property="og:image" content="https://sindresorhus.com/sindre-sorhus.jpg">
 		{% endif %}
@@ -57,8 +61,8 @@
 						<div class="navbar-menu">
 							<div class="navbar-end">
 								<a class="navbar-item is-tab" href="{% link index.html %}">Home</a>
-								<a class="navbar-item is-tab" href="{% link projects.html %}">Projects</a>
 								<a class="navbar-item is-tab" href="{% link apps.html %}">Apps</a>
+								<a class="navbar-item is-tab" href="{% link projects.html %}">Repos</a>
 								<a class="navbar-item is-tab" href="{% link donate.md %}">Donate</a>
 								<a class="navbar-item is-tab" href="{% link thanks.md %}">Supporters</a>
 								<a class="navbar-item is-tab" href="{% link about.md %}">About</a>
