@@ -31,7 +31,6 @@
 		<meta name="x-build-time" content="{{ site.time | date_to_rfc822 }}">
 		<title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
 		<link rel="alternate" type="application/rss+xml" title="Sindre Sorhus' blog" href="https://blog.sindresorhus.com/feed">
-		<link rel="preload" href="{{ '/font-awesome.woff' | relative_url }}" as="font" crossorigin>
 		<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦄</text></svg>">
 		<link rel="stylesheet" href="{{ '/main.css' | relative_url }}">
 		<script type="module" src="{{ '/main.js' | relative_url }}"></script>
@@ -40,6 +39,7 @@
 			<script type="module" src="{{ '/index.js' | relative_url }}"></script>
 		{% endif %}
 		<script async src="https://gc.zgo.at/count.js" data-goatcounter="https://sindresorhus.goatcounter.com/count"></script>
+		<script src="https://kit.fontawesome.com/8b9c5901e5.js" crossorigin="anonymous"></script>
 	</head>
 	<body>
 		<section class="hero">

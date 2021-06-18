@@ -272,46 +272,6 @@ code.highlighter-rouge {
 	}
 }
 
-/*
-Font Awesome
-Generated with https://icomoon.io/app/
-*/
-@font-face {
-	font-family: 'font-awesome';
-	src: url('font-awesome.woff') format('woff');
-	font-weight: normal;
-	font-style: normal;
-}
-
-[class^='fa-'],
-[class*='fa-'] {
-	font-family: 'font-awesome' !important;
-	speak: none;
-	font-style: normal;
-	font-weight: normal;
-	font-variant: normal;
-	text-transform: none;
-	line-height: 1;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-
-.fa-pencil:before {
-	content: '\e905';
-}
-
-.fa-github:before {
-	content: '\eab0';
-}
-
-.fa-twitter:before {
-	content: '\ea96';
-}
-
-.fa-caret-down:before {
-	content: '\e900';
-}
-
 kbd {
 	font-family: -apple-system, system-ui, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
 	background-color: #fafbfc;
