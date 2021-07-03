@@ -1,7 +1,7 @@
 ---
 title: Dato
 subtitle: Better menu bar clock with calendar and time zones
-description: Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable. Dato also comes with some macOS 11 widgets.
+description: Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.
 type: macOS
 date: 2019-07-13
 app_store_app_id: 1470584107
@@ -23,7 +23,7 @@ Dato requires macOS 11 or later.
 <a id="trial"></a>
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-2.4.0-trial-1615789998). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. The trial is only available for macOS 11 since Dato works best on macOS 11. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-2.4.0-trial-1615789998). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 **If you're on macOS 11, please upgrade to macOS 11.4 before trying out Dato. There are a bunch of macOS bugs in earlier releases.**
 
@@ -32,9 +32,10 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 - Calendar, optionally with week numbers and event indicators.
 - Your upcoming events for the next week (customizable) at a glance.
 - Time zones in the Dato menu, optionally with custom names.
-- Show the upcoming event in the menu bar (like Fantastical, Meeter, and MeetingBar) *(macOS 11-only)*
-- Create events (even with a global keyboard shortcut) *(macOS 11-only)*
-- Join the next meeting (Zoom/Meet/Teams) with a customizable global keyboard shortcut *(macOS 11-only)*
+- Show the upcoming event in the menu bar (like Fantastical, Meeter, and MeetingBar)
+- Time travel for time zones.
+- Create events (even with a global keyboard shortcut)
+- Join the next meeting (Zoom/Meet/Teams) with a customizable global keyboard shortcut
 - Clocks for multiple time zones in the menu bar.
 - Custom format for the date & time in the menu bar.
 - Highlight certain days of the week in the calendar.
@@ -49,14 +50,17 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 - Open calendar events from Google Calendar directly in Google Calendar on the web.
 - Comes with multiple menu bar icons to choose from: date in calendar, date with border (like Itsycal), static clock, none.
 - Large text mode.
+- Date calculator.
+- Hourly chime.
 
 <br>
 
 ### Older versions
 
+- [Last macOS 10.15 compatible version (free).](https://github.com/sindresorhus/meta/files/6758848/Dato.2.6.1.-.macOS.10.15.zip)
 - [Last macOS 10.14 compatible version (free).](https://github.com/sindresorhus/meta/files/5360452/Dato.1.14.9.-.Special.last.Mojave.compatible.release.zip)
 
-*(This build will not run on newer macOS versions)*
+*(These builds will not run on newer macOS versions)*
 
 <br>
 
@@ -69,7 +73,7 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 	</tr>
 	<tr>
 		<td>
-			Double-click a day in the calendar to open that day in the default calendar app. (Supports: Calendar, Fantastical 2, BusyCal, Outlook)
+			Long-press a day in the calendar to open that day in the default calendar app. (Supports: Calendar, Fantastical 2, BusyCal, Outlook)
 		</td>
 	</tr>
 	<tr>
@@ -84,7 +88,12 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 	</tr>
 	<tr>
 		<td>
-			While looking at an event, press <kbd>option</kbd> to see the name of the calendar it belongs to.
+			While looking at an event, press <kbd>option</kbd> to see the name of the calendar it belongs to. And if it's a Zoom/Meet/Teams event, it will let you copy the meeting link instead of joining.
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Hold <kbd>option</kbd> while dragging the time travel slider to skip by 15 minutes instead of an hour.
 		</td>
 	</tr>
 </table>

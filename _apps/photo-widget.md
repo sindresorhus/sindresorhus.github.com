@@ -7,6 +7,8 @@ app_store_app_id: 1532588789
 app_store_url: https://apps.apple.com/app/id1532588789
 ---
 
+Available on iOS and macOS (Apple Silicon only).
+
 <br>
 
 <h3 id="faq">Frequently Asked Questions</h3>
