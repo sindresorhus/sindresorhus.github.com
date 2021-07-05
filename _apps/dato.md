@@ -25,7 +25,7 @@ Dato requires macOS 11 or later.
 
 There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-2.4.0-trial-1615789998). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
-**If you're on macOS 11, please upgrade to macOS 11.4 before trying out Dato. There are a bunch of macOS bugs in earlier releases.**
+**Please upgrade to macOS 11.4 before trying out Dato. There are a bunch of macOS bugs in earlier releases.**
 
 ### Features
 
