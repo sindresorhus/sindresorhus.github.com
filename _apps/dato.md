@@ -148,6 +148,18 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 	</tr>
 	<tr>
 		<td>
+			<kbd>c</kbd>
+		</td>
+		<td>Show the date & time calculator</td>
+	</tr>
+	<tr>
+		<td>
+			<kbd>j</kbd>
+		</td>
+		<td>Join the current/upcoming Zoom/Meet/Teams meeting (works in the Dato menu and the “upcoming event in menu bar” menu)</td>
+	</tr>
+	<tr>
+		<td>
 			<kbd>command</kbd> <kbd>o</kbd>
 		</td>
 		<td>Open the default calendar app</td>
