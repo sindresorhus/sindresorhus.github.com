@@ -125,6 +125,9 @@ None -->
 	<a href="https://www.monito.com" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/monito-logo.svg" width="270" alt="Monito">
 	</a>
+	<a href="https://uibakery.io" class="sponsor" rel="nofollow" style="position:relative;left:-20px">
+		<img src="/assets/thanks/uibakery-logo.jpg" width="270" alt="UI Bakery">
+	</a>
 </div>
 
 ## Top supporter <span class="reward-price">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
