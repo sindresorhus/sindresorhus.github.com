@@ -97,6 +97,9 @@ None -->
 <a href="https://www.gitpod.io/?utm_campaign=sindresorhus&utm_medium=referral&utm_content=awesome&utm_source=blog" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
 	<img src="/assets/thanks/gitpod-logo.svg" width="340" alt="Gitpod">
 </a>
+<a href="https://keygen.sh" class="sponsor" rel="nofollow" style="position:relative;left:-3px">
+	<img src="/assets/thanks/keygen-logo.svg" width="340" alt="Keygen">
+</a>
 
 ## Silver sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
