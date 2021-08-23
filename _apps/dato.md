@@ -250,15 +250,15 @@ Either change [this system setting](https://apple.stackexchange.com/questions/19
 
 #### Why is Dato not showing week 53?
 
-That is called [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date). Change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
+You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar). You can change it with [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
 
 #### Why is Dato showing the last days of December as week 1?
 
-Same answer as above.
+That is called [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date).
 
 #### Dato is showing the incorrect week number
 
-Same answer as above.
+You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar), or the inverse. You can change it with [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
 
 #### How can I change the week number to [ISO 8601](https://en.wikipedia.org/wiki/ISO_week_date) format?
 
@@ -270,7 +270,7 @@ Dato uses the system default calendar app. To change the default calendar app, o
 
 Dato supports opening calendar events directly in Calendar, Fantastical, BusyCal, Outlook, and Google Calendar (web). For other apps, Dato will just open the app.
 
-#### How can I make my calendar refresh more often?
+#### How can I make my calendar refresh more often?
 
 Open the Calendar app, open its “Preferences”, go to the “Accounts” tab, choose the relevant calendar service in the left sidebar, and then change the “Refresh Calendars” preference. Ideally, it should be set to “Push”, but not all services support that, like Google.
 
@@ -278,7 +278,7 @@ Open the Calendar app, open its “Preferences”, go to the “Accounts” tab,
 
 Go [here](https://apps.apple.com/app/id1470584107) and click “Version History”.
 
-#### Can you add support for showing an analog clock like the system clock?
+#### Can you add support for showing an analog clock like the system clock?
 
 I have no plans to add that, but you can make it work by unchecking the “Time” preference in Dato and keep the system clock in analog mode.
 
@@ -300,13 +300,21 @@ tccutil reset All com.sindresorhus.Dato
 
 Then launch Dato again.
 
-#### Is it possible to pin Dato so it's always visible?
+#### Is it possible to pin Dato so it's always visible?
 
 This is unfortunately not possible as Dato uses a menu, not a popover, which cannot be pinned.
 
 #### How can I copy a link from the event notes? I need to open it in a specific browser profile.
 
 If it's a non-clickable URL (not a link), you can select the URL and choose “Copy Selected Text”. Otherwise, activate the correct browser profile and then drag and drop the link into the browser window.
+
+#### How can I access event attachments?
+
+macOS unfortunately does not expose this capability to developers, so there is no way for Dato to support it.
+
+However, you can select “Show in Calendar” in the event details menu and then access the attachments in the Calendar app.
+
+*If you work at Apple → [FB7389922](https://github.com/feedback-assistant/reports/issues/58)*
 
 #### How can I export / import / sync / backup preferences?
 
