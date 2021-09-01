@@ -148,6 +148,7 @@ None -->
 - [Tripwire](https://github.com/Tripwire)
 - [Sideline Sports](https://github.com/SidelineSports)
 - [Varun Srinivasan](https://github.com/varunsrin)
+- [Scout APM](https://github.com/scoutapm-sponsorships)
 
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
 
@@ -265,6 +266,8 @@ None -->
 - [Threema GmbH](https://github.com/threema-ch)
 - [OpenBayes](https://github.com/signcl)
 - [Rom's](https://github.com/Roms1383)
+- [Joshua Hughes](https://github.com/PlutonusDev)
+- [SCG82](https://github.com/SCG82)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
