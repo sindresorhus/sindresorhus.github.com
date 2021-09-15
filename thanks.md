@@ -83,7 +83,7 @@ None -->
 	<img src="https://dashboard.doppler.com/imgs/logo-long.svg" width="400" alt="Doppler">
 </a>
 <a href="https://workos.com" class="sponsor" rel="nofollow" style="position:relative;left:-30px">
-	<img src="/assets/thanks/workos-logo.svg" width="380" alt="WorkOS">
+	<img src="/assets/thanks/workos-logo-white-bg.svg" width="380" alt="WorkOS">
 </a>
 <a href="https://strapi.io/?ref=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
 	<img src="/assets/thanks/strapi-logo.svg" width="380" alt="Strapi">
