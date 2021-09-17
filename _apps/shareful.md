@@ -25,3 +25,19 @@ mac_app_store_url: https://apps.apple.com/app/id1522267256
 		</td>
 	</tr>
 </table>
+
+<br>
+
+<h3 id="faq">Frequently Asked Questions</h3>
+
+#### I have a feature request, bug report, or some feedback
+
+[Send it here.](https://sindresorhus.com/feedback/?product=Shareful&referrer=Website-FAQ)
+
+#### Can you also add a “Move” action?
+
+This is unfortunately not possible. [Share extensions](https://developer.apple.com/design/human-interface-guidelines/macos/extensions/share-extensions/), like the "Copy" action, only receive a copy of the file. They have no access to the original file.
+
+#### Where can I find the changelog?
+
+Go [here](https://apps.apple.com/app/id1522267256) and click “Version History”.
