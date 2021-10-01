@@ -104,9 +104,6 @@ None -->
 ## Silver sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
 <div class="silver-sponsor">
-	<a href="https://moxy.studio" class="sponsor" rel="nofollow">
-		<img src="/assets/thanks/moxy-logo.svg" width="240" alt="MOXY">
-	</a>
 	<a href="https://lunanode.com" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/lunanode-logo.svg" width="260" alt="LunaNode">
 	</a>
@@ -128,9 +125,6 @@ None -->
 	<a href="https://www.monito.com" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/monito-logo.svg" width="270" alt="Monito">
 	</a>
-	<a href="https://uibakery.io" class="sponsor" rel="nofollow" style="position:relative;left:-20px">
-		<img src="/assets/thanks/uibakery-logo.jpg" width="270" alt="UI Bakery">
-	</a>
 </div>
 
 ## Top supporter <span class="reward-price">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
@@ -149,6 +143,7 @@ None -->
 - [Sideline Sports](https://github.com/SidelineSports)
 - [Varun Srinivasan](https://github.com/varunsrin)
 - [Scout APM](https://github.com/scoutapm-sponsorships)
+- [Alexis Tyler](https://github.com/OmgImAlexis)
 
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
 
@@ -268,6 +263,7 @@ None -->
 - [Rom's](https://github.com/Roms1383)
 - [Joshua Hughes](https://github.com/PlutonusDev)
 - [SCG82](https://github.com/SCG82)
+- [Thomas Wang](https://github.com/ThomasWang)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -362,6 +358,8 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Joong Hyuk Im](https://github.com/Kooni-Boop)
 - [MooYeol Prescott Lee](https://github.com/mooyoul)
 - [Claudio Wunder](https://github.com/ovflowd)
+- [UI Bakery](https://uibakery.io)
+- [MOXY](https://moxy.studio)
 
 ---
 
