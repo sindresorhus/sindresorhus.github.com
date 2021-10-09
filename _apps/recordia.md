@@ -4,6 +4,7 @@ subtitle: Quickly record audio
 description: Record audio directly from the menu bar or with a global keyboard shortcut.
 type: macOS
 date: 2020-09-02
+is_paid: true
 app_store_app_id: 1529006487
 mac_app_store_url: https://apps.apple.com/app/id1529006487
 ---

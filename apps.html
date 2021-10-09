@@ -2,39 +2,92 @@
 layout: default
 ---
 
+<style>
+.ios-app-icon {
+	padding: 14px;
+}
+
+.box {
+	border: 1px solid rgb(0 0 0 / 0.03);
+}
+
+@media screen and (max-width: 540px) {
+	.media-left img {
+		width: 64px;
+		height: 64px;
+	}
+
+	.ios-app-icon {
+		padding: 6px;
+	}
+
+	#apps .column {
+		margin: 0 !important;
+		padding: 0;
+	}
+
+	#apps .column .box {
+		box-shadow: none;
+		border-radius: unset;
+		padding-left: 0;
+		padding-right: 10px;
+		padding-top: 1.5rem !important;
+		padding-bottom: 1.5rem !important;
+		border: 0;
+		border-bottom: 1px solid rgb(0 0 0 / 0.1);
+	}
+
+	#apps .column:last-of-type .box {
+		border-bottom: 0;
+	}
+
+	#apps .column .box .title {
+		font-size: 1.6rem !important;
+		margin-bottom: 24px !important;
+	}
+
+	#apps .column .box .subtitle {
+		font-size: 1.1rem !important;
+	}
+}
+</style>
+
 <section class="section hero is-fullheight is-default is-bold">
-	<div id="apps" class="container">
+	<div id="apps" class="container" style="margin-bottom: 40px">
 		<h2 class="title is-2">Apps</h2>
 		<p>If you're a student, open-source maintainer, or cannot afford my paid apps, <a href="/contact?subject=Free%20promo%20code%20for%20%5Bapp%5D">reach out</a>, and I'll give you any of my apps for free.</p>
 		<p>You can get 3 of my macOS menu bar apps in a bundle for <a href="https://apps.apple.com/app-bundle/id1439413445">50% off</a>.</p>
 		<br>
-		<div class="columns is-multiline">
+		<div class="columns is-variable is-5 is-multiline is-desktop">
 			{% for app in site.apps reversed %}
-			<div class="column is-mobile is-half-tablet is-one-third-desktop">
+			<div class="column is-half-desktop" style="margin: 0.6rem 0">
 				<a href="{% if app.external_url %}{{ app.external_url }}{% else %}{{ app.url }}{% endif %}">
 					<div class="box">
-						<figure class="image">
-							{% comment %}
-								This mess is needed because we don't know the extension of the thumbnail upfront...
-							{% endcomment %}
-
-							{% for file in site.static_files %}
-								{% assign path = '/assets/' | append: app.slug | append: '/thumbnail' %}
-								{% if file.path contains path %}
-									<img src="{{ file.path }}" width="1440" height="800">
-								{% endif %}
-							{% endfor %}
-						</figure>
-						<h2 class="title">
-							<span>{{ app.title }}</span>
-							{% if app.is_prerelease %}
-								<span class="tag is-small is-info">Prerelease</span>
-							{% elsif forloop.first %}
-								<span class="tag is-small is-success">New!</span>
-							{% endif %}
-							<span class="tag is-small">{{ app.type }}</span>
-						</h2>
-						<p class="subtitle is-6">{{ app.subtitle }}</p>
+						<article class="media" style="padding:6px">
+							<div class="media-left" style="align-self: center">
+								<img class="{% if app.type == 'iOS' %}ios-app-icon{% endif %}" src="{{ relative_path }}/assets/{{ app.slug }}/icon.png" width="128" height="128">
+							</div>
+							<div class="media-content" style="align-self: center">
+								<h2 class="title is-3">{{ app.title }}</h2>
+								<p class="subtitle is-5" style="margin-bottom: 0.3rem">{{ app.subtitle }}</p>
+								<div>
+									{% if app.is_prerelease %}
+										<span class="tag is-small is-info">prerelease</span>
+									{% elsif forloop.first %}
+										<span class="tag is-small is-success">new!</span>
+									{% endif %}
+									<span class="tag is-small is-info is-light">{{ app.type }}</span>
+									{% if app.is_paid %}
+										<span class="tag is-small">paid</span>
+									{% else %}
+										<span class="tag is-small">free</span>
+									{% endif %}
+									{% if app.repo_url %}
+										<span class="tag is-small">open-source</span>
+									{% endif %}
+								</div>
+							</div>
+						</article>
 					</div>
 				</a>
 			</div>

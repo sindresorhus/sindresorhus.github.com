@@ -15,7 +15,7 @@ mac_app_store_url: https://apps.apple.com/app/id1569600264
 
 [Send it here.](https://sindresorhus.com/feedback/?product=Pandan&referrer=Website-FAQ)
 
-#### Can you make the history be further back than 30 days?
+#### Can you make the history be further back than 60 days?
 
 The history is intentionally limited. Pandan is about time awareness right now, not analyzing past behavior. If you need more stats and graphs, check out the system [Screen Time](https://support.apple.com/en-gb/HT210387) feature.
 
