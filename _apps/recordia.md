@@ -9,6 +9,8 @@ app_store_app_id: 1529006487
 mac_app_store_url: https://apps.apple.com/app/id1529006487
 ---
 
+**Want to see this app included in [Setapp](https://setapp.com)?** Help make it happen by [requesting it here](https://support.setapp.com/hc/en-us/articles/213780569-Can-I-suggest-an-app-).
+
 <div align="center">
 	<a href="https://www.producthunt.com/posts/recordia?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-recordia" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=256507&theme=light" alt="Recordia - Simple audio recorder that lives in your macOS menu bar | Product Hunt Embed" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 </div>
@@ -17,7 +19,7 @@ mac_app_store_url: https://apps.apple.com/app/id1529006487
 
 ### Older versions
 
-- [Last macOS 10.15 compatible version (free).](https://github.com/sindresorhus/meta/files/6538283/Recordia.1.5.1.-.macOS.10.15.zip)
+- [Last macOS 10.15 compatible version (free).](https://github.com/sindresorhus/meta/files/6538283/Recordia.1.5.1.-.macOS.10.15.zip) *(1.5.1)*
 
 *(This build will not run on newer macOS versions)*
 

@@ -15,8 +15,8 @@ links:
 
 ### Older versions
 
-- [Last macOS 10.14 compatible version.](https://github.com/sindresorhus/meta/files/6715716/HEIC.Converter.1.9.0.-.macOS.10.14.zip)
-- [Last macOS 10.13 compatible version.](https://dsc.cloud/sindresorhus/HEIC-Converter-for-macOS-10.13-1575452738)
+- [Last macOS 10.14 compatible version.](https://github.com/sindresorhus/meta/files/6715716/HEIC.Converter.1.9.0.-.macOS.10.14.zip) *(1.9.0)*
+- [Last macOS 10.13 compatible version.](https://dsc.cloud/sindresorhus/HEIC-Converter-for-macOS-10.13-1575452738) *(1.5.3)*
 
 <h3 id="faq">Frequently Asked Questions</h3>
 

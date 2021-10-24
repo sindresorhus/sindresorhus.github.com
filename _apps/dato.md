@@ -9,7 +9,7 @@ app_store_app_id: 1470584107
 mac_app_store_url: https://apps.apple.com/app/id1470584107
 ---
 
-**Want to see Dato included in [Setapp](https://setapp.com)?** Help make it happen by [requesting it here](https://support.setapp.com/hc/en-us/articles/213780569-Can-I-suggest-an-app-).
+**Want to see this app included in [Setapp](https://setapp.com)?** Help make it happen by [requesting it here](https://support.setapp.com/hc/en-us/articles/213780569-Can-I-suggest-an-app-).
 
 Dato is a one-time purchase with free upgrades forever. Dato will never be subscription-based.
 
@@ -24,9 +24,9 @@ Dato requires macOS 11 or later.
 <a id="trial"></a>
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-3.0.0-trial-1625657693). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-3.1.0-trial-1635081996). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
-**Please upgrade to macOS 11.4 before trying out Dato. There are a bunch of macOS bugs in earlier releases.**
+**Please upgrade to macOS 11.5 before trying out Dato. There are a bunch of macOS bugs in earlier releases.**
 
 ### Features
 
@@ -58,8 +58,8 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 
 ### Older versions
 
-- [Last macOS 10.15 compatible version (free).](https://github.com/sindresorhus/meta/files/6758848/Dato.2.6.1.-.macOS.10.15.zip)
-- [Last macOS 10.14 compatible version (free).](https://github.com/sindresorhus/meta/files/5360452/Dato.1.14.9.-.Special.last.Mojave.compatible.release.zip)
+- [Last macOS 10.15 compatible version (free).](https://github.com/sindresorhus/meta/files/6758848/Dato.2.6.1.-.macOS.10.15.zip) *(2.6.1)*
+- [Last macOS 10.14 compatible version (free).](https://github.com/sindresorhus/meta/files/5360452/Dato.1.14.9.-.Special.last.Mojave.compatible.release.zip) *(1.4.9)*
 
 *(These builds will not run on newer macOS versions)*
 

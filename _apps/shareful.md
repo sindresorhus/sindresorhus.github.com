@@ -13,7 +13,7 @@ mac_app_store_url: https://apps.apple.com/app/id1522267256
 
 ### Older versions
 
-- [Last macOS 10.15 compatible version.](https://github.com/sindresorhus/meta/files/7119520/Shareful.1.4.0.-.macOS.10.15.zip)
+- [Last macOS 10.15 compatible version.](https://github.com/sindresorhus/meta/files/7119520/Shareful.1.4.0.-.macOS.10.15.zip) *(1.4.0)*
 
 <br>
 
