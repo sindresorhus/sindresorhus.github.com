@@ -1,8 +1,10 @@
 ---
 title: Photo Widget
 subtitle: Photos on your home screen using widgets
-type: iOS
 date: 2020-09-22
+platforms:
+  - iOS
+  - macOS (Apple Silicon)
 app_store_app_id: 1532588789
 app_store_url: https://apps.apple.com/app/id1532588789
 ---
@@ -47,6 +49,6 @@ This is not possible.
 
 The built-in widget only shows photos from “Memories” and “Featured Photos” in your photo library. There is no way to customize it or pick the photos to be shown.
 
-#### Why is this app free without ads?
+#### Why is this free without ads?
 
-I just enjoy making apps. I earn money on other apps.
+I just enjoy making apps. I earn money on other apps. Consider leaving a nice review.

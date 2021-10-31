@@ -65,7 +65,7 @@ layout: default
 					<div class="box">
 						<article class="media" style="padding:6px">
 							<div class="media-left" style="align-self: center">
-								<img class="{% if app.type == 'iOS' %}ios-app-icon{% endif %}" src="{{ relative_path }}/assets/{{ app.slug }}/icon.png" width="128" height="128">
+								<img class="{% if app.platforms contains 'iOS' %}{% unless app.platforms contains 'macOS' %}ios-app-icon{% endunless %}{% endif %}" src="{{ relative_path }}/assets/{{ app.slug }}/icon.png" width="128" height="128">
 							</div>
 							<div class="media-content" style="align-self: center">
 								<h2 class="title is-3">{{ app.title }}</h2>
@@ -76,7 +76,9 @@ layout: default
 									{% elsif forloop.first %}
 										<span class="tag is-small is-success">new!</span>
 									{% endif %}
-									<span class="tag is-small is-info is-light">{{ app.type }}</span>
+									{% for platform in app.platforms %}
+									<span class="tag is-small is-info is-light">{{ platform }}</span>
+									{% endfor %}
 									{% if app.is_paid %}
 										<span class="tag is-small">paid</span>
 									{% else %}

@@ -2,8 +2,9 @@
 title: Dato
 subtitle: Better menu bar clock with calendar and time zones
 description: Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.
-type: macOS
 date: 2019-07-13
+platforms:
+  - macOS
 is_paid: true
 app_store_app_id: 1470584107
 mac_app_store_url: https://apps.apple.com/app/id1470584107

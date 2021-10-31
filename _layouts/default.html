@@ -5,12 +5,20 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="theme-color" content="#3273DC">
 		<meta name="author" content="Sindre Sorhus">
-		{% capture description %}{% if page.description %}{{ page.description | strip_html }}{% else %}{{ site.description }}{% endif %}{% endcapture %}
-		<meta name="description" content="{{ description }}">
+		{% capture description %}
+			{% if page.description %}
+				{{ page.description | strip_html }}
+			{% elsif page.subtitle %}
+				{{ page.subtitle | strip_html }}
+			{% else %}
+				{{ site.description }}
+			{% endif %}
+		{% endcapture %}
+		<meta name="description" content="{{ description | strip }}">
 		<meta property="og:type" content="website">
 		<meta property="og:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
 		<meta property="og:url" content="{{ page.url | absolute_url }}">
-		<meta property="og:description" content="{{ description }}">
+		<meta property="og:description" content="{{ description | strip }}">
 		{% if page.collection == 'apps' %}
 			{% for file in site.static_files %}
 				{% assign path = '/assets/' | append: page.slug | append: '/icon' %}
@@ -19,7 +27,7 @@
 				{% endif %}
 			{% endfor %}
 			<!-- Safari on macOS doesn't show smart app banners -->
-			{% if page.app_store_app_id and page.type == 'iOS' %}
+			{% if page.app_store_app_id and page.platforms contains 'iOS' %}
 			<meta name="apple-itunes-app" content="app-id={{ page.app_store_app_id }}">
 			{% endif %}
 		{% else %}

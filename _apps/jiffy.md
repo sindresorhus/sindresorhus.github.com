@@ -2,8 +2,9 @@
 title: Jiffy
 subtitle: Discover & share the best GIFs
 description: 'Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found an awesome GIF, just drag and drop it into an app.'
-type: macOS
 date: 2020-03-25
+platforms:
+  - macOS
 app_store_app_id: 1502527999
 mac_app_store_url: https://apps.apple.com/app/id1502527999
 links:
@@ -98,3 +99,7 @@ Go [here](https://apps.apple.com/app/id1502527999) and click “Version History�
 #### Why the name “Jiffy”?
 
 Some people incorrectly pronounce GIF as “Jif”. The name is a pun on that. Also, “Jiffy” means to do something fast, which is what the app is all about.
+
+#### Why is this free without ads?
+
+I just enjoy making apps. I earn money on other apps. Consider leaving a nice review.

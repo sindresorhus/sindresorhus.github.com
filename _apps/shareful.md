@@ -1,8 +1,9 @@
 ---
 title: Shareful
 subtitle: Give the macOS share menu superpowers
-type: macOS
 date: 2020-09-08
+platforms:
+  - macOS
 app_store_app_id: 1522267256
 mac_app_store_url: https://apps.apple.com/app/id1522267256
 ---
@@ -41,3 +42,7 @@ This is unfortunately not possible. [Share extensions](https://developer.apple.c
 #### Where can I find the changelog?
 
 Go [here](https://apps.apple.com/app/id1522267256) and click “Version History”.
+
+#### Why is this free without ads?
+
+I just enjoy making apps. I earn money on other apps. Consider leaving a nice review.

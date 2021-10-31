@@ -2,8 +2,9 @@
 title: Lungo
 subtitle: Prevent your Mac from going to sleep
 description: Lungo is a macOS app that prevents your Mac from falling asleep and your screen from dimming.
-type: macOS
 date: 2017-07-26
+platforms:
+  - macOS
 is_paid: true
 app_store_app_id: 1263070803
 mac_app_store_url: https://apps.apple.com/app/id1263070803
