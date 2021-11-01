@@ -144,6 +144,7 @@ None -->
 - [Varun Srinivasan](https://github.com/varunsrin)
 - [Scout APM](https://github.com/scoutapm-sponsorships)
 - [Alexis Tyler](https://github.com/OmgImAlexis)
+- [Vital](https://github.com/vital-software)
 
 ## Supporter <span class="reward-price">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
 
@@ -175,7 +176,6 @@ None -->
 - [Florian Breisch](https://github.com/florianb)
 - [Mikkel Malmberg](https://github.com/mikker)
 - [Matthew J. McCullough](https://github.com/matthewmccullough)
-- [Maythee Anegboonlap](https://github.com/llun)
 - [Keith Ito](https://github.com/keithito)
 - [Sasha Koss](https://github.com/kossnocorp)
 - [Viktor Fonic](https://github.com/vfonic)
@@ -239,7 +239,6 @@ None -->
 - [Aadit Kamat](https://github.com/aaditkamat)
 - [Tim Nolet](https://github.com/tnolet)
 - [jmnetizen](https://github.com/jmnetizen)
-- [Jered Sutton](https://github.com/jsutton)
 - [Aternos](https://github.com/aternosorg)
 - [Yuan Qing Lim](https://github.com/yuanqing)
 - [Vince Malone](https://github.com/VinceMalone)
@@ -260,10 +259,13 @@ None -->
 - [Justin Lowery](https://github.com/cerebrl)
 - [Threema GmbH](https://github.com/threema-ch)
 - [OpenBayes](https://github.com/signcl)
-- [Rom's](https://github.com/Roms1383)
-- [Joshua Hughes](https://github.com/PlutonusDev)
 - [SCG82](https://github.com/SCG82)
-- [Thomas Wang](https://github.com/ThomasWang)
+- [Gadget](https://github.com/gadget-inc)
+- [Espen Klem](https://github.com/eklem)
+- [Ben Shakal](https://github.com/neb)
+- [Josh Goldberg](https://github.com/JoshuaKGoldberg)
+- [Kudo Chien](https://github.com/Kudo)
+- [@neostfox](https://github.com/neostfox)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -360,6 +362,10 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Claudio Wunder](https://github.com/ovflowd)
 - [UI Bakery](https://uibakery.io)
 - [MOXY](https://moxy.studio)
+- [Maythee Anegboonlap](https://github.com/llun)
+- [Joshua Hughes](https://github.com/PlutonusDev)
+- [Jered Sutton](https://github.com/jsutton)
+- [Rom's](https://github.com/Roms1383)
 
 ---
 
