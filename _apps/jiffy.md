@@ -28,9 +28,8 @@ links:
 
 ### Older versions
 
-[Last macOS 10.15 compatible version.](https://github.com/sindresorhus/meta/files/6626336/Jiffy.1.3.3.-.macOS.10.15.zip) *(1.3.3)*
-
-*(This build will not run on newer macOS versions)*
+- [Last macOS 11 compatible version.](https://github.com/sindresorhus/meta/files/7511993/Jiffy.2.1.1.-.macOS.11.zip) *(2.1.1)*
+- [Last macOS 10.15 compatible version.](https://github.com/sindresorhus/meta/files/6626336/Jiffy.1.3.3.-.macOS.10.15.zip) *(1.3.3)*
 
 <br>
 
