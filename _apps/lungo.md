@@ -48,6 +48,11 @@ If you have set a sleep schedule in “System Preferences › Battery › Schedu
 
 Yes, choose “Activate on Left-click” in the preferences.
 
+<a id="custom-duration"></a>
+#### Can I use a custom duration?
+
+Lungo comes with a set of commonly used durations, which should be enough for most users. People love Lungo for its simplicity. Lungo has tens of thousands of users and only a few people have requested a custom duration. However, power users can take advantage of the Shortcuts app to use custom durations. Drag the the “Set Enabled State” Lungo action into the shortcut editor in the Shortcuts app. Click “Show more” and then choose a custom duration. You can pin the shortcut workflow to the menu bar for easy access or set a global keyboard shortcut for it.
+
 #### Can you localize the app into my language?
 
 I don't have any immediate plans to localize the app.
