@@ -310,14 +310,6 @@ This is unfortunately not possible as Dato uses a menu, not a popover, which can
 
 If it's a non-clickable URL (not a link), you can select the URL and choose “Copy Selected Text”. Otherwise, activate the correct browser profile and then drag and drop the link into the browser window.
 
-#### How can I access event attachments?
-
-macOS unfortunately does not expose this capability to developers, so there is no way for Dato to support it.
-
-However, you can select “Show in Calendar” in the event details menu and then access the attachments in the Calendar app.
-
-*If you work at Apple → [FB7389922](https://github.com/feedback-assistant/reports/issues/58)*
-
 #### How can I export / import / sync / backup preferences?
 
 I would recommend the [Syncalicious app](https://github.com/zenangst/Syncalicious) which works with any macOS app.
@@ -358,7 +350,7 @@ iStat Menus lets you show different kinds of info in the menu bar, like system s
 
 #### How is it different from Itsycal?
 
-Itsycal is a good app too. While Itsycal has the ability to add calendar events, Dato is not just a calendar app, but also includes menu bar clock replacement, time zones, and more.
+Dato is not just a calendar app, but also includes menu bar clock replacement, time zones, upcoming event in menu bar, and more. Try both (see the Dato trial) and see for yourself.
 
 #### Why the name “Dato”?
 
