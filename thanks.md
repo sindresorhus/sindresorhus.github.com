@@ -258,7 +258,6 @@ None -->
 - [Ryan Sonshine](https://github.com/ryansonshine)
 - [Justin Lowery](https://github.com/cerebrl)
 - [Threema GmbH](https://github.com/threema-ch)
-- [OpenBayes](https://github.com/signcl)
 - [SCG82](https://github.com/SCG82)
 - [Gadget](https://github.com/gadget-inc)
 - [Espen Klem](https://github.com/eklem)
@@ -266,6 +265,8 @@ None -->
 - [Josh Goldberg](https://github.com/JoshuaKGoldberg)
 - [Kudo Chien](https://github.com/Kudo)
 - [@neostfox](https://github.com/neostfox)
+- [@TNTSUCCES](https://github.com/TNTSUCCES)
+- [Jarrod Davis](https://github.com/jarrodldavis)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -366,6 +367,7 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Joshua Hughes](https://github.com/PlutonusDev)
 - [Jered Sutton](https://github.com/jsutton)
 - [Rom's](https://github.com/Roms1383)
+- [OpenBayes](https://github.com/signcl)
 
 ---
 
