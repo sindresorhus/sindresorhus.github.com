@@ -37,7 +37,7 @@ The system needs some time to accurately calculate the time remaining estimate.
 
 #### Can it show “apps using significant energy” like the built-in battery indicator?
 
-It can unfortunately not show this because of restrictions (sandboxing) imposed on apps in the App Store. However, you could change the menu bar item type to text instead of icon and use this app in combination with the system battery indicator.
+It can unfortunately not show this because of restrictions (sandboxing) imposed on apps on the App Store. However, you could change the menu bar item type to text instead of icon and use this app in combination with the system battery indicator.
 
 #### Where can I find the changelog?
 

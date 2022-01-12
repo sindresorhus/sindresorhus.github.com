@@ -25,9 +25,9 @@ Dato requires macOS 11 or later.
 <a id="trial"></a>
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-3.1.0-trial-1635081996). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-3.3.0-trial-1642398667). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
-**Please upgrade to macOS 11.5 before trying out Dato. There are a bunch of macOS bugs in earlier releases.**
+<!-- **Please upgrade to macOS 12.2 before trying out Dato. There are a bunch of macOS bugs in earlier releases.** -->
 
 ### Features
 
@@ -275,6 +275,13 @@ Dato supports opening calendar events directly in Calendar, Fantastical, BusyCal
 #### How can I make my calendar refresh more often?
 
 Open the Calendar app, open its “Preferences”, go to the “Accounts” tab, choose the relevant calendar service in the left sidebar, and then change the “Refresh Calendars” preference. Ideally, it should be set to “Push”, but not all services support that, like Google.
+
+<a id="notifications">
+#### How can I get notifications for upcoming events?
+
+Dato does not support this as you can just set it up in the built-in Calendar app. Open the Calendar app's preferences, select the “Alerts” pane, and there you can choose when to be notified.
+
+What Dato does support is showing a notification right when an event for a video call (Zoom/Meet/Teams) starts. The notification includes a button to join the video call directly. You can enable this notification in Dato's preferences. *(macOS 12 only)*
 
 #### Where can I find the changelog?
 

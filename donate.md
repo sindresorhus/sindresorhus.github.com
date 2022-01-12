@@ -60,4 +60,4 @@ You can also support me by buying my apps.
 - [Recordia](https://sindresorhus.com/recordia)
 - [Black Out](https://sindresorhus.com/black-out)
 
-*A nice review in the App Store is also a good way to support my work.*
+*A nice review on the App Store is also a good way to support my work.*

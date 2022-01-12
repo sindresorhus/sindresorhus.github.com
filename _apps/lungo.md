@@ -42,7 +42,7 @@ However, if you really want this, there are some solutions [here](https://apple.
 
 #### Does Lungo keep my Mac awake even if there is a scheduled sleep?
 
-If you have set a sleep schedule in “System Preferences › Battery › Schedule”, it will take priority over Lungo. This is out of Lungo‘s control.
+If you have set a sleep schedule in “System Preferences › Battery › Schedule”, it will take priority over Lungo. This is out of Lungo's control.
 
 #### Can I left-click the icon to toggle it like with Caffeine?
 
@@ -67,10 +67,17 @@ You can control Lungo using anything that supports opening a URL with a custom s
 
 *Lungo also comes with support for Shortcuts.*
 
+#### Integrations
+
+- [lungo-cli](https://github.com/sindresorhus/lungo-cli) - Command-line tool.
+- [Raycast commands](https://github.com/raycast/script-commands/tree/master/commands#lungo)
+
+#### Custom URL scheme
+
 For example, to activate Lungo for 10 minutes, run this terminal command:
 
-```
-$ open -g 'lungo:activate?minutes=10'
+```sh
+open --background 'lungo:activate?minutes=10'
 ```
 
 #### Commands
@@ -81,29 +88,25 @@ $ open -g 'lungo:activate?minutes=10'
 
 The `activate` and `toggle` commands support the parameters `hours` and `minutes`, which can be used together or individually. If you don't specify a duration, it will use the default duration you have set in Lungo.
 
-#### Tools
-
-- [lungo-cli](https://github.com/sindresorhus/lungo-cli) - Command-line tool.
-
 #### Examples
 
 ##### Shell
 
-```
+```sh
 # Deactivate Lungo
-$ open -g 'lungo:deactivate'
+open --background 'lungo:deactivate'
 
 # Activate Lungo for 1 hours and 30 minutes
-$ open -g 'lungo:activate?hours=1&minutes=30'
+open --background 'lungo:activate?hours=1&minutes=30'
 
 # Activate Lungo for 1 hours and 30 minutes (Alternative)
-$ open -g 'lungo:activate?hours=1.5'
+open --background 'lungo:activate?hours=1.5'
 
 # Toggle Lungo with the default duration
-$ open -g 'lungo:toggle'
+open --background 'lungo:toggle'
 
 # Toggle Lungo for 10 minutes
-$ open -g 'lungo:toggle?minutes=10'
+open --background 'lungo:toggle?minutes=10'
 ```
 
 ##### Node.js

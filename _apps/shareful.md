@@ -45,4 +45,4 @@ Go [here](https://apps.apple.com/app/id1522267256) and click â€œVersion Historyâ
 
 #### Why is this free without ads?
 
-I just enjoy making apps. I earn money on other apps. Consider leaving a nice review.
+I just enjoy making apps. Consider leaving a nice review on the App Store.
