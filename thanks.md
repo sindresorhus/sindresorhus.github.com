@@ -71,7 +71,7 @@ None -->
 ## <span class="no-dark-mode">🦄</span> Sponsor <span class="reward-price">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>
 
 <a href="https://standardresume.co/tech" class="sponsor" rel="nofollow">
-	<img src="/assets/thanks/standard-resume-logo.svg" width="320" alt="Standard Resume">
+	<img src="/assets/thanks/standard-resume-logo.svg" width="300" alt="Standard Resume">
 </a>
 <a href="https://retool.com/?utm_campaign=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-44px">
 	<img src="/assets/thanks/retool-logo.svg" width="410" alt="Retool">
@@ -99,6 +99,9 @@ None -->
 </a>
 <a href="https://keygen.sh" class="sponsor" rel="nofollow" style="position:relative;left:-3px">
 	<img src="/assets/thanks/keygen-logo.svg" width="340" alt="Keygen">
+</a>
+<a href="https://getstream.io/chat/sdk/ios/?utm_source=Github&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=Github_Jan2022_iOSChatSDK&utm_term=Sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-3px">
+	<img src="/assets/thanks/stream-logo.svg" width="360" alt="Stream">
 </a>
 
 ## Silver sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
