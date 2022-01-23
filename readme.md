@@ -8,14 +8,16 @@
 	<img src="screenshot.jpg" width="600">
 </a>
 
-
 ## Dev
 
+First time:
+
+```sh
+bundle
 ```
-$ ./start.sh
+
+And then:
+
+```sh
+./start.sh
 ```
-
-
-## License
-
-MIT © [Sindre Sorhus](https://sindresorhus.com)
