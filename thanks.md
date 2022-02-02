@@ -140,7 +140,6 @@ None -->
 - [Nat Friedman](https://github.com/nat)
 - [Ryan Chartrand](https://github.com/ryanchartrand)
 - [Verti Studio](https://github.com/Codeinwp)
-- [Digital Attitude](https://github.com/dtttd)
 - [Passbolt](https://github.com/passbolt)
 - [Tripwire](https://github.com/Tripwire)
 - [Sideline Sports](https://github.com/SidelineSports)
@@ -156,7 +155,6 @@ None -->
 - Mike North
 - [Vivian Cromwell](https://twitter.com/viviancromwell)
 - [Sam Verschueren](https://twitter.com/SamVerschueren)
-- Laurie Voss
 - [Gabriel Csapo](https://github.com/gabrielcsapo)
 - Sameeri Pavan Kumar Marryboyina
 - Jimmy Moon
@@ -174,6 +172,7 @@ None -->
 - Christian Buratto
 - Fission Team
 - Manizheh and Nick
+- Linus-Alexander Maximilian Gubenis
 - [Addy Osmani](https://github.com/addyosmani)
 - [Paul Irish](https://github.com/paulirish)
 - [Florian Breisch](https://github.com/florianb)
@@ -247,9 +246,7 @@ None -->
 - [Vince Malone](https://github.com/VinceMalone)
 - [Ideal Postcodes](https://github.com/ideal-postcodes)
 - [Paul Warelis](https://github.com/pwarelis)
-- [Dynobase](https://github.com/Dynobase)
 - [Yefim Vedernikoff](https://github.com/yefim)
-- [Sami Koskimäki](https://github.com/koskimas)
 - [Checkly](https://github.com/checkly)
 - [Osama Khan](https://github.com/osamakhn)
 - [Rafael Conde](https://github.com/rafaelconde)
@@ -265,11 +262,13 @@ None -->
 - [Gadget](https://github.com/gadget-inc)
 - [Espen Klem](https://github.com/eklem)
 - [Ben Shakal](https://github.com/neb)
-- [Josh Goldberg](https://github.com/JoshuaKGoldberg)
 - [Kudo Chien](https://github.com/Kudo)
 - [@neostfox](https://github.com/neostfox)
 - [@TNTSUCCES](https://github.com/TNTSUCCES)
 - [Jarrod Davis](https://github.com/jarrodldavis)
+- [@macandcheese-spaghetticode](https://github.com/macandcheese-spaghetticode)
+- [John Bohannon](https://github.com/imjohnbo)
+- [Zentered](https://github.com/zentered)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -371,6 +370,11 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Jered Sutton](https://github.com/jsutton)
 - [Rom's](https://github.com/Roms1383)
 - [OpenBayes](https://github.com/signcl)
+- Laurie Voss
+- [Sami Koskimäki](https://github.com/koskimas)
+- [Dynobase](https://github.com/Dynobase)
+- [Josh Goldberg](https://github.com/JoshuaKGoldberg)
+- [Digital Attitude](https://github.com/dtttd)
 
 ---
 
