@@ -12,6 +12,12 @@ This can be useful as a quick reference.
 
 <br>
 
+### Older versions
+
+- [Last macOS 11 compatible version](https://github.com/sindresorhus/meta/files/8007477/UTC.Time.1.3.0.-.macOS.11.zip) *(1.3.0)*
+
+<br>
+
 <h3 id="faq">Frequently Asked Questions</h3>
 
 #### I have a feature request, bug report, or some feedback
@@ -33,10 +39,6 @@ No plans to add that.
 #### Where can I find the changelog?
 
 Go [here](https://apps.apple.com/app/id1538245904) and click “Version History”.
-
-#### Can you add support for macOS 10.15 or older?
-
-No, sorry. I'm an indie developer and this is a free app. macOS 10.15 has some bugs I don't have time to work around.
 
 #### Can you add support for other time zones?
 

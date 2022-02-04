@@ -49,6 +49,10 @@ This is not possible.
 
 The built-in widget only shows photos from “Memories” and “Featured Photos” in your photo library. There is no way to customize it or pick the photos to be shown.
 
+#### Can you make the cropping prioritize faces?
+
+This is something I want to add, but it's more complicated than it sounds. Widgets have limited resources, and currently, it's not enough to do face detection. Apple works around that by having the face data already available, but this data is not available to third-party apps. Other photo widget apps solve this by letting the user pick the album in the app itself and then they do the face detection in the app upfront, however, that would require a rewrite of this app, which is not something I have time to do right now.
+
 #### Why is this free without ads?
 
 I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.

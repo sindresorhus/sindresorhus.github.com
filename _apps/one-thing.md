@@ -53,6 +53,7 @@ More integrations:
 
 - [Example shortcut](https://www.icloud.com/shortcuts/381619f1c8404770ad020d439a48fd9c)
 - [How to use Shortcuts](https://www.xda-developers.com/guide-shortcuts-macos/)
+- [How to run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac)
 
 **Examples**
 

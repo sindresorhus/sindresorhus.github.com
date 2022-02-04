@@ -44,6 +44,10 @@ Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet
 
 Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet Speed” action into the shortcut editor. You may want to enable the “Add to History” action setting. [Get the Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12) and set it to run this shortcut every hour or at an interval of your choosing. (The Shortery app is only needed this year. It's almost certain that Apple will introduce automation for Shortcuts in macOS 13)
 
+#### Can it show the current speed live as it calculates it?
+
+This is not possible as it's not provided by the tool Speediness uses to get the speed.
+
 <a id="ios"></a>
 #### Can you add support for iOS?
 

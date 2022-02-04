@@ -25,7 +25,7 @@ Dato requires macOS 11 or later.
 <a id="trial"></a>
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-3.3.0-trial-1642398667). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-3.3.4-trial-1646205511). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 <!-- **Please upgrade to macOS 12.2 before trying out Dato. There are a bunch of macOS bugs in earlier releases.** -->
 
@@ -59,8 +59,8 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 
 ### Older versions
 
-- [Last macOS 10.15 compatible version (free).](https://github.com/sindresorhus/meta/files/6758848/Dato.2.6.1.-.macOS.10.15.zip) *(2.6.1)*
-- [Last macOS 10.14 compatible version (free).](https://github.com/sindresorhus/meta/files/5360452/Dato.1.14.9.-.Special.last.Mojave.compatible.release.zip) *(1.4.9)*
+- [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/6758848/Dato.2.6.1.-.macOS.10.15.zip) *(2.6.1)*
+- [Last macOS 10.14 compatible version (free)](https://github.com/sindresorhus/meta/files/5360452/Dato.1.14.9.-.Special.last.Mojave.compatible.release.zip) *(1.4.9)*
 
 *(These builds will not run on newer macOS versions)*
 
@@ -313,9 +313,19 @@ Then launch Dato again.
 
 This is unfortunately not possible as Dato uses a menu, not a popover, which cannot be pinned.
 
+#### My Google Calendar does not update in Dato
+
+You might have to re-authenticate your Google account. Open the Calendar app, open “Preferences”, go to the “Accounts” tab, and try to remove and re-add the Google account.
+
 #### How can I copy a link from the event notes? I need to open it in a specific browser profile.
 
 If it's a non-clickable URL (not a link), you can select the URL and choose “Copy Selected Text”. Otherwise, activate the correct browser profile and then drag and drop the link into the browser window.
+
+#### How can I hide the Dato clock when doing a specific task or at a certain time of the day?
+
+This is a perfect use-case for the built-in Shortcuts app. You can use the `Quit App` and `Open App` actions to quit and relaunch Dato whenever needed. For example, you could create a focus shortcut that quits Dato, plays some music, turns off notifications, etc.
+
+To hide the Dato clock at certain time of the day, you need the [Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12). The Shortery app is only a temporary requirement. It's almost certain that Apple will introduce automation for Shortcuts in macOS 13.
 
 #### How can I export / import / sync / backup preferences?
 

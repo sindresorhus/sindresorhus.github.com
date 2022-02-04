@@ -19,6 +19,6 @@ links:
 
 ### Older versions
 
-- [Last macOS 10.15 compatible version (free).](https://github.com/sindresorhus/meta/files/7454156/Black.Out.1.8.2.-.macOS.10.15.zip) *(1.8.2)*
+- [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/7454156/Black.Out.1.8.2.-.macOS.10.15.zip) *(1.8.2)*
 
 *(This build will not run on newer macOS versions)*

@@ -14,8 +14,8 @@ app_store_url: https://apps.apple.com/app/id1206020918
 
 ### Older versions
 
-- [Last macOS 10.15 compatible version (free).](https://github.com/sindresorhus/meta/files/6565005/Battery.Indicator.2.7.1.-.macOS.10.15.zip) *(2.7.1)*
-- [Last macOS 10.14 compatible version (free).](https://github.com/sindresorhus/meta/files/4127047/Battery-Indicator-2.1.0-Mojave.zip) *(2.1.0)*
+- [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/6565005/Battery.Indicator.2.7.1.-.macOS.10.15.zip) *(2.7.1)*
+- [Last macOS 10.14 compatible version (free)](https://github.com/sindresorhus/meta/files/4127047/Battery-Indicator-2.1.0-Mojave.zip) *(2.1.0)*
 
 *(These builds will not run on newer macOS versions)*
 

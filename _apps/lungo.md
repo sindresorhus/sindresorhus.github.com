@@ -15,9 +15,9 @@ setapp_url: https://go.setapp.com/stp181?_target=https://setapp.com/apps/lungo
 
 ### Older versions
 
-- [Last macOS 10.15 compatible version (free).](https://github.com/sindresorhus/meta/files/7404362/Lungo.1.9.0.-.macOS.10.15.zip) *(1.9.0)*
-- [Last macOS 10.14 compatible version (free).](https://github.com/sindresorhus/meta/files/5507155/Lungo-1-7-0.zip) *(1.7.0)*
-- [Last macOS 10.13 compatible version (free).](https://github.com/sindresorhus/meta/files/4556911/Lungo-1.6.0-High-Sierra.zip) *(1.6.0)*
+- [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/7404362/Lungo.1.9.0.-.macOS.10.15.zip) *(1.9.0)*
+- [Last macOS 10.14 compatible version (free)](https://github.com/sindresorhus/meta/files/5507155/Lungo-1-7-0.zip) *(1.7.0)*
+- [Last macOS 10.13 compatible version (free)](https://github.com/sindresorhus/meta/files/4556911/Lungo-1.6.0-High-Sierra.zip) *(1.6.0)*
 
 *(These builds will not run on newer macOS versions)*
 
@@ -66,6 +66,8 @@ Amphetamine has lots of features. Most of which I would never use. It ships with
 You can control Lungo using anything that supports opening a URL with a custom scheme.
 
 *Lungo also comes with support for Shortcuts.*
+
+Tip: You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
 #### Integrations
 
