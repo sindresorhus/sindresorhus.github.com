@@ -317,6 +317,19 @@ This is unfortunately not possible as Dato uses a menu, not a popover, which can
 
 You might have to re-authenticate your Google account. Open the Calendar app, open “Preferences”, go to the “Accounts” tab, and try to remove and re-add the Google account.
 
+#### Can I show UTC time in the menu bar?
+
+Yes
+
+1. Open the Dato preferences
+1. Go to the “Time Zones” pane
+1. Click the plus button
+1. Write “utc”
+1. Select the “UTC” item
+1. Click “Add”
+1. Enable “Show in menu bar”
+1. Click “Save”
+
 #### How can I copy a link from the event notes? I need to open it in a specific browser profile.
 
 If it's a non-clickable URL (not a link), you can select the URL and choose “Copy Selected Text”. Otherwise, activate the correct browser profile and then drag and drop the link into the browser window.

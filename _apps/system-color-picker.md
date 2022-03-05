@@ -1,6 +1,6 @@
 ---
 title: System Color Picker
-subtitle: The macOS color picker as an app with more features
+subtitle: The familiar color picker supercharged
 date: 2021-05-01
 platforms:
   - macOS
@@ -11,3 +11,5 @@ main_button:
   title: Read more
   url: https://github.com/sindresorhus/System-Color-Picker
 ---
+
+The macOS color picker as an app with lots of extra features.

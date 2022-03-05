@@ -20,6 +20,19 @@ Pandan comes bundled with actions for the built-in Shortcuts app which you can u
 
 Tip: You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
+<h4 id="shortcuts-use-cases">Use-cases</h4>
+
+- [Play custom notification sound](#custom-notification-sound)
+- [Use Pandan as an eye break reminder](#eye-break-reminder)
+- [Show an alert as a notification](#alert-as-notification)
+- [Show a web page as a notification](https://www.icloud.com/shortcuts/0e3914da016b446dbf2fef7aa0341567)
+- [Lock the screen as a notification](https://www.icloud.com/shortcuts/a3aa4ba2640d4f1b97c85f498e9dd945)
+- [Invert the screen for 20 seconds](https://www.icloud.com/shortcuts/0710b22b12b74ec1bad0f28b327412fd)
+- [Make the screen gray for 20 seconds](https://www.icloud.com/shortcuts/dbdeea0a9a8b41749fa27f15cf3eb6c2)
+- [Show the total active duration today as a countdown](#countdown)
+
+*And you can obviously combine these too.*
+
 <br>
 
 <h3 id="faq">Frequently Asked Questions</h3>
@@ -36,15 +49,31 @@ The history is intentionally limited. Pandan is about time awareness right now, 
 
 This is unfortunately not possible as iOS does not let an app continuously check whether the user is idle.
 
+<a id="custom-notification-sound"></a>
 #### How can I play a custom sound as a notification?
 
 Make a [shortcut](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) that uses the [`Play Sound` action](https://www.icloud.com/shortcuts/9cfae8edd2dd48f3bf318a3d825b1212) and then select that shortcut in the Pandan preferences.
 
-If you have my [Dato app](https://sindresorhus.com/dato) installed (even the free trial), you could use one of the sounds it provides. Find the `Get Sound` action.
+If you have my [Dato app](https://sindresorhus.com/dato) installed (even the free trial), you could use one of the sounds it provides. Find the `Get Sound` action. [Example](https://www.icloud.com/shortcuts/2bf58f1c90134803a4765745f54794f6)
 
+<a id="alert-as-notification"></a>
 #### How can I show an alert as a notification?
 
 Same as the above, but use the `Show Alert` action instead.
+
+#### How can I run multiple shortcuts as a notification?
+
+Pandan lets you run a single shortcut as a notification, but a shortcut can run other shortcuts. So make the shortcuts you want to run, make another shortcut that uses the “Run Shortcut” action to run the other shortcuts, and then select this shortcut in Pandan.
+
+<a id="eye-break-reminder"></a>
+#### How can I use this as an eye break reminder?
+
+Set Pandan to remind you to take a break. Make a shortcut in the Shortcuts app that uses the “Wait” action and set it to the wanted duration of the break. After this action, you can either add a “Play Sound” or “Show Alert” action to notify you when the break is done. Then select this shortcut in the Pandan preferences.
+
+<a id="countdown"></a>
+#### How can I show the total active duration today as a countdown?
+
+Get [this shortcut](https://www.icloud.com/shortcuts/fdf0cd45fedb4290bfe14d84a394b601) (requires the [Actions](https://sindresorhus.com/actions) and [One Thing](https://sindresorhus.com/one-thing) apps) and select it in the Pandan preferences. The countdown will update every time Pandan shows a notification. If you want the countdown to update more often, you will need to download the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app and set up an interval trigger.
 
 #### How can I start a new session from the command-line?
 

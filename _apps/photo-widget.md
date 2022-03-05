@@ -19,10 +19,6 @@ Available on iOS and macOS (Apple Silicon only).
 
 [Send it here.](https://sindresorhus.com/feedback/?product=Photo%20Widget&referrer=Website-FAQ)
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1532588789) and click “Version History”.
-
 #### How do I add a widget to the home screen?
 
 When on the home screen, long-press on the background (not on any icons), press the top-left “+” button, and select “Photo Widget”. [Read more.](https://support.apple.com/en-us/HT207122)
@@ -41,6 +37,10 @@ If you use the “Album” widget, there’s no limit to the number of photos.
 
 This is not possible. App developers have no way to hide it.
 
+#### If I select an album in a widget, does it include new photos added to the album after I set it up?
+
+Yes. The widget fetches a list of all the photos in the album each time and picks a random one.
+
 #### Can I show an animated GIF in a widget?
 
 This is not possible.
@@ -53,6 +53,14 @@ The built-in widget only shows photos from “Memories” and “Featured Photos
 
 This is something I want to add, but it's more complicated than it sounds. Widgets have limited resources, and currently, it's not enough to do face detection. Apple works around that by having the face data already available, but this data is not available to third-party apps. Other photo widget apps solve this by letting the user pick the album in the app itself and then they do the face detection in the app upfront, however, that would require a rewrite of this app, which is not something I have time to do right now.
 
+#### Why does running a shortcut from a widget first open the app and then the Shortcuts app?
+
+This is unfortunately an iOS limitation. Widgets can only open their main app and there is no way to run a shortcut without opening the Shortcuts app.
+
 #### Why is this free without ads?
 
 I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.
+
+#### Where can I find the changelog?
+
+Go [here](https://apps.apple.com/app/id1532588789) and click “Version History”.
