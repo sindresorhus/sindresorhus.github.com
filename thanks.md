@@ -184,7 +184,6 @@ None -->
 - [Kristján Oddsson](https://github.com/koddsson)
 - [Mikael Finstad](https://github.com/mifi)
 - [David Csirmaz](https://github.com/csimi)
-- [Lee Dohm](https://github.com/lee-dohm)
 - [Oliver Kopp](https://github.com/koppor)
 - [Armen Mkrtchian](https://github.com/Armenm)
 - [Fabio Spampinato](https://github.com/fabiospampinato)
@@ -268,6 +267,7 @@ None -->
 - [John Bohannon](https://github.com/imjohnbo)
 - [Zentered](https://github.com/zentered)
 - [Axel Rindle](https://github.com/axelrindle)
+- [Faraz Patankar](https://github.com/FarazPatankar)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -376,6 +376,7 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Digital Attitude](https://github.com/dtttd)
 - Mike North
 - Jimmy Moon
+- [Lee Dohm](https://github.com/lee-dohm)
 
 ---
 
