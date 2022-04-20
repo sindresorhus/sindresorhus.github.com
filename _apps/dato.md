@@ -200,6 +200,10 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 
 [Send it here.](https://sindresorhus.com/feedback/?product=Dato&referrer=Website-FAQ)
 
+#### The app does not show up in the menu bar
+
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+
 <a id="macos11-hide-clock"></a>
 #### How can I hide the built-in menu bar clock on macOS 11 or later?
 
@@ -229,10 +233,6 @@ All the date and time output and the calendar adhere to your locale preferences.
 #### I added a calendar to the Calendar app but it doesn't show up in Dato
 
 You need to enable the calendar in “Dato › Preferences › Events”.
-
-#### Dato doesn't show up in the menu bar
-
-When the menu bar grows too large, macOS hides overflowing items, so Dato might have been hidden. Try to close some of your other menu bar apps. There’s, unfortunately, no way for apps to detect this and warn the user.
 
 #### Can you add support for Google Calendar / Outlook 365 / Exchange?
 
@@ -344,9 +344,13 @@ To hide the Dato clock at certain time of the day, you need the [Shortery app](h
 
 I would recommend the [Syncalicious app](https://github.com/zenangst/Syncalicious) which works with any macOS app.
 
-#### How can I open Google Meet links in a specific browser?
+#### How can I open meeting links (Google Meet, Zoom, Microsoft Teams, etc.) in a specific browser?
 
-You can use the [Finicky app](https://github.com/johnste/finicky) with this config:
+Check out my free [Velja app](https://sindresorhus.com/velja). It has built-in support for this without any setup.
+
+---
+
+For Google Meet, you could also use the [Finicky app](https://github.com/johnste/finicky) with this config:
 
 ```js
 module.exports = {

@@ -29,6 +29,10 @@ setapp_url: https://go.setapp.com/stp181?_target=https://setapp.com/apps/lungo
 
 [Send it here.](https://sindresorhus.com/feedback/?product=Lungo&referrer=Website-FAQ)
 
+#### The app does not show up in the menu bar
+
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+
 #### Where can I find the changelog?
 
 Go [here](https://apps.apple.com/app/id1263070803) and click “Version History”.

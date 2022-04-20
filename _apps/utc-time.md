@@ -24,6 +24,10 @@ This can be useful as a quick reference.
 
 [Send it here.](https://sindresorhus.com/feedback/?product=UTC%20Time&referrer=Website-FAQ)
 
+#### The app does not show up in the menu bar
+
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+
 #### Can you localize the app into my language?
 
 The date & time output adhere to your locale preferences. I have no plans to localize the app itself.

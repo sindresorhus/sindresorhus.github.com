@@ -32,6 +32,10 @@ mac_app_store_url: https://apps.apple.com/app/id1529006487
 
 [Send it here.](https://sindresorhus.com/feedback/?product=Recordia&referrer=Website-FAQ)
 
+#### The app does not show up in the menu bar
+
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+
 #### How can I preview the recording when done?
 
 First, ensure the “Show recording in Finder after saving” preference is enabled. When the recording is shown in Finder, press the Space key to preview it.

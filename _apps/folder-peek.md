@@ -22,11 +22,14 @@ Make sure you read the below tips and FAQ.
 
 - Click a file or folder in the menu to open it.
 - Click a file or folder while pressing the <kbd>Option</kbd> key to show it in Finder.
+- Click the folder title ([the top menu item](https://dsc.cloud/sindresorhus/Screen-Shot-2022-04-22-at-00.49.49-1650563404)) to open the folder.
 - You can drag and drop the file thumbnail in the file submenu.
 - Just start typing when the menu is open to search for a file or folder.
 - Press the <kbd>Option</kbd> when viewing the file details to copy path or image/video dimensions.
 - You can use the Shortcuts support to show/hide certain folders depending on what project you are working on.
 - If you have the menu bar item folders next to each other and you have one folder open, you can press <kbd>Control+Tab</kbd> or <kbd>Shift+Control+Tab</kbd> to switch between them.
+- Press the <kbd>Option</kbd> key while the menu is open to show the `…` menu item at the top if it normally is as the bottom.
+- Right-click or Option-click the menu bar item to open the folder.
 
 <br>
 
@@ -35,6 +38,10 @@ Make sure you read the below tips and FAQ.
 #### I have a feature request, bug report, or some feedback
 
 [Send it here.](https://sindresorhus.com/feedback/?product=Folder%20Peek&referrer=Website-FAQ)
+
+#### The app does not show up in the menu bar
+
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
 
 #### Some folders are suddenly missing from the menu bar
 
@@ -80,6 +87,12 @@ Press the <kbd>Option</kbd> key while viewing a file to reveal a “Copy Path”
 #### How can I copy the image/video dimensions?
 
 Press the <kbd>Option</kbd> key while viewing an image or video to reveal a “Copy Dimensions” button.
+
+#### How can I have a menu bar folder with my most recent screenshots?
+
+Make a folder to hold the screenshots and add it to the app. Open the Screenshot app, click “Options”, then “Other Location”, and choose the folder you just made. In Folder Peek, open the folder config, and change the sort order to “Date Created” and set “Max Items” to something like 20.
+
+You may also want to [disable the screenshot preview](https://osxdaily.com/2019/08/02/disable-screenshot-thumbnail-preview-mac/) so the screenshot shows up in the screenshot folder right away.
 
 <a id="folder-open-with"></a>
 #### The app I want does not show up in the “Open With” menu for a folder

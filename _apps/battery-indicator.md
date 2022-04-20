@@ -27,6 +27,12 @@ app_store_url: https://apps.apple.com/app/id1206020918
 
 [Send it here.](https://sindresorhus.com/feedback/?product=Battery%20Indicator&referrer=Website-FAQ)
 
+#### The app does not show up in the menu bar
+
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+
+You may also have enabled the “Hide while on power” preference, which hides the menu bar icon while the power adapter is connected. Launch the app again to reveal the menu bar item for 5 seconds or disconnect the power adapter.
+
 #### The menu bar icon is vertically stretched when shown on a secondary display
 
 This is a macOS 11 bug. I have tried to work around this issue, but it's out of my control.

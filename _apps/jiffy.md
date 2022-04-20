@@ -87,6 +87,10 @@ links:
 
 [Send it here.](https://sindresorhus.com/feedback/?product=Jiffy&referrer=Website-FAQ)
 
+#### The app does not show up in the menu bar
+
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+
 #### Can you localize the app into my language?
 
 I don't have any immediate plans to localize the app.

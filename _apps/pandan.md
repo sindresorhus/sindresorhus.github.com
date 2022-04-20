@@ -41,6 +41,10 @@ Tip: You can [run shortcuts from the command-line](https://support.apple.com/gui
 
 [Send it here.](https://sindresorhus.com/feedback/?product=Pandan&referrer=Website-FAQ)
 
+#### The app does not show up in the menu bar
+
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+
 #### Can you make the history be further back than 60 days?
 
 The history is intentionally limited. Pandan is about time awareness right now, not analyzing past behavior. If you need more stats and graphs, check out the system [Screen Time](https://support.apple.com/en-gb/HT210387) feature.
@@ -69,6 +73,13 @@ Pandan lets you run a single shortcut as a notification, but a shortcut can run 
 #### How can I use this as an eye break reminder?
 
 Set Pandan to remind you to take a break. Make a shortcut in the Shortcuts app that uses the “Wait” action and set it to the wanted duration of the break. After this action, you can either add a “Play Sound” or “Show Alert” action to notify you when the break is done. Then select this shortcut in the Pandan preferences.
+
+<a id="disable-for-certain-apps"></a>
+#### How can I disable Pandan while using certain apps?
+
+You can use the Shortcuts app for this. Make a shortcut that uses the “Set Enabled State” action that Pandan provides. To automate running this shortcut when certain apps are active, you will need the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app. In the Shortery app, choose the “Application” trigger type, and then the “Active” or “Inactive” option.
+
+*Note that Pandan already disables itself when you are inactive.*
 
 <a id="countdown"></a>
 #### How can I show the total active duration today as a countdown?

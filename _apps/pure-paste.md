@@ -20,6 +20,12 @@ You can also choose to manually clear formatting whenever needed instead of auto
 
 [Send it here.](https://sindresorhus.com/feedback/?product=Pure%20Paste&referrer=Website-FAQ)
 
+#### The app does not show up in the menu bar
+
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+
+You may also have enabled the “Hide menu bar icon” preference, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
+
 <a id="clear-formatting-problem"></a>
 #### The app clears formatting when it shouldn't or doesn't clear formatting when it should
 
@@ -48,10 +54,6 @@ Removing tracking parameters improve privacy and also make URLs more aesthetical
 Before: `https://foo.com?utm_content=buffercf3b2&utm_source=snapchat.com`\
 After: `https://foo.com`
 
-#### The app does not show up in the menu bar
-
-When the menu bar has no space left, macOS hides overflowing items. Try quitting some menu bar apps.
-
 #### Can you add a setting to preserve bold and italic?
 
 In short, no. To preserve bold and italic, the app has to preserve the font too, and by preserving the font, it has to set a font name and size. This means the text will not match the destination formatting. Instead, for example, in Word, you can copy with formatting and select “Paste and Match Formatting”, which correctly preserves bold and italic while clearing color and sizes.
@@ -65,9 +67,13 @@ The solution is to either:
 1. Exclude the Office apps in the Pure Paste preferences.
 1. Turn off “Automatically Clear Formatting” and instead set a keyboard shortcut in the preferences. That way the clipboard stays unmodified until you use the keyboard shortcut to clear & paste.
 
-#### It does not clear formatting when copy-pasting an image inside Google Docs
+#### The app does not clear formatting when copy-pasting an image inside Google Docs
 
 Web apps do not follow the standard clipboard conventions that desktop apps do. When you copy an image in Google Docs, it just puts a bunch of HTML code on the clipboard. Pure Paste cannot easily know it's an image you copied.
+
+#### The app does not preserve links when pasting into Google Docs even with the “Preserve links” setting enabled
+
+There is a [problem with Google Docs](https://webapps.stackexchange.com/questions/69248/is-there-a-way-to-paste-rtf-text-into-google-document) where it strips links from rich text content. It happens even without Pure Paste. Web apps are generally bad at following platform conventions.
 
 #### Does it respect [nspasteboard.org](http://nspasteboard.org) conventions?
 

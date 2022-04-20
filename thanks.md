@@ -128,6 +128,9 @@ None -->
 	<a href="https://www.monito.com" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/monito-logo.svg" width="270" alt="Monito">
 	</a>
+	<a href="https://astro.build" class="sponsor" rel="nofollow">
+		<img src="/assets/thanks/astro-logo.svg" width="220" alt="Astro">
+	</a>
 </div>
 
 ## Top supporter <span class="reward-price">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
