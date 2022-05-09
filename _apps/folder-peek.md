@@ -94,6 +94,10 @@ Make a folder to hold the screenshots and add it to the app. Open the Screenshot
 
 You may also want to [disable the screenshot preview](https://osxdaily.com/2019/08/02/disable-screenshot-thumbnail-preview-mac/) so the screenshot shows up in the screenshot folder right away.
 
+#### Can I navigate to a folder multiple levels deep and then drop a file into it?
+
+No, that is unfortunately not possible. Folder Peek is built as a system menu, and a menu cannot be kept open if it's not focused. Instead, first navigate to the nested folder, click to open it in Finder, and then drag & drop the file into the Finder window.
+
 <a id="folder-open-with"></a>
 #### The app I want does not show up in the “Open With” menu for a folder
 

@@ -100,8 +100,14 @@ None -->
 <a href="https://keygen.sh" class="sponsor" rel="nofollow" style="position:relative;left:-3px">
 	<img src="/assets/thanks/keygen-logo.svg" width="340" alt="Keygen">
 </a>
-<a href="https://getstream.io/chat/sdk/ios/?utm_source=Github&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=Github_Jan2022_iOSChatSDK&utm_term=Sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-3px">
+<a href="https://getstream.io/chat/sdk/ios/?utm_source=Github&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=Github_Jan2022_iOSChatSDK&utm_term=Sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
 	<img src="/assets/thanks/stream-logo.svg" width="360" alt="Stream">
+</a>
+<a href="https://neverinstall.com/spaces/devtools?utm_source=github&utm_medium=sponsor&utm_campaign=sindre" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
+	<img src="/assets/thanks/neverinstall-logo-light.svg" width="340" alt="neverinstall">
+</a>
+<a href="https://www.useanvil.com/?utm_source=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
+	<img src="/assets/thanks/anvil-logo-light.svg" width="310" alt="Anvil">
 </a>
 
 ## Silver sponsor <span class="reward-price">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
@@ -223,7 +229,6 @@ None -->
 - [Sergey Slipchenko](https://github.com/faergeek)
 - [RStudio](https://github.com/rstudio-sponsorship)
 - [Igor Savin](https://github.com/kibertoad)
-- [Don Okuda](https://github.com/donokuda)
 - [Kuma Taro](https://github.com/km-tr)
 - [Hassy Veldstra](https://github.com/hassy)
 - [Hiroki](https://github.com/privatenumber)
@@ -261,7 +266,6 @@ None -->
 - [SCG82](https://github.com/SCG82)
 - [Gadget](https://github.com/gadget-inc)
 - [Espen Klem](https://github.com/eklem)
-- [Ben Shakal](https://github.com/neb)
 - [Kudo Chien](https://github.com/Kudo)
 - [@neostfox](https://github.com/neostfox)
 - [@TNTSUCCES](https://github.com/TNTSUCCES)
@@ -271,6 +275,9 @@ None -->
 - [Zentered](https://github.com/zentered)
 - [Axel Rindle](https://github.com/axelrindle)
 - [Faraz Patankar](https://github.com/FarazPatankar)
+- [Ilias Aboubeker](https://github.com/samyilias)
+- [Faraz Patankar](https://github.com/FarazPatankar)
+- [DefineValue](https://github.com/definevalue)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -380,6 +387,8 @@ I'm forever thankful to these people and companies that have previously supporte
 - Mike North
 - Jimmy Moon
 - [Lee Dohm](https://github.com/lee-dohm)
+- [Ben Shakal](https://github.com/neb)
+- [Don Okuda](https://github.com/donokuda)
 
 ---
 
