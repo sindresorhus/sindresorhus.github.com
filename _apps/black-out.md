@@ -10,7 +10,7 @@ app_store_app_id: 1319884285
 app_store_url: https://apps.apple.com/app/id1319884285
 main_button:
   title: Read more
-  url: https://blog.sindresorhus.com/black-out-c44a1a0e7122
+  url: https://medium.com/sindre-sorhus/black-out-c44a1a0e7122
 links:
   'Product Hunt post': https://www.producthunt.com/posts/black-out
 ---
@@ -19,6 +19,7 @@ links:
 
 ### Older versions
 
+- [Last macOS 11 compatible version (free)](https://github.com/sindresorhus/meta/files/8759655/Black.Out.2.0.4.-.macOS.11.zip) *(2.0.4)*
 - [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/7454156/Black.Out.1.8.2.-.macOS.10.15.zip) *(1.8.2)*
 
 *(This build will not run on newer macOS versions)*

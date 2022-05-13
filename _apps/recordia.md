@@ -20,6 +20,7 @@ mac_app_store_url: https://apps.apple.com/app/id1529006487
 
 ### Older versions
 
+- [Last macOS 11 compatible version (free)](https://github.com/sindresorhus/meta/files/8798113/Recordia.2.3.0.-.macOS.11.zip) *(2.3.0)*
 - [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/6538283/Recordia.1.5.1.-.macOS.10.15.zip) *(1.5.1)*
 
 *(This build will not run on newer macOS versions)*

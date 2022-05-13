@@ -18,21 +18,20 @@ Dato supports all the locales and languages that macOS supports for the menu bar
 
 [MacStories review of Dato.](https://www.macstories.net/reviews/dato-review-calendar-events-and-time-zones-from-your-macs-menu-bar/)
 
-Dato requires macOS 11 or later.
+Dato requires macOS 12.3 or later.
 
 <br>
 
 <a id="trial"></a>
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-3.3.4-trial-1646205511). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
-
-<!-- **Please upgrade to macOS 12.2 before trying out Dato. There are a bunch of macOS bugs in earlier releases.** -->
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.0.0-trial-1655766216). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 ### Features
 
 - Calendar, optionally with week numbers and event indicators.
 - Your upcoming events for the next week (customizable) at a glance.
+- Reminders support.
 - Time zones in the Dato menu, optionally with custom names.
 - Show the upcoming event in the menu bar (like Fantastical, Meeter, and MeetingBar)
 - Time travel for time zones.
@@ -59,6 +58,7 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 
 ### Older versions
 
+- [Last macOS 11 compatible version (free)](https://github.com/sindresorhus/meta/files/8935698/Dato.3.3.8.-.macOS.11.zip) *(3.3.8)*
 - [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/6758848/Dato.2.6.1.-.macOS.10.15.zip) *(2.6.1)*
 - [Last macOS 10.14 compatible version (free)](https://github.com/sindresorhus/meta/files/5360452/Dato.1.14.9.-.Special.last.Mojave.compatible.release.zip) *(1.4.9)*
 
@@ -207,16 +207,21 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 <a id="macos11-hide-clock"></a>
 #### How can I hide the built-in menu bar clock on macOS 11 or later?
 
-On macOS 11, it's unfortunately no longer possible to disable the built-in menu bar clock.
+It's unfortunately no longer possible to disable the built-in menu bar clock.
 
 However, you have some options:
 1. **(Recommended)** In “System Preferences › Dock & Menu Bar › Clock”, choose the analog clock and disable showing the date. This gets you the closest to how it was on macOS 10.15 as you can use Dato for both date and time. <img width="258" src="https://user-images.githubusercontent.com/170270/105505537-a5044800-5cfb-11eb-979b-7a0b109f0c93.png"><br>This has the added benefit that while the system clock [shows as disabled](https://user-images.githubusercontent.com/170270/105506021-2c51bb80-5cfc-11eb-84a6-79b62d69d4bc.png) when you enable “Do Not Disturb” (which makes it pretty unreadable), Dato always shows it the same way.
 2. Use Dato for showing the date and the built-in clock for the time.
 3. Only show an icon for Dato.
 
-I would really appreciate it if you could take a moment to [complain to Apple](https://www.apple.com/feedback/macos.html) that they should bring back the ability to disable the built-in menu bar clock. For reference, on macOS 10.15, there's a checkbox called “Show date and time in the menu bar” in “System Preferences › Date & Time › Clock”. This checkbox no longer exists on macOS 11.
+I would really appreciate it if you could take a moment to [complain to Apple](https://www.apple.com/feedback/macos.html) that they should bring back the ability to disable the built-in menu bar clock. For reference, on macOS 10.15, there's a checkbox called “Show date and time in the menu bar” in “System Preferences › Date & Time › Clock”. This checkbox no longer exists on macOS 11 and later.
 
 I have already [reported it to Apple](https://github.com/feedback-assistant/reports/issues/131), but I have yet to get a reply.
+
+<a id="time-zones-menu-bar"></a>
+#### How can I add multiple time zones to the menu bar?
+
+In the Dato preferences window, go to the “Time Zones” pane, add a time zone, and in the edit window, check “Show in menu bar”. Do the same with the other time zones you want to show in the menu bar. If you already have the time zones added, right-click a time zone, click “Edit”, and then check “Show in menu bar”.
 
 #### How can I toggle AM/PM for the time?
 
@@ -225,6 +230,10 @@ Dato adheres to what you have set in “System Preferences › Language and Regi
 #### How can I change the first day of the week?
 
 Dato adheres to what you have set in “System Preferences › Language and Region”.
+
+#### Can you integrate with Cron?
+
+The integration is already done, but Cron has a multiple bugs that makes it not work properly. We will have to wait for Cron to fix these bugs.
 
 #### Can you localize the app into my language?
 

@@ -30,6 +30,7 @@ Make sure you read the below tips and FAQ.
 - If you have the menu bar item folders next to each other and you have one folder open, you can press <kbd>Control+Tab</kbd> or <kbd>Shift+Control+Tab</kbd> to switch between them.
 - Press the <kbd>Option</kbd> key while the menu is open to show the `…` menu item at the top if it normally is as the bottom.
 - Right-click or Option-click the menu bar item to open the folder.
+- Press the <kbd>Option</kbd> key while viewing a subfolder to reveal more actions. For example, sort order settings.
 
 <br>
 
@@ -47,6 +48,10 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 When the menu bar has no space left, macOS hides overflowing items. Try quitting some menu bar apps.
 
+#### The menu bar icon is not perfectly vertically centered?
+
+This is a macOS bug on non-Retina displays. There is unfortunately not much I can do about this.
+
 <a id="show-specific-items"></a>
 #### How can I show specific files and folders from various places?
 
@@ -61,7 +66,7 @@ An [alias](https://support.apple.com/guide/mac-help/create-and-remove-aliases-on
 <a id="app-launcher"></a>
 #### How can I use this as an app launcher?
 
-Yes. Just add the “Applications” folder to the app. If you want to show only specific apps, follow the first FAQ.
+Just add the “Applications” folder to the app. If you want to show only specific apps, follow the first FAQ.
 
 <a id="show-multiple-folders"></a>
 #### How can I show multiple folders at the top level in a single menu?
@@ -88,6 +93,10 @@ Press the <kbd>Option</kbd> key while viewing a file to reveal a “Copy Path”
 
 Press the <kbd>Option</kbd> key while viewing an image or video to reveal a “Copy Dimensions” button.
 
+#### How can I change the sort order for a subfolder?
+
+Press the <kbd>Option</kbd> key while viewing a subfolder to reveal more actions, including a sort order setting.
+
 #### How can I have a menu bar folder with my most recent screenshots?
 
 Make a folder to hold the screenshots and add it to the app. Open the Screenshot app, click “Options”, then “Other Location”, and choose the folder you just made. In Folder Peek, open the folder config, and change the sort order to “Date Created” and set “Max Items” to something like 20.
@@ -102,6 +111,16 @@ No, that is unfortunately not possible. Folder Peek is built as a system menu, a
 #### The app I want does not show up in the “Open With” menu for a folder
 
 Apps define the types they support and Folder Peek just fetches a list of apps that support opening folders. However, many apps forget to declare support for folders even though they can open them. I would encourage reporting this to the developers of the app you want to open ([example report](https://github.com/microsoft/vscode/issues/146977)). In the meantime, I'm happy to manually add the app to the list if you contact me, but you are expected to also have reported the issue to the app's developers.
+
+<a id="finder-alternative"></a>
+#### How can I make folders open in a different app than Finder by default?
+
+Folder Peek opens the default app that handles folders, which is Finder by default.
+
+- **Path Finder:** Enable the “Set as the default file browser” preference in Path Finder.
+- **ForkLift:** [Follow this guide.](https://binarynights.com/manual#fileviewer)
+
+For other apps, follow [this guide](https://binarynights.com/manual#fileviewer), but replace `com.binarynights.ForkLift-3` with the bundle identifier of the app you want.
 
 <a id="dock-folders"></a>
 #### How is this better than having [folders in the Dock](https://support.apple.com/guide/mac-help/use-folders-in-the-dock-mchl231f08fb/mac)?

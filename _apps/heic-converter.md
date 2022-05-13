@@ -9,13 +9,15 @@ app_store_app_id: 1294126402
 mac_app_store_url: https://apps.apple.com/app/id1294126402
 main_button:
   title: Read more
-  url: https://blog.sindresorhus.com/heic-converter-34128f672f1
+  url: https://medium.com/sindre-sorhus/heic-converter-34128f672f1
 links:
   'Product Hunt post': https://www.producthunt.com/posts/heic-converter
 ---
 
 ### Older versions
 
+- [Last macOS 11 compatible version](https://github.com/sindresorhus/meta/files/8817868/HEIC.Converter.2.1.5.-.macOS.10.15.zip) *(2.1.5)*
+- [Last macOS 10.15 compatible version](https://github.com/sindresorhus/meta/files/8817868/HEIC.Converter.2.1.5.-.macOS.10.15.zip) *(2.1.5)*
 - [Last macOS 10.14 compatible version](https://github.com/sindresorhus/meta/files/6715716/HEIC.Converter.1.9.0.-.macOS.10.14.zip) *(1.9.0)*
 - [Last macOS 10.13 compatible version](https://dsc.cloud/sindresorhus/HEIC-Converter-for-macOS-10.13-1575452738) *(1.5.3)*
 

@@ -10,7 +10,44 @@ mac_app_store_url: https://apps.apple.com/app/id1607635845
 
 Open links in a specific browser or a matching native app. Easily switch between browsers.
 
-**Note that the app was just recently launched. I'm quickly iterating based on feedback.**
+<br>
+
+<h3 id="help">Help</h3>
+
+Please help out by starring these Chrome issues which would help Velja users:
+
+- <https://bugs.chromium.org/p/chromium/issues/detail?id=174117>
+- <https://bugs.chromium.org/p/chromium/issues/detail?id=1325557>
+
+<br>
+
+<h3 id="tips">Tips</h3>
+
+#### Open multiple URLs
+
+If you have a document with many URLs you want to open. Select them, right-click, go to “Services”, and click “Open URLs with Velja”.
+
+*You may have to enable the service in “System Preferences › Keyboard › Shortcuts › Services”.*
+
+#### Prompt
+
+Instead of showing the browser prompt by default, you could make it the alternative browser, which would make it show when you hold the <kbd>Fn</kbd> key while clicking a link.
+
+You could also make a custom rule and select `Prompt` as the browser. For example, you could only show the prompt when clicking links in the Slack app.
+
+#### Open links clicked in a specific app in a specific browser
+
+For example, to open all links you click in Slack in Chrome:
+
+- Open the Velja settings and go to the “Rules” pane.
+- Create a new rule and give it a name.
+- Select the browser to open. You can even choose a specific Chrome profile.
+- Create a new “Source Apps” matcher and select the app you want. For example, Slack.
+- Click “Save”.
+
+#### Prompt shortcuts
+
+While showing the browser prompt, you can press <kbd>Option</kbd> to show buttons to copy or share the link. Or press <kbd>Shift</kbd> to quickly copy the link.
 
 <br>
 
@@ -20,25 +57,29 @@ Open links in a specific browser or a matching native app. Easily switch between
 
 [Send it here.](https://sindresorhus.com/feedback/?product=Velja&referrer=Website-FAQ)
 
-#### Velja does not work
-
-##### I clicked a link in a browser
-
-Velja is not able to handle links clicked inside a browser. You can either right-click the link and use the share extension or copy the link and then click “Open URL from Clipboard” in the Velja menu.
-
-##### I clicked a short URL
-
-If the link is a [short URL](https://en.wikipedia.org/wiki/URL_shortening), make sure the “Expand short URLs” preference is enabled and the URL shortening service is either in the built-in list or added by you. Velja is only able to do its matching when it receives the resolved URL.
-
-##### My custom rule did not work
-
-Make sure it's none of the above cases. Also make sure you have added a “Sample URL” to the rule to confirm your match pattern is correct.
-
 #### The app does not show up in the menu bar
 
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
 
 You may also have enabled the “Hide menu bar icon” preference, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
+
+#### Velja does not work
+
+**I clicked a link in a browser**
+
+Velja is not able to handle links clicked inside a browser. You can either right-click the link and use the share extension \* or copy the link and then click “Open URL from Clipboard” in the Velja menu.
+
+\* Chrome (and Edge, Brave, etc) does not have a “Share” item in its context menu. Please [star this issue](https://bugs.chromium.org/p/chromium/issues/detail?id=916291).
+
+Velja also comes with a [system service](https://www.computerworld.com/article/2476298/os-x-a-quick-guide-to-services-on-your-mac.html). However, neither Safari ([issue](https://github.com/feedback-assistant/reports/issues/304)) or Chrome ([issue](https://bugs.chromium.org/p/chromium/issues/detail?id=1325557)) correctly sends links to a system service, so it cannot be used for this purpose.
+
+**I clicked a short URL**
+
+If the link is a [short URL](https://en.wikipedia.org/wiki/URL_shortening), make sure the “Expand short URLs” preference is enabled and the URL shortening service is either in the built-in list or added by you. Velja is only able to do its matching when it receives the resolved URL.
+
+**My custom rule did not work**
+
+Make sure it's none of the above cases. Also make sure you have added a “Sample URL” to the rule to confirm your match pattern is correct.
 
 #### What are tracking parameters and why would I want to remove them?
 
@@ -68,8 +109,6 @@ I'm happy to consider requests. [Submit here.](https://sindresorhus.com/feedback
 However, some apps are not possible:
 - Slack
   + *The Slack app does not accept a normal deep link (example: `https://team-name.slack.com/archives/CKPE4C/p161643063559`). It only accepts a special Slack-specific URL. To be able to convert a normal Slack link to one that the desktop app accepts, we would need get the team ID from the Slack API and that requires authentication. It's simply not feasible to do this. __Please do send feedback to Slack asking them to accept a normal link, like most other apps support.__*
-- Asana
-  + *They [claim](https://forum.asana.com/t/when-using-the-desktop-mac-app-i-would-like-all-links-to-open-in-the-browser/135360/4) you can configure it in your profile, but I could not get it to work. I recommend asking in their support channels about it.*
 - Cisco Webex
   + *[Comment here](https://github.com/johnste/finicky/discussions/228) if you know how to do this.*
 
@@ -80,8 +119,8 @@ If your favorite service is in the above list, I would recommend contacting them
 
 It's not feasible to support it built-in because of missing features:
 
-- <https://github.com/mozilla/multi-account-containers/issues/2360>
-- <https://github.com/mozilla/multi-account-containers/issues/2361>
+- <https://bugzilla.mozilla.org/show_bug.cgi?id=1774127>
+- <https://bugzilla.mozilla.org/show_bug.cgi?id=1774128>
 - <https://github.com/honsiorovskyi/open-url-in-container/issues/109>
 
 *(Vote them up)*
@@ -105,26 +144,75 @@ You can use the Shortcuts app for this. Make a shortcut for each focus mode you 
 
 It means [“to choose”](https://en.wiktionary.org/wiki/velja) in [Old Norse](https://www.discovermagazine.com/planet-earth/what-language-did-the-vikings-speak) (also Icelandic and Faroese). Hence the viking hat.
 
+<a id="choosy"><a>
 #### How does it compare to [Choosy](https://www.choosyosx.com)?
 
 Velja benefits:
 
+- Free
 - It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.)
 - It can open Google Meet links in Chrome without any manual setup
+- Browser profile support for Chrome, Chromium, Edge, Vivaldi, and all their beta, dev, etc, editions (Choosy only supports Chrome stable)
 - Removes tracking parameters on clicked and copied links
 - You can open copied links from the menu bar menu
 - You can press a keyboard shortcut to use an alternative browser for a specific link
-- Shortcuts support
 - Available in the App Store
 - Sandboxed (more secure)
-- Free
+- Shortcuts support
+- Handoff support
+- Services support
+- Share extension
 
 Choosy benefits:
 
-- Browser selector when clicking a link
 - Browser extension
-- More mature
 - More options for custom rules
+
+<a id="bumpr"><a>
+#### How does it compare to [Bumpr](https://www.getbumpr.com)?
+
+Velja benefits:
+
+- Free
+- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.)
+- It can open Google Meet links in Chrome without any manual setup
+- Browser profile support
+- More advanced custom rules, like the ability open a certain link based on what app the link was clicked in
+- Removes tracking parameters on clicked and copied links
+- macOS-like user interface (Bumpr has a custom non-macOS-like user interface)
+- You can open copied links from the menu bar menu
+- You can quickly switch the primary browser
+- You can press a keyboard shortcut to use an alternative browser for a specific link
+- Preference to hide the menu bar icon
+- Shortcuts support
+- Handoff support
+- Services support
+- Share extension
+
+Bumpr benefits:
+
+- Browser extension
+- Supports configuring primary email app
+
+<a id="openin"><a>
+#### How does it compare to [OpenIn](https://loshadki.app/openin/)?
+
+Velja benefits:
+
+- Free
+- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.)
+- It can open Google Meet links in Chrome without any manual setup
+- Better user interface for browser profiles (OpenIn requires you to manually find the browser profile ID)
+- The user interface is more macOS-like and better follows the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/macos/overview/themes/)
+- You can open copied links from the menu bar menu
+- You can quickly switch the primary browser
+- You can press a keyboard shortcut to use an alternative browser for a specific link
+- Shortcuts support
+- Services support
+
+OpenIn benefits:
+
+- Supports configuring the primary app for more types, like email clients.
 
 #### Why is this free without ads?
 

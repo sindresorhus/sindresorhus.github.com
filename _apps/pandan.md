@@ -45,7 +45,7 @@ Tip: You can [run shortcuts from the command-line](https://support.apple.com/gui
 
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
 
-#### Can you make the history be further back than 60 days?
+#### Can you make the history be further back than 120 days?
 
 The history is intentionally limited. Pandan is about time awareness right now, not analyzing past behavior. If you need more stats and graphs, check out the system [Screen Time](https://support.apple.com/en-gb/HT210387) feature.
 

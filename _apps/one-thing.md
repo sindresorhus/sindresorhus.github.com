@@ -38,6 +38,7 @@ However, what you use this space for is really up to you.
 - If the menu bar item text is truncated, hover over it to see the full text in a tooltip.
 - You can use [Markdown](https://www.markdownguide.org/basic-syntax/#emphasis) to [style the text](https://twitter.com/sindresorhus/status/1481818533294407680) (supports bold, italic, and strikethrough) and add links.
 - You can [drag & drop text](https://twitter.com/sindresorhus/status/1481862243755376642) onto the menu bar item to set it. For example, you could drag a todo item from the Reminders app or Things.
+- Select some text in any app, right-click, select “Services”, and click “Send to One Thing” to set One Thing to the selected text. You can also use the “Share” menu item if the app supports that.
 
 <h3 id="scripting">Scripting</h3>
 
@@ -101,9 +102,9 @@ Shortcuts does not yet support automation, so to have the shown todo stay in syn
 
 Do something similar to the above answer.
 
-#### Can you add a keyboard shortcut to show the window?
+#### How can I put spacing on the sides of the text?
 
-You won't be changing the text too often, so a keyboard shortcut feels a bit unnecessary, but I will consider it if it becomes commonly requested.
+You can add some horizontal padding around the text by adding multiple spaces to the “Prefix” and “Suffix” settings.
 
 #### Can you add iOS / watchOS support?
 

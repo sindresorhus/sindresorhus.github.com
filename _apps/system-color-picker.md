@@ -10,6 +10,8 @@ mac_app_store_url: https://apps.apple.com/app/id1545870783
 main_button:
   title: Read more
   url: https://github.com/sindresorhus/System-Color-Picker
+links:
+  'Older versions': https://github.com/sindresorhus/System-Color-Picker#download
 ---
 
 The macOS color picker as an app with lots of extra features.

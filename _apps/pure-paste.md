@@ -26,6 +26,12 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 You may also have enabled the “Hide menu bar icon” preference, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 
+#### Pure Paste conflicts with my clipboard manager
+
+This is a known issue. It's really just a flaw in how the clipboard works. If your clipboard managers reads the clipboard first, it will get it. If Pure Paste then reads the clipboard, it will do its thing, but also tell clipboard managers not to fetch the new contents as otherwise they might end up with duplicates. This is required as otherwise certain features like "fast-append" don't work in Alfred and other clipboard managers. I'm working on a way all apps can collaborate, but it will take some time.
+
+For now, I suggest setting a keyboard shortcut for "Clear formatting and paste" and then turn off "Automatically clear formatting".
+
 <a id="clear-formatting-problem"></a>
 #### The app clears formatting when it shouldn't or doesn't clear formatting when it should
 
@@ -67,6 +73,26 @@ The app contains a list of tracking parameters to remove, but there may be site-
 
 In short, no. To preserve bold and italic, the app has to preserve the font too, and by preserving the font, it has to set a font name and size. This means the text will not match the destination formatting. Instead, for example, in Word, you can copy with formatting and select “Paste and Match Formatting”, which correctly preserves bold and italic while clearing color and sizes.
 
+<a id="word-bug"></a>
+#### I have “Preserve links” enabled, and when I paste into Word, it ends up with the “Times New Roman” font instead of the existing font
+
+This is a bug in Word. Please upvote [this report](https://feedbackportal.microsoft.com/feedback/idea/614f1602-cdd8-ec11-a81b-000d3a03dba2).
+
+As a workaround, you can either disable the “Preserve links” setting or use “Paste and Match Formatting” in the “Edit” menu in Word.
+
+<a id="helvetica-bug"></a>
+#### I have “Preserve links” enabled, and when I paste into an app, it ends up with the “Helvetica” font instead of the existing font
+
+This is a bug in macOS.
+
+As a workaround, you can either disable the “Preserve links” setting or use “Paste and Match Style” in the “Edit” menu of the app.
+
+If you work for Apple or want to help out by duplicating my reports, see:
+
+- [FB10023436](https://github.com/feedback-assistant/reports/issues/307)
+- [FB10023420](https://github.com/feedback-assistant/reports/issues/306)
+- [FB10023393](https://github.com/feedback-assistant/reports/issues/305)
+
 <a id="office-apps"></a>
 #### Excel, Word, and PowerPoint are missing some actions in “Paste Options”
 
@@ -78,7 +104,12 @@ The solution is to either:
 
 #### The app does not clear formatting when copy-pasting an image inside Google Docs
 
-Web apps do not follow the standard clipboard conventions that desktop apps do. When you copy an image in Google Docs, it just puts a bunch of HTML code on the clipboard. Pure Paste cannot easily know it's an image you copied.
+Web apps do not follow the standard clipboard conventions that native desktop apps do. When you copy an image in Google Docs, it just puts a bunch of HTML code on the clipboard. Pure Paste cannot easily know it's an image you copied.
+
+<a id="figma"></a>
+#### The app does not clear formatting when copy-pasting rich text inside Figma
+
+Web apps do not follow the standard clipboard conventions that native desktop apps do. When you copy some rich text in Figma, it just puts a bunch of HTML code on the clipboard. Pure Paste cannot easily know it's rich text you copied.
 
 #### The app does not preserve links when pasting into Google Docs even with the “Preserve links” setting enabled
 

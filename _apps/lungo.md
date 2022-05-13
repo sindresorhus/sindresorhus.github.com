@@ -15,6 +15,7 @@ setapp_url: https://go.setapp.com/stp181?_target=https://setapp.com/apps/lungo
 
 ### Older versions
 
+- [Last macOS 11 compatible version (free)](https://github.com/sindresorhus/meta/files/8870132/Lungo.2.0.4.-.macOS.11.zip) *(2.0.4)*
 - [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/7404362/Lungo.1.9.0.-.macOS.10.15.zip) *(1.9.0)*
 - [Last macOS 10.14 compatible version (free)](https://github.com/sindresorhus/meta/files/5507155/Lungo-1-7-0.zip) *(1.7.0)*
 - [Last macOS 10.13 compatible version (free)](https://github.com/sindresorhus/meta/files/4556911/Lungo-1.6.0-High-Sierra.zip) *(1.6.0)*
@@ -93,6 +94,8 @@ open --background 'lungo:activate?minutes=10'
 - `toggle`
 
 The `activate` and `toggle` commands support the parameters `hours` and `minutes`, which can be used together or individually. If you don't specify a duration, it will use the default duration you have set in Lungo.
+
+*(Use [`lungo-cli`](https://github.com/sindresorhus/lungo-cli) if you need to get the active state)*
 
 #### Examples
 

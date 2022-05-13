@@ -31,6 +31,18 @@ The Speedtest app uses a nearby server, which means the speed does not reflect r
 
 The problem with fast.com is that it's run by Netflix, and Netflix's servers are often prioritized (and sometimes throttled), meaning you won't always get a realistic value. It pretty much gives you your speed for watching Netflix.
 
+#### What does the responsiveness (RPM) value mean?
+
+It's a measurement called Round-trips Per Minute (RPM) — the number of sequential round-trips a network can do in one minute under normal working conditions.
+
+[Read more](https://support.apple.com/en-gb/HT212313)
+
+#### What does the ping value mean?
+
+It's a measurement of the round-trip time for messages sent from the originating host to a destination computer that are echoed back to the source. `ms` is the symbol for milliseconds.
+
+[Read more](https://xtrium.com/what-is-a-good-ping-speed/)
+
 #### Why should I trust the results?
 
 The app makes use of the built-in [`networkQuality` command-line tool](https://support.apple.com/en-gb/HT212313) under the hood, which is provided by Apple.
