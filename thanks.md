@@ -177,10 +177,8 @@ None -->
 - [Pieter Levels](https://twitter.com/levelsio)
 - Travis Fischer
 - [Josh Duff (TehShrike)](https://twitter.com/TehShrike)
-- Christian Buratto
 - Fission Team
 - Manizheh and Nick
-- Linus-Alexander Maximilian Gubenis
 - [Addy Osmani](https://github.com/addyosmani)
 - [Paul Irish](https://github.com/paulirish)
 - [Florian Breisch](https://github.com/florianb)
@@ -278,6 +276,9 @@ None -->
 - [Ilias Aboubeker](https://github.com/samyilias)
 - [Faraz Patankar](https://github.com/FarazPatankar)
 - [DefineValue](https://github.com/definevalue)
+- [Gregor Adams](https://github.com/pixelass)
+- [@cburatto](https://github.com/cburatto)
+- [Zenika](https://github.com/Zenika)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:10px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -389,6 +390,8 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Lee Dohm](https://github.com/lee-dohm)
 - [Ben Shakal](https://github.com/neb)
 - [Don Okuda](https://github.com/donokuda)
+- Linus-Alexander Maximilian Gubenis
+- Christian Buratto
 
 ---
 
