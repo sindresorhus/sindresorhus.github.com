@@ -34,6 +34,20 @@ setapp_url: https://go.setapp.com/stp181?_target=https://setapp.com/apps/lungo
 
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
 
+#### Lungo did not keep my computer awake
+
+- If you have the “Allow display to sleep while keeping computer awake” setting enabled, the computer is still awake even if it looks like it's sleeping because the screen is off.
+- If you have the “Pause while screen is locked” setting enabled, you may have locked the screen before leaving it, which would cause Lungo to not keep your computer awake.
+- If you have the “Deactive when switching to battery” setting enabled and you disconnect the power adapater, Lungo would not keep your computer awake. You might have accidentally unplugged it or there might have been a power failure.
+- If you have set a sleep schedule in “System Preferences › Battery › Schedule”, it will take priority over Lungo. This is out of Lungo's control.
+- If you see apps open again when you wake up your computer, it means your computer was restarted for some reason. Lungo cannot keep your computer from restarting. Some common reason it may have restarted are: Power outage, macOS crashed, or scheduled shutdown/restart (in Battery system settings).
+  + You can [check how long your computer has been awake and when it was last rebooted](https://www.macobserver.com/tips/quick-tip/mac-system-uptime-terminal/) to narrow down the problem.
+
+Some things you could try:
+- Make sure you are on the latest macOS and Lungo version.
+- [Reset NVRAM](https://support.apple.com/en-us/HT204063)
+- [Reset SMC](https://support.apple.com/en-us/HT201295)
+
 #### Where can I find the changelog?
 
 Go [here](https://apps.apple.com/app/id1263070803) and click “Version History”.

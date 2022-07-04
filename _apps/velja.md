@@ -47,7 +47,7 @@ For example, to open all links you click in Slack in Chrome:
 
 #### Prompt shortcuts
 
-While showing the browser prompt, you can press <kbd>Option</kbd> to show buttons to copy or share the link. Or press <kbd>Shift</kbd> to quickly copy the link.
+While showing the browser prompt, you can press <kbd>Option</kbd> to show buttons to copy or share the link. Or press <kbd>Shift</kbd> or <kbd>Command+C</kbd> to quickly copy the link.
 
 <br>
 
@@ -61,7 +61,7 @@ While showing the browser prompt, you can press <kbd>Option</kbd> to show button
 
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
 
-You may also have enabled the “Hide menu bar icon” preference, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
+You may also have enabled the “Hide menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 
 #### Velja does not work
 
@@ -75,7 +75,7 @@ Velja also comes with a [system service](https://www.computerworld.com/article/2
 
 **I clicked a short URL**
 
-If the link is a [short URL](https://en.wikipedia.org/wiki/URL_shortening), make sure the “Expand short URLs” preference is enabled and the URL shortening service is either in the built-in list or added by you. Velja is only able to do its matching when it receives the resolved URL.
+If the link is a [short URL](https://en.wikipedia.org/wiki/URL_shortening), make sure the “Expand short URLs” setting is enabled and the URL shortening service is either in the built-in list or added by you. Velja is only able to do its matching when it receives the resolved URL.
 
 **My custom rule did not work**
 
@@ -93,7 +93,7 @@ After: `https://foo.com`
 
 First, make sure the setting to remove tracking parameters is enabled.
 
-If the clicked/copied link is a short URL, Velja is only able to remove the tracking parameters if the “Expand short URLs” preference is enabled and it's a known short URL service or you added the short URL service in the “Advanced” preferences pane.
+If the clicked/copied link is a short URL, Velja is only able to remove the tracking parameters if the “Expand short URLs” setting is enabled and it's a known short URL service or you added the short URL service in the “Advanced” preferences pane.
 
 The app contains a list of tracking parameters to remove, but there may be site-specific tracking parameters it doesn't know about. If you encounter any tracking parameters not being removed, [let me know](https://sindresorhus.com/feedback/?product=Velja&referrer=Website-FAQ) and I'll add support for them.
 
@@ -130,6 +130,13 @@ However, I do plan to make it possible to achieve it using custom rules. The mis
 - Install: <https://github.com/mozilla/multi-account-containers>
 - Install: <https://github.com/honsiorovskyi/open-url-in-container>
 - Transform the input URL, for example, `https://a.com` to `ext+container:name=MyContainer&url=https://a.com&signature=ea7214f675398e93764ba44504070221633b0d5dce6c4263715f1cca89ab5f86`
+
+<a id="firefox-profiles"></a>
+#### Can you support Firefox profiles?
+
+I don't have any immediate plans to support this. There is currently very little demand for it and it's complicated to implement. I will consider it if there is more demand for it.
+
+I would recommend trying out containers instead (see above). *(Contains are not currently supported, but will be)*
 
 <a id="focus-mode"></a>
 #### Can the default browser change based on the active [focus mode](https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac)?
@@ -178,12 +185,13 @@ Velja benefits:
 - It can open Google Meet links in Chrome without any manual setup
 - Browser profile support
 - More advanced custom rules, like the ability open a certain link based on what app the link was clicked in
+- Expands [short URLs](https://en.wikipedia.org/wiki/URL_shortening) for better matching
 - Removes tracking parameters on clicked and copied links
 - macOS-like user interface (Bumpr has a custom non-macOS-like user interface)
 - You can open copied links from the menu bar menu
 - You can quickly switch the primary browser
 - You can press a keyboard shortcut to use an alternative browser for a specific link
-- Preference to hide the menu bar icon
+- Setting to hide the menu bar icon
 - Shortcuts support
 - Handoff support
 - Services support
@@ -213,6 +221,38 @@ Velja benefits:
 OpenIn benefits:
 
 - Supports configuring the primary app for more types, like email clients.
+
+<a id="browserosaurus"><a>
+#### How does it compare to [Browserosaurus](https://github.com/will-stone/browserosaurus)?
+
+Velja benefits:
+
+- Native app written in Swift (Browsersaurus is an Electron app — a web app)
+- Lower memory usage (Velja uses 36 MB and Browsersaurus uses 300 MB)
+- Lower CPU usage (Velja uses 0% CPU when idle and Browsersaurus uses 0.1-0.2%)
+- Available in the App Store
+- Sandboxed (more secure)
+- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.)
+- It can open Google Meet links in Chrome without any manual setup
+- Browser profile support
+- Custom rules, like the ability open a certain link based on what app the link was clicked in
+- Expands [short URLs](https://en.wikipedia.org/wiki/URL_shortening) for better matching
+- Removes tracking parameters on clicked and copied links
+- The user interface is more macOS-like and follows the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/macos/overview/themes/)
+- You can open copied links from the menu bar menu
+- You can quickly switch the primary browser
+- You can press a keyboard shortcut to use an alternative browser for a specific link
+- Finds new browsers automatically (Browsersaurus has to manually scan for new browsers)
+- Setting to hide the menu bar icon
+- Shortcuts support
+- Handoff support
+- Services support
+- Share extension
+
+Browserosaurus benefits:
+
+- Open source
+- Available outside the App Store (can be useful if the App Store is blocked on a work Mac)
 
 #### Why is this free without ads?
 
