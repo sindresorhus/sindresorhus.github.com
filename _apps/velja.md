@@ -136,7 +136,7 @@ However, I do plan to make it possible to achieve it using custom rules. The mis
 
 I don't have any immediate plans to support this. There is currently very little demand for it and it's complicated to implement. I will consider it if there is more demand for it.
 
-I would recommend trying out containers instead (see above). *(Contains are not currently supported, but will be)*
+I would recommend trying out containers instead (see above). *(Containers are not currently supported, but will be)*
 
 <a id="focus-mode"></a>
 #### Can the default browser change based on the active [focus mode](https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac)?
