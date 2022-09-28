@@ -1,0 +1,218 @@
+---
+import {Icon} from 'astro-icon';
+/// import {getHomePermalink} from '~/utils/permalinks.js';
+---
+
+<footer class="border-t border-gray-200 dark:border-slate-800">
+	<div class="max-w-6xl mx-auto px-4 sm:px-6">
+		<!-- <div class="grid grid-cols-12 gap-4 gap-y-8 sm:gap-8 py-8 md:py-12">
+			<div class="col-span-12 lg:col-span-4">
+				<div class="mb-2">
+					<a class="inline-block font-bold text-xl" href={getHomePermalink()}>AstroWind</a>
+				</div>
+				<div class="text-sm text-gray-600">
+					<a
+						class="text-gray-600 hover:text-gray-700 dark:text-gray-400 hover:underline transition duration-150 ease-in-out"
+						href="#">Terms</a
+					> ·
+					<a
+						class="text-gray-600 hover:text-gray-700 dark:text-gray-400 hover:underline transition duration-150 ease-in-out"
+						href="#">Privacy Policy</a
+					>
+				</div>
+			</div>
+			<div class="col-span-6 md:col-span-3 lg:col-span-2">
+				<div class="text-gray-800 dark:text-gray-300 font-medium mb-2">Product</div>
+				<ul class="text-sm">
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Features</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Security</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Team</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Enterprise</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Customer stories</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Pricing</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Resources</a
+						>
+					</li>
+				</ul>
+			</div>
+			<div class="col-span-6 md:col-span-3 lg:col-span-2">
+				<div class="text-gray-800 dark:text-gray-300 font-medium mb-2">Platform</div>
+				<ul class="text-sm">
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Developer API</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Partners</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Atom</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Electron</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>GitHub Desktop</a
+						>
+					</li>
+				</ul>
+			</div>
+			<div class="col-span-6 md:col-span-3 lg:col-span-2">
+				<div class="text-gray-800 dark:text-gray-300 font-medium mb-2">Support</div>
+				<ul class="text-sm">
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Docs</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Community Forum</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Professional Services</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Skills</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Status</a
+						>
+					</li>
+				</ul>
+			</div>
+			<div class="col-span-6 md:col-span-3 lg:col-span-2">
+				<div class="text-gray-800 dark:text-gray-300 font-medium mb-2">Company</div>
+				<ul class="text-sm">
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>About</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Blog</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Careers</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Press</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Inclusion</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Social Impact</a
+						>
+					</li>
+					<li class="mb-2">
+						<a class="text-gray-600 hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href="#"
+							>Shop</a
+						>
+					</li>
+				</ul>
+			</div>
+		</div> -->
+		<div class="md:flex md:items-center md:justify-between py-6 md:py-8">
+			<ul class="justify-center flex mb-4 md:order-1 -ml-2 md:ml-4 md:mb-0">
+				<li>
+					<a
+						href="https://twitter.com/sindresorhus"
+						aria-label="Twitter"
+						class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center"
+					>
+						<Icon name="tabler:brand-twitter" class="w-5 h-5"/>
+					</a>
+				</li>
+				<li>
+					<a
+						href="https://instagram.com/sindresorhus"
+						aria-label="Instagram"
+						class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center"
+					>
+						<Icon name="tabler:brand-instagram" class="w-5 h-5"/>
+					</a>
+				</li>
+				<li>
+					<a
+						href="https://unsplash.com/@sindresorhus"
+						aria-label="Unsplash"
+						class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center"
+					>
+						<Icon name="tabler:brand-unsplash" class="w-5 h-5"/>
+					</a>
+				</li>
+				<!-- <li>
+					<a
+						class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center"
+						aria-label="RSS"
+						href="/rss.xml"
+					>
+						<Icon name="tabler:rss" class="w-5 h-5"/>
+					</a>
+				</li> -->
+				<li>
+					<a
+						class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center"
+						aria-label="GitHub"
+						href="https://github.com/sindresorhus"
+					>
+						<Icon name="tabler:brand-github" class="w-5 h-5"/>
+					</a>
+				</li>
+			</ul>
+			<div class="hidden md:inline text-xs text-gray-700 mr-4 dark:text-slate-400">
+				<q>The people who are crazy enough to think they can change the world are the ones who do</q>
+			</div>
+		</div>
+	</div>
+</footer>

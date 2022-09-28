@@ -1,0 +1,75 @@
+==================================================================
+https://keybase.io/sindresorhus
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://sindresorhus.com
+  * I am sindresorhus (https://keybase.io/sindresorhus) on keybase.
+  * I have a public key with fingerprint 9167 E91F 3DA4 65D0 020A  48B3 5A35 FFDB 8B07 983A
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "01203b7530668e317929a6e3448ee9caaa430129790178d70b438441c367513baf7f0a",
+      "fingerprint": "9167e91f3da465d0020a48b35a35ffdb8b07983a",
+      "host": "keybase.io",
+      "key_id": "5a35ffdb8b07983a",
+      "kid": "0101cb611ee03ce62c90d7bb7e8ee3aba2c539d8bbb07c3be2ce6e01371539d94ba50a",
+      "uid": "b6eaadc02135408a3c296cd49dabdb19",
+      "username": "sindresorhus"
+    },
+    "service": {
+      "hostname": "sindresorhus.com",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 1
+  },
+  "ctime": 1531853124,
+  "expire_in": 157680000,
+  "prev": "cbab6bb516e46064f0efe0c1c7d5463fa994de8e6a4afb91b4bcb9359bd3ba0c",
+  "seqno": 36,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: Keybase OpenPGP v2.0.77
+Comment: https://keybase.io/crypto
+
+yMNsAnicbZJ9UFRVGMZBSSZSWDG+EpSu6Cy4LPf7Y1GQ0hTKWHFIg5LOuffc5cay
+u9xdBNxBJUNhGKdFA8SvbIqhCWIAKRVzcCUC8w8aGcQRHZtpMoIYK4micaJ7mfzP
+O3Pmzjnn9zzned9zvlm2OCAkMI+ZH68LPmEJvOE/VxqQ/7qw2YtBp1SBWbxYEVr4
+IbuE3J6CIkXCLBhOkDgFOYbCWZZHFMEJpABYRNE0j5AgAgBoSmMETsAJjpc4HNIU
+T9OESLEcQ1AQyJyMA8yEyYrDhlSXqjg8mq1AsBwSCJmSAM0yEo6TOKB5SDGAYmRZ
+gjzEOYGndGGh060rtHAQuJFZcWpr2qRgId5T+Ce5cUKELEEghFMiYklRwCUOQg5p
+uSkAASkylCDxEGpKkYKI1CCEExRH6OsCDQGzkLt0wQ6yCABJxEmCYmicB5RICqwo
+0YIEoAQJQQfdSHWAYqTRbsUhqcjtVAtL3VilCdN29ioi0purV/MUyiw6izUPl+r0
+OEWnXdst9Hhcbouu9lS4dLwMwYL/jQqgJtX6qSn2ItWtOB2YhdBI0aPozloFBK8N
+kjZhqNylqKhA0QmGY3lc+/Rz0F7NUoQAshAyBItoFmdpGUcywkVC5CSGZikZCAIt
+aQ1jAQ1kKBCQhiIUKEaAknazuIjppZU4nJiFYrWcwLZQlc0BPKUqwiqv+d8KCggM
+CVjyzCL9oQWEPGt48vzie8LmpY4101Zy++KDOcEZvz5aYjGM2Dqq/lZawSZr+I8P
+bpTtiZ6B6OCZ818cWZM/dCL1Zr/5UvrLoWil4jky8XOSzPpPN6Nbq9jMt81539lW
+rx987/j7xueL1p3xZoXtjF8qfdyWMnw9bqIv+Y/wpoenZpu8h3yXbhkH2lef9P0b
+d2/QcMUSkxiyrS2hqKknMvqjVNwfMZ7cFttRs3yopPyN/A3xh1MeG3/rqp28P7Lr
++zvNuy7kTbb3Vg7nSclbU+aX1fXP7a/OPPtm2Yah2vqdppXW1yLGZgZc9vrWtUP2
+TZ2+qajPT1293EkyQcHTL228G2/8oKs4ua67y1n9SvaOlplu3+TEh5fpfdMJW1TY
+lWOYrq3/U+arIrvmvvUz1XuMkSH/GKaaY7q3egdfqPQ2nLQb73qnGo29ab907r9w
+/dWkvot/GRMGjmaUFNp9lUGPsar8hFHLufSvR6+EZVtvm2rwsZaLG1vLY9M7D3z2
+Se9Pjf27VwTdizifRNV3b5M9xHOJPR2+tT80PJqLbZhEL6aOC6ov851jMccP3FzX
+sSM3bjBlhTxWs6qt80vvV9l9o/TmLN6fmzJiMtfVDvtvVxQ++DQ6YzZ30btC/pbT
+zFUyy3E4iW85GtUaM2sduhM+MxI18vv60GNR+2wO7po1r3F5Wm+a0WzYfp+Te0Md
+D5e2z+8+m5NI/Adyjbj7
+=h6oE
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/sindresorhus
+
+==================================================================

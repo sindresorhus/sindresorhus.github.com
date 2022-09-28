@@ -1,0 +1,291 @@
+---
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Feedback & Support · Sindre Sorhus</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.1/css/bulma.min.css">
+		<script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+		<script src="https://www.google.com/recaptcha/api.js?render=6Ld-WwAiAAAAAKfIZkOlY0Y-RF5obrjrEiWI1TwC"></script>
+	</head>
+	<body>
+		<div id="nav-container"></div>
+		<section class="hero is-fullheight">
+			<div class="hero-body">
+				<div class="container">
+					<div class="columns is-vcentered">
+						<div id="main" class="column is-half is-centered has-nice-link">
+							<img id="app-icon" width="128" height="128">
+							<h1 class="title is-2">Feedback & Support</h1>
+							<h2 class="title is-6">I appreciate your feedback 🙌</h2>
+							<div id="additional-info"></div>
+							<form id="feedback-form" action="https://formcarry.com/s/UBfgr97yfY" method="POST" enctype="multipart/form-data">
+								<input type="hidden" name="_gotcha">
+								<div class="field">
+									<label class="label" for="message">Message*</label>
+									<div class="control">
+										<textarea class="textarea is-medium" placeholder="I'm a human. Please be nice." name="message" minlength="20" rows="7" required autofocus></textarea>
+									</div>
+								</div>
+								<div class="field">
+									<label class="label" for="email">Email*</label>
+									<div class="control">
+										<input class="input is-medium" type="email" name="email" autocomplete="email" required>
+									</div>
+								</div>
+								<div class="field">
+									<label class="label" for="email">Attachments</label>
+									<div class="control">
+										<input type="file" name="attachments" multiple>
+									</div>
+								</div>
+								<br>
+								<div class="field">
+									<div class="control">
+										<input type="hidden" id="captchaResponse" name="g-recaptcha-response">
+										<button class="button is-medium is-primary is-info" type="submit">Send Feedback</button>
+									</div>
+								</div>
+							</form>
+							<script>
+								grecaptcha.ready(async () => {
+									const token = await grecaptcha.execute('6Ld-WwAiAAAAAKfIZkOlY0Y-RF5obrjrEiWI1TwC', {action: 'homepage'});
+									document.querySelector('#captchaResponse').value = token;
+								});
+							</script>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<style is:inline>
+			:root {
+				--main-color: #3273dc;
+				--main-color-rgb: 50, 115, 220; /* Same as above but stored as a pure color values */
+			}
+
+			body {
+				font-family:
+					-apple-system,
+					BlinkMacSystemFont,
+					'Segoe UI',
+					Roboto,
+					Helvetica,
+					Arial,
+					sans-serif,
+					'Apple Color Emoji',
+					'Segoe UI Emoji',
+					'Segoe UI Symbol';
+			}
+
+			a {
+				color: var(--main-color);
+				text-decoration: none;
+			}
+
+			.has-nice-link a:not(.button):not(.no-underline) {
+				box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.1);
+			}
+
+			.has-nice-link a:not(.button):not(.no-underline):hover {
+				box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.3);
+			}
+
+			.is-centered {
+				margin-left: auto;
+				margin-right: auto;
+			}
+
+			.hero-body > .container {
+				margin-bottom: 100px;
+			}
+
+			#app-icon {
+				display: none;
+				margin: 0 auto;
+				margin-bottom: 20px;
+			}
+
+			.ios-app #app-icon {
+				border-radius: 30px;
+				filter: drop-shadow(0px 1px 3px #D5D5D5);
+			}
+
+			h1,
+			h2,
+			#additional-info,
+			p {
+				text-align: center;
+			}
+
+			#additional-info {
+				display: none;
+				padding-bottom: 20px;
+			}
+
+			#feedback-form {
+				padding-top: 20px;
+			}
+
+			#feedback-form .required:invalid {
+				border-color: #ff3860;
+			}
+
+			/* Hack to override the form input border color, since I can't use the SASS variables */
+			.input.is-active,
+			.input.is-focused,
+			.input:active,
+			.input:focus,
+			.textarea.is-active,
+			.textarea.is-focused,
+			.textarea:active,
+			.textarea:focus {
+				border-color: var(--main-color);
+				box-shadow: 0 0 0 0.125em rgba(var(--main-color-rgb), 0.25);
+			}
+
+			/* For the imported navbar */
+			#nav-container {
+				min-height: 52px;
+				opacity: 0;
+				transition: 0.8s ease-in-out;
+			}
+			#nav-container.visible {
+				opacity: 1;
+			}
+		</style>
+		<script type="module" is:inline>
+			/* eslint-env browser, jquery */
+			(() => {
+				if (window.location.search === '?success') {
+					$('#main').html('<h1 class="title is-2">Thanks for the feedback!</h1><p>You will now be redirected to my website.');
+
+					setTimeout(() => {
+						window.location.href = 'https://sindresorhus.com/apps';
+					}, 3000);
+				}
+
+				const icons = {
+					'Dato': 'https://sindresorhus.com/apps/dato/icon.png',
+					'Gifski': 'https://sindresorhus.com/apps/gifski/icon.png',
+					'Kap': 'https://sindresorhus.com/apps/kap/icon.png',
+					'Black Out': 'https://sindresorhus.com/apps/black-out/icon.png',
+					'HEIC Converter': 'https://sindresorhus.com/apps/heic-converter/icon.png',
+					'Shareful': 'https://sindresorhus.com/apps/shareful/icon.png',
+					'Lungo': 'https://sindresorhus.com/apps/lungo/icon.png',
+					'Touch Bar Simulator': 'https://sindresorhus.com/touch-bar-simulator/assets/images/logo.png',
+					'Battery Indicator': 'https://sindresorhus.com/apps/battery-indicator/icon.png',
+					'Caprine': 'https://sindresorhus.com/caprine/images/Icon.png',
+					'Blear': 'https://sindresorhus.com/apps/blear/icon.png',
+					'Plash': 'https://sindresorhus.com/apps/plash/icon.png',
+					'Pasteboard Viewer': 'https://sindresorhus.com/apps/pasteboard-viewer/icon.png',
+					'Jiffy': 'https://sindresorhus.com/apps/jiffy/icon.png',
+					'Recordia': 'https://sindresorhus.com/apps/recordia/icon.png',
+					'Photo Widget': 'https://sindresorhus.com/apps/photo-widget/icon.png',
+					'Plug': 'https://sindresorhus.com/apps/plug/icon.png',
+					'UTC Time': 'https://sindresorhus.com/apps/utc-time/icon.png',
+					'System Color Picker': 'https://sindresorhus.com/apps/system-color-picker/icon.png',
+					'Pandan': 'https://sindresorhus.com/apps/pandan/icon.png',
+					'Actions': 'https://sindresorhus.com/apps/actions/icon.png',
+					'Speediness': 'https://sindresorhus.com/apps/speediness/icon.png',
+					'One Thing': 'https://sindresorhus.com/apps/one-thing/icon.png',
+					'Pure Paste': 'https://sindresorhus.com/apps/pure-paste/icon.png',
+					'Folder Peek': 'https://sindresorhus.com/apps/folder-peek/icon.png',
+					'Velja': 'https://sindresorhus.com/apps/velja/icon.png',
+					'Favorites Widget': 'https://sindresorhus.com/apps/favorites-widget/icon.png',
+					'Lock Screen One': 'https://sindresorhus.com/apps/lock-screen-one/icon.png',
+					'Quick Launch': 'https://sindresorhus.com/apps/quick-launch/icon.png'
+				};
+
+				const repoUrls = {
+					'Blear': 'https://github.com/sindresorhus/Blear',
+					'Gifski': 'https://github.com/sindresorhus/Gifski',
+					'Plash': 'https://github.com/sindresorhus/Plash',
+					'Pasteboard Viewer': 'https://github.com/sindresorhus/Pasteboard-Viewer',
+					'Plug': 'https://github.com/wulkano/Plug',
+					'System Color Picker': 'https://github.com/sindresorhus/System-Color-Picker',
+					'Actions': 'https://github.com/sindresorhus/Actions'
+				};
+
+				const iOSApps = [
+					'Photo Widget',
+					'Favorites Widget',
+					'Lock Screen One',
+					'Quick Launch'
+				];
+
+				// Form validation
+				$('button[type="submit"]').on('click', event => {
+					$(event.target)
+						.closest('form')
+						.find('[required]')
+						.addClass('required');
+				});
+
+				const params = new URL(location.href).searchParams;
+
+				if (params.has('product')) {
+					const product = params.get('product');
+					const title = `Feedback & Support for ${product}`;
+
+					$('#main h1').text(title);
+					$('title').text(title);
+
+					if (icons[product]) {
+						$('#app-icon').css('display', 'flex').attr('src', icons[product]);
+					}
+
+					if (iOSApps.includes(product)) {
+						$(document.body).addClass('ios-app');
+					}
+
+					if (product in repoUrls) {
+						const repoUrl = repoUrls[product];
+						const searchParams = new URLSearchParams();
+
+						searchParams.append('body', '<\!--\nProvide your feedback below. Include as many details as possible.\n-->\n\n\n\n---\n${params.get(\'metadata\') ?? \'\'}'.trim());
+
+						const url = `${repoUrl}/issues/new?${searchParams}`;
+
+						$('#additional-info').show().html(`
+							If you have a GitHub user, <a href="${url}">open an issue on the repo</a> instead.
+						`);
+					}
+				}
+
+				const form = $('#feedback-form');
+
+				form.append(
+					$('<input type="hidden" name="timestamp">').val(Date.now())
+				);
+
+				// Include all the existing search params
+				for (const [key, value] of params) {
+					if (key === 'emailField') {
+						form.find('[name="email"]').val(value);
+						continue;
+					}
+
+					if (key === 'messageField') {
+						form.find('[name="message"]').val(value).get(0).setSelectionRange(0, 0);
+						continue;
+					}
+
+					if (key === 'extraInfo') {
+						form.append(
+							$(`<textarea style="display:none" readonly name="${key}"></textarea>`).text(value)
+						);
+						continue;
+					}
+
+					form.append(
+						$(`<input type="hidden" name="${key}">`).val(value)
+					);
+				}
+			})();
+		</script>
+	</body>
+</html>
