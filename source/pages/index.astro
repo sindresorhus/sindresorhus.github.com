@@ -1,0 +1,66 @@
+---
+import {Icon} from 'astro-iconify';
+import {SITE} from '~/config.mjs';
+import Layout from '~/layouts/PageLayout.astro';
+
+const meta = {
+	title: SITE.title,
+	description: SITE.description,
+};
+---
+
+<Layout {meta}>
+	<section>
+		<div class="flex md:h-screen max-w-6xl mx-auto px-4 sm:px-6 md:-mt-20">
+			<div class="m-auto py-12 md:py-20">
+				<div class="text-center pb-10 md:pb-16">
+					<img src="/assets/sindre-sorhus.jpg" class="mx-auto m-8 rounded-full" width="144" height="144">
+					<h1 class="text-5xl md:text-[3.50rem] font-bold leading-tighter tracking-tighter mb-4 font-heading background-animate bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-secondary-500 sm:whitespace-nowrap">
+						Sindre Sorhus
+					</h1>
+					<div class="max-w-3xl mx-auto">
+						<p class="text-xl text-gray-600 mb-8 dark:text-slate-400">
+							<span class="text-2xl">Full-Time Open-Sourcerer & Aspiring Rebel</span>
+						</p>
+						<div class="max-w-none px-6 my-2 flex flex-nowrap flex-col sm:flex-row sm:justify-center gap-6">
+							<div class="flex w-full sm:w-auto">
+								<a
+									href="/apps"
+									class="btn text-white border border-primary-600/30 bg-primary-600/90 dark:bg-primary-800/80 hover:bg-primary-800 hover:border-primary-800 sm:mb-0 px-8 py-3 w-full rounded-3xl"
+								>
+									<Icon name="tabler:brand-appstore" class="w-5 h-5 mr-1 -ml-1.5"/> Apps
+								</a>
+							</div>
+							<div class="flex w-full sm:w-auto">
+								<a
+									href="https://github.com/sindresorhus"
+									class="btn text-white bg-gray-900 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 px-8 py-3 w-full rounded-3xl"
+								>
+									<Icon name="tabler:brand-github" class="w-5 h-5 mr-1 -ml-1.5"/> Code
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</Layout>
+<!-- <script src="https://app.embed.im/snow.js" defer></script> -->
+
+<style>
+.background-animate {
+	background-size: 400%;
+	animation: AnimationName 4s ease infinite;
+}
+
+@keyframes AnimationName {
+	0%,
+	100% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+}
+</style>

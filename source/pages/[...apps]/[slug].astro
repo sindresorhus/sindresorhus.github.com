@@ -1,0 +1,88 @@
+---
+import {SITE} from '~/config.mjs';
+import Layout from '~/layouts/PageLayout.astro';
+import {fetchApps, proseCSS} from '~/utils/apps.js';
+
+export async function getStaticPaths() {
+	const apps = await fetchApps();
+
+	return apps.map(app => ({
+		params: {
+			slug: app.slug,
+		},
+		props: {
+			app,
+		},
+	}));
+}
+
+const {app} = Astro.props;
+
+const meta = {
+	title: `${app.title} — ${SITE.name}`,
+	description: app.subtitle,
+	image: app.iconUrl,
+	ogTitle: app.title,
+	ogType: 'product',
+	appStoreId: app.appStoreId,
+};
+---
+
+<Layout {meta}>
+	<section class="max-w-3xl py-8 sm:py-16 lg:py-20 mx-auto lg:-mt-10 mb-10">
+		<article>
+			<header class="flex flex-col items-center text-center px-4 sm:px-6 mb-40">
+				<img src={app.iconUrl} width="224" height="224" class={`${app.hasIOSAppIcon ? 'p-[20px]' : ''} mb-3`}>
+				<h1 class="text-5xl md:text-6xl font-bold leading-tighter tracking-tighter mb-4 font-heading">
+					{app.title}
+				</h1>
+				<h2 class="text-2xl md:text-3xl tracking-tight mb-8">
+					{app.subtitle}
+				</h2>
+				{(app.appStoreId || app.setappUrl || Object.keys(app.mainLinks).length > 0) &&
+					<nav class="flex flex-col sm:flex-row gap-x-4 gap-y-8 mt-2 instapaper_ignore">
+						<>
+							{app.appStoreId &&
+								<a href={`https://apps.apple.com/app/id${app.appStoreId}`}>
+									<img src="/assets/download-on-app-store-badge.svg" alt="Download on the App Store" style="margin: 0; padding: 0; display: block; height: 60px;">
+								</a>
+							}
+						</>
+						<>
+							{app.setappUrl &&
+								<a href={app.setappUrl}>
+									<img src="https://developer.setapp.com/setapp-button/setapp.svg" alt="Available on Setapp" style="margin: 0; padding: 0; display: block; height: 60px;">
+								</a>
+							}
+						</>
+						{Object.keys(app.mainLinks).length > 0 &&
+								<>
+									<!-- We apply a fixed size so it matches the App Store button. -->
+									{Object.entries(app.mainLinks).map(([title, url]) => (
+										<a href={url} class="text-white bg-primary-700 hover:bg-primary-600 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-bold rounded-lg text-xl px-6 text-center mb-2 flex justify-center items-center whitespace-nowrap px-10 py-4" style="width: 180px; height: 60px;">{title}</a>
+									))}
+								</>
+						}
+					</nav>
+				}
+				{Object.keys(app.links).length > 0 &&
+					<nav class="flex flex-wrap gap-4 max-w-md justify-center mt-8 font-semibold text-xl text-primary-600 instapaper_ignore">
+						<>
+							{Object.entries(app.links).map(([title, url]) => (
+								<a href={url} class="hover:text-primary-400 dark:text-primary-400 dark:hover:text-primary-200">{title}</a>
+							))}
+						</>
+					</nav>
+				}
+			</header>
+			<div class={proseCSS}>
+				<section class="mb-20">
+					{app.screenshots.map(screenshot => (
+						<img src={screenshot.src} width={screenshot.width} height={screenshot.height}>
+					))}
+				</section>
+				<app.Content/>
+			</div>
+		</article>
+	</section>
+</Layout>

@@ -1,0 +1,32 @@
+---
+import {SITE} from '~/config.mjs';
+import Layout from '~/layouts/PageLayout.astro';
+import Post from '~/components/blog/Post.astro';
+import {fetchPosts} from '~/utils/posts.js';
+
+export async function getStaticPaths() {
+	const posts = await fetchPosts();
+
+	return posts.map(post => ({
+		params: {
+			slug: post.slug,
+			blog: 'blog',
+		},
+		props: {post},
+	}));
+}
+
+const {post} = Astro.props;
+
+const meta = {
+	title: `${post.title} — ${SITE.name}`,
+	description: post.description,
+	/// image: post.image, // FIXME
+	ogTitle: post.title,
+	ogType: 'article',
+};
+---
+
+<Layout {meta}>
+	<Post post={{...post, image: meta.image}}/>
+</Layout>

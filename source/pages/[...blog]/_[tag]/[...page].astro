@@ -1,0 +1,50 @@
+---
+import {SITE, BLOG} from '~/config.mjs';
+import Layout from '~/layouts/BlogLayout.astro';
+import BlogList from '~/components/blog/List.astro';
+import Pagination from '~/components/blog/Pagination.astro';
+import {fetchPosts} from '~/utils/posts.js';
+import {TAG_BASE} from '~/utils/permalinks.js';
+
+export async function getStaticPaths({paginate}) {
+	const posts = await fetchPosts();
+
+	const tags = new Set();
+	for (const post of posts) {
+		if (Array.isArray(post.tags)) {
+			for (const tag of post.tags) {
+				tags.add(tag.toLowerCase());
+			}
+		}
+	}
+
+	return [...tags].map(tag =>
+		paginate(
+			posts.filter(post => Array.isArray(post.tags) && post.tags.includes(tag)),
+			{
+				params: {tag, tags: TAG_BASE || undefined},
+				pageSize: BLOG.postsPerPage,
+				props: {tag},
+			},
+		),
+	);
+}
+
+const {page, tag} = Astro.props;
+
+const currentPage = page.currentPage ?? 1;
+
+const meta = {
+	title: `Posts by tag '${tag}' ${currentPage > 1 ? `— Page ${currentPage} ` : ''}— ${SITE.name}`,
+	description: SITE.description,
+	noindex: true,
+};
+---
+
+<Layout meta={meta}>
+	<Fragment slot="title">
+		Tag: {tag}
+	</Fragment>
+	<BlogList posts={page.data}/>
+	<Pagination prevUrl={page.url.prev} nextUrl={page.url.next}/>
+</Layout>

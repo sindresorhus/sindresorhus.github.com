@@ -1,0 +1,30 @@
+---
+import {SITE} from '~/config.mjs';
+import Layout from '~/layouts/PageLayout.astro';
+
+const title = `Error 404 — ${SITE.name}`;
+---
+
+<Layout meta={{title}}>
+	<section class="flex items-center h-screen">
+		<div class="container flex flex-col items-center justify-center px-5 mx-auto -mt-40">
+			<div class="max-w-md text-center">
+				<h2 class="mb-8 font-bold text-9xl">
+					<span class="sr-only">Error</span>
+					<span class="bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-secondary-500">404</span>
+				</h2>
+				<p class="text-3xl font-semibold md:text-3xl">The worker unicorns failed to find this page.</p>
+				<p class="mt-4 mb-8 text-lg text-gray-600 dark:text-slate-400">
+					It was probably a bad idea anyway, so maybe for the better?
+				</p>
+				<a
+					rel="noopener noreferrer"
+					href="/"
+					class="btn text-white bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-800 ml-4"
+				>
+				Back to homepage
+				</a>
+			</div>
+		</div>
+	</section>
+</Layout>

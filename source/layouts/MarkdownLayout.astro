@@ -1,0 +1,19 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import {proseCSS} from '~/utils/apps.js';
+
+const {frontmatter} = Astro.props;
+const {title} = frontmatter;
+
+const meta = {
+	title: `${title} — Sindre Sorhus`,
+};
+---
+
+<Layout {meta}>
+	<section class="md:min-h-screen px-6 sm:px-6 py-6 sm:py-10 lg:py-14 mb-20 mx-auto max-w-3xl">
+		<main class={proseCSS}>
+			<slot/>
+		</main>
+	</section>
+</Layout>

@@ -1,0 +1,48 @@
+---
+/// import PostTags from '~/components/blog/Tags.astro';
+import {getFormattedDate} from '~/utils/utils.js';
+
+const {post} = Astro.props;
+const readingTimeText = post.isRedirect ? '' : ` — ${post.readingTime} min read`;
+---
+
+<article class="max-w-md mx-auto md:max-w-none">
+	<div>
+		<header>
+			<h2 class="text-3xl sm:text-4xl font-bold leading-snug mb-2 font-heading">
+				<a
+					class="hover:underline hover:underline-offset-4 hover:decoration-3"
+					href={post.url}
+				>
+					{post.title}
+				</a>
+			</h2>
+		</header>
+		<p class="text-lg sm:text-xl flex-grow mt-2 opacity-80">
+			{post.description}
+		</p>
+		<footer class="mt-4">
+			<div>
+				<span class="text-gray-500 dark:text-slate-400">
+					<time datetime={post.pubDate}>{getFormattedDate(post.pubDate)}</time>{readingTimeText}
+				</span>
+			</div>
+			<!-- <div class="mt-4">
+				<PostTags tags={post.tags} />
+			</div> -->
+		</footer>
+	</div>
+</article>
+
+<style is:inline>
+/* Workaround to not add hover underline to the external link symbol */
+article h2 a:hover {
+	box-shadow: inset 0 -4px 0 0 currentColor;
+	text-decoration: none !important;
+}
+
+article h2 a[href^="https://"]:not([href^="https://sindresorhus.com"])::after {
+	content: ' ⤤';
+	opacity: 0.6;
+}
+</style>

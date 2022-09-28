@@ -1,0 +1,44 @@
+---
+/// import PostTags from '~/components/blog/Tags.astro';
+import {getFormattedDate} from '~/utils/utils.js';
+
+const {post} = Astro.props;
+---
+
+<section class="py-8 sm:py-16 lg:py-20 mx-auto">
+	<article>
+		<header>
+			<p class="max-w-3xl mx-auto mb-3 text-center text-sm opacity-80">
+				<time datetime={post.pubDate}>{getFormattedDate(post.pubDate)}</time> — {post.readingTime} min read
+			</p>
+			<h1
+				class="px-4 sm:px-6 max-w-3xl mx-auto text-center text-5xl md:text-6xl font-bold leading-tighter tracking-tighter mb-8 font-heading"
+			>
+				{post.title}
+			</h1>
+			{post.description &&
+				<h2
+					class="px-4 sm:px-6 mt-[-4px] max-w-3xl mx-auto text-center text-xl md:text-2xl opacity-80"
+				>
+					{post.description}
+				</h2>
+			}
+		</header>
+		<div
+			id="post-container"
+			class="mx-auto px-6 sm:px-6 py-6 pb-20 max-w-3xl prose prose-lg lg:prose-xl dark:prose-invert dark:prose-headings:text-slate-300 prose-md prose-headings:font-heading prose-headings:leading-tighter prose-headings:tracking-tighter prose-headings:font-bold prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-img:rounded-md prose-img:shadow-lg mt-8"
+		>
+			<post.Content/>
+		</div>
+		<!-- <div class="mx-auto px-8 sm:px-6 max-w-3xl mt-8">
+			<PostTags tags={post.tags} />
+		</div> -->
+	</article>
+</section>
+
+<style is:inline>
+/* If the first element in the blog post is an image, we remove some of its top padding to make the gap from the header to the post body the same as if it had just been text. */
+#post-container:has(> p:first-child > img) {
+	margin-top: -16px;
+}
+</style>

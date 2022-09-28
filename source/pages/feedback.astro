@@ -1,0 +1,139 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import {fetchApps, proseCSS} from '~/utils/apps.js';
+
+const meta = {
+	title: 'Feedback & Support — Sindre Sorhus',
+};
+
+// eslint-disable-next-line unicorn/no-await-expression-member
+const apps = (await fetchApps()).map(({title, url, iconUrl, repoUrl, hasFaqSection}) => ({title, url, iconUrl, repoUrl, hasFaqSection}));
+
+const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500';
+---
+
+<Layout {meta}>
+	<div id="main" class="flex flex-col sm:min-h-screen max-w-3xl mx-auto px-8 mt-6 mb-16" class={proseCSS}>
+		<div class="text-center">
+			<img id="app-icon" class="flex mx-auto mb-2 not-prose invisible" width="128" height="128">
+			<h1 id="product-name" class="text-4xl md:text-5xl font-bold leading-tighter tracking-tighter mb-2 font-heading"></h1>
+			<h2 class="text-2xl md:text-3xl leading-tighter tracking-tighter mb-8">Feedback & Support</h2>
+			<div id="additional-info" class={proseCSS} style="font-size:16px"></div>
+			<div><br>I may take longer to respond as I'm getting an overwhelming amount of emails at the moment. I appreciate your patience.</div>
+		</div>
+		<form id="feedback-form" class="mt-8" action="https://formcarry.com/s/UBfgr97yfY" method="POST" enctype="multipart/form-data" onsubmit="document.querySelector('#submit-button').disabled=true">
+			<input type="hidden" name="_gotcha">
+			<div class="mb-6">
+				<label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300" for="message">Message*</label>
+				<textarea class={inputCSS} placeholder="I'm a human. Please be nice." name="message" minlength="20" rows="7" required autofocus></textarea>
+			</div>
+			<div class="mb-6">
+				<label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300" for="email">Email*</label>
+				<input class={inputCSS} type="email" name="email" autocomplete="email" required>
+				<small>Only used for replying to you.</small>
+			</div>
+			<div class="mb-6">
+				<label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300" class="label" for="email">Attachments</label>
+				<input class={inputCSS} type="file" name="attachments" multiple>
+			</div>
+			<br>
+			<div class="mb-6">
+				<input type="hidden" id="captchaResponse" name="g-recaptcha-response">
+				<button id="submit-button" class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-md w-full sm:w-auto px-6 py-3 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 disabled:opacity-50 disabled:pointer-events-none" type="submit">Send Feedback</button>
+			</div>
+		</form>
+	</div>
+</Layout>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js" crossorigin="anonymous"></script>
+
+<script type="module" is:inline define:vars={{apps}}>
+	if (window.location.search === '?success') {
+		$('#main').html('<h1 class="text-2xl mx-auto my-20">Thanks for the feedback!</h1>');
+
+		setTimeout(() => {
+			window.location.href = 'https://sindresorhus.com/apps';
+		}, 3000);
+	}
+
+	const params = new URL(location.href).searchParams;
+
+	if (params.has('product')) {
+		const product = params.get('product');
+		const app = apps.find(app => app.title === product);
+
+		$('title').text(`Feedback & Support for ${product} — Sindre Sorhus`);
+		$('#product-name').text(product);
+
+		if (app) {
+			$('#app-icon').css('visibility', 'visible').attr('src', app.iconUrl);
+		}
+
+		if (app?.repoUrl) {
+			const searchParams = new URLSearchParams();
+
+			searchParams.append('body', `<\!--\nProvide your feedback below. Include as many details as possible.\n-->\n\n\n\n---\n${params.get('metadata') ?? ''}`.trim());
+
+			const url = `${app.repoUrl}/issues/new?${searchParams}`;
+
+			$('#additional-info').show().html(`
+				If you have a GitHub account, <a href="${url}">open an issue on the repo</a> instead.
+			`);
+		}
+
+		if (app?.hasFaqSection) {
+			$('#additional-info').show().html(`
+				See <a href="${app.url}#faq">frequently asked questions</a> in case your question has already been answered.\nMake sure you are on the latest version (for example, check App Store) and try to restart your device (you would be surprised how often this is the solution).
+			`);
+		}
+
+		// Temporary.
+		if (product === 'Velja') {
+			$('#additional-info').show().append(`
+				<br><br><a href="${app.url}#safari-profiles">Can you support Safari profiles?</a><br><br><a href="${app.url}#arc">Can you support Arc spaces/profiles?</a><br><br>
+			`);
+		}
+
+		if (product === 'Actions') {
+			$('#additional-info').show().append(`
+				<br><br><b>It is unfortunately not possible to make an action to get the state of the device orientation lock.</b>
+			`);
+		}
+	}
+
+	const form = $('#feedback-form');
+
+	form.append(
+		$('<input type="hidden" name="timestamp">').val(Date.now())
+	);
+
+	// Include all the existing search params
+	for (const [key, value] of params) {
+		if (key === 'emailField') {
+			form.find('[name="email"]').val(value);
+			continue;
+		}
+
+		if (key === 'messageField') {
+			form.find('[name="message"]').val(value).get(0).setSelectionRange(0, 0);
+			continue;
+		}
+
+		if (key === 'extraInfo') {
+			form.append(
+				$(`<textarea style="display:none" readonly name="${key}"></textarea>`).text(value)
+			);
+			continue;
+		}
+
+		form.append(
+			$(`<input type="hidden" name="${key}">`).val(value)
+		);
+	}
+
+	if (params.get('metadata')) {
+		const url = new URL(window.location);
+		url.searchParams.delete('metadata');
+		window.history.replaceState({}, '', url);
+	}
+</script>
