@@ -1,0 +1,52 @@
+---
+import {SITE, BLOG} from '~/config.mjs';
+import Layout from '~/layouts/BlogLayout.astro';
+import BlogList from '~/components/blog/List.astro';
+import Pagination from '~/components/atoms/Pagination.astro';
+import {fetchPosts} from '~/utils/posts.js';
+import {cleanSlug, CATEGORY_BASE} from '~/utils/permalinks.js';
+
+export async function getStaticPaths({paginate}) {
+	if (BLOG?.disabled || BLOG?.category?.disabled) {
+		return [];
+	}
+
+	const posts = await fetchPosts();
+
+	const categories = new Set();
+	for (const post of posts) {
+		if (typeof post.category === 'string') {
+			categories.add(post.category.toLowerCase());
+		}
+	}
+
+	return [...categories].map(category =>
+		paginate(
+			posts.filter(post => typeof post.category === 'string' && category === post.category.toLowerCase()),
+			{
+				params: {category: cleanSlug(category), categories: CATEGORY_BASE || undefined},
+				pageSize: BLOG.postsPerPage,
+				props: {category},
+			},
+		),
+	);
+}
+
+const {page, category} = Astro.props;
+
+const currentPage = page.currentPage ?? 1;
+
+const meta = {
+	title: `Category '${category}' ${currentPage > 1 ? `— Page ${currentPage} ` : ''}— ${SITE.name}`,
+	description: SITE.description,
+	noindex: true,
+};
+---
+
+<Layout meta={meta}>
+	<Fragment slot="title">
+		Category: {category}
+	</Fragment>
+	<BlogList posts={page.data}/>
+	<Pagination prevUrl={page.url.prev} nextUrl={page.url.next}/>
+</Layout>

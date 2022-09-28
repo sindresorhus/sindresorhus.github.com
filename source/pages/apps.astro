@@ -1,0 +1,69 @@
+---
+import {SITE} from '~/config.mjs';
+import Layout from '~/layouts/PageLayout.astro';
+import {fetchApps} from '~/utils/apps.js';
+
+/// const {page} = Astro.props;
+
+const meta = {
+	title: `Apps — ${SITE.name}`,
+	description: SITE.description,
+};
+
+const apps = await fetchApps();
+
+// TODO: Make a component.
+const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1.5 text-black/70 dark:text-black rounded-lg';
+---
+
+<Layout {meta}>
+	<div class="bg-slate-50 dark:bg-inherit">
+		<section class="container sm:px-6 py-12 sm:py-16 lg:py-20 mx-auto">
+			<header>
+				<!-- TODO: Make title components -->
+				<h1 class="text-center text-4xl md:text-6xl font-bold leading-tighter tracking-tighter mb-8 md:mb-16 font-heading">
+					Quality crafted
+					<span class="bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-secondary-500">apps</span>
+				</h1>
+				<!-- TODO: Put the below in a popover -->
+				<!-- <p>If you're a student, open-source maintainer, or cannot afford my paid apps, <a href="/contact?subject=Free%20promo%20code%20for%20%5Bapp%5D">reach out</a>, and I'll give you any of my apps for free.</p>
+				<p>You can get 3 of my macOS menu bar apps in a bundle for <a href="https://apps.apple.com/app-bundle/id1439413445">50% off</a>.</p>
+				<br>
+				<p>I also provide some <a href="/tiny-apps">tiny utility apps</a>.</p> -->
+			</header>
+			<section class="mx-auto grid sm:gap-12 grid-cols-1 lg:grid-cols-2 sm:p-1 my-12 dark:text-white">
+				{
+					apps.map(app => (
+						<a href={app.url} class="flex py-6 px-2 sm:p-6 bg-white dark:bg-black/20 sm:rounded-xl shadow-md dark:shadow-lg hover:shadow-xl dark:hover:sm:shadow-indigo-500/20 transition duration-500 dark:sm:border dark:border-slate-800">
+							<div class="flex-initial flex-shrink-0 justify-center mr-2 sm:mr-3">
+								<img src={app.iconUrl} width="128" height="128" class={app.hasIOSAppIcon ? 'p-[12px]' : ''}>
+							</div>
+							<div class="flex flex-col justify-center my-3 mr-2 sm:mt-[-1px]">
+								<div class="mb-0.5 text-2xl sm:text-3xl font-bold">{app.title}</div>
+								<div class="text-gray-700 dark:text-gray-200/80 text-lg sm:text-xl leading-tight">{app.subtitle}</div>
+								<div class="flex flex-wrap gap-1.5 mt-3 sm:mt-3 opacity-90">
+									{app.isNew && (
+										<span class={`${tagClass} bg-teal-100 dark:bg-teal-200`}>new!</span>
+									)}
+									{app.platforms.map(platform => (
+										<span class={`${tagClass} bg-sky-100/90 dark:bg-sky-200`}>{platform}</span>
+									))}
+									{!app.isPaid && (
+										<span class={`${tagClass} bg-gray-200/80 dark:bg-gray-200`}>free</span>
+									)}
+									{app.repoUrl && (
+										<span class={`${tagClass} bg-gray-200/80 dark:bg-gray-200`}>open-source</span>
+									)}
+								</div>
+							</div>
+						</a>
+					))
+				}
+			</section>
+		</section>
+	</div>
+<!-- 	<Fragment slot="title">
+		Quality crafted
+		<span class="bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-secondary-500">apps</span>
+	</Fragment> -->
+</Layout>

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+	<meta charset="utf-8">
+	<title>Redirecting…</title>
+	<link rel="canonical" href="https://sindresorhus.com/feedback">
+	<meta http-equiv="refresh" content="1; url=https://sindresorhus.com/feedback">
+	<script type="module" is:inline>
+		let url = 'https://sindresorhus.com/feedback';
+
+		if (location.search) {
+			url = url.replace(/($|#)/, `${location.search}$1`);
+		}
+
+		if (location.hash) {
+			url += location.hash;
+		}
+
+		location = url;
+	</script>
+	<h2>Redirecting…</h2>
+</html>

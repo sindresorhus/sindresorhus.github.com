@@ -1,0 +1,40 @@
+---
+import {SITE, BLOG} from '~/config.mjs';
+import Layout from '~/layouts/BlogLayout.astro';
+import BlogList from '~/components/blog/List.astro';
+import Pagination from '~/components/atoms/Pagination.astro';
+import {fetchPosts} from '~/utils/posts.js';
+import {BLOG_BASE} from '~/utils/permalinks.js';
+
+export async function getStaticPaths({paginate}) {
+	if (BLOG?.disabled || BLOG?.blog?.disabled) {
+		return [];
+	}
+
+	const posts = await fetchPosts();
+
+	return paginate(posts, {
+		params: {blog: BLOG_BASE || undefined},
+		pageSize: BLOG.postsPerPage,
+	});
+}
+
+const {page} = Astro.props;
+const currentPage = page.currentPage ?? 1;
+
+const meta = {
+	title: `Blog ${currentPage > 1 ? `— Page ${currentPage} ` : ''}— ${SITE.name}`,
+	description: SITE.description,
+	ogType: 'blog',
+	noindex: currentPage > 1,
+};
+---
+
+<Layout {meta}>
+	<Fragment slot="title">
+		News and step-by-step guides about
+		<span class="bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-secondary-500">Sindre Sorhus</span>
+	</Fragment>
+	<BlogList posts={page.data}/>
+	<Pagination prevUrl={page.url.prev} nextUrl={page.url.next}/>
+</Layout>

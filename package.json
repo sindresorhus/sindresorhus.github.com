@@ -1,0 +1,70 @@
+{
+	"private": true,
+	"engines": {
+		"node": ">=14.16"
+	},
+	"scripts": {
+		"dev": "astro dev",
+		"start": "astro dev",
+		"build": "xo && astro build",
+		"preview": "astro preview",
+		"test": "xo"
+	},
+	"devDependencies": {
+		"@astrojs/image": "^0.7.0",
+		"@astrojs/rss": "^1.0.2",
+		"@astrojs/sitemap": "^1.0.0",
+		"@astrojs/tailwind": "^2.0.2",
+		"@astrolib/seo": "^0.2.1",
+		"@tailwindcss/forms": "^0.5.3",
+		"@tailwindcss/typography": "^0.5.7",
+		"@typescript-eslint/parser": "^5.39.0",
+		"astro": "^1.4.6",
+		"astro-icon": "^0.7.3",
+		"eslint-plugin-astro": "^0.20.0",
+		"limax": "^v3.0.0",
+		"reading-time": "^1.5.0",
+		"remark-custom-heading-id": "^1.0.0",
+		"tailwindcss": "^3.1.8",
+		"typescript": "^4.8.4",
+		"xo": "^0.52.4"
+	},
+	"xo": {
+		"envs": [
+			"es2021",
+			"node",
+			"browser"
+		],
+		"globals": [
+			"Astro",
+			"Fragment"
+		],
+		"extensions": [
+			"astro"
+		],
+		"overrides": [
+			{
+				"files": [
+					"**/*.astro"
+				],
+				"parser": "astro-eslint-parser",
+				"parserOptions": {
+					"parser": "@typescript-eslint/parser"
+				},
+				"extraFileExtensions": [
+					".astro"
+				]
+			}
+		],
+		"rules": {
+			"unicorn/filename-case": "off",
+			"unicorn/text-encoding-identifier-case": "off",
+			"n/file-extension-in-import": "off",
+			"operator-linebreak": "off",
+			"jsx-quotes": [
+				"error",
+				"prefer-double"
+			]
+		}
+	}
+}

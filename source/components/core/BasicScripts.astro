@@ -1,0 +1,32 @@
+---
+---
+
+<script type="module" is:inline>
+	function attachEvent(selector, event, fn) {
+		const matches = document.querySelectorAll(selector);
+		if (matches?.length > 0) {
+			for (const element of matches) {
+				element.addEventListener(event, () => {
+					fn(element);
+				}, false);
+			}
+		}
+	}
+
+	window.onload = () => {
+		attachEvent('[data-toggle-menu]', 'click', element => {
+			element.classList.toggle('expanded');
+			document.body.classList.toggle('overflow-hidden');
+			document.getElementById('menu')?.classList.toggle('hidden');
+		});
+	};
+
+	window.onpageshow = () => {
+		const element = document.querySelector('[data-toggle-menu]');
+		if (element) {
+			element.classList.remove('expanded');
+		}
+		document.body.classList.remove('overflow-hidden');
+		document.getElementById('menu')?.classList.add('hidden');
+	};
+</script>
