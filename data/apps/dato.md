@@ -288,7 +288,7 @@ Dato supports opening calendar events directly in Calendar, Fantastical, BusyCal
 
 Open the Calendar app, open its “Preferences”, go to the “Accounts” tab, choose the relevant calendar service in the left sidebar, and then change the “Refresh Calendars” preference. Ideally, it should be set to “Push”, but not all services support that, like Google.
 
-<a id="notifications">
+<a id="notifications"></a>
 #### How can I get notifications for upcoming events?
 
 Dato does not support this as you can just set it up in the built-in Calendar app. Open the Calendar app's preferences, select the “Alerts” pane, and there you can choose when to be notified.
