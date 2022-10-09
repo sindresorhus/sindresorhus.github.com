@@ -9,8 +9,7 @@ appStoreId: 1569600264
 
 <br>
 
-<a id="faq"></a>
-### Frequently Asked Questions
+### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -28,15 +27,13 @@ The history is intentionally limited. Pandan is about time awareness right now, 
 
 This is unfortunately not possible as iOS does not let an app continuously check whether the user is idle.
 
-<a id="custom-notification-sound"></a>
-#### How can I play a custom sound as a notification?
+#### How can I play a custom sound as a notification? {#custom-notification-sound}
 
 Make a [shortcut](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) that uses the [`Play Sound` action](https://www.icloud.com/shortcuts/9cfae8edd2dd48f3bf318a3d825b1212) and then select that shortcut in the Pandan preferences.
 
 If you have my [Dato app](https://sindresorhus.com/dato) installed (even the free trial), you could use one of the sounds it provides. Find the `Get Sound` action. [Example](https://www.icloud.com/shortcuts/2bf58f1c90134803a4765745f54794f6)
 
-<a id="alert-as-notification"></a>
-#### How can I show an alert as a notification?
+#### How can I show an alert as a notification? {#alert-as-notification}
 
 Same as the above, but use the `Show Alert` action instead.
 
@@ -44,20 +41,17 @@ Same as the above, but use the `Show Alert` action instead.
 
 Pandan lets you run a single shortcut as a notification, but a shortcut can run other shortcuts. So make the shortcuts you want to run, make another shortcut that uses the “Run Shortcut” action to run the other shortcuts, and then select this shortcut in Pandan.
 
-<a id="eye-break-reminder"></a>
-#### How can I use this as an eye break reminder?
+#### How can I use this as an eye break reminder? {#eye-break-reminder}
 
 Set Pandan to remind you to take a break. Make a shortcut in the Shortcuts app that uses the “Wait” action and set it to the wanted duration of the break. After this action, you can either add a “Play Sound” or “Show Alert” action to notify you when the break is done. Then select this shortcut in the Pandan preferences.
 
-<a id="disable-for-certain-apps"></a>
-#### How can I disable Pandan while using certain apps?
+#### How can I disable Pandan while using certain apps? {#disable-for-certain-apps}
 
 You can use the Shortcuts app for this. Make a shortcut that uses the “Set Enabled State” action that Pandan provides. To automate running this shortcut when certain apps are active, you will need the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app. In the Shortery app, choose the “Application” trigger type, and then the “Active” or “Inactive” option.
 
 *Note that Pandan already disables itself when you are inactive.*
 
-<a id="countdown"></a>
-#### How can I show the total active duration today as a countdown?
+#### How can I show the total active duration today as a countdown? {#countdown}
 
 Get [this shortcut](https://www.icloud.com/shortcuts/fdf0cd45fedb4290bfe14d84a394b601) (requires the [Actions](https://sindresorhus.com/actions) and [One Thing](https://sindresorhus.com/one-thing) apps) and select it in the Pandan preferences. The countdown will update every time Pandan shows a notification. If you want the countdown to update more often, you will need to download the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app and set up an interval trigger.
 
@@ -85,15 +79,13 @@ I don't have any immediate plans to localize the app.
 
 <br>
 
-<a id="scripting"></a>
 ### Scripting
 
 Pandan comes bundled with actions for the built-in Shortcuts app which you can use to automate Pandan.
 
 Tip: You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
-<a id="shortcuts-use-cases"></a>
-#### Use-cases
+#### Use-cases {#shortcuts-use-cases}
 
 - [Play custom notification sound](#custom-notification-sound)
 - [Use Pandan as an eye break reminder](#eye-break-reminder)

@@ -13,8 +13,7 @@ Lungo is a macOS app that prevents your Mac from falling asleep and your screen 
 
 <br>
 
-<a id="faq"></a>
-### Frequently Asked Questions
+### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -43,8 +42,7 @@ Some things you could try:
 
 Go [here](https://apps.apple.com/app/id1263070803) and click “Version History”.
 
-<a id="lid-closed"></a>
-#### Does it work when the lid is closed?
+#### Does it work when the lid is closed? {#lid-closed}
 
 No, that’s not allowed for apps on the App Store, for good reasons. Imagine you activate it while your computer is doing a heavy task and then put the laptop in your bag. Your laptop could easily overheat.
 
@@ -58,8 +56,7 @@ If you have set a sleep schedule in “System Preferences › Battery › Schedu
 
 Yes, choose “Activate on Left-click” in the preferences.
 
-<a id="custom-duration"></a>
-#### Can I use a custom duration?
+#### Can I use a custom duration? {#custom-duration}
 
 Lungo comes with a set of commonly used durations, which should be enough for most users. People love Lungo for its simplicity. Lungo has tens of thousands of users and only a few people have requested a custom duration. However, power users can take advantage of the Shortcuts app to use custom durations. Drag the “Set Enabled State” Lungo action into the shortcut editor in the Shortcuts app. Click “Show more” and then choose a custom duration. You can pin the shortcut workflow to the menu bar for easy access or set a global keyboard shortcut for it.
 
@@ -75,7 +72,6 @@ I don't have any immediate plans to localize the app.
 
 Amphetamine has lots of features. Most of which I would never use. It ships with a myriad of menu bar icons to choose from, but none that looks good. With Lungo, I wanted a focused and simple app with great defaults.
 
-<a id="scripting"></a>
 ### Scripting
 
 You can control Lungo using anything that supports opening a URL with a custom scheme.

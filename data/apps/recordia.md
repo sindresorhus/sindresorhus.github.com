@@ -14,8 +14,7 @@ Record audio directly from the menu bar or with a global keyboard shortcut.
 
 <br>
 
-<a id="faq"></a>
-### Frequently Asked Questions
+### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -33,8 +32,7 @@ First, ensure the “Show recording in Finder after saving” preference is enab
 
 Preview the recording as described above and then click the trim button.
 
-<a id="record-system-audio"></a>
-#### How can I record system audio?
+#### How can I record system audio? {#record-system-audio}
 
 Recordia doesn't have a built-in way to record system audio because of App Store restrictions. However, you can achieve it by following the below steps:
 

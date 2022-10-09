@@ -11,15 +11,13 @@ appStoreId: 1632827132
 
 <br>
 
-<a id="faq"></a>
-### Frequently Asked Questions
+### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
 [Send it here.](https://sindresorhus.com/feedback?product=Camera%20Preview&referrer=Website-FAQ)
 
-<a href="photo-booth"></a>
-#### Why not just use Photo Booth?
+#### Why not just use Photo Booth? {#photo-booth}
 
 This app has some benefits:
 

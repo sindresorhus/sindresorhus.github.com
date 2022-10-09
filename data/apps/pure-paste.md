@@ -13,8 +13,7 @@ You can also choose to manually clear formatting whenever needed instead of auto
 
 <br>
 
-<a id="faq"></a>
-### Frequently Asked Questions
+### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -32,8 +31,7 @@ This is a known issue. It's really just a flaw in how the clipboard works. If yo
 
 For now, I suggest setting a keyboard shortcut for "Clear formatting and paste" and then turn off "Automatically clear formatting".
 
-<a id="clear-formatting-problem"></a>
-#### The app clears formatting when it shouldn't or doesn't clear formatting when it should
+#### The app clears formatting when it shouldn't or doesn't clear formatting when it should {#clear-formatting-problem}
 
 [Let me know.](https://sindresorhus.com/feedback?product=Pure%20Paste&referrer=Website-FAQ) I will fix it quickly, if possible.
 
@@ -66,8 +64,7 @@ After: `https://foo.com`
 
 Did you know that if you click a TikTok link that someone shared with you, they will be able to see that you watched it? Velja anonymizes TikTok links so that you will not be tracked.
 
-<a id="tracking-parameters-not-removed"></a>
-#### Tracking parameters are not removed
+#### Tracking parameters are not removed {#tracking-parameters-not-removed}
 
 First, make sure the setting to remove tracking parameters is enabled.
 
@@ -79,15 +76,13 @@ The app contains a list of tracking parameters to remove, but there may be site-
 
 In short, no. To preserve bold and italic, the app has to preserve the font too, and by preserving the font, it has to set a font name and size. This means the text will not match the destination formatting. Instead, for example, in Word, you can copy with formatting and select “Paste and Match Formatting”, which correctly preserves bold and italic while clearing color and sizes.
 
-<a id="word-bug"></a>
-#### I have “Preserve links” enabled, and when I paste into Word, it ends up with the “Times New Roman” font instead of the existing font
+#### I have “Preserve links” enabled, and when I paste into Word, it ends up with the “Times New Roman” font instead of the existing font {#word-bug}
 
 This is a bug in Word. Please upvote [this report](https://feedbackportal.microsoft.com/feedback/idea/614f1602-cdd8-ec11-a81b-000d3a03dba2).
 
 As a workaround, you can either disable the “Preserve links” setting or use “Paste and Match Formatting” in the “Edit” menu in Word.
 
-<a id="helvetica-bug"></a>
-#### I have “Preserve links” enabled, and when I paste into an app, it ends up with the “Helvetica” font instead of the existing font
+#### I have “Preserve links” enabled, and when I paste into an app, it ends up with the “Helvetica” font instead of the existing font {#helvetica-bug}
 
 This is a bug in macOS.
 
@@ -99,8 +94,7 @@ If you work for Apple or want to help out by duplicating my reports, see:
 - [FB10023420](https://github.com/feedback-assistant/reports/issues/306)
 - [FB10023393](https://github.com/feedback-assistant/reports/issues/305)
 
-<a id="office-apps"></a>
-#### Excel, Word, and PowerPoint are missing some actions in “Paste Options”
+#### Excel, Word, and PowerPoint are missing some actions in “Paste Options” {#office-apps}
 
 Pure Paste works by modifying the clipboard. Office hides most of the “Paste Options” actions if the clipboard is modified.
 
@@ -112,8 +106,7 @@ The solution is to either:
 
 Web apps do not follow the standard clipboard conventions that native desktop apps do. When you copy an image in Google Docs, it just puts a bunch of HTML code on the clipboard. Pure Paste cannot easily know it's an image you copied.
 
-<a id="figma"></a>
-#### The app does not clear formatting when copy-pasting rich text inside Figma
+#### The app does not clear formatting when copy-pasting rich text inside Figma {#figma}
 
 Web apps do not follow the standard clipboard conventions that native desktop apps do. When you copy some rich text in Figma, it just puts a bunch of HTML code on the clipboard. Pure Paste cannot easily know it's rich text you copied.
 

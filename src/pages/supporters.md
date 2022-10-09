@@ -135,6 +135,9 @@ None -->
 	<a href="https://www.stackaid.us" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/stackaid-logo.png" width="270" alt="StackAid">
 	</a>
+	<a href="https://github.com/jaredwray" class="sponsor" rel="nofollow" style="font-size: 36px">
+		<span class="dark:text-black">Jared Wray</span>
+	</a>
 </div>
 
 ## Top supporter <span class="reward-price not-prose">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>

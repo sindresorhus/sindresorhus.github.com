@@ -35,7 +35,6 @@ However, what you use this space for is really up to you.
 
 <br>
 
-<a id="tips"></a>
 ### Tips
 
 - Press <kbd>return</kbd>/<kbd>esc</kbd> or click the menu bar item to close the edit window.
@@ -48,8 +47,7 @@ However, what you use this space for is really up to you.
 
 <br>
 
-<a id="faq"></a>
-### Frequently Asked Questions
+### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -71,15 +69,13 @@ You can add a [link using Markdown](https://www.markdownguide.org/basic-syntax/#
 
 The point is to focus on one thing at a time. [Humans work best this way.](https://dariusforoux.com/one-thing/) However, nothing is stopping you from writing two things, for example, with a `·` character in-between.
 
-<a id="one-thing2"></a>
-#### Can I have two instances of One Thing running at the same time?
+#### Can I have two instances of One Thing running at the same time? {#one-thing2}
 
 I have made a special version of One Thing with a different identifier. You can run this together with the App Store version. It also has a separate URL scheme: `one-thing2:`. This version will not receive updates.
 
 [Download](https://github.com/sindresorhus/one-thing/files/9603759/One.Thing.2.app.zip)
 
-<a id="things"></a>
-#### How can I show the next task in the “Today” list in [Things](https://culturedcode.com/things/) in One Thing?
+#### How can I show the next task in the “Today” list in [Things](https://culturedcode.com/things/) in One Thing? {#things}
 
 You can use the macOS Shortcuts app for this. Things unfortunately does not have very good Shortcuts support ([Please tell them to improve that!](https://culturedcode.com/contact/)), so we have to resort to AppleScript to fetch the next task in the “Today” list. Here's an [example shortcut](https://www.icloud.com/shortcuts/62c0f5fc4d194b72a6f97ce8cedf698f).
 
@@ -119,7 +115,6 @@ I don't have any immediate plans to localize the app.
 
 <br>
 
-<a id="scripting"></a>
 ### Scripting
 
 One Thing can be automated using the Shortcuts app or with a custom URL scheme.

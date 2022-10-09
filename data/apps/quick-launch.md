@@ -16,8 +16,7 @@ For example, open google.com, launch TikTok, or run a shortcut to play a random 
 
 <br>
 
-<a id="faq"></a>
-### Frequently Asked Questions
+### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 

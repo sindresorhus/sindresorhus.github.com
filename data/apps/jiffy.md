@@ -23,7 +23,6 @@ Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found 
 
 <br>
 
-<a id="tips"></a>
 ### Tips
 
 <table>
@@ -41,7 +40,6 @@ Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found 
 
 <br>
 
-<a id="keyboard-shortcuts"></a>
 ### Keyboard shortcuts
 
 <table>
@@ -75,8 +73,7 @@ Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found 
 
 <br>
 
-<a id="faq"></a>
-### Frequently Asked Questions
+### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 

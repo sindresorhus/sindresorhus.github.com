@@ -4,6 +4,7 @@ import {defineConfig} from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import image from '@astrojs/image';
+import {remarkHeadingId} from 'remark-custom-heading-id';
 import {SITE} from './src/config.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -25,6 +26,11 @@ export default defineConfig({
 		sitemap(),
 		image(),
 	],
+	markdown: {
+		remarkPlugins: [
+			remarkHeadingId,
+		],
+	},
 	vite: {
 		resolve: {
 			alias: {

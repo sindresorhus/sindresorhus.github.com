@@ -12,8 +12,7 @@ Available on iOS and macOS (Apple Silicon only).
 
 <br>
 
-<a id="faq"></a>
-### Frequently Asked Questions
+### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 

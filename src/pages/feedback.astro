@@ -13,14 +13,14 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 ---
 
 <Layout {meta}>
-	<div id="main" class="flex flex-col md:min-h-screen max-w-3xl mx-auto px-8 mt-6 mb-16" class={proseCSS}>
+	<div id="main" class="flex flex-col sm:min-h-screen max-w-3xl mx-auto px-8 mt-6 mb-16" class={proseCSS}>
 		<div class="text-center">
 			<img id="app-icon" class="mx-auto mb-2" width="128" height="128">
 			<h1 id="product-name" class="text-4xl md:text-5xl font-bold leading-tighter tracking-tighter mb-2 font-heading"></h1>
 			<h2 class="text-2xl md:text-3xl leading-tighter tracking-tighter mb-8">Feedback & Support</h2>
 			<div id="additional-info" class={proseCSS} style="font-size:16px"></div>
 		</div>
-		<form id="feedback-form" class="mt-8" action="https://formcarry.com/s/UBfgr97yfY" method="POST" enctype="multipart/form-data">
+		<form id="feedback-form" class="mt-8" action="https://formcarry.com/s/UBfgr97yfY" method="POST" enctype="multipart/form-data" onsubmit="document.querySelector('#submit-button').disabled=true">
 			<input type="hidden" name="_gotcha">
 			<div class="mb-6">
 				<label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300" for="message">Message*</label>
@@ -37,7 +37,7 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 			<br>
 			<div class="mb-6">
 				<input type="hidden" id="captchaResponse" name="g-recaptcha-response">
-				<button class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-md w-full sm:w-auto px-6 py-3 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800" type="submit">Send Feedback</button>
+				<button id="submit-button" class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-md w-full sm:w-auto px-6 py-3 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 disabled:opacity-50 disabled:pointer-events-none" type="submit">Send Feedback</button>
 			</div>
 		</form>
 	</div>
@@ -47,7 +47,7 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 
 <script type="module" is:inline define:vars={{apps}}>
 	if (window.location.search === '?success') {
-		$('#main').html('<h1 class="text-2xl">Thanks for the feedback!</h1><p>You will now be redirected to my website.');
+		$('#main').html('<h1 class="text-2xl mx-auto my-20">Thanks for the feedback!</h1>');
 
 		setTimeout(() => {
 			window.location.href = 'https://sindresorhus.com/apps';

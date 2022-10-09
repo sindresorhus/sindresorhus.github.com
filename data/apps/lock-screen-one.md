@@ -15,8 +15,7 @@ The app provides Lock Screen widgets where you can write any kind of text. It co
 
 <br>
 
-<a id="faq"></a>
-### Frequently Asked Questions
+### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -36,9 +35,9 @@ This is a well known iOS 16 issue. [Try this.](https://webtrickz.com/third-party
 
 I would like to keep the app simple and only support one piece of text. It's kinda in the app name. However, the app comes with a shortcut action to change the text, so you could use the Shortcuts automations to change the text during the day.
 
-#### Can you add more fonts?
+#### Can you add support user-installed fonts?
 
-This app is meant to simply show readable notes, reminders, goal, etc, not to be a customization powerhouse. Check out [Widgetsmith](https://apps.apple.com/us/app/widgetsmith/id1523682319) if you need more creative freedom.
+This is unfortunately not possible as widgets cannot access user-installed fonts.
 
 #### The widget does not update if I write some text in the app and then reveal the Lock Screen
 

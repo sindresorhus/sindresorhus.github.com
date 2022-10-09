@@ -16,8 +16,7 @@ You can also open a URL or run a shortcut instead when tapping the widget. This 
 
 <br>
 
-<a id="faq"></a>
-### Frequently Asked Questions
+### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 

@@ -13,8 +13,7 @@ If you don't have any HEIC images, you can try the app out with [this one](/apps
 
 <br>
 
-<a id="faq"></a>
-### Frequently Asked Questions
+### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 

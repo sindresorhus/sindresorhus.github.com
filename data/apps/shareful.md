@@ -9,7 +9,6 @@ appStoreId: 1522267256
 
 <br>
 
-<a id="tips"></a>
 ### Tips
 
 <table>
@@ -22,8 +21,7 @@ appStoreId: 1522267256
 
 <br>
 
-<a id="faq"></a>
-### Frequently Asked Questions
+### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 

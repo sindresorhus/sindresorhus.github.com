@@ -9,25 +9,21 @@ appStoreId: 1596706466
 
 <br>
 
-<a id="faq"></a>
-### Frequently Asked Questions
+### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
 [Send it here.](https://sindresorhus.com/feedback?product=Speediness&referrer=Website-FAQ)
 
-<a id="different-result"></a>
-#### Why does it show different result from other tools?
+#### Why does it show different result from other tools? {#different-result}
 
 By default, tests are run in parallel to better reflect real-world situations (video chat and voice calls). Because of this, speeds may differ from other tools. You can change this in the preferences.
 
-<a id="ookla"></a>
-#### How does it compare to Speedtest by Ookla?
+#### How does it compare to Speedtest by Ookla? {#ookla}
 
 The Speedtest app uses a nearby server, which means the speed does not reflect real-world usage — it shows the most optimal scenario. Its requests are also often prioritized by ISPs, which skews the numbers even more. Speediness also looks more like a proper macOS app and it has support for Shortcuts.
 
-<a id="fast"></a>
-#### How does it compare to fast.com?
+#### How does it compare to fast.com? {#fast}
 
 The problem with fast.com is that it's run by Netflix, and Netflix's servers are often prioritized (and sometimes throttled), meaning you won't always get a realistic value. It pretty much gives you your speed for watching Netflix.
 
@@ -57,13 +53,11 @@ I have sent a [feature request to Apple](https://github.com/feedback-assistant/r
 
 Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet Speed” action into the shortcut editor. Enable the “Pin in Menu Bar” shortcut setting. You can now run speed tests directly from the Shortcuts icon in the menu bar.
 
-<a id="scheduled"></a>
-#### How can I run the speed test automatically every hour?
+#### How can I run the speed test automatically every hour? {#scheduled}
 
 Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet Speed” action into the shortcut editor. You may want to enable the “Add to History” action setting. [Get the Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12) and set it to run this shortcut every hour or at an interval of your choosing. (The Shortery app is only needed this year. It's almost certain that Apple will introduce automation for Shortcuts in macOS 13)
 
-<a id="ios"></a>
-#### Can you add support for iOS?
+#### Can you add support for iOS? {#ios}
 
 This is unfortunately not possible at this time as the app relies on the built-in [`networkQuality` command-line tool](https://support.apple.com/en-gb/HT212313), which does not exist on iOS. Someone would have to implement the [“Responsiveness under Working Conditions” RFC](https://github.com/network-quality/draft-ietf-ippm-responsiveness/blob/master/draft-ietf-ippm-responsiveness.txt) in Swift. [Reference implementation in Go.](https://github.com/network-quality/goresponsiveness) Let me know if you end up making a Swift package for this.
 

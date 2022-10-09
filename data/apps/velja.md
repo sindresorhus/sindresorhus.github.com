@@ -11,7 +11,6 @@ Open links in a specific browser or a matching native app. Easily switch between
 
 <br>
 
-<a id="help"></a>
 #### Help
 
 Please help out by starring these Chrome issues which would help Velja users:
@@ -21,7 +20,6 @@ Please help out by starring these Chrome issues which would help Velja users:
 
 <br>
 
-<a id="tips"></a>
 ### Tips
 
 #### Prompt
@@ -84,8 +82,7 @@ Let's say you have generated a website wrapper app for facebook.com using an app
 
 <br>
 
-<a id="faq"></a>
-### Frequently Asked Questions
+### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -128,8 +125,7 @@ After: `https://foo.com`
 
 Did you know that if you click a TikTok link that someone shared with you, they will be able to see that you watched it? Velja anonymizes TikTok links so that you will not be tracked.
 
-<a id="tracking-parameters-not-removed"></a>
-#### Tracking parameters are not removed
+#### Tracking parameters are not removed {#tracking-parameters-not-removed}
 
 First, make sure the setting to remove tracking parameters is enabled.
 
@@ -137,8 +133,7 @@ If the clicked/copied link is a short URL, Velja is only able to remove the trac
 
 The app contains a list of tracking parameters to remove, but there may be site-specific tracking parameters it doesn't know about. If you encounter any tracking parameters not being removed, [let me know](https://sindresorhus.com/feedback?product=Velja&referrer=Website-FAQ) and I'll add support for them.
 
-<a id="builtin-apps-requests"></a>
-#### Can you add another app to the “Apps” preferences?
+#### Can you add another app to the “Apps” preferences? {#builtin-apps-requests}
 
 I'm happy to consider requests (but read the below first). [Submit here.](https://sindresorhus.com/feedback?product=Velja&referrer=Website-FAQ)
 
@@ -160,8 +155,7 @@ However, some apps are not possible:
 
 If your favorite service is in the above list, I would recommend contacting them and asking them to support opening a link directly in their app. That means being able to run the command `open -a AppName https://foo.com/link-to-project-or-meeting`.
 
-<a id="firefox-containers"></a>
-#### Can you support [Firefox Multi-Account Containers](https://github.com/mozilla/multi-account-containers)?
+#### Can you support [Firefox Multi-Account Containers](https://github.com/mozilla/multi-account-containers)? {#firefox-containers}
 
 It's not feasible to support it built-in because of missing features:
 
@@ -177,20 +171,17 @@ However, I do plan to make it possible to achieve it using custom rules. The mis
 - Install: <https://github.com/honsiorovskyi/open-url-in-container>
 - Transform the input URL, for example, `https://a.com` to `ext+container:name=MyContainer&url=https://a.com&signature=ea7214f675398e93764ba44504070221633b0d5dce6c4263715f1cca89ab5f86`
 
-<a id="firefox-profiles"></a>
-#### Can you support Firefox profiles?
+#### Can you support Firefox profiles? {#firefox-profiles}
 
 I don't have any immediate plans to support this. There is currently very little demand for it and it's complicated to implement. I will consider it if there is more demand for it.
 
 I would recommend trying out containers instead (see above). *(Containers are not currently supported, but will be)*
 
-<a id="focus-mode"></a>
-#### Can the default browser change based on the active [focus mode](https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac)?
+#### Can the default browser change based on the active [focus mode](https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac)? {#focus-mode}
 
 You can use the Shortcuts app for this. Make a shortcut for each focus mode you want to handle, where you use the “Set Default Browser” action that Velja provides. You will need the [Shortery app](https://apps.apple.com/app/id1594183810) to automatically run these shortcuts when the focus mode changes.
 
-<a id="icloud"></a>
-#### Can you add iCloud syncing for the rules?
+#### Can you add iCloud syncing for the rules? {#icloud}
 
 iCloud syncing has been quite unreliable in the past year (hearing it from other app developers). Because of this, I don't plan to support iCloud syncing right now. I don't want my users to have a subpar experience and I don't want to deal with all the support that comes with it. I will reevaluate it again next year.
 
@@ -214,8 +205,7 @@ For all settings, [see this guide.](https://github.com/sindresorhus/guides/blob/
 
 It means [“to choose”](https://en.wiktionary.org/wiki/velja) in [Old Norse](https://www.discovermagazine.com/planet-earth/what-language-did-the-vikings-speak) (also Icelandic and Faroese). Hence the viking hat.
 
-<a id="choosy"><a>
-#### How does it compare to [Choosy](https://www.choosyosx.com)?
+#### How does it compare to [Choosy](https://www.choosyosx.com)? {#choosy}
 
 Velja benefits:
 
@@ -238,8 +228,7 @@ Choosy benefits:
 
 - More options for custom rules
 
-<a id="bumpr"><a>
-#### How does it compare to [Bumpr](https://www.getbumpr.com)?
+#### How does it compare to [Bumpr](https://www.getbumpr.com)? {#bumpr}
 
 Velja benefits:
 
@@ -265,8 +254,7 @@ Bumpr benefits:
 
 - Supports configuring primary email app
 
-<a id="openin"><a>
-#### How does it compare to [OpenIn](https://loshadki.app/openin/)?
+#### How does it compare to [OpenIn](https://loshadki.app/openin/)? {#openin}
 
 Velja benefits:
 
@@ -287,8 +275,7 @@ OpenIn benefits:
 
 - Supports configuring the primary app for more types, like email clients
 
-<a id="browserosaurus"><a>
-#### How does it compare to [Browserosaurus](https://github.com/will-stone/browserosaurus)?
+#### How does it compare to [Browserosaurus](https://github.com/will-stone/browserosaurus)? {#browserosaurus}
 
 Velja benefits:
 
@@ -335,8 +322,7 @@ I don't have any immediate plans to localize the app.
 
 <br>
 
-<a id="scripting"></a>
-### Scripting
+### Scripting {#scripting}
 
 The app can be automated using the Shortcuts app or with a custom URL scheme.
 
