@@ -7,5 +7,5 @@ platforms:
 repoUrl: https://github.com/sindresorhus/Pasteboard-Viewer
 appStoreId: 1499215709
 links:
-  'Older versions': https://github.com/sindresorhus/Pasteboard-Viewer#download
+  'Older Versions': https://github.com/sindresorhus/Pasteboard-Viewer#download
 ---

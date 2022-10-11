@@ -52,7 +52,7 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 <br>
 
-### Older versions
+### Older Versions
 
 - [Last macOS 11 compatible version](https://github.com/sindresorhus/meta/files/8800088/Shareful.1.6.0.-.macOS.11.zip) *(1.6.0)*
 - [Last macOS 10.15 compatible version](https://github.com/sindresorhus/meta/files/7119520/Shareful.1.4.0.-.macOS.10.15.zip) *(1.4.0)*

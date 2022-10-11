@@ -40,7 +40,7 @@ Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found 
 
 <br>
 
-### Keyboard shortcuts
+### Keyboard Shortcuts
 
 <table>
 	<tr>
@@ -101,7 +101,7 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 <br>
 
-### Older versions
+### Older Versions
 
 - [Last macOS 11 compatible version](https://github.com/sindresorhus/meta/files/7511993/Jiffy.2.1.1.-.macOS.11.zip) *(2.1.1)*
 - [Last macOS 10.15 compatible version](https://github.com/sindresorhus/meta/files/6626336/Jiffy.1.3.3.-.macOS.10.15.zip) *(1.3.3)*

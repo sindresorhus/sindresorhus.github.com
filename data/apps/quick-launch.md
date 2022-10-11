@@ -40,6 +40,10 @@ This is unfortunately not possible. iOS enforces that Lock Screen widgets are si
 
 Sure. I'm happy to consider requests. [Send it here.](https://sindresorhus.com/feedback?product=Quick%20Launch&referrer=Website-FAQ)
 
+#### How does it compare to other similar Lock Screen launchers?
+
+Quick Launch is completely free without ads. It can also open any app, not just from a predefined list. And it has more icon choices.
+
 #### When using the “Run Shortcut” action, why does tapping the widget first open the main app and then the Shortcuts app?
 
 This is because of iOS limitations. A widget can only open its own app when a user taps it. And the only way to run a shortcut is to open the Shortcuts app using a special URL. So when you tap the widget, the widget opens the main app, and the main app then opens the Shortcuts app. It's not a very good user-experience, but only Apple can fix this.

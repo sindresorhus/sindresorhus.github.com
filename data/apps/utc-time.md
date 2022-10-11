@@ -55,6 +55,6 @@ I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
 
 <br>
 
-### Older versions
+### Older Versions
 
 - [Last macOS 11 compatible version](https://github.com/sindresorhus/meta/files/8007477/UTC.Time.1.3.0.-.macOS.11.zip) *(1.3.0)*

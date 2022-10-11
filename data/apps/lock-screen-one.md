@@ -67,6 +67,10 @@ iOS forces the text to be the same style as the prefixed date. This is out of my
 
 Create a shortcut in the Shortcuts app that opens the app you want, then open “Lock Screen One”, go to one of the widgets, open settings, and set the tap action to the shortcut you just made.
 
+#### Can it do nothing when tapping the widget?
+
+iOS always opens the main app when you tap a widget. This is not something the app can control.
+
 #### Why is this free without ads?
 
 I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.

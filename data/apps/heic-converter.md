@@ -37,7 +37,7 @@ I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
 
 <br>
 
-### Older versions
+### Older Versions
 
 - [Last macOS 11 compatible version](https://github.com/sindresorhus/meta/files/9218007/HEIC.Converter.2.1.5.-.macOS.11.zip) *(2.1.5)*
 - [Last macOS 10.15 compatible version](https://github.com/sindresorhus/meta/files/8817868/HEIC.Converter.2.1.5.-.macOS.10.15.zip) *(2.1.5)*

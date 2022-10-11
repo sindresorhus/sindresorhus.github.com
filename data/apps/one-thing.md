@@ -150,7 +150,7 @@ open --background 'one-thing:?text=Exercise'
 
 <br>
 
-### Non-App Store version
+### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive updates.
 

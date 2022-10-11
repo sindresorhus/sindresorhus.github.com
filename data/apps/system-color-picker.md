@@ -7,5 +7,5 @@ platforms:
 repoUrl: https://github.com/sindresorhus/System-Color-Picker
 appStoreId: 1545870783
 links:
-  'Older versions': https://github.com/sindresorhus/System-Color-Picker#download
+  'Older Versions': https://github.com/sindresorhus/System-Color-Picker#download
 ---

@@ -100,13 +100,13 @@ Tip: You can [run shortcuts from the command-line](https://support.apple.com/gui
 
 <br>
 
-### Older versions
+### Older Versions
 
 - [Last macOS 11 compatible version](https://github.com/sindresorhus/meta/files/8003835/Pandan.1.9.1.-.macOS.11.zip) *(1.9.1)*
 
 <br>
 
-### Non-App Store version
+### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive updates.
 

@@ -53,7 +53,7 @@ I don't have any immediate plans to localize the app.
 
 <br>
 
-### Older versions
+### Older Versions
 
 - [Last macOS 11 compatible version (free)](https://github.com/sindresorhus/meta/files/8759816/Battery.Indicator.2.12.3.-.macOS.11.zip) *(2.12.3)*
 - [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/6565005/Battery.Indicator.2.7.1.-.macOS.10.15.zip) *(2.7.1)*

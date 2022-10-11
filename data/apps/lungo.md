@@ -160,7 +160,7 @@ subprocess.run(['open', '--background', 'lungo:toggle'])
 
 <br>
 
-### Older versions
+### Older Versions
 
 - [Last macOS 11 compatible version (free)](https://github.com/sindresorhus/meta/files/8870132/Lungo.2.0.4.-.macOS.11.zip) *(2.0.4)*
 - [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/7404362/Lungo.1.9.0.-.macOS.10.15.zip) *(1.9.0)*

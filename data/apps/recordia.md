@@ -70,7 +70,7 @@ Go [here](https://apps.apple.com/app/id1529006487) and click â€œVersion Historyâ
 
 <br>
 
-### Older versions
+### Older Versions
 
 - [Last macOS 11 compatible version (free)](https://github.com/sindresorhus/meta/files/8798113/Recordia.2.3.0.-.macOS.11.zip) *(2.3.0)*
 - [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/6538283/Recordia.1.5.1.-.macOS.10.15.zip) *(1.5.1)*

@@ -92,7 +92,7 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 
 <br>
 
-### Keyboard shortcuts
+### Keyboard Shortcuts
 
 <table>
 	<tr>
@@ -410,7 +410,7 @@ I open-source [most things](https://github.com/sindresorhus) I make, but I donâ€
 
 <br>
 
-### Older versions
+### Older Versions
 
 - [Last macOS 11 compatible version (free)](https://github.com/sindresorhus/meta/files/8935698/Dato.3.3.8.-.macOS.11.zip) *(3.3.8)*
 - [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/6758848/Dato.2.6.1.-.macOS.10.15.zip) *(2.6.1)*
