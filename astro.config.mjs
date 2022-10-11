@@ -5,13 +5,14 @@ import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import image from '@astrojs/image';
 import {remarkHeadingId} from 'remark-custom-heading-id';
-import {SITE} from './src/config.mjs';
+import {SITE} from './source/config.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://astro.build/config
 export default defineConfig({
 	site: SITE.origin,
+	srcDir: './source',
 	output: 'static',
 	trailingSlash: 'never',
 	build: {
@@ -34,7 +35,7 @@ export default defineConfig({
 	vite: {
 		resolve: {
 			alias: {
-				'~': path.resolve(__dirname, './src'),
+				'~': path.resolve(__dirname, './source'),
 			},
 		},
 	},

@@ -23,7 +23,7 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 #### Can you localize the app into my language?
 
-The date & time output adhere to your locale preferences. I have no plans to localize the app itself.
+The date & time output adhere to your locale settings. I have no plans to localize the app itself.
 
 #### UTC Time doesn't show up in the menu bar
 

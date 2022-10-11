@@ -13,6 +13,12 @@ You can also choose to manually clear formatting whenever needed instead of auto
 
 <br>
 
+#### Limitations
+
+Rich text copied from a different device will not have its formatting cleared because of a bug in Universal Clipboard.
+
+<br>
+
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -99,8 +105,8 @@ If you work for Apple or want to help out by duplicating my reports, see:
 Pure Paste works by modifying the clipboard. Office hides most of the “Paste Options” actions if the clipboard is modified.
 
 The solution is to either:
-1. Exclude the Office apps in the Pure Paste preferences.
-1. Turn off “Automatically Clear Formatting” and instead set a keyboard shortcut in the preferences. That way the clipboard stays unmodified until you use the keyboard shortcut to clear & paste.
+1. Exclude the Office apps in the Pure Paste settings.
+1. Turn off “Automatically Clear Formatting” and instead set a keyboard shortcut in the settings. That way the clipboard stays unmodified until you use the keyboard shortcut to clear & paste.
 
 #### The app does not clear formatting when copy-pasting an image inside Google Docs
 

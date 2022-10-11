@@ -17,7 +17,7 @@ appStoreId: 1596706466
 
 #### Why does it show different result from other tools? {#different-result}
 
-By default, tests are run in parallel to better reflect real-world situations (video chat and voice calls). Because of this, speeds may differ from other tools. You can change this in the preferences.
+By default, tests are run in parallel to better reflect real-world situations (video chat and voice calls). Because of this, speeds may differ from other tools. You can change this in the settings.
 
 #### How does it compare to Speedtest by Ookla? {#ookla}
 

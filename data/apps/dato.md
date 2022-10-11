@@ -12,11 +12,11 @@ Dato gives you a local clock, date, and multiple world clocks in the menu bar. W
 
 Dato is a one-time purchase with free upgrades forever. Dato will never be subscription-based.
 
-Dato supports all the locales and languages that macOS supports for the menu bar text, dates, times, and the calendar, but the menus and preferences are English-only.
+Dato supports all the locales and languages that macOS supports for the menu bar text, dates, times, and the calendar, but the menus and settings are English-only.
 
 [MacStories review of Dato.](https://www.macstories.net/reviews/dato-review-calendar-events-and-time-zones-from-your-macs-menu-bar/)
 
-Dato requires macOS 12.3 or later.
+Dato requires macOS 12.4 or later.
 
 <sup>**Want to see this app included in [Setapp](https://setapp.com)?** Help make it happen by [requesting it here](https://support.setapp.com/hc/en-us/articles/213780569-Can-I-suggest-an-app-).</sup>
 
@@ -51,7 +51,7 @@ Dato requires macOS 12.3 or later.
 
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.1.0-trial-1663055878). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.2.1-trial-1666446133). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 <br>
 
@@ -207,7 +207,7 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 It's unfortunately no longer possible to disable the built-in menu bar clock.
 
 However, you have some options:
-1. **(Recommended)** In “System Preferences › Dock & Menu Bar › Clock”, choose the analog clock and disable showing the date. This gets you the closest to how it was on macOS 10.15 as you can use Dato for both date and time. <img width="258" src="https://user-images.githubusercontent.com/170270/105505537-a5044800-5cfb-11eb-979b-7a0b109f0c93.png"><br>This has the added benefit that while the system clock [shows as disabled](https://user-images.githubusercontent.com/170270/105506021-2c51bb80-5cfc-11eb-84a6-79b62d69d4bc.png) when you enable “Do Not Disturb” (which makes it pretty unreadable), Dato always shows it the same way.
+1. **(Recommended)** In “System Settings › Control Center › Clock Options”, choose the analog clock and disable showing the date. This gets you the closest to how it was on macOS 10.15 as you can use Dato for both date and time. <img width="258" src="https://user-images.githubusercontent.com/170270/105505537-a5044800-5cfb-11eb-979b-7a0b109f0c93.png"><br>This has the added benefit that while the system clock [shows as disabled](https://user-images.githubusercontent.com/170270/105506021-2c51bb80-5cfc-11eb-84a6-79b62d69d4bc.png) when you enable “Do Not Disturb” (which makes it pretty unreadable), Dato always shows it the same way.
 2. Use Dato for showing the date and the built-in clock for the time.
 3. Only show an icon for Dato.
 
@@ -217,15 +217,15 @@ I have already [reported it to Apple](https://github.com/feedback-assistant/repo
 
 #### How can I add multiple time zones to the menu bar? {#time-zones-menu-bar}
 
-In the Dato preferences window, go to the “Time Zones” pane, add a time zone, and in the edit window, check “Show in menu bar”. Do the same with the other time zones you want to show in the menu bar. If you already have the time zones added, right-click a time zone, click “Edit”, and then check “Show in menu bar”.
+In the Dato settings, go to the “Time Zones” pane, add a time zone, and in the edit window, check “Show in menu bar”. Do the same with the other time zones you want to show in the menu bar. If you already have the time zones added, right-click a time zone, click “Edit”, and then check “Show in menu bar”.
 
 #### How can I toggle AM/PM for the time?
 
-Dato adheres to what you have set in “System Preferences › Language and Region”.
+Dato adheres to what you have set in “System Settings › General › Language and Region”.
 
 #### How can I change the first day of the week?
 
-Dato adheres to what you have set in “System Preferences › Language and Region”.
+Dato adheres to what you have set in “System Settings › General › Language and Region”.
 
 #### Can you integrate with Cron?
 
@@ -233,27 +233,27 @@ The integration is already done, but Cron has a multiple bugs that makes it not 
 
 #### Can you localize the app into my language?
 
-All the date and time output and the calendar adhere to your locale preferences. I have no plans to localize the app itself.
+All the date and time output and the calendar adhere to your locale settings. I have no plans to localize the app itself.
 
 #### I added a calendar to the Calendar app but it doesn't show up in Dato
 
-You need to enable the calendar in “Dato › Preferences › Events”.
+You need to enable the calendar in the Dato settings.
 
 #### Can you add support for Google Calendar / Outlook 365 / Exchange?
 
-It's already supported. Just add your calendars to the built-in Calendar app and then enable those calendars in the Dato preferences.
+It's already supported. Just add your calendars to the built-in Calendar app and then enable those calendars in the Dato settings.
 
 #### How can I customize the menu bar date and time format?
 
-If you just want to toggle a certain component, like date or time, use the checkboxes in the “General” preferences.
+If you just want to toggle a certain component, like date or time, see the “Menu Bar” pane in the Dato settings.
 
-If you want something more custom, go to “Dato › Preferences › Advanced”, and in the “Date & Time Format” text field, you can specify a [datetime pattern](https://nsdateformatter.com).
+If you want something more custom, go to “Date & Time Format” text field. You can specify a [datetime pattern](https://nsdateformatter.com).
 
 For example, you could display the full month name, the year, or the day of the year.
 
 #### How can I show the menu bar date and time in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format?
 
-Either change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340) or go to “Dato › Preferences › Advanced”, and in the “Date & Time Format” text field, write `YYYY-MM-DD  hh:mm:ss`.
+Either change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340) or go to the “Menu Bar” pane in the Dato settings, and in the “Date & Time Format” text field, write `YYYY-MM-DD  hh:mm:ss`.
 
 #### Why is Dato not showing week 53?
 
@@ -273,19 +273,19 @@ Change [this system setting](https://apple.stackexchange.com/questions/191445/st
 
 #### How can I open a calendar event in my favorite calendar app (Fantastical, BusyCal, etc.) instead of the built-in Calendar app?
 
-Dato uses the system default calendar app. To change the default calendar app, open the built-in Calendar app, open “Preferences…”, and in the “Default calendar app” preference, select the app you want.
+Dato uses the system default calendar app. To change the default calendar app, open the Calendar app's settings, and in the “Default calendar app” setting, select the app you want.
 
 Dato supports opening calendar events directly in Calendar, Fantastical, BusyCal, Outlook, and Google Calendar (web). For other apps, Dato will just open the app.
 
 #### How can I make my calendar refresh more often?
 
-Open the Calendar app, open its “Preferences”, go to the “Accounts” tab, choose the relevant calendar service in the left sidebar, and then change the “Refresh Calendars” preference. Ideally, it should be set to “Push”, but not all services support that, like Google.
+Open the Calendar app's settings, go to the “Accounts” pane, choose the relevant calendar service in the left sidebar, and then change the “Refresh Calendars” preference. Ideally, it should be set to “Push”, but not all services support that, like Google.
 
 #### How can I get notifications for upcoming events? {#notifications}
 
-Dato does not support this as you can just set it up in the built-in Calendar app. Open the Calendar app's preferences, select the “Alerts” pane, and there you can choose when to be notified.
+Dato does not support this as you can just set it up in the built-in Calendar app. Open the Calendar app's settings, select the “Alerts” pane, and there you can choose when to be notified.
 
-What Dato does support is showing a notification right when an event for a video call (Zoom/Meet/Teams) starts. The notification includes a button to join the video call directly. You can enable this notification in Dato's preferences. *(macOS 12 only)*
+What Dato does support is showing a notification right when an event for a video call (Zoom/Meet/Teams) starts. The notification includes a button to join the video call directly. You can enable this notification in the Dato settings.
 
 #### Where can I find the changelog?
 
@@ -301,13 +301,13 @@ I have no plans to add that, but you can make it work by unchecking the “Time�
 
 #### A calendar is missing
 
-First, ensure that you have added the calendar to the system. Open the built-in Calendar app, open its preferences, click the “Accounts” tab, and then check that the calendar is there. Dato can only show calendars added there.
+First, ensure that you have added the calendar to the system. Open the Calendar app's settings, click the “Accounts” pane, and then check that the calendar is there. Dato can only show calendars added there.
 
-If it exists in the Calendar app, open the Dato preferences, click the “Events” tab, and make sure the calendar is enabled.
+If it exists in the Calendar app, open the Dato settings, click the “Events” tab, and make sure the calendar is enabled.
 
 If it exists in the Calendar app but not in Dato, macOS might have corrupted some permissions. This is, unfortunately, a common problem. Try to reset the permissions for Dato. Quit Dato, open the Terminal app, and paste in the following command and press <kbd>Enter</kbd>:
 
-```
+```sh
 tccutil reset All com.sindresorhus.Dato
 ```
 
@@ -323,13 +323,13 @@ Try turning off the “Vibrancy” setting. You can also try increasing the text
 
 #### My Google Calendar does not update in Dato
 
-You might have to re-authenticate your Google account. Open the Calendar app, open “Preferences”, go to the “Accounts” tab, and try to remove and re-add the Google account.
+You might have to re-authenticate your Google account. Open the Calendar app's settings, go to the “Accounts” pane, and try to remove and re-add the Google account.
 
 #### Can I show UTC time in the menu bar?
 
 Yes
 
-1. Open the Dato preferences
+1. Open the Dato settings
 1. Go to the “Time Zones” pane
 1. Click the plus button
 1. Write “utc”

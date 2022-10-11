@@ -14,7 +14,7 @@ appStoreId: 1522267256
 <table>
 	<tr>
 		<td>
-			For apps with a “Share” menu item, you can trigger one of the share services directly with a global keyboard shortcut. To enable this, go to “System Preferences › Keyboard › Shortcuts › App Shortcuts”, click the plus button, choose “All Applications”, write the name of the share service in the “Menu Title” field (for example, “Save to Downloads”), set the keyboard shortcut, and then click “Add”.
+			For apps with a “Share” menu item, you can trigger one of the share services directly with a global keyboard shortcut. To enable this, go to “System Settings › Keyboard › Keyboard Shortcuts › App Shortcuts”, click the plus button, choose “All Applications”, write the name of the share service in the “Menu Title” field (for example, “Save to Downloads”), set the keyboard shortcut, and then click “Add”.
 		</td>
 	</tr>
 </table>

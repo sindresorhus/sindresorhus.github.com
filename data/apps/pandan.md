@@ -29,7 +29,7 @@ This is unfortunately not possible as iOS does not let an app continuously check
 
 #### How can I play a custom sound as a notification? {#custom-notification-sound}
 
-Make a [shortcut](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) that uses the [`Play Sound` action](https://www.icloud.com/shortcuts/9cfae8edd2dd48f3bf318a3d825b1212) and then select that shortcut in the Pandan preferences.
+Make a [shortcut](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) that uses the [`Play Sound` action](https://www.icloud.com/shortcuts/9cfae8edd2dd48f3bf318a3d825b1212) and then select that shortcut in the Pandan settings.
 
 If you have my [Dato app](https://sindresorhus.com/dato) installed (even the free trial), you could use one of the sounds it provides. Find the `Get Sound` action. [Example](https://www.icloud.com/shortcuts/2bf58f1c90134803a4765745f54794f6)
 
@@ -43,7 +43,7 @@ Pandan lets you run a single shortcut as a notification, but a shortcut can run 
 
 #### How can I use this as an eye break reminder? {#eye-break-reminder}
 
-Set Pandan to remind you to take a break. Make a shortcut in the Shortcuts app that uses the “Wait” action and set it to the wanted duration of the break. After this action, you can either add a “Play Sound” or “Show Alert” action to notify you when the break is done. Then select this shortcut in the Pandan preferences.
+Set Pandan to remind you to take a break. Make a shortcut in the Shortcuts app that uses the “Wait” action and set it to the wanted duration of the break. After this action, you can either add a “Play Sound” or “Show Alert” action to notify you when the break is done. Then select this shortcut in the Pandan settings.
 
 #### How can I disable Pandan while using certain apps? {#disable-for-certain-apps}
 
@@ -53,7 +53,7 @@ You can use the Shortcuts app for this. Make a shortcut that uses the “Set Ena
 
 #### How can I show the total active duration today as a countdown? {#countdown}
 
-Get [this shortcut](https://www.icloud.com/shortcuts/fdf0cd45fedb4290bfe14d84a394b601) (requires the [Actions](https://sindresorhus.com/actions) and [One Thing](https://sindresorhus.com/one-thing) apps) and select it in the Pandan preferences. The countdown will update every time Pandan shows a notification. If you want the countdown to update more often, you will need to download the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app and set up an interval trigger.
+Get [this shortcut](https://www.icloud.com/shortcuts/fdf0cd45fedb4290bfe14d84a394b601) (requires the [Actions](https://sindresorhus.com/actions) and [One Thing](https://sindresorhus.com/one-thing) apps) and select it in the Pandan settings. The countdown will update every time Pandan shows a notification. If you want the countdown to update more often, you will need to download the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app and set up an interval trigger.
 
 #### How can I start a new session from the command-line?
 

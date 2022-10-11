@@ -62,7 +62,7 @@ This is especially useful in combination with custom rules. For example, you cou
 
 If you have a document with many URLs you want to open. Select them, right-click, go to “Services”, and click “Open URLs with Velja”.
 
-*You may have to enable the service in “System Preferences › Keyboard › Shortcuts › Services”.*
+*You may have to enable the service in “System Settings › Keyboard › Keyboard Shortcuts › Services”.*
 
 #### Open link in an website-wrapper app
 
@@ -129,11 +129,11 @@ Did you know that if you click a TikTok link that someone shared with you, they 
 
 First, make sure the setting to remove tracking parameters is enabled.
 
-If the clicked/copied link is a short URL, Velja is only able to remove the tracking parameters if the “Expand short URLs” setting is enabled and it's a known short URL service or you added the short URL service in the “Advanced” preferences pane.
+If the clicked/copied link is a short URL, Velja is only able to remove the tracking parameters if the “Expand short URLs” setting is enabled and it's a known short URL service or you added the short URL service in the “Advanced” settings pane.
 
 The app contains a list of tracking parameters to remove, but there may be site-specific tracking parameters it doesn't know about. If you encounter any tracking parameters not being removed, [let me know](https://sindresorhus.com/feedback?product=Velja&referrer=Website-FAQ) and I'll add support for them.
 
-#### Can you add another app to the “Apps” preferences? {#builtin-apps-requests}
+#### Can you add another app to the “Apps” settings? {#builtin-apps-requests}
 
 I'm happy to consider requests (but read the below first). [Submit here.](https://sindresorhus.com/feedback?product=Velja&referrer=Website-FAQ)
 
@@ -191,11 +191,33 @@ Velja does support exporting and importing rules manually.
 
 I don't have any immediate plans to add this. I recommend giving the horizontal prompt a try. A lot of users found it to work better than vertical/circular.
 
+#### How can I see what URL Velja received?
+
+Quit Velja if it's open. Press <kbd>Shift</kbd> + <kbd>Control</kbd> while launching Velja, click the menu bar icon, click “Debug”, and then go to “Logs”.
+
+#### Velja does not show browsers from the user “~/Applications” folder?
+
+Apple generally recommends putting apps in the global “/Applications” folder. Third-party apps like Velja get automatic access to this one, but not to the user “~/Applications” folder.
+
+Velja does prompt for permission to the user “~/Applications” folder on the first launch if it exists. But if you created it later on or did not get the prompt for some reason, you can force it. Quit Velja, then launch Velja while pressing <kbd>Control</kbd> + <kbd>Option</kbd>.
+
 #### How can I export, import, sync, or backup the settings?
 
 You can export/import rules in the settings.
 
 For all settings, [see this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
+
+#### Can you support browser profiles for the [Arc](https://thebrowser.company) browser? {#arc}
+
+The Arc browser is based on Chrome, so you may think that it should just work with browser profiles in Velja. Unfortunately, Arc doesn't yet support the `--profile-directory` command-line flag. So while Velja is able to fetch the profiles, it's not able to actually use them.
+
+I recommend sending them feedback about this. Either through the feedback button in Arc or at [hello@thebrowser.company](mailto:hello@thebrowser.company).
+
+For example, this command should have opened the URL in the given profile:
+
+```sh
+open -b company.thebrowser.Browser --new --args --profile-directory "User Data/Profile 1" https://sindresorhus.com
+```
 
 #### How do I disable Velja?
 

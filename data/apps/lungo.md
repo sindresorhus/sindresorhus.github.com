@@ -54,7 +54,15 @@ If you have set a sleep schedule in “System Preferences › Battery › Schedu
 
 #### Can I left-click the icon to toggle it like with Caffeine?
 
-Yes, choose “Activate on Left-click” in the preferences.
+Yes, choose “Activate on Left-click” in the settings.
+
+#### Can Lungo automatically activate when I open a certain app?
+
+I don't have any immediate plans to support this. It's a lot of work to implement and few people have requested it.
+
+However, you can achieve it using the Shortcuts app. Create a new shortcut with the “Set Enabled State” action provided by Lungo. Shortcuts on iOS has automations, which lets you run a shortcut when a certain app opens. macOS does not yet have automations. I'm confident it will come with macOS 14. In the meantime, you can use the [Shortery app](https://apps.apple.com/us/app/shortery/id1594183810?mt=12) to run a shortcut when a certain app opens.
+
+You could also use BetterTouchTool or Keyboard Maestro instead of Shortery.
 
 #### Can I use a custom duration? {#custom-duration}
 
