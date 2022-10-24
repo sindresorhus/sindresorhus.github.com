@@ -268,7 +268,6 @@ None -->
 - [@macandcheese-spaghetticode](https://github.com/macandcheese-spaghetticode)
 - [John Bohannon](https://github.com/imjohnbo)
 - [Zentered](https://github.com/zentered)
-- [Axel Rindle](https://github.com/axelrindle)
 - [Faraz Patankar](https://github.com/FarazPatankar)
 - [Ilias Aboubeker](https://github.com/samyilias)
 - [Faraz Patankar](https://github.com/FarazPatankar)
@@ -276,9 +275,11 @@ None -->
 - [Gregor Adams](https://github.com/pixelass)
 - [@cburatto](https://github.com/cburatto)
 - [Zenika](https://github.com/Zenika)
-- [FlawCra](https://github.com/FlawCra)
 - [Ryan Atkinson](https://github.com/ryanatkn)
 - [DevUtilsApp](https://github.com/DevUtilsApp)
+- [Gary Ho](https://github.com/GreenSleepes)
+- [Marmalade](https://github.com/withmarmalade)
+- [Ivan Miskovic](https://github.com/ivantm)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:11px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -398,6 +399,8 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Joël Galeran](https://github.com/Jolg42)
 - [Ideal Postcodes](https://github.com/ideal-postcodes)
 - [Noah Klayman](https://github.com/nklayman)
+- [FlawCra](https://github.com/FlawCra)
+- [Axel Rindle](https://github.com/axelrindle)
 
 ---
 

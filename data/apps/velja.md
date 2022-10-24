@@ -11,6 +11,16 @@ Open links in a specific browser or a matching native app. Easily switch between
 
 <br>
 
+#### Example use-cases
+
+- Use Safari as your primary browser but open Google Meet links in Chrome
+- Open links to figma.com directly in the Figma desktop app
+- Open links to the internal company website in Firefox
+- Open Zoom meeting invitations directly in the desktop Zoom app
+- Open all links clicked in the Slack app in your Chrome work profile
+
+<br>
+
 #### Help
 
 Please help out by starring these Chrome issues which would help Velja users:
@@ -106,6 +116,10 @@ If you use a browser where Velja does not have a browser extension, you could al
 
 Velja also comes with a [system service](https://www.computerworld.com/article/2476298/os-x-a-quick-guide-to-services-on-your-mac.html). However, neither Safari ([issue](https://github.com/feedback-assistant/reports/issues/304)) or Chrome ([issue](https://bugs.chromium.org/p/chromium/issues/detail?id=1325557)) correctly sends links to a system service, so it cannot be used for this purpose.
 
+**I clicked a link in VS Code**
+
+VS Code [does not open the system default browser](https://github.com/microsoft/vscode/issues/96132) when you click a link in the app. Because of this, Velja is not used.
+
 **I clicked a short URL**
 
 If the link is a [short URL](https://en.wikipedia.org/wiki/URL_shortening), make sure the “Expand short URLs” setting is enabled and the URL shortening service is either in the built-in list or added by you. Velja is only able to do its matching when it receives the resolved URL.
@@ -113,6 +127,12 @@ If the link is a [short URL](https://en.wikipedia.org/wiki/URL_shortening), make
 **My custom rule did not work**
 
 Make sure it's none of the above cases. Also make sure you have added a “Sample URL” to the rule to confirm your match pattern is correct.
+
+Some apps use a redirect URL for tracking purposes. Velja has built-in support for a lot of redirect services and it also tries to resolve URLs to their final destination. However, some redirects cannot be resolved by Velja. This is the case with some links clicked in Slack as they require the login token to be able to redirect. There is unfortunately nothing I can do about that.
+
+See [this](#debug) for how to debug what URLs Velja receive.
+
+If the redirect URL contains the destination URL (usually in a search parameter), contact me and I will add support for it.
 
 #### What are tracking parameters and why would I want to remove them?
 
@@ -191,7 +211,7 @@ Velja does support exporting and importing rules manually.
 
 I don't have any immediate plans to add this. I recommend giving the horizontal prompt a try. A lot of users found it to work better than vertical/circular.
 
-#### How can I see what URL Velja received?
+#### How can I see what URL Velja received? {#debug}
 
 Quit Velja if it's open. Press <kbd>Shift</kbd> + <kbd>Control</kbd> while launching Velja, click the menu bar icon, click “Debug”, and then go to “Logs”.
 
@@ -218,6 +238,10 @@ For example, this command should have opened the URL in the given profile:
 ```sh
 open -b company.thebrowser.Browser --new --args --profile-directory "User Data/Profile 1" https://sindresorhus.com
 ```
+
+#### Can you support browser profiles for the [Orion](https://browser.kagi.com) browser? {#orion}
+
+This can be resolved by the Orion browser itself. [Vote up this issue.](https://orionfeedback.org/d/3445-profile-proxy-app-should-identify-itself-as-a-browser)
 
 #### How do I disable Velja?
 

@@ -1,7 +1,7 @@
 ---
 title: Quick Launch
 subtitle: Open websites, apps, and shortcuts from the Lock Screen
-date: 2023-09-28
+date: 2022-09-28
 platforms:
   - iOS
   # - macOS (Apple silicon)
@@ -12,7 +12,7 @@ Open websites, launch apps, and run shortcuts directly from your Lock Screen.
 
 For example, open google.com, launch TikTok, or run a shortcut to play a random music playlist.
 
-*iPhone-only for now. iPad version will come later this year.*
+*iPhone-only for now. iPad version will come when iPadOS supports Lock Screen widgets (probably iPadOS 17).*
 
 <br>
 

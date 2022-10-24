@@ -19,8 +19,8 @@ Make sure you read the below tips and FAQ.
 
 ### Tips
 
-- Click a file or folder in the menu to open it.
-- Click a file or folder while pressing the <kbd>Option</kbd> key to show it in Finder.
+- Click a file or folder in the menu to open it. Folders open in Finder.
+- Click a file while pressing the <kbd>Option</kbd> key to show it in Finder.
 - Click the folder title ([the top menu item](https://dsc.cloud/sindresorhus/Screen-Shot-2022-04-22-at-00.49.49-1650563404)) to open the folder.
 - You can drag and drop the file thumbnail in the file submenu. Press the <kbd>Option</kbd> key while dragging to copy instead of moving.
 - Just start typing when the menu is open to search for a file or folder.
@@ -34,6 +34,10 @@ Make sure you read the below tips and FAQ.
 ##### Links
 
 You can use Folder Peek to access links too. Drag and drop the URL from the Safari address bar into a folder. You will end up with a file with a `.webloc` extension. When you click that file in Folder Peek, it will open in your browser.
+
+##### Desktop folder
+
+You could add the “Desktop” folder to Folder Peek and then [hide the desktop icons](https://beebom.com/how-hide-desktop-icons-mac/) for a cleaner look.
 
 <br>
 

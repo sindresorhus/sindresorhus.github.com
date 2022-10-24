@@ -12,7 +12,7 @@ Call or message your favorite people directly from the Lock Screen or Home Scree
 
 You can also open a URL or run a shortcut instead when tapping the widget. This opens up a lot of cool possibilities. Here are [some ideas](https://github.com/bhagyas/app-urls) of what you could open.
 
-*iPhone-only for now. iPad version will come later this year.*
+*iPhone-only for now. iPad version will come when iPadOS supports Lock Screen widgets (probably iPadOS 17).*
 
 <br>
 

@@ -21,7 +21,7 @@ const image =
 			? new URL(getRelativeUrlByFilePath(_image.src), Astro.site)
 			: null);
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const canonicalURL = new URL(Astro.url.pathname.replace(/\.html$/, ''), Astro.site);
 ---
 
 <meta charset="utf-8">

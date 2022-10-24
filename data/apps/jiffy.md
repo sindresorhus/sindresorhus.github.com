@@ -105,3 +105,13 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 - [Last macOS 11 compatible version](https://github.com/sindresorhus/meta/files/7511993/Jiffy.2.1.1.-.macOS.11.zip) *(2.1.1)*
 - [Last macOS 10.15 compatible version](https://github.com/sindresorhus/meta/files/6626336/Jiffy.1.3.3.-.macOS.10.15.zip) *(1.3.3)*
+
+<br>
+
+### Non-App Store Version
+
+A special version for users that cannot access the App Store. It won't receive updates.
+
+[Download](https://dsc.cloud/sindresorhus/Jiffy-2.4.0-1667392853) *(2.4.0)*
+
+*Requires macOS 12 or later*

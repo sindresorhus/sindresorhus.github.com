@@ -68,7 +68,7 @@ Pure Paste supports 200+ common tracking parameters (e.g. Google UTM) and it has
 Before: `https://foo.com?utm_content=buffercf3b2&utm_source=snapchat.com`\
 After: `https://foo.com`
 
-Did you know that if you click a TikTok link that someone shared with you, they will be able to see that you watched it? Velja anonymizes TikTok links so that you will not be tracked.
+Did you know that if you click a TikTok link that someone shared with you, they will be able to see that you watched it? Pure Paste anonymizes TikTok links so that you will not be tracked.
 
 #### Tracking parameters are not removed {#tracking-parameters-not-removed}
 
@@ -119,6 +119,14 @@ Web apps do not follow the standard clipboard conventions that native desktop ap
 #### The app does not preserve links when pasting into Google Docs even with the “Preserve links” setting enabled
 
 There is a [problem with Google Docs](https://webapps.stackexchange.com/questions/69248/is-there-a-way-to-paste-rtf-text-into-google-document) where it strips links from rich text content. It happens even without Pure Paste. Web apps are generally bad at following platform conventions.
+
+#### Copying a cell with a formula in Numbers or Excel looses the formula {#numbers-formula}
+
+Pure Paste clears formatting by replacing the clipboard with a plain text version (this is the only reliable way to clear formatting). However, some apps store metadata in on the clipboard, and in this specific case, these apps store the formula as metadata in the clipboard, which is then lost. There is no way reliable way to detect this.
+
+The solution is to either:
+1. Skip clearing formatting for just this copy (see instructions in the app settings).
+1. Exclude the app in the Pure Paste settings.
 
 #### Does it respect [nspasteboard.org](http://nspasteboard.org) conventions?
 

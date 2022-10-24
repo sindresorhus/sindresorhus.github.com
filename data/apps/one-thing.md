@@ -9,7 +9,7 @@ appStoreId: 1604176982
 
 ---
 
-**You may also like [my similar app](https://sindresorhus.com/lock-screen-one) for the iOS Lock Screen.**
+**You may also like [my similar app](/any-text) for the iOS Lock Screen.**
 
 ---
 
@@ -88,6 +88,10 @@ Do something similar to the above answer.
 #### How can I put spacing on the sides of the text?
 
 You can add some horizontal padding around the text by adding multiple spaces to the “Prefix” and “Suffix” settings.
+
+#### How can I show different text for each day of the week?
+
+You can use the macOS Shortcuts app for this. Make a shortcut for each piece of text you want shown by using the “Set Text” action provided by One Thing. Shortcuts does not yet support automation (it most likely will in macOS 14), so for now we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to schedule these shortcuts to run at the specific days.
 
 #### Can you add iOS / watchOS support?
 

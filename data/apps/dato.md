@@ -51,7 +51,7 @@ Dato requires macOS 12.4 or later.
 
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.2.1-trial-1666446133). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.3.0-trial-1668009725). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 <br>
 
@@ -202,6 +202,10 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
 
+#### How can I open meeting links (Google Meet, Zoom, Microsoft Teams, etc.) in a specific browser?
+
+Check out my free [Velja app](https://sindresorhus.com/velja). It has built-in support for this without any setup. It can even open links to Zoom and Microsoft Teams directly in their desktop app.
+
 #### How can I hide the built-in menu bar clock on macOS 11 or later? {#macos11-hide-clock}
 
 It's unfortunately no longer possible to disable the built-in menu bar clock.
@@ -235,13 +239,13 @@ The integration is already done, but Cron has a multiple bugs that makes it not 
 
 All the date and time output and the calendar adhere to your locale settings. I have no plans to localize the app itself.
 
-#### I added a calendar to the Calendar app but it doesn't show up in Dato
+#### I added a calendar to the Calendar app but it doesn't show up in the app
 
 You need to enable the calendar in the Dato settings.
 
 #### Can you add support for Google Calendar / Outlook 365 / Exchange?
 
-It's already supported. Just add your calendars to the built-in Calendar app and then enable those calendars in the Dato settings.
+It's already supported. Just add your calendars to the built-in Calendar app and then enable those calendars in the app settings.
 
 #### How can I customize the menu bar date and time format?
 
@@ -277,6 +281,8 @@ Dato uses the system default calendar app. To change the default calendar app, o
 
 Dato supports opening calendar events directly in Calendar, Fantastical, BusyCal, Outlook, and Google Calendar (web). For other apps, Dato will just open the app.
 
+**Note:** If the above instructions don't work, it means [this macOS bug](https://github.com/feedback-assistant/reports/issues/290) is still not resolved. The bug makes the default calendar setting not work. To work around this, drag an event from the Calendar app into Finder, right-click on it, select “Get Info”, select your calendar in the “Open with” field, and click “Change All”.
+
 #### How can I make my calendar refresh more often?
 
 Open the Calendar app's settings, go to the “Accounts” pane, choose the relevant calendar service in the left sidebar, and then change the “Refresh Calendars” preference. Ideally, it should be set to “Push”, but not all services support that, like Google.
@@ -295,7 +301,7 @@ Go [here](https://apps.apple.com/app/id1470584107) and click “Version History�
 
 I have no plans to add that, but you can make it work by unchecking the “Time” preference in Dato and keep the system clock in analog mode.
 
-#### Can you add support for flashing the time separator like the system clock?
+#### Can you add support for flashing the time separator like the system clock?
 
 I have no plans to add that, but you can make it work by unchecking the “Time” preference in Dato and keep the system clock.
 
@@ -321,7 +327,7 @@ This is unfortunately not possible as Dato uses a menu, not a popover, which can
 
 Try turning off the “Vibrancy” setting. You can also try increasing the text size with the “Larger text” setting.
 
-#### My Google Calendar does not update in Dato
+#### My Google Calendar does not update in the app
 
 You might have to re-authenticate your Google account. Open the Calendar app's settings, go to the “Accounts” pane, and try to remove and re-add the Google account.
 
@@ -357,36 +363,6 @@ No, but you can make it white/black by turning off the “Vibrancy” setting.
 #### How can I export, import, sync, or backup the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
-
-#### How can I open meeting links (Google Meet, Zoom, Microsoft Teams, etc.) in a specific browser?
-
-Check out my free [Velja app](https://sindresorhus.com/velja). It has built-in support for this without any setup.
-
----
-
-For Google Meet, you could also use the [Finicky app](https://github.com/johnste/finicky) with this config:
-
-```js
-module.exports = {
-	defaultBrowser: 'Firefox',
-	handlers: [
-		{
-			browser: 'Google Chrome',
-			match: [
-				'https://meet.google.com/*'
-			]
-		},
-		{
-			browser: 'Google Chrome',
-			match: ({url}) => {
-				return url.host == 'accounts.google.com'
-					&& url.pathname == '/AccountChooser'
-					&& /continue=https%3A%2F%2Fmeet\.google\.com/.test(url.search);
-			}
-		}
-	]
-};
-```
 
 #### How is this different from Fantastical?
 

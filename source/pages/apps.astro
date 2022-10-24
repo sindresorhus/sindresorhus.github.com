@@ -38,10 +38,10 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 							<div class="flex-initial flex-shrink-0 justify-center mr-2 sm:mr-3">
 								<img src={app.iconUrl} width="128" height="128" class={app.hasIOSAppIcon ? 'p-[12px]' : ''}>
 							</div>
-							<div class="my-3 mr-2 sm:mt-[-1px]">
+							<div class="flex flex-col justify-center my-3 mr-2 sm:mt-[-1px]">
 								<div class="mb-0.5 text-2xl sm:text-3xl font-bold">{app.title}</div>
 								<div class="text-gray-700 dark:text-gray-200/80 text-lg sm:text-xl leading-tight">{app.subtitle}</div>
-								<div class="flex gap-x-1.5 mt-3 sm:mt-3 opacity-90">
+								<div class="flex flex-wrap gap-1.5 mt-3 sm:mt-3 opacity-90">
 									{app.isNew && (
 										<span class={`${tagClass} bg-teal-100 dark:bg-teal-200`}>new!</span>
 									)}
