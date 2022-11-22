@@ -9,6 +9,8 @@ appStoreId: 1607635845
 
 Open links in a specific browser or a matching native app. Easily switch between browsers.
 
+[In-depth review of Velja.](https://www.podfeet.com/blog/2022/11/velja/)
+
 <br>
 
 #### Example use-cases
@@ -90,6 +92,24 @@ Let's say you have generated a website wrapper app for facebook.com using an app
 - [Chrome](https://chrome.google.com/webstore/detail/velja/gpipdgcamiclkcomcnogmlfpalggmcmk) — Also works in Edge, Brave, and other Chromium-based browsers.
 - *Firefox support is planned, but will take a while.*
 
+#### Open the current website in a different browser
+
+For example, you are surfing a website in Safari and want to open it in Chrome.
+
+You could enable the Velja browser extension and then click the toolbar icon in your browser to show the Velja browser prompt.
+
+You could also show the browser prompt when pressing a keyboard shortcut:
+- Add [this shortcut](https://www.icloud.com/shortcuts/6c2d3793f101447dad449e83bde8d967).
+	- If your browser is not Safari, change the app name in the shortcut.
+- Add a keyboard shortcut to the shortcut config.
+- Pressing the configured keyboard shortcut will now show the browser prompt.
+
+If you want to open the website in a specific browser directly instead of showing the browser prompt, add [this shortut](https://www.icloud.com/shortcuts/d3f833d1a1334d169ccefe26fa0ec240) instead.
+
+#### Launch browsers
+
+Hold the <kbd>Option</kbd> when clicking a browser in the Velja menu to launch it instead of setting it as the current browser.
+
 <br>
 
 ### Frequently Asked Questions {#faq}
@@ -124,6 +144,7 @@ VS Code [does not open the system default browser](https://github.com/microsoft/
 
 If the link is a [short URL](https://en.wikipedia.org/wiki/URL_shortening), make sure the “Expand short URLs” setting is enabled and the URL shortening service is either in the built-in list or added by you. Velja is only able to do its matching when it receives the resolved URL.
 
+<a id="custom-rule-problem"></a>
 **My custom rule did not work**
 
 Make sure it's none of the above cases. Also make sure you have added a “Sample URL” to the rule to confirm your match pattern is correct.
@@ -165,13 +186,13 @@ I'm happy to consider requests (but read the below first). [Submit here.](https:
 
 However, some apps are not possible:
 - Slack
-  + *The Slack app does not accept a normal deep link (example: `https://team-name.slack.com/archives/CKPE4C/p161643063559`). It only accepts a special Slack-specific URL. To be able to convert a normal Slack link to one that the desktop app accepts, we would need get the team ID from the Slack API and that requires authentication. It's simply not feasible to do this. __Please do send feedback to Slack asking them to accept a normal link, like most other apps support.__*
+	+ [Explanation.](#slack)
 - Cisco Webex
-  + *[Comment here](https://github.com/johnste/finicky/discussions/228) if you know how to do this.*
+	+ *[Comment here](https://github.com/johnste/finicky/discussions/228) if you know how to do this.*
 - [MURAL](https://mural.co)
-  + The app has no support for opening URLs from the web version.
+	+ The app has no support for opening URLs from the web version.
 - [GitHub Desktop](https://github.com/desktop/desktop)
-  + The app only accepts a link to a repo to clone. This is not very useful in practice.
+	+ The app only accepts a link to a repo to clone. This is not very useful in practice.
 
 If your favorite service is in the above list, I would recommend contacting them and asking them to support opening a link directly in their app. That means being able to run the command `open -a AppName https://foo.com/link-to-project-or-meeting`.
 
@@ -197,6 +218,18 @@ I don't have any immediate plans to support this. There is currently very little
 
 I would recommend trying out containers instead (see above). *(Containers are not currently supported, but will be)*
 
+#### I opened a link in the background but it brought Chrome to the foreground
+
+Chrome does not properly respect opening URLs in the background (it generally does not respect platform conventions). This can be reproduced even without Velja by setting Chrome as the system default browser in the System Settings and then running the following in the Terminal:
+
+```sh
+open --background 'https://sindresorhus.com'
+```
+
+#### Can you add support for opening Slack links in the Slack desktop app? {#slack}
+
+This is currently not possible. The Slack app does not accept a normal deep link (example: `https://team-name.slack.com/archives/CKPE4C/p161643063559`). It only accepts a special Slack-specific URL. To be able to convert a normal Slack link to one that the desktop app accepts, we would need get the team ID from the Slack API and that requires authentication. It's simply not feasible to do this. **Please do send feedback to Slack asking them to accept a normal link, like most other apps support.**
+
 #### Can the default browser change based on the active [focus mode](https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac)? {#focus-mode}
 
 You can use the Shortcuts app for this. Make a shortcut for each focus mode you want to handle, where you use the “Set Default Browser” action that Velja provides. You will need the [Shortery app](https://apps.apple.com/app/id1594183810) to automatically run these shortcuts when the focus mode changes.
@@ -213,7 +246,9 @@ I don't have any immediate plans to add this. I recommend giving the horizontal 
 
 #### How can I see what URL Velja received? {#debug}
 
-Quit Velja if it's open. Press <kbd>Shift</kbd> + <kbd>Control</kbd> while launching Velja, click the menu bar icon, click “Debug”, and then go to “Logs”.
+In the advanced settings, enable “Show last opened link” setting, and the click the link. The URL will show up there.
+
+To see more detailed debug info on how Velja handled the URL: Quit Velja if it's open. Press <kbd>Shift</kbd> + <kbd>Control</kbd> while launching Velja, click the menu bar icon, click “Debug”, and then go to “Logs”.
 
 #### Velja does not show browsers from the user “~/Applications” folder?
 

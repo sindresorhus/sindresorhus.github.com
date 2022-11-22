@@ -40,6 +40,10 @@ I don't plan to add that as I want to keep the app simple. I do plan to make a p
 
 I don't plan to add that.
 
+#### How does “brain dump mode” help with creativity?
+
+It helps you focus on the actual writing, instead of getting distracted with editing and nitpicking. [Learn more.](https://writingcooperative.com/how-the-brain-dump-method-can-boost-your-writing-output-881089bb897a)
+
 #### When I save a file using the popover in the title bar, it always appends `.txt` when I choose a different file extension
 
 This is a macOS bug. Instead, save the file from the “File” menu or by pressing <kbd>Command</kbd> + <kbd>S</kbd>.

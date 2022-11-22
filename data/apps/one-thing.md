@@ -13,6 +13,8 @@ appStoreId: 1604176982
 
 ---
 
+<img src="/apps/one-thing/screenshot1.jpg"></img>
+
 This can be a useful tool to help you focus on a single task.
 
 Some examples of what you could write:

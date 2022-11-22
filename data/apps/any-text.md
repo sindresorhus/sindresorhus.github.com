@@ -7,8 +7,6 @@ platforms:
 appStoreId: 1643199620
 ---
 
-**This app was previously called Lock Screen One.**
-
 The app provides Lock Screen widgets where you can write any kind of text. It could be an important note, your goal, a list of tasks, etc.
 
 *iPhone-only for now. iPad version will come when iPadOS supports Lock Screen widgets (probably iPadOS 17).*
@@ -80,6 +78,10 @@ Create a shortcut in the Shortcuts app that opens the app you want, then open â€
 #### Can it do nothing when tapping the widget?
 
 iOS always opens the main app when you tap a widget. This is not something the app can control.
+
+#### The widget does not show the text after restarting the device, before unlocking it
+
+This is an iOS limitation and out of my control. It shows a placeholder until the first unlock.
 
 #### Why is this free without ads?
 

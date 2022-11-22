@@ -27,6 +27,23 @@ It integrates with Calendar, Fantastical, and BusyCal.
 
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
 
+#### It does not support the video call service I use
+
+I'm happy add support for more services. Just [send me](https://sindresorhus.com/feedback?product=Today&referrer=Website-FAQ) an invitation link (replace a few characters at the end to anonymize it).
+
+The app can also detect the link of any video call service if you correctly add it in the Calendar app:
+- Create a new event.
+- Paste the video call link into the location field.
+- Accept the dropdown suggestion about it being a video call.
+
+If you don't use the Calendar app, you can add the following to the notes field of an event:
+
+```
+----( Video Call )----
+https://some-video-call-service.com/join/23423
+---===---
+```
+
 #### How can I open meeting links (Google Meet, Zoom, Microsoft Teams, etc.) in a specific browser?
 
 Check out my free [Velja app](https://sindresorhus.com/velja). It has built-in support for this without any setup. It can even open links to Zoom and Microsoft Teams directly in their desktop app.
@@ -50,6 +67,10 @@ I don't plan to add this. You can get this feature in my [Dato app](/dato).
 #### Can the app show the upcoming event in the menu bar?
 
 I don't plan to add this. You can get this feature in my [Dato app](/dato) (with a lot of customizability).
+
+#### Can the app support showing reminders?
+
+I don't plan to add this. You can get this feature in my [Dato app](/dato).
 
 #### Can you make the app show events for more days?
 

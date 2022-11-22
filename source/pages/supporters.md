@@ -77,9 +77,6 @@ None -->
 <a href="https://github.com" class="sponsor" rel="nofollow" style="position:relative;left:-3px">
 	<img src="/assets/thanks/github-logo.svg" width="310" alt="GitHub">
 </a>
-<a href="https://doppler.com" class="sponsor" rel="nofollow" style="margin: 20px 0">
-	<img src="https://dashboard.doppler.com/imgs/logo-long.svg" width="400" alt="Doppler">
-</a>
 <a href="https://workos.com" class="sponsor" rel="nofollow" style="position:relative;left:-30px">
 	<img src="/assets/thanks/workos-logo-white-bg.svg" width="380" alt="WorkOS">
 </a>
@@ -92,17 +89,11 @@ None -->
 <a href="https://bit.io" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
 	<img src="/assets/thanks/bitio-logo.svg" width="300" alt="bit.io">
 </a>
-<a href="https://www.gitpod.io/?utm_campaign=sindresorhus&utm_medium=referral&utm_content=awesome&utm_source=blog" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
-	<img src="/assets/thanks/gitpod-logo.svg" width="340" alt="Gitpod">
-</a>
 <a href="https://getstream.io/chat/sdk/ios/?utm_source=Github&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=Github_Jan2022_iOSChatSDK&utm_term=Sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
 	<img src="/assets/thanks/stream-logo.svg" width="360" alt="Stream">
 </a>
 <a href="https://www.useanvil.com/?utm_source=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
 	<img src="/assets/thanks/anvil-logo-light.svg" width="310" alt="Anvil">
-</a>
-<a href="https://sizzy.co" class="sponsor" rel="nofollow" style="position:relative;left:-25px;margin-top:0px">
-	<img src="/assets/thanks/sizzy-logo.png" width="400" alt="Sizzy">
 </a>
 
 ## Silver sponsor <span class="reward-price not-prose">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
@@ -111,23 +102,11 @@ None -->
 	<a href="https://lunanode.com" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/lunanode-logo.svg" width="260" alt="LunaNode">
 	</a>
-	<a href="https://alm.sh" class="sponsor" rel="nofollow">
-		<img src="/assets/thanks/alm-logo.svg" width="230" alt="alm">
-	</a>
-	<a href="https://sebastian-software.de" class="sponsor" rel="nofollow">
-		<img src="/assets/thanks/sebastian-software-logo.svg" width="270" alt="Sebastian Software">
+	<a href="https://www.gitpod.io/?utm_campaign=sindresorhus&utm_medium=referral&utm_content=awesome&utm_source=blog" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
+		<img src="/assets/thanks/gitpod-logo.svg" width="240" alt="Gitpod">
 	</a>
 	<a href="https://eslint.org" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/eslint-logo.png" width="200" alt="ESLint">
-	</a>
-	<a href="https://casino-academia.jp" class="sponsor" rel="nofollow">
-		<img src="/assets/thanks/casino-academia-logo.png" width="280" alt="Casino Academia">
-	</a>
-	<a href="https://github.com/andrewgremlich" class="sponsor" rel="nofollow" style="font-size: 36px">
-		<span class="dark:text-black">Andrew Gremlich</span>
-	</a>
-	<a href="https://www.monito.com" class="sponsor" rel="nofollow">
-		<img src="/assets/thanks/monito-logo.svg" width="270" alt="Monito">
 	</a>
 	<a href="https://astro.build" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/astro-logo.svg" width="220" alt="Astro">
@@ -144,16 +123,11 @@ None -->
 
 - [Roland Warmerdam](https://github.com/Rowno)
 - [Ben Truyman](https://github.com/bentruyman)
-- [Bhargav Ponnapalli](https://twitter.com/imbhargav5)
 - [Jacob Gillespie](https://github.com/jacobwgillespie)
-- [Vadim Demedes](https://github.com/vadimdemedes)
-- [Nat Friedman](https://github.com/nat)
 - [Ryan Chartrand](https://github.com/ryanchartrand)
 - [Verti Studio](https://github.com/Codeinwp)
 - [Passbolt](https://github.com/passbolt)
-- [Tripwire](https://github.com/Tripwire)
 - [Sideline Sports](https://github.com/SidelineSports)
-- [Varun Srinivasan](https://github.com/varunsrin)
 - [Scout APM](https://github.com/scoutapm-sponsorships)
 - [Alexis Tyler](https://github.com/OmgImAlexis)
 - [Vital](https://github.com/vital-software)
@@ -401,6 +375,16 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Noah Klayman](https://github.com/nklayman)
 - [FlawCra](https://github.com/FlawCra)
 - [Axel Rindle](https://github.com/axelrindle)
+- [Sizzy](https://sizzy.co)
+- [Monito](https://www.monito.com)
+- [Doppler](https://doppler.com)
+- [alm](https://alm.sh)
+- [Sebastian Software](https://sebastian-software.de)
+- [Andrew Gremlich](https://github.com/andrewgremlich)
+- [Vadim Demedes](https://github.com/vadimdemedes)
+- [Nat Friedman](https://github.com/nat)
+- [Tripwire](https://github.com/Tripwire)
+- [Varun Srinivasan](https://github.com/varunsrin)
 
 ---
 

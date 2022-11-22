@@ -51,7 +51,7 @@ Dato requires macOS 12.4 or later.
 
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.3.0-trial-1668009725). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.3.2-trial-1669698392). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 <br>
 
@@ -202,22 +202,26 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
 
+#### It does not support the video call service I use
+
+I'm happy add support for more services. Just [send me](https://sindresorhus.com/feedback?product=Dato&referrer=Website-FAQ) an invitation link (replace a few characters at the end to anonymize it).
+
+The app can also detect the link of any video call service if you correctly add it in the Calendar app:
+- Create a new event.
+- Paste the video call link into the location field.
+- Accept the dropdown suggestion about it being a video call.
+
+If you don't use the Calendar app, you can add the following to the notes field of an event:
+
+```
+----( Video Call )----
+https://some-video-call-service.com/join/23423
+---===---
+```
+
 #### How can I open meeting links (Google Meet, Zoom, Microsoft Teams, etc.) in a specific browser?
 
 Check out my free [Velja app](https://sindresorhus.com/velja). It has built-in support for this without any setup. It can even open links to Zoom and Microsoft Teams directly in their desktop app.
-
-#### How can I hide the built-in menu bar clock on macOS 11 or later? {#macos11-hide-clock}
-
-It's unfortunately no longer possible to disable the built-in menu bar clock.
-
-However, you have some options:
-1. **(Recommended)** In “System Settings › Control Center › Clock Options”, choose the analog clock and disable showing the date. This gets you the closest to how it was on macOS 10.15 as you can use Dato for both date and time. <img width="258" src="https://user-images.githubusercontent.com/170270/105505537-a5044800-5cfb-11eb-979b-7a0b109f0c93.png"><br>This has the added benefit that while the system clock [shows as disabled](https://user-images.githubusercontent.com/170270/105506021-2c51bb80-5cfc-11eb-84a6-79b62d69d4bc.png) when you enable “Do Not Disturb” (which makes it pretty unreadable), Dato always shows it the same way.
-2. Use Dato for showing the date and the built-in clock for the time.
-3. Only show an icon for Dato.
-
-I would really appreciate it if you could take a moment to [complain to Apple](https://www.apple.com/feedback/macos.html) that they should bring back the ability to disable the built-in menu bar clock. For reference, on macOS 10.15, there's a checkbox called “Show date and time in the menu bar” in “System Preferences › Date & Time › Clock”. This checkbox no longer exists on macOS 11 and later.
-
-I have already [reported it to Apple](https://github.com/feedback-assistant/reports/issues/131), but I have yet to get a reply.
 
 #### How can I add multiple time zones to the menu bar? {#time-zones-menu-bar}
 
@@ -246,6 +250,19 @@ You need to enable the calendar in the Dato settings.
 #### Can you add support for Google Calendar / Outlook 365 / Exchange?
 
 It's already supported. Just add your calendars to the built-in Calendar app and then enable those calendars in the app settings.
+
+#### How can I hide the built-in menu bar clock? {#macos11-hide-clock}
+
+It's unfortunately no longer possible to disable the built-in menu bar clock.
+
+However, you have some options:
+1. **(Recommended)** In “System Settings › Control Center › Clock Options”, choose the analog clock and disable showing the date. This gets you the closest to how it was on macOS 10.15 as you can use Dato for both date and time. <img width="258" src="https://user-images.githubusercontent.com/170270/105505537-a5044800-5cfb-11eb-979b-7a0b109f0c93.png"><br>This has the added benefit that while the system clock [shows as disabled](https://user-images.githubusercontent.com/170270/105506021-2c51bb80-5cfc-11eb-84a6-79b62d69d4bc.png) when you enable “Do Not Disturb” (which makes it pretty unreadable), Dato always shows it the same way.
+2. Use Dato for showing the date and the built-in clock for the time.
+3. Only show an icon for Dato.
+
+I would really appreciate it if you could take a moment to [complain to Apple](https://www.apple.com/feedback/macos.html) that they should bring back the ability to disable the built-in menu bar clock. For reference, on macOS 10.15, there's a checkbox called “Show date and time in the menu bar” in “System Preferences › Date & Time › Clock”. This checkbox no longer exists on macOS 11 and later.
+
+I have already [reported it to Apple](https://github.com/feedback-assistant/reports/issues/131), but I have yet to get a reply.
 
 #### How can I customize the menu bar date and time format?
 
@@ -291,7 +308,7 @@ Open the Calendar app's settings, go to the “Accounts” pane, choose the rele
 
 Dato does not support this as you can just set it up in the built-in Calendar app. Open the Calendar app's settings, select the “Alerts” pane, and there you can choose when to be notified.
 
-What Dato does support is showing a notification right when an event for a video call (Zoom/Meet/Teams) starts. The notification includes a button to join the video call directly. You can enable this notification in the Dato settings.
+What Dato does support is showing a notification right when an event for a video call starts. The notification includes a button to join the video call directly. You can enable this notification in the Dato settings.
 
 #### Where can I find the changelog?
 

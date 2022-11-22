@@ -61,6 +61,13 @@ If you work at Apple, you know what to do:
 - [FB11516334](https://github.com/feedback-assistant/reports/issues/357)
 - [FB11516273](https://github.com/feedback-assistant/reports/issues/356)
 
+#### Why are the images in the widget not full quality?
+
+Widgets get very little system resources so it's not possible to load a high resolution image.
+
+If you work at Apple, you know what to do:
+- [FB8832751](https://github.com/feedback-assistant/reports/issues/177)
+
 #### Why is this free without ads?
 
 I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.

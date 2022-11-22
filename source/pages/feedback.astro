@@ -67,7 +67,7 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 			$('#app-icon').css('display', 'flex').attr('src', app.iconUrl);
 		}
 
-		if (app.repoUrl) {
+		if (app?.repoUrl) {
 			const searchParams = new URLSearchParams();
 
 			searchParams.append('body', `<\!--\nProvide your feedback below. Include as many details as possible.\n-->\n\n\n\n---\n${params.get('metadata') ?? ''}`.trim());
@@ -79,7 +79,7 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 			`);
 		}
 
-		if (app.hasFaqSection) {
+		if (app?.hasFaqSection) {
 			$('#additional-info').show().html(`
 				See <a href="${app.url}#faq">frequently asked questions</a> in case your question has already been answered.
 			`);
@@ -114,5 +114,11 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 		form.append(
 			$(`<input type="hidden" name="${key}">`).val(value)
 		);
+	}
+
+	if (params.get('metadata')) {
+		const url = new URL(window.location);
+		url.searchParams.delete('metadata');
+		window.history.replaceState({}, '', url);
 	}
 </script>

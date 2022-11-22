@@ -37,6 +37,8 @@ If you have my [Dato app](https://sindresorhus.com/dato) installed (even the fre
 
 Same as the above, but use the `Show Alert` action instead.
 
+You could also use the “Flash Screen” action from the [Actions app](https://github.com/sindresorhus/Actions) to momentarily flash the screen.
+
 #### How can I run multiple shortcuts as a notification?
 
 Pandan lets you run a single shortcut as a notification, but a shortcut can run other shortcuts. So make the shortcuts you want to run, make another shortcut that uses the “Run Shortcut” action to run the other shortcuts, and then select this shortcut in Pandan.
@@ -90,6 +92,7 @@ Tip: You can [run shortcuts from the command-line](https://support.apple.com/gui
 - [Play custom notification sound](#custom-notification-sound)
 - [Use Pandan as an eye break reminder](#eye-break-reminder)
 - [Show an alert as a notification](#alert-as-notification)
+- Flash the screen as a notification by using the “Flash Screen” action from the [Actions app](https://github.com/sindresorhus/Actions)
 - [Show a web page as a notification](https://www.icloud.com/shortcuts/0e3914da016b446dbf2fef7aa0341567)
 - [Lock the screen as a notification](https://www.icloud.com/shortcuts/a3aa4ba2640d4f1b97c85f498e9dd945)
 - [Invert the screen for 20 seconds](https://www.icloud.com/shortcuts/0710b22b12b74ec1bad0f28b327412fd)
