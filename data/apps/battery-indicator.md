@@ -35,11 +35,15 @@ This is a macOS 11 bug. I have tried to work around this issue, but it's out of 
 
 The system needs some time to accurately calculate the time remaining estimate.
 
+#### How do I remove the system battery menu bar item?
+
+Drag it out of the menu bar while pressing <kbd>Command</kbd>.
+
 #### Can it show “apps using significant energy” like the built-in battery indicator?
 
-It can unfortunately not show this because of restrictions (sandboxing) imposed on apps on the App Store. However, you could change the menu bar item type to text instead of icon and use this app in combination with the system battery indicator.
+It can unfortunately not show this because of restrictions (sandboxing) imposed on apps on the App Store. However, you could change the menu bar item type to text instead of the icon and use this app in combination with the system battery indicator.
 
-#### How can I export, import, sync, or backup the settings?
+#### How can I export, import, sync, or back up the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
 

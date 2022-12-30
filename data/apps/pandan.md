@@ -43,7 +43,7 @@ You could also use the “Flash Screen” action from the [Actions app](https://
 
 Pandan lets you run a single shortcut as a notification, but a shortcut can run other shortcuts. So make the shortcuts you want to run, make another shortcut that uses the “Run Shortcut” action to run the other shortcuts, and then select this shortcut in Pandan.
 
-#### How can I use this as an eye break reminder? {#eye-break-reminder}
+#### How can I use this as an eye-break reminder? {#eye-break-reminder}
 
 Set Pandan to remind you to take a break. Make a shortcut in the Shortcuts app that uses the “Wait” action and set it to the wanted duration of the break. After this action, you can either add a “Play Sound” or “Show Alert” action to notify you when the break is done. Then select this shortcut in the Pandan settings.
 
@@ -63,7 +63,7 @@ Make a [shortcut](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcu
 
 Tip: Shortcuts can be a bit slow sometimes. You can use this command to have it not wait for the shortcut to finish running: `(&>/dev/null shortcuts run ShortcutName &)`
 
-#### How can I export, import, sync, or backup the settings?
+#### How can I export, import, sync, or back up the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
 
@@ -99,7 +99,7 @@ Tip: You can [run shortcuts from the command-line](https://support.apple.com/gui
 - [Make the screen gray for 20 seconds](https://www.icloud.com/shortcuts/dbdeea0a9a8b41749fa27f15cf3eb6c2)
 - [Show the total active duration today as a countdown](#countdown)
 
-*And you can obviously combine these too.*
+*And you can combine these too.*
 
 <br>
 

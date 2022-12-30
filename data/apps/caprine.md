@@ -9,4 +9,4 @@ platforms:
 repoUrl: https://github.com/sindresorhus/caprine
 ---
 
-Caprine is an open-source, cross-platform, and privacy focused Facebook Messenger desktop app.
+Caprine is an open-source, cross-platform, and privacy-focused Facebook Messenger desktop app.

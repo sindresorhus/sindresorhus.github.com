@@ -29,13 +29,13 @@ When on the Lock Screen, tap and hold on the clock, tap the “Customize” butt
 
 #### The widget does not show up in the widget picker
 
-This is a well known iOS 16 issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
+This is a well-known iOS 16 issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
 
 #### Can you support having multiple pieces of text that change during the day?
 
 I would like to keep the app simple and only support one piece of text. It's kinda in the app name. However, the app comes with a shortcut action to change the text, so you could use the Shortcuts automations to change the text during the day.
 
-#### Can you add support user-installed fonts?
+#### Can you add support for user-installed fonts?
 
 This is unfortunately not possible as widgets cannot access user-installed fonts.
 
@@ -45,7 +45,7 @@ This is unfortunately not possible. Apple has decided that the rectangular widge
 
 #### The widget does not update if I write some text in the app and then reveal the Lock Screen
 
-You need to first close the app. This is a iOS bug.
+You need to first close the app. This is an iOS bug.
 
 If you work at Apple → [FB11522275](https://github.com/feedback-assistant/reports/issues/360)
 
@@ -55,7 +55,7 @@ The app tells iOS to update the widget, unfortunately, iOS can decide to delay a
 
 #### The widget does not update when setting the text with the Shortcuts action
 
-This is unfortunatly a iOS 16 bug. The app correctly tells iOS to update the widget, but iOS delays it for some reason. The text will update eventually.
+This is unfortunately an iOS 16 bug. The app correctly tells iOS to update the widget, but iOS delays it for some reason. The text will update eventually.
 
 If you work at Apple → [FB11522170](https://github.com/feedback-assistant/reports/issues/359)
 
@@ -81,7 +81,7 @@ iOS always opens the main app when you tap a widget. This is not something the a
 
 #### The widget does not show the text after restarting the device, before unlocking it
 
-This is an iOS limitation and out of my control. It shows a placeholder until the first unlock.
+This is an iOS limitation and is out of my control. It shows a placeholder until the first unlock.
 
 #### Why is this free without ads?
 

@@ -17,6 +17,12 @@ The app is [highly optimized](https://machinelearning.apple.com/research/stable-
 
 <br>
 
+### Tips
+
+- When you save a generated image, it includes a lot of useful metadata (prompt, steps, etc). You can [view this in Finder](https://twitter.com/sindresorhus/status/1611441129622278146/photo/1) by right-clicking the image file and selecting “Get Info”. The file also includes some relevant tags which can be used to [create smart folders](https://support.apple.com/guide/mac-help/tag-files-and-folders-mchlp15236/mac).
+
+<br>
+
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -31,9 +37,13 @@ It will eventually be supported, but right now, it's worse than 1.5.
 
 The app takes advantage of recent [optimizations by Apple](https://machinelearning.apple.com/research/stable-diffusion-coreml-apple-silicon).
 
+#### What are the usage restrictions for the generated images?
+
+You can use the images for commercial or non-commercial purposes, but you must adhere to the [Creative ML OpenRAIL-M license's usage restrictions](https://github.com/CompVis/stable-diffusion/blob/21f890f9da3cfbeaba8e2ac3c425ee9e998d5229/LICENSE#L69-L82). These restrictions include not using the images for illegal activity, false information, discrimination, or medical advice.
+
 #### Can you support custom models?
 
-It's something I plan to support, but other things are higher priority at the moment.
+It's something I plan to support, but other things are a higher priority at the moment.
 
 #### Can you support inpainting/outpainting?
 
@@ -41,11 +51,17 @@ I don't plan to support this. [DiffusionBee](https://diffusionbee.com) supports 
 
 #### Can it generate images with aspect ratios other than a square?
 
-Stable Diffusion can only generate square images as that's what it was trained on.
+The Stable Diffusion library used by this app only supports squares.
+
+#### Why does it take so long to generate?
+
+Several factors can affect the speed of image generation, including the performance of your machine and the amount of available memory and CPU. Try closing down other apps or restarting your machine before generating images.
+
+And bear in mind that the initial generation after installing the app may take longer due to model validation.
 
 #### Why does the app take up so much space on disk and memory?
 
-The AI model used to generate images is large. It's not too bad considering what it's capable of.
+The AI model used to generate images is large. This is reasonable given the model's capabilities.
 
 #### Can you support iOS?
 
@@ -56,7 +72,7 @@ I plan to add iOS support when the app is more mature.
 **Amazing AI benefits**
 
 - Faster and more energy efficient as it uses the [Apple Neural Engine](https://apple.fandom.com/wiki/Neural_Engine) and recent [macOS optimizations](https://machinelearning.apple.com/research/stable-diffusion-coreml-apple-silicon)
-- Native user-interface (DiffusionBee is a web app wrapped with Electron which does not follow platform conventions)
+- Native user interface (DiffusionBee is a web app wrapped with Electron which does not follow platform conventions)
 - Batch generation of different prompts (DiffusionBee supports batch for the same prompt only)
 - Shortcuts support
 - Automatic upscaling (DiffusionBee requires you to manually click an upscale button for each image)

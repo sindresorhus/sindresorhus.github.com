@@ -62,7 +62,7 @@ For example, to open all links you click in Slack in Chrome:
 - Create a new “Source Apps” matcher and select the app you want. For example, Slack.
 - Click “Save”.
 
-#### Open link in private/incognito window
+#### Open links in a private/incognito window
 
 For Safari, [click here](https://github.com/sindresorhus/Safari-Private).
 
@@ -76,7 +76,7 @@ If you have a document with many URLs you want to open. Select them, right-click
 
 *You may have to enable the service in “System Settings › Keyboard › Keyboard Shortcuts › Services”.*
 
-#### Open link in an website-wrapper app
+#### Open links in a website-wrapper app
 
 Let's say you have generated a website wrapper app for facebook.com using an app like [Unite](https://www.bzgapps.com/unite) or [Coherence](https://www.bzgapps.com/coherence) and you want all links to Facebook to go to this app instead of your browser:
 
@@ -90,7 +90,7 @@ Let's say you have generated a website wrapper app for facebook.com using an app
 
 - Safari — Built-in. Just enable it in the Safari settings.
 - [Chrome](https://chrome.google.com/webstore/detail/velja/gpipdgcamiclkcomcnogmlfpalggmcmk) — Also works in Edge, Brave, and other Chromium-based browsers.
-- *Firefox support is planned, but will take a while.*
+- *Firefox support is planned but will take a while.*
 
 #### Open the current website in a different browser
 
@@ -144,6 +144,10 @@ VS Code [does not open the system default browser](https://github.com/microsoft/
 
 If the link is a [short URL](https://en.wikipedia.org/wiki/URL_shortening), make sure the “Expand short URLs” setting is enabled and the URL shortening service is either in the built-in list or added by you. Velja is only able to do its matching when it receives the resolved URL.
 
+**I clicked a button in the Dropbox app**
+
+This is either a macOS or Dropbox bug. Velja simply opens what it receives, but what it receives has incorrect permission. When you click a button in Dropbox to open it on the web, it doesn't actually open the URL directly but instead writes an HTML file (which redirects to the final URL) to a temporary directory. I have no idea why it does this, but it's likely this is what causes the issue.
+
 <a id="custom-rule-problem"></a>
 **My custom rule did not work**
 
@@ -151,7 +155,7 @@ Make sure it's none of the above cases. Also make sure you have added a “Sampl
 
 Some apps use a redirect URL for tracking purposes. Velja has built-in support for a lot of redirect services and it also tries to resolve URLs to their final destination. However, some redirects cannot be resolved by Velja. This is the case with some links clicked in Slack as they require the login token to be able to redirect. There is unfortunately nothing I can do about that.
 
-See [this](#debug) for how to debug what URLs Velja receive.
+See [this](#debug) for how to debug what URLs Velja receives.
 
 If the redirect URL contains the destination URL (usually in a search parameter), contact me and I will add support for it.
 
@@ -180,7 +184,7 @@ I'm happy to consider requests (but read the below first). [Submit here.](https:
 
 *If this is about opening a specific website (for example, Google Sheets) in a specific browser, you should use the rules feature instead (the “Rules” tab in the settings). You can easily make a rule for any website.*
 
-*If this is about opening a specific website like Facebook in an app-wrapped website generated with something like Unite or Coherence, it's better to just add support yourself. You can use the rules feature for this. For example, write “facebook.com” as the domain and select the website-wrapper app you generated.*
+*If this is about opening a specific website like Facebook in an app-wrapped website generated with something like Unite or Coherence, it's better to just add support yourself. You can use the rules feature for this. For example, write “facebook.com” as the domain and select the website wrapper app you generated.*
 
 **Note:** This is about opening a link in a specific app. If you want to open a link **from** a specific app, just use the rules feature (it supports any app).
 
@@ -228,7 +232,7 @@ open --background 'https://sindresorhus.com'
 
 #### Can you add support for opening Slack links in the Slack desktop app? {#slack}
 
-This is currently not possible. The Slack app does not accept a normal deep link (example: `https://team-name.slack.com/archives/CKPE4C/p161643063559`). It only accepts a special Slack-specific URL. To be able to convert a normal Slack link to one that the desktop app accepts, we would need get the team ID from the Slack API and that requires authentication. It's simply not feasible to do this. **Please do send feedback to Slack asking them to accept a normal link, like most other apps support.**
+This is currently not possible. The Slack app does not accept a normal deep link (example: `https://team-name.slack.com/archives/CKPE4C/p161643063559`). It only accepts a special Slack-specific URL. To be able to convert a normal Slack link to one that the desktop app accepts, we would need to get the team ID from the Slack API and that requires authentication. It's simply not feasible to do this. **Please do send feedback to Slack asking them to accept a normal link, like most other apps support.**
 
 #### Can the default browser change based on the active [focus mode](https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac)? {#focus-mode}
 
@@ -246,17 +250,17 @@ I don't have any immediate plans to add this. I recommend giving the horizontal 
 
 #### How can I see what URL Velja received? {#debug}
 
-In the advanced settings, enable “Show last opened link” setting, and the click the link. The URL will show up there.
+In the advanced settings, enable the “Show last opened link” setting, and then click the link. The URL will show up there.
 
 To see more detailed debug info on how Velja handled the URL: Quit Velja if it's open. Press <kbd>Shift</kbd> + <kbd>Control</kbd> while launching Velja, click the menu bar icon, click “Debug”, and then go to “Logs”.
 
-#### Velja does not show browsers from the user “~/Applications” folder?
+#### Velja does not show browsers from the user “~/Applications” folder
 
 Apple generally recommends putting apps in the global “/Applications” folder. Third-party apps like Velja get automatic access to this one, but not to the user “~/Applications” folder.
 
 Velja does prompt for permission to the user “~/Applications” folder on the first launch if it exists. But if you created it later on or did not get the prompt for some reason, you can force it. Quit Velja, then launch Velja while pressing <kbd>Control</kbd> + <kbd>Option</kbd>.
 
-#### How can I export, import, sync, or backup the settings?
+#### How can I export, import, sync, or back up the settings?
 
 You can export/import rules in the settings.
 
@@ -264,7 +268,7 @@ For all settings, [see this guide.](https://github.com/sindresorhus/guides/blob/
 
 #### Can you support browser profiles for the [Arc](https://thebrowser.company) browser? {#arc}
 
-The Arc browser is based on Chrome, so you may think that it should just work with browser profiles in Velja. Unfortunately, Arc doesn't yet support the `--profile-directory` command-line flag. So while Velja is able to fetch the profiles, it's not able to actually use them.
+The Arc browser is based on Chrome, so you may think that it should just work with browser profiles in Velja. Unfortunately, Arc doesn't yet support the `--profile-directory` command-line flag. So while Velja can fetch the profiles, it's not able to actually use them.
 
 I recommend sending them feedback about this. Either through the feedback button in Arc or at [hello@thebrowser.company](mailto:hello@thebrowser.company).
 
@@ -276,7 +280,15 @@ open -b company.thebrowser.Browser --new --args --profile-directory "User Data/P
 
 #### Can you support browser profiles for the [Orion](https://browser.kagi.com) browser? {#orion}
 
-This can be resolved by the Orion browser itself. [Vote up this issue.](https://orionfeedback.org/d/3445-profile-proxy-app-should-identify-itself-as-a-browser)
+This can be resolved by the Orion browser itself. [Vote on this issue.](https://orionfeedback.org/d/3445-profile-proxy-app-should-identify-itself-as-a-browser)
+
+#### How can I open a website from Spotlight results in a specific browser? {#spotlight}
+
+Create a custom rule where you set the Spotlight app as “Source Apps”. The app is located at `/System/Library/CoreServices/Spotlight.app`.
+
+#### I have both Firefox and Firefox Beta installed, but only one of them is showing up in Velja
+
+Firefox and Firefox Beta use the same [identifier](https://cocoacasts.com/what-are-app-ids-and-bundle-identifiers/). Velja uses the identifier to uniquely identify different apps. This means there cannot be multiple apps with the same identifier in Velja. This is not a problem with Velja. It's just how macOS works.
 
 #### How do I disable Velja?
 
@@ -284,7 +296,7 @@ This can be resolved by the Orion browser itself. [Vote up this issue.](https://
 
 #### What does “Velja” mean?
 
-It means [“to choose”](https://en.wiktionary.org/wiki/velja) in [Old Norse](https://www.discovermagazine.com/planet-earth/what-language-did-the-vikings-speak) (also Icelandic and Faroese). Hence the viking hat.
+It means [“to choose”](https://en.wiktionary.org/wiki/velja) in [Old Norse](https://www.discovermagazine.com/planet-earth/what-language-did-the-vikings-speak) (also Icelandic and Faroese). Hence the Viking hat.
 
 #### How does it compare to [Choosy](https://www.choosyosx.com)? {#choosy}
 
@@ -297,7 +309,7 @@ Velja benefits:
 - Removes tracking parameters on clicked and copied links
 - You can open copied links from the menu bar menu
 - You can press a keyboard shortcut to use an alternative browser for a specific link
-- Open link in private Safari window
+- Open links in a private Safari window
 - Available in the App Store
 - Sandboxed (more secure)
 - Shortcuts support
@@ -317,7 +329,7 @@ Velja benefits:
 - It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.)
 - It can open Google Meet links in Chrome without any manual setup
 - Browser profile support
-- More advanced custom rules, like the ability open a certain link based on what app the link was clicked in
+- More advanced custom rules, like the ability to open a certain link based on what app the link was clicked in
 - Expands [short URLs](https://en.wikipedia.org/wiki/URL_shortening) for better matching
 - Removes tracking parameters on clicked and copied links
 - macOS-like user interface (Bumpr has a custom non-macOS-like user interface)
@@ -325,7 +337,7 @@ Velja benefits:
 - You can quickly switch the primary browser
 - You can press a keyboard shortcut to use an alternative browser for a specific link
 - Setting to hide the menu bar icon
-- Open link in private Safari window
+- Open links in a private Safari window
 - Shortcuts support
 - Handoff support
 - Services support
@@ -333,7 +345,7 @@ Velja benefits:
 
 Bumpr benefits:
 
-- Supports configuring primary email app
+- Supports configuring the primary email app
 
 #### How does it compare to [OpenIn](https://loshadki.app/openin/)? {#openin}
 
@@ -347,7 +359,7 @@ Velja benefits:
 - You can open copied links from the menu bar menu
 - You can quickly switch the primary browser
 - You can press a keyboard shortcut to use an alternative browser for a specific link
-- Open link in private Safari window
+- Open links in a private Safari window
 - Browser extensions
 - Shortcuts support
 - Services support
@@ -368,7 +380,7 @@ Velja benefits:
 - It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.)
 - It can open Google Meet links in Chrome without any manual setup
 - Browser profile support
-- Custom rules, like the ability open a certain link based on what app the link was clicked in
+- Custom rules, like the ability to open a certain link based on what app the link was clicked in
 - Expands [short URLs](https://en.wikipedia.org/wiki/URL_shortening) for better matching
 - Removes tracking parameters on clicked and copied links
 - The user interface is more macOS-like and follows the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/macos/overview/themes/)
@@ -377,7 +389,7 @@ Velja benefits:
 - You can press a keyboard shortcut to use an alternative browser for a specific link
 - Finds new browsers automatically (Browsersaurus has to manually scan for new browsers)
 - Setting to hide the menu bar icon
-- Open link in private Safari window
+- Open links in a private Safari window
 - Browser extensions
 - Shortcuts support
 - Handoff support
@@ -409,7 +421,7 @@ The app can be automated using the Shortcuts app or with a custom URL scheme.
 
 #### Custom URL scheme
 
-You can open a URL using Velja from any tool that support opening a URL. This includes, a website, Bash, Node.js, Python, Swift, etc.
+You can open a URL using Velja from any tool that supports opening a URL. This includes a website, Bash, Node.js, Python, Swift, etc.
 
 For example, in your terminal:
 

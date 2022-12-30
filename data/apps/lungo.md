@@ -27,14 +27,14 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 - If you have the “Allow display to sleep while keeping computer awake” setting enabled, the computer is still awake even if it looks like it's sleeping because the screen is off.
 - If you have the “Pause while screen is locked” setting enabled, you may have locked the screen before leaving it, which would cause Lungo to not keep your computer awake.
-- If you have the “Deactive when switching to battery” setting enabled and you disconnect the power adapater, Lungo would not keep your computer awake. You might have accidentally unplugged it or there might have been a power failure.
+- If you have the “Deactive when switching to battery” setting enabled and you disconnect the power adapter, Lungo would not keep your computer awake. You might have accidentally unplugged it or there might have been a power failure.
 - If you have set a sleep schedule in “System Preferences › Battery › Schedule”, it will take priority over Lungo. This is out of Lungo's control.
 - If you have set the computer to log out after a certain amount of time in “System Preferences › Security & Privacy › Advanced”, it will take priority over Lungo. This is out of Lungo's control.
-- If you see apps open again when you wake up your computer, it means your computer was restarted for some reason. Lungo cannot keep your computer from restarting. Some common reason it may have restarted are: Power outage, macOS crashed, or scheduled shutdown/restart (in Battery system settings).
-  + You can [check how long your computer has been awake and when it was last rebooted](https://www.macobserver.com/tips/quick-tip/mac-system-uptime-terminal/) to narrow down the problem. You can also check when the computer was last logged in with by typing the command `last` in the Terminal app.
+- If you see apps open again when you wake up your computer, it means your computer was restarted for some reason. Lungo cannot keep your computer from restarting. Some common reasons it may have restarted are a power outage, macOS crash, or scheduled shutdown/restart (in Battery system settings).
+  + You can [check how long your computer has been awake and when it was last rebooted](https://www.macobserver.com/tips/quick-tip/mac-system-uptime-terminal/) to narrow down the problem. You can also check when the computer was last logged in by typing the command `last` in the Terminal app.
 
 Some things you could try:
-- Make sure you are on the latest macOS and Lungo version.
+- Make sure you are on the latest macOS and Lungo versions.
 - [Reset NVRAM](https://support.apple.com/en-us/HT204063)
 - [Reset SMC](https://support.apple.com/en-us/HT201295)
 
@@ -46,7 +46,7 @@ Go [here](https://apps.apple.com/app/id1263070803) and click “Version History�
 
 No, that’s not allowed for apps on the App Store, for good reasons. Imagine you activate it while your computer is doing a heavy task and then put the laptop in your bag. Your laptop could easily overheat.
 
-However, if you really want this, there are some solutions [here](https://apple.stackexchange.com/questions/2389/is-there-any-way-to-set-a-macbook-pro-to-not-sleep-when-you-close-the-lid?rq=1).
+However, if you want this, there are some solutions [here](https://apple.stackexchange.com/questions/2389/is-there-any-way-to-set-a-macbook-pro-to-not-sleep-when-you-close-the-lid?rq=1).
 
 #### Does Lungo keep my Mac awake even if there is a scheduled sleep?
 
@@ -68,7 +68,7 @@ You could also use BetterTouchTool or Keyboard Maestro instead of Shortery.
 
 Lungo comes with a set of commonly used durations, which should be enough for most users. People love Lungo for its simplicity. Lungo has tens of thousands of users and only a few people have requested a custom duration. However, power users can take advantage of the Shortcuts app to use custom durations. Drag the “Set Enabled State” Lungo action into the shortcut editor in the Shortcuts app. Click “Show more” and then choose a custom duration. You can pin the shortcut workflow to the menu bar for easy access or set a global keyboard shortcut for it.
 
-#### How can I export, import, sync, or backup the settings?
+#### How can I export, import, sync, or back up the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
 
@@ -119,10 +119,10 @@ The `activate` and `toggle` commands support the parameters `hours` and `minutes
 # Deactivate Lungo
 open --background 'lungo:deactivate'
 
-# Activate Lungo for 1 hours and 30 minutes
+# Activate Lungo for 1 hour and 30 minutes
 open --background 'lungo:activate?hours=1&minutes=30'
 
-# Activate Lungo for 1 hours and 30 minutes (Alternative)
+# Activate Lungo for 1 hour and 30 minutes (Alternative)
 open --background 'lungo:activate?hours=1.5'
 
 # Toggle Lungo with the default duration

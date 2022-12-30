@@ -24,10 +24,10 @@ Make sure you read the below tips and FAQ.
 - Click the folder title ([the top menu item](https://dsc.cloud/sindresorhus/Screen-Shot-2022-04-22-at-00.49.49-1650563404)) to open the folder.
 - You can drag and drop the file thumbnail in the file submenu. Press the <kbd>Option</kbd> key while dragging to copy instead of moving.
 - Just start typing when the menu is open to search for a file or folder.
-- Press the <kbd>Option</kbd> when viewing the file details to copy path or image/video dimensions.
+- Press the <kbd>Option</kbd> when viewing the file details to copy the path or image/video dimensions.
 - You can use the Shortcuts support to show/hide certain folders depending on what project you are working on.
 - If you have the menu bar item folders next to each other and you have one folder open, you can press <kbd>Control+Tab</kbd> or <kbd>Shift+Control+Tab</kbd> to switch between them.
-- Press the <kbd>Option</kbd> key while the menu is open to show the `…` menu item at the top if it normally is as the bottom.
+- Press the <kbd>Option</kbd> key while the menu is open to show the `…` menu item at the top if it normally is at the bottom.
 - Right-click or Option-click the menu bar item to open the folder.
 - Press the <kbd>Option</kbd> key while viewing a subfolder to reveal more actions. For example, sort order settings.
 
@@ -55,7 +55,7 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 When the menu bar has no space left, macOS hides overflowing items. Try quitting some menu bar apps.
 
-#### The menu bar icon is not perfectly vertically centered?
+#### The menu bar icon is not perfectly vertically centered
 
 This is a macOS bug on non-Retina displays. There is unfortunately not much I can do about this.
 
@@ -103,13 +103,17 @@ Press the <kbd>Option</kbd> key while viewing a subfolder to reveal more actions
 
 #### How can I have a menu bar folder with my most recent screenshots?
 
-Make a folder to hold the screenshots and add it to the app. Open the Screenshot app, click “Options”, then “Other Location”, and choose the folder you just made. In Folder Peek, open the folder config, and change the sort order to “Date Created” and set “Max Items” to something like 20.
+Make a folder to hold the screenshots and add the folder to the app. Open the Screenshot app, click “Options”, then “Other Location”, and choose the folder you just made. In Folder Peek, open the folder config, change the sort order to “Date Created”, and set “Max Items” to something like 20.
 
 You may also want to [disable the screenshot preview](https://osxdaily.com/2019/08/02/disable-screenshot-thumbnail-preview-mac/) so the screenshot shows up in the screenshot folder right away.
 
+#### How can I add a [Smart Folder](https://support.apple.com/guide/mac-help/create-or-change-a-smart-folder-on-mac-mchlp2804/mac)? {#smart-folder}
+
+A Smart Folder is a special feature in Finder that allows you to create a virtual folder based on specific search criteria. The files within the Smart Folder are not physically stored in one location, but rather are located in different areas of your computer. Unfortunately, it is not possible to add a Smart Folder to Folder Peek as the functionality cannot be replicated.
+
 #### Can I navigate to a folder multiple levels deep and then drop a file into it?
 
-No, that is unfortunately not possible. Folder Peek is built as a system menu, and a menu cannot be kept open if it's not focused. Instead, first navigate to the nested folder, click to open it in Finder, and then drag & drop the file into the Finder window.
+No, that is unfortunately not possible. Folder Peek is built as a system menu, and a menu cannot be kept open if it's not focused. Instead, first, navigate to the nested folder, click to open it in Finder, and then drag & drop the file into the Finder window.
 
 #### The app I want does not show up in the “Open With” menu for a folder {#folder-open-with}
 
@@ -152,7 +156,7 @@ For other apps, follow [this guide](https://binarynights.com/manual#fileviewer),
 - Limit the number of items shown in the menu.
 - Shortcuts support.
 
-#### How can I export, import, sync, or backup the settings?
+#### How can I export, import, sync, or back up the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
 

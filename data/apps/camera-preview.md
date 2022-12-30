@@ -26,7 +26,7 @@ This app has some benefits:
 - Takes photos without the countdown.
 - Photos are saved to the file system, not hidden inside the app.
 - The window can be made to always stay on top of other windows (useful for presentations).
-- The window can resized to be smaller.
+- The window can be resized to be smaller.
 - The window can be made borderless.
 - Made by an indie developer that listens to users.
 

@@ -13,8 +13,6 @@ appStoreId: 1604176982
 
 ---
 
-<img src="/apps/one-thing/screenshot1.jpg"></img>
-
 This can be a useful tool to help you focus on a single task.
 
 Some examples of what you could write:
@@ -63,7 +61,7 @@ macOS hides menu bar items that do not fit. [Click here](one-thing:?text=) to re
 
 [Click here](one-thing:?text=) to reset the text.
 
-#### Can I have execute an action when I click the text?
+#### Can I execute an action when I click the text?
 
 You can add a [link using Markdown](https://www.markdownguide.org/basic-syntax/#links).
 
@@ -79,7 +77,7 @@ I have made a special version of One Thing with a different identifier. You can 
 
 #### How can I show the next task in the “Today” list in [Things](https://culturedcode.com/things/) in One Thing? {#things}
 
-You can use the macOS Shortcuts app for this. Things unfortunately does not have very good Shortcuts support ([Please tell them to improve that!](https://culturedcode.com/contact/)), so we have to resort to AppleScript to fetch the next task in the “Today” list. Here's an [example shortcut](https://www.icloud.com/shortcuts/62c0f5fc4d194b72a6f97ce8cedf698f).
+You can use the macOS Shortcuts app for this. Things, unfortunately, does not have very good Shortcuts support ([Please tell them to improve that!](https://culturedcode.com/contact/)), so we have to resort to AppleScript to fetch the next task in the “Today” list. Here's an [example shortcut](https://www.icloud.com/shortcuts/62c0f5fc4d194b72a6f97ce8cedf698f).
 
 Shortcuts does not yet support automation, so to have the shown todo stay in sync with Things, we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut. Choose the “Application” trigger type and make it trigger when Things becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually.
 
@@ -93,13 +91,13 @@ You can add some horizontal padding around the text by adding multiple spaces to
 
 #### How can I show different text for each day of the week?
 
-You can use the macOS Shortcuts app for this. Make a shortcut for each piece of text you want shown by using the “Set Text” action provided by One Thing. Shortcuts does not yet support automation (it most likely will in macOS 14), so for now we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to schedule these shortcuts to run at the specific days.
+You can use the macOS Shortcuts app for this. Make a shortcut for each piece of text you want to be shown by using the “Set Text” action provided by One Thing. Shortcuts does not yet support automation (it most likely will in macOS 14), so for now we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to schedule these shortcuts to run at the specific days.
 
 #### Can you add iOS / watchOS support?
 
 I plan to do it if the app takes off. So tell your friends.
 
-#### How can I export, import, sync, or backup the settings?
+#### How can I export, import, sync, or back up the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
 
@@ -140,11 +138,11 @@ More integrations:
 **Examples**
 
 - [Reminders app: Show latest due reminder](https://www.icloud.com/shortcuts/5d3e63030877471697dd0023fefc4819)
-- [Things app: Show first todo in the “Today” list](#things)
+- [Things app: Show the first todo in the “Today” list](#things)
 
 #### Custom URL scheme
 
-The menu bar item text can be set from any tool that can open an URL. This includes, a website, Bash, Node.js, Python, Swift, etc.
+The menu bar item text can be set from any tool that can open an URL. This includes a website, Bash, Node.js, Python, Swift, etc.
 
 For example, in your terminal:
 

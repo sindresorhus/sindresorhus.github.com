@@ -1,4 +1,4 @@
-const normalizeApps = app => {
+const normalizeApps = async app => {
 	const {frontmatter, compiledContent, file} = app;
 	const id = file.split('/').pop().split('.').shift();
 	const date = Date.parse(frontmatter.date);
@@ -33,6 +33,20 @@ const normalizeApps = app => {
 		...(frontmatter.showSupportLink !== false && {Support: `/feedback?product=${encodeURIComponent(frontmatter.title)}`}),
 	};
 
+	let screenshots = await import.meta.glob('~/../public/apps/*/screenshot*.{png,jpg}', {eager: false});
+
+	screenshots = await Promise.all(
+		Object.entries(screenshots)
+			.filter(([key]) => key.startsWith(`/public/apps/${id}/`))
+			.map(([, value]) => value()),
+	);
+
+	screenshots = screenshots.map(screenshot => {
+		const object = screenshot.default;
+		object.src = object.src.replace(/^\/public/, '');
+		return object;
+	});
+
 	return {
 		...frontmatter,
 		id,
@@ -46,6 +60,7 @@ const normalizeApps = app => {
 		mainLinks,
 		links,
 		hasFaqSection,
+		screenshots,
 	};
 };
 

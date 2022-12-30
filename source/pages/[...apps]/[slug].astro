@@ -77,6 +77,11 @@ const meta = {
 				}
 			</header>
 			<div class={proseCSS}>
+				<section class="mb-20">
+					{app.screenshots.map(screenshot => (
+						<img src={screenshot.src} width={screenshot.width} height={screenshot.height}>
+					))}
+				</section>
 				<Fragment set:html={app.body}/>
 			</div>
 		</article>

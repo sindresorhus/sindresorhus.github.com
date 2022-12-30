@@ -12,7 +12,7 @@ Dato gives you a local clock, date, and multiple world clocks in the menu bar. W
 
 Dato is a one-time purchase with free upgrades forever. Dato will never be subscription-based.
 
-Dato supports all the locales and languages that macOS supports for the menu bar text, dates, times, and the calendar, but the menus and settings are English-only.
+Dato supports all the locales and languages that macOS supports for the menu bar text, dates, times, and calendar, but the menus and settings are English-only.
 
 [MacStories review of Dato.](https://www.macstories.net/reviews/dato-review-calendar-events-and-time-zones-from-your-macs-menu-bar/)
 
@@ -51,7 +51,7 @@ Dato requires macOS 12.4 or later.
 
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.3.2-trial-1669698392). The only limitation is that it will prompt to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.3.2-trial-1669698392). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 <br>
 
@@ -174,7 +174,7 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 		<td>
 			Swipe left/right on the calendar
 		</td>
-		<td>Next/previos month in the calendar</td>
+		<td>Next/previous month in the calendar</td>
 	</tr>
 	<tr>
 		<td>
@@ -204,7 +204,7 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 #### It does not support the video call service I use
 
-I'm happy add support for more services. Just [send me](https://sindresorhus.com/feedback?product=Dato&referrer=Website-FAQ) an invitation link (replace a few characters at the end to anonymize it).
+I'm happy to add support for more services. Just [send me](https://sindresorhus.com/feedback?product=Dato&referrer=Website-FAQ) an invitation link (replace a few characters at the end to anonymize it).
 
 The app can also detect the link of any video call service if you correctly add it in the Calendar app:
 - Create a new event.
@@ -237,7 +237,7 @@ Dato adheres to what you have set in “System Settings › General › Language
 
 #### Can you integrate with Cron?
 
-The integration is already done, but Cron has a multiple bugs that makes it not work properly. We will have to wait for Cron to fix these bugs.
+The integration is already done, but Cron has multiple bugs that make it not work properly. We will have to wait for Cron to fix these bugs.
 
 #### Can you localize the app into my language?
 
@@ -260,7 +260,7 @@ However, you have some options:
 2. Use Dato for showing the date and the built-in clock for the time.
 3. Only show an icon for Dato.
 
-I would really appreciate it if you could take a moment to [complain to Apple](https://www.apple.com/feedback/macos.html) that they should bring back the ability to disable the built-in menu bar clock. For reference, on macOS 10.15, there's a checkbox called “Show date and time in the menu bar” in “System Preferences › Date & Time › Clock”. This checkbox no longer exists on macOS 11 and later.
+I would appreciate it if you could take a moment to [complain to Apple](https://www.apple.com/feedback/macos.html) that they should bring back the ability to disable the built-in menu bar clock. For reference, on macOS 10.15, there's a checkbox called “Show date and time in the menu bar” in “System Preferences › Date & Time › Clock”. This checkbox no longer exists on macOS 11 and later.
 
 I have already [reported it to Apple](https://github.com/feedback-assistant/reports/issues/131), but I have yet to get a reply.
 
@@ -316,11 +316,11 @@ Go [here](https://apps.apple.com/app/id1470584107) and click “Version History�
 
 #### Can you add support for showing an analog clock like the system clock?
 
-I have no plans to add that, but you can make it work by unchecking the “Time” preference in Dato and keep the system clock in analog mode.
+I have no plans to add that, but you can make it work by unchecking the “Time” preference in Dato and keeping the system clock in analog mode.
 
 #### Can you add support for flashing the time separator like the system clock?
 
-I have no plans to add that, but you can make it work by unchecking the “Time” preference in Dato and keep the system clock.
+I have no plans to add that, but you can make it work by unchecking the “Time” preference in Dato and keeping the system clock.
 
 #### A calendar is missing
 
@@ -328,7 +328,7 @@ First, ensure that you have added the calendar to the system. Open the Calendar 
 
 If it exists in the Calendar app, open the Dato settings, click the “Events” tab, and make sure the calendar is enabled.
 
-If it exists in the Calendar app but not in Dato, macOS might have corrupted some permissions. This is, unfortunately, a common problem. Try to reset the permissions for Dato. Quit Dato, open the Terminal app, and paste in the following command and press <kbd>Enter</kbd>:
+If it exists in the Calendar app but not in Dato, macOS might have corrupted some permissions. This is, unfortunately, a common problem. Try to reset the permissions for Dato. Quit Dato, open the Terminal app, paste in the following command, and press <kbd>Enter</kbd>:
 
 ```sh
 tccutil reset All com.sindresorhus.Dato
@@ -369,15 +369,15 @@ Alternatively, you could use a browser picker like [Velja](https://sindresorhus.
 
 #### How can I hide the Dato clock when doing a specific task or at a certain time of the day?
 
-This is a perfect use-case for the built-in Shortcuts app. You can use the `Quit App` and `Open App` actions to quit and relaunch Dato whenever needed. For example, you could create a focus shortcut that quits Dato, plays some music, turns off notifications, etc.
+This is a perfect use case for the built-in Shortcuts app. You can use the `Quit App` and `Open App` actions to quit and relaunch Dato whenever needed. For example, you could create a focus shortcut that quits Dato, plays some music, turns off notifications, etc.
 
-To hide the Dato clock at certain time of the day, you need the [Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12). The Shortery app is only a temporary requirement. It's almost certain that Apple will introduce automation for Shortcuts in macOS 13.
+To hide the Dato clock at a certain time of the day, you need the [Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12). The Shortery app is only a temporary requirement. It's almost certain that Apple will introduce automation for Shortcuts in macOS 13.
 
 #### Can I change the background color of Dato?
 
 No, but you can make it white/black by turning off the “Vibrancy” setting.
 
-#### How can I export, import, sync, or backup the settings?
+#### How can I export, import, sync, or back up the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
 

@@ -29,7 +29,7 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 #### It does not support the video call service I use
 
-I'm happy add support for more services. Just [send me](https://sindresorhus.com/feedback?product=Today&referrer=Website-FAQ) an invitation link (replace a few characters at the end to anonymize it).
+I'm happy to add support for more services. Just [send me](https://sindresorhus.com/feedback?product=Today&referrer=Website-FAQ) an invitation link (replace a few characters at the end to anonymize it).
 
 The app can also detect the link of any video call service if you correctly add it in the Calendar app:
 - Create a new event.
@@ -50,7 +50,7 @@ Check out my free [Velja app](https://sindresorhus.com/velja). It has built-in s
 
 #### I have Fantastical set as my default calendar app but Today still opens Calendar
 
-There is a [macOS bug](https://github.com/feedback-assistant/reports/issues/290) which makes the default calendar app setting not work. To work around this, drag an event from the Calendar app into Finder, right-click on it, select “Get Info”, select your calendar in the “Open with” field, and click “Change All”.
+There is a [macOS bug](https://github.com/feedback-assistant/reports/issues/290) that makes the default calendar app setting not work. To work around this, drag an event from the Calendar app into Finder, right-click on it, select “Get Info”, select your calendar in the “Open with” field, and click “Change All”.
 
 #### Can you add x feature?
 
@@ -94,7 +94,7 @@ You might have to re-authenticate your Google account. Open the Calendar app's s
 
 #### Can you add some widgets?
 
-I don't plan to add this. Very few users actually use widgets on macOS, so it's not worth the effort for a free app. macOS already has some built-in calendar widgets. And you can get more widgets with my [Dato app](/dato).
+I don't plan to add this. Very few users use widgets on macOS, so it's not worth the effort for a free app. macOS already has some built-in calendar widgets. And you can get more widgets with my [Dato app](/dato).
 
 #### Can you support iOS?
 
@@ -108,7 +108,7 @@ MeetingBar is mainly for video calls and has a gadzillion settings and features 
 
 Meeter is mainly for video calls. It's also quite buggy and does not follow macOS conventions. Today has a cleaner look and is opinionated so you don't have to make so many choices. If all you need is a quick way to join video calls, Today is probably what you want. If you need more advanced features, MeetingBar or [Dato](/dato) may be a better choice.
 
-#### How can I export, import, sync, or backup the settings?
+#### How can I export, import, sync, or back up the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
 

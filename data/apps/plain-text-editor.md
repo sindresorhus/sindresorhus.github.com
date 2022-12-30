@@ -70,7 +70,7 @@ I don't plan to add that. It's not essential and I'm trying to keep the app simp
 
 This is unfortunately a macOS bug and out of my control.
 
-#### How can I export, import, sync, or backup the settings?
+#### How can I export, import, sync, or back up the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
 
