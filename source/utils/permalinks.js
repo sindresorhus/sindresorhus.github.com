@@ -35,15 +35,22 @@ export const getPermalink = (slug = '', type = 'page') => {
 	const _slug = cleanSlug(slug);
 
 	switch (type) {
-		case 'category':
+		case 'category': {
 			return createPath(basePathname, CATEGORY_BASE, _slug);
-		case 'tag':
+		}
+
+		case 'tag': {
 			return createPath(basePathname, TAG_BASE, _slug);
-		case 'post':
+		}
+
+		case 'post': {
 			return createPath(basePathname, POST_BASE, _slug);
+		}
+
 		case 'page': // eslint-disable-line unicorn/no-useless-switch-case
-		default:
+		default: {
 			return createPath(basePathname, _slug);
+		}
 	}
 };
 
