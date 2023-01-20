@@ -282,6 +282,10 @@ open -b company.thebrowser.Browser --new --args --profile-directory "User Data/P
 
 This can be resolved by the Orion browser itself. [Vote on this issue.](https://orionfeedback.org/d/3445-profile-proxy-app-should-identify-itself-as-a-browser)
 
+#### Can it open a specific browser when I double-click a file in the Google Drive folder in Finder?
+
+You can use a custom rule for this in the settings. Set the source app to `Finder` and the “URL Prefix” to `google.com/open`.
+
 #### How can I open a website from Spotlight results in a specific browser? {#spotlight}
 
 Create a custom rule where you set the Spotlight app as “Source Apps”. The app is located at `/System/Library/CoreServices/Spotlight.app`.

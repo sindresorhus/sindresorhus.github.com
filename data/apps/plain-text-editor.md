@@ -48,6 +48,10 @@ It helps you focus on the actual writing, instead of getting distracted with edi
 
 This is a macOS bug. Instead, save the file from the “File” menu or by pressing <kbd>Command</kbd> + <kbd>S</kbd>.
 
+#### How can I toggle “Stay on Top” with a keyboard shortcut?
+
+The keyboard shortcut is listed in the “Window” menu in the menu bar.
+
 #### Can I open a text file directly from the command-line?
 
 Make a [shell alias](https://shapeshed.com/unix-alias/):

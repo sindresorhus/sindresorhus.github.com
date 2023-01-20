@@ -19,6 +19,12 @@ Rich text copied from a different device will not have its formatting cleared be
 
 <br>
 
+### Tips
+
+- Right-click the menu bar icon to toggle the “Automatically clear formatting” setting.
+
+<br>
+
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback

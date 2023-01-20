@@ -83,9 +83,6 @@ None -->
 <a href="https://strapi.io/?ref=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
 	<img src="/assets/thanks/strapi-logo.svg" width="380" alt="Strapi">
 </a>
-<a href="https://oss.capital" class="sponsor" rel="nofollow" style="position:relative;left:-5px;margin:10px 0">
-	<img src="/assets/thanks/oss-capital-logo.svg" width="400" alt="OSS Capital">
-</a>
 <a href="https://bit.io" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
 	<img src="/assets/thanks/bitio-logo.svg" width="300" alt="bit.io">
 </a>
@@ -385,6 +382,7 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Nat Friedman](https://github.com/nat)
 - [Tripwire](https://github.com/Tripwire)
 - [Varun Srinivasan](https://github.com/varunsrin)
+- [OSS Capital](https://oss.capital)
 
 ---
 

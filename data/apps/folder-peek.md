@@ -111,6 +111,10 @@ You may also want to [disable the screenshot preview](https://osxdaily.com/2019/
 
 A Smart Folder is a special feature in Finder that allows you to create a virtual folder based on specific search criteria. The files within the Smart Folder are not physically stored in one location, but rather are located in different areas of your computer. Unfortunately, it is not possible to add a Smart Folder to Folder Peek as the functionality cannot be replicated.
 
+#### How do I remove a folder from Folder Peek?
+
+Click the menu bar item, go to the first menu bar item (which is named after your folder), go to its submenu, and then select “Remove Folder”.
+
 #### Can I navigate to a folder multiple levels deep and then drop a file into it?
 
 No, that is unfortunately not possible. Folder Peek is built as a system menu, and a menu cannot be kept open if it's not focused. Instead, first, navigate to the nested folder, click to open it in Finder, and then drag & drop the file into the Finder window.
