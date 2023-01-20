@@ -19,7 +19,26 @@ The app is [highly optimized](https://machinelearning.apple.com/research/stable-
 
 ### Tips
 
-- When you save a generated image, it includes a lot of useful metadata (prompt, steps, etc). You can [view this in Finder](https://twitter.com/sindresorhus/status/1611441129622278146/photo/1) by right-clicking the image file and selecting “Get Info”. The file also includes some relevant tags which can be used to [create smart folders](https://support.apple.com/guide/mac-help/tag-files-and-folders-mchlp15236/mac).
+#### Preview
+
+Click a thumbnail to view a larger version of it. Click again to exit.
+
+#### Keyboard shortcuts
+
+When in preview mode, there are some keyboard shortcuts available:
+- <kbd>◀</kbd> — Previous image
+- <kbd>▶</kbd> — Next image
+- <kbd>Space</kbd> — Save image
+- <kbd>Command + C</kbd> — Copy image
+- <kbd>Esc</kbd> — Exit preview
+
+#### Negative prompt
+
+To write a [negative prompt](https://dreamlike.art/guides/guide-to-stable-diffusion-negative-prompt-parameter) (what to exclude), write `##` after your prompt, followed by your negative prompt. For example, “photo of a cake, high-quality ## strawberry, out of frame”, where `strawberry, out of frame` is your negative prompt. Anything after the `##` is your negative prompt. You only write `##` once.
+
+#### Metadata
+
+When you save a generated image, it includes a lot of useful metadata (prompt, steps, etc). You can [view this in Finder](https://twitter.com/sindresorhus/status/1611441129622278146/photo/1) by right-clicking the image file and selecting “Get Info”. The file also includes some relevant tags which can be used to create [smart folders](https://support.apple.com/guide/mac-help/tag-files-and-folders-mchlp15236/mac).
 
 <br>
 

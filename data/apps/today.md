@@ -54,7 +54,7 @@ There is a [macOS bug](https://github.com/feedback-assistant/reports/issues/290)
 
 #### Can you add x feature?
 
-This app is a personal experiment to make the simplest calendar app possible. I'm happy to consider requests, but I'm also trying to hard keep the app simple.
+This app is a personal experiment to make the simplest calendar app possible. I'm happy to consider requests, but I'm also trying hard to keep the app simple.
 
 #### Can the app show notifications for events? {#notifications}
 
