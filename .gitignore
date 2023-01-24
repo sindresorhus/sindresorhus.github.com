@@ -4,3 +4,4 @@ yarn.lock
 /.output
 *.sublime-project
 *.sublime-workspace
+.astro

@@ -1,12 +1,11 @@
 ---
 title: Battery Indicator
 subtitle: Remaining battery time in your menu bar
-description:
 date: 2017-02-18
 platforms:
   - macOS
-isPaid: true
 appStoreId: 1206020918
+isPaid: true
 ---
 
 Battery Indicator lets you quickly glance the remaining battery time or percentage right in your menu bar.

@@ -43,13 +43,13 @@ const canonicalURL = new URL(Astro.url.pathname.replace(/\.html$/, ''), Astro.si
 <AstroSeo
 	title={title}
 	description={description}
-	canonical={canonicalURL}
+	canonical={canonicalURL.toString()}
 	noindex={noindex}
 	nofollow={nofollow}
 	openGraph={{
 		title: ogTitle,
 		description,
-		url: canonicalURL,
+		url: canonicalURL.toString(),
 		type: ogType,
 		images: image ? [
 			{

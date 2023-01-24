@@ -4,7 +4,7 @@ subtitle: Photos on your home screen using widgets
 date: 2020-09-22
 platforms:
   - iOS
-  - macOS (Apple Silicon)
+  - macOS (Apple silicon)
 appStoreId: 1532588789
 ---
 

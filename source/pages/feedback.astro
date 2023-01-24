@@ -7,7 +7,7 @@ const meta = {
 };
 
 // eslint-disable-next-line unicorn/no-await-expression-member
-const apps = (await fetchApps()).map(({id, title, url, iconUrl, repoUrl, hasFaqSection}) => ({id, title, url, iconUrl, repoUrl, hasFaqSection}));
+const apps = (await fetchApps()).map(({title, url, iconUrl, repoUrl, hasFaqSection}) => ({title, url, iconUrl, repoUrl, hasFaqSection}));
 
 const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500';
 ---
@@ -15,7 +15,7 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 <Layout {meta}>
 	<div id="main" class="flex flex-col sm:min-h-screen max-w-3xl mx-auto px-8 mt-6 mb-16" class={proseCSS}>
 		<div class="text-center">
-			<img id="app-icon" class="mx-auto mb-2" width="128" height="128">
+			<img id="app-icon" class="flex mx-auto mb-2 not-prose invisible" width="128" height="128">
 			<h1 id="product-name" class="text-4xl md:text-5xl font-bold leading-tighter tracking-tighter mb-2 font-heading"></h1>
 			<h2 class="text-2xl md:text-3xl leading-tighter tracking-tighter mb-8">Feedback & Support</h2>
 			<div id="additional-info" class={proseCSS} style="font-size:16px"></div>
@@ -43,7 +43,7 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 	</div>
 </Layout>
 
-<script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.3.min.js" crossorigin="anonymous"></script>
 
 <script type="module" is:inline define:vars={{apps}}>
 	if (window.location.search === '?success') {
@@ -64,7 +64,7 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 		$('#product-name').text(product);
 
 		if (app) {
-			$('#app-icon').css('display', 'flex').attr('src', app.iconUrl);
+			$('#app-icon').css('visibility', 'visible').attr('src', app.iconUrl);
 		}
 
 		if (app?.repoUrl) {

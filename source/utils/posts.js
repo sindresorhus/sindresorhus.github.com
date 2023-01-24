@@ -1,30 +1,28 @@
 import getReadingTime from 'reading-time';
+import {getCollection} from 'astro:content';
 
-const getNormalizedPost = async post => {
-	const {frontmatter, compiledContent, rawContent, file} = post;
-	const id = file.split('/').pop().split('.').shift();
+const normalizePost = async post => {
+	const {id, body, data} = post;
+	const {Content} = await post.render();
 
+	// TODO: Nest all these under the `.data` property.
 	return {
-		...frontmatter,
+		...data,
 		id,
-		slug: frontmatter.slug ?? id,
-		body: compiledContent(),
-		readingTime: Math.ceil(getReadingTime(rawContent()).minutes),
+		slug: data.slug ?? id,
+		readingTime: Math.ceil(getReadingTime(body).minutes),
+		Content,
 	};
 };
 
 const load = async function () {
-	const posts = import.meta.glob('~/../data/blog/**/*.md', {eager: true});
+	const posts = await getCollection('blog', app => !app.data.draft);
 
-	let normalizedPosts = Object.keys(posts).map(async key => {
-		const post = await posts[key];
-		return getNormalizedPost(post);
-	});
-
-	normalizedPosts = await Promise.all(normalizedPosts);
+	const normalizedPosts = await Promise.all(
+		posts.map(async post => normalizePost(post)),
+	);
 
 	return normalizedPosts
-		.filter(post => !post.draft)
 		.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 };
 
@@ -35,6 +33,7 @@ export const fetchPosts = async () => {
 	return cachedPosts;
 };
 
+// TODO: Use `getEntryBySlug`
 export const findPostsByIds = async ids => {
 	if (!Array.isArray(ids)) {
 		return [];

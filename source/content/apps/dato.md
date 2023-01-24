@@ -16,7 +16,7 @@ Dato supports all the locales and languages that macOS supports for the menu bar
 
 [MacStories review of Dato.](https://www.macstories.net/reviews/dato-review-calendar-events-and-time-zones-from-your-macs-menu-bar/)
 
-Dato requires macOS 12.4 or later.
+Dato requires macOS 13.1 or later.
 
 <sup>**Want to see this app included in [Setapp](https://setapp.com)?** Help make it happen by [requesting it here](https://support.setapp.com/hc/en-us/articles/213780569-Can-I-suggest-an-app-).</sup>
 
@@ -51,7 +51,7 @@ Dato requires macOS 12.4 or later.
 
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.3.2-trial-1669698392). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.4.0-trial-1674803184). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 <br>
 
@@ -405,6 +405,7 @@ I open-source [most things](https://github.com/sindresorhus) I make, but I donâ€
 
 ### Older Versions
 
+- [Last macOS 12 compatible version (free)](https://github.com/sindresorhus/meta/files/10516478/Dato.4.3.3.-.macOS.12.zip) *(4.3.3)*
 - [Last macOS 11 compatible version (free)](https://github.com/sindresorhus/meta/files/8935698/Dato.3.3.8.-.macOS.11.zip) *(3.3.8)*
 - [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/6758848/Dato.2.6.1.-.macOS.10.15.zip) *(2.6.1)*
 - [Last macOS 10.14 compatible version (free)](https://github.com/sindresorhus/meta/files/5360452/Dato.1.14.9.-.Special.last.Mojave.compatible.release.zip) *(1.4.9)*

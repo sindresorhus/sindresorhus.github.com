@@ -1,7 +1,6 @@
 ---
 title: Jiffy
 subtitle: Discover & share the best GIFs
-description: ''
 date: 2020-03-25
 platforms:
   - macOS

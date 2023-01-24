@@ -1,21 +1,22 @@
-const normalizeApps = async app => {
-	const {frontmatter, compiledContent, file} = app;
-	const id = file.split('/').pop().split('.').shift();
-	const date = Date.parse(frontmatter.date);
-	const date30DaysAgo = new Date(new Date().setDate(new Date().getDate() - 30));
+import {getCollection} from 'astro:content';
 
-	// TODO: Validate that there are no missing props.
+const normalizeApps = async app => {
+	const {data, slug} = app;
+	const date = Date.parse(data.date);
+	const date30DaysAgo = new Date(new Date().setDate(new Date().getDate() - 30));
 
 	const faqHeadingTitle = 'Frequently Asked Questions';
 
 	const mainLinks = {
-		...(frontmatter.repoUrl && {'Learn More': frontmatter.repoUrl}),
-		...frontmatter.mainLinks,
+		...(data.repoUrl && {'Learn More': data.repoUrl}),
+		...data.mainLinks,
 	};
 
 	let hasFaqSection = false;
 
-	const headerLinks = app.getHeadings()
+	const {Content, headings} = await app.render();
+
+	const headerLinks = headings
 		.filter(header => header.depth === 3)
 		.map(({text, slug}) => {
 			if (text === faqHeadingTitle) {
@@ -28,16 +29,15 @@ const normalizeApps = async app => {
 
 	const links = {
 		...Object.fromEntries(headerLinks),
-		...frontmatter.links,
-		// TODO
-		...(frontmatter.showSupportLink !== false && {Support: `/feedback?product=${encodeURIComponent(frontmatter.title)}`}),
+		...data.links,
+		...(data.showSupportLink !== false && {Support: `/feedback?product=${encodeURIComponent(data.title)}`}),
 	};
 
 	let screenshots = await import.meta.glob('~/../public/apps/*/screenshot*.{png,jpg}', {eager: false});
 
 	screenshots = await Promise.all(
 		Object.entries(screenshots)
-			.filter(([key]) => key.startsWith(`/public/apps/${id}/`))
+			.filter(([key]) => key.startsWith(`/public/apps/${slug}/`))
 			.map(([, value]) => value()),
 	);
 
@@ -48,31 +48,29 @@ const normalizeApps = async app => {
 	});
 
 	return {
-		...frontmatter,
-		id,
+		...data,
 		date,
-		slug: frontmatter.slug ?? id,
-		url: `/${id}`,
-		iconUrl: `/apps/${id}/icon.png`,
-		body: compiledContent(),
-		hasIOSAppIcon: frontmatter.platforms.includes('iOS') && !frontmatter.platforms.includes('macOS'),
+		slug: data.slug ?? slug,
+		url: `/${slug}`,
+		iconUrl: `/apps/${slug}/icon.png`,
+		hasIOSAppIcon: data.platforms.includes('iOS') && !data.platforms.includes('macOS'),
 		isNew: date > date30DaysAgo,
 		mainLinks,
 		links,
 		hasFaqSection,
 		screenshots,
+		Content,
 	};
 };
 
 const load = async () => {
-	const apps = import.meta.glob('~/../data/apps/**/*.md', {eager: true});
+	const apps = await getCollection('apps', app => !app.data.draft);
 
 	const normalizedApps = await Promise.all(
-		Object.values(apps).map(async app => normalizeApps(await app)),
+		apps.map(async app => normalizeApps(app)),
 	);
 
 	return normalizedApps
-		.filter(app => !app.draft)
 		.sort((a, b) => b.date - a.date);
 };
 
@@ -83,7 +81,8 @@ export const fetchApps = async () => {
 	return cachedApps;
 };
 
-export const fetchApp = async id => fetchApps().filter(app => app.id === id);
+// TODO: Use `getEntryBySlug`
+// export const fetchApp = async id => fetchApps().filter(app => app.id === id);
 
 // `prose-code:before:hidden prose-code:after:hidden`: https://github.com/tailwindlabs/tailwindcss-typography/issues/18#issuecomment-1280797041
 export const proseCSS = 'container mx-auto px-6 sm:px-6 max-w-3xl prose prose-lg lg:prose-xl dark:prose-invert dark:prose-headings:text-slate-300 prose-headings:font-heading prose-headings:leading-tighter prose-headings:tracking-tighter prose-headings:font-bold prose-img:rounded-md prose-img:shadow-lg mt-8 prose-a:text-black/75 dark:prose-a:text-white/90 prose-a:underline prose-a:underline-offset-4 prose-a:decoration-primary-500 hover:prose-a:decoration-primary-600 prose-a:decoration-2 hover:prose-a:decoration-4 hover:prose-a:text-black dark:hover:prose-a:text-white break-words tracking-normal prose-h4:tracking-normal prose-h5:tracking-normal prose-h6:tracking-normal prose-code:before:hidden prose-code:after:hidden';
