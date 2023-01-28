@@ -236,7 +236,15 @@ This is currently not possible. The Slack app does not accept a normal deep link
 
 #### Can the default browser change based on the active [focus mode](https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac)? {#focus-mode}
 
-You can use the Shortcuts app for this. Make a shortcut for each focus mode you want to handle, where you use the “Set Default Browser” action that Velja provides. You will need the [Shortery app](https://apps.apple.com/app/id1594183810) to automatically run these shortcuts when the focus mode changes.
+You can use the Shortcuts app for this. Make a shortcut for each focus mode you want to handle, where you use the “Set Default Browser” action that Velja provides. You will need the [Shortery app](https://apps.apple.com/app/id1594183810) to automatically run these shortcuts when the focus mode changes. (Shortery will most likely not be needed in macOS 14 as it's very likely it will have support for [automations](https://support.apple.com/en-gb/guide/shortcuts/apd690170742/6.0/ios/16.0))
+
+#### Can the default browser change depending on whether I'm at work or not?
+
+See the above answer. You just create a work focus mode.
+
+#### Can you support [Focus filters](https://support.apple.com/en-us/HT212608)? {#focus-filters}
+
+Focus filters are meant for filtering content when a specific focus is enabled. Changing settings are better done using Shortcuts, as shown above.
 
 #### Can you add iCloud syncing for the rules? {#icloud}
 

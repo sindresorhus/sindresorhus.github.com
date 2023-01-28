@@ -40,6 +40,12 @@ I don't plan to add that as I want to keep the app simple. I do plan to make a p
 
 I don't plan to add that.
 
+#### Does the app support tabs? {#tabs}
+
+Yes. Click “View › Show Tab Bar” in the menu bar and then click the plus button in the window.
+
+You can also press <kbd>Command</kbd> + <kbd>N</kbd> if you have [tabs enabled for document apps](https://support.apple.com/en-gb/guide/mac-help/mchla4695cce/mac).
+
 #### How does “brain dump mode” help with creativity?
 
 It helps you focus on the actual writing, instead of getting distracted with editing and nitpicking. [Learn more.](https://writingcooperative.com/how-the-brain-dump-method-can-boost-your-writing-output-881089bb897a)
