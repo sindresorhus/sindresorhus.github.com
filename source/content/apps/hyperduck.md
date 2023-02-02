@@ -44,6 +44,18 @@ You can now run this shortcut on your iOS device to trigger the `Unicorn` shortc
 
 [Learn more about running shortcuts using the custom URL scheme.](https://support.apple.com/en-gb/guide/shortcuts/apd624386f42/ios)
 
+#### Trigger Raycast deeplinks {#raycast}
+
+Similar to the above, we can use a [Raycast deeplink](https://manual.raycast.com/deeplinks).
+
+For example, on your iOS device, make a new shortcut, add the “Send URLs to Mac” action, and in the URL field, write:
+
+```
+raycast://confetti
+```
+
+You can now trigger confetti to show up on your Mac from your iPhone.
+
 <br>
 
 ### Frequently Asked Questions {#faq}
@@ -68,11 +80,22 @@ You can now run this shortcut on your iOS device to trigger the `Unicorn` shortc
 - Supports any browser on your Mac
 - You don't need to keep the tab open on your iOS device for it to be available on your Mac
 
+#### How is it better than Safari Tab Groups? {#safari-tab-groups}
+
+- Works in any app with a share sheet, not just Safari
+- Supports any browser on your Mac
+- You don't need to keep the tab open on your iOS device for it to be available on your Mac
+
 #### How is it better than Safari Reading List? {#safari-reading-list}
 
 - Links are opened right in your browser so you cannot miss them
 - No need to spend time looking for the link in a long list of links
 - Supports any browser on your Mac
+
+#### How is it better than remembering the URL and typing it out on your Mac?
+
+- Works with every human
+- Does not strain fingers and brain
 
 #### How is it better than Handoff? {#handoff}
 
@@ -102,6 +125,24 @@ You can now run this shortcut on your iOS device to trigger the `Unicorn` shortc
 - Opens links on your Mac in the background
 - Does not litter your email inbox with lots of random links
 
+#### How is it better than [Pushbullet](https://www.pushbullet.com)? {#pushbullet}
+
+- Works in any app with a share sheet
+- Pushbullet does not have a iOS or macOS app
+- Does not require signing up for another account
+
+#### How is it better than the Firefox [Send Tabs](https://support.mozilla.org/en-US/kb/send-tab-firefox-ios-another-device) feature?
+
+- Works in any app with a share sheet, not just Firefox
+- Supports any browser on your Mac
+- Requires less taps
+
+#### How is it better than the Firefox tab sync?
+
+- Works in any app with a share sheet, not just Firefox
+- Supports any browser on your Mac
+- You don't need to keep the tab open on your iOS device for it to be available on your Mac
+
 #### Can it open links in a specific browser on my Mac?
 
 You can use my free [Velja app](/velja) for this. Create a custom rule where you set Hyperduck as the source app.
@@ -117,8 +158,6 @@ No. I would like to keep the app simple.
 #### Can you support the reverse - Mac to iOS?
 
 No. That is not something I plan to support. It's simply not something I need myself and it would make the app much more complicated.
-
-Check out [Pushbullet](https://www.pushbullet.com) for such functionality.
 
 #### Can you localize the app into my language?
 

@@ -28,7 +28,7 @@ Make sure you read the below tips and FAQ.
 - You can use the Shortcuts support to show/hide certain folders depending on what project you are working on.
 - If you have the menu bar item folders next to each other and you have one folder open, you can press <kbd>Control+Tab</kbd> or <kbd>Shift+Control+Tab</kbd> to switch between them.
 - Press the <kbd>Option</kbd> key while the menu is open to show the `…` menu item at the top if it normally is at the bottom.
-- Right-click or Option-click the menu bar item to open the folder.
+- Right-click or <kbd>Option</kbd>-click the menu bar item to open the folder.
 - Press the <kbd>Option</kbd> key while viewing a subfolder to reveal more actions. For example, sort order settings.
 
 ##### Links

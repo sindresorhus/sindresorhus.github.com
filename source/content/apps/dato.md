@@ -94,6 +94,8 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 
 ### Keyboard Shortcuts
 
+#### General
+
 <table>
 	<tr>
 		<td>
@@ -112,7 +114,7 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 		<td>Same day in the previous/next week in the calendar</td>
 	</tr>
 	<tr>
-		<td>
+		<td class="whitespace-nowrap">
 			<kbd>option</kbd> <kbd>◀</kbd>
 			<br>
 			<kbd>option</kbd> <kbd>▶</kbd>
@@ -120,7 +122,7 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 		<td>Previous/next month in the calendar</td>
 	</tr>
 	<tr>
-		<td>
+		<td class="whitespace-nowrap">
 			<kbd>shift</kbd> <kbd>option</kbd> <kbd>◀</kbd>
 			<br>
 			<kbd>shift</kbd> <kbd>option</kbd> <kbd>▶</kbd>
@@ -162,6 +164,44 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 			<kbd>command</kbd> <kbd>q</kbd>
 		</td>
 		<td>Quit the app</td>
+	</tr>
+</table>
+
+#### Fullscreen notifications
+
+<table>
+	<tr>
+		<td>
+			<kbd>esc</kbd>
+			/
+			<kbd>space</kbd>
+		</td>
+		<td>Dismiss notification</td>
+	</tr>
+	<tr>
+		<td>
+			<kbd>return</kbd>
+		</td>
+		<td>Run the default action (highlighted button)</td>
+	</tr>
+</table>
+
+#### Time travel
+
+<table>
+	<tr>
+		<td class="whitespace-nowrap">
+			<kbd>command</kbd> <kbd>◀</kbd>
+			<br>
+			<kbd>command</kbd> <kbd>▶</kbd>
+		</td>
+		<td>Activate time travel and offset it by one step backwards or forwards</td>
+	</tr>
+	<tr>
+		<td>
+			<kbd>space</kbd>
+		</td>
+		<td>Deactivate time travel</td>
 	</tr>
 </table>
 
@@ -304,11 +344,19 @@ Dato supports opening calendar events directly in Calendar, Fantastical, BusyCal
 
 Open the Calendar app's settings, go to the “Accounts” pane, choose the relevant calendar service in the left sidebar, and then change the “Refresh Calendars” preference. Ideally, it should be set to “Push”, but not all services support that, like Google.
 
-#### How can I get notifications for upcoming events? {#notifications}
+#### How can I get system notifications for upcoming events? {#notifications}
 
 Dato does not support this as you can just set it up in the built-in Calendar app. Open the Calendar app's settings, select the “Alerts” pane, and there you can choose when to be notified.
 
-What Dato does support is showing a notification right when an event for a video call starts. The notification includes a button to join the video call directly. You can enable this notification in the Dato settings.
+What Dato does support is showing a notification right when an event for a video call starts. The notification includes a button to join the video call directly. You can enable this notification in the Dato settings. You can also enable fullscreen notifications.
+
+#### How can I enable fullscreen notifications only at certain times or for certain conditions?
+
+This is a perfect use case for the built-in Shortcuts app. You can use the `Set Fullscreen Notifications State` action provided by Dato to enable or disable fullscreen notifications. For example, to only enable fullscreen notifications during work hours, you will need to create two shortcuts. One to enable fullscreen notifications and one to disable it. You also need the [Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12) to run the shortcuts at the correct times. The Shortery app is only a temporary requirement. It's almost certain that Apple will introduce automation for Shortcuts in macOS 14.
+
+#### How can I enable fullscreen notification only when a certain [Focus mode](https://support.apple.com/en-gb/guide/mac-help/mchl613dc43f/mac) is active?
+
+Same as the above but make the Shortery app run the shortcuts when the Focus mode changes.
 
 #### Where can I find the changelog?
 
@@ -371,7 +419,7 @@ Alternatively, you could use a browser picker like [Velja](https://sindresorhus.
 
 This is a perfect use case for the built-in Shortcuts app. You can use the `Quit App` and `Open App` actions to quit and relaunch Dato whenever needed. For example, you could create a focus shortcut that quits Dato, plays some music, turns off notifications, etc.
 
-To hide the Dato clock at a certain time of the day, you need the [Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12). The Shortery app is only a temporary requirement. It's almost certain that Apple will introduce automation for Shortcuts in macOS 13.
+To hide the Dato clock at a certain time of the day, you need the [Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12). The Shortery app is only a temporary requirement. It's almost certain that Apple will introduce automation for Shortcuts in macOS 14.
 
 #### Can I change the background color of Dato?
 

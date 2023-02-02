@@ -145,7 +145,7 @@ None -->
 - [aggre](https://twitter.com/aggre_)
 - [robertgrzonka](https://twitter.com/rgrzonka)
 - [Derk-Jan Karrenbeld](https://twitter.com/SleeplessByte)
-- David Passarelli
+- [David Passarelli](https://github.com/DPassarelli)
 - [Pieter Levels](https://twitter.com/levelsio)
 - Travis Fischer
 - [Josh Duff (TehShrike)](https://twitter.com/TehShrike)
@@ -251,6 +251,12 @@ None -->
 - [Gary Ho](https://github.com/GreenSleepes)
 - [Marmalade](https://github.com/withmarmalade)
 - [Ivan Miskovic](https://github.com/ivantm)
+- [Jason Rubenstein](https://github.com/rubixibuc)
+- [Mom's Friendly Development Company](https://github.com/MomsFriendlyDevCo)
+- [Alex / KATT](https://github.com/KATT)
+- [Mention Me Ltd](https://github.com/mention-me)
+- [Alexandru Ifrim](https://github.com/aifrim)
+- [@cacherich](https://github.com/cacherich)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:11px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>

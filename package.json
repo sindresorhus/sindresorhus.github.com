@@ -20,7 +20,7 @@
 		"@tailwindcss/typography": "^0.5.9",
 		"@typescript-eslint/parser": "^5.49.0",
 		"astro": "^2.0.2",
-		"astro-icon": "^0.8.0",
+		"astro-iconify": "^1.2.0",
 		"eslint-plugin-astro": "^0.23.0",
 		"limax": "^v3.0.0",
 		"reading-time": "^1.5.0",

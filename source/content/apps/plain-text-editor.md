@@ -40,6 +40,10 @@ I don't plan to add that as I want to keep the app simple. I do plan to make a p
 
 I don't plan to add that.
 
+#### The text sometimes jumps when I write fast
+
+This is a macOS bug. There is unfortunately nothing I can do about it.
+
 #### Does the app support tabs? {#tabs}
 
 Yes. Click “View › Show Tab Bar” in the menu bar and then click the plus button in the window.

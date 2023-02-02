@@ -72,6 +72,10 @@ I don't plan to support this. [DiffusionBee](https://diffusionbee.com) supports 
 
 The Stable Diffusion library used by this app only supports squares.
 
+#### Why can it not generate adult images?
+
+The app would not be allowed on the App Store if it allowed creating such images.
+
 #### Why does it take so long to generate?
 
 Several factors can affect the speed of image generation, including the performance of your machine and the amount of available memory and CPU. Try closing down other apps or restarting your machine before generating images.

@@ -127,7 +127,7 @@ More integrations:
 
 - [Command-line tool](https://github.com/sindresorhus/one-thing)
 - [Node.js API](https://github.com/sindresorhus/one-thing)
-- [Raycast command](https://github.com/raycast/script-commands/tree/master/commands#one-thing)
+- [Raycast commands](https://github.com/raycast/script-commands/tree/master/commands#one-thing)
 
 #### Shortcuts app
 
