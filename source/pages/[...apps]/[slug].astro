@@ -59,8 +59,9 @@ const meta = {
 						</>
 						{Object.keys(app.mainLinks).length > 0 &&
 								<>
+									<!-- We apply a fixed size so it matches the App Store button. -->
 									{Object.entries(app.mainLinks).map(([title, url]) => (
-										<a href={url} class="text-white bg-primary-700 hover:bg-primary-600 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-bold rounded-lg text-xl px-6 text-center mb-2 flex justify-center items-center" style="width: 180px; height: 60px;">{title}</a>
+										<a href={url} class="text-white bg-primary-700 hover:bg-primary-600 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-bold rounded-lg text-xl px-6 text-center mb-2 flex justify-center items-center whitespace-nowrap px-10 py-4" style="width: 180px; height: 60px;">{title}</a>
 									))}
 								</>
 						}
