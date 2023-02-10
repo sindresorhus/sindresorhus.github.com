@@ -158,10 +158,16 @@ I don't have any immediate plans to localize the app.
 
 <br>
 
+### Older Versions
+
+- [1.6.4](https://github.com/sindresorhus/meta/files/10793621/Pure.Paste.1.6.4.-.macOS.12.zip) for macOS 12+
+
+<br>
+
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive updates.
 
-[Download](https://dsc.cloud/sindresorhus/Pure-Paste-1.3.10-1661933216) *(1.3.10)*
+[Download](https://dsc.cloud/sindresorhus/Pure-Paste-1.7.0-1676983160.zip) *(1.7.0)*
 
-*Requires macOS 12 or later*
+*Requires macOS 13 or later*

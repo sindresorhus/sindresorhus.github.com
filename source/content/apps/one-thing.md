@@ -77,9 +77,15 @@ I have made a special version of One Thing with a different identifier. You can 
 
 #### How can I show the next task in the “Today” list in [Things](https://culturedcode.com/things/) in One Thing? {#things}
 
-You can use the macOS Shortcuts app for this. Things, unfortunately, does not have very good Shortcuts support ([Please tell them to improve that!](https://culturedcode.com/contact/)), so we have to resort to AppleScript to fetch the next task in the “Today” list. Here's an [example shortcut](https://www.icloud.com/shortcuts/62c0f5fc4d194b72a6f97ce8cedf698f).
+You can use the Shortcuts app for this. Here is an [example shortcut](https://www.icloud.com/shortcuts/7f8a4cc8764348518c5b7774d60191cc) that sets the next todo in “Today” as the text in One Thing.
 
 Shortcuts does not yet support automation, so to have the shown todo stay in sync with Things, we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut. Choose the “Application” trigger type and make it trigger when Things becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually.
+
+#### How can I show the upcoming reminder from the Reminders app in One Thing? {#reminders}
+
+You can use the Shortcuts app for this. Here is an [example shortcut](https://www.icloud.com/shortcuts/4bed5f56a0f94e9a9e9ba05c97c6e64b).
+
+Shortcuts does not yet support automation, so to have the shown todo stay in sync with Reminders, we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut. Choose the “Application” trigger type and make it trigger when Reminders becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually.
 
 #### How can I show a todo from my favorite todo app in One Thing?
 

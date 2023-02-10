@@ -10,7 +10,7 @@ appStoreId: 1529006487
 
 Record audio directly from the menu bar or with a global keyboard shortcut.
 
-<sup>**Want to see this app included in [Setapp](https://setapp.com)?** Help make it happen by [requesting it here](https://support.setapp.com/hc/en-us/articles/213780569-Can-I-suggest-an-app-).</sup>
+<sup>**Want to see this app included in [Setapp](https://setapp.com)?** Help make it happen by [requesting it here](https://www.facebook.com/groups/setapp/posts/1849644978569967/).</sup>
 
 <br>
 

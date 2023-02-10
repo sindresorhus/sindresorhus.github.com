@@ -78,7 +78,7 @@ The app would not be allowed on the App Store if it allowed creating such images
 
 #### Why does it take so long to generate?
 
-Several factors can affect the speed of image generation, including the performance of your machine and the amount of available memory and CPU. Try closing down other apps or restarting your machine before generating images.
+Several factors can affect the speed of image generation, including the performance of your device and the amount of available memory and CPU. Try closing down other apps or restarting your device before generating images.
 
 And bear in mind that the initial generation after installing the app may take longer due to model validation.
 

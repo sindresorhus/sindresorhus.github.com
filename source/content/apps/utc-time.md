@@ -57,6 +57,7 @@ Go [here](https://apps.apple.com/app/id1538245904) and click â€œVersion Historyâ
 
 ### Older Versions
 
+- [Last macOS 12 compatible version](https://github.com/sindresorhus/meta/files/10767291/UTC.Time.1.5.1.-.macOS.12.zip) *(1.5.1)*
 - [Last macOS 11 compatible version](https://github.com/sindresorhus/meta/files/8007477/UTC.Time.1.3.0.-.macOS.11.zip) *(1.3.0)*
 
 <br>
@@ -65,6 +66,6 @@ Go [here](https://apps.apple.com/app/id1538245904) and click â€œVersion Historyâ
 
 A special version for users that cannot access the App Store. It won't receive updates.
 
-[Download](https://dsc.cloud/sindresorhus/UTC-Time-1.5.0-1667392095) *(1.5.0)*
+[Download](https://dsc.cloud/sindresorhus/UTC-Time-1.6.0-1676641519) *(1.6.0)*
 
-*Requires macOS 12 or later*
+*Requires macOS 13 or later*

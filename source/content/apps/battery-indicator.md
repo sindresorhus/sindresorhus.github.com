@@ -10,7 +10,7 @@ isPaid: true
 
 Battery Indicator lets you quickly glance the remaining battery time or percentage right in your menu bar.
 
-<sup>**Want to see this app included in [Setapp](https://setapp.com)?** Help make it happen by [requesting it here](https://support.setapp.com/hc/en-us/articles/213780569-Can-I-suggest-an-app-).</sup>
+<sup>**Want to see this app included in [Setapp](https://setapp.com)?** Help make it happen by [requesting it here](https://www.facebook.com/groups/setapp/posts/1849644978569967/).</sup>
 
 <br>
 
@@ -58,6 +58,7 @@ I don't have any immediate plans to localize the app.
 
 ### Older Versions
 
+- [Last macOS 12 compatible version (free)](https://github.com/sindresorhus/meta/files/10759031/Battery.Indicator.2.14.2.-.macOS.12.zip) *(2.14.2)*
 - [Last macOS 11 compatible version (free)](https://github.com/sindresorhus/meta/files/8759816/Battery.Indicator.2.12.3.-.macOS.11.zip) *(2.12.3)*
 - [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/6565005/Battery.Indicator.2.7.1.-.macOS.10.15.zip) *(2.7.1)*
 - [Last macOS 10.14 compatible version (free)](https://github.com/sindresorhus/meta/files/4127047/Battery-Indicator-2.1.0-Mojave.zip) *(2.1.0)*

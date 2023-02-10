@@ -114,6 +114,9 @@ None -->
 	<a href="https://github.com/jaredwray" class="sponsor" rel="nofollow" style="font-size: 36px">
 		<span class="dark:text-black">Jared Wray</span>
 	</a>
+	<a href="https://forwardemail.net" class="sponsor" rel="nofollow" style="position:relative;left:-5px;top:-20px">
+		<img src="/assets/thanks/forward-email-logo.png" width="300" alt="Forward Email">
+	</a>
 </div>
 
 ## Top supporter <span class="reward-price not-prose">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>

@@ -29,7 +29,7 @@ Make sure you read the below tips and FAQ.
 - If you have the menu bar item folders next to each other and you have one folder open, you can press <kbd>Control+Tab</kbd> or <kbd>Shift+Control+Tab</kbd> to switch between them.
 - Press the <kbd>Option</kbd> key while the menu is open to show the `…` menu item at the top if it normally is at the bottom.
 - Right-click or <kbd>Option</kbd>-click the menu bar item to open the folder.
-- Press the <kbd>Option</kbd> key while viewing a subfolder to reveal more actions. For example, sort order settings.
+- Press the <kbd>Shift</kbd> key while viewing a subfolder to reveal more actions. For example, sort order settings.
 
 ##### Links
 
@@ -99,7 +99,7 @@ Press the <kbd>Option</kbd> key while viewing an image or video to reveal a “C
 
 #### How can I change the sort order for a subfolder?
 
-Press the <kbd>Option</kbd> key while viewing a subfolder to reveal more actions, including a sort order setting.
+Press the <kbd>Shift</kbd> key while viewing a subfolder to reveal more actions, including a sort order setting.
 
 #### How can I have a menu bar folder with my most recent screenshots?
 
@@ -178,10 +178,16 @@ I don't have any immediate plans to localize the app.
 
 <br>
 
+### Older Versions
+
+- [1.6.1](https://github.com/sindresorhus/meta/files/10901140/Folder.Peek.1.6.1.-.macOS.12.zip) for macOS 12+
+
+<br>
+
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive updates.
 
-[Download](https://dsc.cloud/sindresorhus/Folder-Peek-1.4.0-1661933714) *(1.4.0)*
+[Download](https://dsc.cloud/sindresorhus/Folder-Peek-1.7.0-1678125459.zip) *(1.7.0)*
 
-*Requires macOS 12 or later*
+*Requires macOS 13 or later*

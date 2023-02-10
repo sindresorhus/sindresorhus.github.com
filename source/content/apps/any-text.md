@@ -7,9 +7,9 @@ platforms:
 appStoreId: 1643199620
 ---
 
-The app provides Lock Screen widgets where you can write any kind of text. It could be an important note, your goal, a list of tasks, etc.
+The app provides Lock Screen and Home Screen widgets where you can write any kind of text. It could be an important note, your goal, a list of tasks, etc.
 
-*iPhone-only for now. iPad version will come when iPadOS supports Lock Screen widgets (probably iPadOS 17).*
+*iPad supports the Home Screen widgets but not Lock Screen widgets.*
 
 **You may also like [my similar app](https://sindresorhus.com/one-thing) for macOS.**
 
@@ -27,6 +27,12 @@ When on the Lock Screen, tap and hold on the clock, tap the “Customize” butt
 
 [Learn more](https://support.apple.com/en-gb/guide/iphone/iph4d0e6c351/ios#iph0ee454f4c)
 
+#### How do I add the widget to the Home Screen?
+
+When on the Home Screen, tap and hold on the background (not on any icons), tap the top-left “+” button, and select “Favorites”.
+
+[Learn more](https://support.apple.com/en-us/HT207122)
+
 #### The widget does not show up in the widget picker
 
 This is a well-known iOS 16 issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
@@ -42,6 +48,14 @@ This is unfortunately not possible as widgets cannot access user-installed fonts
 #### Can I make the widget horizontally centered on the Lock Screen?
 
 This is unfortunately not possible. Apple has decided that the rectangular widget can only appear on the left or right side.
+
+#### Can I pick a color for the text?
+
+Lock Screen widgets cannot have colors. I don't plan to support this for the Home Screen widgets as I would like to keep the app simple.
+
+#### Can I pick a background color for the widget?
+
+Same answer as the above.
 
 #### The widget does not update if I write some text in the app and then reveal the Lock Screen
 
@@ -61,13 +75,13 @@ If you work at Apple → [FB11522170](https://github.com/feedback-assistant/repo
 
 #### Can you make the widget bigger?
 
-The widget size is controlled by iOS. This is the largest size it allows.
+The widget sizes are controlled by iOS. The provided size is the largest it allows.
 
-#### How can I remove the date prefix from the inline widget above the clock?
+#### How can I remove the date prefix from the inline Lock Screen widget above the clock?
 
 iOS forces the date to be shown. This is out of my control.
 
-#### The inline widget above the clock does not respect my font choice
+#### The inline Lock Screen widget above the clock does not respect my font choice
 
 iOS forces the text to be the same style as the prefixed date. This is out of my control.
 
@@ -79,9 +93,13 @@ Create a shortcut in the Shortcuts app that opens the app you want, then open �
 
 iOS always opens the main app when you tap a widget. This is not something the app can control.
 
-#### The widget does not show the text after restarting the device, before unlocking it
+#### The Lock Screen widget does not show the text after restarting the device, before unlocking it
 
 This is an iOS limitation and is out of my control. It shows a placeholder until the first unlock.
+
+#### Can you support syncing the text with iCloud?
+
+I don't plan to support that. iCloud is consistently unreliable and I don't want to increase my support burden.
 
 #### Why is this free without ads?
 

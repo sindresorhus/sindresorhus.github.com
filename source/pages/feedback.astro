@@ -84,6 +84,13 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 				See <a href="${app.url}#faq">frequently asked questions</a> in case your question has already been answered.
 			`);
 		}
+
+		// Temporary.
+		if (product === 'Velja') {
+			$('#additional-info').show().append(`
+				<br><br><a href="${app.url}#arc">Can you support Arc spaces/profiles?</a><br>
+			`);
+		}
 	}
 
 	const form = $('#feedback-form');

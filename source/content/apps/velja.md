@@ -198,7 +198,14 @@ However, some apps are not possible:
 - [GitHub Desktop](https://github.com/desktop/desktop)
 	+ The app only accepts a link to a repo to clone. This is not very useful in practice.
 
+And some apps do not need special support because they already support [universal links](https://developer.apple.com/ios/universal-links/):
+- [Quip](https://quip.com)
+
 If your favorite service is in the above list, I would recommend contacting them and asking them to support opening a link directly in their app. That means being able to run the command `open -a AppName https://foo.com/link-to-project-or-meeting`.
+
+#### How can I add a browser profile to the prompt?
+
+First, make sure you grant access to profiles in the settings and then enable them in the “Shown Browsers” setting.
 
 #### Can you support [Firefox Multi-Account Containers](https://github.com/mozilla/multi-account-containers)? {#firefox-containers}
 
@@ -262,6 +269,10 @@ In the advanced settings, enable the “Show last opened link” setting, and th
 
 To see more detailed debug info on how Velja handled the URL: Quit Velja if it's open. Press <kbd>Shift</kbd> + <kbd>Control</kbd> while launching Velja, click the menu bar icon, click “Debug”, and then go to “Logs”.
 
+#### How can I open a URL in a specific Safari Tab Group? {#safari-tab-group}
+
+Safari does not provide any way to achieve this. You will have to send a feature request to Apple.
+
 #### Velja does not show browsers from the user “~/Applications” folder
 
 Apple generally recommends putting apps in the global “/Applications” folder. Third-party apps like Velja get automatic access to this one, but not to the user “~/Applications” folder.
@@ -274,17 +285,29 @@ You can export/import rules in the settings.
 
 For all settings, [see this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
 
-#### Can you support browser profiles for the [Arc](https://thebrowser.company) browser? {#arc}
+#### Can you support spaces for the [Arc](https://thebrowser.company) browser? {#arc}
 
-The Arc browser is based on Chrome, so you may think that it should just work with browser profiles in Velja. Unfortunately, Arc doesn't yet support the `--profile-directory` command-line flag. So while Velja can fetch the profiles, it's not able to actually use them.
+I would love to support Arc, but it's currently missing some required functionality.
+
+Arc supports fetching the spaces of a specific Arc window using AppleScript. However, Velja needs to be able to fetch the spaces even when Arc has no open windows, so that it can show a list of spaces in the Velja settings.
 
 I recommend sending them feedback about this. Either through the feedback button in Arc or at [hello@thebrowser.company](mailto:hello@thebrowser.company).
 
-For example, this command should have opened the URL in the given profile:
+I have prepared a ready-made feature request text you can use:
 
-```sh
-open -b company.thebrowser.Browser --new --args --profile-directory "User Data/Profile 1" https://sindresorhus.com
-```
+> It would be great if Arc could support getting a list of all the spaces with AppleScript. Currently, it's possible to get the spaces of a specific window, but this only works when Arc has any windows open. Being able to get all spaces regardless of whether any Arc window is open is required for integration with apps like browser pickers (for example, Velja), which need to fetch all spaces and store them, so users can pick which space to use for different situations. I imagine it would be a top-level command like `tabs` and `windows`.
+
+If you want to help out more. This is another feature request. Nice to have, but not required:
+
+> It would be useful if it were possible to open a URL in a specific Arc space from the command-line. This would make it easier to integrate Arc with things like browser pickers and scripts. I imagine it could be something like this: `open -b company.thebrowser.Browser --new --args --space "F0366664-F475-40EC-9530-45CC511CE9A6" https://arc.net` Where the `--space` argument would accept a space identifier.
+
+*It's true that it would be possible to implement a somewhat working solution with the current functionality, but that would not be a great user-experience and I don't want to ship something that is not great.*
+
+#### Can you support browser profiles for the [Arc](https://thebrowser.company) browser? {#arc-profiles}
+
+The Arc browser is based on Chrome, so you may think that it should just work with browser profiles in Velja. However, Arc doesn't support the `--profile-directory` command-line flag. So while Velja can fetch the profiles, it's not able to actually use them.
+
+**Arc works differently from other browsers. In Arc, you use spaces. Each space can be assigned a certain profile. So it makes more sense to support spaces rather than profiles in Velja. See the above FAQ.**
 
 #### Can you support browser profiles for the [Orion](https://browser.kagi.com) browser? {#orion}
 
@@ -305,6 +328,31 @@ Firefox and Firefox Beta use the same [identifier](https://cocoacasts.com/what-a
 #### How do I disable Velja?
 
 [Change the system default browser back to Safari.](https://support.apple.com/en-us/HT201607)
+
+#### Why do I sometimes see a cog icon in the menu bar when opening a link? {#url-support-infoplist}
+
+Some apps support opening a URL but they don't declare support for it. Velja must then use an alternative method to open the URL, which causes the cog icon to appear.
+
+If you notice the cog icon when opening a URL with an app, I recommend sending feedback to the developer of the app. Right-click and copy [this link](#url-support-infoplist) to send to them.
+
+**To the developer. You must include this in the Info.plist of your app:**
+
+```xml
+<key>CFBundleURLTypes</key>
+<array>
+	<dict>
+		<key>CFBundleTypeRole</key>
+		<string>Viewer</string>
+		<key>CFBundleURLSchemes</key>
+		<array>
+			<string>https</string>
+			<string>http</string>
+		</array>
+	</dict>
+</array>
+```
+
+*You can optionally drop the `http` item if your app does not need to support that.*
 
 #### What does “Velja” mean?
 
@@ -411,7 +459,6 @@ Velja benefits:
 Browserosaurus benefits:
 
 - Open source
-- Available outside the App Store (can be useful if the App Store is blocked on a work Mac)
 
 #### Why is this free without ads?
 
@@ -447,10 +494,16 @@ Leave out `&prompt` to not show the browser prompt.
 
 <br>
 
+### Older Versions
+
+- [1.12.4](https://github.com/sindresorhus/meta/files/10895250/Velja.1.12.4.-.macOS.12.zip) for macOS 12+
+
+<br>
+
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive updates.
 
-[Download](https://dsc.cloud/sindresorhus/Velja-1.10.1-1661932791) *(1.10.1)*
+[Download](https://dsc.cloud/sindresorhus/Velja-1.13.0-1678086159.zip) *(1.13.0)*
 
-*Requires macOS 12 or later*
+*Requires macOS 13 or later*

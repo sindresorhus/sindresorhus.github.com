@@ -14,6 +14,12 @@ You can send a link even if your iOS device and/or Mac is offline. The link will
 
 My personal use-case is that I often discover cool stuff when I check Twitter on the go and I want to dig deeper into it later on my Mac. I have tried Instapaper, Pocket, Safari Reading List, iCloud Tabs, and more. The problem with them all is that I forget to check them.
 
+[**Why not AirDrop?**](#airdrop)
+
+#### Privacy
+
+The app uses iCloud syncing to securely send links from your iOS device to your Mac. The app developer will not see the links you share. The app does not collect any personal data and does not have any tracking.
+
 <br>
 
 ### Troubleshooting
@@ -22,6 +28,8 @@ My personal use-case is that I often discover cool stuff when I check Twitter on
 - Ensure both devices are online.
 - Ensure Hyperduck is running on the Mac.
 - Hyperduck opens links in the background. Ensure you didn't miss it.
+- Ensure Low Power Mode is not enabled on the devices. It can cause iCloud to delay syncing.
+- Try opening the Hyperduck iOS app to force a sync.
 - Try restarting both devices.
 
 <br>
@@ -43,6 +51,10 @@ shortcuts://run-shortcut?name=Unicorn
 You can now run this shortcut on your iOS device to trigger the `Unicorn` shortcut on your Mac.
 
 [Learn more about running shortcuts using the custom URL scheme.](https://support.apple.com/en-gb/guide/shortcuts/apd624386f42/ios)
+
+#### Shut down Mac
+
+You can use the Shortcuts support mentioned above to shut down your computer remotely from your iOS device. Just follow the above steps and use the “Shut Down” action (requires macOS 13.3) in the Shortcuts app or the AppleScript action with the following: `tell app "System Events" to shut down`.
 
 #### Trigger Raycast deeplinks {#raycast}
 
@@ -66,7 +78,7 @@ You can now trigger confetti to show up on your Mac from your iPhone.
 
 #### How is it better than AirDrop? {#airdrop}
 
-- Works when your Mac is offline
+- Works when your Mac is turned off
 - Works when you are not near your Mac
 - Much faster
 - Opens links on your Mac in the background
@@ -100,7 +112,7 @@ You can now trigger confetti to show up on your Mac from your iPhone.
 #### How is it better than Handoff? {#handoff}
 
 - Works in any app with a share sheet, not just a browser
-- Works when your Mac is offline
+- Works when your Mac is turned off
 - Works when you are not near your Mac
 - Supports any browser on your Mac
 - Opens links on your Mac in the background
@@ -110,7 +122,7 @@ You can now trigger confetti to show up on your Mac from your iPhone.
 #### How is it better than [Universal Clipboard](https://support.apple.com/en-us/HT209460)? {#universal-clipboard}
 
 - No need to manually paste the link into the browser after copying it on your iOS device
-- Works when your Mac is offline
+- Works when your Mac is turned off
 - Works when you are not near your Mac
 - Much faster
 
@@ -149,7 +161,11 @@ You can use my free [Velja app](/velja) for this. Create a custom rule where you
 
 #### The link did not open on my Mac right away
 
-The app works by syncing the link over iCloud from your iOS device to your Mac. This is usually instantaneous, but there can be situations that delay it (iCloud problems, network issues, etc). This is unfortunately completely out of my control.
+The app works by syncing the link over iCloud from your iOS device to your Mac. This is usually instantaneous, but there can be situations that delay it (iCloud problems, network issues, Low Power Mode, etc). This is unfortunately completely out of my control.
+
+#### Can you add a history screen to the iOS app?
+
+I don't plan to add this. I would like to keep the app focused on one thing and do it well. The app is for sending links from iOS to Mac. That's it.
 
 #### Can you support multiple Macs?
 

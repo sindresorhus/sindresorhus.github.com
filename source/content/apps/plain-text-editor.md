@@ -11,8 +11,6 @@ Simple text editor without any rich text nonsense. The simplicity is a feature.
 
 It won't handle your 1 million line log file, but it is a nice way to write down some ideas.
 
-*Requires macOS 13 or later*
-
 <br>
 
 ### Frequently Asked Questions {#faq}
@@ -27,7 +25,7 @@ It won't handle your 1 million line log file, but it is a nice way to write down
 - Optimal line spacing and length
 - Word count
 - Hide the title bar
-- Vibrant background
+- Translucent background
 - Window can stay on top
 - Force dark/light mode
 - Brain dump mode

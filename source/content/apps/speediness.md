@@ -79,10 +79,16 @@ I don't have any immediate plans to localize the app.
 
 <br>
 
+### Older Versions
+
+- [1.5.0](https://github.com/sindresorhus/meta/files/10847708/Speediness.1.5.0.-.macOS.12.zip) for macOS 12+
+
+<br>
+
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive updates.
 
-[Download](https://dsc.cloud/sindresorhus/Speediness-1.4.2-1661934168) *(1.4.2)*
+[Download](https://dsc.cloud/sindresorhus/Speediness-1.6.0-1677569179.zip) *(1.6.0)*
 
-*Requires macOS 12 or later*
+*Requires macOS 13 or later*

@@ -1,6 +1,6 @@
 ---
 title: Dato
-subtitle: Better menu bar clock with calendar and time zones
+subtitle: Calendar events and world clocks in your menu bar
 date: 2019-07-13
 platforms:
   - macOS
@@ -10,15 +10,11 @@ appStoreId: 1470584107
 
 Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.
 
-Dato is a one-time purchase with free upgrades forever. Dato will never be subscription-based.
-
 Dato supports all the locales and languages that macOS supports for the menu bar text, dates, times, and calendar, but the menus and settings are English-only.
 
 [MacStories review of Dato.](https://www.macstories.net/reviews/dato-review-calendar-events-and-time-zones-from-your-macs-menu-bar/)
 
 Dato requires macOS 13.1 or later.
-
-<sup>**Want to see this app included in [Setapp](https://setapp.com)?** Help make it happen by [requesting it here](https://support.setapp.com/hc/en-us/articles/213780569-Can-I-suggest-an-app-).</sup>
 
 #### Features
 
@@ -51,7 +47,7 @@ Dato requires macOS 13.1 or later.
 
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.4.0-trial-1674803184). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.5.1-trial-1677138279.zip). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 <br>
 
@@ -173,8 +169,6 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 	<tr>
 		<td>
 			<kbd>esc</kbd>
-			/
-			<kbd>space</kbd>
 		</td>
 		<td>Dismiss notification</td>
 	</tr>
@@ -314,7 +308,7 @@ For example, you could display the full month name, the year, or the day of the 
 
 #### How can I show the menu bar date and time in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format?
 
-Either change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340) or go to the “Menu Bar” pane in the Dato settings, and in the “Date & Time Format” text field, write `YYYY-MM-DD  hh:mm:ss`.
+Either change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340) or go to the “Menu Bar” pane in the Dato settings, and in the “Date & Time Format” text field, write `YYYY-MM-dd  HH:mm:ss`.
 
 #### Why is Dato not showing week 53?
 
@@ -413,7 +407,7 @@ Yes
 
 If it's a non-clickable URL (not a link), you can select the URL and choose “Copy Selected Text”. Otherwise, activate the correct browser profile and then drag and drop the link into the browser window.
 
-Alternatively, you could use a browser picker like [Velja](https://sindresorhus.com/velja) to handle this for you.
+Alternatively, you could use a browser picker like [Velja](/velja) to handle this for you.
 
 #### How can I hide the Dato clock when doing a specific task or at a certain time of the day?
 
@@ -424,6 +418,26 @@ To hide the Dato clock at a certain time of the day, you need the [Shortery app]
 #### Can I change the background color of Dato?
 
 No, but you can make it white/black by turning off the “Vibrancy” setting.
+
+#### The widgets provided by Dato do not show up in the widget picker
+
+This is a known macOS bug. Restarting your computer usually fixes it.
+
+#### The widgets provided by Dato are white or black with no content
+
+Same answer as above.
+
+#### Can it show the list of events in a separate menu item from the calendar and time zones?
+
+No, but you could use Dato in combination with my [Today](/today) app.
+
+#### How can I show todos from [Things](https://culturedcode.com/things/) in Dato? {#things}
+
+Dato integrates with the Reminders app only. However, you can use the Shortcuts app to sync todos from Things to the Reminders app, which will make Dato show your todos.
+
+[Here is a shortcut](https://www.icloud.com/shortcuts/2b856dd9607f412fb660d009a03d60a8) that does this. Run it and then enable the “Things” reminders list in the Dato settings.
+
+The Shortcuts app does not yet support automation, so to have the shown todo stay in sync with Things, we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut. Choose the “Application” trigger type and make it trigger when Things becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually.
 
 #### How can I export, import, sync, or back up the settings?
 
@@ -453,9 +467,9 @@ I open-source [most things](https://github.com/sindresorhus) I make, but I don�
 
 ### Older Versions
 
-- [Last macOS 12 compatible version (free)](https://github.com/sindresorhus/meta/files/10516478/Dato.4.3.3.-.macOS.12.zip) *(4.3.3)*
-- [Last macOS 11 compatible version (free)](https://github.com/sindresorhus/meta/files/8935698/Dato.3.3.8.-.macOS.11.zip) *(3.3.8)*
-- [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/6758848/Dato.2.6.1.-.macOS.10.15.zip) *(2.6.1)*
-- [Last macOS 10.14 compatible version (free)](https://github.com/sindresorhus/meta/files/5360452/Dato.1.14.9.-.Special.last.Mojave.compatible.release.zip) *(1.4.9)*
+- [4.3.3](https://github.com/sindresorhus/meta/files/10516478/Dato.4.3.3.-.macOS.12.zip) for macOS 12
+- [3.3.8](https://github.com/sindresorhus/meta/files/8935698/Dato.3.3.8.-.macOS.11.zip) for macOS 11
+- [2.6.1](https://github.com/sindresorhus/meta/files/6758848/Dato.2.6.1.-.macOS.10.15.zip) for macOS 10.15
+- [1.4.9](https://github.com/sindresorhus/meta/files/5360452/Dato.1.14.9.-.Special.last.Mojave.compatible.release.zip) for macOS 10.14
 
-*(These builds will not run on newer macOS versions)*
+These are free for everyone but they will not run on newer macOS versions.
