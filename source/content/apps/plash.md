@@ -1,7 +1,7 @@
 ---
 title: Plash
 subtitle: Make any website your desktop wallpaper
-date: 2020-01-09
+pubDate: 2020-01-09
 platforms:
   - macOS
 repoUrl: https://github.com/sindresorhus/Plash

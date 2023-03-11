@@ -1,7 +1,7 @@
 ---
 title: Battery Indicator
 subtitle: Remaining battery time in your menu bar
-date: 2017-02-18
+pubDate: 2017-02-18
 platforms:
   - macOS
 appStoreId: 1206020918

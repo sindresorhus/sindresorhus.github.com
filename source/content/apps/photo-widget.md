@@ -1,7 +1,7 @@
 ---
 title: Photo Widget
 subtitle: Photos on your home screen using widgets
-date: 2020-09-22
+pubDate: 2020-09-22
 platforms:
   - iOS
   - macOS (Apple silicon)

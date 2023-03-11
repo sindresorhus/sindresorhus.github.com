@@ -1,7 +1,7 @@
 ---
 title: HEIC Converter
 subtitle: Convert HEIC images to JPEG or PNG
-date: 2017-10-09
+pubDate: 2017-10-09
 platforms:
   - macOS
 appStoreId: 1294126402

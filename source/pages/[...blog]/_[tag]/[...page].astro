@@ -2,15 +2,11 @@
 import {SITE, BLOG} from '~/config.mjs';
 import Layout from '~/layouts/BlogLayout.astro';
 import BlogList from '~/components/blog/List.astro';
-import Pagination from '~/components/atoms/Pagination.astro';
+import Pagination from '~/components/blog/Pagination.astro';
 import {fetchPosts} from '~/utils/posts.js';
-import {cleanSlug, TAG_BASE} from '~/utils/permalinks.js';
+import {TAG_BASE} from '~/utils/permalinks.js';
 
 export async function getStaticPaths({paginate}) {
-	if (BLOG?.disabled || BLOG?.tag?.disabled) {
-		return [];
-	}
-
 	const posts = await fetchPosts();
 
 	const tags = new Set();
@@ -26,7 +22,7 @@ export async function getStaticPaths({paginate}) {
 		paginate(
 			posts.filter(post => Array.isArray(post.tags) && post.tags.includes(tag)),
 			{
-				params: {tag: cleanSlug(tag), tags: TAG_BASE || undefined},
+				params: {tag, tags: TAG_BASE || undefined},
 				pageSize: BLOG.postsPerPage,
 				props: {tag},
 			},

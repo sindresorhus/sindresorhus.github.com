@@ -1,28 +1,23 @@
 import rss from '@astrojs/rss';
-import {SITE, BLOG} from '~/config.mjs';
+import {SITE} from '~/config.mjs';
 import {fetchPosts} from '~/utils/posts.js';
-import {getPermalink} from '~/utils/permalinks.js';
+import {fetchApps} from '~/utils/apps.js';
 
-export const get = async () => {
-	if (BLOG.disabled) {
-		return new Response(null, {
-			status: 404,
-			statusText: 'Not found',
-		});
-	}
+export const get = async context => {
+	const posts = await Promise.all([fetchPosts(), fetchApps()]);
 
-	const posts = await fetchPosts();
+	const items = posts.flat().map(post => ({
+		link: post.url,
+		title: post.title,
+		pubDate: post.pubDate,
+		description: post.description ?? post.subtitle, // `apps` uses `subtitle`.
+	}));
 
 	return rss({
-		title: `${SITE.name}’s Blog`,
+		title: 'Sindre Sorhus\' blog',
 		description: SITE.description,
-		site: import.meta.env.SITE,
-
-		items: posts.map(post => ({
-			link: getPermalink(post.slug, 'post'),
-			title: post.title,
-			description: post.description,
-			pubDate: post.pubDate,
-		})),
+		site: context.site,
+		items,
+		trailingSlash: false,
 	});
 };

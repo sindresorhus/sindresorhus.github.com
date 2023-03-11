@@ -47,8 +47,9 @@ If you or your company are using any of my projects, consider supporting me so I
 You can also support me by buying my apps.\
 *A nice review on the App Store is also a good way to support my work.*
 
-- [Dato](https://sindresorhus.com/dato)
-- [Lungo](https://sindresorhus.com/lungo)
-- [Battery Indicator](https://sindresorhus.com/battery-indicator)
-- [Recordia](https://sindresorhus.com/recordia)
-- [Black Out](https://sindresorhus.com/black-out)
+- [Dato](/dato)
+- [Lungo](/lungo)
+- [Battery Indicator](/battery-indicator)
+- [Recordia](/recordia)
+- [Black Out](/black-out)
+- [Ask AI](/ask-ai)

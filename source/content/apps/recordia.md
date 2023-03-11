@@ -1,7 +1,7 @@
 ---
 title: Recordia
 subtitle: Quickly record audio
-date: 2020-09-02
+pubDate: 2020-09-02
 platforms:
   - macOS
 isPaid: true

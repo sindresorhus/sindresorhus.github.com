@@ -1,7 +1,7 @@
 ---
 title: Aiko
 subtitle: AI-powered audio transcription
-date: 2023-03-03
+pubDate: 2023-03-03
 platforms:
   - macOS
   - iOS
@@ -10,7 +10,7 @@ appStoreId: 1672085276
 
 High-quality on-device transcription. Easily convert speech to text from meetings, lectures, and more.
 
-The transcription is poowered by OpenAI's [Whisper model](https://openai.com/research/whisper) running locally on your device.
+The transcription is powered by OpenAI's [Whisper model](https://openai.com/research/whisper) running locally on your device.
 
 The app also includes support for Shortcuts.
 
@@ -140,9 +140,20 @@ The app uses the Whisper large v2 model on macOS and the medium or small model o
 
 I don't plan to support any editing. Export the transcription and edit it in a proper text editor.
 
+#### How is this better than the built-in transcription on Apple devices?
+
+- Much better accuracy.
+- Support for more languages.
+- Transcribe audio and video files.
+- Export to many different formats, like JSON, CSV, and subtitles.
+
 #### I found a mistake in the transcription
 
 The app uses the OpenAI Whisper model and I have no control over the quality of its output. You could provide feedback about the problem [here](https://github.com/openai/whisper/discussions/categories/general).
+
+#### My language is not in the list of supported languages. Can you support it?
+
+I have no control over the supported languages. You could try to request it [here](https://github.com/openai/whisper/discussions/categories/general).
 
 #### How can I transcribe audio from the Voice Memos app?
 

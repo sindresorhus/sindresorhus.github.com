@@ -2,14 +2,16 @@ import getReadingTime from 'reading-time';
 import {getCollection} from 'astro:content';
 
 const normalizePost = async post => {
-	const {id, body, data} = post;
+	const {id, body, data, slug} = post;
 	const {Content} = await post.render();
 
 	// TODO: Nest all these under the `.data` property.
 	return {
 		...data,
 		id,
-		slug: data.slug ?? id,
+		slug,
+		url: data.redirectUrl ?? `/blog/${slug}`,
+		isRedirect: data.redirectUrl !== undefined,
 		readingTime: Math.ceil(getReadingTime(body).minutes),
 		Content,
 	};

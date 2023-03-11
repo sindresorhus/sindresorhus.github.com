@@ -1,7 +1,7 @@
 ---
 title: Speediness
 subtitle: Check your internet speed
-date: 2021-11-23
+pubDate: 2021-11-23
 platforms:
   - macOS
 appStoreId: 1596706466

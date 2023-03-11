@@ -1,7 +1,7 @@
 ---
 title: Shareful
 subtitle: Give the macOS share menu superpowers
-date: 2020-09-08
+pubDate: 2020-09-08
 platforms:
   - macOS
 appStoreId: 1522267256

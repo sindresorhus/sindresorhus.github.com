@@ -3,7 +3,7 @@ draft: true
 title: Camera Preview
 subtitle: Preview your webcam and take photos
 # TODO: Update date
-date: 2023-08-08
+pubDate: 2023-08-08
 platforms:
   - macOS
 appStoreId: 1632827132

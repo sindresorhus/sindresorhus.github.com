@@ -1,7 +1,7 @@
 ---
 title: Dato
 subtitle: Calendar events and world clocks in your menu bar
-date: 2019-07-13
+pubDate: 2019-07-13
 platforms:
   - macOS
 isPaid: true

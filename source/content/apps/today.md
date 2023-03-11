@@ -1,7 +1,7 @@
 ---
 title: Today
 subtitle: Today’s schedule in your menu bar
-date: 2022-10-27
+pubDate: 2022-10-27
 platforms:
   - macOS
 appStoreId: 6443714928

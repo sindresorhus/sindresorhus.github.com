@@ -1,6 +1,4 @@
-import slugify from 'limax';
-
-import {SITE, BLOG} from '~/config.mjs';
+import {SITE} from '~/config.mjs';
 
 const trim = (string_, ch) => {
 	let start = 0;
@@ -23,40 +21,24 @@ const createPath = (...parameters) => '/' + parameters.filter(Boolean).join('/')
 
 const basePathname = trimSlash(SITE.basePathname);
 
-export const cleanSlug = text => slugify(trimSlash(text));
-
-export const APPS_BASE = cleanSlug('apps');
-export const BLOG_BASE = cleanSlug(BLOG?.blog?.pathname);
-export const POST_BASE = cleanSlug(BLOG?.post?.pathname);
-export const CATEGORY_BASE = cleanSlug(BLOG?.category?.pathname);
-export const TAG_BASE = cleanSlug(BLOG?.tag?.pathname);
+export const APPS_BASE = 'apps';
+export const BLOG_BASE = 'blog';
+export const POST_BASE = 'blog';
+export const TAG_BASE = 'blog/tag';
 
 export const getPermalink = (slug = '', type = 'page') => {
-	const _slug = cleanSlug(slug);
-
 	switch (type) {
-		case 'category': {
-			return createPath(basePathname, CATEGORY_BASE, _slug);
-		}
-
 		case 'tag': {
-			return createPath(basePathname, TAG_BASE, _slug);
+			return createPath(basePathname, TAG_BASE, slug);
 		}
 
 		case 'post': {
-			return createPath(basePathname, POST_BASE, _slug);
+			return createPath(basePathname, POST_BASE, slug);
 		}
 
 		case 'page': // eslint-disable-line unicorn/no-useless-switch-case
 		default: {
-			return createPath(basePathname, _slug);
+			return createPath(basePathname, slug);
 		}
 	}
-};
-
-export const getBlogPermalink = () => getPermalink(BLOG_BASE);
-
-export const getHomePermalink = () => {
-	const permalink = getPermalink();
-	return permalink === '/' ? permalink : `${permalink}/`;
 };

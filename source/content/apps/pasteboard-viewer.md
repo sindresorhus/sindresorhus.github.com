@@ -1,7 +1,7 @@
 ---
 title: Pasteboard Viewer
 subtitle: Inspect the system pasteboards
-date: 2020-02-18
+pubDate: 2020-02-18
 platforms:
   - macOS
 repoUrl: https://github.com/sindresorhus/Pasteboard-Viewer

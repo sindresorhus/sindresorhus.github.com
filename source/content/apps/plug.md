@@ -1,7 +1,7 @@
 ---
 title: Plug
 subtitle: Discover & listen to music from Hype Machine
-date: 2021-01-16
+pubDate: 2021-01-16
 platforms:
   - macOS
 repoUrl: https://github.com/wulkano/Plug

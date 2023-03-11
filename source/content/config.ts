@@ -5,7 +5,7 @@ const appsCollection = defineCollection({
 		draft: z.boolean().optional(),
 		title: z.string().nonempty(),
 		subtitle: z.string().nonempty(),
-		date: z.date(),
+		pubDate: z.date(),
 		platforms: z.array(z.enum([
 			'macOS',
 			'iOS',
@@ -24,6 +24,21 @@ const appsCollection = defineCollection({
 	}).strict(),
 });
 
+const blogCollection = defineCollection({
+	schema: z.object({
+		draft: z.boolean().optional(),
+		title: z.string().nonempty(),
+		description: z.string().nonempty().optional(),
+		pubDate: z.date(),
+		tags: z.array(z.enum([
+			'open-source',
+			'javascript',
+		])).optional(),
+		redirectUrl: z.string().url().optional(),
+	}).strict(),
+});
+
 export const collections = {
 	apps: appsCollection,
+	blog: blogCollection,
 };

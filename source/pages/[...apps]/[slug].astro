@@ -1,7 +1,6 @@
 ---
 import {SITE} from '~/config.mjs';
 import Layout from '~/layouts/PageLayout.astro';
-import {POST_BASE} from '~/utils/permalinks.js';
 import {fetchApps, proseCSS} from '~/utils/apps.js';
 
 export async function getStaticPaths() {
@@ -10,7 +9,6 @@ export async function getStaticPaths() {
 	return apps.map(app => ({
 		params: {
 			slug: app.slug,
-			apps: POST_BASE || undefined,
 		},
 		props: {
 			app,
@@ -22,7 +20,7 @@ const {app} = Astro.props;
 
 const meta = {
 	title: `${app.title} — ${SITE.name}`,
-	description: app.description,
+	description: app.subtitle,
 	image: app.iconUrl,
 	ogTitle: app.title,
 	ogType: 'product',

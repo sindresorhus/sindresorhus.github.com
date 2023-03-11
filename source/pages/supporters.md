@@ -92,6 +92,10 @@ None -->
 <a href="https://www.useanvil.com/?utm_source=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
 	<img src="/assets/thanks/anvil-logo-light.svg" width="310" alt="Anvil">
 </a>
+<br>
+<a href="https://serpapi.com" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
+	<img src="/assets/thanks/serpapi-logo-light.svg" width="240" alt="SerpApi">
+</a>
 
 ## Silver sponsor <span class="reward-price not-prose">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 

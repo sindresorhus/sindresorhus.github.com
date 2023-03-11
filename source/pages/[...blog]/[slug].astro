@@ -1,22 +1,17 @@
 ---
-import {SITE, BLOG} from '~/config.mjs';
+import {SITE} from '~/config.mjs';
 import Layout from '~/layouts/PageLayout.astro';
-import SinglePost from '~/components/blog/SinglePost.astro';
-import {cleanSlug, POST_BASE} from '~/utils/permalinks.js';
+import Post from '~/components/blog/Post.astro';
 import {fetchPosts} from '~/utils/posts.js';
 import {findImage} from '~/utils/images.js';
 
 export async function getStaticPaths() {
-	if (BLOG?.disabled || BLOG?.post?.disabled) {
-		return [];
-	}
-
 	const posts = await fetchPosts();
 
 	return posts.map(post => ({
 		params: {
-			slug: cleanSlug(post.slug),
-			blog: POST_BASE || undefined,
+			slug: post.slug,
+			blog: 'blog',
 		},
 		props: {post},
 	}));
@@ -34,5 +29,5 @@ const meta = {
 ---
 
 <Layout {meta}>
-	<SinglePost post={{...post, image: meta.image}}/>
+	<Post post={{...post, image: meta.image}}/>
 </Layout>

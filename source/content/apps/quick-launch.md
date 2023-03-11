@@ -1,7 +1,7 @@
 ---
 title: Quick Launch
 subtitle: Open websites, apps, and shortcuts from the Lock Screen
-date: 2022-09-28
+pubDate: 2022-09-28
 platforms:
   - iOS
   # - macOS (Apple silicon)

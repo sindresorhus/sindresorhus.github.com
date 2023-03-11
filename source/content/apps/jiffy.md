@@ -1,7 +1,7 @@
 ---
 title: Jiffy
 subtitle: Discover & share the best GIFs
-date: 2020-03-25
+pubDate: 2020-03-25
 platforms:
   - macOS
 appStoreId: 1502527999

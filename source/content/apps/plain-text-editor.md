@@ -1,7 +1,7 @@
 ---
 title: Plain Text Editor
 subtitle: Simple distraction-free notepad
-date: 2022-10-25
+pubDate: 2022-10-25
 platforms:
   - macOS
 appStoreId: 1572202501

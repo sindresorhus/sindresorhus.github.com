@@ -3,8 +3,6 @@ import {SITE} from '~/config.mjs';
 import Layout from '~/layouts/PageLayout.astro';
 import {fetchApps} from '~/utils/apps.js';
 
-/// const {page} = Astro.props;
-
 const meta = {
 	title: `Apps — ${SITE.name}`,
 	description: SITE.description,
@@ -62,8 +60,4 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 			</section>
 		</section>
 	</div>
-<!-- 	<Fragment slot="title">
-		Quality crafted
-		<span class="bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-secondary-500">apps</span>
-	</Fragment> -->
 </Layout>

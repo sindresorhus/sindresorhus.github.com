@@ -1,7 +1,7 @@
 ---
 title: Hyperduck
 subtitle: Send links from your iOS devices to your Mac
-date: 2023-01-27
+pubDate: 2023-01-27
 platforms:
   - macOS
   - iOS

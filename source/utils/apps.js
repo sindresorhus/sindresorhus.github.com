@@ -2,7 +2,7 @@ import {getCollection} from 'astro:content';
 
 const normalizeApps = async app => {
 	const {data, slug} = app;
-	const date = Date.parse(data.date);
+	const pubDate = Date.parse(data.pubDate);
 	const date30DaysAgo = new Date(new Date().setDate(new Date().getDate() - 30));
 
 	const faqHeadingTitle = 'Frequently Asked Questions';
@@ -49,12 +49,12 @@ const normalizeApps = async app => {
 
 	return {
 		...data,
-		date,
+		pubDate,
 		slug: data.slug ?? slug,
 		url: `/${slug}`,
 		iconUrl: `/apps/${slug}/icon.png`,
-		hasIOSAppIcon: data.platforms.includes('iOS') && !data.platforms.includes('macOS'),
-		isNew: date > date30DaysAgo,
+		hasIOSAppIcon: (data.platforms.includes('iOS') || data.platforms.includes('watchOS')) && !data.platforms.includes('macOS'),
+		isNew: pubDate > date30DaysAgo,
 		mainLinks,
 		links,
 		hasFaqSection,
@@ -71,7 +71,7 @@ const load = async () => {
 	);
 
 	return normalizedApps
-		.sort((a, b) => b.date - a.date);
+		.sort((a, b) => b.pubDate - a.pubDate);
 };
 
 let cachedApps;

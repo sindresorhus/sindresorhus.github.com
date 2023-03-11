@@ -1,7 +1,7 @@
 ---
 title: Amazing AI
 subtitle: Generate images from text using Stable Diffusion
-date: 2022-12-21
+pubDate: 2022-12-21
 platforms:
   - macOS
 appStoreId: 1660147028

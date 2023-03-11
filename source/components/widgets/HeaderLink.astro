@@ -1,0 +1,16 @@
+---
+const {href, class: className, ...props} = Astro.props;
+const {pathname} = Astro.url;
+
+const currentPath = pathname.slice(1).replace(/\.\w+$/, ''); // Remove the first `/` and file extension.
+const isActive = currentPath.startsWith(href.replace(/^\//, ''));
+
+const activeClass = 'underline underline-offset-[7px] decoration-[3px] decoration-secondary-500';
+const linkClass = `${isActive ? activeClass : ''} font-medium hover:text-gray-900 dark:hover:text-white px-4 py-3 flex items-center transition duration-150 ease-in-out`;
+---
+
+<li>
+	<a href={href} class:list={[className, ...linkClass.split(' ')]} {...props}>
+		<slot/>
+	</a>
+</li>

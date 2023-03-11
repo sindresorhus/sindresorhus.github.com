@@ -1,7 +1,7 @@
 ---
 title: Velja
 subtitle: Powerful browser picker
-date: 2022-04-21
+pubDate: 2022-04-21
 platforms:
   - macOS
 appStoreId: 1607635845
@@ -197,6 +197,9 @@ However, some apps are not possible:
 	+ The app has no support for opening URLs from the web version.
 - [GitHub Desktop](https://github.com/desktop/desktop)
 	+ The app only accepts a link to a repo to clone. This is not very useful in practice.
+- Pop.com
+	+ The app does not handle join meeting links.
+	+ It has a `pop://` custom URL scheme, but it's not documented and only seems to be used for authentication.
 
 And some apps do not need special support because they already support [universal links](https://developer.apple.com/ios/universal-links/):
 - [Quip](https://quip.com)

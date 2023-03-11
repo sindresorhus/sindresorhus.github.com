@@ -1,7 +1,7 @@
 ---
 title: Gifski
 subtitle: Convert videos to high-quality GIFs
-date: 2018-02-23
+pubDate: 2018-02-23
 platforms:
   - macOS
 repoUrl: https://github.com/sindresorhus/Gifski

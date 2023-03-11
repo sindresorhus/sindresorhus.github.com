@@ -1,7 +1,7 @@
 ---
 title: Favorites Widget
 subtitle: Contacts on your Lock Screen and Home Screen
-date: 2022-09-12
+pubDate: 2022-09-12
 platforms:
   - iOS
   # - macOS (Apple silicon)

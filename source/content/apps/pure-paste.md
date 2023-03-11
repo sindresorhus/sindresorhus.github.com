@@ -1,7 +1,7 @@
 ---
 title: Pure Paste
 subtitle: Paste as plain text by default
-date: 2022-03-02
+pubDate: 2022-03-02
 platforms:
   - macOS
 appStoreId: 1611378436

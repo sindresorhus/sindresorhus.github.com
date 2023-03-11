@@ -1,7 +1,7 @@
 ---
 title: One Thing
 subtitle: Put a single task or goal in your menu bar
-date: 2022-01-12
+pubDate: 2022-01-12
 platforms:
   - macOS
 appStoreId: 1604176982

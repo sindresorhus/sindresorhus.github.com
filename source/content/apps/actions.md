@@ -1,7 +1,7 @@
 ---
 title: Actions
 subtitle: Additional actions for the Shortcuts app
-date: 2021-10-28
+pubDate: 2021-10-28
 platforms:
   - macOS
   - iOS

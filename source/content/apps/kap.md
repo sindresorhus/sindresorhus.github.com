@@ -1,7 +1,7 @@
 ---
 title: Kap
 subtitle: Record your screen
-date: 2018-02-01
+pubDate: 2018-02-01
 platforms:
   - macOS
 repoUrl: https://github.com/wulkano/kap

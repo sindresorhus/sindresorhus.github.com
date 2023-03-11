@@ -1,7 +1,7 @@
 ---
 title: Folder Peek
 subtitle: Put folders in your menu bar
-date: 2022-04-05
+pubDate: 2022-04-05
 platforms:
   - macOS
 appStoreId: 1615988943

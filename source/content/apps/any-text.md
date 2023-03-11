@@ -1,7 +1,7 @@
 ---
 title: Any Text
 subtitle: Put any text on the Lock Screen
-date: 2022-09-12
+pubDate: 2022-09-12
 platforms:
   - iOS
 appStoreId: 1643199620

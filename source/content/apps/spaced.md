@@ -1,7 +1,7 @@
 ---
 title: Spaced
 subtitle: Organize your menu bar items into groups
-date: 2023-01-20
+pubDate: 2023-01-20
 platforms:
   - macOS
 appStoreId: 1666327168

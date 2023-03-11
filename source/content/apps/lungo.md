@@ -1,7 +1,7 @@
 ---
 title: Lungo
 subtitle: Prevent your Mac from going to sleep
-date: 2017-07-26
+pubDate: 2017-07-26
 platforms:
   - macOS
 isPaid: true

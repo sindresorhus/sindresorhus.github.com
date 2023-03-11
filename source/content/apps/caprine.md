@@ -1,7 +1,7 @@
 ---
 title: Caprine
 subtitle: Elegant Facebook Messenger desktop app
-date: 2015-09-16
+pubDate: 2015-09-16
 platforms:
   - macOS
   - Linux

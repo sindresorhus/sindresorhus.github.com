@@ -1,7 +1,7 @@
 ---
 title: Touch Bar Simulator
 subtitle: Use the Touch Bar on any Mac
-date: 2017-04-16
+pubDate: 2017-04-16
 platforms:
   - macOS
 repoUrl: https://github.com/sindresorhus/touch-bar-simulator

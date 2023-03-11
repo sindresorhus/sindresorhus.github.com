@@ -1,7 +1,7 @@
 ---
 title: Randa
 subtitle: Generate random numbers
-date: 2022-12-17
+pubDate: 2022-12-17
 platforms:
   - macOS
   - iOS

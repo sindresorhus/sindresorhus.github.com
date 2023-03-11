@@ -13,8 +13,7 @@ My current focus is on macOS app development with Swift and Node.js-based packag
 
 - [Interviewed by Indie Dev Monday](https://indiedevmonday.com/issue-53)
 - [Interviewed by Between the Wires](https://medium.freecodecamp.org/sindre-sorhus-8426c0ed785d)
-- [Answering Anything & Everything](https://medium.com/sindre-sorhus/answering-anything-678ce5623798)
-- [About Me Blog Post](https://medium.com/sindre-sorhus/about-sindre-sorhus-42786d2e191b)
+<!-- - [Answering Anything & Everything](https://medium.com/sindre-sorhus/answering-anything-678ce5623798) -->
 
 ### Links
 
