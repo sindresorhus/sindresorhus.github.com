@@ -160,10 +160,16 @@ open --background 'one-thing:?text=Exercise'
 
 <br>
 
+### Older Versions
+
+- [1.9.0](https://github.com/sindresorhus/meta/files/11081660/One.Thing.1.9.0.-.macOS.12.zip) for macOS 12+
+
+<br>
+
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive updates.
 
-[Download](https://dsc.cloud/sindresorhus/One-Thing-1.8.0-1661784123) *(1.8.0)*
+[Download](https://dsc.cloud/sindresorhus/One-Thing-1.10.0-1679895427.zip) *(1.10.0)*
 
-*Requires macOS 12 or later*
+*Requires macOS 13 or later*

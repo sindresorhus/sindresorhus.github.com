@@ -31,13 +31,13 @@ The problem with fast.com is that it's run by Netflix, and Netflix's servers are
 
 It's a measurement called Round-trips Per Minute (RPM) — the number of sequential round-trips a network can do in one minute under normal working conditions.
 
-[Read more](https://support.apple.com/en-gb/HT212313)
+[Learn more](https://support.apple.com/en-gb/HT212313)
 
 #### What does the ping value mean?
 
 It's a measurement of the round-trip time for messages sent from the originating host to a destination computer that are echoed back to the source. `ms` is the symbol for milliseconds.
 
-[Read more](https://xtrium.com/what-is-a-good-ping-speed/)
+[Learn more](https://xtrium.com/what-is-a-good-ping-speed/)
 
 #### Why should I trust the results?
 

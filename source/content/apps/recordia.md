@@ -40,6 +40,10 @@ Recordia doesn't have a built-in way to record system audio because of App Store
 2. [Set up a multi-output device](https://github.com/ExistentialAudio/BlackHole/wiki/Multi-Output-Device)
 3. Select “BlackHole” as the input device in Recordia
 
+#### How can I transcribe the audio (speech to text)? {#transcribe}
+
+Recordia does not support transcription, but check out my [Aiko app](/aiko). You can easily share a recording to Aiko after you finish recording.
+
 #### How can I sync recordings to iCloud?
 
 Choose “iCloud Drive” as the output directory.
@@ -72,7 +76,8 @@ Go [here](https://apps.apple.com/app/id1529006487) and click “Version History�
 
 ### Older Versions
 
-- [Last macOS 11 compatible version (free)](https://github.com/sindresorhus/meta/files/8798113/Recordia.2.3.0.-.macOS.11.zip) *(2.3.0)*
-- [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/6538283/Recordia.1.5.1.-.macOS.10.15.zip) *(1.5.1)*
+- [2.6.1](https://github.com/sindresorhus/meta/files/11053013/Recordia.2.6.1.-.macOS.12.zip) for macOS 12
+- [2.3.0](https://github.com/sindresorhus/meta/files/8798113/Recordia.2.3.0.-.macOS.11.zip) for macOS 11
+- [1.5.1](https://github.com/sindresorhus/meta/files/6538283/Recordia.1.5.1.-.macOS.10.15.zip) for macOS 10.15
 
-*(This build will not run on newer macOS versions)*
+These are free for everyone but they will not run on newer macOS versions.

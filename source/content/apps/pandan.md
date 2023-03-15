@@ -105,7 +105,8 @@ Tip: You can [run shortcuts from the command-line](https://support.apple.com/gui
 
 ### Older Versions
 
-- [Last macOS 11 compatible version](https://github.com/sindresorhus/meta/files/8003835/Pandan.1.9.1.-.macOS.11.zip) *(1.9.1)*
+- [1.13.2](https://github.com/sindresorhus/meta/files/11072195/Pandan.1.13.2.-.macOS.12.zip) for macOS 12+
+- [1.9.1](https://github.com/sindresorhus/meta/files/8003835/Pandan.1.9.1.-.macOS.11.zip) for macOS 11+
 
 <br>
 
@@ -113,6 +114,6 @@ Tip: You can [run shortcuts from the command-line](https://support.apple.com/gui
 
 A special version for users that cannot access the App Store. It won't receive updates.
 
-[Download](https://dsc.cloud/sindresorhus/Pandan-1.12.2-1662058445) *(1.12.2)*
+[Download](https://dsc.cloud/sindresorhus/Pandan-1.14.0-1679831725.zip) *(1.14.0)*
 
-*Requires macOS 12 or later*
+*Requires macOS 13 or later*

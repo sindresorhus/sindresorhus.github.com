@@ -106,7 +106,7 @@ You could also show the browser prompt when pressing a keyboard shortcut:
 
 If you want to open the website in a specific browser directly instead of showing the browser prompt, add [this shortut](https://www.icloud.com/shortcuts/d3f833d1a1334d169ccefe26fa0ec240) instead.
 
-#### Launch browsers
+#### Launch browsers from Velja menu
 
 Hold the <kbd>Option</kbd> when clicking a browser in the Velja menu to launch it instead of setting it as the current browser.
 
@@ -159,9 +159,13 @@ See [this](#debug) for how to debug what URLs Velja receives.
 
 If the redirect URL contains the destination URL (usually in a search parameter), contact me and I will add support for it.
 
+**Something else**
+
+First, make sure the problem is Velja. Go to “System Settings › Desktop & Dock” and change the “Default web browser” setting to Safari. Then try clicking the link again. If the problem persists, it's not caused by Velja.
+
 #### What are tracking parameters and why would I want to remove them?
 
-Removing tracking parameters improve privacy and also make URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Read more.](https://en.wikipedia.org/wiki/UTM_parameters)
+Removing tracking parameters improve privacy and also make URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Learn more.](https://en.wikipedia.org/wiki/UTM_parameters)
 
 Velja supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to Twitter, Facebook, and TikTok.
 
@@ -197,9 +201,6 @@ However, some apps are not possible:
 	+ The app has no support for opening URLs from the web version.
 - [GitHub Desktop](https://github.com/desktop/desktop)
 	+ The app only accepts a link to a repo to clone. This is not very useful in practice.
-- Pop.com
-	+ The app does not handle join meeting links.
-	+ It has a `pop://` custom URL scheme, but it's not documented and only seems to be used for authentication.
 
 And some apps do not need special support because they already support [universal links](https://developer.apple.com/ios/universal-links/):
 - [Quip](https://quip.com)
@@ -240,6 +241,12 @@ Chrome does not properly respect opening URLs in the background (it generally do
 open --background 'https://sindresorhus.com'
 ```
 
+#### The link takes a long time to open
+
+This is most likely not caused by Velja. Some users reported it was a problem with Microsoft Office and happened without Velja too.
+
+To confirm Velja is not the problem: Go to “System Settings › Desktop & Dock” and change the “Default web browser” setting to Safari. Then try clicking the link again. If the problem persists, it's not caused by Velja.
+
 #### Can you add support for opening Slack links in the Slack desktop app? {#slack}
 
 This is currently not possible. The Slack app does not accept a normal deep link (example: `https://team-name.slack.com/archives/CKPE4C/p161643063559`). It only accepts a special Slack-specific URL. To be able to convert a normal Slack link to one that the desktop app accepts, we would need to get the team ID from the Slack API and that requires authentication. It's simply not feasible to do this. **Please do send feedback to Slack asking them to accept a normal link, like most other apps support.**
@@ -251,6 +258,10 @@ You can use the Shortcuts app for this. Make a shortcut for each focus mode you 
 #### Can the default browser change depending on whether I'm at work or not?
 
 See the above answer. You just create a work focus mode.
+
+#### Can the default browser change depending on whether the computer is on battery?
+
+See the above answer. Use the “Power Status” trigger in Shortery.
 
 #### Can you support [Focus filters](https://support.apple.com/en-us/HT212608)? {#focus-filters}
 

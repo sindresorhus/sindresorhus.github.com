@@ -3,6 +3,7 @@ import {defineCollection, z} from 'astro:content';
 const appsCollection = defineCollection({
 	schema: z.object({
 		draft: z.boolean().optional(),
+		unlisted: z.boolean().optional(),
 		title: z.string().nonempty(),
 		subtitle: z.string().nonempty(),
 		pubDate: z.date(),
@@ -27,6 +28,7 @@ const appsCollection = defineCollection({
 const blogCollection = defineCollection({
 	schema: z.object({
 		draft: z.boolean().optional(),
+		unlisted: z.boolean().optional(),
 		title: z.string().nonempty(),
 		description: z.string().nonempty().optional(),
 		pubDate: z.date(),

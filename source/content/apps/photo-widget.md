@@ -20,11 +20,15 @@ Available on iOS and macOS (Apple Silicon only).
 
 #### How do I add a widget to the home screen?
 
-When on the home screen, long-press on the background (not on any icons), press the top-left “+” button, and select “Photo Widget”. [Read more.](https://support.apple.com/en-us/HT207122)
+When on the home screen, long-press on the background (not on any icons), press the top-left “+” button, and select “Photo Widget”. [Learn more.](https://support.apple.com/en-us/HT207122)
 
 #### How do I edit a widget?
 
-When on the home screen, long-press on the widget, and select “Edit Widget”. [Read more.](https://support.apple.com/en-us/HT207122)
+When on the home screen, long-press on the widget, and select “Edit Widget”. [Learn more.](https://support.apple.com/en-us/HT207122)
+
+#### The widget does not show up in the widget picker
+
+This is a well-known iOS 16 issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
 
 #### Why can I only add 100 photos to the app?
 

@@ -93,6 +93,10 @@ Create a shortcut in the Shortcuts app that opens the app you want, then open �
 
 iOS always opens the main app when you tap a widget. This is not something the app can control.
 
+#### Can I prevent my child from editing the text when tapping the widget?
+
+You can set the “Widget Tap Action” setting to run a [shortcut](https://support.apple.com/en-sg/guide/shortcuts/welcome/ios) with the “Go to Home Screen” action.
+
 #### The Lock Screen widget does not show the text after restarting the device, before unlocking it
 
 This is an iOS limitation and is out of my control. It shows a placeholder until the first unlock.

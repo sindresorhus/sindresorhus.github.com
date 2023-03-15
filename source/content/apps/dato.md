@@ -6,6 +6,7 @@ platforms:
   - macOS
 isPaid: true
 appStoreId: 1470584107
+setappUrl: https://go.setapp.com/stp181?_target=https://setapp.com/apps/dato&utm_medium=vendor_program&utm_source=Sindre+Sorhus&utm_content=link
 ---
 
 Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.
@@ -48,6 +49,8 @@ Dato requires macOS 13.1 or later.
 ### Trial
 
 There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.5.1-trial-1677138279.zip). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+
+You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://setapp.com/apps/dato&utm_medium=vendor_program&utm_source=Sindre+Sorhus&utm_content=link) for 7 days for free.
 
 <br>
 
@@ -230,7 +233,7 @@ There's a fully functional trial available [here](https://dsc.cloud/sindresorhus
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Dato&referrer=Website-FAQ)
+[Send it here.](/feedback?product=Dato&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
@@ -238,7 +241,7 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 #### It does not support the video call service I use
 
-I'm happy to add support for more services. Just [send me](https://sindresorhus.com/feedback?product=Dato&referrer=Website-FAQ) an invitation link (replace a few characters at the end to anonymize it).
+I'm happy to add support for more services. Just [send me](/feedback?product=Dato&referrer=Website-FAQ) an invitation link (replace a few characters at the end to anonymize it).
 
 The app can also detect the link of any video call service if you correctly add it in the Calendar app:
 - Create a new event.
@@ -253,9 +256,11 @@ https://some-video-call-service.com/join/23423
 ---===---
 ```
 
-#### How can I open meeting links (Google Meet, Zoom, Microsoft Teams, etc.) in a specific browser?
+#### How can I open meeting links (Google Meet, Zoom, Microsoft Teams, etc.) in a specific browser or browser profile? {#velja}
 
-Check out my free [Velja app](https://sindresorhus.com/velja). It has built-in support for this without any setup. It can even open links to Zoom and Microsoft Teams directly in their desktop app.
+Check out my free [Velja app](/velja). I made it exactly for this purpose. It has built-in support for this without any setup. It can also open links to Zoom and Microsoft Teams directly in their desktop app.
+
+You can even make it open a specific browser or profile only for links clicked in Dato. Create a custom rule in Velja and set the source app as Dato.
 
 #### How can I add multiple time zones to the menu bar? {#time-zones-menu-bar}
 
@@ -328,11 +333,9 @@ Change [this system setting](https://apple.stackexchange.com/questions/191445/st
 
 #### How can I open a calendar event in my favorite calendar app (Fantastical, BusyCal, etc.) instead of the built-in Calendar app?
 
-Dato uses the system default calendar app. To change the default calendar app, open the Calendar app's settings, and in the “Default calendar app” setting, select the app you want.
+~~Dato uses the system default calendar app. To change the default calendar app, open the Calendar app's settings, and in the “Default calendar app” setting, select the app you want.~~ **Because of a [macOS bug](https://github.com/feedback-assistant/reports/issues/290), this does not work. Instead, drag an event from the Calendar app into Finder, right-click on it, select “Get Info”, select your calendar in the “Open with” field, and click “Change All”.**
 
 Dato supports opening calendar events directly in Calendar, Fantastical, BusyCal, Outlook, and Google Calendar (web). For other apps, Dato will just open the app.
-
-**Note:** If the above instructions don't work, it means [this macOS bug](https://github.com/feedback-assistant/reports/issues/290) is still not resolved. The bug makes the default calendar setting not work. To work around this, drag an event from the Calendar app into Finder, right-click on it, select “Get Info”, select your calendar in the “Open with” field, and click “Change All”.
 
 #### How can I make my calendar refresh more often?
 
@@ -414,6 +417,12 @@ Alternatively, you could use a browser picker like [Velja](/velja) to handle thi
 This is a perfect use case for the built-in Shortcuts app. You can use the `Quit App` and `Open App` actions to quit and relaunch Dato whenever needed. For example, you could create a focus shortcut that quits Dato, plays some music, turns off notifications, etc.
 
 To hide the Dato clock at a certain time of the day, you need the [Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12). The Shortery app is only a temporary requirement. It's almost certain that Apple will introduce automation for Shortcuts in macOS 14.
+
+#### How can I show [day of year](https://nsidc.org/data/user-resources/help-center/day-year-doy-calendar) in the menu bar?
+
+In the “Custom date & time format” setting, write: `D`
+
+[Learn more](https://www.unicode.org/reports/tr35/tr35-dates.html#dfst-day)
 
 #### Can I change the background color of Dato?
 

@@ -1,5 +1,4 @@
 ---
-draft: true
 title: Shell-Free Scripts
 description: Write your scripts in JavaScript.
 pubDate: 2023-03-13

@@ -35,7 +35,14 @@ const readingTimeText = post.isRedirect ? '' : ` — ${post.readingTime} min rea
 </article>
 
 <style is:inline>
-article h2 a[href^="https://"]::after {
-	content: " ⤤";
+/* Workaround to not add hover underline to the external link symbol */
+article h2 a:hover {
+	box-shadow: inset 0 -4px 0 0 currentColor;
+	text-decoration: none !important;
+}
+
+article h2 a[href^="https://"]:not([href^="https://sindresorhus.com"])::after {
+	content: ' ⤤';
+	opacity: 0.6;
 }
 </style>

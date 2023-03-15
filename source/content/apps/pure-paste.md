@@ -50,6 +50,7 @@ For now, I suggest setting a keyboard shortcut for "Clear formatting and paste" 
 There are some cases I cannot fix though:
 - **The Pages and Keynote apps paste text as a table.**
   These apps paste any text with multiple lines as a table. This is not a problem with Pure Paste and is also not something I can fix. You can complain to Apple about the behavior [here](https://www.apple.com/feedback/pages.html).
+- [**Tables in Word are not preserved.**](#word-tables)
 
 #### Why not just use the `Paste and Match Style` menu item or `⌥⇧⌘V`?
 
@@ -67,7 +68,7 @@ There are some cases I cannot fix though:
 
 #### What are tracking parameters and why would I want to remove them?
 
-Removing tracking parameters improve privacy and also make URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Read more.](https://en.wikipedia.org/wiki/UTM_parameters)
+Removing tracking parameters improve privacy and also make URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Learn more.](https://en.wikipedia.org/wiki/UTM_parameters)
 
 Pure Paste supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to Twitter, Facebook, and TikTok.
 
@@ -113,6 +114,10 @@ Pure Paste works by modifying the clipboard. Office hides most of the “Paste O
 The solution is to either:
 1. Exclude the Office apps in the Pure Paste settings.
 1. Turn off “Automatically Clear Formatting” and instead set a keyboard shortcut in the settings. That way the clipboard stays unmodified until you use the keyboard shortcut to clear & paste.
+
+#### Tables are not preserved when I copy-paste in Word {#word-tables}
+
+There is no way to preserve tables while clearing formatting of their cell contents. Different apps have different ways to represent tables on the clipboard. When you need to preserve a table, just temporarily disable Pure Paste. See the “Automatic clear formatting” setting on how to skip format clearing once. You can also right-click the menu bar icon to enable/disable automatic format clearing. Or set a global keyboard shortcut.
 
 #### The app does not clear formatting when copy-pasting an image inside Google Docs
 

@@ -8,7 +8,8 @@ const meta = {
 	description: SITE.description,
 };
 
-const apps = await fetchApps();
+let apps = await fetchApps();
+apps = apps.filter(app => !app.unlisted);
 
 // TODO: Make a component.
 const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1.5 text-black/70 dark:text-black rounded-lg';

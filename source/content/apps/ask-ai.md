@@ -1,5 +1,4 @@
 ---
-draft: true
 title: Ask AI
 subtitle: Use ChatGPT right on your watch
 pubDate: 2023-03-12
@@ -13,7 +12,7 @@ Experience the power of [ChatGPT](https://en.wikipedia.org/wiki/ChatGPT) as your
 
 The app is in English, but you can ask questions in many languages, including: English, Spanish, French, German, Chinese, Japanese, Korean, Portuguese, Italian, Russian, Arabic, Dutch, Swedish, Norwegian, Danish, Finnish, Turkish, Hebrew, Hindi, Bengali, Thai, Greek, Polish, Romanian, Ukrainian, Vietnamese, Indonesian, Malay, Swahili, Tagalog, Tamil, Kannada, Telugu, Marathi, Gujarati, Punjabi, and Nepali.
 
-Note that it only has data up until 2022, so it won't be able to answer questions about recent events.
+Note that it only has data prior to 2022, so it won't be able to answer questions about recent events.
 
 #### Technical details
 

@@ -130,6 +130,18 @@ The app uses the Whisper large v2 model on macOS and the medium or small model o
 
 <br>
 
+### Tips
+
+#### Divide text into paragraphs
+
+Aiko divides the transcription text by sentences. If you want the text divided into paragraps, copy the text from Aiko, go to [ChatGPT](https://chat.openai.com), and use this prompt: `Divide the text into paragraphs. Don't change the text otherwise: TRANSCRIPTION TEXT`
+
+#### Fix missing punctation
+
+A flaw of the Whisper model is that transcriptions can sometimes be missing punctation. To fix missing punctation, copy the text from Aiko, go to [ChatGPT](https://chat.openai.com), and use this prompt: `Fix the missing punctation. Don't change the text otherwise: TRANSCRIPTION TEXT`
+
+<br>
+
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -155,6 +167,14 @@ The app uses the OpenAI Whisper model and I have no control over the quality of 
 
 I have no control over the supported languages. You could try to request it [here](https://github.com/openai/whisper/discussions/categories/general).
 
+#### The transcription repeats itself many times
+
+This is unfortunately a flaw in the Whisper model. [People smarter than me are working on resolving it.](https://github.com/ggerganov/whisper.cpp/issues/579)
+
+#### The transcription is missing punctation
+
+This is unfortunately a flaw in the Whisper model. [Workaround.](#tips)
+
 #### How can I transcribe audio from the Voice Memos app?
 
 **macOS:** Drag and drop the memo into the Aiko window.
@@ -170,6 +190,10 @@ That being said, it's likely Aiko will become significantly faster in the coming
 #### Why does the app take up so much space on disk and memory?
 
 The app delivers the highest quality transcription on the market for 100 different languages. Rather than asking why it's so large, the real question is how is it so small.
+
+#### Can I delete some of the languages to save space?
+
+This is unfortunately not possible. The model has all the languages stored together in a way that makes it impossible to remove just some languages.
 
 #### Can you support real-time transcription?
 
@@ -224,6 +248,6 @@ I don't have any immediate plans to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive updates.
 
-[Download](https://www.dropbox.com/s/ffdzyiw3rp9nxgf/Aiko%201.0.1.zip) *(1.0.1 · 3 GB)*
+[Download](https://drive.google.com/file/d/1ir1mSata3opXiybDEFso2qbkb333tcxv/view?usp=sharing) *(1.0.1 · 3 GB)*
 
 *Requires macOS 13 or later*

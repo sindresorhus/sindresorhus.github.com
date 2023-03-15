@@ -94,7 +94,11 @@ None -->
 </a>
 <br>
 <a href="https://serpapi.com" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
-	<img src="/assets/thanks/serpapi-logo-light.svg" width="240" alt="SerpApi">
+	<img src="/assets/thanks/serpapi-logo-light.svg" width="220" alt="SerpApi">
+</a>
+<br>
+<a href="https://dashcam.io?ref=sindresorhus_website" class="sponsor" rel="nofollow" style="position:relative;left:-10px;">
+	<img src="/assets/thanks/dashcam-logo.png" width="420" alt="Dashcam">
 </a>
 
 ## Silver sponsor <span class="reward-price not-prose">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
