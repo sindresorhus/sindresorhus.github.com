@@ -48,6 +48,14 @@ Yes. Click “View › Show Tab Bar” in the menu bar and then click the plus b
 
 You can also press <kbd>Command</kbd> + <kbd>N</kbd> if you have [tabs enabled for document apps](https://support.apple.com/en-gb/guide/mac-help/mchla4695cce/mac).
 
+#### How can I make the app preserve open documents when I quit?
+
+This is already how it works. Actually, it's how all document-based apps on macOS work. Make sure you don't have “System Settings › Desktop & Dock › Close windows when quitting an application” enabled.
+
+#### I have enabled the translucent setting, why is the title bar not translucent?
+
+Making the title bar translucent is not supported by macOS. I'm hoping to find a workaround in the future.
+
 #### How does “brain dump mode” help with creativity?
 
 It helps you focus on the actual writing, instead of getting distracted with editing and nitpicking. [Learn more.](https://writingcooperative.com/how-the-brain-dump-method-can-boost-your-writing-output-881089bb897a)

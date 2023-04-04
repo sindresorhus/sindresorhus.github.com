@@ -323,10 +323,6 @@ The Arc browser is based on Chrome, so you may think that it should just work wi
 
 **Arc works differently from other browsers. In Arc, you use spaces. Each space can be assigned a certain profile. So it makes more sense to support spaces rather than profiles in Velja. See the above FAQ.**
 
-#### Can you support browser profiles for the [Orion](https://browser.kagi.com) browser? {#orion}
-
-This can be resolved by the Orion browser itself. [Vote on this issue.](https://orionfeedback.org/d/3445-profile-proxy-app-should-identify-itself-as-a-browser)
-
 #### Can it open a specific browser when I double-click a file in the Google Drive folder in Finder?
 
 You can use a custom rule for this in the settings. Set the source app to `Finder` and the “URL Prefix” to `google.com/open`.

@@ -42,5 +42,16 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 ### Older Versions
 
-- [Last macOS 11 compatible version](https://github.com/sindresorhus/meta/files/8800088/Shareful.1.6.0.-.macOS.11.zip) *(1.6.0)*
-- [Last macOS 10.15 compatible version](https://github.com/sindresorhus/meta/files/7119520/Shareful.1.4.0.-.macOS.10.15.zip) *(1.4.0)*
+- [1.8.0](https://github.com/sindresorhus/meta/files/11297902/Shareful.1.8.0.-.macOS.12.zip) for macOS 12+
+- [1.6.0](https://github.com/sindresorhus/meta/files/8800088/Shareful.1.6.0.-.macOS.11.zip) for macOS 11+
+- [1.4.0](https://github.com/sindresorhus/meta/files/7119520/Shareful.1.4.0.-.macOS.10.15.zip) for macOS 10.15+
+
+<br>
+
+### Non-App Store Version
+
+A special version for users that cannot access the App Store. It won't receive updates.
+
+[Download](https://github.com/sindresorhus/meta/files/11297874/Shareful.1.9.0.zip) *(1.9.0)*
+
+*Requires macOS 13 or later*

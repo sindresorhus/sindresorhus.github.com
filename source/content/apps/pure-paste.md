@@ -49,8 +49,10 @@ For now, I suggest setting a keyboard shortcut for "Clear formatting and paste" 
 
 There are some cases I cannot fix though:
 - **The Pages and Keynote apps paste text as a table.**
-  These apps paste any text with multiple lines as a table. This is not a problem with Pure Paste and is also not something I can fix. You can complain to Apple about the behavior [here](https://www.apple.com/feedback/pages.html).
+	These apps paste any text with multiple lines as a table. This is not a problem with Pure Paste and is also not something I can fix. You can complain to Apple about the behavior [here](https://www.apple.com/feedback/pages.html).
 - [**Tables in Word are not preserved.**](#word-tables)
+- Formatting is not cleared when copying and pasting inside LibreOffice.
+	This is a LibreOffice bug. Pure Paste correctly clears the formatting of the clipboard contents, but LibreOffice does not read the new clipboard contents until you first focus a different window. Try copying some styled text in LibreOffice, focus a different window, focus LibreOffice again, and then paste. It now correctly pastes the text without formatting.
 
 #### Why not just use the `Paste and Match Style` menu item or `⌥⇧⌘V`?
 

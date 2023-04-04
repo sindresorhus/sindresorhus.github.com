@@ -22,9 +22,13 @@ The app uses OpenAI's official ChatGPT API. I have to pay for every question, bu
 
 ### Frequently Asked Questions {#faq}
 
-#### Can you support iOS too?
+#### I bought the app on my iPhone/iPad but it does not show up on my watch
 
-Unfortunately, it is unlikely that the app will be available on iOS. The pricing of the app is based on its expected lifetime usage, and since I am charged for the amount of usage, the cost would be much higher on iOS. However, I am considering creating a separate app that allows users to specify their own OpenAI API key.
+This is a bug in the App Store. App developers have no control over the install process of apps. Try restarting your watch and if it still does not show up, go into the App Store on your watch and download it there. You will not have to pay again.
+
+#### Can you support iOS and macOS too?
+
+Unfortunately, it is unlikely that the app will be available on iOS and macOS. The pricing of the app is based on its expected lifetime usage, and since I am charged for the amount of usage, the cost would be much higher on iOS. For macOS, check out [QuickGPT](/quickgpt).
 
 #### Where can I find the changelog?
 

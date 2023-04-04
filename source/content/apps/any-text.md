@@ -105,6 +105,15 @@ This is an iOS limitation and is out of my control. It shows a placeholder until
 
 I don't plan to support that. iCloud is consistently unreliable and I don't want to increase my support burden.
 
+#### When using the “Run Shortcut” action, why does tapping the widget first open the main app and then the Shortcuts app?
+
+This is because of iOS limitations. A widget can only open its own app when a user taps it. And the only way to run a shortcut is to open the Shortcuts app using a special URL. So when you tap the widget, the widget opens the main app, and the main app then opens the Shortcuts app. It's not a very good user experience, but only Apple can fix this.
+
+If you work at Apple, you know what to do:
+- [FB9745173](https://github.com/feedback-assistant/reports/issues/240)
+- [FB11516334](https://github.com/feedback-assistant/reports/issues/357)
+- [FB11516273](https://github.com/feedback-assistant/reports/issues/356)
+
 #### Why is this free without ads?
 
 I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.

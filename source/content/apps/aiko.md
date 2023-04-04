@@ -224,7 +224,11 @@ Workaround for macOS:
 4. Select “AAC” as output format and tap the convert button.
 5. Save the converted file and open it with Aiko.
 
-*I would also recommend sending feedack to Telegram that they should support M4A for voice notes.*
+*I would also recommend sending feedback to Telegram that they should support M4A for voice notes.*
+
+#### How can I export the transcription as subtitles (SRT)?
+
+When the transcription is done, click the share button in the toolbar, and choose “SRT”.
 
 #### Is the app native?
 
