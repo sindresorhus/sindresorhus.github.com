@@ -24,6 +24,7 @@ The app uses iCloud syncing to securely send links from your iOS device to your 
 
 ### Troubleshooting
 
+- Ensure you are on the latest macOS and iOS version.
 - Ensure both devices are signed into the same iCloud account.
 - Ensure both devices are online.
 - Ensure Hyperduck is running on the Mac.

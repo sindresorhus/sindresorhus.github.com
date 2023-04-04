@@ -29,7 +29,7 @@ No. JPEG only supports 8-bit. PNG supports 8-bit and 16-bit, but macOS doesn't h
 
 #### Does it support other HEIF variants like `.heif` or `.hif`?
 
-No. Only `.heic` is supported at the moment as macOS support for other variants is buggy.
+No. Only `.heic` is supported at the moment because macOS support for other variants is buggy.
 
 #### Why is this free without ads?
 
@@ -39,7 +39,17 @@ I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
 
 ### Older Versions
 
-- [Last macOS 11 compatible version](https://github.com/sindresorhus/meta/files/9218007/HEIC.Converter.2.1.5.-.macOS.11.zip) *(2.1.5)*
-- [Last macOS 10.15 compatible version](https://github.com/sindresorhus/meta/files/8817868/HEIC.Converter.2.1.5.-.macOS.10.15.zip) *(2.1.5)*
-- [Last macOS 10.14 compatible version](https://github.com/sindresorhus/meta/files/6715716/HEIC.Converter.1.9.0.-.macOS.10.14.zip) *(1.9.0)*
-- [Last macOS 10.13 compatible version](https://dsc.cloud/sindresorhus/HEIC-Converter-for-macOS-10.13-1575452738) *(1.5.3)*
+- [3.0.1](https://github.com/sindresorhus/meta/files/11401710/HEIC.Converter.3.0.1.-.macOS.12.zip) for macOS 12+
+- [2.1.5](https://github.com/sindresorhus/meta/files/9218007/HEIC.Converter.2.1.5.-.macOS.11.zip) for macOS 11+
+- [2.1.5](https://github.com/sindresorhus/meta/files/8817868/HEIC.Converter.2.1.5.-.macOS.10.15.zip) for macOS 10.15+
+- [1.9.0](https://github.com/sindresorhus/meta/files/6715716/HEIC.Converter.1.9.0.-.macOS.10.14.zip) for macOS 10.14+
+- [1.5.3](https://dsc.cloud/sindresorhus/HEIC-Converter-for-macOS-10.13-1575452738) for macOS 10.13+
+<br>
+
+### Non-App Store Version
+
+A special version for users that cannot access the App Store. It won't receive updates.
+
+[Download](https://dsc.cloud/sindresorhus/HEIC-Converter-3.1.0-1683235061.zip) *(3.1.0)*
+
+*Requires macOS 13 or later*

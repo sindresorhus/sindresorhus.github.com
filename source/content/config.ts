@@ -22,6 +22,7 @@ const appsCollection = defineCollection({
 		isPaid: z.boolean().optional(),
 		links: z.record(z.string().url()).optional(),
 		showSupportLink: z.boolean().optional(),
+		redirectUrl: z.string().url().optional(),
 	}).strict(),
 });
 

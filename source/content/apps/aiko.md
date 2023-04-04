@@ -16,6 +16,13 @@ The app also includes support for Shortcuts.
 
 My goal is to keep the app simple. If you have more advanced needs, check out [MacWhisper](https://goodsnooze.gumroad.com/l/macwhisper).
 
+**Upcoming features**
+
+- Batch conversion
+- Significantly improved performance on iOS thanks to CoreML
+- Export to karaoke file
+- ChatGPT integration
+
 <details>
 <summary><b>Supports audio in 100 languages</b></summary>
 
@@ -169,7 +176,7 @@ I have no control over the supported languages. You could try to request it [her
 
 #### The transcription repeats itself many times
 
-This is unfortunately a flaw in the Whisper model. [People smarter than me are working on resolving it.](https://github.com/ggerganov/whisper.cpp/issues/579)
+This is unfortunately a flaw in the Whisper model and out of my control.
 
 #### The transcription is missing punctation
 
@@ -224,7 +231,11 @@ Workaround for macOS:
 4. Select “AAC” as output format and tap the convert button.
 5. Save the converted file and open it with Aiko.
 
-*I would also recommend sending feedack to Telegram that they should support M4A for voice notes.*
+*I would also recommend sending feedback to Telegram that they should support M4A for voice notes.*
+
+#### How can I export the transcription as subtitles (SRT)?
+
+When the transcription is done, click the share button in the toolbar, and choose “SRT”.
 
 #### Is the app native?
 

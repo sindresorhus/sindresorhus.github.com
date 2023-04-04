@@ -83,16 +83,9 @@ None -->
 <a href="https://strapi.io/?ref=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
 	<img src="/assets/thanks/strapi-logo.svg" width="380" alt="Strapi">
 </a>
-<a href="https://bit.io" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
-	<img src="/assets/thanks/bitio-logo.svg" width="300" alt="bit.io">
-</a>
 <a href="https://getstream.io/chat/sdk/ios/?utm_source=Github&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=Github_Jan2022_iOSChatSDK&utm_term=Sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
 	<img src="/assets/thanks/stream-logo.svg" width="360" alt="Stream">
 </a>
-<a href="https://www.useanvil.com/?utm_source=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
-	<img src="/assets/thanks/anvil-logo-light.svg" width="310" alt="Anvil">
-</a>
-<br>
 <a href="https://serpapi.com" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
 	<img src="/assets/thanks/serpapi-logo-light.svg" width="220" alt="SerpApi">
 </a>
@@ -400,6 +393,8 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Tripwire](https://github.com/Tripwire)
 - [Varun Srinivasan](https://github.com/varunsrin)
 - [OSS Capital](https://oss.capital)
+- [bit.io](https://bit.io)
+- [Anvil](https://www.useanvil.com)
 
 ---
 

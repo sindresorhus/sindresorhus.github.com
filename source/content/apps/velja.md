@@ -136,6 +136,10 @@ If you use a browser where Velja does not have a browser extension, you could al
 
 Velja also comes with a [system service](https://www.computerworld.com/article/2476298/os-x-a-quick-guide-to-services-on-your-mac.html). However, neither Safari ([issue](https://github.com/feedback-assistant/reports/issues/304)) or Chrome ([issue](https://bugs.chromium.org/p/chromium/issues/detail?id=1325557)) correctly sends links to a system service, so it cannot be used for this purpose.
 
+**The prompt does not show**
+
+Make sure you didn't click the link in a browser. See above.
+
 **I clicked a link in VS Code**
 
 VS Code [does not open the system default browser](https://github.com/microsoft/vscode/issues/96132) when you click a link in the app. Because of this, Velja is not used.
@@ -322,10 +326,6 @@ If you want to help out more. This is another feature request. Nice to have, but
 The Arc browser is based on Chrome, so you may think that it should just work with browser profiles in Velja. However, Arc doesn't support the `--profile-directory` command-line flag. So while Velja can fetch the profiles, it's not able to actually use them.
 
 **Arc works differently from other browsers. In Arc, you use spaces. Each space can be assigned a certain profile. So it makes more sense to support spaces rather than profiles in Velja. See the above FAQ.**
-
-#### Can you support browser profiles for the [Orion](https://browser.kagi.com) browser? {#orion}
-
-This can be resolved by the Orion browser itself. [Vote on this issue.](https://orionfeedback.org/d/3445-profile-proxy-app-should-identify-itself-as-a-browser)
 
 #### Can it open a specific browser when I double-click a file in the Google Drive folder in Finder?
 

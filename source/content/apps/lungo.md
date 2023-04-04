@@ -9,7 +9,7 @@ appStoreId: 1263070803
 setappUrl: https://go.setapp.com/stp181?_target=https://setapp.com/apps/lungo&utm_medium=vendor_program&utm_source=Sindre+Sorhus&utm_content=link
 ---
 
-Lungo is a macOS app that prevents your Mac from falling asleep and your screen from dimming.
+Lungo prevents your Mac from falling asleep and your screen from dimming.
 
 <br>
 
@@ -170,9 +170,10 @@ subprocess.run(['open', '--background', 'lungo:toggle'])
 
 ### Older Versions
 
-- [Last macOS 11 compatible version (free)](https://github.com/sindresorhus/meta/files/8870132/Lungo.2.0.4.-.macOS.11.zip) *(2.0.4)*
-- [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/7404362/Lungo.1.9.0.-.macOS.10.15.zip) *(1.9.0)*
-- [Last macOS 10.14 compatible version (free)](https://github.com/sindresorhus/meta/files/5507155/Lungo-1-7-0.zip) *(1.7.0)*
-- [Last macOS 10.13 compatible version (free)](https://github.com/sindresorhus/meta/files/4556911/Lungo-1.6.0-High-Sierra.zip) *(1.6.0)*
+- [2.2.2](https://github.com/sindresorhus/meta/files/11292407/Lungo.2.2.2.-.macOS.12.zip) for macOS 12
+- [2.0.4](https://github.com/sindresorhus/meta/files/8870132/Lungo.2.0.4.-.macOS.11.zip) for macOS 11
+- [1.9.0](https://github.com/sindresorhus/meta/files/7404362/Lungo.1.9.0.-.macOS.10.15.zip) for macOS 10.15
+- [1.7.0](https://github.com/sindresorhus/meta/files/5507155/Lungo-1-7-0.zip) for macOS 10.14
+- [1.6.0](https://github.com/sindresorhus/meta/files/4556911/Lungo-1.6.0-High-Sierra.zip) for macOS 10.13
 
-*(These builds will not run on newer macOS versions)*
+These are free for everyone but they will not run on newer macOS versions.

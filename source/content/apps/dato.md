@@ -15,7 +15,7 @@ Dato supports all the locales and languages that macOS supports for the menu bar
 
 [MacStories review of Dato.](https://www.macstories.net/reviews/dato-review-calendar-events-and-time-zones-from-your-macs-menu-bar/)
 
-Dato requires macOS 13.1 or later.
+Dato requires macOS 13 or later.
 
 #### Features
 
@@ -48,7 +48,7 @@ Dato requires macOS 13.1 or later.
 
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.5.1-trial-1677138279.zip). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.5.5-trial-1682143712.zip). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://setapp.com/apps/dato&utm_medium=vendor_program&utm_source=Sindre+Sorhus&utm_content=link) for 7 days for free.
 
@@ -447,6 +447,10 @@ Dato integrates with the Reminders app only. However, you can use the Shortcuts 
 [Here is a shortcut](https://www.icloud.com/shortcuts/2b856dd9607f412fb660d009a03d60a8) that does this. Run it and then enable the “Things” reminders list in the Dato settings.
 
 The Shortcuts app does not yet support automation, so to have the shown todo stay in sync with Things, we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut. Choose the “Application” trigger type and make it trigger when Things becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually.
+
+#### Can Dato support Focus Filters? {#focus-filters}
+
+This is planned. However, it's unfortunately not possible until Apple fixes a certain bug with the feature. As a workaround, you could use the [Shortery](https://apps.apple.com/app/id1594183810) app to run a shortcut on focus changes that uses the “Set Fullscreen Notification State” shortcut action provided by Dato.
 
 #### How can I export, import, sync, or back up the settings?
 

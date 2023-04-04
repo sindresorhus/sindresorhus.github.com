@@ -7,12 +7,6 @@ platforms:
 appStoreId: 1604176982
 ---
 
----
-
-**You may also like [my similar app](/any-text) for the iOS Lock Screen.**
-
----
-
 This can be a useful tool to help you focus on a single task.
 
 Some examples of what you could write:
@@ -34,6 +28,8 @@ However, what you use this space for is really up to you.
 > — [https://dariusforoux.com/one-thing/](https://dariusforoux.com/one-thing/)
 
 <br>
+
+**You may also like [my similar app](/any-text) for the iOS Lock Screen.**
 
 ### Tips
 

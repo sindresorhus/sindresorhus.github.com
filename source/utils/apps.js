@@ -9,6 +9,7 @@ const normalizeApps = async app => {
 
 	const mainLinks = {
 		...(data.repoUrl && {'Learn More': data.repoUrl}),
+		...(data.redirectUrl && {'Learn More': data.redirectUrl}),
 		...data.mainLinks,
 	};
 
@@ -51,7 +52,8 @@ const normalizeApps = async app => {
 		...data,
 		pubDate,
 		slug: data.slug ?? slug,
-		url: `/${slug}`,
+		url: data.redirectUrl ?? `/${slug}`,
+		isRedirect: data.redirectUrl !== undefined,
 		iconUrl: `/apps/${slug}/icon.png`,
 		hasIOSAppIcon: (data.platforms.includes('iOS') || data.platforms.includes('watchOS')) && !data.platforms.includes('macOS'),
 		isNew: pubDate > date30DaysAgo,

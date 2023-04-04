@@ -9,6 +9,20 @@ appStoreId: 1596706466
 
 <br>
 
+### Tips
+
+#### Show the current internet speed in the menu bar {#menu-bar-output}
+
+<img src="https://dsc.cloud/sindresorhus/Speediness-menu-bar-1680845399.png" alt="Speediness output in the menu bar" width="230">
+
+You will need the [One Thing](https://sindresorhus.com/one-thing) and [Shortery](https://apps.apple.com/app/id1594183810) app.
+
+Add [this shortcut](https://www.icloud.com/shortcuts/d073ad4fd89f4c9cb110795780ed2377) and then create a new time trigger in Shortery. I would recommend an interval higher than 10 minutes.
+
+Tip: If you have limited space in the menu bar, you could switch the info shown in One Thing at an interval too. For example, you could show the internet speed for 10 minutes and then the weather for the next 10 minutes.
+
+<br>
+
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -55,7 +69,7 @@ Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet
 
 #### How can I run the speed test automatically every hour? {#scheduled}
 
-Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet Speed” action into the shortcut editor. You may want to enable the “Add to History” action setting. [Get the Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12) and set it to run this shortcut every hour or at an interval of your choosing. (The Shortery app is only needed this year. It's almost certain that Apple will introduce automation for Shortcuts in macOS 13)
+Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet Speed” action into the shortcut editor. You may want to enable the “Add to History” action setting. [Get the Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12) and set it to run this shortcut every hour or at an interval of your choosing. (The Shortery app is only needed this year. It's almost certain that Apple will introduce automation for Shortcuts in macOS 14)
 
 #### Can you add support for iOS? {#ios}
 
