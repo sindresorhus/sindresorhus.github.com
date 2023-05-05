@@ -348,6 +348,10 @@ You can use the rules feature in the settings for this.
 
 Create a custom rule where you set the Spotlight app as “Source Apps”. The app is located at `/System/Library/CoreServices/Spotlight.app`.
 
+#### How can I open Google Meet links in a desktop app?
+
+You can choose an app to open Google Meet links with in the “Apps” tab in the settings. The app needs to support opening such links though. The Google Meet PWA (created in Chrome) does not accept opening such URLs.
+
 #### I have both Firefox and Firefox Beta installed, but only one of them is showing up in Velja
 
 Firefox and Firefox Beta use the same [identifier](https://cocoacasts.com/what-are-app-ids-and-bundle-identifiers/). Velja uses the identifier to uniquely identify different apps. This means there cannot be multiple apps with the same identifier in Velja. This is not a problem with Velja. It's just how macOS works.
@@ -540,7 +544,7 @@ Leave out `&prompt` to not show the browser prompt.
 
 ### Non-App Store Version
 
-A special version for users that cannot access the App Store. It won't receive updates.
+A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
 [Download](https://dsc.cloud/sindresorhus/Velja-1.13.0-1678086159.zip) *(1.13.0)*
 

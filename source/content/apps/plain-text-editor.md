@@ -110,7 +110,7 @@ I don't have any immediate plans to localize the app.
 
 ### Non-App Store Version
 
-A special version for users that cannot access the App Store. It won't receive updates.
+A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
 [Download](https://dsc.cloud/sindresorhus/Plain-Text-Editor-1.2.1-1668625106) *(1.2.1)*
 

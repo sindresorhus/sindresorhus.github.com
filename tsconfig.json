@@ -5,6 +5,7 @@
 			"astro/client"
 		],
 		"allowJs": true,
+		"strictNullChecks": true,
 		"baseUrl": ".",
 		"paths": {
 			"~/*": [

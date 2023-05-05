@@ -17,7 +17,7 @@ const {
 const image =
 	typeof _image === 'string'
 		? new URL(_image, Astro.site)
-		: (_image && typeof _image.src !== 'undefined'
+		: (_image && _image.src !== undefined
 			? new URL(getRelativeUrlByFilePath(_image.src), Astro.site)
 			: null);
 

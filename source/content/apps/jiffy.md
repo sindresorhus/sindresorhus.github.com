@@ -110,7 +110,7 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 ### Non-App Store Version
 
-A special version for users that cannot access the App Store. It won't receive updates.
+A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
 [Download](https://dsc.cloud/sindresorhus/Jiffy-2.5.0-1676711264) *(2.5.0)*
 

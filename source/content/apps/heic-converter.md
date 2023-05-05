@@ -48,7 +48,7 @@ I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
 
 ### Non-App Store Version
 
-A special version for users that cannot access the App Store. It won't receive updates.
+A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
 [Download](https://dsc.cloud/sindresorhus/HEIC-Converter-3.1.0-1683235061.zip) *(3.1.0)*
 

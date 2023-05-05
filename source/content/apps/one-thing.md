@@ -67,9 +67,9 @@ The point is to focus on one thing at a time. [Humans work best this way.](https
 
 #### Can I have two instances of One Thing running at the same time? {#one-thing2}
 
-I have made a special version of One Thing with a different identifier. You can run this together with the App Store version. It also has a separate URL scheme: `one-thing2:`. This version will not receive updates.
+I have made a special version of One Thing with a different identifier. You can run this together with the App Store version. It also has separate Shortcuts actions and URL scheme: `one-thing2:`. This version will not receive updates.
 
-[Download](https://github.com/sindresorhus/one-thing/files/9603759/One.Thing.2.app.zip)
+[Download](https://dsc.cloud/sindresorhus/One-Thing-2-1.11.0-1684349283.zip)
 
 #### How can I show the next task in the “Today” list in [Things](https://culturedcode.com/things/) in One Thing? {#things}
 
@@ -164,7 +164,7 @@ open --background 'one-thing:?text=Exercise'
 
 ### Non-App Store Version
 
-A special version for users that cannot access the App Store. It won't receive updates.
+A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
 [Download](https://dsc.cloud/sindresorhus/One-Thing-1.10.0-1679895427.zip) *(1.10.0)*
 

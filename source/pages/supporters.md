@@ -86,6 +86,7 @@ None -->
 <a href="https://getstream.io/chat/sdk/ios/?utm_source=Github&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=Github_Jan2022_iOSChatSDK&utm_term=Sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
 	<img src="/assets/thanks/stream-logo.svg" width="360" alt="Stream">
 </a>
+<br>
 <a href="https://serpapi.com" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
 	<img src="/assets/thanks/serpapi-logo-light.svg" width="220" alt="SerpApi">
 </a>
@@ -97,9 +98,6 @@ None -->
 ## Silver sponsor <span class="reward-price not-prose">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
 <div class="silver-sponsor">
-	<a href="https://lunanode.com" class="sponsor" rel="nofollow">
-		<img src="/assets/thanks/lunanode-logo.svg" width="260" alt="LunaNode">
-	</a>
 	<a href="https://www.gitpod.io/?utm_campaign=sindresorhus&utm_medium=referral&utm_content=awesome&utm_source=blog" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
 		<img src="/assets/thanks/gitpod-logo.svg" width="240" alt="Gitpod">
 	</a>
@@ -117,6 +115,9 @@ None -->
 	</a>
 	<a href="https://forwardemail.net" class="sponsor" rel="nofollow" style="position:relative;left:-5px;top:-20px">
 		<img src="/assets/thanks/forward-email-logo.png" width="300" alt="Forward Email">
+	</a>
+	<a href="https://dutchis.net/?ref=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-5px;top:-20px">
+		<img src="/assets/thanks/dutchis-logo-light.png" width="220" alt="DutchIS">
 	</a>
 </div>
 
@@ -395,6 +396,7 @@ I'm forever thankful to these people and companies that have previously supporte
 - [OSS Capital](https://oss.capital)
 - [bit.io](https://bit.io)
 - [Anvil](https://www.useanvil.com)
+- [LunaNode](https://lunanode.com)
 
 ---
 

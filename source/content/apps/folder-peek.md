@@ -186,7 +186,7 @@ I don't have any immediate plans to localize the app.
 
 ### Non-App Store Version
 
-A special version for users that cannot access the App Store. It won't receive updates.
+A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
 [Download](https://dsc.cloud/sindresorhus/Folder-Peek-1.7.0-1678125459.zip) *(1.7.0)*
 

@@ -42,6 +42,12 @@ Drag it out of the menu bar while pressing <kbd>Command</kbd>.
 
 It can unfortunately not show this because of restrictions (sandboxing) imposed on apps on the App Store. However, you could change the menu bar item type to text instead of the icon and use this app in combination with the system battery indicator.
 
+#### Can it play a sound when the battery is charged a certain percentage?
+
+This is a perfect use case for the built-in Shortcuts app. You can use the `Play Sound` action to play the sound you want. To run the shortcut when the battery is at a certain percentage, you need the [Shortery app](https://apps.apple.com/app/id1594183810). Use the “Power Status” trigger. The Shortery app is only a temporary requirement. It's likely that Apple will introduce automation for Shortcuts in macOS 14.
+
+You can find sound effects [here](https://pixabay.com/sound-effects/search/interface/).
+
 #### How can I export, import, sync, or back up the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)

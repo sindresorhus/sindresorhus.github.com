@@ -49,7 +49,7 @@ Go [here](https://apps.apple.com/app/id1666327168) and click â€œVersion Historyâ
 
 ### Non-App Store Version
 
-A special version for users that cannot access the App Store. It won't receive updates.
+A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
 [Download](https://dsc.cloud/sindresorhus/Spaced-1.0.0-1674183454) *(1.0.0)*
 

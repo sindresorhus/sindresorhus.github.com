@@ -64,7 +64,7 @@ Go [here](https://apps.apple.com/app/id1538245904) and click â€œVersion Historyâ
 
 ### Non-App Store Version
 
-A special version for users that cannot access the App Store. It won't receive updates.
+A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
 [Download](https://dsc.cloud/sindresorhus/UTC-Time-1.6.0-1676641519) *(1.6.0)*
 

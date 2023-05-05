@@ -16,6 +16,8 @@ My personal use-case is that I often discover cool stuff when I check Twitter on
 
 [**Why not AirDrop?**](#airdrop)
 
+[Review by MacStories](https://www.macstories.net/reviews/automation-april-hyperduck-leverages-the-power-of-url-schemes-to-control-your-mac-from-an-iphone-or-ipad/)
+
 #### Privacy
 
 The app uses iCloud syncing to securely send links from your iOS device to your Mac. The app developer will not see the links you share. The app does not collect any personal data and does not have any tracking.
@@ -43,15 +45,11 @@ You can use this app to trigger [shortcuts](https://support.apple.com/en-gb/guid
 
 First, create a shortcut on your Mac with some actions. Lets call it `Unicorn`.
 
-On your iOS device, make a new shortcut, add the “Send URLs to Mac” action, and in the URL field, write:
-
-```
-shortcuts://run-shortcut?name=Unicorn
-```
+On your iOS device, make a new shortcut, add the “Run Shortcut on Mac” action, and write `Unicorn` in the shortcut field.
 
 You can now run this shortcut on your iOS device to trigger the `Unicorn` shortcut on your Mac.
 
-[Learn more about running shortcuts using the custom URL scheme.](https://support.apple.com/en-gb/guide/shortcuts/apd624386f42/ios)
+[Learn more](https://www.macstories.net/reviews/automation-april-hyperduck-leverages-the-power-of-url-schemes-to-control-your-mac-from-an-iphone-or-ipad/) in the Hyperduck review by MacStories.
 
 #### Shut down Mac
 

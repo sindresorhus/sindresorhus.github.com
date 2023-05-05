@@ -124,7 +124,7 @@ Go [here](https://apps.apple.com/app/id6443714928) and click â€œVersion Historyâ
 
 ### Non-App Store Version
 
-A special version for users that cannot access the App Store. It won't receive updates.
+A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
 [Download](https://dsc.cloud/sindresorhus/Today-1.2.0-1668625200) *(1.2.0)*
 

@@ -257,7 +257,7 @@ I don't have any immediate plans to localize the app.
 
 ### Non-App Store Version
 
-A special version for users that cannot access the App Store. It won't receive updates.
+A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
 [Download](https://drive.google.com/file/d/1ir1mSata3opXiybDEFso2qbkb333tcxv/view?usp=sharing) *(1.0.1 · 3 GB)*
 

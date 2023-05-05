@@ -112,7 +112,7 @@ Tip: You can [run shortcuts from the command-line](https://support.apple.com/gui
 
 ### Non-App Store Version
 
-A special version for users that cannot access the App Store. It won't receive updates.
+A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
 [Download](https://dsc.cloud/sindresorhus/Pandan-1.14.0-1679831725.zip) *(1.14.0)*
 
