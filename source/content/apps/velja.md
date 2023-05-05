@@ -110,6 +110,17 @@ If you want to open the website in a specific browser directly instead of showin
 
 Hold the <kbd>Option</kbd> when clicking a browser in the Velja menu to launch it instead of setting it as the current browser.
 
+#### Open certain URLs in a specific browser profile
+
+- Open the Velja settings.
+- Go to the “Browsers” tab and grant access to browser profiles.
+- Go to the “Rules” tab.
+- Click “+”.
+- Choose a browser profile in “Open in”.
+- Click “+” for the “URL Matchers”.
+- Define a pattern that matches the URLs you want to match.
+- Click “Save”.
+
 <br>
 
 ### Frequently Asked Questions {#faq}
@@ -125,6 +136,8 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 You may also have enabled the “Hide menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 
 #### Velja does not work
+
+First, make sure the problem is Velja. Go to “System Settings › Desktop & Dock” and change the “Default web browser” setting to Safari. Then try clicking the link again. If the problem persists, it's not caused by Velja.
 
 **I clicked a link in a browser**
 
@@ -162,10 +175,6 @@ Some apps use a redirect URL for tracking purposes. Velja has built-in support f
 See [this](#debug) for how to debug what URLs Velja receives.
 
 If the redirect URL contains the destination URL (usually in a search parameter), contact me and I will add support for it.
-
-**Something else**
-
-First, make sure the problem is Velja. Go to “System Settings › Desktop & Dock” and change the “Default web browser” setting to Safari. Then try clicking the link again. If the problem persists, it's not caused by Velja.
 
 #### What are tracking parameters and why would I want to remove them?
 
@@ -307,6 +316,8 @@ For all settings, [see this guide.](https://github.com/sindresorhus/guides/blob/
 
 I would love to support Arc, but it's currently missing some required functionality.
 
+**Note that they now support [something similar to Velja built in](https://twitter.com/browsercompany/status/1654525608305491984).**
+
 Arc supports fetching the spaces of a specific Arc window using AppleScript. However, Velja needs to be able to fetch the spaces even when Arc has no open windows, so that it can show a list of spaces in the Velja settings.
 
 I recommend sending them feedback about this. Either through the feedback button in Arc or at [hello@thebrowser.company](mailto:hello@thebrowser.company).
@@ -329,7 +340,9 @@ The Arc browser is based on Chrome, so you may think that it should just work wi
 
 #### Can it open a specific browser when I double-click a file in the Google Drive folder in Finder?
 
-You can use a custom rule for this in the settings. Set the source app to `Finder` and the “URL Prefix” to `google.com/open`.
+You can use the rules feature in the settings for this.
+1. Create a rule with the source app set to `Finder` and the “URL Prefix” set to `google.com/open`.
+2. Create a second rule with the source app set to `Google Drive` and the “URL Prefix” set to `docs.google.com/open`.
 
 #### How can I open a website from Spotlight results in a specific browser? {#spotlight}
 
@@ -378,12 +391,17 @@ Velja benefits:
 
 - Free
 - It can open Google Meet links in Chrome without any manual setup
+- It can open Mastodon links directly in a native Mastodon app
+- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- Can show the icon of the active default browser in the menu bar
 - Removes tracking parameters on clicked and copied links
 - Open links in a private Safari window
 - Available in the App Store
 - Sandboxed (more secure)
 - Shortcuts support
 - Services support
+- Can choose menu bar icon
+- Convert copied links to [Songlink](https://odesli.co) for easy sharing
 
 Choosy benefits:
 
@@ -394,11 +412,13 @@ Choosy benefits:
 Velja benefits:
 
 - Free
-- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.)
 - It can open Google Meet links in Chrome without any manual setup
+- It can open Mastodon links directly in a native Mastodon app
+- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Browser profile support
 - More advanced custom rules, like the ability to open a certain link based on what app the link was clicked in
 - Expands [short URLs](https://en.wikipedia.org/wiki/URL_shortening) for better matching
+- Can show the icon of the active default browser in the menu bar
 - Removes tracking parameters on clicked and copied links
 - macOS-like user interface (Bumpr has a custom non-macOS-like user interface)
 - You can open copied links from the menu bar menu
@@ -410,6 +430,8 @@ Velja benefits:
 - Handoff support
 - Services support
 - Share extension
+- Can choose menu bar icon
+- Convert copied links to [Songlink](https://odesli.co) for easy sharing
 
 Bumpr benefits:
 
@@ -420,8 +442,10 @@ Bumpr benefits:
 Velja benefits:
 
 - Free
-- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.)
 - It can open Google Meet links in Chrome without any manual setup
+- It can open Mastodon links directly in a native Mastodon app
+- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- Can show the icon of the active default browser in the menu bar
 - Better user interface for browser profiles (OpenIn requires you to manually find the browser profile ID)
 - The user interface is more macOS-like and better follows the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/macos/overview/themes/)
 - You can open copied links from the menu bar menu
@@ -431,6 +455,8 @@ Velja benefits:
 - Browser extensions
 - Shortcuts support
 - Services support
+- Can choose menu bar icon
+- Convert copied links to [Songlink](https://odesli.co) for easy sharing
 
 OpenIn benefits:
 
@@ -445,9 +471,11 @@ Velja benefits:
 - Lower CPU usage (Velja uses 0% CPU when idle and Browsersaurus uses 0.1-0.2%)
 - Available in the App Store
 - Sandboxed (more secure)
-- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.)
 - It can open Google Meet links in Chrome without any manual setup
+- It can open Mastodon links directly in a native Mastodon app
+- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Browser profile support
+- Can show the icon of the active default browser in the menu bar
 - Custom rules, like the ability to open a certain link based on what app the link was clicked in
 - Expands [short URLs](https://en.wikipedia.org/wiki/URL_shortening) for better matching
 - Removes tracking parameters on clicked and copied links
@@ -463,6 +491,8 @@ Velja benefits:
 - Handoff support
 - Services support
 - Share extension
+- Can choose menu bar icon
+- Convert copied links to [Songlink](https://odesli.co) for easy sharing
 
 Browserosaurus benefits:
 

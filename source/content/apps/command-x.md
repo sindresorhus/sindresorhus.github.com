@@ -15,11 +15,17 @@ Cut and paste files and folders in Finder using Command+X and Command+V. Without
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Command%20X&referrer=Website-FAQ)
+[Send it here.](/feedback?product=Command%20X&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+
+#### The app does not work {#not-working}
+
+First, make sure you pressed <kbd>Command+X</kbd> and not <kbd>Command+C</kbd>.
+
+To help me figure out the issue, press <kbd>Command+X</kbd> and <kbd>Command+V</kbd> in Finder, click the “Copy Debug Info” button in the Command X menu bar menu, and then [send the debug info to me](/feedback?product=Command%20X&referrer=Website-FAQ).
 
 #### Where can I find the changelog?
 
