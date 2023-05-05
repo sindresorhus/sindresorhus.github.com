@@ -377,19 +377,13 @@ It means [“to choose”](https://en.wiktionary.org/wiki/velja) in [Old Norse](
 Velja benefits:
 
 - Free
-- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.)
 - It can open Google Meet links in Chrome without any manual setup
-- Browser profile support for Chrome, Chromium, Edge, Vivaldi, and all their beta, dev, etc, editions (Choosy only supports Chrome stable)
 - Removes tracking parameters on clicked and copied links
-- You can open copied links from the menu bar menu
-- You can press a keyboard shortcut to use an alternative browser for a specific link
 - Open links in a private Safari window
 - Available in the App Store
 - Sandboxed (more secure)
 - Shortcuts support
-- Handoff support
 - Services support
-- Share extension
 
 Choosy benefits:
 
