@@ -136,6 +136,10 @@ If you use a browser where Velja does not have a browser extension, you could al
 
 Velja also comes with a [system service](https://www.computerworld.com/article/2476298/os-x-a-quick-guide-to-services-on-your-mac.html). However, neither Safari ([issue](https://github.com/feedback-assistant/reports/issues/304)) or Chrome ([issue](https://bugs.chromium.org/p/chromium/issues/detail?id=1325557)) correctly sends links to a system service, so it cannot be used for this purpose.
 
+**The prompt does not show**
+
+Make sure you didn't click the link in a browser. See above.
+
 **I clicked a link in VS Code**
 
 VS Code [does not open the system default browser](https://github.com/microsoft/vscode/issues/96132) when you click a link in the app. Because of this, Velja is not used.

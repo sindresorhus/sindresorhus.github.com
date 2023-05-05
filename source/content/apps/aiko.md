@@ -16,6 +16,13 @@ The app also includes support for Shortcuts.
 
 My goal is to keep the app simple. If you have more advanced needs, check out [MacWhisper](https://goodsnooze.gumroad.com/l/macwhisper).
 
+**Upcoming features**
+
+- Batch conversion
+- Significantly improved performance on iOS thanks to CoreML
+- Export to karaoke file
+- ChatGPT integration
+
 <details>
 <summary><b>Supports audio in 100 languages</b></summary>
 
@@ -169,7 +176,7 @@ I have no control over the supported languages. You could try to request it [her
 
 #### The transcription repeats itself many times
 
-This is unfortunately a flaw in the Whisper model. [People smarter than me are working on resolving it.](https://github.com/ggerganov/whisper.cpp/issues/579)
+This is unfortunately a flaw in the Whisper model and out of my control.
 
 #### The transcription is missing punctation
 
