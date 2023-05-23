@@ -1,6 +1,5 @@
 ---
 import {AstroSeo} from '@astrolib/seo';
-import {getRelativeUrlByFilePath} from '~/utils/directories.js';
 import {SITE} from '~/config.mjs';
 
 const {
@@ -14,13 +13,7 @@ const {
 	appStoreId,
 } = Astro.props;
 
-const image =
-	typeof _image === 'string'
-		? new URL(_image, Astro.site)
-		: (_image && _image.src !== undefined
-			? new URL(getRelativeUrlByFilePath(_image.src), Astro.site)
-			: null);
-
+const image = _image && new URL(_image, Astro.site);
 const canonicalURL = new URL(Astro.url.pathname.replace(/\.html$/, ''), Astro.site);
 ---
 
@@ -36,6 +29,7 @@ const canonicalURL = new URL(Astro.url.pathname.replace(/\.html$/, ''), Astro.si
 	<meta name="apple-itunes-app" content={`app-id=${appStoreId}`}>
 }
 
+<link rel="sitemap" href="/sitemap-index.xml">
 <link rel="alternate" type="application/rss+xml" title="Sindre Sorhus — Blog" href="/rss.xml">
 <link rel="alternate" type="application/rss+xml" title="Sindre Sorhus — Apps" href="/rss-apps.xml">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦄</text></svg>">

@@ -182,9 +182,13 @@ This is unfortunately a flaw in the Whisper model and out of my control.
 
 This is unfortunately a flaw in the Whisper model. [Workaround.](#tips)
 
+#### The transcription includes a sentence at the end that was not in the audio
+
+This is unfortunately a flaw in the Whisper model. It can sometimes add a sentence like “Thanks for watching!” to the end. There is not much I can do about this.
+
 #### How can I transcribe audio from the Voice Memos app?
 
-**macOS:** Drag and drop the memo into the Aiko window.
+**macOS:** Drag and drop the memo into the Aiko window. Note that because of a macOS bug, this can sometimes crash Aiko. If this happens, try sharing the memo from the Voice Memos app to Aiko instead.
 
 **iOS:** In the Voice Memos app, tap the memo, tap the `…` button, tap `Share`, and choose Aiko in the app list.
 
@@ -206,7 +210,7 @@ This is unfortunately not possible. The model has all the languages stored toget
 
 This is something I plan to look into, but I have more popular requests I need to prioritize first.
 
-#### Can you support naming the people in the audio?
+#### Can you support naming the people in the audio? {#diarization}
 
 This is called [Diarization](https://en.wikipedia.org/wiki/Speaker_diarisation). It's something I would like to support, but it has to first be [implemented in the library](https://github.com/ggerganov/whisper.cpp/issues/64) the app uses.
 
@@ -251,7 +255,7 @@ Go [here](https://apps.apple.com/app/id1672085276) and click “Version History�
 
 #### Can you localize the app into my language?
 
-I don't have any immediate plans to localize the app.
+I don't plan to localize the app.
 
 <br>
 
@@ -259,6 +263,6 @@ I don't have any immediate plans to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://drive.google.com/file/d/1ir1mSata3opXiybDEFso2qbkb333tcxv/view?usp=sharing) *(1.0.1 · 3 GB)*
+[Download](https://drive.google.com/file/d/12XOL8GeiqM4N3EFuw-ZZU_Hh-nXfYQLB/view?usp=sharing) *(1.2.0 · 3 GB)*
 
 *Requires macOS 13 or later*

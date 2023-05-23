@@ -102,9 +102,9 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 ### Older Versions
 
-- [Last macOS 12 compatible version](https://github.com/sindresorhus/meta/files/10773759/Jiffy.2.4.2.-.macOS.12.zip) *(2.4.2)*
-- [Last macOS 11 compatible version](https://github.com/sindresorhus/meta/files/7511993/Jiffy.2.1.1.-.macOS.11.zip) *(2.1.1)*
-- [Last macOS 10.15 compatible version](https://github.com/sindresorhus/meta/files/6626336/Jiffy.1.3.3.-.macOS.10.15.zip) *(1.3.3)*
+- [2.4.2](https://github.com/sindresorhus/meta/files/10773759/Jiffy.2.4.2.-.macOS.12.zip) for macOS 12+
+- [2.1.1](https://github.com/sindresorhus/meta/files/7511993/Jiffy.2.1.1.-.macOS.11.zip) for macOS 11+
+- [1.3.3](https://github.com/sindresorhus/meta/files/6626336/Jiffy.1.3.3.-.macOS.10.15.zip) for macOS 10.15+
 
 <br>
 

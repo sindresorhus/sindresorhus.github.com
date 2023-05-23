@@ -10,8 +10,6 @@ appStoreId: 1319884285
 
 This app can be useful when you want to post a screenshot or photo on the web that contains some information you don’t want to be revealed. Maybe you want to share a screenshot of a Slack conversation on Twitter but hide some private information. It also removes all metadata, like when and where a photo was captured.
 
-<sub>**Want to see this app included in [Setapp](https://setapp.com)?** Help make it happen by [requesting it here](https://www.facebook.com/groups/setapp/posts/1849644978569967/).</sub>
-
 <br>
 
 ### Frequently Asked Questions {#faq}
@@ -40,8 +38,8 @@ It’s from Apple’s inspirational [“Here’s to the Crazy Ones” TV commerc
 
 ### Older Versions
 
-- [Last macOS 12 compatible version (free)](https://github.com/sindresorhus/meta/files/10773680/Black.Out.2.2.0.-.macOS.12.zip) *(2.2.0)*
-- [Last macOS 11 compatible version (free)](https://github.com/sindresorhus/meta/files/8759655/Black.Out.2.0.4.-.macOS.11.zip) *(2.0.4)*
-- [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/7454156/Black.Out.1.8.2.-.macOS.10.15.zip) *(1.8.2)*
+- [2.2.0](https://github.com/sindresorhus/meta/files/10773680/Black.Out.2.2.0.-.macOS.12.zip) for macOS 12
+- [2.0.4](https://github.com/sindresorhus/meta/files/8759655/Black.Out.2.0.4.-.macOS.11.zip) for macOS 11
+- [1.8.2](https://github.com/sindresorhus/meta/files/7454156/Black.Out.1.8.2.-.macOS.10.15.zip) for macOS 10.15
 
-*(These builds will not run on newer macOS versions)*
+These are free for everyone but they will not run on newer macOS versions.

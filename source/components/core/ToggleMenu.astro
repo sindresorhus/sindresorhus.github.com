@@ -1,15 +1,12 @@
 ---
 import {Icon} from 'astro-iconify';
-
-const {
-	label = 'Toggle Menu',
-	class:
-		className = 'ml-1.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center transition',
-	iconClass = 'w-6 h-6',
-	iconName = 'tabler:menu',
-} = Astro.props;
 ---
 
-<button type="button" class={className} aria-label={label} data-toggle-menu>
-	<Icon name={iconName} class={iconClass} optimize={false}/>
+<button
+	type="button"
+	class="ml-1.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center transition"
+	aria-label="Toggle Menu"
+	data-toggle-menu
+>
+	<Icon name="tabler:menu" class="w-6 h-6" optimize={false}/>
 </button>

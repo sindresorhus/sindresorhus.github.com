@@ -90,6 +90,10 @@ I don't plan to add that. It's not essential and I'm trying to keep the app simp
 
 This is unfortunately a macOS bug and out of my control.
 
+#### Why is there no way to print?
+
+The app is made using Apple's latest technologies (SwitUI) and they have not added print support there yet.
+
 #### How can I export, import, sync, or back up the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)

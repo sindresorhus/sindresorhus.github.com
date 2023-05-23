@@ -64,9 +64,9 @@ I don't have any immediate plans to localize the app.
 
 ### Older Versions
 
-- [Last macOS 12 compatible version (free)](https://github.com/sindresorhus/meta/files/10759031/Battery.Indicator.2.14.2.-.macOS.12.zip) *(2.14.2)*
-- [Last macOS 11 compatible version (free)](https://github.com/sindresorhus/meta/files/8759816/Battery.Indicator.2.12.3.-.macOS.11.zip) *(2.12.3)*
-- [Last macOS 10.15 compatible version (free)](https://github.com/sindresorhus/meta/files/6565005/Battery.Indicator.2.7.1.-.macOS.10.15.zip) *(2.7.1)*
-- [Last macOS 10.14 compatible version (free)](https://github.com/sindresorhus/meta/files/4127047/Battery-Indicator-2.1.0-Mojave.zip) *(2.1.0)*
+- [2.14.2](https://github.com/sindresorhus/meta/files/10759031/Battery.Indicator.2.14.2.-.macOS.12.zip) for macOS 12
+- [2.12.3](https://github.com/sindresorhus/meta/files/8759816/Battery.Indicator.2.12.3.-.macOS.11.zip) for macOS 11
+- [2.7.1](https://github.com/sindresorhus/meta/files/6565005/Battery.Indicator.2.7.1.-.macOS.10.15.zip) for macOS 10.15
+- [2.1.0](https://github.com/sindresorhus/meta/files/4127047/Battery-Indicator-2.1.0-Mojave.zip) for macOS 10.14
 
-*(These builds will not run on newer macOS versions)*
+These are free for everyone but they will not run on newer macOS versions.

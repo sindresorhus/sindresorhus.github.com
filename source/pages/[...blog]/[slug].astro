@@ -3,7 +3,6 @@ import {SITE} from '~/config.mjs';
 import Layout from '~/layouts/PageLayout.astro';
 import Post from '~/components/blog/Post.astro';
 import {fetchPosts} from '~/utils/posts.js';
-import {findImage} from '~/utils/images.js';
 
 export async function getStaticPaths() {
 	const posts = await fetchPosts();
@@ -22,7 +21,7 @@ const {post} = Astro.props;
 const meta = {
 	title: `${post.title} — ${SITE.name}`,
 	description: post.description,
-	image: await findImage(post.image),
+	/// image: post.image, // FIXME
 	ogTitle: post.title,
 	ogType: 'article',
 };

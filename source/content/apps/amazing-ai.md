@@ -120,3 +120,13 @@ Go [here](https://apps.apple.com/app/id1660147028) and click â€œVersion Historyâ
 #### Can you localize the app into my language?
 
 I don't have any immediate plans to localize the app.
+
+<br>
+
+### Non-App Store Version
+
+A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
+
+[Download](https://drive.google.com/file/d/1mcEhAKhmQGYzmSS-zlejt3_qsKFzqm0h/view?usp=sharing) *(1.2.2)*
+
+*Requires macOS 13 or later*

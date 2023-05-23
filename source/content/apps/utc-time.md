@@ -57,8 +57,8 @@ Go [here](https://apps.apple.com/app/id1538245904) and click â€œVersion Historyâ
 
 ### Older Versions
 
-- [Last macOS 12 compatible version](https://github.com/sindresorhus/meta/files/10767291/UTC.Time.1.5.1.-.macOS.12.zip) *(1.5.1)*
-- [Last macOS 11 compatible version](https://github.com/sindresorhus/meta/files/8007477/UTC.Time.1.3.0.-.macOS.11.zip) *(1.3.0)*
+- [1.5.1](https://github.com/sindresorhus/meta/files/10767291/UTC.Time.1.5.1.-.macOS.12.zip) for macOS 12+
+- [1.3.0](https://github.com/sindresorhus/meta/files/8007477/UTC.Time.1.3.0.-.macOS.11.zip) for macOS 11+
 
 <br>
 

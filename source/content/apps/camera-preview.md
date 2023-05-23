@@ -13,7 +13,7 @@ Instant access to your Mac's camera feed for quick checks before video calls.
 
 ### Tips
 
-- Press the <kbd>Return</kbd> while showing the camera feed to take a photo.
+- Press the <kbd>Return</kbd> key while showing the camera feed to take a photo.
 
 <br>
 
@@ -55,6 +55,14 @@ It's not. Hand Mirror has more features, while mine is free. This is simply my t
 #### What resources are used when the app is in the menu bar?
 
 When the camera window is closed or minimized, the camera is turned off. The app consumes approximately 40 MB of RAM and 0% of CPU when running in the background.
+
+#### Do you plan to add background removal?
+
+I don't have any immediate plans for this. Maybe in a year when AI background removal has progressed further.
+
+#### Do you plan to add filters?
+
+I don't plan to add filters.
 
 #### Why is this free without ads?
 

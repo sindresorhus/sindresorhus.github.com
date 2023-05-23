@@ -31,7 +31,7 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 - If you have set a sleep schedule in “System Preferences › Battery › Schedule”, it will take priority over Lungo. This is out of Lungo's control.
 - If you have set the computer to log out after a certain amount of time in “System Preferences › Security & Privacy › Advanced”, it will take priority over Lungo. This is out of Lungo's control.
 - If you see apps open again when you wake up your computer, it means your computer was restarted for some reason. Lungo cannot keep your computer from restarting. Some common reasons it may have restarted are a power outage, macOS crash, or scheduled shutdown/restart (in Battery system settings).
-  + You can [check how long your computer has been awake and when it was last rebooted](https://www.macobserver.com/tips/quick-tip/mac-system-uptime-terminal/) to narrow down the problem. You can also check when the computer was last logged in by typing the command `last` in the Terminal app.
+	+ You can [check how long your computer has been awake and when it was last rebooted](https://www.macobserver.com/tips/quick-tip/mac-system-uptime-terminal/) to narrow down the problem. You can also check when the computer was last logged in by typing the command `last` in the Terminal app.
 
 Some things you could try:
 - Make sure you are on the latest macOS and Lungo versions.
@@ -92,6 +92,7 @@ Tip: You can [run shortcuts from the command-line](https://support.apple.com/gui
 
 - [lungo-cli](https://github.com/sindresorhus/lungo-cli) - Command-line tool.
 - [Raycast commands](https://github.com/raycast/script-commands/tree/master/commands#lungo)
+	- Note: Raycast commands are not the same as plugins. [How to install commands.](https://github.com/raycast/script-commands#install-script-commands-from-this-repository)
 
 #### Custom URL scheme
 

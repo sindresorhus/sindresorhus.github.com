@@ -38,6 +38,10 @@ To help me figure out the issue, press <kbd>Command+X</kbd> and <kbd>Command+V</
 
 No. The files are not touched until you paste. If you don't paste, the files just stay in place.
 
+#### Can I move files by clicking the “Paste” menu item?
+
+No, you can only use the keyboard shortcuts. The app works by overriding the original keyboard shortcuts. There is no way to override the Finder menu items.
+
 #### Where can I find the changelog?
 
 Go [here](https://apps.apple.com/app/id6448461551) and click “Version History”.

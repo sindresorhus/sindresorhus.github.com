@@ -130,6 +130,7 @@ More integrations:
 - [Command-line tool](https://github.com/sindresorhus/one-thing)
 - [Node.js API](https://github.com/sindresorhus/one-thing)
 - [Raycast commands](https://github.com/raycast/script-commands/tree/master/commands#one-thing)
+	- Note: Raycast commands are not the same as plugins. [How to install commands.](https://github.com/raycast/script-commands#install-script-commands-from-this-repository)
 
 #### Shortcuts app
 

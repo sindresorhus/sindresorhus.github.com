@@ -26,4 +26,14 @@ Go [here](https://apps.apple.com/app/id1589044499) and click â€œVersion Historyâ
 
 #### Can you localize the app into my language?
 
-I don't have any immediate plans to localize the app.
+I don't plan to localize the app.
+
+<br>
+
+### Non-App Store Version
+
+A special macOS version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
+
+[Download](https://dsc.cloud/sindresorhus/Randa-1.0.0-1685428930.zip) *(1.0.0)*
+
+*Requires macOS 13 or later*
