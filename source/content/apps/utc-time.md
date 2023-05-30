@@ -66,6 +66,6 @@ Go [here](https://apps.apple.com/app/id1538245904) and click â€œVersion Historyâ
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/UTC-Time-1.6.0-1676641519) *(1.6.0)*
+[Download](https://dsc.cloud/sindresorhus/UTC-Time-1.7.1-1687649720.zip) *(1.7.1)*
 
 *Requires macOS 13 or later*

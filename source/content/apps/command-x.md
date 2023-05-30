@@ -11,6 +11,8 @@ Cut and paste files and folders in Finder using Command+X and Command+V. Without
 
 [Review by Softpedia](https://mac.softpedia.com/get/System-Utilities/Command-X.shtml)
 
+Known limitation: You cannot cut the name of a file when editing a filename in Finder. There is no way for the app to work around this.
+
 <br>
 
 ### Frequently Asked Questions {#faq}

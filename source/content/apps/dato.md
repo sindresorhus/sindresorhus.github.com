@@ -48,7 +48,7 @@ Dato requires macOS 13 or later.
 
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.7.0-trial-1685275587.zip). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.7.1-trial-1687649683.zip). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://setapp.com/apps/dato&utm_medium=vendor_program&utm_source=Sindre+Sorhus&utm_content=link) for 7 days for free.
 
@@ -85,6 +85,11 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://set
 	<tr>
 		<td>
 			Hold <kbd>option</kbd> while dragging the time travel slider to skip by 15 minutes instead of an hour.
+		</td>
+	</tr>
+	<tr>
+		<td>
+			If you open the “new event” window while the time travel slider is active, the event will default to the time of the slider.
 		</td>
 	</tr>
 </table>
@@ -238,6 +243,10 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://set
 #### The app does not show up in the menu bar
 
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+
+#### The “upcoming event in menu bar” notification is not showing up
+
+Make sure you have enabled the feature in the settings and enabled the correct calendars for it (it has a separate calendar picker). Also make sure that there is enough space in the menu bar to show it. If you have Bartender (or a similar app that hides menu bar items) installed, make sure the menu bar item was not auto-hidden by Bartender. Note that it uses a separate menu item from the main Dato menu item.
 
 #### It does not support the video call service I use
 
@@ -451,6 +460,10 @@ The Shortcuts app does not yet support automation, so to have the shown todo sta
 #### Can Dato support Focus Filters? {#focus-filters}
 
 This is planned. However, it's unfortunately not possible until Apple fixes a certain bug with the feature. As a workaround, you could use the [Shortery](https://apps.apple.com/app/id1594183810) app to run a shortcut on focus changes that uses the “Set Fullscreen Notification State” shortcut action provided by Dato.
+
+#### Can I change the chime frequency for the "Hourly Chime" feature?
+
+I don't plan to add more settings to this feature. However, you can achieve this by using the Shortcuts app. Make a shortcut using the “Get Sound” action provided by Dato and have [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) run it at the interval you prefer. [Example shortcut.](https://www.icloud.com/shortcuts/72e44ca37e024b8ab016bd827557f00f)
 
 #### How can I export, import, sync, or back up the settings?
 

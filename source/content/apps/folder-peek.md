@@ -188,6 +188,6 @@ I don't have any immediate plans to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Folder-Peek-1.7.0-1678125459.zip) *(1.7.0)*
+[Download](https://dsc.cloud/sindresorhus/Folder-Peek-1.8.2-1686472638.zip) *(1.8.2)*
 
 *Requires macOS 13 or later*

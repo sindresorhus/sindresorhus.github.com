@@ -1,6 +1,6 @@
 ---
 title: Any Text
-subtitle: Put any text on the Lock Screen
+subtitle: Put text on your Lock Screen and Home Screen
 pubDate: 2022-09-12
 platforms:
   - iOS

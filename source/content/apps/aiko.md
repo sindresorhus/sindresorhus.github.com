@@ -186,6 +186,14 @@ This is unfortunately a flaw in the Whisper model. [Workaround.](#tips)
 
 This is unfortunately a flaw in the Whisper model. It can sometimes add a sentence like “Thanks for watching!” to the end. There is not much I can do about this.
 
+#### Why must I keep the iOS app open while it transcribes?
+
+iOS apps are fundamentally restricted from operating in the background for extended periods. This ironically even [affects Apple's official apps](https://twitter.com/bzamayo/status/1661133704792621059).
+
+#### What file formats does it support?
+
+Any audio and video format that macOS and iOS supports. For example: `.m4a`, `.wav`, `.mp3`, `.mp4`, `.mov`. It does not support `.ogg`.
+
 #### How can I transcribe audio from the Voice Memos app?
 
 **macOS:** Drag and drop the memo into the Aiko window. Note that because of a macOS bug, this can sometimes crash Aiko. If this happens, try sharing the memo from the Voice Memos app to Aiko instead.
@@ -240,6 +248,10 @@ Workaround for macOS:
 #### How can I export the transcription as subtitles (SRT)?
 
 When the transcription is done, click the share button in the toolbar, and choose “SRT”.
+
+#### How can I transcribe a YouTube video?
+
+Download the audio using a service like [dirpy](https://dirpy.com) and then open the file in Aiko.
 
 #### Is the app native?
 

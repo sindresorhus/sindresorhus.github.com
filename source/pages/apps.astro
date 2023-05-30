@@ -1,7 +1,8 @@
 ---
+import {Content as AppsExtra} from './_apps-extra.md';
 import {SITE} from '~/config.mjs';
 import Layout from '~/layouts/PageLayout.astro';
-import {fetchApps} from '~/utils/apps.js';
+import {fetchApps, proseCSS} from '~/utils/apps.js';
 
 const meta = {
 	title: `Apps — ${SITE.name}`,
@@ -58,6 +59,9 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 						</a>
 					))
 				}
+			</section>
+			<section class={proseCSS} style="margin-top: 120px; margin-bottom: 60px">
+				<AppsExtra/>
 			</section>
 		</section>
 	</div>

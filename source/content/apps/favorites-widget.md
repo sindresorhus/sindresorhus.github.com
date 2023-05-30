@@ -4,15 +4,17 @@ subtitle: Contacts on your Lock Screen and Home Screen
 pubDate: 2022-09-12
 platforms:
   - iOS
-  # - macOS (Apple silicon)
+  # - macOS
 appStoreId: 1643660089
 ---
 
-Call or message your favorite people directly from the Lock Screen or Home Screen.
+Call, message, or email your favorite people directly from the Lock Screen or Home Screen.
 
 You can also open a URL or run a shortcut instead when tapping the widget. This opens up a lot of cool possibilities. Here are [some ideas](https://github.com/bhagyas/app-urls) of what you could open.
 
 *iPhone-only for now. iPad version will come when iPadOS supports Lock Screen widgets (probably iPadOS 17).*
+
+<!-- **For macOS, it's only available for Apple silicon Macs.** -->
 
 <br>
 

@@ -62,7 +62,7 @@ I don't have any immediate plans for this. Maybe in a year when AI background re
 
 #### Do you plan to add filters?
 
-I don't plan to add filters.
+No
 
 #### Why is this free without ads?
 
@@ -82,6 +82,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Camera-Preview-1.0.1-1684584893.zip) *(1.0.1)*
+[Download](https://dsc.cloud/sindresorhus/Camera-Preview-1.1.1-1686473013.zip) *(1.1.1)*
 
 *Requires macOS 13 or later*

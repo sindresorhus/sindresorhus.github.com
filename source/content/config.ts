@@ -12,7 +12,7 @@ const appsCollection = defineCollection({
 			'iOS',
 			'watchOS',
 			'tvOS',
-			'macOS (Apple silicon)',
+			'visionOS',
 			'Linux',
 			'Windows',
 		])),

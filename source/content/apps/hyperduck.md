@@ -162,6 +162,10 @@ You can use my free [Velja app](/velja) for this. Create a custom rule where you
 
 The app works by syncing the link over iCloud from your iOS device to your Mac. This is usually instantaneous, but there can be situations that delay it (iCloud problems, network issues, Low Power Mode, etc). This is unfortunately completely out of my control.
 
+#### I don't see the “Share to Mac” action in the share sheet
+
+Try restarting your device. Because of a iOS bug, it sometimes only appears after a restart.
+
 #### Can you add a history screen to the iOS app?
 
 I don't plan to add this. I would like to keep the app focused on one thing and do it well. The app is for sending links from iOS to Mac. That's it.

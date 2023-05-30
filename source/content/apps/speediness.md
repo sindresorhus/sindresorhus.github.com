@@ -103,6 +103,6 @@ I don't have any immediate plans to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Speediness-1.6.0-1677569179.zip) *(1.6.0)*
+[Download](https://dsc.cloud/sindresorhus/Speediness-1.6.1-1686472921.zip) *(1.6.1)*
 
 *Requires macOS 13 or later*

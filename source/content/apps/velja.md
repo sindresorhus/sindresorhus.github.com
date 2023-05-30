@@ -36,9 +36,9 @@ Please help out by starring these Chrome issues which would help Velja users:
 
 #### Prompt
 
-Instead of showing the browser prompt by default, you could make it the alternative browser, which would make it show when you hold the <kbd>Fn</kbd> key while clicking a link.
+Instead of showing the browser prompt by default, you could set it as the alternative browser, which would make it show when you hold the <kbd>Fn</kbd> key while clicking a link.
 
-You could also make a custom rule and select `Prompt` as the browser. For example, you could only show the prompt when clicking links in the Slack app.
+You could also create a custom rule and select `Prompt` as the browser. For example, you could only show the prompt when clicking links in the Slack app.
 
 #### Prompt shortcuts
 
@@ -72,13 +72,13 @@ This is especially useful in combination with custom rules. For example, you cou
 
 #### Open multiple URLs
 
-If you have a document with many URLs you want to open. Select them, right-click, go to “Services”, and click “Open URLs with Velja”.
+If you have a document with many URLs you want to open, select them, right-click, go to “Services”, and click “Open URLs with Velja”.
 
 *You may have to enable the service in “System Settings › Keyboard › Keyboard Shortcuts › Services”.*
 
 #### Open links in a website-wrapper app
 
-Let's say you have generated a website wrapper app for facebook.com using an app like [Unite](https://www.bzgapps.com/unite) or [Coherence](https://www.bzgapps.com/coherence) and you want all links to Facebook to go to this app instead of your browser:
+Let's say you have generated a website wrapper app for facebook.com using an app like [Unite](https://www.bzgapps.com/unite) or [Coherence](https://www.bzgapps.com/coherence), and you want all links to Facebook to go to this app instead of your browser:
 
 - Open the Velja settings and go to the “Rules” pane.
 - Create a new rule and give it a name.
@@ -90,7 +90,7 @@ Let's say you have generated a website wrapper app for facebook.com using an app
 
 - Safari — Built-in. Just enable it in the Safari settings.
 - [Chrome](https://chrome.google.com/webstore/detail/velja/gpipdgcamiclkcomcnogmlfpalggmcmk) — Also works in Edge, Brave, and other Chromium-based browsers.
-- *Firefox support is planned but will take a while.*
+- *Firefox support is planned, but will take a while.*
 
 #### Open the current website in a different browser
 
@@ -104,11 +104,11 @@ You could also show the browser prompt when pressing a keyboard shortcut:
 - Add a keyboard shortcut to the shortcut config.
 - Pressing the configured keyboard shortcut will now show the browser prompt.
 
-If you want to open the website in a specific browser directly instead of showing the browser prompt, add [this shortut](https://www.icloud.com/shortcuts/d3f833d1a1334d169ccefe26fa0ec240) instead.
+If you want to open the website in a specific browser directly instead of showing the browser prompt, add [this shortcut](https://www.icloud.com/shortcuts/d3f833d1a1334d169ccefe26fa0ec240) instead.
 
 #### Launch browsers from Velja menu
 
-Hold the <kbd>Option</kbd> when clicking a browser in the Velja menu to launch it instead of setting it as the current browser.
+Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to launch it instead of setting it as the current browser.
 
 #### Open certain URLs in a specific browser profile
 
@@ -131,13 +131,13 @@ Hold the <kbd>Option</kbd> when clicking a browser in the Velja menu to launch i
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is not enough space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
 
 You may also have enabled the “Hide menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 
 #### Velja does not work
 
-First, make sure the problem is Velja. Go to “System Settings › Desktop & Dock” and change the “Default web browser” setting to Safari. Then try clicking the link again. If the problem persists, it's not caused by Velja.
+First, make sure that the problem is Velja. Go to “System Settings › Desktop & Dock” and change the “Default web browser” setting to Safari. Then try clicking the link again. If the problem persists, it's not caused by Velja.
 
 **I clicked a link in a browser**
 
@@ -214,11 +214,19 @@ However, some apps are not possible:
 	+ The app has no support for opening URLs from the web version.
 - [GitHub Desktop](https://github.com/desktop/desktop)
 	+ The app only accepts a link to a repo to clone. This is not very useful in practice.
+- Monday.com
+	+ The app does not accept any links.
 
 And some apps do not need special support because they already support [universal links](https://developer.apple.com/ios/universal-links/):
 - [Quip](https://quip.com)
 
 If your favorite service is in the above list, I would recommend contacting them and asking them to support opening a link directly in their app. That means being able to run the command `open -a AppName https://foo.com/link-to-project-or-meeting`.
+
+#### Can Velja override Universal Links?
+
+No. There is a way to do it, but it requires a special entitlement from Apple. I applied for it a year ago and haven't heard anything.
+
+There are some ways to [disable Universal Links](https://mjtsai.com/blog/2022/04/19/disabling-universal-links/).
 
 #### How can I add a browser profile to the prompt?
 
@@ -306,11 +314,26 @@ Apple generally recommends putting apps in the global “/Applications” folder
 
 Velja does prompt for permission to the user “~/Applications” folder on the first launch if it exists. But if you created it later on or did not get the prompt for some reason, you can force it. Quit Velja, then launch Velja while pressing <kbd>Control</kbd> + <kbd>Option</kbd>.
 
+#### I have Mastodon links set to open in a specific browser, but it opens in the Ivory app {#ivory-mastodon}
+
+Ivory supports [Universal Links](https://developer.apple.com/ios/universal-links/) for some Mastodon instances and Velja cannot override Universal Links. Universal Links is an annoying feature as it gives users (and other developers) no control over how it works.
+
+As of Ivory 1.0.0, it supports [these Mastodon instances](https://dsc.cloud/sindresorhus/Screenshot-2023-06-14-at-21.37.44-1686767912.png).
+
 #### How can I export, import, sync, or back up the settings?
 
 You can export/import rules in the settings.
 
 For all settings, [see this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
+
+#### Can you support Safari profiles? {#safari-profiles}
+
+Apple does not expose any way to open URLs in a specific profile. I recommend sending feedback to Apple that they should add Shortcuts and AppleScript support for this.
+
+Feel free to duplicate my feedback reports:
+
+- [FB12320822](https://github.com/feedback-assistant/reports/issues/398)
+- [FB12320895](https://github.com/feedback-assistant/reports/issues/399)
 
 #### Can you support spaces for the [Arc](https://thebrowser.company) browser? {#arc}
 
@@ -533,6 +556,26 @@ open --background 'velja:open?url=https%3A%2F%2Fsindresorhus.com&prompt'
 Leave out `&prompt` to not show the browser prompt.
 
 *Don't forget to [URL encode](https://www.urlencoder.org) the value for the `url=` search parameter. For example, using [this](https://gist.github.com/cdown/1163649) Bash function.*
+
+#### Change default browser in Velja from the command-line
+
+Run this command:
+
+```sh
+defaults write com.sindresorhus.Velja defaultBrowser com.apple.Safari
+```
+
+Replace `com.apple.Safari` with the bundle identifier of the browser you want.
+
+To get the bundle identifier of an app, you can run:
+
+```sh
+osascript -e 'id of app "Safari"'
+```
+
+You can also use this trick to change the alternative browser by using `alternativeBrowser` instead of `defaultBrowser`.
+
+Use the bundle identifier `com.sindresorhus.Velja.promptMarker` for the prompt.
 
 <br>
 
