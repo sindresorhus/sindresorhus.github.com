@@ -147,6 +147,12 @@ Aiko divides the transcription text by sentences. If you want the text divided i
 
 A flaw of the Whisper model is that transcriptions can sometimes be missing punctation. To fix missing punctation, copy the text from Aiko, go to [ChatGPT](https://chat.openai.com), and use this prompt: `Fix the missing punctation. Don't change the text otherwise: TRANSCRIPTION TEXT`
 
+#### Quickly record and transcribe (macOS)
+
+You can use [this shortcut](https://www.icloud.com/shortcuts/d2f19692f9674e03a8f4319d2a3e9dc2) to be able to quickly record, transcribe, and have the result copied to the clipboard. The shortcut can be triggered from the menu bar or you can set a global keyboard shortcut for it.
+
+Known issue: The shortcut has to momentarily show the Aiko app and then hide it again. This is a limitation of how Shortcuts works.
+
 <br>
 
 ### Frequently Asked Questions {#faq}

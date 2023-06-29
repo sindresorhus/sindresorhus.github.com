@@ -34,6 +34,8 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 First, make sure you pressed <kbd>Command+X</kbd> and not <kbd>Command+C</kbd>.
 
+Then try enabling the setting “Use more reliable way of handling Command+X”.
+
 To help me figure out the issue, press <kbd>Command+X</kbd> and <kbd>Command+V</kbd> in Finder, click the “Copy Debug Info” button in the Command X menu bar menu, and then [send the debug info to me](/feedback?product=Command%20X&referrer=Website-FAQ), including a short explanation of what didn't work.
 
 #### Is there any risk of data loss if I forget to paste?
@@ -43,6 +45,10 @@ No. The files are not touched until you paste. If you don't paste, the files jus
 #### Can I move files by clicking the “Paste” menu item?
 
 No, you can only use the keyboard shortcuts. The app works by overriding the original keyboard shortcuts. There is no way to override the Finder menu items.
+
+#### It does not work when I try to paste directly to an expanded subfolder shown in its parent folder
+
+This is a Finder bug. You can reproduce it even without Command X by selecting the file to move, pressing <kbd>Command+C</kbd>, selecting the destination folder, and then pressing <kbd>Option+Command+V</kbd>.
 
 #### Where can I find the changelog?
 

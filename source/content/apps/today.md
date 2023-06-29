@@ -27,6 +27,10 @@ It integrates with Calendar, Fantastical, and BusyCal.
 
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
 
+#### How do I get back to the settings if I have hidden the `…` menu item?
+
+Press the <kbd>Option</kbd> key while opening the Today menu.
+
 #### It does not support the video call service I use
 
 I'm happy to add support for more services. Just [send me](https://sindresorhus.com/feedback?product=Today&referrer=Website-FAQ) an invitation link (replace a few characters at the end to anonymize it).
