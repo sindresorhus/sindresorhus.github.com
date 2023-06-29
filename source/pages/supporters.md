@@ -83,16 +83,8 @@ None -->
 <a href="https://strapi.io/?ref=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
 	<img src="/assets/thanks/strapi-logo.svg" width="380" alt="Strapi">
 </a>
-<a href="https://getstream.io/chat/sdk/ios/?utm_source=Github&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=Github_Jan2022_iOSChatSDK&utm_term=Sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
-	<img src="/assets/thanks/stream-logo.svg" width="360" alt="Stream">
-</a>
-<br>
 <a href="https://serpapi.com" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
 	<img src="/assets/thanks/serpapi-logo-light.svg" width="220" alt="SerpApi">
-</a>
-<br>
-<a href="https://dashcam.io?ref=sindresorhus_website" class="sponsor" rel="nofollow" style="position:relative;left:-10px;">
-	<img src="/assets/thanks/dashcam-logo.png" width="420" alt="Dashcam">
 </a>
 
 ## Silver sponsor <span class="reward-price not-prose">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
@@ -103,12 +95,6 @@ None -->
 	</a>
 	<a href="https://eslint.org" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/eslint-logo.png" width="200" alt="ESLint">
-	</a>
-	<a href="https://astro.build" class="sponsor" rel="nofollow">
-		<img src="/assets/thanks/astro-logo.svg" width="220" alt="Astro">
-	</a>
-	<a href="https://www.stackaid.us" class="sponsor" rel="nofollow">
-		<img src="/assets/thanks/stackaid-logo.png" width="270" alt="StackAid">
 	</a>
 	<a href="https://github.com/jaredwray" class="sponsor" rel="nofollow" style="font-size: 36px">
 		<span class="dark:text-black">Jared Wray</span>
@@ -124,17 +110,14 @@ None -->
 ## Top supporter <span class="reward-price not-prose">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
 
 - [Roland Warmerdam](https://github.com/Rowno)
-- [Ben Truyman](https://github.com/bentruyman)
 - [Jacob Gillespie](https://github.com/jacobwgillespie)
 - [Ryan Chartrand](https://github.com/ryanchartrand)
 - [Verti Studio](https://github.com/Codeinwp)
 - [Passbolt](https://github.com/passbolt)
 - [Sideline Sports](https://github.com/SidelineSports)
-- [Scout APM](https://github.com/scoutapm-sponsorships)
-- [Alexis Tyler](https://github.com/OmgImAlexis)
-- [Vital](https://github.com/vital-software)
 - [Checkly](https://github.com/checkly)
 - [Stefan Thomas](https://www.patreon.com/user/creators?u=15361260)
+- [Getform](https://github.com/getform)
 
 ## Supporter <span class="reward-price not-prose">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
 
@@ -185,7 +168,6 @@ None -->
 - [Ahmad Rasyid Salim](https://github.com/ahmadrasyidsalim)
 - [Jurgen Van de Moere](https://github.com/jvandemo)
 - [Riley Tomasek](https://github.com/RileyTomasek)
-- [Benjamin S.](https://github.com/benjaminsuch)
 - [Paul Warelis](https://github.com/pwarelis)
 - [Connor Bär](https://github.com/connor-baer)
 - [Blai Pratdesaba](https://github.com/blaiprat)
@@ -212,7 +194,6 @@ None -->
 - [Mark Waldron](https://github.com/MarkWaldron)
 - [Hilke Heremans](https://github.com/hilkeheremans)
 - [Neal DeBuhr](https://github.com/ndebuhr)
-- [Kyle Gray](https://github.com/GoPro16)
 - [Charlie](https://github.com/charliegroll)
 - [Dominik Kundel](https://github.com/dkundel)
 - [Jonas Sannewald](https://github.com/Suboptimierer)
@@ -221,19 +202,14 @@ None -->
 - [Tim Nolet](https://github.com/tnolet)
 - [jmnetizen](https://github.com/jmnetizen)
 - [Aternos](https://github.com/aternosorg)
-- [Yuan Qing Lim](https://github.com/yuanqing)
 - [Vince Malone](https://github.com/VinceMalone)
-- [Paul Warelis](https://github.com/pwarelis)
 - [Yefim Vedernikoff](https://github.com/yefim)
 - [Osama Khan](https://github.com/osamakhn)
 - [Rafael Conde](https://github.com/rafaelconde)
-- [Kevin R. Whitley](https://github.com/kwhitley)
 - [Renuo](https://github.com/renuo)
 - [Bryan Mishkin](https://github.com/bmish)
 - [Andreas Pizsa](https://github.com/AndreasPizsa)
 - [Ryan Sonshine](https://github.com/ryansonshine)
-- [Justin Lowery](https://github.com/cerebrl)
-- [Threema GmbH](https://github.com/threema-ch)
 - [SCG82](https://github.com/SCG82)
 - [Gadget](https://github.com/gadget-inc)
 - [Espen Klem](https://github.com/eklem)
@@ -246,22 +222,27 @@ None -->
 - [Zentered](https://github.com/zentered)
 - [Faraz Patankar](https://github.com/FarazPatankar)
 - [Ilias Aboubeker](https://github.com/samyilias)
-- [Faraz Patankar](https://github.com/FarazPatankar)
 - [DefineValue](https://github.com/definevalue)
-- [Gregor Adams](https://github.com/pixelass)
 - [@cburatto](https://github.com/cburatto)
 - [Zenika](https://github.com/Zenika)
 - [Ryan Atkinson](https://github.com/ryanatkn)
 - [DevUtilsApp](https://github.com/DevUtilsApp)
-- [Gary Ho](https://github.com/GreenSleepes)
 - [Marmalade](https://github.com/withmarmalade)
 - [Ivan Miskovic](https://github.com/ivantm)
-- [Jason Rubenstein](https://github.com/rubixibuc)
 - [Mom's Friendly Development Company](https://github.com/MomsFriendlyDevCo)
-- [Alex / KATT](https://github.com/KATT)
 - [Mention Me Ltd](https://github.com/mention-me)
-- [Alexandru Ifrim](https://github.com/aifrim)
 - [@cacherich](https://github.com/cacherich)
+- [JrdnHnz](https://github.com/jrdnhnz)
+- [Frederik Kvartborg Albertsen](https://github.com/quartercastle)
+- [Moropo](https://github.com/moropo-com)
+- [Capitual](https://github.com/capitual)
+- [Fathom Analytics](https://github.com/usefathom)
+- [Matthew Hudson](https://github.com/matthewhudson)
+- [Johnathan Ludwig](https://github.com/johnathanludwig)
+- [Toby Drake](https://github.com/tobydrake7)
+- [Dragon Dreamer](https://github.com/thedragonace)
+- [Jason Williscroft](https://github.com/karmaniverous)
+- [Róbert Enyedi](https://github.com/enyedirr)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:11px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
@@ -397,6 +378,25 @@ I'm forever thankful to these people and companies that have previously supporte
 - [bit.io](https://bit.io)
 - [Anvil](https://www.useanvil.com)
 - [LunaNode](https://lunanode.com)
+- [StackAid](https://www.stackaid.us)
+- [Stream](https://getstream.io/chat/sdk/ios/)
+- [Dashcam](https://dashcam.io)
+- [Gregor Adams](https://github.com/pixelass)
+- [Threema GmbH](https://github.com/threema-ch)
+- [Yuan Qing Lim](https://github.com/yuanqing)
+- [Benjamin S.](https://github.com/benjaminsuch)
+- [Alexis Tyler](https://github.com/OmgImAlexis)
+- [Ben Truyman](https://github.com/bentruyman)
+- [Kyle Gray](https://github.com/GoPro16)
+- [Alex / KATT](https://github.com/KATT)
+- [Jason Rubenstein](https://github.com/rubixibuc)
+- [Alexandru Ifrim](https://github.com/aifrim)
+- [Justin Lowery](https://github.com/cerebrl)
+- [Kevin R. Whitley](https://github.com/kwhitley)
+- [Gary Ho](https://github.com/GreenSleepes)
+- [Scout APM](https://github.com/scoutapm-sponsorships)
+- [Vital](https://github.com/vital-software)
+- [Astro](https://astro.build)
 
 ---
 
