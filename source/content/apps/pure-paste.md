@@ -33,7 +33,7 @@ Rich text copied from a different device will not have its formatting cleared be
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
 
 You may also have enabled the “Hide menu bar icon” preference, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 
@@ -120,6 +120,12 @@ The solution is to either:
 #### Tables are not preserved when I copy-paste in Word {#word-tables}
 
 There is no way to preserve tables while clearing formatting of their cell contents. Different apps have different ways to represent tables on the clipboard. When you need to preserve a table, just temporarily disable Pure Paste. See the “Automatic clear formatting” setting on how to skip format clearing once. You can also right-click the menu bar icon to enable/disable automatic format clearing. Or set a global keyboard shortcut.
+
+#### Why doesn't cutting work in Excel when Pure Paste is active?
+
+Excel has unique (incorrect) interactions with the clipboard, which is incompatible with Pure Paste. When you cut text in Excel, the app puts metadata on the clipboard that a cut operation is being performed. Pure Paste, designed to remove formatting from copied text, inadvertently clears this info when it cleans the clipboard. The result is that Excel thinks it's a copy operation instead.
+
+You can either add Excel to the exclude list in the Pure Paste settings or turn off automatic format clearing and set a “clear formatting and paste” keyboard shortcut instead.
 
 #### The app does not clear formatting when copy-pasting an image inside Google Docs
 

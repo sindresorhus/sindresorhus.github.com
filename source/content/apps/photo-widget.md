@@ -72,6 +72,10 @@ Widgets get very few system resources so it's not possible to load a high-resolu
 If you work at Apple, you know what to do:
 - [FB8832751](https://github.com/feedback-assistant/reports/issues/177)
 
+#### How can I select a people album?
+
+Apple does not let third-party apps access these albums.
+
 #### Why is this free without ads?
 
 I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.

@@ -84,7 +84,11 @@ None -->
 	<img src="/assets/thanks/strapi-logo.svg" width="380" alt="Strapi">
 </a>
 <a href="https://serpapi.com" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
-	<img src="/assets/thanks/serpapi-logo-light.svg" width="220" alt="SerpApi">
+	<img src="/assets/thanks/serpapi-logo-light.svg" width="210" alt="SerpApi">
+</a>
+<br>
+<a href="https://transloadit.com?utm_source=sindresorhus&utm_medium=referral&utm_campaign=sponsorship&utm_content=website" class="sponsor" rel="nofollow" style="position:relative;left:-40px;margin-top:20px">
+	<img src="/assets/thanks/transloadit-logo.svg" width="480" alt="Transloadit">
 </a>
 
 ## Silver sponsor <span class="reward-price not-prose">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>

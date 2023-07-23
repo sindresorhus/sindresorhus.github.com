@@ -18,11 +18,13 @@ export default defineConfig({
 	build: {
 		format: 'file',
 	},
+	redirects: {
+		'/thanks': '/supporters',
+		'/lock-screen-one': '/any-text',
+	},
 	integrations: [
 		tailwind({
-			config: {
-				applyBaseStyles: false,
-			},
+			applyBaseStyles: false,
 		}),
 		sitemap(),
 		image(),

@@ -22,7 +22,7 @@ Battery Indicator lets you quickly glance the remaining battery time or percenta
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
 
 You may also have enabled the “Hide while on power” preference, which hides the menu bar icon while the power adapter is connected. Launch the app again to reveal the menu bar item for 5 seconds or disconnect the power adapter.
 
@@ -44,9 +44,17 @@ It can unfortunately not show this because of restrictions (sandboxing) imposed 
 
 #### Can it play a sound when the battery is charged a certain percentage?
 
-This is a perfect use case for the built-in Shortcuts app. You can use the `Play Sound` action to play the sound you want. To run the shortcut when the battery is at a certain percentage, you need the [Shortery app](https://apps.apple.com/app/id1594183810). Use the “Power Status” trigger. The Shortery app is only a temporary requirement. It's likely that Apple will introduce automation for Shortcuts in macOS 14.
+This is a perfect use case for the built-in Shortcuts app. You can use the `Play Sound` action to play the sound you want. To run the shortcut when the battery is at a certain percentage, you need the [Shortery app](https://apps.apple.com/app/id1594183810). Use its “Power Status” trigger.
+
+*(The Shortery app is only a temporary requirement. It's likely that Apple will introduce automation for Shortcuts in macOS 15.)*
 
 You can find sound effects [here](https://pixabay.com/sound-effects/search/interface/).
+
+#### Can the battery icon hide when the battery is charged a certain percentage?
+
+This is a perfect use case for the built-in Shortcuts app. Create a shortcut that quits the app and one that launches it. To run the shortcut when the battery is at a certain percentage, you need the [Shortery app](https://apps.apple.com/app/id1594183810). Use its “Power Status” trigger.
+
+*(The Shortery app is only a temporary requirement. It's likely that Apple will introduce automation for Shortcuts in macOS 15.)*
 
 #### How can I export, import, sync, or back up the settings?
 

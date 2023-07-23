@@ -13,7 +13,9 @@ Instant access to your Mac's camera feed for quick checks before video calls.
 
 ### Tips
 
-- Press the <kbd>Return</kbd> key while showing the camera feed to take a photo.
+- Press the <kbd>Return</kbd> or <kbd>Space</kbd> key while showing the camera feed to take a photo.
+- Press the <kbd>Command</kbd> and <kbd>+</kbd> key to zoom in, <kbd>Command</kbd> and <kbd>-</kbd> to zoom out, and <kbd>Command</kbd> and <kbd>0</kbd> to reset the zoom.
+- Press the <kbd>Option<kbd> key while resizing the window to resize from the center (this works with any app).
 
 <br>
 

@@ -2,8 +2,8 @@ import {defineCollection, z} from 'astro:content';
 
 const appsCollection = defineCollection({
 	schema: z.object({
-		draft: z.boolean().optional(),
-		unlisted: z.boolean().optional(),
+		draft: z.boolean().default(false),
+		unlisted: z.boolean().default(false),
 		title: z.string().nonempty(),
 		subtitle: z.string().nonempty(),
 		pubDate: z.date(),
@@ -17,19 +17,19 @@ const appsCollection = defineCollection({
 			'Windows',
 		])),
 		repoUrl: z.string().url().optional(),
-		appStoreId: z.number().optional(),
+		appStoreId: z.number().int().positive().safe().optional(),
 		setappUrl: z.string().url().optional(),
-		isPaid: z.boolean().optional(),
+		isPaid: z.boolean().default(false),
 		links: z.record(z.string().url()).optional(),
-		showSupportLink: z.boolean().optional(),
+		showSupportLink: z.boolean().default(true),
 		redirectUrl: z.string().url().optional(),
 	}).strict(),
 });
 
 const blogCollection = defineCollection({
 	schema: z.object({
-		draft: z.boolean().optional(),
-		unlisted: z.boolean().optional(),
+		draft: z.boolean().default(false),
+		unlisted: z.boolean().default(false),
 		title: z.string().nonempty(),
 		description: z.string().nonempty().optional(),
 		pubDate: z.date(),

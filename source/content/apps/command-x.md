@@ -28,13 +28,15 @@ Known limitation: You cannot cut the name of a file when editing a filename in F
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
 
 #### The app does not work {#not-working}
 
 First, make sure you pressed <kbd>Command+X</kbd> and not <kbd>Command+C</kbd>.
 
 Then try enabling the setting “Use more reliable way of handling Command+X”.
+
+To make sure you used the app correctly. Try this: Select a file in Finder, press <kbd>Command+X</kbd>, change to a different folder, press <kbd>Command+V</kbd>. The file should have been moved to this new folder.
 
 To help me figure out the issue, press <kbd>Command+X</kbd> and <kbd>Command+V</kbd> in Finder, click the “Copy Debug Info” button in the Command X menu bar menu, and then [send the debug info to me](/feedback?product=Command%20X&referrer=Website-FAQ), including a short explanation of what didn't work.
 
@@ -45,6 +47,10 @@ No. The files are not touched until you paste. If you don't paste, the files jus
 #### Can I move files by clicking the “Paste” menu item?
 
 No, you can only use the keyboard shortcuts. The app works by overriding the original keyboard shortcuts. There is no way to override the Finder menu items.
+
+#### Can it make the cut files in Finder have less opacity?
+
+This is not possible. The app works by overriding some key combinations. It doesn't and cannot modify Finder in any way.
 
 #### It does not work when I try to paste directly to an expanded subfolder shown in its parent folder
 

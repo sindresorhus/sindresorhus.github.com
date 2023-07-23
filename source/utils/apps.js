@@ -31,7 +31,7 @@ const normalizeApps = async app => {
 	const links = {
 		...Object.fromEntries(headerLinks),
 		...data.links,
-		...(data.showSupportLink !== false && {Support: `/feedback?product=${encodeURIComponent(data.title)}`}),
+		...(data.showSupportLink && {Support: `/feedback?product=${encodeURIComponent(data.title)}`}),
 	};
 
 	let screenshots = await import.meta.glob('~/../public/apps/*/screenshot*.{png,jpg}', {eager: false});

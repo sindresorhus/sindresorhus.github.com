@@ -34,6 +34,7 @@ The app uses iCloud syncing to securely send links from your iOS device to your 
 - Ensure Low Power Mode is not enabled on the devices. It can cause iCloud to delay syncing.
 - Try opening the Hyperduck iOS app to force a sync.
 - Try restarting both devices.
+- If you are using a VPN, try disconnecting it. Some VPNs prevent iCloud from syncing.
 
 <br>
 
@@ -165,6 +166,12 @@ The app works by syncing the link over iCloud from your iOS device to your Mac. 
 #### I don't see the “Share to Mac” action in the share sheet
 
 Try restarting your device. Because of a iOS bug, it sometimes only appears after a restart.
+
+#### I use the Arc browser and I am not receiving all links
+
+The Arc browser does not support opening multiple URLs at the time. I suggest sending feedback to the Arc team about this. There is nothing Hyperduck can do about it.
+
+As a workaround, you could use my free [Velja app](/velja) to make such links open in a different browser. Create a custom rule where you set Hyperduck as the source app and set the destination app to a different browser than Arc.
 
 #### Can you add a history screen to the iOS app?
 

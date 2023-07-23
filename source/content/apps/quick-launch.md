@@ -1,6 +1,6 @@
 ---
 title: Quick Launch
-subtitle: Open websites, apps, and shortcuts from your Lock Screen and Home Screen
+subtitle: Open websites, apps, and shortcuts from your Lock Screen
 pubDate: 2022-09-28
 platforms:
   - iOS
@@ -8,7 +8,7 @@ platforms:
 appStoreId: 1645566403
 ---
 
-Quickly open websites, launch apps, and run shortcuts directly from your Lock Screen and Home Screen.
+Quickly open websites, launch apps, and run shortcuts directly from your Lock Screen.
 
 For example, open google.com, launch TikTok, or run a shortcut to play a random music playlist.
 

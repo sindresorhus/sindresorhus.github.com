@@ -93,7 +93,7 @@ You can add some horizontal padding around the text by adding multiple spaces to
 
 #### How can I show different text for each day of the week?
 
-You can use the macOS Shortcuts app for this. Make a shortcut for each piece of text you want to be shown by using the “Set Text” action provided by One Thing. Shortcuts does not yet support automation (it most likely will in macOS 14), so for now we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to schedule these shortcuts to run at the specific days.
+You can use the macOS Shortcuts app for this. Make a shortcut for each piece of text you want to be shown by using the “Set Text” action provided by One Thing. Shortcuts does not yet support automation (it most likely will in macOS 15), so for now we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to schedule these shortcuts to run at the specific days.
 
 #### Can you add iOS / watchOS support?
 
@@ -117,7 +117,7 @@ Go [here](https://apps.apple.com/app/id1604176982) and click “Version History�
 
 #### Can you localize the app into my language?
 
-I don't have any immediate plans to localize the app.
+I don't have any plans to localize the app.
 
 <br>
 

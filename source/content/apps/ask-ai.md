@@ -26,6 +26,10 @@ The app uses OpenAI's official ChatGPT API. I have to pay for every question, bu
 
 This is a bug in the App Store. App developers have no control over the install process of apps. Try restarting your watch and if it still does not show up, go into the App Store on your watch and download it there. You will not have to pay again.
 
+#### Can it open the voice dictation directly at launch?
+
+This is unfortunately not possible as watchOS only supports opening the keyboard.
+
 #### Can you support iOS and macOS too?
 
 Unfortunately, it is unlikely that the app will be available on iOS and macOS. The pricing of the app is based on its expected lifetime usage, and since I am charged for the amount of usage, the cost would be much higher on iOS. For macOS, check out [QuickGPT](/quickgpt).

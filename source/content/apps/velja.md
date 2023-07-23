@@ -131,7 +131,7 @@ Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to laun
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is not enough space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is not enough space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
 
 You may also have enabled the “Hide menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 

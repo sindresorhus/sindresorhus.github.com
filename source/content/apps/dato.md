@@ -17,6 +17,44 @@ Dato supports all the locales and languages that macOS supports for the menu bar
 
 Dato requires macOS 13 or later.
 
+---
+
+### Dato 5
+
+###### Behavior changes
+
+- **You must now click an event in the list to show event details. Previously you hovered over it.**
+- Right-click an event in the list for more actions.
+- Double-click an event in the list to open it in the default calendar app.
+
+###### Why are there so many changes?
+
+The latest version of Dato has been rewritten, moving away from its original [system menu](https://developer.apple.com/design/human-interface-guidelines/menus) format — a change partly prompted by macOS 14 breaking various things. This shift has allowed me to implement significant improvements I have envisioned for years. It’s a change for the better, and I encourage you to give it a few weeks to adapt. If you're still unsatisfied after that time, please reach out. I am continuously working to refine and enhance the app, which has grown substantially since its simple beginnings, making the old menu system increasingly impractical for its current complexity.
+
+If you are not ready to move to Dato 5, here is [Dato 4](https://dsc.cloud/sindresorhus/Dato-4.7.2-1692797926.zip), which you can use in the meantime.
+
+##### Some functionality is missing
+
+All existing functionality should be preserved, but some functionality moved into context menus. Simply right-click an event in the event list for more actions. Or right-click an attendee in the event details for more actions.
+
+<!-- ###### Why does Dato always appear on the right side of the screen now?
+
+Having it always on the rightmost side of the screen makes it more predictable where it will appear and it also blocks the least amount of screen space behind it. This is similar to Notification Center and other third-party apps like SideNotes and PastePal.
+
+While I believe this is a better design, there is a setting to revert back to the way it was before (in the “Window” tab in the settings). -->
+
+###### Why does clicking the "upcoming event in menu bar" item now open the main Dato window?
+
+I had a large number of requests that wanted more context for the event (for example, the events coming after it). When you click the "upcoming event in the menu bar" menu item now, it opens the main Dato window, but highlights the clicked event and shows the event details. This lets you easily see what comes after it.
+
+This also enabled the new setting that lets you hide the main Dato menu bar item, since you can now click the "upcoming event in menu bar" item instead.
+
+###### How can I now hide an event from showing up in the menu bar?
+
+Previously, when you clicked the event in the menu bar, you could hide it from the menu bar by clicking “Hide from Menu Bar”. You now need to right-click the menu bar item and click “Mute”.
+
+---
+
 #### Features
 
 - Calendar, optionally with week numbers and event indicators.
@@ -48,7 +86,7 @@ Dato requires macOS 13 or later.
 
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-4.7.1-trial-1687649683.zip). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-5.0.9-trial-1693064617.zip). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://setapp.com/apps/dato&utm_medium=vendor_program&utm_source=Sindre+Sorhus&utm_content=link) for 7 days for free.
 
@@ -57,6 +95,11 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://set
 ### Tips
 
 <table>
+	<tr>
+		<td>
+			Double-click an event in the event list to open it in the default calendar app, if possible.
+		</td>
+	</tr>
 	<tr>
 		<td>
 			Click the month & year label in the calendar (for example, “April 2020”) to change the selected day to “today”.
@@ -70,16 +113,6 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://set
 	<tr>
 		<td>
 			Hold <kbd>option</kbd> while clicking the calendar arrows to jump a year instead of a month.
-		</td>
-	</tr>
-	<tr>
-		<td>
-			In the event details, press <kbd>command</kbd> <kbd>c</kbd> to copy the selected text.
-		</td>
-	</tr>
-	<tr>
-		<td>
-			While looking at an event, press <kbd>option</kbd> to see the name of the calendar it belongs to. And if it's a Zoom/Meet/Teams event, it will let you copy the meeting link instead of joining.
 		</td>
 	</tr>
 	<tr>
@@ -147,6 +180,12 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://set
 	</tr>
 	<tr>
 		<td>
+			<kbd>p</kbd>
+		</td>
+		<td>Toggle window pinning</td>
+	</tr>
+	<tr>
+		<td>
 			<kbd>c</kbd>
 		</td>
 		<td>Show the date & time calculator</td>
@@ -159,7 +198,7 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://set
 	</tr>
 	<tr>
 		<td>
-			<kbd>command</kbd> <kbd>o</kbd>
+			<kbd>o</kbd>
 		</td>
 		<td>Open the default calendar app</td>
 	</tr>
@@ -201,7 +240,7 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://set
 	</tr>
 	<tr>
 		<td>
-			<kbd>space</kbd>
+			<kbd>esc</kbd> / <kbd>space</kbd>
 		</td>
 		<td>Deactivate time travel</td>
 	</tr>
@@ -212,6 +251,12 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://set
 ### Gestures
 
 <table>
+	<tr>
+		<td>
+			Double-click an event in the event list
+		</td>
+		<td>Open the event in the default calendar app, if possible</td>
+	</tr>
 	<tr>
 		<td>
 			Swipe left/right on the calendar
@@ -242,7 +287,7 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://set
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
 
 #### The “upcoming event in menu bar” notification is not showing up
 
@@ -301,7 +346,7 @@ It's already supported. Just add your calendars to the built-in Calendar app and
 
 #### How can I hide the built-in menu bar clock? {#macos11-hide-clock}
 
-It's unfortunately no longer possible to disable the built-in menu bar clock.
+It's unfortunately not possible to disable the built-in menu bar clock.
 
 However, you have some options:
 1. **(Recommended)** In “System Settings › Control Center › Clock Options”, choose the analog clock and disable showing the date. This gets you the closest to how it was on macOS 10.15 as you can use Dato for both date and time. <img width="258" src="https://user-images.githubusercontent.com/170270/105505537-a5044800-5cfb-11eb-979b-7a0b109f0c93.png"><br>This has the added benefit that while the system clock [shows as disabled](https://user-images.githubusercontent.com/170270/105506021-2c51bb80-5cfc-11eb-84a6-79b62d69d4bc.png) when you enable “Do Not Disturb” (which makes it pretty unreadable), Dato always shows it the same way.
@@ -311,6 +356,17 @@ However, you have some options:
 I would appreciate it if you could take a moment to [complain to Apple](https://www.apple.com/feedback/macos.html) that they should bring back the ability to disable the built-in menu bar clock. For reference, on macOS 10.15, there's a checkbox called “Show date and time in the menu bar” in “System Preferences › Date & Time › Clock”. This checkbox no longer exists on macOS 11 and later.
 
 I have already [reported it to Apple](https://github.com/feedback-assistant/reports/issues/131), but I have yet to get a reply.
+
+#### What does the “Hide” button on an event do? {#hide-event}
+
+It makes Dato pretend the event does not exist. The event will not be shown in Dato and it will not cause any notifications from Dato. You an unhide events from the `…` menu (at the top-right).
+
+#### What does the “Mute” button on an event do? {#mute-event}
+
+It makes Dato not notify you about the event. This practically means the event will be ignored for:
+- Fullscreen notifications
+- Upcoming event in the menu bar
+- System notifications for video call events
 
 #### How can I customize the menu bar date and time format?
 
@@ -324,15 +380,15 @@ For example, you could display the full month name, the year, or the day of the 
 
 Either change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340) or go to the “Menu Bar” pane in the Dato settings, and in the “Date & Time Format” text field, write `YYYY-MM-dd  HH:mm:ss`.
 
-#### Why is Dato not showing week 53?
+#### Why does it not show week 53?
 
 You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar). You can change it with [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
 
-#### Why is Dato showing the last days of December as week 1?
+#### Why does it show the last days of December as week 1?
 
 That is called [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date).
 
-#### Dato is showing the incorrect week number
+#### It shows the incorrect week number
 
 You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar), or the inverse. You can change it with [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
 
@@ -342,9 +398,15 @@ Change [this system setting](https://apple.stackexchange.com/questions/191445/st
 
 #### How can I open a calendar event in my favorite calendar app (Fantastical, BusyCal, etc.) instead of the built-in Calendar app?
 
-~~Dato uses the system default calendar app. To change the default calendar app, open the Calendar app's settings, and in the “Default calendar app” setting, select the app you want.~~ **Because of a [macOS bug](https://github.com/feedback-assistant/reports/issues/290), this does not work. Instead, drag an event from the Calendar app into Finder, right-click on it, select “Get Info”, select your calendar in the “Open with” field, and click “Change All”.**
+~~Dato uses the system default calendar app. To change the default calendar app, open the Calendar app's settings, and in the “Default calendar app” setting, select the app you want.~~ **Because of a [macOS bug](https://github.com/feedback-assistant/reports/issues/290), this does not work. Instead, drag an event from the Calendar app into Finder, right-click on it, select “Get Info”, select your calendar in the “Open with” field, and click “Change All”. Then relaunch Dato.**
 
 Dato supports opening calendar events directly in Calendar, Fantastical, BusyCal, Outlook, and Google Calendar (web). For other apps, Dato will just open the app.
+
+#### How can I send calendar invites when creating an event?
+
+In the new event window, click the “More Settings” button, and send the invites from the Calendar app.
+
+Built-in support for sending calendar invites directly from Dato is not possible, as Apple does not currently provide this capability for third-party apps.
 
 #### How can I make my calendar refresh more often?
 
@@ -363,10 +425,6 @@ This is a perfect use case for the built-in Shortcuts app. You can use the `Set 
 #### How can I enable fullscreen notification only when a certain [Focus mode](https://support.apple.com/en-gb/guide/mac-help/mchl613dc43f/mac) is active?
 
 Same as the above but make the Shortery app run the shortcuts when the Focus mode changes.
-
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1470584107) and click “Version History”.
 
 #### Can you add support for showing an analog clock like the system clock?
 
@@ -390,10 +448,6 @@ tccutil reset All com.sindresorhus.Dato
 
 Then launch Dato again.
 
-#### Is it possible to pin Dato so it's always visible?
-
-This is unfortunately not possible as Dato uses a menu, not a popover, which cannot be pinned.
-
 #### How can I make the text in Dato be more easily readable?
 
 Try turning off the “Vibrancy” setting. You can also try increasing the text size with the “Larger text” setting.
@@ -414,12 +468,6 @@ Yes
 1. Click “Add”
 1. Enable “Show in menu bar”
 1. Click “Save”
-
-#### How can I copy a link from the event notes? I need to open it in a specific browser profile.
-
-If it's a non-clickable URL (not a link), you can select the URL and choose “Copy Selected Text”. Otherwise, activate the correct browser profile and then drag and drop the link into the browser window.
-
-Alternatively, you could use a browser picker like [Velja](/velja) to handle this for you.
 
 #### How can I hide the Dato clock when doing a specific task or at a certain time of the day?
 
@@ -468,6 +516,10 @@ I don't plan to add more settings to this feature. However, you can achieve this
 #### How can I export, import, sync, or back up the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
+
+#### Where can I find the changelog?
+
+Go [here](https://apps.apple.com/app/id1470584107) and click “Version History”.
 
 #### How is this different from Fantastical?
 

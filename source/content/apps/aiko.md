@@ -141,7 +141,10 @@ The app uses the Whisper large v2 model on macOS and the medium or small model o
 
 #### Divide text into paragraphs
 
-Aiko divides the transcription text by sentences. If you want the text divided into paragraps, copy the text from Aiko, go to [ChatGPT](https://chat.openai.com), and use this prompt: `Divide the text into paragraphs. Don't change the text otherwise: TRANSCRIPTION TEXT`
+Aiko divides the transcription text by sentences. If you want the text divided into paragraps, copy the text from Aiko, go to [ChatGPT](https://chat.openai.com), and use the following prompt.
+
+GPT-4: `Divide the text into paragraphs. Don't change the text otherwise: TRANSCRIPTION TEXT`
+GPT-3.5: `Remove newlines and divide the text into paragraphs. Don't change the text otherwise: TRANSCRIPTION TEXT`
 
 #### Fix missing punctation
 
@@ -258,6 +261,10 @@ When the transcription is done, click the share button in the toolbar, and choos
 #### How can I transcribe a YouTube video?
 
 Download the audio using a service like [dirpy](https://dirpy.com) and then open the file in Aiko.
+
+#### The app supports translating to English, can it support more languages?
+
+The translation support is built into the AI model and it only supports translating to English. You could copy-paste the result into ChatGPT or Google Translate.
 
 #### Is the app native?
 

@@ -99,7 +99,7 @@ You can set the “Widget Tap Action” setting to run a [shortcut](https://supp
 
 #### The Lock Screen widget does not show the text after restarting the device, before unlocking it
 
-This is an iOS limitation and is out of my control. It shows a placeholder until the first unlock.
+This is an iOS limitation and is out of my control. It shows a placeholder until the first unlock. This is how all Lock Screen widgets work.
 
 #### Can you support syncing the text with iCloud?
 
