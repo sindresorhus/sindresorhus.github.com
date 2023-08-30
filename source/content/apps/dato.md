@@ -37,12 +37,6 @@ If you are not ready to move to Dato 5, here is [Dato 4](https://dsc.cloud/sindr
 
 All existing functionality should be preserved, but some functionality moved into context menus. Simply right-click an event in the event list for more actions. Or right-click an attendee in the event details for more actions.
 
-<!-- ###### Why does Dato always appear on the right side of the screen now?
-
-Having it always on the rightmost side of the screen makes it more predictable where it will appear and it also blocks the least amount of screen space behind it. This is similar to Notification Center and other third-party apps like SideNotes and PastePal.
-
-While I believe this is a better design, there is a setting to revert back to the way it was before (in the “Window” tab in the settings). -->
-
 ###### Why does clicking the "upcoming event in menu bar" item now open the main Dato window?
 
 I had a large number of requests that wanted more context for the event (for example, the events coming after it). When you click the "upcoming event in the menu bar" menu item now, it opens the main Dato window, but highlights the clicked event and shows the event details. This lets you easily see what comes after it.
@@ -86,7 +80,7 @@ Previously, when you clicked the event in the menu bar, you could hide it from t
 
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-5.0.9-trial-1693064617.zip). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-5.0.10-trial-1694117036.zip). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://setapp.com/apps/dato&utm_medium=vendor_program&utm_source=Sindre+Sorhus&utm_content=link) for 7 days for free.
 
@@ -516,6 +510,20 @@ I don't plan to add more settings to this feature. However, you can achieve this
 #### How can I export, import, sync, or back up the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
+
+#### How can I transfer my settings from the App Store version to the Setapp version?
+
+Run this command in the Terminal app:
+
+```sh
+defaults export com.sindresorhus.Dato - | defaults import com.sindresorhus.Dato-setapp -
+```
+
+And to transfer the other way:
+
+```sh
+defaults export com.sindresorhus.Dato-setapp - | defaults import com.sindresorhus.Dato -
+```
 
 #### Where can I find the changelog?
 

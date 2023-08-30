@@ -56,6 +56,10 @@ This is not possible. The app works by overriding some key combinations. It does
 
 This is a Finder bug. You can reproduce it even without Command X by selecting the file to move, pressing <kbd>Command+C</kbd>, selecting the destination folder, and then pressing <kbd>Option+Command+V</kbd>.
 
+#### I am not able to cut text when editing a filename in Finder
+
+This is a known issue that is unfortunately not fixable. The app works by overriding the normal cut keyboard shortcut when Finder is active, which also affects cutting text in a filename. There is no way to differentiate between cutting a file and cutting text in a filename in Finder.
+
 #### Where can I find the changelog?
 
 Go [here](https://apps.apple.com/app/id6448461551) and click “Version History”.

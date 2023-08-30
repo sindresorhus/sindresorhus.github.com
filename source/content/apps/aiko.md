@@ -246,7 +246,7 @@ Workaround for iOS:
 4. Tap the share button and then choose Aiko.
 
 Workaround for macOS:
-1. Download [this app](https://apps.apple.com/appid1081480270)
+1. Download [this app](https://apps.apple.com/app/id1081480270)
 2. In Telegram, right-click the voice note and save it.
 3. Open the saved voice note with the “Audio Converter” app.
 4. Select “AAC” as output format and tap the convert button.

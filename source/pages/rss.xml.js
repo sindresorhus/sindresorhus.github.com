@@ -3,7 +3,7 @@ import {SITE} from '~/config.mjs';
 import {fetchPosts} from '~/utils/posts.js';
 import {fetchApps} from '~/utils/apps.js';
 
-export const get = async context => {
+export const GET = async context => {
 	const getApps = async () => {
 		const apps = await fetchApps();
 		return apps.map(app => ({

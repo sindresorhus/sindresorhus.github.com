@@ -23,6 +23,7 @@ const appsCollection = defineCollection({
 		links: z.record(z.string().url()).optional(),
 		showSupportLink: z.boolean().default(true),
 		redirectUrl: z.string().url().optional(),
+		forceiOSAppIcon: z.boolean().default(false),
 	}).strict(),
 });
 

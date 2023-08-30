@@ -3,7 +3,6 @@ import {fileURLToPath} from 'node:url';
 import {defineConfig} from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
-import image from '@astrojs/image';
 import {remarkHeadingId} from 'remark-custom-heading-id';
 import {SITE} from './source/config.mjs';
 
@@ -27,7 +26,6 @@ export default defineConfig({
 			applyBaseStyles: false,
 		}),
 		sitemap(),
-		image(),
 	],
 	markdown: {
 		remarkPlugins: [

@@ -1,8 +1,7 @@
 ---
-unlisted: true
 title: Menu Bar Calendar
 subtitle: A monthly calendar, one click away
-pubDate: 2023-08-30
+pubDate: 2023-08-31
 platforms:
   - macOS
 appStoreId: 1558360383
@@ -39,17 +38,23 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 No. That is outside the scope of the app. My [Today](/today) (free) and [Dato](/dato) (paid) apps have that.
 
-#### Does it highlight certain days of the week, for example, the weekend?
+#### Does it support highlighting certain days of the week?
 
 No. Check out my [Dato](/dato) (paid) app for that.
+
+The app does support dimming the weekend though.
 
 #### Does it include widgets?
 
 No. Check out my [Dato](/dato) (paid) app for that.
 
+#### Does it support showing a date and time in the menu bar with a custom format?
+
+No. Check out my [Dato](/dato) (paid) app for that.
+
 #### Does it have a 3-month view?
 
-No.
+No
 
 #### Why does it not show week 53?
 
@@ -71,17 +76,20 @@ Change [this system setting](https://apple.stackexchange.com/questions/191445/st
 
 I do not plan to localize the app.
 
+#### Why is this free without ads?
+
+I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.
+
 #### Where can I find the changelog?
 
 Go [here](https://apps.apple.com/app/id1558360383) and click “Version History”.
 
 <br>
 
-<!-- ### Non-App Store Version
+### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Day-Progress-1.1.0-1687561838.zip) *(1.1.0)*
+[Download](https://dsc.cloud/sindresorhus/Menu-Bar-Calendar-1.0.2-1693687906.zip) *(1.0.2)*
 
-*Requires macOS 13 or later* -->
-
+*Requires macOS 13 or later*

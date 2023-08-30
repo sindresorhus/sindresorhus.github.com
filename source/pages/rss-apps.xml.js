@@ -1,7 +1,7 @@
 import rss from '@astrojs/rss';
 import {fetchApps} from '~/utils/apps.js';
 
-export const get = async context => {
+export const GET = async context => {
 	let items = await fetchApps();
 
 	items = items

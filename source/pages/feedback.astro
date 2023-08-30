@@ -30,6 +30,7 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 			<div class="mb-6">
 				<label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300" for="email">Email*</label>
 				<input class={inputCSS} type="email" name="email" autocomplete="email" required>
+				<small>Only used for replying to you.</small>
 			</div>
 			<div class="mb-6">
 				<label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300" class="label" for="email">Attachments</label>
@@ -82,7 +83,7 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 
 		if (app?.hasFaqSection) {
 			$('#additional-info').show().html(`
-				See <a href="${app.url}#faq">frequently asked questions</a> in case your question has already been answered.\nAnd make sure you are on the latest version (for example, check App Store).
+				See <a href="${app.url}#faq">frequently asked questions</a> in case your question has already been answered.\nMake sure you are on the latest version (for example, check App Store) and try to restart your device (you would be surprised how often this is the solution).
 			`);
 		}
 

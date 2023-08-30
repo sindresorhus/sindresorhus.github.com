@@ -19,20 +19,17 @@
 	@apply rotate-45 translate-y-[-8px] translate-x-[14px];
 }
 
-/* This is here until https://github.com/tailwindlabs/tailwindcss-typography/issues/186 is resolved */
+/* Improvements over the Tailwind style */
 kbd {
-	padding: 3px 5px;
-	border-radius: 6px;
-	font-family: monospace;
-	background-color: #f2f4f8;
-	color: #667b99;
-	border: solid 1px #dcdee2;
+	font-family: monospace !important;
+	background-color: hsl(0, 0%, 99%) !important;
+	color: #404d60 !important;
 }
 
 @media (prefers-color-scheme: dark) {
 	kbd {
-		background-color: #1F2937; /* coolGray-800 */
-		color: #94A3B8; /* blueGray-400 */
-		border: solid 1px #747c8b; /* coolGray-500 */
+		background-color: #1F2937 !important;
+		color: #b3bdcc !important;
+		border: solid 1px #747c8b !important;
 	}
 }

@@ -72,6 +72,20 @@ Lungo comes with a set of commonly used durations, which should be enough for mo
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
 
+#### How can I transfer my settings from the App Store version to the Setapp version?
+
+Run this command in the Terminal app:
+
+```sh
+defaults export com.sindresorhus.Lungo - | defaults import com.sindresorhus.Lungo-setapp -
+```
+
+And to transfer the other way:
+
+```sh
+defaults export com.sindresorhus.Lungo-setapp - | defaults import com.sindresorhus.Lungo -
+```
+
 #### Can you localize the app into my language?
 
 I don't have any immediate plans to localize the app.
