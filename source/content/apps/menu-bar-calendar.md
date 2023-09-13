@@ -19,6 +19,7 @@ The app is intentionally simple. Check out [Dato](/dato) for more features and s
 - **Switch months:** Press arrow keys or swipe horizontally on the calendar.
 - **Switch years:** While holding the <kbd>option</kbd> key, click the `‹` / `›` button, press arrow keys, or swipe horizontally on the calendar.
 - **Close calendar window:** Press the <kbd>esc</kbd> key.
+- **Open date in the Calendar app:** Click a date in the calendar.
 
 <br>
 

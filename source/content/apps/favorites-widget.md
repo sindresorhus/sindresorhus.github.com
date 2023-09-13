@@ -1,20 +1,19 @@
 ---
 title: Favorites Widget
-subtitle: Contacts on your Lock Screen and Home Screen
+subtitle: Contacts on your Lock Screen, Home Screen, and desktop
 pubDate: 2022-09-12
 platforms:
+  - macOS
   - iOS
-  # - macOS
 appStoreId: 1643660089
+forceHasIosAppIcon: true
 ---
 
-Call, message, or email your favorite people directly from the Lock Screen or Home Screen.
+Call, message, or email your favorite people directly from the Lock Screen, Home Screen, or desktop.
 
 You can also open a URL or run a shortcut instead when tapping the widget. This opens up a lot of cool possibilities. Here are [some ideas](https://github.com/bhagyas/app-urls) of what you could open.
 
-*iPhone-only for now. iPad version will come when iPadOS supports Lock Screen widgets (probably iPadOS 17).*
-
-<!-- **For macOS, it's only available for Apple silicon Macs.** -->
+For macOS, it's only available for Apple silicon Macs running macOS 14 or later.
 
 <br>
 
@@ -24,21 +23,14 @@ You can also open a URL or run a shortcut instead when tapping the widget. This 
 
 [Send it here.](https://sindresorhus.com/feedback?product=Favorites%20Widget&referrer=Website-FAQ)
 
-#### How do I add the widget to the Lock Screen?
+#### How do I add the widget?
 
-When on the Lock Screen, tap and hold on the clock, tap the “Customize” button, and select “Favorites”.
-
-[Learn more](https://support.apple.com/en-gb/guide/iphone/iph4d0e6c351/ios#iph0ee454f4c)
-
-#### How do I add the widget to the Home Screen?
-
-When on the Home Screen, tap and hold on the background (not on any icons), tap the top-left “+” button, and select “Favorites”.
-
-[Learn more](https://support.apple.com/en-us/HT207122)
+- [iOS](https://support.apple.com/en-us/HT207122)
+- [macOS](https://support.apple.com/en-gb/guide/mac-help/mchl52be5da5/mac)
 
 #### The widget does not show up in the widget picker
 
-This is a well-known iOS 16 issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
+This is a well-known iOS issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
 
 #### Can I call someone by just tapping the widget without the confirmation dialog?
 

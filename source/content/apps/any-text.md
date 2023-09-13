@@ -1,17 +1,21 @@
 ---
 title: Any Text
-subtitle: Put text on your Lock Screen and Home Screen
+subtitle: Put text on your Lock Screen, Home Screen, and desktop
 pubDate: 2022-09-12
 platforms:
+  - macOS
   - iOS
 appStoreId: 1643199620
+forceHasIosAppIcon: true
 ---
 
-The app provides Lock Screen and Home Screen widgets where you can write any kind of text. It could be an important note, your goal, a list of tasks, etc.
+The app provides widgets where you can write any kind of text. It could be an important note, your goal, a list of tasks, etc.
 
-*iPad supports the Home Screen widgets but not Lock Screen widgets.*
+For macOS, it's only available for Apple silicon Macs running macOS 14 or later.
 
-**You may also like [my similar app](https://sindresorhus.com/one-thing) for macOS.**
+<br>
+
+*You may also like [my similar app](https://sindresorhus.com/one-thing) for macOS.*
 
 <br>
 
@@ -21,21 +25,14 @@ The app provides Lock Screen and Home Screen widgets where you can write any kin
 
 [Send it here.](https://sindresorhus.com/feedback?product=Any%20Text&referrer=Website-FAQ)
 
-#### How do I add the widget to the Lock Screen?
+#### How do I add the widget?
 
-When on the Lock Screen, tap and hold on the clock, tap the “Customize” button, and select “Any Text”.
-
-[Learn more](https://support.apple.com/en-gb/guide/iphone/iph4d0e6c351/ios#iph0ee454f4c)
-
-#### How do I add the widget to the Home Screen?
-
-When on the Home Screen, tap and hold on the background (not on any icons), tap the top-left “+” button, and select “Favorites”.
-
-[Learn more](https://support.apple.com/en-us/HT207122)
+- [iOS](https://support.apple.com/en-us/HT207122)
+- [macOS](https://support.apple.com/en-gb/guide/mac-help/mchl52be5da5/mac)
 
 #### The widget does not show up in the widget picker
 
-This is a well-known iOS 16 issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
+This is a well-known iOS issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
 
 #### Can you support having multiple pieces of text that change during the day?
 

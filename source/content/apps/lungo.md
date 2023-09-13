@@ -66,7 +66,9 @@ You could also use BetterTouchTool or Keyboard Maestro instead of Shortery.
 
 #### Can I use a custom duration? {#custom-duration}
 
-Lungo comes with a set of commonly used durations, which should be enough for most users. People love Lungo for its simplicity. Lungo has tens of thousands of users and only a few people have requested a custom duration. However, power users can take advantage of the Shortcuts app to use custom durations. Drag the “Set Enabled State” Lungo action into the shortcut editor in the Shortcuts app. Click “Show more” and then choose a custom duration. You can pin the shortcut workflow to the menu bar for easy access or set a global keyboard shortcut for it.
+Lungo comes with a set of commonly used durations, which should be enough for most users. People love Lungo for its simplicity. Not having custom times also helps prevent decision fatigue. Lungo has tens of thousands of users and the app has existed for 6 years, and only a few people have requested support for custom durations.
+
+However, power users can take advantage of the Shortcuts app to use custom durations. Drag the “Set Enabled State” Lungo action into the shortcut editor in the Shortcuts app. Click “Show more” and then choose a custom duration. You can pin the shortcut workflow to the menu bar for easy access or set a global keyboard shortcut for it.
 
 #### How can I export, import, sync, or back up the settings?
 

@@ -219,6 +219,14 @@ That being said, it's likely Aiko will become significantly faster in the coming
 
 The app delivers the highest quality transcription on the market for 100 different languages. Rather than asking why it's so large, the real question is how is it so small.
 
+#### The app is overheating my device
+
+The role of the operating system (iOS/macOS) is to effectively manage the system's resources and to safeguard against overheating. Apps are designed to utilize as many resources as they need to function optimally. In the event that resource consumption reaches a point that threatens to overheat the device, it's the operating system's job to limit such usage automatically.
+
+If your device is experiencing overheating while using the app, it's important to understand that the issue likely originates either from the operating system's inability to manage resources effectively, or from an underlying hardware problem. In either case, the app itself is not responsible for the overheating.
+
+The good news is that Aiko will soon take better advantage of the GPU, so CPU usage should be reduced significantly.
+
 #### Can I delete some of the languages to save space?
 
 This is unfortunately not possible. The model has all the languages stored together in a way that makes it impossible to remove just some languages.
@@ -234,6 +242,12 @@ This is called [Diarization](https://en.wikipedia.org/wiki/Speaker_diarisation).
 #### How can I transcribe a Zoom meeting? {#zoom}
 
 The app does not yet support live transcription, but you could record the Zoom meeting, and after the meeting is finished, drop the recording into the Aiko window to transcribe.
+
+#### How can I transcribe a Messages voice note? {#messages}
+
+Drag and drop the voice note into Aiko.
+
+[How to drag and drop on iPhone.](https://www.imore.com/how-use-drag-and-drop-iphone)
 
 #### How can I transcribe a Telegram voice note? {#telegram}
 

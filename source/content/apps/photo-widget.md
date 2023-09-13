@@ -6,7 +6,7 @@ platforms:
   - iOS
   - macOS
 appStoreId: 1532588789
-forceiOSAppIcon: true
+forceHasIosAppIcon: true
 ---
 
 For macOS, it's only available for Apple silicon Macs.
@@ -18,6 +18,14 @@ For macOS, it's only available for Apple silicon Macs.
 #### I have a feature request, bug report, or some feedback
 
 [Send it here.](https://sindresorhus.com/feedback?product=Photo%20Widget&referrer=Website-FAQ)
+
+#### I'm not seeing the new widget settings for showing date and album title
+
+Try adding a new widget. Sometimes existing widgets get stuck and don't receive new settings. This is a iOS bug and out of my control.
+
+#### Some widget settings are missing
+
+Same as the above.
 
 #### How do I add a widget to the home screen?
 

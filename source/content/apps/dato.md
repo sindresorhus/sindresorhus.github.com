@@ -80,7 +80,7 @@ Previously, when you clicked the event in the menu bar, you could hide it from t
 
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-5.0.10-trial-1694117036.zip). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-5.0.14-trial-1695138445.zip). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://setapp.com/apps/dato&utm_medium=vendor_program&utm_source=Sindre+Sorhus&utm_content=link) for 7 days for free.
 
