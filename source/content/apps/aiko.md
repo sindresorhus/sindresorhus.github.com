@@ -141,7 +141,7 @@ The app uses the Whisper large v2 model on macOS and the medium or small model o
 
 #### Divide text into paragraphs
 
-Aiko divides the transcription text by sentences. If you want the text divided into paragraps, copy the text from Aiko, go to [ChatGPT](https://chat.openai.com), and use the following prompt.
+Aiko divides the transcription text by sentences. If you want the text divided into paragraphs, copy the text from Aiko, go to [ChatGPT](https://chat.openai.com), and use the following prompt.
 
 GPT-4: `Divide the text into paragraphs. Don't change the text otherwise: TRANSCRIPTION TEXT`
 GPT-3.5: `Remove newlines and divide the text into paragraphs. Don't change the text otherwise: TRANSCRIPTION TEXT`
