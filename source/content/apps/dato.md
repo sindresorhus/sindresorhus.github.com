@@ -80,7 +80,7 @@ Previously, when you clicked the event in the menu bar, you could hide it from t
 
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-5.1.1-trial-1697283039.zip). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-5.1.3-trial-1699456900.zip). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://setapp.com/apps/dato&utm_medium=vendor_program&utm_source=Sindre+Sorhus&utm_content=link) for 7 days for free.
 
@@ -314,6 +314,12 @@ You can even make it open a specific browser or profile only for links clicked i
 
 In the Dato settings, go to the “Time Zones” pane, add a time zone, and in the edit window, check “Show in menu bar”. Do the same with the other time zones you want to show in the menu bar. If you already have the time zones added, right-click a time zone, click “Edit”, and then check “Show in menu bar”.
 
+#### Why does the app use a lot of CPU when not in use?
+
+You most likely have enabled showing seconds in the menu bar. Unfortunately, updating the menu bar is quite expensive. This is a problem with macOS and out of my control.
+
+If you don't have seconds enabled, please let me know about the excessive CPU usage.
+
 #### How can I toggle AM/PM for the time?
 
 Dato adheres to what you have set in “System Settings › General › Language and Region”.
@@ -350,6 +356,15 @@ However, you have some options:
 I would appreciate it if you could take a moment to [complain to Apple](https://www.apple.com/feedback/macos.html) that they should bring back the ability to disable the built-in menu bar clock. For reference, on macOS 10.15, there's a checkbox called “Show date and time in the menu bar” in “System Preferences › Date & Time › Clock”. This checkbox no longer exists on macOS 11 and later.
 
 I have already [reported it to Apple](https://github.com/feedback-assistant/reports/issues/131), but I have yet to get a reply.
+
+#### Fullscreen notifications do not work
+
+Make sure:
+- The fullscreen notifications setting is enabled.
+- You have selected the correct calendars in the fullscreen notifications settings.
+- You have not muted the event.
+- You have not excluded the event with the “Exclude events” setting.
+- You have not already joined the event in the last 30 minutes.
 
 #### What does the “Hide” button on an event do? {#hide-event}
 

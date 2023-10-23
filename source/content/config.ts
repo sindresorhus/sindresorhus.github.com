@@ -37,6 +37,7 @@ const blogCollection = defineCollection({
 		tags: z.array(z.enum([
 			'open-source',
 			'javascript',
+			'nodejs',
 		])).optional(),
 		redirectUrl: z.string().url().optional(),
 	}).strict(),

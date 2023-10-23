@@ -26,6 +26,7 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 #### Lungo did not keep my computer awake
 
 - If you have the “Allow display to sleep while keeping computer awake” setting enabled, the computer is still awake even if it looks like it's sleeping because the screen is off.
+- If you close the lid (clamshell mode), Lungo is only able to keep your Mac awake if it's connected to a charger and an external display. This is a macOS limitation.
 - If you have the “Pause while screen is locked” setting enabled, you may have locked the screen before leaving it, which would cause Lungo to not keep your computer awake.
 - If you have the “Deactive when switching to battery” setting enabled and you disconnect the power adapter, Lungo would not keep your computer awake. You might have accidentally unplugged it or there might have been a power failure.
 - If you have set a sleep schedule in “System Preferences › Battery › Schedule”, it will take priority over Lungo. This is out of Lungo's control.
@@ -42,6 +43,8 @@ Some things you could try:
 
 No, that’s not allowed for apps on the App Store, for good reasons. Imagine you activate it while your computer is doing a heavy task and then put the laptop in your bag. Your laptop could easily overheat.
 
+The exception to this is if it's connected to a charger and an external display.
+
 However, if you want this, there are some solutions [here](https://apple.stackexchange.com/questions/2389/is-there-any-way-to-set-a-macbook-pro-to-not-sleep-when-you-close-the-lid?rq=1).
 
 #### Does Lungo keep my Mac awake even if there is a scheduled sleep?
@@ -56,9 +59,13 @@ Yes, choose “Activate on Left-click” in the settings.
 
 I don't have any immediate plans to support this. It's a lot of work to implement and few people have requested it.
 
-However, you can achieve it using the Shortcuts app. Create a new shortcut with the “Set Enabled State” action provided by Lungo. Shortcuts on iOS has automations, which lets you run a shortcut when a certain app opens. macOS does not yet have automations. I'm confident it will come with macOS 14. In the meantime, you can use the [Shortery app](https://apps.apple.com/us/app/shortery/id1594183810?mt=12) to run a shortcut when a certain app opens.
+However, you can achieve it using the Shortcuts app. Create a new shortcut with the “Set Enabled State” action provided by Lungo. Shortcuts on iOS has automations, which lets you run a shortcut when a certain app opens. macOS does not yet have automations. I'm confident it will come with macOS 15. In the meantime, you can use the [Shortery app](https://apps.apple.com/us/app/shortery/id1594183810?mt=12) to run a shortcut when a certain app opens.
 
 You could also use BetterTouchTool or Keyboard Maestro instead of Shortery.
+
+#### Can Lungo automatically activate on a set schedule?
+
+I don't plan to do this built-in, but you can use Shortery for this as explained above. Shortery has a “Time” trigger.
 
 #### Can I use a custom duration? {#custom-duration}
 

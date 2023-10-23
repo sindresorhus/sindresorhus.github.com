@@ -87,6 +87,12 @@ Shortcuts does not yet support automation, so to have the shown todo stay in syn
 
 Do something similar to the above answer.
 
+#### How can I show a random quote in the menu bar? {#quote}
+
+You can use the Shortcuts app for this. Here is an [example shortcut](https://www.icloud.com/shortcuts/35d88a7b56154893bd2e28e3988410f1).
+
+Shortcuts does not yet support automation, so you have to use the time trigger in the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut at a certain interval to change the quotes.
+
 #### How can I put spacing on the sides of the text?
 
 You can add some horizontal padding around the text by adding multiple spaces to the “Prefix” and “Suffix” settings.

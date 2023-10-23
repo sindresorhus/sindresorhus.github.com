@@ -98,6 +98,10 @@ The app is made using Apple's latest technologies (SwitUI) and they have not add
 
 You most likely have an external mouse connected. This is simply how macOS works. You can see the behavior in other text editing apps too. The behavior is completely out of my control.
 
+#### The “Check Spelling While Typing” setting in the context menu does not work
+
+This is unfortunately a macOS bug and not something I can fix.
+
 #### How can I export, import, sync, or back up the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)

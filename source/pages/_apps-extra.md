@@ -1,6 +1,7 @@
 ## More
 
 - [Tiny Apps](/tiny-apps) - Smaller utilities
+- [Open Source Apps](https://github.com/search?q=user%3Asindresorhus+language%3Aswift+topic%3Aapp+archived%3Afalse&type=repositories) - My open source apps
 - [Older Versions](/apps/older-versions) - My apps for older macOS versions
 - [Terms of Use](/apps/terms) - Guidelines and conditions for using my apps
 - [RSS Feed for New Apps](/rss-apps.xml) - Get notified about new apps I publish

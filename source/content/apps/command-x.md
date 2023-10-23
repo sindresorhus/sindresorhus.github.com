@@ -11,7 +11,7 @@ Cut and paste files and folders in Finder using Command+X and Command+V. Without
 
 [Review by Softpedia](https://mac.softpedia.com/get/System-Utilities/Command-X.shtml)
 
-Known limitation: You cannot cut the name of a file when editing a filename in Finder. There is no way for the app to work around this.
+Known limitation: You cannot cut the name of a file when editing a filename in Finder or cut when using the search field. There is no way for the app to work around this.
 
 <br>
 
@@ -34,11 +34,19 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 First, make sure you pressed <kbd>Command+X</kbd> and not <kbd>Command+C</kbd>.
 
-Then try enabling the setting “Use more reliable way of handling Command+X”.
-
 To make sure you used the app correctly. Try this: Select a file in Finder, press <kbd>Command+X</kbd>, change to a different folder, press <kbd>Command+V</kbd>. The file should have been moved to this new folder.
 
-To help me figure out the issue, press <kbd>Command+X</kbd> and <kbd>Command+V</kbd> in Finder, click the “Copy Debug Info” button in the Command X menu bar menu, and then [send the debug info to me](/feedback?product=Command%20X&referrer=Website-FAQ), including a short explanation of what didn't work.
+Then try enabling/disabling the setting “Use more reliable way of handling Command+X”.
+
+Also try closing any anti-virus app you have running as it may interfere with the app (or at least disable any Secure Keyboard Entry type setting it may have). And if you don't have any anti-virus app, try closing down all apps and menu bar items, just to rule out some other app interfering.
+
+The last thing you could try is to reset the permissions. Quit the app and run this in the Terminal app:
+
+```sh
+tccutil reset All com.sindresorhus.Command-X
+```
+
+To help me figure out the issue, make sure the “Use more reliable way of handling Command+X” setting is enabled, press <kbd>Command+X</kbd> and <kbd>Command+V</kbd> in Finder, click the “Copy Debug Info” button in the Command X menu bar menu, and then [send the debug info to me](/feedback?product=Command%20X&referrer=Website-FAQ), including a short explanation of what didn't work.
 
 #### Is there any risk of data loss if I forget to paste?
 
@@ -59,6 +67,10 @@ This is a Finder bug. You can reproduce it even without Command X by selecting t
 #### I am not able to cut text when editing a filename in Finder
 
 This is a known issue that is unfortunately not fixable. The app works by overriding the normal cut keyboard shortcut when Finder is active, which also affects cutting text in a filename. There is no way to differentiate between cutting a file and cutting text in a filename in Finder.
+
+#### I am not able to cut text in the search field in Finder
+
+Same as the above.
 
 #### Where can I find the changelog?
 

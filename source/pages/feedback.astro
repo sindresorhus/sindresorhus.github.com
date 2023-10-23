@@ -96,7 +96,8 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 
 		if (product === 'Actions') {
 			$('#additional-info').show().append(`
-				<br><br><b>It is unfortunately not possible to make an action to get the state of the device orientation lock.</b>
+				<br><br><h3>If you get a “com.apple.extensionKit.errorDomain error 2” error when running your shortcut or if the actions don't show up in the Shortcuts app, restart your device. This is caused by a iOS bug.</h3>
+				<br><br><b>Some actions that are not possible: orientation lock status, flashlight status, ambient sensor info, flight mode status.</b>
 			`);
 		}
 	}

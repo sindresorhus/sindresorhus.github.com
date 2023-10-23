@@ -16,6 +16,8 @@ For example, an action to interact with the ChatGPT API.
 
 Your API key is securely stored in your keychain, not in a shortcut.
 
+**If you are getting a `Missing response` error, it's most likely that the OpenAI safety system prevented your prompt. Try something else.**
+
 <br>
 
 *You may also like my [Actions](/actions) app.*
@@ -24,13 +26,17 @@ Your API key is securely stored in your keychain, not in a shortcut.
 
 ### macOS version
 
-The macOS version is not yet available on the App Store because App Store review is being difficult. You can get it [here](https://github.com/sindresorhus/meta/files/12800983/AI.Actions.1.0.3.zip) for now. (Requires macOS 13+)
+The macOS version is not yet available on the App Store because App Store review is being difficult. You can get it [here](https://dsc.cloud/sindresorhus/AI-Actions-1.0.4-1698250306.zip) for now. (Requires macOS 13+)
 
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
 [Send it here.](https://sindresorhus.com/feedback?product=AI%20Actions&referrer=Website-FAQ)
+
+#### The actions do not show up in the Shortcuts app
+
+This is a iOS/macOS bug. Launch the app once and then restart your device. If that doesn't work, [try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
 
 #### Why are these actions not just part of your [Actions](/actions) app?
 

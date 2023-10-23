@@ -14,12 +14,9 @@ The transcription is powered by OpenAI's [Whisper model](https://openai.com/rese
 
 The app also includes support for Shortcuts.
 
-My goal is to keep the app simple. If you have more advanced needs, check out [MacWhisper](https://goodsnooze.gumroad.com/l/macwhisper).
-
 **Upcoming features**
 
 - Batch conversion
-- Significantly improved performance on iOS thanks to CoreML
 - Export to karaoke file
 
 <details>
@@ -143,6 +140,7 @@ The app uses the Whisper large v2 model on macOS and the medium or small model o
 Aiko divides the transcription text by sentences. If you want the text divided into paragraphs, copy the text from Aiko, go to [ChatGPT](https://chat.openai.com), and use the following prompt.
 
 GPT-4: `Divide the text into paragraphs. Don't change the text otherwise: TRANSCRIPTION TEXT`
+
 GPT-3.5: `Remove newlines and divide the text into paragraphs. Don't change the text otherwise: TRANSCRIPTION TEXT`
 
 #### Fix missing punctation
@@ -151,13 +149,15 @@ A flaw of the Whisper model is that transcriptions can sometimes be missing punc
 
 #### Quickly record and transcribe (macOS)
 
-You can use [this shortcut](https://www.icloud.com/shortcuts/d2f19692f9674e03a8f4319d2a3e9dc2) to be able to quickly record, transcribe, and have the result copied to the clipboard. The shortcut can be triggered from the menu bar or you can set a global keyboard shortcut for it.
-
-Known issue: The shortcut has to momentarily show the Aiko app and then hide it again. This is a limitation of how Shortcuts works.
+You can use [this shortcut](https://www.icloud.com/shortcuts/e43220d72f3343659e0fda36fee52d72) to be able to quickly record, transcribe, and have the result copied to the clipboard. The shortcut can be triggered from the menu bar or you can set a global keyboard shortcut for it.
 
 <br>
 
 ### Frequently Asked Questions {#faq}
+
+#### Can you use the large v3 model for the Mac app?
+
+The v3 model is [worse](https://github.com/openai/whisper/discussions/1762#discussioncomment-7532295) than v2 in too many cases. I tried releasing v3, but got a lot of emails about the quality being worse, so I ended up reverting it.
 
 #### I have a feature request, bug report, or some feedback
 
@@ -193,6 +193,8 @@ This is unfortunately a flaw in the Whisper model. [Workaround.](#tips)
 #### The transcription includes a sentence at the end that was not in the audio
 
 This is unfortunately a flaw in the Whisper model. It can sometimes add a sentence like “Thanks for watching!” to the end. There is not much I can do about this.
+
+This issue arises from quirks in the AI's processing, where it sometimes generates off-topic content, often due to data remnants or misinterpreted context. These are not messages or 'whispers' with any underlying meaning; they're random anomalies that OpenAI is actively working to correct.
 
 #### The transcription is in Traditional Chinese while the audio was in Simplified Chinese?
 
