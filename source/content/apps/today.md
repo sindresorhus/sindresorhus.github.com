@@ -130,6 +130,6 @@ Go [here](https://apps.apple.com/app/id6443714928) and click â€œVersion Historyâ
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Today-1.2.0-1668625200) *(1.2.0)*
+[Download](https://www.dropbox.com/scl/fi/h7j70y16peqeleymi5qw8/Today-1.2.0-1701610738.zip?rlkey=ywmqru71okn7xkr1n24pn2tht&raw=1) *(1.2.0)*
 
 *Requires macOS 13 or later*

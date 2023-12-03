@@ -89,6 +89,6 @@ Go [here](https://apps.apple.com/app/id6450280202) and click â€œVersion Historyâ
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Day-Progress-1.1.0-1687561838.zip) *(1.1.0)*
+[Download](https://www.dropbox.com/scl/fi/2d12sc436izbnr2cejwf2/Day-Progress-1.1.0-1687561838-1701610561.zip?rlkey=t9746em3ysvlb2xewt573936s&raw=1) *(1.1.0)*
 
 *Requires macOS 13 or later*

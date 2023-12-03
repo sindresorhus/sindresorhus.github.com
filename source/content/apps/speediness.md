@@ -13,7 +13,7 @@ appStoreId: 1596706466
 
 #### Show the current internet speed in the menu bar {#menu-bar-output}
 
-<img src="https://dsc.cloud/sindresorhus/Speediness-menu-bar-1680845399.png" alt="Speediness output in the menu bar" width="230">
+<img src="https://github.com/sindresorhus/meta/assets/170270/a7ffaf8f-6fb0-4c90-822f-446ec5ff8960" alt="Speediness output in the menu bar" width="230">
 
 You will need the [One Thing](https://sindresorhus.com/one-thing) and [Shortery](https://apps.apple.com/app/id1594183810) app.
 
@@ -103,6 +103,6 @@ I don't have any immediate plans to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Speediness-1.6.1-1686472921.zip) *(1.6.1)*
+[Download](https://www.dropbox.com/scl/fi/21mtkbqa4qqkz5ryiuu5t/Speediness-1.6.1-1686472921-1701610430.zip?rlkey=bhqkthepo5lc3u7tqa0gsiywb&raw=1) *(1.6.1)*
 
 *Requires macOS 13 or later*

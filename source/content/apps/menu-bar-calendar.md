@@ -93,6 +93,6 @@ Go [here](https://apps.apple.com/app/id1558360383) and click â€œVersion Historyâ
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Menu-Bar-Calendar-1.0.2-1693687906.zip) *(1.0.2)*
+[Download](https://www.dropbox.com/scl/fi/w9j8jo6nfm56cwihc9v3w/Menu-Bar-Calendar-1.0.2-1693687906-1701610866.zip?rlkey=dy2hv9wu6g8a1nm03aaqau6ms&raw=1) *(1.0.2)*
 
 *Requires macOS 13 or later*

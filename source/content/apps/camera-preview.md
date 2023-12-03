@@ -84,6 +84,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Camera-Preview-1.1.1-1686473013.zip) *(1.1.1)*
+[Download](https://www.dropbox.com/scl/fi/pef2inbxa67828pgs9kpa/Camera-Preview-1.1.1-1686473013-1701611286.zip?rlkey=0karenj24z0wm8ofz9x2b16bl&raw=1) *(1.1.1)*
 
 *Requires macOS 13 or later*

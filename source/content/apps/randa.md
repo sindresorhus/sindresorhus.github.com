@@ -35,6 +35,6 @@ I don't plan to localize the app.
 
 A special macOS version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Randa-1.0.0-1685428930.zip) *(1.0.0)*
+[Download](https://www.dropbox.com/scl/fi/wouey941p1rtzuwvzjsai/Randa-1.0.0-1685428930-1701611309.zip?rlkey=ui2bg27o3jxpm5sc9cf8egi52&raw=1) *(1.0.0)*
 
 *Requires macOS 13 or later*

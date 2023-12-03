@@ -31,7 +31,7 @@ Dato requires macOS 13 or later.
 
 The latest version of Dato has been rewritten, moving away from its original [system menu](https://developer.apple.com/design/human-interface-guidelines/menus) format — a change partly prompted by macOS 14 breaking various things. This shift has allowed me to implement significant improvements I have envisioned for years. It’s a change for the better, and I encourage you to give it a few weeks to adapt. If you're still unsatisfied after that time, please reach out. I am continuously working to refine and enhance the app, which has grown substantially since its simple beginnings, making the old menu system increasingly impractical for its current complexity.
 
-If you are not ready to move to Dato 5, here is [Dato 4](https://dsc.cloud/sindresorhus/Dato-4.7.2-1692797926.zip), which you can use in the meantime.
+If you are not ready to move to Dato 5, here is [Dato 4](https://www.dropbox.com/scl/fi/xex1okacdtcctr8nytyu9/Dato-4.7.2-1692797926-1701610613.zip?rlkey=1yrr9r2xdczm35fkpzaoco72u&raw=1), which you can use in the meantime.
 
 ##### Some functionality is missing
 
@@ -80,7 +80,7 @@ Previously, when you clicked the event in the menu bar, you could hide it from t
 
 ### Trial
 
-There's a fully functional trial available [here](https://dsc.cloud/sindresorhus/Dato-5.1.3-trial-1699456900.zip). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://www.dropbox.com/scl/fi/3kzy9hs9pqpyzdg677kuy/Dato-5.1.3-trial-1699456900-1701610643.zip?rlkey=2f8ip6cga73t0h4jcypxu0d17&raw=1). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://setapp.com/apps/dato&utm_medium=vendor_program&utm_source=Sindre+Sorhus&utm_content=link) for 7 days for free.
 

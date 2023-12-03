@@ -26,7 +26,7 @@ Your API key is securely stored in your keychain, not in a shortcut.
 
 ### macOS version
 
-The macOS version is not yet available on the App Store because App Store review is being difficult. You can get it [here](https://dsc.cloud/sindresorhus/AI-Actions-1.0.4-1698250306.zip) for now. (Requires macOS 13+)
+The macOS version is not yet available on the App Store because App Store review is being difficult. You can get it [here](https://www.dropbox.com/scl/fi/m169s1xwyk1o6bbnixeda/AI-Actions-1.0.4-1698250306-1701611261.zip?rlkey=0i8v79urwyude0lq3elov8s1x&raw=1) for now. (Requires macOS 13+)
 
 ### Frequently Asked Questions {#faq}
 

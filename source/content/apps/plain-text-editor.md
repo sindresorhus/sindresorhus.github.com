@@ -124,6 +124,6 @@ I don't have any immediate plans to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Plain-Text-Editor-1.2.1-1668625106) *(1.2.1)*
+[Download](https://www.dropbox.com/scl/fi/xluitd9zdak3enu7yu8eh/Plain-Text-Editor-1.2.1-1701610704.zip?rlkey=9ci6dbu6rkha5jiuxsji1m7k5&raw=1) *(1.2.1)*
 
 *Requires macOS 13 or later*

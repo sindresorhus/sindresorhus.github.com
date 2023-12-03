@@ -78,6 +78,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/One-Task-1.0.0-1696158358.zip) *(1.2.0)*
+[Download](https://www.dropbox.com/scl/fi/hf7zbgjv0755vfo1lqi5j/One-Task-1.0.0-1696158358-1701610759.zip?rlkey=lyihesd9omsdguagajgi3hbye&raw=1) *(1.2.0)*
 
 *Requires macOS 14 or later*

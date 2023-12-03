@@ -69,7 +69,7 @@ The point is to focus on one thing at a time. [Humans work best this way.](https
 
 I have made a special version of One Thing with a different identifier. You can run this together with the App Store version. It also has separate Shortcuts actions and URL scheme: `one-thing2:`. This version will not receive updates.
 
-[Download](https://dsc.cloud/sindresorhus/One-Thing-2-1.11.0-1684349283.zip)
+[Download](https://www.dropbox.com/scl/fi/pn3k0r6edea21my7beqz3/One-Thing-2-1.11.0-1684349283-1701610241.zip?rlkey=qgv6rmx9bitjki4xbh05tn2ty&raw=1)
 
 #### How can I show the next task in the “Today” list in [Things](https://culturedcode.com/things/) in One Thing? {#things}
 
@@ -173,6 +173,6 @@ open --background 'one-thing:?text=Exercise'
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/One-Thing-1.10.0-1679895427.zip) *(1.10.0)*
+[Download](https://www.dropbox.com/scl/fi/bzfjiefe1ywyyklgk8omm/One-Thing-1.10.0-1679895427-1701610294.zip?rlkey=1hpkw0k7t3iq9hldkk1jszv7l&raw=1) *(1.10.0)*
 
 *Requires macOS 13 or later*

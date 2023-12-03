@@ -88,13 +88,9 @@ iOS forces the text to be the same style as the prefixed date. This is out of my
 
 Create a shortcut in the Shortcuts app that opens the app you want, then open “Any Text”, go to one of the widgets, open settings, and set the tap action to the shortcut you just made.
 
-#### Can it do nothing when tapping the widget?
-
-iOS always opens the main app when you tap a widget. This is not something the app can control.
-
 #### Can I prevent my child from editing the text when tapping the widget?
 
-You can set the “Widget Tap Action” setting to run a [shortcut](https://support.apple.com/en-sg/guide/shortcuts/welcome/ios) with the “Go to Home Screen” action.
+You can set the “Widget Tap Action” setting to “None”.
 
 #### The Lock Screen widget does not show the text after restarting the device, before unlocking it
 

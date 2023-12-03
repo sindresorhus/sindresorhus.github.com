@@ -199,6 +199,6 @@ Go [here](https://apps.apple.com/app/id6444667067) and click â€œVersion Historyâ
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Hyperduck-1.0.7-1699560532.zip) *(1.0.7)*
+[Download](https://www.dropbox.com/scl/fi/c61mmyzx6jl1uc2918rhs/Hyperduck-1.0.7-1699560532-1701610670.zip?rlkey=rno5pn0d4v3testa3nphhrlps&raw=1) *(1.0.7)*
 
 *Requires macOS 13 or later*

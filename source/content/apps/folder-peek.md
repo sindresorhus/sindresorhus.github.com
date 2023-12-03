@@ -21,7 +21,7 @@ Make sure you read the below tips and FAQ.
 
 - Click a file or folder in the menu to open it. Folders open in Finder.
 - Click a file while pressing the <kbd>Option</kbd> key to show it in Finder.
-- Click the folder title ([the top menu item](https://dsc.cloud/sindresorhus/Screen-Shot-2022-04-22-at-00.49.49-1650563404)) to open the folder.
+- Click the folder title ([the top menu item](https://github.com/sindresorhus/meta/assets/170270/79c4e9c7-8abf-49da-b8fb-3a942017442e)) to open the folder.
 - You can drag and drop the file thumbnail in the file submenu. Press the <kbd>Option</kbd> key while dragging to copy instead of moving.
 - Just start typing when the menu is open to search for a file or folder.
 - Press the <kbd>Option</kbd> when viewing the file details to copy the path or image/video dimensions.
@@ -188,6 +188,6 @@ I don't have any immediate plans to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Folder-Peek-1.8.2-1686472638.zip) *(1.8.2)*
+[Download](https://www.dropbox.com/scl/fi/c44dsf6gkhcslfbcsq3tf/Folder-Peek-1.8.2-1686472638-1701611064.zip?rlkey=soughx67o26u1bue16kpfxi8p&raw=1) *(1.8.2)*
 
 *Requires macOS 13 or later*

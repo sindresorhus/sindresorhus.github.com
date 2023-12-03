@@ -205,7 +205,7 @@ I'm happy to consider requests (but read the below first). [Submit here.](https:
 
 **Note:** This is about opening a link in a specific app. If you want to open a link **from** a specific app, just use the rules feature (it supports any app).
 
-However, some apps are not possible:
+However, some apps are not feasible:
 - Slack
 	+ [Explanation.](#slack)
 - Cisco Webex
@@ -216,6 +216,8 @@ However, some apps are not possible:
 	+ The app only accepts a link to a repo to clone. This is not very useful in practice.
 - Monday.com
 	+ The app does not accept any links.
+- Todoist
+	+ Only supports opening links to a todo item and it only works when the app is already running.
 
 And some apps do not need special support because they already support [universal links](https://developer.apple.com/ios/universal-links/):
 - [Quip](https://quip.com)
@@ -318,7 +320,7 @@ Velja does prompt for permission to the user “~/Applications” folder on the 
 
 Ivory supports [Universal Links](https://developer.apple.com/ios/universal-links/) for some Mastodon instances and Velja cannot override Universal Links. Universal Links is an annoying feature as it gives users (and other developers) no control over how it works.
 
-As of Ivory 1.0.0, it supports [these Mastodon instances](https://dsc.cloud/sindresorhus/Screenshot-2023-06-14-at-21.37.44-1686767912.png).
+As of Ivory 1.0.0, it supports [these Mastodon instances](https://github.com/sindresorhus/meta/assets/170270/e256c5e1-5048-4cbc-8df2-aa09c969b639).
 
 #### How can I export, import, sync, or back up the settings?
 
@@ -589,6 +591,6 @@ Use the bundle identifier `com.sindresorhus.Velja.promptMarker` for the prompt.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Velja-1.13.0-1678086159.zip) *(1.13.0)*
+[Download](https://www.dropbox.com/scl/fi/1sf7n8lod0pmegxxvsios/Velja-1.13.0-1678086159-1701610839.zip?rlkey=y1cbs7utnpp5f38x2i9octxps&raw=1) *(1.13.0)*
 
 *Requires macOS 13 or later*

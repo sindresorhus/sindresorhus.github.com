@@ -181,6 +181,6 @@ I don't have any immediate plans to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Pure-Paste-1.7.0-1676983160.zip) *(1.7.0)*
+[Download](https://www.dropbox.com/scl/fi/r9gcv54plqbnz6d1fzhdw/Pure-Paste-1.7.0-1676983160-1701610781.zip?rlkey=apn3d5lvz6oedqkmtvnhtck6e&raw=1) *(1.7.0)*
 
 *Requires macOS 13 or later*

@@ -112,6 +112,6 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Jiffy-2.5.0-1676711264) *(2.5.0)*
+[Download](https://www.dropbox.com/scl/fi/1mgsailye5bt2rdqx4nh1/Jiffy-2.5.0-1701610914.zip?rlkey=o9564vu9al4lw1n7zx46s4kin&raw=1) *(2.5.0)*
 
 *Requires macOS 13 or later*

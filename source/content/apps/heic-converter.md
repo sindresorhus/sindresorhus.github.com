@@ -43,13 +43,13 @@ I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
 - [2.1.5](https://github.com/sindresorhus/meta/files/9218007/HEIC.Converter.2.1.5.-.macOS.11.zip) for macOS 11+
 - [2.1.5](https://github.com/sindresorhus/meta/files/8817868/HEIC.Converter.2.1.5.-.macOS.10.15.zip) for macOS 10.15+
 - [1.9.0](https://github.com/sindresorhus/meta/files/6715716/HEIC.Converter.1.9.0.-.macOS.10.14.zip) for macOS 10.14+
-- [1.5.3](https://dsc.cloud/sindresorhus/HEIC-Converter-for-macOS-10.13-1575452738) for macOS 10.13+
+- [1.5.3](https://github.com/sindresorhus/meta/files/13539124/HEIC-Converter-for-macOS-10.13.zip) for macOS 10.13+
 <br>
 
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/HEIC-Converter-3.1.0-1683235061.zip) *(3.1.0)*
+[Download](https://www.dropbox.com/scl/fi/zkqpumqoqk8rdq8stzxf8/HEIC-Converter-3.1.0-1683235061-1701611366.zip?rlkey=9gsgy71z2de7r3x2bebrdcdh2&raw=1) *(3.1.0)*
 
 *Requires macOS 13 or later*

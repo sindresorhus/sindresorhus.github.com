@@ -51,6 +51,6 @@ Go [here](https://apps.apple.com/app/id1666327168) and click â€œVersion Historyâ
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://dsc.cloud/sindresorhus/Spaced-1.0.4-1686472769.zip) *(1.0.4)*
+[Download](https://www.dropbox.com/scl/fi/az48yxpqfeovp629ht4ld/Spaced-1.0.4-1686472769-1701611003.zip?rlkey=fchh7i1sryyhtximk6z1exhml&raw=1) *(1.0.4)*
 
 *Requires macOS 13 or later*
