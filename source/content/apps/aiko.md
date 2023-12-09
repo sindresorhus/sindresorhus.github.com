@@ -145,7 +145,21 @@ GPT-3.5: `Remove newlines and divide the text into paragraphs. Don't change the 
 
 #### Fix missing punctation
 
-A flaw of the Whisper model is that transcriptions can sometimes be missing punctation. To fix missing punctation, copy the text from Aiko, go to [ChatGPT](https://chat.openai.com), and use this prompt: `Fix the missing punctation. Don't change the text otherwise: TRANSCRIPTION TEXT`
+A flaw of the Whisper model is that transcriptions can sometimes be missing punctation. Try setting the “Prompt” setting (requires macOS 14 / iOS 17) to, for example:
+
+> Hello. I like cake.
+
+If that still doesn't fix it, try copying the text from Aiko, go to [ChatGPT](https://chat.openai.com), and use this prompt: `Fix the missing punctation. Don't change the text otherwise: TRANSCRIPTION TEXT`
+
+#### Record and transcribe by pressing the iPhone action button
+
+[This](https://www.icloud.com/shortcuts/62a62ef967b74ffb897d72ee6a881746) shortcut records, transcribes, and then shows the result in the Aiko app. Save the shortcut and then select it in the action button settings.
+
+If you want to record, transcribe, and then do something with the transcription in your shortcut workflow, check out [this](https://www.icloud.com/shortcuts/00198bd63c094540ba25fe066245319d) shortcut. You could, for example, pass the transcription to the ChatGPT shortcut action for further processing.
+
+#### Quickly record and transcribe (iOS)
+
+Do the same as the above, but instead add the shortcut to the Home Screen (can be done in the shortcut settings).
 
 #### Quickly record and transcribe (macOS)
 

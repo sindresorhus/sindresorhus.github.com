@@ -36,6 +36,19 @@ It syncs tasks over iCloud. Note that the macOS version has an issue where it do
 
 One Thing lets you put a single piece of text in the menu bar. This app is focused on tasks, and allows you to queue multiple tasks, and check them off upon completion. This app is also available on iOS and uses widgets instead of the menu bar.
 
+#### iCloud syncing does not work
+
+Troubleshooting:
+- Ensure you are on the latest version of the app and iOS/macOS.
+- Ensure the devices are signed into the same iCloud account.
+- Ensure the devices are online.
+- Ensure Low Power Mode is not enabled on the devices. It can cause iCloud to delay syncing.
+- Try restarting the devices.
+- If you are using a VPN, try disconnecting it. Some VPNs prevent iCloud from syncing.
+
+Known issue:
+- Because of a macOS bug, the macOS app does not sync with iCloud while it's focused.
+
 #### Does the app integrate with other todo apps?
 
 No, One Task deliberately avoids automatic integration with other todo apps. Most todo apps encourage task hoarding, leading to overwhelm and inaction. One Task focuses on actionable items you commit to completing within the day. Manually select your highest-priority tasks and add them to One Task for focused execution.

@@ -86,6 +86,6 @@ I don't have any plans to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/yubkc4dmr2xy89ja4r4hr/Command-X-1.0.6-1684086547-1701611235.zip?rlkey=xa0zqmllf0uwrm55latddna99&raw=1) *(1.0.6)*
+[Download](https://www.dropbox.com/scl/fi/p419o2i43z0hvk9z2clv3/Command-X-1.3.0-1702592806.zip?rlkey=r6pqrd8fystytsebx060rdy5y&raw=1) *(1.3.0)*
 
 *Requires macOS 13 or later*
