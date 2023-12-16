@@ -3,8 +3,8 @@ title: Photo Widget
 subtitle: Photos on your home screen and desktop
 pubDate: 2020-09-22
 platforms:
-  - iOS
   - macOS
+  - iOS
 appStoreId: 1532588789
 forceHasIosAppIcon: true
 ---

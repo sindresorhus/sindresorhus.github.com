@@ -35,6 +35,7 @@ The app uses iCloud syncing to securely send links from your iOS device to your 
 - Try opening the Hyperduck iOS app to force a sync.
 - Try restarting both devices.
 - If you are using a VPN, try disconnecting it. Some VPNs prevent iCloud from syncing.
+- In the iOS app, if you triple-tap the text, it will show the most recently shared URLs, which may aid debugging.
 
 <br>
 

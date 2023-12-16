@@ -224,6 +224,10 @@ iOS apps are fundamentally restricted from operating in the background for exten
 
 Any audio and video format that macOS and iOS supports. For example: `.m4a`, `.wav`, `.mp3`, `.mp4`, `.mov`. It does not support `.ogg`.
 
+#### How can I delete audio recordings?
+
+The audio recordings can be deleted in the Files app.
+
 #### How can I transcribe audio from the Voice Memos app?
 
 **macOS:** Drag and drop the memo into the Aiko window. Note that because of a macOS bug, this can sometimes crash Aiko. If this happens, try sharing the memo from the Voice Memos app to Aiko instead.

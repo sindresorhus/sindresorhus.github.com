@@ -26,6 +26,16 @@ It syncs tasks over iCloud. Note that the macOS version has an issue where it do
 
 <br>
 
+### Tips
+
+#### Import tasks from other todo apps
+
+You can quickly import tasks from other todo apps by copying the tasks from such apps into One Task with the “Tasks: Paste” button.
+
+For example, on macOS, select the tasks you want in Reminders or Things, right-click and copy them, and then paste them into One Task using the “Tasks: Paste” button.
+
+<br>
+
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback

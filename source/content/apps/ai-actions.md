@@ -18,6 +18,8 @@ Your API key is securely stored in your keychain, not in a shortcut.
 
 **If you are getting a `Missing response` error, it's most likely that the OpenAI safety system prevented your prompt. Try something else.**
 
+**Apple is currently blocking updates for the iOS app, so I won't be able to submit an update for some time... I plan to get it [published to an alternative App Store](https://appleinsider.com/articles/23/08/15/setapp-plans-to-launch-eu-only-alternative-ios-app-store) in 2024.**
+
 <br>
 
 *You may also like my [Actions](/actions) app.*

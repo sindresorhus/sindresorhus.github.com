@@ -32,11 +32,11 @@ For macOS, it's only available for Apple silicon Macs running macOS 14 or later.
 
 #### The widget does not show up in the widget picker
 
-This is a well-known iOS issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
+This is a iOS issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
 
 #### Can you support having multiple pieces of text that change during the day?
 
-I would like to keep the app simple and only support one piece of text. It's kinda in the app name. However, the app comes with a shortcut action to change the text, so you could use the Shortcuts automations to change the text during the day.
+I would like to keep the app simple, so it's not something I plan to support built-in. However, the app comes with a shortcut action to change the text, so you could use the [Shortcuts automations](https://support.apple.com/en-gb/guide/shortcuts/apdfbdbd7123/7.0/ios/17.0) to change the text during the day.
 
 *(macOS does not yet have automations. You can use [Shortery](https://apps.apple.com/app/id1594183810) for now.)*
 
@@ -98,7 +98,7 @@ This is an iOS limitation and is out of my control. It shows a placeholder until
 
 #### Can you support syncing the text with iCloud?
 
-I don't plan to support that. iCloud is consistently unreliable and I don't want to increase my support burden.
+Currently, there are no plans to integrate iCloud syncing due to its complexity and the potential for increased support queries.
 
 #### When using the “Run Shortcut” action, why does tapping the widget first open the main app and then the Shortcuts app?
 
@@ -116,3 +116,7 @@ I just enjoy making apps. I earn money on other apps. Consider leaving a nice re
 #### Where can I find the changelog?
 
 Go [here](https://apps.apple.com/app/id1643199620) and click “Version History”.
+
+#### Can you localize the app into my language?
+
+I don't have any plans to localize the app.

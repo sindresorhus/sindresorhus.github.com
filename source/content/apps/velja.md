@@ -106,6 +106,10 @@ You could also show the browser prompt when pressing a keyboard shortcut:
 
 If you want to open the website in a specific browser directly instead of showing the browser prompt, add [this shortcut](https://www.icloud.com/shortcuts/d3f833d1a1334d169ccefe26fa0ec240) instead.
 
+#### Open links clicked in a browser or PWA in a specific browser
+
+Velja generally cannot handle links clicked in a browser because browsers don't notify the system about it. However, there is a workaround. Install [this browser extension](https://chromewebstore.google.com/detail/redirector/ocgpenflpmgnfapjedencafcfakcekcd) and make a rule to open links in Velja. Here's an [example rule](https://www.dropbox.com/scl/fi/s99bdxvbypar0nj2v8pj5/Redirector-1702989917.json?rlkey=fey4cs3wxuln528wkb5ai75u5&raw=1) (import it into the extension) that opens all links clicked in a browser in Velja. This could be useful if you need to open all links from a browser PWA in a specific browser.
+
 #### Launch browsers from Velja menu
 
 Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to launch it instead of setting it as the current browser.

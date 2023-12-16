@@ -60,3 +60,7 @@ I just enjoy making apps. I earn money on other apps. Consider leaving a nice re
 #### Where can I find the changelog?
 
 Go [here](https://apps.apple.com/app/id1643660089) and click “Version History”.
+
+#### Can you localize the app into my language?
+
+I don't have any plans to localize the app.
