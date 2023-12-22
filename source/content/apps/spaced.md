@@ -4,7 +4,10 @@ subtitle: Organize your menu bar items into groups
 pubDate: 2023-01-20
 platforms:
   - macOS
+isMenuBarApp: true
 appStoreId: 1666327168
+olderMacOSVersions:
+  - '13'
 ---
 
 The app provides menu bar separators to group menu bar items for a more streamlined appearance.
@@ -39,7 +42,7 @@ defaults write com.apple.dock persistent-apps -array-add '{"tile-type"="spacer-t
 
 #### Can you localize the app into my language?
 
-I don't have any immediate plans to localize the app.
+I don't plan to localize the app.
 
 #### Where can I find the changelog?
 
@@ -47,10 +50,16 @@ Go [here](https://apps.apple.com/app/id1666327168) and click â€œVersion Historyâ
 
 <br>
 
+### Older Versions
+
+- [1.0.4](https://github.com/sindresorhus/meta/files/13852708/Spaced.1.0.4.-.macOS.13.zip) for macOS 13+
+
+<br>
+
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/az48yxpqfeovp629ht4ld/Spaced-1.0.4-1686472769-1701611003.zip?rlkey=fchh7i1sryyhtximk6z1exhml&raw=1) *(1.0.4)*
+[Download](https://www.dropbox.com/scl/fi/3hcn8tysy1x2cjnlfdnlt/Spaced-1.1.0-1704617091.zip?rlkey=wyva3oju2yron1aoxydt3l9j0&raw=1) *(1.1.0)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*

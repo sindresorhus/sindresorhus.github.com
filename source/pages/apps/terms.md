@@ -29,7 +29,7 @@ I disclaim all liability arising from the use or misuse of my apps. Users assume
 
 ## Refunds
 
-For apps purchased on the Apple App Store, you may be able to [request a refund](https://support.apple.com/en-us/HT204084). However, I would appreciate if you [reached out](/feedback) first. I may be able to resolve any problems you are having.
+For apps purchased on the Apple App Store, you can [request a refund](https://support.apple.com/en-us/HT204084). However, I would appreciate if you [reached out](/feedback) first. I may be able to resolve any problems you are having.
 
 ## Support
 

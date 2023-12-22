@@ -5,6 +5,8 @@ pubDate: 2023-04-30
 platforms:
   - macOS
 appStoreId: 6448461551
+olderMacOSVersions:
+  - '13'
 ---
 
 Cut and paste files and folders in Finder using Command+X and Command+V. Without this app, you have to first copy (Command+C) and then remember to move (Option+Command+V).
@@ -78,7 +80,13 @@ Go [here](https://apps.apple.com/app/id6448461551) and click â€œVersion Historyâ
 
 #### Can you localize the app into my language?
 
-I don't have any plans to localize the app.
+I don't plan to localize the app.
+
+<br>
+
+### Older Versions
+
+- [1.3.1](https://github.com/sindresorhus/meta/files/13987707/Command.X.1.3.1.-.macOS.13.zip) for macOS 13+
 
 <br>
 
@@ -86,6 +94,6 @@ I don't have any plans to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/p419o2i43z0hvk9z2clv3/Command-X-1.3.0-1702592806.zip?rlkey=r6pqrd8fystytsebx060rdy5y&raw=1) *(1.3.0)*
+[Download](https://www.dropbox.com/scl/fi/3zg73o7fs2rlpypaud9pj/Command-X-1.4.0-1705659953.zip?rlkey=x9gpppflpv4ve2t2qm1yg5ht9&raw=1) *(1.4.0)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*

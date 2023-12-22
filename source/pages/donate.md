@@ -40,6 +40,7 @@ If you or your company are using any of my projects, consider supporting me so I
 - [BuyMeACoffee.com](https://www.buymeacoffee.com/sindresorhus)
 - [PayPal](https://www.paypal.me/sindresorhus)
 - [Open Collective](https://opencollective.com/sindresorhus)
+- [Alipay](/assets/alipay-qrcode.jpg) *(China)*
 - BTC: `3FA1Wpk1SFFCZyQRYufyhLBCcdd9MRCHKf`
 - ETH: `0x0Bf22db80adEdfDfb2574b0230299Fd48d513F25`
 

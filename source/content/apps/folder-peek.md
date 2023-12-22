@@ -4,7 +4,11 @@ subtitle: Put folders in your menu bar
 pubDate: 2022-04-05
 platforms:
   - macOS
+isMenuBarApp: true
 appStoreId: 1615988943
+olderMacOSVersions:
+  - '12'
+  - '13'
 ---
 
 <br>
@@ -174,12 +178,13 @@ Go [here](https://apps.apple.com/app/id1615988943) and click â€œVersion Historyâ
 
 #### Can you localize the app into my language?
 
-I don't have any immediate plans to localize the app.
+I don't plan to localize the app.
 
 <br>
 
 ### Older Versions
 
+- [1.9.2](https://github.com/sindresorhus/meta/files/13980050/Folder.Peek.1.9.2.-.macOS.13.zip) for macOS 13+
 - [1.6.1](https://github.com/sindresorhus/meta/files/10901140/Folder.Peek.1.6.1.-.macOS.12.zip) for macOS 12+
 
 <br>
@@ -188,6 +193,6 @@ I don't have any immediate plans to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/c44dsf6gkhcslfbcsq3tf/Folder-Peek-1.8.2-1686472638-1701611064.zip?rlkey=soughx67o26u1bue16kpfxi8p&raw=1) *(1.8.2)*
+[Download](https://www.dropbox.com/scl/fi/5643r7m9hybqqa5e1lr74/Folder-Peek-1.10.1-1706638981.zip?rlkey=dvkgfrorccj1qgzwpdkg9g2me&raw=1) *(1.10.1)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*

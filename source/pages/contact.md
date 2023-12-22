@@ -32,7 +32,6 @@ window.history.replaceState({}, '', url);
 	<a id="contact-email" href="mailto:sindresorhus@gmail.com">sindresorhus@gmail.com</a>
 </div>
 
-I value my time, so make it worth it, and [keep it succinct](https://www.google.com/search?q=succinct+emails).\
-No support questions, job offers, questionnaires, etc.
+I value my time, so make it worth it, and [keep it succinct](https://www.google.com/search?q=succinct+emails).
 
-<!-- If the answer to your question could be interesting to others, consider asking in my [AMA](https://github.com/sindresorhus/ama) instead. -->
+For app-related queries, use the in-app feedback button or the support link on the app's page.

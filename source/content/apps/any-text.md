@@ -76,6 +76,10 @@ If you work at Apple → [FB11522170](https://github.com/feedback-assistant/repo
 
 The widget sizes are controlled by Apple. The provided size is the largest it allows.
 
+#### Can you remove the title shown below the widget?
+
+Apple does not allow removing the title. Some apps managed to do it early on, but these days, Apple rejects any attempt at doing that.
+
 #### How can I remove the date prefix from the inline Lock Screen widget above the clock?
 
 iOS forces the date to be shown. This is out of my control.
@@ -119,4 +123,4 @@ Go [here](https://apps.apple.com/app/id1643199620) and click “Version History�
 
 #### Can you localize the app into my language?
 
-I don't have any plans to localize the app.
+I don't plan to localize the app.

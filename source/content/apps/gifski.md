@@ -8,6 +8,12 @@ repoUrl: https://github.com/sindresorhus/Gifski
 appStoreId: 1351639930
 links:
   'Older Versions': https://github.com/sindresorhus/Gifski#download
+olderMacOSVersions:
+  - '10.13'
+  - '10.14'
+  - '10.15'
+  - '11'
+  - '12'
 ---
 
 Gifski is a macOS app for the [gifski encoder](https://gif.ski), which converts videos to GIF animations using [pngquant's](https://pngquant.org) fancy features for efficient cross-frame palettes and temporal dithering. It produces animated GIFs that use thousands of colors per frame.

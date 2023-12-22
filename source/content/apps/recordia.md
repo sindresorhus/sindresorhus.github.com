@@ -4,7 +4,13 @@ subtitle: Quickly record audio
 pubDate: 2020-09-02
 platforms:
   - macOS
+isMenuBarApp: true
 appStoreId: 1529006487
+olderMacOSVersions:
+  - '10.15'
+  - '11'
+  - '12'
+  - '13'
 ---
 
 Record audio directly from the menu bar or with a global keyboard shortcut.
@@ -73,6 +79,17 @@ Go [here](https://apps.apple.com/app/id1529006487) and click â€œVersion Historyâ
 
 ### Older Versions
 
+- [2.7.0](https://github.com/sindresorhus/meta/files/13975939/Recordia.2.7.0.-.macOS.13.zip) for macOS 13+
 - [2.6.1](https://github.com/sindresorhus/meta/files/11053013/Recordia.2.6.1.-.macOS.12.zip) for macOS 12
 - [2.3.0](https://github.com/sindresorhus/meta/files/8798113/Recordia.2.3.0.-.macOS.11.zip) for macOS 11
 - [1.5.1](https://github.com/sindresorhus/meta/files/6538283/Recordia.1.5.1.-.macOS.10.15.zip) for macOS 10.15
+
+<br>
+
+### Non-App Store Version
+
+A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
+
+[Download](https://www.dropbox.com/scl/fi/3bsg4200b1d8e35l02oqg/Recordia-2.8.0-1705579150.zip?rlkey=vht4knn9copnb0hp1zmodaka9&raw=1) *(2.8.0)*
+
+*Requires macOS 14 or later*

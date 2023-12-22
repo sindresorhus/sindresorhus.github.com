@@ -4,7 +4,11 @@ subtitle: Paste as plain text by default
 pubDate: 2022-03-02
 platforms:
   - macOS
+isMenuBarApp: true
 appStoreId: 1611378436
+olderMacOSVersions:
+  - '12'
+  - '13'
 ---
 
 Pure Paste lets you paste as plain text by default. It sits in the menu bar and clears formatting (fonts, colors, bold, links, tables, etc.) from the text you copy. However, it does not touch unrelated content like files, images, etc. It also ignores content copied from password managers.
@@ -167,12 +171,13 @@ Go [here](https://apps.apple.com/app/id1611378436) and click â€œVersion Historyâ
 
 #### Can you localize the app into my language?
 
-I don't have any immediate plans to localize the app.
+I don't plan to localize the app.
 
 <br>
 
 ### Older Versions
 
+- [1.9.2](https://github.com/sindresorhus/meta/files/14350035/Pure.Paste.1.9.2.-.macOS.13.zip) for macOS 13+
 - [1.6.4](https://github.com/sindresorhus/meta/files/10793621/Pure.Paste.1.6.4.-.macOS.12.zip) for macOS 12+
 
 <br>
@@ -181,6 +186,6 @@ I don't have any immediate plans to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/r9gcv54plqbnz6d1fzhdw/Pure-Paste-1.7.0-1676983160-1701610781.zip?rlkey=apn3d5lvz6oedqkmtvnhtck6e&raw=1) *(1.7.0)*
+[Download](https://www.dropbox.com/scl/fi/g7gf5lwm49hfekzl4rxke/Pure-Paste-1.10.0-1707039434.zip?rlkey=56xunmvjd0zbwl7573s8skvh2&raw=1) *(1.10.0)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*

@@ -1,16 +1,19 @@
 ---
 title: Hyperduck
-subtitle: Send links from your iOS devices to your Mac
+subtitle: Send links from your iOS/visionOS devices to your Mac
 pubDate: 2023-01-27
 platforms:
   - macOS
   - iOS
+  - visionOS
 appStoreId: 6444667067
+olderMacOSVersions:
+  - '13'
 ---
 
-For example, share a link from Safari on your iPhone or iPad and have it open in the default browser on your Mac moments later.
+For example, share a link from Safari on your iPhone, iPad, or Apple Vision Pro, and have it open in the default browser on your Mac moments later.
 
-You can send a link even if your iOS device and/or Mac is offline. The link will be sent and received the next time the devices are online. The link will never be lost.
+You can send a link even if your iOS/visionOS device and/or Mac is offline. The link will be sent and received the next time the devices are online. The link will never be lost.
 
 My personal use-case is that I often discover cool stuff when I check Twitter on the go and I want to dig deeper into it later on my Mac. I have tried Instapaper, Pocket, Safari Reading List, iCloud Tabs, and more. The problem with them all is that I forget to check them.
 
@@ -20,21 +23,25 @@ My personal use-case is that I often discover cool stuff when I check Twitter on
 
 #### Privacy
 
-The app uses iCloud syncing to securely send links from your iOS device to your Mac. The app developer will not see the links you share. The app does not collect any personal data and does not have any tracking.
+The app uses iCloud syncing to securely send links from your iOS/visionOS device to your Mac. The app developer will not see the links you share. The app does not collect any personal data and does not have any tracking.
 
 <br>
 
 ### Troubleshooting
 
-- Ensure you are on the latest macOS and iOS version.
+- Try restarting both devices.
+- Try opening the Hyperduck iOS app to force a sync.
+- Ensure you are on the latest operating system version.
 - Ensure both devices are signed into the same iCloud account.
 - Ensure both devices are online.
 - Ensure Hyperduck is running on the Mac.
 - Hyperduck opens links in the background. Ensure you didn't miss it.
 - Ensure Low Power Mode is not enabled on the devices. It can cause iCloud to delay syncing.
-- Try opening the Hyperduck iOS app to force a sync.
-- Try restarting both devices.
+- On iOS, ensure Hyperduck is enabled in “Settings › Apple ID › iCloud › Apps Using iCloud”.
+- On macOS, ensure Hyperduck is enabled in “System Settings › Apple ID › iCloud › iCloud Drive › Apps syncing to iCloud Drive”.
+- If it's a work device, make sure there are no restrictions in place that prevents iCloud or iCloud Drive.
 - If you are using a VPN, try disconnecting it. Some VPNs prevent iCloud from syncing.
+- Make sure the [iCloud service](https://www.apple.com/support/systemstatus/) is not currently experiencing issues.
 - In the iOS app, if you triple-tap the text, it will show the most recently shared URLs, which may aid debugging.
 
 <br>
@@ -45,7 +52,7 @@ The app uses iCloud syncing to securely send links from your iOS device to your 
 
 You can use this app to trigger [shortcuts](https://support.apple.com/en-gb/guide/shortcuts/welcome/ios) on your Mac from your iOS devices. This enables a lot of powerful use-cases. For example, you could make your Mac play a specific song directly from your iPhone.
 
-First, create a shortcut on your Mac with some actions. Lets call it `Unicorn`.
+First, create a shortcut on your Mac with some actions. Let's call it `Unicorn`.
 
 On your iOS device, make a new shortcut, add the “Run Shortcut on Mac” action, and write `Unicorn` in the shortcut field.
 
@@ -83,7 +90,7 @@ You can now trigger confetti to show up on your Mac from your iPhone.
 - Works when you are not near your Mac
 - Much faster
 - Opens links on your Mac in the background
-- AirDrop sometimes refuses to work. This always works.
+- AirDrop sometimes refuses to work; this always works.
 
 #### How is it better than iCloud Tabs? {#icloud-tabs}
 
@@ -164,9 +171,13 @@ You can use my free [Velja app](/velja) for this. Create a custom rule where you
 
 The app works by syncing the link over iCloud from your iOS device to your Mac. This is usually instantaneous, but there can be situations that delay it (iCloud problems, network issues, Low Power Mode, etc). This is unfortunately completely out of my control.
 
-#### I don't see the “Share to Mac” action in the share sheet
+#### I don't see the “Send to Mac” action in the share sheet
 
 Try restarting your device. Because of a iOS bug, it sometimes only appears after a restart.
+
+#### The “Send to Mac” button does not appear when viewing a PDF file in Safari
+
+Safari tries to share the PDF file itself, not the URL to the PDF, and Hyperduck can only handle URLs. Instead, go back, long-press the link to the PDF, and tap “Share”.
 
 #### I use the Arc browser and I am not receiving all links
 
@@ -188,7 +199,7 @@ No. That is not something I plan to support. It's simply not something I need my
 
 #### Can you localize the app into my language?
 
-I don't have any immediate plans to localize the app.
+I don't plan to localize the app.
 
 #### Where can I find the changelog?
 
@@ -196,10 +207,16 @@ Go [here](https://apps.apple.com/app/id6444667067) and click “Version History�
 
 <br>
 
+### Older Versions
+
+- [1.0.7](https://github.com/sindresorhus/meta/files/14292936/Hyperduck.1.0.7.-.macOS.13.zip) for macOS 13+
+
+<br>
+
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/c61mmyzx6jl1uc2918rhs/Hyperduck-1.0.7-1699560532-1701610670.zip?rlkey=rno5pn0d4v3testa3nphhrlps&raw=1) *(1.0.7)*
+[Download](https://www.dropbox.com/scl/fi/8uc8owhy3izpaj0pi7ob5/Hyperduck-1.1.0-1707315964.zip?rlkey=8v6ylbwibmi4yav8bp25sz468&raw=1) *(1.1.0)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*

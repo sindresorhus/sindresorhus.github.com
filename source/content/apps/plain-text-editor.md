@@ -5,6 +5,8 @@ pubDate: 2022-10-25
 platforms:
   - macOS
 appStoreId: 1572202501
+olderMacOSVersions:
+  - '13'
 ---
 
 Simple text editor without any rich text nonsense. The simplicity is a feature.
@@ -29,6 +31,10 @@ It won't handle your 1 million line log file, but it is a nice way to write down
 - Window can stay on top
 - Force dark/light mode
 - Brain dump mode
+
+#### Spellchecking does not work
+
+This is a macOS bug. You can see the same problem in the built-in TextEdit app too.
 
 #### Can you add Markdown syntax highlighting?
 
@@ -92,7 +98,7 @@ This is unfortunately a macOS bug and out of my control.
 
 #### Why is there no way to print?
 
-The app is made using Apple's latest technologies (SwitUI) and they have not added print support there yet.
+The app is made using Apple's latest technologies (SwiftUI) and they have not added print support there yet. If you need to print, open the document in TextEdit instead.
 
 #### Why is it suddenly showing a scrollbar?
 
@@ -101,6 +107,8 @@ You most likely have an external mouse connected. This is simply how macOS works
 #### The “Check Spelling While Typing” setting in the context menu does not work
 
 This is unfortunately a macOS bug and not something I can fix.
+
+*If you work at Apple → [FB13607434](https://github.com/feedback-assistant/reports/issues/467)*
 
 #### How can I export, import, sync, or back up the settings?
 
@@ -116,7 +124,13 @@ Go [here](https://apps.apple.com/app/id1572202501) and click “Version History�
 
 #### Can you localize the app into my language?
 
-I don't have any immediate plans to localize the app.
+I don't plan to localize the app.
+
+<br>
+
+### Older Versions
+
+- [1.3.2](https://github.com/sindresorhus/meta/files/14232390/Plain.Text.Editor.1.3.2.-.macOS.13.zip) for macOS 13+
 
 <br>
 
@@ -124,6 +138,6 @@ I don't have any immediate plans to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/xluitd9zdak3enu7yu8eh/Plain-Text-Editor-1.2.1-1701610704.zip?rlkey=9ci6dbu6rkha5jiuxsji1m7k5&raw=1) *(1.2.1)*
+[Download](https://www.dropbox.com/scl/fi/o4c1yceor1i75blq21k6z/Plain-Text-Editor-1.4.0-1707655107.zip?rlkey=sp7x6srayuld4gi8cuouevoef&raw=1) *(1.4.0)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*

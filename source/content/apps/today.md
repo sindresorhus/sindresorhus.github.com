@@ -4,7 +4,10 @@ subtitle: Today’s schedule in your menu bar
 pubDate: 2022-10-27
 platforms:
   - macOS
+isMenuBarApp: true
 appStoreId: 6443714928
+olderMacOSVersions:
+  - '13'
 ---
 
 The perfect companion to the built-in Calendar app. Just the events for today. Click an event to show it in the Calendar app. It also gives you a quick way to directly join an upcoming video call.
@@ -12,8 +15,6 @@ The perfect companion to the built-in Calendar app. Just the events for today. C
 This app is intentionally simple. For more advanced needs, check out [Dato](/dato).
 
 It integrates with Calendar, Fantastical, and BusyCal.
-
-*Requires macOS 13 or later.*
 
 <br>
 
@@ -118,7 +119,7 @@ Meeter is mainly for video calls. It's also quite buggy and does not follow macO
 
 #### Can you localize the app into my language?
 
-I don't have any immediate plans to localize the app.
+I don't plan to localize the app.
 
 #### Where can I find the changelog?
 
@@ -126,10 +127,16 @@ Go [here](https://apps.apple.com/app/id6443714928) and click “Version History�
 
 <br>
 
+### Older Versions
+
+- [1.5.0](https://github.com/sindresorhus/meta/files/13997505/Today.1.5.0.-.macOS.13.zip) for macOS 13+
+
+<br>
+
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/h7j70y16peqeleymi5qw8/Today-1.2.0-1701610738.zip?rlkey=ywmqru71okn7xkr1n24pn2tht&raw=1) *(1.2.0)*
+[Download](https://www.dropbox.com/scl/fi/68bf6aeuqqo98f2ehkt2o/Today-1.6.0-1705754077.zip?rlkey=pv4pe6d3nd3flxf44py1vxkas&raw=1) *(1.6.0)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*

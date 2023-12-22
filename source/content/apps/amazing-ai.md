@@ -4,12 +4,20 @@ subtitle: Generate images from text using Stable Diffusion
 pubDate: 2022-12-21
 platforms:
   - macOS
+  - iOS
+  # - visionOS
 appStoreId: 1660147028
+olderMacOSVersions:
+  - '13'
 ---
 
 Simply describe the image you desire, and the app will generate it for you like magic!
 
-**Developed exclusively for Apple silicon (M1/M2) - The app is NOT compatible with devices running on Intel chips.**
+It runs locally on your device.
+
+On macOS, developed exclusively for Apple silicon (M1/M2) - The app is NOT compatible with devices running on Intel chips.
+
+On iOS, it requires at minimum an iPhone 15 Pro or iPad with M1 processor.
 
 [Stable Diffusion](https://en.wikipedia.org/wiki/Stable_Diffusion) is a deep learning, text-to-image model used to generate detailed images conditioned on text descriptions.
 
@@ -23,22 +31,22 @@ The app is [highly optimized](https://machinelearning.apple.com/research/stable-
 
 Click a thumbnail to view a larger version of it. Click again to exit.
 
+#### Negative prompt
+
+To write a [negative prompt](https://dreamlike.art/guides/guide-to-stable-diffusion-negative-prompt-parameter) (what to exclude), write `##` after your prompt, followed by your negative prompt. For example, “photo of a cake, high-quality ## strawberry, out of frame”, where `strawberry, out of frame` is your negative prompt. Anything after the `##` is your negative prompt. You only write `##` once.
+
 #### Keyboard shortcuts
 
-When in preview mode, there are some keyboard shortcuts available:
+On macOS, when in preview mode, there are some keyboard shortcuts available:
 - <kbd>◀</kbd> — Previous image
 - <kbd>▶</kbd> — Next image
 - <kbd>Space</kbd> — Save image
 - <kbd>Command + C</kbd> — Copy image
 - <kbd>Esc</kbd> — Exit preview
 
-#### Negative prompt
-
-To write a [negative prompt](https://dreamlike.art/guides/guide-to-stable-diffusion-negative-prompt-parameter) (what to exclude), write `##` after your prompt, followed by your negative prompt. For example, “photo of a cake, high-quality ## strawberry, out of frame”, where `strawberry, out of frame` is your negative prompt. Anything after the `##` is your negative prompt. You only write `##` once.
-
 #### Metadata
 
-When you save a generated image, it includes a lot of useful metadata (prompt, steps, etc). You can [view this in Finder](https://twitter.com/sindresorhus/status/1611441129622278146/photo/1) by right-clicking the image file and selecting “Get Info”. The file also includes some relevant tags which can be used to create [smart folders](https://support.apple.com/guide/mac-help/tag-files-and-folders-mchlp15236/mac).
+On macOS, when you save a generated image, it includes a lot of useful metadata (prompt, steps, etc). You can [view this in Finder](https://twitter.com/sindresorhus/status/1611441129622278146/photo/1) by right-clicking the image file and selecting “Get Info”. The file also includes some relevant tags which can be used to create [smart folders](https://support.apple.com/guide/mac-help/tag-files-and-folders-mchlp15236/mac).
 
 <br>
 
@@ -52,9 +60,13 @@ When you save a generated image, it includes a lot of useful metadata (prompt, s
 
 It will eventually be supported, but right now, it's worse than 1.5.
 
-#### Why does the app require macOS 13.1 and Apple silicon?
+#### Why does the app require Apple silicon for Macs?
 
 The app takes advantage of recent [optimizations by Apple](https://machinelearning.apple.com/research/stable-diffusion-coreml-apple-silicon).
+
+#### Why does the app require at least iPhone 15 Pro and iPad M1?
+
+Generating images with Stable Diffusion requires a lot of system resources. It would not be a good experience on older devices. It could probably run fine on iPhone 15 and iPhone 14 Pro, but Apple does not let us do such a fine-grained requirement. Either I require the current devices or I have to support devices down to iPhone XS, which are not nearly powerful enough.
 
 #### What are the usage restrictions for the generated images?
 
@@ -62,7 +74,7 @@ You can use the images for commercial or non-commercial purposes, but you must a
 
 #### Can you support custom models?
 
-It's something I plan to support, but other things are a higher priority at the moment.
+I don't plan to support this. This app is intentionally simple. There are many other apps that support custom models.
 
 #### Can you support inpainting/outpainting?
 
@@ -86,10 +98,6 @@ And bear in mind that the initial generation after installing the app may take l
 
 The AI model used to generate images is large. This is reasonable given the model's capabilities.
 
-#### Can you support iOS?
-
-I plan to add iOS support when the app is more mature.
-
 #### How does it compare to [DiffusionBee](https://github.com/divamgupta/diffusionbee-stable-diffusion-ui)? {#diffusionbee}
 
 **Amazing AI benefits**
@@ -111,7 +119,7 @@ I plan to add iOS support when the app is more mature.
 
 #### Why is this free without ads?
 
-I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
+I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 #### Where can I find the changelog?
 
@@ -119,7 +127,13 @@ Go [here](https://apps.apple.com/app/id1660147028) and click “Version History�
 
 #### Can you localize the app into my language?
 
-I don't have any immediate plans to localize the app.
+I don't plan to localize the app.
+
+<br>
+
+### Older Versions
+
+- [1.2.2](https://drive.google.com/file/d/1mcEhAKhmQGYzmSS-zlejt3_qsKFzqm0h/view?usp=sharing) for macOS 13+
 
 <br>
 
@@ -127,6 +141,6 @@ I don't have any immediate plans to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://drive.google.com/file/d/1mcEhAKhmQGYzmSS-zlejt3_qsKFzqm0h/view?usp=sharing) *(1.2.2)*
+[Download](https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Amazing.AI.1.3.0.zip) *(1.3.0)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*

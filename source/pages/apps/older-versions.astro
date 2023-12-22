@@ -1,0 +1,28 @@
+---
+import {SITE} from '~/config.mjs';
+import Layout from '~/layouts/SimplePageLayout.astro';
+import {fetchApps} from '~/utils/apps.js';
+
+const apps = await fetchApps();
+const macOSVersions = [...new Set(apps.flatMap(app => app.olderMacOSVersions))].sort().reverse().filter(Boolean);
+
+const meta = {
+	title: `Older Versions — Apps — ${SITE.name}`,
+};
+---
+
+<Layout {meta}>
+	<h1>Older Versions</h1>
+	<p>My macOS apps with an older version compatible with the following macOS versions.</p>
+	<p>Even my paid apps are free for these older versions.</p>
+	{macOSVersions.map(version => (
+		<section key={version}>
+			<h2 id={`macos-${version.replace('.', '-')}`}>macOS {version}</h2>
+			<ul>
+				{apps.filter(app => app.olderMacOSVersions?.includes(version)).map(app => (
+					<li key={app.title}><a href={app.olderVersionsUrl}>{app.title}</a> — {app.subtitle}</li>
+				))}
+			</ul>
+		</section>
+	))}
+</Layout>

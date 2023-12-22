@@ -19,7 +19,7 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 			<h1 id="product-name" class="text-4xl md:text-5xl font-bold leading-tighter tracking-tighter mb-2 font-heading"></h1>
 			<h2 class="text-2xl md:text-3xl leading-tighter tracking-tighter mb-8">Feedback & Support</h2>
 			<div id="additional-info" class={proseCSS} style="font-size:16px"></div>
-			<div><br>I may take longer to respond as I'm getting an overwhelming amount of emails at the moment. I appreciate your patience.</div>
+			<!-- <div><br>I may take longer to respond as I'm getting an overwhelming amount of emails at the moment. I appreciate your patience.</div> -->
 		</div>
 		<form id="feedback-form" class="mt-8" action="https://formcarry.com/s/UBfgr97yfY" method="POST" enctype="multipart/form-data" onsubmit="document.querySelector('#submit-button').disabled=true">
 			<input type="hidden" name="_gotcha">
@@ -90,14 +90,22 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 		// Temporary.
 		if (product === 'Velja') {
 			$('#additional-info').show().append(`
-				<br><br><a href="${app.url}#safari-profiles">Can you support Safari profiles?</a><br><br><a href="${app.url}#arc">Can you support Arc spaces/profiles?</a><br><br>
+				<br><br><a href="${app.url}#safari-profiles">Can you support Safari profiles?</a><br><br><a href="${app.url}#arc">Can you support Arc spaces/profiles?</a><br><br><b>If you're requesting an addition to the “Apps” list, <a href="https://sindresorhus.com/velja#builtin-apps-requests">please read this</a>.</b><br><br>
 			`);
 		}
 
 		if (product === 'Actions') {
 			$('#additional-info').show().append(`
 				<br><br><h3>If you get a “com.apple.extensionKit.errorDomain error 2” error when running your shortcut or if the actions don't show up in the Shortcuts app, restart your device. This is caused by a iOS bug.</h3>
-				<br><br><b>Some actions that are not possible: orientation lock status, flashlight status, ambient sensor info, flight mode status.</b>
+				<br><br><b>Some actions that are not possible: orientation lock status, flashlight status, ambient sensor info, flight mode status. Generally, anything related to changing system features/settings or interacting with other apps is not possible.</b>
+				<br>
+				<br>
+			`);
+		}
+
+		if (product === 'AI Actions') {
+			$('#additional-info').show().append(`
+				<br><br><h3>Apple is currently blocking updates to this app because they don't like the use of OpenAI keys without in-app purchase (they want their 30% of OpenAI revenue), so until EU forces them to allow side-loading and alternative App Store's, I won't be able to make any improvements to this app...</h3>
 			`);
 		}
 	}

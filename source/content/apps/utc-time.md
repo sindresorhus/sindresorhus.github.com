@@ -4,7 +4,12 @@ subtitle: Show the time in UTC in the menu bar or a widget
 pubDate: 2021-03-16
 platforms:
   - macOS
+isMenuBarApp: true
 appStoreId: 1538245904
+olderMacOSVersions:
+  - '11'
+  - '12'
+  - '13'
 ---
 
 This can be useful as a quick reference.
@@ -23,7 +28,7 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 #### Can you localize the app into my language?
 
-The date & time output adheres to your locale settings. I have no plans to localize the app itself.
+The date & time output adheres to your locale settings. I don't plan to localize the app itself.
 
 #### UTC Time doesn't show up in the menu bar
 
@@ -31,11 +36,11 @@ When the menu bar grows too large, macOS hides overflowing items, so UTC Time mi
 
 #### Can you add an analog clock?
 
-No plans to add that.
+I have no plans to add that.
 
 #### Can you add support for other time zones?
 
-That is outside the scope of this app, but check out my app [Dato](https://sindresorhus.com/dato), which does support this.
+That is outside the scope of this app, but check out my [Second Clock](/second-clock) or [Dato](/dato) app, which does support this.
 
 #### How can I customize the menu bar date and time format?
 
@@ -47,7 +52,7 @@ I don't plan to add this. Showing seconds wastes a lot of system resources and e
 
 #### Why is this free without ads?
 
-I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
+I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 #### Where can I find the changelog?
 
@@ -57,6 +62,7 @@ Go [here](https://apps.apple.com/app/id1538245904) and click â€œVersion Historyâ
 
 ### Older Versions
 
+- [1.7.1](https://github.com/sindresorhus/meta/files/13973570/UTC.Time.1.7.1.-.macOS.13.zip) for macOS 13+
 - [1.5.1](https://github.com/sindresorhus/meta/files/10767291/UTC.Time.1.5.1.-.macOS.12.zip) for macOS 12+
 - [1.3.0](https://github.com/sindresorhus/meta/files/8007477/UTC.Time.1.3.0.-.macOS.11.zip) for macOS 11+
 
@@ -66,6 +72,6 @@ Go [here](https://apps.apple.com/app/id1538245904) and click â€œVersion Historyâ
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/tsve0ionv7f5xag5l2kt5/UTC-Time-1.7.1-1687649720-1701610889.zip?rlkey=lthrkvr80xf1a4nuj99sxce5a&raw=1) *(1.7.1)*
+[Download](https://www.dropbox.com/scl/fi/yk71nlqwqm7db4hfxguzg/UTC-Time-1.8.0-1705564185.zip?rlkey=mfu8l8ibaergglqbik0g4c1jy&raw=1) *(1.8.0)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*

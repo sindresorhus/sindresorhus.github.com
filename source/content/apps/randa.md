@@ -6,7 +6,10 @@ platforms:
   - macOS
   - iOS
   - watchOS
+  - visionOS
 appStoreId: 1589044499
+olderMacOSVersions:
+  - '13'
 ---
 
 Randa lets you easily generate a random number. Just set a minimum and maximum number and you will get a random number in that range.
@@ -31,10 +34,16 @@ I don't plan to localize the app.
 
 <br>
 
+### Older Versions
+
+- [1.0.0](https://github.com/sindresorhus/meta/files/13852533/Randa.1.0.0.zip) for macOS 13+
+
+<br>
+
 ### Non-App Store Version
 
 A special macOS version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/wouey941p1rtzuwvzjsai/Randa-1.0.0-1685428930-1701611309.zip?rlkey=ui2bg27o3jxpm5sc9cf8egi52&raw=1) *(1.0.0)*
+[Download](https://www.dropbox.com/scl/fi/30ul4vzs32as95ml8jt4y/Randa-1.2.1-1707236749.zip?rlkey=01s34qxj6pfett2p3flzzhy2e&raw=1) *(1.2.1)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*

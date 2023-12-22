@@ -4,7 +4,11 @@ subtitle: Put a single task or goal in your menu bar
 pubDate: 2022-01-12
 platforms:
   - macOS
+isMenuBarApp: true
 appStoreId: 1604176982
+olderMacOSVersions:
+  - '12'
+  - '13'
 ---
 
 This can be a useful tool to help you focus on a single task.
@@ -123,7 +127,7 @@ Go [here](https://apps.apple.com/app/id1604176982) and click â€œVersion Historyâ
 
 #### Can you localize the app into my language?
 
-I don't have any plans to localize the app.
+I don't plan to localize the app.
 
 <br>
 
@@ -161,10 +165,17 @@ open --background 'one-thing:?text=Exercise'
 
 *Don't forget to [URL encode](https://www.urlencoder.org) the value for the `text=` search parameter. For example, using [this](https://gist.github.com/cdown/1163649) Bash function.*
 
+There is no way to get the text using the URL scheme, but if you are in the terminal, you can run this command:
+
+```sh
+defaults read com.sindresorhus.One-Thing text
+```
+
 <br>
 
 ### Older Versions
 
+- [1.11.3](https://github.com/sindresorhus/meta/files/14201346/One.Thing.1.11.3.-.macOS.13.zip) for macOS 13+
 - [1.9.0](https://github.com/sindresorhus/meta/files/11081660/One.Thing.1.9.0.-.macOS.12.zip) for macOS 12+
 
 <br>
@@ -173,6 +184,6 @@ open --background 'one-thing:?text=Exercise'
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/bzfjiefe1ywyyklgk8omm/One-Thing-1.10.0-1679895427-1701610294.zip?rlkey=1hpkw0k7t3iq9hldkk1jszv7l&raw=1) *(1.10.0)*
+[Download](https://www.dropbox.com/scl/fi/djlxpnzgyko826sdwkulf/One-Thing-1.12.0-1707465000.zip?rlkey=jbth4wugckqcf49aiw8m3hzzp&raw=1) *(1.12.0)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*

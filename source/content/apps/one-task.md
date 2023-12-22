@@ -5,6 +5,7 @@ pubDate: 2023-09-19
 platforms:
   - macOS
   - iOS
+  - visionOS
 appStoreId: 6465745322
 ---
 
@@ -82,6 +83,10 @@ One Task is designed for action, not endless categorization. It omits features l
 #### Can you add a widget setting to choose background color?
 
 I don't plan to add this. I want to keep the app super simple.
+
+#### The text in the widget is quite large
+
+The text automatically scales down to fit more content.
 
 #### Why is this free without ads?
 

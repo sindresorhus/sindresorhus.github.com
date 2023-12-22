@@ -6,11 +6,16 @@ platforms:
   - macOS
 appStoreId: 1206020918
 isPaid: true
+isMenuBarApp: true
+olderMacOSVersions:
+  - '10.14'
+  - '10.15'
+  - '11'
+  - '12'
+  - '13'
 ---
 
 Battery Indicator lets you quickly glance the remaining battery time or percentage right in your menu bar.
-
-<sup>**Want to see this app included in [Setapp](https://setapp.com)?** Help make it happen by [requesting it here](https://www.facebook.com/groups/setapp/posts/1849644978569967/).</sup>
 
 <br>
 
@@ -42,7 +47,9 @@ Drag it out of the menu bar while pressing <kbd>Command</kbd>.
 
 It can unfortunately not show this because of restrictions (sandboxing) imposed on apps on the App Store. However, you could change the menu bar item type to text instead of the icon and use this app in combination with the system battery indicator.
 
-#### Can it play a sound when the battery is charged a certain percentage?
+#### Can it play a sound when the battery is charged a certain percentage? {#notification-sound}
+
+The app has a built-in sound when showing notifications. However, if you want a different sound, you can disable the default notification sound in the “Notification Settings” and then follow the below steps.
 
 This is a perfect use case for the built-in Shortcuts app. You can use the `Play Sound` action to play the sound you want. To run the shortcut when the battery is at a certain percentage, you need the [Shortery app](https://apps.apple.com/app/id1594183810). Use its “Power Status” trigger.
 
@@ -66,12 +73,13 @@ Go [here](https://apps.apple.com/app/id1206020918) and click “Version History�
 
 #### Can you localize the app into my language?
 
-I don't have any immediate plans to localize the app.
+I don't plan to localize the app.
 
 <br>
 
 ### Older Versions
 
+- [2.16.1](https://github.com/sindresorhus/meta/files/13942534/Battery.Indicator.2.16.1.-.macOS.13.zip) for macOS 13
 - [2.14.2](https://github.com/sindresorhus/meta/files/10759031/Battery.Indicator.2.14.2.-.macOS.12.zip) for macOS 12
 - [2.12.3](https://github.com/sindresorhus/meta/files/8759816/Battery.Indicator.2.12.3.-.macOS.11.zip) for macOS 11
 - [2.7.1](https://github.com/sindresorhus/meta/files/6565005/Battery.Indicator.2.7.1.-.macOS.10.15.zip) for macOS 10.15

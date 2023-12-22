@@ -5,6 +5,7 @@ pubDate: 2023-03-03
 platforms:
   - macOS
   - iOS
+  - visionOS
 appStoreId: 1672085276
 ---
 
@@ -12,12 +13,7 @@ High-quality on-device transcription. Easily convert speech to text from meeting
 
 The transcription is powered by OpenAI's [Whisper model](https://openai.com/research/whisper) running locally on your device.
 
-The app also includes support for Shortcuts.
-
-**Upcoming features**
-
-- Batch conversion
-- Export to karaoke file
+The app also includes [support for Shortcuts](#tips).
 
 <details>
 <summary><b>Supports audio in 100 languages</b></summary>
@@ -165,6 +161,10 @@ Do the same as the above, but instead add the shortcut to the Home Screen (can b
 
 You can use [this shortcut](https://www.icloud.com/shortcuts/e43220d72f3343659e0fda36fee52d72) to be able to quickly record, transcribe, and have the result copied to the clipboard. The shortcut can be triggered from the menu bar or you can set a global keyboard shortcut for it.
 
+#### Start recording in Aiko when tapping the Home Screen icon
+
+[Get this shortcut](https://www.icloud.com/shortcuts/7c3031aa674c405fa69093d1f6c184a6) and add it to the Home Screen. Then tap it instead of the original Aiko app icon.
+
 <br>
 
 ### Frequently Asked Questions {#faq}
@@ -295,7 +295,7 @@ Workaround for macOS:
 
 #### How can I export the transcription as subtitles (SRT)?
 
-When the transcription is done, click the share button in the toolbar, and choose “SRT”.
+When the transcription is done, click the save button in the toolbar, and choose “SRT”.
 
 #### How can I transcribe a YouTube video?
 

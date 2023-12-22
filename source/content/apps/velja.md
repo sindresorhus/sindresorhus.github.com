@@ -4,7 +4,10 @@ subtitle: Powerful browser picker
 pubDate: 2022-04-21
 platforms:
   - macOS
+isMenuBarApp: true
 appStoreId: 1607635845
+olderMacOSVersions:
+  - '12'
 ---
 
 Open links in a specific browser or a matching native app. Easily switch between browsers.
@@ -108,7 +111,23 @@ If you want to open the website in a specific browser directly instead of showin
 
 #### Open links clicked in a browser or PWA in a specific browser
 
-Velja generally cannot handle links clicked in a browser because browsers don't notify the system about it. However, there is a workaround. Install [this browser extension](https://chromewebstore.google.com/detail/redirector/ocgpenflpmgnfapjedencafcfakcekcd) and make a rule to open links in Velja. Here's an [example rule](https://www.dropbox.com/scl/fi/s99bdxvbypar0nj2v8pj5/Redirector-1702989917.json?rlkey=fey4cs3wxuln528wkb5ai75u5&raw=1) (import it into the extension) that opens all links clicked in a browser in Velja. This could be useful if you need to open all links from a browser PWA in a specific browser.
+Velja generally cannot handle links clicked in a browser because browsers don't notify the system about it. However, there is a workaround. Install the [Redirector browser extension](https://chromewebstore.google.com/detail/redirector/ocgpenflpmgnfapjedencafcfakcekcd) and make a rule in that extension to open links in Velja. Here's an [example rule](https://www.dropbox.com/scl/fi/s99bdxvbypar0nj2v8pj5/Redirector-1702989917.json?rlkey=fey4cs3wxuln528wkb5ai75u5&raw=1) (import it into the Redirector extension) that opens all links clicked in a browser in Velja. This could be useful if you need to open all links from a browser PWA in a specific browser.
+
+For Chrome, you can run the following commands in the Terminal app to ensure that these types of links always open in the associated app:
+
+```sh
+defaults write com.google.Chrome URLAllowlist -array-add 'velja:*'
+defaults write com.google.Chrome ExternalProtocolDialogShowAlwaysOpenCheckbox -bool true
+```
+
+And for Edge:
+
+```sh
+defaults write com.microsoft.Edge URLAllowlist -array-add 'velja:*'
+defaults write com.microsoft.Edge ExternalProtocolDialogShowAlwaysOpenCheckbox -bool true
+```
+
+For other Chrome-based browsers, replace `com.google.Chrome` with their bundle identifier in the above commands.
 
 #### Launch browsers from Velja menu
 
@@ -222,6 +241,8 @@ However, some apps are not feasible:
 	+ The app does not accept any links.
 - Todoist
 	+ Only supports opening links to a todo item and it only works when the app is already running.
+- Craft.do
+	+ The app does not accept any links. It does accept [custom URL scheme](https://support.craft.do/hc/en-us/articles/360020168838-Using-URL-Scheme) links, but I'm not interested having to maintain more code to transform URLs in Velja when the services should just handle it themselves in their desktop apps.
 
 And some apps do not need special support because they already support [universal links](https://developer.apple.com/ios/universal-links/):
 - [Quip](https://quip.com)
@@ -256,7 +277,7 @@ However, I do plan to make it possible to achieve it using custom rules. The mis
 
 #### Can you support Firefox profiles? {#firefox-profiles}
 
-I don't have any immediate plans to support this. There is currently very little demand for it and it's complicated to implement. I will consider it if there is more demand for it.
+I don't plan to support this. There is currently very little demand for it and it's complicated to implement. I will consider it if there is more demand for it.
 
 I would recommend trying out containers instead (see above). *(Containers are not currently supported, but will be)*
 
@@ -302,7 +323,7 @@ Velja does support exporting and importing rules manually.
 
 #### Can you add a vertical or circular browser prompt?
 
-I don't have any immediate plans to add this. I recommend giving the horizontal prompt a try. A lot of users found it to work better than vertical/circular.
+I don't plan to add this. I recommend giving the horizontal prompt a try. A lot of users found it to work better than vertical/circular.
 
 #### How can I see what URL Velja received? {#debug}
 
@@ -541,7 +562,7 @@ Go [here](https://apps.apple.com/app/id1607635845) and click â€œVersion Historyâ
 
 #### Can you localize the app into my language?
 
-I don't have any immediate plans to localize the app.
+I don't plan to localize the app.
 
 <br>
 
@@ -581,7 +602,7 @@ osascript -e 'id of app "Safari"'
 
 You can also use this trick to change the alternative browser by using `alternativeBrowser` instead of `defaultBrowser`.
 
-Use the bundle identifier `com.sindresorhus.Velja.promptMarker` for the prompt.
+Use the special bundle identifier `com.sindresorhus.Velja.promptMarker` to set the prompt as the browser.
 
 <br>
 

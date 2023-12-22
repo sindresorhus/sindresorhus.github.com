@@ -1,4 +1,5 @@
 ---
+import {Icon} from 'astro-iconify';
 import {SITE} from '~/config.mjs';
 import Layout from '~/layouts/PageLayout.astro';
 import {fetchApps, proseCSS} from '~/utils/apps.js';
@@ -26,6 +27,8 @@ const meta = {
 	ogType: 'product',
 	appStoreId: app.appStoreId,
 };
+
+const {title: appTitle, appStoreUrl} = app;
 ---
 
 <Layout {meta}>
@@ -39,19 +42,24 @@ const meta = {
 				<h2 class="text-2xl md:text-3xl tracking-tight mb-8">
 					{app.subtitle}
 				</h2>
-				{(app.appStoreId || app.setappUrl || Object.keys(app.mainLinks).length > 0) &&
+				{(app.appStoreId || app.setappId || Object.keys(app.mainLinks).length > 0) &&
 					<nav class="flex flex-col sm:flex-row gap-x-4 gap-y-8 mt-2 instapaper_ignore">
 						<>
 							{app.appStoreId &&
-								<a href={`https://apps.apple.com/app/id${app.appStoreId}`}>
-									<img src="/assets/download-on-app-store-badge.svg" alt="Download on the App Store" style="margin: 0; padding: 0; display: block; height: 60px;">
-								</a>
+								<div class="relative">
+									<button id="share-button" class="hidden absolute inset-0 left-[-26px] opacity-90" style="width:16px">
+										<Icon name="tabler:share-2" class="w-4"/>
+									</button>
+									<a href={app.appStoreUrl}>
+										<img src="/assets/download-on-app-store-badge.svg" alt="Download on the App Store" style="margin: 0; padding: 0; display: block; height: 60px; user-select: none">
+									</a>
+								</div>
 							}
 						</>
 						<>
-							{app.setappUrl &&
+							{app.setappId &&
 								<a href={app.setappUrl}>
-									<img src="https://developer.setapp.com/setapp-button/setapp.svg" alt="Available on Setapp" style="margin: 0; padding: 0; display: block; height: 60px;">
+									<img src="/assets/download-on-setapp-badge.svg" alt="Download on Setapp" style="margin: 0; padding: 0; display: block; height: 60px; user-select: none">
 								</a>
 							}
 						</>
@@ -86,3 +94,24 @@ const meta = {
 		</article>
 	</section>
 </Layout>
+
+<script type="module" is:inline define:vars={{appTitle, appStoreUrl}}>
+	const shareData = {
+		title: appTitle,
+		url: appStoreUrl
+	};
+
+	if (navigator.canShare(shareData)) {
+		const shareButton = document.querySelector('#share-button');
+
+		shareButton.style.display = 'block';
+
+		shareButton.addEventListener('click', async () => {
+			try {
+				await navigator.share(shareData);
+			} catch (error) {
+				console.error('Share failed:', error.message);
+			}
+		});
+	}
+</script>

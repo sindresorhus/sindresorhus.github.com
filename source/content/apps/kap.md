@@ -5,6 +5,7 @@ subtitle: Record your screen
 pubDate: 2018-02-01
 platforms:
   - macOS
+isMenuBarApp: true
 repoUrl: https://github.com/wulkano/kap
 showSupportLink: false
 ---

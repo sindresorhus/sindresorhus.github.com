@@ -63,4 +63,4 @@ Go [here](https://apps.apple.com/app/id1643660089) and click â€œVersion Historyâ
 
 #### Can you localize the app into my language?
 
-I don't have any plans to localize the app.
+I don't plan to localize the app.

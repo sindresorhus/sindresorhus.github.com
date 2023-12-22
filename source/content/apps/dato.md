@@ -5,8 +5,15 @@ pubDate: 2019-07-13
 platforms:
   - macOS
 isPaid: true
+isMenuBarApp: true
 appStoreId: 1470584107
-setappUrl: https://go.setapp.com/stp181?_target=https://setapp.com/apps/dato&utm_medium=vendor_program&utm_source=Sindre+Sorhus&utm_content=link
+setappId: 571
+olderMacOSVersions:
+  - '10.14'
+  - '10.15'
+  - '11'
+  - '12'
+  - '13'
 ---
 
 Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.
@@ -15,39 +22,7 @@ Dato supports all the locales and languages that macOS supports for the menu bar
 
 [MacStories review of Dato.](https://www.macstories.net/reviews/dato-review-calendar-events-and-time-zones-from-your-macs-menu-bar/)
 
-Dato requires macOS 13 or later.
-
----
-
-### Dato 5
-
-###### Behavior changes
-
-- **You must now click an event in the list to show event details. Previously you hovered over it.**
-- Right-click an event in the list for more actions.
-- Double-click an event in the list to open it in the default calendar app.
-
-###### Why are there so many changes?
-
-The latest version of Dato has been rewritten, moving away from its original [system menu](https://developer.apple.com/design/human-interface-guidelines/menus) format — a change partly prompted by macOS 14 breaking various things. This shift has allowed me to implement significant improvements I have envisioned for years. It’s a change for the better, and I encourage you to give it a few weeks to adapt. If you're still unsatisfied after that time, please reach out. I am continuously working to refine and enhance the app, which has grown substantially since its simple beginnings, making the old menu system increasingly impractical for its current complexity.
-
-If you are not ready to move to Dato 5, here is [Dato 4](https://www.dropbox.com/scl/fi/xex1okacdtcctr8nytyu9/Dato-4.7.2-1692797926-1701610613.zip?rlkey=1yrr9r2xdczm35fkpzaoco72u&raw=1), which you can use in the meantime.
-
-##### Some functionality is missing
-
-All existing functionality should be preserved, but some functionality moved into context menus. Simply right-click an event in the event list for more actions. Or right-click an attendee in the event details for more actions.
-
-###### Why does clicking the "upcoming event in menu bar" item now open the main Dato window?
-
-I had a large number of requests that wanted more context for the event (for example, the events coming after it). When you click the "upcoming event in the menu bar" menu item now, it opens the main Dato window, but highlights the clicked event and shows the event details. This lets you easily see what comes after it.
-
-This also enabled the new setting that lets you hide the main Dato menu bar item, since you can now click the "upcoming event in menu bar" item instead.
-
-###### How can I now hide an event from showing up in the menu bar?
-
-Previously, when you clicked the event in the menu bar, you could hide it from the menu bar by clicking “Hide from Menu Bar”. You now need to right-click the menu bar item and click “Mute”.
-
----
+If all you need is another clock in the menu bar, check out [Second Clock](/second-clock).
 
 #### Features
 
@@ -80,9 +55,9 @@ Previously, when you clicked the event in the menu bar, you could hide it from t
 
 ### Trial
 
-There's a fully functional trial available [here](https://www.dropbox.com/scl/fi/3kzy9hs9pqpyzdg677kuy/Dato-5.1.3-trial-1699456900-1701610643.zip?rlkey=2f8ip6cga73t0h4jcypxu0d17&raw=1). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://www.dropbox.com/scl/fi/l77in0b9slwx4kpeayr84/Dato-5.2.4-trial-1707855126.zip?rlkey=uav4e8bm3e8t1b0mktk5keq2x&raw=1). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive automatic updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
-You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://setapp.com/apps/dato&utm_medium=vendor_program&utm_source=Sindre+Sorhus&utm_content=link) for 7 days for free.
+You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
 <br>
 
@@ -283,6 +258,10 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?_target=https://set
 
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
 
+#### Can I buy Dato from outside the App Store and Setapp?
+
+No. Dato is only available from the App Store and Setapp.
+
 #### The “upcoming event in menu bar” notification is not showing up
 
 Make sure you have enabled the feature in the settings and enabled the correct calendars for it (it has a separate calendar picker). Also make sure that there is enough space in the menu bar to show it. If you have Bartender (or a similar app that hides menu bar items) installed, make sure the menu bar item was not auto-hidden by Bartender. Note that it uses a separate menu item from the main Dato menu item.
@@ -320,6 +299,16 @@ You most likely have enabled showing seconds in the menu bar. Unfortunately, upd
 
 If you don't have seconds enabled, please let me know about the excessive CPU usage.
 
+#### Why does the menu bar hide when I click the Dato menu bar item?
+
+This is a macOS 14 bug and unfortunately not something I can work around.
+
+If you work at Apple → [FB13544993](https://github.com/feedback-assistant/reports/issues/457)
+
+#### How can I edit an event in Dato?
+
+Dato does not support editing events. Simply double-click the event in the event list to edit it in the Calendar app.
+
 #### How can I toggle AM/PM for the time?
 
 Dato adheres to what you have set in “System Settings › General › Language and Region”.
@@ -327,6 +316,10 @@ Dato adheres to what you have set in “System Settings › General › Language
 #### How can I change the first day of the week?
 
 Dato adheres to what you have set in “System Settings › General › Language and Region”.
+
+#### Can you support natural language input like Fantastical?
+
+I'm hoping to have this done later this year. It's quite a complicated feature.
 
 #### Can you integrate with Cron?
 
@@ -361,10 +354,11 @@ I have already [reported it to Apple](https://github.com/feedback-assistant/repo
 
 Make sure:
 - The fullscreen notifications setting is enabled.
+- You are on the latest Dato and macOS version.
 - You have selected the correct calendars in the fullscreen notifications settings.
 - You have not muted the event.
 - You have not excluded the event with the “Exclude events” setting.
-- You have not already joined the event in the last 30 minutes.
+- You have not already joined the event in the last 15 minutes.
 
 #### What does the “Hide” button on an event do? {#hide-event}
 
@@ -457,6 +451,10 @@ tccutil reset All com.sindresorhus.Dato
 
 Then launch Dato again.
 
+#### How can I show smart lists from the Reminders app in Dato?
+
+Dato can only show normal lists. macOS does not let third-party apps access smart lists.
+
 #### How can I make the text in Dato be more easily readable?
 
 Try turning off the “Vibrancy” setting. You can also try increasing the text size with the “Larger text” setting.
@@ -526,10 +524,6 @@ This is planned. However, it's unfortunately not possible until Apple fixes a ce
 
 I don't plan to add more settings to this feature. However, you can achieve this by using the Shortcuts app. Make a shortcut using the “Get Sound” action provided by Dato and have [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) run it at the interval you prefer. [Example shortcut.](https://www.icloud.com/shortcuts/72e44ca37e024b8ab016bd827557f00f)
 
-#### How can I export, import, sync, or back up the settings?
-
-[See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
-
 #### How can I transfer my settings from the App Store version to the Setapp version?
 
 Run this command in the Terminal app:
@@ -564,14 +558,43 @@ Dato is not just a calendar app, but also includes menu bar clock replacement, t
 
 It means “date” in Norwegian. I just wanted a short, unique, and relevant name.
 
-#### Do you plan to open-source it?
+#### [More FAQs…](https://sindresorhus.com/apps/faq)
 
-I open-source [most things](https://github.com/sindresorhus) I make, but I don’t intend to open-source this app. Many open-source apps have problems with someone using the source to [publish clones](https://twitter.com/sindresorhus/status/1202144430477627394) and it’s a hassle to get Apple to take down such clones. I also have my own private framework that makes it faster for me to build apps, but I don’t want to open-source it as then I would have to maintain it.
+<br>
+
+### Dato 5
+
+###### Behavior changes
+
+- **You must now click an event in the list to show event details. Previously you hovered over it.**
+- Right-click an event in the list for more actions.
+- Double-click an event in the list to open it in the default calendar app.
+
+###### Why are there so many changes?
+
+The latest version of Dato has been rewritten, moving away from its original [system menu](https://developer.apple.com/design/human-interface-guidelines/menus) format — a change partly prompted by macOS 14 breaking various things. This shift has allowed me to implement significant improvements I have envisioned for years. It’s a change for the better, and I encourage you to give it a few weeks to adapt. If you're still unsatisfied after that time, please reach out. I am continuously working to refine and enhance the app, which has grown substantially since its simple beginnings, making the old menu system increasingly impractical for its current complexity.
+
+If you are not ready to move to Dato 5, here is [Dato 4](https://www.dropbox.com/scl/fi/xex1okacdtcctr8nytyu9/Dato-4.7.2-1692797926-1701610613.zip?rlkey=1yrr9r2xdczm35fkpzaoco72u&raw=1), which you can use in the meantime.
+
+##### Some functionality is missing
+
+All existing functionality should be preserved, but some functionality moved into context menus. Simply right-click an event in the event list for more actions. Or right-click an attendee in the event details for more actions.
+
+###### Why does clicking the "upcoming event in menu bar" item now open the main Dato window?
+
+I had a large number of requests that wanted more context for the event (for example, the events coming after it). When you click the "upcoming event in the menu bar" menu item now, it opens the main Dato window, but highlights the clicked event and shows the event details. This lets you easily see what comes after it.
+
+This also enabled the new setting that lets you hide the main Dato menu bar item, since you can now click the "upcoming event in menu bar" item instead.
+
+###### How can I now hide an event from showing up in the menu bar?
+
+Previously, when you clicked the event in the menu bar, you could hide it from the menu bar by clicking “Hide from Menu Bar”. You now need to right-click the menu bar item and click “Mute”.
 
 <br>
 
 ### Older Versions
 
+- [5.1.3](https://github.com/sindresorhus/meta/files/14097627/Dato.5.1.3.-.macOS.13.zip) for macOS 13
 - [4.3.3](https://github.com/sindresorhus/meta/files/10516478/Dato.4.3.3.-.macOS.12.zip) for macOS 12
 - [3.3.8](https://github.com/sindresorhus/meta/files/8935698/Dato.3.3.8.-.macOS.11.zip) for macOS 11
 - [2.6.1](https://github.com/sindresorhus/meta/files/6758848/Dato.2.6.1.-.macOS.10.15.zip) for macOS 10.15

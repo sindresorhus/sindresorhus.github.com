@@ -1,0 +1,22 @@
+---
+import {SITE} from '~/config.mjs';
+import Layout from '~/layouts/SimplePageLayout.astro';
+import {fetchApps} from '~/utils/apps.js';
+
+const apps = await fetchApps();
+const menuBarApps = apps.filter(app => app.isMenuBarApp);
+
+const meta = {
+	title: `Menu Bar Apps — ${SITE.name}`,
+};
+---
+
+<Layout {meta}>
+	<h1>Menu Bar Apps</h1>
+	<p>I love making menu bar apps.</p>
+	<ul>
+		{menuBarApps.map(app => (
+			<li key={app.title}><a href={app.url}>{app.title}</a> — {app.subtitle}</li>
+		))}
+	</ul>
+</Layout>

@@ -30,6 +30,10 @@ This is a bug in the App Store. App developers have no control over the install 
 
 This is unfortunately not possible as watchOS only supports opening the keyboard.
 
+#### Can I choose a voice?
+
+The app automatically uses the best voice for the language used in the answer. Unfortunately, the high-quality Siri voices are not available for apps to use.
+
 #### Can I launch it with the action button?
 
 Add [this shortcut](https://www.icloud.com/shortcuts/6b890da159844407a6b39de454567c97) to one of your Apple devices (not the watch), and then on the watch, select the shortcut in the action button configuration.

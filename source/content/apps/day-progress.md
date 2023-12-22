@@ -4,7 +4,10 @@ subtitle: Time remaining today in your menu bar
 pubDate: 2023-06-18
 platforms:
   - macOS
+isMenuBarApp: true
 appStoreId: 6450280202
+olderMacOSVersions:
+  - '13'
 ---
 
 Use this as a visual cue to stay motivated and manage time more efficiently.
@@ -85,10 +88,16 @@ Go [here](https://apps.apple.com/app/id6450280202) and click â€œVersion Historyâ
 
 <br>
 
+### Older Versions
+
+- [1.3.0](https://github.com/sindresorhus/meta/files/13979415/Day.Progress.1.3.0.-.macOS.13.zip) for macOS 13+
+
+<br>
+
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/2d12sc436izbnr2cejwf2/Day-Progress-1.1.0-1687561838-1701610561.zip?rlkey=t9746em3ysvlb2xewt573936s&raw=1) *(1.1.0)*
+[Download](https://www.dropbox.com/scl/fi/ocsdxjssgg23xza3idfun/Day-Progress-1.4.0-1705596961.zip?rlkey=sc9kno0swmc21rxxu0ai9xs27&raw=1) *(1.4.0)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*

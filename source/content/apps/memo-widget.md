@@ -35,6 +35,14 @@ This is a iOS bug. [Try this.](https://webtrickz.com/third-party-lock-screen-wid
 
 I'm happy to consider it, but I also want to keep the app simple. Check out my [Any Text app](/any-text), which has a lot more features.
 
+#### Can you add a text size setting?
+
+The text size is large for short text but scales down to make the text fit. I don't want to complicate it with a text size setting. If you really need it, check out [Any Text](/any-text).
+
+#### Can you add a text color setting?
+
+Same answer as the above.
+
 #### How is this different from the built-in Stickies app on macOS? {#stickies}
 
 The Stickies app is a normal app and has to either float on top of everything or it has to be manually brought to the front when needed. Memo Widget always lives on your desktop or in the Notification Center, just a [gesture away](https://www.howtogeek.com/678073/how-to-quickly-show-your-desktop-on-mac/). The Stickies app also takes up space in your Dock. The Stickies app supports formatting, while Memo Widget keeps it simple with just plain text.
@@ -87,4 +95,4 @@ Go [here](https://apps.apple.com/app/id6465682248) and click â€œVersion Historyâ
 
 #### Can you localize the app into my language?
 
-I don't have any plans to localize the app.
+I don't plan to localize the app.

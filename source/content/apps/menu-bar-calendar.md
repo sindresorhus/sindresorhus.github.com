@@ -4,7 +4,10 @@ subtitle: A monthly calendar, one click away
 pubDate: 2023-08-31
 platforms:
   - macOS
+isMenuBarApp: true
 appStoreId: 1558360383
+olderMacOSVersions:
+  - '13'
 ---
 
 Quickly access a monthly calendar from your menu bar.
@@ -22,6 +25,7 @@ The calendar displays dates and days in your language, but the rest of the app i
 - **Switch years:** While holding the <kbd>option</kbd> key, click the `‹` / `›` button, press arrow keys, or swipe horizontally on the calendar.
 - **Close calendar window:** Press the <kbd>esc</kbd> key.
 - **Open date in the Calendar app:** Click a date in the calendar.
+- **Open week in the Calendar app:** Click a week number in the calendar.
 
 <br>
 
@@ -43,17 +47,17 @@ No. That is outside the scope of the app. My [Today](/today) (free) and [Dato](/
 
 #### Does it support highlighting certain days of the week?
 
-No. Check out my [Dato](/dato) (paid) app for that.
+No. Check out my [Dato](/dato) app for that.
 
 The app does support dimming the weekend though.
 
 #### Does it include widgets?
 
-No. Check out my [Dato](/dato) (paid) app for that.
+No. Check out my [Dato](/dato) app for that.
 
 #### Does it support showing a date and time in the menu bar with a custom format?
 
-No. Check out my [Dato](/dato) (paid) app for that.
+No. Check out my [Dato](/dato) app for that.
 
 #### Does it have a 3-month view?
 
@@ -89,10 +93,16 @@ Go [here](https://apps.apple.com/app/id1558360383) and click “Version History�
 
 <br>
 
+### Older Versions
+
+- [1.2.0](https://github.com/sindresorhus/meta/files/13922546/Menu.Bar.Calendar.1.2.0.-.macOS.13.zip) for macOS 13+
+
+<br>
+
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/w9j8jo6nfm56cwihc9v3w/Menu-Bar-Calendar-1.0.2-1693687906-1701610866.zip?rlkey=dy2hv9wu6g8a1nm03aaqau6ms&raw=1) *(1.0.2)*
+[Download](https://www.dropbox.com/scl/fi/od8rsjl3mb8af5yavo9or/Menu-Bar-Calendar-1.3.0-1705082133.zip?rlkey=t6i4aqgcn2j3oa23w24btap0e&raw=1) *(1.3.0)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*

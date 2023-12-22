@@ -4,7 +4,12 @@ subtitle: Time awareness in your menu bar
 pubDate: 2021-05-31
 platforms:
   - macOS
+isMenuBarApp: true
 appStoreId: 1569600264
+olderMacOSVersions:
+  - '11'
+  - '12'
+  - '13'
 ---
 
 <br>
@@ -69,7 +74,7 @@ Tip: Shortcuts can be a bit slow sometimes. You can use this command to have it 
 
 #### Why is this free without ads?
 
-I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
+I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 #### Where can I find the changelog?
 
@@ -77,7 +82,7 @@ Go [here](https://apps.apple.com/app/id1569600264) and click â€œVersion Historyâ
 
 #### Can you localize the app into my language?
 
-I don't have any immediate plans to localize the app.
+I don't plan to localize the app.
 
 <br>
 
@@ -105,6 +110,7 @@ Tip: You can [run shortcuts from the command-line](https://support.apple.com/gui
 
 ### Older Versions
 
+- [1.15.0](https://github.com/sindresorhus/meta/files/14230031/Pandan.1.15.0.-.macOS.13.zip) for macOS 13+
 - [1.13.2](https://github.com/sindresorhus/meta/files/11072195/Pandan.1.13.2.-.macOS.12.zip) for macOS 12+
 - [1.9.1](https://github.com/sindresorhus/meta/files/8003835/Pandan.1.9.1.-.macOS.11.zip) for macOS 11+
 
@@ -114,6 +120,6 @@ Tip: You can [run shortcuts from the command-line](https://support.apple.com/gui
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/p80m81nllztkjzj1exhy8/Pandan-1.14.0-1679831725-1701610376.zip?rlkey=kri87h01pq3zxzetbidbc4znh&raw=1) *(1.14.0)*
+[Download](https://www.dropbox.com/scl/fi/hlvorsw06mvf832dt2e3q/Pandan-1.16.0-1707587381.zip?rlkey=r2xffuz4jietc7p0jagtrt7r4&raw=1) *(1.16.0)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*

@@ -5,6 +5,7 @@ pubDate: 2023-09-26
 platforms:
   - macOS
   - iOS
+  # - visionOS
 appStoreId: 6465250302
 ---
 

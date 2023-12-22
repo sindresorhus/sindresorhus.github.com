@@ -1,0 +1,22 @@
+---
+import {SITE} from '~/config.mjs';
+import Layout from '~/layouts/SimplePageLayout.astro';
+import {fetchApps} from '~/utils/apps.js';
+
+const apps = await fetchApps();
+const filteredApps = apps.filter(app => app.platforms.includes('visionOS'));
+
+const meta = {
+	title: `Apple Vision Pro Apps — ${SITE.name}`,
+};
+---
+
+<Layout {meta}>
+	<h1>Apple Vision Pro Apps</h1>
+	<p>The apps of mine that run on Apple Vision Pro.</p>
+	<ul>
+		{filteredApps.map(app => (
+			<li key={app.title}><a href={app.url}>{app.title}</a> — {app.subtitle}</li>
+		))}
+	</ul>
+</Layout>

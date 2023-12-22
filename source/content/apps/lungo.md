@@ -5,8 +5,16 @@ pubDate: 2017-07-26
 platforms:
   - macOS
 isPaid: true
+isMenuBarApp: true
 appStoreId: 1263070803
-setappUrl: https://go.setapp.com/stp181?_target=https://setapp.com/apps/lungo&utm_medium=vendor_program&utm_source=Sindre+Sorhus&utm_content=link
+setappId: 270
+olderMacOSVersions:
+  - '10.13'
+  - '10.14'
+  - '10.15'
+  - '11'
+  - '12'
+  - '13'
 ---
 
 Lungo prevents your Mac from falling asleep and your screen from dimming.
@@ -57,7 +65,7 @@ Yes, choose “Activate on Left-click” in the settings.
 
 #### Can Lungo automatically activate when I open a certain app?
 
-I don't have any immediate plans to support this. It's a lot of work to implement and only a few people have requested it.
+I don't plan to support this. It's a lot of work to implement and only a few people have requested it.
 
 However, you can achieve it using the Shortcuts app. Create a new shortcut with the “Set Enabled State” action provided by Lungo. Shortcuts on iOS has automations, which lets you run a shortcut when a certain app opens. macOS does not yet have automations. I'm confident it will come with macOS 15. In the meantime, you can use the [Shortery app](https://apps.apple.com/us/app/shortery/id1594183810?mt=12) to run a shortcut when a certain app opens.
 
@@ -66,6 +74,10 @@ You could also use BetterTouchTool or Keyboard Maestro instead of Shortery.
 #### Can Lungo automatically activate on a set schedule?
 
 I don't plan to do this built-in, but you can use Shortery for this as explained above. Shortery has a “Time” trigger.
+
+#### Can Lungo automatically activate when I switch to a specific focus mode?
+
+I don't plan to do this built-in, but you can use Shortery for this as explained above. Shortery has a “Focus Mode” trigger.
 
 #### Can I use a custom duration? {#custom-duration}
 
@@ -101,7 +113,7 @@ Go [here](https://apps.apple.com/app/id1263070803) and click “Version History�
 
 #### Can you localize the app into my language?
 
-I don't have any plans to localize the app.
+I don't plan to localize the app.
 
 #### How is it different from Amphetamine?
 
@@ -198,6 +210,7 @@ subprocess.run(['open', '--background', 'lungo:toggle'])
 
 ### Older Versions
 
+- [2.4.2](https://github.com/sindresorhus/meta/files/14276605/Lungo.2.4.2.-.macOS.13.zip) for macOS 13
 - [2.2.2](https://github.com/sindresorhus/meta/files/11292407/Lungo.2.2.2.-.macOS.12.zip) for macOS 12
 - [2.0.4](https://github.com/sindresorhus/meta/files/8870132/Lungo.2.0.4.-.macOS.11.zip) for macOS 11
 - [1.9.0](https://github.com/sindresorhus/meta/files/7404362/Lungo.1.9.0.-.macOS.10.15.zip) for macOS 10.15

@@ -1,4 +1,5 @@
 ---
+unlisted: true
 title: Caprine
 subtitle: Elegant Facebook Messenger desktop app
 pubDate: 2015-09-16

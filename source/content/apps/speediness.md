@@ -5,6 +5,9 @@ pubDate: 2021-11-23
 platforms:
   - macOS
 appStoreId: 1596706466
+olderMacOSVersions:
+  - '12'
+  - '13'
 ---
 
 <br>
@@ -89,12 +92,13 @@ Go [here](https://apps.apple.com/app/id1596706466) and click â€œVersion Historyâ
 
 #### Can you localize the app into my language?
 
-I don't have any immediate plans to localize the app.
+I don't plan to localize the app.
 
 <br>
 
 ### Older Versions
 
+- [1.6.1](https://github.com/sindresorhus/meta/files/13965129/Speediness.1.6.1.-.macOS.13.zip) for macOS 13+
 - [1.5.0](https://github.com/sindresorhus/meta/files/10847708/Speediness.1.5.0.-.macOS.12.zip) for macOS 12+
 
 <br>
@@ -103,6 +107,6 @@ I don't have any immediate plans to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/21mtkbqa4qqkz5ryiuu5t/Speediness-1.6.1-1686472921-1701610430.zip?rlkey=bhqkthepo5lc3u7tqa0gsiywb&raw=1) *(1.6.1)*
+[Download](https://www.dropbox.com/scl/fi/fz7g9b5zjuvj0jehefuuv/Speediness-1.7.0-1705505161.zip?rlkey=d1otns1la8mygh2a4uebb08pg&raw=1) *(1.7.0)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*
