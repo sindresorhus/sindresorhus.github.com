@@ -9,6 +9,9 @@ appStoreId: 1514182074
 links:
   'Older Versions': https://github.com/wulkano/Plug#download
 showSupportLink: false
+olderMacOSVersions:
+  - '10.15'
+  - '11'
 ---
 
 Plug is an open source macOS app I'm working on with my friends. Hype Machine is a popular music blog aggregator.

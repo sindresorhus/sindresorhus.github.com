@@ -6,6 +6,10 @@ platforms:
   - macOS
 isPaid: true
 appStoreId: 1319884285
+olderMacOSVersions:
+  - '10.15'
+  - '11'
+  - '12'
 ---
 
 This app can be useful when you want to post a screenshot or photo on the web that contains some information you don’t want to be revealed. Maybe you want to share a screenshot of a Slack conversation on Twitter but hide some private information. It also removes all metadata, like when and where a photo was captured.

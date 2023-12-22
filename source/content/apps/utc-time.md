@@ -5,6 +5,9 @@ pubDate: 2021-03-16
 platforms:
   - macOS
 appStoreId: 1538245904
+olderMacOSVersions:
+  - '11'
+  - '12'
 ---
 
 This can be useful as a quick reference.

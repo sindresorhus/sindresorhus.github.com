@@ -5,6 +5,8 @@ pubDate: 2022-04-21
 platforms:
   - macOS
 appStoreId: 1607635845
+olderMacOSVersions:
+  - '12'
 ---
 
 Open links in a specific browser or a matching native app. Easily switch between browsers.
@@ -109,6 +111,13 @@ If you want to open the website in a specific browser directly instead of showin
 #### Open links clicked in a browser or PWA in a specific browser
 
 Velja generally cannot handle links clicked in a browser because browsers don't notify the system about it. However, there is a workaround. Install [this browser extension](https://chromewebstore.google.com/detail/redirector/ocgpenflpmgnfapjedencafcfakcekcd) and make a rule to open links in Velja. Here's an [example rule](https://www.dropbox.com/scl/fi/s99bdxvbypar0nj2v8pj5/Redirector-1702989917.json?rlkey=fey4cs3wxuln528wkb5ai75u5&raw=1) (import it into the extension) that opens all links clicked in a browser in Velja. This could be useful if you need to open all links from a browser PWA in a specific browser.
+
+For Microsoft Edge, you can run the following commands to ensure that these types of links always open in the associated app:
+
+```sh
+defaults write com.microsoft.Edge URLAllowlist -array 'velja:open?url=*'
+defaults write com.microsoft.Edge ExternalProtocolDialogShowAlwaysOpenCheckbox -bool true
+```
 
 #### Launch browsers from Velja menu
 

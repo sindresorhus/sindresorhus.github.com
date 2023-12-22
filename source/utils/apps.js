@@ -63,6 +63,7 @@ const normalizeApps = async app => {
 		hasFaqSection,
 		screenshots,
 		Content,
+		olderVersionsUrl: data.repoUrl ? `${data.repoUrl}#download` : `/${slug}#older-versions`,
 	};
 };
 

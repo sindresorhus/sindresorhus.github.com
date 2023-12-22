@@ -24,6 +24,21 @@ const appsCollection = defineCollection({
 		showSupportLink: z.boolean().default(true),
 		redirectUrl: z.string().url().optional(),
 		forceHasIosAppIcon: z.boolean().optional(), // // We can use `forceHasIosAppIcon` for both true/false override.
+		olderMacOSVersions: z.array(z.enum([
+			'10.13',
+			'10.14',
+			'10.15',
+			'11',
+			'12',
+			'13',
+			'14',
+			'15',
+			'16',
+			'17',
+			'18',
+			'19',
+			'20',
+		])).optional(),
 	}).strict(),
 });
 

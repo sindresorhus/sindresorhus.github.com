@@ -7,6 +7,11 @@ platforms:
 isPaid: true
 appStoreId: 1470584107
 setappUrl: https://go.setapp.com/stp181?_target=https://setapp.com/apps/dato&utm_medium=vendor_program&utm_source=Sindre+Sorhus&utm_content=link
+olderMacOSVersions:
+  - '10.14'
+  - '10.15'
+  - '11'
+  - '12'
 ---
 
 Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.

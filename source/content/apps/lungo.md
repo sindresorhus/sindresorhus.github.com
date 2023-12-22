@@ -7,6 +7,12 @@ platforms:
 isPaid: true
 appStoreId: 1263070803
 setappUrl: https://go.setapp.com/stp181?_target=https://setapp.com/apps/lungo&utm_medium=vendor_program&utm_source=Sindre+Sorhus&utm_content=link
+olderMacOSVersions:
+  - '10.13'
+  - '10.14'
+  - '10.15'
+  - '11'
+  - '12'
 ---
 
 Lungo prevents your Mac from falling asleep and your screen from dimming.

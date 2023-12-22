@@ -5,6 +5,8 @@ pubDate: 2022-01-12
 platforms:
   - macOS
 appStoreId: 1604176982
+olderMacOSVersions:
+  - '12'
 ---
 
 This can be a useful tool to help you focus on a single task.

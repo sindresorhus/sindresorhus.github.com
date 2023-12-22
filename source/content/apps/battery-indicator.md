@@ -6,6 +6,11 @@ platforms:
   - macOS
 appStoreId: 1206020918
 isPaid: true
+olderMacOSVersions:
+  - '10.14'
+  - '10.15'
+  - '11'
+  - '12'
 ---
 
 Battery Indicator lets you quickly glance the remaining battery time or percentage right in your menu bar.

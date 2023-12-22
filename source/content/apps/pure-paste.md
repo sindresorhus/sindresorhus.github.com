@@ -5,6 +5,8 @@ pubDate: 2022-03-02
 platforms:
   - macOS
 appStoreId: 1611378436
+olderMacOSVersions:
+  - '12'
 ---
 
 Pure Paste lets you paste as plain text by default. It sits in the menu bar and clears formatting (fonts, colors, bold, links, tables, etc.) from the text you copy. However, it does not touch unrelated content like files, images, etc. It also ignores content copied from password managers.

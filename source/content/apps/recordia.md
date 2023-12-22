@@ -5,6 +5,10 @@ pubDate: 2020-09-02
 platforms:
   - macOS
 appStoreId: 1529006487
+olderMacOSVersions:
+  - '10.15'
+  - '11'
+  - '12'
 ---
 
 Record audio directly from the menu bar or with a global keyboard shortcut.

@@ -5,6 +5,10 @@ pubDate: 2020-03-25
 platforms:
   - macOS
 appStoreId: 1502527999
+olderMacOSVersions:
+  - '10.15'
+  - '11'
+  - '12'
 ---
 
 Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found an awesome GIF, just drag and drop it into an app.
