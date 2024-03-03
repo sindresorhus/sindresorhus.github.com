@@ -124,3 +124,5 @@ Go [here](https://apps.apple.com/app/id1643199620) and click “Version History�
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
+
+#### [More FAQs…](/apps/faq)

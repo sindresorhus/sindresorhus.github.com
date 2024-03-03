@@ -40,7 +40,9 @@ No. Only `.heic` is supported at the moment because macOS support for other vari
 
 #### Why is this free without ads?
 
-I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
+I just enjoy making apps. Consider leaving a nice review on the App Store.
+
+#### [More FAQs…](/apps/faq)
 
 <br>
 

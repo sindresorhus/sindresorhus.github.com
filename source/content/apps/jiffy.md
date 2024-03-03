@@ -104,6 +104,8 @@ Some people incorrectly pronounce GIF as “Jif”. The name is a pun on that. A
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
 
+#### [More FAQs…](/apps/faq)
+
 <br>
 
 ### Older Versions

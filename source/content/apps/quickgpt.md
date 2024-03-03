@@ -49,6 +49,8 @@ I personally prefer the ChatGPT web UI as it's cheaper for me to pay monthly for
 
 Apple generally rejects website wrappers even if they add useful additional functionality. Apple has also lately been rejecting any app with GPT in the name.
 
+#### [More FAQs…](/apps/faq)
+
 <br>
 
 ### Older Versions

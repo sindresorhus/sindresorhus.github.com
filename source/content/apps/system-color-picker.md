@@ -12,4 +12,5 @@ links:
 olderMacOSVersions:
   - '11'
   - '12'
+  - '13'
 ---

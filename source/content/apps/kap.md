@@ -3,6 +3,7 @@ draft: true
 title: Kap
 subtitle: Record your screen
 pubDate: 2018-02-01
+isArchived: true
 platforms:
   - macOS
 isMenuBarApp: true

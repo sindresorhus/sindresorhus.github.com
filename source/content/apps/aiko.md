@@ -7,6 +7,8 @@ platforms:
   - iOS
   - visionOS
 appStoreId: 1672085276
+olderMacOSVersions:
+  - '13'
 ---
 
 High-quality on-device transcription. Easily convert speech to text from meetings, lectures, and more.
@@ -169,13 +171,17 @@ You can use [this shortcut](https://www.icloud.com/shortcuts/e43220d72f3343659e0
 
 ### Frequently Asked Questions {#faq}
 
+#### I have a feature request, bug report, or some feedback
+
+[Send it here.](https://sindresorhus.com/feedback?product=Aiko&referrer=Website-FAQ)
+
 #### Can you use the large v3 model for the Mac app?
 
 The v3 model is [worse](https://github.com/openai/whisper/discussions/1762#discussioncomment-7532295) than v2 in too many cases. I tried releasing v3, but got a lot of emails about the quality being worse, so I ended up reverting it.
 
-#### I have a feature request, bug report, or some feedback
+#### Can you include the large model on iOS?
 
-[Send it here.](https://sindresorhus.com/feedback?product=Aiko&referrer=Website-FAQ)
+Even the latest iPhone is not powerful enough to run the large model. It can maybe be done when the [Whisper Distilled](https://github.com/huggingface/distil-whisper) project supports multiple languages.
 
 #### Can I edit the text in the app?
 
@@ -299,11 +305,19 @@ When the transcription is done, click the save button in the toolbar, and choose
 
 #### How can I transcribe a YouTube video?
 
-Download the audio using a service like [dirpy](https://dirpy.com) and then open the file in Aiko.
+Download the audio using a service like [dirpy](https://dirpy.com) or the macOS app [Downie](https://software.charliemonroe.net/downie/) and then open the file in Aiko.
+
+This cannot be supported built-in as downloading videos from YouTube is against their Terms of Service and Apple would likely reject such a feature.
 
 #### The app supports translating to English, can it support more languages?
 
 The translation support is built into the AI model and it only supports translating to English. You could copy-paste the result into ChatGPT or Google Translate.
+
+#### How is Aiko pronounced?
+
+IPA (International Phonetic Alphabet): `[a.i.ko̞]`
+
+English approximation: `ah-ee-ko`
 
 #### Is the app native?
 
@@ -321,12 +335,20 @@ Go [here](https://apps.apple.com/app/id1672085276) and click “Version History�
 
 I don't plan to localize the app.
 
+#### [More FAQs…](/apps/faq)
+
+<br>
+
+### Older Versions
+
+- [1.5.3](https://drive.google.com/file/d/15NOcj4fyX58I3_NlQyCziL87Ru89yFRx/view?usp=sharing) for macOS 13+
+
 <br>
 
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://drive.google.com/file/d/12XOL8GeiqM4N3EFuw-ZZU_Hh-nXfYQLB/view?usp=sharing) *(1.2.0 · 3 GB)*
+[Download](https://drive.google.com/file/d/18BE9Pn8QVsVQ-FOT_Q2aMEkpLJahbhC9/view?usp=sharing) *(1.6.0 · 3 GB)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*

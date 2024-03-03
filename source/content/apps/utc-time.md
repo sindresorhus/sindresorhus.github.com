@@ -58,6 +58,8 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 Go [here](https://apps.apple.com/app/id1538245904) and click “Version History”.
 
+#### [More FAQs…](/apps/faq)
+
 <br>
 
 ### Older Versions

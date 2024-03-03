@@ -11,13 +11,21 @@ title: Frequently Asked Questions
 
 Tap the feedback button in the app or the support link on the app's page. I prioritize bug fixes and consider feature suggestions that align with the app's vision and user demand.
 
+### Do your apps collect any personal data?
+
+My apps prioritize user privacy and do not collect any personal data.
+
 ### How can I get a refund?
 
 For apps purchased on the Apple App Store, you can [request a refund](https://support.apple.com/en-us/HT204084). However, I would appreciate if you [reached out](/feedback) first. I may be able to resolve any problems you are having.
 
-### Do your apps collect any personal data?
+### How many devices can I install an app on?
 
-My apps prioritize user privacy and do not collect any personal data.
+Apps purchased on the Apple App Store can be installed on up to 10 devices, with a maximum of 5 computers. [Learn more.](https://support.apple.com/en-us/HT204074)
+
+### How can I transfer an app bought on the Apple App Store to a different account?
+
+This is unfortunately [not possible](https://apple.stackexchange.com/a/444878). App developers have no control over the purchase process on the Apple App Store.
 
 ### Are your apps native?
 
@@ -26,6 +34,14 @@ Yes, all my apps are native. They are built using Swift and SwiftUI and are desi
 ### Why are most of your apps free?
 
 I love making apps and I want them to be available to as many people as possible. I don't care much about money and I earn enough on my paid apps.
+
+### Why should I trust you?
+
+Free apps often raise doubts about privacy and intentions. Your trust matters deeply to me. Unlike others, I don't engage in data-selling or bombard you with pesky ads. Your privacy is sacred; you are not my product. I make apps because I enjoy it. I don't care about profits.
+
+With over 3 million users placing their confidence in me, I take pride in safeguarding their devices and respecting their privacy. Moreover, my reputation speaks volumes. Tens of thousands of developers also rely on [my code](https://github.com/sindresorhus).
+
+Trust is earned. Don't just take my word for it; delve into the reviews on the App Store. Your peace of mind matters, and I'm committed to upholding it every step of the way. Feel free to [contact me](/contact) if you have any questions.
 
 ### What's your policy on ads in your apps?
 
@@ -86,15 +102,17 @@ Here are some things you could try:
 
 If you have tried all of this, [contact me](/feedback).
 
-### How can I send you debug info for one of your Mac apps? {#mac-debug-info}
+### How can I send you debug info for one of your apps? {#debug-info}
 
-Make sure the app is not running (you can force-quit it from the Activity Monitor app) and then press <kbd>Shift</kbd>+<kbd>Control</kbd>+<kbd>Option</kbd> while launching the app.
+macOS: Make sure the app is not running (you can force-quit it from the Activity Monitor app) and then press <kbd>Shift</kbd>+<kbd>Control</kbd>+<kbd>Option</kbd> while launching the app.
+
+iOS: In the app, tap the “Share App” button (usually found in settings), triple tap on the QR code, and then tap “Send Debug Info to Developer”.
 
 ### How can I delete all settings and data to start over in one of your apps? {#reset-app}
 
-iOS: Open the Settings app, go to “General › iPhone/iPad Storage”, tap the app in the list, tap “Delete App”, then go to the App Store and install the app again.
-
 macOS: Make sure the app is not running (you can force-quit it from the Activity Monitor app) and then press <kbd>Shift</kbd>+<kbd>Control</kbd>+<kbd>Option</kbd>+<kbd>Command</kbd> while launching the app.
+
+iOS: Open the Settings app, go to “General › iPhone/iPad Storage”, tap the app in the list, tap “Delete App”, then go to the App Store and install the app again.
 
 ### How can I reset all permissions for your Mac app? {#mac-reset-permissions}
 
@@ -136,6 +154,26 @@ You can now launch the app again.
 - Select `Go to Folder…` from the `Go` menu
 - Enter: `~/Library/Logs/DiagnosticReports`
 - In the resulting list, select all files that starts with the app name, ZIP them, and [send me](/feedback)
+
+### How can I send you a **spindump** for one of your Mac apps? {#spindump}
+
+- Make sure the app in question is running.
+- Open the Activity Monitor app.
+- In the search bar in the toolbar, write the name of the app.
+- Select the app.
+- In the “View” menu (in the menu bar), click “Run Spindump”.
+- Click the “Save” button.
+- Send me the file.
+
+### How can I send you a **process sample** for one of your Mac apps? {#sample-process}
+
+- Make sure the app in question is running.
+- Open the Activity Monitor app.
+- In the search bar in the toolbar, write the name of the app.
+- Select the app.
+- In the “View” menu (in the menu bar), click “Sample Process”.
+- Click the “Save” button.
+- Send me the file.
 
 ### Can you support non-Apple platforms?
 

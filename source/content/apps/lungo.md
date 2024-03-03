@@ -119,6 +119,8 @@ I don't plan to localize the app.
 
 Amphetamine has lots of features. Most of which I would never use. It ships with a myriad of menu bar icons to choose from, but none that looks good. With Lungo, I wanted a focused and simple app with great defaults.
 
+#### [More FAQs…](/apps/faq)
+
 ### Scripting
 
 You can control Lungo using anything that supports opening a URL with a custom scheme.

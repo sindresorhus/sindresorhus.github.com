@@ -1,0 +1,22 @@
+---
+import {SITE} from '~/config.mjs';
+import Layout from '~/layouts/SimplePageLayout.astro';
+import {fetchApps} from '~/utils/apps.js';
+
+const apps = await fetchApps({includeArchived: true});
+const archivedApps = apps.filter(app => app.isArchived);
+
+const meta = {
+	title: `Archived Apps — ${SITE.name}`,
+};
+---
+
+<Layout {meta}>
+	<h1>Archived Apps</h1>
+	<p>Apps that are no longer being worked on.</p>
+	<ul>
+		{archivedApps.map(app => (
+			<li key={app.title}><a href={app.url}>{app.title}</a> — {app.subtitle}</li>
+		))}
+	</ul>
+</Layout>

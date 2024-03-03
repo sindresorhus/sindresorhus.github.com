@@ -6,6 +6,7 @@
 - [Apple Watch Apps](/apps/watchos) - Apps that run on Apple Watch
 - [Menu Bar Apps](/apps/menu-bar) - Apps that live in the menu bar
 - [Open Source Apps](https://github.com/search?q=user%3Asindresorhus+language%3Aswift+topic%3Aapp+archived%3Afalse&type=repositories) - Apps with the source code available
+- [Archived Apps](/apps/archived) - Apps that are no longer being worked on
 
 ## More
 

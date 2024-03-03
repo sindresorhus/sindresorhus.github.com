@@ -151,6 +151,10 @@ The solution is to either:
 1. Skip clearing formatting for just this copy (see instructions in the app settings).
 1. Exclude the app in the Pure Paste settings.
 
+#### The exclude setting does not work
+
+Copy something from the app you have excluded, press the <kbd>Option</kbd> key while clicking the Pure Paste menu bar item, and then make sure the app shown in the menu is the same as the one you excluded.
+
 #### Does it respect [nspasteboard.org](http://nspasteboard.org) conventions?
 
 Yes, it ignores concealed (passwords), transient, and auto-generated content.
@@ -172,6 +176,8 @@ Go [here](https://apps.apple.com/app/id1611378436) and click “Version History�
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
+
+#### [More FAQs…](/apps/faq)
 
 <br>
 

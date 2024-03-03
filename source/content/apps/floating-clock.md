@@ -47,3 +47,5 @@ Go [here](https://apps.apple.com/app/id6477862240) and click “Version History�
 #### Can you localize the app into my language?
 
 I don't plan to localize the app, but the time and date respects your locale.
+
+#### [More FAQs…](/apps/faq)

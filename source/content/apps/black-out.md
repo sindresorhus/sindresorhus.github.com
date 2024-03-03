@@ -39,6 +39,8 @@ You can open a PDF document, but you have to export it as a PNG image. It’s al
 
 It’s from Apple’s inspirational [“Here’s to the Crazy Ones” TV commercial](https://www.youtube.com/watch?v=-z4NS2zdrZc).
 
+#### [More FAQs…](/apps/faq)
+
 <br>
 
 ### Older Versions
