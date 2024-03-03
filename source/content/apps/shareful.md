@@ -49,6 +49,8 @@ Go [here](https://apps.apple.com/app/id1522267256) and click “Version History�
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
 
+#### [More FAQs…](/apps/faq)
+
 <br>
 
 ### Older Versions

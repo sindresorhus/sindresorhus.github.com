@@ -42,6 +42,7 @@ I don't plan to add that. I plan to make a separate app specifically for showing
 - Takes photos without the countdown.
 - Photos are saved to the file system, not hidden inside the app.
 - The window can be made to always stay on top of other windows.
+- Capture and copy photo in a single action.
 - Made by an indie developer that listens to users.
 
 #### How is this better than QuickTime? {#quicktime}
@@ -52,6 +53,7 @@ I don't plan to add that. I plan to make a separate app specifically for showing
 - Remembers window size and postion.
 - Takes photos.
 - The window can be made to always stay on top of other windows.
+- Capture and copy photo in a single action.
 
 #### How is this better than Hand Mirror? {#hand-mirror}
 
@@ -84,6 +86,8 @@ Go [here](https://apps.apple.com/app/id1632827132) and click “Version History�
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
+
+#### [More FAQs…](/apps/faq)
 
 <br>
 

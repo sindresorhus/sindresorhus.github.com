@@ -60,3 +60,5 @@ I just enjoy making apps. I earn money on other apps. Consider leaving a nice re
 #### Where can I find the changelog?
 
 Go [here](https://apps.apple.com/app/id1645566403) and click “Version History”.
+
+#### [More FAQs…](/apps/faq)

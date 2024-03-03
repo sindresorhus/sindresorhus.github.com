@@ -205,6 +205,8 @@ I don't plan to localize the app.
 
 Go [here](https://apps.apple.com/app/id6444667067) and click “Version History”.
 
+#### [More FAQs…](/apps/faq)
+
 <br>
 
 ### Older Versions

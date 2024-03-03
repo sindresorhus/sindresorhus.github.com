@@ -4,6 +4,7 @@ const appsCollection = defineCollection({
 	schema: z.object({
 		draft: z.boolean().default(false),
 		unlisted: z.boolean().default(false),
+		isArchived: z.boolean().default(false),
 		title: z.string().nonempty(),
 		subtitle: z.string().nonempty(),
 		pubDate: z.date(),

@@ -54,3 +54,4 @@ You can also support me by buying my apps.\
 - [Battery Indicator](/battery-indicator)
 - [Black Out](/black-out)
 - [Ask AI](/ask-ai)
+- [One Task](/one-task)

@@ -65,6 +65,8 @@ Go [here](https://apps.apple.com/app/id6465250302) and click “Version History�
 
 I don't plan to localize the app.
 
+#### [More FAQs…](/apps/faq)
+
 <br>
 
 <!-- ### Non-App Store Version

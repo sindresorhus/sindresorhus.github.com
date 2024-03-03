@@ -41,6 +41,10 @@ This is not supported.
 
 Apple does not let third-party apps use the shape detection functionality, so this is not possible.
 
+#### Why can I only use a single hand when drawing on the visionOS version?
+
+This is a visionOS bug.
+
 #### Can you support macOS?
 
 Unfortunately not possible as the framework used for drawing is too limited on macOS.
@@ -56,3 +60,5 @@ Go [here](https://apps.apple.com/app/id6476447055) and click “Version History�
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
+
+#### [More FAQs…](/apps/faq)

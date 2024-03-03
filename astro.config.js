@@ -3,7 +3,8 @@ import {fileURLToPath} from 'node:url';
 import {defineConfig} from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
-import {remarkHeadingId} from 'remark-custom-heading-id';
+import remarkCustomHeaderId from 'remark-custom-header-id';
+/// import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import {SITE} from './source/config.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -29,8 +30,13 @@ export default defineConfig({
 	],
 	markdown: {
 		remarkPlugins: [
-			remarkHeadingId,
+			remarkCustomHeaderId,
 		],
+		// TODO
+		// rehypePlugins: [
+		// 	rehypeHeadingIds,
+		// 	[rehypeAutolinkHeadings, {behavior: 'wrap'}],
+		// ]
 	},
 	vite: {
 		resolve: {

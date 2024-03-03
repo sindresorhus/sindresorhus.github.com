@@ -180,6 +180,8 @@ Go [here](https://apps.apple.com/app/id1615988943) and click “Version History�
 
 I don't plan to localize the app.
 
+#### [More FAQs…](/apps/faq)
+
 <br>
 
 ### Older Versions

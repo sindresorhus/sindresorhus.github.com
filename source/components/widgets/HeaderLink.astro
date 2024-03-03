@@ -1,5 +1,5 @@
 ---
-const {href, class: className, ...props} = Astro.props;
+const {href, class: className, ...properties} = Astro.props;
 const {pathname} = Astro.url;
 
 const currentPath = pathname.slice(1).replace(/\.\w+$/, ''); // Remove the first `/` and file extension.
@@ -10,7 +10,7 @@ const linkClass = `${isActive ? activeClass : ''} font-medium hover:text-gray-90
 ---
 
 <li>
-	<a href={href} class:list={[className, ...linkClass.split(' ')]} {...props}>
+	<a href={href} class:list={[className, ...linkClass.split(' ')]} {...properties}>
 		<slot/>
 	</a>
 </li>

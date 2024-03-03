@@ -34,13 +34,17 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 #### The app does not work {#not-working}
 
-First, make sure you pressed <kbd>Command+X</kbd> and not <kbd>Command+C</kbd>.
+First try relaunching the app.
+
+Then, make sure you pressed <kbd>Command+X</kbd> and not <kbd>Command+C</kbd>.
 
 To make sure you used the app correctly. Try this: Select a file in Finder, press <kbd>Command+X</kbd>, change to a different folder, press <kbd>Command+V</kbd>. The file should have been moved to this new folder.
 
-Then try enabling/disabling the setting “Use more reliable way of handling Command+X”.
+**Note:** You cannot cut, highlight a folder, and then paste. You have to actually go into the folder to paste to it. That's just how Finder works. Same with copy-pasting.
 
-Also try closing any anti-virus app you have running as it may interfere with the app (or at least disable any Secure Keyboard Entry type setting it may have). And if you don't have any anti-virus app, try closing down all apps and menu bar items, just to rule out some other app interfering.
+Then try toggling the setting “Use more reliable way of handling Command+X”, and try the above steps again. If it works then, please report it to me.
+
+Also try closing any anti-virus app you have running as it may interfere with the app (or at least disable any Secure Keyboard Entry type setting it may have). And if you don't have any anti-virus app, try closing down all apps and menu bar items, just to rule out some other app interfering. If it's a work computer, your company may have something installed that prevents the app from working.
 
 The last thing you could try is to reset the permissions. Quit the app and run this in the Terminal app:
 
@@ -81,6 +85,8 @@ Go [here](https://apps.apple.com/app/id6448461551) and click “Version History�
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
+
+#### [More FAQs…](/apps/faq)
 
 <br>
 

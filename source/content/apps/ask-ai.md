@@ -45,3 +45,5 @@ Unfortunately, it is unlikely that the app will be available on iOS and macOS. T
 #### Where can I find the changelog?
 
 Go [here](https://apps.apple.com/app/id6446167837) and click “Version History”.
+
+#### [More FAQs…](/apps/faq)

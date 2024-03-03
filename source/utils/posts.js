@@ -31,7 +31,7 @@ const load = async function () {
 let cachedPosts;
 
 export const fetchPosts = async () => {
-	cachedPosts = cachedPosts ?? load();
+	cachedPosts ??= load();
 	return cachedPosts;
 };
 

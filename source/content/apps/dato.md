@@ -28,6 +28,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 - Calendar, optionally with week numbers and event indicators.
 - Your upcoming events for the next week (customizable) at a glance.
+- Fullscreen notifications.
 - Reminders support.
 - Time zones in the Dato menu, optionally with custom names.
 - Show the upcoming event in the menu bar (like Fantastical, Meeter, and MeetingBar)
@@ -55,7 +56,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 ### Trial
 
-There's a fully functional trial available [here](https://www.dropbox.com/scl/fi/l77in0b9slwx4kpeayr84/Dato-5.2.4-trial-1707855126.zip?rlkey=uav4e8bm3e8t1b0mktk5keq2x&raw=1). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive automatic updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://www.dropbox.com/scl/fi/kgycr6w33wf67n2c82u2r/Dato-5.2.9-trial-1711559727.zip?rlkey=er3i1ix1tok9cbzo9rzip413f&raw=1). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive automatic updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
@@ -288,6 +289,10 @@ https://some-video-call-service.com/join/23423
 Check out my free [Velja app](/velja). I made it exactly for this purpose. It has built-in support for this without any setup. It can also open links to Zoom and Microsoft Teams directly in their desktop app.
 
 You can even make it open a specific browser or profile only for links clicked in Dato. Create a custom rule in Velja and set the source app as Dato.
+
+#### How can I go back to the current day in the calendar?
+
+Click the month and year on the top left. You can also press the <kbd>Space</kbd> key.
 
 #### How can I add multiple time zones to the menu bar? {#time-zones-menu-bar}
 
@@ -558,7 +563,7 @@ Dato is not just a calendar app, but also includes menu bar clock replacement, t
 
 It means “date” in Norwegian. I just wanted a short, unique, and relevant name.
 
-#### [More FAQs…](https://sindresorhus.com/apps/faq)
+#### [More FAQs…](/apps/faq)
 
 <br>
 
@@ -601,3 +606,44 @@ Previously, when you clicked the event in the menu bar, you could hide it from t
 - [1.4.9](https://github.com/sindresorhus/meta/files/5360452/Dato.1.14.9.-.Special.last.Mojave.compatible.release.zip) for macOS 10.14
 
 These are free for everyone but they will not run on newer macOS versions.
+
+<script type="application/ld+json" is:inline>
+{
+	"@context": "https://schema.org",
+	"@type": "SoftwareApplication",
+	"applicationCategory": "BusinessApplication",
+	"name": "Dato",
+	"operatingSystem": "macOS 14",
+	"aggregateRating": {
+		"@type": "AggregateRating",
+		"ratingValue": "4.9",
+		"ratingCount": "669"
+	},
+	"offers": {
+		"@type": "Offer",
+		"price": "10.00",
+		"priceCurrency": "USD"
+	},
+	"datePublished": "2019-07-13",
+	"headline": "Dato — Calendar events and world clocks in your menu bar",
+	"alternativeHeadline": "Calendar events and world clocks in your menu bar",
+	"downloadUrl": "https://apps.apple.com/app/id1470584107",
+	"softwareVersion": "5.2.9",
+	"screenshot": "https://sindresorhus.com/_astro/screenshot1.IX_7bQOQ.jpg",
+	"fileSize": "14MB",
+	"description": "Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.",
+	"keywords": "calendar,menu,bar,date,time,zone,world,clock,zoom,meet",
+	"thumbnailUrl": "https://sindresorhus.com/apps/dato/icon.png",
+	"author": {
+		"@type": "Person",
+		"givenName": "Sindre",
+		"familyName": "Sorhus",
+		"jobTitle": "Open-Sourcerer",
+		"knowsAbout": "Unicorns",
+		"nationality": "Norway",
+		"image": "https://sindresorhus.com/assets/sindre-sorhus.jpg",
+		"url": "https://sindresorhus.com",
+		"sameAs": "https://github.com/sindresorhus"
+	}
+}
+</script>

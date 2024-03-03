@@ -31,7 +31,7 @@ const normalizeApps = async app => {
 	const links = {
 		...Object.fromEntries(headerLinks),
 		...data.links,
-		...(data.showSupportLink && {Support: `/feedback?product=${encodeURIComponent(data.title)}`}),
+		...(data.showSupportLink && !data.isArchived && {Support: `/feedback?product=${encodeURIComponent(data.title)}`}),
 	};
 
 	let screenshots = await import.meta.glob('~/../public/apps/*/screenshot*.{png,jpg}', {eager: false});
@@ -69,7 +69,7 @@ const normalizeApps = async app => {
 	};
 };
 
-const load = async () => {
+const load = async ({includeArchived = false} = {}) => {
 	const apps = await getCollection('apps', app => !app.data.draft);
 
 	const normalizedApps = await Promise.all(
@@ -77,13 +77,18 @@ const load = async () => {
 	);
 
 	return normalizedApps
-		.sort((a, b) => b.pubDate - a.pubDate);
+		.sort((a, b) => b.pubDate - a.pubDate)
+		.filter(app => includeArchived || !app.isArchived);
 };
 
 let cachedApps;
 
-export const fetchApps = async () => {
-	cachedApps = cachedApps ?? load();
+export const fetchApps = async options => {
+	if (options) {
+		return load(options);
+	}
+
+	cachedApps ??= load();
 	return cachedApps;
 };
 

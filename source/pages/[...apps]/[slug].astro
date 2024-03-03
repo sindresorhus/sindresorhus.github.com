@@ -5,7 +5,7 @@ import Layout from '~/layouts/PageLayout.astro';
 import {fetchApps, proseCSS} from '~/utils/apps.js';
 
 export async function getStaticPaths() {
-	const apps = await fetchApps();
+	const apps = await fetchApps({includeArchived: true});
 
 	return apps.map(app => ({
 		params: {
@@ -29,6 +29,9 @@ const meta = {
 };
 
 const {title: appTitle, appStoreUrl} = app;
+
+// Copied from `apps.astro`.
+const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1.5 text-black/70 dark:text-black rounded-lg';
 ---
 
 <Layout {meta}>
@@ -42,10 +45,13 @@ const {title: appTitle, appStoreUrl} = app;
 				<h2 class="text-2xl md:text-3xl tracking-tight mb-8">
 					{app.subtitle}
 				</h2>
+				{app.isArchived &&
+					<span class={`${tagClass} bg-orange-100 dark:bg-orange-200 text-[16px] mb-10`}>archived</span>
+				}
 				{(app.appStoreId || app.setappId || Object.keys(app.mainLinks).length > 0) &&
 					<nav class="flex flex-col sm:flex-row gap-x-4 gap-y-8 mt-2 instapaper_ignore">
 						<>
-							{app.appStoreId &&
+							{!app.isArchived && app.appStoreId &&
 								<div class="relative">
 									<button id="share-button" class="hidden absolute inset-0 left-[-26px] opacity-90" style="width:16px">
 										<Icon name="tabler:share-2" class="w-4"/>
@@ -57,7 +63,7 @@ const {title: appTitle, appStoreUrl} = app;
 							}
 						</>
 						<>
-							{app.setappId &&
+							{!app.isArchived && app.setappId &&
 								<a href={app.setappUrl}>
 									<img src="/assets/download-on-setapp-badge.svg" alt="Download on Setapp" style="margin: 0; padding: 0; display: block; height: 60px; user-select: none">
 								</a>

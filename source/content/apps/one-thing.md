@@ -129,6 +129,8 @@ Go [here](https://apps.apple.com/app/id1604176982) and click “Version History�
 
 I don't plan to localize the app.
 
+#### [More FAQs…](/apps/faq)
+
 <br>
 
 ### Scripting
@@ -175,7 +177,7 @@ defaults read com.sindresorhus.One-Thing text
 
 ### Older Versions
 
-- [1.11.3](https://github.com/sindresorhus/meta/files/14201346/One.Thing.1.11.3.-.macOS.13.zip) for macOS 13+
+- [1.11.3](https://github.com/sindresorhus/meta/files/14759175/One.Thing.1.11.3.-.macOS.13.zip) for macOS 13+
 - [1.9.0](https://github.com/sindresorhus/meta/files/11081660/One.Thing.1.9.0.-.macOS.12.zip) for macOS 12+
 
 <br>

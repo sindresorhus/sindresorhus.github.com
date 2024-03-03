@@ -86,6 +86,8 @@ I do not plan to localize the app.
 
 Go [here](https://apps.apple.com/app/id6450280202) and click “Version History”.
 
+#### [More FAQs…](/apps/faq)
+
 <br>
 
 ### Older Versions

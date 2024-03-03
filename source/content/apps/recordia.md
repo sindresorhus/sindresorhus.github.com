@@ -75,6 +75,8 @@ Yes, follow the guide [here](https://www.switchingtomac.com/tutorials/how-to-use
 
 Go [here](https://apps.apple.com/app/id1529006487) and click “Version History”.
 
+#### [More FAQs…](/apps/faq)
+
 <br>
 
 ### Older Versions

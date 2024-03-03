@@ -71,25 +71,36 @@ None -->
 <a href="https://standardresume.co/tech" class="sponsor" rel="nofollow">
 	<img src="/assets/thanks/standard-resume-logo.svg" width="300" alt="Standard Resume">
 </a>
+<br>
 <a href="https://retool.com/?utm_campaign=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-44px">
 	<img src="/assets/thanks/retool-logo.svg" width="410" alt="Retool">
 </a>
+<br>
 <a href="https://github.com" class="sponsor" rel="nofollow" style="position:relative;left:-3px">
 	<img src="/assets/thanks/github-logo.svg" width="310" alt="GitHub">
 </a>
+<br>
 <a href="https://workos.com" class="sponsor" rel="nofollow" style="position:relative;left:-30px">
 	<img src="/assets/thanks/workos-logo-white-bg.svg" width="380" alt="WorkOS">
 </a>
+<br>
 <a href="https://strapi.io/?ref=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
 	<img src="/assets/thanks/strapi-logo.svg" width="380" alt="Strapi">
 </a>
+<br>
 <a href="https://serpapi.com" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
 	<img src="/assets/thanks/serpapi-logo-light.svg" width="210" alt="SerpApi">
 </a>
 <br>
 <a href="https://transloadit.com?utm_source=sindresorhus&utm_medium=referral&utm_campaign=sponsorship&utm_content=website" class="sponsor" rel="nofollow" style="position:relative;left:-40px;margin-top:20px">
-	<img src="/assets/thanks/transloadit-logo.svg" width="480" alt="Transloadit">
+	<img src="/assets/thanks/transloadit-logo.svg" width="500" alt="Transloadit">
 </a>
+<br>
+<a href="https://logto.io/ref=sindre" class="sponsor" rel="nofollow">
+	<img src="/assets/thanks/logto-logo-light.svg" width="320" alt="Logto">
+</a>
+<br>
+<br>
 
 ## Silver sponsor <span class="reward-price not-prose">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
@@ -103,19 +114,20 @@ None -->
 	<a href="https://github.com/jaredwray" class="sponsor" rel="nofollow" style="font-size: 36px">
 		<span class="dark:text-black">Jared Wray</span>
 	</a>
-	<a href="https://forwardemail.net" class="sponsor" rel="nofollow" style="position:relative;left:-5px;top:-20px">
-		<img src="/assets/thanks/forward-email-logo.png" width="300" alt="Forward Email">
+	<a href="https://coderabbit.ai" class="sponsor" rel="nofollow" style="position:relative;left:-5px;top:-20px">
+		<img src="/assets/thanks/coderabbit-logo.png" width="280" alt="CodeRabbit">
 	</a>
-	<a href="https://dutchis.net/?ref=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-5px;top:-20px">
-		<img src="/assets/thanks/dutchis-logo-light.png" width="220" alt="DutchIS">
+	<a href="https://github.com/shnhrrsn" class="sponsor" rel="nofollow" style="font-size: 36px;position:relative;top:-10px">
+		<span class="dark:text-black">Shaun Harrison</span>
+	</a>
+	<a href="https://www.fame.fi" class="sponsor" rel="nofollow">
+		<img src="/assets/thanks/fame-logo-light.svg" width="200" alt="Fame Helsinki">
 	</a>
 </div>
 
 ## Top supporter <span class="reward-price not-prose">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
 
 - [Jacob Gillespie](https://github.com/jacobwgillespie)
-- [Ryan Chartrand](https://github.com/ryanchartrand)
-- [Verti Studio](https://github.com/Codeinwp)
 - [Passbolt](https://github.com/passbolt)
 - [Sideline Sports](https://github.com/SidelineSports)
 - [Checkly](https://github.com/checkly)
@@ -171,7 +183,6 @@ None -->
 - [Riley Tomasek](https://github.com/RileyTomasek)
 - [Paul Warelis](https://github.com/pwarelis)
 - [Connor Bär](https://github.com/connor-baer)
-- [Blai Pratdesaba](https://github.com/blaiprat)
 - [Sean](https://github.com/hammy2899)
 - [Bertrand Marron](https://github.com/tusbar)
 - [Eric Lanehart](https://github.com/pushred)
@@ -215,14 +226,12 @@ None -->
 - [Kudo Chien](https://github.com/Kudo)
 - [@neostfox](https://github.com/neostfox)
 - [@TNTSUCCES](https://github.com/TNTSUCCES)
-- [Jarrod Davis](https://github.com/jarrodldavis)
 - [@macandcheese-spaghetticode](https://github.com/macandcheese-spaghetticode)
 - [Faraz Patankar](https://github.com/FarazPatankar)
 - [Ilias Aboubeker](https://github.com/samyilias)
 - [DefineValue](https://github.com/definevalue)
 - [@cburatto](https://github.com/cburatto)
 - [Zenika](https://github.com/Zenika)
-- [Ryan Atkinson](https://github.com/ryanatkn)
 - [DevUtilsApp](https://github.com/DevUtilsApp)
 - [Mom's Friendly Development Company](https://github.com/MomsFriendlyDevCo)
 - [Mention Me Ltd](https://github.com/mention-me)
@@ -237,9 +246,12 @@ None -->
 - [Olga Stogova](https://github.com/helgastogova)
 - [Community Boss](https://github.com/parkingboss)
 - [Marc Rousavy](https://github.com/mrousavy)
+- [Seungwoo Choe](https://github.com/seungwoochoe)
+- [Preston Nalls](https://github.com/pjnalls)
+- [Tighten](https://github.com/tighten)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
-<small style="margin-bottom:20px;display:inline-block;font-size:11px;opacity:0.7">Add your Twitter account to your Patreon profile to have your name linked<br>(It will be updated on the first day of every month)</small>
+<small style="margin-bottom:20px;display:inline-block;font-size:11px;opacity:0.7">(It will be updated on the first day of every month)</small>
 
 ## Become a supporter
 
@@ -405,6 +417,11 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Ryan Sonshine](https://github.com/ryansonshine)
 - [Ivan Miskovic](https://github.com/ivantm)
 - [Roland Warmerdam](https://github.com/Rowno)
+- [Verti Studio](https://github.com/Codeinwp)
+- [Jarrod Davis](https://github.com/jarrodldavis)
+- [Ryan Atkinson](https://github.com/ryanatkn)
+- [Blai Pratdesaba](https://github.com/blaiprat)
+- [Ryan Chartrand](https://github.com/ryanchartrand)
 
 ---
 

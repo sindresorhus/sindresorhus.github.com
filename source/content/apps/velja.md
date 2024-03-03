@@ -8,6 +8,7 @@ isMenuBarApp: true
 appStoreId: 1607635845
 olderMacOSVersions:
   - '12'
+  - '13'
 ---
 
 Open links in a specific browser or a matching native app. Easily switch between browsers.
@@ -71,7 +72,7 @@ For Safari, [click here](https://github.com/sindresorhus/Safari-Private).
 
 This is especially useful in combination with custom rules. For example, you could make a rule to open links to certain websites in a private window.
 
-*Support for other browsers is planned. Firefox support is not possible until Firefox supports [Web Extensions Manifest v3](https://blog.mozilla.org/addons/2022/05/18/manifest-v3-in-firefox-recap-next-steps/).*
+*Support for other browsers is planned.*
 
 #### Open multiple URLs
 
@@ -93,7 +94,7 @@ Let's say you have generated a website wrapper app for facebook.com using an app
 
 - Safari — Built-in. Just enable it in the Safari settings.
 - [Chrome](https://chrome.google.com/webstore/detail/velja/gpipdgcamiclkcomcnogmlfpalggmcmk) — Also works in Edge, Brave, and other Chromium-based browsers.
-- *Firefox support is planned, but will take a while.*
+- [Firefox](https://addons.mozilla.org/en-GB/firefox/addon/velja/)
 
 #### Open the current website in a different browser
 
@@ -164,7 +165,7 @@ First, make sure that the problem is Velja. Go to “System Settings › Desktop
 
 **I clicked a link in a browser**
 
-Velja is not able to handle links clicked inside a browser. However, Velja comes with a Safari extension which you can enable in the Safari settings. You can then click the toolbar icon to open the current page with Velja or right-click a link to open it with Velja. There is also a [Chrome extension](https://chrome.google.com/webstore/detail/velja/gpipdgcamiclkcomcnogmlfpalggmcmk) which also works in Edge, Brave, and other Chromium-based browsers. (Firefox support is planned, but will take a while)
+Velja is not able to handle links clicked inside a browser. However, Velja comes with a Safari extension which you can enable in the Safari settings. You can then click the toolbar icon to open the current page with Velja or right-click a link to open it with Velja. There are also [extensions for other browsers](#browser-extensions).
 
 If you use a browser where Velja does not have a browser extension, you could also right-click the link and use the share extension \* or copy the link and then click “Open URL from Clipboard” in the Velja menu.
 
@@ -217,6 +218,10 @@ First, make sure the setting to remove tracking parameters is enabled.
 If the clicked/copied link is a short URL, Velja is only able to remove the tracking parameters if the “Expand short URLs” setting is enabled and it's a known short URL service or you added the short URL service in the “Advanced” settings pane.
 
 The app contains a list of tracking parameters to remove, but there may be site-specific tracking parameters it doesn't know about. If you encounter any tracking parameters not being removed, [let me know](https://sindresorhus.com/feedback?product=Velja&referrer=Website-FAQ) and I'll add support for them.
+
+### Can you add support for this browser? {#add-browser}
+
+Velja automatically retrieves all browsers on your computer. There is no manual list of browsers. If some browser is not showing up, make sure it's in the `/Applications` folder and not in the `~/Applications` folder.
 
 #### Can you add another app to the “Apps” settings? {#builtin-apps-requests}
 
@@ -277,7 +282,7 @@ However, I do plan to make it possible to achieve it using custom rules. The mis
 
 #### Can you support Firefox profiles? {#firefox-profiles}
 
-I don't plan to support this. There is currently very little demand for it and it's complicated to implement. I will consider it if there is more demand for it.
+I don't plan to support this. There is simply not enough demand for it. In addition, Firefox profiles also have some bugs that would increase my support burden. However, there is a way to [make it work with Velja](https://superuser.com/questions/75271/starting-firefox-with-a-specified-profile-from-the-dock-mac-os-x) (Ensure they have different bundle identifiers; `CFBundleIdentifier` in Info.plist).
 
 I would recommend trying out containers instead (see above). *(Containers are not currently supported, but will be)*
 
@@ -292,6 +297,8 @@ open --background 'https://sindresorhus.com'
 #### The link takes a long time to open
 
 This is most likely not caused by Velja. Some users reported it was a problem with Microsoft Office and happened without Velja too.
+
+Also try to disable the “Expand redirect and short URLs” setting.
 
 To confirm Velja is not the problem: Go to “System Settings › Desktop & Dock” and change the “Default web browser” setting to Safari. Then try clicking the link again. If the problem persists, it's not caused by Velja.
 
@@ -327,7 +334,7 @@ I don't plan to add this. I recommend giving the horizontal prompt a try. A lot 
 
 #### How can I see what URL Velja received? {#debug}
 
-In the advanced settings, enable the “Show last opened link” setting, and then click the link. The URL will show up there.
+In the advanced settings, enable the link history setting, and then click the link. The URL will show up there.
 
 To see more detailed debug info on how Velja handled the URL: Quit Velja if it's open. Press <kbd>Shift</kbd> + <kbd>Control</kbd> while launching Velja, click the menu bar icon, click “Debug”, and then go to “Logs”.
 
@@ -409,6 +416,10 @@ Firefox and Firefox Beta use the same [identifier](https://cocoacasts.com/what-a
 #### How do I disable Velja?
 
 [Change the system default browser back to Safari.](https://support.apple.com/en-us/HT201607)
+
+#### Can you add another menu bar icon option?
+
+Sure! Find an icon you like in the [SF Symbols app](https://developer.apple.com/sf-symbols/) or [here](https://thenounproject.com/icons/), and send me the name or link to it.
 
 #### Why do I sometimes see a cog icon in the menu bar when opening a link? {#url-support-infoplist}
 
@@ -564,6 +575,8 @@ Go [here](https://apps.apple.com/app/id1607635845) and click “Version History�
 
 I don't plan to localize the app.
 
+#### [More FAQs…](/apps/faq)
+
 <br>
 
 ### Scripting {#scripting}
@@ -583,6 +596,8 @@ open --background 'velja:open?url=https%3A%2F%2Fsindresorhus.com&prompt'
 Leave out `&prompt` to not show the browser prompt.
 
 *Don't forget to [URL encode](https://www.urlencoder.org) the value for the `url=` search parameter. For example, using [this](https://gist.github.com/cdown/1163649) Bash function.*
+
+Tip: You can specify the `url` search parameter multiple times to open multiple URLs.
 
 #### Change default browser in Velja from the command-line
 
@@ -608,6 +623,7 @@ Use the special bundle identifier `com.sindresorhus.Velja.promptMarker` to set t
 
 ### Older Versions
 
+- [1.16.4](https://github.com/sindresorhus/meta/files/14577839/Velja.1.16.4.-.macOS.13.zip) for macOS 13+
 - [1.12.4](https://github.com/sindresorhus/meta/files/10895250/Velja.1.12.4.-.macOS.12.zip) for macOS 12+
 
 <br>
@@ -616,6 +632,6 @@ Use the special bundle identifier `com.sindresorhus.Velja.promptMarker` to set t
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/1sf7n8lod0pmegxxvsios/Velja-1.13.0-1678086159-1701610839.zip?rlkey=y1cbs7utnpp5f38x2i9octxps&raw=1) *(1.13.0)*
+[Download](https://www.dropbox.com/scl/fi/8r0aij7ya4dtm0a1sse1x/Velja-2.0.0-1710312275.zip?rlkey=lxg22hq2rjrlic4mi43p480az&raw=1) *(2.0.0)*
 
-*Requires macOS 13 or later*
+*Requires macOS 14 or later*
