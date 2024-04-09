@@ -1,6 +1,6 @@
 ---
 title: Dato
-subtitle: Calendar events and world clocks in your menu bar
+subtitle: Menu bar calendar and world clocks, plus fullscreen meeting notifications
 pubDate: 2019-07-13
 platforms:
   - macOS
@@ -18,8 +18,6 @@ olderMacOSVersions:
 
 Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.
 
-Dato supports all the locales and languages that macOS supports for the menu bar text, dates, times, and calendar, but the menus and settings are English-only.
-
 [MacStories review of Dato.](https://www.macstories.net/reviews/dato-review-calendar-events-and-time-zones-from-your-macs-menu-bar/)
 
 If all you need is another clock in the menu bar, check out [Second Clock](/second-clock).
@@ -28,7 +26,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 - Calendar, optionally with week numbers and event indicators.
 - Your upcoming events for the next week (customizable) at a glance.
-- Fullscreen notifications.
+- Fullscreen meeting notifications.
 - Reminders support.
 - Time zones in the Dato menu, optionally with custom names.
 - Show the upcoming event in the menu bar (like Fantastical, Meeter, and MeetingBar)
@@ -56,7 +54,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 ### Trial
 
-There's a fully functional trial available [here](https://www.dropbox.com/scl/fi/kgycr6w33wf67n2c82u2r/Dato-5.2.9-trial-1711559727.zip?rlkey=er3i1ix1tok9cbzo9rzip413f&raw=1). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive automatic updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://www.dropbox.com/scl/fi/yquzze7p7jd26hmlohza5/Dato-5.2.10-trial-1713884168.zip?rlkey=yzlc28c4iushp6e2ebb801wra&raw=1). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive automatic updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
@@ -557,7 +555,7 @@ iStat Menus lets you show different kinds of info in the menu bar, like system s
 
 #### How is it different from Itsycal?
 
-Dato is not just a calendar app, but also includes menu bar clock replacement, time zones, upcoming event in menu bar, and more. Try both (see the Dato trial) and see for yourself.
+Dato is not just a calendar app, but also includes menu bar clock replacement, time zones, upcoming event in menu bar, fullscreen notifications, and a lot more. Try both (see the [Dato trial](#trial)) and see for yourself.
 
 #### Why the name “Dato”?
 

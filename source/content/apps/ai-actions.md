@@ -29,7 +29,7 @@ Your API key is securely stored in your keychain, not in a shortcut.
 
 ### macOS version
 
-The macOS version is not yet available on the App Store because App Store review is being difficult. You can get it [here](https://www.dropbox.com/scl/fi/m169s1xwyk1o6bbnixeda/AI-Actions-1.0.4-1698250306-1701611261.zip?rlkey=0i8v79urwyude0lq3elov8s1x&raw=1) for now. (Requires macOS 13+)
+The macOS version is not yet available on the App Store because App Store review is being difficult. You can get it [here](https://www.dropbox.com/scl/fi/mhdewikkt8x2n18c7dhy8/AI-Actions-1.1.0-1713560712.zip?rlkey=el7rnf7j0p85u8dus27kr6lcy&raw=1) for now. (Requires macOS 14+)
 
 ### Frequently Asked Questions {#faq}
 
@@ -47,7 +47,7 @@ Apple prevents any app that includes AI-related functionality from being availab
 
 #### How is this better than the “Ask ChatGPT” action provided by the official ChatGPT app?
 
-This one works on macOS too, supports longer text, has customizability options for power-users, supports DALL·E 2, and will support more AI APIs in the future.
+This one works on macOS too, supports longer text, has customizability options for power-users, supports DALL·E, and will support more AI APIs in the future.
 
 #### How is this better than just calling the OpenAI API directly from Shortcuts?
 

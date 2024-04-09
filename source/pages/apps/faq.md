@@ -87,6 +87,14 @@ No, I don't plan to localize my apps. Localization adds complexity and maintenan
 
 I open source [some of my apps](https://github.com/search?q=user%3Asindresorhus+language%3Aswift+topic%3Aapp+archived%3Afalse), but not all, for a few key reasons. First, I use specialized tools (internal framework) to speed up app development, which are not suitable for sharing. Additionally, past experiences with open sourcing apps have led to clones of my apps appearing on the App Store, which is problematic. Also, community contributions, though well-intentioned, often don't match the high quality standards I set for my apps. As a compromise, I tend to open source the [reusable building blocks](https://github.com/search?q=user%3Asindresorhus+topic%3Aswift-package+archived%3Afalse), allowing community involvement while maintaining the quality and uniqueness of my apps.
 
+### How can I uninstall your app? {#uninstall-app}
+
+macOS: Ensure the app is not running. Open Finder, go to the “Go” menu, and select “Applications”. Find the app and drag it into the trash.
+
+iOS: Tap and hold the app on the Home Screen and select “Remove App”.
+
+*If you're uninstalling due to issues, please [contact me](/feedback) first; I resolve problems quickly.*
+
 ### I'm having a problem with your app {#app-problem}
 
 Here are some things you could try:

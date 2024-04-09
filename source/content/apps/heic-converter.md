@@ -38,6 +38,17 @@ No. JPEG only supports 8-bit. PNG supports 8-bit and 16-bit, but macOS doesn't h
 
 No. Only `.heic` is supported at the moment because macOS support for other variants is buggy.
 
+#### Can you support converting JPEG to HEIC?
+
+I don't have plans to support JPEG to HEIC conversion. While HEIC offers some benefits over JPEG, I believe [JPEG XL](https://en.wikipedia.org/wiki/JPEG_XL) is a more promising next-generation image format:
+
+- Lossless conversion from JPEG to JPEG XL
+- Superior compression compared to JPEG and HEIC
+- Support for HDR, wide color gamuts, and animation
+- Royalty-free, open standard
+
+I expect JPEG XL to gain more widespread support and become the preferred format in the coming years. At that point, I plan to add JPEG XL conversion capabilities here.
+
 #### Why is this free without ads?
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.

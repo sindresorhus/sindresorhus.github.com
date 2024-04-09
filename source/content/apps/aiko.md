@@ -256,8 +256,6 @@ The role of the operating system (iOS/macOS) is to effectively manage the system
 
 If your device is experiencing overheating while using the app, it's important to understand that the issue likely originates either from the operating system's inability to manage resources effectively, or from an underlying hardware problem. In either case, the app itself is not responsible for the overheating.
 
-The good news is that Aiko will soon take better advantage of the GPU, so CPU usage should be reduced significantly.
-
 #### Can I delete some of the languages to save space?
 
 This is unfortunately not possible. The model has all the languages stored together in a way that makes it impossible to remove just some languages.

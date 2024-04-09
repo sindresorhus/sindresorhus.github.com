@@ -136,6 +136,16 @@ Folder Peek opens the default app that handles folders, which is Finder by defau
 
 For other apps, follow [this guide](https://binarynights.com/manual#fileviewer), but replace `com.binarynights.ForkLift-3` with the bundle identifier of the app you want.
 
+#### How can I hide the `…` menu item?
+
+There is a hidden setting for it. Run the following command in the Terminal app:
+
+```sh
+defaults write com.sindresorhus.Folder-Peek showFolderMoreMenu -bool false
+```
+
+You can show the `…` menu item again by pressing the <kbd>Option</kbd> key.
+
 #### How is this better than having [folders in the Dock](https://support.apple.com/guide/mac-help/use-folders-in-the-dock-mchl231f08fb/mac)? {#dock-folders}
 
 - Slightly faster access, since most users have the Dock automatically hidden and the menu bar always shown.

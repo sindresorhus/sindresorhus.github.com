@@ -26,6 +26,8 @@ The calendar displays dates and days in your language, but the rest of the app i
 - **Close calendar window:** Press the <kbd>esc</kbd> key.
 - **Open date in the Calendar app:** Click a date in the calendar.
 - **Open week in the Calendar app:** Click a week number in the calendar.
+- **Create new event on a specific day:** Right-click the day the calendar.
+- **Copy the date for a day in the calendar:** Right-click the day the calendar.
 
 <br>
 

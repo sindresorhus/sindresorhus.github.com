@@ -123,6 +123,9 @@ None -->
 	<a href="https://www.fame.fi" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/fame-logo-light.svg" width="200" alt="Fame Helsinki">
 	</a>
+	<a href="https://supatool.io" class="sponsor" rel="nofollow" style="position:relative;left:-15px">
+		<img src="/assets/thanks/supatool-logo-light.png" width="260" alt="Supatool">
+	</a>
 </div>
 
 ## Top supporter <span class="reward-price not-prose">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
