@@ -252,6 +252,7 @@ None -->
 - [Seungwoo Choe](https://github.com/seungwoochoe)
 - [Preston Nalls](https://github.com/pjnalls)
 - [Tighten](https://github.com/tighten)
+- [Gregor Adams](https://github.com/pixelass)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:11px;opacity:0.7">(It will be updated on the first day of every month)</small>
@@ -279,7 +280,6 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Valia Walsk](https://twitter.com/valia_walsk)
 - Dylan Wight
 - Jody Heavener
-- Pixelass
 - Martin Hansen
 - Mark Poko
 - [Gaurav Sehrawat](https://twitter.com/root3d)
@@ -390,7 +390,6 @@ I'm forever thankful to these people and companies that have previously supporte
 - [StackAid](https://www.stackaid.us)
 - [Stream](https://getstream.io/chat/sdk/ios/)
 - [Dashcam](https://dashcam.io)
-- [Gregor Adams](https://github.com/pixelass)
 - [Threema GmbH](https://github.com/threema-ch)
 - [Yuan Qing Lim](https://github.com/yuanqing)
 - [Benjamin S.](https://github.com/benjaminsuch)
