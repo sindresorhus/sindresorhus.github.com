@@ -1,6 +1,6 @@
 ---
 title: Hyperduck
-subtitle: Send links from your iOS/visionOS devices to your Mac
+subtitle: Send links from your iOS & visionOS devices to your Mac
 pubDate: 2023-01-27
 platforms:
   - macOS

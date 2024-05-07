@@ -46,12 +46,4 @@ If you or your company are using any of my projects, consider supporting me so I
 
 ### Buy my apps
 
-You can also support me by buying my apps.\
-*A nice review on the App Store is also a good way to support my work.*
-
-- [Dato](/dato)
-- [Lungo](/lungo)
-- [Battery Indicator](/battery-indicator)
-- [Black Out](/black-out)
-- [Ask AI](/ask-ai)
-- [One Task](/one-task)
+You can also support me by [buying my apps](/apps/paid). A nice review on the App Store is also a good way to support my work.

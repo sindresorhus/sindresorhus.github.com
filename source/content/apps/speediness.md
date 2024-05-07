@@ -78,6 +78,10 @@ Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet
 
 This is unfortunately not possible at this time as the app relies on the built-in [`networkQuality` command-line tool](https://support.apple.com/en-gb/HT212313), which does not exist on iOS. Someone would have to implement the [“Responsiveness under Working Conditions” RFC](https://github.com/network-quality/draft-ietf-ippm-responsiveness/blob/master/draft-ietf-ippm-responsiveness.txt) in Swift. [Reference implementation in Go.](https://github.com/network-quality/goresponsiveness) Let me know if you end up making a Swift package for this.
 
+#### Can you make a command-line tool for this app?
+
+This app uses the built-in [`networkQuality` command-line tool](https://support.apple.com/en-gb/HT212313) under the hood. You can use it too.
+
 #### Is the app native?
 
 Yes, it's native and written in Swift and SwiftUI.

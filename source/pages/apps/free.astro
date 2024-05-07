@@ -1,0 +1,43 @@
+---
+import {SITE} from '~/config.mjs';
+import Layout from '~/layouts/SimplePageLayout.astro';
+import {fetchApps} from '~/utils/apps.js';
+
+const platformOrder = [
+	'macOS',
+	'iOS',
+	'watchOS',
+	'tvOS',
+	'visionOS',
+	'Linux',
+	'Windows',
+];
+
+const apps = await fetchApps();
+const freeApps = apps.filter(app => !app.isPaid && app.title !== 'Caprine');
+
+const platforms = [...new Set(freeApps.flatMap(app => app.platforms))]
+	.filter(Boolean)
+	.sort((a, b) => platformOrder.indexOf(a) - platformOrder.indexOf(b));
+
+const meta = {
+	title: `Free Apps — ${SITE.name}`,
+};
+---
+
+<Layout {meta}>
+	<h1>Free Apps</h1>
+	<p>The apps of mine that are completely free (without ads!).</p>
+	{platforms.map(platform => (
+		<section key={platform}>
+			<h2 id={platform.toLowerCase()}>{platform}</h2>
+			<ul>
+				{freeApps.filter(app => app.platforms?.includes(platform)).map(app => (
+					<li key={app.title}><a href={app.url}>{app.title}</a> — {app.subtitle}</li>
+				))}
+			</ul>
+		</section>
+	))}
+	<br>
+	<p>If you like my work, consider leaving a review on the App Store. And also check out my <a href="/apps/paid">paid apps</a>.</p>
+</Layout>

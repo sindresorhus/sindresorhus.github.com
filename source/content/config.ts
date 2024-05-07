@@ -22,6 +22,7 @@ const appsCollection = defineCollection({
 		setappId: z.number().int().positive().safe().optional(),
 		isPaid: z.boolean().default(false),
 		isMenuBarApp: z.boolean().default(false),
+		mainLinks: z.record(z.string().url()).optional(),
 		links: z.record(z.string().url()).optional(),
 		showSupportLink: z.boolean().default(true),
 		redirectUrl: z.string().url().optional(),

@@ -47,7 +47,7 @@ If you use the “Album” widget, there’s no limit to the number of photos.
 
 #### How can I hide the name of the app shown below the widget?
 
-This is not possible. App developers have no way to hide it.
+This is not possible. App developers have no way to hide it. However, in iOS 18 you can hide the title for all apps and widgets.
 
 #### If I select an album in a widget, does it include new photos added to the album after I set it up?
 

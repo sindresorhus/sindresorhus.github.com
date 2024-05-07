@@ -28,6 +28,7 @@ Shareful provides share services (Copy, Open In, etc) which macOS is supposed to
 
 Here are some things you could try:
 - Restart your computer
+- Reinstall the app
 - [Reset NVRAM](https://support.apple.com/en-us/HT204063)
 - [Reset the share services registry](https://web.archive.org/web/20180711015728/https://support.apple.com/en-us/HT203129)
 
@@ -35,7 +36,7 @@ If you are on a work computer, it could also be that your company has blocked th
 
 #### Can you add a “Move” action?
 
-This is unfortunately not possible. [Share extensions](https://developer.apple.com/design/human-interface-guidelines/macos/extensions/share-extensions/), like the "Copy" action, only receive a copy of the file. They have no access to the original file.
+This is unfortunately not possible. [Share extensions](https://developer.apple.com/design/human-interface-guidelines/macos/extensions/share-extensions/) (for example, the "Copy" action), only receive a copy of the file. They have no access to the original file.
 
 #### Can you add a “Copy Path” action for use in Finder?
 

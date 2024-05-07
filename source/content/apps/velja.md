@@ -219,7 +219,7 @@ If the clicked/copied link is a short URL, Velja is only able to remove the trac
 
 The app contains a list of tracking parameters to remove, but there may be site-specific tracking parameters it doesn't know about. If you encounter any tracking parameters not being removed, [let me know](https://sindresorhus.com/feedback?product=Velja&referrer=Website-FAQ) and I'll add support for them.
 
-### Can you add support for this browser? {#add-browser}
+#### Can you add support for this browser? {#add-browser}
 
 Velja automatically retrieves all browsers on your computer. There is no manual list of browsers. If some browser is not showing up, make sure it's in the `/Applications` folder and not in the `~/Applications` folder.
 
@@ -331,6 +331,10 @@ Velja does support exporting and importing rules manually.
 #### Can you add a vertical or circular browser prompt?
 
 I don't plan to add this. I recommend giving the horizontal prompt a try. A lot of users found it to work better than vertical/circular.
+
+#### How can I set the last active browser as the default browser?
+
+You can use the [Shortery](https://apps.apple.com/app/id1594183810) and Shortcuts apps for this. Create a shortcut ([example](https://www.icloud.com/shortcuts/cca638ad5d8548dca7f2cbc8e7eb967b)) for each browser you use. The shortcut should use the “Set Default Browser” action to set the default browser in Velja. In Shortery, create an “Application” trigger for each browser, where you choose the corresponding shortcut and app in the “Application” field ([screenshot](https://www.dropbox.com/scl/fi/pjbimgvq3wtuvp0265vk6/Screenshot-2024-06-30-at-17.41.45-1719762112.png?rlkey=7qgwyxq2woz4zaeib1cs2r5w0&raw=1)). The default browser in Velja will now change when you focus one of those browsers.
 
 #### How can I see what URL Velja received? {#debug}
 
@@ -632,6 +636,6 @@ Use the special bundle identifier `com.sindresorhus.Velja.promptMarker` to set t
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/8r0aij7ya4dtm0a1sse1x/Velja-2.0.0-1710312275.zip?rlkey=lxg22hq2rjrlic4mi43p480az&raw=1) *(2.0.0)*
+[Download](https://www.dropbox.com/scl/fi/evv8iq8elftl6exlc17zd/Velja-2.0.3-1716983176.zip?rlkey=12jx6j3gzuv3cnwd8ky5a14wy&raw=1) *(2.0.3)*
 
 *Requires macOS 14 or later*

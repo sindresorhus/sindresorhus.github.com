@@ -5,11 +5,13 @@ pubDate: 2023-09-26
 platforms:
   - macOS
   - iOS
-  # - visionOS
+  - visionOS
 appStoreId: 6465250302
+# olderMacOSVersions:
+#   - '14'
 ---
 
-The app provides additional AI-related actions for the Shortcuts app.
+The app provides additional AI-related actions (GPT-4o, GPT-4, GPT 3.5) for the Shortcuts app.
 
 For example, an action to interact with the ChatGPT API.
 
@@ -17,19 +19,18 @@ For example, an action to interact with the ChatGPT API.
 
 Your API key is securely stored in your keychain, not in a shortcut.
 
-**If you are getting a `Missing response` error, it's most likely that the OpenAI safety system prevented your prompt. Try something else.**
+**The macOS version on the App Store requires an Apple silicon Mac.** For Intel Macs, use the [non-App Store version](#non-app-store-version).\
+*(This is because Apple only accepted the iOS version and not the macOS version, so on macOS, the iOS version of the app is used, which only runs on Apple silicon Macs)*
 
-**Apple is currently blocking updates for the iOS app, so I won't be able to submit an update for some time... I plan to get it [published to an alternative App Store](https://appleinsider.com/articles/23/08/15/setapp-plans-to-launch-eu-only-alternative-ios-app-store) in 2024.**
+<!-- **If you are getting a `Missing response` error, it's most likely that the OpenAI safety system prevented your prompt. Try something else.** -->
+
+<!-- **Apple is currently blocking updates for the iOS app, so I won't be able to submit an update for some time... I plan to get it [published to an alternative App Store](https://appleinsider.com/articles/23/08/15/setapp-plans-to-launch-eu-only-alternative-ios-app-store) in 2024.** -->
 
 <br>
 
 *You may also like my [Actions](/actions) app.*
 
 <br>
-
-### macOS version
-
-The macOS version is not yet available on the App Store because App Store review is being difficult. You can get it [here](https://www.dropbox.com/scl/fi/mhdewikkt8x2n18c7dhy8/AI-Actions-1.1.0-1713560712.zip?rlkey=el7rnf7j0p85u8dus27kr6lcy&raw=1) for now. (Requires macOS 14+)
 
 ### Frequently Asked Questions {#faq}
 
@@ -53,6 +54,10 @@ This one works on macOS too, supports longer text, has customizability options f
 
 This makes it simpler, but more importantly, it stores your API key securely in the keychain. This means you can share your shortcuts to others without exposing your API key. The API key is not stored in the shortcut.
 
+#### Can you support the OpenAI Whisper API?
+
+No, the Whisper API isn't suitable for this app due to Shortcuts' 30-second limit on third-party actions on iOS, making long transcriptions impossible. Instead, use my app [Aiko](/aiko). It runs Whisper locally on your device and supports Shortcuts by performing transcriptions in the foreground, bypassing the time constraint (on macOS, it runs in the background).
+
 #### Why is this free without ads?
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
@@ -67,13 +72,18 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
+<!-- <br>
+
+### Older Versions
+
+- []() for macOS 14+ -->
+
 <br>
 
-<!-- ### Non-App Store Version
+### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://drive.google.com/file/d/12XOL8GeiqM4N3EFuw-ZZU_Hh-nXfYQLB/view?usp=sharing) *(1.2.0 · 3 GB)*
+[Download](https://www.dropbox.com/scl/fi/nh4v2qnc266uj69qkq1x2/AI-Actions-1.2.3-1720305654.zip?rlkey=lfhla790hca0vbasxorghnxpq&raw=1) *(1.2.3)*
 
-*Requires macOS 13 or later*
- -->
+*Requires macOS 14 or later*

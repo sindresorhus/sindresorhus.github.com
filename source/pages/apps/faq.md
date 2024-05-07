@@ -73,7 +73,15 @@ Yes, if an app has not been updated for months, it's still actively maintained. 
 
 ### Why do you only support the latest macOS/iOS version?
 
-I make apps for fun and supporting older operating system versions is simply no fun. It adds a lot of overhead with having to test each update on the older versions, work around bugs Apple will never fix, etc. As a compromise, I provide older versions of my apps for older operating system versions.
+I make apps for fun and supporting older operating system versions is simply no fun. It adds a lot of overhead with having to test each update on the older versions, work around bugs Apple will never fix, etc. As a compromise, I provide [older versions](/apps/older-versions) of my apps for older operating system versions.
+
+### Why do you create multiple mini menu bar apps instead of one comprehensive “menu bar app”?
+
+- **Focus:** Easier to make a high-quality app when it's focused on one thing.
+- **Marketing:** Challenging to market an app that does too many different things.
+- **Customization:** Users can install only what they need.
+- **Isolation:** Issues in one app don’t affect others.
+- **Satisfaction:** I like the satisfaction of completing an app.
 
 ### How can I export, import, sync, or back up the settings in a Mac app?
 
@@ -82,6 +90,10 @@ I make apps for fun and supporting older operating system versions is simply no 
 ### Can I contribute localizations to your apps?
 
 No, I don't plan to localize my apps. Localization adds complexity and maintenance demands that detract from my focus on app quality and performance.
+
+### Can you make your apps available on Homebrew? {#homebrew}
+
+Unfortunately not. Supporting Homebrew requires distributing apps outside the App Store, and that involves significant overhead: hosting, auto-updating, and dual publishing. The demand simply doesn't justify these efforts.
 
 ### You are doing a lot of open source, why are only some of your apps open source? {#why-not-oss}
 
@@ -94,6 +106,18 @@ macOS: Ensure the app is not running. Open Finder, go to the “Go” menu, and 
 iOS: Tap and hold the app on the Home Screen and select “Remove App”.
 
 *If you're uninstalling due to issues, please [contact me](/feedback) first; I resolve problems quickly.*
+
+### I'm getting a “The application can’t be opened” error when trying to launch your app
+
+Make sure the app is in the “/Applications” folder, then right-click the app and select "Open" from the context menu.
+
+If it still doesn't work, the app may be quarantined, and the system is not showing the proper dialog. To fix this, open Terminal and run:
+
+```sh
+xattr -d com.apple.quarantine -r /Applications/AppName.app
+```
+
+Replace `AppName` with the name of the app. [Learn more.](https://superuser.com/a/28400/6877)
 
 ### I'm having a problem with your app {#app-problem}
 

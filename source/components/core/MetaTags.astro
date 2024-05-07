@@ -21,14 +21,18 @@ const canonicalURL = new URL(Astro.url.pathname.replace(/\.html$/, ''), Astro.si
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="Sindre Sorhus">
-<meta name="twitter:card" content="summary">
 <meta name="twitter:site" content="@sindresorhus">
 <meta name="twitter:creator" content="@sindresorhus">
+<meta name="twitter:description" content={description}>
 <meta name="x-build-time" content={(new Date()).toUTCString()}>
 
-{appStoreId &&
+{appStoreId ? (
 	<meta name="apple-itunes-app" content={`app-id=${appStoreId}`}>
-}
+	<meta name="twitter:card" content="app">
+	<meta name="twitter:app:id:iphone" content={appStoreId}>
+) : (
+	<meta name="twitter:card" content="summary">
+)}
 
 <link rel="sitemap" href="/sitemap-index.xml">
 <link rel="alternate" type="application/rss+xml" title="Sindre Sorhus — Blog" href="/rss.xml">

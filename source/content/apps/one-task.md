@@ -61,6 +61,12 @@ Troubleshooting:
 Known issue:
 - Because of a macOS bug, the macOS app does not sync with iCloud while it's focused.
 
+#### How can I edit an item?
+
+Swipe right on the item.
+
+On macOS, you can also right-click the item.
+
 #### Does the app integrate with other todo apps?
 
 No, One Task deliberately avoids automatic integration with other todo apps. Most todo apps encourage task hoarding, leading to overwhelm and inaction. One Task focuses on actionable items you commit to completing within the day. Manually select your highest-priority tasks and add them to One Task for focused execution.

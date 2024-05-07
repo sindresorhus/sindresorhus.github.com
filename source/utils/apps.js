@@ -34,6 +34,16 @@ const normalizeApps = async app => {
 		...(data.showSupportLink && !data.isArchived && {Support: `/feedback?product=${encodeURIComponent(data.title)}`}),
 	};
 
+	let videos = await import.meta.glob('~/../public/apps/*/video*.mp4', {eager: false});
+
+	videos = await Promise.all(
+		Object.entries(videos)
+			.filter(([key]) => key.startsWith(`/public/apps/${slug}/`))
+			.map(([, value]) => value()),
+	);
+
+	videos = videos.map(video => video.default.replace(/^\/public/, ''));
+
 	let screenshots = await import.meta.glob('~/../public/apps/*/screenshot*.{png,jpg}', {eager: false});
 
 	screenshots = await Promise.all(
@@ -61,6 +71,7 @@ const normalizeApps = async app => {
 		mainLinks,
 		links,
 		hasFaqSection,
+		videos,
 		screenshots,
 		Content,
 		olderVersionsUrl: data.repoUrl ? `${data.repoUrl}#download` : `/${slug}#older-versions`,

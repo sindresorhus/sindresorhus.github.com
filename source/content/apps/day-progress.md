@@ -40,6 +40,12 @@ Make a shortcut for each of the different day ranges and use the [Shortery](http
 
 A shortcut can be run from the menu bar, using a global keyboard shortcut, from Spotlight, or from Raycast. You can even use [Shortery](https://apps.apple.com/us/app/shortery/id1594183810?mt=12) to make it run automatically, for example, when you change to the work focus.
 
+#### Hide the system clock {#hide-system-clock}
+
+You could use Day Progress as an abstract clock instead of the system clock, to minimize anxiety and distraction from time, enhancing focus and productivity.
+
+Unfortunately, it's not possible to fully hide the built-in menu bar clock. However, you could make it an analog clock, which makes it a lot less visible. In “System Settings › Control Center › Clock Options”, choose the analog clock and disable showing the date.
+
 <br>
 
 ### Frequently Asked Questions {#faq}

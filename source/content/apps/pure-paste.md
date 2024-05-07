@@ -155,6 +155,10 @@ The solution is to either:
 
 Copy something from the app you have excluded, press the <kbd>Option</kbd> key while clicking the Pure Paste menu bar item, and then make sure the app shown in the menu is the same as the one you excluded.
 
+#### How can I exclude certain websites?
+
+This is not supported. A workaround would be to [turn the website into an app in Safari](https://support.apple.com/guide/safari/add-to-dock-ibrw9e991864/mac). You could then exclude that app.
+
 #### Does it respect [nspasteboard.org](http://nspasteboard.org) conventions?
 
 Yes, it ignores concealed (passwords), transient, and auto-generated content.

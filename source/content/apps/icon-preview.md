@@ -25,7 +25,7 @@ An essential tool for developers and designers to perfect the look of their macO
 - Drag and drop an image onto the Dock icon or menu bar icon to preview it there.
 - Click the Dock icon to pick an icon.
 - Right-click the Dock icon while the app is running for more actions.
-- In Finder, right-click an image file, and select “Open With › Icon Preview” to set it as the Dock icon.
+- In Finder, right-click an image file, and select “Open With › Icon Preview” to set it as the Dock icon. To instead set it as the menu bar icon, press the <kbd>Option</kbd> key while doing this.
 
 #### Preview multiple icons
 

@@ -12,7 +12,7 @@ The app provides widgets that act like sticky notes. Show them on your Home Scre
 
 The app is simple by design.
 
-For macOS, it's only available for Apple silicon Macs running macOS 14.2 or later.
+For macOS, it's only available for Apple silicon Macs running macOS 14 or later.
 
 <br>
 

@@ -149,15 +149,29 @@ A flaw of the Whisper model is that transcriptions can sometimes be missing punc
 
 If that still doesn't fix it, try copying the text from Aiko, go to [ChatGPT](https://chat.openai.com), and use this prompt: `Fix the missing punctation. Don't change the text otherwise: TRANSCRIPTION TEXT`
 
+#### Batch transcribe {#batch}
+
+Aiko does not yet support batch transcription built-in, but you can achieve it with shortcuts.
+
+Get [this (iOS)](https://www.icloud.com/shortcuts/f790a41e23ae4222920277b4fe9d1217) or [this (macOS)](https://www.icloud.com/shortcuts/0be44e478b9e472192cae2e0dfc327ed) shortcut and then share the audio files you want to transcribe (e.g. from Voice Memos or Files/Finder) and choose the shortcut in the share sheet. You can also run the shortcut directly from the Shortcuts app or even add the shortcut to the Home Screen.
+
+#### Transcribe files directly in Finder
+
+On macOS, you can transcribe files simply by right-clicking audio files in Finder and choosing [this shortcut](https://www.icloud.com/shortcuts/a9b68a1291c44795ae236a3a02322bf6) (add it first) in "Quick Actions". [Preview.](https://twitter.com/sindresorhus/status/1789957043912093954) In the shortcut you can choose whether you want text or subtitles.
+
 #### Record and transcribe by pressing the iPhone action button
 
 [This](https://www.icloud.com/shortcuts/62a62ef967b74ffb897d72ee6a881746) shortcut records, transcribes, and then shows the result in the Aiko app. Save the shortcut and then select it in the action button settings.
 
-If you want to record, transcribe, and then do something with the transcription in your shortcut workflow, check out [this](https://www.icloud.com/shortcuts/00198bd63c094540ba25fe066245319d) shortcut. You could, for example, pass the transcription to the ChatGPT shortcut action for further processing.
+If you want to record, transcribe, and then do something with the transcription in your shortcut workflow, check out [this shortcut](https://www.icloud.com/shortcuts/00198bd63c094540ba25fe066245319d). You could, for example, pass the transcription to the ChatGPT shortcut action for further processing.
 
 #### Quickly record and transcribe (iOS)
 
 Do the same as the above, but instead add the shortcut to the Home Screen (can be done in the shortcut settings).
+
+#### Quickly record, transcribe, and add transcription to the Notes app (iOS)
+
+Use [this shortcut](https://www.icloud.com/shortcuts/806ab945539d42acb79354805c50d9d5).
 
 #### Quickly record and transcribe (macOS)
 
@@ -215,6 +229,12 @@ This is unfortunately a flaw in the Whisper model. [Workaround.](#tips)
 This is unfortunately a flaw in the Whisper model. It can sometimes add a sentence like “Thanks for watching!” to the end. There is not much I can do about this.
 
 This issue arises from quirks in the AI's processing, where it sometimes generates off-topic content, often due to data remnants or misinterpreted context. These are not messages or 'whispers' with any underlying meaning; they're random anomalies that OpenAI is actively working to correct.
+
+#### The transcription is not in the same language as the source audio
+
+Ensure the "Translate to English" setting is disabled.
+
+The language used in the "Prompt" setting may also affect the transcription language.
 
 #### The transcription is in Traditional Chinese while the audio was in Simplified Chinese?
 
@@ -310,6 +330,10 @@ This cannot be supported built-in as downloading videos from YouTube is against 
 #### The app supports translating to English, can it support more languages?
 
 The translation support is built into the AI model and it only supports translating to English. You could copy-paste the result into ChatGPT or Google Translate.
+
+#### How can I trigger Aiko with a custom URL scheme?
+
+Aiko does not have a custom URL scheme, but you can trigger Aiko from the Shortcuts app, and the Shortcuts app does have a [custom URL scheme](https://support.apple.com/guide/shortcuts/run-a-shortcut-from-a-url-apd624386f42/ios).
 
 #### How is Aiko pronounced?
 

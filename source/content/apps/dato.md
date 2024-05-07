@@ -54,7 +54,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 ### Trial
 
-There's a fully functional trial available [here](https://www.dropbox.com/scl/fi/yquzze7p7jd26hmlohza5/Dato-5.2.10-trial-1713884168.zip?rlkey=yzlc28c4iushp6e2ebb801wra&raw=1). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive automatic updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://www.dropbox.com/scl/fi/7gq8pj6l1r1ocyxiu7qwc/Dato-5.3.2-trial-1720772507.zip?rlkey=8w1lpq0dahhp4tmvr7quc31gs&raw=1). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive automatic updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
@@ -70,7 +70,7 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 	</tr>
 	<tr>
 		<td>
-			Click the month & year label in the calendar (for example, “April 2020”) to change the selected day to “today”.
+			Click the month & year label in the calendar (for example, “April 2020”) to change the selected day to “today”. Right-click it to quickly go to a specific date.
 		</td>
 	</tr>
 	<tr>
@@ -292,6 +292,10 @@ You can even make it open a specific browser or profile only for links clicked i
 
 Click the month and year on the top left. You can also press the <kbd>Space</kbd> key.
 
+#### I have hidden the toolbar and now I cannot access settings
+
+Press the <kbd>Option</kbd> key to reveal a button to access settings or press <kbd>Command</kbd>+<kbd>comma</kbd>.
+
 #### How can I add multiple time zones to the menu bar? {#time-zones-menu-bar}
 
 In the Dato settings, go to the “Time Zones” pane, add a time zone, and in the edit window, check “Show in menu bar”. Do the same with the other time zones you want to show in the menu bar. If you already have the time zones added, right-click a time zone, click “Edit”, and then check “Show in menu bar”.
@@ -307,6 +311,19 @@ If you don't have seconds enabled, please let me know about the excessive CPU us
 This is a macOS 14 bug and unfortunately not something I can work around.
 
 If you work at Apple → [FB13544993](https://github.com/feedback-assistant/reports/issues/457)
+
+#### Some calendar events are missing in Dato {#missing-events}
+
+Make sure:
+- The calendar with the event is enabled in Dato.
+- You are on the latest Dato and macOS versions.
+- You have tried restarting your computer.
+- You have not muted the event.
+- You have not excluded the event with the “Exclude events” setting.
+- The event shows up in the Calendar app.
+	- If it does not show up there, the problem is not with Dato.
+	- Try pressing <kbd>Command</kbd>+<kbd>R</kbd> in the Calendar app to force-refresh.
+	- If it's a Google account, you could try signing out and in again in the Calendar settings. That has helped a few users.
 
 #### How can I edit an event in Dato?
 
@@ -324,9 +341,9 @@ Dato adheres to what you have set in “System Settings › General › Language
 
 I'm hoping to have this done later this year. It's quite a complicated feature.
 
-#### Can you integrate with Cron?
+#### Can you integrate with Notion Calendar (previously Cron)? {#notion-calendar}
 
-The integration is already done, but Cron has multiple bugs that make it not work properly. We will have to wait for Cron to fix these bugs.
+The integration is already done, but Notion Calendar has multiple bugs that make it not work properly. We will have to wait for them to fix these bugs.
 
 #### Can you localize the app into my language?
 
@@ -357,7 +374,8 @@ I have already [reported it to Apple](https://github.com/feedback-assistant/repo
 
 Make sure:
 - The fullscreen notifications setting is enabled.
-- You are on the latest Dato and macOS version.
+- You are on the latest Dato and macOS versions.
+- You have tried restarting your computer.
 - You have selected the correct calendars in the fullscreen notifications settings.
 - You have not muted the event.
 - You have not excluded the event with the “Exclude events” setting.
@@ -417,6 +435,10 @@ Built-in support for sending calendar invites directly from Dato is not possible
 #### How can I make my calendar refresh more often?
 
 Open the Calendar app's settings, go to the “Accounts” pane, choose the relevant calendar service in the left sidebar, and then change the “Refresh Calendars” preference. Ideally, it should be set to “Push”, but not all services support that, like Google.
+
+#### How can I accept/decline invites?
+
+Unfortunately, Apple does not allow third-party apps to manage invites. As a workaround, double-click the event in the list to open it in the Calendar app, where you can accept or decline the invite.
 
 #### How can I get system notifications for upcoming events? {#notifications}
 
@@ -565,7 +587,7 @@ It means “date” in Norwegian. I just wanted a short, unique, and relevant na
 
 <br>
 
-### Dato 5
+#### Dato 5
 
 ###### Behavior changes
 
@@ -592,6 +614,18 @@ This also enabled the new setting that lets you hide the main Dato menu bar item
 ###### How can I now hide an event from showing up in the menu bar?
 
 Previously, when you clicked the event in the menu bar, you could hide it from the menu bar by clicking “Hide from Menu Bar”. You now need to right-click the menu bar item and click “Mute”.
+
+<br>
+
+### Scripting
+
+#### Shortcuts
+
+Dato comes with support for the Shortcuts app. Check it out to see what actions Dato provides there.
+
+#### Events
+
+Dato emits a [distributed notification](https://developer.apple.com/documentation/foundation/distributednotificationcenter) `com.sindresorhus.Dato.joinedVideoCall` when you join a video call from Dato. You could use this to trigger certain actions in apps that can read such events, like [BetterTouchTool](https://folivora.ai).
 
 <br>
 

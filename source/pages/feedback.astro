@@ -26,7 +26,7 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 			<h2 class="text-2xl md:text-3xl leading-tighter tracking-tighter mb-8">Feedback & Support</h2>
 			<div id="additional-info" class={proseCSS} style="font-size:16px"></div>
 			<!-- <div><br>I may take longer to respond as I'm on vacation. I appreciate your patience.</div> -->
-			<!-- <div><br>I may take longer to respond as I'm getting an overwhelming amount of emails at the moment. I appreciate your patience.</div> -->
+			<div><br>I may take longer to respond as I'm getting an overwhelming amount of emails at the moment. I appreciate your patience.</div>
 		</div>
 		<form id="feedback-form" class="mt-8" action="https://formcarry.com/s/UBfgr97yfY" method="POST" enctype="multipart/form-data" onsubmit="document.querySelector('#submit-button').disabled=true">
 			<input type="hidden" name="_gotcha">
@@ -98,6 +98,12 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 		if (product === 'Velja') {
 			$('#additional-info').show().append(`
 				<br><br><a href="${app.url}#safari-profiles">Can you support Safari profiles?</a><br><br><a href="${app.url}#arc">Can you support Arc spaces/profiles?</a><br><br><b>If you're requesting an addition to the “Apps” list, <a href="https://sindresorhus.com/velja#builtin-apps-requests">please read this</a>.</b><br><br>
+			`);
+		}
+
+		if (product === 'Dato') {
+			$('#additional-info').show().append(`
+				<br><br><b>The latest Dato update (5.3.1) triggered a bug in macOS which caused Dato to crash for some users. I have already submitted an update to Apple with a fix. In the meantime, you can use <a href="https://www.dropbox.com/scl/fi/6x5r54zs0kztzaf5441gb/Dato-1720772869.zip?rlkey=w2c27es5c6m7140hsvvgi7huf&raw=1">this build</a>. Sorry about the inconvenience.</b><br><br>
 			`);
 		}
 

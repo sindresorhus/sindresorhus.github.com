@@ -78,7 +78,7 @@ The widget sizes are controlled by Apple. The provided size is the largest it al
 
 #### Can you remove the title shown below the widget?
 
-Apple does not allow removing the title. Some apps managed to do it early on, but these days, Apple rejects any attempt at doing that.
+Apple does not allow removing the title. Some apps managed to do it early on, but these days, Apple rejects any attempt at doing that. However, in iOS 18 you can hide the title for all apps and widgets.
 
 #### How can I remove the date prefix from the inline Lock Screen widget above the clock?
 

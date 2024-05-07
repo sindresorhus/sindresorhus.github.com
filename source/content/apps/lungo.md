@@ -79,6 +79,10 @@ I don't plan to do this built-in, but you can use Shortery for this as explained
 
 I don't plan to do this built-in, but you can use Shortery for this as explained above. Shortery has a “Focus Mode” trigger.
 
+#### How can I make Lungo be activated until a specific time?
+
+This is not supported built-in, but you can use the Shortcuts app to achieve it. Get [this shortcut](https://www.icloud.com/shortcuts/9aa69e6db4ba48289e59214d10a405b2) and either pin it to the menu bar or add a global keyboard shortcut to trigger it. You could also use Raycast, BetterTouchTool, or Keyboard Maestro to trigger it.
+
 #### Can I use a custom duration? {#custom-duration}
 
 Lungo comes with a set of commonly used durations, which should be enough for most users. People love Lungo for its simplicity. Not having custom times also helps prevent decision fatigue. Lungo has tens of thousands of users and the app has existed for 6 years, and only a few people have requested support for custom durations.

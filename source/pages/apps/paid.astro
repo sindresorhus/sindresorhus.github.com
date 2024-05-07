@@ -1,0 +1,41 @@
+---
+import {SITE} from '~/config.mjs';
+import Layout from '~/layouts/SimplePageLayout.astro';
+import {fetchApps} from '~/utils/apps.js';
+
+const platformOrder = [
+	'macOS',
+	'iOS',
+	'watchOS',
+	'tvOS',
+	'visionOS',
+];
+
+const apps = await fetchApps();
+const paidApps = apps.filter(app => app.isPaid);
+
+const platforms = [...new Set(paidApps.flatMap(app => app.platforms))]
+	.filter(Boolean)
+	.sort((a, b) => platformOrder.indexOf(a) - platformOrder.indexOf(b));
+
+const meta = {
+	title: `Paid Apps — ${SITE.name}`,
+};
+---
+
+<Layout {meta}>
+	<h1>Paid Apps</h1>
+	<p>The apps of mine that are paid.</p>
+	{platforms.map(platform => (
+		<section key={platform}>
+			<h2 id={platform.toLowerCase()}>{platform}</h2>
+			<ul>
+				{paidApps.filter(app => app.platforms?.includes(platform)).map(app => (
+					<li key={app.title}><a href={app.url}>{app.title}</a> — {app.subtitle}</li>
+				))}
+			</ul>
+		</section>
+	))}
+	<br>
+	<p>You can find my free apps <a href="/apps/free">here</a>.</p>
+</Layout>

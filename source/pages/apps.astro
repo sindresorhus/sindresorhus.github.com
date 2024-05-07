@@ -6,7 +6,7 @@ import {fetchApps, proseCSS} from '~/utils/apps.js';
 
 const meta = {
 	title: `Apps — ${SITE.name}`,
-	description: SITE.description,
+	description: 'Quality crafted apps by Sindre Sorhus',
 };
 
 let apps = await fetchApps();
@@ -26,7 +26,7 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 					<span class="bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-secondary-500 pr-[0.025em] mr-[-0.025em]">apps</span>
 				</h1>
 			</header>
-			<section class="mx-auto grid sm:gap-12 grid-cols-1 lg:grid-cols-2 sm:p-1 my-12 dark:text-white">
+			<section data-nosnippet class="mx-auto grid sm:gap-12 grid-cols-1 lg:grid-cols-2 sm:p-1 my-12 dark:text-white">
 				{
 					apps.map(app => (
 						<a href={app.url} class="flex py-6 px-2 sm:p-6 bg-white dark:bg-black/20 sm:rounded-xl shadow-md dark:shadow-lg hover:shadow-xl dark:hover:sm:shadow-indigo-500/20 transition duration-500 dark:sm:border dark:border-slate-800">
@@ -53,7 +53,7 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 					))
 				}
 			</section>
-			<section class={proseCSS} style="margin-top: 120px; margin-bottom: 60px">
+			<section data-nosnippet class={proseCSS} style="margin-top: 120px; margin-bottom: 60px">
 				<AppsExtra/>
 			</section>
 		</section>
