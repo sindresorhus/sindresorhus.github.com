@@ -7,15 +7,25 @@ const meta = {
 };
 
 // eslint-disable-next-line unicorn/no-await-expression-member
-const apps = (await fetchApps()).map(({title, url, iconUrl, repoUrl, hasFaqSection}) => ({
+const apps = (await fetchApps()).map(({
 	title,
 	url,
 	iconUrl,
 	repoUrl,
 	hasFaqSection,
+	feedbackNote,
+}) => ({
+	title,
+	url,
+	iconUrl,
+	repoUrl,
+	hasFaqSection,
+	feedbackNote,
 }));
 
 const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500';
+
+const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300';
 ---
 
 <Layout {meta}>
@@ -31,16 +41,16 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 		<form id="feedback-form" class="mt-8" action="https://formcarry.com/s/UBfgr97yfY" method="POST" enctype="multipart/form-data" onsubmit="document.querySelector('#submit-button').disabled=true">
 			<input type="hidden" name="_gotcha">
 			<div class="mb-6">
-				<label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300" for="message">Message*</label>
+				<label class={labelCSS} for="message">Message*</label>
 				<textarea class={inputCSS} placeholder="I'm a human. Please be nice." name="message" minlength="20" rows="7" required autofocus></textarea>
 			</div>
 			<div class="mb-6">
-				<label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300" for="email">Email*</label>
+				<label class={labelCSS} for="email">Email*</label>
 				<input class={inputCSS} type="email" name="email" autocomplete="email" required>
 				<small>Only used for replying to you.</small>
 			</div>
 			<div class="mb-6">
-				<label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300" class="label" for="email">Attachments</label>
+				<label class={labelCSS} class="label" for="attachments">Attachments</label>
 				<input class={inputCSS} type="file" name="attachments" multiple>
 			</div>
 			<br>
@@ -83,43 +93,19 @@ const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg
 
 			const url = `${app.repoUrl}/issues/new?${searchParams}`;
 
-			$('#additional-info').show().html(`
+			$('#additional-info').show().append(`
 				If you have a GitHub account, <a href="${url}">open an issue on the repo</a> instead.
 			`);
 		}
 
 		if (app?.hasFaqSection) {
-			$('#additional-info').show().html(`
-				See the <a href="${app.url}#faq">app's frequently asked questions (FAQs)</a> and the <a href="/apps/faq">general FAQs</a> in case your question has already been answered.\nMake sure you are on the latest version and try to restart your device.
+			$('#additional-info').show().append(`
+				See the <a href="${app.url}#faq">app's frequently asked questions (FAQs)</a> and the <a href="/apps/faq">general FAQs</a> in case your question has already been answered.\nMake sure you are on the latest version and try to restart your device.\nIf the app crashed (macOS-only), it would be very helpful if you could include a <a href="/apps/faq#crash-report">crash report</a>.
 			`);
 		}
 
-		// Temporary.
-		if (product === 'Velja') {
-			$('#additional-info').show().append(`
-				<br><br><a href="${app.url}#safari-profiles">Can you support Safari profiles?</a><br><br><a href="${app.url}#arc">Can you support Arc spaces/profiles?</a><br><br><b>If you're requesting an addition to the “Apps” list, <a href="https://sindresorhus.com/velja#builtin-apps-requests">please read this</a>.</b><br><br>
-			`);
-		}
-
-		if (product === 'Dato') {
-			$('#additional-info').show().append(`
-				<br><br><b>The latest Dato update (5.3.1) triggered a bug in macOS which caused Dato to crash for some users. I have already submitted an update to Apple with a fix. In the meantime, you can use <a href="https://www.dropbox.com/scl/fi/6x5r54zs0kztzaf5441gb/Dato-1720772869.zip?rlkey=w2c27es5c6m7140hsvvgi7huf&raw=1">this build</a>. Sorry about the inconvenience.</b><br><br>
-			`);
-		}
-
-		if (product === 'Actions') {
-			$('#additional-info').show().append(`
-				<br><br><h3>If you get a “com.apple.extensionKit.errorDomain error 2” error when running your shortcut or if the actions don't show up in the Shortcuts app, restart your device. This is caused by a iOS bug.</h3>
-				<br><br><b>Some actions that are not possible: orientation lock status, flashlight status, ambient sensor info, flight mode status. Generally, anything related to changing system features/settings or interacting with other apps is not possible.</b>
-				<br>
-				<br>
-			`);
-		}
-
-		if (product === 'AI Actions') {
-			$('#additional-info').show().append(`
-				<br><br><h3>Apple is currently blocking updates to this app because they don't like the use of OpenAI keys without in-app purchase (they want their 30% of OpenAI revenue), so until EU forces them to allow side-loading and alternative App Store's, I won't be able to make any improvements to this app...</h3>
-			`);
+		if (app?.feedbackNote) {
+			$('#additional-info').show().append(`<div>${app?.feedbackNote}</div>`);
 		}
 	}
 

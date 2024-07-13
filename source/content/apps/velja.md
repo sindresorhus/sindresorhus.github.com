@@ -9,6 +9,12 @@ appStoreId: 1607635845
 olderMacOSVersions:
   - '12'
   - '13'
+feedbackNote: |
+  [Can you support Safari profiles?](/velja#safari-profiles)
+
+  [Can you support Arc spaces/profiles?](/velja#arc)
+
+  **If you're requesting an addition to the “Apps” list, [please read this](https://sindresorhus.com/velja#builtin-apps-requests).**
 ---
 
 Open links in a specific browser or a matching native app. Easily switch between browsers.
@@ -366,12 +372,14 @@ For all settings, [see this guide.](https://github.com/sindresorhus/guides/blob/
 
 #### Can you support Safari profiles? {#safari-profiles}
 
-Apple does not expose any way to open URLs in a specific profile. I recommend [sending feedback](https://feedbackassistant.apple.com) to Apple that they should add Shortcuts and AppleScript support for this.
+Safari does not expose any way to open URLs in a specific profile. I recommend [sending feedback](https://feedbackassistant.apple.com) to Apple that they should add Shortcuts and AppleScript support for this. More feedback increases the chances of it happening.
 
 Feel free to duplicate my feedback reports:
 
 - [FB12320822](https://github.com/feedback-assistant/reports/issues/398)
 - [FB12320895](https://github.com/feedback-assistant/reports/issues/399)
+
+You can submit it [here](https://feedbackassistant.apple.com).
 
 #### Can you support spaces for the [Arc](https://thebrowser.company) browser? {#arc}
 

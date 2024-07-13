@@ -68,28 +68,12 @@ None -->
 
 ## <span>🦄</span> Sponsor <span class="reward-price not-prose">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>
 
-<a href="https://standardresume.co/tech" class="sponsor" rel="nofollow">
-	<img src="/assets/thanks/standard-resume-logo.svg" width="300" alt="Standard Resume">
-</a>
-<br>
-<a href="https://retool.com/?utm_campaign=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-44px">
-	<img src="/assets/thanks/retool-logo.svg" width="410" alt="Retool">
-</a>
-<br>
 <a href="https://github.com" class="sponsor" rel="nofollow" style="position:relative;left:-3px">
 	<img src="/assets/thanks/github-logo.svg" width="310" alt="GitHub">
 </a>
 <br>
 <a href="https://workos.com" class="sponsor" rel="nofollow" style="position:relative;left:-30px">
 	<img src="/assets/thanks/workos-logo-white-bg.svg" width="380" alt="WorkOS">
-</a>
-<br>
-<a href="https://strapi.io/?ref=sindresorhus" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
-	<img src="/assets/thanks/strapi-logo.svg" width="380" alt="Strapi">
-</a>
-<br>
-<a href="https://serpapi.com" class="sponsor" rel="nofollow" style="position:relative;left:-3px;margin-top:20px">
-	<img src="/assets/thanks/serpapi-logo-light.svg" width="210" alt="SerpApi">
 </a>
 <br>
 <a href="https://transloadit.com?utm_source=sindresorhus&utm_medium=referral&utm_campaign=sponsorship&utm_content=website" class="sponsor" rel="nofollow" style="position:relative;left:-40px;margin-top:20px">
@@ -100,14 +84,15 @@ None -->
 	<img src="/assets/thanks/logto-logo-light.svg" width="320" alt="Logto">
 </a>
 <br>
+<a href="https://encore.dev" class="sponsor" rel="nofollow" style="position:relative;left:-20px;margin-top:10px">
+	<img src="/assets/thanks/encore-logo-light.svg" width="380" alt="Encore">
+</a>
+<br>
 <br>
 
 ## Silver sponsor <span class="reward-price not-prose">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
 <div class="silver-sponsor">
-	<a href="https://www.gitpod.io/?utm_campaign=sindresorhus&utm_medium=referral&utm_content=awesome&utm_source=blog" class="sponsor" rel="nofollow" style="position:relative;left:-5px">
-		<img src="/assets/thanks/gitpod-logo.svg" width="240" alt="Gitpod">
-	</a>
 	<a href="https://eslint.org" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/eslint-logo.png" width="200" alt="ESLint">
 	</a>
@@ -116,9 +101,6 @@ None -->
 	</a>
 	<a href="https://coderabbit.ai" class="sponsor" rel="nofollow" style="position:relative;left:-5px;top:-20px">
 		<img src="/assets/thanks/coderabbit-logo.png" width="280" alt="CodeRabbit">
-	</a>
-	<a href="https://github.com/shnhrrsn" class="sponsor" rel="nofollow" style="font-size: 36px;position:relative;top:-10px">
-		<span class="dark:text-black">Shaun Harrison</span>
 	</a>
 	<a href="https://www.fame.fi" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/fame-logo-light.svg" width="200" alt="Fame Helsinki">
@@ -253,6 +235,10 @@ None -->
 - [Preston Nalls](https://github.com/pjnalls)
 - [Tighten](https://github.com/tighten)
 - [Gregor Adams](https://github.com/pixelass)
+- [Lightning Jar](https://github.com/lightning-jar)
+- [Sourcegraph](https://github.com/sourcegraph-community)
+- [kaerez](https://github.com/kaerez)
+- [Michael Sartain](https://github.com/mikesart)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:11px;opacity:0.7">(It will be updated on the first day of every month)</small>
@@ -424,6 +410,12 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Ryan Atkinson](https://github.com/ryanatkn)
 - [Blai Pratdesaba](https://github.com/blaiprat)
 - [Ryan Chartrand](https://github.com/ryanchartrand)
+- [Strapi](https://strapi.io)
+- [Retool](https://retool.com)
+- [Gitpod](https://www.gitpod.io)
+- [Shaun Harrison](https://github.com/shnhrrsn)
+- [Standard Resume](https://standardresume.co)
+- [SerpApi](https://serpapi.com)
 
 ---
 

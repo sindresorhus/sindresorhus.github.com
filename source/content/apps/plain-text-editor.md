@@ -102,7 +102,7 @@ The app is made using Apple's latest technologies (SwiftUI) and they have not ad
 
 #### Why is it suddenly showing a scrollbar?
 
-You most likely have an external mouse connected. This is simply how macOS works. You can see the behavior in other text editing apps too. The behavior is completely out of my control.
+You either have a system setting set to always show scrollbars or you have an external mouse connected. This is simply how macOS works. You can see the behavior in other text editing apps too. See the “Appearance › Show scroll bars” system setting.
 
 #### The “Check Spelling While Typing” setting in the context menu does not work
 

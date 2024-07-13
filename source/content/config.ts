@@ -42,6 +42,7 @@ const appsCollection = defineCollection({
 			'19',
 			'20',
 		])).optional(),
+		feedbackNote: z.string().optional(),
 	}).strict(),
 });
 

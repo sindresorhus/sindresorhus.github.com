@@ -38,7 +38,7 @@ A Wi-Fi connection only means you are connected to a network. The app verifies i
 
 #### The app shows that I'm offline even though I'm not
 
-- Ensure network requests from the app to apple.com and cloudflare.com are not blocked. These domains are used to verify your online status.
+- Ensure network requests from the app to “apple.com” and “cloudflare.com” are not blocked. These domains are used to verify your online status.
 
 #### How can I run this only when not connected to certain networks?
 
@@ -46,7 +46,7 @@ Use the [Shortery](https://apps.apple.com/app/id1594183810) app. Create a shortc
 
 #### How does it work?
 
-Every 20 seconds, it sends a HEAD request to “apple.com”. If that fails, it sends a HEAD request to “cloudflare.com”. If both requests fail, it considers the internet to be offline.
+Every 20 seconds and anytime the network changes, it sends a HEAD request to “apple.com”. If that fails, it sends a HEAD request to “cloudflare.com”. If both requests fail, it considers the internet to be offline.
 
 #### Can you make the history persistent?
 

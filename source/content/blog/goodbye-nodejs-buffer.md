@@ -155,7 +155,7 @@ And if you use TypeScript, add this:
 }
 ```
 
-If you use [XO](https://github.com/xojs/xo), it will soon come with this config by default.
+If you use [XO](https://github.com/xojs/xo), it comes with this config by default.
 
 ## How Can I Help?
 

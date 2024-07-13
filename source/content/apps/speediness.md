@@ -60,6 +60,10 @@ It's a measurement of the round-trip time for messages sent from the originating
 
 The app makes use of the built-in [`networkQuality` command-line tool](https://support.apple.com/en-gb/HT212313) under the hood, which is provided by Apple.
 
+#### Can it show a progress bar instead of a spinner?
+
+No, a progress bar would not accurately reflect progress due to the variability in testing time, which depends on factors like network speed and other unknown conditions.
+
 #### Can it show the current speed live as it calculates it?
 
 This is not possible as it's not provided by the macOS tool Speediness uses to get the speed.
