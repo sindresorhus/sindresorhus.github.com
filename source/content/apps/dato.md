@@ -14,6 +14,18 @@ olderMacOSVersions:
   - '11'
   - '12'
   - '13'
+feedbackNote: |
+  **Dato 5.3.1 triggered a bug in macOS which caused Dato to crash for some users. I submitted an update with a fix immediately, but it took Apple almost 1 week to approve it. The update is finally out now. Look for Dato 5.3.3 or later on the App Store. I'm really sorry for the inconvenience.**
+
+  **If you previously downloaded a temporary version from here, make sure you delete it before getting the App Store version again.**
+---
+
+### Dato not launching
+
+**Dato 5.3.1 triggered a bug in macOS which caused Dato to crash for some users. I submitted an update with a fix immediately, but it took Apple almost 1 week to approve it. The update is finally out now. Look for Dato 5.3.3 or later on the App Store. I'm really sorry for the inconvenience.**
+
+**If you previously downloaded a temporary version from here, make sure you delete it before getting the App Store version again.**
+
 ---
 
 Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.
@@ -54,7 +66,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 ### Trial
 
-There's a fully functional trial available [here](https://www.dropbox.com/scl/fi/7gq8pj6l1r1ocyxiu7qwc/Dato-5.3.2-trial-1720772507.zip?rlkey=8w1lpq0dahhp4tmvr7quc31gs&raw=1). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive automatic updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://www.dropbox.com/scl/fi/r8qli7am9iy9rt6i2vkfr/Dato-5.3.5-trial-1722171019.zip?rlkey=tyd282ixs3ih5d4cnp9ri7qzr&raw=1). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive automatic updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
@@ -281,6 +293,10 @@ If you don't use the Calendar app, you can add the following to the notes field 
 https://some-video-call-service.com/join/23423
 ---===---
 ```
+
+#### How do I add a calendar
+
+[Add the calendar to the built-in Calendar app](https://support.apple.com/guide/calendar/add-or-delete-calendar-accounts-icl4308d6701/mac) and then enable it in the Dato settings.
 
 #### How can I open meeting links (Google Meet, Zoom, Microsoft Teams, etc.) in a specific browser or browser profile? {#velja}
 

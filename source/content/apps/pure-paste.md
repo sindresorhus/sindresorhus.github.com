@@ -41,6 +41,14 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 You may also have enabled the “Hide menu bar icon” preference, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 
+#### The app does not work
+
+- Ensure automatic clearing is enabled or you have set a keyboard shortcut for clearing.
+- Ensure you have not excluded (in the settings) the app you want to use it with.
+- Try copy-pasting to/from a different app to ensure the problem is with Pure Paste.
+- If you are using a custom keyboard shortcut for clearing, try [resetting privacy permissions](/apps/faq#mac-reset-permissions).
+- [More…](/apps/faq#app-problem)
+
 #### Pure Paste conflicts with my clipboard manager
 
 This is a known issue. It's just a flaw in how the clipboard works. If your clipboard manager reads the clipboard first, it will get it. If Pure Paste then reads the clipboard, it will do its thing, but also tell clipboard managers not to fetch the new contents as otherwise, they might end up with duplicates. This is required as otherwise certain features like "fast-append" don't work in Alfred and other clipboard managers. I'm working on a way all apps can collaborate, but it will take some time.
@@ -71,6 +79,10 @@ There are some cases I cannot fix though:
 - That menu item is not available in all apps.
 - In some apps, like Word, the menu item has a different label, which requires a separate mapping.
 - This app can exclude certain apps, preserve links, and also remove tracking parameters from URLs.
+
+#### The copy/paste custom keyboard shortcut does not work
+
+Try [resetting privacy permissions](https://sindresorhus.com/apps/faq#mac-reset-permissions) for the app. macOS can sometimes corrupt these permissions, causing the shortcut to fail.
 
 #### What are tracking parameters and why would I want to remove them?
 

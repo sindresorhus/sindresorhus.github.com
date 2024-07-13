@@ -1,3 +1,4 @@
+import {markdown} from '@astropub/md';
 import {getCollection} from 'astro:content';
 
 const normalizeApps = async app => {
@@ -58,6 +59,8 @@ const normalizeApps = async app => {
 		return object;
 	});
 
+	const feedbackNote = await markdown(data.feedbackNote);
+
 	return {
 		...data,
 		pubDate,
@@ -77,6 +80,7 @@ const normalizeApps = async app => {
 		olderVersionsUrl: data.repoUrl ? `${data.repoUrl}#download` : `/${slug}#older-versions`,
 		...(data.appStoreId && {appStoreUrl: `https://apps.apple.com/app/id${data.appStoreId}`}),
 		...(data.setappId && {setappUrl: `https://go.setapp.com/stp181?refAppID=${data.setappId}&utm_medium=vendor_program&utm_content=button`}),
+		feedbackNote,
 	};
 };
 

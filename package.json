@@ -16,6 +16,7 @@
 		"@astrojs/sitemap": "^3.1.6",
 		"@astrojs/tailwind": "^5.1.0",
 		"@astrolib/seo": "1.0.0-beta.5",
+		"@astropub/md": "^0.4.0",
 		"@tailwindcss/forms": "^0.5.7",
 		"@tailwindcss/typography": "^0.5.13",
 		"@typescript-eslint/parser": "^7.13.1",

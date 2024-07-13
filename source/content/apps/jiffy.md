@@ -1,4 +1,5 @@
 ---
+isArchived: true
 title: Jiffy
 subtitle: Discover & share the best GIFs
 pubDate: 2020-03-25
@@ -6,12 +7,14 @@ platforms:
   - macOS
 isMenuBarApp: true
 appStoreId: 1502527999
-olderMacOSVersions:
-  - '10.15'
-  - '11'
-  - '12'
-  - '13'
+# olderMacOSVersions:
+#   - '10.15'
+#   - '11'
+#   - '12'
+#   - '13'
 ---
+
+**Jiffy is no longer available because Giphy removed their free API.** I may bring it back one day and use the [Tenor](https://tenor.com) API, but it's not something I have time or interest in doing right now.
 
 Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found an awesome GIF, just drag and drop it into an app.
 
@@ -28,7 +31,7 @@ Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found 
 
 <br>
 
-### Tips
+<!-- ### Tips
 
 <table>
 	<tr>
@@ -74,15 +77,15 @@ Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found 
 		</td>
 		<td>Close the popover</td>
 	</tr>
-</table>
+</table> -->
 
 <br>
 
 ### Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
+<!-- #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Jiffy&referrer=Website-FAQ)
+[Send it here.](https://sindresorhus.com/feedback?product=Jiffy&referrer=Website-FAQ) -->
 
 #### The app does not show up in the menu bar
 
@@ -92,21 +95,21 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 I don't plan to localize the app.
 
-#### Where can I find the changelog?
+<!-- #### Where can I find the changelog?
 
-Go [here](https://apps.apple.com/app/id1502527999) and click “Version History”.
+Go [here](https://apps.apple.com/app/id1502527999) and click “Version History”. -->
 
 #### Why the name “Jiffy”?
 
 Some people incorrectly pronounce GIF as “Jif”. The name is a pun on that. Also, “Jiffy” means to do something fast, which is what the app is all about.
 
-#### Why is this free without ads?
+<!-- #### Why is this free without ads?
 
-I just enjoy making apps. Consider leaving a nice review on the App Store.
+I just enjoy making apps. Consider leaving a nice review on the App Store. -->
 
 #### [More FAQs…](/apps/faq)
 
-<br>
+<!-- <br>
 
 ### Older Versions
 
@@ -124,3 +127,4 @@ A special version for users that cannot access the App Store. It won't receive a
 [Download](https://www.dropbox.com/scl/fi/26sudsm3koidwsztn5zl9/Jiffy-2.6.0-1705228001.zip?rlkey=f4psqpqvsnecfenlr55paybke&raw=1) *(2.6.0)*
 
 *Requires macOS 14 or later*
+ -->

@@ -119,6 +119,24 @@ xattr -d com.apple.quarantine -r /Applications/AppName.app
 
 Replace `AppName` with the name of the app. [Learn more.](https://superuser.com/a/28400/6877)
 
+### How do I find the bundle identifier of a Mac app? {#find-bundle-identifier}
+
+To get the bundle identifier of an app, run the following in the Terminal app:
+
+```sh
+osascript -e 'id of app "AppName"'
+```
+
+Replace `AppName` with the name of the app.
+
+### What is a bundle identifier? {#bundle-identifier}
+
+A bundle identifier (or bundle ID) uniquely identifies an app in Apple's ecosystem, using a reverse-domain format like `com.companyname.appname`. For example, `com.sindresorhus.Dato` for [Dato](/dato).
+
+### I have enabled “launch at login” but the app does not launch when I start my computer {#launch-at-login-not-working}
+
+When you enable that setting, the app simply tells macOS to launch it at login, so if it's not working, it's a problem with macOS or your system. As a workaround, you can manually add it: Open System Settings, go to “General › Login Items”, and click the “+” button, and choose the app.
+
 ### I'm having a problem with your app {#app-problem}
 
 Here are some things you could try:
@@ -180,12 +198,19 @@ tccutil reset All com.sindresorhus.Dato
 
 You can now launch the app again.
 
-### How can I send you a crash report for one of your Mac apps? {#crash-report}
+### How can I send you a crash report for one of your apps? {#crash-report}
 
+**macOS**
 - Open Finder
 - Select `Go to Folder…` from the `Go` menu
 - Enter: `~/Library/Logs/DiagnosticReports`
 - In the resulting list, select all files that starts with the app name, ZIP them, and [send me](/feedback)
+
+**iOS**
+- In the Settings app, go to “Privacy & Security › Analytics & Improvements › Analytics Data”
+- Tap the first item that starts with the app name
+	- If there is no such item, tap the first item that starts with `JetsamEvent`
+- Tap the share button, tap a mail app, and send it to `sindresorhus@gmail.com`
 
 ### How can I send you a **spindump** for one of your Mac apps? {#spindump}
 

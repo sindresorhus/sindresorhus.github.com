@@ -9,6 +9,12 @@ appStoreId: 1607635845
 olderMacOSVersions:
   - '12'
   - '13'
+feedbackNote: |
+  [Can you support Safari profiles?](/velja#safari-profiles)
+
+  [Can you support Arc spaces/profiles?](/velja#arc)
+
+  **If you're requesting an addition to the “Apps” list, [please read this](https://sindresorhus.com/velja#builtin-apps-requests).**
 ---
 
 Open links in a specific browser or a matching native app. Easily switch between browsers.
@@ -227,11 +233,11 @@ Velja automatically retrieves all browsers on your computer. There is no manual 
 
 I'm happy to consider requests (but read the below first). [Submit here.](https://sindresorhus.com/feedback?product=Velja&referrer=Website-FAQ)
 
+**Note:** This is about opening a link in a specific app. If you want to open a link **from** a specific app, just use the rules feature in the settings (it supports any app).
+
 *If this is about opening a specific website (for example, Google Sheets) in a specific browser, you should use the rules feature instead (the “Rules” tab in the settings). You can easily make a rule for any website.*
 
 *If this is about opening a specific website like Facebook in an app-wrapped website generated with something like Unite or Coherence, it's better to just add support yourself. You can use the rules feature for this. For example, write “facebook.com” as the domain and select the website wrapper app you generated.*
-
-**Note:** This is about opening a link in a specific app. If you want to open a link **from** a specific app, just use the rules feature (it supports any app).
 
 However, some apps are not feasible:
 - Slack
@@ -251,6 +257,10 @@ However, some apps are not feasible:
 
 And some apps do not need special support because they already support [universal links](https://developer.apple.com/ios/universal-links/):
 - [Quip](https://quip.com)
+- Maps (the built-in app)
+- Overcast
+
+*Universal links also prevent Velja from letting you open a link in the browser instead of the app.*
 
 If your favorite service is in the above list, I would recommend contacting them and asking them to support opening a link directly in their app. That means being able to run the command `open -a AppName https://foo.com/link-to-project-or-meeting`.
 
@@ -344,7 +354,7 @@ To see more detailed debug info on how Velja handled the URL: Quit Velja if it's
 
 #### How can I open a URL in a specific Safari Tab Group? {#safari-tab-group}
 
-Safari does not provide any way to achieve this. You will have to send a feature request to Apple.
+Safari does not provide any way to achieve this. You will have to send a [feature request to Apple](https://feedbackassistant.apple.com). Tell them they need to add support for opening a URL in a specific Safari Tab Group from AppleScript and Shortcuts.
 
 #### Velja does not show browsers from the user “~/Applications” folder
 
@@ -366,12 +376,16 @@ For all settings, [see this guide.](https://github.com/sindresorhus/guides/blob/
 
 #### Can you support Safari profiles? {#safari-profiles}
 
-Apple does not expose any way to open URLs in a specific profile. I recommend [sending feedback](https://feedbackassistant.apple.com) to Apple that they should add Shortcuts and AppleScript support for this.
+Safari does not expose any way to open URLs in a specific profile. I recommend [sending feedback](https://feedbackassistant.apple.com) to Apple that they should add Shortcuts and AppleScript support for this. More feedback increases the chances of it happening.
+
+*This is still the case in macOS 15 (Sequoia).*
 
 Feel free to duplicate my feedback reports:
 
 - [FB12320822](https://github.com/feedback-assistant/reports/issues/398)
 - [FB12320895](https://github.com/feedback-assistant/reports/issues/399)
+
+You can submit it [here](https://feedbackassistant.apple.com).
 
 #### Can you support spaces for the [Arc](https://thebrowser.company) browser? {#arc}
 

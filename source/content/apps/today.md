@@ -49,6 +49,10 @@ https://some-video-call-service.com/join/23423
 ---===---
 ```
 
+#### How do I add a calendar
+
+[Add the calendar to the built-in Calendar app](https://support.apple.com/guide/calendar/add-or-delete-calendar-accounts-icl4308d6701/mac) and then enable it in the Today settings.
+
 #### How can I open meeting links (Google Meet, Zoom, Microsoft Teams, etc.) in a specific browser?
 
 Check out my free [Velja app](https://sindresorhus.com/velja). It has built-in support for this without any setup. It can even open links to Zoom and Microsoft Teams directly in their desktop app.
