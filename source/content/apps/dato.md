@@ -14,18 +14,6 @@ olderMacOSVersions:
   - '11'
   - '12'
   - '13'
-feedbackNote: |
-  **Dato 5.3.1 triggered a bug in macOS which caused Dato to crash for some users. I submitted an update with a fix immediately, but it took Apple almost 1 week to approve it. The update is finally out now. Look for Dato 5.3.3 or later on the App Store. I'm really sorry for the inconvenience.**
-
-  **If you previously downloaded a temporary version from here, make sure you delete it before getting the App Store version again.**
----
-
-### Dato not launching
-
-**Dato 5.3.1 triggered a bug in macOS which caused Dato to crash for some users. I submitted an update with a fix immediately, but it took Apple almost 1 week to approve it. The update is finally out now. Look for Dato 5.3.3 or later on the App Store. I'm really sorry for the inconvenience.**
-
-**If you previously downloaded a temporary version from here, make sure you delete it before getting the App Store version again.**
-
 ---
 
 Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.
@@ -275,7 +263,16 @@ No. Dato is only available from the App Store and Setapp.
 
 #### The “upcoming event in menu bar” notification is not showing up
 
-Make sure you have enabled the feature in the settings and enabled the correct calendars for it (it has a separate calendar picker). Also make sure that there is enough space in the menu bar to show it. If you have Bartender (or a similar app that hides menu bar items) installed, make sure the menu bar item was not auto-hidden by Bartender. Note that it uses a separate menu item from the main Dato menu item.
+Make sure:
+
+- The feature in enabled in the settings.
+- The correct calendars for it are enabled (it has a separate calendar picker).
+- When in the settings for it, the placeholder example menu bar item shows up in the menu bar.
+	- If it doesn't show up, try reducing the “event title limit”.
+- There is enough space in the menu bar to show it.
+- If you have Bartender or Ice (or a similar app that hides menu bar items) installed, make sure the menu bar item was not auto-hidden by Bartender.
+	- Note that it uses a separate menu item from the main Dato menu item, so it could still be hidden by Bartender while the main menu bar item is not.
+	- Try quitting Bartender to make sure it is not one causing the issue.
 
 #### It does not support the video call service I use
 
