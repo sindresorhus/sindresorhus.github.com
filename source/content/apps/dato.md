@@ -31,6 +31,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 - Time zones in the Dato menu, optionally with custom names.
 - Show the upcoming event in the menu bar (like Fantastical, Meeter, and MeetingBar)
 - Time travel for time zones.
+- Deduplicates identical events from different calendars
 - Create events (even with a global keyboard shortcut)
 - Join the next meeting (Zoom/Meet/Teams) with a customizable global keyboard shortcut
 - Clocks for multiple time zones in the menu bar.
@@ -370,6 +371,10 @@ You need to enable the calendar in the Dato settings.
 
 It's already supported. Just add your calendars to the built-in Calendar app and then enable those calendars in the app settings.
 
+#### Can you support Google Calendars and Outlook directly without going through the Calendar app?
+
+Dato uses macOS's built-in calendaring system, which syncs seamlessly with Google Calendar, Outlook, and other services. This approach ensures all your calendars are managed centrally by macOS, providing a consistent experience across apps. The Calendar app on macOS is just one of the many apps that utilize this system. Adding direct syncing with Google Calendar and Outlook would offer minimal additional benefit but require significant development effort, which would detract from other important improvements.
+
 #### How can I hide the built-in menu bar clock? {#macos11-hide-clock}
 
 It's unfortunately not possible to disable the built-in menu bar clock.
@@ -447,7 +452,7 @@ Built-in support for sending calendar invites directly from Dato is not possible
 
 #### How can I make my calendar refresh more often?
 
-Open the Calendar app's settings, go to the “Accounts” pane, choose the relevant calendar service in the left sidebar, and then change the “Refresh Calendars” preference. Ideally, it should be set to “Push”, but not all services support that, like Google.
+Open the Calendar app's settings, go to the “Accounts” pane, choose the relevant calendar service in the left sidebar, and then change the “Refresh Calendars” setting. Ideally, it should be set to “Push”, but not all services support that, like Google.
 
 #### How can I accept/decline invites?
 
@@ -469,11 +474,11 @@ Same as the above but make the Shortery app run the shortcuts when the Focus mod
 
 #### Can you add support for showing an analog clock like the system clock?
 
-I have no plans to add that, but you can make it work by unchecking the “Time” preference in Dato and keeping the system clock in analog mode.
+I have no plans to add that, but you can make it work by unchecking the “Time” setting in Dato and keeping the system clock in analog mode.
 
 #### Can you add support for flashing the time separator like the system clock?
 
-I have no plans to add that, but you can make it work by unchecking the “Time” preference in Dato and keeping the system clock.
+I have no plans to add that, but you can make it work by unchecking the “Time” setting in Dato and keeping the system clock.
 
 #### A calendar is missing
 
@@ -533,6 +538,10 @@ In the “Custom date & time format” setting, write: `D`
 #### Can I change the background color of Dato?
 
 No, but you can make it white/black by turning off the “Vibrancy” setting.
+
+#### Can you add more menu bar icons?
+
+I'm happy to consider requests. You can find icons [here](https://developer.apple.com/sf-symbols/) and [here](https://thenounproject.com).
 
 #### The widgets provided by Dato do not show up in the widget picker
 
@@ -666,16 +675,16 @@ These are free for everyone but they will not run on newer macOS versions.
 	},
 	"offers": {
 		"@type": "Offer",
-		"price": "10.00",
+		"price": "11.00",
 		"priceCurrency": "USD"
 	},
 	"datePublished": "2019-07-13",
 	"headline": "Dato — Calendar events and world clocks in your menu bar",
 	"alternativeHeadline": "Calendar events and world clocks in your menu bar",
 	"downloadUrl": "https://apps.apple.com/app/id1470584107",
-	"softwareVersion": "5.2.9",
+	"softwareVersion": "5.3.5",
 	"screenshot": "https://sindresorhus.com/_astro/screenshot1.IX_7bQOQ.jpg",
-	"fileSize": "14MB",
+	"fileSize": "15MB",
 	"description": "Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.",
 	"keywords": "calendar,menu,bar,date,time,zone,world,clock,zoom,meet",
 	"thumbnailUrl": "https://sindresorhus.com/apps/dato/icon.png",

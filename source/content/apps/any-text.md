@@ -96,6 +96,10 @@ Create a shortcut in the Shortcuts app that opens the app you want, then open �
 
 You can set the “Widget Tap Action” setting to “None”.
 
+#### Can I edit the text directly from the Home Screen or Lock Screen?
+
+No, widgets only support tapping interactions.
+
 #### The Lock Screen widget does not show the text after restarting the device, before unlocking it
 
 This is an iOS limitation and is out of my control. It shows a placeholder until the first unlock. This is how all Lock Screen widgets work.

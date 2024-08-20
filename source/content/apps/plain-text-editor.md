@@ -13,6 +13,8 @@ Simple text editor without any rich text nonsense. The simplicity is a feature.
 
 It won't handle your 1 million line log file, but it is a nice way to write down some ideas.
 
+**Help test out the new iOS version: https://testflight.apple.com/join/jcwxWth4**
+
 <br>
 
 ### Frequently Asked Questions {#faq}
@@ -48,17 +50,17 @@ I don't plan to add that.
 
 This is a macOS bug. There is unfortunately nothing I can do about it.
 
-#### Does the app support tabs? {#tabs}
+#### Does the app support tabs on macOS? {#tabs}
 
 Yes. Click “View › Show Tab Bar” in the menu bar and then click the plus button in the window.
 
 You can also press <kbd>Command</kbd> + <kbd>N</kbd> if you have [tabs enabled for document apps](https://support.apple.com/en-gb/guide/mac-help/mchla4695cce/mac).
 
-#### How can I make the app preserve open documents when I quit?
+#### How can I make the app preserve open documents when I quit on macOS?
 
 This is already how it works. Actually, it's how all document-based apps on macOS work. Make sure you don't have “System Settings › Desktop & Dock › Close windows when quitting an application” enabled.
 
-#### I have enabled the translucent setting, why is the title bar not translucent?
+#### I have enabled the translucent setting on the macOS app, why is the title bar not translucent?
 
 Making the title bar translucent is not supported by macOS. I'm hoping to find a workaround in the future.
 
@@ -66,11 +68,11 @@ Making the title bar translucent is not supported by macOS. I'm hoping to find a
 
 It helps you focus on the actual writing, instead of getting distracted with editing and nitpicking. [Learn more.](https://writingcooperative.com/how-the-brain-dump-method-can-boost-your-writing-output-881089bb897a)
 
-#### When I save a file using the popover in the title bar, it always appends `.txt` when I choose a different file extension
+#### When I save a file using the popover in the title bar on macOS, it always appends `.txt` when I choose a different file extension
 
 This is a macOS bug. Instead, save the file from the “File” menu or by pressing <kbd>Command</kbd> + <kbd>S</kbd>.
 
-#### How can I toggle “Stay on Top” with a keyboard shortcut?
+#### How can I toggle “Stay on Top” with a keyboard shortcut on macOS?
 
 The keyboard shortcut is listed in the “Window” menu in the menu bar.
 
@@ -116,7 +118,7 @@ This is unfortunately a macOS bug and not something I can fix.
 
 #### Why is this free without ads?
 
-I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
+I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 #### Where can I find the changelog?
 

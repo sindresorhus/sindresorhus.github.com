@@ -131,7 +131,7 @@ Apps define the types they support and Folder Peek just fetches a list of apps t
 
 Folder Peek opens the default app that handles folders, which is Finder by default.
 
-- **Path Finder:** Enable the “Set as the default file browser” preference in Path Finder.
+- **Path Finder:** Enable the “Set as the default file browser” setting in Path Finder.
 - **ForkLift:** [Follow this guide.](https://binarynights.com/manual#fileviewer)
 
 For other apps, follow [this guide](https://binarynights.com/manual#fileviewer), but replace `com.binarynights.ForkLift-3` with the bundle identifier of the app you want.

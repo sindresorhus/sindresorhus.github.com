@@ -11,6 +11,9 @@ olderMacOSVersions:
 
 Easily access [ChatGPT](https://www.zdnet.com/article/what-is-chatgpt-and-why-does-it-matter-heres-everything-you-need-to-know/) from the menu bar, Dock, or using a keyboard shortcut.
 
+<!-- // TOOD: Show this when I have moved from Gumroad -->
+<!-- ![Download count](https://img.shields.io/github/downloads/sindresorhus/menu-bar-spacing-meta/total?color=3e65d0) -->
+
 <br>
 
 ### Frequently Asked Questions {#faq}

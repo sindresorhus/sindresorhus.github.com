@@ -14,8 +14,8 @@ export const GET = async context => {
 		}));
 
 	return rss({
-		title: 'Sindre Sorhus — Apps',
-		description: 'Quality crafted apps',
+		title: 'Sindre Sorhus — New Apps',
+		description: 'New apps by Sindre Sorhus',
 		site: context.site,
 		items,
 		trailingSlash: false,

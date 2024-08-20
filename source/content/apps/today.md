@@ -87,7 +87,7 @@ I don't plan to add this. You can get this feature in my [Dato app](/dato).
 
 #### Can you add more menu bar icons?
 
-I'm happy to consider requests. You can find icons [here](https://developer.apple.com/sf-symbols/).
+I'm happy to consider requests. You can find icons [here](https://developer.apple.com/sf-symbols/) and [here](https://thenounproject.com).
 
 #### I added a calendar to the Calendar app but it doesn't show up in the app
 
@@ -100,6 +100,10 @@ It's already supported. Just add your calendars to the built-in Calendar app and
 #### My Google Calendar does not update in the app
 
 You might have to re-authenticate your Google account. Open the Calendar app's settings, go to the “Accounts” pane, and try to remove and re-add the Google account.
+
+#### How can I make my calendar refresh more often?
+
+Open the Calendar app's settings, go to the “Accounts” pane, choose the relevant calendar service in the left sidebar, and then change the “Refresh Calendars” setting. Ideally, it should be set to “Push”, but not all services support that, like Google.
 
 #### Can you add some widgets?
 

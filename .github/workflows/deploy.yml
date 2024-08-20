@@ -1,9 +1,13 @@
 name: Deploy
+
 on:
   push:
     branches:
       - main
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *' # Runs every night at midnight UTC
+
 jobs:
   build:
     permissions:
@@ -12,6 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: withastro/action@v2
+
   deploy:
     needs: build
     permissions:

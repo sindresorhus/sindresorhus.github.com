@@ -195,6 +195,16 @@ If the link is a [short URL](https://en.wikipedia.org/wiki/URL_shortening), make
 
 This is either a macOS or Dropbox bug. Velja simply opens what it receives, but what it receives has incorrect permission. When you click a button in Dropbox to open it on the web, it doesn't actually open the URL directly but instead writes an HTML file (which redirects to the final URL) to a temporary directory. I have no idea why it does this, but it's likely this is what causes the issue.
 
+**It did not respect my rule that uses a "source app" condition**
+
+Ensure Velja correctly identifies the source app where the link was clicked. To check, enable the history setting (in the “Advanced” settings tab), click a link, and confirm the correct source app appears in the history screen.
+
+If the URL was opened using the `open` command-line tool, it may not work as expected because `open` closes before Velja can capture the app name. To work around this, use the following command:
+
+```sh
+timeout 0.5 open --wait-apps "https://sindresorhus.com/velja"
+```
+
 <a id="custom-rule-problem"></a>
 **My custom rule did not work**
 
@@ -231,7 +241,7 @@ Velja automatically retrieves all browsers on your computer. There is no manual 
 
 #### Can you add another app to the “Apps” settings? {#builtin-apps-requests}
 
-I'm happy to consider requests (but read the below first). [Submit here.](https://sindresorhus.com/feedback?product=Velja&referrer=Website-FAQ)
+I'm happy to consider requests (but read the below first). [Submit here.](https://sindresorhus.com/feedback?product=Velja&referrer=Website-FAQ) *(Include a link to the app and what behavior you expected)*
 
 **Note:** This is about opening a link in a specific app. If you want to open a link **from** a specific app, just use the rules feature in the settings (it supports any app).
 
@@ -617,6 +627,14 @@ Leave out `&prompt` to not show the browser prompt.
 
 Tip: You can specify the `url` search parameter multiple times to open multiple URLs.
 
+You can force the use of a specific browser by specifying an `app` search parameter:
+
+```sh
+open --background 'velja:open?url=https%3A%2F%2Fsindresorhus.com&app=org.mozilla.firefox'
+```
+
+It expects the [bundle identifier](/apps/faq#find-bundle-identifier) of an app. Rules will be ignored when this is specified.
+
 #### Change default browser in Velja from the command-line
 
 Run this command:
@@ -625,13 +643,7 @@ Run this command:
 defaults write com.sindresorhus.Velja defaultBrowser com.apple.Safari
 ```
 
-Replace `com.apple.Safari` with the bundle identifier of the browser you want.
-
-To get the bundle identifier of an app, you can run:
-
-```sh
-osascript -e 'id of app "Safari"'
-```
+Replace `com.apple.Safari` with the [bundle identifier](/apps/faq#find-bundle-identifier) of the browser you want.
 
 You can also use this trick to change the alternative browser by using `alternativeBrowser` instead of `defaultBrowser`.
 

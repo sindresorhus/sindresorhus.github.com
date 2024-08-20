@@ -5,9 +5,9 @@ title: About
 
 # About Sindre Sorhus
 
-I'm a full-time open-source developer. In 2014, I quit my office job to backpack around Southeast Asia while doing open-source. I have since settled in Bangkok, Thailand, but I'm still doing open-source all day. In early 2018, I became fully funded by the community.
+I'm a full-time open-source developer. In 2014, I quit my office job to backpack around Southeast Asia while doing open-source. I'm not backpacking anymore, but I'm still doing open-source all day. In early 2018, I became fully funded by the community.
 
-My current focus is on macOS app development with Swift and Node.js-based packages and CLI tools. I actively maintain [1000+ npm packages](https://www.npmjs.com/~sindresorhus) and [many popular projects](https://github.com/search?q=user:sindresorhus+user:chalk+user:avajs+user:xojs+archived:false&type=Repositories).
+My current focus is on macOS app development with Swift, Node.js-based packages, and CLI tools. I actively maintain [1000+ npm packages](https://www.npmjs.com/~sindresorhus) and [many popular projects](https://github.com/search?q=user:sindresorhus+user:chalk+user:avajs+user:xojs+archived:false&type=Repositories).
 
 ### More
 

@@ -7,6 +7,8 @@ platforms:
   - iOS
 appStoreId: 1532588789
 forceHasIosAppIcon: true
+links:
+  'TestFlight': https://testflight.apple.com/join/ybGzYJ28
 ---
 
 For macOS, it's only available for Apple silicon Macs.

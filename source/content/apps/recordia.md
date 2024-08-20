@@ -29,7 +29,7 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 #### How can I preview the recording when done?
 
-First, ensure the “Show recording in Finder after saving” preference is enabled. When the recording is shown in Finder, press the Space key to preview it.
+First, ensure the “Show recording in Finder after saving” setting is enabled. When the recording is shown in Finder, press the Space key to preview it.
 
 #### How can I trim the recording when done?
 

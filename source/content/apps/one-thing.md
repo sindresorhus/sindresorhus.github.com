@@ -61,6 +61,10 @@ macOS hides menu bar items that do not fit. [Click here](one-thing:?text=) to re
 
 [Click here](one-thing:?text=) to reset the text.
 
+#### How is this different from your [One Task](/one-task) app? {#one-task-difference}
+
+See [this answer](/one-task#one-thing-difference).
+
 #### Can I execute an action when I click the text?
 
 You can add a [link using Markdown](https://www.markdownguide.org/basic-syntax/#links).

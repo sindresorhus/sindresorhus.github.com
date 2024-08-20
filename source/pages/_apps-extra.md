@@ -11,7 +11,7 @@
 
 ## More
 
-- [RSS Feed for New Apps](/rss-apps.xml) - Get notified about new apps I publish
+- [RSS Feed for New Apps](/feeds) - Get notified about new apps I publish
 - [FAQ](/apps/faq) - Frequently asked questions about my apps
 - [Tiny Apps](/tiny-apps) - Smaller utilities
 - [Older Versions](/apps/older-versions) - Apps for older macOS versions
@@ -21,4 +21,4 @@
 
 ## Free
 
-If you're a student, open-source maintainer, or cannot afford my paid apps, [reach out](mailto:sindresorhus@gmail.com?subject=Free%20promo%20code%20for%20%5Bapp%5D&body=Mention%20which%20paid%20apps%20you%20want), and I will give you any of my paid apps for free.
+If you're a student, open-source maintainer, or cannot afford my [paid apps](/apps/paid), [reach out](mailto:sindresorhus@gmail.com?subject=Free%20promo%20code%20for%20%5Bapp%5D&body=Mention%20which%20paid%20apps%20you%20want), and I will give you any of my paid apps for free.
