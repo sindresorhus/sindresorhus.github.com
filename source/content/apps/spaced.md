@@ -22,8 +22,6 @@ You may also like my [Menu Bar Spacing](/menu-bar-spacing) app for changing the 
 
 ---
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -52,19 +50,11 @@ defaults write com.apple.dock persistent-apps -array-add '{"tile-type"="spacer-t
 
 I don't plan to localize the app.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1666327168) and click “Version History”.
-
 #### [More FAQs…](/apps/faq)
-
-<br>
 
 ### Older Versions
 
 - [1.0.4](https://github.com/sindresorhus/meta/files/13852708/Spaced.1.0.4.-.macOS.13.zip) for macOS 13+
-
-<br>
 
 ### Non-App Store Version
 

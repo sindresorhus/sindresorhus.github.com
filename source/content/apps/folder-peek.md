@@ -19,8 +19,6 @@ Folder Peek lets you put one or more folders in the menu bar.
 
 Make sure you read the below tips and FAQ.
 
-<br>
-
 ### Tips
 
 - Click a file or folder in the menu to open it. Folders open in Finder.
@@ -42,8 +40,6 @@ You can use Folder Peek to access links too. Drag and drop the URL from the Safa
 ##### Desktop folder
 
 You could add the “Desktop” folder to Folder Peek and then [hide the desktop icons](https://beebom.com/how-hide-desktop-icons-mac/) for a cleaner look.
-
-<br>
 
 ### Frequently Asked Questions {#faq}
 
@@ -182,24 +178,16 @@ You can show the `…` menu item again by pressing the <kbd>Option</kbd> key.
 
 I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1615988943) and click “Version History”.
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-<br>
-
 ### Older Versions
 
 - [1.9.2](https://github.com/sindresorhus/meta/files/13980050/Folder.Peek.1.9.2.-.macOS.13.zip) for macOS 13+
 - [1.6.1](https://github.com/sindresorhus/meta/files/10901140/Folder.Peek.1.6.1.-.macOS.12.zip) for macOS 12+
-
-<br>
 
 ### Non-App Store Version
 

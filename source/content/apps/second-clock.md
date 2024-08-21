@@ -12,8 +12,6 @@ The app is simple by design.
 
 Check out [Dato](/dato) for more features and settings or [UTC Time](/utc-time) if you just need the time in UTC.
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -72,13 +70,7 @@ The time output adheres to your locale. I don't plan to localize the app itself.
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id6450279539) and click “Version History”.
-
 #### [More FAQs…](/apps/faq)
-
-<br>
 
 ### Non-App Store Version
 

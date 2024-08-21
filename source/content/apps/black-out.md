@@ -15,8 +15,6 @@ olderMacOSVersions:
 
 This app can be useful when you want to post a screenshot or photo on the web that contains some information you don’t want to be revealed. Maybe you want to share a screenshot of a Slack conversation on Twitter but hide some private information. It also removes all metadata, like when and where a photo was captured.
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -40,8 +38,6 @@ You can open a PDF document, but you have to export it as a PNG image. It’s al
 It’s from Apple’s inspirational [“Here’s to the Crazy Ones” TV commercial](https://www.youtube.com/watch?v=-z4NS2zdrZc).
 
 #### [More FAQs…](/apps/faq)
-
-<br>
 
 ### Older Versions
 

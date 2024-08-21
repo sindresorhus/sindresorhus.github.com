@@ -14,8 +14,6 @@ olderMacOSVersions:
 
 This can be useful as a quick reference.
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -54,21 +52,13 @@ I don't plan to add this. Showing seconds wastes a lot of system resources and e
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1538245904) and click “Version History”.
-
 #### [More FAQs…](/apps/faq)
-
-<br>
 
 ### Older Versions
 
 - [1.7.1](https://github.com/sindresorhus/meta/files/13973570/UTC.Time.1.7.1.-.macOS.13.zip) for macOS 13+
 - [1.5.1](https://github.com/sindresorhus/meta/files/10767291/UTC.Time.1.5.1.-.macOS.12.zip) for macOS 12+
 - [1.3.0](https://github.com/sindresorhus/meta/files/8007477/UTC.Time.1.3.0.-.macOS.11.zip) for macOS 11+
-
-<br>
 
 ### Non-App Store Version
 

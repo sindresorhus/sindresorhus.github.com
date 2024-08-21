@@ -8,4 +8,4 @@ repoUrl: https://github.com/sindresorhus/blear
 appStoreId: 994182280
 ---
 
-Blear lets you easily transform your own photos or the bundled ones into stunning blurry wallpapers for your device. Make your Home/Lock screen shine!
+Transform your photos or the bundled ones into stunning blurry wallpapers for your device. Make your Home/Lock screen shine!

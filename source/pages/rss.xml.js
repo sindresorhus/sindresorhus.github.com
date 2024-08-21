@@ -16,7 +16,6 @@ export const GET = async context => {
 
 	items = items
 		.flat()
-		.filter(item => !item.unlisted)
 		.map(item => ({
 			link: item.url,
 			title: item.title,

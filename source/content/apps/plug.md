@@ -14,4 +14,4 @@ olderMacOSVersions:
   - '11'
 ---
 
-Plug is an open source macOS app I'm working on with my friends. Hype Machine is a popular music blog aggregator.
+An open source macOS app I'm working on with my friends. Hype Machine is a popular music blog aggregator.

@@ -30,8 +30,6 @@ Your API key is securely stored in your keychain, not in a shortcut.
 
 *You may also like my [Actions](/actions) app.*
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -62,23 +60,17 @@ No, the Whisper API isn't suitable for this app due to Shortcuts' 30-second limi
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id6465250302) and click “Version History”.
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-<!-- <br>
+<!--
 
 ### Older Versions
 
 - []() for macOS 14+ -->
-
-<br>
 
 ### Non-App Store Version
 

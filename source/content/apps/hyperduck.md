@@ -25,8 +25,6 @@ My personal use-case is that I often discover cool stuff when I check Twitter on
 
 The app uses iCloud syncing to securely send links from your iOS/visionOS device to your Mac. The app developer will not see the links you share. The app does not collect any personal data and does not have any tracking.
 
-<br>
-
 ### Troubleshooting
 
 - Try restarting both devices.
@@ -40,11 +38,9 @@ The app uses iCloud syncing to securely send links from your iOS/visionOS device
 - On iOS, ensure Hyperduck is enabled in “Settings › Apple ID › iCloud › Apps Using iCloud”.
 - On macOS, ensure Hyperduck is enabled in “System Settings › Apple ID › iCloud › iCloud Drive › Apps syncing to iCloud Drive”.
 - If it's a work device, make sure there are no restrictions in place that prevents iCloud or iCloud Drive.
-- If you are using a VPN, try disconnecting it. Some VPNs prevent iCloud from syncing.
-- Make sure the [iCloud service](https://www.apple.com/support/systemstatus/) is not currently experiencing issues.
+- If using a VPN, try disconnecting it, as some VPNs can interfere with iCloud syncing.
+- Check the [iCloud system status](https://www.apple.com/support/systemstatus/) to ensure the service is not experiencing issues.
 - In the iOS app, if you triple-tap the text, it will show the most recently shared URLs, which may aid debugging.
-
-<br>
 
 ### Tips
 
@@ -76,7 +72,12 @@ raycast://confetti
 
 You can now trigger confetti to show up on your Mac from your iPhone.
 
-<br>
+#### Send a link to a specific browser profile
+
+Create an [iOS shortcut that triggers a macOS shortcut](#shortcuts) and set it to appear in the share sheet. In the macOS shortcut, use the "Open URLs" action from my [Velja](/velja) app to open the URL in a specific browser profile.
+
+- [Example iOS shortcut](https://www.icloud.com/shortcuts/a00ac5bb31294084936fbd4dd6ca0245)
+- [Example macOS shortcut](https://www.icloud.com/shortcuts/d39c57b67ed343d58192a899841d6457)
 
 ### Frequently Asked Questions {#faq}
 
@@ -185,9 +186,15 @@ The Arc browser does not support opening multiple URLs at the time. I suggest se
 
 As a workaround, you could use my free [Velja app](/velja) to make such links open in a different browser. Create a custom rule where you set Hyperduck as the source app and set the destination app to a different browser than Arc.
 
+#### Can Hyperduck lose a shared link if my internet goes down?
+
+No. Hyperduck stores your link in iCloud, ensuring it's available until successfully opened on your Mac, regardless of your internet connection quality.
+
 #### Can you add a history screen to the iOS app?
 
 I don't plan to add this. I would like to keep the app focused on one thing and do it well. The app is for sending links from iOS to Mac. That's it.
+
+If you really need to see what URLs were shared, you can triple-tap on the text in the iOS app to get a list of recently shared URLs.
 
 #### Can you support multiple Macs?
 
@@ -201,19 +208,11 @@ No. That is not something I plan to support. It's simply not something I need my
 
 I don't plan to localize the app.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id6444667067) and click “Version History”.
-
 #### [More FAQs…](/apps/faq)
-
-<br>
 
 ### Older Versions
 
 - [1.0.7](https://github.com/sindresorhus/meta/files/14292936/Hyperduck.1.0.7.-.macOS.13.zip) for macOS 13+
-
-<br>
 
 ### Non-App Store Version
 

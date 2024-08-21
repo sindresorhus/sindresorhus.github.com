@@ -12,15 +12,11 @@ olderMacOSVersions:
 
 Instant access to your Mac's camera feed for quick checks before video calls.
 
-<br>
-
 ### Tips
 
 - Press the <kbd>Return</kbd> or <kbd>Space</kbd> key while showing the camera feed to take a photo.
 - Press the <kbd>Command</kbd> and <kbd>+</kbd> key to zoom in, <kbd>Command</kbd> and <kbd>-</kbd> to zoom out, and <kbd>Command</kbd> and <kbd>0</kbd> to reset the zoom.
 - Press the <kbd>Option<kbd> key while resizing the window to resize from the center (this works with any app).
-
-<br>
 
 ### Frequently Asked Questions {#faq}
 
@@ -79,23 +75,15 @@ No. That's outside the scope of this app. You can use the built-in QuickTime Pla
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1632827132) and click “Version History”.
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-<br>
-
 ### Older Versions
 
 - [1.4.0](https://github.com/sindresorhus/meta/files/13988612/Camera.Preview.1.4.0.-.macOS.13.zip) for macOS 13+
-
-<br>
 
 ### Non-App Store Version
 

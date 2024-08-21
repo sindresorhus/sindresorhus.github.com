@@ -40,8 +40,6 @@ Please help out by starring these Chrome issues which would help Velja users:
 - <https://bugs.chromium.org/p/chromium/issues/detail?id=174117>
 - <https://bugs.chromium.org/p/chromium/issues/detail?id=1325557>
 
-<br>
-
 ### Tips
 
 #### Prompt
@@ -150,8 +148,6 @@ Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to laun
 - Click “+” for the “URL Matchers”.
 - Define a pattern that matches the URLs you want to match.
 - Click “Save”.
-
-<br>
 
 ### Frequently Asked Questions {#faq}
 
@@ -595,17 +591,11 @@ Browserosaurus benefits:
 
 I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1607635845) and click “Version History”.
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
-
-<br>
 
 ### Scripting {#scripting}
 
@@ -649,19 +639,15 @@ You can also use this trick to change the alternative browser by using `alternat
 
 Use the special bundle identifier `com.sindresorhus.Velja.promptMarker` to set the prompt as the browser.
 
-<br>
-
 ### Older Versions
 
 - [1.16.4](https://github.com/sindresorhus/meta/files/14577839/Velja.1.16.4.-.macOS.13.zip) for macOS 13+
 - [1.12.4](https://github.com/sindresorhus/meta/files/10895250/Velja.1.12.4.-.macOS.12.zip) for macOS 12+
 
-<br>
-
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/evv8iq8elftl6exlc17zd/Velja-2.0.3-1716983176.zip?rlkey=12jx6j3gzuv3cnwd8ky5a14wy&raw=1) *(2.0.3)*
+[Download](https://www.dropbox.com/scl/fi/5k2qcg8t0hzs4jnksszua/Velja-2.0.6-1725095798.zip?rlkey=rsi892nrgf4mfpefad4osohj2&raw=1) *(2.0.6)*
 
 *Requires macOS 14 or later*

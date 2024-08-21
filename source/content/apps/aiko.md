@@ -129,8 +129,6 @@ Aiko transcribes audio directly on your device, ensuring complete privacy. It's 
 
 The app uses the Whisper large v2 model on macOS and the medium or small model on iOS depending on available memory.
 
-<br>
-
 ### Tips
 
 #### Divide text into paragraphs
@@ -180,8 +178,6 @@ You can use [this shortcut](https://www.icloud.com/shortcuts/e43220d72f3343659e0
 #### Start recording in Aiko when tapping the Home Screen icon
 
 [Get this shortcut](https://www.icloud.com/shortcuts/7c3031aa674c405fa69093d1f6c184a6) and add it to the Home Screen. Then tap it instead of the original Aiko app icon.
-
-<br>
 
 ### Frequently Asked Questions {#faq}
 
@@ -349,23 +345,15 @@ Yes, it's native and written in Swift and SwiftUI.
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1672085276) and click “Version History”.
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-<br>
-
 ### Older Versions
 
 - [1.5.3](https://drive.google.com/file/d/15NOcj4fyX58I3_NlQyCziL87Ru89yFRx/view?usp=sharing) for macOS 13+
-
-<br>
 
 ### Non-App Store Version
 

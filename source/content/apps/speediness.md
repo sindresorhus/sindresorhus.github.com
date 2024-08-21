@@ -10,7 +10,7 @@ olderMacOSVersions:
   - '13'
 ---
 
-<br>
+Quickly check your internet connection speed, ping, and [RPM](#rpm).
 
 ### Tips
 
@@ -23,8 +23,6 @@ You will need the [One Thing](https://sindresorhus.com/one-thing) and [Shortery]
 Add [this shortcut](https://www.icloud.com/shortcuts/d073ad4fd89f4c9cb110795780ed2377) and then create a new time trigger in Shortery. I would recommend an interval higher than 10 minutes.
 
 Tip: If you have limited space in the menu bar, you could switch the info shown in One Thing at an interval too. For example, you could show the internet speed for 10 minutes and then the weather for the next 10 minutes.
-
-<br>
 
 ### Frequently Asked Questions {#faq}
 
@@ -44,7 +42,7 @@ The Speedtest app uses a nearby server, which means the speed does not reflect r
 
 The problem with fast.com is that it's run by Netflix, and Netflix's servers are often prioritized (and sometimes throttled), meaning you won't always get a realistic value. It pretty much gives you your speed for watching Netflix.
 
-#### What does the responsiveness (RPM) value mean?
+#### What does the responsiveness (RPM) value mean? {#rpm}
 
 It's a measurement called Round-trips Per Minute (RPM) — the number of sequential round-trips a network can do in one minute under normal working conditions.
 
@@ -94,24 +92,16 @@ Yes, it's native and written in Swift and SwiftUI.
 
 I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1596706466) and click “Version History”.
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-<br>
-
 ### Older Versions
 
 - [1.6.1](https://github.com/sindresorhus/meta/files/13965129/Speediness.1.6.1.-.macOS.13.zip) for macOS 13+
 - [1.5.0](https://github.com/sindresorhus/meta/files/10847708/Speediness.1.5.0.-.macOS.12.zip) for macOS 12+
-
-<br>
 
 ### Non-App Store Version
 

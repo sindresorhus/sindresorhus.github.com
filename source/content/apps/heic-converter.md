@@ -18,17 +18,11 @@ HEIC Converter is a macOS app that makes it easy to quickly convert images in th
 
 If you don't have any HEIC images, you can try the app out with [this one](/apps/heic-converter/heic-example.heic).
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
 [Send it here.](https://sindresorhus.com/feedback?product=HEIC+Converter&referrer=Website-FAQ)
-
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1294126402) and click “Version History”.
 
 #### Does it preserve 10-bit depth?
 
@@ -55,8 +49,6 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 #### [More FAQs…](/apps/faq)
 
-<br>
-
 ### Older Versions
 
 - [3.2.0](https://github.com/sindresorhus/meta/files/13981994/HEIC.Converter.3.2.0.-.macOS.13.zip) for macOS 13+
@@ -65,7 +57,6 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 - [2.1.5](https://github.com/sindresorhus/meta/files/8817868/HEIC.Converter.2.1.5.-.macOS.10.15.zip) for macOS 10.15+
 - [1.9.0](https://github.com/sindresorhus/meta/files/6715716/HEIC.Converter.1.9.0.-.macOS.10.14.zip) for macOS 10.14+
 - [1.5.3](https://github.com/sindresorhus/meta/files/13539124/HEIC-Converter-for-macOS-10.13.zip) for macOS 10.13+
-<br>
 
 ### Non-App Store Version
 

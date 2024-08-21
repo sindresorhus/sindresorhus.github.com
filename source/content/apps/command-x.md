@@ -15,8 +15,6 @@ Cut and paste files and folders in Finder using Command+X and Command+V. Without
 
 Known limitation: You cannot cut the name of a file when editing a filename in Finder or cut when using the search field. There is no way for the app to work around this.
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -54,6 +52,10 @@ tccutil reset All com.sindresorhus.Command-X
 
 To help me figure out the issue, make sure the “Use more reliable way of handling Command+X” setting is enabled, press <kbd>Command+X</kbd> and <kbd>Command+V</kbd> in Finder, click the “Copy Debug Info” button in the Command X menu bar menu, and then [send the debug info to me](/feedback?product=Command%20X&referrer=Website-FAQ), including a short explanation of what didn't work.
 
+#### How does the app work?
+
+The app works by overriding the normal cut <kbd>⌘X</kbd> keyboard shortcut when Finder is active and executes a copy <kbd>⌘C</kbd> instead. When you then paste <kbd>⌘V</kbd>, it executes the native move <kbd>⌥⌘V</kbd> keyboard shortcut. So really, it's Finder moving the files. This app just makes the keyboard shortcuts more intuitive.
+
 #### Is there any risk of data loss if I forget to paste?
 
 No. The files are not touched until you paste. If you don't paste, the files just stay in place.
@@ -78,23 +80,15 @@ This is a known issue that is unfortunately not fixable. The app works by overri
 
 Same as the above.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id6448461551) and click “Version History”.
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-<br>
-
 ### Older Versions
 
 - [1.3.1](https://github.com/sindresorhus/meta/files/13987707/Command.X.1.3.1.-.macOS.13.zip) for macOS 13+
-
-<br>
 
 ### Non-App Store Version
 

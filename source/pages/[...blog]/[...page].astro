@@ -7,8 +7,7 @@ import {fetchPosts} from '~/utils/posts.js';
 import {BLOG_BASE} from '~/utils/permalinks.js';
 
 export async function getStaticPaths({paginate}) {
-	let posts = await fetchPosts();
-	posts = posts.filter(post => !post.unlisted);
+	const posts = await fetchPosts();
 
 	return paginate(posts, {
 		params: {blog: BLOG_BASE || undefined},

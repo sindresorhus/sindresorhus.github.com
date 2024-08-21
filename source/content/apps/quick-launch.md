@@ -14,8 +14,6 @@ For example, open google.com, launch TikTok, or run a shortcut to play a random 
 
 <!-- **For macOS, it's only available for Apple silicon Macs.** -->
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -56,9 +54,5 @@ If you work at Apple, you know what to do:
 #### Why is this free without ads?
 
 I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.
-
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1645566403) and click “Version History”.
 
 #### [More FAQs…](/apps/faq)

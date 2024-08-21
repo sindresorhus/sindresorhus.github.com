@@ -1,0 +1,23 @@
+---
+import Layout from '~/layouts/SimplePageLayout.astro';
+import {fetchApps} from '~/utils/apps.js';
+
+const apps = await fetchApps();
+
+const appSlugs = apps.map(app => app.slug);
+---
+
+<Layout>
+	<script type="module" define:vars={{appSlugs}}>
+		const randomItem = items => items[Math.floor(Math.random() * items.length)];
+
+		const referrerApp = document.referrer && new URL(document.referrer).pathname.split('/')[1];
+		const filteredAppSlugs = appSlugs.filter(slug => slug !== referrerApp); // Avoid picking the app we came from.
+		window.location.href = `/${randomItem(filteredAppSlugs)}`;
+	</script>
+	<div class="flex items-center justify-center min-h-[50vh] text-center">
+		<noscript>
+			<p class="text-center">JavaScript is required to show a random app. You can always browse the <a href="/apps">app list</a> manually.</p>
+		</noscript>
+	</div>
+</Layout>

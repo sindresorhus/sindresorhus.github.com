@@ -14,8 +14,6 @@ Easily access [ChatGPT](https://www.zdnet.com/article/what-is-chatgpt-and-why-do
 <!-- // TOOD: Show this when I have moved from Gumroad -->
 <!-- ![Download count](https://img.shields.io/github/downloads/sindresorhus/menu-bar-spacing-meta/total?color=3e65d0) -->
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -53,8 +51,6 @@ I personally prefer the ChatGPT web UI as it's cheaper for me to pay monthly for
 Apple generally rejects website wrappers even if they add useful additional functionality. Apple has also lately been rejecting any app with GPT in the name.
 
 #### [More FAQs…](/apps/faq)
-
-<br>
 
 ### Older Versions
 

@@ -29,8 +29,6 @@ Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found 
 - Copy a GIF to the clipboard.
 - Launch the app at login.
 
-<br>
-
 <!-- ### Tips
 
 <table>
@@ -45,8 +43,6 @@ Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found 
 		</td>
 	</tr>
 </table>
-
-<br>
 
 ### Keyboard Shortcuts
 
@@ -79,8 +75,6 @@ Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found 
 	</tr>
 </table> -->
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 <!-- #### I have a feature request, bug report, or some feedback
@@ -95,10 +89,6 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 I don't plan to localize the app.
 
-<!-- #### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1502527999) and click “Version History”. -->
-
 #### Why the name “Jiffy”?
 
 Some people incorrectly pronounce GIF as “Jif”. The name is a pun on that. Also, “Jiffy” means to do something fast, which is what the app is all about.
@@ -109,7 +99,7 @@ I just enjoy making apps. Consider leaving a nice review on the App Store. -->
 
 #### [More FAQs…](/apps/faq)
 
-<!-- <br>
+<!--
 
 ### Older Versions
 
@@ -118,8 +108,6 @@ I just enjoy making apps. Consider leaving a nice review on the App Store. -->
 - [2.1.1](https://github.com/sindresorhus/meta/files/7511993/Jiffy.2.1.1.-.macOS.11.zip) for macOS 11+
 - [1.3.3](https://github.com/sindresorhus/meta/files/6626336/Jiffy.1.3.3.-.macOS.10.15.zip) for macOS 10.15+
 
-<br>
-
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
@@ -127,4 +115,4 @@ A special version for users that cannot access the App Store. It won't receive a
 [Download](https://www.dropbox.com/scl/fi/26sudsm3koidwsztn5zl9/Jiffy-2.6.0-1705228001.zip?rlkey=f4psqpqvsnecfenlr55paybke&raw=1) *(2.6.0)*
 
 *Requires macOS 14 or later*
- -->
+-->

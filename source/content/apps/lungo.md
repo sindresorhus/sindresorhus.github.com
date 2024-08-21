@@ -19,8 +19,6 @@ olderMacOSVersions:
 
 Lungo prevents your Mac from falling asleep and your screen from dimming.
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -110,10 +108,6 @@ And to transfer the other way:
 ```sh
 defaults export com.sindresorhus.Lungo-setapp - | defaults import com.sindresorhus.Lungo -
 ```
-
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1263070803) and click “Version History”.
 
 #### Can you localize the app into my language?
 
@@ -211,8 +205,6 @@ import subprocess
 
 subprocess.run(['open', '--background', 'lungo:toggle'])
 ```
-
-<br>
 
 ### Older Versions
 

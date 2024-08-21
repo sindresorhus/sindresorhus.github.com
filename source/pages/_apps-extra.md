@@ -8,16 +8,17 @@
 - [Apple Watch Apps](/apps/watchos) - Apps that run on Apple Watch
 - [Apple Vision Apps](/apps/visionos) - Apps that run on Apple Vision
 - [Open Source Apps](https://github.com/search?q=user%3Asindresorhus+language%3Aswift+topic%3Aapp+archived%3Afalse&type=repositories) - Apps with the source code available
+- [Random App](/apps/random) - Show a random app
 
 ## More
 
-- [RSS Feed for New Apps](/feeds) - Get notified about new apps I publish
 - [FAQ](/apps/faq) - Frequently asked questions about my apps
 - [Tiny Apps](/tiny-apps) - Smaller utilities
 - [Older Versions](/apps/older-versions) - Apps for older macOS versions
 - [Archived Apps](/apps/archived) - Apps that are no longer being worked on
+- [RSS Feed for New Apps](/feeds) - Get notified about new apps I publish
 - [Terms of Use](/apps/terms) - Guidelines and conditions for using my apps
-- [Affiliates](/apps/affiliates) - Earn commission when recommending my apps
+<!-- - [Affiliates](/apps/affiliates) - Earn commission when recommending my apps -->
 
 ## Free
 

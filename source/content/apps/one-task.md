@@ -36,8 +36,6 @@ You can quickly import tasks from other todo apps by copying the tasks from such
 
 For example, on macOS, select the tasks you want in Reminders or Things, right-click and copy them, and then paste them into One Task using the “Tasks: Paste” button.
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -95,21 +93,11 @@ I don't plan to add this. I want to keep the app super simple.
 
 The text automatically scales down to fit more content.
 
-#### Why is this free without ads?
-
-I just enjoy making apps. Consider leaving a nice review on the App Store.
-
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id6465745322) and click “Version History”.
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
-
-<br>
 
 ### Non-App Store Version
 

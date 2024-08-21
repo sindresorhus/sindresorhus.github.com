@@ -18,8 +18,6 @@ The app uses [GPT-4o mini](https://openai.com/index/gpt-4o-mini-advancing-cost-e
 
 The app uses OpenAI's official ChatGPT API. I have to pay for every question, but the app is a one-time purchase since I hate subscription. I sure hope I estimated the price correctly 🤣
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I bought the app on my iPhone/iPad but it does not show up on my watch
@@ -41,9 +39,5 @@ Add [this shortcut](https://www.icloud.com/shortcuts/6b890da159844407a6b39de4545
 #### Can you support iOS and macOS too?
 
 Unfortunately, it is unlikely that the app will be available on iOS and macOS. The pricing of the app is based on its expected lifetime usage, and since I am charged for the amount of usage, the cost would be much higher on iOS. For macOS, check out [QuickGPT](/quickgpt).
-
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id6446167837) and click “Version History”.
 
 #### [More FAQs…](/apps/faq)

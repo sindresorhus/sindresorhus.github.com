@@ -3,8 +3,12 @@ import {SITE} from '~/config.mjs';
 import Layout from '~/layouts/SimplePageLayout.astro';
 import {fetchApps} from '~/utils/apps.js';
 
-const apps = await fetchApps();
-const macOSVersions = [...new Set(apps.flatMap(app => app.olderMacOSVersions))].sort().reverse().filter(Boolean);
+const apps = await fetchApps({includeArchived: true});
+
+const macOSVersions = [...new Set(apps.flatMap(app => app.olderMacOSVersions))]
+	.sort()
+	.reverse()
+	.filter(Boolean);
 
 const meta = {
 	title: `Older Versions — Apps — ${SITE.name}`,

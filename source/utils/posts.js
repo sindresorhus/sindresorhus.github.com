@@ -17,7 +17,7 @@ const normalizePost = async post => {
 	};
 };
 
-const load = async function () {
+const load = async function ({includeUnlisted = false} = {}) {
 	const posts = await getCollection('blog', app => !app.data.draft);
 
 	const normalizedPosts = await Promise.all(
@@ -25,7 +25,8 @@ const load = async function () {
 	);
 
 	return normalizedPosts
-		.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+		.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate))
+		.filter(app => includeUnlisted || !app.isUnlisted);
 };
 
 let cachedPosts;

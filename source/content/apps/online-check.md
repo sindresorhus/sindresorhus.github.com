@@ -5,6 +5,7 @@ pubDate: 2024-06-23
 platforms:
   - macOS
 isMenuBarApp: true
+isPaid: true
 appStoreId: 6504709660
 # olderMacOSVersions
 #   - '14'
@@ -12,15 +13,11 @@ appStoreId: 6504709660
 
 Check if you are online directly from the menu bar. The menu bar icon turns red when you are offline and it optionally shows a notification.
 
-<br>
-
 ### Tips
 
 #### Connect to other Wi-Fi when status is offline
 
 You can have the app connect to a different Wi-Fi if the current one becomes offline. Add [this shortcut](https://www.icloud.com/shortcuts/bf64ec8fd3d24f80b2af845464306614) to the Shortcuts app and edit the required information. Then select this shortcut in the Online Check settings.
-
-<br>
 
 ### Frequently Asked Questions {#faq}
 
@@ -58,13 +55,11 @@ No. Menu bar icons are intended to be mostly monotone, changing color only to in
 
 #### [More FAQs…](/apps/faq)
 
-<br>
-
 <!-- ### Older Versions
 
 - [0.0.0]() for macOS 14+
 
-<br> -->
+-->
 
 ### Non-App Store Version
 

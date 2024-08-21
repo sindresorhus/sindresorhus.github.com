@@ -51,15 +51,11 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 - Date calculator.
 - Hourly chime.
 
-<br>
-
 ### Trial
 
-There's a fully functional trial available [here](https://www.dropbox.com/scl/fi/r8qli7am9iy9rt6i2vkfr/Dato-5.3.5-trial-1722171019.zip?rlkey=tyd282ixs3ih5d4cnp9ri7qzr&raw=1). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive automatic updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+There's a fully functional trial available [here](https://www.dropbox.com/scl/fi/6z1mj94xelwpmoyojkvt3/Dato-5.3.7-trial-1725218207.zip?rlkey=hdidus85nzcwu164rdx7z3hr3&raw=1). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive automatic updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_medium=vendor_program&utm_content=button) for 7 days for free.
-
-<br>
 
 ### Tips
 
@@ -95,8 +91,6 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 		</td>
 	</tr>
 </table>
-
-<br>
 
 ### Keyboard Shortcuts
 
@@ -215,8 +209,6 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 	</tr>
 </table>
 
-<br>
-
 ### Gestures
 
 <table>
@@ -242,11 +234,9 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 		<td>
 			<kbd>shift</kbd> + Swipe left/right on the calendar
 		</td>
-		<td>Next/previous year in the calendar</td>
+		<td>Next/previous day in the calendar</td>
 	</tr>
 </table>
-
-<br>
 
 ### Frequently Asked Questions {#faq}
 
@@ -358,6 +348,10 @@ I'm hoping to have this done later this year. It's quite a complicated feature.
 #### Can you integrate with Notion Calendar (previously Cron)? {#notion-calendar}
 
 The integration is already done, but Notion Calendar has multiple bugs that make it not work properly. We will have to wait for them to fix these bugs.
+
+#### Can you integrate with [Vimcal](https://www.vimcal.com)? {#vimcal}
+
+Vimcal currently lacks integration capabilities. I suggest reaching out to them to request support for a feature like [Fantastical's custom URL scheme](https://flexibits.com/fantastical-ios/help/integration#url-actions).
 
 #### Can you localize the app into my language?
 
@@ -585,10 +579,6 @@ And to transfer the other way:
 defaults export com.sindresorhus.Dato-setapp - | defaults import com.sindresorhus.Dato -
 ```
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1470584107) and click “Version History”.
-
 #### How is this different from Fantastical?
 
 Fantastical is a full-blown calendar app, while Dato is a read-only view of your events. Fantastical is a replacement for the built-in Calendar app. You can use both Fantastical and Dato at the same time. Dato even has integration with Fantastical, so you can open events in Dato directly in Fantastical. Fantastical also has a menu bar item, but many people prefer the UI of Dato. Dato also shows time zones and has more customizability for what's shown in the menu bar. Dato can replace the system date/time, for example.
@@ -606,8 +596,6 @@ Dato is not just a calendar app, but also includes menu bar clock replacement, t
 It means “date” in Norwegian. I just wanted a short, unique, and relevant name.
 
 #### [More FAQs…](/apps/faq)
-
-<br>
 
 #### Dato 5
 
@@ -637,8 +625,6 @@ This also enabled the new setting that lets you hide the main Dato menu bar item
 
 Previously, when you clicked the event in the menu bar, you could hide it from the menu bar by clicking “Hide from Menu Bar”. You now need to right-click the menu bar item and click “Mute”.
 
-<br>
-
 ### Scripting
 
 #### Shortcuts
@@ -648,8 +634,6 @@ Dato comes with support for the Shortcuts app. Check it out to see what actions 
 #### Events
 
 Dato emits a [distributed notification](https://developer.apple.com/documentation/foundation/distributednotificationcenter) `com.sindresorhus.Dato.joinedVideoCall` when you join a video call from Dato. You could use this to trigger certain actions in apps that can read such events, like [BetterTouchTool](https://folivora.ai).
-
-<br>
 
 ### Older Versions
 

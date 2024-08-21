@@ -1,5 +1,5 @@
 ---
-unlisted: true
+isUnlisted: true
 title: Dato + Setapp = ❤️
 description: My Dato app is now available on Setapp.
 pubDate: 2023-03-17

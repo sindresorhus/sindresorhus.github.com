@@ -3,7 +3,7 @@ import {defineCollection, z} from 'astro:content';
 const appsCollection = defineCollection({
 	schema: z.object({
 		draft: z.boolean().default(false),
-		unlisted: z.boolean().default(false),
+		isUnlisted: z.boolean().default(false),
 		isArchived: z.boolean().default(false),
 		title: z.string().nonempty(),
 		subtitle: z.string().nonempty(),
@@ -24,6 +24,7 @@ const appsCollection = defineCollection({
 		isMenuBarApp: z.boolean().default(false),
 		mainLinks: z.record(z.string().url()).optional(),
 		links: z.record(z.string().url()).optional(),
+		overflowLinks: z.record(z.string().url()).optional(),
 		showSupportLink: z.boolean().default(true),
 		redirectUrl: z.string().url().optional(),
 		forceHasIosAppIcon: z.boolean().optional(), // // We can use `forceHasIosAppIcon` for both true/false override.
@@ -49,7 +50,7 @@ const appsCollection = defineCollection({
 const blogCollection = defineCollection({
 	schema: z.object({
 		draft: z.boolean().default(false),
-		unlisted: z.boolean().default(false),
+		isUnlisted: z.boolean().default(false),
 		title: z.string().nonempty(),
 		description: z.string().nonempty().optional(),
 		pubDate: z.date(),

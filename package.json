@@ -71,7 +71,8 @@
 			"jsx-quotes": [
 				"error",
 				"prefer-double"
-			]
+			],
+			"unicorn/prevent-abbreviations": "off"
 		}
 	}
 }

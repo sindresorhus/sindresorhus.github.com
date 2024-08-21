@@ -16,8 +16,6 @@ You can customize your day's start and end times, even allowing for a day's end 
 
 Choose between a progress pie or bar, showcasing it with a percentage, the remaining time, or minutes left.
 
-<br>
-
 ### Tips
 
 #### Time presets
@@ -45,8 +43,6 @@ A shortcut can be run from the menu bar, using a global keyboard shortcut, from 
 You could use Day Progress as an abstract clock instead of the system clock, to minimize anxiety and distraction from time, enhancing focus and productivity.
 
 Unfortunately, it's not possible to fully hide the built-in menu bar clock. However, you could make it an analog clock, which makes it a lot less visible. In “System Settings › Control Center › Clock Options”, choose the analog clock and disable showing the date.
-
-<br>
 
 ### Frequently Asked Questions {#faq}
 
@@ -80,6 +76,10 @@ You can actually already achieve this yourself. See the [tips](#tips) section.
 
 At this time, the app doesn't support this. Considering the wide-ranging user preferences of notifications, from system alerts to fullscreen notifications and differing "do not disturb" settings, I've opted to keep the app straightforward and not include notifications for now.
 
+#### Can you add Pomodoro features?
+
+This is outside the scope of the app. Day Progress is meant as a general day progress indicator, not a task timer. There are many dedicated Pomodoro apps available in the App Store.
+
 #### Can it show a progress bar for how much time I have left in my life?
 
 This is out of scope for this app, and there are existing apps for that already.
@@ -88,19 +88,11 @@ This is out of scope for this app, and there are existing apps for that already.
 
 I do not plan to localize the app.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id6450280202) and click “Version History”.
-
 #### [More FAQs…](/apps/faq)
-
-<br>
 
 ### Older Versions
 
 - [1.3.0](https://github.com/sindresorhus/meta/files/13979415/Day.Progress.1.3.0.-.macOS.13.zip) for macOS 13+
-
-<br>
 
 ### Non-App Store Version
 

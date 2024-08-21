@@ -5,7 +5,6 @@ export const GET = async context => {
 	let items = await fetchApps();
 
 	items = items
-		.filter(item => !item.unlisted)
 		.map(item => ({
 			link: item.url,
 			title: item.title,

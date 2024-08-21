@@ -16,8 +16,6 @@ The icon previews update automatically when the file changes.
 
 An essential tool for developers and designers to perfect the look of their macOS app icons.
 
-<br>
-
 ### Tips
 
 #### General
@@ -36,8 +34,6 @@ You can utilize the Shortcuts app to display various icons sequentially, each fo
 You can drag an artboard directly from Sketch onto the Dock icon. [Preview](https://twitter.com/sindresorhus/status/1783399434182955083)
 
 There is also a [Sketch plugin](https://github.com/sindresorhus/sketch-icon-preview) that updates the Dock icon automatically when you save.
-
-<br>
 
 ### Frequently Asked Questions {#faq}
 
@@ -69,19 +65,13 @@ I do not plan to localize the app.
 
 I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id6480373509) and click “Version History”.
-
 #### [More FAQs…](/apps/faq)
 
-<!-- <br>
+<!--
 
 ### Older Versions
 
 - [1.2.0]() for macOS 14+ -->
-
-<br>
 
 ### Non-App Store Version
 

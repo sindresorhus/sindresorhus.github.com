@@ -16,8 +16,6 @@ This app is intentionally simple. For more advanced needs, check out [Dato](/dat
 
 It integrates with Calendar, Fantastical, and BusyCal.
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -129,19 +127,11 @@ Meeter is mainly for video calls. It's also quite buggy and does not follow macO
 
 I don't plan to localize the app.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id6443714928) and click “Version History”.
-
 #### [More FAQs…](/apps/faq)
-
-<br>
 
 ### Older Versions
 
 - [1.5.0](https://github.com/sindresorhus/meta/files/13997505/Today.1.5.0.-.macOS.13.zip) for macOS 13+
-
-<br>
 
 ### Non-App Store Version
 

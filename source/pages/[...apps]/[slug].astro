@@ -2,10 +2,11 @@
 import {Icon} from 'astro-iconify';
 import {SITE} from '~/config.mjs';
 import Layout from '~/layouts/PageLayout.astro';
+import OverflowMenu from '~/components/widgets/OverflowMenu.astro';
 import {fetchApps, proseCSS} from '~/utils/apps.js';
 
 export async function getStaticPaths() {
-	const apps = await fetchApps({includeArchived: true});
+	const apps = await fetchApps({includeArchived: true, includeUnlisted: true});
 
 	return apps.map(app => ({
 		params: {
@@ -45,6 +46,13 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 				<h2 class="text-2xl md:text-3xl tracking-tight mb-8">
 					{app.subtitle}
 				</h2>
+				<div id="another-random-app" class="flex justify-center hidden instapaper_ignore">
+					<a href="/apps/random"
+						class="flex items-center gap-2 px-4 py-2 mb-6 font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full shadow-sm hover:shadow-md hover:from-primary-600 hover:to-secondary-600 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800">
+						<Icon name="tabler:arrows-shuffle" class="w-5 h-5" aria-hidden="true"/>
+						Another Random App
+					</a>
+				</div>
 				{app.isArchived &&
 					<span class={`${tagClass} bg-orange-100 dark:bg-orange-200 text-[16px] mb-10`}>archived</span>
 				}
@@ -86,16 +94,31 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 								<a href={url} class="hover:text-primary-400 dark:text-primary-400 dark:hover:text-primary-200">{title}</a>
 							))}
 						</>
+						<OverflowMenu>
+							{Object.entries(app.overflowLinks ?? []).map(([title, url]) => (
+								<option value={url}>{title}</option>
+							))}
+							{!app.isArchived && app.appStoreId && (
+								<option value={app.appStoreUrl}>What’s New</option>
+							)}
+							{!app.isArchived && (
+								<option value={`/${app.slug}/privacy-policy`}>Privacy Policy</option>
+							)}
+							<option value="/apps/terms">Terms of Use</option>
+							{app.isPaid && <option value="/apps#free">Student Discount</option>}
+							<hr>
+							<option value="/apps/random">Show Random App</option>
+						</OverflowMenu>
 					</nav>
 				}
 			</header>
 			<div class={proseCSS}>
 				<section class="mb-20">
 					{app.videos.map(video => (
-						<video src={video} autoplay loop muted/>
+						<video src={video} autoplay loop muted alt="App preview video"/>
 					))}
 					{app.screenshots.map(screenshot => (
-						<img src={screenshot.src} width={screenshot.width} height={screenshot.height}>
+						<img src={screenshot.src} width={screenshot.width} height={screenshot.height} alt="App screenshot">
 					))}
 				</section>
 				<app.Content/>
@@ -122,5 +145,11 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 				console.error('Share failed:', error.message);
 			}
 		});
+	}
+</script>
+
+<script type="module" is:inline>
+	if (document.referrer.endsWith('/apps/random')) {
+		document.querySelector('#another-random-app').style.display = 'flex';
 	}
 </script>

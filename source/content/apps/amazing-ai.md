@@ -23,8 +23,6 @@ On iOS, it requires at minimum an iPhone 15 Pro or iPad with M1 processor.
 
 The app is [highly optimized](https://machinelearning.apple.com/research/stable-diffusion-coreml-apple-silicon) and runs on the [Apple Neural Engine](https://apple.fandom.com/wiki/Neural_Engine).
 
-<br>
-
 ### Tips
 
 #### Preview
@@ -47,8 +45,6 @@ On macOS, when in preview mode, there are some keyboard shortcuts available:
 #### Metadata
 
 On macOS, when you save a generated image, it includes a lot of useful metadata (prompt, steps, etc). You can [view this in Finder](https://twitter.com/sindresorhus/status/1611441129622278146/photo/1) by right-clicking the image file and selecting “Get Info”. The file also includes some relevant tags which can be used to create [smart folders](https://support.apple.com/guide/mac-help/tag-files-and-folders-mchlp15236/mac).
-
-<br>
 
 ### Frequently Asked Questions {#faq}
 
@@ -121,23 +117,15 @@ The AI model used to generate images is large. This is reasonable given the mode
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1660147028) and click “Version History”.
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-<br>
-
 ### Older Versions
 
 - [1.2.2](https://drive.google.com/file/d/1mcEhAKhmQGYzmSS-zlejt3_qsKFzqm0h/view?usp=sharing) for macOS 13+
-
-<br>
 
 ### Non-App Store Version
 

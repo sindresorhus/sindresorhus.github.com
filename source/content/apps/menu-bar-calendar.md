@@ -16,8 +16,6 @@ The app is intentionally simple. Check out [Dato](/dato) for more features and s
 
 The calendar displays dates and days in your language, but the rest of the app is in English.
 
-<br>
-
 ### Tips
 
 - **Go to current month:** Click the month name or press the <kbd>space</kbd> key.
@@ -28,8 +26,6 @@ The calendar displays dates and days in your language, but the rest of the app i
 - **Open week in the Calendar app:** Click a week number in the calendar.
 - **Create new event on a specific day:** Right-click the day the calendar.
 - **Copy the date for a day in the calendar:** Right-click the day the calendar.
-
-<br>
 
 ### Frequently Asked Questions {#faq}
 
@@ -89,19 +85,11 @@ I do not plan to localize the app.
 
 I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1558360383) and click “Version History”.
-
 #### [More FAQs…](/apps/faq)
-
-<br>
 
 ### Older Versions
 
 - [1.2.0](https://github.com/sindresorhus/meta/files/13922546/Menu.Bar.Calendar.1.2.0.-.macOS.13.zip) for macOS 13+
-
-<br>
 
 ### Non-App Store Version
 

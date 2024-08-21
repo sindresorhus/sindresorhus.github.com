@@ -14,7 +14,7 @@ const platformOrder = [
 ];
 
 const apps = await fetchApps();
-const freeApps = apps.filter(app => !app.isPaid && app.title !== 'Caprine');
+const freeApps = apps.filter(app => !app.isPaid);
 
 const platforms = [...new Set(freeApps.flatMap(app => app.platforms))]
 	.filter(Boolean)

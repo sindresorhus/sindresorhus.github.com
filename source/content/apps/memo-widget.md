@@ -14,8 +14,6 @@ The app is simple by design.
 
 For macOS, it's only available for Apple silicon Macs running macOS 14 or later.
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -88,10 +86,6 @@ Any Text has a lot of features and is very flexible. With this app, I wanted to 
 #### Why is this free without ads?
 
 I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.
-
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id6465682248) and click “Version History”.
 
 #### Can you localize the app into my language?
 

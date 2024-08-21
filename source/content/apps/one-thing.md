@@ -45,8 +45,6 @@ However, what you use this space for is really up to you.
 - You can [drag & drop text](https://twitter.com/sindresorhus/status/1481862243755376642) onto the menu bar item to set it. For example, you could drag a todo item from the Reminders app or Things.
 - Select some text in any app, right-click, select “Services”, and click “Send to One Thing” to set One Thing to the selected text. You can also use the “Share” menu item if the app supports that.
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -125,17 +123,11 @@ Yes, it's native and written in Swift and SwiftUI.
 
 I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1604176982) and click “Version History”.
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
-
-<br>
 
 ### Scripting
 
@@ -177,14 +169,10 @@ There is no way to get the text using the URL scheme, but if you are in the term
 defaults read com.sindresorhus.One-Thing text
 ```
 
-<br>
-
 ### Older Versions
 
 - [1.11.3](https://github.com/sindresorhus/meta/files/14759175/One.Thing.1.11.3.-.macOS.13.zip) for macOS 13+
 - [1.9.0](https://github.com/sindresorhus/meta/files/11081660/One.Thing.1.9.0.-.macOS.12.zip) for macOS 12+
-
-<br>
 
 ### Non-App Store Version
 

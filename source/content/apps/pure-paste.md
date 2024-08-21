@@ -21,13 +21,9 @@ You can also choose to manually clear formatting whenever needed instead of auto
 
 Rich text copied from a different device will not have its formatting cleared because of a bug in Universal Clipboard.
 
-<br>
-
 ### Tips
 
 - Right-click the menu bar icon to toggle the “Automatically clear formatting” setting.
-
-<br>
 
 ### Frequently Asked Questions {#faq}
 
@@ -185,24 +181,16 @@ Yes, it ignores concealed (passwords), transient, and auto-generated content.
 
 I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1611378436) and click “Version History”.
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-<br>
-
 ### Older Versions
 
 - [1.9.2](https://github.com/sindresorhus/meta/files/14350035/Pure.Paste.1.9.2.-.macOS.13.zip) for macOS 13+
 - [1.6.4](https://github.com/sindresorhus/meta/files/10793621/Pure.Paste.1.6.4.-.macOS.12.zip) for macOS 12+
-
-<br>
 
 ### Non-App Store Version
 

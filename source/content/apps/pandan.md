@@ -12,8 +12,6 @@ olderMacOSVersions:
   - '13'
 ---
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -76,17 +74,11 @@ Tip: Shortcuts can be a bit slow sometimes. You can use this command to have it 
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1569600264) and click “Version History”.
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
-
-<br>
 
 ### Scripting
 
@@ -108,15 +100,11 @@ Tip: You can [run shortcuts from the command-line](https://support.apple.com/gui
 
 *And you can combine these too.*
 
-<br>
-
 ### Older Versions
 
 - [1.15.0](https://github.com/sindresorhus/meta/files/14230031/Pandan.1.15.0.-.macOS.13.zip) for macOS 13+
 - [1.13.2](https://github.com/sindresorhus/meta/files/11072195/Pandan.1.13.2.-.macOS.12.zip) for macOS 12+
 - [1.9.1](https://github.com/sindresorhus/meta/files/8003835/Pandan.1.9.1.-.macOS.11.zip) for macOS 11+
-
-<br>
 
 ### Non-App Store Version
 

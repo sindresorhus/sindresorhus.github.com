@@ -1,0 +1,40 @@
+---
+import Layout from '~/layouts/SimplePageLayout.astro';
+import {fetchApps} from '~/utils/apps.js';
+
+export async function getStaticPaths() {
+	const apps = await fetchApps({includeUnlisted: true});
+
+	return apps.map(app => ({
+		params: {
+			slug: app.slug,
+		},
+		props: {
+			app,
+		},
+	}));
+}
+
+const {app} = Astro.props;
+
+const meta = {
+	title: `Privacy Policy — ${app.title} — Sindre Sorhus`,
+};
+
+const {title: appTitle, slug} = app;
+---
+
+<Layout meta={meta}>
+	<section class="max-w-3xl py-8 sm:py-16 lg:py-20 mx-auto lg:-mt-10 mb-10">
+		{!app.isUnlisted && (
+			<p class="mb-6">
+				<a href={`/${slug}`} class="text-primary-600 hover:underline">
+					← Back to {appTitle}
+				</a>
+			</p>
+		)}
+		<h1 class="text-4xl font-bold mb-4">Privacy Policy for {appTitle}</h1>
+		<p>No data or personal information is collected by this app.</p>
+		<p class="pt-20 text-sm">If you have any questions or suggestions regarding this privacy policy, do not hesitate to <a href="/contact" class="text-primary-600 hover:underline">contact me</a>.</p>
+	</section>
+</Layout>

@@ -53,13 +53,11 @@ Change [this system setting](https://apple.stackexchange.com/questions/191445/st
 
 #### [More FAQs…](/apps/faq)
 
-<br>
-
 <!-- ### Older Versions
 
 - [0.0.0]() for macOS 14+
 
-<br> -->
+-->
 
 ### Non-App Store Version
 

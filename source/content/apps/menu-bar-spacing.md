@@ -29,8 +29,6 @@ You may also like my [Spaced](/spaced) app for grouping menu bar items.
 
 ---
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -77,9 +75,9 @@ The app works by changing hidden system settings, which is not allowed on the Ap
 
 #### [More FAQs…](/apps/faq)
 
-<!-- <br>
+<!--
 
 ### Older Versions
 
 - [1.0.0]() for macOS 14+
- -->
+-->

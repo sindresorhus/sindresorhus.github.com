@@ -14,8 +14,6 @@ olderMacOSVersions:
 
 Shareful makes the system share menu even more useful by providing some commonly needed share services like copy and save.
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -42,17 +40,11 @@ This is unfortunately not possible. [Share extensions](https://support.apple.com
 
 That would be moot. Right-click a file in Finder, press the <kbd>Option</kbd> key, and select “Copy as Pathname”.
 
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1522267256) and click “Version History”.
-
 #### Why is this free without ads?
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 #### [More FAQs…](/apps/faq)
-
-<br>
 
 ### Older Versions
 
@@ -60,8 +52,6 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 - [1.8.0](https://github.com/sindresorhus/meta/files/11297902/Shareful.1.8.0.-.macOS.12.zip) for macOS 12+
 - [1.6.0](https://github.com/sindresorhus/meta/files/8800088/Shareful.1.6.0.-.macOS.11.zip) for macOS 11+
 - [1.4.0](https://github.com/sindresorhus/meta/files/7119520/Shareful.1.4.0.-.macOS.10.15.zip) for macOS 10.15+
-
-<br>
 
 ### Non-App Store Version
 

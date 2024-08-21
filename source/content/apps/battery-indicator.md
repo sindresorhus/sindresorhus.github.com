@@ -17,8 +17,6 @@ olderMacOSVersions:
 
 Battery Indicator lets you quickly glance the remaining battery time or percentage right in your menu bar.
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -53,7 +51,7 @@ The app has a built-in sound when showing notifications. However, if you want a 
 
 This is a perfect use case for the built-in Shortcuts app. You can use the `Play Sound` action to play the sound you want. To run the shortcut when the battery is at a certain percentage, you need the [Shortery app](https://apps.apple.com/app/id1594183810). Use its “Power Status” trigger.
 
-*(The Shortery app is only a temporary requirement. It's likely that Apple will introduce automation for Shortcuts in macOS 15.)*
+*(The Shortery app is only a temporary requirement. It's likely that Apple will introduce automation for Shortcuts in macOS 16.)*
 
 You can find sound effects [here](https://pixabay.com/sound-effects/search/interface/).
 
@@ -61,23 +59,17 @@ You can find sound effects [here](https://pixabay.com/sound-effects/search/inter
 
 This is a perfect use case for the built-in Shortcuts app. Create a shortcut that quits the app and one that launches it. To run the shortcut when the battery is at a certain percentage, you need the [Shortery app](https://apps.apple.com/app/id1594183810). Use its “Power Status” trigger.
 
-*(The Shortery app is only a temporary requirement. It's likely that Apple will introduce automation for Shortcuts in macOS 15.)*
+*(The Shortery app is only a temporary requirement. It's likely that Apple will introduce automation for Shortcuts in macOS 16.)*
 
 #### How can I export, import, sync, or back up the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
-
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id1206020918) and click “Version History”.
 
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
-
-<br>
 
 ### Older Versions
 

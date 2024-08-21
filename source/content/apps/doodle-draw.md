@@ -13,8 +13,6 @@ Capture your creativity instantly. Ideal for quick sketches, artistic brainstorm
 
 The app is intentionally simple.
 
-<br>
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -52,10 +50,6 @@ Unfortunately not possible as the framework used for drawing is too limited on m
 #### Why is this free without ads?
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
-
-#### Where can I find the changelog?
-
-Go [here](https://apps.apple.com/app/id6476447055) and click “Version History”.
 
 #### Can you localize the app into my language?
 
