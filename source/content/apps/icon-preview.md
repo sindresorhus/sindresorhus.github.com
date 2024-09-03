@@ -6,8 +6,8 @@ platforms:
   - macOS
 isMenuBarApp: true
 appStoreId: 6480373509
-# olderMacOSVersions:
-#   - '14'
+olderMacOSVersions:
+  - '14'
 ---
 
 Preview how your macOS app icon will look in the Dock and how your menu bar item icon will appear.
@@ -43,7 +43,7 @@ Click the feedback button in the app or [send it here](https://sindresorhus.com/
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
 #### What image formats are supported for previewing icons?
 
@@ -67,16 +67,14 @@ I just enjoy making apps. I earn money on other apps. Consider leaving a nice re
 
 #### [More FAQs…](/apps/faq)
 
-<!--
-
 ### Older Versions
 
-- [1.2.0]() for macOS 14+ -->
+- [1.0.2](https://github.com/user-attachments/files/18203304/Icon.Preview.1.0.2.zip) for macOS 14+
 
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/20y1mzs7vrlbo989pmfcw/Icon-Preview-1.0.2-1714245321.zip?rlkey=iyetoq4pnxga8sa2m3fiuw9yr&raw=1) *(1.0.2)*
+[Download](https://www.dropbox.com/scl/fi/gv4q4i67fayf4rfbjzo72/Icon-Preview-1.1.0-1734642559.zip?rlkey=l9325l2shb225h3o43mgmbf4p&raw=1) *(1.1.0)*
 
-*Requires macOS 14 or later*
+*Requires macOS 15 or later*

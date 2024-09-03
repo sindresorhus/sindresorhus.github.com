@@ -18,9 +18,11 @@ olderMacOSVersions:
 
 Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.
 
-[MacStories review of Dato.](https://www.macstories.net/reviews/dato-review-calendar-events-and-time-zones-from-your-macs-menu-bar/)
+Dato is a one-time purchase on the App Store with a lifetime of updates.
+<br>
+<sup>(Equivalent to two months of Fantastical subscription)</sup>
 
-If all you need is another clock in the menu bar, check out [Second Clock](/second-clock).
+[MacStories review of Dato.](https://www.macstories.net/reviews/dato-review-calendar-events-and-time-zones-from-your-macs-menu-bar/)
 
 #### Features
 
@@ -51,9 +53,15 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 - Date calculator.
 - Hourly chime.
 
+---
+
+If all you need is another clock in the menu bar, check out [Second Clock](/second-clock).
+
+---
+
 ### Trial
 
-There's a fully functional trial available [here](https://www.dropbox.com/scl/fi/6z1mj94xelwpmoyojkvt3/Dato-5.3.7-trial-1725218207.zip?rlkey=hdidus85nzcwu164rdx7z3hr3&raw=1). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive automatic updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/fokrtfbzj64l8w9q8ov7i/Dato-5.4.3-trial-1734185389.zip?rlkey=rohwdtwrk69r78stm0p7u1gqe&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
@@ -246,7 +254,11 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+
+#### Dato does not work with Ice
+
+This is an [issue with Ice](https://github.com/jordanbaird/Ice/discussions/298) and must be fixed there.
 
 #### Can I buy Dato from outside the App Store and Setapp?
 
@@ -261,9 +273,11 @@ Make sure:
 - When in the settings for it, the placeholder example menu bar item shows up in the menu bar.
 	- If it doesn't show up, try reducing the “event title limit”.
 - There is enough space in the menu bar to show it.
-- If you have Bartender or Ice (or a similar app that hides menu bar items) installed, make sure the menu bar item was not auto-hidden by Bartender.
-	- Note that it uses a separate menu item from the main Dato menu item, so it could still be hidden by Bartender while the main menu bar item is not.
-	- Try quitting Bartender to make sure it is not one causing the issue.
+- If you have Bartender or Ice (or a similar app that hides menu bar items) installed, make sure the menu bar item was not auto-hidden by them.
+	- Note that it uses a separate menu item from the main Dato menu item, so it could still be hidden by Bartender/Ice while the main menu bar item is not.
+	- Try quitting Bartender/Ice to make sure it is not one causing the issue.
+	- If you are using Ice, see [this](https://github.com/jordanbaird/Ice/discussions/298).
+		- As a workaround, in the “upcoming event in menu bar” settings, you could choose to keep the menu bar item visible even when there are no upcoming events.
 
 #### It does not support the video call service I use
 
@@ -322,12 +336,18 @@ Make sure:
 - The calendar with the event is enabled in Dato.
 - You are on the latest Dato and macOS versions.
 - You have tried restarting your computer.
-- You have not muted the event.
+- The event is not a declined event, which Dato does not show.
+- You have not hidden the event using the “Hide” action in the event's context menu.
 - You have not excluded the event with the “Exclude events” setting.
 - The event shows up in the Calendar app.
 	- If it does not show up there, the problem is not with Dato.
 	- Try pressing <kbd>Command</kbd>+<kbd>R</kbd> in the Calendar app to force-refresh.
-	- If it's a Google account, you could try signing out and in again in the Calendar settings. That has helped a few users.
+	- If it's a Google account, try signing out and in again of the Google account in the Calendar app settings. That has helped a few users.
+- [Microsoft Bookings has problems syncing to MacBooks.](https://answers.microsoft.com/en-us/outlook_com/forum/all/bookings-meetings-sync-with-iphone-but-not-with/085530b3-90d2-4792-b0d9-0cc6f52875ba?page=3)
+
+#### Dato is not in sync with Outlook
+
+Dato simply presents events from the macOS calendar system (the builtin Calendar app). It does not do the actual syncing. macOS has known problems with Outlook syncing. [This may help.](https://discussions.apple.com/thread/254365894?sortBy=rank)
 
 #### How can I edit an event in Dato?
 
@@ -392,6 +412,7 @@ Make sure:
 - You have not muted the event.
 - You have not excluded the event with the “Exclude events” setting.
 - You have not already joined the event in the last 15 minutes.
+- You have not paused fullscreen notification from a [Focus Filter](https://support.apple.com/en-gb/guide/mac-help/mchl613dc43f/mac).
 
 #### What does the “Hide” button on an event do? {#hide-event}
 
@@ -460,7 +481,9 @@ What Dato does support is showing a notification right when an event for a video
 
 #### How can I enable fullscreen notifications only at certain times or for certain conditions?
 
-This is a perfect use case for the built-in Shortcuts app. You can use the `Set Fullscreen Notifications State` action provided by Dato to enable or disable fullscreen notifications. For example, to only enable fullscreen notifications during work hours, you will need to create two shortcuts. One to enable fullscreen notifications and one to disable it. You also need the [Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12) to run the shortcuts at the correct times. The Shortery app is only a temporary requirement. It's almost certain that Apple will introduce automation for Shortcuts in macOS 14.
+You can use the [Focus Filter](https://support.apple.com/en-gb/guide/mac-help/mchl613dc43f/mac) that comes with Dato to pause fullscreen notifications when in certain focus modes.
+
+Alternatively, use the built-in Shortcuts app. You can use the `Set Fullscreen Notifications State` action provided by Dato to enable or disable fullscreen notifications. For example, to only enable fullscreen notifications during work hours, you will need to create two shortcuts. One to enable fullscreen notifications and one to disable it. You also need the [Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12) to run the shortcuts at the correct times.
 
 #### How can I enable fullscreen notification only when a certain [Focus mode](https://support.apple.com/en-gb/guide/mac-help/mchl613dc43f/mac) is active?
 
@@ -480,7 +503,7 @@ First, ensure that you have added the calendar to the system. Open the Calendar 
 
 If it exists in the Calendar app, open the Dato settings, click the “Events” tab, and make sure the calendar is enabled.
 
-If it exists in the Calendar app but not in Dato, macOS might have corrupted some permissions. This is, unfortunately, a common problem. Try to reset the permissions for Dato. Quit Dato, open the Terminal app, paste in the following command, and press <kbd>Enter</kbd>:
+If it exists in the Calendar app but not in Dato, macOS might have corrupted some permissions. This is, unfortunately, a common problem. Try to reset the permissions for Dato, either with [App Buddy](/app-buddy) or manually; Quit Dato, open the Terminal app, paste in the following command, and press <kbd>Enter</kbd>:
 
 ```sh
 tccutil reset All com.sindresorhus.Dato
@@ -521,7 +544,7 @@ Yes
 
 This is a perfect use case for the built-in Shortcuts app. You can use the `Quit App` and `Open App` actions to quit and relaunch Dato whenever needed. For example, you could create a focus shortcut that quits Dato, plays some music, turns off notifications, etc.
 
-To hide the Dato clock at a certain time of the day, you need the [Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12). The Shortery app is only a temporary requirement. It's almost certain that Apple will introduce automation for Shortcuts in macOS 14.
+To hide the Dato clock at a certain time of the day, you need the [Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12).
 
 #### How can I show [day of year](https://nsidc.org/data/user-resources/help-center/day-year-doy-calendar) in the menu bar?
 
@@ -545,6 +568,10 @@ This is a known macOS bug. Restarting your computer usually fixes it.
 
 Same answer as above.
 
+#### The time zone widget resets each time Dato updates
+
+This is a macOS bug and unfortunately out of my control. Dato simply defines the parameters for the widget, but macOS is the one that shows the configuration screen and saves your choices from there.
+
 #### Can it show the list of events in a separate menu item from the calendar and time zones?
 
 No, but you could use Dato in combination with my [Today](/today) app.
@@ -559,7 +586,7 @@ The Shortcuts app does not yet support automation, so to have the shown todo sta
 
 #### Can Dato support Focus Filters? {#focus-filters}
 
-This is planned. However, it's unfortunately not possible until Apple fixes a certain bug with the feature. As a workaround, you could use the [Shortery](https://apps.apple.com/app/id1594183810) app to run a shortcut on focus changes that uses the “Set Fullscreen Notification State” shortcut action provided by Dato.
+Dato has a focus filter for pausing fullscreen notifications. Ideas for other filters welcome.
 
 #### Can I change the chime frequency for the "Hourly Chime" feature?
 
@@ -596,6 +623,9 @@ Dato is not just a calendar app, but also includes menu bar clock replacement, t
 It means “date” in Norwegian. I just wanted a short, unique, and relevant name.
 
 #### [More FAQs…](/apps/faq)
+
+<br>
+<br>
 
 #### Dato 5
 

@@ -25,7 +25,7 @@ Battery Indicator lets you quickly glance the remaining battery time or percenta
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
 You may also have enabled the “Hide while on power” preference, which hides the menu bar icon while the power adapter is connected. Launch the app again to reveal the menu bar item for 5 seconds or disconnect the power adapter.
 
