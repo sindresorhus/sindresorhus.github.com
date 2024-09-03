@@ -27,7 +27,7 @@ Click the feedback button in the app or [send it here](https://sindresorhus.com/
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
 #### How is it different from just checking whether the Wi-Fi is connected?
 
@@ -51,7 +51,7 @@ It's something I'm considering. Share your use-case through the feedback button 
 
 #### Can you make the menu bar icon green when online?
 
-No. Menu bar icons are intended to be mostly monotone, changing color only to indicate critical states. For example, the battery icon turns red or yellow when low but stays monochrome when full.
+No. Menu bar icons are intended to be mostly monotone, changing color only to indicate critical states. For example, the battery icon turns red when low but stays monochrome when full. Showing green also isn't that useful as you can assume it's connected when not red, and having a constant green color there could be distracting.
 
 #### [More FAQs…](/apps/faq)
 
