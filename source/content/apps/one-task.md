@@ -89,6 +89,10 @@ One Task is designed for action, not endless categorization. It omits features l
 
 I don't plan to add this. I want to keep the app super simple.
 
+#### Can you make the widget background transparent
+
+This is not possible.
+
 #### The text in the widget is quite large
 
 The text automatically scales down to fit more content.

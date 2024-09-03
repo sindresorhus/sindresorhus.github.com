@@ -117,6 +117,7 @@ None -->
 - [Sideline Sports](https://github.com/SidelineSports)
 - [Checkly](https://github.com/checkly)
 - [Stefan Thomas](https://www.patreon.com/user/creators?u=15361260)
+- [BoltAI](https://github.com/BoltAI)
 
 ## Supporter <span class="reward-price not-prose">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
 

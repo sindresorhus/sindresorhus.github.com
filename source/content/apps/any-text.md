@@ -17,6 +17,18 @@ For macOS, it's only available for Apple silicon Macs running macOS 14 or later.
 
 *You may also like [my similar app](https://sindresorhus.com/one-thing) for macOS.*
 
+### Tips
+
+#### Markdown {#markdown}
+
+You can style parts of the text bold, italic, or strikethrough using [Markdown](https://www.markdownguide.org/basic-syntax/).
+
+For example:
+
+- **Bold text** is created by wrapping text with double asterisks: `**bold**`
+- *Italic text* is created by wrapping text with single asterisks: `*italic*`
+- ~~Strikethrough text~~ is created by wrapping text with double tildes: `~~strikethrough~~`
+
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -28,9 +40,9 @@ For macOS, it's only available for Apple silicon Macs running macOS 14 or later.
 - [iOS](https://support.apple.com/en-us/HT207122)
 - [macOS](https://support.apple.com/en-gb/guide/mac-help/mchl52be5da5/mac)
 
-#### The widget does not show up in the widget picker
+#### The widget does not show up in the widget picker, the widget is stuck, or is missing from the Home Screen
 
-This is a iOS issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
+The iOS widget system is quite buggy and can fail a lot. This is not a problem with the app and out of my control. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
 
 #### Can you support having multiple pieces of text that change during the day?
 
@@ -66,13 +78,17 @@ The app tells iOS to update the widget, unfortunately, iOS can decide to delay a
 
 #### The widget does not update when setting the text with the Shortcuts action
 
-This is unfortunately an iOS 16 bug. The app correctly tells iOS to update the widget, but iOS delays it for some reason. The text will update eventually.
+This is unfortunately an iOS bug. The app correctly tells iOS to update the widget, but iOS delays it for some reason. The text will update eventually.
 
 If you work at Apple → [FB11522170](https://github.com/feedback-assistant/reports/issues/359)
 
 #### Can you make the widget bigger?
 
 The widget sizes are controlled by Apple. The provided size is the largest it allows.
+
+#### Can you make the widget background transparent
+
+This is not possible.
 
 #### Can you remove the title shown below the widget?
 
@@ -124,3 +140,22 @@ I just enjoy making apps. I earn money on other apps. Consider leaving a nice re
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
+
+### Scripting
+
+The text in the widgets can be changed using the Shortcuts app.
+
+#### Shortcuts app
+
+- [Shortcuts usage guide](https://www.xda-developers.com/guide-shortcuts-macos/)
+- [How to run shortcuts from the command-line on macOS](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac)
+
+#### Command-line on macOS
+
+Shortcuts can be executed via the command-line, allowing you to set widget text programmatically.
+
+For example, to set the text for widget 1, add [this shortcut](https://www.icloud.com/shortcuts/6873c23a3cbb4718b23135e367d6be1b), and then run this:
+
+```sh
+echo 'TEST' | shortcuts run 'Set Widget 1 Text'
+```

@@ -31,9 +31,22 @@ Rich text copied from a different device will not have its formatting cleared be
 
 [Send it here.](https://sindresorhus.com/feedback?product=Pure%20Paste&referrer=Website-FAQ)
 
+#### Why not just use the `Paste and Match Style` menu item or `⌥⇧⌘V`?
+
+- This app can make it the default behavior.
+- That menu item is not available in all apps.
+- The keyboard shortcut is hard to remember and type.
+- In some apps, like Chrome, the keyboard shortcut is different.
+- This app can exclude certain apps, preserve links, normalize (quotes, newlines, lists, etc.) and also remove tracking parameters from URLs.
+- The app has workarounds (3000+ lines of code) for lots of apps to make the experience *just work*.
+
+#### Why not just remap the `Paste and Match Style` keyboard shortcut to `⌘V`?
+
+Same as the above except the first two list items.
+
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
 You may also have enabled the “Hide menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 
@@ -61,20 +74,6 @@ There are some cases I cannot fix though:
 - [**Tables in Word are not preserved.**](#word-tables)
 - Formatting is not cleared when copying and pasting inside LibreOffice.
 	This is a LibreOffice bug. Pure Paste correctly clears the formatting of the clipboard contents, but LibreOffice does not read the new clipboard contents until you first focus a different window. Try copying some styled text in LibreOffice, focus a different window, focus LibreOffice again, and then paste. It now correctly pastes the text without formatting.
-
-#### Why not just use the `Paste and Match Style` menu item or `⌥⇧⌘V`?
-
-- This app can make it the default behavior.
-- That menu item is not available in all apps.
-- The keyboard shortcut is hard to remember and type.
-- In some apps, like Chrome, the keyboard shortcut is different.
-- This app can exclude certain apps, preserve links, and also remove tracking parameters from URLs.
-
-#### Why not just remap the `Paste and Match Style` keyboard shortcut to `⌘V`?
-
-- That menu item is not available in all apps.
-- In some apps, like Word, the menu item has a different label, which requires a separate mapping.
-- This app can exclude certain apps, preserve links, and also remove tracking parameters from URLs.
 
 #### The copy/paste custom keyboard shortcut does not work
 
@@ -166,6 +165,18 @@ Copy something from the app you have excluded, press the <kbd>Option</kbd> key w
 #### How can I exclude certain websites?
 
 This is not supported. A workaround would be to [turn the website into an app in Safari](https://support.apple.com/guide/safari/add-to-dock-ibrw9e991864/mac). You could then exclude that app.
+
+#### Can it support pasting with formatting when pressing <kbd>Command+Shift+V</kbd>?
+
+The app technically clears formatting when something is copied not pasted, so the formatting is already cleared when that shortcut is pressed.
+
+#### Can you add support for removing newlines/linebreaks?
+
+The app is designed to *just work*, but removing newlines is not suitable for all use cases. For instance, you may want to remove newlines when copying text from a PDF, but not from Word. If you still want this feature, add the following to the “JavaScript” setting:
+
+```js
+return $.text.replace(/(\r?\n)/gm, ' ');
+```
 
 #### Does it respect [nspasteboard.org](http://nspasteboard.org) conventions?
 
