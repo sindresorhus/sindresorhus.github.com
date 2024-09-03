@@ -30,21 +30,19 @@ You may also like my [Menu Bar Spacing](/menu-bar-spacing) app for changing the 
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
 #### Can the app let me hide and show menu bar items?
 
 That is out of scope for this app. You want something like [Bartender](https://www.macbartender.com) or [Hidden Bar](https://apps.apple.com/no/app/hidden-bar/id1452453066?mt=12).
 
+#### Can the app support changing the distance between menu bar items?
+
+You can do that with my [Menu Bar Spacing](/menu-bar-spacing) app.
+
 #### Can the app also support grouping icons in the Dock?
 
-This is not possible because of restrictions imposed on apps in the App Store.
-
-However, you can add spacers to the Dock yourself by running the following command in the Terminal app:
-
-```sh
-defaults write com.apple.dock persistent-apps -array-add '{"tile-type"="spacer-tile";}' && killall Dock
-```
+You can do that with my [Supercharge](/supercharge) app.
 
 #### Can you localize the app into my language?
 
