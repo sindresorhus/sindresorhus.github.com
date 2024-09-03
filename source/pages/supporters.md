@@ -84,10 +84,9 @@ None -->
 	<img src="/assets/thanks/logto-logo-light.svg" width="320" alt="Logto">
 </a>
 <br>
-<a href="https://encore.dev" class="sponsor" rel="nofollow" style="position:relative;left:-20px;margin-top:10px">
-	<img src="/assets/thanks/encore-logo-light.svg" width="380" alt="Encore">
+<a href="https://nitric.io" class="sponsor" rel="nofollow" style="position:relative;left:-20px;margin-top:10px">
+	<img src="/assets/thanks/nitric-logo.svg" width="380" alt="nitric">
 </a>
-<br>
 <br>
 
 ## Silver sponsor <span class="reward-price not-prose">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
@@ -105,18 +104,16 @@ None -->
 	<a href="https://www.fame.fi" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/fame-logo-light.svg" width="200" alt="Fame Helsinki">
 	</a>
-	<a href="https://supatool.io" class="sponsor" rel="nofollow" style="position:relative;left:-15px">
-		<img src="/assets/thanks/supatool-logo-light.png" width="260" alt="Supatool">
-	</a>
 </div>
 
 ## Top supporter <span class="reward-price not-prose">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
 
 - [Jacob Gillespie](https://github.com/jacobwgillespie)
 - [Passbolt](https://github.com/passbolt)
-- [Sideline Sports](https://github.com/SidelineSports)
 - [Checkly](https://github.com/checkly)
 - [Stefan Thomas](https://www.patreon.com/user/creators?u=15361260)
+- [BoltAI](https://github.com/BoltAI)
+- [n8n](https://github.com/n8nio)
 
 ## Supporter <span class="reward-price not-prose">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
 
@@ -139,7 +136,6 @@ None -->
 - Fission Team
 - Manizheh and Nick
 - [Addy Osmani](https://github.com/addyosmani)
-- [Paul Irish](https://github.com/paulirish)
 - [Florian Breisch](https://github.com/florianb)
 - [Mikkel Malmberg](https://github.com/mikker)
 - [Keith Ito](https://github.com/keithito)
@@ -171,7 +167,6 @@ None -->
 - [Sean](https://github.com/hammy2899)
 - [Bertrand Marron](https://github.com/tusbar)
 - [Eric Lanehart](https://github.com/pushred)
-- [Keiichiro Amemiya](https://github.com/Hoishin)
 - [hilezi](https://github.com/hilezi)
 - [Mathieu Dutour](https://github.com/mathieudutour)
 - [Phan An](https://github.com/phanan)
@@ -216,7 +211,6 @@ None -->
 - [Ilias Aboubeker](https://github.com/samyilias)
 - [DefineValue](https://github.com/definevalue)
 - [@cburatto](https://github.com/cburatto)
-- [Zenika](https://github.com/Zenika)
 - [DevUtilsApp](https://github.com/DevUtilsApp)
 - [Mom's Friendly Development Company](https://github.com/MomsFriendlyDevCo)
 - [Mention Me Ltd](https://github.com/mention-me)
@@ -232,13 +226,18 @@ None -->
 - [Community Boss](https://github.com/parkingboss)
 - [Marc Rousavy](https://github.com/mrousavy)
 - [Seungwoo Choe](https://github.com/seungwoochoe)
-- [Preston Nalls](https://github.com/pjnalls)
 - [Tighten](https://github.com/tighten)
 - [Gregor Adams](https://github.com/pixelass)
 - [Lightning Jar](https://github.com/lightning-jar)
 - [Sourcegraph](https://github.com/sourcegraph-community)
 - [kaerez](https://github.com/kaerez)
-- [Michael Sartain](https://github.com/mikesart)
+- [MFB Technologies, Inc.](https://github.com/MFB-Technologies-Inc)
+- [Jamstar00](https://github.com/Jamstar00)
+- [Alessandro Maclaine](https://github.com/ALMaclaine)
+- [Dan Grigsby](https://github.com/dcgrigsby)
+- [GitbookIO](https://github.com/GitbookIO)
+- [Niall Newman](https://github.com/niallnsec)
+- [Lightning Jar](https://github.com/lightning-jar)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:11px;opacity:0.7">(It will be updated on the first day of every month)</small>
@@ -416,6 +415,14 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Shaun Harrison](https://github.com/shnhrrsn)
 - [Standard Resume](https://standardresume.co)
 - [SerpApi](https://serpapi.com)
+- [Sideline Sports](https://github.com/SidelineSports)
+- [Zenika](https://github.com/Zenika)
+- [Keiichiro Amemiya](https://github.com/Hoishin)
+- [Paul Irish](https://github.com/paulirish)
+- [Michael Sartain](https://github.com/mikesart)
+- [Preston Nalls](https://github.com/pjnalls)
+- [Supatool](https://supatool.io)
+- [Encore](https://encore.dev)
 
 ---
 
