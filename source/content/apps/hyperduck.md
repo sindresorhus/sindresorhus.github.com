@@ -9,6 +9,8 @@ platforms:
 appStoreId: 6444667067
 olderMacOSVersions:
   - '13'
+feedbackNote: |
+  If you are having problems with sync, [read this](/hyperduck#troubleshooting).
 ---
 
 For example, share a link from Safari on your iPhone, iPad, or Apple Vision Pro, and have it open in the default browser on your Mac moments later.
@@ -78,6 +80,31 @@ Create an [iOS shortcut that triggers a macOS shortcut](#shortcuts) and set it t
 
 - [Example iOS shortcut](https://www.icloud.com/shortcuts/a00ac5bb31294084936fbd4dd6ca0245)
 - [Example macOS shortcut](https://www.icloud.com/shortcuts/d39c57b67ed343d58192a899841d6457)
+
+#### Send a link to a specific Mac {#send-to-specific-mac}
+
+Instead of using the “Send to Mac” share sheet button provided by the app, you can make a [shortcut](#shortcuts) for each Mac you want to send to and put those shortcuts in the share sheet.
+
+Add these shortcuts (on any device):
+
+- [iOS shortcut](https://www.icloud.com/shortcuts/f013c4a6da7d4a9eb0694f0a6532f34c)
+- [macOS shortcut](https://www.icloud.com/shortcuts/e164558aa759486ca70553f32029fe40)
+
+Then edit the macOS shortcut to match the device name of the device you want this to share to. You can rename the macOS shortcut, but don't forget to update the name in the iOS shortcut.
+
+To support more Macs, repeat the process for each Mac.
+
+#### Download a file on your Mac from your iOS device
+
+You can use Hypeduck to trigger a download from your iOS device and have it downloaded on your Mac.
+
+Add the below [shortcuts](#shortcuts):
+
+- [iOS shortcut](https://www.icloud.com/shortcuts/4819a11f4d0b40228df7ffd737b34c3d)
+- [macOS shortcut](https://www.icloud.com/shortcuts/d319976dd4cf441780f6abcb049a3cff)
+  - *Requires the latest [TestFlight build](https://testflight.apple.com/join/fJGUrsZx) of the Actions app.*
+
+You can then tap “Download on Mac” in the share sheet on your iOS device, and the item will be downloaded on your Mac to the “Downloads” folder.
 
 ### Frequently Asked Questions {#faq}
 
@@ -198,11 +225,11 @@ If you really need to see what URLs were shared, you can triple-tap on the text 
 
 #### Can you support multiple Macs?
 
-No. I would like to keep the app simple.
+No. I would like to keep the app simple. However, you could [do it with Shortcuts](#send-to-specific-mac).
 
 #### Can you support the reverse - Mac to iOS?
 
-No. That is not something I plan to support. It's simply not something I need myself and it would make the app much more complicated.
+No. That is not something I plan to support. It's simply not something I need myself and it would make the app much more complicated. Also, it would not be possible to open the URL directly in the browser like it does on macOS, so the experience would not be great.
 
 #### Can you localize the app into my language?
 
@@ -218,6 +245,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/8uc8owhy3izpaj0pi7ob5/Hyperduck-1.1.0-1707315964.zip?rlkey=8v6ylbwibmi4yav8bp25sz468&raw=1) *(1.1.0)*
+[Download](https://www.dropbox.com/scl/fi/jdm8gg26v9xzj99962jl0/Hyperduck-1.2.0-1726482416.zip?rlkey=wguoy48cvb4y8gmy4hcmu5dox&raw=1) *(1.2.0)*
 
 *Requires macOS 14 or later*

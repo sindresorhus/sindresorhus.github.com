@@ -93,7 +93,9 @@ No, I don't plan to localize my apps. Localization adds complexity and maintenan
 
 ### Can you make your apps available on Homebrew? {#homebrew}
 
-Unfortunately not. Supporting Homebrew requires distributing apps outside the App Store, and that involves significant overhead: hosting, auto-updating, and dual publishing. The demand simply doesn't justify these efforts.
+For App Store apps, unfortunately not. Supporting Homebrew requires distributing apps outside the App Store, and that involves significant overhead: hosting, auto-updating, and dual publishing. The demand simply doesn't justify these efforts.
+
+For non-App Store apps, anyone can add to Homebrew. Feel free to [add one of my apps](https://docs.brew.sh/Adding-Software-to-Homebrew). I personally don't use Homebrew for apps, so it's not something I plan to do.
 
 ### You are doing a lot of open source, why are only some of your apps open source? {#why-not-oss}
 

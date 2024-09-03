@@ -11,7 +11,7 @@ appStoreId: 6465250302
 #   - '14'
 ---
 
-The app provides additional AI-related actions (GPT-4o, GPT-4o mini, GPT-4, GPT 3.5) for the Shortcuts app.
+The app provides additional AI-related actions (o1 Preview, o1 mini, GPT-4o, GPT-4o mini, GPT-4, GPT 3.5) for the Shortcuts app.
 
 For example, an action to interact with the ChatGPT API.
 
@@ -76,6 +76,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/sj8e83wj6t5vmakylg1h1/AI-Actions-1.2.5-1723502677.zip?rlkey=s3i1om646md9xbm7bwc7p04j8&raw=1) *(1.2.5)*
+[Download](https://www.dropbox.com/scl/fi/wywca4xdu0ejfswl3nfdc/AI-Actions-1.3.1-1728358909.zip?rlkey=wsny2d3izdqdtgkyuch0ljdsb&raw=1) *(1.3.1)*
 
 *Requires macOS 14 or later*

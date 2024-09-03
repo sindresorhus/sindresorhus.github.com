@@ -4,6 +4,7 @@ subtitle: Preview your webcam and take photos
 pubDate: 2023-05-20
 platforms:
   - macOS
+isPaid: true
 isMenuBarApp: true
 appStoreId: 1632827132
 olderMacOSVersions:
@@ -16,7 +17,7 @@ Instant access to your Mac's camera feed for quick checks before video calls.
 
 - Press the <kbd>Return</kbd> or <kbd>Space</kbd> key while showing the camera feed to take a photo.
 - Press the <kbd>Command</kbd> and <kbd>+</kbd> key to zoom in, <kbd>Command</kbd> and <kbd>-</kbd> to zoom out, and <kbd>Command</kbd> and <kbd>0</kbd> to reset the zoom.
-- Press the <kbd>Option<kbd> key while resizing the window to resize from the center (this works with any app).
+- Press the <kbd>Option</kbd> key while resizing the window to resize from the center (this works with any app).
 
 ### Frequently Asked Questions {#faq}
 
@@ -71,9 +72,9 @@ No
 
 No. That's outside the scope of this app. You can use the built-in QuickTime Player app for that.
 
-#### Why is this free without ads?
+<!-- #### Why is this free without ads?
 
-I just enjoy making apps. Consider leaving a nice review on the App Store.
+I just enjoy making apps. Consider leaving a nice review on the App Store. -->
 
 #### Can you localize the app into my language?
 
@@ -83,7 +84,9 @@ I don't plan to localize the app.
 
 ### Older Versions
 
-- [1.4.0](https://github.com/sindresorhus/meta/files/13988612/Camera.Preview.1.4.0.-.macOS.13.zip) for macOS 13+
+- [1.4.0](https://github.com/sindresorhus/meta/files/13988612/Camera.Preview.1.4.0.-.macOS.13.zip) for macOS 13
+
+These are free for everyone but they will not run on newer macOS versions.
 
 ### Non-App Store Version
 

@@ -28,9 +28,9 @@ For macOS, it's only available for Apple silicon Macs running macOS 14 or later.
 - [iOS](https://support.apple.com/en-us/HT207122)
 - [macOS](https://support.apple.com/en-gb/guide/mac-help/mchl52be5da5/mac)
 
-#### The widget does not show up in the widget picker
+#### The widget does not show up in the widget picker, the widget is stuck, or is missing from the Home Screen
 
-This is a iOS issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
+The iOS widget system is quite buggy and can fail a lot. This is not a problem with the app and out of my control. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
 
 #### Can you support having multiple pieces of text that change during the day?
 
@@ -124,3 +124,22 @@ I just enjoy making apps. I earn money on other apps. Consider leaving a nice re
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
+
+### Scripting
+
+The text in the widgets can be changed using the Shortcuts app.
+
+#### Shortcuts app
+
+- [Shortcuts usage guide](https://www.xda-developers.com/guide-shortcuts-macos/)
+- [How to run shortcuts from the command-line on macOS](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac)
+
+#### Command-line on macOS
+
+Shortcuts can be executed via the command-line, allowing you to set widget text programmatically.
+
+For example, to set the text for widget 1, add [this shortcut](https://www.icloud.com/shortcuts/6873c23a3cbb4718b23135e367d6be1b), and then run this:
+
+```sh
+echo 'TEST' | shortcuts run 'Set Widget 1 Text'
+```

@@ -9,6 +9,8 @@ appStoreId: 1615988943
 olderMacOSVersions:
   - '12'
   - '13'
+feedbackNote: |
+  If the app is not working after updating to macOS 15, restart your computer once more and it should work. This is a macOS 15 bug. If it still doesn't work, Apple has told me it will be fixed in macOS 15.1.
 ---
 
 <br>
@@ -49,7 +51,7 @@ You could add the “Desktop” folder to Folder Peek and then [hide the desktop
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
 #### Some folders are suddenly missing from the menu bar
 
@@ -118,6 +120,14 @@ Click the menu bar item, go to the first menu bar item (which is named after you
 #### Can I navigate to a folder multiple levels deep and then drop a file into it?
 
 No, that is unfortunately not possible. Folder Peek is built as a system menu, and a menu cannot be kept open if it's not focused. Instead, first, navigate to the nested folder, click to open it in Finder, and then drag & drop the file into the Finder window.
+
+#### Can it auto-mount a network volume when accessing it? {#network-volume}
+
+No, this is not possible because of sandboxing. If you want to use a network volume in the app, you need to manually mount it first or use a tool like [AutoMounter](https://pixeleyes.co.nz/automounter/) to keep it always mounted.
+
+#### Can it support adding a tag instead of a folder?
+
+No. This is not planned.
 
 #### The app I want does not show up in the “Open With” menu for a folder {#folder-open-with}
 
@@ -193,6 +203,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/5643r7m9hybqqa5e1lr74/Folder-Peek-1.10.1-1706638981.zip?rlkey=dvkgfrorccj1qgzwpdkg9g2me&raw=1) *(1.10.1)*
+[Download](https://www.dropbox.com/scl/fi/flv8w2o4ffp8f1kwzj2gv/Folder-Peek-1.11.3-1726668648.zip?rlkey=dbxv3qcd5y8n1flw2siqbk43z&raw=1) *(1.11.3)*
 
 *Requires macOS 14 or later*

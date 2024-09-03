@@ -18,6 +18,10 @@ olderMacOSVersions:
 
 Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.
 
+Dato is a one-time purchase on the App Store with a lifetime of updates.
+<br>
+<sup>(Equivalent to two months of Fantastical subscription)</sup>
+
 [MacStories review of Dato.](https://www.macstories.net/reviews/dato-review-calendar-events-and-time-zones-from-your-macs-menu-bar/)
 
 If all you need is another clock in the menu bar, check out [Second Clock](/second-clock).
@@ -53,7 +57,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 ### Trial
 
-There's a fully functional trial available [here](https://www.dropbox.com/scl/fi/6z1mj94xelwpmoyojkvt3/Dato-5.3.7-trial-1725218207.zip?rlkey=hdidus85nzcwu164rdx7z3hr3&raw=1). The only limitation is that it will prompt you to buy Dato every 12 hours and it will not receive automatic updates. If you decide to buy Dato on the App Store, all data and settings from the trial version will be preserved (they share the same storage).
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/6z1mj94xelwpmoyojkvt3/Dato-5.3.7-trial-1725218207.zip?rlkey=hdidus85nzcwu164rdx7z3hr3&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
@@ -246,7 +250,11 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+
+#### Dato does not work with Ice
+
+This is an [issue with Ice](https://github.com/jordanbaird/Ice/discussions/298) and must be fixed there.
 
 #### Can I buy Dato from outside the App Store and Setapp?
 
@@ -261,9 +269,10 @@ Make sure:
 - When in the settings for it, the placeholder example menu bar item shows up in the menu bar.
 	- If it doesn't show up, try reducing the “event title limit”.
 - There is enough space in the menu bar to show it.
-- If you have Bartender or Ice (or a similar app that hides menu bar items) installed, make sure the menu bar item was not auto-hidden by Bartender.
-	- Note that it uses a separate menu item from the main Dato menu item, so it could still be hidden by Bartender while the main menu bar item is not.
-	- Try quitting Bartender to make sure it is not one causing the issue.
+- If you have Bartender or Ice (or a similar app that hides menu bar items) installed, make sure the menu bar item was not auto-hidden by them.
+	- Note that it uses a separate menu item from the main Dato menu item, so it could still be hidden by Bartender/Ice while the main menu bar item is not.
+	- Try quitting Bartender/Ice to make sure it is not one causing the issue.
+	- If you are using Ice, see [this](https://github.com/jordanbaird/Ice/discussions/298).
 
 #### It does not support the video call service I use
 
@@ -596,6 +605,9 @@ Dato is not just a calendar app, but also includes menu bar clock replacement, t
 It means “date” in Norwegian. I just wanted a short, unique, and relevant name.
 
 #### [More FAQs…](/apps/faq)
+
+<br>
+<br>
 
 #### Dato 5
 

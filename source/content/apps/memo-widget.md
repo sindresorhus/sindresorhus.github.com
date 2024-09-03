@@ -5,7 +5,9 @@ pubDate: 2023-12-16
 platforms:
   - macOS
   - iOS
+isPaid: true
 appStoreId: 6465682248
+forceHasIosAppIcon: true
 ---
 
 The app provides widgets that act like sticky notes. Show them on your Home Screen, Lock Screen, StandBy, or desktop.
@@ -25,9 +27,9 @@ For macOS, it's only available for Apple silicon Macs running macOS 14 or later.
 - [iOS](https://support.apple.com/en-us/HT207122)
 - [macOS](https://support.apple.com/en-gb/guide/mac-help/mchl52be5da5/mac)
 
-#### The widget does not show up in the widget picker
+#### The widget does not show up in the widget picker, the widget is stuck, or is missing from the Home Screen
 
-This is a iOS bug. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
+The iOS widget system is quite buggy and can fail a lot. This is not a problem with the app and out of my control. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
 
 #### Can you add more features and settings?
 
@@ -83,9 +85,9 @@ Currently, there are no plans to integrate iCloud syncing due to its complexity 
 
 Any Text has a lot of features and is very flexible. With this app, I wanted to make something simple and focused.
 
-#### Why is this free without ads?
+<!-- #### Why is this free without ads?
 
-I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.
+I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store. -->
 
 #### Can you localize the app into my language?
 

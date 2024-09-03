@@ -9,6 +9,8 @@ platforms:
 appStoreId: 1672085276
 olderMacOSVersions:
   - '13'
+feedbackNote: |
+  Any problems with the output are unfortunately out of my control. The app uses the OpenAI Whisper AI model to transcribe. The model has some flaws with certain recordings like repetition, hallucination, and refusal to produce text.
 ---
 
 High-quality on-device transcription. Easily convert speech to text from meetings, lectures, and more.
@@ -232,11 +234,11 @@ Ensure the "Translate to English" setting is disabled.
 
 The language used in the "Prompt" setting may also affect the transcription language.
 
-#### The transcription is in Traditional Chinese while the audio was in Simplified Chinese?
+#### The transcription is in Traditional Chinese while the audio was in Simplified Chinese or the inverse
 
 The [Whisper AI model](https://github.com/openai/whisper) used by the app does not differentiate between Traditional Chinese and Simplified Chinese, so the result could unfortunately end up with either. [Learn more.](https://github.com/openai/whisper/discussions/277)
 
-I have plans to add a workaround where you can write a prompt to improve this, but I cannot promise when this will happen.
+Try writing a sentence in Traditional Chinese or Simplified Chinese in the “Prompt” setting in the app to steer the model into using the right one.
 
 #### Why must I keep the iOS app open while it transcribes?
 

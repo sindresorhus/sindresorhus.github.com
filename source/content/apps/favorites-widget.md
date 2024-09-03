@@ -5,6 +5,7 @@ pubDate: 2022-09-12
 platforms:
   - macOS
   - iOS
+isPaid: true
 appStoreId: 1643660089
 forceHasIosAppIcon: true
 ---
@@ -51,9 +52,9 @@ If you work at Apple, you know what to do:
 - [FB11516334](https://github.com/feedback-assistant/reports/issues/357)
 - [FB11516273](https://github.com/feedback-assistant/reports/issues/356)
 
-#### Why is this free without ads?
+<!-- #### Why is this free without ads?
 
-I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.
+I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store. -->
 
 #### Can you localize the app into my language?
 

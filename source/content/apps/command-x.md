@@ -15,6 +15,12 @@ Cut and paste files and folders in Finder using Command+X and Command+V. Without
 
 Known limitation: You cannot cut the name of a file when editing a filename in Finder or cut when using the search field. There is no way for the app to work around this.
 
+---
+
+You may also like my [Supercharge](/supercharge) app.
+
+---
+
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -28,7 +34,7 @@ Known limitation: You cannot cut the name of a file when editing a filename in F
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
 #### The app does not work {#not-working}
 
