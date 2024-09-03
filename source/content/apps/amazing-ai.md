@@ -5,17 +5,18 @@ pubDate: 2022-12-21
 platforms:
   - macOS
   - iOS
-  # - visionOS
+  - visionOS
 appStoreId: 1660147028
 olderMacOSVersions:
   - '13'
+  - '14'
 ---
 
 Simply describe the image you desire, and the app will generate it for you like magic!
 
 It runs locally on your device.
 
-On macOS, developed exclusively for Apple silicon (M1/M2) - The app is NOT compatible with devices running on Intel chips.
+On macOS, developed exclusively for Apple silicon - The app is NOT compatible with devices running on Intel chips.
 
 On iOS, it requires at minimum an iPhone 15 Pro or iPad with M1 processor.
 
@@ -50,9 +51,9 @@ On macOS, when you save a generated image, it includes a lot of useful metadata 
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Amazing%20AI&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Amazing%20AI&referrer=Website-FAQ)
 
-#### Why not use Stable Diffusion 2?
+#### Why not use Stable Diffusion 3?
 
 It will eventually be supported, but right now, it's worse than 1.5.
 
@@ -125,12 +126,13 @@ I don't plan to localize the app.
 
 ### Older Versions
 
+- [1.5.0](https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Amazing.AI.1.5.0.zip) for macOS 14+
 - [1.2.2](https://drive.google.com/file/d/1mcEhAKhmQGYzmSS-zlejt3_qsKFzqm0h/view?usp=sharing) for macOS 13+
 
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Amazing.AI.1.3.0.zip) *(1.3.0)*
+[Download](https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Amazing.AI.1.6.0.zip) *(1.6.0)*
 
-*Requires macOS 14 or later*
+*Requires macOS 15 or later*

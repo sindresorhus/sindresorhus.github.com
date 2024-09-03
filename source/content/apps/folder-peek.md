@@ -9,6 +9,8 @@ appStoreId: 1615988943
 olderMacOSVersions:
   - '12'
   - '13'
+feedbackNote: |
+  If the app is not working after updating to macOS 15, restart your computer once more and it should work. This is a macOS 15 bug. If it still doesn't work, Apple has told me it will be fixed in macOS 15.1.
 ---
 
 <br>
@@ -26,7 +28,7 @@ Make sure you read the below tips and FAQ.
 - Click the folder title ([the top menu item](https://github.com/sindresorhus/meta/assets/170270/79c4e9c7-8abf-49da-b8fb-3a942017442e)) to open the folder.
 - You can drag and drop the file thumbnail in the file submenu. Press the <kbd>Option</kbd> key while dragging to copy instead of moving.
 - Just start typing when the menu is open to search for a file or folder.
-- Press the <kbd>Option</kbd> when viewing the file details to copy the path or image/video dimensions.
+- Press the <kbd>Option</kbd> key when viewing the file details to copy the path or image/video dimensions.
 - You can use the Shortcuts support to show/hide certain folders depending on what project you are working on.
 - If you have the menu bar item folders next to each other and you have one folder open, you can press <kbd>Control+Tab</kbd> or <kbd>Shift+Control+Tab</kbd> to switch between them.
 - Press the <kbd>Option</kbd> key while the menu is open to show the `…` menu item at the top if it normally is at the bottom.
@@ -49,7 +51,7 @@ You could add the “Desktop” folder to Folder Peek and then [hide the desktop
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
 #### Some folders are suddenly missing from the menu bar
 
@@ -119,9 +121,26 @@ Click the menu bar item, go to the first menu bar item (which is named after you
 
 No, that is unfortunately not possible. Folder Peek is built as a system menu, and a menu cannot be kept open if it's not focused. Instead, first, navigate to the nested folder, click to open it in Finder, and then drag & drop the file into the Finder window.
 
+#### Can it auto-mount a network volume when accessing it? {#network-volume}
+
+No, this is not possible because of [sandboxing](/apps/faq#macos-sandbox). To use a network volume in the app, you need to either mount it manually first or use a tool like [AutoMounter](https://pixeleyes.co.nz/automounter/) to keep it always mounted.
+
+#### Can it support adding a tag instead of a folder?
+
+No. This is not planned.
+
 #### The app I want does not show up in the “Open With” menu for a folder {#folder-open-with}
 
 Apps define the types they support and Folder Peek just fetches a list of apps that support opening folders. However, many apps forget to declare support for folders even though they can open them. I would encourage reporting this to the developers of the app you want to open ([example report](https://github.com/microsoft/vscode/issues/146977)). In the meantime, I'm happy to manually add the app to the list if you contact me, but you are expected to also have reported the issue to the app's developers.
+
+The app developer will need to add `public.folder` to `LSItemContentTypes` in their app's Info.plist:
+
+```xml
+<key>LSItemContentTypes</key>
+<array>
+    <string>public.folder</string>
+</array>
+```
 
 #### How can I make folders open in a different app than Finder by default? {#finder-alternative}
 
@@ -193,6 +212,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/5643r7m9hybqqa5e1lr74/Folder-Peek-1.10.1-1706638981.zip?rlkey=dvkgfrorccj1qgzwpdkg9g2me&raw=1) *(1.10.1)*
+[Download](https://www.dropbox.com/scl/fi/flv8w2o4ffp8f1kwzj2gv/Folder-Peek-1.11.3-1726668648.zip?rlkey=dbxv3qcd5y8n1flw2siqbk43z&raw=1) *(1.11.3)*
 
 *Requires macOS 14 or later*

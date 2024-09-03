@@ -7,7 +7,10 @@ platforms:
   - macOS
   - iOS
   - visionOS
+  - watchOS
 appStoreId: 6465745322
+olderMacOSVersions:
+  - '14'
 ---
 
 Show a single task on your Home Screen, Lock Screen, or desktop.
@@ -17,6 +20,8 @@ Add some tasks to the app and then add the widget. Simply tap the widget to mark
 The simplicity is a feature. The app will not have things like folders, tags, priority, notes, etc.
 
 The optimal workflow in One Task is to add only the tasks you're committed to completing today. The app is designed for task completion, not endless organization and neglect.
+
+<!-- Syncs seamlessly across your devices with iCloud. -->
 
 It syncs tasks over iCloud. Note that the macOS version has an issue where it doesn't sync while being the active window (macOS bug).
 
@@ -48,13 +53,7 @@ One Thing is a minimalist note app that sits in the menu bar, displaying a singl
 
 #### iCloud syncing does not work
 
-Troubleshooting:
-- Ensure you are on the latest version of the app and iOS/macOS.
-- Ensure the devices are signed into the same iCloud account.
-- Ensure the devices are online.
-- Ensure Low Power Mode is not enabled on the devices. It can cause iCloud to delay syncing.
-- Try restarting the devices.
-- If you are using a VPN, try disconnecting it. Some VPNs prevent iCloud from syncing.
+[Troubleshooting.](/apps/faq#icloud-sync)
 
 Known issue:
 - Because of a macOS bug, the macOS app does not sync with iCloud while it's focused.
@@ -73,7 +72,7 @@ No, One Task deliberately avoids automatic integration with other todo apps. Mos
 
 No. I want to keep this app super simple.
 
-However, you can achieve this using the Shortcuts app. Create a [shortcut](https://support.apple.com/en-gb/guide/shortcuts/welcome/ios) that uses the “Add Task” action to add the tasks you want to be recurring. Then create an [automation](https://support.apple.com/en-gb/guide/shortcuts/apdfbdbd7123/7.0/ios/17.0) to run the shortcut at a certain interval. For example, every morning.
+However, you can achieve this using the Shortcuts app. Create a [shortcut](https://support.apple.com/guide/shortcuts/welcome/ios) that uses the “Add Task” action to add the tasks you want to be recurring. Then create an [automation](https://support.apple.com/guide/shortcuts/apdfbdbd7123/7.0/ios/17.0) to run the shortcut at a certain interval. For example, every morning.
 
 *(macOS does not yet have automations. You can use [Shortery](https://apps.apple.com/app/id1594183810) for now.)*
 
@@ -89,6 +88,10 @@ One Task is designed for action, not endless categorization. It omits features l
 
 I don't plan to add this. I want to keep the app super simple.
 
+#### Can you make the widget background transparent
+
+This is not possible.
+
 #### The text in the widget is quite large
 
 The text automatically scales down to fit more content.
@@ -99,10 +102,8 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-### Non-App Store Version
+### Older Versions
 
-A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
+- [1.5.4](https://github.com/user-attachments/files/18549490/One.Task.1.5.4.-.macOS.14.zip) for macOS 14
 
-[Download](https://www.dropbox.com/scl/fi/hf7zbgjv0755vfo1lqi5j/One-Task-1.0.0-1696158358-1701610759.zip?rlkey=lyihesd9omsdguagajgi3hbye&raw=1) *(1.2.0)*
-
-*Requires macOS 14 or later*
+These are free for everyone but they will not run on newer macOS versions.

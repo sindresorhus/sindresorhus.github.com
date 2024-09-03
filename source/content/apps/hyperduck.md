@@ -6,9 +6,13 @@ platforms:
   - macOS
   - iOS
   - visionOS
+isPaid: true
 appStoreId: 6444667067
 olderMacOSVersions:
   - '13'
+  - '14'
+feedbackNote: |
+  If you are having problems with sync, [read this](/hyperduck#troubleshooting).
 ---
 
 For example, share a link from Safari on your iPhone, iPad, or Apple Vision Pro, and have it open in the default browser on your Mac moments later.
@@ -21,32 +25,26 @@ My personal use-case is that I often discover cool stuff when I check Twitter on
 
 [Review by MacStories](https://www.macstories.net/reviews/automation-april-hyperduck-leverages-the-power-of-url-schemes-to-control-your-mac-from-an-iphone-or-ipad/)
 
+[Video review by MacRumors](https://www.youtube.com/watch?v=XiLSieZ5b2c&t=486s)
+
 #### Privacy
 
 The app uses iCloud syncing to securely send links from your iOS/visionOS device to your Mac. The app developer will not see the links you share. The app does not collect any personal data and does not have any tracking.
 
 ### Troubleshooting
 
-- Try restarting both devices.
-- Try opening the Hyperduck iOS app to force a sync.
-- Ensure you are on the latest operating system version.
-- Ensure both devices are signed into the same iCloud account.
-- Ensure both devices are online.
+- If the “Send to Mac” button is not showing up in share sheets, you may have to enable it at the bottom of the share sheet. You may even have to restart your device for it to show up (iOS bugs…).
 - Ensure Hyperduck is running on the Mac.
 - Hyperduck opens links in the background. Ensure you didn't miss it.
-- Ensure Low Power Mode is not enabled on the devices. It can cause iCloud to delay syncing.
-- On iOS, ensure Hyperduck is enabled in “Settings › Apple ID › iCloud › Apps Using iCloud”.
-- On macOS, ensure Hyperduck is enabled in “System Settings › Apple ID › iCloud › iCloud Drive › Apps syncing to iCloud Drive”.
-- If it's a work device, make sure there are no restrictions in place that prevents iCloud or iCloud Drive.
-- If using a VPN, try disconnecting it, as some VPNs can interfere with iCloud syncing.
-- Check the [iCloud system status](https://www.apple.com/support/systemstatus/) to ensure the service is not experiencing issues.
+- Try opening the Hyperduck iOS app to force a sync.
 - In the iOS app, if you triple-tap the text, it will show the most recently shared URLs, which may aid debugging.
+- [More…](/apps/faq#icloud-sync)
 
 ### Tips
 
 #### Run shortcuts {#shortcuts}
 
-You can use this app to trigger [shortcuts](https://support.apple.com/en-gb/guide/shortcuts/welcome/ios) on your Mac from your iOS devices. This enables a lot of powerful use-cases. For example, you could make your Mac play a specific song directly from your iPhone.
+You can use this app to trigger [shortcuts](https://support.apple.com/guide/shortcuts/welcome/ios) on your Mac from your iOS devices. This enables a lot of powerful use-cases. For example, you could make your Mac play a specific song directly from your iPhone.
 
 First, create a shortcut on your Mac with some actions. Let's call it `Unicorn`.
 
@@ -79,11 +77,35 @@ Create an [iOS shortcut that triggers a macOS shortcut](#shortcuts) and set it t
 - [Example iOS shortcut](https://www.icloud.com/shortcuts/a00ac5bb31294084936fbd4dd6ca0245)
 - [Example macOS shortcut](https://www.icloud.com/shortcuts/d39c57b67ed343d58192a899841d6457)
 
+#### Send a link to a specific Mac {#send-to-specific-mac}
+
+Instead of using the “Send to Mac” share sheet button provided by the app, you can make a [shortcut](#shortcuts) for each Mac you want to send to and put those shortcuts in the share sheet.
+
+Add these shortcuts (on any device):
+
+- [iOS shortcut](https://www.icloud.com/shortcuts/f013c4a6da7d4a9eb0694f0a6532f34c)
+- [macOS shortcut](https://www.icloud.com/shortcuts/e164558aa759486ca70553f32029fe40)
+
+Then edit the macOS shortcut to match the device name of the device you want this to share to. You can rename the macOS shortcut, but don't forget to update the name in the iOS shortcut.
+
+To support more Macs, repeat the process for each Mac.
+
+#### Download a file on your Mac from your iOS device
+
+You can use Hypeduck to trigger a download from your iOS device and have it downloaded on your Mac.
+
+Add the below [shortcuts](#shortcuts):
+
+- [iOS shortcut](https://www.icloud.com/shortcuts/4819a11f4d0b40228df7ffd737b34c3d)
+- [macOS shortcut](https://www.icloud.com/shortcuts/d319976dd4cf441780f6abcb049a3cff)
+
+You can then tap “Download on Mac” in the share sheet on your iOS device, and the item will be downloaded on your Mac to the “Downloads” folder.
+
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Hyperduck&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Hyperduck&referrer=Website-FAQ)
 
 #### How is it better than AirDrop? {#airdrop}
 
@@ -128,7 +150,7 @@ Create an [iOS shortcut that triggers a macOS shortcut](#shortcuts) and set it t
 - The link opens automatically. Handoff requires clicking the Dock icon to open it.
 - Handoff sometimes refuses to work. This always works.
 
-#### How is it better than [Universal Clipboard](https://support.apple.com/en-us/HT209460)? {#universal-clipboard}
+#### How is it better than [Universal Clipboard](https://support.apple.com/HT209460)? {#universal-clipboard}
 
 - No need to manually paste the link into the browser after copying it on your iOS device
 - Works when your Mac is turned off
@@ -152,7 +174,7 @@ Create an [iOS shortcut that triggers a macOS shortcut](#shortcuts) and set it t
 - Pushbullet does not have a iOS or macOS app
 - Does not require signing up for another account
 
-#### How is it better than the Firefox [Send Tabs](https://support.mozilla.org/en-US/kb/send-tab-firefox-ios-another-device) feature?
+#### How is it better than the Firefox [Send Tabs](https://support.mozilla.org/kb/send-tab-firefox-ios-another-device) feature?
 
 - Works in any app with a share sheet, not just Firefox
 - Supports any browser on your Mac
@@ -166,7 +188,7 @@ Create an [iOS shortcut that triggers a macOS shortcut](#shortcuts) and set it t
 
 #### Can it open links in a specific browser on my Mac?
 
-You can use my free [Velja app](/velja) for this. Create a custom rule where you set Hyperduck as the source app.
+You can use my [Velja app](/velja) for this. Create a custom rule where you set Hyperduck as the source app.
 
 #### The link did not open on my Mac right away
 
@@ -184,7 +206,7 @@ Safari tries to share the PDF file itself, not the URL to the PDF, and Hyperduck
 
 The Arc browser does not support opening multiple URLs at the time. I suggest sending feedback to the Arc team about this. There is nothing Hyperduck can do about it.
 
-As a workaround, you could use my free [Velja app](/velja) to make such links open in a different browser. Create a custom rule where you set Hyperduck as the source app and set the destination app to a different browser than Arc.
+As a workaround, you could use my [Velja app](/velja) to make such links open in a different browser. Create a custom rule where you set Hyperduck as the source app and set the destination app to a different browser than Arc.
 
 #### Can Hyperduck lose a shared link if my internet goes down?
 
@@ -198,11 +220,11 @@ If you really need to see what URLs were shared, you can triple-tap on the text 
 
 #### Can you support multiple Macs?
 
-No. I would like to keep the app simple.
+No. I would like to keep the app simple. However, you could [do it with Shortcuts](#send-to-specific-mac).
 
 #### Can you support the reverse - Mac to iOS?
 
-No. That is not something I plan to support. It's simply not something I need myself and it would make the app much more complicated.
+No. That is not something I plan to support. It's simply not something I need myself and it would make the app much more complicated. Also, it would not be possible to open the URL directly in the browser like it does on macOS, so the experience would not be great.
 
 #### Can you localize the app into my language?
 
@@ -212,12 +234,7 @@ I don't plan to localize the app.
 
 ### Older Versions
 
-- [1.0.7](https://github.com/sindresorhus/meta/files/14292936/Hyperduck.1.0.7.-.macOS.13.zip) for macOS 13+
+- [1.2.3](https://github.com/user-attachments/files/18591073/Hyperduck.1.2.3.-.macOS.14.zip) for macOS 14
+- [1.0.7](https://github.com/sindresorhus/meta/files/14292936/Hyperduck.1.0.7.-.macOS.13.zip) for macOS 13
 
-### Non-App Store Version
-
-A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/8uc8owhy3izpaj0pi7ob5/Hyperduck-1.1.0-1707315964.zip?rlkey=8v6ylbwibmi4yav8bp25sz468&raw=1) *(1.1.0)*
-
-*Requires macOS 14 or later*
+These are free for everyone but they will not run on newer macOS versions.

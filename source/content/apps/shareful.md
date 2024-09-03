@@ -34,7 +34,7 @@ If you are on a work computer, it could also be that your company has blocked th
 
 #### Can you add a “Move” action?
 
-This is unfortunately not possible. [Share extensions](https://support.apple.com/guide/mac-help/use-the-share-menu-on-mac-mh40614/mac) (for example, the "Copy" action), only receive a copy of the file. They have no access to the original file.
+This is unfortunately not possible. [Share extensions](https://support.apple.com/guide/mac-help/use-the-share-menu-on-mac-mh40614/mac) (for example, the "Copy" action), usually only receive a copy of the file. They have no guaranteed access to the original file.
 
 #### Can you add a “Copy Path” action for use in Finder?
 

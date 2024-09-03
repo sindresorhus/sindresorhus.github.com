@@ -6,16 +6,18 @@ platforms:
   - macOS
 mainLinks:
   'Download': https://github.com/sindresorhus/menu-bar-spacing-meta/releases/latest/download/Menu.Bar.Spacing.zip
-# olderMacOSVersions:
-#   - '14'
+olderMacOSVersions:
+  - '14'
 ---
 
 Menu bar apps are awesome, but MacBooks have limited menu bar space. This app helps you reclaim that space by reducing the gap between menu bar items. With a single run, the app applies changes permanently, allowing you to fit more apps into the menu bar. Reverting the changes is just as simple, done within the app. If you have a large display, the app can also increase the gap between menu bar items.
 
 - *Free*
-- *Requires macOS 14.5+*
+- *Requires macOS 15+*
 
 The app includes a Shortcuts action, enabling automated spacing adjustments for various scenarios.
+
+**The app only needs to be run once to set the spacing and can then be uninstalled. The settings persist.**
 
 This app can potentially replace Bartender/Ice for some users. It also lets you fit more of my [menu bar apps](/apps/menu-bar) in your menu bar.
 
@@ -69,15 +71,12 @@ No, not in the app. However, the app comes with an action for Shortcuts, so you 
 
 Note: The setting is global. Changing it will interrupt any ongoing screen recording or sharing, as it restarts some system processes to apply changes immediately.
 
-#### Why is this not in the App Store?
+#### Why is this not on the App Store?
 
 The app works by changing hidden system settings, which is not allowed on the App Store.
 
 #### [More FAQs…](/apps/faq)
 
-<!--
-
 ### Older Versions
 
-- [1.0.0]() for macOS 14+
--->
+- [1.0.1](https://github.com/user-attachments/files/18203513/Menu.Bar.Spacing.1.0.1.zip) for macOS 14+

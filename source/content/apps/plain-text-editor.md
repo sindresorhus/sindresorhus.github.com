@@ -52,7 +52,11 @@ This is a macOS bug. There is unfortunately nothing I can do about it.
 
 Yes. Click “View › Show Tab Bar” in the menu bar and then click the plus button in the window.
 
-You can also press <kbd>Command</kbd> + <kbd>N</kbd> if you have [tabs enabled for document apps](https://support.apple.com/en-gb/guide/mac-help/mchla4695cce/mac).
+You can also press <kbd>Command</kbd> + <kbd>N</kbd> if you have [tabs enabled for document apps](https://support.apple.com/guide/mac-help/mchla4695cce/mac).
+
+#### Can I keep it in the menu bar?
+
+No, that's not supported. However, you may be interested in my [Scratchpad](/scratchpad) app.
 
 #### How can I make the app preserve open documents when I quit on macOS?
 
@@ -96,9 +100,9 @@ I don't plan to add that. It's not essential and I'm trying to keep the app simp
 
 This is unfortunately a macOS bug and out of my control.
 
-#### Why is there no way to print?
+#### Why is there no way to print? {#print}
 
-The app is made using Apple's latest technologies (SwiftUI) and they have not added print support there yet. If you need to print, open the document in TextEdit instead.
+The app is made using Apple's latest technologies (SwiftUI) and they have not added print support there yet. If you need to print, open the document in TextEdit instead. Sorry for the inconvenience.
 
 #### Why is it suddenly showing a scrollbar?
 
@@ -110,13 +114,17 @@ This is unfortunately a macOS bug and not something I can fix.
 
 *If you work at Apple → [FB13607434](https://github.com/feedback-assistant/reports/issues/467)*
 
+#### Can you add line numbers?
+
+This is out of scope for this app.
+
+#### Can you add a setting to turn off line wrapping?
+
+This is out of scope for this app.
+
 #### How can I export, import, sync, or back up the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
-
-#### Why is this free without ads?
-
-I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 #### Can you localize the app into my language?
 

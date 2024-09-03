@@ -15,17 +15,27 @@ Tap the feedback button in the app or the support link on the app's page. I prio
 
 My apps prioritize user privacy and do not collect any personal data.
 
-### How can I get a refund?
+### How can I get a refund? {#refund}
 
-For apps purchased on the Apple App Store, you can [request a refund](https://support.apple.com/en-us/HT204084). However, I would appreciate if you [reached out](/feedback) first. I may be able to resolve any problems you are having.
+For apps purchased on the Apple App Store, you can [request a refund](https://support.apple.com/en-us/HT204084) from Apple. App developers have no control over the purchase and refund process.
+
+For apps purchased on Gumroad, you can [request a refund](mailto:sindresorhus@gmail.com?subject=Gumroad%20refund&body=Mention%20which%20app%20you%20want%20a%20refund%20for%20and%20your%20Gumroad%20account%20email) within 30 days of the purchase.
+
+However, I would appreciate if you [reached out](/feedback) first. I may be able to resolve any problems you are having.
 
 ### How many devices can I install an app on?
 
 Apps purchased on the Apple App Store can be installed on up to 10 devices, with a maximum of 5 computers. [Learn more.](https://support.apple.com/en-us/HT204074)
 
+Apps purchased on Gumroad can be used by one user on unlimited computers.
+
 ### How can I transfer an app bought on the Apple App Store to a different account?
 
 This is unfortunately [not possible](https://apple.stackexchange.com/a/444878). App developers have no control over the purchase process on the Apple App Store.
+
+### Do you provide any discounts?
+
+Yes. See the [discounts](/apps/discounts) page.
 
 ### Are your apps native?
 
@@ -49,7 +59,7 @@ I hate ads. None of my apps have ads.
 
 ### How can I support your work?
 
-Rate and review my apps on the App Store. Your ratings and reviews greatly aid in increasing the apps' visibility and discoverability, helping more users find them.
+Rate and review my apps on the App Store. Your ratings and reviews greatly aid in increasing the apps' visibility and discoverability, helping more users find them. You can also rate my apps on Gumroad.
 
 ### Who makes your app icons?
 
@@ -61,7 +71,7 @@ User-reported bugs are prioritized based on their impact on the app's functional
 
 ### What's the best way to learn about new apps?
 
-Subscribe to my [“new apps” RSS feed](/rss-apps.xml) and follow me on [Twitter](https://twitter.com/sindresorhus) and [Mastodon](https://mastodon.social/@sindresorhus).
+Subscribe to my [“new apps” RSS feed](/feeds) and follow me on [Twitter](https://twitter.com/sindresorhus) and [Mastodon](https://mastodon.social/@sindresorhus).
 
 ### Do you actively maintain all your apps?
 
@@ -83,9 +93,11 @@ I make apps for fun and supporting older operating system versions is simply no 
 - **Isolation:** Issues in one app don’t affect others.
 - **Satisfaction:** I like the satisfaction of completing an app.
 
-### How can I export, import, sync, or back up the settings in a Mac app?
+### How can I export, import, sync, transfer, or back up the settings for your Mac app? {#export-settings}
 
-[See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
+You can do it with my [App Buddy](/app-buddy) app.
+
+If you prefer using the command-line, [see this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md#command-line)
 
 ### Can I contribute localizations to your apps?
 
@@ -93,7 +105,9 @@ No, I don't plan to localize my apps. Localization adds complexity and maintenan
 
 ### Can you make your apps available on Homebrew? {#homebrew}
 
-Unfortunately not. Supporting Homebrew requires distributing apps outside the App Store, and that involves significant overhead: hosting, auto-updating, and dual publishing. The demand simply doesn't justify these efforts.
+For App Store apps, unfortunately not. Supporting Homebrew requires distributing apps outside the App Store, and that involves significant overhead: hosting, auto-updating, and dual publishing. The demand simply doesn't justify these efforts.
+
+For non-App Store apps, anyone can add to Homebrew. Feel free to [add one of my apps](https://docs.brew.sh/Adding-Software-to-Homebrew). I personally don't use Homebrew for apps, so it's not something I plan to do.
 
 ### You are doing a lot of open source, why are only some of your apps open source? {#why-not-oss}
 
@@ -129,9 +143,15 @@ osascript -e 'id of app "AppName"'
 
 Replace `AppName` with the name of the app.
 
+For my apps, you can also find it in [App Buddy](/app-buddy).
+
 ### What is a bundle identifier? {#bundle-identifier}
 
 A bundle identifier (or bundle ID) uniquely identifies an app in Apple's ecosystem, using a reverse-domain format like `com.companyname.appname`. For example, `com.sindresorhus.Dato` for [Dato](/dato).
+
+### What is the macOS app sandbox? {#macos-sandbox}
+
+The macOS app sandbox is like putting each app in a fenced yard. It keeps the app from wandering off and messing with other apps or your system, which makes your Mac safer. However, the fence is very strict—it can stop apps from doing creative or powerful things, even when you want them to. All apps on the Mac App Store must be sandboxed, which means some advanced features or workflows might not be possible.
 
 ### I have enabled “launch at login” but the app does not launch when I start my computer {#launch-at-login-not-working}
 
@@ -150,7 +170,27 @@ Here are some things you could try:
 - macOS: [Reset permissions.](#mac-reset-permissions)
 - [Reset the app.](#reset-app)
 
+For sync issues, see below.
+
 If you have tried all of this, [contact me](/feedback).
+
+### iCloud syncing is not working {#icloud-sync}
+
+- Ensure iCloud sync is enabled in the app settings on all devices you wish to sync.
+- Ensure all devices are signed into the same iCloud account.
+- Ensure all devices are online.
+- Ensure your iCloud storage is not full.
+- Try restarting all devices.
+- Force a manual sync by making a small edit to the synced data on one device.
+- The initial sync may take a while.
+- Resolve any Apple Account or iCloud errors on your devices (e.g., sign-in prompts).
+- Ensure Low Power Mode is not enabled on the devices. It can cause iCloud to delay syncing.
+- Ensure you are on the latest operating system version and app version.
+- On iOS, ensure the app is disabled in “Settings › Apple Account › iCloud › Apps Using iCloud”.
+- On macOS, ensure the app is not disabled in “System Settings › Apple Account › iCloud › Saved to iCloud” and “System Settings › Apple Account › iCloud › iCloud Drive › Apps syncing to iCloud Drive”.
+- If using a VPN, try disconnecting it, as some VPNs can interfere with iCloud syncing.
+- If it's a work device, make sure there are no restrictions in place that prevents iCloud or iCloud Drive.
+- Check the [iCloud system status](https://www.apple.com/support/systemstatus/) to ensure the service is not experiencing issues.
 
 ### How can I send you debug info for one of your apps? {#debug-info}
 
@@ -167,6 +207,12 @@ iOS: Open the Settings app, go to “General › iPhone/iPad Storage”, tap the
 ### How can I reset all permissions for your Mac app? {#mac-reset-permissions}
 
 *(This is only necessary if the app asked for any permissions the first time you launched it)*
+
+**The simple way**
+
+Select the app in [App Buddy](/app-buddy) and click “Reset Permissions”.
+
+**The manual way**
 
 First, quit the app.
 
@@ -200,7 +246,11 @@ You can now launch the app again.
 
 ### How can I send you a crash report for one of your apps? {#crash-report}
 
-**macOS**
+**macOS - simple**
+
+Select the app in [App Buddy](/app-buddy) and click “Copy to Downloads” in the “Crash Reports” section.
+
+**macOS - manual**
 - Open Finder
 - Select `Go to Folder…` from the `Go` menu
 - Enter: `~/Library/Logs/DiagnosticReports`
@@ -223,6 +273,12 @@ You can now launch the app again.
 - Send me the file.
 
 ### How can I send you a **process sample** for one of your Mac apps? {#sample-process}
+
+**The simple way**
+
+Select the app in [App Buddy](/app-buddy) and click “Sample Process”.
+
+**The manual way**
 
 - Make sure the app in question is running.
 - Open the Activity Monitor app.

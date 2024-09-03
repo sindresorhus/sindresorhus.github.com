@@ -5,17 +5,40 @@ pubDate: 2022-09-12
 platforms:
   - macOS
   - iOS
+  - watchOS
+isPaid: true
 appStoreId: 1643199620
 forceHasIosAppIcon: true
+feedbackNote: |
+  If you are having problems with sync, [read this](/any-text#troubleshoot-syncing).
 ---
 
 The app provides widgets where you can write any kind of text. It could be an important note, your goal, a list of tasks, etc.
 
-For macOS, it's only available for Apple silicon Macs running macOS 14 or later.
+For macOS, it's only available for Apple silicon Macs running macOS 15 or later.
+
+Syncs seamlessly across your devices with iCloud.
 
 <br>
 
 *You may also like [my similar app](https://sindresorhus.com/one-thing) for macOS.*
+
+### Tips
+
+#### Markdown {#markdown}
+
+You can style parts of the text bold, italic, or strikethrough using [Markdown](https://www.markdownguide.org/basic-syntax/).
+
+For example:
+
+- **Bold text** is created by wrapping text with double asterisks: `**bold**`
+- *Italic text* is created by wrapping text with single asterisks: `*italic*`
+- ~~Strikethrough text~~ is created by wrapping text with double tildes: `~~strikethrough~~`
+
+#### Troubleshoot syncing {#troubleshoot-syncing}
+
+- After enabling sync, try writing some more text on all the devices.
+- [More…](/apps/faq#icloud-sync)
 
 ### Frequently Asked Questions {#faq}
 
@@ -25,16 +48,19 @@ For macOS, it's only available for Apple silicon Macs running macOS 14 or later.
 
 #### How do I add the widget?
 
-- [iOS](https://support.apple.com/en-us/HT207122)
-- [macOS](https://support.apple.com/en-gb/guide/mac-help/mchl52be5da5/mac)
+- [iOS](https://support.apple.com/HT207122)
+- [macOS](https://support.apple.com/guide/mac-help/mchl52be5da5/mac)
+- [watchOS](https://support.apple.com/guide/watch/see-widgets-in-the-smart-stack-apdecf142fb9/watchos)
 
-#### The widget does not show up in the widget picker
+#### The widget does not show up in the widget picker, the widget is stuck, or is missing from the Home Screen
 
-This is a iOS issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
+The iOS widget system is quite buggy and can fail a lot. This is not a problem with the app and out of my control. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
 
 #### Can you support having multiple pieces of text that change during the day?
 
-I would like to keep the app simple, so it's not something I plan to support built-in. However, the app comes with a shortcut action to change the text, so you could use the [Shortcuts automations](https://support.apple.com/en-gb/guide/shortcuts/apdfbdbd7123/7.0/ios/17.0) to change the text during the day.
+I would like to keep the app simple, so it's not something I plan to support built-in. However, the app comes with a shortcut action to change the text, so you could use the [Shortcuts automations](https://support.apple.com/guide/shortcuts/apdfbdbd7123/7.0/ios/17.0) to change the text during the day.
+
+You could also put multiple widgets in a [widget stack](https://support.apple.com/118610).
 
 *(macOS does not yet have automations. You can use [Shortery](https://apps.apple.com/app/id1594183810) for now.)*
 
@@ -66,13 +92,17 @@ The app tells iOS to update the widget, unfortunately, iOS can decide to delay a
 
 #### The widget does not update when setting the text with the Shortcuts action
 
-This is unfortunately an iOS 16 bug. The app correctly tells iOS to update the widget, but iOS delays it for some reason. The text will update eventually.
+This is unfortunately an iOS bug. The app correctly tells iOS to update the widget, but iOS delays it for some reason. The text will update eventually.
 
 If you work at Apple → [FB11522170](https://github.com/feedback-assistant/reports/issues/359)
 
 #### Can you make the widget bigger?
 
 The widget sizes are controlled by Apple. The provided size is the largest it allows.
+
+#### Can you make the widget background transparent
+
+This is not possible.
 
 #### Can you remove the title shown below the widget?
 
@@ -115,12 +145,27 @@ If you work at Apple, you know what to do:
 - [FB11516334](https://github.com/feedback-assistant/reports/issues/357)
 - [FB11516273](https://github.com/feedback-assistant/reports/issues/356)
 
-#### Why is this free without ads?
-
-I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
+
+### Scripting
+
+The text in the widgets can be changed using the Shortcuts app.
+
+#### Shortcuts app
+
+- [Shortcuts usage guide](https://www.xda-developers.com/guide-shortcuts-macos/)
+- [How to run shortcuts from the command-line on macOS](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac)
+
+#### Command-line on macOS
+
+Shortcuts can be executed via the command-line, allowing you to set widget text programmatically.
+
+For example, to set the text for widget 1, add [this shortcut](https://www.icloud.com/shortcuts/6873c23a3cbb4718b23135e367d6be1b), and then run this:
+
+```sh
+echo 'TEST' | shortcuts run 'Set Widget 1 Text'
+```

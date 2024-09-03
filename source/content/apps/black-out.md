@@ -11,6 +11,7 @@ olderMacOSVersions:
   - '11'
   - '12'
   - '13'
+  - '14'
 ---
 
 This app can be useful when you want to post a screenshot or photo on the web that contains some information you don’t want to be revealed. Maybe you want to share a screenshot of a Slack conversation on Twitter but hide some private information. It also removes all metadata, like when and where a photo was captured.
@@ -27,7 +28,7 @@ Blurring and pixelation are intentionally not supported as they can sometimes [b
 
 #### I can already do this in the Preview app!
 
-You can do this in any graphics app. The point of this app is to make the task super easy to do. Most graphics apps, like Preview, Pixelmator, and Photoshop, preserve metadata, which means you could accidentally leak information like the capture location. Black Out strips out all metadata. It can also be run directly from Finder as a [Quick Action](https://support.apple.com/en-gb/guide/mac-help/mchl97ff9142/mac).
+You can do this in any graphics app. The point of this app is to make the task super easy to do. Most graphics apps, like Preview, Pixelmator, and Photoshop, preserve metadata, which means you could accidentally leak information like the capture location. Black Out strips out all metadata. It can also be run directly from Finder as a [Quick Action](https://support.apple.com/guide/mac-help/mchl97ff9142/mac).
 
 #### Does it support PDF?
 
@@ -41,6 +42,7 @@ It’s from Apple’s inspirational [“Here’s to the Crazy Ones” TV commerc
 
 ### Older Versions
 
+- [2.4.0](https://github.com/user-attachments/files/18210600/Black.Out.2.4.0.-.macOS.14.zip) for macOS 14
 - [2.3.1](https://github.com/sindresorhus/meta/files/13923936/Black.Out.2.3.1.-.macOS.13.zip) for macOS 13
 - [2.2.0](https://github.com/sindresorhus/meta/files/10773680/Black.Out.2.2.0.-.macOS.12.zip) for macOS 12
 - [2.0.4](https://github.com/sindresorhus/meta/files/8759655/Black.Out.2.0.4.-.macOS.11.zip) for macOS 11

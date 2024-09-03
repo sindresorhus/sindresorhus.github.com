@@ -7,28 +7,37 @@ platforms:
   - iOS
   - visionOS
 appStoreId: 6465250302
-# olderMacOSVersions:
-#   - '14'
+olderMacOSVersions:
+  - '14'
 ---
 
-The app provides additional AI-related actions (GPT-4o, GPT-4o mini, GPT-4, GPT 3.5) for the Shortcuts app.
+The app provides additional AI-related actions (o1, o1 mini, GPT-4o, GPT-4o mini, GPT-4, GPT 3.5, Claude 3 Opus, Claude 3.5 Sonnet, Claude 3.5 Haiku) for the Shortcuts app.
 
 For example, an action to interact with the ChatGPT API.
 
-**The app requires you to specify your own OpenAI API key.**
+**The app requires you to specify your own OpenAI / Anthropic API key.**\
+Note that ChatGPT Plus or an Anthropic paid account does not give you free API access.
 
 Your API key is securely stored in your keychain, not in a shortcut.
 
+It also supports many more models through [Ollama and Groq](#alternative-providers).
+
 **The macOS version on the App Store requires an Apple silicon Mac.** For Intel Macs, use the [non-App Store version](#non-app-store-version).\
 *(This is because Apple only accepted the iOS version and not the macOS version, so on macOS, the iOS version of the app is used, which only runs on Apple silicon Macs)*
-
-<!-- **If you are getting a `Missing response` error, it's most likely that the OpenAI safety system prevented your prompt. Try something else.** -->
 
 <!-- **Apple is currently blocking updates for the iOS app, so I won't be able to submit an update for some time... I plan to get it [published to an alternative App Store](https://appleinsider.com/articles/23/08/15/setapp-plans-to-launch-eu-only-alternative-ios-app-store) in 2024.** -->
 
 <br>
 
 *You may also like my [Actions](/actions) app.*
+
+### Tips
+
+#### Ollama and Groq support {#alternative-providers}
+
+The app also supports [Ollama](https://ollama.com/blog/openai-compatibility) (local models like GGUF) and [Groq](https://console.groq.com/docs/openai) (because they have OpenAI API compatibility), making it possible to use it with a lot more models.
+
+For Ollama, you need to specify a local URL like `http://localhost:11434` in the “Base URL” setting in the app. For Groq, specify `https://api.groq.com/openai`. In the “Ask AI” action, select the “Custom” model and provide the name of the desired model.
 
 ### Frequently Asked Questions {#faq}
 
@@ -66,16 +75,14 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-<!--
-
 ### Older Versions
 
-- []() for macOS 14+ -->
+- [1.3.3](https://github.com/user-attachments/files/18376675/AI.Actions.1.3.3.-.macOS.14.zip) for macOS 14+
 
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/sj8e83wj6t5vmakylg1h1/AI-Actions-1.2.5-1723502677.zip?rlkey=s3i1om646md9xbm7bwc7p04j8&raw=1) *(1.2.5)*
+[Download](https://www.dropbox.com/scl/fi/4muy6x2509nsr9wysos84/AI-Actions-1.4.0-1736511555.zip?rlkey=nz2qrpkalwso34dwumxg471ih&raw=1) *(1.4.0)*
 
-*Requires macOS 14 or later*
+*Requires macOS 15 or later*

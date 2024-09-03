@@ -6,8 +6,8 @@ platforms:
   - macOS
 isMenuBarApp: true
 appStoreId: 6502579523
-# olderMacOSVersions
-#   - '14'
+olderMacOSVersions:
+  - '14'
 ---
 
 **Features**
@@ -33,7 +33,7 @@ Click the feedback button in the app or [send it here](https://sindresorhus.com/
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
 #### Why does it not show week 53?
 
@@ -53,16 +53,14 @@ Change [this system setting](https://apple.stackexchange.com/questions/191445/st
 
 #### [More FAQs…](/apps/faq)
 
-<!-- ### Older Versions
+### Older Versions
 
-- [0.0.0]() for macOS 14+
-
--->
+- [1.1.0](https://github.com/user-attachments/files/18203839/Week.Number.1.1.0.zip) for macOS 14+
 
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/cbxr3kcr4x58lhangw57z/Week-Number-1.0.1-1716246386.zip?rlkey=59zj9nr3osxon72zqvlpqv4qz&raw=1) *(1.0.1)*
+[Download](https://www.dropbox.com/scl/fi/l2yr5m6il2wqjnftl6uoi/Week-Number-1.2.0-1734647649.zip?rlkey=ehuk5cftyrumqsrxwi6d8am94&raw=1) *(1.2.0)*
 
-*Requires macOS 14 or later*
+*Requires macOS 15 or later*

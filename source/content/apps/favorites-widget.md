@@ -5,6 +5,7 @@ pubDate: 2022-09-12
 platforms:
   - macOS
   - iOS
+isPaid: true
 appStoreId: 1643660089
 forceHasIosAppIcon: true
 ---
@@ -23,8 +24,8 @@ For macOS, it's only available for Apple silicon Macs running macOS 14 or later.
 
 #### How do I add the widget?
 
-- [iOS](https://support.apple.com/en-us/HT207122)
-- [macOS](https://support.apple.com/en-gb/guide/mac-help/mchl52be5da5/mac)
+- [iOS](https://support.apple.com/HT207122)
+- [macOS](https://support.apple.com/guide/mac-help/mchl52be5da5/mac)
 
 #### The widget does not show up in the widget picker
 
@@ -42,6 +43,10 @@ This is unfortunately not possible. iOS enforces that Lock Screen widgets are si
 
 Sure. I'm happy to consider requests. [Send it here.](https://sindresorhus.com/feedback?product=Favorites%20Widget&referrer=Website-FAQ)
 
+#### Can you make the widget background transparent
+
+This is not possible.
+
 #### When using the “Run Shortcut” action, why does tapping the widget first open the main app and then the Shortcuts app?
 
 This is because of iOS limitations. A widget can only open its own app when a user taps it. And the only way to run a shortcut is to open the Shortcuts app using a special URL. So when you tap the widget, the widget opens the main app, and the main app then opens the Shortcuts app. It's not a very good user experience, but only Apple can fix this.
@@ -51,9 +56,9 @@ If you work at Apple, you know what to do:
 - [FB11516334](https://github.com/feedback-assistant/reports/issues/357)
 - [FB11516273](https://github.com/feedback-assistant/reports/issues/356)
 
-#### Why is this free without ads?
+<!-- #### Why is this free without ads?
 
-I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.
+I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store. -->
 
 #### Can you localize the app into my language?
 

@@ -5,10 +5,13 @@ pubDate: 2020-09-22
 platforms:
   - macOS
   - iOS
+isPaid: true
 appStoreId: 1532588789
 forceHasIosAppIcon: true
-links:
-  'TestFlight': https://testflight.apple.com/join/ybGzYJ28
+# links:
+#   'TestFlight': https://testflight.apple.com/join/ybGzYJ28
+feedbackNote: |
+  iOS 18 has a bug where it skips 2 photos instead of 1. This is out of my control. Hopefully, a future iOS 18 version will fix it.
 ---
 
 For macOS, it's only available for Apple silicon Macs.
@@ -18,6 +21,10 @@ For macOS, it's only available for Apple silicon Macs.
 #### I have a feature request, bug report, or some feedback
 
 [Send it here.](https://sindresorhus.com/feedback?product=Photo%20Widget&referrer=Website-FAQ)
+
+#### The widget does not show up in the widget picker, the widget is stuck, or is missing from the Home Screen
+
+The iOS widget system is quite buggy and can fail a lot. This is not a problem with the app and out of my control. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
 
 #### I'm not seeing the new widget settings for showing date and album title
 
@@ -35,9 +42,9 @@ When on the home screen, long-press on the background (not on any icons), press 
 
 When on the home screen, long-press on the widget, and select “Edit Widget”. [Learn more.](https://support.apple.com/en-us/HT207122)
 
-#### The widget does not show up in the widget picker
+#### Why is there no Lock Screen widget?
 
-This is a well-known iOS 16 issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
+Lock Screen widgets are monochrome-only and too small to properly display photos.
 
 #### Why can I only add 100 photos to the app?
 
@@ -56,6 +63,10 @@ Yes. The widget fetches a list of all the photos in the album each time and pick
 #### Can I show an animated GIF in a widget?
 
 This is not possible.
+
+#### Why does my widget update more often than the interval I set or not as often?
+
+The interval is a suggestion to iOS, not a strict rule. iOS manages widget updates independently to optimize performance and battery life. It may refresh widgets more or less frequently based on various factors. Apps cannot control this behavior.
 
 #### How is this different from the built-in “Photos” widget?
 
@@ -84,9 +95,5 @@ If you work at Apple, you know what to do:
 #### How can I select a people album?
 
 Apple does not let third-party apps access these albums.
-
-#### Why is this free without ads?
-
-I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.
 
 #### [More FAQs…](/apps/faq)

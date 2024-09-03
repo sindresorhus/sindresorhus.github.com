@@ -4,15 +4,19 @@ subtitle: Powerful browser picker
 pubDate: 2022-04-21
 platforms:
   - macOS
+isPaid: true
 isMenuBarApp: true
 appStoreId: 1607635845
 olderMacOSVersions:
   - '12'
   - '13'
+  - '14'
 feedbackNote: |
   [Can you support Safari profiles?](/velja#safari-profiles)
 
   [Can you support Arc spaces/profiles?](/velja#arc)
+
+  [Support for opening links directly in Slack is not possible.](https://sindresorhus.com/velja#slack)
 
   **If you're requesting an addition to the “Apps” list, [please read this](https://sindresorhus.com/velja#builtin-apps-requests).**
 ---
@@ -20,6 +24,14 @@ feedbackNote: |
 Open links in a specific browser or a matching native app. Easily switch between browsers.
 
 [In-depth review of Velja.](https://www.podfeet.com/blog/2022/11/velja/)
+
+[*Trusted by almost 130K users.*](https://github.com/user-attachments/assets/011c6bda-186c-4ee7-868a-b71cc6f49a0b)
+
+---
+
+*You may also like my [Default Browser](/default-browser) app.*
+
+---
 
 <br>
 
@@ -39,6 +51,12 @@ Please help out by starring these Chrome issues which would help Velja users:
 
 - <https://bugs.chromium.org/p/chromium/issues/detail?id=174117>
 - <https://bugs.chromium.org/p/chromium/issues/detail?id=1325557>
+
+### Trial
+
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/ixiyq93dwu8yongaokseg/Velja-2.1.0-trial-1738419324.zip?rlkey=ao7w4lh6exje23w33z3fqitpe&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+
+**Requires macOS 15.2**
 
 ### Tips
 
@@ -98,7 +116,7 @@ Let's say you have generated a website wrapper app for facebook.com using an app
 
 - Safari — Built-in. Just enable it in the Safari settings.
 - [Chrome](https://chrome.google.com/webstore/detail/velja/gpipdgcamiclkcomcnogmlfpalggmcmk) — Also works in Edge, Brave, and other Chromium-based browsers.
-- [Firefox](https://addons.mozilla.org/en-GB/firefox/addon/velja/)
+- [Firefox](https://addons.mozilla.org/firefox/addon/velja/)
 
 #### Open the current website in a different browser
 
@@ -136,7 +154,7 @@ For other Chrome-based browsers, replace `com.google.Chrome` with their bundle i
 
 #### Launch browsers from Velja menu
 
-Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to launch it instead of setting it as the current browser.
+Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to launch it instead of setting it as the current browser. This even works with browser profiles.
 
 #### Open certain URLs in a specific browser profile
 
@@ -149,6 +167,10 @@ Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to laun
 - Define a pattern that matches the URLs you want to match.
 - Click “Save”.
 
+#### Automatically switch browser or browser profile based on time, location, or Focus mode
+
+Say you use different browser profiles for work and home and want them to switch automatically. This is a good use for the Shortcuts app. Create a shortcut with the "Set Default Browser" action that sets the browser profile to the one you want at home and another for work. You will then need the [Shortery](https://apps.apple.com/app/id1594183810) app to trigger these shortcuts at specific times, or based on your Focus mode if you have one for work. You could even trigger the shortcuts based on Wi-Fi name, which may be easier than defining work times if you work from an office.
+
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -157,9 +179,17 @@ Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to laun
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is not enough space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is not enough space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
-You may also have enabled the “Hide menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
+You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
+
+#### Why is the app suddenly paid? It used to be free.
+
+While I love making free apps that are available to anyone, the high volume of support requests became unsustainable. After providing Velja for free for 3 years with nearly 130K downloads, I made the decision to make it paid. This isn't about revenue - it's about managing my time more effectively by reducing the support burden to a sustainable level.
+
+#### Can this app be available on Setapp? {#setapp}
+
+Setapp curates apps based on demand, so if you'd like to see this app on Setapp, [email them](https://support.setapp.com/hc/articles/4950254561052-How-to-contact-Setapp-team#:~:text=to%20your%20issue.-,Send%20an%20email,%3A%20support%40setapp.com.) and request its inclusion.
 
 #### Velja does not work
 
@@ -181,7 +211,7 @@ Make sure you didn't click the link in a browser. See above.
 
 **I clicked a link in VS Code**
 
-VS Code [does not open the system default browser](https://github.com/microsoft/vscode/issues/96132) when you click a link in the app. Because of this, Velja is not used.
+By default, VS Code does not open the system default browser when you click a link in the app. Because of this, Velja is not used. You can change this with the `workbench.externalBrowser` setting in VS Code.
 
 **I clicked a short URL**
 
@@ -237,6 +267,8 @@ Velja automatically retrieves all browsers on your computer. There is no manual 
 
 #### Can you add another app to the “Apps” settings? {#builtin-apps-requests}
 
+**I'm not currently accepting more apps. I'm working on a way for users to add apps themselves.**
+
 I'm happy to consider requests (but read the below first). [Submit here.](https://sindresorhus.com/feedback?product=Velja&referrer=Website-FAQ) *(Include a link to the app and what behavior you expected)*
 
 **Note:** This is about opening a link in a specific app. If you want to open a link **from** a specific app, just use the rules feature in the settings (it supports any app).
@@ -259,14 +291,14 @@ However, some apps are not feasible:
 - Todoist
 	+ Only supports opening links to a todo item and it only works when the app is already running.
 - Craft.do
-	+ The app does not accept any links. It does accept [custom URL scheme](https://support.craft.do/hc/en-us/articles/360020168838-Using-URL-Scheme) links, but I'm not interested having to maintain more code to transform URLs in Velja when the services should just handle it themselves in their desktop apps.
+	+ The app does not accept any links. It does accept [custom URL scheme](https://support.craft.do/hc/articles/360020168838-Using-URL-Scheme) links, but I'm not interested having to maintain more code to transform URLs in Velja when the services should just handle it themselves in their desktop apps.
 
 And some apps do not need special support because they already support [universal links](https://developer.apple.com/ios/universal-links/):
 - [Quip](https://quip.com)
 - Maps (the built-in app)
 - Overcast
 
-*Universal links also prevent Velja from letting you open a link in the browser instead of the app.*
+*Universal links also prevent Velja from letting you open a link in the browser instead of the app. [Possible workaround.](https://lapcatsoftware.com/articles/universal-links2.html)*
 
 If your favorite service is in the above list, I would recommend contacting them and asking them to support opening a link directly in their app. That means being able to run the command `open -a AppName https://foo.com/link-to-project-or-meeting`.
 
@@ -279,6 +311,10 @@ There are some ways to [disable Universal Links](https://mjtsai.com/blog/2022/04
 #### How can I add a browser profile to the prompt?
 
 First, make sure you grant access to profiles in the settings and then enable them in the “Shown Browsers” setting.
+
+#### How can I open specific URLs in a Safari PWA (website added to the Dock)? {#safari-dock-app}
+
+Websites added to the Dock from Safari are just normal apps located in `~/Applications`. You could create a custom rule to match certain URLs and have them open in one of these web-wrapper apps.
 
 #### Can you support [Firefox Multi-Account Containers](https://github.com/mozilla/multi-account-containers)? {#firefox-containers}
 
@@ -324,7 +360,9 @@ This is currently not possible. The Slack app does not accept a normal deep link
 
 #### Can the default browser change based on the active [focus mode](https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac)? {#focus-mode}
 
-You can use the Shortcuts app for this. Make a shortcut for each focus mode you want to handle, where you use the “Set Default Browser” action that Velja provides. You will need the [Shortery app](https://apps.apple.com/app/id1594183810) to automatically run these shortcuts when the focus mode changes. (Shortery will most likely not be needed in macOS 14 as it's very likely it will have support for [automations](https://support.apple.com/en-gb/guide/shortcuts/apd690170742/6.0/ios/16.0))
+You can use the Shortcuts app for this. Make a shortcut for each focus mode you want to handle, where you use the “Set Default Browser” action that Velja provides. You will need the [Shortery app](https://apps.apple.com/app/id1594183810) to automatically run these shortcuts when the focus mode changes.
+
+I may add built-in support for focus modes at some point, but it's not a popular request, so it's not something I can prioritize right now.
 
 #### Can the default browser change depending on whether I'm at work or not?
 
@@ -334,7 +372,7 @@ See the above answer. You just create a work focus mode.
 
 See the above answer. Use the “Power Status” trigger in Shortery.
 
-#### Can you support [Focus filters](https://support.apple.com/en-us/HT212608)? {#focus-filters}
+#### Can you support [Focus filters](https://support.apple.com/HT212608)? {#focus-filters}
 
 Focus filters are meant for filtering content when a specific focus is enabled. Changing settings are better done using Shortcuts, as shown above.
 
@@ -362,11 +400,15 @@ To see more detailed debug info on how Velja handled the URL: Quit Velja if it's
 
 Safari does not provide any way to achieve this. You will have to send a [feature request to Apple](https://feedbackassistant.apple.com). Tell them they need to add support for opening a URL in a specific Safari Tab Group from AppleScript and Shortcuts.
 
+#### Some browsers are missing
+
+If the browsers are in the “~/Applications” folder or are browser profiles, see below.
+
 #### Velja does not show browsers from the user “~/Applications” folder
 
 Apple generally recommends putting apps in the global “/Applications” folder. Third-party apps like Velja get automatic access to this one, but not to the user “~/Applications” folder.
 
-Velja does prompt for permission to the user “~/Applications” folder on the first launch if it exists. But if you created it later on or did not get the prompt for some reason, you can force it. Quit Velja, then launch Velja while pressing <kbd>Control</kbd> + <kbd>Option</kbd>.
+Try clicking the “More › Reset Access” button in the Velja menu.
 
 #### I have Mastodon links set to open in a specific browser, but it opens in the Ivory app {#ivory-mastodon}
 
@@ -374,11 +416,11 @@ Ivory supports [Universal Links](https://developer.apple.com/ios/universal-links
 
 As of Ivory 1.0.0, it supports [these Mastodon instances](https://github.com/sindresorhus/meta/assets/170270/e256c5e1-5048-4cbc-8df2-aa09c969b639).
 
-#### How can I export, import, sync, or back up the settings?
+#### How can I export, import, sync, transfer, or back up the settings?
 
-You can export/import rules in the settings.
+You can export and import rules in the settings. See the bottom of the “Rules” settings tab.
 
-For all settings, [see this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
+For all settings, [see this](/apps/faq#export-settings).
 
 #### Can you support Safari profiles? {#safari-profiles}
 
@@ -439,7 +481,7 @@ Firefox and Firefox Beta use the same [identifier](https://cocoacasts.com/what-a
 
 #### How do I disable Velja?
 
-[Change the system default browser back to Safari.](https://support.apple.com/en-us/HT201607)
+[Change the system default browser back to Safari.](https://support.apple.com/HT201607)
 
 #### Can you add another menu bar icon option?
 
@@ -478,7 +520,6 @@ It means [“to choose”](https://en.wiktionary.org/wiki/velja) in [Old Norse](
 
 Velja benefits:
 
-- Free
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
 - It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
@@ -500,7 +541,6 @@ Choosy benefits:
 
 Velja benefits:
 
-- Free
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
 - It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
@@ -530,7 +570,6 @@ Bumpr benefits:
 
 Velja benefits:
 
-- Free
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
 - It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
@@ -587,10 +626,6 @@ Browserosaurus benefits:
 
 - Open source
 
-#### Why is this free without ads?
-
-I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
@@ -613,11 +648,11 @@ open --background 'velja:open?url=https%3A%2F%2Fsindresorhus.com&prompt'
 
 Leave out `&prompt` to not show the browser prompt.
 
-*Don't forget to [URL encode](https://www.urlencoder.org) the value for the `url=` search parameter. For example, using [this](https://gist.github.com/cdown/1163649) Bash function.*
+*Don't forget to [URL encode](https://www.urlencoder.org) the value for the `url=` parameter. For example, using [this](https://gist.github.com/cdown/1163649) Bash function.*
 
-Tip: You can specify the `url` search parameter multiple times to open multiple URLs.
+Tip: You can specify the `url` parameter multiple times to open multiple URLs.
 
-You can force the use of a specific browser by specifying an `app` search parameter:
+You can force the use of a specific browser by specifying an `app` parameter:
 
 ```sh
 open --background 'velja:open?url=https%3A%2F%2Fsindresorhus.com&app=org.mozilla.firefox'
@@ -641,13 +676,8 @@ Use the special bundle identifier `com.sindresorhus.Velja.promptMarker` to set t
 
 ### Older Versions
 
-- [1.16.4](https://github.com/sindresorhus/meta/files/14577839/Velja.1.16.4.-.macOS.13.zip) for macOS 13+
-- [1.12.4](https://github.com/sindresorhus/meta/files/10895250/Velja.1.12.4.-.macOS.12.zip) for macOS 12+
+- [2.0.14](https://github.com/user-attachments/files/18629080/Velja.2.0.14.-.macOS.14.zip) for macOS 14
+- [1.16.4](https://github.com/sindresorhus/meta/files/14577839/Velja.1.16.4.-.macOS.13.zip) for macOS 13
+- [1.12.4](https://github.com/sindresorhus/meta/files/10895250/Velja.1.12.4.-.macOS.12.zip) for macOS 12
 
-### Non-App Store Version
-
-A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/5k2qcg8t0hzs4jnksszua/Velja-2.0.6-1725095798.zip?rlkey=rsi892nrgf4mfpefad4osohj2&raw=1) *(2.0.6)*
-
-*Requires macOS 14 or later*
+These are free for everyone but they will not run on newer macOS versions.

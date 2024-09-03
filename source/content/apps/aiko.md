@@ -6,9 +6,18 @@ platforms:
   - macOS
   - iOS
   - visionOS
+isPaid: true
 appStoreId: 1672085276
 olderMacOSVersions:
   - '13'
+feedbackNote: |
+  [Refunds](/apps/faq#refund)
+
+  Please don't contact me about Whisper v3 turbo support. I'm looking into it.
+
+  If the app crashes, it's likely that the device ran out of available RAM. Restart your device and try again.
+
+  Any problems with the output are unfortunately out of my control. The app uses the OpenAI Whisper AI model to transcribe. The model has some flaws with certain recordings like repetition, hallucination, and refusal to produce text.
 ---
 
 High-quality on-device transcription. Easily convert speech to text from meetings, lectures, and more.
@@ -129,6 +138,10 @@ Aiko transcribes audio directly on your device, ensuring complete privacy. It's 
 
 The app uses the Whisper large v2 model on macOS and the medium or small model on iOS depending on available memory.
 
+### Trial
+
+You can try out a time-limited trial (14 days) on [TestFlight](https://testflight.apple.com/join/P1qnhHCC).
+
 ### Tips
 
 #### Divide text into paragraphs
@@ -189,6 +202,10 @@ You can use [this shortcut](https://www.icloud.com/shortcuts/e43220d72f3343659e0
 
 The v3 model is [worse](https://github.com/openai/whisper/discussions/1762#discussioncomment-7532295) than v2 in too many cases. I tried releasing v3, but got a lot of emails about the quality being worse, so I ended up reverting it.
 
+#### Can you add support for v3 turbo?
+
+I have plans to look into it, but it's not something I have time to prioritize right now. It cannot be the default model as it's worse than v2. Which means, I will need to add support for downloading models, which is a huge amount of work.
+
 #### Can you include the large model on iOS?
 
 Even the latest iPhone is not powerful enough to run the large model. It can maybe be done when the [Whisper Distilled](https://github.com/huggingface/distil-whisper) project supports multiple languages.
@@ -214,7 +231,7 @@ I have no control over the supported languages. You could try to request it [her
 
 #### The transcription repeats itself many times
 
-This is unfortunately a flaw in the Whisper model and out of my control.
+This is unfortunately a flaw in the Whisper model and out of my control. This is usually caused by the audio not being clean (for example, a lot of background noise).
 
 #### The transcription is missing punctation
 
@@ -232,11 +249,11 @@ Ensure the "Translate to English" setting is disabled.
 
 The language used in the "Prompt" setting may also affect the transcription language.
 
-#### The transcription is in Traditional Chinese while the audio was in Simplified Chinese?
+#### The transcription is in Traditional Chinese while the audio was in Simplified Chinese or the inverse
 
 The [Whisper AI model](https://github.com/openai/whisper) used by the app does not differentiate between Traditional Chinese and Simplified Chinese, so the result could unfortunately end up with either. [Learn more.](https://github.com/openai/whisper/discussions/277)
 
-I have plans to add a workaround where you can write a prompt to improve this, but I cannot promise when this will happen.
+Try writing a sentence in Traditional Chinese or Simplified Chinese in the “Prompt” setting in the app to steer the model into using the right one.
 
 #### Why must I keep the iOS app open while it transcribes?
 
@@ -246,9 +263,21 @@ iOS apps are fundamentally restricted from operating in the background for exten
 
 Any audio and video format that macOS and iOS supports. For example: `.m4a`, `.wav`, `.mp3`, `.mp4`, `.mov`. It does not support `.ogg`.
 
+#### Can I get both the original transcription and the English translation at the same time?
+
+No, the AI model processes either transcription or translation, not both simultaneously. You need to run the process twice: once for the original transcription, and again with the “Translate to English” setting enabled.
+
+#### Where can I find the audio recordings?
+
+The audio recordings can be found in the “Aiko” folder in the Files app.
+
 #### How can I delete audio recordings?
 
 The audio recordings can be deleted in the Files app.
+
+#### When trying to import an audio file, I get error -50
+
+The error comes from iOS and means that it could not read the audio file. Sometimes [converting](https://apps.apple.com/app/id1081480270) the audio file to a different format, like MP3, resolves the issue.
 
 #### How can I transcribe audio from the Voice Memos app?
 
@@ -341,10 +370,6 @@ English approximation: `ah-ee-ko`
 
 Yes, it's native and written in Swift and SwiftUI.
 
-#### Why is this free without ads?
-
-I just enjoy making apps. Consider leaving a nice review on the App Store.
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
@@ -353,12 +378,6 @@ I don't plan to localize the app.
 
 ### Older Versions
 
-- [1.5.3](https://drive.google.com/file/d/15NOcj4fyX58I3_NlQyCziL87Ru89yFRx/view?usp=sharing) for macOS 13+
+- [1.5.3](https://drive.google.com/file/d/15NOcj4fyX58I3_NlQyCziL87Ru89yFRx/view?usp=sharing) for macOS 13
 
-### Non-App Store Version
-
-A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
-
-[Download](https://drive.google.com/file/d/18BE9Pn8QVsVQ-FOT_Q2aMEkpLJahbhC9/view?usp=sharing) *(1.6.0 · 3 GB)*
-
-*Requires macOS 14 or later*
+These are free for everyone but they will not run on newer macOS versions.

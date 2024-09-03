@@ -6,20 +6,271 @@ platforms:
   - macOS
   - iOS
   - visionOS
-repoUrl: https://github.com/sindresorhus/Actions
 appStoreId: 1586435171
 links:
-  'Older Versions': https://github.com/sindresorhus/Actions#download
   'TestFlight': https://testflight.apple.com/join/fJGUrsZx
 olderMacOSVersions:
   - '12'
   - '13'
 feedbackNote: |
-  ### If you get a “com.apple.extensionKit.errorDomain error 2” error when running your shortcut or if the actions don't show up in the Shortcuts app, restart your device. This is caused by an iOS bug.
+  ### If you get a “com.apple.extensionKit.errorDomain error 2” error when running your shortcut or if the actions don't show up in the Shortcuts app, restart your device. You could also try setting a different device language and then back. If you just updated the operating system, give it some time to re-index all shortcut actions. Please don't contact me about this issue. This is a problem with iOS/macOS and out of my control.
 
-  **Some actions that are not possible: orientation lock status, flashlight status, ambient sensor info, flight mode status. Generally, anything related to changing system features/settings or interacting with other apps is not possible.**
+  **Some actions that are not possible: orientation lock status, flashlight status, ambient sensor info, flight mode status, [and more](/actions#impossible-actions). Generally, anything related to changing system features/settings or interacting with other apps is not possible.**
 ---
 
 The app provides lots of powerful extra actions for the Shortcuts app on macOS, iOS, and visionOS. These actions make it significantly easier to create shortcuts.
 
-**Restart your device if the actions do not show up in the Shortcuts app.**
+**Restart your device if the actions do not show up in the Shortcuts app. Also try setting a different device language and then back.**
+
+If you have any questions about how to use the different actions or for what, try asking the [Actions GPT bot](https://chatgpt.com/g/g-6746353a017881918cceb0761aea3bfe-actions-app-companion). And if you want to feed your own AI, [here is the source data](https://gist.githubusercontent.com/sindresorhus/fbba65a774fb9da915e624807a02a6d2/raw/7be21a65977b6dd82d1a6cc34be4476df057ea06/actions.md).
+
+---
+
+#### Included actions
+
+- Add to List
+- Apply Capture Date
+- Ask for Text with Timeout
+- Authenticate
+- Blur Images
+- Boolean
+- Calculate with Soulver
+- Choose from List (Extended)
+- Clamp Number
+- Color
+- Combine Lists
+- Combine Videos
+- Convert Coordinates to Location
+- Convert Date to Unix Time
+- Convert Location to Geo URI
+- Convert Unix Time to Date
+- Create Color Image
+- Create Menu Item
+- Create URL
+- Download File
+- Edit URL
+- Encrypt File
+- Encrypt Text
+- Filter List
+- Find Music Playlist <sup>(iOS-only)</sup>
+- Flash Screen <sup>(macOS-only)</sup>
+- Format Currency
+- Format Date Difference
+- Format Duration
+- Format Number as Ordinal
+- Format Number — Compact
+- Format Person Name
+- Generate CSV
+- Generate Haptic Feedback <sup>(iOS-only)</sup>
+- Generate Random Data
+- Generate Random Text
+- Generate UUID
+- Get Audio Playback Destination <sup>(iOS-only)</sup>
+- Get Average Color
+- Get Average Color of Image
+- Get Battery State
+- Get Bluetooth Device
+- Get Bluetooth Devices
+- Get Boolean from Input
+- Get Compass Heading <sup>(iOS-only)</sup>
+- Get Default Printer / Set Default Printer <sup>(macOS-only)</sup>
+- Get Device Details (Extended)
+	- Uptime (not including sleep)
+	- Uptime (including sleep)
+	- Active processor count
+	- Physical memory
+	- Hostname
+	- Thermal state
+- Get Device Motion Data <sup>(iOS-only)</sup>
+- Get Device Orientation
+- Get Dominant Colors of Image
+- Get Elevation <sup>(iOS-only)</sup>
+- Get Emojis
+- Get File Icon <sup>(macOS-only)</sup>
+- Get File Path
+- Get High-Resolution Timestamp
+- Get Image Capture Date / Set Image Capture Date
+- Get Image Location / Set Image Location
+- Get Index of List Item
+- Get Map Image of Location
+- Get Modifier Key State <sup>(macOS-only)</sup>
+- Get Paragraphs from Text
+- Get Printers <sup>(macOS-only)</sup>
+- Get Query Item Value from URL
+- Get Query Items from URL
+- Get Query Items from URL as Dictionary
+- Get Random Boolean
+- Get Random Color
+- Get Random Date and Time
+- Get Random Emoticon
+- Get Random Floating-Point Number
+- Get Random Number from Seed
+- Get Related Words
+- Get Running Apps <sup>(macOS-only)</sup>
+- Get Sentences from Text
+- Get SF Symbol Image
+- Get Title of URL
+- Get Uniform Type Identifier / Set Uniform Type Identifier
+- Get User Details
+- Get Values Using JSONPath
+- Global Variable
+- Hex Encode
+- Hide Shortcuts App
+- Invert Images
+- Is Accessibility Feature On
+- Is Audio Playing <sup>(iOS-only)</sup>
+- Is Bluetooth On
+- Is Call Active <sup>(iOS-only)</sup>
+- Is Camera On <sup>(macOS-only)</sup>
+- Is Cellular Data On
+- Is Cellular Low Data Mode On
+- Is Conforming to Uniform Type Identifier
+- Is Connected to VPN <sup>(iOS-only)</sup>
+- Is Dark Mode On
+- Is Day
+- Is Device Locked
+- Is Device Moving
+- Is Device Orientation
+- Is Host Reachable
+- Is Low Power Mode On
+- Is Microphone On <sup>(macOS-only)</sup>
+- Is Online
+- Is Screen Locked <sup>(macOS-only)</sup>
+- Is Shaking Device
+- Is Silent Mode On <sup>(iOS-only)</sup>
+- Is Time
+- Is Time In Range
+- Is Web Server Reachable
+- Is Wi-Fi On <sup>(macOS-only)</sup>
+- Join Wi-Fi <sup>(iOS-only)</sup>
+- Merge Dictionaries
+- Named Clipboard <sup>(macOS-only)</sup>
+- Open URLs with App <sup>(macOS-only)</sup>
+- Overwrite File
+- Parse CSV
+- Parse JSON5
+- Play Alert Sound <sup>(macOS-only)</sup>
+- Pretty Print Dictionaries
+- Remove Duplicate Lines
+- Remove Duplicates from List
+- Remove Emojis
+- Remove Empty Lines
+- Remove from List
+- Remove Non-Printable Characters
+- Reverse Lines
+- Reverse List
+- Round Number to Multiple
+- Sample Color from Screen <sup>(macOS-only)</sup>
+- Scan Documents <sup>(iOS-only)</sup>
+- Scan QR Codes in Image
+- Set Creation and Modification Date of File
+- Show Notification
+- Shuffle List
+- Sort List
+- Sort Months
+- Spell Out Number
+- Toggle Boolean
+- Transform Lists
+- Transform Text
+	- Camel case
+	- Pascal case
+	- Snake case
+	- Constant case
+	- Dash case
+	- Slugify
+	- Strip punctuation
+	- Strip quotation marks
+	- Strip HTML
+	- Strip diacritics
+	- Transliterate to Latin
+	- Transliterate Latin to Arabic
+	- Transliterate Latin to Cyrillic
+	- Transliterate Latin to Greek
+	- Transliterate Latin to Hebrew
+	- Transliterate Latin to Hangul
+	- Transliterate Latin to Hiragana
+	- Transliterate Latin to Thai
+	- Transliterate Hiragana to Katakana
+	- Transliterate Mandarin to Latin
+- Transform Text with JavaScript
+- Trim Whitespace
+- Truncate List
+- Truncate Number
+- Truncate Text
+- Wait Milliseconds
+- Write or Edit Text
+
+#### Want more shortcut actions? {#more-actions}
+
+- High-quality transcription (speech to text) in 100 languages → [Aiko](/aiko)
+- Trigger shortcuts on your Mac from your iOS device → [Hyperduck](/hyperduck#shortcuts)
+- Set default browser → [Supercharge](/supercharge) & [Default Browser](/default-browser)
+- Show text in menu bar → [One Thing](/one-thing)
+- Open URLs in a specific browser → [Velja](/velja)
+- Remove tracking parameters from URLs → [Velja](/velja) & [Pure Paste](/pure-paste)
+- Generate images from text with AI locally → [Amazing AI](/amazing-ai)
+- Clear clipboard formatting → [Pure Paste](/pure-paste)
+- Get internet speed → [Speediness](/speediness)
+- Join video calls → [Dato](/dato)
+- Put text on the iOS Lock Screen → [Any Text](/any-text)
+- Get random animated GIF → [Jiffy](/jiffy)
+- Get clipboard items → [Pasteboard Viewer](/pasteboard-viewer)
+- Preview app icons → [Icon Preview](/icon-preview)
+- Use the ChatGPT API, Ollama, Groq → [AI Actions](/ai-actions)
+
+#### Impossible actions {#impossible-actions}
+
+Some common actions requests that are not possible:
+
+- Orientation lock status
+- Flashlight status
+- Ambient sensor info
+- Flight mode status
+- Hotspot status
+- Hotspot connect/disconnect
+- CarPlay connection status
+
+Anything related to changing system features/settings or interacting with other apps is generally not possible.
+
+For these, I recommend sending a [feature request to Apple](https://feedbackassistant.apple.com).
+
+### Frequently Asked Questions {#faq}
+
+#### I have a feature request, bug report, or some feedback
+
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Actions&referrer=Website-FAQ)
+
+#### The actions don't show up in the Shortcuts app
+
+This is caused by a iOS/macOS bug.
+
+Some things you could try:
+
+1. Restart your device.
+1. Change the device language to something else and back.
+1. Add [this shortcut](https://www.icloud.com/shortcuts/14315b9af3774a0c8cb439718a67fb2f), run it once, and see if the actions show up in the Shortcuts app after that.
+
+#### I get a “errorDomain error 2” error when running an action
+
+Same solution as above.
+
+#### Why is this free without ads?
+
+I just enjoy making apps and want this to be available for everyone. Consider leaving a nice review on the App Store.
+
+#### How can I prevent the app from being offloaded when I have “app offloading” enabled on iOS?
+
+iOS does not have a way to prevent individual apps from being offloaded (even though it should!) and there is no way for apps to tell iOS not to offload them. I recommend [sending feedback to Apple](https://feedbackassistant.apple.com) about this. You could try [this workaround](https://www.reddit.com/r/ios/comments/85k8b5/disable_offloading_for_specific_apps/).
+
+#### [More FAQs…](/apps/faq)
+
+### Older versions
+
+- [2.10.0](https://www.dropbox.com/scl/fi/lzy4po8qfggroxcv9pzdo/Actions-2.10.0-1731826197.zip?rlkey=f37xihlhq45syauygdn5268un&raw=1) for macOS 13+
+- [1.13.1](https://www.dropbox.com/scl/fi/9iqfn8airygpk0la4gv1u/Actions-1.13.1-1731826428.zip?rlkey=y4u5ni2pn28rp3lse08lv96k6&raw=1) for macOS 12+
+
+### Non-App Store Version
+
+A special macOS version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
+
+[Download](https://github.com/sindresorhus/meta/files/13718302/Actions.3.0.0.zip) *(3.0.0 · macOS 14+)*

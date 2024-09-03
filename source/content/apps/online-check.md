@@ -27,7 +27,7 @@ Click the feedback button in the app or [send it here](https://sindresorhus.com/
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
 #### How is it different from just checking whether the Wi-Fi is connected?
 
@@ -49,22 +49,14 @@ Every 20 seconds and anytime the network changes, it sends a HEAD request to “
 
 It's something I'm considering. Share your use-case through the feedback button in the app to increase the likelyhood of me doing this.
 
-#### Can you make the menu bar icon green when online?
+#### Can you make the menu bar icon green when online? {#green-icon}
 
-No. Menu bar icons are intended to be mostly monotone, changing color only to indicate critical states. For example, the battery icon turns red or yellow when low but stays monochrome when full.
+No. Menu bar icons are intended to be mostly monotone, changing color only to indicate critical states. For example, the battery icon turns red when low but stays monochrome when full. Showing green also isn't that useful as you can assume it's connected when not red, and having a constant green color there could be distracting.
 
 #### [More FAQs…](/apps/faq)
 
 <!-- ### Older Versions
 
-- [0.0.0]() for macOS 14+
+- [0.0.0]() for macOS 14
 
 -->
-
-### Non-App Store Version
-
-A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/l1aecuyfish3zzfoucnqk/Online-Check-1.2.0-1720132938.zip?rlkey=cl97oehkl897uy0q8dfnehbei&raw=1) *(1.2.0)*
-
-*Requires macOS 14 or later*

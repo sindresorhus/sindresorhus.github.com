@@ -8,9 +8,12 @@ isMenuBarApp: true
 appStoreId: 1558360383
 olderMacOSVersions:
   - '13'
+  - '14'
 ---
 
 Quickly access a monthly calendar from your menu bar.
+
+Clicking dates and creating events can open either in the Calendar app or Google Calendar.
 
 The app is intentionally simple. Check out [Dato](/dato) for more features and settings.
 
@@ -18,12 +21,12 @@ The calendar displays dates and days in your language, but the rest of the app i
 
 ### Tips
 
-- **Go to current month:** Click the month name or press the <kbd>space</kbd> key.
+- **Go to today (current month):** Click the month name or press the <kbd>space</kbd> key.
 - **Switch months:** Press arrow keys or swipe horizontally on the calendar.
 - **Switch years:** While holding the <kbd>option</kbd> key, click the `‹` / `›` button, press arrow keys, or swipe horizontally on the calendar.
 - **Close calendar window:** Press the <kbd>esc</kbd> key.
-- **Open date in the Calendar app:** Click a date in the calendar.
-- **Open week in the Calendar app:** Click a week number in the calendar.
+- **Open date in the Calendar app (or Google Calendar):** Click a date in the calendar.
+- **Open week in the Calendar app (or Google Calendar):** Click a week number in the calendar.
 - **Create new event on a specific day:** Right-click the day the calendar.
 - **Copy the date for a day in the calendar:** Right-click the day the calendar.
 
@@ -31,13 +34,11 @@ The calendar displays dates and days in your language, but the rest of the app i
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Menu%20Bar%20Calendar&referrer=Website-FAQ)
-
-*Tip: You can also click the feedback button in the app.*
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Menu%20Bar%20Calendar&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender or Ice if you have it installed.
 
 #### Does it show calendar events?
 
@@ -77,6 +78,10 @@ You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/IS
 
 Change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
 
+#### How can I open Google Calendar in a specific browser?
+
+Use my [Velja app](https://sindresorhus.com/velja). You can create a rule to open any link clicked in this app in your chosen browser.
+
 #### Can you localize the app into my language?
 
 I do not plan to localize the app.
@@ -89,12 +94,13 @@ I just enjoy making apps. I earn money on other apps. Consider leaving a nice re
 
 ### Older Versions
 
+- [1.4.1](https://www.dropbox.com/scl/fi/ldlznw1f2oo04i6j2hcnt/Menu-Bar-Calendar-1.4.1-macOS-14-1737700069.zip?rlkey=arklgyyq4k9dcodg1sq1us65n&raw=1) for macOS 14+
 - [1.2.0](https://github.com/sindresorhus/meta/files/13922546/Menu.Bar.Calendar.1.2.0.-.macOS.13.zip) for macOS 13+
 
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/od8rsjl3mb8af5yavo9or/Menu-Bar-Calendar-1.3.0-1705082133.zip?rlkey=t6i4aqgcn2j3oa23w24btap0e&raw=1) *(1.3.0)*
+[Download](https://www.dropbox.com/scl/fi/g5qhxtrn54faq6eozuoq3/Menu-Bar-Calendar-1.5.0-1737699710.zip?rlkey=xt5ccdhhix969o7ts2isu5qci&raw=1) *(1.5.0)*
 
-*Requires macOS 14 or later*
+*Requires macOS 15 or later*

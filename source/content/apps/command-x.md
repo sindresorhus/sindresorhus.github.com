@@ -13,7 +13,13 @@ Cut and paste files and folders in Finder using Command+X and Command+V. Without
 
 [Review by Softpedia](https://mac.softpedia.com/get/System-Utilities/Command-X.shtml)
 
-Known limitation: You cannot cut the name of a file when editing a filename in Finder or cut when using the search field. There is no way for the app to work around this.
+Known limitation: You cannot cut the name of a file when editing a filename in Finder or cut when using the search field. [Learn more.](#textfield-limitation)
+
+---
+
+You may also like my [Supercharge](/supercharge) app.
+
+---
 
 ### Frequently Asked Questions {#faq}
 
@@ -21,14 +27,14 @@ Known limitation: You cannot cut the name of a file when editing a filename in F
 
 [Send it here.](/feedback?product=Command%20X&referrer=Website-FAQ)
 
-#### Why? I can already use `Option+Command+V`
+#### Why? I can already use <kbd>Option+Command+V</kbd>
 
 - It's more logical to cut & paste than copy & move.
 - Consistency and muscle memory benefits if you also use Linux or Window.
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
 #### The app does not work {#not-working}
 
@@ -42,9 +48,11 @@ To make sure you used the app correctly. Try this: Select a file in Finder, pres
 
 Then try toggling the setting “Use more reliable way of handling Command+X”, and try the above steps again. If it works then, please report it to me.
 
+If it's still not working, try this: Select a file in Finder, press <kbd>Command+C</kbd>, change to a different folder, press <kbd>Option+Command+V</kbd>. The file should have been moved to this new folder. If this did not work, the problem is not this app, as those are the keyboard shortcuts it simulates.
+
 Also try closing any anti-virus app you have running as it may interfere with the app (or at least disable any Secure Keyboard Entry type setting it may have). And if you don't have any anti-virus app, try closing down all apps and menu bar items, just to rule out some other app interfering. If it's a work computer, your company may have something installed that prevents the app from working.
 
-The last thing you could try is to reset the permissions. Quit the app and run this in the Terminal app:
+The last thing you could try is to reset the permissions. Either use [App Buddy](/app-buddy), or quit the app, and run this in the Terminal app:
 
 ```sh
 tccutil reset All com.sindresorhus.Command-X
@@ -72,9 +80,13 @@ This is not possible. The app works by overriding some key combinations. It does
 
 This is a Finder bug. You can reproduce it even without Command X by selecting the file to move, pressing <kbd>Command+C</kbd>, selecting the destination folder, and then pressing <kbd>Option+Command+V</kbd>.
 
-#### I am not able to cut text when editing a filename in Finder
+#### It does not work when I try to paste into a folder in column view where the parent is a tag
 
-This is a known issue that is unfortunately not fixable. The app works by overriding the normal cut keyboard shortcut when Finder is active, which also affects cutting text in a filename. There is no way to differentiate between cutting a file and cutting text in a filename in Finder.
+Same as the above.
+
+#### I am not able to cut text when editing a filename in Finder {#textfield-limitation}
+
+This is a known issue that is unfortunately not fixable. The app works by overriding the normal cut keyboard shortcut when Finder is active, which also affects cutting text in a filename. There is no way to differentiate between cutting a file and cutting text in a filename in Finder. The main reason this is not possible is because of restrictions ([sandboxing](/apps/faq#macos-sandbox)) imposed on apps on the App Store. My [Supercharge](/supercharge) app has the Command X feature without this rename limitation because it's not on the App Store.
 
 #### I am not able to cut text in the search field in Finder
 
