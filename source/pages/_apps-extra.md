@@ -18,8 +18,5 @@
 - [Archived Apps](/apps/archived) - Apps that are no longer being worked on
 - [RSS Feed for New Apps](/feeds) - Get notified about new apps I publish
 - [Terms of Use](/apps/terms) - Guidelines and conditions for using my apps
+- [Discounts](/apps/discounts) - Special offers and promotional pricing for my apps
 <!-- - [Affiliates](/apps/affiliates) - Earn commission when recommending my apps -->
-
-## Free
-
-If you're a student, open-source maintainer, or cannot afford my [paid apps](/apps/paid), [reach out](mailto:sindresorhus@gmail.com?subject=Free%20promo%20code%20for%20%5Bapp%5D&body=Mention%20which%20paid%20apps%20you%20want), and I will give you any of my paid apps for free.

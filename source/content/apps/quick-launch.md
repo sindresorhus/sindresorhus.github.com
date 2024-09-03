@@ -5,7 +5,10 @@ pubDate: 2022-09-28
 platforms:
   - iOS
   # - macOS
+isPaid: true
 appStoreId: 1645566403
+feedbackNote: |
+  If you're having problems with the Shortcuts app showing an error when trying to open an app, this is a problem with the Shortcuts app and out of my control. Try restarting your device and then try changing the system language to something else and then back. That sometimes fixes such issues. Otherwise, just give it some time. Sometimes the system needs some time after a system update to refresh everything.
 ---
 
 Quickly open websites, launch apps, and run shortcuts directly from your Lock Screen.
@@ -40,7 +43,7 @@ Sure. I'm happy to consider requests. [Send it here.](https://sindresorhus.com/f
 
 #### How does it compare to other similar Lock Screen launchers?
 
-Quick Launch is completely free without ads. It can also open any app, not just from a predefined list. And it has more icon choices.
+It can open any app, not just from a predefined list, and it has more icon choices.
 
 #### When using the “Run Shortcut” action, why does tapping the widget first open the main app and then the Shortcuts app?
 
@@ -50,9 +53,5 @@ If you work at Apple, you know what to do:
 - [FB9745173](https://github.com/feedback-assistant/reports/issues/240)
 - [FB11516334](https://github.com/feedback-assistant/reports/issues/357)
 - [FB11516273](https://github.com/feedback-assistant/reports/issues/356)
-
-#### Why is this free without ads?
-
-I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.
 
 #### [More FAQs…](/apps/faq)

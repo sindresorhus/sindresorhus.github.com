@@ -9,6 +9,10 @@ platforms:
 appStoreId: 1672085276
 olderMacOSVersions:
   - '13'
+feedbackNote: |
+  Please don't contact me about Whisper v3 turbo support. I'm looking into it.
+
+  Any problems with the output are unfortunately out of my control. The app uses the OpenAI Whisper AI model to transcribe. The model has some flaws with certain recordings like repetition, hallucination, and refusal to produce text.
 ---
 
 High-quality on-device transcription. Easily convert speech to text from meetings, lectures, and more.
@@ -189,6 +193,10 @@ You can use [this shortcut](https://www.icloud.com/shortcuts/e43220d72f3343659e0
 
 The v3 model is [worse](https://github.com/openai/whisper/discussions/1762#discussioncomment-7532295) than v2 in too many cases. I tried releasing v3, but got a lot of emails about the quality being worse, so I ended up reverting it.
 
+#### Can you add support for v3 turbo?
+
+I have plans to look into it, but it's not something I have time to prioritize right now. It cannot be the default model as it's worse than v2. Which means, I will need to add support for downloading models, which is a huge amount of work.
+
 #### Can you include the large model on iOS?
 
 Even the latest iPhone is not powerful enough to run the large model. It can maybe be done when the [Whisper Distilled](https://github.com/huggingface/distil-whisper) project supports multiple languages.
@@ -232,11 +240,11 @@ Ensure the "Translate to English" setting is disabled.
 
 The language used in the "Prompt" setting may also affect the transcription language.
 
-#### The transcription is in Traditional Chinese while the audio was in Simplified Chinese?
+#### The transcription is in Traditional Chinese while the audio was in Simplified Chinese or the inverse
 
 The [Whisper AI model](https://github.com/openai/whisper) used by the app does not differentiate between Traditional Chinese and Simplified Chinese, so the result could unfortunately end up with either. [Learn more.](https://github.com/openai/whisper/discussions/277)
 
-I have plans to add a workaround where you can write a prompt to improve this, but I cannot promise when this will happen.
+Try writing a sentence in Traditional Chinese or Simplified Chinese in the “Prompt” setting in the app to steer the model into using the right one.
 
 #### Why must I keep the iOS app open while it transcribes?
 
@@ -245,6 +253,10 @@ iOS apps are fundamentally restricted from operating in the background for exten
 #### What file formats does it support?
 
 Any audio and video format that macOS and iOS supports. For example: `.m4a`, `.wav`, `.mp3`, `.mp4`, `.mov`. It does not support `.ogg`.
+
+#### Can I get both the original transcription and the English translation at the same time?
+
+No, the AI model processes either transcription or translation, not both simultaneously. You need to run the process twice: once for the original transcription, and again with the “Translate to English” setting enabled.
 
 #### How can I delete audio recordings?
 

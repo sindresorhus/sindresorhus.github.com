@@ -9,6 +9,8 @@ appStoreId: 1532588789
 forceHasIosAppIcon: true
 links:
   'TestFlight': https://testflight.apple.com/join/ybGzYJ28
+feedbackNote: |
+  iOS 18 has a bug where tapping the photo will skip 2 photos. This is out of my control. Hopefully, iOS 18.1 or 18.2 will fix it.
 ---
 
 For macOS, it's only available for Apple silicon Macs.
@@ -18,6 +20,10 @@ For macOS, it's only available for Apple silicon Macs.
 #### I have a feature request, bug report, or some feedback
 
 [Send it here.](https://sindresorhus.com/feedback?product=Photo%20Widget&referrer=Website-FAQ)
+
+#### The widget does not show up in the widget picker, the widget is stuck, or is missing from the Home Screen
+
+The iOS widget system is quite buggy and can fail a lot. This is not a problem with the app and out of my control. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
 
 #### I'm not seeing the new widget settings for showing date and album title
 
@@ -34,10 +40,6 @@ When on the home screen, long-press on the background (not on any icons), press 
 #### How do I edit a widget?
 
 When on the home screen, long-press on the widget, and select “Edit Widget”. [Learn more.](https://support.apple.com/en-us/HT207122)
-
-#### The widget does not show up in the widget picker
-
-This is a well-known iOS 16 issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
 
 #### Why can I only add 100 photos to the app?
 
@@ -56,6 +58,10 @@ Yes. The widget fetches a list of all the photos in the album each time and pick
 #### Can I show an animated GIF in a widget?
 
 This is not possible.
+
+#### Why does my widget update more often than the interval I set?
+
+The interval is a suggestion to iOS, not a strict rule. iOS manages widget updates independently to optimize performance and battery life. It may refresh widgets more or less frequently based on various factors. Apps cannot control this behavior.
 
 #### How is this different from the built-in “Photos” widget?
 

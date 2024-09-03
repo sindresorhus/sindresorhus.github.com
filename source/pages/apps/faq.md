@@ -17,11 +17,17 @@ My apps prioritize user privacy and do not collect any personal data.
 
 ### How can I get a refund?
 
-For apps purchased on the Apple App Store, you can [request a refund](https://support.apple.com/en-us/HT204084). However, I would appreciate if you [reached out](/feedback) first. I may be able to resolve any problems you are having.
+For apps purchased on the Apple App Store, you can [request a refund](https://support.apple.com/en-us/HT204084) from Apple.
+
+For apps purchased on Gumroad, you can [request a refund](mailto:sindresorhus@gmail.com?subject=Gumroad%20refund&body=Mention%20which%20app%20you%20want%20a%20refund%20for%20and%20your%20Gumroad%20account%20email) within 14 days of the purchase.
+
+However, I would appreciate if you [reached out](/feedback) first. I may be able to resolve any problems you are having.
 
 ### How many devices can I install an app on?
 
 Apps purchased on the Apple App Store can be installed on up to 10 devices, with a maximum of 5 computers. [Learn more.](https://support.apple.com/en-us/HT204074)
+
+Apps purchased on Gumroad can be used by one user on unlimited computers.
 
 ### How can I transfer an app bought on the Apple App Store to a different account?
 
@@ -49,7 +55,7 @@ I hate ads. None of my apps have ads.
 
 ### How can I support your work?
 
-Rate and review my apps on the App Store. Your ratings and reviews greatly aid in increasing the apps' visibility and discoverability, helping more users find them.
+Rate and review my apps on the App Store. Your ratings and reviews greatly aid in increasing the apps' visibility and discoverability, helping more users find them. You can also rate my apps on Gumroad.
 
 ### Who makes your app icons?
 
@@ -61,7 +67,7 @@ User-reported bugs are prioritized based on their impact on the app's functional
 
 ### What's the best way to learn about new apps?
 
-Subscribe to my [“new apps” RSS feed](/rss-apps.xml) and follow me on [Twitter](https://twitter.com/sindresorhus) and [Mastodon](https://mastodon.social/@sindresorhus).
+Subscribe to my [“new apps” RSS feed](/feeds) and follow me on [Twitter](https://twitter.com/sindresorhus) and [Mastodon](https://mastodon.social/@sindresorhus).
 
 ### Do you actively maintain all your apps?
 
@@ -83,9 +89,11 @@ I make apps for fun and supporting older operating system versions is simply no 
 - **Isolation:** Issues in one app don’t affect others.
 - **Satisfaction:** I like the satisfaction of completing an app.
 
-### How can I export, import, sync, or back up the settings in a Mac app?
+### How can I export, import, sync, or back up the settings for your Mac app?
 
-[See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
+You can do it with my [App Buddy](/app-buddy) app.
+
+If you prefer using the command-line, [see this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md#command-line)
 
 ### Can I contribute localizations to your apps?
 
@@ -93,7 +101,9 @@ No, I don't plan to localize my apps. Localization adds complexity and maintenan
 
 ### Can you make your apps available on Homebrew? {#homebrew}
 
-Unfortunately not. Supporting Homebrew requires distributing apps outside the App Store, and that involves significant overhead: hosting, auto-updating, and dual publishing. The demand simply doesn't justify these efforts.
+For App Store apps, unfortunately not. Supporting Homebrew requires distributing apps outside the App Store, and that involves significant overhead: hosting, auto-updating, and dual publishing. The demand simply doesn't justify these efforts.
+
+For non-App Store apps, anyone can add to Homebrew. Feel free to [add one of my apps](https://docs.brew.sh/Adding-Software-to-Homebrew). I personally don't use Homebrew for apps, so it's not something I plan to do.
 
 ### You are doing a lot of open source, why are only some of your apps open source? {#why-not-oss}
 
@@ -167,6 +177,12 @@ iOS: Open the Settings app, go to “General › iPhone/iPad Storage”, tap the
 ### How can I reset all permissions for your Mac app? {#mac-reset-permissions}
 
 *(This is only necessary if the app asked for any permissions the first time you launched it)*
+
+**The simple way**
+
+Download my [App Buddy](/app-buddy) app, find the app there, and click “Reset Permissions”.
+
+**The manual way**
 
 First, quit the app.
 
