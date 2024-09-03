@@ -10,6 +10,8 @@ olderMacOSVersions:
   - '12'
   - '13'
 feedbackNote: |
+  Clicking a link from Slack may open it in the background because of a [Slack bug](https://forums.slackcommunity.com/s/question/0D5PU00000eVocz0AC/when-opening-a-web-link-in-slack-the-link-opens-in-the-background-and-not-if-the-foreground-help?language=en_US)
+
   [Can you support Safari profiles?](/velja#safari-profiles)
 
   [Can you support Arc spaces/profiles?](/velja#arc)
@@ -157,9 +159,9 @@ Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to laun
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is not enough space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is not enough space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
-You may also have enabled the “Hide menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
+You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 
 #### Velja does not work
 
@@ -181,7 +183,7 @@ Make sure you didn't click the link in a browser. See above.
 
 **I clicked a link in VS Code**
 
-VS Code [does not open the system default browser](https://github.com/microsoft/vscode/issues/96132) when you click a link in the app. Because of this, Velja is not used.
+By default, VS Code does not open the system default browser when you click a link in the app. Because of this, Velja is not used. You can change this with the `workbench.externalBrowser` setting in VS Code.
 
 **I clicked a short URL**
 
@@ -266,7 +268,7 @@ And some apps do not need special support because they already support [universa
 - Maps (the built-in app)
 - Overcast
 
-*Universal links also prevent Velja from letting you open a link in the browser instead of the app.*
+*Universal links also prevent Velja from letting you open a link in the browser instead of the app. [Possible workaround.](https://lapcatsoftware.com/articles/universal-links2.html)*
 
 If your favorite service is in the above list, I would recommend contacting them and asking them to support opening a link directly in their app. That means being able to run the command `open -a AppName https://foo.com/link-to-project-or-meeting`.
 
@@ -279,6 +281,10 @@ There are some ways to [disable Universal Links](https://mjtsai.com/blog/2022/04
 #### How can I add a browser profile to the prompt?
 
 First, make sure you grant access to profiles in the settings and then enable them in the “Shown Browsers” setting.
+
+#### How can I open specific URLs in a Safari PWA (website added to the Dock)? {#safari-dock-app}
+
+Websites added to the Dock from Safari are just normal apps located in `~/Applications`. You could create a custom rule to match certain URLs and have them open in one of these web-wrapper apps.
 
 #### Can you support [Firefox Multi-Account Containers](https://github.com/mozilla/multi-account-containers)? {#firefox-containers}
 
@@ -324,7 +330,9 @@ This is currently not possible. The Slack app does not accept a normal deep link
 
 #### Can the default browser change based on the active [focus mode](https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac)? {#focus-mode}
 
-You can use the Shortcuts app for this. Make a shortcut for each focus mode you want to handle, where you use the “Set Default Browser” action that Velja provides. You will need the [Shortery app](https://apps.apple.com/app/id1594183810) to automatically run these shortcuts when the focus mode changes. (Shortery will most likely not be needed in macOS 14 as it's very likely it will have support for [automations](https://support.apple.com/en-gb/guide/shortcuts/apd690170742/6.0/ios/16.0))
+You can use the Shortcuts app for this. Make a shortcut for each focus mode you want to handle, where you use the “Set Default Browser” action that Velja provides. You will need the [Shortery app](https://apps.apple.com/app/id1594183810) to automatically run these shortcuts when the focus mode changes.
+
+I may add built-in support for focus modes at some point, but it's not a popular request, so it's not something I can prioritize right now.
 
 #### Can the default browser change depending on whether I'm at work or not?
 
@@ -374,11 +382,11 @@ Ivory supports [Universal Links](https://developer.apple.com/ios/universal-links
 
 As of Ivory 1.0.0, it supports [these Mastodon instances](https://github.com/sindresorhus/meta/assets/170270/e256c5e1-5048-4cbc-8df2-aa09c969b639).
 
-#### How can I export, import, sync, or back up the settings?
+#### How can I export, import, sync, transfer, or back up the settings?
 
-You can export/import rules in the settings.
+You can export and import rules in the settings. See the bottom of the “Rules” settings tab.
 
-For all settings, [see this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
+For all settings, [see this](/apps/faq#export-settings).
 
 #### Can you support Safari profiles? {#safari-profiles}
 

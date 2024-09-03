@@ -17,6 +17,8 @@ Menu bar apps are awesome, but MacBooks have limited menu bar space. This app he
 
 The app includes a Shortcuts action, enabling automated spacing adjustments for various scenarios.
 
+**The app only needs to be run once to set the spacing and can then be uninstalled. The settings persists.**
+
 This app can potentially replace Bartender/Ice for some users. It also lets you fit more of my [menu bar apps](/apps/menu-bar) in your menu bar.
 
 ![Download count](https://img.shields.io/github/downloads/sindresorhus/menu-bar-spacing-meta/total?color=3e65d0)
@@ -69,7 +71,7 @@ No, not in the app. However, the app comes with an action for Shortcuts, so you 
 
 Note: The setting is global. Changing it will interrupt any ongoing screen recording or sharing, as it restarts some system processes to apply changes immediately.
 
-#### Why is this not in the App Store?
+#### Why is this not on the App Store?
 
 The app works by changing hidden system settings, which is not allowed on the App Store.
 

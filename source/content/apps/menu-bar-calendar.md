@@ -18,7 +18,7 @@ The calendar displays dates and days in your language, but the rest of the app i
 
 ### Tips
 
-- **Go to current month:** Click the month name or press the <kbd>space</kbd> key.
+- **Go to today (current month):** Click the month name or press the <kbd>space</kbd> key.
 - **Switch months:** Press arrow keys or swipe horizontally on the calendar.
 - **Switch years:** While holding the <kbd>option</kbd> key, click the `‹` / `›` button, press arrow keys, or swipe horizontally on the calendar.
 - **Close calendar window:** Press the <kbd>esc</kbd> key.
@@ -37,7 +37,7 @@ The calendar displays dates and days in your language, but the rest of the app i
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
 #### Does it show calendar events?
 

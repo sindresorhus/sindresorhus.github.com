@@ -89,6 +89,10 @@ One Task is designed for action, not endless categorization. It omits features l
 
 I don't plan to add this. I want to keep the app super simple.
 
+#### Can you make the widget background transparent
+
+This is not possible.
+
 #### The text in the widget is quite large
 
 The text automatically scales down to fit more content.
@@ -98,11 +102,3 @@ The text automatically scales down to fit more content.
 I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
-
-### Non-App Store Version
-
-A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/hf7zbgjv0755vfo1lqi5j/One-Task-1.0.0-1696158358-1701610759.zip?rlkey=lyihesd9omsdguagajgi3hbye&raw=1) *(1.2.0)*
-
-*Requires macOS 14 or later*
