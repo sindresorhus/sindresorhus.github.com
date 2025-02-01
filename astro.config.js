@@ -45,4 +45,8 @@ export default defineConfig({
 			},
 		},
 	},
+	legacy: {
+		// TODO: https://docs.astro.build/en/guides/upgrade-to/v5/#enabling-the-legacycollections-flag
+		collections: true,
+	},
 });

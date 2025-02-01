@@ -4,24 +4,26 @@ subtitle: Simple distraction-free notepad
 pubDate: 2022-10-25
 platforms:
   - macOS
+  - iOS
+  - visionOS
+isPaid: true
 appStoreId: 1572202501
 olderMacOSVersions:
   - '13'
+  - '14'
 ---
 
 Simple text editor without any rich text nonsense. The simplicity is a feature.
 
 It won't handle your 1 million line log file, but it is a nice way to write down some ideas.
 
-**Help test out the new iOS version: https://testflight.apple.com/join/jcwxWth4**
-
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Plain%20Text%20Editor&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Plain%20Text%20Editor&referrer=Website-FAQ)
 
-#### How is it better than TextEdit?
+#### How is the macOS version better than TextEdit?
 
 - Editor padding
 - Optimal line spacing and length
@@ -48,7 +50,7 @@ I don't plan to add that.
 
 This is a macOS bug. There is unfortunately nothing I can do about it.
 
-#### Does the app support tabs on macOS? {#tabs}
+#### Does the app support window tabs on macOS? {#tabs}
 
 Yes. Click “View › Show Tab Bar” in the menu bar and then click the plus button in the window.
 
@@ -122,10 +124,6 @@ This is out of scope for this app.
 
 This is out of scope for this app.
 
-#### How can I export, import, sync, or back up the settings?
-
-[See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
@@ -134,12 +132,7 @@ I don't plan to localize the app.
 
 ### Older Versions
 
+- [1.5.1](https://github.com/user-attachments/files/18928644/Plain.Text.Editor.1.5.1.-.macOS.14.zip) for macOS 14+
 - [1.3.2](https://github.com/sindresorhus/meta/files/14232390/Plain.Text.Editor.1.3.2.-.macOS.13.zip) for macOS 13+
 
-### Non-App Store Version
-
-A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/o4c1yceor1i75blq21k6z/Plain-Text-Editor-1.4.0-1707655107.zip?rlkey=sp7x6srayuld4gi8cuouevoef&raw=1) *(1.4.0)*
-
-*Requires macOS 14 or later*
+These are free for everyone but they will not run on newer macOS versions.

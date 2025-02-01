@@ -7,6 +7,7 @@ platforms:
 appStoreId: 6448461551
 olderMacOSVersions:
   - '13'
+  - '14'
 ---
 
 Cut and paste files and folders in Finder using Command+X and Command+V. Without this app, you have to first copy (Command+C) and then remember to move (Option+Command+V).
@@ -25,7 +26,7 @@ You may also like my [Supercharge](/supercharge) app.
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](/feedback?product=Command%20X&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](/feedback?product=Command%20X&referrer=Website-FAQ)
 
 #### Why? I can already use <kbd>Option+Command+V</kbd>
 
@@ -50,7 +51,7 @@ Then try toggling the setting “Use more reliable way of handling Command+X”,
 
 If it's still not working, try this: Select a file in Finder, press <kbd>Command+C</kbd>, change to a different folder, press <kbd>Option+Command+V</kbd>. The file should have been moved to this new folder. If this did not work, the problem is not this app, as those are the keyboard shortcuts it simulates.
 
-Also try closing any anti-virus app you have running as it may interfere with the app (or at least disable any Secure Keyboard Entry type setting it may have). And if you don't have any anti-virus app, try closing down all apps and menu bar items, just to rule out some other app interfering. If it's a work computer, your company may have something installed that prevents the app from working.
+Also try quitting any anti-virus and password manager app you have running as they may [interfere with the app](/apps/faq#secure-input-problem). If still not working, try closing down all apps and menu bar items, just to rule out some other app interfering. If it's a work computer, your company may have something installed that prevents the app from working.
 
 The last thing you could try is to reset the permissions. Either use [App Buddy](/app-buddy), or quit the app, and run this in the Terminal app:
 
@@ -100,12 +101,13 @@ I don't plan to localize the app.
 
 ### Older Versions
 
+- [1.4.7](https://github.com/user-attachments/files/19031153/Command.X.1.4.7.-.macOS.14.zip) for macOS 14+
 - [1.3.1](https://github.com/sindresorhus/meta/files/13987707/Command.X.1.3.1.-.macOS.13.zip) for macOS 13+
 
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/6v35vmihxlhgrzuc9wohb/Command-X-1.4.5-1721587140.zip?rlkey=77u67tp5asuizqba1qak6cm59&raw=1) *(1.4.5)*
+[Download](https://www.dropbox.com/scl/fi/q29jqhoble8xbtvypmmkx/Command-X-1.5.1-1741281408.zip?rlkey=oo97q4f6g9mwjyqmhjakbr7to&raw=1) *(1.5.1)*
 
-*Requires macOS 14 or later*
+*Requires macOS 15 or later*
