@@ -13,15 +13,16 @@ olderMacOSVersions:
   - '11'
   - '12'
   - '13'
+  - '14'
 ---
 
-Battery Indicator lets you quickly glance the remaining battery time or percentage right in your menu bar.
+Quickly glance the remaining battery time or percentage right in your menu bar.
 
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Battery%20Indicator&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Battery%20Indicator&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
@@ -51,19 +52,11 @@ The app has a built-in sound when showing notifications. However, if you want a 
 
 This is a perfect use case for the built-in Shortcuts app. You can use the `Play Sound` action to play the sound you want. To run the shortcut when the battery is at a certain percentage, you need the [Shortery app](https://apps.apple.com/app/id1594183810). Use its “Power Status” trigger.
 
-*(The Shortery app is only a temporary requirement. It's likely that Apple will introduce automation for Shortcuts in macOS 16.)*
-
 You can find sound effects [here](https://pixabay.com/sound-effects/search/interface/).
 
 #### Can the battery icon hide when the battery is charged a certain percentage?
 
 This is a perfect use case for the built-in Shortcuts app. Create a shortcut that quits the app and one that launches it. To run the shortcut when the battery is at a certain percentage, you need the [Shortery app](https://apps.apple.com/app/id1594183810). Use its “Power Status” trigger.
-
-*(The Shortery app is only a temporary requirement. It's likely that Apple will introduce automation for Shortcuts in macOS 16.)*
-
-#### How can I export, import, sync, or back up the settings?
-
-[See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
 
 #### Can you localize the app into my language?
 
@@ -73,6 +66,7 @@ I don't plan to localize the app.
 
 ### Older Versions
 
+- [2.18.0](https://github.com/user-attachments/files/19015442/Battery.Indicator.2.18.0.-.macOS.14.zip) for macOS 14
 - [2.16.1](https://github.com/sindresorhus/meta/files/13942534/Battery.Indicator.2.16.1.-.macOS.13.zip) for macOS 13
 - [2.14.2](https://github.com/sindresorhus/meta/files/10759031/Battery.Indicator.2.14.2.-.macOS.12.zip) for macOS 12
 - [2.12.3](https://github.com/sindresorhus/meta/files/8759816/Battery.Indicator.2.12.3.-.macOS.11.zip) for macOS 11
