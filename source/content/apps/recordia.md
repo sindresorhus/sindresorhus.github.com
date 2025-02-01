@@ -11,6 +11,7 @@ olderMacOSVersions:
   - '11'
   - '12'
   - '13'
+  - '14'
 ---
 
 Record audio directly from the menu bar or with a global keyboard shortcut.
@@ -19,11 +20,11 @@ Record audio directly from the menu bar or with a global keyboard shortcut.
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Recordia&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Recordia&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender or Ice if you have it installed.
 
 #### How can I preview the recording when done?
 
@@ -65,14 +66,11 @@ macOS does some noise reduction by default. For stronger noise reduction, check 
 
 Yes, follow the guide [here](https://www.switchingtomac.com/tutorials/how-to-use-your-iphone-as-a-microphone-on-a-mac/).
 
-#### How can I export, import, sync, or back up the settings?
-
-[See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
-
 #### [More FAQs…](/apps/faq)
 
 ### Older Versions
 
+- [2.9.0](https://github.com/user-attachments/files/18787741/Recordia.2.9.0.-.macOS.14.zip) for macOS 14+
 - [2.7.0](https://github.com/sindresorhus/meta/files/13975939/Recordia.2.7.0.-.macOS.13.zip) for macOS 13+
 - [2.6.1](https://github.com/sindresorhus/meta/files/11053013/Recordia.2.6.1.-.macOS.12.zip) for macOS 12
 - [2.3.0](https://github.com/sindresorhus/meta/files/8798113/Recordia.2.3.0.-.macOS.11.zip) for macOS 11
@@ -82,6 +80,6 @@ Yes, follow the guide [here](https://www.switchingtomac.com/tutorials/how-to-use
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/3bsg4200b1d8e35l02oqg/Recordia-2.8.0-1705579150.zip?rlkey=vht4knn9copnb0hp1zmodaka9&raw=1) *(2.8.0)*
+[Download](https://www.dropbox.com/scl/fi/hybu606ij6o262q7u2m2m/Recordia-2.10.0-1739467077.zip?rlkey=4f5ce8z2arx4q1i7xi5nkacao&raw=1) *(2.10.0)*
 
-*Requires macOS 14 or later*
+*Requires macOS 15 or later*

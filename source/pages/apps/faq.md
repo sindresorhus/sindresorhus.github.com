@@ -192,6 +192,21 @@ If you have tried all of this, [contact me](/feedback).
 - If it's a work device, make sure there are no restrictions in place that prevents iCloud or iCloud Drive.
 - Check the [iCloud system status](https://www.apple.com/support/systemstatus/) to ensure the service is not experiencing issues.
 
+##### Keyboard shortcuts or text expansion suddenly stopped working {#secure-input-problem}
+
+If keyboard shortcuts or text expansion suddenly stops working, it's likely because an app is using Secure Input - a macOS security feature that blocks other apps from reading keystrokes. While this is intended for sensitive contexts like password fields, apps sometimes fail to properly disable it. Common culprits are password managers like Bitwarden and 1Password, even when running in the background. Safari can also sometimes cause this.
+
+You can try:
+1. Quit password managers and browsers.
+1. Quit all apps.
+1. Putting the computer to sleep and then waking it up and logging in again usually fixes it.
+1. If nothing else works, restart your computer.
+1. Use the “Get Apps Using Secure Input” action from [Shortcutie](/shortcutie) to identify the problematic app and quit it.
+
+The issue often occurs when an app requests Secure Input while in the background, causing it to get "stuck" in secure mode.
+
+[Learn more ›](https://espanso.org/docs/troubleshooting/secure-input/)
+
 ### How can I send you debug info for one of your apps? {#debug-info}
 
 macOS: Make sure the app is not running (you can force-quit it from the Activity Monitor app) and then press <kbd>Shift</kbd>+<kbd>Control</kbd>+<kbd>Option</kbd> while launching the app.

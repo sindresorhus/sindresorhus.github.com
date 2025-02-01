@@ -63,6 +63,8 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 Try the fully functional trial [here](https://www.dropbox.com/scl/fi/fokrtfbzj64l8w9q8ov7i/Dato-5.4.3-trial-1734185389.zip?rlkey=rohwdtwrk69r78stm0p7u1gqe&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 
+*Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
+
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
 ### Tips
@@ -274,6 +276,10 @@ This is an [issue with Ice](https://github.com/jordanbaird/Ice/discussions/298) 
 #### Can I buy Dato from outside the App Store and Setapp?
 
 No. Dato is only available from the App Store and Setapp.
+
+#### Dato quit suddenly
+
+Check if there are any [crash reports](https://sindresorhus.com/apps/faq#crash-report). If none exists, it's likely macOS terminated Dato because it needed to reclaim memory. This is an especially common problem on MacBook Air laptops with only 8 GB RAM. Try restarting your computer.
 
 #### The “upcoming event in menu bar” notification is not showing up
 

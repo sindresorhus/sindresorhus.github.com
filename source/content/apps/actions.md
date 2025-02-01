@@ -205,6 +205,7 @@ If you have any questions about how to use the different actions or for what, tr
 - High-quality transcription (speech to text) in 100 languages → [Aiko](/aiko)
 - Trigger shortcuts on your Mac from your iOS device → [Hyperduck](/hyperduck#shortcuts)
 - Set default browser → [Supercharge](/supercharge) & [Default Browser](/default-browser)
+- Use the ChatGPT API, Ollama, Groq → [AI Actions](/ai-actions)
 - Show text in menu bar → [One Thing](/one-thing)
 - Open URLs in a specific browser → [Velja](/velja)
 - Remove tracking parameters from URLs → [Velja](/velja) & [Pure Paste](/pure-paste)
@@ -213,10 +214,9 @@ If you have any questions about how to use the different actions or for what, tr
 - Get internet speed → [Speediness](/speediness)
 - Join video calls → [Dato](/dato)
 - Put text on the iOS Lock Screen → [Any Text](/any-text)
-- Get random animated GIF → [Jiffy](/jiffy)
-- Get clipboard items → [Pasteboard Viewer](/pasteboard-viewer)
 - Preview app icons → [Icon Preview](/icon-preview)
-- Use the ChatGPT API, Ollama, Groq → [AI Actions](/ai-actions)
+- Get clipboard items → [Pasteboard Viewer](/pasteboard-viewer)
+<!-- - Get random animated GIF → [Jiffy](/jiffy) -->
 
 #### Impossible actions {#impossible-actions}
 

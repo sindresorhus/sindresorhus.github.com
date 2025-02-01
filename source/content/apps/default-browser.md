@@ -6,6 +6,7 @@ platforms:
   - macOS
 isPaid: true
 isMenuBarApp: true
+releasesRepo: default-browser-meta
 mainLinks:
   'Buy': https://buy.polar.sh/polar_cl_tWjWd0yRVXb9w0bhohTfxkqjwMUsjpegZM1na4HH9ER
 # olderMacOSVersions:
