@@ -140,7 +140,9 @@ The app uses the Whisper large v2 model on macOS and the medium or small model o
 
 ### Trial
 
-You can try out a time-limited trial (14 days) on [TestFlight](https://testflight.apple.com/join/P1qnhHCC).
+Try Aiko free for 14 days via [TestFlight](https://testflight.apple.com/join/P1qnhHCC). No auto-charges or commitment. Simply purchase it from the App Store after the trial if you want to continue using it.
+
+*Disregard where it says how many days there are left. It means the days left of the current TestFlight build, not how long you have left on your trial.*
 
 ### Tips
 

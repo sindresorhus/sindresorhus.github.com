@@ -51,6 +51,12 @@ Try the fully functional trial of the macOS app [here](https://www.dropbox.com/s
 - After enabling sync, try writing some more text on all the devices.
 - [More…](/apps/faq#icloud-sync)
 
+#### Keyboard shortcuts <sup>macOS</sup>
+
+- Increase text size: <kbd>⌘+</kbd>
+- Decrease text size: <kbd>⌘-</kbd>
+- Reset text size: <kbd>⌘0</kbd>
+
 #### Launch app from Lock Screen
 
 Quickly open the app using the built-in Lock Screen widget. For more customization options, you can also use my [Quick Launch](/quick-launch) app.

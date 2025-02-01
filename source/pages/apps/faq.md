@@ -153,6 +153,14 @@ A bundle identifier (or bundle ID) uniquely identifies an app in Apple's ecosyst
 
 The macOS app sandbox is like putting each app in a fenced yard. It keeps the app from wandering off and messing with other apps or your system, which makes your Mac safer. However, the fence is very strict—it can stop apps from doing creative or powerful things, even when you want them to. All apps on the Mac App Store must be sandboxed, which means some advanced features or workflows might not be possible.
 
+### What are distributed notifications? {#distributed-notifications}
+
+[Distributed notifications](https://developer.apple.com/documentation/foundation/distributednotificationcenter) is a communication mechanism on macOS that allows apps to send invisible system-wide signals that other apps can listen to. When one app sends a notification, another app can wait for it and then do something.
+
+For example, [Dato](/dato) sends a distributed notification when you join a video call, which other apps can listen for and do something when it happens. And [Default Browser](/default-browser) sends a distributed notification when the default browser is changed.
+
+To listen to such notifications, you could use [BetterTouchTool](https://folivora.ai).
+
 ### I have enabled “launch at login” but the app does not launch when I start my computer {#launch-at-login-not-working}
 
 When you enable that setting, the app simply tells macOS to launch it at login, so if it's not working, it's a problem with macOS or your system. As a workaround, you can manually add it: Open System Settings, go to “General › Login Items”, and click the “+” button, and choose the app.
@@ -191,6 +199,21 @@ If you have tried all of this, [contact me](/feedback).
 - If using a VPN, try disconnecting it, as some VPNs can interfere with iCloud syncing.
 - If it's a work device, make sure there are no restrictions in place that prevents iCloud or iCloud Drive.
 - Check the [iCloud system status](https://www.apple.com/support/systemstatus/) to ensure the service is not experiencing issues.
+
+##### Keyboard shortcuts or text expansion suddenly stopped working {#secure-input-problem}
+
+If keyboard shortcuts or text expansion suddenly stops working, it's likely because an app is using Secure Input - a macOS security feature that blocks other apps from reading keystrokes. While this is intended for sensitive contexts like password fields, apps sometimes fail to properly disable it. Common culprits are password managers like Bitwarden and 1Password, even when running in the background. Safari can also sometimes cause this.
+
+You can try:
+1. Quit password managers and browsers.
+1. Quit all apps.
+1. Putting the computer to sleep and then waking it up and logging in again usually fixes it.
+1. If nothing else works, restart your computer.
+1. Use the “Get Apps Using Secure Input” action from [Shortcutie](/shortcutie) to identify the problematic app and quit it.
+
+The issue often occurs when an app requests Secure Input while in the background, causing it to get "stuck" in secure mode.
+
+[Learn more ›](https://espanso.org/docs/troubleshooting/secure-input/)
 
 ### How can I send you debug info for one of your apps? {#debug-info}
 

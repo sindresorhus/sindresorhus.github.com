@@ -56,6 +56,8 @@ Please help out by starring these Chrome issues which would help Velja users:
 
 Try the fully functional trial [here](https://www.dropbox.com/scl/fi/ixiyq93dwu8yongaokseg/Velja-2.1.0-trial-1738419324.zip?rlkey=ao7w4lh6exje23w33z3fqitpe&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
+*Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
+
 **Requires macOS 15.2**
 
 ### Tips
@@ -659,6 +661,14 @@ open --background 'velja:open?url=https%3A%2F%2Fsindresorhus.com&app=org.mozilla
 ```
 
 It expects the [bundle identifier](/apps/faq#find-bundle-identifier) of an app. Rules will be ignored when this is specified.
+
+You can also specify a browser profile by adding the `profile` parameter (Velja 2.1.0 and later):
+
+```sh
+open --background 'velja:open?url=https%3A%2F%2Fsindresorhus.com&app=com.google.Chrome&profile=Work'
+```
+
+The `profile` parameter must be used together with the `app` parameter and expects the profile name (not ID). See the Velja settings for supported browsers.
 
 #### Change default browser in Velja from the command-line
 
