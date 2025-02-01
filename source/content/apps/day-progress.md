@@ -4,23 +4,27 @@ subtitle: Time remaining today in your menu bar
 pubDate: 2023-06-18
 platforms:
   - macOS
+isPaid: true
 isMenuBarApp: true
 appStoreId: 6450280202
-links:
-  'TestFlight': https://testflight.apple.com/join/mFx764Kp
+# links:
+#   'TestFlight': https://testflight.apple.com/join/mFx764Kp
 olderMacOSVersions:
   - '13'
+  - '14'
 ---
 
 Use this as a visual cue to stay motivated and manage time more efficiently.
 
-You can customize your day's start and end times, even allowing for a day's end past midnight, such as 2 AM.
+You can customize your day's start and end times per day, even allowing for a day's end past midnight, such as 2 AM.
 
-Choose between a progress pie or bar, showcasing it with a percentage, the remaining time, or minutes left.
+You can set up multiple time ranges to run one after another throughout your day - the menu bar shows a single progress at a time. Perfect for tracking different parts of your day like work hours and personal time.
+
+Choose between a progress pie or bar, showing percentage, remaining time, or minutes left.
 
 ### Tips
 
-#### Time presets
+<!-- #### Time presets
 
 You can use the Shortcuts app to make time presets. For example, you can make a shortcut that sets the day range to `13:00 - 18:00` and run it on the days where you want that range, and another shortcut to reset it back to the normal day range. [Example shortcut.](https://www.icloud.com/shortcuts/9636a1f2f0624aa787727afd306ff667)
 
@@ -30,11 +34,7 @@ You can use a shortcut to make it count down 8 hours from when you decide. [Exam
 
 #### Make the day range be sunrise to sunset for the current location
 
-Run [this shortcut](https://www.icloud.com/shortcuts/830746d544ce471cb1ff70b2f4de0e22) every day using [Shortery](https://apps.apple.com/app/id1594183810) and you will always have the correct sunrise and sunset times.
-
-#### Different day ranges for some days of the week
-
-Make a shortcut for each of the different day ranges and use the [Shortery](https://apps.apple.com/app/id1594183810) app to run the shortcut on the correct days.
+Run [this shortcut](https://www.icloud.com/shortcuts/830746d544ce471cb1ff70b2f4de0e22) every day using [Shortery](https://apps.apple.com/app/id1594183810) and you will always have the correct sunrise and sunset times. -->
 
 #### Reminder about shortcuts
 
@@ -46,19 +46,23 @@ You could use Day Progress as an abstract clock instead of the system clock, to 
 
 Unfortunately, it's not possible to fully hide the built-in menu bar clock. However, you could make it an analog clock, which makes it a lot less visible. In “System Settings › Control Center › Clock Options”, choose the analog clock and disable showing the date.
 
+#### Events
+
+The [distributed notification](/apps/faq#distributed-notifications) `com.sindresorhus.Day-Progress.dayEnded` is emitted when a progress finishes.
+
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Day%20Progress&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Day%20Progress&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender or Ice if you have it installed.
 
 #### Can you add widgets?
 
-I plan to add it later this year.
+I plan to do that at some point.
 
 #### Can you add support for iOS?
 
@@ -70,9 +74,7 @@ There are already lots of apps for counting down to a specific date. I wanted to
 
 #### Can you support specifying different day range for different days of the week?
 
-I have chosen not to add this at the moment as it will add a lot of complexity to the app. Additionally, I believe it could lead to a cascade of numerous scheduling feature requests, deviating from the app's original purpose - providing a general percentage of the day's progress. It's also worth considering that each day can vary significantly. There could be instances where your day starts later than anticipated, making it challenging to stick to a strict schedule. However, I'm exploring an option to include a daily configurable prompt that would ask you to input the day's start and end time.
-
-You can actually already achieve this yourself. See the [tips](#tips) section.
+You can set up multiple schedules with different time ranges, both for different days and within the same day. Each time range runs its progress one after another in the menu bar. For even more flexibility with scheduling, check out the [tips](#tips) section for automation options using Shortcuts.
 
 #### Does the app provide end-of-day notifications?
 
@@ -94,12 +96,7 @@ I do not plan to localize the app.
 
 ### Older Versions
 
-- [1.3.0](https://github.com/sindresorhus/meta/files/13979415/Day.Progress.1.3.0.-.macOS.13.zip) for macOS 13+
+- [1.4.0](https://github.com/user-attachments/files/18767518/Day.Progress.1.4.0.-.macOS.14.zip) for macOS 14
+- [1.3.0](https://github.com/sindresorhus/meta/files/13979415/Day.Progress.1.3.0.-.macOS.13.zip) for macOS 13
 
-### Non-App Store Version
-
-A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/ocsdxjssgg23xza3idfun/Day-Progress-1.4.0-1705596961.zip?rlkey=sc9kno0swmc21rxxu0ai9xs27&raw=1) *(1.4.0)*
-
-*Requires macOS 14 or later*
+These are free for everyone but they will not run on newer macOS versions.

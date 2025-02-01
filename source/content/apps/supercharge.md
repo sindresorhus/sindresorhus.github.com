@@ -7,6 +7,7 @@ platforms:
 isPaid: true
 isMenuBarApp: true
 setappId: 742
+releasesRepo: supercharge-meta
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/supercharge?wanted=true
 # olderMacOSVersions:
@@ -21,6 +22,8 @@ feedbackNote: |
 
 Improve your Mac experience with a bunch of useful functionality:
 
+*(Every feature is opt-in, so you can enable only what you need)*
+
 - Clear notifications with a keyboard shortcut or from the menu
 - [Close & minimize windows and hide & quit apps directly from Mission Control](#mission-control-improvements)
 - [Clicking an active app's Dock icon hides the app or minimizes its windows](#dock-icon-click-behavior)
@@ -33,25 +36,28 @@ Improve your Mac experience with a bunch of useful functionality:
 - [Clicking green traffic light button fills window instead of entering fullscreen](#green-traffic-light-button-fill)
 - [Clicking yellow traffic light button hides app instead of minimizing window](#yellow-traffic-light-button-hide)
 - [Scan QR codes and barcodes from anywhere on screen](#scan-qr-codes)
-<!-- - Quit apps when closing their last window (clicking the red traffic light button or <kbd>Command+W</kbd>) (similar to Swift Quit and RedQuits apps) -->
+- Quit apps when closing their last window (clicking the red traffic light button or <kbd>Command+W</kbd>) (similar to Swift Quit and RedQuits apps)
 - Finder: Move files by cutting[^commandx] (<kbd>Command+X</kbd>) and pasting (<kbd>Command+V</kbd>)
 - Finder: Open files with <kbd>Return</kbd> (you can then rename with <kbd>Shift+Return</kbd> or <kbd>F2</kbd>)
 - Finder: Create new text file with <kbd>Option+N</kbd> *([video](https://github.com/user-attachments/assets/cb2c4606-12eb-4915-a64c-9b8ac3e123cf))* or from the [context menu](#finder-context-menu)
 - Finder: Move files to the trash with <kbd>⌫</kbd> (Delete) instead of <kbd>⌘⌫</kbd>
 - Finder: Go back to the previous folder with <kbd>⌫</kbd> (Delete)
-- [Finder: Adds many useful actions to the context menu:](#finder-context-menu) copy path, move to, open folder with, AirDrop, etc.
+- [Finder: Adds many useful actions to the context menu:](#finder-context-menu) copy path, move to, open folder with, AirDrop, folder colors, etc.
 - Finder: Auto-adjust column widths to filenames in column view, or do it once with a keyboard shortcut
 - Finder: Invert selection (deselects what's currently selected and selects everything that wasn't selected)
-- Exclude AirDrop, Mail, and Messages from the system Share menu\
-  <span class="text-sm text-secondary">These are usually forced to be shown by macOS.</span>
+- Exclude AirDrop, Mail, and Messages from the system Share menu
+  <span class="list-description">These are usually forced to be shown by macOS.</div>
+- [Show markup tools by default in screenshot preview](https://github.com/user-attachments/assets/20b0cfe8-d588-4329-9132-9120b32da7ff)
+- Auto-open screenshot preview after capturing
 - [Mail: Copy message link](#mail-copy-message-link)
 - [Notes: Copy note link](#notes-copy-note-link)
 - Toggle Finder with a keyboard shortcut <sup>(aka. [visor mode](https://totalfinder.binaryage.com/visor))</sup>
 - Show the [menu bar window](https://github.com/user-attachments/assets/1b8e2e12-187a-4d32-8ba3-c13f154de9e0) for the Passwords app with a keyboard shortcut
 - Show the [menu bar window](https://github.com/user-attachments/assets/567bbbf5-12a1-45be-8ffa-93712574d4a0) for the Weather app with a keyboard shortcut
-- Show the window for the “Now Playing” menu bar item with a keyboard shortcut.
+- Show the window for the “Now Playing” menu bar item with a keyboard shortcut
 - [Change default browser](https://github.com/user-attachments/assets/b58a04da-2bdc-4bd0-bed4-ba62ba456491) (without a prompt)
 	- Also available as an [independent app](/default-browser).
+- [Make volume key adjustments more precise with quarter-step increments](https://github.com/user-attachments/assets/e994755b-94ca-4e3c-8f70-5d3bffc3aed1)
 - Export/import (backup) settings for any apps *([video](https://github.com/user-attachments/assets/82727408-3acb-4c18-91c6-428f1e0ad8c5))*
 - Toggle Terminal with a keyboard shortcut
 - [Offers to install apps from mounted DMG files](https://github.com/user-attachments/assets/5ecb9b0b-5719-4382-98a0-c3316bd20a6b)
@@ -62,6 +68,8 @@ Improve your Mac experience with a bunch of useful functionality:
 - Pick color on screen and copy as Hex color (menu action and keyboard shortcut)
 - Toggle mute sound
 - Toggle dark mode
+- Toggle [Night Shift](https://support.apple.com/en-us/102191)
+- Toggle [True Tone](https://support.apple.com/en-us/102147)
 - Toggle low power mode
 - Toggle grayscale mode[^grayscale]
 - Toggle desktop widgets visibility
@@ -74,9 +82,10 @@ Improve your Mac experience with a bunch of useful functionality:
 	- Hide My Email
 	- Private Relay
 - [Show seconds hand in the Clock app's Dock icon](https://github.com/user-attachments/assets/b1d025dc-0465-4d0f-adf8-48bc079ad438)
-- [Only show system sound menu bar icon when muted](https://github.com/user-attachments/assets/10447e39-f288-406b-a504-6ab7b8fcf261)
+- [Only show sound menu bar icon when either muted or unmuted](https://github.com/user-attachments/assets/10447e39-f288-406b-a504-6ab7b8fcf261)
 - Add [Dock spacers](#dock-spacers)
 - Reset [privacy permissions](https://support.apple.com/en-vn/guide/mac-help/mchl211c911f/mac) for any apps
+- Flush DNS cache
 - Shortcuts actions
 - *More planned…*
 
@@ -122,37 +131,48 @@ Makes clicking the yellow traffic light button hide the app instead of minimizin
 
 Adds the following actions (can be customized) directly in the right-click menu in Finder:
 
-- New Text File\
-	<span class="text-sm text-secondary">Shown only when right-clicking an empty area in Finder.</span>
+- New Text File
+	<span class="list-description">Shown only when right-clicking an empty area in Finder.</span>
+- New From Template
+	<span class="list-description">Create new files from templates. For example, a Markdown or Excel file. Templates can be organized in subfolders. Shown only when right-clicking an empty area in Finder, not a file. Supports dynamic placeholders in filenames (like `Diary {datetime-fixed}` → `Diary 2025-02-14 15.30`). And you can even have the file automatically open after naming it. [Screenshot.](https://github.com/user-attachments/assets/cb401a0e-2e40-4714-9493-b91563a7b387)</span>
 - Image/Video Dimensions
 - Copy Path
 - Copy Filename
-- Copy File URL\
-	<span class="text-sm text-secondary">Useful for deep links. Clicking such link reveals it in Finder.</span>
+- Copy File URL
+	<span class="list-description">Useful for deep links. Clicking such link reveals it in Finder.</span>
 - Copy Markdown Link
-- Copy Contents\
-	<span class="text-sm text-secondary">Copies the contents of text files to the clipboard.</span>
+- Copy Contents
+	<span class="list-description">Copies the contents of text files to the clipboard.</span>
 - Open Folder With
+	<span class="list-description">[Missing apps?](https://sindresorhus.com/supercharge#add-app-open-folder-with)</span>
 - Make Symlink
 - Move To
 - Copy To
-- Share\
-	<span class="text-sm text-secondary">Shows the old-style Share item that is a submenu instead of a separate popover, which is faster to access. You can exclude AirDrop, Messages, and Mail from the menu, which are normally forced to be shown. However, there is no way to hide the existing Share item.</span>
-- Open in Terminal\
-	<span class="text-sm text-secondary">Shown only when right-clicking a folder or an empty area in Finder. Supports Terminal, iTerm, kitty, WezTerm, Alacritty, and Warp.</span>
+- Share
+	<span class="list-description">Shows the old-style Share item that is a submenu instead of a separate popover, which is faster to access. You can exclude AirDrop, Messages, and Mail from the menu, which are normally forced to be shown. However, there is no way to hide the existing Share item.</span>
+- Open in App
+	<span class="list-description">Add menu items like “Open in Visual Studio Code” directly to the Finder context menu. Text editors show up for folders and text files, while other apps only show up for types they support. [Screenshot.](https://github.com/user-attachments/assets/980340bc-a257-475c-9a02-7b98853df9a7)</span>
+- Open in Terminal
+	<span class="list-description">Shown only when right-clicking a folder or an empty area in Finder. Supports Terminal, iTerm, Ghostty, kitty, WezTerm, Alacritty, and Warp.</span>
 - AirDrop
 - Run Shortcut
 - Update Modified Date
-- Make Executable\
-	<span class="text-sm text-secondary">Makes files executable, similar to `chmod +x` in the terminal. Useful for shell scripts.</span>
-- Invert Selection\
-	<span class="text-sm text-secondary">Selects the files/folders in Finder that are not selected.</span>
-- Delete Immediately\
-	<span class="text-sm text-secondary">Permanently deletes files/folders without sending them to the Trash.</span>
-- Copy Checksum\
-	<span class="text-sm text-secondary">SHA-1, SHA-256, SHA-384, SHA-512, MD5, CRC32</span>
-- Unquarantine\
-	<span class="text-sm text-secondary">Removes the quarantine flag that macOS adds to downloaded files and apps. This removes [security prompts](https://github.com/user-attachments/assets/adbf3c7e-8fee-4cd9-9a90-3958badfa94e) and restrictions for trusted items.</span>
+- Folder Color
+	<span class="list-description">Change the color of folders. [Screenshot.](https://github.com/user-attachments/assets/0687455b-61d3-4fdd-a863-1e378a3701d5)</span>
+- Toggle Hidden Files
+	<span class="list-description">Toggle visibility of hidden files.</span>
+- Make Executable
+	<span class="list-description">Makes files executable, similar to `chmod +x` in the terminal. Useful for shell scripts.</span>
+- Invert Selection
+	<span class="list-description">Selects the files/folders in Finder that are not selected.</span>
+- Delete Immediately
+	<span class="list-description">Permanently deletes files/folders without sending them to the Trash.</span>
+- Copy Checksum
+	<span class="list-description">SHA-1, SHA-256, SHA-384, SHA-512, MD5, CRC32</span>
+- Unquarantine
+	<span class="list-description">Removes the quarantine flag that macOS adds to downloaded files and apps. This removes [security prompts](https://github.com/user-attachments/assets/adbf3c7e-8fee-4cd9-9a90-3958badfa94e) and restrictions for trusted items.</span>
+- Scan QR Code
+	<span class="list-description">Scans QR codes in images and copies the content to the clipboard. Only shown when right-clicking image files.</span>
 
 *They appear at the bottom of the context menu. There is no way to change that. [They also won't appear in iCloud, Dropbox, or any other sync folder.](#finder-context-menu-icloud)*
 
@@ -165,7 +185,7 @@ Select any region of your screen to instantly translate text, even from images o
 
 ##### Scan QR codes and barcodes {#scan-qr-codes}
 
-Select any region of your screen to instantly scan QR codes and barcodes and copy their content to the clipboard. Supports scanning multiple codes at once.
+Select any region of your screen or use an image from your clipboard to instantly scan QR codes and barcodes and copy their content to the clipboard. Supports scanning multiple codes at once.
 
 - [Screenshot](https://github.com/user-attachments/assets/caa5aed9-5db2-460e-bbbb-15fae45a5195)
 - [Supported barcodes](https://developer.apple.com/documentation/vision/vnbarcodesymbology#Supported-Symbologies)
@@ -194,7 +214,7 @@ You may also like my [Shareful](/shareful), [Menu Bar Spacing](/menu-bar-spacing
 
 ### Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/j1w4hkcn9t7a3fbhkkm7b/Supercharge-1.11.1-trial-1738312275.zip?rlkey=hjr2l4fbh0r746ny8an04q04n&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/cxvu72pdirpr6er6a2i13/Supercharge-1.13.0-trial-1740480614.zip?rlkey=o9oai5oun4kseiynvbqekool6&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=742&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
@@ -206,7 +226,7 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=742&utm_me
 
 - Ensure you are on the latest version (click the “Check for Updates” button).
 - Restart your computer.
-- Try closing any anti-virus app you have running as it may interfere with the app (or at least disable any Secure Keyboard Entry type setting it may have). And if you don't have any anti-virus app, try closing down all apps and menu bar items, just to rule out some other app interfering. If it's a work computer, your company may have something installed that prevents the app from working.
+- Try closing any anti-virus app you have running as it may [interfere with the app](/apps/faq#secure-input-problem) (or at least disable any Secure Keyboard Entry type setting it may have). And if you don't have any anti-virus app, try closing down all apps and menu bar items, just to rule out some other app interfering. If it's a work computer, your company may have something installed that prevents the app from working.
 - Try clicking “Reset Permissions” in the Supercharge menu.
 
 ##### Cut and paste files troubleshooting
@@ -221,7 +241,7 @@ If it's still not working, try this: Select a file in Finder, press <kbd>Command
 
 As a last resort, try [resetting permissions](/apps/faq#mac-reset-permissions) and restarting your computer.
 
-Also try closing any anti-virus app you have running as it may interfere with the app (or at least disable any Secure Keyboard Entry type setting it may have). And if you don't have any anti-virus app, try closing down all apps and menu bar items, just to rule out some other app interfering. If it's a work computer, your company may have something installed that prevents the app from working.
+Also try closing any anti-virus app you have running as it may [interfere with the app](/apps/faq#secure-input-problem) (or at least disable any Secure Keyboard Entry type setting it may have). And if you don't have any anti-virus app, try closing down all apps and menu bar items, just to rule out some other app interfering. If it's a work computer, your company may have something installed that prevents the app from working.
 
 #### Launch browser
 
@@ -239,6 +259,7 @@ Some things you can already do that you may not know about:
 - [Change the keyboard shortcut for menu item actions a specific app.](https://support.apple.com/guide/mac-help/create-keyboard-shortcuts-for-apps-mchlp2271/mac)
 - [Change the keyboard shortcut for menu item actions in all apps.](https://apple.stackexchange.com/a/125628/2363)
 - Set Finder's default view options: Open a folder, press <kbd>Command+J</kbd>, adjust settings, and click “Use as Defaults”. To reset a folder's custom settings, press <kbd>Command+J</kbd>, hold <kbd>Option</kbd>, and click “Restore to Defaults”.
+- [Show “Dimensions” column in Finder.](https://apple.stackexchange.com/questions/18728/how-can-i-show-the-dimension-column-in-finder)
 
 ### Frequently Asked Questions {#faq}
 
@@ -267,6 +288,14 @@ Some things are not planned:
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve the issue, try quitting Bartender/Ice if you have it installed.
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to show the main window.
+
+##### The tweaks like Finder cut & paste no longer works
+
+This usually happens when an app [blocks keyboard input reading](/apps/faq#secure-input-problem).
+
+##### The tweaks like Finder cut & paste no longer works
+
+This is usually caused by an app using Secure Input - a security feature that blocks other apps from reading keystrokes. Common culprits are password managers like Bitwarden and 1Password, even when they're not in focus. Try quitting these apps. And if it doesn't help, try quitting all apps and menu bar apps. [Learn more >](https://espanso.org/docs/troubleshooting/secure-input/)
 
 #### I can already do this with the command-line, BetterTouchTool, Keyboard Maestro, etc.
 
@@ -312,9 +341,9 @@ Finder Sync extensions, which power these context menu items, are intended to ad
 
 #### I am seeing incorrect icons for external drives in the Finder sidebar when enabling context menu items
 
-This is a macOS bug and out of my control. When context menu items are enabled for external volumes, macOS shows document icons instead of drive icons in the Finder sidebar.
+This is a macOS bug and out of my control. When context menu items are enabled for external volumes, macOS shows document icons instead of drive icons in the Finder sidebar. As a workaround, you can disable showing the context menu items on external drives.
 
-#### How can I add my preferred apps to the "Open Folder With" Finder context menu? {#add-app-open-folder-with}
+#### How can I add my preferred apps to the “Open Folder With” Finder context menu? {#add-app-open-folder-with}
 
 The menu shows apps that declare support for opening folders. This is controlled by app developers, not by Supercharge. To get your preferred apps to appear in this menu, contact the developers of those apps and request them to add folder opening support.
 
@@ -327,6 +356,12 @@ The developer will need to add `public.folder` to `LSItemContentTypes` in their 
 </array>
 ```
 
+*(If the app already contains `public.directory`, it will still have to add `public.folder`)*
+
+[Example report.](https://github.com/coteditor/CotEditor/issues/1809)
+
+If you know the app supports opening folders but it doesn't show up, it may be that the app has not properly declared support for it. Contact the app developer about adding the above. You could also [contact me](https://sindresorhus.com/feedback?product=Supercharge), and I can manually add the app.
+
 #### Can you add support keyboard shortcuts to change default browser?
 
 Maybe. For now, you can make a shortcut in the Shortcuts app, give it a keyboard shortcut, and use the “Set Default Browser” Shortcuts action that comes with Supercharge.
@@ -335,9 +370,21 @@ Maybe. For now, you can make a shortcut in the Shortcuts app, give it a keyboard
 
 Features like rules require the app to intercept and forward URLs by acting as the default browser. This is out of scope for this app. Check out my [Velja](/velja) app for that.
 
+#### Why do some tweaks have a list of pre-defined keyboard shortcuts instead of a shortcut recorder?
+
+The pre-defined shortcuts are intentionally curated to help users quickly select sensible shortcuts that won't conflict with built-in app shortcuts. This approach reduces potential support issues. Missing a useful key combination? Let me know, and I will consider adding it.
+
 #### Can the app support clearing clipboard formatting? {#pure-paste}
 
 Check out my [Pure Paste](/pure-paste) app for this. I think it makes more sense as a separate app.
+
+#### How can I run the actions from Raycast or Alfred?
+
+Most of the actions are exposed as Shortcuts actions, so create a shortcut with the action and run it from Raycast or Alfred.
+
+#### Can I trigger the actions using a custom URL scheme?
+
+It's something I plan to support at some point, but for now, you can use Shortcuts, as mentioned above.
 
 #### Can the app support hiding menu bar items?
 
@@ -358,4 +405,13 @@ Much of the functionality would not be possible in the App Store because of [san
 - [] for macOS 15
 
 These are free for everyone but they will not run on newer macOS versions.
+ -->
+
+<!-- TODO: When supercharge 1.13.0 is out.
+
+### Scripting
+
+#### Events
+
+The [distributed notification](/apps/faq#distributed-notifications) `com.sindresorhus.defaultBrowserDidChange` is emitted when the default browser is changed from the app or the Shortcuts action.
  -->

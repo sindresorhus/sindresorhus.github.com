@@ -56,6 +56,8 @@ Please help out by starring these Chrome issues which would help Velja users:
 
 Try the fully functional trial [here](https://www.dropbox.com/scl/fi/ixiyq93dwu8yongaokseg/Velja-2.1.0-trial-1738419324.zip?rlkey=ao7w4lh6exje23w33z3fqitpe&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
+*Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
+
 **Requires macOS 15.2**
 
 ### Tips
@@ -87,6 +89,17 @@ For example, to open all links you click in Slack in Chrome:
 - Select the browser to open. You can even choose a specific Chrome profile.
 - Create a new “Source Apps” matcher and select the app you want. For example, Slack.
 - Click “Save”.
+
+#### Using the Velja browser extension to open links directly in another browser
+
+To open links from one browser to another when clicking the Velja browser extension icon without seeing a prompt:
+
+1. Go to Velja's Advanced settings and disable "Force show prompt when opening from browser extension"
+2. Create a new rule:
+	- Choose your target browser in “Open in”
+	- Add your source browser in “Source Apps”
+
+For example, clicking the Velja extension icon in Safari should now open the link directly in Firefox.
 
 #### Open links in a private/incognito window
 
@@ -386,6 +399,12 @@ Velja does support exporting and importing rules manually.
 
 I don't plan to add this. I recommend giving the horizontal prompt a try. A lot of users found it to work better than vertical/circular.
 
+#### Does it support [Handoff](https://support.apple.com/en-vn/102426)? {#handoff-support}
+
+Yes. It will open the handoff in the chosen primary browser.
+
+Note that it shows the Velja app icon for Handoff, not the chosen primary browser. There is no way to work around this.
+
 #### How can I set the last active browser as the default browser?
 
 You can use the [Shortery](https://apps.apple.com/app/id1594183810) and Shortcuts apps for this. Create a shortcut ([example](https://www.icloud.com/shortcuts/cca638ad5d8548dca7f2cbc8e7eb967b)) for each browser you use. The shortcut should use the “Set Default Browser” action to set the default browser in Velja. In Shortery, create an “Application” trigger for each browser, where you choose the corresponding shortcut and app in the “Application” field ([screenshot](https://www.dropbox.com/scl/fi/pjbimgvq3wtuvp0265vk6/Screenshot-2024-06-30-at-17.41.45-1719762112.png?rlkey=7qgwyxq2woz4zaeib1cs2r5w0&raw=1)). The default browser in Velja will now change when you focus one of those browsers.
@@ -659,6 +678,14 @@ open --background 'velja:open?url=https%3A%2F%2Fsindresorhus.com&app=org.mozilla
 ```
 
 It expects the [bundle identifier](/apps/faq#find-bundle-identifier) of an app. Rules will be ignored when this is specified.
+
+You can also specify a browser profile by adding the `profile` parameter (Velja 2.1.0 and later):
+
+```sh
+open --background 'velja:open?url=https%3A%2F%2Fsindresorhus.com&app=com.google.Chrome&profile=Work'
+```
+
+The `profile` parameter must be used together with the `app` parameter and expects the profile name (not ID). See the Velja settings for supported browsers.
 
 #### Change default browser in Velja from the command-line
 

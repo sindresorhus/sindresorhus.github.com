@@ -14,6 +14,7 @@ olderMacOSVersions:
   - '11'
   - '12'
   - '13'
+  - '14'
 ---
 
 Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.
@@ -26,7 +27,7 @@ Dato is a one-time purchase on the App Store with a lifetime of updates.
 
 #### Features
 
-- Calendar, optionally with week numbers and event indicators.
+- Calendar, optionally with week numbers and event & reminder indicators.
 - Your upcoming events for the next week (customizable) at a glance.
 - Fullscreen meeting notifications.
 - Reminders support.
@@ -35,7 +36,7 @@ Dato is a one-time purchase on the App Store with a lifetime of updates.
 - Time travel for time zones.
 - Deduplicates identical events from different calendars
 - Create events (even with a global keyboard shortcut)
-- Join the next meeting (Zoom/Meet/Teams) with a customizable global keyboard shortcut
+- Join the next video call meeting with a customizable global keyboard shortcut
 - Clocks for multiple time zones in the menu bar.
 - Custom format for the date & time in the menu bar.
 - Highlight certain days of the week in the calendar.
@@ -46,7 +47,8 @@ Dato is a one-time purchase on the App Store with a lifetime of updates.
 - Global keyboard shortcut to open/close the app.
 - Supports calendar events with HTML formatted notes.
 - Show seconds in the menu bar clock or in the menu. (Optional)
-- Zoom, Google Meet, and Microsoft Teams integration. (Shows icon on events and button to quickly join)
+- Integration with Zoom, Google Meet, Microsoft Teams and 50+ other services.
+	- And the ability to add support for any other video call service yourself.
 - Open calendar events from Google Calendar directly in Google Calendar on the web.
 - Comes with multiple menu bar icons to choose from: date in calendar, date with border (like Itsycal), static clock, none.
 - Large text mode.
@@ -61,7 +63,9 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 ### Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/fokrtfbzj64l8w9q8ov7i/Dato-5.4.3-trial-1734185389.zip?rlkey=rohwdtwrk69r78stm0p7u1gqe&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/dywfaid2dx2sg166s6326/Dato-5.5.3-trial-1741424856.zip?rlkey=vwtjb067ow88f1d6bfyxk0sxj&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
+
+*Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
@@ -275,6 +279,25 @@ This is an [issue with Ice](https://github.com/jordanbaird/Ice/discussions/298) 
 
 No. Dato is only available from the App Store and Setapp.
 
+#### Dato quit suddenly
+
+Check if there are any [crash reports](https://sindresorhus.com/apps/faq#crash-report). If none exists, it's likely macOS terminated Dato because it needed to reclaim memory. This is an especially common problem on MacBook Air laptops with only 8 GB RAM. Try restarting your computer.
+
+#### Some calendar events are missing in Dato {#missing-events}
+
+Make sure:
+- The calendar with the event is enabled in Dato.
+- You are on the latest Dato and macOS versions.
+- You have tried restarting your computer.
+- The event is not a declined event, which Dato does not show.
+- You have not hidden the event using the “Hide” action in the event's context menu.
+- You have not excluded the event with the “Exclude events” setting.
+- The event shows up in the Calendar app.
+	- If it does not show up there, the problem is not with Dato.
+	- Try pressing <kbd>Command</kbd>+<kbd>R</kbd> in the Calendar app to force-refresh.
+	- Try signing out and in again of the account in the Calendar app settings. That has helped a few users.
+- [Microsoft Bookings has problems syncing to MacBooks.](https://answers.microsoft.com/en-us/outlook_com/forum/all/bookings-meetings-sync-with-iphone-but-not-with/085530b3-90d2-4792-b0d9-0cc6f52875ba?page=3)
+
 #### The “upcoming event in menu bar” notification is not showing up
 
 Make sure:
@@ -289,6 +312,10 @@ Make sure:
 	- Try quitting Bartender/Ice to make sure it is not one causing the issue.
 	- If you are using Ice, see [this](https://github.com/jordanbaird/Ice/discussions/298).
 		- As a workaround, in the “upcoming event in menu bar” settings, you could choose to keep the menu bar item visible even when there are no upcoming events.
+
+#### The Dato menu bar item is not faded out on inactive displays
+
+This is a macOS bug. macOS replicates the menu bar item on inactive displays and this handling is outside the control of apps. The reason it does not happen for all items is that Dato sets rich-text content.
 
 #### It does not support the video call service I use
 
@@ -340,21 +367,6 @@ If you don't have seconds enabled, please let me know about the excessive CPU us
 This is a macOS 14 bug and unfortunately not something I can work around.
 
 If you work at Apple → [FB13544993](https://github.com/feedback-assistant/reports/issues/457)
-
-#### Some calendar events are missing in Dato {#missing-events}
-
-Make sure:
-- The calendar with the event is enabled in Dato.
-- You are on the latest Dato and macOS versions.
-- You have tried restarting your computer.
-- The event is not a declined event, which Dato does not show.
-- You have not hidden the event using the “Hide” action in the event's context menu.
-- You have not excluded the event with the “Exclude events” setting.
-- The event shows up in the Calendar app.
-	- If it does not show up there, the problem is not with Dato.
-	- Try pressing <kbd>Command</kbd>+<kbd>R</kbd> in the Calendar app to force-refresh.
-	- If it's a Google account, try signing out and in again of the Google account in the Calendar app settings. That has helped a few users.
-- [Microsoft Bookings has problems syncing to MacBooks.](https://answers.microsoft.com/en-us/outlook_com/forum/all/bookings-meetings-sync-with-iphone-but-not-with/085530b3-90d2-4792-b0d9-0cc6f52875ba?page=3)
 
 #### Dato is not in sync with Outlook
 
@@ -607,6 +619,13 @@ Dato integrates with the Reminders app only. However, you can use the Shortcuts 
 
 The Shortcuts app does not yet support automation, so to have the shown todo stay in sync with Things, we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut. Choose the “Application” trigger type and make it trigger when Things becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually.
 
+#### How can I show seconds in the menu bar only when connected to power?
+
+You can use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run a shortcut when connected and disconnected to power, which would show and hide seconds in the menu bar.
+
+- [Show seconds shortcut](https://www.icloud.com/shortcuts/41adf21d1bea44499d5034864687d01d)
+- [Hide seconds shortcut](https://www.icloud.com/shortcuts/dcb7b8c4d66740a8a8ba8abae063e661)
+
 #### Can Dato support Focus Filters? {#focus-filters}
 
 Dato has a focus filter for pausing fullscreen notifications. Ideas for other filters welcome.
@@ -686,10 +705,11 @@ The app comes with support for the Shortcuts app. Look up the app in the Shortcu
 
 #### Events
 
-Dato emits a [distributed notification](https://developer.apple.com/documentation/foundation/distributednotificationcenter) `com.sindresorhus.Dato.joinedVideoCall` when you join a video call from Dato. You could use this to trigger certain actions in apps that can read such events, like [BetterTouchTool](https://folivora.ai).
+The [distributed notification](/apps/faq#distributed-notifications) `com.sindresorhus.Dato.joinedVideoCall` is emitted when you join a video call from Dato.
 
 ### Older Versions
 
+- [5.4.3](https://github.com/user-attachments/files/18981467/Dato.5.4.3.-.macOS.14.zip) for macOS 14
 - [5.1.3](https://github.com/sindresorhus/meta/files/14097627/Dato.5.1.3.-.macOS.13.zip) for macOS 13
 - [4.3.3](https://github.com/sindresorhus/meta/files/10516478/Dato.4.3.3.-.macOS.12.zip) for macOS 12
 - [3.3.8](https://github.com/sindresorhus/meta/files/8935698/Dato.3.3.8.-.macOS.11.zip) for macOS 11
@@ -704,22 +724,22 @@ These are free for everyone but they will not run on newer macOS versions.
 	"@type": "SoftwareApplication",
 	"applicationCategory": "BusinessApplication",
 	"name": "Dato",
-	"operatingSystem": "macOS 14",
+	"operatingSystem": "macOS 15",
 	"aggregateRating": {
 		"@type": "AggregateRating",
 		"ratingValue": "4.9",
-		"ratingCount": "669"
+		"ratingCount": "727"
 	},
 	"offers": {
 		"@type": "Offer",
-		"price": "11.00",
+		"price": "16.00",
 		"priceCurrency": "USD"
 	},
 	"datePublished": "2019-07-13",
 	"headline": "Dato — Calendar events and world clocks in your menu bar",
 	"alternativeHeadline": "Calendar events and world clocks in your menu bar",
 	"downloadUrl": "https://apps.apple.com/app/id1470584107",
-	"softwareVersion": "5.3.5",
+	"softwareVersion": "5.5.0",
 	"screenshot": "https://sindresorhus.com/_astro/screenshot1.IX_7bQOQ.jpg",
 	"fileSize": "15MB",
 	"description": "Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.",

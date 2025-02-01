@@ -11,11 +11,11 @@ appStoreId: 1672085276
 olderMacOSVersions:
   - '13'
 feedbackNote: |
-  [Refunds](/apps/faq#refund)
-
-  Please don't contact me about Whisper v3 turbo support. I'm looking into it.
+  [Refunds](/apps/faq#refund
 
   If the app crashes, it's likely that the device ran out of available RAM. Restart your device and try again.
+
+  No need to contact me about Whisper v3 turbo support. I'm looking into it.
 
   Any problems with the output are unfortunately out of my control. The app uses the OpenAI Whisper AI model to transcribe. The model has some flaws with certain recordings like repetition, hallucination, and refusal to produce text.
 ---
@@ -140,7 +140,9 @@ The app uses the Whisper large v2 model on macOS and the medium or small model o
 
 ### Trial
 
-You can try out a time-limited trial (14 days) on [TestFlight](https://testflight.apple.com/join/P1qnhHCC).
+Try Aiko free for 14 days via [TestFlight](https://testflight.apple.com/join/P1qnhHCC). It's the full app, no limitations. No auto-charges or commitment. Simply purchase it from the App Store after the trial if you want to continue using it.
+
+*Disregard where it says how many days there are left. It means the days left of the current TestFlight build, not how long you have left on your trial.*
 
 ### Tips
 
@@ -231,7 +233,12 @@ I have no control over the supported languages. You could try to request it [her
 
 #### The transcription repeats itself many times
 
-This is unfortunately a flaw in the Whisper model and out of my control. This is usually caused by the audio not being clean (for example, a lot of background noise).
+This is unfortunately a flaw in the Whisper AI model and out of my control. This is usually caused by the audio not being clean (for example, a lot of background noise).
+
+Some things you could try:
+- Restart your device.
+- Try enabling the “Reduce repetitions” setting.
+- If you don't needs timestamps, you can disable them being produced, which can sometimes reduce repetitions. Triple-tap on the “Translate to English” text in the settings and then disable the “Produce timestamps” setting.
 
 #### The transcription is missing punctation
 
