@@ -6,6 +6,8 @@ platforms:
   - macOS
 isMenuBarApp: true
 appStoreId: 6450279539
+olderMacOSVersions:
+  - '14'
 ---
 
 The app is simple by design.
@@ -16,9 +18,7 @@ Check out [Dato](/dato) for more features and settings or [UTC Time](/utc-time) 
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Second%20Clock&referrer=Website-FAQ)
-
-*Tip: You can also click the feedback button in the app.*
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Second%20Clock&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
@@ -56,6 +56,8 @@ I don't plan to support that directly, but here are additional builds of the app
 - [Second Clock 5](https://github.com/sindresorhus/meta/files/13830075/Second.Clock.5.zip)
 - [Second Clock 6](https://github.com/sindresorhus/meta/files/13830074/Second.Clock.6.zip)
 
+*Requires macOS 14 or later*
+
 My [Dato](/dato) app supports unlimited time zone clocks with settings like color and size.
 
 #### Can you add text weight and color settings?
@@ -72,10 +74,14 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 #### [More FAQs…](/apps/faq)
 
+### Older Versions
+
+- [1.0.2](https://github.com/user-attachments/files/18694293/Second.Clock.1.0.2.-.macOS.14.zip) for macOS 14+
+
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/hcnyygw1tgvuuu4vt3u2c/Second-Clock-1.0.2-1705924022.zip?rlkey=uicv5a7uwrwg8fpucms7sg5x6&raw=1) *(1.0.2)*
+[Download](https://www.dropbox.com/scl/fi/v4owb8qukgdupn4zugztn/Second-Clock-1.1.0-1738865055.zip?rlkey=0qc40wcxbe2bjszi47xv31zw6&raw=1) *(1.1.0)*
 
-*Requires macOS 14 or later*
+*Requires macOS 15 or later*

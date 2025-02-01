@@ -6,6 +6,7 @@ platforms:
   - macOS
 isPaid: true
 isMenuBarApp: true
+releasesRepo: default-browser-meta
 mainLinks:
   'Buy': https://buy.polar.sh/polar_cl_tWjWd0yRVXb9w0bhohTfxkqjwMUsjpegZM1na4HH9ER
 # olderMacOSVersions:
@@ -122,4 +123,4 @@ The app includes a [Focus filter](https://support.apple.com/guide/mac-help/mchl6
 
 #### Events
 
-The app emits a [distributed notification](https://developer.apple.com/documentation/foundation/distributednotificationcenter) `com.sindresorhus.defaultBrowserDidChange` when the default browser is changed from the app or the Shortcuts action. You could use this to trigger certain actions in apps that can read such events, like [BetterTouchTool](https://folivora.ai).
+The [distributed notification](/apps/faq#distributed-notifications) `com.sindresorhus.defaultBrowserDidChange` is emitted when the default browser is changed from the app or the Shortcuts action.

@@ -11,13 +11,19 @@ appStoreId: 6504709660
 #   - '14'
 ---
 
-Check if you are online directly from the menu bar. The menu bar icon turns red when you are offline and it optionally shows a notification.
+Check if you are online directly from the menu bar. The menu bar icon turns red when you are offline, and the app can optionally show a notification.
+
+Unlike just checking if Wi-Fi is connected, the app verifies actual internet connectivity through network tests.
 
 ### Tips
 
 #### Connect to other Wi-Fi when status is offline
 
 You can have the app connect to a different Wi-Fi if the current one becomes offline. Add [this shortcut](https://www.icloud.com/shortcuts/bf64ec8fd3d24f80b2af845464306614) to the Shortcuts app and edit the required information. Then select this shortcut in the Online Check settings.
+
+#### Restart Wi-Fi when status is offline
+
+You could also restart the Wi-Fi when it becomes offline. Add [this shortcut](https://www.icloud.com/shortcuts/8bbe914b13ff4f3ab9f063e835c92747).
 
 ### Frequently Asked Questions {#faq}
 
@@ -47,7 +53,7 @@ Every 20 seconds and anytime the network changes, it sends a HEAD request to “
 
 #### Can you make the history persistent?
 
-It's something I'm considering. Share your use-case through the feedback button in the app to increase the likelyhood of me doing this.
+It's something I'm considering.
 
 #### Can you make the menu bar icon green when online? {#green-icon}
 

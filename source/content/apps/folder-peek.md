@@ -9,8 +9,9 @@ appStoreId: 1615988943
 olderMacOSVersions:
   - '12'
   - '13'
+  - '14'
 feedbackNote: |
-  If the app is not working after updating to macOS 15, restart your computer once more and it should work. This is a macOS 15 bug. If it still doesn't work, Apple has told me it will be fixed in macOS 15.1.
+  If the app is not working after updating to macOS 15, restart your computer once more and it should work. This is a macOS 15 bug.
 ---
 
 <br>
@@ -205,6 +206,7 @@ I don't plan to localize the app.
 
 ### Older Versions
 
+- [1.11.5](https://github.com/user-attachments/files/18925258/Folder.Peek.1.11.5.-.macOS.14.zip) for macOS 14+
 - [1.9.2](https://github.com/sindresorhus/meta/files/13980050/Folder.Peek.1.9.2.-.macOS.13.zip) for macOS 13+
 - [1.6.1](https://github.com/sindresorhus/meta/files/10901140/Folder.Peek.1.6.1.-.macOS.12.zip) for macOS 12+
 
@@ -212,6 +214,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/flv8w2o4ffp8f1kwzj2gv/Folder-Peek-1.11.3-1726668648.zip?rlkey=dbxv3qcd5y8n1flw2siqbk43z&raw=1) *(1.11.3)*
+[Download](https://www.dropbox.com/scl/fi/30gu98tp3nati88qjeojs/Folder-Peek-1.12.0-1740254505.zip?rlkey=ajsfxew6c1izfsvgk78twj8ia&raw=1) *(1.12.0)*
 
-*Requires macOS 14 or later*
+*Requires macOS 15 or later*

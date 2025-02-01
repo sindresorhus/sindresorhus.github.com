@@ -27,6 +27,12 @@ const meta = {
 	ogTitle: app.title,
 	ogType: 'product',
 	appStoreId: app.appStoreId,
+	rssFeeds: [
+		{
+			title: `${app.title} Release Notes`,
+			href: `/${app.slug}/rss.xml`,
+		},
+	],
 };
 
 const {title: appTitle, appStoreUrl} = app;
@@ -100,6 +106,9 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 							))}
 							{!app.isArchived && app.appStoreId && (
 								<option value={app.appStoreUrl}>What’s New</option>
+							)}
+							{!app.isArchived && app.releasesRepo && (
+								<option value={`/${app.slug}/release-notes`}>Release Notes</option>
 							)}
 							{!app.isArchived && (
 								<option value={`/${app.slug}/privacy-policy`}>Privacy Policy</option>

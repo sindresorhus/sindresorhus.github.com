@@ -8,6 +8,7 @@ appStoreId: 1596706466
 olderMacOSVersions:
   - '12'
   - '13'
+  - '14'
 ---
 
 Quickly check your internet connection speed, ping, and [RPM](#rpm).
@@ -28,7 +29,7 @@ Tip: If you have limited space in the menu bar, you could switch the info shown 
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Speediness&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Speediness&referrer=Website-FAQ)
 
 #### Why does it show different result from other tools? {#different-result}
 
@@ -74,7 +75,7 @@ Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet
 
 #### How can I run the speed test automatically every hour? {#scheduled}
 
-Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet Speed” action into the shortcut editor. You may want to enable the “Add to History” action setting. [Get the Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12) and set it to run this shortcut every hour or at an interval of your choosing.
+Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet Speed” action into the shortcut editor. You may want to enable the “Add to History” action setting. [Get the Shortery app](https://apps.apple.com/app/id1594183810) and set it to run this shortcut every hour or at an interval of your choosing.
 
 #### Can you add support for iOS? {#ios}
 
@@ -100,6 +101,7 @@ I don't plan to localize the app.
 
 ### Older Versions
 
+- [1.7.2](https://github.com/user-attachments/files/18912491/Speediness.1.7.2.-.macOS.14.zip) for macOS 14+
 - [1.6.1](https://github.com/sindresorhus/meta/files/13965129/Speediness.1.6.1.-.macOS.13.zip) for macOS 13+
 - [1.5.0](https://github.com/sindresorhus/meta/files/10847708/Speediness.1.5.0.-.macOS.12.zip) for macOS 12+
 
@@ -107,6 +109,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/fz7g9b5zjuvj0jehefuuv/Speediness-1.7.0-1705505161.zip?rlkey=d1otns1la8mygh2a4uebb08pg&raw=1) *(1.7.0)*
+[Download](https://www.dropbox.com/scl/fi/1n872jboa9mczjmq8prxf/Speediness-1.8.0-1740153967.zip?rlkey=pu6hjxy5smwbhpj61bhq3fpg9&raw=1) *(1.8.0)*
 
-*Requires macOS 14 or later*
+*Requires macOS 15 or later*
