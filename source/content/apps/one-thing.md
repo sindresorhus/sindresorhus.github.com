@@ -9,6 +9,7 @@ appStoreId: 1604176982
 olderMacOSVersions:
   - '12'
   - '13'
+  - '14'
 ---
 
 This can be a useful tool to help you focus on a single task.
@@ -171,6 +172,7 @@ defaults read com.sindresorhus.One-Thing text
 
 ### Older Versions
 
+- [1.12.2](https://github.com/user-attachments/files/19145029/One.Thing.1.12.2.-.macOS.14.zip) for macOS 14+
 - [1.11.3](https://github.com/sindresorhus/meta/files/14759175/One.Thing.1.11.3.-.macOS.13.zip) for macOS 13+
 - [1.9.0](https://github.com/sindresorhus/meta/files/11081660/One.Thing.1.9.0.-.macOS.12.zip) for macOS 12+
 
@@ -178,6 +180,6 @@ defaults read com.sindresorhus.One-Thing text
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/djlxpnzgyko826sdwkulf/One-Thing-1.12.0-1707465000.zip?rlkey=jbth4wugckqcf49aiw8m3hzzp&raw=1) *(1.12.0)*
+[Download](https://www.dropbox.com/scl/fi/q9rm992wh0ohloi84hnxa/One-Thing-1.13.1-1741673626.zip?rlkey=rxkvdki7glpvehvtve8e6pgg3&raw=1) *(1.13.1)*
 
-*Requires macOS 14 or later*
+*Requires macOS 15 or later*

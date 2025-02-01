@@ -33,7 +33,7 @@ The app uses iCloud syncing to securely send links from your iOS/visionOS device
 
 ### Troubleshooting
 
-- If the “Send to Mac” button is not showing up in share sheets, you may have to enable it at the bottom of the share sheet. You may even have to restart your device for it to show up (iOS bugs…).
+- If the “Send to Mac” button is not showing up in share sheets, you may have to enable it at the bottom of the share sheet with the “Edit Actions” button. You may even have to restart your device for it to show up (iOS bugs…).
 - Ensure Hyperduck is running on the Mac.
 - Hyperduck opens links in the background. Ensure you didn't miss it.
 - Try opening the Hyperduck iOS app to force a sync.

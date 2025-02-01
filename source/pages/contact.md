@@ -28,10 +28,12 @@ window.history.replaceState({}, '', url);
 
 # Contact
 
-<div class="sm:-mt-2 not-prose text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-secondary-500 sm:whitespace-nowrap hover:underline hover:underline-offset-8 hover:decoration-4 decoration-black dark:decoration-white">
-	<a id="contact-email" href="mailto:sindresorhus@gmail.com">sindresorhus@gmail.com</a>
+<div class="sm:-mt-2 not-prose font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-secondary-500 hover:underline hover:underline-offset-8 hover:decoration-4 decoration-black dark:decoration-white">
+	<a id="contact-email" href="mailto:sindresorhus@gmail.com" class="text-[clamp(0.5rem,6vw,1.875rem)]">sindresorhus@gmail.com</a>
 </div>
 
 I value my time, so make it worth it, and [keep it succinct](https://www.google.com/search?q=succinct+emails).
+
+I don't do calls. And no job offers.
 
 For app-related queries, use the in-app feedback button or the support link on the app's page.

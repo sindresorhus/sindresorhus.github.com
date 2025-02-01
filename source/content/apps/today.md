@@ -8,6 +8,7 @@ isMenuBarApp: true
 appStoreId: 6443714928
 olderMacOSVersions:
   - '13'
+  - '14'
 ---
 
 The perfect companion to the built-in Calendar app. Just the events for today. Click an event to show it in the Calendar app. It also gives you a quick way to directly join an upcoming video call.
@@ -119,10 +120,6 @@ MeetingBar is mainly for video calls and has a gadzillion settings and features 
 
 Meeter is mainly for video calls. It's also quite buggy and does not follow macOS conventions. Today has a cleaner look and is opinionated so you don't have to make so many choices. If all you need is a quick way to join video calls, Today is probably what you want. If you need more advanced features, MeetingBar or [Dato](/dato) may be a better choice.
 
-#### How can I export, import, sync, or back up the settings?
-
-[See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
@@ -131,12 +128,13 @@ I don't plan to localize the app.
 
 ### Older Versions
 
+- [1.6.2](https://github.com/user-attachments/files/18873369/Today.1.6.2.-.macOS.14.zip) for macOS 14+
 - [1.5.0](https://github.com/sindresorhus/meta/files/13997505/Today.1.5.0.-.macOS.13.zip) for macOS 13+
 
 ### Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/68bf6aeuqqo98f2ehkt2o/Today-1.6.0-1705754077.zip?rlkey=pv4pe6d3nd3flxf44py1vxkas&raw=1) *(1.6.0)*
+[Download](https://www.dropbox.com/scl/fi/1b6ifxx3ho9m62k8f9bt9/Today-1.7.0-1739987244.zip?rlkey=drhxcupuckz358mont0xbemoj&raw=1) *(1.7.0)*
 
-*Requires macOS 14 or later*
+*Requires macOS 15 or later*

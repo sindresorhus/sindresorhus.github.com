@@ -56,6 +56,13 @@ For example:
 
 The iOS widget system is quite buggy and can fail a lot. This is not a problem with the app and out of my control. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
 
+#### The widget is blank
+
+Try this:
+- Restart your device.
+- Change the language of the device to something else  and then back.
+- Ensure Lock Screen widgets are allowed to show content while the device is locked at “Settings › Face ID & Passcode › Allow Access When Locked › Lock Screen Widgets”.
+
 #### Can you support having multiple pieces of text that change during the day?
 
 I would like to keep the app simple, so it's not something I plan to support built-in. However, the app comes with a shortcut action to change the text, so you could use the [Shortcuts automations](https://support.apple.com/guide/shortcuts/apdfbdbd7123/7.0/ios/17.0) to change the text during the day.

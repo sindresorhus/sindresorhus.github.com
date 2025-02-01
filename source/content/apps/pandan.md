@@ -10,13 +10,14 @@ olderMacOSVersions:
   - '11'
   - '12'
   - '13'
+  - '14'
 ---
 
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Pandan&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Pandan&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
@@ -66,10 +67,6 @@ Make a [shortcut](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcu
 
 Tip: Shortcuts can be a bit slow sometimes. You can use this command to have it not wait for the shortcut to finish running: `(&>/dev/null shortcuts run ShortcutName &)`
 
-#### How can I export, import, sync, or back up the settings?
-
-[See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
-
 #### Why is this free without ads?
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
@@ -102,6 +99,7 @@ Tip: You can [run shortcuts from the command-line](https://support.apple.com/gui
 
 ### Older Versions
 
+- [1.16.0](https://github.com/user-attachments/files/19008473/Pandan.1.16.0.-.macOS.14.zip) for macOS 14+
 - [1.15.0](https://github.com/sindresorhus/meta/files/14230031/Pandan.1.15.0.-.macOS.13.zip) for macOS 13+
 - [1.13.2](https://github.com/sindresorhus/meta/files/11072195/Pandan.1.13.2.-.macOS.12.zip) for macOS 12+
 - [1.9.1](https://github.com/sindresorhus/meta/files/8003835/Pandan.1.9.1.-.macOS.11.zip) for macOS 11+
@@ -110,6 +108,6 @@ Tip: You can [run shortcuts from the command-line](https://support.apple.com/gui
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/hlvorsw06mvf832dt2e3q/Pandan-1.16.0-1707587381.zip?rlkey=r2xffuz4jietc7p0jagtrt7r4&raw=1) *(1.16.0)*
+[Download](https://www.dropbox.com/scl/fi/p8k3k0mrtnzhl8oi71jxh/Pandan-1.17.0-1740657032.zip?rlkey=khwqsky1waqt9aumj7tc5nw5v&raw=1) *(1.17.0)*
 
-*Requires macOS 14 or later*
+*Requires macOS 15 or later*

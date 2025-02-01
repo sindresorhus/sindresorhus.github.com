@@ -51,6 +51,12 @@ Try the fully functional trial of the macOS app [here](https://www.dropbox.com/s
 - After enabling sync, try writing some more text on all the devices.
 - [More…](/apps/faq#icloud-sync)
 
+#### Keyboard shortcuts <sup>macOS</sup>
+
+- Increase text size: <kbd>⌘+</kbd>
+- Decrease text size: <kbd>⌘-</kbd>
+- Reset text size: <kbd>⌘0</kbd>
+
 #### Launch app from Lock Screen
 
 Quickly open the app using the built-in Lock Screen widget. For more customization options, you can also use my [Quick Launch](/quick-launch) app.
@@ -168,7 +174,7 @@ Scratchpad advantages:
 - Simpler, focused design: A single plain text note for minimal distraction.
 - Can float on top of other windows in menu bar mode.
 - iCloud sync is optional. Tot does not have a setting to turn off iCloud sync.
-- More affordable pricing: $5 vs $20 for Tot.
+- More affordable pricing: $8 vs $20 for Tot.
 - visionOS support.
 - Unlimited note size. Tot is limited to 100,000 characters.
 - Translucent background on macOS.

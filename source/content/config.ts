@@ -27,6 +27,7 @@ const appsCollection = defineCollection({
 		overflowLinks: z.record(z.string().url()).optional(),
 		showSupportLink: z.boolean().default(true),
 		redirectUrl: z.string().url().optional(),
+		releasesRepo: z.string().optional(),
 		forceHasIosAppIcon: z.boolean().optional(), // // We can use `forceHasIosAppIcon` for both true/false override.
 		olderMacOSVersions: z.array(z.enum([
 			'10.13',

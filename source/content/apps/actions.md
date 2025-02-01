@@ -12,7 +12,10 @@ links:
 olderMacOSVersions:
   - '12'
   - '13'
+  - '14'
 feedbackNote: |
+  ## The “Get Device Orientation” action has been deprecated, since there is now a built-in [“Get Orientation”](https://www.idownloadblog.com/2024/03/12/ios-17-4-new-apple-shortcuts-actions/) action.
+
   ### If you get a “com.apple.extensionKit.errorDomain error 2” error when running your shortcut or if the actions don't show up in the Shortcuts app, restart your device. You could also try setting a different device language and then back. If you just updated the operating system, give it some time to re-index all shortcut actions. Please don't contact me about this issue. This is a problem with iOS/macOS and out of my control.
 
   **Some actions that are not possible: orientation lock status, flashlight status, ambient sensor info, flight mode status, [and more](/actions#impossible-actions). Generally, anything related to changing system features/settings or interacting with other apps is not possible.**
@@ -60,11 +63,14 @@ If you have any questions about how to use the different actions or for what, tr
 - Format Number as Ordinal
 - Format Number — Compact
 - Format Person Name
+- Format Text List
+	<span class="list-description">`["A", "B", "C"]` → `A, B, and C`</span>
 - Generate CSV
 - Generate Haptic Feedback <sup>(iOS-only)</sup>
 - Generate Random Data
 - Generate Random Text
 - Generate UUID
+- Get All System Colors
 - Get Audio Playback Destination <sup>(iOS-only)</sup>
 - Get Average Color
 - Get Average Color of Image
@@ -79,8 +85,16 @@ If you have any questions about how to use the different actions or for what, tr
 	- Uptime (including sleep)
 	- Active processor count
 	- Physical memory
+	- Time zone
 	- Hostname
 	- Thermal state
+	- Total storage capacity
+	- Available storage capacity
+	- Battery condition <sup>(macOS-only)</sup>
+	- Battery health <sup>(macOS-only)</sup>
+	- Serial number <sup>(macOS-only)</sup>
+- Get Device Motion Activity
+	<span class="list-description">(stationary, walking, running, cycling, automotive, etc.)</span>
 - Get Device Motion Data <sup>(iOS-only)</sup>
 - Get Device Orientation
 - Get Dominant Colors of Image
@@ -109,9 +123,19 @@ If you have any questions about how to use the different actions or for what, tr
 - Get Running Apps <sup>(macOS-only)</sup>
 - Get Sentences from Text
 - Get SF Symbol Image
+- Get System Color
 - Get Title of URL
 - Get Uniform Type Identifier / Set Uniform Type Identifier
 - Get User Details
+	- Username <sup>(macOS-only)</sup>
+	- Full Name
+	- Given Name
+	- Family Name
+	- Initials
+	- Shell
+	- Language Code
+	- Idle Time <sup>(macOS-only)</sup>
+	- Administrator Status <sup>(macOS-only)</sup>
 - Get Values Using JSONPath
 - Global Variable
 - Hex Encode
@@ -132,10 +156,12 @@ If you have any questions about how to use the different actions or for what, tr
 - Is Device Moving
 - Is Device Orientation
 - Is Host Reachable
+- Is Location Services Enabled
 - Is Low Power Mode On
 - Is Microphone On <sup>(macOS-only)</sup>
 - Is Online
 - Is Screen Locked <sup>(macOS-only)</sup>
+- Is Screen Saver Active
 - Is Shaking Device
 - Is Silent Mode On <sup>(iOS-only)</sup>
 - Is Time
@@ -163,7 +189,10 @@ If you have any questions about how to use the different actions or for what, tr
 - Sample Color from Screen <sup>(macOS-only)</sup>
 - Scan Documents <sup>(iOS-only)</sup>
 - Scan QR Codes in Image
+- Send Distributed Notification <sup>(macOS-only)</sup>
+	- [What are distributed notifications?](/apps/faq#distributed-notifications)
 - Set Creation and Modification Date of File
+- Show Black Screen <sup>(iOS-only)</sup>
 - Show Notification
 - Shuffle List
 - Sort List
@@ -197,6 +226,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Truncate List
 - Truncate Number
 - Truncate Text
+- Wait for Distributed Notification <sup>(macOS-only)</sup>
+	- [What are distributed notifications?](/apps/faq#distributed-notifications)
 - Wait Milliseconds
 - Write or Edit Text
 
@@ -205,18 +236,19 @@ If you have any questions about how to use the different actions or for what, tr
 - High-quality transcription (speech to text) in 100 languages → [Aiko](/aiko)
 - Trigger shortcuts on your Mac from your iOS device → [Hyperduck](/hyperduck#shortcuts)
 - Set default browser → [Supercharge](/supercharge) & [Default Browser](/default-browser)
+- Use the ChatGPT API, Ollama, Groq → [AI Actions](/ai-actions)
 - Show text in menu bar → [One Thing](/one-thing)
 - Open URLs in a specific browser → [Velja](/velja)
 - Remove tracking parameters from URLs → [Velja](/velja) & [Pure Paste](/pure-paste)
+- Check if online → [Online Check](/online-check)
 - Generate images from text with AI locally → [Amazing AI](/amazing-ai)
 - Clear clipboard formatting → [Pure Paste](/pure-paste)
 - Get internet speed → [Speediness](/speediness)
 - Join video calls → [Dato](/dato)
 - Put text on the iOS Lock Screen → [Any Text](/any-text)
-- Get random animated GIF → [Jiffy](/jiffy)
-- Get clipboard items → [Pasteboard Viewer](/pasteboard-viewer)
 - Preview app icons → [Icon Preview](/icon-preview)
-- Use the ChatGPT API, Ollama, Groq → [AI Actions](/ai-actions)
+- Get clipboard items → [Pasteboard Viewer](/pasteboard-viewer)
+<!-- - Get random animated GIF → [Jiffy](/jiffy) -->
 
 #### Impossible actions {#impossible-actions}
 
@@ -266,6 +298,7 @@ iOS does not have a way to prevent individual apps from being offloaded (even th
 
 ### Older versions
 
+- [3.5.1](https://github.com/user-attachments/files/18963268/Actions.3.5.1.-.macOS.14.zip) for macOS 14+
 - [2.10.0](https://www.dropbox.com/scl/fi/lzy4po8qfggroxcv9pzdo/Actions-2.10.0-1731826197.zip?rlkey=f37xihlhq45syauygdn5268un&raw=1) for macOS 13+
 - [1.13.1](https://www.dropbox.com/scl/fi/9iqfn8airygpk0la4gv1u/Actions-1.13.1-1731826428.zip?rlkey=y4u5ni2pn28rp3lse08lv96k6&raw=1) for macOS 12+
 
@@ -273,4 +306,4 @@ iOS does not have a way to prevent individual apps from being offloaded (even th
 
 A special macOS version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://github.com/sindresorhus/meta/files/13718302/Actions.3.0.0.zip) *(3.0.0 · macOS 14+)*
+[Download](https://www.dropbox.com/scl/fi/p1mxfqhy35ih6semoh28b/Actions-3.6.0-1740482537.zip?rlkey=u9p8r3gpqtbkslti39ttte1pa&raw=1) *(3.6.0 · macOS 15+)*

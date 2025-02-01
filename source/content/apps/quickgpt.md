@@ -5,6 +5,7 @@ pubDate: 2023-04-12
 platforms:
   - macOS
 isPaid: true
+releasesRepo: quickgpt-meta
 mainLinks:
   'Download': https://sindresorhus.gumroad.com/l/quickgpt?wanted=tru
 olderMacOSVersions:

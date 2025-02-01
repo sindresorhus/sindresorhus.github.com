@@ -33,9 +33,20 @@ Apps purchased on Gumroad can be used by one user on unlimited computers.
 
 This is unfortunately [not possible](https://apple.stackexchange.com/a/444878). App developers have no control over the purchase process on the Apple App Store.
 
+### Can I get an invoice?
+
+Apps purchased on:
+
+- [Apple App Store](https://apple.stackexchange.com/questions/425441/invoice-for-purchases-made-on-app-store)
+- [Gumroad](https://gumroad.com/help/article/194-i-need-an-invoice.html#How-to-generate-your-invoice-from-the-receipt-wpmBD)
+
 ### Do you provide any discounts?
 
 Yes. See the [discounts](/apps/discounts) page.
+
+### Can your app be available on Setapp? {#setapp}
+
+Setapp curates apps based on demand, so if you'd like to see an app of mine on Setapp, [email them](https://support.setapp.com/hc/en-us/articles/4950254561052-How-to-contact-Setapp-team#:~:text=to%20your%20issue.-,Send%20an%20email,%3A%20support%40setapp.com.) and request its inclusion.
 
 ### Are your apps native?
 
@@ -133,6 +144,17 @@ xattr -d com.apple.quarantine -r /Applications/AppName.app
 
 Replace `AppName` with the name of the app. [Learn more.](https://superuser.com/a/28400/6877)
 
+### Your app is using a lot of CPU {#high-cpu}
+
+If you notice high CPU usage for one of my apps in Activity Monitor, don't be alarmed. [CPU usage numbers can be misleading](https://eclecticlight.co/2022/02/24/cpu-percentage-is-misleading-on-m1-macs/), especially on modern Apple Silicon Macs. Here's why:
+
+- The percentage shown is the total across all CPU cores. For example, on an 8-core Mac, 10% usage of a single core only represents about 1.5% of total capacity
+- Activity Monitor doesn't distinguish between efficiency (E) and performance (P) cores
+- Many background tasks run on efficient low-power cores, minimizing battery impact
+- The CPU percentage updates every 5 seconds by default, so even brief spikes appear longer
+
+For a more accurate assessment, look at the “CPU Time” column in Activity Monitor instead of the CPU percentage. This shows the actual processor time used by the app. If you notice unusual battery drain, please [contact me](/feedback) as there might be an actual issue to investigate.
+
 ### How do I find the bundle identifier of a Mac app? {#find-bundle-identifier}
 
 To get the bundle identifier of an app, run the following in the Terminal app:
@@ -152,6 +174,14 @@ A bundle identifier (or bundle ID) uniquely identifies an app in Apple's ecosyst
 ### What is the macOS app sandbox? {#macos-sandbox}
 
 The macOS app sandbox is like putting each app in a fenced yard. It keeps the app from wandering off and messing with other apps or your system, which makes your Mac safer. However, the fence is very strict—it can stop apps from doing creative or powerful things, even when you want them to. All apps on the Mac App Store must be sandboxed, which means some advanced features or workflows might not be possible.
+
+### What are distributed notifications? {#distributed-notifications}
+
+[Distributed notifications](https://developer.apple.com/documentation/foundation/distributednotificationcenter) is a communication mechanism on macOS that allows apps to send invisible system-wide signals that other apps can listen to. When one app sends a notification, another app can wait for it and then do something.
+
+For example, [Dato](/dato) sends a distributed notification when you join a video call, which other apps can listen for and do something when it happens. And [Default Browser](/default-browser) sends a distributed notification when the default browser is changed.
+
+To listen to such notifications, you could use the “Wait for Distributed Notification” action in the [Actions](/actions) app or use [BetterTouchTool](https://folivora.ai).
 
 ### I have enabled “launch at login” but the app does not launch when I start my computer {#launch-at-login-not-working}
 
@@ -191,6 +221,21 @@ If you have tried all of this, [contact me](/feedback).
 - If using a VPN, try disconnecting it, as some VPNs can interfere with iCloud syncing.
 - If it's a work device, make sure there are no restrictions in place that prevents iCloud or iCloud Drive.
 - Check the [iCloud system status](https://www.apple.com/support/systemstatus/) to ensure the service is not experiencing issues.
+
+##### Keyboard shortcuts or text expansion suddenly stopped working {#secure-input-problem}
+
+If keyboard shortcuts or text expansion suddenly stops working, it's likely because an app is using Secure Input - a macOS security feature that blocks other apps from reading keystrokes. While this is intended for sensitive contexts like password fields, apps sometimes fail to properly disable it. Common culprits are password managers like Bitwarden and 1Password, even when running in the background. Safari can also sometimes cause this.
+
+You can try:
+1. Quit password managers and browsers.
+1. Quit all apps.
+1. Putting the computer to sleep and then waking it up and logging in again usually fixes it.
+1. If nothing else works, restart your computer.
+1. Use the “Get Apps Using Secure Input” action from [Shortcutie](/shortcutie) to identify the problematic app and quit it.
+
+The issue often occurs when an app requests Secure Input while in the background, causing it to get "stuck" in secure mode.
+
+[Learn more ›](https://espanso.org/docs/troubleshooting/secure-input/)
 
 ### How can I send you debug info for one of your apps? {#debug-info}
 

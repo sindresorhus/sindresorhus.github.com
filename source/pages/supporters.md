@@ -104,6 +104,10 @@ None -->
 	<a href="https://www.fame.fi" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/fame-logo-light.svg" width="200" alt="Fame Helsinki">
 	</a>
+	<a href="https://fetchfox.ai?ref=sindre" class="sponsor" rel="nofollow">
+		<img src="/assets/thanks/fetchfox-logo.svg" width="120" alt="FetchFox">
+		<span class="dark:text-black" style="font-size: 36px">FetchFox</span>
+	</a>
 </div>
 
 ## Top supporter <span class="reward-price not-prose">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
