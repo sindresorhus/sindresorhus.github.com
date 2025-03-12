@@ -18,6 +18,8 @@ const normalizeApps = async app => {
 
 	const {Content, headings} = await app.render();
 
+	const NON_APP_STORE_VERSION = 'Non-App Store Version';
+
 	const headerLinks = headings
 		.filter(header => header.depth === 3)
 		.map(({text, slug}) => {
@@ -29,10 +31,17 @@ const normalizeApps = async app => {
 			return [text, `#${slug}`];
 		});
 
+	const {[NON_APP_STORE_VERSION]: nonAppStoreLink, ...regularLinks} = Object.fromEntries(headerLinks);
+
 	const links = {
-		...Object.fromEntries(headerLinks),
+		...regularLinks,
 		...data.links,
 		...(data.showSupportLink && !data.isArchived && {Support: `/feedback?product=${encodeURIComponent(data.title)}`}),
+	};
+
+	const overflowLinks = {
+		...data.overflowLinks,
+		...(nonAppStoreLink && {[NON_APP_STORE_VERSION]: nonAppStoreLink}),
 	};
 
 	let videos = await import.meta.glob('~/../public/apps/*/video*.mp4', {eager: false});
@@ -73,6 +82,7 @@ const normalizeApps = async app => {
 		isNew: pubDate > date30DaysAgo,
 		mainLinks,
 		links,
+		overflowLinks,
 		hasFaqSection,
 		videos,
 		screenshots,
