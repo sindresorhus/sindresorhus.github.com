@@ -34,6 +34,10 @@ On macOS, the app sits in your menu bar or Dock, ready whenever inspiration stri
 
 Perfect for brain dumps, quick drafts, and fleeting ideas. Your thoughts are just a click away, without breaking your workflow.
 
+It's an [Universal Purchase](/apps/faq#universal-purchase).
+
+[Review by MacStories](https://www.macstories.net/reviews/scratchpad-the-cross-device-text-utility-that-pairs-perfectly-with-your-clipboard-manager/)
+
 <a href="https://www.producthunt.com/posts/scratchpad-3?embed=true&utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-scratchpad&#0045;3" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=486333&theme=light&period=daily" alt="Scratchpad - Quick&#0032;notes&#0044;&#0032;always&#0032;available | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
 #### Privacy

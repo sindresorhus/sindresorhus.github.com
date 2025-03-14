@@ -49,6 +49,8 @@ Improve your Mac experience with a bunch of useful functionality:
   <span class="list-description">These are usually forced to be shown by macOS.</div>
 - [Show markup tools by default in screenshot preview](https://github.com/user-attachments/assets/20b0cfe8-d588-4329-9132-9120b32da7ff)
 - Auto-open screenshot preview after capturing
+- [Show input devices in the Sound menu bar item menu](https://github.com/user-attachments/assets/e6015206-c927-4c97-8f66-7408231d4f23)
+	<span class="list-description">By default, it only shows output devices.</span>
 - [Mail: Copy message link](#mail-copy-message-link)
 - [Notes: Copy note link](#notes-copy-note-link)
 - Toggle Finder with a keyboard shortcut <sup>(aka. [visor mode](https://totalfinder.binaryage.com/visor))</sup>
@@ -57,15 +59,16 @@ Improve your Mac experience with a bunch of useful functionality:
 - Show the window for the “Now Playing” menu bar item with a keyboard shortcut
 - [Change default browser](https://github.com/user-attachments/assets/b58a04da-2bdc-4bd0-bed4-ba62ba456491) (without a prompt)
 	- Also available as an [independent app](/default-browser).
-- [Make volume key adjustments more precise with quarter-step increments](https://github.com/user-attachments/assets/e994755b-94ca-4e3c-8f70-5d3bffc3aed1)
+- Auto-open downloaded calendar event (`.ics`) files and move them to trash after import
+- [Make volume key adjustments more precise with half and quarter-step increments](https://github.com/user-attachments/assets/e994755b-94ca-4e3c-8f70-5d3bffc3aed1)
 - Export/import (backup) settings for any apps *([video](https://github.com/user-attachments/assets/82727408-3acb-4c18-91c6-428f1e0ad8c5))*
 - Toggle Terminal with a keyboard shortcut
 - [Offers to install apps from mounted DMG files](https://github.com/user-attachments/assets/5ecb9b0b-5719-4382-98a0-c3316bd20a6b)
 - Show desktop (menu action)
 - Quit all apps (menu action and keyboard shortcut)
-- Eject all disks (menu action and keyboard shortcut)
+- Eject all disks (menu action and keyboard shortcut) (optionally exclude some)
 - Dim icons of hidden apps in the Dock
-- Pick color on screen and copy as Hex color (menu action and keyboard shortcut)
+- Pick color on screen and copy (menu action and keyboard shortcut) (Hex, RGB, OKLCH)
 - Toggle mute sound
 - Toggle dark mode
 - Toggle [Night Shift](https://support.apple.com/en-us/102191)
@@ -75,14 +78,18 @@ Improve your Mac experience with a bunch of useful functionality:
 - Toggle desktop widgets visibility
 - Toggle function keys (switch between using F1, F2, etc., as standard function keys or media keys)
 	- Only supported for the built-in MacBook keyboard and Magic Keyboard.
+- Control keyboard brightness with customizable keyboard shortcuts
+	- Only supported for the built-in MacBook keyboard.
 - Clear clipboard
 - Empty trash keyboard shortcut
 - [Clicking a Dock folder reveals it in Finder instead of showing its contents](#dock-folder-click)
 - Open system settings directly (usually requires a lot of clicks):
 	- Hide My Email
 	- Private Relay
+	- VPN & Filters
 - [Show seconds hand in the Clock app's Dock icon](https://github.com/user-attachments/assets/b1d025dc-0465-4d0f-adf8-48bc079ad438)
 - [Only show sound menu bar icon when either muted or unmuted](https://github.com/user-attachments/assets/10447e39-f288-406b-a504-6ab7b8fcf261)
+<!-- - [Keyboard shortcut inspector](#keyboard-shortcut-inspector) -->
 - Add [Dock spacers](#dock-spacers)
 - Reset [privacy permissions](https://support.apple.com/en-vn/guide/mac-help/mchl211c911f/mac) for any apps
 - Flush DNS cache
@@ -123,9 +130,17 @@ Makes clicking the green traffic light button fill the window to fit the screen 
 
 [Screenshot](https://github.com/user-attachments/assets/41dd0f46-05f7-46f2-b9a5-a5ae441da8a9)
 
+*It requires the “Displays have separate Spaces” system setting to be enabled because it relies on the window tile functionality, which is only available then.*
+
 ##### Clicking yellow traffic light button hides app instead of minimizing window {#yellow-traffic-light-button-hide}
 
 Makes clicking the yellow traffic light button hide the app instead of minimizing the window. Hold <kbd>Option</kbd> while clicking for the default minimize behavior.
+
+<!-- ##### Keyboard shortcut inspector {#keyboard-shortcut-inspector}
+
+Detects which apps are listening to or have registered a certain global keyboard shortcut. This is useful for troubleshooting keyboard shortcut conflicts between apps. Simply press any keyboard shortcut combination to see which apps are handling it.
+
+[Screenshot](https://github.com/user-attachments/assets/0f3ddfaa-caf5-471d-a880-93c97952dada) -->
 
 ##### Finder context menu additions {#finder-context-menu}
 
@@ -136,6 +151,7 @@ Adds the following actions (can be customized) directly in the right-click menu 
 - New From Template
 	<span class="list-description">Create new files from templates. For example, a Markdown or Excel file. Templates can be organized in subfolders. Shown only when right-clicking an empty area in Finder, not a file. Supports dynamic placeholders in filenames (like `Diary {datetime-fixed}` → `Diary 2025-02-14 15.30`). And you can even have the file automatically open after naming it. [Screenshot.](https://github.com/user-attachments/assets/cb401a0e-2e40-4714-9493-b91563a7b387)</span>
 - Image/Video Dimensions
+- File Size
 - Copy Path
 - Copy Filename
 - Copy File URL
@@ -214,7 +230,7 @@ You may also like my [Shareful](/shareful), [Menu Bar Spacing](/menu-bar-spacing
 
 ### Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/cxvu72pdirpr6er6a2i13/Supercharge-1.13.0-trial-1740480614.zip?rlkey=o9oai5oun4kseiynvbqekool6&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/kdwxf3ea4y15yampdti10/Supercharge-1.14.0-trial-1741950047.zip?rlkey=zevoo5j5y5kmn3qz4mmv1y618&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=742&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
@@ -260,6 +276,7 @@ Some things you can already do that you may not know about:
 - [Change the keyboard shortcut for menu item actions in all apps.](https://apple.stackexchange.com/a/125628/2363)
 - Set Finder's default view options: Open a folder, press <kbd>Command+J</kbd>, adjust settings, and click “Use as Defaults”. To reset a folder's custom settings, press <kbd>Command+J</kbd>, hold <kbd>Option</kbd>, and click “Restore to Defaults”.
 - [Show “Dimensions” column in Finder.](https://apple.stackexchange.com/questions/18728/how-can-i-show-the-dimension-column-in-finder)
+- Option-click the sound menu bar icon to be able to also choose input device. Or use the tweak in Supercharge to see it by default.
 
 ### Frequently Asked Questions {#faq}
 
