@@ -6,6 +6,7 @@ platforms:
   - macOS
 repoUrl: https://github.com/sindresorhus/Gifski
 appStoreId: 1351639930
+hasSentry: true
 links:
   'Older Versions': https://github.com/sindresorhus/Gifski#download
   'TestFlight': https://testflight.apple.com/join/iCyHNNIA

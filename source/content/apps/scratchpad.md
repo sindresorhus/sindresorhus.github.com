@@ -34,6 +34,10 @@ On macOS, the app sits in your menu bar or Dock, ready whenever inspiration stri
 
 Perfect for brain dumps, quick drafts, and fleeting ideas. Your thoughts are just a click away, without breaking your workflow.
 
+It's an [Universal Purchase](/apps/faq#universal-purchase).
+
+[Review by MacStories](https://www.macstories.net/reviews/scratchpad-the-cross-device-text-utility-that-pairs-perfectly-with-your-clipboard-manager/)
+
 <a href="https://www.producthunt.com/posts/scratchpad-3?embed=true&utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-scratchpad&#0045;3" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=486333&theme=light&period=daily" alt="Scratchpad - Quick&#0032;notes&#0044;&#0032;always&#0032;available | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
 #### Privacy
@@ -42,7 +46,7 @@ The app uses iCloud syncing to securely sync your text across devices. This feat
 
 ### Trial
 
-Try the fully functional trial of the macOS app [here](https://www.dropbox.com/scl/fi/01eubsoly1plmscebd3cr/Scratchpad-1.2.7-trial-1731415842.zip?rlkey=sze77hcspygylvx6wlb2etcte&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
+Try the fully functional trial of the macOS app [here](https://www.dropbox.com/scl/fi/merdvk5j8c60fu6hqaakc/Scratchpad-1.3.4-trial-1742840407.zip?rlkey=c43yppxnvx4ryo922glouawon&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 
 ### Tips
 
@@ -166,6 +170,14 @@ I don't plan to localize the app.
 #### On iOS, the item in the share sheet opens the app, how can I add text to the app in the background?
 
 Add [this shortcut](https://www.icloud.com/shortcuts/caa5fd4f5a7240cf951ef9a4184b0522). You can then tap the “Add to Scratchpad” action in a share sheet to add text to Scratchpad in the background.
+
+#### What's the difference between [Plain Text Editor](/plain-text-editor) and Scratchpad? {#plain-text-editor-comparison}
+
+These two apps serve different purposes. Plain Text Editor is a traditional text editor that lives in your Dock and handles multiple documents - perfect for working with separate text files and longer writing sessions.
+
+Scratchpad is designed for quick notes - it lives in your menu bar (macOS) or Lock Screen/Control Center (iOS) and maintains just one persistent note that syncs across your devices. Think of it as a digital sticky note that's always one click away.
+
+Both apps handle plain text only and work on macOS, iOS, and visionOS (Scratchpad also on watchOS). They're complementary tools: Plain Text Editor for focused writing with multiple files, Scratchpad for quick, always-accessible note-taking.
 
 #### How does this compare to [Tot](https://tot.rocks)? {#tot}
 

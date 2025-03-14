@@ -44,6 +44,10 @@ Apps purchased on:
 
 Yes. See the [discounts](/apps/discounts) page.
 
+### What is Universal Purchase on the App Store? {#universal-purchase}
+
+An App Store feature that lets you buy an app once and get access to all its available versions across Apple platforms (iOS, macOS, watchOS, tvOS, and visionOS) using the same Apple ID. For example, if you buy a Universal Purchase app on your iPhone, you can download it on your Mac at no extra cost if a Mac version exists. All my apps on the App Store are Universal Purchase.
+
 ### Can your app be available on Setapp? {#setapp}
 
 Setapp curates apps based on demand, so if you'd like to see an app of mine on Setapp, [email them](https://support.setapp.com/hc/en-us/articles/4950254561052-How-to-contact-Setapp-team#:~:text=to%20your%20issue.-,Send%20an%20email,%3A%20support%40setapp.com.) and request its inclusion.
@@ -216,10 +220,10 @@ If you have tried all of this, [contact me](/feedback).
 - Resolve any Apple Account or iCloud errors on your devices (e.g., sign-in prompts).
 - Ensure Low Power Mode is not enabled on the devices. It can cause iCloud to delay syncing.
 - Ensure you are on the latest operating system version and app version.
-- On iOS, ensure the app is disabled in “Settings › Apple Account › iCloud › Apps Using iCloud”.
+- On iOS, ensure the app is not disabled in “Settings › Apple Account › iCloud › Apps Using iCloud”.
 - On macOS, ensure the app is not disabled in “System Settings › Apple Account › iCloud › Saved to iCloud” and “System Settings › Apple Account › iCloud › iCloud Drive › Apps syncing to iCloud Drive”.
 - If using a VPN, try disconnecting it, as some VPNs can interfere with iCloud syncing.
-- If it's a work device, make sure there are no restrictions in place that prevents iCloud or iCloud Drive.
+- If it's a work device, make sure there are no restrictions in place that prevent iCloud or iCloud Drive.
 - Check the [iCloud system status](https://www.apple.com/support/systemstatus/) to ensure the service is not experiencing issues.
 
 ##### Keyboard shortcuts or text expansion suddenly stopped working {#secure-input-problem}

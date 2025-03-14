@@ -8,6 +8,7 @@ platforms:
 isPaid: true
 appStoreId: 1643660089
 forceHasIosAppIcon: true
+hasSentry: true
 ---
 
 Call, message, or email your favorite people directly from the Lock Screen, Home Screen, or desktop.

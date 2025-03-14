@@ -26,6 +26,8 @@ The transcription is powered by OpenAI's [Whisper model](https://openai.com/rese
 
 The app also includes [support for Shortcuts](#tips).
 
+It's an [Universal Purchase](/apps/faq#universal-purchase).
+
 <details>
 <summary><b>Supports audio in 100 languages</b></summary>
 

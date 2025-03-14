@@ -83,6 +83,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/4muy6x2509nsr9wysos84/AI-Actions-1.4.0-1736511555.zip?rlkey=nz2qrpkalwso34dwumxg471ih&raw=1) *(1.4.0)*
+[Download](https://www.dropbox.com/scl/fi/vvdbfnnptzvsa3yduid79/AI-Actions-1.4.1-1743425376.zip?rlkey=xxkjgbzvjrrsny08m2v8d4ygg&raw=1) *(1.4.1)*
 
 *Requires macOS 15 or later*

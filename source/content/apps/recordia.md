@@ -6,6 +6,7 @@ platforms:
   - macOS
 isMenuBarApp: true
 appStoreId: 1529006487
+hasSentry: true
 olderMacOSVersions:
   - '10.15'
   - '11'

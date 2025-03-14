@@ -21,7 +21,7 @@ const meta = {
 	title: `Privacy Policy — ${app.title} — Sindre Sorhus`,
 };
 
-const {title: appTitle, slug} = app;
+const {title: appTitle, slug, hasSentry} = app;
 ---
 
 <Layout meta={meta}>
@@ -34,7 +34,11 @@ const {title: appTitle, slug} = app;
 			</p>
 		)}
 		<h1 class="text-3xl font-bold mb-4">Privacy Policy for {appTitle}</h1>
-		<p>No data or personal information is collected by this app.</p>
+		{hasSentry ? (
+			<p>No personal information is collected by this app.<br><br>It sends anonymous crash reports to <a href="https://sentry.io">Sentry</a> to help fix bugs.</p>
+		) : (
+			<p>No data or personal information is collected by this app.</p>
+		)}
 		<p class="pt-20 text-sm">If you have any questions or suggestions regarding this privacy policy, do not hesitate to <a href="/contact" class="text-primary-600 hover:underline">contact me</a>.</p>
 	</section>
 </Layout>

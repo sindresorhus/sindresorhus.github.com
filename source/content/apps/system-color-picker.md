@@ -7,6 +7,7 @@ platforms:
 isMenuBarApp: true
 repoUrl: https://github.com/sindresorhus/System-Color-Picker
 appStoreId: 1545870783
+hasSentry: true
 links:
   'Older Versions': https://github.com/sindresorhus/System-Color-Picker#download
 olderMacOSVersions:

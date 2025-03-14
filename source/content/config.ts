@@ -45,6 +45,7 @@ const appsCollection = defineCollection({
 			'20',
 		])).optional(),
 		feedbackNote: z.string().optional(),
+		hasSentry: z.boolean().default(false),
 	}).strict(),
 });
 

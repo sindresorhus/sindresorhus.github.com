@@ -73,7 +73,7 @@ const meta = {
 		{releases.map(release => (
 			<article class="pb-4 pt-4">
 				<div class="flex items-baseline gap-4">
-					<h2 class="text-2xl font-bold">{release.tag_name.replace(/^v/, '')}</h2>
+					<h2 id={release.tag_name.replace(/^v/, '')} class="text-2xl font-bold">{release.tag_name.replace(/^v/, '')}</h2>
 					<time class="text-gray-600 text-sm" datetime={release.published_at}>
 						{new Date(release.published_at).toLocaleDateString(undefined, {
 							year: 'numeric',

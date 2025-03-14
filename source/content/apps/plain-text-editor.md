@@ -17,6 +17,10 @@ Simple text editor without any rich text nonsense. The simplicity is a feature.
 
 It won't handle your 1 million line log file, but it is a nice way to write down some ideas.
 
+It's an [Universal Purchase](/apps/faq#universal-purchase).
+
+*It only handles UTF-8 text files (meaning no UTF-16).*
+
 ### Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -60,6 +64,10 @@ You can also press <kbd>Command</kbd> + <kbd>N</kbd> if you have [tabs enabled f
 
 No, that's not supported. However, you may be interested in my [Scratchpad](/scratchpad) app.
 
+#### What's the difference between Plain Text Editor and [Scratchpad](/scratchpad)?
+
+[Learn more](/scratchpad#plain-text-editor-comparison)
+
 #### How can I make the app preserve open documents when I quit on macOS?
 
 This is already how it works. Actually, it's how all document-based apps on macOS work. Make sure you don't have “System Settings › Desktop & Dock › Close windows when quitting an application” enabled.
@@ -101,6 +109,10 @@ I don't plan to add that. It's not essential and I'm trying to keep the app simp
 #### The text flickers a little bit when it wraps on a new line
 
 This is unfortunately a macOS bug and out of my control.
+
+#### The window size and position is not preserved
+
+For document-based apps, which this app is, window size and position are stored per document. macOS is in charge of persisting window size and position for apps, so this is not something the app controls.
 
 #### Why is there no way to print? {#print}
 

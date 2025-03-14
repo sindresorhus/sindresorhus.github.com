@@ -6,6 +6,7 @@ platforms:
   - macOS
 isPaid: true
 appStoreId: 1319884285
+hasSentry: true
 olderMacOSVersions:
   - '10.15'
   - '11'

@@ -7,6 +7,7 @@ platforms:
   - iOS
   - visionOS
 appStoreId: 1660147028
+hasSentry: true
 olderMacOSVersions:
   - '13'
   - '14'

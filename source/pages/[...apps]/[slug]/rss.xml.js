@@ -45,13 +45,17 @@ export async function GET(context) {
 		title: `${appTitle} Release Notes`,
 		description: `Latest releases of ${appTitle}`,
 		site: context.site,
-		items: releases.map(release => ({
-			title: release.tag_name.replace(/^v/, ''),
-			pubDate: new Date(release.published_at),
-			content: sanitizeHtml(parser.render(release.body), {
-				allowedTags: sanitizeHtml.defaults.allowedTags,
-			}),
-			link: app.url,
-		})),
+		items: releases.map(release => {
+			const version = release.tag_name.replace(/^v/, '');
+
+			return {
+				title: version,
+				pubDate: new Date(release.published_at),
+				content: sanitizeHtml(parser.render(release.body), {
+					allowedTags: sanitizeHtml.defaults.allowedTags,
+				}),
+				link: `${app.url}/release-notes#${version}`,
+			};
+		}),
 	});
 }
