@@ -5,6 +5,7 @@ pubDate: 2017-10-09
 platforms:
   - macOS
 appStoreId: 1294126402
+hasSentry: true
 olderMacOSVersions:
   - '10.13'
   - '10.14'

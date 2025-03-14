@@ -7,6 +7,7 @@ platforms:
   # - macOS
 isPaid: true
 appStoreId: 1645566403
+hasSentry: true
 feedbackNote: |
   If you're having problems with the Shortcuts app showing an error when trying to open an app, this is a problem with the Shortcuts app and out of my control. Try restarting your device and then try changing the system language to something else and then back. That sometimes fixes such issues. Otherwise, just give it some time. Sometimes the system needs some time after a system update to refresh everything.
 ---

@@ -36,7 +36,7 @@ The app is optimized as much as possible, but macOS is inefficient at updating m
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/xnaw4gl5zhpfzxm3ski0c/Googly-Eyes-1.1.0-1741855439.zip?rlkey=bueanr9x82c9eiinppt1pvynh&raw=1) *(1.1.0)*
+[Download](https://www.dropbox.com/scl/fi/pyxs34muy524a1irxtn05/Googly-Eyes-1.1.1-1742015870.zip?rlkey=k4sn2jq9xmmvqrd3kxdb0gb5l&raw=1) *(1.1.1)*
 
 *Requires macOS 15 or later*
 

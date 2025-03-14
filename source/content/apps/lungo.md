@@ -6,6 +6,7 @@ platforms:
   - macOS
 isPaid: true
 isMenuBarApp: true
+#hasSentry: true
 appStoreId: 1263070803
 setappId: 270
 olderMacOSVersions:

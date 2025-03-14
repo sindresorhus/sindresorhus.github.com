@@ -6,6 +6,7 @@ platforms:
   - macOS
   - iOS
   - visionOS
+hasSentry: true
 appStoreId: 1586435171
 links:
   'TestFlight': https://testflight.apple.com/join/fJGUrsZx
@@ -33,6 +34,7 @@ If you have any questions about how to use the different actions or for what, tr
 
 - Add to List
 - Apply Capture Date
+- Ask for Duration
 - Ask for Text with Timeout
 - Authenticate
 - Blur Images
@@ -48,6 +50,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Convert Location to Geo URI
 - Convert Unix Time to Date
 - Create Color Image
+- Create Duration
+- Create Gradient Color Image
 - Create Menu Item
 - Create URL
 - Download File

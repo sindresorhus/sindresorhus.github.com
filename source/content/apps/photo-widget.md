@@ -11,6 +11,14 @@ forceHasIosAppIcon: true
 # links:
 #   'TestFlight': https://testflight.apple.com/join/ybGzYJ28
 feedbackNote: |
+  If you are seeing black/white widgets, this is a iOS bug. Possible workaround:
+  - Restart your device.
+  - Remove the widget and add it again.
+  - Remove the app and download it again.
+
+  It's unfortunate that this happens, but the widget system in iOS is very buggy.
+
+
   iOS 18 has a bug where it skips 2 photos instead of 1. This is out of my control. Hopefully, a future iOS 18 version will fix it.
 ---
 

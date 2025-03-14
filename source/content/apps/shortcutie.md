@@ -6,6 +6,7 @@ platforms:
   - macOS
 isPaid: true
 releasesRepo: shortcutie-meta
+hasSentry: true
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/shortcutie?wanted=true
 # olderMacOSVersions:
@@ -34,10 +35,17 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 - Run JavaScript on Active Browser Tab
 	<span class="list-subtitle">Runs JavaScript code on the active browser tab and returns JSON</span>
 	<span class="list-description text-xs">Supports the same browsers as “Get Active Browser Tab”.</span>
+- Open URLs in Private Browser Window
+	<span class="list-subtitle">Opens URLs in a private/incognito browser window</span>
+	<span class="list-description text-xs">Supports Safari, Chrome, Edge, Brave, Opera, Vivaldi, Arc, Orion, Firefox, Zen, and any Chromium-based and Firefox-based browser.</span>
 - Get Active Browser
 	<span class="list-subtitle">Gets the frontmost app if it’s a browser</span>
 - Get Selected Text
 	<span class="list-subtitle">Gets the selected text in the currently focused window</span>
+- Join Wi-Fi <!-- 	<span class="list-subtitle">Join a Wi-Fi network or personal hotspot</span>
+	<span class="list-description text-xs">Tip: You could use it to join your iPhone’s hotspot</span> -->
+- Clear Top Notification
+	<span class="list-subtitle">Clears the top visible system notification</span>
 - Clear Notifications
 	<span class="list-subtitle">Clears all system notifications</span>
 - Get/Set Default Browser
@@ -60,9 +68,9 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 - Quit All Apps
 	<span class="list-subtitle">Closes all running apps except menu bar apps</span>
 - Eject All Disks
-	<span class="list-subtitle">Safely unmounts all external drives</span>
+	<span class="list-subtitle">Safely unmounts all external drives (except excluded ones)</span>
 - Empty Trash
-	<span class="list-subtitle">Permanently deletes items in trash</span>
+	<span class="list-subtitle">Permanently deletes items in the trash</span>
 - Toggle Show Desktop
 	<span class="list-subtitle">Shows or hides the desktop by temporarily moving windows aside</span>
 - Toggle Mission Control
@@ -71,16 +79,29 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 	<span class="list-subtitle">Shows or hides [App Exposé](https://www.oreilly.com/library/view/switching-to-the/9781449338978/ch04s11.html)</span>
 - Toggle Launchpad
 	<span class="list-subtitle">Shows or hides [Launchpad](https://support.apple.com/guide/mac-help/mh35840/mac)</span>
+- Get Latest Screenshots
+	<span class="list-subtitle">Returns the most recent screenshots taken with the system screenshot tool</span>
 - Get/Set Desktop Widgets Visibility
 	<span class="list-subtitle">Show, hide, or check visibility status of desktop widgets</span>
 - Get/Set Function Keys Mode
 	<span class="list-subtitle">Toggle or check if F1-F12 keys operate as standard function keys or media keys</span>
+- Get/Set Keyboard Brightness
+	<span class="list-subtitle">View or change the keyboard backlight brightness level</span>
+	<span class="list-description text-xs">Only works on Macs with a built-in backlit keyboard.</span>
+- Get/Set Network Location
+	<span class="list-subtitle">Switch between different [network configurations](https://support.apple.com/105129)</span>
+	<span class="list-description text-xs">Tip: You could automate switching based certain conditions with the [Shortery](https://www.numberfive.co/detail_shortery.html) app.</span>
+- Get Slack Workspace
+	<span class="list-subtitle">Gets the name of the current Slack workspace</span>
 - Clear Recent Lists
 	<span class="list-subtitle">Clears recent items (files, apps, and servers) from menus</span>
 - Open System Setting
-	<span class="list-subtitle">Opens Hide My Email, Private Relay, or Apple Account Subscriptions settings directly</span>
+	<span class="list-subtitle">Opens Hide My Email, Private Relay, VPN & Filters, or Apple Account Subscriptions settings directly</span>
 - Get Apps Using Secure Input
 	<span class="list-subtitle">Secure Input prevents other apps from reading keystrokes when typing passwords. Sometimes apps don't properly disable it, causing keyboard shortcuts to stop working. This can find such apps.</span>
+
+<!-- - Get/Set Pointer Size
+<span class="list-subtitle">View or change the system-wide mouse pointer size</span> -->
 
 **And many more planned!**
 

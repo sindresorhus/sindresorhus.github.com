@@ -6,6 +6,7 @@ platforms:
   - macOS
 isPaid: true
 isMenuBarApp: true
+hasSentry: true
 appStoreId: 1470584107
 setappId: 571
 olderMacOSVersions:
@@ -63,7 +64,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 ### Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/dywfaid2dx2sg166s6326/Dato-5.5.3-trial-1741424856.zip?rlkey=vwtjb067ow88f1d6bfyxk0sxj&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/rjw0gejej8d0l86hifpaa/Dato-5.5.4-trial-1743017444.zip?rlkey=a267ckzz4isozmlr26z3r6y7f&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
@@ -283,6 +284,23 @@ No. Dato is only available from the App Store and Setapp.
 
 Check if there are any [crash reports](https://sindresorhus.com/apps/faq#crash-report). If none exists, it's likely macOS terminated Dato because it needed to reclaim memory. This is an especially common problem on MacBook Air laptops with only 8 GB RAM. Try restarting your computer.
 
+#### Some calendars are missing {#missing-calendars}
+
+Dato simply fetches calendars and events from macOS. If something is missing, it's never caused by Dato.
+
+Make sure:
+- The calendars show in the Calendar app and that they are enabled there.
+	- Open the Calendar app settings, click the “Accounts” pane, and then check that the calendars are there. Dato can only show calendars added there.
+- The calendars are enabled in the Dato settings.
+	- Open the Dato settings, click the “Events” tab, and make sure the calendars are enabled.
+- You have tried restarting your computer.
+- You are on the latest version of macOS.
+- You have tried resetting permissions for Dato using [App Buddy](/app-buddy).
+
+Some users had luck with removing the account from the Calendar app settings and re-adding it.
+
+[Contact me](/feedback?product=Dato&referrer=Website-FAQ) if you have tried all this and you are still having issues. I'm not aware of any issue that was not one of the things mentioned above.
+
 #### Some calendar events are missing in Dato {#missing-events}
 
 Make sure:
@@ -472,7 +490,7 @@ You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/IS
 
 That is called [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date).
 
-#### It shows the incorrect week number
+#### It shows the incorrect week number {#incorrect-week-number}
 
 You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar), or the inverse. You can change it with [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
 
@@ -527,20 +545,6 @@ I have no plans to add that, but you can make it work by unchecking the “Time�
 #### Can you add support for flashing the time separator like the system clock?
 
 I have no plans to add that, but you can make it work by unchecking the “Time” setting in Dato and keeping the system clock.
-
-#### A calendar is missing
-
-First, ensure that you have added the calendar to the system. Open the Calendar app's settings, click the “Accounts” pane, and then check that the calendar is there. Dato can only show calendars added there.
-
-If it exists in the Calendar app, open the Dato settings, click the “Events” tab, and make sure the calendar is enabled.
-
-If it exists in the Calendar app but not in Dato, macOS might have corrupted some permissions. This is, unfortunately, a common problem. Try to reset the permissions for Dato, either with [App Buddy](/app-buddy) or manually; Quit Dato, open the Terminal app, paste in the following command, and press <kbd>Enter</kbd>:
-
-```sh
-tccutil reset All com.sindresorhus.Dato
-```
-
-Then launch Dato again.
 
 #### How can I show smart lists from the Reminders app in Dato?
 

@@ -5,6 +5,7 @@ pubDate: 2023-04-30
 platforms:
   - macOS
 appStoreId: 6448461551
+hasSentry: true
 olderMacOSVersions:
   - '13'
   - '14'

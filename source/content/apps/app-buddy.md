@@ -4,6 +4,7 @@ subtitle: Helper for my apps
 pubDate: 2024-10-20
 platforms:
   - macOS
+hasSentry: true
 releasesRepo: app-buddy-meta
 mainLinks:
   'Download': https://github.com/sindresorhus/app-buddy-meta/releases/latest/download/App.Buddy.zip
