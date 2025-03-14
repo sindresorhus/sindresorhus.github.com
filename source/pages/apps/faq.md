@@ -216,10 +216,10 @@ If you have tried all of this, [contact me](/feedback).
 - Resolve any Apple Account or iCloud errors on your devices (e.g., sign-in prompts).
 - Ensure Low Power Mode is not enabled on the devices. It can cause iCloud to delay syncing.
 - Ensure you are on the latest operating system version and app version.
-- On iOS, ensure the app is disabled in “Settings › Apple Account › iCloud › Apps Using iCloud”.
+- On iOS, ensure the app is not disabled in “Settings › Apple Account › iCloud › Apps Using iCloud”.
 - On macOS, ensure the app is not disabled in “System Settings › Apple Account › iCloud › Saved to iCloud” and “System Settings › Apple Account › iCloud › iCloud Drive › Apps syncing to iCloud Drive”.
 - If using a VPN, try disconnecting it, as some VPNs can interfere with iCloud syncing.
-- If it's a work device, make sure there are no restrictions in place that prevents iCloud or iCloud Drive.
+- If it's a work device, make sure there are no restrictions in place that prevent iCloud or iCloud Drive.
 - Check the [iCloud system status](https://www.apple.com/support/systemstatus/) to ensure the service is not experiencing issues.
 
 ##### Keyboard shortcuts or text expansion suddenly stopped working {#secure-input-problem}
