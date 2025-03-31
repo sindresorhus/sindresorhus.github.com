@@ -23,7 +23,7 @@ Folder Peek lets you put one or more folders in the menu bar.
 
 Make sure you read the below tips and FAQ.
 
-### Tips
+## Tips
 
 - Click a file or folder in the menu to open it. Folders open in Finder.
 - Click a file while pressing the <kbd>Option</kbd> key to show it in Finder.
@@ -37,15 +37,15 @@ Make sure you read the below tips and FAQ.
 - Press the <kbd>Shift</kbd> key while viewing a subfolder to reveal more actions. For example, sort order settings.
 - Search: Just start typing when the menu is open to find a file or folder in the menu. This is just the standard menu behavior where you can type to highlight a certain menu item. It's not a full-blown search.
 
-##### Links
+### Links
 
 You can use Folder Peek to access links too. Drag and drop the URL from the Safari address bar into a folder. You will end up with a file with a `.webloc` extension. When you click that file in Folder Peek, it will open in your browser.
 
-##### Desktop folder
+### Desktop folder
 
 You could add the “Desktop” folder to Folder Peek and then [hide the desktop icons](https://beebom.com/how-hide-desktop-icons-mac/) for a cleaner look.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -205,13 +205,13 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.11.5](https://github.com/user-attachments/files/18925258/Folder.Peek.1.11.5.-.macOS.14.zip) for macOS 14+
 - [1.9.2](https://github.com/sindresorhus/meta/files/13980050/Folder.Peek.1.9.2.-.macOS.13.zip) for macOS 13+
 - [1.6.1](https://github.com/sindresorhus/meta/files/10901140/Folder.Peek.1.6.1.-.macOS.12.zip) for macOS 12+
 
-### Non-App Store Version
+## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 

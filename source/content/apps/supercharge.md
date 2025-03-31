@@ -123,7 +123,7 @@ This is my playground for supercharging macOS. It's just the start. Come along f
 
 ---
 
-#### Features explained
+### Features explained
 
 <br>
 
@@ -131,13 +131,13 @@ This is my playground for supercharging macOS. It's just the start. Come along f
 
 Remaps <kbd>Caps Lock</kbd> to function as a Hyper key—a single key that simultaneously activates all standard modifiers (Control + Option + Shift + Command). This enables the creation of highly unique shortcuts that are unlikely to conflict with existing ones, making them both easy to remember and quick to use. -->
 
-##### Dock icon click behavior {#dock-icon-click-behavior}
+#### Dock icon click behavior {#dock-icon-click-behavior}
 
 By default, clicking an app's Dock icon when the app is active does nothing. With Supercharge, you can make it either hide the app, minimize all its windows, or cycle through the app's windows. This can be particularly useful for quickly clearing your workspace or navigating between windows.
 
 You can also choose to unminimize all windows instead of just one when clicking a Dock icon of an app with minimized windows.
 
-##### Clicking green traffic light button fills window instead of entering fullscreen {#green-traffic-light-button-fill}
+#### Clicking green traffic light button fills window instead of entering fullscreen {#green-traffic-light-button-fill}
 
 Makes clicking the green traffic light button fill the window to fit the screen instead of entering fullscreen mode. Hold <kbd>Option</kbd> while clicking for the default fullscreen behavior. Click again to restore the previous window size.
 
@@ -145,17 +145,17 @@ Makes clicking the green traffic light button fill the window to fit the screen 
 
 *It requires the “Displays have separate Spaces” system setting to be enabled because it relies on the window tile functionality, which is only available then.*
 
-##### Clicking yellow traffic light button hides app instead of minimizing window {#yellow-traffic-light-button-hide}
+#### Clicking yellow traffic light button hides app instead of minimizing window {#yellow-traffic-light-button-hide}
 
 Makes clicking the yellow traffic light button hide the app instead of minimizing the window. Hold <kbd>Option</kbd> while clicking for the default minimize behavior.
 
-##### Keyboard shortcut inspector {#keyboard-shortcut-inspector}
+#### Keyboard shortcut inspector {#keyboard-shortcut-inspector}
 
 Detects which apps are listening to or have registered a certain global keyboard shortcut. This is useful for troubleshooting keyboard shortcut conflicts between apps. Simply press any keyboard shortcut combination to see which apps are handling it.
 
 [Screenshot](https://github.com/user-attachments/assets/0f3ddfaa-caf5-471d-a880-93c97952dada)
 
-##### Automatic clipboard clearing {#automatic-clipboard-clearing}
+#### Automatic clipboard clearing {#automatic-clipboard-clearing}
 
 The clipboard is a common privacy risk as it can retain sensitive content (passwords, credit card numbers, private messages) long after you've copied it. Any app on your Mac can silently read the clipboard at any time.
 
@@ -166,7 +166,7 @@ When enabled, it automatically clears the clipboard:
 
 This ensures sensitive data doesn't linger in your clipboard longer than needed, protecting you from both accidental exposure and malicious apps.
 
-##### Finder context menu additions {#finder-context-menu}
+#### Finder context menu additions {#finder-context-menu}
 
 Adds the following actions (can be customized) directly in the right-click menu in Finder:
 
@@ -216,33 +216,33 @@ Adds the following actions (can be customized) directly in the right-click menu 
 
 *They appear at the bottom of the context menu. There is no way to change that. [They also won't appear in iCloud, Dropbox, or any other sync folder.](#finder-context-menu-icloud)*
 
-##### Capture and translate text from anywhere on screen {#capture-translate-text}
+#### Capture and translate text from anywhere on screen {#capture-translate-text}
 
 Select any region of your screen to instantly translate text, even from images or unselectable text.
 
 - [Screenshot](https://github.com/user-attachments/assets/e7c6b336-6b70-4dfe-bba1-ba6ca18907c0)
 - [Supported languages](https://www.apple.com/macos/feature-availability/#translate-system-wide-translation) (except Hindi)
 
-##### Scan QR codes and barcodes {#scan-qr-codes}
+#### Scan QR codes and barcodes {#scan-qr-codes}
 
 Select any region of your screen or use an image from your clipboard to instantly scan QR codes and barcodes and copy their content to the clipboard. Supports scanning multiple codes at once.
 
 - [Screenshot](https://github.com/user-attachments/assets/caa5aed9-5db2-460e-bbbb-15fae45a5195)
 - [Supported barcodes](https://developer.apple.com/documentation/vision/vnbarcodesymbology#Supported-Symbologies)
 
-##### Copy message link in Mail {#mail-copy-message-link}
+#### Copy message link in Mail {#mail-copy-message-link}
 
 When you are in the Mail app, you can [open the Supercharge menu](https://github.com/user-attachments/assets/5cce205b-6743-4a60-958c-074a308ccc68) to copy a direct link to one or more selected messages. You can also set up a keyboard shortcut for this. Copying a message link can be useful if you want to refer to specific emails in other contexts. The link will look like this: `message://%3c66e85e1db33c7_961cfc499cd@lowworker-c6756b946-4rskj.mail%3e`.
 
-##### Copy note link in Notes {#notes-copy-note-link}
+#### Copy note link in Notes {#notes-copy-note-link}
 
 When you are in the Notes app, you can [open the Supercharge menu](https://github.com/user-attachments/assets/028c2952-d708-4eda-ad39-613767532eb7) to copy a direct link to one or more selected notes. You can also set up a keyboard shortcut for this. Copying a note link can be useful if you want to refer to specific notes in other contexts, like in a task manager or calendar event. The link will look like this: `applenotes:note/933C49CC-04F4-5F21-A3EE-2CA93AFC88DD`. When clicked, it opens directly in the Notes app.
 
-##### Close and minimize windows and hide and quit apps directly from Mission Control {#mission-control-improvements}
+#### Close and minimize windows and hide and quit apps directly from Mission Control {#mission-control-improvements}
 
 Enhances Mission Control by letting you close windows or quit apps by right-clicking the hovered window and use keyboard shortcuts (⌘W, ⌘Q, ⌘H, ⌘M) on the window you are hovering over. This makes window management more efficient as you don't have to exit Mission Control to perform these actions. [Example](https://github.com/user-attachments/assets/23c71431-4d3b-4913-b484-3a3f0b7b2b07)
 
-##### Dock folder click behavior {#dock-folder-click}
+#### Dock folder click behavior {#dock-folder-click}
 
 By default, clicking a folder in the Dock shows its contents in a popover. With Supercharge, you can make it directly reveal the folder in Finder instead.
 
@@ -252,7 +252,7 @@ You may also like my [Shareful](/shareful), [Menu Bar Spacing](/menu-bar-spacing
 
 ---
 
-### Trial
+## Trial
 
 Try the fully functional trial [here](https://www.dropbox.com/scl/fi/xrt4b6r2ry2ukxpmrrry8/Supercharge-1.15.1-trial-1743088560.zip?rlkey=l1fspagzwlbjguxkgg34prwji&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
@@ -260,16 +260,16 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=742&utm_me
 
 **Requires macOS 15.2**
 
-### Tips
+## Tips
 
-#### Troubleshooting {#troubleshooting}
+### Troubleshooting {#troubleshooting}
 
 - Ensure you are on the latest version (click the “Check for Updates” button).
 - Restart your computer.
 - Try closing any anti-virus app you have running as it may [interfere with the app](/apps/faq#secure-input-problem) (or at least disable any Secure Keyboard Entry type setting it may have). And if you don't have any anti-virus app, try closing down all apps and menu bar items, just to rule out some other app interfering. If it's a work computer, your company may have something installed that prevents the app from working.
 - Try clicking “Reset Permissions” in the Supercharge menu.
 
-##### Cut and paste files troubleshooting
+#### Cut and paste files troubleshooting
 
 Ensure you pressed <kbd>Command+X</kbd> and not <kbd>Command+C</kbd>.
 
@@ -283,11 +283,11 @@ As a last resort, try [resetting permissions](/apps/faq#mac-reset-permissions) a
 
 Also try closing any anti-virus app you have running as it may [interfere with the app](/apps/faq#secure-input-problem) (or at least disable any Secure Keyboard Entry type setting it may have). And if you don't have any anti-virus app, try closing down all apps and menu bar items, just to rule out some other app interfering. If it's a work computer, your company may have something installed that prevents the app from working.
 
-#### Launch browser
+### Launch browser
 
 If you have enabled showing browsers in the menu, you can hold the Option key and click a browser in the menu to open it, rather than setting it as the default.
 
-#### Tricks
+### Tricks
 
 Some things you can already do that you may not know about:
 
@@ -302,7 +302,7 @@ Some things you can already do that you may not know about:
 - [Show “Dimensions” column in Finder.](https://apple.stackexchange.com/questions/18728/how-can-i-show-the-dimension-column-in-finder)
 - Option-click the sound menu bar icon to be able to also choose input device. Or use the tweak in Supercharge to see it by default.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -441,7 +441,7 @@ Much of the functionality would not be possible in the App Store because of [san
 
 #### [More FAQs…](/apps/faq)
 
-<!-- ### Older Versions
+<!-- ## Older Versions
 
 - [] for macOS 15
 
@@ -450,9 +450,9 @@ These are free for everyone but they will not run on newer macOS versions.
 
 <!-- TODO: When supercharge 1.13.0 is out.
 
-### Scripting
+## Scripting
 
-#### Events
+### Events
 
 The [distributed notification](/apps/faq#distributed-notifications) `com.sindresorhus.defaultBrowserDidChange` is emitted when the default browser is changed from the app or the Shortcuts action.
  -->

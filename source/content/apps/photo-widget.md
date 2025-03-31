@@ -24,7 +24,7 @@ feedbackNote: |
 
 For macOS, it's only available for Apple silicon Macs.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 

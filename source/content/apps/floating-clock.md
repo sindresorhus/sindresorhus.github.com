@@ -12,7 +12,7 @@ Display a digital clock anywhere in your space.
 
 The app is simple by design.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 

@@ -14,7 +14,7 @@ olderMacOSVersions:
   - '14'
 ---
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -78,13 +78,13 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-### Scripting
+## Scripting
 
 Pandan comes bundled with actions for the built-in Shortcuts app which you can use to automate Pandan.
 
 Tip: You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
-#### Use-cases {#shortcuts-use-cases}
+### Use-cases {#shortcuts-use-cases}
 
 - [Play custom notification sound](#custom-notification-sound)
 - [Use Pandan as an eye break reminder](#eye-break-reminder)
@@ -98,14 +98,14 @@ Tip: You can [run shortcuts from the command-line](https://support.apple.com/gui
 
 *And you can combine these too.*
 
-### Older Versions
+## Older Versions
 
 - [1.16.0](https://github.com/user-attachments/files/19008473/Pandan.1.16.0.-.macOS.14.zip) for macOS 14+
 - [1.15.0](https://github.com/sindresorhus/meta/files/14230031/Pandan.1.15.0.-.macOS.13.zip) for macOS 13+
 - [1.13.2](https://github.com/sindresorhus/meta/files/11072195/Pandan.1.13.2.-.macOS.12.zip) for macOS 12+
 - [1.9.1](https://github.com/sindresorhus/meta/files/8003835/Pandan.1.9.1.-.macOS.11.zip) for macOS 11+
 
-### Non-App Store Version
+## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 

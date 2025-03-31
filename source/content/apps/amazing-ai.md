@@ -25,17 +25,17 @@ On iOS, it requires at minimum an iPhone 15 Pro or iPad with M1 processor.
 
 The app is [highly optimized](https://machinelearning.apple.com/research/stable-diffusion-coreml-apple-silicon) and runs on the [Apple Neural Engine](https://apple.fandom.com/wiki/Neural_Engine).
 
-### Tips
+## Tips
 
-#### Preview
+### Preview
 
 Click a thumbnail to view a larger version of it. Click again to exit.
 
-#### Negative prompt
+### Negative prompt
 
 To write a [negative prompt](https://dreamlike.art/guides/guide-to-stable-diffusion-negative-prompt-parameter) (what to exclude), write `##` after your prompt, followed by your negative prompt. For example, “photo of a cake, high-quality ## strawberry, out of frame”, where `strawberry, out of frame` is your negative prompt. Anything after the `##` is your negative prompt. You only write `##` once.
 
-#### Keyboard shortcuts
+### Keyboard shortcuts
 
 On macOS, when in preview mode, there are some keyboard shortcuts available:
 - <kbd>◀</kbd> — Previous image
@@ -44,11 +44,11 @@ On macOS, when in preview mode, there are some keyboard shortcuts available:
 - <kbd>Command + C</kbd> — Copy image
 - <kbd>Esc</kbd> — Exit preview
 
-#### Metadata
+### Metadata
 
 On macOS, when you save a generated image, it includes a lot of useful metadata (prompt, steps, etc). You can [view this in Finder](https://twitter.com/sindresorhus/status/1611441129622278146/photo/1) by right-clicking the image file and selecting “Get Info”. The file also includes some relevant tags which can be used to create [smart folders](https://support.apple.com/guide/mac-help/tag-files-and-folders-mchlp15236/mac).
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -125,12 +125,12 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.5.0](https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Amazing.AI.1.5.0.zip) for macOS 14+
 - [1.2.2](https://drive.google.com/file/d/1mcEhAKhmQGYzmSS-zlejt3_qsKFzqm0h/view?usp=sharing) for macOS 13+
 
-### Non-App Store Version
+## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 

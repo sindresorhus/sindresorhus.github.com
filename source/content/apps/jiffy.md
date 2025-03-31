@@ -30,7 +30,7 @@ Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found 
 - Copy a GIF to the clipboard.
 - Launch the app at login.
 
-<!-- ### Tips
+<!-- ## Tips
 
 <table>
 	<tr>
@@ -76,7 +76,7 @@ Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found 
 	</tr>
 </table> -->
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 <!-- #### I have a feature request, bug report, or some feedback
 
@@ -98,14 +98,14 @@ I just enjoy making apps. Consider leaving a nice review on the App Store. -->
 
 <!--
 
-### Older Versions
+## Older Versions
 
 - [2.5.0](https://github.com/sindresorhus/meta/files/13931098/Jiffy.2.5.0.-.macOS.13.zip) for macOS 13+
 - [2.4.2](https://github.com/sindresorhus/meta/files/10773759/Jiffy.2.4.2.-.macOS.12.zip) for macOS 12+
 - [2.1.1](https://github.com/sindresorhus/meta/files/7511993/Jiffy.2.1.1.-.macOS.11.zip) for macOS 11+
 - [1.3.3](https://github.com/sindresorhus/meta/files/6626336/Jiffy.1.3.3.-.macOS.10.15.zip) for macOS 10.15+
 
-### Non-App Store Version
+## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 

@@ -36,7 +36,7 @@ However, what you use this space for is really up to you.
 
 **You may also like my [Any Text](/any-text) and [One Task](/one-task) apps.**
 
-### Tips
+## Tips
 
 - Press <kbd>return</kbd>/<kbd>esc</kbd> or click the menu bar item to close the edit window.
 - Click the menu bar item while pressing <kbd>shift</kbd> to clear the text.
@@ -46,7 +46,7 @@ However, what you use this space for is really up to you.
 - You can [drag & drop text](https://twitter.com/sindresorhus/status/1481862243755376642) onto the menu bar item to set it. For example, you could drag a todo item from the Reminders app or Things.
 - Select some text in any app, right-click, select “Services”, and click “Send to One Thing” to set One Thing to the selected text. You can also use the “Share” menu item if the app supports that.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -130,7 +130,7 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-### Scripting
+## Scripting
 
 The app can be automated using the Shortcuts app or with a custom URL scheme.
 
@@ -141,7 +141,7 @@ More integrations:
 - [Raycast commands](https://github.com/raycast/script-commands/tree/master/commands#one-thing)
 	- Note: Raycast commands are not the same as plugins. [How to install commands.](https://github.com/raycast/script-commands#install-script-commands-from-this-repository)
 
-#### Shortcuts app
+### Shortcuts app
 
 - [Example shortcut](https://www.icloud.com/shortcuts/381619f1c8404770ad020d439a48fd9c)
 - [Shortcuts usage guide](https://www.xda-developers.com/guide-shortcuts-macos/)
@@ -152,7 +152,7 @@ More integrations:
 - [Reminders app: Show latest due reminder](https://www.icloud.com/shortcuts/5d3e63030877471697dd0023fefc4819)
 - [Things app: Show the first todo in the “Today” list](#things)
 
-#### Custom URL scheme
+### Custom URL scheme
 
 The menu bar item text can be set from any tool that can open an URL. This includes a website, Bash, Node.js, Python, Swift, etc.
 
@@ -170,13 +170,13 @@ There is no way to get the text using the URL scheme, but if you are in the term
 defaults read com.sindresorhus.One-Thing text
 ```
 
-### Older Versions
+## Older Versions
 
 - [1.12.2](https://github.com/user-attachments/files/19145029/One.Thing.1.12.2.-.macOS.14.zip) for macOS 14+
 - [1.11.3](https://github.com/sindresorhus/meta/files/14759175/One.Thing.1.11.3.-.macOS.13.zip) for macOS 13+
 - [1.9.0](https://github.com/sindresorhus/meta/files/11081660/One.Thing.1.9.0.-.macOS.12.zip) for macOS 12+
 
-### Non-App Store Version
+## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 

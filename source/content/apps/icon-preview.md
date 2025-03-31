@@ -16,7 +16,7 @@ The icon previews update automatically when the file changes.
 
 An essential tool for developers and designers to perfect the look of their macOS app icons.
 
-### Tips
+## Tips
 
 #### General
 
@@ -35,7 +35,7 @@ You can drag an artboard directly from Sketch onto the Dock icon. [Preview](http
 
 There is also a [Sketch plugin](https://github.com/sindresorhus/sketch-icon-preview) that updates the Dock icon automatically when you save.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -67,11 +67,11 @@ I just enjoy making apps. I earn money on other apps. Consider leaving a nice re
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.0.2](https://github.com/user-attachments/files/18203304/Icon.Preview.1.0.2.zip) for macOS 14+
 
-### Non-App Store Version
+## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 

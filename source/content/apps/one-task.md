@@ -35,15 +35,15 @@ It's an [Universal Purchase](/apps/faq#universal-purchase).
 
 <br>
 
-### Tips
+## Tips
 
-#### Import tasks from other todo apps
+### Import tasks from other todo apps
 
 You can quickly import tasks from other todo apps by copying the tasks from such apps into One Task with the “Tasks: Paste” button.
 
 For example, on macOS, select the tasks you want in Reminders or Things, right-click and copy them, and then paste them into One Task using the “Tasks: Paste” button.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -104,7 +104,7 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.5.4](https://github.com/user-attachments/files/18549490/One.Task.1.5.4.-.macOS.14.zip) for macOS 14
 

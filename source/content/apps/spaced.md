@@ -23,7 +23,7 @@ You may also like my [Menu Bar Spacing](/menu-bar-spacing) app for changing the 
 
 ---
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -51,12 +51,12 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.1.1](https://github.com/user-attachments/files/18212917/Spaced.1.1.1.-.macOS.14.zip) for macOS 14+
 - [1.0.4](https://github.com/sindresorhus/meta/files/13852708/Spaced.1.0.4.-.macOS.13.zip) for macOS 13+
 
-### Non-App Store Version
+## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 

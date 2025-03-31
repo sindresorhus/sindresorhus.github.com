@@ -21,7 +21,7 @@ const normalizeApps = async app => {
 	const NON_APP_STORE_VERSION = 'Non-App Store Version';
 
 	const headerLinks = headings
-		.filter(header => header.depth === 3)
+		.filter(header => header.depth === 2 && header.text !== 'Footnotes')
 		.map(({text, slug}) => {
 			if (text === faqHeadingTitle) {
 				hasFaqSection = true;
@@ -128,4 +128,4 @@ export const fetchApps = async options => {
 
 // `prose-code:before:hidden prose-code:after:hidden`: https://github.com/tailwindlabs/tailwindcss-typography/issues/18#issuecomment-1280797041
 // We add extra spacing between main section using: prose-h3:mt-24
-export const proseCSS = 'container mx-auto px-6 sm:px-6 max-w-3xl prose prose-lg lg:prose-xl dark:prose-invert dark:prose-headings:text-slate-300 prose-headings:font-heading prose-headings:leading-tighter prose-headings:tracking-tighter prose-headings:font-bold prose-img:rounded-md prose-img:shadow-lg mt-8 prose-a:text-black/75 dark:prose-a:text-white/90 prose-a:underline prose-a:underline-offset-4 prose-a:decoration-primary-500 prose-a:hover:decoration-primary-600 prose-a:decoration-2 prose-a:hover:decoration-4 prose-a:hover:text-black dark:prose-a:hover:text-white break-words tracking-normal prose-h4:tracking-normal prose-h5:tracking-normal prose-h6:tracking-normal prose-code:before:hidden prose-code:after:hidden prose-h3:mt-24';
+export const proseCSS = 'container mx-auto px-6 sm:px-6 max-w-3xl prose prose-lg lg:prose-xl dark:prose-invert dark:prose-headings:text-slate-300 prose-headings:font-heading prose-headings:leading-tighter prose-headings:tracking-tighter prose-headings:font-bold prose-img:rounded-md prose-img:shadow-lg mt-8 prose-a:text-black/75 dark:prose-a:text-white/90 prose-a:underline prose-a:underline-offset-4 prose-a:decoration-primary-500 prose-a:hover:decoration-primary-600 prose-a:decoration-2 prose-a:hover:decoration-4 prose-a:hover:text-black dark:prose-a:hover:text-white break-words tracking-normal prose-h4:tracking-normal prose-h5:tracking-normal prose-h6:tracking-normal prose-code:before:hidden prose-code:after:hidden prose-h2:mt-24';

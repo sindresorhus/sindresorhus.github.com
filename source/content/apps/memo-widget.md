@@ -16,7 +16,7 @@ The app is simple by design.
 
 For macOS, it's only available for Apple silicon Macs running macOS 14 or later.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -92,10 +92,6 @@ Currently, there are no plans to integrate iCloud syncing due to its complexity 
 #### How is this different from your [Any Text](/any-text) app?
 
 Any Text has a lot of features and is very flexible. With this app, I wanted to make something simple and focused.
-
-<!-- #### Why is this free without ads?
-
-I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store. -->
 
 #### Can you localize the app into my language?
 

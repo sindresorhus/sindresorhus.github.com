@@ -21,7 +21,7 @@ It's an [Universal Purchase](/apps/faq#universal-purchase).
 
 *It only handles UTF-8 text files (meaning no UTF-16).*
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -142,7 +142,7 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.5.1](https://github.com/user-attachments/files/18928644/Plain.Text.Editor.1.5.1.-.macOS.14.zip) for macOS 14+
 - [1.3.2](https://github.com/sindresorhus/meta/files/14232390/Plain.Text.Editor.1.3.2.-.macOS.13.zip) for macOS 13+

@@ -270,7 +270,7 @@ Anything related to changing system features/settings or interacting with other 
 
 For these, I recommend sending a [feature request to Apple](https://feedbackassistant.apple.com).
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -300,13 +300,13 @@ iOS does not have a way to prevent individual apps from being offloaded (even th
 
 #### [More FAQs…](/apps/faq)
 
-### Older versions
+## Older versions
 
 - [3.5.1](https://github.com/user-attachments/files/18963268/Actions.3.5.1.-.macOS.14.zip) for macOS 14+
 - [2.10.0](https://www.dropbox.com/scl/fi/lzy4po8qfggroxcv9pzdo/Actions-2.10.0-1731826197.zip?rlkey=f37xihlhq45syauygdn5268un&raw=1) for macOS 13+
 - [1.13.1](https://www.dropbox.com/scl/fi/9iqfn8airygpk0la4gv1u/Actions-1.13.1-1731826428.zip?rlkey=y4u5ni2pn28rp3lse08lv96k6&raw=1) for macOS 12+
 
-### Non-App Store Version
+## Non-App Store Version
 
 A special macOS version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 

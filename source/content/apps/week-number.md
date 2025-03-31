@@ -25,7 +25,7 @@ Check out [Dato](/dato) for week number in the menu bar and more features and se
 
 ---
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -53,11 +53,11 @@ Change [this system setting](https://apple.stackexchange.com/questions/191445/st
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.1.0](https://github.com/user-attachments/files/18203839/Week.Number.1.1.0.zip) for macOS 14+
 
-### Non-App Store Version
+## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 

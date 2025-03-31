@@ -17,7 +17,7 @@ You can also open a URL or run a shortcut instead when tapping the widget. This 
 
 For macOS, it's only available for Apple silicon Macs running macOS 14 or later.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 

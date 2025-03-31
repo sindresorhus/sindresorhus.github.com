@@ -22,7 +22,7 @@ I welcome suggestions for what more useful support tools it could contain. Some 
 
 ![Download count](https://img.shields.io/github/downloads/sindresorhus/app-buddy-meta/total?color=3e65d0)
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -40,7 +40,7 @@ Much of the functionality would not be possible in the App Store because of [san
 
 #### [More FAQs…](/apps/faq)
 
-<!-- ### Older Versions
+<!-- ## Older Versions
 
 - [] for macOS 15+
 -->

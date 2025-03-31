@@ -16,7 +16,7 @@ feedbackNote: |
 
 Easily access [ChatGPT](https://www.zdnet.com/article/what-is-chatgpt-and-why-does-it-matter-heres-everything-you-need-to-know/) from the menu bar, Dock, or using a keyboard shortcut.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -54,7 +54,7 @@ Apple generally rejects website wrappers even if they add useful additional func
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.4.11](https://github.com/sindresorhus/meta/files/14156246/QuickGPT.1.4.11.zip) for macOS 13
 

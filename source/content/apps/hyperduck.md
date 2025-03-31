@@ -31,7 +31,7 @@ My personal use-case is that I often discover cool stuff when I check Twitter on
 
 The app uses iCloud syncing to securely send links from your iOS/visionOS device to your Mac. The app developer will not see the links you share. The app does not collect any personal data and does not have any tracking.
 
-### Troubleshooting
+## Troubleshooting
 
 - If the “Send to Mac” button is not showing up in share sheets, you may have to enable it at the bottom of the share sheet with the “Edit Actions” button. You may even have to restart your device for it to show up (iOS bugs…).
 - Ensure Hyperduck is running on the Mac.
@@ -40,9 +40,9 @@ The app uses iCloud syncing to securely send links from your iOS/visionOS device
 - In the iOS app, if you triple-tap the text, it will show the most recently shared URLs, which may aid debugging.
 - [More…](/apps/faq#icloud-sync)
 
-### Tips
+## Tips
 
-#### Run shortcuts {#shortcuts}
+### Run shortcuts {#shortcuts}
 
 You can use this app to trigger [shortcuts](https://support.apple.com/guide/shortcuts/welcome/ios) on your Mac from your iOS devices. This enables a lot of powerful use-cases. For example, you could make your Mac play a specific song directly from your iPhone.
 
@@ -54,11 +54,11 @@ You can now run this shortcut on your iOS device to trigger the `Unicorn` shortc
 
 [Learn more](https://www.macstories.net/reviews/automation-april-hyperduck-leverages-the-power-of-url-schemes-to-control-your-mac-from-an-iphone-or-ipad/) in the Hyperduck review by MacStories.
 
-#### Shut down Mac
+### Shut down Mac
 
 You can use the Shortcuts support mentioned above to shut down your computer remotely from your iOS device. Just follow the above steps and use the “Shut Down” action (requires macOS 13.3) in the Shortcuts app or the AppleScript action with the following: `tell app "System Events" to shut down`.
 
-#### Trigger Raycast deeplinks {#raycast}
+### Trigger Raycast deeplinks {#raycast}
 
 Similar to the above, we can use a [Raycast deeplink](https://manual.raycast.com/deeplinks).
 
@@ -70,14 +70,14 @@ raycast://confetti
 
 You can now trigger confetti to show up on your Mac from your iPhone.
 
-#### Send a link to a specific browser profile
+### Send a link to a specific browser profile
 
 Create an [iOS shortcut that triggers a macOS shortcut](#shortcuts) and set it to appear in the share sheet. In the macOS shortcut, use the "Open URLs" action from my [Velja](/velja) app to open the URL in a specific browser profile.
 
 - [Example iOS shortcut](https://www.icloud.com/shortcuts/a00ac5bb31294084936fbd4dd6ca0245)
 - [Example macOS shortcut](https://www.icloud.com/shortcuts/d39c57b67ed343d58192a899841d6457)
 
-#### Send a link to a specific Mac {#send-to-specific-mac}
+### Send a link to a specific Mac {#send-to-specific-mac}
 
 Instead of using the “Send to Mac” share sheet button provided by the app, you can make a [shortcut](#shortcuts) for each Mac you want to send to and put those shortcuts in the share sheet.
 
@@ -90,7 +90,7 @@ Then edit the macOS shortcut to match the device name of the device you want thi
 
 To support more Macs, repeat the process for each Mac.
 
-#### Download a file on your Mac from your iOS device
+### Download a file on your Mac from your iOS device
 
 You can use Hypeduck to trigger a download from your iOS device and have it downloaded on your Mac.
 
@@ -101,7 +101,7 @@ Add the below [shortcuts](#shortcuts):
 
 You can then tap “Download on Mac” in the share sheet on your iOS device, and the item will be downloaded on your Mac to the “Downloads” folder.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -232,7 +232,7 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.2.3](https://github.com/user-attachments/files/18591073/Hyperduck.1.2.3.-.macOS.14.zip) for macOS 14
 - [1.0.7](https://github.com/sindresorhus/meta/files/14292936/Hyperduck.1.0.7.-.macOS.13.zip) for macOS 13

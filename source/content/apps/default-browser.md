@@ -37,21 +37,21 @@ Unlike similar apps, this one actually changes the system default browser.
 
 ---
 
-### Tips
+## Tips
 
-#### Browser selector
+### Browser selector
 
 Set a keyboard shortcut to open the menu. Once open, select a browser by pressing its number key or navigate using the arrow keys.
 
-#### Launch browser
+### Launch browser
 
 Hold the Option key and click a browser in the menu to open it, rather than setting it as the default.
 
-#### Switch to specific browser with keyboard shortcut {#keyboard-shortcut-set-browser}
+### Switch to specific browser with keyboard shortcut {#keyboard-shortcut-set-browser}
 
 Create a [shortcut in the Shortcuts app](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) for each browser using the “Set Default Browser” action, then assign a keyboard shortcut to the shortcut.
 
-#### Automatically switch browser based a trigger {#auto-switch-browser}
+### Automatically switch browser based a trigger {#auto-switch-browser}
 
 The triggers could be: time, location, active app, Wi-Fi network, etc.
 
@@ -59,7 +59,7 @@ For example, set up automatic browser switching between work and personal use th
 
 Use the [Focus filter](#focus-filter) to switch browser based on the active Focus mode.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -109,18 +109,18 @@ I love making [free apps](/apps/free) and having them available to everyone, but
 These are free for everyone but they will not run on newer macOS versions.
  -->
 
-### Scripting
+## Scripting
 
-#### Shortcuts
+### Shortcuts
 
 The app comes with support for the Shortcuts app. Look up the app in the Shortcuts app to see what actions it provides.
 
 For example, you could switch to a certain browser at a [specific time of the day](#auto-switch-browser), or maybe when joining a specific Wi-Fi network. For such triggers, you will also need the [Shortery](https://apps.apple.com/app/id1594183810) app.
 
-#### Focus filter
+### Focus filter
 
 The app includes a [Focus filter](https://support.apple.com/guide/mac-help/mchl613dc43f/mac#mchl49b73d04) to automatically switch the default browser based on the Focus mode. Enable it in “System Settings › Focus”.
 
-#### Events
+### Events
 
 The [distributed notification](/apps/faq#distributed-notifications) `com.sindresorhus.defaultBrowserDidChange` is emitted when the default browser is changed from the app or the Shortcuts action.

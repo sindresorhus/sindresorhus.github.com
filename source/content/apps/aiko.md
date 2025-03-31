@@ -140,15 +140,15 @@ Aiko transcribes audio directly on your device, ensuring complete privacy. It's 
 
 The app uses the Whisper large v2 model on macOS and the medium or small model on iOS depending on available memory.
 
-### Trial
+## Trial
 
 Try Aiko free for 14 days via [TestFlight](https://testflight.apple.com/join/P1qnhHCC). It's the full app, no limitations. No auto-charges or commitment. Simply purchase it from the App Store after the trial if you want to continue using it.
 
 *Disregard where it says how many days there are left. It means the days left of the current TestFlight build, not how long you have left on your trial.*
 
-### Tips
+## Tips
 
-#### Divide text into paragraphs
+### Divide text into paragraphs
 
 Aiko divides the transcription text by sentences. If you want the text divided into paragraphs, copy the text from Aiko, go to [ChatGPT](https://chat.openai.com), and use the following prompt.
 
@@ -156,7 +156,7 @@ GPT-4: `Divide the text into paragraphs. Don't change the text otherwise: TRANSC
 
 GPT-3.5: `Remove newlines and divide the text into paragraphs. Don't change the text otherwise: TRANSCRIPTION TEXT`
 
-#### Fix missing punctation
+### Fix missing punctation
 
 A flaw of the Whisper model is that transcriptions can sometimes be missing punctation. Try setting the “Prompt” setting (requires macOS 14 / iOS 17) to, for example:
 
@@ -164,39 +164,39 @@ A flaw of the Whisper model is that transcriptions can sometimes be missing punc
 
 If that still doesn't fix it, try copying the text from Aiko, go to [ChatGPT](https://chat.openai.com), and use this prompt: `Fix the missing punctation. Don't change the text otherwise: TRANSCRIPTION TEXT`
 
-#### Batch transcribe {#batch}
+### Batch transcribe {#batch}
 
 Aiko does not yet support batch transcription built-in, but you can achieve it with shortcuts.
 
 Get [this (iOS)](https://www.icloud.com/shortcuts/f790a41e23ae4222920277b4fe9d1217) or [this (macOS)](https://www.icloud.com/shortcuts/0be44e478b9e472192cae2e0dfc327ed) shortcut and then share the audio files you want to transcribe (e.g. from Voice Memos or Files/Finder) and choose the shortcut in the share sheet. You can also run the shortcut directly from the Shortcuts app or even add the shortcut to the Home Screen.
 
-#### Transcribe files directly in Finder
+### Transcribe files directly in Finder
 
 On macOS, you can transcribe files simply by right-clicking audio files in Finder and choosing [this shortcut](https://www.icloud.com/shortcuts/a9b68a1291c44795ae236a3a02322bf6) (add it first) in "Quick Actions". [Preview.](https://twitter.com/sindresorhus/status/1789957043912093954) In the shortcut you can choose whether you want text or subtitles.
 
-#### Record and transcribe by pressing the iPhone action button
+### Record and transcribe by pressing the iPhone action button
 
 [This](https://www.icloud.com/shortcuts/62a62ef967b74ffb897d72ee6a881746) shortcut records, transcribes, and then shows the result in the Aiko app. Save the shortcut and then select it in the action button settings.
 
 If you want to record, transcribe, and then do something with the transcription in your shortcut workflow, check out [this shortcut](https://www.icloud.com/shortcuts/00198bd63c094540ba25fe066245319d). You could, for example, pass the transcription to the ChatGPT shortcut action for further processing.
 
-#### Quickly record and transcribe (iOS)
+### Quickly record and transcribe (iOS)
 
 Do the same as the above, but instead add the shortcut to the Home Screen (can be done in the shortcut settings).
 
-#### Quickly record, transcribe, and add transcription to the Notes app (iOS)
+### Quickly record, transcribe, and add transcription to the Notes app (iOS)
 
 Use [this shortcut](https://www.icloud.com/shortcuts/806ab945539d42acb79354805c50d9d5).
 
-#### Quickly record and transcribe (macOS)
+### Quickly record and transcribe (macOS)
 
 You can use [this shortcut](https://www.icloud.com/shortcuts/e43220d72f3343659e0fda36fee52d72) to be able to quickly record, transcribe, and have the result copied to the clipboard. The shortcut can be triggered from the menu bar or you can set a global keyboard shortcut for it.
 
-#### Start recording in Aiko when tapping the Home Screen icon
+### Start recording in Aiko when tapping the Home Screen icon
 
 [Get this shortcut](https://www.icloud.com/shortcuts/7c3031aa674c405fa69093d1f6c184a6) and add it to the Home Screen. Then tap it instead of the original Aiko app icon.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -385,7 +385,7 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.5.3](https://drive.google.com/file/d/15NOcj4fyX58I3_NlQyCziL87Ru89yFRx/view?usp=sharing) for macOS 13
 

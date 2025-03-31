@@ -39,12 +39,12 @@ Extract text from anywhere on your screen. Select any area containing text - fro
 
 </details>
 
-### Tips
+## Tips
 
 - When in capturing mode, simply click again to exit. You could also press <kbd>Esc</kbd>.
 - Right-click menu bar icon to capture.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -111,6 +111,6 @@ TextSniper advantages:
 
 #### [More FAQs…](/apps/faq)
 
-<!-- ### Older Versions
+<!-- ## Older Versions
 
 - []() for macOS 15+ -->

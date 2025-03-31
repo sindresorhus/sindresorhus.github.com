@@ -20,7 +20,7 @@ olderMacOSVersions:
 
 Lungo prevents your Mac from falling asleep and your screen from dimming.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -120,7 +120,7 @@ Amphetamine has lots of features. Most of which I would never use. It ships with
 
 #### [More FAQs…](/apps/faq)
 
-### Scripting
+## Scripting
 
 You can control Lungo using anything that supports opening a URL with a custom scheme.
 
@@ -128,13 +128,13 @@ You can control Lungo using anything that supports opening a URL with a custom s
 
 Tip: You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
-#### Integrations
+### Integrations
 
 - [lungo-cli](https://github.com/sindresorhus/lungo-cli) - Command-line tool.
 - [Raycast commands](https://github.com/raycast/script-commands/tree/master/commands#lungo)
 	- Note: Raycast commands are not the same as plugins. [How to install commands.](https://github.com/raycast/script-commands#install-script-commands-from-this-repository)
 
-#### Custom URL scheme
+### Custom URL scheme
 
 For example, to activate Lungo for 10 minutes, run this terminal command:
 
@@ -207,7 +207,7 @@ import subprocess
 subprocess.run(['open', '--background', 'lungo:toggle'])
 ```
 
-### Older Versions
+## Older Versions
 
 - [2.4.2](https://github.com/sindresorhus/meta/files/14276605/Lungo.2.4.2.-.macOS.13.zip) for macOS 13
 - [2.2.2](https://github.com/sindresorhus/meta/files/11292407/Lungo.2.2.2.-.macOS.12.zip) for macOS 12

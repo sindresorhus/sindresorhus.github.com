@@ -15,7 +15,7 @@ Check if you are online directly from the menu bar. The menu bar icon turns red 
 
 Unlike just checking if Wi-Fi is connected, the app verifies actual internet connectivity through network tests.
 
-### Tips
+## Tips
 
 #### Connect to other Wi-Fi when status is offline
 
@@ -25,7 +25,7 @@ You can have the app connect to a different Wi-Fi if the current one becomes off
 
 You could also restart the Wi-Fi when it becomes offline. Add [this shortcut](https://www.icloud.com/shortcuts/8bbe914b13ff4f3ab9f063e835c92747).
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -61,7 +61,7 @@ No. Menu bar icons are intended to be mostly monotone, changing color only to in
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.3.0](https://github.com/user-attachments/files/19074059/Online.Check.1.3.0.-.macOS.14.zip) for macOS 14
 

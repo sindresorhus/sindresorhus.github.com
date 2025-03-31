@@ -18,7 +18,7 @@ The app uses [GPT-4o mini](https://openai.com/index/gpt-4o-mini-advancing-cost-e
 
 The app uses OpenAI's official ChatGPT API. I have to pay for every question, but the app is a one-time purchase since I hate subscription. I sure hope I estimated the price correctly 🤣
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I bought the app on my iPhone/iPad but it does not show up on my watch
 

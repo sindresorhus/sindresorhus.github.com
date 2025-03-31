@@ -14,9 +14,9 @@ olderMacOSVersions:
 
 Quickly check your internet connection speed, ping, and [RPM](#rpm).
 
-### Tips
+## Tips
 
-#### Show the current internet speed in the menu bar {#menu-bar-output}
+### Show the current internet speed in the menu bar {#menu-bar-output}
 
 <img src="https://github.com/sindresorhus/meta/assets/170270/a7ffaf8f-6fb0-4c90-822f-446ec5ff8960" alt="Speediness output in the menu bar" width="230">
 
@@ -26,7 +26,7 @@ Add [this shortcut](https://www.icloud.com/shortcuts/d073ad4fd89f4c9cb110795780e
 
 Tip: If you have limited space in the menu bar, you could switch the info shown in One Thing at an interval too. For example, you could show the internet speed for 10 minutes and then the weather for the next 10 minutes.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -100,13 +100,13 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.7.2](https://github.com/user-attachments/files/18912491/Speediness.1.7.2.-.macOS.14.zip) for macOS 14+
 - [1.6.1](https://github.com/sindresorhus/meta/files/13965129/Speediness.1.6.1.-.macOS.13.zip) for macOS 13+
 - [1.5.0](https://github.com/sindresorhus/meta/files/10847708/Speediness.1.5.0.-.macOS.12.zip) for macOS 12+
 
-### Non-App Store Version
+## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 

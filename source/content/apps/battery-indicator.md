@@ -19,7 +19,7 @@ olderMacOSVersions:
 
 Quickly glance the remaining battery time or percentage right in your menu bar.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -65,7 +65,7 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [2.18.0](https://github.com/user-attachments/files/19015442/Battery.Indicator.2.18.0.-.macOS.14.zip) for macOS 14
 - [2.16.1](https://github.com/sindresorhus/meta/files/13942534/Battery.Indicator.2.16.1.-.macOS.13.zip) for macOS 13

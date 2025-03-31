@@ -12,7 +12,7 @@ appStoreId: 6743048714
 
 Add playful eyes to your menu bar that follow your cursor and blink when you click. Pure whimsy! 👀
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -28,11 +28,11 @@ The app is optimized as much as possible, but macOS is inefficient at updating m
 
 #### [More FAQs…](/apps/faq)
 
-<!-- ### Older Versions
+<!-- ## Older Versions
 
 - []() for macOS 15+ -->
 
-### Non-App Store Version
+## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 

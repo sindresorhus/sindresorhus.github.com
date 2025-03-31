@@ -105,7 +105,7 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 
 **And many more planned!**
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -159,7 +159,7 @@ A bit of whimsy makes software more human and approachable. Even Apple uses a sm
 
 #### [More FAQs…](/apps/faq)
 
-<!-- ### Older Versions
+<!-- ## Older Versions
 
 - [] for macOS 15
 

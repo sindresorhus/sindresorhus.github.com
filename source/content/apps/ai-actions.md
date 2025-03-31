@@ -31,7 +31,7 @@ It also supports many more models through [Ollama and Groq](#alternative-provide
 
 *You may also like my [Actions](/actions) app.*
 
-### Tips
+## Tips
 
 #### Ollama and Groq support {#alternative-providers}
 
@@ -39,7 +39,7 @@ The app also supports [Ollama](https://ollama.com/blog/openai-compatibility) (lo
 
 For Ollama, you need to specify a local URL like `http://localhost:11434` in the “Base URL” setting in the app. For Groq, specify `https://api.groq.com/openai`. In the “Ask AI” action, select the “Custom” model and provide the name of the desired model.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -75,11 +75,11 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.3.3](https://github.com/user-attachments/files/18376675/AI.Actions.1.3.3.-.macOS.14.zip) for macOS 14+
 
-### Non-App Store Version
+## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 

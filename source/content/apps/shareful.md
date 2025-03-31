@@ -16,7 +16,7 @@ olderMacOSVersions:
 
 Shareful makes the system share menu even more useful by providing some commonly needed share services like copy and save.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -48,7 +48,7 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.10.4](https://github.com/user-attachments/files/18914470/Shareful.1.10.4.-.macOS.14.zip) for macOS 14+
 - [1.9.1](https://github.com/sindresorhus/meta/files/14158056/Shareful.1.9.1.-.macOS.13.zip) for macOS 13+
@@ -56,7 +56,7 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 - [1.6.0](https://github.com/sindresorhus/meta/files/8800088/Shareful.1.6.0.-.macOS.11.zip) for macOS 11+
 - [1.4.0](https://github.com/sindresorhus/meta/files/7119520/Shareful.1.4.0.-.macOS.10.15.zip) for macOS 10.15+
 
-### Non-App Store Version
+## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 

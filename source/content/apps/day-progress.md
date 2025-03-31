@@ -22,7 +22,7 @@ You can set up multiple time ranges to run one after another throughout your day
 
 Choose between a progress pie or bar, showing percentage, remaining time, or minutes left.
 
-### Tips
+## Tips
 
 <!-- #### Time presets
 
@@ -36,21 +36,21 @@ You can use a shortcut to make it count down 8 hours from when you decide. [Exam
 
 Run [this shortcut](https://www.icloud.com/shortcuts/830746d544ce471cb1ff70b2f4de0e22) every day using [Shortery](https://apps.apple.com/app/id1594183810) and you will always have the correct sunrise and sunset times. -->
 
-#### Reminder about shortcuts
+### Reminder about shortcuts
 
 A shortcut can be run from the menu bar, using a global keyboard shortcut, from Spotlight, or from Raycast. You can even use [Shortery](https://apps.apple.com/us/app/shortery/id1594183810?mt=12) to make it run automatically, for example, when you change to the work focus.
 
-#### Hide the system clock {#hide-system-clock}
+### Hide the system clock {#hide-system-clock}
 
 You could use Day Progress as an abstract clock instead of the system clock, to minimize anxiety and distraction from time, enhancing focus and productivity.
 
 Unfortunately, it's not possible to fully hide the built-in menu bar clock. However, you could make it an analog clock, which makes it a lot less visible. In “System Settings › Control Center › Clock Options”, choose the analog clock and disable showing the date.
 
-#### Events
+### Events
 
 The [distributed notification](/apps/faq#distributed-notifications) `com.sindresorhus.Day-Progress.dayEnded` is emitted when a progress finishes.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -94,7 +94,7 @@ I do not plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.4.0](https://github.com/user-attachments/files/18767518/Day.Progress.1.4.0.-.macOS.14.zip) for macOS 14
 - [1.3.0](https://github.com/sindresorhus/meta/files/13979415/Day.Progress.1.3.0.-.macOS.13.zip) for macOS 13

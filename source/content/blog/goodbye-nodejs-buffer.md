@@ -39,7 +39,7 @@ The primary transition steps are:
 - Stop using `Buffer`-specific methods.
 - Replace `Buffer` reading/writing methods, like [`Buffer#readInt32BE()`](https://nodejs.org/api/buffer.html#bufreadint32beoffset), with [`DataView`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView).
 
-### Questions
+## Questions
 
 #### Why did `Buffer` exist in the first place?
 
@@ -53,7 +53,7 @@ You can use my [`uint8array-extras` package](https://github.com/sindresorhus/uin
 
 Since `Buffer` is a subclass of `Uint8Array`, you can just treat it like a `Uint8Array`. Just make sure you don't use `.slice()` (which differs in behavior) or any Buffer-specific methods.
 
-### Examples
+## Examples
 
 #### JavaScript
 

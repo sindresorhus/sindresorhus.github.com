@@ -16,7 +16,7 @@ olderMacOSVersions:
 
 This can be useful as a quick reference.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -56,14 +56,14 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.9.1](https://github.com/user-attachments/files/18215312/UTC.Time.1.9.1.-.macOS.14.zip) for macOS 14+
 - [1.7.1](https://github.com/sindresorhus/meta/files/13973570/UTC.Time.1.7.1.-.macOS.13.zip) for macOS 13+
 - [1.5.1](https://github.com/sindresorhus/meta/files/10767291/UTC.Time.1.5.1.-.macOS.12.zip) for macOS 12+
 - [1.3.0](https://github.com/sindresorhus/meta/files/8007477/UTC.Time.1.3.0.-.macOS.11.zip) for macOS 11+
 
-### Non-App Store Version
+## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 

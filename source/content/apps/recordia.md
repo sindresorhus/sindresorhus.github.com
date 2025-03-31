@@ -17,7 +17,7 @@ olderMacOSVersions:
 
 Record audio directly from the menu bar or with a global keyboard shortcut.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -69,7 +69,7 @@ Yes, follow the guide [here](https://www.switchingtomac.com/tutorials/how-to-use
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [2.9.0](https://github.com/user-attachments/files/18787741/Recordia.2.9.0.-.macOS.14.zip) for macOS 14+
 - [2.7.0](https://github.com/sindresorhus/meta/files/13975939/Recordia.2.7.0.-.macOS.13.zip) for macOS 13+
@@ -77,7 +77,7 @@ Yes, follow the guide [here](https://www.switchingtomac.com/tutorials/how-to-use
 - [2.3.0](https://github.com/sindresorhus/meta/files/8798113/Recordia.2.3.0.-.macOS.11.zip) for macOS 11
 - [1.5.1](https://github.com/sindresorhus/meta/files/6538283/Recordia.1.5.1.-.macOS.10.15.zip) for macOS 10.15
 
-### Non-App Store Version
+## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 

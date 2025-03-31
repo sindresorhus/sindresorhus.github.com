@@ -23,9 +23,9 @@ Syncs seamlessly across your devices with iCloud.
 
 *You may also like [my similar app](https://sindresorhus.com/one-thing) for macOS.*
 
-### Tips
+## Tips
 
-#### Markdown {#markdown}
+### Markdown {#markdown}
 
 You can style parts of the text bold, italic, or strikethrough using [Markdown](https://www.markdownguide.org/basic-syntax/).
 
@@ -35,12 +35,12 @@ For example:
 - *Italic text* is created by wrapping text with single asterisks: `*italic*`
 - ~~Strikethrough text~~ is created by wrapping text with double tildes: `~~strikethrough~~`
 
-#### Troubleshoot syncing {#troubleshoot-syncing}
+### Troubleshoot syncing {#troubleshoot-syncing}
 
 - After enabling sync, try writing some more text on all the devices.
 - [More…](/apps/faq#icloud-sync)
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -158,16 +158,16 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-### Scripting
+## Scripting
 
 The text in the widgets can be changed using the Shortcuts app.
 
-#### Shortcuts app
+### Shortcuts app
 
 - [Shortcuts usage guide](https://www.xda-developers.com/guide-shortcuts-macos/)
 - [How to run shortcuts from the command-line on macOS](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac)
 
-#### Command-line on macOS
+### Command-line on macOS
 
 Shortcuts can be executed via the command-line, allowing you to set widget text programmatically.
 

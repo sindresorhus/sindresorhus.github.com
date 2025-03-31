@@ -53,7 +53,7 @@ Please help out by starring these Chrome issues which would help Velja users:
 - <https://bugs.chromium.org/p/chromium/issues/detail?id=174117>
 - <https://bugs.chromium.org/p/chromium/issues/detail?id=1325557>
 
-### Trial
+## Trial
 
 Try the fully functional trial [here](https://www.dropbox.com/scl/fi/ixiyq93dwu8yongaokseg/Velja-2.1.0-trial-1738419324.zip?rlkey=ao7w4lh6exje23w33z3fqitpe&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
@@ -61,27 +61,27 @@ Try the fully functional trial [here](https://www.dropbox.com/scl/fi/ixiyq93dwu8
 
 **Requires macOS 15.2**
 
-### Tips
+## Tips
 
-#### Prompt
+### Prompt
 
 Instead of showing the browser prompt by default, you could set it as the alternative browser, which would make it show when you hold the <kbd>Fn</kbd> key while clicking a link.
 
 You could also create a custom rule and select `Prompt` as the browser. For example, you could only show the prompt when clicking links in the Slack app.
 
-#### Prompt shortcuts
+### Prompt shortcuts
 
 While showing the browser prompt, you can press <kbd>Option</kbd> to show buttons to copy or share the link. Or press <kbd>Shift</kbd> or <kbd>Command+C</kbd> to quickly copy the link.
 
 Press <kbd>Option+Tab</kbd>/<kbd>Shift+Option+Tab</kbd> or arrow keys to cycle through browsers. Press <kbd>Return</kbd> or <kbd>Space</kbd> to select one.
 
-#### Copy URL
+### Copy URL
 
 See the above tip.
 
 You can also have “copy URL” as a browser choice in the prompt by installing [this app](https://github.com/sindresorhus/Copy-URL).
 
-#### Open links clicked in a specific app in a specific browser
+### Open links clicked in a specific app in a specific browser
 
 For example, to open all links you click in Slack in Chrome:
 
@@ -91,7 +91,7 @@ For example, to open all links you click in Slack in Chrome:
 - Create a new “Source Apps” matcher and select the app you want. For example, Slack.
 - Click “Save”.
 
-#### Using the Velja browser extension to open links directly in another browser
+### Using the Velja browser extension to open links directly in another browser
 
 To open links from one browser to another when clicking the Velja browser extension icon without seeing a prompt:
 
@@ -102,7 +102,7 @@ To open links from one browser to another when clicking the Velja browser extens
 
 For example, clicking the Velja extension icon in Safari should now open the link directly in Firefox.
 
-#### Open links in a private/incognito window
+### Open links in a private/incognito window
 
 For Safari, [click here](https://github.com/sindresorhus/Safari-Private).
 
@@ -110,13 +110,13 @@ This is especially useful in combination with custom rules. For example, you cou
 
 *Support for other browsers is planned.*
 
-#### Open multiple URLs
+### Open multiple URLs
 
 If you have a document with many URLs you want to open, select them, right-click, go to “Services”, and click “Open URLs with Velja”.
 
 *You may have to enable the service in “System Settings › Keyboard › Keyboard Shortcuts › Services”.*
 
-#### Open links in a website-wrapper app
+### Open links in a website-wrapper app
 
 Let's say you have generated a website wrapper app for facebook.com using an app like [Unite](https://www.bzgapps.com/unite) or [Coherence](https://www.bzgapps.com/coherence), and you want all links to Facebook to go to this app instead of your browser:
 
@@ -126,13 +126,13 @@ Let's say you have generated a website wrapper app for facebook.com using an app
 - Create a new “URL Matchers” matcher and write “facebook.com” in the “Match” field.
 - Click “Save”.
 
-#### Browser extensions
+### Browser extensions
 
 - Safari — Built-in. Just enable it in the Safari settings.
 - [Chrome](https://chrome.google.com/webstore/detail/velja/gpipdgcamiclkcomcnogmlfpalggmcmk) — Also works in Edge, Brave, and other Chromium-based browsers.
 - [Firefox](https://addons.mozilla.org/firefox/addon/velja/)
 
-#### Open the current website in a different browser
+### Open the current website in a different browser
 
 For example, you are surfing a website in Safari and want to open it in Chrome.
 
@@ -146,7 +146,7 @@ You could also show the browser prompt when pressing a keyboard shortcut:
 
 If you want to open the website in a specific browser directly instead of showing the browser prompt, add [this shortcut](https://www.icloud.com/shortcuts/d3f833d1a1334d169ccefe26fa0ec240) instead.
 
-#### Open links clicked in a browser or PWA in a specific browser
+### Open links clicked in a browser or PWA in a specific browser
 
 Velja generally cannot handle links clicked in a browser because browsers don't notify the system about it. However, there is a workaround. Install the [Redirector browser extension](https://chromewebstore.google.com/detail/redirector/ocgpenflpmgnfapjedencafcfakcekcd) and make a rule in that extension to open links in Velja. Here's an [example rule](https://www.dropbox.com/scl/fi/s99bdxvbypar0nj2v8pj5/Redirector-1702989917.json?rlkey=fey4cs3wxuln528wkb5ai75u5&raw=1) (import it into the Redirector extension) that opens all links clicked in a browser in Velja. This could be useful if you need to open all links from a browser PWA in a specific browser.
 
@@ -166,11 +166,11 @@ defaults write com.microsoft.Edge ExternalProtocolDialogShowAlwaysOpenCheckbox -
 
 For other Chrome-based browsers, replace `com.google.Chrome` with their bundle identifier in the above commands.
 
-#### Launch browsers from Velja menu
+### Launch browsers from Velja menu
 
 Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to launch it instead of setting it as the current browser. This even works with browser profiles.
 
-#### Open certain URLs in a specific browser profile
+### Open certain URLs in a specific browser profile
 
 - Open the Velja settings.
 - Go to the “Browsers” tab and grant access to browser profiles.
@@ -181,11 +181,11 @@ Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to laun
 - Define a pattern that matches the URLs you want to match.
 - Click “Save”.
 
-#### Automatically switch browser or browser profile based on time, location, or Focus mode
+### Automatically switch browser or browser profile based on time, location, or Focus mode
 
 Say you use different browser profiles for work and home and want them to switch automatically. This is a good use for the Shortcuts app. Create a shortcut with the "Set Default Browser" action that sets the browser profile to the one you want at home and another for work. You will then need the [Shortery](https://apps.apple.com/app/id1594183810) app to trigger these shortcuts at specific times, or based on your Focus mode if you have one for work. You could even trigger the shortcuts based on Wi-Fi name, which may be easier than defining work times if you work from an office.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -652,11 +652,11 @@ I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
-### Scripting {#scripting}
+## Scripting {#scripting}
 
 The app can be automated using the Shortcuts app or with a custom URL scheme.
 
-#### Custom URL scheme
+### Custom URL scheme
 
 You can open a URL using Velja from any tool that supports opening a URL. This includes a website, Bash, Node.js, Python, Swift, etc.
 
@@ -688,7 +688,7 @@ open --background 'velja:open?url=https%3A%2F%2Fsindresorhus.com&app=com.google.
 
 The `profile` parameter must be used together with the `app` parameter and expects the profile name (not ID). See the Velja settings for supported browsers.
 
-#### Change default browser in Velja from the command-line
+### Change default browser in Velja from the command-line
 
 Run this command:
 
@@ -702,7 +702,7 @@ You can also use this trick to change the alternative browser by using `alternat
 
 Use the special bundle identifier `com.sindresorhus.Velja.promptMarker` to set the prompt as the browser.
 
-### Older Versions
+## Older Versions
 
 - [2.0.14](https://github.com/user-attachments/files/18629080/Velja.2.0.14.-.macOS.14.zip) for macOS 14
 - [1.16.4](https://github.com/sindresorhus/meta/files/14577839/Velja.1.16.4.-.macOS.13.zip) for macOS 13

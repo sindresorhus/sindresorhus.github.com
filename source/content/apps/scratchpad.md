@@ -44,28 +44,28 @@ It's an [Universal Purchase](/apps/faq#universal-purchase).
 
 The app uses iCloud syncing to securely sync your text across devices. This feature is opt-in. Neither the app developer nor Apple can access the text in your scratchpad. The app does not collect any personal data and contains no tracking.
 
-### Trial
+## Trial
 
 Try the fully functional trial of the macOS app [here](https://www.dropbox.com/scl/fi/merdvk5j8c60fu6hqaakc/Scratchpad-1.3.4-trial-1742840407.zip?rlkey=c43yppxnvx4ryo922glouawon&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 
-### Tips
+## Tips
 
-#### Troubleshoot syncing {#troubleshooting}
+### Troubleshoot syncing {#troubleshooting}
 
 - After enabling sync, try writing some more text on all the devices.
 - [More…](/apps/faq#icloud-sync)
 
-#### Keyboard shortcuts <sup>macOS</sup>
+### Keyboard shortcuts <sup>macOS</sup>
 
 - Increase text size: <kbd>⌘+</kbd>
 - Decrease text size: <kbd>⌘-</kbd>
 - Reset text size: <kbd>⌘0</kbd>
 
-#### Launch app from Lock Screen
+### Launch app from Lock Screen
 
 Quickly open the app using the built-in Lock Screen widget. For more customization options, you can also use my [Quick Launch](/quick-launch) app.
 
-#### Quickly add text to the scratchpad
+### Quickly add text to the scratchpad
 
 1. Tap the share button in any app that deals with text and select “Add to Scratchpad”.
 1. macOS: Select some text in any app, right-click, and select “Services › Add to Scratchpad” or “Share › Add to Scratchpad”.
@@ -74,7 +74,7 @@ Quickly open the app using the built-in Lock Screen widget. For more customizati
 1. Use the [custom URL scheme](#scripting)
 1. Use [this shortcut](https://www.icloud.com/shortcuts/caa5fd4f5a7240cf951ef9a4184b0522) directly from a share sheet
 
-##### PopClip integration {#popclip}
+### PopClip integration {#popclip}
 
 Select the below snippet and install it with PopClip:
 
@@ -87,7 +87,7 @@ url: scratchpad:append?text={popclip text}&hide
 
 You can replace `append` with `prepend`. And you can remove `&hide` if you want Scratchpad to show when adding text.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -198,7 +198,7 @@ Tot advantages:
 
 #### [More FAQs…](/apps/faq)
 
-### Scripting
+## Scripting
 
 The app can be automated using the Shortcuts app or with a custom URL scheme.
 
@@ -208,7 +208,7 @@ The app can be automated using the Shortcuts app or with a custom URL scheme.
 - [Node.js API](https://github.com/sindresorhus/one-thing)
 -->
 
-#### Shortcuts app
+### Shortcuts app
 
 - [Shortcuts usage guide](https://www.xda-developers.com/guide-shortcuts-macos/)
 - [How to run shortcuts from the command-line on macOS](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac)
@@ -217,7 +217,7 @@ The app can be automated using the Shortcuts app or with a custom URL scheme.
 
 - [*Tell me if you have done anything cool with scripting*](https://sindresorhus.com/feedback?product=Scratchpad&referrer=Website-FAQ)
 
-#### Custom URL scheme
+### Custom URL scheme
 
 You can add text to the scratchpad from any tool that can open an URL. This includes a website, Bash, Node.js, Python, Swift, etc.
 
@@ -247,7 +247,7 @@ There is no way to get the text using the URL scheme, but you can use Shortcuts 
 
 I have not included a way to overwrite the text because I don't want anything to be able to overwrite the scratchpad. If you want this, [tell me your use-case](https://sindresorhus.com/feedback?product=Scratchpad&referrer=Website-FAQ). I may add this with an opt-in setting. For now, you can do it with Shortcuts.
 
-### Older Versions
+## Older Versions
 
 - [1.2.8](https://github.com/user-attachments/files/18575785/Scratchpad.1.2.8.-.macOS.14.zip) for macOS 14
 

@@ -62,7 +62,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 ---
 
-### Trial
+## Trial
 
 Try the fully functional trial [here](https://www.dropbox.com/scl/fi/rjw0gejej8d0l86hifpaa/Dato-5.5.4-trial-1743017444.zip?rlkey=a267ckzz4isozmlr26z3r6y7f&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 
@@ -70,7 +70,7 @@ Try the fully functional trial [here](https://www.dropbox.com/scl/fi/rjw0gejej8d
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
-### Tips
+## Tips
 
 <table>
 	<tr>
@@ -262,7 +262,7 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 	</tr>
 </table>
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -701,17 +701,17 @@ This also enabled the new setting that lets you hide the main Dato menu bar item
 
 Previously, when you clicked the event in the menu bar, you could hide it from the menu bar by clicking “Hide from Menu Bar”. You now need to right-click the menu bar item and click “Mute”.
 
-### Scripting
+## Scripting
 
-#### Shortcuts
+### Shortcuts
 
 The app comes with support for the Shortcuts app. Look up the app in the Shortcuts app to see what it provides.
 
-#### Events
+### Events
 
 The [distributed notification](/apps/faq#distributed-notifications) `com.sindresorhus.Dato.joinedVideoCall` is emitted when you join a video call from Dato.
 
-### Older Versions
+## Older Versions
 
 - [5.4.3](https://github.com/user-attachments/files/18981467/Dato.5.4.3.-.macOS.14.zip) for macOS 14
 - [5.1.3](https://github.com/sindresorhus/meta/files/14097627/Dato.5.1.3.-.macOS.13.zip) for macOS 13

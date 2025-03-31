@@ -13,7 +13,7 @@ Capture your creativity instantly. Ideal for quick sketches, artistic brainstorm
 
 The app is intentionally simple.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 

@@ -19,7 +19,7 @@ The app is intentionally simple. Check out [Dato](/dato) for more features and s
 
 The calendar displays dates and days in your language, but the rest of the app is in English.
 
-### Tips
+## Tips
 
 - **Go to today (current month):** Click the month name or press the <kbd>space</kbd> key.
 - **Switch months:** Press arrow keys or swipe horizontally on the calendar.
@@ -30,7 +30,7 @@ The calendar displays dates and days in your language, but the rest of the app i
 - **Create new event on a specific day:** Right-click the day the calendar.
 - **Copy the date for a day in the calendar:** Right-click the day the calendar.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -92,12 +92,12 @@ I just enjoy making apps. I earn money on other apps. Consider leaving a nice re
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.4.1](https://www.dropbox.com/scl/fi/ldlznw1f2oo04i6j2hcnt/Menu-Bar-Calendar-1.4.1-macOS-14-1737700069.zip?rlkey=arklgyyq4k9dcodg1sq1us65n&raw=1) for macOS 14+
 - [1.2.0](https://github.com/sindresorhus/meta/files/13922546/Menu.Bar.Calendar.1.2.0.-.macOS.13.zip) for macOS 13+
 
-### Non-App Store Version
+## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 

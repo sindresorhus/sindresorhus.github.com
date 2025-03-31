@@ -17,7 +17,7 @@ olderMacOSVersions:
 
 This app can be useful when you want to post a screenshot or photo on the web that contains some information you don’t want to be revealed. Maybe you want to share a screenshot of a Slack conversation on Twitter but hide some private information. It also removes all metadata, like when and where a photo was captured.
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -41,7 +41,7 @@ It’s from Apple’s inspirational [“Here’s to the Crazy Ones” TV commerc
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [2.4.0](https://github.com/user-attachments/files/18210600/Black.Out.2.4.0.-.macOS.14.zip) for macOS 14
 - [2.3.1](https://github.com/sindresorhus/meta/files/13923936/Black.Out.2.3.1.-.macOS.13.zip) for macOS 13

@@ -31,7 +31,7 @@ You may also like my [Spaced](/spaced) app for grouping menu bar items.
 
 ---
 
-### Frequently Asked Questions {#faq}
+## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
@@ -77,6 +77,6 @@ The app works by changing hidden system settings, which is not allowed on the Ap
 
 #### [More FAQs…](/apps/faq)
 
-### Older Versions
+## Older Versions
 
 - [1.0.1](https://github.com/user-attachments/files/18203513/Menu.Bar.Spacing.1.0.1.zip) for macOS 14+
