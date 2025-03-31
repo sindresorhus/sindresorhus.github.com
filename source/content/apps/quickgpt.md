@@ -7,9 +7,10 @@ platforms:
 isPaid: true
 releasesRepo: quickgpt-meta
 mainLinks:
-  'Download': https://sindresorhus.gumroad.com/l/quickgpt?wanted=tru
+  'Download': https://sindresorhus.gumroad.com/l/quickgpt?wanted=true
 olderMacOSVersions:
   - '13'
+  - '14'
 feedbackNote: |
   If you are having problems with copying text, that's a problem with ChatGPT and not the app. The same problem can be seen on https://chatgpt.com
 ---
@@ -56,6 +57,7 @@ Apple generally rejects website wrappers even if they add useful additional func
 
 ## Older Versions
 
+- [1.5.2](https://github.com/user-attachments/files/19539752/QuickGPT.1.5.2.-.macOS.14.zip) for macOS 14
 - [1.4.11](https://github.com/sindresorhus/meta/files/14156246/QuickGPT.1.4.11.zip) for macOS 13
 
 These are free for everyone but they will not run on newer macOS versions.

@@ -254,7 +254,7 @@ You may also like my [Shareful](/shareful), [Menu Bar Spacing](/menu-bar-spacing
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/xrt4b6r2ry2ukxpmrrry8/Supercharge-1.15.1-trial-1743088560.zip?rlkey=l1fspagzwlbjguxkgg34prwji&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/7d8vqicpe7pqcbwnzthfb/Supercharge-1.16.0-trial-1744717060.zip?rlkey=szpnqby1rt5nh6ve96phxmkao&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=742&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 

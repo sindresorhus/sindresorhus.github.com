@@ -42,7 +42,7 @@ If you or your company are using any of my projects, consider supporting me so I
 - [Open Collective](https://opencollective.com/sindresorhus)
 - [Alipay](/assets/alipay-qrcode.jpg) *(China)*
 - BTC: `3FA1Wpk1SFFCZyQRYufyhLBCcdd9MRCHKf`
-- ETH: `0x0Bf22db80adEdfDfb2574b0230299Fd48d513F25`
+- ETH: `0x44A3A86d8A2631aB82C1368889E75Df4E1c07068`
 
 ### Buy my apps
 

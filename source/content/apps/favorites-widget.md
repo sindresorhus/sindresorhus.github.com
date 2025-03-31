@@ -15,7 +15,7 @@ Call, message, or email your favorite people directly from the Lock Screen, Home
 
 You can also open a URL or run a shortcut instead when tapping the widget. This opens up a lot of cool possibilities. Here are [some ideas](https://github.com/bhagyas/app-urls) of what you could open.
 
-For macOS, it's only available for Apple silicon Macs running macOS 14 or later.
+For macOS, it's only available for Apple silicon Macs running macOS 15 or later.
 
 ## Frequently Asked Questions {#faq}
 

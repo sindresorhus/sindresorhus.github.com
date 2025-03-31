@@ -316,20 +316,43 @@ Make sure:
 	- Try signing out and in again of the account in the Calendar app settings. That has helped a few users.
 - [Microsoft Bookings has problems syncing to MacBooks.](https://answers.microsoft.com/en-us/outlook_com/forum/all/bookings-meetings-sync-with-iphone-but-not-with/085530b3-90d2-4792-b0d9-0cc6f52875ba?page=3)
 
-#### The “upcoming event in menu bar” notification is not showing up
+#### The “upcoming event in menu bar” notification is not showing up {#upcoming-event-in-menu-bar-troubleshooting}
 
 Make sure:
-
 - The feature in enabled in the settings.
 - The correct calendars for it are enabled (it has a separate calendar picker).
 - When in the settings for it, the placeholder example menu bar item shows up in the menu bar.
 	- If it doesn't show up, try reducing the “event title limit”.
 - There is enough space in the menu bar to show it.
+- You are on the latest Dato and macOS versions.
+- You have tried restarting your computer.
 - If you have Bartender or Ice (or a similar app that hides menu bar items) installed, make sure the menu bar item was not auto-hidden by them.
 	- Note that it uses a separate menu item from the main Dato menu item, so it could still be hidden by Bartender/Ice while the main menu bar item is not.
 	- Try quitting Bartender/Ice to make sure it is not one causing the issue.
 	- If you are using Ice, see [this](https://github.com/jordanbaird/Ice/discussions/298).
 		- As a workaround, in the “upcoming event in menu bar” settings, you could choose to keep the menu bar item visible even when there are no upcoming events.
+- The event is not an all-day event (which are not shown).
+- You have not muted the event.
+- You have not excluded the event with the “Exclude events” setting.
+- If you have “Show for video call events only” enabled, ensure the event shows a video call icon in the event list.
+- If you have “Show for events with an alert only” enabled, ensure the event has an alert.
+- If you have “Show only for accepted events” enabled, ensure the event is accepted.
+
+#### Fullscreen notifications do not work {#fullscreen-notifications-troubleshooting}
+
+Make sure:
+- The fullscreen notifications setting is enabled.
+- You have selected the correct calendars in the fullscreen notifications settings.
+- You are on the latest Dato and macOS versions.
+- You have tried restarting your computer.
+- The event is not an all-day event (which are not shown).
+- You have not muted the event.
+- You have not excluded the event with the “Exclude events” setting.
+- You have not already joined the event in the last 15 minutes.
+- You have not paused fullscreen notification from a [Focus Filter](https://support.apple.com/guide/mac-help/mchl613dc43f/mac).
+- If you have “Show for video call events only” enabled, ensure the event shows a video call icon in the event list.
+- If you have “Show for events with an alert only” enabled, ensure the event has an alert.
+- If you have “Show only for accepted events” enabled, ensure the event is accepted.
 
 #### The Dato menu bar item is not faded out on inactive displays
 
@@ -442,22 +465,6 @@ However, you have some options:
 I would appreciate it if you could take a moment to [complain to Apple](https://www.apple.com/feedback/macos.html) that they should bring back the ability to disable the built-in menu bar clock. For reference, on macOS 10.15, there's a checkbox called “Show date and time in the menu bar” in “System Preferences › Date & Time › Clock”. This checkbox no longer exists on macOS 11 and later.
 
 I have already [reported it to Apple](https://github.com/feedback-assistant/reports/issues/131), but I have yet to get a reply.
-
-#### Fullscreen notifications do not work
-
-Make sure:
-- The fullscreen notifications setting is enabled.
-- You are on the latest Dato and macOS versions.
-- You have tried restarting your computer.
-- You have selected the correct calendars in the fullscreen notifications settings.
-- The event is not an all-day event (which are not shown).
-- You have not muted the event.
-- You have not excluded the event with the “Exclude events” setting.
-- You have not already joined the event in the last 15 minutes.
-- You have not paused fullscreen notification from a [Focus Filter](https://support.apple.com/guide/mac-help/mchl613dc43f/mac).
-- If you have “Show for video call events only” enabled, ensure the event shows a video call icon in the event list.
-- If you have “Show for events with an alert only” enabled, ensure the event has an alert.
-- If you have “Show only for accepted events” enabled, ensure the event is accepted.
 
 #### What does the “Hide” button on an event do? {#hide-event}
 

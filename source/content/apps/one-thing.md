@@ -52,6 +52,10 @@ However, what you use this space for is really up to you.
 
 [Send it here.](https://sindresorhus.com/feedback?product=One%20Thing&referrer=Website-FAQ)
 
+#### The app does not show up in the menu bar
+
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender or Ice if you have it installed.
+
 #### The menu bar item has disappeared!
 
 macOS hides menu bar items that do not fit. [Click here](one-thing:?text=) to reset the text.

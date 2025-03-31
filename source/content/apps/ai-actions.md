@@ -37,7 +37,11 @@ It also supports many more models through [Ollama and Groq](#alternative-provide
 
 The app also supports [Ollama](https://ollama.com/blog/openai-compatibility) (local models like GGUF) and [Groq](https://console.groq.com/docs/openai) (because they have OpenAI API compatibility), making it possible to use it with a lot more models.
 
-For Ollama, you need to specify a local URL like `http://localhost:11434` in the “Base URL” setting in the app. For Groq, specify `https://api.groq.com/openai`. In the “Ask AI” action, select the “Custom” model and provide the name of the desired model.
+For Ollama, you need to specify a local URL like `https://localhost:11434` in the “Base URL” setting in the app.
+
+For Groq, specify `https://api.groq.com/openai`. In the “Ask AI” action, select the “Custom” model and provide the name of the desired model.
+
+For [Gemini](https://ai.google.dev/gemini-api/docs/openai), specify `https://generativelanguage.googleapis.com/v1beta/openai/`. In the “Ask AI” action, select the “Custom” model and provide the name of the desired model.
 
 ## Frequently Asked Questions {#faq}
 

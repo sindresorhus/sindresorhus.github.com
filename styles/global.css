@@ -30,7 +30,7 @@
 
 @utility list-subtitle {
 	/* Note: It has to be span as otherwise Markdown inside it will not be rendered */
-	@apply leading-snug opacity-65 dark:opacity-60;
+	@apply leading-snug opacity-65 dark:opacity-60 text-base;
 	display: block !important;
 
 	/* Slightly more spacing when both are used */

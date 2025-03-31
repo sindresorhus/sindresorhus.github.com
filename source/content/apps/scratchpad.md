@@ -46,7 +46,9 @@ The app uses iCloud syncing to securely sync your text across devices. This feat
 
 ## Trial
 
-Try the fully functional trial of the macOS app [here](https://www.dropbox.com/scl/fi/merdvk5j8c60fu6hqaakc/Scratchpad-1.3.4-trial-1742840407.zip?rlkey=c43yppxnvx4ryo922glouawon&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
+Try the fully functional trial of the macOS app [here](https://www.dropbox.com/scl/fi/oom7qosmezpfxz0eq34of/Scratchpad-1.3.5-trial-1744020563.zip?rlkey=6rj12yieyt25x1c0i1kj3opt2&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
+
+There is no trial for the iOS version.
 
 ## Tips
 
