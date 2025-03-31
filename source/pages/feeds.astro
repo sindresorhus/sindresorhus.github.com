@@ -1,0 +1,42 @@
+---
+import MarkdownIt from 'markdown-it';
+import MarkdownLayout from '~/layouts/MarkdownLayout.astro';
+import {fetchApps} from '~/utils/apps.js';
+
+const parser = new MarkdownIt({
+	html: true,
+	linkify: true,
+	typographer: true,
+});
+
+const staticContent = `
+# RSS Feeds
+
+#### General
+
+- [Blog](https://sindresorhus.com/rss.xml)
+- [New Apps](https://sindresorhus.com/rss-apps.xml)
+- [New Repos](https://sindresorhus.com/rss-repos.xml)
+
+#### App Release Notes
+`;
+
+const apps = await fetchApps({includeUnlisted: true});
+
+const appsWithReleases = apps
+	.filter(app => app.releasesRepo)
+	.sort((a, b) => a.title.localeCompare(b.title));
+
+const frontmatter = {
+	title: 'RSS Feeds',
+};
+---
+
+<MarkdownLayout frontmatter={frontmatter}>
+	<div set:html={parser.render(staticContent)}/>
+	<ul>
+		{appsWithReleases.map(app => (
+			<li><a href={`/${app.slug}/rss.xml`}>{app.title}</a></li>
+		))}
+	</ul>
+</MarkdownLayout>

@@ -14,7 +14,7 @@ The app provides widgets that act like sticky notes. Show them on your Home Scre
 
 The app is simple by design.
 
-For macOS, it's only available for Apple silicon Macs running macOS 14 or later.
+For macOS, it's only available for Apple silicon Macs running macOS 15 or later.
 
 ## Frequently Asked Questions {#faq}
 
@@ -92,9 +92,5 @@ Currently, there are no plans to integrate iCloud syncing due to its complexity 
 #### How is this different from your [Any Text](/any-text) app?
 
 Any Text has a lot of features and is very flexible. With this app, I wanted to make something simple and focused.
-
-#### Can you localize the app into my language?
-
-I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)

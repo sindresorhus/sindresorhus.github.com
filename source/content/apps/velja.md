@@ -55,7 +55,7 @@ Please help out by starring these Chrome issues which would help Velja users:
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/ixiyq93dwu8yongaokseg/Velja-2.1.0-trial-1738419324.zip?rlkey=ao7w4lh6exje23w33z3fqitpe&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/qbxomovvqfw8pkiuyz8bs/Velja-2.1.1-trial-1744305664.zip?rlkey=33fvpheacv4z1gpz1fzgopfmm&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 

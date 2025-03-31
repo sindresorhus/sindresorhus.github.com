@@ -76,10 +76,6 @@ None -->
 	<img src="/assets/thanks/workos-logo-white-bg.svg" width="380" alt="WorkOS">
 </a>
 <br>
-<a href="https://transloadit.com?utm_source=sindresorhus&utm_medium=referral&utm_campaign=sponsorship&utm_content=website" class="sponsor" rel="nofollow" style="position:relative;left:-40px;margin-top:20px">
-	<img src="/assets/thanks/transloadit-logo.svg" width="500" alt="Transloadit">
-</a>
-<br>
 <a href="https://logto.io/ref=sindre" class="sponsor" rel="nofollow">
 	<img src="/assets/thanks/logto-logo-light.svg" width="320" alt="Logto">
 </a>
@@ -427,6 +423,7 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Preston Nalls](https://github.com/pjnalls)
 - [Supatool](https://supatool.io)
 - [Encore](https://encore.dev)
+- [Transloadit](https://transloadit.com)
 
 ---
 

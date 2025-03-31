@@ -16,6 +16,7 @@ olderMacOSVersions:
   - '11'
   - '12'
   - '13'
+  - '14'
 ---
 
 Lungo prevents your Mac from falling asleep and your screen from dimming.
@@ -24,11 +25,11 @@ Lungo prevents your Mac from falling asleep and your screen from dimming.
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Lungo&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Lungo&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender or Ice if you have it installed.
 
 #### Lungo did not keep my computer awake
 
@@ -91,10 +92,6 @@ However, power users can take advantage of the Shortcuts app to use custom durat
 #### Can it keep my status on Slack, Microsoft Teams, etc, show as active?
 
 No, that's not the purpose of this app. Different apps use different techniques for detecting active status, which could change at any time.
-
-#### How can I export, import, sync, or back up the settings?
-
-[See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
 
 #### How can I transfer my settings from the App Store version to the Setapp version?
 
@@ -209,6 +206,7 @@ subprocess.run(['open', '--background', 'lungo:toggle'])
 
 ## Older Versions
 
+- [2.6.0](https://github.com/user-attachments/files/19683413/Lungo.2.6.0.-.macOS.14.zip) for macOS 14
 - [2.4.2](https://github.com/sindresorhus/meta/files/14276605/Lungo.2.4.2.-.macOS.13.zip) for macOS 13
 - [2.2.2](https://github.com/sindresorhus/meta/files/11292407/Lungo.2.2.2.-.macOS.12.zip) for macOS 12
 - [2.0.4](https://github.com/sindresorhus/meta/files/8870132/Lungo.2.0.4.-.macOS.11.zip) for macOS 11
