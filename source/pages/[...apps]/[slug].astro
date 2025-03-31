@@ -54,7 +54,7 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 				</h2>
 				<div id="another-random-app" class="flex justify-center hidden instapaper_ignore">
 					<a href="/apps/random"
-						class="flex items-center gap-2 px-4 py-2 mb-6 font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full shadow-sm hover:shadow-md hover:from-primary-600 hover:to-secondary-600 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800">
+						class="flex items-center gap-2 px-4 py-2 mb-6 font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 rounded-full shadow-xs hover:shadow-md hover:from-primary-600 hover:to-secondary-600 focus:outline-hidden focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800">
 						<Icon name="tabler:arrows-shuffle" class="w-5 h-5" aria-hidden="true"/>
 						Another Random App
 					</a>
@@ -87,7 +87,7 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 								<>
 									<!-- We apply a fixed size so it matches the App Store button. -->
 									{Object.entries(app.mainLinks).map(([title, url]) => (
-										<a href={url} class="text-white bg-primary-700 hover:bg-primary-600 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-bold rounded-lg text-xl px-6 text-center mb-2 flex justify-center items-center whitespace-nowrap px-10 py-4" style="width: 180px; height: 60px;">{title}</a>
+										<a href={url} class="text-white bg-primary-700 hover:bg-primary-600 focus:ring-4 focus:outline-hidden focus:ring-blue-300 dark:focus:ring-blue-800 font-bold rounded-lg text-xl px-6 text-center mb-2 flex justify-center items-center whitespace-nowrap px-10 py-4" style="width: 180px; height: 60px;">{title}</a>
 									))}
 								</>
 						}

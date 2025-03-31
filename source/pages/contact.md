@@ -28,7 +28,7 @@ window.history.replaceState({}, '', url);
 
 # Contact
 
-<div class="sm:-mt-2 not-prose font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-secondary-500 hover:underline hover:underline-offset-8 hover:decoration-4 decoration-black dark:decoration-white">
+<div class="sm:-mt-2 not-prose font-bold bg-clip-text text-transparent bg-linear-to-r from-primary-500 to-secondary-500 hover:underline hover:underline-offset-8 hover:decoration-4 decoration-black dark:decoration-white">
 	<a id="contact-email" href="mailto:sindresorhus@gmail.com" class="text-[clamp(0.5rem,6vw,1.875rem)]">sindresorhus@gmail.com</a>
 </div>
 
