@@ -10,8 +10,9 @@ isPaid: true
 appStoreId: 1672085276
 olderMacOSVersions:
   - '13'
+  - '14'
 feedbackNote: |
-  [Refunds](/apps/faq#refund
+  [Refunds](/apps/faq#refund)
 
   If the app crashes, it's likely that the device ran out of available RAM. Restart your device and try again.
 
@@ -369,6 +370,10 @@ The translation support is built into the AI model and it only supports translat
 
 Aiko does not have a custom URL scheme, but you can trigger Aiko from the Shortcuts app, and the Shortcuts app does have a [custom URL scheme](https://support.apple.com/guide/shortcuts/run-a-shortcut-from-a-url-apd624386f42/ios).
 
+#### What is Flash Attention? {#flash-attention}
+
+Flash Attention is a special technique that helps the app process audio more efficiently while using less memory on your device. Think of it as a smarter way to handle the heavy lifting of transcription. It's a setting in case it causes any problem. It should not though.
+
 #### How is Aiko pronounced?
 
 IPA (International Phonetic Alphabet): `[a.i.ko̞]`
@@ -387,6 +392,7 @@ I don't plan to localize the app.
 
 ## Older Versions
 
+- [1.8.2](https://drive.google.com/file/d/1ZKZ5P17Pvv4CYuBtkfDe5cuJw46S1HoE/view?usp=sharing) for macOS 14
 - [1.5.3](https://drive.google.com/file/d/15NOcj4fyX58I3_NlQyCziL87Ru89yFRx/view?usp=sharing) for macOS 13
 
 These are free for everyone but they will not run on newer macOS versions.

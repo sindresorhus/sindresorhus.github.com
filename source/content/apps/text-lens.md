@@ -15,8 +15,19 @@ feedbackNote: |
 
 Extract text from anywhere on your screen. Select any area containing text - from images, videos, PDFs, or presentations - and instantly convert it to editable text.
 
-<details>
-<summary><b>Supported languages</b></summary>
+#### Highlights
+
+- Extract text from anywhere on your screen
+- Scan QR codes and barcodes
+- Capture by simply clicking the menu bar icon
+- Works completely offline
+- Global keyboard shortcut to activate capture
+- Extract text from images on clipboard or files
+- Extract text directly from photo taken with iPhone/iPad camera
+- Drag and drop images onto menu bar icon to extract text
+- [Privacy focused](#privacy)
+
+#### Supported languages
 
 - English
 - French
@@ -37,7 +48,9 @@ Extract text from anywhere on your screen. Select any area containing text - fro
 - Arabic
 - Arabic, Najdi
 
-</details>
+#### Privacy
+
+Everything is done locally on your device. Nothing leaves your device. The app is not even able to connect to the internet due to self-imposed restrictions that are enforced by macOS (no network entitlement).
 
 ## Tips
 
@@ -77,11 +90,15 @@ While macOS Live Text works well for images and photos in supported apps, Text L
 
 Yes. Text recognition runs locally on your Mac. No internet connection is required.
 
+#### Can I capture text in multiple languages at once?
+
+Yes. The app can extract text in different languages simultaneously from the same capture. For example, you can capture a region containing both English and Chinese text, and both will be recognized correctly. The language setting is simply a hint to improve the recognition.
+
 #### Does the app preserve text formatting when copying?
 
 No, only plain text is captured. Formatting like italics, bold, or underlines is not preserved when copying text.
 
-#### Can you add support for more languages?
+#### Can you add support for more languages? {#add-language}
 
 The app uses macOS's text recognition system, so language support is determined by your operating system.
 
@@ -91,7 +108,7 @@ The app uses macOS's text recognition engine, so detection quality is determined
 
 #### Can you add support for capturing text like this to Supercharge too?
 
-This is planned, but I want to perfect it here first.
+This is planned as a simpler version, but I want to perfect it here first.
 
 #### How does this compare to TextSniper? {#textsniper}
 
