@@ -12,7 +12,7 @@ olderMacOSVersions:
   - '14'
 ---
 
-Pure Paste lets you paste as plain text by default. It sits in the menu bar and clears formatting (fonts, colors, bold, links, tables, etc.) from the text you copy. However, it does not touch unrelated content like files, images, etc. It also ignores content copied from password managers.
+Pure Paste lets you paste as plain text by default. It sits in the menu bar and automatically clears formatting (fonts, colors, bold, links, tables, etc.) from the text you copy, while intelligently preserving unrelated content like files, images, and passwords from password managers.
 
 You can also choose to manually clear formatting whenever needed instead of automatically.
 
@@ -102,6 +102,10 @@ The app contains a list of tracking parameters to remove, but there may be site-
 #### Can you add a setting to preserve bold and italic?
 
 In short, no. To preserve bold and italic, the app has to preserve the font too, and by preserving the font, it has to set a font name and size. This means the text will not match the destination formatting. Instead, for example, in Word, you can copy with formatting and select “Paste and Match Formatting”, which correctly preserves bold and italic while clearing color and sizes.
+
+#### I have “Preserve links” enabled, and when I paste into an app (for example, Mimestream), it ends up with the “Times New Roman” font instead of the system font
+
+When “Preserve links” is enabled, Pure Paste removes formatting but keeps the text as rich text instead of plain text. Some apps don't handle this properly and default to “Times New Roman”. The only workaround is to disable “Preserve links”.
 
 #### I have “Preserve links” enabled, and when I paste into Word, it ends up with the “Times New Roman” font instead of the existing font {#word-bug}
 
