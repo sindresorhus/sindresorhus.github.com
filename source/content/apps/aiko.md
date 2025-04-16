@@ -173,7 +173,7 @@ Get [this (iOS)](https://www.icloud.com/shortcuts/f790a41e23ae4222920277b4fe9d12
 
 ### Transcribe files directly in Finder
 
-On macOS, you can transcribe files simply by right-clicking audio files in Finder and choosing [this shortcut](https://www.icloud.com/shortcuts/a9b68a1291c44795ae236a3a02322bf6) (add it first) in "Quick Actions". [Preview.](https://twitter.com/sindresorhus/status/1789957043912093954) In the shortcut you can choose whether you want text or subtitles.
+On macOS, you can transcribe files simply by right-clicking audio files in Finder and choosing [this shortcut](https://www.icloud.com/shortcuts/d03bb8e17513432190a1ed711f99d423) (add it first) in "Quick Actions". [Preview.](https://twitter.com/sindresorhus/status/1789957043912093954) In the shortcut you can choose whether you want text or subtitles.
 
 ### Record and transcribe by pressing the iPhone action button
 
@@ -215,6 +215,17 @@ I have plans to look into it, but it's not something I have time to prioritize r
 
 Even the latest iPhone is not powerful enough to run the large model. It can maybe be done when the [Whisper Distilled](https://github.com/huggingface/distil-whisper) project supports multiple languages.
 
+#### Can you support the new [Apple SpeechTranscriber API](https://developer.apple.com/documentation/speech/speechtranscriber)?
+
+Probably not initially:
+
+- New Apple APIs are always super buggy
+- Only 10 languages
+- No automatic language detection
+- Whisper still has higher quality
+
+Maybe when it's more mature.
+
 #### Can I edit the text in the app?
 
 I don't plan to support any editing. Export the transcription and edit it in a proper text editor.
@@ -241,6 +252,7 @@ This is unfortunately a flaw in the Whisper AI model and out of my control. This
 Some things you could try:
 - Restart your device.
 - Try enabling the “Reduce repetitions” setting.
+- Try enabling the “Reduce repetitions even more” setting.
 - If you don't needs timestamps, you can disable them being produced, which can sometimes reduce repetitions. Triple-tap on the “Translate to English” text in the settings and then disable the “Produce timestamps” setting.
 
 #### The transcription is missing punctation

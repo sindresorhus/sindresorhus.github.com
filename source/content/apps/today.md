@@ -136,6 +136,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/1b6ifxx3ho9m62k8f9bt9/Today-1.7.0-1739987244.zip?rlkey=drhxcupuckz358mont0xbemoj&raw=1) *(1.7.0)*
+[Download](https://www.dropbox.com/scl/fi/r87w55w9hy6j2i54srg5c/Today-1.7.1-1749995609.zip?rlkey=4tv1ovsun17asiyfkgopp3fn8&raw=1) *(1.7.1)*
 
 *Requires macOS 15 or later*
