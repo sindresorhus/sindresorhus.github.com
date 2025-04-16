@@ -48,6 +48,10 @@ You could also use the “Flash Screen” action from the [Actions app](https://
 
 Pandan lets you run a single shortcut as a notification, but a shortcut can run other shortcuts. So make the shortcuts you want to run, make another shortcut that uses the “Run Shortcut” action to run the other shortcuts, and then select this shortcut in Pandan.
 
+### Can you support iCloud sync?
+
+No. iCloud sync is unreliable and creates too many support issues, especially for a free app.
+
 #### How can I use this as an eye-break reminder? {#eye-break-reminder}
 
 Set Pandan to remind you to take a break. Make a shortcut in the Shortcuts app that uses the “Wait” action and set it to the wanted duration of the break. After this action, you can either add a “Play Sound” or “Show Alert” action to notify you when the break is done. Then select this shortcut in the Pandan settings.

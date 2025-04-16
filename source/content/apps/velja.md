@@ -20,6 +20,8 @@ feedbackNote: |
   [Support for opening links directly in Slack is not possible.](https://sindresorhus.com/velja#slack)
 
   **If you're requesting an addition to the “Apps” list, [please read this](https://sindresorhus.com/velja#builtin-apps-requests).**
+
+  If you are missing a browser in the brower prompt, ensure you have enabled it in the “Shown browsers” setting. Also try restarting your computer.
 ---
 
 Open links in a specific browser or a matching native app. Easily switch between browsers.

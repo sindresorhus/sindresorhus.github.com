@@ -265,6 +265,7 @@ Some common actions requests that are not possible:
 - Hotspot status
 - Hotspot connect/disconnect
 - CarPlay connection status
+- All audio playback destinations
 
 Anything related to changing system features/settings or interacting with other apps is generally not possible.
 
