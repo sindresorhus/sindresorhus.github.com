@@ -48,13 +48,69 @@ Dato is a one-time purchase on the App Store with a lifetime of updates.
 - Global keyboard shortcut to open/close the app.
 - Supports calendar events with HTML formatted notes.
 - Show seconds in the menu bar clock or in the menu. (Optional)
-- Integration with Zoom, Google Meet, Microsoft Teams and 50+ other services.
+- Integration with Zoom, Google Meet, Microsoft Teams, and 50+ other services.
 	- And the ability to add support for any other video call service yourself.
 - Open calendar events from Google Calendar directly in Google Calendar on the web.
 - Comes with multiple menu bar icons to choose from: date in calendar, date with border (like Itsycal), static clock, none.
 - Large text mode.
 - Date calculator.
 - Hourly chime.
+
+##### Supported video call services {#supported-video-call-services}
+
+- 8x8
+- Amazon Chime
+- Around
+- BlueJeans
+- Cal.com
+- Chorus
+- CoScreen
+- Demio
+- Demodesk
+- Dialpad
+- Doxy.me
+- FaceTime
+- Gather
+- Gong
+- Google Meet
+- GoToMeeting
+- GoToWebinar
+- Huddle01
+- Jam
+- Jitsi Meet
+- Lark
+- LiveKit Meet
+- Livestorm
+- Luma
+- Microsoft Teams
+- oVice
+- Pop
+- Preply
+- Pumble
+- Reclaim
+- Relayed
+- RingCentral
+- Session
+- Skype
+- Slack
+- StreamYard
+- TeamViewer
+- Teemyco
+- Tuple
+- UserZoom
+- Venue
+- Vimeo
+- Vonage
+- VooV
+- Vowel
+- Webex
+- Whereby
+- Workplace Chat
+- Zhumu
+- Zoho Cliq
+- Zoom
+
+*And you can add support for any other video call service yourself in the app.*
 
 ---
 
@@ -64,7 +120,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/rjw0gejej8d0l86hifpaa/Dato-5.5.4-trial-1743017444.zip?rlkey=a267ckzz4isozmlr26z3r6y7f&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/gexeurasna3fn46hx6io4/Dato-5.6.1-trial-1748450509.zip?rlkey=ilttutultrgdemenot2ksu37z&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
@@ -358,9 +414,13 @@ Make sure:
 
 This is a macOS bug. macOS replicates the menu bar item on inactive displays and this handling is outside the control of apps. The reason it does not happen for all items is that Dato sets rich-text content.
 
+#### What is the diamond menu bar icon that suddenly appeared?
+
+This is the menu item for the “upcoming event in menu bar” feature. It shows this diamond icon when there are no active events. You can choose to either hide it or show a different icon in the settings.
+
 #### It does not support the video call service I use
 
-I'm happy to add support for more services. Just [send me](/feedback?product=Dato&referrer=Website-FAQ) an invitation link (replace a few characters at the end to anonymize it).
+I'm happy to add support for more [services](#supported-video-call-services). Just [send me](/feedback?product=Dato&referrer=Website-FAQ) an invitation link (replace a few characters at the end to anonymize it).
 
 The app can also detect the link of any video call service if you correctly add it in the Calendar app:
 - Create a new event.
@@ -468,7 +528,7 @@ I have already [reported it to Apple](https://github.com/feedback-assistant/repo
 
 #### What does the “Hide” button on an event do? {#hide-event}
 
-It makes Dato pretend the event does not exist. The event will not be shown in Dato and it will not cause any notifications from Dato. You an unhide events from the `…` menu (at the top-right).
+It makes Dato pretend the event does not exist. The event will not be shown in Dato and it will not cause any notifications from Dato. You can unhide events from the `…` menu (at the top-right).
 
 #### What does the “Mute” button on an event do? {#mute-event}
 
@@ -720,7 +780,7 @@ The [distributed notification](/apps/faq#distributed-notifications) `com.sindres
 
 ## Older Versions
 
-- [5.4.3](https://github.com/user-attachments/files/18981467/Dato.5.4.3.-.macOS.14.zip) for macOS 14
+- [5.4.4](https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Dato.5.4.4.-.macOS.14.zip) for macOS 14
 - [5.1.3](https://github.com/sindresorhus/meta/files/14097627/Dato.5.1.3.-.macOS.13.zip) for macOS 13
 - [4.3.3](https://github.com/sindresorhus/meta/files/10516478/Dato.4.3.3.-.macOS.12.zip) for macOS 12
 - [3.3.8](https://github.com/sindresorhus/meta/files/8935698/Dato.3.3.8.-.macOS.11.zip) for macOS 11

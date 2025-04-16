@@ -72,13 +72,6 @@ None -->
 	<img src="/assets/thanks/github-logo.svg" width="310" alt="GitHub">
 </a>
 <br>
-<a href="https://workos.com" class="sponsor" rel="nofollow" style="position:relative;left:-30px">
-	<img src="/assets/thanks/workos-logo-white-bg.svg" width="380" alt="WorkOS">
-</a>
-<br>
-<a href="https://logto.io/ref=sindre" class="sponsor" rel="nofollow">
-	<img src="/assets/thanks/logto-logo-light.svg" width="320" alt="Logto">
-</a>
 <br>
 <a href="https://nitric.io" class="sponsor" rel="nofollow" style="position:relative;left:-20px;margin-top:10px">
 	<img src="/assets/thanks/nitric-logo.svg" width="380" alt="nitric">
@@ -152,7 +145,6 @@ None -->
 - [Junyoung Choi](https://github.com/Rokt33r)
 - [Haroen Viaene](https://github.com/Haroenv)
 - [Clay Nelson](https://github.com/ClayNelson)
-- [Charles Kenney](https://github.com/Charliekenney23)
 - [Mikkel Trolle Larsen](https://github.com/trolster)
 - [Shukri Adams](https://github.com/shukriadams)
 - [Ellery Addington-White](https://github.com/eaddingtonwhite)
@@ -272,7 +264,6 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Jay Soifer](https://twitter.com/jaysoifer)
 - [Pierre-Denis Vanduynslager](https://twitter.com/pvdlg_)
 - Veit Heller
-- [CodePilot.ai](https://codepilot.ai)
 - Barrett Harber
 - [Benjamin Charity](https://twitter.com/benjamincharity)
 - Jens Lind
@@ -322,13 +313,10 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Ben Williams](https://twitter.com/719ben)
 - [Sam Richard](https://twitter.com/snugug)
 - Chris Wales
-- [Loyalty Leo](https://www.loyaltyleo.com)
-- [Ted Vu](https://github.com/Ted-Vu)
 - [Richard Simpson](https://github.com/RichiCoder1)
 - [Spaceship](https://github.com/onspaceship)
 - [Alex LaFroscia](https://github.com/alexlafroscia)
 - [Guillermo Rodas](https://github.com/glrodasz)
-- [Joong Hyuk Im](https://github.com/Kooni-Boop)
 - [MooYeol Prescott Lee](https://github.com/mooyoul)
 - [Claudio Wunder](https://github.com/ovflowd)
 - [UI Bakery](https://uibakery.io)
@@ -424,6 +412,8 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Supatool](https://supatool.io)
 - [Encore](https://encore.dev)
 - [Transloadit](https://transloadit.com)
+- [Logto](https://logto.io)
+- [WorkOS](https://workos.com)
 
 ---
 
