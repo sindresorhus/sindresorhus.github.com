@@ -103,6 +103,10 @@ The app contains a list of tracking parameters to remove, but there may be site-
 
 In short, no. To preserve bold and italic, the app has to preserve the font too, and by preserving the font, it has to set a font name and size. This means the text will not match the destination formatting. Instead, for example, in Word, you can copy with formatting and select “Paste and Match Formatting”, which correctly preserves bold and italic while clearing color and sizes.
 
+#### I have “Preserve links” enabled, and when I paste into an app (for example, Mimestream), it ends up with the “Times New Roman” font instead of the system font
+
+When “Preserve links” is enabled, Pure Paste removes formatting but keeps the text as rich text instead of plain text. Some apps don't handle this properly and default to “Times New Roman”. The only workaround is to disable “Preserve links”.
+
 #### I have “Preserve links” enabled, and when I paste into Word, it ends up with the “Times New Roman” font instead of the existing font {#word-bug}
 
 This is a bug in Word. ~~Please upvote [this report](https://feedbackportal.microsoft.com/feedback/idea/614f1602-cdd8-ec11-a81b-000d3a03dba2).~~ (Update: They removed the bug report and blocked me there 🤷‍♂️)

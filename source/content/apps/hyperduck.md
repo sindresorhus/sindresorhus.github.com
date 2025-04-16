@@ -37,7 +37,9 @@ The app uses iCloud syncing to securely send links from your iOS/visionOS device
 - Ensure Hyperduck is running on the Mac.
 - Hyperduck opens links in the background. Ensure you didn't miss it.
 - Try opening the Hyperduck iOS app to force a sync.
-- In the iOS app, if you triple-tap the text, it will show the most recently shared URLs, which may aid debugging.
+- In the iOS app, if you triple-tap the text, it will show the most recently shared URLs, which may aid debugging. Also check the history in the macOS app.
+- For a few users, initial sync took up to 24 hours due to weird iCloud syncing behavior.
+  - This is controlled by Apple's iCloud system and outside the app's control.
 - [More…](/apps/faq#icloud-sync)
 
 ## Tips

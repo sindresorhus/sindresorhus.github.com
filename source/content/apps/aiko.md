@@ -241,6 +241,7 @@ This is unfortunately a flaw in the Whisper AI model and out of my control. This
 Some things you could try:
 - Restart your device.
 - Try enabling the “Reduce repetitions” setting.
+- Try enabling the “Reduce repetitions even more” setting.
 - If you don't needs timestamps, you can disable them being produced, which can sometimes reduce repetitions. Triple-tap on the “Translate to English” text in the settings and then disable the “Produce timestamps” setting.
 
 #### The transcription is missing punctation

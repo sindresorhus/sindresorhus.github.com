@@ -20,6 +20,8 @@ feedbackNote: |
   [Support for opening links directly in Slack is not possible.](https://sindresorhus.com/velja#slack)
 
   **If you're requesting an addition to the “Apps” list, [please read this](https://sindresorhus.com/velja#builtin-apps-requests).**
+
+  If you are missing a browser in the browser prompt, ensure you have enabled it in the “Shown browsers” setting. Also try restarting your computer.
 ---
 
 Open links in a specific browser or a matching native app. Easily switch between browsers.
@@ -50,12 +52,27 @@ Open links in a specific browser or a matching native app. Easily switch between
 
 Please help out by starring these Chrome issues which would help Velja users:
 
-- <https://bugs.chromium.org/p/chromium/issues/detail?id=174117>
-- <https://bugs.chromium.org/p/chromium/issues/detail?id=1325557>
+- <https://issues.chromium.org/issues/40581582>
+- <https://issues.chromium.org/issues/40962200>
+- <https://issues.chromium.org/issues/40839891>
+
+#### Supported browsers
+
+Any browser.
+
+#### Supported browsers for profiles
+
+- Chrome *(and Beta, Canary, Dev)*
+- Edge *(and Beta, Canary, Dev)*
+- Brave *(and Beta, Nightly)*
+- Vivaldi *(and Snapshot)*
+- Chromium
+- Thorium
+- Wavebox
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/qbxomovvqfw8pkiuyz8bs/Velja-2.1.1-trial-1744305664.zip?rlkey=33fvpheacv4z1gpz1fzgopfmm&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/4cj7mke2crjy5pco1030r/Velja-2.1.2-trial-1748861100.zip?rlkey=26xvnnz5mhd35olzpa4jix10p&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
@@ -68,6 +85,8 @@ Try the fully functional trial [here](https://www.dropbox.com/scl/fi/qbxomovvqfw
 Instead of showing the browser prompt by default, you could set it as the alternative browser, which would make it show when you hold the <kbd>Fn</kbd> key while clicking a link.
 
 You could also create a custom rule and select `Prompt` as the browser. For example, you could only show the prompt when clicking links in the Slack app.
+
+If you want to open a link in the background, press <kbd>Control</kbd> when selecting a browser in the prompt. [Known issue.](#chrome-background-bug)
 
 ### Prompt shortcuts
 
@@ -112,9 +131,7 @@ This is especially useful in combination with custom rules. For example, you cou
 
 ### Open multiple URLs
 
-If you have a document with many URLs you want to open, select them, right-click, go to “Services”, and click “Open URLs with Velja”.
-
-*You may have to enable the service in “System Settings › Keyboard › Keyboard Shortcuts › Services”.*
+If you have a document with many URLs you want to open, select them, right-click, go to “Services”, and click “Open URLs with Velja”. [Learn more.](#macos-services)
 
 ### Open links in a website-wrapper app
 
@@ -125,6 +142,18 @@ Let's say you have generated a website wrapper app for facebook.com using an app
 - Select the website wrapper app in the “Open in” field.
 - Create a new “URL Matchers” matcher and write “facebook.com” in the “Match” field.
 - Click “Save”.
+
+### System services {#macos-services}
+
+The app comes with [system services](https://macreports.com/what-is-the-services-menu-in-macos/?utm_source=chatgpt.com) to open URLs with Velja. This lets you open URLs with Velja from anywhere.
+
+For example, select some text with URLs, right-click, go to “Services”, and click “Open URLs with Velja”.
+
+If you want to force the browser prompt, you can either press <kbd>Option</kbd> when activating the service or use the “Open URLs with Velja Prompt” service.
+
+If you want to force the link to open in the background, press <kbd>Shift</kbd> when activating the service. [Known issue.](#chrome-background-bug)
+
+*You may have to enable the service in “System Settings › Keyboard › Keyboard Shortcuts › Services”.*
 
 ### Browser extensions
 
@@ -215,7 +244,7 @@ Velja is not able to handle links clicked inside a browser. However, Velja comes
 
 If you use a browser where Velja does not have a browser extension, you could also right-click the link and use the share extension \* or copy the link and then click “Open URL from Clipboard” in the Velja menu.
 
-\* *Chrome (and Edge, Brave, etc) does not have a “Share” item in its context menu. Please [star this issue](https://bugs.chromium.org/p/chromium/issues/detail?id=916291).*
+\* *Chrome (and Edge, Brave, etc.) does not have a “Share” item in its context menu. Please [star this issue](https://bugs.chromium.org/p/chromium/issues/detail?id=916291).*
 
 Velja also comes with a [system service](https://www.computerworld.com/article/2476298/os-x-a-quick-guide-to-services-on-your-mac.html). However, neither Safari ([issue](https://github.com/feedback-assistant/reports/issues/304)) or Chrome ([issue](https://bugs.chromium.org/p/chromium/issues/detail?id=1325557)) correctly sends links to a system service, so it cannot be used for this purpose.
 
@@ -233,7 +262,7 @@ If the link is a [short URL](https://en.wikipedia.org/wiki/URL_shortening), make
 
 **I clicked a button in the Dropbox app**
 
-This is either a macOS or Dropbox bug. Velja simply opens what it receives, but what it receives has incorrect permission. When you click a button in Dropbox to open it on the web, it doesn't actually open the URL directly but instead writes an HTML file (which redirects to the final URL) to a temporary directory. I have no idea why it does this, but it's likely this is what causes the issue.
+This is either a macOS or Dropbox bug. Velja simply opens what it receives, but what it receives has incorrect permissions. When you click a button in Dropbox to open it on the web, it doesn't actually open the URL directly, but instead writes an HTML file (which redirects to the final URL) to a temporary directory. I’m not sure why it does this, but it’s likely the cause of the issue.
 
 **It did not respect my rule that uses a "source app" condition**
 
@@ -352,13 +381,15 @@ I don't plan to support this. There is simply not enough demand for it. In addit
 
 I would recommend trying out containers instead (see above). *(Containers are not currently supported, but will be)*
 
-#### I opened a link in the background but it brought Chrome to the foreground
+#### I opened a link in the background but it brought Chrome to the foreground {#chrome-background-bug}
 
-Chrome does not properly respect opening URLs in the background (it generally does not respect platform conventions). This can be reproduced even without Velja by setting Chrome as the system default browser in the System Settings and then running the following in the Terminal:
+Chrome (and Chrome-based browsers) does not properly respect opening URLs in the background (it generally does not respect platform conventions). This can be reproduced even without Velja by setting Chrome as the system default browser in the System Settings and then running the following in the Terminal:
 
 ```sh
 open --background 'https://sindresorhus.com'
 ```
+
+[Star this issue](https://issues.chromium.org/issues/41182587)
 
 #### The link takes a long time to open
 
@@ -374,9 +405,9 @@ This is currently not possible. The Slack app does not accept a normal deep link
 
 #### Can the default browser change based on the active [focus mode](https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac)? {#focus-mode}
 
-You can use the Shortcuts app for this. Make a shortcut for each focus mode you want to handle, where you use the “Set Default Browser” action that Velja provides. You will need the [Shortery app](https://apps.apple.com/app/id1594183810) to automatically run these shortcuts when the focus mode changes.
+You can use the [Focus Filter](https://support.apple.com/HT212608) that comes with the app.
 
-I may add built-in support for focus modes at some point, but it's not a popular request, so it's not something I can prioritize right now.
+Alternatively, you can use the Shortcuts app for this. Make a shortcut for each focus mode you want to handle, where you use the “Set Default Browser” action that Velja provides. You will need the [Shortery app](https://apps.apple.com/app/id1594183810) to automatically run these shortcuts when the focus mode changes.
 
 #### Can the default browser change depending on whether I'm at work or not?
 
@@ -388,13 +419,13 @@ See the above answer. Use the “Power Status” trigger in Shortery.
 
 #### Can you support [Focus filters](https://support.apple.com/HT212608)? {#focus-filters}
 
-Focus filters are meant for filtering content when a specific focus is enabled. Changing settings are better done using Shortcuts, as shown above.
+It is supported.
 
 #### Can you add iCloud syncing for the rules? {#icloud}
 
-iCloud syncing has been quite unreliable in the past year (hearing it from other app developers). Because of this, I don't plan to support iCloud syncing right now. I don't want my users to have a subpar experience and I don't want to deal with all the support that comes with it. I will reevaluate it again next year.
+No. iCloud syncing is unreliable, opaque, and significantly increases my support burden. Very few users request it, and for such a niche feature, the effort and ongoing cost are not worth it.
 
-Velja does support exporting and importing rules manually.
+You can already export and import rules manually.
 
 #### Can you add a vertical or circular browser prompt?
 
@@ -663,7 +694,7 @@ You can open a URL using Velja from any tool that supports opening a URL. This i
 For example, in your terminal:
 
 ```sh
-open --background 'velja:open?url=https%3A%2F%2Fsindresorhus.com&prompt'
+open 'velja:open?url=https%3A%2F%2Fsindresorhus.com&prompt'
 ```
 
 Leave out `&prompt` to not show the browser prompt.
@@ -675,7 +706,7 @@ Tip: You can specify the `url` parameter multiple times to open multiple URLs.
 You can force the use of a specific browser by specifying an `app` parameter:
 
 ```sh
-open --background 'velja:open?url=https%3A%2F%2Fsindresorhus.com&app=org.mozilla.firefox'
+open 'velja:open?url=https%3A%2F%2Fsindresorhus.com&app=org.mozilla.firefox'
 ```
 
 It expects the [bundle identifier](/apps/faq#find-bundle-identifier) of an app. Rules will be ignored when this is specified.
@@ -683,7 +714,7 @@ It expects the [bundle identifier](/apps/faq#find-bundle-identifier) of an app. 
 You can also specify a browser profile by adding the `profile` parameter (Velja 2.1.0 and later):
 
 ```sh
-open --background 'velja:open?url=https%3A%2F%2Fsindresorhus.com&app=com.google.Chrome&profile=Work'
+open 'velja:open?url=https%3A%2F%2Fsindresorhus.com&app=com.google.Chrome&profile=Work'
 ```
 
 The `profile` parameter must be used together with the `app` parameter and expects the profile name (not ID). See the Velja settings for supported browsers.
