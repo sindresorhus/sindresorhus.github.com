@@ -15,18 +15,20 @@ olderMacOSVersions:
   - '13'
   - '14'
 feedbackNote: |
-  ## The “Get Device Orientation” action has been deprecated, since there is now a built-in [“Get Orientation”](https://www.idownloadblog.com/2024/03/12/ios-17-4-new-apple-shortcuts-actions/) action.
+  ### If the actions don't show up in the Shortcuts app or you get a “com.apple.extensionKit.errorDomain error 2”, [see this](/actions#actions-not-showing-up).<br><br>
 
-  ### If you get a “com.apple.extensionKit.errorDomain error 2” error when running your shortcut or if the actions don't show up in the Shortcuts app, restart your device. You could also try setting a different device language and then back. If you just updated the operating system, give it some time to re-index all shortcut actions. Please don't contact me about this issue. This is a problem with iOS/macOS and out of my control.
-
-  **Some actions that are not possible: orientation lock status, flashlight status, ambient sensor info, flight mode status, [and more](/actions#impossible-actions). Generally, anything related to changing system features/settings or interacting with other apps is not possible.**
+  **Some actions that are not possible: orientation lock status, flashlight status, ambient sensor info, flight mode status, [and more](/actions#impossible-actions).**
 ---
 
 The app provides lots of powerful extra actions for the Shortcuts app on macOS, iOS, and visionOS. These actions make it significantly easier to create shortcuts.
 
-**Restart your device if the actions do not show up in the Shortcuts app. Also try setting a different device language and then back.**
+**Restart your device if the actions do not show up in the Shortcuts app. Also try setting a different device language and then back. [Learn more](#actions-not-showing-up)**
 
 If you have any questions about how to use the different actions or for what, try asking the [Actions GPT bot](https://chatgpt.com/g/g-6746353a017881918cceb0761aea3bfe-actions-app-companion). And if you want to feed your own AI, [here is the source data](https://gist.githubusercontent.com/sindresorhus/fbba65a774fb9da915e624807a02a6d2/raw/7be21a65977b6dd82d1a6cc34be4476df057ea06/actions.md).
+
+---
+
+*On macOS, also check out [Shortcutie](/shortcutie) for advanced actions.*
 
 ---
 
@@ -39,6 +41,7 @@ If you have any questions about how to use the different actions or for what, tr
 - Authenticate
 - Blur Images
 - Boolean
+- Calculate Distance
 - Calculate with Soulver
 - Choose from List (Extended)
 - Clamp Number
@@ -46,20 +49,25 @@ If you have any questions about how to use the different actions or for what, tr
 - Combine Lists
 - Combine Videos
 - Convert Coordinates to Location
-- Convert Date to Unix Time
+- Convert Date to Reference Timestamp
+- Convert Date to Unix Timestamp
 - Convert Location to Geo URI
-- Convert Unix Time to Date
+- Convert Reference Timestamp to Date
+- Convert Unix Timestamp to Date
 - Create Color Image
 - Create Duration
 - Create Gradient Color Image
 - Create Menu Item
 - Create URL
+- Create URL Shortcut File
+	<span class="list-description">Create [`.url` or `.webloc`](https://en.wikipedia.org/wiki/Shortcut_(computing)) files that open websites when double-clicked. Primarily for macOS.</span>
 - Download File
 - Edit URL
 - Encrypt File
 - Encrypt Text
 - Filter List
 - Find Music Playlist <sup>(iOS-only)</sup>
+- Find Wi-Fi Network <sup>(macOS-only)</sup>
 - Flash Screen <sup>(macOS-only)</sup>
 - Format Currency
 - Format Date Difference
@@ -83,7 +91,7 @@ If you have any questions about how to use the different actions or for what, tr
 - Get Bluetooth Devices
 - Get Boolean from Input
 - Get Compass Heading <sup>(iOS-only)</sup>
-- Get Default Printer / Set Default Printer <sup>(macOS-only)</sup>
+- Get Default Browser <sup>(macOS-only)</sup>
 - Get Device Details (Extended)
 	- Uptime (not including sleep)
 	- Uptime (including sleep)
@@ -104,11 +112,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Get Dominant Colors of Image
 - Get Elevation <sup>(iOS-only)</sup>
 - Get Emojis
-- Get File Icon <sup>(macOS-only)</sup>
 - Get File Path
 - Get High-Resolution Timestamp
-- Get Image Capture Date / Set Image Capture Date
-- Get Image Location / Set Image Location
 - Get Index of List Item
 - Get Map Image of Location
 - Get Modifier Key State <sup>(macOS-only)</sup>
@@ -129,7 +134,6 @@ If you have any questions about how to use the different actions or for what, tr
 - Get SF Symbol Image
 - Get System Color
 - Get Title of URL
-- Get Uniform Type Identifier / Set Uniform Type Identifier
 - Get User Details
 	- Username <sup>(macOS-only)</sup>
 	- Full Name
@@ -140,10 +144,21 @@ If you have any questions about how to use the different actions or for what, tr
 	- Language Code
 	- Idle Time <sup>(macOS-only)</sup>
 	- Administrator Status <sup>(macOS-only)</sup>
-- Get Values Using JSONPath
+- Get Values Using [JSONPath](https://en.wikipedia.org/wiki/JSONPath)
+- Get/Set Default Printer <sup>(macOS-only)</sup>
+- Get/Set File Extension Visibility <sup>(macOS-only)</sup>
+	<span class="list-description">Check and control whether file extensions are shown in Finder for specific files. Only works if the “Show all filename extensions” Finder setting is disabled.</span>
+- Get/Set File Icon <sup>(macOS-only)</sup>
+	<span class="list-description">Get the icon of files and folders or set custom icons for them.</span>
+- Get/Set File Tags
+- Get/Set Image Capture Date
+- Get/Set Image Location
+- Get/Set Uniform Type Identifier
 - Global Variable
 - Hex Encode
 - Hide Shortcuts App
+- Invert Dictionary
+	<span class="list-description">`{"en": "Hello", "es": "Hola"}` → `{"Hello": "en", "Hola": "es"}`</span>
 - Invert Images
 - Is Accessibility Feature On
 - Is Audio Playing <sup>(iOS-only)</sup>
@@ -175,10 +190,14 @@ If you have any questions about how to use the different actions or for what, tr
 - Join Wi-Fi <sup>(iOS-only)</sup>
 - Merge Dictionaries
 - Named Clipboard <sup>(macOS-only)</sup>
+- Open URLs in Safari
 - Open URLs with App <sup>(macOS-only)</sup>
+	<span class="list-description">For example, open URLs in a specific browser.</span>
 - Overwrite File
 - Parse CSV
 - Parse JSON5
+- Pick Color
+	<span class="list-description">Pick a color using the system color picker, optionally from a reference image.</span>
 - Play Alert Sound <sup>(macOS-only)</sup>
 - Pretty Print Dictionaries
 - Remove Duplicate Lines
@@ -189,6 +208,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Remove Non-Printable Characters
 - Reverse Lines
 - Reverse List
+- Round Number to Decimal Places
+	<span class="list-description">`3.14159` → `3.14`</span>
 - Round Number to Multiple
 - Sample Color from Screen <sup>(macOS-only)</sup>
 - Scan Documents <sup>(iOS-only)</sup>
@@ -196,6 +217,7 @@ If you have any questions about how to use the different actions or for what, tr
 - Send Distributed Notification <sup>(macOS-only)</sup>
 	- [What are distributed notifications?](/apps/faq#distributed-notifications)
 - Set Creation and Modification Date of File
+- Set Dictionary Value Using [JSONPath](https://en.wikipedia.org/wiki/JSONPath)
 - Show Black Screen <sup>(iOS-only)</sup>
 - Show Notification
 - Shuffle List
@@ -230,6 +252,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Truncate List
 - Truncate Number
 - Truncate Text
+- Use System Font in Rich Text
+	- [Example shortcut](https://www.icloud.com/shortcuts/03aecdb46eca496aaf996ebc625a0c54)
 - Wait for Distributed Notification <sup>(macOS-only)</sup>
 	- [What are distributed notifications?](/apps/faq#distributed-notifications)
 - Wait Milliseconds
@@ -264,7 +288,9 @@ Some common actions requests that are not possible:
 - Flight mode status
 - Hotspot status
 - Hotspot connect/disconnect
+- All audio playback destinations
 - CarPlay connection status
+- Notifications in CarPlay
 
 Anything related to changing system features/settings or interacting with other apps is generally not possible.
 
@@ -276,7 +302,7 @@ For these, I recommend sending a [feature request to Apple](https://feedbackassi
 
 Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Actions&referrer=Website-FAQ)
 
-#### The actions don't show up in the Shortcuts app
+#### The actions don't show up in the Shortcuts app {#actions-not-showing-up}
 
 This is caused by a iOS/macOS bug.
 
@@ -284,7 +310,11 @@ Some things you could try:
 
 1. Restart your device.
 1. Change the device language to something else and back.
-1. Add [this shortcut](https://www.icloud.com/shortcuts/14315b9af3774a0c8cb439718a67fb2f), run it once, and see if the actions show up in the Shortcuts app after that.
+1. Add [this shortcut](https://www.icloud.com/shortcuts/14315b9af3774a0c8cb439718a67fb2f), run it once, relaunch Shortcuts, and see if the actions show up in the Shortcuts app after that.
+1. Add [this shortcut](https://www.icloud.com/shortcuts/e3b39e37d8d6439db9119ebbff626958), copy the action, paste it into a new shortcut, and relaunch Shortcuts.
+1. Remove the app, install it again, and restart your device.
+
+*Please don't contact me about this issue. This is a problem with iOS/macOS and out of my control.*
 
 #### I get a “errorDomain error 2” error when running an action
 
