@@ -44,7 +44,7 @@ let releases = await response.json();
 releases = releases.filter(release => !release.draft && !release.prerelease);
 
 const meta = {
-	title: `Release Notes — ${appTitle} — Sindre Sorhus`,
+	title: `Release Notes — ${appTitle}`,
 	rssFeeds: [
 		{
 			title: `${appTitle} Release Notes`,
