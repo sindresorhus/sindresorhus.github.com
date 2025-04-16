@@ -26,6 +26,7 @@ Improve your Mac experience with a bunch of useful functionality:
 *(Every feature is opt-in, so you can enable only what you need)*
 
 - Clear notifications with a keyboard shortcut or from the menu
+- Click top visible notification with a keyboard shortcut
 - [Close & minimize windows and hide & quit apps directly from Mission Control](#mission-control-improvements)
 - [Clicking an active app's Dock icon hides the app, minimizes its windows, or cycles through its windows](#dock-icon-click-behavior)
 - Unminimizes an app’s windows when activated <sup>(e.g., via <kbd>Command+Tab</kbd>)</sup>
@@ -37,6 +38,8 @@ Improve your Mac experience with a bunch of useful functionality:
 - [Clicking green traffic light button fills window instead of entering fullscreen](#green-traffic-light-button-fill)
 - [Clicking yellow traffic light button hides app instead of minimizing window](#yellow-traffic-light-button-hide)
 - [Scan QR codes and barcodes from anywhere on screen](#scan-qr-codes)
+- [Cleaning Mode](https://github.com/user-attachments/assets/572f4e43-d42a-49c2-925f-4db90ebbfd06)
+	<span class="list-description">Makes your screen black and disables keyboard and mouse to let you safely clean your device.</span>
 - Quit apps when closing their last window (clicking the red traffic light button or <kbd>Command+W</kbd>) (similar to Swift Quit and RedQuits apps)
 - Move files received through AirDrop to a specified folder
 	<span class="list-description">Automatically move files from the Downloads folder as soon as they are received.</span>
@@ -49,9 +52,13 @@ Improve your Mac experience with a bunch of useful functionality:
 - Finder: Go back to the previous folder with <kbd>⌫</kbd> (Delete)
 - [Finder: Adds many useful actions to the context menu:](#finder-context-menu) copy path, move to, open folder with, AirDrop, folder colors, etc.
 - Finder: Auto-adjust column widths to filenames in column view, or do it once with a keyboard shortcut
+	- Known (unfixable) issues:
+		- Column widths may not adjust correctly in synced folders due to sync status icons.
 - Finder: Invert selection (deselects what's currently selected and selects everything that wasn't selected)
 - Exclude AirDrop, Mail, and Messages from the system Share menu
   <span class="list-description">These are usually forced to be shown by macOS.</div>
+- Center mouse pointer on primary display when waking and unlocking
+	<span class="list-description">Helps you quickly locate the mouse pointer after returning to your Mac. Also available via keyboard shortcut.</span>
 - [Show markup tools by default in screenshot preview](https://github.com/user-attachments/assets/20b0cfe8-d588-4329-9132-9120b32da7ff)
 - Auto-open screenshot preview after capturing
 - [Show input devices in the Sound menu bar item menu](https://github.com/user-attachments/assets/e6015206-c927-4c97-8f66-7408231d4f23)
@@ -68,12 +75,16 @@ Improve your Mac experience with a bunch of useful functionality:
 	- Also available as an [independent app](/default-browser).
 - Auto-open downloaded calendar event (`.ics`) files and move them to trash after import
 	<span class="list-description">Optionally remove alarms from events.</span>
+- Lowercase file extension of files in Downloads folders
+	<span class="list-description">For example, images from iPhone, which usually have `.JPG` or `.HEIC` extensions. Applies to both the local Downloads folder and the Downloads folder in iCloud Drive.</span>
 - [Make volume key adjustments more precise with half and quarter-step increments](https://github.com/user-attachments/assets/e994755b-94ca-4e3c-8f70-5d3bffc3aed1)
 - Export/import (backup) settings for any apps *([video](https://github.com/user-attachments/assets/82727408-3acb-4c18-91c6-428f1e0ad8c5))*
 - Toggle Terminal with a keyboard shortcut
 - [Offers to install apps from mounted DMG files](https://github.com/user-attachments/assets/5ecb9b0b-5719-4382-98a0-c3316bd20a6b)
 - Toggle Stage Manager directly from its menu bar item
 	<span class="list-description">Normally, clicking it would open a window with a toggle. This saves one click.</span>
+- Hide mouse pointer with keyboard shortcut
+	<span class="list-description">Reappears on movement or when the shortcut is pressed again.</span>
 - Show desktop (menu action)
 - Quit all apps (menu action and keyboard shortcut)
 	<span class="list-description">Optionally exclude specific apps.</span>
@@ -174,6 +185,8 @@ Adds the following actions (can be customized) directly in the right-click menu 
 	<span class="list-description">Shown only when right-clicking an empty area in Finder.</span>
 - New From Template
 	<span class="list-description">Create new files from templates. For example, a Markdown or Excel file. Templates can be organized in subfolders. Click a folder to copy its entire structure, or navigate into it to select individual files. Shown only when right-clicking an empty area in Finder, not a file. Supports dynamic placeholders in filenames (like `Diary {datetime-fixed}` → `Diary 2025-02-14 15.30`). And you can even have the file automatically open after naming it. [Screenshot.](https://github.com/user-attachments/assets/cb401a0e-2e40-4714-9493-b91563a7b387)</span>
+- Open in New Window
+	<span class="list-description">Opens the folder in a new window instead of a tab, even if you have set new windows to open as tabs. This action also shows up in the context menu for sidebar items. Useful when you want to view multiple folders side by side or drag items between locations.</span>
 - Image/Video Dimensions
 - File Size
 - Copy Path
@@ -213,6 +226,8 @@ Adds the following actions (can be customized) directly in the right-click menu 
 	<span class="list-description">Removes the quarantine flag that macOS adds to downloaded files and apps. This removes [security prompts](https://github.com/user-attachments/assets/adbf3c7e-8fee-4cd9-9a90-3958badfa94e) and restrictions for trusted items.</span>
 - Scan QR Code
 	<span class="list-description">Scans QR codes in images and copies the content to the clipboard. Only shown when right-clicking image files.</span>
+- Print
+	<span class="list-description">Print files directly with the default printer without showing any dialog.</span>
 
 *They appear at the bottom of the context menu. There is no way to change that. [They also won't appear in iCloud, Dropbox, or any other sync folder.](#finder-context-menu-icloud)*
 
