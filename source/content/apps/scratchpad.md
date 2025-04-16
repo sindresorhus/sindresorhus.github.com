@@ -161,6 +161,10 @@ I don't plan to add that. It's not essential and I'm trying to keep the app simp
 
 You either have a system setting set to always show scrollbars or you have an external mouse connected. This is simply how macOS works. You can see the behavior in other text editing apps too. See the “Appearance › Show scroll bars” system setting.
 
+#### Why is the scrollbar still white even with window translucency enabled?
+
+macOS does not let apps style the scrollbar. Its background remains solid regardless of translucency.
+
 #### Why is there no way to print?
 
 The app is made using Apple's latest technologies (SwiftUI) and they have not added print support there yet. If you need to print, copy-paste the text over to the TextEdit instead.

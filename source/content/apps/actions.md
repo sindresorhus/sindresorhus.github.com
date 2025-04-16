@@ -15,16 +15,14 @@ olderMacOSVersions:
   - '13'
   - '14'
 feedbackNote: |
-  ## The “Get Device Orientation” action has been deprecated, since there is now a built-in [“Get Orientation”](https://www.idownloadblog.com/2024/03/12/ios-17-4-new-apple-shortcuts-actions/) action.
+  ### If the actions don't show up in the Shortcuts app or you get a “com.apple.extensionKit.errorDomain error 2”, [see this](/actions#actions-not-showing-up).<br><br>
 
-  ### If you get a “com.apple.extensionKit.errorDomain error 2” error when running your shortcut or if the actions don't show up in the Shortcuts app, restart your device. You could also try setting a different device language and then back. If you just updated the operating system, give it some time to re-index all shortcut actions. Please don't contact me about this issue. This is a problem with iOS/macOS and out of my control.
-
-  **Some actions that are not possible: orientation lock status, flashlight status, ambient sensor info, flight mode status, [and more](/actions#impossible-actions). Generally, anything related to changing system features/settings or interacting with other apps is not possible.**
+  **Some actions that are not possible: orientation lock status, flashlight status, ambient sensor info, flight mode status, [and more](/actions#impossible-actions).**
 ---
 
 The app provides lots of powerful extra actions for the Shortcuts app on macOS, iOS, and visionOS. These actions make it significantly easier to create shortcuts.
 
-**Restart your device if the actions do not show up in the Shortcuts app. Also try setting a different device language and then back.**
+**Restart your device if the actions do not show up in the Shortcuts app. Also try setting a different device language and then back. [Learn more](#actions-not-showing-up)**
 
 If you have any questions about how to use the different actions or for what, try asking the [Actions GPT bot](https://chatgpt.com/g/g-6746353a017881918cceb0761aea3bfe-actions-app-companion). And if you want to feed your own AI, [here is the source data](https://gist.githubusercontent.com/sindresorhus/fbba65a774fb9da915e624807a02a6d2/raw/7be21a65977b6dd82d1a6cc34be4476df057ea06/actions.md).
 
@@ -265,6 +263,7 @@ Some common actions requests that are not possible:
 - Hotspot status
 - Hotspot connect/disconnect
 - CarPlay connection status
+- All audio playback destinations
 
 Anything related to changing system features/settings or interacting with other apps is generally not possible.
 
@@ -276,7 +275,7 @@ For these, I recommend sending a [feature request to Apple](https://feedbackassi
 
 Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Actions&referrer=Website-FAQ)
 
-#### The actions don't show up in the Shortcuts app
+#### The actions don't show up in the Shortcuts app {#actions-not-showing-up}
 
 This is caused by a iOS/macOS bug.
 
@@ -284,7 +283,10 @@ Some things you could try:
 
 1. Restart your device.
 1. Change the device language to something else and back.
-1. Add [this shortcut](https://www.icloud.com/shortcuts/14315b9af3774a0c8cb439718a67fb2f), run it once, and see if the actions show up in the Shortcuts app after that.
+1. Add [this shortcut](https://www.icloud.com/shortcuts/14315b9af3774a0c8cb439718a67fb2f), run it once, relaunch Shortcuts, and see if the actions show up in the Shortcuts app after that.
+1. Add [this shortcut](https://www.icloud.com/shortcuts/e3b39e37d8d6439db9119ebbff626958), copy the action, paste it into a new shortcut, and relaunch Shortcuts.
+
+*Please don't contact me about this issue. This is a problem with iOS/macOS and out of my control.*
 
 #### I get a “errorDomain error 2” error when running an action
 

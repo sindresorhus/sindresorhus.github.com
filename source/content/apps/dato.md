@@ -56,6 +56,62 @@ Dato is a one-time purchase on the App Store with a lifetime of updates.
 - Date calculator.
 - Hourly chime.
 
+##### Supported video call services {#supported-video-call-services}
+
+- 8x8
+- Amazon Chime
+- Around
+- BlueJeans
+- Cal.com
+- Chorus
+- CoScreen
+- Demio
+- Demodesk
+- Dialpad
+- Doxy.me
+- FaceTime
+- Gather
+- Gong
+- Google Meet
+- GoToMeeting
+- GoToWebinar
+- Huddle01
+- Jam
+- Jitsi Meet
+- Lark
+- LiveKit Meet
+- Livestorm
+- Luma
+- Microsoft Teams
+- oVice
+- Pop
+- Preply
+- Pumble
+- Reclaim
+- Relayed
+- RingCentral
+- Session
+- Skype
+- Slack
+- StreamYard
+- TeamViewer
+- Teemyco
+- Tuple
+- UserZoom
+- Venue
+- Vimeo
+- Vonage
+- VooV
+- Vowel
+- Webex
+- Whereby
+- Workplace Chat
+- Zhumu
+- Zoho Cliq
+- Zoom
+
+*And you can add support for any other video call service yourself in the app.*
+
 ---
 
 If all you need is another clock in the menu bar, check out [Second Clock](/second-clock).
@@ -64,7 +120,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/rjw0gejej8d0l86hifpaa/Dato-5.5.4-trial-1743017444.zip?rlkey=a267ckzz4isozmlr26z3r6y7f&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/wj63oueeh67k9myjqcnz0/Dato-5.6.0-trial-1746625718.zip?rlkey=n9jayr5t2vz7yqus3giuxh0r2&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
@@ -360,7 +416,7 @@ This is a macOS bug. macOS replicates the menu bar item on inactive displays and
 
 #### It does not support the video call service I use
 
-I'm happy to add support for more services. Just [send me](/feedback?product=Dato&referrer=Website-FAQ) an invitation link (replace a few characters at the end to anonymize it).
+I'm happy to add support for more [services](#supported-video-call-services). Just [send me](/feedback?product=Dato&referrer=Website-FAQ) an invitation link (replace a few characters at the end to anonymize it).
 
 The app can also detect the link of any video call service if you correctly add it in the Calendar app:
 - Create a new event.
@@ -720,7 +776,7 @@ The [distributed notification](/apps/faq#distributed-notifications) `com.sindres
 
 ## Older Versions
 
-- [5.4.3](https://github.com/user-attachments/files/18981467/Dato.5.4.3.-.macOS.14.zip) for macOS 14
+- [5.4.4](https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Dato.5.4.4.-.macOS.14.zip) for macOS 14
 - [5.1.3](https://github.com/sindresorhus/meta/files/14097627/Dato.5.1.3.-.macOS.13.zip) for macOS 13
 - [4.3.3](https://github.com/sindresorhus/meta/files/10516478/Dato.4.3.3.-.macOS.12.zip) for macOS 12
 - [3.3.8](https://github.com/sindresorhus/meta/files/8935698/Dato.3.3.8.-.macOS.11.zip) for macOS 11
