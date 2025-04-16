@@ -12,7 +12,7 @@ olderMacOSVersions:
   - '14'
 ---
 
-Pure Paste lets you paste as plain text by default. It sits in the menu bar and clears formatting (fonts, colors, bold, links, tables, etc.) from the text you copy. However, it does not touch unrelated content like files, images, etc. It also ignores content copied from password managers.
+Pure Paste lets you paste as plain text by default. It sits in the menu bar and automatically clears formatting (fonts, colors, bold, links, tables, etc.) from the text you copy, while intelligently preserving unrelated content like files, images, and passwords from password managers.
 
 You can also choose to manually clear formatting whenever needed instead of automatically.
 
@@ -30,7 +30,7 @@ Rich text copied from a different device will not have its formatting cleared be
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Pure%20Paste&referrer=Website-FAQ)
+[Send it here.](/feedback?product=Pure%20Paste&referrer=Website-FAQ)
 
 #### Why not just use the `Paste and Match Style` menu item or `⌥⇧⌘V`?
 
@@ -67,7 +67,7 @@ For now, I suggest setting a keyboard shortcut for "Clear formatting and paste" 
 
 #### The app clears formatting when it shouldn't or doesn't clear formatting when it should {#clear-formatting-problem}
 
-[Let me know.](https://sindresorhus.com/feedback?product=Pure%20Paste&referrer=Website-FAQ) I will fix it quickly, if possible.
+[Let me know.](/feedback?product=Pure%20Paste&referrer=Website-FAQ) I will fix it quickly, if possible.
 
 There are some cases I cannot fix though:
 - **The Pages and Keynote apps paste text as a table.**
@@ -78,7 +78,7 @@ There are some cases I cannot fix though:
 
 #### The copy/paste custom keyboard shortcut does not work
 
-Try [resetting privacy permissions](https://sindresorhus.com/apps/faq#mac-reset-permissions) for the app. macOS can sometimes corrupt these permissions, causing the shortcut to fail.
+Try [resetting privacy permissions](/apps/faq#mac-reset-permissions) for the app. macOS can sometimes corrupt these permissions, causing the shortcut to fail.
 
 #### What are tracking parameters and why would I want to remove them?
 
@@ -97,11 +97,15 @@ First, make sure the setting to remove tracking parameters is enabled.
 
 Tracking parameters are not removed if the “Automatically Clear Formatting” preference is disabled or you did not manually trigger format clearing.
 
-The app contains a list of tracking parameters to remove, but there may be site-specific tracking parameters it doesn't know about. If you encounter any tracking parameters not being removed, [let me know](https://sindresorhus.com/feedback?product=Pure%20Paste&referrer=Website-FAQ) and I'll add support for them.
+The app contains a list of tracking parameters to remove, but there may be site-specific tracking parameters it doesn't know about. If you encounter any tracking parameters not being removed, [let me know](/feedback?product=Pure%20Paste&referrer=Website-FAQ) and I'll add support for them.
 
 #### Can you add a setting to preserve bold and italic?
 
 In short, no. To preserve bold and italic, the app has to preserve the font too, and by preserving the font, it has to set a font name and size. This means the text will not match the destination formatting. Instead, for example, in Word, you can copy with formatting and select “Paste and Match Formatting”, which correctly preserves bold and italic while clearing color and sizes.
+
+#### I have “Preserve links” enabled, and when I paste into an app (for example, Mimestream), it ends up with the “Times New Roman” font instead of the system font
+
+When “Preserve links” is enabled, Pure Paste removes formatting but keeps the text as rich text instead of plain text. Some apps don't handle this properly and default to “Times New Roman”. The only workaround is to disable “Preserve links”.
 
 #### I have “Preserve links” enabled, and when I paste into Word, it ends up with the “Times New Roman” font instead of the existing font {#word-bug}
 
