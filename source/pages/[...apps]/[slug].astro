@@ -27,12 +27,12 @@ const meta = {
 	ogTitle: app.title,
 	ogType: 'product',
 	appStoreId: app.appStoreId,
-	rssFeeds: [
+	rssFeeds: !app.isArchived && app.releasesRepo ? [
 		{
 			title: `${app.title} Release Notes`,
 			href: `/${app.slug}/rss.xml`,
 		},
-	],
+	] : [],
 };
 
 const {title: appTitle, appStoreUrl} = app;
