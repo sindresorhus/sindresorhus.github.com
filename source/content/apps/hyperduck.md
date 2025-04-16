@@ -37,7 +37,9 @@ The app uses iCloud syncing to securely send links from your iOS/visionOS device
 - Ensure Hyperduck is running on the Mac.
 - Hyperduck opens links in the background. Ensure you didn't miss it.
 - Try opening the Hyperduck iOS app to force a sync.
-- In the iOS app, if you triple-tap the text, it will show the most recently shared URLs, which may aid debugging.
+- In the iOS app, if you triple-tap the text, it will show the most recently shared URLs, which may aid debugging. Also check the history in the macOS app.
+- For a few users, initial sync took up to 24 hours due to weird iCloud syncing behavior.
+  - This is controlled by Apple's iCloud system and outside the app's control.
 - [More…](/apps/faq#icloud-sync)
 
 ## Tips
@@ -186,9 +188,11 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 - Supports any browser on your Mac
 - You don't need to keep the tab open on your iOS device for it to be available on your Mac
 
-#### Can it open links in a specific browser on my Mac?
+#### Can it open links in a specific browser or browser profile on my Mac? {#custom-browser}
 
 You can use my [Velja app](/velja) for this. Create a custom rule where you set Hyperduck as the source app.
+
+[It's not possible to open in Safari profiles.](/velja#safari-profiles)
 
 #### The link did not open on my Mac right away
 

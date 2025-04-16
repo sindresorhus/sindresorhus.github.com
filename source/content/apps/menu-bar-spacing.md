@@ -53,6 +53,10 @@ No. You only need to run the app once to apply the changes.
 
 It depends on your needs. If you primarily use those apps to fit more items in the menu bar, this app is a good alternative.
 
+#### Can it change the spacing of the left side of the menu bar?
+
+No, this is not possible.
+
 #### iStat Menus disappeared when I moved the slider
 
 Menu Bar Spacing needs to relaunch all menu bar items for changes to take effect. iStat Menus may take a while to relaunch. If it doesn't reappear, try moving the slider again. Restarting your computer will definitely fix it.

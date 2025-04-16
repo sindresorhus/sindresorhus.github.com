@@ -9,6 +9,8 @@ platforms:
 appStoreId: 6465250302
 olderMacOSVersions:
   - '14'
+feedbackNote: |
+  I cannot provide support for general Shortcuts questions. Use [Reddit](https://www.reddit.com/r/shortcuts) for that.
 ---
 
 The app provides additional AI-related actions (o1, o1 mini, GPT-4o, GPT-4o mini, GPT-4, GPT 3.5, Claude 3 Opus, Claude 3.5 Sonnet, Claude 3.5 Haiku) for the Shortcuts app.
@@ -40,6 +42,8 @@ The app also supports [Ollama](https://ollama.com/blog/openai-compatibility) (lo
 For Ollama, you need to specify a local URL like `https://localhost:11434` in the “Base URL” setting in the app.
 
 For Groq, specify `https://api.groq.com/openai`. In the “Ask AI” action, select the “Custom” model and provide the name of the desired model.
+
+For OpenRouter, specify `https://openrouter.ai/api`.
 
 For [Gemini](https://ai.google.dev/gemini-api/docs/openai), specify `https://generativelanguage.googleapis.com/v1beta/openai/`. In the “Ask AI” action, select the “Custom” model and provide the name of the desired model.
 

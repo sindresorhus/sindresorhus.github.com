@@ -17,11 +17,13 @@ The app provides widgets where you can write any kind of text. It could be an im
 
 For macOS, it's only available for Apple silicon Macs running macOS 15 or later.
 
+On iOS, you can also show the text in a Live Activity.
+
 Syncs seamlessly across your devices with iCloud.
 
 <br>
 
-*You may also like [my similar app](https://sindresorhus.com/one-thing) for macOS.*
+*You may also like [my similar app](/one-thing) for macOS.*
 
 ## Tips
 
@@ -138,10 +140,6 @@ No, widgets only support tapping interactions.
 #### The Lock Screen widget does not show the text after restarting the device, before unlocking it
 
 This is an iOS limitation and is out of my control. It shows a placeholder until the first unlock. This is how all Lock Screen widgets work.
-
-#### Can you support syncing the text with iCloud?
-
-Currently, there are no plans to integrate iCloud syncing due to its complexity and the potential for increased support queries.
 
 #### When using the “Run Shortcut” action, why does tapping the widget first open the main app and then the Shortcuts app?
 

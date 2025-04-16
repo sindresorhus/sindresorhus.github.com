@@ -17,7 +17,7 @@ mainLinks:
 
 Seamlessly switch between browsers directly from your menu bar, keyboard shortcut, Focus mode, or using Shortcuts. Perfect for users who work with multiple browsers.
 
-Unlike similar apps, this one actually changes the system default browser.
+Unlike similar apps, this one actually changes the system default browser (and without a prompt).
 
 [**Review in MacStories**](https://www.macstories.net/reviews/default-browser-a-mac-menu-bar-utility-for-quickly-switching-browsers/)
 

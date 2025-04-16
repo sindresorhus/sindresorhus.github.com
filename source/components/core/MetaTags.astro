@@ -25,6 +25,7 @@ const canonicalURL = new URL(Astro.url.pathname.replace(/\.html$/, ''), Astro.si
 <meta name="twitter:site" content="@sindresorhus">
 <meta name="twitter:creator" content="@sindresorhus">
 <meta name="twitter:description" content={description}>
+<meta name="fediverse:creator" content="@sindresorhus@mastodon.social">
 <meta name="x-build-time" content={(new Date()).toUTCString()}>
 
 {appStoreId ? (

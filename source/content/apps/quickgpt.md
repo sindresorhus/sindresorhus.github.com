@@ -57,7 +57,7 @@ Apple generally rejects website wrappers even if they add useful additional func
 
 ## Older Versions
 
-- [1.5.2](https://github.com/user-attachments/files/19539752/QuickGPT.1.5.2.-.macOS.14.zip) for macOS 14
+- [1.5.2](https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/QuickGPT.1.5.2.-.macOS.14.zip) for macOS 14
 - [1.4.11](https://github.com/sindresorhus/meta/files/14156246/QuickGPT.1.4.11.zip) for macOS 13
 
 These are free for everyone but they will not run on newer macOS versions.

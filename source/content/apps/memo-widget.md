@@ -85,7 +85,7 @@ I don't plan to add this. Check out my [Any Text app](/any-text), which has this
 
 This is not possible.
 
-#### Can you support syncing the text with iCloud?
+#### Can you support syncing the widget with iCloud?
 
 Currently, there are no plans to integrate iCloud syncing due to its complexity and the potential for increased support queries.
 

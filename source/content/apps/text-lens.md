@@ -25,6 +25,8 @@ Extract text from anywhere on your screen. Select any area containing text - fro
 - Extract text from images on clipboard or files
 - Extract text directly from photo taken with iPhone/iPad camera
 - Drag and drop images onto menu bar icon to extract text
+- Optionally shows captured text in a window with the ability to edit
+	- Enables doing multiple captures and copy as a single text
 - [Privacy focused](#privacy)
 
 #### Supported languages
@@ -54,8 +56,16 @@ Everything is done locally on your device. Nothing leaves your device. The app i
 
 ## Tips
 
+### General
+
 - When in capturing mode, simply click again to exit. You could also press <kbd>Esc</kbd>.
 - Right-click menu bar icon to capture.
+
+### Captured text window
+
+- Clicking the close button or pressing <kbd>Esc</kbd> will discard the text.
+- If you start a new capture while the window is visible, the new text will be appended to the existing one.
+- Copy the whole text with <kbd>Command+Shift+C</kbd>.
 
 ## Frequently Asked Questions {#faq}
 
@@ -112,17 +122,18 @@ This is planned as a simpler version, but I want to perfect it here first.
 
 #### How does this compare to TextSniper? {#textsniper}
 
-The app's advantages:
+This app's advantages:
 - Universal capture: Extract text, QR codes, and barcodes with a single action
 - Capture by simply clicking the menu bar icon
 - Extract text from clipboard and files
 - Drag and drop images onto the menu bar icon to extract text
+- Can show captured text in a window with the ability to edit
+	- Enables doing multiple captures and copy as a single text
 - Choice of menu bar icon
 - Cheaper ($6 vs. $12)
 
 TextSniper advantages:
 - Text-to-speech
-- Additive clipboard feature
 - More keyboard shortcuts
 - More mature
 

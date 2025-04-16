@@ -19,7 +19,9 @@ My apps prioritize user privacy and do not collect any personal data.
 
 For apps purchased on the Apple App Store, you can [request a refund](https://support.apple.com/en-us/HT204084) from Apple. App developers have no control over the purchase and refund process.
 
-For apps purchased on Gumroad, you can [request a refund](mailto:sindresorhus@gmail.com?subject=Gumroad%20refund&body=Mention%20which%20app%20you%20want%20a%20refund%20for%20and%20your%20Gumroad%20account%20email) within 30 days of the purchase.
+For apps purchased on Gumroad, there is generally no refund. You can [request a refund](mailto:sindresorhus@gmail.com?subject=Gumroad%20refund&body=Mention%20which%20app%20you%20want%20a%20refund%20for%20and%20your%20Gumroad%20account%20email) if you have a good reason (like duplicate purchase). But most purchases are final.
+
+<!-- For apps purchased on Gumroad, you can [request a refund](mailto:sindresorhus@gmail.com?subject=Gumroad%20refund&body=Mention%20which%20app%20you%20want%20a%20refund%20for%20and%20your%20Gumroad%20account%20email) within 30 days of the purchase. -->
 
 However, I would appreciate if you [reached out](/feedback) first. I may be able to resolve any problems you are having.
 
@@ -114,9 +116,9 @@ You can do it with my [App Buddy](/app-buddy) app.
 
 If you prefer using the command-line, [see this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md#command-line)
 
-### Can I contribute localizations to your apps?
+### Can I contribute localizations to your apps? {#localize}
 
-No, I don't plan to localize my apps. Localization adds complexity and maintenance demands that detract from my focus on app quality and performance.
+No, I don't plan to localize / translate my apps. Localization adds complexity and maintenance demands that detract from my focus on app quality and performance.
 
 ### Can you make your apps available on Homebrew? {#homebrew}
 
@@ -336,6 +338,10 @@ Select the app in [App Buddy](/app-buddy) and click “Sample Process”.
 - In the “View” menu (in the menu bar), click “Sample Process”.
 - Click the “Save” button.
 - Send me the file.
+
+### Can you add AppleScript support to your apps? {#applescript}
+
+No. AppleScript is a dying technology that Apple barely cares about anymore. [Shortcuts](https://support.apple.com/en-gb/guide/shortcuts/welcome/ios) is the modern replacement and where Apple is investing its automation efforts. Most of my apps support Shortcuts.
 
 ### Can you support non-Apple platforms?
 

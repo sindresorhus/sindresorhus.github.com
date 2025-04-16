@@ -35,6 +35,10 @@ Click the feedback button in the app or [send it here](https://sindresorhus.com/
 
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
+#### Can you add custom week numbering options (for example, fiscal weeks, school terms, or work weeks)?
+
+No, the app is intentionally simple.
+
 #### Why does it not show week 53?
 
 You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar). You can change it with [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).

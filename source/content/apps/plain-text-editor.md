@@ -72,6 +72,10 @@ No, that's not supported. However, you may be interested in my [Scratchpad](/scr
 
 This is already how it works. Actually, it's how all document-based apps on macOS work. Make sure you don't have “System Settings › Desktop & Dock › Close windows when quitting an application” enabled.
 
+#### How can I make the app not open previously opened documents when I launch the app?
+
+Disable the setting mentioned above.
+
 #### I have enabled the translucent setting on the macOS app, why is the title bar not translucent?
 
 Making the title bar translucent is not supported by macOS. I'm hoping to find a workaround in the future.

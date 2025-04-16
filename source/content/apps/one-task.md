@@ -86,6 +86,13 @@ No, but you can achieve this using the Shortcuts app. Modify [this shortcut](htt
 
 One Task is designed for action, not endless categorization. It omits features like folders, tags, and priorities to eliminate distractions and decision fatigue. The app's core functionality is to help you commit to and complete tasks today.
 
+#### How can I turn off iCloud syncing? {#turn-off-sync}
+
+- **macOS:** Go to “System Settings › Apple Account › iCloud › Saved to iCloud” and turn off One Task.
+- **iOS:** Go to “Settings › Apple Account › iCloud › Saved to iCloud” and turn off One Task.
+
+It will erase your existing items, so you may want to first back them up with “Tasks: Copy” in the app.
+
 #### Can you add a widget setting to choose background color?
 
 I don't plan to add this. I want to keep the app super simple.

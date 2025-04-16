@@ -42,12 +42,17 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 	<span class="list-subtitle">Gets the frontmost app if it’s a browser</span>
 - Get Selected Text
 	<span class="list-subtitle">Gets the selected text in the currently focused window</span>
+- Show Alert (Extended)
+	<span class="list-subtitle">Shows an alert dialog with multiple buttons and returns which button was clicked</span>
+	<span class="list-description text-xs">Timeout, custom icon, and up to 8 buttons. [Screenshot.](https://www.dropbox.com/scl/fi/439bkpixjwssiss0ye7ln/Screen-Shot-2025-05-20-at-18.43.32-1747756364.png?rlkey=jrq1etjed15uz66tpanokw0q6&raw=1)</span>
 - Join Wi-Fi <!-- 	<span class="list-subtitle">Join a Wi-Fi network or personal hotspot</span>
 	<span class="list-description text-xs">Tip: You could use it to join your iPhone’s hotspot</span> -->
 - Clear Top Notification
 	<span class="list-subtitle">Clears the top visible system notification</span>
 - Clear Notifications
 	<span class="list-subtitle">Clears all system notifications</span>
+- Click Top Notification
+	<span class="list-subtitle">Activates the top visible system notification</span>
 - Get/Set Default Browser
 	<span class="list-subtitle">View or change the system default web browser</span>
 - Set Grayscale Mode
@@ -56,6 +61,8 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 	<span class="list-subtitle">Detects if the screen is being recorded, mirrored, or shared (Zoom, Teams, etc)</span>
 - Open App (Extended)
 	<span class="list-subtitle">Options to pass in URLs, activate, force new instance, hide, launch arguments, and environment variables</span>
+- Unminimize Windows of Active App
+	<span class="list-subtitle">Unminimizes all windows or the first window of the currently active app</span>
 - Get/Set Default Sound Device
 	<span class="list-subtitle">View or change the default audio input (microphone) or output (speaker)</span>
 - Find Sound Device
@@ -65,8 +72,11 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 	<span class="list-subtitle">Change the color of folders</span>
 - Hide All Windows
 	<span class="list-subtitle">Instantly hides windows for all apps</span>
+- Minimize All Windows
+	<span class="list-subtitle">Minimizes all visible windows, with options to only affect the active app and exclude the frontmost window</span>
 - Quit All Apps
 	<span class="list-subtitle">Closes all running apps except menu bar apps</span>
+	<span class="list-description text-xs">Options to exclude apps, exclude frontmost app, and close Finder windows.</span>
 - Eject All Disks
 	<span class="list-subtitle">Safely unmounts all external drives (except excluded ones)</span>
 - Empty Trash
@@ -81,6 +91,8 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 	<span class="list-subtitle">Shows or hides [Launchpad](https://support.apple.com/guide/mac-help/mh35840/mac)</span>
 - Get Latest Screenshots
 	<span class="list-subtitle">Returns the most recent screenshots taken with the system screenshot tool</span>
+- Get/Set Desktop Icons Visibility
+	<span class="list-subtitle">Show, hide, or check visibility status of desktop icons</span>
 - Get/Set Desktop Widgets Visibility
 	<span class="list-subtitle">Show, hide, or check visibility status of desktop widgets</span>
 - Get/Set Function Keys Mode
@@ -91,6 +103,14 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 - Get/Set Network Location
 	<span class="list-subtitle">Switch between different [network configurations](https://support.apple.com/105129)</span>
 	<span class="list-description text-xs">Tip: You could automate switching based certain conditions with the [Shortery](https://www.numberfive.co/detail_shortery.html) app.</span>
+- Get/Set iOS Notifications Enabled
+	<span class="list-subtitle">Control whether notifications from your iOS device appear on your Mac</span>
+	<span class="list-description text-xs">Only works if your Mac supports notifications from iOS.</span>
+- Center Mouse Pointer
+	<span class="list-subtitle">Centers the mouse pointer on the primary display</span>
+- Get/Set Mouse Pointer Visibility
+	<span class="list-subtitle">Get or set the visibility of the mouse pointer</span>
+	<span class="list-description text-xs">By default, it reappears on mouse movement.</span>
 - Get Slack Workspace
 	<span class="list-subtitle">Gets the name of the current Slack workspace</span>
 - Clear Recent Lists
@@ -120,6 +140,7 @@ Some things you could try:
 1. Restart your device.
 1. Add [this shortcut](https://www.icloud.com/shortcuts/29943b986f934d9da5018853d4e2cc40), run it once, relaunch the Shortcuts app, and see if the actions show up in the Shortcuts app after that.
 1. Change the device language to something else and back.
+1. Remove the app, install it again, and restart your device.
 
 #### I get a “errorDomain error 2” error when running an action
 
@@ -151,11 +172,15 @@ Yes, but the app packages these capabilities into maintained, ready-to-use actio
 
 #### How is the “Quit All Apps” action better than the built-in “Quit App” action? {#quit-all-apps-vs-builtin}
 
-The action can close Finder windows.
+The action can exclude the frontmost app and also close Finder windows.
 
 #### What’s up with the app icon?
 
 A bit of whimsy makes software more human and approachable. Even Apple uses a smiling Finder icon to this day. Good software can be both powerful and fun. And since the icon is only visible in the App Store and as a tiny icon in Shortcuts, its design has minimal impact on the actual utility of the app.
+
+#### Shortcutie and Supercharge seem to have some of the same actions for Shortcuts
+
+There is some overlap, but Shortcutie includes many more actions. [Supercharge](/supercharge) only includes actions for its own features.
 
 #### [More FAQs…](/apps/faq)
 

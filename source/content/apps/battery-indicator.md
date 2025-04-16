@@ -31,6 +31,10 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 You may also have enabled the “Hide while on power” preference, which hides the menu bar icon while the power adapter is connected. Launch the app again to reveal the menu bar item for 5 seconds or disconnect the power adapter.
 
+#### The estimated time left is incorrect
+
+The number comes from macOS and the app has no control over it.
+
 #### The menu bar icon is vertically stretched when shown on a secondary display
 
 This is a macOS 11 bug. I have tried to work around this issue, but it's out of my control.
@@ -58,10 +62,6 @@ You can find sound effects [here](https://pixabay.com/sound-effects/search/inter
 #### Can the battery icon hide when the battery is charged a certain percentage?
 
 This is a perfect use case for the built-in Shortcuts app. Create a shortcut that quits the app and one that launches it. To run the shortcut when the battery is at a certain percentage, you need the [Shortery app](https://apps.apple.com/app/id1594183810). Use its “Power Status” trigger.
-
-#### Can you localize the app into my language?
-
-I don't plan to localize the app.
 
 #### [More FAQs…](/apps/faq)
 
