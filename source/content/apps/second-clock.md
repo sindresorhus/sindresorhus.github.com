@@ -50,13 +50,15 @@ I have no plans to support that.
 
 I don't plan to support that directly, but here are additional builds of the app with different identifiers so they can all run at the same time:
 
-- [Second Clock 2](https://github.com/sindresorhus/meta/files/13830079/Second.Clock.2.zip)
-- [Second Clock 3](https://github.com/sindresorhus/meta/files/13830078/Second.Clock.3.zip)
-- [Second Clock 4](https://github.com/sindresorhus/meta/files/13830077/Second.Clock.4.zip)
-- [Second Clock 5](https://github.com/sindresorhus/meta/files/13830075/Second.Clock.5.zip)
-- [Second Clock 6](https://github.com/sindresorhus/meta/files/13830074/Second.Clock.6.zip)
+- [Second Clock 2](https://www.dropbox.com/scl/fi/jp9vx3xqrfocpcpb9psnx/Second-Clock-2-1754956993.zip?rlkey=yfxracofur29b258y7aeb5850&raw=1)
+- [Second Clock 3](https://www.dropbox.com/scl/fi/8p3cvjfpg1fd9gq1apsgi/Second-Clock-3-1754957017.zip?rlkey=3a66fig1j223nio1znv81vji9&raw=1)
+- [Second Clock 4](https://www.dropbox.com/scl/fi/5v77qrgvwg2cyjxjnanjw/Second-Clock-4-1754957043.zip?rlkey=mxapcbqy7famt3srngb9agyf4&raw=1)
+- [Second Clock 5](https://www.dropbox.com/scl/fi/cds0pdm6qpuanqs7pcooz/Second-Clock-5-1754957062.zip?rlkey=f4anp3pfe8mrtahlpsycn66c4&raw=1)
+- [Second Clock 6](https://www.dropbox.com/scl/fi/ul7kevyvte8anl2f7mbi2/Second-Clock-6-1754957087.zip?rlkey=h4koh48yg49f50pskl6c9rm33&raw=1)
 
-*Requires macOS 14 or later*
+*Requires macOS 15 or later*
+
+*If you had downloaded this previously and it stopped respecting the chosen time zone, download the new versions above.*
 
 My [Dato](/dato) app supports unlimited time zone clocks with settings like color and size.
 

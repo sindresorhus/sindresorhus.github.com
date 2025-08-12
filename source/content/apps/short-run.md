@@ -1,9 +1,7 @@
 ---
-isUnlisted: true
 title: Short Run
 subtitle: Run shortcuts from your menu bar
-# TODO
-pubDate: 2025-07-29
+pubDate: 2025-08-14
 platforms:
   - macOS
 isPaid: true
@@ -11,10 +9,12 @@ isMenuBarApp: true
 appStoreId: 6745427035
 forceHasIosAppIcon: true
 # olderMacOSVersions:
-#   - '15
+#   - '15'
 ---
 
-Quick access to your shortcuts right from the menu bar. Run any shortcut with just a click.
+Quick access to your shortcuts from the [Shortcuts](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) app right from the menu bar.
+
+Since shortcuts can run shell scripts and AppleScript, you can put virtually any script in your menu bar.
 
 #### Highlights
 
@@ -56,9 +56,13 @@ Short Run benefits:
 - Open the menu with a keyboard shortcut and navigate to shortcuts using arrow keys
 - Customizable menu bar icon
 
+### Will you add icon support for menu items?
+
+No. While macOS 26 introduces icons in menu items (similar to iOS), I believe this creates visual noise rather than improving usability. Short Run intentionally maintains a clean, text-only interface to keep the menu focused and distraction-free.
+
 #### Can you add search?
 
-This is not planned. For searching, simply use Spotlight (on macOS 26 or later).
+This is not planned. For searching, use Spotlight on macOS 26 or later, or Raycast or Alfred on earlier versions.
 
 #### Do I need to recreate my shortcuts?
 
@@ -75,6 +79,10 @@ Sections display shortcuts inline with a header (like "Development" followed by 
 #### Can I use keyboard shortcuts to navigate the menu?
 
 Yes. Set a keyboard shortcut to open the menu, then use arrow keys to navigate and <kbd>Enter</kbd> to run shortcuts. Much faster than clicking.
+
+### Can you add sync?
+
+No. iCloud sync is unreliable and causes a huge support burden. It's not worth the effort for this app.
 
 #### I already own [Supercharge](/supercharge). Does this offer any benefits over its similar feature? {#supercharge}
 

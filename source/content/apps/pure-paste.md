@@ -189,6 +189,12 @@ The app is designed to *just work*, but removing newlines is not suitable for al
 return $.text.replace(/(\r?\n)/gm, ' ');
 ```
 
+And if you want to preserve paragraphs, use:
+
+```js
+return $.text.replace(/([^\r\n])(?:\r?\n)(?!\r?\n)/g, '$1 ');
+```
+
 #### Does it respect [nspasteboard.org](http://nspasteboard.org) conventions?
 
 Yes, it ignores concealed (passwords), transient, and auto-generated content.

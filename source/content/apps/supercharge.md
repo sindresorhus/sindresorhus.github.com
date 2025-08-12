@@ -14,6 +14,8 @@ mainLinks:
 # olderMacOSVersions:
 #   - '15'
 feedbackNote: |
+  If you have moved to a new Mac and need to download the app again, you can download it from your [Gumroad receipt email or Gumroad account](https://gumroad.com/help/article/199-how-do-i-access-my-purchase).
+
   When reporting bugs, try quitting Supercharge, and if the issue disappears, it is likely not an issue with Supercharge. If the issue is still there, try turning off things in the “Tweaks” settings tab until it does not happen anymore, to narrow down which feature is causing the issue, and let me know.
 
   If the issue is that a keyboard shortcut is not working, it could be [this](https://sindresorhus.com/apps/faq#secure-input-problem).
@@ -47,6 +49,7 @@ Improve your Mac experience with a bunch of useful functionality:
 	- (beta - try the [trial](#trial))
 - [Run shortcuts from the menu](#run-shortcuts)
 	<span class="list-description">Show your favorite shortcuts from the Shortcuts app in the menu.</span>
+	- Also available as an [independent app](/short-run).
 - Move files received through AirDrop to a specified folder
 	<span class="list-description">Automatically move files from the Downloads folder as soon as they are received.</span>
 - [Keep computer awake](#keep-awake)
@@ -379,7 +382,7 @@ Finder-specific services:
 <!-- - Delete Immediately
 	<span class="list-description">Permanently delete files and folders without moving to Trash.</span> -->
 
-*[macOS Services](https://macreports.com/what-is-the-services-menu-in-macos/?utm_source=chatgpt.com) are built-in quick actions available in right-click and app menus system-wide. They let you perform tasks like copying file info or text without leaving your current app. Supercharge adds extra, genuinely useful services to make these menus even more powerful.*
+*[macOS Services](https://macreports.com/what-is-the-services-menu-in-macos/) are built-in quick actions available in right-click and app menus system-wide. They let you perform tasks like copying file info or text without leaving your current app. Supercharge adds extra, genuinely useful services to make these menus even more powerful.*
 
 #### Capture and translate text from anywhere on screen {#capture-translate-text}
 

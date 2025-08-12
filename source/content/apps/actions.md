@@ -28,7 +28,7 @@ If you have any questions about how to use the different actions or for what, tr
 
 ---
 
-*On macOS, also check out [Shortcutie](/shortcutie) for advanced actions.*
+*On macOS, also check out [Shortcutie](/shortcutie) for advanced actions and [Short Run](/short-run) for running shortcuts from the menu bar.*
 
 ---
 
