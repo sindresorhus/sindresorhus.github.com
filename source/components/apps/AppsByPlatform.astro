@@ -1,0 +1,27 @@
+---
+// Group and render apps by platform with subsections.
+const {apps = []} = Astro.props;
+
+// Default order for platform sections (Apple platforms only).
+const platformOrder = ['macOS', 'iOS', 'watchOS', 'tvOS', 'visionOS'];
+
+const orderIndex = platform => {
+	const index = platformOrder.indexOf(platform);
+	return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+};
+
+const platforms = [...new Set(apps.flatMap(app => app.platforms))]
+	.filter(Boolean)
+	.sort((a, b) => orderIndex(a) - orderIndex(b));
+---
+
+{platforms.map(platform => (
+	<section key={platform}>
+		<h2 id={platform.toLowerCase()}>{platform}</h2>
+		<ul>
+			{apps.filter(app => app.platforms?.includes(platform)).map(app => (
+				<li key={app.title}><a href={app.url}>{app.title}</a> — {app.subtitle}</li>
+			))}
+		</ul>
+	</section>
+))}

@@ -9,6 +9,10 @@ title: Discounts
 
 My [paid apps](/apps/paid) (except Dato, Lungo, Aiko, and Supercharge) are 50% off for Black Friday. From now until December 2nd. -->
 
+## Power user bundle
+
+[Get 3 of my power user apps for 26% off.](https://sindresorhus.gumroad.com/l/power-user)
+
 ## Students and open source maintainers
 
 *Update: I'm pausing this for now. I get 20–30 emails daily about promo codes and need time to focus on work. I’ll resume sharing promo codes in the future. Thanks for understanding.*

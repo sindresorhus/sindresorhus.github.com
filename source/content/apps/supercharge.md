@@ -25,6 +25,12 @@ feedbackNote: |
 
 <sup>Requires macOS 15.4 or later</sup>
 
+---
+
+**💡 Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.**
+
+---
+
 Improve your Mac experience with a bunch of useful functionality:
 
 *(Every feature is opt-in, so you can enable only what you need)*
@@ -518,8 +524,6 @@ Some things are not possible though:
 
 Some things are not planned:
 
-- Keep awake
-	- Check out [Lungo](/lungo).
 - Memory cleaner
 	- Apps like these are a scam. macOS handles memory efficiently. There is no need for an app like this.
 
@@ -529,9 +533,30 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to show the main window.
 
-##### The tweaks like Finder cut & paste no longer work
+#### The tweaks like Finder cut & paste no longer work
 
 This usually happens when an app [blocks keyboard input reading](/apps/faq#secure-input-problem).
+
+#### Why is Supercharge so expensive? {#price}
+
+- **It's really 10 apps in 1**\
+	Supercharge packs dozens of powerful features that would typically require multiple separate apps.
+- **One-time purchase, lifetime value**\
+	In a world where everything is subscription-based, Supercharge is a one-time purchase with unlimited free updates forever. No monthly fees, no restrictions on how many personal devices you can use it on.
+- **Fixes countless macOS annoyances**\
+	Apple leaves many frustrating gaps in macOS functionality. Supercharge addresses dozens of these pain points that users encounter daily but Apple hasn't fixed.
+- **Complex engineering under the hood**\
+	The app performs very difficult technical tasks, from low-level system integration to advanced automation features. Each feature requires significant development effort to work reliably across macOS updates.
+- **Dedicated ongoing support**\
+	You get responsive support and regular feature additions.
+- **Professional quality and reliability**\
+	I have been obsessively crafting Mac apps for years.
+- **Small market, high development costs**\
+	Mac power users are a niche market. The development costs must be spread across fewer users compared to mass-market apps.
+- **Support an indie developer**\
+	Get actual human support, genuine privacy protection, and a developer who listens to your feedback, unlike faceless corporations where you're just another number. I'm in it for the long haul.
+
+Try the [trial](#trial) and see for yourself.
 
 #### I can already do this with the command-line, BetterTouchTool, Keyboard Maestro, etc.
 

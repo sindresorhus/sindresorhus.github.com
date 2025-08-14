@@ -14,7 +14,7 @@ forceHasIosAppIcon: true
 
 Quick access to your shortcuts from the [Shortcuts](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) app right from the menu bar.
 
-Since shortcuts can run shell scripts and AppleScript, you can put virtually any script in your menu bar.
+Since shortcuts can open URLs, folders, apps, and run shell scripts or AppleScript, you can put virtually any action in your menu bar.
 
 #### Highlights
 
@@ -22,12 +22,34 @@ Since shortcuts can run shell scripts and AppleScript, you can put virtually any
 - Smart Organization – Organize shortcuts into sections and submenus
 - App-Specific Shortcuts – Show different shortcuts based on the active app
 - Keyboard Shortcut – Toggle the menu with a customizable hotkey
+- Quick Keys – Assign 1-9 and a-z keys to shortcuts for instant triggering when menu is open
 - Customizable Menu Bar Icon – Choose between multiple menu bar icons to match your style
 - Launch at Login – Always ready when you need it
+
+#### Common use cases
+
+- Essential Folders – Instantly jump to Desktop, Downloads, current project, or that deeply nested work directory
+- Daily Websites – One-click access to X, Gmail, GitHub, or your company dashboard
+- File Management – Bulk rename photos, compress for email, convert between formats, organize screenshots
+- System Shortcuts – Toggle Dark Mode, empty trash, force-quit apps
+- Developer Workflows – Open terminal here, restart local server, run build scripts, push to Git
+- Text & Clipboard – Create meeting summary, clean text
+- Quick Actions – Take annotated screenshots, start screen recording, set focus modes, create calendar events
+
+#### URL scheme {#url-scheme}
+
+Supports the `shortrun://` URL scheme for running shortcuts silently in the background without opening the Shortcuts app. Works exactly like the standard [Shortcuts URL scheme](https://support.apple.com/en-ke/guide/shortcuts-mac/apd624386f42/mac) `shortcuts://` but executes silently. Perfect for automation workflows and third-party integrations.
+
+*It does not support `shortcuts://x-callback-url`.*
 
 #### Privacy
 
 Your shortcuts and data never leave your device. The app is built without internet permissions (no network entitlement), so macOS prevents it from connecting to the internet even if it wanted to.
+
+#### Example shortcuts
+
+- [Open a folder](https://www.icloud.com/shortcuts/29925fe3ff684d0699c82e51f6e86e2f)
+- [Open a URL](https://www.icloud.com/shortcuts/403bc58451f442e4b94fb4e13043abf1)
 
 ## Tips
 
@@ -51,12 +73,32 @@ Short Run benefits:
 - Choose the order of shortcuts
 - Organize shortcuts into sections and submenus
 - Show some shortcuts only when a specific app is active
+- Assign quick keys (1-9, a-z) to shortcuts for instant triggering when menu is open
 - Cleaner interface with just the shortcut name
 - Menu closes automatically when running a shortcut
 - Open the menu with a keyboard shortcut and navigate to shortcuts using arrow keys
-- Customizable menu bar icon
+- Customizable menu bar icon and menu width
 
-### Will you add icon support for menu items?
+#### How do I disable the built-in Shortcuts menu bar item to avoid duplication?
+
+Open the Shortcuts app, select “Menu Bar” in the sidebar, select all shortcuts, right-click on them, and select “Remove from Menu Bar”.
+
+#### I already own [Supercharge](/supercharge). Does this offer any benefits over its similar feature? {#supercharge}
+
+- Group shortcuts into sections and submenus.
+- More focused since there are only shortcuts in the menu.
+- Global keyboard shortcuts to open the menu, create a new shortcut, and to open the Shortcuts app.
+- [URL scheme](#url-scheme) for running shortcuts silently in the background.
+
+#### What's the difference between sections and submenus?
+
+Sections display shortcuts inline with a header (like "Development" followed by your dev shortcuts). Submenus create a separate menu that opens when you hover over the folder name. You can toggle between these modes for each folder.
+
+#### How do I make a folder show inline as a section?
+
+Right-click a folder when organizing and enable “Show Inline”.
+
+#### Will you add icon support for menu items?
 
 No. While macOS 26 introduces icons in menu items (similar to iOS), I believe this creates visual noise rather than improving usability. Short Run intentionally maintains a clean, text-only interface to keep the menu focused and distraction-free.
 
@@ -72,23 +114,31 @@ No. The app uses your existing shortcuts from the Shortcuts app. You're just org
 
 You can set certain shortcuts to only appear when specific apps are active. For example, show your Git shortcuts only when Xcode is open, or media processing shortcuts only when Final Cut Pro is active.
 
-#### What's the difference between sections and submenus?
-
-Sections display shortcuts inline with a header (like "Development" followed by your dev shortcuts). Submenus create a separate menu that opens when you hover over the folder name. You can toggle between these modes for each folder.
-
 #### Can I use keyboard shortcuts to navigate the menu?
 
 Yes. Set a keyboard shortcut to open the menu, then use arrow keys to navigate and <kbd>Enter</kbd> to run shortcuts. Much faster than clicking.
 
-### Can you add sync?
+#### Can I pass arguments to a shortcut from the menu?
+
+No. Menu runs have no input. Design the shortcut to prompt, read the clipboard, or pull context itself.
+
+##### Can I assign hotkeys to individual shortcuts?
+
+No. Use Shortcuts’ own keyboard shortcuts (or Raycast/Alfred) if you want per-shortcut bindings.
+
+##### Can you add sync?
 
 No. iCloud sync is unreliable and causes a huge support burden. It's not worth the effort for this app.
 
-#### I already own [Supercharge](/supercharge). Does this offer any benefits over its similar feature? {#supercharge}
+##### Can you add export/import for the shortcuts organization?
 
-- Group shortcuts into sections and submenus.
-- More focused since there are only shortcuts in the menu.
-- Global keyboard shortcuts to open the menu, create a new shortcut, and to open the Shortcuts app.
+Maybe at some point, but I want the app to be mature first, since it commits me to that exact format.
+
+For now, you can [export/import all app data](https://sindresorhus.com/apps/faq#export-settings).
+
+#### Can you add another menu bar icon option?
+
+Sure! Find an icon you like in the [SF Symbols app](https://developer.apple.com/sf-symbols/) or [here](https://thenounproject.com/icons/), and send me the name or link to it.
 
 #### [More FAQs…](/apps/faq)
 

@@ -27,6 +27,12 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 
 Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like to see the app on Setapp, [email them](https://support.setapp.com/hc/en-us/articles/4950254561052-How-to-contact-Setapp-team#:~:text=to%20your%20issue.-,Send%20an%20email,%3A%20support%40setapp.com.) and request its inclusion.
 
+---
+
+**💡 Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.**
+
+---
+
 #### Included actions
 
 - Get Active Browser Tab

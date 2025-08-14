@@ -1,22 +1,9 @@
 ---
-import {SITE} from '~/config.mjs';
-import Layout from '~/layouts/SimplePageLayout.astro';
-import {fetchApps} from '~/utils/apps.js';
-
-const apps = await fetchApps();
-const filteredApps = apps.filter(app => app.platforms.includes('watchOS'));
-
-const meta = {
-	title: `Apple Watch Apps — ${SITE.name}`,
-};
+import AppsCategory from '~/components/apps/AppsCategory.astro';
 ---
 
-<Layout {meta}>
-	<h1>Apple Watch Apps</h1>
-	<p>The apps of mine that run on Apple Watch.</p>
-	<ul>
-		{filteredApps.map(app => (
-			<li key={app.title}><a href={app.url}>{app.title}</a> — {app.subtitle}</li>
-		))}
-	</ul>
-</Layout>
+<AppsCategory
+	title="Apple Watch Apps"
+	description="The apps of mine that run on Apple Watch."
+	filter={app => app.platforms?.includes('watchOS')}
+/>

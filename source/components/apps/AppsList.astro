@@ -1,0 +1,11 @@
+---
+// Renders a simple list of apps as links with subtitles.
+const {apps = []} = Astro.props;
+---
+
+<ul>
+	{apps.map(app => (
+		<li key={app.title}><a href={app.url}>{app.title}</a> — {app.subtitle}</li>
+	))}
+	{apps.length === 0 && <li>No apps found.</li>}
+</ul>

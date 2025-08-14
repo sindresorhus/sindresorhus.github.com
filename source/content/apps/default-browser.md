@@ -8,12 +8,13 @@ isPaid: true
 isMenuBarApp: true
 releasesRepo: default-browser-meta
 mainLinks:
-  'Buy': https://buy.polar.sh/polar_cl_tWjWd0yRVXb9w0bhohTfxkqjwMUsjpegZM1na4HH9ER
+  'Buy': https://sindresorhus.gumroad.com/l/default-browser?wanted=true
+  # 'Buy': https://buy.polar.sh/polar_cl_tWjWd0yRVXb9w0bhohTfxkqjwMUsjpegZM1na4HH9ER
 # olderMacOSVersions:
 #   - '15'
 ---
 
-<sup>Requires macOS 15.2 or later</sup>
+<sup>Requires macOS 15.4 or later</sup>
 
 Seamlessly switch between browsers directly from your menu bar, keyboard shortcut, Focus mode, or using Shortcuts. Perfect for users who work with multiple browsers.
 
@@ -30,6 +31,12 @@ Unlike similar apps, this one actually changes the system default browser (and w
 - Keyboard shortcut to show the menu
 - [Shortcuts app integration](#shortcuts)
 - [Focus filter](#focus-filter) to automatically switch browser based on [Focus mode](https://support.apple.com/guide/mac-help/mchl613dc43f/mac#mchl49b73d04)
+
+---
+
+**💡 Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.**
+
+---
 
 ---
 

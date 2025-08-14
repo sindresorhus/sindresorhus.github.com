@@ -191,7 +191,7 @@ To listen to such notifications, you could use the “Wait for Distributed Notif
 
 ### I have enabled “launch at login” but the app does not launch when I start my computer {#launch-at-login-not-working}
 
-When you enable that setting, the app simply tells macOS to launch it at login, so if it's not working, it's a problem with macOS or your system. As a workaround, you can manually add it: Open System Settings, go to “General › Login Items”, and click the “+” button, and choose the app.
+When you enable that setting, the app simply tells macOS to launch it at login, so if it's not working, it's a problem with macOS or your system. Try disabling launch at login in the app, restart your computer, and then enable it again. As a workaround, you can manually add it: Open System Settings, go to “General › Login Items”, and click the “+” button, and choose the app.
 
 ### I'm having a problem with your app {#app-problem}
 
@@ -305,7 +305,7 @@ Select the app in [App Buddy](/app-buddy) and click “Copy to Downloads” in t
 - Open Finder
 - Select `Go to Folder…` from the `Go` menu
 - Enter: `~/Library/Logs/DiagnosticReports`
-- In the resulting list, select all files that starts with the app name, ZIP them, and [send me](/feedback)
+- In the resulting list, select all files that start with the app name, ZIP them, and [send me](/feedback)
 
 **iOS**
 - In the Settings app, go to “Privacy & Security › Analytics & Improvements › Analytics Data”
