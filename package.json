@@ -62,7 +62,10 @@
 				},
 				"extraFileExtensions": [
 					".astro"
-				]
+				],
+				"rules": {
+					"indent": "off"
+				}
 			}
 		],
 		"rules": {

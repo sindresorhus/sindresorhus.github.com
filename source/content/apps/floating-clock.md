@@ -1,6 +1,6 @@
 ---
 title: Floating Clock
-subtitle: The missing clock for Apple Vision Pro
+subtitle: The missing clock for Apple Vision
 pubDate: 2024-02-17
 platforms:
   - visionOS

@@ -1,0 +1,10 @@
+---
+import AppsCategory from '~/components/apps/AppsCategory.astro';
+---
+
+<AppsCategory
+	title="Setapp Apps"
+	description="Apps of mine available on **Setapp**."
+	filter={app => Boolean(app.setappId)}
+/>
+

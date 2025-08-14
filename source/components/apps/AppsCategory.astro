@@ -1,0 +1,74 @@
+---
+import {markdown} from '@astropub/md';
+import {SITE} from '~/config.mjs';
+import Layout from '~/layouts/SimplePageLayout.astro';
+import {fetchApps} from '~/utils/apps.js';
+import AppsList from '~/components/apps/AppsList.astro';
+import AppsByPlatform from '~/components/apps/AppsByPlatform.astro';
+
+const {
+	title,
+	description,
+	metaTitle,
+	filter,
+	slugs = [],
+	includeArchived = false,
+	groupByPlatform = false,
+} = Astro.props;
+
+const allApps = await fetchApps({includeArchived});
+
+let selected = allApps;
+
+if (Array.isArray(slugs) && slugs.length > 0) {
+	selected = slugs
+		.map(slug => allApps.find(app => app.slug === slug))
+		.filter(Boolean);
+} else if (typeof filter === 'function') {
+	selected = allApps.filter(app => filter(app));
+}
+
+const meta = {
+	title: metaTitle ?? `${title} — ${SITE.name}`,
+};
+
+let descriptionHtml;
+if (description) {
+	descriptionHtml = await markdown(description);
+}
+
+const hasDescriptionSlot = Astro.slots?.has?.('description');
+---
+
+<Layout {meta}>
+	<h1>{title}</h1>
+	{/*
+	Use either `description` (Markdown string) or the `description` slot for custom markup:
+
+	<AppsCategory
+		title="Example"
+		description="This supports **Markdown** links, lists, etc."
+	/>
+
+	Or with slot:
+
+	<AppsCategory title="Example">
+		<Fragment slot="description">
+			Custom <strong>HTML</strong> with links, components, etc.
+		</Fragment>
+	</AppsCategory>
+	*/}
+	{hasDescriptionSlot ? (
+		<slot name="description" />
+	) : (
+		descriptionHtml && <div set:html={descriptionHtml} />
+	)}
+
+	{groupByPlatform ? (
+		<AppsByPlatform apps={selected} />
+	) : (
+		<AppsList apps={selected} />
+	)}
+
+	<slot name="footer" />
+</Layout>

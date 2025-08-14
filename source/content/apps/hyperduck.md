@@ -15,7 +15,7 @@ feedbackNote: |
   If you are having problems with sync, [read this](/hyperduck#troubleshooting).
 ---
 
-For example, share a link from Safari on your iPhone, iPad, or Apple Vision Pro, and have it open in the default browser on your Mac moments later.
+For example, share a link from Safari on your iPhone, iPad, or Apple Vision, and have it open in the default browser on your Mac moments later.
 
 You can send a link even if your iOS/visionOS device and/or Mac is offline. The link will be sent and received the next time the devices are online. The link will never be lost.
 
