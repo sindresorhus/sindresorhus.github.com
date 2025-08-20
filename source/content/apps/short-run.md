@@ -21,6 +21,7 @@ Since shortcuts can open URLs, folders, apps, and run shell scripts or AppleScri
 - Instant Access – All your favorite shortcuts available from the menu bar
 - Smart Organization – Organize shortcuts into sections and submenus
 - App-Specific Shortcuts – Show different shortcuts based on the active app
+- Linked Folders – Display folders from the Shortcuts app dynamically
 - Keyboard Shortcut – Toggle the menu with a customizable hotkey
 - Quick Keys – Assign 1-9 and a-z keys to shortcuts for instant triggering when menu is open
 - Customizable Menu Bar Icon – Choose between multiple menu bar icons to match your style
@@ -63,7 +64,7 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender or Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 #### How is this different from the built-in Shortcuts menu bar item? {#difference-builtin}
 
@@ -98,6 +99,10 @@ Sections display shortcuts inline with a header (like "Development" followed by 
 
 Right-click a folder when organizing and enable “Show Inline”.
 
+#### How can I select Safari web apps for app-specific shortcuts? {#safari-web-apps}
+
+Safari web apps (created via “File › Add to Dock” in Safari) are just normal apps. In the app picker, click the `+` button, navigate to `~/Applications`, and select the web app. They don't appear by default because Short Run cannot automatically access this folder.
+
 #### Will you add icon support for menu items?
 
 No. While macOS 26 introduces icons in menu items (similar to iOS), I believe this creates visual noise rather than improving usability. Short Run intentionally maintains a clean, text-only interface to keep the menu focused and distraction-free.
@@ -116,29 +121,47 @@ You can set certain shortcuts to only appear when specific apps are active. For 
 
 #### Can I use keyboard shortcuts to navigate the menu?
 
-Yes. Set a keyboard shortcut to open the menu, then use arrow keys to navigate and <kbd>Enter</kbd> to run shortcuts. Much faster than clicking.
+Yes. Set a keyboard shortcut to open the menu, then use arrow keys to navigate and <kbd>return</kbd> to run shortcuts. Much faster than clicking.
 
 #### Can I pass arguments to a shortcut from the menu?
 
 No. Menu runs have no input. Design the shortcut to prompt, read the clipboard, or pull context itself.
 
-##### Can I assign hotkeys to individual shortcuts?
+#### Why does running a shortcut sometimes add a “Stop and Output” action to it?
+
+The Shortcuts app automatically inserts a “Stop and Output” action when a shortcut doesn't have a clear final output. This ensures the shortcut has something to return when executed, preventing execution errors. The action appears when shortcuts contain actions that don't naturally produce output, like opening apps. This is not ideal, but it's out of my control.
+
+This does not happen when running shortcuts from the built-in menu bar item.
+
+I have reported it to Apple: [FB19805797](https://github.com/feedback-assistant/reports/issues/703)\
+*(Consider duplicating my report. The more duplicates, the more likely Apple will look into it.)*
+
+#### My shortcut fails when it needs “Full Disk Access”
+
+Give Short Run “Full Disk Access” too (“System Settings › Privacy & Security › Full Disk Access”).
+Short Run is what actually executes the shortcut, so it needs the same permission as the Shortcuts app.
+
+#### Can I assign hotkeys to individual shortcuts?
 
 No. Use Shortcuts’ own keyboard shortcuts (or Raycast/Alfred) if you want per-shortcut bindings.
 
-##### Can you add sync?
+#### Can you add sync?
 
 No. iCloud sync is unreliable and causes a huge support burden. It's not worth the effort for this app.
 
-##### Can you add export/import for the shortcuts organization?
+#### Can you add export/import for the shortcuts organization?
 
 Maybe at some point, but I want the app to be mature first, since it commits me to that exact format.
 
 For now, you can [export/import all app data](https://sindresorhus.com/apps/faq#export-settings).
 
+#### Can you support iOS?
+
+No, because there is no way to run shortcuts in the background on iOS.
+
 #### Can you add another menu bar icon option?
 
-Sure! Find an icon you like in the [SF Symbols app](https://developer.apple.com/sf-symbols/) or [here](https://thenounproject.com/icons/), and send me the name or link to it.
+Sure! Find an icon you like in the [SF Symbols app](https://developer.apple.com/sf-symbols/) or [here](https://thenounproject.com/icons/), and send me the name or a link.
 
 #### [More FAQs…](/apps/faq)
 
