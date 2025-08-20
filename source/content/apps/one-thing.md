@@ -42,19 +42,19 @@ However, what you use this space for is really up to you.
 - Click the menu bar item while pressing <kbd>shift</kbd> to clear the text.
 - Right-click the menu bar item to be able to quit the app quickly.
 - If the menu bar item text is truncated, hover over it to see the full text in a tooltip.
-- You can use [Markdown](https://www.markdownguide.org/basic-syntax/#emphasis) to [style the text](https://twitter.com/sindresorhus/status/1481818533294407680) (supports bold, italic, and strikethrough) and add links.
-- You can [drag & drop text](https://twitter.com/sindresorhus/status/1481862243755376642) onto the menu bar item to set it. For example, you could drag a todo item from the Reminders app or Things.
+- You can use [Markdown](https://www.markdownguide.org/basic-syntax/#emphasis) to [style the text](https://x.com/sindresorhus/status/1481818533294407680) (supports bold, italic, and strikethrough) and add links.
+- You can [drag & drop text](https://x.com/sindresorhus/status/1481862243755376642) onto the menu bar item to set it. For example, you could drag a todo item from the Reminders app or Things.
 - Select some text in any app, right-click, select “Services”, and click “Send to One Thing” to set One Thing to the selected text. You can also use the “Share” menu item if the app supports that.
 
 ## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=One%20Thing&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=One%20Thing&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender or Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 #### The menu bar item has disappeared!
 

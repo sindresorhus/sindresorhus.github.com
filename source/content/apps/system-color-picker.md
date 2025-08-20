@@ -66,7 +66,11 @@ The built-in color picker supports plugins:
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
+
+#### Can the color sampler show Hex values?
+
+No. The color sampler in the app is provided by macOS and only supports showing RGB values when you press the <kbd>Space</kbd> key. To show Hex (or other formats) directly in the sampler would require a completely custom sampler, which in turn would need extra system permissions like “Screen Recording”. For now, the fastest workflow is to pick a color with the sampler and then copy it in Hex format from the app.
 
 #### What is OKLCH color?
 

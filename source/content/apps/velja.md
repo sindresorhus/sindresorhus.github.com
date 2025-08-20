@@ -225,11 +225,11 @@ Say you use different browser profiles for work and home and want them to switch
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](/feedback?product=Velja&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](/feedback?product=Velja&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is not enough space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 
@@ -296,7 +296,7 @@ If the redirect URL contains the destination URL (usually in a search parameter)
 
 Removing tracking parameters improve privacy and also make URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Learn more.](https://en.wikipedia.org/wiki/UTM_parameters)
 
-Velja supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to Twitter, Facebook, and TikTok.
+Velja supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to X (Twitter), Facebook, and TikTok.
 
 Before: `https://foo.com?utm_content=buffercf3b2&utm_source=snapchat.com`\
 After: `https://foo.com`
@@ -497,7 +497,7 @@ You can submit it [here](https://feedbackassistant.apple.com).
 
 I would love to support Arc, but it's currently missing some required functionality.
 
-**Note that they now support [something similar to Velja built in](https://twitter.com/browsercompany/status/1654525608305491984).**
+**Note that they now support [something similar to Velja built in](https://x.com/browsercompany/status/1654525608305491984).**
 
 Arc supports fetching the spaces of a specific Arc window using AppleScript. However, Velja needs to be able to fetch the spaces even when Arc has no open windows, so that it can show a list of spaces in the Velja settings.
 
@@ -587,7 +587,7 @@ Velja benefits:
 
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
-- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Can show the icon of the active default browser in the menu bar
 - Removes tracking parameters on clicked and copied links
 - Open links in a private Safari window
@@ -608,7 +608,7 @@ Velja benefits:
 
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
-- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Browser profile support
 - More advanced custom rules, like the ability to open a certain link based on what app the link was clicked in
 - Expands [short URLs](https://en.wikipedia.org/wiki/URL_shortening) for better matching
@@ -637,7 +637,7 @@ Velja benefits:
 
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
-- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Can show the icon of the active default browser in the menu bar
 - Better user interface for browser profiles (OpenIn requires you to manually find the browser profile ID)
 - The user interface is more macOS-like and better follows the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/macos/overview/themes/)
@@ -666,7 +666,7 @@ Velja benefits:
 - Sandboxed (more secure)
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
-- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Browser profile support
 - Can show the icon of the active default browser in the menu bar
 - Custom rules, like the ability to open a certain link based on what app the link was clicked in

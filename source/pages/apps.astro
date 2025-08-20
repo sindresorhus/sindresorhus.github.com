@@ -30,7 +30,7 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 					apps.map(app => (
 						<a href={app.url} class="flex py-6 px-2 sm:p-6 bg-white dark:bg-black/20 sm:rounded-xl shadow-md dark:shadow-lg hover:shadow-xl dark:sm:hover:shadow-indigo-500/20 transition duration-500 dark:sm:border dark:border-slate-800">
 							<div class="flex-initial shrink-0 justify-center mr-2 sm:mr-3">
-								<img src={app.iconUrl} width="128" height="128" class={app.hasIOSAppIcon ? 'p-[12px] drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]' : ''}>
+								<img src={app.iconUrl} width="128" height="128" alt={`${app.title} app icon`} loading="lazy" class={app.hasIOSAppIcon ? 'p-[12px] drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]' : ''}>
 							</div>
 							<div class="flex flex-col justify-center my-3 mr-2 sm:mt-[-1px]">
 								<div class="mb-0.5 text-2xl sm:text-3xl font-bold">{app.title}</div>
@@ -57,4 +57,29 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 			</section>
 		</section>
 	</div>
+	<script type="application/ld+json" set:html={JSON.stringify({
+		'@context': 'https://schema.org',
+		'@type': 'ItemList',
+		name: 'Sindre Sorhus Apps',
+		description: 'Quality crafted apps by Sindre Sorhus',
+		url: 'https://sindresorhus.com/apps',
+		numberOfItems: apps.length,
+		itemListElement: apps.map((app, index) => ({
+			'@type': 'ListItem',
+			position: index + 1,
+			item: {
+				'@type': 'SoftwareApplication',
+				name: app.title,
+				description: app.subtitle,
+				url: `https://sindresorhus.com${app.url}`,
+				applicationCategory: app.platforms.includes('macOS') ? 'UtilitiesApplication' : 'MobileApplication',
+				operatingSystem: app.platforms.join(', '),
+				author: {
+					'@type': 'Person',
+					name: 'Sindre Sorhus',
+				},
+				...(app.appStoreId && {downloadUrl: app.appStoreUrl}),
+			},
+		})),
+	}, null, '\t')} />
 </Layout>

@@ -38,8 +38,6 @@ Unlike similar apps, this one actually changes the system default browser (and w
 
 ---
 
----
-
 *Switching the default browser is also a feature of my [Supercharge](/supercharge) app.*
 
 ---
@@ -74,7 +72,7 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve the issue, try quitting Bartender or Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to show the menu bar icon.
 

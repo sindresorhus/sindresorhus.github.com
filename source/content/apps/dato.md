@@ -18,6 +18,8 @@ olderMacOSVersions:
   - '14'
 feedbackNote: |
   If text in the app is upside down on macOS 26, it's a macOS bug and unrelated to the app. A computer restart fixes it.
+
+  [The app randomly disappears/quits](/apps/faq#randomly-quits)
 ---
 
 Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.
@@ -122,7 +124,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/qystmc5clde2o1xypf7j1/Dato-5.6.2-trial-1752534579.zip?rlkey=gbfs4rpwtzci221fhmz02eqaw&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/bm2exq57off5l89lfz4gx/Dato-5.6.3-trial-1757957113.zip?rlkey=sz371ao9tqnrr48tbquw9imzs&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
@@ -324,15 +326,25 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](/feedback?product=Dato&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](/feedback?product=Dato&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 #### Dato does not work with Ice
 
 This is an [issue with Ice](https://github.com/jordanbaird/Ice/discussions/298) and must be fixed there.
+
+#### I have multiple menu bar items that open Dato
+
+Dato can potentially have multiple menu bar items:
+
+- The main one
+- Upcoming event
+- Time zone in the menu bar
+
+You can choose which one of these to show in the menu bar in the app settings.
 
 #### Can I buy Dato from outside the App Store and Setapp?
 
@@ -351,6 +363,7 @@ Make sure:
 	- Open the Calendar app settings, click the “Accounts” pane, and then check that the calendars are there. Dato can only show calendars added there.
 - The calendars are enabled in the Dato settings.
 	- Open the Dato settings, click the “Events” tab, and make sure the calendars are enabled.
+- [The calendar events may not yet have been fetched by macOS](#refresh-interval)
 - You have tried restarting your computer.
 - You are on the latest version of macOS.
 - You have tried resetting permissions for Dato using [App Buddy](/app-buddy).
@@ -579,9 +592,9 @@ In the new event window, click the “More Settings” button, and send the invi
 
 Built-in support for sending calendar invites directly from Dato is not possible, as Apple does not currently provide this capability for third-party apps.
 
-#### How can I make my calendar refresh more often?
+#### How can I make my calendar refresh more often? {#refresh-interval}
 
-Open the Calendar app's settings, go to the “Accounts” pane, choose the relevant calendar service in the left sidebar, and then change the “Refresh Calendars” setting. Ideally, it should be set to “Push”, but not all services support that, like Google.
+Open the Calendar app's settings, go to the “Accounts” pane, choose the relevant calendar service in the left sidebar, and then change the “Refresh Calendars” setting. Ideally, it should be set to “Push”, but not all services support that, like Google Calendar.
 
 #### How can I accept/decline invites?
 
@@ -633,7 +646,9 @@ It indicates that there are multiple ongoing events, but only one is shown.
 
 #### My Google Calendar does not update in the app
 
-You might have to re-authenticate your Google account. Open the Calendar app's settings, go to the “Accounts” pane, and try to remove and re-add the Google account.
+The events may not have been [fetched yet by macOS](#refresh-interval).
+
+Or you may have to re-authenticate your Google account. Open the Calendar app's settings, go to the “Accounts” pane, and try to remove and re-add the Google account.
 
 #### Can I show UTC time in the menu bar?
 

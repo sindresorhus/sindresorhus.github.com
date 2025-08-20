@@ -28,7 +28,7 @@ For macOS, it's only available for Apple silicon Macs.
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Photo%20Widget&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Photo%20Widget&referrer=Website-FAQ)
 
 #### The widget does not show up in the widget picker, the widget is stuck, or is missing from the Home Screen
 
