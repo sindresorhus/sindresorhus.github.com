@@ -5,6 +5,7 @@ pubDate: 2023-12-16
 platforms:
   - macOS
   - iOS
+  - visionOS
 isPaid: true
 appStoreId: 6465682248
 forceHasIosAppIcon: true
@@ -14,13 +15,13 @@ The app provides widgets that act like sticky notes. Show them on your Home Scre
 
 The app is simple by design.
 
-For macOS, it's only available for Apple silicon Macs running macOS 15 or later.
+For macOS, it's only available for Apple silicon Macs running macOS 26 or later.
 
 ## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Memo%20Widget&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Memo%20Widget&referrer=Website-FAQ)
 
 #### How do I add the widget?
 

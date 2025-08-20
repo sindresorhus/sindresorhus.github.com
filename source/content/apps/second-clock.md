@@ -26,7 +26,7 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 #### Can it show a flag in front of the time?
 
-You can set a [flag emoji](https://emojipedia.org/flags) in the “Prefix text” setting. [Example.](https://twitter.com/sindresorhus/status/1742975880031543330)
+You can set a [flag emoji](https://emojipedia.org/flags) in the “Prefix text” setting. [Example.](https://x.com/sindresorhus/status/1742975880031543330)
 
 #### Can it show an icon in front of the time?
 
@@ -60,7 +60,7 @@ I don't plan to support that directly, but here are additional builds of the app
 
 *If you had downloaded this previously and it stopped respecting the chosen time zone, download the new versions above.*
 
-My [Dato](/dato) app supports unlimited time zone clocks with settings like color and size.
+My [Dato](/dato) app supports multiple time zone clocks with settings like color and size. My [Zone Bar](/zone-bar) app also supports multiple time zone clocks.
 
 #### Can you add text weight and color settings?
 

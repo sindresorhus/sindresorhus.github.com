@@ -8,9 +8,12 @@ export type OverflowItemProps = {
 
 export type OverflowMenuProps = {
 	overflowItems?: readonly OverflowItemProps[];
+	iconClassName?: string;
 };
 
-const {overflowItems} = Astro.props;
+const {overflowItems, iconClassName} = Astro.props;
+
+const iconClass = iconClassName ?? 'text-primary-600 dark:text-primary-400';
 ---
 
 <div class="relative flex items-center" style="padding-top:2px">
@@ -19,7 +22,7 @@ const {overflowItems} = Astro.props;
 		class="overflow-menu-component absolute inset-0 w-full h-full opacity-0 cursor-pointer"
 		style="font-weight: initial; font-family: system-ui;"
 	>
-		<option value="" disabled selected>…</option>
+		<option value="" disabled selected></option>
 		{overflowItems?.map(item => (
 			<option value={item.url}>{item.title}</option>
 		))}
@@ -27,7 +30,7 @@ const {overflowItems} = Astro.props;
 	</select>
 	<Icon
 		name="tabler:dots-circle-horizontal"
-		class="w-5 h-5 text-primary-600 dark:text-primary-400 pointer-events-none"
+		class={`w-5 h-5 pointer-events-none ${iconClass}`}
 		aria-hidden="true"
 	/>
 </div>
