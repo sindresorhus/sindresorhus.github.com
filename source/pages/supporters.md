@@ -77,6 +77,15 @@ None -->
 	<img src="/assets/thanks/nitric-logo.svg" width="380" alt="nitric">
 </a>
 <br>
+<a href="https://wisprflow.ai" class="sponsor" rel="nofollow" style="position:relative;margin-top:10px">
+	<img src="/assets/thanks/flow-logo.svg" width="210" alt="Wispr Flow">
+	<center class="dark:text-black" style="font-size:30px">Wispr Flow</center>
+</a>
+<br>
+<a href="https://depot.dev" class="sponsor" rel="nofollow" style="position:relative;margin-top:20px">
+	<img src="/assets/thanks/depot-logo-light.svg" width="240" alt="Depot">
+</a>
+<br>
 
 ## Silver sponsor <span class="reward-price not-prose">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
@@ -97,6 +106,9 @@ None -->
 		<img src="/assets/thanks/fetchfox-logo.svg" width="120" alt="FetchFox">
 		<span class="dark:text-black" style="font-size: 36px">FetchFox</span>
 	</a>
+	<a href="https://kruu.com" class="sponsor" rel="nofollow">
+		<img src="/assets/thanks/kruu-logo-light.svg" width="240" alt="KRUU">
+	</a>
 </div>
 
 ## Top supporter <span class="reward-price not-prose">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
@@ -105,7 +117,6 @@ None -->
 - [Passbolt](https://github.com/passbolt)
 - [Checkly](https://github.com/checkly)
 - [Stefan Thomas](https://www.patreon.com/user/creators?u=15361260)
-- [BoltAI](https://github.com/BoltAI)
 - [n8n](https://github.com/n8nio)
 
 ## Supporter <span class="reward-price not-prose">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
@@ -414,6 +425,7 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Transloadit](https://transloadit.com)
 - [Logto](https://logto.io)
 - [WorkOS](https://workos.com)
+- [BoltAI](https://github.com/BoltAI)
 
 ---
 

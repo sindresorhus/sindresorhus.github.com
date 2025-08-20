@@ -7,18 +7,24 @@ platforms:
 isMenuBarApp: true
 appStoreId: 1545870783
 hasSentry: true
+forceHasIosAppIcon: true
 olderMacOSVersions:
   - '11'
   - '12'
   - '13'
   - '14'
+  - '15'
+feedbackNote: |
+  ## On macOS 26, there is a bug with the color sampler where it does not always pick the color you want. The app uses the system color sampler and has no control over how it works. Apple will need to fix this.
+
+  Note that the app wraps the macOS color picker as an app and adds some features. I have no control over how most things work though, like the tabs, color palettes, etc. Bugs with these must be fixed by macOS, not me. To see how it differs: select an image in Finder, open Quick Look, click the markup button, click the color button, and then click "Show Colors".
 ---
 
 #### Features
 
 - Palettes
 - Recently picked colors
-- Quickly copy, paste, and convert colors in Hex, HSL, RGB, Unit RGB (0-1), OKLCH, LCH format
+- Quickly copy, paste, and convert colors in Hex, HSL, RGB, Unit RGB (0-1), OKLCH, LCH, and CMYK format
 - Show as a normal app or in the menu bar
 - Pick a color or toggle the window from anywhere with a global keyboard shortcut
 - Make the window stay on top of all other windows
@@ -50,8 +56,22 @@ You can use the following keyboard shortcuts in the app:
 - Copy as Unit RGB: <kbd>Shift</kbd> <kbd>Command</kbd> <kbd>u</kbd>
 - Copy as OKLCH: <kbd>Shift</kbd> <kbd>Command</kbd> <kbd>o</kbd>
 - Copy as LCH: <kbd>Shift</kbd> <kbd>Command</kbd> <kbd>l</kbd>
-- Paste color: <kbd>Shift</kbd> <kbd>Command</kbd> <kbd>v</kbd> *(In the format Hex, HSL, RGB, Unit RGB, OKLCH, or LCH)*
+- Copy as CMYK: <kbd>Shift</kbd> <kbd>Command</kbd> <kbd>k</kbd>
+- Paste color: <kbd>Shift</kbd> <kbd>Command</kbd> <kbd>v</kbd> *(In the format Hex, HSL, RGB, Unit RGB, OKLCH, LCH, or CMYK)*
 - Reset opacity: <kbd>Control</kbd> <kbd>Shift</kbd> <kbd>o</kbd>
+
+#### Switch between picker tabs
+
+You can quickly switch between different color picker tabs:
+
+- Next tab: <kbd>Control</kbd> <kbd>Tab</kbd>
+- Previous tab: <kbd>Shift</kbd> <kbd>Control</kbd> <kbd>Tab</kbd>
+- Wheel: <kbd>Control</kbd> <kbd>1</kbd>
+- Sliders: <kbd>Control</kbd> <kbd>2</kbd>
+- Color Palettes: <kbd>Control</kbd> <kbd>3</kbd>
+- Image Palettes: <kbd>Control</kbd> <kbd>4</kbd>
+- Pencils: <kbd>Control</kbd> <kbd>5</kbd>
+- Extensions: <kbd>Control</kbd> <kbd>6</kbd>-<kbd>9</kbd> *(if installed)*
 
 ### Plugins
 
@@ -66,7 +86,11 @@ The built-in color picker supports plugins:
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
+
+#### Can the color sampler show Hex values?
+
+No. The color sampler in the app is provided by macOS and only supports showing RGB values when you press the <kbd>Space</kbd> key. To show Hex (or other formats) directly in the sampler would require a completely custom sampler, which in turn would need extra system permissions like “Screen Recording”. For now, the fastest workflow is to pick a color with the sampler and then copy it in Hex format from the app.
 
 #### What is OKLCH color?
 
@@ -122,6 +146,10 @@ The app displays the OKLCH chroma value as a percentage instead of an absolute v
 
 #### How can I export color palettes?
 
+**[Simple Color Palette](https://simplecolorpalette.com) format**
+1. Click the `(…)` button in the window and select “Export Palettes”
+
+**CLR format**
 1. Open Finder
 1. Press <kbd>Command</kbd> + <kbd>Shift</kbd> + <kbd>G</kbd>
 1. Enter `~/Library/Colors`
@@ -142,12 +170,30 @@ I don't plan to localize the app.
 
 ## Scripting
 
+### URL scheme
+
+The app supports the `system-color-picker:` URL scheme for programmatic control:
+
+- `system-color-picker:pick` - Start the color sampler (eyedropper)
+- `system-color-picker:toggle` - Toggle the color picker window
+
+Example:
+
+```sh
+open --background 'system-color-picker:pick'
+```
+
+This can be used to create custom keyboard shortcuts in tools like [Raycast](https://raycast.com) and [Alfred](https://alfredapp.com).
+
+### Shortcuts
+
 You can use the “Sample Color from Screen” action for Shortcuts to sample color from the screen and then do something with it.
 
 Tip: You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
 ## Older versions
 
+- [2.1.4](https://github.com/sindresorhus/System-Color-Picker/releases/download/older-releases/Color.Picker.2.1.4.-.macOS.15.zip) for macOS 15+
 - [2.0.3](https://github.com/sindresorhus/System-Color-Picker/releases/download/older-releases/Color.Picker.2.0.3.-.macOS.14.zip) for macOS 14+
 - [1.15.0](https://github.com/sindresorhus/System-Color-Picker/releases/download/older-releases/Color.Picker.1.15.0.-.macOS.13.zip) for macOS 13+
 - [1.12.1](https://github.com/sindresorhus/System-Color-Picker/releases/download/older-releases/Color.Picker.1.12.1.-.macOS.12.zip) for macOS 12+
@@ -157,4 +203,4 @@ Tip: You can [run shortcuts from the command-line](https://support.apple.com/gui
 
 A special macOS version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/2lvdt09widz0p3jzfrwd8/Color-Picker-2.1.0-1740424285.zip?rlkey=yuzrr4abjfty60oscd3pcdyvc&raw=1) *(2.1.0 · macOS 15+)*
+[Download](https://www.dropbox.com/scl/fi/kk4c8p47uj791k5t0nj0n/Color-Picker-2.2.0-1767305140.zip?rlkey=jivahp9p4k5f24q76473zrnkd&raw=1) *(2.2.0 · macOS 26+)*

@@ -15,6 +15,8 @@ Menu bar apps are awesome, but MacBooks have limited menu bar space. This app he
 - *Free*
 - *Requires macOS 15+*
 
+**Note: Because of a [macOS 26 bug](https://github.com/feedback-assistant/reports/issues/679), menu bar apps need to be relaunched before they show the correct spacing.**
+
 The app includes a Shortcuts action, enabling automated spacing adjustments for various scenarios.
 
 **The app only needs to be run once to set the spacing and can then be uninstalled. The settings persist.**

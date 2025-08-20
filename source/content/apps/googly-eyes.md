@@ -20,7 +20,7 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender or Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 #### Why is it using a lot of CPU?
 
@@ -36,7 +36,7 @@ The app is optimized as much as possible, but macOS is inefficient at updating m
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/pyxs34muy524a1irxtn05/Googly-Eyes-1.1.1-1742015870.zip?rlkey=k4sn2jq9xmmvqrd3kxdb0gb5l&raw=1) *(1.1.1)*
+[Download](https://www.dropbox.com/scl/fi/r1fdhx8r5k08q7fq5apso/Googly-Eyes-1.1.4-1764760165.zip?rlkey=w79zg0k1ue6zqbbc51ij3rdaa&raw=1) *(1.1.4)*
 
 *Requires macOS 15 or later*
 
@@ -44,11 +44,11 @@ A special version for users that cannot access the App Store. It won't receive a
 // Only the core measurements
 const CONSTANTS = {
 	EYE: {
-		DIAMETER: 60,
-		TOP: 96,
+		DIAMETER: 76,
+		TOP: 109.5,
 		LEFT: {
-			LEFT_EYE: 74,
-			RIGHT_EYE: 151
+			LEFT_EYE: 84.5,
+			RIGHT_EYE: 173.5
 		}
 	},
 	PUPIL: {

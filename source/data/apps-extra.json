@@ -1,0 +1,102 @@
+[
+	{
+		"label": "Categories",
+		"items": [
+			{
+				"title": "Free",
+				"url": "/apps/free",
+				"description": "Apps that are free"
+			},
+			{
+				"title": "Paid",
+				"url": "/apps/paid",
+				"description": "Apps that are paid"
+			},
+			{
+				"title": "Setapp",
+				"url": "/apps/setapp",
+				"description": "Apps available on Setapp"
+			},
+			{
+				"title": "Mac",
+				"url": "/apps/macos",
+				"description": "Apps that run on the Mac"
+			},
+			{
+				"title": "Menu Bar",
+				"url": "/apps/menu-bar",
+				"description": "Apps that live in the menu bar"
+			},
+			{
+				"title": "iPhone & iPad",
+				"url": "/apps/ios",
+				"description": "Apps that run on iPhone and iPad"
+			},
+			{
+				"title": "Apple Watch",
+				"url": "/apps/watchos",
+				"description": "Apps that run on Apple Watch"
+			},
+			{
+				"title": "Apple Vision",
+				"url": "/apps/visionos",
+				"description": "Apps that run on Apple Vision"
+			},
+			{
+				"title": "Shortcuts-related",
+				"url": "/apps/shortcuts",
+				"description": "Apps related to the Shortcuts app"
+			},
+			{
+				"title": "Open Source",
+				"url": "https://github.com/search?q=user%3Asindresorhus+language%3Aswift+topic%3Aapp+archived%3Afalse&type=repositories",
+				"description": "Apps with the source code available"
+			},
+			{
+				"title": "Random",
+				"url": "/apps/random",
+				"description": "Show a random app"
+			}
+		]
+	},
+	{
+		"label": "More",
+		"items": [
+			{
+				"title": "FAQ",
+				"url": "/apps/faq",
+				"description": "Frequently asked questions about my apps"
+			},
+			{
+				"title": "Tiny Apps",
+				"url": "/tiny-apps",
+				"description": "Smaller utilities"
+			},
+			{
+				"title": "Older Versions",
+				"url": "/apps/older-versions",
+				"description": "Apps for older macOS versions"
+			},
+			{
+				"title": "RSS Feed for New Apps",
+				"url": "/feeds",
+				"description": "Get notified about new apps I publish"
+			},
+			{
+				"title": "Discounts",
+				"url": "/apps/discounts",
+				"description": "Student discounts and special offers for my apps"
+			},
+			{
+				"title": "Terms of Use",
+				"url": "/apps/terms",
+				"description": "Guidelines and conditions for using my apps"
+			},
+			{
+				"title": "Archived Apps",
+				"url": "/apps/archived",
+				"description": "Apps that are no longer being worked on"
+			}
+		]
+	}
+]

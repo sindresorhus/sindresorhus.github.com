@@ -34,7 +34,7 @@ Here are some things you could try:
 
 If you are on a work computer, it could also be that your company has blocked third-party share services.
 
-#### Can you add a “Move” action?
+#### Can you add a “Move” or “Delete” action?
 
 This is unfortunately not possible. [Share extensions](https://support.apple.com/guide/mac-help/use-the-share-menu-on-mac-mh40614/mac) (for example, the "Copy" action), usually only receive a copy of the file. They have no guaranteed access to the original file.
 
