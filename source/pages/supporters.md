@@ -77,6 +77,15 @@ None -->
 	<img src="/assets/thanks/nitric-logo.svg" width="380" alt="nitric">
 </a>
 <br>
+<a href="https://wisprflow.ai" class="sponsor" rel="nofollow" style="position:relative;margin-top:10px">
+	<img src="/assets/thanks/flow-logo.svg" width="210" alt="Wispr Flow">
+	<center class="dark:text-black" style="font-size:30px">Wispr Flow</center>
+</a>
+<br>
+<a href="https://depot.dev" class="sponsor" rel="nofollow" style="position:relative;margin-top:20px">
+	<img src="/assets/thanks/depot-logo-light.svg" width="240" alt="Depot">
+</a>
+<br>
 
 ## Silver sponsor <span class="reward-price not-prose">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
 
@@ -96,6 +105,9 @@ None -->
 	<a href="https://fetchfox.ai?ref=sindre" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/fetchfox-logo.svg" width="120" alt="FetchFox">
 		<span class="dark:text-black" style="font-size: 36px">FetchFox</span>
+	</a>
+	<a href="https://kruu.com" class="sponsor" rel="nofollow">
+		<img src="/assets/thanks/kruu-logo-light.svg" width="240" alt="KRUU">
 	</a>
 </div>
 

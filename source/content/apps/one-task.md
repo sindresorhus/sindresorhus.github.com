@@ -3,12 +3,13 @@ title: One Task
 subtitle: Conquer one task at a time
 pubDate: 2023-09-19
 isPaid: true
+appStoreId: 6465745322
+forceHasIosAppIcon: true
 platforms:
   - macOS
   - iOS
   - visionOS
   - watchOS
-appStoreId: 6465745322
 olderMacOSVersions:
   - '14'
 ---
@@ -47,7 +48,7 @@ For example, on macOS, select the tasks you want in Reminders or Things, right-c
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=One%20Task&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=One%20Task&referrer=Website-FAQ)
 
 #### How is this different from your [One Thing](/one-thing) app? {#one-thing-difference}
 

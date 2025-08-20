@@ -7,13 +7,14 @@ platforms:
   - iOS
   - visionOS
 appStoreId: 6465250302
+forceHasIosAppIcon: true
 olderMacOSVersions:
   - '14'
 feedbackNote: |
   I cannot provide support for general Shortcuts questions. Use [Reddit](https://www.reddit.com/r/shortcuts) for that.
 ---
 
-The app provides additional AI-related actions (o1, o1 mini, GPT-4o, GPT-4o mini, GPT-4, GPT 3.5, Claude 3 Opus, Claude 3.5 Sonnet, Claude 3.5 Haiku) for the Shortcuts app.
+The app provides additional AI-related actions (GTP-5, GTP-5 mini, GPT-5 nano, GPT-4o, GPT-4o mini, o1, o1 mini, Claude Sonnet 4, Claude Opus 4) for the Shortcuts app.
 
 For example, an action to interact with the ChatGPT API.
 
@@ -51,7 +52,7 @@ For [Gemini](https://ai.google.dev/gemini-api/docs/openai), specify `https://gen
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=AI%20Actions&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=AI%20Actions&referrer=Website-FAQ)
 
 #### The actions do not show up in the Shortcuts app
 
@@ -91,6 +92,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/vvdbfnnptzvsa3yduid79/AI-Actions-1.4.1-1743425376.zip?rlkey=xxkjgbzvjrrsny08m2v8d4ygg&raw=1) *(1.4.1)*
+[Download](https://www.dropbox.com/scl/fi/0afs83e2kxqrtagjw1kj0/AI-Actions-1.4.4-1757579168.zip?rlkey=anr55ggquu85z3evb61q46frh&raw=1) *(1.4.4)*
 
 *Requires macOS 15 or later*

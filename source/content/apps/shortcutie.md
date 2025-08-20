@@ -19,7 +19,7 @@ feedbackNote: |
 
 <sup>Requires macOS 15.2 or later</sup>
 
-The app provides lots of powerful extra actions for the Shortcuts app on macOS.
+The app provides lots (60+) of powerful extra actions for the Shortcuts app on macOS.
 
 While my free [Actions](/actions) app provides useful functionality for the Shortcuts app through the App Store for macOS, iOS and visionOS, Shortcutie is a Mac-only app that offers more powerful system-level features by operating outside of Apple's restrictions. This enables capabilities like changing system default browser (without a prompt), getting the active browser tab, clearing notifications, etc. - things that wouldn't be possible under App Store rules.
 
@@ -48,6 +48,11 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 	<span class="list-subtitle">Gets the frontmost app if it’s a browser</span>
 - Get Selected Text
 	<span class="list-subtitle">Gets the selected text in the currently focused window</span>
+- Get/Set Current Folder in Finder
+	<span class="list-subtitle">Gets or sets the currently viewed folder in Finder</span>
+- Get Document of App
+	<span class="list-subtitle">Returns the file of the currently active document in the active or specified app</span>
+	<span class="list-description text-xs">Works with native macOS apps like Preview, TextEdit, Pages, Keynote, Numbers, and other document-based apps.</span>
 - Show Alert (Extended)
 	<span class="list-subtitle">Shows an alert dialog with multiple buttons and returns which button was clicked</span>
 	<span class="list-description text-xs">Timeout, custom icon, and up to 8 buttons. [Screenshot.](https://www.dropbox.com/scl/fi/439bkpixjwssiss0ye7ln/Screen-Shot-2025-05-20-at-18.43.32-1747756364.png?rlkey=jrq1etjed15uz66tpanokw0q6&raw=1)</span>
@@ -69,11 +74,27 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 	<span class="list-subtitle">Options to pass in URLs, activate, force new instance, hide, launch arguments, and environment variables</span>
 - Unminimize Windows of Active App
 	<span class="list-subtitle">Unminimizes all windows or the first window of the currently active app</span>
-- Get/Set Default Sound Device
+- Isolate Window
+	<span class="list-subtitle">Hide all other apps and minimize all other windows of the current app, leaving only the frontmost window visible</span>
+	<span class="list-description text-xs">It's like a turbocharged “Hide Others” — also minimizes your extra windows in the current app, so you see just the one you care about. Perfect for quickly clearing away distractions when you have many windows open.</span>
+- Get/Set Accent Color
+	<span class="list-subtitle">View or change the system accent color</span>
+	<span class="list-description text-xs">Also includes special iMac colors not normally accessible on non-iMac systems.</span>
+- Toggle Dock Folder
+	<span class="list-subtitle">Expands or collapses a [folder in the Dock](https://support.apple.com/kk-kz/guide/mac-help/mchl231f08fb/mac), similar to manually clicking on it</span>
+	<span class="list-description text-xs">Tip: Add this to a shortcut and give it a keyboard shortcut to expand or collapse Dock folders from the keyboard.</span>
+- Get/Set Default Audio Device
 	<span class="list-subtitle">View or change the default audio input (microphone) or output (speaker)</span>
-- Find Sound Device
-	<span class="list-subtitle">Returns all sound devices</span>
+- Get Details of Audio Device
+	<span class="list-subtitle">Returns comprehensive information about audio devices</span>
+	<span class="list-description text-xs">Includes volume, mute state, type, connection status, sample rates, manufacturer info, and more.</span>
+- Find Audio Device
+	<span class="list-subtitle">Returns all audio devices</span>
 	<span class="list-description text-xs">Includes comprehensive details about them.</span>
+- Get/Set Audio Device Mute State
+	<span class="list-subtitle">Control mute state of audio devices</span>
+- Get/Set Audio Device Volume
+	<span class="list-subtitle">Control volume level of audio devices</span>
 - Set Folder Color
 	<span class="list-subtitle">Change the color of folders</span>
 - Hide All Windows
@@ -85,6 +106,9 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 	<span class="list-description text-xs">Options to exclude apps, exclude frontmost app, and close Finder windows.</span>
 - Eject All Disks
 	<span class="list-subtitle">Safely unmounts all external drives (except excluded ones)</span>
+- Create Email with Files
+	<span class="list-subtitle">Creates a new email message in the default email app with the given files as attachments</span>
+	<span class="list-description text-xs">Works with Mail, Outlook, Spark, Mimestream, Airmail, Canary Mail, and maybe other apps. Not Thunderbird.</span>
 - Empty Trash
 	<span class="list-subtitle">Permanently deletes items in the trash</span>
 - Toggle Show Desktop
@@ -97,6 +121,9 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 	<span class="list-subtitle">Shows or hides [Launchpad](https://support.apple.com/guide/mac-help/mh35840/mac)</span>
 - Get Latest Screenshots
 	<span class="list-subtitle">Returns the most recent screenshots taken with the system screenshot tool</span>
+- Get/Set Dock Position
+	<span class="list-subtitle">View or change the position of the Dock</span>
+	<span class="list-description text-xs">Changes take effect immediately.</span>
 - Get/Set Desktop Icons Visibility
 	<span class="list-subtitle">Show, hide, or check visibility status of desktop icons</span>
 - Get/Set Desktop Widgets Visibility
@@ -106,6 +133,8 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 - Get/Set Keyboard Brightness
 	<span class="list-subtitle">View or change the keyboard backlight brightness level</span>
 	<span class="list-description text-xs">Only works on Macs with a built-in backlit keyboard.</span>
+- Get/Set Night Shift Color Temperature
+	<span class="list-subtitle">Control the [Night Shift](https://support.apple.com/en-us/102191) color temperature.</span>
 - Get/Set Network Location
 	<span class="list-subtitle">Switch between different [network configurations](https://support.apple.com/105129)</span>
 	<span class="list-description text-xs">Tip: You could automate switching based certain conditions with the [Shortery](https://www.numberfive.co/detail_shortery.html) app.</span>
@@ -123,6 +152,8 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 	<span class="list-subtitle">Clears recent items (files, apps, and servers) from menus</span>
 - Open System Setting
 	<span class="list-subtitle">Opens Hide My Email, Private Relay, VPN & Filters, or Apple Account Subscriptions settings directly</span>
+- Get/Set Finder New Window Target
+	<span class="list-subtitle">Gets or sets the default folder that opens when creating new Finder windows</span>
 - Get Apps Using Secure Input
 	<span class="list-subtitle">Secure Input prevents other apps from reading keystrokes when typing passwords. Sometimes apps don't properly disable it, causing keyboard shortcuts to stop working. This can find such apps.</span>
 
@@ -130,6 +161,12 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 <span class="list-subtitle">View or change the system-wide mouse pointer size</span> -->
 
 **And many more planned!**
+
+## Tips {#tips}
+
+### Sharing shortcuts that use Shortcutie
+
+Add a warning at the start of the shortcut to install the app if not installed. [Example](https://www.icloud.com/shortcuts/e31f8ce26d36405ca6d6aca0b2350d8f)
 
 ## Frequently Asked Questions {#faq}
 
@@ -184,9 +221,9 @@ The action can exclude the frontmost app and also close Finder windows.
 
 A bit of whimsy makes software more human and approachable. Even Apple uses a smiling Finder icon to this day. Good software can be both powerful and fun. And since the icon is only visible in the App Store and as a tiny icon in Shortcuts, its design has minimal impact on the actual utility of the app.
 
-#### Shortcutie and Supercharge seem to have some of the same actions for Shortcuts
+#### Shortcutie and Supercharge seem to have some of the same actions for Shortcuts {#supercharge}
 
-There is some overlap, but Shortcutie includes many more actions. [Supercharge](/supercharge) only includes actions for its own features.
+There is [some overlap](/supercharge#shortcutie), but Shortcutie includes many more actions. Supercharge only includes actions for its own features.
 
 #### [More FAQs…](/apps/faq)
 

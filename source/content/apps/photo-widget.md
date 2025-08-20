@@ -5,6 +5,7 @@ pubDate: 2020-09-22
 platforms:
   - macOS
   - iOS
+  - visionOS
 isPaid: true
 appStoreId: 1532588789
 forceHasIosAppIcon: true
@@ -17,9 +18,6 @@ feedbackNote: |
   - Remove the app and download it again.
 
   It's unfortunate that this happens, but the widget system in iOS is very buggy.
-
-
-  iOS 18 has a bug where it skips 2 photos instead of 1. This is out of my control. Hopefully, a future iOS 18 version will fix it.
 ---
 
 For macOS, it's only available for Apple silicon Macs.
@@ -28,7 +26,7 @@ For macOS, it's only available for Apple silicon Macs.
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Photo%20Widget&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Photo%20Widget&referrer=Website-FAQ)
 
 #### The widget does not show up in the widget picker, the widget is stuck, or is missing from the Home Screen
 

@@ -19,7 +19,7 @@ For example, share a link from Safari on your iPhone, iPad, or Apple Vision, and
 
 You can send a link even if your iOS/visionOS device and/or Mac is offline. The link will be sent and received the next time the devices are online. The link will never be lost.
 
-My personal use-case is that I often discover cool stuff when I check Twitter on the go and I want to dig deeper into it later on my Mac. I have tried Instapaper, Pocket, Safari Reading List, iCloud Tabs, and more. The problem with them all is that I forget to check them.
+My personal use-case is that I often discover cool stuff when I check X (Twitter) on the go and I want to dig deeper into it later on my Mac. I have tried Instapaper, Pocket, Safari Reading List, iCloud Tabs, and more. The problem with them all is that I forget to check them.
 
 [**Why not AirDrop?**](#airdrop)
 
@@ -86,7 +86,7 @@ Instead of using the “Send to Mac” share sheet button provided by the app, y
 Add these shortcuts (on any device):
 
 - [iOS shortcut](https://www.icloud.com/shortcuts/f013c4a6da7d4a9eb0694f0a6532f34c)
-- [macOS shortcut](https://www.icloud.com/shortcuts/e164558aa759486ca70553f32029fe40)
+- [macOS shortcut](https://www.icloud.com/shortcuts/e164558aa759486ca70553f32029fe40) *(requires the [Actions](/actions) app to be installed)*
 
 Then edit the macOS shortcut to match the device name of the device you want this to share to. You can rename the macOS shortcut, but don't forget to update the name in the iOS shortcut.
 
