@@ -9,18 +9,21 @@ isMenuBarApp: true
 hasSentry: true
 setappId: 742
 releasesRepo: supercharge-meta
+forceHasIosAppIcon: true
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/supercharge?wanted=true
 # olderMacOSVersions:
 #   - '15'
 feedbackNote: |
+  Spotify crashes. This is a Spotify bug. [Tell them to fix it.](https://community.spotify.com/t5/Desktop-Mac/MacOS-Spotify-Crashing-Immediately-on-Startup/td-p/7091821) As a workaround, you can disable “Fill window when clicking green traffic light button” and “Hide app when clicking yellow traffic light button” settings
+
   If you have moved to a new Mac and need to download the app again, you can download it from your [Gumroad receipt email or Gumroad account](https://gumroad.com/help/article/199-how-do-i-access-my-purchase).
 
   When reporting bugs, try quitting Supercharge, and if the issue disappears, it is likely not an issue with Supercharge. If the issue is still there, try turning off things in the “Tweaks” settings tab until it does not happen anymore, to narrow down which feature is causing the issue, and let me know.
 
   If the issue is that a keyboard shortcut is not working, it could be [this](https://sindresorhus.com/apps/faq#secure-input-problem).
 
-  The Finder context menu items will not show up in any [sync folder like iCloud, Dropbox, etc](#finder-context-menu-icloud).
+  The Finder context menu items will not show up in any [sync folder like iCloud, Dropbox, OneDrive, etc](#finder-context-menu-icloud).
 ---
 
 <sup>Requires macOS 15.4 or later</sup>
@@ -35,24 +38,50 @@ Improve your Mac experience with a bunch of useful functionality:
 
 *(Every feature is opt-in, so you can enable only what you need)*
 
+#### Highlights
+
+- [Mission Control actions](#mission-control-improvements) — Close, hide, minimize, and quit right inside Mission Control.
+- [Dock icon behavior](#dock-icon-click-behavior) — Click to hide/minimize/cycle.
+- [Finder power-ups](#finder-context-menu) — Cut/paste files, new file, templates, open in terminal, inline share services, etc.
+- [Better window buttons](#green-traffic-light-button-fill) — Red quits app, green fills instead of fullscreen, [yellow hides app](#yellow-traffic-light-button-hide).
+- Notifications — Clear all or click with a shortcut.
+- [Keyboard Shortcut Inspector](#keyboard-shortcut-inspector) — See which app owns a global hotkey.
+- Utility — [Keep Awake](#keep-awake), Cleaning Mode, Cat Mode, auto-select AirDrop target.
+- [Capture text](#capture-text) + [Translate anywhere](#capture-translate-text) — OCR and instant translate from any screen region.
+- [Scan QR & barcodes](#scan-qr-codes) — From screen or clipboard, multi-code aware.
+- [Isolate Window](#isolate-window) — One window, zero distractions.
+- Spotlight keyboard shortcuts - Open clipboard history directly.
+- Toggles - Dark Mode, Night Shift, etc.
+- Extras — Add Dock & Finder sidebar spacers, change default browser without prompts.
+
+#### All
+
 - Clear notifications with a keyboard shortcut or from the menu
 - Click top visible notification with a keyboard shortcut
 - [Close & minimize windows and hide & quit apps directly from Mission Control](#mission-control-improvements)
 - [Clicking an active app's Dock icon hides the app, minimizes its windows, or cycles through its windows](#dock-icon-click-behavior)
+	- You can also middle-click any running app for the same actions, plus quit.
 - Unminimizes an app’s windows (all or one) when activated <sup>(e.g., via <kbd>Command+Tab</kbd>)</sup>
 - Hide all windows <sup>(aka. boss mode)</sup>
 - [Isolate window](#isolate-window)
+- [Capture text from anywhere on screen](#capture-text)
 - [Capture and translate text from anywhere on screen](#capture-translate-text)
 <!-- - [Hyper key](#hyper-key) -->
 - Prevent accidental app quits[^quit] by instead using <kbd>⇧⌘Q</kbd>, double tap <kbd>Q</kbd> while holding <kbd>⌘</kbd>, or [press and hold <kbd>⌘Q</kbd>](https://github.com/user-attachments/assets/0515e50f-2a93-4369-836e-085ad462fdf8)
 - [Launch any app with a customizable global keyboard shortcut](https://github.com/user-attachments/assets/22bf135a-cc39-45ef-82ef-bf23176f0746)
 - [Clicking green traffic light button fills window instead of entering fullscreen](#green-traffic-light-button-fill)
 - [Clicking yellow traffic light button hides app instead of minimizing window](#yellow-traffic-light-button-hide)
+- Trigger specific Spotlight tabs directly with keyboard shortcuts <sup>(macOS 26+)</sup>
+	<span class="list-description">Jump straight to Apps, Shortcuts, Files, or Clipboard History in Spotlight with customizable keyboard shortcuts.</span>
 - [Scan QR codes and barcodes from anywhere on screen](#scan-qr-codes)
-- [Cleaning Mode](https://www.dropbox.com/scl/fi/6vm94elcusix6oqe5su78/434266737-572f4e43-d42a-49c2-925f-4db90ebbfd06-1748011610.mp4?rlkey=r538vzwv0k9ba5rjqhw4goaa7&raw=1)
-	<span class="list-description">Makes your screen black and disables keyboard and mouse to let you safely clean your device.</span>
-- Quit apps when closing their last window (clicking the red traffic light button or <kbd>Command+W</kbd>) (similar to Swift Quit and RedQuits apps)
-	- (beta - try the [trial](#trial))
+- Automatically select AirDrop target
+	<span class="list-description">Enter a device name to automatically select it when the AirDrop dialog appears.</span>
+- Cleaning Mode
+	<span class="list-description">Makes your screen black and disables keyboard and mouse to let you safely clean your device. [Screenshot.](https://www.dropbox.com/scl/fi/6vm94elcusix6oqe5su78/434266737-572f4e43-d42a-49c2-925f-4db90ebbfd06-1748011610.mp4?rlkey=r538vzwv0k9ba5rjqhw4goaa7&raw=1)</span>
+- Cat Mode
+	<span class="list-description">Disables keyboard and mouse to prevent cats and other cute creatures from interfering with your computer. Similar to Cleaning Mode but without blacking out the screen. [Screenshot.](https://www.dropbox.com/scl/fi/tpxsx5i9r1vkjlf2recad/Cat-Mode-1756829427.mp4?rlkey=wfyu7192971mnu19p3i2mmqs4&raw=1)</span>
+<!-- - Quit apps when closing their last window (clicking the red traffic light button or <kbd>Command+W</kbd>) (similar to Swift Quit and RedQuits apps)
+	- (beta - try the [trial](#trial)) -->
 - [Run shortcuts from the menu](#run-shortcuts)
 	<span class="list-description">Show your favorite shortcuts from the Shortcuts app in the menu.</span>
 	- Also available as an [independent app](/short-run).
@@ -66,6 +95,8 @@ Improve your Mac experience with a bunch of useful functionality:
 - Open new window by Shift+clicking a running app in the Dock
 	<span class="list-description">Makes it easy to open a new window for an app, similar to Windows. Works by simulating Command+N in the app, so it may not work correctly in all apps.</span>
 	- (beta)
+- Auto-dismiss Shortcuts “Running your automation” notifications
+	<span class="list-description">Automatically dismisses the “Running your automation” notifications that appear when running Shortcuts automations.</span>
 - Finder: Move files by cutting[^commandx] (<kbd>Command+X</kbd>) and pasting (<kbd>Command+V</kbd>)
 - Finder: Open files with <kbd>Return</kbd> (you can then rename with <kbd>Shift+Return</kbd> or <kbd>F2</kbd>)
 - Finder: Create new text file with <kbd>Option+N</kbd> *([video](https://github.com/user-attachments/assets/cb2c4606-12eb-4915-a64c-9b8ac3e123cf))* or from the [context menu](#finder-context-menu)
@@ -83,6 +114,8 @@ Improve your Mac experience with a bunch of useful functionality:
 	<span class="list-description">By default, when you <kbd>Command-Tab</kbd> to Finder without any windows open, nothing happens. This ensures a new window opens automatically.</span>
 - Finder: Make <kbd>⌘Q</kbd> close all windows and hide Finder
 	<span class="list-description">By default, <kbd>⌘Q</kbd> does nothing in Finder.</span>
+- Finder: Customize clicking Finder icon in Dock
+	<span class="list-description">Choose what happens when you click the Finder icon in the Dock: System default behavior, open new window when already focused (first click focuses, subsequent clicks open new windows), or always open new window.</span>
 - [Adds many useful services to “Services” in context menus (like in Finder):](#macos-services) copy path, move to, AirDrop, etc.
 - Exclude AirDrop, Mail, and Messages from the system Share menu
   <span class="list-description">These are usually forced to be shown by macOS.</span>
@@ -93,6 +126,8 @@ Improve your Mac experience with a bunch of useful functionality:
 - Minimize all windows or just all except frontmost with keyboard shortcuts and from the menu.
 - Minimize all windows of the active app except frontmost with keyboard shortcuts and from the menu.
 - Unminimize all windows or first window of active app with keyboard shortcut.
+- Auto-copy screenshots to clipboard.
+	<span class="list-description">Useful if you want screenshots saved and also instantly available to paste. Works with the built-in screenshot tool.</span>
 - [Show markup tools by default in screenshot preview](https://github.com/user-attachments/assets/20b0cfe8-d588-4329-9132-9120b32da7ff)
 - Auto-open screenshot preview after capturing
 - [Show input devices in the Sound menu bar item menu](https://github.com/user-attachments/assets/e6015206-c927-4c97-8f66-7408231d4f23)
@@ -153,21 +188,31 @@ Improve your Mac experience with a bunch of useful functionality:
 	- Hide My Email
 	- Private Relay
 	- VPN & Filters
-- [Show seconds hand in the Clock app's Dock icon](https://github.com/user-attachments/assets/b1d025dc-0465-4d0f-adf8-48bc079ad438)
 - [Only show sound menu bar icon when either muted or unmuted](https://github.com/user-attachments/assets/10447e39-f288-406b-a504-6ab7b8fcf261)
 - [Keyboard shortcut inspector](#keyboard-shortcut-inspector)
 - Add [Dock spacers](#dock-spacers)
 - Add [Finder sidebar spacers](#finder-sidebar-spacers)
+- Access hidden iMac accent colors
+	<span class="list-description">Apply the special accent colors from iMac models on any Mac. These colors are normally only available on their respective iMac models. [Screenshot.](https://www.dropbox.com/scl/fi/oq8v03kvqj8kq4tnipqsz/Screen-Shot-2025-10-06-at-20.40.35-1759751136.png?rlkey=756uo6hmfepec095ibzcbw1pb&raw=1)</span>
+- Disable Command+Tab app switcher
+	<span class="list-description">Useful to prevent accidental activation if you don't use the app switcher.</span>
+- Remove Caps Lock activation delay
+	<span class="list-description">Makes Caps Lock respond instantly.</span>
+- TextEdit: Open a blank document instead of file picker on launch
+- Override Maps app language
+	<span class="list-description">macOS doesn't allow changing the Maps app language in System Settings. This fixes that. Useful when search doesn't work well with your system language.</span>
 - Reset [privacy permissions](https://support.apple.com/en-vn/guide/mac-help/mchl211c911f/mac) for any apps
 - Flush DNS cache
 - Shortcuts actions
-- *More planned…*
 
-This is my playground for supercharging macOS. It's just the start. Come along for the ride.
+<!-- - [Show seconds hand in the Clock app's Dock icon](https://github.com/user-attachments/assets/b1d025dc-0465-4d0f-adf8-48bc079ad438) -->
 
 - [**Video review**](https://www.youtube.com/watch?v=hp-WMYZQ75U)
 	- [Follow-up](https://www.youtube.com/watch?v=srZH0eTjylU)
 - [**Article about the app**](https://todayonmac.com/supercharge/)
+
+Mentions:
+- [Tiny macOS utility apps I love – Part 6](https://creativerly.com/tiny-macos-utility-apps-part-6/#supercharge)
 
 [^commandx]: Without this feature, you have to first copy (<kbd>Command+C</kbd>) and then remember to move (<kbd>Option+Command+V</kbd>). The feature works by overriding the normal cut <kbd>⌘X</kbd> keyboard shortcut when Finder is active and executes a copy <kbd>⌘C</kbd> instead. When you then paste <kbd>⌘V</kbd>, it executes the native move <kbd>⌥⌘V</kbd> keyboard shortcut. So really, it's Finder moving the files. This app just makes the keyboard shortcuts more intuitive. If you don't paste, the files just stay in place. This feature also works with the Forklift app.
 
@@ -196,6 +241,7 @@ Launch apps, run scripts, automate tasks — anything Shortcuts can do, now just
 [Screenshot](https://www.dropbox.com/scl/fi/ny886w93chpav0b325ioi/441329057-67290c47-4d78-490f-b0b8-f263ebc1022d-1748012141.png?rlkey=kf2ha9ygkvd4iu3zme8a0wo07&raw=1)
 
 Example shortcuts:
+- [Presentation Mode](https://www.icloud.com/shortcuts/c559563486a74b1dafb6ca2cb05e2cb5) - Turns on “Do Not Disturb”, keeps screen awake, and hides desktop icons.
 - [Toggle “Do Not Disturb”](https://www.icloud.com/shortcuts/17a79c58e70446c5a0f1c1c89653a4aa)
 - [Flush DNS cache](https://www.icloud.com/shortcuts/a91b36f037d74cd7a647284e8c376f3d)
 
@@ -288,6 +334,12 @@ Adds the following actions (can be customized) directly in the right-click menu 
 	<span class="list-description">Opens the folder in a new window instead of a tab, even if you have set new windows to open as tabs. This action also shows up in the context menu for sidebar items. Useful when you want to view multiple folders side by side or drag items between locations.</span>
 - Image/Video Dimensions
 - File Size
+- Date Created
+	<span class="list-description">Shows the file's creation date. Click to copy.</span>
+- Date Modified
+	<span class="list-description">Shows when the file was last modified. Click to copy.</span>
+- Date Added
+	<span class="list-description">Shows when the file was added to the current folder. Click to copy.</span>
 - Copy Path
 - Copy Filename
 - Copy File URL
@@ -305,12 +357,16 @@ Adds the following actions (can be customized) directly in the right-click menu 
 	<span class="list-description">Copies files and folders to a chosen location.</span>
 - Share
 	<span class="list-description">Shows the old-style Share item that is a submenu instead of a separate popover, which is faster to access. You can exclude AirDrop, Messages, and Mail from the menu, which are normally forced to be shown. However, there is no way to hide the existing Share item.</span>
+- Inline Share Services
+	<span class="list-description">Shows selected share extensions directly in the context menu for faster sharing. Customize which services appear in settings. [Screenshot](https://www.dropbox.com/scl/fi/wqlofapn6k11s3x2atmcp/Screen-Shot-2025-10-19-at-23.52.14-1760892902.png?rlkey=ek55ijtrjufe6if922cll2k2j&raw=1)</span>
 - Open in App
 	<span class="list-description">Adds menu items like “Open in Visual Studio Code” directly to the Finder context menu. Text editors show up for folders and text files, while other apps only show up for types they support. [Screenshot.](https://github.com/user-attachments/assets/980340bc-a257-475c-9a02-7b98853df9a7)</span>
 - Open in Terminal
 	<span class="list-description">Shown only when right-clicking a folder or an empty area in Finder. Supports Terminal, iTerm, Ghostty, kitty, WezTerm, Alacritty, and Warp.</span>
 - AirDrop
 	<span class="list-description">Shares files via AirDrop.</span>
+- Email
+	<span class="list-description">Creates a new email message in the default email app with the selected files as attachments. Works with Mail, Outlook, Spark, Mimestream, Airmail, Canary Mail, and maybe other apps. Not Thunderbird.</span>
 - Run Shortcut
 	<span class="list-description">Shares files with a shortcut from the Shortcuts app.</span>
 - Update Modified Date
@@ -336,8 +392,24 @@ Adds the following actions (can be customized) directly in the right-click menu 
 	<span class="list-description">Removes GPS location metadata from images to protect your privacy.</span>
 - Remove All Metadata
 	<span class="list-description">Removes all metadata (EXIF, GPS, etc.) from images.</span>
+- Lock / Unlock
+	<span class="list-description">Locks or unlocks files and folders. Locked items cannot be modified, renamed, or deleted until unlocked. Same as “Finder › Get Info › Locked”.</span>
+- Git: Go to Root
+	<span class="list-description">Navigates to the Git repository root folder in the current Finder window. Only shown when inside a Git repository.</span>
+- Git: Show on GitHub
+	<span class="list-description">Opens the selected file or folder on GitHub at the current commit. Only shown when inside a GitHub repository with an “origin” or “upstream” remote pointing to GitHub.</span>
+- App: Bundle Identifier
+	<span class="list-description">Shows the app's bundle identifier. Only shown when selecting a single app. Click to copy.</span>
+- App: Version
+	<span class="list-description">Shows the app's version. Only shown when selecting a single app. Click to copy.</span>
+- App: Show on App Store
+	<span class="list-description">Opens the app's page in the App Store app. Only shown when selecting a single app.</span>
+- App: Copy App Store URL
+	<span class="list-description">Copies shareable links to the App Store pages of the selected apps.</span>
+- Is Identical
+	<span class="list-description">Shows whether two or more selected files are identical.</span>
 
-*They appear at the bottom of the context menu. There is no way to change that. [They also won't appear in iCloud, Dropbox, or any other sync folder.](#finder-context-menu-icloud)*
+*They appear at the bottom of the context menu. There is no way to change that. [They also won't appear in iCloud, Dropbox, OneDrive or any other sync folder.](#finder-context-menu-icloud)*
 
 #### Services {#macos-services}
 
@@ -357,6 +429,12 @@ Adds the following actions (can be customized) directly in the right-click menu 
 	<span class="list-description">Shares files with a shortcut from the Shortcuts app.</span>
 - Scan QR Code
 	<span class="list-description">Scans QR codes from images and copies their content to the clipboard.</span>
+- Email
+	<span class="list-description">Creates a new email message in the default email app with the selected files as attachments. Works with Mail, Outlook, Spark, Mimestream, Airmail, Canary Mail, and maybe other apps. Not Thunderbird.</span>
+- Open URLs
+	<span class="list-description">Opens all given URLs or those automatically detected in text.</span>
+- Copy URLs
+	<span class="list-description">Copies all given URLs or those automatically detected in text.</span>
 <!-- - Remove Location Metadata
 	<span class="list-description">Remove GPS location metadata from images.</span>
 - Remove All Metadata
@@ -383,12 +461,62 @@ Finder-specific services:
 	<span class="list-description">Selects the files and folders in Finder that are not selected.</span>
 - Toggle Hidden Files in Finder
 	<span class="list-description">Toggles visibility of hidden files.</span>
+- Lock
+	<span class="list-description">Locks files and folders. Locked items cannot be modified, renamed, or deleted.</span>
+- Unlock
+	<span class="list-description">Unlocks files and folders, allowing them to be modified, renamed, or deleted.</span>
+- Are Files Identical?
+	<span class="list-description">Shows whether two or more selected files are identical.</span>
 <!-- - Open in New Finder Window
 	<span class="list-description">Opens the folder in a new window instead of a tab, even if you have set new windows to open as tabs.</span> -->
 <!-- - Delete Immediately
 	<span class="list-description">Permanently delete files and folders without moving to Trash.</span> -->
 
 *[macOS Services](https://macreports.com/what-is-the-services-menu-in-macos/) are built-in quick actions available in right-click and app menus system-wide. They let you perform tasks like copying file info or text without leaving your current app. Supercharge adds extra, genuinely useful services to make these menus even more powerful.*
+
+#### Capture text from anywhere on screen {#capture-text}
+
+Select any region of your screen to instantly copy the text, even if it's unselectable. Great for extracting text from images, PDFs, presentations, or any other content.
+
+Powered by macOS’ built-in OCR. Text quality and language support depend on the system, not the app.
+
+[Screenshot](https://www.dropbox.com/scl/fi/6t4hst8wtbnm9k5hvrg1q/Capture-Text-Screen-Shot-2025-09-02-at-21.32.17-1756825559.mp4?rlkey=hztcfyrcba7v7hn7ex34tjy2y&raw=1)
+
+*Check out my [Text Lens](https://sindresorhus.com/text-lens) app for more features.*
+
+**Supported languages**
+
+- English
+- French
+- Italian
+- German
+- Spanish
+- Portuguese
+- Chinese, Simplified
+- Chinese, Traditional
+- Cantonese, Simplified
+- Cantonese, Traditional
+- Korean
+- Japanese
+- Russian
+- Ukrainian
+- Thai
+- Vietnamese
+- Arabic
+- Arabic, Najdi
+
+And on macOS 26 and later:
+- Turkish
+- Indonesian
+- Czech
+- Danish
+- Dutch
+- Norwegian Nynorsk
+- Norwegian Bokmål
+- Malay
+- Polish
+- Romanian
+- Swedish
 
 #### Capture and translate text from anywhere on screen {#capture-translate-text}
 
@@ -416,9 +544,11 @@ When you are in the Notes app, you can [open the Supercharge menu](https://githu
 
 Enhances Mission Control by letting you close windows or quit apps by right-clicking the hovered window and use keyboard shortcuts (⌘W, ⌘Q, ⌘H, ⌘M) on the window you are hovering over. This makes window management more efficient as you don't have to exit Mission Control to perform these actions. [Example](https://github.com/user-attachments/assets/23c71431-4d3b-4913-b484-3a3f0b7b2b07)
 
+Why not add an “X” overlay button on previews? Because right-click is faster and easier: you can click anywhere on the preview instead of hunting a tiny target. It keeps Mission Control visually clean, reduces misclicks, and avoids fighting its animations.
+
 #### Dock folder click behavior {#dock-folder-click}
 
-By default, clicking a folder in the Dock shows its contents in a popover. With Supercharge, you can make it directly reveal the folder in Finder instead.
+By default, clicking a folder in the Dock shows its contents in a popover. With Supercharge, you can make it directly reveal the folder in Finder instead. Does not work with smart folders.
 
 ### For Windows switchers {#from-windows}
 
@@ -454,11 +584,13 @@ You may also like my [Shareful](/shareful), [Menu Bar Spacing](/menu-bar-spacing
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/p4gknv4nho0gfdrxsjsmk/Supercharge-1.19.0-trial-1753461750.zip?rlkey=sksbnms59el6o2bnvm4iv1ftl&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/nbr16iqh6eix189en7orr/Supercharge-1.23.0-trial-1761557563.zip?rlkey=6y65llctz1j39f1f3hc6kdp1n&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+
+*Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=742&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
-**Requires macOS 15.3**
+**Requires macOS 15.4**
 
 ## Tips
 
@@ -521,6 +653,8 @@ Some things are not possible though:
 - Naming spaces. Check out [this app](https://github.com/Jaysce/Spaceman) for showing space names in the menu bar.
 - Removing or changing Finder context menu items. It can only add items.
 - Colored Finder sidebar icons.
+- Moving Stage Manager to the right without having the Dock on the left side.
+- The "Mission Control tweaks" feature for Stage Manager.
 
 Some things are not planned:
 
@@ -529,9 +663,13 @@ Some things are not planned:
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve the issue, try quitting Bartender/Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to show the main window.
+
+#### I moved to a new computer, how can I download the app again?
+
+If you purchased it on Gumroad, you can download the app again from your Gumroad account or the Gumroad receipt email.
 
 #### The tweaks like Finder cut & paste no longer work
 
@@ -596,9 +734,9 @@ Go to “System Settings › Keyboard › Keyboard Shortcuts › Input Sources�
 
 Clearing the clipboard helps protect privacy by removing potentially sensitive information (like passwords or personal data) that might otherwise remain available for pasting. Any app can silently read the clipboard. And you could also accidentally paste it somewhere you didn't intend to.
 
-#### Why don’t the Finder context menu items show up in iCloud and Dropbox folders? {#finder-context-menu-icloud}
+#### Why don’t the Finder context menu items show up in iCloud, Dropbox, and OneDrive folders? {#finder-context-menu-icloud}
 
-Finder Sync extensions, which power these context menu items, are intended to add sync functionality for third-party services in Finder. Since iCloud and Dropbox folders have their own built-in sync, macOS doesn't allow the Supercharge extension in these locations to prevent conflicts.
+Finder Sync extensions, which power these context menu items, are intended to add sync functionality for third-party services in Finder. Since iCloud, Dropbox, and OneDrive folders have their own built-in sync, macOS doesn't allow the Supercharge extension in these locations to prevent conflicts.
 
 Some of the Finder context menu items are also available as [macOS services](#macos-services), which do show up in synced folders.
 
