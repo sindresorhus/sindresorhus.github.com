@@ -6,6 +6,7 @@ platforms:
   - macOS
 isPaid: true
 appStoreId: 1319884285
+forceHasIosAppIcon: true
 hasSentry: true
 olderMacOSVersions:
   - '10.15'
@@ -15,13 +16,13 @@ olderMacOSVersions:
   - '14'
 ---
 
-This app can be useful when you want to post a screenshot or photo on the web that contains some information you don’t want to be revealed. Maybe you want to share a screenshot of a Slack conversation on Twitter but hide some private information. It also removes all metadata, like when and where a photo was captured.
+This app can be useful when you want to post a screenshot or photo on the web that contains some information you don’t want to be revealed. Maybe you want to share a screenshot of a Slack conversation on X (Twitter) but hide some private information. It also removes all metadata, like when and where a photo was captured.
 
 ## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Black%20Out%20One&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Black%20Out%20One&referrer=Website-FAQ)
 
 #### Can you support blurring and pixelation?
 

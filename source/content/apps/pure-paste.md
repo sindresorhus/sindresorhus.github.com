@@ -33,7 +33,7 @@ Rich text copied from a different device will not have its formatting cleared be
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](/feedback?product=Pure%20Paste&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](/feedback?product=Pure%20Paste&referrer=Website-FAQ)
 
 #### Why not just use the `Paste and Match Style` menu item or `⌥⇧⌘V`?
 
@@ -42,7 +42,7 @@ Rich text copied from a different device will not have its formatting cleared be
 - The keyboard shortcut is hard to remember and type.
 - In some apps, like Chrome, the keyboard shortcut is different.
 - This app can exclude certain apps, preserve links, normalize (quotes, newlines, lists, etc.) and also remove tracking parameters from URLs.
-- The app has workarounds (3000+ lines of code) for lots of apps to make the experience *just work*.
+- The app has workarounds (9000+ lines of code) for lots of apps to make the experience *just work*.
 
 #### Why not just remap the `Paste and Match Style` keyboard shortcut to `⌘V`?
 
@@ -50,7 +50,7 @@ Same as the above except the first two list items.
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 You may also have enabled the “Hide menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 
@@ -88,7 +88,7 @@ Try [resetting privacy permissions](/apps/faq#mac-reset-permissions) for the app
 
 Removing tracking parameters improve privacy and also make URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Learn more.](https://en.wikipedia.org/wiki/UTM_parameters)
 
-Pure Paste supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to Twitter, Facebook, and TikTok.
+Pure Paste supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to X (Twitter), Facebook, and TikTok.
 
 Before: `https://foo.com?utm_content=buffercf3b2&utm_source=snapchat.com`\
 After: `https://foo.com`

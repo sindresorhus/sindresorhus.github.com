@@ -21,7 +21,7 @@ This can be useful for decision-making, picking stuff from a list, board games, 
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Randa&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Randa&referrer=Website-FAQ)
 
 #### Can you localize the app into my language?
 

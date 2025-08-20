@@ -26,7 +26,7 @@ macOS hides menu bar apps when there is no space left in the menu bar. This is a
 
 #### Can it show a flag in front of the time?
 
-You can set a [flag emoji](https://emojipedia.org/flags) in the “Prefix text” setting. [Example.](https://twitter.com/sindresorhus/status/1742975880031543330)
+You can set a [flag emoji](https://emojipedia.org/flags) in the “Prefix text” setting. [Example.](https://x.com/sindresorhus/status/1742975880031543330)
 
 #### Can it show an icon in front of the time?
 
