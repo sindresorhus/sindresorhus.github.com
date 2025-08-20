@@ -1,7 +1,9 @@
 ---
-import {Content as AppsExtra} from './_apps-extra.md';
+import appExtras from '../data/apps-extra.json';
+import AppsExtra from './_apps-extra.astro';
 import {SITE} from '~/config.mjs';
 import Layout from '~/layouts/PageLayout.astro';
+import OverflowMenu from '~/components/widgets/OverflowMenu.astro';
 import {fetchApps, proseCSS} from '~/utils/apps.js';
 
 const meta = {
@@ -20,9 +22,22 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 		<section class="container sm:px-6 py-12 sm:py-16 lg:py-20 mx-auto">
 			<header>
 				<!-- TODO: Make title components -->
-				<h1 class="text-center text-4xl md:text-6xl font-bold leading-tighter tracking-tighter mb-8 md:mb-16 font-heading">
-					Quality crafted
-					<span class="bg-clip-text text-transparent bg-linear-to-r from-primary-500 to-secondary-500 pr-[0.025em] mr-[-0.025em]">apps</span>
+				<h1 class="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-3 text-center text-4xl sm:text-5xl md:text-7xl font-bold leading-tighter tracking-tighter mb-8 md:mb-16 font-heading">
+					<span class="flex flex-wrap items-center justify-center gap-2">
+						<span>Quality Crafted</span>
+						<span class="bg-clip-text text-transparent bg-linear-to-r from-primary-500 to-secondary-500 pr-[0.025em] mr-[-0.025em]">Apps</span>
+					</span>
+					<div class="inline-flex mt-2 sm:mt-0 translate-y-0 scale-[1.25] sm:translate-x-2 sm:translate-y-[4px] sm:scale-[1.2] md:translate-y-[7px]">
+						<OverflowMenu iconClassName="text-secondary-500 dark:text-secondary-300">
+							{appExtras.map(group => (
+								<optgroup label={group.label}>
+									{group.items.map(item => (
+										<option value={item.url}>{item.title}</option>
+									))}
+								</optgroup>
+							))}
+						</OverflowMenu>
+					</div>
 				</h1>
 			</header>
 			<section data-nosnippet class="mx-auto grid sm:gap-12 grid-cols-1 lg:grid-cols-2 sm:p-1 my-12 dark:text-white">
@@ -30,7 +45,7 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 					apps.map(app => (
 						<a href={app.url} class="flex py-6 px-2 sm:p-6 bg-white dark:bg-black/20 sm:rounded-xl shadow-md dark:shadow-lg hover:shadow-xl dark:sm:hover:shadow-indigo-500/20 transition duration-500 dark:sm:border dark:border-slate-800">
 							<div class="flex-initial shrink-0 justify-center mr-2 sm:mr-3">
-								<img src={app.iconUrl} width="128" height="128" class={app.hasIOSAppIcon ? 'p-[12px] drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]' : ''}>
+								<img src={app.iconUrl} width="128" height="128" alt={`${app.title} app icon`} loading="lazy" class={app.hasIOSAppIcon ? 'p-[12px] drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]' : ''}>
 							</div>
 							<div class="flex flex-col justify-center my-3 mr-2 sm:mt-[-1px]">
 								<div class="mb-0.5 text-2xl sm:text-3xl font-bold">{app.title}</div>
@@ -57,4 +72,29 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 			</section>
 		</section>
 	</div>
+	<script type="application/ld+json" set:html={JSON.stringify({
+		'@context': 'https://schema.org',
+		'@type': 'ItemList',
+		name: 'Sindre Sorhus Apps',
+		description: 'Quality crafted apps by Sindre Sorhus',
+		url: 'https://sindresorhus.com/apps',
+		numberOfItems: apps.length,
+		itemListElement: apps.map((app, index) => ({
+			'@type': 'ListItem',
+			position: index + 1,
+			item: {
+				'@type': 'SoftwareApplication',
+				name: app.title,
+				description: app.subtitle,
+				url: `https://sindresorhus.com${app.url}`,
+				applicationCategory: app.platforms.includes('macOS') ? 'UtilitiesApplication' : 'MobileApplication',
+				operatingSystem: app.platforms.join(', '),
+				author: {
+					'@type': 'Person',
+					name: 'Sindre Sorhus',
+				},
+				...(app.appStoreId && {downloadUrl: app.appStoreUrl}),
+			},
+		})),
+	}, null, '\t')} />
 </Layout>

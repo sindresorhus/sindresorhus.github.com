@@ -50,6 +50,19 @@ Extract text from anywhere on your screen. Select any area containing text - fro
 - Arabic
 - Arabic, Najdi
 
+And on macOS 26 and later:
+- Turkish
+- Indonesian
+- Czech
+- Danish
+- Dutch
+- Norwegian Nynorsk
+- Norwegian Bokmål
+- Malay
+- Polish
+- Romanian
+- Swedish
+
 #### Privacy
 
 Everything is done locally on your device. Nothing leaves your device. The app is not even able to connect to the internet due to self-imposed restrictions that are enforced by macOS (no network entitlement).
@@ -75,7 +88,7 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender or Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 #### Why does the app require screen recording permission?
 
@@ -116,9 +129,14 @@ The app uses macOS's text recognition system, so language support is determined 
 
 The app uses macOS's text recognition engine, so detection quality is determined by your operating system. Since this is handled by macOS, I cannot modify or improve it.
 
-#### Can you add support for capturing text like this to Supercharge too?
+#### I already own [Supercharge](/supercharge). Does this offer any benefits over its similar feature? {#supercharge}
 
-This is planned as a simpler version, but I want to perfect it here first.
+- Capture by simply clicking the menu bar icon
+- Extract text from images on clipboard or files
+- Extract text directly from photo taken with iPhone/iPad camera
+- Drag and drop images onto menu bar icon to extract text
+- Optionally shows captured text in a window with the ability to edit
+	- Enables doing multiple captures and copy as a single text
 
 #### How does this compare to TextSniper? {#textsniper}
 
@@ -135,7 +153,6 @@ This app's advantages:
 TextSniper advantages:
 - Text-to-speech
 - More keyboard shortcuts
-- More mature
 
 #### [More FAQs…](/apps/faq)
 

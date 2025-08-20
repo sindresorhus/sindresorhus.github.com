@@ -7,6 +7,7 @@ platforms:
 isPaid: true
 isMenuBarApp: true
 releasesRepo: default-browser-meta
+forceHasIosAppIcon: true
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/default-browser?wanted=true
   # 'Buy': https://buy.polar.sh/polar_cl_tWjWd0yRVXb9w0bhohTfxkqjwMUsjpegZM1na4HH9ER
@@ -20,8 +21,6 @@ Seamlessly switch between browsers directly from your menu bar, keyboard shortcu
 
 Unlike similar apps, this one actually changes the system default browser (and without a prompt).
 
-[**Review in MacStories**](https://www.macstories.net/reviews/default-browser-a-mac-menu-bar-utility-for-quickly-switching-browsers/)
-
 **Features**
 
 - Set the system default browser
@@ -34,9 +33,13 @@ Unlike similar apps, this one actually changes the system default browser (and w
 
 ---
 
-**💡 Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.**
+Mentions:
+- [Review in MacStories](https://www.macstories.net/reviews/default-browser-a-mac-menu-bar-utility-for-quickly-switching-browsers/)
+- [Lifehacker article](https://lifehacker.com/tech/finally-an-easier-way-to-change-your-default-browser-on-mac)
 
 ---
+
+**💡 Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.**
 
 ---
 
@@ -66,6 +69,8 @@ For example, set up automatic browser switching between work and personal use th
 
 Use the [Focus filter](#focus-filter) to switch browser based on the active Focus mode.
 
+On macOS 26 and later, you can use the built-in automation triggers in Shortcuts instead of the Shortery app.
+
 ## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
@@ -74,7 +79,7 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve the issue, try quitting Bartender or Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to show the menu bar icon.
 
@@ -106,6 +111,10 @@ Much of the functionality would not be possible in the App Store because of [san
 #### Why is it a paid app?
 
 I love making [free apps](/apps/free) and having them available to everyone, but they come with a heavy support burden—I already handle 10–40 app-related emails daily. To focus on quality and sustainability, my new apps will mostly be paid.
+
+#### Can the default browser change based on the macOS desktop Space I’m in? {#macos-spaces}
+
+No. macOS does not expose the active [Space](https://support.apple.com/guide/mac-help/work-in-multiple-spaces-mh14112/mac) to apps, so the app cannot detect or react to it. You can instead automate switching with Focus Filters or Shortcuts (see [tips](#tips)).
 
 #### [More FAQs…](/apps/faq)
 

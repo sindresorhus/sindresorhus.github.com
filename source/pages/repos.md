@@ -148,7 +148,7 @@ title: Repos
 					</span>
 				</div>
 				<br>
-				<a href="https://twitter.com/sindre_gh_repos">Follow updates</a>
+				<a href="https://x.com/sindre_gh_repos">Follow updates</a>
 			</div>
 			<div id="latest-repos-container" class="column is-three-fifths is-offset-1 has-nice-link">
 				<h2 class="title is-2">Latest repos</h2>

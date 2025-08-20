@@ -7,7 +7,29 @@ title: Discounts
 
 <!-- ## Black friday
 
-My [paid apps](/apps/paid) (except Dato, Lungo, Aiko, and Supercharge) are 50% off for Black Friday. From now until December 2nd. -->
+Apps are on sale from 28. November to 1. December:
+
+**App Store:**
+- [Dato](/dato): 30% off
+- [Aiko](/aiko): 20% off
+- [Text Lens](/text-lens): 40% off
+- [Velja](/velja): 30% off
+- [Short Run](/short-run): 50% off
+- [Pure Paste](/pure-paste): 50% off
+- [Day Progress](/day-progress): 50% off
+- [One Task](/one-task): 50% off
+- [Camera Preview](/camera-preview): 50% off
+- [Memo Widget](/memo-widget): 50% off
+- [Favorites Widget](/favorites-widget): 50% off
+
+**Gumroad, everything 40% off:**
+- [Supercharge](https://sindresorhus.gumroad.com/l/supercharge/BLACKFRIDAY2025)
+- [Default Browser](https://sindresorhus.gumroad.com/l/default-browser/BLACKFRIDAY2025)
+- [Shortcutie](https://sindresorhus.gumroad.com/l/shortcutie/BLACKFRIDAY2025)
+- [QuickGPT](https://sindresorhus.gumroad.com/l/quickgpt/BLACKFRIDAY2025)
+- [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user/BLACKFRIDAY2025) -->
+
+<!-- My [paid apps](/apps/paid) (except Dato, Lungo, Aiko, and Supercharge) are 50% off for Black Friday. From now until December 2nd. -->
 
 ## Power user bundle
 

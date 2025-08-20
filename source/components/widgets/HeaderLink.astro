@@ -10,7 +10,7 @@ const linkClass = `${isActive ? activeClass : ''} font-medium hover:text-gray-90
 ---
 
 <li>
-	<a href={href} class:list={[className, ...linkClass.split(' ')]} {...properties}>
-		<slot/>
+	<a href={href} class:list={[className, ...linkClass.split(' ')]} itemprop="url" {...properties}>
+		<span itemprop="name"><slot/></span>
 	</a>
 </li>

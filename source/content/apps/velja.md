@@ -17,6 +17,8 @@ feedbackNote: |
 
   [Can you support Arc/Dia spaces/profiles?](/velja#arc)
 
+  [Can you support ChatGPT Atlas profiles?](/velja#atlas-profiles)
+
   [Support for opening links directly in Slack is not possible.](https://sindresorhus.com/velja#slack)
 
   **If you're requesting an addition to the “Apps” list, [please read this](https://sindresorhus.com/velja#builtin-apps-requests).**
@@ -68,12 +70,17 @@ Any browser.
 - Vivaldi *(and Snapshot)*
 - Chromium
 - [Comet](https://comet.perplexity.ai)
+- [Helium](https://helium.computer)
 - Thorium
 - Wavebox
+- Firefox *(and Firefox Nightly, Firefox Developer Edition)* \*
+- Zen \*
+
+\* Only supports [new-style profiles](https://support.mozilla.org/en-US/kb/profile-management), not ones created with `about:profiles`. [How to migrate.](#firefox-migrate-profiles)
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/2fqy5lbg3kkcs9o4nhbqn/Velja-2.1.3-trial-1753136519.zip?rlkey=z68yp3a1rbeto863qeq1grw7e&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/yds3dd37ji964dz5ognmt/Velja-3.0.0-trial-1762520309.zip?rlkey=0wndlu3p07x3jeydvv3rcuq0b&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
@@ -217,6 +224,8 @@ Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to laun
 
 Say you use different browser profiles for work and home and want them to switch automatically. This is a good use for the Shortcuts app. Create a shortcut with the "Set Default Browser" action that sets the browser profile to the one you want at home and another for work. You will then need the [Shortery](https://apps.apple.com/app/id1594183810) app to trigger these shortcuts at specific times, or based on your Focus mode if you have one for work. You could even trigger the shortcuts based on Wi-Fi name, which may be easier than defining work times if you work from an office.
 
+macOS 26 has automations in Shortcuts and you don't need Shortery there.
+
 ### Miscellaneous
 
 - In the Velja menu, you can click “History” to directly open the history window.
@@ -225,11 +234,11 @@ Say you use different browser profiles for work and home and want them to switch
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](/feedback?product=Velja&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](/feedback?product=Velja&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is not enough space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 
@@ -261,7 +270,7 @@ Make sure you didn't click the link in a browser. See above.
 
 **I clicked a link in VS Code**
 
-By default, VS Code does not open the system default browser when you click a link in the app. Because of this, Velja is not used. You can change this with the `workbench.externalBrowser` setting in VS Code.
+VS Code may be set to not use the system default browser. Because of this, Velja is not used. Delete the `workbench.externalBrowser` setting in VS Code if it's set.
 
 **I clicked a short URL**
 
@@ -281,6 +290,14 @@ If the URL was opened using the `open` command-line tool, it may not work as exp
 timeout 0.5 open --wait-apps "https://sindresorhus.com/velja"
 ```
 
+Some apps use the `open` command-line tool internally, and they will unfortunately also not be detected.
+
+In short, if the source app does not show up in the history, there isn't anything Velja can do about it.
+
+Known apps where can cannot reliably identify the source:
+- Terminal apps
+- AWS VPN Client
+
 <a id="custom-rule-problem"></a>
 **My custom rule did not work**
 
@@ -296,7 +313,7 @@ If the redirect URL contains the destination URL (usually in a search parameter)
 
 Removing tracking parameters improve privacy and also make URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Learn more.](https://en.wikipedia.org/wiki/UTM_parameters)
 
-Velja supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to Twitter, Facebook, and TikTok.
+Velja supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to X (Twitter), Facebook, and TikTok.
 
 Before: `https://foo.com?utm_content=buffercf3b2&utm_source=snapchat.com`\
 After: `https://foo.com`
@@ -376,17 +393,61 @@ It's not feasible to support it built-in because of missing features:
 
 *(Vote them up)*
 
-However, I do plan to make it possible to achieve it using custom rules. The missing feature in Velja is the ability to transform a URL. When that is supported **(not yet)**, you will be able to achieve it like this:
+However, you can achieve it yourself using Velja's URL transform feature.
 
-- Install: <https://github.com/mozilla/multi-account-containers>
-- Install: <https://github.com/honsiorovskyi/open-url-in-container>
-- Transform the input URL, for example, `https://a.com` to `ext+container:name=MyContainer&url=https://a.com&signature=ea7214f675398e93764ba44504070221633b0d5dce6c4263715f1cca89ab5f86`
+**Setup**
+
+1. Install [Firefox Multi-Account Containers](https://addons.mozilla.org/firefox/addon/multi-account-containers/)
+2. Install [Open URL in Container](https://addons.mozilla.org/firefox/addon/open-url-in-container/)
+3. Create your containers in Firefox (e.g., “Work”, “Personal”)
+4. Get the signature from the Open URL in Container extension settings (External Protocol section)
+
+**Creating a rule**
+
+1. Open Velja settings → **Rules** → Click **"+"**
+2. Set **Open in:** Firefox
+3. Add **URL Matchers** for domains you want in this container
+4. Enable **"Transform URL"** and add this script:
+
+```js
+const containerName = 'Work'; // Your container name
+const signature = 'YOUR_SIGNATURE'; // From extension settings
+
+const originalURL = $.url.href;
+const containerURL = `ext+container:name=${encodeURIComponent(containerName)}&url=${encodeURIComponent(originalURL)}&signature=${signature}`;
+
+$.url = new URL(containerURL);
+```
+
+5. Click **"Run"** to test - output should be `ext+container:name=Work&url=https%3A%2F%2F...`
+6. Save the rule
+
+Repeat for each container you want to use.
+
+**Notes**
+
+- Container names are case-sensitive.
+- The signature is the same for all containers.
+- If the signature changes (e.g., after reinstalling the extension), update all rules.
 
 #### Can you support Firefox profiles? {#firefox-profiles}
 
-I don't plan to support this. There is simply not enough demand for it. In addition, Firefox profiles also have some bugs that would increase my support burden. However, there is a way to [make it work with Velja](https://superuser.com/questions/75271/starting-firefox-with-a-specified-profile-from-the-dock-mac-os-x) (Ensure they have different bundle identifiers; `CFBundleIdentifier` in Info.plist).
+Firefox profiles are now supported. Make sure you grant access to profiles in the Browsers settings tab, then enable Firefox profiles in the "Shown Browsers" setting.
 
-I would recommend trying out containers instead (see above). *(Containers are not currently supported, but will be)*
+Note: Only profiles created using Firefox's [new profile system](https://www.reddit.com/r/firefox/comments/1mi38vp/firefox_has_a_profile_switcher_now_heres_how_to/) (Firefox 138+) are supported (not profiles created using `about:profiles`). See below on how to migrate.
+
+#### How do I migrate legacy Firefox profiles to the new profile system? {#firefox-migrate-profiles}
+
+The legacy profiles (created with `about:profiles`) and the new profile groups are separate, and unfortunately, Firefox has not provided any automatic migration.
+
+How to migrate:
+
+- Create a new profile with the [new profile manager](https://support.mozilla.org/kb/profile-management), then quit Firefox.
+- Open the old profile’s root directory using the [old profile manager](https://support.mozilla.org/kb/profile-manager-create-remove-switch-firefox-profiles), then go up one level to find the new profile folder (ends with “Profile 1”, e.g., VqlLK6hB.Profile 1).
+- Delete all files inside that new profile folder.
+- [Copy the contents from an old profile](https://support.mozilla.org/kb/profiles-where-firefox-stores-user-data#w_finding-your-profile-without-opening-firefox) into that folder.
+- Launch it using the [new profile manager](https://support.mozilla.org/kb/profile-management).
+- If extensions misbehave, start Firefox in [Troubleshoot Mode](https://support.mozilla.org/kb/diagnose-firefox-issues-using-troubleshoot-mode), then restart.
 
 #### I opened a link in the background but it brought Chrome to the foreground {#chrome-background-bug}
 
@@ -410,11 +471,15 @@ To confirm Velja is not the problem: Go to “System Settings › Desktop & Dock
 
 This is currently not possible. The Slack app does not accept a normal deep link (example: `https://team-name.slack.com/archives/CKPE4C/p161643063559`). It only accepts a special Slack-specific URL. To be able to convert a normal Slack link to one that the desktop app accepts, we would need to get the team ID from the Slack API and that requires authentication. It's simply not feasible to do this. **Please do send feedback to Slack asking them to accept a normal link, like most other apps support.**
 
+You can actually solve this yourself by [creating a rule in Velja](https://gist.github.com/tim775/bbcf473460fbe786e927d8d961b23988).
+
 #### Can the default browser change based on the active [focus mode](https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac)? {#focus-mode}
 
 You can use the [Focus Filter](https://support.apple.com/HT212608) that comes with the app.
 
 Alternatively, you can use the Shortcuts app for this. Make a shortcut for each focus mode you want to handle, where you use the “Set Default Browser” action that Velja provides. You will need the [Shortery app](https://apps.apple.com/app/id1594183810) to automatically run these shortcuts when the focus mode changes.
+
+macOS 26 has automations in Shortcuts and you don't need Shortery there.
 
 #### Can the default browser change depending on whether I'm at work or not?
 
@@ -423,6 +488,8 @@ See the above answer. You just create a work focus mode.
 #### Can the default browser change depending on whether the computer is on battery?
 
 See the above answer. Use the “Power Status” trigger in Shortery.
+
+macOS 26 has automations in Shortcuts and you don't need Shortery there.
 
 #### Can you support [Focus filters](https://support.apple.com/HT212608)? {#focus-filters}
 
@@ -453,6 +520,8 @@ You can use the [Shortery](https://apps.apple.com/app/id1594183810) and Shortcut
 In the advanced settings, enable the link history setting, and then click the link. The URL will show up there.
 
 To see more detailed debug info on how Velja handled the URL: Quit Velja if it's open. Press <kbd>Shift</kbd> + <kbd>Control</kbd> while launching Velja, click the menu bar icon, click “Debug”, and then go to “Logs”.
+
+If a rule with a “source app” condition isn't working, check the history to verify the source app matches what you expect. Some apps launch URLs through helper processes, causing a different app to appear.
 
 #### How can I open a URL in a specific Safari Tab Group? {#safari-tab-group}
 
@@ -497,7 +566,7 @@ You can submit it [here](https://feedbackassistant.apple.com).
 
 I would love to support Arc, but it's currently missing some required functionality.
 
-**Note that they now support [something similar to Velja built in](https://twitter.com/browsercompany/status/1654525608305491984).**
+**Note that they now support [something similar to Velja built in](https://x.com/browsercompany/status/1654525608305491984).**
 
 Arc supports fetching the spaces of a specific Arc window using AppleScript. However, Velja needs to be able to fetch the spaces even when Arc has no open windows, so that it can show a list of spaces in the Velja settings.
 
@@ -519,11 +588,21 @@ The Arc/Dia browser is based on Chrome, so you may think that it should just wor
 
 **Arc works differently from other browsers. In Arc, you use spaces. Each space can be assigned a certain profile. So it makes more sense to support spaces rather than profiles in Velja. See the above FAQ.**
 
+#### Can you support browser profiles for the [Atlas](https://thebrowser.company) browser? {#atlas-profiles}
+
+The Atlas browser is based on Chrome, so you may think that it should just work with browser profiles in Velja. However, unlike Chrome, Atlas stores the profile names in an encrypted file that Velja cannot access.
+
+**I encourage you to send feedback to Atlas about exposing the profiles names unencrypted so other tools can read them.**
+
 #### Can it open a specific browser when I double-click a file in the Google Drive folder in Finder?
 
 You can use the rules feature in the settings for this.
 1. Create a rule with the source app set to `Finder` and the “URL Prefix” set to `google.com/open`.
 2. Create a second rule with the source app set to `Google Drive` and the “URL Prefix” set to `docs.google.com/open`.
+
+#### Can the default browser change based on the macOS desktop Space I’m in? {#macos-spaces}
+
+No. macOS does not expose the active [Space](https://support.apple.com/guide/mac-help/work-in-multiple-spaces-mh14112/mac) to apps, so Velja cannot detect or react to it. Use per-app rules, or automate switching with Focus Filters or Shortcuts (see [Focus mode](#focus-mode)) and triggers like time, Wi-Fi, or location.
 
 #### How can I open a website from Spotlight results in a specific browser? {#spotlight}
 
@@ -531,7 +610,7 @@ Create a custom rule where you set the Spotlight app as “Source Apps”. The a
 
 #### How can I open Google Meet links in a desktop app?
 
-You can choose an app to open Google Meet links with in the “Apps” tab in the settings. The app needs to support opening such links though. The Google Meet PWA (created in Chrome) does not accept opening such URLs.
+You can choose an app to open Google Meet links in the “Apps” tab in the settings. The app must support these URLs. Many [PWAs](https://en.wikipedia.org/wiki/Progressive_web_app) don’t, including ones made in Chrome or Chrome-based browsers. Safari PWAs do work. Create one from `https://meet.google.com/` using “Add to Dock”, then select the generated app in `~/Applications/Google Meet` in Velja.
 
 #### I have both Firefox and Firefox Beta installed, but only one of them is showing up in Velja
 
@@ -543,7 +622,7 @@ Firefox and Firefox Beta use the same [identifier](https://cocoacasts.com/what-a
 
 #### Can you add another menu bar icon option?
 
-Sure! Find an icon you like in the [SF Symbols app](https://developer.apple.com/sf-symbols/) or [here](https://thenounproject.com/icons/), and send me the name or link to it.
+Sure! Find an icon you like in the [SF Symbols app](https://developer.apple.com/sf-symbols/) or [here](https://thenounproject.com/icons/), and send me the name or a link.
 
 #### Why do I sometimes see a cog icon in the menu bar when opening a link? {#url-support-infoplist}
 
@@ -587,7 +666,7 @@ Velja benefits:
 
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
-- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Can show the icon of the active default browser in the menu bar
 - Removes tracking parameters on clicked and copied links
 - Open links in a private Safari window
@@ -608,7 +687,7 @@ Velja benefits:
 
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
-- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Browser profile support
 - More advanced custom rules, like the ability to open a certain link based on what app the link was clicked in
 - Expands [short URLs](https://en.wikipedia.org/wiki/URL_shortening) for better matching
@@ -637,7 +716,7 @@ Velja benefits:
 
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
-- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Can show the icon of the active default browser in the menu bar
 - Better user interface for browser profiles (OpenIn requires you to manually find the browser profile ID)
 - The user interface is more macOS-like and better follows the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/macos/overview/themes/)
@@ -666,7 +745,7 @@ Velja benefits:
 - Sandboxed (more secure)
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
-- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Browser profile support
 - Can show the icon of the active default browser in the menu bar
 - Custom rules, like the ability to open a certain link based on what app the link was clicked in

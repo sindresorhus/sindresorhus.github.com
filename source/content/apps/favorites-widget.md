@@ -3,34 +3,40 @@ title: Favorites Widget
 subtitle: Contacts on your Lock Screen, Home Screen, and desktop
 pubDate: 2022-09-12
 platforms:
-  - macOS
+  # - macOS # because it crashes because of missing API shim.
   - iOS
+  - visionOS
 isPaid: true
 appStoreId: 1643660089
 forceHasIosAppIcon: true
 hasSentry: true
 ---
 
-Call, message, or email your favorite people directly from the Lock Screen, Home Screen, or desktop.
+<!-- Call, message, or email your favorite people directly from the Lock Screen, Home Screen, or desktop. -->
+Call, message, or email your favorite people directly from the Lock Screen or Home Screen.
 
 You can also open a URL or run a shortcut instead when tapping the widget. This opens up a lot of cool possibilities. Here are [some ideas](https://github.com/bhagyas/app-urls) of what you could open.
 
-For macOS, it's only available for Apple silicon Macs running macOS 15 or later.
+<!-- For macOS, it's only available for Apple silicon Macs running macOS 26 or later. -->
 
 ## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Favorites%20Widget&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Favorites%20Widget&referrer=Website-FAQ)
 
 #### How do I add the widget?
 
 - [iOS](https://support.apple.com/HT207122)
-- [macOS](https://support.apple.com/guide/mac-help/mchl52be5da5/mac)
+<!-- - [macOS](https://support.apple.com/guide/mac-help/mchl52be5da5/mac) -->
 
 #### The widget does not show up in the widget picker
 
 This is a well-known iOS issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
+
+#### The Lock Screen widget sometimes disappears
+
+Make sure Lock Screen widgets are allowed when locked: “Settings › Face ID & Passcode › Allow Access When Locked › Lock Screen Widgets”. If it’s “off”, iOS may hide the widget until you unlock.
 
 #### Can I call someone by just tapping the widget without the confirmation dialog?
 

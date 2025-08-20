@@ -7,13 +7,15 @@ platforms:
   - iOS
   - visionOS
 appStoreId: 6465250302
+forceHasIosAppIcon: true
 olderMacOSVersions:
   - '14'
+  - '15'
 feedbackNote: |
   I cannot provide support for general Shortcuts questions. Use [Reddit](https://www.reddit.com/r/shortcuts) for that.
 ---
 
-The app provides additional AI-related actions (o1, o1 mini, GPT-4o, GPT-4o mini, GPT-4, GPT 3.5, Claude 3 Opus, Claude 3.5 Sonnet, Claude 3.5 Haiku) for the Shortcuts app.
+The app provides additional AI-related actions (GPT 5.2, Claude Sonnet/Opus 4.5, etc.) for the Shortcuts app.
 
 For example, an action to interact with the ChatGPT API.
 
@@ -39,7 +41,7 @@ It also supports many more models through [Ollama and Groq](#alternative-provide
 
 The app also supports [Ollama](https://ollama.com/blog/openai-compatibility) (local models like GGUF) and [Groq](https://console.groq.com/docs/openai) (because they have OpenAI API compatibility), making it possible to use it with a lot more models.
 
-For Ollama, you need to specify a local URL like `https://localhost:11434` in the “Base URL” setting in the app.
+For Ollama, you need to specify a local URL like `http://localhost:11434` in the “Base URL” setting in the app.
 
 For Groq, specify `https://api.groq.com/openai`. In the “Ask AI” action, select the “Custom” model and provide the name of the desired model.
 
@@ -51,7 +53,7 @@ For [Gemini](https://ai.google.dev/gemini-api/docs/openai), specify `https://gen
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=AI%20Actions&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=AI%20Actions&referrer=Website-FAQ)
 
 #### The actions do not show up in the Shortcuts app
 
@@ -73,6 +75,12 @@ This makes it simpler, but more importantly, it stores your API key securely in 
 
 No, the Whisper API isn't suitable for this app due to Shortcuts' 30-second limit on third-party actions on iOS, making long transcriptions impossible. Instead, use my app [Aiko](/aiko). It runs Whisper locally on your device and supports Shortcuts by performing transcriptions in the foreground, bypassing the time constraint (on macOS, it runs in the background).
 
+#### Can you add built-in support for the Google Gemini API? {#gemini}
+
+No. I don’t want to keep adding more providers, and I especially don’t want to take on Google-specific APIs and auth quirks. More providers means a larger API surface, more edge-cases, and more maintenance.
+
+Workaround: Gemini already offers an OpenAI-compatible endpoint, which this app supports. Set the Base URL to `https://generativelanguage.googleapis.com/v1beta/openai/`, then choose “Custom” and enter the Gemini model name. You can also use an OpenAI-compatible proxy like [OpenRouter](https://openrouter.ai) if you prefer one unified endpoint.
+
 #### Why is this free without ads?
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
@@ -85,12 +93,13 @@ I don't plan to localize the app.
 
 ## Older Versions
 
+- [1.4.5](https://www.dropbox.com/scl/fi/o80d948mabpohlip3je6m/AI-Actions-1.4.5-macOS-15-1769233269.zip?rlkey=lgxnxyzv75g6r82b4c3fitwuz&raw=1) for macOS 15+
 - [1.3.3](https://github.com/user-attachments/files/18376675/AI.Actions.1.3.3.-.macOS.14.zip) for macOS 14+
 
 ## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/vvdbfnnptzvsa3yduid79/AI-Actions-1.4.1-1743425376.zip?rlkey=xxkjgbzvjrrsny08m2v8d4ygg&raw=1) *(1.4.1)*
+[Download](https://www.dropbox.com/scl/fi/6l6e13n3v01nywhx532cp/AI-Actions-1.5.0-1769231336.zip?rlkey=hv3jek3xtx0l3sv7m8oip1y78&raw=1) *(1.5.0)*
 
-*Requires macOS 15 or later*
+*Requires macOS 26 or later*

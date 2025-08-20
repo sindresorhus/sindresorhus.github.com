@@ -33,7 +33,7 @@ Rich text copied from a different device will not have its formatting cleared be
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](/feedback?product=Pure%20Paste&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](/feedback?product=Pure%20Paste&referrer=Website-FAQ)
 
 #### Why not just use the `Paste and Match Style` menu item or `⌥⇧⌘V`?
 
@@ -42,7 +42,7 @@ Rich text copied from a different device will not have its formatting cleared be
 - The keyboard shortcut is hard to remember and type.
 - In some apps, like Chrome, the keyboard shortcut is different.
 - This app can exclude certain apps, preserve links, normalize (quotes, newlines, lists, etc.) and also remove tracking parameters from URLs.
-- The app has workarounds (3000+ lines of code) for lots of apps to make the experience *just work*.
+- The app has workarounds (9000+ lines of code) for lots of apps to make the experience *just work*.
 
 #### Why not just remap the `Paste and Match Style` keyboard shortcut to `⌘V`?
 
@@ -50,7 +50,7 @@ Same as the above except the first two list items.
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 You may also have enabled the “Hide menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 
@@ -60,6 +60,8 @@ You may also have enabled the “Hide menu bar icon” setting, which hides the 
 - Ensure you have not excluded (in the settings) the app you want to use it with.
 - Try copy-pasting to/from a different app to ensure the problem is with Pure Paste.
 - If you are using a custom keyboard shortcut for clearing, try [resetting privacy permissions](/apps/faq#mac-reset-permissions).
+- If you have “Preserve links” enabled, try disabling it. When links are preserved, all styling is cleared but the clipboard remains rich text. Some apps restyle rich text anyway.
+- Verify that Pure Paste actually cleared formatting by using my [Pasteboard Viewer](/pasteboard-viewer). If you see the item `com.sindresorhus.Pure-Paste.hasRun` in the sidebar, Pure Paste worked. Any remaining formatting is added by the app you paste into. Some apps do this even for plain text.
 - [More…](/apps/faq#app-problem)
 
 #### Pure Paste conflicts with my clipboard manager
@@ -88,7 +90,7 @@ Try [resetting privacy permissions](/apps/faq#mac-reset-permissions) for the app
 
 Removing tracking parameters improve privacy and also make URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Learn more.](https://en.wikipedia.org/wiki/UTM_parameters)
 
-Pure Paste supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to Twitter, Facebook, and TikTok.
+Pure Paste supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to X (Twitter), Facebook, and TikTok.
 
 Before: `https://foo.com?utm_content=buffercf3b2&utm_source=snapchat.com`\
 After: `https://foo.com`
@@ -181,6 +183,10 @@ The need for such a setting only arises because many web apps do not adhere to p
 
 The app technically clears formatting when something is copied not pasted, so the formatting is already cleared when that shortcut is pressed.
 
+#### Can I quickly toggle “Preserve links” or some other setting? {#toggle-setting}
+
+Yes, with the Shortcuts app. Create a shortcut with the “Change Pure Paste Settings” action in Shortcuts. Pin it to the Shortcuts menu bar or assign a global keyboard shortcut in Shortcuts.
+
 #### Can you add support for removing newlines/linebreaks?
 
 The app is designed to *just work*, but removing newlines is not suitable for all use cases. For instance, you may want to remove newlines when copying text from a PDF, but not from Word. If you still want this feature, add the following to the “JavaScript” setting:
@@ -194,6 +200,10 @@ And if you want to preserve paragraphs, use:
 ```js
 return $.text.replace(/([^\r\n])(?:\r?\n)(?!\r?\n)/g, '$1 ');
 ```
+
+#### Can I temporarily pause “Automatically clear formatting”?
+
+Not built in. You can run [this shortcut](https://www.icloud.com/shortcuts/38ed17936c784768a36b6220700260cc) from Spotlight that disables “Automatically clear formatting”, waits 5 minutes, then re-enables it.
 
 #### Does it respect [nspasteboard.org](http://nspasteboard.org) conventions?
 

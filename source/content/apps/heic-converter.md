@@ -24,7 +24,7 @@ If you don't have any HEIC images, you can try the app out with [this one](/apps
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=HEIC+Converter&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=HEIC+Converter&referrer=Website-FAQ)
 
 #### Does it preserve 10-bit depth?
 

@@ -12,6 +12,8 @@ olderMacOSVersions:
   - '12'
   - '13'
   - '14'
+feedbackNote: |
+  [The app randomly disappears/quits](/apps/faq#randomly-quits)
 ---
 
 ## Frequently Asked Questions {#faq}
@@ -22,7 +24,7 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 #### Can you make the history be further back than 120 days?
 

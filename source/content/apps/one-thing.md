@@ -36,25 +36,29 @@ However, what you use this space for is really up to you.
 
 **You may also like my [Any Text](/any-text) and [One Task](/one-task) apps.**
 
+### Mentions
+
+- [10 Mac Apps That Will Change How You Use macOS](https://www.youtube.com/watch?v=LtuUwACZdsQ&t=108s)
+
 ## Tips
 
 - Press <kbd>return</kbd>/<kbd>esc</kbd> or click the menu bar item to close the edit window.
 - Click the menu bar item while pressing <kbd>shift</kbd> to clear the text.
 - Right-click the menu bar item to be able to quit the app quickly.
 - If the menu bar item text is truncated, hover over it to see the full text in a tooltip.
-- You can use [Markdown](https://www.markdownguide.org/basic-syntax/#emphasis) to [style the text](https://twitter.com/sindresorhus/status/1481818533294407680) (supports bold, italic, and strikethrough) and add links.
-- You can [drag & drop text](https://twitter.com/sindresorhus/status/1481862243755376642) onto the menu bar item to set it. For example, you could drag a todo item from the Reminders app or Things.
+- You can use [Markdown](https://www.markdownguide.org/basic-syntax/#emphasis) to [style the text](https://x.com/sindresorhus/status/1481818533294407680) (supports bold, italic, and strikethrough) and add links.
+- You can [drag & drop text](https://x.com/sindresorhus/status/1481862243755376642) onto the menu bar item to set it. For example, you could drag a todo item from the Reminders app or Things.
 - Select some text in any app, right-click, select “Services”, and click “Send to One Thing” to set One Thing to the selected text. You can also use the “Share” menu item if the app supports that.
 
 ## Frequently Asked Questions {#faq}
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=One%20Thing&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=One%20Thing&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender or Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 #### The menu bar item has disappeared!
 
@@ -86,13 +90,13 @@ I have made a special version of One Thing with a different identifier. You can 
 
 You can use the Shortcuts app for this. Here is an [example shortcut](https://www.icloud.com/shortcuts/7f8a4cc8764348518c5b7774d60191cc) that sets the next todo in “Today” as the text in One Thing.
 
-Shortcuts does not yet support automation, so to have the shown todo stay in sync with Things, we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut. Choose the “Application” trigger type and make it trigger when Things becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually.
+To have the shown todo stay in sync with Things, we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut. Choose the “Application” trigger type and make it trigger when Things becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually, or use [Short Run](/short-run).
 
 #### How can I show the upcoming reminder from the Reminders app in One Thing? {#reminders}
 
 You can use the Shortcuts app for this. Here is an [example shortcut](https://www.icloud.com/shortcuts/4bed5f56a0f94e9a9e9ba05c97c6e64b).
 
-Shortcuts does not yet support automation, so to have the shown todo stay in sync with Reminders, we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut. Choose the “Application” trigger type and make it trigger when Reminders becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually.
+To have the shown todo stay in sync with Reminders, we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut. Choose the “Application” trigger type and make it trigger when Reminders becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually, or use [Short Run](/short-run).
 
 #### How can I show a todo from my favorite todo app in One Thing?
 
@@ -102,7 +106,7 @@ Do something similar to the above answer.
 
 You can use the Shortcuts app for this. Here is an [example shortcut](https://www.icloud.com/shortcuts/35d88a7b56154893bd2e28e3988410f1).
 
-Shortcuts does not yet support automation, so you have to use the time trigger in the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut at a certain interval to change the quotes.
+Shortcuts does not yet support automation, so you have to use the time trigger in the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut at a certain interval to change the quotes. macOS 26 supports automations in Shortcuts, so you don't need Shortery there.
 
 #### How can I put spacing on the sides of the text?
 
@@ -110,7 +114,7 @@ You can add some horizontal padding around the text by adding multiple spaces to
 
 #### How can I show different text for each day of the week?
 
-You can use the macOS Shortcuts app for this. Make a shortcut for each piece of text you want to be shown by using the “Set Text” action provided by One Thing. Shortcuts does not yet support automation (it most likely will in macOS 15), so for now we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to schedule these shortcuts to run at the specific days.
+You can use the macOS Shortcuts app for this. Make a shortcut for each piece of text you want to be shown by using the “Set Text” action provided by One Thing. You can use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to schedule these shortcuts to run at the specific days. macOS 26 supports automations in Shortcuts, so you don't need Shortery there.
 
 #### Can you add iOS / watchOS support?
 

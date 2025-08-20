@@ -42,14 +42,14 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 ---
 
 <Layout {meta}>
-	<section class="max-w-3xl py-8 sm:py-16 lg:py-20 mx-auto lg:-mt-10 mb-10">
-		<article>
+	<section class="max-w-5xl py-8 sm:py-16 lg:py-20 mx-auto lg:-mt-10 mb-10">
+		<article itemscope itemtype="https://schema.org/SoftwareApplication">
 			<header class="flex flex-col items-center text-center px-4 sm:px-6 mb-40">
-				<img src={app.iconUrl} width="256" height="256" class={`${app.hasIOSAppIcon ? 'p-[20px] drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]' : ''} mb-3`}>
-				<h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-4 font-heading">
+				<img src={app.iconUrl} width="256" height="256" alt={`${app.title} app icon`} class={`${app.hasIOSAppIcon ? 'p-[16px] drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]' : ''} mb-3`}>
+				<h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-4 font-heading" itemprop="name">
 					{app.title}
 				</h1>
-				<h2 class="text-2xl md:text-4xl tracking-tight mb-8">
+				<h2 class="text-2xl md:text-4xl tracking-tight mb-8" itemprop="description">
 					{app.subtitle}
 				</h2>
 				<div id="another-random-app" class="flex justify-center hidden instapaper_ignore">
@@ -63,7 +63,7 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 					<span class={`${tagClass} bg-orange-100 dark:bg-orange-200 text-[16px] mb-10`}>archived</span>
 				}
 				{(app.appStoreId || app.setappId || Object.keys(app.mainLinks).length > 0) &&
-					<nav class="flex flex-col sm:flex-row gap-x-4 gap-y-8 mt-2 instapaper_ignore">
+					<nav class="flex flex-col sm:flex-row gap-x-4 gap-y-8 mt-2 instapaper_ignore" aria-label="Download options">
 						<>
 							{!app.isArchived && app.appStoreId &&
 								<div class="relative">
@@ -94,7 +94,7 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 					</nav>
 				}
 				{Object.keys(app.links).length > 0 &&
-					<nav class="flex flex-wrap gap-4 max-w-md justify-center mt-8 font-semibold text-xl text-primary-600 instapaper_ignore">
+					<nav class="flex flex-wrap gap-4 max-w-md justify-center mt-8 font-semibold text-xl text-primary-600 instapaper_ignore" aria-label="App links">
 						<>
 							{Object.entries(app.links).map(([title, url]) => (
 								<a href={url} class="hover:text-primary-400 dark:text-primary-400 dark:hover:text-primary-200">{title}</a>
@@ -121,19 +121,60 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 					</nav>
 				}
 			</header>
+			<section class="mx-auto px-6 max-w-5xl mb-20 space-y-8" aria-label="App media">
+				{app.videos.map(video => (
+					<video src={video} autoplay loop muted playsinline preload="metadata" aria-label={`${app.title} demo video`} class="rounded-md shadow-lg"/>
+				))}
+				{app.screenshots.map((screenshot, index) => (
+					<img src={screenshot.src} width={screenshot.width} height={screenshot.height} alt={`${app.title} screenshot ${index + 1}`} loading="lazy" class="rounded-md shadow-lg">
+				))}
+			</section>
 			<div class={proseCSS}>
-				<section class="mb-20">
-					{app.videos.map(video => (
-						<video src={video} autoplay loop muted alt="App preview video"/>
-					))}
-					{app.screenshots.map(screenshot => (
-						<img src={screenshot.src} width={screenshot.width} height={screenshot.height} alt="App screenshot">
-					))}
-				</section>
 				<app.Content/>
 			</div>
 		</article>
 	</section>
+	<script type="application/ld+json" set:html={JSON.stringify({
+		'@context': 'https://schema.org',
+		'@type': 'SoftwareApplication',
+		applicationCategory: app.platforms.includes('macOS') ? 'UtilitiesApplication' : 'MobileApplication',
+		name: app.title,
+		operatingSystem: app.platforms.join(', '),
+		author: {
+			'@type': 'Person',
+			givenName: 'Sindre',
+			familyName: 'Sorhus',
+			url: 'https://sindresorhus.com',
+			sameAs: [
+				'https://github.com/sindresorhus',
+				'https://x.com/sindresorhus',
+				'https://mastodon.social/@sindresorhus',
+				'https://bsky.app/profile/sindresorhus.com',
+			],
+		},
+		datePublished: new Date(app.pubDate).toISOString().split('T')[0],
+		description: app.description || app.subtitle,
+		url: `https://sindresorhus.com${app.url}`,
+		image: `https://sindresorhus.com${app.iconUrl}`,
+		...(app.appStoreId && {downloadUrl: app.appStoreUrl}),
+		...(app.screenshots.length > 0 && {
+			screenshot: app.screenshots.map(s => `https://sindresorhus.com${s.src}`),
+		}),
+		...(app.appStoreId && {
+			offers: {
+				'@type': 'Offer',
+				availability: 'https://schema.org/InStock',
+				url: app.appStoreUrl,
+				seller: {
+					'@type': 'Person',
+					name: 'Sindre Sorhus',
+				},
+				...(app.isPaid && {
+					priceCurrency: 'USD',
+				}),
+			},
+		}),
+	}, null, '\t')} />
 </Layout>
 
 <script type="module" is:inline define:vars={{appTitle, appStoreUrl}}>

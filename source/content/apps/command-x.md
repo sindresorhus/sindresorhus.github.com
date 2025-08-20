@@ -5,18 +5,24 @@ pubDate: 2023-04-30
 platforms:
   - macOS
 isPaid: true
+isMenuBarApp: true
 appStoreId: 6448461551
 hasSentry: true
 olderMacOSVersions:
   - '13'
   - '14'
+feedbackNote: |
+  [The app randomly disappears/quits](/apps/faq#randomly-quits)
 ---
 
 Cut and paste files and folders in Finder using Command+X and Command+V. Without this app, you have to first copy (Command+C) and then remember to move (Option+Command+V).
 
-[Review by Softpedia](https://mac.softpedia.com/get/System-Utilities/Command-X.shtml)
-
 Known limitation: You cannot cut the name of a file when editing a filename in Finder or cut when using the search field. [Learn more.](#textfield-limitation)
+
+### Mentions
+
+- [Review by Softpedia](https://mac.softpedia.com/get/System-Utilities/Command-X.shtml)
+- [10 Mac Apps That Will Change How You Use macOS in](https://www.youtube.com/watch?v=LtuUwACZdsQ&t=426s)
 
 ---
 
@@ -37,7 +43,7 @@ Click the feedback button in the app or [send it here.](/feedback?product=Comman
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 #### The app does not work {#not-working}
 

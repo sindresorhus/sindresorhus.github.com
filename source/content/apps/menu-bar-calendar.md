@@ -38,7 +38,7 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender or Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 #### Does it show calendar events?
 
@@ -54,7 +54,7 @@ The app does support dimming the weekend though.
 
 No. Check out my [Dato](/dato) app for that.
 
-#### Does it support showing a date and time in the menu bar with a custom format?
+#### Does it support showing a time in the menu bar with a custom format?
 
 No. Check out my [Dato](/dato) app for that.
 
@@ -82,6 +82,12 @@ Change [this system setting](https://apple.stackexchange.com/questions/191445/st
 
 Use my [Velja app](https://sindresorhus.com/velja). You can create a rule to open any link clicked in this app in your chosen browser.
 
+#### How can I scroll to switch months?
+
+You can swipe horizontally to switch months.
+
+If you don't have a trackpad, there are [apps](https://mybyways.com/blog/configure-a-mouse-for-macos-trackpad-like-gestures) that let you make scrolling trigger swipe.
+
 #### Can you localize the app into my language?
 
 I do not plan to localize the app.
@@ -101,6 +107,6 @@ I just enjoy making apps. I earn money on other apps. Consider leaving a nice re
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/g5qhxtrn54faq6eozuoq3/Menu-Bar-Calendar-1.5.0-1737699710.zip?rlkey=xt5ccdhhix969o7ts2isu5qci&raw=1) *(1.5.0)*
+[Download](https://www.dropbox.com/scl/fi/rtpcvkkvfc8th9ca1qltb/Menu-Bar-Calendar-1.6.1-1761878427.zip?rlkey=675jcupywy3hofuf5qgf5vony&raw=1) *(1.6.1)*
 
 *Requires macOS 15 or later*

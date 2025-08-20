@@ -12,6 +12,7 @@ olderMacOSVersions:
   - '12'
   - '13'
   - '14'
+  - '15'
 ---
 
 This can be useful as a quick reference.
@@ -20,11 +21,11 @@ This can be useful as a quick reference.
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=UTC%20Time&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=UTC%20Time&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 #### Can you localize the app into my language?
 
@@ -58,6 +59,7 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 ## Older Versions
 
+- [1.10.0](https://www.dropbox.com/scl/fi/oj2tobls8f2dtotzo5u0j/UTC-Time-1.10.0-macOS-15-1769181410.zip?rlkey=3snz635x894dx95ngar8tns6p&raw=1) for macOS 15+
 - [1.9.1](https://github.com/user-attachments/files/18215312/UTC.Time.1.9.1.-.macOS.14.zip) for macOS 14+
 - [1.7.1](https://github.com/sindresorhus/meta/files/13973570/UTC.Time.1.7.1.-.macOS.13.zip) for macOS 13+
 - [1.5.1](https://github.com/sindresorhus/meta/files/10767291/UTC.Time.1.5.1.-.macOS.12.zip) for macOS 12+
@@ -67,6 +69,6 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/f2971eyhwxn3cvvqz8dz5/UTC-Time-1.10.0-1734728300.zip?rlkey=mjfgq7uh7vdgkws23b0qa9q1e&raw=1) *(1.10.0)*
+[Download](https://www.dropbox.com/scl/fi/t98b3p4kebmb7hrmahms4/UTC-Time-1.11.0-1769179922.zip?rlkey=2i3xk1wm2okqh1237rfkbuj3t&raw=1) *(1.11.0)*
 
-*Requires macOS 15 or later*
+*Requires macOS 26 or later*

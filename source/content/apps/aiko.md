@@ -12,6 +12,8 @@ olderMacOSVersions:
   - '13'
   - '14'
 feedbackNote: |
+  **Sharing from Voice Memos on iOS 26 does not work because of a iOS 26 bug outside of my control.** You may notice that many targets do work. This is because those apps use share extensions, while with Aiko, it opens directly in the app.
+
   [Refunds](/apps/faq#refund)
 
   If the app crashes, it's likely that the device ran out of available RAM. Restart your device and try again.
@@ -173,7 +175,7 @@ Get [this (iOS)](https://www.icloud.com/shortcuts/f790a41e23ae4222920277b4fe9d12
 
 ### Transcribe files directly in Finder
 
-On macOS, you can transcribe files simply by right-clicking audio files in Finder and choosing [this shortcut](https://www.icloud.com/shortcuts/d03bb8e17513432190a1ed711f99d423) (add it first) in "Quick Actions". [Preview.](https://twitter.com/sindresorhus/status/1789957043912093954) In the shortcut you can choose whether you want text or subtitles.
+On macOS, you can transcribe files simply by right-clicking audio files in Finder and choosing [this shortcut](https://www.icloud.com/shortcuts/d03bb8e17513432190a1ed711f99d423) (add it first) in "Quick Actions". [Preview.](https://x.com/sindresorhus/status/1789957043912093954) In the shortcut you can choose whether you want text or subtitles.
 
 ### Record and transcribe by pressing the iPhone action button
 
@@ -201,7 +203,7 @@ You can use [this shortcut](https://www.icloud.com/shortcuts/e43220d72f3343659e0
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Aiko&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Aiko&referrer=Website-FAQ)
 
 #### Can you use the large v3 model for the Mac app?
 
@@ -225,6 +227,10 @@ Probably not initially:
 - Whisper still has higher quality
 
 Maybe when it's more mature.
+
+#### The screen turned off during transcription
+
+The app tells the system not to turn off the screen. However, if you have enabled “low power mode”, the system may do so anyway. Try turning it off.
 
 #### Can I edit the text in the app?
 
@@ -279,7 +285,7 @@ Try writing a sentence in Traditional Chinese or Simplified Chinese in the “Pr
 
 #### Why must I keep the iOS app open while it transcribes?
 
-iOS apps are fundamentally restricted from operating in the background for extended periods. This ironically even [affects Apple's official apps](https://twitter.com/bzamayo/status/1661133704792621059).
+iOS apps are fundamentally restricted from operating in the background for extended periods. This ironically even [affects Apple's official apps](https://x.com/bzamayo/status/1661133704792621059).
 
 #### What file formats does it support?
 

@@ -8,6 +8,7 @@ platforms:
   - visionOS
 hasSentry: true
 appStoreId: 1586435171
+forceHasIosAppIcon: true
 links:
   'TestFlight': https://testflight.apple.com/join/fJGUrsZx
 olderMacOSVersions:
@@ -15,12 +16,16 @@ olderMacOSVersions:
   - '13'
   - '14'
 feedbackNote: |
+  ### If you just updated to iOS 26, it may take some time for iOS to re-index all the Shortcuts actions. Give it some time.
+
   ### If the actions don't show up in the Shortcuts app or you get a “com.apple.extensionKit.errorDomain error 2”, [see this](/actions#actions-not-showing-up).<br><br>
+
+  Tip: To pass a variable to a file input in Shortcuts, tap-and-hold (iOS) or right-click (macOS) the input and select the variable.
 
   **Some actions that are not possible: orientation lock status, flashlight status, ambient sensor info, flight mode status, [and more](/actions#impossible-actions).**
 ---
 
-The app provides lots of powerful extra actions for the Shortcuts app on macOS, iOS, and visionOS. These actions make it significantly easier to create shortcuts.
+The app provides 180+ powerful extra actions for the Shortcuts app on macOS, iOS, and visionOS. These actions make it significantly easier to create shortcuts.
 
 **Restart your device if the actions do not show up in the Shortcuts app. Also try setting a different device language and then back. [Learn more](#actions-not-showing-up)**
 
@@ -291,10 +296,17 @@ Some common actions requests that are not possible:
 - All audio playback destinations
 - CarPlay connection status
 - Notifications in CarPlay
+- Media volume
+- More accessibility checks (like reduce white point)
+- If charging wirelessly
 
 Anything related to changing system features/settings or interacting with other apps is generally not possible.
 
 For these, I recommend sending a [feature request to Apple](https://feedbackassistant.apple.com).
+
+#### Declined actions {#declined-actions}
+
+- Imgur - I don't generally don't want to integrate with services. They cause a huge support burden, either by being unreliable, breaking the API, shutting down, and other things.
 
 ## Frequently Asked Questions {#faq}
 

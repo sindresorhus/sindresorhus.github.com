@@ -3,10 +3,11 @@ import Layout from '~/layouts/PageLayout.astro';
 import {proseCSS} from '~/utils/apps.js';
 
 const {frontmatter} = Astro.props;
-const {title} = frontmatter;
+const {title, description} = frontmatter;
 
 const meta = {
 	title: `${title} — Sindre Sorhus`,
+	...(description && {description}),
 };
 ---
 

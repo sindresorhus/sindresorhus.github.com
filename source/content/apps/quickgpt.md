@@ -6,6 +6,7 @@ platforms:
   - macOS
 isPaid: true
 releasesRepo: quickgpt-meta
+forceHasIosAppIcon: true
 mainLinks:
   'Download': https://sindresorhus.gumroad.com/l/quickgpt?wanted=true
 olderMacOSVersions:
@@ -21,11 +22,11 @@ Easily access [ChatGPT](https://www.zdnet.com/article/what-is-chatgpt-and-why-do
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=QuickGPT&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=QuickGPT&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 You may also have enabled the “Hide menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 

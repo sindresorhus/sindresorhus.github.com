@@ -19,11 +19,11 @@ My apps prioritize user privacy and do not collect any personal data.
 
 For apps purchased on the Apple App Store, you can [request a refund](https://support.apple.com/en-us/HT204084) from Apple. App developers have no control over the purchase and refund process.
 
-For apps purchased on Gumroad, there is generally no refund. You can [request a refund](mailto:sindresorhus@gmail.com?subject=Gumroad%20refund&body=Mention%20which%20app%20you%20want%20a%20refund%20for%20and%20your%20Gumroad%20account%20email) if you have a good reason (like duplicate purchase). But most purchases are final.
+For apps purchased on Gumroad, refunds are generally not offered. You can [request a refund](mailto:sindresorhus@gmail.com?subject=Gumroad%20refund&body=Mention%20which%20app%20you%20want%20a%20refund%20for%20and%20your%20Gumroad%20account%20email) if you have a good reason (like duplicate purchase). But most purchases are final.
 
 <!-- For apps purchased on Gumroad, you can [request a refund](mailto:sindresorhus@gmail.com?subject=Gumroad%20refund&body=Mention%20which%20app%20you%20want%20a%20refund%20for%20and%20your%20Gumroad%20account%20email) within 30 days of the purchase. -->
 
-However, I would appreciate if you [reached out](/feedback) first. I may be able to resolve any problems you are having.
+However, I would appreciate it if you [reached out](/feedback) first. I may be able to resolve any problems you are having.
 
 ### How many devices can I install an app on?
 
@@ -34,6 +34,18 @@ Apps purchased on Gumroad can be used by one user on unlimited computers.
 ### How can I transfer an app bought on the Apple App Store to a different account?
 
 This is unfortunately [not possible](https://apple.stackexchange.com/a/444878). App developers have no control over the purchase process on the Apple App Store.
+
+### App Store won’t download or redownload an app of yours {#app-store-download-problem}
+
+Apple alone controls purchases, licensing, downloads, account state, and delivery on the App Store. Developers have zero access or influence.
+
+Some things you could try:
+- Restart device.
+- Sign out and in again to the App Store.
+
+Apple troubleshooting guide:
+- [macOS](https://support.apple.com/en-us/102331)
+- [iOS](https://support.apple.com/en-us/102632)
 
 ### Can I get an invoice?
 
@@ -64,7 +76,7 @@ I love making apps and I want them to be available to as many people as possible
 
 ### Why should I trust you?
 
-Free apps often raise doubts about privacy and intentions. Your trust matters deeply to me. Unlike others, I don't engage in data-selling or bombard you with pesky ads. Your privacy is sacred; you are not my product. I make apps because I enjoy it. I don't care about profits.
+Free apps often raise doubts about privacy and intentions. Your trust matters deeply to me. Unlike others, I don't engage in data-selling or bombard you with pesky ads. I don’t sell your data, and you’re not the product. I make apps because I enjoy it. I don't care about profits.
 
 With over 3 million users placing their confidence in me, I take pride in safeguarding their devices and respecting their privacy. Moreover, my reputation speaks volumes. Tens of thousands of developers also rely on [my code](https://github.com/sindresorhus).
 
@@ -84,11 +96,11 @@ I make them myself in Sketch, sometimes using AI as a starting point.
 
 ### How do you prioritize bug fixes?
 
-User-reported bugs are prioritized based on their impact on the app's functionality and the number of users affected. My goal is to fix **all** bugs.
+User-reported bugs are prioritized based on their impact on the app's functionality and the number of users affected. I aim to fix every bug users report.
 
 ### What's the best way to learn about new apps?
 
-Subscribe to my [“new apps” RSS feed](/feeds) and follow me on [Twitter](https://twitter.com/sindresorhus) and [Mastodon](https://mastodon.social/@sindresorhus).
+Subscribe to my [“new apps” RSS feed](/feeds) and follow me on [X (Twitter)](https://x.com/sindresorhus), [Mastodon](https://mastodon.social/@sindresorhus), or [Bluesky](https://bsky.app/profile/sindresorhus.bsky.social).
 
 ### Do you actively maintain all your apps?
 
@@ -179,7 +191,7 @@ A bundle identifier (or bundle ID) uniquely identifies an app in Apple's ecosyst
 
 ### What is the macOS app sandbox? {#macos-sandbox}
 
-The macOS app sandbox is like putting each app in a fenced yard. It keeps the app from wandering off and messing with other apps or your system, which makes your Mac safer. However, the fence is very strict—it can stop apps from doing creative or powerful things, even when you want them to. All apps on the Mac App Store must be sandboxed, which means some advanced features or workflows might not be possible.
+The macOS app sandbox is like putting each app in a fenced yard. It keeps the app from wandering off and messing with other apps or your system, which makes your Mac safer. However, the fence is very strict. It can stop apps from doing creative or powerful things, even when you want them to. All apps on the Mac App Store must be sandboxed, which means some advanced features or workflows might not be possible.
 
 ### What are distributed notifications? {#distributed-notifications}
 
@@ -189,9 +201,27 @@ For example, [Dato](/dato) sends a distributed notification when you join a vide
 
 To listen to such notifications, you could use the “Wait for Distributed Notification” action in the [Actions](/actions) app or use [BetterTouchTool](https://folivora.ai).
 
+### The macOS app randomly quits {#randomly-quits}
+
+If the app vanishes and there is no [crash report](#crash-report), it’s likely macOS terminated it to free disk space during a cache purge, or free up memory. It’s more noticeable with menu bar apps that run constantly.
+
+Keep 10–20 GB free and avoid “free purgeable space” tools (for example, CleanMyMac); they trigger the same system mechanism as a full disk.
+
+Also try restarting your computer.
+
+This is a [common problem](https://bitsplitting.org/2022/06/18/purgeable-mac-apps/) for macOS apps.
+
 ### I have enabled “launch at login” but the app does not launch when I start my computer {#launch-at-login-not-working}
 
 When you enable that setting, the app simply tells macOS to launch it at login, so if it's not working, it's a problem with macOS or your system. Try disabling launch at login in the app, restart your computer, and then enable it again. As a workaround, you can manually add it: Open System Settings, go to “General › Login Items”, and click the “+” button, and choose the app.
+
+### The app does not show up in the macOS menu bar {#app-not-showing-in-menu-bar}
+
+macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+
+If you are on macOS 26, make sure it's not disabled in “System Settings › Menu Bar › Allow in the Menu Bar”. **This can happen even if you didn't disable it due to a macOS bug.**
+
+Also try restarting your computer.
 
 ### I'm having a problem with your app {#app-problem}
 
@@ -310,7 +340,7 @@ Select the app in [App Buddy](/app-buddy) and click “Copy to Downloads” in t
 **iOS**
 - In the Settings app, go to “Privacy & Security › Analytics & Improvements › Analytics Data”
 - Tap the first item that starts with the app name
-	- If there is no such item, tap the first item that starts with `JetsamEvent`
+	- If no app report exists, send the most recent `JetsamEvent`, which shows system memory issues.
 - Tap the share button, tap a mail app, and send it to `sindresorhus@gmail.com`
 
 ### How can I send you a **spindump** for one of your Mac apps? {#spindump}

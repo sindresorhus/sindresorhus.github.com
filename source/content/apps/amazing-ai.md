@@ -11,15 +11,18 @@ hasSentry: true
 olderMacOSVersions:
   - '13'
   - '14'
+  - '15'
 ---
 
 Simply describe the image you desire, and the app will generate it for you like magic!
 
 It runs locally on your device.
 
+**Note:** It uses Stable Diffusion 1.5, which is flexible, but it requires a detailed description to generate a usable image.
+
 On macOS, developed exclusively for Apple silicon - The app is NOT compatible with devices running on Intel chips.
 
-On iOS, it requires at minimum an iPhone 15 Pro or iPad with M1 processor.
+On iOS, it requires at minimum an iPhone 15 Pro or iPad with an M1 processor.
 
 [Stable Diffusion](https://en.wikipedia.org/wiki/Stable_Diffusion) is a deep learning, text-to-image model used to generate detailed images conditioned on text descriptions.
 
@@ -46,7 +49,7 @@ On macOS, when in preview mode, there are some keyboard shortcuts available:
 
 ### Metadata
 
-On macOS, when you save a generated image, it includes a lot of useful metadata (prompt, steps, etc). You can [view this in Finder](https://twitter.com/sindresorhus/status/1611441129622278146/photo/1) by right-clicking the image file and selecting “Get Info”. The file also includes some relevant tags which can be used to create [smart folders](https://support.apple.com/guide/mac-help/tag-files-and-folders-mchlp15236/mac).
+On macOS, when you save a generated image, it includes a lot of useful metadata (prompt, steps, etc). You can [view this in Finder](https://x.com/sindresorhus/status/1611441129622278146/photo/1) by right-clicking the image file and selecting “Get Info”. The file also includes some relevant tags which can be used to create [smart folders](https://support.apple.com/guide/mac-help/tag-files-and-folders-mchlp15236/mac).
 
 ## Frequently Asked Questions {#faq}
 
@@ -100,7 +103,7 @@ The AI model used to generate images is large. This is reasonable given the mode
 
 **Amazing AI benefits**
 
-- Faster and more energy efficient as it uses the [Apple Neural Engine](https://apple.fandom.com/wiki/Neural_Engine) and recent [macOS optimizations](https://machinelearning.apple.com/research/stable-diffusion-coreml-apple-silicon)
+- Faster and more energy-efficient as it uses the [Apple Neural Engine](https://apple.fandom.com/wiki/Neural_Engine) and recent [macOS optimizations](https://machinelearning.apple.com/research/stable-diffusion-coreml-apple-silicon)
 - Native user interface (DiffusionBee is a web app wrapped with Electron which does not follow platform conventions)
 - Batch generation of different prompts (DiffusionBee supports batch for the same prompt only)
 - Shortcuts support
@@ -112,21 +115,18 @@ The AI model used to generate images is large. This is reasonable given the mode
 
 - Inpainting
 - Outpainting
-- Image to image (planned for Amazing AI too)
+- Image-to-image (planned for Amazing AI too)
 - Custom models (planned for Amazing AI too)
 
 #### Why is this free without ads?
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
 
-#### Can you localize the app into my language?
-
-I don't plan to localize the app.
-
 #### [More FAQs…](/apps/faq)
 
 ## Older Versions
 
+- [1.6.0](https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Amazing.AI.1.6.0.zip) for macOS 15+
 - [1.5.0](https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Amazing.AI.1.5.0.zip) for macOS 14+
 - [1.2.2](https://drive.google.com/file/d/1mcEhAKhmQGYzmSS-zlejt3_qsKFzqm0h/view?usp=sharing) for macOS 13+
 
@@ -134,6 +134,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Amazing.AI.1.6.0.zip) *(1.6.0)*
+[Download](https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Amazing.AI.1.7.0.zip) *(1.7.0)*
 
-*Requires macOS 15 or later*
+*Requires macOS 26 or later*

@@ -4,6 +4,7 @@ subtitle: Customize the gap between menu bar items
 pubDate: 2024-07-09
 platforms:
   - macOS
+forceHasIosAppIcon: true
 mainLinks:
   'Download': https://github.com/sindresorhus/menu-bar-spacing-meta/releases/latest/download/Menu.Bar.Spacing.zip
 olderMacOSVersions:
@@ -14,6 +15,8 @@ Menu bar apps are awesome, but MacBooks have limited menu bar space. This app he
 
 - *Free*
 - *Requires macOS 15+*
+
+**Note: Because of a [macOS 26 bug](https://github.com/feedback-assistant/reports/issues/679), menu bar apps need to be relaunched before they show the correct spacing.**
 
 The app includes a Shortcuts action, enabling automated spacing adjustments for various scenarios.
 

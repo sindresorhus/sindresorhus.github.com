@@ -6,8 +6,10 @@ platforms:
   - macOS
 isMenuBarApp: true
 appStoreId: 6502579523
+forceHasIosAppIcon: true
 olderMacOSVersions:
   - '14'
+  - '15'
 ---
 
 **Features**
@@ -33,7 +35,7 @@ Click the feedback button in the app or [send it here](https://sindresorhus.com/
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 #### Can you add custom week numbering options (for example, fiscal weeks, school terms, or work weeks)?
 
@@ -59,12 +61,13 @@ Change [this system setting](https://apple.stackexchange.com/questions/191445/st
 
 ## Older Versions
 
+- [1.2.1](https://www.dropbox.com/scl/fi/fb15x1smj4rujjb62wrnz/Week-Number-1.2.1-macOS-15-1769175798.zip?rlkey=zqm0dhna8o4ck7gl9k36e7uwm&raw=1) for macOS 15+
 - [1.1.0](https://github.com/user-attachments/files/18203839/Week.Number.1.1.0.zip) for macOS 14+
 
 ## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/l2yr5m6il2wqjnftl6uoi/Week-Number-1.2.0-1734647649.zip?rlkey=ehuk5cftyrumqsrxwi6d8am94&raw=1) *(1.2.0)*
+[Download](https://www.dropbox.com/scl/fi/4d61fatess5oqykg4hne9/Week-Number-1.3.0-1769172114.zip?rlkey=y8hvpd0sci9zwqqy03i2hu0f5&raw=1) *(1.3.0)*
 
-*Requires macOS 15 or later*
+*Requires macOS 26 or later*

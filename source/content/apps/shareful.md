@@ -34,13 +34,19 @@ Here are some things you could try:
 
 If you are on a work computer, it could also be that your company has blocked third-party share services.
 
-#### Can you add a “Move” action?
+#### Can you add a “Move” or “Delete” action?
 
 This is unfortunately not possible. [Share extensions](https://support.apple.com/guide/mac-help/use-the-share-menu-on-mac-mh40614/mac) (for example, the "Copy" action), usually only receive a copy of the file. They have no guaranteed access to the original file.
 
 #### Can you add a “Copy Path” action for use in Finder?
 
 That would be moot. Right-click a file in Finder, press the <kbd>Option</kbd> key, and select “Copy as Pathname”.
+
+#### Can you add items that run specific Shortcuts in the Share menu? {#shorcuts}
+
+No. This is not possible.
+
+You could use my [Short Run](/short-run) app instead. It can show a curated list of shortcuts in the menu bar, automatically showing some based on which app is currently active. Although, it won't be able to receive what the share items receive.
 
 #### Why is this free without ads?
 

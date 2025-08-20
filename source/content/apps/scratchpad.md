@@ -48,6 +48,8 @@ The app uses iCloud syncing to securely sync your text across devices. This feat
 
 Try the fully functional trial of the macOS app [here](https://www.dropbox.com/scl/fi/fku2ko060srmht2zbtl1l/Scratchpad-1.3.7-trial-1748874499.zip?rlkey=35epjlrmrr700xh8fy514pkze&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 
+*Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
+
 There is no trial for the iOS version.
 
 ## Tips
@@ -84,10 +86,20 @@ Select the below snippet and install it with PopClip:
 #popclip Add selected text to Scratchpad
 name: Scratchpad
 icon: iconify:material-symbols:add-notes
-url: scratchpad:append?text={popclip text}&hide
+javascript: |
+  popclip.openUrl(`scratchpad:append?text=${encodeURIComponent(popclip.input.text)}&hide`, {activate: false});
 ```
 
-You can replace `append` with `prepend`. And you can remove `&hide` if you want Scratchpad to show when adding text.
+You can replace `append` with `prepend`.
+
+And if you want Scratchpad to show when adding text, use this:
+
+```yaml
+#popclip Add selected text to Scratchpad
+name: Scratchpad
+icon: iconify:material-symbols:add-notes
+url: scratchpad:append?text={popclip text}
+```
 
 ## Frequently Asked Questions {#faq}
 
@@ -97,7 +109,7 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 
 #### The macOS app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to show the main window.
 
@@ -131,7 +143,7 @@ No, see my [Plain Text Editor](/plain-text-editor) app for that.
 
 #### Does it support [Advanced Data Protection for iCloud](https://support.apple.com/en-us/102651)?
 
-Yes. The app stores the note in iCloud Drive, which is covered by Advanced Data Protection.
+No. The app stores the note in iCloud Drive, which is covered by Advanced Data Protection. But it also syncs using [`NSUbiquitousKeyValueStore`](https://developer.apple.com/documentation/foundation/nsubiquitouskeyvaluestore) to be able to support watchOS, and this is not covered by Advanced Data Protection. I also don't want to commit to Advanced Data Protection support because I could potentially change how syncing works in the future.
 
 #### Why doesn’t the app appear in my Dock?
 
