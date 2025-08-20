@@ -15,7 +15,7 @@ olderMacOSVersions:
   - '14'
 ---
 
-This app can be useful when you want to post a screenshot or photo on the web that contains some information you don’t want to be revealed. Maybe you want to share a screenshot of a Slack conversation on Twitter but hide some private information. It also removes all metadata, like when and where a photo was captured.
+This app can be useful when you want to post a screenshot or photo on the web that contains some information you don’t want to be revealed. Maybe you want to share a screenshot of a Slack conversation on X (Twitter) but hide some private information. It also removes all metadata, like when and where a photo was captured.
 
 ## Frequently Asked Questions {#faq}
 

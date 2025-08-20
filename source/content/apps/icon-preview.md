@@ -27,11 +27,11 @@ An essential tool for developers and designers to perfect the look of their macO
 
 #### Preview multiple icons
 
-You can utilize the Shortcuts app to display various icons sequentially, each for three seconds. Add [this shortcut](https://www.icloud.com/shortcuts/8824dbd68a8f4dc9a38b850dccd9179e) for app icons or [this one](https://www.icloud.com/shortcuts/72dcea993b1e4b9686003c8e01133c1b) for menu bar icons. Then, navigate to Finder, select the desired icons, right-click, and select "Quick Actions › Preview App Icons". [Preview](https://twitter.com/sindresorhus/status/1783036121234165808)
+You can utilize the Shortcuts app to display various icons sequentially, each for three seconds. Add [this shortcut](https://www.icloud.com/shortcuts/8824dbd68a8f4dc9a38b850dccd9179e) for app icons or [this one](https://www.icloud.com/shortcuts/72dcea993b1e4b9686003c8e01133c1b) for menu bar icons. Then, navigate to Finder, select the desired icons, right-click, and select "Quick Actions › Preview App Icons". [Preview](https://x.com/sindresorhus/status/1783036121234165808)
 
 #### Sketch integration {#sketch}
 
-You can drag an artboard directly from Sketch onto the Dock icon. [Preview](https://twitter.com/sindresorhus/status/1783399434182955083)
+You can drag an artboard directly from Sketch onto the Dock icon. [Preview](https://x.com/sindresorhus/status/1783399434182955083)
 
 There is also a [Sketch plugin](https://github.com/sindresorhus/sketch-icon-preview) that updates the Dock icon automatically when you save.
 

@@ -38,8 +38,6 @@ Unlike similar apps, this one actually changes the system default browser (and w
 
 ---
 
----
-
 *Switching the default browser is also a feature of my [Supercharge](/supercharge) app.*
 
 ---

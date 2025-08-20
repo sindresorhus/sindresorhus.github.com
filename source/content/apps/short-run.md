@@ -116,11 +116,20 @@ You can set certain shortcuts to only appear when specific apps are active. For 
 
 #### Can I use keyboard shortcuts to navigate the menu?
 
-Yes. Set a keyboard shortcut to open the menu, then use arrow keys to navigate and <kbd>Enter</kbd> to run shortcuts. Much faster than clicking.
+Yes. Set a keyboard shortcut to open the menu, then use arrow keys to navigate and <kbd>return</kbd> to run shortcuts. Much faster than clicking.
 
 #### Can I pass arguments to a shortcut from the menu?
 
 No. Menu runs have no input. Design the shortcut to prompt, read the clipboard, or pull context itself.
+
+#### Why does running a shortcut sometimes add a “Stop and Output” action to it?
+
+The Shortcuts app automatically inserts a “Stop and Output” action when a shortcut doesn't have a clear final output. This ensures the shortcut has something to return when executed, preventing execution errors. The action appears when shortcuts contain actions that don't naturally produce output, like opening apps. This is not ideal, but it's out of my control.
+
+This does not happen when running shortcuts from the built-in menu bar item.
+
+I have reported it to Apple: [FB19805797](https://github.com/feedback-assistant/reports/issues/703)\
+*(Consider duplicating my report. The more duplicates, the more likely Apple will look into it.)*
 
 ##### Can I assign hotkeys to individual shortcuts?
 

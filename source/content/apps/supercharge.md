@@ -14,6 +14,8 @@ mainLinks:
 # olderMacOSVersions:
 #   - '15'
 feedbackNote: |
+  Spotify crashes. This is a Spotify bug. [Tell them to fix it.](https://community.spotify.com/t5/Desktop-Mac/MacOS-Spotify-Crashing-Immediately-on-Startup/td-p/7091821) As a workaround, you can disable “Fill window when clicking green traffic light button” and “Hide app when clicking yellow traffic light button” settings
+
   If you have moved to a new Mac and need to download the app again, you can download it from your [Gumroad receipt email or Gumroad account](https://gumroad.com/help/article/199-how-do-i-access-my-purchase).
 
   When reporting bugs, try quitting Supercharge, and if the issue disappears, it is likely not an issue with Supercharge. If the issue is still there, try turning off things in the “Tweaks” settings tab until it does not happen anymore, to narrow down which feature is causing the issue, and let me know.

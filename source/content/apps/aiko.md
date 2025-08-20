@@ -173,7 +173,7 @@ Get [this (iOS)](https://www.icloud.com/shortcuts/f790a41e23ae4222920277b4fe9d12
 
 ### Transcribe files directly in Finder
 
-On macOS, you can transcribe files simply by right-clicking audio files in Finder and choosing [this shortcut](https://www.icloud.com/shortcuts/d03bb8e17513432190a1ed711f99d423) (add it first) in "Quick Actions". [Preview.](https://twitter.com/sindresorhus/status/1789957043912093954) In the shortcut you can choose whether you want text or subtitles.
+On macOS, you can transcribe files simply by right-clicking audio files in Finder and choosing [this shortcut](https://www.icloud.com/shortcuts/d03bb8e17513432190a1ed711f99d423) (add it first) in "Quick Actions". [Preview.](https://x.com/sindresorhus/status/1789957043912093954) In the shortcut you can choose whether you want text or subtitles.
 
 ### Record and transcribe by pressing the iPhone action button
 
@@ -279,7 +279,7 @@ Try writing a sentence in Traditional Chinese or Simplified Chinese in the “Pr
 
 #### Why must I keep the iOS app open while it transcribes?
 
-iOS apps are fundamentally restricted from operating in the background for extended periods. This ironically even [affects Apple's official apps](https://twitter.com/bzamayo/status/1661133704792621059).
+iOS apps are fundamentally restricted from operating in the background for extended periods. This ironically even [affects Apple's official apps](https://x.com/bzamayo/status/1661133704792621059).
 
 #### What file formats does it support?
 
