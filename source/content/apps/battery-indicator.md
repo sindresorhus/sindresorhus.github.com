@@ -51,6 +51,10 @@ Drag it out of the menu bar while pressing <kbd>Command</kbd>.
 
 It can unfortunately not show this because of restrictions ([sandboxing](/apps/faq#macos-sandbox)) imposed on apps on the App Store. However, you could change the menu bar item type to text instead of the icon and use this app in combination with the system battery indicator.
 
+#### Can it have a “charge to full now” button?
+
+This is not possible for the same reason as mentioned above.
+
 #### Can it play a sound when the battery is charged a certain percentage? {#notification-sound}
 
 The app has a built-in sound when showing notifications. However, if you want a different sound, you can disable the default notification sound in the “Notification Settings” and then follow the below steps.

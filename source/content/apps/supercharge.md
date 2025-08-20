@@ -14,6 +14,8 @@ mainLinks:
 # olderMacOSVersions:
 #   - '15'
 feedbackNote: |
+  Spotify crashes. This is a Spotify bug. [Tell them to fix it.](https://community.spotify.com/t5/Desktop-Mac/MacOS-Spotify-Crashing-Immediately-on-Startup/td-p/7091821) As a workaround, you can disable “Fill window when clicking green traffic light button” and “Hide app when clicking yellow traffic light button” settings
+
   If you have moved to a new Mac and need to download the app again, you can download it from your [Gumroad receipt email or Gumroad account](https://gumroad.com/help/article/199-how-do-i-access-my-purchase).
 
   When reporting bugs, try quitting Supercharge, and if the issue disappears, it is likely not an issue with Supercharge. If the issue is still there, try turning off things in the “Tweaks” settings tab until it does not happen anymore, to narrow down which feature is causing the issue, and let me know.
@@ -42,6 +44,7 @@ Improve your Mac experience with a bunch of useful functionality:
 - Unminimizes an app’s windows (all or one) when activated <sup>(e.g., via <kbd>Command+Tab</kbd>)</sup>
 - Hide all windows <sup>(aka. boss mode)</sup>
 - [Isolate window](#isolate-window)
+- [Capture text from anywhere on screen](#capture-text)
 - [Capture and translate text from anywhere on screen](#capture-translate-text)
 <!-- - [Hyper key](#hyper-key) -->
 - Prevent accidental app quits[^quit] by instead using <kbd>⇧⌘Q</kbd>, double tap <kbd>Q</kbd> while holding <kbd>⌘</kbd>, or [press and hold <kbd>⌘Q</kbd>](https://github.com/user-attachments/assets/0515e50f-2a93-4369-836e-085ad462fdf8)
@@ -49,10 +52,11 @@ Improve your Mac experience with a bunch of useful functionality:
 - [Clicking green traffic light button fills window instead of entering fullscreen](#green-traffic-light-button-fill)
 - [Clicking yellow traffic light button hides app instead of minimizing window](#yellow-traffic-light-button-hide)
 - [Scan QR codes and barcodes from anywhere on screen](#scan-qr-codes)
-- [Cleaning Mode](https://www.dropbox.com/scl/fi/6vm94elcusix6oqe5su78/434266737-572f4e43-d42a-49c2-925f-4db90ebbfd06-1748011610.mp4?rlkey=r538vzwv0k9ba5rjqhw4goaa7&raw=1)
-	<span class="list-description">Makes your screen black and disables keyboard and mouse to let you safely clean your device.</span>
-- Quit apps when closing their last window (clicking the red traffic light button or <kbd>Command+W</kbd>) (similar to Swift Quit and RedQuits apps)
-	- (beta - try the [trial](#trial))
+- Cleaning Mode
+	<span class="list-description">Makes your screen black and disables keyboard and mouse to let you safely clean your device. [Screenshot.](https://www.dropbox.com/scl/fi/6vm94elcusix6oqe5su78/434266737-572f4e43-d42a-49c2-925f-4db90ebbfd06-1748011610.mp4?rlkey=r538vzwv0k9ba5rjqhw4goaa7&raw=1)</span>
+- Cat Mode
+	<span class="list-description">Disables keyboard and mouse to prevent cats and other cute creatures from interfering with your computer. Similar to Cleaning Mode but without blacking out the screen. [Screenshot.](https://www.dropbox.com/scl/fi/tpxsx5i9r1vkjlf2recad/Cat-Mode-1756829427.mp4?rlkey=wfyu7192971mnu19p3i2mmqs4&raw=1)</span> <!-- - Quit apps when closing their last window (clicking the red traffic light button or <kbd>Command+W</kbd>) (similar to Swift Quit and RedQuits apps)
+	- (beta - try the [trial](#trial)) -->
 - [Run shortcuts from the menu](#run-shortcuts)
 	<span class="list-description">Show your favorite shortcuts from the Shortcuts app in the menu.</span>
 	- Also available as an [independent app](/short-run).
@@ -93,6 +97,8 @@ Improve your Mac experience with a bunch of useful functionality:
 - Minimize all windows or just all except frontmost with keyboard shortcuts and from the menu.
 - Minimize all windows of the active app except frontmost with keyboard shortcuts and from the menu.
 - Unminimize all windows or first window of active app with keyboard shortcut.
+- Auto-copy screenshots to clipboard.
+	<span class="list-description">Useful if you want screenshots saved and also instantly available to paste. Works with the built-in screenshot tool.</span>
 - [Show markup tools by default in screenshot preview](https://github.com/user-attachments/assets/20b0cfe8-d588-4329-9132-9120b32da7ff)
 - Auto-open screenshot preview after capturing
 - [Show input devices in the Sound menu bar item menu](https://github.com/user-attachments/assets/e6015206-c927-4c97-8f66-7408231d4f23)
@@ -158,6 +164,10 @@ Improve your Mac experience with a bunch of useful functionality:
 - [Keyboard shortcut inspector](#keyboard-shortcut-inspector)
 - Add [Dock spacers](#dock-spacers)
 - Add [Finder sidebar spacers](#finder-sidebar-spacers)
+- Disable Command+Tab app switcher
+	<span class="list-description">Useful to prevent accidental activation if you don't use the app switcher.</span>
+- Remove Caps Lock activation delay
+	<span class="list-description">Makes Caps Lock respond instantly.</span>
 - Reset [privacy permissions](https://support.apple.com/en-vn/guide/mac-help/mchl211c911f/mac) for any apps
 - Flush DNS cache
 - Shortcuts actions
@@ -311,6 +321,8 @@ Adds the following actions (can be customized) directly in the right-click menu 
 	<span class="list-description">Shown only when right-clicking a folder or an empty area in Finder. Supports Terminal, iTerm, Ghostty, kitty, WezTerm, Alacritty, and Warp.</span>
 - AirDrop
 	<span class="list-description">Shares files via AirDrop.</span>
+- Email
+	<span class="list-description">Creates a new email message in the default email app with the selected files as attachments. Works with Mail, Outlook, Spark, Mimestream, Airmail, Canary Mail, and maybe other apps. Not Thunderbird.</span>
 - Run Shortcut
 	<span class="list-description">Shares files with a shortcut from the Shortcuts app.</span>
 - Update Modified Date
@@ -336,6 +348,8 @@ Adds the following actions (can be customized) directly in the right-click menu 
 	<span class="list-description">Removes GPS location metadata from images to protect your privacy.</span>
 - Remove All Metadata
 	<span class="list-description">Removes all metadata (EXIF, GPS, etc.) from images.</span>
+- Lock / Unlock
+	<span class="list-description">Locks or unlocks files and folders. Locked items cannot be modified, renamed, or deleted until unlocked. Same as “Finder › Get Info › Locked”.</span>
 
 *They appear at the bottom of the context menu. There is no way to change that. [They also won't appear in iCloud, Dropbox, or any other sync folder.](#finder-context-menu-icloud)*
 
@@ -357,6 +371,8 @@ Adds the following actions (can be customized) directly in the right-click menu 
 	<span class="list-description">Shares files with a shortcut from the Shortcuts app.</span>
 - Scan QR Code
 	<span class="list-description">Scans QR codes from images and copies their content to the clipboard.</span>
+- Email
+	<span class="list-description">Creates a new email message in the default email app with the selected files as attachments. Works with Mail, Outlook, Spark, Mimestream, Airmail, Canary Mail, and maybe other apps. Not Thunderbird.</span>
 <!-- - Remove Location Metadata
 	<span class="list-description">Remove GPS location metadata from images.</span>
 - Remove All Metadata
@@ -383,12 +399,60 @@ Finder-specific services:
 	<span class="list-description">Selects the files and folders in Finder that are not selected.</span>
 - Toggle Hidden Files in Finder
 	<span class="list-description">Toggles visibility of hidden files.</span>
+- Lock
+	<span class="list-description">Locks files and folders. Locked items cannot be modified, renamed, or deleted.</span>
+- Unlock
+	<span class="list-description">Unlocks files and folders, allowing them to be modified, renamed, or deleted.</span>
 <!-- - Open in New Finder Window
 	<span class="list-description">Opens the folder in a new window instead of a tab, even if you have set new windows to open as tabs.</span> -->
 <!-- - Delete Immediately
 	<span class="list-description">Permanently delete files and folders without moving to Trash.</span> -->
 
 *[macOS Services](https://macreports.com/what-is-the-services-menu-in-macos/) are built-in quick actions available in right-click and app menus system-wide. They let you perform tasks like copying file info or text without leaving your current app. Supercharge adds extra, genuinely useful services to make these menus even more powerful.*
+
+#### Capture text from anywhere on screen {#capture-text}
+
+Select any region of your screen to instantly copy the text, even if it's unselectable. Great for extracting text from images, PDFs, presentations, or any other content.
+
+Powered by macOS’ built-in OCR. Text quality and language support depend on the system, not the app.
+
+[Screenshot](https://www.dropbox.com/scl/fi/6t4hst8wtbnm9k5hvrg1q/Capture-Text-Screen-Shot-2025-09-02-at-21.32.17-1756825559.mp4?rlkey=hztcfyrcba7v7hn7ex34tjy2y&raw=1)
+
+*Check out my [Text Lens](https://sindresorhus.com/text-lens) app for more features.*
+
+**Supported languages**
+
+- English
+- French
+- Italian
+- German
+- Spanish
+- Portuguese
+- Chinese, Simplified
+- Chinese, Traditional
+- Cantonese, Simplified
+- Cantonese, Traditional
+- Korean
+- Japanese
+- Russian
+- Ukrainian
+- Thai
+- Vietnamese
+- Arabic
+- Arabic, Najdi
+
+And on macOS 26 and later:
+- Turkish
+- Indonesian
+- Czech
+- Danish
+- Dutch
+- Norwegian Nynorsk
+- Norwegian Bokmål
+- Malay
+- Polish
+- Romanian
+- Swedish
 
 #### Capture and translate text from anywhere on screen {#capture-translate-text}
 
@@ -454,11 +518,11 @@ You may also like my [Shareful](/shareful), [Menu Bar Spacing](/menu-bar-spacing
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/p4gknv4nho0gfdrxsjsmk/Supercharge-1.19.0-trial-1753461750.zip?rlkey=sksbnms59el6o2bnvm4iv1ftl&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/hpgxfxs6spuhcopqrsmzi/Supercharge-1.20.1-trial-1756974113.zip?rlkey=et4ydvqhmnmhbtj5fg0hxrinj&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=742&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
-**Requires macOS 15.3**
+**Requires macOS 15.4**
 
 ## Tips
 

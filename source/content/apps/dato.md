@@ -18,6 +18,8 @@ olderMacOSVersions:
   - '14'
 feedbackNote: |
   If text in the app is upside down on macOS 26, it's a macOS bug and unrelated to the app. A computer restart fixes it.
+
+  [The app randomly disappears/quits](/apps/faq#randomly-quits)
 ---
 
 Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.

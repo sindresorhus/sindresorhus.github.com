@@ -61,6 +61,7 @@ const canonicalURL = new URL(Astro.url.pathname.replace(/\.html$/, ''), Astro.si
 		description,
 		url: canonicalURL.toString(),
 		type: ogType,
+		locale: 'en_US',
 		images: image ? [
 			{
 				url: image.toString(),

@@ -88,7 +88,7 @@ Try [resetting privacy permissions](/apps/faq#mac-reset-permissions) for the app
 
 Removing tracking parameters improve privacy and also make URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Learn more.](https://en.wikipedia.org/wiki/UTM_parameters)
 
-Pure Paste supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to Twitter, Facebook, and TikTok.
+Pure Paste supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to X (Twitter), Facebook, and TikTok.
 
 Before: `https://foo.com?utm_content=buffercf3b2&utm_source=snapchat.com`\
 After: `https://foo.com`

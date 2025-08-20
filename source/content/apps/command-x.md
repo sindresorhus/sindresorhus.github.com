@@ -10,6 +10,8 @@ hasSentry: true
 olderMacOSVersions:
   - '13'
   - '14'
+feedbackNote: |
+  [The app randomly disappears/quits](/apps/faq#randomly-quits)
 ---
 
 Cut and paste files and folders in Finder using Command+X and Command+V. Without this app, you have to first copy (Command+C) and then remember to move (Option+Command+V).

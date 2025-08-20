@@ -131,7 +131,7 @@ No, see my [Plain Text Editor](/plain-text-editor) app for that.
 
 #### Does it support [Advanced Data Protection for iCloud](https://support.apple.com/en-us/102651)?
 
-Yes. The app stores the note in iCloud Drive, which is covered by Advanced Data Protection.
+No. The app stores the note in iCloud Drive, which is covered by Advanced Data Protection. But it also syncs using [`NSUbiquitousKeyValueStore`](https://developer.apple.com/documentation/foundation/nsubiquitouskeyvaluestore) to be able to support watchOS, and this is not covered by Advanced Data Protection. I also don't want to commit to Advanced Data Protection support because I could potentially change how syncing works in the future.
 
 #### Why doesn’t the app appear in my Dock?
 

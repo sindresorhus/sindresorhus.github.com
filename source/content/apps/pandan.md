@@ -12,6 +12,8 @@ olderMacOSVersions:
   - '12'
   - '13'
   - '14'
+feedbackNote: |
+  [The app randomly disappears/quits](/apps/faq#randomly-quits)
 ---
 
 ## Frequently Asked Questions {#faq}

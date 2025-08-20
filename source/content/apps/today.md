@@ -10,6 +10,8 @@ hasSentry: true
 olderMacOSVersions:
   - '13'
   - '14'
+feedbackNote: |
+  [The app randomly disappears/quits](/apps/faq#randomly-quits)
 ---
 
 The perfect companion to the built-in Calendar app. Just the events for today. Click an event to show it in the Calendar app. It also gives you a quick way to directly join an upcoming video call.
