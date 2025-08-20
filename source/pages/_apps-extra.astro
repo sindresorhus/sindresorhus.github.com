@@ -1,0 +1,18 @@
+---
+import appExtras from '../data/apps-extra.json';
+---
+
+{appExtras.map(group => (
+	<>
+		<h2>{group.label}</h2>
+		<ul>
+			{group.items.map(item => (
+				<li>
+					<a href={item.url}>{item.title}</a>
+					{' '}
+					<span class="text-sm text-slate-600 dark:text-slate-300">- {item.description}</span>
+				</li>
+			))}
+		</ul>
+	</>
+))}

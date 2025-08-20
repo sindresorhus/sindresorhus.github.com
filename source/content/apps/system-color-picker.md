@@ -7,11 +7,16 @@ platforms:
 isMenuBarApp: true
 appStoreId: 1545870783
 hasSentry: true
+forceHasIosAppIcon: true
 olderMacOSVersions:
   - '11'
   - '12'
   - '13'
   - '14'
+feedbackNote: |
+  ## On macOS 26, there is a bug with the color sampler where it does not always pick the color you want. The app uses the system color sampler and has no control over how it works. Apple will need to fix this.
+
+  Note that the app wraps the macOS color picker as an app and adds some features. I have no control over how most things work though, like the tabs, color palettes, etc. Bugs with these must be fixed by macOS, not me. To see how it differs: select an image in Finder, open Quick Look, click the markup button, click the color button, and then click "Show Colors".
 ---
 
 #### Features
@@ -53,6 +58,19 @@ You can use the following keyboard shortcuts in the app:
 - Paste color: <kbd>Shift</kbd> <kbd>Command</kbd> <kbd>v</kbd> *(In the format Hex, HSL, RGB, Unit RGB, OKLCH, or LCH)*
 - Reset opacity: <kbd>Control</kbd> <kbd>Shift</kbd> <kbd>o</kbd>
 
+#### Switch between picker tabs
+
+You can quickly switch between different color picker tabs:
+
+- Next tab: <kbd>Control</kbd> <kbd>Tab</kbd>
+- Previous tab: <kbd>Shift</kbd> <kbd>Control</kbd> <kbd>Tab</kbd>
+- Wheel: <kbd>Control</kbd> <kbd>1</kbd>
+- Sliders: <kbd>Control</kbd> <kbd>2</kbd>
+- Color Palettes: <kbd>Control</kbd> <kbd>3</kbd>
+- Image Palettes: <kbd>Control</kbd> <kbd>4</kbd>
+- Pencils: <kbd>Control</kbd> <kbd>5</kbd>
+- Extensions: <kbd>Control</kbd> <kbd>6</kbd>-<kbd>9</kbd> *(if installed)*
+
 ### Plugins
 
 The built-in color picker supports plugins:
@@ -66,7 +84,11 @@ The built-in color picker supports plugins:
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some menu bar apps to free up space. If this does not solve it, try quitting Bartender if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
+
+#### Can the color sampler show Hex values?
+
+No. The color sampler in the app is provided by macOS and only supports showing RGB values when you press the <kbd>Space</kbd> key. To show Hex (or other formats) directly in the sampler would require a completely custom sampler, which in turn would need extra system permissions like “Screen Recording”. For now, the fastest workflow is to pick a color with the sampler and then copy it in Hex format from the app.
 
 #### What is OKLCH color?
 

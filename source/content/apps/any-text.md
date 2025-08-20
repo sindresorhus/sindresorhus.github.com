@@ -6,6 +6,7 @@ platforms:
   - macOS
   - iOS
   - watchOS
+  - visionOS
 isPaid: true
 appStoreId: 1643199620
 forceHasIosAppIcon: true
@@ -15,7 +16,7 @@ feedbackNote: |
 
 The app provides widgets where you can write any kind of text. It could be an important note, your goal, a list of tasks, etc.
 
-For macOS, it's only available for Apple silicon Macs running macOS 15 or later.
+For macOS, it's only available for Apple silicon Macs running macOS 26 or later.
 
 On iOS, you can also show the text in a Live Activity.
 
@@ -46,7 +47,7 @@ For example:
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Any%20Text&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Any%20Text&referrer=Website-FAQ)
 
 #### How do I add the widget?
 
@@ -64,6 +65,10 @@ Try this:
 - Restart your device.
 - Change the language of the device to something else  and then back.
 - Ensure Lock Screen widgets are allowed to show content while the device is locked at “Settings › Face ID & Passcode › Allow Access When Locked › Lock Screen Widgets”.
+
+#### The Lock Screen text sometimes disappears
+
+Make sure Lock Screen widgets are allowed when locked: “Settings › Face ID & Passcode › Allow Access When Locked › Lock Screen Widgets”. If it’s “off”, iOS may hide the widget until you unlock.
 
 #### Can you support having multiple pieces of text that change during the day?
 

@@ -7,13 +7,14 @@ platforms:
   - iOS
   - visionOS
 appStoreId: 6465250302
+forceHasIosAppIcon: true
 olderMacOSVersions:
   - '14'
 feedbackNote: |
   I cannot provide support for general Shortcuts questions. Use [Reddit](https://www.reddit.com/r/shortcuts) for that.
 ---
 
-The app provides additional AI-related actions (o1, o1 mini, GPT-4o, GPT-4o mini, GPT-4, GPT 3.5, Claude 3 Opus, Claude 3.5 Sonnet, Claude 3.5 Haiku) for the Shortcuts app.
+The app provides additional AI-related actions (GPT 5.2, GPT-5, Claude Sonnet 4.5, Claude Opus 4.5, etc.) for the Shortcuts app.
 
 For example, an action to interact with the ChatGPT API.
 
@@ -39,7 +40,7 @@ It also supports many more models through [Ollama and Groq](#alternative-provide
 
 The app also supports [Ollama](https://ollama.com/blog/openai-compatibility) (local models like GGUF) and [Groq](https://console.groq.com/docs/openai) (because they have OpenAI API compatibility), making it possible to use it with a lot more models.
 
-For Ollama, you need to specify a local URL like `https://localhost:11434` in the “Base URL” setting in the app.
+For Ollama, you need to specify a local URL like `http://localhost:11434` in the “Base URL” setting in the app.
 
 For Groq, specify `https://api.groq.com/openai`. In the “Ask AI” action, select the “Custom” model and provide the name of the desired model.
 
@@ -51,7 +52,7 @@ For [Gemini](https://ai.google.dev/gemini-api/docs/openai), specify `https://gen
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=AI%20Actions&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=AI%20Actions&referrer=Website-FAQ)
 
 #### The actions do not show up in the Shortcuts app
 
@@ -91,6 +92,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/vvdbfnnptzvsa3yduid79/AI-Actions-1.4.1-1743425376.zip?rlkey=xxkjgbzvjrrsny08m2v8d4ygg&raw=1) *(1.4.1)*
+[Download](https://www.dropbox.com/scl/fi/99i0immjkd45y44dpgqu5/AI-Actions-1.4.5-1765761218.zip?rlkey=py8ve7aut7hpzhx88cnag8gj5&raw=1) *(1.4.5)*
 
 *Requires macOS 15 or later*

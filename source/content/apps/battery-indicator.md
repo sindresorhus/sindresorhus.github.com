@@ -27,7 +27,7 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 You may also have enabled the “Hide while on power” preference, which hides the menu bar icon while the power adapter is connected. Launch the app again to reveal the menu bar item for 5 seconds or disconnect the power adapter.
 
@@ -50,6 +50,10 @@ Drag it out of the menu bar while pressing <kbd>Command</kbd>.
 #### Can it show “apps using significant energy” like the built-in battery indicator?
 
 It can unfortunately not show this because of restrictions ([sandboxing](/apps/faq#macos-sandbox)) imposed on apps on the App Store. However, you could change the menu bar item type to text instead of the icon and use this app in combination with the system battery indicator.
+
+#### Can it have a “charge to full now” button?
+
+This is not possible for the same reason as mentioned above.
 
 #### Can it play a sound when the battery is charged a certain percentage? {#notification-sound}
 
