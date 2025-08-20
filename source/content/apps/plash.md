@@ -8,6 +8,7 @@ isMenuBarApp: true
 repoUrl: https://github.com/sindresorhus/Plash
 hasSentry: true
 appStoreId: 1494023538
+forceHasIosAppIcon: true
 links:
   'Older Versions': https://github.com/sindresorhus/Plash#download
 olderMacOSVersions:

@@ -10,6 +10,8 @@ hasSentry: true
 olderMacOSVersions:
   - '13'
   - '14'
+feedbackNote: |
+  [The app randomly disappears/quits](/apps/faq#randomly-quits)
 ---
 
 The perfect companion to the built-in Calendar app. Just the events for today. Click an event to show it in the Calendar app. It also gives you a quick way to directly join an upcoming video call.
@@ -22,11 +24,11 @@ It integrates with Calendar, Fantastical, and BusyCal.
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Today&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Today&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 #### How do I get back to the settings if I have hidden the `…` menu item?
 
