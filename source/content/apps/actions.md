@@ -15,12 +15,16 @@ olderMacOSVersions:
   - '13'
   - '14'
 feedbackNote: |
+  ### If you just updated to iOS 26, it may take some time for iOS to re-index all the Shortcuts actions. Give it some time.
+
   ### If the actions don't show up in the Shortcuts app or you get a “com.apple.extensionKit.errorDomain error 2”, [see this](/actions#actions-not-showing-up).<br><br>
+
+  Tip: To pass a variable to a file input in Shortcuts, tap-and-hold (iOS) or right-click (macOS) the input and select the variable.
 
   **Some actions that are not possible: orientation lock status, flashlight status, ambient sensor info, flight mode status, [and more](/actions#impossible-actions).**
 ---
 
-The app provides lots of powerful extra actions for the Shortcuts app on macOS, iOS, and visionOS. These actions make it significantly easier to create shortcuts.
+The app provides lots (180+) of powerful extra actions for the Shortcuts app on macOS, iOS, and visionOS. These actions make it significantly easier to create shortcuts.
 
 **Restart your device if the actions do not show up in the Shortcuts app. Also try setting a different device language and then back. [Learn more](#actions-not-showing-up)**
 

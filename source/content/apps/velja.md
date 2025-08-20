@@ -217,6 +217,8 @@ Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to laun
 
 Say you use different browser profiles for work and home and want them to switch automatically. This is a good use for the Shortcuts app. Create a shortcut with the "Set Default Browser" action that sets the browser profile to the one you want at home and another for work. You will then need the [Shortery](https://apps.apple.com/app/id1594183810) app to trigger these shortcuts at specific times, or based on your Focus mode if you have one for work. You could even trigger the shortcuts based on Wi-Fi name, which may be easier than defining work times if you work from an office.
 
+macOS 26 has automations in Shortcuts and you don't need Shortery there.
+
 ### Miscellaneous
 
 - In the Velja menu, you can click “History” to directly open the history window.
@@ -225,11 +227,11 @@ Say you use different browser profiles for work and home and want them to switch
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](/feedback?product=Velja&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](/feedback?product=Velja&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is not enough space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 
@@ -296,7 +298,7 @@ If the redirect URL contains the destination URL (usually in a search parameter)
 
 Removing tracking parameters improve privacy and also make URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Learn more.](https://en.wikipedia.org/wiki/UTM_parameters)
 
-Velja supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to Twitter, Facebook, and TikTok.
+Velja supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to X (Twitter), Facebook, and TikTok.
 
 Before: `https://foo.com?utm_content=buffercf3b2&utm_source=snapchat.com`\
 After: `https://foo.com`
@@ -416,6 +418,8 @@ You can use the [Focus Filter](https://support.apple.com/HT212608) that comes wi
 
 Alternatively, you can use the Shortcuts app for this. Make a shortcut for each focus mode you want to handle, where you use the “Set Default Browser” action that Velja provides. You will need the [Shortery app](https://apps.apple.com/app/id1594183810) to automatically run these shortcuts when the focus mode changes.
 
+macOS 26 has automations in Shortcuts and you don't need Shortery there.
+
 #### Can the default browser change depending on whether I'm at work or not?
 
 See the above answer. You just create a work focus mode.
@@ -423,6 +427,8 @@ See the above answer. You just create a work focus mode.
 #### Can the default browser change depending on whether the computer is on battery?
 
 See the above answer. Use the “Power Status” trigger in Shortery.
+
+macOS 26 has automations in Shortcuts and you don't need Shortery there.
 
 #### Can you support [Focus filters](https://support.apple.com/HT212608)? {#focus-filters}
 
@@ -497,7 +503,7 @@ You can submit it [here](https://feedbackassistant.apple.com).
 
 I would love to support Arc, but it's currently missing some required functionality.
 
-**Note that they now support [something similar to Velja built in](https://twitter.com/browsercompany/status/1654525608305491984).**
+**Note that they now support [something similar to Velja built in](https://x.com/browsercompany/status/1654525608305491984).**
 
 Arc supports fetching the spaces of a specific Arc window using AppleScript. However, Velja needs to be able to fetch the spaces even when Arc has no open windows, so that it can show a list of spaces in the Velja settings.
 
@@ -524,6 +530,10 @@ The Arc/Dia browser is based on Chrome, so you may think that it should just wor
 You can use the rules feature in the settings for this.
 1. Create a rule with the source app set to `Finder` and the “URL Prefix” set to `google.com/open`.
 2. Create a second rule with the source app set to `Google Drive` and the “URL Prefix” set to `docs.google.com/open`.
+
+#### Can the default browser change based on the macOS desktop Space I’m in? {#macos-spaces}
+
+No. macOS does not expose the active [Space](https://support.apple.com/guide/mac-help/work-in-multiple-spaces-mh14112/mac) to apps, so Velja cannot detect or react to it. Use per-app rules, or automate switching with Focus Filters or Shortcuts (see [Focus mode](#focus-mode)) and triggers like time, Wi-Fi, or location.
 
 #### How can I open a website from Spotlight results in a specific browser? {#spotlight}
 
@@ -587,7 +597,7 @@ Velja benefits:
 
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
-- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Can show the icon of the active default browser in the menu bar
 - Removes tracking parameters on clicked and copied links
 - Open links in a private Safari window
@@ -608,7 +618,7 @@ Velja benefits:
 
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
-- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Browser profile support
 - More advanced custom rules, like the ability to open a certain link based on what app the link was clicked in
 - Expands [short URLs](https://en.wikipedia.org/wiki/URL_shortening) for better matching
@@ -637,7 +647,7 @@ Velja benefits:
 
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
-- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Can show the icon of the active default browser in the menu bar
 - Better user interface for browser profiles (OpenIn requires you to manually find the browser profile ID)
 - The user interface is more macOS-like and better follows the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/macos/overview/themes/)
@@ -666,7 +676,7 @@ Velja benefits:
 - Sandboxed (more secure)
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
-- It can [open links to certain services](https://twitter.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Browser profile support
 - Can show the icon of the active default browser in the menu bar
 - Custom rules, like the ability to open a certain link based on what app the link was clicked in

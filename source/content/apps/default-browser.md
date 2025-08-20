@@ -38,8 +38,6 @@ Unlike similar apps, this one actually changes the system default browser (and w
 
 ---
 
----
-
 *Switching the default browser is also a feature of my [Supercharge](/supercharge) app.*
 
 ---
@@ -74,7 +72,7 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve the issue, try quitting Bartender or Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to show the menu bar icon.
 
@@ -106,6 +104,10 @@ Much of the functionality would not be possible in the App Store because of [san
 #### Why is it a paid app?
 
 I love making [free apps](/apps/free) and having them available to everyone, but they come with a heavy support burden—I already handle 10–40 app-related emails daily. To focus on quality and sustainability, my new apps will mostly be paid.
+
+#### Can the default browser change based on the macOS desktop Space I’m in? {#macos-spaces}
+
+No. macOS does not expose the active [Space](https://support.apple.com/guide/mac-help/work-in-multiple-spaces-mh14112/mac) to apps, so the app cannot detect or react to it. You can instead automate switching with Focus Filters or Shortcuts (see [tips](#tips)).
 
 #### [More FAQs…](/apps/faq)
 
