@@ -24,7 +24,7 @@ Here are [some more ideas](https://github.com/bhagyas/app-urls) of what you coul
 
 #### I have a feature request, bug report, or some feedback
 
-[Send it here.](https://sindresorhus.com/feedback?product=Quick%20Launch&referrer=Website-FAQ)
+Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Quick%20Launch&referrer=Website-FAQ)
 
 #### How do I add the widget to the Lock Screen?
 
@@ -35,6 +35,10 @@ When on the Lock Screen, tap and hold on the clock, tap the “Customize” butt
 #### The widget does not show up in the widget picker
 
 This is a well-known iOS issue. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
+
+#### The Lock Screen widget sometimes disappears
+
+Make sure Lock Screen widgets are allowed when locked: “Settings › Face ID & Passcode › Allow Access When Locked › Lock Screen Widgets”. If it’s “off”, iOS may hide the widget until you unlock.
 
 #### Can the Lock Screen widgets be full-colored?
 

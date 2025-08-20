@@ -36,7 +36,6 @@ If you or your company are using any of my projects, consider supporting me so I
 
 ### One-time donations
 
-- [Stripe](https://donate.stripe.com/3cs6sq3rYfTlbTy9AA) *(Apple Pay, Google Pay, credit card, etc.)*
 - [BuyMeACoffee.com](https://www.buymeacoffee.com/sindresorhus)
 - [PayPal](https://www.paypal.me/sindresorhus)
 - [Open Collective](https://opencollective.com/sindresorhus)

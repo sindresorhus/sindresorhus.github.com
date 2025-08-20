@@ -8,6 +8,7 @@ isMenuBarApp: true
 appStoreId: 6480373509
 olderMacOSVersions:
   - '14'
+  - '15'
 ---
 
 Preview how your macOS app icon will look in the Dock and how your menu bar item icon will appear.
@@ -27,11 +28,11 @@ An essential tool for developers and designers to perfect the look of their macO
 
 #### Preview multiple icons
 
-You can utilize the Shortcuts app to display various icons sequentially, each for three seconds. Add [this shortcut](https://www.icloud.com/shortcuts/8824dbd68a8f4dc9a38b850dccd9179e) for app icons or [this one](https://www.icloud.com/shortcuts/72dcea993b1e4b9686003c8e01133c1b) for menu bar icons. Then, navigate to Finder, select the desired icons, right-click, and select "Quick Actions › Preview App Icons". [Preview](https://twitter.com/sindresorhus/status/1783036121234165808)
+You can utilize the Shortcuts app to display various icons sequentially, each for three seconds. Add [this shortcut](https://www.icloud.com/shortcuts/8824dbd68a8f4dc9a38b850dccd9179e) for app icons or [this one](https://www.icloud.com/shortcuts/72dcea993b1e4b9686003c8e01133c1b) for menu bar icons. Then, navigate to Finder, select the desired icons, right-click, and select "Quick Actions › Preview App Icons". [Preview](https://x.com/sindresorhus/status/1783036121234165808)
 
 #### Sketch integration {#sketch}
 
-You can drag an artboard directly from Sketch onto the Dock icon. [Preview](https://twitter.com/sindresorhus/status/1783399434182955083)
+You can drag an artboard directly from Sketch onto the Dock icon. [Preview](https://x.com/sindresorhus/status/1783399434182955083)
 
 There is also a [Sketch plugin](https://github.com/sindresorhus/sketch-icon-preview) that updates the Dock icon automatically when you save.
 
@@ -43,7 +44,7 @@ Click the feedback button in the app or [send it here](https://sindresorhus.com/
 
 #### The app does not show up in the menu bar
 
-macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
+[Try this](/apps/faq#app-not-showing-in-menu-bar)
 
 #### What image formats are supported for previewing icons?
 
@@ -69,12 +70,13 @@ I just enjoy making apps. I earn money on other apps. Consider leaving a nice re
 
 ## Older Versions
 
+- [1.1.0](https://www.dropbox.com/scl/fi/ryipxav1u9x5lljd7cuc1/Icon-Preview-1.1.0-macOS-15-1764590483.zip?rlkey=r1vrmd3bkv8mrogmy2e9fxf4s&raw=1) for macOS 15+
 - [1.0.2](https://github.com/user-attachments/files/18203304/Icon.Preview.1.0.2.zip) for macOS 14+
 
 ## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/gv4q4i67fayf4rfbjzo72/Icon-Preview-1.1.0-1734642559.zip?rlkey=l9325l2shb225h3o43mgmbf4p&raw=1) *(1.1.0)*
+[Download](https://www.dropbox.com/scl/fi/qz25ebardzubedros2p1y/Icon-Preview-1.2.0-1764590537.zip?rlkey=8ty3u35x9rprn7ectqm0mcwaz&raw=1) *(1.2.0)*
 
-*Requires macOS 15 or later*
+*Requires macOS 26 or later*
