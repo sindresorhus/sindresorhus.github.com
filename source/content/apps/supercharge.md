@@ -12,6 +12,7 @@ releasesRepo: supercharge-meta
 forceHasIosAppIcon: true
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/supercharge?wanted=true
+requirement: Requires macOS 15.4 or later
 # olderMacOSVersions:
 #   - '15'
 feedbackNote: |
@@ -26,13 +27,8 @@ feedbackNote: |
   If you are seeing the Supercharge icon showing up for drives in the Finder sidebar, see [this](#i-am-seeing-incorrect-icons-for-external-drives-in-the-finder-sidebar-when-enabling-context-menu-items).
 ---
 
-<sup>Requires macOS 15.4 or later</sup>
-
----
-
-**💡 Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.**
-
----
+> [!TIP]
+> Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.
 
 Improve your Mac experience with a bunch of useful functionality. Supercharge adds power tools for Mission Control, the Dock, Finder, window management, and more, helping you work faster, reduce friction, and fix everyday macOS annoyances.
 
@@ -282,9 +278,11 @@ A menu bar icon can be shown when active for visual indication.
 
 For advanced features like timing, check out [Lungo](/lungo).
 
-**Important:** It will not prevent your computer from sleeping if you close the lid (except when connected to power and an external display). This is a macOS safety precaution and out of my control.
+> [!IMPORTANT]
+> It will not prevent your computer from sleeping if you close the lid (except when connected to power and an external display). This is a macOS safety precaution and out of my control.
 
-**Note:** This will not prevent you from appearing idle in apps like Slack, Teams, or Discord, which track mouse movement to determine activity.
+> [!NOTE]
+> This will not prevent you from appearing idle in apps like Slack, Teams, or Discord, which track mouse movement to determine activity.
 
 #### Dock icon click behavior {#dock-icon-click-behavior}
 
@@ -360,7 +358,8 @@ Pauses for all apps while any camera/mic is in use or screen is being captured. 
 
 [Screenshot](https://www.dropbox.com/scl/fi/am443hh5uuglk8fiwmdqk/Auto-quit-feature-Screen-Shot-2025-11-06-at-15.45.16-1762418767.png?rlkey=fbbdi22wsdclq1cxeiwiijlam&raw=1)
 
-Tip: To enable only during specific times, places, or Focus modes, you can automate it with the Shortcuts app.
+> [!TIP]
+> To enable only during specific times, places, or Focus modes, you can automate it with the Shortcuts app.
 
 *Available on macOS 26 or later. Currently experimental — feedback welcome!*
 
@@ -376,7 +375,8 @@ Safety and control. You don't want your code editor or music player suddenly qui
 
 Creates visual separators in the Finder sidebar to help organize your folders into groups. Simply drag the spacer between two folders in the sidebar. The spacer appears as an invisible folder.
 
-*NOTE: The spacer still shows a folder icon. It's not possible to hide this.*
+> [!NOTE]
+> The spacer still shows a folder icon. It's not possible to hide this.
 
 [Screenshot](https://www.dropbox.com/scl/fi/7ndp0sdiocgf0n7xdbolz/441615369-d929e3fe-6605-46f6-a99f-6f0f3486a88e-1748012169.png?rlkey=xr7716dr9xiyim0pu80qv6n5x&raw=1)
 
@@ -668,11 +668,10 @@ Just moved to macOS from Windows? Supercharge helps you feel at home:
 
 Make macOS feel less foreign — and more powerful.
 
----
+<br>
 
-You may also like my [Shareful](/shareful), [Menu Bar Spacing](/menu-bar-spacing), and [Pure Paste](/pure-paste) apps.
-
----
+> [!TIP]
+> You may also like my [Shareful](/shareful), [Menu Bar Spacing](/menu-bar-spacing), and [Pure Paste](/pure-paste) apps.
 
 ## Trial
 
@@ -703,7 +702,8 @@ Ensure you pressed <kbd>Command+X</kbd> and not <kbd>Command+C</kbd>.
 
 To make sure you used the feature correctly, try this: Select a file in Finder, press <kbd>Command+X</kbd>, change to a different folder, press <kbd>Command+V</kbd>. The file should have been moved to this new folder.
 
-**Note:** You cannot cut, highlight a folder, and then paste. You have to actually go into the folder to paste to it. That's just how Finder works. Same with copy-pasting.
+> [!NOTE]
+> You cannot cut, highlight a folder, and then paste. You have to actually go into the folder to paste to it. That's just how Finder works. Same with copy-pasting.
 
 If it's still not working, try this: Select a file in Finder, press <kbd>Command+C</kbd>, change to a different folder, press <kbd>Option+Command+V</kbd>. The file should have been moved to this new folder. If this did not work, the problem is not this app, as those are the keyboard shortcuts it simulates.
 

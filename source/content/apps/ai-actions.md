@@ -19,21 +19,24 @@ The app provides additional AI-related actions (GPT 5.2, Claude Sonnet/Opus 4.5,
 
 For example, an action to interact with the ChatGPT API.
 
-**The app requires you to specify your own OpenAI / Anthropic API key.**\
-Note that ChatGPT Plus or an Anthropic paid account does not give you free API access.
+> [!NOTE]
+> The app requires you to specify your own OpenAI / Anthropic API key.
+> Note that ChatGPT Plus or an Anthropic paid account does not give you free API access.
 
 Your API key is securely stored in your keychain, not in a shortcut.
 
 It also supports many more models through [Ollama and Groq](#alternative-providers).
 
-**The macOS version on the App Store requires an Apple silicon Mac.** For Intel Macs, use the [non-App Store version](#non-app-store-version).\
-*(This is because Apple only accepted the iOS version and not the macOS version, so on macOS, the iOS version of the app is used, which only runs on Apple silicon Macs)*
+> [!NOTE]
+> The macOS version on the App Store requires an Apple silicon Mac. For Intel Macs, use the [non-App Store version](#non-app-store-version).
+> *(This is because Apple only accepted the iOS version and not the macOS version, so on macOS, the iOS version of the app is used, which only runs on Apple silicon Macs)*
 
 <!-- **Apple is currently blocking updates for the iOS app, so I won't be able to submit an update for some time... I plan to get it [published to an alternative App Store](https://appleinsider.com/articles/23/08/15/setapp-plans-to-launch-eu-only-alternative-ios-app-store) in 2024.** -->
 
 <br>
 
-*You may also like my [Actions](/actions) app.*
+> [!TIP]
+> You may also like my [Actions](/actions) app.
 
 ## Tips
 

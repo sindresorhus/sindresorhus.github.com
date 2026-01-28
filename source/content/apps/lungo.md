@@ -123,7 +123,8 @@ You can control Lungo using anything that supports opening a URL with a custom s
 
 *Lungo also comes with support for Shortcuts.*
 
-Tip: You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
+> [!TIP]
+> You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
 ### Integrations
 

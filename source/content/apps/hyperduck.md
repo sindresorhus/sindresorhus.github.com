@@ -21,7 +21,8 @@ You can send a link even if your iOS/visionOS device and/or Mac is offline. The 
 
 My personal use-case is that I often discover cool stuff when I check X (Twitter) on the go and I want to dig deeper into it later on my Mac. I have tried Instapaper, Pocket, Safari Reading List, iCloud Tabs, and more. The problem with them all is that I forget to check them.
 
-**Sends to one Mac only.** Install the macOS app on the single Mac you want to receive links on. If you install it on multiple Macs, iCloud may deliver a link to any of them, unpredictably.
+> [!IMPORTANT]
+> Sends to one Mac only. Install the macOS app on the single Mac you want to receive links on. If you install it on multiple Macs, iCloud may deliver a link to any of them, unpredictably.
 
 [**Why not AirDrop?**](#airdrop)
 

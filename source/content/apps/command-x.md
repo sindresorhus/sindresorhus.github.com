@@ -24,11 +24,10 @@ Known limitation: You cannot cut the name of a file when editing a filename in F
 - [Review by Softpedia](https://mac.softpedia.com/get/System-Utilities/Command-X.shtml)
 - [10 Mac Apps That Will Change How You Use macOS in](https://www.youtube.com/watch?v=LtuUwACZdsQ&t=426s)
 
----
+<br>
 
-You may also like my [Supercharge](/supercharge) app.
-
----
+> [!TIP]
+> You may also like my [Supercharge](/supercharge) app.
 
 ## Frequently Asked Questions {#faq}
 

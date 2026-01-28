@@ -33,11 +33,10 @@ feedbackNote: |
 - Shortcuts support
 - Import [Simple Color Palette](https://simplecolorpalette.com) and Adobe Swatch Exchange (ASE) palettes
 
----
+<br>
 
-*You may also like my [Simple Color Palette](/simple-color-palette) app.*
-
----
+> [!TIP]
+> You may also like my [Simple Color Palette](/simple-color-palette) app.
 
 ## Tips
 
@@ -189,7 +188,8 @@ This can be used to create custom keyboard shortcuts in tools like [Raycast](htt
 
 You can use the “Sample Color from Screen” action for Shortcuts to sample color from the screen and then do something with it.
 
-Tip: You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
+> [!TIP]
+> You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
 ## Older versions
 

@@ -10,7 +10,7 @@ const {meta = {}} = Astro.props;
 	<head>
 		<MetaTags {...meta}/>
 	</head>
-	<body class="antialiased text-gray-900 dark:text-slate-300 tracking-tight bg-white dark:bg-slate-950">
+	<body class="antialiased text-gray-900 dark:text-slate-300 tracking-tight bg-white dark:bg-slate-950 overflow-x-clip">
 		<slot/>
 		<style is:global>
 			img {

@@ -27,7 +27,8 @@ feedbackNote: |
 
 The app provides 180+ powerful extra actions for the Shortcuts app on macOS, iOS, and visionOS. These actions make it significantly easier to create shortcuts.
 
-**Restart your device if the actions do not show up in the Shortcuts app. Also try setting a different device language and then back. [Learn more](#actions-not-showing-up)**
+> [!IMPORTANT]
+> Restart your device if the actions do not show up in the Shortcuts app. Also try setting a different device language and then back. [Learn more](#actions-not-showing-up)
 
 If you have any questions about how to use the different actions or for what, try asking the [Actions GPT bot](https://chatgpt.com/g/g-6746353a017881918cceb0761aea3bfe-actions-app-companion). And if you want to feed your own AI, [here is the source data](https://gist.githubusercontent.com/sindresorhus/fbba65a774fb9da915e624807a02a6d2/raw/7be21a65977b6dd82d1a6cc34be4476df057ea06/actions.md).
 

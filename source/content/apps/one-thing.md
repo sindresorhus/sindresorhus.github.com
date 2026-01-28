@@ -34,7 +34,10 @@ However, what you use this space for is really up to you.
 
 <br>
 
-**You may also like my [Any Text](/any-text) and [One Task](/one-task) apps.**
+> [!TIP]
+> You may also like my [Any Text](/any-text) and [One Task](/one-task) apps.
+
+<br>
 
 ### Mentions
 

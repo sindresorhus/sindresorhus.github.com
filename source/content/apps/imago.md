@@ -16,7 +16,8 @@ Simply describe the image you desire, and the app will generate it for you like 
 
 It runs locally on your device.
 
-**Requires an Apple silicon Mac (no Intel), minimum 16 GB RAM, and xGB free disk space.**
+> [!WARNING]
+> Requires an Apple silicon Mac (no Intel), minimum 16 GB RAM, and xGB free disk space.
 
 Developed exclusively for Apple silicon - The app is NOT compatible with devices running on Intel chips.
 

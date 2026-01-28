@@ -11,11 +11,10 @@ forceHasIosAppIcon: true
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/default-browser?wanted=true
   # 'Buy': https://buy.polar.sh/polar_cl_tWjWd0yRVXb9w0bhohTfxkqjwMUsjpegZM1na4HH9ER
+requirement: Requires macOS 15.4 or later
 # olderMacOSVersions:
 #   - '15'
 ---
-
-<sup>Requires macOS 15.4 or later</sup>
 
 Seamlessly switch between browsers directly from your menu bar, keyboard shortcut, Focus mode, or using Shortcuts. Perfect for users who work with multiple browsers.
 
@@ -37,11 +36,8 @@ Mentions:
 - [Review in MacStories](https://www.macstories.net/reviews/default-browser-a-mac-menu-bar-utility-for-quickly-switching-browsers/)
 - [Lifehacker article](https://lifehacker.com/tech/finally-an-easier-way-to-change-your-default-browser-on-mac)
 
----
-
-**💡 Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.**
-
----
+> [!TIP]
+> Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.
 
 *Switching the default browser is also a feature of my [Supercharge](/supercharge) app.*
 

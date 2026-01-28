@@ -7,16 +7,15 @@ platforms:
 forceHasIosAppIcon: true
 mainLinks:
   'Download': https://github.com/sindresorhus/menu-bar-spacing-meta/releases/latest/download/Menu.Bar.Spacing.zip
+requirement: Free · Requires macOS 15 or later.
 olderMacOSVersions:
   - '14'
 ---
 
 Menu bar apps are awesome, but MacBooks have limited menu bar space. This app helps you reclaim that space by reducing the gap between menu bar items. With a single run, the app applies changes permanently, allowing you to fit more apps into the menu bar. Reverting the changes is just as simple, done within the app. If you have a large display, the app can also increase the gap between menu bar items.
 
-- *Free*
-- *Requires macOS 15+*
-
-**Note: Because of a [macOS 26 bug](https://github.com/feedback-assistant/reports/issues/679), menu bar apps need to be relaunched before they show the correct spacing.**
+> [!WARNING]
+> Because of a [macOS 26 bug](https://github.com/feedback-assistant/reports/issues/679), menu bar apps need to be relaunched before they show the correct spacing.
 
 The app includes a Shortcuts action, enabling automated spacing adjustments for various scenarios.
 
@@ -28,11 +27,8 @@ This app can potentially replace Bartender/Ice for some users. It also lets you 
 
 <br>
 
----
-
-You may also like my [Spaced](/spaced) app for grouping menu bar items.
-
----
+> [!TIP]
+> You may also like my [Spaced](/spaced) app for grouping menu bar items.
 
 ## Frequently Asked Questions {#faq}
 
@@ -76,7 +72,8 @@ No. It applies globally only.
 
 No, not in the app. However, the app comes with an action for Shortcuts, so you could automate it. Create a shortcut for each display that uses the “Set Menu Bar Spacing” action, then create a “Monitor” trigger in the [Shortery](https://apps.apple.com/app/id1594183810) app.
 
-Note: The setting is global. Changing it will interrupt any ongoing screen recording or sharing, as it restarts some system processes to apply changes immediately.
+> [!NOTE]
+> The setting is global. Changing it will interrupt any ongoing screen recording or sharing, as it restarts some system processes to apply changes immediately.
 
 #### Why is this not on the App Store?
 

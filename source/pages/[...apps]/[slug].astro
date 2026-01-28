@@ -27,6 +27,7 @@ const meta = {
 	ogTitle: app.title,
 	ogType: 'product',
 	appStoreId: app.appStoreId,
+	favicon: app.iconUrl,
 	rssFeeds: !app.isArchived && app.releasesRepo ? [
 		{
 			title: `${app.title} Release Notes`,
@@ -37,6 +38,26 @@ const meta = {
 
 const {title: appTitle, appStoreUrl} = app;
 
+const hasMainLinks = Object.keys(app.mainLinks).length > 0;
+const providerCount = [app.appStoreId, app.setappId, hasMainLinks].filter(Boolean).length;
+const hasDownload = !app.isArchived && providerCount > 0;
+const downloadUrl = providerCount === 1 ? (app.appStoreUrl ?? app.setappUrl ?? Object.values(app.mainLinks)[0]) : undefined;
+
+const overflowItems = [
+	...Object.entries(app.overflowLinks ?? {}).map(([title, url]) => ({title, url})),
+	...(!app.isArchived && app.appStoreId ? [{title: 'What\'s New', url: app.appStoreUrl}] : []),
+	...(!app.isArchived && app.releasesRepo ? [{title: 'Release Notes', url: `/${app.slug}/release-notes`}] : []),
+	...(app.isArchived ? [] : [{title: 'Privacy Policy', url: `/${app.slug}/privacy-policy`}]),
+	{title: 'Terms of Use', url: '/apps/terms'},
+	...(app.isPaid ? [{title: 'Discounts', url: '/apps/discounts'}] : []),
+];
+
+// Skip "Available on macOS" when the requirement already mentions macOS and it's the only platform.
+const requirementMentionsMacOS = app.requirement?.toLowerCase().includes('macos');
+const skipPlatforms = requirementMentionsMacOS && app.platforms.length === 1 && app.platforms[0] === 'macOS';
+const platformText = !skipPlatforms && app.platforms.length > 0 ? `Available on ${app.platforms.join(', ')}` : '';
+const availabilityText = [platformText, app.requirement].filter(Boolean).join(' — ');
+
 // Copied from `apps.astro`.
 const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1.5 text-black/70 dark:text-black rounded-lg';
 ---
@@ -44,12 +65,12 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 <Layout {meta}>
 	<section class="max-w-5xl py-8 sm:py-16 lg:py-20 mx-auto lg:-mt-10 mb-10">
 		<article itemscope itemtype="https://schema.org/SoftwareApplication">
-			<header class="flex flex-col items-center text-center px-4 sm:px-6 mb-40">
-				<img src={app.iconUrl} width="256" height="256" alt={`${app.title} app icon`} class={`${app.hasIOSAppIcon ? 'p-[16px] drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]' : ''} mb-3`}>
+			<header id="app-hero" class="flex flex-col items-center text-center px-4 sm:px-6 mb-40">
+				<img id="app-icon" src={app.iconUrl} width="256" height="256" alt={`${app.title} app icon`} class={`${app.hasIOSAppIcon ? 'p-[16px] drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]' : ''} mb-3`}>
 				<h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-4 font-heading" itemprop="name">
 					{app.title}
 				</h1>
-				<h2 class="text-2xl md:text-4xl tracking-tight mb-8" itemprop="description">
+				<h2 class="text-2xl md:text-4xl tracking-tight font-normal text-gray-700 dark:text-gray-300 max-w-2xl mx-auto mb-8" itemprop="description">
 					{app.subtitle}
 				</h2>
 				<div id="another-random-app" class="flex justify-center hidden instapaper_ignore">
@@ -62,11 +83,11 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 				{app.isArchived &&
 					<span class={`${tagClass} bg-orange-100 dark:bg-orange-200 text-[16px] mb-10`}>archived</span>
 				}
-				{(app.appStoreId || app.setappId || Object.keys(app.mainLinks).length > 0) &&
+				{(app.appStoreId || app.setappId || hasMainLinks) &&
 					<nav class="flex flex-col sm:flex-row gap-x-4 gap-y-8 mt-2 instapaper_ignore" aria-label="Download options">
 						<>
 							{!app.isArchived && app.appStoreId &&
-								<div class="relative">
+								<div class="relative download-badge">
 									<button id="share-button" class="hidden absolute inset-0 left-[-26px] opacity-90" style="width:16px">
 										<Icon name="tabler:share-2" class="w-4"/>
 									</button>
@@ -78,55 +99,44 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 						</>
 						<>
 							{!app.isArchived && app.setappId &&
-								<a href={app.setappUrl}>
+								<a href={app.setappUrl} class="download-badge">
 									<img src="/assets/download-on-setapp-badge.svg" alt="Download on Setapp" style="margin: 0; padding: 0; display: block; height: 60px; user-select: none">
 								</a>
 							}
 						</>
-						{Object.keys(app.mainLinks).length > 0 &&
+						{hasMainLinks &&
 								<>
 									<!-- We apply a fixed size so it matches the App Store button. -->
 									{Object.entries(app.mainLinks).map(([title, url]) => (
-										<a href={url} class="text-white bg-primary-700 hover:bg-primary-600 focus:ring-4 focus:outline-hidden focus:ring-blue-300 dark:focus:ring-blue-800 font-bold rounded-lg text-xl px-6 text-center mb-2 flex justify-center items-center whitespace-nowrap px-10 py-4" style="width: 180px; height: 60px;">{title}</a>
+										<a href={url} class="download-badge text-white bg-primary-700 hover:bg-primary-600 focus:ring-4 focus:outline-hidden focus:ring-blue-300 dark:focus:ring-blue-800 font-bold rounded-lg text-xl px-6 text-center mb-2 flex justify-center items-center whitespace-nowrap px-10 py-4" style="width: 180px; height: 60px;">{title}</a>
 									))}
 								</>
 						}
 					</nav>
 				}
 				{Object.keys(app.links).length > 0 &&
-					<nav class="flex flex-wrap gap-4 max-w-md justify-center mt-8 font-semibold text-xl text-primary-600 instapaper_ignore" aria-label="App links">
+					<nav class="flex flex-wrap gap-4 max-w-md justify-center mt-8 text-xl font-semibold text-primary-600 dark:text-primary-400 instapaper_ignore" aria-label="App links">
 						<>
 							{Object.entries(app.links).map(([title, url]) => (
-								<a href={url} class="hover:text-primary-400 dark:text-primary-400 dark:hover:text-primary-200">{title}</a>
+								<a href={url} class="underline underline-offset-4 decoration-transparent hover:decoration-primary-500/50 hover:text-primary-600 dark:hover:text-primary-300 transition-colors">{title}</a>
 							))}
 						</>
-						<OverflowMenu>
-							{Object.entries(app.overflowLinks ?? []).map(([title, url]) => (
-								<option value={url}>{title}</option>
-							))}
-							{!app.isArchived && app.appStoreId && (
-								<option value={app.appStoreUrl}>What’s New</option>
-							)}
-							{!app.isArchived && app.releasesRepo && (
-								<option value={`/${app.slug}/release-notes`}>Release Notes</option>
-							)}
-							{!app.isArchived && (
-								<option value={`/${app.slug}/privacy-policy`}>Privacy Policy</option>
-							)}
-							<option value="/apps/terms">Terms of Use</option>
-							{app.isPaid && <option value="/apps/discounts">Discounts</option>}
+						<OverflowMenu overflowItems={overflowItems}>
 							<hr>
 							<option value="/apps/random">Show Random App</option>
 						</OverflowMenu>
 					</nav>
 				}
 			</header>
-			<section class="mx-auto px-6 max-w-5xl mb-20 space-y-8" aria-label="App media">
+			{availabilityText &&
+				<p class="text-center text-sm text-gray-500 dark:text-gray-500 -mt-24 mb-32">{availabilityText}</p>
+			}
+			<section class="mx-auto px-6 max-w-5xl mb-20 flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide md:flex-col md:overflow-visible md:snap-none md:gap-0 md:space-y-8" aria-label="App media">
 				{app.videos.map(video => (
-					<video src={video} autoplay loop muted playsinline preload="metadata" aria-label={`${app.title} demo video`} class="rounded-md shadow-lg"/>
+					<video src={video} autoplay loop muted playsinline preload="metadata" aria-label={`${app.title} demo video`} class="rounded-md shadow-lg snap-center shrink-0 w-[85vw] md:w-auto md:shrink"/>
 				))}
 				{app.screenshots.map((screenshot, index) => (
-					<img src={screenshot.src} width={screenshot.width} height={screenshot.height} alt={`${app.title} screenshot ${index + 1}`} loading="lazy" class="rounded-md shadow-lg">
+					<img src={screenshot.src} width={screenshot.width} height={screenshot.height} alt={`${app.title} screenshot ${index + 1}`} loading="lazy" class="rounded-md shadow-lg snap-center shrink-0 w-[85vw] md:w-auto md:shrink">
 				))}
 			</section>
 			<div class={proseCSS}>
@@ -134,6 +144,29 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 			</div>
 		</article>
 	</section>
+	<div id="app-nav-content" class="absolute inset-0 flex py-3 px-3 mx-auto w-full justify-between max-w-6xl md:px-4 items-center text-gray-600 dark:text-slate-200" style="filter: opacity(0); pointer-events: none;">
+		<a href={app.url} class="flex items-center gap-3 shrink-0">
+			<img src={app.iconUrl} width="32" height="32" alt="" class={app.hasIOSAppIcon ? 'rounded-lg' : ''}>
+			<span class="font-bold text-lg text-gray-900 dark:text-white whitespace-nowrap hidden lg:inline">{app.title}</span>
+		</a>
+		<nav class="flex items-center">
+			{Object.entries(app.links).map(([title, url]) => (
+				<a href={url} class="hidden md:flex font-medium hover:text-gray-900 dark:hover:text-white px-4 py-3 items-center whitespace-nowrap underline underline-offset-[7px] decoration-[3px] decoration-transparent transition-[text-decoration-color] duration-500 ease-in-out">{title}</a>
+			))}
+			<div class="hidden md:flex px-4">
+				<OverflowMenu overflowItems={overflowItems} iconClassName="text-gray-600 dark:text-slate-200">
+					<hr>
+					<option value="/apps/random">Show Random App</option>
+				</OverflowMenu>
+			</div>
+			{hasDownload && downloadUrl &&
+				<a href={downloadUrl} class="relative z-10 ml-4 text-white bg-primary-700 hover:bg-primary-600 font-bold rounded-full text-sm px-5 py-2 whitespace-nowrap">Get</a>
+			}
+			{hasDownload && !downloadUrl &&
+				<button type="button" class="relative z-10 ml-4 text-white bg-primary-700 hover:bg-primary-600 font-bold rounded-full text-sm px-5 py-2 whitespace-nowrap cursor-pointer" onclick="window.scrollTo({top: 0})">Get</button>
+			}
+		</nav>
+	</div>
 	<script type="application/ld+json" set:html={JSON.stringify({
 		'@context': 'https://schema.org',
 		'@type': 'SoftwareApplication',
@@ -203,3 +236,308 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 		document.querySelector('#another-random-app').style.display = 'flex';
 	}
 </script>
+
+<script type="module" is:inline>
+{
+	// 3D tilt effect on the app icon.
+	// Uses lerp for buttery smooth interpolation. Requires a short dwell time
+	// before activating so quick mouse fly-overs are ignored.
+	// A grace area around the icon keeps the effect alive when slightly outside bounds.
+	const icon = document.querySelector('#app-icon');
+
+	if (icon && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+		const maxTilt = 36;
+		const lerpFactor = 0.1;
+		const dwellTime = 300;
+		const gracePadding = 40;
+		const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+		const lerp = (current, target, factor) => current + (target - current) * factor;
+
+		// Animated properties: [current, target]
+		const state = { x: 0, y: 0, scale: 1, shadowX: 0, shadowY: 0, shadowBlur: 0, shadowOpacity: 0 };
+		const target = { ...state };
+		let activated = false;
+		let hovering = false;
+		let animating = false;
+		let dwellTimer;
+
+		icon.style.willChange = 'transform, filter';
+		icon.parentElement.style.perspective = '800px';
+
+		// Capture the existing Tailwind drop-shadow so we can preserve it.
+		const baseFilter = getComputedStyle(icon).filter;
+		const hasBaseFilter = baseFilter && baseFilter !== 'none';
+
+		const animate = () => {
+			// Compute targets fresh each frame.
+			if (activated) {
+				target.x = cursorX;
+				target.y = cursorY;
+				target.scale = 1.1;
+				target.shadowX = -cursorX * 20;
+				target.shadowY = -cursorY * 20;
+				target.shadowBlur = 30;
+				target.shadowOpacity = 0.25;
+			} else {
+				Object.assign(target, { x: 0, y: 0, scale: 1, shadowX: 0, shadowY: 0, shadowBlur: 0, shadowOpacity: 0 });
+			}
+
+			for (const key of Object.keys(state)) {
+				state[key] = lerp(state[key], target[key], lerpFactor);
+			}
+
+			icon.style.transform = `rotateY(${state.x * maxTilt}deg) rotateX(${-state.y * maxTilt}deg) scale3d(${state.scale}, ${state.scale}, ${state.scale})`;
+
+			// Shadow shifts opposite to tilt, as if light comes from above.
+			const tiltShadow = `drop-shadow(${state.shadowX}px ${state.shadowY + 10}px ${state.shadowBlur}px rgba(0,0,0,${state.shadowOpacity}))`;
+			icon.style.filter = hasBaseFilter ? `${baseFilter} ${tiltShadow}` : tiltShadow;
+
+			const settled = Object.keys(state).every(key => Math.abs(state[key] - target[key]) < 0.005);
+
+			if (settled) {
+				animating = false;
+				if (!activated) {
+					icon.style.transform = '';
+					icon.style.filter = '';
+					Object.assign(state, { x: 0, y: 0, scale: 1, shadowX: 0, shadowY: 0, shadowBlur: 0, shadowOpacity: 0 });
+				}
+			} else {
+				requestAnimationFrame(animate);
+			}
+		};
+
+		const startAnimating = () => {
+			if (!animating) {
+				animating = true;
+				requestAnimationFrame(animate);
+			}
+		};
+
+		// Cursor position relative to icon center, updated on every mousemove.
+		let cursorX = 0;
+		let cursorY = 0;
+
+		icon.addEventListener('mouseenter', () => {
+			hovering = true;
+			dwellTimer = setTimeout(() => {
+				if (hovering) {
+					activated = true;
+					startAnimating();
+				}
+			}, dwellTime);
+		});
+
+		// Listen on document to track cursor in the grace area outside the icon.
+		document.addEventListener('mousemove', (event) => {
+			const rect = icon.getBoundingClientRect();
+			cursorX = clamp((event.clientX - rect.left) / rect.width - 0.5, -0.5, 0.5);
+			cursorY = clamp((event.clientY - rect.top) / rect.height - 0.5, -0.5, 0.5);
+
+			if (activated) {
+				// Deactivate if cursor leaves the grace area.
+				const inGrace = event.clientX >= rect.left - gracePadding
+					&& event.clientX <= rect.right + gracePadding
+					&& event.clientY >= rect.top - gracePadding
+					&& event.clientY <= rect.bottom + gracePadding;
+
+				if (!inGrace) {
+					hovering = false;
+					activated = false;
+					clearTimeout(dwellTimer);
+				}
+
+				startAnimating();
+			}
+		}, {passive: true});
+
+		icon.addEventListener('mouseleave', () => {
+			hovering = false;
+			clearTimeout(dwellTimer);
+		});
+	}
+}
+</script>
+
+<script type="module" is:inline>
+{
+	const siteHeader = document.querySelector('#site-header');
+	const siteNav = document.querySelector('#site-nav-content');
+	const appNav = document.querySelector('#app-nav-content');
+	const hero = document.querySelector('#app-hero');
+
+	if (siteHeader && siteNav && appNav && hero) {
+		siteHeader.appendChild(appNav);
+
+		// Uses `filter: opacity()` instead of `opacity` property because the header's
+		// `backdrop-filter` creates a backdrop root that blocks opacity animations.
+		const setOpacity = (element, value) => {
+			element.style.filter = value < 1 ? `opacity(${value})` : '';
+			element.style.pointerEvents = value < 1 ? 'none' : '';
+		};
+
+		const fadeTo = (element, target) => {
+			element.animate(
+				[
+					{filter: `opacity(${target < 1 ? 1 : 0})`},
+					{filter: `opacity(${target})`},
+				],
+				{duration: 400, easing: 'ease-in-out'},
+			).onfinish = () => setOpacity(element, target);
+		};
+
+		const mobileQuery = window.matchMedia('(max-width: 767px)');
+		let showing = false;
+
+		new IntersectionObserver(([entry]) => {
+			const shouldShow = !entry.isIntersecting && !mobileQuery.matches;
+
+			if (shouldShow === showing) {
+				return;
+			}
+
+			showing = shouldShow;
+
+			if (shouldShow) {
+				fadeTo(siteNav, 0);
+				fadeTo(appNav, 1);
+			} else {
+				fadeTo(appNav, 0);
+				fadeTo(siteNav, 1);
+			}
+		}).observe(hero);
+
+		// Scroll-spy: highlight the active section link in the app nav.
+		const navLinks = appNav.querySelectorAll('a[href^="#"]');
+		const headings = [...document.querySelectorAll('article h2[id]')];
+		const activeColor = getComputedStyle(document.documentElement).getPropertyValue('--color-secondary-500').trim();
+
+		if (navLinks.length > 0 && headings.length > 0) {
+			document.addEventListener('scroll', () => {
+				let activeId;
+
+				// At the bottom of the page, activate the last section since it may not scroll far enough to trigger normally.
+				const isAtBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 2);
+				if (isAtBottom) {
+					activeId = headings.at(-1).id;
+				} else {
+					// Find the last heading that has scrolled past the top of the viewport.
+					for (const heading of headings) {
+						if (heading.getBoundingClientRect().top < 100) {
+							activeId = heading.id;
+						}
+					}
+				}
+
+				// Underline the active nav link, clear the rest.
+				for (const link of navLinks) {
+					const isActive = link.getAttribute('href') === `#${activeId}`;
+					link.style.textDecorationColor = isActive ? activeColor : 'transparent';
+				}
+			}, {passive: true});
+		}
+	}
+}
+</script>
+
+<script type="module" is:inline>
+{
+	// Copy-link-to-section buttons on headings.
+	// Shows a link icon on hover; clicking copies the URL and briefly shows a checkmark.
+	const headings = document.querySelectorAll('article :is(h2, h3, h4)[id]');
+
+	const icons = {
+		link: '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-.025 9.45a.75.75 0 01-1.06-1.06l-1.25 1.25a2 2 0 01-2.83-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25z"/></svg>',
+		check: '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"/></svg>',
+	};
+
+	for (const heading of headings) {
+		const anchor = document.createElement('a');
+		anchor.href = `#${heading.id}`;
+		anchor.className = 'heading-anchor';
+		anchor.ariaLabel = 'Copy link to section';
+		anchor.innerHTML = icons.link;
+		anchor.style.height = getComputedStyle(heading).lineHeight;
+		heading.append(anchor);
+
+		anchor.addEventListener('click', async (event) => {
+			event.preventDefault();
+
+			await navigator.clipboard.writeText(new URL(`#${heading.id}`, location.href).toString());
+			history.pushState(null, '', `#${heading.id}`);
+
+			// Show checkmark, then hide until a fresh hover cycle.
+			anchor.innerHTML = icons.check;
+			heading.dataset.anchorState = 'copied';
+
+			setTimeout(() => {
+				anchor.style.transition = 'none';
+				heading.dataset.anchorState = 'hidden';
+				anchor.innerHTML = icons.link;
+				requestAnimationFrame(() => { anchor.style.transition = ''; });
+				heading.addEventListener('mouseenter', () => { heading.dataset.anchorState = ''; }, {once: true});
+			}, 1500);
+		});
+	}
+}
+</script>
+
+<style is:global>
+article :is(h2, h3, h4)[id] {
+	position: relative;
+}
+
+.heading-anchor {
+	position: absolute;
+	left: -28px;
+	top: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	opacity: 0;
+	color: var(--color-gray-400);
+	transition: opacity 0.15s ease, color 0.15s ease;
+	pointer-events: none;
+}
+
+.heading-anchor::before {
+	content: '';
+	position: absolute;
+	inset: -8px;
+}
+
+article :is(h2, h3, h4)[id]:hover > .heading-anchor {
+	opacity: 0.6;
+	pointer-events: auto;
+}
+
+.heading-anchor:hover {
+	opacity: 1 !important;
+	color: var(--color-primary-500);
+}
+
+[data-anchor-state="copied"] > .heading-anchor {
+	opacity: 1 !important;
+	color: var(--color-primary-500) !important;
+	pointer-events: none;
+}
+
+[data-anchor-state="hidden"] > .heading-anchor {
+	opacity: 0 !important;
+	pointer-events: none;
+}
+
+.download-badge {
+		transition: transform 0.2s ease, filter 0.2s ease;
+	}
+
+	.download-badge:hover {
+		transform: scale(1.05);
+		filter: brightness(1.1);
+	}
+
+	.download-badge:active {
+		transform: scale(0.97);
+		filter: brightness(0.95);
+	}
+</style>

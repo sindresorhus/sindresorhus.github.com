@@ -24,7 +24,8 @@ Syncs seamlessly across your devices with iCloud.
 
 <br>
 
-*You may also like [my similar app](/one-thing) for macOS.*
+> [!TIP]
+> You may also like [my similar app](/one-thing) for macOS.
 
 ## Tips
 

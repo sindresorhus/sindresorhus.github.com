@@ -3,9 +3,37 @@ import {fileURLToPath} from 'node:url';
 import {defineConfig} from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import remarkCustomHeaderId from 'remark-custom-header-id';
+import remarkGitHubAlerts from 'remark-github-blockquote-alert';
 import tailwindcss from '@tailwindcss/vite';
+import {icons as tablerIconData} from '@iconify-json/tabler';
 /// import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import {SITE} from './source/config.mjs';
+
+// Patch fetch to serve Iconify icons from local @iconify-json packages, enabling offline dev.
+const originalFetch = globalThis.fetch;
+globalThis.fetch = async (input, init) => {
+	let url;
+	if (typeof input === 'string') {
+		url = input;
+	} else if (input instanceof URL) {
+		url = input.href;
+	} else {
+		url = input.url;
+	}
+
+	const match = url.match(/^https:\/\/api\.iconify\.design\/(\w+)\.json/);
+	if (match) {
+		const localPacks = {tabler: tablerIconData};
+		const pack = localPacks[match[1]];
+		if (pack) {
+			return new Response(JSON.stringify(pack), {
+				headers: {'Content-Type': 'application/json'},
+			});
+		}
+	}
+
+	return originalFetch(input, init);
+};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -28,6 +56,7 @@ export default defineConfig({
 	markdown: {
 		remarkPlugins: [
 			remarkCustomHeaderId,
+			remarkGitHubAlerts,
 		],
 		// TODO
 		// rehypePlugins: [
@@ -44,9 +73,5 @@ export default defineConfig({
 		plugins: [
 			tailwindcss(),
 		],
-	},
-	legacy: {
-		// TODO: https://docs.astro.build/en/guides/upgrade-to/v5/#enabling-the-legacycollections-flag
-		collections: true,
 	},
 });

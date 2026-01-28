@@ -72,7 +72,8 @@ Get [this shortcut](https://www.icloud.com/shortcuts/fdf0cd45fedb4290bfe14d84a39
 
 Make a [shortcut](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) that uses the `New Session` action and [run that shortcut from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
-Tip: Shortcuts can be a bit slow sometimes. You can use this command to have it not wait for the shortcut to finish running: `(&>/dev/null shortcuts run ShortcutName &)`
+> [!TIP]
+> Shortcuts can be a bit slow sometimes. You can use this command to have it not wait for the shortcut to finish running: `(&>/dev/null shortcuts run ShortcutName &)`
 
 #### Why is this free without ads?
 
@@ -88,7 +89,8 @@ I don't plan to localize the app.
 
 Pandan comes bundled with actions for the built-in Shortcuts app which you can use to automate Pandan.
 
-Tip: You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
+> [!TIP]
+> You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
 ### Use-cases {#shortcuts-use-cases}
 

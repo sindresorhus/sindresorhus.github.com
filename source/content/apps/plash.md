@@ -178,7 +178,8 @@ $ open -g 'plash:add?url=https://sindresorhus.com/plash&title=Plash%20website'
 
 *Don't forget to correctly encode query parameters.*
 
-**Note:** Local file URLs are not supported.
+> [!NOTE]
+> Local file URLs are not supported.
 
 #### `reload`
 
