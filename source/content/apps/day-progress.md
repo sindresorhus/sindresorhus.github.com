@@ -72,7 +72,7 @@ I plan to do that at some point.
 
 There are already lots of apps for counting down to a specific date. I wanted to make something more unique. Also, the app name is “Day Progress”.
 
-#### Can you support specifying different day range for different days of the week?
+#### Can you support specifying different day ranges for different days of the week?
 
 You can set up multiple schedules with different time ranges, both for different days and within the same day. Each time range runs its progress one after another in the menu bar. For even more flexibility with scheduling, check out the [tips](#tips) section for automation options using Shortcuts.
 

@@ -36,7 +36,7 @@ A color palette is a collection of colors with optional names, essential for des
 
 ## Tips
 
-- macOS: Drag and drop a Adobe Swatch Exchange (.ase) or Color List (.clr) file onto the Dock icon to convert it to a Simple Color Palette format. You can also right-click the file in Finder and open with the app.
+- macOS: Drag and drop an Adobe Swatch Exchange (.ase) or Color List (.clr) file onto the Dock icon to convert it to a Simple Color Palette format. You can also right-click the file in Finder and open with the app.
 - iOS: Tap an Adobe Swatch Exchange (.ase) or Color List (.clr) file in the file picker in the app to convert it to Simple Color Palette format.
 - macOS: Drop a `.color-palette` file onto the window to add the colors from the dragged palette into the current palette.
 
@@ -52,7 +52,7 @@ No. This app is specifically designed for creating and editing color palettes in
 
 #### Why doesn't the app show color values in Hex format by default?
 
-The app supports extended sRGB colors (wide gamut) with values outside the 0-255 range. For example, `-97 197 261`. Hex notation (`#ff69b4`) is limited to standard RGB values and cannot properly represent extended color values. You can optionally enabling showing colors in Hex format, but it won't be shown for wide gamut colors.
+The app supports extended sRGB colors (wide gamut) with values outside the 0-255 range. For example, `-97 197 261`. Hex notation (`#ff69b4`) is limited to standard RGB values and cannot properly represent extended color values. You can optionally enable showing colors in Hex format, but it won't be shown for wide gamut colors.
 
 #### How can I export palettes to other formats like Adobe Swatch Exchange (ASE)?
 

@@ -394,7 +394,7 @@ Make sure:
 #### The “upcoming event in menu bar” notification is not showing up {#upcoming-event-in-menu-bar-troubleshooting}
 
 Make sure:
-- The feature in enabled in the settings.
+- The feature is enabled in the settings.
 - The correct calendars for it are enabled (it has a separate calendar picker).
 - When in the settings for it, the placeholder example menu bar item shows up in the menu bar.
 	- If it doesn't show up, try reducing the “event title limit”.
@@ -403,7 +403,7 @@ Make sure:
 - You have tried restarting your computer.
 - If you have Bartender or Ice (or a similar app that hides menu bar items) installed, make sure the menu bar item was not auto-hidden by them.
 	- Note that it uses a separate menu item from the main Dato menu item, so it could still be hidden by Bartender/Ice while the main menu bar item is not.
-	- Try quitting Bartender/Ice to make sure it is not one causing the issue.
+	- Try quitting Bartender/Ice to make sure it is not the one causing the issue.
 	- If you are using Ice, see [this](https://github.com/jordanbaird/Ice/discussions/298).
 		- As a workaround, in the “upcoming event in menu bar” settings, you could choose to keep the menu bar item visible even when there are no upcoming events.
 - The event is not an all-day event (which are not shown).
@@ -456,7 +456,7 @@ https://some-video-call-service.com/join/23423
 ---===---
 ```
 
-#### How do I add a calendar
+#### How do I add a calendar?
 
 [Add the calendar to the built-in Calendar app](https://support.apple.com/guide/calendar/add-or-delete-calendar-accounts-icl4308d6701/mac) and then enable it in the Dato settings.
 
@@ -562,7 +562,7 @@ It makes Dato not notify you about the event. This practically means the event w
 
 If you just want to toggle a certain component, like date or time, see the “Menu Bar” pane in the Dato settings.
 
-If you want something more custom, go to “Date & Time Format” text field. You can specify a [datetime pattern](https://nsdateformatter.com).
+If you want something more custom, go to the “Date & Time Format” text field. You can specify a [datetime pattern](https://nsdateformatter.com).
 
 For example, you could display the full month name, the year, or the day of the year.
 

@@ -12,7 +12,7 @@ olderMacOSVersions:
   - '13'
   - '14'
 feedbackNote: |
-  **Sharing from Voice Memos on iOS 26 does not work because of a iOS 26 bug outside of my control.** You may notice that many targets do work. This is because those apps use share extensions, while with Aiko, it opens directly in the app.
+  **Sharing from Voice Memos on iOS 26 does not work because of an iOS 26 bug outside of my control.** You may notice that many targets do work. This is because those apps use share extensions, while with Aiko, it opens directly in the app.
 
   [Refunds](/apps/faq#refund)
 
@@ -29,7 +29,7 @@ The transcription is powered by OpenAI's [Whisper model](https://openai.com/rese
 
 The app also includes [support for Shortcuts](#tips).
 
-It's an [Universal Purchase](/apps/faq#universal-purchase).
+It's a [Universal Purchase](/apps/faq#universal-purchase).
 
 <details>
 <summary><b>Supports audio in 100 languages</b></summary>
@@ -159,13 +159,13 @@ GPT-4: `Divide the text into paragraphs. Don't change the text otherwise: TRANSC
 
 GPT-3.5: `Remove newlines and divide the text into paragraphs. Don't change the text otherwise: TRANSCRIPTION TEXT`
 
-### Fix missing punctation
+### Fix missing punctuation
 
-A flaw of the Whisper model is that transcriptions can sometimes be missing punctation. Try setting the “Prompt” setting (requires macOS 14 / iOS 17) to, for example:
+A flaw of the Whisper model is that transcriptions can sometimes be missing punctuation. Try setting the “Prompt” setting (requires macOS 14 / iOS 17) to, for example:
 
 > Hello. I like cake.
 
-If that still doesn't fix it, try copying the text from Aiko, go to [ChatGPT](https://chat.openai.com), and use this prompt: `Fix the missing punctation. Don't change the text otherwise: TRANSCRIPTION TEXT`
+If that still doesn't fix it, try copying the text from Aiko, go to [ChatGPT](https://chat.openai.com), and use this prompt: `Fix the missing punctuation. Don't change the text otherwise: TRANSCRIPTION TEXT`
 
 ### Batch transcribe {#batch}
 
@@ -259,9 +259,9 @@ Some things you could try:
 - Restart your device.
 - Try enabling the “Reduce repetitions” setting.
 - Try enabling the “Reduce repetitions even more” setting.
-- If you don't needs timestamps, you can disable them being produced, which can sometimes reduce repetitions. Triple-tap on the “Translate to English” text in the settings and then disable the “Produce timestamps” setting.
+- If you don't need timestamps, you can disable them being produced, which can sometimes reduce repetitions. Triple-tap on the “Translate to English” text in the settings and then disable the “Produce timestamps” setting.
 
-#### The transcription is missing punctation
+#### The transcription is missing punctuation
 
 This is unfortunately a flaw in the Whisper model. [Workaround.](#tips)
 

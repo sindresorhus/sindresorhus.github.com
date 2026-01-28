@@ -34,7 +34,7 @@ On macOS, the app sits in your menu bar or Dock, ready whenever inspiration stri
 
 Perfect for brain dumps, quick drafts, and fleeting ideas. Your thoughts are just a click away, without breaking your workflow.
 
-It's an [Universal Purchase](/apps/faq#universal-purchase).
+It's a [Universal Purchase](/apps/faq#universal-purchase).
 
 [Review by MacStories](https://www.macstories.net/reviews/scratchpad-the-cross-device-text-utility-that-pairs-perfectly-with-your-clipboard-manager/)
 
@@ -179,7 +179,7 @@ macOS does not let apps style the scrollbar. Its background remains solid regard
 
 #### Why is there no way to print?
 
-The app is made using Apple's latest technologies (SwiftUI) and they have not added print support there yet. If you need to print, copy-paste the text over to the TextEdit instead.
+The app is made using Apple's latest technologies (SwiftUI) and they have not added print support there yet. If you need to print, copy-paste the text over to TextEdit instead.
 
 #### Can you localize the app into my language?
 

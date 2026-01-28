@@ -17,7 +17,7 @@ Simple text editor without any rich text nonsense. The simplicity is a feature.
 
 It won't handle your 1 million line log file, but it is a nice way to write down some ideas.
 
-It's an [Universal Purchase](/apps/faq#universal-purchase).
+It's a [Universal Purchase](/apps/faq#universal-purchase).
 
 *It only handles UTF-8 text files (meaning no UTF-16).*
 

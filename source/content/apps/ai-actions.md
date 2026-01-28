@@ -19,21 +19,24 @@ The app provides additional AI-related actions (GPT 5.2, Claude Sonnet/Opus 4.5,
 
 For example, an action to interact with the ChatGPT API.
 
-**The app requires you to specify your own OpenAI / Anthropic API key.**\
-Note that ChatGPT Plus or an Anthropic paid account does not give you free API access.
+> [!NOTE]
+> The app requires you to specify your own OpenAI / Anthropic API key.
+> Note that ChatGPT Plus or an Anthropic paid account does not give you free API access.
 
 Your API key is securely stored in your keychain, not in a shortcut.
 
 It also supports many more models through [Ollama and Groq](#alternative-providers).
 
-**The macOS version on the App Store requires an Apple silicon Mac.** For Intel Macs, use the [non-App Store version](#non-app-store-version).\
-*(This is because Apple only accepted the iOS version and not the macOS version, so on macOS, the iOS version of the app is used, which only runs on Apple silicon Macs)*
+> [!NOTE]
+> The macOS version on the App Store requires an Apple silicon Mac. For Intel Macs, use the [non-App Store version](#non-app-store-version).
+> *(This is because Apple only accepted the iOS version and not the macOS version, so on macOS, the iOS version of the app is used, which only runs on Apple silicon Macs)*
 
 <!-- **Apple is currently blocking updates for the iOS app, so I won't be able to submit an update for some time... I plan to get it [published to an alternative App Store](https://appleinsider.com/articles/23/08/15/setapp-plans-to-launch-eu-only-alternative-ios-app-store) in 2024.** -->
 
 <br>
 
-*You may also like my [Actions](/actions) app.*
+> [!TIP]
+> You may also like my [Actions](/actions) app.
 
 ## Tips
 
@@ -57,7 +60,7 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 
 #### The actions do not show up in the Shortcuts app
 
-This is a iOS/macOS bug. Launch the app once and then restart your device. If that doesn't work, [try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
+This is an iOS/macOS bug. Launch the app once and then restart your device. If that doesn't work, [try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
 
 #### Why are these actions not just part of your [Actions](/actions) app?
 
@@ -69,7 +72,7 @@ This one works on macOS too, supports longer text, has customizability options f
 
 #### How is this better than just calling the OpenAI API directly from Shortcuts?
 
-This makes it simpler, but more importantly, it stores your API key securely in the keychain. This means you can share your shortcuts to others without exposing your API key. The API key is not stored in the shortcut.
+This makes it simpler, but more importantly, it stores your API key securely in the keychain. This means you can share your shortcuts with others without exposing your API key. The API key is not stored in the shortcut.
 
 #### Can you support the OpenAI Whisper API?
 

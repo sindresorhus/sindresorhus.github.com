@@ -9,11 +9,10 @@ releasesRepo: app-buddy-meta
 forceHasIosAppIcon: true
 mainLinks:
   'Download': https://github.com/sindresorhus/app-buddy-meta/releases/latest/download/App.Buddy.zip
+requirement: Requires macOS 26 or later
 olderMacOSVersions:
   - '15'
 ---
-
-<sup>Requires macOS 26+</sup>
 
 This app provides support functionality for [my apps](/apps). It offers easy ways to export/import (backup/transfer) settings, reset privacy permissions, and more. It's a separate app because some features are not possible in sandboxed apps, which most of my apps are.
 

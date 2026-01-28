@@ -61,7 +61,7 @@ Yes, when in menu bar mode.
 - Shows the camera faster. One click instead of multiple.
 - Convenient access from the menu bar.
 - Toggle it via a keyboard shortcut.
-- Remembers window size and postion.
+- Remembers window size and position.
 - Takes photos.
 - The window can be made to always stay on top of other windows.
 - Capture and copy photo in a single action.
@@ -76,7 +76,7 @@ I don't have any immediate plans for this. Maybe in a year when AI background re
 
 #### Do you plan to add filters?
 
-No
+No.
 
 #### Can it record video?
 

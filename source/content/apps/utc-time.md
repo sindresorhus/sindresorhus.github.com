@@ -41,7 +41,7 @@ I have no plans to add that.
 
 #### Can you add support for other time zones?
 
-That is outside the scope of this app, but check out my [Second Clock](/second-clock) or [Dato](/dato) app, which does support this.
+That is outside the scope of this app, but check out my [Second Clock](/second-clock) or [Dato](/dato) app, which do support this.
 
 #### How can I customize the menu bar date and time format?
 

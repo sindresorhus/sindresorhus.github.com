@@ -36,7 +36,7 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 - If you have the “Allow display to sleep while keeping computer awake” setting enabled, the computer is still awake even if it looks like it's sleeping because the screen is off.
 - If you close the lid (clamshell mode), Lungo is only able to keep your Mac awake if it's connected to a charger and an external display. This is a macOS limitation.
 - If you have the “Pause while screen is locked” setting enabled, you may have locked the screen before leaving it, which would cause Lungo to not keep your computer awake.
-- If you have the “Deactive when switching to battery” setting enabled and you disconnect the power adapter, Lungo would not keep your computer awake. You might have accidentally unplugged it or there might have been a power failure.
+- If you have the “Deactivate when switching to battery” setting enabled and you disconnect the power adapter, Lungo would not keep your computer awake. You might have accidentally unplugged it or there might have been a power failure.
 - If you have set a sleep schedule in “System Preferences › Battery › Schedule”, it will take priority over Lungo. This is out of Lungo's control.
 - If you have set the computer to log out after a certain amount of time in “System Preferences › Security & Privacy › Advanced”, it will take priority over Lungo. This is out of Lungo's control.
 - If you see apps open again when you wake up your computer, it means your computer was restarted for some reason. Lungo cannot keep your computer from restarting. Some common reasons it may have restarted are a power outage, macOS crash, or scheduled shutdown/restart (in Battery system settings).
@@ -123,7 +123,8 @@ You can control Lungo using anything that supports opening a URL with a custom s
 
 *Lungo also comes with support for Shortcuts.*
 
-Tip: You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
+> [!TIP]
+> You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
 ### Integrations
 

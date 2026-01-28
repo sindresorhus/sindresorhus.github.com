@@ -8,6 +8,7 @@ isPaid: true
 isMenuBarApp: true
 appStoreId: 6755328989
 forceHasIosAppIcon: true
+requirement: Requires macOS 26.1 or later
 # olderMacOSVersions:
 #   - '26'
 ---
@@ -17,13 +18,10 @@ Show multiple world clocks in your menu bar.
 Add clocks for any time zone, give them custom names and emoji, and see them at a glance. The time travel slider lets you check what time it will be hours from now across all clocks. Useful for planning meetings or checking if friends abroad are awake.
 
 Simple by design. No sync, no widgets, no iOS version. Just your clocks, always there when you need them.
-
-*Requires macOS 26.1 or later.*
-
 #### Highlights
 
 - **Menu Bar Display**\
-  Show up clocks directly in your menu bar
+  Show clocks directly in your menu bar
 - **Time Travel**\
   Slide to see what time it will be hours from now across all time zones
 - **Custom Labels**\
@@ -75,7 +73,7 @@ Yes. It follows macOS time zone rules, including daylight saving, so times updat
 
 #### I only see Chinese cities when adding a time zone. Where are London, San Francisco, etc.?
 
-This is a [macOS bug](https://github.com/feedback-assistant/reports/issues/462) when when searching from China. You will have to pick a time zone manually using the `…` button.
+This is a [macOS bug](https://github.com/feedback-assistant/reports/issues/462) when searching from China. You will have to pick a time zone manually using the `…` button.
 
 #### Can you add half hour steps to the Time Travel slider?
 

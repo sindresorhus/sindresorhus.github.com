@@ -21,7 +21,8 @@ You can send a link even if your iOS/visionOS device and/or Mac is offline. The 
 
 My personal use-case is that I often discover cool stuff when I check X (Twitter) on the go and I want to dig deeper into it later on my Mac. I have tried Instapaper, Pocket, Safari Reading List, iCloud Tabs, and more. The problem with them all is that I forget to check them.
 
-**Sends to one Mac only.** Install the macOS app on the single Mac you want to receive links on. If you install it on multiple Macs, iCloud may deliver a link to any of them, unpredictably.
+> [!IMPORTANT]
+> Sends to one Mac only. Install the macOS app on the single Mac you want to receive links on. If you install it on multiple Macs, iCloud may deliver a link to any of them, unpredictably.
 
 [**Why not AirDrop?**](#airdrop)
 
@@ -96,7 +97,7 @@ To support more Macs, repeat the process for each Mac.
 
 ### Download a file on your Mac from your iOS device
 
-You can use Hypeduck to trigger a download from your iOS device and have it downloaded on your Mac.
+You can use Hyperduck to trigger a download from your iOS device and have it downloaded on your Mac.
 
 Add the below [shortcuts](#shortcuts):
 
@@ -175,14 +176,14 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 #### How is it better than [Pushbullet](https://www.pushbullet.com)? {#pushbullet}
 
 - Works in any app with a share sheet
-- Pushbullet does not have a iOS or macOS app
+- Pushbullet does not have an iOS or macOS app
 - Does not require signing up for another account
 
 #### How is it better than the Firefox [Send Tabs](https://support.mozilla.org/kb/send-tab-firefox-ios-another-device) feature?
 
 - Works in any app with a share sheet, not just Firefox
 - Supports any browser on your Mac
-- Requires less taps
+- Requires fewer taps
 
 #### How is it better than the Firefox tab sync?
 
@@ -202,7 +203,7 @@ The app works by syncing the link over iCloud from your iOS device to your Mac. 
 
 #### I don't see the “Send to Mac” action in the share sheet
 
-Try restarting your device. Because of a iOS bug, it sometimes only appears after a restart.
+Try restarting your device. Because of an iOS bug, it sometimes only appears after a restart.
 
 #### The “Send to Mac” button does not appear when viewing a PDF file in Safari
 
@@ -210,7 +211,7 @@ Safari tries to share the PDF file itself, not the URL to the PDF, and Hyperduck
 
 #### I use the Arc browser and I am not receiving all links
 
-The Arc browser does not support opening multiple URLs at the time. I suggest sending feedback to the Arc team about this. There is nothing Hyperduck can do about it.
+The Arc browser does not support opening multiple URLs at a time. I suggest sending feedback to the Arc team about this. There is nothing Hyperduck can do about it.
 
 As a workaround, you could use my [Velja app](/velja) to make such links open in a different browser. Create a custom rule where you set Hyperduck as the source app and set the destination app to a different browser than Arc.
 

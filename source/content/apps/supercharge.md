@@ -12,6 +12,7 @@ releasesRepo: supercharge-meta
 forceHasIosAppIcon: true
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/supercharge?wanted=true
+requirement: Requires macOS 15.4 or later
 # olderMacOSVersions:
 #   - '15'
 feedbackNote: |
@@ -26,13 +27,8 @@ feedbackNote: |
   If you are seeing the Supercharge icon showing up for drives in the Finder sidebar, see [this](#i-am-seeing-incorrect-icons-for-external-drives-in-the-finder-sidebar-when-enabling-context-menu-items).
 ---
 
-<sup>Requires macOS 15.4 or later</sup>
-
----
-
-**💡 Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.**
-
----
+> [!TIP]
+> Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.
 
 Improve your Mac experience with a bunch of useful functionality. Supercharge adds power tools for Mission Control, the Dock, Finder, window management, and more, helping you work faster, reduce friction, and fix everyday macOS annoyances.
 
@@ -282,9 +278,11 @@ A menu bar icon can be shown when active for visual indication.
 
 For advanced features like timing, check out [Lungo](/lungo).
 
-**Important:** It will not prevent your computer from sleeping if you close the lid (except when connected to power and an external display). This is a macOS safety precaution and out of my control.
+> [!IMPORTANT]
+> It will not prevent your computer from sleeping if you close the lid (except when connected to power and an external display). This is a macOS safety precaution and out of my control.
 
-**Note:** This will not prevent you from appearing idle in apps like Slack, Teams, or Discord, which track mouse movement to determine activity.
+> [!NOTE]
+> This will not prevent you from appearing idle in apps like Slack, Teams, or Discord, which track mouse movement to determine activity.
 
 #### Dock icon click behavior {#dock-icon-click-behavior}
 
@@ -360,7 +358,8 @@ Pauses for all apps while any camera/mic is in use or screen is being captured. 
 
 [Screenshot](https://www.dropbox.com/scl/fi/am443hh5uuglk8fiwmdqk/Auto-quit-feature-Screen-Shot-2025-11-06-at-15.45.16-1762418767.png?rlkey=fbbdi22wsdclq1cxeiwiijlam&raw=1)
 
-Tip: To enable only during specific times, places, or Focus modes, you can automate it with the Shortcuts app.
+> [!TIP]
+> To enable only during specific times, places, or Focus modes, you can automate it with the Shortcuts app.
 
 *Available on macOS 26 or later. Currently experimental — feedback welcome!*
 
@@ -376,7 +375,8 @@ Safety and control. You don't want your code editor or music player suddenly qui
 
 Creates visual separators in the Finder sidebar to help organize your folders into groups. Simply drag the spacer between two folders in the sidebar. The spacer appears as an invisible folder.
 
-*NOTE: The spacer still shows a folder icon. It's not possible to hide this.*
+> [!NOTE]
+> The spacer still shows a folder icon. It's not possible to hide this.
 
 [Screenshot](https://www.dropbox.com/scl/fi/7ndp0sdiocgf0n7xdbolz/441615369-d929e3fe-6605-46f6-a99f-6f0f3486a88e-1748012169.png?rlkey=xr7716dr9xiyim0pu80qv6n5x&raw=1)
 
@@ -652,7 +652,7 @@ Just moved to macOS from Windows? Supercharge helps you feel at home:
 - Hide apps by clicking their Dock icon — like minimizing to the taskbar in Windows.
 - Press <kbd>Return</kbd> to open files in Finder (rename with <kbd>F2</kbd> or <kbd>Shift+Return</kbd>).
 - <kbd>Delete</kbd> moves files to the trash (no need for <kbd>Command+Delete</kbd>).
-- Create new text files in Finder with <kbd>Option+N</kbd> or from the right-click menu — Just like in Windows Explorer.
+- Create new text files in Finder with <kbd>Option+N</kbd> or from the right-click menu — just like in Windows Explorer.
 - Add “Move To” and “Copy To” to Finder’s right-click menu — like in Windows.
 - Open Terminal from Finder — like “Open in Terminal” in Windows Explorer.
 - Restore all app windows when focusing an app — like taskbar behavior in Windows.
@@ -668,15 +668,14 @@ Just moved to macOS from Windows? Supercharge helps you feel at home:
 
 Make macOS feel less foreign — and more powerful.
 
----
+<br>
 
-You may also like my [Shareful](/shareful), [Menu Bar Spacing](/menu-bar-spacing), and [Pure Paste](/pure-paste) apps.
-
----
+> [!TIP]
+> You may also like my [Shareful](/shareful), [Menu Bar Spacing](/menu-bar-spacing), and [Pure Paste](/pure-paste) apps.
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/7mwk5hmu6k5kqib75d0xj/Supercharge-1.24.0-trial-1765318083.zip?rlkey=946dv8rutri1d3x7rxqi44vuy&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/da6imr6yx09ru6x1115a0/Supercharge-1.25.0-trial-1769898535.zip?rlkey=6f0uyxl4plg4879dyhwmxy4ua&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
@@ -703,7 +702,8 @@ Ensure you pressed <kbd>Command+X</kbd> and not <kbd>Command+C</kbd>.
 
 To make sure you used the feature correctly, try this: Select a file in Finder, press <kbd>Command+X</kbd>, change to a different folder, press <kbd>Command+V</kbd>. The file should have been moved to this new folder.
 
-**Note:** You cannot cut, highlight a folder, and then paste. You have to actually go into the folder to paste to it. That's just how Finder works. Same with copy-pasting.
+> [!NOTE]
+> You cannot cut, highlight a folder, and then paste. You have to actually go into the folder to paste to it. That's just how Finder works. Same with copy-pasting.
 
 If it's still not working, try this: Select a file in Finder, press <kbd>Command+C</kbd>, change to a different folder, press <kbd>Option+Command+V</kbd>. The file should have been moved to this new folder. If this did not work, the problem is not this app, as those are the keyboard shortcuts it simulates.
 
@@ -724,7 +724,7 @@ Some things you can already do that you may not know about:
 - Toggle a specific VPN using a keyboard shortcut with Shortcuts. Add [this shortcut](https://www.icloud.com/shortcuts/a0c3171fe98a4379b8197299a84b060e) and set the VPN parameter and a keyboard shortcut.
 - [Make Finder remember its size and position.](https://apple.stackexchange.com/a/171274/2363)
 - [Prevent opening apps when clicking links that are Universal Links.](https://lapcatsoftware.com/articles/universal-links2.html)
-- [Change the keyboard shortcut for menu item actions a specific app.](https://support.apple.com/guide/mac-help/create-keyboard-shortcuts-for-apps-mchlp2271/mac)
+- [Change the keyboard shortcut for menu item actions in a specific app.](https://support.apple.com/guide/mac-help/create-keyboard-shortcuts-for-apps-mchlp2271/mac)
 - [Change the keyboard shortcut for menu item actions in all apps.](https://apple.stackexchange.com/a/125628/2363)
 - Set Finder's default view options: Open a folder, press <kbd>Command+J</kbd>, adjust settings, and click “Use as Defaults”. To reset a folder's custom settings, press <kbd>Command+J</kbd>, hold <kbd>Option</kbd>, and click “Restore to Defaults”.
 - [Show “Dimensions” column in Finder.](https://apple.stackexchange.com/questions/18728/how-can-i-show-the-dimension-column-in-finder)
@@ -800,7 +800,7 @@ Supercharge offers a simpler, more user-friendly approach. It's designed for use
 #### Why <kbd>Command+X</kbd>? I can already move files with <kbd>Command+C</kbd> and <kbd>Option+Command+V</kbd>
 
 - It's more logical to cut & paste than copy & move.
-- Consistency and muscle memory benefits if you also use Linux or Window.
+- Consistency and muscle memory benefits if you also use Linux or Windows.
 
 #### What are Dock spacers? {#dock-spacers}
 
@@ -860,7 +860,7 @@ The developer will need to add `public.folder` to `LSItemContentTypes` in their 
 
 If you know the app supports opening folders but it doesn't show up, it may be that the app has not properly declared support for it. Contact the app developer about adding the above. You could also [contact me](/feedback?product=Supercharge), and I can manually add the app.
 
-#### Can you add support keyboard shortcuts to change default browser?
+#### Can you add support for keyboard shortcuts to change default browser?
 
 Maybe. For now, you can make a shortcut in the Shortcuts app, give it a keyboard shortcut, and use the “Set Default Browser” Shortcuts action that comes with Supercharge.
 

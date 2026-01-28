@@ -20,9 +20,9 @@ It runs locally on your device.
 
 **Note:** It uses Stable Diffusion 1.5, which is flexible, but it requires a detailed description to generate a usable image.
 
-On macOS, developed exclusively for Apple silicon - The app is NOT compatible with devices running on Intel chips.
-
-On iOS, it requires at minimum an iPhone 15 Pro or iPad with an M1 processor.
+> [!WARNING]
+> On macOS, developed exclusively for Apple silicon - The app is NOT compatible with devices running on Intel chips.\
+> On iOS, it requires at minimum an iPhone 15 Pro or iPad with an M1 processor.
 
 [Stable Diffusion](https://en.wikipedia.org/wiki/Stable_Diffusion) is a deep learning, text-to-image model used to generate detailed images conditioned on text descriptions.
 

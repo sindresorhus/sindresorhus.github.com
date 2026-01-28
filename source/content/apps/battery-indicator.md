@@ -17,7 +17,7 @@ olderMacOSVersions:
   - '14'
 ---
 
-Quickly glance the remaining battery time or percentage right in your menu bar.
+Quickly glance at the remaining battery time or percentage right in your menu bar.
 
 ## Frequently Asked Questions {#faq}
 

@@ -51,7 +51,7 @@ https://some-video-call-service.com/join/23423
 ---===---
 ```
 
-#### How do I add a calendar
+#### How do I add a calendar?
 
 [Add the calendar to the built-in Calendar app](https://support.apple.com/guide/calendar/add-or-delete-calendar-accounts-icl4308d6701/mac) and then enable it in the Today settings.
 

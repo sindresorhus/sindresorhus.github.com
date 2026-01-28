@@ -32,11 +32,10 @@ Open links in a specific browser or a matching native app. Easily switch between
 
 [*Trusted by almost 130K users.*](https://github.com/user-attachments/assets/011c6bda-186c-4ee7-868a-b71cc6f49a0b)
 
----
+<br>
 
-*You may also like my [Default Browser](/default-browser) app.*
-
----
+> [!TIP]
+> You may also like my [Default Browser](/default-browser) app.
 
 <br>
 
@@ -262,7 +261,7 @@ If you use a browser where Velja does not have a browser extension, you could al
 
 \* *Chrome (and Edge, Brave, etc.) does not have a “Share” item in its context menu. Please [star this issue](https://bugs.chromium.org/p/chromium/issues/detail?id=916291).*
 
-Velja also comes with a [system service](https://www.computerworld.com/article/2476298/os-x-a-quick-guide-to-services-on-your-mac.html). However, neither Safari ([issue](https://github.com/feedback-assistant/reports/issues/304)) or Chrome ([issue](https://bugs.chromium.org/p/chromium/issues/detail?id=1325557)) correctly sends links to a system service, so it cannot be used for this purpose.
+Velja also comes with a [system service](https://www.computerworld.com/article/2476298/os-x-a-quick-guide-to-services-on-your-mac.html). However, neither Safari ([issue](https://github.com/feedback-assistant/reports/issues/304)) nor Chrome ([issue](https://bugs.chromium.org/p/chromium/issues/detail?id=1325557)) correctly sends links to a system service, so it cannot be used for this purpose.
 
 **The prompt does not show**
 
@@ -294,7 +293,7 @@ Some apps use the `open` command-line tool internally, and they will unfortunate
 
 In short, if the source app does not show up in the history, there isn't anything Velja can do about it.
 
-Known apps where can cannot reliably identify the source:
+Known apps where Velja cannot reliably identify the source:
 - Terminal apps
 - AWS VPN Client
 
@@ -311,7 +310,7 @@ If the redirect URL contains the destination URL (usually in a search parameter)
 
 #### What are tracking parameters and why would I want to remove them?
 
-Removing tracking parameters improve privacy and also make URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Learn more.](https://en.wikipedia.org/wiki/UTM_parameters)
+Removing tracking parameters improves privacy and also makes URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Learn more.](https://en.wikipedia.org/wiki/UTM_parameters)
 
 Velja supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to X (Twitter), Facebook, and TikTok.
 
@@ -338,7 +337,8 @@ Velja automatically retrieves all browsers on your computer. There is no manual 
 
 I'm happy to consider requests (but read the below first). [Submit here.](/feedback?product=Velja&referrer=Website-FAQ) *(Include a link to the app and what behavior you expected)*
 
-**Note:** This is about opening a link in a specific app. If you want to open a link **from** a specific app, just use the rules feature in the settings (it supports any app).
+> [!NOTE]
+> This is about opening a link in a specific app. If you want to open a link **from** a specific app, just use the rules feature in the settings (it supports any app).
 
 *If this is about opening a specific website (for example, Google Sheets) in a specific browser, you should use the rules feature instead (the “Rules” tab in the settings). You can easily make a rule for any website.*
 
@@ -358,7 +358,7 @@ However, some apps are not feasible:
 - Todoist
 	+ Only supports opening links to a todo item and it only works when the app is already running.
 - Craft.do
-	+ The app does not accept any links. It does accept [custom URL scheme](https://support.craft.do/hc/articles/360020168838-Using-URL-Scheme) links, but I'm not interested having to maintain more code to transform URLs in Velja when the services should just handle it themselves in their desktop apps.
+	+ The app does not accept any links. It does accept [custom URL scheme](https://support.craft.do/hc/articles/360020168838-Using-URL-Scheme) links, but I'm not interested in having to maintain more code to transform URLs in Velja when the services should just handle it themselves in their desktop apps.
 
 And some apps do not need special support because they already support [universal links](https://developer.apple.com/ios/universal-links/):
 - [Quip](https://quip.com)
@@ -434,7 +434,8 @@ Repeat for each container you want to use.
 
 Firefox profiles are now supported. Make sure you grant access to profiles in the Browsers settings tab, then enable Firefox profiles in the "Shown Browsers" setting.
 
-Note: Only profiles created using Firefox's [new profile system](https://www.reddit.com/r/firefox/comments/1mi38vp/firefox_has_a_profile_switcher_now_heres_how_to/) (Firefox 138+) are supported (not profiles created using `about:profiles`). See below on how to migrate.
+> [!NOTE]
+> Only profiles created using Firefox's [new profile system](https://www.reddit.com/r/firefox/comments/1mi38vp/firefox_has_a_profile_switcher_now_heres_how_to/) (Firefox 138+) are supported (not profiles created using `about:profiles`). See below on how to migrate.
 
 #### How do I migrate legacy Firefox profiles to the new profile system? {#firefox-migrate-profiles}
 
@@ -566,7 +567,8 @@ You can submit it [here](https://feedbackassistant.apple.com).
 
 I would love to support Arc, but it's currently missing some required functionality.
 
-**Note that they now support [something similar to Velja built in](https://x.com/browsercompany/status/1654525608305491984).**
+> [!NOTE]
+> They now support [something similar to Velja built in](https://x.com/browsercompany/status/1654525608305491984).
 
 Arc supports fetching the spaces of a specific Arc window using AppleScript. However, Velja needs to be able to fetch the spaces even when Arc has no open windows, so that it can show a list of spaces in the Velja settings.
 
@@ -794,7 +796,8 @@ Leave out `&prompt` to not show the browser prompt.
 
 *Don't forget to [URL encode](https://www.urlencoder.org) the value for the `url=` parameter. For example, using [this](https://gist.github.com/cdown/1163649) Bash function.*
 
-Tip: You can specify the `url` parameter multiple times to open multiple URLs.
+> [!TIP]
+> You can specify the `url` parameter multiple times to open multiple URLs.
 
 You can force the use of a specific browser by specifying an `app` parameter:
 

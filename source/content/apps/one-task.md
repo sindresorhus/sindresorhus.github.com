@@ -26,7 +26,7 @@ The optimal workflow in One Task is to add only the tasks you're committed to co
 
 It syncs tasks over iCloud. Note that the macOS version has an issue where it doesn't sync while being the active window (macOS bug).
 
-It's an [Universal Purchase](/apps/faq#universal-purchase).
+It's a [Universal Purchase](/apps/faq#universal-purchase).
 
 <br>
 
@@ -98,7 +98,7 @@ It will erase your existing items, so you may want to first back them up with â€
 
 I don't plan to add this. I want to keep the app super simple.
 
-#### Can you make the widget background transparent
+#### Can you make the widget background transparent?
 
 This is not possible.
 

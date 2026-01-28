@@ -24,7 +24,8 @@ Syncs seamlessly across your devices with iCloud.
 
 <br>
 
-*You may also like [my similar app](/one-thing) for macOS.*
+> [!TIP]
+> You may also like [my similar app](/one-thing) for macOS.
 
 ## Tips
 
@@ -63,7 +64,7 @@ The iOS widget system is quite buggy and can fail a lot. This is not a problem w
 
 Try this:
 - Restart your device.
-- Change the language of the device to something else  and then back.
+- Change the language of the device to something else and then back.
 - Ensure Lock Screen widgets are allowed to show content while the device is locked at “Settings › Face ID & Passcode › Allow Access When Locked › Lock Screen Widgets”.
 
 #### The Lock Screen text sometimes disappears
@@ -114,7 +115,7 @@ If you work at Apple → [FB11522170](https://github.com/feedback-assistant/repo
 
 The widget sizes are controlled by Apple. The provided size is the largest it allows.
 
-#### Can you make the widget background transparent
+#### Can you make the widget background transparent?
 
 This is not possible.
 

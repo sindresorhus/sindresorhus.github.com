@@ -12,7 +12,7 @@ forceHasIosAppIcon: true
 # links:
 #   'TestFlight': https://testflight.apple.com/join/ybGzYJ28
 feedbackNote: |
-  If you are seeing black/white widgets, this is a iOS bug. Possible workaround:
+  If you are seeing black/white widgets, this is an iOS bug. Possible workaround:
   - Restart your device.
   - Remove the widget and add it again.
   - Remove the app and download it again.
@@ -34,7 +34,7 @@ The iOS widget system is quite buggy and can fail a lot. This is not a problem w
 
 #### I'm not seeing the new widget settings for showing date and album title
 
-Try adding a new widget. Sometimes existing widgets get stuck and don't receive new settings. This is a iOS bug and out of my control.
+Try adding a new widget. Sometimes existing widgets get stuck and don't receive new settings. This is an iOS bug and out of my control.
 
 #### Some widget settings are missing
 

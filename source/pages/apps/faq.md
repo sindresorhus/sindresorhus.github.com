@@ -265,7 +265,7 @@ If keyboard shortcuts or text expansion suddenly stops working, it's likely beca
 You can try:
 1. Quit password managers and browsers.
 1. Quit all apps.
-1. Putting the computer to sleep and then waking it up and logging in again usually fixes it.
+1. Put the computer to sleep, then wake it up and log in again.
 1. If nothing else works, restart your computer.
 1. Use the “Get Apps Using Secure Input” action from [Shortcutie](/shortcutie) to identify the problematic app and quit it.
 

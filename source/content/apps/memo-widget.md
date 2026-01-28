@@ -82,7 +82,7 @@ This is an iOS limitation and is out of my control. It shows a placeholder until
 
 I don't plan to add this. Check out my [Any Text app](/any-text), which has this.
 
-#### Can you make the widget background transparent
+#### Can you make the widget background transparent?
 
 This is not possible.
 

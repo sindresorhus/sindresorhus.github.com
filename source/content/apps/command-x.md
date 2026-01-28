@@ -24,11 +24,10 @@ Known limitation: You cannot cut the name of a file when editing a filename in F
 - [Review by Softpedia](https://mac.softpedia.com/get/System-Utilities/Command-X.shtml)
 - [10 Mac Apps That Will Change How You Use macOS in](https://www.youtube.com/watch?v=LtuUwACZdsQ&t=426s)
 
----
+<br>
 
-You may also like my [Supercharge](/supercharge) app.
-
----
+> [!TIP]
+> You may also like my [Supercharge](/supercharge) app.
 
 ## Frequently Asked Questions {#faq}
 
@@ -39,7 +38,7 @@ Click the feedback button in the app or [send it here.](/feedback?product=Comman
 #### Why? I can already use <kbd>Option+Command+V</kbd>
 
 - It's more logical to cut & paste than copy & move.
-- Consistency and muscle memory benefits if you also use Linux or Window.
+- Consistency and muscle memory benefits if you also use Linux or Windows.
 
 #### The app does not show up in the menu bar
 
@@ -51,7 +50,7 @@ First try relaunching the app.
 
 Then, make sure you pressed <kbd>Command+X</kbd> and not <kbd>Command+C</kbd>.
 
-To make sure you used the app correctly. Try this: Select a file in Finder, press <kbd>Command+X</kbd>, change to a different folder, press <kbd>Command+V</kbd>. The file should have been moved to this new folder.
+To make sure you used the app correctly, try this: Select a file in Finder, press <kbd>Command+X</kbd>, change to a different folder, press <kbd>Command+V</kbd>. The file should have been moved to this new folder.
 
 **Note:** You cannot cut, highlight a folder, and then paste. You have to actually go into the folder to paste to it. That's just how Finder works. Same with copy-pasting.
 

@@ -9,29 +9,26 @@ releasesRepo: shortcutie-meta
 hasSentry: true
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/shortcutie?wanted=true
+requirement: Requires macOS 15.2 or later
 # olderMacOSVersions:
-#   - '15
+#   - '15'
 feedbackNote: |
   ### If the actions don't show up in the Shortcuts app or if you get a “com.apple.extensionKit.errorDomain error 2” error when running your shortcut, restart your device. You could also try setting a different device language and then back. If you just updated the operating system, give it some time to re-index all shortcut actions.
 
   Check the [Actions](/actions) app before requesting an action. It may already exist there.
 ---
 
-<sup>Requires macOS 15.2 or later</sup>
-
 The app provides lots (70+) of powerful extra actions for the Shortcuts app on macOS.
 
 While my free [Actions](/actions) app provides useful functionality for the Shortcuts app through the App Store for macOS, iOS and visionOS, Shortcutie is a Mac-only app that offers more powerful system-level features by operating outside of Apple's restrictions. This enables capabilities like changing system default browser (without a prompt), getting the active browser tab, clearing notifications, etc. - things that wouldn't be possible under App Store rules.
 
-**Restart your device if the actions do not show up in the Shortcuts app. Also try setting a different device language and then back.**
+> [!IMPORTANT]
+> Restart your device if the actions do not show up in the Shortcuts app. Also try setting a different device language and then back.
 
 Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like to see the app on Setapp, [email them](https://support.setapp.com/hc/en-us/articles/4950254561052-How-to-contact-Setapp-team#:~:text=to%20your%20issue.-,Send%20an%20email,%3A%20support%40setapp.com.) and request its inclusion.
 
----
-
-**💡 Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.**
-
----
+> [!TIP]
+> Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.
 
 #### Included actions
 
@@ -163,7 +160,7 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 	<span class="list-subtitle">Control the [Night Shift](https://support.apple.com/en-us/102191) color temperature.</span>
 - Get/Set Network Location
 	<span class="list-subtitle">Switch between different [network configurations](https://support.apple.com/105129)</span>
-	<span class="list-description text-xs">Tip: You could automate switching based certain conditions with the [Shortery](https://www.numberfive.co/detail_shortery.html) app.</span>
+	<span class="list-description text-xs">Tip: You could automate switching based on certain conditions with the [Shortery](https://www.numberfive.co/detail_shortery.html) app.</span>
 - Get/Set iOS Notifications Enabled
 	<span class="list-subtitle">Control whether notifications from your iOS device appear on your Mac</span>
 	<span class="list-description text-xs">Only works if your Mac supports notifications from iOS.</span>

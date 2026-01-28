@@ -50,7 +50,7 @@ You could also use the “Flash Screen” action from the [Actions app](https://
 
 Pandan lets you run a single shortcut as a notification, but a shortcut can run other shortcuts. So make the shortcuts you want to run, make another shortcut that uses the “Run Shortcut” action to run the other shortcuts, and then select this shortcut in Pandan.
 
-### Can you support iCloud sync?
+#### Can you support iCloud sync?
 
 No. iCloud sync is unreliable and creates too many support issues, especially for a free app.
 
@@ -72,7 +72,8 @@ Get [this shortcut](https://www.icloud.com/shortcuts/fdf0cd45fedb4290bfe14d84a39
 
 Make a [shortcut](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) that uses the `New Session` action and [run that shortcut from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
-Tip: Shortcuts can be a bit slow sometimes. You can use this command to have it not wait for the shortcut to finish running: `(&>/dev/null shortcuts run ShortcutName &)`
+> [!TIP]
+> Shortcuts can be a bit slow sometimes. You can use this command to have it not wait for the shortcut to finish running: `(&>/dev/null shortcuts run ShortcutName &)`
 
 #### Why is this free without ads?
 
@@ -88,7 +89,8 @@ I don't plan to localize the app.
 
 Pandan comes bundled with actions for the built-in Shortcuts app which you can use to automate Pandan.
 
-Tip: You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
+> [!TIP]
+> You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
 ### Use-cases {#shortcuts-use-cases}
 

@@ -116,11 +116,11 @@ Plash can be automated with the built-in Shortcuts app, for example, using the â
 
 Support for multiple displays is currently limited to the ability to choose which display to show the website on. Support for setting a separate website for each display is [planned](https://github.com/sindresorhus/Plash/issues/2).
 
-However, I there is a [workaround](https://github.com/sindresorhus/Plash/issues/2#issuecomment-653891524).
+However, there is a [workaround](https://github.com/sindresorhus/Plash/issues/2#issuecomment-653891524).
 
 #### Why does Plash use so much memory?
 
-Plash uses very little memory. Usually around 40 MB. However, the websites you display can take up a lot of memory, and sometimes even have a memory leaks.
+Plash uses very little memory. Usually around 40 MB. However, the websites you display can take up a lot of memory, and sometimes even have memory leaks.
 
 #### The menu bar does not adapt to the Plash wallpaper
 
@@ -178,7 +178,8 @@ $ open -g 'plash:add?url=https://sindresorhus.com/plash&title=Plash%20website'
 
 *Don't forget to correctly encode query parameters.*
 
-**Note:** Local file URLs are not supported.
+> [!NOTE]
+> Local file URLs are not supported.
 
 #### `reload`
 

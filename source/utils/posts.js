@@ -1,18 +1,18 @@
 import getReadingTime from 'reading-time';
-import {getCollection} from 'astro:content';
+import {getCollection, render} from 'astro:content';
 
 const normalizePost = async post => {
-	const {id, body, data, slug} = post;
-	const {Content} = await post.render();
+	const {id, body, data} = post;
+	const {Content} = await render(post);
 
 	// TODO: Nest all these under the `.data` property.
 	return {
 		...data,
 		id,
-		slug,
-		url: data.redirectUrl ?? `/blog/${slug}`,
+		slug: id,
+		url: data.redirectUrl ?? `/blog/${id}`,
 		isRedirect: data.redirectUrl !== undefined,
-		readingTime: Math.ceil(getReadingTime(body).minutes),
+		readingTime: Math.ceil(getReadingTime(body ?? '').minutes),
 		Content,
 	};
 };
@@ -36,7 +36,7 @@ export const fetchPosts = async () => {
 	return cachedPosts;
 };
 
-// TODO: Use `getEntryBySlug`
+// TODO: Use `getEntry`
 export const findPostsByIds = async ids => {
 	if (!Array.isArray(ids)) {
 		return [];

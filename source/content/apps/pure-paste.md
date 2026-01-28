@@ -88,7 +88,7 @@ Try [resetting privacy permissions](/apps/faq#mac-reset-permissions) for the app
 
 #### What are tracking parameters and why would I want to remove them?
 
-Removing tracking parameters improve privacy and also make URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Learn more.](https://en.wikipedia.org/wiki/UTM_parameters)
+Removing tracking parameters improves privacy and also makes URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Learn more.](https://en.wikipedia.org/wiki/UTM_parameters)
 
 Pure Paste supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to X (Twitter), Facebook, and TikTok.
 
@@ -163,7 +163,7 @@ There is a [problem with Google Docs](https://webapps.stackexchange.com/question
 
 #### Copying a cell with a formula in Numbers or Excel loses the formula {#numbers-formula}
 
-Pure Paste clears formatting by replacing the clipboard with a plain text version (this is the only reliable way to clear formatting). However, some apps store metadata on the clipboard, and in this specific case, these apps store the formula as metadata in the clipboard, which is then lost. There is no way reliable way to detect this.
+Pure Paste clears formatting by replacing the clipboard with a plain text version (this is the only reliable way to clear formatting). However, some apps store metadata on the clipboard, and in this specific case, these apps store the formula as metadata in the clipboard, which is then lost. There is no reliable way to detect this.
 
 The solution is to either:
 1. Skip clearing formatting for just this copy (see instructions in the app settings).

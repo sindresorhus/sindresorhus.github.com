@@ -50,7 +50,7 @@ This is unfortunately not possible. iOS enforces that Lock Screen widgets are si
 
 Sure. I'm happy to consider requests. [Send it here.](https://sindresorhus.com/feedback?product=Favorites%20Widget&referrer=Website-FAQ)
 
-#### Can you make the widget background transparent
+#### Can you make the widget background transparent?
 
 This is not possible.
 

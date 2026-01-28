@@ -17,11 +17,8 @@ It is particularly beneficial on larger screens where menu bar space is ample, a
 
 <br>
 
----
-
-You may also like my [Menu Bar Spacing](/menu-bar-spacing) app for changing the gap between menu bar items.
-
----
+> [!TIP]
+> You may also like my [Menu Bar Spacing](/menu-bar-spacing) app for changing the gap between menu bar items.
 
 ## Frequently Asked Questions {#faq}
 

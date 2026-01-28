@@ -79,7 +79,7 @@ title: Repos
 	// Helper
 	const dom = {
 		select: document.querySelector.bind(document),
-		slectAll: document.querySelectorAll.bind(document)
+		selectAll: document.querySelectorAll.bind(document)
 	};
 
 	const isDev = ['localhost', '127.0.0.1'].includes(location.hostname);
