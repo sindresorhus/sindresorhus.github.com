@@ -64,7 +64,7 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 
 <Layout {meta}>
 	<section class="max-w-5xl py-8 sm:py-16 lg:py-20 mx-auto lg:-mt-10 mb-10">
-		<article itemscope itemtype="https://schema.org/SoftwareApplication">
+		<article itemscope itemtype="https://schema.org/SoftwareApplication" data-heading-anchors>
 			<header id="app-hero" class="flex flex-col items-center text-center px-4 sm:px-6 mb-40">
 				<img id="app-icon" src={app.iconUrl} width="256" height="256" alt={`${app.title} app icon`} class={`${app.hasIOSAppIcon ? 'p-[16px] drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]' : ''} mb-3`}>
 				<h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-4 font-heading" itemprop="name">
@@ -439,95 +439,8 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 }
 </script>
 
-<script type="module" is:inline>
-{
-	// Copy-link-to-section buttons on headings.
-	// Shows a link icon on hover; clicking copies the URL and briefly shows a checkmark.
-	const headings = document.querySelectorAll('article :is(h2, h3, h4)[id]');
-
-	const icons = {
-		link: '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-.025 9.45a.75.75 0 01-1.06-1.06l-1.25 1.25a2 2 0 01-2.83-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25z"/></svg>',
-		check: '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"/></svg>',
-	};
-
-	for (const heading of headings) {
-		const anchor = document.createElement('a');
-		anchor.href = `#${heading.id}`;
-		anchor.className = 'heading-anchor';
-		anchor.ariaLabel = 'Copy link to section';
-		anchor.innerHTML = icons.link;
-		anchor.style.height = getComputedStyle(heading).lineHeight;
-		heading.append(anchor);
-
-		anchor.addEventListener('click', async (event) => {
-			event.preventDefault();
-
-			await navigator.clipboard.writeText(new URL(`#${heading.id}`, location.href).toString());
-			history.pushState(null, '', `#${heading.id}`);
-
-			// Show checkmark, then hide until a fresh hover cycle.
-			anchor.innerHTML = icons.check;
-			heading.dataset.anchorState = 'copied';
-
-			setTimeout(() => {
-				anchor.style.transition = 'none';
-				heading.dataset.anchorState = 'hidden';
-				anchor.innerHTML = icons.link;
-				requestAnimationFrame(() => { anchor.style.transition = ''; });
-				heading.addEventListener('mouseenter', () => { heading.dataset.anchorState = ''; }, {once: true});
-			}, 1500);
-		});
-	}
-}
-</script>
-
 <style is:global>
-article :is(h2, h3, h4)[id] {
-	position: relative;
-}
-
-.heading-anchor {
-	position: absolute;
-	left: -28px;
-	top: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 24px;
-	opacity: 0;
-	color: var(--color-gray-400);
-	transition: opacity 0.15s ease, color 0.15s ease;
-	pointer-events: none;
-}
-
-.heading-anchor::before {
-	content: '';
-	position: absolute;
-	inset: -8px;
-}
-
-article :is(h2, h3, h4)[id]:hover > .heading-anchor {
-	opacity: 0.6;
-	pointer-events: auto;
-}
-
-.heading-anchor:hover {
-	opacity: 1 !important;
-	color: var(--color-primary-500);
-}
-
-[data-anchor-state="copied"] > .heading-anchor {
-	opacity: 1 !important;
-	color: var(--color-primary-500) !important;
-	pointer-events: none;
-}
-
-[data-anchor-state="hidden"] > .heading-anchor {
-	opacity: 0 !important;
-	pointer-events: none;
-}
-
-.download-badge {
+	.download-badge {
 		transition: transform 0.2s ease, filter 0.2s ease;
 	}
 

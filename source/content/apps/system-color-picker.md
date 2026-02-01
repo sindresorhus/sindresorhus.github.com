@@ -81,7 +81,7 @@ The built-in color picker supports plugins:
 - [Material Design](https://github.com/johnyanarella/MaterialDesignColorPicker)
 - [Color Picker Plus](https://github.com/viktorstrate/color-picker-plus)
 
-## Frequently Asked Questions
+## Frequently Asked Questions {#faq}
 
 #### The app does not show up in the menu bar
 

@@ -16,6 +16,220 @@ const {meta = {}} = Astro.props;
 			img {
 				content-visibility: auto;
 			}
+
+			[data-heading-anchors] :is(h2, h3, h4)[id],
+			[data-heading-anchors] details[id] > summary {
+				position: relative;
+			}
+
+			[data-heading-anchors] .heading-anchor {
+				position: absolute;
+				left: -28px;
+				top: 0;
+				bottom: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 24px;
+				opacity: 0;
+				color: var(--color-gray-400);
+				transition: opacity 0.15s ease, color 0.15s ease;
+				pointer-events: none;
+				transform: translateZ(0);
+			}
+
+			[data-heading-anchors] .heading-anchor::before {
+				content: '';
+				position: absolute;
+				inset: -8px;
+			}
+
+			[data-heading-anchors] :is(h2, h3, h4)[id]:hover > .heading-anchor,
+			[data-heading-anchors] details[id] > summary:hover > .heading-anchor {
+				opacity: 0.6;
+				pointer-events: auto;
+			}
+
+			[data-heading-anchors] .heading-anchor:hover {
+				opacity: 1 !important;
+				color: var(--color-primary-500);
+			}
+
+			[data-heading-anchors] [data-anchor-state="copied"] > .heading-anchor {
+				opacity: 1 !important;
+				color: var(--color-primary-500) !important;
+				pointer-events: none;
+			}
+
+			[data-heading-anchors] [data-anchor-state="hidden"] > .heading-anchor {
+				opacity: 0 !important;
+				pointer-events: none;
+			}
 		</style>
+		<script type="module" is:inline>
+			{
+				const isFAQPage = location.pathname.replace(/\/$/, '') === '/apps/faq';
+				const faqHeading = document.querySelector('h2#faq');
+				const shouldStopAtSectionBoundary = !isFAQPage;
+				const getHeadingLevel = element => {
+					const match = /^H([1-6])$/.exec(element.tagName);
+					return match ? Number(match[1]) : undefined;
+				};
+
+				const icons = {
+					link: '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-.025 9.45a.75.75 0 01-1.06-1.06l-1.25 1.25a2 2 0 01-2.83-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25z"/></svg>',
+					check: '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"/></svg>',
+				};
+
+				const addHeadingAnchors = container => {
+					const headings = container.querySelectorAll(':is(h2, h3, h4)[id], details[id] > summary');
+
+					for (const heading of headings) {
+						if (heading.querySelector(':scope > .heading-anchor')) {
+							continue;
+						}
+
+						const sectionId = heading.id || heading.parentElement.id;
+						const anchor = document.createElement('a');
+						anchor.href = `#${sectionId}`;
+						anchor.className = 'heading-anchor';
+						anchor.ariaLabel = 'Copy link to section';
+						anchor.innerHTML = icons.link;
+						heading.append(anchor);
+
+						anchor.addEventListener('click', async (event) => {
+							event.preventDefault();
+
+							await navigator.clipboard.writeText(new URL(`#${sectionId}`, location.href).toString());
+							history.pushState(null, '', `#${sectionId}`);
+
+							// Show checkmark, then hide until a fresh hover cycle.
+							anchor.innerHTML = icons.check;
+							heading.dataset.anchorState = 'copied';
+
+							setTimeout(() => {
+								anchor.style.transition = 'none';
+								heading.dataset.anchorState = 'hidden';
+								anchor.innerHTML = icons.link;
+								requestAnimationFrame(() => { anchor.style.transition = ''; });
+								heading.addEventListener('mouseenter', () => { heading.dataset.anchorState = ''; }, {once: true});
+							}, 1500);
+						});
+					}
+				};
+
+				if (isFAQPage || faqHeading) {
+					const headingTag = isFAQPage ? 'H3' : 'H4';
+					const headingLevel = Number(headingTag[1]);
+					const isSectionBoundary = element => {
+						if (!shouldStopAtSectionBoundary) {
+							return false;
+						}
+
+						const elementLevel = getHeadingLevel(element);
+						return elementLevel !== undefined && elementLevel < headingLevel;
+					};
+					const container = isFAQPage
+						? document.querySelector('main h1')?.parentElement
+						: faqHeading.parentElement;
+
+					if (container) {
+						container.classList.add('faq-collapsible');
+						if (isFAQPage) {
+							container.dataset.headingAnchors = '';
+						}
+
+						// Find headings after the FAQ start point
+						let current = (isFAQPage ? container.firstElementChild : faqHeading);
+						while (current && current.tagName !== headingTag) {
+							current = current.nextElementSibling;
+							if (current && isSectionBoundary(current)) {
+								current = null;
+								break;
+							}
+						}
+
+						while (current) {
+							if (isSectionBoundary(current)) {
+								break;
+							}
+
+							if (current.tagName !== headingTag) {
+								current = current.nextElementSibling;
+								continue;
+							}
+
+							const heading = current;
+
+							// Skip link-only headings (e.g., "More FAQs…")
+							if (heading.childNodes.length === 1 && heading.firstElementChild?.tagName === 'A') {
+								current = heading.nextElementSibling;
+								continue;
+							}
+
+							// Collect siblings until next heading or section boundary
+							const siblings = [];
+							let sibling = heading.nextElementSibling;
+							while (sibling && sibling.tagName !== headingTag && !isSectionBoundary(sibling)) {
+								siblings.push(sibling);
+								sibling = sibling.nextElementSibling;
+							}
+
+							const details = document.createElement('details');
+							if (heading.id) {
+								details.id = heading.id;
+							}
+
+							const summary = document.createElement('summary');
+							summary.append(...heading.childNodes);
+
+							const chevron = document.createElement('span');
+							chevron.className = 'faq-chevron';
+							summary.append(chevron);
+
+							const content = document.createElement('div');
+							content.className = 'faq-content';
+							content.append(...siblings);
+
+							details.append(summary, content);
+							heading.replaceWith(details);
+							current = sibling;
+						}
+
+						// Open details matching URL hash
+						const openDetailsForHash = () => {
+							if (!location.hash) {
+								return;
+							}
+
+							const target = document.querySelector(location.hash);
+							const details = target?.closest('details') ?? (target?.tagName === 'DETAILS' ? target : null);
+							details?.setAttribute('open', '');
+						};
+
+						openDetailsForHash();
+						window.addEventListener('hashchange', openDetailsForHash);
+
+						// Alt+click to expand/collapse all
+						container.addEventListener('click', event => {
+							const summary = event.altKey && event.target.closest('summary');
+							if (!summary) {
+								return;
+							}
+
+							event.preventDefault();
+							const shouldOpen = !summary.closest('details').open;
+							for (const details of container.querySelectorAll('details')) {
+								details.open = shouldOpen;
+							}
+						});
+					}
+				}
+
+				for (const container of document.querySelectorAll('[data-heading-anchors]')) {
+					addHeadingAnchors(container);
+				}
+			}
+		</script>
 	</body>
 </html>
