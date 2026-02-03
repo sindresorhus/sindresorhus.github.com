@@ -1,0 +1,46 @@
+---
+import {Icon} from 'astro-iconify';
+import MarkdownIt from 'markdown-it';
+
+const {text, url, urlText = 'Learn more'} = Astro.props;
+
+const md = new MarkdownIt({html: true, linkify: true});
+const renderedText = md.renderInline(text);
+---
+
+<aside class="flex justify-center px-6 -mt-8 mb-32">
+	<div class="flex flex-col sm:flex-row items-center gap-4 px-5 py-4 rounded-2xl bg-gradient-to-br from-primary-100/50 via-secondary-50/40 to-primary-50/50 dark:from-primary-900/25 dark:via-secondary-900/20 dark:to-primary-950/25 border border-primary-200/40 dark:border-primary-700/30 shadow-sm text-center sm:text-left">
+		<span class="hidden sm:flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 text-white shadow-sm shrink-0">
+			<Icon name="tabler:sparkles" class="w-4 h-4"/>
+		</span>
+		<p class="text-[15px] sm:text-base font-medium text-gray-700 dark:text-gray-200 [&_a]:underline [&_a]:underline-offset-2 [&_a]:text-primary-600 dark:[&_a]:text-primary-400 [&_strong]:font-semibold [&_code]:bg-gray-200 dark:[&_code]:bg-gray-700 [&_code]:px-1 [&_code]:rounded" set:html={renderedText}/>
+		{url && (
+			<a
+				href={url}
+				class="announcement-button shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-secondary-600 rounded-full shadow-sm"
+			>
+				<span>{urlText}</span>
+				<Icon name="tabler:arrow-right" class="w-4 h-4 arrow"/>
+			</a>
+		)}
+	</div>
+</aside>
+
+<style>
+	.announcement-button {
+		transition: box-shadow 0.2s, filter 0.2s;
+	}
+
+	.announcement-button:hover {
+		box-shadow: 0 4px 16px -2px rgba(var(--color-primary-500-rgb, 99, 102, 241), 0.4);
+		filter: brightness(1.1);
+	}
+
+	.announcement-button .arrow {
+		transition: transform 0.2s;
+	}
+
+	.announcement-button:hover .arrow {
+		transform: translateX(2px);
+	}
+</style>

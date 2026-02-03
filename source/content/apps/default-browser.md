@@ -12,6 +12,10 @@ mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/default-browser?wanted=true
   # 'Buy': https://buy.polar.sh/polar_cl_tWjWd0yRVXb9w0bhohTfxkqjwMUsjpegZM1na4HH9ER
 requirement: Requires macOS 15.4 or later
+announcement:
+  text: Save 26% with the Power User Bundle — get 3 power user apps together
+  url: https://sindresorhus.gumroad.com/l/power-user
+  urlText: Get the bundle
 pressQuotes:
   - quote: Sindre Sorhus is a serial indie app developer that specializes in creating niche apps that solve a particularly nagging problem in an often seamless way. Default Browser is one of my favorites.
     source: Lifehacker

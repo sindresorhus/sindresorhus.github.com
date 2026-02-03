@@ -55,6 +55,11 @@ const appsCollection = defineCollection({
 			source: z.string().nonempty(),
 			url: z.string().url().optional(),
 		})).optional(),
+		announcement: z.object({
+			text: z.string().nonempty(),
+			url: z.string().optional(),
+			urlText: z.string().optional(),
+		}).optional(),
 	}).strict(),
 });
 

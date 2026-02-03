@@ -13,6 +13,10 @@ forceHasIosAppIcon: true
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/supercharge?wanted=true
 requirement: Requires macOS 15.4 or later
+announcement:
+  text: Save 26% with the Power User Bundle — get 3 power user apps together
+  url: https://sindresorhus.gumroad.com/l/power-user
+  urlText: Get the bundle
 pressQuotes:
   - quote: It's almost as if Sindre Sorhus heard every gripe you've ever muttered about macOS and turned them into a to-do list of app features.
     source: Today on Mac

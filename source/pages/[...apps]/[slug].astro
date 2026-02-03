@@ -3,6 +3,7 @@ import {Icon} from 'astro-iconify';
 import {SITE} from '~/config.mjs';
 import Layout from '~/layouts/PageLayout.astro';
 import OverflowMenu from '~/components/widgets/OverflowMenu.astro';
+import Announcement from '~/components/widgets/Announcement.astro';
 import PressQuotes from '~/components/widgets/PressQuotes.astro';
 import RelatedApps from '~/components/widgets/RelatedApps.astro';
 import {fetchApps, proseCSS} from '~/utils/apps.js';
@@ -134,6 +135,9 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 			</header>
 			{availabilityText &&
 				<p class="text-center text-sm text-gray-500 dark:text-gray-500 -mt-24 mb-32">{availabilityText}</p>
+			}
+			{app.announcement &&
+				<Announcement text={app.announcement.text} url={app.announcement.url} urlText={app.announcement.urlText}/>
 			}
 			<section class="mx-auto px-6 max-w-5xl mb-20 flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide md:flex-col md:overflow-visible md:snap-none md:gap-0 md:space-y-8" aria-label="App media">
 				{app.videos.map(video => (

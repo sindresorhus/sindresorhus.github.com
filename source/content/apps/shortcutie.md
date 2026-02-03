@@ -10,6 +10,10 @@ hasSentry: true
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/shortcutie?wanted=true
 requirement: Requires macOS 15.2 or later
+announcement:
+  text: Save 26% with the Power User Bundle — get 3 power user apps together
+  url: https://sindresorhus.gumroad.com/l/power-user
+  urlText: Get the bundle
 pressQuotes:
   - quote: It’s absolutely essential for anyone who uses Shortcuts because it unlocks so many new things you can do. I love the extra power it gives my Mac and it’s totally worth it for those advanced features!
     source: Anonymous
