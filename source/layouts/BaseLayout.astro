@@ -181,7 +181,10 @@ const {meta = {}} = Astro.props;
 							}
 
 							const summary = document.createElement('summary');
-							summary.append(...heading.childNodes);
+							const summaryText = document.createElement('span');
+							summaryText.className = 'faq-summary-text';
+							summaryText.append(...heading.childNodes);
+							summary.append(summaryText);
 
 							const chevron = document.createElement('span');
 							chevron.className = 'faq-chevron';

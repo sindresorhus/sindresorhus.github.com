@@ -12,6 +12,14 @@ mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/default-browser?wanted=true
   # 'Buy': https://buy.polar.sh/polar_cl_tWjWd0yRVXb9w0bhohTfxkqjwMUsjpegZM1na4HH9ER
 requirement: Requires macOS 15.4 or later
+pressQuotes:
+  - quote: Sindre Sorhus is a serial indie app developer that specializes in creating niche apps that solve a particularly nagging problem in an often seamless way. Default Browser is one of my favorites.
+    source: Lifehacker
+    url: https://lifehacker.com/tech/finally-an-easier-way-to-change-your-default-browser-on-mac
+  - quote: Works flawlessly! It's exactly what I needed to quickly switch between browsers! Thank you for this fantastic app!
+    source: Petar Stoyanov
+  - quote: crashed at launch!
+    source: John Dorian
 # olderMacOSVersions:
 #   - '15'
 ---
@@ -32,12 +40,16 @@ Unlike similar apps, this one actually changes the system default browser (and w
 
 ---
 
+> [!TIP]
+> Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.
+
+<br>
+
 Mentions:
 - [Review in MacStories](https://www.macstories.net/reviews/default-browser-a-mac-menu-bar-utility-for-quickly-switching-browsers/)
 - [Lifehacker article](https://lifehacker.com/tech/finally-an-easier-way-to-change-your-default-browser-on-mac)
 
-> [!TIP]
-> Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.
+<br>
 
 *Switching the default browser is also a feature of my [Supercharge](/supercharge) app.*
 

@@ -11,6 +11,10 @@ hasSentry: true
 olderMacOSVersions:
   - '13'
   - '14'
+pressQuotes:
+  - quote: If you do a lot of file management and need to move items in Finder, this app will make your work much more straightforward. It’s objectively better than Apple’s standard shortcut, and pretty much everyone can benefit from it.
+    source: Softpedia
+    url: https://mac.softpedia.com/get/System-Utilities/Command-X.shtml
 feedbackNote: |
   [The app randomly disappears/quits](/apps/faq#randomly-quits)
 ---

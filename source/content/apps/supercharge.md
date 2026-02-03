@@ -13,6 +13,16 @@ forceHasIosAppIcon: true
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/supercharge?wanted=true
 requirement: Requires macOS 15.4 or later
+pressQuotes:
+  - quote: It's almost as if Sindre Sorhus heard every gripe you've ever muttered about macOS and turned them into a to-do list of app features.
+    source: Today on Mac
+    url: https://todayonmac.com/supercharge/
+  - quote: Once you try the app, you'll see it was created by a developer using macOS to solve those minor yet never truly minor annoyances. It packs a lot of functionality into one app. It's a really great app.
+    source: MJay Le
+  - quote: If I am allowed to buy only one app to run on my Mac, this would be the one. I simply can't live without it. It adds so many useful features, which are absolutely necessary, and keeps adding new, useful features.
+    source: Saksham Binda
+  - quote: I clicked the blue thing and it worked!
+    source: Mom
 # olderMacOSVersions:
 #   - '15'
 feedbackNote: |
@@ -26,9 +36,6 @@ feedbackNote: |
 
   If you are seeing the Supercharge icon showing up for drives in the Finder sidebar, see [this](#i-am-seeing-incorrect-icons-for-external-drives-in-the-finder-sidebar-when-enabling-context-menu-items).
 ---
-
-> [!TIP]
-> Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.
 
 Improve your Mac experience with a bunch of useful functionality. Supercharge adds power tools for Mission Control, the Dock, Finder, window management, and more, helping you work faster, reduce friction, and fix everyday macOS annoyances.
 
@@ -53,6 +60,13 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 - Extras — Add Dock & Finder sidebar spacers, change default browser without prompts.
 <!-- - [Remap Spotlight/Dictation keys](#remap-spotlight-dictation-keys) — Make the dedicated keys keyboard shortcuts, Supercharge actions, or run shortcuts. -->
 <!-- - [Double-tap modifier keys (Fn, Shift, Control, Option, Command) to trigger keyboard shortcuts, Supercharge actions, or run shortcuts](#double-tap-modifier) -->
+
+<br>
+
+> [!TIP]
+> Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.
+
+<br>
 
 #### All
 

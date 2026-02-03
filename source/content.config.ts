@@ -50,6 +50,11 @@ const appsCollection = defineCollection({
 		requirement: z.string().optional(),
 		feedbackNote: z.string().optional(),
 		hasSentry: z.boolean().default(false),
+		pressQuotes: z.array(z.object({
+			quote: z.string().nonempty(),
+			source: z.string().nonempty(),
+			url: z.string().url().optional(),
+		})).optional(),
 	}).strict(),
 });
 

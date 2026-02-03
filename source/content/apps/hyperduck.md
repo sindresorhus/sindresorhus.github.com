@@ -13,6 +13,10 @@ olderMacOSVersions:
   - '14'
 feedbackNote: |
   If you are having problems with sync, [read this](/hyperduck#troubleshooting).
+pressQuotes:
+  - quote: I love Hyperduck. […] It does a great job bridging iOS and iPadOS to macOS, which Shortcuts doesn't do very well yet. […] Hyperduck has become one of my primary tools for controlling my Mac remotely.
+    source: MacStories
+    url: https://www.macstories.net/reviews/automation-april-hyperduck-leverages-the-power-of-url-schemes-to-control-your-mac-from-an-iphone-or-ipad/
 ---
 
 For example, share a link from Safari on your iPhone, iPad, or Apple Vision, and have it open in the default browser on your Mac moments later.

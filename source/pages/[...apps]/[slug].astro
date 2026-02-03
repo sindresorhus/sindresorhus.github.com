@@ -3,10 +3,13 @@ import {Icon} from 'astro-iconify';
 import {SITE} from '~/config.mjs';
 import Layout from '~/layouts/PageLayout.astro';
 import OverflowMenu from '~/components/widgets/OverflowMenu.astro';
+import PressQuotes from '~/components/widgets/PressQuotes.astro';
+import RelatedApps from '~/components/widgets/RelatedApps.astro';
 import {fetchApps, proseCSS} from '~/utils/apps.js';
 
 export async function getStaticPaths() {
 	const apps = await fetchApps({includeArchived: true, includeUnlisted: true});
+	const allApps = apps.filter(app => !app.isArchived && !app.isUnlisted);
 
 	return apps.map(app => ({
 		params: {
@@ -14,11 +17,12 @@ export async function getStaticPaths() {
 		},
 		props: {
 			app,
+			allApps,
 		},
 	}));
 }
 
-const {app} = Astro.props;
+const {app, allApps} = Astro.props;
 
 const meta = {
 	title: `${app.title} — ${SITE.name}`,
@@ -139,8 +143,14 @@ const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1
 					<img src={screenshot.src} width={screenshot.width} height={screenshot.height} alt={`${app.title} screenshot ${index + 1}`} loading="lazy" class="rounded-md shadow-lg snap-center shrink-0 w-[85vw] md:w-auto md:shrink">
 				))}
 			</section>
+			{app.pressQuotes?.length > 0 &&
+				<PressQuotes quotes={app.pressQuotes}/>
+			}
 			<div class={proseCSS}>
 				<app.Content/>
+			</div>
+			<div class="mx-auto px-6 max-w-3xl">
+				<RelatedApps currentApp={app} allApps={allApps}/>
 			</div>
 		</article>
 	</section>

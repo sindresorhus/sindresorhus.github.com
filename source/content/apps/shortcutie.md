@@ -10,6 +10,10 @@ hasSentry: true
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/shortcutie?wanted=true
 requirement: Requires macOS 15.2 or later
+pressQuotes:
+  - quote: It’s absolutely essential for anyone who uses Shortcuts because it unlocks so many new things you can do. I love the extra power it gives my Mac and it’s totally worth it for those advanced features!
+    source: Anonymous
+    url: https://sindresorhus.gumroad.com/l/shortcutie
 # olderMacOSVersions:
 #   - '15'
 feedbackNote: |

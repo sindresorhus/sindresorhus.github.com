@@ -1,0 +1,59 @@
+---
+import {shufflingArray} from '~/utils/utils.js';
+
+const {currentApp, allApps} = Astro.props;
+
+const candidates = allApps.filter(app =>
+	app.slug !== currentApp.slug
+	&& !app.isRedirect,
+);
+
+const scored = candidates.map(app => {
+	let score = 0;
+
+	for (const platform of app.platforms) {
+		if (currentApp.platforms.includes(platform)) {
+			score += 3;
+		}
+	}
+
+	if (app.isMenuBarApp && currentApp.isMenuBarApp) {
+		score += 2;
+	}
+
+	if (app.isPaid === currentApp.isPaid) {
+		score += 1;
+	}
+
+	return {app, score};
+});
+
+scored.sort((a, b) => b.score - a.score || b.app.pubDate - a.app.pubDate);
+
+// Pick 3 with some randomness: take the top candidates and shuffle within them.
+const poolSize = Math.min(scored.length, 8);
+const pool = scored.slice(0, poolSize);
+
+const related = shufflingArray(pool).slice(0, 3).map(entry => entry.app);
+---
+
+{related.length > 0 && (
+	<aside class="mt-32 pt-16">
+		<h2 class="text-center text-lg font-semibold text-gray-500 dark:text-gray-400 mb-8">You Might Also Like</h2>
+		<div class="flex justify-center gap-6 sm:gap-10">
+			{related.map(app => (
+				<a href={app.url} class="flex flex-col items-center gap-2 sm:gap-3 group w-20 sm:w-28">
+					<img
+						src={app.iconUrl}
+						width="64"
+						height="64"
+						alt={`${app.title} app icon`}
+						class="rounded-xl transition-transform group-hover:scale-110"
+						loading="lazy"
+					>
+					<span class="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 text-center leading-tight">{app.title}</span>
+				</a>
+			))}
+		</div>
+	</aside>
+)}

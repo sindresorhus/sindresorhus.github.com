@@ -16,6 +16,12 @@ olderMacOSVersions:
   - '12'
   - '13'
   - '14'
+pressQuotes:
+  - quote: Dato is a simple app, but it includes a wide variety of settings that make it more flexible than you might imagine. […] I’ve already got plenty of apps in my menu bar, so I’m always reluctant to add more. However, Dato has stuck around because of its flexibility.
+    source: MacStories
+    url: https://www.macstories.net/reviews/dato-review-calendar-events-and-time-zones-from-your-macs-menu-bar/
+  - quote: Is this why you never call?
+    source: Mom
 feedbackNote: |
   If a menu bar icon is missing, [this](/apps/faq#app-not-showing-in-menu-bar).
 
