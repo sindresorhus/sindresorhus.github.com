@@ -6,10 +6,12 @@ platforms:
   - macOS
 appStoreId: 1596706466
 hasSentry: true
+forceHasIosAppIcon: true
 olderMacOSVersions:
   - '12'
   - '13'
   - '14'
+  - '15'
 ---
 
 Quickly check your internet connection speed, ping, and [RPM](#rpm).
@@ -20,7 +22,7 @@ Quickly check your internet connection speed, ping, and [RPM](#rpm).
 
 <img src="https://github.com/sindresorhus/meta/assets/170270/a7ffaf8f-6fb0-4c90-822f-446ec5ff8960" alt="Speediness output in the menu bar" width="230">
 
-You will need the [One Thing](https://sindresorhus.com/one-thing) and [Shortery](https://apps.apple.com/app/id1594183810) app.
+You will need the [One Thing](https://sindresorhus.com/one-thing) app. On macOS 26, you can use Shortcuts automations to run the shortcut at a certain interval. On older macOS versions, you can use the [Shortery](https://apps.apple.com/app/id1594183810) app for this.
 
 Add [this shortcut](https://www.icloud.com/shortcuts/d073ad4fd89f4c9cb110795780ed2377) and then create a new time trigger in Shortery. I would recommend an interval higher than 10 minutes.
 
@@ -64,12 +66,6 @@ The app makes use of the built-in [`networkQuality` command-line tool](https://s
 
 No, a progress bar would not accurately reflect progress due to the variability in testing time, which depends on factors like network speed and other unknown conditions.
 
-#### Can it show the current speed live as it calculates it?
-
-This is not possible as it's not provided by the macOS tool Speediness uses to get the speed.
-
-I have sent a [feature request to Apple](https://github.com/feedback-assistant/reports/issues/346) about it and I encourage you [to do the same](https://www.apple.com/feedback/macos.html). Feel free to copy-paste my report.
-
 #### Does it measure jitter? {#jitter}
 
 No. Jitter sounds useful, but it rarely adds actionable insight. If jitter is bad, you’ll see it immediately through unstable latency and low responsiveness. If responsiveness is high, jitter is already in a safe range. A separate jitter number wouldn’t change what you can do with the result.
@@ -80,7 +76,7 @@ Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet
 
 #### How can I run the speed test automatically every hour? {#scheduled}
 
-Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet Speed” action into the shortcut editor. You may want to enable the “Add to History” action setting. [Get the Shortery app](https://apps.apple.com/app/id1594183810) and set it to run this shortcut every hour or at an interval of your choosing.
+Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet Speed” action into the shortcut editor. You may want to enable the “Add to History” action setting. On macOS 26, you can use Shortcuts automations to run this shortcut every hour or at an interval of your choosing. On older macOS versions, you can use the [Shortery app](https://apps.apple.com/app/id1594183810) for this.
 
 #### Can you add support for iOS? {#ios}
 
@@ -106,6 +102,7 @@ I don't plan to localize the app.
 
 ## Older Versions
 
+- [1.8.1](https://www.dropbox.com/scl/fi/84jjd5hqfhdp9sv76jb9a/Speediness-1.8.1-macOS-15-1770360327.zip?rlkey=v8tc9r4r7iz9kqfjyksfdwri2&raw=1) for macOS 15+
 - [1.7.2](https://github.com/user-attachments/files/18912491/Speediness.1.7.2.-.macOS.14.zip) for macOS 14+
 - [1.6.1](https://github.com/sindresorhus/meta/files/13965129/Speediness.1.6.1.-.macOS.13.zip) for macOS 13+
 - [1.5.0](https://github.com/sindresorhus/meta/files/10847708/Speediness.1.5.0.-.macOS.12.zip) for macOS 12+
@@ -114,6 +111,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/1n872jboa9mczjmq8prxf/Speediness-1.8.0-1740153967.zip?rlkey=pu6hjxy5smwbhpj61bhq3fpg9&raw=1) *(1.8.0)*
+[Download](https://www.dropbox.com/scl/fi/xt04xgqt32n6ekqdao10b/Speediness-2.0.0-1770359964.zip?rlkey=d16dzbs51ys756sb2cw49merv&raw=1) *(2.0.0)*
 
-*Requires macOS 15 or later*
+*Requires macOS 26 or later*

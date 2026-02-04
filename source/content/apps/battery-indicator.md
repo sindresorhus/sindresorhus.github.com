@@ -59,13 +59,13 @@ This is not possible for the same reason as mentioned above.
 
 The app has a built-in sound when showing notifications. However, if you want a different sound, you can disable the default notification sound in the “Notification Settings” and then follow the below steps.
 
-This is a perfect use case for the built-in Shortcuts app. You can use the `Play Sound` action to play the sound you want. To run the shortcut when the battery is at a certain percentage, you need the [Shortery app](https://apps.apple.com/app/id1594183810). Use its “Power Status” trigger.
+This is a perfect use case for the built-in Shortcuts app. You can use the `Play Sound` action to play the sound you want. To run the shortcut when the battery is at a certain percentage, you can use Shortcuts automations on macOS 26, or the [Shortery app](https://apps.apple.com/app/id1594183810) on older macOS versions. Use its “Power Status” trigger.
 
 You can find sound effects [here](https://pixabay.com/sound-effects/search/interface/).
 
 #### Can the battery icon hide when the battery is charged a certain percentage?
 
-This is a perfect use case for the built-in Shortcuts app. Create a shortcut that quits the app and one that launches it. To run the shortcut when the battery is at a certain percentage, you need the [Shortery app](https://apps.apple.com/app/id1594183810). Use its “Power Status” trigger.
+This is a perfect use case for the built-in Shortcuts app. Create a shortcut that quits the app and one that launches it. To run the shortcut when the battery is at a certain percentage, you can use Shortcuts automations on macOS 26, or the [Shortery app](https://apps.apple.com/app/id1594183810) on older macOS versions. Use its “Power Status” trigger.
 
 #### [More FAQs…](/apps/faq)
 

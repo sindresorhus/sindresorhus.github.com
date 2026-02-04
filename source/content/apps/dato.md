@@ -96,6 +96,7 @@ Dato is a one-time purchase on the App Store with a lifetime of updates.
 - LiveKit Meet
 - Livestorm
 - Luma
+- Meetecho
 - Microsoft Teams
 - oVice
 - Pop
@@ -105,6 +106,7 @@ Dato is a one-time purchase on the App Store with a lifetime of updates.
 - Relayed
 - RingCentral
 - Session
+- Signal
 - Skype
 - Slack
 - StreamYard
@@ -134,7 +136,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/b1umg2rk8xyhlba0fvp63/Dato-5.6.10-trial-1766330784.zip?rlkey=o1mnnohh28m5rwm7ppjdxjyd2&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/i1lfd9qf3ovzislxtbv6n/Dato-5.7.1-trial-1771400041.zip?rlkey=fjpo2lo3jid5bw5acnmqp11z9&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
@@ -626,11 +628,19 @@ Select any date in the calendar and then use the time travel slider to adjust th
 
 You can use the [Focus Filter](https://support.apple.com/guide/mac-help/mchl613dc43f/mac) that comes with Dato to pause fullscreen notifications when in certain focus modes.
 
-Alternatively, use the built-in Shortcuts app. You can use the `Set Fullscreen Notifications State` action provided by Dato to enable or disable fullscreen notifications. For example, to only enable fullscreen notifications during work hours, you will need to create two shortcuts. One to enable fullscreen notifications and one to disable it. You also need the [Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12) to run the shortcuts at the correct times.
+Alternatively, use the built-in Shortcuts app. You can use the `Set Fullscreen Notifications State` action provided by Dato to enable or disable fullscreen notifications. For example, to only enable fullscreen notifications during work hours, you will need to create two shortcuts. One to enable fullscreen notifications and one to disable it. On macOS 26, you can use Shortcuts automations to run them at the correct times. On older macOS versions, you need the [Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12) for this.
 
 #### How can I enable fullscreen notification only when a certain [Focus mode](https://support.apple.com/guide/mac-help/mchl613dc43f/mac) is active?
 
-Same as the above but make the Shortery app run the shortcuts when the Focus mode changes.
+Same as the above but trigger the shortcuts when the Focus mode changes.
+
+#### How can I quickly switch between different sets of calendars? {#calendar-sets}
+
+You can use the Shortcuts app to create “calendar sets” that quickly enable or disable specific calendars for different situations (for example, “Work” vs “Personal”).
+
+Use the `Set Calendar Enabled State` action provided by Dato. When no specific calendar is provided, the action applies to all calendars. When no feature is specified, it applies to all features. You can also use `Set Reminder List Enabled State` for reminder lists.
+
+For example, create a “Work Mode” shortcut that disables your personal calendars and enables your work calendars, and a “Personal Mode” shortcut that does the inverse. On macOS 26, you can use Shortcuts automations to trigger them automatically based on time of day or Focus mode. On older macOS versions, you can use Focus Filters or the [Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12).
 
 #### Can you add support for showing an analog clock like the system clock?
 
@@ -664,7 +674,7 @@ Or you may have to re-authenticate your Google account. Open the Calendar app's 
 
 #### Can I show UTC time in the menu bar?
 
-Yes
+Yes.
 
 1. Open the Dato settings
 1. Go to the “Time Zones” pane
@@ -679,7 +689,7 @@ Yes
 
 This is a perfect use case for the built-in Shortcuts app. You can use the `Quit App` and `Open App` actions to quit and relaunch Dato whenever needed. For example, you could create a focus shortcut that quits Dato, plays some music, turns off notifications, etc.
 
-To hide the Dato clock at a certain time of the day, you need the [Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12).
+To hide the Dato clock at a certain time of the day, you can use Shortcuts automations on macOS 26, or the [Shortery app](https://apps.apple.com/no/app/shortery/id1594183810?mt=12) on older macOS versions.
 
 #### How can I show [day of year](https://nsidc.org/data/user-resources/help-center/day-year-doy-calendar) in the menu bar?
 
@@ -717,11 +727,11 @@ Dato integrates with the Reminders app only. However, you can use the Shortcuts 
 
 [Here is a shortcut](https://www.icloud.com/shortcuts/2b856dd9607f412fb660d009a03d60a8) that does this. Run it and then enable the “Things” reminders list in the Dato settings.
 
-The Shortcuts app does not yet support automation, so to have the shown todo stay in sync with Things, we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut. Choose the “Application” trigger type and make it trigger when Things becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually.
+On macOS 26, you can use Shortcuts automations to run the shortcut automatically. On older macOS versions, you can use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut. Choose the “Application” trigger type and make it trigger when Things becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually.
 
 #### How can I show seconds in the menu bar only when connected to power?
 
-You can use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run a shortcut when connected and disconnected to power, which would show and hide seconds in the menu bar.
+On macOS 26, you can use Shortcuts automations to run a shortcut when connected and disconnected from power. On older macOS versions, you can use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app for this.
 
 - [Show seconds shortcut](https://www.icloud.com/shortcuts/41adf21d1bea44499d5034864687d01d)
 - [Hide seconds shortcut](https://www.icloud.com/shortcuts/dcb7b8c4d66740a8a8ba8abae063e661)
@@ -732,7 +742,7 @@ Dato has a focus filter for pausing fullscreen notifications. Ideas for other fi
 
 #### Can I change the chime frequency for the "Hourly Chime" feature?
 
-I don't plan to add more settings to this feature. However, you can achieve this by using the Shortcuts app. Make a shortcut using the “Get Sound” action provided by Dato and have [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) run it at the interval you prefer. [Example shortcut.](https://www.icloud.com/shortcuts/72e44ca37e024b8ab016bd827557f00f)
+I don't plan to add more settings to this feature. However, you can achieve this by using the Shortcuts app. Make a shortcut using the “Get Sound” action provided by Dato. On macOS 26, you can use Shortcuts automations to run it at the interval you prefer. On older macOS versions, you can use [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) for this. [Example shortcut.](https://www.icloud.com/shortcuts/72e44ca37e024b8ab016bd827557f00f)
 
 #### How can I transfer my settings from the App Store version to the Setapp version?
 

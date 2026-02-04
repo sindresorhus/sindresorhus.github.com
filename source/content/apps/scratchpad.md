@@ -16,6 +16,7 @@ pressQuotes:
     url: https://www.macstories.net/reviews/scratchpad-the-cross-device-text-utility-that-pairs-perfectly-with-your-clipboard-manager/
 olderMacOSVersions:
   - '14'
+  - '15'
 feedbackNote: |
   If you are having problems with sync, [read this](/scratchpad#troubleshooting).
 ---
@@ -63,6 +64,9 @@ There is no trial for the iOS version.
 
 ### Keyboard shortcuts <sup>macOS</sup>
 
+- Copy text <kbd>⇧⌘C</kbd>
+- Share text <kbd>⇧⌘S</kbd>
+- Select all text <kbd>⌘A</kbd>
 - Increase text size: <kbd>⌘+</kbd>
 - Decrease text size: <kbd>⌘-</kbd>
 - Reset text size: <kbd>⌘0</kbd>
@@ -75,7 +79,7 @@ Quickly open the app using the built-in Lock Screen widget. For more customizati
 
 1. Tap the share button in any app that deals with text and select “Add to Scratchpad”.
 1. macOS: Select some text in any app, right-click, and select “Services › Add to Scratchpad” or “Share › Add to Scratchpad”.
-2. iOS: Select some text in any app, tap “Share › Add to Scratchpad”.
+1. iOS: Select some text in any app, tap “Share › Add to Scratchpad”.
 1. Use the [Shortcuts action](#scripting)
 1. Use the [custom URL scheme](#scripting)
 1. Use [this shortcut](https://www.icloud.com/shortcuts/caa5fd4f5a7240cf951ef9a4184b0522) directly from a share sheet
@@ -269,6 +273,7 @@ I have not included a way to overwrite the text because I don't want anything to
 
 ## Older Versions
 
+- [1.3.7](https://www.dropbox.com/scl/fi/xw6k068700wg41jjt7ens/Scratchpad-1.3.7-macOS-15-1771197879.zip?rlkey=ruqmud5mrvhscs0i6dgeres16&raw=1) for macOS 15
 - [1.2.8](https://github.com/user-attachments/files/18575785/Scratchpad.1.2.8.-.macOS.14.zip) for macOS 14
 
 These are free for everyone but they will not run on newer macOS versions.

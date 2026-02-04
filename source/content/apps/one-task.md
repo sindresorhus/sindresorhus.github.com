@@ -77,7 +77,7 @@ No. I want to keep this app super simple.
 
 However, you can achieve this using the Shortcuts app. Create a [shortcut](https://support.apple.com/guide/shortcuts/welcome/ios) that uses the “Add Task” action to add the tasks you want to be recurring. Then create an [automation](https://support.apple.com/guide/shortcuts/apdfbdbd7123/7.0/ios/17.0) to run the shortcut at a certain interval. For example, every morning.
 
-*(macOS does not yet have automations. You can use [Shortery](https://apps.apple.com/app/id1594183810) for now.)*
+*(On macOS 26, you can use Shortcuts automations. On older macOS versions, you can use [Shortery](https://apps.apple.com/app/id1594183810).)*
 
 #### Does the app support task templates? {#task-templates}
 

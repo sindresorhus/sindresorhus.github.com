@@ -7,15 +7,16 @@ platforms:
 forceHasIosAppIcon: true
 mainLinks:
   'Download': https://github.com/sindresorhus/menu-bar-spacing-meta/releases/latest/download/Menu.Bar.Spacing.zip
-requirement: Free · Requires macOS 15 or later.
+requirement: Free · Requires macOS 26 or later.
 olderMacOSVersions:
   - '14'
+  - '15'
 ---
 
 Menu bar apps are awesome, but MacBooks have limited menu bar space. This app helps you reclaim that space by reducing the gap between menu bar items. With a single run, the app applies changes permanently, allowing you to fit more apps into the menu bar. Reverting the changes is just as simple, done within the app. If you have a large display, the app can also increase the gap between menu bar items.
 
 > [!WARNING]
-> Because of a [macOS 26 bug](https://github.com/feedback-assistant/reports/issues/679), menu bar apps need to be relaunched before they show the correct spacing.
+> Because of a [macOS 26 bug](https://github.com/feedback-assistant/reports/issues/679), third-party menu bar apps need to be relaunched before they show the correct spacing.
 
 The app includes a Shortcuts action, enabling automated spacing adjustments for various scenarios.
 
@@ -70,7 +71,7 @@ No. It applies globally only.
 
 #### Can I have different spacing for when I'm using the built-in display and when using a connected larger display?
 
-No, not in the app. However, the app comes with an action for Shortcuts, so you could automate it. Create a shortcut for each display that uses the “Set Menu Bar Spacing” action, then create a “Monitor” trigger in the [Shortery](https://apps.apple.com/app/id1594183810) app.
+No, not in the app. However, the app comes with an action for Shortcuts, so you could automate it. Create a shortcut for each display that uses the “Set Menu Bar Spacing” action. On macOS 26, you can use Shortcuts automations. On older macOS versions, you can create a “Monitor” trigger in the [Shortery](https://apps.apple.com/app/id1594183810) app.
 
 > [!NOTE]
 > The setting is global. Changing it will interrupt any ongoing screen recording or sharing, as it restarts some system processes to apply changes immediately.
@@ -83,4 +84,5 @@ The app works by changing hidden system settings, which is not allowed on the Ap
 
 ## Older Versions
 
+- [1.1.0](https://www.dropbox.com/scl/fi/oicszj1rvnivv0wzqtsi0/Menu-Bar-Spacing-1.1.0-macOS-15-1771443121.zip?rlkey=5v0diy5fwpiut9lysc65ij333&raw=1) for macOS 15+
 - [1.0.1](https://github.com/user-attachments/files/18203513/Menu.Bar.Spacing.1.0.1.zip) for macOS 14+

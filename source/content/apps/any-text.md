@@ -77,7 +77,7 @@ I would like to keep the app simple, so it's not something I plan to support bui
 
 You could also put multiple widgets in a [widget stack](https://support.apple.com/118610).
 
-*(macOS does not yet have automations. You can use [Shortery](https://apps.apple.com/app/id1594183810) for now.)*
+*(On macOS 26, you can use Shortcuts automations. On older macOS versions, you can use [Shortery](https://apps.apple.com/app/id1594183810).)*
 
 #### Can you add support for user-installed fonts?
 

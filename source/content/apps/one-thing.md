@@ -6,10 +6,12 @@ platforms:
   - macOS
 isMenuBarApp: true
 appStoreId: 1604176982
+forceHasIosAppIcon: true
 olderMacOSVersions:
   - '12'
   - '13'
   - '14'
+  - '15'
 ---
 
 This can be a useful tool to help you focus on a single task.
@@ -93,13 +95,13 @@ I have made a special version of One Thing with a different identifier. You can 
 
 You can use the Shortcuts app for this. Here is an [example shortcut](https://www.icloud.com/shortcuts/7f8a4cc8764348518c5b7774d60191cc) that sets the next todo in “Today” as the text in One Thing.
 
-To have the shown todo stay in sync with Things, we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut. Choose the “Application” trigger type and make it trigger when Things becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually, or use [Short Run](/short-run).
+To have the shown todo stay in sync with Things, you can use the shortcut with an automation trigger. On macOS 26, you can use Shortcuts automations. On older macOS versions, you can use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app. Choose the “Application” trigger type and make it trigger when Things becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually, or use [Short Run](/short-run).
 
 #### How can I show the upcoming reminder from the Reminders app in One Thing? {#reminders}
 
 You can use the Shortcuts app for this. Here is an [example shortcut](https://www.icloud.com/shortcuts/4bed5f56a0f94e9a9e9ba05c97c6e64b).
 
-To have the shown todo stay in sync with Reminders, we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut. Choose the “Application” trigger type and make it trigger when Reminders becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually, or use [Short Run](/short-run).
+To have the shown todo stay in sync with Reminders, you can use the shortcut with an automation trigger. On macOS 26, you can use Shortcuts automations. On older macOS versions, you can use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app. Choose the “Application” trigger type and make it trigger when Reminders becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually, or use [Short Run](/short-run).
 
 #### How can I show a todo from my favorite todo app in One Thing?
 
@@ -183,6 +185,7 @@ defaults read com.sindresorhus.One-Thing text
 
 ## Older Versions
 
+- [1.13.2](https://www.dropbox.com/scl/fi/s092qpp3p5s77gnjsyty3/One-Thing-1.13.2-macOS-15-1770923231.zip?rlkey=big014nrx8xrw4mwfnxwxbmxy&raw=1) for macOS 15+
 - [1.12.2](https://github.com/user-attachments/files/19145029/One.Thing.1.12.2.-.macOS.14.zip) for macOS 14+
 - [1.11.3](https://github.com/sindresorhus/meta/files/14759175/One.Thing.1.11.3.-.macOS.13.zip) for macOS 13+
 - [1.9.0](https://github.com/sindresorhus/meta/files/11081660/One.Thing.1.9.0.-.macOS.12.zip) for macOS 12+
@@ -191,6 +194,6 @@ defaults read com.sindresorhus.One-Thing text
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/q9rm992wh0ohloi84hnxa/One-Thing-1.13.1-1741673626.zip?rlkey=rxkvdki7glpvehvtve8e6pgg3&raw=1) *(1.13.1)*
+[Download](https://www.dropbox.com/scl/fi/tkbtoewq4jpaytzyudrcs/One-Thing-2.0.0-1770922762.zip?rlkey=r0ggwqp4c5vus4xh2k8m19wr7&raw=1) *(2.0.0)*
 
-*Requires macOS 15 or later*
+*Requires macOS 26 or later*
