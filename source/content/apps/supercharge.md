@@ -67,11 +67,6 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 
 <br>
 
-> [!TIP]
-> Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.
-
-<br>
-
 #### All
 
 - Clear notifications with a keyboard shortcut or from the menu
@@ -145,12 +140,15 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 - Finder: Make <kbd>⌘Q</kbd> close all windows and hide Finder
 	<span class="list-description">By default, <kbd>⌘Q</kbd> does nothing in Finder.</span>
 - Finder: Customize clicking Finder icon in Dock
-	<span class="list-description">Choose what happens when you click the Finder icon in the Dock: System default behavior, open new window when already focused (first click focuses, subsequent clicks open new windows), or always open new window.</span>
+	<span class="list-description">Choose what happens when you click the Finder icon in the Dock: System default behavior, open new window when already focused (first click focuses, subsequent clicks open new windows), or always open new window.</span> <!-- - [Remap the dedicated Spotlight and Dictation keys to custom keyboard shortcuts](#remap-spotlight-dictation-keys)
+	<span class="list-description">Make them trigger any keyboard shortcut instead, like opening a launcher (Raycast, Alfred) or a transcription app.</span> -->
 - [Adds many useful services to “Services” in context menus (like in Finder):](#macos-services) copy path, move to, AirDrop, etc.
 - Exclude AirDrop, Mail, and Messages from the system Share menu
   <span class="list-description">These are usually forced to be shown by macOS.</span>
 - Center mouse pointer on primary display when waking and unlocking
 	<span class="list-description">Helps you quickly locate the mouse pointer after returning to your Mac. Also available via keyboard shortcut.</span>
+- Limit output volume after waking and unlocking
+	<span class="list-description">Automatically lowers your Mac's volume to a chosen maximum if it's louder when you return. Never unmutes or raises volume. Prevents accidental loud audio after leaving your Mac idle.</span>
 - Disable delay when showing Dock.
 	<span class="list-description">Does not apply to fullscreen.</span>
 - Minimize all windows or just all except frontmost with keyboard shortcuts and from the menu.
@@ -160,6 +158,7 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 	<span class="list-description">Useful if you want screenshots saved and also instantly available to paste. Works with the built-in screenshot tool.</span>
 - [Show markup tools by default in screenshot preview](https://github.com/user-attachments/assets/20b0cfe8-d588-4329-9132-9120b32da7ff)
 - Auto-open screenshot preview after capturing
+- Show or hide mouse pointer in screenshots
 - [Show input devices in the Sound menu bar item menu](https://github.com/user-attachments/assets/e6015206-c927-4c97-8f66-7408231d4f23)
 	<span class="list-description">By default, it only shows output devices.</span>
 - Archive old items in the Downloads folder automatically
@@ -183,7 +182,7 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 - [Offers to install apps from mounted DMG files](https://github.com/user-attachments/assets/5ecb9b0b-5719-4382-98a0-c3316bd20a6b)
 - Toggle Stage Manager directly from its menu bar item
 	<span class="list-description">Normally, clicking it would open a window with a toggle. This saves one click.</span>
-- Hide mouse pointer with keyboard shortcut
+- Hide mouse pointer automatically after a period of inactivity or with keyboard shortcut (like Cursorcerer)
 	<span class="list-description">Reappears on movement or when the shortcut is pressed again.</span>
 - Show desktop (menu action)
 - Sleep displays (menu action and keyboard shortcut)
@@ -212,8 +211,8 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 	<span class="list-description">Only works if your Mac supports notifications from iOS.</span>
 - Control keyboard brightness with customizable keyboard shortcuts
 	<span class="list-description">Only supported for the built-in MacBook keyboard.</span>
-- Clear clipboard
-- Empty trash keyboard shortcut
+- Clear clipboard *(menu action and keyboard shortcut)*
+- Empty trash *(menu action and keyboard shortcut)*
 - [Clicking a Dock folder reveals it in Finder instead of showing its contents](#dock-folder-click)
 - Open system settings directly (usually requires a lot of clicks):
 	- Hide My Email
@@ -235,6 +234,7 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 - Reset [privacy permissions](https://support.apple.com/en-vn/guide/mac-help/mchl211c911f/mac) for any apps
 - Flush DNS cache
 - Shortcuts actions
+- Show [poof animation](https://substack.techreflect.org/p/origin-on-macos-cloud-poof-animation) when closing a window by clicking the red traffic light button
 
 <!-- - [Show seconds hand in the Clock app's Dock icon](https://github.com/user-attachments/assets/b1d025dc-0465-4d0f-adf8-48bc079ad438) -->
 
@@ -427,6 +427,8 @@ Adds the following actions (can be customized) directly in the right-click menu 
 - Open Folder With
 	<span class="list-description">[Missing apps?](/supercharge#add-app-open-folder-with)</span>
 - Make Symlink
+- Cut & Paste
+	<span class="list-description">Adds Windows-style “Cut” and “Paste” to move files: right-click files and choose “Cut”, then right-click the destination folder and choose “Cut”.</span>
 - Move To
 	<span class="list-description">Moves files and folders to a chosen location.</span>
 - Copy To

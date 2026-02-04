@@ -10,6 +10,7 @@ hasSentry: true
 olderMacOSVersions:
   - '13'
   - '14'
+  - '15'
 feedbackNote: |
   [The app randomly disappears/quits](/apps/faq#randomly-quits)
 ---
@@ -131,6 +132,7 @@ I don't plan to localize the app.
 
 ## Older Versions
 
+- [1.7.1](https://www.dropbox.com/scl/fi/ca9u8j9b563svmshjh37j/Today-1.7.1-macOS-15-1770891871.zip?rlkey=80exyjq71aemdfagycis82u3w&raw=1) for macOS 15+
 - [1.6.2](https://github.com/user-attachments/files/18873369/Today.1.6.2.-.macOS.14.zip) for macOS 14+
 - [1.5.0](https://github.com/sindresorhus/meta/files/13997505/Today.1.5.0.-.macOS.13.zip) for macOS 13+
 
@@ -138,6 +140,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/r87w55w9hy6j2i54srg5c/Today-1.7.1-1749995609.zip?rlkey=4tv1ovsun17asiyfkgopp3fn8&raw=1) *(1.7.1)*
+[Download](https://www.dropbox.com/scl/fi/06fgch1tc9yp87n44203e/Today-1.8.0-1770891350.zip?rlkey=8kgvpzcdme7bq917h717nlbk5&raw=1) *(1.8.0)*
 
-*Requires macOS 15 or later*
+*Requires macOS 26 or later*

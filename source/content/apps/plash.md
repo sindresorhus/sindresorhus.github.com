@@ -110,13 +110,17 @@ Plash comes bundled with a [share extension](https://support.apple.com/guide/mac
 
 #### Can it automatically switch websites every 10 minutes?
 
-Plash can be automated with the built-in Shortcuts app, for example, using the “Switch to Next Website” action. Shortcuts on macOS does not yet support automations, but for now, you can use the [Shortery app](https://apps.apple.com/app/id1594183810).
+Plash can be automated with the built-in Shortcuts app, for example, using the “Switch to Next Website” action. On macOS 26, you can use Shortcuts automations. On older macOS versions, you can use the [Shortery app](https://apps.apple.com/app/id1594183810).
 
 #### Does it support multiple displays?
 
 Support for multiple displays is currently limited to the ability to choose which display to show the website on. Support for setting a separate website for each display is [planned](https://github.com/sindresorhus/Plash/issues/2).
 
 However, there is a [workaround](https://github.com/sindresorhus/Plash/issues/2#issuecomment-653891524).
+
+#### Can Plash display multiple websites at the same time?
+
+No. Plash only shows one website at a time. Displaying multiple websites simultaneously is out of scope.
 
 #### Why does Plash use so much memory?
 

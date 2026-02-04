@@ -28,13 +28,14 @@ feedbackNote: |
 The app provides 180+ powerful extra actions for the Shortcuts app on macOS, iOS, and visionOS. These actions make it significantly easier to create shortcuts.
 
 > [!IMPORTANT]
-> Restart your device if the actions do not show up in the Shortcuts app. Also try setting a different device language and then back. [Learn more](#actions-not-showing-up)
+> Restart your device if the actions do not show up in the Shortcuts app. [Learn more ›](#actions-not-showing-up)
 
 If you have any questions about how to use the different actions or for what, try asking the [Actions GPT bot](https://chatgpt.com/g/g-6746353a017881918cceb0761aea3bfe-actions-app-companion). And if you want to feed your own AI, [here is the source data](https://gist.githubusercontent.com/sindresorhus/fbba65a774fb9da915e624807a02a6d2/raw/7be21a65977b6dd82d1a6cc34be4476df057ea06/actions.md).
 
 ---
 
-*On macOS, also check out [Shortcutie](/shortcutie) for advanced actions and [Short Run](/short-run) for running shortcuts from the menu bar.*
+> [!TIP]
+> On macOS, also check out [Shortcutie](/shortcutie) for advanced actions and [Short Run](/short-run) for running shortcuts from the menu bar.
 
 ---
 
@@ -340,6 +341,11 @@ I just enjoy making apps and want this to be available for everyone. Consider le
 #### How can I prevent the app from being offloaded when I have “app offloading” enabled on iOS?
 
 iOS does not have a way to prevent individual apps from being offloaded (even though it should!) and there is no way for apps to tell iOS not to offload them. I recommend [sending feedback to Apple](https://feedbackassistant.apple.com) about this. You could try [this workaround](https://www.reddit.com/r/ios/comments/85k8b5/disable_offloading_for_specific_apps/).
+
+#### Can the “Show Notification” action send critical alerts?
+
+No. I applied for Apple’s [Critical Alerts entitlement](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.developer.usernotifications.critical-alerts), but it was declined.
+Critical Alerts are reserved for very limited use cases such as medical, health, home security, and public safety notifications. General-purpose automation apps like Actions are not eligible.
 
 #### [More FAQs…](/apps/faq)
 

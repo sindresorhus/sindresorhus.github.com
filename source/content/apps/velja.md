@@ -12,6 +12,7 @@ olderMacOSVersions:
   - '12'
   - '13'
   - '14'
+  - '15'
 feedbackNote: |
   [Can you support Safari profiles?](/velja#safari-profiles)
 
@@ -79,11 +80,11 @@ Any browser.
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/yds3dd37ji964dz5ognmt/Velja-3.0.0-trial-1762520309.zip?rlkey=0wndlu3p07x3jeydvv3rcuq0b&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/3a9nj35coz3ohyizixxkg/Velja-3.1.0-trial-1770404437.zip?rlkey=qp07o6we2quz4715z2li7vdnu&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
-**Requires macOS 15.4**
+**Requires macOS 26**
 
 ## Tips
 
@@ -100,6 +101,8 @@ If you want to open a link in the background, press <kbd>Control</kbd> when sele
 While showing the browser prompt, you can press <kbd>Option</kbd> to show buttons to copy or share the link. Or press <kbd>Shift</kbd> or <kbd>Command+C</kbd> to quickly copy the link.
 
 Press <kbd>Option+Tab</kbd>/<kbd>Shift+Option+Tab</kbd> or arrow keys to cycle through browsers. Press <kbd>Return</kbd> or <kbd>Space</kbd> to select one.
+
+<kbd>Command</kbd>-click a browser to create a rule that always opens the current domain in that browser. You can also right-click a browser for more options, including creating a rule and opening in a new window (if supported by the browser).
 
 ### Copy URL
 
@@ -149,6 +152,10 @@ Let's say you have generated a website wrapper app for facebook.com using an app
 - Select the website wrapper app in the “Open in” field.
 - Create a new “URL Matchers” matcher and write “facebook.com” in the “Match” field.
 - Click “Save”.
+
+### Open default browser
+
+You can use [this shortcut](https://www.icloud.com/shortcuts/c0104150c4054ff2a577237056aad083) to open the default browser.
 
 ### System services {#macos-services}
 
@@ -333,7 +340,8 @@ Velja automatically retrieves all browsers on your computer. There is no manual 
 
 #### Can you add another app to the “Apps” settings? {#builtin-apps-requests}
 
-**I'm not currently accepting more apps. I'm working on a way for users to add apps themselves.**
+**I'm not currently accepting more apps.**\
+However, if the app supports a custom URL scheme to open links in the app, you could create a custom rule in Velja and use the “transform URL” feature to rewrite the URL to the custom URL format the app accepts. You could ask AI for help with this.
 
 I'm happy to consider requests (but read the below first). [Submit here.](/feedback?product=Velja&referrer=Website-FAQ) *(Include a link to the app and what behavior you expected)*
 
@@ -554,7 +562,7 @@ For all settings, [see this](/apps/faq#export-settings).
 
 Safari does not expose any way to open URLs in a specific profile. I recommend [sending feedback](https://feedbackassistant.apple.com) to Apple that they should add Shortcuts and AppleScript support for this. More feedback increases the chances of it happening.
 
-*This is still the case on macOS 15 and macOS 26.*
+*This is still the case on macOS 26.*
 
 Feel free to duplicate my feedback reports:
 
@@ -740,9 +748,9 @@ OpenIn benefits:
 
 Velja benefits:
 
-- Native app written in Swift (Browsersaurus is an Electron app — a web app)
-- Lower memory usage (Velja uses 36 MB and Browsersaurus uses 300 MB)
-- Lower CPU usage (Velja uses 0% CPU when idle and Browsersaurus uses 0.1-0.2%)
+- Native app written in Swift (Browserosaurus is an Electron app — a web app)
+- Lower memory usage (Velja uses 36 MB and Browserosaurus uses 300 MB)
+- Lower CPU usage (Velja uses 0% CPU when idle and Browserosaurus uses 0.1-0.2%)
 - Available in the App Store
 - Sandboxed (more secure)
 - It can open Google Meet links in Chrome without any manual setup
@@ -757,7 +765,7 @@ Velja benefits:
 - You can open copied links from the menu bar menu
 - You can quickly switch the primary browser
 - You can press a keyboard shortcut to use an alternative browser for a specific link
-- Finds new browsers automatically (Browsersaurus has to manually scan for new browsers)
+- Finds new browsers automatically (Browserosaurus has to manually scan for new browsers)
 - Setting to hide the menu bar icon
 - Open links in a private Safari window
 - Browser extensions
@@ -831,6 +839,7 @@ Use the special bundle identifier `com.sindresorhus.Velja.promptMarker` to set t
 
 ## Older Versions
 
+- [3.0.1](https://www.dropbox.com/scl/fi/r29c600toa048kwutn9h1/Velja-3.0.1-macOS-15-1770405022.zip?rlkey=t5vgfdoy5875j4eef74ifew5l&raw=1) for macOS 15
 - [2.0.14](https://github.com/user-attachments/files/18629080/Velja.2.0.14.-.macOS.14.zip) for macOS 14
 - [1.16.4](https://github.com/sindresorhus/meta/files/14577839/Velja.1.16.4.-.macOS.13.zip) for macOS 13
 - [1.12.4](https://github.com/sindresorhus/meta/files/10895250/Velja.1.12.4.-.macOS.12.zip) for macOS 12

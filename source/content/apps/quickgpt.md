@@ -12,11 +12,20 @@ mainLinks:
 olderMacOSVersions:
   - '13'
   - '14'
+  - '15'
 feedbackNote: |
   If you are having problems with copying text, that's a problem with ChatGPT and not the app. The same problem can be seen on https://chatgpt.com
 ---
 
-Easily access [ChatGPT](https://www.zdnet.com/article/what-is-chatgpt-and-why-does-it-matter-heres-everything-you-need-to-know/) from the menu bar, Dock, or using a keyboard shortcut.
+Easily access ChatGPT from the menu bar, Dock, or using a keyboard shortcut.
+
+#### Highlights
+
+- Access from menu bar, Dock, or with a keyboard shortcut
+- Stay on top of other windows
+- Launch at login
+- Design tweaks to the ChatGPT web UI
+- Add custom CSS and JavaScript
 
 ## Frequently Asked Questions {#faq}
 
@@ -28,7 +37,13 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
 
-You may also have enabled the “Hide menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
+#### Why this when ChatGPT has an official macOS app?
+
+The web version (used by this app) sometimes gets features before the macOS app.
+
+This app is just a browser, so it has a lot less access to your system than the official ChatGPT app, so better for privacy conscious people.
+
+This app supports tabs (as long as you have enabled the "prefer tabs" system setting)
 
 #### Is the app native?
 
@@ -58,6 +73,7 @@ Apple generally rejects website wrappers even if they add useful additional func
 
 ## Older Versions
 
+- [1.7.0](https://www.dropbox.com/scl/fi/qvl6941nju5c3k6tz21w0/QuickGPT-1.7.0-macOS-15-1771093340.zip?rlkey=za1y4gew5d3tecaq4ygwzmgsw&raw=1) for macOS 15
 - [1.5.2](https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/QuickGPT.1.5.2.-.macOS.14.zip) for macOS 14
 - [1.4.11](https://github.com/sindresorhus/meta/files/14156246/QuickGPT.1.4.11.zip) for macOS 13
 

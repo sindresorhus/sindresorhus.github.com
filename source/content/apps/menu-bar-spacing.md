@@ -70,7 +70,7 @@ No. It applies globally only.
 
 #### Can I have different spacing for when I'm using the built-in display and when using a connected larger display?
 
-No, not in the app. However, the app comes with an action for Shortcuts, so you could automate it. Create a shortcut for each display that uses the “Set Menu Bar Spacing” action, then create a “Monitor” trigger in the [Shortery](https://apps.apple.com/app/id1594183810) app.
+No, not in the app. However, the app comes with an action for Shortcuts, so you could automate it. Create a shortcut for each display that uses the “Set Menu Bar Spacing” action. On macOS 26, you can use Shortcuts automations. On older macOS versions, you can create a “Monitor” trigger in the [Shortery](https://apps.apple.com/app/id1594183810) app.
 
 > [!NOTE]
 > The setting is global. Changing it will interrupt any ongoing screen recording or sharing, as it restarts some system processes to apply changes immediately.

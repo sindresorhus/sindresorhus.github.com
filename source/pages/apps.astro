@@ -4,7 +4,7 @@ import AppsExtra from './_apps-extra.astro';
 import {SITE} from '~/config.mjs';
 import Layout from '~/layouts/PageLayout.astro';
 import OverflowMenu from '~/components/widgets/OverflowMenu.astro';
-import {fetchApps, proseCSS} from '~/utils/apps.js';
+import {fetchApps, proseCSS, tagCSS} from '~/utils/apps.js';
 
 const meta = {
 	title: `Apps — ${SITE.name}`,
@@ -13,8 +13,7 @@ const meta = {
 
 const apps = await fetchApps();
 
-// TODO: Make a component.
-const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1.5 text-black/70 dark:text-black rounded-lg';
+const tagClass = tagCSS;
 ---
 
 <Layout {meta}>

@@ -75,7 +75,7 @@ Quickly open the app using the built-in Lock Screen widget. For more customizati
 
 1. Tap the share button in any app that deals with text and select “Add to Scratchpad”.
 1. macOS: Select some text in any app, right-click, and select “Services › Add to Scratchpad” or “Share › Add to Scratchpad”.
-2. iOS: Select some text in any app, tap “Share › Add to Scratchpad”.
+1. iOS: Select some text in any app, tap “Share › Add to Scratchpad”.
 1. Use the [Shortcuts action](#scripting)
 1. Use the [custom URL scheme](#scripting)
 1. Use [this shortcut](https://www.icloud.com/shortcuts/caa5fd4f5a7240cf951ef9a4184b0522) directly from a share sheet
