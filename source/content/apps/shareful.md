@@ -42,7 +42,7 @@ This is unfortunately not possible. [Share extensions](https://support.apple.com
 
 That would be moot. Right-click a file in Finder, press the <kbd>Option</kbd> key, and select “Copy as Pathname”.
 
-#### Can you add items that run specific Shortcuts in the Share menu? {#shorcuts}
+#### Can you add items that run specific Shortcuts in the Share menu? {#shortcuts}
 
 No. This is not possible.
 

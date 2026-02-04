@@ -101,7 +101,7 @@ const load = async ({
 	const apps = await getCollection('apps', app => !app.data.draft);
 
 	const normalizedApps = await Promise.all(
-		apps.map(async app => normalizeApps(app)),
+		apps.map(app => normalizeApps(app)),
 	);
 
 	return normalizedApps
@@ -125,6 +125,8 @@ export const fetchApps = async options => {
 
 // TODO: Use `getEntry`
 // export const fetchApp = async id => fetchApps().filter(app => app.id === id);
+
+export const tagCSS = 'text-[10px] inline-flex items-center font-bold leading-sm px-1.5 text-black/70 dark:text-black rounded-lg';
 
 // `prose-code:before:hidden prose-code:after:hidden`: https://github.com/tailwindlabs/tailwindcss-typography/issues/18#issuecomment-1280797041
 // We add extra spacing between main section using: prose-h3:mt-24

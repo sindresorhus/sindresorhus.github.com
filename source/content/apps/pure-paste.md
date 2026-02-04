@@ -11,6 +11,7 @@ olderMacOSVersions:
   - '12'
   - '13'
   - '14'
+  - '15'
 ---
 
 Pure Paste lets you paste as plain text by default. It sits in the menu bar and automatically clears formatting (fonts, colors, bold, links, tables, etc.) from the text you copy, while intelligently preserving unrelated content like files, images, and passwords from password managers.
@@ -18,6 +19,8 @@ Pure Paste lets you paste as plain text by default. It sits in the menu bar and 
 Beyond basic formatting removal, Pure Paste can also remove invisible characters (including AI watermarks), normalize quotes and lists, remove tracking parameters from URLs, and much more.
 
 You can also choose to manually clear formatting whenever needed instead of automatically.
+
+You can right-click the menu bar icon to toggle automatic mode or clear formatting (like Plain Clip).
 
 <br>
 
@@ -219,6 +222,7 @@ I just enjoy making Mac apps. Consider leaving a nice review on the App Store. -
 
 ## Older Versions
 
+- [1.13.2](https://www.dropbox.com/scl/fi/jn1xiyns80ea9jp4g16zx/Pure-Paste-1.13.2-macOS-15-1771414631.zip?rlkey=ah6wly1apojlb1paes5zi9dh6&raw=1) for macOS 15
 - [1.11.4](https://github.com/user-attachments/files/18969765/Pure.Paste.1.11.4.-.macOS.14.zip) for macOS 14
 - [1.9.2](https://github.com/sindresorhus/meta/files/14350035/Pure.Paste.1.9.2.-.macOS.13.zip) for macOS 13
 - [1.6.4](https://github.com/sindresorhus/meta/files/10793621/Pure.Paste.1.6.4.-.macOS.12.zip) for macOS 12

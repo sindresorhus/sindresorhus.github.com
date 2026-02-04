@@ -51,7 +51,7 @@
 			"astro"
 		],
 		"ignores": [
-			"source/content/config.ts"
+			"source/content.config.ts"
 		],
 		"overrides": [
 			{

@@ -115,8 +115,8 @@ The AI model used to generate images is large. This is reasonable given the mode
 
 - Inpainting
 - Outpainting
-- Image-to-image (planned for Amazing AI too)
-- Custom models (planned for Amazing AI too)
+- Image-to-image
+- Custom models
 
 #### Why is this free without ads?
 

@@ -36,6 +36,12 @@ Some folders barely have custom Finder settings, so there’s not much stored. A
 
 The format is undocumented. Many record types were reverse-engineered, and some Finder internals still use opaque identifiers. If you [send me](/feedback?product=DS_Store%20Inspector&referrer=Website-FAQ) the `.DS_Store` file, I will take a look. Click the button in the “Help” menu in the app.
 
+#### Why does it require macOS 26 or later?
+
+This is just a small, free project I built for fun. Supporting older macOS versions would mean extra testing, compatibility layers, and working around bugs Apple will never fix.
+
+Keeping it macOS 26+ lets me keep the code simple and spend time building things I enjoy instead of maintaining legacy support.
+
 #### [More FAQs…](/apps/faq)
 
 <!-- ## Older Versions
@@ -46,6 +52,6 @@ The format is undocumented. Many record types were reverse-engineered, and some 
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/ludnvb99m7auzqccwu5wo/DS_Store-Inspector-1.0.1-1769714602.zip?rlkey=su74okznapj5u7m7taaq7zhwp&raw=1) *(1.0.1)*
+[Download](https://www.dropbox.com/scl/fi/amjh96y5np88k35a29o91/DS_Store-Inspector-1.0.2-1770388348.zip?rlkey=laf8sa8yybe2v1i21oe9ps86d&raw=1) *(1.0.2)*
 
 *Requires macOS 26 or later*

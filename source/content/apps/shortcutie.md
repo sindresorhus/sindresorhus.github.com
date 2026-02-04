@@ -5,11 +5,12 @@ pubDate: 2025-02-11
 platforms:
   - macOS
 isPaid: true
-releasesRepo: shortcutie-meta
 hasSentry: true
+setappId: 1814
+releasesRepo: shortcutie-meta
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/shortcutie?wanted=true
-requirement: Requires macOS 15.2 or later
+requirement: Requires macOS 26 or later
 announcement:
   text: Save 26% with the Power User Bundle — get 3 power user apps together
   url: https://sindresorhus.gumroad.com/l/power-user
@@ -18,37 +19,32 @@ pressQuotes:
   - quote: It’s absolutely essential for anyone who uses Shortcuts because it unlocks so many new things you can do. I love the extra power it gives my Mac and it’s totally worth it for those advanced features!
     source: Anonymous
     url: https://sindresorhus.gumroad.com/l/shortcutie
-# olderMacOSVersions:
-#   - '15'
+olderMacOSVersions:
+  - '15'
 feedbackNote: |
   ### If the actions don't show up in the Shortcuts app or if you get a “com.apple.extensionKit.errorDomain error 2” error when running your shortcut, restart your device. You could also try setting a different device language and then back. If you just updated the operating system, give it some time to re-index all shortcut actions.
 
   Check the [Actions](/actions) app before requesting an action. It may already exist there.
 ---
 
-The app provides lots (70+) of powerful extra actions for the Shortcuts app on macOS.
+The app provides 70+ powerful extra actions for the Shortcuts app on macOS.
 
 While my free [Actions](/actions) app provides useful functionality for the Shortcuts app through the App Store for macOS, iOS and visionOS, Shortcutie is a Mac-only app that offers more powerful system-level features by operating outside of Apple's restrictions. This enables capabilities like changing system default browser (without a prompt), getting the active browser tab, clearing notifications, etc. - things that wouldn't be possible under App Store rules.
 
 > [!IMPORTANT]
-> Restart your device if the actions do not show up in the Shortcuts app. Also try setting a different device language and then back.
-
-Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like to see the app on Setapp, [email them](https://support.setapp.com/hc/en-us/articles/4950254561052-How-to-contact-Setapp-team#:~:text=to%20your%20issue.-,Send%20an%20email,%3A%20support%40setapp.com.) and request its inclusion.
-
-> [!TIP]
-> Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.
+> Restart your device if the actions do not show up in the Shortcuts app. [Learn more ›](#troubleshooting)
 
 #### Included actions
 
 - Get Active Browser Tab
 	<span class="list-subtitle">Gets the URL and title of the active browser tab</span>
-	<span class="list-description text-xs">Supports Safari, Chrome, Edge, Brave, Opera, Vivaldi, Arc, Orion, and any Chromium-based browser. Firefox and Firefox-based browsers (including Zen) are not supported as they do not implement the required [AppleScript interface](https://bugzilla.mozilla.org/show_bug.cgi?id=125419) for getting tab info.</span>
+	<span class="list-description text-xs">Supports Safari, Chrome, Edge, Brave, Opera, Vivaldi, Arc, Orion, Atlas, and any Chromium-based browser. Firefox and Firefox-based browsers (including Zen) are not supported as they do not implement the required [AppleScript interface](https://bugzilla.mozilla.org/show_bug.cgi?id=125419) for getting tab info.</span>
 - Run JavaScript on Active Browser Tab
 	<span class="list-subtitle">Runs JavaScript code on the active browser tab and returns JSON</span>
-	<span class="list-description text-xs">Supports the same browsers as “Get Active Browser Tab”.</span>
+	<span class="list-description text-xs">Supports the same browsers as “Get Active Browser Tab”, except ChatGPT Atlas.</span>
 - Open URLs in Private Browser Window
 	<span class="list-subtitle">Opens URLs in a private/incognito browser window</span>
-	<span class="list-description text-xs">Supports Safari, Chrome, Edge, Brave, Opera, Vivaldi, Arc, Orion, Firefox, Zen, and any Chromium-based and Firefox-based browser.</span>
+	<span class="list-description text-xs">Supports Safari, Chrome, Edge, Brave, Opera, Vivaldi, Arc, Orion, Firefox, Zen, and any Chromium-based and Firefox-based browser. Not DuckDuckGo and ChatGPT Atlas.</span>
 - Get Active Browser
 	<span class="list-subtitle">Gets the frontmost app if it’s a browser</span>
 - Get Selected Text
@@ -89,12 +85,20 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 - Get Menu Bar Item
 	<span class="list-subtitle">Gets info about a menu bar item in the selected app</span>
 	<span class="list-description text-xs">Returns title, enabled state, checked state, and keyboard shortcut.</span>
+- Trigger Context Menu Item
+	<span class="list-subtitle">Executes a context menu item at the current mouse-cursor position</span>
+	<span class="list-description text-xs">Using this you can trigger context-menu items or sub-items for the current mouse-cursor position in any app.</span>
 - Set Grayscale Mode
 	<span class="list-subtitle">Makes screen display in black and white</span>
 - Is Screen Being Watched
 	<span class="list-subtitle">Detects if the screen is being recorded, mirrored, or shared (Zoom, Teams, etc)</span>
+- Stash Text
+	<span class="list-subtitle">Shows the given text in a floating window</span>
+	<span class="list-description text-xs">Multiple calls add items to the sidebar list. Intended for temporary viewing, not long-term storage. [Screenshot](https://www.dropbox.com/scl/fi/9oz7tnd24fohgasuuv6gd/Stash-Text-Screen-Shot-2026-02-01-at-23.17.36-1769962685.png?rlkey=9vd0p1c2zat89yrqssv8rhfnw&raw=1)</span>
 - Open App (Extended)
 	<span class="list-subtitle">Options to pass in URLs, activate, force new instance, hide, launch arguments, and environment variables</span>
+- Close All Windows of App
+	<span class="list-subtitle">Closes all windows of the specified app</span>
 - Unminimize Windows of Active App
 	<span class="list-subtitle">Unminimizes all windows or the first window of the currently active app</span>
 - Isolate Window
@@ -208,8 +212,6 @@ Can it be added to Setapp? Setapp curates apps based on demand, so if you'd like
 <!-- - Get/Set Pointer Size
 <span class="list-subtitle">View or change the system-wide mouse pointer size</span> -->
 
-**And many more planned!**
-
 ## Tips {#tips}
 
 ### Sharing shortcuts that use Shortcutie
@@ -222,7 +224,7 @@ Add a warning at the start of the shortcut to install the app if not installed. 
 
 Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Shortcutie&referrer=Website-FAQ)
 
-#### The actions don't show up in the Shortcuts app
+#### The actions don't show up in the Shortcuts app {#troubleshooting}
 
 This is caused by a macOS bug.
 
@@ -275,9 +277,8 @@ There is [some overlap](/supercharge#shortcutie), but Shortcutie includes many m
 
 #### [More FAQs…](/apps/faq)
 
-<!-- ## Older Versions
+## Older Versions
 
-- [] for macOS 15
+- [1.5.0](https://www.dropbox.com/scl/fi/1nny73fqfa423v87vz0q6/Shortcutie-1.5.0-macOS-15-1770752068.zip?rlkey=3fxry52nv7nflmc60r4leqlfm&raw=1) for macOS 15
 
 These are free for everyone but they will not run on newer macOS versions.
- -->

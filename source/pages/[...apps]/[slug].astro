@@ -6,7 +6,7 @@ import OverflowMenu from '~/components/widgets/OverflowMenu.astro';
 import Announcement from '~/components/widgets/Announcement.astro';
 import PressQuotes from '~/components/widgets/PressQuotes.astro';
 import RelatedApps from '~/components/widgets/RelatedApps.astro';
-import {fetchApps, proseCSS} from '~/utils/apps.js';
+import {fetchApps, proseCSS, tagCSS} from '~/utils/apps.js';
 
 export async function getStaticPaths() {
 	const apps = await fetchApps({includeArchived: true, includeUnlisted: true});
@@ -63,8 +63,7 @@ const skipPlatforms = requirementMentionsMacOS && app.platforms.length === 1 && 
 const platformText = !skipPlatforms && app.platforms.length > 0 ? `Available on ${app.platforms.join(', ')}` : '';
 const availabilityText = [platformText, app.requirement].filter(Boolean).join(' — ');
 
-// Copied from `apps.astro`.
-const tagClass = 'text-[10px] inline-flex items-center font-bold leading-sm px-1.5 text-black/70 dark:text-black rounded-lg';
+const tagClass = tagCSS;
 ---
 
 <Layout {meta}>

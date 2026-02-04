@@ -7,8 +7,10 @@ platforms:
 isMenuBarApp: true
 isPaid: true
 appStoreId: 6504709660
+forceHasIosAppIcon: true
 olderMacOSVersions:
   - '14'
+  - '15'
 ---
 
 Check if you are online directly from the menu bar. The menu bar icon turns red when you are offline, and the app can optionally show a notification.
@@ -45,7 +47,7 @@ A Wi-Fi connection only means you are connected to a network. The app verifies i
 
 #### How can I run this only when not connected to certain networks?
 
-Use the [Shortery](https://apps.apple.com/app/id1594183810) app. Create a shortcut in the Shortcuts app to launch and quit this app. Then, set up a "Wi-Fi" trigger in Shortery to run the shortcut based on your Wi-Fi connection status. This allows the app to launch or quit when connecting to or disconnecting from specific Wi-Fi networks.
+Create a shortcut in the Shortcuts app to launch and quit this app. On macOS 26, you can use Shortcuts automations to run the shortcut based on triggers. On older macOS versions, you can use the [Shortery](https://apps.apple.com/app/id1594183810) app. Set up a “Wi-Fi” trigger in Shortery to run the shortcut based on your Wi-Fi connection status. This allows the app to launch or quit when connecting to or disconnecting from specific Wi-Fi networks.
 
 #### How does it work?
 
@@ -63,6 +65,7 @@ No. Menu bar icons are intended to be mostly monotone, changing color only to in
 
 ## Older Versions
 
+- [1.5.0](https://www.dropbox.com/scl/fi/jj4d0jqg9vjvxi75ojigb/Online-Check-1.5.0-macOS-15-1772136482.zip?rlkey=vty9ff9bcz2usxsrurls6tczf&raw=1) for macOS 15
 - [1.3.0](https://github.com/user-attachments/files/19074059/Online.Check.1.3.0.-.macOS.14.zip) for macOS 14
 
 These are free for everyone but they will not run on newer macOS versions.

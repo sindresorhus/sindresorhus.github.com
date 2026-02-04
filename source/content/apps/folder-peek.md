@@ -84,7 +84,7 @@ See the “Can I show specific files and folders from various places?” answer.
 
 #### How can I show certain folders in the menu bar depending on what I'm working on? {#faq-shortcuts}
 
-You can create a shortcut in the Shortcuts app using the “Set Folder Visibility” action where you show only certain folders. For example, you could make a shortcut named “Start Work” which hides your personal folders in the menu bar and shows folders for your work projects. You could even use the [Shortery app](https://apps.apple.com/us/app/shortery/id1594183810) to trigger this shortcut at a certain time or any other condition.
+You can create a shortcut in the Shortcuts app using the “Set Folder Visibility” action where you show only certain folders. For example, you could make a shortcut named “Start Work” which hides your personal folders in the menu bar and shows folders for your work projects. On macOS 26, you can use Shortcuts automations to trigger this shortcut at a certain time or any other condition. On older macOS versions, you can use the [Shortery app](https://apps.apple.com/us/app/shortery/id1594183810) for this.
 
 #### How can I drag & drop a file from the menu?
 

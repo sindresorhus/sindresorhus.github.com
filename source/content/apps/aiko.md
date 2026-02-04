@@ -8,6 +8,7 @@ platforms:
   - visionOS
 isPaid: true
 appStoreId: 1672085276
+forceHasIosAppIcon: true
 olderMacOSVersions:
   - '13'
   - '14'
@@ -155,13 +156,11 @@ Try Aiko free for 14 days via [TestFlight](https://testflight.apple.com/join/P1q
 
 Aiko divides the transcription text by sentences. If you want the text divided into paragraphs, copy the text from Aiko, go to [ChatGPT](https://chat.openai.com), and use the following prompt.
 
-GPT-4: `Divide the text into paragraphs. Don't change the text otherwise: TRANSCRIPTION TEXT`
-
-GPT-3.5: `Remove newlines and divide the text into paragraphs. Don't change the text otherwise: TRANSCRIPTION TEXT`
+`Divide the text into paragraphs. Don't change the text otherwise: TRANSCRIPTION TEXT`
 
 ### Fix missing punctuation
 
-A flaw of the Whisper model is that transcriptions can sometimes be missing punctuation. Try setting the “Prompt” setting (requires macOS 14 / iOS 17) to, for example:
+A flaw of the Whisper model is that transcriptions can sometimes be missing punctuation. Try setting the “Prompt” setting to, for example:
 
 > Hello. I like cake.
 
@@ -257,6 +256,7 @@ This is unfortunately a flaw in the Whisper AI model and out of my control. This
 
 Some things you could try:
 - Restart your device.
+- Try enabling the “Skip silent parts” setting.
 - Try enabling the “Reduce repetitions” setting.
 - Try enabling the “Reduce repetitions even more” setting.
 - If you don't need timestamps, you can disable them being produced, which can sometimes reduce repetitions. Triple-tap on the “Translate to English” text in the settings and then disable the “Produce timestamps” setting.
@@ -268,6 +268,8 @@ This is unfortunately a flaw in the Whisper model. [Workaround.](#tips)
 #### The transcription includes a sentence at the end that was not in the audio
 
 This is unfortunately a flaw in the Whisper model. It can sometimes add a sentence like “Thanks for watching!” to the end. There is not much I can do about this.
+
+Workaround: Try enabling the “Skip silent parts” setting.
 
 This issue arises from quirks in the AI's processing, where it sometimes generates off-topic content, often due to data remnants or misinterpreted context. These are not messages or 'whispers' with any underlying meaning; they're random anomalies that OpenAI is actively working to correct.
 

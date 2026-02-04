@@ -60,13 +60,13 @@ Set Pandan to remind you to take a break. Make a shortcut in the Shortcuts app t
 
 #### How can I disable Pandan while using certain apps? {#disable-for-certain-apps}
 
-You can use the Shortcuts app for this. Make a shortcut that uses the “Set Enabled State” action that Pandan provides. To automate running this shortcut when certain apps are active, you will need the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app. In the Shortery app, choose the “Application” trigger type, and then the “Active” or “Inactive” option.
+You can use the Shortcuts app for this. Make a shortcut that uses the “Set Enabled State” action that Pandan provides. On macOS 26, you can use Shortcuts automations to run this shortcut when certain apps are active. On older macOS versions, you can use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app. In the Shortery app, choose the “Application” trigger type, and then the “Active” or “Inactive” option.
 
 *Note that Pandan already disables itself when you are inactive.*
 
 #### How can I show the total active duration today as a countdown? {#countdown}
 
-Get [this shortcut](https://www.icloud.com/shortcuts/fdf0cd45fedb4290bfe14d84a394b601) (requires the [Actions](https://sindresorhus.com/actions) and [One Thing](https://sindresorhus.com/one-thing) apps) and select it in the Pandan settings. The countdown will update every time Pandan shows a notification. If you want the countdown to update more often, you will need to download the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app and set up an interval trigger.
+Get [this shortcut](https://www.icloud.com/shortcuts/fdf0cd45fedb4290bfe14d84a394b601) (requires the [Actions](https://sindresorhus.com/actions) and [One Thing](https://sindresorhus.com/one-thing) apps) and select it in the Pandan settings. The countdown will update every time Pandan shows a notification. If you want the countdown to update more often, you can use Shortcuts automations on macOS 26, or the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app on older macOS versions, and set up an interval trigger.
 
 #### How can I start a new session from the command-line?
 

@@ -10,8 +10,7 @@ releasesRepo: default-browser-meta
 forceHasIosAppIcon: true
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/default-browser?wanted=true
-  # 'Buy': https://buy.polar.sh/polar_cl_tWjWd0yRVXb9w0bhohTfxkqjwMUsjpegZM1na4HH9ER
-requirement: Requires macOS 15.4 or later
+requirement: Requires macOS 26 or later
 announcement:
   text: Save 26% with the Power User Bundle — get 3 power user apps together
   url: https://sindresorhus.gumroad.com/l/power-user
@@ -24,8 +23,8 @@ pressQuotes:
     source: Petar Stoyanov
   - quote: crashed at launch!
     source: John Dorian
-# olderMacOSVersions:
-#   - '15'
+olderMacOSVersions:
+  - '15'
 ---
 
 Seamlessly switch between browsers directly from your menu bar, keyboard shortcut, Focus mode, or using Shortcuts. Perfect for users who work with multiple browsers.
@@ -44,18 +43,14 @@ Unlike similar apps, this one actually changes the system default browser (and w
 
 ---
 
-> [!TIP]
-> Also available in the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user) - Get 3 of my power user apps for 26% off normal price.
-
-<br>
-
 Mentions:
 - [Review in MacStories](https://www.macstories.net/reviews/default-browser-a-mac-menu-bar-utility-for-quickly-switching-browsers/)
 - [Lifehacker article](https://lifehacker.com/tech/finally-an-easier-way-to-change-your-default-browser-on-mac)
 
 <br>
 
-*Switching the default browser is also a feature of my [Supercharge](/supercharge) app.*
+> [!TIP]
+> Switching the default browser is also a feature of my [Supercharge](/supercharge) app.
 
 ---
 
@@ -120,22 +115,11 @@ Velja works by acting as a browser and forwarding URLs to other browsers, enabli
 
 Much of the functionality would not be possible in the App Store because of [sandboxing](/apps/faq#macos-sandbox).
 
-#### Why is it a paid app?
-
-I love making [free apps](/apps/free) and having them available to everyone, but they come with a heavy support burden—I already handle 10–40 app-related emails daily. To focus on quality and sustainability, my new apps will mostly be paid.
-
 #### Can the default browser change based on the macOS desktop Space I’m in? {#macos-spaces}
 
 No. macOS does not expose the active [Space](https://support.apple.com/guide/mac-help/work-in-multiple-spaces-mh14112/mac) to apps, so the app cannot detect or react to it. You can instead automate switching with Focus Filters or Shortcuts (see [tips](#tips)).
 
 #### [More FAQs…](/apps/faq)
-
-<!-- ### Older Versions
-
-- [] for macOS 15
-
-These are free for everyone but they will not run on newer macOS versions.
- -->
 
 ## Scripting
 
@@ -152,3 +136,9 @@ The app includes a [Focus filter](https://support.apple.com/guide/mac-help/mchl6
 ### Events
 
 The [distributed notification](/apps/faq#distributed-notifications) `com.sindresorhus.defaultBrowserDidChange` is emitted when the default browser is changed from the app or the Shortcuts action.
+
+## Older Versions
+
+- [1.1.0](https://www.dropbox.com/scl/fi/u9c9gzh7l8jseuga9v2eg/Default-Browser-1.1.0-macOS-15-1771002988.zip?rlkey=37e8ck6g0x3pc3z132olqc8n9&raw=1) for macOS 15
+
+These are free for everyone but they will not run on newer macOS versions.
