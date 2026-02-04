@@ -37,8 +37,8 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 - If you close the lid (clamshell mode), Lungo is only able to keep your Mac awake if it's connected to a charger and an external display. This is a macOS limitation.
 - If you have the “Pause while screen is locked” setting enabled, you may have locked the screen before leaving it, which would cause Lungo to not keep your computer awake.
 - If you have the “Deactivate when switching to battery” setting enabled and you disconnect the power adapter, Lungo would not keep your computer awake. You might have accidentally unplugged it or there might have been a power failure.
-- If you have set a sleep schedule in “System Preferences › Battery › Schedule”, it will take priority over Lungo. This is out of Lungo's control.
-- If you have set the computer to log out after a certain amount of time in “System Preferences › Security & Privacy › Advanced”, it will take priority over Lungo. This is out of Lungo's control.
+- If you have set a sleep schedule in “System Settings › Battery › Schedule”, it will take priority over Lungo. This is out of Lungo's control.
+- If you have set the computer to log out after a certain amount of time in “System Settings › Privacy & Security › Advanced”, it will take priority over Lungo. This is out of Lungo's control.
 - If you see apps open again when you wake up your computer, it means your computer was restarted for some reason. Lungo cannot keep your computer from restarting. Some common reasons it may have restarted are a power outage, macOS crash, or scheduled shutdown/restart (in Battery system settings).
 	+ You can [check how long your computer has been awake and when it was last rebooted](https://www.macobserver.com/tips/quick-tip/mac-system-uptime-terminal/) to narrow down the problem. You can also check when the computer was last logged in by typing the command `last` in the Terminal app.
 
@@ -57,7 +57,7 @@ However, if you want this, there are some solutions [here](https://apple.stackex
 
 #### Does Lungo keep my Mac awake even if there is a scheduled sleep?
 
-If you have set a sleep schedule in “System Preferences › Battery › Schedule”, it will take priority over Lungo. This is out of Lungo's control.
+If you have set a sleep schedule in “System Settings › Battery › Schedule”, it will take priority over Lungo. This is out of Lungo's control.
 
 #### Can I left-click the icon to toggle it like with Caffeine?
 
@@ -67,17 +67,17 @@ Yes, choose “Activate on Left-click” in the settings.
 
 I don't plan to support this. It's a lot of work to implement and only a few people have requested it.
 
-However, you can achieve it using the Shortcuts app. Create a new shortcut with the “Set Enabled State” action provided by Lungo. Shortcuts on iOS has automations, which lets you run a shortcut when a certain app opens. macOS does not yet have automations. I'm confident it will come with macOS 15. In the meantime, you can use the [Shortery app](https://apps.apple.com/us/app/shortery/id1594183810?mt=12) to run a shortcut when a certain app opens.
+However, you can achieve it using the Shortcuts app. Create a new shortcut with the “Set Enabled State” action provided by Lungo. On macOS 26, you can use Shortcuts automations to run the shortcut when a certain app opens. On older macOS versions, you can use the [Shortery app](https://apps.apple.com/us/app/shortery/id1594183810?mt=12) for this.
 
 You could also use BetterTouchTool or Keyboard Maestro instead of Shortery.
 
 #### Can Lungo automatically activate on a set schedule?
 
-I don't plan to do this built-in, but you can use Shortery for this as explained above. Shortery has a “Time” trigger.
+I don't plan to do this built-in, but you can achieve it with Shortcuts automations on macOS 26, or with [Shortery](https://apps.apple.com/us/app/shortery/id1594183810?mt=12) on older macOS versions. Shortery has a “Time” trigger.
 
 #### Can Lungo automatically activate when I switch to a specific focus mode?
 
-I don't plan to do this built-in, but you can use Shortery for this as explained above. Shortery has a “Focus Mode” trigger.
+I don't plan to do this built-in, but you can achieve it with Shortcuts automations on macOS 26, or with [Shortery](https://apps.apple.com/us/app/shortery/id1594183810?mt=12) on older macOS versions. Shortery has a “Focus Mode” trigger.
 
 #### How can I make Lungo be activated until a specific time?
 
@@ -85,7 +85,7 @@ This is not supported built-in, but you can use the Shortcuts app to achieve it.
 
 #### Can I use a custom duration? {#custom-duration}
 
-Lungo comes with a set of commonly used durations, which should be enough for most users. People love Lungo for its simplicity. Not having custom times also helps prevent decision fatigue. Lungo has tens of thousands of users and the app has existed for 6 years, and only a few people have requested support for custom durations.
+Lungo comes with a set of commonly used durations, which should be enough for most users. People love Lungo for its simplicity. Not having custom times also helps prevent decision fatigue. Lungo has tens of thousands of users and only a few people have requested support for custom durations.
 
 However, power users can take advantage of the Shortcuts app to use custom durations. Drag the “Set Enabled State” Lungo action into the shortcut editor in the Shortcuts app. Click “Show more” and then choose a custom duration. You can pin the shortcut workflow to the menu bar for easy access or set a global keyboard shortcut for it.
 

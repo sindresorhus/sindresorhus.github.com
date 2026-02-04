@@ -110,7 +110,7 @@ Plash comes bundled with a [share extension](https://support.apple.com/guide/mac
 
 #### Can it automatically switch websites every 10 minutes?
 
-Plash can be automated with the built-in Shortcuts app, for example, using the “Switch to Next Website” action. Shortcuts on macOS does not yet support automations, but for now, you can use the [Shortery app](https://apps.apple.com/app/id1594183810).
+Plash can be automated with the built-in Shortcuts app, for example, using the “Switch to Next Website” action. On macOS 26, you can use Shortcuts automations. On older macOS versions, you can use the [Shortery app](https://apps.apple.com/app/id1594183810).
 
 #### Does it support multiple displays?
 

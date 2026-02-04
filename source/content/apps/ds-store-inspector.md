@@ -46,6 +46,6 @@ The format is undocumented. Many record types were reverse-engineered, and some 
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/ludnvb99m7auzqccwu5wo/DS_Store-Inspector-1.0.1-1769714602.zip?rlkey=su74okznapj5u7m7taaq7zhwp&raw=1) *(1.0.1)*
+[Download](https://www.dropbox.com/scl/fi/amjh96y5np88k35a29o91/DS_Store-Inspector-1.0.2-1770388348.zip?rlkey=laf8sa8yybe2v1i21oe9ps86d&raw=1) *(1.0.2)*
 
 *Requires macOS 26 or later*

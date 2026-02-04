@@ -93,13 +93,13 @@ I have made a special version of One Thing with a different identifier. You can 
 
 You can use the Shortcuts app for this. Here is an [example shortcut](https://www.icloud.com/shortcuts/7f8a4cc8764348518c5b7774d60191cc) that sets the next todo in “Today” as the text in One Thing.
 
-To have the shown todo stay in sync with Things, we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut. Choose the “Application” trigger type and make it trigger when Things becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually, or use [Short Run](/short-run).
+To have the shown todo stay in sync with Things, you can use the shortcut with an automation trigger. On macOS 26, you can use Shortcuts automations. On older macOS versions, you can use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app. Choose the “Application” trigger type and make it trigger when Things becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually, or use [Short Run](/short-run).
 
 #### How can I show the upcoming reminder from the Reminders app in One Thing? {#reminders}
 
 You can use the Shortcuts app for this. Here is an [example shortcut](https://www.icloud.com/shortcuts/4bed5f56a0f94e9a9e9ba05c97c6e64b).
 
-To have the shown todo stay in sync with Reminders, we need to use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app to run the shortcut. Choose the “Application” trigger type and make it trigger when Reminders becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually, or use [Short Run](/short-run).
+To have the shown todo stay in sync with Reminders, you can use the shortcut with an automation trigger. On macOS 26, you can use Shortcuts automations. On older macOS versions, you can use the [Shortery](https://apps.apple.com/us/app/shortery/id1594183810) app. Choose the “Application” trigger type and make it trigger when Reminders becomes “Inactive”. Alternatively, place the shortcut in the menu bar and run it manually, or use [Short Run](/short-run).
 
 #### How can I show a todo from my favorite todo app in One Thing?
 

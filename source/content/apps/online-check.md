@@ -45,7 +45,7 @@ A Wi-Fi connection only means you are connected to a network. The app verifies i
 
 #### How can I run this only when not connected to certain networks?
 
-Use the [Shortery](https://apps.apple.com/app/id1594183810) app. Create a shortcut in the Shortcuts app to launch and quit this app. Then, set up a "Wi-Fi" trigger in Shortery to run the shortcut based on your Wi-Fi connection status. This allows the app to launch or quit when connecting to or disconnecting from specific Wi-Fi networks.
+Create a shortcut in the Shortcuts app to launch and quit this app. On macOS 26, you can use Shortcuts automations to run the shortcut based on triggers. On older macOS versions, you can use the [Shortery](https://apps.apple.com/app/id1594183810) app. Set up a “Wi-Fi” trigger in Shortery to run the shortcut based on your Wi-Fi connection status. This allows the app to launch or quit when connecting to or disconnecting from specific Wi-Fi networks.
 
 #### How does it work?
 
