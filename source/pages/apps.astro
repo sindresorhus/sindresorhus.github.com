@@ -1,33 +1,35 @@
 ---
 import appExtras from '../data/apps-extra.json';
 import AppsExtra from './_apps-extra.astro';
+/// import AppsHeatmap from './_apps-heatmap.astro';
 import {SITE} from '~/config.mjs';
 import Layout from '~/layouts/PageLayout.astro';
 import OverflowMenu from '~/components/widgets/OverflowMenu.astro';
-import {fetchApps, proseCSS, tagCSS} from '~/utils/apps.js';
+import {fetchApps, proseCSS, tagCSS as tagClass} from '~/utils/apps.js';
 
 const meta = {
 	title: `Apps — ${SITE.name}`,
 	description: 'Quality crafted apps by Sindre Sorhus',
 };
 
-const apps = await fetchApps();
-
-const tagClass = tagCSS;
+const allApps = await fetchApps({includeArchived: true});
+const apps = allApps.filter(app => !app.isArchived);
+const oldestPubDate = Math.min(...allApps.map(app => app.pubDate));
+const yearsOfCraft = new Date().getFullYear() - new Date(oldestPubDate).getFullYear();
 ---
 
 <Layout {meta}>
 	<div class="bg-slate-50 dark:bg-inherit">
-		<section class="container sm:px-6 py-12 sm:py-16 lg:py-20 mx-auto">
-			<header>
+		<section class="container sm:px-6 py-16 sm:py-16 lg:py-20 mx-auto">
+			<header class="text-center mb-5 md:mb-16">
 				<!-- TODO: Make title components -->
-				<h1 class="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-3 text-center text-4xl sm:text-5xl md:text-7xl font-bold leading-tighter tracking-tighter mb-8 md:mb-16 font-heading">
+				<h1 class="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-3 text-center text-[2.5rem] sm:text-5xl md:text-7xl font-bold leading-tighter tracking-tighter mb-6 font-heading">
 					<span class="flex flex-wrap items-center justify-center gap-2">
 						<span>Quality Crafted</span>
 						<span class="bg-clip-text text-transparent bg-linear-to-r from-primary-500 to-secondary-500 pr-[0.025em] mr-[-0.025em]">Apps</span>
 					</span>
-					<div class="inline-flex mt-2 sm:mt-0 translate-y-0 scale-[1.25] sm:translate-x-2 sm:translate-y-[4px] sm:scale-[1.2] md:translate-y-[7px]">
-						<OverflowMenu iconClassName="text-secondary-500 dark:text-secondary-300" iconSizeClass="w-8 h-8 sm:w-5 sm:h-5">
+					<div class="inline-flex mt-1 sm:mt-0 translate-y-0 scale-[1.25] sm:translate-x-2 sm:translate-y-[4px] sm:scale-[1.2] md:translate-y-[7px]">
+						<OverflowMenu iconClassName="text-secondary-400 dark:text-secondary-400" iconSizeClass="w-7 h-7 sm:w-5 sm:h-5">
 							{appExtras.map(group => (
 								<optgroup label={group.label}>
 									{group.items.map(item => (
@@ -38,11 +40,23 @@ const tagClass = tagCSS;
 						</OverflowMenu>
 					</div>
 				</h1>
+				<p class="flex flex-col md:flex-row md:items-center justify-center gap-y-1 md:gap-y-0 text-slate-500 dark:text-slate-500 text-sm font-mono tracking-wide" style="font-variant-numeric: oldstyle-nums tabular-nums">
+					<span>{allApps.length} apps</span>
+					<span class="hidden md:inline mx-2 opacity-50">·</span>
+					<span>{yearsOfCraft} years of craft</span>
+					<span class="hidden md:inline mx-2 opacity-50">·</span>
+					<span>6 million users</span>
+					<span class="hidden md:inline mx-2 opacity-50">·</span>
+					<span>10K answered support emails</span>
+				</p>
 			</header>
-			<section data-nosnippet class="mx-auto grid sm:gap-12 grid-cols-1 lg:grid-cols-2 sm:p-1 my-12 dark:text-white">
+			<section data-nosnippet class="mx-auto grid sm:gap-12 grid-cols-1 lg:grid-cols-2 sm:p-1 mt-6 mb-12 sm:my-12 dark:text-white">
 				{
 					apps.map(app => (
-						<a href={app.url} class="flex py-6 px-2 sm:p-6 bg-white dark:bg-black/20 sm:rounded-xl shadow-md dark:shadow-lg sm:border sm:border-transparent dark:sm:border-slate-800 sm:hover:border-indigo-200/70 dark:sm:hover:border-indigo-500/30 sm:hover:bg-indigo-50/40 dark:sm:hover:bg-indigo-950/20 hover:shadow-xl dark:sm:hover:shadow-indigo-500/20 sm:hover:-translate-y-0.5 transition duration-300">
+						<a
+							href={app.url}
+							class="flex py-6 px-2 sm:p-6 bg-white dark:bg-black/20 sm:rounded-xl shadow-md dark:shadow-lg sm:border sm:border-transparent dark:sm:border-slate-800 sm:hover:border-indigo-200/70 dark:sm:hover:border-indigo-500/30 sm:hover:bg-indigo-50/40 dark:sm:hover:bg-indigo-950/20 hover:shadow-xl dark:sm:hover:shadow-indigo-500/20 sm:hover:-translate-y-0.5 transition duration-300"
+						>
 							<div class="flex-initial shrink-0 justify-center mr-2 sm:mr-3">
 								<img src={app.iconUrl} width="128" height="128" alt={`${app.title} app icon`} loading="lazy" class="p-[12px] drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]">
 							</div>
@@ -66,6 +80,7 @@ const tagClass = tagCSS;
 					))
 				}
 			</section>
+			{/* <AppsHeatmap apps={allApps}/> */}
 			<section data-nosnippet class={proseCSS} style="margin-top: 120px; margin-bottom: 60px">
 				<AppsExtra/>
 			</section>

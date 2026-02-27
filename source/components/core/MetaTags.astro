@@ -29,13 +29,15 @@ const canonicalURL = new URL(Astro.url.pathname.replace(/\.html$/, ''), Astro.si
 <meta name="fediverse:creator" content="@sindresorhus@mastodon.social">
 <meta name="x-build-time" content={(new Date()).toUTCString()}>
 
-{appStoreId ? (
-	<meta name="apple-itunes-app" content={`app-id=${appStoreId}`}>
-	<meta name="twitter:card" content="app">
-	<meta name="twitter:app:id:iphone" content={appStoreId}>
-) : (
-	<meta name="twitter:card" content="summary">
+{appStoreId && (
+	<>
+		<meta name="apple-itunes-app" content={`app-id=${appStoreId}`}>
+		<meta name="twitter:card" content="app">
+		<meta name="twitter:app:id:iphone" content={appStoreId}>
+	</>
 )}
+{!appStoreId && image && <meta name="twitter:card" content="summary_large_image">}
+{!appStoreId && !image && <meta name="twitter:card" content="summary">}
 
 <link rel="sitemap" href="/sitemap-index.xml">
 

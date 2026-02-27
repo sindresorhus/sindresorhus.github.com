@@ -44,11 +44,11 @@ A special version for users that cannot access the App Store. It won't receive a
 // Only the core measurements
 const CONSTANTS = {
 	EYE: {
-		DIAMETER: 76,
-		TOP: 109.5,
+		DIAMETER: 70,
+		TOP: 94,
 		LEFT: {
-			LEFT_EYE: 84.5,
-			RIGHT_EYE: 173.5
+			LEFT_EYE: 71,
+			RIGHT_EYE: 153
 		}
 	},
 	PUPIL: {

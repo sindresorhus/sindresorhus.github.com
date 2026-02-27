@@ -1,0 +1,152 @@
+---
+const {apps} = Astro.props;
+
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const currentYear = new Date().getFullYear();
+const oldestPubYear = new Date(Math.min(...apps.map(app => app.pubDate))).getFullYear();
+
+const weekReleases = new Map();
+let cachedYear;
+let cachedStartOfYear;
+for (const app of apps) {
+	const date = new Date(app.pubDate);
+	const year = date.getFullYear();
+	if (year !== cachedYear) {
+		cachedYear = year;
+		cachedStartOfYear = new Date(year, 0, 1);
+	}
+
+	const weekOfYear = Math.floor((date.getTime() - cachedStartOfYear.getTime()) / WEEK_MS);
+	const key = `${year}-${weekOfYear}`;
+	let bucket = weekReleases.get(key);
+	if (!bucket) {
+		bucket = [];
+		weekReleases.set(key, bucket);
+	}
+
+	bucket.push({
+		title: app.title,
+		month: date.toLocaleDateString('en-US', {month: 'short', year: 'numeric'}),
+		url: app.url,
+	});
+}
+
+const heatmapYears = [];
+for (let year = oldestPubYear; year <= currentYear; year++) {
+	const weeks = [];
+	for (let week = 0; week < 53; week++) {
+		weeks.push(weekReleases.get(`${year}-${week}`) ?? []);
+	}
+
+	heatmapYears.push({year, weeks});
+}
+
+// Month label positions (using a non-leap year for consistent week indices)
+const startOf2023 = new Date(2023, 0, 1);
+const weekIndexToMonth = new Map(
+	Array.from({length: 12}, (_, month) => {
+		const date = new Date(2023, month, 1);
+		return [Math.floor((date.getTime() - startOf2023.getTime()) / WEEK_MS), date.toLocaleDateString('en-US', {month: 'short'})];
+	}),
+);
+const monthLabelSlots = Array.from({length: 53}, (_, i) => weekIndexToMonth.get(i));
+
+// Cell colors by release count (index = min(count, 3))
+const colors = [
+	'bg-slate-200 dark:bg-slate-700/70',
+	'bg-teal-300 dark:bg-teal-600',
+	'bg-teal-500 dark:bg-teal-400',
+	'bg-teal-700 dark:bg-teal-300',
+];
+---
+
+<section data-nosnippet aria-label="Release history" class="my-20 pt-12 border-t border-slate-200 dark:border-slate-800">
+	<p class="text-center text-[10px] font-mono tracking-widest uppercase text-slate-400 dark:text-slate-500 mb-6">Release history</p>
+	<div class="overflow-x-auto flex justify-center">
+		<div class="inline-block">
+			<!-- Month label row — ml-[36px] aligns with cells (w-7 year label + gap-2) -->
+			<div class="flex gap-[3px] mb-2 h-4 ml-[36px]">
+				{monthLabelSlots.map(label => (
+					<div class="w-3 shrink-0 relative">
+						{label && (
+							<span class="absolute top-0 left-0 text-[9px] font-mono text-slate-400 dark:text-slate-500 whitespace-nowrap select-none">{label}</span>
+						)}
+					</div>
+				))}
+			</div>
+			<!-- Year rows -->
+			{heatmapYears.map(({year, weeks}) => (
+				<div class="flex items-center gap-2 py-[1.5px]">
+					<span class="text-[10px] text-slate-400 dark:text-slate-500 w-7 text-right shrink-0 font-mono select-none">{year}</span>
+					<div class="flex gap-[3px]">
+						{weeks.map(releases => {
+							const count = releases.length;
+							const colorClass = colors[Math.min(count, 3)];
+							return (
+								<div
+									class={`w-3 h-3 rounded-[2px] transition-transform duration-100 hover:scale-125 ${colorClass} ${count > 0 ? 'cursor-pointer' : ''}`}
+									data-releases={count > 0 ? JSON.stringify(releases) : undefined}
+								></div>
+							);
+						})}
+					</div>
+				</div>
+			))}
+			<!-- Legend -->
+			<div class="flex items-center gap-1.5 mt-4 justify-end select-none text-[9px] font-mono text-slate-400 dark:text-slate-500">
+				<span>less</span>
+				<div class="w-3 h-3 rounded-[2px] bg-slate-200 dark:bg-slate-700/70"></div>
+				<div class="w-3 h-3 rounded-[2px] bg-teal-300 dark:bg-teal-600"></div>
+				<div class="w-3 h-3 rounded-[2px] bg-teal-500 dark:bg-teal-400"></div>
+				<div class="w-3 h-3 rounded-[2px] bg-teal-700 dark:bg-teal-300"></div>
+				<span>more</span>
+			</div>
+		</div>
+	</div>
+	<!-- JS-driven tooltip -->
+	<div id="heatmap-tooltip" class="fixed z-50 pointer-events-none hidden rounded-xl bg-gray-950/90 text-white text-[11px] px-3 py-2 shadow-2xl max-w-[220px] leading-relaxed" style="transform: translate(14px, 14px)"></div>
+</section>
+
+<script>
+	// Floating tooltip + click navigation
+	const tooltip = document.getElementById('heatmap-tooltip');
+	if (tooltip) {
+		let mouseX = 0;
+		let mouseY = 0;
+
+		document.addEventListener('mousemove', event => {
+			mouseX = event.clientX;
+			mouseY = event.clientY;
+			if (!tooltip.classList.contains('hidden')) {
+				tooltip.style.left = `${mouseX}px`;
+				tooltip.style.top = `${mouseY}px`;
+			}
+		}, {passive: true});
+
+		const cells = document.querySelectorAll('[data-releases]');
+		for (const cell of cells) {
+			const releases = JSON.parse(cell.dataset.releases);
+
+			cell.addEventListener('mouseenter', () => {
+				tooltip.innerHTML = '';
+				for (const release of releases) {
+					const line = document.createElement('div');
+					line.textContent = `${release.title} · ${release.month}`;
+					tooltip.append(line);
+				}
+
+				tooltip.classList.remove('hidden');
+				tooltip.style.left = `${mouseX}px`;
+				tooltip.style.top = `${mouseY}px`;
+			});
+
+			cell.addEventListener('mouseleave', () => {
+				tooltip.classList.add('hidden');
+			});
+
+			cell.addEventListener('click', () => {
+				window.location.href = releases[0].url;
+			});
+		}
+	}
+</script>

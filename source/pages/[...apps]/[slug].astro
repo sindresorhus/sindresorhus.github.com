@@ -28,7 +28,7 @@ const {app, allApps} = Astro.props;
 const meta = {
 	title: `${app.title} — ${SITE.name}`,
 	description: app.subtitle,
-	image: app.iconUrl,
+	image: `/og/${app.slug}.png`,
 	ogTitle: app.title,
 	ogType: 'product',
 	appStoreId: app.appStoreId,
@@ -138,14 +138,26 @@ const tagClass = tagCSS;
 			{app.announcement &&
 				<Announcement text={app.announcement.text} url={app.announcement.url} urlText={app.announcement.urlText}/>
 			}
-			<section class="mx-auto px-6 max-w-5xl mb-20 flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide md:flex-col md:overflow-visible md:snap-none md:gap-0 md:space-y-8" aria-label="App media">
-				{app.videos.map(video => (
-					<video src={video} autoplay loop muted playsinline preload="metadata" aria-label={`${app.title} demo video`} class="rounded-md shadow-lg snap-center shrink-0 w-[85vw] md:w-auto md:shrink"/>
-				))}
-				{app.screenshots.map((screenshot, index) => (
-					<img src={screenshot.src} width={screenshot.width} height={screenshot.height} alt={`${app.title} screenshot ${index + 1}`} loading="lazy" class="rounded-md shadow-lg snap-center shrink-0 w-[85vw] md:w-auto md:shrink">
-				))}
-			</section>
+			<div class="relative group/carousel mx-auto max-w-5xl mb-20">
+				<section id="app-media" class="px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide" aria-label="App media">
+					{app.videos.map(video => (
+						<div class="snap-center shrink-0 w-[85vw] md:w-full md:flex md:justify-center">
+							<video src={video} autoplay loop muted playsinline preload="metadata" aria-label={`${app.title} demo video`} class="rounded-md shadow-lg w-full md:h-[640px] md:w-auto md:max-w-full"/>
+						</div>
+					))}
+					{app.screenshots.map((screenshot, index) => (
+						<div class="snap-center shrink-0 w-[85vw] md:w-full md:flex md:justify-center">
+							<img src={screenshot.src} width={screenshot.width} height={screenshot.height} alt={`${app.title} screenshot ${index + 1}`} loading="lazy" class="rounded-md shadow-lg w-full md:h-[640px] md:w-auto md:max-w-full">
+						</div>
+					))}
+				</section>
+				<button class="media-prev hidden md:flex items-center justify-center absolute left-8 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/40 dark:bg-gray-900/40 backdrop-blur-sm shadow-md text-gray-700 dark:text-gray-200 opacity-0 group-hover/carousel:opacity-100 transition-opacity cursor-default" aria-label="Previous screenshot">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15,18 9,12 15,6"/></svg>
+				</button>
+				<button class="media-next hidden md:flex items-center justify-center absolute right-8 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/40 dark:bg-gray-900/40 backdrop-blur-sm shadow-md text-gray-700 dark:text-gray-200 opacity-0 group-hover/carousel:opacity-100 transition-opacity cursor-default" aria-label="Next screenshot">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9,6 15,12 9,18"/></svg>
+				</button>
+			</div>
 			{app.pressQuotes?.length > 0 &&
 				<PressQuotes quotes={app.pressQuotes}/>
 			}
@@ -450,6 +462,71 @@ const tagClass = tagCSS;
 		}
 	}
 }
+</script>
+
+<script type="module" is:inline>
+(() => {
+	const carousel = document.querySelector('#app-media');
+	if (!carousel) {
+		return;
+	}
+
+	const previousButton = document.querySelector('.media-prev');
+	const nextButton = document.querySelector('.media-next');
+	const items = [...carousel.querySelectorAll(':scope > *')];
+
+	if (items.length === 0) {
+		return;
+	}
+
+	let currentIndex = 0;
+
+	const getVisualIndex = () => {
+		const containerCenter = carousel.getBoundingClientRect().left + carousel.offsetWidth / 2;
+		let closestIndex = 0;
+		let minimumDistance = Infinity;
+		for (const [index, item] of items.entries()) {
+			const {left, width} = item.getBoundingClientRect();
+			const distance = Math.abs(left + width / 2 - containerCenter);
+			if (distance < minimumDistance) {
+				minimumDistance = distance;
+				closestIndex = index;
+			}
+		}
+		return closestIndex;
+	};
+
+	const setButtonHidden = (button, isHidden) => {
+		button.style.opacity = isHidden ? '0' : '';
+		button.style.pointerEvents = isHidden ? 'none' : '';
+	};
+
+	const updateBoundaries = () => {
+		setButtonHidden(previousButton, currentIndex === 0);
+		setButtonHidden(nextButton, currentIndex === items.length - 1);
+	};
+
+	const scrollToIndex = (index) => {
+		currentIndex = Math.max(0, Math.min(items.length - 1, index));
+		items[currentIndex].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'center'});
+		updateBoundaries();
+	};
+
+	previousButton.addEventListener('click', () => {
+		scrollToIndex(currentIndex - 1);
+	});
+	nextButton.addEventListener('click', () => {
+		scrollToIndex(currentIndex + 1);
+	});
+
+	// Sync index after user manually swipes so button state stays correct.
+	carousel.addEventListener('scrollend', () => {
+		currentIndex = getVisualIndex();
+		updateBoundaries();
+	}, {passive: true});
+
+	updateBoundaries();
+})();
 </script>
 
 <style is:global>
