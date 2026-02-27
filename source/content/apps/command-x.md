@@ -31,7 +31,7 @@ Known limitation: You cannot cut the name of a file when editing a filename in F
 <br>
 
 > [!TIP]
-> You may also like my [Supercharge](/supercharge) app.
+> You may also like my [Supercharge](/supercharge) app which has an [improved implementation](#textfield-limitation) of this.
 
 ## Frequently Asked Questions {#faq}
 

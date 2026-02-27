@@ -31,6 +31,40 @@ const normalizeApps = async app => {
 			return [text, `#${slug}`];
 		});
 
+	const faqHeadings = [];
+	if (hasFaqSection) {
+		let inFaqSection = false;
+		let inFaqSubsection = false;
+		for (const heading of headings) {
+			if (heading.depth === 2 && heading.text === faqHeadingTitle) {
+				inFaqSection = true;
+				inFaqSubsection = false;
+				continue;
+			}
+
+			if (inFaqSection && heading.depth === 2) {
+				break;
+			}
+
+			if (!inFaqSection) {
+				continue;
+			}
+
+			if (heading.depth === 3) {
+				inFaqSubsection = true;
+				continue;
+			}
+
+			if (
+				heading.depth === 4
+				&& !inFaqSubsection
+				&& heading.slug !== 'i-have-a-feature-request-bug-report-or-some-feedback'
+			) {
+				faqHeadings.push({text: heading.text, slug: heading.slug});
+			}
+		}
+	}
+
 	const {[NON_APP_STORE_VERSION]: nonAppStoreLink, ...regularLinks} = Object.fromEntries(headerLinks);
 
 	const links = {
@@ -84,6 +118,7 @@ const normalizeApps = async app => {
 		links,
 		overflowLinks,
 		hasFaqSection,
+		faqHeadings,
 		videos,
 		screenshots,
 		Content,

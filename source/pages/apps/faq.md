@@ -7,11 +7,11 @@ title: Frequently Asked Questions
 
 *See the page of each app for app-specific FAQs.*
 
-### How can I report a bug or suggest a feature?
+### How can I report a bug or suggest a feature? {#report-bug}
 
 Tap the feedback button in the app or the support link on the app's page. I prioritize bug fixes and consider feature suggestions that align with the app's vision and user demand.
 
-### Do your apps collect any personal data?
+### Do your apps collect any personal data? {#privacy}
 
 My apps prioritize user privacy and do not collect any personal data.
 
@@ -25,13 +25,13 @@ For apps purchased on Gumroad, refunds are generally not offered. You can [reque
 
 However, I would appreciate it if you [reached out](/feedback) first. I may be able to resolve any problems you are having.
 
-### How many devices can I install an app on?
+### How many devices can I install an app on? {#device-limit}
 
 Apps purchased on the Apple App Store can be installed on up to 10 devices, with a maximum of 5 computers. [Learn more.](https://support.apple.com/en-us/HT204074)
 
 Apps purchased on Gumroad can be used by one user on unlimited computers.
 
-### How can I transfer an app bought on the Apple App Store to a different account?
+### How can I transfer an app bought on the Apple App Store to a different account? {#transfer-purchase}
 
 This is unfortunately [not possible](https://apple.stackexchange.com/a/444878). App developers have no control over the purchase process on the Apple App Store.
 
@@ -47,14 +47,15 @@ Apple troubleshooting guide:
 - [macOS](https://support.apple.com/en-us/102331)
 - [iOS](https://support.apple.com/en-us/102632)
 
-### Can I get an invoice?
+### Can I get an invoice? {#invoice}
 
 Apps purchased on:
 
 - [Apple App Store](https://apple.stackexchange.com/questions/425441/invoice-for-purchases-made-on-app-store)
 - [Gumroad](https://gumroad.com/help/article/194-i-need-an-invoice.html#How-to-generate-your-invoice-from-the-receipt-wpmBD)
 
-### Do you provide any discounts?
+### Do you provide any discounts? {#discounts}
+<!-- @faq.keywords free student -->
 
 Yes. See the [discounts](/apps/discounts) page.
 
@@ -66,15 +67,15 @@ An App Store feature that lets you buy an app once and get access to all its ava
 
 Setapp curates apps based on demand, so if you'd like to see an app of mine on Setapp, [email them](https://support.setapp.com/hc/en-us/articles/4950254561052-How-to-contact-Setapp-team#:~:text=to%20your%20issue.-,Send%20an%20email,%3A%20support%40setapp.com.) and request its inclusion.
 
-### Are your apps native?
+### Are your apps native? {#native-apps}
 
 Yes, all my apps are native. They are built using Swift and SwiftUI and are designed to provide the best performance and integration with the operating systems. I put a lot of effort into adhering to Apple's [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines).
 
-### Why are most of your apps free?
+### Why are most of your apps free? {#free-apps}
 
 I love making apps and I want them to be available to as many people as possible. I don't care much about money and I earn enough on my paid apps.
 
-### Why should I trust you?
+### Why should I trust you? {#trust}
 
 Free apps often raise doubts about privacy and intentions. Your trust matters deeply to me. Unlike others, I don't engage in data-selling or bombard you with pesky ads. I don’t sell your data, and you’re not the product. I make apps because I enjoy it. I don't care about profits.
 
@@ -82,39 +83,39 @@ With over 3 million users placing their confidence in me, I take pride in safegu
 
 Trust is earned. Don't just take my word for it; delve into the reviews on the App Store. Your peace of mind matters, and I'm committed to upholding it every step of the way. Feel free to [contact me](/contact) if you have any questions.
 
-### What's your policy on ads in your apps?
+### What's your policy on ads in your apps? {#no-ads}
 
 I hate ads. None of my apps have ads.
 
-### How can I support your work?
+### How can I support your work? {#support-work}
 
 Rate and review my apps on the App Store. Your ratings and reviews greatly aid in increasing the apps' visibility and discoverability, helping more users find them. You can also rate my apps on Gumroad.
 
-### Who makes your app icons?
+### Who makes your app icons? {#app-icons}
 
 I make them myself in Sketch, sometimes using AI as a starting point.
 
-### How do you prioritize bug fixes?
+### How do you prioritize bug fixes? {#prioritize-bugs}
 
 User-reported bugs are prioritized based on their impact on the app's functionality and the number of users affected. I aim to fix every bug users report.
 
-### What's the best way to learn about new apps?
+### What's the best way to learn about new apps? {#new-apps}
 
 Subscribe to my [“new apps” RSS feed](/feeds) and follow me on [X (Twitter)](https://x.com/sindresorhus), [Mastodon](https://mastodon.social/@sindresorhus), or [Bluesky](https://bsky.app/profile/sindresorhus.bsky.social).
 
-### Do you actively maintain all your apps?
+### Do you actively maintain all your apps? {#active-maintenance}
 
 Yes, I actively maintain all my apps to ensure they remain awesome and bug free. Every year, I make sure they take advantage of Apple's latest technologies.
 
-### The app hasn't been updated in a while, is it still maintained?
+### The app hasn't been updated in a while, is it still maintained? {#not-updated}
 
 Yes, if an app has not been updated for months, it's still actively maintained. A lack of recent updates indicates that the app has reached a mature and stable state.
 
-### Why do you only support the latest macOS/iOS version?
+### Why do you only support the latest macOS/iOS version? {#latest-os-only}
 
 I make apps for fun and supporting older operating system versions is simply no fun. It adds a lot of overhead with having to test each update on the older versions, work around bugs Apple will never fix, etc. As a compromise, I provide [older versions](/apps/older-versions) of my apps for older operating system versions.
 
-### Why do you create multiple mini menu bar apps instead of one comprehensive “menu bar app”?
+### Why do you create multiple mini menu bar apps instead of one comprehensive “menu bar app”? {#multiple-apps}
 
 - **Focus:** Easier to make a high-quality app when it's focused on one thing.
 - **Marketing:** Challenging to market an app that does too many different things.
@@ -150,7 +151,7 @@ iOS: Tap and hold the app on the Home Screen and select “Remove App”.
 
 *If you're uninstalling due to issues, please [contact me](/feedback) first; I resolve problems quickly.*
 
-### I'm getting a “The application can’t be opened” error when trying to launch your app
+### I’m getting a “The application can’t be opened” error when trying to launch your app {#app-cant-be-opened}
 
 Make sure the app is in the “/Applications” folder, then right-click the app and select "Open" from the context menu.
 
@@ -216,6 +217,8 @@ This is a [common problem](https://bitsplitting.org/2022/06/18/purgeable-mac-app
 When you enable that setting, the app simply tells macOS to launch it at login, so if it's not working, it's a problem with macOS or your system. Try disabling launch at login in the app, restart your computer, and then enable it again. As a workaround, you can manually add it: Open System Settings, go to “General › Login Items”, and click the “+” button, and choose the app.
 
 ### The app does not show up in the macOS menu bar {#app-not-showing-in-menu-bar}
+<!-- @faq.keywords launching launch start open opening -->
+<!-- @faq.platforms macOS -->
 
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
@@ -224,6 +227,7 @@ If you are on macOS 26, make sure it's not disabled in “System Settings › Me
 Also try restarting your computer.
 
 ### I'm having a problem with your app {#app-problem}
+<!-- @faq.keywords working broken -->
 
 Here are some things you could try:
 
@@ -373,19 +377,19 @@ Select the app in [App Buddy](/app-buddy) and click “Sample Process”.
 
 No. AppleScript is a dying technology that Apple barely cares about anymore. [Shortcuts](https://support.apple.com/en-gb/guide/shortcuts/welcome/ios) is the modern replacement and where Apple is investing its automation efforts. Most of my apps support Shortcuts.
 
-### Can you support non-Apple platforms?
+### Can you support non-Apple platforms? {#non-apple}
 
 No, my expertise is exclusively in macOS, iOS, watchOS, and visionOS. Focus is key to high-quality apps.
 
-### Can I hire you to build me an app?
+### Can I hire you to build me an app? {#hire}
 
 I am not available for hire.
 
-### Can I acquire your app?
+### Can I acquire your app? {#acquire}
 
 No. I make apps because I enjoy it. Your money is of no interest to me.
 
-### My question is not answered here
+### My question is not answered here {#more-questions}
 
 [Ask me.](/contact)
 

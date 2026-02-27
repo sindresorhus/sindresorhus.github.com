@@ -1,10 +1,37 @@
 ---
+import * as faqMd from './apps/faq.md';
 import Layout from '~/layouts/PageLayout.astro';
 import {fetchApps, proseCSS} from '~/utils/apps.js';
 
 const meta = {
 	title: 'Feedback & Support — Sindre Sorhus',
 };
+
+const feedbackFaqSlugs = new Set([
+	'refund',
+	'device-limit',
+	'transfer-purchase',
+	'app-store-download-problem',
+	'invoice',
+	'discounts',
+	'universal-purchase',
+	'export-settings',
+	'localize',
+	'homebrew',
+	'uninstall-app',
+	'app-cant-be-opened',
+	'high-cpu',
+	'randomly-quits',
+	'launch-at-login-not-working',
+	'app-not-showing-in-menu-bar',
+	'app-problem',
+	'icloud-sync',
+	'reset-app',
+]);
+
+const generalFaqs = faqMd.getHeadings()
+	.filter(h => h.depth === 3 && feedbackFaqSlugs.has(h.slug))
+	.map(h => ({question: h.text, url: `/apps/faq#${h.slug}`, ...faqMd.frontmatter.headingMeta?.[h.slug]?.faq}));
 
 // eslint-disable-next-line unicorn/no-await-expression-member
 const apps = (await fetchApps({includeUnlisted: true})).map(({
@@ -13,25 +40,30 @@ const apps = (await fetchApps({includeUnlisted: true})).map(({
 	iconUrl,
 	repoUrl,
 	hasFaqSection,
+	faqHeadings,
 	feedbackNote,
+	platforms,
 }) => ({
 	title,
 	url,
 	iconUrl,
 	repoUrl,
 	hasFaqSection,
+	faqHeadings,
 	feedbackNote,
+	platforms,
 }));
 
-const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500';
+const inputCSS = 'block p-2.5 w-full text-lg text-gray-900 bg-white/60 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-white/[0.06] dark:border-white/10 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500';
 
 const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300';
 ---
 
 <Layout {meta}>
-	<div id="main" class="flex flex-col sm:min-h-screen max-w-3xl mx-auto px-8 mt-6 mb-16" class={proseCSS}>
+	<link rel="preconnect" href="https://formcarry.com" slot="head">
+	<div id="main" class="flex flex-col sm:min-h-screen max-w-3xl mx-auto px-4 sm:px-8 mt-6 mb-16" class={proseCSS}>
 		<div class="text-center">
-			<img id="app-icon" class="flex mx-auto mb-2 not-prose invisible" width="128" height="128">
+			<img id="app-icon" class="flex mx-auto mb-4 not-prose invisible" width="128" height="128">
 			<h1 id="product-name" class="text-4xl md:text-5xl font-bold leading-tighter tracking-tighter mb-2 font-heading"></h1>
 			<h2 class="text-2xl md:text-3xl leading-tighter tracking-tighter mb-8">Feedback & Support</h2>
 			<div id="additional-info" class={proseCSS} style="font-size:16px"></div>
@@ -40,46 +72,79 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 			<!-- <div><br>I may take longer to respond as I'm getting an overwhelming amount of emails at the moment. I appreciate your patience.</div> -->
 			<div class={proseCSS} style="font-size:20px"><b>If you experience any issues with my apps after updating to iOS 26 / macOS 26, make sure you are on the latest update of my apps and try restarting your device one more time. It fixes a lot of issues. If a menu bar icon is missing, see <a href="https://sindresorhus.com/apps/faq#app-not-showing-in-menu-bar">this</a>. If you are still having problems with widgets, try changing the device language to something else and then back.</b></div>
 		</div>
-		<form id="feedback-form" class="mt-8" action="https://formcarry.com/s/UBfgr97yfY" method="POST" enctype="multipart/form-data" onsubmit="document.querySelector('#submit-button').disabled=true">
+		<form id="feedback-form" class="mt-8" action="https://formcarry.com/s/UBfgr97yfY" method="POST" enctype="multipart/form-data">
 			<input type="hidden" name="_gotcha">
 			<div class="mb-6">
 				<label class={labelCSS} for="message">Message*</label>
-				<textarea class={inputCSS} placeholder="I'm a human. Please be nice." name="message" minlength="20" rows="7" required autofocus></textarea>
+				<textarea class={inputCSS} placeholder="I'm a human. Please be nice." name="message" minlength="20" rows="7" required autofocus autocapitalize="sentences" aria-expanded="false" aria-controls="faq-suggestions"></textarea>
+				<div id="faq-suggestions" hidden tabindex="-1" class="mt-3 p-3 rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20 text-sm transition-[opacity,transform] duration-150 ease-out starting:opacity-0 starting:-translate-y-1">
+					<div class="flex justify-between items-center mb-2">
+						<span class="font-medium text-blue-800 dark:text-blue-300">Related help:</span>
+						<button id="faq-dismiss" type="button" tabindex="-1" class="text-blue-400 hover:text-blue-600 p-1.5 -m-1.5" aria-label="Dismiss"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/></svg></button>
+					</div>
+					<ul id="faq-list" class="space-y-1.5"></ul>
+				</div>
 			</div>
 			<div class="mb-6">
-				<label class={labelCSS} for="email">Email*</label>
-				<input class={inputCSS} type="email" name="email" autocomplete="email" required>
-				<small>Only used for replying to you.</small>
+				<div class="flex justify-between items-baseline mb-2">
+					<label class="text-sm font-medium text-gray-900 dark:text-gray-300" for="email">Email*</label>
+					<span class="text-xs text-gray-500 dark:text-gray-400">Only used for replying to you</span>
+				</div>
+				<input class={inputCSS} type="email" name="email" autocomplete="email" enterkeyhint="send" required>
 			</div>
-			<div class="mb-6">
-				<label class={labelCSS} class="label" for="attachments">Attachments</label>
-				<input class={inputCSS} type="file" name="attachments" multiple>
+			<div class="mb-8">
+				<label id="attach-label" class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+					<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+					Attach files
+					<input id="attachments-input" type="file" name="attachments" multiple class="sr-only" aria-describedby="attach-label">
+				</label>
+				<div id="file-list" class="mt-2 flex flex-col gap-1.5"></div>
 			</div>
-			<br>
-			<div class="mb-6">
-				<input type="hidden" id="captchaResponse" name="g-recaptcha-response">
-				<button id="submit-button" class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-hidden focus:ring-primary-300 font-medium rounded-lg text-md w-full sm:w-auto px-6 py-3 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 disabled:opacity-50 disabled:pointer-events-none" type="submit">Send Feedback</button>
+			<input type="hidden" id="captchaResponse" name="g-recaptcha-response">
+			<div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
+				<button id="submit-button" class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-hidden focus:ring-primary-300 font-semibold rounded-full text-base w-full sm:w-auto px-8 py-3 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 disabled:opacity-50 disabled:pointer-events-none transition-colors" type="submit">Send Feedback</button>
+				<p class="text-xs text-gray-500 dark:text-gray-400 text-center sm:text-left">If you haven't received a reply for two weeks, check your spam folder.</p>
 			</div>
-			<sub>If you haven't received a reply for two weeks, check your spam folder, it might be there.</sub>
-			<!-- <sub>If you haven't received a reply for a week, check your spam folder, it might be there.</sub> -->
 		</form>
 	</div>
 </Layout>
 
-<script src="https://code.jquery.com/jquery-3.7.0.min.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-4.0.0.min.js" crossorigin="anonymous"></script>
 
 <script type="module" is:inline define:vars={{apps}}>
-	if (window.location.search === '?success') {
-		$('#main').html('<h1 class="text-2xl mx-auto my-20">Thanks for the feedback!</h1>');
+	const DRAFT_KEY = 'feedback-draft';
+
+	// --- Success page ---
+
+	function initSuccess() {
+		if (window.location.search !== '?success') return false;
+
+		$('#main').html(`
+			<div class="flex flex-col items-center justify-center min-h-[60vh] text-center gap-6 not-prose py-16">
+				<div class="w-20 h-20 rounded-full flex items-center justify-center bg-primary-600/15">
+					<svg class="text-primary-700" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+				</div>
+				<div>
+					<h1 class="text-3xl font-bold font-heading mb-2">Message sent!</h1>
+					<p class="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">Thanks for reaching out. I read every message and will get back to you soon.</p>
+				</div>
+				<p class="text-sm text-gray-400">Taking you to the apps page…</p>
+			</div>
+		`);
 
 		setTimeout(() => {
 			window.location.href = 'https://sindresorhus.com/apps';
-		}, 3000);
+		}, 4000);
+
+		return true;
 	}
 
-	const params = new URL(location.href).searchParams;
+	// --- Product UI (icon, title, additional info links) ---
 
-	if (params.has('product')) {
+	function initProductUI() {
+		const params = new URL(location.href).searchParams;
+		if (!params.has('product')) return;
+
 		const product = params.get('product');
 		const app = apps.find(app => app.title === product);
 
@@ -88,64 +153,623 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 
 		if (app) {
 			$('#app-icon').css('visibility', 'visible').attr('src', app.iconUrl);
+			// Update the browser tab favicon to match the selected app
+			document.querySelector('link[rel="icon"]')?.setAttribute('href', app.iconUrl);
 		}
+
+		const additionalInfo = $('#additional-info');
 
 		if (app?.repoUrl) {
 			const searchParams = new URLSearchParams();
-
 			searchParams.append('body', `<\!--\nProvide your feedback below. Include as many details as possible.\n-->\n\n\n\n---\n${params.get('metadata') ?? ''}`.trim());
-
 			const url = `${app.repoUrl}/issues/new?${searchParams}`;
-
-			$('#additional-info').show().append(`
-				If you have a GitHub account, <a href="${url}">open an issue on the repo</a> instead.
+			additionalInfo.append(`
+				If you have a GitHub account, <a href="${url}" target="_blank" rel="noopener noreferrer">open an issue on the repo</a> instead.
 			`);
 		}
 
 		if (app?.hasFaqSection) {
-			$('#additional-info').show().append(`
+			additionalInfo.append(`
 				See the <a href="${app.url}#faq">app's frequently asked questions (FAQs)</a> and the <a href="/apps/faq">general FAQs</a> in case your question has already been answered.\nMake sure you are on the latest version and try to restart your device.\nIf the app crashed, it would be very helpful if you could send a <a href="/apps/faq#crash-report">crash report</a>.
 			`);
 		}
 
 		if (app?.feedbackNote) {
-			$('#additional-info').show().append(`<div>${app?.feedbackNote}</div>`);
+			additionalInfo.append(`<div>${app.feedbackNote}</div>`);
+		}
+
+		if (additionalInfo.children().length > 0) {
+			additionalInfo.show();
 		}
 	}
 
-	const form = $('#feedback-form');
+	// --- URL params: inject hidden fields + pre-fill email/message ---
 
-	form.append(
-		$('<input type="hidden" name="timestamp">').val(Date.now())
-	);
-
-	// Include all the existing search params
-	for (const [key, value] of params) {
-		if (key === 'emailField') {
-			form.find('[name="email"]').val(value);
-			continue;
-		}
-
-		if (key === 'messageField') {
-			form.find('[name="message"]').val(value).get(0).setSelectionRange(0, 0);
-			continue;
-		}
-
-		if (key === 'extraInfo') {
-			form.append(
-				$(`<textarea style="display:none" readonly name="${key}"></textarea>`).text(value)
-			);
-			continue;
-		}
+	function applyUrlParams() {
+		const params = new URL(location.href).searchParams;
+		const form = $('#feedback-form');
 
 		form.append(
-			$(`<input type="hidden" name="${key}">`).val(value)
+			$('<input type="hidden" name="timestamp">').val(Date.now())
+		);
+
+		// Auto-collect environment info when no app-provided metadata is present
+		if (!params.has('metadata')) {
+			const detectOS = () => {
+				// userAgentData.platform is accurate; UA string OS version is frozen in modern browsers
+				if (navigator.userAgentData?.platform) {
+					return navigator.userAgentData.platform;
+				}
+
+				// Safari / Firefox fallback via navigator.platform
+				const platform = navigator.platform ?? '';
+				if (/iPhone|iPad|iPod/.test(platform) || /iPhone|iPad/.test(navigator.userAgent)) {
+					return 'iOS';
+				}
+				if (/Mac/.test(platform)) {
+					return 'macOS';
+				}
+				if (/Win/.test(platform)) {
+					return 'Windows';
+				}
+				if (/Android/.test(navigator.userAgent)) {
+					return 'Android';
+				}
+				if (/Linux/.test(platform)) {
+					return 'Linux';
+				}
+				return 'Unknown';
+			};
+
+			const detectBrowser = () => {
+				// userAgentData is available in Chromium-based browsers
+				const brand = navigator.userAgentData?.brands?.find(b => b.brand !== 'Chromium' && !b.brand.startsWith('Not'));
+				if (brand) {
+					return `${brand.brand} ${brand.version}`;
+				}
+				const match = navigator.userAgent.match(/Version\/([\d.]+).*Safari|Firefox\/([\d.]+)/);
+				if (match) {
+					return match[2] ? `Firefox ${match[2]}` : `Safari ${match[1]}`;
+				}
+				return 'Unknown';
+			};
+
+			const metadata = [
+				`OS: ${detectOS()}`,
+				`Browser: ${detectBrowser()}`,
+				`Screen: ${screen.width}×${screen.height} @${window.devicePixelRatio}x`,
+				`Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`,
+				`Locale: ${navigator.language}`,
+				`Languages: ${navigator.languages.join(', ')}`,
+				navigator.deviceMemory && `Device memory: ${navigator.deviceMemory} GB`,
+				document.referrer && `Referrer: ${document.referrer}`,
+			].filter(Boolean).join('\n');
+
+			form.append($('<input type="hidden" name="metadata">').val(metadata));
+		}
+
+		// Include all the existing search params as hidden inputs
+		for (const [key, value] of params) {
+			if (key === 'emailField') {
+				form.find('[name="email"]').val(value);
+				continue;
+			}
+
+			if (key === 'messageField') {
+				form.find('[name="message"]').val(value).get(0).setSelectionRange(0, 0);
+				continue;
+			}
+
+			if (key === 'extraInfo') {
+				form.append(
+					$(`<textarea style="display:none" readonly name="${key}"></textarea>`).text(value)
+				);
+				continue;
+			}
+
+			form.append(
+				$(`<input type="hidden" name="${key}">`).val(value)
+			);
+		}
+
+		// Clean up metadata param from the visible URL after it's been injected
+		if (params.get('metadata')) {
+			const url = new URL(window.location);
+			url.searchParams.delete('metadata');
+			window.history.replaceState({}, '', url);
+		}
+	}
+
+	// --- Attachments ---
+
+	function initAttachments() {
+		const attachmentsInput = document.querySelector('#attachments-input');
+		const fileList = document.querySelector('#file-list');
+		if (!attachmentsInput) {
+			return;
+		}
+
+		const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'jxl', 'gif', 'webp', 'heic', 'heif', 'avif', 'svg']);
+		const FILE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>`;
+		const CLOSE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg>`;
+
+		// Source-of-truth array; the file input's FileList is rebuilt from this on every change
+		let attachedFiles = [];
+
+		function formatSize(bytes) {
+			return bytes < 1024 * 1024
+				? `${(bytes / 1024).toFixed(0)} KB`
+				: `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+		}
+
+		// Rebuild the file input's FileList from our source-of-truth array
+		function syncFilesToInput() {
+			const dataTransfer = new DataTransfer();
+			for (const file of attachedFiles) {
+				dataTransfer.items.add(file);
+			}
+			attachmentsInput.files = dataTransfer.files;
+		}
+
+		function renderFileList() {
+			fileList.innerHTML = '';
+			for (const [index, file] of attachedFiles.entries()) {
+				const extension = file.name.split('.').pop().toLowerCase();
+
+				const chip = document.createElement('span');
+				chip.className = 'flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg px-2 py-1.5';
+
+				if (IMAGE_EXTENSIONS.has(extension)) {
+					const thumbnail = document.createElement('img');
+					thumbnail.style.cssText = 'width:20px;height:20px;object-fit:cover;border-radius:3px;flex-shrink:0';
+					thumbnail.src = URL.createObjectURL(file);
+					chip.append(thumbnail);
+				} else {
+					const iconWrapper = document.createElement('span');
+					iconWrapper.innerHTML = FILE_ICON;
+					chip.append(iconWrapper);
+				}
+
+				const nameWrapper = document.createElement('span');
+				nameWrapper.className = 'flex-1 min-w-0 flex items-center gap-1';
+				const nameText = document.createElement('span');
+				nameText.className = 'truncate';
+				nameText.textContent = file.name;
+				const sizeText = document.createElement('span');
+				sizeText.className = 'text-gray-400 flex-shrink-0';
+				sizeText.textContent = formatSize(file.size);
+				nameWrapper.append(nameText, sizeText);
+				chip.append(nameWrapper);
+
+				const removeButton = document.createElement('button');
+				removeButton.type = 'button';
+				removeButton.className = 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 flex-shrink-0';
+				removeButton.setAttribute('aria-label', `Remove ${file.name}`);
+				removeButton.dataset.index = index;
+				removeButton.innerHTML = CLOSE_ICON;
+				chip.append(removeButton);
+
+				fileList.append(chip);
+			}
+		}
+
+		attachmentsInput.addEventListener('change', () => {
+			// Merge newly selected files into the accumulated list (skip duplicates by name+size)
+			for (const file of attachmentsInput.files) {
+				const isDuplicate = attachedFiles.some(existingFile => existingFile.name === file.name && existingFile.size === file.size);
+				if (!isDuplicate) {
+					attachedFiles.push(file);
+				}
+			}
+
+			syncFilesToInput();
+			renderFileList();
+		});
+
+		fileList.addEventListener('click', event => {
+			const button = event.target.closest('button[data-index]');
+			if (!button) {
+				return;
+			}
+			attachedFiles.splice(Number(button.dataset.index), 1);
+			syncFilesToInput();
+			renderFileList();
+		});
+	}
+
+	// --- Auto-growing textarea ---
+
+	// Makes the textarea grow with its content instead of scrolling
+	function initAutoGrowTextarea(textarea) {
+		textarea.style.overflowY = 'hidden';
+		const minHeight = textarea.offsetHeight;
+
+		function resizeTextarea() {
+			textarea.style.height = `${minHeight}px`;
+			textarea.style.height = `${Math.max(textarea.scrollHeight, minHeight)}px`;
+		}
+
+		textarea.addEventListener('input', resizeTextarea);
+		return resizeTextarea;
+	}
+
+	// --- Draft auto-save ---
+
+	function initDraftSave(textarea, emailInput, resizeTextarea) {
+		function saveDraft() {
+			sessionStorage.setItem(DRAFT_KEY, JSON.stringify({
+				message: textarea.value,
+				email: emailInput.value,
+			}));
+		}
+
+		textarea.addEventListener('input', saveDraft);
+		emailInput.addEventListener('input', saveDraft);
+
+		// Restore draft after URL params have been applied (so params win over draft)
+		const draftJson = sessionStorage.getItem(DRAFT_KEY);
+		const draft = draftJson ? JSON.parse(draftJson) : undefined;
+
+		if (draft?.message && !textarea.value) {
+			textarea.value = draft.message;
+			resizeTextarea();
+		}
+
+		if (draft?.email && !emailInput.value) {
+			emailInput.value = draft.email;
+		}
+	}
+
+	// --- Email domain typo detection ---
+
+	function initEmailTypoDetection(emailInput) {
+		const EMAIL_TYPOS = {
+			'gmial.com': 'gmail.com', 'gmal.com': 'gmail.com', 'gmil.com': 'gmail.com',
+			'gnail.com': 'gmail.com', 'gamil.com': 'gmail.com', 'gmai.com': 'gmail.com',
+			'gmail.co': 'gmail.com', 'gmail.con': 'gmail.com', 'gmail.cm': 'gmail.com',
+			'gmaill.com': 'gmail.com', 'gmaul.com': 'gmail.com', 'gmeil.com': 'gmail.com',
+			'yaho.com': 'yahoo.com', 'yahooo.com': 'yahoo.com', 'yhaoo.com': 'yahoo.com',
+			'yahoo.con': 'yahoo.com', 'yaoo.com': 'yahoo.com', 'yahol.com': 'yahoo.com',
+			'hotmial.com': 'hotmail.com', 'hotmai.com': 'hotmail.com', 'hotmil.com': 'hotmail.com',
+			'homail.com': 'hotmail.com', 'hotmail.con': 'hotmail.com', 'hotmali.com': 'hotmail.com',
+			'outlok.com': 'outlook.com', 'outloook.com': 'outlook.com', 'outlook.con': 'outlook.com',
+			'iclould.com': 'icloud.com', 'icoud.com': 'icloud.com', 'iclod.com': 'icloud.com',
+		};
+
+		const TLD_TYPOS = {'.con': '.com', '.cmo': '.com', '.ocm': '.com', '.ney': '.net'};
+
+		function suggestEmailFix(email) {
+			const atIndex = email.lastIndexOf('@');
+			if (atIndex === -1) {
+				return;
+			}
+			const domain = email.slice(atIndex + 1).toLowerCase();
+			if (EMAIL_TYPOS[domain]) {
+				return `${email.slice(0, atIndex + 1)}${EMAIL_TYPOS[domain]}`;
+			}
+			for (const [badTld, goodTld] of Object.entries(TLD_TYPOS)) {
+				if (domain.endsWith(badTld)) {
+					return `${email.slice(0, atIndex + 1)}${domain.slice(0, -badTld.length)}${goodTld}`;
+				}
+			}
+		}
+
+		const emailWarning = document.createElement('p');
+		emailWarning.className = 'mt-1.5 text-sm text-amber-600 dark:text-amber-400 hidden';
+		emailWarning.role = 'alert';
+		emailInput.insertAdjacentElement('afterend', emailWarning);
+
+		emailInput.addEventListener('blur', () => {
+			const suggestion = suggestEmailFix(emailInput.value.trim());
+			if (suggestion) {
+				emailWarning.textContent = `Did you mean ${suggestion}?`;
+				emailWarning.classList.remove('hidden');
+			} else {
+				emailWarning.classList.add('hidden');
+			}
+		});
+
+		emailInput.addEventListener('input', () => emailWarning.classList.add('hidden'));
+	}
+
+	// --- Submit: loading state + clear draft ---
+
+	function initSubmit() {
+		$('#feedback-form').on('submit', () => {
+			sessionStorage.removeItem(DRAFT_KEY);
+			const button = document.querySelector('#submit-button');
+			// Lock the width before changing text so it doesn't resize
+			button.style.width = `${button.offsetWidth}px`;
+			$(button).prop('disabled', true).text('Sending…');
+		});
+	}
+
+	if (!initSuccess()) {
+		initProductUI();
+		applyUrlParams();
+		initAttachments();
+
+		const textarea = document.querySelector('[name="message"]');
+		if (textarea) {
+			const resizeTextarea = initAutoGrowTextarea(textarea);
+			const emailInput = document.querySelector('[name="email"]');
+			initDraftSave(textarea, emailInput, resizeTextarea);
+			initEmailTypoDetection(emailInput);
+			initSubmit();
+		}
+	}
+</script>
+
+<script type="module" is:inline define:vars={{generalFaqs, apps}}>
+	const params = new URL(location.href).searchParams;
+	let allFaqs = [...generalFaqs];
+
+	if (params.has('product')) {
+		const product = params.get('product');
+		const app = apps.find(app => app.title === product);
+		if (app) {
+			// Drop FAQs that are restricted to platforms this app doesn't support
+			allFaqs = allFaqs.filter(faq => !faq.platforms || faq.platforms.some(platform => app.platforms.includes(platform)));
+
+			if (app.faqHeadings?.length > 0) {
+				const appFaqs = app.faqHeadings.map(heading => ({question: heading.text, url: `${app.url}#${heading.slug}`, isAppSpecific: true}));
+				allFaqs = [...appFaqs, ...allFaqs];
+			}
+		}
+	}
+
+	const pinnedUrls = ['/apps/faq#refund', '/apps/faq#app-not-showing-in-menu-bar'];
+
+	// Common English words that carry no search signal in a tech support context
+	const STOPWORDS = new Set([
+		'about', 'after', 'again', 'also', 'back', 'been', 'being', 'both',
+		'come', 'could', 'does', 'done', 'each', 'even', 'ever', 'every',
+		'feel', 'find', 'first', 'from', 'give', 'have', 'here', 'into',
+		'just', 'keep', 'know', 'last', 'like', 'look', 'made', 'make',
+		'many', 'more', 'most', 'much', 'need', 'never', 'often', 'onto',
+		'other', 'over', 'said', 'same', 'seem', 'should', 'since',
+		'some', 'still', 'such', 'take', 'tell', 'than', 'that',
+		'their', 'them', 'then', 'there', 'these', 'they', 'think', 'those',
+		'turn', 'upon', 'used', 'using', 'very', 'want', 'were', 'what',
+		'when', 'where', 'which', 'while', 'will', 'with', 'would',
+		'your',
+	]);
+
+	// Term pairs treated as interchangeable during FAQ matching
+	const SYNONYMS = new Map([
+		['icloud', ['sync', 'syncing']],
+		['sync', ['icloud']],
+		['syncing', ['icloud']],
+	]);
+
+	// Strip apostrophes before tokenizing so "doesn't" → "doesnt" (harmless non-match)
+	// rather than "doesn" which could trigger false partial matches
+	function tokenize(text) {
+		return (text.toLowerCase().replace(/'/g, '').match(/\b\w{4,}\b/g) ?? []).filter(word => !STOPWORDS.has(word));
+	}
+
+	// Returns true if the words share a common prefix (handles sync/syncing, crash/crashed, etc.)
+	function wordMatches(queryWord, faqWord) {
+		return faqWord === queryWord || faqWord.startsWith(queryWord) || queryWord.startsWith(faqWord);
+	}
+
+	// Expands a word list with synonyms so cross-term matches are possible
+	function expandWithSynonyms(words) {
+		const expanded = new Set(words);
+		for (const word of words) {
+			const synonyms = SYNONYMS.get(word);
+			if (synonyms) {
+				for (const synonym of synonyms) {
+					expanded.add(synonym);
+				}
+			}
+		}
+
+		return [...expanded];
+	}
+
+	// All searchable words for a FAQ entry (question + keywords + synonyms)
+	function faqTokens(faq) {
+		return expandWithSynonyms([...tokenize(faq.question), ...tokenize(faq.keywords?.join(' ') ?? '')]);
+	}
+
+	function buildDocumentFrequency(faqs) {
+		const documentFrequency = new Map();
+		for (const faq of faqs) {
+			for (const word of new Set(tokenize(faq.question))) {
+				documentFrequency.set(word, (documentFrequency.get(word) ?? 0) + 1);
+			}
+		}
+		return documentFrequency;
+	}
+
+	// All meaningful words across all FAQs (questions + keywords + synonyms) — used to detect
+	// "unknown" query words like "didnt"/"doesnt" that shouldn't count toward minMatches
+	function buildCorpus(faqs) {
+		const corpus = new Set();
+		for (const faq of faqs) {
+			for (const word of faqTokens(faq)) corpus.add(word);
+		}
+
+		return corpus;
+	}
+
+	// Score each FAQ against the query words; returns [{faq, score, matchCount}]
+	function scoreFaqs(faqs, queryWords, documentFrequencyIndex) {
+		const faqCount = faqs.length;
+		return faqs.map(faq => {
+			const words = faqTokens(faq);
+			let score = 0;
+			let matchCount = 0;
+			for (const queryWord of queryWords) {
+				if (words.some(faqWord => wordMatches(queryWord, faqWord))) {
+					// Rare words (low document frequency) score higher than common words
+					score += Math.log((faqCount + 1) / ((documentFrequencyIndex.get(queryWord) ?? 0) + 1));
+					matchCount++;
+				}
+			}
+			return {faq, score, matchCount};
+		});
+	}
+
+	// Sort by pinned > app-specific > score; filter to minMatches threshold
+	// Pinned FAQs only need 1 match — they are high-priority by design
+	function sortAndFilter(scored, minMatches) {
+		return scored
+			.filter(({score, matchCount, faq}) => score > 0 && matchCount >= (pinnedUrls.includes(faq.url) ? 1 : minMatches))
+			.sort((itemA, itemB) => {
+				const pinnedIndexA = pinnedUrls.indexOf(itemA.faq.url);
+				const pinnedIndexB = pinnedUrls.indexOf(itemB.faq.url);
+				if (pinnedIndexA !== -1 || pinnedIndexB !== -1) {
+					if (pinnedIndexA === -1) {
+						return 1;
+					}
+					if (pinnedIndexB === -1) {
+						return -1;
+					}
+					return pinnedIndexA - pinnedIndexB;
+				}
+
+				if (itemA.faq.isAppSpecific !== itemB.faq.isAppSpecific) {
+					return itemA.faq.isAppSpecific ? -1 : 1;
+				}
+
+				return itemB.score - itemA.score;
+			})
+			.map(({faq}) => faq);
+	}
+
+	// Jaccard similarity on raw (unfiltered) question words — used for deduplication only
+	function questionSimilarity(textA, textB) {
+		const wordsA = new Set(textA.toLowerCase().match(/\w+/g) ?? []);
+		const wordsB = new Set(textB.toLowerCase().match(/\w+/g) ?? []);
+		const intersection = [...wordsA].filter(word => wordsB.has(word)).length;
+		return intersection / (wordsA.size + wordsB.size - intersection);
+	}
+
+	// Remove general FAQs that are near-duplicates of an app-specific result
+	function deduplicateResults(results) {
+		const appSpecificResults = results.filter(faq => faq.isAppSpecific);
+		if (appSpecificResults.length === 0) {
+			return results;
+		}
+
+		return results.filter(faq =>
+			faq.isAppSpecific || !appSpecificResults.some(appSpecificFaq =>
+				questionSimilarity(faq.question, appSpecificFaq.question) >= 0.6
+			)
 		);
 	}
 
-	if (params.get('metadata')) {
-		const url = new URL(window.location);
-		url.searchParams.delete('metadata');
-		window.history.replaceState({}, '', url);
+	let documentFrequencyIndex;
+	let corpusIndex;
+
+	function findMatchingFaqs(query, faqs) {
+		documentFrequencyIndex ??= buildDocumentFrequency(faqs);
+		corpusIndex ??= buildCorpus(faqs);
+		const queryWords = [...new Set(tokenize(query))];
+		if (queryWords.length === 0) return [];
+
+		// Only count query words that exist in the FAQ corpus toward the minMatches threshold.
+		// Negation words like "didnt", "doesnt", "wont" carry no FAQ signal on their own
+		// and should not inflate the requirement (e.g. "didn't launch" → only "launch" is known).
+		const knownQueryWords = queryWords.filter(queryWord => {
+			for (const corpusWord of corpusIndex) {
+				if (wordMatches(queryWord, corpusWord)) {
+					return true;
+				}
+			}
+
+			return false;
+		});
+
+		const minMatches = knownQueryWords.length <= 1 ? 1 : 2;
+		const scored = scoreFaqs(faqs, queryWords, documentFrequencyIndex);
+		const sorted = sortAndFilter(scored, minMatches);
+		return deduplicateResults(sorted).slice(0, 4);
 	}
+
+	let debounceTimer;
+	let dismissed = false;
+
+	const messageTextarea = $('[name="message"]');
+	const faqSuggestionsPanel = $('#faq-suggestions');
+	const faqList = $('#faq-list');
+
+	function showSuggestions() {
+		faqSuggestionsPanel.prop('hidden', false);
+		messageTextarea.attr('aria-expanded', 'true');
+	}
+
+	function hideSuggestions() {
+		faqSuggestionsPanel.prop('hidden', true);
+		messageTextarea.attr('aria-expanded', 'false');
+	}
+
+	function dismissSuggestions() {
+		dismissed = true;
+		hideSuggestions();
+	}
+
+	messageTextarea.on('input', function () {
+		if (dismissed) {
+			return;
+		}
+
+		clearTimeout(debounceTimer);
+
+		debounceTimer = setTimeout(() => {
+			const query = this.value;
+			const matches = findMatchingFaqs(query, allFaqs);
+			if (matches.length === 0) {
+				hideSuggestions();
+				return;
+			}
+
+			faqList.empty();
+			for (const {question, url} of matches) {
+				faqList.append(`<li><a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-700 dark:text-blue-400 hover:underline">→ ${question}</a></li>`);
+			}
+
+			showSuggestions();
+		}, 350);
+	});
+
+	// ArrowDown from textarea moves focus into the suggestion list
+	messageTextarea.on('keydown', function (event) {
+		if (faqSuggestionsPanel.prop('hidden')) {
+			return;
+		}
+		if (event.key === 'ArrowDown') {
+			event.preventDefault();
+			faqList.find('a').first().focus();
+		} else if (event.key === 'Escape') {
+			dismissSuggestions();
+		}
+	});
+
+	// Arrow keys navigate between suggestion links; Escape dismisses
+	faqList.on('keydown', 'a', function (event) {
+		if (event.key === 'ArrowDown') {
+			event.preventDefault();
+			const nextLink = $(this).closest('li').next().find('a');
+			if (nextLink.length) {
+				nextLink.focus();
+			}
+		} else if (event.key === 'ArrowUp') {
+			event.preventDefault();
+			const previousLink = $(this).closest('li').prev().find('a');
+			if (previousLink.length) {
+				previousLink.focus();
+			} else {
+				// At the top — return focus to the textarea
+				messageTextarea.focus();
+			}
+		} else if (event.key === 'Escape') {
+			dismissSuggestions();
+			messageTextarea.focus();
+		}
+	});
+
+	$('#faq-dismiss').on('click', dismissSuggestions);
 </script>

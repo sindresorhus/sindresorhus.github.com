@@ -6,6 +6,7 @@ import remarkCustomHeaderId from 'remark-custom-header-id';
 import remarkGitHubAlerts from 'remark-github-blockquote-alert';
 import tailwindcss from '@tailwindcss/vite';
 import {icons as tablerIconData} from '@iconify-json/tabler';
+import remarkHeadingMeta from './source/utils/remark-heading-meta.js';
 /// import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import {SITE} from './source/config.mjs';
 
@@ -57,6 +58,7 @@ export default defineConfig({
 		remarkPlugins: [
 			remarkCustomHeaderId,
 			remarkGitHubAlerts,
+			remarkHeadingMeta,
 		],
 		// TODO
 		// rehypePlugins: [
