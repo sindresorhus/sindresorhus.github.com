@@ -7,7 +7,6 @@ platforms:
 isPaid: true
 isMenuBarApp: true
 releasesRepo: default-browser-meta
-forceHasIosAppIcon: true
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/default-browser?wanted=true
 requirement: Requires macOS 26 or later

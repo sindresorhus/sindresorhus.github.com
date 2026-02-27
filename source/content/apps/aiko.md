@@ -8,7 +8,6 @@ platforms:
   - visionOS
 isPaid: true
 appStoreId: 1672085276
-forceHasIosAppIcon: true
 olderMacOSVersions:
   - '13'
   - '14'

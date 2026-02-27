@@ -4,7 +4,6 @@ subtitle: Conquer one task at a time
 pubDate: 2023-09-19
 isPaid: true
 appStoreId: 6465745322
-forceHasIosAppIcon: true
 platforms:
   - macOS
   - iOS

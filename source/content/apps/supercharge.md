@@ -9,7 +9,6 @@ isMenuBarApp: true
 hasSentry: true
 setappId: 742
 releasesRepo: supercharge-meta
-forceHasIosAppIcon: true
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/supercharge?wanted=true
 requirement: Requires macOS 15.4 or later

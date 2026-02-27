@@ -8,7 +8,6 @@ platforms:
   - visionOS
 repoUrl: https://github.com/sindresorhus/Pasteboard-Viewer
 appStoreId: 1499215709
-forceHasIosAppIcon: true
 links:
   'Older Versions': https://github.com/sindresorhus/Pasteboard-Viewer#download
 olderMacOSVersions:

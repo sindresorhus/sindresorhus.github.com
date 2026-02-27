@@ -5,7 +5,6 @@ pubDate: 2024-02-17
 platforms:
   - visionOS
 appStoreId: 6477862240
-forceHasIosAppIcon: true
 ---
 
 Display a digital clock anywhere in your space.

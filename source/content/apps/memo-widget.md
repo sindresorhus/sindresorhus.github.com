@@ -8,7 +8,6 @@ platforms:
   - visionOS
 isPaid: true
 appStoreId: 6465682248
-forceHasIosAppIcon: true
 ---
 
 The app provides widgets that act like sticky notes. Show them on your Home Screen, Lock Screen, StandBy, or desktop.

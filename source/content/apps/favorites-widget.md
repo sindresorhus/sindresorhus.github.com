@@ -8,7 +8,6 @@ platforms:
   - visionOS
 isPaid: true
 appStoreId: 1643660089
-forceHasIosAppIcon: true
 hasSentry: true
 ---
 

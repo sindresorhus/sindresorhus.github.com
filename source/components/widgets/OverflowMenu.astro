@@ -9,9 +9,10 @@ export type OverflowItemProps = {
 export type OverflowMenuProps = {
 	overflowItems?: readonly OverflowItemProps[];
 	iconClassName?: string;
+	iconSizeClass?: string;
 };
 
-const {overflowItems, iconClassName} = Astro.props;
+const {overflowItems, iconClassName, iconSizeClass = 'w-5 h-5'} = Astro.props;
 
 const iconClass = iconClassName ?? 'text-primary-600 dark:text-primary-400';
 ---
@@ -30,7 +31,7 @@ const iconClass = iconClassName ?? 'text-primary-600 dark:text-primary-400';
 	</select>
 	<Icon
 		name="tabler:dots-circle-horizontal"
-		class={`w-5 h-5 pointer-events-none ${iconClass}`}
+		class={`${iconSizeClass} pointer-events-none ${iconClass}`}
 		aria-hidden="true"
 	/>
 </div>

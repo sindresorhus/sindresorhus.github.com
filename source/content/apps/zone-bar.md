@@ -7,7 +7,6 @@ platforms:
 isPaid: true
 isMenuBarApp: true
 appStoreId: 6755328989
-forceHasIosAppIcon: true
 requirement: Requires macOS 26.1 or later
 # olderMacOSVersions:
 #   - '26'

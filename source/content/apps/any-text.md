@@ -9,7 +9,6 @@ platforms:
   - visionOS
 isPaid: true
 appStoreId: 1643199620
-forceHasIosAppIcon: true
 feedbackNote: |
   If you are having problems with sync, [read this](/any-text#troubleshoot-syncing).
 ---

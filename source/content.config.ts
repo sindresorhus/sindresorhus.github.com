@@ -31,7 +31,6 @@ const appsCollection = defineCollection({
 		showSupportLink: z.boolean().default(true),
 		redirectUrl: z.string().url().optional(),
 		releasesRepo: z.string().optional(),
-		forceHasIosAppIcon: z.boolean().optional(), // We can use `forceHasIosAppIcon` for both true/false override.
 		olderMacOSVersions: z.array(z.enum([ // eslint-disable-line @typescript-eslint/naming-convention
 			'10.13',
 			'10.14',

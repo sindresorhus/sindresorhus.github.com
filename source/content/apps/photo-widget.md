@@ -8,7 +8,6 @@ platforms:
   - visionOS
 isPaid: true
 appStoreId: 1532588789
-forceHasIosAppIcon: true
 # links:
 #   'TestFlight': https://testflight.apple.com/join/ybGzYJ28
 feedbackNote: |

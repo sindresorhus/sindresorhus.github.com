@@ -5,7 +5,6 @@ pubDate: 2026-01-29
 platforms:
   - macOS
 appStoreId: 6758286374
-forceHasIosAppIcon: true
 # olderMacOSVersions:
 #   - '26'
 ---

@@ -7,7 +7,6 @@ platforms:
   - iOS
   - visionOS
 appStoreId: 6465250302
-forceHasIosAppIcon: true
 olderMacOSVersions:
   - '14'
   - '15'

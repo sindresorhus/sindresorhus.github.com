@@ -6,7 +6,6 @@ platforms:
   - iOS
   - visionOS
 appStoreId: 6476447055
-forceHasIosAppIcon: true
 ---
 
 Capture your creativity instantly. Ideal for quick sketches, artistic brainstorming, and playful drawing. Simple, intuitive, and fun, turning every touch into doodles.

@@ -70,11 +70,11 @@ const tagClass = tagCSS;
 	<section class="max-w-5xl py-8 sm:py-16 lg:py-20 mx-auto lg:-mt-10 mb-10">
 		<article itemscope itemtype="https://schema.org/SoftwareApplication" data-heading-anchors>
 			<header id="app-hero" class="flex flex-col items-center text-center px-4 sm:px-6 mb-40">
-				<img id="app-icon" src={app.iconUrl} width="256" height="256" alt={`${app.title} app icon`} class={`${app.hasIOSAppIcon ? 'p-[16px] drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]' : ''} mb-3`}>
+				<img id="app-icon" src={app.iconUrl} width="256" height="256" alt={`${app.title} app icon`} class="p-[16px] drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)] mb-3">
 				<h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-4 font-heading" itemprop="name">
 					{app.title}
 				</h1>
-				<h2 class="text-2xl md:text-4xl tracking-tight font-normal text-gray-700 dark:text-gray-300 max-w-2xl mx-auto mb-8" itemprop="description">
+				<h2 class="text-2xl md:text-4xl tracking-tight font-normal text-gray-700 dark:text-gray-300 max-w-2xl mx-auto mb-8" itemprop="description" style="text-wrap: pretty; hanging-punctuation: first last">
 					{app.subtitle}
 				</h2>
 				<div id="another-random-app" class="flex justify-center hidden instapaper_ignore">
@@ -159,7 +159,7 @@ const tagClass = tagCSS;
 	</section>
 	<div id="app-nav-content" class="absolute inset-0 flex py-3 px-3 mx-auto w-full justify-between max-w-6xl md:px-4 items-center text-gray-600 dark:text-slate-200" style="filter: opacity(0); pointer-events: none;">
 		<a href={app.url} class="flex items-center gap-3 shrink-0">
-			<img src={app.iconUrl} width="32" height="32" alt="" class={app.hasIOSAppIcon ? 'rounded-lg' : ''}>
+			<img src={app.iconUrl} width="32" height="32" alt="" class="rounded-lg">
 			<span class="font-bold text-lg text-gray-900 dark:text-white whitespace-nowrap hidden lg:inline">{app.title}</span>
 		</a>
 		<nav class="flex items-center">

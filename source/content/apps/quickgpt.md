@@ -6,7 +6,6 @@ platforms:
   - macOS
 isPaid: true
 releasesRepo: quickgpt-meta
-forceHasIosAppIcon: true
 mainLinks:
   'Download': https://sindresorhus.gumroad.com/l/quickgpt?wanted=true
 olderMacOSVersions:

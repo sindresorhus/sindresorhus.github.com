@@ -4,7 +4,6 @@ subtitle: Customize the gap between menu bar items
 pubDate: 2024-07-09
 platforms:
   - macOS
-forceHasIosAppIcon: true
 mainLinks:
   'Download': https://github.com/sindresorhus/menu-bar-spacing-meta/releases/latest/download/Menu.Bar.Spacing.zip
 requirement: Free · Requires macOS 26 or later.

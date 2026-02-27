@@ -8,7 +8,6 @@ platforms:
   - watchOS
   - visionOS
 appStoreId: 1589044499
-forceHasIosAppIcon: true
 olderMacOSVersions:
   - '13'
   - '14'

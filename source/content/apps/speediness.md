@@ -6,7 +6,6 @@ platforms:
   - macOS
 appStoreId: 1596706466
 hasSentry: true
-forceHasIosAppIcon: true
 olderMacOSVersions:
   - '12'
   - '13'

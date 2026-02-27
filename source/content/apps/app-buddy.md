@@ -6,7 +6,6 @@ platforms:
   - macOS
 hasSentry: true
 releasesRepo: app-buddy-meta
-forceHasIosAppIcon: true
 mainLinks:
   'Download': https://github.com/sindresorhus/app-buddy-meta/releases/latest/download/App.Buddy.zip
 requirement: Requires macOS 26 or later

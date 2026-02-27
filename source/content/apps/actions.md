@@ -8,7 +8,6 @@ platforms:
   - visionOS
 hasSentry: true
 appStoreId: 1586435171
-forceHasIosAppIcon: true
 links:
   'TestFlight': https://testflight.apple.com/join/fJGUrsZx
 olderMacOSVersions:
