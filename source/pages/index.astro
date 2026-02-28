@@ -10,32 +10,29 @@ const meta = {
 ---
 
 <Layout {meta}>
-	<section>
+	<section class="relative overflow-hidden">
+		<canvas aria-hidden="true" class="nebula-canvas"></canvas>
 		<div class="flex md:h-screen max-w-6xl mx-auto px-4 sm:px-6 md:-mt-20">
 			<div class="m-auto py-12 md:py-20">
 				<div class="text-center pb-10 md:pb-16">
-					<img src="/assets/sindre-sorhus.jpg" class="mx-auto m-8 rounded-full" width="144" height="144" alt="Sindre Sorhus profile photo">
-					<h1 class="text-5xl md:text-[3.50rem] font-bold leading-tighter tracking-tighter mb-4 font-heading background-animate bg-clip-text text-transparent bg-linear-to-r from-primary-500 to-secondary-500 sm:whitespace-nowrap">
+					<div class="profile-ring mx-auto m-8">
+						<img src="/assets/sindre-sorhus.jpg" class="rounded-full profile-photo" width="144" height="144" alt="Sindre Sorhus profile photo">
+					</div>
+					<h1 class="hero-name text-5xl md:text-[3.50rem] font-bold leading-tighter tracking-tighter mb-4 font-heading background-animate bg-clip-text text-transparent bg-linear-to-r from-primary-500 to-secondary-500 sm:whitespace-nowrap">
 						Sindre Sorhus
 					</h1>
 					<div class="max-w-3xl mx-auto">
 						<p class="text-xl text-gray-600 mb-10 dark:text-slate-400">
-							<span class="text-2xl">Full-Time Open-Sourcerer & App Maker</span>
+							<span class="hero-tagline text-2xl">Full-Time Open-Sourcerer & App Maker</span>
 						</p>
 						<div class="max-w-none px-6 my-2 flex flex-nowrap flex-col sm:flex-row sm:justify-center gap-6" data-nosnippet>
 							<div class="flex w-full sm:w-auto">
-								<a
-									href="/apps"
-									class="btn text-white border border-primary-600/30 bg-primary-600/90 dark:bg-primary-800/80 hover:bg-primary-800 hover:border-primary-800 sm:mb-0 px-8 py-4 sm:py-3 w-full rounded-3xl"
-								>
+								<a href="/apps" class="btn glass-btn glass-btn-primary px-8 py-4 sm:py-3 w-full rounded-3xl">
 									<Icon name="tabler:brand-appstore" class="w-5 h-5 mr-1 -ml-1.5"/> Apps
 								</a>
 							</div>
 							<div class="flex w-full sm:w-auto">
-								<a
-									href="https://github.com/sindresorhus"
-									class="btn text-white bg-gray-900 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 px-8 py-4 sm:py-3 w-full rounded-3xl"
-								>
+								<a href="https://github.com/sindresorhus" class="btn glass-btn glass-btn-dark px-8 py-4 sm:py-3 w-full rounded-3xl">
 									<Icon name="tabler:brand-github" class="w-5 h-5 mr-1 -ml-1.5"/> Code
 								</a>
 							</div>
@@ -69,7 +66,620 @@ const meta = {
 </Layout>
 <!-- <script src="https://app.embed.im/snow.js" defer></script> -->
 
+<script>
+// --- Galaxy (WebGL, dark mode only) ---
+if (
+	window.matchMedia('(prefers-color-scheme: dark)').matches &&
+	!window.matchMedia('(prefers-reduced-motion: reduce)').matches
+) {
+	const canvas = document.querySelector('.nebula-canvas') as HTMLCanvasElement | null;
+	const gl = canvas?.getContext('webgl', {alpha: true, premultipliedAlpha: false});
+
+	if (canvas && gl) {
+		const vert = `
+			attribute vec2 a_pos;
+			void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }
+		`;
+
+		const frag = `
+			precision highp float;
+			uniform float u_time;
+			uniform vec2  u_res;
+			uniform vec2  u_mouse;
+			uniform vec2  u_mouse_vel; // smoothed per-frame velocity
+			uniform vec3  u_ripple;    // .xy = position, .z = click timestamp
+			float hash(vec2 p) {
+				p = fract(p * vec2(0.3183099, 0.3678794));
+				p += dot(p, p * 17.7);
+				return fract(p.x * p.y * (p.x + p.y));
+			}
+
+			// Quintic-smoothed value noise
+			float noise(vec2 p) {
+				vec2 i = floor(p);
+				vec2 f = fract(p);
+				vec2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
+				return mix(
+					mix(hash(i),                  hash(i + vec2(1.0, 0.0)), u.x),
+					mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x),
+					u.y
+				);
+			}
+
+			// 4-octave fBM — stacks noise at increasing frequencies (Inigo Quilez technique)
+			float fbm4(vec2 p) {
+				float v = 0.5000 * noise(p); p *= 2.07;
+				v += 0.2500 * noise(p); p *= 2.07;
+				v += 0.1250 * noise(p); p *= 2.07;
+				v += 0.0625 * noise(p);
+				return v / 0.9375; // normalise to [0,1]
+			}
+
+			void main() {
+				vec2 uv = gl_FragCoord.xy / u_res;
+				vec2 p  = uv - 0.5;
+				p.x    *= u_res.x / u_res.y;
+				vec2 p0 = p; // raw position — used for star parallax layers
+
+				// Mouse velocity warp — galaxy drifts gently in direction of movement.
+				// Vorticity swirls pixels tangentially around the cursor. Zero when still.
+				vec2 fromMouse     = p - u_mouse;
+				float fromMouseLen = length(fromMouse) + 0.001;
+				float proximity    = exp(-fromMouseLen * 3.0);
+				p -= u_mouse_vel * proximity * 0.8;                                       // directional drift
+				vec2 tangent = vec2(-fromMouse.y, fromMouse.x) / fromMouseLen;
+				p -= tangent * length(u_mouse_vel) * proximity * 0.002;                   // subtle swirl
+
+				// Click ripple — gravitational shockwave expanding outward from click point
+				float rippleElapsed = u_time - u_ripple.z;
+				if (rippleElapsed > 0.0 && rippleElapsed < 4.0) {
+					vec2 toClick   = p - u_ripple.xy;
+					float clickLen = length(toClick) + 0.001;
+					float wavefront = rippleElapsed * 0.35;
+					float wave = exp(-pow(clickLen - wavefront, 2.0) * 120.0);
+					p -= (toClick / clickLen) * wave * exp(-rippleElapsed * 1.5) * 0.07;
+				}
+
+				// Gravitational lensing — subtle outward warp near the galactic core,
+				// simulating spacetime curvature around a central black hole
+				float rLens = length(p);
+				p += normalize(p + vec2(0.00001)) * (0.025 * exp(-rLens * 20.0));
+
+				// Differential rotation — inner regions orbit faster, like real galactic kinematics
+				float r0  = length(p);
+				float rot = u_time * 0.025 * (1.0 + 0.5 / (r0 * 3.0 + 0.5)); // inner disk rotates faster
+				float cosR = cos(rot);
+				float sinR = sin(rot);
+				vec2 rp = vec2(cosR * p.x - sinR * p.y, sinR * p.x + cosR * p.y);
+
+				float r     = length(rp);
+				float theta = atan(rp.y, rp.x);
+
+				// fBM domain warp — arms breathe and shift organically over time
+				vec2 warp = vec2(
+					fbm4(rp * 1.2 + u_time * 0.018),
+					fbm4(rp * 1.2 + vec2(4.3, 7.1) + u_time * 0.013)
+				);
+				float variation = fbm4(rp * 2.8 + 1.8 * warp + u_time * 0.009);
+
+				float armOffset  = (variation - 0.5) * 1.4;
+				float winding    = 4.2;
+				// 3-fold logarithmic spiral arms
+				float armPhase   = 3.0 * theta - winding * log(r + 0.06) + armOffset;
+				float armDensity = pow(max(0.5 + 0.5 * cos(armPhase), 0.0), 2.8); // cos maps phase→[0,1]; pow sharpens arm peaks
+
+				// Dust lanes — dark absorption bands offset π from arm peaks,
+				// mimicking interstellar dust in real spiral galaxies
+				float dust = pow(max(0.5 + 0.5 * cos(armPhase + 3.14159), 0.0), 5.0);
+
+				float disk   = exp(-r * 2.2); // exponential thin-disk profile
+				float galaxy = armDensity * disk;
+				galaxy = galaxy * (0.6 + 0.4 * variation) + variation * disk * 0.3;
+				galaxy -= dust * disk * 0.30;
+				galaxy = max(galaxy, 0.0);
+				galaxy = pow(galaxy, 1.25);              // boost contrast
+				galaxy = smoothstep(0.07, 0.92, galaxy); // push toward true blacks and luminous peaks
+
+				float bulge    = exp(-r * 10.0) * 0.7;                                                  // central galactic bulge
+				float clusters = pow(noise(rp * 9.0 + u_time * 0.020), 5.0) * armDensity * disk * 1.2; // star-forming clumps along arms
+
+				// Arm colour variation — sin(armPhase) encodes which side of each arm we're on.
+				// Leading edge (gas compressed first) has young hot blue stars;
+				// trailing edge has older evolved warm/red stars.
+				float armEdgeFactor = clamp(sin(armPhase) * 0.5 + 0.5, 0.0, 1.0);
+
+				// Nebula colour regions — warm HII emission peaks at core,
+				// cools to blue-purple ionised hydrogen in the outer disk
+				float radialWarmth = exp(-r * 4.5);
+
+				// ----- Colour palette -----
+				vec3 voidCol   = vec3(0.002, 0.003, 0.018);
+				vec3 outerBlue = vec3(0.05,  0.14,  0.62);
+				vec3 midViolet = vec3(0.30,  0.05,  0.70);
+				vec3 innerPink = vec3(0.72,  0.04,  0.44);
+				vec3 bulgeCol  = vec3(1.00,  0.88,  0.96);
+
+				vec3 col = voidCol;
+				col = mix(col, outerBlue, smoothstep(0.04, 0.38, galaxy));
+				col = mix(col, midViolet, smoothstep(0.33, 0.62, galaxy));
+				col = mix(col, innerPink, smoothstep(0.58, 0.86, galaxy));
+
+				// Arm colour tint: blue-white leading edge, red-orange trailing edge
+				vec3 armTint = mix(vec3(0.20, 0.45, 1.00), vec3(0.90, 0.35, 0.10), armEdgeFactor);
+				col = mix(col, armTint, armDensity * disk * 0.20);
+
+				// Warm orange-red HII region emission near the galactic core
+				col = mix(col, vec3(1.00, 0.55, 0.18), radialWarmth * galaxy * 0.45);
+
+				col += bulgeCol * bulge;
+				col += vec3(0.90, 0.85, 1.00) * clusters * 0.5;
+
+				// ----- Masks -----
+				float dist        = length(p);
+				float centerClear = smoothstep(0.07, 0.30, dist);
+				float edgeFade    = 1.0 - smoothstep(0.30, 0.88, dist);
+
+				// Background star layer — dimmer, cooler, less parallax shift
+				vec2  pBg  = p0 + u_mouse * 0.008;
+				vec2  scBg = floor(pBg * 18.0);
+				vec2  sfBg = fract(pBg * 18.0);
+				float hasBg  = step(0.94, hash(scBg));
+				float twBg   = 0.72 + 0.28 * sin(u_time * (1.5 + hash(scBg) * 3.0) + hash(scBg + 2.3) * 6.28318);
+				float starBg = hasBg
+					* (1.0 - smoothstep(0.0, 0.04, length(sfBg - vec2(hash(scBg + 0.3), hash(scBg + 0.7)))))
+					* (0.4 + 0.6 * hash(scBg + 1.4))
+					* twBg;
+				col += vec3(0.80, 0.85, 1.00) * starBg * centerClear * 0.80;
+
+				// Foreground star layer — brighter, warmer, more parallax shift
+				vec2  pFg  = p0 + u_mouse * 0.06;
+				vec2  scFg = floor(pFg * 30.0);
+				vec2  sfFg = fract(pFg * 30.0);
+				float hasFg  = step(0.97, hash(scFg + vec2(11.1, 22.2)));
+				float twFg   = 0.68 + 0.32 * sin(u_time * (2.0 + hash(scFg) * 4.0) + hash(scFg + 3.3) * 6.28318);
+				float starFg = hasFg
+					* (1.0 - smoothstep(0.0, 0.025, length(sfFg - vec2(hash(scFg + 0.9), hash(scFg + 1.5)))))
+					* twFg;
+				col += vec3(1.00, 0.97, 0.92) * starFg * centerClear;
+
+				// Supernova flash — brief stellar flare every 90 seconds
+				float novaIdx   = floor(u_time / 90.0);
+				float novaPhase = fract(u_time / 90.0);
+				vec2 novaPos = (0.10 + hash(vec2(novaIdx, 2.7)) * 0.28) * vec2(
+					cos(hash(vec2(novaIdx, 1.3)) * 6.28318) * (u_res.x / u_res.y),
+					sin(hash(vec2(novaIdx, 1.3)) * 6.28318)
+				);
+				vec2 novaOff     = p - novaPos;
+				float novaBright = exp(-dot(novaOff, novaOff) * 700.0) * max(0.0, 1.0 - novaPhase * 12.0);
+				col += vec3(1.00, 0.94, 0.80) * novaBright * 3.5 * centerClear;
+
+				// Satellite dwarf galaxy — Magellanic Cloud analogue.
+				// Irregular blob with clumpy star-forming regions, slowly drifting around the main galaxy.
+				// Uses p0 (unwarped) so it stays independent of the inner galaxy animation.
+				float satAngle  = hash(vec2(13.7, 5.3)) * 6.28318;        // deterministic random angle
+				float satRad    = 0.28 + hash(vec2(7.2, 11.4)) * 0.12;     // radius 0.28–0.40
+				vec2  satBase   = vec2(cos(satAngle) * satRad, sin(satAngle) * satRad);
+				float satOrbit  = u_time * 0.0010;           // barely perceptible orbital drift
+				float cSat = cos(satOrbit), sSat = sin(satOrbit);
+				vec2  satCenter = vec2(cSat * satBase.x - sSat * satBase.y, sSat * satBase.x + cSat * satBase.y);
+				vec2  satOff    = p0 - satCenter;
+				// Domain warp creates the irregular, asymmetric boundary
+				vec2  satWarp   = vec2(
+					fbm4(satOff * 9.0 + 1.1 + u_time * 0.004),
+					fbm4(satOff * 9.0 + vec2(4.2, 6.8) + u_time * 0.003)) * 0.032;
+				float satWarpR  = length(satOff + satWarp);
+				// Diffuse body — Gaussian sets the single-blob shape; fBM adds surface texture
+				float satBody   = exp(-satWarpR * satWarpR * 1100.0)
+					* (0.55 + 0.45 * fbm4(satOff * 4.0 + u_time * 0.002));
+				// Star-forming clumps — scattered HII blobs within the body
+				float satClumps = pow(noise(satOff * 20.0 + 0.7 + u_time * 0.005), 4.5)
+					* exp(-satWarpR * satWarpR * 1600.0);
+				float satVal    = satBody + satClumps * 0.65;
+				// Blue-white stellar population; pink HII emission at the star-forming clumps
+				vec3 satStarCol = vec3(0.70, 0.82, 1.00);
+				vec3 satHIICol  = vec3(1.00, 0.52, 0.72);
+				col += mix(satStarCol, satHIICol, satClumps * 1.5) * satVal * 0.80;
+
+				float alpha = clamp(
+					galaxy     * centerClear * edgeFade * 0.90 +
+					bulge      * centerClear * 0.70 +
+					clusters   * centerClear * edgeFade * 0.40 +
+					starBg     * centerClear * 0.65 +
+					starFg     * centerClear * 0.80 +
+					novaBright * centerClear * 2.0 +
+					satVal     * 0.60,
+					0.0, 0.95
+				);
+
+				// Outer stellar halo — Population II stars (old, metal-poor, evolved K/G giants).
+				// Diffuse spherical distribution extending beyond the disk. Counter-rotates
+				// slowly relative to the disk; uses p0 so it isn't warped by ripple/lensing.
+				float haloRot = -u_time * 0.003; // counter-clockwise, ~8× slower than disk
+				float cH = cos(haloRot), sH = sin(haloRot);
+				vec2 hp     = vec2(cH * p0.x - sH * p0.y, sH * p0.x + cH * p0.y);
+				float haloR = length(hp);
+
+				// Fades in beyond the disk edge, then decays gently outward
+				float haloProfile = smoothstep(0.15, 0.40, haloR) * exp(-max(haloR - 0.28, 0.0) * 2.2);
+
+				// Sparse resolved stars on a coarse grid — slower twinkle than disk stars
+				vec2  hsc       = floor(hp * 11.0);
+				vec2  hsf       = fract(hp * 11.0);
+				float hasHStar  = step(0.965, hash(hsc + vec2(33.1, 44.2)));
+				float hStarDist = length(hsf - vec2(hash(hsc + 5.3), hash(hsc + 6.7)));
+				float hTwinkle  = 0.70 + 0.30 * sin(u_time * (0.6 + hash(hsc) * 1.2) + hash(hsc + 9.1) * 6.28318);
+				float haloStar  = hasHStar
+					* (1.0 - smoothstep(0.0, 0.07, hStarDist))
+					* (0.4 + 0.6 * hash(hsc + 3.5))
+					* hTwinkle * haloProfile;
+
+				// Diffuse unresolved background — fbm noise for subtle clumping
+				float haloDiffuse = haloProfile * fbm4(hp * 1.8 + u_time * 0.002) * 0.4;
+
+				// Warm orange-yellow: old evolved stars have cooler blackbody spectra
+				vec3 haloCol = vec3(1.00, 0.80, 0.58);
+				// haloCenterClear prevents halo stars from appearing over the hero content
+				float haloCenterClear = smoothstep(0.18, 0.32, haloR);
+				col  += haloCol * haloStar    * 1.20 * haloCenterClear;
+				col  += haloCol * haloDiffuse * 0.30 * haloCenterClear;
+				alpha = min(alpha + (haloStar * 0.80 + haloDiffuse * 0.18) * haloCenterClear, 0.95);
+
+				// Large-scale outer envelope — galactic stellar halo / dark matter envelope.
+				// Very faint diffuse glow that appears beyond the disk edge, in the frame corners
+				// where the galaxy has fully faded. Barely perceptible rotation; uses p0 so it
+				// stays spherical and independent of the inner galaxy animation.
+				float envRot     = u_time * 0.0006;          // extremely slow — full turn takes ~3 hours
+				float cE = cos(envRot), sE = sin(envRot);
+				vec2  ep         = vec2(cE * p0.x - sE * p0.y, sE * p0.x + cE * p0.y);
+				float envR       = length(ep);
+				// Smoothly transitions in where the disk fades, power-law decay further out
+				float envProfile = smoothstep(0.35, 0.55, envR) * pow(max(0.0, 1.0 - envR * 0.75), 2.5);
+				// Subtle fbm variation — avoids a dead uniform ring
+				float envNoise   = 0.65 + 0.35 * fbm4(ep * 1.2 + u_time * 0.0008);
+				float envelope   = envProfile * envNoise;
+				// Cool blue-white: old, low-metallicity, unresolved stellar populations
+				col   += vec3(0.68, 0.76, 1.00) * envelope * 0.15;
+				alpha  = min(alpha + envelope * 0.10, 0.95);
+
+				// Mouse proximity brightening — warm spotlight through galaxy structure near cursor.
+				// Arms scatter more light than voids; p0 keeps it anchored to screen space.
+				vec2 cursorOff = p0 - u_mouse;
+				float spotlight = exp(-dot(cursorOff, cursorOff) * 5.0); // soft Gaussian falloff
+				float scatter   = mix(0.12, 1.0, galaxy); // arms scatter fully; voids glow faintly
+				col  += vec3(1.00, 0.96, 0.88) * spotlight * scatter * 0.35; // warm torch tint
+				alpha = min(alpha + spotlight * scatter * 0.14, 0.95);
+
+				gl_FragColor = vec4(col, alpha);
+			}
+		`;
+
+		function compile(type: number, src: string) {
+			const s = gl.createShader(type)!;
+			gl.shaderSource(s, src);
+			gl.compileShader(s);
+			return s;
+		}
+
+		// Compile and link the shader program
+		const prog = gl.createProgram()!;
+		gl.attachShader(prog, compile(gl.VERTEX_SHADER, vert));
+		gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, frag));
+		gl.linkProgram(prog);
+		gl.useProgram(prog);
+
+		// Full-screen quad: two triangles covering clip space [-1,1]
+		const buf = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+		const posLoc = gl.getAttribLocation(prog, 'a_pos');
+		gl.enableVertexAttribArray(posLoc);
+		gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+		const uTime     = gl.getUniformLocation(prog, 'u_time');
+		const uRes      = gl.getUniformLocation(prog, 'u_res');
+		const uMouse    = gl.getUniformLocation(prog, 'u_mouse');
+		const uMouseVel = gl.getUniformLocation(prog, 'u_mouse_vel');
+		const uRipple   = gl.getUniformLocation(prog, 'u_ripple');
+
+		// Alpha blending so the galaxy composites over the dark page background
+		gl.enable(gl.BLEND);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		gl.clearColor(0, 0, 0, 0);
+
+		// Scale render resolution by DPR (capped) for sharper arms on retina screens
+		const scale = Math.min(window.devicePixelRatio, 2) * 0.45;
+		function resize() {
+			canvas.width  = Math.floor(canvas.clientWidth  * scale);
+			canvas.height = Math.floor(canvas.clientHeight * scale);
+			gl.viewport(0, 0, canvas.width, canvas.height);
+		}
+
+		resize();
+		window.addEventListener('resize', resize, {passive: true});
+
+		// Mouse position — aspect-corrected, normalised to centred [-0.5, 0.5] coords
+		let targetMx = 0;
+		let targetMy = 0;
+		let smoothMx = 0;
+		let smoothMy = 0;
+
+		let rawVelX  = 0;
+		let rawVelY  = 0;
+		let smoothVelX = 0;
+		let smoothVelY = 0;
+
+		document.addEventListener('mousemove', event => {
+			const aspect = window.innerWidth / window.innerHeight;
+			const newX = (event.clientX / window.innerWidth  - 0.5) * aspect;
+			const newY = -(event.clientY / window.innerHeight - 0.5);
+			rawVelX  = newX - targetMx; // frame delta = instant velocity
+			rawVelY  = newY - targetMy;
+			targetMx = newX;
+			targetMy = newY;
+		}, {passive: true});
+
+		// Click ripple — record normalised position + shader-time at moment of click
+		let rippleX = 0;
+		let rippleY = 0;
+		let rippleT = -100; // far in the past so no ripple on load
+
+		document.addEventListener('click', event => {
+			const aspect = window.innerWidth / window.innerHeight;
+			rippleX = (event.clientX / window.innerWidth  - 0.5) * aspect;
+			rippleY = -(event.clientY / window.innerHeight - 0.5);
+			rippleT = (performance.now() - t0) / 1000;
+		});
+
+		let t0 = performance.now();
+		let pauseStart = 0;
+		let rafId = 0;
+
+		function draw() {
+			// Smooth cursor position for natural lag
+			smoothMx += (targetMx - smoothMx) * 0.05;
+			smoothMy += (targetMy - smoothMy) * 0.05;
+
+			// Smooth velocity; decay raw to zero so flow fades when mouse stops
+			smoothVelX += (rawVelX - smoothVelX) * 0.05;
+			smoothVelY += (rawVelY - smoothVelY) * 0.05;
+			rawVelX *= 0.90;
+			rawVelY *= 0.90;
+
+			gl.clear(gl.COLOR_BUFFER_BIT);
+			const shaderTime = (performance.now() - t0) / 1000;
+			gl.uniform1f(uTime, shaderTime);
+			gl.uniform2f(uRes, canvas.width, canvas.height);
+			gl.uniform2f(uMouse, smoothMx, smoothMy);
+			gl.uniform2f(uMouseVel, smoothVelX, smoothVelY);
+			gl.uniform3f(uRipple, rippleX, rippleY, rippleT);
+			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+			rafId = requestAnimationFrame(draw);
+		}
+
+		// Pause rendering when the tab is hidden to save GPU/battery
+		document.addEventListener('visibilitychange', () => {
+			if (document.hidden) {
+				cancelAnimationFrame(rafId);
+				pauseStart = performance.now();
+			} else {
+				// Shift t0 forward by pause duration so time is continuous on resume
+				t0 += performance.now() - pauseStart;
+				draw();
+			}
+		});
+
+		draw();
+	}
+}
+</script>
+
 <style>
+.nebula-canvas {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+	.nebula-canvas {
+		display: block;
+		animation: nebulaFadeIn 3s ease-out forwards;
+	}
+}
+
+@keyframes nebulaFadeIn {
+	from { opacity: 0; }
+	to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.nebula-canvas { display: none !important; }
+}
+
+.profile-ring {
+	position: relative;
+	display: inline-flex;
+	border-radius: 50%;
+}
+
+@media (prefers-color-scheme: dark) {
+	/* Rotating conic gradient ring using galaxy palette */
+	.profile-ring::before {
+		content: '';
+		position: absolute;
+		inset: -3px;
+		border-radius: 50%;
+		background: conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #8b5cf6, #3b82f6);
+		animation: ringRotate 10s linear infinite;
+	}
+
+	/* Nebula glow applied to the whole composition */
+	.profile-ring {
+		filter:
+			drop-shadow(0 0 14px rgba(59, 130, 246, 0.50))
+			drop-shadow(0 0 40px rgba(139, 92, 246, 0.28));
+	}
+}
+
+@media (prefers-color-scheme: dark) and (prefers-reduced-motion: reduce) {
+	.profile-ring::before { animation: none; }
+}
+
+@keyframes ringRotate {
+	to { transform: rotate(360deg); }
+}
+
+.profile-photo {
+	position: relative;
+	z-index: 1;
+	display: block;
+	border-radius: 50%;
+	transition: transform 0.35s ease;
+	/* Edges dissolve into the galaxy/ring rather than hard-cutting */
+	mask-image: radial-gradient(circle, black 80%, transparent 100%);
+	-webkit-mask-image: radial-gradient(circle, black 80%, transparent 100%);
+}
+
+@media (hover: hover) {
+	.profile-photo:hover {
+		transform: scale(1.03);
+	}
+}
+
+/*
+ * SF Pro Expanded on Apple platforms (macOS/iOS), via ui-sans-serif.
+ * font-stretch: expanded activates the 125% width variant of the variable font.
+ * On non-Apple platforms it falls back to the system sans-serif, stretched if supported.
+ */
+.hero-name {
+	font-family: ui-sans-serif, -apple-system, system-ui, sans-serif;
+	font-stretch: expanded;
+}
+
+/* Same typeface as the title — expanded SF Pro Light — weight contrast creates hierarchy */
+.hero-tagline {
+	font-family: ui-sans-serif, -apple-system, system-ui, sans-serif;
+	font-stretch: expanded;
+	font-weight: 350;
+	letter-spacing: 0.06em;
+}
+
+@media (prefers-color-scheme: dark) {
+	.hero-name {
+		filter:
+			drop-shadow(0 0 12px rgba(59, 130, 246, 0.55))
+			drop-shadow(0 0 32px rgba(139, 92, 246, 0.30))
+			drop-shadow(0 0 60px rgba(236, 72, 153, 0.15));
+	}
+
+	.hero-tagline {
+		color: rgb(226 232 240 / 0.82); /* slate-200 — brighter than title gradient, clearly secondary */
+		text-shadow: 0 0 28px rgba(139, 92, 246, 0.28);
+	}
+}
+
+/* --- Liquid glass buttons (dark mode only) --- */
+.glass-btn {
+	position: relative;
+	overflow: hidden;
+	color: white;
+	transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease, border-color 0.25s ease;
+}
+
+/* Light mode: original solid styles */
+.glass-btn-primary {
+	background: rgba(37, 99, 235, 0.9); /* primary-600/90 */
+	border: 1px solid rgba(37, 99, 235, 0.3);
+}
+
+.glass-btn-dark {
+	background: #111827; /* gray-900 */
+	border: 1px solid transparent;
+}
+
+@media (hover: hover) {
+	.glass-btn-primary:hover {
+		background: #1d4ed8; /* primary-800 */
+		border-color: #1d4ed8;
+	}
+
+	.glass-btn-dark:hover {
+		background: #374151; /* gray-700 */
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	.glass-btn {
+		backdrop-filter: blur(20px) saturate(180%);
+		-webkit-backdrop-filter: blur(20px) saturate(180%);
+	}
+
+	/* Specular highlight — glossy cap on top half */
+	.glass-btn::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(
+			175deg,
+			rgba(255, 255, 255, 0.28) 0%,
+			rgba(255, 255, 255, 0.06) 40%,
+			transparent 70%
+		);
+		pointer-events: none;
+		border-radius: inherit;
+	}
+
+	.glass-btn-primary {
+		background: rgba(59, 130, 246, 0.22);
+		border: 1px solid rgba(99, 160, 255, 0.45);
+		box-shadow:
+			inset 0 1.5px 0 rgba(255, 255, 255, 0.40),
+			inset 0 -1px 0 rgba(0, 0, 0, 0.10),
+			0 4px 24px rgba(59, 130, 246, 0.25),
+			0 1px 4px rgba(0, 0, 0, 0.15);
+	}
+
+	.glass-btn-dark {
+		background: rgba(10, 15, 30, 0.40);
+		border: 1px solid rgba(255, 255, 255, 0.16);
+		box-shadow:
+			inset 0 1.5px 0 rgba(255, 255, 255, 0.25),
+			inset 0 -1px 0 rgba(0, 0, 0, 0.15),
+			0 4px 20px rgba(0, 0, 0, 0.30),
+			0 1px 4px rgba(0, 0, 0, 0.20);
+	}
+}
+
+@media (prefers-color-scheme: dark) and (hover: hover) {
+	.glass-btn:hover {
+		transform: translateY(-1px);
+	}
+
+	.glass-btn-primary:hover {
+		background: rgba(59, 130, 246, 0.32);
+		border-color: rgba(120, 180, 255, 0.60);
+		box-shadow:
+			inset 0 1.5px 0 rgba(255, 255, 255, 0.50),
+			inset 0 -1px 0 rgba(0, 0, 0, 0.10),
+			0 8px 32px rgba(59, 130, 246, 0.35),
+			0 2px 6px rgba(0, 0, 0, 0.15);
+	}
+
+	.glass-btn-dark:hover {
+		background: rgba(10, 15, 30, 0.55);
+		border-color: rgba(255, 255, 255, 0.26);
+		box-shadow:
+			inset 0 1.5px 0 rgba(255, 255, 255, 0.35),
+			inset 0 -1px 0 rgba(0, 0, 0, 0.15),
+			0 8px 28px rgba(0, 0, 0, 0.40),
+			0 2px 6px rgba(0, 0, 0, 0.20);
+	}
+}
+
 .background-animate {
 	background-size: 400%;
 	animation: AnimationName 4s ease infinite;

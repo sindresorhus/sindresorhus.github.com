@@ -55,7 +55,7 @@ const yearsOfCraft = new Date().getFullYear() - new Date(oldestPubDate).getFullY
 					apps.map(app => (
 						<a
 							href={app.url}
-							class="flex py-6 px-2 sm:p-6 bg-white dark:bg-black/20 sm:rounded-xl shadow-md dark:shadow-lg sm:border sm:border-transparent dark:sm:border-slate-800 sm:hover:border-indigo-200/70 dark:sm:hover:border-indigo-500/30 sm:hover:bg-indigo-50/40 dark:sm:hover:bg-indigo-950/20 hover:shadow-xl dark:sm:hover:shadow-indigo-500/20 sm:hover:-translate-y-0.5 transition duration-300"
+							class="flex py-4 px-2 sm:p-6 bg-white dark:bg-black/20 sm:rounded-xl shadow-md dark:shadow-lg sm:border sm:border-transparent dark:sm:border-slate-800 sm:hover:border-indigo-200/70 dark:sm:hover:border-indigo-500/30 sm:hover:bg-indigo-50/40 dark:sm:hover:bg-indigo-950/20 hover:shadow-xl dark:sm:hover:shadow-indigo-500/20 sm:hover:-translate-y-0.5 transition duration-300 first:mt-8 sm:first:mt-0"
 						>
 							<div class="flex-initial shrink-0 justify-center mr-2 sm:mr-3">
 								<img src={app.iconUrl} width="128" height="128" alt={`${app.title} app icon`} loading="lazy" class="p-[12px] drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]">

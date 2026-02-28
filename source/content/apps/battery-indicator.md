@@ -15,6 +15,7 @@ olderMacOSVersions:
   - '12'
   - '13'
   - '14'
+  - '15'
 ---
 
 Quickly glance at the remaining battery time or percentage right in your menu bar.
@@ -71,6 +72,7 @@ This is a perfect use case for the built-in Shortcuts app. Create a shortcut tha
 
 ## Older Versions
 
+- [2.19.0](https://www.dropbox.com/scl/fi/14amy0g1r6sjyhg48cjns/Battery-Indicator-2.19.0-macOS-15-1772299240.zip?rlkey=e647a9azxyif2mnyuqot8jya7&raw=1) for macOS 15
 - [2.18.0](https://github.com/user-attachments/files/19015442/Battery.Indicator.2.18.0.-.macOS.14.zip) for macOS 14
 - [2.16.1](https://github.com/sindresorhus/meta/files/13942534/Battery.Indicator.2.16.1.-.macOS.13.zip) for macOS 13
 - [2.14.2](https://github.com/sindresorhus/meta/files/10759031/Battery.Indicator.2.14.2.-.macOS.12.zip) for macOS 12

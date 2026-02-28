@@ -112,8 +112,6 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 <script src="https://code.jquery.com/jquery-4.0.0.min.js" crossorigin="anonymous"></script>
 
 <script type="module" is:inline define:vars={{apps}}>
-	const DRAFT_KEY = 'feedback-draft';
-
 	// --- Success page ---
 
 	function initSuccess() {
@@ -393,33 +391,6 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 		return resizeTextarea;
 	}
 
-	// --- Draft auto-save ---
-
-	function initDraftSave(textarea, emailInput, resizeTextarea) {
-		function saveDraft() {
-			sessionStorage.setItem(DRAFT_KEY, JSON.stringify({
-				message: textarea.value,
-				email: emailInput.value,
-			}));
-		}
-
-		textarea.addEventListener('input', saveDraft);
-		emailInput.addEventListener('input', saveDraft);
-
-		// Restore draft after URL params have been applied (so params win over draft)
-		const draftJson = sessionStorage.getItem(DRAFT_KEY);
-		const draft = draftJson ? JSON.parse(draftJson) : undefined;
-
-		if (draft?.message && !textarea.value) {
-			textarea.value = draft.message;
-			resizeTextarea();
-		}
-
-		if (draft?.email && !emailInput.value) {
-			emailInput.value = draft.email;
-		}
-	}
-
 	// --- Email domain typo detection ---
 
 	function initEmailTypoDetection(emailInput) {
@@ -459,24 +430,25 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 		emailWarning.role = 'alert';
 		emailInput.insertAdjacentElement('afterend', emailWarning);
 
-		emailInput.addEventListener('blur', () => {
-			const suggestion = suggestEmailFix(emailInput.value.trim());
-			if (suggestion) {
-				emailWarning.textContent = `Did you mean ${suggestion}?`;
-				emailWarning.classList.remove('hidden');
-			} else {
-				emailWarning.classList.add('hidden');
-			}
-		});
+		let emailDebounceTimer;
 
-		emailInput.addEventListener('input', () => emailWarning.classList.add('hidden'));
+		emailInput.addEventListener('input', () => {
+			emailWarning.classList.add('hidden');
+			clearTimeout(emailDebounceTimer);
+			emailDebounceTimer = setTimeout(() => {
+				const suggestion = suggestEmailFix(emailInput.value.trim());
+				if (suggestion) {
+					emailWarning.textContent = `Did you mean ${suggestion}?`;
+					emailWarning.classList.remove('hidden');
+				}
+			}, 600);
+		});
 	}
 
 	// --- Submit: loading state + clear draft ---
 
 	function initSubmit() {
 		$('#feedback-form').on('submit', () => {
-			sessionStorage.removeItem(DRAFT_KEY);
 			const button = document.querySelector('#submit-button');
 			// Lock the width before changing text so it doesn't resize
 			button.style.width = `${button.offsetWidth}px`;
@@ -491,9 +463,8 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 
 		const textarea = document.querySelector('[name="message"]');
 		if (textarea) {
-			const resizeTextarea = initAutoGrowTextarea(textarea);
+			initAutoGrowTextarea(textarea);
 			const emailInput = document.querySelector('[name="email"]');
-			initDraftSave(textarea, emailInput, resizeTextarea);
 			initEmailTypoDetection(emailInput);
 			initSubmit();
 		}
