@@ -10,6 +10,7 @@ appStoreId: 1632827132
 olderMacOSVersions:
   - '13'
   - '14'
+  - '15'
 ---
 
 Instant access to your Mac's camera feed for quick checks before video calls.
@@ -94,6 +95,7 @@ I don't plan to localize the app.
 
 ## Older Versions
 
+- [1.7.7](https://www.dropbox.com/scl/fi/dhbgwns59on2uw6zb4uql/Camera-Preview-1.7.7-macOS-15-1772349679.zip?rlkey=yhusqz0f82kdaovk2exod1w3j&raw=1) for macOS 15
 - [1.6.1](https://github.com/user-attachments/files/18385375/Camera.Preview.1.6.1.-.macOS.14.zip) for macOS 14
 - [1.4.0](https://github.com/sindresorhus/meta/files/13988612/Camera.Preview.1.4.0.-.macOS.13.zip) for macOS 13
 

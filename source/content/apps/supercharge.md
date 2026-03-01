@@ -694,7 +694,7 @@ Make macOS feel less foreign — and more powerful.
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/da6imr6yx09ru6x1115a0/Supercharge-1.25.0-trial-1769898535.zip?rlkey=6f0uyxl4plg4879dyhwmxy4ua&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/rv0715y7qt857ssj37vj5/Supercharge-1.26.0-trial-1772355869.zip?rlkey=gn1clqykv201cb10o8inongpf&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
