@@ -19,10 +19,6 @@ This app can be useful when you want to post a screenshot or photo on the web th
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Black%20Out%20One&referrer=Website-FAQ)
-
 #### Can you support blurring and pixelation?
 
 Blurring and pixelation are intentionally not supported as they can sometimes [be reversed](https://dheera.net/projects/blur). The only reliable way to redact something is to put a black box over it.
@@ -38,8 +34,6 @@ You can open a PDF document, but you have to export it as a PNG image. It’s al
 #### What is the text in the icon?
 
 It’s from Apple’s inspirational [“Here’s to the Crazy Ones” TV commercial](https://www.youtube.com/watch?v=-z4NS2zdrZc).
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

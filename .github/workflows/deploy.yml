@@ -14,8 +14,8 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: withastro/action@v2
+      - uses: actions/checkout@v6
+      - uses: withastro/action@v5
 
   deploy:
     needs: build

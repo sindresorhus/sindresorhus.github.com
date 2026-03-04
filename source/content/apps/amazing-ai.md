@@ -44,7 +44,7 @@ On macOS, when in preview mode, there are some keyboard shortcuts available:
 - <kbd>◀</kbd> — Previous image
 - <kbd>▶</kbd> — Next image
 - <kbd>Space</kbd> — Save image
-- <kbd>Command + C</kbd> — Copy image
+- <kbd>Command+C</kbd> — Copy image
 - <kbd>Esc</kbd> — Exit preview
 
 ### Metadata
@@ -52,10 +52,6 @@ On macOS, when in preview mode, there are some keyboard shortcuts available:
 On macOS, when you save a generated image, it includes a lot of useful metadata (prompt, steps, etc). You can [view this in Finder](https://x.com/sindresorhus/status/1611441129622278146/photo/1) by right-clicking the image file and selecting “Get Info”. The file also includes some relevant tags which can be used to create [smart folders](https://support.apple.com/guide/mac-help/tag-files-and-folders-mchlp15236/mac).
 
 ## Frequently Asked Questions {#faq}
-
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Amazing%20AI&referrer=Website-FAQ)
 
 #### Why not use Stable Diffusion 3?
 
@@ -121,8 +117,6 @@ The AI model used to generate images is large. This is reasonable given the mode
 #### Why is this free without ads?
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

@@ -22,10 +22,6 @@ Quickly glance at the remaining battery time or percentage right in your menu ba
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Battery%20Indicator&referrer=Website-FAQ)
-
 #### The app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
@@ -67,8 +63,6 @@ You can find sound effects [here](https://pixabay.com/sound-effects/search/inter
 #### Can the battery icon hide when the battery is charged a certain percentage?
 
 This is a perfect use case for the built-in Shortcuts app. Create a shortcut that quits the app and one that launches it. To run the shortcut when the battery is at a certain percentage, you can use Shortcuts automations on macOS 26, or the [Shortery app](https://apps.apple.com/app/id1594183810) on older macOS versions. Use its “Power Status” trigger.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

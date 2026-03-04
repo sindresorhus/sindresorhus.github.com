@@ -149,7 +149,7 @@ The app displays the OKLCH chroma value as a percentage instead of an absolute v
 
 **CLR format**
 1. Open Finder
-1. Press <kbd>Command</kbd> + <kbd>Shift</kbd> + <kbd>G</kbd>
+1. Press <kbd>Command+Shift+G</kbd>
 1. Enter `~/Library/Colors`
 1. Copy the desired palette files
 
@@ -163,8 +163,6 @@ This file is not viewable or editable. It can only be used for backup or transfe
 #### Can I contribute localizations?
 
 I don't plan to localize the app.
-
-#### [More FAQs…](/apps/faq)
 
 ## Scripting
 

@@ -63,6 +63,19 @@ const skipPlatforms = requirementMentionsMacOS && app.platforms.length === 1 && 
 const platformText = !skipPlatforms && app.platforms.length > 0 ? `Available on ${app.platforms.join(', ')}` : '';
 const availabilityText = [platformText, app.requirement].filter(Boolean).join(' — ');
 
+const formatDownloads = n => {
+	if (n >= 1_000_000) {
+		const m = n / 1_000_000;
+		return `${m % 1 === 0 ? m : m.toFixed(1)}M+`;
+	}
+
+	if (n >= 1000) {
+		return `${Math.floor(n / 1000)}K+`;
+	}
+
+	return n.toLocaleString();
+};
+
 const tagClass = tagCSS;
 ---
 
@@ -70,7 +83,7 @@ const tagClass = tagCSS;
 	<section class="max-w-5xl py-8 sm:py-16 lg:py-20 mx-auto lg:-mt-10 mb-10">
 		<article itemscope itemtype="https://schema.org/SoftwareApplication" data-heading-anchors>
 			<header id="app-hero" class="flex flex-col items-center text-center px-4 sm:px-6 mb-40">
-				<img id="app-icon" src={app.iconUrl} width="256" height="256" alt={`${app.title} app icon`} class="p-[16px] drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)] mb-3">
+				<img id="app-icon" src={app.iconUrl} width="256" height="256" alt={`${app.title} app icon`} class="p-[16px] mb-3">
 				<h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-4 font-heading" itemprop="name">
 					{app.title}
 				</h1>
@@ -117,6 +130,11 @@ const tagClass = tagCSS;
 								</>
 						}
 					</nav>
+				}
+				{app.downloads &&
+					<p class="mt-4 text-sm tabular-nums instapaper_ignore">
+						<span class="font-semibold text-gray-700 dark:text-gray-200">{formatDownloads(app.downloads)}</span><span class="text-gray-400 dark:text-gray-500"> downloads</span>
+					</p>
 				}
 				{Object.keys(app.links).length > 0 &&
 					<nav class="flex flex-wrap gap-4 max-w-md justify-center mt-8 text-xl font-semibold text-primary-600 dark:text-primary-400 instapaper_ignore" aria-label="App links">
@@ -530,6 +548,13 @@ const tagClass = tagCSS;
 </script>
 
 <style is:global>
+	#app-icon {
+		filter:
+			drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15))
+			drop-shadow(0 4px 10px rgba(0, 0, 0, 0.10))
+			drop-shadow(0 12px 28px rgba(0, 0, 0, 0.07));
+	}
+
 	.download-badge {
 		transition: transform 0.2s ease, filter 0.2s ease;
 	}

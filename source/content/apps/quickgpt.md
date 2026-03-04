@@ -28,10 +28,6 @@ Easily access ChatGPT from the menu bar, Dock, or using a keyboard shortcut.
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=QuickGPT&referrer=Website-FAQ)
-
 #### The app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
@@ -67,8 +63,6 @@ I personally prefer the ChatGPT web UI as it's cheaper for me to pay monthly for
 #### Why is this not in the App Store?
 
 Apple generally rejects website wrappers even if they add useful additional functionality. Apple has also lately been rejecting any app with GPT in the name.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

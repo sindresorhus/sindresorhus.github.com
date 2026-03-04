@@ -220,10 +220,6 @@ Add a warning at the start of the shortcut to install the app if not installed. 
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Shortcutie&referrer=Website-FAQ)
-
 #### The actions don't show up in the Shortcuts app {#troubleshooting}
 
 This is caused by a macOS bug.
@@ -274,8 +270,6 @@ A bit of whimsy makes software more human and approachable. Even Apple uses a sm
 #### Shortcutie and Supercharge seem to have some of the same actions for Shortcuts {#supercharge}
 
 There is [some overlap](/supercharge#shortcutie), but Shortcutie includes many more actions. Supercharge only includes actions for its own features.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

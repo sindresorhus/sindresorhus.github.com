@@ -52,10 +52,6 @@ The [distributed notification](/apps/faq#distributed-notifications) `com.sindres
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Day%20Progress&referrer=Website-FAQ)
-
 #### The app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
@@ -91,8 +87,6 @@ This is out of scope for this app, and there are existing apps for that already.
 #### Can you localize the app into my language?
 
 I do not plan to localize the app.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

@@ -18,10 +18,6 @@ Shareful makes the system share menu even more useful by providing some commonly
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Shareful&referrer=Website-FAQ)
-
 #### The share services do not show up in System Settings
 
 Shareful provides share services (Copy, Open In, etc.) which macOS is supposed to pick up. Shareful has no control over how it works. In some rare cases, macOS can fail to pick up these share services. This is a problem with macOS not Shareful.
@@ -51,8 +47,6 @@ You could use my [Short Run](/short-run) app instead. It can show a curated list
 #### Why is this free without ads?
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

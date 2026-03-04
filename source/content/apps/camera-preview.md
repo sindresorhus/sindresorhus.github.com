@@ -18,14 +18,10 @@ Instant access to your Mac's camera feed for quick checks before video calls.
 ## Tips
 
 - Press the <kbd>Return</kbd> or <kbd>Space</kbd> key while showing the camera feed to take a photo.
-- Press the <kbd>Command</kbd> and <kbd>+</kbd> key to zoom in, <kbd>Command</kbd> and <kbd>-</kbd> to zoom out, and <kbd>Command</kbd> and <kbd>0</kbd> to reset the zoom.
+- Press <kbd>Command+</kbd> to zoom in, <kbd>Command−</kbd> to zoom out, and <kbd>Command+0</kbd> to reset the zoom.
 - Press the <kbd>Option</kbd> key while resizing the window to resize from the center (this works with any app).
 
 ## Frequently Asked Questions {#faq}
-
-#### I have a feature request, bug report, or some feedback
-
-[Send it here.](https://sindresorhus.com/feedback?product=Camera%20Preview&referrer=Website-FAQ)
 
 #### The app does not work {#not-working}
 
@@ -90,8 +86,6 @@ I just enjoy making apps. Consider leaving a nice review on the App Store. -->
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

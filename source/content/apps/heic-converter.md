@@ -22,10 +22,6 @@ If you don't have any HEIC images, you can try the app out with [this one](/apps
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=HEIC+Converter&referrer=Website-FAQ)
-
 #### Does it preserve 10-bit depth?
 
 No. JPEG only supports 8-bit. PNG supports 8-bit and 16-bit, but macOS doesn't have a way to convert 10-bit HEIC to 16-bit PNG, so it ends up as 8-bit too.
@@ -45,11 +41,13 @@ I don't have plans to support JPEG to HEIC conversion. While HEIC offers some be
 
 I expect JPEG XL to gain more widespread support and become the preferred format in the coming years. At that point, I plan to add JPEG XL conversion capabilities here.
 
+#### What's the benefit of this app over the built-in Quick Actions converter?
+
+The built-in converter (right-click › Quick Actions › Convert Image) works well for basic conversions. This app offers adjustable JPEG quality and granular metadata control (separately toggle location data and modification dates instead of all-or-nothing).
+
 #### Why is this free without ads?
 
 I just enjoy making apps. Consider leaving a nice review on the App Store.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

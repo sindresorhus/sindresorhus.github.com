@@ -28,10 +28,6 @@ Check out [Dato](/dato) for week number in the menu bar and more features and se
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here](https://sindresorhus.com/feedback?product=Week%20Number&referrer=Website-FAQ).
-
 #### The app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
@@ -55,8 +51,6 @@ You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/IS
 #### How can I change the week number to [ISO 8601](https://en.wikipedia.org/wiki/ISO_week_date) format?
 
 Change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

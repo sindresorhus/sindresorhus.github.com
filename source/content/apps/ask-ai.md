@@ -40,4 +40,3 @@ Add [this shortcut](https://www.icloud.com/shortcuts/6b890da159844407a6b39de4545
 
 Unfortunately, it is unlikely that the app will be available on iOS and macOS. The pricing of the app is based on its expected lifetime usage, and since I am charged for the amount of usage, the cost would be much higher on iOS. For macOS, check out [QuickGPT](/quickgpt).
 
-#### [More FAQs…](/apps/faq)

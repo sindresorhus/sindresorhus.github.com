@@ -238,10 +238,6 @@ macOS 26 has automations in Shortcuts and you don't need Shortery there.
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](/feedback?product=Velja&referrer=Website-FAQ)
-
 #### The app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
@@ -528,7 +524,7 @@ You can use the [Shortery](https://apps.apple.com/app/id1594183810) and Shortcut
 
 In the advanced settings, enable the link history setting, and then click the link. The URL will show up there.
 
-To see more detailed debug info on how Velja handled the URL: Quit Velja if it's open. Press <kbd>Shift</kbd> + <kbd>Control</kbd> while launching Velja, click the menu bar icon, click “Debug”, and then go to “Logs”.
+To see more detailed debug info on how Velja handled the URL: Quit Velja if it's open. Press <kbd>Shift+Control</kbd> while launching Velja, click the menu bar icon, click “Debug”, and then go to “Logs”.
 
 If a rule with a “source app” condition isn't working, check the history to verify the source app matches what you expect. Some apps launch URLs through helper processes, causing a different app to appear.
 
@@ -783,8 +779,6 @@ Browserosaurus benefits:
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
-
-#### [More FAQs…](/apps/faq)
 
 ## Scripting {#scripting}
 

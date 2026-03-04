@@ -38,10 +38,6 @@ There is also a [Sketch plugin](https://github.com/sindresorhus/sketch-icon-prev
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here](https://sindresorhus.com/feedback?product=Icon%20Preview&referrer=Website-FAQ).
-
 #### The app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
@@ -65,8 +61,6 @@ I do not plan to localize the app.
 #### Why is this free without ads?
 
 I just enjoy making apps. I earn money on other apps. Consider leaving a nice review on the App Store.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

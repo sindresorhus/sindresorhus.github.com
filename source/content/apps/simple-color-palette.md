@@ -42,10 +42,6 @@ A color palette is a collection of colors with optional names, essential for des
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Simple%20Color%20Palette&referrer=Website-FAQ)
-
 #### Is this a palette organizer app?
 
 No. This app is specifically designed for creating and editing color palettes in the Simple Color Palette format. For organizing collections of palettes, use Finder, your preferred file management app, or a dedicated palette organizer app.
@@ -127,8 +123,6 @@ Just open both palettes and move the windows next to each other.
 #### Does it support gradients?
 
 No, only flat colors are supported.
-
-#### [More FAQs…](/apps/faq)
 
 <!-- ## Older Versions
 

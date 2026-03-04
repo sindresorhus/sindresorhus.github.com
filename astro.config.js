@@ -6,7 +6,10 @@ import remarkCustomHeaderId from 'remark-custom-header-id';
 import remarkGitHubAlerts from 'remark-github-blockquote-alert';
 import tailwindcss from '@tailwindcss/vite';
 import {icons as tablerIconData} from '@iconify-json/tabler';
+import rehypeRaw from 'rehype-raw';
 import remarkHeadingMeta from './source/utils/remark-heading-meta.js';
+import remarkInjectFeedbackFaq from './source/utils/remark-inject-feedback-faq.js';
+import rehypeKbdSeparator from './source/utils/rehype-kbd-separator.js';
 /// import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import {SITE} from './source/config.mjs';
 
@@ -59,12 +62,16 @@ export default defineConfig({
 			remarkCustomHeaderId,
 			remarkGitHubAlerts,
 			remarkHeadingMeta,
+			remarkInjectFeedbackFaq,
 		],
-		// TODO
-		// rehypePlugins: [
-		// 	rehypeHeadingIds,
-		// 	[rehypeAutolinkHeadings, {behavior: 'wrap'}],
-		// ]
+		rehypePlugins: [
+			// Astro runs rehype-raw after user plugins, so inline HTML stays as opaque `raw` nodes when our plugins run. Running it first converts them to proper hast elements.
+			rehypeRaw,
+			rehypeKbdSeparator,
+			// TODO
+			// rehypeHeadingIds,
+			// [rehypeAutolinkHeadings, {behavior: 'wrap'}],
+		],
 	},
 	vite: {
 		resolve: {

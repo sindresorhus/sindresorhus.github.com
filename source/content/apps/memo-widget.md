@@ -18,10 +18,6 @@ For macOS, it's only available for Apple silicon Macs running macOS 26 or later.
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Memo%20Widget&referrer=Website-FAQ)
-
 #### How do I add the widget?
 
 - [iOS](https://support.apple.com/HT207122)
@@ -93,4 +89,3 @@ Currently, there are no plans to integrate iCloud syncing due to its complexity 
 
 Any Text has a lot of features and is very flexible. With this app, I wanted to make something simple and focused.
 
-#### [More FAQs…](/apps/faq)

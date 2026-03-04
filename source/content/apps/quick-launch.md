@@ -22,10 +22,6 @@ Here are [some more ideas](https://github.com/bhagyas/app-urls) of what you coul
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Quick%20Launch&referrer=Website-FAQ)
-
 #### How do I add the widget to the Lock Screen?
 
 When on the Lock Screen, tap and hold on the clock, tap the “Customize” button, and select “Favorites”.
@@ -61,4 +57,3 @@ If you work at Apple, you know what to do:
 - [FB11516334](https://github.com/feedback-assistant/reports/issues/357)
 - [FB11516273](https://github.com/feedback-assistant/reports/issues/356)
 
-#### [More FAQs…](/apps/faq)

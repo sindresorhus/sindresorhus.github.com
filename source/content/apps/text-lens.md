@@ -82,10 +82,6 @@ Everything is done locally on your device. Nothing leaves your device. The app i
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Text%20Lens&referrer=Website-FAQ)
-
 #### The app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
@@ -153,8 +149,6 @@ This app's advantages:
 TextSniper advantages:
 - Text-to-speech
 - More keyboard shortcuts
-
-#### [More FAQs…](/apps/faq)
 
 <!-- ## Older Versions
 

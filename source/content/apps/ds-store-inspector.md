@@ -15,10 +15,6 @@ A read-only viewer for Finder metadata stored in [`.DS_Store`](https://en.wikipe
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](/feedback?product=DS_Store%20Inspector&referrer=Website-FAQ)
-
 #### Why would I want to inspect a `.DS_Store` file?
 
 To understand and debug how Finder presents a folder: sorting, view mode, window size, icon positions, and other hidden state. This is especially useful when investigating odd Finder behavior, auditing metadata left behind in shared folders, repositories, ZIP archives, installers, and designed DMGs, where the `.DS_Store` controls the exact visual layout users see (icon placement, background, window geometry).
@@ -40,8 +36,6 @@ The format is undocumented. Many record types were reverse-engineered, and some 
 This is just a small, free project I built for fun. Supporting older macOS versions would mean extra testing, compatibility layers, and working around bugs Apple will never fix.
 
 Keeping it macOS 26+ lets me keep the code simple and spend time building things I enjoy instead of maintaining legacy support.
-
-#### [More FAQs…](/apps/faq)
 
 <!-- ## Older Versions
 

@@ -20,15 +20,9 @@ This can be useful for decision-making, picking stuff from a list, board games, 
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Randa&referrer=Website-FAQ)
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

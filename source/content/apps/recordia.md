@@ -20,10 +20,6 @@ Record audio directly from the menu bar or with a global keyboard shortcut.
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Recordia&referrer=Website-FAQ)
-
 #### The app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
@@ -67,8 +63,6 @@ macOS does some noise reduction by default. For stronger noise reduction, check 
 #### Can I use my iPhone as a microphone?
 
 Yes, follow the guide [here](https://www.switchingtomac.com/tutorials/how-to-use-your-iphone-as-a-microphone-on-a-mac/).
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

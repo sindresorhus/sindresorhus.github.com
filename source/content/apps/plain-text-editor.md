@@ -23,10 +23,6 @@ It's a [Universal Purchase](/apps/faq#universal-purchase).
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Plain%20Text%20Editor&referrer=Website-FAQ)
-
 #### How is the macOS version better than TextEdit?
 
 - Editor padding
@@ -58,7 +54,7 @@ This is a macOS bug. There is unfortunately nothing I can do about it.
 
 Yes. Click “View › Show Tab Bar” in the menu bar and then click the plus button in the window.
 
-You can also press <kbd>Command</kbd> + <kbd>N</kbd> if you have [tabs enabled for document apps](https://support.apple.com/guide/mac-help/mchla4695cce/mac).
+You can also press <kbd>Command+N</kbd> if you have [tabs enabled for document apps](https://support.apple.com/guide/mac-help/mchla4695cce/mac).
 
 #### Can I keep it in the menu bar?
 
@@ -86,7 +82,7 @@ It helps you focus on the actual writing, instead of getting distracted with edi
 
 #### When I save a file using the popover in the title bar on macOS, it always appends `.txt` when I choose a different file extension
 
-This is a macOS bug. Instead, save the file from the “File” menu or by pressing <kbd>Command</kbd> + <kbd>S</kbd>.
+This is a macOS bug. Instead, save the file from the “File” menu or by pressing <kbd>Command+S</kbd>.
 
 #### How can I toggle “Stay on Top” with a keyboard shortcut on macOS?
 
@@ -143,8 +139,6 @@ This is out of scope for this app.
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

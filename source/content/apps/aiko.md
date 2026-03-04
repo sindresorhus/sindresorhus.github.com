@@ -12,7 +12,10 @@ olderMacOSVersions:
   - '13'
   - '14'
 feedbackNote: |
-  **Sharing from Voice Memos on iOS 26 does not work because of an iOS 26 bug outside of my control.** You may notice that many targets do work. This is because those apps use share extensions, while with Aiko, it opens directly in the app.
+  **Sharing from Voice Memos on iOS 26 does not work because of an iOS 26 bug outside of my control.** You may notice that many targets do work. This is because
+    those apps use share extensions, while with Aiko, it opens directly in the app. [Workaround.](/aiko#voice-memos-ios26)
+
+  [How can I get back the old app icon?](/aiko#old-icon)
 
   [Refunds](/apps/faq#refund)
 
@@ -199,10 +202,6 @@ You can use [this shortcut](https://www.icloud.com/shortcuts/e43220d72f3343659e0
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Aiko&referrer=Website-FAQ)
-
 #### Can you use the large v3 model for the Mac app?
 
 The v3 model is [worse](https://github.com/openai/whisper/discussions/1762#discussioncomment-7532295) than v2 in too many cases. I tried releasing v3, but got a lot of emails about the quality being worse, so I ended up reverting it.
@@ -314,6 +313,17 @@ The error comes from iOS and means that it could not read the audio file. Someti
 
 **iOS:** In the Voice Memos app, tap the memo, tap the `…` button, tap `Share`, and choose Aiko in the app list.
 
+**iOS 26:** Sharing from Voice Memos is broken due to an iOS bug. See [workaround](#voice-memos-ios26).
+
+#### Sharing from Voice Memos does not work on iOS 26 {#voice-memos-ios26}
+
+This is caused by an iOS 26 bug outside of my control. As a workaround, you can use a shortcut that appears in the Voice Memos share sheet:
+
+1. Install the [this shorcut](https://www.icloud.com/shortcuts/343553f2aff44c0fb1c7974a969ae4bb).
+1. In Voice Memos, share the recording.
+1. Look for **Transcribe with Aiko** in the share sheet. If you don't see it, scroll to the end of the app row and tap `Edit Actions`.
+1. If it's still not listed, open the Shortcuts app, tap the **Transcribe with Aiko** shortcut, tap the `ⓘ` button, and enable “Show in Share Sheet”.
+
 #### Why does it take so long to generate?
 
 Several factors can affect the transcription speed, including the performance of your device and the amount of available memory and CPU. Try closing down other apps or restarting your device before transcribing.
@@ -393,6 +403,18 @@ Aiko does not have a custom URL scheme, but you can trigger Aiko from the Shortc
 
 Flash Attention is a special technique that helps the app process audio more efficiently while using less memory on your device. Think of it as a smarter way to handle the heavy lifting of transcription. It's a setting in case it causes any problem. It should not though.
 
+#### How can I change the app icon on macOS? {#change-icon}
+
+You can do it manually for free. See [this guide](https://www.macstories.net/tutorials/customizing-app-icons-on-a-mac-in-2023/).
+
+You can also use the [Replaceicon](https://replacicon.app) app (paid).
+
+#### How can I get back the old robot icon? {#old-icon}
+
+**iOS:** There is a setting for it in the app.
+
+**macOS:** Unlike iOS, macOS does not have the ability to have alternative icons. See the above FAQ. [Here's the old app icon.](https://www.dropbox.com/scl/fi/rr8hizeqejfz0pg5yll7f/Aiko-1772609366.png?rlkey=v5frkozme3iairlshont7vxhd&raw=1)
+
 #### How is Aiko pronounced?
 
 IPA (International Phonetic Alphabet): `[a.i.ko̞]`
@@ -406,8 +428,6 @@ Yes, it's native and written in Swift and SwiftUI.
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

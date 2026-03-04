@@ -12,6 +12,7 @@ releasesRepo: supercharge-meta
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/supercharge?wanted=true
 requirement: Requires macOS 15.4 or later
+# downloads: 10000
 announcement:
   text: Save 26% with the Power User Bundle — get 3 power user apps together
   url: https://sindresorhus.gumroad.com/l/power-user
@@ -757,8 +758,6 @@ Some things you can already do that you may not know about:
 
 #### I have a feature request, bug report, or some feedback
 
-Click the feedback button in the app or [send it here.](/feedback?product=Supercharge&referrer=Website-FAQ)
-
 Some things are not possible though:
 
 - [Removing the Trash icon in the Dock.](https://apple.stackexchange.com/a/454812/2363)
@@ -951,11 +950,9 @@ Supercharge has the following Shortcuts actions that Shortcutie does not have:
 
 Much of the functionality would not be possible in the App Store because of [sandboxing](/apps/faq#macos-sandbox).
 
-#### [More FAQs…](/apps/faq)
-
 <!-- Intentionally using the wrong header level so it doesn't show up as a main thing. -->
 
-### Scripting
+## Scripting
 
 #### Events
 

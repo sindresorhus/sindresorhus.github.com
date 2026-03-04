@@ -309,11 +309,9 @@ For these, I recommend sending a [feature request to Apple](https://feedbackassi
 
 - Imgur - I generally don't want to integrate with services. They cause a huge support burden, either by being unreliable, breaking the API, shutting down, and other things.
 
+
+
 ## Frequently Asked Questions {#faq}
-
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Actions&referrer=Website-FAQ)
 
 #### The actions don't show up in the Shortcuts app {#actions-not-showing-up}
 
@@ -345,8 +343,6 @@ iOS does not have a way to prevent individual apps from being offloaded (even th
 
 No. I applied for Apple’s [Critical Alerts entitlement](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.developer.usernotifications.critical-alerts), but it was declined.
 Critical Alerts are reserved for very limited use cases such as medical, health, home security, and public safety notifications. General-purpose automation apps like Actions are not eligible.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older versions
 

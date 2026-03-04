@@ -149,8 +149,6 @@ I don't plan to localize the app.
 
 “a sound produced by liquid striking something or being struck”
 
-#### [More FAQs…](/apps/faq)
-
 ## Scripting
 
 You can control Plash using anything that supports opening a URL with a custom scheme.

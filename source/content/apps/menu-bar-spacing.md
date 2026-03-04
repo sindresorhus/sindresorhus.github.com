@@ -32,10 +32,6 @@ This app can potentially replace Bartender/Ice for some users. It also lets you 
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here](https://sindresorhus.com/feedback?product=Menu%20Bar%20Spacing&referrer=Website-FAQ).
-
 #### I can already do this from the command-line, why should I use this app?
 
 This app makes it simpler and it also makes it possible to see the changes without having to restart your computer first.
@@ -78,8 +74,6 @@ No, not in the app. However, the app comes with an action for Shortcuts, so you 
 #### Why is this not on the App Store?
 
 The app works by changing hidden system settings, which is not allowed on the App Store.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

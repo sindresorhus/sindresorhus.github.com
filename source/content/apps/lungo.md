@@ -23,10 +23,6 @@ Lungo prevents your Mac from falling asleep and your screen from dimming.
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Lungo&referrer=Website-FAQ)
-
 #### The app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
@@ -114,8 +110,6 @@ I don't plan to localize the app.
 #### How is it different from Amphetamine?
 
 Amphetamine has lots of features. Most of which I would never use. It ships with a myriad of menu bar icons to choose from, but none that looks good. With Lungo, I wanted a focused and simple app with great defaults.
-
-#### [More FAQs…](/apps/faq)
 
 ## Scripting
 

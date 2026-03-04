@@ -162,12 +162,6 @@ const {meta = {}} = Astro.props;
 
 							const heading = current;
 
-							// Skip link-only headings (e.g., "More FAQs…")
-							if (heading.childNodes.length === 1 && heading.firstElementChild?.tagName === 'A') {
-								current = heading.nextElementSibling;
-								continue;
-							}
-
 							// Collect siblings until next heading or section boundary
 							const siblings = [];
 							let sibling = heading.nextElementSibling;
@@ -198,6 +192,18 @@ const {meta = {}} = Astro.props;
 							details.append(summary, content);
 							heading.replaceWith(details);
 							current = sibling;
+						}
+
+						// Inject "More FAQs" link on non-FAQ pages
+						if (!isFAQPage) {
+							const lastDetails = [...container.querySelectorAll(':scope > details')].at(-1);
+							if (lastDetails) {
+								const link = document.createElement('a');
+								link.href = '/apps/faq';
+								link.className = 'faq-more-link';
+								link.textContent = 'More FAQs';
+								lastDetails.after(link);
+							}
 						}
 
 						// Open details matching URL hash
@@ -233,7 +239,8 @@ const {meta = {}} = Astro.props;
 				for (const container of document.querySelectorAll('[data-heading-anchors]')) {
 					addHeadingAnchors(container);
 				}
-			}
+
+				}
 		</script>
 	</body>
 </html>

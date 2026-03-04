@@ -53,10 +53,6 @@ For [Gemini](https://ai.google.dev/gemini-api/docs/openai), specify `https://gen
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=AI%20Actions&referrer=Website-FAQ)
-
 #### The actions do not show up in the Shortcuts app
 
 This is an iOS/macOS bug. Launch the app once and then restart your device. If that doesn't work, [try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
@@ -90,8 +86,6 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

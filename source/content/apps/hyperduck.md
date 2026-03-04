@@ -112,10 +112,6 @@ You can then tap “Download on Mac” in the share sheet on your iOS device, an
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Hyperduck&referrer=Website-FAQ)
-
 #### How is it better than AirDrop? {#airdrop}
 
 - Works when your Mac is turned off
@@ -244,8 +240,6 @@ No. I’m not planning to support it. It would add a lot of complexity for a ver
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

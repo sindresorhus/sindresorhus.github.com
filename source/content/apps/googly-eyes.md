@@ -14,10 +14,6 @@ Add playful eyes to your menu bar that follow your cursor and blink when you cli
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Googly%20Eyes&referrer=Website-FAQ)
-
 #### The app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
@@ -26,7 +22,13 @@ Click the feedback button in the app or [send it here.](https://sindresorhus.com
 
 The app is optimized as much as possible, but macOS is inefficient at updating menu bar items. Also, make sure you know how to [interpret CPU usage](/apps/faq#high-cpu).
 
-#### [More FAQs…](/apps/faq)
+#### Does it support multiple screens?
+
+Partly.
+
+The eyes follow your cursor across displays. However, menu bar items on inactive secondary displays are just static macOS clones, so those eyes cannot track independently.
+
+This is a macOS limitation and cannot be worked around.
 
 <!-- ## Older Versions
 
@@ -36,9 +38,7 @@ The app is optimized as much as possible, but macOS is inefficient at updating m
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/r1fdhx8r5k08q7fq5apso/Googly-Eyes-1.1.4-1764760165.zip?rlkey=w79zg0k1ue6zqbbc51ij3rdaa&raw=1) *(1.1.4)*
-
-*Requires macOS 15 or later*
+[Download](https://www.dropbox.com/scl/fi/r1fdhx8r5k08q7fq5apso/Googly-Eyes-1.1.4-1764760165.zip?rlkey=w79zg0k1ue6zqbbc51ij3rdaa&raw=1) *(1.1.4 · macOS 15+)*
 
 <script type="module" is:inline>
 // Only the core measurements

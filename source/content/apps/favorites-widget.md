@@ -20,10 +20,6 @@ You can also open a URL or run a shortcut instead when tapping the widget. This 
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Favorites%20Widget&referrer=Website-FAQ)
-
 #### How do I add the widget?
 
 - [iOS](https://support.apple.com/HT207122)
@@ -70,4 +66,3 @@ I just enjoy making apps. I earn money on other apps. Consider leaving a nice re
 
 I don't plan to localize the app.
 
-#### [More FAQs…](/apps/faq)

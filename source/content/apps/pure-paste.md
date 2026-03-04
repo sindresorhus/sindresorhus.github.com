@@ -34,10 +34,6 @@ Rich text copied from a different device will not have its formatting cleared be
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](/feedback?product=Pure%20Paste&referrer=Website-FAQ)
-
 #### Why not just use the `Paste and Match Style` menu item or `⌥⇧⌘V`?
 
 - This app can make it the default behavior.
@@ -217,8 +213,6 @@ Yes, it ignores concealed (passwords), transient, and auto-generated content.
 <!-- #### Why is this free without ads?
 
 I just enjoy making Mac apps. Consider leaving a nice review on the App Store. -->
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

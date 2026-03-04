@@ -57,10 +57,6 @@ Your shortcuts and data never leave your device. The app is built without intern
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Short%20Run&referrer=Website-FAQ)
-
 #### The app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
@@ -161,8 +157,6 @@ No, because there is no way to run shortcuts in the background on iOS.
 #### Can you add another menu bar icon option?
 
 Sure! Find an icon you like in the [SF Symbols app](https://developer.apple.com/sf-symbols/) or [here](https://thenounproject.com/icons/), and send me the name or a link.
-
-#### [More FAQs…](/apps/faq)
 
 <!-- ## Older Versions
 

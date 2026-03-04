@@ -47,10 +47,6 @@ You could add the “Desktop” folder to Folder Peek and then [hide the desktop
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Folder%20Peek&referrer=Website-FAQ)
-
 #### The app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
@@ -202,8 +198,6 @@ I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

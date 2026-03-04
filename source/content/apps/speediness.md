@@ -29,10 +29,6 @@ Tip: If you have limited space in the menu bar, you could switch the info shown 
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Speediness&referrer=Website-FAQ)
-
 #### Why does it show different result from other tools? {#different-result}
 
 By default, tests are run in parallel to better reflect real-world situations (video chat and voice calls). Because of this, speeds may differ from other tools. You can change this in the settings.
@@ -96,8 +92,6 @@ I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

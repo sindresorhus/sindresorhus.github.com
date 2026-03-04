@@ -13,10 +13,6 @@ The app is simple by design.
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Floating%20Clock&referrer=Website-FAQ)
-
 #### Can it support showing an analog clock?
 
 No plans to support that.
@@ -41,4 +37,3 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 I don't plan to localize the app, but the time and date respects your locale.
 
-#### [More FAQs…](/apps/faq)

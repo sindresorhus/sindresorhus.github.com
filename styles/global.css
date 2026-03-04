@@ -66,27 +66,60 @@
 
 /* Improvements over the Tailwind style */
 kbd {
-	font-family: monospace !important;
-	background-color: hsl(0, 0%, 99%) !important;
-	color: #404d60 !important;
+	font-family: inherit !important;
+	font-size: 0.8em !important;
+	background-color: #f0f2f5 !important;
+	color: #2d3748 !important;
+	border: 1px solid #c4cad4 !important;
+	border-bottom-width: 3px !important;
+	border-radius: 5px !important;
+	padding: 0.1em 0.45em !important;
+	margin-inline: 0.15em !important;
 }
 
 @media (prefers-color-scheme: dark) {
 	kbd {
-		background-color: #1F2937 !important;
-		color: #b3bdcc !important;
-		border: solid 1px #747c8b !important;
+		background-color: #252d3d !important;
+		color: #c9d1e0 !important;
+		border-color: #3d4a5c !important;
+		border-bottom-color: #111827 !important;
 	}
+}
+
+/* Keyboard combo separator inserted between adjacent <kbd> elements */
+.kbd-sep {
+	font-size: 0.6em;
+	font-weight: 600;
+	color: #9ca3af;
+	user-select: none;
+	vertical-align: middle;
 }
 
 .footnotes {
 	margin-top: 100px !important;
 }
 
+/* Animate details open/close via ::details-content (requires interpolate-size support) */
+@supports (interpolate-size: allow-keywords) {
+	:root {
+		interpolate-size: allow-keywords;
+	}
+
+	.faq-collapsible details::details-content {
+		overflow: hidden;
+		height: 0;
+		transition: height 0.25s ease;
+	}
+
+	.faq-collapsible details[open]::details-content {
+		height: auto;
+	}
+}
+
 /* FAQ collapsible sections */
 .faq-collapsible {
 	details {
-		border: 1px solid #e5e7eb;
+		background-color: rgb(0 0 0 / 0.015);
 		border-radius: 0.75rem;
 		padding: 0;
 
@@ -95,7 +128,7 @@ kbd {
 		}
 
 		&[open] > summary {
-			box-shadow: inset 0 -1px 0 #e5e7eb;
+			box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.05);
 		}
 	}
 
@@ -109,10 +142,11 @@ kbd {
 		list-style: none;
 		user-select: none;
 		transition: background-color 0.15s;
-		border-radius: calc(0.75rem - 1px);
+		border-radius: 0.75rem;
+		background-color: rgb(0 0 0 / 0.015);
 
 		&:hover {
-			background-color: #f9fafb;
+			background-color: rgb(0 0 0 / 0.04);
 		}
 
 		&::-webkit-details-marker {
@@ -151,6 +185,29 @@ kbd {
 		transform: rotate(45deg);
 	}
 
+	.faq-more-link {
+		display: block;
+		margin-top: 0.75rem;
+		padding: 0.75rem 1rem;
+		border-radius: 0.75rem;
+		font-size: inherit;
+		color: rgb(0 0 0 / 0.75);
+		text-decoration: underline;
+		text-underline-offset: 4px;
+		text-decoration-color: var(--color-primary-500);
+		text-decoration-thickness: 2px;
+		transition: color 0.15s, text-decoration-color 0.15s;
+
+		&::after {
+			content: ' →';
+		}
+
+		&:hover {
+			color: rgb(0 0 0);
+			text-decoration-color: var(--color-primary-700);
+		}
+	}
+
 	.faq-content {
 		padding: 0.75rem 1rem;
 
@@ -182,18 +239,58 @@ kbd {
 	}
 }
 
-@media (prefers-color-scheme: dark) {
+/* On small screens: full-width, no rounding, tighter gaps that read as dividers */
+@media (max-width: 639px) {
 	.faq-collapsible {
 		details {
-			border-color: #374151;
+			border-radius: 0;
+			margin-left: -1.5rem;
+			margin-right: -1.5rem;
 
-			&[open] > summary {
-				box-shadow: inset 0 -1px 0 #374151;
+			& + details {
+				margin-top: 0.2rem;
 			}
 		}
 
+		summary {
+			border-radius: 0;
+		}
+
+		.faq-more-link {
+			border-radius: 0;
+			margin-left: -1.5rem;
+			margin-right: -1.5rem;
+			margin-top: 0.2rem;
+		}
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	.faq-collapsible {
+		details {
+			background-color: rgb(255 255 255 / 0.025);
+
+			&[open] > summary {
+				box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.07);
+			}
+		}
+
+		summary {
+			background-color: rgb(255 255 255 / 0.035);
+		}
+
 		summary:hover {
-			background-color: #1f2937;
+			background-color: rgb(255 255 255 / 0.06);
+		}
+
+		.faq-more-link {
+			color: rgb(255 255 255 / 0.9);
+			text-decoration-color: var(--color-primary-400);
+
+			&:hover {
+				color: rgb(255 255 255);
+				text-decoration-color: var(--color-primary-300);
+			}
 		}
 
 		.faq-chevron::after {

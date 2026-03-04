@@ -79,10 +79,6 @@ On macOS 26 and later, you can use the built-in automation triggers in Shortcuts
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Default%20Browser&referrer=Website-FAQ)
-
 #### The app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
@@ -117,8 +113,6 @@ Much of the functionality would not be possible in the App Store because of [san
 #### Can the default browser change based on the macOS desktop Space I’m in? {#macos-spaces}
 
 No. macOS does not expose the active [Space](https://support.apple.com/guide/mac-help/work-in-multiple-spaces-mh14112/mac) to apps, so the app cannot detect or react to it. You can instead automate switching with Focus Filters or Shortcuts (see [tips](#tips)).
-
-#### [More FAQs…](/apps/faq)
 
 ## Scripting
 

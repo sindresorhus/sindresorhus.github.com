@@ -38,13 +38,9 @@ Your shortcuts and data never leave your device. The app is built without intern
 
 - Right-click a time zone to see more info and copy.
 - The +1/−1 indicator shows when a time zone is in a different day.
-- Press <kbd>⌘+</kbd> when the time zone window is open to quickly add a new time zone.
+- Press <kbd>Command+</kbd> when the time zone window is open to quickly add a new time zone.
 
 ## Frequently Asked Questions {#faq}
-
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Zone%20Bar&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
@@ -111,8 +107,6 @@ Sure! Find an icon you like in the [SF Symbols app](https://developer.apple.com/
 - More minimal
 - Flag or emoji icons
 - Custom text size
-
-#### [More FAQs…](/apps/faq)
 
 <!-- ## Older Versions
 

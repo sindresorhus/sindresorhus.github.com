@@ -51,6 +51,7 @@ const appsCollection = defineCollection({
 			'34',
 		])).optional(),
 		requirement: z.string().optional(),
+		downloads: z.number().int().positive().optional(),
 		feedbackNote: z.string().optional(),
 		hasSentry: z.boolean().default(false),
 		pressQuotes: z.array(z.object({

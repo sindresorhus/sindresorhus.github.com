@@ -184,33 +184,29 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 <table>
 	<tr>
 		<td>
-			<kbd>◀</kbd>
-			/
-			<kbd>▶</kbd>
+			<kbd>◀</kbd>/<kbd>▶</kbd>
 		</td>
 		<td>Previous/next day in the calendar</td>
 	</tr>
 	<tr>
 		<td>
-			<kbd>▲</kbd>
-			/
-			<kbd>▼</kbd>
+			<kbd>▲</kbd>/<kbd>▼</kbd>
 		</td>
 		<td>Same day in the previous/next week in the calendar</td>
 	</tr>
 	<tr>
 		<td class="whitespace-nowrap">
-			<kbd>option</kbd> <kbd>◀</kbd>
+			<kbd>option+◀</kbd>
 			<br>
-			<kbd>option</kbd> <kbd>▶</kbd>
+			<kbd>option+▶</kbd>
 		</td>
 		<td>Previous/next month in the calendar</td>
 	</tr>
 	<tr>
 		<td class="whitespace-nowrap">
-			<kbd>shift</kbd> <kbd>option</kbd> <kbd>◀</kbd>
+			<kbd>shift+option+◀</kbd>
 			<br>
-			<kbd>shift</kbd> <kbd>option</kbd> <kbd>▶</kbd>
+			<kbd>shift+option+▶</kbd>
 		</td>
 		<td>Previous/next year in the calendar</td>
 	</tr>
@@ -252,7 +248,7 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 	</tr>
 	<tr>
 		<td>
-			<kbd>command</kbd> <kbd>q</kbd>
+			<kbd>command+q</kbd>
 		</td>
 		<td>Quit the app</td>
 	</tr>
@@ -280,9 +276,9 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 <table>
 	<tr>
 		<td class="whitespace-nowrap">
-			<kbd>command</kbd> <kbd>◀</kbd>
+			<kbd>command+◀</kbd>
 			<br>
-			<kbd>command</kbd> <kbd>▶</kbd>
+			<kbd>command+▶</kbd>
 		</td>
 		<td>Activate time travel and offset it by one step backwards or forwards</td>
 	</tr>
@@ -299,7 +295,7 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 <table>
 	<tr>
 		<td>
-			<kbd>control</kbd> <kbd>tab</kbd>
+			<kbd>control+tab</kbd>
 		</td>
 		<td>Switch between new event and new reminder</td>
 	</tr>
@@ -335,10 +331,6 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 </table>
 
 ## Frequently Asked Questions {#faq}
-
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](/feedback?product=Dato&referrer=Website-FAQ)
 
 #### The app does not show up in the menu bar
 
@@ -395,7 +387,7 @@ Make sure:
 - You have not excluded the event with the “Exclude events” setting.
 - The event shows up in the Calendar app.
 	- If it does not show up there, the problem is not with Dato.
-	- Try pressing <kbd>Command</kbd>+<kbd>R</kbd> in the Calendar app to force-refresh.
+	- Try pressing <kbd>Command+R</kbd> in the Calendar app to force-refresh.
 	- Try signing out and in again of the account in the Calendar app settings. That has helped a few users.
 - [Microsoft Bookings has problems syncing to MacBooks.](https://answers.microsoft.com/en-us/outlook_com/forum/all/bookings-meetings-sync-with-iphone-but-not-with/085530b3-90d2-4792-b0d9-0cc6f52875ba?page=3)
 
@@ -480,7 +472,7 @@ Click the month and year on the top left. You can also press the <kbd>Space</kbd
 
 #### I have hidden the toolbar and now I cannot access settings
 
-Press the <kbd>Option</kbd> key to reveal a button to access settings or press <kbd>Command</kbd>+<kbd>comma</kbd>.
+Press the <kbd>Option</kbd> key to reveal a button to access settings or press <kbd>Command+,</kbd>.
 
 #### How can I add multiple time zones to the menu bar? {#time-zones-menu-bar}
 
@@ -773,8 +765,6 @@ Dato is not just a calendar app, but also includes menu bar clock replacement, t
 #### Why the name “Dato”?
 
 It means “date” in Norwegian. I just wanted a short, unique, and relevant name.
-
-#### [More FAQs…](/apps/faq)
 
 <br>
 <br>

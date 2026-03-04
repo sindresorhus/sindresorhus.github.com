@@ -35,10 +35,6 @@ Known limitation: You cannot cut the name of a file when editing a filename in F
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](/feedback?product=Command%20X&referrer=Website-FAQ)
-
 #### Why? I can already use <kbd>Option+Command+V</kbd>
 
 - It's more logical to cut & paste than copy & move.
@@ -111,8 +107,6 @@ Same as the above.
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

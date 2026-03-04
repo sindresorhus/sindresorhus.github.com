@@ -45,10 +45,6 @@ For example:
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Any%20Text&referrer=Website-FAQ)
-
 #### How do I add the widget?
 
 - [iOS](https://support.apple.com/HT207122)
@@ -158,8 +154,6 @@ If you work at Apple, you know what to do:
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
-
-#### [More FAQs…](/apps/faq)
 
 ## Scripting
 

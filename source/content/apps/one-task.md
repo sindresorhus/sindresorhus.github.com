@@ -45,10 +45,6 @@ For example, on macOS, select the tasks you want in Reminders or Things, right-c
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=One%20Task&referrer=Website-FAQ)
-
 #### How is this different from your [One Thing](/one-thing) app? {#one-thing-difference}
 
 One Thing is a minimalist note app that sits in the menu bar, displaying a single piece of text like a sticky note. In contrast, One Task is a task management tool that lets you queue multiple tasks, check them off upon completion, and view them one at a time, with a strong emphasis on widgets. While both apps share a focus on simplicity, One Thing is designed for quick, single-note access, whereas One Task is geared towards managing multiple tasks with a more structured approach, similar to the difference between the Notes app and Reminders app.
@@ -108,8 +104,6 @@ The text automatically scales down to fit more content.
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

@@ -23,10 +23,6 @@ For macOS, it's only available for Apple silicon Macs.
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Photo%20Widget&referrer=Website-FAQ)
-
 #### The widget does not show up in the widget picker, the widget is stuck, or is missing from the Home Screen
 
 The iOS widget system is quite buggy and can fail a lot. This is not a problem with the app and out of my control. [Try this.](https://webtrickz.com/third-party-lock-screen-widgets-not-showing-ios-16/)
@@ -101,4 +97,3 @@ If you work at Apple, you know what to do:
 
 Apple does not let third-party apps access these albums.
 
-#### [More FAQs…](/apps/faq)

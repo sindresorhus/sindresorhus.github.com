@@ -24,10 +24,6 @@ The app is built without internet permissions (no network entitlement), so macOS
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](/feedback?product=Menu%20Drop&referrer=Website-FAQ)
-
 #### The app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
@@ -55,8 +51,6 @@ No. App Store limits (sandboxing) prevent the app from knowing what you’ve sel
 My [Supercharge](/supercharge) app has a [Finder context menu item](https://www.dropbox.com/scl/fi/gc760wtbraxtgtq3gsrd3/AirDrop-Finder-context-menu-item-Screen-Shot-2025-11-19-at-00.23.31-1763486630.png?rlkey=4qleot753u1cc8xzez26afj0x&raw=1) to send selected files directly to AirDrop.
 
 <!-- My app also has a keyboard shortcut to send the selection to AirDrop -->
-
-#### [More FAQs…](/apps/faq)
 
 ## Older Versions
 

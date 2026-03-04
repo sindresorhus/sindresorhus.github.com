@@ -14,10 +14,6 @@ The app is intentionally simple.
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Doodle%20Draw&referrer=Website-FAQ)
-
 #### I can already access these drawing tools in the Notes and Freeform app
 
 This app makes it faster to get started. Just tap the app and start doodling. It also lets you save or erase more quickly. Great for quick brainstorm sessions.
@@ -54,4 +50,3 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 I don't plan to localize the app.
 
-#### [More FAQs…](/apps/faq)

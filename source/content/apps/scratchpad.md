@@ -109,10 +109,6 @@ url: scratchpad:append?text={popclip text}
 
 ## Frequently Asked Questions {#faq}
 
-#### I have a feature request, bug report, or some feedback
-
-Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Scratchpad&referrer=Website-FAQ)
-
 #### The macOS app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
@@ -208,19 +204,15 @@ Both apps handle plain text only and work on macOS, iOS, and visionOS (Scratchpa
 Scratchpad advantages:
 
 - Simpler, focused design: A single plain text note for minimal distraction.
-- Can float on top of other windows in menu bar mode.
 - iCloud sync is optional. Tot does not have a setting to turn off iCloud sync.
 - More affordable pricing: $8 vs $20 for Tot.
+- Unlimited note size. Tot is limited to 100,000 characters per dot.
 - visionOS support.
-- Unlimited note size. Tot is limited to 100,000 characters.
-- Translucent background on macOS.
 
 Tot advantages:
 
 - Supports 7 notes.
 - Rich-text support.
-
-#### [More FAQs…](/apps/faq)
 
 ## Scripting
 
