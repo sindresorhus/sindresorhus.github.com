@@ -162,5 +162,9 @@ export const fetchApps = async options => {
 export const tagCSS = 'text-[10px] inline-flex items-center font-bold leading-sm px-1.5 text-black/70 dark:text-black rounded-lg';
 
 // `prose-code:before:hidden prose-code:after:hidden`: https://github.com/tailwindlabs/tailwindcss-typography/issues/18#issuecomment-1280797041
-// We add extra spacing between main section using: prose-h3:mt-24
-export const proseCSS = 'container mx-auto px-6 sm:px-6 max-w-4xl prose prose-lg lg:prose-xl dark:prose-invert dark:prose-headings:text-slate-300 prose-headings:font-heading prose-headings:leading-tighter prose-headings:tracking-tighter prose-headings:font-bold prose-img:rounded-md prose-img:shadow-lg mt-8 prose-a:text-black/75 dark:prose-a:text-white/90 prose-a:underline prose-a:underline-offset-4 prose-a:decoration-primary-500 dark:prose-a:decoration-primary-400 prose-a:decoration-2 prose-a:hover:decoration-primary-700 dark:prose-a:hover:decoration-primary-300 prose-a:hover:text-black dark:prose-a:hover:text-white break-words tracking-normal prose-h4:tracking-normal prose-h5:tracking-normal prose-h6:tracking-normal prose-code:before:hidden prose-code:after:hidden prose-h2:mt-24';
+const baseProseCSS = 'mx-auto px-6 sm:px-6 prose prose-lg lg:prose-xl dark:prose-invert dark:prose-headings:text-slate-300 prose-headings:font-heading prose-headings:leading-tighter prose-headings:tracking-tighter prose-headings:font-bold prose-img:rounded-md prose-img:shadow-lg mt-8 prose-a:text-black/75 dark:prose-a:text-white/90 prose-a:underline prose-a:underline-offset-4 prose-a:decoration-primary-500 prose-a:decoration-2 prose-a:hover:text-black dark:prose-a:hover:text-white prose-code:before:hidden prose-code:after:hidden';
+
+// We add extra spacing between main section using: prose-h2:mt-24
+export const proseCSS = `container ${baseProseCSS} max-w-4xl dark:prose-a:decoration-primary-400 prose-a:hover:decoration-primary-700 dark:prose-a:hover:decoration-primary-300 break-words tracking-normal prose-h4:tracking-normal prose-h5:tracking-normal prose-h6:tracking-normal prose-h2:mt-24`;
+
+export const blogProseCSS = `${baseProseCSS} pt-0 pb-20 max-w-3xl prose-md prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-a:hover:decoration-primary-600 prose-a:hover:decoration-4`;

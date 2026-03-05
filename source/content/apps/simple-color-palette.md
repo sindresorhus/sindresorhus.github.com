@@ -7,8 +7,8 @@ platforms:
   - iOS
   - visionOS
 appStoreId: 6744484427
-# olderMacOSVersions:
-#   - '15'
+olderMacOSVersions:
+  - '15'
 ---
 
 View, create, and edit color palettes in the [Simple Color Palette](https://github.com/simple-color-palette) format.
@@ -32,7 +32,6 @@ A color palette is a collection of colors with optional names, essential for des
 - iCloud sync (by storing in iCloud Drive)
 - Shortcuts app integration
 - Native app
-- Less than 3 MB
 
 ## Tips
 
@@ -124,14 +123,14 @@ Just open both palettes and move the windows next to each other.
 
 No, only flat colors are supported.
 
-<!-- ## Older Versions
+## Older Versions
 
-- []() for macOS 15+ -->
+- [1.2.0](https://www.dropbox.com/scl/fi/pn0p37paa3no0izdnmo0g/Simple-Color-Palette-1.2.0-macOS-15-1772815829.zip?rlkey=lnt9co9xdb2b9n6bn9rao9pux&raw=1) for macOS 15+
 
 ## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/6kc3f73j2msm9sygpibnq/Simple-Color-Palette-1.0.1-1744738760.zip?rlkey=9gbm58b8hy23m6rde40a7bomy&raw=1) *(1.0.1)*
+[Download](https://www.dropbox.com/scl/fi/z9kdudx71b6zkryxdm6oy/Simple-Color-Palette-1.3.0-1772815584.zip?rlkey=z36l3zkwsy4zx0dq9jv4zg9lo&raw=1) *(1.3.0)*
 
-*Requires macOS 15 or later*
+*Requires macOS 26 or later*

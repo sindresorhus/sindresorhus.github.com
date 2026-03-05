@@ -655,6 +655,14 @@ If you notice the cog icon when opening a URL with an app, I recommend sending f
 
 *You can optionally drop the `http` item if your app does not need to support that.*
 
+#### The Fn/Globe modifier key is not detected on my external keyboard {#fn-key-not-detected}
+
+Some third-party keyboards (e.g. Nuphy Air75) have a firmware issue where the Fn/Globe key-down event is only sent to macOS when the key is released, not when pressed. This means macOS cannot see the key as held down, so Velja cannot detect it.
+
+You can verify this with the [Key Codes](https://apps.apple.com/app/id414568915) app: enable “log key up events and modifier changes”, then press and hold the Globe key. On an affected keyboard, nothing appears until you release the key.
+
+This is a keyboard firmware problem. Contact the keyboard manufacturer about it. As a workaround, use a different modifier key (like Option) for the alternative browser trigger. Click the `(?)` button in the Velja settings.
+
 #### What does “Velja” mean?
 
 It means [“to choose”](https://en.wiktionary.org/wiki/velja) in [Old Norse](https://www.discovermagazine.com/planet-earth/what-language-did-the-vikings-speak) (also Icelandic and Faroese). Hence the Viking hat.

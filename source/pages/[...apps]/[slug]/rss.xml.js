@@ -1,45 +1,15 @@
 import rss from '@astrojs/rss';
 import sanitizeHtml from 'sanitize-html';
-import MarkdownIt from 'markdown-it';
-import {fetchApps} from '~/utils/apps.js';
+import {fetchFilteredReleases, releaseNotesMarkdownParser as parser} from '~/utils/utils.js';
 
-const parser = new MarkdownIt({
-	html: true,
-	linkify: true,
-	typographer: true,
-});
-
-export async function getStaticPaths() {
-	const apps = await fetchApps({includeUnlisted: true});
-
-	return apps
-		.filter(app => app.releasesRepo)
-		.map(app => ({
-			params: {
-				slug: app.slug,
-			},
-			props: {
-				app,
-			},
-		}));
-}
+export {getReleaseNotesStaticPaths as getStaticPaths} from '~/utils/utils.js';
 
 export async function GET(context) {
 	const {app} = context.props;
 	const {title: appTitle, releasesRepo} = app;
 
-	const response = await fetch(`https://api.github.com/repos/sindresorhus/${releasesRepo}/releases`, {
-		headers: {
-			Accept: 'application/vnd.github.v3+json',
-			...(import.meta.env.GITHUB_TOKEN ? {
-				Authorization: `token ${import.meta.env.GITHUB_TOKEN}`,
-			} : {}),
-		},
-	});
-
-	let releases = await response.json();
-
-	releases = releases.filter(release => release.tag_name !== 'v1.0.0' && !release.draft && !release.prerelease);
+	const allReleases = await fetchFilteredReleases(releasesRepo);
+	const releases = allReleases.filter(release => release.tag_name !== 'v1.0.0');
 
 	return rss({
 		title: `${appTitle} Release Notes`,

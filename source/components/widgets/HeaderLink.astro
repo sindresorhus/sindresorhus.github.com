@@ -1,8 +1,9 @@
 ---
-const {href, class: className, ...properties} = Astro.props;
-const {pathname} = Astro.url;
+import {cleanPathname} from '~/utils/utils.js';
 
-const currentPath = pathname.slice(1).replace(/\.\w+$/, ''); // Remove the first `/` and file extension.
+const {href, class: className, ...properties} = Astro.props;
+
+const currentPath = cleanPathname(Astro.url.pathname);
 const isActive = currentPath.startsWith(href.replace(/^\//, ''));
 
 const activeClass = 'underline underline-offset-[7px] decoration-[3px] decoration-secondary-500';

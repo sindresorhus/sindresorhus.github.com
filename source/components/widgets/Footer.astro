@@ -1,5 +1,6 @@
 ---
 import {Icon} from 'astro-iconify';
+import {iconLinkCSS} from '~/utils/utils.js';
 ---
 
 <footer class="border-t border-gray-200 dark:border-slate-800" data-nosnippet>
@@ -11,7 +12,7 @@ import {Icon} from 'astro-iconify';
 						href="https://x.com/sindresorhus"
 						rel="me"
 						aria-label="X (Twitter)"
-						class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center"
+						class={iconLinkCSS}
 					>
 						<Icon name="tabler:brand-x" class="w-5 h-5"/>
 					</a>
@@ -21,7 +22,7 @@ import {Icon} from 'astro-iconify';
 						href="https://mastodon.social/@sindresorhus"
 						rel="me"
 						aria-label="Mastodon"
-						class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center"
+						class={iconLinkCSS}
 					>
 						<Icon name="tabler:brand-mastodon" class="w-5 h-5"/>
 					</a>
@@ -31,7 +32,7 @@ import {Icon} from 'astro-iconify';
 						href="https://bsky.app/profile/sindresorhus.com"
 						rel="me"
 						aria-label="Bluesky"
-						class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center"
+						class={iconLinkCSS}
 					>
 						<Icon name="tabler:brand-bluesky" class="w-5 h-5"/>
 					</a>
@@ -41,7 +42,7 @@ import {Icon} from 'astro-iconify';
 						href="https://instagram.com/sindresorhus"
 						rel="me"
 						aria-label="Instagram"
-						class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center"
+						class={iconLinkCSS}
 					>
 						<Icon name="tabler:brand-instagram" class="w-5 h-5"/>
 					</a>
@@ -51,14 +52,14 @@ import {Icon} from 'astro-iconify';
 						href="https://unsplash.com/@sindresorhus"
 						rel="me"
 						aria-label="Unsplash"
-						class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center"
+						class={iconLinkCSS}
 					>
 						<Icon name="tabler:brand-unsplash" class="w-5 h-5"/>
 					</a>
 				</li>
 				<li>
 					<a
-						class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center"
+						class={iconLinkCSS}
 						aria-label="GitHub"
 						href="https://github.com/sindresorhus"
 					>

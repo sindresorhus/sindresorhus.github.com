@@ -2,9 +2,9 @@
 import {Icon} from 'astro-iconify';
 import HeaderLink from './HeaderLink.astro';
 import ToggleMenu from '~/components/core/ToggleMenu.astro';
+import {cleanPathname, iconLinkCSS} from '~/utils/utils.js';
 
-const {pathname} = Astro.url;
-const currentPath = pathname.slice(1).replace(/\.\w+$/, ''); // Remove the first `/` and file extension.
+const currentPath = cleanPathname(Astro.url.pathname);
 ---
 
 <style is:inline>
@@ -19,7 +19,7 @@ html {
 			<a class="flex items-center" href="/">
 				<span class="self-center ml-2 text-2xl font-extrabold text-gray-900 whitespace-nowrap dark:text-white">
 					{currentPath === ''
-						? '🦄' // TODO
+						? '🦄'
 						: 'Sindre Sorhus'
 					}
 				</span>
@@ -50,14 +50,14 @@ html {
 					<a
 						href="/feeds"
 						aria-label="RSS Feeds"
-						class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center"
+						class={iconLinkCSS}
 					>
 						<Icon name="tabler:rss" class="w-5 h-5"/>
 					</a>
 					<a
 						href="/contact"
 						aria-label="Contact"
-						class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center"
+						class={iconLinkCSS}
 					>
 						<Icon name="tabler:mail" class="w-5 h-5"/>
 					</a>

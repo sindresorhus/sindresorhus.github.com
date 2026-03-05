@@ -2,6 +2,7 @@
 /// import {ClientRouter} from 'astro:transitions';
 import {AstroSeo} from '@astrolib/seo';
 import {SITE} from '~/config.mjs';
+import {cleanPathname} from '~/utils/utils.js';
 
 const {
 	title = SITE.name,
@@ -17,7 +18,7 @@ const {
 } = Astro.props;
 
 const image = _image && new URL(_image, Astro.site);
-const canonicalURL = new URL(Astro.url.pathname.replace(/\.html$/, ''), Astro.site);
+const canonicalURL = new URL(`/${cleanPathname(Astro.url.pathname)}`, Astro.site);
 ---
 
 <meta charset="utf-8">

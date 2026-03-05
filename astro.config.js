@@ -1,3 +1,7 @@
+import process from 'node:process';
+import fs from 'node:fs';
+import https from 'node:https';
+import tls from 'node:tls';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {defineConfig} from 'astro/config';
@@ -38,6 +42,57 @@ globalThis.fetch = async (input, init) => {
 
 	return originalFetch(input, init);
 };
+
+/*
+Work around Socket Firewall (sfw) breaking fetch() during builds.
+sfw sets NODE_EXTRA_CA_CERTS for its MITM proxy CA, but Node's built-in
+fetch (undici) does not pick it up when the env var is set after startup.
+We fall back to node:https (which supports explicit CA) for HTTPS requests.
+*/
+{
+	const certPath = process.env.NODE_EXTRA_CA_CERTS;
+	const cert = certPath && fs.existsSync(certPath)
+		? fs.readFileSync(certPath, 'utf8')
+		: undefined;
+
+	if (cert) {
+		const ca = [...tls.rootCertificates, cert];
+		const previousFetch = globalThis.fetch;
+
+		globalThis.fetch = async (input, init) => {
+			const url = typeof input === 'string' ? input : (input instanceof URL ? input.href : input.url);
+
+			if (!url?.startsWith('https://')) {
+				return previousFetch(input, init);
+			}
+
+			return new Promise((resolve, reject) => {
+				const parsedUrl = new URL(url);
+				const agent = new https.Agent({ca});
+				const request = https.get({
+					hostname: parsedUrl.hostname,
+					path: parsedUrl.pathname + parsedUrl.search,
+					headers: {
+						'User-Agent': 'node',
+						...Object.fromEntries(new Headers(init?.headers).entries()),
+					},
+					agent,
+				}, response => {
+					const chunks = [];
+					response.on('data', chunk => chunks.push(chunk));
+					response.on('end', () => {
+						resolve(new Response(Buffer.concat(chunks).toString(), {
+							status: response.statusCode,
+							headers: response.headers,
+						}));
+						agent.destroy();
+					});
+				});
+				request.on('error', reject);
+			});
+		};
+	}
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

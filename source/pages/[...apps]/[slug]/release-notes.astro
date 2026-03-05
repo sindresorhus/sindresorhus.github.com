@@ -1,47 +1,14 @@
 ---
 import {Icon} from 'astro-iconify';
-import MarkdownIt from 'markdown-it';
 import Layout from '~/layouts/SimplePageLayout.astro';
-import {fetchApps} from '~/utils/apps.js';
+import {fetchFilteredReleases, releaseNotesMarkdownParser as parser, iconLinkCSS} from '~/utils/utils.js';
 
-const parser = new MarkdownIt({
-	html: true,
-	linkify: true,
-	typographer: true,
-});
-
-// TODO: Deduplicate between here and RSS.
-
-export async function getStaticPaths() {
-	const apps = await fetchApps({includeUnlisted: true});
-
-	return apps
-		.filter(app => app.releasesRepo)
-		.map(app => ({
-			params: {
-				slug: app.slug,
-			},
-			props: {
-				app,
-			},
-		}));
-}
+export {getReleaseNotesStaticPaths as getStaticPaths} from '~/utils/utils.js';
 
 const {app} = Astro.props;
 const {title: appTitle, slug, releasesRepo} = app;
 
-const response = await fetch(`https://api.github.com/repos/sindresorhus/${releasesRepo}/releases`, {
-	headers: {
-		Accept: 'application/vnd.github.v3+json',
-		...(import.meta.env.GITHUB_TOKEN ? {
-			Authorization: `token ${import.meta.env.GITHUB_TOKEN}`,
-		} : {}),
-	},
-});
-
-let releases = await response.json();
-
-releases = releases.filter(release => !release.draft && !release.prerelease);
+const releases = await fetchFilteredReleases(releasesRepo);
 
 const meta = {
 	title: `Release Notes — ${appTitle}`,
@@ -64,7 +31,7 @@ const meta = {
 				href={`/${slug}/rss.xml`}
 				title="RSS feed for release notes"
 				aria-label={`${appTitle} Release Notes RSS Feed`}
-				class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center"
+				class={iconLinkCSS}
 			>
 				<Icon name="tabler:rss" class="w-4 h-4"/>
 			</a>

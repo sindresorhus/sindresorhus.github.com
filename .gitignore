@@ -5,3 +5,4 @@ yarn.lock
 *.sublime-project
 *.sublime-workspace
 .astro
+.cache

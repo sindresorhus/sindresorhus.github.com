@@ -1,10 +1,8 @@
 import rss from '@astrojs/rss';
-import ky from 'ky';
+import {githubApi} from '~/utils/utils.js';
 
 const fetchRepos = async () => {
-	const GITHUB_USERNAME = 'sindresorhus';
-	const GITHUB_API_URL = `https://api.github.com/users/${GITHUB_USERNAME}/repos?type=owner&sort=created&per_page=20`;
-	const repos = await ky(GITHUB_API_URL).json();
+	const repos = await githubApi('users/sindresorhus/repos?type=owner&sort=created&per_page=20');
 	return repos.filter(repo => !repo.archived && !repo.fork);
 };
 

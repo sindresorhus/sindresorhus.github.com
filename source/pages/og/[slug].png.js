@@ -1,30 +1,66 @@
-import {readFileSync} from 'node:fs';
-import path from 'node:path';
 import process from 'node:process';
+import fs from 'node:fs';
+import {createHash} from 'node:crypto';
+import path from 'node:path';
 import satori from 'satori';
 import {Resvg} from '@resvg/resvg-js';
 import {fetchApps} from '~/utils/apps.js';
 
-// Load fonts once at module level (shared across all static paths in the same build)
-// satori uses opentype.js which supports WOFF but not WOFF2
-const interRegular = readFileSync(path.join(process.cwd(), 'node_modules/@fontsource/inter/files/inter-latin-400-normal.woff'));
-const interBold = readFileSync(path.join(process.cwd(), 'node_modules/@fontsource/inter/files/inter-latin-700-normal.woff'));
+// Bump when changing the OG image template to invalidate the cache.
+const TEMPLATE_VERSION = '1';
 
-export const getStaticPaths = async () => {
-	const apps = await fetchApps({includeArchived: true, includeUnlisted: true});
-	return apps.map(app => ({
-		params: {slug: app.slug},
-		props: {app},
-	}));
-};
+const rootDirectory = process.cwd();
 
-export const GET = async ({props}) => {
-	const {app} = props;
+// Satori uses opentype.js which supports WOFF but not WOFF2
+const interRegular = fs.readFileSync(path.join(rootDirectory, 'node_modules/@fontsource/inter/files/inter-latin-400-normal.woff'));
+const interBold = fs.readFileSync(path.join(rootDirectory, 'node_modules/@fontsource/inter/files/inter-latin-700-normal.woff'));
+
+const fonts = [
+	{
+		name: 'Inter', data: interRegular, weight: 400, style: 'normal',
+	},
+	{
+		name: 'Inter', data: interBold, weight: 700, style: 'normal',
+	},
+];
+
+const cacheDirectory = path.join(rootDirectory, '.cache', 'og');
+fs.mkdirSync(cacheDirectory, {recursive: true});
+
+async function generateOgImage(app) {
+	const iconPath = path.join(rootDirectory, 'public', app.iconUrl.slice(1));
+
+	let iconMtime = '';
+	try {
+		iconMtime = fs.statSync(iconPath).mtimeMs.toString();
+	} catch (error) {
+		if (error.code !== 'ENOENT') {
+			throw error;
+		}
+	}
+
+	const hash = createHash('md5')
+		.update(TEMPLATE_VERSION)
+		.update(app.title)
+		.update(app.subtitle ?? '')
+		.update(iconMtime)
+		.digest('hex');
+
+	const cachePath = path.join(cacheDirectory, `${hash}.png`);
+
+	// Return cached version if available.
+	try {
+		return fs.readFileSync(cachePath);
+	} catch (error) {
+		if (error.code !== 'ENOENT') {
+			throw error;
+		}
+	}
 
 	// Load icon as base64 data URL
 	let iconDataUrl = '';
 	try {
-		const iconBuffer = readFileSync(path.join(process.cwd(), 'public', app.iconUrl.slice(1)));
+		const iconBuffer = fs.readFileSync(iconPath);
 		iconDataUrl = `data:image/png;base64,${iconBuffer.toString('base64')}`;
 	} catch (error) {
 		if (error.code !== 'ENOENT') {
@@ -112,20 +148,27 @@ export const GET = async ({props}) => {
 		},
 	};
 
-	const svg = await satori(element, {
-		width: 1200,
-		height: 630,
-		fonts: [
-			{
-				name: 'Inter', data: interRegular, weight: 400, style: 'normal',
-			},
-			{
-				name: 'Inter', data: interBold, weight: 700, style: 'normal',
-			},
-		],
-	});
+	const svg = await satori(element, {width: 1200, height: 630, fonts});
+	const png = new Resvg(svg).render().asPng();
 
-	return new Response(new Resvg(svg).render().asPng(), {
+	fs.writeFileSync(cachePath, png);
+
+	return png;
+}
+
+export async function getStaticPaths() {
+	const apps = await fetchApps({includeArchived: true, includeUnlisted: true});
+
+	return Promise.all(
+		apps.map(async app => ({
+			params: {slug: app.slug},
+			props: {png: await generateOgImage(app)},
+		})),
+	);
+}
+
+export async function GET({props}) {
+	return new Response(props.png, {
 		headers: {'Content-Type': 'image/png'},
 	});
-};
+}
