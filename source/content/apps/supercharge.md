@@ -120,13 +120,21 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 - Launch alternative app when clicking Finder icon in the Dock (e.g., Bloom, QSpace, Path Finder).
 - Auto-dismiss Shortcuts “Running your automation” notifications
 	<span class="list-description">Automatically dismisses the “Running your automation” notifications that appear when running Shortcuts automations.</span>
+- Play a sound when a specified keyboard shortcut is triggered
+	<span class="list-description">Works for keyboard shortcuts handled by other apps, without changing how that shortcut behaves. Useful to add some fun sounds to your favorite keyboard shortcuts.</span>
 - Finder: Move files by cutting[^commandx] (<kbd>Command+X</kbd>) and pasting (<kbd>Command+V</kbd>)
 - Finder: Open files with <kbd>Return</kbd> (you can then rename with <kbd>Shift+Return</kbd> or <kbd>F2</kbd>)
+- Finder: Reopen last closed tab with <kbd>⇧⌘T</kbd>
+	<span class="list-description">Works for tabs closed with <kbd>⌘W</kbd>. Similar to “Reopen Closed Tab” in browsers.</span>
 - Finder: Create new text file with <kbd>Option+N</kbd> *([video](https://github.com/user-attachments/assets/cb2c4606-12eb-4915-a64c-9b8ac3e123cf))* or from the [context menu](#finder-context-menu)
 	<span class="list-description">Set default extension, auto-open after naming, and choose app.</span>
 - Finder: Move files to the trash with <kbd>⌫</kbd> (Delete) instead of <kbd>⌘⌫</kbd>
 - Finder: Go back to the previous folder with <kbd>⌫</kbd> (Delete)
+	<span class="list-description">This has a bonus feature of highlighting the folder you came from.</span>
 - [Finder: Adds many useful actions to the context menu:](#finder-context-menu) copy path, move to, open folder with, AirDrop, folder colors, etc.
+- Finder: Paste copied image as file with <kbd>⌘V</kbd>
+	<span class="list-description">When the clipboard contains an image (for example from a browser), pressing <kbd>⌘V</kbd> in Finder/Desktop creates a real image file in the current folder. Normally, this would do nothing as Finder can only paste files.</span>
+- Finder: Middle-click sidebar items to open in a new tab *(macOS 26 only)*
 - Finder: Auto-adjust column widths to filenames in column view, or do it once with a keyboard shortcut
 	- Known (unfixable) issues:
 		- Columns may not adjust correctly in synced folders due to sync status icons.
@@ -163,6 +171,8 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 	<span class="list-description">By default, it only shows output devices.</span>
 - Archive old items in the Downloads folder automatically
 	<span class="list-description">Keeps your Downloads folder tidy by moving older items to a separate location based on when they were added.</span>
+- Archive old screenshots automatically
+	<span class="list-description">Keeps your screenshots folder tidy by moving old screenshots to a separate location. Works with third-party screenshot apps too.</span>
 - [Mail: Copy message link](#mail-copy-message-link)
 - [Notes: Copy note link](#notes-copy-note-link)
 - Safari: Use <kbd>Delete</kbd> and <kbd>Shift+Delete</kbd> to navigate back and forward
@@ -228,7 +238,10 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 	<span class="list-description">Useful to prevent accidental activation if you don't use the app switcher.</span>
 - Remove Caps Lock activation delay
 	<span class="list-description">Makes Caps Lock respond instantly.</span>
+- Prevent text clippings by disabling text dragging
 - TextEdit: Open a blank document instead of file picker on launch
+- Disable [Universal Clipboard](https://support.apple.com/en-us/102430) without disabling [Handoff](https://support.apple.com/en-us/102426)
+	<span class="list-description">Useful if clipboard syncing feels slow or annoying.</span>
 - Override Maps app language
 	<span class="list-description">macOS doesn't allow changing the Maps app language in System Settings. This fixes that. Useful when search doesn't work well with your system language.</span>
 - Reset [privacy permissions](https://support.apple.com/en-vn/guide/mac-help/mchl211c911f/mac) for any apps
@@ -444,7 +457,7 @@ Adds the following actions (can be customized) directly in the right-click menu 
 - AirDrop
 	<span class="list-description">Shares files via AirDrop.</span>
 - Email
-	<span class="list-description">Creates a new email message in the default email app with the selected files as attachments. Works with Mail, Outlook, Spark, Mimestream, Airmail, Canary Mail, and maybe other apps. Not Thunderbird.</span>
+	<span class="list-description">Creates a new email message in the default email app with the selected files as attachments. Works with Mail, Outlook, Spark, Mimestream, Airmail, Canary Mail, eM Client, and maybe other apps. Not Thunderbird.</span>
 - Run Shortcut
 	<span class="list-description">Shares files with a shortcut from the Shortcuts app.</span>
 - Update Modified Date
@@ -634,6 +647,8 @@ When you are in the Notes app, you can [open the Supercharge menu](https://githu
 
 Enhances Mission Control by letting you close windows or quit apps by right-clicking the hovered window and use keyboard shortcuts (⌘W, ⌘Q, ⌘H, ⌘M) on the window you are hovering over. This makes window management more efficient as you don't have to exit Mission Control to perform these actions. [Example](https://github.com/user-attachments/assets/23c71431-4d3b-4913-b484-3a3f0b7b2b07)
 
+You can also navigate windows with arrow keys.
+
 Why not add an “X” overlay button on previews? Because right-click is faster and easier: you can click anywhere on the preview instead of hunting a tiny target. It keeps Mission Control visually clean, reduces misclicks, and avoids fighting its animations.
 
 #### Dock folder click behavior {#dock-folder-click}
@@ -695,7 +710,7 @@ Make macOS feel less foreign — and more powerful.
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/rv0715y7qt857ssj37vj5/Supercharge-1.26.0-trial-1772355869.zip?rlkey=gn1clqykv201cb10o8inongpf&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/mnu1af9kk8qijy2szeewa/Supercharge-1.26.1-trial-1772872331.zip?rlkey=2pl2ngvb28imj7qnnsfw72svq&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
@@ -897,6 +912,10 @@ This is already supported natively. See the “File › New Folder with Selectio
 #### Can the app support clearing clipboard formatting? {#pure-paste}
 
 Check out my [Pure Paste](/pure-paste) app for this. I think it makes more sense as a separate app.
+
+#### Can it play a sound when pressing one of the keyboard shortcuts?
+
+Use the “Play a sound when a specified keyboard shortcut is triggered” feature in the “Shortcuts”. Set it to the same shortcut to get audible feedback without changing how the shortcut behaves.
 
 #### How can I copy the original text in the translate popover?
 

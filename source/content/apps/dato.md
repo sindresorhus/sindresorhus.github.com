@@ -136,7 +136,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/i1lfd9qf3ovzislxtbv6n/Dato-5.7.1-trial-1771400041.zip?rlkey=fjpo2lo3jid5bw5acnmqp11z9&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/7202xt4ctcndv3mln3qz1/Dato-5.7.2-trial-1772863857.zip?rlkey=137ou1l0182qpleurvnlylbrn&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 

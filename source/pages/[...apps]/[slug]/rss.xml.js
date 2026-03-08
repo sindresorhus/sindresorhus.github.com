@@ -21,7 +21,7 @@ export async function GET(context) {
 			return {
 				title: version,
 				pubDate: new Date(release.published_at),
-				content: sanitizeHtml(parser.render(release.body), {
+				content: sanitizeHtml(parser.render(release.body ?? ''), {
 					allowedTags: sanitizeHtml.defaults.allowedTags,
 				}),
 				link: `${app.url}/release-notes#${version}`,
