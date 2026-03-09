@@ -14,7 +14,7 @@ olderMacOSVersions:
   - '15'
 ---
 
-Simply describe the image you desire, and the app will generate it for you like magic!
+Simply describe the image you desire, and the app will generate it for you!
 
 It runs locally on your device.
 

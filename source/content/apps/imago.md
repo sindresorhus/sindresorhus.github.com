@@ -2,7 +2,7 @@
 isUnlisted: true # TODO
 title: Imago
 subtitle: Generate images from text using Flux 2
-pubDate: 2026-01-24 # TODO
+pubDate: 2026-03-10 # TODO
 platforms:
   - macOS
 appStoreId: 6758187147
@@ -13,16 +13,14 @@ hasSentry: true
 
 Simply describe the image you desire, and the app will generate it for you like magic!
 
-It runs locally on your device.
+It runs locally on your device. It uses the FLUX.2 [klein] 4B model.
 
-> [!WARNING]
-> Requires an Apple silicon Mac (no Intel), minimum 16 GB RAM, and xGB free disk space.
-
-Developed exclusively for Apple silicon - The app is NOT compatible with devices running on Intel chips.
+> [!IMPORTANT]
+> Requires an Apple silicon Mac (no Intel), minimum 16 GB RAM, and 20 GB free disk space.
 
 <!-- On iOS, it requires at minimum an iPhone 15 Pro or iPad with an M1 processor. -->
 
-[Flux 2](https://en.wikipedia.org/wiki/Flux_(text-to-image_model)) is a deep learning, text-to-image model used to generate detailed images conditioned on text descriptions.
+[Flux](https://en.wikipedia.org/wiki/Flux_(text-to-image_model)) is a deep learning, text-to-image model used to generate detailed images conditioned on text descriptions.
 
 ## Tips
 
@@ -62,7 +60,7 @@ No. iOS devices don't have enough RAM.
 
 #### What are the usage restrictions for the generated images?
 
-You can use the images for commercial or non-commercial purposes, but you must follow the usage restrictions defined for [FLUX.2](https://huggingface.co/black-forest-labs/FLUX.2-klein-4B). These include not using the images for illegal activities, deception or misinformation, harassment, discrimination, exploitation or abuse (including of minors), misuse of personal data, non-consensual imagery, or other harmful uses.
+You can use the images for commercial or non-commercial purposes, but you must follow the usage restrictions defined for [FLUX.2](https://huggingface.co/black-forest-labs/FLUX.2-klein-4B). These include not using the images for illegal activities, deception or misinformation, harassment, discrimination, exploitation or abuse, misuse of personal data, non-consensual imagery, or other harmful uses.
 
 #### Can you support custom models?
 

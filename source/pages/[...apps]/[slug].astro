@@ -160,12 +160,12 @@ const tagClass = tagCSS;
 				<section id="app-media" class="px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide" aria-label="App media">
 					{app.videos.map(video => (
 						<div class="snap-center shrink-0 w-[85vw] md:w-full md:flex md:justify-center">
-							<video src={video} autoplay loop muted playsinline preload="metadata" aria-label={`${app.title} demo video`} class="rounded-md shadow-lg w-full md:h-[640px] md:w-auto md:max-w-full"/>
+							<video src={video} autoplay loop muted playsinline preload="metadata" aria-label={`${app.title} demo video`} class="rounded-md shadow-lg w-full md:max-h-[640px] md:w-auto md:max-w-full"/>
 						</div>
 					))}
 					{app.screenshots.map((screenshot, index) => (
 						<div class="snap-center shrink-0 w-[85vw] md:w-full md:flex md:justify-center">
-							<img src={screenshot.src} width={screenshot.width} height={screenshot.height} alt={`${app.title} screenshot ${index + 1}`} loading="lazy" class="rounded-md shadow-lg w-full md:h-[640px] md:w-auto md:max-w-full">
+							<img src={screenshot.src} width={screenshot.width} height={screenshot.height} alt={`${app.title} screenshot ${index + 1}`} loading="lazy" class="rounded-md shadow-lg w-full md:max-h-[640px] md:w-auto md:max-w-full">
 						</div>
 					))}
 				</section>

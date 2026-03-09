@@ -256,7 +256,15 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 				`Locale: ${navigator.language}`,
 				`Languages: ${navigator.languages.join(', ')}`,
 				navigator.deviceMemory && `Device memory: ${navigator.deviceMemory} GB`,
-				document.referrer && `Referrer: ${document.referrer}`,
+				document.referrer && `Referrer: ${(() => {
+					try {
+						const url = new URL(document.referrer);
+						if (url.hostname === 'sindresorhus.com' || url.hostname === 'www.sindresorhus.com') {
+							return url.pathname + url.search + url.hash;
+						}
+					} catch {}
+					return document.referrer;
+				})()}`,
 			].filter(Boolean).join('\n');
 
 			form.append($('<input type="hidden" name="metadata">').val(metadata));
