@@ -262,11 +262,11 @@ subprocess.run(['open', '--background', 'plash:reload'])
 
 ## Older Versions
 
-- [2.15.0](https://github.com/user-attachments/files/18840646/Plash.2.15.0.-.macOS.14.zip) for macOS 14+
-- [2.14.1](https://github.com/sindresorhus/Plash/releases/download/v2.14.1/Plash.2.14.1.-.macOS.13.zip) for macOS 13+
-- [2.12.1](https://github.com/sindresorhus/Plash/releases/download/v2.12.1/Plash.2.12.1.-.macOS.12.zip) for macOS 12+
-- [2.10.1](https://github.com/sindresorhus/Plash/releases/download/v2.10.1/Plash.2.10.1.-.macOS.11.zip) for macOS 11+
-- [2.1.0](https://github.com/sindresorhus/Plash/releases/download/v2.1.0/Plash.2.1.1.-.macOS.10.15.zip) for macOS 10.15+
+- [2.15.0](https://github.com/sindresorhus/Plash/releases/download/older-releases/Plash.2.15.0.-.macOS.14.zip) for macOS 14+
+- [2.14.1](https://github.com/sindresorhus/Plash/releases/download/older-releases/Plash.2.14.1.-.macOS.13.zip) for macOS 13+
+- [2.12.1](https://github.com/sindresorhus/Plash/releases/download/older-releases/Plash.2.12.1.-.macOS.12.zip) for macOS 12+
+- [2.10.1](https://github.com/sindresorhus/Plash/releases/download/older-releases/Plash.2.10.1.-.macOS.11.zip) for macOS 11+
+- [2.1.1](https://github.com/sindresorhus/Plash/releases/download/older-releases/Plash.2.1.1.-.macOS.10.15.zip) for macOS 10.15+
 
 ## Non-App Store Version
 
