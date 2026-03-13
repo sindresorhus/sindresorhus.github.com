@@ -187,6 +187,10 @@ You can show the `…` menu item again by pressing the <kbd>Option</kbd> key.
 - Limit the number of items shown in the menu.
 - Shortcuts support.
 
+#### Can I add shortcuts or scripts to the menu? {#short-run}
+
+The app is for folders only. However, I have an app for exactly this: [Short Run](/short-run), which lets you run shortcuts from the menu bar.
+
 #### How can I export, import, sync, or back up the settings?
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)

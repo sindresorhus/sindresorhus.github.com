@@ -300,14 +300,15 @@ Known apps where Velja cannot reliably identify the source:
 - Terminal apps
 - AWS VPN Client
 
-<a id="custom-rule-problem"></a>
-**My custom rule did not work**
+#### Why is my custom rule not matching? {#custom-rule-problem}
 
-Make sure it's none of the above cases. Also make sure you have added a “Sample URL” to the rule to confirm your match pattern is correct.
-
-Some apps use a redirect URL for tracking purposes. Velja has built-in support for a lot of redirect services and it also tries to resolve URLs to their final destination. However, some redirects cannot be resolved by Velja. This is the case with some links clicked in Slack as they require the login token to be able to redirect. There is unfortunately nothing I can do about that.
+Make sure you have added a “Sample URL” to the rule to confirm your match pattern is correct.
 
 See [this](#debug) for how to debug what URLs Velja receives.
+
+If your rule uses a “source app” condition, make sure Velja correctly identifies the source app (see the FAQ entry on that). If the link is a short URL, make sure the "Expand short URLs" setting is enabled.
+
+Some apps use a redirect URL for tracking purposes. Velja has built-in support for a lot of redirect services and it also tries to resolve URLs to their final destination. However, some redirects cannot be resolved by Velja. This is the case with some links clicked in Slack as they require the login token to be able to redirect. There is unfortunately nothing I can do about that.
 
 If the redirect URL contains the destination URL (usually in a search parameter), contact me and I will add support for it.
 
