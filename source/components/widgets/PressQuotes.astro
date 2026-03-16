@@ -5,9 +5,19 @@ const isOdd = quotes.length % 2 === 1;
 
 <aside class="mx-auto px-6 max-w-3xl mt-28 mb-24">
 	<div class={`grid gap-x-16 gap-y-20 ${quotes.length > 1 ? 'sm:grid-cols-2' : ''}`}>
-		{quotes.map(({quote, source, url}, index) => (
+		{quotes.map(({quote, source, url, isStarRating}, index) => (
 			<blockquote class={`flex flex-col items-center text-center h-full justify-between ${isOdd && index === quotes.length - 1 ? 'sm:col-span-2 sm:max-w-md sm:mx-auto' : ''}`}>
-				<span class="text-7xl leading-none text-primary-400 dark:text-primary-500 select-none" aria-hidden="true">&ldquo;</span>
+				{isStarRating ? (
+					<div class="flex gap-0.5 mb-4" aria-label="5 out of 5 stars">
+						{Array.from({length: 5}).map(() => (
+							<svg class="w-5 h-5 text-[#FF9500]" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+								<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+							</svg>
+						))}
+					</div>
+				) : (
+					<span class="text-7xl leading-none text-primary-400 dark:text-primary-500 select-none" aria-hidden="true">&ldquo;</span>
+				)}
 				<p class="mt-0 text-lg italic text-gray-600 dark:text-gray-300 leading-relaxed">
 					{quote}
 				</p>

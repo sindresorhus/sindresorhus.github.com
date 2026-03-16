@@ -209,16 +209,30 @@ const {meta = {}} = Astro.props;
 						// Open details matching URL hash
 						const openDetailsForHash = () => {
 							if (!location.hash) {
-								return;
+								return null;
 							}
 
 							const target = document.querySelector(location.hash);
 							const details = target?.closest('details') ?? (target?.tagName === 'DETAILS' ? target : null);
 							details?.setAttribute('open', '');
+							return target;
 						};
 
-						openDetailsForHash();
-						window.addEventListener('hashchange', openDetailsForHash);
+						const initialTarget = openDetailsForHash();
+
+						// The FAQ DOM transformation changes element positions, so the browser's scroll-to-hash lands at the wrong spot.
+						// Wait for the browser's scroll to finish, then re-scroll. The setTimeout avoids a Safari paint glitch.
+						if (initialTarget) {
+							window.addEventListener('scrollend', () => {
+								setTimeout(() => {
+									initialTarget.scrollIntoView({behavior: 'instant', block: 'start'});
+								});
+							}, {once: true});
+						}
+
+						window.addEventListener('hashchange', () => {
+							openDetailsForHash()?.scrollIntoView();
+						});
 
 						// Alt+click to expand/collapse all
 						container.addEventListener('click', event => {

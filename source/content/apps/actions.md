@@ -14,6 +14,7 @@ olderMacOSVersions:
   - '12'
   - '13'
   - '14'
+  - '15'
 feedbackNote: |
   ### If you just updated to iOS 26, it may take some time for iOS to re-index all the Shortcuts actions. Give it some time.
 
@@ -22,6 +23,8 @@ feedbackNote: |
   Tip: To pass a variable to a file input in Shortcuts, tap-and-hold (iOS) or right-click (macOS) the input and select the variable.
 
   **Some actions that are not possible: orientation lock status, flashlight status, ambient sensor info, flight mode status, [and more](/actions#impossible-actions).**
+
+  This is not the place to ask general Shortcuts questions. Try [r/shortcuts](https://www.reddit.com/r/shortcuts/) instead.
 ---
 
 The app provides 180+ powerful extra actions for the Shortcuts app on macOS, iOS, and visionOS. These actions make it significantly easier to create shortcuts.
@@ -43,23 +46,34 @@ If you have any questions about how to use the different actions or for what, tr
 - Add to List
 - Apply Capture Date
 - Ask for Duration
+- Ask for Input with Dialog
+	<span class="list-description">Show a dialog with a text field and multiple buttons. Returns both the entered text and which button was tapped, with support for timeout, custom icon (macOS), image, and destructive button styling. You can disable the text field to just have a confirmation dialog.</span>
 - Ask for Text with Timeout
 - Authenticate
 - Blur Images
 - Boolean
+- Calculate Bearing
+	<span class="list-description">Get the compass direction between two coordinates.</span>
 - Calculate Distance
 - Calculate with Soulver
 - Choose from List (Extended)
 - Clamp Number
 - Color
+- Combine Audio Files
 - Combine Lists
 - Combine Videos
 - Convert Coordinates to Location
 - Convert Date to Reference Timestamp
 - Convert Date to Unix Timestamp
 - Convert Location to Geo URI
+- Convert Number Base
+	<span class="list-description">Convert between binary, octal, decimal, and hexadecimal.</span>
 - Convert Reference Timestamp to Date
+- Convert Text File Encoding
+	<span class="list-description">Convert text files between character encodings (UTF-8, Shift-JIS, Windows-1252, etc.) with automatic source detection.</span>
 - Convert Unix Timestamp to Date
+- Counter
+	<span class="list-description">Atomic counter. Use cases: avoid races in concurrent automations, rate-limit runs, store progress (“step-3”), track daily counts.</span>
 - Create Color Image
 - Create Duration
 - Create Gradient Color Image
@@ -72,8 +86,13 @@ If you have any questions about how to use the different actions or for what, tr
 - Encrypt File
 - Encrypt Text
 - Filter List
+- Filter List of Dictionaries
 - Find Music Playlist <sup>(iOS-only)</sup>
 - Find Wi-Fi Network <sup>(macOS-only)</sup>
+- Find Workout <sup>(iOS-only)</sup>
+	<span class="list-description">Returns workouts from the Health app, including workout type, duration, source details, and metrics like active calories, heart rate, etc.</span>
+- Find Points of Interest
+	<span class="list-description">Find nearby places matching a query around a location.</span>
 - Flash Screen <sup>(macOS-only)</sup>
 - Format Currency
 - Format Date Difference
@@ -84,6 +103,7 @@ If you have any questions about how to use the different actions or for what, tr
 - Format Text List
 	<span class="list-description">`["A", "B", "C"]` → `A, B, and C`</span>
 - Generate CSV
+- Generate Emojis
 - Generate Haptic Feedback <sup>(iOS-only)</sup>
 - Generate Random Data
 - Generate Random Text
@@ -97,6 +117,10 @@ If you have any questions about how to use the different actions or for what, tr
 - Get Bluetooth Devices
 - Get Boolean from Input
 - Get Compass Heading <sup>(iOS-only)</sup>
+- Get Contents of URL (Extended)
+	<span class="list-description">Enhanced HTTP requests with complete response details (status codes, headers, all methods) instead of just the response body like the built-in action, and also timeout.</span>
+- Get Dates in Range
+	<span class="list-description">Returns all dates between two dates filtered by type. For example, get all Mondays between two dates, or list every weekend in a month.</span>
 - Get Default Browser <sup>(macOS-only)</sup>
 - Get Device Details (Extended)
 	- Uptime (not including sleep)
@@ -120,8 +144,15 @@ If you have any questions about how to use the different actions or for what, tr
 - Get Emojis
 - Get File Path
 - Get High-Resolution Timestamp
+- Get Image URLs from Web Page
+	<span class="list-description">Extracts image URLs from a web page and returns them without downloading.</span>
+- Get Images from Web Page
+	<span class="list-description">Extracts images from a web page and returns them as files.</span>
 - Get Index of List Item
 - Get Map Image of Location
+- Get Media Metadata
+- Get Meta Tags of URL
+	<span class="list-description">Extract meta tags (title, description, Open Graph, etc.) from a webpage.</span>
 - Get Modifier Key State <sup>(macOS-only)</sup>
 - Get Paragraphs from Text
 - Get Printers <sup>(macOS-only)</sup>
@@ -134,6 +165,7 @@ If you have any questions about how to use the different actions or for what, tr
 - Get Random Emoticon
 - Get Random Floating-Point Number
 - Get Random Number from Seed
+- Get Raw Media Metadata
 - Get Related Words
 - Get Running Apps <sup>(macOS-only)</sup>
 - Get Sentences from Text
@@ -157,8 +189,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Get/Set File Icon <sup>(macOS-only)</sup>
 	<span class="list-description">Get the icon of files and folders or set custom icons for them.</span>
 - Get/Set File Tags
-- Get/Set Image Capture Date
-- Get/Set Image Location
+- Get/Set Image/Video Capture Date
+- Get/Set Image/Video Location
 - Get/Set Uniform Type Identifier
 - Global Variable
 - Hex Encode
@@ -194,18 +226,28 @@ If you have any questions about how to use the different actions or for what, tr
 - Is Web Server Reachable
 - Is Wi-Fi On <sup>(macOS-only)</sup>
 - Join Wi-Fi <sup>(iOS-only)</sup>
+- Keychain
+	<span class="list-description">Securely stores a value in the device [keychain](https://developer.apple.com/documentation/security/keychain-services). Useful for sensitive data like API keys, tokens, and passwords. Can be synced.</span>
+- Make Live Photo from Video
+- Make Markdown Table
+- Manage Shortcut Lock
+	<span class="list-description">Prevents multiple instances of a shortcut from running simultaneously</span>
 - Merge Dictionaries
 - Named Clipboard <sup>(macOS-only)</sup>
 - Open URLs in Safari
 - Open URLs with App <sup>(macOS-only)</sup>
 	<span class="list-description">For example, open URLs in a specific browser.</span>
 - Overwrite File
+- Overlay Image (Extended)
+	<span class="list-description">Overlay an image on top of another one with blend modes, opacity, rotation, flipping, and precise positioning.</span>
 - Parse CSV
 - Parse JSON5
+- Parse Markdown Table
 - Pick Color
 	<span class="list-description">Pick a color using the system color picker, optionally from a reference image.</span>
 - Play Alert Sound <sup>(macOS-only)</sup>
 - Pretty Print Dictionaries
+- Remove Dictionary Values
 - Remove Duplicate Lines
 - Remove Duplicates from List
 - Remove Emojis
@@ -218,6 +260,7 @@ If you have any questions about how to use the different actions or for what, tr
 	<span class="list-description">`3.14159` → `3.14`</span>
 - Round Number to Multiple
 - Sample Color from Screen <sup>(macOS-only)</sup>
+- Scan Barcodes in Image
 - Scan Documents <sup>(iOS-only)</sup>
 - Scan QR Codes in Image
 - Send Distributed Notification <sup>(macOS-only)</sup>
@@ -228,6 +271,7 @@ If you have any questions about how to use the different actions or for what, tr
 - Show Notification
 - Shuffle List
 - Sort List
+- Sort List of Dictionaries
 - Sort Months
 - Spell Out Number
 - Toggle Boolean
@@ -243,6 +287,7 @@ If you have any questions about how to use the different actions or for what, tr
 	- Strip quotation marks
 	- Strip HTML
 	- Strip diacritics
+	- JSON Escape
 	- Transliterate to Latin
 	- Transliterate Latin to Arabic
 	- Transliterate Latin to Cyrillic
@@ -309,7 +354,9 @@ For these, I recommend sending a [feature request to Apple](https://feedbackassi
 
 - Imgur - I generally don't want to integrate with services. They cause a huge support burden, either by being unreliable, breaking the API, shutting down, and other things.
 
+## URL Scheme {#url-scheme}
 
+The app supports the `actions://` URL scheme that can be used to open the app.
 
 ## Frequently Asked Questions {#faq}
 
@@ -346,6 +393,7 @@ Critical Alerts are reserved for very limited use cases such as medical, health,
 
 ## Older versions
 
+- [3.8.0](https://www.dropbox.com/scl/fi/fhfw330g14eh35bwofuyy/Actions-3.8.0-macOS-15-1773919013.zip?rlkey=9l9f3noc5l64j9r0cai9lc5rm&raw=1) for macOS 15+
 - [3.5.1](https://github.com/user-attachments/files/18963268/Actions.3.5.1.-.macOS.14.zip) for macOS 14+
 - [2.10.0](https://www.dropbox.com/scl/fi/lzy4po8qfggroxcv9pzdo/Actions-2.10.0-1731826197.zip?rlkey=f37xihlhq45syauygdn5268un&raw=1) for macOS 13+
 - [1.13.1](https://www.dropbox.com/scl/fi/9iqfn8airygpk0la4gv1u/Actions-1.13.1-1731826428.zip?rlkey=y4u5ni2pn28rp3lse08lv96k6&raw=1) for macOS 12+
@@ -354,4 +402,4 @@ Critical Alerts are reserved for very limited use cases such as medical, health,
 
 A special macOS version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/p1mxfqhy35ih6semoh28b/Actions-3.6.0-1740482537.zip?rlkey=u9p8r3gpqtbkslti39ttte1pa&raw=1) *(3.6.0 · macOS 15+)*
+[Download](https://www.dropbox.com/scl/fi/wpd3s3all6t2ktda5qc8m/Actions-4.0.0-1773914172.zip?rlkey=6z587f01mq4rqpgsqe2pmw78m&raw=1) *(4.0.0 · macOS 26+)*

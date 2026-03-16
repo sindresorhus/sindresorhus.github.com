@@ -24,9 +24,7 @@ pressQuotes:
   - quote: Once you try the app, you'll see it was created by a developer using macOS to solve those minor yet never truly minor annoyances. It packs a lot of functionality into one app. It's a really great app.
     source: MJay Le
   - quote: If I am allowed to buy only one app to run on my Mac, this would be the one. I simply can't live without it. It adds so many useful features, which are absolutely necessary, and keeps adding new, useful features.
-    source: Saksham Binda
-  - quote: I clicked the blue thing and it worked!
-    source: Mom
+    source: Saksham Bind
 # olderMacOSVersions:
 #   - '15'
 feedbackNote: |
@@ -36,9 +34,9 @@ feedbackNote: |
 
   If the issue is that a keyboard shortcut is not working, it could be [this](/apps/faq#secure-input-problem).
 
-  The Finder context menu items will not show up in any [sync folder like iCloud, Dropbox, OneDrive, etc](#finder-context-menu-icloud)
+  If you are seeing the Supercharge icon showing up for drives in the Finder sidebar, see [this](/supercharge#finder-extension-sidebar-icon).
 
-  If you are seeing the Supercharge icon showing up for drives in the Finder sidebar, see [this](#i-am-seeing-incorrect-icons-for-external-drives-in-the-finder-sidebar-when-enabling-context-menu-items).
+  The Finder context menu items will not show up in any [sync folder like iCloud, Dropbox, OneDrive, etc](/supercharge#finder-context-menu-icloud)
 ---
 
 Improve your Mac experience with a bunch of useful functionality. Supercharge adds power tools for Mission Control, the Dock, Finder, window management, and more, helping you work faster, reduce friction, and fix everyday macOS annoyances.
@@ -870,9 +868,11 @@ Finder Sync extensions, which power these context menu items, are intended to ad
 
 Some of the Finder context menu items are also available as [macOS services](#macos-services), which do show up in synced folders.
 
-#### I am seeing incorrect icons for external drives in the Finder sidebar when enabling context menu items
+#### I am seeing the Supercharge icon for external drives in the Finder sidebar when enabling context menu items {#finder-extension-sidebar-icon}
 
-This is a macOS bug and out of my control. When context menu items are enabled for external volumes, macOS shows document icons instead of drive icons in the Finder sidebar. As a workaround, you can disable showing the context menu items on external drives.
+macOS 26: This is a macOS bug and out of my control. When context menu items are enabled for external volumes, macOS shows the Supercharge app icon for each drive instead of drive icons in the Finder sidebar. As a workaround, you can disable showing the context menu items on external drives.
+
+macOS 15: This is a macOS bug and out of my control. When context menu items are enabled for external volumes, macOS shows document icons instead of drive icons in the Finder sidebar. As a workaround, you can disable showing the context menu items on external drives.
 
 #### How can I add my preferred apps to the “Open Folder With” Finder context menu? {#add-app-open-folder-with}
 

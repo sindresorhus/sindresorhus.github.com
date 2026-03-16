@@ -7,6 +7,13 @@ platforms:
 isPaid: true
 isMenuBarApp: true
 appStoreId: 1611378436
+pressQuotes:
+  - quote: Works so seamlessly. This app just works in the background, you never need to open it, it just does its thing. It feels just like something Apple would invent and it is done so perfectly I never noticed how much I crutched it until I tried working on one of my friends windows laptops. A must get.
+    source: Isaac Majer
+    isStarRating: true
+  - quote: Best app in the world. Probably been using it for 4 years but genuinely haven’t thought about it once since I installed it to today. Works so seamlessly and does what its meant to perfectly.
+    source: '@ek2100'
+    isStarRating: true
 olderMacOSVersions:
   - '12'
   - '13'

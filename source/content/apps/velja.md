@@ -20,9 +20,9 @@ feedbackNote: |
 
   [Can you support ChatGPT Atlas profiles?](/velja#atlas-profiles)
 
-  [Support for opening links directly in Slack is not possible.](https://sindresorhus.com/velja#slack)
+  [Support for opening links directly in Slack is not possible.](/velja#slack)
 
-  **If you're requesting an addition to the “Apps” list, [please read this](https://sindresorhus.com/velja#builtin-apps-requests).**
+  **If you're requesting an addition to the “Apps” list, [please read this](/velja#builtin-apps-requests).**
 
   If you are missing a browser in the browser prompt, ensure you have enabled it in the “Shown browsers” setting. Also try restarting your computer.
 ---

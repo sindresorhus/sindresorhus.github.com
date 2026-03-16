@@ -58,6 +58,7 @@ const appsCollection = defineCollection({
 			quote: z.string().nonempty(),
 			source: z.string().nonempty(),
 			url: z.string().url().optional(),
+			isStarRating: z.boolean().default(false),
 		})).optional(),
 		announcement: z.object({
 			text: z.string().nonempty(),

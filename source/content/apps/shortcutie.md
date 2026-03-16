@@ -25,6 +25,8 @@ feedbackNote: |
   ### If the actions don't show up in the Shortcuts app or if you get a “com.apple.extensionKit.errorDomain error 2” error when running your shortcut, restart your device. You could also try setting a different device language and then back. If you just updated the operating system, give it some time to re-index all shortcut actions.
 
   Check the [Actions](/actions) app before requesting an action. It may already exist there.
+
+  This is not the place to ask general Shortcuts questions. Try [r/shortcuts](https://www.reddit.com/r/shortcuts/) instead.
 ---
 
 The app provides 70+ powerful extra actions for the Shortcuts app on macOS.
