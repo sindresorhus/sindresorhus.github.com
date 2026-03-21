@@ -14,9 +14,9 @@ const {meta = {}} = Astro.props;
 	<body class="antialiased text-gray-900 dark:text-slate-300 tracking-tight bg-white dark:bg-slate-950 overflow-x-clip">
 		<slot/>
 		<style is:global>
-			img {
-				content-visibility: auto;
-			}
+			/*
+			Do not add `content-visibility: auto` to images. It breaks smooth scrolling to hash targets in Safari by causing the browser to miscalculate scroll positions for off-screen images. Use `loading="lazy"` on individual images instead.
+			*/
 
 			[data-heading-anchors] :is(h2, h3, h4)[id],
 			[data-heading-anchors] details[id] > summary {
@@ -220,18 +220,25 @@ const {meta = {}} = Astro.props;
 
 						const initialTarget = openDetailsForHash();
 
-						// The FAQ DOM transformation changes element positions, so the browser's scroll-to-hash lands at the wrong spot.
-						// Wait for the browser's scroll to finish, then re-scroll. The setTimeout avoids a Safari paint glitch.
+						// The FAQ DOM transformation changes element positions, so the browser's scroll-to-hash may land at the wrong spot.
 						if (initialTarget) {
-							window.addEventListener('scrollend', () => {
-								setTimeout(() => {
-									initialTarget.scrollIntoView({behavior: 'instant', block: 'start'});
-								});
-							}, {once: true});
+							requestAnimationFrame(() => {
+								initialTarget.scrollIntoView({behavior: 'instant', block: 'start'});
+							});
 						}
 
 						window.addEventListener('hashchange', () => {
-							openDetailsForHash()?.scrollIntoView();
+							if (!location.hash) {
+								return;
+							}
+
+							const target = document.querySelector(location.hash);
+							const details = target?.closest('details') ?? (target?.tagName === 'DETAILS' ? target : null);
+
+							if (details) {
+								details.setAttribute('open', '');
+								target.scrollIntoView();
+							}
 						});
 
 						// Alt+click to expand/collapse all
