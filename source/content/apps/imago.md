@@ -1,8 +1,7 @@
 ---
-isUnlisted: true # TODO
 title: Imago
 subtitle: Generate images from text using Flux 2
-pubDate: 2026-03-10 # TODO
+pubDate: 2026-03-22
 platforms:
   - macOS
 appStoreId: 6758187147
@@ -91,12 +90,12 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 <!-- ## Older Versions
 
 - [1.0.0]() for macOS 26+
+-->
 
 ## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download]() *(1.0.0)*
+[Download](https://www.dropbox.com/scl/fi/zn2vujmd0kdyenvknp5x2/Imago-1.0.0-1774194050.zip?rlkey=glafhwc1bdw4s1bsmqq81xisx&raw=1) *(1.0.0)*
 
 *Requires macOS 26 or later*
- -->

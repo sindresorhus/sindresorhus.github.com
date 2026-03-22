@@ -24,6 +24,9 @@ It runs locally on your device.
 > On macOS, developed exclusively for Apple silicon - The app is NOT compatible with devices running on Intel chips.\
 > On iOS, it requires at minimum an iPhone 15 Pro or iPad with an M1 processor.
 
+> [!TIP]
+> Check out my [Imago](/imago) app, which uses Flux 2 instead — a much better model.
+
 [Stable Diffusion](https://en.wikipedia.org/wiki/Stable_Diffusion) is a deep learning, text-to-image model used to generate detailed images conditioned on text descriptions.
 
 The app is [highly optimized](https://machinelearning.apple.com/research/stable-diffusion-coreml-apple-silicon) and runs on the [Apple Neural Engine](https://apple.fandom.com/wiki/Neural_Engine).

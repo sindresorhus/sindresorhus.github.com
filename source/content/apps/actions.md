@@ -354,7 +354,9 @@ For these, I recommend sending a [feature request to Apple](https://feedbackassi
 
 - Imgur - I generally don't want to integrate with services. They cause a huge support burden, either by being unreliable, breaking the API, shutting down, and other things.
 
-## URL Scheme {#url-scheme}
+## Tips
+
+### URL Scheme {#url-scheme}
 
 The app supports the `actions://` URL scheme that can be used to open the app.
 
@@ -402,4 +404,4 @@ Critical Alerts are reserved for very limited use cases such as medical, health,
 
 A special macOS version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/wpd3s3all6t2ktda5qc8m/Actions-4.0.0-1773914172.zip?rlkey=6z587f01mq4rqpgsqe2pmw78m&raw=1) *(4.0.0 · macOS 26+)*
+[Download](https://www.dropbox.com/scl/fi/7mt9uvbmn589y4qobdpe9/Actions-4.0.1-1774194992.zip?rlkey=7tg0zlun69c19t6m5lmn2ph0q&raw=1) *(4.0.1 · macOS 26+)*

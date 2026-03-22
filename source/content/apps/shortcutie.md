@@ -275,6 +275,6 @@ There is [some overlap](/supercharge#shortcutie), but Shortcutie includes many m
 
 ## Older Versions
 
-- [1.5.0](https://www.dropbox.com/scl/fi/1nny73fqfa423v87vz0q6/Shortcutie-1.5.0-macOS-15-1770752068.zip?rlkey=3fxry52nv7nflmc60r4leqlfm&raw=1) for macOS 15.2
+- [1.5.0](https://www.dropbox.com/scl/fi/1nny73fqfa423v87vz0q6/Shortcutie-1.5.0-macOS-15-1770752068.zip?rlkey=3fxry52nv7nflmc60r4leqlfm&raw=1) for macOS 15
 
 These are free for everyone but they will not run on newer macOS versions.

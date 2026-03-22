@@ -12,6 +12,8 @@ olderMacOSVersions:
   - '11'
   - '12'
   - '13'
+  - '14'
+  - '15'
 ---
 
 Plash enables you to have a highly dynamic desktop wallpaper. You could display your favorite news site, Facebook feed, or a random beautiful scenery photo. The use-cases are limitless. You could even set an animated GIF as wallpaper. You can even add multiple websites and easily switch between them.
@@ -262,6 +264,7 @@ subprocess.run(['open', '--background', 'plash:reload'])
 
 ## Older Versions
 
+- [2.16.0](https://github.com/sindresorhus/Plash/releases/download/older-releases/Plash.2.16.0.-.macOS.15.zip) for macOS 15+
 - [2.15.0](https://github.com/sindresorhus/Plash/releases/download/older-releases/Plash.2.15.0.-.macOS.14.zip) for macOS 14+
 - [2.14.1](https://github.com/sindresorhus/Plash/releases/download/older-releases/Plash.2.14.1.-.macOS.13.zip) for macOS 13+
 - [2.12.1](https://github.com/sindresorhus/Plash/releases/download/older-releases/Plash.2.12.1.-.macOS.12.zip) for macOS 12+
@@ -272,6 +275,6 @@ subprocess.run(['open', '--background', 'plash:reload'])
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://github.com/user-attachments/files/18840560/Plash.2.16.0.zip) *(2.16.0)*
+[Download](https://www.dropbox.com/scl/fi/syx3vo5tbik3mfferrvt5/Plash-2.17.0-1774126569.zip?rlkey=t7ht9cspcblgkbat3s9w4mj5u&raw=1) *(2.17.0)*
 
-*Requires macOS 15 or later*
+*Requires macOS 26 or later*
