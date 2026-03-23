@@ -46,7 +46,7 @@ Known limitation: You cannot cut the name of a file when editing a filename in F
 
 #### The app does not work {#not-working}
 
-First try relaunching the app.
+First try relaunching the app. If that doesn't help, try restarting your computer.
 
 Then, make sure you pressed <kbd>Command+X</kbd> and not <kbd>Command+C</kbd>.
 
@@ -63,6 +63,14 @@ Then try toggling the setting “Use more reliable way of handling Command+X”,
 If it's still not working, try this: Select a file in Finder, press <kbd>Command+C</kbd>, change to a different folder, press <kbd>Option+Command+V</kbd>. The file should have been moved to this new folder. If this did not work, the problem is not this app, as those are the keyboard shortcuts it simulates.
 
 If it's a work computer, your company may have something installed that prevents the app from working.
+
+Try uninstalling and reinstalling the app, and restart your computer.
+
+If it's still not working, try re-granting accessibility access:
+1. Open “System Settings › Privacy & Security › Accessibility”
+2. Remove Command X from the list
+3. Quit and reopen Command X
+4. Grant accessibility access when prompted
 
 The last thing you could try is to reset the permissions. Either use [App Buddy](/app-buddy), or quit the app, and run this in the Terminal app:
 

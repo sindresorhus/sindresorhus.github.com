@@ -6,8 +6,8 @@ platforms:
   - macOS
 isMenuBarApp: true
 appStoreId: 6743048714
-# olderMacOSVersions:
-#   - '15'
+olderMacOSVersions:
+  - '15'
 ---
 
 Add playful eyes to your menu bar that follow your cursor and blink when you click. Pure whimsy! 👀
@@ -30,15 +30,15 @@ The eyes follow your cursor across displays. However, menu bar items on inactive
 
 This is a macOS limitation and cannot be worked around.
 
-<!-- ## Older Versions
+## Older Versions
 
-- []() for macOS 15+ -->
+- [1.1.4](https://www.dropbox.com/scl/fi/p4ym425ivfp4ex1enlh1l/Googly-Eyes-1.1.4-macOS-15-1774281617.zip?rlkey=7jbf2llhjjielpvde6rcpvp8n&raw=1) for macOS 15+
 
 ## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/r1fdhx8r5k08q7fq5apso/Googly-Eyes-1.1.4-1764760165.zip?rlkey=w79zg0k1ue6zqbbc51ij3rdaa&raw=1) *(1.1.4 · macOS 15+)*
+[Download](https://www.dropbox.com/scl/fi/t8qoulw2nfo2wbzoekbop/Googly-Eyes-1.2.0-1774281367.zip?rlkey=purr5ntc70na53ndpt06oxcuh&raw=1) *(1.2.0 · macOS 26+)*
 
 <script type="module" is:inline>
 // Only the core measurements

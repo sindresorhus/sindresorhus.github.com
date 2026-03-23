@@ -60,7 +60,7 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 - Spotlight keyboard shortcuts - Open clipboard history directly.
 - Toggles - Dark Mode, Night Shift, etc.
 - Extras — Add Dock & Finder sidebar spacers, change default browser without prompts.
-<!-- - [Remap Spotlight/Dictation keys](#remap-spotlight-dictation-keys) — Make the dedicated keys keyboard shortcuts, Supercharge actions, or run shortcuts. -->
+<!-- - [Remap dedicated function keys](#remap-dedicated-function-keys) — Make the dedicated Mission Control, Spotlight, Dictation, and Do Not Disturb keys keyboard shortcuts, Supercharge actions, or run shortcuts. -->
 <!-- - [Double-tap modifier keys (Fn, Shift, Control, Option, Command) to trigger keyboard shortcuts, Supercharge actions, or run shortcuts](#double-tap-modifier) -->
 
 <br>
@@ -81,7 +81,7 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 - Prevent the Music app from auto-opening when you don't want to.
 	<span class="list-description">For example, when pressing Play/Pause on your keyboard or AirPods. You can also have it launch another app like Spotify instead. Similar to apps like noTunes and Overkill.</span>
 <!-- - [Hyper key](#hyper-key) -->
-<!-- - [Remap Spotlight/Dictation keys](#remap-spotlight-dictation-keys) — Make the dedicated keys keyboard shortcuts, Supercharge actions, or run shortcuts. -->
+<!-- - [Remap dedicated function keys](#remap-dedicated-function-keys) — Make the dedicated Mission Control, Spotlight, Dictation, and Do Not Disturb keys keyboard shortcuts, Supercharge actions, or run shortcuts. -->
 <!-- - [Double-tap modifier keys (Fn, Shift, Control, Option, Command) to trigger keyboard shortcuts, actions, or run shortcuts](#double-tap-modifier) -->
 - Prevent accidental app quits[^quit] by instead using <kbd>⇧⌘Q</kbd>, double tap <kbd>Q</kbd> while holding <kbd>⌘</kbd>, or [press and hold <kbd>⌘Q</kbd>](https://github.com/user-attachments/assets/0515e50f-2a93-4369-836e-085ad462fdf8)
 - Prevent accidental ⌘W window closes

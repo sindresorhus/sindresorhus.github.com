@@ -9,6 +9,7 @@ appStoreId: 1666327168
 olderMacOSVersions:
   - '13'
   - '14'
+  - '15'
 ---
 
 The app provides menu bar separators to group menu bar items for a more streamlined appearance.
@@ -44,6 +45,7 @@ I don't plan to localize the app.
 
 ## Older Versions
 
+- [1.2.0](https://www.dropbox.com/scl/fi/r3hd7t0uki292tblm91i5/Spaced-1.2.0-macOS-15-1774259497.zip?rlkey=rxpji2s1o2uo68tbt8e7d5xym&raw=1) for macOS 15+
 - [1.1.1](https://github.com/user-attachments/files/18212917/Spaced.1.1.1.-.macOS.14.zip) for macOS 14+
 - [1.0.4](https://github.com/sindresorhus/meta/files/13852708/Spaced.1.0.4.-.macOS.13.zip) for macOS 13+
 
@@ -51,6 +53,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/b7kcnsg86u00gxpoum6ou/Spaced-1.2.0-1734711302.zip?rlkey=2tabe3k0tyalc5jjuehpyfro9&raw=1) *(1.2.0)*
+[Download](https://www.dropbox.com/scl/fi/spty4pij7c9geahzhzubx/Spaced-1.3.0-1774258825.zip?rlkey=fboyvze8lg2boa5fcs3kai0rr&raw=1) *(1.3.0)*
 
-*Requires macOS 15 or later*
+*Requires macOS 26 or later*

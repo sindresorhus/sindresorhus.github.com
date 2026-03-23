@@ -97,6 +97,14 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 - Stash Text
 	<span class="list-subtitle">Shows the given text in a floating window</span>
 	<span class="list-description text-xs">Multiple calls add items to the sidebar list. Intended for temporary viewing, not long-term storage. [Screenshot](https://www.dropbox.com/scl/fi/9oz7tnd24fohgasuuv6gd/Stash-Text-Screen-Shot-2026-02-01-at-23.17.36-1769962685.png?rlkey=9vd0p1c2zat89yrqssv8rhfnw&raw=1)</span>
+- Find Listening Port
+	<span class="list-subtitle">Finds TCP ports that currently have a listening process on this Mac</span>
+	<span class="list-description text-xs">Useful for checking whether a local dev server is running, finding which process is using a specific port, and inspecting listeners before stopping them.</span>
+- Is Port Listening
+	<span class="list-subtitle">Checks whether a specific TCP port currently has a listening process</span>
+- Kill Process
+	<span class="list-subtitle">Stops a process by process ID, process name, port number, or listening port</span>
+	<span class="list-description text-xs">Supports dry-run mode (find matches without signaling). By default, no-match is treated as success for friendlier automations, with an option to fail when no matches are found.</span>
 - Open App (Extended)
 	<span class="list-subtitle">Options to pass in URLs, activate, force new instance, hide, launch arguments, and environment variables</span>
 - Close All Windows of App
@@ -108,7 +116,7 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 	<span class="list-description text-xs">It's like a turbocharged “Hide Others” — also minimizes your extra windows in the current app, so you see just the one you care about. Perfect for quickly clearing away distractions when you have many windows open.</span>
 - Get/Set Accent Color
 	<span class="list-subtitle">View or change the system accent color</span>
-	<span class="list-description text-xs">Also includes special iMac colors not normally accessible on non-iMac systems.</span>
+	<span class="list-description text-xs">Also includes special iMac and MacBook Neo colors normally only accessible on these Macs.</span>
 - Toggle Dock Folder
 	<span class="list-subtitle">Expands or collapses a [folder in the Dock](https://support.apple.com/kk-kz/guide/mac-help/mchl231f08fb/mac), similar to manually clicking on it</span>
 	<span class="list-description text-xs">Tip: Add this to a shortcut and give it a keyboard shortcut to expand or collapse Dock folders from the keyboard.</span>

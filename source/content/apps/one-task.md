@@ -11,6 +11,7 @@ platforms:
   - watchOS
 olderMacOSVersions:
   - '14'
+  - '15'
 ---
 
 Show a single task on your Home Screen, Lock Screen, or desktop.
@@ -72,8 +73,6 @@ No. I want to keep this app super simple.
 
 However, you can achieve this using the Shortcuts app. Create a [shortcut](https://support.apple.com/guide/shortcuts/welcome/ios) that uses the “Add Task” action to add the tasks you want to be recurring. Then create an [automation](https://support.apple.com/guide/shortcuts/apdfbdbd7123/7.0/ios/17.0) to run the shortcut at a certain interval. For example, every morning.
 
-*(On macOS 26, you can use Shortcuts automations. On older macOS versions, you can use [Shortery](https://apps.apple.com/app/id1594183810).)*
-
 #### Does the app support task templates? {#task-templates}
 
 No, but you can achieve this using the Shortcuts app. Modify [this shortcut](https://www.icloud.com/shortcuts/51edae78b820457a89d12715a053fac6) and run it every time you want to apply the template tasks. You could even add the shortcut to the Home Screen.
@@ -107,6 +106,7 @@ I don't plan to localize the app.
 
 ## Older Versions
 
+- [1.6.1](https://www.dropbox.com/scl/fi/pw69xu9uuzhso36bpxobt/One-Task-1.6.1-macOS-15-1774212569.zip?rlkey=8qiv99b2xuhbl7emqfseesyf3&raw=1) for macOS 15
 - [1.5.4](https://github.com/user-attachments/files/18549490/One.Task.1.5.4.-.macOS.14.zip) for macOS 14
 
 These are free for everyone but they will not run on newer macOS versions.

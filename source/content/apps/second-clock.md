@@ -8,6 +8,7 @@ isMenuBarApp: true
 appStoreId: 6450279539
 olderMacOSVersions:
   - '14'
+  - '15'
 ---
 
 The app is simple by design.
@@ -72,12 +73,13 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 ## Older Versions
 
+- [1.1.0](https://www.dropbox.com/scl/fi/8q5rzafvwh8h38nw162m8/Second-Clock-1.1.0-macOS-15-1774272407.zip?rlkey=3m3t78o84kfaaaxv9khdscuii&raw=1) for macOS 15+
 - [1.0.2](https://github.com/user-attachments/files/18694293/Second.Clock.1.0.2.-.macOS.14.zip) for macOS 14+
 
 ## Non-App Store Version
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/v4owb8qukgdupn4zugztn/Second-Clock-1.1.0-1738865055.zip?rlkey=0qc40wcxbe2bjszi47xv31zw6&raw=1) *(1.1.0)*
+[Download](https://www.dropbox.com/scl/fi/9a20p7mo6bdw45xqzl1a8/Second-Clock-1.2.0-1774271996.zip?rlkey=udacl6dtg5apz9guctolox1tu&raw=1) *(1.2.0)*
 
-*Requires macOS 15 or later*
+*Requires macOS 26 or later*
