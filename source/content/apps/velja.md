@@ -124,7 +124,7 @@ For example, to open all links you click in Slack in Chrome:
 
 To open links from one browser to another when clicking the Velja browser extension icon without seeing a prompt:
 
-1. Go to Velja's Advanced settings and disable "Force show prompt when opening from browser extension"
+1. Go to Velja's Advanced settings and disable “Force show prompt when opening from browser extension”
 2. Create a new rule:
 	- Choose your target browser in “Open in”
 	- Add your source browser in “Source Apps”
@@ -228,7 +228,7 @@ Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to laun
 
 ### Automatically switch browser or browser profile based on time, location, or Focus mode
 
-Say you use different browser profiles for work and home and want them to switch automatically. This is a good use for the Shortcuts app. Create a shortcut with the "Set Default Browser" action that sets the browser profile to the one you want at home and another for work. You will then need the [Shortery](https://apps.apple.com/app/id1594183810) app to trigger these shortcuts at specific times, or based on your Focus mode if you have one for work. You could even trigger the shortcuts based on Wi-Fi name, which may be easier than defining work times if you work from an office.
+Say you use different browser profiles for work and home and want them to switch automatically. This is a good use for the Shortcuts app. Create a shortcut with the “Set Default Browser” action that sets the browser profile to the one you want at home and another for work. You will then need the [Shortery](https://apps.apple.com/app/id1594183810) app to trigger these shortcuts at specific times, or based on your Focus mode if you have one for work. You could even trigger the shortcuts based on Wi-Fi name, which may be easier than defining work times if you work from an office.
 
 macOS 26 has automations in Shortcuts and you don't need Shortery there.
 
@@ -282,7 +282,7 @@ If the link is a [short URL](https://en.wikipedia.org/wiki/URL_shortening), make
 
 This is either a macOS or Dropbox bug. Velja simply opens what it receives, but what it receives has incorrect permissions. When you click a button in Dropbox to open it on the web, it doesn't actually open the URL directly, but instead writes an HTML file (which redirects to the final URL) to a temporary directory. I’m not sure why it does this, but it’s likely the cause of the issue.
 
-**It did not respect my rule that uses a "source app" condition**
+**It did not respect my rule that uses a “source app” condition**
 
 Ensure Velja correctly identifies the source app where the link was clicked. To check, enable the history setting (in the “Advanced” settings tab), click a link, and confirm the correct source app appears in the history screen.
 
@@ -409,10 +409,10 @@ However, you can achieve it yourself using Velja's URL transform feature.
 
 **Creating a rule**
 
-1. Open Velja settings → **Rules** → Click **"+"**
+1. Open Velja settings → **Rules** → Click **“+”**
 2. Set **Open in:** Firefox
 3. Add **URL Matchers** for domains you want in this container
-4. Enable **"Transform URL"** and add this script:
+4. Enable **“Transform URL”** and add this script:
 
 ```js
 const containerName = 'Work'; // Your container name
@@ -424,7 +424,7 @@ const containerURL = `ext+container:name=${encodeURIComponent(containerName)}&ur
 $.url = new URL(containerURL);
 ```
 
-5. Click **"Run"** to test - output should be `ext+container:name=Work&url=https%3A%2F%2F...`
+5. Click **“Run”** to test - output should be `ext+container:name=Work&url=https%3A%2F%2F...`
 6. Save the rule
 
 Repeat for each container you want to use.
@@ -437,7 +437,7 @@ Repeat for each container you want to use.
 
 #### Can you support Firefox profiles? {#firefox-profiles}
 
-Firefox profiles are now supported. Make sure you grant access to profiles in the Browsers settings tab, then enable Firefox profiles in the "Shown Browsers" setting.
+Firefox profiles are now supported. Make sure you grant access to profiles in the Browsers settings tab, then enable Firefox profiles in the “Shown Browsers” setting.
 
 > [!NOTE]
 > Only profiles created using Firefox's [new profile system](https://www.reddit.com/r/firefox/comments/1mi38vp/firefox_has_a_profile_switcher_now_heres_how_to/) (Firefox 138+) are supported (not profiles created using `about:profiles`). See below on how to migrate.

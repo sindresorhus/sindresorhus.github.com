@@ -312,6 +312,7 @@ If you have any questions about how to use the different actions or for what, tr
 
 #### Want more shortcut actions? {#more-actions}
 
+- Run shortcuts from the menu bar or silently in the background via URL scheme → [Short Run](/short-run)
 - High-quality transcription (speech to text) in 100 languages → [Aiko](/aiko)
 - Trigger shortcuts on your Mac from your iOS device → [Hyperduck](/hyperduck#shortcuts)
 - Set default browser → [Supercharge](/supercharge) & [Default Browser](/default-browser)
@@ -320,7 +321,7 @@ If you have any questions about how to use the different actions or for what, tr
 - Open URLs in a specific browser → [Velja](/velja)
 - Remove tracking parameters from URLs → [Velja](/velja) & [Pure Paste](/pure-paste)
 - Check if online → [Online Check](/online-check)
-- Generate images from text with AI locally → [Amazing AI](/amazing-ai)
+- Generate images from text with AI locally → [Imago](/imago)
 - Clear clipboard formatting → [Pure Paste](/pure-paste)
 - Get internet speed → [Speediness](/speediness)
 - Join video calls → [Dato](/dato)

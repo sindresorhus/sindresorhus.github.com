@@ -14,6 +14,8 @@ Simply describe the image you desire, and the app will generate it for you like 
 
 It runs locally on your device. It uses the FLUX.2 [klein] 4B model.
 
+This app is focused on simplicity. No custom models, no complicated settings, no workflow editors. Just type a prompt and get an image. If you need fine-grained control, custom models, or advanced workflows, check out [ComfyUI](https://www.comfy.org). Imago is for everyone else.
+
 > [!IMPORTANT]
 > Requires an Apple silicon Mac (no Intel), minimum 16 GB RAM, and 20 GB free disk space.
 
@@ -96,6 +98,6 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/zn2vujmd0kdyenvknp5x2/Imago-1.0.0-1774194050.zip?rlkey=glafhwc1bdw4s1bsmqq81xisx&raw=1) *(1.0.0)*
+[Download](https://www.dropbox.com/scl/fi/3vgrzu42y0b8ex4ucer9w/Imago-1.0.1-1774386003.zip?rlkey=6m80smt12qv8dccxlb4uk8sfw&raw=1) *(1.0.1)*
 
 *Requires macOS 26 or later*

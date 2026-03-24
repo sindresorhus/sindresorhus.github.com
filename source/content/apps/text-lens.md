@@ -7,8 +7,8 @@ platforms:
 isPaid: true
 isMenuBarApp: true
 appStoreId: 6743369285
-# olderMacOSVersions:
-#   - '15'
+olderMacOSVersions:
+  - '15'
 feedbackNote: |
   [It made a mistake or the detection quality could be improved.](/text-lens#quality)
 ---
@@ -49,8 +49,6 @@ Extract text from anywhere on your screen. Select any area containing text - fro
 - Vietnamese
 - Arabic
 - Arabic, Najdi
-
-And on macOS 26 and later:
 - Turkish
 - Indonesian
 - Czech
@@ -150,6 +148,8 @@ TextSniper advantages:
 - Text-to-speech
 - More keyboard shortcuts
 
-<!-- ## Older Versions
+## Older Versions
 
-- []() for macOS 15+ -->
+- [1.2.0](https://www.dropbox.com/scl/fi/fl9johm8g2xpnkwb2476z/Text-Lens-1.2.0-macOS-15-1774364288.zip?rlkey=mz0uyd26aimispnl21uqaix32&raw=1) for macOS 15
+
+These are free for everyone but they will not run on newer macOS versions.

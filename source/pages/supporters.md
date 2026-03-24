@@ -241,6 +241,7 @@ None -->
 - [GitbookIO](https://github.com/GitbookIO)
 - [Niall Newman](https://github.com/niallnsec)
 - [Lightning Jar](https://github.com/lightning-jar)
+- [Legasset](https://legasset.com)
 
 <hr style="opacity:0.3;margin:20px 0 10px 0">
 <small style="margin-bottom:20px;display:inline-block;font-size:11px;opacity:0.7">(It will be updated on the first day of every month)</small>

@@ -9,6 +9,7 @@ appStoreId: 1558360383
 olderMacOSVersions:
   - '13'
   - '14'
+  - '15'
 ---
 
 Quickly access a monthly calendar from your menu bar.
@@ -27,6 +28,7 @@ The calendar displays dates and days in your language, but the rest of the app i
 - **Close calendar window:** Press the <kbd>esc</kbd> key.
 - **Open date in the Calendar app (or Google Calendar):** Click a date in the calendar.
 - **Open week in the Calendar app (or Google Calendar):** Click a week number in the calendar.
+- **Go to a specific date:** Right-click the month name or press <kbd>G</kbd>.
 - **Create new event on a specific day:** Right-click the day in the calendar.
 - **Copy the date for a day in the calendar:** Right-click the day in the calendar.
 
@@ -94,6 +96,7 @@ I just enjoy making apps. I earn money on other apps. Consider leaving a nice re
 
 ## Older Versions
 
+- [1.6.2](https://www.dropbox.com/scl/fi/cta1rtf4fe7w68m6id7jc/Menu-Bar-Calendar-1.6.2-macOS-15-1774301589.zip?rlkey=wqdq2zmtxgn2lcppf6za2js4f&raw=1) for macOS 15+
 - [1.4.1](https://www.dropbox.com/scl/fi/ldlznw1f2oo04i6j2hcnt/Menu-Bar-Calendar-1.4.1-macOS-14-1737700069.zip?rlkey=arklgyyq4k9dcodg1sq1us65n&raw=1) for macOS 14+
 - [1.2.0](https://github.com/sindresorhus/meta/files/13922546/Menu.Bar.Calendar.1.2.0.-.macOS.13.zip) for macOS 13+
 
@@ -101,6 +104,6 @@ I just enjoy making apps. I earn money on other apps. Consider leaving a nice re
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/rtpcvkkvfc8th9ca1qltb/Menu-Bar-Calendar-1.6.1-1761878427.zip?rlkey=675jcupywy3hofuf5qgf5vony&raw=1) *(1.6.1)*
+[Download](https://www.dropbox.com/scl/fi/6wtr1k8hqdz4d9rdkghx8/Menu-Bar-Calendar-1.7.0-1774301016.zip?rlkey=a3r8lwsja7da9v3tb9t5ecq4y&raw=1) *(1.7.0)*
 
-*Requires macOS 15 or later*
+*Requires macOS 26 or later*

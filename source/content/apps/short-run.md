@@ -7,8 +7,8 @@ platforms:
 isPaid: true
 isMenuBarApp: true
 appStoreId: 6745427035
-# olderMacOSVersions:
-#   - '15'
+olderMacOSVersions:
+  - '15'
 ---
 
 Quick access to your shortcuts from the [Shortcuts](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) app right from the menu bar.
@@ -40,6 +40,10 @@ Since shortcuts can open URLs, folders, apps, and run shell scripts or AppleScri
 
 Supports the `shortrun://` URL scheme for running shortcuts silently in the background without opening the Shortcuts app. Works exactly like the standard [Shortcuts URL scheme](https://support.apple.com/en-ke/guide/shortcuts-mac/apd624386f42/mac) `shortcuts://` but executes silently. Perfect for automation workflows and third-party integrations.
 
+Examples:
+- `shortrun://run-shortcut?name=My%20Shortcut`
+- `shortrun://run-shortcut?name=My%20Shortcut&input=text&text=Hello`
+
 *It does not support `shortcuts://x-callback-url`.*
 
 #### Privacy
@@ -54,6 +58,7 @@ Your shortcuts and data never leave your device. The app is built without intern
 ## Tips
 
 - <kbd>Option</kbd>-click a shortcut in the menu to edit it.
+- Use <kbd>Command</kbd>+<kbd>Z</kbd> to undo changes in the shortcut organizer.
 
 ## Frequently Asked Questions {#faq}
 
@@ -74,6 +79,7 @@ Short Run benefits:
 - Menu closes automatically when running a shortcut
 - Open the menu with a keyboard shortcut and navigate to shortcuts using arrow keys
 - Customizable menu bar icon and menu width
+- [URL scheme](#url-scheme) to run shortcuts silently in the background, perfect for automation workflows
 
 #### How do I disable the built-in Shortcuts menu bar item to avoid duplication?
 
@@ -158,6 +164,8 @@ No, because there is no way to run shortcuts in the background on iOS.
 
 Sure! Find an icon you like in the [SF Symbols app](https://developer.apple.com/sf-symbols/) or [here](https://thenounproject.com/icons/), and send me the name or a link.
 
-<!-- ## Older Versions
+## Older Versions
 
-- []() for macOS 15+ -->
+- [1.3.3](https://www.dropbox.com/scl/fi/us3xw21fz9lr973bcxs3w/Short-Run-1.3.3-macOS-15-1774388916.zip?rlkey=4n102lqactolqj678aqtwncm8&raw=1) for macOS 15
+
+These are free for everyone but they will not run on newer macOS versions.
