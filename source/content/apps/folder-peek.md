@@ -11,8 +11,7 @@ olderMacOSVersions:
   - '12'
   - '13'
   - '14'
-feedbackNote: |
-  If the app is not working after updating to macOS 15, restart your computer once more and it should work. This is a macOS 15 bug.
+  - '15'
 ---
 
 <br>
@@ -23,15 +22,28 @@ Folder Peek lets you put one or more folders in the menu bar.
 
 Make sure you read the below tips and FAQ.
 
+## Features
+
+- Add multiple folders to the menu bar
+- Each folder can be individually customized
+- File preview
+- View and copy image & video dimensions
+- Drag & drop files directly from the menu
+- Global keyboard shortcut to show/hide each folder menu (optionally opens at cursor position)
+- Open a file or folder in a specific app
+- Follows aliases and symlinks
+- Shortcuts support
+
 ## Tips
 
 - Click a file or folder in the menu to open it. Folders open in Finder.
 - Click a file while pressing the <kbd>Option</kbd> key to show it in Finder.
 - Click the folder title ([the top menu item](https://github.com/sindresorhus/meta/assets/170270/79c4e9c7-8abf-49da-b8fb-3a942017442e)) to open the folder.
-- You can drag and drop the file thumbnail in the file submenu. Press the <kbd>Option</kbd> key while dragging to copy instead of moving.
+- You can drag files directly from the menu. You can also drag the file thumbnail in the file submenu. Press the <kbd>Option</kbd> key while dragging to copy instead of moving.
 - Press the <kbd>Option</kbd> key when viewing the file details to copy the path or image/video dimensions.
 - You can use the Shortcuts support to show/hide certain folders depending on what project you are working on.
 - If you have the menu bar item folders next to each other and you have one folder open, you can press <kbd>Control+Tab</kbd> or <kbd>Shift+Control+Tab</kbd> to switch between them.
+- In Settings, you can configure the keyboard shortcut to open the menu at the cursor position instead of at the menu bar icon.
 - Press the <kbd>Option</kbd> key while the menu is open to show the `…` menu item at the top if it normally is at the bottom.
 - Right-click or <kbd>Option</kbd>-click the menu bar item to open the folder.
 - Press the <kbd>Shift</kbd> key while viewing a subfolder to reveal more actions. For example, sort order settings.
@@ -83,11 +95,7 @@ You can create a shortcut in the Shortcuts app using the “Set Folder Visibilit
 
 #### How can I drag & drop a file from the menu?
 
-You can drag & drop the file preview/thumbnail in the file submenu.
-
-Press the <kbd>Option</kbd> key while dragging to copy instead of moving.
-
-It would have been nicer if you could drag & drop directly from the top-level list of files and folders, but this is not possible because of limitations with the system menu.
+You can drag & drop files directly from the menu. Press the <kbd>Option</kbd> key while dragging to copy instead of moving.
 
 #### How can I copy the file path? {#copy-file-path}
 
@@ -205,6 +213,7 @@ I don't plan to localize the app.
 
 ## Older Versions
 
+- [1.12.0](https://www.dropbox.com/scl/fi/b2rc86dfz31edemlnk90x/Folder-Peek-1.12.0-macOS-15-1774844983.zip?rlkey=ukix6tr68xmnsk3dmh94ut10c&raw=1) for macOS 15+
 - [1.11.5](https://github.com/user-attachments/files/18925258/Folder.Peek.1.11.5.-.macOS.14.zip) for macOS 14+
 - [1.9.2](https://github.com/sindresorhus/meta/files/13980050/Folder.Peek.1.9.2.-.macOS.13.zip) for macOS 13+
 - [1.6.1](https://github.com/sindresorhus/meta/files/10901140/Folder.Peek.1.6.1.-.macOS.12.zip) for macOS 12+
@@ -213,6 +222,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/30gu98tp3nati88qjeojs/Folder-Peek-1.12.0-1740254505.zip?rlkey=ajsfxew6c1izfsvgk78twj8ia&raw=1) *(1.12.0)*
+[Download](https://www.dropbox.com/scl/fi/grzdwye40ylsyiwz9mr6e/Folder-Peek-1.13.0-1774844960.zip?rlkey=e0xldpueuiiica8fprcs42pdm&raw=1) *(1.13.0)*
 
-*Requires macOS 15 or later*
+*Requires macOS 26 or later*

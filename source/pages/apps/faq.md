@@ -124,6 +124,7 @@ I make apps for fun and supporting older operating system versions is simply no 
 - **Satisfaction:** I like the satisfaction of completing an app.
 
 ### How can I export, import, sync, transfer, or back up the settings for your Mac app? {#export-settings}
+<!-- @faq.keywords save backup restore configure migration -->
 
 You can do it with my [App Buddy](/app-buddy) app.
 
