@@ -12,6 +12,7 @@ olderMacOSVersions:
   - '12'
   - '13'
   - '14'
+  - '15'
 feedbackNote: |
   [The app randomly disappears/quits](/apps/faq#randomly-quits)
 ---
@@ -102,6 +103,7 @@ Pandan comes bundled with actions for the built-in Shortcuts app which you can u
 
 ## Older Versions
 
+- [1.17.0](https://www.dropbox.com/scl/fi/fcejz5u34afpe9388ivw4/Pandan-1.17.0-macOS-15-1774711134.zip?rlkey=h07yv6twf0glm3u2gjdpkq78w&raw=1) for macOS 15+
 - [1.16.0](https://github.com/user-attachments/files/19008473/Pandan.1.16.0.-.macOS.14.zip) for macOS 14+
 - [1.15.0](https://github.com/sindresorhus/meta/files/14230031/Pandan.1.15.0.-.macOS.13.zip) for macOS 13+
 - [1.13.2](https://github.com/sindresorhus/meta/files/11072195/Pandan.1.13.2.-.macOS.12.zip) for macOS 12+
@@ -111,6 +113,6 @@ Pandan comes bundled with actions for the built-in Shortcuts app which you can u
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/p8k3k0mrtnzhl8oi71jxh/Pandan-1.17.0-1740657032.zip?rlkey=khwqsky1waqt9aumj7tc5nw5v&raw=1) *(1.17.0)*
+[Download](https://www.dropbox.com/scl/fi/z38d9ejud0mid9tlvk6ax/Pandan-1.18.0-1774710864.zip?rlkey=p73ny62ik1yif3pru812akfzm&raw=1) *(1.18.0)*
 
-*Requires macOS 15 or later*
+*Requires macOS 26 or later*

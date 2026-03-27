@@ -637,7 +637,7 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 		});
 	}
 
-	// Sort by pinned > app-specific > score; filter to minMatches threshold
+	// Sort by pinned > higher matchCount > app-specific > score; filter to minMatches threshold
 	// Pinned FAQs only need 1 match — they are high-priority by design
 	function sortAndFilter(scored, minMatches) {
 		return scored
@@ -656,6 +656,10 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 				}
 
 				if (itemA.faq.isAppSpecific !== itemB.faq.isAppSpecific) {
+					if (itemA.matchCount !== itemB.matchCount) {
+						return itemB.matchCount - itemA.matchCount;
+					}
+
 					return itemA.faq.isAppSpecific ? -1 : 1;
 				}
 

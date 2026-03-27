@@ -44,3 +44,7 @@ Any markdown heading with a `{#id}` can be annotated with directives on the line
 **General synonyms** (e.g. `icloud` ↔ `sync`) live in the `SYNONYMS` map in `feedback.astro`. They expand FAQ words so cross-term matches work both ways.
 
 Do **not** use `@faq.keywords` for synonyms — keywords are for *additional match terms specific to one FAQ*. Synonyms express a relationship between two concepts that applies across all FAQs mentioning either term.
+
+### Why a FAQ didn't show for a given email
+
+Common causes: (a) missing keywords/synonyms so the FAQ doesn't match enough query words, (b) weak app-specific FAQs crowd it out of the top-4 (app-specific FAQs rank above general ones at equal matchCount), (c) stopwords eat key terms (e.g. "back up" → "back" is a stopword, "up" is <4 chars). Fix by adding `@faq.keywords` to the FAQ or synonyms to the `SYNONYMS` map.
