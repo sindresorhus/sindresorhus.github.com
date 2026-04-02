@@ -16,7 +16,8 @@ const normalizeApps = async app => {
 
 	let hasFaqSection = false;
 
-	const {Content, headings} = await render(app);
+	const {Content, headings, remarkPluginFrontmatter} = await render(app);
+	const headingMeta = remarkPluginFrontmatter?.headingMeta ?? {};
 
 	const NON_APP_STORE_VERSION = 'Non-App Store Version';
 
@@ -60,7 +61,7 @@ const normalizeApps = async app => {
 				&& !inFaqSubsection
 				&& heading.slug !== 'feedback'
 			) {
-				faqHeadings.push({text: heading.text, slug: heading.slug});
+				faqHeadings.push({text: heading.text, slug: heading.slug, ...headingMeta[heading.slug]?.faq});
 			}
 		}
 	}

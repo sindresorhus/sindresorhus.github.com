@@ -3,12 +3,12 @@ import Layout from '~/layouts/BaseLayout.astro';
 import Header from '~/components/widgets/Header.astro';
 import Footer from '~/components/widgets/Footer.astro';
 
-const {meta} = Astro.props;
+const {meta, isAppPage = false} = Astro.props;
 ---
 
 <Layout {meta}>
 	<slot name="head" slot="head"/>
-	<Header/>
+	<Header {isAppPage}/>
 	<main>
 		<slot/>
 	</main>

@@ -438,13 +438,22 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 			if (atIndex === -1) {
 				return;
 			}
+			const localPart = email.slice(0, atIndex);
+			if (
+				localPart.endsWith('-') ||
+				localPart.startsWith('.') ||
+				localPart.endsWith('.') ||
+				localPart.includes('..')
+			) {
+				return 'Your email address looks incorrect.';
+			}
 			const domain = email.slice(atIndex + 1).toLowerCase();
 			if (EMAIL_TYPOS[domain]) {
-				return `${email.slice(0, atIndex + 1)}${EMAIL_TYPOS[domain]}`;
+				return `Did you mean ${email.slice(0, atIndex + 1)}${EMAIL_TYPOS[domain]}?`;
 			}
 			for (const [badTld, goodTld] of Object.entries(TLD_TYPOS)) {
 				if (domain.endsWith(badTld)) {
-					return `${email.slice(0, atIndex + 1)}${domain.slice(0, -badTld.length)}${goodTld}`;
+					return `Did you mean ${email.slice(0, atIndex + 1)}${domain.slice(0, -badTld.length)}${goodTld}?`;
 				}
 			}
 		}
@@ -460,9 +469,9 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 			emailWarning.classList.add('hidden');
 			clearTimeout(emailDebounceTimer);
 			emailDebounceTimer = setTimeout(() => {
-				const suggestion = suggestEmailFix(emailInput.value.trim());
-				if (suggestion) {
-					emailWarning.textContent = `Did you mean ${suggestion}?`;
+				const warning = suggestEmailFix(emailInput.value.trim());
+				if (warning) {
+					emailWarning.textContent = warning;
 					emailWarning.classList.remove('hidden');
 				}
 			}, 600);
@@ -507,7 +516,7 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 			allFaqs = allFaqs.filter(faq => !faq.platforms || faq.platforms.some(platform => app.platforms.includes(platform)));
 
 			if (app.faqHeadings?.length > 0) {
-				const appFaqs = app.faqHeadings.map(heading => ({question: heading.text, url: `${app.url}#${heading.slug}`, isAppSpecific: true}));
+				const appFaqs = app.faqHeadings.map(heading => ({...heading, question: heading.text, url: `${app.url}#${heading.slug}`, isAppSpecific: true}));
 				allFaqs = [...appFaqs, ...allFaqs];
 			}
 		}
@@ -516,7 +525,8 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 	const pinnedUrls = [
 		'/apps/faq#refund',
 		'/apps/faq#app-problem',
-		'/apps/faq#app-not-showing-in-menu-bar'
+		'/apps/faq#app-not-showing-in-menu-bar',
+		'/velja#fn-key-not-detected',
 	];
 
 	// Common English words that carry no search signal in a tech support context

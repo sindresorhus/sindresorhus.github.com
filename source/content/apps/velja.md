@@ -100,6 +100,8 @@ If you want to open a link in the background, press <kbd>Control</kbd> when sele
 
 While showing the browser prompt, you can press <kbd>Option</kbd> to show buttons to copy or share the link. Or press <kbd>Shift</kbd> or <kbd>Command+C</kbd> to quickly copy the link.
 
+Assign a custom letter to each browser in the “Shown Browsers” list to pick it directly by key while the prompt is open.
+
 Press <kbd>Option+Tab</kbd>/<kbd>Shift+Option+Tab</kbd> or arrow keys to cycle through browsers. Press <kbd>Return</kbd> or <kbd>Space</kbd> to select one.
 
 <kbd>Command</kbd>-click a browser to create a rule that always opens the current domain in that browser. You can also right-click a browser for more options, including creating a rule and opening in a new window (if supported by the browser).
@@ -388,6 +390,10 @@ First, make sure you grant access to profiles in the settings and then enable th
 
 Websites added to the Dock from Safari are just normal apps located in `~/Applications`. You could create a custom rule to match certain URLs and have them open in one of these web-wrapper apps.
 
+#### Why does a Chromium browser PWA open to its default page instead of the URL I opened? {#chromium-pwa}
+
+Progressive Web Apps (PWAs) created by Chromium-based browsers (Chrome, Edge, Brave, etc.) do not accept URL arguments, so when Velja opens one via a rule, the PWA will always navigate to its default page instead of the specific URL. This is a Chromium limitation and cannot be fixed by Velja. Use [Safari “Add to Dock” web apps](#safari-dock-app) instead, which correctly open the specific URL.
+
 #### Can you support [Firefox Multi-Account Containers](https://github.com/mozilla/multi-account-containers)? {#firefox-containers}
 
 It's not feasible to support it built-in because of missing features:
@@ -657,6 +663,7 @@ If you notice the cog icon when opening a URL with an app, I recommend sending f
 *You can optionally drop the `http` item if your app does not need to support that.*
 
 #### The Fn/Globe modifier key is not detected on my external keyboard {#fn-key-not-detected}
+<!-- @faq.keywords clicking prompt trigger alternative fn -->
 
 Some third-party keyboards (e.g. Nuphy Air75) have a firmware issue where the Fn/Globe key-down event is only sent to macOS when the key is released, not when pressed. This means macOS cannot see the key as held down, so Velja cannot detect it.
 

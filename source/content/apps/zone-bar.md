@@ -78,6 +78,10 @@ No. It’s meant for quick, rough shifts. Smaller steps slow it down. If you nee
 
 No. It updates once per minute. Negligible.
 
+#### Does it show AM/PM or 24-hour time?
+
+It follows your macOS system time format. You can change it in “System Settings › General › Date & Time”.
+
 #### Can it show analog clocks?
 
 No. Digital only.
