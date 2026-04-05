@@ -115,6 +115,14 @@ Yes, if an app has not been updated for months, it's still actively maintained. 
 
 I make apps for fun and supporting older operating system versions is simply no fun. It adds a lot of overhead with having to test each update on the older versions, work around bugs Apple will never fix, etc. As a compromise, I provide [older versions](/apps/older-versions) of my apps for older operating system versions.
 
+### How can I install one of your iOS apps on an older version of iOS? {#older-ios-version}
+
+If the current version of the app requires a newer iOS version than your device supports, the App Store can offer the last compatible version. When you tap “Get” or the download button, you should see a prompt asking if you want to download an older version of the app. Tap “Download” to install it.
+
+This only works if the app has been previously downloaded with your Apple ID (even for free apps). If you have not previously downloaded the app, first download it on a device running a supported iOS version, which adds it to your purchase history. Then, on your older device, go to App Store › tap your profile › Purchased, find the app, and download it from there.
+
+[Learn more ›](https://apple.stackexchange.com/questions/195074/how-do-i-install-an-older-version-of-an-app-on-an-iphone)
+
 ### Why do you create multiple mini menu bar apps instead of one comprehensive “menu bar app”? {#multiple-apps}
 
 - **Focus:** Easier to make a high-quality app when it's focused on one thing.

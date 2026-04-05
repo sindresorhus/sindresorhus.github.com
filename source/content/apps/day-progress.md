@@ -12,6 +12,7 @@ appStoreId: 6450280202
 olderMacOSVersions:
   - '13'
   - '14'
+  - '15'
 ---
 
 Use this as a visual cue to stay motivated and manage time more efficiently.
@@ -38,7 +39,7 @@ Run [this shortcut](https://www.icloud.com/shortcuts/830746d544ce471cb1ff70b2f4d
 
 ### Reminder about shortcuts
 
-A shortcut can be run from the menu bar, using a global keyboard shortcut, from Spotlight, or from Raycast. On macOS 26, you can use Shortcuts automations to make it run automatically, for example, when you change to the work focus. On older macOS versions, you can use [Shortery](https://apps.apple.com/us/app/shortery/id1594183810?mt=12) for this.
+A shortcut can be run from the menu bar, using a global keyboard shortcut, from Spotlight, or from Raycast. You can use Shortcuts automations to make it run automatically, for example, when you change to the work focus. For more automation triggers, you can use [Shortery](https://apps.apple.com/us/app/shortery/id1594183810?mt=12).
 
 ### Hide the system clock {#hide-system-clock}
 
@@ -58,11 +59,11 @@ The [distributed notification](/apps/faq#distributed-notifications) `com.sindres
 
 #### Can you add widgets?
 
-I plan to do that at some point.
+I plan to do that at some point, but not soon.
 
 #### Can you add support for iOS?
 
-I plan to do that at some point.
+I plan to do that at some point, but not soon.
 
 #### Can you support more countdown ranges, like until the end of the week or a certain date?
 
@@ -90,6 +91,7 @@ I do not plan to localize the app.
 
 ## Older Versions
 
+- [2.0.3](https://www.dropbox.com/scl/fi/mntravypnb9a11938lk28/Day-Progress-2.0.3-macOS-15-1775397609.zip?rlkey=gjl8jl22miwb9csldzdpd8786&raw=1) for macOS 15
 - [1.4.0](https://github.com/user-attachments/files/18767518/Day.Progress.1.4.0.-.macOS.14.zip) for macOS 14
 - [1.3.0](https://github.com/sindresorhus/meta/files/13979415/Day.Progress.1.3.0.-.macOS.13.zip) for macOS 13
 

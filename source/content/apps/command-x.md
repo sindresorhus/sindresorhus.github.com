@@ -11,6 +11,7 @@ hasSentry: true
 olderMacOSVersions:
   - '13'
   - '14'
+  - '15'
 pressQuotes:
   - quote: If you do a lot of file management and need to move items in Finder, this app will make your work much more straightforward. It’s objectively better than Apple’s standard shortcut, and pretty much everyone can benefit from it.
     source: Softpedia
@@ -118,6 +119,7 @@ I don't plan to localize the app.
 
 ## Older Versions
 
+- [1.6.2](https://www.dropbox.com/scl/fi/90rakqppxdnryctolu9rc/Command-X-1.6.2-macOS-15-1775377612.zip?rlkey=hwh8im5sol3bnc7chqjursf7a&raw=1) for macOS 15
 - [1.4.7](https://github.com/user-attachments/files/19031153/Command.X.1.4.7.-.macOS.14.zip) for macOS 14
 - [1.3.1](https://github.com/sindresorhus/meta/files/13987707/Command.X.1.3.1.-.macOS.13.zip) for macOS 13
 

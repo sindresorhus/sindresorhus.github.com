@@ -14,7 +14,7 @@ mainLinks:
 requirement: Requires macOS 15.4 or later
 # downloads: 10000
 announcement:
-  text: Save 26% with the Power User Bundle — get 3 power user apps together
+  text: Save 28% with the Power User Bundle — get 3 power user apps together
   url: https://sindresorhus.gumroad.com/l/power-user
   urlText: Get the bundle
 pressQuotes:

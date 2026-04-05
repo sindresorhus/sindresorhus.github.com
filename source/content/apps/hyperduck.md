@@ -11,6 +11,7 @@ appStoreId: 6444667067
 olderMacOSVersions:
   - '13'
   - '14'
+  - '15'
 feedbackNote: |
   If you are having problems with sync, [read this](/hyperduck#troubleshooting).
 pressQuotes:
@@ -243,6 +244,7 @@ I don't plan to localize the app.
 
 ## Older Versions
 
+- [1.4.0](https://www.dropbox.com/scl/fi/wqls608ta9gjhwobx7aob/Hyperduck-1.4.0-macOS-15-1775553315.zip?rlkey=s148zdqjfhjqki7bcxscvvo1v&raw=1) for macOS 15
 - [1.2.3](https://github.com/user-attachments/files/18591073/Hyperduck.1.2.3.-.macOS.14.zip) for macOS 14
 - [1.0.7](https://github.com/sindresorhus/meta/files/14292936/Hyperduck.1.0.7.-.macOS.13.zip) for macOS 13
 

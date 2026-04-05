@@ -242,10 +242,11 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 			const os = detectOS();
 			const browser = detectBrowser();
 
-			// Safari 26+ uses the macOS version as its version number, so we can use it to get the macOS version.
-			const safariVersionMatch = os === 'macOS' && browser.match(/^Safari (\d[\d.]*)/);
+			// Safari 26+ uses the OS version as its version number on all Apple platforms.
+			const isAppleOS = ['macOS', 'iOS', 'iPadOS', 'visionOS'].includes(os);
+			const safariVersionMatch = isAppleOS && browser.match(/^Safari (\d[\d.]*)/);
 			const safariMajor = safariVersionMatch ? Number.parseInt(safariVersionMatch[1], 10) : 0;
-			const osLabel = safariMajor >= 26 ? `macOS ${safariVersionMatch[1]}` : os;
+			const osLabel = safariMajor >= 26 ? `${os} ${safariVersionMatch[1]}` : os;
 			const browserLabel = safariMajor >= 26 ? 'Safari' : browser;
 
 			const metadata = [

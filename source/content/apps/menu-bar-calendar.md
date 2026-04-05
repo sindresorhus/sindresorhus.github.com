@@ -76,6 +76,10 @@ You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/IS
 
 Change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
 
+#### Can it open Zoho Calendar instead of Apple/Google Calendar? {#zoho}
+
+No. Zoho Calendar does not support opening to a specific date via URL, so this integration is not possible. You can, however, [sync your Zoho Calendar to the macOS Calendar app](https://www.zoho.com/calendar/help/setup-caldav-sync.html) and then use the “Show in Calendar” click action.
+
 #### How can I open Google Calendar in a specific browser?
 
 Use my [Velja app](https://sindresorhus.com/velja). You can create a rule to open any link clicked in this app in your chosen browser.
