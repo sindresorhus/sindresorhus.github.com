@@ -11,7 +11,7 @@ setappId: 742
 releasesRepo: supercharge-meta
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/supercharge?wanted=true
-requirement: Requires macOS 15.4 or later
+requirement: Requires macOS 26 or later
 # downloads: 10000
 announcement:
   text: Save 28% with the Power User Bundle — get 3 power user apps together
@@ -25,8 +25,8 @@ pressQuotes:
     source: MJay Le
   - quote: If I am allowed to buy only one app to run on my Mac, this would be the one. I simply can't live without it. It adds so many useful features, which are absolutely necessary, and keeps adding new, useful features.
     source: Saksham Bind
-# olderMacOSVersions:
-#   - '15'
+olderMacOSVersions:
+  - '15'
 feedbackNote: |
   If you have moved to a new Mac and need to download the app again, you can download it from your [Gumroad receipt email or Gumroad account](https://gumroad.com/help/article/199-how-do-i-access-my-purchase).
 
@@ -40,6 +40,8 @@ feedbackNote: |
 ---
 
 Improve your Mac experience with a bunch of useful functionality. Supercharge adds power tools for Mission Control, the Dock, Finder, window management, and more, helping you work faster, reduce friction, and fix everyday macOS annoyances.
+
+The app is English-only.
 
 *(Every feature is opt-in, so you can enable only what you need)*
 
@@ -80,6 +82,10 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 - [Capture and translate text from anywhere on screen](#capture-translate-text)
 - Prevent the Music app from auto-opening when you don't want to.
 	<span class="list-description">For example, when pressing Play/Pause on your keyboard or AirPods. You can also have it launch another app like Spotify instead. Similar to apps like noTunes and Overkill.</span>
+- Send media keys to app
+	<span class="list-description">Routes play/pause and next/previous track to Music or Spotify. Useful when macOS keeps sending media keys to the wrong app.</span>
+<!-- - Pause Music and Spotify when Safari starts playing video
+	<span class="list-description">Automatically pauses Music and Spotify when Safari or Safari Technology Preview starts playing video. It does not resume playback when the video stops.</span> -->
 <!-- - [Hyper key](#hyper-key) -->
 <!-- - [Remap dedicated function keys](#remap-dedicated-function-keys) — Make the dedicated Mission Control, Spotlight, Dictation, and Do Not Disturb keys keyboard shortcuts, Supercharge actions, or run shortcuts. -->
 <!-- - [Double-tap modifier keys (Fn, Shift, Control, Option, Command) to trigger keyboard shortcuts, actions, or run shortcuts](#double-tap-modifier) -->
@@ -87,12 +93,13 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 - Prevent accidental ⌘W window closes
 	<span class="list-description">Adds a safety layer to ⌘W so you don’t nuke the wrong window (perfect for Safari web apps and standalone sites). Pick your gesture: ⇧⌘W, double-tap W while holding ⌘, or press-and-hold ⌘W with a visual timer. Works per-app with an inclusion filter, so you can guard only the apps that matter.</span>
 - [Launch any app with a customizable global keyboard shortcut](https://github.com/user-attachments/assets/22bf135a-cc39-45ef-82ef-bf23176f0746)
+	<span class="list-description">Pressing the shortcut again hides the app and activates the previous app, so it works as a quick toggle.</span>
 - [Clicking green traffic light button fills window instead of entering fullscreen](#green-traffic-light-button-fill)
 - [Clicking yellow traffic light button hides app instead of minimizing window](#yellow-traffic-light-button-hide)
-- Trigger specific Spotlight tabs directly with keyboard shortcuts <sup>(macOS 26+)</sup>
+- Trigger specific Spotlight tabs directly with keyboard shortcuts
 	<span class="list-description">Jump straight to Apps, Shortcuts, Files, or Clipboard History in Spotlight with customizable keyboard shortcuts.</span>
 - [Scan QR codes and barcodes from anywhere on screen](#scan-qr-codes)
-- Automatically select AirDrop target (macOS 26 only)
+- Automatically select AirDrop target
 	<span class="list-description">Enter a device name to automatically select it when the AirDrop dialog appears.</span>
 - Cleaning Mode
 	<span class="list-description">Makes your screen black and disables keyboard and mouse to let you safely clean your device. [Screenshot.](https://www.dropbox.com/scl/fi/6vm94elcusix6oqe5su78/434266737-572f4e43-d42a-49c2-925f-4db90ebbfd06-1748011610.mp4?rlkey=r538vzwv0k9ba5rjqhw4goaa7&raw=1)</span>
@@ -130,9 +137,9 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 - Finder: Go back to the previous folder with <kbd>⌫</kbd> (Delete)
 	<span class="list-description">This has a bonus feature of highlighting the folder you came from.</span>
 - [Finder: Adds many useful actions to the context menu:](#finder-context-menu) copy path, move to, open folder with, AirDrop, folder colors, etc.
-- Finder: Paste copied image as file with <kbd>⌘V</kbd>
-	<span class="list-description">When the clipboard contains an image (for example from a browser), pressing <kbd>⌘V</kbd> in Finder/Desktop creates a real image file in the current folder. Normally, this would do nothing as Finder can only paste files.</span>
-- Finder: Middle-click sidebar items to open in a new tab *(macOS 26 only)*
+- Finder: Paste image or plain text as file with <kbd>⌘V</kbd>
+	<span class="list-description">When the clipboard contains an image or plain text, pressing <kbd>⌘V</kbd> in Finder/Desktop creates a file in the current folder. Normally, this would do nothing as Finder can only paste files.</span>
+- Finder: Middle-click sidebar items to open in a new tab
 - Finder: Auto-adjust column widths to filenames in column view, or do it once with a keyboard shortcut
 	- Known (unfixable) issues:
 		- Columns may not adjust correctly in synced folders due to sync status icons.
@@ -143,11 +150,11 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 	<span class="list-description">Shows a system file dialog to choose where to move files.</span>
 - Finder: Open new window when activating without windows
 	<span class="list-description">By default, when you <kbd>Command-Tab</kbd> to Finder without any windows open, nothing happens. This ensures a new window opens automatically.</span>
-- Finder: Make <kbd>⌘Q</kbd> close all windows and hide Finder
+- Finder: Make <kbd>⌘Q</kbd> close all windows
 	<span class="list-description">By default, <kbd>⌘Q</kbd> does nothing in Finder.</span>
 - Finder: Customize clicking Finder icon in Dock
-	<span class="list-description">Choose what happens when you click the Finder icon in the Dock: System default behavior, open new window when already focused (first click focuses, subsequent clicks open new windows), or always open new window.</span> <!-- - [Remap the dedicated Spotlight and Dictation keys to custom keyboard shortcuts](#remap-spotlight-dictation-keys)
-	<span class="list-description">Make them trigger any keyboard shortcut instead, like opening a launcher (Raycast, Alfred) or a transcription app.</span> -->
+	<span class="list-description">Choose what happens when you click the Finder icon in the Dock: System default behavior, open new window when already focused (first click focuses, subsequent clicks open new windows), or always open new window.</span> <!-- - [Remap dedicated function keys to custom keyboard shortcuts](#remap-dedicated-function-keys)
+	<span class="list-description">Make the dedicated Mission Control (F3), Spotlight (F4), Dictation (F5), and Do Not Disturb (F6) keys trigger any keyboard shortcut, action, or run a Shortcuts app shortcut instead.</span> -->
 - [Adds many useful services to “Services” in context menus (like in Finder):](#macos-services) copy path, move to, AirDrop, etc.
 - Exclude AirDrop, Mail, and Messages from the system Share menu
   <span class="list-description">These are usually forced to be shown by macOS.</span>
@@ -159,7 +166,7 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 	<span class="list-description">Does not apply to fullscreen.</span>
 - Minimize all windows or just all except frontmost with keyboard shortcuts and from the menu.
 - Minimize all windows of the active app except frontmost with keyboard shortcuts and from the menu.
-- Unminimize all windows or first window of active app with keyboard shortcut.
+- Unminimize all windows across all apps, or all/first window of active app, with keyboard shortcut and from the menu.
 - Auto-copy screenshots to clipboard.
 	<span class="list-description">Useful if you want screenshots saved and also instantly available to paste. Works with the built-in screenshot tool.</span>
 - [Show markup tools by default in screenshot preview](https://github.com/user-attachments/assets/20b0cfe8-d588-4329-9132-9120b32da7ff)
@@ -206,6 +213,8 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 	<span class="list-description">Mute or unmute your Mac sound with a keyboard shortcut, from the menu, or using Shortcuts.</span>
 - Toggle mute microphone
 	<span class="list-description">Mute or unmute your microphone with a keyboard shortcut, from the menu, or using Shortcuts. Can show a menu bar icon for the current state. [Screenshot.](https://www.dropbox.com/scl/fi/dh8qprcekcjftnjc1hy2l/Mute-microphone-Screen-Shot-2025-07-31-at-19.16.08-1753983397.mp4?rlkey=i9c1ehd348v07g72t2ahpqcsz&raw=1)</span>
+- Mute microphone while typing
+	<span class="list-description">Automatically mutes the microphone input while you're typing and unmutes shortly after you stop. Only activates when the microphone is in use. Useful for video calls with loud keyboards. Similar to the discontinued Unclack app.</span>
 - Toggle dark mode
 - Toggle [Night Shift](https://support.apple.com/en-us/102191)
 - Toggle [True Tone](https://support.apple.com/en-us/102147)
@@ -230,8 +239,8 @@ Improve your Mac experience with a bunch of useful functionality. Supercharge ad
 - [Keyboard shortcut inspector](#keyboard-shortcut-inspector)
 - Add [Dock spacers](#dock-spacers)
 - Add [Finder sidebar spacers](#finder-sidebar-spacers)
-- Access hidden iMac accent colors
-	<span class="list-description">Apply the special accent colors from iMac models on any Mac. These colors are normally only available on their respective iMac models. Note: iMac computers have fixed model accent color that cannot be modified through this feature. [Screenshot.](https://www.dropbox.com/scl/fi/oq8v03kvqj8kq4tnipqsz/Screen-Shot-2025-10-06-at-20.40.35-1759751136.png?rlkey=756uo6hmfepec095ibzcbw1pb&raw=1)</span>
+- Access hidden iMac and MacBook Neo accent colors
+	<span class="list-description">Apply the special accent colors from iMac and MacBook Neo models on any Mac. These colors are normally only available on their respective models. Note: iMac computers have a fixed model accent color that cannot be modified through this feature. [Screenshot.](https://www.dropbox.com/scl/fi/oq8v03kvqj8kq4tnipqsz/Screen-Shot-2025-10-06-at-20.40.35-1759751136.png?rlkey=756uo6hmfepec095ibzcbw1pb&raw=1)</span>
 - Disable Command+Tab app switcher
 	<span class="list-description">Useful to prevent accidental activation if you don't use the app switcher.</span>
 - Remove Caps Lock activation delay
@@ -309,6 +318,8 @@ For advanced features like timing, check out [Lungo](/lungo).
 
 > [!IMPORTANT]
 > It will not prevent your computer from sleeping if you close the lid (except when connected to power and an external display). This is a macOS safety precaution and out of my control.
+>
+> Imagine you activate it while your computer is doing a heavy task and then put the laptop in your bag. Your laptop could easily overheat.
 
 > [!NOTE]
 > This will not prevent you from appearing idle in apps like Slack, Teams, or Discord, which track mouse movement to determine activity.
@@ -390,8 +401,6 @@ Pauses for all apps while any camera/mic is in use or screen is being captured. 
 > [!TIP]
 > To enable only during specific times, places, or Focus modes, you can automate it with the Shortcuts app.
 
-*Available on macOS 26 or later. Currently experimental — feedback welcome!*
-
 **Why use auto-quit instead of just closing apps manually?**
 
 Apps don't close themselves. You check Slack once, then switch to other work and it sits there all day using 3GB of memory, spiking CPU on animated GIFs, draining battery. Same with Discord, Teams, Twitter. They accumulate. You could manually quit them each time, but you won't. Nobody does consistently. Even when backgrounded, these Electron apps consume resources that macOS App Nap can't fully reclaim. Auto-quit handles it automatically: apps only run when you're actually using them, not because you forgot to close them hours ago. Removes both the resource drain and the notification temptation that breaks your flow state.
@@ -466,7 +475,7 @@ Adds the following actions (can be customized) directly in the right-click menu 
 - New Folder Inside
 	<span class="list-description">Creates a new folder inside the selected folder and automatically opens it for renaming. Only shown when selecting a single folder.</span>
 - Flatten Folder
-	<span class="list-description">Moves all files from subdirectories to the folder's root, eliminating nesting. Useful for cleaning up messy downloads or simplifying complicated folder structures. Handles duplicate names automatically.</span>
+	<span class="list-description">Moves all files from subfolders to the folder's root, eliminating nesting. Useful for cleaning up messy downloads or simplifying complicated folder structures. Handles duplicate names automatically.</span>
 - Make Executable
 	<span class="list-description">Makes files executable, similar to `chmod +x` in the terminal. Useful for shell scripts.</span>
 - Invert Selection
@@ -503,6 +512,10 @@ Adds the following actions (can be customized) directly in the right-click menu 
 	<span class="list-description">Shows whether two or more selected files are identical.</span>
 - Is Identical (Interactive)
 	<span class="list-description">Opens a comparison window showing whether selected files are identical. Supports drag-and-drop to add more files. Groups identical files together and lists unique files separately. [Screenshot.](https://www.dropbox.com/scl/fi/cctbogzq60huyxceoa5xh/Is-Identical-Supercharge-Screen-Shot-2025-12-11-at-04.59.12-1765425592.png?rlkey=gzwhyzvgmakzz5r14nvrkko1s&raw=1)</span>
+- Copy Folder Tree
+	<span class="list-description">Copies the folder's tree structure to the clipboard using a visual tree format with box-drawing characters. Useful for documentation, sharing folder layouts, or pasting into chat.</span>
+- Show Symlink Original
+	<span class="list-description">Reveals the original file or folder that a symlink points to. Only shown for symlinks.</span>
 
 *They appear at the bottom of the context menu. There is no way to change that. [They also won't appear in iCloud, Dropbox, OneDrive or any other sync folder.](#finder-context-menu-icloud)*
 
@@ -551,7 +564,7 @@ Finder-specific services:
 - New Folder Inside
 	<span class="list-description">Creates a new folder inside the selected folder and opens it for renaming.</span>
 - Flatten Folder
-	<span class="list-description">Moves all files from subdirectories to the folder's root, eliminating nesting.</span>
+	<span class="list-description">Moves all files from subfolders to the folder's root, eliminating nesting.</span>
 - Make Executable
 	<span class="list-description">Makes files executable, similar to `chmod +x` in the terminal. Useful for shell scripts.</span>
 - New Text File in Finder
@@ -568,6 +581,10 @@ Finder-specific services:
 	<span class="list-description">Shows whether two or more selected files are identical.</span>
 - Are Files Identical? (Interactive)
 	<span class="list-description">Opens a comparison window showing whether selected files are identical. Supports drag-and-drop to add more files. Groups identical files together and lists unique files separately.</span>
+- Copy Folder Tree
+	<span class="list-description">Copies the folder's tree structure to the clipboard using a visual tree format.</span>
+- Show Symlink Original
+	<span class="list-description">Reveals the original file or folder that a symlink points to.</span>
 <!-- - Open in New Finder Window
 	<span class="list-description">Opens the folder in a new window instead of a tab, even if you have set new windows to open as tabs.</span> -->
 <!-- - Delete Immediately
@@ -605,8 +622,6 @@ Powered by macOS’ built-in OCR. Text quality and language support depend on th
 - Vietnamese
 - Arabic
 - Arabic, Najdi
-
-And on macOS 26 and later:
 - Turkish
 - Indonesian
 - Czech
@@ -708,13 +723,13 @@ Make macOS feel less foreign — and more powerful.
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/mnu1af9kk8qijy2szeewa/Supercharge-1.26.1-trial-1772872331.zip?rlkey=2pl2ngvb28imj7qnnsfw72svq&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/2sizlmh6u03eni0qc8tii/Supercharge-1.27.1-trial-1777536094.zip?rlkey=tvtydr42g5i9w5bn8qfk2i5kq&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=742&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
-**Requires macOS 15.4**
+*Requires macOS 26 or later*
 
 ## Tips
 
@@ -788,6 +803,10 @@ Some things are not planned:
 
 - Memory cleaner
 	- Apps like these are a scam. macOS handles memory efficiently. There is no need for an app like this.
+- App uninstaller
+	- I recommend [Pearcleaner](https://github.com/alienator88/Pearcleaner)
+- App thinner
+	- I recommend [Pearcleaner](https://github.com/alienator88/Pearcleaner)
 
 #### The app does not show up in the menu bar
 
@@ -795,7 +814,8 @@ Some things are not planned:
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to show the main window.
 
-#### I moved to a new computer, how can I download the app again?
+#### I moved to a new computer, how can I download the app again? {#reinstall}
+<!-- @faq.keywords reinstall uninstall -->
 
 If you purchased it on [Gumroad](https://gumroad.com), you can download the app again from your Gumroad account or the Gumroad receipt email.
 
@@ -837,6 +857,10 @@ Supercharge offers a simpler, more user-friendly approach. It's designed for use
 
 Dock spacers are [invisible gaps](https://res.cloudinary.com/cpenned/image/upload/f_auto,w_auto/v1636732613/Blog/post-images/20211112-dock.jpg) you can add to your Mac's Dock. They help organize your apps into groups, improving visual clarity. Supercharge lets you easily add these spacers, giving you better control over your Dock's layout.
 
+#### How do I exit Cat Mode and Cleaning Mode?
+
+Press <kbd>Command</kbd> six times.
+
 #### Can I add custom actions to the app?
 
 As of now, the app focuses on providing a curated set of built-in features for enhancing your Mac experience. I'm happy to consider requests.
@@ -870,9 +894,7 @@ Some of the Finder context menu items are also available as [macOS services](#ma
 
 #### I am seeing the Supercharge icon for external drives in the Finder sidebar when enabling context menu items {#finder-extension-sidebar-icon}
 
-macOS 26: This is a macOS bug and out of my control. When context menu items are enabled for external volumes, macOS shows the Supercharge app icon for each drive instead of drive icons in the Finder sidebar. As a workaround, you can disable showing the context menu items on external drives.
-
-macOS 15: This is a macOS bug and out of my control. When context menu items are enabled for external volumes, macOS shows document icons instead of drive icons in the Finder sidebar. As a workaround, you can disable showing the context menu items on external drives.
+This is a macOS bug and out of my control. When context menu items are enabled for external volumes, macOS shows the Supercharge app icon for each drive instead of drive icons in the Finder sidebar. As a workaround, you can disable showing the context menu items on external drives.
 
 #### How can I add my preferred apps to the “Open Folder With” Finder context menu? {#add-app-open-folder-with}
 
@@ -977,9 +999,8 @@ Much of the functionality would not be possible in the App Store because of [san
 
 The [distributed notification](/apps/faq#distributed-notifications) `com.sindresorhus.defaultBrowserDidChange` is emitted when the default browser is changed from the app or the Shortcuts action.
 
-<!-- ## Older Versions
+## Older Versions
 
-- [] for macOS 15
+- [1.26.0](https://www.dropbox.com/scl/fi/ih52hpepe7ksavzdtsjvl/Supercharge-1.26-0-macOS-15-1777112330.zip?rlkey=1oslvlblu593qi23hs35hpusb&raw=1) for macOS 15
 
 These are free for everyone but they will not run on newer macOS versions.
--->

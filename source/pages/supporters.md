@@ -72,16 +72,6 @@ None -->
 	<img src="/assets/thanks/github-logo.svg" width="310" alt="GitHub">
 </a>
 <br>
-<br>
-<a href="https://nitric.io" class="sponsor" rel="nofollow" style="position:relative;left:-20px;margin-top:10px">
-	<img src="/assets/thanks/nitric-logo.svg" width="380" alt="nitric">
-</a>
-<br>
-<a href="https://wisprflow.ai" class="sponsor" rel="nofollow" style="position:relative;margin-top:10px">
-	<img src="/assets/thanks/flow-logo.svg" width="210" alt="Wispr Flow">
-	<center class="dark:text-black" style="font-size:30px">Wispr Flow</center>
-</a>
-<br>
 <a href="https://depot.dev" class="sponsor" rel="nofollow" style="position:relative;margin-top:20px">
 	<img src="/assets/thanks/depot-logo-light.svg" width="240" alt="Depot">
 </a>
@@ -109,6 +99,9 @@ None -->
 	<a href="https://fetchfox.ai?ref=sindre" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/fetchfox-logo.svg" width="120" alt="FetchFox">
 		<span class="dark:text-black" style="font-size: 36px">FetchFox</span>
+	</a>
+	<a href="https://nitric.io" class="sponsor" rel="nofollow" style="position:relative;left:-20px;margin-top:10px">
+		<img src="/assets/thanks/nitric-logo.svg" width="240" alt="nitric">
 	</a>
 	<a href="https://kruu.com" class="sponsor" rel="nofollow">
 		<img src="/assets/thanks/kruu-logo-light.svg" width="240" alt="KRUU">
@@ -431,6 +424,7 @@ I'm forever thankful to these people and companies that have previously supporte
 - [Logto](https://logto.io)
 - [WorkOS](https://workos.com)
 - [BoltAI](https://github.com/BoltAI)
+- [Wispr Flow](https://wisprflow.ai)
 
 ---
 

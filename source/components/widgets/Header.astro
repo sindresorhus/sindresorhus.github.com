@@ -42,9 +42,9 @@ html {
 				<HeaderLink href="/about">About</HeaderLink>
 				<HeaderLink href="/blog">Blog</HeaderLink>
 				<HeaderLink href="/contact" class="md:hidden">Contact</HeaderLink>
-				<li aria-hidden="true" class="hidden md:block h-6 w-px mx-3 self-center rounded-full bg-slate-200/60 dark:bg-slate-600/50"></li>
+				{!isAppPage && <li aria-hidden="true" class="hidden md:block h-6 w-px mx-3 self-center rounded-full bg-slate-200/60 dark:bg-slate-600/50"></li>}
 				{!isAppPage && <HeaderLink href="/donate">Donate</HeaderLink>}
-				<HeaderLink href="/supporters">Supporters</HeaderLink>
+				{!isAppPage && <HeaderLink href="/supporters">Supporters</HeaderLink>}
 			</ul>
 			<div class="md:self-center flex items-center mb-4 md:mb-0 ml-2">
 				<div class="hidden items-center md:flex">

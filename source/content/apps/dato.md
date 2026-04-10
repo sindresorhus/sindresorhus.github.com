@@ -16,6 +16,7 @@ olderMacOSVersions:
   - '12'
   - '13'
   - '14'
+  - '15'
 pressQuotes:
   - quote: Dato is a simple app, but it includes a wide variety of settings that make it more flexible than you might imagine. […] I’ve already got plenty of apps in my menu bar, so I’m always reluctant to add more. However, Dato has stuck around because of its flexibility.
     source: MacStories
@@ -136,7 +137,9 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/7202xt4ctcndv3mln3qz1/Dato-5.7.2-trial-1772863857.zip?rlkey=137ou1l0182qpleurvnlylbrn&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/w6hlvzqdpc7ws7j168r30/Dato-5.8.0-trial-1777488759.zip?rlkey=2g3jturqccow9otebw1sc2p5p&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
+
+*Requires macOS 26 and later*
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
@@ -173,6 +176,11 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 	<tr>
 		<td>
 			If you open the “new event” window while the time travel slider is active, the event will default to the time of the slider.
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Double-click a time zone to collapse all time zones into a compact summary row. Click the row to expand. You can scroll sideways if there are many time zones. You can also collapse from the right-click menu on a time zone.
 		</td>
 	</tr>
 </table>
@@ -299,6 +307,32 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 		</td>
 		<td>Switch between new event and new reminder</td>
 	</tr>
+	<tr>
+		<td>
+			<kbd>command+1</kbd> … <kbd>command+9</kbd>
+		</td>
+		<td>Select calendar/list by position</td>
+	</tr>
+	<tr>
+		<td class="whitespace-nowrap">
+			<kbd>command+▲</kbd>
+			<br>
+			<kbd>command+▼</kbd>
+		</td>
+		<td>Cycle through calendars/lists</td>
+	</tr>
+	<tr>
+		<td>
+			<kbd>command+d</kbd>
+		</td>
+		<td>Toggle “Date” reminder mode</td>
+	</tr>
+	<tr>
+		<td>
+			<kbd>command+t</kbd>
+		</td>
+		<td>Toggle “Time” reminder mode</td>
+	</tr>
 </table>
 
 ### Gestures
@@ -327,6 +361,12 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 			<kbd>shift</kbd> + Swipe left/right on the calendar
 		</td>
 		<td>Next/previous day in the calendar</td>
+	</tr>
+	<tr>
+		<td>
+			Double-click a time zone
+		</td>
+		<td>Collapse time zones into a compact view</td>
 	</tr>
 </table>
 
@@ -809,6 +849,7 @@ The [distributed notification](/apps/faq#distributed-notifications) `com.sindres
 
 ## Older Versions
 
+- [5.7.2](https://www.dropbox.com/scl/fi/3q3c3v0umpp0z43lvnbdd/Dato-5.7.2-macOS-15-1777489241.zip?rlkey=vqy6ggjz2b3g3qejlyz12k74p&raw=1) for macOS 15
 - [5.4.4](https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Dato.5.4.4.-.macOS.14.zip) for macOS 14
 - [5.1.3](https://github.com/sindresorhus/meta/files/14097627/Dato.5.1.3.-.macOS.13.zip) for macOS 13
 - [4.3.3](https://github.com/sindresorhus/meta/files/10516478/Dato.4.3.3.-.macOS.12.zip) for macOS 12
@@ -824,7 +865,7 @@ These are free for everyone but they will not run on newer macOS versions.
 	"@type": "SoftwareApplication",
 	"applicationCategory": "BusinessApplication",
 	"name": "Dato",
-	"operatingSystem": "macOS 15",
+	"operatingSystem": "macOS 26",
 	"aggregateRating": {
 		"@type": "AggregateRating",
 		"ratingValue": "4.9",
@@ -832,14 +873,14 @@ These are free for everyone but they will not run on newer macOS versions.
 	},
 	"offers": {
 		"@type": "Offer",
-		"price": "16.00",
+		"price": "18.00",
 		"priceCurrency": "USD"
 	},
 	"datePublished": "2019-07-13",
 	"headline": "Dato — Calendar events and world clocks in your menu bar",
 	"alternativeHeadline": "Calendar events and world clocks in your menu bar",
 	"downloadUrl": "https://apps.apple.com/app/id1470584107",
-	"softwareVersion": "5.5.0",
+	"softwareVersion": "5.8.0",
 	"screenshot": "https://sindresorhus.com/_astro/screenshot1.IX_7bQOQ.jpg",
 	"fileSize": "15MB",
 	"description": "Dato gives you a local clock, date, and multiple world clocks in the menu bar. When you click Dato in the menu bar, you get a menu with a calendar, calendar events, and world clocks. All of this is highly customizable.",

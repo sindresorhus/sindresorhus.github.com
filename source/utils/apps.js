@@ -1,10 +1,11 @@
 import {markdown} from '@astropub/md';
 import {getCollection, render} from 'astro:content';
 
-const normalizeApps = async app => {
+const date30DaysAgo = new Date(new Date().setDate(new Date().getDate() - 30));
+
+const normalizeApp = async app => {
 	const {data, id: slug} = app;
 	const pubDate = Date.parse(data.pubDate);
-	const date30DaysAgo = new Date(new Date().setDate(new Date().getDate() - 30));
 
 	const faqHeadingTitle = 'Frequently Asked Questions';
 
@@ -108,7 +109,7 @@ const normalizeApps = async app => {
 	return {
 		...data,
 		pubDate,
-		slug: data.slug ?? slug,
+		slug,
 		url: data.redirectUrl ?? `/${slug}`,
 		isRedirect: data.redirectUrl !== undefined,
 		iconUrl: `/apps/${slug}/icon.png`,
@@ -128,37 +129,27 @@ const normalizeApps = async app => {
 	};
 };
 
-const load = async ({
-	includeArchived = false,
-	includeUnlisted = false,
-} = {}) => {
+let cachedApps;
+
+const loadAll = async () => {
 	const apps = await getCollection('apps', app => !app.data.draft);
 
 	const normalizedApps = await Promise.all(
-		apps.map(app => normalizeApps(app)),
+		apps.map(app => normalizeApp(app)),
 	);
 
-	return normalizedApps
-		.sort((a, b) => b.pubDate - a.pubDate)
-		.filter(app =>
-			(includeArchived || !app.isArchived)
-			&& (includeUnlisted || !app.isUnlisted),
-		);
+	return normalizedApps.sort((a, b) => b.pubDate - a.pubDate);
 };
 
-let cachedApps;
+export const fetchApps = async ({includeArchived = false, includeUnlisted = false} = {}) => {
+	cachedApps ??= loadAll();
+	const apps = await cachedApps;
 
-export const fetchApps = async options => {
-	if (options) {
-		return load(options);
-	}
-
-	cachedApps ??= load();
-	return cachedApps;
+	return apps.filter(app =>
+		(includeArchived || !app.isArchived)
+		&& (includeUnlisted || !app.isUnlisted),
+	);
 };
-
-// TODO: Use `getEntry`
-// export const fetchApp = async id => fetchApps().filter(app => app.id === id);
 
 export const tagCSS = 'text-[10px] inline-flex items-center font-bold leading-sm px-1.5 text-black/70 dark:text-black rounded-lg';
 

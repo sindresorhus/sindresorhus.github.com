@@ -275,6 +275,6 @@ subprocess.run(['open', '--background', 'plash:reload'])
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/syx3vo5tbik3mfferrvt5/Plash-2.17.0-1774126569.zip?rlkey=t7ht9cspcblgkbat3s9w4mj5u&raw=1) *(2.17.0)*
+[Download](https://www.dropbox.com/scl/fi/fye9v3csnxpgk7o81vacq/Plash-2.17.2-1777967935.zip?rlkey=14wtfv7vew49om93lcss5qtac&raw=1) *(2.17.2)*
 
 *Requires macOS 26 or later*

@@ -11,6 +11,7 @@ appStoreId: 1672085276
 olderMacOSVersions:
   - '13'
   - '14'
+  - '15'
 feedbackNote: |
   **Sharing from Voice Memos on iOS 26 does not work because of an iOS 26 bug outside of my control.** You may notice that many targets do work. This is because
     those apps use share extensions, while with Aiko, it opens directly in the app. [Workaround.](/aiko#voice-memos-ios26)
@@ -149,6 +150,8 @@ The app uses the Whisper large v2 model on macOS and the medium or small model o
 ## Trial
 
 Try Aiko free for 14 days via [TestFlight](https://testflight.apple.com/join/P1qnhHCC). It's the full app, no limitations. No auto-charges or commitment. Simply purchase it from the App Store after the trial if you want to continue using it.
+
+*If you get asked for a code, just click the above link again instead.*
 
 *Disregard where it says how many days there are left. It means the days left of the current TestFlight build, not how long you have left on your trial.*
 
@@ -301,7 +304,13 @@ The audio recordings can be found in the “Aiko” folder in the Files app.
 
 #### How can I delete audio recordings?
 
-The audio recordings can be deleted in the Files app.
+Recordings are not automatically deleted after transcription.
+
+**macOS:** Click “File › Show Recent Recordings” in the menu bar to open the recordings folder in Finder. Delete them from there.
+
+**iOS:** Open the Files app and navigate to the “Aiko” folder.
+
+You can also enable “Auto-delete recordings older than 7 days” in settings.
 
 #### When trying to import an audio file, I get error -50
 
@@ -431,6 +440,7 @@ I don't plan to localize the app.
 
 ## Older Versions
 
+- [1.10.1](https://drive.google.com/file/d/1nC9W-IdVhYw0rdokLoiGK18VsMLWyet7/view?usp=sharing) for macOS 15
 - [1.8.2](https://drive.google.com/file/d/1ZKZ5P17Pvv4CYuBtkfDe5cuJw46S1HoE/view?usp=sharing) for macOS 14
 - [1.5.3](https://drive.google.com/file/d/15NOcj4fyX58I3_NlQyCziL87Ru89yFRx/view?usp=sharing) for macOS 13
 

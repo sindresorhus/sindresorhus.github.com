@@ -50,7 +50,7 @@ const yearsOfCraft = new Date().getFullYear() - new Date(oldestPubDate).getFullY
 					<span>10K answered support emails</span>
 				</p>
 			</header>
-			<section data-nosnippet class="mx-auto grid sm:gap-12 grid-cols-1 lg:grid-cols-2 sm:p-1 mt-6 mb-12 sm:my-12 dark:text-white">
+			<section id="apps-grid" data-nosnippet class="mx-auto grid sm:gap-12 grid-cols-1 lg:grid-cols-2 sm:p-1 mt-6 mb-12 sm:my-12 dark:text-white">
 				{
 					apps.map(app => (
 						<a
@@ -116,10 +116,18 @@ const yearsOfCraft = new Date().getFullYear() - new Date(oldestPubDate).getFullY
 		const excluded = new URLSearchParams(location.search).get('exclude');
 		if (excluded) {
 			const slugs = new Set(excluded.split(','));
+			let hiddenCount = 0;
 			for (const card of document.querySelectorAll('[data-slug]')) {
 				if (slugs.has(card.dataset.slug)) {
 					card.style.display = 'none';
+					hiddenCount++;
 				}
+			}
+			if (hiddenCount > 0) {
+				const notice = document.createElement('p');
+				notice.className = 'text-center text-sm text-slate-500 dark:text-slate-400 mb-4';
+				notice.innerHTML = `${hiddenCount} ${hiddenCount === 1 ? 'app' : 'apps'} filtered out. <a href="${location.pathname}" class="underline hover:text-slate-700 dark:hover:text-slate-200">Show all</a>`;
+				document.getElementById('apps-grid').before(notice);
 			}
 		}
 	</script>

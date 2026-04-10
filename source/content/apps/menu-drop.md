@@ -16,7 +16,7 @@ AirDrop files and folders simply by dragging them onto the app's menu bar icon.
 
 You can also share directly from your clipboard or use the built-in file picker, both with customizable keyboard shortcuts.
 
-*(Requires macOS 26)*
+*Requires macOS 26 or later*
 
 #### Privacy
 

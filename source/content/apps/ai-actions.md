@@ -14,7 +14,7 @@ feedbackNote: |
   I cannot provide support for general Shortcuts questions. Use [Reddit](https://www.reddit.com/r/shortcuts) for that.
 ---
 
-The app provides additional AI-related actions (GPT 5.2, Claude Sonnet/Opus 4.5, etc.) for the Shortcuts app.
+The app provides additional AI-related actions (GPT, Claude Sonnet/Opus, etc.) for the Shortcuts app.
 
 For example, an action to interact with the ChatGPT API.
 
@@ -96,6 +96,6 @@ I don't plan to localize the app.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/6l6e13n3v01nywhx532cp/AI-Actions-1.5.0-1769231336.zip?rlkey=hv3jek3xtx0l3sv7m8oip1y78&raw=1) *(1.5.0)*
+[Download](https://www.dropbox.com/scl/fi/au3nr5btq9tk5exibiacx/AI-Actions-1.5.1-1777968530.zip?rlkey=cwlxu4j6sf3dy1wq23wx92vm0&raw=1) *(1.5.1)*
 
 *Requires macOS 26 or later*

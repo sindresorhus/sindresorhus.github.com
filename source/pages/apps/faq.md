@@ -9,7 +9,7 @@ title: Frequently Asked Questions
 
 ### How can I report a bug or suggest a feature? {#report-bug}
 
-Tap the feedback button in the app or the support link on the app's page. I prioritize bug fixes and consider feature suggestions that align with the app's vision and user demand.
+Use the feedback button in the app or the support link on the app's page. I prioritize bug fixes and consider feature suggestions that align with the app's vision and user demand.
 
 ### Do your apps collect any personal data? {#privacy}
 
@@ -30,6 +30,18 @@ However, I would appreciate it if you [reached out](/feedback) first. I may be a
 Apps purchased on the Apple App Store can be installed on up to 10 devices, with a maximum of 5 computers. [Learn more.](https://support.apple.com/en-us/HT204074)
 
 Apps purchased on Gumroad can be used by one user on unlimited computers.
+
+### Can I use your paid apps with Family Sharing? {#family-sharing}
+
+Yes, all paid apps on the App Store support [Family Sharing](https://support.apple.com/en-us/108380) by default. Once one family member purchases the app, everyone in the family group can download it at no additional cost. Make sure Purchase Sharing is enabled in your family group settings.
+
+### I previously bought the app on the App Store but it still says I need to pay {#restore-purchase}
+
+App Store purchases are tied to your Apple Account. Make sure you are signed in with the same Apple Account you used for the original purchase. You can verify this in App Store › tap your profile › Purchased. If the app does not appear there, you may be signed into a different account. Also check for any outstanding billing issues in your Apple Account settings, as unresolved payment problems can prevent access to previous purchases.
+
+### Can I move between the App Store, Gumroad, and Setapp? {#transfer-between-stores}
+
+No. The App Store, Gumroad, and Setapp are completely separate platforms with no shared licensing. A purchase on one does not carry over to the others.
 
 ### How can I transfer an app bought on the Apple App Store to a different account? {#transfer-purchase}
 
@@ -61,7 +73,7 @@ Yes. See the [discounts](/apps/discounts) page.
 
 ### What is Universal Purchase on the App Store? {#universal-purchase}
 
-An App Store feature that lets you buy an app once and get access to all its available versions across Apple platforms (iOS, macOS, watchOS, tvOS, and visionOS) using the same Apple ID. For example, if you buy a Universal Purchase app on your iPhone, you can download it on your Mac at no extra cost if a Mac version exists. All my apps on the App Store are Universal Purchase.
+An App Store feature that lets you buy an app once and get access to all its available versions across Apple platforms (iOS, macOS, watchOS, tvOS, and visionOS) using the same Apple Account. For example, if you buy a Universal Purchase app on your iPhone, you can download it on your Mac at no extra cost if a Mac version exists. All my apps on the App Store are Universal Purchase.
 
 ### Can your app be available on Setapp? {#setapp}
 
@@ -71,17 +83,19 @@ Setapp curates apps based on demand, so if you'd like to see an app of mine on S
 
 Yes, all my apps are native. They are built using Swift and SwiftUI and are designed to provide the best performance and integration with the operating systems. I put a lot of effort into adhering to Apple's [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines).
 
+### Are your apps "vibe coded"? {#vibe-coded}
+
+No. I have been developing Mac apps for over a decade, long before AI existed. Every app is intentionally designed and hand-crafted. I do use AI as a tool for brainstorming, planning, catching bugs, writing tests, and generating elements for app icons, but the architecture, code, and user experience are all my own work.
+
 ### Why are most of your apps free? {#free-apps}
 
 I love making apps and I want them to be available to as many people as possible. I don't care much about money and I earn enough on my paid apps.
 
 ### Why should I trust you? {#trust}
 
-Free apps often raise doubts about privacy and intentions. Your trust matters deeply to me. Unlike others, I don't engage in data-selling or bombard you with pesky ads. I don’t sell your data, and you’re not the product. I make apps because I enjoy it. I don't care about profits.
+Free apps often raise doubts about privacy and intentions. I don’t sell your data, you’re not the product, and there are no ads. I make apps because I enjoy it.
 
-With over 3 million users placing their confidence in me, I take pride in safeguarding their devices and respecting their privacy. Moreover, my reputation speaks volumes. Tens of thousands of developers also rely on [my code](https://github.com/sindresorhus).
-
-Trust is earned. Don't just take my word for it; delve into the reviews on the App Store. Your peace of mind matters, and I'm committed to upholding it every step of the way. Feel free to [contact me](/contact) if you have any questions.
+Over 10 million users trust my apps, and tens of thousands of developers rely on [my open source code](https://github.com/sindresorhus). Don’t just take my word for it; check the reviews on the App Store. Feel free to [contact me](/contact) if you have any questions.
 
 ### What's your policy on ads in your apps? {#no-ads}
 
@@ -119,7 +133,7 @@ I make apps for fun and supporting older operating system versions is simply no 
 
 If the current version of the app requires a newer iOS version than your device supports, the App Store can offer the last compatible version. When you tap “Get” or the download button, you should see a prompt asking if you want to download an older version of the app. Tap “Download” to install it.
 
-This only works if the app has been previously downloaded with your Apple ID (even for free apps). If you have not previously downloaded the app, first download it on a device running a supported iOS version, which adds it to your purchase history. Then, on your older device, go to App Store › tap your profile › Purchased, find the app, and download it from there.
+This only works if the app has been previously downloaded with your Apple Account (even for free apps). If you have not previously downloaded the app, first download it on a device running a supported iOS version, which adds it to your purchase history. Then, on your older device, go to App Store › tap your profile › Purchased, find the app, and download it from there.
 
 [Learn more ›](https://apple.stackexchange.com/questions/195074/how-do-i-install-an-older-version-of-an-app-on-an-iphone)
 
@@ -235,6 +249,10 @@ If you are on macOS 26, make sure it's not disabled in “System Settings › Me
 
 Also try restarting your computer.
 
+### The app stopped working after a macOS update {#macos-update-broke-app}
+
+Ensure you are running the latest version of the app. I typically release updates around major macOS releases to ensure compatibility. You may also need to re-grant permissions (Accessibility, Full Disk Access, etc.) in System Settings, as macOS updates can reset these. If the problem persists, try [resetting the app](#reset-app). Still not working? [Contact me](/feedback) with details.
+
 ### I'm having a problem with your app {#app-problem}
 <!-- @faq.keywords working broken -->
 
@@ -249,7 +267,7 @@ Here are some things you could try:
 - macOS: [Reset permissions.](#mac-reset-permissions)
 - [Reset the app.](#reset-app)
 
-For sync issues, see below.
+For sync issues, [see below](#icloud-sync).
 
 If you have tried all of this, [contact me](/feedback).
 
@@ -271,7 +289,7 @@ If you have tried all of this, [contact me](/feedback).
 - If it's a work device, make sure there are no restrictions in place that prevent iCloud or iCloud Drive.
 - Check the [iCloud system status](https://www.apple.com/support/systemstatus/) to ensure the service is not experiencing issues.
 
-##### Keyboard shortcuts or text expansion suddenly stopped working {#secure-input-problem}
+### Keyboard shortcuts or text expansion suddenly stopped working {#secure-input-problem}
 
 If keyboard shortcuts or text expansion suddenly stops working, it's likely because an app is using Secure Input - a macOS security feature that blocks other apps from reading keystrokes. While this is intended for sensitive contexts like password fields, apps sometimes fail to properly disable it. Common culprits are password managers like Bitwarden and 1Password, even when running in the background. Safari can also sometimes cause this.
 
@@ -382,6 +400,10 @@ Select the app in [App Buddy](/app-buddy) and click “Sample Process”.
 - Click the “Save” button.
 - Send me the file.
 
+### Do your apps support Shortcuts? {#shortcuts}
+
+Yes, most of my apps have Shortcuts actions. You can find them in the Shortcuts app by searching for the app name when adding an action.
+
 ### Can you add AppleScript support to your apps? {#applescript}
 
 No. AppleScript is a dying technology that Apple barely cares about anymore. [Shortcuts](https://support.apple.com/en-gb/guide/shortcuts/welcome/ios) is the modern replacement and where Apple is investing its automation efforts. Most of my apps support Shortcuts.
@@ -402,4 +424,4 @@ No. I make apps because I enjoy it. Your money is of no interest to me.
 
 [Ask me.](/contact)
 
-*You could also try to [ask my AI bot](https://chat.openai.com/g/g-df0ZoBF9N-sindregpt).*
+*You could also try to [ask my AI bot](https://chatgpt.com/g/g-df0ZoBF9N-sindregpt).*

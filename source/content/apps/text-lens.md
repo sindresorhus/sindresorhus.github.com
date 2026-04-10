@@ -72,11 +72,21 @@ Everything is done locally on your device. Nothing leaves your device. The app i
 - When in capturing mode, simply click again to exit. You could also press <kbd>Esc</kbd>.
 - Right-click menu bar icon to capture.
 
+### Capture and search the web
+
+You can set up a keyboard shortcut that captures text and immediately searches Google (or any service) with it:
+
+Add [this shortcut](https://www.icloud.com/shortcuts/8075578b214e48f9aa3c9b271c8084ae) to the Shortcuts app and then assign a keyboard shortcut to it in the Shortcuts app.
+
+You can adapt this to search any service (DuckDuckGo, Wikipedia, translate, etc.) by changing the URL.
+
 ### Captured text window
 
-- Clicking the close button or pressing <kbd>Esc</kbd> will discard the text.
-- If you start a new capture while the window is visible, the new text will be appended to the existing one.
+When you set the “After Capture” setting to “Show in Window” (or “Copy and Show in Window”), captured text is shown in a floating window where you can view and edit it. This is also useful for consolidating multiple captures into a single text.
+
+- If you start a new capture while the window is visible (the window is temporarily hidden while you capture), the new text will be appended to the existing one.
 - Copy the whole text with <kbd>Command+Shift+C</kbd>.
+- Clicking the close button or pressing <kbd>Esc</kbd> will discard the text.
 
 ## Frequently Asked Questions {#faq}
 

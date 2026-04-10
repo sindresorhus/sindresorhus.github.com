@@ -5,13 +5,13 @@ pubDate: 2020-09-08
 platforms:
   - macOS
 appStoreId: 1522267256
-hasSentry: true
 olderMacOSVersions:
   - '10.15'
   - '11'
   - '12'
   - '13'
   - '14'
+  - '15'
 ---
 
 Shareful makes the system share menu even more useful by providing some commonly needed share services like copy and save.
@@ -50,6 +50,7 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 ## Older Versions
 
+- [1.11.0](https://www.dropbox.com/scl/fi/a7yel1xtzfi3yhh3eynbp/Shareful-1.11.0-macOS-15-1777049166.zip?rlkey=chl7ohj7zoya7c5ymnpd0dnoc&raw=1) for macOS 15+
 - [1.10.4](https://github.com/user-attachments/files/18914470/Shareful.1.10.4.-.macOS.14.zip) for macOS 14+
 - [1.9.1](https://github.com/sindresorhus/meta/files/14158056/Shareful.1.9.1.-.macOS.13.zip) for macOS 13+
 - [1.8.0](https://github.com/sindresorhus/meta/files/11297902/Shareful.1.8.0.-.macOS.12.zip) for macOS 12+
@@ -60,6 +61,6 @@ I just enjoy making apps. Consider leaving a nice review on the App Store.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/4wko3a9hmmv756jn42tc1/Shareful-1.11.0-1740166187.zip?rlkey=rf6vjg4vdbxu04ikt9ic16gqq&raw=1) *(1.11.0)*
+[Download](https://www.dropbox.com/scl/fi/aq893jnt65u57xr70yjoo/Shareful-1.12.0-1777048683.zip?rlkey=ikakp6yyejrgjigc9cd9ki4zd&raw=1) *(1.12.0)*
 
-*Requires macOS 15 or later*
+*Requires macOS 26 or later*

@@ -11,6 +11,7 @@ appStoreId: 1572202501
 olderMacOSVersions:
   - '13'
   - '14'
+  - '15'
 ---
 
 Simple text editor without any rich text nonsense. The simplicity is a feature.
@@ -142,6 +143,7 @@ I don't plan to localize the app.
 
 ## Older Versions
 
+- [1.8.4](https://www.dropbox.com/scl/fi/molhmzay7xd2c2pj3wm8g/Plain-Text-Editor-1.8.4-macOS-15-1777075080.zip?rlkey=qud2h63j7x90d6e6t4cxz3pl4&raw=1) for macOS 15+
 - [1.5.1](https://github.com/user-attachments/files/18928644/Plain.Text.Editor.1.5.1.-.macOS.14.zip) for macOS 14+
 - [1.3.2](https://github.com/sindresorhus/meta/files/14232390/Plain.Text.Editor.1.3.2.-.macOS.13.zip) for macOS 13+
 

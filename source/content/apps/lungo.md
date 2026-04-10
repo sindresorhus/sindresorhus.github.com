@@ -6,7 +6,6 @@ platforms:
   - macOS
 isPaid: true
 isMenuBarApp: true
-#hasSentry: true
 appStoreId: 1263070803
 setappId: 270
 olderMacOSVersions:
@@ -17,6 +16,7 @@ olderMacOSVersions:
   - '12'
   - '13'
   - '14'
+  - '15'
 ---
 
 Lungo prevents your Mac from falling asleep and your screen from dimming.
@@ -201,6 +201,7 @@ subprocess.run(['open', '--background', 'lungo:toggle'])
 
 ## Older Versions
 
+- [2.7.2](https://www.dropbox.com/scl/fi/khm2quv6q3c5wq9gzvlvc/Lungo-2.7.2-macOS-15-1777060779.zip?rlkey=94p4xjljg9c5caxgnhcw21ya0&raw=1) for macOS 15
 - [2.6.0](https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Lungo.2.6.0.-.macOS.14.zip) for macOS 14
 - [2.4.2](https://github.com/sindresorhus/meta/files/14276605/Lungo.2.4.2.-.macOS.13.zip) for macOS 13
 - [2.2.2](https://github.com/sindresorhus/meta/files/11292407/Lungo.2.2.2.-.macOS.12.zip) for macOS 12

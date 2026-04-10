@@ -36,6 +36,8 @@ A color palette is a collection of colors with optional names, essential for des
 ## Tips
 
 - macOS: Drag and drop an Adobe Swatch Exchange (.ase) or Color List (.clr) file onto the Dock icon to convert it to a Simple Color Palette format. You can also right-click the file in Finder and open with the app.
+- macOS: Use "File › Import Palettes…" to import one or more Adobe Swatch Exchange (.ase) or Color List (.clr) files, converting each to a new Simple Color Palette file.
+- macOS: Drop an Adobe Swatch Exchange (.ase) or Color List (.clr) file onto the palette window to merge its colors directly into the current palette.
 - iOS: Tap an Adobe Swatch Exchange (.ase) or Color List (.clr) file in the file picker in the app to convert it to Simple Color Palette format.
 - macOS: Drop a `.color-palette` file onto the window to add the colors from the dragged palette into the current palette.
 
@@ -131,6 +133,6 @@ No, only flat colors are supported.
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/z9kdudx71b6zkryxdm6oy/Simple-Color-Palette-1.3.0-1772815584.zip?rlkey=z36l3zkwsy4zx0dq9jv4zg9lo&raw=1) *(1.3.0)*
+[Download](https://www.dropbox.com/scl/fi/bbpfawkllfq81gw2xvksl/Simple-Color-Palette-1.3.1-1775986497.zip?rlkey=di7lacf9mdqhozck8tl37am9m&raw=1) *(1.3.1)*
 
 *Requires macOS 26 or later*

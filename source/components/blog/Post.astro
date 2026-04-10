@@ -15,6 +15,7 @@ const {post} = Astro.props;
 			<h1
 				class={`text-5xl lg:text-6xl font-bold leading-tight tracking-tight font-heading text-balance ${post.description ? 'mb-4' : 'mb-3'}`}
 			>
+				{/* We could use non-breaking hyphens to keep compound words together, but that risks overflow on narrow screens. */}
 				{post.title}
 			</h1>
 			{post.description &&
