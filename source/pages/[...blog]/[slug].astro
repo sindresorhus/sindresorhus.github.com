@@ -24,6 +24,11 @@ const meta = {
 	/// image: post.image, // FIXME
 	ogTitle: post.title,
 	ogType: 'article',
+	articleMeta: {
+		publishedTime: post.pubDate.toISOString(),
+		authors: ['Sindre Sorhus'],
+		...(post.tags?.length > 0 && {tags: post.tags}),
+	},
 };
 ---
 

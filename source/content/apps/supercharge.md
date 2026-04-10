@@ -11,7 +11,7 @@ setappId: 742
 releasesRepo: supercharge-meta
 mainLinks:
   'Buy': https://sindresorhus.gumroad.com/l/supercharge?wanted=true
-requirement: Requires macOS 15.4 or later
+requirement: Requires macOS 26 or later
 # downloads: 10000
 announcement:
   text: Save 28% with the Power User Bundle — get 3 power user apps together
@@ -25,8 +25,8 @@ pressQuotes:
     source: MJay Le
   - quote: If I am allowed to buy only one app to run on my Mac, this would be the one. I simply can't live without it. It adds so many useful features, which are absolutely necessary, and keeps adding new, useful features.
     source: Saksham Bind
-# olderMacOSVersions:
-#   - '15'
+olderMacOSVersions:
+  - '15'
 feedbackNote: |
   If you have moved to a new Mac and need to download the app again, you can download it from your [Gumroad receipt email or Gumroad account](https://gumroad.com/help/article/199-how-do-i-access-my-purchase).
 
@@ -40,6 +40,8 @@ feedbackNote: |
 ---
 
 Improve your Mac experience with a bunch of useful functionality. Supercharge adds power tools for Mission Control, the Dock, Finder, window management, and more, helping you work faster, reduce friction, and fix everyday macOS annoyances.
+
+The app is English-only.
 
 *(Every feature is opt-in, so you can enable only what you need)*
 
@@ -390,8 +392,6 @@ Pauses for all apps while any camera/mic is in use or screen is being captured. 
 > [!TIP]
 > To enable only during specific times, places, or Focus modes, you can automate it with the Shortcuts app.
 
-*Available on macOS 26 or later. Currently experimental — feedback welcome!*
-
 **Why use auto-quit instead of just closing apps manually?**
 
 Apps don't close themselves. You check Slack once, then switch to other work and it sits there all day using 3GB of memory, spiking CPU on animated GIFs, draining battery. Same with Discord, Teams, Twitter. They accumulate. You could manually quit them each time, but you won't. Nobody does consistently. Even when backgrounded, these Electron apps consume resources that macOS App Nap can't fully reclaim. Auto-quit handles it automatically: apps only run when you're actually using them, not because you forgot to close them hours ago. Removes both the resource drain and the notification temptation that breaks your flow state.
@@ -605,8 +605,6 @@ Powered by macOS’ built-in OCR. Text quality and language support depend on th
 - Vietnamese
 - Arabic
 - Arabic, Najdi
-
-And on macOS 26 and later:
 - Turkish
 - Indonesian
 - Czech
@@ -708,13 +706,13 @@ Make macOS feel less foreign — and more powerful.
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/mnu1af9kk8qijy2szeewa/Supercharge-1.26.1-trial-1772872331.zip?rlkey=2pl2ngvb28imj7qnnsfw72svq&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/2sizlmh6u03eni0qc8tii/Supercharge-1.27.1-trial-1777536094.zip?rlkey=tvtydr42g5i9w5bn8qfk2i5kq&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=742&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
-**Requires macOS 15.4**
+*Requires macOS 26 or later*
 
 ## Tips
 
@@ -788,6 +786,10 @@ Some things are not planned:
 
 - Memory cleaner
 	- Apps like these are a scam. macOS handles memory efficiently. There is no need for an app like this.
+- App uninstaller
+	- I recommend [Pearcleaner](https://github.com/alienator88/Pearcleaner)
+- App thinner
+	- I recommend [Pearcleaner](https://github.com/alienator88/Pearcleaner)
 
 #### The app does not show up in the menu bar
 
@@ -795,7 +797,8 @@ Some things are not planned:
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to show the main window.
 
-#### I moved to a new computer, how can I download the app again?
+#### I moved to a new computer, how can I download the app again? {#reinstall}
+<!-- @faq.keywords reinstall uninstall -->
 
 If you purchased it on [Gumroad](https://gumroad.com), you can download the app again from your Gumroad account or the Gumroad receipt email.
 
@@ -977,9 +980,8 @@ Much of the functionality would not be possible in the App Store because of [san
 
 The [distributed notification](/apps/faq#distributed-notifications) `com.sindresorhus.defaultBrowserDidChange` is emitted when the default browser is changed from the app or the Shortcuts action.
 
-<!-- ## Older Versions
+## Older Versions
 
-- [] for macOS 15
+- [1.26.0](https://www.dropbox.com/scl/fi/ih52hpepe7ksavzdtsjvl/Supercharge-1.26-0-macOS-15-1777112330.zip?rlkey=1oslvlblu593qi23hs35hpusb&raw=1) for macOS 15
 
 These are free for everyone but they will not run on newer macOS versions.
--->

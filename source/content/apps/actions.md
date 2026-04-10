@@ -58,6 +58,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Calculate with Soulver
 - Choose from List (Extended)
 - Clamp Number
+- Clean Zip
+	<span class="list-description">Removes .DS_Store files and __MACOSX directories from a ZIP archive. Useful when sharing ZIP files with non-Mac users.</span>
 - Color
 - Combine Audio Files
 - Combine Lists
@@ -81,6 +83,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Create URL
 - Create URL Shortcut File
 	<span class="list-description">Create [`.url` or `.webloc`](https://en.wikipedia.org/wiki/Shortcut_(computing)) files that open websites when double-clicked. Primarily for macOS.</span>
+- Delete Empty Contacts
+	<span class="list-description">Deletes contacts that have no name, phone number, email, or any other data.</span>
 - Download File
 - Edit URL
 - Encrypt File
@@ -119,6 +123,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Get Compass Heading <sup>(iOS-only)</sup>
 - Get Contents of URL (Extended)
 	<span class="list-description">Enhanced HTTP requests with complete response details (status codes, headers, all methods) instead of just the response body like the built-in action, and also timeout.</span>
+- Get Date Added of File
+	<span class="list-description">Returns the date when a file was added to its parent folder.</span>
 - Get Dates in Range
 	<span class="list-description">Returns all dates between two dates filtered by type. For example, get all Mondays between two dates, or list every weekend in a month.</span>
 - Get Default Browser <sup>(macOS-only)</sup>
@@ -140,6 +146,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Get Device Motion Data <sup>(iOS-only)</sup>
 - Get Device Orientation
 - Get Dominant Colors of Image
+- Get Barometric Pressure <sup>(iOS-only)</sup>
+	<span class="list-description">Returns the current barometric pressure from the device's built-in barometer.</span>
 - Get Elevation <sup>(iOS-only)</sup>
 - Get Emojis
 - Get File Path
@@ -198,6 +206,7 @@ If you have any questions about how to use the different actions or for what, tr
 - Invert Dictionary
 	<span class="list-description">`{"en": "Hello", "es": "Hola"}` → `{"Hello": "en", "Hola": "es"}`</span>
 - Invert Images
+- Is 24-Hour Time Format
 - Is Accessibility Feature On
 - Is Audio Playing <sup>(iOS-only)</sup>
 - Is Bluetooth On
@@ -223,6 +232,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Is Silent Mode On <sup>(iOS-only)</sup>
 - Is Time
 - Is Time In Range
+- Is True
+	<span class="list-description">Check if boolean values satisfy a logical condition: all true (AND), all false (NOR), any true (OR), any false (NAND), or exactly one true (XOR). Supports up to 10 values.</span>
 - Is Web Server Reachable
 - Is Wi-Fi On <sup>(macOS-only)</sup>
 - Join Wi-Fi <sup>(iOS-only)</sup>
@@ -245,6 +256,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Parse Markdown Table
 - Pick Color
 	<span class="list-description">Pick a color using the system color picker, optionally from a reference image.</span>
+- Ping
+	<span class="list-description">Ping a host using ICMP, similar to the `ping` command-line tool, and get statistics including average/min/max round-trip time and packet loss.</span>
 - Play Alert Sound <sup>(macOS-only)</sup>
 - Pretty Print Dictionaries
 - Remove Dictionary Values
@@ -259,6 +272,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Round Number to Decimal Places
 	<span class="list-description">`3.14159` → `3.14`</span>
 - Round Number to Multiple
+- Run cURL Command
+	<span class="list-description">Execute an HTTP request from a cURL command string. Simply paste a cURL command from Postman, Swagger, or browser dev tools. Supports common options like headers, body data, authentication, redirects, and more.</span>
 - Sample Color from Screen <sup>(macOS-only)</sup>
 - Scan Barcodes in Image
 - Scan Documents <sup>(iOS-only)</sup>
@@ -269,6 +284,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Set Dictionary Value Using [JSONPath](https://en.wikipedia.org/wiki/JSONPath)
 - Show Black Screen <sup>(iOS-only)</sup>
 - Show Notification
+- Show Overlay
+	<span class="list-description">Display large centered text on a fullscreen overlay. Supports plain text with custom colors and HTML mode for custom styling. The overlay stays until tapped or an optional duration expires.</span>
 - Shuffle List
 - Sort List
 - Sort List of Dictionaries

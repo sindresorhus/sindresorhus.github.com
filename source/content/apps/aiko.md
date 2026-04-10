@@ -150,6 +150,8 @@ The app uses the Whisper large v2 model on macOS and the medium or small model o
 
 Try Aiko free for 14 days via [TestFlight](https://testflight.apple.com/join/P1qnhHCC). It's the full app, no limitations. No auto-charges or commitment. Simply purchase it from the App Store after the trial if you want to continue using it.
 
+*If you get asked for a code, just click the above link again instead.*
+
 *Disregard where it says how many days there are left. It means the days left of the current TestFlight build, not how long you have left on your trial.*
 
 ## Tips
@@ -301,7 +303,13 @@ The audio recordings can be found in the “Aiko” folder in the Files app.
 
 #### How can I delete audio recordings?
 
-The audio recordings can be deleted in the Files app.
+Recordings are not automatically deleted after transcription.
+
+**macOS:** Click “File › Show Recent Recordings” in the menu bar to open the recordings folder in Finder. Delete them from there.
+
+**iOS:** Open the Files app and navigate to the “Aiko” folder.
+
+You can also enable “Auto-delete recordings older than 7 days” in settings.
 
 #### When trying to import an audio file, I get error -50
 

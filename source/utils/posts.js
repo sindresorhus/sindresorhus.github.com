@@ -5,7 +5,6 @@ const normalizePost = async post => {
 	const {id, body, data} = post;
 	const {Content} = await render(post);
 
-	// TODO: Nest all these under the `.data` property.
 	return {
 		...data,
 		id,
@@ -17,38 +16,22 @@ const normalizePost = async post => {
 	};
 };
 
-const load = async function ({includeUnlisted = false} = {}) {
-	const posts = await getCollection('blog', app => !app.data.draft);
+const loadAll = async () => {
+	const posts = await getCollection('blog', post => !post.data.draft);
 
 	const normalizedPosts = await Promise.all(
 		posts.map(async post => normalizePost(post)),
 	);
 
-	return normalizedPosts
-		.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate))
-		.filter(app => includeUnlisted || !app.isUnlisted);
+	return normalizedPosts.sort((a, b) => b.pubDate - a.pubDate);
 };
 
 let cachedPosts;
 
-export const fetchPosts = async () => {
-	cachedPosts ??= load();
-	return cachedPosts;
+export const fetchPosts = async ({includeUnlisted = false} = {}) => {
+	cachedPosts ??= loadAll();
+	const posts = await cachedPosts;
+
+	return posts.filter(post => includeUnlisted || !post.isUnlisted);
 };
 
-// TODO: Use `getEntry`
-export const findPostsByIds = async ids => {
-	if (!Array.isArray(ids)) {
-		return [];
-	}
-
-	const posts = await fetchPosts();
-
-	// TODO: Fix.
-	// eslint-disable-next-line unicorn/no-array-reduce
-	return ids.reduce((r, id) => {
-		posts.some(post => id === post.id && r.push(post));
-
-		return r;
-	}, []);
-};
