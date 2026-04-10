@@ -714,7 +714,7 @@ Try the fully functional trial [here](https://www.dropbox.com/scl/fi/mnu1af9kk8q
 
 You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=742&utm_medium=vendor_program&utm_content=button) for 7 days for free.
 
-**Requires macOS 15.4**
+*Requires macOS 15.4 or later*
 
 ## Tips
 

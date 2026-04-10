@@ -4,6 +4,7 @@ subtitle: Put folders in your menu bar
 pubDate: 2022-04-05
 platforms:
   - macOS
+isPaid: true
 isMenuBarApp: true
 appStoreId: 1615988943
 hasSentry: true
@@ -16,13 +17,7 @@ olderMacOSVersions:
 
 <br>
 
-#### Guide {#guide}
-
-Folder Peek lets you put one or more folders in the menu bar.
-
-Make sure you read the below tips and FAQ.
-
-## Features
+### Features
 
 - Add multiple folders to the menu bar
 - Each folder can be individually customized
@@ -33,6 +28,12 @@ Make sure you read the below tips and FAQ.
 - Open a file or folder in a specific app
 - Follows aliases and symlinks
 - Shortcuts support
+
+### Guide {#guide}
+
+Folder Peek lets you put one or more folders in the menu bar.
+
+Make sure you read the below tips and FAQ.
 
 ## Tips
 
@@ -62,6 +63,10 @@ You could add the “Desktop” folder to Folder Peek and then [hide the desktop
 #### The app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
+
+#### Why is the app suddenly paid? It used to be free.
+
+While I love making free apps that are available to anyone, the high volume of support requests became unsustainable. After providing the app for free for 4 years with more than 50K downloads, I made the decision to make it paid. This isn't about revenue - it's about managing my time more effectively by reducing the support burden to a sustainable level.
 
 #### Some folders are suddenly missing from the menu bar
 
@@ -203,25 +208,15 @@ The app is for folders only. However, I have an app for exactly this: [Short Run
 
 [See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
 
-#### Why is this free without ads?
-
-I just enjoy making Mac apps. Consider leaving a nice review on the App Store.
-
 #### Can you localize the app into my language?
 
 I don't plan to localize the app.
 
 ## Older Versions
 
-- [1.12.0](https://www.dropbox.com/scl/fi/b2rc86dfz31edemlnk90x/Folder-Peek-1.12.0-macOS-15-1774844983.zip?rlkey=ukix6tr68xmnsk3dmh94ut10c&raw=1) for macOS 15+
-- [1.11.5](https://github.com/user-attachments/files/18925258/Folder.Peek.1.11.5.-.macOS.14.zip) for macOS 14+
-- [1.9.2](https://github.com/sindresorhus/meta/files/13980050/Folder.Peek.1.9.2.-.macOS.13.zip) for macOS 13+
-- [1.6.1](https://github.com/sindresorhus/meta/files/10901140/Folder.Peek.1.6.1.-.macOS.12.zip) for macOS 12+
+- [1.12.0](https://www.dropbox.com/scl/fi/hlyb11lf2m65st8daptme/Folder-Peek-1.12.0-macOS-15-1775931438.zip?rlkey=7bykzpnc4iik0izgibhxx1sxo&raw=1) for macOS 15
+- [1.11.5](https://github.com/user-attachments/files/18925258/Folder.Peek.1.11.5.-.macOS.14.zip) for macOS 14
+- [1.9.2](https://github.com/sindresorhus/meta/files/13980050/Folder.Peek.1.9.2.-.macOS.13.zip) for macOS 13
+- [1.6.1](https://github.com/sindresorhus/meta/files/10901140/Folder.Peek.1.6.1.-.macOS.12.zip) for macOS 12
 
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/grzdwye40ylsyiwz9mr6e/Folder-Peek-1.13.0-1774844960.zip?rlkey=e0xldpueuiiica8fprcs42pdm&raw=1) *(1.13.0)*
-
-*Requires macOS 26 or later*
+These are free for everyone but they will not run on newer macOS versions.

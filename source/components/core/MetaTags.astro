@@ -1,6 +1,6 @@
 ---
 /// import {ClientRouter} from 'astro:transitions';
-import {AstroSeo} from '@astrolib/seo';
+import {SEO} from 'astro-seo';
 import {SITE} from '~/config.mjs';
 import {cleanPathname} from '~/utils/utils.js';
 
@@ -8,6 +8,7 @@ const {
 	title = SITE.name,
 	description = '',
 	image: _image,
+	imageAlt,
 	noindex = false,
 	nofollow = false,
 	ogTitle = title,
@@ -15,7 +16,10 @@ const {
 	appStoreId,
 	favicon,
 	rssFeeds = [],
+	articleMeta,
 } = Astro.props;
+
+const resolvedImageAlt = imageAlt ?? ogTitle ?? title;
 
 const image = _image && new URL(_image, Astro.site);
 const canonicalURL = new URL(`/${cleanPathname(Astro.url.pathname)}`, Astro.site);
@@ -54,22 +58,42 @@ const canonicalURL = new URL(`/${cleanPathname(Astro.url.pathname)}`, Astro.site
 
 <!-- <ClientRouter/> -->
 
-<AstroSeo
+<SEO
 	title={title}
 	description={description}
 	canonical={canonicalURL.toString()}
 	noindex={noindex}
 	nofollow={nofollow}
-	openGraph={{
-		title: ogTitle,
-		description,
-		url: canonicalURL.toString(),
-		type: ogType,
-		locale: 'en_US',
-		images: image ? [
-			{
-				url: image.toString(),
-			},
-		] : undefined,
+	openGraph={image ? {
+		basic: {
+			title: ogTitle,
+			type: ogType,
+			image: image.toString(),
+			url: canonicalURL.toString(),
+		},
+		optional: {
+			description,
+			locale: 'en_US',
+			siteName: SITE.name,
+		},
+		image: {
+			alt: resolvedImageAlt,
+			width: 1200,
+			height: 630,
+		},
+		...(articleMeta && {article: articleMeta}),
+	} : undefined}
+	extend={image ? undefined : {
+		meta: [
+			{property: 'og:title', content: ogTitle},
+			{property: 'og:type', content: ogType},
+			{property: 'og:url', content: canonicalURL.toString()},
+			{property: 'og:description', content: description},
+			{property: 'og:locale', content: 'en_US'},
+			{property: 'og:site_name', content: SITE.name},
+			...(articleMeta?.publishedTime ? [{property: 'article:published_time', content: articleMeta.publishedTime}] : []),
+			...(articleMeta?.authors?.map(author => ({property: 'article:author', content: author})) ?? []),
+			...(articleMeta?.tags?.map(tag => ({property: 'article:tag', content: tag})) ?? []),
+		],
 	}}
 />

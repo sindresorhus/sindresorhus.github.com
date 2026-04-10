@@ -301,7 +301,13 @@ The audio recordings can be found in the “Aiko” folder in the Files app.
 
 #### How can I delete audio recordings?
 
-The audio recordings can be deleted in the Files app.
+Recordings are not automatically deleted after transcription.
+
+**macOS:** Click “File › Show Recent Recordings” in the menu bar to open the recordings folder in Finder. Delete them from there.
+
+**iOS:** Open the Files app and navigate to the “Aiko” folder.
+
+You can also enable “Auto-delete recordings older than 7 days” in settings.
 
 #### When trying to import an audio file, I get error -50
 

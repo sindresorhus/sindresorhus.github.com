@@ -67,10 +67,9 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 			<h1 id="product-name" class="text-4xl md:text-5xl font-bold leading-tighter tracking-tighter mb-2 font-heading"></h1>
 			<h2 class="text-2xl md:text-3xl leading-tighter tracking-tighter mb-8">Feedback & Support</h2>
 			<div id="additional-info" class={proseCSS} style="font-size:16px"></div>
-			<div><br>Will your app support the liquid glass UI and icons?<br>Yes, but not at launch. Liquid glass is still buggy and adapting apps to it requires significant work, so most of my apps will add support later. Missing icons in menus are expected since many are controlled by macOS, not individual apps.</div><br>
 			<!-- <div><br>I may take longer to respond as I'm on Christmas vacation. I appreciate your patience. Happy holidays 🎄</div><br> -->
 			<!-- <div><br>I may take longer to respond as I'm getting an overwhelming amount of emails at the moment. I appreciate your patience.</div> -->
-			<div class={proseCSS} style="font-size:20px"><b>If you experience any issues with my apps after updating to iOS 26 / macOS 26, make sure you are on the latest update of my apps and try restarting your device one more time. It fixes a lot of issues. If a menu bar icon is missing, see <a href="https://sindresorhus.com/apps/faq#app-not-showing-in-menu-bar">this</a>. If you are still having problems with widgets, try changing the device language to something else and then back.</b></div>
+			<!-- <div class={proseCSS} style="font-size:20px"><b>If you experience any issues with my apps after updating to iOS 26 / macOS 26, make sure you are on the latest update of my apps and try restarting your device one more time. It fixes a lot of issues. If a menu bar icon is missing, see <a href="https://sindresorhus.com/apps/faq#app-not-showing-in-menu-bar">this</a>. If you are still having problems with widgets, try changing the device language to something else and then back.</b></div> -->
 		</div>
 		<form id="feedback-form" class="mt-8" action="https://formcarry.com/s/UBfgr97yfY" method="POST" enctype="multipart/form-data">
 			<input type="hidden" name="_gotcha">
@@ -506,6 +505,10 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 </script>
 
 <script type="module" is:inline define:vars={{generalFaqs, apps}}>
+	/*
+	FAQ suggestion engine: as the user types, we tokenize their message (3+ char words, minus stopwords), expand with synonyms, and score each FAQ using TF-IDF weighting (rare word matches score higher). Results are sorted by pinned status, match count, and score, then deduplicated. Minimum 2 matching words required (1 for pinned FAQs or single-word queries).
+	*/
+
 	const params = new URL(location.href).searchParams;
 	let allFaqs = generalFaqs;
 
@@ -528,21 +531,25 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 		'/apps/faq#app-problem',
 		'/apps/faq#app-not-showing-in-menu-bar',
 		'/velja#fn-key-not-detected',
+		'/velja#builtin-apps-requests',
 	];
 
 	// Common English words that carry no search signal in a tech support context
 	const STOPWORDS = new Set([
-		'about', 'after', 'again', 'also', 'back', 'been', 'being', 'both',
-		'come', 'could', 'does', 'done', 'each', 'even', 'ever', 'every',
-		'feel', 'find', 'first', 'from', 'give', 'have', 'here', 'into',
-		'just', 'keep', 'know', 'last', 'like', 'look', 'made', 'make',
-		'many', 'more', 'most', 'much', 'need', 'never', 'often', 'onto',
-		'other', 'over', 'said', 'same', 'seem', 'should', 'since',
-		'some', 'still', 'such', 'take', 'tell', 'than', 'that',
-		'their', 'them', 'then', 'there', 'these', 'they', 'think', 'those',
-		'turn', 'upon', 'used', 'using', 'very', 'want', 'were', 'what',
-		'when', 'where', 'which', 'while', 'will', 'with', 'would',
-		'your',
+		'ago', 'all', 'also', 'and', 'any', 'are', 'about', 'after', 'again', 'back',
+		'been', 'being', 'both', 'but', 'can',
+		'come', 'could', 'day', 'did', 'does', 'done', 'each', 'even', 'ever', 'every',
+		'far', 'feel', 'few', 'find', 'first', 'for', 'from', 'get', 'give', 'got',
+		'had', 'has', 'have', 'her', 'here', 'his', 'how', 'into', 'its',
+		'just', 'keep', 'know', 'last', 'let', 'like', 'look', 'made', 'make',
+		'many', 'may', 'more', 'most', 'much', 'need', 'never', 'new', 'not', 'now',
+		'off', 'often', 'old', 'onto', 'other', 'our', 'over', 'own',
+		'please', 'said', 'same', 'say', 'see', 'seem', 'should', 'since',
+		'some', 'still', 'such', 'take', 'tell', 'than', 'that', 'the',
+		'their', 'them', 'then', 'there', 'these', 'they', 'thing', 'think', 'this', 'those',
+		'too', 'try', 'turn', 'upon', 'use', 'used', 'using', 'very',
+		'want', 'was', 'way', 'were', 'what', 'when', 'where', 'which',
+		'while', 'who', 'why', 'will', 'with', 'would', 'yet', 'you', 'your',
 	]);
 
 	// Term groups where all terms are interchangeable during FAQ matching
@@ -581,7 +588,7 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 	// Strip apostrophes before tokenizing so "doesn't" → "doesnt" (harmless non-match)
 	// rather than "doesn" which could trigger false partial matches
 	function tokenize(text) {
-		return (text.toLowerCase().replace(/'/g, '').match(/\b\w{4,}\b/g) ?? []).filter(word => !STOPWORDS.has(word));
+		return (text.toLowerCase().replace(/'/g, '').match(/\b\w{3,}\b/g) ?? []).filter(word => !STOPWORDS.has(word));
 	}
 
 	// Returns true if the words share a common prefix (handles sync/syncing, crash/crashed, etc.)

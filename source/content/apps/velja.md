@@ -84,7 +84,7 @@ Try the fully functional trial [here](https://www.dropbox.com/scl/fi/3a9nj35coz3
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
-**Requires macOS 26**
+*Requires macOS 26 or later*
 
 ## Tips
 
