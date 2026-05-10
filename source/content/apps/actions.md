@@ -412,7 +412,7 @@ iOS does not have a way to prevent individual apps from being offloaded (even th
 No. I applied for Apple’s [Critical Alerts entitlement](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.developer.usernotifications.critical-alerts), but it was declined.
 Critical Alerts are reserved for very limited use cases such as medical, health, home security, and public safety notifications. General-purpose automation apps like Actions are not eligible.
 
-## Older versions
+## Older Versions
 
 - [3.8.0](https://www.dropbox.com/scl/fi/fhfw330g14eh35bwofuyy/Actions-3.8.0-macOS-15-1773919013.zip?rlkey=9l9f3noc5l64j9r0cai9lc5rm&raw=1) for macOS 15+
 - [3.5.1](https://github.com/user-attachments/files/18963268/Actions.3.5.1.-.macOS.14.zip) for macOS 14+

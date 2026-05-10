@@ -188,7 +188,7 @@ You can use the “Sample Color from Screen” action for Shortcuts to sample co
 > [!TIP]
 > You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
-## Older versions
+## Older Versions
 
 - [2.1.4](https://github.com/sindresorhus/System-Color-Picker/releases/download/older-releases/Color.Picker.2.1.4.-.macOS.15.zip) for macOS 15+
 - [2.0.3](https://github.com/sindresorhus/System-Color-Picker/releases/download/older-releases/Color.Picker.2.0.3.-.macOS.14.zip) for macOS 14+

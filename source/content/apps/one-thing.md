@@ -187,6 +187,6 @@ defaults read com.sindresorhus.One-Thing text
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/tkbtoewq4jpaytzyudrcs/One-Thing-2.0.0-1770922762.zip?rlkey=r0ggwqp4c5vus4xh2k8m19wr7&raw=1) *(2.0.0)*
+[Download](https://www.dropbox.com/scl/fi/4d3zqtuj4j2erm6ck80ei/One-Thing-2.0.2-1778696587.zip?rlkey=s2h6g802mi674wkg7s5olfb9l&raw=1) *(2.0.2)*
 
 *Requires macOS 26 or later*

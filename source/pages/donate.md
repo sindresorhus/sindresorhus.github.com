@@ -21,7 +21,7 @@ title: Donate
 }
 </style>
 
-<img id="self-photo" src="/assets/sindre-sorhus-small.jpg" align="right" class="hidden sm:block">
+<img id="self-photo" src="/assets/sindre-sorhus-small.jpg" alt="Sindre Sorhus" align="right" class="hidden sm:block">
 
 # Donate <span class="pl-2">❤️</span>
 

@@ -20,7 +20,7 @@ My current focus is on macOS app development with Swift, Node.js-based packages,
 
 - [X (Twitter)](https://x.com/sindresorhus)
 - [Mastodon](https://mastodon.social/@sindresorhus)
-- [Bluesky](https://bsky.app/profile/sindresorhus.bsky.social)
+- [Bluesky](https://bsky.app/profile/sindresorhus.com)
 - [GitHub](https://github.com/sindresorhus)
 - [Instagram](https://instagram.com/sindresorhus)
 - [Unsplash](https://unsplash.com/@sindresorhus)

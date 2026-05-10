@@ -84,6 +84,8 @@ The app is English-only.
 	<span class="list-description">For example, when pressing Play/Pause on your keyboard or AirPods. You can also have it launch another app like Spotify instead. Similar to apps like noTunes and Overkill.</span>
 - Send media keys to app
 	<span class="list-description">Routes play/pause and next/previous track to Music or Spotify. Useful when macOS keeps sending media keys to the wrong app.</span>
+- Mute Quick Look video previews
+	<span class="list-description">Automatically mutes videos previewed from Finder with Space while keeping the rest of your Mac audio unchanged.</span>
 <!-- - Pause Music and Spotify when Safari starts playing video
 	<span class="list-description">Automatically pauses Music and Spotify when Safari or Safari Technology Preview starts playing video. It does not resume playback when the video stops.</span> -->
 <!-- - [Hyper key](#hyper-key) -->
@@ -255,6 +257,9 @@ The app is English-only.
 - Flush DNS cache
 - Shortcuts actions
 - Show [poof animation](https://substack.techreflect.org/p/origin-on-macos-cloud-poof-animation) when closing a window by clicking the red traffic light button
+
+<!-- - Replace the Apple logo in the menu bar with the classic six-color Apple logo
+	<span class="list-description">Shows the original rainbow-striped Apple logo from the classic Mac era across all connected displays.</span> -->
 
 <!-- - [Show seconds hand in the Clock app's Dock icon](https://github.com/user-attachments/assets/b1d025dc-0465-4d0f-adf8-48bc079ad438) -->
 
@@ -460,7 +465,7 @@ Adds the following actions (can be customized) directly in the right-click menu 
 - Open in App
 	<span class="list-description">Adds menu items like “Open in Visual Studio Code” directly to the Finder context menu. Text editors show up for folders and text files, while other apps only show up for types they support. [Screenshot.](https://github.com/user-attachments/assets/980340bc-a257-475c-9a02-7b98853df9a7)</span>
 - Open in Terminal
-	<span class="list-description">Shown only when right-clicking a folder or an empty area in Finder. Supports Terminal, iTerm, Ghostty, kitty, WezTerm, Alacritty, and Warp.</span>
+	<span class="list-description">Shown only when right-clicking a folder or an empty area in Finder. Supports Terminal, iTerm, Ghostty, kitty, WezTerm, Alacritty, Warp, and Prompt.</span>
 - AirDrop
 	<span class="list-description">Shares files via AirDrop.</span>
 - Email
@@ -514,6 +519,8 @@ Adds the following actions (can be customized) directly in the right-click menu 
 	<span class="list-description">Opens a comparison window showing whether selected files are identical. Supports drag-and-drop to add more files. Groups identical files together and lists unique files separately. [Screenshot.](https://www.dropbox.com/scl/fi/cctbogzq60huyxceoa5xh/Is-Identical-Supercharge-Screen-Shot-2025-12-11-at-04.59.12-1765425592.png?rlkey=gzwhyzvgmakzz5r14nvrkko1s&raw=1)</span>
 - Copy Folder Tree
 	<span class="list-description">Copies the folder's tree structure to the clipboard using a visual tree format with box-drawing characters. Useful for documentation, sharing folder layouts, or pasting into chat.</span>
+- Combine Contents of Folders
+	<span class="list-description">Moves all direct contents from the selected folders into the alphabetically first folder. Empty source folders are deleted. Only shown when selecting two or more folders.</span>
 - Show Symlink Original
 	<span class="list-description">Reveals the original file or folder that a symlink points to. Only shown for symlinks.</span>
 
@@ -555,7 +562,7 @@ Finder-specific services:
 - Copy To…
 	<span class="list-description">Copies files and folders to a chosen location.</span>
 - Open in Terminal
-	<span class="list-description">Shown only when right-clicking a folder in Finder. Supports Terminal, iTerm, Ghostty, kitty, WezTerm, Alacritty, and Warp.</span>
+	<span class="list-description">Shown only when right-clicking a folder in Finder. Supports Terminal, iTerm, Ghostty, kitty, WezTerm, Alacritty, Warp, and Prompt.</span>
 - Update Modified Date
 	<span class="list-description">Updates the modified date of files and folders to the current time.</span>
 - Make Symlink
@@ -583,6 +590,8 @@ Finder-specific services:
 	<span class="list-description">Opens a comparison window showing whether selected files are identical. Supports drag-and-drop to add more files. Groups identical files together and lists unique files separately.</span>
 - Copy Folder Tree
 	<span class="list-description">Copies the folder's tree structure to the clipboard using a visual tree format.</span>
+- Combine Contents of Folders
+	<span class="list-description">Moves all direct contents from the selected folders into the alphabetically first folder. Empty source folders are deleted.</span>
 - Show Symlink Original
 	<span class="list-description">Reveals the original file or folder that a symlink points to.</span>
 <!-- - Open in New Finder Window
@@ -723,7 +732,7 @@ Make macOS feel less foreign — and more powerful.
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/2sizlmh6u03eni0qc8tii/Supercharge-1.27.1-trial-1777536094.zip?rlkey=tvtydr42g5i9w5bn8qfk2i5kq&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/2pvcl1evpyzznpkekw5qi/Supercharge-1.28.0-trial-1778843530.zip?rlkey=zmu6w8fd3xce5mhskgm6300u1&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 

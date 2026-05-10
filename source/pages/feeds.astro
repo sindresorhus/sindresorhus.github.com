@@ -1,25 +1,7 @@
 ---
-import MarkdownIt from 'markdown-it';
+import {Icon} from 'astro-iconify';
 import MarkdownLayout from '~/layouts/MarkdownLayout.astro';
 import {fetchApps} from '~/utils/apps.js';
-
-const parser = new MarkdownIt({
-	html: true,
-	linkify: true,
-	typographer: true,
-});
-
-const staticContent = `
-# RSS Feeds
-
-#### General
-
-- [Blog](/rss.xml)
-- [New Apps](/rss-apps.xml)
-- [New Repos](/rss-repos.xml)
-
-#### App Release Notes
-`;
 
 const apps = await fetchApps({includeUnlisted: true});
 
@@ -33,10 +15,31 @@ const frontmatter = {
 ---
 
 <MarkdownLayout frontmatter={frontmatter}>
-	<div set:html={parser.render(staticContent)}/>
-	<ul>
+	<h1>RSS Feeds</h1>
+	<div class="not-prose mt-8 grid gap-3 sm:grid-cols-3">
+		<a href="/rss.xml" class="group rounded-lg border border-slate-200/80 bg-white/80 p-4 shadow-sm transition hover:border-primary-200 hover:bg-primary-50/50 hover:shadow-md dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-primary-500/40 dark:hover:bg-primary-950/20">
+			<Icon name="tabler:rss" class="mb-3 size-5 text-primary-500"/>
+			<span class="block font-bold text-slate-950 dark:text-white">Blog</span>
+			<span class="mt-1 block text-sm text-slate-600 dark:text-slate-300">New writing</span>
+		</a>
+		<a href="/rss-apps.xml" class="group rounded-lg border border-slate-200/80 bg-white/80 p-4 shadow-sm transition hover:border-primary-200 hover:bg-primary-50/50 hover:shadow-md dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-primary-500/40 dark:hover:bg-primary-950/20">
+			<Icon name="tabler:apps" class="mb-3 size-5 text-primary-500"/>
+			<span class="block font-bold text-slate-950 dark:text-white">New Apps</span>
+			<span class="mt-1 block text-sm text-slate-600 dark:text-slate-300">New app launches</span>
+		</a>
+		<a href="/rss-repos.xml" class="group rounded-lg border border-slate-200/80 bg-white/80 p-4 shadow-sm transition hover:border-primary-200 hover:bg-primary-50/50 hover:shadow-md dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-primary-500/40 dark:hover:bg-primary-950/20">
+			<Icon name="tabler:brand-github" class="mb-3 size-5 text-primary-500"/>
+			<span class="block font-bold text-slate-950 dark:text-white">New Repos</span>
+			<span class="mt-1 block text-sm text-slate-600 dark:text-slate-300">New open-source projects</span>
+		</a>
+	</div>
+	<h2>App Release Notes</h2>
+	<div class="not-prose mt-6 grid gap-2 sm:grid-cols-2">
 		{appsWithReleases.map(app => (
-			<li><a href={`/${app.slug}/rss.xml`}>{app.title}</a></li>
+			<a href={`/${app.slug}/rss.xml`} class="flex items-center gap-3 rounded-lg border border-slate-200/80 bg-white/80 p-3 shadow-sm transition hover:border-primary-200 hover:bg-primary-50/50 hover:shadow-md dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-primary-500/40 dark:hover:bg-primary-950/20">
+				<img src={app.iconUrl} width="40" height="40" alt={`${app.title} app icon`} loading="lazy" class="size-10 rounded-xl">
+				<span class="font-semibold text-slate-900 dark:text-white">{app.title}</span>
+			</a>
 		))}
-	</ul>
+	</div>
 </MarkdownLayout>
