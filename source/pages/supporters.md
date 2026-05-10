@@ -56,7 +56,7 @@ twitterwidget {
 }
 </style>
 
-<img id="thanks-gif" src="https://user-images.githubusercontent.com/170270/34912417-66acc388-f8e1-11e7-8350-8e7a321ef97f.gif" width="130" align="right" class="hidden sm:block">
+<img id="thanks-gif" src="https://user-images.githubusercontent.com/170270/34912417-66acc388-f8e1-11e7-8350-8e7a321ef97f.gif" width="130" alt="" align="right" class="hidden sm:block">
 
 # Thanks! <span class="pl-2">🙌</span>
 
@@ -66,7 +66,7 @@ I'm truly grateful to all the wonderful humans and companies supporting my open 
 
 None -->
 
-## <span>🦄</span> Sponsor <span class="reward-price not-prose">[$1000/month](https://www.patreon.com/bePatron?c=95723&rid=1917470)</span>
+## <span>🦄</span> Sponsor <span class="reward-price not-prose">$1000/month</span>
 
 <a href="https://github.com" class="sponsor" rel="nofollow" style="position:relative;left:-3px">
 	<img src="/assets/thanks/github-logo.svg" width="310" alt="GitHub">
@@ -81,7 +81,7 @@ None -->
 </a>
 <br>
 
-## Silver sponsor <span class="reward-price not-prose">[$100/month](https://www.patreon.com/bePatron?c=95723&rid=1917312)</span>
+## Silver sponsor <span class="reward-price not-prose">$100/month</span>
 
 <div class="silver-sponsor">
 	<a href="https://eslint.org" class="sponsor" rel="nofollow">
@@ -108,7 +108,7 @@ None -->
 	</a>
 </div>
 
-## Top supporter <span class="reward-price not-prose">[$50/month](https://www.patreon.com/bePatron?c=95723&rid=1917313)</span>
+## Top supporter <span class="reward-price not-prose">$50/month</span>
 
 - [Jacob Gillespie](https://github.com/jacobwgillespie)
 - [Passbolt](https://github.com/passbolt)
@@ -116,24 +116,24 @@ None -->
 - [Stefan Thomas](https://www.patreon.com/user/creators?u=15361260)
 - [n8n](https://github.com/n8nio)
 
-## Supporter <span class="reward-price not-prose">[$10/month](https://www.patreon.com/bePatron?c=95723&rid=1917314)</span>
+## Supporter <span class="reward-price not-prose">$10/month</span>
 
-- [Daniel Stockman](https://twitter.com/evocateur)
+- [Daniel Stockman](https://x.com/evocateur)
 - Stefan Penner
-- [Vivian Cromwell](https://twitter.com/viviancromwell)
-- [Sam Verschueren](https://twitter.com/SamVerschueren)
+- [Vivian Cromwell](https://x.com/viviancromwell)
+- [Sam Verschueren](https://x.com/SamVerschueren)
 - [Gabriel Csapo](https://github.com/gabrielcsapo)
 - Sameeri Pavan Kumar Marryboyina
-- [Donald Fischer](https://twitter.com/dff)
+- [Donald Fischer](https://x.com/dff)
 - Olivier Martin
 - carddamom
-- [aggre](https://twitter.com/aggre_)
-- [robertgrzonka](https://twitter.com/rgrzonka)
-- [Derk-Jan Karrenbeld](https://twitter.com/SleeplessByte)
+- [aggre](https://x.com/aggre_)
+- [robertgrzonka](https://x.com/rgrzonka)
+- [Derk-Jan Karrenbeld](https://x.com/SleeplessByte)
 - [David Passarelli](https://github.com/DPassarelli)
-- [Pieter Levels](https://twitter.com/levelsio)
+- [Pieter Levels](https://x.com/levelsio)
 - Travis Fischer
-- [Josh Duff (TehShrike)](https://twitter.com/TehShrike)
+- [Josh Duff (TehShrike)](https://x.com/TehShrike)
 - Fission Team
 - Manizheh and Nick
 - [Addy Osmani](https://github.com/addyosmani)
@@ -247,80 +247,80 @@ None -->
 
 [Support my open source work 🙌](donate)
 
-<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">I&#39;m launching a Patreon 🦄<br><br>For the past 3 years I&#39;ve been doing open source full-time while living off savings. Now I need your support. If you or your company use any of my projects or just like what I&#39;m doing, please consider backing me. <a href="https://t.co/jSNyFohpfN">https://t.co/jSNyFohpfN</a></p>&mdash; Sindre Sorhus 🇳🇴 (@sindresorhus) <a href="https://twitter.com/sindresorhus/status/941032894964883457?ref_src=twsrc%5Etfw">December 13, 2017</a></blockquote>
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">I&#39;m launching a Patreon 🦄<br><br>For the past 3 years I&#39;ve been doing open source full-time while living off savings. Now I need your support. If you or your company use any of my projects or just like what I&#39;m doing, please consider backing me. <a href="https://t.co/jSNyFohpfN">https://t.co/jSNyFohpfN</a></p>&mdash; Sindre Sorhus 🇳🇴 (@sindresorhus) <a href="https://x.com/sindresorhus/status/941032894964883457?ref_src=twsrc%5Etfw">December 13, 2017</a></blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 ## Previous supporters
 
 I'm forever thankful to these people and companies that have previously supported me.
 
-- [Keyan Zhang](https://twitter.com/keyanzhang)
-- [Emad Al-Shihabi](https://twitter.com/emadshi)
-- [Robin van der Vleuten](https://twitter.com/robinvdvleuten)
-- [Ray Benefield](https://twitter.com/RayBenefield)
-- [Bjarne Øverli](https://twitter.com/bjarneo_)
+- [Keyan Zhang](https://x.com/keyanzhang)
+- [Emad Al-Shihabi](https://x.com/emadshi)
+- [Robin van der Vleuten](https://x.com/robinvdvleuten)
+- [Ray Benefield](https://x.com/RayBenefield)
+- [Bjarne Øverli](https://x.com/bjarneo_)
 - Kumar Harsh
 - Eliseu
-- [Matters](https://twitter.com/matterstech)
-- [Siddharth Kshetrapal](https://twitter.com/siddharthkp)
-- [Valia Walsk](https://twitter.com/valia_walsk)
+- [Matters](https://x.com/matterstech)
+- [Siddharth Kshetrapal](https://x.com/siddharthkp)
+- [Valia Walsk](https://x.com/valia_walsk)
 - Dylan Wight
 - Jody Heavener
 - Martin Hansen
 - Mark Poko
-- [Gaurav Sehrawat](https://twitter.com/root3d)
-- [Eduardo Stuart](https://twitter.com/eduardostuart)
-- [Jay Soifer](https://twitter.com/jaysoifer)
-- [Pierre-Denis Vanduynslager](https://twitter.com/pvdlg_)
+- [Gaurav Sehrawat](https://x.com/root3d)
+- [Eduardo Stuart](https://x.com/eduardostuart)
+- [Jay Soifer](https://x.com/jaysoifer)
+- [Pierre-Denis Vanduynslager](https://x.com/pvdlg_)
 - Veit Heller
 - Barrett Harber
-- [Benjamin Charity](https://twitter.com/benjamincharity)
+- [Benjamin Charity](https://x.com/benjamincharity)
 - Jens Lind
-- [F1LT3R](https://twitter.com/F1LT3R_)
-- [Oliver Steele](https://twitter.com/osteele)
+- [F1LT3R](https://x.com/F1LT3R_)
+- [Oliver Steele](https://x.com/osteele)
 - Alec Hale-Pletka
-- [Jamie K](https://twitter.com/jamiebuilds)
-- [Feross](https://twitter.com/feross)
-- [Jen Downs](https://twitter.com/jenisora)
-- [Toolsday](https://twitter.com/toolsday)
+- [Jamie K](https://x.com/jamiebuilds)
+- [Feross](https://x.com/feross)
+- [Jen Downs](https://x.com/jenisora)
+- [Toolsday](https://x.com/toolsday)
 - Casey Watson
-- [Philipp Bosch](https://twitter.com/philippbosch)
-- [Ross Zurowski](https://twitter.com/rosszurowski)
+- [Philipp Bosch](https://x.com/philippbosch)
+- [Ross Zurowski](https://x.com/rosszurowski)
 - wtgtybhertgeghgtwtg
-- [Sid](https://twitter.com/siddharthkp)
+- [Sid](https://x.com/siddharthkp)
 - Minh Nguyen
 - Kirill Groshkov
 - Andreas Pizsa
-- [Robin Andersson](https://twitter.com/robinwassen)
+- [Robin Andersson](https://x.com/robinwassen)
 - Jered Sutton
 - Joshua Wenning
 - Suchipi
-- [Konrad Kruk](https://twitter.com/konradkpl)
-- [Marcos Moura](https://twitter.com/markinmoura)
-- [Ty-Lucas Kelley](https://twitter.com/tylucaskelley)
+- [Konrad Kruk](https://x.com/konradkpl)
+- [Marcos Moura](https://x.com/markinmoura)
+- [Ty-Lucas Kelley](https://x.com/tylucaskelley)
 - Eric Nelson
 - Ruwan Geeganage
 - Scott Anderson
 - Mario Nebl
 - Ben Brook
 - Matt R. Wilson
-- [Rakan Nimer](https://twitter.com/rakannimer)
+- [Rakan Nimer](https://x.com/rakannimer)
 - Martin Kluska
 - Zhenhua Cao
 - Suhas Karanth
-- [Claudio Bernardo Rodriguez Rodriguez](https://twitter.com/claudiordgz)
-- [Yoshiya Hinosawa](https://twitter.com/kt3k)
-- [Hoishin](https://twitter.com/hoishinxii)
-- [Manuel Bieh](https://twitter.com/manuelbieh)
-- [Zack Schuster](https://twitter.com/destroyvegas)
-- [Bhabishya Kumar](https://twitter.com/BhabishyaKumar)
+- [Claudio Bernardo Rodriguez Rodriguez](https://x.com/claudiordgz)
+- [Yoshiya Hinosawa](https://x.com/kt3k)
+- [Hoishin](https://x.com/hoishinxii)
+- [Manuel Bieh](https://x.com/manuelbieh)
+- [Zack Schuster](https://x.com/destroyvegas)
+- [Bhabishya Kumar](https://x.com/BhabishyaKumar)
 - Lovelin Edward
-- [Limor Fried](https://twitter.com/adafruit)
+- [Limor Fried](https://x.com/adafruit)
 - Fran Méndez
 - Dmitry A.
-- [Agustin Diaz](https://twitter.com/HiroAgustin)
-- [Ben Williams](https://twitter.com/719ben)
-- [Sam Richard](https://twitter.com/snugug)
+- [Agustin Diaz](https://x.com/HiroAgustin)
+- [Ben Williams](https://x.com/719ben)
+- [Sam Richard](https://x.com/snugug)
 - Chris Wales
 - [Richard Simpson](https://github.com/RichiCoder1)
 - [Spaceship](https://github.com/onspaceship)
@@ -348,7 +348,7 @@ I'm forever thankful to these people and companies that have previously supporte
 - Linus-Alexander Maximilian Gubenis
 - Christian Buratto
 - [neverinstall](https://neverinstall.com)
-- [Chris Vogt](https://twitter.com/C1V0)
+- [Chris Vogt](https://x.com/C1V0)
 - [Matthew J. McCullough](https://github.com/matthewmccullough)
 - [Joël Galeran](https://github.com/Jolg42)
 - [Ideal Postcodes](https://github.com/ideal-postcodes)

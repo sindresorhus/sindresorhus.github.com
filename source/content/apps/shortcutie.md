@@ -31,7 +31,7 @@ feedbackNote: |
 
 The app provides 70+ powerful extra actions for the Shortcuts app on macOS.
 
-While my free [Actions](/actions) app provides useful functionality for the Shortcuts app through the App Store for macOS, iOS and visionOS, Shortcutie is a Mac-only app that offers more powerful system-level features by operating outside of Apple's restrictions. This enables capabilities like changing system default browser (without a prompt), getting the active browser tab, clearing notifications, etc. - things that wouldn't be possible under App Store rules.
+While my free [Actions](/actions) app provides useful functionality for the Shortcuts app through the App Store for macOS, iOS and visionOS, Shortcutie is a Mac-only app that offers more powerful system-level features by operating outside of Apple's restrictions. This enables capabilities like changing the system default browser or mail app (without a prompt), getting the active browser tab, clearing notifications, etc. - things that wouldn't be possible under App Store rules.
 
 > [!IMPORTANT]
 > Restart your device if the actions do not show up in the Shortcuts app. [Learn more ›](#troubleshooting)
@@ -72,12 +72,17 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 	<span class="list-subtitle">Activates the top visible system notification</span>
 - Get/Set Default Browser
 	<span class="list-subtitle">View or change the system default web browser</span>
+- Get/Set Default Mail App
+	<span class="list-subtitle">View or change the system default mail app</span>
 - Get/Set Appearance (Extended)
 	<span class="list-subtitle">View or change the system appearance mode (Light, Dark, or Auto)</span>
 	<span class="list-description text-xs">Unlike the native action, this also supports Auto mode.</span>
 - Get/Set Icon & Widget Style
 	<span class="list-subtitle">View or change how app icons and widgets appear</span>
 	<span class="list-description text-xs">Choose default, dark, clear, or tinted.</span>
+- Get/Set Liquid Glass Style
+	<span class="list-subtitle">View or change the Liquid Glass style</span>
+	<span class="list-description text-xs">Controls whether the glass effect used throughout macOS appears clear or tinted.</span>
 - Press Keyboard Shortcut
 	<span class="list-subtitle">Simulates pressing a keyboard shortcut</span>
 	<span class="list-description text-xs">Optionally target a specific app.</span>
@@ -88,12 +93,17 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 	<span class="list-subtitle">Gets info about a menu bar item in the selected app</span>
 	<span class="list-description text-xs">Returns title, enabled state, checked state, and keyboard shortcut.</span>
 - Trigger Context Menu Item
-	<span class="list-subtitle">Executes a context menu item at the current mouse-cursor position</span>
-	<span class="list-description text-xs">Using this you can trigger context-menu items or sub-items for the current mouse-cursor position in any app.</span>
+	<span class="list-subtitle">Executes a context menu item at the current mouse pointer position</span>
+	<span class="list-description text-xs">Using this you can trigger context-menu items or sub-items for the current mouse pointer position in any app.</span>
 - Set Grayscale Mode
 	<span class="list-subtitle">Makes screen display in black and white</span>
 - Is Screen Being Watched
 	<span class="list-subtitle">Detects if the screen is being recorded, mirrored, or shared (Zoom, Teams, etc)</span>
+- Get/Set Display Resolution
+	<span class="list-subtitle">View or change the resolution of a selected display</span>
+	<span class="list-description text-xs">Defaults to the primary display. Uses the resolutions available in System Settings, including scaled Retina resolutions.</span>
+- Find Display
+	<span class="list-subtitle">Returns the connected displays</span>
 - Stash Text
 	<span class="list-subtitle">Shows the given text in a floating window</span>
 	<span class="list-description text-xs">Multiple calls add items to the sidebar list. Intended for temporary viewing, not long-term storage. [Screenshot](https://www.dropbox.com/scl/fi/9oz7tnd24fohgasuuv6gd/Stash-Text-Screen-Shot-2026-02-01-at-23.17.36-1769962685.png?rlkey=9vd0p1c2zat89yrqssv8rhfnw&raw=1)</span>
@@ -160,13 +170,23 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 	<span class="list-subtitle">Shows or hides [App Exposé](https://www.oreilly.com/library/view/switching-to-the/9781449338978/ch04s11.html)</span>
 - Toggle Launchpad
 	<span class="list-subtitle">Shows or hides [Launchpad](https://support.apple.com/guide/mac-help/mh35840/mac)</span>
-- Toggle Spotlight <sup>macOS 26 only</sup>
+- Toggle Spotlight
 	<span class="list-subtitle">Toggles Spotlight search, optionally navigating to a specific tab (like Clipboard History)</span>
 - Get Latest Screenshots
 	<span class="list-subtitle">Returns the most recent screenshots taken with the system screenshot tool</span>
+- Get/Set Screenshot Format
+	<span class="list-subtitle">View or change the file format used when saving screenshots</span>
+	<span class="list-description text-xs">Choose from PNG, JPG, TIFF, or HEIC.</span>
+- Get/Set Screenshot Location
+	<span class="list-subtitle">View or change the folder where screenshots are saved</span>
 - Get/Set Dock Position
 	<span class="list-subtitle">View or change the position of the Dock</span>
 	<span class="list-description text-xs">Changes take effect immediately.</span>
+- Get/Set Dock Auto-Hide
+	<span class="list-subtitle">View or change whether the Dock automatically hides and shows</span>
+- Get/Set Dock Minimize Effect
+	<span class="list-subtitle">View or change the animation used when minimizing windows</span>
+	<span class="list-description text-xs">Choose between Genie and Scale.</span>
 - Get/Set Desktop Icons Visibility
 	<span class="list-subtitle">Show, hide, or check visibility status of desktop icons</span>
 - Get/Set Desktop Widgets Visibility
@@ -183,14 +203,24 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 - Get/Set Network Location
 	<span class="list-subtitle">Switch between different [network configurations](https://support.apple.com/105129)</span>
 	<span class="list-description text-xs">Tip: You could automate switching based on certain conditions with the [Shortery](https://www.numberfive.co/detail_shortery.html) app.</span>
+- Get/Set DNS Servers
+	<span class="list-subtitle">View or change the DNS servers for a network interface</span>
+	<span class="list-description text-xs">Setting requires administrator authorization.</span>
 - Get/Set iOS Notifications Enabled
 	<span class="list-subtitle">Control whether notifications from your iOS device appear on your Mac</span>
 	<span class="list-description text-xs">Only works if your Mac supports notifications from iOS.</span>
+- Click Mouse Button
+	<span class="list-subtitle">Simulates a mouse click at the current mouse pointer position or a specific screen coordinate</span>
+	<span class="list-description text-xs">Supports left, right, or middle button; single, double, or triple click; and optional modifier key override.</span>
+- Get/Set Mouse Position
+	<span class="list-subtitle">Get the current mouse pointer position or move the mouse pointer to specific screen coordinates</span>
 - Center Mouse Pointer
 	<span class="list-subtitle">Centers the mouse pointer on the primary display</span>
 - Get/Set Mouse Pointer Visibility
 	<span class="list-subtitle">Get or set the visibility of the mouse pointer</span>
 	<span class="list-description text-xs">By default, it reappears on mouse movement.</span>
+- Get/Set Natural Scrolling
+	<span class="list-subtitle">View or change whether natural (trackpad-style) scrolling is enabled</span>
 - Invert Selection in Finder
 	<span class="list-subtitle">Inverts the current selection in Finder</span>
 	<span class="list-description text-xs">Deselects what's currently selected and selects everything that wasn't selected. Only works when Finder is the active app.</span>
@@ -200,6 +230,9 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 - Toggle Hidden Files in Finder
 	<span class="list-subtitle">Shows or hides hidden files in Finder</span>
 	<span class="list-description text-xs">Toggles the visibility of files that start with a dot (.) and other hidden system files. This is a temporary toggle that affects the current Finder session. The setting will revert when Finder is restarted.</span>
+- Get/Set App Desktop Assignment
+	<span class="list-subtitle">View or change which desktop an app is assigned to</span>
+	<span class="list-description text-xs">This mirrors the Dock "Assign To" context menu item.</span>
 - Get Slack Workspace
 	<span class="list-subtitle">Gets the name of the current Slack workspace</span>
 - Clear Recent Lists
@@ -211,6 +244,8 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 - Sleep Displays
 	<span class="list-subtitle">Puts all displays to sleep immediately</span>
 	<span class="list-description text-xs">The Mac itself stays awake, only the displays go to sleep.</span>
+- Switch Space
+	<span class="list-subtitle">Switches to the next or previous Space without the macOS slide animation</span>
 - Clear Clipboard
 	<span class="list-subtitle">Clears all contents from the system clipboard</span>
 - Get Apps Using Secure Input

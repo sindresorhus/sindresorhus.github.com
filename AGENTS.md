@@ -45,6 +45,8 @@ Any markdown heading with a `{#id}` can be annotated with directives on the line
 
 Do **not** use `@faq.keywords` for synonyms — keywords are for *additional match terms specific to one FAQ*. Synonyms express a relationship between two concepts that applies across all FAQs mentioning either term.
 
-### Why a FAQ didn't show for a given email
+### When a FAQ doesn't show as "related help" for a user's message
 
-Common causes: (a) missing keywords/synonyms so the FAQ doesn't match enough query words, (b) weak app-specific FAQs crowd it out of the top-4 (app-specific FAQs rank above general ones at equal matchCount), (c) stopwords eat key terms (e.g. "back up" → "back" is a stopword, "up" is <4 chars). Fix by adding `@faq.keywords` to the FAQ or synonyms to the `SYNONYMS` map.
+When asked to improve FAQ matching (e.g., "add to related help", "this FAQ didn't show up", "add keywords"), the fix is usually adding `@faq.keywords` to the relevant FAQ heading in the app's markdown file. Only add words that aren't already in the heading text.
+
+Common causes for missing matches: (a) missing keywords/synonyms so the FAQ doesn't match enough query words, (b) weak app-specific FAQs crowd it out of the top-4 (app-specific FAQs rank above general ones at equal matchCount), (c) stopwords eat key terms (e.g. "back up" → "back" is a stopword, "up" is <4 chars). Fix by adding `@faq.keywords` to the FAQ or synonyms to the `SYNONYMS` map.

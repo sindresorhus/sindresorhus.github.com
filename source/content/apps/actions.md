@@ -55,6 +55,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Calculate Bearing
 	<span class="list-description">Get the compass direction between two coordinates.</span>
 - Calculate Distance
+- Calculate String Distance
+	<span class="list-description">[Damerau-Levenshtein distance](https://en.wikipedia.org/wiki/Damerau–Levenshtein_distance) for fuzzy search, typo detection, deduping, and matching names or identifiers.</span>
 - Calculate with Soulver
 - Choose from List (Extended)
 - Clamp Number
@@ -87,6 +89,8 @@ If you have any questions about how to use the different actions or for what, tr
 	<span class="list-description">Deletes contacts that have no name, phone number, email, or any other data.</span>
 - Download File
 - Edit URL
+- Encode Property List
+	<span class="list-description">Convert a Shortcuts dictionary or JSON file into an XML or binary property list file.</span>
 - Encrypt File
 - Encrypt Text
 - Filter List
@@ -106,6 +110,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Format Person Name
 - Format Text List
 	<span class="list-description">`["A", "B", "C"]` → `A, B, and C`</span>
+- Format URL
+	<span class="list-description">Formats a URL into text with customizations of what to show.</span>
 - Generate CSV
 - Generate Emojis
 - Generate Haptic Feedback <sup>(iOS-only)</sup>
@@ -128,6 +134,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Get Dates in Range
 	<span class="list-description">Returns all dates between two dates filtered by type. For example, get all Mondays between two dates, or list every weekend in a month.</span>
 - Get Default Browser <sup>(macOS-only)</sup>
+- Get Default Gateway IP Address
+	<span class="list-description">Returns the default gateway IP address for the current network, usually the router address on Wi-Fi or Ethernet.</span>
 - Get Device Details (Extended)
 	- Uptime (not including sleep)
 	- Uptime (including sleep)
@@ -150,7 +158,13 @@ If you have any questions about how to use the different actions or for what, tr
 	<span class="list-description">Returns the current barometric pressure from the device's built-in barometer.</span>
 - Get Elevation <sup>(iOS-only)</sup>
 - Get Emojis
+- Get/Set Extended Attribute
+	<span class="list-description">Returns or sets an [extended attribute](https://en.wikipedia.org/wiki/Extended_file_attributes) for a file.</span>
+- Get Extended Attribute Names
+	<span class="list-description">Returns the names of the extended attributes on a file or folder.</span>
 - Get File Path
+- Get Folder Size
+	<span class="list-description">Returns the size of a folder, including files in subfolders. Use “Format File Size” to format the result.</span>
 - Get High-Resolution Timestamp
 - Get Image URLs from Web Page
 	<span class="list-description">Extracts image URLs from a web page and returns them without downloading.</span>
@@ -209,6 +223,7 @@ If you have any questions about how to use the different actions or for what, tr
 - Is 24-Hour Time Format
 - Is Accessibility Feature On
 - Is Audio Playing <sup>(iOS-only)</sup>
+- Is Bluetooth Device Connected
 - Is Bluetooth On
 - Is Call Active <sup>(iOS-only)</sup>
 - Is Camera On <sup>(macOS-only)</sup>
@@ -245,6 +260,8 @@ If you have any questions about how to use the different actions or for what, tr
 	<span class="list-description">Prevents multiple instances of a shortcut from running simultaneously</span>
 - Merge Dictionaries
 - Named Clipboard <sup>(macOS-only)</sup>
+- Normalize URL
+	<span class="list-description">Clean up URLs by lowercasing scheme and host, removing default ports, optional query/fragment removal, text-fragment cleanup, etc.</span>
 - Open URLs in Safari
 - Open URLs with App <sup>(macOS-only)</sup>
 	<span class="list-description">For example, open URLs in a specific browser.</span>
@@ -287,7 +304,11 @@ If you have any questions about how to use the different actions or for what, tr
 - Show Overlay
 	<span class="list-description">Display large centered text on a fullscreen overlay. Supports plain text with custom colors and HTML mode for custom styling. The overlay stays until tapped or an optional duration expires.</span>
 - Shuffle List
+- Sign JSON Web Token
+	<span class="list-description">Signs a JSON payload as a JWT using HS256.</span>
 - Sort List
+- Sort List into Buckets
+	<span class="list-description">Interactively sort each item into custom buckets and return structured results with the selected bucket for each item.</span>
 - Sort List of Dictionaries
 - Sort Months
 - Spell Out Number
@@ -316,12 +337,16 @@ If you have any questions about how to use the different actions or for what, tr
 	- Transliterate Hiragana to Katakana
 	- Transliterate Mandarin to Latin
 - Transform Text with JavaScript
+- Trim Text
+	<span class="list-description">Keep or drop a number of lines or characters from the start or end of text.</span>
 - Trim Whitespace
 - Truncate List
 - Truncate Number
 - Truncate Text
 - Use System Font in Rich Text
 	- [Example shortcut](https://www.icloud.com/shortcuts/03aecdb46eca496aaf996ebc625a0c54)
+- Wake on LAN <sup>(macOS-only)</sup>
+	<span class="list-description">Wake a sleeping computer or network device by sending a [Wake on LAN](https://en.wikipedia.org/wiki/Wake-on-LAN) magic packet.</span>
 - Wait for Distributed Notification <sup>(macOS-only)</sup>
 	- [What are distributed notifications?](/apps/faq#distributed-notifications)
 - Wait Milliseconds
@@ -372,6 +397,8 @@ For these, I recommend sending a [feature request to Apple](https://feedbackassi
 #### Declined actions {#declined-actions}
 
 - Imgur - I generally don't want to integrate with services. They cause a huge support burden, either by being unreliable, breaking the API, shutting down, and other things.
+- Is Wi-Fi On (iOS) - Already possible with the built-in “Get Network Details” action.
+- Wi-FI Strength - Already possible with the built-in “Get Network Details” action.
 
 ## Tips
 
@@ -412,7 +439,7 @@ iOS does not have a way to prevent individual apps from being offloaded (even th
 No. I applied for Apple’s [Critical Alerts entitlement](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.developer.usernotifications.critical-alerts), but it was declined.
 Critical Alerts are reserved for very limited use cases such as medical, health, home security, and public safety notifications. General-purpose automation apps like Actions are not eligible.
 
-## Older versions
+## Older Versions
 
 - [3.8.0](https://www.dropbox.com/scl/fi/fhfw330g14eh35bwofuyy/Actions-3.8.0-macOS-15-1773919013.zip?rlkey=9l9f3noc5l64j9r0cai9lc5rm&raw=1) for macOS 15+
 - [3.5.1](https://github.com/user-attachments/files/18963268/Actions.3.5.1.-.macOS.14.zip) for macOS 14+

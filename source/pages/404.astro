@@ -6,10 +6,10 @@ const title = `Error 404 — ${SITE.name}`;
 ---
 
 <Layout meta={{title}}>
-	<section class="flex items-center h-screen">
-		<div class="container flex flex-col items-center justify-center px-5 mx-auto -mt-40">
+	<section class="flex min-h-[75vh] items-center">
+		<div class="container flex flex-col items-center justify-center px-5 mx-auto -mt-20">
 			<div class="max-w-md text-center">
-				<h2 class="mb-8 font-bold text-9xl">
+				<h2 class="mb-6 font-bold text-8xl sm:text-9xl">
 					<span class="sr-only">Error</span>
 					<span class="bg-clip-text text-transparent bg-linear-to-r from-primary-500 to-secondary-500">404</span>
 				</h2>
@@ -20,9 +20,9 @@ const title = `Error 404 — ${SITE.name}`;
 				<a
 					rel="noopener noreferrer"
 					href="/"
-					class="btn text-white bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-800 ml-4"
+					class="btn rounded-full text-white bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-800"
 				>
-				Back to homepage
+					Back to homepage
 				</a>
 			</div>
 		</div>

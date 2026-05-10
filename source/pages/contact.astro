@@ -356,7 +356,6 @@ if (!reducedMotion) {
 		cancelAnimationFrame(raf);
 		raf = requestAnimationFrame(() => update(e.clientX, e.clientY));
 		updateTilt(e.clientX, e.clientY);
-		updateMagnet(e.clientX, e.clientY);
 	});
 
 	document.addEventListener('mouseleave', () => {
@@ -364,7 +363,6 @@ if (!reducedMotion) {
 		cancelAnimationFrame(raf);
 		raf = requestAnimationFrame(() => update(-9999, -9999));
 		resetTilt();
-		resetMagnet();
 	});
 
 	if (window.matchMedia('(hover: none)').matches) {

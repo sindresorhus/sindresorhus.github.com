@@ -368,6 +368,7 @@ However, some apps are not feasible:
 	+ The app does not accept any links. It does accept [custom URL scheme](https://support.craft.do/hc/articles/360020168838-Using-URL-Scheme) links, but I'm not interested in having to maintain more code to transform URLs in Velja when the services should just handle it themselves in their desktop apps.
 
 And some apps do not need special support because they already support [universal links](https://developer.apple.com/ios/universal-links/):
+- ChatGPT
 - [Quip](https://quip.com)
 - Maps (the built-in app)
 - Overcast

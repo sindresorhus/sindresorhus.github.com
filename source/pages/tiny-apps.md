@@ -7,7 +7,7 @@ title: Tiny apps
 
 Tiny but useful macOS utilities. These are generally not up to the quality of my [main apps](/apps).
 
-<img src="/apps/services-debug/icon.png" width="200" height="200" align="right">
+<img src="/apps/services-debug/icon.png" width="200" height="200" alt="Services Debug app icon" align="right">
 
 ## Services Debug
 

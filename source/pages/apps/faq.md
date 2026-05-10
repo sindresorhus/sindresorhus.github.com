@@ -95,7 +95,7 @@ I love making apps and I want them to be available to as many people as possible
 
 Free apps often raise doubts about privacy and intentions. I don’t sell your data, you’re not the product, and there are no ads. I make apps because I enjoy it.
 
-Over 10 million users trust my apps, and tens of thousands of developers rely on [my open source code](https://github.com/sindresorhus). Don’t just take my word for it; check the reviews on the App Store. Feel free to [contact me](/contact) if you have any questions.
+Over 6 million users trust my apps, and tens of thousands of developers rely on [my open source code](https://github.com/sindresorhus). Don’t just take my word for it; check the reviews on the App Store. Feel free to [contact me](/contact) if you have any questions.
 
 ### What's your policy on ads in your apps? {#no-ads}
 

@@ -3,6 +3,6 @@ export const SITE = {
 	origin: 'https://sindresorhus.com',
 	basePathname: '/',
 	title: 'Sindre Sorhus',
-	description: 'Full-Time Open-Sourcerer & Aspiring Rebel',
+	description: 'Full-Time Open-Sourcerer & App Maker',
 	blogPostsPerPage: 10,
 };

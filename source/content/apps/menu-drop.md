@@ -12,11 +12,18 @@ olderMacOSVersions:
 #   [The app randomly disappears/quits](/apps/faq#randomly-quits)
 ---
 
-AirDrop files and folders simply by dragging them onto the app's menu bar icon.
+AirDrop files, folders, links, and text simply by dragging them onto the app's menu bar icon.
 
-You can also share directly from your clipboard or use the built-in file picker, both with customizable keyboard shortcuts.
+You can also share files or text directly from your clipboard or use the built-in file picker, both with customizable keyboard shortcuts.
+
+Rich text content is converted to plain text. Rich-text files are sent as files.
 
 *Requires macOS 26 or later*
+
+## Tips
+
+- You can drag and drop a URL directly from the Safari address bar to the menu bar icon.
+- Select a URL and either drop it on the menu bar icon or copy it and use Share from Clipboard to open it on your iOS device.
 
 #### Privacy
 

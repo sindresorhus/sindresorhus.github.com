@@ -18,6 +18,7 @@ olderMacOSVersions:
   - '14'
   - '15'
 feedbackNote: |
+  If you are having problems with the scroll jumping on macOS, try out the next update on TestFlight: https://testflight.apple.com/join/6W5NZf7N
   If you are having problems with sync, [read this](/scratchpad#troubleshooting).
 ---
 
@@ -61,6 +62,18 @@ There is no trial for the iOS version.
 
 - After enabling sync, try writing some more text on all the devices.
 - [More…](/apps/faq#icloud-sync)
+
+### Back up and restore your note {#backup}
+
+The app automatically keeps local backups of your note, so you can recover from accidental edits or deletion. This is enabled by default.
+
+To restore a previous version:
+
+1. Open the “…” menu and choose “Backups”.
+1. Select a backup to preview its contents.
+1. Tap “Restore” to replace your current note with it. Your current note is backed up first, so you can undo a restore.
+
+Backups are created on changes (about every 10 minutes) and when the app moves to the background. The most recent 100 backups are kept. Backups are stored locally on each device and are not synced. You can turn automatic backups off in the settings.
 
 ### Keyboard shortcuts <sup>macOS</sup>
 
@@ -118,6 +131,10 @@ You may also have disabled the “Show menu bar icon” setting, which hides the
 #### Why is my note not syncing between devices?
 
 Refer to the [troubleshooting section](#troubleshooting) above to resolve syncing issues.
+
+#### How do I restore a previous version of my note?
+
+The app keeps automatic local backups. Open the “…” menu and choose “Backups”, select one, and tap “Restore”. See [Back up and restore](#backup) for details.
 
 #### Can you add Markdown syntax highlighting?
 

@@ -27,9 +27,17 @@ It is particularly beneficial on larger screens where menu bar space is ample, a
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
 
+#### The spacer positions are not saved after restarting {#position-not-saved}
+
+Spacer positions are saved and restored by macOS, not the app. Menu bar manager apps like Bartender, Ice, and Thaw are known to interfere with this. Try quitting any such app and see if positions are then saved correctly.
+
 #### Can the app let me hide and show menu bar items?
 
 That is out of scope for this app. You want something like [Bartender](https://www.macbartender.com) or [Hidden Bar](https://apps.apple.com/no/app/hidden-bar/id1452453066?mt=12).
+
+#### Can you support more separator characters and wider spacers? {#custom-separator}
+
+Already supported, but hidden for now because of a macOS alignment bug with characters padded by spaces. Hold <kbd>Shift+Option</kbd> while clicking the menu bar icon to be able to specify custom separator.
 
 #### Can the app support changing the distance between menu bar items?
 

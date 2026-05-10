@@ -108,6 +108,6 @@ I just enjoy making apps. I earn money on other apps. Consider leaving a nice re
 
 A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/6wtr1k8hqdz4d9rdkghx8/Menu-Bar-Calendar-1.7.0-1774301016.zip?rlkey=a3r8lwsja7da9v3tb9t5ecq4y&raw=1) *(1.7.0)*
+[Download](https://www.dropbox.com/scl/fi/up9hlj2ooxxarugsusr69/Menu-Bar-Calendar-1.7.1-1781624290.zip?rlkey=5k0n02u6gwqm94gd8mvezgqxx&raw=1) *(1.7.1)*
 
 *Requires macOS 26 or later*

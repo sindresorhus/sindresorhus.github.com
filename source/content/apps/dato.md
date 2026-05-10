@@ -137,7 +137,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/w6hlvzqdpc7ws7j168r30/Dato-5.8.0-trial-1777488759.zip?rlkey=2g3jturqccow9otebw1sc2p5p&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/3qv0tj34ojblor7yec6fw/Dato-5.8.2-trial-1781652701.zip?rlkey=ldjp25jb3n9p9s4gilm9zqgr3&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 
 *Requires macOS 26 and later*
 
@@ -253,6 +253,12 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=571&utm_me
 			<kbd>o</kbd>
 		</td>
 		<td>Open the default calendar app</td>
+	</tr>
+	<tr>
+		<td>
+			<kbd>shift+command+r</kbd>
+		</td>
+		<td>Toggle showing reminders in the event list</td>
 	</tr>
 	<tr>
 		<td>
@@ -471,9 +477,10 @@ Make sure:
 - If you have “Show only for accepted events” enabled, ensure the event is accepted.
 - If it's a Google calendar, it may be caused by [sync issues](#google-calendar-sync-issue).
 
-#### The Dato menu bar item is not faded out on inactive displays
+#### The Dato menu bar item is not dimmed on inactive displays (dual monitors) {#menu-bar-not-dimmed-inactive-display}
+<!-- @faq.keywords dual monitor monitors secondary display dim dimming faded bright -->
 
-This is a macOS bug. macOS replicates the menu bar item on inactive displays and this handling is outside the control of apps. The reason it does not happen for all items is that Dato sets rich-text content.
+This is a macOS bug. When using multiple monitors, macOS dims menu bar items on the non-active display. However, it incorrectly fails to dim items that use rich text, which includes Dato's time zone clocks. This is outside the control of apps, as macOS handles the replication of menu bar items on secondary displays.
 
 #### What is the diamond menu bar icon that suddenly appeared?
 

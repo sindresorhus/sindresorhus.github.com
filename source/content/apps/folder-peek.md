@@ -135,6 +135,10 @@ A Smart Folder is a special feature in Finder that allows you to create a virtua
 
 No, that is unfortunately not possible. Folder Peek is built as a system menu, and a menu cannot be kept open if it's not focused. Instead, first, navigate to the nested folder, click to open it in Finder, and then drag & drop the file into the Finder window.
 
+#### Can I drag & drop files into a folder listed in the menu? {#drop-into-folder}
+
+No. The app supports dragging files *out* of the menu, but not dropping files *into* it. macOS menus do not support receiving drops. To move a file into a folder listed in the app, first click the folder in the menu to open it in Finder, then drag the file into the Finder window.
+
 #### Can it auto-mount a network volume when accessing it? {#network-volume}
 
 No, this is not possible because of [sandboxing](/apps/faq#macos-sandbox). To use a network volume in the app, you need to either mount it manually first or use a tool like [AutoMounter](https://pixeleyes.co.nz/automounter/) to keep it always mounted.
@@ -155,6 +159,10 @@ The app developer will need to add `public.folder` to `LSItemContentTypes` in th
     <string>public.folder</string>
 </array>
 ```
+
+#### Can it open folders in Path Finder instead of Finder? {#path-finder}
+
+Yes. Enable the “Set as the default file browser” setting in Path Finder. Folder Peek opens whichever app is the default folder handler, so once Path Finder is set as the default, it will be used automatically. Any questions about this should be asked in the Path Finder support channels.
 
 #### How can I make folders open in a different app than Finder by default? {#finder-alternative}
 

@@ -61,6 +61,10 @@ The app makes use of the built-in [`networkQuality` command-line tool](https://s
 
 No, a progress bar would not accurately reflect progress due to the variability in testing time, which depends on factors like network speed and other unknown conditions.
 
+#### Can it measure packet loss? {#packet-loss}
+
+No. The app relies on Apple's built-in `networkQuality` tool, which does not measure or report packet loss. There are no plans to add this.
+
 #### Does it measure jitter? {#jitter}
 
 No. Jitter sounds useful, but it rarely adds actionable insight. If jitter is bad, you’ll see it immediately through unstable latency and low responsiveness. If responsiveness is high, jitter is already in a safe range. A separate jitter number wouldn’t change what you can do with the result.
