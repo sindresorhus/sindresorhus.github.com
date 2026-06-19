@@ -34,6 +34,7 @@ On macOS, the app sits in your menu bar or Dock, ready whenever inspiration stri
 - Sync with iCloud, or not
 - Word and character count
 - Custom hotkey for instant writing <sup>(macOS)</sup>
+- 30+ menu bar icons to choose from <sup>(macOS)</sup>
 - Translucent background <sup>(macOS)</sup>
 - Font settings
 - Support for [Shortcuts](https://support.apple.com/en-ng/guide/shortcuts/welcome/ios), [share service](https://support.apple.com/en-ng/guide/mac-help/mh40614/mac), and [macOS Services](https://support.apple.com/en-bh/guide/mac-help/mchlp1012/mac)
@@ -50,7 +51,7 @@ The app uses iCloud syncing to securely sync your text across devices. This feat
 
 ## Trial
 
-Try the fully functional trial of the macOS app [here](https://www.dropbox.com/scl/fi/fku2ko060srmht2zbtl1l/Scratchpad-1.3.7-trial-1748874499.zip?rlkey=35epjlrmrr700xh8fy514pkze&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
+Try the fully functional trial of the macOS app [here](https://www.dropbox.com/scl/fi/dxuv8fq20p5grer501fu0/Scratchpad-1.4.2-trial-1782300540.zip?rlkey=nkljqicen6hdzlovv3usy2cht&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
@@ -135,6 +136,10 @@ Refer to the [troubleshooting section](#troubleshooting) above to resolve syncin
 #### How do I restore a previous version of my note?
 
 The app keeps automatic local backups. Open the “…” menu and choose “Backups”, select one, and tap “Restore”. See [Back up and restore](#backup) for details.
+
+#### Why is “Clear Text” tucked inside a menu instead of being directly accessible?
+
+It clears your entire note in a single action, so it’s placed one step away to prevent accidental deletion. A confirmation dialog would add even more friction every time, so the menu is the simpler middle ground. On macOS, you can also clear instantly with <kbd>⇧⌘N</kbd>. And if you ever clear by mistake, just undo to bring it back (something many people don’t realize you can do here).
 
 #### Can you add Markdown syntax highlighting?
 
@@ -224,6 +229,7 @@ Scratchpad advantages:
 - iCloud sync is optional. Tot does not have a setting to turn off iCloud sync.
 - More affordable pricing: $8 vs $20 for Tot.
 - Unlimited note size. Tot is limited to 100,000 characters per dot.
+- 30+ customizable menu bar icons.
 - visionOS support.
 
 Tot advantages:

@@ -83,12 +83,12 @@ The app is English-only.
 - Prevent the Music app from auto-opening when you don't want to.
 	<span class="list-description">For example, when pressing Play/Pause on your keyboard or AirPods. You can also have it launch another app like Spotify instead. Similar to apps like noTunes and Overkill.</span>
 - Send media keys to app
-	<span class="list-description">Routes play/pause and next/previous track to Music or Spotify. Useful when macOS keeps sending media keys to the wrong app.</span>
+	<span class="list-description">Routes play/pause and next/previous track to Music, Podcasts, or Spotify. Useful when macOS keeps sending media keys to the wrong app.</span>
 - Mute Quick Look video previews
 	<span class="list-description">Automatically mutes videos previewed from Finder with Space while keeping the rest of your Mac audio unchanged.</span>
-<!-- - Pause Music and Spotify when Safari starts playing video
-	<span class="list-description">Automatically pauses Music and Spotify when Safari or Safari Technology Preview starts playing video. It does not resume playback when the video stops.</span> -->
-<!-- - [Hyper key](#hyper-key) -->
+<!-- - Pause Music, Podcasts, and Spotify when Safari starts playing video
+	<span class="list-description">Automatically pauses Music, Podcasts, and Spotify when Safari or Safari Technology Preview starts playing video. It does not resume playback when the video stops.</span> -->
+- [Hyper key](#hyper-key)
 <!-- - [Remap dedicated function keys](#remap-dedicated-function-keys) — Make the dedicated Mission Control, Spotlight, Dictation, and Do Not Disturb keys keyboard shortcuts, Supercharge actions, or run shortcuts. -->
 <!-- - [Double-tap modifier keys (Fn, Shift, Control, Option, Command) to trigger keyboard shortcuts, actions, or run shortcuts](#double-tap-modifier) -->
 - Prevent accidental app quits[^quit] by instead using <kbd>⇧⌘Q</kbd>, double tap <kbd>Q</kbd> while holding <kbd>⌘</kbd>, or [press and hold <kbd>⌘Q</kbd>](https://github.com/user-attachments/assets/0515e50f-2a93-4369-836e-085ad462fdf8)
@@ -141,6 +141,10 @@ The app is English-only.
 - [Finder: Adds many useful actions to the context menu:](#finder-context-menu) copy path, move to, open folder with, AirDrop, folder colors, etc.
 - Finder: Paste image or plain text as file with <kbd>⌘V</kbd>
 	<span class="list-description">When the clipboard contains an image or plain text, pressing <kbd>⌘V</kbd> in Finder/Desktop creates a file in the current folder. Normally, this would do nothing as Finder can only paste files.</span>
+- Simulate middle-click with a trackpad gesture
+	<span class="list-description">Detects a multi-finger tap or physical click (3, 4, or 5 fingers) on the trackpad and synthesizes a middle-click, making all middle-click features work without a physical middle mouse button. The click variant is handy if you have “Tap to click” disabled or want a more deliberate gesture.</span>
+- Adjust volume and display brightness with trackpad gestures
+	<span class="list-description">Slide along the left or right side of the trackpad, or use a 3, 4, or 5-finger swipe. Adjust the sensitivity to make changes more or less precise, and optionally require holding ⇧ for side slides to prevent accidental triggering while typing.</span>
 - Finder: Middle-click sidebar items to open in a new tab
 - Finder: Auto-adjust column widths to filenames in column view, or do it once with a keyboard shortcut
 	- Known (unfixable) issues:
@@ -204,6 +208,8 @@ The app is English-only.
 - Show desktop (menu action)
 - Sleep displays (menu action and keyboard shortcut)
 	<span class="list-description">Puts all your Mac’s screens to sleep.</span>
+- Switch to next or previous Space without animation (keyboard shortcut)
+	<span class="list-description">Instantly jumps to an adjacent Space without the macOS slide animation.</span>
 - Quit all apps (menu action and keyboard shortcut)
 	<span class="list-description">Optionally exclude specific apps.</span>
 - Quit all apps except frontmost (menu action and keyboard shortcut)
@@ -285,10 +291,6 @@ Mentions:
 
 <br>
 
-<!-- ##### Hyper key {#hyper-key}
-
-Remaps <kbd>Caps Lock</kbd> to function as a Hyper key—a single key that simultaneously activates all standard modifiers (Control + Option + Shift + Command). This enables the creation of highly unique shortcuts that are unlikely to conflict with existing ones, making them both easy to remember and quick to use. -->
-
 #### Run shortcuts {#run-shortcuts}
 
 Add shortcuts from the [Shortcuts](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) app to the menu for quick access. Show them in the main menu or a submenu. This is especially powerful as shortcuts can run AppleScript and shell scripts.
@@ -357,6 +359,8 @@ You can hold <kbd>Option</kbd> while clicking the red traffic light button to cl
 
 Detects which apps are listening to or have registered a certain global keyboard shortcut. This is useful for troubleshooting keyboard shortcut conflicts between apps. Simply press any keyboard shortcut combination to see which apps are handling it.
 
+It is able to detect most shortcuts, but not all. Modifier-only double-tap shortcuts, like double Command or double Option, cannot be detected because macOS does not expose those registrations.
+
 [Screenshot](https://github.com/user-attachments/assets/0f3ddfaa-caf5-471d-a880-93c97952dada)
 
 #### Automatic clipboard clearing {#automatic-clipboard-clearing}
@@ -392,6 +396,10 @@ Hides all other apps and minimizes all other windows of the current app, leaving
 Perfect for quickly clearing away distractions when you have many windows open (for example, multiple Safari windows across profiles).
 
 Available as a menu action, a customizable keyboard shortcut, and as a Shortcuts action for automations.
+
+##### Hyper key {#hyper-key}
+
+Remaps <kbd>Caps Lock</kbd> to function as a Hyper key — a single key that simultaneously activates all standard modifiers (Control + Option + Shift + Command). This enables the creation of highly unique shortcuts that are unlikely to conflict with existing ones, making them both easy to remember and quick to use.
 
 #### Automatically quit or hide inactive apps {#auto-quit-apps}
 
@@ -454,10 +462,22 @@ Adds the following actions (can be customized) directly in the right-click menu 
 - Make Symlink
 - Cut & Paste
 	<span class="list-description">Adds Windows-style “Cut” and “Paste” to move files: right-click files and choose “Cut”, then right-click the destination folder and choose “Cut”.</span>
+- Move To…
+	<span class="list-description">Moves files and folders to a destination you choose each time.</span>
 - Move To
-	<span class="list-description">Moves files and folders to a chosen location.</span>
+	<span class="list-description">Moves files and folders to a saved destination folder or a direct child folder nested under a saved destination.</span>
+- Move To — Inline
+	<span class="list-description">Shows move destinations directly in the context menu, for example “Move to Sorteras”. Destinations can have source folder limits and optional folder icons.</span>
+- Copy To…
+	<span class="list-description">Copies files and folders to a destination you choose each time.</span>
 - Copy To
-	<span class="list-description">Copies files and folders to a chosen location.</span>
+	<span class="list-description">Copies files and folders to a saved destination folder or a direct child folder nested under a saved destination.</span>
+- Copy To — Inline
+	<span class="list-description">Shows copy destinations directly in the context menu, for example “Copy to Sorteras”. Destinations can have source folder limits and optional folder icons.</span>
+- Copy Here…
+	<span class="list-description">The reverse of “Copy To”. Right-click a folder (or empty space in a window) and choose files or folders from anywhere to copy into it. Handy when you are deep in a folder and want to bring in something from elsewhere, like the Desktop, without dragging between windows.</span>
+- Move Here…
+	<span class="list-description">The reverse of “Move To”. Right-click a folder (or empty space in a window) and choose files or folders from anywhere to move into it. Handy when you are deep in a folder and want to bring in something from elsewhere, like the Desktop, without dragging between windows.</span>
 - Share
 	<span class="list-description">Shows the old-style Share item that is a submenu instead of a separate popover, which is faster to access. You can exclude AirDrop, Messages, and Mail from the menu, which are normally forced to be shown. However, there is no way to hide the existing Share item.</span>
 - Inline Share Services
@@ -558,9 +578,9 @@ Adds the following actions (can be customized) directly in the right-click menu 
 Finder-specific services:
 
 - Move To…
-	<span class="list-description">Moves files and folders to a chosen location.</span>
+	<span class="list-description">Moves files and folders to a destination you choose each time.</span>
 - Copy To…
-	<span class="list-description">Copies files and folders to a chosen location.</span>
+	<span class="list-description">Copies files and folders to a destination you choose each time.</span>
 - Open in Terminal
 	<span class="list-description">Shown only when right-clicking a folder in Finder. Supports Terminal, iTerm, Ghostty, kitty, WezTerm, Alacritty, Warp, and Prompt.</span>
 - Update Modified Date
@@ -675,7 +695,7 @@ Why not add an “X” overlay button on previews? Because right-click is faster
 
 #### Dock folder click behavior {#dock-folder-click}
 
-By default, clicking a folder in the Dock shows its contents in a popover. With Supercharge, you can make it directly reveal the folder in Finder instead. Does not work with smart folders.
+By default, clicking a folder in the Dock shows its contents in a popover. With Supercharge, you can make it directly reveal the folder in Finder instead. Right-clicking still shows the folder contents, and Option-right-click shows the Dock menu. Revealing in Finder does not work with smart folders.
 
 #### Export/import app settings {#export-import-app-settings}
 
@@ -732,7 +752,7 @@ Make macOS feel less foreign — and more powerful.
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/dpcafm3nqkzbs4vvvwgch/Supercharge-1.29.1-trial-1781710807.zip?rlkey=uwrutqa7odmuskcjw2wg86w33&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/e432ka630dqx0t4xbkjfa/Supercharge-1.29.2-trial-1782604827.zip?rlkey=rnlrewftqfpu1qeupwb45swd8&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
@@ -887,6 +907,12 @@ Some toggles I don't plan to add:
 
 No, the app is optimized to run efficiently in the background with minimal CPU, memory, and battery usage. Most features are event-driven and only activate when needed.
 
+#### Why doesn’t the “Prevent accidental quit” tweak apply in the Command+Tab app switcher?
+
+This is intentional. The feature exists for one specific slip: <kbd>Q</kbd> sits right next to <kbd>W</kbd>, so it's easy to hit <kbd>⌘Q</kbd> (quit) when you meant <kbd>⌘W</kbd> (close window). That mix-up can't happen in the app switcher, because there's no window to close there in the first place.
+
+Quitting from the switcher is also already a deliberate, multi-step act: you hold <kbd>⌘</kbd>, tab to a specific app, and only then press <kbd>Q</kbd>. It's very hard to do by accident. And forcing a press-and-hold or double-tap there would defeat the purpose of the switcher, which is to quit apps quickly while cycling through them.
+
 #### I cannot use <kbd>Control+Space</kbd> or <kbd>Control+Shift+Space</kbd> as a keyboard shortcut
 
 Go to “System Settings › Keyboard › Keyboard Shortcuts › Input Sources” and disable them all.
@@ -995,6 +1021,8 @@ Supercharge has the following Shortcuts actions that Shortcutie does not have:
 - Toggle Weather Menu Bar Window
 - Toggle Now Playing Window
 - Toggle Hot Corners
+- Show Poof Animation
+- Get/Set Media Keys App Control Target
 
 #### Why is this not in the App Store?
 

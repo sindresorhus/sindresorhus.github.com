@@ -97,6 +97,10 @@ No, you can only use the keyboard shortcuts. The app works by overriding the ori
 
 This is not possible. The app works by overriding some key combinations. It doesn't and cannot modify Finder in any way.
 
+#### Can I change the volume of the cutting sound?
+
+The cutting sound is a macOS system sound effect, so its volume follows the alert volume in “System Settings › Sound”. The sound also requires “Play user interface sound effects” to be enabled there.
+
 #### It does not work when I try to paste directly to an expanded subfolder shown in its parent folder
 
 This is a Finder bug. You can reproduce it even without Command X by selecting the file to move, pressing <kbd>Command+C</kbd>, selecting the destination folder, and then pressing <kbd>Option+Command+V</kbd>.

@@ -92,6 +92,10 @@ It will erase your existing items, so you may want to first back them up with â€
 
 I don't plan to add this. I want to keep the app super simple.
 
+#### Can I choose any color for the menu bar text on macOS? {#menu-bar-text-color}
+
+The picker only offers system colors, not a freeform color. System colors automatically adapt to stay readable on both light and dark menu bars, while a fixed custom color could become unreadable when the menu bar background changes, for example with a dynamic wallpaper or when switching between light and dark mode.
+
 #### Can you make the widget background transparent?
 
 This is not possible.

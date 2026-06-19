@@ -193,7 +193,15 @@ The app technically clears formatting when something is copied not pasted, so th
 
 Yes, with the Shortcuts app. Create a shortcut with the “Change Pure Paste Settings” action in Shortcuts. Pin it to the Shortcuts menu bar or assign a global keyboard shortcut in Shortcuts.
 
-#### Can you add support for removing newlines/linebreaks?
+#### Formatting is not cleared when I copy text from a PDF {#pdf-formatting}
+
+This is expected. Text in a PDF is almost always plain text already, so there is no rich text formatting (fonts, colors, bold, links, etc.) for Pure Paste to clear.
+
+What you are most likely seeing instead are line breaks in the middle of sentences, words split with hyphens across lines, or uneven spacing. These are not formatting; they are part of the PDF's page layout and are baked into the text as real characters. Clearing formatting cannot remove them, because there is no formatting involved.
+
+If you want to clean up the line breaks, see [removing newlines/linebreaks](#removing-newlines) below.
+
+#### Can you add support for removing newlines/linebreaks? {#removing-newlines}
 
 The app is designed to *just work*, but removing newlines is not suitable for all use cases. For instance, you may want to remove newlines when copying text from a PDF, but not from Word. If you still want this feature, add the following to the “JavaScript” setting:
 
