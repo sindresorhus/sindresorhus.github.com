@@ -376,6 +376,8 @@ If you have any questions about how to use the different actions or for what, tr
 
 Some common action requests that are not possible:
 
+- Reading what's on the screen
+- Current text selection
 - Orientation lock status
 - Flashlight status
 - Ambient sensor info

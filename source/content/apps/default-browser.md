@@ -24,6 +24,8 @@ pressQuotes:
     source: John Dorian
 olderMacOSVersions:
   - '15'
+feedbackNote: |
+  [Focus Filters are broken on macOS 26.5 and later.](https://developer.apple.com/forums/thread/826766) Only Apple can fix this.
 ---
 
 Seamlessly switch between browsers directly from your menu bar, keyboard shortcut, Focus mode, or using Shortcuts. Perfect for users who work with multiple browsers.

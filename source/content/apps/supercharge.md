@@ -140,7 +140,7 @@ The app is English-only.
 	<span class="list-description">This has a bonus feature of highlighting the folder you came from.</span>
 - [Finder: Adds many useful actions to the context menu:](#finder-context-menu) copy path, move to, open folder with, AirDrop, folder colors, etc.
 - Finder: Paste image or plain text as file with <kbd>⌘V</kbd>
-	<span class="list-description">When the clipboard contains an image or plain text, pressing <kbd>⌘V</kbd> in Finder/Desktop creates a file in the current folder. Normally, this would do nothing as Finder can only paste files.</span>
+	<span class="list-description">When the clipboard contains an image or plain text, pressing <kbd>⌘V</kbd> in Finder/Desktop creates a file in the current folder. Normally, this would do nothing as Finder can only paste files. macOS 27 has this built-in for images, but it pastes images as TIFF, which is generally not desirable. Supercharge pastes as PNG.</span>
 - Simulate middle-click with a trackpad gesture
 	<span class="list-description">Detects a multi-finger tap or physical click (3, 4, or 5 fingers) on the trackpad and synthesizes a middle-click, making all middle-click features work without a physical middle mouse button. The click variant is handy if you have “Tap to click” disabled or want a more deliberate gesture.</span>
 - Adjust volume and display brightness with trackpad gestures
@@ -223,6 +223,8 @@ The app is English-only.
 	<span class="list-description">Mute or unmute your microphone with a keyboard shortcut, from the menu, or using Shortcuts. Can show a menu bar icon for the current state. [Screenshot.](https://www.dropbox.com/scl/fi/dh8qprcekcjftnjc1hy2l/Mute-microphone-Screen-Shot-2025-07-31-at-19.16.08-1753983397.mp4?rlkey=i9c1ehd348v07g72t2ahpqcsz&raw=1)</span>
 - Mute microphone while typing
 	<span class="list-description">Automatically mutes the microphone input while you're typing and unmutes shortly after you stop. Only activates when the microphone is in use. Useful for video calls with loud keyboards. Similar to the discontinued Unclack app.</span>
+- Cycle audio output and input devices
+	<span class="list-description">Switch the default sound output or input device to the next one with a keyboard shortcut or using Shortcuts, cycling back to the first at the end. Useful for quickly jumping between speakers, headphones, and microphones. Similar to the SoundSwitch app on Windows.</span>
 - Toggle dark mode
 - Toggle [Night Shift](https://support.apple.com/en-us/102191)
 - Toggle [True Tone](https://support.apple.com/en-us/102147)
@@ -407,7 +409,7 @@ Automatically quits or hides apps when you're not using them, to maintain focus 
 
 Set up rules per app: quit or hide after a certain amount of inactivity. You might hide Slack after 3 minutes but quit X (Twitter) after 5 minutes, depending on how you work.
 
-Pauses for all apps while any camera/mic is in use or screen is being captured. Won't affect the active app. Menu bar-only apps won't be affected since they never become active or inactive.
+Pauses a rule while that app is using the microphone, while any camera is in use, or while the screen is being captured. You can opt a rule into quitting or hiding even during calls or recording. Won't affect the active app. Menu bar-only apps won't be affected since they never become active or inactive.
 
 [Screenshot](https://www.dropbox.com/scl/fi/am443hh5uuglk8fiwmdqk/Auto-quit-feature-Screen-Shot-2025-11-06-at-15.45.16-1762418767.png?rlkey=fbbdi22wsdclq1cxeiwiijlam&raw=1)
 
@@ -752,7 +754,7 @@ Make macOS feel less foreign — and more powerful.
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/e432ka630dqx0t4xbkjfa/Supercharge-1.29.2-trial-1782604827.zip?rlkey=rnlrewftqfpu1qeupwb45swd8&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/x5on4slw2iodup3f29nzx/Supercharge-1.29.3-trial-1784246552.zip?rlkey=84pyjsagmo5x033wbs7tliw2k&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
@@ -847,6 +849,10 @@ You may also have disabled the “Show menu bar icon” setting, which hides the
 <!-- @faq.keywords reinstall uninstall -->
 
 If you purchased it on [Gumroad](https://gumroad.com), you can download the app again from your Gumroad account or the Gumroad receipt email.
+
+#### How do I move from the Setapp version to the direct version and keep my settings? {#switch-from-setapp}
+
+The two versions use different bundle identifiers, so settings don't carry over automatically. Transfer them with Supercharge's own [Export/import app settings](#export-import-app-settings) feature. Export from the Setapp copy, then import into the direct copy. You can also use my [App Buddy](/app-buddy) app.
 
 #### The tweaks like Finder cut & paste no longer work
 

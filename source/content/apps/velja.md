@@ -14,6 +14,9 @@ olderMacOSVersions:
   - '14'
   - '15'
 feedbackNote: |
+  ### If you are on macOS 27 beta, to use browser profiles, you need to allow access to browsers in “System Settings → Privacy & Security → Files & Folders → Velja”.<br><br>
+
+
   [Can you support Safari profiles?](/velja#safari-profiles)
 
   [Can you support Arc/Dia spaces/profiles?](/velja#arc)
@@ -67,6 +70,7 @@ Any browser.
 - Chrome *(and Beta, Canary, Dev)*
 - Edge *(and Beta, Canary, Dev)*
 - Brave *(and Beta, Nightly)*
+- Brave Origin *(and Beta, Nightly)*
 - Vivaldi *(and Snapshot)*
 - Chromium
 - [Comet](https://comet.perplexity.ai)
@@ -80,7 +84,7 @@ Any browser.
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/3a9nj35coz3ohyizixxkg/Velja-3.1.0-trial-1770404437.zip?rlkey=qp07o6we2quz4715z2li7vdnu&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/kodz29ruzxy9kdkyier7r/Velja-3.2.1-trial-1783593787.zip?rlkey=ae8ybjul3pthmaaqvg1648c6o&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
@@ -215,7 +219,7 @@ For other Chrome-based browsers, replace `com.google.Chrome` with their bundle i
 
 ### Launch browsers from Velja menu
 
-Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to launch it instead of setting it as the current browser. This even works with browser profiles.
+Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to launch it instead of setting it as the current browser. You can also press <kbd>Option+1</kbd> through <kbd>Option+9</kbd> to quickly open a browser by its position in the list. This even works with browser profiles.
 
 ### Open certain URLs in a specific browser profile
 
@@ -246,6 +250,12 @@ macOS 26 has automations in Shortcuts and you don't need Shortery there.
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 
+#### Can I assign single-letter shortcuts to browsers in the prompt?
+
+Yes. In “Settings › Browsers”, open “Shown Browsers” and assign a **Prompt Shortcut** (`a`–`z`) to each browser. This enables one-key selection, for example `s` for Safari, `c` for Chrome. When the prompt is shown, press the key to open instantly.
+
+If no shortcut is set, browsers are selected by their number in the list.
+
 #### Why is the app suddenly paid? It used to be free.
 
 While I love making free apps that are available to anyone, the high volume of support requests became unsustainable. After providing Velja for free for 3 years with nearly 130K downloads, I made the decision to make it paid. This isn't about revenue - it's about managing my time more effectively by reducing the support burden to a sustainable level.
@@ -253,6 +263,10 @@ While I love making free apps that are available to anyone, the high volume of s
 #### Can this app be available on Setapp? {#setapp}
 
 Setapp curates apps based on demand, so if you'd like to see this app on Setapp, [email them](https://support.setapp.com/hc/articles/4950254561052-How-to-contact-Setapp-team#:~:text=to%20your%20issue.-,Send%20an%20email,%3A%20support%40setapp.com.) and request its inclusion.
+
+#### Can Velja route mailto links to a specific email app? {#mailto}
+
+No. Velja handles browser links (URLs). For routing mailto links to different email apps or webmail services, check out my [Mailway](/mailway) app.
 
 #### Velja does not work
 
@@ -306,9 +320,9 @@ Known apps where Velja cannot reliably identify the source:
 
 Make sure you have added a “Sample URL” to the rule to confirm your match pattern is correct.
 
-See [this](#debug) for how to debug what URLs Velja receives.
+Open the log (in the menu bar “…” menu) to see which rules matched and how URLs were transformed. This is the easiest way to understand what Velja did with a URL. See also [this](#debug) for more debug info.
 
-If your rule uses a “source app” condition, make sure Velja correctly identifies the source app (see the FAQ entry on that). If the link is a short URL, make sure the "Expand short URLs" setting is enabled.
+If your rule uses a “source app” condition, make sure Velja correctly identifies the source app (see the FAQ entry on that). If the link is a short URL, make sure the “Expand short URLs” setting is enabled.
 
 Some apps use a redirect URL for tracking purposes. Velja has built-in support for a lot of redirect services and it also tries to resolve URLs to their final destination. However, some redirects cannot be resolved by Velja. This is the case with some links clicked in Slack as they require the login token to be able to redirect. There is unfortunately nothing I can do about that.
 
@@ -377,6 +391,18 @@ And some apps do not need special support because they already support [universa
 
 If your favorite service is in the above list, I would recommend contacting them and asking them to support opening a link directly in their app. That means being able to run the command `open -a AppName https://foo.com/link-to-project-or-meeting`.
 
+#### ClickUp with a custom workspace subdomain {#clickup-custom-subdomain}
+
+ClickUp Enterprise workspaces can have a custom subdomain (e.g., `acme.clickup.com`). If your workspace uses one, [let me know](/feedback?product=Velja&referrer=Website-FAQ) and I'll add built-in support for it.
+
+In the meantime, you can use a custom rule with the “Transform URL” feature to rewrite the URL. Set the URL matcher to your subdomain and use this script:
+
+```js
+$.url.href = 'clickup://' + $.url.pathname.slice(1) + $.url.search;
+```
+
+Then set “Open in” to your default browser. macOS will route the `clickup://` URL to the ClickUp desktop app.
+
 #### Can Velja override Universal Links?
 
 No. There is a way to do it, but it requires a special entitlement from Apple. I applied for it a year ago and haven't heard anything.
@@ -391,9 +417,9 @@ First, make sure you grant access to profiles in the settings and then enable th
 
 Websites added to the Dock from Safari are just normal apps located in `~/Applications`. You could create a custom rule to match certain URLs and have them open in one of these web-wrapper apps.
 
-#### Why does a Chromium browser PWA open to its default page instead of the URL I opened? {#chromium-pwa}
+#### How can I open specific URLs in a Chromium browser PWA? {#chromium-pwa}
 
-Progressive Web Apps (PWAs) created by Chromium-based browsers (Chrome, Edge, Brave, etc.) do not accept URL arguments, so when Velja opens one via a rule, the PWA will always navigate to its default page instead of the specific URL. This is a Chromium limitation and cannot be fixed by Velja. Use [Safari “Add to Dock” web apps](#safari-dock-app) instead, which correctly open the specific URL.
+Velja supports opening specific URLs in Chromium PWAs (Chrome, Edge, Brave, etc.). This requires the “open.sh” helper script to be set up (Settings → Advanced). Velja launches the parent browser with the correct flags to open the PWA at the specific URL.
 
 #### Can you support [Firefox Multi-Account Containers](https://github.com/mozilla/multi-account-containers)? {#firefox-containers}
 
@@ -530,9 +556,11 @@ You can use the [Shortery](https://apps.apple.com/app/id1594183810) and Shortcut
 
 #### How can I see what URL Velja received? {#debug}
 
-In the advanced settings, enable the link history setting, and then click the link. The URL will show up there.
+Open the log (in the menu bar “…” menu) to see exactly what Velja did: which URL was received, what transformations were applied, which rules matched, and which browser was opened. The log is only active while the log window is open.
 
-To see more detailed debug info on how Velja handled the URL: Quit Velja if it's open. Press <kbd>Shift+Control</kbd> while launching Velja, click the menu bar icon, click “Debug”, and then go to “Logs”.
+You can also enable the link history in the advanced settings to keep a persistent record of opened URLs.
+
+To see more detailed debug info: Quit Velja if it's open. Press <kbd>Shift+Control</kbd> while launching Velja, click the menu bar icon, click “Debug”, and then go to “Logs”.
 
 If a rule with a “source app” condition isn't working, check the history to verify the source app matches what you expect. Some apps launch URLs through helper processes, causing a different app to appear.
 
@@ -624,7 +652,7 @@ Create a custom rule where you set the Spotlight app as “Source Apps”. The a
 
 #### How can I open Google Meet links in a desktop app?
 
-You can choose an app to open Google Meet links in the “Apps” tab in the settings. The app must support these URLs. Many [PWAs](https://en.wikipedia.org/wiki/Progressive_web_app) don’t, including ones made in Chrome or Chrome-based browsers. Safari PWAs do work. Create one from `https://meet.google.com/` using “Add to Dock”, then select the generated app in `~/Applications/Google Meet` in Velja.
+You can choose an app to open Google Meet links in the “Apps” tab in the settings. The app must support these URLs. For example, create a Safari PWA from `https://meet.google.com/` using “Add to Dock”, then select the generated app in `~/Applications/Google Meet` in Velja. Chromium PWAs also work if you have the “open.sh” helper script set up (Settings → Advanced).
 
 #### I have both Firefox and Firefox Beta installed, but only one of them is showing up in Velja
 
