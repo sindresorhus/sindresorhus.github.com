@@ -249,6 +249,15 @@ If you are on macOS 26, make sure it's not disabled in “System Settings › Me
 
 Also try restarting your computer.
 
+### The menu bar item looks blurry or is not dimmed on a secondary display {#menu-bar-secondary-display}
+<!-- @faq.keywords dual monitor monitors second secondary external display screen blurry fuzzy sharp dim dimming faded transparent -->
+<!-- @faq.platforms macOS -->
+
+macOS handles the replication of menu bar items onto secondary displays, so what you see there is drawn by the system, not by the app. Two things can look off, both outside the control of apps:
+
+- Text can look less sharp. This is simply the resolution of that display: a non-Retina display has far fewer pixels to draw the text with. Everything else on that screen is drawn at the same low resolution, but small text is where it shows the most.
+- macOS dims menu bar items on the display that is not active, making them semi-transparent so they blend into the menu bar. It incorrectly fails to do this for items that use rich text, so those stay fully opaque and stand out from everything around them.
+
 ### The app stopped working after a macOS update {#macos-update-broke-app}
 
 Ensure you are running the latest version of the app. I typically release updates around major macOS releases to ensure compatibility. You may also need to re-grant permissions (Accessibility, Full Disk Access, etc.) in System Settings, as macOS updates can reset these. If the problem persists, try [resetting the app](#reset-app). Still not working? [Contact me](/feedback) with details.
@@ -299,6 +308,8 @@ You can try:
 1. Put the computer to sleep, then wake it up and log in again.
 1. If nothing else works, restart your computer.
 1. Use the “Get Apps Using Secure Input” action from [Shortcutie](/shortcutie) to identify the problematic app and quit it.
+
+If a diagnostic reports `loginwindow` as using Secure Input, this is a known macOS bug. Lock your screen with Control+Command+Q, then unlock it. Do not try to quit `loginwindow`.
 
 The issue often occurs when an app requests Secure Input while in the background, causing it to get "stuck" in secure mode.
 

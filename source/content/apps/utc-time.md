@@ -23,6 +23,10 @@ This can be useful as a quick reference.
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
 
+#### The time looks blurry or is not dimmed on my secondary display
+
+[See this answer](/apps/faq#menu-bar-secondary-display)
+
 #### Can you localize the app into my language?
 
 The date & time output adheres to your locale settings. I don't plan to localize the app itself.

@@ -60,6 +60,10 @@ Don't want to open anything? Set the target to “Copy to Clipboard” and click
 
 Hold a <kbd>Fn</kbd> key when clicking a `mailto:` link to use an alternative email app, bypassing all rules.
 
+### Shortcuts
+
+The app provides Shortcuts actions for composing emails, getting and setting the primary and alternative email targets, and enabling or disabling rules. You can use these to automate your email workflow.
+
 ## Frequently Asked Questions {#faq}
 
 #### Why do I need to set the app as the default email app?
@@ -140,6 +144,10 @@ Change the default email app back to Apple Mail in "System Settings > Default Ap
 
 No. iOS does not allow apps to intercept `mailto:` links the way macOS does.
 
+#### Can you add a “Launch at login” setting?
+
+It's not needed. Unlike [Velja](/velja), Mailway does not run in the background. It launches only when you click a `mailto:` link, routes it, and quits right away. There's nothing to keep running, so there's no “Launch at login” setting.
+
 #### How is it different from [Velja](/velja)? Why isn't it part of Velja? {#velja}
 
 Velja routes browser links (URLs) to different browsers and apps. Mailway routes `mailto:` links to different email apps and webmail services. Keeping them separate means each app stays focused and simple. They work great together though.
@@ -151,6 +159,7 @@ Mailway benefits:
 - Route to native email apps, not just webmail
 - Rules based on recipient, domain, or source app
 - Alternative email target with modifier key
+- Shortcuts actions
 - Actively maintained
 
 Open In Webmail benefits:

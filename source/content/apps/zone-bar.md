@@ -46,6 +46,10 @@ Your shortcuts and data never leave your device. The app is built without intern
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
 
+#### The clocks look blurry or are not dimmed on my secondary display
+
+[See this answer](/apps/faq#menu-bar-secondary-display)
+
 #### Some world clocks are missing from the menu bar
 
 Probably same as the above.

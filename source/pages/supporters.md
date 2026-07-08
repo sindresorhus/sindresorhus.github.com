@@ -76,10 +76,6 @@ None -->
 	<img src="/assets/thanks/depot-logo-light.svg" width="240" alt="Depot">
 </a>
 <br>
-<a href="https://circleback.ai" class="sponsor" rel="nofollow" style="position:relative;margin-top:30px">
-	<img src="/assets/thanks/circleback-logo.png" width="400" alt="Circleback">
-</a>
-<br>
 
 ## Silver sponsor <span class="reward-price not-prose">$100/month</span>
 
@@ -425,6 +421,7 @@ I'm forever thankful to these people and companies that have previously supporte
 - [WorkOS](https://workos.com)
 - [BoltAI](https://github.com/BoltAI)
 - [Wispr Flow](https://wisprflow.ai)
+- [Circleback](https://circleback.ai)
 
 ---
 

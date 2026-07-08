@@ -109,6 +109,10 @@ Workaround:
 defaults write ~/Library/Group\ Containers/group.com.apple.replayd/ScreenCaptureApprovals.plist com.sindresorhus.Text-Lens -dict-add kScreenCapturePrivacyHintPolicy 7776000 kScreenCapturePrivacyHintDate -date 2035-12-31; /usr/bin/killall -HUP replayd
 ```
 
+#### Why does capturing from some apps give me nothing? {#capture-protection}
+
+Some apps block screen capture at the system level, for example DRM-protected video and Citrix Workspace. macOS then returns a blank image instead of their content, so there is no text to extract. This affects everything on macOS, including the built-in screenshot tool, and cannot be worked around by any app.
+
 #### How is this different from macOS built-in Live Text?
 
 While macOS Live Text works well for images and photos in supported apps, Text Lens works everywhere on your screen. You can capture text from videos, webpages, presentations, or any app - even when Live Text is not available. Text Lens also works with non-image content like UI elements and rendered text that Live Text can't detect.

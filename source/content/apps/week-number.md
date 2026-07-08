@@ -32,6 +32,10 @@ Check out [Dato](/dato) for week number in the menu bar and more features and se
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
 
+#### The week number looks blurry or is not dimmed on my secondary display
+
+[See this answer](/apps/faq#menu-bar-secondary-display)
+
 #### Can you add custom week numbering options (for example, fiscal weeks, school terms, or work weeks)?
 
 No, the app is intentionally simple.

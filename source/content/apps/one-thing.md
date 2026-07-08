@@ -68,6 +68,10 @@ macOS hides menu bar items that do not fit. [Click here](one-thing:?text=) to re
 
 [Click here](one-thing:?text=) to reset the text.
 
+#### The text looks blurry or is not dimmed on my secondary display
+
+[See this answer](/apps/faq#menu-bar-secondary-display)
+
 #### How is this different from your [One Task](/one-task) app? {#one-task-difference}
 
 See [this answer](/one-task#one-thing-difference).
