@@ -57,6 +57,10 @@ The [distributed notification](/apps/faq#distributed-notifications) `com.sindres
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
 
+#### The menu bar item looks blurry or is not dimmed on my secondary display
+
+[See this answer](/apps/faq#menu-bar-secondary-display)
+
 #### Can you add widgets?
 
 I plan to do that at some point, but not soon.

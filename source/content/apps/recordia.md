@@ -16,7 +16,7 @@ olderMacOSVersions:
   - '15'
 ---
 
-Record audio directly from the menu bar or with a global keyboard shortcut.
+Record audio directly from the menu bar or with a global keyboard shortcut. It can record from the microphone, system audio, or both at the same time.
 
 ## Frequently Asked Questions {#faq}
 
@@ -34,11 +34,9 @@ Preview the recording as described above and then click the trim button.
 
 #### How can I record system audio? {#record-system-audio}
 
-Recordia doesn't have a built-in way to record system audio because of App Store restrictions. However, you can achieve it by following the below steps:
+In the Recordia menu, under “Audio Source”, choose “System Audio” to capture all audio playing on your Mac, or “Microphone + System Audio” to record both into a single file.
 
-1. [Install the BlackHole audio driver](https://github.com/ExistentialAudio/BlackHole#installation-instructions)
-2. [Set up a multi-output device](https://github.com/ExistentialAudio/BlackHole/wiki/Multi-Output-Device)
-3. Select “BlackHole” as the input device in Recordia
+Recording system audio requires macOS 26 or later. On older versions, you can [install the BlackHole audio driver](https://github.com/ExistentialAudio/BlackHole#installation-instructions), [set up a multi-output device](https://github.com/ExistentialAudio/BlackHole/wiki/Multi-Output-Device), and then select “BlackHole” as the input device in Recordia.
 
 #### How can I transcribe the audio (speech to text)? {#transcribe}
 

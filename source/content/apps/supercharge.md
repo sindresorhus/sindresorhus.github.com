@@ -28,6 +28,8 @@ pressQuotes:
 olderMacOSVersions:
   - '15'
 feedbackNote: |
+  ### If you get a “Failed to listen to system events” error or getting continuously re-prompted about permissions after updating to macOS 27, try [resetting privacy permissions](/apps/faq#mac-reset-permissions) and then restart your system. macOS sometimes corrupts these when updating...
+
   If you have moved to a new Mac and need to download the app again, you can download it from your [Gumroad receipt email or Gumroad account](https://gumroad.com/help/article/199-how-do-i-access-my-purchase).
 
   When reporting bugs, try quitting Supercharge, and if the issue disappears, it is likely not an issue with Supercharge. If the issue is still there, try turning off things in the “Tweaks” settings tab until it does not happen anymore, to narrow down which feature is causing the issue, and let me know.
@@ -91,9 +93,9 @@ The app is English-only.
 - [Hyper key](#hyper-key)
 <!-- - [Remap dedicated function keys](#remap-dedicated-function-keys) — Make the dedicated Mission Control, Spotlight, Dictation, and Do Not Disturb keys keyboard shortcuts, Supercharge actions, or run shortcuts. -->
 <!-- - [Double-tap modifier keys (Fn, Shift, Control, Option, Command) to trigger keyboard shortcuts, actions, or run shortcuts](#double-tap-modifier) -->
-- Prevent accidental app quits[^quit] by instead using <kbd>⇧⌘Q</kbd>, double tap <kbd>Q</kbd> while holding <kbd>⌘</kbd>, or [press and hold <kbd>⌘Q</kbd>](https://github.com/user-attachments/assets/0515e50f-2a93-4369-836e-085ad462fdf8)
+- Prevent accidental app quits[^quit] by instead using <kbd>⇧⌘Q</kbd>, pressing <kbd>Q</kbd> twice while holding <kbd>⌘</kbd>, or [press and hold <kbd>⌘Q</kbd>](https://github.com/user-attachments/assets/0515e50f-2a93-4369-836e-085ad462fdf8)
 - Prevent accidental ⌘W window closes
-	<span class="list-description">Adds a safety layer to ⌘W so you don’t nuke the wrong window (perfect for Safari web apps and standalone sites). Pick your gesture: ⇧⌘W, double-tap W while holding ⌘, or press-and-hold ⌘W with a visual timer. Works per-app with an inclusion filter, so you can guard only the apps that matter.</span>
+	<span class="list-description">Adds a safety layer to ⌘W so you don’t nuke the wrong window (perfect for Safari web apps and standalone sites). Pick your gesture: ⇧⌘W, press W twice while holding ⌘, or press-and-hold ⌘W with a visual timer. Works per-app with an inclusion filter, so you can guard only the apps that matter.</span>
 - [Launch any app with a customizable global keyboard shortcut](https://github.com/user-attachments/assets/22bf135a-cc39-45ef-82ef-bf23176f0746)
 	<span class="list-description">Pressing the shortcut again hides the app and activates the previous app, so it works as a quick toggle.</span>
 - [Clicking green traffic light button fills window instead of entering fullscreen](#green-traffic-light-button-fill)
@@ -119,7 +121,7 @@ The app is English-only.
 - [Keep computer awake](#keep-awake)
 - [Automatically clear clipboard for improved privacy](#automatic-clipboard-clearing)
 - [Prevent accidental window closing for certain apps](#prevent-accidental-window-closing)
-- Prevent Dock from showing when moving mouse to screen edge
+- Prevent Dock from showing when moving the mouse pointer to screen edge
 	<span class="list-description">Useful if you want to hide the Dock entirely or only show it with a keyboard shortcut. Does not apply to fullscreen.</span>
 - Open new window by Shift+clicking a running app in the Dock
 	<span class="list-description">Makes it easy to open a new window for an app, similar to Windows. Works by simulating Command+N in the app, so it may not work correctly in all apps.</span>
@@ -140,7 +142,7 @@ The app is English-only.
 	<span class="list-description">This has a bonus feature of highlighting the folder you came from.</span>
 - [Finder: Adds many useful actions to the context menu:](#finder-context-menu) copy path, move to, open folder with, AirDrop, folder colors, etc.
 - Finder: Paste image or plain text as file with <kbd>⌘V</kbd>
-	<span class="list-description">When the clipboard contains an image or plain text, pressing <kbd>⌘V</kbd> in Finder/Desktop creates a file in the current folder. Normally, this would do nothing as Finder can only paste files.</span>
+	<span class="list-description">When the clipboard contains an image or plain text, pressing <kbd>⌘V</kbd> in Finder/Desktop creates a file in the current folder. Normally, this would do nothing as Finder can only paste files. macOS 27 has this built-in for images, but it pastes images as TIFF, which is generally not desirable. Supercharge pastes as PNG.</span>
 - Simulate middle-click with a trackpad gesture
 	<span class="list-description">Detects a multi-finger tap or physical click (3, 4, or 5 fingers) on the trackpad and synthesizes a middle-click, making all middle-click features work without a physical middle mouse button. The click variant is handy if you have “Tap to click” disabled or want a more deliberate gesture.</span>
 - Adjust volume and display brightness with trackpad gestures
@@ -208,6 +210,8 @@ The app is English-only.
 - Show desktop (menu action)
 - Sleep displays (menu action and keyboard shortcut)
 	<span class="list-description">Puts all your Mac’s screens to sleep.</span>
+- Start screen saver (menu action and keyboard shortcut)
+	<span class="list-description">Starts your configured macOS screen saver. Enable it under “Shown menu items”.</span>
 - Switch to next or previous Space without animation (keyboard shortcut)
 	<span class="list-description">Instantly jumps to an adjacent Space without the macOS slide animation.</span>
 - Quit all apps (menu action and keyboard shortcut)
@@ -223,6 +227,8 @@ The app is English-only.
 	<span class="list-description">Mute or unmute your microphone with a keyboard shortcut, from the menu, or using Shortcuts. Can show a menu bar icon for the current state. [Screenshot.](https://www.dropbox.com/scl/fi/dh8qprcekcjftnjc1hy2l/Mute-microphone-Screen-Shot-2025-07-31-at-19.16.08-1753983397.mp4?rlkey=i9c1ehd348v07g72t2ahpqcsz&raw=1)</span>
 - Mute microphone while typing
 	<span class="list-description">Automatically mutes the microphone input while you're typing and unmutes shortly after you stop. Only activates when the microphone is in use. Useful for video calls with loud keyboards. Similar to the discontinued Unclack app.</span>
+- Cycle audio output and input devices
+	<span class="list-description">Switch the default sound output or input device to the next one with a keyboard shortcut or using Shortcuts, cycling back to the first at the end. Useful for quickly jumping between speakers, headphones, and microphones. Similar to the SoundSwitch app on Windows.</span>
 - Toggle dark mode
 - Toggle [Night Shift](https://support.apple.com/en-us/102191)
 - Toggle [True Tone](https://support.apple.com/en-us/102147)
@@ -319,6 +325,10 @@ Example shortcuts:
 
 Prevent your Mac from sleeping and optionally prevent your screen from dimming.
 
+Hold <kbd>Option</kbd> while choosing “Keep Awake” in the Supercharge menu to temporarily use the opposite screen behavior without changing the setting.
+
+While active, the menu item shows whether the current session keeps the display on or allows it to sleep.
+
 A menu bar icon can be shown when active for visual indication.
 
 For advanced features like timing, check out [Lungo](/lungo).
@@ -407,7 +417,7 @@ Automatically quits or hides apps when you're not using them, to maintain focus 
 
 Set up rules per app: quit or hide after a certain amount of inactivity. You might hide Slack after 3 minutes but quit X (Twitter) after 5 minutes, depending on how you work.
 
-Pauses for all apps while any camera/mic is in use or screen is being captured. Won't affect the active app. Menu bar-only apps won't be affected since they never become active or inactive.
+Pauses a rule while that app is using the microphone, while any camera is in use, or while the screen is being captured. You can opt a rule into quitting or hiding even during calls or recording. Won't affect the active app. Menu bar-only apps won't be affected since they never become active or inactive.
 
 [Screenshot](https://www.dropbox.com/scl/fi/am443hh5uuglk8fiwmdqk/Auto-quit-feature-Screen-Shot-2025-11-06-at-15.45.16-1762418767.png?rlkey=fbbdi22wsdclq1cxeiwiijlam&raw=1)
 
@@ -752,7 +762,7 @@ Make macOS feel less foreign — and more powerful.
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/e432ka630dqx0t4xbkjfa/Supercharge-1.29.2-trial-1782604827.zip?rlkey=rnlrewftqfpu1qeupwb45swd8&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/rjrzgodfav00ewqysfvy5/Supercharge-1.30.0-trial-1789344275.zip?rlkey=6hdzwre0kkfr9zh5yyi04j5qf&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
@@ -772,6 +782,8 @@ You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=742&utm_me
 #### Accidental quit troubleshooting
 
 A common issue is that macOS corrupts the privacy permissions. Try resetting permissions (see above).
+
+If the Supercharge menu reports `loginwindow` as blocking keyboard shortcuts, lock your screen with Control+Command+Q, then unlock it. This is a known macOS bug. Do not try to quit `loginwindow`.
 
 #### Cut and paste files troubleshooting
 
@@ -830,6 +842,8 @@ Some things are not possible though:
 
 Some things are not planned:
 
+- Window switcher
+	- I recommend [AltTab](https://alt-tab.app)
 - Memory cleaner
 	- Apps like these are a scam. macOS handles memory efficiently. There is no need for an app like this.
 - App uninstaller
@@ -847,6 +861,10 @@ You may also have disabled the “Show menu bar icon” setting, which hides the
 <!-- @faq.keywords reinstall uninstall -->
 
 If you purchased it on [Gumroad](https://gumroad.com), you can download the app again from your Gumroad account or the Gumroad receipt email.
+
+#### How do I move from the Setapp version to the direct version and keep my settings? {#switch-from-setapp}
+
+The two versions use different bundle identifiers, so settings don't carry over automatically. Transfer them with Supercharge's own [Export/import app settings](#export-import-app-settings) feature. Export from the Setapp copy, then import into the direct copy. You can also use my [App Buddy](/app-buddy) app.
 
 #### The tweaks like Finder cut & paste no longer work
 
@@ -1012,6 +1030,7 @@ Supercharge has the following Shortcuts actions that Shortcutie does not have:
 - Start Cat Mode
 - Export App Settings
 - Get/Set Auto-Quit State
+- Get/Set Dock Edge Activation
 - Get/Set Keep Awake State
 - Get/Set Sound Mute State
 - Get/Set Microphone Mute State

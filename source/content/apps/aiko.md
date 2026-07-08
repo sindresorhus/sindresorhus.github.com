@@ -38,6 +38,8 @@ It's a [Universal Purchase](/apps/faq#universal-purchase).
 <details>
 <summary><b>Supports audio in 100 languages</b></summary>
 
+*Some languages have worse quality than other. Try the trial first.*
+
 - Afrikaans
 - Albanian
 - Amharic

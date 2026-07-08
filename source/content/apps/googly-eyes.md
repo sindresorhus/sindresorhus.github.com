@@ -28,7 +28,9 @@ Partly.
 
 The eyes follow your cursor across displays. However, menu bar items on inactive secondary displays are just static macOS clones, so those eyes cannot track independently.
 
-This is a macOS limitation and cannot be worked around.
+The real eyes live on the display with the active menu bar. macOS only makes another display active when you click something on it, for example a window or the desktop. Moving the pointer there is not enough. So when you move the pointer to another display, the eyes there stay frozen until you click on that display.
+
+This is a macOS limitation and cannot be worked around. There is no supported way for an app to change which display has the active menu bar.
 
 ## Older Versions
 

@@ -137,7 +137,7 @@ If all you need is another clock in the menu bar, check out [Second Clock](/seco
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/3qv0tj34ojblor7yec6fw/Dato-5.8.2-trial-1781652701.zip?rlkey=ldjp25jb3n9p9s4gilm9zqgr3&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/3x6zkdw520rornu7j1zmh/Dato-5.8.3-trial-1789044413.zip?rlkey=vwxob5o3k9eg8gl8bxyshrl1c&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 
 *Requires macOS 26 and later*
 
@@ -413,6 +413,7 @@ Make sure:
 	- Open the Calendar app settings, click the “Accounts” pane, and then check that the calendars are there. Dato can only show calendars added there.
 - The calendars are enabled in the Dato settings.
 	- Open the Dato settings, click the “Events” tab, and make sure the calendars are enabled.
+	- **Note:** Please double-check this. They may have been unchecked by macOS changes.
 - [The calendar events may not yet have been fetched by macOS](#refresh-interval)
 - You have tried restarting your computer.
 - You are on the latest version of macOS.

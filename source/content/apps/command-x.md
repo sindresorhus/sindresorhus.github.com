@@ -17,6 +17,8 @@ pressQuotes:
     source: Softpedia
     url: https://mac.softpedia.com/get/System-Utilities/Command-X.shtml
 feedbackNote: |
+  ### If you get a “Failed to listen to system events” error or getting continuously re-prompted about permissions after updating to macOS 27, try [resetting privacy permissions](/apps/faq#mac-reset-permissions) and then restart your system. macOS sometimes corrupts these when updating...
+
   [The app randomly disappears/quits](/apps/faq#randomly-quits)
 ---
 
@@ -67,11 +69,13 @@ If it's a work computer, your company may have something installed that prevents
 
 Try uninstalling and reinstalling the app, and restart your computer.
 
-If it's still not working, try re-granting accessibility access:
-1. Open “System Settings › Privacy & Security › Accessibility”
+If it's still not working, try re-granting access:
+1. Open “System Settings › Privacy & Security › Device Control and Data Access”
 2. Remove Command X from the list
 3. Quit and reopen Command X
 4. Grant accessibility access when prompted
+
+*Note: “Device Control and Data Access” is “Accessibility” on macOS 26 and lower.*
 
 The last thing you could try is to reset the permissions. Either use [App Buddy](/app-buddy), or quit the app, and run this in the Terminal app:
 

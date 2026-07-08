@@ -17,9 +17,9 @@ My apps prioritize user privacy and do not collect any personal data.
 
 ### How can I get a refund? {#refund}
 
-For apps purchased on the Apple App Store, you can [request a refund](https://support.apple.com/en-us/HT204084) from Apple. App developers have no control over the purchase and refund process.
+For apps purchased on the Apple App Store, you can [request a refund](https://support.apple.com/en-us/HT204084) from Apple. App developers have no control over the purchase and refund process. Please don't contact me about it.
 
-For apps purchased on Gumroad, refunds are generally not offered. You can [request a refund](mailto:sindresorhus@gmail.com?subject=Gumroad%20refund&body=Mention%20which%20app%20you%20want%20a%20refund%20for%20and%20your%20Gumroad%20account%20email) if you have a good reason (like duplicate purchase). But most purchases are final.
+For apps purchased on Gumroad (NOT on the App Store), refunds are generally not offered. You can [request a refund](mailto:sindresorhus@gmail.com?subject=Gumroad%20refund&body=Mention%20which%20app%20you%20want%20a%20refund%20for%20and%20your%20Gumroad%20account%20email) if you have a good reason (like duplicate purchase). But most purchases are final.
 
 <!-- For apps purchased on Gumroad, you can [request a refund](mailto:sindresorhus@gmail.com?subject=Gumroad%20refund&body=Mention%20which%20app%20you%20want%20a%20refund%20for%20and%20your%20Gumroad%20account%20email) within 30 days of the purchase. -->
 
@@ -153,6 +153,7 @@ You can do it with my [App Buddy](/app-buddy) app.
 If you prefer using the command-line, [see this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md#command-line)
 
 ### Can I contribute localizations to your apps? {#localize}
+<!-- @faq.keywords translate translating translation localize language languages -->
 
 No, I don't plan to localize / translate my apps. Localization adds complexity and maintenance demands that detract from my focus on app quality and performance.
 
@@ -249,9 +250,18 @@ If you are on macOS 26, make sure it's not disabled in “System Settings › Me
 
 Also try restarting your computer.
 
+### The menu bar item looks blurry or is not dimmed on a secondary display {#menu-bar-secondary-display}
+<!-- @faq.keywords dual monitor monitors second secondary external display screen blurry fuzzy sharp dim dimming faded transparent -->
+<!-- @faq.platforms macOS -->
+
+macOS handles the replication of menu bar items onto secondary displays, so what you see there is drawn by the system, not by the app. Two things can look off, both outside the control of apps:
+
+- Text can look less sharp. This is simply the resolution of that display: a non-Retina display has far fewer pixels to draw the text with. Everything else on that screen is drawn at the same low resolution, but small text is where it shows the most.
+- macOS dims menu bar items on the display that is not active, making them semi-transparent so they blend into the menu bar. It incorrectly fails to do this for items that use rich text, so those stay fully opaque and stand out from everything around them.
+
 ### The app stopped working after a macOS update {#macos-update-broke-app}
 
-Ensure you are running the latest version of the app. I typically release updates around major macOS releases to ensure compatibility. You may also need to re-grant permissions (Accessibility, Full Disk Access, etc.) in System Settings, as macOS updates can reset these. If the problem persists, try [resetting the app](#reset-app). Still not working? [Contact me](/feedback) with details.
+Ensure you are running the latest version of the app. I typically release updates around major macOS releases to ensure compatibility. You may also need to [re-grant permissions](#mac-reset-permissions) (Calendar, Full Disk Access, etc.) in System Settings, as macOS updates can reset/corrupt these. If the problem persists, try [resetting the app](#reset-app). Still not working? [Contact me](/feedback) with details.
 
 ### I'm having a problem with your app {#app-problem}
 <!-- @faq.keywords working broken -->
@@ -300,6 +310,8 @@ You can try:
 1. If nothing else works, restart your computer.
 1. Use the “Get Apps Using Secure Input” action from [Shortcutie](/shortcutie) to identify the problematic app and quit it.
 
+If a diagnostic reports `loginwindow` as using Secure Input, this is a known macOS bug. Lock your screen with Control+Command+Q, then unlock it. Do not try to quit `loginwindow`.
+
 The issue often occurs when an app requests Secure Input while in the background, causing it to get "stuck" in secure mode.
 
 [Learn more ›](https://espanso.org/docs/troubleshooting/secure-input/)
@@ -323,6 +335,8 @@ iOS: Open the Settings app, go to “General › iPhone/iPad Storage”, tap the
 **The simple way**
 
 Select the app in [App Buddy](/app-buddy) and click “Reset Permissions”.
+
+*If this is for Supercharge, you can instead click its menu bar item, and in the menu, click “… › Debug › Reset Permissions”.*
 
 **The manual way**
 

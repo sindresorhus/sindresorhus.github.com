@@ -68,9 +68,12 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 			<h2 class="text-2xl md:text-3xl leading-tighter tracking-tighter mb-8">Feedback & Support</h2>
 			<div id="additional-info" class={proseCSS} style="font-size:16px"></div>
 			<br>
-			<h3 class="text-xl">If you are reporting bugs with my apps on macOS/iOS 27 beta, note that it's still early and those betas are generally buggy. There is no need to report bugs yet. Apple will likely fix a lot of things in the next few betas.</h3>
+			<h3 class="text-xl">If you are reporting bugs with my apps on macOS/iOS 27. Make sure you are on the latest version of the app and try restarting your device first. If you get any permission issue on macOS, try [resetting permissions]((/apps/faq#mac-reset-permissions) for the app.</h3>
+			<!-- <h3 class="text-xl">If you are reporting bugs with my apps on macOS/iOS 27 beta, note that it's still early and those betas are generally buggy. There is no need to report bugs yet. Apple will likely fix a lot of things in the next few betas.</h3> -->
 			<!-- <div><br>I may take longer to respond as I'm on Christmas vacation. I appreciate your patience. Happy holidays 🎄</div><br> -->
-			<div><br>I may take longer to respond as I'm getting an overwhelming amount of submissions at the moment. I appreciate your patience.</div>
+			<!-- <div><br>I may take longer to respond as I'm getting an overwhelming amount of submissions at the moment. I appreciate your patience.</div> -->
+			<br>
+			<p>Note: Focus filters are broken on macOS 26.5 and later. This is out of my control.</p>
 			<!-- <div class={proseCSS} style="font-size:20px"><b>If you experience any issues with my apps after updating to iOS 26 / macOS 26, make sure you are on the latest update of my apps and try restarting your device one more time. It fixes a lot of issues. If a menu bar icon is missing, see <a href="https://sindresorhus.com/apps/faq#app-not-showing-in-menu-bar">this</a>. If you are still having problems with widgets, try changing the device language to something else and then back.</b></div> -->
 		</div>
 		<noscript>
@@ -110,8 +113,8 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 			</div>
 			<input type="hidden" id="captchaResponse" name="g-recaptcha-response">
 			<div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
-				<button id="submit-button" class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-hidden focus:ring-primary-300 font-semibold rounded-full text-base w-full sm:w-auto px-8 py-3 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 disabled:opacity-50 disabled:pointer-events-none transition-colors" type="submit">Send Feedback</button>
-				<p class="text-xs text-gray-500 dark:text-gray-400 text-center sm:text-left">If you haven't received a reply for two weeks, check your spam folder.</p>
+				<button id="submit-button" class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-hidden focus:ring-primary-300 font-semibold rounded-full text-base w-full sm:w-auto shrink-0 px-8 py-3 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 disabled:opacity-50 disabled:pointer-events-none transition-colors" type="submit">Send Feedback</button>
+				<p class="text-xs text-gray-500 dark:text-gray-400 text-center sm:text-left">If you haven't received a reply for two weeks, check your spam folder. When you get a reply, respond in that email thread instead of sending a new message.</p>
 			</div>
 		</form>
 	</div>
@@ -134,7 +137,7 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 				</div>
 				<div>
 					<h1 class="text-3xl font-bold font-heading mb-2">Message sent!</h1>
-					<p class="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">Thanks for reaching out. I read every message and will get back to you soon.</p>
+					<p class="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">Thanks for reaching out. I read every message and will get back to you soon. When you get my reply, please respond in that email thread instead of sending a new message.</p>
 				</div>
 				<p class="text-sm text-gray-400">Taking you to the apps page…</p>
 			</div>
@@ -142,7 +145,7 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 
 		setTimeout(() => {
 			window.location.href = 'https://sindresorhus.com/apps';
-		}, 4000);
+		}, 10000);
 
 		return true;
 	}
@@ -195,7 +198,79 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 
 	// --- URL params: inject hidden fields + pre-fill email/message ---
 
-	function applyUrlParams() {
+	// Safari / Firefox fallback via `navigator.platform`
+	function detectPlatform() {
+		const platform = navigator.platform ?? '';
+		if (/iPhone|iPad|iPod/.test(platform) || /iPhone|iPad/.test(navigator.userAgent)) {
+			return 'iOS';
+		}
+		if (/Mac/.test(platform)) {
+			return 'macOS';
+		}
+		if (/Win/.test(platform)) {
+			return 'Windows';
+		}
+		if (/Android/.test(navigator.userAgent)) {
+			return 'Android';
+		}
+		if (/Linux/.test(platform)) {
+			return 'Linux';
+		}
+		return 'Unknown';
+	}
+
+	// Collects the browser and OS details that help diagnose a report
+	async function environmentInfo() {
+		// Chromium-only. Safari and Firefox do not expose `userAgentData` yet, so they fall back to the UA string.
+		const highEntropy = await navigator.userAgentData?.getHighEntropyValues(['platformVersion']).catch(() => undefined);
+
+		// The OS name in the UA string is frozen in modern browsers, so prefer `userAgentData.platform`
+		const platform = navigator.userAgentData?.platform ?? detectPlatform();
+
+		// Safari 26+ uses the OS version as its version number on all Apple platforms. WebKitGTK fakes a high version to pass browser checks, so non-Apple platforms are excluded.
+		const isApplePlatform = ['macOS', 'iOS'].includes(platform);
+		const safari = navigator.userAgent.match(/Version\/([\d.]+).*Safari/);
+		const safariOSVersion = isApplePlatform && safari && Number.parseInt(safari[1], 10) >= 26 ? safari[1] : undefined;
+
+		// Windows reports the `Windows.Foundation.UniversalApiContract` version, not the OS version, and Linux reports nothing
+		const platformVersion = ['macOS', 'iOS', 'Android', 'Chrome OS'].includes(platform) ? highEntropy?.platformVersion : undefined;
+
+		// `userAgentData` is available in Chromium-based browsers
+		const brand = navigator.userAgentData?.brands?.find(item => item.brand !== 'Chromium' && !item.brand.startsWith('Not'));
+		const firefox = navigator.userAgent.match(/Firefox\/([\d.]+)/);
+
+		let browser = 'Unknown';
+		if (brand) {
+			browser = `${brand.brand} ${brand.version}`;
+		} else if (safariOSVersion) {
+			browser = 'Safari';
+		} else if (safari) {
+			browser = `Safari ${safari[1]}`;
+		} else if (firefox) {
+			browser = `Firefox ${firefox[1]}`;
+		}
+
+		return [
+			`OS: ${[platform, platformVersion ?? safariOSVersion].filter(Boolean).join(' ')}`,
+			`Browser: ${browser}`,
+			`Screen: ${screen.width}×${screen.height} @${window.devicePixelRatio}x`,
+			`Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`,
+			`Locale: ${navigator.language}`,
+			`Languages: ${navigator.languages.join(', ')}`,
+			navigator.deviceMemory && `Device memory: ${navigator.deviceMemory} GB`,
+			document.referrer && `Referrer: ${(() => {
+				try {
+					const url = new URL(document.referrer);
+					if (url.hostname === 'sindresorhus.com' || url.hostname === 'www.sindresorhus.com') {
+						return url.pathname + url.search + url.hash;
+					}
+				} catch {}
+				return document.referrer;
+			})()}`,
+		].filter(Boolean).join('\n');
+	}
+
+	async function applyUrlParams() {
 		const params = new URL(location.href).searchParams;
 		const form = $('#feedback-form');
 
@@ -205,75 +280,7 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 
 		// Auto-collect environment info when no app-provided metadata is present
 		if (!params.has('metadata')) {
-			const detectOS = () => {
-				// userAgentData.platform is accurate; UA string OS version is frozen in modern browsers
-				if (navigator.userAgentData?.platform) {
-					return navigator.userAgentData.platform;
-				}
-
-				// Safari / Firefox fallback via navigator.platform
-				const platform = navigator.platform ?? '';
-				if (/iPhone|iPad|iPod/.test(platform) || /iPhone|iPad/.test(navigator.userAgent)) {
-					return 'iOS';
-				}
-				if (/Mac/.test(platform)) {
-					return 'macOS';
-				}
-				if (/Win/.test(platform)) {
-					return 'Windows';
-				}
-				if (/Android/.test(navigator.userAgent)) {
-					return 'Android';
-				}
-				if (/Linux/.test(platform)) {
-					return 'Linux';
-				}
-				return 'Unknown';
-			};
-
-			const detectBrowser = () => {
-				// userAgentData is available in Chromium-based browsers
-				const brand = navigator.userAgentData?.brands?.find(b => b.brand !== 'Chromium' && !b.brand.startsWith('Not'));
-				if (brand) {
-					return `${brand.brand} ${brand.version}`;
-				}
-				const match = navigator.userAgent.match(/Version\/([\d.]+).*Safari|Firefox\/([\d.]+)/);
-				if (match) {
-					return match[2] ? `Firefox ${match[2]}` : `Safari ${match[1]}`;
-				}
-				return 'Unknown';
-			};
-
-			const os = detectOS();
-			const browser = detectBrowser();
-
-			// Safari 26+ uses the OS version as its version number on all Apple platforms.
-			const isAppleOS = ['macOS', 'iOS', 'iPadOS', 'visionOS'].includes(os);
-			const safariVersionMatch = isAppleOS && browser.match(/^Safari (\d[\d.]*)/);
-			const safariMajor = safariVersionMatch ? Number.parseInt(safariVersionMatch[1], 10) : 0;
-			const osLabel = safariMajor >= 26 ? `${os} ${safariVersionMatch[1]}` : os;
-			const browserLabel = safariMajor >= 26 ? 'Safari' : browser;
-
-			const metadata = [
-				`OS: ${osLabel}`,
-				`Browser: ${browserLabel}`,
-				`Screen: ${screen.width}×${screen.height} @${window.devicePixelRatio}x`,
-				`Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`,
-				`Locale: ${navigator.language}`,
-				`Languages: ${navigator.languages.join(', ')}`,
-				navigator.deviceMemory && `Device memory: ${navigator.deviceMemory} GB`,
-				document.referrer && `Referrer: ${(() => {
-					try {
-						const url = new URL(document.referrer);
-						if (url.hostname === 'sindresorhus.com' || url.hostname === 'www.sindresorhus.com') {
-							return url.pathname + url.search + url.hash;
-						}
-					} catch {}
-					return document.referrer;
-				})()}`,
-			].filter(Boolean).join('\n');
-
-			form.append($('<input type="hidden" name="metadata">').val(metadata));
+			form.append($('<input type="hidden" name="metadata">').val(await environmentInfo()));
 		}
 
 		// Include all the existing search params as hidden inputs

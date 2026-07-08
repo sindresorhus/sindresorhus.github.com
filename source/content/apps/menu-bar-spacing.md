@@ -10,9 +10,14 @@ requirement: Free · Requires macOS 26 or later
 olderMacOSVersions:
   - '14'
   - '15'
+feedbackNote: |
+  This no longer works on macOS 27 as Apple rewrote the menu bar and did not include the requires hidden settings to adjust spacing. There is nothing I can do about this, unfortunately.
 ---
 
 Menu bar apps are awesome, but MacBooks have limited menu bar space. This app helps you reclaim that space by reducing the gap between menu bar items. With a single run, the app applies changes permanently, allowing you to fit more apps into the menu bar. Reverting the changes is just as simple, done within the app. If you have a large display, the app can also increase the gap between menu bar items.
+
+> [!WARNING]
+> This no longer works on macOS 27 as Apple rewrote the menu bar and did not include the requires hidden settings to adjust spacing. There is nothing I can do about this, unfortunately.
 
 > [!WARNING]
 > Because of a [macOS 26 bug](https://github.com/feedback-assistant/reports/issues/679), third-party menu bar apps need to be relaunched before they show the correct spacing.

@@ -35,6 +35,14 @@ The app is built without internet permissions (no network entitlement), so macOS
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
 
+#### Dragging onto the menu bar icon opens Mission Control on macOS 27
+
+macOS 27 opens Mission Control when you hold a dragged item near the top of the screen for a moment. Apps cannot prevent this.
+
+Release the item as soon as the pointer reaches the menu bar icon. If Mission Control has already opened, release the item anyway and press Escape to close Mission Control. The AirDrop picker is behind it.
+
+You can also use “Share From → Files” or “Share From → Clipboard” in the menu instead.
+
 #### Can it send directly to a specific device without showing the picker?
 
 No. Apple doesn’t expose any way to preselect an AirDrop target. You must choose a device in the AirDrop picker.

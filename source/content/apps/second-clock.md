@@ -21,6 +21,10 @@ Check out [Dato](/dato) for more features and settings or [UTC Time](/utc-time) 
 
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
+#### The time looks blurry or is not dimmed on my secondary display
+
+[See this answer](/apps/faq#menu-bar-secondary-display)
+
 #### Can it show a flag in front of the time?
 
 You can set a [flag emoji](https://emojipedia.org/flags) in the “Prefix text” setting. [Example.](https://x.com/sindresorhus/status/1742975880031543330)

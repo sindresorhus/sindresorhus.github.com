@@ -7,7 +7,7 @@ platforms:
 isPaid: true
 isMenuBarApp: true
 appStoreId: 6755328989
-requirement: Requires macOS 26.1 or later
+requirement: Requires macOS 26 or later
 # olderMacOSVersions:
 #   - '26'
 ---
@@ -45,6 +45,10 @@ Your shortcuts and data never leave your device. The app is built without intern
 #### The app does not show up in the menu bar
 
 [Try this](/apps/faq#app-not-showing-in-menu-bar)
+
+#### The clocks look blurry or are not dimmed on my secondary display
+
+[See this answer](/apps/faq#menu-bar-secondary-display)
 
 #### Some world clocks are missing from the menu bar
 
