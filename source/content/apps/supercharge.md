@@ -179,6 +179,8 @@ The app is English-only.
 	<span class="list-description">Useful if you want screenshots saved and also instantly available to paste. Works with the built-in screenshot tool.</span>
 - [Show markup tools by default in screenshot preview](https://github.com/user-attachments/assets/20b0cfe8-d588-4329-9132-9120b32da7ff)
 - Auto-open screenshot preview after capturing
+- Open the latest screenshot with a keyboard shortcut, from the menu, or using Shortcuts.
+	<span class="list-description">Opens your most recent screenshot for markup, Quick Look, or in the app of your choice. Also includes a Shortcuts action to get the latest screenshots.</span>
 - Show or hide mouse pointer in screenshots
 - [Show input devices in the Sound menu bar item menu](https://github.com/user-attachments/assets/e6015206-c927-4c97-8f66-7408231d4f23)
 	<span class="list-description">By default, it only shows output devices.</span>
@@ -762,7 +764,7 @@ Make macOS feel less foreign — and more powerful.
 
 ## Trial
 
-Try the fully functional trial [here](https://www.dropbox.com/scl/fi/rjrzgodfav00ewqysfvy5/Supercharge-1.30.0-trial-1789344275.zip?rlkey=6hdzwre0kkfr9zh5yyi04j5qf&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
+Try the fully functional trial [here](https://www.dropbox.com/scl/fi/58ujynvqo09r1ni8ywl0n/Supercharge-1.30.1-trial-1790570015.zip?rlkey=bgo4hf47jnmqqrxxleilcferf&raw=1). The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
 
