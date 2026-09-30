@@ -78,6 +78,9 @@ const formatDownloads = n => {
 };
 
 const tagClass = tagCSS;
+
+// Media is never shown larger than its natural size, and on wider screens it is at most 640px tall.
+const mediaStyle = ({width, height}) => `--width: ${width}px; --max-width: ${Math.min(width, 640 * width / height)}px`;
 ---
 
 <Layout {meta} isAppPage={true}>
@@ -160,13 +163,14 @@ const tagClass = tagCSS;
 			<div class="relative group/carousel mx-auto max-w-5xl mb-20">
 				<section id="app-media" class="px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide" aria-label="App media">
 					{app.videos.map(video => (
-						<div class="snap-center shrink-0 w-[85vw] md:w-full md:flex md:justify-center">
-							<video src={video} autoplay loop muted playsinline preload="metadata" aria-label={`${app.title} demo video`} class="rounded-md shadow-lg w-full md:max-h-[640px] md:w-auto md:max-w-full"/>
+						<div class="snap-center shrink-0 w-[85vw] md:w-full md:flex md:items-center md:justify-center">
+							<video src={video.src} width={video.width} height={video.height} autoplay loop muted playsinline preload="metadata" aria-label={`${app.title} demo video`} style={mediaStyle(video)} class="rounded-md shadow-lg w-full mx-auto max-w-(--width) md:max-w-(--max-width)"/>
 						</div>
 					))}
 					{app.screenshots.map((screenshot, index) => (
-						<div class="snap-center shrink-0 w-[85vw] md:w-full md:flex md:justify-center">
-							<img src={screenshot.src} width={screenshot.width} height={screenshot.height} alt={`${app.title} screenshot ${index + 1}`} loading="lazy" class="rounded-md shadow-lg w-full md:max-h-[640px] md:w-auto md:max-w-full">
+						<div class="snap-center shrink-0 w-[85vw] md:w-full md:flex md:items-center md:justify-center">
+							{/* The size limits use a definite width, so the image reserves its space before it loads. With `width: auto`, Chrome gives it zero height until loaded, which moves content below it and makes links to FAQs scroll to the wrong position. `md:items-center` prevents the flex row from stretching shorter media to the height of the tallest item. */}
+							<img src={screenshot.src} width={screenshot.width} height={screenshot.height} alt={`${app.title} screenshot ${index + 1}`} loading="lazy" style={mediaStyle(screenshot)} class="rounded-md shadow-lg w-full mx-auto max-w-(--width) md:max-w-(--max-width)">
 						</div>
 					))}
 				</section>

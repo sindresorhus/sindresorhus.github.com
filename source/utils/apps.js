@@ -1,7 +1,61 @@
+import process from 'node:process';
+import fs from 'node:fs';
+import path from 'node:path';
 import {markdown} from '@astropub/md';
 import {getCollection, render} from 'astro:content';
 
 const date30DaysAgo = new Date(new Date().setDate(new Date().getDate() - 30));
+
+/*
+Reads the video size from the track header (`tkhd`) box of an MP4 file.
+
+Ignores rotation metadata.
+*/
+const getVideoSize = filePath => {
+	const buffer = fs.readFileSync(filePath);
+
+	const childBoxes = function * ({start, end}, type) {
+		let offset = start;
+		while (offset + 8 <= end) {
+			let size = buffer.readUInt32BE(offset);
+			let headerSize = 8;
+			if (size === 1) {
+				size = Number(buffer.readBigUInt64BE(offset + 8));
+				headerSize = 16;
+			} else if (size === 0) {
+				size = end - offset;
+			}
+
+			if (size < headerSize) {
+				return;
+			}
+
+			if (buffer.toString('latin1', offset + 4, offset + 8) === type) {
+				yield {start: offset + headerSize, end: offset + size};
+			}
+
+			offset += size;
+		}
+	};
+
+	for (const movie of childBoxes({start: 0, end: buffer.length}, 'moov')) {
+		for (const track of childBoxes(movie, 'trak')) {
+			for (const trackHeader of childBoxes(track, 'tkhd')) {
+				// The size is 16.16 fixed-point and comes after fields that are larger in version 1.
+				const sizeOffset = trackHeader.start + (buffer[trackHeader.start] === 1 ? 88 : 76);
+				const width = Math.round(buffer.readUInt32BE(sizeOffset) / 65_536);
+				const height = Math.round(buffer.readUInt32BE(sizeOffset + 4) / 65_536);
+
+				// Audio tracks have zero size.
+				if (width > 0 && height > 0) {
+					return {width, height};
+				}
+			}
+		}
+	}
+
+	throw new Error(`Could not read the video size of ${filePath}`);
+};
 
 const normalizeApp = async app => {
 	const {data, id: slug} = app;
@@ -85,10 +139,14 @@ const normalizeApp = async app => {
 	videos = await Promise.all(
 		Object.entries(videos)
 			.filter(([key]) => key.startsWith(`/public/apps/${slug}/`))
-			.map(([, value]) => value()),
+			.map(async ([key, value]) => {
+				const {default: url} = await value();
+				return {
+					src: url.replace(/^\/public/, ''),
+					...getVideoSize(path.join(process.cwd(), key)),
+				};
+			}),
 	);
-
-	videos = videos.map(video => video.default.replace(/^\/public/, ''));
 
 	let screenshots = await import.meta.glob('~/../public/apps/*/screenshot*.{png,jpg}', {eager: false});
 
