@@ -1,8 +1,7 @@
 ---
-import {markdown} from '@astropub/md';
 import {SITE} from '~/config.mjs';
 import Layout from '~/layouts/SimplePageLayout.astro';
-import {fetchApps} from '~/utils/apps.js';
+import {fetchApps, renderMarkdown} from '~/utils/apps.js';
 import AppsList from '~/components/apps/AppsList.astro';
 import AppsByPlatform from '~/components/apps/AppsByPlatform.astro';
 
@@ -34,7 +33,7 @@ const meta = {
 
 let descriptionHtml;
 if (description) {
-	descriptionHtml = await markdown(description);
+	descriptionHtml = await renderMarkdown(description);
 }
 
 const hasDescriptionSlot = Astro.slots?.has?.('description');

@@ -99,6 +99,21 @@ kbd {
 	margin-top: 100px !important;
 }
 
+/*
+Let tables that are wider than the content scroll horizontally instead of making the page scroll. The rows are put in an inner table so the table still fills the full width.
+
+Limitation: Tables with a header or footer are excluded, as each row group would become its own table and the columns would not line up.
+*/
+.prose table:not(:has(> thead, > tfoot)) {
+	display: block;
+	overflow-x: auto;
+
+	> tbody {
+		display: table;
+		width: 100%;
+	}
+}
+
 /* Animate details open/close via ::details-content (requires interpolate-size support) */
 @supports (interpolate-size: allow-keywords) {
 	:root {

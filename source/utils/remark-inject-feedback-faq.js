@@ -1,7 +1,7 @@
 const feedbackId = 'feedback';
 
 const getText = node =>
-	node.type === 'text' ? node.value : (node.children?.map(getText).join('') ?? '');
+	node.type === 'text' ? node.value : (node.children?.map(child => getText(child)).join('') ?? '');
 
 /**
 Remark plugin: injects the feedback FAQ heading and default paragraph into each app's FAQ section.
@@ -44,15 +44,14 @@ export default function remarkInjectFeedbackFaq() {
 		);
 
 		if (feedbackIndex === -1) {
-			children.splice(faqIndex + 1, 0,
-				{
-					type: 'heading',
-					depth: 4,
-					data: {id: feedbackId, hProperties: {id: feedbackId}},
-					children: [{type: 'text', value: 'I have a feature request, bug report, or some feedback'}],
-				},
-				defaultParagraph,
-			);
+			const heading = {
+				type: 'heading',
+				depth: 4,
+				data: {id: feedbackId, hProperties: {id: feedbackId}},
+				children: [{type: 'text', value: 'I have a feature request, bug report, or some feedback'}],
+			};
+
+			children.splice(faqIndex + 1, 0, heading, defaultParagraph);
 		} else {
 			const heading = children[feedbackIndex];
 			heading.data ??= {};

@@ -21,7 +21,7 @@ Result injected into file.data.astro.frontmatter.headingMeta:
 }
 */
 
-const directiveRegex = /^<!--\s*@(\w+)\.(\w+)\s+(.*?)\s*-->$/s;
+const directiveRegex = /^<!--\s*@(?<namespace>\w+)\.(?<attribute>\w+)\s(?<value>.*)-->$/sv;
 
 function findPrecedingHeading(children, fromIndex) {
 	for (let i = fromIndex - 1; i >= 0; i--) {
@@ -59,17 +59,19 @@ export default function remarkHeadingMeta() {
 				continue;
 			}
 
-			const [, namespace, attribute, value] = match;
+			const {namespace, attribute, value} = match.groups;
 			const {id} = heading.data;
 			meta[id] ??= {};
 			meta[id][namespace] ??= {};
-			meta[id][namespace][attribute] = value.trim().split(/\s+/);
+			meta[id][namespace][attribute] = value.trim().split(/\s+/v);
 		}
 
-		if (Object.keys(meta).length > 0) {
-			file.data.astro ??= {};
-			file.data.astro.frontmatter ??= {};
-			file.data.astro.frontmatter.headingMeta = meta;
+		if (Object.keys(meta).length === 0) {
+			return;
 		}
+
+		file.data.astro ??= {};
+		file.data.astro.frontmatter ??= {};
+		file.data.astro.frontmatter.headingMeta = meta;
 	};
 }

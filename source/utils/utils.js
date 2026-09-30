@@ -26,18 +26,20 @@ export const iconLinkCSS = 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 d
 
 /**
 Clean up `Astro.url.pathname` by stripping the leading `/` and the `.html` extension added by `build.format: 'file'`.
+
+@param {string} pathname - The `Astro.url.pathname` value.
 */
 export function cleanPathname(pathname) {
-	return pathname.slice(1).replace(/\.\w+$/, '');
+	return pathname.slice(1).replace(/\.\w+$/v, '');
 }
 
 export async function githubApi(path) {
 	const response = await fetch(`https://api.github.com/${path}`, {
 		headers: {
 			Accept: 'application/vnd.github.v3+json',
-			...(import.meta.env.GITHUB_TOKEN ? {
+			...(import.meta.env.GITHUB_TOKEN && {
 				Authorization: `token ${import.meta.env.GITHUB_TOKEN}`,
-			} : {}),
+			}),
 		},
 	});
 
@@ -65,7 +67,9 @@ export const shufflingArray = array => {
 
 	for (let index = result.length - 1; index > 0; index--) {
 		const randomIndex = Math.floor(Math.random() * (index + 1));
-		[result[index], result[randomIndex]] = [result[randomIndex], result[index]];
+		const value = result[index];
+		result[index] = result[randomIndex];
+		result[randomIndex] = value;
 	}
 
 	return result;

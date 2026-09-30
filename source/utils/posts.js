@@ -23,7 +23,7 @@ const loadAll = async () => {
 		posts.map(async post => normalizePost(post)),
 	);
 
-	return normalizedPosts.sort((a, b) => b.pubDate - a.pubDate);
+	return normalizedPosts.toSorted((a, b) => b.pubDate - a.pubDate);
 };
 
 let cachedPosts;

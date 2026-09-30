@@ -2,7 +2,7 @@
 	"private": true,
 	"type": "module",
 	"engines": {
-		"node": ">=22"
+		"node": "^22.22.3 || ^24.16.0 || >=26.3.0"
 	},
 	"scripts": {
 		"dev": "astro dev",
@@ -12,77 +12,32 @@
 		"test": "xo && astro build"
 	},
 	"devDependencies": {
-		"@astrojs/rss": "^4.0.18",
-		"@astrojs/sitemap": "^3.7.2",
-		"@astropub/md": "^1.0.0",
-		"@fontsource/inter": "^5.2.8",
-		"@iconify-json/tabler": "^1.2.33",
+		"@astrojs/markdown-remark": "^7.3.1",
+		"@astrojs/rss": "^4.0.19",
+		"@astrojs/sitemap": "^3.7.4",
+		"@fontsource/inter": "^5.3.0",
+		"@iconify-json/tabler": "^1.2.40",
 		"@resvg/resvg-js": "^2.6.2",
 		"@tailwindcss/forms": "^0.5.11",
-		"@tailwindcss/typography": "^0.5.19",
-		"@tailwindcss/vite": "^4.2.2",
-		"@typescript-eslint/parser": "^8.58.1",
-		"astro": "^6.1.5",
+		"@tailwindcss/typography": "^0.5.20",
+		"@tailwindcss/vite": "^4.3.3",
+		"astro": "^7.3.5",
 		"astro-iconify": "^1.3.1",
-		"astro-seo": "^1.1.0",
-		"eslint-plugin-astro": "^1.7.0",
-		"ky": "^1.14.3",
-		"limax": "^4.2.3",
-		"markdown-it": "^14.1.1",
+		"astro-seo": "^1.2.0",
+		"eslint-plugin-astro": "^3.2.1",
+		"markdown-it": "^15.0.2",
 		"reading-time": "^1.5.0",
 		"rehype-autolink-headings": "^7.1.0",
-		"rehype-slug": "^6.0.0",
+		"rehype-raw": "^7.0.0",
 		"remark-custom-header-id": "^1.0.0",
 		"remark-github-blockquote-alert": "^2.1.0",
-		"sanitize-html": "^2.17.2",
-		"satori": "^0.26.0",
-		"tailwindcss": "^4.2.2",
-		"typescript": "^5.9.3",
-		"xo": "^0.60.0"
-	},
-	"xo": {
-		"envs": [
-			"es2021",
-			"node",
-			"browser"
-		],
-		"globals": [
-			"Astro",
-			"Fragment"
-		],
-		"extensions": [
-			"astro"
-		],
-		"ignores": [
-			"source/content.config.ts"
-		],
-		"overrides": [
-			{
-				"files": [
-					"**/*.astro"
-				],
-				"parser": "astro-eslint-parser",
-				"parserOptions": {
-					"parser": "@typescript-eslint/parser"
-				},
-				"extraFileExtensions": [
-					".astro"
-				],
-				"rules": {
-					"indent": "off"
-				}
-			}
-		],
-		"rules": {
-			"unicorn/filename-case": "off",
-			"unicorn/text-encoding-identifier-case": "off",
-			"n/file-extension-in-import": "off",
-			"operator-linebreak": "off",
-			"jsx-quotes": [
-				"error",
-				"prefer-double"
-			],
-			"unicorn/prevent-abbreviations": "off"
-		}
+		"remark-parse": "^11.0.0",
+		"sanitize-html": "^2.17.7",
+		"satori": "^0.33.5",
+		"tailwindcss": "^4.3.3",
+		"typescript": "^6.0.3",
+		"unified": "^11.0.5",
+		"vfile": "^6.0.3",
+		"xo": "^5.0.1"
 	}
 }

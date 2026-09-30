@@ -33,7 +33,7 @@ function walk(node) {
 			continue;
 		}
 
-		const text = child.children[0]?.value ?? '';
+		const text = child.children.at(0)?.value ?? '';
 
 		if (!text.includes('+')) {
 			newChildren.push(child);

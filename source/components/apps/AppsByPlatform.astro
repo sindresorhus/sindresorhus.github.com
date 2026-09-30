@@ -12,7 +12,7 @@ const orderIndex = platform => {
 
 const platforms = [...new Set(apps.flatMap(app => app.platforms))]
 	.filter(Boolean)
-	.sort((a, b) => orderIndex(a) - orderIndex(b));
+	.toSorted((a, b) => orderIndex(a) - orderIndex(b));
 ---
 
 {platforms.map(platform => (

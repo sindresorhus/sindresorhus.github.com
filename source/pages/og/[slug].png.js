@@ -25,7 +25,6 @@ const fonts = [
 ];
 
 const cacheDirectory = path.join(rootDirectory, '.cache', 'og');
-fs.mkdirSync(cacheDirectory, {recursive: true});
 
 async function generateOgImage(app) {
 	const iconPath = path.join(rootDirectory, 'public', app.iconUrl.slice(1));
@@ -151,6 +150,7 @@ async function generateOgImage(app) {
 	const svg = await satori(element, {width: 1200, height: 630, fonts});
 	const png = new Resvg(svg).render().asPng();
 
+	fs.mkdirSync(cacheDirectory, {recursive: true});
 	fs.writeFileSync(cachePath, png);
 
 	return png;

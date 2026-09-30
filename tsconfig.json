@@ -6,10 +6,9 @@
 		],
 		"allowJs": true,
 		"strictNullChecks": true,
-		"baseUrl": ".",
 		"paths": {
 			"~/*": [
-				"source/*"
+				"./source/*"
 			]
 		}
 	}

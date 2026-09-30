@@ -16,7 +16,7 @@ export async function GET(context) {
 		description: `Latest releases of ${appTitle}`,
 		site: context.site,
 		items: releases.map(release => {
-			const version = release.tag_name.replace(/^v/, '');
+			const version = release.tag_name.replace(/^v/v, '');
 
 			return {
 				title: version,

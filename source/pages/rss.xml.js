@@ -27,7 +27,7 @@ export const GET = async context => {
 				customData: `<guid isPermaLink="false">${context.site}blog/${item.slug}</guid>`,
 			}),
 		}))
-		.sort((a, b) => b.pubDate - a.pubDate);
+		.toSorted((a, b) => b.pubDate - a.pubDate);
 
 	return rss({
 		title: 'Sindre Sorhus — Blog',

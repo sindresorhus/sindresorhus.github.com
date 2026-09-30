@@ -246,7 +246,7 @@ When you enable that setting, the app simply tells macOS to launch it at login, 
 
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
-If you are on macOS 26, make sure it's not disabled in “System Settings › Menu Bar › Allow in the Menu Bar”. **This can happen even if you didn't disable it due to a macOS bug.**
+If you are on macOS 26 or later, make sure it's not disabled in “System Settings › Menu Bar › Allow in the Menu Bar”. **This can happen even if you didn't disable it due to a macOS bug.**
 
 Also try restarting your computer.
 

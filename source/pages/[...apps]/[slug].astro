@@ -67,14 +67,10 @@ const availabilityText = [platformText, app.requirement].filter(Boolean).join(' 
 const formatDownloads = n => {
 	if (n >= 1_000_000) {
 		const m = n / 1_000_000;
-		return `${m % 1 === 0 ? m : m.toFixed(1)}M+`;
+		return `${Number.isSafeInteger(m) ? m : m.toFixed(1)}M+`;
 	}
 
-	if (n >= 1000) {
-		return `${Math.floor(n / 1000)}K+`;
-	}
-
-	return n.toLocaleString();
+	return n >= 1000 ? `${Math.floor(n / 1000)}K+` : n.toLocaleString();
 };
 
 const tagClass = tagCSS;
@@ -127,7 +123,7 @@ const mediaStyle = ({width, height}) => `--width: ${width}px; --max-width: ${Mat
 						</>
 						{hasMainLinks &&
 								<>
-									<!-- We apply a fixed size so it matches the App Store button. -->
+									{/* We apply a fixed size so it matches the App Store button. */}
 									{Object.entries(app.mainLinks).map(([title, url]) => (
 										<a href={url} class="download-badge text-white bg-primary-700 hover:bg-primary-600 focus:ring-4 focus:outline-hidden focus:ring-blue-300 dark:focus:ring-blue-800 font-bold rounded-lg text-xl px-6 text-center mb-2 flex justify-center items-center whitespace-nowrap px-10 py-4" style="width: 180px; height: 60px;">{title}</a>
 									))}
@@ -233,7 +229,7 @@ const mediaStyle = ({width, height}) => `--width: ${width}px; --max-width: ${Mat
 				'https://bsky.app/profile/sindresorhus.com',
 			],
 		},
-		datePublished: new Date(app.pubDate).toISOString().split('T')[0],
+		datePublished: new Date(app.pubDate).toISOString().split('T', 1)[0],
 		description: app.description || app.subtitle,
 		url: `https://sindresorhus.com${app.url}`,
 		image: `https://sindresorhus.com${app.iconUrl}`,
@@ -264,9 +260,9 @@ const mediaStyle = ({width, height}) => `--width: ${width}px; --max-width: ${Mat
 		url: appStoreUrl
 	};
 
-	if (navigator.canShare(shareData)) {
-		const shareButton = document.querySelector('#share-button');
-
+	// The share button only exists for App Store apps, and some browsers, like Firefox on desktop, do not support sharing.
+	const shareButton = document.querySelector('#share-button');
+	if (shareButton && navigator.canShare?.(shareData)) {
 		shareButton.style.display = 'block';
 
 		shareButton.addEventListener('click', async () => {

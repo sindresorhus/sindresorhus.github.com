@@ -17,7 +17,7 @@ const process = async (markdown, frontmatter = appFrontmatter) => {
 };
 
 const getText = node =>
-	node.type === 'text' ? node.value : (node.children?.map(getText).join('') ?? '');
+	node.type === 'text' ? node.value : (node.children?.map(child => getText(child)).join('') ?? '');
 
 const getFaqSection = tree => {
 	const faqIndex = tree.children.findIndex(n =>
@@ -66,15 +66,15 @@ test('injects feedback heading first in FAQ section with correct id', async () =
 
 test('injected paragraph has the correct feedback URL', async () => {
 	const section = getFaqSection(await process(faqMd));
-	assert.equal(section[1].children[1].url, 'https://sindresorhus.com/feedback?product=My%20App&referrer=Website-FAQ');
+	assert.equal(section[1].children.at(1).url, 'https://sindresorhus.com/feedback?product=My%20App&referrer=Website-FAQ');
 });
 
 test('when heading already exists, sets id and prepends default paragraph before custom content', async () => {
 	const section = getFaqSection(await process(faqWithFeedbackMd));
 	assert.equal(section.filter(n => n.type === 'heading' && getText(n).includes('feature request')).length, 1);
 	assert.equal(section[0].data.id, 'feedback');
-	assert.match(getText(section[1]), /Click the feedback button/);
-	assert.match(getText(section[2]), /Custom note/);
+	assert.match(getText(section[1]), /Click the feedback button/v);
+	assert.match(getText(section[2]), /Custom note/v);
 });
 
 test('does not inject beyond the FAQ section boundary', async () => {

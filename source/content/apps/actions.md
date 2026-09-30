@@ -400,7 +400,6 @@ For these, I recommend sending a [feature request to Apple](https://feedbackassi
 
 - Is Wi-Fi On (iOS) - Already possible with the built-in “Get Network Details” action.
 - Wi-FI Strength - Already possible with the built-in “Get Network Details” action.
-- Trim Video - See `Trim Media` built-in action.
 
 #### Declined actions {#declined-actions}
 

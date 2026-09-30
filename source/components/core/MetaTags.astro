@@ -61,7 +61,7 @@ const canonicalURL = new URL(`/${cleanPathname(Astro.url.pathname)}`, Astro.site
 <SEO
 	title={title}
 	description={description}
-	canonical={canonicalURL.toString()}
+	canonical={canonicalURL.href}
 	noindex={noindex}
 	nofollow={nofollow}
 	openGraph={image ? {
@@ -69,7 +69,7 @@ const canonicalURL = new URL(`/${cleanPathname(Astro.url.pathname)}`, Astro.site
 			title: ogTitle,
 			type: ogType,
 			image: image.toString(),
-			url: canonicalURL.toString(),
+			url: canonicalURL.href,
 		},
 		optional: {
 			description,
@@ -87,7 +87,7 @@ const canonicalURL = new URL(`/${cleanPathname(Astro.url.pathname)}`, Astro.site
 		meta: [
 			{property: 'og:title', content: ogTitle},
 			{property: 'og:type', content: ogType},
-			{property: 'og:url', content: canonicalURL.toString()},
+			{property: 'og:url', content: canonicalURL.href},
 			{property: 'og:description', content: description},
 			{property: 'og:locale', content: 'en_US'},
 			{property: 'og:site_name', content: SITE.name},

@@ -1,10 +1,22 @@
 import process from 'node:process';
 import fs from 'node:fs';
 import path from 'node:path';
-import {markdown} from '@astropub/md';
+import {createMarkdownProcessor} from '@astrojs/markdown-remark';
 import {getCollection, render} from 'astro:content';
 
 const date30DaysAgo = new Date(new Date().setDate(new Date().getDate() - 30));
+
+const markdownProcessor = await createMarkdownProcessor();
+
+/**
+Render a Markdown string, like a frontmatter field, to HTML.
+
+@param {string | undefined} text - The Markdown to render.
+*/
+export async function renderMarkdown(text) {
+	const {code} = await markdownProcessor.render(text ?? '');
+	return code;
+}
 
 /*
 Reads the video size from the track header (`tkhd`) box of an MP4 file.
@@ -78,42 +90,42 @@ const normalizeApp = async app => {
 
 	const headerLinks = headings
 		.filter(header => header.depth === 2 && header.text !== 'Footnotes')
-		.map(({text, slug}) => {
+		.map(({text, slug: headingSlug}) => {
 			if (text === faqHeadingTitle) {
 				hasFaqSection = true;
 				text = 'FAQ';
 			}
 
-			return [text, `#${slug}`];
+			return [text, `#${headingSlug}`];
 		});
 
 	const faqHeadings = [];
 	if (hasFaqSection) {
-		let inFaqSection = false;
-		let inFaqSubsection = false;
+		let isInFaqSection = false;
+		let isInFaqSubsection = false;
 		for (const heading of headings) {
 			if (heading.depth === 2 && heading.text === faqHeadingTitle) {
-				inFaqSection = true;
-				inFaqSubsection = false;
+				isInFaqSection = true;
+				isInFaqSubsection = false;
 				continue;
 			}
 
-			if (inFaqSection && heading.depth === 2) {
+			if (isInFaqSection && heading.depth === 2) {
 				break;
 			}
 
-			if (!inFaqSection) {
+			if (!isInFaqSection) {
 				continue;
 			}
 
 			if (heading.depth === 3) {
-				inFaqSubsection = true;
+				isInFaqSubsection = true;
 				continue;
 			}
 
 			if (
-				heading.depth === 4
-				&& !inFaqSubsection
+				!isInFaqSubsection
+				&& heading.depth === 4
 				&& heading.slug !== 'feedback'
 			) {
 				faqHeadings.push({text: heading.text, slug: heading.slug, ...headingMeta[heading.slug]?.faq});
@@ -121,7 +133,8 @@ const normalizeApp = async app => {
 		}
 	}
 
-	const {[NON_APP_STORE_VERSION]: nonAppStoreLink, ...regularLinks} = Object.fromEntries(headerLinks);
+	const regularLinks = Object.fromEntries(headerLinks.filter(([title]) => title !== NON_APP_STORE_VERSION));
+	const nonAppStoreLink = Object.fromEntries(headerLinks)[NON_APP_STORE_VERSION];
 
 	const links = {
 		...regularLinks,
@@ -142,7 +155,7 @@ const normalizeApp = async app => {
 			.map(async ([key, value]) => {
 				const {default: url} = await value();
 				return {
-					src: url.replace(/^\/public/, ''),
+					src: url.replace(/^\/public/v, ''),
 					...getVideoSize(path.join(process.cwd(), key)),
 				};
 			}),
@@ -158,11 +171,11 @@ const normalizeApp = async app => {
 
 	screenshots = screenshots.map(screenshot => {
 		const object = screenshot.default;
-		object.src = object.src.replace(/^\/public/, '');
+		object.src = object.src.replace(/^\/public/v, '');
 		return object;
 	});
 
-	const feedbackNote = await markdown(data.feedbackNote);
+	const feedbackNote = await renderMarkdown(data.feedbackNote);
 
 	return {
 		...data,
@@ -196,7 +209,7 @@ const loadAll = async () => {
 		apps.map(app => normalizeApp(app)),
 	);
 
-	return normalizedApps.sort((a, b) => b.pubDate - a.pubDate);
+	return normalizedApps.toSorted((a, b) => b.pubDate - a.pubDate);
 };
 
 export const fetchApps = async ({includeArchived = false, includeUnlisted = false} = {}) => {

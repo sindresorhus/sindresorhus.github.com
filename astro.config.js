@@ -1,10 +1,12 @@
 import process from 'node:process';
+import {Buffer} from 'node:buffer';
 import fs from 'node:fs';
 import https from 'node:https';
 import tls from 'node:tls';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {defineConfig} from 'astro/config';
+import {unified} from '@astrojs/markdown-remark';
 import sitemap from '@astrojs/sitemap';
 import remarkCustomHeaderId from 'remark-custom-header-id';
 import remarkGitHubAlerts from 'remark-github-blockquote-alert';
@@ -18,7 +20,8 @@ import rehypeKbdSeparator from './source/utils/rehype-kbd-separator.js';
 import {SITE} from './source/config.mjs';
 
 // Patch fetch to serve Iconify icons from local @iconify-json packages, enabling offline dev.
-const originalFetch = globalThis.fetch;
+const originalFetch = fetch;
+// eslint-disable-next-line unicorn/no-global-object-property-assignment -- Patching the global `fetch` is the purpose of this workaround.
 globalThis.fetch = async (input, init) => {
 	let url;
 	if (typeof input === 'string') {
@@ -29,14 +32,12 @@ globalThis.fetch = async (input, init) => {
 		url = input.url;
 	}
 
-	const match = url.match(/^https:\/\/api\.iconify\.design\/(\w+)\.json/);
+	const match = url.match(/^https:\/\/api\.iconify\.design\/(?<prefix>\w+)\.json/v);
 	if (match) {
 		const localPacks = {tabler: tablerIconData};
-		const pack = localPacks[match[1]];
+		const pack = localPacks[match.groups.prefix];
 		if (pack) {
-			return new Response(JSON.stringify(pack), {
-				headers: {'Content-Type': 'application/json'},
-			});
+			return Response.json(pack);
 		}
 	}
 
@@ -57,8 +58,9 @@ We fall back to node:https (which supports explicit CA) for HTTPS requests.
 
 	if (cert) {
 		const ca = [...tls.rootCertificates, cert];
-		const previousFetch = globalThis.fetch;
+		const previousFetch = fetch;
 
+		// eslint-disable-next-line unicorn/no-global-object-property-assignment -- Patching the global `fetch` is the purpose of this workaround.
 		globalThis.fetch = async (input, init) => {
 			const url = typeof input === 'string' ? input : (input instanceof URL ? input.href : input.url);
 
@@ -79,7 +81,9 @@ We fall back to node:https (which supports explicit CA) for HTTPS requests.
 					agent,
 				}, response => {
 					const chunks = [];
-					response.on('data', chunk => chunks.push(chunk));
+					response.on('data', chunk => {
+						chunks.push(chunk);
+					});
 					response.on('end', () => {
 						resolve(new Response(Buffer.concat(chunks).toString(), {
 							status: response.statusCode,
@@ -113,20 +117,22 @@ export default defineConfig({
 		sitemap(),
 	],
 	markdown: {
-		remarkPlugins: [
-			remarkCustomHeaderId,
-			remarkGitHubAlerts,
-			remarkHeadingMeta,
-			remarkInjectFeedbackFaq,
-		],
-		rehypePlugins: [
-			// Astro runs rehype-raw after user plugins, so inline HTML stays as opaque `raw` nodes when our plugins run. Running it first converts them to proper hast elements.
-			rehypeRaw,
-			rehypeKbdSeparator,
-			// TODO
-			// rehypeHeadingIds,
-			// [rehypeAutolinkHeadings, {behavior: 'wrap'}],
-		],
+		processor: unified({
+			remarkPlugins: [
+				remarkCustomHeaderId,
+				remarkGitHubAlerts,
+				remarkHeadingMeta,
+				remarkInjectFeedbackFaq,
+			],
+			rehypePlugins: [
+				// Astro runs rehype-raw after user plugins, so inline HTML stays as opaque `raw` nodes when our plugins run. Running it first converts them to proper hast elements.
+				rehypeRaw,
+				rehypeKbdSeparator,
+				// TODO
+				// rehypeHeadingIds,
+				// [rehypeAutolinkHeadings, {behavior: 'wrap'}],
+			],
+		}),
 	},
 	vite: {
 		resolve: {

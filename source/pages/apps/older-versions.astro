@@ -6,9 +6,8 @@ import {fetchApps} from '~/utils/apps.js';
 const apps = await fetchApps({includeArchived: true});
 
 const macOSVersions = [...new Set(apps.flatMap(app => app.olderMacOSVersions))]
-	.sort()
-	.reverse()
-	.filter(Boolean);
+	.filter(Boolean)
+	.toSorted((a, b) => Number(b) - Number(a));
 
 const meta = {
 	title: `Older Versions — Apps — ${SITE.name}`,

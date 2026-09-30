@@ -7,7 +7,7 @@ const apps = await fetchApps({includeUnlisted: true});
 
 const appsWithReleases = apps
 	.filter(app => app.releasesRepo)
-	.sort((a, b) => a.title.localeCompare(b.title));
+	.toSorted((a, b) => a.title.localeCompare(b.title));
 
 const frontmatter = {
 	title: 'RSS Feeds',
