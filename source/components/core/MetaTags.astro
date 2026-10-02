@@ -19,9 +19,9 @@ const {
 	articleMeta,
 } = Astro.props;
 
-const resolvedImageAlt = imageAlt ?? ogTitle ?? title;
-
-const image = _image && new URL(_image, Astro.site);
+// Pages without their own image get a default card.
+const image = new URL(_image ?? '/og/sindre-sorhus.png', Astro.site);
+const resolvedImageAlt = _image ? (imageAlt ?? ogTitle) : SITE.name;
 const canonicalURL = new URL(`/${cleanPathname(Astro.url.pathname)}`, Astro.site);
 ---
 
@@ -30,21 +30,17 @@ const canonicalURL = new URL(`/${cleanPathname(Astro.url.pathname)}`, Astro.site
 <meta name="author" content="Sindre Sorhus">
 <meta name="twitter:site" content="@sindresorhus">
 <meta name="twitter:creator" content="@sindresorhus">
-<meta name="twitter:description" content={description}>
+{description && <meta name="twitter:description" content={description}>}
 <meta name="fediverse:creator" content="@sindresorhus@mastodon.social">
 <meta name="x-build-time" content={(new Date()).toUTCString()}>
 
-{appStoreId && (
-	<>
-		<meta name="apple-itunes-app" content={`app-id=${appStoreId}`}>
-		<meta name="twitter:card" content="app">
-		<meta name="twitter:app:id:iphone" content={appStoreId}>
-	</>
-)}
-{!appStoreId && image && <meta name="twitter:card" content="summary_large_image">}
-{!appStoreId && !image && <meta name="twitter:card" content="summary">}
+<meta name="twitter:card" content="summary_large_image">
+{appStoreId && <meta name="apple-itunes-app" content={`app-id=${appStoreId}`}>}
 
 <link rel="sitemap" href="/sitemap-index.xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#020617" media="(prefers-color-scheme: dark)">
 
 <link rel="alternate" type="application/rss+xml" title="Sindre Sorhus — Blog" href="/rss.xml">
 <link rel="alternate" type="application/rss+xml" title="Sindre Sorhus — New Apps" href="/rss-apps.xml">
@@ -53,7 +49,7 @@ const canonicalURL = new URL(`/${cleanPathname(Astro.url.pathname)}`, Astro.site
 	<link rel="alternate" type="application/rss+xml" title={feed.title} href={feed.href}>
 ))}
 
-<link rel="icon" href={favicon ?? 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦄</text></svg>'}>
+<link rel="icon" href={favicon ?? '/favicon.png'}>
 <script async src="https://gc.zgo.at/count.js" data-goatcounter="https://sindresorhus.goatcounter.com/count"></script>
 
 <!-- <ClientRouter/> -->
@@ -64,11 +60,11 @@ const canonicalURL = new URL(`/${cleanPathname(Astro.url.pathname)}`, Astro.site
 	canonical={canonicalURL.href}
 	noindex={noindex}
 	nofollow={nofollow}
-	openGraph={image ? {
+	openGraph={{
 		basic: {
 			title: ogTitle,
 			type: ogType,
-			image: image.toString(),
+			image: image.href,
 			url: canonicalURL.href,
 		},
 		optional: {
@@ -82,18 +78,5 @@ const canonicalURL = new URL(`/${cleanPathname(Astro.url.pathname)}`, Astro.site
 			height: 630,
 		},
 		...(articleMeta && {article: articleMeta}),
-	} : undefined}
-	extend={image ? undefined : {
-		meta: [
-			{property: 'og:title', content: ogTitle},
-			{property: 'og:type', content: ogType},
-			{property: 'og:url', content: canonicalURL.href},
-			{property: 'og:description', content: description},
-			{property: 'og:locale', content: 'en_US'},
-			{property: 'og:site_name', content: SITE.name},
-			...(articleMeta?.publishedTime ? [{property: 'article:published_time', content: articleMeta.publishedTime}] : []),
-			...(articleMeta?.authors?.map(author => ({property: 'article:author', content: author})) ?? []),
-			...(articleMeta?.tags?.map(tag => ({property: 'article:tag', content: tag})) ?? []),
-		],
 	}}
 />

@@ -1,6 +1,7 @@
 ---
 title: Pandan
 subtitle: Time awareness in your menu bar
+description: Time awareness in your menu bar. Pandan shows how long you have been actively using your computer, so you know when it is time to take a break.
 pubDate: 2021-05-31
 platforms:
   - macOS

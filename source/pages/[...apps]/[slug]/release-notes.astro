@@ -12,6 +12,7 @@ const releases = await fetchFilteredReleases(releasesRepo);
 
 const meta = {
 	title: `Release Notes — ${appTitle}`,
+	description: `The changes in each version of the ${appTitle} app.`,
 	rssFeeds: [
 		{
 			title: `${appTitle} Release Notes`,

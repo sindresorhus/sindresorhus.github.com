@@ -7,7 +7,7 @@ const apps = await fetchApps();
 const appSlugs = apps.map(app => app.slug);
 ---
 
-<Layout>
+<Layout meta={{title: 'Random App — Sindre Sorhus', noindex: true}}>
 	<script type="module" define:vars={{appSlugs}}>
 		const randomItem = items => items[Math.floor(Math.random() * items.length)];
 

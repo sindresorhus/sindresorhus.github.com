@@ -9,7 +9,10 @@ const appsCollection = defineCollection({
 		isUnlisted: z.boolean().default(false),
 		isArchived: z.boolean().default(false),
 		title: z.string().nonempty(),
-		subtitle: z.string().nonempty(),
+		// No ending punctuation, because the default description adds a period after it.
+		subtitle: z.string().nonempty().regex(/[^.!?]$/v, 'The subtitle must not end with punctuation.'),
+		// For search results and link previews. Defaults to the subtitle followed by the first paragraph of the page, shortened to 160 characters.
+		description: z.string().nonempty().optional(),
 		pubDate: z.date(),
 		platforms: z.array(z.enum([
 			'macOS',

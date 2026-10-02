@@ -5,6 +5,7 @@ import {fetchApps, proseCSS} from '~/utils/apps.js';
 
 const meta = {
 	title: 'Feedback & Support — Sindre Sorhus',
+	description: 'Send feedback, report a bug, or get support for apps by Sindre Sorhus.',
 };
 
 const feedbackFaqSlugs = new Set([
@@ -84,7 +85,7 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 			<input type="hidden" name="_gotcha">
 			<div class="mb-6">
 				<label class={labelCSS} for="message">Message*</label>
-				<textarea class={inputCSS} placeholder="I'm a human. Please be nice." name="message" minlength="20" rows="7" required autofocus autocapitalize="sentences" aria-expanded="false" aria-controls="faq-suggestions"></textarea>
+				<textarea id="message" class={inputCSS} placeholder="I'm a human. Please be nice." name="message" minlength="20" rows="7" required autofocus autocapitalize="sentences" aria-expanded="false" aria-controls="faq-suggestions"></textarea>
 				<div id="crash-warning" hidden class="mt-3 p-3 rounded-lg border border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-900/20 text-sm text-amber-800 dark:text-amber-300">
 					Looks like you're reporting a crash. It would be very helpful if you could also attach a <a href="/apps/faq#crash-report" target="_blank" rel="noopener noreferrer" class="underline font-medium hover:text-amber-900 dark:hover:text-amber-200">crash report</a>.
 				</div>
@@ -101,7 +102,7 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 					<label class="text-sm font-medium text-gray-900 dark:text-gray-300" for="email">Email*</label>
 					<span class="text-xs text-gray-500 dark:text-gray-400">Only used for replying to you</span>
 				</div>
-				<input class={inputCSS} type="email" name="email" autocomplete="email" enterkeyhint="send" required>
+				<input id="email" class={inputCSS} type="email" name="email" autocomplete="email" enterkeyhint="send" required>
 			</div>
 			<div class="mb-8">
 				<label id="attach-label" class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
@@ -297,13 +298,13 @@ const labelCSS = 'block mb-2 text-sm font-medium text-gray-900 dark:text-gray-30
 
 			if (key === 'extraInfo') {
 				form.append(
-					$(`<textarea style="display:none" readonly name="${key}"></textarea>`).text(value)
+					$('<textarea style="display:none" readonly></textarea>').attr('name', key).text(value)
 				);
 				continue;
 			}
 
 			form.append(
-				$(`<input type="hidden" name="${key}">`).val(value)
+				$('<input type="hidden">').attr('name', key).val(value)
 			);
 		}
 

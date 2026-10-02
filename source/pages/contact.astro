@@ -3,6 +3,7 @@ import PageLayout from '~/layouts/PageLayout.astro';
 
 const meta = {
 	title: 'Contact — Sindre Sorhus',
+	description: 'How to contact Sindre Sorhus.',
 };
 
 const parts = ['sindresorhus', '@gmail.com'];
@@ -83,9 +84,11 @@ const email = parts.join('');
 	animation: drift-b 13s ease-in-out infinite alternate;
 }
 
-:global(.dark) .orb-blue,
-:global(.dark) .orb-pink {
-	opacity: 0.14;
+@media (prefers-color-scheme: dark) {
+	.orb-blue,
+	.orb-pink {
+		opacity: 0.14;
+	}
 }
 
 /* Outline helps rainbow colors pop against light backgrounds */
@@ -93,8 +96,10 @@ const email = parts.join('');
 	-webkit-text-stroke: 1px rgba(0, 0, 0, 0.18);
 }
 
-:global(.dark) .email-link {
-	-webkit-text-stroke: 0;
+@media (prefers-color-scheme: dark) {
+	.email-link {
+		-webkit-text-stroke: 0;
+	}
 }
 
 @keyframes drift-a {

@@ -1,7 +1,7 @@
 ---
 import {SITE} from '~/config.mjs';
 import Layout from '~/layouts/SimplePageLayout.astro';
-import {fetchApps, renderMarkdown} from '~/utils/apps.js';
+import {fetchApps, getIntroductionText, renderMarkdown} from '~/utils/apps.js';
 import AppsList from '~/components/apps/AppsList.astro';
 import AppsByPlatform from '~/components/apps/AppsByPlatform.astro';
 
@@ -29,6 +29,7 @@ if (Array.isArray(slugs) && slugs.length > 0) {
 
 const meta = {
 	title: metaTitle ?? `${title} — ${SITE.name}`,
+	...(description && {description: getIntroductionText(description)}),
 };
 
 let descriptionHtml;

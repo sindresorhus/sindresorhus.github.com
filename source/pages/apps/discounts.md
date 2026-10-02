@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MarkdownLayout.astro
 title: Discounts
+description: Discounts on apps by Sindre Sorhus for students, open source maintainers, educational institutions, and reviewers.
 ---
 
 # Discounts

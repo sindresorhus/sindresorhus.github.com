@@ -20,7 +20,7 @@ export const GET = async context => {
 			link: item.url,
 			title: item.title,
 			pubDate: item.pubDate,
-			description: item.description ?? item.subtitle, // `apps` uses `subtitle`.
+			description: item.subtitle ?? item.description, // Only apps have a `subtitle`.
 			// Use the original content URL as GUID instead of redirect URL.
 			// This can prevent an edge case where both an "app" item and a blog post with redirect points to the same item.
 			...(item.isRedirect && {

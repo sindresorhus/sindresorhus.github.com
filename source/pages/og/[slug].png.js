@@ -4,6 +4,7 @@ import {createHash} from 'node:crypto';
 import path from 'node:path';
 import satori from 'satori';
 import {Resvg} from '@resvg/resvg-js';
+import {SITE} from '~/config.mjs';
 import {fetchApps} from '~/utils/apps.js';
 
 // Bump when changing the OG image template to invalidate the cache.
@@ -60,7 +61,8 @@ async function generateOgImage(app) {
 	let iconDataUrl = '';
 	try {
 		const iconBuffer = fs.readFileSync(iconPath);
-		iconDataUrl = `data:image/png;base64,${iconBuffer.toString('base64')}`;
+		const mimeType = iconPath.endsWith('.png') ? 'image/png' : 'image/jpeg';
+		iconDataUrl = `data:${mimeType};base64,${iconBuffer.toString('base64')}`;
 	} catch (error) {
 		if (error.code !== 'ENOENT') {
 			throw error;
@@ -159,10 +161,18 @@ async function generateOgImage(app) {
 export async function getStaticPaths() {
 	const apps = await fetchApps({includeArchived: true, includeUnlisted: true});
 
+	// The default image for pages that do not have their own. `MetaTags.astro` refers to it by its slug.
+	const siteCard = {
+		slug: 'sindre-sorhus',
+		title: SITE.name,
+		subtitle: SITE.description,
+		iconUrl: '/assets/sindre-sorhus.jpg',
+	};
+
 	return Promise.all(
-		apps.map(async app => ({
-			params: {slug: app.slug},
-			props: {png: await generateOgImage(app)},
+		[siteCard, ...apps].map(async card => ({
+			params: {slug: card.slug},
+			props: {png: await generateOgImage(card)},
 		})),
 	);
 }

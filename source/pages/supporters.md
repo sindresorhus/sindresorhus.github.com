@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MarkdownLayout.astro
 title: Supporters
+description: The sponsors and supporters who fund the open-source work of Sindre Sorhus, and how to become one.
 ---
 
 <style is:inline>

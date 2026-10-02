@@ -1,6 +1,7 @@
 ---
 title: Pasteboard Viewer
 subtitle: Inspect the system pasteboards
+description: Inspect the system pasteboards. A developer utility that shows the live contents of the pasteboard, with previews of text, RTF, images, and more.
 pubDate: 2020-02-18
 platforms:
   - macOS

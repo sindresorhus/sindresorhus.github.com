@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MarkdownLayout.astro
 title: Terms of Use
+description: Terms of use for apps by Sindre Sorhus.
 ---
 
 # Apps — Terms of Use

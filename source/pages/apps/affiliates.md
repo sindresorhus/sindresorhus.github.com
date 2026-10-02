@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MarkdownLayout.astro
 title: Affiliates
+description: Earn money by promoting apps by Sindre Sorhus.
 ---
 
 # Affiliates for my apps

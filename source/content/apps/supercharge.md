@@ -789,7 +789,7 @@ If the Supercharge menu reports `loginwindow` as blocking keyboard shortcuts, lo
 
 #### Cut and paste files troubleshooting
 
-Ensure you pressed <kbd>Command+X</kbd> and not <kbd>Command+C</kbd>.
+When you cut the files, ensure you pressed <kbd>Command+X</kbd> (cut) and not <kbd>Command+C</kbd> (copy). You still paste with <kbd>Command+V</kbd>.
 
 To make sure you used the feature correctly, try this: Select a file in Finder, press <kbd>Command+X</kbd>, change to a different folder, press <kbd>Command+V</kbd>. The file should have been moved to this new folder.
 

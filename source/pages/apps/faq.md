@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MarkdownLayout.astro
 title: Frequently Asked Questions
+description: Common questions about apps by Sindre Sorhus, including bug reports, privacy, refunds, Family Sharing, and moving between the App Store, Gumroad, and Setapp.
 ---
 
 # Frequently Asked Questions

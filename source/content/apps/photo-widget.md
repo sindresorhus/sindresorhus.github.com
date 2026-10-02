@@ -1,6 +1,7 @@
 ---
 title: Photo Widget
 subtitle: Photos on your home screen and desktop
+description: Photos on your Home Screen and desktop. Make widgets with a single photo, a slideshow of photos, or photos from an album in your photo library.
 pubDate: 2020-09-22
 platforms:
   - macOS

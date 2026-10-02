@@ -1,5 +1,6 @@
 ---
 title: Issue Bumping
+description: Why commenting “Any updates?” on an old issue does not help, what to do instead, and when it is OK to bump an issue.
 pubDate: 2020-10-09
 tags:
   - open-source

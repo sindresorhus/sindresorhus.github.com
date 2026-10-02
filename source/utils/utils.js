@@ -1,3 +1,4 @@
+import process from 'node:process';
 import MarkdownIt from 'markdown-it';
 import {fetchApps} from '~/utils/apps.js';
 
@@ -25,20 +26,20 @@ export async function getReleaseNotesStaticPaths() {
 export const iconLinkCSS = 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center';
 
 /**
-Clean up `Astro.url.pathname` by stripping the leading `/` and the `.html` extension added by `build.format: 'file'`.
+Clean up `Astro.url.pathname` by stripping the leading `/`, the `.html` extension added by `build.format: 'file'`, and a trailing `index`, so the home page becomes an empty string.
 
 @param {string} pathname - The `Astro.url.pathname` value.
 */
 export function cleanPathname(pathname) {
-	return pathname.slice(1).replace(/\.\w+$/v, '');
+	return pathname.slice(1).replace(/\.\w+$/v, '').replace(/(?:^|\/)index$/v, '');
 }
 
 export async function githubApi(path) {
 	const response = await fetch(`https://api.github.com/${path}`, {
 		headers: {
 			Accept: 'application/vnd.github.v3+json',
-			...(import.meta.env.GITHUB_TOKEN && {
-				Authorization: `token ${import.meta.env.GITHUB_TOKEN}`,
+			...(process.env.GITHUB_TOKEN && {
+				Authorization: `token ${process.env.GITHUB_TOKEN}`,
 			}),
 		},
 	});
@@ -53,12 +54,41 @@ export async function githubApi(path) {
 }
 
 export async function fetchGitHubReleases(repo) {
-	return githubApi(`repos/sindresorhus/${repo}/releases`);
+	return githubApi(`repos/sindresorhus/${repo}/releases?per_page=100`);
 }
 
+// Both the release notes page and the RSS feed of an app need the releases, so only fetch them once per build.
+const filteredReleasesCache = new Map();
+
 export async function fetchFilteredReleases(repo) {
-	const releases = await fetchGitHubReleases(repo);
-	return releases.filter(release => !release.draft && !release.prerelease);
+	if (!filteredReleasesCache.has(repo)) {
+		filteredReleasesCache.set(repo, fetchGitHubReleases(repo).then(releases => releases.filter(release => !release.draft && !release.prerelease)));
+	}
+
+	return filteredReleasesCache.get(repo);
+}
+
+/**
+Get the App Store info of apps, like the price, rating, and version, with one request.
+
+The info is from the US App Store. Mac App Store apps always have a rating count of 0.
+
+@param {number[]} appStoreIds - The App Store IDs of the apps.
+@returns {Promise<Map<number, object>>} The info for each App Store ID. Apps that are not on the App Store are not included.
+*/
+export async function fetchAppStoreInfo(appStoreIds) {
+	try {
+		const response = await fetch(`https://itunes.apple.com/lookup?id=${appStoreIds.join(',')}`);
+
+		if (!response.ok) {
+			return new Map();
+		}
+
+		const {results} = await response.json();
+		return new Map(results.map(result => [result.trackId, result]));
+	} catch {
+		return new Map();
+	}
 }
 
 // Fisher-Yates shuffle.

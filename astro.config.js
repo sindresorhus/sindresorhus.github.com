@@ -114,7 +114,10 @@ export default defineConfig({
 		'/lock-screen-one': '/any-text',
 	},
 	integrations: [
-		sitemap(),
+		sitemap({
+			// It only redirects to a random app.
+			filter: page => page !== `${SITE.origin}/apps/random`,
+		}),
 	],
 	markdown: {
 		processor: unified({

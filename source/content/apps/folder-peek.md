@@ -1,6 +1,7 @@
 ---
 title: Folder Peek
 subtitle: Put folders in your menu bar
+description: Put folders in your menu bar for quick access to files. Preview files, drag and drop them from the menu, and open each folder with a keyboard shortcut.
 pubDate: 2022-04-05
 platforms:
   - macOS

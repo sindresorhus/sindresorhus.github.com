@@ -3,6 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createMarkdownProcessor} from '@astrojs/markdown-remark';
 import {getCollection, render} from 'astro:content';
+import {unified} from 'unified';
+import remarkParse from 'remark-parse';
 
 const date30DaysAgo = new Date(new Date().setDate(new Date().getDate() - 30));
 
@@ -67,6 +69,50 @@ const getVideoSize = filePath => {
 	}
 
 	throw new Error(`Could not read the video size of ${filePath}`);
+};
+
+/**
+Get the text of a Markdown document as plain text if the document starts with a paragraph, like the introduction of an app page or a short description. HTML comments before the paragraph are ignored.
+
+@param {string} markdown - The Markdown document.
+@returns {string | undefined} The text, or `undefined` if the document does not start with a paragraph with text.
+*/
+export function getIntroductionText(markdown) {
+	const getText = node => {
+		switch (node.type) {
+			case 'text':
+			case 'inlineCode': {
+				return node.value;
+			}
+
+			case 'break': {
+				return ' ';
+			}
+
+			default: {
+				return node.children?.map(child => getText(child)).join('') ?? '';
+			}
+		}
+	};
+
+	const isComment = node => node.type === 'html' && node.value.startsWith('<!--');
+	const firstNode = unified().use(remarkParse).parse(markdown).children.find(node => !isComment(node));
+	return firstNode?.type === 'paragraph' ? (getText(firstNode).replaceAll(/\s+/gv, ' ').trim() || undefined) : undefined;
+}
+
+/*
+Shortens text to fit a search result snippet.
+*/
+const shortenForSnippet = text => {
+	const maximumLength = 160;
+
+	if (text.length <= maximumLength) {
+		return text;
+	}
+
+	// Leave room for the ellipsis and cut at a word boundary.
+	const shortened = text.slice(0, maximumLength - 1);
+	return `${shortened.slice(0, shortened.lastIndexOf(' ')).replace(/[,.:;]$/v, '')}…`;
 };
 
 const normalizeApp = async app => {
@@ -179,6 +225,8 @@ const normalizeApp = async app => {
 
 	return {
 		...data,
+		// The subtitle continues in the introduction, so they are combined.
+		description: data.description ?? shortenForSnippet([data.subtitle, getIntroductionText(app.body)].filter(Boolean).join('. ')),
 		pubDate,
 		slug,
 		url: data.redirectUrl ?? `/${slug}`,

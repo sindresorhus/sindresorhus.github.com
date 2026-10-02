@@ -17,11 +17,16 @@ export async function getStaticPaths() {
 
 const {app} = Astro.props;
 
-const meta = {
-	title: `Privacy Policy — ${app.title} — Sindre Sorhus`,
-};
-
 const {title: appTitle, slug, hasSentry} = app;
+
+const privacySummary = hasSentry
+	? 'No personal information is collected. Anonymous crash reports are sent to Sentry.'
+	: 'No data or personal information is collected.';
+
+const meta = {
+	title: `Privacy Policy — ${appTitle} — Sindre Sorhus`,
+	description: `The privacy policy of the ${appTitle} app. ${privacySummary}`,
+};
 ---
 
 <Layout meta={meta}>

@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MarkdownLayout.astro
 title: Donate
+description: Support the open-source work of Sindre Sorhus with a monthly or one-time donation, or by buying his apps.
 ---
 
 <style>

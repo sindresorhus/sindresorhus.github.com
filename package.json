@@ -9,7 +9,7 @@
 		"start": "astro dev --open",
 		"build": "xo && astro build",
 		"preview": "astro preview",
-		"test": "xo && astro build"
+		"test": "xo && node --import ./source/utils/node-test-hooks.js --test && astro build"
 	},
 	"devDependencies": {
 		"@astrojs/markdown-remark": "^7.3.1",

@@ -1,6 +1,7 @@
 ---
 title: System Color Picker
 subtitle: The familiar color picker supercharged
+description: The familiar macOS color picker supercharged. Pick a color from anywhere and copy it as Hex, HSL, RGB, OKLCH, and more. Includes palettes and Shortcuts support.
 pubDate: 2021-05-01
 platforms:
   - macOS

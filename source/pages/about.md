@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MarkdownLayout.astro
 title: About
+description: Sindre Sorhus is a full-time open-source developer who makes apps for Mac, iPhone, iPad, Apple Watch, and Apple Vision Pro.
 ---
 
 # About Sindre Sorhus
