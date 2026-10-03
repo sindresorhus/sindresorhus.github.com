@@ -194,15 +194,28 @@ private struct SiteMarkdownRenderer: MarkupWalker {
 
 	mutating func visitBlockQuote(_ blockQuote: BlockQuote) {
 		let preview = Self.renderChildren(of: blockQuote)
-		let alertRegex = try! NSRegularExpression(pattern: #"(?s)^\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*?)</p>\s*$"#)
+		let alertRegex = try! NSRegularExpression(
+			pattern: #"(?s)^\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*?)</p>(.*)$"#
+		)
 		let range = NSRange(preview.startIndex..<preview.endIndex, in: preview)
-		if let match = alertRegex.firstMatch(in: preview, range: range),
+
+		if
+			let match = alertRegex.firstMatch(in: preview, range: range),
 			let kindRange = Range(match.range(at: 1), in: preview),
-			let bodyRange = Range(match.range(at: 2), in: preview)
+			let firstBodyRange = Range(match.range(at: 2), in: preview),
+			let remainderRange = Range(match.range(at: 3), in: preview)
 		{
 			let kind = String(preview[kindRange]).lowercased()
 			let title = kind.prefix(1).uppercased() + kind.dropFirst()
-			result += #"<div class="markdown-alert markdown-alert-\#(kind)"><p class="markdown-alert-title">\#(title)</p><p>\#(preview[bodyRange])</p></div>"#
+			let firstBody = String(preview[firstBodyRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+			let remainder = String(preview[remainderRange])
+			result += #"<div class="markdown-alert markdown-alert-\#(kind)">"#
+			result += #"<p class="markdown-alert-title">\#(title)</p>"#
+			if !firstBody.isEmpty {
+				result += "<p>\(firstBody)</p>"
+			}
+			result += remainder
+			result += "</div>\n"
 		} else {
 			result += "<blockquote>\n"
 			descendInto(blockQuote)
