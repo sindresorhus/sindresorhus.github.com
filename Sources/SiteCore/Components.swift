@@ -239,6 +239,24 @@ public extension App {
 		return result
 	}
 
+	var pageOverflowLinks: [(String, String)] {
+		var result = resolvedOverflowLinks
+		if !isArchived, let appStoreURL {
+			result.append(("What's New", appStoreURL))
+		}
+		if !isArchived, releasesRepository != nil {
+			result.append(("Release Notes", "/\(slug)/release-notes"))
+		}
+		if !isArchived {
+			result.append(("Privacy Policy", "/\(slug)/privacy-policy"))
+		}
+		result.append(("Terms of Use", "/apps/terms"))
+		if isPaid {
+			result.append(("Discounts", "/apps/discounts"))
+		}
+		return result
+	}
+
 	var hasFAQSection: Bool { markdown.headings.contains { $0.level == 2 && $0.text == "Frequently Asked Questions" } }
 
 	var faqHeadings: [FAQHeading] {
