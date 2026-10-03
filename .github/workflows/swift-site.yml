@@ -53,3 +53,5 @@ jobs:
         run: swift run website validate
       - name: Compare route parity
         run: python3 scripts/compare-site-output.py dist-astro dist
+      - name: Compare semantic HTML parity
+        run: python3 scripts/compare-site-semantics.py dist-astro dist
