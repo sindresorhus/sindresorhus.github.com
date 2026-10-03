@@ -44,9 +44,10 @@ public struct PageDocument<Content: HTML>: HTMLDocument {
 			meta(.name(.description), .content(metadata.description))
 			meta(.custom(name: "name", value: "twitter:description"), .content(metadata.description))
 		}
-		if metadata.noindex || metadata.nofollow {
-			meta(.custom(name: "name", value: "robots"), .content([metadata.noindex ? "noindex" : nil, metadata.nofollow ? "nofollow" : nil].compactMap { $0 }.joined(separator: ",")))
-		}
+		meta(
+			.custom(name: "name", value: "robots"),
+			.content("\(metadata.noindex ? "noindex" : "index"), \(metadata.nofollow ? "nofollow" : "follow")")
+		)
 		if let appStoreID = metadata.appStoreID {
 			meta(.custom(name: "name", value: "apple-itunes-app"), .content("app-id=\(appStoreID)"))
 		}
