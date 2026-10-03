@@ -15,7 +15,9 @@ public actor BuildDataClient {
 		guard !ids.isEmpty else { return [:] }
 		guard let url = URL(string: "https://itunes.apple.com/lookup?id=\(ids.map(String.init).joined(separator: ","))") else { return [:] }
 		do {
-			let (data, response) = try await URLSession.shared.data(from: url)
+			var request = URLRequest(url: url)
+			request.timeoutInterval = 15
+			let (data, response) = try await URLSession.shared.data(for: request)
 			guard (response as? HTTPURLResponse)?.statusCode == 200 else { return [:] }
 			let payload = try JSONDecoder().decode(AppStoreLookup.self, from: data)
 			return Dictionary(uniqueKeysWithValues: payload.results.map { ($0.trackId, $0) })
@@ -40,6 +42,7 @@ public actor BuildDataClient {
 	private func github<T: Decodable>(path: String) async throws -> T {
 		guard let url = URL(string: "https://api.github.com/\(path)") else { throw URLError(.badURL) }
 		var request = URLRequest(url: url)
+		request.timeoutInterval = 20
 		request.setValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
 		request.setValue("sindresorhus.com-static-generator", forHTTPHeaderField: "User-Agent")
 		if let token { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
