@@ -150,11 +150,22 @@ public enum MarkdownProcessor {
 	private static func postProcessHTML(_ html: String) -> String {
 		var result = html
 		let regex = try! NSRegularExpression(pattern: #"<kbd>([^<]*\+[^<]*)</kbd>"#)
-		while let match = regex.firstMatch(in: result, range: NSRange(result.startIndex..<result.endIndex, in: result)),
-			let range = Range(match.range(at: 1), in: result),
-			let fullRange = Range(match.range(at: 0), in: result)
-		{
-			let parts = String(result[range]).split(separator: "+", omittingEmptySubsequences: false).map(String.init)
+		let matches = regex.matches(in: result, range: NSRange(result.startIndex..<result.endIndex, in: result))
+
+		for match in matches.reversed() {
+			guard
+				let range = Range(match.range(at: 1), in: result),
+				let fullRange = Range(match.range(at: 0), in: result)
+			else {
+				continue
+			}
+
+			let source = String(result[range])
+			guard source != "+" else {
+				continue
+			}
+
+			let parts = source.split(separator: "+", omittingEmptySubsequences: false).map(String.init)
 			let rendered = parts.enumerated().map { index, part in
 				let key = part.isEmpty && index == parts.count - 1 ? "+" : part
 				let separator = index == 0 ? "" : #"<span class="kbd-sep" aria-hidden="true">+</span>"#
@@ -162,6 +173,7 @@ public enum MarkdownProcessor {
 			}.joined()
 			result.replaceSubrange(fullRange, with: rendered)
 		}
+
 		return result
 	}
 }
