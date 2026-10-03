@@ -90,3 +90,9 @@ import Testing
 	#expect(markdown.html.contains("First definition."))
 	#expect(markdown.html.contains(">Footnotes</h2>"))
 }
+
+
+@Test func introductionPreservesIntrawordUnderscores() {
+	let markdown = MarkdownProcessor.process("A read-only viewer for Finder metadata stored in .DS_Store files.")
+	#expect(markdown.introduction == "A read-only viewer for Finder metadata stored in .DS_Store files.")
+}
