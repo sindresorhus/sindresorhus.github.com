@@ -369,9 +369,9 @@ public enum MarkdownProcessor {
 
 		var text = paragraphLines.joined(separator: "\n")
 		text = text.replacingOccurrences(
-			of: #"<!--.*?-->"#,
+			of: #"(?s)<!--.*?-->"#,
 			with: "",
-			options: [.regularExpression, .dotMatchesLineSeparators]
+			options: .regularExpression
 		)
 		text = text.replacingOccurrences(
 			of: #"!\[[^\]]*\]\([^)]*\)"#,
