@@ -31,6 +31,11 @@ jobs:
           cache: npm
       - name: Swift version
         run: swift --version
+      - name: Check browser script syntax
+        run: |
+          for file in public/scripts/*.js; do
+            node --check "$file"
+          done
       - name: Install image dependencies
         run: sudo apt-get update && sudo apt-get install -y librsvg2-bin fonts-inter
       - name: Build Astro reference
