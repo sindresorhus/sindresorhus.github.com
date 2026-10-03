@@ -1,0 +1,325 @@
+---
+title: Shortcutie
+subtitle: Power up the Shortcuts app on Mac
+pubDate: 2025-02-11
+platforms:
+  - macOS
+isPaid: true
+hasSentry: true
+setappId: 1814
+releasesRepo: shortcutie-meta
+mainLinks:
+  'Buy': https://sindresorhus.gumroad.com/l/shortcutie?wanted=true
+requirement: Requires macOS 26 or later
+announcement:
+  text: Save 28% with the Power User Bundle — get 3 power user apps together
+  url: https://sindresorhus.gumroad.com/l/power-user
+  urlText: Get the bundle
+pressQuotes:
+  - quote: It’s absolutely essential for anyone who uses Shortcuts because it unlocks so many new things you can do. I love the extra power it gives my Mac and it’s totally worth it for those advanced features!
+    source: Anonymous
+    url: https://sindresorhus.gumroad.com/l/shortcutie
+olderMacOSVersions:
+  - '15'
+feedbackNote: |
+  ### If the actions don't show up in the Shortcuts app or if you get a “com.apple.extensionKit.errorDomain error 2” error when running your shortcut, restart your device. You could also try setting a different device language and then back. If you just updated the operating system, give it some time to re-index all shortcut actions.
+
+  Check the [Actions](/actions) app before requesting an action. It may already exist there.
+
+  This is not the place to ask general Shortcuts questions. Try [r/shortcuts](https://www.reddit.com/r/shortcuts/) instead.
+categories:
+  - shortcuts
+---
+
+The app provides 70+ powerful extra actions for the Shortcuts app on macOS.
+
+While my free [Actions](/actions) app provides useful functionality for the Shortcuts app through the App Store for macOS, iOS and visionOS, Shortcutie is a Mac-only app that offers more powerful system-level features by operating outside of Apple's restrictions. This enables capabilities like changing the system default browser or mail app (without a prompt), getting the active browser tab, clearing notifications, etc. - things that wouldn't be possible under App Store rules.
+
+> [!IMPORTANT]
+> Restart your device if the actions do not show up in the Shortcuts app. [Learn more ›](#troubleshooting)
+
+#### Included actions
+
+- Get Active Browser Tab
+	<span class="list-subtitle">Gets the URL and title of the active browser tab</span>
+	<span class="list-description text-xs">Supports Safari, Chrome, Edge, Brave, Opera, Vivaldi, Arc, Orion, Atlas, and any Chromium-based browser. Firefox and Firefox-based browsers (including Zen) are not supported as they do not implement the required [AppleScript interface](https://bugzilla.mozilla.org/show_bug.cgi?id=125419) for getting tab info.</span>
+- Run JavaScript on Active Browser Tab
+	<span class="list-subtitle">Runs JavaScript code on the active browser tab and returns JSON</span>
+	<span class="list-description text-xs">Supports the same browsers as “Get Active Browser Tab”, except ChatGPT Atlas.</span>
+- Open URLs in Private Browser Window
+	<span class="list-subtitle">Opens URLs in a private/incognito browser window</span>
+	<span class="list-description text-xs">Supports Safari, Chrome, Edge, Brave, Opera, Vivaldi, Arc, Orion, Firefox, Zen, and any Chromium-based and Firefox-based browser. Not DuckDuckGo and ChatGPT Atlas.</span>
+- Get Active Browser
+	<span class="list-subtitle">Gets the frontmost app if it’s a browser</span>
+- Get Selected Text
+	<span class="list-subtitle">Gets the selected text in the currently focused window</span>
+- Get/Set Current Folder in Finder
+	<span class="list-subtitle">Gets or sets the currently viewed folder in Finder</span>
+- Get Document of App
+	<span class="list-subtitle">Returns the file of the currently active document in the active or specified app</span>
+	<span class="list-description text-xs">Works with native macOS apps like Preview, TextEdit, Pages, Keynote, Numbers, and other document-based apps.</span>
+- Get File from Path
+	<span class="list-subtitle">Converts a text path to a file or folder object for use in other Shortcuts actions</span>
+	<span class="list-description text-xs">Accepts both absolute paths (like “/Users/username/Documents/file.txt”) and paths with “~” (like “~/Documents/file.txt”). Returns a reference to the actual file on disk.</span>
+- Show Alert (Extended)
+	<span class="list-subtitle">Shows an alert dialog with multiple buttons and returns which button was clicked</span>
+	<span class="list-description text-xs">Timeout, custom icon, and up to 8 buttons. [Screenshot.](https://www.dropbox.com/scl/fi/439bkpixjwssiss0ye7ln/Screen-Shot-2025-05-20-at-18.43.32-1747756364.png?rlkey=jrq1etjed15uz66tpanokw0q6&raw=1)</span>
+- Join Wi-Fi <!-- 	<span class="list-subtitle">Join a Wi-Fi network or personal hotspot</span>
+	<span class="list-description text-xs">Tip: You could use it to join your iPhone’s hotspot</span> -->
+- Clear Top Notification
+	<span class="list-subtitle">Clears the top visible system notification</span>
+- Clear Notifications
+	<span class="list-subtitle">Clears all system notifications</span>
+- Click Top Notification
+	<span class="list-subtitle">Activates the top visible system notification</span>
+- Get/Set Default Browser
+	<span class="list-subtitle">View or change the system default web browser</span>
+- Get/Set Default Mail App
+	<span class="list-subtitle">View or change the system default mail app</span>
+- Get/Set Appearance (Extended)
+	<span class="list-subtitle">View or change the system appearance mode (Light, Dark, or Auto)</span>
+	<span class="list-description text-xs">Unlike the native action, this also supports Auto mode.</span>
+- Get/Set Icon & Widget Style
+	<span class="list-subtitle">View or change how app icons and widgets appear</span>
+	<span class="list-description text-xs">Choose default, dark, clear, or tinted.</span>
+- Get/Set Liquid Glass Style
+	<span class="list-subtitle">View or change the Liquid Glass style</span>
+	<span class="list-description text-xs">Controls whether the glass effect used throughout macOS appears clear or tinted.</span>
+- Press Keyboard Shortcut
+	<span class="list-subtitle">Simulates pressing a keyboard shortcut</span>
+	<span class="list-description text-xs">Optionally target a specific app.</span>
+- Trigger Menu Bar Item
+	<span class="list-subtitle">Executes a menu bar item in the frontmost or specified app</span>
+	<span class="list-description text-xs">Accepts menu paths like “File > Save As”.</span>
+- Get Menu Bar Item
+	<span class="list-subtitle">Gets info about a menu bar item in the selected app</span>
+	<span class="list-description text-xs">Returns title, enabled state, checked state, and keyboard shortcut.</span>
+- Trigger Context Menu Item
+	<span class="list-subtitle">Executes a context menu item at the current mouse pointer position</span>
+	<span class="list-description text-xs">Using this you can trigger context-menu items or sub-items for the current mouse pointer position in any app.</span>
+- Set Grayscale Mode
+	<span class="list-subtitle">Makes screen display in black and white</span>
+- Is Screen Being Watched
+	<span class="list-subtitle">Detects if the screen is being recorded, mirrored, or shared (Zoom, Teams, etc)</span>
+- Get/Set Display Resolution
+	<span class="list-subtitle">View or change the resolution of a selected display</span>
+	<span class="list-description text-xs">Defaults to the primary display. Uses the resolutions available in System Settings, including scaled Retina resolutions.</span>
+- Find Display
+	<span class="list-subtitle">Returns the connected displays</span>
+- Stash Text
+	<span class="list-subtitle">Shows the given text in a floating window</span>
+	<span class="list-description text-xs">Multiple calls add items to the sidebar list. Intended for temporary viewing, not long-term storage. [Screenshot](https://www.dropbox.com/scl/fi/9oz7tnd24fohgasuuv6gd/Stash-Text-Screen-Shot-2026-02-01-at-23.17.36-1769962685.png?rlkey=9vd0p1c2zat89yrqssv8rhfnw&raw=1)</span>
+- Find Listening Port
+	<span class="list-subtitle">Finds TCP ports that currently have a listening process on this Mac</span>
+	<span class="list-description text-xs">Useful for checking whether a local dev server is running, finding which process is using a specific port, and inspecting listeners before stopping them.</span>
+- Is Port Listening
+	<span class="list-subtitle">Checks whether a specific TCP port currently has a listening process</span>
+- Kill Process
+	<span class="list-subtitle">Stops a process by process ID, process name, port number, or listening port</span>
+	<span class="list-description text-xs">Supports dry-run mode (find matches without signaling). By default, no-match is treated as success for friendlier automations, with an option to fail when no matches are found.</span>
+- Open App (Extended)
+	<span class="list-subtitle">Options to pass in URLs, activate, force new instance, hide, launch arguments, and environment variables</span>
+- Close All Windows of App
+	<span class="list-subtitle">Closes all windows of the specified app</span>
+- Unminimize Windows of Active App
+	<span class="list-subtitle">Unminimizes all windows or the first window of the currently active app</span>
+- Isolate Window
+	<span class="list-subtitle">Hide all other apps and minimize all other windows of the current app, leaving only the frontmost window visible</span>
+	<span class="list-description text-xs">It's like a turbocharged “Hide Others” — also minimizes your extra windows in the current app, so you see just the one you care about. Perfect for quickly clearing away distractions when you have many windows open.</span>
+- Get/Set Accent Color
+	<span class="list-subtitle">View or change the system accent color</span>
+	<span class="list-description text-xs">Also includes special iMac and MacBook Neo colors normally only accessible on these Macs.</span>
+- Toggle Dock Folder
+	<span class="list-subtitle">Expands or collapses a [folder in the Dock](https://support.apple.com/kk-kz/guide/mac-help/mchl231f08fb/mac), similar to manually clicking on it</span>
+	<span class="list-description text-xs">Tip: Add this to a shortcut and give it a keyboard shortcut to expand or collapse Dock folders from the keyboard.</span>
+- Get/Set Default Audio Device
+	<span class="list-subtitle">View or change the default audio input (microphone) or output (speaker)</span>
+- Get Details of Audio Device
+	<span class="list-subtitle">Returns comprehensive information about audio devices</span>
+	<span class="list-description text-xs">Includes volume, mute state, type, connection status, sample rates, manufacturer info, and more.</span>
+- Find Audio Device
+	<span class="list-subtitle">Returns all audio devices</span>
+	<span class="list-description text-xs">Includes comprehensive details about them.</span>
+- Get/Set Audio Device Mute State
+	<span class="list-subtitle">Control mute state of audio devices</span>
+- Get/Set Audio Device Volume
+	<span class="list-subtitle">Control volume level of audio devices</span>
+- Set Folder Color
+	<span class="list-subtitle">Change the color of folders</span>
+- Hide All Windows
+	<span class="list-subtitle">Instantly hides windows for all apps</span>
+- Minimize All Windows
+	<span class="list-subtitle">Minimizes all visible windows, with options to only affect the active app and exclude the frontmost window</span>
+- Quit All Apps
+	<span class="list-subtitle">Closes all running apps except menu bar apps</span>
+	<span class="list-description text-xs">Options to exclude apps, exclude frontmost app, and close Finder windows.</span>
+- Get Night Shift
+	<span class="list-subtitle">Returns whether Night Shift is currently enabled</span>
+- Get True Tone
+	<span class="list-subtitle">Returns whether True Tone is currently enabled</span>
+- Eject All Disks
+	<span class="list-subtitle">Safely unmounts all external drives (except excluded ones)</span>
+- Create Email with Files
+	<span class="list-subtitle">Creates a new email message in the default email app with the given files as attachments</span>
+	<span class="list-description text-xs">Works with Mail, Outlook, Spark, Mimestream, Airmail, Canary Mail, and maybe other apps. Not Thunderbird.</span>
+- Empty Trash
+	<span class="list-subtitle">Permanently deletes items in the trash</span>
+- Toggle Show Desktop
+	<span class="list-subtitle">Shows or hides the desktop by temporarily moving windows aside</span>
+- Toggle Mission Control
+	<span class="list-subtitle">Shows or hides [Mission Control](https://support.apple.com/guide/mac-help/view-open-windows-spaces-mission-control-mh35798/mac)</span>
+- Toggle App Exposé
+	<span class="list-subtitle">Shows or hides [App Exposé](https://www.oreilly.com/library/view/switching-to-the/9781449338978/ch04s11.html)</span>
+- Toggle Launchpad
+	<span class="list-subtitle">Shows or hides [Launchpad](https://support.apple.com/guide/mac-help/mh35840/mac)</span>
+- Toggle Spotlight
+	<span class="list-subtitle">Toggles Spotlight search, optionally navigating to a specific tab (like Clipboard History)</span>
+- Get Latest Screenshots
+	<span class="list-subtitle">Returns the most recent screenshots taken with the system screenshot tool</span>
+- Get/Set Screenshot Format
+	<span class="list-subtitle">View or change the file format used when saving screenshots</span>
+	<span class="list-description text-xs">Choose from PNG, JPG, TIFF, or HEIC.</span>
+- Get/Set Screenshot Location
+	<span class="list-subtitle">View or change the folder where screenshots are saved</span>
+- Get/Set Dock Position
+	<span class="list-subtitle">View or change the position of the Dock</span>
+	<span class="list-description text-xs">Changes take effect immediately.</span>
+- Get/Set Dock Auto-Hide
+	<span class="list-subtitle">View or change whether the Dock automatically hides and shows</span>
+- Get/Set Dock Minimize Effect
+	<span class="list-subtitle">View or change the animation used when minimizing windows</span>
+	<span class="list-description text-xs">Choose between Genie and Scale.</span>
+- Get/Set Desktop Icons Visibility
+	<span class="list-subtitle">Show, hide, or check visibility status of desktop icons</span>
+- Get/Set Desktop Widgets Visibility
+	<span class="list-subtitle">Show, hide, or check visibility status of desktop widgets</span>
+- Get/Set Function Keys Mode
+	<span class="list-subtitle">Toggle or check if F1-F12 keys operate as standard function keys or media keys</span>
+- Get/Set Hot Corner
+	<span class="list-subtitle">View or change the configuration for a system [hot corner](https://support.apple.com/guide/mac-help/mchlp3000/mac)</span>
+- Get/Set Keyboard Brightness
+	<span class="list-subtitle">View or change the keyboard backlight brightness level</span>
+	<span class="list-description text-xs">Only works on Macs with a built-in backlit keyboard.</span>
+- Get/Set Night Shift Color Temperature
+	<span class="list-subtitle">Control the [Night Shift](https://support.apple.com/en-us/102191) color temperature.</span>
+- Get/Set Network Location
+	<span class="list-subtitle">Switch between different [network configurations](https://support.apple.com/105129)</span>
+	<span class="list-description text-xs">Tip: You could automate switching based on certain conditions with the [Shortery](https://www.numberfive.co/detail_shortery.html) app.</span>
+- Get/Set DNS Servers
+	<span class="list-subtitle">View or change the DNS servers for a network interface</span>
+	<span class="list-description text-xs">Setting requires administrator authorization.</span>
+- Get/Set iOS Notifications Enabled
+	<span class="list-subtitle">Control whether notifications from your iOS device appear on your Mac</span>
+	<span class="list-description text-xs">Only works if your Mac supports notifications from iOS.</span>
+- Click Mouse Button
+	<span class="list-subtitle">Simulates a mouse click at the current mouse pointer position or a specific screen coordinate</span>
+	<span class="list-description text-xs">Supports left, right, or middle button; single, double, or triple click; and optional modifier key override.</span>
+- Get/Set Mouse Position
+	<span class="list-subtitle">Get the current mouse pointer position or move the mouse pointer to specific screen coordinates</span>
+- Center Mouse Pointer
+	<span class="list-subtitle">Centers the mouse pointer on the primary display</span>
+- Get/Set Mouse Pointer Visibility
+	<span class="list-subtitle">Get or set the visibility of the mouse pointer</span>
+	<span class="list-description text-xs">By default, it reappears on mouse movement.</span>
+- Get/Set Natural Scrolling
+	<span class="list-subtitle">View or change whether natural (trackpad-style) scrolling is enabled</span>
+- Invert Selection in Finder
+	<span class="list-subtitle">Inverts the current selection in Finder</span>
+	<span class="list-description text-xs">Deselects what's currently selected and selects everything that wasn't selected. Only works when Finder is the active app.</span>
+- Create New Text File in Finder
+	<span class="list-subtitle">Creates a new text file in the current Finder location</span>
+	<span class="list-description text-xs">The file will be created in the frontmost Finder window's current location and will be ready for you to rename.</span>
+- Toggle Hidden Files in Finder
+	<span class="list-subtitle">Shows or hides hidden files in Finder</span>
+	<span class="list-description text-xs">Toggles the visibility of files that start with a dot (.) and other hidden system files. This is a temporary toggle that affects the current Finder session. The setting will revert when Finder is restarted.</span>
+- Get/Set App Desktop Assignment
+	<span class="list-subtitle">View or change which desktop an app is assigned to</span>
+	<span class="list-description text-xs">This mirrors the Dock "Assign To" context menu item.</span>
+- Get Slack Workspace
+	<span class="list-subtitle">Gets the name of the current Slack workspace</span>
+- Clear Recent Lists
+	<span class="list-subtitle">Clears recent items (files, apps, and servers) from menus</span>
+- Open System Setting
+	<span class="list-subtitle">Opens Hide My Email, Private Relay, VPN & Filters, or Apple Account Subscriptions settings directly</span>
+- Get/Set Finder New Window Target
+	<span class="list-subtitle">Gets or sets the default folder that opens when creating new Finder windows</span>
+- Sleep Displays
+	<span class="list-subtitle">Puts all displays to sleep immediately</span>
+	<span class="list-description text-xs">The Mac itself stays awake, only the displays go to sleep.</span>
+- Switch Space
+	<span class="list-subtitle">Switches to the next or previous Space without the macOS slide animation</span>
+- Clear Clipboard
+	<span class="list-subtitle">Clears all contents from the system clipboard</span>
+- Get Apps Using Secure Input
+	<span class="list-subtitle">Secure Input prevents other apps from reading keystrokes when typing passwords. Sometimes apps don't properly disable it, causing keyboard shortcuts to stop working. This can find such apps.</span>
+
+<!-- - Show Poof Animation
+	<span class="list-subtitle">Shows the classic macOS [poof animation](https://substack.techreflect.org/p/origin-on-macos-cloud-poof-animation) at the mouse pointer or a specified location</span> -->
+
+<!-- - Get/Set Pointer Size
+<span class="list-subtitle">View or change the system-wide mouse pointer size</span> -->
+
+## Tips {#tips}
+
+### Sharing shortcuts that use Shortcutie
+
+Add a warning at the start of the shortcut to install the app if not installed. [Example](https://www.icloud.com/shortcuts/e31f8ce26d36405ca6d6aca0b2350d8f)
+
+## Frequently Asked Questions {#faq}
+
+#### The actions don't show up in the Shortcuts app {#troubleshooting}
+
+This is caused by a macOS bug.
+
+Some things you could try:
+
+1. Restart your device.
+1. Add [this shortcut](https://www.icloud.com/shortcuts/29943b986f934d9da5018853d4e2cc40), run it once, relaunch the Shortcuts app, and see if the actions show up in the Shortcuts app after that.
+1. Change the device language to something else and back.
+1. Remove the app, install it again, and restart your device.
+
+#### I get a “errorDomain error 2” error when running an action
+
+Same solution as above.
+
+#### Why is this not in the App Store?
+
+Much of the functionality would not be possible in the App Store because of [sandboxing](/apps/faq#macos-sandbox).
+
+#### Why is this paid when your Actions app is free?
+
+Unlike Actions, which uses public APIs, Shortcutie relies on many private APIs that require constant maintenance as macOS evolves. The app targets power users who value these advanced capabilities, and the pricing helps ensure sustainable development while keeping the support burden manageable.
+
+#### Can I have this installed together with the Actions app?
+
+Yes, they are complementary.
+
+#### Can you support iOS?
+
+No. The app relies on macOS-specific system features that aren't available on iOS and requires capabilities outside of App Store restrictions. Check out [Actions](/actions) for iOS shortcuts functionality.
+
+#### Do I need to keep the app running for the actions to work?
+
+No, once installed, the app's actions are always available to the Shortcuts app.
+
+#### I can already do some of these actions with AppleScript and the command-line, why use this app?
+
+Yes, but the app packages these capabilities into maintained, ready-to-use actions that integrate perfectly with Shortcuts. This lets you focus on building workflows instead of writing and maintaining scripts.
+
+#### How is the “Quit All Apps” action better than the built-in “Quit App” action? {#quit-all-apps-vs-builtin}
+
+The action can exclude the frontmost app and also close Finder windows.
+
+#### What’s up with the app icon?
+
+A bit of whimsy makes software more human and approachable. Even Apple uses a smiling Finder icon to this day. Good software can be both powerful and fun. And since the icon is only visible in the App Store and as a tiny icon in Shortcuts, its design has minimal impact on the actual utility of the app.
+
+#### Shortcutie and Supercharge seem to have some of the same actions for Shortcuts {#supercharge}
+
+There is [some overlap](/supercharge#shortcutie), but Shortcutie includes many more actions. Supercharge only includes actions for its own features.
+
+## Older Versions
+
+- [1.5.0](https://www.dropbox.com/scl/fi/1nny73fqfa423v87vz0q6/Shortcutie-1.5.0-macOS-15-1770752068.zip?rlkey=3fxry52nv7nflmc60r4leqlfm&raw=1) for macOS 15
+
+These are free for everyone but they will not run on newer macOS versions.

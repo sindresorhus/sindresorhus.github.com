@@ -6,8 +6,10 @@ The feedback page shows relevant FAQ links as the user types their message.
 
 ### Data sources
 
-- **General FAQs** — a curated subset of `source/pages/apps/faq.md` headings, filtered by slug via `feedbackFaqSlugs` in `feedback.astro`.
-- **App-specific FAQs** — all FAQ headings from the selected app's markdown file (via `?product=` URL param), passed through `faqHeadings` in `apps.js`.
+- **General FAQs** — a curated subset of `content/pages/apps/faq.md` headings, filtered by slug via `generalFAQSlugs` in `Sources/Website/Pages/FeedbackPage.swift`.
+- **App-specific FAQs** — all FAQ headings from the selected app's markdown file (via `?product=` URL param), passed through `faqHeadings` in `FeedbackPage.swift`.
+
+Both are embedded in the page as JSON (`#feedback-data`) and read by `public/scripts/feedback.js`.
 
 ### Heading metadata (`<!-- @namespace.attribute value -->`)
 
@@ -19,17 +21,16 @@ Any markdown heading with a `{#id}` can be annotated with directives on the line
 <!-- @faq.platforms macOS -->
 ```
 
-- Parsed by the `remarkHeadingMeta` plugin (`source/utils/remark-heading-meta.js`), which runs after `remarkCustomHeaderId` so heading IDs are already set.
-- Injected into `file.data.astro.frontmatter.headingMeta` and accessed in `feedback.astro` as `faqMd.frontmatter.headingMeta`.
+- Parsed by `HeadingDirectives` in `Sources/SiteKit/Markdown/MarkdownDocument.swift` and available as `heading.directives["faq.keywords"]`.
 - Values are always arrays (split on whitespace).
-- Multiple directives per heading work by looking back past consecutive `<!-- @... -->` nodes to find the owning heading.
+- A heading can have several directives, one per line, directly below it.
 - The `@faq.` namespace is consumed by the feedback page. Other namespaces can be added for future uses.
 
 **`@faq.keywords`** — extra words that make a FAQ matchable by queries that don't use the same words as the heading text.
 
 **`@faq.platforms`** — restricts the FAQ to apps that support at least one of these platforms. FAQs without this annotation are shown for all apps.
 
-### Matching algorithm (`feedback.astro`, second `<script>` block)
+### Matching algorithm (`public/scripts/feedback.js`)
 
 1. **Tokenize** — lowercase, strip apostrophes, extract words ≥4 chars, filter stopwords.
 2. **Score** — TF-IDF: each query word that matches a FAQ word (exact or prefix) adds `log((n+1)/(df+1))` to the FAQ's score. Rare words score higher.
@@ -41,7 +42,7 @@ Any markdown heading with a `{#id}` can be annotated with directives on the line
 
 ### Synonyms
 
-**General synonyms** (e.g. `icloud` ↔ `sync`) live in the `SYNONYMS` map in `feedback.astro`. They expand FAQ words so cross-term matches work both ways.
+**General synonyms** (e.g. `icloud` ↔ `sync`) live in the `SYNONYMS` map in `public/scripts/feedback.js`. They expand FAQ words so cross-term matches work both ways.
 
 Do **not** use `@faq.keywords` for synonyms — keywords are for *additional match terms specific to one FAQ*. Synonyms express a relationship between two concepts that applies across all FAQs mentioning either term.
 

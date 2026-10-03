@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *' # Every night at midnight UTC, for new App Store data and releases.
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.compare.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The full history gives the sitemap the date each page last changed.
+          fetch-depth: 0
+      - name: Select Xcode
+        run: sudo xcode-select --switch "$(ls -d /Applications/Xcode_27*.app | sort -V | tail -n 1)"
+      - name: Swift version
+        run: swift --version
+      - uses: actions/cache@v5
+        with:
+          # The build, the package checkouts with the prebuilt swift-syntax, and the App Store and GitHub responses, which are revalidated with ETags.
+          path: |
+            .build
+            .cache/responses
+          key: build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-${{ github.sha }}
+          restore-keys: build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-
+      - name: Check browser script syntax
+        run: |
+          for file in public/scripts/*.js public/apps/*/*.js; do
+            node --check "$file"
+          done
+      # Debug, like the tests, so one build serves both. A release build takes 8–10 s longer to compile on CI and saves only about 1 s when building the site. Keep it debug.
+      - name: Build
+        run: swift build --build-tests -Xswiftc -Xfrontend -Xswiftc -warn-long-expression-type-checking=200
+      - name: Test
+        run: swift test --skip-build
+      - name: Build site
+        env:
+          # Authenticated requests have a much higher GitHub API rate limit.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: swift run --skip-build website build
+      # A deploy is skipped when the site is the same as the published one. The related apps rotate daily, so the nightly build changes the app pages once a day.
+      - name: Compare with the published site
+        id: compare
+        run: |
+          hash="$(cd dist && find . -type f -print0 | sort -z | xargs -0 shasum -a 256 | shasum -a 256 | cut -d ' ' -f 1)"
+          echo "$hash" > dist/build-hash.txt
+          published="$(curl --fail --silent --location https://sindresorhus.com/build-hash.txt || true)"
+          if [ "$hash" = "$published" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/upload-pages-artifact@v5
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && steps.compare.outputs.changed == 'true'
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.build.outputs.changed == 'true'
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    permissions:
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+      # Cloudflare caches the HTML (see the readme), so the cache is purged after a deploy. Skipped when the secrets are not set.
+      - name: Purge the Cloudflare cache
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ZONE_ID != ''
+        run: |
+          curl --fail --silent --show-error --request POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" \
+            --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data '{"purge_everything":true}'

@@ -1,8 +1,5 @@
-node_modules
-yarn.lock
 /dist
-/.output
+/.build
+/.cache
 *.sublime-project
 *.sublime-workspace
-.astro
-.cache
