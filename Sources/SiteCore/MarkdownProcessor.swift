@@ -399,8 +399,18 @@ public enum MarkdownProcessor {
 			options: .regularExpression
 		)
 		text = text.replacingOccurrences(
-			of: #"(?<!\\)(?:\*\*|__|\*|_|~~)"#,
+			of: #"(?<!\\)(?:\*\*|~~|\*)"#,
 			with: "",
+			options: .regularExpression
+		)
+		text = text.replacingOccurrences(
+			of: #"(?<![A-Za-z0-9])__([^_\n]+)__(?![A-Za-z0-9])"#,
+			with: "$1",
+			options: .regularExpression
+		)
+		text = text.replacingOccurrences(
+			of: #"(?<![A-Za-z0-9])_([^_\n]+)_(?![A-Za-z0-9])"#,
+			with: "$1",
 			options: .regularExpression
 		)
 		text = text.replacingOccurrences(
