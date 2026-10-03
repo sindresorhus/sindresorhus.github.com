@@ -42,7 +42,7 @@ public struct SiteBuilder: Sendable {
 			FeedsPage(apps: apps.filter { !$0.isArchived })
 		}
 		try writeHTML("/apps/random", metadata: .init(title: "Random App — Sindre Sorhus", noindex: true), routes: &routes) { RandomAppPage(slugs: visibleApps.map(\.slug)) }
-		try writeHTML("/404", metadata: .init(title: "Error 404 — Sindre Sorhus", noindex: true), routes: &routes) { NotFoundPage() }
+		try writeHTML("/404", metadata: .init(title: "Error 404 — Sindre Sorhus"), routes: &routes) { NotFoundPage() }
 
 		try buildAppCategories(apps: apps, routes: &routes)
 		try buildMarkdownPages(markdownPages, routes: &routes)
@@ -203,7 +203,7 @@ public struct SiteBuilder: Sendable {
 
 	private func writeRedirect(_ route: String, to destination: String, routes: inout Set<String>) throws {
 		guard routes.insert(route).inserted else { throw BuildError.duplicateRoute(route) }
-		let html = #"<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=\#(destination)"><link rel="canonical" href="\#(SiteConfiguration.origin)\#(destination)"><title>Redirecting…</title><a href="\#(destination)">Redirecting…</a>"#
+		let html = #"<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0;url=\#(destination)"><link rel="canonical" href="\#(SiteConfiguration.origin)\#(destination)"><title>Redirecting to: \#(destination)</title><a href="\#(destination)">Redirecting…</a>"#
 		try writeFile(route: route, extension: "html", contents: html)
 	}
 
