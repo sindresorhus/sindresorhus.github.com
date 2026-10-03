@@ -17,3 +17,15 @@ The migration keeps the existing Markdown content and public assets as source-of
 - [ ] Pass automated Astro-vs-Swift HTML/XML/OG route parity, then compare representative generated HTML/metadata.
 - [ ] Remove Astro/Tailwind/npm files and replace deploy workflow.
 - [ ] Final validation and merge-ready PR.
+
+## Post-parity architecture passes
+
+After functional and visual parity is green:
+
+- [ ] Add a lightweight content-collection abstraction, inspired by Astro but simpler, so apps, blog posts, and future collections share loading, filtering, sorting, validation, routing, and rendering infrastructure.
+- [ ] Add proper shared layouts so page chrome, simple content pages, blog pages, and app pages compose common layout primitives instead of repeating document structure.
+- [ ] Extract reusable site components where the same UI or behavior appears in multiple places.
+- [ ] Extract RSS generation into a proper general-purpose Swift subpackage with typed channels/items, namespaces, escaping, dates, validation, and reusable feed rendering.
+- [ ] Make the public APIs more Swift-native: stronger types, better naming, result builders where they improve clarity, value semantics, protocol-based composition where useful, and fewer stringly-typed escape hatches.
+- [ ] Do multiple dedicated refactoring passes after parity: generalize repeated patterns, simplify control flow and models, remove accidental abstractions, reduce duplication, and DRY up the implementation without sacrificing readability or direct access to HTML/CSS.
+
