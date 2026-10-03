@@ -523,7 +523,35 @@ public struct FeedbackPage: HTML {
 	}
 
 	private var feedbackDataScript: String {
-		let appData = apps.map { app -> [String: Any] in ["title":app.title,"url":app.url,"iconUrl":app.iconURL,"repoUrl":app.repositoryURL as Any,"hasFaqSection":app.hasFAQSection,"faqHeadings":app.faqHeadings.map { ["text":$0.text,"slug":$0.slug,"keywords":$0.metadata.keywords,"platforms":$0.metadata.platforms] },"feedbackNote":app.feedbackNote as Any,"platforms":app.platforms.map(\.rawValue)] }
+		let appData = apps.map { app -> [String: Any] in
+			var object: [String: Any] = [
+				"title": app.title,
+				"url": app.url,
+				"iconUrl": app.iconURL,
+				"hasFaqSection": app.hasFAQSection,
+				"platforms": app.platforms.map(\.rawValue),
+				"faqHeadings": app.faqHeadings.map { heading in
+					var headingObject: [String: Any] = [
+						"text": heading.text,
+						"slug": heading.slug,
+					]
+					if !heading.metadata.keywords.isEmpty {
+						headingObject["keywords"] = heading.metadata.keywords
+					}
+					if !heading.metadata.platforms.isEmpty {
+						headingObject["platforms"] = heading.metadata.platforms
+					}
+					return headingObject
+				},
+			]
+			if let repositoryURL = app.repositoryURL {
+				object["repoUrl"] = repositoryURL
+			}
+			if let feedbackNote = app.feedbackNote {
+				object["feedbackNote"] = MarkdownProcessor.process(feedbackNote).html
+			}
+			return object
+		}
 		return JSONUtilities.dataScript(id:"feedback-data", ["apps":appData,"generalFaqs":generalFAQs])
 	}
 }
