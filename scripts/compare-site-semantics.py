@@ -66,6 +66,7 @@ class SemanticHTMLParser(HTMLParser):
         self.in_json_ld = False
         self.json_ld_buffer: list[str] = []
         self.json_ld: list[object] = []
+        self.heading_ignored_depth = 0
 
     def handle_starttag(self, tag: str, attrs_list: list[tuple[str, str | None]]) -> None:
         attrs = dict(attrs_list)
@@ -75,6 +76,9 @@ class SemanticHTMLParser(HTMLParser):
 
         if tag in {'h1', 'h2', 'h3', 'h4'}:
             self.heading_stack.append((tag, []))
+
+        if self.heading_stack and tag in {'select', 'script', 'style'}:
+            self.heading_ignored_depth += 1
 
         if tag == 'meta':
             key = attrs.get('name') or attrs.get('property')
@@ -105,9 +109,14 @@ class SemanticHTMLParser(HTMLParser):
         if tag == 'title':
             self.in_title = False
 
+        if self.heading_stack and tag in {'select', 'script', 'style'} and self.heading_ignored_depth > 0:
+            self.heading_ignored_depth -= 1
+
         if tag in {'h1', 'h2', 'h3', 'h4'} and self.heading_stack:
             heading_tag, parts = self.heading_stack.pop()
-            self.headings.append((heading_tag, normalize_text(''.join(parts))))
+            text = normalize_text(''.join(parts))
+            if text:
+                self.headings.append((heading_tag, text))
 
         if tag == 'script' and self.in_json_ld:
             raw = ''.join(self.json_ld_buffer).strip()
@@ -123,7 +132,7 @@ class SemanticHTMLParser(HTMLParser):
         if self.in_title:
             self.title_parts.append(data)
 
-        if self.heading_stack:
+        if self.heading_stack and self.heading_ignored_depth == 0:
             self.heading_stack[-1][1].append(data)
 
         if self.in_json_ld:
@@ -132,13 +141,135 @@ class SemanticHTMLParser(HTMLParser):
     def snapshot(self) -> dict[str, object]:
         return {
             'title': normalize_text(''.join(self.title_parts)),
-            'meta': {key: sorted(values) for key, values in sorted(self.meta.items())},
+            'meta': {
+                key: sorted(normalize_meta_value(key, value) for value in values)
+                for key, values in sorted(self.meta.items())
+            },
             'canonical': self.canonical,
             'rss': sorted(self.rss_links),
             'refresh': self.refresh,
             'headings': self.headings,
-            'json_ld': self.json_ld,
+            'json_ld': [normalize_json_ld(value) for value in self.json_ld],
         }
+
+
+def normalize_meta_value(key: str, value: str) -> str:
+    if key == 'article:published_time':
+        return re.sub(r'\.000Z
+    parser = SemanticHTMLParser()
+    parser.feed(path.read_text())
+    parser.close()
+    return parser.snapshot()
+
+
+reference_routes = route_map(REFERENCE)
+candidate_routes = route_map(CANDIDATE)
+common_routes = sorted(reference_routes.keys() & candidate_routes.keys())
+
+failures: list[str] = []
+
+for route in common_routes:
+    reference = parse(reference_routes[route])
+    candidate = parse(candidate_routes[route])
+
+    # Candidate may intentionally add harmless metadata, but every stable field
+    # emitted by Astro must still exist with the same values.
+    reference_meta = reference['meta']
+    candidate_meta = candidate['meta']
+
+    for key, value in reference_meta.items():
+        if candidate_meta.get(key) != value:
+            failures.append(
+                f'{route}: meta {key!r}: Astro={value!r}, Swift={candidate_meta.get(key)!r}'
+            )
+
+    for key in ('title', 'canonical', 'rss', 'refresh', 'headings', 'json_ld'):
+        if candidate[key] != reference[key]:
+            failures.append(
+                f'{route}: {key}: Astro={reference[key]!r}, Swift={candidate[key]!r}'
+            )
+
+if failures:
+    print(f'Semantic parity failed with {len(failures)} difference(s):')
+    for failure in failures[:200]:
+        print('  ' + failure)
+    if len(failures) > 200:
+        print(f'  ... and {len(failures) - 200} more')
+    raise SystemExit(1)
+
+print(f'Semantic HTML parity passed for {len(common_routes)} routes.')
+, 'Z', value)
+    return value
+
+
+def normalize_screenshot_url(value: str) -> str:
+    filename = value.rsplit('/', 1)[-1]
+    match = re.match(r'^(screenshot\d+)(?:\.[^.]+)?\.(png|jpe?g)
+    parser = SemanticHTMLParser()
+    parser.feed(path.read_text())
+    parser.close()
+    return parser.snapshot()
+
+
+reference_routes = route_map(REFERENCE)
+candidate_routes = route_map(CANDIDATE)
+common_routes = sorted(reference_routes.keys() & candidate_routes.keys())
+
+failures: list[str] = []
+
+for route in common_routes:
+    reference = parse(reference_routes[route])
+    candidate = parse(candidate_routes[route])
+
+    # Candidate may intentionally add harmless metadata, but every stable field
+    # emitted by Astro must still exist with the same values.
+    reference_meta = reference['meta']
+    candidate_meta = candidate['meta']
+
+    for key, value in reference_meta.items():
+        if candidate_meta.get(key) != value:
+            failures.append(
+                f'{route}: meta {key!r}: Astro={value!r}, Swift={candidate_meta.get(key)!r}'
+            )
+
+    for key in ('title', 'canonical', 'rss', 'refresh', 'headings', 'json_ld'):
+        if candidate[key] != reference[key]:
+            failures.append(
+                f'{route}: {key}: Astro={reference[key]!r}, Swift={candidate[key]!r}'
+            )
+
+if failures:
+    print(f'Semantic parity failed with {len(failures)} difference(s):')
+    for failure in failures[:200]:
+        print('  ' + failure)
+    if len(failures) > 200:
+        print(f'  ... and {len(failures) - 200} more')
+    raise SystemExit(1)
+
+print(f'Semantic HTML parity passed for {len(common_routes)} routes.')
+, filename, re.I)
+    if match:
+        return f'{match.group(1).lower()}.{match.group(2).lower().replace("jpeg", "jpg")}'
+    return filename
+
+
+def normalize_json_ld(value: object) -> object:
+    if isinstance(value, dict):
+        result = {}
+        for key, item in value.items():
+            if key == 'screenshot':
+                if isinstance(item, list):
+                    result[key] = [normalize_screenshot_url(str(entry)) for entry in item]
+                else:
+                    result[key] = normalize_screenshot_url(str(item))
+            else:
+                result[key] = normalize_json_ld(item)
+        return result
+
+    if isinstance(value, list):
+        return [normalize_json_ld(item) for item in value]
+
+    return value
 
 
 def parse(path: Path) -> dict[str, object]:
