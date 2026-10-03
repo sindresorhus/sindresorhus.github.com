@@ -238,13 +238,33 @@ public struct AppDetailPage: HTML {
 			"name": app.title, "operatingSystem": app.platforms.map(\.rawValue).joined(separator: ", "),
 			"datePublished": TextUtilities.isoDate(app.publicationDate), "description": app.description,
 			"url": SiteConfiguration.origin + app.url, "image": SiteConfiguration.origin + app.iconURL,
-			"author": ["@type":"Person", "givenName":"Sindre", "familyName":"Sorhus", "url":SiteConfiguration.origin]
+			"author": [
+				"@type": "Person",
+				"givenName": "Sindre",
+				"familyName": "Sorhus",
+				"url": SiteConfiguration.origin,
+				"sameAs": [
+					"https://github.com/sindresorhus",
+					"https://x.com/sindresorhus",
+					"https://mastodon.social/@sindresorhus",
+					"https://bsky.app/profile/sindresorhus.com",
+				],
+			]
 		]
 		if !app.media.isEmpty { object["screenshot"] = app.media.filter { !$0.path.hasSuffix(".mp4") }.map { SiteConfiguration.origin + $0.path } }
 		if let info = appStoreInfo, let appStoreURL = app.appStoreURL {
 			object["downloadUrl"] = appStoreURL
 			object["softwareVersion"] = info.version
-			if let price = info.price, let currency = info.currency { object["offers"] = ["@type":"Offer", "availability":"https://schema.org/InStock", "url":appStoreURL, "price":price, "priceCurrency":currency] }
+			if let price = info.price, let currency = info.currency {
+				object["offers"] = [
+					"@type": "Offer",
+					"availability": "https://schema.org/InStock",
+					"url": appStoreURL,
+					"seller": ["@type": "Person", "name": "Sindre Sorhus"],
+					"price": price,
+					"priceCurrency": currency,
+				]
+			}
 			if let count = info.userRatingCount, count > 0, let rating = info.averageUserRating { object["aggregateRating"] = ["@type":"AggregateRating", "ratingValue":round(rating * 10) / 10, "ratingCount":count] }
 		}
 		return JSONUtilities.script(object)
