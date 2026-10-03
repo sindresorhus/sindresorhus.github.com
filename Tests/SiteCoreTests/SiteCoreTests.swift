@@ -45,3 +45,11 @@ import Testing
 	#expect(metadata?.keywords == ["open", "launch"])
 	#expect(metadata?.platforms == [])
 }
+
+
+@Test func markdownIntroductionIgnoresOnlyHTMLComments() {
+	#expect(MarkdownProcessor.process("<!-- Hidden. -->\n\nVisible.").introduction == "Visible.")
+	#expect(MarkdownProcessor.process("<br>\n\nParagraph.").introduction == nil)
+	#expect(MarkdownProcessor.process("## Heading\n\nParagraph.").introduction == nil)
+	#expect(MarkdownProcessor.process("![Screenshot](screenshot.png)\n\nParagraph.").introduction == nil)
+}
