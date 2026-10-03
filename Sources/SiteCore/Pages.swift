@@ -133,6 +133,12 @@ public struct AppDetailPage: HTML {
 					img(.id("app-icon"), .src(app.iconURL), .alt("\(app.title) app icon"), .width(256), .height(256), .class("app-icon"))
 					h1(.class("app-title"), .custom(name: "itemprop", value: "name")) { app.title }
 					h2(.class("app-subtitle"), .custom(name: "itemprop", value: "description")) { app.subtitle }
+					div(.id("another-random-app"), .class("another-random-app")) {
+						a(.href("/apps/random"), .class("another-random-app-button")) {
+							Icon(name: .shuffle)
+							"Another Random App"
+						}
+					}
 					if app.isArchived { span(.class("tag")) { "archived" } }
 					DownloadOptions(app: app)
 					if let downloads = app.downloads { p { strong { formatDownloads(downloads) }; " downloads" } }
@@ -144,8 +150,10 @@ public struct AppDetailPage: HTML {
 				if !app.pressQuotes.isEmpty { PressQuotesView(quotes: app.pressQuotes) }
 				div(.class("prose content-container")) { HTMLRaw(app.markdown.html) }
 				RelatedApps(currentApp: app, apps: allApps)
+				AppOverflowFooter(app: app)
 			}
 		}
+		AppSecondaryNav(app: app)
 		HTMLRaw(structuredData)
 		HTMLRaw(appPageData)
 		script(.src("/scripts/app.js"), .type(.module)) {}
@@ -187,11 +195,26 @@ private struct DownloadOptions: HTML {
 	let app: App
 	var body: some HTML {
 		let links = app.resolvedMainLinks
-		if !app.isArchived && (app.appStoreID != nil || app.setappID != nil || !links.isEmpty) {
+		if app.appStoreID != nil || app.setappID != nil || !links.isEmpty {
 			nav(.class("download-options"), .custom(name: "aria-label", value: "Download options")) {
-				if let url = app.appStoreURL { a(.href(url), .class("download-badge")) { img(.src("/assets/download-on-app-store-badge.svg"), .alt("Download on the App Store"), .custom(name:"style", value:"height:60px")) } }
-				if let url = app.setappURL { a(.href(url), .class("download-badge")) { img(.src("/assets/download-on-setapp-badge.svg"), .alt("Download on Setapp"), .custom(name:"style", value:"height:60px")) } }
-				for link in links { a(.href(link.1), .class("download-badge custom-download-button")) { link.0 } }
+				if !app.isArchived, let url = app.appStoreURL {
+					div(.class("app-store-download download-badge")) {
+						button(.id("share-button"), .class("share-button"), .type(.button), .custom(name: "aria-label", value: "Share \(app.title)")) {
+							Icon(name: .share)
+						}
+						a(.href(url)) {
+							img(.src("/assets/download-on-app-store-badge.svg"), .alt("Download on the App Store"), .custom(name:"style", value:"height:60px"))
+						}
+					}
+				}
+				if !app.isArchived, let url = app.setappURL {
+					a(.href(url), .class("download-badge")) {
+						img(.src("/assets/download-on-setapp-badge.svg"), .alt("Download on Setapp"), .custom(name:"style", value:"height:60px"))
+					}
+				}
+				for link in links {
+					a(.href(link.1), .class("download-badge custom-download-button")) { link.0 }
+				}
 			}
 		}
 	}
@@ -203,7 +226,7 @@ private struct AppLinks: HTML {
 		if !app.resolvedLinks.isEmpty {
 			nav(.class("app-links"), .custom(name:"aria-label", value:"App links")) {
 				for link in app.resolvedLinks { a(.href(link.1)) { link.0 } }
-				OverflowMenu(items: app.resolvedOverflowLinks + [("Show Random App", "/apps/random")])
+				OverflowMenu(items: app.pageOverflowLinks + [("Show Random App", "/apps/random")])
 			}
 		}
 	}
@@ -236,17 +259,79 @@ private struct AnnouncementView: HTML {
 private struct AppMedia: HTML {
 	let app: App
 	var body: some HTML {
-		section(.id("app-media"), .class("app-media"), .custom(name:"aria-label", value:"App media")) {
-			for asset in app.media {
-				div(.class("app-media-item")) {
-					if asset.path.hasSuffix(".mp4") {
-						video(.src(asset.path), .width(asset.width), .height(asset.height), .custom(name:"autoplay"), .custom(name:"loop"), .custom(name:"muted"), .custom(name:"playsinline"), .custom(name:"preload", value:"metadata"), .custom(name:"aria-label", value:"\(app.title) demo video")) {}
+		div(.class("app-media-carousel")) {
+			section(.id("app-media"), .class("app-media"), .custom(name:"aria-label", value:"App media")) {
+				for (index, asset) in app.media.enumerated() {
+					div(.class("app-media-item")) {
+						if asset.path.hasSuffix(".mp4") {
+							video(.src(asset.path), .width(asset.width), .height(asset.height), .custom(name:"autoplay"), .custom(name:"loop"), .custom(name:"muted"), .custom(name:"playsinline"), .custom(name:"preload", value:"metadata"), .custom(name:"aria-label", value:"\(app.title) demo video")) {}
+						} else {
+							img(.src(asset.path), .width(asset.width), .height(asset.height), .alt("\(app.title) screenshot \(index + 1)"), .custom(name:"loading", value:"lazy"))
+						}
+					}
+				}
+			}
+			button(.class("media-control media-prev"), .type(.button), .custom(name:"aria-label", value:"Previous screenshot")) {
+				Icon(name: .arrowLeft)
+			}
+			button(.class("media-control media-next"), .type(.button), .custom(name:"aria-label", value:"Next screenshot")) {
+				Icon(name: .arrowRight)
+			}
+		}
+	}
+}
+
+private struct AppOverflowFooter: HTML {
+	let app: App
+	var body: some HTML {
+		nav(.class("app-overflow-footer"), .custom(name: "aria-label", value: "More about \(app.title)")) {
+			for item in app.pageOverflowLinks {
+				a(.href(item.1)) { item.0 }
+			}
+		}
+	}
+}
+
+private struct AppSecondaryNav: HTML {
+	let app: App
+
+	var body: some HTML {
+		div(
+			.id("app-nav-content"),
+			.class("app-secondary-nav"),
+			.custom(name: "style", value: "filter:opacity(0);pointer-events:none"),
+			.custom(name: "inert")
+		) {
+			a(.href(app.url), .class("app-secondary-identity"), .custom(name: "aria-label", value: app.title)) {
+				img(.src(app.iconURL), .width(32), .height(32), .alt(""))
+				span { app.title }
+			}
+			nav(.class("app-secondary-links")) {
+				for link in app.resolvedLinks {
+					a(.href(link.1)) { link.0 }
+				}
+				OverflowMenu(items: app.pageOverflowLinks + [("Show Random App", "/apps/random")])
+				if !app.isArchived && !providerURLs.isEmpty {
+					if let downloadURL {
+						a(.href(downloadURL), .class("app-get-button")) { "Get" }
 					} else {
-						img(.src(asset.path), .width(asset.width), .height(asset.height), .alt("\(app.title) screenshot"), .custom(name:"loading", value:"lazy"))
+						button(.type(.button), .class("app-get-button"), .custom(name: "onclick", value: "window.scrollTo({top:0})")) { "Get" }
 					}
 				}
 			}
 		}
+	}
+
+	private var providerURLs: [String] {
+		var urls: [String] = []
+		if let appStoreURL = app.appStoreURL { urls.append(appStoreURL) }
+		if let setappURL = app.setappURL { urls.append(setappURL) }
+		urls.append(contentsOf: app.resolvedMainLinks.map(\.1))
+		return urls
+	}
+
+	private var downloadURL: String? {
+		providerURLs.count == 1 ? providerURLs[0] : nil
 	}
 }
 
