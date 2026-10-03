@@ -26,6 +26,7 @@ public struct SiteBuilder: Sendable {
 
 		try resetOutput()
 		try copyPublicAssets()
+		try OGImageGenerator.generate(apps: apps, root: root, output: output)
 		var routes = Set<String>()
 
 		try writeHTML("/", metadata: .init(title: SiteConfiguration.name, description: SiteConfiguration.description), routes: &routes) { HomePage() }
