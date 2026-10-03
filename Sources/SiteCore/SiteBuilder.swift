@@ -38,7 +38,9 @@ public struct SiteBuilder: Sendable {
 		try writeHTML("/contact", metadata: .init(title: "Contact — Sindre Sorhus", description: "How to contact Sindre Sorhus."), routes: &routes) { ContactPage() }
 		let feedbackFAQs = generalFeedbackFAQs(from: markdownPages)
 		try writeHTML("/feedback", metadata: .init(title: "Feedback & Support — Sindre Sorhus", description: "Send feedback, report a bug, or get support for apps by Sindre Sorhus."), extraHeadHTML: #"<link rel="preconnect" href="https://formcarry.com">"#, routes: &routes) { FeedbackPage(apps: apps.filter { !$0.isArchived }, generalFAQs: feedbackFAQs) }
-		try writeHTML("/feeds", metadata: .init(title: "RSS Feeds — Sindre Sorhus", description: "RSS feeds for the blog, new apps, new repos, and app release notes by Sindre Sorhus."), routes: &routes) { FeedsPage(apps: apps) }
+		try writeHTML("/feeds", metadata: .init(title: "RSS Feeds — Sindre Sorhus", description: "RSS feeds for the blog, new apps, new repos, and app release notes by Sindre Sorhus."), routes: &routes) {
+			FeedsPage(apps: apps.filter { !$0.isArchived })
+		}
 		try writeHTML("/apps/random", metadata: .init(title: "Random App — Sindre Sorhus", noindex: true), routes: &routes) { RandomAppPage(slugs: visibleApps.map(\.slug)) }
 		try writeHTML("/404", metadata: .init(title: "Error 404 — Sindre Sorhus", noindex: true), routes: &routes) { NotFoundPage() }
 
