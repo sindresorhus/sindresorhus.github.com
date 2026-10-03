@@ -35,9 +35,9 @@ public struct AppsIndexPage: HTML {
 	public var body: some HTML {
 		div(.class("page-container")) {
 			header(.class("apps-hero")) {
-				div(.class("apps-title-row")) {
-					h1(.class("apps-title")) {
-						"Quality Crafted "
+				h1(.class("apps-title")) {
+					span(.class("apps-title-copy")) {
+						span { "Quality Crafted" }
 						span(.class("gradient-text")) { "Apps" }
 					}
 					AppsExtraMenu(groups: extras)
@@ -131,7 +131,7 @@ public struct AppCard: HTML {
 		a(.href(app.url), .class("app-card"), .data("slug", value: app.slug)) {
 			img(.src(app.iconURL), .alt("\(app.title) app icon"), .width(128), .height(128), .custom(name: "loading", value: "lazy"), .class("app-card-icon"))
 			div {
-				h2(.class("app-card-title")) { app.title }
+				div(.class("app-card-title")) { app.title }
 				p(.class("app-card-subtitle")) { app.subtitle }
 				div(.class("tags")) {
 					if app.isNew() { span(.class("tag")) { "new!" } }
@@ -773,8 +773,23 @@ public struct RandomAppPage: HTML {
 
 public struct NotFoundPage: HTML {
 	public init() {}
-	public var body: some HTML { section(.class("content-container prose")) { h1 { "404" }; p { "The page you're looking for could not be found." }; p { a(.href("/")) { "Go home" } } } }
-}
+
+	public var body: some HTML {
+		section(.class("not-found-page")) {
+			div(.class("not-found-inner")) {
+				h2(.class("not-found-code")) {
+					span(.class("visually-hidden")) { "Error" }
+					" "
+					span(.class("gradient-text")) { "404" }
+				}
+				p(.class("not-found-title")) { "The worker unicorns failed to find this page." }
+				p(.class("not-found-message")) { "It was probably a bad idea anyway, so maybe for the better?" }
+				a(.href("/"), .class("not-found-button"), .custom(name: "rel", value: "noopener noreferrer")) {
+					"Back to homepage"
+				}
+			}
+		}
+	}
 
 public enum JSONUtilities {
 	public static func script(_ object: Any) -> String { #"<script type="application/ld+json">\#(json(object))</script>"# }
