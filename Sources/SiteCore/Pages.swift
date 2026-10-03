@@ -725,12 +725,39 @@ public struct FeedbackPage: HTML {
 
 public struct FeedsPage: HTML {
 	let apps: [App]
+
 	public var body: some HTML {
 		section(.class("content-container prose")) {
 			h1 { "RSS Feeds" }
-			ul { li { a(.href("/rss.xml")) { "Blog" } }; li { a(.href("/rss-apps.xml")) { "New Apps" } }; li { a(.href("/rss-repos.xml")) { "New Repos" } } }
+			div(.class("feed-primary-grid not-prose")) {
+				FeedCard(href: "/rss.xml", title: "Blog", subtitle: "New writing", icon: .rss)
+				FeedCard(href: "/rss-apps.xml", title: "New Apps", subtitle: "New app launches", icon: .apps)
+				FeedCard(href: "/rss-repos.xml", title: "New Repos", subtitle: "New open-source projects", icon: .github)
+			}
 			h2 { "App Release Notes" }
-			ul { for app in apps.filter({ $0.releasesRepository != nil }).sorted(by:{ $0.title < $1.title }) { li { a(.href("/\(app.slug)/rss.xml")) { app.title } } } }
+			div(.class("feed-app-grid not-prose")) {
+				for app in apps.filter({ $0.releasesRepository != nil }).sorted(by: { $0.title.localizedStandardCompare($1.title) == .orderedAscending }) {
+					a(.href("/\(app.slug)/rss.xml"), .class("feed-app-card")) {
+						img(.src(app.iconURL), .width(40), .height(40), .alt("\(app.title) app icon"), .custom(name: "loading", value: "lazy"))
+						span { app.title }
+					}
+				}
+			}
+		}
+	}
+}
+
+private struct FeedCard: HTML {
+	let href: String
+	let title: String
+	let subtitle: String
+	let icon: IconName
+
+	var body: some HTML {
+		a(.href(href), .class("feed-card")) {
+			Icon(name: icon)
+			span(.class("feed-card-title")) { title }
+			span(.class("feed-card-subtitle")) { subtitle }
 		}
 	}
 }
