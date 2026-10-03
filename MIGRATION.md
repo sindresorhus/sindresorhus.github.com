@@ -28,4 +28,4 @@ After functional and visual parity is green:
 - [ ] Extract RSS generation into a proper general-purpose Swift subpackage with typed channels/items, namespaces, escaping, dates, validation, and reusable feed rendering.
 - [ ] Make the public APIs more Swift-native: stronger types, better naming, result builders where they improve clarity, value semantics, protocol-based composition where useful, and fewer stringly-typed escape hatches.
 - [ ] Do multiple dedicated refactoring passes after parity: generalize repeated patterns, simplify control flow and models, remove accidental abstractions, reduce duplication, and DRY up the implementation without sacrificing readability or direct access to HTML/CSS.
-
+- [ ] As the final refinement step, explore Swift macros creatively to improve authoring syntax and reduce boilerplate where they provide a clear ergonomic win, especially for content collections, routes, layouts, components, metadata, and style declarations. Keep macros optional and justified by clarity rather than novelty.
