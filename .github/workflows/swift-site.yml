@@ -25,13 +25,26 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
       - name: Swift version
         run: swift --version
       - name: Install image dependencies
         run: sudo apt-get update && sudo apt-get install -y librsvg2-bin fonts-inter
+      - name: Build Astro reference
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm ci
+          npx astro build
+          mv dist dist-astro
       - name: Test
         run: swift test
       - name: Build site
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: swift run website validate
+      - name: Compare route parity
+        run: python3 scripts/compare-site-output.py dist-astro dist
