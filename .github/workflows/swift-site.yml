@@ -53,5 +53,19 @@ jobs:
         run: swift run website validate
       - name: Compare route parity
         run: python3 scripts/compare-site-output.py dist-astro dist
+      - name: Upload Astro reference
+        uses: actions/upload-artifact@v6
+        with:
+          name: astro-reference
+          path: dist-astro
+          retention-days: 3
+      - name: Upload Swift output
+        uses: actions/upload-artifact@v6
+        with:
+          name: swift-output
+          path: dist
+          retention-days: 3
       - name: Compare semantic HTML parity
         run: python3 scripts/compare-site-semantics.py dist-astro dist
+      - name: Compare RSS and sitemap parity
+        run: python3 scripts/compare-site-xml.py dist-astro dist
