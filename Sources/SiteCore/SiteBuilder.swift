@@ -23,6 +23,8 @@ public struct SiteBuilder: Sendable {
 		let visibleApps = publicApps
 		let visiblePosts = posts.filter { !$0.isUnlisted }
 		let appStoreInfo = await dataClient.appStoreInfo(ids: apps.compactMap(\.appStoreID))
+		let releaseRepositories = Array(Set(apps.filter { !$0.isArchived }.compactMap(\.releasesRepository)))
+		let releasesByRepository = try await fetchReleases(repositories: releaseRepositories)
 
 		try resetOutput()
 		try copyPublicAssets()
@@ -67,7 +69,7 @@ public struct SiteBuilder: Sendable {
 
 		for app in apps where !app.isArchived && app.releasesRepository != nil {
 			guard let repository = app.releasesRepository else { continue }
-			let releases = try await dataClient.releases(repository: repository)
+			let releases = releasesByRepository[repository] ?? []
 			let feed = RSSFeedLink(title: "\(app.title) Release Notes", href: "/\(app.slug)/rss.xml")
 			try writeHTML("/\(app.slug)/release-notes", metadata: .init(title: "Release Notes — \(app.title)", description: "The changes in each version of the \(app.title) app.", rssFeeds: [feed]), routes: &routes) { ReleaseNotesPage(app: app, releases: releases) }
 			let feedItems = releases.filter { $0.tagName != "v1.0.0" }.compactMap { release -> RSSItem? in
@@ -146,6 +148,23 @@ public struct SiteBuilder: Sendable {
 				let next = number < tagged.count ? "\(base)/\(number + 1)" : nil
 				try writeHTML(route, metadata: .init(title: "Posts by tag '\(tag)' \(number > 1 ? "— Page \(number) " : "")— Sindre Sorhus", description: SiteConfiguration.description, noindex: true), routes: &routes) { BlogIndexPage(posts: page, title: "Tag: \(tag)", previousURL: previous, nextURL: next) }
 			}
+		}
+	}
+
+	private func fetchReleases(repositories: [String]) async throws -> [String: [GitHubRelease]] {
+		let client = dataClient
+		return try await withThrowingTaskGroup(of: (String, [GitHubRelease]).self) { group in
+			for repository in repositories {
+				group.addTask {
+					(repository, try await client.releases(repository: repository))
+				}
+			}
+
+			var result: [String: [GitHubRelease]] = [:]
+			for try await (repository, releases) in group {
+				result[repository] = releases
+			}
+			return result
 		}
 	}
 
