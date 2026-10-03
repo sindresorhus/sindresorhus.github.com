@@ -3,13 +3,20 @@ import Foundation
 public enum AssetInspector {
 	public static func mediaAssets(in directory: URL, publicPrefix: String) -> [MediaAsset] {
 		guard let files = try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) else { return [] }
-		return files
-			.filter { $0.lastPathComponent.hasPrefix("screenshot") || $0.lastPathComponent.hasPrefix("video") }
+		let videos = files
+			.filter { $0.lastPathComponent.hasPrefix("video") && $0.pathExtension.lowercased() == "mp4" }
 			.sorted { $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending }
-			.compactMap { file in
-				guard let size = size(of: file) else { return nil }
-				return MediaAsset(path: "\(publicPrefix)/\(file.lastPathComponent)", width: size.width, height: size.height)
+		let screenshots = files
+			.filter {
+				$0.lastPathComponent.hasPrefix("screenshot")
+					&& ["png", "jpg", "jpeg"].contains($0.pathExtension.lowercased())
 			}
+			.sorted { $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending }
+
+		return (videos + screenshots).compactMap { file in
+			guard let size = size(of: file) else { return nil }
+			return MediaAsset(path: "\(publicPrefix)/\(file.lastPathComponent)", width: size.width, height: size.height)
+		}
 	}
 
 	private static func size(of file: URL) -> (width: Int, height: Int)? {
