@@ -11,9 +11,9 @@ The migration keeps the existing Markdown content and public assets as source-of
 - [x] Add Swift style registry and generated stylesheet with no Tailwind dependency.
 - [x] Port shared metadata, navigation, footer, icons, app/blog/static page rendering.
 - [x] Port route generation, RSS, sitemap, redirects, and internal-link validation.
-- [ ] Port browser scripts verbatim to `public/scripts` and remove remaining Tailwind-oriented DOM class generation.
-- [ ] Generate OG cards in Swift/resvg and verify PNG parity.
-- [ ] Run SwiftPM compile/tests in CI and fix all type/build issues.
-- [ ] Compare generated route set and representative HTML against Astro output.
+- [x] Port browser scripts to `public/scripts`, preserve existing behavior, replace runtime Tailwind class strings with semantic CSS hooks, and syntax-check them in CI.
+- [ ] Generate OG cards in Swift/rsvg-convert and verify output parity.
+- [ ] Keep the latest branch green in SwiftPM tests and full-site validation. Earlier Linux runs have passed; latest branch is still gated by OG/parity CI.
+- [ ] Pass automated Astro-vs-Swift HTML/XML/OG route parity, then compare representative generated HTML/metadata.
 - [ ] Remove Astro/Tailwind/npm files and replace deploy workflow.
 - [ ] Final validation and merge-ready PR.
