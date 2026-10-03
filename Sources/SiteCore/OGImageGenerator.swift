@@ -63,6 +63,9 @@ public enum OGImageGenerator {
 		let subtitleStartY = titleStartY + titleLines.count * 76 + 18
 		let subtitle = tspans(subtitleLines, x: 344, startY: subtitleStartY, lineHeight: 45)
 		let domainY = min(570, subtitleStartY + subtitleLines.count * 45 + 38)
+		let imageElement = image.map {
+			#"<image href="\#($0)" x="80" y="215" width="200" height="200" preserveAspectRatio="xMidYMid slice" clip-path="url(#icon-clip)" filter="url(#shadow)"/>"#
+		} ?? ""
 
 		return """
 		<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
@@ -79,11 +82,11 @@ public enum OGImageGenerator {
 				</clipPath>
 			</defs>
 			<rect width="1200" height="630" fill="url(#background)"/>
-			(image.map { #"<image href="#($0)" x="80" y="215" width="200" height="200" preserveAspectRatio="xMidYMid slice" clip-path="url(#icon-clip)" filter="url(#shadow)"/>"# } ?? "")
+			\(imageElement)
 			<g font-family="Inter, sans-serif">
-				<text fill="#0f172a" font-size="68" font-weight="700">(title)</text>
-				<text fill="#64748b" font-size="32" font-weight="400">(subtitle)</text>
-				<text x="344" y="(domainY)" fill="#94a3b8" font-size="22" font-weight="700">sindresorhus.com</text>
+				<text fill="#0f172a" font-size="68" font-weight="700">\(title)</text>
+				<text fill="#64748b" font-size="32" font-weight="400">\(subtitle)</text>
+				<text x="344" y="\(domainY)" fill="#94a3b8" font-size="22" font-weight="700">sindresorhus.com</text>
 			</g>
 		</svg>
 		"""
@@ -124,7 +127,7 @@ public enum OGImageGenerator {
 
 	private static func tspans(_ lines: [String], x: Int, startY: Int, lineHeight: Int) -> String {
 		lines.enumerated().map { index, line in
-			#"<tspan x="#(x)" y="#(startY + index * lineHeight)">#(TextUtilities.escapeXML(line))</tspan>"#
+			#"<tspan x="\#(x)" y="\#(startY + index * lineHeight)">\#(TextUtilities.escapeXML(line))</tspan>"#
 		}.joined()
 	}
 
