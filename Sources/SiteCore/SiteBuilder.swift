@@ -108,9 +108,10 @@ public struct SiteBuilder: Sendable {
 			try writeHTML(category.0, metadata: .init(title: "\(category.1) — Sindre Sorhus", description: MarkdownProcessor.process(category.2).introduction ?? category.2), routes: &routes) { AppCategoryPage(title: category.1, descriptionHTML: description, apps: category.3, groupByPlatform: category.4, footerHTML: category.5) }
 		}
 
-		let versions = Set(apps.flatMap(\.olderMacOSVersions)).sorted { (Double($0) ?? 0) > (Double($1) ?? 0) }
+		let listedApps = apps.filter { !$0.isUnlisted }
+		let versions = Set(listedApps.flatMap(\.olderMacOSVersions)).sorted { (Double($0) ?? 0) > (Double($1) ?? 0) }
 		let html = versions.map { version in
-			let list = apps.filter { $0.olderMacOSVersions.contains(version) }.map { #"<li><a href="\#($0.olderVersionsURL)">\#(TextUtilities.escapeHTML($0.title))</a> — \#(TextUtilities.escapeHTML($0.subtitle))</li>"# }.joined()
+			let list = listedApps.filter { $0.olderMacOSVersions.contains(version) }.map { #"<li><a href="\#($0.olderVersionsURL)">\#(TextUtilities.escapeHTML($0.title))</a> — \#(TextUtilities.escapeHTML($0.subtitle))</li>"# }.joined()
 			return #"<section><h2 id="macos-\#(version.replacingOccurrences(of:".",with:"-"))">macOS \#(version)</h2><ul>\#(list)</ul></section>"#
 		}.joined()
 		let page = ProcessedMarkdown(html: #"<h1>Older Versions</h1><p>My macOS apps with an older version compatible with the following macOS versions.</p><p>Even my paid apps are free for these older versions.</p>\#(html)"#, headings: [], headingMetadata: [:], introduction: nil)
@@ -136,18 +137,6 @@ public struct SiteBuilder: Sendable {
 			let previous = number > 1 ? (number == 2 ? "/blog" : "/blog/\(number - 1)") : nil
 			let next = number < pages.count ? "/blog/\(number + 1)" : nil
 			try writeHTML(route, metadata: .init(title: "Blog \(number > 1 ? "— Page \(number) " : "")— Sindre Sorhus", description: "Articles by Sindre Sorhus about open source and programming.", noindex: number > 1, openGraphType: "blog"), routes: &routes) { BlogIndexPage(posts: page, title: nil, previousURL: previous, nextURL: next) }
-		}
-		let tags = Set(posts.flatMap(\.tags).map { $0.lowercased() })
-		for tag in tags.sorted() {
-			let tagged = posts.filter { $0.tags.contains(tag) }.chunked(size: SiteConfiguration.blogPostsPerPage)
-			for (index, page) in tagged.enumerated() {
-				let number = index + 1
-				let base = "/blog/tag/\(tag)"
-				let route = number == 1 ? base : "\(base)/\(number)"
-				let previous = number > 1 ? (number == 2 ? base : "\(base)/\(number - 1)") : nil
-				let next = number < tagged.count ? "\(base)/\(number + 1)" : nil
-				try writeHTML(route, metadata: .init(title: "Posts by tag '\(tag)' \(number > 1 ? "— Page \(number) " : "")— Sindre Sorhus", description: SiteConfiguration.description, noindex: true), routes: &routes) { BlogIndexPage(posts: page, title: "Tag: \(tag)", previousURL: previous, nextURL: next) }
-			}
 		}
 	}
 
