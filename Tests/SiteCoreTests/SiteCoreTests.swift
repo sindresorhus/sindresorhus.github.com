@@ -53,3 +53,17 @@ import Testing
 	#expect(MarkdownProcessor.process("## Heading\n\nParagraph.").introduction == nil)
 	#expect(MarkdownProcessor.process("![Screenshot](screenshot.png)\n\nParagraph.").introduction == nil)
 }
+
+
+@Test func multiParagraphGitHubAlertKeepsAllContent() {
+	let markdown = MarkdownProcessor.process("""
+	> [!IMPORTANT]
+	> First paragraph.
+	>
+	> Second paragraph.
+	""")
+	#expect(markdown.html.contains("markdown-alert-important"))
+	#expect(markdown.html.contains("First paragraph."))
+	#expect(markdown.html.contains("Second paragraph."))
+	#expect(!markdown.html.contains("<blockquote>"))
+}
