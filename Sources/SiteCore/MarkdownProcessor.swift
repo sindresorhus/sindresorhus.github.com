@@ -151,7 +151,7 @@ public enum MarkdownProcessor {
 				: "user-content-fnref-\(safeID)-\(occurrence)"
 			referenceAnchors[id, default: []].append(referenceAnchor)
 
-			let html = #"<sup><a href="#user-content-fn-\#(safeID)" id="\#(referenceAnchor)" data-footnote-ref="" aria-describedby="footnote-label">\#(number)</a></sup>"#
+			let html = "<sup><a href=\"#user-content-fn-\(safeID)\" id=\"\(referenceAnchor)\" data-footnote-ref=\"\" aria-describedby=\"footnote-label\">\(number)</a></sup>"
 			replacements.append((fullRange, html))
 		}
 
@@ -182,7 +182,7 @@ public enum MarkdownProcessor {
 				let label = anchors.count == 1
 					? "Back to reference \(index + 1)"
 					: "Back to reference \(index + 1)-\(referenceIndex + 1)"
-				return #"<a href="#\#(anchor)" data-footnote-backref="" aria-label="\#(label)" class="data-footnote-backref">↩</a>"#
+				return "<a href=\"#\(anchor)\" data-footnote-backref=\"\" aria-label=\"\(label)\" class=\"data-footnote-backref\">↩</a>"
 			}.joined(separator: " ")
 
 			if let paragraphEnd = definitionHTML.range(of: "</p>", options: .backwards) {
