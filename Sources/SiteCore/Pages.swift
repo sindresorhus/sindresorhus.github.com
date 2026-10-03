@@ -280,12 +280,20 @@ private struct RelatedApps: HTML {
 		}
 	}
 	private var relatedApps: [App] {
-		apps.filter { $0.slug != currentApp.slug && !$0.isRedirect }.map { app -> (App, Int) in
+		let candidates = apps.filter { $0.slug != currentApp.slug && !$0.isRedirect }
+		let scored: [(app: App, score: Int)] = candidates.map { app in
 			var score = app.platforms.filter(currentApp.platforms.contains).count * 3
 			if app.isMenuBarApp && currentApp.isMenuBarApp { score += 2 }
 			if app.isPaid == currentApp.isPaid { score += 1 }
-			return (app, score)
-		}.sorted { lhs, rhs in lhs.1 == rhs.1 ? lhs.0.publicationDate > rhs.0.publicationDate : lhs.1 > rhs.1 }.prefix(8).prefix(3).map(\.0)
+			return (app: app, score: score)
+		}
+		let sorted = scored.sorted { lhs, rhs in
+			if lhs.score == rhs.score {
+				return lhs.app.publicationDate > rhs.app.publicationDate
+			}
+			return lhs.score > rhs.score
+		}
+		return sorted.prefix(8).prefix(3).map(\.app)
 	}
 }
 
@@ -463,7 +471,10 @@ public struct NotFoundPage: HTML {
 
 public enum JSONUtilities {
 	public static func script(_ object: Any) -> String { #"<script type="application/ld+json">\#(json(object))</script>"# }
-	public static func dataScript(id: String, _ object: Any) -> String { #"<script type="application/json" id="\#(id)">\#(json(object).replacingOccurrences(of: "</", with: "<\/"))</script>"# }
+	public static func dataScript(id: String, _ object: Any) -> String {
+		let escapedJSON = json(object).replacingOccurrences(of: "</", with: #"<\/"#)
+		return #"<script type="application/json" id="\#(id)">\#(escapedJSON)</script>"#
+	}
 	private static func json(_ object: Any) -> String {
 		guard JSONSerialization.isValidJSONObject(object), let data = try? JSONSerialization.data(withJSONObject: object, options: [.sortedKeys]), let string = String(data:data, encoding:.utf8) else { return "{}" }
 		return string
