@@ -1,0 +1,30 @@
+name: Swift Site
+
+on:
+  push:
+    branches:
+      - swift-site
+  pull_request:
+    paths:
+      - 'Package.swift'
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'source/**'
+      - 'public/**'
+      - '.github/workflows/swift-site.yml'
+
+jobs:
+  build:
+    runs-on: macos-26
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - name: Swift version
+        run: swift --version
+      - name: Test
+        run: swift test
+      - name: Build site
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: swift run website validate
