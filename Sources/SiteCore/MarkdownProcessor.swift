@@ -137,6 +137,7 @@ public enum MarkdownProcessor {
 	private static func plainText(_ markup: Markup) -> String {
 		if let text = markup as? Markdown.Text { return text.string }
 		if let code = markup as? InlineCode { return code.code }
+		if markup is Image { return "" }
 		if markup is LineBreak || markup is SoftBreak { return " " }
 		return (0..<markup.childCount).compactMap { markup.child(at: $0) }.map(plainText).joined()
 	}
