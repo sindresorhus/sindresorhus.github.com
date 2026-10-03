@@ -31,3 +31,17 @@ import Testing
 	#expect(markdown.headings.contains { $0.id == "feedback" })
 	#expect(markdown.html.contains("feedback?product=My%20App"))
 }
+
+
+@Test func kbdPlusKeyDoesNotLoopOrRewriteTheLiteralKey() {
+	let markdown = MarkdownProcessor.process("<kbd>Command+</kbd> and <kbd>+</kbd>")
+	#expect(markdown.html.contains("<kbd>Command</kbd>"))
+	#expect(markdown.html.contains("<kbd>+</kbd>"))
+}
+
+@Test func unrestrictedFAQMetadataDoesNotInventPlatformRestrictions() {
+	let markdown = MarkdownProcessor.process("### General Question {#general}\n<!-- @faq.keywords open launch -->")
+	let metadata = markdown.headingMetadata["general"]?["faq"]
+	#expect(metadata?.keywords == ["open", "launch"])
+	#expect(metadata?.platforms == [])
+}
