@@ -113,6 +113,17 @@ public struct BlogPost: Sendable {
 	}
 }
 
+public struct AppExtraGroup: Codable, Sendable {
+	public let label: String
+	public let items: [AppExtraItem]
+}
+
+public struct AppExtraItem: Codable, Sendable {
+	public let title: String
+	public let url: String
+	public let description: String
+}
+
 public struct MarkdownPage: Sendable {
 	public let route: String
 	public let title: String
