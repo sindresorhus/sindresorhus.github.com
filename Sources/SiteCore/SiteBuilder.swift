@@ -161,7 +161,17 @@ public struct SiteBuilder: Sendable {
 		guard let faq = pages.first(where: { $0.route == "/apps/faq" }) else { return [] }
 		return faq.markdown.headings.filter { $0.level == 3 && allowed.contains($0.id) }.map { heading in
 			let metadata = faq.markdown.headingMetadata[heading.id]?["faq"] ?? FAQMetadata()
-			return ["question":heading.text,"url":"/apps/faq#\(heading.id)","keywords":metadata.keywords,"platforms":metadata.platforms]
+			var object: [String: Any] = [
+				"question": heading.text,
+				"url": "/apps/faq#\(heading.id)",
+			]
+			if !metadata.keywords.isEmpty {
+				object["keywords"] = metadata.keywords
+			}
+			if !metadata.platforms.isEmpty {
+				object["platforms"] = metadata.platforms
+			}
+			return object
 		}
 	}
 
