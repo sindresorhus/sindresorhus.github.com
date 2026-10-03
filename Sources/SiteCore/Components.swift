@@ -36,6 +36,7 @@ public struct PageDocument<Content: HTML>: HTMLDocument {
 		meta(.custom(name: "name", value: "twitter:site"), .content("@sindresorhus"))
 		meta(.custom(name: "name", value: "twitter:creator"), .content("@sindresorhus"))
 		meta(.custom(name: "name", value: "fediverse:creator"), .content("@sindresorhus@mastodon.social"))
+		meta(.custom(name: "name", value: "x-build-time"), .content(buildTime))
 		meta(.custom(name: "name", value: "twitter:card"), .content("summary_large_image"))
 		meta(.custom(name: "name", value: "theme-color"), .content("#ffffff"), .custom(name: "media", value: "(prefers-color-scheme: light)"))
 		meta(.custom(name: "name", value: "theme-color"), .content("#020617"), .custom(name: "media", value: "(prefers-color-scheme: dark)"))
@@ -68,8 +69,16 @@ public struct PageDocument<Content: HTML>: HTMLDocument {
 	}
 
 	private var canonicalURL: String {
-		let cleanPath = path == "/" ? "" : path
-		return SiteConfiguration.origin + cleanPath
+		path == "/" ? SiteConfiguration.origin + "/" : SiteConfiguration.origin + path
+	}
+
+	private var buildTime: String {
+		let formatter = DateFormatter()
+		formatter.calendar = Calendar(identifier: .gregorian)
+		formatter.locale = Locale(identifier: "en_US_POSIX")
+		formatter.timeZone = TimeZone(secondsFromGMT: 0)
+		formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss 'GMT'"
+		return formatter.string(from: Date())
 	}
 }
 
@@ -128,12 +137,27 @@ public struct SiteHeader: HTML {
 							NavigationLink("Apps", href: "/apps", currentPath: currentPath)
 							NavigationLink("About", href: "/about", currentPath: currentPath)
 							NavigationLink("Blog", href: "/blog", currentPath: currentPath)
-							NavigationLink("Contact", href: "/contact", currentPath: currentPath)
+							li(.class("mobile-nav-only")) {
+								a(
+									.href("/contact"),
+									.custom(name: "aria-current", value: currentPath == "/contact" ? "page" : nil)
+								) { "Contact" }
+							}
 							if !isAppPage {
+								li(.class("nav-separator"), .custom(name: "aria-hidden", value: "true")) {}
 								NavigationLink("Donate", href: "/donate", currentPath: currentPath)
 								NavigationLink("Supporters", href: "/supporters", currentPath: currentPath)
 							}
-							li { a(.href("/feeds"), .class("icon-link"), .custom(name: "aria-label", value: "RSS Feeds")) { Icon(name: .rss) } }
+							li(.class("desktop-nav-only")) {
+								a(.href("/feeds"), .class("icon-link"), .custom(name: "aria-label", value: "RSS Feeds")) {
+									Icon(name: .rss)
+								}
+							}
+							li(.class("desktop-nav-only")) {
+								a(.href("/contact"), .class("icon-link"), .custom(name: "aria-label", value: "Contact")) {
+									Icon(name: .mail)
+								}
+							}
 						}
 					}
 				}
