@@ -231,6 +231,12 @@ public enum ContentLoader {
 		.sorted { $0.publicationDate > $1.publicationDate }
 	}
 
+	public static func loadAppExtras(root: URL) throws -> [AppExtraGroup] {
+		let url = root.appending(path: "source/data/apps-extra.json")
+		let data = try Data(contentsOf: url)
+		return try JSONDecoder().decode([AppExtraGroup].self, from: data)
+	}
+
 	public static func loadMarkdownPages(root: URL) throws -> [MarkdownPage] {
 		let pagesRoot = root.appending(path: "source/pages")
 		guard let enumerator = FileManager.default.enumerator(at: pagesRoot, includingPropertiesForKeys: [.isRegularFileKey]) else { return [] }
