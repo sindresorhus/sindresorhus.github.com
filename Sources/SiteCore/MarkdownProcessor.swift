@@ -18,9 +18,13 @@ public enum MarkdownProcessor {
 			workingSource = injectFeedbackFAQ(into: workingSource, context: appContext)
 		}
 
-		let headingScan = scanHeadings(in: workingSource)
-		let metadata = scanHeadingMetadata(in: workingSource, headings: headingScan)
-		let renderSource = workingSource.replacingOccurrences(
+		let footnotes = extractFootnotes(from: workingSource)
+		var headingScan = scanHeadings(in: footnotes.source)
+		if !footnotes.orderedIDs.isEmpty {
+			headingScan.append(HeadingInfo(level: 2, text: "Footnotes", id: "footnote-label"))
+		}
+		let metadata = scanHeadingMetadata(in: footnotes.source, headings: headingScan)
+		let renderSource = footnotes.source.replacingOccurrences(
 			of: #"(?m)^(#{1,6}\s+.*?)[ \t]+\{#[A-Za-z0-9_-]+\}[ \t]*$"#,
 			with: "$1",
 			options: .regularExpression
@@ -28,9 +32,192 @@ public enum MarkdownProcessor {
 		let document = Document(parsing: renderSource)
 		var renderer = SiteMarkdownRenderer(headings: headingScan)
 		renderer.visit(document)
-		let html = postProcessHTML(renderer.result)
+		var html = postProcessHTML(renderer.result)
+		html += renderFootnotes(footnotes)
 		let introduction = firstParagraphText(in: workingSource)
 		return ProcessedMarkdown(html: html, headings: headingScan, headingMetadata: metadata, introduction: introduction)
+	}
+
+	private struct FootnoteExtraction {
+		let source: String
+		let orderedIDs: [String]
+		let definitions: [String: String]
+		let referenceAnchors: [String: [String]]
+	}
+
+	private static func extractFootnotes(from source: String) -> FootnoteExtraction {
+		let lines = source
+			.replacingOccurrences(of: "\r\n", with: "\n")
+			.components(separatedBy: "\n")
+		let definitionRegex = try! NSRegularExpression(
+			pattern: #"^\[\^([^\]]+)\]:\s*(.*)$"#
+		)
+
+		var definitions: [String: String] = [:]
+		var bodyLines: [String] = []
+		var index = 0
+
+		while index < lines.count {
+			let line = lines[index]
+			let range = NSRange(line.startIndex..<line.endIndex, in: line)
+
+			guard
+				let match = definitionRegex.firstMatch(in: line, range: range),
+				let idRange = Range(match.range(at: 1), in: line),
+				let bodyRange = Range(match.range(at: 2), in: line)
+			else {
+				bodyLines.append(line)
+				index += 1
+				continue
+			}
+
+			let id = String(line[idRange])
+			var definitionLines = [String(line[bodyRange])]
+			index += 1
+
+			while index < lines.count {
+				let continuation = lines[index]
+
+				if continuation.hasPrefix("    ") {
+					definitionLines.append(String(continuation.dropFirst(4)))
+					index += 1
+					continue
+				}
+
+				if continuation.hasPrefix("\t") {
+					definitionLines.append(String(continuation.dropFirst()))
+					index += 1
+					continue
+				}
+
+				if continuation.trimmingCharacters(in: .whitespaces).isEmpty,
+					index + 1 < lines.count
+				{
+					let next = lines[index + 1]
+					if next.hasPrefix("    ") || next.hasPrefix("\t") {
+						definitionLines.append("")
+						index += 1
+						continue
+					}
+				}
+
+				break
+			}
+
+			definitions[id] = definitionLines.joined(separator: "\n")
+		}
+
+		var body = bodyLines.joined(separator: "\n")
+		let referenceRegex = try! NSRegularExpression(pattern: #"\[\^([^\]]+)\]"#)
+		let matches = referenceRegex.matches(
+			in: body,
+			range: NSRange(body.startIndex..<body.endIndex, in: body)
+		)
+
+		var orderedIDs: [String] = []
+		var numbers: [String: Int] = [:]
+		var counts: [String: Int] = [:]
+		var referenceAnchors: [String: [String]] = [:]
+		var replacements: [(Range<String.Index>, String)] = []
+
+		for match in matches {
+			guard
+				let fullRange = Range(match.range(at: 0), in: body),
+				let idRange = Range(match.range(at: 1), in: body)
+			else {
+				continue
+			}
+
+			let id = String(body[idRange])
+			guard definitions[id] != nil else {
+				continue
+			}
+
+			let number: Int
+			if let existing = numbers[id] {
+				number = existing
+			} else {
+				number = orderedIDs.count + 1
+				numbers[id] = number
+				orderedIDs.append(id)
+			}
+
+			let occurrence = counts[id, default: 0] + 1
+			counts[id] = occurrence
+
+			let safeID = footnoteID(id)
+			let referenceAnchor = occurrence == 1
+				? "user-content-fnref-\(safeID)"
+				: "user-content-fnref-\(safeID)-\(occurrence)"
+			referenceAnchors[id, default: []].append(referenceAnchor)
+
+			let html = #"<sup><a href="#user-content-fn-\#(safeID)" id="\#(referenceAnchor)" data-footnote-ref="" aria-describedby="footnote-label">\#(number)</a></sup>"#
+			replacements.append((fullRange, html))
+		}
+
+		for (range, replacement) in replacements.reversed() {
+			body.replaceSubrange(range, with: replacement)
+		}
+
+		return FootnoteExtraction(
+			source: body,
+			orderedIDs: orderedIDs,
+			definitions: definitions,
+			referenceAnchors: referenceAnchors
+		)
+	}
+
+	private static func renderFootnotes(_ footnotes: FootnoteExtraction) -> String {
+		guard !footnotes.orderedIDs.isEmpty else {
+			return ""
+		}
+
+		let items = footnotes.orderedIDs.enumerated().map { index, id in
+			let safeID = footnoteID(id)
+			let definition = footnotes.definitions[id] ?? ""
+			var definitionHTML = renderFragment(definition)
+			let anchors = footnotes.referenceAnchors[id] ?? []
+
+			let backlinks = anchors.enumerated().map { referenceIndex, anchor in
+				let label = anchors.count == 1
+					? "Back to reference \(index + 1)"
+					: "Back to reference \(index + 1)-\(referenceIndex + 1)"
+				return #"<a href="#\#(anchor)" data-footnote-backref="" aria-label="\#(label)" class="data-footnote-backref">↩</a>"#
+			}.joined(separator: " ")
+
+			if let paragraphEnd = definitionHTML.range(of: "</p>", options: .backwards) {
+				definitionHTML.insert(contentsOf: " \(backlinks)", at: paragraphEnd.lowerBound)
+			} else {
+				definitionHTML += backlinks
+			}
+
+			return #"<li id="user-content-fn-\#(safeID)">\#(definitionHTML)</li>"#
+		}.joined(separator: "\n")
+
+		return """
+		<section data-footnotes="" class="footnotes">
+		<h2 class="sr-only" id="footnote-label">Footnotes</h2>
+		<ol>
+		\(items)
+		</ol>
+		</section>
+		"""
+	}
+
+	private static func renderFragment(_ source: String) -> String {
+		let headings = scanHeadings(in: source)
+		let document = Document(parsing: source)
+		var renderer = SiteMarkdownRenderer(headings: headings)
+		renderer.visit(document)
+		return postProcessHTML(renderer.result)
+	}
+
+	private static func footnoteID(_ id: String) -> String {
+		id.lowercased().replacingOccurrences(
+			of: #"[^a-z0-9_-]+"#,
+			with: "-",
+			options: .regularExpression
+		)
 	}
 
 	private static func scanHeadings(in source: String) -> [HeadingInfo] {
