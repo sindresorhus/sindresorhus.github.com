@@ -17,8 +17,10 @@ public struct SiteBuilder: Sendable {
 		let apps = try ContentLoader.loadApps(root: root)
 		let posts = try ContentLoader.loadPosts(root: root)
 		let markdownPages = try ContentLoader.loadMarkdownPages(root: root)
-		let publicApps = apps.filter { !$0.isArchived && !$0.isUnlisted }
-		let visibleApps = apps.filter { !$0.isArchived && !$0.isUnlisted }
+		let appExtras = try ContentLoader.loadAppExtras(root: root)
+		let listedApps = apps.filter { !$0.isUnlisted }
+		let publicApps = listedApps.filter { !$0.isArchived }
+		let visibleApps = publicApps
 		let visiblePosts = posts.filter { !$0.isUnlisted }
 		let appStoreInfo = await dataClient.appStoreInfo(ids: apps.compactMap(\.appStoreID))
 
@@ -27,7 +29,9 @@ public struct SiteBuilder: Sendable {
 		var routes = Set<String>()
 
 		try writeHTML("/", metadata: .init(title: SiteConfiguration.name, description: SiteConfiguration.description), routes: &routes) { HomePage() }
-		try writeHTML("/apps", metadata: .init(title: "Apps — Sindre Sorhus", description: "Quality crafted apps by Sindre Sorhus"), routes: &routes) { AppsIndexPage(apps: publicApps, allApps: apps) }
+		try writeHTML("/apps", metadata: .init(title: "Apps — Sindre Sorhus", description: "Quality crafted apps by Sindre Sorhus"), routes: &routes) {
+			AppsIndexPage(apps: publicApps, allApps: listedApps, extras: appExtras)
+		}
 		try writeHTML("/contact", metadata: .init(title: "Contact — Sindre Sorhus", description: "How to contact Sindre Sorhus."), routes: &routes) { ContactPage() }
 		let feedbackFAQs = generalFeedbackFAQs(from: markdownPages)
 		try writeHTML("/feedback", metadata: .init(title: "Feedback & Support — Sindre Sorhus", description: "Send feedback, report a bug, or get support for apps by Sindre Sorhus."), extraHeadHTML: #"<link rel="preconnect" href="https://formcarry.com">"#, routes: &routes) { FeedbackPage(apps: apps.filter { !$0.isArchived }, generalFAQs: feedbackFAQs) }
