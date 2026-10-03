@@ -569,27 +569,89 @@ private struct EmailLetters: HTML {
 public struct FeedbackPage: HTML {
 	let apps: [App]
 	let generalFAQs: [[String: Any]]
+
 	public var body: some HTML {
 		div(.id("main"), .class("feedback-main prose")) {
 			div(.class("feedback-header")) {
-				img(.id("app-icon"), .alt(""), .width(128), .height(128), .custom(name:"hidden"))
-				h1(.id("product-name")) { "" }
-				h2 { "Feedback & Support" }
-				div(.id("additional-info"))
-				p { "If you are reporting bugs with my apps on macOS/iOS 27, make sure you are on the latest version of the app and try restarting your device first." }
+				img(.id("app-icon"), .class("feedback-app-icon"), .alt(""), .width(128), .height(128))
+				h1(.id("product-name"), .class("feedback-product-name")) { "" }
+				h2(.class("feedback-title")) { "Feedback & Support" }
+				div(.id("additional-info"), .class("feedback-additional-info"))
+				br()
+				h3(.class("feedback-platform-notice")) {
+					"If you are reporting bugs with my apps on macOS/iOS 27. Make sure you are on the latest version of the app and try restarting your device first. If you get any permission issue on macOS, try "
+					a(.href("/apps/faq#mac-reset-permissions")) { "resetting permissions" }
+					" for the app."
+				}
+				br()
+				p { "Note: Focus filters are broken on macOS 26.5 and later. This is out of my control." }
+			}
+			noscript {
+				br()
+				p(.class("feedback-noscript")) {
+					"JavaScript is required for this form to work correctly. If you have a content blocker, you may need to allow scripts from this site."
+				}
 			}
 			form(.id("feedback-form"), .class("feedback-form"), .action("https://formcarry.com/s/UBfgr97yfY"), .method(.post), .enctype(.multipartFormData)) {
 				input(.type(.hidden), .name("_gotcha"))
 				div(.class("field")) {
 					label(.for("message"), .class("field-label")) { "Message*" }
-					textarea(.id("message"), .class("input"), .name("message"), .placeholder("I'm a human. Please be nice."), .minlength(20), .rows(7), .required, .autofocus, .custom(name:"aria-expanded", value:"false"), .custom(name:"aria-controls", value:"faq-suggestions")) {}
-					div(.id("crash-warning"), .class("feedback-notice crash-warning"), .custom(name:"hidden")) { "Looks like you're reporting a crash. It would be very helpful if you could also attach a "; a(.href("/apps/faq#crash-report"), .target(.blank)) { "crash report" }; "." }
-					div(.id("faq-suggestions"), .class("feedback-notice faq-suggestions"), .custom(name:"hidden")) { strong { "Related help:" }; button(.id("faq-dismiss"), .type(.button)) { "×" }; ul(.id("faq-list")) {} }
+					textarea(
+						.id("message"),
+						.class("input"),
+						.placeholder("I'm a human. Please be nice."),
+						.name("message"),
+						.minlength(20),
+						.rows(7),
+						.required,
+						.autofocus,
+						.custom(name: "autocapitalize", value: "sentences"),
+						.custom(name: "aria-expanded", value: "false"),
+						.custom(name: "aria-controls", value: "faq-suggestions")
+					) {}
+					div(.id("crash-warning"), .class("feedback-notice crash-warning"), .custom(name: "hidden")) {
+						"Looks like you're reporting a crash. It would be very helpful if you could also attach a "
+						a(.href("/apps/faq#crash-report"), .target(.blank), .custom(name: "rel", value: "noopener noreferrer")) { "crash report" }
+						"."
+					}
+					div(.id("faq-suggestions"), .class("feedback-notice faq-suggestions"), .custom(name: "hidden"), .custom(name: "tabindex", value: "-1")) {
+						div(.class("faq-suggestions-header")) {
+							span { "Related help:" }
+							button(.id("faq-dismiss"), .type(.button), .custom(name: "tabindex", value: "-1"), .custom(name: "aria-label", value: "Dismiss")) { "×" }
+						}
+						ul(.id("faq-list")) {}
+					}
 				}
-				div(.class("field")) { label(.for("email"), .class("field-label")) { "Email*" }; input(.id("email"), .class("input"), .type(.email), .name("email"), .autocomplete("email"), .required) }
-				div(.class("field")) { label(.for("attachments-input"), .class("field-label")) { "Attach files" }; input(.id("attachments-input"), .type(.file), .name("attachments"), .multiple); div(.id("file-list"), .class("file-list")) }
+				div(.class("field")) {
+					div(.class("email-label-row")) {
+						label(.for("email"), .class("field-label email-label")) { "Email*" }
+						span(.class("email-privacy-hint")) { "Only used for replying to you" }
+					}
+					input(
+						.id("email"),
+						.class("input"),
+						.type(.email),
+						.name("email"),
+						.autocomplete("email"),
+						.custom(name: "enterkeyhint", value: "send"),
+						.required
+					)
+				}
+				div(.class("field attachments-field")) {
+					label(.id("attach-label"), .class("attachment-picker"), .for("attachments-input")) {
+						HTMLRaw(#"<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>"#)
+						"Attach files"
+						input(.id("attachments-input"), .type(.file), .name("attachments"), .multiple, .class("attachment-input"), .custom(name: "aria-describedby", value: "attach-label"))
+					}
+					div(.id("file-list"), .class("file-list")) {}
+				}
 				input(.type(.hidden), .id("captchaResponse"), .name("g-recaptcha-response"))
-				div(.class("feedback-actions")) { button(.id("submit-button"), .type(.submit), .class("feedback-submit")) { "Send Feedback" }; p(.class("feedback-fineprint")) { "If you haven't received a reply for two weeks, check your spam folder. When you get a reply, respond in that email thread instead of sending a new message." } }
+				div(.class("feedback-actions")) {
+					button(.id("submit-button"), .type(.submit), .class("feedback-submit")) { "Send Feedback" }
+					p(.class("feedback-fineprint")) {
+						"If you haven't received a reply for two weeks, check your spam folder. When you get a reply, respond in that email thread instead of sending a new message."
+					}
+				}
 			}
 		}
 		HTMLRaw(feedbackDataScript)
