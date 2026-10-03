@@ -232,6 +232,7 @@ kbd { font-family:inherit; font-size:.8em; background:#f0f2f5; color:#2d3748; bo
 @media (prefers-color-scheme:dark){.dark\:text-black{color:#000!important}}
 .apps-hero { text-align:center; margin-bottom:3rem; }
 .apps-title-row{display:flex;align-items:center;justify-content:center;gap:.9rem;flex-wrap:wrap}
+.apps-title-copy{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap}
 .apps-title { font-size:clamp(2.5rem,6vw,4.5rem); font-weight:800; letter-spacing:-.045em; margin:.2em 0; }
 .apps-extra-menu{position:relative;display:inline-flex;align-items:center;transform:scale(1.15)}.apps-extra-menu .icon{color:#f472b6}.apps-extra{margin-top:7rem}.apps-extra-description{font-size:.875rem;color:var(--text-secondary)}
 .gradient-text { background:linear-gradient(90deg,#3b82f6,#ec4899); color:transparent; background-clip:text; -webkit-background-clip:text; }
