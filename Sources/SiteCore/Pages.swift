@@ -443,7 +443,7 @@ private struct RelatedApps: HTML {
 			}
 			return lhs.score > rhs.score
 		}
-		return sorted.prefix(8).prefix(3).map(\.app)
+		return Array(sorted.prefix(8)).shuffled().prefix(3).map(\.app)
 	}
 }
 
