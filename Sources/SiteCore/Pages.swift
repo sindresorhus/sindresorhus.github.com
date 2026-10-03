@@ -396,7 +396,7 @@ private struct AppSecondaryNav: HTML {
 					a(.href(link.1)) { link.0 }
 				}
 				OverflowMenu(items: app.pageOverflowLinks + [("Show Random App", "/apps/random")])
-				if !app.isArchived && !providerURLs.isEmpty {
+				if hasDownload {
 					if let downloadURL {
 						a(.href(downloadURL), .class("app-get-button")) { "Get" }
 					} else {
@@ -407,16 +407,26 @@ private struct AppSecondaryNav: HTML {
 		}
 	}
 
-	private var providerURLs: [String] {
-		var urls: [String] = []
-		if let appStoreURL = app.appStoreURL { urls.append(appStoreURL) }
-		if let setappURL = app.setappURL { urls.append(setappURL) }
-		urls.append(contentsOf: app.resolvedMainLinks.map(\.1))
-		return urls
+	private var hasMainLinks: Bool {
+		!app.resolvedMainLinks.isEmpty
+	}
+
+	private var hasDownload: Bool {
+		!app.isArchived && (app.appStoreID != nil || app.setappID != nil || hasMainLinks)
 	}
 
 	private var downloadURL: String? {
-		providerURLs.count == 1 ? providerURLs[0] : nil
+		let providerCount = [
+			app.appStoreID != nil,
+			app.setappID != nil,
+			hasMainLinks,
+		].filter { $0 }.count
+
+		guard providerCount == 1 else {
+			return nil
+		}
+
+		return app.appStoreURL ?? app.setappURL ?? app.resolvedMainLinks.first?.1
 	}
 }
 
