@@ -30,33 +30,98 @@ public struct HomePage: HTML {
 public struct AppsIndexPage: HTML {
 	let apps: [App]
 	let allApps: [App]
+	let extras: [AppExtraGroup]
 
 	public var body: some HTML {
 		div(.class("page-container")) {
 			header(.class("apps-hero")) {
-				h1(.class("apps-title")) { "Quality Crafted "; span(.class("gradient-text")) { "Apps" } }
+				div(.class("apps-title-row")) {
+					h1(.class("apps-title")) {
+						"Quality Crafted "
+						span(.class("gradient-text")) { "Apps" }
+					}
+					AppsExtraMenu(groups: extras)
+				}
 				p(.class("apps-stats")) { "\(allApps.count) apps · \(yearsOfCraft) years of craft · 6 million users · 10K answered support emails" }
 			}
 			section(.id("apps-grid"), .class("apps-grid"), .data("nosnippet", value: "")) {
-				for app in apps { AppCard(app: app) }
+				for app in apps {
+					AppCard(app: app)
+				}
 			}
-			div(.class("prose content-container")) {
-				h2 { "More" }
-				ul {
-					li { a(.href("/apps/free")) { "Free apps" } }
-					li { a(.href("/apps/paid")) { "Paid apps" } }
-					li { a(.href("/apps/menu-bar")) { "Menu bar apps" } }
-					li { a(.href("/apps/older-versions")) { "Older versions" } }
-					li { a(.href("/apps/faq")) { "Frequently asked questions" } }
+			section(.class("prose content-container apps-extra"), .data("nosnippet", value: "")) {
+				for group in extras {
+					h2 { group.label }
+					ul {
+						for item in group.items {
+							li {
+								a(.href(item.url)) { item.title }
+								" "
+								span(.class("apps-extra-description")) { "- \(item.description)" }
+							}
+						}
+					}
 				}
 			}
 		}
+		HTMLRaw(itemListJSONLD)
 		script(.src("/scripts/apps.js"), .type(.module)) {}
 	}
 
 	private var yearsOfCraft: Int {
 		guard let oldest = allApps.map(\.publicationDate).min() else { return 0 }
 		return Calendar.current.component(.year, from: Date()) - Calendar.current.component(.year, from: oldest)
+	}
+
+	private var itemListJSONLD: String {
+		let elements: [[String: Any]] = apps.enumerated().map { index, app in
+			var item: [String: Any] = [
+				"@type": "SoftwareApplication",
+				"name": app.title,
+				"description": app.subtitle,
+				"url": SiteConfiguration.origin + app.url,
+				"applicationCategory": app.platforms.contains(.macOS) ? "UtilitiesApplication" : "MobileApplication",
+				"operatingSystem": app.platforms.map(\.rawValue).joined(separator: ", "),
+				"author": ["@type": "Person", "name": "Sindre Sorhus"],
+			]
+			if let appStoreURL = app.appStoreURL {
+				item["downloadUrl"] = appStoreURL
+			}
+			return [
+				"@type": "ListItem",
+				"position": index + 1,
+				"item": item,
+			]
+		}
+		return JSONUtilities.script([
+			"@context": "https://schema.org",
+			"@type": "ItemList",
+			"name": "Sindre Sorhus Apps",
+			"description": "Quality crafted apps by Sindre Sorhus",
+			"url": "https://sindresorhus.com/apps",
+			"numberOfItems": apps.count,
+			"itemListElement": elements,
+		])
+	}
+}
+
+private struct AppsExtraMenu: HTML {
+	let groups: [AppExtraGroup]
+
+	var body: some HTML {
+		div(.class("apps-extra-menu")) {
+			select(.class("overflow-menu-component"), .custom(name: "aria-label", value: "More app pages")) {
+				option(.value(""), .disabled, .selected) { "" }
+				for group in groups {
+					optgroup(.label(group.label)) {
+						for item in group.items {
+							option(.value(item.url)) { item.title }
+						}
+					}
+				}
+			}
+			Icon(name: .dots)
+		}
 	}
 }
 
