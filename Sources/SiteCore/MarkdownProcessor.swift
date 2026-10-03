@@ -121,7 +121,12 @@ public enum MarkdownProcessor {
 	private static func firstParagraphText(_ document: Document) -> String? {
 		for index in 0..<document.childCount {
 			guard let child = document.child(at: index) else { continue }
-			if child is HTMLBlock { continue }
+			if let html = child as? HTMLBlock {
+				if html.rawHTML.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("<!--") {
+					continue
+				}
+				return nil
+			}
 			guard let paragraph = child as? Paragraph else { return nil }
 			let text = plainText(paragraph).replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespacesAndNewlines)
 			return text.isEmpty ? nil : text
