@@ -29,7 +29,7 @@ public enum MarkdownProcessor {
 		var renderer = SiteMarkdownRenderer(headings: headingScan)
 		renderer.visit(document)
 		let html = postProcessHTML(renderer.result)
-		let introduction = firstParagraphText(document)
+		let introduction = firstParagraphText(in: workingSource)
 		return ProcessedMarkdown(html: html, headings: headingScan, headingMetadata: metadata, introduction: introduction)
 	}
 
@@ -118,29 +118,119 @@ public enum MarkdownProcessor {
 		return copy
 	}
 
-	private static func firstParagraphText(_ document: Document) -> String? {
-		for index in 0..<document.childCount {
-			guard let child = document.child(at: index) else { continue }
-			if let html = child as? HTMLBlock {
-				if html.rawHTML.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("<!--") {
-					continue
-				}
-				return nil
+	private static func firstParagraphText(in source: String) -> String? {
+		let lines = source
+			.replacingOccurrences(of: "\r\n", with: "\n")
+			.components(separatedBy: "\n")
+
+		var index = 0
+
+		func skipBlankLines() {
+			while index < lines.count && lines[index].trimmingCharacters(in: .whitespaces).isEmpty {
+				index += 1
 			}
-			guard let paragraph = child as? Paragraph else { return nil }
-			let text = plainText(paragraph).replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespacesAndNewlines)
-			return text.isEmpty ? nil : text
 		}
-		return nil
+
+		skipBlankLines()
+
+		while index < lines.count {
+			let trimmed = lines[index].trimmingCharacters(in: .whitespaces)
+			guard trimmed.hasPrefix("<!--") else {
+				break
+			}
+
+			while index < lines.count {
+				let line = lines[index]
+				index += 1
+				if line.contains("-->") {
+					break
+				}
+			}
+			skipBlankLines()
+		}
+
+		guard index < lines.count else {
+			return nil
+		}
+
+		let first = lines[index].trimmingCharacters(in: .whitespaces)
+
+		let isNonParagraphBlock =
+			first.range(of: #"^#{1,6}\s+"#, options: .regularExpression) != nil
+			|| first.hasPrefix("```")
+			|| first.hasPrefix("~~~")
+			|| first.hasPrefix(">")
+			|| first.hasPrefix("<")
+			|| first.hasPrefix("![")
+			|| first.range(of: #"^[-+*]\s+"#, options: .regularExpression) != nil
+			|| first.range(of: #"^\d+[.)]\s+"#, options: .regularExpression) != nil
+			|| first.range(of: #"^(?:---+|___+|\*\*\*+)$"#, options: .regularExpression) != nil
+
+		guard !isNonParagraphBlock else {
+			return nil
+		}
+
+		var paragraphLines: [String] = []
+		while index < lines.count {
+			let line = lines[index]
+			if line.trimmingCharacters(in: .whitespaces).isEmpty {
+				break
+			}
+			paragraphLines.append(line)
+			index += 1
+		}
+
+		var text = paragraphLines.joined(separator: "\n")
+		text = text.replacingOccurrences(
+			of: #"<!--.*?-->"#,
+			with: "",
+			options: [.regularExpression, .dotMatchesLineSeparators]
+		)
+		text = text.replacingOccurrences(
+			of: #"!\[[^\]]*\]\([^)]*\)"#,
+			with: "",
+			options: .regularExpression
+		)
+		text = text.replacingOccurrences(
+			of: #"\[([^\]]+)\]\([^)]*\)"#,
+			with: "$1",
+			options: .regularExpression
+		)
+		text = text.replacingOccurrences(
+			of: #"<(https?://[^>]+)>"#,
+			with: "$1",
+			options: .regularExpression
+		)
+		text = text.replacingOccurrences(
+			of: #"\x60([^\x60]*)\x60"#,
+			with: "$1",
+			options: .regularExpression
+		)
+		text = text.replacingOccurrences(
+			of: #"<[^>]+>"#,
+			with: "",
+			options: .regularExpression
+		)
+		text = text.replacingOccurrences(
+			of: #"(?<!\\)(?:\*\*|__|\*|_|~~)"#,
+			with: "",
+			options: .regularExpression
+		)
+		text = text.replacingOccurrences(
+			of: #"\\([\\\x60*{}\[\]()#+\-.!_>])"#,
+			with: "$1",
+			options: .regularExpression
+		)
+		text = text.replacingOccurrences(
+			of: #"\\?\n|\s+"#,
+			with: " ",
+			options: .regularExpression
+		)
+		text = text.trimmingCharacters(in: .whitespacesAndNewlines)
+
+		return text.isEmpty ? nil : text
 	}
 
-	private static func plainText(_ markup: Markup) -> String {
-		if let text = markup as? Markdown.Text { return text.string }
-		if let code = markup as? InlineCode { return code.code }
-		if markup is Image { return "" }
-		if markup is LineBreak || markup is SoftBreak { return " " }
-		return (0..<markup.childCount).compactMap { markup.child(at: $0) }.map(plainText).joined()
-	}
 
 	private static func stripMarkdown(_ value: String) -> String {
 		value
