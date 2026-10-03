@@ -233,5 +233,355 @@ kbd { font-family:inherit; font-size:.8em; background:#f0f2f5; color:#2d3748; bo
 .app-secondary-nav{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;width:100%;max-width:72rem;margin:auto;padding:.75rem 1rem;color:var(--text-secondary)}.app-secondary-identity{display:flex;align-items:center;gap:.75rem;text-decoration:none;flex:none}.app-secondary-identity img{border-radius:.5rem}.app-secondary-identity span{font-size:1.05rem;font-weight:700;color:var(--text)}.app-secondary-links{display:flex;align-items:center;gap:.25rem;min-width:0}.app-secondary-links>a{padding:.65rem .8rem;text-decoration:underline;text-decoration-thickness:3px;text-decoration-color:transparent;text-underline-offset:7px;font-weight:550;white-space:nowrap}.app-get-button{margin-left:1rem;padding:.5rem 1.25rem;border:0;border-radius:999px;background:#1d4ed8;color:#fff!important;text-decoration:none!important;font-weight:700;cursor:pointer}
 @media(min-width:768px){.media-control{display:flex}}
 @media(max-width:767px){.site-nav{display:block}.site-nav-top{display:flex;justify-content:space-between;align-items:center}.mobile-menu-toggle{display:inline-flex}.site-links-wrap{display:none}.site-nav:has(#menu-toggle:checked) .site-links-wrap{display:block}.site-links{flex-direction:column;align-items:stretch;padding:1.5rem 0;font-size:1.8rem}.site-footer-inner{display:block;text-align:center}.social-links{justify-content:center}.site-footer-quote{display:none}.contact-note,.feedback-actions{flex-direction:column}.app-media-item{flex-basis:85vw}}
+
+/* Migrated bespoke home styles. */
+.nebula-canvas {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+	.nebula-canvas {
+		display: block;
+		animation: nebulaFadeIn 3s ease-out forwards;
+	}
+}
+
+@keyframes nebulaFadeIn {
+	from { opacity: 0; }
+	to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.nebula-canvas { display: none !important; }
+}
+
+.profile-ring {
+	position: relative;
+	display: inline-flex;
+	border-radius: 50%;
+}
+
+@media (prefers-color-scheme: dark) {
+	/* Rotating conic gradient ring using galaxy palette */
+	.profile-ring::before {
+		content: '';
+		position: absolute;
+		inset: -3px;
+		border-radius: 50%;
+		background: conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #8b5cf6, #3b82f6);
+		animation: ringRotate 10s linear infinite;
+	}
+
+	/* Nebula glow applied to the whole composition */
+	.profile-ring {
+		filter:
+			drop-shadow(0 0 14px rgba(59, 130, 246, 0.50))
+			drop-shadow(0 0 40px rgba(139, 92, 246, 0.28));
+	}
+}
+
+@media (prefers-color-scheme: dark) and (prefers-reduced-motion: reduce) {
+	.profile-ring::before { animation: none; }
+}
+
+@keyframes ringRotate {
+	to { transform: rotate(360deg); }
+}
+
+.profile-photo {
+	position: relative;
+	z-index: 1;
+	display: block;
+	border-radius: 50%;
+	transition: transform 0.35s ease;
+	/* Edges dissolve into the galaxy/ring rather than hard-cutting */
+	mask-image: radial-gradient(circle, black 80%, transparent 100%);
+	-webkit-mask-image: radial-gradient(circle, black 80%, transparent 100%);
+}
+
+@media (hover: hover) {
+	.profile-photo:hover {
+		transform: scale(1.03);
+	}
+}
+
+/*
+ * SF Pro Expanded on Apple platforms (macOS/iOS), via ui-sans-serif.
+ * font-stretch: expanded activates the 125% width variant of the variable font.
+ * On non-Apple platforms it falls back to the system sans-serif, stretched if supported.
+ */
+.hero-name {
+	font-family: ui-sans-serif, -apple-system, system-ui, sans-serif;
+	font-stretch: expanded;
+}
+
+/* Same typeface as the title — expanded SF Pro Light — weight contrast creates hierarchy */
+.hero-tagline {
+	font-family: ui-sans-serif, -apple-system, system-ui, sans-serif;
+	font-stretch: expanded;
+	font-weight: 350;
+	letter-spacing: 0.06em;
+}
+
+@media (prefers-color-scheme: dark) {
+	.hero-name {
+		filter:
+			drop-shadow(0 0 12px rgba(59, 130, 246, 0.55))
+			drop-shadow(0 0 32px rgba(139, 92, 246, 0.30))
+			drop-shadow(0 0 60px rgba(236, 72, 153, 0.15));
+	}
+
+	.hero-tagline {
+		color: rgb(226 232 240 / 0.82); /* slate-200 — brighter than title gradient, clearly secondary */
+		text-shadow: 0 0 28px rgba(139, 92, 246, 0.28);
+	}
+}
+
+/* --- Liquid glass buttons (dark mode only) --- */
+.glass-btn {
+	position: relative;
+	overflow: hidden;
+	color: white;
+	transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease, border-color 0.25s ease;
+}
+
+/* Light mode: original solid styles */
+.glass-btn-primary {
+	background: rgba(37, 99, 235, 0.9); /* primary-600/90 */
+	border: 1px solid rgba(37, 99, 235, 0.3);
+}
+
+.glass-btn-dark {
+	background: #111827; /* gray-900 */
+	border: 1px solid transparent;
+}
+
+@media (hover: hover) {
+	.glass-btn-primary:hover {
+		background: #1d4ed8; /* primary-800 */
+		border-color: #1d4ed8;
+	}
+
+	.glass-btn-dark:hover {
+		background: #374151; /* gray-700 */
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	.glass-btn {
+		backdrop-filter: blur(20px) saturate(180%);
+		-webkit-backdrop-filter: blur(20px) saturate(180%);
+	}
+
+	/* Specular highlight — glossy cap on top half */
+	.glass-btn::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(
+			175deg,
+			rgba(255, 255, 255, 0.28) 0%,
+			rgba(255, 255, 255, 0.06) 40%,
+			transparent 70%
+		);
+		pointer-events: none;
+		border-radius: inherit;
+	}
+
+	.glass-btn-primary {
+		background: rgba(59, 130, 246, 0.22);
+		border: 1px solid rgba(99, 160, 255, 0.45);
+		box-shadow:
+			inset 0 1.5px 0 rgba(255, 255, 255, 0.40),
+			inset 0 -1px 0 rgba(0, 0, 0, 0.10),
+			0 4px 24px rgba(59, 130, 246, 0.25),
+			0 1px 4px rgba(0, 0, 0, 0.15);
+	}
+
+	.glass-btn-dark {
+		background: rgba(10, 15, 30, 0.40);
+		border: 1px solid rgba(255, 255, 255, 0.16);
+		box-shadow:
+			inset 0 1.5px 0 rgba(255, 255, 255, 0.25),
+			inset 0 -1px 0 rgba(0, 0, 0, 0.15),
+			0 4px 20px rgba(0, 0, 0, 0.30),
+			0 1px 4px rgba(0, 0, 0, 0.20);
+	}
+}
+
+@media (prefers-color-scheme: dark) and (hover: hover) {
+	.glass-btn:hover {
+		transform: translateY(-1px);
+	}
+
+	.glass-btn-primary:hover {
+		background: rgba(59, 130, 246, 0.32);
+		border-color: rgba(120, 180, 255, 0.60);
+		box-shadow:
+			inset 0 1.5px 0 rgba(255, 255, 255, 0.50),
+			inset 0 -1px 0 rgba(0, 0, 0, 0.10),
+			0 8px 32px rgba(59, 130, 246, 0.35),
+			0 2px 6px rgba(0, 0, 0, 0.15);
+	}
+
+	.glass-btn-dark:hover {
+		background: rgba(10, 15, 30, 0.55);
+		border-color: rgba(255, 255, 255, 0.26);
+		box-shadow:
+			inset 0 1.5px 0 rgba(255, 255, 255, 0.35),
+			inset 0 -1px 0 rgba(0, 0, 0, 0.15),
+			0 8px 28px rgba(0, 0, 0, 0.40),
+			0 2px 6px rgba(0, 0, 0, 0.20);
+	}
+}
+
+.background-animate {
+	background-size: 400%;
+	animation: AnimationName 4s ease infinite;
+}
+
+@keyframes AnimationName {
+	0%,
+	100% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+}
+
+/* Migrated bespoke contact styles. */
+/* Use CSS custom property set by JS for exact header height */
+#contact-section {
+	min-height: calc(100dvh - var(--header-h, 0px));
+	/* Padding-bottom shifts flex center upward by header-h/2, landing on true viewport center */
+	padding-bottom: var(--header-h, 0px);
+}
+
+.orb {
+	position: fixed;
+	border-radius: 50%;
+	pointer-events: none;
+	z-index: 0;
+	filter: blur(140px);
+}
+
+.orb-blue {
+	width: 700px;
+	height: 700px;
+	top: -20%;
+	right: -20%;
+	background: #3b82f6;
+	opacity: 0.055;
+	animation: drift-a 18s ease-in-out infinite alternate;
+}
+
+.orb-pink {
+	width: 600px;
+	height: 600px;
+	bottom: -20%;
+	left: -20%;
+	background: #ec4899;
+	opacity: 0.055;
+	animation: drift-b 13s ease-in-out infinite alternate;
+}
+
+@media (prefers-color-scheme: dark) {
+	.orb-blue,
+	.orb-pink {
+		opacity: 0.14;
+	}
+}
+
+/* Outline helps rainbow colors pop against light backgrounds */
+.email-link {
+	-webkit-text-stroke: 1px rgba(0, 0, 0, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+	.email-link {
+		-webkit-text-stroke: 0;
+	}
+}
+
+@keyframes drift-a {
+	to { transform: translate(60px, 50px) scale(1.1); }
+}
+
+@keyframes drift-b {
+	to { transform: translate(-50px, -40px) scale(1.08); }
+}
+
+@keyframes reveal {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+		filter: blur(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+		filter: blur(0);
+	}
+}
+
+.reveal {
+	animation: reveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+	animation-delay: var(--delay, 0ms);
+}
+
+.tilt-wrap {
+	perspective: 800px;
+	display: block;
+}
+
+.email-link {
+	font-size: clamp(2rem, 10vw, 100rem);
+	font-stretch: expanded;
+	color: inherit;
+	text-decoration: none;
+	display: block;
+	transform-style: preserve-3d;
+}
+
+@media (min-width: 640px) {
+	.email-link {
+		font-size: clamp(2rem, 5.8vw, 100rem);
+	}
+}
+
+.nobr {
+	white-space: nowrap;
+	display: inline-block;
+}
+
+.letter {
+	display: inline-block;
+	transform-origin: center 85%;
+	/* Fast spring-like enter; slow natural return using CSS linear() spring simulation */
+	transition:
+		transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1),
+		color 0.08s ease,
+		text-shadow 0.08s ease;
+	will-change: transform;
+}
+
+.letter.leaving {
+	transition:
+		transform 0.6s linear(0, 0.5 7.7%, 0.9 14.4%, 1.04 19.4%, 1.06 23.7%, 1.02 30%, 1 35%, 0.99 45%, 1),
+		color 0.5s ease,
+		text-shadow 0.5s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.orb { animation: none; }
+	.reveal { animation: none; opacity: 1; filter: none; }
+	.letter, .letter.leaving { transition: none; }
+}
 """#
 }
