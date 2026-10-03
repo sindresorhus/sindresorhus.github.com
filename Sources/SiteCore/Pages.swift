@@ -790,6 +790,7 @@ public struct NotFoundPage: HTML {
 			}
 		}
 	}
+}
 
 public enum JSONUtilities {
 	public static func script(_ object: Any) -> String { #"<script type="application/ld+json">\#(json(object))</script>"# }
