@@ -10,11 +10,11 @@ public struct HomePage: HTML {
 				div(.class("profile-ring")) {
 					img(.src("/assets/sindre-sorhus.jpg"), .alt("Sindre Sorhus profile photo"), .width(144), .height(144), .class("profile-photo"))
 				}
-				h1(.class("home-title gradient-text")) { "Sindre Sorhus" }
-				p(.class("home-tagline")) { "Full-Time Open-Sourcerer & App Maker" }
+				h1(.class("home-title hero-name background-animate gradient-text")) { "Sindre Sorhus" }
+				p(.class("home-tagline hero-tagline")) { "Full-Time Open-Sourcerer & App Maker" }
 				div(.class("home-actions")) {
-					a(.href("/apps"), .class("home-button home-button-primary")) { Icon(name: .appStore); " Apps" }
-					a(.href("https://github.com/sindresorhus"), .class("home-button home-button-dark")) { Icon(name: .github); " Code" }
+					a(.href("/apps"), .class("home-button glass-btn glass-btn-primary")) { Icon(name: .appStore); " Apps" }
+					a(.href("https://github.com/sindresorhus"), .class("home-button glass-btn glass-btn-dark")) { Icon(name: .github); " Code" }
 				}
 			}
 		}
@@ -541,9 +541,19 @@ public struct ContactPage: HTML {
 		section(.id("contact-section"), .class("contact-page")) {
 			div(.class("orb orb-blue")); div(.class("orb orb-pink"))
 			div(.class("contact-center")) {
-				p { "say hello" }
-				div(.class("tilt-wrap")) { a(.id("contact-email"), .href("mailto:sindresorhus@gmail.com"), .class("email-link"), .custom(name:"aria-label", value:"sindresorhus@gmail.com")) { EmailLetters() } }
-				ul(.class("contact-note")) { li { "Keep it succinct" }; li { "No calls or job offers" }; li { "App queries → use in-app feedback" } }
+				p(.class("reveal contact-eyebrow"), .custom(name: "style", value: "--delay:0ms")) { "say hello" }
+				div(.class("reveal contact-email-wrap"), .custom(name: "style", value: "--delay:80ms")) {
+					div(.class("tilt-wrap")) {
+						a(.id("contact-email"), .href("mailto:sindresorhus@gmail.com"), .class("email-link"), .custom(name:"aria-label", value:"sindresorhus@gmail.com")) {
+							EmailLetters()
+						}
+					}
+				}
+				ul(.class("reveal contact-note"), .custom(name: "style", value: "--delay:200ms")) {
+					li { "Keep it succinct" }
+					li { "No calls or job offers" }
+					li { "App queries → use in-app feedback" }
+				}
 			}
 		}
 		script(.src("/scripts/contact.js"), .type(.module)) {}
