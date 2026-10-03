@@ -27,6 +27,8 @@ jobs:
       - uses: actions/checkout@v7
       - name: Swift version
         run: swift --version
+      - name: Install image dependencies
+        run: sudo apt-get update && sudo apt-get install -y librsvg2-bin fonts-inter
       - name: Test
         run: swift test
       - name: Build site
