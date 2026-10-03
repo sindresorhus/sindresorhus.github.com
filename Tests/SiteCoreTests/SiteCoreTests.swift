@@ -82,9 +82,9 @@ import Testing
 	[^second]: Second definition.
 	""")
 
-	#expect(markdown.html.contains(#"href="#user-content-fn-second""#))
+	#expect(markdown.html.contains("href=\"#user-content-fn-second\""))
 	#expect(markdown.html.contains(#">1</a></sup>"#))
-	#expect(markdown.html.contains(#"href="#user-content-fn-first""#))
+	#expect(markdown.html.contains("href=\"#user-content-fn-first\""))
 	#expect(markdown.html.contains(#">2</a></sup>"#))
 	#expect(markdown.html.contains("Second definition."))
 	#expect(markdown.html.contains("First definition."))
