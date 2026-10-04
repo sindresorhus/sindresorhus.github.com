@@ -271,9 +271,12 @@ public enum MarkdownProcessor {
 			let rawText = String(line[textRange]).trimmingCharacters(in: .whitespaces)
 			let explicitID: String? = match.range(at: 3).location == NSNotFound ? nil : Range(match.range(at: 3), in: line).map { String(line[$0]) }
 			let base = explicitID ?? TextUtilities.slugify(stripMarkdown(rawText))
-			let count = used[base, default: 0]
-			used[base] = count + 1
-			let id = count == 0 ? base : "\(base)-\(count)"
+			var id = base
+			while used[id] != nil {
+				used[base, default: 0] += 1
+				id = "\(base)-\(used[base]!)"
+			}
+			used[id] = 0
 			result.append(HeadingInfo(level: level, text: stripMarkdown(rawText), id: id))
 		}
 		return result
