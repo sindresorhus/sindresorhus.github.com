@@ -68,6 +68,7 @@ class Parser(HTMLParser):
 		self.heading_stack = []
 		self.ignore_heading_depth = 0
 		self.headings = []
+		self.heading_ids = []
 		self.meta = {}
 		self.canonical = None
 		self.rss = set()
@@ -81,7 +82,7 @@ class Parser(HTMLParser):
 		if tag == 'title':
 			self.in_title = True
 		if tag in {'h1', 'h2', 'h3', 'h4'}:
-			self.heading_stack.append((tag, []))
+			self.heading_stack.append((tag, attrs.get('id'), []))
 		if self.heading_stack and tag in {'select', 'script', 'style'}:
 			self.ignore_heading_depth += 1
 		if tag == 'meta':
@@ -107,10 +108,12 @@ class Parser(HTMLParser):
 		if self.heading_stack and tag in {'select', 'script', 'style'} and self.ignore_heading_depth:
 			self.ignore_heading_depth -= 1
 		if tag in {'h1', 'h2', 'h3', 'h4'} and self.heading_stack:
-			heading_tag, parts = self.heading_stack.pop()
+			heading_tag, heading_id, parts = self.heading_stack.pop()
 			value = normalize_text(''.join(parts))
 			if value:
 				self.headings.append((heading_tag, value))
+				if heading_id:
+					self.heading_ids.append((heading_tag, heading_id, value))
 		if tag == 'script' and self.in_json:
 			raw = ''.join(self.json_buffer).strip()
 			if raw:
@@ -134,6 +137,7 @@ class Parser(HTMLParser):
 			'rss': sorted(self.rss),
 			'refresh': self.refresh,
 			'headings': self.headings,
+			'heading_ids': self.heading_ids,
 			'json_ld': [normalize_json(value) for value in self.json_ld],
 		}
 
@@ -153,7 +157,7 @@ for route in sorted(reference_routes.keys() & candidate_routes.keys()):
 	for key, expected in reference['meta'].items():
 		if candidate['meta'].get(key) != expected:
 			differences.append(f'{route}: meta {key}: Astro={expected!r}, Swift={candidate["meta"].get(key)!r}')
-	for key in ('title', 'canonical', 'rss', 'refresh', 'headings', 'json_ld'):
+	for key in ('title', 'canonical', 'rss', 'refresh', 'headings', 'heading_ids', 'json_ld'):
 		if candidate[key] != reference[key]:
 			differences.append(f'{route}: {key}: Astro={reference[key]!r}, Swift={candidate[key]!r}')
 
