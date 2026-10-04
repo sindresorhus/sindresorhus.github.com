@@ -196,6 +196,6 @@ private func makeTemporarySiteRoot() throws -> URL {
 	#expect(!sanitized.contains("private"))
 	#expect(sanitized.contains(#"<a href="https://example.com">site</a>"#))
 	#expect(!sanitized.contains("<img"))
-	#expect(!sanitized.contains("alert(1)</script>"))
+	#expect(!sanitized.contains("alert(1)"))
 	#expect(!sanitized.contains("javascript:"))
 }
