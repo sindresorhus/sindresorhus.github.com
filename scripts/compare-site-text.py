@@ -22,6 +22,11 @@ def route_map(root):
 	return result
 
 class VisibleMainTextParser(HTMLParser):
+	void_tags = {
+		'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
+		'link', 'meta', 'param', 'source', 'track', 'wbr',
+	}
+
 	def __init__(self):
 		super().__init__(convert_charrefs=True)
 		self.main_depth = 0
@@ -30,8 +35,12 @@ class VisibleMainTextParser(HTMLParser):
 
 	def handle_starttag(self, tag, attrs_list):
 		attrs = dict(attrs_list)
+
 		if tag == 'main':
+			parent_ignored = self.ignore_stack[-1] if self.ignore_stack else False
 			self.main_depth += 1
+			self.ignore_stack.append(parent_ignored)
+			return
 
 		if not self.main_depth:
 			return
@@ -43,16 +52,30 @@ class VisibleMainTextParser(HTMLParser):
 			or 'hidden' in classes
 			or attrs.get('aria-hidden') == 'true'
 		)
-		self.ignore_stack.append(should_ignore or any(self.ignore_stack))
+		parent_ignored = self.ignore_stack[-1] if self.ignore_stack else False
+
+		if tag not in self.void_tags:
+			self.ignore_stack.append(parent_ignored or should_ignore)
+
+	def handle_startendtag(self, tag, attrs_list):
+		# Void/self-closing elements do not contain visible text.
+		return
 
 	def handle_endtag(self, tag):
-		if self.main_depth and self.ignore_stack:
-			self.ignore_stack.pop()
-		if tag == 'main' and self.main_depth:
+		if not self.main_depth:
+			return
+
+		if tag == 'main':
+			if self.ignore_stack:
+				self.ignore_stack.pop()
 			self.main_depth -= 1
+			return
+
+		if tag not in self.void_tags and self.ignore_stack:
+			self.ignore_stack.pop()
 
 	def handle_data(self, data):
-		if self.main_depth and not any(self.ignore_stack):
+		if self.main_depth and not (self.ignore_stack and self.ignore_stack[-1]):
 			self.parts.append(data)
 
 	def text(self):
