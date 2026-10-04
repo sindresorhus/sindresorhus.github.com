@@ -233,9 +233,34 @@ public enum MarkdownProcessor {
 		var result: [HeadingInfo] = []
 		var used: [String: Int] = [:]
 		var inFence = false
-		for line in lines {
-			let trimmed = line.trimmingCharacters(in: .whitespaces)
-			if trimmed.hasPrefix("```") || trimmed.hasPrefix("~~~") { inFence.toggle(); continue }
+		var inHTMLComment = false
+		for originalLine in lines {
+			let trimmed = originalLine.trimmingCharacters(in: .whitespaces)
+
+			if inHTMLComment {
+				if trimmed.contains("-->") {
+					inHTMLComment = false
+				}
+				continue
+			}
+
+			var line = originalLine
+			if let commentStart = line.range(of: "<!--") {
+				let commentTail = line[commentStart.lowerBound...]
+				if !commentTail.contains("-->") {
+					inHTMLComment = true
+				}
+				line = String(line[..<commentStart.lowerBound])
+			}
+
+			let effective = line.trimmingCharacters(in: .whitespaces)
+			if effective.isEmpty {
+				continue
+			}
+			if effective.hasPrefix("```") || effective.hasPrefix("~~~") {
+				inFence.toggle()
+				continue
+			}
 			guard !inFence else { continue }
 			let range = NSRange(line.startIndex..<line.endIndex, in: line)
 			guard let match = regex.firstMatch(in: line, range: range),
@@ -261,28 +286,51 @@ public enum MarkdownProcessor {
 		var result: [String: [String: FAQMetadata]] = [:]
 		var headingIndex = -1
 		var currentHeadingID: String?
+		var inHTMLComment = false
+
 		for line in lines {
+			let trimmed = line.trimmingCharacters(in: .whitespaces)
+
+			if inHTMLComment {
+				if trimmed.contains("-->") {
+					inHTMLComment = false
+				}
+				continue
+			}
+
 			let range = NSRange(line.startIndex..<line.endIndex, in: line)
+
+			if let match = directiveRegex.firstMatch(in: line, range: range), let currentHeadingID {
+				guard let namespaceRange = Range(match.range(at: 1), in: line),
+					let attributeRange = Range(match.range(at: 2), in: line),
+					let valueRange = Range(match.range(at: 3), in: line)
+				else { continue }
+				let namespace = String(line[namespaceRange])
+				let attribute = String(line[attributeRange])
+				let values = String(line[valueRange]).split(whereSeparator: \.isWhitespace).map(String.init)
+				var faq = result[currentHeadingID]?[namespace] ?? FAQMetadata()
+				if attribute == "keywords" { faq.keywords = values }
+				if attribute == "platforms" { faq.platforms = values }
+				result[currentHeadingID, default: [:]][namespace] = faq
+				continue
+			}
+
+			if trimmed.hasPrefix("<!--") {
+				if !trimmed.contains("-->") {
+					inHTMLComment = true
+				}
+				currentHeadingID = nil
+				continue
+			}
+
 			if headingRegex.firstMatch(in: line, range: range) != nil {
 				headingIndex += 1
 				currentHeadingID = headings.indices.contains(headingIndex) ? headings[headingIndex].id : nil
 				continue
 			}
-			guard let match = directiveRegex.firstMatch(in: line, range: range), let currentHeadingID else {
-				if !line.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { currentHeadingID = nil }
-				continue
+			if !trimmed.isEmpty {
+				currentHeadingID = nil
 			}
-			guard let namespaceRange = Range(match.range(at: 1), in: line),
-				let attributeRange = Range(match.range(at: 2), in: line),
-				let valueRange = Range(match.range(at: 3), in: line)
-			else { continue }
-			let namespace = String(line[namespaceRange])
-			let attribute = String(line[attributeRange])
-			let values = String(line[valueRange]).split(whereSeparator: \.isWhitespace).map(String.init)
-			var faq = result[currentHeadingID]?[namespace] ?? FAQMetadata()
-			if attribute == "keywords" { faq.keywords = values }
-			if attribute == "platforms" { faq.platforms = values }
-			result[currentHeadingID, default: [:]][namespace] = faq
 		}
 		return result
 	}
@@ -513,7 +561,7 @@ private struct SiteMarkdownRenderer: MarkupWalker {
 			let remainderRange = Range(match.range(at: 3), in: preview)
 		{
 			let kind = String(preview[kindRange]).lowercased()
-			let title = kind.prefix(1).uppercased() + kind.dropFirst()
+			let title = kind.uppercased()
 			let firstBody = String(preview[firstBodyRange]).trimmingCharacters(in: .whitespacesAndNewlines)
 			let remainder = String(preview[remainderRange])
 			result += #"<div class="markdown-alert markdown-alert-\#(kind)">"#
