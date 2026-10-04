@@ -173,3 +173,29 @@ private func makeTemporarySiteRoot() throws -> URL {
 	#expect(markdown.html.contains("<li>Nested</li>"))
 	#expect(!markdown.html.contains("<li><p>"))
 }
+
+
+@Test func releaseNotesLinkifyBareEmailWithoutKbdTransformation() {
+	let html = MarkdownProcessor.renderReleaseNotes(
+		"Contact support@example.com. <kbd>Command+Delete</kbd>"
+	)
+	#expect(html.contains(#"<a href="mailto:support@example.com">support@example.com</a>"#))
+	#expect(html.contains("<kbd>Command+Delete</kbd>"))
+	#expect(!html.contains("kbd-sep"))
+}
+
+@Test func releaseFeedSanitizerMatchesExpectedSafetyBasics() {
+	let html = """
+	<!-- private -->
+	<p>Hello <a href="https://example.com" class="x">site</a>.</p>
+	<img src="https://example.com/a.png">
+	<script>alert(1)</script>
+	<a href="javascript:alert(1)">bad</a>
+	"""
+	let sanitized = FeedHTMLSanitizer.sanitize(html)
+	#expect(!sanitized.contains("private"))
+	#expect(sanitized.contains(#"<a href="https://example.com">site</a>"#))
+	#expect(!sanitized.contains("<img"))
+	#expect(!sanitized.contains("alert(1)</script>"))
+	#expect(!sanitized.contains("javascript:"))
+}
