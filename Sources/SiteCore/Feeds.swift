@@ -23,7 +23,7 @@ public enum FeedRenderer {
 		let formatter = DateFormatter()
 		formatter.locale = Locale(identifier: "en_US_POSIX")
 		formatter.timeZone = TimeZone(secondsFromGMT: 0)
-		formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss Z"
+		formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss 'GMT'"
 		let renderedItems = items.map { item in
 			let absoluteLink = absolute(item.link)
 			return """
@@ -43,7 +43,7 @@ public enum FeedRenderer {
 		<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
 		<channel>
 			<title>\(TextUtilities.escapeXML(title))</title>
-			<link>\(SiteConfiguration.origin)</link>
+			<link>\(SiteConfiguration.origin)/</link>
 			<description>\(TextUtilities.escapeXML(description))</description>
 			\(renderedItems)
 		</channel>
