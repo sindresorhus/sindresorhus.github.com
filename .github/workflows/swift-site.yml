@@ -69,5 +69,7 @@ jobs:
         run: python3 scripts/compare-site-xml.py dist-astro dist
       - name: Compare semantic HTML parity
         run: python3 scripts/compare-site-semantics.py dist-astro dist
+      - name: Compare visible text parity
+        run: python3 scripts/compare-site-text.py dist-astro dist
       - name: Compare OG visual parity
         run: python3 scripts/compare-og-images.py dist-astro dist
