@@ -199,3 +199,28 @@ private func makeTemporarySiteRoot() throws -> URL {
 	#expect(!sanitized.contains("alert(1)"))
 	#expect(!sanitized.contains("javascript:"))
 }
+
+
+@Test func headingsInsideHTMLCommentsAreIgnored() {
+	let markdown = MarkdownProcessor.process("""
+	## Visible
+
+	<!--
+	## Hidden
+	-->
+
+	## Also Visible
+	""")
+
+	#expect(markdown.headings.map(\.text) == ["Visible", "Also Visible"])
+}
+
+@Test func githubAlertLabelsStayUppercase() {
+	let markdown = MarkdownProcessor.process("""
+	> [!WARNING]
+	> Careful.
+	""")
+
+	#expect(markdown.html.contains(">WARNING</p>"))
+	#expect(!markdown.html.contains(">Warning</p>"))
+}
