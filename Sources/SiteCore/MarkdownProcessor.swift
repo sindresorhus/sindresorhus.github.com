@@ -564,8 +564,11 @@ private struct SiteMarkdownRenderer: MarkupWalker {
 	}
 	mutating func visitUnorderedList(_ unorderedList: UnorderedList) { result += "<ul>\n"; descendInto(unorderedList); result += "</ul>\n" }
 	mutating func visitParagraph(_ paragraph: Paragraph) {
-		if paragraph.parent is ListItem {
+		if let listItem = paragraph.parent as? ListItem {
 			descendInto(paragraph)
+			if paragraph.indexInParent < listItem.childCount - 1 {
+				result += "\n"
+			}
 		} else {
 			result += "<p>"
 			descendInto(paragraph)
