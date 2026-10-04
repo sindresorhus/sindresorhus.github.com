@@ -536,7 +536,15 @@ private struct SiteMarkdownRenderer: MarkupWalker {
 		descendInto(orderedList); result += "</ol>\n"
 	}
 	mutating func visitUnorderedList(_ unorderedList: UnorderedList) { result += "<ul>\n"; descendInto(unorderedList); result += "</ul>\n" }
-	mutating func visitParagraph(_ paragraph: Paragraph) { result += "<p>"; descendInto(paragraph); result += "</p>\n" }
+	mutating func visitParagraph(_ paragraph: Paragraph) {
+		if paragraph.parent is ListItem {
+			descendInto(paragraph)
+		} else {
+			result += "<p>"
+			descendInto(paragraph)
+			result += "</p>\n"
+		}
+	}
 	mutating func visitTable(_ table: Markdown.Table) { result += "<table>\n"; tableColumnAlignments = table.columnAlignments; descendInto(table); tableColumnAlignments = nil; result += "</table>\n" }
 	mutating func visitTableHead(_ tableHead: Markdown.Table.Head) { result += "<thead><tr>\n"; inTableHead = true; currentTableColumn = 0; descendInto(tableHead); inTableHead = false; result += "</tr></thead>\n" }
 	mutating func visitTableBody(_ tableBody: Markdown.Table.Body) { if !tableBody.isEmpty { result += "<tbody>\n"; descendInto(tableBody); result += "</tbody>\n" } }
