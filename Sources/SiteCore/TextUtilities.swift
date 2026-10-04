@@ -11,15 +11,20 @@ public enum TextUtilities {
 	}
 
 	public static func slugify(_ value: String) -> String {
-		let strippedHTML = value.replacingOccurrences(of: #"<[^>]+>"#, with: "", options: .regularExpression)
-		let folded = strippedHTML.folding(options: [.diacriticInsensitive, .widthInsensitive], locale: Locale(identifier: "en_US_POSIX")).lowercased()
-		let scalars = folded.unicodeScalars.filter { scalar in
-			CharacterSet.alphanumerics.contains(scalar) || scalar == "-" || scalar == "_" || CharacterSet.whitespacesAndNewlines.contains(scalar)
+		let strippedHTML = value.replacingOccurrences(
+			of: #"<[^>]+>"#,
+			with: "",
+			options: .regularExpression
+		)
+		let lowered = strippedHTML.lowercased()
+		let scalars = lowered.unicodeScalars.filter { scalar in
+			CharacterSet.alphanumerics.contains(scalar)
+				|| scalar == "-"
+				|| scalar == "_"
+				|| scalar == " "
 		}
 		return String(String.UnicodeScalarView(scalars))
-			.trimmingCharacters(in: .whitespacesAndNewlines)
-			.replacingOccurrences(of: #"\s+"#, with: "-", options: .regularExpression)
-			.replacingOccurrences(of: #"-+"#, with: "-", options: .regularExpression)
+			.replacingOccurrences(of: " ", with: "-")
 	}
 
 	public static func escapeHTML(_ value: String) -> String {
