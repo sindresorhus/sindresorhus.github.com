@@ -247,21 +247,128 @@ public struct SiteBuilder: Sendable {
 
 	private func validate(routes: Set<String>) throws -> ValidationReport {
 		let htmlFiles = try recursiveFiles(at: output).filter { $0.pathExtension == "html" }
-		var broken: [String] = []
-		let hrefRegex = try NSRegularExpression(pattern:#"(?:href|src)=\"(/[^\"?#]*)(?:[?#][^\"]*)?\""#)
+		let attributeRegex = try NSRegularExpression(pattern: #"(href|src)=\"([^\"]+)\""#)
+		let idRegex = try NSRegularExpression(pattern: #"\bid=\"([^\"]+)\""#)
+
+		var idsByFile: [String: Set<String>] = [:]
 		for file in htmlFiles {
-			let html = try String(contentsOf:file, encoding:.utf8)
-			let matches = hrefRegex.matches(in:html, range:NSRange(html.startIndex..<html.endIndex,in:html))
+			let html = try String(contentsOf: file, encoding: .utf8)
+			let matches = idRegex.matches(
+				in: html,
+				range: NSRange(html.startIndex..<html.endIndex, in: html)
+			)
+			idsByFile[file.standardizedFileURL.path] = Set(matches.compactMap { match in
+				guard let range = Range(match.range(at: 1), in: html) else {
+					return nil
+				}
+				return String(html[range]).removingPercentEncoding ?? String(html[range])
+			})
+		}
+
+		var brokenLinks: [String] = []
+		var brokenFragments: [String] = []
+
+		for file in htmlFiles {
+			let html = try String(contentsOf: file, encoding: .utf8)
+			let route = routeForOutputHTML(file)
+			guard let baseURL = URL(
+				string: SiteConfiguration.origin + (route == "/" ? "/" : route)
+			) else {
+				continue
+			}
+
+			let matches = attributeRegex.matches(
+				in: html,
+				range: NSRange(html.startIndex..<html.endIndex, in: html)
+			)
+
 			for match in matches {
-				guard let range = Range(match.range(at:1), in:html) else { continue }
-				let path = String(html[range])
-				if path.hasPrefix("//") { continue }
-				let resource = output.appending(path:String(path.dropFirst()))
-				let htmlResource = output.appending(path:String(path.dropFirst()) + ".html")
-				if !FileManager.default.fileExists(atPath:resource.path) && !FileManager.default.fileExists(atPath:htmlResource.path) { broken.append("\(file.lastPathComponent): \(path)") }
+				guard
+					let attributeRange = Range(match.range(at: 1), in: html),
+					let valueRange = Range(match.range(at: 2), in: html)
+				else {
+					continue
+				}
+
+				let attribute = String(html[attributeRange])
+				let rawValue = String(html[valueRange])
+
+				if rawValue.hasPrefix("//") {
+					continue
+				}
+
+				guard let resolved = URL(string: rawValue, relativeTo: baseURL)?.absoluteURL else {
+					continue
+				}
+
+				guard
+					resolved.scheme == "https" || resolved.scheme == "http",
+					resolved.host == URL(string: SiteConfiguration.origin)?.host
+				else {
+					continue
+				}
+
+				let targetPath = resolved.path.isEmpty ? "/" : resolved.path
+				guard let targetFile = outputFile(forPublicPath: targetPath) else {
+					brokenLinks.append("\(route): \(rawValue)")
+					continue
+				}
+
+				guard
+					attribute == "href",
+					let fragment = resolved.fragment,
+					!fragment.isEmpty,
+					targetFile.pathExtension == "html"
+				else {
+					continue
+				}
+
+				let decodedFragment = fragment.removingPercentEncoding ?? fragment
+				let ids = idsByFile[targetFile.standardizedFileURL.path] ?? []
+				if !ids.contains(decodedFragment) {
+					brokenFragments.append("\(route): \(rawValue)")
+				}
 			}
 		}
-		return ValidationReport(brokenInternalLinks:Array(Set(broken)).sorted())
+
+		return ValidationReport(
+			brokenInternalLinks: Array(Set(brokenLinks)).sorted(),
+			brokenFragments: Array(Set(brokenFragments)).sorted()
+		)
+	}
+
+	private func routeForOutputHTML(_ file: URL) -> String {
+		let relative = file.path.replacingOccurrences(
+			of: output.standardizedFileURL.path + "/",
+			with: ""
+		)
+		guard relative != "index.html" else {
+			return "/"
+		}
+		return "/" + String(relative.dropLast(".html".count))
+	}
+
+	private func outputFile(forPublicPath path: String) -> URL? {
+		if path == "/" {
+			let index = output.appending(path: "index.html")
+			return FileManager.default.fileExists(atPath: index.path) ? index : nil
+		}
+
+		let relative = String(path.drop(while: { $0 == "/" }))
+		let direct = output.appending(path: relative)
+		let html = output.appending(path: relative + ".html")
+		let index = output.appending(path: relative).appending(path: "index.html")
+
+		for candidate in [direct, html, index] {
+			var isDirectory: ObjCBool = false
+			if FileManager.default.fileExists(atPath: candidate.path, isDirectory: &isDirectory),
+				!isDirectory.boolValue
+			{
+				return candidate
+			}
+		}
+
+		return nil
 	}
 
 	private func recursiveFiles(at url: URL) throws -> [URL] {
@@ -275,10 +382,15 @@ public struct BuildReport: Sendable {
 	public let postCount: Int
 	public let routeCount: Int
 	public let validation: ValidationReport
-	public var isValid: Bool { validation.brokenInternalLinks.isEmpty }
+	public var isValid: Bool {
+		validation.brokenInternalLinks.isEmpty && validation.brokenFragments.isEmpty
+	}
 }
 
-public struct ValidationReport: Sendable { public let brokenInternalLinks: [String] }
+public struct ValidationReport: Sendable {
+	public let brokenInternalLinks: [String]
+	public let brokenFragments: [String]
+}
 public enum BuildError: Error { case duplicateRoute(String) }
 
 private extension Array {
