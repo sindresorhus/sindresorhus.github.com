@@ -119,6 +119,229 @@ extension Dictionary where Key == String, Value == Any {
 	}
 }
 
+private enum ContentSchemaValidator {
+	private static let appKeys: Set<String> = [
+		"draft", "isUnlisted", "isArchived", "title", "subtitle", "description",
+		"pubDate", "platforms", "repoUrl", "appStoreId", "setappId", "isPaid",
+		"isMenuBarApp", "mainLinks", "links", "overflowLinks", "showSupportLink",
+		"redirectUrl", "releasesRepo", "olderMacOSVersions", "requirement",
+		"downloads", "feedbackNote", "hasSentry", "pressQuotes", "announcement",
+	]
+
+	private static let blogKeys: Set<String> = [
+		"draft", "isUnlisted", "title", "description", "pubDate", "tags",
+		"redirectUrl",
+	]
+
+	private static let platformValues = Set(Platform.allCases.map(\.rawValue))
+	private static let blogTagValues: Set<String> = [
+		"programming", "open-source", "swift", "javascript", "nodejs",
+	]
+	private static let olderMacOSVersionValues: Set<String> = [
+		"10.13", "10.14", "10.15", "11", "12", "13", "14", "15",
+		"26", "27", "28", "29", "30", "31", "32", "33", "34",
+	]
+	private static let maximumSafeInteger = 9_007_199_254_740_991
+
+	static func validateApp(_ values: [String: Any], file: String) throws {
+		try validateUnknownKeys(values, allowed: appKeys, file: file)
+		try validateRequiredNonemptyString(values, key: "title", file: file)
+		try validateRequiredNonemptyString(values, key: "subtitle", file: file)
+		try validateOptionalNonemptyString(values, key: "description", file: file)
+		try validateRequiredDate(values, key: "pubDate", file: file)
+		try validateRequiredStringArray(values, key: "platforms", allowed: platformValues, file: file)
+
+		for key in ["draft", "isUnlisted", "isArchived", "isPaid", "isMenuBarApp", "showSupportLink", "hasSentry"] {
+			try validateOptionalBoolean(values, key: key, file: file)
+		}
+
+		for key in ["repoUrl", "redirectUrl"] {
+			try validateOptionalURL(values, key: key, file: file)
+		}
+
+		for key in ["appStoreId", "setappId"] {
+			try validateOptionalPositiveInteger(values, key: key, safe: true, file: file)
+		}
+
+		try validateOptionalPositiveInteger(values, key: "downloads", safe: false, file: file)
+
+		for key in ["releasesRepo", "requirement", "feedbackNote"] {
+			try validateOptionalString(values, key: key, file: file)
+		}
+
+		for key in ["mainLinks", "links", "overflowLinks"] {
+			try validateOptionalURLMap(values, key: key, file: file)
+		}
+
+		try validateOptionalStringArray(
+			values,
+			key: "olderMacOSVersions",
+			allowed: olderMacOSVersionValues,
+			file: file
+		)
+		try validatePressQuotes(values, file: file)
+		try validateAnnouncement(values, file: file)
+	}
+
+	static func validateBlog(_ values: [String: Any], file: String) throws {
+		try validateUnknownKeys(values, allowed: blogKeys, file: file)
+		try validateRequiredNonemptyString(values, key: "title", file: file)
+		try validateOptionalNonemptyString(values, key: "description", file: file)
+		try validateRequiredDate(values, key: "pubDate", file: file)
+		try validateOptionalBoolean(values, key: "draft", file: file)
+		try validateOptionalBoolean(values, key: "isUnlisted", file: file)
+		try validateOptionalStringArray(values, key: "tags", allowed: blogTagValues, file: file)
+		try validateOptionalURL(values, key: "redirectUrl", file: file)
+	}
+
+	private static func validateUnknownKeys(_ values: [String: Any], allowed: Set<String>, file: String) throws {
+		guard Set(values.keys).isSubset(of: allowed) else {
+			let unknown = Set(values.keys).subtracting(allowed).sorted().joined(separator: ", ")
+			throw ContentError.invalidField("unknown key(s): \(unknown)", file: file)
+		}
+	}
+
+	private static func validateRequiredNonemptyString(_ values: [String: Any], key: String, file: String) throws {
+		guard let value = values[key] as? String, !value.isEmpty else {
+			throw ContentError.invalidField(key, file: file)
+		}
+	}
+
+	private static func validateOptionalNonemptyString(_ values: [String: Any], key: String, file: String) throws {
+		guard let raw = values[key] else { return }
+		guard let value = raw as? String, !value.isEmpty else {
+			throw ContentError.invalidField(key, file: file)
+		}
+	}
+
+	private static func validateOptionalString(_ values: [String: Any], key: String, file: String) throws {
+		guard let raw = values[key] else { return }
+		guard raw is String else {
+			throw ContentError.invalidField(key, file: file)
+		}
+	}
+
+	private static func validateOptionalBoolean(_ values: [String: Any], key: String, file: String) throws {
+		guard let raw = values[key] else { return }
+		guard type(of: raw) == Bool.self else {
+			throw ContentError.invalidField(key, file: file)
+		}
+	}
+
+	private static func validateOptionalPositiveInteger(
+		_ values: [String: Any],
+		key: String,
+		safe: Bool,
+		file: String
+	) throws {
+		guard let raw = values[key] else { return }
+		guard type(of: raw) == Int.self, let value = raw as? Int, value > 0 else {
+			throw ContentError.invalidField(key, file: file)
+		}
+		if safe && value > maximumSafeInteger {
+			throw ContentError.invalidField(key, file: file)
+		}
+	}
+
+	private static func validateRequiredDate(_ values: [String: Any], key: String, file: String) throws {
+		guard values[key] != nil else {
+			throw ContentError.missingField(key, file: file)
+		}
+		_ = try values.date(key, file: file)
+	}
+
+	private static func validateOptionalURL(_ values: [String: Any], key: String, file: String) throws {
+		guard let raw = values[key] else { return }
+		guard let value = raw as? String, isValidURL(value) else {
+			throw ContentError.invalidField(key, file: file)
+		}
+	}
+
+	private static func validateOptionalURLMap(_ values: [String: Any], key: String, file: String) throws {
+		guard let raw = values[key] else { return }
+		guard let map = raw as? [String: Any] else {
+			throw ContentError.invalidField(key, file: file)
+		}
+		for value in map.values {
+			guard let string = value as? String, isValidURL(string) else {
+				throw ContentError.invalidField(key, file: file)
+			}
+		}
+	}
+
+	private static func validateRequiredStringArray(
+		_ values: [String: Any],
+		key: String,
+		allowed: Set<String>,
+		file: String
+	) throws {
+		guard values[key] != nil else {
+			throw ContentError.missingField(key, file: file)
+		}
+		try validateStringArray(values[key], key: key, allowed: allowed, file: file)
+	}
+
+	private static func validateOptionalStringArray(
+		_ values: [String: Any],
+		key: String,
+		allowed: Set<String>,
+		file: String
+	) throws {
+		guard let raw = values[key] else { return }
+		try validateStringArray(raw, key: key, allowed: allowed, file: file)
+	}
+
+	private static func validateStringArray(
+		_ raw: Any?,
+		key: String,
+		allowed: Set<String>,
+		file: String
+	) throws {
+		guard let array = raw as? [Any] else {
+			throw ContentError.invalidField(key, file: file)
+		}
+		for value in array {
+			guard let string = value as? String, allowed.contains(string) else {
+				throw ContentError.invalidField(key, file: file)
+			}
+		}
+	}
+
+	private static func validatePressQuotes(_ values: [String: Any], file: String) throws {
+		guard let raw = values["pressQuotes"] else { return }
+		guard let quotes = raw as? [[String: Any]] else {
+			throw ContentError.invalidField("pressQuotes", file: file)
+		}
+		let allowed: Set<String> = ["quote", "source", "url", "isStarRating"]
+		for quote in quotes {
+			try validateUnknownKeys(quote, allowed: allowed, file: file)
+			try validateRequiredNonemptyString(quote, key: "quote", file: file)
+			try validateRequiredNonemptyString(quote, key: "source", file: file)
+			try validateOptionalURL(quote, key: "url", file: file)
+			try validateOptionalBoolean(quote, key: "isStarRating", file: file)
+		}
+	}
+
+	private static func validateAnnouncement(_ values: [String: Any], file: String) throws {
+		guard let raw = values["announcement"] else { return }
+		guard let announcement = raw as? [String: Any] else {
+			throw ContentError.invalidField("announcement", file: file)
+		}
+		let allowed: Set<String> = ["text", "url", "urlText"]
+		try validateUnknownKeys(announcement, allowed: allowed, file: file)
+		try validateRequiredNonemptyString(announcement, key: "text", file: file)
+		try validateOptionalString(announcement, key: "url", file: file)
+		try validateOptionalString(announcement, key: "urlText", file: file)
+	}
+
+	private static func isValidURL(_ value: String) -> Bool {
+		guard let url = URL(string: value), let scheme = url.scheme, !scheme.isEmpty else {
+			return false
+		}
+		return true
+	}
+}
+
 public enum ContentLoader {
 	public static func loadApps(root: URL) throws -> [App] {
 		let directory = root.appending(path: "source/content/apps")
@@ -130,6 +353,7 @@ public enum ContentLoader {
 			let source = try String(contentsOf: file, encoding: .utf8)
 			let document = try FrontmatterDocument(source: source, file: file.path)
 			let values = document.values
+			try ContentSchemaValidator.validateApp(values, file: file.path)
 			let slug = file.deletingPathExtension().lastPathComponent
 			let title = try values.requiredString("title", file: file.path)
 			let subtitle = try values.requiredString("subtitle", file: file.path)
@@ -214,6 +438,7 @@ public enum ContentLoader {
 			let source = try String(contentsOf: file, encoding: .utf8)
 			let document = try FrontmatterDocument(source: source, file: file.path)
 			let values = document.values
+			try ContentSchemaValidator.validateBlog(values, file: file.path)
 			return BlogPost(
 				slug: file.deletingPathExtension().lastPathComponent,
 				body: document.body,
