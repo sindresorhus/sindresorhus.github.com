@@ -77,7 +77,9 @@ public struct SiteBuilder: Sendable {
 			let feedItems = releases.filter { $0.tagName != "v1.0.0" }.compactMap { release -> RSSItem? in
 				guard let date = ISO8601DateFormatter().date(from: release.publishedAt) else { return nil }
 				let version = release.tagName.replacingOccurrences(of: "v", with: "", options: .anchored)
-				return RSSItem(title: version, link: "/\(app.slug)/release-notes#\(version)", publicationDate: date, contentHTML: release.body.map { MarkdownProcessor.process($0).html })
+				return RSSItem(title: version, link: "/\(app.slug)/release-notes#\(version)", publicationDate: date, contentHTML: release.body.map {
+					FeedHTMLSanitizer.sanitize(MarkdownProcessor.renderReleaseNotes($0))
+				})
 			}
 			try writeText("/\(app.slug)/rss.xml", FeedRenderer.rss(title: "\(app.title) Release Notes", description: "Latest releases of \(app.title)", items: feedItems), routes: &routes)
 		}
