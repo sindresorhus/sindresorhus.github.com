@@ -389,7 +389,7 @@ public enum ContentLoader {
 			}
 
 			let appRoot = root.appending(path: "public/apps/\(slug)")
-			let media = AssetInspector.mediaAssets(in: appRoot, publicPrefix: "/apps/\(slug)")
+			let media = try AssetInspector.mediaAssets(in: appRoot, publicPrefix: "/apps/\(slug)")
 
 			return App(
 				slug: slug,
