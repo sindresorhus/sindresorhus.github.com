@@ -85,7 +85,7 @@ enum FeedHTMLSanitizer {
 
 		for tag in nonTextTags {
 			result = result.replacingOccurrences(
-				of: "(?is)<\\s*\\(tag)\\b[^>]*>.*?<\\s*/\\s*\\(tag)\\s*>",
+				of: "(?is)<\\s*\(tag)\\b[^>]*>.*?<\\s*/\\s*\(tag)\\s*>",
 				with: "",
 				options: .regularExpression
 			)
