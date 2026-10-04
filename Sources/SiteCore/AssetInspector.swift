@@ -1,8 +1,15 @@
 import Foundation
 
 public enum AssetInspector {
-	public static func mediaAssets(in directory: URL, publicPrefix: String) -> [MediaAsset] {
-		guard let files = try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) else { return [] }
+	public static func mediaAssets(in directory: URL, publicPrefix: String) throws -> [MediaAsset] {
+		guard FileManager.default.fileExists(atPath: directory.path) else {
+			return []
+		}
+
+		let files = try FileManager.default.contentsOfDirectory(
+			at: directory,
+			includingPropertiesForKeys: nil
+		)
 		let videos = files
 			.filter { $0.lastPathComponent.hasPrefix("video") && $0.pathExtension.lowercased() == "mp4" }
 			.sorted { $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending }
@@ -13,9 +20,15 @@ public enum AssetInspector {
 			}
 			.sorted { $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending }
 
-		return (videos + screenshots).compactMap { file in
-			guard let size = size(of: file) else { return nil }
-			return MediaAsset(path: "\(publicPrefix)/\(file.lastPathComponent)", width: size.width, height: size.height)
+		return try (videos + screenshots).map { file in
+			guard let size = size(of: file) else {
+				throw AssetInspectorError.unreadableDimensions(file.path)
+			}
+			return MediaAsset(
+				path: "\(publicPrefix)/\(file.lastPathComponent)",
+				width: size.width,
+				height: size.height
+			)
 		}
 	}
 
@@ -110,5 +123,17 @@ private extension Data {
 		var value: UInt64 = 0
 		for byte in self[offset..<(offset + 8)] { value = (value << 8) | UInt64(byte) }
 		return value
+	}
+}
+
+
+public enum AssetInspectorError: Error, CustomStringConvertible {
+	case unreadableDimensions(String)
+
+	public var description: String {
+		switch self {
+		case .unreadableDimensions(let path):
+			"Could not read media dimensions from \(path)"
+		}
 	}
 }
