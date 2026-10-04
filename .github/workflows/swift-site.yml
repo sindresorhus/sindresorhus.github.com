@@ -37,7 +37,7 @@ jobs:
             node --check "$file"
           done
       - name: Install image dependencies
-        run: sudo apt-get update && sudo apt-get install -y librsvg2-bin fonts-inter
+        run: sudo apt-get update && sudo apt-get install -y librsvg2-bin fonts-inter python3-pil
       - name: Build Astro reference
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -69,3 +69,5 @@ jobs:
         run: python3 scripts/compare-site-xml.py dist-astro dist
       - name: Compare semantic HTML parity
         run: python3 scripts/compare-site-semantics.py dist-astro dist
+      - name: Compare OG visual parity
+        run: python3 scripts/compare-og-images.py dist-astro dist
