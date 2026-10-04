@@ -14,6 +14,7 @@ let package = Package(
 		.package(url: "https://github.com/elementary-swift/elementary.git", exact: "0.8.2"),
 		.package(url: "https://github.com/swiftlang/swift-markdown.git", exact: "0.9.0"),
 		.package(url: "https://github.com/jpsim/Yams.git", exact: "6.2.2"),
+		.package(url: "https://github.com/apple/swift-argument-parser.git", exact: "1.8.2"),
 	],
 	targets: [
 		.target(
@@ -26,7 +27,10 @@ let package = Package(
 		),
 		.executableTarget(
 			name: "Website",
-			dependencies: ["SiteCore"]
+			dependencies: [
+				"SiteCore",
+				.product(name: "ArgumentParser", package: "swift-argument-parser"),
+			]
 		),
 		.testTarget(
 			name: "SiteCoreTests",
