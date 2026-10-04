@@ -65,7 +65,7 @@ jobs:
           name: swift-output
           path: dist
           retention-days: 3
-      - name: Compare semantic HTML parity
-        run: python3 scripts/compare-site-semantics.py dist-astro dist
       - name: Compare RSS and sitemap parity
         run: python3 scripts/compare-site-xml.py dist-astro dist
+      - name: Compare semantic HTML parity
+        run: python3 scripts/compare-site-semantics.py dist-astro dist
