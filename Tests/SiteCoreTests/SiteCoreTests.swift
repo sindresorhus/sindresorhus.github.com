@@ -96,3 +96,66 @@ import Testing
 	let markdown = MarkdownProcessor.process("A read-only viewer for Finder metadata stored in .DS_Store files.")
 	#expect(markdown.introduction == "A read-only viewer for Finder metadata stored in .DS_Store files.")
 }
+
+
+@Test func strictAppFrontmatterValidationRejectsWrongTypesAndUnknownKeys() throws {
+	let root = try makeTemporarySiteRoot()
+	defer { try? FileManager.default.removeItem(at: root) }
+
+	let appDirectory = root.appending(path: "source/content/apps")
+	try FileManager.default.createDirectory(at: appDirectory, withIntermediateDirectories: true)
+
+	let source = """
+	---
+	title: Test
+	subtitle: Test app
+	pubDate: 2026-01-01
+	platforms:
+	  - macOS
+	draft: "false"
+	unexpected: true
+	---
+
+	Test app.
+	"""
+	try source.write(to: appDirectory.appending(path: "test.md"), atomically: true, encoding: .utf8)
+
+	do {
+		_ = try ContentLoader.loadApps(root: root)
+		Issue.record("Expected strict frontmatter validation to fail.")
+	} catch let error as ContentError {
+		#expect(error.description.contains("unknown key") || error.description.contains("draft"))
+	}
+}
+
+@Test func validMinimalAppFrontmatterLoads() throws {
+	let root = try makeTemporarySiteRoot()
+	defer { try? FileManager.default.removeItem(at: root) }
+
+	let appDirectory = root.appending(path: "source/content/apps")
+	try FileManager.default.createDirectory(at: appDirectory, withIntermediateDirectories: true)
+
+	let source = """
+	---
+	title: Test
+	subtitle: Test app
+	pubDate: 2026-01-01
+	platforms:
+	  - macOS
+	---
+
+	Test app.
+	"""
+	try source.write(to: appDirectory.appending(path: "test.md"), atomically: true, encoding: .utf8)
+
+	let apps = try ContentLoader.loadApps(root: root)
+	#expect(apps.count == 1)
+	#expect(apps.first?.title == "Test")
+}
+
+private func makeTemporarySiteRoot() throws -> URL {
+	let root = FileManager.default.temporaryDirectory
+		.appending(path: "SiteCoreTests-\(UUID().uuidString)")
+	try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+	return root
+}
