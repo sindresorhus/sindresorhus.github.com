@@ -122,12 +122,17 @@ extension WebsiteCommand {
 }
 
 private func printValidationErrors(_ validation: ValidationReport) {
-	guard !validation.brokenInternalLinks.isEmpty else {
-		return
+	if !validation.brokenInternalLinks.isEmpty {
+		print("Broken internal links:")
+		for link in validation.brokenInternalLinks {
+			print("- \(link)")
+		}
 	}
 
-	print("Broken internal links:")
-	for link in validation.brokenInternalLinks {
-		print("- \(link)")
+	if !validation.brokenFragments.isEmpty {
+		print("Broken internal fragments:")
+		for link in validation.brokenFragments {
+			print("- \(link)")
+		}
 	}
 }
