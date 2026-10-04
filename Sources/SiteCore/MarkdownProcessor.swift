@@ -38,6 +38,13 @@ public enum MarkdownProcessor {
 		return ProcessedMarkdown(html: html, headings: headingScan, headingMetadata: metadata, introduction: introduction)
 	}
 
+	public static func renderReleaseNotes(_ source: String) -> String {
+		let document = Document(parsing: source)
+		var renderer = SiteMarkdownRenderer(headings: [], mode: .releaseNotes)
+		renderer.visit(document)
+		return renderer.result
+	}
+
 	private struct FootnoteExtraction {
 		let source: String
 		let orderedIDs: [String]
@@ -471,16 +478,29 @@ public enum MarkdownProcessor {
 	}
 }
 
+private enum MarkdownRenderMode {
+	case site
+	case releaseNotes
+}
+
 private struct SiteMarkdownRenderer: MarkupWalker {
 	var result = ""
 	var headings: [HeadingInfo]
+	var mode: MarkdownRenderMode = .site
 	var headingIndex = 0
 	var inTableHead = false
 	var tableColumnAlignments: [Markdown.Table.ColumnAlignment?]?
 	var currentTableColumn = 0
 
 	mutating func visitBlockQuote(_ blockQuote: BlockQuote) {
-		let preview = Self.renderChildren(of: blockQuote)
+		guard mode == .site else {
+			result += "<blockquote>\n"
+			descendInto(blockQuote)
+			result += "</blockquote>\n"
+			return
+		}
+
+		let preview = Self.renderChildren(of: blockQuote, mode: mode)
 		let alertRegex = try! NSRegularExpression(
 			pattern: #"(?s)^\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*?)</p>(.*)$"#
 		)
@@ -516,9 +536,16 @@ private struct SiteMarkdownRenderer: MarkupWalker {
 	}
 
 	mutating func visitHeading(_ heading: Heading) {
-		let info = headings.indices.contains(headingIndex) ? headings[headingIndex] : HeadingInfo(level: heading.level, text: "", id: "")
-		headingIndex += 1
-		result += "<h\(heading.level) id=\"\(TextUtilities.escapeHTML(info.id))\">"
+		if mode == .site {
+			let info = headings.indices.contains(headingIndex)
+				? headings[headingIndex]
+				: HeadingInfo(level: heading.level, text: "", id: "")
+			headingIndex += 1
+			result += "<h\(heading.level) id=\"\(TextUtilities.escapeHTML(info.id))\">"
+		} else {
+			result += "<h\(heading.level)>"
+		}
+
 		descendInto(heading)
 		result += "</h\(heading.level)>\n"
 	}
@@ -571,13 +598,71 @@ private struct SiteMarkdownRenderer: MarkupWalker {
 	mutating func visitLineBreak(_ lineBreak: LineBreak) { result += "<br>\n" }
 	mutating func visitSoftBreak(_ softBreak: SoftBreak) { result += "\n" }
 	mutating func visitLink(_ link: Link) { result += "<a href=\"\(TextUtilities.escapeHTML(link.destination ?? ""))\">"; descendInto(link); result += "</a>" }
-	mutating func visitText(_ text: Markdown.Text) { result += TextUtilities.escapeHTML(text.string) }
+	mutating func visitText(_ text: Markdown.Text) {
+		if mode == .releaseNotes, !(text.parent is Link) {
+			result += Self.linkifiedHTML(text.string)
+		} else {
+			result += TextUtilities.escapeHTML(text.string)
+		}
+	}
 	mutating func visitStrikethrough(_ strikethrough: Strikethrough) { result += "<del>"; descendInto(strikethrough); result += "</del>" }
 
-	private static func renderChildren(of markup: Markup) -> String {
-		var renderer = SiteMarkdownRenderer(headings: [])
-		for index in 0..<markup.childCount { if let child = markup.child(at: index) { renderer.visit(child) } }
+	private static func renderChildren(
+		of markup: Markup,
+		mode: MarkdownRenderMode = .site
+	) -> String {
+		var renderer = SiteMarkdownRenderer(headings: [], mode: mode)
+		for index in 0..<markup.childCount {
+			if let child = markup.child(at: index) {
+				renderer.visit(child)
+			}
+		}
 		return renderer.result
+	}
+
+	private static func linkifiedHTML(_ value: String) -> String {
+		let pattern = #"(?i)(https?://[^\s<]+|[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})"#
+		let regex = try! NSRegularExpression(pattern: pattern)
+		let matches = regex.matches(
+			in: value,
+			range: NSRange(value.startIndex..<value.endIndex, in: value)
+		)
+
+		guard !matches.isEmpty else {
+			return TextUtilities.escapeHTML(value)
+		}
+
+		var result = ""
+		var cursor = value.startIndex
+		let trailingPunctuation = CharacterSet(charactersIn: ".,;:!?)]}")
+
+		for match in matches {
+			guard let range = Range(match.range(at: 0), in: value) else {
+				continue
+			}
+
+			result += TextUtilities.escapeHTML(String(value[cursor..<range.lowerBound]))
+
+			var token = String(value[range])
+			var trailing = ""
+			while
+				let scalar = token.unicodeScalars.last,
+				trailingPunctuation.contains(scalar)
+			{
+				trailing.insert(Character(String(scalar)), at: trailing.startIndex)
+				token.removeLast()
+			}
+
+			let href = token.contains("@") && !token.lowercased().hasPrefix("http")
+				? "mailto:\(token)"
+				: token
+			result += "<a href=\"\(TextUtilities.escapeHTML(href))\">\(TextUtilities.escapeHTML(token))</a>"
+			result += TextUtilities.escapeHTML(trailing)
+			cursor = range.upperBound
+		}
+
+		result += TextUtilities.escapeHTML(String(value[cursor...]))
+		return result
 	}
 }
 
