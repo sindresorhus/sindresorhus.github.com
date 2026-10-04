@@ -109,7 +109,7 @@ public struct BlogPost: Sendable {
 	public var isRedirect: Bool { redirectURL != nil }
 	public var readingTime: Int {
 		let words = body.split { $0.isWhitespace }.count
-		return max(1, Int(ceil(Double(words) / 225)))
+		return Int(ceil(Double(words) / 200))
 	}
 }
 
