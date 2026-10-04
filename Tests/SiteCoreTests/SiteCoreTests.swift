@@ -224,3 +224,21 @@ private func makeTemporarySiteRoot() throws -> URL {
 	#expect(markdown.html.contains(">WARNING</p>"))
 	#expect(!markdown.html.contains(">Warning</p>"))
 }
+
+
+@Test func githubStyleHeadingSlugsPreservePunctuationGaps() {
+	#expect(TextUtilities.slugify("Can you support SwiftUI.Color / UIColor / NSColor formats?") == "can-you-support-swiftuicolor--uicolor--nscolor-formats")
+	#expect(TextUtilities.slugify("🦄 Sponsor $1000/month") == "-sponsor-1000month")
+	#expect(TextUtilities.slugify("hidden the … menu item") == "hidden-the--menu-item")
+	#expect(TextUtilities.slugify("café") == "café")
+}
+
+@Test func headingSlugCollisionsMatchGitHubSlugger() {
+	let markdown = MarkdownProcessor.process("""
+	## Same
+	## Same
+	## Same-1
+	## Same
+	""")
+	#expect(markdown.headings.map(\.id) == ["same", "same-1", "same-1-1", "same-2"])
+}
