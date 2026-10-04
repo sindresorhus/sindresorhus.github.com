@@ -169,7 +169,7 @@ private func makeTemporarySiteRoot() throws -> URL {
 	""")
 
 	#expect(markdown.html.contains("<li>First</li>"))
-	#expect(markdown.html.contains("<li>Second"))
+	#expect(markdown.html.contains("<li>Second\n<ul>"))
 	#expect(markdown.html.contains("<li>Nested</li>"))
 	#expect(!markdown.html.contains("<li><p>"))
 }
