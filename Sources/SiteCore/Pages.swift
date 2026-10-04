@@ -506,7 +506,7 @@ public struct ReleaseNotesPage: HTML {
 				article {
 					h2(.id(release.tagName.replacingOccurrences(of:"v", with:"", options:.anchored))) { release.tagName.replacingOccurrences(of:"v", with:"", options:.anchored) }
 					time(.custom(name:"datetime", value:release.publishedAt)) { TextUtilities.formattedDate(release.publishedAt) }
-					if let body = release.body { HTMLRaw(MarkdownProcessor.process(body).html) }
+					if let body = release.body { HTMLRaw(MarkdownProcessor.renderReleaseNotes(body)) }
 				}
 			}
 		}
