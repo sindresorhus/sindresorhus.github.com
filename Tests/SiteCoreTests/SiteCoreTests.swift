@@ -159,3 +159,17 @@ private func makeTemporarySiteRoot() throws -> URL {
 	try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
 	return root
 }
+
+
+@Test func markdownListsRenderWithoutParagraphWrappers() {
+	let markdown = MarkdownProcessor.process("""
+	- First
+	- Second
+	  - Nested
+	""")
+
+	#expect(markdown.html.contains("<li>First</li>"))
+	#expect(markdown.html.contains("<li>Second"))
+	#expect(markdown.html.contains("<li>Nested</li>"))
+	#expect(!markdown.html.contains("<li><p>"))
+}
