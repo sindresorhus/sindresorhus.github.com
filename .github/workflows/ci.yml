@@ -13,7 +13,8 @@ concurrency:
 
 jobs:
   build:
-    runs-on: macos-26
+    # Xcode 27 is the default Xcode on this image.
+    runs-on: xcode-27
     timeout-minutes: 20
     permissions:
       contents: read
@@ -24,8 +25,6 @@ jobs:
         with:
           # The full history gives the sitemap the date each page last changed.
           fetch-depth: 0
-      - name: Select Xcode
-        run: sudo xcode-select --switch "$(ls -d /Applications/Xcode_27*.app | sort -V | tail -n 1)"
       - name: Swift version
         run: swift --version
       - uses: actions/cache@v5
