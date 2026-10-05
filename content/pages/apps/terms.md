@@ -1,6 +1,6 @@
 ---
-title: Terms of Use
-description: Terms of use for apps by Sindre Sorhus.
+title: 'Terms of Use'
+description: 'Terms of use for apps by Sindre Sorhus.'
 ---
 
 # Apps — Terms of Use
@@ -33,7 +33,7 @@ I am committed to making my apps accessible to everyone, including individuals w
 
 ## Liability
 
-I disclaim all liability arising from the use or misuse of my apps. Users assume all risks and consequences tied to their actions based on the apps' functionality or content.
+I disclaim all liability arising from the use or misuse of my apps. Users assume all risks and consequences tied to their actions based on the apps’ functionality or content.
 
 ## Indemnification
 

@@ -8,10 +8,10 @@ struct StylesheetTests {
 		let css = Stylesheet {
 			Rule(".card", Style()
 				.display(.flex)
-				.padding(vertical: .rem(0.5), horizontal: .rem(1.5))
+				.padding(vertical: .rootEm(0.5), horizontal: .rootEm(1.5))
 				.color(Color("red").opacity(0.06))
-				.declaration("-webkit-backdrop-filter", "blur(14px)")
-				.declaration("--accent", "#2563eb")
+				.declaration(.webkitBackdropFilter, "blur(14px)")
+				.declaration(Property("--accent"), "#2563eb")
 				.zIndex(40)
 			)
 		}.css
@@ -45,8 +45,8 @@ struct StylesheetTests {
 				}
 			)
 
-			Media(.minWidth(.px(640))) {
-				Rule(".c", Style().gap(.rem(1)))
+			Media(.from(Breakpoint(minimumWidthInRem: 40))) {
+				Rule(".c", Style().gap(.rootEm(1)))
 			}
 
 			Keyframes("spin") {
@@ -69,7 +69,7 @@ struct StylesheetTests {
 				color: white;
 			}
 		}
-		@media (min-width: 640px) {
+		@media (width >= 40rem) {
 			.c {
 				gap: 1rem;
 			}
@@ -94,5 +94,60 @@ struct StylesheetTests {
 		}.css
 
 		#expect(css.hasPrefix("table:not(:has(> thead, > tfoot)) {\n\t> tbody {"))
+	}
+
+	@Test
+	func `merges sibling conditions with the same query`() {
+		let css = Stylesheet {
+			Rule(".a", Style()
+				.dark {
+					$0.color("white")
+				}
+				.dark {
+					$0.hover {
+						$0.color("gray")
+					}
+				}
+			)
+		}.css
+
+		#expect(css == """
+		.a {
+			@media (prefers-color-scheme: dark) {
+				color: white;
+				@media (hover: hover) {
+					&:hover {
+						color: gray;
+					}
+				}
+			}
+		}
+
+		""")
+	}
+
+	@Test
+	func `keeps sibling conditions apart when merging would reorder declarations`() {
+		let css = Stylesheet {
+			Rule(".a", Style()
+				.dark {
+					$0.hover {
+						$0.color("gray")
+					}
+				}
+				.dark {
+					$0.color("white")
+				}
+			)
+		}.css
+
+		#expect(css.ranges(of: "@media (prefers-color-scheme: dark)").count == 2)
+	}
+
+	@Test
+	func `black and white with opacity are plain rgb`() {
+		#expect(Color.black.opacity(0.5).description == "rgb(0 0 0 / 50%)")
+		#expect(Color.white.opacity(0.035).description == "rgb(255 255 255 / 3.5%)")
+		#expect(Color("red").opacity(0.5).description == "color-mix(in oklab, red 50%, transparent)")
 	}
 }

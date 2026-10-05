@@ -13,40 +13,34 @@ struct GalleryPage: Page {
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: PageMetadata.titled("Component Gallery"), isIndexed: false)
+		PageMetadata(title: "Component Gallery", isIndexed: false)
 	}
 
 	var body: some HTML {
 		section {
-			h1 {
-				"Component Gallery"
-			}
-			.style(Styles.title)
-
-			p {
-				"Every component of the site. Switch the appearance of the system to see dark mode."
-			}
-			.style(Styles.intro)
+			PageHeader(title: "Component Gallery", intro: "Every component of the site. Switch the appearance of the system to see dark mode.")
 
 			Section("Buttons", id: "buttons") {
 				div {
-					for fill in [Button<HTMLText>.Fill.primary, .dark, .gradient] {
-						for size in [Button<HTMLText>.Size.small, .regular] {
-							Button("Button", destination: "#buttons", fill: fill, size: size)
+					for fill in ButtonStyles.Fill.allCases {
+						div {
+							for size in ButtonStyles.Size.allCases {
+								Link("\(fill)".capitalized, destination: .fragment("buttons"))
+									.buttonStyle(fill, size: size)
+							}
 						}
+						.style(Styles.row)
 					}
-
-					Button("Download", destination: "#buttons", size: .large)
 				}
-				.style(Styles.row)
+				.vstack(spacing: .rootEm(1))
 			}
 
 			Section("Badges", id: "badges") {
 				div {
-					Badge("free")
-					Badge("new!", kind: .new)
+					Badge("Free")
+					Badge("New", kind: .new)
 					Badge("macOS", kind: .platform)
-					Badge("archived", kind: .archived)
+					Badge("Archived", kind: .archived)
 				}
 				.style(Styles.row)
 			}
@@ -68,26 +62,26 @@ struct GalleryPage: Page {
 
 			Section("Labels and Icon Links", id: "labels") {
 				div {
-					a(.href("#labels")) {
+					a(.href(.fragment("labels"))) {
 						Label("Leading icon", icon: .arrowLeft)
 					}
 					.style(Styles.labelLink)
 
-					a(.href("#labels")) {
+					a(.href(.fragment("labels"))) {
 						Label("Trailing icon", icon: .arrowRight, iconPosition: .trailing)
 					}
 					.style(Styles.labelLink)
 
-					IconLink(url: "#labels", label: "RSS", icon: .rss)
-					IconLink(url: "#labels", label: "Mail", icon: .mail)
+					IconLink("RSS", icon: .rss, destination: .fragment("labels"))
+					IconLink("Mail", icon: .mail, destination: .fragment("labels"))
 				}
 				.style(Styles.row)
 			}
 
 			Section("Overflow Menu", id: "overflow-menu") {
 				div {
-					OverflowMenu(id: "gallery-menu", label: "Gallery menu", links: [LabeledLink("First", path: "/_gallery"), LabeledLink("Second", path: "/_gallery")], [LabeledLink("After a rule", path: "/_gallery")])
-					OverflowMenu(id: "gallery-title-menu", label: "Gallery title menu", groups: [LinkGroup(title: "Group", links: [LabeledLink("Link", path: "/_gallery")])], variant: .title)
+					OverflowMenu(label: "Gallery menu", links: [LabeledLink("First", path: "/_gallery"), LabeledLink("Second", path: "/_gallery")], [LabeledLink("After a rule", path: "/_gallery")])
+					OverflowMenu(label: "Gallery title menu", groups: [LinkGroup(title: "Group", links: [LabeledLink("Link", path: "/_gallery")])], variant: .title)
 				}
 				.style(Styles.row)
 			}
@@ -103,7 +97,7 @@ struct GalleryPage: Page {
 				Section("Apps", id: "apps") {
 					div {
 						AppIcon(app, size: 64)
-						AppIcon(app, size: 32, isNamedNearby: true)
+						AppIcon(decorative: app, size: 32)
 					}
 					.style(Styles.row)
 
@@ -114,7 +108,39 @@ struct GalleryPage: Page {
 					}
 
 					p {
-						DateText(app.publicationDate, format: .site.month(.wide).day().year())
+						DateText(app.publicationDate, format: .siteDay)
+					}
+
+					BackLink(app: app)
+				}
+
+				Section("Related Apps", id: "related") {
+					RelatedApps(relatedApps: Array(content.activeApps.prefix(4)), content: content)
+				}
+			}
+
+			if let announcement = content.activeApps.lazy.compactMap(\.announcement).first {
+				Section("Announcement", id: "announcement") {
+					AnnouncementBanner(announcement: announcement)
+				}
+			}
+
+			Section("Text", id: "text") {
+				p {
+					GradientText("Gradient text")
+				}
+
+				if let post = content.posts.first {
+					p {
+						PublicationInfo(post: post, showsReadingTime: true)
+					}
+				}
+			}
+
+			if let tiers = content.pages.lazy.map(\.frontmatter.sponsorTiers).first(where: { !$0.isEmpty }) {
+				Section("Sponsors", id: "sponsors") {
+					Prose {
+						SponsorList(tiers: tiers)
 					}
 				}
 			}
@@ -129,35 +155,107 @@ struct GalleryPage: Page {
 				AppReviews(reviews: [
 					AppStoreReview(title: "Exactly what I needed", text: "A review that is long enough to show how the text wraps across a few lines in the card.", author: "A reviewer", rating: 5, date: content.buildDate),
 					AppStoreReview(title: "Great", text: "A shorter review, with\na line break.", author: "Another reviewer", rating: 5, date: content.buildDate),
-				])
+					AppStoreReview(title: Self.longWord, text: "A title with a long word that cannot break must not overflow the card: \(Self.longWord)", author: "A reviewer with a very long name", rating: 4, date: content.buildDate),
+				], rating: AppStoreInfo.Rating(average: 4.6, count: 1234))
+
+				AppReviews(reviews: [], rating: AppStoreInfo.Rating(average: 4.6, count: 1234))
 			}
 
 			Section("Prose", id: "prose") {
-				Prose(html: MarkdownDocument(parsing: Self.markdownSample, options: MarkdownDocument.Options(theme: .site, showsFootnotesInPopovers: true, addsCopyButtons: true)).html)
+				Prose(markdown: MarkdownDocument(parsing: Self.markdownSample, options: .gallery).content)
 			}
 		}
 		.style(Styles.root)
 	}
 
+	/**
+	A word that cannot break, which shows text that overflows its box.
+	*/
+	private static let longWord = "Supercalifragilisticexpialidociouslyunbreakablewordwithoutanyhyphens"
+
 	private static let markdownSample = """
-	Text with **bold**, *italic*, `code`, a [link](#prose), a footnote[^note], and the shortcut ++Command+Shift+K++.
+	Text with **bold**, *italic*, `code`, a [link](#prose), a footnote[^note], the shortcut ++Command+Shift+K++, a ^[platform badge](platform: "macOS"), and a long word: \(longWord).
+
+	> A quote, with “quotes” around it.
 
 	> [!NOTE]
-	> An alert.
+	> A note.
+
+	> [!TIP]
+	> A tip.
+
+	> [!IMPORTANT]
+	> Something important.
 
 	> [!WARNING]
 	> A warning.
 
+	> [!CAUTION]
+	> A caution.
+
 	- A list item
-	- Another item
+	- A list item with a subtitle and a description
+		: The subtitle
+		:: The description, which is smaller after a subtitle.
+	- A list item with a description
+		:: The description.
 
 	| Column | Another |
 	| --- | --- |
 	| Cell | Cell |
+	| ++Command+K++ | A shortcut in a table |
 
 	```swift
-	let greeting = "Hello"
+	@MainActor
+	struct Greeting {
+		// Every kind of highlighted token.
+		let text: String = "Hello".uppercased()
+		var count = 1
+	}
 	```
+
+	@Details(summary: "A collapsible section") {
+		The content of the section.
+	}
+
+	@Tips {
+		- A tip.
+		- Another tip.
+	}
+
+	@QuickAnswer {
+		The short answer of a how-to post.
+	}
+
+	@Feature(title: "A main feature") {
+		The first main feature of an app, with a number above its title.
+	}
+
+	@Feature(title: "Another main feature") {
+		The second main feature.
+	}
+
+	@Cards {
+	- A card
+		- A point below its title.
+	- Another card
+	}
+
+	@Steps {
+	1. A numbered item
+	1. Another numbered item
+		- A note below it.
+	}
+
+	@SocialLinks
+
+	### A collapsible question
+
+	The answer, which opens like the questions of an FAQ.
+
+	### Another question
+
+	Another answer.
 
 	[^note]: The footnote, in a popover.
 	"""
@@ -166,8 +264,6 @@ struct GalleryPage: Page {
 extension GalleryPage {
 	enum Styles: StyleSet {
 		case root
-		case title
-		case intro
 		case row
 		case icons
 		case icon
@@ -177,44 +273,25 @@ extension GalleryPage {
 			switch self {
 			case .root:
 				Style()
-					.frame(maxWidth: .rem(64))
-					.margin(.horizontal, .auto)
-					.padding(.horizontal, .rem(1.5))
-					.pagePadding()
-					.children("section") {
-						$0.margin(.top, .rem(3))
-					}
-					.children("section > h2") {
-						$0
-							.margin(.bottom, .rem(1))
-							.font(.xl, weight: .semibold)
-							.color(.primaryText)
-					}
-			case .title:
-				Style().font(.xl4, weight: .bold)
-			case .intro:
-				Style()
-					.margin(.top, .rem(0.5))
-					.color(.secondaryText)
+					.pageColumn(.wide)
 			case .row:
 				Style()
-					.hstack(alignment: .center, spacing: .rem(1))
+					.hstack(alignment: .center, spacing: .rootEm(1))
 					.flexWrap()
 			case .icons:
 				Style()
-					.display(.grid)
-					.declaration("grid-template-columns", "repeat(auto-fill, minmax(8rem, 1fr))")
-					.gap(.rem(0.75))
+					.grid(minimumColumnWidth: .rootEm(8))
+					.gap(.rootEm(0.75))
 			case .icon:
 				Style()
-					.hstack(alignment: .center, spacing: .rem(0.5))
-					.font(.sm)
+					.hstack(alignment: .center, spacing: .rootEm(0.5))
+					.textStyle(.caption)
 					.color(.bodyText)
 			case .labelLink:
 				Style()
 					.display(.inlineFlex)
 					.alignItems(.center)
-					.gap(.rem(0.5))
+					.gap(.rootEm(0.5))
 					.color(.link)
 			}
 		}

@@ -7,18 +7,28 @@ on:
 
 jobs:
   build:
-    runs-on: macos-26
+    # Xcode 27 is the default Xcode on this image.
+    runs-on: xcode-27
     timeout-minutes: 20
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v7
-      - name: Select Xcode
-        run: sudo xcode-select --switch "$(ls -d /Applications/Xcode_27*.app | sort -V | tail -n 1)"
+      # The build of the CI workflow, so only what changed since compiles.
+      - uses: actions/cache/restore@v5
+        with:
+          path: |
+            .build
+            .cache/responses
+          key: build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-${{ github.sha }}
+          restore-keys: build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-
+      # The same build command as CI, as other flags would compile everything again.
       - name: Build site
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: swift run website build
+        run: |
+          swift build --build-tests -Xswiftc -Xfrontend -Xswiftc -warn-long-expression-type-checking=200
+          .build/debug/website build
       - uses: actions/upload-artifact@v5
         with:
           name: site
@@ -34,8 +44,8 @@ jobs:
         with:
           name: site
           path: dist
-      # Internal links are checked by every build. This checks the links to other sites, which break over time.
+      # Internal links are checked by every build. This checks the links to other sites, which break over time. The root directory resolves links like `/apps` to files, which are then left out.
       - uses: lycheeverse/lychee-action@v2
         with:
-          args: --no-progress --max-concurrency 8 --exclude '^https://sindresorhus\.com' 'dist/**/*.html'
+          args: --no-progress --max-concurrency 8 --root-dir '${{ github.workspace }}/dist' --exclude '^file://' --exclude '^https://sindresorhus\.com' 'dist/**/*.html'
           fail: true

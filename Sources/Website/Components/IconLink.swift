@@ -2,31 +2,31 @@ import Elementary
 import SiteKit
 
 /**
-A link with only an icon, like the RSS link in the header. The label is for screen readers.
+A link with only an icon, like the contact link in the header. The label is for screen readers.
+
+```swift
+IconLink("RSS Feeds", icon: .rss, destination: .path(.feeds))
+	.help("All the feeds")
+```
 */
 struct IconLink: HTML {
-	let url: String
 	let label: String
 	let icon: Icon
+	let destination: LinkDestination
+	let iconSize: Length
 
-	/**
-	Like `me` for a profile of the author.
-	*/
-	var relationship: HTMLAttribute<HTMLTag.a>?
+	init(_ label: String, icon: Icon, destination: LinkDestination, iconSize: Length = .rootEm(1.25)) {
+		self.label = label
+		self.icon = icon
+		self.destination = destination
+		self.iconSize = iconSize
+	}
 
-	/**
-	The tooltip.
-	*/
-	// TODO: Use an interest invoker (`interestfor`) with a styled popover instead of `title` when Safari and Firefox support it.
-	var title: String?
-
-	var iconSize = Length.rem(1.25)
-
-	var body: some HTML {
-		a(.href(url), .ariaLabel(label)) {
+	var body: some HTML<HTMLTag.a> {
+		a(.href(destination)) {
 			icon.size(iconSize)
 		}
-		.attributes(contentsOf: [relationship, title.map { .title($0) }].compactMap(\.self))
+		.accessibilityLabel(label)
 		.style(Styles.root)
 	}
 
@@ -36,30 +36,28 @@ struct IconLink: HTML {
 	static let look = Style()
 		.display(.inlineFlex)
 		.alignItems(.center)
-		.padding(.rem(0.625))
+		// As high as the pills of the navigation next to it.
+		.padding(.rootEm(0.375))
 		// A larger target for fingers, without moving the layout.
 		.media(.coarsePointer) {
 			$0
-				.padding(.rem(0.75))
-				.margin(.rem(-0.125))
+				.padding(.rootEm(0.75))
+				.margin(.rootEm(-0.125))
 		}
-		.cornerRadius(.rem(0.5))
+		// Round, like the pills of the navigation next to it.
+		.cornerRadius(.capsule)
 		.color(.secondaryText)
+		.transition(.backgroundColor, .color, animation: .stateChange)
 		.hover {
-			$0.background(.gray(100))
-		}
-		.focusVisible {
 			$0
-				.focusRing(.gray(200))
+				.background(.card)
+				.color(.primaryText)
 		}
-		.dark {
+		// Like the current page in the navigation.
+		.current {
 			$0
-				.hover {
-					$0.background(.gray(700))
-				}
-				.focusVisible {
-					$0.focusRing(.gray(700))
-				}
+				.background(.cardHover)
+				.color(.primaryText)
 		}
 
 	enum Styles: StyleSet {

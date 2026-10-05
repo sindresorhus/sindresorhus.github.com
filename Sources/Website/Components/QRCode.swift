@@ -22,7 +22,15 @@ struct QRCode: HTML {
 
 	var body: some HTML<HTMLTag.div> {
 		div {
-			HTMLRaw(#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 \#(modules.count) \#(modules.count)" shape-rendering="crispEdges" role="img" aria-label="\#(label.escapedForHTML)"><path fill="currentColor" d="\#(path)"/></svg>"#)
+			SVG.svg(
+				.xmlns(),
+				.viewBox(0, 0, .init(integerLiteral: modules.count), .init(integerLiteral: modules.count)),
+				SVGAttribute(name: "shape-rendering", value: "crispEdges"),
+				SVGAttribute(name: "role", value: "img"),
+				SVGAttribute(name: "aria-label", value: label)
+			) {
+				SVG.path(.fill("currentColor"), .d(path))
+			}
 		}
 	}
 
@@ -54,6 +62,11 @@ struct QRCode: HTML {
 		return commands.joined()
 	}
 
+	/**
+	Creating a context is slow, and a context is thread-safe, so all codes share one.
+	*/
+	private static let context = CIContext()
+
 	private static func modules(for url: URL) -> [[Bool]] {
 		let filter = CIFilter.qrCodeGenerator()
 		filter.message = Data(url.absoluteString.utf8)
@@ -61,7 +74,7 @@ struct QRCode: HTML {
 
 		guard
 			let image = filter.outputImage,
-			let cgImage = CIContext().createCGImage(image, from: image.extent)
+			let cgImage = context.createCGImage(image, from: image.extent)
 		else {
 			preconditionFailure("Could not make a QR code of \(url).")
 		}

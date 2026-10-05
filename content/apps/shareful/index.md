@@ -1,0 +1,79 @@
+---
+title: 'Shareful'
+subtitle: 'Give the macOS share menu superpowers'
+publicationDate: '2020-09-08'
+platforms: [
+	'macOS'
+]
+appStoreID: 1522267256
+olderVersions: [
+	{
+		version: '1.11.0'
+		macOS: '15'
+		url: 'https://www.dropbox.com/scl/fi/a7yel1xtzfi3yhh3eynbp/Shareful-1.11.0-macOS-15-1777049166.zip?rlkey=chl7ohj7zoya7c5ymnpd0dnoc&raw=1'
+	}
+	{
+		version: '1.10.4'
+		macOS: '14'
+		url: 'https://github.com/user-attachments/files/18914470/Shareful.1.10.4.-.macOS.14.zip'
+	}
+	{
+		version: '1.9.1'
+		macOS: '13'
+		url: 'https://github.com/sindresorhus/meta/files/14158056/Shareful.1.9.1.-.macOS.13.zip'
+	}
+	{
+		version: '1.8.0'
+		macOS: '12'
+		url: 'https://github.com/sindresorhus/meta/files/11297902/Shareful.1.8.0.-.macOS.12.zip'
+	}
+	{
+		version: '1.6.0'
+		macOS: '11'
+		url: 'https://github.com/sindresorhus/meta/files/8800088/Shareful.1.6.0.-.macOS.11.zip'
+	}
+	{
+		version: '1.4.0'
+		macOS: '10.15'
+		url: 'https://github.com/sindresorhus/meta/files/7119520/Shareful.1.4.0.-.macOS.10.15.zip'
+	}
+]
+---
+
+Shareful makes the system share menu even more useful by providing some commonly needed share services like copy and save.
+
+## Frequently Asked Questions {#faq}
+
+### The share services do not show up in System Settings
+
+Shareful provides share services (Copy, Open In, etc.) which macOS is supposed to pick up. Shareful has no control over how it works. In some rare cases, macOS can fail to pick up these share services. This is a problem with macOS not Shareful.
+
+Here are some things you could try:
+- Restart your computer
+- Reinstall the app
+- [Reset NVRAM](https://support.apple.com/en-us/HT204063)
+- [Reset the share services registry](https://web.archive.org/web/20180711015728/https://support.apple.com/en-us/HT203129)
+
+If you are on a work computer, it could also be that your company has blocked third-party share services.
+
+### Can you add a “Move” or “Delete” action?
+
+This is unfortunately not possible. [Share extensions](https://support.apple.com/guide/mac-help/use-the-share-menu-on-mac-mh40614/mac) (for example, the “Copy” action), usually only receive a copy of the file. They have no guaranteed access to the original file.
+
+### Can you add a “Copy Path” action for use in Finder?
+
+That would be moot. Right-click a file in Finder, press the <kbd>Option</kbd> key, and select “Copy as Pathname”.
+
+### Can you add items that run specific Shortcuts in the Share menu? {#shortcuts}
+
+No. This is not possible.
+
+You could use my [Short Run](/short-run) app instead. It can show a curated list of shortcuts in the menu bar, automatically showing some based on which app is currently active. Although, it won’t be able to receive what the share items receive.
+
+## Non-App Store Version
+
+A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
+
+[Download](https://www.dropbox.com/scl/fi/aq893jnt65u57xr70yjoo/Shareful-1.12.0-1777048683.zip?rlkey=ikakp6yyejrgjigc9cd9ki4zd&raw=1) *(1.12.0)*
+
+*Requires macOS 26 or later*

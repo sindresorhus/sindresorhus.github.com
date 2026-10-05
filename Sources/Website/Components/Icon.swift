@@ -7,12 +7,12 @@ A Tabler icon, drawn with the current text color.
 The shapes are raw SVG strings copied from Tabler, so updating an icon is a copy and paste. Keep them as strings instead of Elementary's typed SVG builder.
 
 ```swift
-a(.href("/feeds")) {
+a(.href(.feeds)) {
 	Icon.rss
 }
 ```
 */
-enum Icon: HTML, CaseIterable, Sendable {
+enum Icon: HTML, CaseIterable {
 	case menu
 	case rss
 	case apps
@@ -33,9 +33,21 @@ enum Icon: HTML, CaseIterable, Sendable {
 	case close
 	case sparkles
 	case dots
+
+	/**
+	Three dots in a row, without the circle of ``dots``, like in a chip.
+	*/
+	case ellipsis
 	case paperclip
 	case check
+	case copy
 	case file
+	case star
+	case deviceLaptop
+	case deviceMobile
+	case deviceWatch
+	case deviceTV
+	case deviceVisionPro
 
 	/**
 	The selector of icons, for styles of the icons in a component, like a color.
@@ -43,7 +55,7 @@ enum Icon: HTML, CaseIterable, Sendable {
 	static let selector = ".icon"
 
 	var body: some HTML {
-		size(.rem(1.25))
+		size(.rootEm(1.25))
 	}
 
 	/**
@@ -52,7 +64,7 @@ enum Icon: HTML, CaseIterable, Sendable {
 	The shapes are in the sprite at ``spritePath``, which browsers download once for all pages. The stroke attributes here apply to the shapes in it.
 	*/
 	func size(_ size: Length) -> HTMLRaw {
-		HTMLRaw(#"<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="\#(size)" height="\#(size)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="\#(Self.spritePath)#\#(symbolID)"/></svg>"#)
+		HTMLRaw(#"<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="\#(size)" height="\#(size)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="\#(Self.spritePath.versioned)#\#(symbolID)"/></svg>"#)
 	}
 
 	/**
@@ -114,12 +126,29 @@ enum Icon: HTML, CaseIterable, Sendable {
 			#"<path d="M16 18a2 2 0 0 1 2 2 2 2 0 0 1 2-2 2 2 0 0 1-2-2 2 2 0 0 1-2 2m0-12a2 2 0 0 1 2 2 2 2 0 0 1 2-2 2 2 0 0 1-2-2 2 2 0 0 1-2 2M9 18a6 6 0 0 1 6-6 6 6 0 0 1-6-6 6 6 0 0 1-6 6 6 6 0 0 1 6 6"/>"#
 		case .dots:
 			#"<circle cx="12" cy="12" r="9"/><path d="M8 12h.01M12 12h.01M16 12h.01"/>"#
+		case .ellipsis:
+			#"<path d="M4 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M18 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>"#
 		case .paperclip:
 			#"<path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>"#
 		case .check:
 			#"<path d="M20 6 9 17l-5-5"/>"#
+		case .copy:
+			#"<path d="M7 9.667a2.667 2.667 0 0 1 2.667-2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1-2.667 2.667h-8.666a2.667 2.667 0 0 1-2.667-2.667z"/><path d="M4.012 16.737a2.005 2.005 0 0 1-1.012-1.737v-10c0-1.1.9-2 2-2h10c.75 0 1.158.385 1.5 1"/>"#
 		case .file:
 			#"<path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 2v7h7"/>"#
+		case .deviceLaptop:
+			#"<path d="M3 19h18M5 7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7"/>"#
+		case .deviceMobile:
+			#"<path d="M6 5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5M11 4h2M12 17v.01"/>"#
+		case .deviceWatch:
+			#"<path d="M6 9a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V9M9 18v3h6v-3M9 6V3h6v3"/>"#
+		case .deviceTV:
+			#"<path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9M16 3l-4 4-4-4"/>"#
+		case .deviceVisionPro:
+			#"<path d="M12 7c1.143 0 2.235.035 3.275.104 1.017.068 1.95.207 2.798.42.813.203 1.52.505 2.119.909a3.903 3.903 0 0 1 1.328 1.531c.326.657.48 1.48.48 2.466 0 1.006-.189 1.91-.574 2.707-.375.779-.886 1.396-1.537 1.848a3.696 3.696 0 0 1-2.16.66c-.509 0-.97-.068-1.382-.21a5.84 5.84 0 0 1-1.17-.548 18.45 18.45 0 0 1-1.045-.695 9.104 9.104 0 0 0-1.001-.63 2.376 2.376 0 0 0-1.13-.301c-.373 0-.75.097-1.132.3-.316.17-.65.38-1 .63-.322.23-.67.462-1.047.695a5.78 5.78 0 0 1-1.168.548c-.413.142-.872.21-1.378.21a3.706 3.706 0 0 1-2.165-.659c-.651-.452-1.162-1.07-1.537-1.848-.385-.798-.574-1.7-.574-2.709-.004-.98.15-1.802.477-2.46a3.897 3.897 0 0 1 1.33-1.531c.6-.403 1.307-.704 2.12-.907a16.088 16.088 0 0 1 2.8-.423c1.04-.071 2.13-.107 3.273-.107"/>"#
+		case .star:
+			// Filled, unlike the other icons.
+			#"<path fill="currentColor" stroke="none" d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.63 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z"/>"#
 		}
 	}
 }

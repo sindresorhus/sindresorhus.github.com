@@ -18,7 +18,7 @@ struct XMLWriter {
 	}
 
 	mutating func element(_ name: String, attributes: [(String, String)] = [], text: String) {
-		line("<\(name)\(Self.render(attributes))>\(Self.escape(text))</\(name)>")
+		line("<\(name)\(Self.render(attributes))>\(text.escapedForXML)</\(name)>")
 	}
 
 	mutating func element(_ name: String, attributes: [(String, String)]) {
@@ -29,7 +29,7 @@ struct XMLWriter {
 	Writes the text as CDATA, which keeps HTML readable. A `]]>` sequence in the text is split across two sections.
 	*/
 	mutating func element(_ name: String, characterData: String) {
-		let text = Self.removingInvalidCharacters(characterData)
+		let text = characterData.removingCharactersNotAllowedInXML
 			.replacing("]]>", with: "]]]]><![CDATA[>")
 		line("<\(name)><![CDATA[\(text)]]></\(name)>")
 	}
@@ -41,17 +41,22 @@ struct XMLWriter {
 	private static func render(_ attributes: [(String, String)]) -> String {
 		attributes
 			.map { name, value in
-				#" \#(name)="\#(escape(value))""#
+				#" \#(name)="\#(value.escapedForXML)""#
 			}
 			.joined()
 	}
+}
 
-	static func escape(_ string: String) -> String {
+extension String {
+	/**
+	The text with `&`, `<`, `>`, `"`, and `'` escaped, and without the characters that XML 1.0 does not allow.
+	*/
+	fileprivate var escapedForXML: String {
 		var result = ""
-		result.reserveCapacity(string.utf8.count)
+		result.reserveCapacity(utf8.count)
 
 		// Unicode scalars, as a combining mark after `&` makes them one character, which would not equal `&`.
-		for scalar in string.unicodeScalars where scalar.isAllowedInXML {
+		for scalar in unicodeScalars where scalar.isAllowedInXML {
 			switch scalar {
 			case "&":
 				result += "&amp;"
@@ -72,10 +77,10 @@ struct XMLWriter {
 	}
 
 	/**
-	Removes characters that XML 1.0 does not allow, like most control characters.
+	The string without the characters that XML 1.0 does not allow, like most control characters.
 	*/
-	private static func removingInvalidCharacters(_ string: String) -> String {
-		String(String.UnicodeScalarView(string.unicodeScalars.filter(\.isAllowedInXML)))
+	fileprivate var removingCharactersNotAllowedInXML: String {
+		String(String.UnicodeScalarView(unicodeScalars.filter(\.isAllowedInXML)))
 	}
 }
 

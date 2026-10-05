@@ -14,9 +14,9 @@ struct HomePage: Page {
 	var body: some HTML {
 		section {
 			// `home.js` loads `nebula.js` in dark mode, which draws a galaxy on it.
-			canvas(.id(.nebula)) {}
+			canvas(.id(Hooks.nebula)) {}
 				.accessibilityHidden()
-			.style(Styles.nebula)
+				.style(Styles.nebula)
 
 			div {
 				div {
@@ -33,14 +33,15 @@ struct HomePage: Page {
 
 					div {
 						p {
+							// Non-breaking hyphens, so “Open-Sourcerer” does not break at the hyphen on phones.
 							span {
-								Site.description
+								Site.description.replacing("-", with: "\u{2011}")
 							}
 							.style(Styles.taglineText)
 						}
 						.style(Styles.tagline)
 
-						div(.data("nosnippet", value: "")) {
+						div {
 							div {
 								a(.href(.apps)) {
 									Label("Apps", icon: .appStore)
@@ -57,6 +58,7 @@ struct HomePage: Page {
 							}
 							.style(Styles.action)
 						}
+						.hiddenFromSearchSnippets()
 						.style(Styles.actions)
 					}
 					.style(Styles.text)
@@ -70,10 +72,20 @@ struct HomePage: Page {
 		ModuleScript("/scripts/home.js")
 
 		JSONScript(schema: Schema.Person.authorProfile)
+
+		// The name of the site in search results.
+		JSONScript(schema: Schema.WebSite(name: Site.name, url: path.absoluteURL))
 	}
 }
 
 extension HomePage {
+	/**
+	The IDs and data attributes that the scripts of the page find elements by.
+	*/
+	enum Hooks: String, ScriptHookSet {
+		case nebula = "nebula"
+	}
+
 	enum Styles: StyleSet {
 		case root
 		case nebula
@@ -102,60 +114,54 @@ extension HomePage {
 				Style()
 					.position(.absolute)
 					.inset(0)
-					.display(.none)
+					.hidden()
 					.frame(width: .percent(100), height: .percent(100))
 					.allowsHitTesting(false)
 					.dark {
 						$0
 							.display(.block)
-							.animation(Animations.nebulaFadeIn, duration: .seconds(3), curve: .easeOut, fillMode: .forwards)
+							.animation(Animations.nebulaFadeIn, .easeOut(duration: .seconds(3)), fillMode: .forwards)
 					}
 					.reducedMotion {
-						$0
-							.important {
-								$0.display(.none)
-							}
+						$0.hidden()
 					}
 			case .container:
 				Style()
 					.display(.flex)
 					.pageWidth()
-					.padding(.horizontal, .rem(1))
-					.breakpoint(.sm) {
-						$0.padding(.horizontal, .rem(1.5))
-					}
-					.breakpoint(.md) {
+					.padding(.horizontal, .pageGutter)
+					.from(.tablet) {
 						$0
-							.frame(height: .svh(100))
-							.margin(.top, .rem(-5))
+							.frame(height: .smallViewportHeight(100))
+							.margin(.top, .rootEm(-5))
 					}
 			case .content:
 				Style()
 					.margin(.auto)
-					.padding(top: .rem(3), horizontal: 0, bottom: .rem(5.5))
+					.padding(top: .rootEm(3), horizontal: 0, bottom: .rootEm(5.5))
 					.textAlign(.center)
-					.breakpoint(.md) {
+					.from(.tablet) {
 						$0
-							.padding(top: .rem(5), horizontal: 0, bottom: .rem(9))
+							.padding(top: .rootEm(5), horizontal: 0, bottom: .rootEm(9))
 					}
 			case .profileRing:
 				Style()
 					.position(.relative)
 					.display(.inlineFlex)
-					.margin(.rem(2))
+					.margin(.rootEm(2))
 					.cornerRadius(.circle)
 					// A rotating ring in the galaxy colors.
 					.dark {
 						$0
-							.dropShadow(Shadow(y: 0, blur: .px(14), color: "rgb(59 130 246 / 50%)")).dropShadow(Shadow(y: 0, blur: .px(40), color: "rgb(139 92 246 / 28%)"))
+							.filter(.dropShadow(Shadow(y: 0, blur: .pixels(14), color: .primary(500).opacity(0.5))), .dropShadow(Shadow(y: 0, blur: .pixels(40), color: .violet(500).opacity(0.28))))
 							.before {
 								$0
 									.content("")
 									.position(.absolute)
-									.inset(.px(-3))
+									.inset(.pixels(-3))
 									.cornerRadius(.circle)
-									.declaration(.background, CSSValue("conic-gradient(\(Color.primary(500)), \(Color.violet(500)), \(Color.secondary(500)), \(Color.violet(500)), \(Color.primary(500)))"))
-									.animation(Animations.ringRotate, duration: .seconds(10), curve: .linear, repeats: true)
+									.backgroundImage(.conicGradient(.primary(500), .violet(500), .secondary(500), .violet(500), .primary(500)))
+									.animation(Animations.ringRotate, .linear(duration: .seconds(10)).repeatForever(autoreverses: false))
 							}
 					}
 					.media(.dark && .reducedMotion) {
@@ -170,61 +176,62 @@ extension HomePage {
 					.zIndex(1)
 					.display(.block)
 					.cornerRadius(.circle)
-					.transition(.transform, duration: .milliseconds(350))
-					.declaration(.maskImage, "radial-gradient(circle, #000 80%, transparent 100%)")
+					.transition(.scaleEffect, animation: .default(duration: .milliseconds(350)))
+					.maskImage(.radialGradient("circle", Color.black.at(.percent(80)), Color.transparent.at(.percent(100))))
 					.hover {
 						$0.scaleEffect(1.03)
 					}
 			case .name:
 				// The expanded width of SF Pro on Apple platforms.
 				Style()
-					.margin(.bottom, .rem(1))
+					.margin(.bottom, .rootEm(1))
 					.fontFamily(.expandable)
 					.fontWidth(.expanded)
-					.font(.xl5, weight: .bold)
-					.fluidFontSize(fromRem: 3, toRem: 3.5, between: .sm, and: .md)
+					.fluidFontSize(fromRem: 3, toRem: 3.5, between: .smallTablet, and: .tablet)
+					.lineHeight(1)
+					.bold()
 					.letterSpacing(.em(-0.05))
 					.color(.transparent)
-					.setting(HomePage.gradientStart, to: CSSValue(Color.primary(500)))
-					.setting(HomePage.gradientEnd, to: CSSValue(Self.gradientColor(at: 25)))
-					.backgroundImage(CSSValue("linear-gradient(to right in oklch, \(HomePage.gradientStart.value), \(HomePage.gradientEnd.value))"))
-					.declaration(.backgroundClip, "text")
-					.animation(Animations.gradientShift, duration: .seconds(4), repeats: true)
+					.setting(HomePage.gradientStart, to: .primary(500))
+					.setting(HomePage.gradientEnd, to: Self.gradientColor(at: 25))
+					.backgroundImage(.linearGradient("to right", HomePage.gradientStart.value, HomePage.gradientEnd.value, in: "oklch"))
+					.backgroundClip(.text)
+					.animation(Animations.gradientShift, .default(duration: .seconds(4)).repeatForever(autoreverses: false))
 					.reducedMotion {
 						$0.noAnimation()
 					}
-					.breakpoint(.sm) {
-						$0.noWrap()
+					.from(.smallTablet) {
+						$0.textWrap(.nowrap)
 					}
 					.dark {
-						$0.dropShadow(Shadow(y: 0, blur: .px(12), color: "rgb(59 130 246 / 55%)")).dropShadow(Shadow(y: 0, blur: .px(32), color: "rgb(139 92 246 / 30%)")).dropShadow(Shadow(y: 0, blur: .px(60), color: "rgb(236 72 153 / 15%)"))
+						$0.filter(.dropShadow(Shadow(y: 0, blur: .pixels(12), color: .primary(500).opacity(0.55))), .dropShadow(Shadow(y: 0, blur: .pixels(32), color: .violet(500).opacity(0.3))), .dropShadow(Shadow(y: 0, blur: .pixels(60), color: .secondary(500).opacity(0.15))))
 					}
 			case .text:
 				Style()
-					.frame(maxWidth: .rem(48))
+					.frame(maxWidth: .rootEm(48))
 					.margin(vertical: 0, horizontal: .auto)
 			case .tagline:
 				Style()
-					.margin(.bottom, .rem(2.5))
-					.font(.xl)
-					.color(.gray(600), dark: .slate(400))
+					.margin(.bottom, .rootEm(2.5))
+					.font(.extraLarge)
+					.color(.gray(600), dark: .gray(400))
 			case .taglineText:
 				Style()
 					.fontFamily(.expandable)
 					.fontWidth(.expanded)
-					.font(.xl2, weight: 350)
+					.font(.extraLarge2, weight: 350)
 					.letterSpacing(.em(0.06))
 					.dark {
 						$0
-							.color(.slate(200).opacity(0.82))
-							.declaration(.textShadow, "0 0 28px rgb(139 92 246 / 28%)")
+							.color(.gray(200).opacity(0.82))
+							.textShadow(Shadow(y: 0, blur: .pixels(28), color: Color.violet(500).opacity(0.28)))
 					}
 			case .actions:
 				Style()
-					.vstack(spacing: .rem(1.5))
-					.margin(vertical: .rem(0.5), horizontal: 0)
-					.padding(.horizontal, .rem(1.5))
-					.breakpoint(.sm) {
+					.vstack(spacing: .rootEm(1.5))
+					.margin(vertical: .rootEm(0.5), horizontal: 0)
+					.padding(.horizontal, .rootEm(1.5))
+					.from(.smallTablet) {
 						$0
 							.flexDirection(.row)
 							.justifyContent(.center)
@@ -233,7 +240,7 @@ extension HomePage {
 				Style()
 					.display(.flex)
 					.frame(width: .percent(100))
-					.breakpoint(.sm) {
+					.from(.smallTablet) {
 						$0.frame(width: .auto)
 					}
 			case .button:
@@ -242,8 +249,8 @@ extension HomePage {
 					.alignItems(.center)
 					.justifyContent(.center)
 					.frame(width: .percent(100))
-					.padding(vertical: .rem(1), horizontal: .rem(2))
-					.cornerRadius(.rem(1.5))
+					.padding(vertical: .rootEm(1), horizontal: .rootEm(2))
+					.cornerRadius(.rootEm(1.5))
 					.fontWeight(.medium)
 					.lineHeight(1.375)
 					.textAlign(.center)
@@ -251,12 +258,12 @@ extension HomePage {
 					.nested(Icon.selector) {
 						$0
 							.margin(.top, 0)
-							.margin(.trailing, .rem(0.25))
+							.margin(.trailing, .rootEm(0.25))
 							.margin(.bottom, 0)
-							.margin(.leading, .rem(-0.375))
+							.margin(.leading, .rootEm(-0.375))
 					}
-					.breakpoint(.sm) {
-						$0.padding(vertical: .rem(0.75), horizontal: .rem(2))
+					.from(.smallTablet) {
+						$0.padding(vertical: .rootEm(0.75), horizontal: .rootEm(2))
 					}
 			case .glass:
 				// Liquid glass buttons in dark mode.
@@ -264,13 +271,13 @@ extension HomePage {
 					.position(.relative)
 					.overflow(.hidden)
 					.color(.white)
-					.transition(.background, .shadow, duration: .milliseconds(250)).transition(.transform, duration: .milliseconds(200)).transition(.borderColor, duration: .milliseconds(250))
+					.transition(.background, .shadow, animation: .default(duration: .milliseconds(250))).transition(.offset, animation: .default(duration: .milliseconds(200))).transition(.borderColor, animation: .default(duration: .milliseconds(250)))
 					.dark {
 						$0
-							.backdropFilter("blur(20px) saturate(180%)")
+							.backdropFilter(.blur(radius: .pixels(20)), .saturation(1.8))
 							// The solid backgrounds for reduced transparency are in the fills, as their backgrounds come later.
 							.reducedTransparency {
-								$0.declaration(.backdropFilter, .none)
+								$0.backdropFilter(.none)
 							}
 							.before {
 								$0
@@ -278,64 +285,52 @@ extension HomePage {
 									.position(.absolute)
 									.inset(0)
 									.declaration(.borderRadius, .inherit)
-									.declaration(.background, "linear-gradient(175deg, rgb(255 255 255 / 28%) 0%, rgb(255 255 255 / 6%) 40%, transparent 70%)")
+									.backgroundImage(.linearGradient("175deg", Color.white.opacity(0.28).at(.percent(0)), Color.white.opacity(0.06).at(.percent(40)), Color.transparent.at(.percent(70))))
 									.allowsHitTesting(false)
 							}
 					}
 					.dark {
 						$0
 							.hover {
-								$0.offset(y: .px(-1))
+								$0.offset(y: .pixels(-1))
 							}
 					}
 			case .glassPrimary:
 				Style()
-					.background(.primary(600).opacity(0.9), dark: .primary(500).opacity(0.22))
-					.border(.primary(600).opacity(0.3))
+					.background(.primary(600), dark: .primary(500).opacity(0.22))
+					.border(.lightDark(.primary(600).opacity(0.3), .primary(400).opacity(0.45)))
 					.media(.dark && .reducedTransparency) {
 						$0.background(.primary(700))
 					}
 					.hover {
 						$0
-							.background(.primary(700))
-							.borderColor(.primary(700))
+							.background(.primary(700), dark: .primary(500).opacity(0.32))
+							.borderColor(.primary(700), dark: .primary(400).opacity(0.6))
 					}
 					.dark {
 						$0
-							.border("rgb(99 160 255 / 45%)")
-							.shadow(Shadow(y: .px(1.5), color: "rgb(255 255 255 / 40%)", isInset: true), Shadow(y: .px(-1), color: "rgb(0 0 0 / 10%)", isInset: true), Shadow(y: .px(4), blur: .px(24), color: "rgb(59 130 246 / 25%)"), Shadow(y: .px(1), blur: .px(4), color: "rgb(0 0 0 / 15%)"))
-					}
-					.dark {
-						$0
+							.shadow(Shadow(y: .pixels(1.5), color: .white.opacity(0.4), isInset: true), Shadow(y: .pixels(-1), color: .black.opacity(0.1), isInset: true), Shadow(y: .pixels(4), blur: .pixels(24), color: .primary(500).opacity(0.25)), Shadow(y: .pixels(1), blur: .pixels(4), color: .black.opacity(0.15)))
 							.hover {
-								$0
-									.background(.primary(500).opacity(0.32))
-									.borderColor("rgb(120 180 255 / 60%)")
-									.shadow(Shadow(y: .px(1.5), color: "rgb(255 255 255 / 50%)", isInset: true), Shadow(y: .px(-1), color: "rgb(0 0 0 / 10%)", isInset: true), Shadow(y: .px(8), blur: .px(32), color: "rgb(59 130 246 / 35%)"), Shadow(y: .px(2), blur: .px(6), color: "rgb(0 0 0 / 15%)"))
+								$0.shadow(Shadow(y: .pixels(1.5), color: .white.opacity(0.5), isInset: true), Shadow(y: .pixels(-1), color: .black.opacity(0.1), isInset: true), Shadow(y: .pixels(8), blur: .pixels(32), color: .primary(500).opacity(0.35)), Shadow(y: .pixels(2), blur: .pixels(6), color: .black.opacity(0.15)))
 							}
 					}
 			case .glassDark:
 				Style()
-					.background(.gray(900), dark: "rgb(10 15 30 / 40%)")
-					.border(.transparent)
+					.background(.gray(900), dark: .gray(950).opacity(0.4))
+					.border(.lightDark(.transparent, .white.opacity(0.16)))
 					.media(.dark && .reducedTransparency) {
-						$0.background(.slate(800))
+						$0.background(.gray(800))
 					}
 					.hover {
-						$0.background(.gray(700))
+						$0
+							.background(.gray(700), dark: .gray(950).opacity(0.55))
+							.borderColor(.transparent, dark: .white.opacity(0.26))
 					}
 					.dark {
 						$0
-							.border(.white.opacity(0.16))
-							.shadow(Shadow(y: .px(1.5), color: "rgb(255 255 255 / 25%)", isInset: true), Shadow(y: .px(-1), color: "rgb(0 0 0 / 15%)", isInset: true), Shadow(y: .px(4), blur: .px(20), color: "rgb(0 0 0 / 30%)"), Shadow(y: .px(1), blur: .px(4), color: "rgb(0 0 0 / 20%)"))
-					}
-					.dark {
-						$0
+							.shadow(Shadow(y: .pixels(1.5), color: .white.opacity(0.25), isInset: true), Shadow(y: .pixels(-1), color: .black.opacity(0.15), isInset: true), Shadow(y: .pixels(4), blur: .pixels(20), color: .black.opacity(0.3)), Shadow(y: .pixels(1), blur: .pixels(4), color: .black.opacity(0.2)))
 							.hover {
-								$0
-									.background("rgb(10 15 30 / 55%)")
-									.borderColor(.white.opacity(0.26))
-									.shadow(Shadow(y: .px(1.5), color: "rgb(255 255 255 / 35%)", isInset: true), Shadow(y: .px(-1), color: "rgb(0 0 0 / 15%)", isInset: true), Shadow(y: .px(8), blur: .px(28), color: "rgb(0 0 0 / 40%)"), Shadow(y: .px(2), blur: .px(6), color: "rgb(0 0 0 / 20%)"))
+								$0.shadow(Shadow(y: .pixels(1.5), color: .white.opacity(0.35), isInset: true), Shadow(y: .pixels(-1), color: .black.opacity(0.15), isInset: true), Shadow(y: .pixels(8), blur: .pixels(28), color: .black.opacity(0.4)), Shadow(y: .pixels(2), blur: .pixels(6), color: .black.opacity(0.2)))
 							}
 					}
 			}
@@ -345,15 +340,15 @@ extension HomePage {
 		A color of the brand gradient, from blue (0) to pink (100).
 		*/
 		fileprivate static func gradientColor(at percent: Int) -> Color {
-			Color("color-mix(in oklch, \(Color.primary(500)), \(Color.secondary(500)) \(percent)%)")
+			Color.primary(500).mix(with: .secondary(500), amount: .percent(Double(percent)))
 		}
 	}
 
 	/**
 	The colors at the ends of the gradient of the name. They are registered properties, so they can animate: the gradient moves from the blue end of the brand gradient to the pink end and back.
 	*/
-	fileprivate static let gradientStart = RegisteredProperty("--gradient-start", syntax: "<color>", initialValue: CSSValue(Color.black), inherits: false)
-	fileprivate static let gradientEnd = RegisteredProperty("--gradient-end", syntax: "<color>", initialValue: CSSValue(Color.black), inherits: false)
+	fileprivate static let gradientStart = RegisteredProperty<Color>("--gradient-start", syntax: "<color>", initialValue: .black, inherits: false)
+	fileprivate static let gradientEnd = RegisteredProperty<Color>("--gradient-end", syntax: "<color>", initialValue: .black, inherits: false)
 
 	enum Animations: KeyframeSet {
 		case nebulaFadeIn
@@ -372,8 +367,8 @@ extension HomePage {
 			case .gradientShift:
 				[
 					.at(50, Style()
-						.setting(HomePage.gradientStart, to: CSSValue(HomePage.Styles.gradientColor(at: 75)))
-						.setting(HomePage.gradientEnd, to: CSSValue(Color.secondary(500)))
+						.setting(HomePage.gradientStart, to: HomePage.Styles.gradientColor(at: 75))
+						.setting(HomePage.gradientEnd, to: .secondary(500))
 					),
 				]
 			}

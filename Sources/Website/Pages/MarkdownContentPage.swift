@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-A page written in Markdown, like `/about`.
+A page written in Markdown, like `/donate`. The about page is ``AboutPage``.
 */
 struct MarkdownContentPage: Page {
 	let page: MarkdownPage
@@ -12,15 +12,15 @@ struct MarkdownContentPage: Page {
 		page.path
 	}
 
-	var lastModified: Date? {
-		page.lastCommitDate
+	var sitemapEntry: SitemapEntry? {
+		SitemapEntry(lastModified: page.lastCommitDate)
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: PageMetadata.titled(page.frontmatter.title.value), description: page.frontmatter.description?.value)
+		PageMetadata(title: page.title, description: page.description)
 	}
 
 	var body: some HTML {
-		ProsePage(isSpacious: true, html: page.markdown.html)
+		ProsePage(photo: page.frontmatter.photo, markdown: page.markdown.content)
 	}
 }

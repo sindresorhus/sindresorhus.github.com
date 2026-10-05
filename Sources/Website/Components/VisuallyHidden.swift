@@ -24,15 +24,7 @@ struct VisuallyHidden: HTML {
 		case root
 
 		var style: Style {
-			Style()
-				.position(.absolute)
-				.frame(width: .px(1), height: .px(1))
-				.padding(0)
-				.margin(.px(-1))
-				.overflow(.hidden)
-				.declaration(.clip, "rect(0, 0, 0, 0)")
-				.noWrap()
-				.declaration(.border, 0)
+			Style().visuallyHidden()
 		}
 	}
 }

@@ -4,16 +4,21 @@ import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
 /**
-Implementation of `@Frontmatter`, which makes a struct decode strictly from YAML frontmatter.
+Implementation of `@Frontmatter`, which makes a struct decode strictly from SOML frontmatter.
 
-It generates `CodingKeys` (renamed with `@Key`), an `init(from:)` that rejects unknown keys and uses the default value of a property when its key is missing, and the `Frontmatter` conformance.
+It generates `CodingKeys` (renamed with `@Key`), an `init(from:)` that uses the default value of a property when its key is missing, and the `Frontmatter` conformance.
 
-Limitations: Properties inside `#if` blocks are ignored, and every stored property needs a type annotation or an empty initializer that names the type (`[String]()`, `[String: Int]()`, `OrderedMapping<URL>()`), because macros cannot infer types.
+A property with a property wrapper, like `@NonEmpty var description: String?`, decodes the wrapper of the non-optional type, like `NonEmpty<String>`, and initializes the property with its wrapped value. So an optional property can be missing, like any other.
+
+The type of a stored property comes from its type annotation, from an empty initializer that names the type (`[String]()`, `[String: Int]()`, `OrderedMapping<URL>()`), or from a literal default value: `false` is a `Bool`, `"text"` is a `String`, `1` is an `Int`, and `1.5` is a `Double`.
+
+Limitations: Properties inside `#if` blocks are ignored. Every attribute of a property, other than `@Key`, is taken to be a property wrapper that is generic over its wrapped value, like `NonEmpty<Value>`, written without generic arguments. Other default values need a type annotation, because macros cannot infer types. This includes string literals with interpolation, and literals that should be another type, like `var scale: Float = 1`.
 */
 public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 	struct Property {
 		let name: TokenSyntax
 		let key: ExprSyntax?
+		let wrapper: TypeSyntax?
 		let type: TypeSyntax
 		let defaultValue: ExprSyntax?
 
@@ -50,7 +55,7 @@ public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 		let properties = try storedProperties(of: declaration)
 		let access = declaration.modifiers.accessModifierForGeneratedMembers
 
-		let codingKeys = try EnumDeclSyntax("enum CodingKeys: Swift.String, Swift.CodingKey, Swift.CaseIterable") {
+		let codingKeys = try EnumDeclSyntax("enum CodingKeys: Swift.String, Swift.CodingKey") {
 			for property in properties {
 				if let key = property.key {
 					DeclSyntax("case \(property.name) = \(key)")
@@ -61,7 +66,6 @@ public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 		}
 
 		let initializer = try InitializerDeclSyntax("\(access)init(from decoder: any Swift.Decoder) throws") {
-			ExprSyntax("try decoder.rejectUnknownKeys(CodingKeys.self)")
 			DeclSyntax("let container = try decoder.container(keyedBy: CodingKeys.self)")
 
 			for property in properties {
@@ -90,17 +94,22 @@ public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 		return [try ExtensionDeclSyntax("extension \(type.trimmed): SiteKit.Frontmatter {}")]
 	}
 
+	/**
+	An optional property, or a property with a default value, is decoded with `decodeIfPresent`, so its key can be missing.
+	*/
 	private static func decodingStatement(for property: Property) -> ExprSyntax {
-		if let wrapped = property.optionalWrappedType {
-			let decode: ExprSyntax = "try container.decodeIfPresent(\(wrapped).self, forKey: .\(property.name))"
-			return property.defaultValue.map { "self.\(property.name) = \(decode) ?? \($0)" } ?? "self.\(property.name) = \(decode)"
+		let wrappedType = property.optionalWrappedType
+		let valueType = wrappedType ?? property.type
+		let decodedType: TypeSyntax = property.wrapper.map { "\($0)<\(valueType)>" } ?? valueType
+
+		guard wrappedType != nil || property.defaultValue != nil else {
+			let unwrap = property.wrapper == nil ? "" : ".wrappedValue"
+			return "self.\(property.name) = try container.decode(\(decodedType).self, forKey: .\(property.name))\(raw: unwrap)"
 		}
 
-		if let defaultValue = property.defaultValue {
-			return "self.\(property.name) = try container.decodeIfPresent(\(property.type).self, forKey: .\(property.name)) ?? \(defaultValue)"
-		}
-
-		return "self.\(property.name) = try container.decode(\(property.type).self, forKey: .\(property.name))"
+		let unwrap = property.wrapper == nil ? "" : "?.wrappedValue"
+		let decode: ExprSyntax = "try container.decodeIfPresent(\(decodedType).self, forKey: .\(property.name))\(raw: unwrap)"
+		return property.defaultValue.map { "self.\(property.name) = \(decode) ?? \($0)" } ?? "self.\(property.name) = \(decode)"
 	}
 
 	private static func storedProperties(of declaration: some DeclGroupSyntax) throws -> [Property] {
@@ -130,17 +139,20 @@ public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 				continue
 			}
 
-			if isLet, binding.initializer != nil {
+			if
+				isLet,
+				binding.initializer != nil
+			{
 				diagnostics.append(Diagnostic(node: binding, message: MacroExpansionErrorMessage("A property with a default value must be a 'var', so it can be decoded")))
 				continue
 			}
 
-			guard let type = binding.typeAnnotation?.type ?? binding.initializer?.value.typeOfEmptyInitializer else {
-				diagnostics.append(Diagnostic(node: binding.pattern, message: MacroExpansionErrorMessage("'@Frontmatter' requires a type annotation, or an empty initializer like '[String]()', because macros cannot infer types")))
+			guard let type = binding.typeAnnotation?.type ?? binding.initializer?.value.inferredType else {
+				diagnostics.append(Diagnostic(node: binding.pattern, message: MacroExpansionErrorMessage("'@Frontmatter' requires a type annotation, a literal default value like 'false', or an empty initializer like '[String]()', because macros cannot infer other types")))
 				continue
 			}
 
-			properties.append(Property(name: name.trimmed, key: key, type: type.trimmed, defaultValue: binding.initializer?.value.trimmed))
+			properties.append(Property(name: name.trimmed, key: key, wrapper: variable.attributes.propertyWrapper, type: type.trimmed, defaultValue: binding.initializer?.value.trimmed))
 		}
 
 		guard diagnostics.isEmpty else {
@@ -152,7 +164,7 @@ public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 }
 
 /**
-Implementation of `@Key("name")`, which marks the YAML key of a `@Frontmatter` property. It generates nothing.
+Implementation of `@Key("name")`, which marks the SOML key of a `@Frontmatter` property. It generates nothing.
 */
 public enum KeyMacro: PeerMacro {
 	public static func expansion(
@@ -166,9 +178,53 @@ public enum KeyMacro: PeerMacro {
 
 extension ExprSyntax {
 	/**
+	The type of a default value that the macro can know without type checking: a literal or an empty initializer.
+	*/
+	fileprivate var inferredType: TypeSyntax? {
+		typeOfLiteral ?? typeOfEmptyInitializer
+	}
+
+	/**
+	The default type of a Boolean, string (without interpolation), integer, or float literal, also with a leading minus, like `Int` for `-1`.
+	*/
+	private var typeOfLiteral: TypeSyntax? {
+		if let prefix = self.as(PrefixOperatorExprSyntax.self) {
+			guard
+				prefix.operator.text == "-",
+				prefix.expression.is(IntegerLiteralExprSyntax.self) || prefix.expression.is(FloatLiteralExprSyntax.self)
+			else {
+				return nil
+			}
+
+			return prefix.expression.typeOfLiteral
+		}
+
+		if self.is(BooleanLiteralExprSyntax.self) {
+			return "Bool"
+		}
+
+		if self.is(IntegerLiteralExprSyntax.self) {
+			return "Int"
+		}
+
+		if self.is(FloatLiteralExprSyntax.self) {
+			return "Double"
+		}
+
+		if
+			let string = self.as(StringLiteralExprSyntax.self),
+			string.segments.allSatisfy({ $0.is(StringSegmentSyntax.self) })
+		{
+			return "String"
+		}
+
+		return nil
+	}
+
+	/**
 	The type that an empty initializer names, like `[String]` for `[String]()`, `[String: Int]` for `[String: Int]()`, or `OrderedMapping<URL>` for `OrderedMapping<URL>()`.
 	*/
-	fileprivate var typeOfEmptyInitializer: TypeSyntax? {
+	private var typeOfEmptyInitializer: TypeSyntax? {
 		guard
 			let call = self.as(FunctionCallExprSyntax.self),
 			call.arguments.isEmpty,
@@ -219,6 +275,24 @@ extension AttributeListSyntax {
 			}
 
 			return argument.trimmed
+		}
+
+		return nil
+	}
+
+	/**
+	The type of the property wrapper: the first attribute that is not `@Key`, like `NonEmpty` for `@NonEmpty`.
+	*/
+	fileprivate var propertyWrapper: TypeSyntax? {
+		for element in self {
+			guard
+				case .attribute(let attribute) = element,
+				attribute.attributeName.trimmedDescription != "Key"
+			else {
+				continue
+			}
+
+			return attribute.attributeName.trimmed
 		}
 
 		return nil

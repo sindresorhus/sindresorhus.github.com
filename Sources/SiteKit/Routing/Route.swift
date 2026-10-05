@@ -8,9 +8,9 @@ Routes are cheap descriptions. The content is only rendered when the site is pub
 public struct Route: Sendable {
 	public enum Output: Sendable {
 		/**
-		An HTML page, listed in the sitemap unless `isInSitemap` is false.
+		An HTML page, listed in the sitemap when it has a sitemap entry.
 		*/
-		case page(isInSitemap: Bool, render: @Sendable () throws -> String)
+		case page(sitemapEntry: SitemapEntry?, render: @Sendable () throws -> String)
 
 		/**
 		An HTML page that sends visitors to another route, or to a page on another site.
@@ -26,37 +26,23 @@ public struct Route: Sendable {
 	public let path: RoutePath
 	public let output: Output
 
-	/**
-	When the content of a page last changed, for the sitemap.
-	*/
-	public var lastModified: Date?
-
-	/**
-	The important images of a page, like screenshots, for the sitemap.
-	*/
-	public var images = [URL]()
-
 	public init(_ path: RoutePath, output: Output) {
 		self.path = path
 		self.output = output
 	}
 
-	public static func page(_ path: RoutePath, isInSitemap: Bool = true, lastModified: Date? = nil, images: [URL] = [], render: @escaping @Sendable () throws -> String) -> Self {
-		var route = Self(path, output: .page(isInSitemap: isInSitemap, render: render))
-		route.lastModified = lastModified
-		route.images = images
-		return route
-	}
-
-	public static func redirect(_ path: RoutePath, to destination: RoutePath) -> Self {
-		Self(path, output: .redirect(to: .path(destination)))
+	/**
+	- Parameter sitemapEntry: How the page is listed in the sitemap. `nil` leaves it out, like for a page that search engines must not index.
+	*/
+	public static func page(_ path: RoutePath, sitemapEntry: SitemapEntry? = SitemapEntry(), render: @escaping @Sendable () throws -> String) -> Self {
+		Self(path, output: .page(sitemapEntry: sitemapEntry, render: render))
 	}
 
 	/**
-	A page that sends visitors to a page on another site, like a blog post that moved.
+	A page that sends visitors to another page of the site, or to a page on another site, like a blog post that moved.
 	*/
-	public static func redirect(_ path: RoutePath, to url: URL) -> Self {
-		Self(path, output: .redirect(to: .url(url)))
+	public static func redirect(_ path: RoutePath, to destination: LinkDestination) -> Self {
+		Self(path, output: .redirect(to: destination))
 	}
 
 	public static func file(_ path: RoutePath, render: @escaping @Sendable () async throws -> Data) -> Self {
@@ -76,27 +62,41 @@ public struct Route: Sendable {
 	Pages and redirects are HTML files, which static hosts like GitHub Pages serve at the extensionless URL: `index.html` for `/`, and `<path>.html` for the rest, even when the path has a dot, like `/blog/macos-13.1`. Other files are written at their path, like `rss.xml`.
 	*/
 	public var outputFile: String {
-		let relative = String(path.description.dropFirst())
-
 		switch output {
 		case .page, .redirect:
-			return path == .root ? "index.html" : "\(relative).html"
+			return path == .root ? "index.html" : "\(path.relativePath).html"
 		case .file:
-			return relative
+			return path.relativePath
 		}
 	}
 
-	public var isInSitemap: Bool {
-		guard case .page(let isInSitemap, _) = output else {
-			return false
+	/**
+	How the route is listed in the sitemap. Only pages can be listed.
+	*/
+	public var sitemapEntry: SitemapEntry? {
+		guard case .page(let sitemapEntry, _) = output else {
+			return nil
 		}
 
-		return isInSitemap
+		return sitemapEntry
 	}
 }
 
 /**
-Builds a list of routes with loops and conditions.
+A value that is published as a route, like a page. ``RouteBuilder`` takes it directly.
+*/
+public protocol RouteConvertible {
+	var route: Route { get }
+}
+
+extension Route: RouteConvertible {
+	public var route: Route {
+		self
+	}
+}
+
+/**
+Builds a list of routes with loops and conditions, from routes and other values that have a route, like pages.
 
 ```swift
 @RouteBuilder
@@ -107,18 +107,18 @@ var routes: [Route] {
 		Route.page("/blog/\(post.slug)") { post.render() }
 	}
 
-	Route.redirect("/thanks", to: "/supporters")
+	Route.redirect("/thanks", to: .path("/supporters"))
 }
 ```
 */
 @resultBuilder
 public enum RouteBuilder {
-	public static func buildExpression(_ route: Route) -> [Route] {
-		[route]
+	public static func buildExpression(_ value: some RouteConvertible) -> [Route] {
+		[value.route]
 	}
 
-	public static func buildExpression(_ routes: [Route]) -> [Route] {
-		routes
+	public static func buildExpression(_ values: [some RouteConvertible]) -> [Route] {
+		values.map(\.route)
 	}
 
 	public static func buildBlock(_ components: [Route]...) -> [Route] {

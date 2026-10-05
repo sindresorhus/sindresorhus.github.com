@@ -1,28 +1,32 @@
 import Foundation
+import SOML
 
 /**
-Makes a struct decode strictly from YAML frontmatter.
+Makes a struct decode strictly from SOML frontmatter.
 
-It generates the coding keys and an initializer that rejects unknown keys and uses the default value of a property when its key is missing. Rename a key with `@Key`. Every stored property needs a type annotation.
+It generates the coding keys and an initializer that uses the default value of a property when its key is missing. Rename a key with `@Key`, and check a value with a ``Validated`` property wrapper, like `@NonEmpty`. Every stored property needs a type annotation, a literal default value (`false`, `"text"`, `1`, `1.5`), or an empty initializer that names the type (`[String]()`).
 
 ```swift
 @Frontmatter
 struct PostFrontmatter {
-	var title: String
-	var description: String?
+	@NonEmpty var title: String
+	@NonEmpty var description: String?
 	var tags = [String]()
+	var isDraft = false
 
-	@Key("pubDate")
-	var publicationDate: Date
+	@Key("date")
+	@CalendarDay var publicationDate: Date
 }
 ```
+
+Limitation: Every attribute of a stored property, other than `@Key`, must be a property wrapper that is generic over its wrapped value and decodes it, like the aliases of ``Validated``, written without generic arguments.
 */
 @attached(member, names: named(CodingKeys), named(init(from:)))
 @attached(extension, conformances: Frontmatter)
 public macro Frontmatter() = #externalMacro(module: "SiteKitMacros", type: "FrontmatterMacro")
 
 /**
-The YAML key of a `@Frontmatter` property, when it differs from the property name.
+The SOML key of a `@Frontmatter` property, when it differs from the property name.
 */
 @attached(peer)
 public macro Key(_ name: String) = #externalMacro(module: "SiteKitMacros", type: "KeyMacro")
@@ -30,51 +34,117 @@ public macro Key(_ name: String) = #externalMacro(module: "SiteKitMacros", type:
 /**
 Typed frontmatter of a content file. Use the `@Frontmatter` macro to conform.
 
-Decoding is strict: unknown keys are rejected (see ``Swift/Decoder/rejectUnknownKeys(_:)``), and ``validate()`` checks the rules that types cannot express.
+Decoding is strict: unknown keys are rejected (see `SOML.Decoder.frontmatter`), and ``validate()`` checks the rules that types cannot express.
 */
 public protocol Frontmatter: Decodable, Sendable {
 	/**
-	Checks requirements that the types cannot express, like a value being an absolute URL.
+	Checks requirements that the types cannot express, like two keys that need each other.
 	*/
-	func validate() throws(FrontmatterError)
+	func validate() throws(ContentError)
 }
 
 extension Frontmatter {
-	public func validate() throws(FrontmatterError) {}
+	public func validate() throws(ContentError) {}
+
+	/**
+	Decodes and validates a value, like the arguments of a Markdown directive.
+
+	- Parameter root: What the value is, like `arguments`, for the messages.
+	*/
+	static func decode(from somlValue: SOML.Value, root: String) throws(ContentError) -> Self {
+		do {
+			let value = try SOML.Decoder.frontmatter.decode(Self.self, from: somlValue)
+			try value.validate()
+			return value
+		} catch let error as DecodingError {
+			throw ContentError(reason: error.readableDescription(root: root))
+		} catch let error as ContentError {
+			throw error
+		} catch {
+			throw ContentError(reason: "\(error)")
+		}
+	}
 }
 
 /**
-A frontmatter value that breaks a content rule.
-*/
-public struct FrontmatterError: Error, CustomStringConvertible {
-	public let description: String
+A frontmatter value that is decoded from a simpler value and then checked, like a URL that must be absolute.
 
-	public init(_ description: String) {
-		self.description = description
+A failed check is a decoding error, so the message names the key path, and the line of the key.
+*/
+public protocol ValidatedValue: Decodable {
+	associatedtype RawValue: Decodable
+
+	/**
+	Throws the reason when the value breaks the rule, like `Must not be empty.`
+	*/
+	init(validating rawValue: RawValue) throws(ContentError)
+}
+
+extension ValidatedValue {
+	public init(from decoder: any Decoder) throws {
+		let container = try decoder.singleValueContainer()
+		let rawValue = try container.decode(RawValue.self)
+
+		do {
+			try self.init(validating: rawValue)
+		} catch {
+			throw DecodingError.dataCorruptedError(in: container, debugDescription: error.reason)
+		}
+	}
+}
+
+/**
+A ``ValidatedValue`` with a plain value that a ``Validated`` property stores, like the `String` of a `NonEmptyString`.
+*/
+public protocol PlainValidatedValue: ValidatedValue {
+	associatedtype Value
+
+	var value: Value { get }
+}
+
+/**
+A frontmatter property that is checked when it is decoded, and stores the plain value. Use it through its aliases, like `@NonEmpty var title: String` or `@Absolute var repositoryURL: URL?`.
+
+The wrapper decodes a `Validation` value and stores its plain value, so an invalid value has the message and the line of its key. `@Frontmatter` decodes the wrapper of the non-optional type, so an optional property can be missing.
+*/
+@propertyWrapper
+public struct Validated<Validation: PlainValidatedValue, Value> {
+	public var wrappedValue: Value
+
+	public init(wrappedValue: Value) {
+		self.wrappedValue = wrappedValue
+	}
+}
+
+extension Validated: Sendable where Value: Sendable {}
+
+extension Validated: Decodable where Value == Validation.Value {
+	public init(from decoder: any Decoder) throws {
+		self.init(wrappedValue: try Validation(from: decoder).value)
 	}
 }
 
 /**
 An absolute URL in frontmatter, like `https://github.com/sindresorhus/dato`.
 
-Decoding throws for a relative URL, which is a common mistake in links. The error includes the key path.
+Decoding throws for a relative URL, which is a common mistake in links.
 */
-public struct AbsoluteURL: Decodable, Hashable, Sendable, CustomStringConvertible {
-	public let url: URL
+public struct AbsoluteURL: PlainValidatedValue, Hashable, Sendable, CustomStringConvertible {
+	public let value: URL
 
-	public init(from decoder: any Decoder) throws {
-		let container = try decoder.singleValueContainer()
-		let url = try container.decode(URL.self)
-
-		guard let scheme = url.scheme, !scheme.isEmpty else {
-			throw DecodingError.dataCorruptedError(in: container, debugDescription: "Must be an absolute URL, got “\(url)”.")
+	public init(validating url: URL) throws(ContentError) {
+		guard
+			let scheme = url.scheme,
+			!scheme.isEmpty
+		else {
+			throw ContentError(reason: "Must be an absolute URL, got “\(url)”.")
 		}
 
-		self.url = url
+		self.value = url
 	}
 
 	public var absoluteString: String {
-		url.absoluteString
+		value.absoluteString
 	}
 
 	public var description: String {
@@ -83,17 +153,19 @@ public struct AbsoluteURL: Decodable, Hashable, Sendable, CustomStringConvertibl
 }
 
 /**
+An absolute URL in frontmatter, like `@Absolute var repositoryURL: URL?`. See ``AbsoluteURL``.
+*/
+public typealias Absolute<Value> = Validated<AbsoluteURL, Value>
+
+/**
 Text in frontmatter that is not empty or only whitespace, like a title.
 */
-public struct NonEmptyString: Decodable, Hashable, Sendable, CustomStringConvertible {
+public struct NonEmptyString: PlainValidatedValue, Hashable, Sendable, CustomStringConvertible {
 	public let value: String
 
-	public init(from decoder: any Decoder) throws {
-		let container = try decoder.singleValueContainer()
-		let value = try container.decode(String.self)
-
+	public init(validating value: String) throws(ContentError) {
 		guard !value.allSatisfy(\.isWhitespace) else {
-			throw DecodingError.dataCorruptedError(in: container, debugDescription: "Must not be empty.")
+			throw ContentError(reason: "Must not be empty.")
 		}
 
 		self.value = value
@@ -105,17 +177,19 @@ public struct NonEmptyString: Decodable, Hashable, Sendable, CustomStringConvert
 }
 
 /**
+Text in frontmatter that is not empty or only whitespace, like `@NonEmpty var title: String`.
+*/
+public typealias NonEmpty<Value> = Validated<NonEmptyString, Value>
+
+/**
 A positive integer in frontmatter that JavaScript can represent exactly (at most 2⁵³ − 1), like an App Store ID that a script reads.
 */
-public struct SafeInteger: Decodable, Hashable, Sendable, CustomStringConvertible {
+public struct SafeInteger: PlainValidatedValue, Hashable, Sendable, CustomStringConvertible {
 	public let value: Int
 
-	public init(from decoder: any Decoder) throws {
-		let container = try decoder.singleValueContainer()
-		let value = try container.decode(Int.self)
-
+	public init(validating value: Int) throws(ContentError) {
 		guard (1...9_007_199_254_740_991).contains(value) else {
-			throw DecodingError.dataCorruptedError(in: container, debugDescription: "Must be a positive integer of at most 2⁵³ − 1, got \(value).")
+			throw ContentError(reason: "Must be a positive integer of at most 2⁵³ − 1, got \(value).")
 		}
 
 		self.value = value
@@ -127,81 +201,63 @@ public struct SafeInteger: Decodable, Hashable, Sendable, CustomStringConvertibl
 }
 
 /**
-Where a link goes: an absolute URL, like `https://example.com`, a path on the site, like `/apps/faq`, or a fragment of the same page, like `#faq`.
-
-Decoding throws for anything else, like a relative path, which would resolve differently on each page.
+A positive integer in frontmatter that JavaScript can represent exactly, like `@JavaScriptSafe var setappID: Int?`. See ``SafeInteger``.
 */
-public enum LinkDestination: Decodable, Hashable, Sendable, CustomStringConvertible {
-	case url(URL)
-	case path(RoutePath)
+public typealias JavaScriptSafe<Value> = Validated<SafeInteger, Value>
 
+extension SOML.Decoder {
 	/**
-	A section of the same page, like `faq` for `#faq`.
+	The decoder for frontmatter. It rejects unknown keys, as a misspelled key would otherwise be silently ignored.
 	*/
-	case fragment(String)
+	static let frontmatter: Self = {
+		var decoder = Self()
+		decoder.rejectsUnknownKeys = true
+		return decoder
+	}()
+}
 
-	public init(from decoder: any Decoder) throws {
-		let container = try decoder.singleValueContainer()
-		let string = try container.decode(String.self)
+/**
+A day in frontmatter, like `publicationDate: '2026-02-23'`, at midnight UTC.
 
-		if string.hasPrefix("#") {
-			self = .fragment(String(string.dropFirst()))
-			return
-		}
+SOML has no value for a day without a time, so it is a string. An impossible day, like `'2026-02-30'`, is an error.
+*/
+public struct Day: PlainValidatedValue, Hashable, Sendable, CustomStringConvertible {
+	public let value: Date
 
-		if string.hasPrefix("/"), !string.hasPrefix("//") {
-			self = .path(RoutePath(string))
-			return
-		}
+	public init(validating text: String) throws(ContentError) {
+		var calendar = Calendar(identifier: .gregorian)
+		calendar.timeZone = .gmt
 
 		guard
-			let url = URL(string: string),
-			url.scheme?.isEmpty == false
+			let match = text.wholeMatch(of: /(\d{4})-(\d{2})-(\d{2})/),
+			let year = Int(match.1),
+			let month = Int(match.2),
+			let day = Int(match.3)
 		else {
-			throw DecodingError.dataCorruptedError(in: container, debugDescription: "Must be an absolute URL, a path that starts with “/”, or a fragment that starts with “#”, got “\(string)”.")
+			throw ContentError(reason: "Must be a day, like '2026-02-23', got “\(text)”.")
 		}
 
-		self = .url(url)
+		let components = DateComponents(year: year, month: month, day: day)
+
+		guard
+			let date = calendar.date(from: components),
+			calendar.dateComponents([.year, .month, .day], from: date) == components
+		else {
+			throw ContentError(reason: "“\(text)” is not a real day.")
+		}
+
+		self.value = date
 	}
 
-	/**
-	The link for an `href` attribute.
-	*/
 	public var description: String {
-		switch self {
-		case .url(let url):
-			url.absoluteString
-		case .path(let path):
-			path.description
-		case .fragment(let fragment):
-			"#\(fragment)"
-		}
+		value.isoDay
 	}
 }
 
-extension Decoder {
-	/**
-	Throws if the keyed container contains keys that the type does not declare.
-
-	Swift's synthesized decoding silently ignores unknown keys, which hides typos in frontmatter.
-	*/
-	public func rejectUnknownKeys<Key: CodingKey & CaseIterable>(_ keys: Key.Type) throws {
-		let known = Set(Key.allCases.map(\.stringValue))
-		let unknown = try container(keyedBy: AnyCodingKey.self).allKeys
-			.map(\.stringValue)
-			.filter { !known.contains($0) }
-
-		guard let first = unknown.sorted().first else {
-			return
-		}
-
-		// The path ends at the first unknown key, so the error can point to its line.
-		throw DecodingError.dataCorrupted(.init(
-			codingPath: codingPath + [AnyCodingKey(stringValue: first)],
-			debugDescription: "Unknown key(s): \(unknown.sorted().joined(separator: ", "))"
-		))
-	}
-}
+/**
+A day in frontmatter, like `@CalendarDay var publicationDate: Date`, at midnight UTC. See ``Day``.
+*/
+public typealias CalendarDay<Value> = Validated<Day, Value>
 
 struct AnyCodingKey: CodingKey {
 	let stringValue: String

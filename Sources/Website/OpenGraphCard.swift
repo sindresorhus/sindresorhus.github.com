@@ -6,44 +6,55 @@ import SiteKit
 import UniformTypeIdentifiers
 
 /**
-The 1200×630 preview image for social media: an image, the title, the subtitle, and the domain, drawn with Core Graphics.
+The 1200×630 preview image for social media: an image, the title, the subtitle, and the domain, drawn with Core Graphics and saved as JPEG.
 
 The text uses the bundled Inter font, so a card looks the same on every machine.
 */
-struct OpenGraphCard: Sendable {
+struct OpenGraphCard: RouteConvertible {
 	let path: RoutePath
 	let title: String
 	let subtitle: String
 
 	/**
-	A PNG or JPEG shown next to the text. When it cannot be read, like for a new app without an icon yet, the space stays empty.
+	A PNG or JPEG shown next to the text. When it cannot be read, like for a new app without an icon yet, the space only has the shadow.
 	*/
 	let image: URL
 
+	/**
+	What the card shows, for people who cannot see it, like “Dato app”.
+	*/
+	let description: String
+
 	var route: Route {
 		.file(path) {
-			try renderPNG()
+			try renderJPEG()
 		}
 	}
 
-	private static let width = 1200
-	private static let height = 630
+	/**
+	The size of the card, which the `og:image:width` and `og:image:height` tags of each page give too.
+	*/
+	static let width = 1200
+	static let height = 630
 	private static let textX = 344.0
 	private static let textWidth = 776.0
+	private static let imageFrame = CGRect(x: 80, y: 215, width: 200, height: 200)
+	private static let imageCornerRadius = 46.0
 
-	func renderPNG() throws -> Data {
+	func renderJPEG() throws -> Data {
 		guard
 			let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
-			let context = CGContext(data: nil, width: Self.width, height: Self.height, bitsPerComponent: 8, bytesPerRow: 0, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+			let context = CGContext(data: nil, width: Self.width, height: Self.height, bitsPerComponent: 8, bytesPerRow: 0, space: colorSpace, bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue),
+			let background = Self.background
 		else {
-			throw OpenGraphCardError(path: path, message: "Could not create the drawing context.")
+			throw OpenGraphCardError.couldNotDraw
 		}
+
+		context.draw(background, in: CGRect(x: 0, y: 0, width: Self.width, height: Self.height))
 
 		// The origin is at the top left, like in the design.
 		context.translateBy(x: 0, y: Double(Self.height))
 		context.scaleBy(x: 1, y: -1)
-
-		drawBackground(in: context, colorSpace: colorSpace)
 
 		if let picture = CGImageSourceCreateWithURL(image as CFURL, nil).flatMap({ CGImageSourceCreateImageAtIndex($0, 0, nil) }) {
 			drawImage(picture, in: context)
@@ -52,59 +63,70 @@ struct OpenGraphCard: Sendable {
 		try drawText(in: context)
 
 		guard let cardImage = context.makeImage() else {
-			throw OpenGraphCardError(path: path, message: "Could not draw the card.")
+			throw OpenGraphCardError.couldNotDraw
 		}
 
 		let data = NSMutableData()
 
-		guard let destination = CGImageDestinationCreateWithData(data, UTType.png.identifier as CFString, 1, nil) else {
-			throw OpenGraphCardError(path: path, message: "Could not encode the PNG.")
+		guard let destination = CGImageDestinationCreateWithData(data, UTType.jpeg.identifier as CFString, 1, nil) else {
+			throw OpenGraphCardError.couldNotEncode
 		}
 
-		CGImageDestinationAddImage(destination, cardImage, nil)
+		CGImageDestinationAddImage(destination, cardImage, [kCGImageDestinationLossyCompressionQuality: 0.9] as CFDictionary)
 
 		guard CGImageDestinationFinalize(destination) else {
-			throw OpenGraphCardError(path: path, message: "Could not encode the PNG.")
+			throw OpenGraphCardError.couldNotEncode
 		}
 
 		return data as Data
 	}
 
 	/**
-	A 135° gradient, like `linear-gradient(135deg, …)` in CSS.
+	The part that every card has: the gradient and the shadow of the image. Drawing the large, soft shadow is the slow part of a card, so it is drawn once.
 	*/
-	private func drawBackground(in context: CGContext, colorSpace: CGColorSpace) {
-		guard let gradient = CGGradient(colorsSpace: colorSpace, colors: [CGColor.hex(0xF8FAFC), CGColor.hex(0xE2E8F0)] as CFArray, locations: [0, 1]) else {
-			return
+	private static let background: CGImage? = {
+		guard
+			let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
+			let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: colorSpace, bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue),
+			let gradient = CGGradient(colorsSpace: colorSpace, colors: [CGColor.hex(0xF8FAFC), CGColor.hex(0xE2E8F0)] as CFArray, locations: [0, 1])
+		else {
+			return nil
 		}
 
-		// CSS makes the gradient line long enough for the corners to get the end colors.
-		let halfLength = (Double(Self.width) + Double(Self.height)) * 0.5.squareRoot() / 2
+		context.translateBy(x: 0, y: Double(height))
+		context.scaleBy(x: 1, y: -1)
+
+		// A 135° gradient, like `linear-gradient(135deg, …)` in CSS. CSS makes the gradient line long enough for the corners to get the end colors.
+		let halfLength = (Double(width) + Double(height)) * 0.5.squareRoot() / 2
 		let offset = halfLength * 0.5.squareRoot()
-		let center = CGPoint(x: Double(Self.width) / 2, y: Double(Self.height) / 2)
+		let center = CGPoint(x: Double(width) / 2, y: Double(height) / 2)
 		context.drawLinearGradient(gradient, start: CGPoint(x: center.x - offset, y: center.y - offset), end: CGPoint(x: center.x + offset, y: center.y + offset), options: [.drawsBeforeStartLocation, .drawsAfterEndLocation])
-	}
+
+		// Like `box-shadow: 0 20px 60px`. Only the shadow is drawn: the square is outside the card, and the shadow offset moves the shadow back to the image. Shadow offsets ignore the flipped coordinates, so a negative height moves the shadow down.
+		let distance = Double(width)
+		context.setShadow(offset: CGSize(width: distance, height: -20), blur: 60, color: CGColor(gray: 0, alpha: 0.15))
+		context.addPath(CGPath(roundedRect: imageFrame.offsetBy(dx: -distance, dy: 0), cornerWidth: imageCornerRadius, cornerHeight: imageCornerRadius, transform: nil))
+		context.fillPath()
+
+		return context.makeImage()
+	}()
 
 	/**
-	Draws the image as a rounded square with a soft shadow, filling the square like `object-fit: cover`.
+	Draws the image as a rounded square, filling the square like `object-fit: cover`.
 	*/
 	private func drawImage(_ picture: CGImage, in context: CGContext) {
-		let frame = CGRect(x: 80, y: 215, width: 200, height: 200)
+		let frame = Self.imageFrame
 		let scale = max(frame.width / Double(picture.width), frame.height / Double(picture.height))
 		let size = CGSize(width: Double(picture.width) * scale, height: Double(picture.height) * scale)
 		let imageFrame = CGRect(x: frame.midX - size.width / 2, y: frame.midY - size.height / 2, width: size.width, height: size.height)
 
 		context.saveGState()
-		// Like `box-shadow: 0 20px 60px`. Shadow offsets ignore the flipped coordinates, so a negative height moves the shadow down.
-		context.setShadow(offset: CGSize(width: 0, height: -20), blur: 60, color: CGColor(gray: 0, alpha: 0.15))
-		context.beginTransparencyLayer(auxiliaryInfo: nil)
-		context.addPath(CGPath(roundedRect: frame, cornerWidth: 46, cornerHeight: 46, transform: nil))
+		context.addPath(CGPath(roundedRect: frame, cornerWidth: Self.imageCornerRadius, cornerHeight: Self.imageCornerRadius, transform: nil))
 		context.clip()
 		// Images draw upside down in flipped coordinates, so they are flipped back.
 		context.translateBy(x: 0, y: imageFrame.minY + imageFrame.maxY)
 		context.scaleBy(x: 1, y: -1)
 		context.draw(picture, in: imageFrame)
-		context.endTransparencyLayer()
 		context.restoreGState()
 	}
 
@@ -208,7 +230,7 @@ struct OpenGraphCard: Sendable {
 			let url = Bundle.module.url(forResource: weight.rawValue, withExtension: "ttf", subdirectory: "Fonts"),
 			let descriptor = (CTFontManagerCreateFontDescriptorsFromURL(url as CFURL) as? [CTFontDescriptor])?.first
 		else {
-			throw OpenGraphCardError(path: "/og", message: "The bundled font \(weight.rawValue) is missing.")
+			throw OpenGraphCardError.missingFont(weight.rawValue)
 		}
 
 		return CTFontCreateWithFontDescriptor(descriptor, size, nil)
@@ -216,50 +238,40 @@ struct OpenGraphCard: Sendable {
 }
 
 extension OpenGraphCard {
-	static let site = path(for: "sindre-sorhus")
+	/**
+	The path of the card for the home page and the pages without their own card.
+	*/
+	static let sitePath: RoutePath = "/og/sindre-sorhus.jpg"
 
 	/**
 	The card for the home page and the pages without their own card.
 	*/
 	static func site(project: Project) -> Self {
-		Self(path: site, title: Site.name, subtitle: Site.description, image: project.publicFile(Site.author.photoPath))
-	}
-
-	static func path(for app: App) -> RoutePath {
-		path(for: app.slug)
-	}
-
-	static func path(for post: BlogPost) -> RoutePath {
-		RoutePath("/og/blog").appending("\(post.slug).png")
-	}
-
-	private static func path(for slug: String) -> RoutePath {
-		RoutePath("/og").appending("\(slug).png")
+		Self(path: sitePath, title: Site.name, subtitle: Site.description, image: project.publicFile(Site.author.photoPath), description: Site.name)
 	}
 
 	init(app: App, project: Project) {
-		self.init(path: Self.path(for: app), title: app.title, subtitle: app.subtitle, image: project.publicFile(app.iconPath))
+		self.init(path: RoutePath("/og").appending("\(app.slug).jpg"), title: app.title, subtitle: app.subtitle, image: project.publicFile(app.iconPath), description: "\(app.title) app")
 	}
 
 	init(post: BlogPost, project: Project) {
-		self.init(path: Self.path(for: post), title: post.title, subtitle: post.description ?? "Blog post by \(Site.name)", image: project.publicFile(Site.author.photoPath))
+		self.init(path: RoutePath("/og/blog").appending("\(post.slug).jpg"), title: post.title, subtitle: post.description ?? "Blog post by \(Site.name)", image: project.publicFile(Site.author.photoPath), description: post.title)
 	}
 }
 
-struct OpenGraphCardError: Error, CustomStringConvertible {
-	let path: RoutePath
-	let message: String
+enum OpenGraphCardError: Error, CustomStringConvertible {
+	case couldNotDraw
+	case couldNotEncode
+	case missingFont(String)
 
 	var description: String {
-		"Could not render the social card \(path): \(message)"
-	}
-}
-
-extension CGColor {
-	/**
-	An sRGB color from a hex value, like `0x0F172A`.
-	*/
-	fileprivate static func hex(_ value: Int) -> CGColor {
-		CGColor(srgbRed: Double((value >> 16) & 0xFF) / 255, green: Double((value >> 8) & 0xFF) / 255, blue: Double(value & 0xFF) / 255, alpha: 1)
+		switch self {
+		case .couldNotDraw:
+			"Could not draw the card."
+		case .couldNotEncode:
+			"Could not encode the JPEG."
+		case .missingFont(let name):
+			"The bundled font \(name) is missing."
+		}
 	}
 }

@@ -1,37 +1,33 @@
 import Foundation
+import ImageIO
 import RSS
 import SiteKit
 
 /**
-An app, loaded from `content/apps/<slug>.md`.
+An app, loaded from `content/apps/<slug>/index.md`.
 
 Frontmatter values are available directly on the app, like `app.title`.
 */
 @dynamicMemberLookup
-public struct App: ContentEntry {
-	public let slug: String
-	public let frontmatter: Frontmatter
-	public let markdown: MarkdownDocument
+struct App: ContentDocument {
+	let frontmatter: Frontmatter
+	let markdown: MarkdownDocument
+	let file: MarkdownFile
 
 	/**
-	When a commit last changed the content file.
+	Videos (`video*.mp4`) and then screenshots (`screenshot*.png/jpg`) in the page bundle, like `content/apps/<slug>`.
 	*/
-	public let lastCommitDate: Date?
-
-	/**
-	The content file, for reporting mistakes at their line.
-	*/
-	public let file: MarkdownFile
-
-	/**
-	Videos (`video*.mp4`) and then screenshots (`screenshot*.png/jpg`) in `public/apps/<slug>`.
-	*/
-	public let media: [MediaAsset]
+	let media: [MediaAsset]
 
 	/**
 	The `feedbackNote` as HTML, for the feedback page.
 	*/
-	public let feedbackNoteHTML: String?
+	let feedbackNoteHTML: String?
+
+	/**
+	The `icon.png` of the app, or a placeholder when the app has no icon yet, so a new app can be previewed before its icon is done. `website check` warns about the placeholder.
+	*/
+	let iconPath: RoutePath
 
 	/**
 	The icon as a feed enclosure, with its file size. `nil` when the icon is missing.
@@ -39,193 +35,227 @@ public struct App: ContentEntry {
 	let iconEnclosure: Enclosure?
 
 	/**
-	Download buttons: the repo or redirect page as “Learn More”, then the custom links.
+	The most common vivid color of the icon, like `#1e88e5`, which the app page uses as its accent (``Color/accent``). `nil` for a gray icon.
 	*/
-	public internal(set) var mainLinks = [LabeledLink]()
+	let accentColor: String?
 
 	/**
-	The links in the app header: page sections, custom links, and support.
+	The accent of the app (``accentColor``) as a color, for ``Page/tint`` and ``Elementary/HTML/tint(_:)``.
 	*/
-	public internal(set) var links = [LabeledLink]()
+	var tint: Color? {
+		accentColor.map { Color($0) }
+	}
 
-	/**
-	The custom overflow links and the “Non-App Store Version” section.
-	*/
-	public internal(set) var overflowLinks = [LabeledLink]()
+	static let directory = "content/apps"
 
-	/**
-	The overflow links plus the standard pages about the app.
-	*/
-	public internal(set) var pageOverflowLinks = [LabeledLink]()
+	// The slug is one component of the path of the page and of the asset directory, so the file cannot be in a subdirectory.
+	static let allowsSubdirectories = false
 
-	/**
-	The places to get the app, in the order they are shown. Archived apps can only be downloaded from their own links.
-	*/
-	var downloadOptions = [DownloadOption]()
+	static let sortOrder = [KeyPathComparator(\App.frontmatter.publicationDate, order: .reverse)]
 
-	/**
-	The questions of the FAQ section: level 4 headings that are not in a level 3 subsection, except the added feedback question.
-	*/
-	public internal(set) var faqHeadings = [Heading]()
-
-	public static let directory = "content/apps"
-
-	public static let sortOrder = [KeyPathComparator(\App.frontmatter.publicationDate, order: .reverse)]
-
-	public init(file: MarkdownFile, frontmatter: Frontmatter, project: Project) throws {
-		self.slug = file.slug
+	init(file: MarkdownFile, frontmatter: Frontmatter, project: Project) async throws {
 		self.frontmatter = frontmatter
-		self.lastCommitDate = file.lastCommitDate
 		self.file = file
-		self.markdown = MarkdownDocument(parsing: file.body, options: .appPage(file, project: project, appTitle: frontmatter.title.value))
-		try file.validate(markdown)
-
-		try markdown.checkPlatformDirectives()
+		self.markdown = try MarkdownDocument(parsing: file, options: .appPage(file, project: project, frontmatter: frontmatter))
 
 		for heading in markdown.headings {
-			// The collapsible questions find the section by its ID, and the links by its title, so both must match.
+			// The FAQ section is found by its ID, so a FAQ heading without it would silently be a plain section.
 			if
 				heading.level == 2,
 				heading.text == Self.faqHeadingTitle,
-				heading.id != "faq"
+				heading.id != Self.faqSectionID
 			{
-				throw FrontmatterError("The “\(Self.faqHeadingTitle)” heading needs the ID `faq`: `## \(Self.faqHeadingTitle) {#faq}`.")
+				throw ContentError(file: file.url, line: heading.line, reason: "The “\(Self.faqHeadingTitle)” heading needs the ID `\(Self.faqSectionID)`: `## \(Self.faqHeadingTitle) {#\(Self.faqSectionID)}`.")
 			}
 		}
 
-		// The note is shown on the feedback page, so its links are resolved and checked like the text of the page.
+		// The questions are level 3 headings, so a level 4 heading would silently be a heading in the answer above it.
+		if
+			let faqIndex = markdown.headings.firstIndex(where: { $0.level == 2 && $0.id == Self.faqSectionID }),
+			let heading = markdown.headings[(faqIndex + 1)...].prefix(while: { $0.level > 2 }).first(where: { $0.level > 3 })
+		{
+			throw ContentError(file: file.url, line: heading.line, reason: "The questions of the FAQ section are level 3 headings: `### \(heading.text)`.")
+		}
+
+		// The note is shown on the feedback page, so its links are resolved and checked like the text of the page. Its problems are reported at its key, as the lines of the SOML value are not the lines of the note.
 		let feedbackNote = frontmatter.feedbackNote.map { MarkdownDocument(parsing: $0, options: .content(file, project: project)) }
 
-		if let problem = feedbackNote?.problems.first {
-			throw FrontmatterError("`feedbackNote`: \(problem.message)")
+		if let problems = feedbackNote?.problems, !problems.isEmpty {
+			let line = file.line(ofFrontmatterKey: "feedbackNote")
+			throw ContentErrors(problems.map { ContentError(file: file.url, line: line, reason: "`feedbackNote`: \($0.message)") })
 		}
 
 		self.feedbackNoteHTML = feedbackNote?.html
 
 		if
 			let script = frontmatter.script,
-			!project.publicFile(script.description).isFile
+			!project.publicFile(script).isFile
 		{
-			throw FrontmatterError("The `script` \(script) does not exist in `public`.")
+			throw ContentError(file: file.url, line: file.line(ofFrontmatterKey: "script"), reason: "The `script` \(script) does not exist in `public`.")
 		}
 
-		self.media = try MediaAsset.discover(in: project.publicFile("/apps/\(file.slug)"), publicPath: "/apps/\(file.slug)")
+		self.media = try await MediaAsset.discover(in: Self.assetDirectory(slug: file.slug), project: project)
 
-		let iconPath = Self.iconPath(slug: file.slug)
+		let iconPath = project.publicFile(Self.iconPath(slug: file.slug)).isFile ? Self.iconPath(slug: file.slug) : Self.placeholderIconPath
+		self.iconPath = iconPath
+		self.accentColor = CGImageSourceCreateWithURL(project.publicFile(iconPath) as CFURL, nil)
+			.flatMap { CGImageSourceCreateImageAtIndex($0, 0, nil) }?
+			.accentColor
 		self.iconEnclosure = (try? project.publicFile(iconPath).resourceValues(forKeys: [.fileSizeKey]).fileSize).map { size in
-			Enclosure(url: Site.url.appending(path: iconPath), length: size, mimeType: "image/png")
+			Enclosure(url: iconPath.absoluteURL, length: size, mimeType: "image/png")
 		}
-		computeDerivedData()
 	}
 
-	public var isDraft: Bool {
+	var isDraft: Bool {
 		frontmatter.isDraft
 	}
 
-	public subscript<Value>(dynamicMember keyPath: KeyPath<Frontmatter, Value>) -> Value {
+	subscript<Value>(dynamicMember keyPath: KeyPath<Frontmatter, Value>) -> Value {
 		frontmatter[keyPath: keyPath]
 	}
 
-	public var title: String {
-		frontmatter.title.value
+	var title: String {
+		frontmatter.title
 	}
 
-	public var subtitle: String {
-		frontmatter.subtitle.value
+	var subtitle: String {
+		frontmatter.subtitle
 	}
 
-	public var appStoreID: Int? {
-		frontmatter.appStoreID?.value
+	var appStoreID: AppStoreID? {
+		frontmatter.appStoreID
 	}
 
-	public var setappID: Int? {
-		frontmatter.setappID?.value
+	var setappID: Int? {
+		frontmatter.setappID
 	}
 
-	public var downloads: Int? {
-		frontmatter.downloads?.value
+	var downloads: Int? {
+		frontmatter.downloads
 	}
 }
 
 extension App {
-	public var path: RoutePath {
+	static func path(slug: String) -> RoutePath {
 		RoutePath.root.appending(slug)
 	}
 
-	/**
-	Where links to the app go: the app page, or the external page of a redirect app.
-	*/
-	public var url: String {
-		frontmatter.redirectURL?.absoluteString ?? path.description
+	var redirectURL: URL? {
+		frontmatter.redirectURL
 	}
 
-	public var isRedirect: Bool {
-		frontmatter.redirectURL != nil
+	var redirectFrom: [RoutePath] {
+		frontmatter.redirectFrom
 	}
 
-	public var iconPath: String {
-		Self.iconPath(slug: slug)
-	}
-
-	public var iconURL: URL {
-		Site.url.appending(path: iconPath)
+	var iconURL: URL {
+		iconPath.absoluteURL
 	}
 
 	/**
 	The screenshots, without the videos.
 	*/
-	public var screenshotURLs: [URL] {
-		media.filter { $0.kind == .image }.map { Site.url.appending(path: $0.path) }
+	var screenshotURLs: [URL] {
+		media.filter { $0.kind == .image }.map(\.path.absoluteURL)
 	}
 
 	/**
-	The absolute URL of the app page, or of the external page of a redirect app.
+	The directory with the icon, the screenshots, and the videos of an app, like `/apps/dato`.
 	*/
-	public var absoluteURL: URL {
-		self.redirectURL?.url ?? path.absoluteURL(site: Site.url)
+	static func assetDirectory(slug: String) -> RoutePath {
+		RoutePath.apps.appending(slug)
 	}
 
-	private static func iconPath(slug: String) -> String {
-		"/apps/\(slug)/icon.png"
+	private static func iconPath(slug: String) -> RoutePath {
+		assetDirectory(slug: slug).appending("icon.png")
+	}
+
+	static let placeholderIconPath: RoutePath = "/assets/app-icon-placeholder.png"
+
+	var hasPlaceholderIcon: Bool {
+		iconPath == Self.placeholderIconPath
 	}
 
 	/**
-	The App Store link with a campaign token for where on the site it is, like `web-download-button`, so App Analytics shows which links bring downloads. Without the provider token, it is the plain link.
+	Where on the site an App Store link is, for its campaign token, like `web-download-button`, so App Analytics shows which links bring downloads.
 	*/
-	public func appStoreURL(placement: String) -> URL? {
-		guard
-			let appStoreURL,
-			let providerToken = Site.appStoreProviderToken
-		else {
+	enum AppStorePlacement: String {
+		case downloadButton = "download-button"
+		case whatsNew = "whats-new"
+		case qrCode = "qr-code"
+
+		/**
+		The App Store banner in Safari on iOS.
+		*/
+		case smartBanner = "smart-banner"
+
+		/**
+		The provider token and the campaign, or `nil` without the provider token.
+		*/
+		var campaignQueryItems: [URLQueryItem]? {
+			Site.appStoreProviderToken.map { [URLQueryItem(name: "pt", value: $0), URLQueryItem(name: "ct", value: "web-\(rawValue)")] }
+		}
+	}
+
+	/**
+	The App Store link with a campaign token for where on the site it is. Without the provider token, it is the plain link.
+	*/
+	func appStoreURL(placement: AppStorePlacement) -> URL? {
+		guard let campaignQueryItems = placement.campaignQueryItems else {
 			return appStoreURL
 		}
 
-		return appStoreURL.appending(queryItems: [URLQueryItem(name: "pt", value: providerToken), URLQueryItem(name: "ct", value: "web-\(placement)")])
+		return appStoreURL?.appending(queryItems: campaignQueryItems)
+	}
+
+	/**
+	The App Store link for a QR code, which opens the App Store page on an iPhone. Apple Watch apps are installed from the iPhone too, so they count, unlike for the App Store banner, which is only for apps that run on the device.
+	*/
+	var qrCodeURL: URL? {
+		guard frontmatter.platforms.contains(where: [.iOS, .watchOS, .visionOS].contains) else {
+			return nil
+		}
+
+		return appStoreURL(placement: .qrCode)
 	}
 
 	/**
 	The campaign of the App Store banner in Safari on iOS, for the `affiliate-data` of the `apple-itunes-app` meta tag.
 	*/
 	var appStoreBannerCampaign: String? {
-		Site.appStoreProviderToken.map { "pt=\($0)&ct=web-smart-banner" }
+		AppStorePlacement.smartBanner.campaignQueryItems.flatMap { items in
+			var components = URLComponents()
+			components.queryItems = items
+			return components.percentEncodedQuery
+		}
 	}
 
-	public var appStoreURL: URL? {
-		appStoreID.flatMap { URL(string: "https://apps.apple.com/app/id\($0)") }
+	var appStoreURL: URL? {
+		appStoreID?.url
 	}
 
-	public var setappURL: URL? {
-		setappID.flatMap { URL(string: "https://go.setapp.com/stp181?refAppID=\($0)&utm_medium=vendor_program&utm_content=button") }
+	/**
+	The page that sharing the app shares: the App Store page, or the app page for apps that are not on the App Store or are archived, as the page has no App Store download for them.
+	*/
+	var shareURL: URL {
+		frontmatter.isArchived ? path.absoluteURL : (appStoreURL ?? path.absoluteURL)
 	}
 
-	public var olderVersionsURL: String {
-		frontmatter.repositoryURL.map { "\($0.absoluteString)#download" } ?? path.fragment("older-versions")
+	var setappURL: URL? {
+		setappID.map { #URL("https://go.setapp.com/stp181").appending(queryItems: [URLQueryItem(name: "refAppID", value: String($0)), URLQueryItem(name: "utm_medium", value: "vendor_program"), URLQueryItem(name: "utm_content", value: "button")]) }
+	}
+
+	/**
+	The list of older versions in the readme of the repo. Frontmatter with `olderMacOSVersions` needs `repositoryURL`.
+	*/
+	var olderVersionsURL: URL? {
+		frontmatter.repositoryURL.map { URL(string: "\($0.absoluteString)#download") ?? $0 }
 	}
 
 	/**
 	The release notes page and feed. Archived apps and apps without a releases repo have none.
 	*/
-	public var releaseNotes: ReleaseNotes? {
+	var releaseNotes: ReleaseNotes? {
 		guard
 			!frontmatter.isArchived,
 			let repository = frontmatter.releasesRepository
@@ -236,30 +266,39 @@ extension App {
 		return ReleaseNotes(
 			repository: repository,
 			path: path.appending("release-notes"),
-			feed: PageMetadata.Feed(title: "\(frontmatter.title.value) Release Notes", path: path.appending("rss.xml"))
+			feed: FeedLink(title: "\(frontmatter.title) Release Notes", path: path.appending("rss.xml"))
 		)
 	}
 
-	public var privacyPolicyPath: RoutePath {
+	var privacyPolicyPath: RoutePath {
 		path.appending("privacy-policy")
 	}
 
 	/**
 	The feedback form with the app selected.
 	*/
-	public var feedbackPath: String {
-		Self.feedbackPath(appTitle: frontmatter.title.value)
+	var feedbackURL: LinkDestination {
+		Self.feedbackURL(appTitle: frontmatter.title)
 	}
 
-	static func feedbackPath(appTitle: String) -> String {
-		"/feedback?product=\(appTitle.addingPercentEncoding(withAllowedCharacters: .urlQueryValueAllowed) ?? appTitle)"
+	/**
+	The feedback form with the app selected, and where the visitor came from, like `Website-FAQ`.
+	*/
+	static func feedbackURL(appTitle: String, referrer: String? = nil) -> LinkDestination {
+		var query = [URLQueryItem(name: "product", value: appTitle)]
+
+		if let referrer {
+			query.append(URLQueryItem(name: "referrer", value: referrer))
+		}
+
+		return .path(.feedback, query: query)
 	}
 
 	/**
 	For search results and link previews: the custom description, or the subtitle continued by the introduction, shortened to 160 characters.
 	*/
-	public var description: String {
-		frontmatter.description?.value ?? [frontmatter.subtitle.value, markdown.introduction]
+	var description: String {
+		frontmatter.description ?? [frontmatter.subtitle, markdown.introduction]
 			.compactMap(\.self)
 			.joined(separator: ". ")
 			.shortenedForSnippet
@@ -276,30 +315,79 @@ extension App {
 	}
 
 	/**
+	When the app was published, at midnight UTC.
+	*/
+	var publicationDate: Date {
+		frontmatter.publicationDate
+	}
+
+	/**
+	When the app page last changed: the last commit of the content file, but never before the app was published.
+	*/
+	var lastModified: Date {
+		max(lastCommitDate ?? publicationDate, publicationDate)
+	}
+
+	/**
+	Whether the app page shows the App Store banner. Safari shows it on iOS, so only apps that run there get it.
+	*/
+	var showsAppStoreBanner: Bool {
+		!frontmatter.isArchived && frontmatter.platforms.contains { $0 == .iOS || $0 == .visionOS }
+	}
+
+	/**
+	The price for the app page, like “$4.99, one-time purchase” or “Free”, from the App Store or the `price` frontmatter.
+	*/
+	func priceText(info: AppStoreInfo?) -> String? {
+		info?.priceText(isPaid: frontmatter.isPaid) ?? frontmatter.price?.oneTimePurchaseText
+	}
+
+	/**
+	Whether the page has a trial section (`## Trial {#trial}`), which the download buttons link to.
+	*/
+	var hasTrial: Bool {
+		markdown.headings.contains { $0.id == Self.trialSectionID }
+	}
+
+	static let trialSectionID = "trial"
+
+	/**
+	The most characters of the introduction, which the hero of the app page shows under the name, so it is at most two lines.
+	*/
+	static let maximumIntroductionLength = 160
+
+	/**
 	Whether the app was published in the last 30 days.
 	*/
-	public func isNew(at date: Date) -> Bool {
-		date.timeIntervalSince(frontmatter.publicationDate) < 30 * 24 * 60 * 60
+	func isNew(at date: Date) -> Bool {
+		date.duration(since: publicationDate) < .days(30)
 	}
 
 	/**
 	Whether the app is shown in app lists. Archived apps are still shown in the archive.
 	*/
-	public var isListed: Bool {
+	var isListed: Bool {
 		!frontmatter.isUnlisted
 	}
 
 	/**
 	Whether the app is listed and maintained.
 	*/
-	public var isActive: Bool {
+	var isActive: Bool {
 		isListed && !frontmatter.isArchived
+	}
+
+	/**
+	The macOS versions that have a free older version of the app.
+	*/
+	var olderMacOSVersions: [MacOSVersion] {
+		frontmatter.olderVersions.map(\.macOS) + frontmatter.olderMacOSVersions
 	}
 }
 
 extension App {
 	/**
-	Three similar apps: the eight most similar (shared platforms, menu bar, price), shuffled. The shuffle changes daily, but builds on the same day are the same.
+	Four similar apps: the eight most similar (shared platforms, menu bar, price), shuffled. The shuffle changes daily, but builds on the same day are the same.
 	*/
 	func relatedApps(from candidates: [App], on date: Date) -> [App] {
 		struct Candidate {
@@ -333,135 +421,196 @@ extension App {
 
 		return similar
 			.shuffled(using: &generator)
-			.prefix(3)
+			.prefix(4)
 			.map(\.app)
 	}
 }
 
 extension App {
 	@Frontmatter
-	public struct Frontmatter {
-		@Key("draft")
-		public var isDraft: Bool = false
-		public var isUnlisted: Bool = false
-		public var isArchived: Bool = false
-		public var title: NonEmptyString
+	struct Frontmatter {
+		var isDraft = false
+		var isUnlisted = false
+		var isArchived = false
+		@NonEmpty var title: String
 
 		/**
 		Has no ending punctuation, because the default description adds a period after it.
 		*/
-		public var subtitle: NonEmptyString
+		@NonEmpty var subtitle: String
 
 		/**
 		For search results and link previews. Defaults to the subtitle followed by the introduction.
 		*/
-		public var description: NonEmptyString?
+		@NonEmpty var description: String?
 
-		@Key("pubDate")
-		public var publicationDate: Date
-		public var platforms: [Platform]
-		@Key("repoUrl")
-		public var repositoryURL: AbsoluteURL?
-		@Key("appStoreId")
-		public var appStoreID: SafeInteger?
-		@Key("setappId")
-		public var setappID: SafeInteger?
-		public var isPaid: Bool = false
-		public var isMenuBarApp: Bool = false
+		@CalendarDay var publicationDate: Date
+		var platforms: [Platform]
+		@Absolute var repositoryURL: URL?
+		var appStoreID: AppStoreID?
+		@JavaScriptSafe var setappID: Int?
+		var isPaid = false
+		var isMenuBarApp = false
+
+		/**
+		One of the main apps, which the apps page shows first.
+		*/
+		var isFeatured = false
 
 		/**
 		Hand-picked categories, like `shortcuts`. The other categories come from fields like `isPaid`.
 		*/
-		public var categories = [AppCategory]()
+		var categories = [AppCategory]()
 
 		/**
 		Download buttons, in addition to the App Store and Setapp.
 		*/
-		public var mainLinks = OrderedMapping<AbsoluteURL>()
+		var mainLinks = OrderedMapping<AbsoluteURL>()
 
-		public var links = OrderedMapping<AbsoluteURL>()
-		public var overflowLinks = OrderedMapping<AbsoluteURL>()
-		@Key("showSupportLink")
-		public var showsSupportLink: Bool = true
+		var links = OrderedMapping<AbsoluteURL>()
+		var overflowLinks = OrderedMapping<AbsoluteURL>()
+		var showsSupportLink = true
 
 		/**
 		Makes the app link to another page, like a GitHub repo, instead of having a page.
 		*/
-		@Key("redirectUrl")
-		public var redirectURL: AbsoluteURL?
+		@Absolute var redirectURL: URL?
 
 		/**
 		The GitHub repo in the `sindresorhus` account with the release notes.
 		*/
-		@Key("releasesRepo")
-		public var releasesRepository: String?
+		var releasesRepository: String?
 
-		public var olderMacOSVersions = [MacOSVersion]()
-		public var requirement: String?
-		public var downloads: SafeInteger?
+		/**
+		Free older versions for older macOS versions, newest first. The app page shows them in an “Older Versions” section.
+		*/
+		var olderVersions = [OlderVersion]()
+
+		/**
+		The macOS versions that have an older version listed elsewhere, like in the readme of the repo (`olderVersionsURL`). Apps with `olderVersions` do not need it.
+		*/
+		var olderMacOSVersions = [MacOSVersion]()
+		var requirement: String?
+		@JavaScriptSafe var downloads: Int?
+
+		/**
+		The price in US dollars of a paid app that is not on the App Store, like `20` or `4.99`. App Store apps get their price from the App Store.
+		*/
+		var price: Price?
 
 		/**
 		Markdown shown on the feedback page when the app is selected.
 		*/
-		public var feedbackNote: String?
+		var feedbackNote: String?
+
+		/**
+		What the app sends to other services, like the text sent to an AI service. The privacy policy shows it instead of saying that no data is collected. Plain text, not Markdown.
+		*/
+		@NonEmpty var privacyNote: String?
 
 		/**
 		Old paths of the app page, like `/old-name`. They redirect to the app page.
 		*/
-		public var redirectFrom = [RoutePath]()
+		var redirectFrom = [RoutePath]()
 
 		/**
 		A script for the app page, like a demo, as a path in `public`.
 		*/
-		public var script: RoutePath?
+		var script: RoutePath?
 
-		public var hasSentry: Bool = false
-		public var pressQuotes = [PressQuote]()
-		public var announcement: Announcement?
+		var hasSentry = false
+		var pressQuotes = [PressQuote]()
+		var announcement: Announcement?
 
-		public func validate() throws(FrontmatterError) {
-			if let last = subtitle.value.last, ".!?".contains(last) {
-				throw FrontmatterError("`subtitle` must not end with punctuation, because the default description adds a period after it.")
+		func validate() throws(ContentError) {
+			if let last = subtitle.last, ".!?".contains(last) {
+				throw ContentError(reason: "`subtitle` must not end with punctuation, because the default description adds a period after it.")
 			}
 
 			if announcement?.text.isEmpty == true {
-				throw FrontmatterError("`announcement.text` must not be empty.")
+				throw ContentError(reason: "`announcement.text` must not be empty.")
 			}
 
 			if platforms.isEmpty {
-				throw FrontmatterError("`platforms` must have at least one platform.")
+				throw ContentError(reason: "`platforms` must have at least one platform.")
 			}
 
 			if requirement?.allSatisfy(\.isWhitespace) == true {
-				throw FrontmatterError("`requirement` must not be empty.")
+				throw ContentError(reason: "`requirement` must not be empty.")
 			}
 
 			if
-				announcement?.urlText != nil,
+				announcement?.linkText != nil,
 				announcement?.url == nil
 			{
-				throw FrontmatterError("`announcement.urlText` needs `announcement.url`.")
+				throw ContentError(reason: "`announcement.linkText` needs `announcement.url`.")
+			}
+
+			if
+				price != nil,
+				appStoreID != nil || !isPaid
+			{
+				throw ContentError(reason: "`price` is only for paid apps that are not on the App Store. App Store apps get their price from the App Store.")
+			}
+
+			if
+				!olderVersions.isEmpty,
+				!olderMacOSVersions.isEmpty
+			{
+				throw ContentError(reason: "`olderMacOSVersions` is only for older versions that are listed elsewhere. The macOS versions of `olderVersions` are already known.")
+			}
+
+			if
+				!olderMacOSVersions.isEmpty,
+				repositoryURL == nil
+			{
+				throw ContentError(reason: "`olderMacOSVersions` needs `repositoryURL`, which has the list of older versions.")
+			}
+
+			if Set(olderVersions.map(\.macOS)).count < olderVersions.count {
+				throw ContentError(reason: "`olderVersions` must have one version for each macOS version.")
 			}
 		}
 	}
 
+	/**
+	A free older version of an app, for users of an older macOS version.
+	*/
 	@Frontmatter
-	public struct PressQuote {
-		public var quote: NonEmptyString
-		public var source: NonEmptyString
-		public var url: AbsoluteURL?
-		public var isStarRating: Bool = false
+	struct OlderVersion {
+		/**
+		The version of the app, like `1.2.0`.
+		*/
+		@NonEmpty var version: String
+
+		/**
+		The oldest macOS version that the app version supports.
+		*/
+		var macOS: MacOSVersion
+
+		/**
+		The download, usually a zip file.
+		*/
+		@Absolute var url: URL
 	}
 
 	@Frontmatter
-	public struct Announcement {
-		/**
-		Inline Markdown.
-		*/
-		public var text: String
+	struct PressQuote {
+		@NonEmpty var quote: String
+		@NonEmpty var source: String
+		@Absolute var url: URL?
+		var isStarRating = false
+	}
 
-		public var url: LinkDestination?
-		public var urlText: String?
+	@Frontmatter
+	struct Announcement {
+		/**
+		Plain text, not Markdown.
+		*/
+		var text: String
+
+		var url: LinkDestination?
+		var linkText: String?
 	}
 }
 
@@ -469,14 +618,21 @@ extension App {
 	/**
 	Where the release notes of an app are published.
 	*/
-	public struct ReleaseNotes: Sendable {
+	struct ReleaseNotes: Sendable {
 		/**
 		The GitHub repo in the `sindresorhus` account with the releases.
 		*/
-		public let repository: String
+		let repository: String
 
-		public let path: RoutePath
-		let feed: PageMetadata.Feed
+		let path: RoutePath
+		let feed: FeedLink
+
+		/**
+		The release on the release notes page, which has the version as the ID of its heading.
+		*/
+		func destination(of release: GitHubRelease) -> LinkDestination {
+			.path(path, fragment: release.version)
+		}
 	}
 
 	/**
@@ -485,20 +641,40 @@ extension App {
 	static let feedbackHeadingID = "feedback"
 
 	/**
+	The ID of the level 2 heading of the FAQ section, which the page, the links, and the feedback page find the section by.
+	*/
+	static let faqSectionID = "faq"
+
+	/**
+	The title of the feedback question that the FAQ of an app gets. A question with this title in the file gets the answer instead.
+	*/
+	static let feedbackQuestionTitle = "I have a feature request, bug report, or some feedback"
+
+	/**
 	The title of the level 2 heading of the FAQ section.
 	*/
 	static let faqHeadingTitle = "Frequently Asked Questions"
 }
 
-extension MarkdownDocument {
+extension App {
 	/**
-	Throws for an unknown platform in a `<!-- @faq.platforms … -->` comment, which would otherwise be left out without a message, so the question would show for every platform.
+	The schema.org category. Mac apps are utilities.
 	*/
-	func checkPlatformDirectives() throws {
-		for heading in headings {
-			for name in heading.directives["faq.platforms"] where Platform(rawValue: name) == nil {
-				throw FrontmatterError("Unknown platform “\(name)” in the `@faq.platforms` comment of “\(heading.text)”.")
-			}
-		}
+	var schemaCategory: String {
+		self.platforms.contains(.macOS) ? "UtilitiesApplication" : "MobileApplication"
+	}
+
+	/**
+	The platforms in the order of ``Platform``, like macOS before iOS, whatever the order of the frontmatter.
+	*/
+	var platforms: [Platform] {
+		Platform.allCases.filter(frontmatter.platforms.contains)
+	}
+
+	/**
+	The platforms, like “macOS, iOS”.
+	*/
+	var operatingSystems: String {
+		self.platforms.map(\.rawValue).joined(separator: ", ")
 	}
 }

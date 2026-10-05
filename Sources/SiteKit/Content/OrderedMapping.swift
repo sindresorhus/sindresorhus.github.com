@@ -1,10 +1,11 @@
 /**
-A YAML mapping that keeps the order of its keys, like a list of labeled links.
+An object that keeps the order of its keys, like a list of labeled links.
 
-```yaml
-links:
-  Download: https://example.com/download
-  TestFlight: https://testflight.apple.com/join/abc
+```soml
+links: {
+	Download: 'https://example.com/download',
+	TestFlight: 'https://testflight.apple.com/join/abc',
+}
 ```
 */
 public struct OrderedMapping<Value: Decodable & Sendable>: Decodable, Sendable, RandomAccessCollection {

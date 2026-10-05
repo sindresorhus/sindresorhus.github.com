@@ -25,7 +25,7 @@ struct GradientText: HTML {
 			Style()
 				.backgroundImage(.brandGradient)
 				.color(.transparent)
-				.declaration(.backgroundClip, "text")
+				.backgroundClip(.text)
 				// Keeps the end of the last letter inside the gradient.
 				.padding(.trailing, .em(0.025))
 				.margin(.trailing, .em(-0.025))

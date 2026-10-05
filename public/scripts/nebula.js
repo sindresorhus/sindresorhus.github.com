@@ -292,6 +292,9 @@ if (canvas && gl) {
 	gl.attachShader(prog, compile(gl.VERTEX_SHADER, vert));
 	gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, frag));
 	gl.linkProgram(prog);
+
+	// The shaders do not compile on some devices, like one without high precision. Then nothing is drawn, so the animation never starts.
+	const isLinked = gl.getProgramParameter(prog, gl.LINK_STATUS);
 	gl.useProgram(prog);
 
 	// Full-screen quad: two triangles covering clip space [-1,1]
@@ -322,8 +325,6 @@ if (canvas && gl) {
 		gl.viewport(0, 0, canvas.width, canvas.height);
 	}
 
-	resize();
-	window.addEventListener('resize', resize, {passive: true});
 
 	// Mouse position — aspect-corrected, normalised to centred [-0.5, 0.5] coords
 	let targetMx = 0;
@@ -352,6 +353,11 @@ if (canvas && gl) {
 	let rippleT = -100; // far in the past so no ripple on load
 
 	document.addEventListener('click', event => {
+		// The time is stopped while the galaxy is paused, so a click then would give a ripple later.
+		if (!isRunning) {
+			return;
+		}
+
 		const aspect = window.innerWidth / window.innerHeight;
 		rippleX = (event.clientX / window.innerWidth  - 0.5) * aspect;
 		rippleY = -(event.clientY / window.innerHeight - 0.5);
@@ -359,8 +365,12 @@ if (canvas && gl) {
 	});
 
 	let t0 = performance.now();
-	let pauseStart = 0;
+	// Time starts at 0 when the galaxy first renders.
+	let pauseStart = t0;
 	let rafId = 0;
+	let isRunning = false;
+	let isShown = false;
+	let isOnScreen = false;
 
 	function draw() {
 		// Smooth cursor position for natural lag
@@ -384,17 +394,37 @@ if (canvas && gl) {
 		rafId = requestAnimationFrame(draw);
 	}
 
-	// Pause rendering when the tab is hidden to save GPU/battery
-	document.addEventListener('visibilitychange', () => {
-		if (document.hidden) {
-			cancelAnimationFrame(rafId);
-			pauseStart = performance.now();
-		} else {
+	// Pause rendering when the tab is hidden, the canvas is scrolled off screen, or the canvas is not shown (light mode or reduced motion) to save GPU/battery
+	function update() {
+		const shouldRun = isLinked && isShown && isOnScreen && !document.hidden;
+
+		if (shouldRun === isRunning) {
+			return;
+		}
+
+		isRunning = shouldRun;
+
+		if (shouldRun) {
 			// Shift t0 forward by pause duration so time is continuous on resume
 			t0 += performance.now() - pauseStart;
 			draw();
+		} else {
+			cancelAnimationFrame(rafId);
+			pauseStart = performance.now();
 		}
-	});
+	}
 
-	draw();
+	document.addEventListener('visibilitychange', update);
+
+	new IntersectionObserver(([entry]) => {
+		isOnScreen = entry.isIntersecting;
+		update();
+	}).observe(canvas);
+
+	// The canvas has no size while it is hidden with `display: none`, so this also starts and pauses the galaxy when the color scheme changes.
+	new ResizeObserver(() => {
+		isShown = canvas.clientWidth > 0;
+		resize();
+		update();
+	}).observe(canvas);
 }

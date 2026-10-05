@@ -2,38 +2,31 @@ import Foundation
 import SiteKit
 
 extension App {
-	private static let nonAppStoreVersionTitle = "Non-App Store Version"
+	static let nonAppStoreVersionTitle = "Non-App Store Version"
 
 	/**
-	Computes the links and the FAQ questions once, when the app loads, as pages use them many times.
+	The ID of the “Non-App Store Version” heading, which is in the “…” menu instead of the links of the app.
 	*/
-	mutating func computeDerivedData() {
-		mainLinks = computedMainLinks
-		links = computedLinks
-		overflowLinks = computedOverflowLinks
-		pageOverflowLinks = computedPageOverflowLinks
-		downloadOptions = computedDownloadOptions
-		faqHeadings = computedFAQHeadings
-	}
+	static let nonAppStoreVersionID = "non-app-store-version"
 
 	/**
 	Links to the sections of the page (level 2 headings).
 	*/
 	private var sectionLinks: [LabeledLink] {
 		markdown.headings
-			.filter { $0.level == 2 && $0.text != "Footnotes" }
+			.filter { $0.level == 2 && $0.id != Heading.footnotesID }
 			.map { heading in
-				LabeledLink(heading.text == Self.faqHeadingTitle ? "FAQ" : heading.text, destination: .fragment(heading.id))
+				LabeledLink(heading.id == Self.faqSectionID ? "FAQ" : heading.text, destination: .fragment(heading.id))
 			}
 	}
 
 	/**
 	Download buttons: the repo or redirect page as “Learn More”, then the custom links.
 	*/
-	private var computedMainLinks: [LabeledLink] {
+	var mainLinks: [LabeledLink] {
 		let learnMore = [frontmatter.repositoryURL, frontmatter.redirectURL]
 			.compactMap(\.self)
-			.map { LabeledLink("Learn More", url: $0.url) }
+			.map { LabeledLink("Learn More", url: $0) }
 
 		return [].merging(learnMore).merging(frontmatter.mainLinks.labeledLinks)
 	}
@@ -41,14 +34,14 @@ extension App {
 	/**
 	The links in the app header: page sections, custom links, and support.
 	*/
-	private var computedLinks: [LabeledLink] {
+	var links: [LabeledLink] {
 		var support = [LabeledLink]()
 		if frontmatter.showsSupportLink, !frontmatter.isArchived {
-			support.append(LabeledLink("Support", path: RoutePath(feedbackPath)))
+			support.append(LabeledLink("Support", destination: feedbackURL))
 		}
 
 		return sectionLinks
-			.filter { $0.title != Self.nonAppStoreVersionTitle }
+			.filter { $0.destination != .fragment(Self.nonAppStoreVersionID) }
 			.merging(frontmatter.links.labeledLinks)
 			.merging(support)
 	}
@@ -56,20 +49,20 @@ extension App {
 	/**
 	The custom overflow links and the “Non-App Store Version” section.
 	*/
-	private var computedOverflowLinks: [LabeledLink] {
+	var overflowLinks: [LabeledLink] {
 		frontmatter.overflowLinks.labeledLinks
-			.merging(sectionLinks.filter { $0.title == Self.nonAppStoreVersionTitle })
+			.merging(sectionLinks.filter { $0.destination == .fragment(Self.nonAppStoreVersionID) })
 	}
 
 	/**
 	The overflow links plus the standard pages about the app.
 	*/
-	private var computedPageOverflowLinks: [LabeledLink] {
-		var links = computedOverflowLinks
+	var pageOverflowLinks: [LabeledLink] {
+		var links = overflowLinks
 
 		if !frontmatter.isArchived {
-			if let appStoreURL = appStoreURL(placement: "whats-new") {
-				links.append(LabeledLink("What's New", url: appStoreURL))
+			if let appStoreURL = appStoreURL(placement: .whatsNew) {
+				links.append(LabeledLink("What’s New", url: appStoreURL))
 			}
 
 			if let releaseNotes {
@@ -79,23 +72,30 @@ extension App {
 			links.append(LabeledLink("Privacy Policy", path: privacyPolicyPath))
 		}
 
-		links.append(LabeledLink("Terms of Use", path: "/apps/terms"))
+		links.append(.termsOfUse)
 
 		if frontmatter.isPaid {
-			links.append(LabeledLink("Discounts", path: "/apps/discounts"))
+			links.append(.discounts)
 		}
 
 		return links
 	}
 
 	/**
+	Whether the page asks visitors to get the app, like with the “Get” button: the app is not archived, and it has a place to get it.
+	*/
+	var isDownloadable: Bool {
+		!frontmatter.isArchived && !downloadOptions.isEmpty
+	}
+
+	/**
 	The places to get the app, in the order they are shown. Archived apps can only be downloaded from their own links.
 	*/
-	private var computedDownloadOptions: [DownloadOption] {
+	var downloadOptions: [DownloadOption] {
 		var options = [DownloadOption]()
 
 		if !frontmatter.isArchived {
-			if let appStoreURL = appStoreURL(placement: "download-button") {
+			if let appStoreURL = appStoreURL(placement: .downloadButton) {
 				options.append(.appStore(appStoreURL))
 			}
 
@@ -104,38 +104,63 @@ extension App {
 			}
 		}
 
-		return options + computedMainLinks.map(DownloadOption.link)
-	}
-
-	public var hasFAQSection: Bool {
-		markdown.headings.contains { $0.level == 2 && $0.text == Self.faqHeadingTitle }
+		return options + mainLinks.map(DownloadOption.link)
 	}
 
 	/**
-	The questions of the FAQ section: level 4 headings that are not in a level 3 subsection, except the injected feedback question.
+	The first download link to another site, like GitHub or a store, for apps that are not only on the App Store.
 	*/
-	private var computedFAQHeadings: [Heading] {
-		guard let start = markdown.headings.firstIndex(where: { $0.level == 2 && $0.text == Self.faqHeadingTitle }) else {
+	var ownDownloadURL: URL? {
+		downloadOptions.lazy.compactMap { option in
+			guard
+				case .link(let link) = option,
+				case .url(let url) = link.destination
+			else {
+				return nil
+			}
+
+			return url
+		}
+		.first
+	}
+
+	var hasFAQSection: Bool {
+		markdown.headings.contains(where: \.isFAQSection)
+	}
+
+	/**
+	The questions of the FAQ section: its level 3 headings, except the injected feedback question.
+	*/
+	var faqHeadings: [Heading] {
+		guard let start = markdown.headings.firstIndex(where: \.isFAQSection) else {
 			return []
 		}
 
 		var questions = [Heading]()
 
 		for heading in markdown.headings[(start + 1)...] {
-			if heading.level == 2 {
+			if heading.level <= 2 {
 				break
 			}
 
-			if heading.level == 3 {
-				return questions
-			}
-
-			if heading.level == 4, heading.id != App.feedbackHeadingID {
+			if
+				heading.level == 3,
+				heading.id != App.feedbackHeadingID
+			{
 				questions.append(heading)
 			}
 		}
 
 		return questions
+	}
+}
+
+extension Heading {
+	/**
+	Whether the heading starts the FAQ section of an app.
+	*/
+	fileprivate var isFAQSection: Bool {
+		level == 2 && id == App.faqSectionID
 	}
 }
 
@@ -151,18 +176,45 @@ enum DownloadOption {
 	*/
 	case link(LabeledLink)
 
-	var url: String {
+	/**
+	The badge image of a store, like “Download on the App Store”.
+	*/
+	struct Badge {
+		let imagePath: RoutePath
+		let label: String
+
+		/**
+		The width of the image at the height it is shown at, 60px.
+		*/
+		let width: Int
+	}
+
+	var url: LinkDestination {
 		switch self {
 		case .appStore(let url), .setapp(let url):
-			url.absoluteString
+			.url(url)
 		case .link(let link):
-			link.href
+			link.destination
+		}
+	}
+
+	/**
+	The badge of a store. Custom links are buttons instead.
+	*/
+	var badge: Badge? {
+		switch self {
+		case .appStore:
+			Badge(imagePath: "/assets/download-on-app-store-badge.svg", label: "Download on the App Store", width: 180)
+		case .setapp:
+			Badge(imagePath: "/assets/download-on-setapp-badge.svg", label: "Download on Setapp", width: 150)
+		case .link:
+			nil
 		}
 	}
 }
 
 extension OrderedMapping<AbsoluteURL> {
 	fileprivate var labeledLinks: [LabeledLink] {
-		map { LabeledLink($0.key, url: $0.value.url) }
+		map { title, url in LabeledLink(title, url: url.value) }
 	}
 }

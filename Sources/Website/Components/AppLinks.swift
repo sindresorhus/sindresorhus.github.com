@@ -3,25 +3,31 @@ import Foundation
 import SiteKit
 
 /**
-The section links of the app page, with the overflow menu.
+The section links of the app page, with the overflow menu. The menu is there also without links, as it has the QR code and sharing.
 */
 struct AppLinks: HTML {
 	let app: App
 
 	var body: some HTML {
-		if !app.links.isEmpty {
-			nav(.ariaLabel("App links")) {
-				for link in app.links {
-					a(.href(link.href)) {
-						link.title
-					}
-					.style(Styles.link)
+		nav {
+			for link in links {
+				a(.href(link.destination)) {
+					link.title
 				}
-
-				OverflowMenu.appPage(app, id: "app-links-menu")
+				.style(Styles.link)
 			}
-			.style(Styles.root)
+
+			OverflowMenu.appPage(app, variant: .chip)
 		}
+		.accessibilityLabel("App links")
+		.style(Styles.root)
+	}
+
+	/**
+	The links of the app, without the trial section, as the “Free Trial” button right above links to it.
+	*/
+	private var links: [LabeledLink] {
+		app.links.filter { $0.destination != .fragment(App.trialSectionID) }
 	}
 
 	enum Styles: StyleSet {
@@ -31,27 +37,13 @@ struct AppLinks: HTML {
 		var style: Style {
 			switch self {
 			case .root:
+				// Quiet chips, so the download buttons stay the main action. They wrap on phones, so every link is visible.
 				Style()
-					.hstack(spacing: .rem(1))
+					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
 					.flexWrap()
-					.justifyContent(.center)
-					.frame(maxWidth: .rem(28))
-					.margin(.top, .rem(2))
-					.font(.xl, weight: .semibold)
-					.color(.link)
+					.margin(.top, .rootEm(2))
 			case .link:
-				Style()
-					.underline(color: .transparent)
-					.underlineOffset(.px(4))
-					.transition(.color, .underlineColor, duration: .milliseconds(150))
-					.hover {
-						$0.underlineColor(.primary(500).opacity(0.5))
-					}
-					.dark {
-						$0.hover {
-							$0.color(.primary(300))
-						}
-					}
+				Style().chip()
 			}
 		}
 	}

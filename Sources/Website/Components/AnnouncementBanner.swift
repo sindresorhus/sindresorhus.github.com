@@ -8,32 +8,35 @@ A highlighted note at the top of the app page, like a sale.
 struct AnnouncementBanner: HTML {
 	let announcement: App.Announcement
 
-	var body: some HTML {
+	var body: some HTML<HTMLTag.aside> {
 		aside {
 			div {
 				span {
-					Icon.sparkles.size(.rem(1))
+					Icon.sparkles.size(.rootEm(1))
 				}
 				.style(Styles.icon)
 
 				p {
-					HTMLRaw(MarkdownDocument.inlineHTML(announcement.text, options: .site))
+					announcement.text
 				}
 				.style(Styles.text)
 
 				if let url = announcement.url {
-					a(.href(url.description)) {
+					a(.href(url)) {
 						span {
-							announcement.urlText ?? "Learn more"
+							announcement.linkText ?? "Learn More"
 						}
 
-						Icon.arrowRight.size(.rem(1))
+						Icon.arrowRight.size(.rootEm(1))
 					}
+					.buttonStyle(.gradient, size: .small)
 					.style(Styles.button)
 				}
 			}
 			.style(Styles.content)
 		}
+		// A name, as the page can have other asides, like the trial card.
+		.accessibilityLabel("Announcement")
 		.style(Styles.root)
 	}
 
@@ -49,26 +52,20 @@ struct AnnouncementBanner: HTML {
 			case .root:
 				Style()
 					.hstack(justification: .center)
-					.margin(top: .rem(-2), horizontal: 0, bottom: .rem(8))
-					.padding(.horizontal, .rem(1.5))
+					.padding(.horizontal, .pageGutter)
 			case .content:
 				Style()
-					.vstack(alignment: .center, spacing: .rem(1))
-					.padding(vertical: .rem(1), horizontal: .rem(1.25))
-					.border(.primary(200).opacity(0.4))
-					.cornerRadius(.rem(1))
-					.backgroundImage(.linearGradient("to bottom right", .primary(100).opacity(0.5), .secondary(50).opacity(0.4), .primary(50).opacity(0.5)))
+					.vstack(alignment: .center, spacing: .rootEm(1))
+					.padding(vertical: .rootEm(1), horizontal: .rootEm(1.25))
+					.border(.lightDark(.primary(200).opacity(0.4), .primary(700).opacity(0.3)))
+					.cornerRadius(.rootEm(1))
+					.backgroundImage(.linearGradient("to bottom right", .lightDark(.primary(100).opacity(0.5), .primary(900).opacity(0.25)), .lightDark(.secondary(50).opacity(0.4), .secondary(900).opacity(0.2)), .lightDark(.primary(50).opacity(0.5), .primary(950).opacity(0.25))))
 					.shadow(.small)
 					.textAlign(.center)
-					.breakpoint(.sm) {
+					.from(.smallTablet) {
 						$0
 							.flexDirection(.row)
 							.textAlign(.leading)
-					}
-					.dark {
-						$0
-							.borderColor(.primary(700).opacity(0.3))
-							.backgroundImage(.linearGradient("to bottom right", .primary(900).opacity(0.25), .secondary(900).opacity(0.2), .primary(950).opacity(0.25)))
 					}
 			case .icon:
 				Style()
@@ -76,69 +73,22 @@ struct AnnouncementBanner: HTML {
 					.alignItems(.center)
 					.justifyContent(.center)
 					.flexShrink(0)
-					.frame(width: .rem(2), height: .rem(2))
+					.frame(width: .rootEm(2), height: .rootEm(2))
 					.cornerRadius(.capsule)
 					.color(.white)
 					.backgroundImage(.linearGradient("to bottom right", .primary(500), .secondary(500), in: "oklch"))
 					.shadow(.small)
-					.hidden(below: .sm)
+					.hidden(below: .smallTablet)
 			case .text:
 				Style()
-					.font(size: .px(15))
+					.font(size: .pixels(15))
 					.fontWeight(.medium)
-					.color(.gray(700), dark: .gray(200))
-					.nested("a") {
-						$0
-							.underline(offset: .px(2))
-							.color(.primary(600))
-					}
-					.nested("strong") {
-						$0.fontWeight(.semibold)
-					}
-					.nested("code") {
-						$0
-							.padding(.horizontal, .rem(0.25))
-							.cornerRadius(.rem(0.25))
-							.background(.gray(200))
-					}
-					.breakpoint(.sm) {
-						$0.font(.base)
-					}
-					.dark {
-						$0
-							.nested("a") {
-								$0.color(.primary(400))
-							}
-							.nested("code") {
-								$0.background(.gray(700))
-							}
+					.color(.bodyText)
+					.from(.smallTablet) {
+						$0.textStyle(.body)
 					}
 			case .button:
-				Style()
-					.display(.inlineFlex)
-					.alignItems(.center)
-					.flexShrink(0)
-					.gap(.rem(0.375))
-					.padding(vertical: .rem(0.375), horizontal: .rem(1))
-					.cornerRadius(.capsule)
-					.font(.sm, weight: .semibold)
-					.color(.white)
-					.backgroundImage(.brandGradientHover)
-					.shadow(.small)
-					.transition(.shadow, .filter, duration: .milliseconds(200))
-					.nested(Icon.selector) {
-						$0.transition(.transform, duration: .milliseconds(200))
-					}
-					.hover {
-						$0
-							.shadow(Shadow(y: .px(4), blur: .px(16), spread: .px(-2), color: "rgb(99 102 241 / 40%)"))
-							.brightness(1.1)
-					}
-					.hover {
-						$0.nested(Icon.selector) {
-							$0.offset(x: .px(2))
-						}
-					}
+				Style().flexShrink(0)
 			}
 		}
 	}

@@ -12,11 +12,16 @@ public protocol ContentEntry: Sendable {
 	static var directory: String { get }
 
 	/**
+	Whether the Markdown files can be in subdirectories of ``directory``. When `false`, a file in a subdirectory is a content error, for example when the slug is one component of a path, but a page bundle, like `dato/index.md`, is allowed. The default is `true`.
+	*/
+	static var allowsSubdirectories: Bool { get }
+
+	/**
 	The order of the loaded entries.
 	*/
 	static var sortOrder: [KeyPathComparator<Self>] { get }
 
-	init(file: MarkdownFile, frontmatter: Frontmatter, project: Project) throws
+	init(file: MarkdownFile, frontmatter: Frontmatter, project: Project) async throws
 
 	/**
 	Drafts are not loaded.
@@ -25,30 +30,32 @@ public protocol ContentEntry: Sendable {
 }
 
 extension ContentEntry {
+	public static var allowsSubdirectories: Bool {
+		true
+	}
+
 	public var isDraft: Bool {
 		false
 	}
 
 	/**
-	Loads the entries from the Markdown files in ``directory`` and its subdirectories.
+	Loads the entries from the Markdown files in ``directory`` and, when ``allowsSubdirectories``, its subdirectories.
 
 	```swift
-	let posts = try BlogPost.load(from: project)
+	let posts = try await BlogPost.load(from: project, lastCommitDates: project.lastCommitDates())
 	```
 
 	Each file is decoded and validated. The mistakes of all files are thrown together as ``ContentErrors``, with file paths and lines. Drafts are left out, and the entries are sorted by ``sortOrder``.
+
+	- Parameter lastCommitDates: The dates from ``Project/lastCommitDates()``, which the files get as ``MarkdownFile/lastCommitDate``.
 	*/
-	public static func load(from project: Project) async throws(ContentErrors) -> [Self] {
+	public static func load(from project: Project, lastCommitDates: [String: Date] = [:]) async throws(ContentErrors) -> [Self] {
 		let directoryURL = project.root.appending(path: directory)
 
-		guard
-			directoryURL.isDirectory,
-			let files = try? directoryURL.filesRecursively()
-		else {
+		// It throws when the directory does not exist.
+		guard let files = try? directoryURL.filesRecursively() else {
 			throw ContentErrors([ContentError(file: directoryURL, reason: "The content directory does not exist.")])
 		}
-
-		let lastCommitDates = project.lastCommitDates(in: directory)
 
 		let markdownFiles = files
 			.filter { $0.pathExtension == "md" }
@@ -62,10 +69,14 @@ extension ContentEntry {
 			for (index, url) in markdownFiles.enumerated() {
 				group.addTask {
 					do {
+						guard allowsSubdirectories || !MarkdownFile.slug(of: url, relativeTo: directoryURL).contains("/") else {
+							throw ContentError(file: url, reason: "The file must be directly in `\(directory)`.")
+						}
+
 						var file = try MarkdownFile(url: url, relativeTo: directoryURL)
 						file.lastCommitDate = lastCommitDates[url.path(relativeTo: project.root)]
 						let frontmatter = try file.decodeFrontmatter(as: Frontmatter.self)
-						return (index, try Self(file: file, frontmatter: frontmatter, project: project), [])
+						return (index, try await Self(file: file, frontmatter: frontmatter, project: project), [])
 					} catch {
 						return (index, nil, ContentErrors(converting: error, file: url).errors)
 					}
@@ -78,8 +89,15 @@ extension ContentEntry {
 			}
 		}
 
+		// Two files can be the same page, like `a.md` and `a/index.md`.
+		for files in Dictionary(grouping: markdownFiles, by: { MarkdownFile.slug(of: $0, relativeTo: directoryURL) }).values where files.count > 1 {
+			for file in files.dropFirst() {
+				errors.append(ContentError(file: file, reason: "It is the same page as `\(files[0].path(relativeTo: project.root))`. Rename or remove one of them."))
+			}
+		}
+
 		let entries = entriesByIndex.compactMap(\.self)
-		errors.sort(using: [KeyPathComparator(\.file.path, comparator: String.StandardComparator.lexical), KeyPathComparator(\.line)])
+		errors.sort(using: [KeyPathComparator(\.file?.path, comparator: String.StandardComparator.lexical), KeyPathComparator(\.line)])
 
 		guard errors.isEmpty else {
 			throw ContentErrors(errors)

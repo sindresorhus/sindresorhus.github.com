@@ -29,7 +29,7 @@ public struct Item: Hashable, Sendable {
 	public var publicationDate: Date?
 
 	/**
-	The email address of the author.
+	The email address of the author, optionally followed by the name, like `jane@example.com (Jane Doe)`.
 	*/
 	public var author: String?
 
@@ -68,13 +68,19 @@ extension Item {
 		guid ?? link.map(GUID.permalink)
 	}
 
-	func validate(index: Int) throws(FeedValidationError) {
-		guard title != nil || description != nil else {
-			throw .itemWithoutTitleOrDescription(index: index)
-		}
+	/**
+	How errors name the item, so it can be found: the title, the link, the GUID, or else the position, like `#2`.
+	*/
+	func name(index: Int) -> String {
+		title ?? link?.absoluteString ?? guid?.value ?? "#\(index + 1)"
+	}
 
-		// Names the item in errors, so it can be found.
-		let name = title ?? link?.absoluteString ?? "\(index)"
+	func validate(index: Int) throws(FeedValidationError) {
+		let name = name(index: index)
+
+		guard title != nil || description != nil else {
+			throw .itemWithoutTitleOrDescription(item: name)
+		}
 
 		for url in [link, enclosure?.url].compactMap(\.self) {
 			guard url.isAbsolute else {
@@ -88,6 +94,21 @@ extension Item {
 			URL(string: guid.value)?.isAbsolute != true
 		{
 			throw .invalidPermaLink(guid.value, item: name)
+		}
+
+		// The specification requires an email address, optionally followed by the name, like `jane@example.com (Jane Doe)`.
+		if
+			let author,
+			!author.contains("@")
+		{
+			throw .authorWithoutEmailAddress(author, item: name)
+		}
+
+		if
+			let enclosure,
+			enclosure.length < 0 || enclosure.mimeType.isEmpty
+		{
+			throw .invalidEnclosure(item: name)
 		}
 	}
 
@@ -186,8 +207,20 @@ public enum FeedValidationError: Error, Hashable, CustomStringConvertible {
 	*/
 	case relativeURL(URL, item: String?)
 
-	case itemWithoutTitleOrDescription(index: Int)
+	case itemWithoutTitleOrDescription(item: String)
 	case invalidPermaLink(String, item: String)
+
+	/**
+	Two items have the same GUID, so feed readers would show only one of them.
+	*/
+	case duplicateGUID(String, item: String)
+
+	case authorWithoutEmailAddress(String, item: String)
+
+	/**
+	The enclosure has a negative length or no MIME type.
+	*/
+	case invalidEnclosure(item: String)
 
 	public var description: String {
 		switch self {
@@ -197,10 +230,16 @@ public enum FeedValidationError: Error, Hashable, CustomStringConvertible {
 			"The channel description must not be empty."
 		case .relativeURL(let url, let item):
 			"The URL “\(url)”\(item.map { " of the item “\($0)”" } ?? " of the channel") must be absolute."
-		case .itemWithoutTitleOrDescription(let index):
-			"Item \(index) must have a title or a description."
+		case .itemWithoutTitleOrDescription(let item):
+			"The item “\(item)” must have a title or a description."
 		case .invalidPermaLink(let value, let item):
 			"The permalink GUID “\(value)” of the item “\(item)” must be an absolute URL."
+		case .duplicateGUID(let value, let item):
+			"The GUID “\(value)” of the item “\(item)” is also used by an earlier item. Each item needs its own GUID."
+		case .authorWithoutEmailAddress(let author, let item):
+			"The author “\(author)” of the item “\(item)” must have an email address, like `jane@example.com (Jane Doe)`."
+		case .invalidEnclosure(let item):
+			"The enclosure of the item “\(item)” must have a length of zero or more bytes and a MIME type."
 		}
 	}
 }

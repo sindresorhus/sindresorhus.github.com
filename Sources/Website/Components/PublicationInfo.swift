@@ -10,7 +10,7 @@ struct PublicationInfo: HTML {
 	let showsReadingTime: Bool
 
 	var body: some HTML {
-		DateText(post.publicationDate, format: .site.month(.wide).year())
+		DateText(post.publicationDate, format: .siteMonth)
 
 		if showsReadingTime {
 			" — \(post.readingTime) min read"

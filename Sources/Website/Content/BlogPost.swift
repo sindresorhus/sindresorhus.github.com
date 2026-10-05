@@ -5,8 +5,8 @@ import SiteKit
 A blog post, loaded from `content/blog/<slug>.md`.
 */
 @dynamicMemberLookup
-public struct BlogPost: ContentEntry {
-	public enum Tag: String, Codable, Sendable {
+struct BlogPost: ContentDocument {
+	enum Tag: String, Codable, Sendable {
 		case programming
 		case openSource = "open-source"
 		case swift
@@ -14,33 +14,24 @@ public struct BlogPost: ContentEntry {
 		case nodejs
 	}
 
-	public let slug: String
-	public let frontmatter: Frontmatter
-	public let markdown: MarkdownDocument
-
-	/**
-	When a commit last changed the content file.
-	*/
-	public let lastCommitDate: Date?
-
-	/**
-	The content file, for reporting mistakes at their line.
-	*/
-	public let file: MarkdownFile
+	let frontmatter: Frontmatter
+	let markdown: MarkdownDocument
+	let file: MarkdownFile
 
 	/**
 	Minutes to read at 200 words per minute, like the `reading-time` package.
 	*/
-	public let readingTime: Int
+	let readingTime: Int
 
-	public static let directory = "content/blog"
+	static let directory = "content/blog"
 
-	public static let sortOrder = [KeyPathComparator(\BlogPost.frontmatter.publicationDate, order: .reverse)]
+	// The slug is one component of the path of the page, so the file cannot be in a subdirectory.
+	static let allowsSubdirectories = false
 
-	public init(file: MarkdownFile, frontmatter: Frontmatter, project: Project) throws {
-		self.slug = file.slug
+	static let sortOrder = [KeyPathComparator(\BlogPost.frontmatter.publicationDate, order: .reverse)]
+
+	init(file: MarkdownFile, frontmatter: Frontmatter, project: Project) throws {
 		self.frontmatter = frontmatter
-		self.lastCommitDate = file.lastCommitDate
 		self.file = file
 
 		// A post on another site has no page, so its text would not be shown anywhere.
@@ -48,76 +39,88 @@ public struct BlogPost: ContentEntry {
 			frontmatter.redirectURL != nil,
 			!file.body.allSatisfy(\.isWhitespace)
 		{
-			throw FrontmatterError("A post with `redirectUrl` has no page, so it cannot have text.")
+			throw ContentError(file: file.url, line: file.bodyStartLine, reason: "A post with `redirectURL` has no page, so it cannot have text.")
 		}
 
-		self.markdown = MarkdownDocument(parsing: file.body, options: .content(file, project: project))
-		try file.validate(markdown)
+		self.markdown = try MarkdownDocument(parsing: file, options: .content(file, project: project))
 		self.readingTime = Int((Double(file.body.split(whereSeparator: \.isWhitespace).count) / 200).rounded(.up))
 	}
 
-	public var isDraft: Bool {
+	var isDraft: Bool {
 		frontmatter.isDraft
 	}
 
-	public subscript<Value>(dynamicMember keyPath: KeyPath<Frontmatter, Value>) -> Value {
+	subscript<Value>(dynamicMember keyPath: KeyPath<Frontmatter, Value>) -> Value {
 		frontmatter[keyPath: keyPath]
 	}
 
-	public var title: String {
-		frontmatter.title.value
+	/**
+	When the post was published, at midnight UTC.
+	*/
+	var publicationDate: Date {
+		frontmatter.publicationDate
 	}
 
-	public var description: String? {
-		frontmatter.description?.value
+	var title: String {
+		frontmatter.title
 	}
 
-	public var path: RoutePath {
+	/**
+	When the post last changed: the last commit of the content file, but never before the post was published.
+	*/
+	var lastModified: Date {
+		max(lastCommitDate ?? publicationDate, publicationDate)
+	}
+
+	var description: String? {
+		frontmatter.description
+	}
+
+	static func path(slug: String) -> RoutePath {
 		RoutePath.blog.appending(slug)
 	}
 
-	/**
-	Where links to the post go: the post page, or the external page of a redirect post.
-	*/
-	public var url: String {
-		frontmatter.redirectURL?.absoluteString ?? path.description
+	var redirectURL: URL? {
+		frontmatter.redirectURL
 	}
 
-	public var isRedirect: Bool {
-		frontmatter.redirectURL != nil
+	var redirectFrom: [RoutePath] {
+		frontmatter.redirectFrom
 	}
 
 	/**
-	The absolute URL of the post page, or of the external page of a redirect post.
+	Whether the post is shown in the blog, the feeds, and the sitemap. An unlisted post still has its page.
 	*/
-	public var absoluteURL: URL {
-		frontmatter.redirectURL?.url ?? path.absoluteURL(site: Site.url)
+	var isListed: Bool {
+		!frontmatter.isUnlisted
 	}
 
 	/**
 	Whether the post is on another site, like a redirect to an article on Medium.
 	*/
-	public var isExternal: Bool {
-		frontmatter.redirectURL.map { $0.url.host() != Site.url.host() } ?? false
+	var isExternal: Bool {
+		frontmatter.redirectURL.map { $0.host() != Site.url.host() } ?? false
 	}
 }
 
 extension BlogPost {
 	@Frontmatter
-	public struct Frontmatter {
-		@Key("draft")
-		public var isDraft: Bool = false
-		public var isUnlisted: Bool = false
-		public var title: NonEmptyString
-		public var description: NonEmptyString?
-		@Key("pubDate")
-		public var publicationDate: Date
-		public var tags = [Tag]()
+	struct Frontmatter {
+		var isDraft = false
+		var isUnlisted = false
+		@NonEmpty var title: String
+		@NonEmpty var description: String?
+		@CalendarDay var publicationDate: Date
+		var tags = [Tag]()
 
 		/**
 		Makes the post link to an article elsewhere instead of having a page.
 		*/
-		@Key("redirectUrl")
-		public var redirectURL: AbsoluteURL?
+		@Absolute var redirectURL: URL?
+
+		/**
+		Old paths of the post, like `/blog/old-name`. They redirect to the post.
+		*/
+		var redirectFrom = [RoutePath]()
 	}
 }

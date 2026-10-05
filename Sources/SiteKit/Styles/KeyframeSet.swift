@@ -1,7 +1,7 @@
 /**
 The animations of a component. Each case is an animation, and its name is generated from the component and the case, so names cannot clash.
 
-Nest it in the component as `Animations`, run one with ``Style/animation(_:duration:curve:delay:repeats:autoreverses:fillMode:)``, and add the component's animations to the stylesheet with `Stylesheet { MyComponent.Animations.self }`:
+Nest it in the component as `Animations`, and run one with ``Style/animation(_:_:fillMode:)``. A style that runs an animation brings its keyframes, so no stylesheet has to list them:
 
 ```swift
 enum Animations: KeyframeSet {

@@ -20,31 +20,29 @@ public struct Publisher: Sendable {
 	}
 
 	/**
-	Publishes the routes and a sitemap of the pages that are in it.
+	Publishes the routes and a sitemap of the pages that are in it. Returns the published files, relative to the output directory, like `apps/dato.html`.
 
 	Throws if two routes or a route and a public file are written to the same file, or if a route fails to render.
 	*/
-	public func publish(_ routes: [Route]) async throws(PublishingError) {
-		let routes = routes + Sitemap(site: site, pages: routes.filter(\.isInSitemap)).routes
+	@discardableResult
+	public func publish(_ routes: [Route]) async throws(PublishingError) -> Set<String> {
+		let routes = routes + Sitemap(site: site, pages: routes).routes
 		try checkOutputLocation()
-		let publicFiles = try fileSystem { try self.publicFiles() }
-		try checkForCollisions(routes, publicFiles: publicFiles)
-		try fileSystem { try output.createDirectory() }
+		let publicFiles = try wrappingFileSystemErrors { try project.publicFiles() }
+		try checkForCollisions(routes, publicFiles: publicFiles.map(\.path))
+		try wrappingFileSystemErrors { try output.createDirectory() }
 
 		// The old files are removed first. Otherwise, on a case-insensitive disk, a file renamed from `Logo.png` to `logo.png` would be seen as unchanged, and then removed as `Logo.png`.
-		try fileSystem { try removeFiles(except: Set(publicFiles + routes.map(\.outputFile))) }
-		try fileSystem { try copy(publicFiles) }
+		let publishedFiles = Set(publicFiles.map(\.path) + routes.map(\.outputFile))
+		try wrappingFileSystemErrors {
+			try removeFiles(except: publishedFiles)
+			try copy(publicFiles)
+		}
 
-		// Rendering some files runs command-line tools, so only a few routes render at a time. Files render first, as they are the slow ones, like the social cards.
-		let concurrency = ProcessInfo.processInfo.activeProcessorCount
-
+		// The routes render in parallel, as many at a time as the cooperative thread pool runs. Files start first, as they are the slow ones, like the social cards.
 		do {
 			try await withThrowingTaskGroup(of: Void.self) { group in
-				for (index, route) in (routes.filter(\.isFile) + routes.filter { !$0.isFile }).enumerated() {
-					if index >= concurrency {
-						try await group.next()
-					}
-
+				for route in routes.filter(\.isFile) + routes.filter({ !$0.isFile }) {
 					group.addTask {
 						try await write(route)
 					}
@@ -57,12 +55,14 @@ public struct Publisher: Sendable {
 		} catch {
 			throw .fileSystem(error)
 		}
+
+		return publishedFiles
 	}
 
 	/**
 	Runs a file operation, and wraps its error.
 	*/
-	private func fileSystem<Value>(_ operation: () throws -> Value) throws(PublishingError) -> Value {
+	private func wrappingFileSystemErrors<Value>(_ operation: () throws -> Value) throws(PublishingError) -> Value {
 		do {
 			return try operation()
 		} catch {
@@ -98,15 +98,7 @@ public struct Publisher: Sendable {
 	}
 
 	private func redirectHTML(to destination: LinkDestination) -> String {
-		let canonicalURL = switch destination {
-		case .path(let path):
-			path.absoluteURL(site: site)
-		case .url(let url):
-			url
-		case .fragment:
-			preconditionFailure("A redirect cannot go to a fragment of itself.")
-		}
-
+		let canonicalURL = destination.absoluteURL(site: site)
 		let href = destination.description.escapedForHTML
 		return #"<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0;url=\#(href)"><link rel="canonical" href="\#(canonicalURL.absoluteString.escapedForHTML)"><title>Redirecting to: \#(href)</title><a href="\#(href)">Redirecting…</a>"#
 	}
@@ -114,10 +106,12 @@ public struct Publisher: Sendable {
 	/**
 	Copies the public files that are missing or changed (by size and modification date). Copies keep the modification date, and APFS clones them, so this is fast.
 	*/
-	private func copy(_ publicFiles: [String]) throws {
-		for file in publicFiles {
-			let source = project.publicDirectory.appending(path: file)
+	private func copy(_ publicFiles: [(path: String, source: URL)]) throws {
+		for (file, source) in publicFiles {
 			let destination = output.appending(path: file)
+
+			// The target of a symbolic link, as a copy of the link itself, like `../shared/font.woff2`, would not resolve from the output directory.
+			let source = source.resolvingSymlinksInPath()
 
 			guard
 				!destination.isFile
@@ -128,7 +122,7 @@ public struct Publisher: Sendable {
 
 			try destination.removeIfExists()
 			try destination.deletingLastPathComponent().createDirectory()
-			try FileManager.default.copyItem(at: source, to: destination)
+			try source.copy(to: destination)
 		}
 	}
 
@@ -136,51 +130,53 @@ public struct Publisher: Sendable {
 	Removes the files from earlier builds that are no longer published, and the directories that become empty.
 	*/
 	private func removeFiles(except publishedFiles: Set<String>) throws {
-		for file in try output.filesRecursively() where !publishedFiles.contains(file.path(relativeTo: output)) {
+		// Everything that is not a directory, also broken symbolic links, which are not files.
+		for file in output.contentsRecursively() where !file.isDirectory && !publishedFiles.contains(file.path(relativeTo: output)) {
 			try file.removeIfExists()
 		}
 
-		let directories = (FileManager.default.enumerator(at: output, includingPropertiesForKeys: nil)?.compactMap { $0 as? URL } ?? [])
+		let directories = output.contentsRecursively()
 			.filter(\.isDirectory)
 			.sorted(using: KeyPathComparator(\.path.count, order: .reverse))
 
-		for directory in directories where (try? FileManager.default.contentsOfDirectory(atPath: directory.path(percentEncoded: false)))?.isEmpty == true {
+		for directory in directories where directory.isEmptyDirectory {
 			try directory.removeIfExists()
 		}
 	}
 
 	/**
-	The output directory is published into and files are removed from it, so it must not contain the project or be inside the public directory.
+	The output directory is published into and files are removed from it, so it must not contain the project or be inside the public or content directory.
 	*/
 	private func checkOutputLocation() throws(PublishingError) {
-		let outputComponents = output.pathComponents
+		// With symlinks resolved, so a link to the project is the project, and in lowercase, as the default disk of macOS ignores case, so the project in other case is the same directory.
+		func components(_ url: URL) -> [String] {
+			url.resolvingSymlinksInPath().pathComponents.map { $0.lowercased() }
+		}
+
+		let outputComponents = components(output)
 
 		guard
-			!project.root.pathComponents.starts(with: outputComponents),
-			!outputComponents.starts(with: project.publicDirectory.pathComponents)
+			!components(project.root).starts(with: outputComponents),
+			!outputComponents.starts(with: components(project.publicDirectory)),
+			!outputComponents.starts(with: components(project.contentDirectory))
 		else {
 			throw PublishingError.unsafeOutput(output)
 		}
 	}
 
 	/**
-	Different paths can write the same file, like `/a` and `/a.html`, so collisions are checked on the output files. Case is ignored, as the files of `/About` and `/about` are the same file on a case-insensitive disk.
+	Different paths can write the same file, like `/a` and `/a.html`, so collisions are checked on the output files. Case is ignored, as the files of `/About` and `/about` are the same file on a case-insensitive disk. A file in the public directory and a file of a page bundle can also have the same path.
 	*/
 	private func checkForCollisions(_ routes: [Route], publicFiles: [String]) throws(PublishingError) {
-		var files = Set(publicFiles.map { $0.lowercased() })
+		var files = Set<String>()
+
+		for file in publicFiles where !files.insert(file.lowercased()).inserted {
+			throw PublishingError.collision(RoutePath("/" + file), file: file)
+		}
 
 		for route in routes where !files.insert(route.outputFile.lowercased()).inserted {
 			throw PublishingError.collision(route.path, file: route.outputFile)
 		}
-	}
-
-	/**
-	The files in the public directory, relative to it. `.DS_Store` files are left out.
-	*/
-	private func publicFiles() throws -> [String] {
-		try project.publicDirectory.filesRecursively()
-			.filter { $0.lastPathComponent != ".DS_Store" }
-			.map { $0.path(relativeTo: project.publicDirectory) }
 	}
 }
 
@@ -227,7 +223,7 @@ public enum PublishingError: Error, CustomStringConvertible {
 		case .fileSystem(let error):
 			"Could not read or write a file: \(error)"
 		case .unsafeOutput(let output):
-			"Refusing to publish to \(output.path(percentEncoded: false)), because it would delete the project or write into the public directory."
+			"Refusing to publish to \(output.path(percentEncoded: false)), because it would delete the project or write into the public or content directory."
 		}
 	}
 }

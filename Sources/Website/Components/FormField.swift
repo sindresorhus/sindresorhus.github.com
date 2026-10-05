@@ -16,7 +16,7 @@ struct FormField<Content: HTML>: HTML {
 	let controlID: String
 	var hint: String?
 	var errorMessage: String?
-	@HTMLBuilder var content: Content
+	@ContentBuilder var content: Content
 
 	/**
 	The ID of the hint, for the `aria-describedby` of the control.
@@ -77,7 +77,7 @@ enum FormFieldStyles: StyleSet {
 		case .root:
 			// The parent state: the label and the message turn red when the control is invalid.
 			Style()
-				.margin(.bottom, .rem(1.5))
+				.margin(.bottom, .rootEm(1.5))
 				.nested("&:has(:user-invalid)") {
 					$0
 						.nested(Self.label.selector) {
@@ -90,45 +90,45 @@ enum FormFieldStyles: StyleSet {
 		case .labelRow:
 			Style()
 				.hstack(alignment: .baseline, justification: .spaceBetween)
-				.margin(.bottom, .rem(0.5))
+				.margin(.bottom, .rootEm(0.5))
 		case .label:
 			Style()
-				.font(.sm, weight: .medium)
-				.color(.gray(900), dark: .gray(300))
+				.textStyle(.caption, weight: .medium)
+				.color(.bodyText)
 		case .hint:
 			Style()
-				.font(.xs)
-				.color(.secondaryText)
+				.secondaryText(.extraSmall)
 		case .control:
 			Style()
 				.display(.block)
 				.frame(width: .percent(100))
-				.padding(.rem(0.625))
+				.padding(.rootEm(0.625))
 				.border()
 				.borderColor(.gray(300), dark: .white.opacity(0.1))
-				.cornerRadius(.rem(0.5))
-				.font(.lg)
+				.cornerRadius(.rootEm(0.5))
+				.textStyle(.lead)
 				.color(.primaryText)
 				.background(.white.opacity(0.6), dark: .white.opacity(0.06))
 				.declaration(.appearance, .none)
 				.placeholder {
 					$0
-						.color(.gray(500), dark: .gray(400))
+						.color(.secondaryText)
 						.opacity(1)
 				}
-				.nested("&:focus") {
+				// The ring covers the border, so the focused field has one thicker line, not two lines with a gap.
+				.focus {
 					$0
 						.borderColor(.primary(500))
-						.focusRing(.primary(500), width: .px(1))
+						.focusRing(.primary(500), width: .pixels(1), offset: .pixels(-1))
 				}
-				.nested("&:user-invalid") {
+				.userInvalid {
 					$0.borderColor(.red(500))
 				}
 		case .errorMessage:
 			Style()
 				.hidden()
-				.margin(.top, .rem(0.375))
-				.font(.sm)
+				.margin(.top, .rootEm(0.375))
+				.textStyle(.caption)
 				.color(.red(600), dark: .red(400))
 		}
 	}

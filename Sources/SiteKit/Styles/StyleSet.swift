@@ -1,9 +1,10 @@
 import Elementary
+import Synchronization
 
 /**
 The named styles of a component. Each case is a style, and its class name is generated from the component and the case, so markup and CSS cannot drift apart.
 
-Nest it in the component as `Styles`, apply a style with ``Elementary/HTML/style(_:)``, and add the component to the stylesheet with `Stylesheet { MyComponent.Styles.self }`:
+Nest it in the component as `Styles`, and apply a style with ``Elementary/HTML/style(_:)``. Applying a style adds its rules to the page that renders it, so no stylesheet has to list the component:
 
 ```swift
 struct FeedCard: HTML {
@@ -23,8 +24,8 @@ struct FeedCard: HTML {
 			switch self {
 			case .root:
 				Style()
-					.padding(.rem(1))
-					.cornerRadius(.rem(0.5))
+					.padding(.rootEm(1))
+					.cornerRadius(.rootEm(0.5))
 			case .title:
 				Style()
 					.fontWeight(.bold)
@@ -36,7 +37,7 @@ struct FeedCard: HTML {
 
 The class names are `feed-card` for `root` and `feed-card-title` for `title`.
 */
-public protocol StyleSet: CaseIterable, Sendable {
+public protocol StyleSet: CaseIterable, Hashable, Sendable {
 	var style: Style { get }
 }
 
@@ -45,9 +46,12 @@ extension StyleSet {
 	The class name, like `feed-card-title`. The `root` case uses the component name alone, like `feed-card`.
 	*/
 	public var className: String {
-		let component = Self.componentName
-		let name = String(describing: self)
-		return name == "root" ? component : "\(component)-\(name.kebabCased)"
+		Self.classNames[self] ?? Self.className(of: self)
+	}
+
+	private static func className(of style: Self) -> String {
+		let name = String(describing: style)
+		return name == "root" ? componentName : "\(componentName)-\(name.kebabCased)"
 	}
 
 	/**
@@ -62,26 +66,90 @@ extension StyleSet {
 	}
 
 	/**
-	The rules of every case, and the keyframes and registered properties they use, each once.
+	The class name of each case, computed once, as pages apply styles thousands of times.
+	*/
+	private static var classNames: [Self: String] {
+		cached(for: Self.self) {
+			Dictionary(uniqueKeysWithValues: allCases.map { ($0, className(of: $0)) })
+		}
+	}
+
+	/**
+	The rules of the case, and the keyframes and registered properties it uses. They are computed once.
+	*/
+	var nodes: [StyleNode] {
+		Self.caseNodes[self] ?? []
+	}
+
+	private static var caseNodes: [Self: [StyleNode]] {
+		cached(for: Self.self) {
+			Dictionary(uniqueKeysWithValues: allCases.map { ($0, [$0.style.node(selector: $0.selector)] + $0.style.definitions) })
+		}
+	}
+
+	/**
+	The rules of every case, and the keyframes and registered properties they use, each once. They are computed once.
 	*/
 	static var nodes: [StyleNode] {
-		let styles = allCases.map { ($0, $0.style) }
-		return styles.map { $1.node(selector: $0.selector) } + styles.flatMap(\.1.definitions).uniqueDefinitions
+		cached(for: Self.self) {
+			let styles = allCases.map { ($0, $0.style) }
+			return styles.map { $1.node(selector: $0.selector) } + styles.flatMap(\.1.definitions).uniqueDefinitions
+		}
 	}
+}
+
+private let styleSetCache = Mutex<[[ObjectIdentifier]: any Sendable]>([:])
+
+/**
+A value of a style set, like its class names, computed on first use and then cached by the style set and the type of the value.
+
+The value is computed outside the lock, as a style can use the selector of another case.
+*/
+private func cached<Value: Sendable>(for styleSet: Any.Type, _ compute: () -> Value) -> Value {
+	let key = [ObjectIdentifier(styleSet), ObjectIdentifier(Value.self)]
+
+	if let value = styleSetCache.withLock({ $0[key] }) as? Value {
+		return value
+	}
+
+	let value = compute()
+
+	styleSetCache.withLock {
+		$0[key] = value
+	}
+
+	return value
 }
 
 /**
 The name of the type that encloses a nested type, like `feed-card` for `FeedCard.Styles`, or the type name without the suffix for a top-level type.
 */
 func generatedComponentName(of type: Any.Type, suffix: String) -> String {
-	let path = String(reflecting: type).split(separator: ".").dropFirst()
-	let name = path.count > 1 ? path.dropLast().joined() : String(path.last ?? "").replacing(suffix, with: "")
+	let path = typePath(of: type)
+	let typeName = String(path.last ?? "")
+	// Only the suffix at the end, as the name can have it at the start too, like `StylesheetPreviewStyles`.
+	let name = path.count > 1 ? path.dropLast().joined() : (typeName.hasSuffix(suffix) ? String(typeName.dropLast(suffix.count)) : typeName)
 	return name.kebabCased
+}
+
+/**
+The names of a type and the types that enclose it, without the module, like `["FeedCard", "Styles"]` for `FeedCard.Styles`.
+*/
+func typePath(of type: Any.Type) -> [Substring] {
+	// The generic arguments of a generic type, like `<Swift.Int>`, are not part of the name, and can have dots. The innermost first, as they can be nested.
+	var reflectedName = String(reflecting: type)
+
+	while let genericArguments = reflectedName.firstRange(of: /<[^<>]*>/) {
+		reflectedName.removeSubrange(genericArguments)
+	}
+
+	// A private type has its context in its name, like `(unknown context at $1088071a4)`, which is not part of the name.
+	return reflectedName.split(separator: ".").dropFirst().filter { !$0.hasPrefix("(") }
 }
 
 extension String {
 	/**
-	`FeedCard` → `feed-card`, `URLField` → `url-field`.
+	`FeedCard` → `feed-card`, `URLField` → `url-field`, `Heading2Large` → `heading2-large`.
 	*/
 	public var kebabCased: String {
 		let characters = Array(self)
@@ -95,7 +163,8 @@ extension String {
 				let previous = characters[index - 1]
 				let next = index + 1 < characters.count ? characters[index + 1] : nil
 
-				if previous.isLowercase || (previous.isUppercase && next?.isLowercase == true) {
+				// A new word starts after a lowercase letter or a digit, like `heading2-large`, and at the last capital of an acronym, like `url-field`.
+				if previous.isLowercase || previous.isNumber || (previous.isUppercase && next?.isLowercase == true) {
 					result.append("-")
 				}
 			}
@@ -141,7 +210,7 @@ private func classNames<each Styles: StyleSet>(_ styles: repeat each Styles) -> 
 	var names = [String]()
 
 	for style in repeat each styles {
-		PageResources.current?.use(type(of: style))
+		PageResources.current?.use(style)
 		names.append(style.className)
 	}
 

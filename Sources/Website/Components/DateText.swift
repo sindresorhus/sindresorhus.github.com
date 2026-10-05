@@ -6,7 +6,7 @@ import SiteKit
 A date for people, with the day for machines in `datetime`, in UTC like all dates on the site.
 
 ```swift
-DateText(post.publicationDate, format: .site.month(.wide).year())
+DateText(post.publicationDate, format: .siteMonth)
 ```
 */
 struct DateText: HTML {

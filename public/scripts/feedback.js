@@ -1,10 +1,12 @@
 const feedbackData = JSON.parse(document.querySelector('#feedback-data')?.textContent ?? '{}');
 const apps = feedbackData.apps ?? [];
-const generalQuestions = feedbackData.generalQuestions ?? [];
-const stopwords = new Set(feedbackData.stopwords ?? []);
-const parameters = new URL(location.href).searchParams;
-const product = parameters.get('product');
-const app = apps.find(app => app.title === product);
+const parameters = new URLSearchParams(location.search);
+const productParameter = parameters.get('product');
+
+// The app is found by its title or its slug (the URL path), in any case, like `supercharge` for “Supercharge”.
+const productName = productParameter?.toLowerCase();
+const app = apps.find(app => app.title.toLowerCase() === productName || app.url.slice(1) === productName);
+const product = app?.title ?? productParameter;
 
 // Clones the content of a `<template>` in the page.
 function cloneTemplate(id) {
@@ -25,37 +27,47 @@ function showSuccess() {
 
 function showProduct() {
 	document.title = `Feedback & Support for ${product} — Sindre Sorhus`;
-	document.querySelector('#product-name').textContent = product;
+	const productNameElement = document.querySelector('#product-name');
+	productNameElement.textContent = product;
+	productNameElement.hidden = false;
+	document.querySelector('#app-picker').hidden = true;
+	document.querySelector('#feedback-form').hidden = false;
+	document.querySelector('#before-you-write').hidden = false;
 
 	if (!app) {
 		return;
 	}
 
-	document.querySelector('#app-icon').src = app.iconUrl;
+	// The suggestions include the questions of the app.
+	document.querySelector('#faq-suggestions').setAttribute('app', app.title);
+
+	const icon = document.querySelector('#app-icon');
+	icon.src = app.iconURL;
+	icon.hidden = false;
 	// The browser tab shows the icon of the app.
-	document.querySelector('link[rel="icon"]')?.setAttribute('href', app.iconUrl);
+	document.querySelector('link[rel="icon"]')?.setAttribute('href', app.iconURL);
 
-	const additionalInfo = document.querySelector('#additional-info');
+	const additionalInformation = document.querySelector('#additional-information');
 
-	if (app.repoUrl) {
+	if (app.repositoryURL) {
 		const searchParameters = new URLSearchParams({
 			body: `<!--\nProvide your feedback below. Include as many details as possible.\n-->\n\n\n\n---\n${parameters.get('metadata') ?? ''}`.trim(),
 		});
 
 		const paragraph = cloneTemplate('repository-template');
-		paragraph.querySelector('[data-repository-link]').href = `${app.repoUrl}/issues/new?${searchParameters}`;
-		additionalInfo.append(paragraph);
+		paragraph.querySelector('[data-repository-link]').href = `${app.repositoryURL}/issues/new?${searchParameters}`;
+		additionalInformation.append(paragraph);
 	}
 
-	if (app.hasFaqSection) {
+	if (app.faqURL) {
 		const paragraph = cloneTemplate('app-faq-template');
-		paragraph.querySelector('[data-app-faq-link]').href = `${app.url}#faq`;
-		additionalInfo.append(paragraph);
+		paragraph.querySelector('[data-app-faq-link]').href = app.faqURL;
+		additionalInformation.append(paragraph);
 	}
 
 	// HTML that the site generator rendered from the Markdown of the app, not visitor input.
 	if (app.feedbackNote) {
-		additionalInfo.insertAdjacentHTML('beforeend', `<div>${app.feedbackNote}</div>`);
+		additionalInformation.insertAdjacentHTML('beforeend', `<div>${app.feedbackNote}</div>`);
 	}
 }
 
@@ -65,7 +77,8 @@ function showProduct() {
 function detectPlatform() {
 	const platform = navigator.platform ?? '';
 
-	if (/iPhone|iPad|iPod/.test(platform) || /iPhone|iPad/.test(navigator.userAgent)) {
+	// An iPad asks for desktop sites by default, so it says it is a Mac. Its main input is touch, even with a trackpad, while a Mac, also one with a touch screen, has the trackpad or mouse as its main input.
+	if (/iPhone|iPad|iPod/.test(platform) || /iPhone|iPad/.test(navigator.userAgent) || (/Mac/.test(platform) && navigator.maxTouchPoints > 1 && matchMedia('(pointer: coarse)').matches)) {
 		return 'iOS';
 	}
 
@@ -90,12 +103,10 @@ function detectPlatform() {
 
 // The referrer path for pages of this site, and the full URL for other sites.
 function referrerText() {
-	try {
-		const url = new URL(document.referrer);
-		if (url.hostname === 'sindresorhus.com' || url.hostname === 'www.sindresorhus.com') {
-			return url.pathname + url.search + url.hash;
-		}
-	} catch {}
+	const url = URL.parse(document.referrer);
+	if (url?.hostname === 'sindresorhus.com' || url?.hostname === 'www.sindresorhus.com') {
+		return url.pathname + url.search + url.hash;
+	}
 
 	return document.referrer;
 }
@@ -116,12 +127,20 @@ async function environmentInfo() {
 	// Windows reports the version of `Windows.Foundation.UniversalApiContract` instead of the OS version, and Linux reports nothing.
 	const platformVersion = ['macOS', 'iOS', 'Android', 'Chrome OS'].includes(platform) ? highEntropy?.platformVersion : undefined;
 
-	const brand = navigator.userAgentData?.brands?.find(item => item.brand !== 'Chromium' && !item.brand.startsWith('Not'));
+	// Browsers based on Chromium list their own brand next to Chromium, but some, like Chromium itself, only list Chromium.
+	const brands = navigator.userAgentData?.brands?.filter(item => !item.brand.startsWith('Not')) ?? [];
+	const brand = brands.find(item => item.brand !== 'Chromium') ?? brands[0];
 	const firefox = navigator.userAgent.match(/Firefox\/([\d.]+)/);
+
+	// Browsers on iOS use WebKit and look like Safari, but name themselves with their own token.
+	const iOSBrowser = navigator.userAgent.match(/(CriOS|FxiOS|EdgiOS)\/([\d.]+)/);
+	const iOSBrowserNames = {CriOS: 'Chrome', FxiOS: 'Firefox', EdgiOS: 'Edge'};
 
 	let browser = 'Unknown';
 	if (brand) {
 		browser = `${brand.brand} ${brand.version}`;
+	} else if (iOSBrowser) {
+		browser = `${iOSBrowserNames[iOSBrowser[1]]} ${iOSBrowser[2]}`;
 	} else if (safariOSVersion) {
 		browser = 'Safari';
 	} else if (safari) {
@@ -160,14 +179,9 @@ async function addHiddenFields(form) {
 		} else if (key === 'messageField') {
 			form.elements.message.value = value;
 			form.elements.message.setSelectionRange(0, 0);
-		} else if (key === 'extraInfo') {
-			// A text area, as the text can have several lines.
-			const textarea = document.createElement('textarea');
-			textarea.name = key;
-			textarea.hidden = true;
-			textarea.readOnly = true;
-			textarea.value = value;
-			form.append(textarea);
+		} else if (key === 'product') {
+			// The real title of the app, also when the link has its slug or another case.
+			addHiddenField(form, key, product);
 		} else {
 			addHiddenField(form, key, value);
 		}
@@ -184,68 +198,6 @@ async function addHiddenFields(form) {
 	if (!parameters.has('metadata')) {
 		addHiddenField(form, 'metadata', await environmentInfo());
 	}
-}
-
-// --- Attachments ---
-
-function setUpAttachments() {
-	const input = document.querySelector('#attachments-input');
-	const fileList = document.querySelector('#file-list');
-	const imageExtensions = new Set(['png', 'jpg', 'jpeg', 'jxl', 'gif', 'webp', 'heic', 'heif', 'avif', 'svg']);
-
-	// The files of the input are rebuilt from this list, so files can be added in several picks and removed one by one.
-	const files = [];
-
-	const formatSize = bytes => bytes < 1024 * 1024
-		? `${(bytes / 1024).toFixed(0)} KB`
-		: `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-
-	const update = () => {
-		const dataTransfer = new DataTransfer();
-		for (const file of files) {
-			dataTransfer.items.add(file);
-		}
-
-		input.files = dataTransfer.files;
-
-		fileList.replaceChildren(...files.map((file, index) => {
-			const chip = cloneTemplate('attachment-template');
-			const thumbnail = chip.querySelector('img');
-
-			if (imageExtensions.has(file.name.split('.').pop().toLowerCase())) {
-				thumbnail.src = URL.createObjectURL(file);
-				thumbnail.addEventListener('load', () => {
-					URL.revokeObjectURL(thumbnail.src);
-				}, {once: true});
-				chip.querySelector('svg').remove();
-			} else {
-				thumbnail.remove();
-			}
-
-			chip.querySelector('[data-name]').textContent = file.name;
-			chip.querySelector('[data-size]').textContent = formatSize(file.size);
-
-			const removeButton = chip.querySelector('button');
-			removeButton.ariaLabel = `Remove ${file.name}`;
-			removeButton.addEventListener('click', () => {
-				files.splice(index, 1);
-				update();
-			});
-
-			return chip;
-		}));
-	};
-
-	input.addEventListener('change', () => {
-		// Files that are already attached, by name and size, are skipped.
-		for (const file of input.files) {
-			if (!files.some(existingFile => existingFile.name === file.name && existingFile.size === file.size)) {
-				files.push(file);
-			}
-		}
-
-		update();
-	});
 }
 
 // --- Email typos ---
@@ -303,7 +255,8 @@ function setUpEmailTypoDetection(emailInput) {
 		}
 
 		const domain = email.slice(atIndex + 1).toLowerCase();
-		if (domainTypos[domain]) {
+		// Only its own keys, as `constructor` is an inherited property of every object.
+		if (Object.hasOwn(domainTypos, domain)) {
 			return `Did you mean ${email.slice(0, atIndex + 1)}${domainTypos[domain]}?`;
 		}
 
@@ -331,134 +284,6 @@ function setUpEmailTypoDetection(emailInput) {
 	});
 }
 
-/*
-FAQ suggestions: while the visitor types, the message is split into words (three or more letters, without stopwords), and each question is scored by the words it shares with the message. Rare words count more (TF-IDF). The site generator prepares the words of each question, with synonyms. Pinned questions come first, then questions with more matching words, then app questions, then higher scores. A question needs two matching words, or one for pinned questions and for messages with only one known word.
-*/
-
-function setUpSuggestions(textarea) {
-	let questions = generalQuestions;
-
-	if (app) {
-		// Questions about platforms the app is not on are left out.
-		questions = questions.filter(question => !question.platforms || question.platforms.some(platform => app.platforms.includes(platform)));
-		questions = [...(app.questions ?? []).map(question => ({...question, isAppSpecific: true})), ...questions];
-	}
-
-	// The words a message can match: the words of the question, and its keywords and synonyms.
-	questions = questions.map(question => ({...question, words: [...question.questionWords, ...question.extraWords]}));
-
-	// How many questions each word is in. Rare words count more.
-	const questionCounts = new Map();
-	for (const question of questions) {
-		for (const word of new Set(question.questionWords)) {
-			questionCounts.set(word, (questionCounts.get(word) ?? 0) + 1);
-		}
-	}
-
-	const allWords = new Set(questions.flatMap(question => question.words));
-
-	// Apostrophes are removed first, as in the site generator, so “doesn't” becomes “doesnt”.
-	const wordsIn = text => (text.toLowerCase().replaceAll('\'', '').match(/[a-z\d_]{3,}/g) ?? []).filter(word => !stopwords.has(word));
-
-	// Words with the same start match, like “sync” and “syncing”.
-	const wordsMatch = (first, second) => first.startsWith(second) || second.startsWith(first);
-
-	// Jaccard similarity of all the words of two questions, to leave out a general question that repeats an app question.
-	const similarity = (first, second) => {
-		const firstWords = new Set(first.toLowerCase().match(/\w+/g) ?? []);
-		const secondWords = new Set(second.toLowerCase().match(/\w+/g) ?? []);
-		const sharedCount = [...firstWords].filter(word => secondWords.has(word)).length;
-		return sharedCount / (firstWords.size + secondWords.size - sharedCount);
-	};
-
-	const pinnedRank = question => question.pinnedRank ?? Number.POSITIVE_INFINITY;
-
-	const matchingQuestions = message => {
-		const messageWords = [...new Set(wordsIn(message))];
-
-		// Words that no question has, like “didnt”, do not raise the number of words a question needs.
-		const knownWords = messageWords.filter(messageWord => [...allWords].some(word => wordsMatch(messageWord, word)));
-		const minimumMatchCount = knownWords.length <= 1 ? 1 : 2;
-
-		const results = questions
-			.map(question => {
-				let score = 0;
-				let matchCount = 0;
-
-				for (const messageWord of messageWords) {
-					if (question.words.some(word => wordsMatch(messageWord, word))) {
-						score += Math.log((questions.length + 1) / ((questionCounts.get(messageWord) ?? 0) + 1));
-						matchCount++;
-					}
-				}
-
-				return {question, score, matchCount};
-			})
-			.filter(({question, score, matchCount}) => score > 0 && matchCount >= (question.pinnedRank === undefined ? minimumMatchCount : 1))
-			.sort((first, second) => {
-				if (first.question.pinnedRank !== undefined || second.question.pinnedRank !== undefined) {
-					return pinnedRank(first.question) - pinnedRank(second.question);
-				}
-
-				if (first.question.isAppSpecific !== second.question.isAppSpecific) {
-					if (first.matchCount !== second.matchCount) {
-						return second.matchCount - first.matchCount;
-					}
-
-					return first.question.isAppSpecific ? -1 : 1;
-				}
-
-				return second.score - first.score;
-			})
-			.map(({question}) => question);
-
-		const appResults = results.filter(question => question.isAppSpecific);
-
-		return results
-			.filter(question => question.isAppSpecific || !appResults.some(appQuestion => similarity(question.question, appQuestion.question) >= 0.6))
-			.slice(0, 4);
-	};
-
-	const panel = document.querySelector('#faq-suggestions');
-	const list = document.querySelector('#faq-list');
-	const crashWarning = document.querySelector('#crash-warning');
-	let isDismissed = false;
-	let timer;
-
-	textarea.addEventListener('input', () => {
-		clearTimeout(timer);
-
-		timer = setTimeout(() => {
-			crashWarning.hidden = !/\bcrash/i.test(textarea.value);
-
-			// After a dismiss, only the crash warning still follows the text.
-			if (isDismissed) {
-				return;
-			}
-
-			const matches = matchingQuestions(textarea.value);
-			if (matches.length === 0) {
-				panel.hidden = true;
-				return;
-			}
-
-			list.replaceChildren(...matches.map(({question, url}) => {
-				const item = cloneTemplate('suggestion-template');
-				item.querySelector('a').href = url;
-				item.querySelector('[data-question]').textContent = question;
-				return item;
-			}));
-
-			panel.hidden = false;
-		}, 350);
-	});
-
-	document.querySelector('#faq-dismiss').addEventListener('click', () => {
-		isDismissed = true;
-		panel.hidden = true;
-	});
-}
-
 if (location.search === '?success') {
 	showSuccess();
 } else {
@@ -471,12 +296,19 @@ if (location.search === '?success') {
 	addHiddenFields(form).catch(error => {
 		console.error('Could not add the hidden fields:', error);
 	});
-	setUpAttachments();
 	setUpEmailTypoDetection(form.elements.email);
-	setUpSuggestions(form.elements.message);
 
 	// The disabled button shows “Sending…”.
+	const submitButton = document.querySelector('#submit-button');
 	form.addEventListener('submit', () => {
-		document.querySelector('#submit-button').disabled = true;
+		submitButton.disabled = true;
+	});
+
+	// The page can come back with the button disabled, with the form state that Firefox restores (before this script runs) or from the back/forward cache. The first `pageshow` is left out, as it can come after a submit when the page loads slowly.
+	submitButton.disabled = false;
+	window.addEventListener('pageshow', event => {
+		if (event.persisted) {
+			submitButton.disabled = false;
+		}
 	});
 }

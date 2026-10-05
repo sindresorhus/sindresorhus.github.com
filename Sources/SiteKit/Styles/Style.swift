@@ -3,21 +3,21 @@ import Foundation
 /**
 The declarations for an element, written as a chain of modifiers, like SwiftUI view modifiers.
 
-Each modifier returns a new style. For the same property, a later modifier wins over an earlier one. Conditions like ``hover(_:)``, ``dark(_:)``, and ``breakpoint(_:_:)`` take a closure that gets an empty style, so they nest. The declarations of the style itself are written before its conditions, so a condition wins over a base declaration wherever it is in the chain:
+Each modifier returns a new style. For the same property, a later modifier wins over an earlier one. Conditions like ``hover(_:)``, ``dark(_:)``, and ``from(_:_:)`` take a closure that gets an empty style, so they nest. The declarations of the style itself are written before its conditions, so a condition wins over a base declaration wherever it is in the chain:
 
 ```swift
 let card = Style()
-	.padding(.rem(1))
-	.cornerRadius(.rem(0.5))
+	.padding(.rootEm(1))
+	.cornerRadius(.rootEm(0.5))
 	.background(.white)
 	.hover {
-		$0.background(.gray100)
+		$0.background("#f3f4f6")
 	}
 	.dark {
 		$0
-			.background(.slate900)
+			.background("#0f172a")
 			.hover {
-				$0.background(.slate800)
+				$0.background("#1e293b")
 			}
 	}
 ```
@@ -29,9 +29,9 @@ public struct Style: Sendable {
 	var children = [StyleNode]()
 
 	/**
-	The selector of the elements that end the scope of the nested rules. See ``scope(excluding:)``.
+	Whether the nested rules are in a scope of the element. See ``scoped()``.
 	*/
-	var scopeLimit: String?
+	var isScoped = false
 
 	/**
 	The keyframes and the registered custom properties that the style and its conditions use, so a stylesheet with the style also has them. They are written at the top level of the stylesheet.
@@ -50,11 +50,11 @@ public struct Style: Sendable {
 	}
 
 	/**
-	Limits the style and its nested rules to the elements outside the descendants that match the selector, like `@scope (…) to (…)` in CSS. Use it for styles of markup that components do not own, like typography for Markdown, so components inside can opt out.
+	Puts the style and its nested rules in a scope of the element, like `@scope (…)` in CSS. When two scoped rules have the same specificity, the rule of the closer element wins, whatever their order. Use it for styles of markup that components do not own, like typography for Markdown, where an alert inside prose should win over the prose.
 	*/
-	public func scope(excluding selector: String) -> Self {
+	public func scoped() -> Self {
 		var copy = self
-		copy.scopeLimit = selector
+		copy.isScoped = true
 		return copy
 	}
 
@@ -63,13 +63,13 @@ public struct Style: Sendable {
 	*/
 	func node(selector: String) -> StyleNode {
 		guard
-			let scopeLimit,
+			isScoped,
 			!declarations.isEmpty || !children.isEmpty
 		else {
 			return .rule(selector: selector, declarations: declarations, children: children)
 		}
 
-		return .conditional(prelude: "@scope (\(selector)) to (\(scopeLimit))", declarations: [], children: [.rule(selector: ":scope", declarations: declarations, children: children)])
+		return .conditional(prelude: "@scope (\(selector))", declarations: [], children: [.rule(selector: ":scope", declarations: declarations, children: children)])
 	}
 
 	/**
@@ -78,7 +78,7 @@ public struct Style: Sendable {
 	public func combined(with other: Self) -> Self {
 		var copy = self
 		copy.declarations += other.declarations
-		copy.children += other.children
+		copy.children.append(merging: other.children)
 		copy.definitions += other.definitions
 		return copy
 	}
@@ -89,7 +89,7 @@ public struct Style: Sendable {
 	public func nested(_ selector: String, _ content: (Self) -> Self) -> Self {
 		let style = content(Self())
 		var copy = self
-		copy.children.append(.rule(selector: selector, declarations: style.declarations, children: style.children))
+		copy.children.append(merging: [.rule(selector: selector, declarations: style.declarations, children: style.children)])
 		copy.definitions += style.definitions
 		return copy
 	}
@@ -102,10 +102,10 @@ public struct Style: Sendable {
 	}
 
 	/**
-	Styles that apply when the browser supports a feature, like `(interpolate-size: allow-keywords)`.
+	Styles that apply when the browser supports a feature, like `.supports(.scrollTimeline)`.
 	*/
-	public func supports(_ condition: String, _ content: (Self) -> Self) -> Self {
-		conditional("@supports \(condition)", content)
+	public func supports(_ feature: BrowserFeature, _ content: (Self) -> Self) -> Self {
+		conditional("@supports \(feature)", content)
 	}
 
 	/**
@@ -130,7 +130,7 @@ public struct Style: Sendable {
 	private func conditional(_ prelude: String, _ content: (Self) -> Self) -> Self {
 		let style = content(Self())
 		var copy = self
-		copy.children.append(.conditional(prelude: prelude, declarations: style.declarations, children: style.children))
+		copy.children.append(merging: [.conditional(prelude: prelude, declarations: style.declarations, children: style.children)])
 		copy.definitions += style.definitions
 		return copy
 	}
@@ -148,8 +148,22 @@ extension Style {
 		}
 	}
 
+	/**
+	Styles while the element has focus, also after a click, like a form field that shows where the visitor types. For a focus ring that only shows for the keyboard, use ``focusVisible(_:)``.
+	*/
+	public func focus(_ content: (Self) -> Self) -> Self {
+		nested("&:focus", content)
+	}
+
 	public func focusVisible(_ content: (Self) -> Self) -> Self {
 		nested("&:focus-visible", content)
+	}
+
+	/**
+	Styles each element inside that shows its focus, like one focus ring for all the controls of a page with its own look.
+	*/
+	public func focusVisibleInside(_ content: (Self) -> Self) -> Self {
+		nested("& :focus-visible", content)
 	}
 
 	/**
@@ -166,6 +180,13 @@ extension Style {
 		nested("&:target", content)
 	}
 
+	/**
+	Styles while the element is the current one of a set, like the link to the current page in a navigation (`aria-current`).
+	*/
+	public func current(_ content: (Self) -> Self) -> Self {
+		nested("&[aria-current]", content)
+	}
+
 	public func active(_ content: (Self) -> Self) -> Self {
 		nested("&:active", content)
 	}
@@ -174,8 +195,66 @@ extension Style {
 		nested("&:disabled", content)
 	}
 
+	/**
+	Styles while the element is the last child of its parent.
+	*/
+	public func lastChild(_ content: (Self) -> Self) -> Self {
+		nested("&:last-child", content)
+	}
+
+	/**
+	Styles while a form control is invalid after the visitor used it, like after leaving a field with a mistake.
+	*/
+	public func userInvalid(_ content: (Self) -> Self) -> Self {
+		nested("&:user-invalid", content)
+	}
+
+	/**
+	Styles while the element is an open popover.
+	*/
+	public func popoverOpen(_ content: (Self) -> Self) -> Self {
+		nested("&:popover-open", content)
+	}
+
+	/**
+	Styles while the element is open, like a `<details>` element that shows its content, or a `<dialog>`. For a popover, use ``popoverOpen(_:)``.
+	*/
+	public func open(_ content: (Self) -> Self) -> Self {
+		nested("&:open", content)
+	}
+
+	/**
+	Styles while a custom element has the custom state, which its script adds to the states of its element internals (a `CustomStateSet`): `&:state(name)`. It is not a data attribute, like `data-state`.
+
+	```swift
+	// The script of the element: `this.#internals.states.add('playing')`
+	Style()
+		.opacity(0.6)
+		.state("playing") {
+			$0.opacity(1)
+		}
+	```
+	*/
+	public func state(_ name: String, _ content: (Self) -> Self) -> Self {
+		nested("&:state(\(name))", content)
+	}
+
 	public func placeholder(_ content: (Self) -> Self) -> Self {
 		nested("&::placeholder", content)
+	}
+
+	/**
+	The `::details-content` pseudo-element: the content of a `<details>` element after its summary, like for a height that animates when it opens.
+	*/
+	public func detailsContent(_ content: (Self) -> Self) -> Self {
+		nested("&::details-content", content)
+	}
+
+	/**
+	The `::backdrop` pseudo-element: the layer between the page and a modal dialog, a popover, or an element in full screen, like a dim color that covers the page.
+	*/
+	public func backdrop(_ content: (Self) -> Self) -> Self {
+		nested("&::backdrop", content)
 	}
 
 	/**
@@ -210,15 +289,15 @@ extension Style {
 	/**
 	Styles for screens at least as wide as the breakpoint.
 	*/
-	public func breakpoint(_ breakpoint: Breakpoint, _ content: (Self) -> Self) -> Self {
-		media(.minWidth(breakpoint.minimumWidth), content)
+	public func from(_ breakpoint: Breakpoint, _ content: (Self) -> Self) -> Self {
+		media(.from(breakpoint), content)
 	}
 
 	/**
 	Styles for screens narrower than the breakpoint.
 	*/
 	public func below(_ breakpoint: Breakpoint, _ content: (Self) -> Self) -> Self {
-		media(.narrowerThan(breakpoint.minimumWidth), content)
+		media(.below(breakpoint), content)
 	}
 
 	/**
@@ -226,5 +305,21 @@ extension Style {
 	*/
 	public func children(_ selector: String, _ content: (Self) -> Self) -> Self {
 		nested("& > \(selector)", content)
+	}
+
+	/**
+	Styles for another element on a page that has this element, like the site header on a page with a background that continues behind it: `:root:has(&) selector`.
+	*/
+	public func onSamePage(_ selector: String, _ content: (Self) -> Self) -> Self {
+		nested(":root:has(&) \(selector)", content)
+	}
+
+	/**
+	Styles for the root element on a page that has this element: `:root:has(&)`.
+
+	The browser checks `:has()` again on every change of the page, so on a large page that changes often, a style here can make every change lay out the whole page. For a page with its own look, prefer a `:root` rule in a stylesheet of that page.
+	*/
+	public func onPageRoot(_ content: (Self) -> Self) -> Self {
+		nested(":root:has(&)", content)
 	}
 }

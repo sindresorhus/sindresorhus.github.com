@@ -100,7 +100,7 @@ public struct Feed: Hashable, Sendable {
 
 extension Feed {
 	/**
-	Checks the requirements of the RSS 2.0 specification that the type system cannot express.
+	Checks the requirements of the RSS 2.0 specification that the type system cannot express, and that each item has its own GUID, which feed readers need to tell items apart. Errors name the item by its title, or else by its link, its GUID, or its position.
 	*/
 	public func validate() throws(FeedValidationError) {
 		guard !title.isEmpty else {
@@ -117,8 +117,17 @@ extension Feed {
 			}
 		}
 
+		var guids = Set<String>()
+
 		for (index, item) in items.enumerated() {
 			try item.validate(index: index)
+
+			if
+				let guid = item.resolvedGUID,
+				!guids.insert(guid.value).inserted
+			{
+				throw .duplicateGUID(guid.value, item: item.name(index: index))
+			}
 		}
 	}
 
@@ -186,11 +195,7 @@ enum Namespace {
 
 extension URL {
 	var isAbsolute: Bool {
-		guard let scheme else {
-			return false
-		}
-
-		return !scheme.isEmpty
+		scheme?.isEmpty == false
 	}
 }
 
@@ -199,11 +204,7 @@ extension Date {
 	The date in the RFC 822 format that RSS requires, always in GMT, like `Sat, 04 Oct 2026 09:00:00 GMT`.
 	*/
 	var rfc822String: String {
-		formatted(Date.VerbatimFormatStyle(
-			format: "\(weekday: .abbreviated), \(day: .twoDigits) \(month: .abbreviated) \(year: .defaultDigits) \(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits):\(second: .twoDigits) GMT",
-			locale: Locale(identifier: "en_US_POSIX"),
-			timeZone: .gmt,
-			calendar: Calendar(identifier: .gregorian)
-		))
+		// The HTTP date format is this format.
+		formatted(.http)
 	}
 }

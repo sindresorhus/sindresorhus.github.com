@@ -1,4 +1,7 @@
+import SwiftSyntax
+import SwiftSyntaxBuilder
 import SwiftSyntaxMacroExpansion
+import SwiftSyntaxMacrosGenericTestSupport
 import SwiftSyntaxMacrosTestSupport
 import Testing
 
@@ -23,7 +26,7 @@ struct FrontmatterMacroTests {
 				public var tags = [String]()
 				public var counts = [String: Int]()
 				public var links = OrderedMapping<URL>()
-				@Key("pubDate") public var publicationDate: Date
+				@Key("date") public var publicationDate: Date
 				public var isPinned: Bool? = false
 
 				public var slug: String {
@@ -49,18 +52,17 @@ struct FrontmatterMacroTests {
 
 				static let directory = "posts"
 
-				enum CodingKeys: Swift.String, Swift.CodingKey, Swift.CaseIterable {
+				enum CodingKeys: Swift.String, Swift.CodingKey {
 					case title
 					case description
 					case tags
 					case counts
 					case links
-					case publicationDate = "pubDate"
+					case publicationDate = "date"
 					case isPinned
 				}
 
 				public init(from decoder: any Swift.Decoder) throws {
-					try decoder.rejectUnknownKeys(CodingKeys.self)
 					let container = try decoder.container(keyedBy: CodingKeys.self)
 					self.title = try container.decode(String.self, forKey: .title)
 					self.description = try container.decodeIfPresent(String.self, forKey: .description)
@@ -81,27 +83,141 @@ struct FrontmatterMacroTests {
 	}
 
 	@Test
-	func `rejects properties it cannot decode`() {
+	func `infers the type of literal default values`() {
+		assertMacroExpansion(
+			#"""
+			@Frontmatter
+			struct Post {
+				var isDraft = false
+				var isPinned = true
+				var title = "Untitled"
+				var subtitle = #"A "quoted" title"#
+				var count = 3
+				var offset = -2
+				var scale = 1.5
+				var adjustment = -0.5
+			}
+			"""#,
+			expandedSource: #"""
+			struct Post {
+				var isDraft = false
+				var isPinned = true
+				var title = "Untitled"
+				var subtitle = #"A "quoted" title"#
+				var count = 3
+				var offset = -2
+				var scale = 1.5
+				var adjustment = -0.5
+
+				enum CodingKeys: Swift.String, Swift.CodingKey {
+					case isDraft
+					case isPinned
+					case title
+					case subtitle
+					case count
+					case offset
+					case scale
+					case adjustment
+				}
+
+				init(from decoder: any Swift.Decoder) throws {
+					let container = try decoder.container(keyedBy: CodingKeys.self)
+					self.isDraft = try container.decodeIfPresent(Bool.self, forKey: .isDraft) ?? false
+					self.isPinned = try container.decodeIfPresent(Bool.self, forKey: .isPinned) ?? true
+					self.title = try container.decodeIfPresent(String.self, forKey: .title) ?? "Untitled"
+					self.subtitle = try container.decodeIfPresent(String.self, forKey: .subtitle) ?? #"A "quoted" title"#
+					self.count = try container.decodeIfPresent(Int.self, forKey: .count) ?? 3
+					self.offset = try container.decodeIfPresent(Int.self, forKey: .offset) ?? -2
+					self.scale = try container.decodeIfPresent(Double.self, forKey: .scale) ?? 1.5
+					self.adjustment = try container.decodeIfPresent(Double.self, forKey: .adjustment) ?? -0.5
+				}
+			}
+
+			extension Post: SiteKit.Frontmatter {
+			}
+			"""#,
+			macroSpecs: macros,
+			indentationWidth: .tab
+		)
+	}
+
+	@Test
+	func `decodes property wrappers by their wrapped value`() {
 		assertMacroExpansion(
 			"""
 			@Frontmatter
 			struct Post {
-				let title = "Untitled"
-				var count = 0
+				@NonEmpty var title: String
+				@NonEmpty var description: String?
+				@Absolute var url: Optional<URL>
+				@NonEmpty var category = "General"
+
+				@Key("date")
+				@CalendarDay var publicationDate: Date
 			}
 			""",
 			expandedSource: """
 			struct Post {
-				let title = "Untitled"
-				var count = 0
+				@NonEmpty var title: String
+				@NonEmpty var description: String?
+				@Absolute var url: Optional<URL>
+				@NonEmpty var category = "General"
+				@CalendarDay var publicationDate: Date
+
+				enum CodingKeys: Swift.String, Swift.CodingKey {
+					case title
+					case description
+					case url
+					case category
+					case publicationDate = "date"
+				}
+
+				init(from decoder: any Swift.Decoder) throws {
+					let container = try decoder.container(keyedBy: CodingKeys.self)
+					self.title = try container.decode(NonEmpty<String>.self, forKey: .title).wrappedValue
+					self.description = try container.decodeIfPresent(NonEmpty<String>.self, forKey: .description)?.wrappedValue
+					self.url = try container.decodeIfPresent(Absolute<URL>.self, forKey: .url)?.wrappedValue
+					self.category = try container.decodeIfPresent(NonEmpty<String>.self, forKey: .category)?.wrappedValue ?? "General"
+					self.publicationDate = try container.decode(CalendarDay<Date>.self, forKey: .publicationDate).wrappedValue
+				}
 			}
 
 			extension Post: SiteKit.Frontmatter {
 			}
 			""",
+			macroSpecs: macros,
+			indentationWidth: .tab
+		)
+	}
+
+	@Test
+	func `rejects properties it cannot decode`() {
+		assertMacroExpansion(
+			#"""
+			@Frontmatter
+			struct Post {
+				let title = "Untitled"
+				var greeting = "Hello \(name)"
+				var limit = Int.max
+				var negated = -true
+			}
+			"""#,
+			expandedSource: #"""
+			struct Post {
+				let title = "Untitled"
+				var greeting = "Hello \(name)"
+				var limit = Int.max
+				var negated = -true
+			}
+
+			extension Post: SiteKit.Frontmatter {
+			}
+			"""#,
 			diagnostics: [
 				DiagnosticSpec(message: "A property with a default value must be a 'var', so it can be decoded", line: 3, column: 6),
-				DiagnosticSpec(message: "'@Frontmatter' requires a type annotation, or an empty initializer like '[String]()', because macros cannot infer types", line: 4, column: 6),
+				DiagnosticSpec(message: "'@Frontmatter' requires a type annotation, a literal default value like 'false', or an empty initializer like '[String]()', because macros cannot infer other types", line: 4, column: 6),
+				DiagnosticSpec(message: "'@Frontmatter' requires a type annotation, a literal default value like 'false', or an empty initializer like '[String]()', because macros cannot infer other types", line: 5, column: 6),
+				DiagnosticSpec(message: "'@Frontmatter' requires a type annotation, a literal default value like 'false', or an empty initializer like '[String]()', because macros cannot infer other types", line: 6, column: 6),
 			],
 			macroSpecs: macros,
 			indentationWidth: .tab

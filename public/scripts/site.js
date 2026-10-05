@@ -1,4 +1,4 @@
-// A greeting for the curious ones who open the developer tools.
+// A greeting for the curious ones who open the developer tools. The source link is in the footer.
 console.log(`%c
        \\
         \\
@@ -7,7 +7,7 @@ console.log(`%c
     (=___._/\` \\       Hello, curious one!
          )  \\ |
         /   / |       This site is generated with Swift.
-       /    > /       Source: https://github.com/sindresorhus/sindresorhus.github.com
+       /    > /       Source: ${document.querySelector('[data-source-link]')?.href ?? ''}
       j    < _\\
   _.-' :      \`\`.
   \\ r=._\\        \`.
@@ -34,74 +34,60 @@ function openTargetedSection() {
 openTargetedSection();
 window.addEventListener('hashchange', openTargetedSection);
 
-// The mobile menu covers the page, so it closes when keyboard focus moves out of it, like to a link behind it.
-{
-	const menu = document.querySelector('#menu');
+// Copies the text, marks the element as copied for the styles, and says “Copied” to screen readers. Returns whether it worked. Without clipboard access, it does nothing, as the visitor can still select the text.
+async function copy(text, element) {
+	try {
+		await navigator.clipboard.writeText(text);
+	} catch {
+		return false;
+	}
 
-	menu?.addEventListener('focusout', event => {
-		const isLeaving = event.relatedTarget && !menu.contains(event.relatedTarget) && !event.relatedTarget.matches('[popovertarget="menu"]');
+	element.dataset.state = 'copied';
+	// Older browsers, like Safari 26, have no `ariaNotify`. They say nothing, but the copied state still goes away.
+	element.ariaNotify?.('Copied');
 
-		if (isLeaving && menu.matches(':popover-open')) {
-			menu.hidePopover();
-		}
-	});
+	return true;
 }
 
-// Copies the code of a code block. The styles show “Copied” for a moment.
-document.addEventListener('click', async event => {
-	const button = event.target.closest?.('[data-copy-code]');
-
-	if (!button) {
-		return;
-	}
-
-	try {
-		await navigator.clipboard.writeText(button.closest('[data-code-block]').querySelector('code').textContent);
-	} catch {
-		// Without clipboard access, the visitor can still select the code.
-		return;
-	}
-
-	button.dataset.state = 'copied';
-
-	setTimeout(() => {
-		delete button.dataset.state;
-	}, 1500);
-});
+// The pending timers that remove the copied state of section links, so a second click restarts the timer of its link.
+const copiedStateTimers = new WeakMap();
 
 // Copies the URL of a section when its link is clicked. The link still navigates, so the section becomes the `:target`. The styles show a checkmark for the copied state, and hide the link until the pointer leaves the section.
 document.addEventListener('click', async event => {
 	const link = event.target.closest?.('[data-copy-link]');
 
-	if (!link) {
+	// Without clipboard access, the link still navigates, so the URL is in the address bar.
+	if (!link || !await copy(link.href, link)) {
 		return;
 	}
 
-	try {
-		await navigator.clipboard.writeText(link.href);
-	} catch {
-		// The link still navigates, so the URL is in the address bar.
-		return;
-	}
+	clearTimeout(copiedStateTimers.get(link));
+	copiedStateTimers.set(link, setTimeout(() => {
+		// Only a pointer leaving the section shows the link again, so a keyboard copy, without a pointer on the section, shows it right away.
+		if (!link.parentElement.matches(':hover')) {
+			delete link.dataset.state;
+			return;
+		}
 
-	link.dataset.state = 'copied';
-
-	setTimeout(() => {
 		link.dataset.state = 'hidden';
 
+		// Only the hidden state, as a new copy before the pointer leaves shows its checkmark until its own timer ends.
 		link.parentElement.addEventListener('mouseleave', () => {
-			delete link.dataset.state;
+			if (link.dataset.state === 'hidden') {
+				delete link.dataset.state;
+			}
 		}, {once: true});
-	}, 1500);
+	}, 1500));
 });
 
-// A unicorn gallops across the page after the Konami code: ↑ ↑ ↓ ↓ ← → ← → B A.
+// A unicorn gallops across the page after the Konami code: ↑ ↑ ↓ ↓ ← → ← → B A. The code is also a `konami` event on the document, for the surprises of a page, like the unicorn parade of the 1999 page.
 {
 	const code = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
 	let position = 0;
 
 	document.addEventListener('keydown', event => {
-		const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+		// Chrome autofill sends `keydown` events without a key.
+		const key = event.key?.length === 1 ? event.key.toLowerCase() : event.key;
 
 		if (key === code[position]) {
 			position++;
@@ -117,6 +103,8 @@ document.addEventListener('click', async event => {
 		}
 
 		position = 0;
+
+		document.dispatchEvent(new Event('konami'));
 
 		if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
 			return;

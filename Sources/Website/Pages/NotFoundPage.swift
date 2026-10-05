@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-The page for missing files. It suggests the closest page, like for a mistyped app name, and a random app.
+The page for missing files. It suggests the closest page, like for a mistyped app name, and a few apps that change every day.
 */
 struct NotFoundPage: Page {
 	/**
@@ -11,131 +11,173 @@ struct NotFoundPage: Page {
 	*/
 	let suggestedPaths: [RoutePath]
 
-	let randomApp: App?
+	let content: SiteContent
 
 	var path: RoutePath {
 		.notFound
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: PageMetadata.titled("Error 404"))
-	}
-
-	var isInSitemap: Bool {
-		false
+		PageMetadata(title: "Error 404", isIndexed: false)
 	}
 
 	var body: some HTML {
 		section {
 			div {
 				div {
+					// The unicorn is the zero. Screen readers read “Error 404”.
 					h1 {
-						VisuallyHidden("Error")
-						" "
-						GradientText("404")
+						VisuallyHidden("Error 404")
+
+						span {
+							GradientText("4")
+
+							span {
+								"🦄"
+							}
+							.style(Styles.unicorn)
+
+							GradientText("4")
+						}
+						.accessibilityHidden()
 					}
 					.style(Styles.code)
 
 					p {
-						"The worker unicorns failed to find this page."
+						"This page wandered off."
 					}
 					.style(Styles.title)
 
 					p {
-						"It was probably a bad idea anyway, so maybe for the better?"
+						"The unicorns looked everywhere, but it is not here. It may have moved, or it never existed."
 					}
 					.style(Styles.message)
 
 					// `not-found.js` shows it when a page is close to the requested path.
-					p(.id(.closestPage), .hidden) {
+					p(.id(Hooks.closestPage), .hidden) {
 						"Did you mean "
-						a(.id(.closestPageLink), .href("/")) {}
+						a(.id(Hooks.closestPageLink), .href(.root)) {}
 							.style(Styles.closestPageLink)
 						"?"
 					}
 					.style(Styles.closestPage)
 
-					Button("Back to homepage", destination: "/", fill: .dark)
+					div {
+						Link("Back to Homepage", destination: .path(.root))
+							.buttonStyle(.primary)
 
-					if let randomApp {
-						p {
-							"While you’re here, check out "
-							a(.href(randomApp.path)) {
-								randomApp.title
-							}
-							.style(Styles.randomAppLink)
-							": \(randomApp.subtitle)."
-						}
-						.style(Styles.randomApp)
+						Link("Browse Apps", destination: .path(.apps))
+							.buttonStyle(.secondary)
 					}
+					.style(Styles.buttons)
 				}
 				.style(Styles.content)
+
+				let apps = content.randomApps(count: 4)
+
+				if !apps.isEmpty {
+					section {
+						h2 {
+							"While You’re Here"
+						}
+						.style(SectionStyles.label)
+
+						AppGrid(apps: apps, content: content)
+					}
+					.style(Styles.apps)
+				}
 			}
 			.style(Styles.container)
 		}
 		.style(Styles.root)
 
-		JSONScript(id: ScriptHook.notFoundData.rawValue, ["paths": suggestedPaths.map(\.description)])
+		// Not the home page, which is close to every short path, and already has a button.
+		JSONScript(id: Hooks.data, ["paths": suggestedPaths.filter { $0 != .root }])
 		ModuleScript("/scripts/not-found.js")
 	}
 }
 
 extension NotFoundPage {
+	/**
+	The IDs and data attributes that the scripts of the page find elements by.
+	*/
+	enum Hooks: String, ScriptHookSet {
+		case closestPage = "closest-page"
+		case closestPageLink = "closest-page-link"
+		case data = "not-found-data"
+	}
+
 	enum Styles: StyleSet {
 		case root
 		case container
 		case content
 		case code
+		case unicorn
 		case title
 		case message
 		case closestPage
 		case closestPageLink
-		case randomApp
-		case randomAppLink
+		case buttons
+		case apps
 
 		var style: Style {
 			switch self {
 			case .root:
 				Style()
 					.hstack(alignment: .center)
-					.frame(minHeight: .svh(75))
+					.frame(minHeight: .smallViewportHeight(75))
+					.padding(vertical: .rootEm(4), horizontal: 0)
 			case .container:
+				// As wide as the content of the header, so the app cards line up with it, like on the other pages with app cards.
 				Style()
 					.vstack(alignment: .center)
 					.frame(width: .percent(100))
-					.margin(.top, .rem(-5))
-					.padding(.horizontal, .rem(1.25))
+					.contentColumn(.page)
 			case .content:
 				Style()
-					.frame(maxWidth: .rem(28))
+					.vstack(alignment: .center)
+					.frame(maxWidth: .rootEm(30))
 					.textAlign(.center)
 			case .code:
+				// Large, in the rounded font, like a sign.
 				Style()
-					.margin(.bottom, .rem(1.5))
-					.font(.xl8, weight: .bold)
-					.fluidFontSize(fromRem: 6, toRem: 8, between: .phone, and: .sm)
+					.margin(.bottom, .rootEm(1.5))
+					.fluidFontSize(fromRem: 6, toRem: 9, between: .phone, and: .smallTablet)
+					.lineHeight(1)
+					.fontFamily(.rounded)
+					.bold()
+					.letterSpacing(.em(-0.04))
+			case .unicorn:
+				// A little smaller than the digits, and tilted, as if it is looking around.
+				Style()
+					.display(.inlineBlock)
+					.margin(.horizontal, .em(0.02))
+					.font(size: .em(0.82))
+					.rotationEffect(.degrees(-8))
 			case .title:
-				Style().font(.xl3, weight: .semibold)
+				Style()
+					.margin(0)
+					.textStyle(.title)
+					.color(.primaryText)
 			case .message:
 				Style()
-					.margin(top: .rem(1), horizontal: 0, bottom: .rem(2))
-					.font(.lg)
-					.color(.gray(600), dark: .slate(400))
+					.margin(top: .rootEm(0.75), horizontal: 0, bottom: .rootEm(2))
+					.secondaryText(.lead)
 			case .closestPage:
 				Style()
-					.margin(.bottom, .rem(2))
-					.font(.lg, weight: .medium)
+					.margin(.bottom, .rootEm(2))
+					.textStyle(.lead, weight: .medium)
 			case .closestPageLink:
-				Style().underline(offset: .em(0.15))
-			case .randomApp:
+				Style().textLink()
+			case .buttons:
 				Style()
-					.margin(.top, .rem(3))
-					.font(.sm)
-					.color(.gray(500), dark: .slate(400))
-			case .randomAppLink:
+					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.75))
+					.flexWrap()
+			case .apps:
+				// More space below than other sections, as the footer follows.
 				Style()
-					.fontWeight(.semibold)
-					.color(.primaryText)
+					.frame(width: .percent(100))
+					.margin(top: .rootEm(6), horizontal: 0, bottom: .rootEm(4))
 			}
 		}
 	}

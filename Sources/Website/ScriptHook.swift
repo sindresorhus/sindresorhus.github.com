@@ -1,91 +1,120 @@
 import Elementary
+import Foundation
+import SiteKit
 
 /**
-The IDs and `data-` attributes that the scripts in `public/scripts` find elements by. Use them instead of strings, so a test can check that the scripts still use each one.
+The IDs and data attributes that a script finds elements by, or sets as a state for the styles, like `data-state="copied"`. A component declares the hooks of its elements as a nested `enum Hooks: String, ScriptHookSet`, like it declares its `Styles`, and another file that needs one uses it from there, like `AppHero.Hooks.hero`, and a test checks that the scripts still use each one, and that every hook a script uses is declared.
 
 ```swift
-div(.id(.appMedia)) {}
-a(.hook(.repositoryLinkAttribute)) {}
+enum Hooks: String, ScriptHookSet {
+	case restart = "appdle-restart"
+}
+
+button(.id(Hooks.restart)) {}
 ```
+
+A data attribute starts with `data-`. Every other hook is an ID.
 */
-enum ScriptHook: String, CaseIterable {
-	case additionalInfo = "additional-info"
-	case anotherRandomApp = "another-random-app"
-	case appFaqTemplate = "app-faq-template"
-	case appIcon = "app-icon"
-	case appMedia = "app-media"
-	case appNavigation = "app-navigation"
-	case appsFilterNotice = "apps-filter-notice"
-	case attachmentTemplate = "attachment-template"
-	case attachmentsInput = "attachments-input"
-	case closestPage = "closest-page"
-	case closestPageLink = "closest-page-link"
-	case contactEmail = "contact-email"
-	case crashWarning = "crash-warning"
-	case emailWarning = "email-warning"
-	case faqDismiss = "faq-dismiss"
-	case faqList = "faq-list"
-	case faqSuggestions = "faq-suggestions"
-	case feedbackData = "feedback-data"
-	case feedbackForm = "feedback-form"
-	case fileList = "file-list"
-	case main = "main"
-	case mediaNext = "media-next"
-	case mediaPrevious = "media-previous"
-	case nebula = "nebula"
-	case notFoundData = "not-found-data"
-	case productName = "product-name"
-	case randomAppData = "random-app-data"
-	case repositoryTemplate = "repository-template"
-	case shareButton = "share-button"
-	case siteHeader = "site-header"
-	case sparkleTemplate = "sparkle-template"
-	case submitButton = "submit-button"
-	case successTemplate = "success-template"
-	case suggestionTemplate = "suggestion-template"
-	case unicornTemplate = "unicorn-template"
+protocol ScriptHookSet: RawRepresentable<String>, CaseIterable {}
 
-	// Data attributes.
-	case appFaqLinkAttribute = "data-app-faq-link"
-	case nameAttribute = "data-name"
-	case questionAttribute = "data-question"
-	case repositoryLinkAttribute = "data-repository-link"
-	case shareTitleAttribute = "data-share-title"
-	case shareUrlAttribute = "data-share-url"
-	case sizeAttribute = "data-size"
-	case slugAttribute = "data-slug"
-
-	var isDataAttribute: Bool {
-		rawValue.hasPrefix("data-")
+extension ScriptHookSet {
+	/**
+	The attribute selector of a data attribute, like `[data-state="copied"]`, or `[data-state]` for any value.
+	*/
+	func selector(value: String? = nil) -> String {
+		"[\(rawValue)\(value.map { "=\"\($0)\"" } ?? "")]"
 	}
 
 	/**
-	The name that `dataset` gives a data attribute in a script, like `shareTitle` for `data-share-title`.
+	The name that `dataset` gives a data attribute in a script, like `sourceLink` for `data-source-link`.
 	*/
-	var datasetName: String? {
-		guard isDataAttribute else {
-			return nil
-		}
-
+	var datasetName: String {
 		let parts = rawValue.dropFirst("data-".count).split(separator: "-")
-		return parts.first.map(String.init).map { first in first + parts.dropFirst().map(\.capitalized).joined() }
+		return String(parts.first ?? "") + parts.dropFirst().map(\.capitalized).joined()
 	}
+}
+
+/**
+The data attributes that the components of more than one file use as a generic state, like `data-state`.
+
+```swift
+button(.hook(.state, value: "copied")) {}
+```
+*/
+enum ScriptAttribute: String, ScriptHookSet {
+	/**
+	A state that a script sets, like `copied` for a copy button.
+	*/
+	case state = "data-state"
 }
 
 extension HTMLAttribute where Tag: HTMLTrait.Attributes.Global {
 	/**
 	The ID that a script finds the element by.
 	*/
-	static func id(_ hook: ScriptHook) -> Self {
-		precondition(!hook.isDataAttribute, "\(hook) is a data attribute.")
-		return .id(hook.rawValue)
+	static func id(_ id: some ScriptHookSet) -> Self {
+		.id(id.rawValue)
 	}
 
 	/**
 	The data attribute that a script finds the element by, or reads the value of.
 	*/
-	static func hook(_ hook: ScriptHook, value: String = "") -> Self {
-		precondition(hook.isDataAttribute, "\(hook) is an ID.")
-		return .custom(name: hook.rawValue, value: value)
+	static func hook(_ attribute: some ScriptHookSet, value: String = "") -> Self {
+		.custom(name: attribute.rawValue, value: value)
+	}
+
+	/**
+	A shared data attribute that a script finds the element by, or reads the value of.
+	*/
+	static func hook(_ attribute: ScriptAttribute, value: String = "") -> Self {
+		.custom(name: attribute.rawValue, value: value)
+	}
+}
+
+extension HTMLAttribute where Tag == HTMLTag.button {
+	/**
+	Shows or hides the popover that a script also finds by its ID.
+	*/
+	static func popoverTarget(_ id: some ScriptHookSet) -> Self {
+		.popoverTarget(id.rawValue)
+	}
+}
+
+extension JSONScript {
+	/**
+	Data for a page script, which finds it by the ID.
+	*/
+	init(id: some ScriptHookSet, _ value: some Encodable) {
+		self.init(id: id.rawValue, value)
+	}
+}
+
+extension Style {
+	/**
+	Styles while a script has set the data attribute on the element, optionally to the value, like `when(.state, is: "copied")`.
+	*/
+	func when(_ attribute: some ScriptHookSet, is value: String? = nil, _ content: (Self) -> Self) -> Self {
+		nested("&\(attribute.selector(value: value))", content)
+	}
+
+	/**
+	Styles while a shared data attribute is set on the element, like `when(.state, is: "copied")`.
+	*/
+	func when(_ attribute: ScriptAttribute, is value: String? = nil, _ content: (Self) -> Self) -> Self {
+		nested("&\(attribute.selector(value: value))", content)
+	}
+
+	/**
+	Styles while a script has set the data attribute on an ancestor, optionally to the value, like on the site header for the navigation in it.
+	*/
+	func when(ancestorHas attribute: some ScriptHookSet, is value: String? = nil, _ content: (Self) -> Self) -> Self {
+		nested("\(attribute.selector(value: value)) &", content)
+	}
+
+	/**
+	Styles while a shared data attribute is set on an ancestor.
+	*/
+	func when(ancestorHas attribute: ScriptAttribute, is value: String? = nil, _ content: (Self) -> Self) -> Self {
+		nested("\(attribute.selector(value: value)) &", content)
 	}
 }

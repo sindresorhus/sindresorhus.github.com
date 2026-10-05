@@ -18,18 +18,60 @@ public struct Project: Sendable {
 	}
 
 	/**
-	The file behind a public URL path, like `/apps/dato/icon.png`.
+	The content files. A page can be a directory with an `index.md` (a page bundle), and the other files in that directory, like images, are published unchanged at their path relative to this directory, like `/apps/dato/icon.png` for `content/apps/dato/icon.png`.
+
+	Limitation: Only the files directly next to the `index.md` are published, not the files in its subdirectories.
 	*/
-	public func publicFile(_ path: String) -> URL {
-		publicDirectory.appending(path: String(path.drop { $0 == "/" }))
+	public var contentDirectory: URL {
+		root.appending(path: "content")
 	}
 
 	/**
-	The date of the last commit that changed each Markdown file in the directory, keyed by the path relative to the project root, like `content/apps/dato.md`.
+	The file or directory behind a public URL path, like `/apps/dato/icon.png`: in a page bundle in the content directory, or else in the public directory.
+	*/
+	public func publicFile(_ path: RoutePath) -> URL {
+		let contentFile = contentDirectory.appending(path: path.relativePath)
+
+		if
+			contentFile.appending(path: "index.md").isFile
+				|| contentFile.isPageBundleFile
+		{
+			return contentFile
+		}
+
+		return publicDirectory.appending(path: path.relativePath)
+	}
+
+	/**
+	The path of a file of a page bundle in the site, like `/apps/dato/icon.png` for `content/apps/dato/icon.png`. `nil` for any other file.
+	*/
+	public func publicPath(ofContentFile file: URL) -> RoutePath? {
+		guard
+			file.isPageBundleFile,
+			file.isInside(contentDirectory)
+		else {
+			return nil
+		}
+
+		return RoutePath("/" + file.path(relativeTo: contentDirectory))
+	}
+
+	/**
+	The files that are published unchanged, as their path relative to the output directory and their source: the files in the public directory, and the files of the page bundles in the content directory. `.DS_Store` files are left out.
+	*/
+	public func publicFiles() throws -> [(path: String, source: URL)] {
+		let bundleFiles = contentDirectory.isDirectory ? try contentDirectory.filesRecursively().filter(\.isPageBundleFile) : []
+
+		return (try publicDirectory.filesRecursively().map { (path: $0.path(relativeTo: publicDirectory), source: $0) } + bundleFiles.map { (path: $0.path(relativeTo: contentDirectory), source: $0) })
+			.filter { $0.source.lastPathComponent != ".DS_Store" }
+	}
+
+	/**
+	The date of the last commit that changed each Markdown file, keyed by the path relative to the project root, like `content/apps/dato/index.md`. Load it once for all content types, as it runs `git log`.
 
 	Moving a file without changing it does not count as a change, so the dates survive a reorganization. Empty when the project is not a git repository or git is missing. A shallow clone only knows the dates of its commits.
 	*/
-	public func lastCommitDates(in directory: String) -> [String: Date] {
+	public func lastCommitDates() async -> [String: Date] {
 		let process = Process()
 		process.executableURL = URL(filePath: "/usr/bin/env")
 		// Without `core.quotePath=false`, git quotes paths with non-ASCII characters, so they would not match the files.
@@ -38,14 +80,16 @@ public struct Project: Sendable {
 		let pipe = Pipe()
 		process.standardOutput = pipe
 
-		guard (try? process.run()) != nil else {
-			return [:]
+		// The output is read asynchronously, so waiting for git does not block a thread of the concurrency pool.
+		var lines = [String]()
+
+		let exitStatus = try? await process.runUntilExit {
+			for try await line in pipe.fileHandleForReading.bytes.lines {
+				lines.append(line)
+			}
 		}
 
-		let output = String(decoding: pipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
-		process.waitUntilExit()
-
-		guard process.terminationStatus == 0 else {
+		guard exitStatus == 0 else {
 			return [:]
 		}
 
@@ -56,7 +100,7 @@ public struct Project: Sendable {
 		var currentNames = [String: String]()
 
 		// Commits are newest first, so the first change of a file is its latest.
-		for line in output.split(separator: "\n") {
+		for line in lines {
 			if line.hasPrefix("\0") {
 				date = try? Date(String(line.dropFirst()), strategy: .iso8601)
 				continue
@@ -75,15 +119,32 @@ public struct Project: Sendable {
 			let currentName = currentNames[path] ?? path
 
 			// `R100` is a rename without changes.
-			if status != "R100", dates[currentName] == nil {
+			if
+				status != "R100",
+				dates[currentName] == nil
+			{
 				dates[currentName] = date
 			}
 
-			if status.hasPrefix("R"), fields.count == 3 {
+			if
+				status.hasPrefix("R"),
+				fields.count == 3
+			{
 				currentNames[fields[1]] = currentName
 			}
 		}
 
-		return dates.filter { $0.key.hasPrefix(directory + "/") }
+		return dates
+	}
+}
+
+extension URL {
+	/**
+	Whether the URL is a file next to the `index.md` of a page bundle, like `content/apps/dato/icon.png`. Markdown files are content, so they are not.
+	*/
+	fileprivate var isPageBundleFile: Bool {
+		pathExtension != "md"
+			&& isFile
+			&& deletingLastPathComponent().appending(path: "index.md").isFile
 	}
 }

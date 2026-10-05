@@ -14,140 +14,145 @@ struct AppPage: Page {
 		.app(app)
 	}
 
-	var lastModified: Date? {
-		max(app.lastCommitDate ?? app.publicationDate, app.publicationDate)
+	/**
+	With the icon and the screenshots.
+	*/
+	var sitemapEntry: SitemapEntry? {
+		SitemapEntry(lastModified: app.lastModified, images: [app.iconURL] + app.screenshotURLs)
 	}
 
-	/**
-	The icon and the screenshots.
-	*/
-	var sitemapImages: [URL] {
-		[app.iconURL] + app.screenshotURLs
+	var socialCard: OpenGraphCard? {
+		OpenGraphCard(app: app, project: content.project)
 	}
 
 	var metadata: PageMetadata {
 		PageMetadata(
-			title: PageMetadata.titled("\(app.title): \(app.subtitle)"),
+			title: "\(app.title): \(app.subtitle)",
 			description: app.description,
 			socialTitle: app.title,
-			kind: .product,
-			image: PageMetadata.SocialImage(path: OpenGraphCard.path(for: app), description: "\(app.title) app"),
-			appStoreID: showsAppStoreBanner ? app.appStoreID : nil,
+			appStoreID: app.showsAppStoreBanner ? app.appStoreID : nil,
 			appStoreCampaign: app.appStoreBannerCampaign,
 			favicon: app.iconPath,
 			feeds: app.releaseNotes.map { [$0.feed] } ?? []
 		)
 	}
 
-	/**
-	Safari shows the banner on iOS, so only apps that run there get it.
-	*/
-	private var showsAppStoreBanner: Bool {
-		!app.isArchived && app.platforms.contains { $0 == .iOS || $0 == .visionOS }
-	}
-
 	var body: some HTML {
 		section {
 			// The random app page links to `#another-random-app`, which shows the “Another Random App” button. The ID is at the top, so the page does not scroll.
-			article(.id(.anotherRandomApp)) {
-				AppHero(app: app, price: content.appStoreInfo(of: app)?.priceText(isPaid: app.isPaid))
+			article(.id(AppHero.anotherRandomAppID)) {
+				let separatedContent = app.markdown.contentSeparatingIntroduction
 
-				if let availability = app.availabilityText {
-					p {
-						availability
-					}
-					.style(Styles.availability)
-				}
+				AppHero(app: app, info: appStoreInfo, introduction: separatedContent?.introduction)
 
+				// The space below is the space between the parts, so the screenshots are not far from it.
 				if let announcement = app.announcement {
 					AnnouncementBanner(announcement: announcement)
+						.style {
+							$0.margin(.top, .rootEm(4.5))
+						}
 				}
 
-				AppMedia(app: app)
+				if !app.media.isEmpty {
+					AppMedia(app: app)
+				}
 
 				if !app.pressQuotes.isEmpty {
 					PressQuotes(quotes: app.pressQuotes)
+						.style {
+							$0
+								.margin(.top, .rootEm(7))
+								.margin(.bottom, .rootEm(6))
+						}
 				}
 
-				let reviews = content.appStoreReviews(of: app)
-
-				if !reviews.isEmpty {
-					AppReviews(reviews: reviews)
+				// The rating is in the structured data, so it is shown without reviews too.
+				if !reviews.isEmpty || appStoreInfo?.rating != nil {
+					// The wall of love only has the reviews of the active apps, so another app, or an app without reviews, has no link to it.
+					AppReviews(reviews: reviews, rating: appStoreInfo?.rating, app: app.isActive && !reviews.isEmpty ? app : nil)
+						.style {
+							$0.margin(.bottom, .rootEm(6))
+						}
 				}
 
-				Prose(html: app.markdown.html)
-				RelatedApps(relatedApps: app.relatedApps(from: content.activeApps, on: content.buildDate))
+				Prose(markdown: separatedContent?.remainder ?? app.markdown.content)
+
+				// The end of the page is set apart from the text above it, like the FAQ.
+				if app.isDownloadable {
+					AppCallToAction(app: app, info: appStoreInfo)
+						.style {
+							$0.margin(.top, .rootEm(9))
+						}
+				}
+
+				// The links about the app belong to the app, so they come before the other apps.
+				AppFooterLinks(app: app)
+					.style {
+						$0.margin(.top, .rootEm(5))
+					}
+
+				let relatedApps = app.relatedApps(from: content.activeApps, on: content.buildDate)
+
+				if !relatedApps.isEmpty {
+					RelatedApps(relatedApps: relatedApps, content: content)
+						.style {
+							$0.margin(.top, .rootEm(8))
+						}
+				}
 			}
+			.style(Styles.article)
 		}
 		.style(Styles.root)
 
 		JSONScript(schema: structuredData)
-		ModuleScript("/scripts/app.js")
 
 		if let script = app.script {
-			ModuleScript(script.description)
+			ModuleScript(script)
 		}
 	}
 
+	private var appStoreInfo: AppStoreInfo? {
+		content.appStoreInfo(of: app)
+	}
+
+	/**
+	The three newest reviews. The wall of love has more.
+	*/
+	private var reviews: [AppStoreReview] {
+		Array(content.appStoreReviews(of: app).prefix(3))
+	}
+
+	/**
+	The color of the icon as the accent of the page, for the buttons and the links, also in the header.
+	*/
+	var tint: Color? {
+		app.tint
+	}
+
 	private var structuredData: Schema.SoftwareApplication {
-		var application = Schema.SoftwareApplication(
-			name: app.title,
-			description: app.description,
-			url: app.path.absoluteURL(site: Site.url),
-			applicationCategory: app.schemaCategory,
-			operatingSystem: app.operatingSystems,
-			author: .author,
-			datePublished: app.publicationDate.isoDay,
-			image: app.iconURL
-		)
-
-		application.screenshot = app.screenshotURLs.isEmpty ? nil : app.screenshotURLs
-
-		if
-			let info = content.appStoreInfo(of: app),
-			let appStoreURL = app.appStoreURL
-		{
-			application.downloadUrl = appStoreURL
-			application.softwareVersion = info.version
-
-			if let price = info.price, let currency = info.currency {
-				application.offers = Schema.Offer(url: appStoreURL, seller: .authorName, price: price, priceCurrency: currency)
-			}
-
-			if
-				let count = info.userRatingCount,
-				count > 0,
-				let rating = info.averageUserRating
-			{
-				application.aggregateRating = Schema.AggregateRating(ratingValue: (rating * 10).rounded() / 10, ratingCount: count)
-			}
-		}
-
-		return application
+		Schema.SoftwareApplication(app: app, info: appStoreInfo, reviews: reviews)
 	}
 }
 
 extension AppPage {
 	enum Styles: StyleSet {
 		case root
-		case availability
+		case article
 
 		var style: Style {
 			switch self {
 			case .root:
+				// Each part has its own width, like the app cards (``RelatedApps``), which are as wide as the content of the header.
 				Style()
-					.frame(maxWidth: .rem(64))
-					.margin(top: 0, horizontal: .auto, bottom: .rem(2.5))
+					.margin(.bottom, .rootEm(2.5))
 					.pagePadding()
-					.breakpoint(.lg) {
-						$0.margin(.top, .rem(-2.5))
+					.from(.laptop) {
+						$0.margin(.top, .rootEm(-2.5))
 					}
-			case .availability:
+			case .article:
+				// The parts of the page have no outer margins, so the page spaces them here. Some parts get more space around them, which the body sets where it shows them. The margins collapse, so the space between two parts is the larger of the bottom margin of the first and the top margin of the second, and the margins of the Markdown inside collapse into it too.
 				Style()
-					.margin(top: .rem(-6), horizontal: 0, bottom: .rem(8))
-					.font(.sm)
-					.textAlign(.center)
-					.color(.gray(500))
+					.flowSpacing(.rootEm(5))
 			}
 		}
 	}

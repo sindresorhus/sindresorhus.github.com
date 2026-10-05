@@ -5,6 +5,10 @@ import PackageDescription
 // Warnings fail the build, so they are fixed right away.
 let swiftSettings: [SwiftSetting] = [
 	.treatAllWarnings(as: .error),
+	.enableUpcomingFeature("ExistentialAny"),
+	.enableUpcomingFeature("MemberImportVisibility"),
+	.enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+	.enableUpcomingFeature("InferIsolatedConformances"),
 ]
 
 let package = Package(
@@ -18,8 +22,10 @@ let package = Package(
 	],
 	dependencies: [
 		.package(url: "https://github.com/elementary-swift/elementary.git", exact: "0.8.2"),
-		.package(url: "https://github.com/swiftlang/swift-markdown.git", exact: "0.9.0"),
-		.package(url: "https://github.com/jpsim/Yams.git", exact: "6.2.2"),
+		// A fork with footnotes, cmark extensions like autolinks, and GitHub alerts, which upstream does not have yet.
+		.package(url: "https://github.com/sindresorhus/swift-markdown.git", branch: "sindre-improvements"),
+		// Not tagged yet, so it is pinned to a commit.
+		.package(url: "https://github.com/soml-lang/SOMLSwift.git", revision: "23fe09312afc845b8a369c46bf9beaf5b46908f2"),
 		.package(url: "https://github.com/apple/swift-argument-parser.git", exact: "1.8.2"),
 		.package(url: "https://github.com/swiftlang/swift-syntax.git", "600.0.0"..<"605.0.0"),
 	],
@@ -45,7 +51,10 @@ let package = Package(
 				"SiteKitMacros",
 				.product(name: "Elementary", package: "elementary"),
 				.product(name: "Markdown", package: "swift-markdown"),
-				.product(name: "Yams", package: "Yams"),
+				.product(name: "SOML", package: "SOMLSwift"),
+				// The parser of Swift classifies the tokens of Swift code blocks for syntax highlighting.
+				.product(name: "SwiftParser", package: "swift-syntax"),
+				.product(name: "SwiftIDEUtils", package: "swift-syntax"),
 			],
 			swiftSettings: swiftSettings
 		),
@@ -55,6 +64,12 @@ let package = Package(
 				"RSS",
 				"SiteKit",
 				.product(name: "Elementary", package: "elementary"),
+			],
+			// The scripts of the elements, next to their Swift files. The build reads them from here, so a change shows in the preview without building the tool again. Each one must be listed, as SwiftPM has no patterns, and a list made with `FileManager` would miss new files, since SwiftPM caches the evaluated manifest.
+			// The scripts of the elements, which the build reads from the sources (`ElementScript`).
+			exclude: [
+				"Components/Scripts",
+				"Pages/1999/Scripts",
 			],
 			resources: [
 				.copy("Resources/Fonts"),

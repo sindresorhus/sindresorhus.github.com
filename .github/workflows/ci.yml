@@ -37,19 +37,21 @@ jobs:
           restore-keys: build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-
       - name: Check browser script syntax
         run: |
-          for file in public/scripts/*.js public/apps/*/*.js; do
+          for file in public/scripts/*.js content/*/*/*.js; do
             node --check "$file"
           done
       # Debug, like the tests, so one build serves both. A release build takes 8–10 s longer to compile on CI and saves only about 1 s when building the site. Keep it debug.
       - name: Build
         run: swift build --build-tests -Xswiftc -Xfrontend -Xswiftc -warn-long-expression-type-checking=200
+      # The tests use Swift Testing only, so the XCTest runner is skipped.
       - name: Test
-        run: swift test --skip-build
+        run: swift test --skip-build --disable-xctest
+      # The executable runs directly, as `swift run` first spends seconds checking the build.
       - name: Build site
         env:
           # Authenticated requests have a much higher GitHub API rate limit.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: swift run --skip-build website build
+        run: .build/debug/website build
       # A deploy is skipped when the site is the same as the published one. The related apps rotate daily, so the nightly build changes the app pages once a day.
       - name: Compare with the published site
         id: compare
@@ -66,6 +68,8 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && steps.compare.outputs.changed == 'true'
         with:
           path: dist
+          # For `.well-known/webfinger`.
+          include-hidden-files: true
 
   deploy:
     needs: build
@@ -95,3 +99,12 @@ jobs:
             --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
             --header "Content-Type: application/json" \
             --data '{"purge_everything":true}'
+      # Tells Bing and the other IndexNow search engines (they feed ChatGPT search, Copilot, and DuckDuckGo) about the pages, so they find changes sooner. The key is the published `indexnow.txt`. A failure does not fail the deploy. Not for the nightly deploys, which mostly change the rotating related apps, as IndexNow is for changed pages.
+      - name: Notify IndexNow
+        if: github.event_name != 'schedule'
+        continue-on-error: true
+        run: |
+          key="$(curl --fail --silent --show-error https://sindresorhus.com/indexnow.txt)"
+          urls="$(curl --fail --silent --show-error https://sindresorhus.com/sitemap-0.xml | grep -o '<loc>[^<]*</loc>' | sed -e 's/<loc>//' -e 's/<\/loc>//' | jq --raw-input . | jq --slurp .)"
+          jq --null-input --arg key "$key" --argjson urls "$urls" '{host: "sindresorhus.com", key: $key, keyLocation: "https://sindresorhus.com/indexnow.txt", urlList: $urls}' \
+            | curl --fail --silent --show-error --request POST https://api.indexnow.org/indexnow --header "Content-Type: application/json; charset=utf-8" --data @-

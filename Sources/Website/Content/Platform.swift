@@ -1,11 +1,27 @@
-public enum Platform: String, CaseIterable, Codable, Sendable {
+enum Platform: String, CaseIterable, Codable, Sendable {
 	case macOS
 	case iOS
 	case watchOS
 	case tvOS
 	case visionOS
-	case Linux
-	case Windows
+
+	/**
+	A device of the platform, like a laptop for macOS.
+	*/
+	var icon: Icon {
+		switch self {
+		case .macOS:
+			.deviceLaptop
+		case .iOS:
+			.deviceMobile
+		case .watchOS:
+			.deviceWatch
+		case .tvOS:
+			.deviceTV
+		case .visionOS:
+			.deviceVisionPro
+		}
+	}
 }
 
 /**
@@ -13,7 +29,7 @@ A macOS version that has a free older version of an app.
 
 Future versions are listed ahead of time on purpose, so the list never needs updating. Keep it an enum, and do not remove the future cases.
 */
-public enum MacOSVersion: String, CaseIterable, Codable, Sendable {
+enum MacOSVersion: String, CaseIterable, Codable, Sendable {
 	case v10_13 = "10.13"
 	case v10_14 = "10.14"
 	case v10_15 = "10.15"

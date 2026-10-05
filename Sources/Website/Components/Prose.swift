@@ -19,7 +19,7 @@ struct Prose<Content: HTML>: HTML {
 	let variant: Variant
 	let content: Content
 
-	init(variant: Variant = .standard, @HTMLBuilder content: () -> Content) {
+	init(variant: Variant = .standard, @ContentBuilder content: () -> Content) {
 		self.variant = variant
 		self.content = content()
 	}
@@ -33,13 +33,13 @@ struct Prose<Content: HTML>: HTML {
 	}
 }
 
-extension Prose where Content == HTMLRaw {
+extension Prose where Content == MarkdownContent {
 	/**
-	Rendered Markdown.
+	Rendered Markdown, which adds the styles of its block directives to the page.
 	*/
-	init(html: String, variant: Variant = .standard) {
+	init(markdown: MarkdownContent, variant: Variant = .standard) {
 		self.init(variant: variant) {
-			HTMLRaw(html)
+			markdown
 		}
 	}
 }
@@ -53,19 +53,11 @@ enum ProseStyles: StyleSet {
 	case root
 	case article
 
-	/**
-	Opts the element and its content out of the prose styles, like components that are not text.
-	*/
-	case excluded
-
 	case footnotes
 	case footnoteReference
 	case footnotePopover
-	case codeBlock
-	case codeBlockBar
-	case codeBlockLanguage
-	case copyButton
 	case keySeparator
+	case tableContainer
 	case alert
 	case alertNote
 	case alertTip
@@ -82,16 +74,18 @@ enum ProseStyles: StyleSet {
 	case collapsibleContent
 	case collapsibleMoreLink
 	case anchoredHeading
+	case anchoredSection
 	case headingAnchor
 	case headingAnchorLinkIcon
 	case headingAnchorCheckIcon
+	case listSubtitle
+	case listDescription
 
 	/**
-	Every style is scoped up to the excluded elements. Scoping them all also makes the closest one win over the prose root, like an alert inside prose, as the nearest scope wins when specificity is equal.
+	Every style is scoped, so the closest one wins over the prose root, like an alert inside prose, as the nearest scope wins when specificity is equal.
 	*/
 	var style: Style {
-		// `not-prose` is used in the raw HTML of the content.
-		definition.scope(excluding: ":is(\(Self.excluded.selector), .not-prose)")
+		definition.scoped()
 	}
 
 	private var definition: Style {
@@ -103,24 +97,16 @@ enum ProseStyles: StyleSet {
 				.combined(with: Self.keyboardKeys)
 		case .article:
 			Self.articleStyle
-		case .excluded:
-			Style()
 		case .footnotes:
 			Self.footnotesStyle
 		case .footnoteReference:
 			Self.footnoteReferenceStyle
 		case .footnotePopover:
 			Self.footnotePopoverStyle
-		case .codeBlock:
-			Self.codeBlockStyle
-		case .codeBlockBar:
-			Self.codeBlockBarStyle
-		case .codeBlockLanguage:
-			Self.codeBlockLanguageStyle
-		case .copyButton:
-			Self.copyButtonStyle
 		case .keySeparator:
 			Self.keySeparatorStyle
+		case .tableContainer:
+			Self.tableContainerStyle
 		case .alert:
 			Self.alertStyle
 		case .alertNote:
@@ -153,12 +139,18 @@ enum ProseStyles: StyleSet {
 			Self.collapsibleMoreLinkStyle
 		case .anchoredHeading:
 			Self.anchoredHeadingStyle
+		case .anchoredSection:
+			Self.anchoredSectionStyle
 		case .headingAnchor:
 			Self.headingAnchorStyle
 		case .headingAnchorLinkIcon:
 			Style()
 		case .headingAnchorCheckIcon:
 			Self.headingAnchorCheckIconStyle
+		case .listSubtitle:
+			Self.listSubtitleStyle
+		case .listDescription:
+			Self.listDescriptionStyle
 		}
 	}
 }
@@ -168,16 +160,6 @@ extension MarkdownTheme {
 	The classes of the site's styles for the markup that the Markdown renderer creates.
 	*/
 	static let site = Self { element in
-		// The same class names as in the raw HTML of the content, so both forms look the same.
-		switch element {
-		case .listSubtitle:
-			return "list-subtitle"
-		case .listDescription:
-			return "list-description"
-		default:
-			break
-		}
-
 		let styles: [any StyleSet] = switch element {
 		case .alert(let kind):
 			[ProseStyles.alert, kind.style]
@@ -193,18 +175,12 @@ extension MarkdownTheme {
 			[ProseStyles.footnoteReference]
 		case .footnotePopover:
 			[ProseStyles.footnotePopover]
-		case .codeBlock:
-			[ProseStyles.codeBlock]
-		case .codeBlockBar:
-			[ProseStyles.codeBlockBar]
-		case .codeBlockLanguage:
-			[ProseStyles.codeBlockLanguage]
-		case .copyButton:
-			[ProseStyles.copyButton]
 		case .visuallyHidden:
 			[VisuallyHidden.Styles.root]
 		case .keySeparator:
 			[ProseStyles.keySeparator]
+		case .tableContainer:
+			[ProseStyles.tableContainer]
 		case .collapsibleSections:
 			[ProseStyles.collapsibleSections]
 		case .collapsibleSection:
@@ -221,14 +197,18 @@ extension MarkdownTheme {
 			[ProseStyles.collapsibleMoreLink]
 		case .anchoredHeading:
 			[ProseStyles.anchoredHeading]
+		case .anchoredSection:
+			[ProseStyles.anchoredSection]
 		case .headingAnchor:
 			[ProseStyles.headingAnchor]
 		case .headingAnchorLinkIcon:
 			[ProseStyles.headingAnchorLinkIcon]
 		case .headingAnchorCheckIcon:
 			[ProseStyles.headingAnchorCheckIcon]
-		case .listSubtitle, .listDescription:
-			[]
+		case .listSubtitle:
+			[ProseStyles.listSubtitle]
+		case .listDescription:
+			[ProseStyles.listDescription]
 		}
 
 		return styles.map(\.className).joined(separator: " ")

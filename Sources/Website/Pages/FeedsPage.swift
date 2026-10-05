@@ -10,43 +10,37 @@ struct FeedsPage: Page {
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: PageMetadata.titled("RSS Feeds"), description: "RSS feeds for the blog, new apps, new repos, and app release notes by Sindre Sorhus.")
+		PageMetadata(title: "RSS Feeds", description: "RSS feeds for the blog, new apps, new repos, and app release notes by Sindre Sorhus.")
 	}
 
 	var body: some HTML {
-		ProsePage(isSpacious: true) {
-			h1 {
-				"RSS Feeds"
-			}
-
+		ProsePage(title: "RSS Feeds") {
 			div {
 				for feed in SiteFeed.allCases {
 					FeedCard(feed: feed)
 				}
 			}
-			.style(ProseStyles.excluded, Styles.primaryGrid)
+			.style(Styles.primaryGrid)
 
-			h2 {
-				"App Release Notes"
-			}
+			Section("App Release Notes") {
+				div {
+					for app in apps.sorted(using: KeyPathComparator(\.title, comparator: .localizedStandard)) {
+						if let feed = app.releaseNotes?.feed {
+							a(.href(feed.path)) {
+								AppIcon(decorative: app, size: 40)
+									.style(Styles.appIcon)
 
-			div {
-				for app in apps.sorted(using: KeyPathComparator(\.title, comparator: .localizedStandard)) {
-					if let feed = app.releaseNotes?.feed {
-						a(.href(feed.path)) {
-							AppIcon(app, size: 40)
-								.style(Styles.appIcon)
-
-							span {
-								app.title
+								span {
+									app.title
+								}
+								.style(Styles.appTitle)
 							}
-							.style(Styles.appTitle)
+							.style(Styles.appCard)
 						}
-						.style(Styles.appCard)
 					}
 				}
+				.style(Styles.appGrid)
 			}
-			.style(ProseStyles.excluded, Styles.appGrid)
 		}
 	}
 
@@ -88,53 +82,55 @@ extension FeedsPage {
 			case .primaryGrid:
 				Style()
 					.display(.grid)
-					.gap(.rem(0.75))
-					.margin(.top, .rem(2))
-					.breakpoint(.sm) {
+					.gap(.rootEm(1))
+					.from(.smallTablet) {
 						$0.gridColumns(3)
 					}
 			case .appGrid:
 				Style()
 					.display(.grid)
-					.gap(.rem(0.5))
-					.margin(.top, .rem(1.5))
-					.breakpoint(.sm) {
+					.gap(.rootEm(1))
+					.from(.smallTablet) {
 						$0.gridColumns(2)
 					}
 			case .card:
+				// The cards are links in prose, but do not look like text links.
 				Style()
 					.cardSurface()
 					.display(.block)
-					.padding(.rem(1))
+					.fontWeight(.regular)
+					.padding(.rootEm(1))
 					.nested(Icon.selector) {
 						$0
-							.margin(.bottom, .rem(0.75))
+							.margin(.bottom, .rootEm(0.75))
 							.color(.primary(500))
 					}
 			case .cardTitle:
 				Style()
 					.display(.block)
 					.bold()
-					.color(.slate(950), dark: .white)
+					.color(.primaryText)
 			case .cardSubtitle:
 				Style()
 					.display(.block)
-					.margin(.top, .rem(0.25))
-					.font(.sm)
-					.color(.slate(600), dark: .slate(300))
+					.margin(.top, .rootEm(0.25))
+					.textStyle(.caption)
+					.color(.secondaryText)
 			case .appCard:
 				Style()
 					.cardSurface()
-					.hstack(alignment: .center, spacing: .rem(0.75))
-					.padding(.rem(0.75))
+					.hstack(alignment: .center, spacing: .rootEm(0.75))
+					.padding(.rootEm(0.75))
 			case .appIcon:
+				// Not like an image in prose.
 				Style()
-					.frame(width: .rem(2.5), height: .rem(2.5))
-					.cornerRadius(.rem(0.75))
+					.plainImage()
+					.frame(width: .rootEm(2.5), height: .rootEm(2.5))
+					.cornerRadius(.rootEm(0.75))
 			case .appTitle:
 				Style()
 					.fontWeight(.semibold)
-					.color(.slate(900), dark: .white)
+					.color(.primaryText)
 			}
 		}
 	}

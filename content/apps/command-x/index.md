@@ -1,0 +1,137 @@
+---
+title: 'Command X'
+subtitle: 'Cut and paste files in Finder'
+publicationDate: '2023-04-30'
+platforms: [
+	'macOS'
+]
+isPaid: true
+isMenuBarApp: true
+appStoreID: 6448461551
+hasSentry: true
+olderVersions: [
+	{
+		version: '1.6.2'
+		macOS: '15'
+		url: 'https://www.dropbox.com/scl/fi/90rakqppxdnryctolu9rc/Command-X-1.6.2-macOS-15-1775377612.zip?rlkey=hwh8im5sol3bnc7chqjursf7a&raw=1'
+	}
+	{
+		version: '1.4.7'
+		macOS: '14'
+		url: 'https://github.com/user-attachments/files/19031153/Command.X.1.4.7.-.macOS.14.zip'
+	}
+	{
+		version: '1.3.1'
+		macOS: '13'
+		url: 'https://github.com/sindresorhus/meta/files/13987707/Command.X.1.3.1.-.macOS.13.zip'
+	}
+]
+pressQuotes: [
+	{
+		quote: 'If you do a lot of file management and need to move items in Finder, this app will make your work much more straightforward. It’s objectively better than Apple’s standard shortcut, and pretty much everyone can benefit from it.'
+		source: 'Softpedia'
+		url: 'https://mac.softpedia.com/get/System-Utilities/Command-X.shtml'
+	}
+]
+feedbackNote:
+	'''
+	### If you get a “Failed to listen to system events” error or getting continuously re-prompted about permissions after updating to macOS 27, try [resetting privacy permissions](/apps/faq#mac-reset-permissions) and then restart your system. macOS sometimes corrupts these when updating...
+
+	[The app randomly disappears/quits](/apps/faq#randomly-quits)
+	'''
+---
+
+Cut and paste files and folders in Finder with Command+X and Command+V, instead of copying (Command+C) and then remembering to move (Option+Command+V).
+
+Known limitation: You cannot cut the name of a file when editing a filename in Finder or cut when using the search field. [Learn more.](#textfield-limitation)
+
+### Mentions
+
+- [Review by Softpedia](https://mac.softpedia.com/get/System-Utilities/Command-X.shtml)
+- [10 Mac Apps That Will Change How You Use macOS in 2026](https://www.youtube.com/watch?v=LtuUwACZdsQ&t=426s)
+
+<br>
+
+> [!TIP]
+> You may also like my [Supercharge](/supercharge) app which has an [improved implementation](#textfield-limitation) of this.
+
+## Frequently Asked Questions {#faq}
+
+### Why? I can already use <kbd>Option+Command+V</kbd>
+
+- It’s more logical to cut & paste than copy & move.
+- Consistency and muscle memory benefits if you also use Linux or Windows.
+
+### The app does not work {#not-working}
+
+First try relaunching the app. If that doesn’t help, try restarting your computer.
+
+Then, make sure you pressed <kbd>Command+X</kbd> and not <kbd>Command+C</kbd>.
+
+To make sure you used the app correctly, try this: Select a file in Finder, press <kbd>Command+X</kbd>, change to a different folder, press <kbd>Command+V</kbd>. The file should have been moved to this new folder.
+
+**Note:** You cannot cut, highlight a folder, and then paste. You have to actually go into the folder to paste to it. That’s just how Finder works. Same with copy-pasting.
+
+**It could also be that certain apps (password managers and browsers) are [interfering with the app](/apps/faq#secure-input-problem).**
+
+If still not working, try closing down all apps and menu bar items, just to rule out some other app interfering.
+
+Then try toggling the setting “Use more reliable way of handling Command+X”, and try the above steps again. If it works then, please report it to me.
+
+If it’s still not working, try this: Select a file in Finder, press <kbd>Command+C</kbd>, change to a different folder, press <kbd>Option+Command+V</kbd>. The file should have been moved to this new folder. If this did not work, the problem is not this app, as those are the keyboard shortcuts it simulates.
+
+If it’s a work computer, your company may have something installed that prevents the app from working.
+
+Try uninstalling and reinstalling the app, and restart your computer.
+
+If it’s still not working, try re-granting access:
+1. Open “System Settings › Privacy & Security › Device Control and Data Access”
+2. Remove Command X from the list
+3. Quit and reopen Command X
+4. Grant accessibility access when prompted
+
+*Note: “Device Control and Data Access” is “Accessibility” on macOS 26 and lower.*
+
+The last thing you could try is to reset the permissions. Either use [App Buddy](/app-buddy), or quit the app, and run this in the Terminal app:
+
+```sh
+tccutil reset All com.sindresorhus.Command-X
+```
+
+To help me figure out the issue, make sure the “Use more reliable way of handling Command+X” setting is enabled, press <kbd>Command+X</kbd> and <kbd>Command+V</kbd> in Finder, click the “Copy Debug Info” button in the Command X menu bar menu, and then [send the debug info to me](/feedback?product=Command%20X&referrer=Website-FAQ), including a short explanation of what didn’t work.
+
+### How does the app work?
+
+The app works by overriding the normal cut <kbd>⌘X</kbd> keyboard shortcut when Finder is active and executes a copy <kbd>⌘C</kbd> instead. When you then paste <kbd>⌘V</kbd>, it executes the native move <kbd>⌥⌘V</kbd> keyboard shortcut. So really, it’s Finder moving the files. This app just makes the keyboard shortcuts more intuitive.
+
+### Is there any risk of data loss if I forget to paste?
+
+No. The files are not touched until you paste. If you don’t paste, the files just stay in place.
+
+### Can I move files by clicking the “Paste” menu item?
+
+No, you can only use the keyboard shortcuts. The app works by overriding the original keyboard shortcuts. There is no way to override the Finder menu items.
+
+### Can it make the cut files in Finder have less opacity?
+
+This is not possible. The app works by overriding some key combinations. It doesn’t and cannot modify Finder in any way.
+
+### Can I change the volume of the cutting sound?
+
+The cutting sound is a macOS system sound effect, so its volume follows the alert volume in “System Settings › Sound”. The sound also requires “Play user interface sound effects” to be enabled there.
+
+### It does not work when I try to paste directly to an expanded subfolder shown in its parent folder
+
+This is a Finder bug. You can reproduce it even without Command X by selecting the file to move, pressing <kbd>Command+C</kbd>, selecting the destination folder, and then pressing <kbd>Option+Command+V</kbd>.
+
+### It does not work when I try to paste into a folder in column view where the parent is a tag
+
+Same as the above.
+
+### I am not able to cut text when editing a filename in Finder {#textfield-limitation}
+
+This is a known issue that is unfortunately not fixable. The app works by overriding the normal cut keyboard shortcut when Finder is active, which also affects cutting text in a filename. There is no way to differentiate between cutting a file and cutting text in a filename in Finder. The main reason this is not possible is because of restrictions ([sandboxing](/apps/faq#macos-sandbox)) imposed on apps on the App Store. My [Supercharge](/supercharge) app has the Command X feature without this rename limitation because it’s not on the App Store.
+
+### I am not able to cut text in the search field in Finder
+
+Same as the above.

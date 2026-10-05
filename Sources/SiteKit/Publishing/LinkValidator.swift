@@ -1,9 +1,9 @@
 import Foundation
 
 /**
-Finds problems with the internal links in the published HTML: links to missing files, links to missing fragment IDs, and IDs that are used twice on a page, which makes fragment links ambiguous.
+Finds problems with the internal links in the published HTML: links to missing files, links to missing fragment IDs, IDs that are used twice on a page, which makes fragment links ambiguous, and references to IDs that are not on the page, like `aria-labelledby` of a dialog.
 
-It checks `href` and `src` attributes, and the `og:image` and `og:url` meta tags.
+It checks `href` and `src` attributes, the `og:image` and `og:url` meta tags, and the attributes that refer to elements by ID (``idReferenceAttributes``), in the pages and redirects of the routes. Public files are copied as they are, so their links are not checked.
 */
 public struct LinkValidator: Sendable {
 	public struct BrokenLink: Hashable, Sendable, CustomStringConvertible {
@@ -15,16 +15,31 @@ public struct LinkValidator: Sendable {
 			The page has more than one element with the ID. The link is the ID as a fragment, like `#faq`.
 			*/
 			case duplicateID
+
+			/**
+			An attribute that refers to an element by ID, like `aria-labelledby`, refers to an ID that is not on the page. The link is the attribute, like `aria-labelledby="title"`.
+			*/
+			case missingReference
 		}
 
 		/**
 		The page that contains the link.
 		*/
-		public let page: String
+		public let page: RoutePath
 		public let link: String
 		public let problem: Problem
 
+		/**
+		The page, the link, and the problem, like `/about: /apps#missing (missing fragment)`.
+		*/
 		public var description: String {
+			description(at: page.description)
+		}
+
+		/**
+		The link and the problem after where the link is, like `content/about.md:12: /apps#missing (missing fragment)`.
+		*/
+		public func description(at location: String) -> String {
 			let note = switch problem {
 			case .missingFile:
 				""
@@ -32,9 +47,11 @@ public struct LinkValidator: Sendable {
 				" (missing fragment)"
 			case .duplicateID:
 				" (duplicate ID)"
+			case .missingReference:
+				" (missing ID)"
 			}
 
-			return "\(page): \(link)\(note)"
+			return "\(location): \(link)\(note)"
 		}
 	}
 
@@ -44,61 +61,72 @@ public struct LinkValidator: Sendable {
 	nonisolated(unsafe) private static let id = /\sid="([^"]+)"/
 	nonisolated(unsafe) private static let link = /\s(href|src)="([^"]+)"|\sproperty="og:(?:image|url)" content="([^"]+)"/
 
+	/**
+	The attributes that refer to other elements of the page by ID. Some take a list of IDs, separated by spaces.
+	*/
+	public static let idReferenceAttributes = ["aria-labelledby", "aria-describedby", "aria-controls", "aria-owns", "for", "list", "popovertarget", "commandfor"]
+
+	nonisolated(unsafe) private static let idReference = try! Regex<(Substring, Substring, Substring)>(#"\s(\#(idReferenceAttributes.joined(separator: "|")))="([^"]*)""#)
+
 	public init(site: URL, output: URL) {
 		self.site = site
-		self.output = output.resolvingSymlinksInPath()
+		self.output = output
 	}
 
 	/**
-	The problems, sorted by page and link. The pages are checked in parallel.
+	The problems in the published routes, sorted by page and link. The pages are checked in parallel.
+
+	- Parameter files: Every published file, relative to the output directory, as ``Publisher/publish(_:)`` returns them. Links resolve against these, like GitHub Pages resolves them, and with the same case, as the web server does not ignore case like the disk may.
 	*/
-	public func brokenLinks() async throws -> [BrokenLink] {
-		let pages = try htmlFiles()
+	public func brokenLinks(in routes: [Route], files: Set<String>) async throws -> [BrokenLink] {
+		let pages = routes.filter { $0.outputFile.hasSuffix(".html") }
 
-		// The IDs of every page, to check fragments in links to other pages.
-		let ids = try await withThrowingTaskGroup(of: (String, [String]).self) { group in
+		// The HTML and the IDs of every page, to check fragments in links to other pages.
+		let pagesWithIDs = try await withThrowingTaskGroup { group in
 			for page in pages {
 				group.addTask {
-					let html = try String(contentsOf: page, encoding: .utf8)
-					return (page.path(relativeTo: output), html.matches(of: Self.id).map { String($0.1).removingPercentEncoding ?? String($0.1) })
+					let html = try String(contentsOf: output.appending(path: page.outputFile), encoding: .utf8)
+					// As written, as an ID is literal text. Only the fragment of a link is percent-decoded.
+					let ids = html.matches(of: Self.id).map { String($0.1).decodingHTMLEscapes }
+					return (page: page, html: html, ids: ids)
 				}
 			}
 
-			return try await group.reduce(into: [String: [String]]()) { $0[$1.0] = $1.1 }
+			return try await group.reduce(into: []) { $0.append($1) }
 		}
 
-		let idsByFile = ids.mapValues(Set.init)
+		let idsByFile = Dictionary(uniqueKeysWithValues: pagesWithIDs.map { ($0.page.outputFile, Set($0.ids)) })
 
-		// The exact paths of all files. The disk may ignore case, but the web server does not, so `/Apps` must not pass for `/apps`.
-		let files = Set(try output.filesRecursively().map(pathAsWritten))
-
-		let brokenLinks = try await withThrowingTaskGroup(of: [BrokenLink].self) { group in
-			for page in pages {
+		let brokenLinks = await withTaskGroup { group in
+			for page in pagesWithIDs {
 				group.addTask {
-					try brokenLinks(on: page, ids: ids[page.path(relativeTo: output)] ?? [], idsByFile: idsByFile, files: files)
+					brokenLinks(on: page.page.path, html: page.html, ids: page.ids, idsByFile: idsByFile, files: files)
 				}
 			}
 
-			return try await group.reduce(into: [BrokenLink]()) { $0 += $1 }
+			return await group.reduce(into: [BrokenLink]()) { $0 += $1 }
 		}
 
-		return Set(brokenLinks).sorted(using: [KeyPathComparator(\.page, comparator: String.StandardComparator.lexical), KeyPathComparator(\.link, comparator: String.StandardComparator.lexical)])
+		return Set(brokenLinks).sorted(using: [KeyPathComparator(\.page.description, comparator: String.StandardComparator.lexical), KeyPathComparator(\.link, comparator: String.StandardComparator.lexical)])
 	}
 
-	private func brokenLinks(on page: URL, ids: [String], idsByFile: [String: Set<String>], files: Set<String>) throws -> [BrokenLink] {
-		let html = try String(contentsOf: page, encoding: .utf8)
-		let pagePath = routePath(of: page)
-		let base = site.appending(path: pagePath)
+	private func brokenLinks(on page: RoutePath, html: String, ids: [String], idsByFile: [String: Set<String>], files: Set<String>) -> [BrokenLink] {
+		let base = page.absoluteURL(site: site)
 		var brokenLinks = [BrokenLink]()
-
 		var seenIDs = Set<String>()
 
 		for id in ids where !seenIDs.insert(id).inserted {
-			brokenLinks.append(BrokenLink(page: pagePath, link: "#\(id)", problem: .duplicateID))
+			brokenLinks.append(BrokenLink(page: page, link: "#\(id)", problem: .duplicateID))
+		}
+
+		for match in html.matches(of: Self.idReference) {
+			for id in String(match.2).decodingHTMLEscapes.split(whereSeparator: \.isWhitespace) where !seenIDs.contains(String(id)) {
+				brokenLinks.append(BrokenLink(page: page, link: "\(match.1)=\"\(id)\"", problem: .missingReference))
+			}
 		}
 
 		for match in html.matches(of: Self.link) {
-			guard let link = (match.2 ?? match.3).map(String.init) else {
+			guard let link = (match.2 ?? match.3).map({ String($0).decodingHTMLEscapes }) else {
 				continue
 			}
 
@@ -111,11 +139,8 @@ public struct LinkValidator: Sendable {
 				continue
 			}
 
-			guard
-				let target = output.servedFile(forPath: resolved.path(percentEncoded: true)),
-				files.contains(pathAsWritten(of: target))
-			else {
-				brokenLinks.append(BrokenLink(page: pagePath, link: link, problem: .missingFile))
+			guard let target = resolved.path(percentEncoded: true).servedFileCandidates.first(where: files.contains) else {
+				brokenLinks.append(BrokenLink(page: page, link: link, problem: .missingFile))
 				continue
 			}
 
@@ -123,35 +148,39 @@ public struct LinkValidator: Sendable {
 				match.1 != "src",
 				let fragment = resolved.fragment?.removingPercentEncoding,
 				!fragment.isEmpty,
-				target.pathExtension == "html"
+				// The browser scrolls to the top for `#top` when no element has that ID.
+				fragment.lowercased() != "top",
+				target.hasSuffix(".html")
 			else {
 				continue
 			}
 
-			if idsByFile[target.path(relativeTo: output)]?.contains(fragment) != true {
-				brokenLinks.append(BrokenLink(page: pagePath, link: link, problem: .missingFragment))
+			// Public HTML files are not checked, so their IDs are not known.
+			if
+				let targetIDs = idsByFile[target],
+				!targetIDs.contains(fragment)
+			{
+				brokenLinks.append(BrokenLink(page: page, link: link, problem: .missingFragment))
 			}
 		}
 
 		return brokenLinks
 	}
+}
 
+extension String {
 	/**
-	The path of a file in the output, relative to it, in the case it is written in. Unlike `path(relativeTo:)`, it does not resolve symlinks, which gives the case on disk.
+	The text of an HTML attribute value, with the escapes that HTML writes decoded, like `&amp;` to `&`. `&amp;` is last, so `&amp;lt;` is `&lt;`, not `<`.
 	*/
-	private func pathAsWritten(of file: URL) -> String {
-		String(file.standardizedFileURL.path(percentEncoded: false).dropFirst(output.standardizedFileURL.path(percentEncoded: false).count).drop { $0 == "/" })
-	}
+	fileprivate var decodingHTMLEscapes: String {
+		guard contains("&") else {
+			return self
+		}
 
-	/**
-	Throws if the output directory does not exist, so a wrong path does not pass with nothing checked.
-	*/
-	private func htmlFiles() throws -> [URL] {
-		try output.filesRecursively().filter { $0.pathExtension == "html" }
-	}
-
-	private func routePath(of file: URL) -> String {
-		let relative = file.path(relativeTo: output)
-		return relative == "index.html" ? "/" : "/" + relative.replacing(/\.html$/, with: "")
+		return replacing("&lt;", with: "<")
+			.replacing("&gt;", with: ">")
+			.replacing("&quot;", with: "\"")
+			.replacing("&#39;", with: "'")
+			.replacing("&amp;", with: "&")
 	}
 }

@@ -4,49 +4,47 @@ import SiteKit
 /**
 A link with a visible label, like a button in the app header.
 */
-@Frontmatter
-public struct LabeledLink: Hashable {
-	public var title: String
+struct LabeledLink: Hashable, Sendable {
+	var title: String
+	var destination: LinkDestination
 
-	@Key("url")
-	public var destination: LinkDestination
+	var description: String?
 
-	public var description: String?
-
-	public init(_ title: String, destination: LinkDestination, description: String? = nil) {
+	init(_ title: String, destination: LinkDestination, description: String? = nil) {
 		self.title = title
 		self.destination = destination
 		self.description = description
 	}
 
-	public init(_ title: String, url: URL) {
+	init(_ title: String, url: URL) {
 		self.init(title, destination: .url(url))
 	}
 
-	public init(_ title: String, path: RoutePath) {
+	init(_ title: String, path: RoutePath) {
 		self.init(title, destination: .path(path))
-	}
-
-	/**
-	The link for an `href` attribute.
-	*/
-	public var href: String {
-		destination.description
 	}
 }
 
 /**
-Links under a heading, like the groups in `content/apps-extra.json`.
+The pages about all the apps, which the site footer, the apps page, and the menus of the app pages link to, so they have the same title everywhere. The footer and the menus only show the title.
 */
-@Frontmatter
-public struct LinkGroup {
-	@Key("label")
-	public var title: String
+extension LabeledLink {
+	static let faq = Self("FAQ", destination: .path(.faq), description: "Frequently asked questions about my apps")
+	static let appTimeline = Self("Timeline", destination: .path(.appTimeline), description: "Every app by the year it came out")
+	static let wallOfLove = Self("Wall of Love", destination: .path(.reviews), description: "What the press and App Store reviewers say")
+	static let olderVersions = Self("Older Versions", destination: .path(.olderVersions), description: "Apps for older macOS versions")
+	static let discounts = Self("Discounts", destination: .path(.discounts), description: "Student discounts and special offers for my apps")
+	static let termsOfUse = Self("Terms of Use", destination: .path(.terms), description: "Guidelines and conditions for using my apps")
+}
 
-	@Key("items")
-	public var links: [LabeledLink]
+/**
+Links under a heading, like the app categories.
+*/
+struct LinkGroup: Sendable {
+	var title: String
+	var links: [LabeledLink]
 
-	public init(title: String, links: [LabeledLink]) {
+	init(title: String, links: [LabeledLink]) {
 		self.title = title
 		self.links = links
 	}

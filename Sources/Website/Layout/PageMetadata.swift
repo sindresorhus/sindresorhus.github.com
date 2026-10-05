@@ -4,21 +4,15 @@ import SiteKit
 /**
 What the head says about a page: title, description, social previews, and robots rules.
 */
-struct PageMetadata: Sendable {
-	enum Kind: Sendable {
+struct PageMetadata {
+	enum Kind {
 		case website
-		case blog
-		case product
 		case article(publishedAt: Date, tags: [BlogPost.Tag])
 
 		var openGraphType: String {
 			switch self {
 			case .website:
 				"website"
-			case .blog:
-				"blog"
-			case .product:
-				"product"
 			case .article:
 				"article"
 			}
@@ -26,33 +20,18 @@ struct PageMetadata: Sendable {
 	}
 
 	/**
-	The preview image for social media. Defaults to the site card.
+	The title of the page, like “Apps” or “Older Versions — Apps”. The document title adds the site name.
 	*/
-	struct SocialImage: Sendable {
-		let path: RoutePath
-		let description: String
-
-		static let site = Self(path: OpenGraphCard.site, description: Site.name)
-	}
-
-	/**
-	A feed for feed readers to discover.
-	*/
-	struct Feed: Sendable {
-		let title: String
-		let path: RoutePath
-	}
-
 	var title: String
+
 	var description: String?
 
 	/**
-	The title in social previews. Defaults to the title.
+	The title in social previews. Defaults to the document title.
 	*/
 	var socialTitle: String?
 
 	var kind = Kind.website
-	var image = SocialImage.site
 
 	/**
 	Whether search engines may index the page.
@@ -62,19 +41,19 @@ struct PageMetadata: Sendable {
 	/**
 	Shows the App Store banner in Safari on iOS.
 	*/
-	var appStoreID: Int?
+	var appStoreID: AppStoreID?
 
 	/**
 	The campaign of the App Store banner, like `pt=123&ct=web-smart-banner`.
 	*/
 	var appStoreCampaign: String?
 
-	var favicon = "/favicon.png"
+	var favicon: RoutePath = "/favicon.png"
 
 	/**
 	Feeds in addition to the site-wide feeds.
 	*/
-	var feeds = [Feed]()
+	var feeds = [FeedLink]()
 
 	/**
 	Origins the page will connect to soon, like a form endpoint.
@@ -82,9 +61,9 @@ struct PageMetadata: Sendable {
 	var preconnectOrigins = [String]()
 
 	/**
-	A title like “Apps — Sindre Sorhus” or “Older Versions — Apps — Sindre Sorhus”.
+	The title with the site name, like “Apps — Sindre Sorhus”, for the browser tab and search results. The home page has only the site name.
 	*/
-	static func titled(_ parts: String...) -> String {
-		(parts + [Site.name]).joined(separator: " — ")
+	var documentTitle: String {
+		title == Site.name ? title : "\(title) — \(Site.name)"
 	}
 }

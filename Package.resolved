@@ -1,5 +1,5 @@
 {
-  "originHash" : "6e83e53b568d9b4c9a54dbd80ae67c140ccfd3630a230c2f5d908f4ef2ce20da",
+  "originHash" : "d0fb0988054dc69afa17d30d4f46f13d2597c2be049efabaa76d19631748e987",
   "pins" : [
     {
       "identity" : "elementary",
@@ -8,6 +8,14 @@
       "state" : {
         "revision" : "9a66ebc5f8a2586f2a94893fc6e22d833c8e2ae5",
         "version" : "0.8.2"
+      }
+    },
+    {
+      "identity" : "somlswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/soml-lang/SOMLSwift.git",
+      "state" : {
+        "revision" : "23fe09312afc845b8a369c46bf9beaf5b46908f2"
       }
     },
     {
@@ -24,17 +32,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-cmark.git",
       "state" : {
-        "revision" : "08ddb528923cc1a6527e02b7a1aee9e516ca749a",
-        "version" : "0.9.0"
+        "branch" : "gfm",
+        "revision" : "0c8947bbd58c491c54aae114aca40621cddc8357"
       }
     },
     {
       "identity" : "swift-markdown",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/swiftlang/swift-markdown.git",
+      "location" : "https://github.com/sindresorhus/swift-markdown.git",
       "state" : {
-        "revision" : "25cb61d3482054b09ae76ca4f281b1bfe7fe5a43",
-        "version" : "0.9.0"
+        "branch" : "sindre-improvements",
+        "revision" : "72692e0ce7f27549ad4b6057635a9e27d7431e2a"
       }
     },
     {
@@ -44,15 +52,6 @@
       "state" : {
         "revision" : "050f1a346fbbac0ca2cfb15a95274f7bd1cf0ccf",
         "version" : "604.0.0"
-      }
-    },
-    {
-      "identity" : "yams",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/jpsim/Yams.git",
-      "state" : {
-        "revision" : "a27b21e0c81c5bf42049b897a62aaf387e80f279",
-        "version" : "6.2.2"
       }
     }
   ],

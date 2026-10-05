@@ -2,6 +2,9 @@ import Elementary
 import Foundation
 import SiteKit
 
+/**
+The apps of a category, like the free apps, as cards like on the apps page.
+*/
 struct AppCategoryPage: Page {
 	let category: AppCategory
 	let content: SiteContent
@@ -15,48 +18,58 @@ struct AppCategoryPage: Page {
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: PageMetadata.titled(category.title), description: description.introduction)
+		PageMetadata(title: category.title, description: description.introduction)
 	}
 
 	var body: some HTML {
-		ProsePage {
-			h1 {
-				category.title
+		section {
+			PageHeader(title: category.title) {
+				description.inlineContent
 			}
 
-			HTMLRaw(description.html)
-			AppList(apps: category.apps(in: content), isGroupedByPlatform: category == .free || category == .paid)
+			let apps = category.apps(in: content)
 
-			switch category {
-			case .free:
-				br()
-
+			if apps.isEmpty {
 				p {
-					"If you like my work, consider leaving a review on the App Store. And also check out my "
-					a(.href("/apps/paid")) {
-						"paid apps"
-					}
-					"."
+					"No apps found."
 				}
+			} else if category.isGroupedByPlatform {
+				for platform in Platform.allCases {
+					let platformApps = apps.filter { $0.platforms.contains(platform) }
 
-				p {
-					a(.href(.olderVersions)) {
-						"Older versions"
+					if !platformApps.isEmpty {
+						Section(platform.rawValue, id: platform.rawValue.lowercased()) {
+							AppGrid(apps: platformApps, content: content)
+						}
 					}
-					" of paid apps for older macOS versions are available for free."
 				}
-			case .paid:
-				br()
+			} else {
+				AppGrid(apps: apps, content: content)
+			}
 
-				p {
-					"You can find my free apps "
-					a(.href("/apps/free")) {
-						"here"
-					}
-					"."
+			if let footer = category.footer {
+				div {
+					Prose(markdown: MarkdownDocument(parsing: footer, options: .site).content)
 				}
-			default:
-				EmptyHTML()
+				.style(Styles.footer)
+			}
+		}
+		.style(Styles.root)
+	}
+
+	enum Styles: StyleSet {
+		case root
+		case footer
+
+		var style: Style {
+			switch self {
+			case .root:
+				Style()
+					.pageColumn(.page)
+			case .footer:
+				Style()
+					.margin(.top, .rootEm(4))
+					.textAlign(.center)
 			}
 		}
 	}

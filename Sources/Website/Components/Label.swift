@@ -11,35 +11,33 @@ a(.href(.apps)) {
 ```
 */
 struct Label: HTML {
-	enum IconPosition: Sendable {
+	enum IconPosition {
 		case leading
 
 		/**
-		After the title, like the arrow of “Older posts →”.
+		After the title, like an arrow that points forward.
 		*/
 		case trailing
 	}
 
 	let title: String
 	let icon: Icon
-	var iconPosition = IconPosition.leading
-	var iconSize = Length.rem(1.25)
+	let iconPosition: IconPosition
 
-	init(_ title: String, icon: Icon, iconPosition: IconPosition = .leading, iconSize: Length = .rem(1.25)) {
+	init(_ title: String, icon: Icon, iconPosition: IconPosition = .leading) {
 		self.title = title
 		self.icon = icon
 		self.iconPosition = iconPosition
-		self.iconSize = iconSize
 	}
 
 	var body: some HTML {
 		switch iconPosition {
 		case .leading:
-			icon.size(iconSize)
+			icon.size(.rootEm(1.25))
 			title
 		case .trailing:
 			title
-			icon.size(iconSize)
+			icon.size(.rootEm(1.25))
 		}
 	}
 }

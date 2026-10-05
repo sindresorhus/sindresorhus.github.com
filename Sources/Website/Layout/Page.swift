@@ -15,8 +15,9 @@ var routes: [Route] {
 }
 ```
 */
-protocol Page: Sendable {
+protocol Page: RouteConvertible, Sendable {
 	associatedtype Body: HTML
+	associatedtype Head: HTML = EmptyHTML
 
 	var path: RoutePath { get }
 	var metadata: PageMetadata { get }
@@ -24,13 +25,16 @@ protocol Page: Sendable {
 	/**
 	The content of the page, inside `<main>`.
 	*/
-	@HTMLBuilder
+	@ContentBuilder
 	var body: Body { get }
 
 	/**
-	Whether the page is listed in the sitemap. Defaults to whether search engines may index it.
+	Elements at the start of `<head>`, like a script that must run before the page shows. Most pages have none.
+
+	The head renders after the body has collected its styles, so a style used here, like `.style { … }`, gets no rule. Use raw elements only.
 	*/
-	var isInSitemap: Bool { get }
+	@ContentBuilder
+	var head: Head { get }
 
 	/**
 	App pages hide the donation links so the app gets the attention.
@@ -38,45 +42,61 @@ protocol Page: Sendable {
 	var navigation: SiteHeader.Variant { get }
 
 	/**
-	When the content last changed, for the sitemap.
+	The accent of the page, like `tint(_:)` in SwiftUI, for the links and the buttons, also in the header, like the color of the icon on an app page. `nil` keeps the accent of the site.
 	*/
-	var lastModified: Date? { get }
+	var tint: Color? { get }
 
 	/**
-	The important images, like screenshots, for the sitemap.
+	The background of the site header. Pages with a background that continues behind the header make it see-through at the top.
 	*/
-	var sitemapImages: [URL] { get }
+	var headerBackground: SiteHeader.Background { get }
+
+	/**
+	How the page is listed in the sitemap, like when its content last changed. Defaults to a plain entry when search engines may index the page, and none otherwise.
+	*/
+	var sitemapEntry: SitemapEntry? { get }
+
+	/**
+	The preview image for social media, which is published with the page. `nil` uses the site card.
+	*/
+	var socialCard: OpenGraphCard? { get }
+}
+
+extension Page where Head == EmptyHTML {
+	var head: EmptyHTML {
+		EmptyHTML()
+	}
 }
 
 extension Page {
-	var isInSitemap: Bool {
-		metadata.isIndexed
-	}
-
 	var navigation: SiteHeader.Variant {
 		.standard
 	}
 
-	var lastModified: Date? {
+	var headerBackground: SiteHeader.Background {
+		.standard
+	}
+
+	var tint: Color? {
 		nil
 	}
 
-	var sitemapImages: [URL] {
-		[]
+	var sitemapEntry: SitemapEntry? {
+		metadata.isIndexed ? SitemapEntry() : nil
+	}
+
+	var socialCard: OpenGraphCard? {
+		nil
 	}
 
 	/**
 	The body renders first and collects the styles and scripts it uses. Then the document is rendered with only those.
 	*/
 	var route: Route {
-		.page(path, isInSitemap: isInSitemap, lastModified: lastModified, images: sitemapImages) {
-			let resources = PageResources(sharedStyleSets: Stylesheet.sharedStyleSets)
-			let body = resources.collect {
+		.page(path, sitemapEntry: sitemapEntry) {
+			let resources = PageResources(sharedStylesheet: .site)
+			let body = try resources.collect {
 				SiteBody(page: self).render()
-			}
-
-			guard resources.duplicateClassNames.isEmpty else {
-				throw StyleError.duplicateClassNames(resources.duplicateClassNames.sorted())
 			}
 
 			return SiteLayout(page: self, bodyHTML: body, resources: resources).render()
@@ -85,25 +105,14 @@ extension Page {
 }
 
 extension RouteBuilder {
+	/**
+	The page and its social card. It is more specific than the `RouteConvertible` overload, so it is used for pages.
+	*/
 	static func buildExpression(_ page: some Page) -> [Route] {
-		[page.route]
+		[page.route] + [page.socialCard?.route].compactMap(\.self)
 	}
 
 	static func buildExpression(_ pages: [some Page]) -> [Route] {
-		pages.map(\.route)
-	}
-}
-
-enum StyleError: Error, CustomStringConvertible {
-	/**
-	Two style sets generate the same class name, like `Badge.Styles` and a top-level `BadgeStyles`, so their styles would clash.
-	*/
-	case duplicateClassNames([String])
-
-	var description: String {
-		switch self {
-		case .duplicateClassNames(let names):
-			"More than one style set generates the class names \(names.joined(separator: ", ")). Rename one of the types."
-		}
+		pages.flatMap(buildExpression)
 	}
 }

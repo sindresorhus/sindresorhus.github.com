@@ -11,14 +11,11 @@ struct BackLink: HTML {
 		a(.href(app.path)) {
 			"← Back to \(app.title)"
 		}
-		.style(Styles.root)
-	}
-
-	enum Styles: StyleSet {
-		case root
-
-		var style: Style {
-			Style().font(.sm)
+		.style {
+			$0
+				.secondaryText()
+				.fontWeight(.medium)
+				.hoverColor(.primaryText)
 		}
 	}
 }

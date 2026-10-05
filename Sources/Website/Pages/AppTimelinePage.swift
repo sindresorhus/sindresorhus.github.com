@@ -13,22 +13,12 @@ struct AppTimelinePage: Page {
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: PageMetadata.titled("App Timeline"), description: "Every app by Sindre Sorhus, by the year it came out.")
+		PageMetadata(title: "App Timeline", description: "Every app by Sindre Sorhus, by the year it came out.")
 	}
 
 	var body: some HTML {
 		section {
-			h1 {
-				"App Timeline"
-			}
-			.style(Styles.title)
-
-			if let firstYear = years.last?.number {
-				p {
-					"\(content.listedApps.count) apps since \(firstYear), newest first."
-				}
-				.style(Styles.intro)
-			}
+			PageHeader(title: "App Timeline", intro: years.last.map { "\(content.listedApps.count) apps since \($0.number), newest first." })
 
 			ol {
 				for year in years {
@@ -42,7 +32,7 @@ struct AppTimelinePage: Page {
 							for app in year.apps {
 								li {
 									a(.href(app.url)) {
-										AppIcon(app, size: 48, isNamedNearby: true, morphsAcrossPages: true)
+										AppIcon(decorative: app, size: 48)
 											.style(Styles.icon)
 
 										span {
@@ -56,18 +46,36 @@ struct AppTimelinePage: Page {
 											}
 											.style(Styles.subtitle)
 										}
-										.style(Styles.text)
+										.vstack()
 									}
 									.style(Styles.app)
 								}
 							}
 						}
-						.style(Styles.apps)
+						.vstack(spacing: .rootEm(0.25))
 					}
 					.style(Styles.yearItem)
 				}
 			}
 			.style(Styles.timeline)
+
+			p {
+				"Guess the app of the day in "
+				a(.href(.appdle)) {
+					"Appdle"
+				}
+
+				// The quilt is only built with a GitHub token.
+				if !content.contributionYears.isEmpty {
+					", or see every year on GitHub in the "
+					a(.href(.careerQuilt)) {
+						"Career Quilt"
+					}
+				}
+
+				"."
+			}
+			.style(Styles.moreLinks)
 		}
 		.style(Styles.root)
 	}
@@ -81,11 +89,10 @@ struct AppTimelinePage: Page {
 	The apps of each year, newest year first. The apps are newest first too.
 	*/
 	private var years: [Year] {
-		let calendar = Calendar(identifier: .gregorian)
 		var years = [Year]()
 
 		for app in content.listedApps {
-			let year = calendar.dateComponents(in: .gmt, from: app.publicationDate).year ?? 0
+			let year = app.publicationDate.siteYear
 
 			if years.last?.number == year {
 				years[years.count - 1].apps.append(app)
@@ -101,86 +108,72 @@ struct AppTimelinePage: Page {
 extension AppTimelinePage {
 	enum Styles: StyleSet {
 		case root
-		case title
-		case intro
 		case timeline
 		case yearItem
 		case year
-		case apps
 		case app
 		case icon
-		case text
 		case appTitle
 		case subtitle
+		case moreLinks
 
 		var style: Style {
 			switch self {
 			case .root:
+				// The column of prose pages, so the title lines up with theirs.
 				Style()
-					.contentColumn()
-					.pagePadding()
-			case .title:
-				Style()
-					.font(.xl4, weight: .bold)
-					.letterSpacing(.em(-0.025))
-					.color(.primaryText)
-			case .intro:
-				Style()
-					.margin(top: .rem(0.5), horizontal: 0, bottom: .rem(3))
-					.font(.lg)
-					.color(.secondaryText)
+					.pageColumn(.prose)
 			case .timeline:
 				// A line down the side, with a dot at each year.
 				Style()
-					.margin(.leading, .rem(0.375))
-					.border(.leading, .separator, width: .px(2))
+					.margin(.leading, .rootEm(0.375))
+					.border(.leading, .separator, width: .pixels(2))
 			case .yearItem:
 				Style()
 					.position(.relative)
-					.padding(.leading, .rem(1.75))
-					.padding(.bottom, .rem(2.5))
+					.padding(.leading, .rootEm(1.75))
+					.padding(.bottom, .rootEm(2.5))
 					.before {
 						$0
 							.content("")
 							.position(.absolute)
-							.top(.rem(0.625))
-							.leading(.rem(-0.4375))
-							.frame(width: .rem(0.75), height: .rem(0.75))
+							.top(.rootEm(0.625))
+							.leading(.rootEm(-0.4375))
+							.frame(width: .rootEm(0.75), height: .rootEm(0.75))
 							.cornerRadius(.circle)
 							.backgroundImage(.brandGradient)
 					}
 			case .year:
 				Style()
-					.margin(.bottom, .rem(1))
-					.font(.xl2, weight: .bold)
-					.declaration(.fontVariantNumeric, "tabular-nums")
+					.margin(.bottom, .rootEm(1))
+					.font(.extraLarge2, weight: .bold)
+					.monospacedDigit()
 					.color(.primaryText)
-			case .apps:
-				Style().vstack(spacing: .rem(0.25))
 			case .app:
 				Style()
-					.hstack(alignment: .center, spacing: .rem(0.875))
-					.margin(.horizontal, .rem(-0.5))
-					.padding(.rem(0.5))
-					.cornerRadius(.rem(0.75))
-					.transition(.backgroundColor, duration: .milliseconds(150))
+					.hstack(alignment: .center, spacing: .rootEm(0.875))
+					.margin(.horizontal, .rootEm(-0.5))
+					.padding(.rootEm(0.5))
+					.cornerRadius(.rootEm(0.75))
+					.transition(.backgroundColor, animation: .stateChange)
 					.hover {
 						$0.background(.gray(100), dark: .white.opacity(0.05))
 					}
 			case .icon:
 				Style()
 					.flexShrink(0)
-					.cornerRadius(.rem(0.625))
-			case .text:
-				Style().vstack()
+					.cornerRadius(.rootEm(0.625))
 			case .appTitle:
 				Style()
 					.fontWeight(.semibold)
 					.color(.primaryText)
 			case .subtitle:
 				Style()
-					.font(.sm)
-					.color(.secondaryText)
+					.secondaryText()
+			case .moreLinks:
+				Style()
+					.secondaryText()
+					.textLinks()
 			}
 		}
 	}

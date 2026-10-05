@@ -6,8 +6,12 @@ Each call with the same text returns a new ID, like `faq`, `faq-1`, `faq-2`.
 struct HeadingSlugger {
 	private var occurrences = [String: Int]()
 
+	/**
+	A heading without letters or digits, like only an emoji, gets `section`, as an empty ID is invalid.
+	*/
 	mutating func slug(for text: String) -> String {
-		let base = Self.slug(text)
+		let slug = Self.slug(text)
+		let base = slug.isEmpty ? "section" : slug
 		var result = base
 
 		while let count = occurrences[base], occurrences[result] != nil {

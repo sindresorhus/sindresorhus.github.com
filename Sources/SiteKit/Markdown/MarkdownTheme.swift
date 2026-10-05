@@ -1,3 +1,5 @@
+import Elementary
+
 /**
 A GitHub alert kind, like `> [!NOTE]`.
 */
@@ -67,19 +69,6 @@ public enum MarkdownElement: Hashable, Sendable {
 	case footnotePopover
 
 	/**
-	The container of a code block with ``MarkdownDocument/Options/addsCopyButtons``.
-	*/
-	case codeBlock
-
-	/**
-	The bar at the top of a code block, with the language and the copy button.
-	*/
-	case codeBlockBar
-
-	case codeBlockLanguage
-	case copyButton
-
-	/**
 	Text only for screen readers, like the heading of the footnotes.
 	*/
 	case visuallyHidden
@@ -88,6 +77,11 @@ public enum MarkdownElement: Hashable, Sendable {
 	The `+` between the keys of a keyboard shortcut.
 	*/
 	case keySeparator
+
+	/**
+	The container of a table, which scrolls a table that is wider than the content. It has keyboard focus and a label, so keyboard and screen reader users can scroll it too.
+	*/
+	case tableContainer
 
 	/**
 	The group of collapsible sections, like the questions of a FAQ.
@@ -115,6 +109,11 @@ public enum MarkdownElement: Hashable, Sendable {
 	case anchoredHeading
 
 	/**
+	A collapsible section with a link to itself: the link, and then the section. The link is outside the section, as a closed section only shows its summary, and a summary cannot have links, as it is a button. For the same reason, the links of the heading are only their text.
+	*/
+	case anchoredSection
+
+	/**
 	The link to a heading, which copies its URL.
 	*/
 	case headingAnchor
@@ -136,9 +135,13 @@ public enum MarkdownElement: Hashable, Sendable {
 /**
 The classes of the HTML that the renderer creates for the Markdown extensions.
 
+The classes are only for styles. Scripts find the elements by their `data-` attributes, which the theme does not change:
+- `data-copy-link`: the link to a section (``MarkdownDocument/Options/addsHeadingAnchors``). The script copies its URL, and sets `data-state` on it.
+- `data-footnote-ref`, `data-footnotes`, and `data-footnote-backref`: a footnote reference, the footnotes section, and the link back to a reference, like on GitHub. The popovers of footnotes use `popovertarget`, so they need no script.
+
 ```swift
 let theme = MarkdownTheme { element in
-	element == .keySeparator ? "key-separator" : MarkdownTheme.default.classes(for: element)
+	element == .keySeparator ? "kbd-sep" : MarkdownTheme.default.classes(for: element)
 }
 ```
 */
@@ -154,62 +157,156 @@ public struct MarkdownTheme: Sendable {
 	}
 
 	/**
-	Classes like GitHub's, such as `markdown-alert markdown-alert-note`.
+	Classes from the names of the elements, like `key-separator` for ``MarkdownElement/keySeparator``, and `alert alert-note` for a note alert.
 	*/
 	public static let `default` = Self { element in
-		switch element {
-		case .alert(let kind):
-			"markdown-alert markdown-alert-\(kind.rawValue)"
-		case .alertTitle:
-			"markdown-alert-title"
-		case .alertIcon:
-			"octicon"
-		case .footnotes:
-			"footnotes"
-		case .footnoteBackReference:
-			"data-footnote-backref"
-		case .footnoteReference:
-			"footnote-reference"
-		case .footnotePopover:
-			"footnote-popover"
-		case .codeBlock:
-			"code-block"
-		case .codeBlockBar:
-			"code-block-bar"
-		case .codeBlockLanguage:
-			"code-block-language"
-		case .copyButton:
-			"copy-button"
-		case .visuallyHidden:
-			"sr-only"
-		case .keySeparator:
-			"kbd-sep"
-		case .collapsibleSections:
-			"collapsible-sections"
-		case .collapsibleSection:
-			"collapsible-section"
-		case .collapsibleSummary:
-			"collapsible-summary"
-		case .collapsibleTitle:
-			"collapsible-title"
-		case .collapsibleChevron:
-			"collapsible-chevron"
-		case .collapsibleContent:
-			"collapsible-content"
-		case .collapsibleMoreLink:
-			"collapsible-more-link"
-		case .anchoredHeading:
-			"anchored-heading"
-		case .headingAnchor:
-			"heading-anchor"
-		case .headingAnchorLinkIcon:
-			"heading-anchor-link-icon"
-		case .headingAnchorCheckIcon:
-			"heading-anchor-check-icon"
-		case .listSubtitle:
-			"list-subtitle"
-		case .listDescription:
-			"list-description"
+		guard case .alert(let kind) = element else {
+			return String(describing: element).kebabCased
 		}
+
+		return "alert alert-\(kind.rawValue)"
+	}
+}
+
+extension MarkdownTheme {
+	/**
+	A collapsible section (`<details>`) with the look of the collapsible sections, like for a `@Details` directive.
+
+	- Parameter titleHTML: The HTML of the summary.
+	*/
+	public func collapsibleSection(titleHTML: String, contentHTML: String) -> String {
+		collapsibleSection(id: nil, name: nil, headingLevel: nil, titleHTML: titleHTML, contentHTML: contentHTML)
+	}
+
+	/**
+	A collapsible section (`<details>`).
+
+	- Parameter headingLevel: The level of the heading that is the title in the summary, like `3` for a question of a FAQ. Without it, the title is a `span`.
+	*/
+	func collapsibleSection(id: String?, name: String?, headingLevel: Int?, titleHTML: String, contentHTML: String) -> String {
+		let attributes: [HTMLAttribute<HTMLTag.details>?] = [
+			id.map { .id($0) },
+			name.map { .custom(name: "name", value: $0) },
+			.class(classes(for: .collapsibleSection))
+		]
+
+		return details(attributes: attributes.compactMap(\.self)) {
+			summary(.class(classes(for: .collapsibleSummary))) {
+				collapsibleTitle(headingLevel: headingLevel, html: titleHTML)
+				span(.class(classes(for: .collapsibleChevron))) {}
+					.accessibilityHidden()
+			}
+			div(.class(classes(for: .collapsibleContent))) {
+				HTMLRaw(contentHTML)
+			}
+		}
+		.render()
+	}
+
+	@HTMLBuilder
+	private func collapsibleTitle(headingLevel: Int?, html: String) -> some HTML {
+		let classes = classes(for: .collapsibleTitle)
+
+		switch headingLevel {
+		case 1:
+			h1(.class(classes)) {
+				HTMLRaw(html)
+			}
+		case 2:
+			h2(.class(classes)) {
+				HTMLRaw(html)
+			}
+		case 3:
+			h3(.class(classes)) {
+				HTMLRaw(html)
+			}
+		case 4:
+			h4(.class(classes)) {
+				HTMLRaw(html)
+			}
+		case 5:
+			h5(.class(classes)) {
+				HTMLRaw(html)
+			}
+		case 6:
+			h6(.class(classes)) {
+				HTMLRaw(html)
+			}
+		default:
+			span(.class(classes)) {
+				HTMLRaw(html)
+			}
+		}
+	}
+
+	/**
+	The link after the collapsible sections, like to more questions.
+	*/
+	func collapsibleMoreLink(_ link: MarkdownDocument.CollapsibleSections.MoreLink) -> String {
+		a(.href(link.url), .class(classes(for: .collapsibleMoreLink))) {
+			link.title
+		}
+		.render()
+	}
+
+	/**
+	A box with the look of a GitHub alert, like for a `@Tips` directive.
+
+	- Parameter title: The title, which is the title of the kind by default, like `NOTE`.
+	*/
+	public func alert(_ kind: MarkdownAlert, title: String? = nil, contentHTML: String) -> String {
+		div(.class(classes(for: .alert(kind))), .dir(.auto)) {
+			p(.class(classes(for: .alertTitle)), .dir(.auto)) {
+				// Elementary writes an SVG path as `<path … />`, so the icon is written as HTML, which keeps the markup as it was.
+				HTMLRaw(#"<svg class="\#(classes(for: .alertIcon).escapedForHTML)" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="\#(kind.iconPath)"></path></svg>"#)
+				title ?? kind.title
+			}
+			HTMLRaw(contentHTML)
+		}
+		.render()
+	}
+
+	/**
+	A keyboard shortcut as one `<kbd>` per key, with a `+` between them that screen readers skip, like GitHub.
+
+	- Parameter keysHTML: The HTML of each key, like `Cmd` and `K`.
+	*/
+	func keyboardShortcut(keysHTML: [String]) -> String {
+		keysHTML.enumerated()
+			.map { index, key in
+				let separator = index == 0 ? "" : #"<span class="\#(classes(for: .keySeparator))" aria-hidden="true">+</span>"#
+				return "\(separator)<kbd>\(key)</kbd>"
+			}
+			.joined()
+	}
+
+	/**
+	A link to the section, with a link icon and a check icon that `site.js` shows after copying the URL.
+	*/
+	func headingAnchor(id: String) -> String {
+		// Elementary writes an SVG path as `<path … />`, so the icons are written as HTML, which keeps the markup as it was.
+		let icon = { (element: MarkdownElement, path: String) in
+			HTMLRaw(#"<svg class="\#(classes(for: element).escapedForHTML)" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="\#(path)"/></svg>"#)
+		}
+
+		return a(.href("#\(id)"), .class(classes(for: .headingAnchor)), .data("copy-link", value: "")) {
+			icon(.headingAnchorLinkIcon, "M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-.025 9.45a.75.75 0 01-1.06-1.06l-1.25 1.25a2 2 0 01-2.83-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25z")
+			icon(.headingAnchorCheckIcon, "M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z")
+		}
+		.accessibilityLabel("Copy link to section")
+		.render()
+	}
+
+	/**
+	The container of a table, which scrolls a table that is wider than the content.
+
+	- Parameter label: The name of the region, for screen readers.
+	*/
+	func tableContainer(label: String, tableHTML: String) -> String {
+		div(.class(classes(for: .tableContainer)), .tabindex(0), .role("region")) {
+			HTMLRaw("\n" + tableHTML)
+		}
+		.accessibilityLabel(label)
+		.render()
 	}
 }

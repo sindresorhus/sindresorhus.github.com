@@ -1,6 +1,6 @@
 ---
-title: Tiny apps
-description: Tiny but useful macOS utilities by Sindre Sorhus.
+title: 'Tiny apps'
+description: 'Tiny but useful macOS utilities by Sindre Sorhus.'
 ---
 
 # Tiny Apps

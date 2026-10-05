@@ -3,50 +3,47 @@ import Foundation
 import SiteKit
 
 /**
-Recent five-star reviews of an app from the App Store.
+Recent five-star reviews of an app from the App Store, as quote cards like the press quotes, below the rating of the app. Without reviews, it is only the rating.
 */
 struct AppReviews: HTML {
 	let reviews: [AppStoreReview]
 
-	var body: some HTML {
+	/**
+	The App Store rating, when the app has one.
+	*/
+	var rating: AppStoreInfo.Rating?
+
+	/**
+	The app, for a link to all its quotes and reviews on the wall of love.
+	*/
+	var app: App?
+
+	var body: some HTML<HTMLTag.section> {
 		section {
 			h2 {
-				"Recent Reviews"
+				reviews.isEmpty ? "Rating" : "Recent Reviews"
 			}
-			.style(Styles.title)
+			.style(SectionStyles.label, Styles.title)
 
-			div {
-				for review in reviews {
-					figure {
-						div {
-							"★★★★★"
-						}
-						.attributes(.role("img"))
-						.accessibilityLabel("5 out of 5 stars")
-						.style(Styles.stars)
-
-						blockquote {
-							p {
-								review.title
-							}
-							.style(Styles.reviewTitle)
-
-							p {
-								review.text
-							}
-							.style(Styles.text)
-						}
-
-						figcaption {
-							"\(review.author), "
-							DateText(review.date, format: .site.month(.wide).year())
-						}
-						.style(Styles.author)
-					}
-					.style(Styles.review)
+			if let rating {
+				p {
+					rating.text
 				}
+				.style(Styles.rating)
 			}
-			.style(Styles.grid)
+
+			if !reviews.isEmpty {
+				QuoteGrid(quotes: reviews.map { .review($0) })
+			}
+
+			if let app {
+				p {
+					a(.href(.path(.reviews, query: [URLQueryItem(name: "app", value: app.slug)]))) {
+						"More about \(app.title) on the Wall of Love →"
+					}
+				}
+				.style(Styles.moreLink)
+			}
 		}
 		.style(Styles.root)
 	}
@@ -54,59 +51,31 @@ struct AppReviews: HTML {
 	enum Styles: StyleSet {
 		case root
 		case title
-		case grid
-		case review
-		case stars
-		case reviewTitle
-		case text
-		case author
+		case rating
+		case moreLink
 
 		var style: Style {
 			switch self {
 			case .root:
 				Style()
 					.contentColumn()
-					.margin(top: .rem(4), horizontal: .auto, bottom: .rem(6))
 			case .title:
+				// The rating is part of the title, so the space is below the rating.
 				Style()
-					.margin(.bottom, .rem(1.5))
-					.font(.lg, weight: .semibold)
-					.textAlign(.center)
-					.color(.secondaryText)
-			case .grid:
-				Style()
-					.display(.grid)
-					.gap(.rem(1))
-					.breakpoint(.md) {
-						$0.declaration("grid-template-columns", "repeat(auto-fit, minmax(14rem, 1fr))")
+					.nested("&:has(+ \(Self.rating.selector))") {
+						$0.margin(.bottom, .rootEm(0.25))
 					}
-			case .review:
+			case .rating:
 				Style()
-					.vstack(spacing: .rem(0.5))
-					.padding(.rem(1.25))
-					.cornerRadius(.rem(0.75))
-					.background(.black.opacity(0.025), dark: .white.opacity(0.04))
-			case .stars:
+					.margin(.bottom, .rootEm(1.5))
+					.secondaryText()
+					.textAlign(.center)
+			case .moreLink:
 				Style()
-					.font(.sm)
-					.letterSpacing(.em(0.1))
-					.color("#ff9500")
-			case .reviewTitle:
-				Style()
+					.margin(.top, .rootEm(1.5))
+					.textAlign(.center)
 					.fontWeight(.semibold)
-					.color(.primaryText)
-			case .text:
-				// Keeps the line breaks of the review.
-				Style()
-					.margin(.top, .rem(0.25))
-					.font(.sm)
-					.declaration(.whiteSpace, "pre-line")
-					.color(.bodyText)
-			case .author:
-				Style()
-					.margin(.top, .auto)
-					.font(.xs)
-					.color(.secondaryText)
+					.color(.link)
 			}
 		}
 	}

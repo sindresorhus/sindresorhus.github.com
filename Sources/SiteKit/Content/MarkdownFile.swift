@@ -1,19 +1,19 @@
 import Foundation
-import Yams
+import SOML
 
 /**
-A Markdown file split into its YAML frontmatter and body.
+A Markdown file split into its SOML frontmatter and body.
 */
 public struct MarkdownFile: Sendable {
 	public let url: URL
 
 	/**
-	The path relative to the content directory without extension, like `dato` for `dato.md` or `apps/faq` for `apps/faq.md`.
+	The path relative to the content directory without extension, like `dato` for `dato.md` or `apps/faq` for `apps/faq.md`. The `index.md` of a page bundle has the path of its directory, like `dato` for `dato/index.md`.
 	*/
 	public let slug: String
 
 	/**
-	The YAML between the `---` lines. Empty when the file has no frontmatter.
+	The SOML between the `---` lines. Empty when the file has no frontmatter.
 	*/
 	public let frontmatter: String
 
@@ -46,10 +46,9 @@ public struct MarkdownFile: Sendable {
 
 	public init(contents: String, url: URL, relativeTo directory: URL? = nil) throws(ContentError) {
 		self.url = url
-		self.slug = url.path(relativeTo: directory ?? url.deletingLastPathComponent()).replacing(/\.[^.\/]+$/, with: "")
+		self.slug = Self.slug(of: url, relativeTo: directory ?? url.deletingLastPathComponent())
 
-		// Editors on Windows can add a byte order mark.
-		let contents = contents.unicodeScalars.first == "\u{FEFF}" ? String(contents.unicodeScalars.dropFirst()) : contents
+		// A byte order mark, which editors on Windows can add, is already removed when the file is read as UTF-8.
 		let lines = contents.replacing("\r\n", with: "\n").split(separator: "\n", omittingEmptySubsequences: false)
 
 		guard lines.first?.isFrontmatterFence == true else {
@@ -70,117 +69,94 @@ public struct MarkdownFile: Sendable {
 	}
 
 	/**
+	The path of a file relative to the directory, without the extension, like `apps/faq` for `apps/faq.md`. The `index.md` of a page bundle has the path of its directory, like `dato` for `dato/index.md`.
+	*/
+	public static func slug(of url: URL, relativeTo directory: URL) -> String {
+		url.path(relativeTo: directory)
+			.replacing(/\.[^.\/]+$/, with: "")
+			.replacing(/\/index$/, with: "")
+	}
+
+	/**
 	Decodes and validates the frontmatter.
 	*/
 	public func decodeFrontmatter<Value: Frontmatter>(as type: Value.Type = Value.self) throws(ContentError) -> Value {
-		try checkDays()
+		let document = try parseFrontmatter()
 
 		do {
-			let value = try YAMLDecoder().decode(Value.self, from: frontmatter.isEmpty ? "{}" : frontmatter)
+			let value = try SOML.Decoder.frontmatter.decode(Value.self, from: document.value)
 			try value.validate()
 			return value
 		} catch let error as DecodingError {
-			throw ContentError(file: url, line: frontmatterLine(of: error.codingPath), reason: error.readableDescription)
+			throw ContentError(file: url, line: frontmatterLine(of: error.codingPath, in: document), reason: error.readableDescription())
+		} catch var error as ContentError {
+			error.file = url
+			throw error
 		} catch {
 			throw ContentError(file: url, reason: "\(error)")
 		}
 	}
 
-	/**
-	YAML turns an impossible day, like `2026-02-30`, into a later day without an error, so the days of the top-level values are checked against the calendar.
-	*/
-	private func checkDays() throws(ContentError) {
-		guard let mapping = (try? Yams.compose(yaml: frontmatter))?.mapping else {
-			return
-		}
-
-		var calendar = Calendar(identifier: .gregorian)
-		calendar.timeZone = .gmt
-
-		for (key, value) in mapping {
-			guard
-				let text = value.string,
-				let match = text.prefixMatch(of: /(\d{4})-(\d{2})-(\d{2})/),
-				let year = Int(match.1),
-				let month = Int(match.2),
-				let day = Int(match.3)
-			else {
-				continue
-			}
-
-			let components = DateComponents(year: year, month: month, day: day)
-
-			guard
-				let date = calendar.date(from: components),
-				calendar.dateComponents([.year, .month, .day], from: date) == components
-			else {
-				throw ContentError(file: url, line: key.mark.map { $0.line + 1 }, reason: "`\(key.string ?? "")` is not a real day: \(text)")
-			}
+	private func parseFrontmatter() throws(ContentError) -> SOML.Document {
+		do {
+			// A frontmatter with only blank lines is empty too, but SOML needs a value.
+			return try SOML.Document(parsing: frontmatter.allSatisfy(\.isWhitespace) ? "{}" : frontmatter)
+		} catch {
+			// The frontmatter starts on the line after the opening `---`.
+			throw ContentError(file: url, line: error.location.line + 1, reason: error.message)
 		}
 	}
 
 	/**
-	The line in the file of the key or item at the coding path, or of the closest container that exists, like the mapping of a missing key.
+	The line in the file of a top-level frontmatter key, like `script`, for a mistake in its value.
 	*/
-	private func frontmatterLine(of codingPath: [any CodingKey]) -> Int? {
-		guard var node = try? Yams.compose(yaml: frontmatter) else {
+	public func line(ofFrontmatterKey key: String) -> Int? {
+		guard let document = try? parseFrontmatter() else {
 			return nil
 		}
 
-		var line = node.mark?.line
-
-		for key in codingPath {
-			if let index = key.intValue {
-				guard
-					let sequence = node.sequence,
-					index < sequence.count
-				else {
-					break
-				}
-
-				node = sequence[index]
-				line = node.mark?.line
-			} else {
-				guard let (keyNode, value) = node.mapping?.first(where: { $0.key.string == key.stringValue }) else {
-					break
-				}
-
-				node = value
-				line = keyNode.mark?.line
-			}
-		}
-
-		// The YAML starts on the line after the opening `---`.
-		return line.map { $0 + 1 }
+		return frontmatterLine(of: [AnyCodingKey(stringValue: key)], in: document)
 	}
 
 	/**
-	A line of the body as a location in the file, like `content/apps/dato.md:12` (relative to the directory).
+	The line in the file of the key or item at the coding path, or of the closest one that exists, like the parent of a missing key.
 	*/
-	public func location(ofBodyLine line: Int?, relativeTo directory: URL) -> String {
+	private func frontmatterLine(of codingPath: [any CodingKey], in document: SOML.Document) -> Int {
+		// The frontmatter starts on the line after the opening `---`.
+		document.location(of: codingPath).line + 1
+	}
+
+	/**
+	A line of the file as a location, like `content/apps/dato/index.md:12` (relative to the directory).
+	*/
+	public func location(ofLine line: Int?, relativeTo directory: URL) -> String {
 		let path = url.path(relativeTo: directory)
-		return line.map { "\(path):\($0 + bodyStartLine - 1)" } ?? path
+		return line.map { "\(path):\($0)" } ?? path
 	}
+}
 
+extension MarkdownDocument {
 	/**
-	Throws the problems of the Markdown of the body, with their lines in the file.
-	*/
-	public func validate(_ document: MarkdownDocument) throws(ContentErrors) {
-		guard !document.problems.isEmpty else {
-			return
-		}
+	Renders the body of a content file, and throws its problems, with their lines in the file.
 
-		throw ContentErrors(document.problems.map { problem in
-			ContentError(file: url, line: problem.line.map { $0 + bodyStartLine - 1 }, reason: problem.message)
-		})
+	The lines of the headings and links are lines in the file too.
+	*/
+	public init(parsing file: MarkdownFile, options: Options) throws(ContentErrors) {
+		self.init(parsing: file.body, firstLine: file.bodyStartLine, options: options)
+
+		guard problems.isEmpty else {
+			throw ContentErrors(problems.map { ContentError(file: file.url, line: $0.line, reason: $0.message) })
+		}
 	}
 }
 
 /**
-A content file that could not be loaded, or a mistake in it.
+A mistake in the content, like an invalid frontmatter value or a broken link, with the file and line where it is.
+
+Throw it for every content mistake, so all of them are reported the same way. A check that does not know the file, like ``Frontmatter/validate()``, leaves it out, and loading adds it.
 */
 public struct ContentError: Error, CustomStringConvertible {
-	public let file: URL
+	public var file: URL?
 
 	/**
 	The line in the file, starting at 1.
@@ -189,14 +165,22 @@ public struct ContentError: Error, CustomStringConvertible {
 
 	public let reason: String
 
-	public init(file: URL, line: Int? = nil, reason: String) {
+	public init(file: URL? = nil, line: Int? = nil, reason: String) {
 		self.file = file
 		self.line = line
 		self.reason = reason
 	}
 
+	/**
+	The mistake after where it is, like `content/apps/dato/index.md:12: …`. The path is relative to the current directory when the file is in it, like the paths of the warnings of `website check`, else it is the full path.
+	*/
 	public var description: String {
-		"\(file.path(percentEncoded: false))\(line.map { ":\($0)" } ?? ""): \(reason)"
+		let path = file.map { file in
+			file.isInside(.currentDirectory()) ? file.path(relativeTo: .currentDirectory()) : file.path(percentEncoded: false)
+		}
+
+		let location = [path, line.map(String.init)].compactMap(\.self).joined(separator: ":")
+		return location.isEmpty ? reason : "\(location): \(reason)"
 	}
 }
 
@@ -211,17 +195,23 @@ public struct ContentErrors: Error, CustomStringConvertible {
 	}
 
 	/**
-	The content errors in any error. Other errors become an error of the file, so nothing is lost.
+	The content errors in any error, in the file unless they name another file. Other errors become an error of the file, so nothing is lost.
 	*/
 	public init(converting error: any Error, file: URL) {
-		switch error {
+		let errors = switch error {
 		case let error as ContentErrors:
-			self = error
+			error.errors
 		case let error as ContentError:
-			self.init([error])
+			[error]
 		default:
-			self.init([ContentError(file: file, reason: "\(error)")])
+			[ContentError(reason: "\(error)")]
 		}
+
+		self.init(errors.map { error in
+			var error = error
+			error.file = error.file ?? file
+			return error
+		})
 	}
 
 	public var description: String {
@@ -248,14 +238,33 @@ extension DecodingError {
 		}
 	}
 
-	fileprivate var readableDescription: String {
-		func path(_ context: Context, droppingLast: Bool = false) -> String {
-			let path = context.codingPath.dropLast(droppingLast ? 1 : 0).map { key in
+	/**
+	What is wrong, without the coding path, like `Cannot initialize Platform from invalid String value Amiga`.
+	*/
+	var reason: String {
+		switch self {
+		case .keyNotFound(let key, _):
+			"Missing required key `\(key.stringValue)`."
+		case .typeMismatch(_, let context), .valueNotFound(_, let context), .dataCorrupted(let context):
+			context.debugDescription
+		@unknown default:
+			"\(self)"
+		}
+	}
+
+	/**
+	The mistake with the key path where it is, like “Invalid `links.Docs`: Must be an absolute URL”.
+
+	- Parameter root: What the decoded value is, for a mistake at the top level, like `frontmatter`.
+	*/
+	func readableDescription(root: String = "frontmatter") -> String {
+		func path(_ context: Context) -> String {
+			let path = context.codingPath.map { key in
 				key.intValue.map { "[\($0)]" } ?? key.stringValue
 			}
 			.joined(separator: ".")
 
-			return path.isEmpty ? "frontmatter" : "`\(path)`"
+			return path.isEmpty ? root : "`\(path)`"
 		}
 
 		switch self {
@@ -263,8 +272,8 @@ extension DecodingError {
 			let parent = context.codingPath.isEmpty ? "" : " in \(path(context))"
 			return "Missing required key `\(key.stringValue)`\(parent)."
 		case .dataCorrupted(let context) where context.debugDescription.hasPrefix("Unknown key"):
-			// The path ends at the unknown key, for the line number.
-			return "\(context.debugDescription) in \(path(context, droppingLast: true))."
+			// The message names the key, and the line of the error is the line of the key. SOML leaves out the period, except after its question “Did you mean …?”.
+			return context.debugDescription.hasSuffix("?") ? context.debugDescription : "\(context.debugDescription)."
 		case .typeMismatch(_, let context), .valueNotFound(_, let context), .dataCorrupted(let context):
 			return "Invalid \(path(context)): \(context.debugDescription)"
 		@unknown default:

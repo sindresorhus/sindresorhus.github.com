@@ -1,6 +1,6 @@
 ---
-title: Discounts
-description: Discounts on apps by Sindre Sorhus for students, open source maintainers, educational institutions, and reviewers.
+title: 'Discounts'
+description: 'Discounts on apps by Sindre Sorhus: the Power User Bundle, and offers for students, educational institutions, and reviewers.'
 ---
 
 # Discounts
@@ -33,13 +33,13 @@ Apps are on sale from 28. November to 1. December:
 
 ## Power user bundle
 
-[Get 3 of my power user apps for 26% off.](https://sindresorhus.gumroad.com/l/power-user)
+Get [Default Browser](/default-browser), [Shortcutie](/shortcutie), and [Supercharge](/supercharge) together for 28% off with the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user).
 
 ## Students and open source maintainers
 
-*Update: I'm pausing this for now. I get 20–30 emails daily about promo codes and need time to focus on work. I’ll resume sharing promo codes in the future. Thanks for understanding.*
+*Update: I’m pausing this for now. I get 20–30 emails daily about promo codes and need time to focus on work. I’ll resume sharing promo codes in the future. Thanks for understanding.*
 
-~~If you're a student or an open source maintainer, you can get any of my [paid apps](/apps/paid) for free. **Max one app per person.**~~
+~~If you’re a student or an open source maintainer, you can get any of my [paid apps](/apps/paid) for free. **Max one app per person.**~~
 
 ~~[Reach out to me](mailto:sindresorhus@gmail.com?subject=Free%20promo%20code%20for%20%5Bapp%5D&body=Mention%20which%20paid%20apps%20you%20want) to request a free promo code.~~
 
@@ -55,4 +55,4 @@ For my [apps on Gumroad](https://sindresorhus.gumroad.com), educational institut
 
 ## Reviewers and writers
 
-If you're writing a review or article about one of my apps, I’m happy to provide a free license. [Contact me.](mailto:sindresorhus@gmail.com?subject=Review%20request%20-%20free%20license&body=%5BInclude%20a%20link%20to%20the%20website%20where%20the%20article%20will%20be%20published%5D)
+If you’re writing a review or article about one of my apps, I’m happy to provide a free license. [Contact me.](mailto:sindresorhus@gmail.com?subject=Review%20request%20-%20free%20license&body=%5BInclude%20a%20link%20to%20the%20website%20where%20the%20article%20will%20be%20published%5D)

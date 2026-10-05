@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-Free older versions of the apps for older macOS versions, grouped by version.
+Free older versions of the apps for older macOS versions, grouped by version, with direct downloads.
 */
 struct OlderVersionsPage: Page {
 	let content: SiteContent
@@ -13,15 +13,11 @@ struct OlderVersionsPage: Page {
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: PageMetadata.titled("Older Versions", "Apps"), description: "Free older versions of apps by Sindre Sorhus for older macOS versions.")
+		PageMetadata(title: "Older Versions — Apps", description: "Free older versions of apps by Sindre Sorhus for older macOS versions.")
 	}
 
 	var body: some HTML {
-		ProsePage {
-			h1 {
-				"Older Versions"
-			}
-
+		ProsePage(title: "Older Versions") {
 			p {
 				"My macOS apps with an older version compatible with the following macOS versions."
 			}
@@ -34,7 +30,12 @@ struct OlderVersionsPage: Page {
 				Section("macOS \(version.rawValue)", id: version.id) {
 					ul {
 						for app in content.listedApps where app.olderMacOSVersions.contains(version) {
-							LinkRow(app: app, destination: app.olderVersionsURL)
+							// A direct download when the version is known, else the list elsewhere, like the readme of the repo.
+							if let olderVersion = app.olderVersions.first(where: { $0.macOS == version }) {
+								LinkRow(title: "\(app.title) \(olderVersion.version)", destination: .url(olderVersion.url), description: app.subtitle)
+							} else if let olderVersionsURL = app.olderVersionsURL {
+								LinkRow(app: app, destination: .url(olderVersionsURL))
+							}
 						}
 					}
 				}

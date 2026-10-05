@@ -19,7 +19,7 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 	let resources: PageResources
 
 	var title: String {
-		page.metadata.title
+		page.metadata.documentTitle
 	}
 
 	var lang: String {
@@ -27,17 +27,30 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 	}
 
 	var head: some HTML {
-		MetadataHead(path: page.path, metadata: page.metadata)
+		page.head
+
+		if let tint = page.tint {
+			Elementary.style {
+				HTMLRaw(Stylesheet.accent(tint).css)
+			}
+		}
+
+		MetadataHead(path: page.path, metadata: page.metadata, socialCard: page.socialCard)
 
 		// The styles of the components on the page. The shared styles are in the stylesheet that every page links to.
 		Elementary.style {
 			HTMLRaw(Stylesheet {
-				Layer("components") {
+				Layer(.components) {
 					resources.styleNodes
+				}
+
+				Layer(.elements) {
+					resources.elementStyleNodes
 				}
 			}.css)
 		}
 
+		// The counter counts a page when it is visible. A page that the speculation rules prerender is hidden until the visitor opens it, so a prerendered page that nobody opens is not counted.
 		script(.src("https://gc.zgo.at/count.js"), .async, .data("goatcounter", value: "https://sindresorhus.goatcounter.com/count")) {}
 	}
 
@@ -45,7 +58,14 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 		HTMLRaw(bodyHTML)
 
 		for path in ["/scripts/site.js"] + resources.scripts {
-			script(.src(path), .type(.module)) {}
+			script(.src(path.versioned), .type(.module)) {}
+		}
+
+		// The build generates these scripts before the pages render (`Site.contentHashes`), so a mistake in one fails the build there, and they cannot fail here.
+		for element in resources.inlineScriptElements {
+			script(.type(.module)) {
+				HTMLRaw((try? element.generatedScript()) ?? "")
+			}
 		}
 	}
 }
@@ -61,9 +81,9 @@ struct SiteBody<Content: Page>: HTML {
 			.environment(RoutePath.$current, page.path)
 	}
 
-	@HTMLBuilder
+	@ContentBuilder
 	private var content: some HTML {
-		SiteHeader(variant: page.navigation)
+		SiteHeader(variant: page.navigation, background: page.headerBackground)
 
 		main {
 			page.body
@@ -74,13 +94,6 @@ struct SiteBody<Content: Page>: HTML {
 	}
 }
 
-extension RoutePath {
-	/**
-	The path of the page that is rendering, for presentation, like highlighting the link of the current section. Read it with `@Environment(requiring: RoutePath.$current)`.
-	*/
-	@TaskLocal static var current: RoutePath?
-}
-
 /**
 The `<head>` tags that describe a page to browsers, search engines, feed readers, and social media.
 */
@@ -88,16 +101,21 @@ private struct MetadataHead: HTML {
 	let path: RoutePath
 	let metadata: PageMetadata
 
+	/**
+	The card of the page, or `nil` for the site card.
+	*/
+	let socialCard: OpenGraphCard?
+
 	private var canonicalURL: String {
-		path.absoluteURL(site: Site.url).absoluteString
+		path.absoluteURL.absoluteString
 	}
 
 	private var socialTitle: String {
-		metadata.socialTitle ?? metadata.title
+		metadata.socialTitle ?? metadata.documentTitle
 	}
 
 	private var imageURL: String {
-		metadata.image.path.absoluteURL(site: Site.url).absoluteString
+		(socialCard?.path ?? OpenGraphCard.sitePath).absoluteURL.absoluteString
 	}
 
 	var body: some HTML {
@@ -108,27 +126,30 @@ private struct MetadataHead: HTML {
 		meta(.name("twitter:creator"), .content(Site.author.twitterHandle))
 		meta(.name("fediverse:creator"), .content(Site.author.fediverseHandle))
 		meta(.name("twitter:card"), .content("summary_large_image"))
-		meta(.name("theme-color"), .content("#ffffff"), .custom(name: "media", value: "(prefers-color-scheme: light)"))
-		meta(.name("theme-color"), .content("#020617"), .custom(name: "media", value: "(prefers-color-scheme: dark)"))
+		meta(.name("theme-color"), .content(SemanticColor.pageBackground.colors.light.resolved.description), .media(.light))
+		meta(.name("theme-color"), .content(SemanticColor.pageBackground.colors.dark.resolved.description), .media(.dark))
+
+		// Dark mode visitors do not see a white page before the stylesheet loads.
+		meta(.name("color-scheme"), .content("light dark"))
 
 		if let description = metadata.description {
 			meta(.name(.description), .content(description))
-			meta(.name("twitter:description"), .content(description))
 		}
 
-		meta(.name("robots"), .content(metadata.isIndexed ? "index, follow" : "noindex, follow"))
+		if !metadata.isIndexed {
+			meta(.name("robots"), .content("noindex"))
+		}
 
 		if let appStoreID = metadata.appStoreID {
 			meta(.name("apple-itunes-app"), .content("app-id=\(appStoreID)\(metadata.appStoreCampaign.map { ", affiliate-data=\($0)" } ?? "")"))
 		}
 
 		link(.rel(.canonical), .href(canonicalURL))
-		link(.rel(.stylesheet), .href(Stylesheet.sitePath))
-		link(.rel("sitemap"), .href(Sitemap.indexPath))
-		link(.rel("apple-touch-icon"), .href("/apple-touch-icon.png"))
+		link(.rel(.stylesheet), .href(Stylesheet.sitePath.versioned))
+		link(.rel("apple-touch-icon"), .href(RoutePath("/apple-touch-icon.png")))
 		link(.rel(.icon), .href(metadata.favicon))
 
-		for feed in SiteFeed.allCases.map(\.metadata) + metadata.feeds {
+		for feed in SiteFeed.allCases.map(\.link) + metadata.feeds {
 			link(.rel("alternate"), .custom(name: "type", value: "application/rss+xml"), .title(feed.title), .href(feed.path))
 		}
 
@@ -136,16 +157,16 @@ private struct MetadataHead: HTML {
 			link(.rel("preconnect"), .href(origin))
 		}
 
-		// Prefetches a page of the site when the pointer rests on a link to it, so it opens at once. Browsers without the Speculation Rules API ignore it.
-		HTMLRaw(#"<script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script>"#)
+		// Prerenders a page of the site when the pointer rests on a link to it, so it opens at once. Not the random app page, which picks another app each time, or the feedback form. Browsers without the Speculation Rules API ignore it.
+		JSONScript(speculationRules: SpeculationRules(excludedPaths: [.randomApp, .feedback]))
 
 		meta(.property("og:title"), .content(socialTitle))
 		meta(.property("og:type"), .content(metadata.kind.openGraphType))
 		meta(.property("og:url"), .content(canonicalURL))
 		meta(.property("og:image"), .content(imageURL))
-		meta(.property("og:image:width"), .content("1200"))
-		meta(.property("og:image:height"), .content("630"))
-		meta(.property("og:image:alt"), .content(metadata.image.description))
+		meta(.property("og:image:width"), .content(String(OpenGraphCard.width)))
+		meta(.property("og:image:height"), .content(String(OpenGraphCard.height)))
+		meta(.property("og:image:alt"), .content(socialCard?.description ?? Site.name))
 		meta(.property("og:locale"), .content("en_US"))
 		meta(.property("og:site_name"), .content(Site.name))
 
@@ -153,8 +174,7 @@ private struct MetadataHead: HTML {
 			meta(.property("og:description"), .content(description))
 		}
 
-		meta(.name("twitter:title"), .content(socialTitle))
-		meta(.name("twitter:image"), .content(imageURL))
+		// X reads the title, description, and image from the Open Graph tags.
 
 		if case .article(let publishedAt, let tags) = metadata.kind {
 			meta(.property("article:published_time"), .content(publishedAt.formatted(.iso8601)))
@@ -169,35 +189,83 @@ private struct MetadataHead: HTML {
 
 extension Stylesheet {
 	/**
+	Sets the accent of a page on the `html` element, like the color of the icon on an app page.
+	*/
+	static func accent(_ color: Color) -> Self {
+		Stylesheet {
+			Rule(":root", Style().setting(Color.accent, to: color))
+		}
+	}
+
+	/**
 	The styles of the `html` and `body` elements that ``SiteLayout`` renders. They are in the base layer of the shared stylesheet.
 	*/
 	static let document = Stylesheet {
 		Rule("html", Style()
 			.lineHeight(1.5)
 			.fontFamily(.system)
-			.declaration("-webkit-text-size-adjust", .percent(100))
-			.declaration("-webkit-tap-highlight-color", .transparent)
-			// The header is 72px high.
-			.declaration(.scrollPaddingTop, .px(80))
+			.declaration(.webkitTextSizeAdjust, .percent(100))
+			.declaration(.webkitTapHighlightColor, .transparent)
+			// Section links scroll the section a little below the header. The scroll spy of ``AppSecondaryNavigation`` reads it.
+			.scrollPadding(top: SiteHeader.height + .rootEm(0.5))
 			// Pages that scroll and pages that do not have the same width, so the layout does not move between them with always-visible scroll bars.
-			.declaration("scrollbar-gutter", "stable")
-			.media("(prefers-reduced-motion: no-preference)") {
-				$0.declaration(.scrollBehavior, "smooth")
+			.scrollbarGutter(.stable)
+			.media(.allowsMotion) {
+				$0.scrollBehavior(.smooth)
 			}
-			.breakpoint(.xxl) {
-				$0.font(size: .px(20))
-			}
+			// The text grows a little, from 16px on 1280px wide screens to 17px on 1920px wide screens, so large screens get larger text without a jump at a breakpoint, but lines of text do not get too long.
+			.fluidFontSize(fromRem: 1, toRem: 1.0625, between: .desktop, and: Breakpoint(minimumWidthInRem: 120))
+		)
+
+		// No focus rings, not even the ones of the browser, as the site does not want them. Text fields show their focus with their border (`FormField`), and parts that only show on focus, like the link of a section, still show.
+		Rule(":focus-visible", Style()
+			.noOutline()
 		)
 
 		Rule("body", Style()
-			// The header and the app hero are not nested, so the timeline of the hero is made available from here.
-			.timelineScope(AppHero.timeline)
-			.color(.gray(900), dark: .slate(300))
+			.color(.gray(900), dark: .gray(300))
 			.background(.pageBackground)
-			.letterSpacing(.em(-0.025))
 			.overflow(horizontal: .clip)
-			.declaration("-webkit-font-smoothing", "antialiased")
-			.declaration("-moz-osx-font-smoothing", "grayscale")
+			.declaration(.webkitFontSmoothing, "antialiased")
+			.declaration(.mozOSXFontSmoothing, "grayscale")
 		)
+	}
+}
+
+/**
+The speculation rules of every page: prerender a page of the site when the pointer rests on a link to it, except the excluded pages.
+*/
+private struct SpeculationRules: Encodable {
+	struct Rule: Encodable {
+		struct Condition: Encodable {
+			struct PathPattern: Encodable {
+				let pathname: RoutePath
+			}
+
+			struct Not: Encodable {
+				let hrefMatches: [PathPattern]
+			}
+
+			struct Clause: Encodable {
+				var hrefMatches: String?
+				var not: Not?
+			}
+
+			let and: [Clause]
+		}
+
+		let `where`: Condition
+		let eagerness = "moderate"
+	}
+
+	let prerender: [Rule]
+
+	init(excludedPaths: [RoutePath]) {
+		self.prerender = [
+			Rule(where: Rule.Condition(and: [
+				Rule.Condition.Clause(hrefMatches: "/*"),
+				Rule.Condition.Clause(not: Rule.Condition.Not(hrefMatches: excludedPaths.map { Rule.Condition.PathPattern(pathname: $0) })),
+			])),
+		]
 	}
 }

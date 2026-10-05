@@ -1,0 +1,15 @@
+artboard
+ase
+clr
+datetime
+deeplink
+deeplinks
+inpainting
+jsfiddle
+linebreaks
+losslessly
+outpainting
+polyfilling
+toggler
+unminimize
+unselectable

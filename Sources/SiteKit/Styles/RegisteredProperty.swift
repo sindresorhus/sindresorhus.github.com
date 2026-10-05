@@ -2,24 +2,24 @@
 A custom property with a type (`@property`). Unlike a plain custom property, the browser can animate and transition it, like a hue that turns. A stylesheet with a style that sets it also registers it.
 
 ```swift
-static let hue = RegisteredProperty("--hue", syntax: "<number>", initialValue: 0)
+static let gradientStart = RegisteredProperty<Color>("--gradient-start", syntax: "<color>", initialValue: .black)
 
 Style()
-	.setting(hue, to: 0)
-	.animation(Animations.turnHue, duration: .seconds(6), curve: .linear, repeats: true)
+	.setting(gradientStart, to: .primary(500))
+	.backgroundImage(.linearGradient("to right", gradientStart.value, .white))
 ```
 */
-public struct RegisteredProperty: Sendable {
+public struct RegisteredProperty<Value: StyleValue>: Sendable {
 	public let name: String
 	let syntax: String
-	let initialValue: CSSValue
+	let initialValue: Value
 	let inherits: Bool
 
 	/**
 	- Parameter syntax: The type of the values, like `<number>`, `<color>`, or `<angle>`.
 	- Parameter inherits: Whether descendants get the value, like for a hue that letters inside use.
 	*/
-	public init(_ name: String, syntax: String, initialValue: CSSValue, inherits: Bool = true) {
+	public init(_ name: String, syntax: String, initialValue: Value, inherits: Bool = true) {
 		precondition(name.hasPrefix("--"), "A custom property name starts with two hyphens: \(name)")
 		self.name = name
 		self.syntax = syntax
@@ -30,15 +30,15 @@ public struct RegisteredProperty: Sendable {
 	/**
 	The current value, for other properties, like `hsl(var(--hue) 100% 65%)`.
 	*/
-	public var value: CSSValue {
-		.variable(name)
+	public var value: Value {
+		Value(CSSValue.variable(name).description)
 	}
 
 	var node: StyleNode {
 		StyleNode(kind: .property(name: name, declarations: [
-			Declaration(property: "syntax", value: CSSValue("\"\(syntax)\"")),
-			Declaration(property: "inherits", value: CSSValue(inherits ? "true" : "false")),
-			Declaration(property: "initial-value", value: initialValue),
+			Declaration(property: Property("syntax"), value: CSSValue("\"\(syntax)\"")),
+			Declaration(property: Property("inherits"), value: CSSValue(inherits ? "true" : "false")),
+			Declaration(property: Property("initial-value"), value: CSSValue(initialValue)),
 		]))
 	}
 }
@@ -47,8 +47,8 @@ extension Style {
 	/**
 	Sets a registered custom property.
 	*/
-	public func setting(_ property: RegisteredProperty, to value: CSSValue) -> Self {
-		var copy = declaration(Property(property.name), value)
+	public func setting<Value>(_ property: RegisteredProperty<Value>, to value: Value) -> Self {
+		var copy = declaration(Property(property.name), CSSValue(value))
 		copy.definitions.append(property.node)
 		return copy
 	}

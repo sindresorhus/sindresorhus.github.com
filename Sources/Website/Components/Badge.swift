@@ -2,7 +2,7 @@ import Elementary
 import SiteKit
 
 /**
-A small colored label, like “paid” or “macOS”.
+A small colored label, like “Paid” or “macOS”.
 */
 struct Badge: HTML {
 	/**
@@ -17,18 +17,23 @@ struct Badge: HTML {
 		var style: Style {
 			switch self {
 			case .standard:
-				Style()
-					.background(.gray(200).opacity(0.8), dark: .gray(200))
+				Self.fill(.gray(200).opacity(0.8), dark: .gray)
 			case .new:
-				Style()
-					.background(.teal(100), dark: .teal(200))
+				Self.fill(.teal(100), dark: .teal)
 			case .platform:
-				Style()
-					.background(.sky(100).opacity(0.9), dark: .sky(200))
+				Self.fill(.sky(100).opacity(0.9), dark: .sky)
 			case .archived:
-				Style()
-					.background(.orange(100), dark: .orange(200))
+				Self.fill(.orange(100), dark: .orange)
 			}
+		}
+
+		/**
+		A light fill with dark text, and in dark mode a dark tint of the palette with light text, so the badge does not outshine the card it is on.
+		*/
+		private static func fill(_ light: Color, dark palette: Palette) -> Style {
+			Style()
+				.background(light, dark: palette.color(200).opacity(0.15))
+				.color(.black.opacity(0.7), dark: palette.color(200))
 		}
 	}
 
@@ -50,7 +55,7 @@ struct Badge: HTML {
 	/**
 	The font size of the badges inside, which a parent can set, like for a larger badge.
 	*/
-	static let fontSize = StyleVariable("--badge-font-size")
+	static let fontSize = StyleVariable<Length>("--badge-font-size")
 
 	enum Styles: StyleSet {
 		case root
@@ -59,12 +64,11 @@ struct Badge: HTML {
 			// A block container, so the text box can be trimmed.
 			Style()
 				.display(.inlineBlock)
-				.padding(.horizontal, .rem(0.375))
-				.cornerRadius(.rem(0.5))
-				.declaration(.fontSize, Badge.fontSize.value(default: .px(10)))
+				.padding(.horizontal, .rootEm(0.375))
+				.cornerRadius(.rootEm(0.5))
+				.font(size: Badge.fontSize.value(default: .rootEm(0.6875)))
 				.bold()
 				.trimmedText()
-				.color(.black.opacity(0.7), dark: .black)
 		}
 	}
 }

@@ -6,7 +6,7 @@ A list item with a link and a description, like “Dato — Menu bar calendar”
 */
 struct LinkRow: HTML {
 	let title: String
-	let destination: String
+	let destination: LinkDestination
 	let description: String?
 
 	var body: some HTML<HTMLTag.li> {
@@ -37,11 +37,11 @@ extension LinkRow {
 	/**
 	The app with its subtitle.
 	*/
-	init(app: App, destination: String? = nil) {
+	init(app: App, destination: LinkDestination? = nil) {
 		self.init(title: app.title, destination: destination ?? app.url, description: app.subtitle)
 	}
 
 	init(link: LabeledLink) {
-		self.init(title: link.title, destination: link.href, description: link.description)
+		self.init(title: link.title, destination: link.destination, description: link.description)
 	}
 }

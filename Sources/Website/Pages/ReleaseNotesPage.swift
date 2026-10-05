@@ -11,8 +11,12 @@ struct ReleaseNotesPage: Page {
 		releaseNotes.path
 	}
 
-	var lastModified: Date? {
-		releases.first?.publishedAt
+	var navigation: SiteHeader.Variant {
+		.appSubpage
+	}
+
+	var sitemapEntry: SitemapEntry? {
+		SitemapEntry(lastModified: releases.first?.publishedAt)
 	}
 
 	var metadata: PageMetadata {
@@ -33,10 +37,10 @@ struct ReleaseNotesPage: Page {
 						}
 						.style(Styles.releaseTitle)
 
-						DateText(release.publishedAt, format: .site.month(.wide).day().year())
+						DateText(release.publishedAt, format: .siteDay)
 							.style(Styles.releaseDate)
 					}
-					.style(Styles.releaseHeading)
+					.hstack(alignment: .baseline, spacing: .rootEm(1))
 
 					if !release.notesHTML.isEmpty {
 						div {
@@ -47,7 +51,8 @@ struct ReleaseNotesPage: Page {
 				.style(Styles.release)
 			}
 		} accessory: {
-			IconLink(url: releaseNotes.feed.path.description, label: "\(app.title) Release Notes RSS Feed", icon: .rss, title: "RSS feed for release notes", iconSize: .rem(1))
+			IconLink("\(app.title) Release Notes RSS Feed", icon: .rss, destination: .path(releaseNotes.feed.path), iconSize: .rootEm(1))
+				.help("RSS feed for release notes")
 		}
 		.style(Styles.root)
 	}
@@ -55,36 +60,26 @@ struct ReleaseNotesPage: Page {
 	enum Styles: StyleSet {
 		case root
 		case release
-		case releaseHeading
 		case releaseTitle
 		case releaseDate
 
 		var style: Style {
 			switch self {
 			case .root:
-				Style()
-					.padding(.bottom, .rem(4))
-					.nested("h1") {
-						$0
-							.font(.xl3)
-							.breakpoint(.lg) {
-								$0.font(size: .em(2.8), lineHeight: 1)
-							}
-					}
+				Style().padding(.bottom, .rootEm(4))
 			case .release:
-				Style().padding(.vertical, .rem(1))
-			case .releaseHeading:
-				Style().hstack(alignment: .baseline, spacing: .rem(1))
+				Style().padding(.vertical, .rootEm(1))
 			case .releaseTitle:
+				// Not the margins of a prose heading, which add space in the flex row.
 				Style()
-					.font(.xl2)
-					.breakpoint(.lg) {
+					.margin(0)
+					.font(.extraLarge2)
+					.from(.laptop) {
 						$0.font(size: .em(1.8), lineHeight: 1.1111)
 					}
 			case .releaseDate:
 				Style()
-					.font(.sm)
-					.color(.gray(600))
+					.secondaryText()
 			}
 		}
 	}

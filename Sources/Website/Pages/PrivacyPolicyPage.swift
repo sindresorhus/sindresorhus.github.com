@@ -9,30 +9,39 @@ struct PrivacyPolicyPage: Page {
 		app.privacyPolicyPath
 	}
 
-	var metadata: PageMetadata {
-		let summary = app.hasSentry
-			? "No personal information is collected. Anonymous crash reports are sent to Sentry."
-			: "No data or personal information is collected."
+	var navigation: SiteHeader.Variant {
+		.appSubpage
+	}
 
-		return PageMetadata(title: PageMetadata.titled("Privacy Policy", app.title), description: "The privacy policy of the \(app.title) app. \(summary)")
+	/**
+	What the app collects or sends, without the crash reports.
+	*/
+	private var statement: String {
+		if let privacyNote = app.privacyNote {
+			return privacyNote
+		}
+
+		return app.hasSentry ? "No personal information is collected by this app." : "No data or personal information is collected by this app."
+	}
+
+	var metadata: PageMetadata {
+		let crashReports = app.hasSentry ? " Anonymous crash reports are sent to Sentry." : ""
+		return PageMetadata(title: "Privacy Policy — \(app.title)", description: "The privacy policy of the \(app.title) app. \(statement)\(crashReports)")
 	}
 
 	var body: some HTML {
 		ProsePage(title: "Privacy Policy for \(app.title)", backTo: app.isListed ? app : nil) {
+			p {
+				statement
+			}
+
 			if app.hasSentry {
 				p {
-					"No personal information is collected by this app."
-					br()
-					br()
 					"It sends anonymous crash reports to "
 					a(.href("https://sentry.io")) {
 						"Sentry"
 					}
 					" to help fix bugs."
-				}
-			} else {
-				p {
-					"No data or personal information is collected by this app."
 				}
 			}
 
@@ -55,28 +64,12 @@ struct PrivacyPolicyPage: Page {
 		var style: Style {
 			switch self {
 			case .root:
-				// On the outer section of the page, so the padding keeps the margin of the prose from collapsing.
-				Style()
-					.pagePadding()
-					.nested("h1") {
-						$0
-							.margin(.bottom, .rem(1))
-							.font(.xl3)
-					}
-					// Like the old site, the larger prose sizes win on wide screens.
-					.breakpoint(.lg) {
-						$0
-							.padding(.top, .rem(2.5))
-							.nested("h1") {
-								$0
-									.margin(.bottom, .em(0.8571))
-									.font(size: .em(2.8), lineHeight: 1)
-							}
-					}
+				// Only below, like the release notes, so the back link is at the same place on all the pages of an app.
+				Style().padding(.bottom, .rootEm(4))
 			case .contact:
 				Style()
-					.padding(.top, .rem(5))
-					.font(.sm)
+					.padding(.top, .rootEm(5))
+					.textStyle(.caption)
 			}
 		}
 	}

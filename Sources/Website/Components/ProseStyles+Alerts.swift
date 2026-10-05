@@ -2,54 +2,60 @@ import SiteKit
 
 extension ProseStyles {
 	/**
+	The color of the links in an alert, which each alert kind sets.
+	*/
+	static let alertLinkColor = StyleVariable<Color>("--alert-color")
+
+	/**
 	GitHub alerts, like `> [!NOTE]`.
 	*/
 	static let alertStyle = Style()
-		.margin(vertical: .rem(1), horizontal: 0)
-		.padding(vertical: .rem(0.5), horizontal: .rem(1))
-		.border(.leading, width: .rem(0.25))
-		.cornerRadius(.rem(0.5))
+		.margin(vertical: blockSpacing, horizontal: 0)
+		.padding(vertical: .rootEm(0.75), horizontal: .rootEm(1.125))
+		.border(.leading, width: .rootEm(0.25))
+		.cornerRadius(.rootEm(0.5))
 		.children("*") {
 			$0.margin(0)
 		}
-		.nested("& > * + *") {
-			$0.margin(.top, .rem(0.25))
-		}
+		.flowSpacing(.rootEm(0.25))
+		// Important, as the hover style of links in the prose is more specific, and would replace the color of the alert.
 		.nested("a") {
-			$0.declaration(.textDecorationColor, .important(.variable("--alert-color")))
+			$0.important {
+				$0.underlineColor(alertLinkColor.value)
+			}
 		}
 
 	static let alertTitleStyle = Style()
-		.hstack(alignment: .center, spacing: .rem(0.5))
+		.hstack(alignment: .center, spacing: .rootEm(0.5))
 		.fontWeight(.semibold)
 
 	static let alertIconStyle = Style()
-		.frame(width: .rem(1), height: .rem(1))
+		.frame(width: .rootEm(1), height: .rootEm(1))
 		.declaration(.fill, .currentColor)
 
 	/**
 	The colors of an alert kind.
 	*/
 	static func alertStyle(_ kind: MarkdownAlert) -> Style {
-		let (color, background, titleColor, darkBackground): (Color, Color, Color, Color) = switch kind {
+		let palette: Palette = switch kind {
 		case .note:
-			("#60a5fa", "#f8faff", "#38bdf8", "#0f172a")
+			.primary
 		case .tip:
-			("#6ee7b7", "#f8fdf9", "#34d399", "#0a1a17")
+			.emerald
 		case .important:
-			("#c084fc", "#fdf8ff", "#a78bfa", "#1a0a2e")
+			.purple
 		case .warning:
-			("#fbbf24", "#fffdf5", "#f59e0b", "#1a1408")
+			.amber
 		case .caution:
-			("#fb7185", "#fef8f8", "#f43f5e", "#1f0a0a")
+			.rose
 		}
 
 		return Style()
-			.declaration("--alert-color", CSSValue(color))
-			.borderColor(color.opacity(0.5))
-			.background(background, dark: darkBackground)
+			.setting(alertLinkColor, to: palette.color(400))
+			.borderColor(palette.color(400).opacity(0.5))
+			.background(palette.color(50).opacity(0.5), dark: palette.color(950).opacity(0.4))
 			.nested(ProseStyles.alertTitle.selector) {
-				$0.color(titleColor)
+				$0.color(palette.color(700), dark: palette.color(400))
 			}
 	}
 }

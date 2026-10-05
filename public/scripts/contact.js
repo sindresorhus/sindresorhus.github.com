@@ -1,12 +1,5 @@
-// The styles center the content in the area below the header, so they need its height.
-const header = document.querySelector('#site-header');
-
-new ResizeObserver(() => {
-	document.documentElement.style.setProperty('--header-height', `${header.offsetHeight}px`);
-}).observe(header);
-
 const email = document.querySelector('#contact-email');
-const letters = [...email.querySelectorAll(':scope > span > span')];
+const letters = [...email.querySelectorAll('[data-letter]')];
 const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Letters lift toward the pointer, and the neighbors of a lifted letter follow, like a wave. The styles turn `--strength` into the lift, and the rainbow turns while the pointer is on the page.
