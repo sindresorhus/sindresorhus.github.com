@@ -87,7 +87,7 @@ struct SiteFooter: HTML {
 				.olderVersions,
 				.discounts,
 				LabeledLink("Refunds", destination: .refundQuestion),
-				LabeledLink("Terms", path: .terms),
+				.termsOfUse,
 			]
 		),
 		LinkGroup(
@@ -137,7 +137,7 @@ struct SiteFooter: HTML {
 				Style()
 					.border(.top, SiteFooter.lineColor)
 			case .content:
-				// On phones, the link groups and the social links are a grid of two columns, two groups in each row. From tablets, the social links are a column at the right end of the row of link columns. The space between the rows and the margin of the quote add up to the space above the quote.
+				// On phones, the link groups and the social links are a grid of two columns, two groups in each row. From tablets, they are four columns of the same width, spread over the width of the header, so there is no empty space between them. The space between the rows and the margin of the quote add up to the space above the quote.
 				Style()
 					.pageWidth()
 					.grid(columns: 2)
@@ -145,19 +145,12 @@ struct SiteFooter: HTML {
 					.padding(vertical: .rootEm(3), horizontal: .pageGutter)
 					.from(.tablet) {
 						$0
-							.gridColumns("1fr auto")
+							.gridColumns(4)
 							.padding(top: .rootEm(4), horizontal: .pageGutter, bottom: .rootEm(2.5))
 					}
 			case .groups:
-				// On phones, the groups are in the grid of the footer, with the social links. From tablets, they are one row of columns.
-				Style()
-					.display(.contents)
-					.from(.tablet) {
-						$0
-							.grid(columns: 3)
-							.gap(.rootEm(1.5))
-							.frame(maxWidth: .rootEm(40))
-					}
+				// The groups are in the grid of the footer, with the social links.
+				Style().display(.contents)
 			case .groupTitle:
 				Style()
 					.margin(.bottom, .rootEm(0.75))
@@ -176,6 +169,9 @@ struct SiteFooter: HTML {
 			case .bottom:
 				Style()
 					.gridColumnSpan(2)
+					.from(.tablet) {
+						$0.gridColumnSpan(4)
+					}
 					.margin(.top, .rootEm(0.5))
 					.padding(.top, .rootEm(1.5))
 					.border(.top, SiteFooter.lineColor)

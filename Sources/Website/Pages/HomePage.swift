@@ -245,9 +245,7 @@ extension HomePage {
 					}
 			case .button:
 				Style()
-					.display(.inlineFlex)
-					.alignItems(.center)
-					.justifyContent(.center)
+					.hstack(alignment: .center, justification: .center, isInline: true)
 					.frame(width: .percent(100))
 					.padding(vertical: .rootEm(1), horizontal: .rootEm(2))
 					.cornerRadius(.rootEm(1.5))
@@ -271,7 +269,9 @@ extension HomePage {
 					.position(.relative)
 					.overflow(.hidden)
 					.color(.white)
-					.transition(.background, .shadow, animation: .default(duration: .milliseconds(250))).transition(.offset, animation: .default(duration: .milliseconds(200))).transition(.borderColor, animation: .default(duration: .milliseconds(250)))
+					.transition(.background, .shadow, animation: .default(duration: .milliseconds(250)))
+					.transition(.offset, animation: .default(duration: .milliseconds(200)))
+					.transition(.borderColor, animation: .default(duration: .milliseconds(250)))
 					.dark {
 						$0
 							.backdropFilter(.blur(radius: .pixels(20)), .saturation(1.8))
@@ -288,9 +288,6 @@ extension HomePage {
 									.backgroundImage(.linearGradient("175deg", Color.white.opacity(0.28).at(.percent(0)), Color.white.opacity(0.06).at(.percent(40)), Color.transparent.at(.percent(70))))
 									.allowsHitTesting(false)
 							}
-					}
-					.dark {
-						$0
 							.hover {
 								$0.offset(y: .pixels(-1))
 							}

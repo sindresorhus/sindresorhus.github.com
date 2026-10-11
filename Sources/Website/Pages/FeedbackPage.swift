@@ -320,7 +320,7 @@ extension FeedbackPage {
 					.margin(.bottom, .rootEm(1))
 					.textStyle(.headline)
 			case .appPickerList:
-				// Two columns on phones, and three from small tablets, like the sponsors.
+				// Two columns on phones, and three from small tablets.
 				Style()
 					.grid(columns: 2)
 					.gap(.rootEm(0.5))

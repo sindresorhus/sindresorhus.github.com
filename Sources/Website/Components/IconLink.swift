@@ -34,8 +34,7 @@ struct IconLink: HTML {
 	The look of an icon link, for other controls that look the same, like the menu button. A control reuses the style value instead of the class, as the order of rules from different style sets is not defined.
 	*/
 	static let look = Style()
-		.display(.inlineFlex)
-		.alignItems(.center)
+		.hstack(alignment: .center, isInline: true)
 		// As high as the pills of the navigation next to it.
 		.padding(.rootEm(0.375))
 		// A larger target for fingers, without moving the layout.

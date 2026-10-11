@@ -48,15 +48,16 @@ struct GitHub: Sendable {
 	}
 
 	/**
-	The repos with the most stars that are not archived or forks, most stars first. The organizations of the bigger projects (Chalk, AVA, XO) are included, as the about page links to the same search.
+	The six repos with code that have the most stars and are not archived or forks, most stars first. The organizations of the bigger projects (Chalk, AVA, XO) are included, as the about page links to the same search. Repos without code, like the Awesome lists, are left out, as the about page is about the projects that he made.
 	*/
 	func popularRepositories() async throws -> [GitHubRepository] {
 		struct SearchResult: Decodable {
 			let items: [GitHubRepository]
 		}
 
-		let result: SearchResult = try await get("search/repositories?q=user:sindresorhus+user:chalk+user:avajs+user:xojs+fork:false+archived:false&sort=stars&order=desc&per_page=12")
-		return result.items
+		// More than six, as some of the most popular repos are lists.
+		let result: SearchResult = try await get("search/repositories?q=user:sindresorhus+user:chalk+user:avajs+user:xojs+fork:false+archived:false&sort=stars&order=desc&per_page=20")
+		return Array(result.items.filter { $0.language != nil }.prefix(6))
 	}
 
 	/**
@@ -237,7 +238,7 @@ struct OpenSourceRelease: Sendable {
 	The repo name, with the owner only when it is not `sindresorhus`, like `execa` or `chalk/chalk`.
 	*/
 	var displayName: String {
-		String(repository.trimmingPrefix("sindresorhus/"))
+		repository.repositoryDisplayName
 	}
 
 	/**
@@ -245,5 +246,14 @@ struct OpenSourceRelease: Sendable {
 	*/
 	var version: String {
 		String(tagName.trimmingPrefix("v"))
+	}
+}
+
+extension String {
+	/**
+	The name of a repo to show, with the owner only when it is not `sindresorhus`, like `execa` for `sindresorhus/execa`, or `chalk/chalk`.
+	*/
+	var repositoryDisplayName: String {
+		String(trimmingPrefix("sindresorhus/"))
 	}
 }

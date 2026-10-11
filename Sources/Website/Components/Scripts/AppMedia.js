@@ -30,10 +30,13 @@ export default class extends HTMLElement {
 		};
 
 		const observer = new IntersectionObserver(entries => {
-			for (const {target: video, isIntersecting} of entries) {
-				if (isIntersecting && !prefersReducedMotion.matches && !('pausedByVisitor' in video.dataset)) {
+			// By the ratio, as the observer also reports when a video starts to show, like the next item that peeks in on phones.
+			for (const {target: video, intersectionRatio} of entries) {
+				const isInView = intersectionRatio >= 0.5;
+
+				if (isInView && !prefersReducedMotion.matches && !('pausedByVisitor' in video.dataset)) {
 					video.play().catch(() => {});
-				} else if (!isIntersecting) {
+				} else if (!isInView) {
 					video.pause();
 				}
 			}
@@ -154,7 +157,7 @@ export default class extends HTMLElement {
 		carousel.addEventListener('scrollend', () => {
 			currentIndex = visibleIndex();
 			updateButtons();
-		}, {passive: true, signal});
+		}, {signal});
 
 		updateButtons();
 	}

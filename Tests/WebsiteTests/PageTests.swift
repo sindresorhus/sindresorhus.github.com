@@ -48,6 +48,17 @@ struct PageTests {
 		}
 	}
 
+	/**
+	Without the heading, the projects are at the end of the page.
+	*/
+	@Test
+	func `the about page has the heading that the popular projects are above`() async throws {
+		let content = try await SiteContent.load(from: .website, externalData: .none, buildDate: .now)
+		let page = try #require(content.page(.about))
+
+		#expect(page.markdown.contentSeparated(beforeHeading: AboutPage.projectsNextHeadingID) != nil)
+	}
+
 	@Test
 	func `every page has a unique title`() async throws {
 		var pathsByTitle = [String: RoutePath]()
@@ -64,6 +75,51 @@ struct PageTests {
 		}
 
 		#expect(pathsByTitle.count > 100)
+	}
+
+	/**
+	A page that search engines must not index, like the random app page, would otherwise be in the sitemap, which asks them to index it.
+	*/
+	@Test
+	func `a page is in the sitemap exactly when search engines may index it`() async throws {
+		var pageCount = 0
+
+		for route in try await Self.routes(where: Self.isPage) {
+			guard case .page(let sitemapEntry, let render) = route.output else {
+				continue
+			}
+
+			let isNotIndexed = try render().contains(#"<meta name="robots" content="noindex">"#)
+			#expect(isNotIndexed == (sitemapEntry == nil), "\(route.path)")
+			pageCount += 1
+		}
+
+		#expect(pageCount > 100)
+	}
+
+	/**
+	The 404 page suggests the closest page to a mistyped path, so it must only suggest pages that exist and that visitors look for.
+	*/
+	@Test
+	func `the 404 page suggests only indexed pages, without the home page and old paths`() async throws {
+		let site = try await Self.site()
+		let route = try #require(site.routes(project: .website).first { $0.path == .notFound })
+
+		guard case .page(_, let render) = route.output else {
+			Issue.record("Expected a page, got \(route.output)")
+			return
+		}
+
+		let json = try #require(try render().firstMatch(of: /<script[^>]*id="not-found-data"[^>]*>(.*?)<\/script>/)?.1)
+		let paths = try JSONDecoder().decode([String: [String]].self, from: Data(json.utf8))["paths"] ?? []
+		let oldPaths = Set(site.content.documents.flatMap(\.redirectFrom).map(\.description))
+
+		#expect(paths.contains(RoutePath.apps.description))
+		#expect(paths.contains(App.path(slug: "lungo").description))
+		#expect(!paths.contains("/"))
+		#expect(!paths.contains(RoutePath.notFound.description))
+		#expect(!paths.contains(RoutePath.randomApp.description))
+		#expect(oldPaths.isDisjoint(with: paths))
 	}
 
 	@Test(arguments: try await routes { $0.path.starts(with: "/og") })
@@ -178,6 +234,16 @@ struct PageTests {
 		let html = try render()
 		#expect(html.contains(#"<code class="code-block-code"><span class="code-block-attribute">@MainActor</span>"#))
 		#expect(html.ranges(of: "customElements.define('code-block'").count == 1)
+	}
+
+	/**
+	The icons have the hash of the sprite wherever they render, also outside a build, like Markdown that renders while the content loads.
+	*/
+	@Test
+	func `icons have the hash of the sprite without a build`() {
+		let html = CodeBlock(source: "ls\n", language: "console").render()
+
+		#expect(html.contains(/href="\/assets\/icons\.svg\?v=[0-9a-f]+#/))
 	}
 
 	@Test

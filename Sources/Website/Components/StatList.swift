@@ -43,9 +43,11 @@ struct StatList: HTML {
 					.secondaryText()
 					.monospacedDigit()
 					.from(.tablet) {
+						// No space between the facts in a row, as the margins of the dots are the space, so the dots are in the middle.
 						$0
 							.flexDirection(.row)
 							.flexWrap()
+							.gap(row: .rootEm(0.25), column: 0)
 					}
 			case .centered:
 				Style()

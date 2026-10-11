@@ -116,10 +116,10 @@ struct AppPage: Page {
 	}
 
 	/**
-	The three newest reviews. The wall of love has more.
+	The four newest reviews, which fill two rows of two, so none is alone in a row. The wall of love has more.
 	*/
 	private var reviews: [AppStoreReview] {
-		Array(content.appStoreReviews(of: app).prefix(3))
+		Array(content.appStoreReviews(of: app).prefix(4))
 	}
 
 	/**

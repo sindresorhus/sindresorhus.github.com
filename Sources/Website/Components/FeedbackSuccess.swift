@@ -43,8 +43,7 @@ struct FeedbackSuccess: HTML {
 			switch self {
 			case .root:
 				Style()
-					.vstack(alignment: .center, justification: .center)
-					.gap(.rootEm(1.5))
+					.vstack(alignment: .center, justification: .center, spacing: .rootEm(1.5))
 					.frame(minHeight: .smallViewportHeight(60))
 					.padding(vertical: .rootEm(4), horizontal: 0)
 					.textAlign(.center)

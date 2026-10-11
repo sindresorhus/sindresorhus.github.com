@@ -29,26 +29,28 @@ struct FAQSuggestions: ScriptedElement {
 		}
 		.style(Styles.notice, Styles.crashWarning)
 
-		// A live region, so screen readers announce the suggestions while the visitor types. The links are reached with Tab.
-		div(.part(Parts.panel), .hidden, .role("status")) {
-			div {
-				span {
-					"Related Help"
-				}
-				.style(Styles.title)
+		// A live region, so screen readers announce the suggestions while the visitor types. The links are reached with Tab. It is around the panel, as screen readers only announce changes in a live region that is already on the page, not one that is shown with its content.
+		div(.role("status")) {
+			div(.part(Parts.panel), .hidden) {
+				div {
+					span {
+						"Related Help"
+					}
+					.style(Styles.title)
 
-				button(.part(Parts.dismiss), .type(.button)) {
-					Icon.close.size(.rootEm(0.875))
+					button(.part(Parts.dismiss), .type(.button)) {
+						Icon.close.size(.rootEm(0.875))
+					}
+					.accessibilityLabel("Dismiss")
+					.style(Styles.dismissButton)
 				}
-				.accessibilityLabel("Dismiss")
-				.style(Styles.dismissButton)
+				.style(Styles.header)
+
+				ul(.part(Parts.list)) {}
+					.style(Styles.list)
 			}
-			.style(Styles.header)
-
-			ul(.part(Parts.list)) {}
-				.style(Styles.list)
+			.style(Styles.notice, Styles.panel)
 		}
-		.style(Styles.notice, Styles.panel)
 
 		template(.part(Parts.template)) {
 			li {

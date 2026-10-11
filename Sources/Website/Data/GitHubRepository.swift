@@ -10,6 +10,11 @@ struct GitHubRepository: Decodable, Sendable {
 	let stars: Int
 
 	/**
+	The main language of the code, like `TypeScript`. `nil` for a repo without code, like a list of links.
+	*/
+	let language: String?
+
+	/**
 	The description as plain text: without the notes in brackets, like “[Submissions are paused]”, without emoji, including GitHub emoji codes, like `:zap:`, and without the backticks of code, which GitHub shows as code.
 	*/
 	var summary: String? {
@@ -38,6 +43,7 @@ struct GitHubRepository: Decodable, Sendable {
 		case isArchived = "archived"
 		case isFork = "fork"
 		case stars = "stargazers_count"
+		case language
 	}
 }
 

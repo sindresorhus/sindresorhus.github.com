@@ -63,7 +63,7 @@ extension SiteContent {
 
 			// The lowest version is for macOS for Mac apps, and for iOS for the others.
 			if let minimumVersion = info.minimumOsVersion {
-				warnings += Self.olderVersionMentions(in: app.file, system: info.isMacApp ? "macOS" : "iOS", minimumVersion: minimumVersion, project: project)
+				warnings += Self.olderVersionMentions(in: app, system: info.isMacApp ? "macOS" : "iOS", minimumVersion: minimumVersion, project: project)
 			}
 		}
 
@@ -71,21 +71,25 @@ extension SiteContent {
 	}
 
 	/**
-	Mentions of OS versions below the App Store minimum, like “Requires macOS 15 or later” for an app that needs macOS 26. Only the major versions are compared, so “macOS 26” is fine for an app that needs 26.2. Lists of older versions to download are left out.
+	Mentions of OS versions below the App Store minimum, like “Requires macOS 15 or later” for an app that needs macOS 26, in the text and in the `requirement`. Only the major versions are compared, so “macOS 26” is fine for an app that needs 26.2. Lists of older versions to download are left out.
 	*/
-	private static func olderVersionMentions(in file: MarkdownFile, system: String, minimumVersion: String, project: Project) -> [Warning] {
+	private static func olderVersionMentions(in app: App, system: String, minimumVersion: String, project: Project) -> [Warning] {
 		guard let pattern = try? Regex<(Substring, Substring)>("\\b\(system) (\\d+(?:\\.\\d+)?)\\b") else {
 			return []
 		}
 
-		return file.body.split(separator: "\n", omittingEmptySubsequences: false).enumerated().flatMap { index, line -> [Warning] in
-			guard !line.hasPrefix("- [") else {
-				return []
-			}
+		let file = app.file
 
-			return line.matches(of: pattern)
+		let bodyLines = file.body.split(separator: "\n", omittingEmptySubsequences: false).enumerated().compactMap { index, line -> (line: Int?, text: Substring)? in
+			line.hasPrefix("- [") ? nil : (file.bodyStartLine + index, line)
+		}
+
+		let requirementLine = app.frontmatter.requirement.map { (line: file.line(ofFrontmatterKey: "requirement"), text: Substring($0)) }
+
+		return ([requirementLine].compactMap(\.self) + bodyLines).flatMap { line, text in
+			text.matches(of: pattern)
 				.filter { $0.output.1.majorVersion < minimumVersion.majorVersion }
-				.map { Warning(location: file.location(ofLine: file.bodyStartLine + index, relativeTo: project.root), message: "Mentions \($0.output.0), but the App Store version needs \(system) \(minimumVersion).") }
+				.map { Warning(location: file.location(ofLine: line, relativeTo: project.root), message: "Mentions \($0.output.0), but the App Store version needs \(system) \(minimumVersion).") }
 		}
 	}
 
@@ -227,12 +231,13 @@ extension SiteContent {
 	/**
 	Unknown words and repeated words, like “the the”, in the text of the content. Code, link destinations, HTML, and comments are left out, as only the text of the parsed Markdown is read.
 
-	Only lowercase words are checked. Words with capitals are usually names, like `Setapp` or `iCloud`, which would be most of the warnings. So a typo at the start of a sentence is not found. Limitation: a repeat across formatting or lines, like “the *the*”, is not found, and repeats that are right, like “had had”, are reported.
+	Only lowercase words are checked for spelling. Words with capitals are usually names, like `Setapp` or `iCloud`, which would be most of the warnings. So a typo at the start of a sentence is not found, but a repeated word there is, like “The the”. Limitation: a repeat across formatting or lines, like “the *the*”, is not found, and repeats that are right, like “had had”, are reported.
 	*/
 	@MainActor
 	private static func spellingWarnings(in files: [MarkdownFile], allowedWords: Set<String>, project: Project) -> [Warning] {
 		let checker = NSSpellChecker.shared
-		let repeatedWord = /(?i)\b([a-z]+)\s+\1\b/
+		// Each word and the next one, which a lookahead keeps for the next match, as a backreference does not ignore case, so it would miss “The the”.
+		let wordPair = /(?i)\b([a-z]+)\s+(?=([a-z]+)\b)/
 		var warnings = [Warning]()
 
 		for file in files {
@@ -252,8 +257,17 @@ extension SiteContent {
 
 				let location = file.location(ofLine: file.bodyStartLine + (text.range?.lowerBound.line ?? 1) - 1, relativeTo: project.root)
 
-				for match in string.matches(of: repeatedWord) where match.output.1.count > 1 || match.output.1.lowercased() != "a" {
-					warnings.append(Warning(location: location, message: "Repeated word: “\(match.output.0)”."))
+				for match in string.matches(of: wordPair) {
+					let (_, word, nextWord) = match.output
+
+					guard
+						word.lowercased() == nextWord.lowercased(),
+						word.lowercased() != "a"
+					else {
+						continue
+					}
+
+					warnings.append(Warning(location: location, message: "Repeated word: “\(word) \(nextWord)”."))
 				}
 
 				var offset = 0

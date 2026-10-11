@@ -129,7 +129,7 @@ extension App {
 	}
 
 	/**
-	The questions of the FAQ section: its level 3 headings, except the injected feedback question.
+	The questions of the FAQ section: its level 3 headings, except the injected feedback question and the added menu bar question, which only links to the general question.
 	*/
 	var faqHeadings: [Heading] {
 		guard let start = markdown.headings.firstIndex(where: \.isFAQSection) else {
@@ -145,7 +145,8 @@ extension App {
 
 			if
 				heading.level == 3,
-				heading.id != App.feedbackHeadingID
+				heading.id != App.feedbackHeadingID,
+				heading.id != App.addedMenuBarQuestionID
 			{
 				questions.append(heading)
 			}

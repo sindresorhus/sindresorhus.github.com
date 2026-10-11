@@ -145,7 +145,7 @@ private struct MetadataHead: HTML {
 		}
 
 		link(.rel(.canonical), .href(canonicalURL))
-		link(.rel(.stylesheet), .href(Stylesheet.sitePath.versioned))
+		link(.rel(.stylesheet), .href(Stylesheet.versionedSitePath))
 		link(.rel("apple-touch-icon"), .href(RoutePath("/apple-touch-icon.png")))
 		link(.rel(.icon), .href(metadata.favicon))
 

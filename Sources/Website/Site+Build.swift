@@ -53,13 +53,10 @@ extension Site {
 			return value
 		}
 
-		// Markdown renders while the content loads, so the hashes are set before it, for the URLs in it, like of the icons of the copy button of a code block.
 		let hashes = try contentHashes(project: project)
 
 		let site = try await measure("Load content and data") {
-			try await RoutePath.$contentHashes.withValue(hashes) {
-				try await Site(content: SiteContent.load(from: project, externalData: externalData))
-			}
+			try await Site(content: SiteContent.load(from: project, externalData: externalData))
 		}
 
 		let routes = site.routes(project: project, includesGallery: includesGallery)
@@ -91,28 +88,23 @@ extension Site {
 
 extension Site {
 	/**
-	The content hashes of the files that every page loads: the stylesheet, the icons, and the scripts. Their URLs include the hash, so browsers and Cloudflare can cache them for a year, and still get a changed file right after a deploy.
+	The content hashes of the scripts that the pages load. Their URLs include the hash, so browsers and Cloudflare can cache them for a year, and still get a changed file right after a deploy. The stylesheet and the icons are values, so they have their hashes without the project (``RoutePath/versioned(content:)``).
 
 	The scripts of the elements import their base class with its hash, so they are hashed after the other scripts. An inline script is in the page, so it has no hash, but its script is generated here too, so a mistake in it fails the build.
 	*/
 	static func contentHashes(project: Project) throws -> [RoutePath: String] {
-		var contents = [
-			Stylesheet.sitePath: Stylesheet.site.css,
-			Icon.spritePath: Icon.sprite,
-		]
+		var hashes = [RoutePath: String]()
 
 		for (path, source) in try project.publicFiles() where source.pathExtension == "js" {
-			contents[RoutePath("/" + path)] = try String(contentsOf: source, encoding: .utf8)
+			hashes[RoutePath("/" + path)] = try String(contentsOf: source, encoding: .utf8).contentHash
 		}
-
-		var hashes = contents.mapValues { String($0.stableHash, radix: 16) }
 
 		try RoutePath.$contentHashes.withValue(hashes) {
 			for element in scriptedElements {
 				let script = try element.generatedScript()
 
 				if !element.script.isInline {
-					hashes[element.scriptPath] = String(script.stableHash, radix: 16)
+					hashes[element.scriptPath] = script.contentHash
 				}
 			}
 		}
@@ -142,16 +134,32 @@ extension Site {
 
 extension RoutePath {
 	/**
-	The content hashes from ``Site/contentHashes(project:)``, set while the site is published.
+	The content hashes of the scripts from ``Site/contentHashes(project:)``, set while the site is published.
 	*/
 	@TaskLocal static var contentHashes = [RoutePath: String]()
 
 	/**
-	The path with the content hash of its file, like `/assets/site.css?v=1a2b3c4d`, or the path alone when it has no hash.
+	The path of a script with the content hash of its file, like `/scripts/site.js?v=1a2b3c4d`, or the path alone when it has no hash.
 
 	The hash changes with the content, so a cached file is never used for new pages. A script that a script imports, like `nebula.js`, has no hash, so it is cached like other files.
 	*/
 	var versioned: String {
 		Self.contentHashes[self].map { "\(self)?v=\($0)" } ?? description
+	}
+
+	/**
+	The path with the hash of the content of its file, like `/assets/site.css?v=1a2b3c4d`, for a file that is a value, like the stylesheet. The hash is known without the project, so the URL is right wherever it is used, also in Markdown, which renders while the content loads.
+	*/
+	func versioned(content: String) -> String {
+		"\(self)?v=\(content.contentHash)"
+	}
+}
+
+extension String {
+	/**
+	The hash in the URL of a file with this content, like `1a2b3c4d`.
+	*/
+	fileprivate var contentHash: String {
+		String(stableHash, radix: 16)
 	}
 }

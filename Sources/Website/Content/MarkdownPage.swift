@@ -96,10 +96,12 @@ extension MarkdownPage {
 				guard sponsor.logoWidth != nil else {
 					throw ContentError(reason: "The logo of “\(sponsor.name)” needs `logoWidth`.")
 				}
+			}
 
-				// A tier with logos is a list of links.
-				guard sponsor.url != nil else {
-					throw ContentError(reason: "The sponsor “\(sponsor.name)” has a logo, so it needs `url`.")
+			// A tier with logos is a list of links, also to the sponsors without a logo.
+			for tier in sponsorTiers where tier.sponsors.contains(where: { $0.logo != nil }) {
+				if let sponsor = tier.sponsors.first(where: { $0.url == nil }) {
+					throw ContentError(reason: "The sponsor “\(sponsor.name)” is in a tier with logos, which is a list of links, so it needs `url`.")
 				}
 			}
 		}

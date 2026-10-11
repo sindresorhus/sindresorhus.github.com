@@ -91,8 +91,12 @@ public struct MarkdownDocument: Sendable {
 			public init<Attributes: Frontmatter>(render: @escaping @Sendable (_ attributes: Attributes, _ contentHTML: String) throws -> String) {
 				self.render = { attributes, contentHTML in
 					// The attributes are an object without the braces, which is a SOML object with them.
-					guard let value = try? SOML.Value(parsing: "{\(attributes)}") else {
-						throw ContentError(reason: "They are not valid, like `platform: \"macOS\"`.")
+					let value: SOML.Value
+
+					do throws(SOML.ParseError) {
+						value = try SOML.Value(parsing: "{\(attributes)}")
+					} catch {
+						throw ContentError(reason: "\(error.message). Write them like `platform: \"macOS\"`.")
 					}
 
 					return try render(Attributes.decode(from: value, root: "attributes"), contentHTML)
@@ -358,7 +362,8 @@ extension MarkdownDocument {
 
 		guard
 			let match = html.wholeMatch(of: /<p>(.*)<\/p>/.dotMatchesNewlines()),
-			!match.1.contains("<p>")
+			// Also a raw paragraph with attributes, like `<p class="note">`.
+			!match.1.contains(/<p[\s>]/)
 		else {
 			return html
 		}
@@ -367,17 +372,28 @@ extension MarkdownDocument {
 	}
 
 	/**
-	The HTML of the first paragraph without the `<p>` tags, and the HTML after it, so a page can show the introduction apart from the rest, like at the top of an app page. `nil` when the document does not start with a paragraph. HTML comments before the paragraph are left out.
+	The HTML of the first paragraph without the `<p>` tags, and the HTML after it, so a page can show the introduction apart from the rest, like at the top of an app page. `nil` when the document does not start with a paragraph. HTML comments before the paragraph do not count, as the renderer leaves out comments.
 	*/
 	public var htmlSeparatingIntroduction: (introduction: String, remainder: String)? {
 		guard
 			introduction != nil,
-			let match = html.prefixMatch(of: /\s*(?:<!--.*?-->\s*)*<p>(.*?)<\/p>\n?/.dotMatchesNewlines())
+			let match = html.prefixMatch(of: /\s*<p>(.*?)<\/p>\n?/.dotMatchesNewlines())
 		else {
 			return nil
 		}
 
 		return (String(match.1), String(html[match.range.upperBound...]))
+	}
+
+	/**
+	The HTML before the level 2 heading with the ID, and the HTML from that heading on, so a page can show something between two sections, like the projects on the about page. `nil` when the document has no level 2 heading with the ID. The heading must not be inside other markup, like a block directive.
+	*/
+	public func htmlSeparated(beforeHeading id: String) -> (before: String, after: String)? {
+		guard let range = html.firstRange(of: "<h2 id=\"\(id)\"") else {
+			return nil
+		}
+
+		return (String(html[..<range.lowerBound]), String(html[range.lowerBound...]))
 	}
 }
 
@@ -584,6 +600,13 @@ extension MarkdownDocument {
 	*/
 	public var contentSeparatingIntroduction: (introduction: MarkdownContent, remainder: MarkdownContent)? {
 		htmlSeparatingIntroduction.map { (MarkdownContent(html: $0.introduction, resources: resources), MarkdownContent(html: $0.remainder, resources: resources)) }
+	}
+
+	/**
+	The ``htmlSeparated(beforeHeading:)`` as content of a page. Each part adds the styles and scripts of the whole document, so either part can be shown alone.
+	*/
+	public func contentSeparated(beforeHeading id: String) -> (before: MarkdownContent, after: MarkdownContent)? {
+		htmlSeparated(beforeHeading: id).map { (MarkdownContent(html: $0.before, resources: resources), MarkdownContent(html: $0.after, resources: resources)) }
 	}
 }
 

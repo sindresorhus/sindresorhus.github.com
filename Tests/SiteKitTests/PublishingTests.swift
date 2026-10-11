@@ -104,6 +104,85 @@ struct PublishingTests {
 		#expect(sitemap.contains("<url><loc>https://example.com/</loc></url><url><loc>https://example.com/about</loc><image:image><image:loc>https://example.com/a.png</image:loc></image:image></url></urlset>"))
 	}
 
+	@Test
+	func `a link from content cannot go to another host, and a plus in its query stays a plus`() throws {
+		// `//example.com` is a link to another host, not a path of the site.
+		#expect(throws: ContentError.self) {
+			try LinkDestination(validating: "//example.com/a")
+		}
+
+		#expect(throws: ContentError.self) {
+			try LinkDestination(validating: "example.com")
+		}
+
+		#expect(throws: ContentError.self) {
+			try RoutePath(validating: "apps")
+		}
+
+		#expect(try LinkDestination(validating: "/feedback?product=A+B").description == "/feedback?product=A%2BB")
+	}
+
+	@Test
+	func `links and paths encode as the text of an href, for scripts`() throws {
+		let data = try JSONEncoder().encode(["link": LinkDestination.path("/apps/faq", fragment: "refund"), "fragment": .fragment("top")])
+		#expect(try JSONDecoder().decode([String: String].self, from: data) == ["link": "/apps/faq#refund", "fragment": "#top"])
+		#expect(try JSONDecoder().decode([String].self, from: JSONEncoder().encode([RoutePath("/apps/")])) == ["/apps"])
+	}
+
+	@Test(.temporaryDirectory)
+	func `a redirect page escapes its destination, and search engines do not index it`() async throws {
+		let project = try makeProject(publicFiles: ["robots.txt": ""])
+		let output = project.root.appending(path: "dist")
+		let destination = LinkDestination.path("/feedback", query: [URLQueryItem(name: "product", value: "A"), URLQueryItem(name: "referrer", value: "B")])
+
+		try await Publisher(site: site, project: project, output: output).publish([
+			.page("/feedback") { "" },
+			.redirect("/old", to: destination),
+			.redirect("/elsewhere", to: .url(#require(URL(string: "https://elsewhere.com/a?b=1&c=2")))),
+		])
+
+		let html = try String(contentsOf: output.appending(path: "old.html"), encoding: .utf8)
+		#expect(html.contains(#"<meta name="robots" content="noindex">"#))
+		#expect(html.contains(#"<meta http-equiv="refresh" content="0;url=/feedback?product=A&amp;referrer=B">"#))
+		#expect(html.contains(#"<link rel="canonical" href="https://example.com/feedback?product=A&amp;referrer=B">"#))
+		#expect(html.contains(#"<a href="/feedback?product=A&amp;referrer=B">"#))
+		#expect(!html.contains("&referrer"))
+
+		let external = try String(contentsOf: output.appending(path: "elsewhere.html"), encoding: .utf8)
+		#expect(external.contains(#"<link rel="canonical" href="https://elsewhere.com/a?b=1&amp;c=2">"#))
+		#expect(external.contains(#"content="0;url=https://elsewhere.com/a?b=1&amp;c=2""#))
+	}
+
+	@Test(.temporaryDirectory)
+	func `the sitemap has the day of the last change in UTC, and its index points to it`() async throws {
+		let project = try makeProject(publicFiles: ["robots.txt": ""])
+		let output = project.root.appending(path: "dist")
+
+		// The next day in time zones east of UTC, like in Norway.
+		let lastModified = try Date("2024-06-05T23:30:00Z", strategy: .iso8601)
+
+		try await Publisher(site: site, project: project, output: output).publish([
+			.page("/b", sitemapEntry: SitemapEntry(lastModified: lastModified)) { "" },
+			.page("/a") { "" },
+		])
+
+		let sitemap = try String(contentsOf: output.appending(path: "sitemap-0.xml"), encoding: .utf8)
+		#expect(sitemap.contains("<url><loc>https://example.com/a</loc></url><url><loc>https://example.com/b</loc><lastmod>2024-06-05</lastmod></url>"))
+
+		let index = try String(contentsOf: output.appending(path: "sitemap-index.xml"), encoding: .utf8)
+		#expect(index.contains("<sitemap><loc>https://example.com/sitemap-0.xml</loc></sitemap>"))
+	}
+
+	/**
+	The response cache names its files by the hash, so a different hash in another process would miss every cached response.
+	*/
+	@Test
+	func `the stable hash is FNV-1a`() {
+		#expect("".stableHash == 0xCBF2_9CE4_8422_2325)
+		#expect("a".stableHash == 0xAF63_DC4C_8601_EC8C)
+		#expect("foobar".stableHash == 0x8594_4171_F739_67E8)
+	}
+
 	@Test(.temporaryDirectory)
 	func `publishing again only writes changes and removes stale files`() async throws {
 		let project = try makeProject(publicFiles: ["robots.txt": "User-agent: *"])

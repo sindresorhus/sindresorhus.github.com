@@ -215,8 +215,7 @@ struct AppHero: HTML {
 				Style()
 					.frame(maxWidth: .rootEm(40))
 					.margin(top: .rootEm(1), horizontal: .auto, bottom: 0)
-					.textStyle(.lead)
-					.color(.secondaryText)
+					.secondaryText(.lead)
 					.textLinks()
 			case .anotherRandomApp:
 				Style()

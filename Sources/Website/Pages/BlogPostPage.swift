@@ -68,7 +68,7 @@ struct BlogPostPage: Page {
 					ul {
 						for post in morePosts {
 							li {
-								BlogPostRow(post: post)
+								BlogPostRow(post: post, isUnderHeading: true)
 							}
 						}
 					}
@@ -83,10 +83,10 @@ struct BlogPostPage: Page {
 	}
 
 	/**
-	The three newest other posts, for readers who reach the end.
+	The two newest other posts, for readers who reach the end.
 	*/
 	private var morePosts: [BlogPost] {
-		Array(content.listedPosts.filter { $0.slug != post.slug }.prefix(3))
+		Array(content.listedPosts.filter { $0.slug != post.slug }.prefix(2))
 	}
 
 	private static let morePostsTitleID = "more-posts"

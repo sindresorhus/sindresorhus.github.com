@@ -289,9 +289,7 @@ extension GalleryPage {
 					.color(.bodyText)
 			case .labelLink:
 				Style()
-					.display(.inlineFlex)
-					.alignItems(.center)
-					.gap(.rootEm(0.5))
+					.hstack(alignment: .center, spacing: .rootEm(0.5), isInline: true)
 					.color(.link)
 			}
 		}

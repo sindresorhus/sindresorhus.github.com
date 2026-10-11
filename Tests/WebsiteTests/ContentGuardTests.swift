@@ -93,7 +93,8 @@ struct SourceGuardTests {
 		".declaration(": 61,
 		"Length(\"": 0,
 		"CSSValue(\"": 5,
-		".nested(\"": 72,
+		// The prose styles need selectors for the Markdown markup that no component owns, like the introduction below the title of a Markdown page, and the column of the shortcuts in a table.
+		".nested(\"": 75,
 	]
 
 	@Test

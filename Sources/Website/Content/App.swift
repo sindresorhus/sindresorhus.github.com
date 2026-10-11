@@ -641,6 +641,11 @@ extension App {
 	static let feedbackHeadingID = "feedback"
 
 	/**
+	The ID of the menu bar question that the build adds to menu bar apps. Its answer only links to the general question, so the feedback page suggests the general question instead.
+	*/
+	static let addedMenuBarQuestionID = "app-not-showing-in-menu-bar"
+
+	/**
 	The ID of the level 2 heading of the FAQ section, which the page, the links, and the feedback page find the section by.
 	*/
 	static let faqSectionID = "faq"

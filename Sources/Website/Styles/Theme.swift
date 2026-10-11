@@ -193,6 +193,11 @@ extension Color {
 	}
 
 	/**
+	The accent for small marks on the page background, like the numbers of steps and the current dot of a carousel. It is dark enough on white, and the accent itself in dark mode, so an app page shows the color of its icon in both.
+	*/
+	static let accentMark = lightDark(.accent(fallback: .primary(600), maximumLightness: 0.6), accent.value(default: .primary(400)))
+
+	/**
 	A color for light mode and one for dark mode.
 	*/
 	struct LightDark {
@@ -730,7 +735,10 @@ extension Style {
 			// The code is light on dark in both modes, so the scroll bar is too. The dark background is not `light-dark()`, as that would follow this color scheme.
 			.colorScheme(.dark)
 			.dark {
-				$0.background(.black.opacity(0.5))
+				// Darker than the page, with the faint edge of the cards, as the near black page and the box are almost the same.
+				$0
+					.background(.black.opacity(0.5))
+					.shadow(Shadow(y: 0, spread: .pixels(1), color: .white.opacity(0.06), isInset: true))
 			}
 	}
 

@@ -162,7 +162,6 @@ extension AppTimelinePage {
 			case .icon:
 				Style()
 					.flexShrink(0)
-					.cornerRadius(.rootEm(0.625))
 			case .appTitle:
 				Style()
 					.fontWeight(.semibold)

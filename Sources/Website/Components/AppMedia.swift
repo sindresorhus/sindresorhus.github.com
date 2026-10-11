@@ -181,9 +181,7 @@ struct AppMedia: ScriptedElement {
 					.position(.absolute)
 					.top(.percent(50))
 					.zIndex(10)
-					.display(.flex)
-					.alignItems(.center)
-					.justifyContent(.center)
+					.hstack(alignment: .center, justification: .center)
 					.frame(width: .rootEm(3), height: .rootEm(3))
 					.cornerRadius(.capsule)
 					.color(.bodyText)
@@ -234,7 +232,7 @@ struct AppMedia: ScriptedElement {
 					}
 					.current {
 						$0.before {
-							$0.background(.accent(fallback: .primary(600), maximumLightness: 0.6), dark: .primary(400))
+							$0.background(.accentMark)
 						}
 					}
 			}

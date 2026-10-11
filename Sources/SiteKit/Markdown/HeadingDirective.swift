@@ -66,6 +66,13 @@ struct DirectiveComment {
 	let isOnOwnLine: Bool
 
 	/**
+	The problem of a directive that is not where it belongs.
+	*/
+	var misplacedMessage: String {
+		"The directive `@\(name)` must be directly below a heading, on its own line, with only other directives between."
+	}
+
+	/**
 	Reads the directive comment in the line. `nil` when the line has none.
 	*/
 	init?(line: Substring) {

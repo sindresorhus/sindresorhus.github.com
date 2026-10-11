@@ -83,8 +83,7 @@ struct AttachmentPicker: ScriptedElement {
 					.hstack(alignment: .center, spacing: .rootEm(0.625))
 					.padding(vertical: .rootEm(0.5), horizontal: .rootEm(0.75))
 					.cornerRadius(.rootEm(0.625))
-					.textStyle(.caption)
-					.color(.secondaryText)
+					.secondaryText()
 					.background(.card)
 					.nested(Icon.selector) {
 						$0.flexShrink(0)

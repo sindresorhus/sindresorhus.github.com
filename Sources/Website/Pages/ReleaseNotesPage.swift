@@ -54,19 +54,18 @@ struct ReleaseNotesPage: Page {
 			IconLink("\(app.title) Release Notes RSS Feed", icon: .rss, destination: .path(releaseNotes.feed.path), iconSize: .rootEm(1))
 				.help("RSS feed for release notes")
 		}
-		.style(Styles.root)
+		.style {
+			$0.padding(.bottom, .rootEm(4))
+		}
 	}
 
 	enum Styles: StyleSet {
-		case root
 		case release
 		case releaseTitle
 		case releaseDate
 
 		var style: Style {
 			switch self {
-			case .root:
-				Style().padding(.bottom, .rootEm(4))
 			case .release:
 				Style().padding(.vertical, .rootEm(1))
 			case .releaseTitle:

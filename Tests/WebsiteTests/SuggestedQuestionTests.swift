@@ -31,6 +31,18 @@ struct SuggestedQuestionTests {
 	}
 
 	@Test
+	func `every word of a synonym group matches the others`() {
+		#expect(SuggestedQuestion(question: "Wrong display", url: .path("/a")).extraWords == ["screen", "monitor"])
+		#expect(SuggestedQuestion(question: "Wrong monitor", url: .path("/b")).extraWords == ["screen", "display"])
+	}
+
+	@Test
+	func `words keep digits and underscores, and a keyword that is in the question is not repeated`() {
+		#expect(SuggestedQuestion.words(in: "Error 404 for .DS_Store on macOS 15") == ["error", "404", "ds_store"])
+		#expect(SuggestedQuestion(question: "Export a video", url: .path("/a"), keywords: ["video", "movie"]).extraWords == ["movie"])
+	}
+
+	@Test
 	func `plurals get the synonyms of the singular`() {
 		#expect(SuggestedQuestion(question: "The images are blurry", url: .path("/a")).extraWords.contains("photo"))
 		#expect(SuggestedQuestion(question: "The app crashes", url: .path("/b")).extraWords.contains("freeze"))

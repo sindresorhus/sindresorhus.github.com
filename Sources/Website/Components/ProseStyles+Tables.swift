@@ -35,6 +35,10 @@ extension ProseStyles {
 		.nested(":where(td:first-child:has(> kbd))") {
 			$0.textWrap(.nowrap)
 		}
+		// The column of the shortcuts has the same width in each table of shortcuts, so the descriptions line up from one table to the next, like the groups of shortcuts of an app. A longer shortcut still makes its column wider. A table is a table of shortcuts when a first cell has a shortcut, so other tables should not start a row with one.
+		.nested(":where(table:has(td:first-child > kbd) td:first-child)") {
+			$0.frame(width: .percent(40))
+		}
 
 	/**
 	The lines of tables: the separator color in light mode, and softer in dark mode, as a table has many lines, and the separator would look bright there.

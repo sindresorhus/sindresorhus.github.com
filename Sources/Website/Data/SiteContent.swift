@@ -225,8 +225,15 @@ extension SiteContent {
 	The years since the first app launched, like 11, for “11 years of craft”. `nil` without apps.
 	*/
 	var yearsOfCraft: Int? {
-		// Whole years, so the count goes up on the day of the first app, not on January 1.
-		listedApps.map(\.publicationDate).min().flatMap { Calendar.site.dateComponents([.year], from: $0, to: buildDate).year }
+		listedApps.map(\.publicationDate).min().map { buildDate.wholeYears(since: $0) }
+	}
+
+	/**
+	The years since the first open-source repo of Sindre, like 15, for “15 years of open source”.
+	*/
+	var yearsOfOpenSource: Int {
+		// When he made his first repo.
+		buildDate.wholeYears(since: Date(year: 2011, month: 9, day: 6))
 	}
 
 	/**

@@ -24,7 +24,7 @@ struct ContributionYear: Sendable {
 	static let firstYear = 2010
 
 	/**
-	The contributions of a year by kind, from the same request as the calendar.
+	The contributions of a year by kind, and the repositories with the most commits, from the same request as the calendar.
 	*/
 	struct Totals: Decodable, Sendable {
 		let commitCount: Int
@@ -33,12 +33,69 @@ struct ContributionYear: Sendable {
 		let reviewCount: Int
 		let repositoryCount: Int
 
+		/**
+		The repositories with commits in the year, like 522.
+		*/
+		let committedRepositoryCount: Int
+
+		/**
+		The five repositories with the most commits in the year, most first. GitHub only counts the commits of the default branch. It includes private repositories when the token can see them, like a personal token, so a page that shows them leaves those out.
+		*/
+		let repositoryCommits: [RepositoryCommits]
+
 		enum CodingKeys: String, CodingKey {
 			case commitCount = "totalCommitContributions"
 			case pullRequestCount = "totalPullRequestContributions"
 			case issueCount = "totalIssueContributions"
 			case reviewCount = "totalPullRequestReviewContributions"
 			case repositoryCount = "totalRepositoryContributions"
+			case committedRepositoryCount = "totalRepositoriesWithContributedCommits"
+			case repositoryCommits = "commitContributionsByRepository"
+		}
+	}
+
+	/**
+	The commits of a year in one repository.
+	*/
+	struct RepositoryCommits: Decodable, Sendable {
+		/**
+		The repository with its owner, like `sindresorhus/ky`.
+		*/
+		let repository: String
+
+		let url: URL
+		let count: Int
+		let isPrivate: Bool
+
+		/**
+		The name to show, like `ky` or `chalk/chalk`.
+		*/
+		var displayName: String {
+			repository.repositoryDisplayName
+		}
+
+		private struct Repository: Decodable {
+			let nameWithOwner: String
+			let url: URL
+			let isPrivate: Bool
+		}
+
+		private struct Contributions: Decodable {
+			let totalCount: Int
+		}
+
+		enum CodingKeys: CodingKey {
+			case repository
+			case contributions
+		}
+
+		init(from decoder: any Decoder) throws {
+			let container = try decoder.container(keyedBy: CodingKeys.self)
+			let repository = try container.decode(Repository.self, forKey: .repository)
+			self.repository = repository.nameWithOwner
+			self.url = repository.url
+			self.isPrivate = repository.isPrivate
+			self.count = try container.decode(Contributions.self, forKey: .contributions).totalCount
 		}
 	}
 
@@ -57,6 +114,13 @@ struct ContributionYear: Sendable {
 		days.reduce(nil) { busiest, day in
 			day.count > (busiest?.count ?? 0) ? day : busiest
 		}
+	}
+
+	/**
+	The number of days of the year with contributions, like 271.
+	*/
+	var activeDayCount: Int {
+		days.count { $0.count > 0 }
 	}
 
 	/**
@@ -138,7 +202,7 @@ struct ContributionYear: Sendable {
 			let user: User
 		}
 
-		let fields = "contributionCalendar { totalContributions weeks { contributionDays { date contributionCount contributionLevel } } } totalCommitContributions totalPullRequestContributions totalIssueContributions totalPullRequestReviewContributions totalRepositoryContributions"
+		let fields = "contributionCalendar { totalContributions weeks { contributionDays { date contributionCount contributionLevel } } } totalCommitContributions totalPullRequestContributions totalIssueContributions totalPullRequestReviewContributions totalRepositoryContributions totalRepositoriesWithContributedCommits commitContributionsByRepository(maxRepositories: 5) { repository { nameWithOwner url isPrivate } contributions { totalCount } }"
 		let query = isPastYear
 			? "query($from: DateTime!, $to: DateTime!) { user(login: \"sindresorhus\") { contributionsCollection(from: $from, to: $to) { \(fields) } } }"
 			: "query($from: DateTime!) { user(login: \"sindresorhus\") { contributionsCollection(from: $from) { \(fields) } } }"

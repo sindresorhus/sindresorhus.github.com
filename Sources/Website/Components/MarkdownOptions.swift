@@ -190,7 +190,7 @@ enum FeatureSectionStyles: StyleSet {
 						.fontWeight(.bold)
 						.letterSpacing(.em(0.02))
 						.monospacedDigit()
-						.color(.lightDark(.accent(fallback: .primary(600), maximumLightness: 0.6), Color.accent.value(default: .primary(400))))
+						.color(.accentMark)
 				}
 		}
 	}
@@ -404,7 +404,7 @@ enum StepListStyles: StyleSet {
 									.fontFamily(.rounded)
 									.bold()
 									.monospacedDigit()
-									.color(.lightDark(.accent(fallback: .primary(600), maximumLightness: 0.6), Color.accent.value(default: .primary(400))))
+									.color(.accentMark)
 							}
 							.children("ul") {
 								$0
@@ -462,8 +462,8 @@ enum SocialLinksStyles: StyleSet {
 			Style()
 				.hstack(spacing: .rootEm(0.5))
 				.flexWrap()
-				// The space of a list.
-				.margin(vertical: .em(1), horizontal: 0)
+				// The space of a block, like the cards, so the links are apart from the text above them.
+				.margin(vertical: ProseStyles.blockSpacing, horizontal: 0)
 				.padding(0)
 		// A flex container, so it has no bullet.
 		case .item:
@@ -495,10 +495,15 @@ private struct CommonQuestion {
 	var isFirst = false
 
 	/**
+	The ID of the heading, instead of the slug of the title, for a question that code finds.
+	*/
+	var id: String?
+
+	/**
 	The question and its answer, as a level 3 heading and a paragraph, like the questions in the files.
 	*/
 	var blocks: [any BlockMarkup] {
-		[Markdown.Heading(level: 3, Markdown.Text(title)), answer]
+		[Markdown.Heading(level: 3, Markdown.Text(title + (id.map { " {#\($0)}" } ?? ""))), answer]
 	}
 
 	/**
@@ -510,8 +515,9 @@ private struct CommonQuestion {
 		if frontmatter.isMenuBarApp {
 			questions.append(Self(
 				title: "The app does not show up in the menu bar",
-				answer: Paragraph(Markdown.Link(destination: LinkDestination.path(.faq, fragment: "app-not-showing-in-menu-bar").description, Markdown.Text("Try this"))),
-				isFirst: true
+				answer: Paragraph(Markdown.Link(destination: LinkDestination.menuBarQuestion.description, Markdown.Text("How to make the app show up in the menu bar"))),
+				isFirst: true,
+				id: App.addedMenuBarQuestionID
 			))
 		}
 

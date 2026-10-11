@@ -17,66 +17,68 @@ export default class extends HTMLElement {
 	}
 
 	#add = event => {
-		// Files that are already attached, by name and size, are skipped.
+		const fileList = this.querySelector('[data-part="fileList"]');
+
+		// Files that are already attached, by name and size, are skipped. Only the new files get a chip, so the thumbnails of the others are not loaded again.
 		for (const file of event.currentTarget.files) {
 			if (!this.#files.some(existingFile => existingFile.name === file.name && existingFile.size === file.size)) {
 				this.#files.push(file);
+				fileList.append(this.#chip(file));
 			}
 		}
 
-		this.#update();
+		this.#updateInput();
 	};
 
-	#update() {
-		const files = this.#files;
-		const input = this.querySelector('[data-part="input"]');
-		const fileList = this.querySelector('[data-part="fileList"]');
-		const template = this.querySelector('[data-part="template"]');
-
+	// The input gets all the files, as a pick replaces its files.
+	#updateInput() {
 		const dataTransfer = new DataTransfer();
-		for (const file of files) {
+		for (const file of this.#files) {
 			dataTransfer.items.add(file);
 		}
 
-		input.files = dataTransfer.files;
+		this.querySelector('[data-part="input"]').files = dataTransfer.files;
+	}
 
-		fileList.replaceChildren(...files.map((file, index) => {
-			const chip = template.content.firstElementChild.cloneNode(true);
-			const thumbnail = chip.querySelector('img');
+	#chip(file) {
+		const chip = this.querySelector('[data-part="template"]').content.firstElementChild.cloneNode(true);
+		const thumbnail = chip.querySelector('img');
 
-			if (imageExtensions.has(file.name.split('.').pop().toLowerCase())) {
-				const icon = chip.querySelector('svg');
-				thumbnail.src = URL.createObjectURL(file);
-				thumbnail.addEventListener('load', () => {
-					URL.revokeObjectURL(thumbnail.src);
-				}, {once: true});
+		if (imageExtensions.has(file.name.split('.').pop().toLowerCase())) {
+			const icon = chip.querySelector('svg');
+			thumbnail.src = URL.createObjectURL(file);
+			thumbnail.addEventListener('load', () => {
+				URL.revokeObjectURL(thumbnail.src);
+			}, {once: true});
 
-				// Some browsers cannot show some image formats, like HEIC in Chrome, so these get the file icon.
-				thumbnail.addEventListener('error', () => {
-					URL.revokeObjectURL(thumbnail.src);
-					thumbnail.replaceWith(icon);
-				}, {once: true});
+			// Some browsers cannot show some image formats, like HEIC in Chrome, so these get the file icon.
+			thumbnail.addEventListener('error', () => {
+				URL.revokeObjectURL(thumbnail.src);
+				thumbnail.replaceWith(icon);
+			}, {once: true});
 
-				icon.remove();
-			} else {
-				thumbnail.remove();
-			}
+			icon.remove();
+		} else {
+			thumbnail.remove();
+		}
 
-			chip.querySelector('[data-part="name"]').textContent = file.name;
-			chip.querySelector('[data-part="size"]').textContent = formatSize(file.size);
+		chip.querySelector('[data-part="name"]').textContent = file.name;
+		chip.querySelector('[data-part="size"]').textContent = formatSize(file.size);
 
-			const removeButton = chip.querySelector('button');
-			removeButton.ariaLabel = `Remove ${file.name}`;
-			removeButton.addEventListener('click', () => {
-				files.splice(index, 1);
-				this.#update();
+		const removeButton = chip.querySelector('button');
+		removeButton.ariaLabel = `Remove ${file.name}`;
+		removeButton.addEventListener('click', () => {
+			const fileList = chip.parentElement;
+			const index = [...fileList.children].indexOf(chip);
+			this.#files.splice(this.#files.indexOf(file), 1);
+			chip.remove();
+			this.#updateInput();
 
-				// The removed chip had the focus, so it moves to the next remove button, the previous one for the last chip, or the file input.
-				const removeButtons = fileList.querySelectorAll('button');
-				(removeButtons[Math.min(index, removeButtons.length - 1)] ?? input).focus();
-			});
+			// The removed chip had the focus, so it moves to the next remove button, the previous one for the last chip, or the file input.
+			const removeButtons = fileList.querySelectorAll('button');
+			(removeButtons[Math.min(index, removeButtons.length - 1)] ?? this.querySelector('[data-part="input"]')).focus();
+		});
 
-			return chip;
-		}));
+		return chip;
 	}
 }

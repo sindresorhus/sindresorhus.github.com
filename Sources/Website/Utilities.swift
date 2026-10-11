@@ -462,10 +462,28 @@ extension Calendar {
 
 extension Date {
 	/**
+	The start of a day in UTC (``Calendar/site``), for a date in the code, like `Date(year: 2011, month: 9, day: 6)`.
+	*/
+	init(year: Int, month: Int, day: Int) {
+		guard let date = Calendar.site.date(from: DateComponents(year: year, month: month, day: day)) else {
+			preconditionFailure("\(year)-\(month)-\(day) is not a date.")
+		}
+
+		self = date
+	}
+
+	/**
 	The year of the date in UTC (``Calendar/site``), like 2026.
 	*/
 	var siteYear: Int {
 		Calendar.site.component(.year, from: self)
+	}
+
+	/**
+	The whole years in UTC from the other date to this date, like 11 for the age of the first app. The count goes up on the day of the other date, not on January 1.
+	*/
+	func wholeYears(since date: Date) -> Int {
+		Calendar.site.dateComponents([.year], from: date, to: self).year ?? 0
 	}
 
 	/**

@@ -20,7 +20,7 @@ Do not use AVIF. The owner waits for JPEG XL instead. Keep PNG and JPEG until th
 
 Keep motion to a minimum in the content. Small transitions that help to understand a change, like a hover color or a menu that fades in, are fine. Do not add scroll animations, elements that move into view, parallax, or animations of the content itself, like text or cards that move by themselves.
 
-Subtle background animations are fine, like the nebula of the home page, the drifting blobs of the contact page, or a slow glassy background behind a page header. They must be calm and slow, stay behind the content, show a still frame when the visitor prefers reduced motion, and pause when they are off screen or the tab is hidden. The home page also keeps the animated gradient of the name and the rotating ring in dark mode, as it is the playful page of the site.
+Subtle background animations are fine, like the nebula of the home page, the drifting blobs of the contact page, or a slow glassy background behind a page header. They must be calm and slow, stay behind the content, show a still frame when the visitor prefers reduced motion, and pause when they are off screen or the tab is hidden. The galaxy of the home page is the exception: with reduced motion, it is not loaded, and the page shows its plain background. The home page also keeps the animated gradient of the name and the rotating ring in dark mode, as it is the playful page of the site.
 
 ## Styles
 
@@ -70,7 +70,7 @@ The feedback page shows relevant FAQ links as the user types their message.
 ### Data sources
 
 - **General FAQs**: the questions of `content/pages/apps/faq.md` that have `<!-- @faq.general -->`. The directive is only allowed on that page.
-- **App-specific FAQs**: the `####` questions in the FAQ section (`## Frequently Asked Questions {#faq}`) of the selected app's markdown file (via the `?product=` URL param), without the questions in `###` subsections and without the added feedback question. See `App.faqHeadings` in `Sources/Website/Content/App+Links.swift`. The section is found by its ID, `App.faqSectionID`. It includes the common questions that the build adds.
+- **App-specific FAQs**: the `###` questions in the FAQ section (`## Frequently Asked Questions {#faq}`) of the selected app's markdown file (via the `?product=` URL param), without deeper headings and without the added feedback question. See `App.faqHeadings` in `Sources/Website/Content/App+Links.swift`. The section is found by its ID, `App.faqSectionID`. It includes the common questions that the build adds, except the menu bar question (`App.addedMenuBarQuestionID`), as its answer only links to the general question, which is suggested instead.
 - **Common questions**: the build adds the questions that many apps have to the FAQ section of each app from its facts: the menu bar question for menu bar apps (`isMenuBarApp`), the free question for free apps on the App Store that are not archived, and the localization question for all apps. See `CommonQuestion` in `Sources/Website/Components/MarkdownOptions.swift`. Do not write these questions in app files, unless the app needs a different answer: a question with the same text keeps its own answer and gets no added copy.
 
 `FAQSuggestions` (`Sources/Website/Components/FAQSuggestions.swift`) embeds both in the page as JSON (its `questions` part), and its script (`Sources/Website/Components/Scripts/FAQSuggestions.js`) reads it. `public/scripts/feedback.js` sets the `app` attribute of the element to the title of the selected app.
@@ -110,7 +110,7 @@ Any markdown heading with a `{#id}` can be annotated with directives on the line
 3. **Matching**: a message word matches a question word when one starts with the other, like “sync” and “syncing”.
 4. **Score**: TF-IDF. Each matching message word adds `log((n+1)/(df+1))`, where `df` is the number of questions whose question words contain it. Rare words score higher.
 5. **Minimum**: a question needs 2 matching words when the message has 2 or more known words (words that match any question), else 1. Pinned questions need the same number.
-6. **Order**: pinned questions first, by rank. Between an app question and a general question, more matching words come first, then the app question. Otherwise, the higher score comes first.
+6. **Order**: pinned questions first, by rank. Then more matching words come first, then app questions before general questions, then the higher score.
 7. **Deduplication**: general FAQs with 0.6 or more Jaccard similarity to an app-specific result are removed. The first 4 are shown.
 
 The script also shows a request for a crash report when the message contains a word that starts with “crash”.

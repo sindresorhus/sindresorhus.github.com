@@ -7,17 +7,25 @@ A blog post in a list of posts: the title, the description, and the date. The bl
 struct BlogPostRow: HTML {
 	let post: BlogPost
 
+	/**
+	Whether the list has a heading of its own, like “More Posts”, so the titles are a level below it.
+	*/
+	var isUnderHeading = false
+
 	var body: some HTML {
 		article {
 			header {
-				h2 {
-					a(.href(post.url)) {
-						post.title
+				if isUnderHeading {
+					h3 {
+						titleLink
 					}
-					.style(Styles.link)
-					.style(Styles.externalLink, when: post.isExternal)
+					.style(Styles.title)
+				} else {
+					h2 {
+						titleLink
+					}
+					.style(Styles.title)
 				}
-				.style(Styles.title)
 			}
 
 			p {
@@ -34,6 +42,14 @@ struct BlogPostRow: HTML {
 			.style(Styles.footer)
 		}
 		.style(Styles.root)
+	}
+
+	private var titleLink: some HTML<HTMLTag.a> {
+		a(.href(post.url)) {
+			post.title
+		}
+		.style(Styles.link)
+		.style(Styles.externalLink, when: post.isExternal)
 	}
 
 	enum Styles: StyleSet {

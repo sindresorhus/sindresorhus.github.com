@@ -24,7 +24,7 @@ struct Prose<Content: HTML>: HTML {
 		self.content = content()
 	}
 
-	var body: some HTML {
+	var body: some HTML<HTMLTag.div> {
 		div {
 			content
 		}

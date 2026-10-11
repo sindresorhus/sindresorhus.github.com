@@ -128,7 +128,7 @@ extension WebsiteCommand {
 			let content = try await SiteContent.load(from: options.project, externalData: options.externalData)
 			let routes = Site(content: content).routes(project: options.project)
 
-			for route in routes.sorted(using: KeyPathComparator(\.path.description)) {
+			for route in routes.sorted(using: KeyPathComparator(\.path.description, comparator: String.StandardComparator.lexical)) {
 				let kind = switch route.output {
 				case .page(let sitemapEntry, _):
 					sitemapEntry == nil ? "page (not indexed)" : "page"
@@ -210,6 +210,9 @@ extension WebsiteCommand {
 		private func rebuildUntilSourcesChange(changes: DirectoryWatcher.Iterator, sources: URL, server: PreviewServer) async -> Bool {
 			var changes = changes
 
+			// The tool that does not build, so a rebuild of the site keeps showing it, as the server still runs the old tool.
+			var toolError: String?
+
 			while let changed = await changes.next() {
 				let changedSources = changed.filter { $0.isInside(sources) }
 
@@ -226,7 +229,8 @@ extension WebsiteCommand {
 					}
 
 					print("Fix the errors to continue.")
-					server.show(error: "The tool does not build. The errors are in the terminal.")
+					toolError = "The tool does not build. The errors are in the terminal."
+					server.show(error: toolError)
 
 					// Content that changed at the same time is still rebuilt.
 					guard changed.count > changedSources.count else {
@@ -235,7 +239,7 @@ extension WebsiteCommand {
 				}
 
 				print("Rebuilding the site…")
-				await build(server: server)
+				await build(server: server, toolError: toolError)
 			}
 
 			return false
@@ -261,18 +265,25 @@ extension WebsiteCommand {
 
 		/**
 		Builds the site, and reloads the open pages as soon as the files are written. Errors are printed and shown on the pages instead of thrown, so a mistake in the content does not stop the server.
+
+		- Parameter toolError: An error that stays on the pages, like a tool that does not build.
 		*/
-		private func build(server: PreviewServer) async {
+		private func build(server: PreviewServer, toolError: String? = nil) async {
+			let buildError: String?
+
 			do {
 				let report = try await options.build(includesGallery: true) {
 					server.reload()
 				}
 
-				server.show(error: report.brokenLinksText)
+				buildError = report.brokenLinksText
 			} catch {
 				print("Error: \(error)")
-				server.show(error: "\(error)")
+				buildError = "\(error)"
 			}
+
+			let errors = [toolError, buildError].compactMap(\.self)
+			server.show(error: errors.isEmpty ? nil : errors.joined(separator: "\n\n"))
 		}
 	}
 }

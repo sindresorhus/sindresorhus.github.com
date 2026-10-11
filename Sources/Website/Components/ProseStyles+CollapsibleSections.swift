@@ -89,8 +89,7 @@ extension ProseStyles {
 		.offset(y: .pixels(-1))
 
 	static let collapsibleChevronStyle = Style()
-		.display(.inlineFlex)
-		.alignItems(.center)
+		.hstack(alignment: .center, isInline: true)
 		.flexShrink(0)
 		.margin(.leading, .rootEm(0.5))
 		.after {

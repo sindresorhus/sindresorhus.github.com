@@ -73,13 +73,14 @@ public struct Style: Sendable {
 	}
 
 	/**
-	The style with the declarations and conditions of another style added, like a custom view modifier that is a value.
+	The style with the declarations and conditions of another style added, like a custom view modifier that is a value. The result is scoped when either style is scoped.
 	*/
 	public func combined(with other: Self) -> Self {
 		var copy = self
 		copy.declarations += other.declarations
 		copy.children.append(merging: other.children)
 		copy.definitions += other.definitions
+		copy.isScoped = isScoped || other.isScoped
 		return copy
 	}
 

@@ -745,7 +745,7 @@ struct HTMLRenderer: MarkupWalker {
 				style == .extended,
 				let comment = DirectiveComment(line: rawHTML[...])
 			{
-				reportProblem("The directive `@\(comment.name)` must be directly below a heading, on its own line, with only other directives between.", line: line(of: inlineHTML))
+				reportProblem(comment.misplacedMessage, line: line(of: inlineHTML))
 			}
 
 			return
@@ -814,7 +814,7 @@ struct HTMLRenderer: MarkupWalker {
 			}
 
 			guard isBelowHeading else {
-				reportProblem("The directive `@\(comment.name)` must be directly below a heading, on its own line, with only other directives between.", line: line)
+				reportProblem(comment.misplacedMessage, line: line)
 				continue
 			}
 

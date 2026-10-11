@@ -47,6 +47,15 @@ extension ProseStyles {
 				.margin(top: 0, horizontal: 0, bottom: .rootEm(2.5))
 				.textStyle(.largeTitle)
 		}
+		// A paragraph right below the title is its introduction, with the look and the space of the introduction of other pages (``PageHeader``).
+		.nested(":where(h1:has(+ p))") {
+			$0.margin(.bottom, .rootEm(0.5))
+		}
+		.nested(":where(h1 + p)") {
+			$0
+				.margin(top: .rootEm(0.5), horizontal: 0, bottom: .rootEm(2.5))
+				.secondaryText(.lead)
+		}
 		// Larger headings, up to `h3`, get tighter letter spacing, like the system fonts of Apple platforms.
 		.nested(":where(h2)") {
 			$0

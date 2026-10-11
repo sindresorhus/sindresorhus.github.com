@@ -64,13 +64,18 @@ enum Icon: HTML, CaseIterable {
 	The shapes are in the sprite at ``spritePath``, which browsers download once for all pages. The stroke attributes here apply to the shapes in it.
 	*/
 	func size(_ size: Length) -> HTMLRaw {
-		HTMLRaw(#"<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="\#(size)" height="\#(size)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="\#(Self.spritePath.versioned)#\#(symbolID)"/></svg>"#)
+		HTMLRaw(#"<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="\#(size)" height="\#(size)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="\#(Self.versionedSpritePath)#\#(symbolID)"/></svg>"#)
 	}
 
 	/**
 	The file with every icon as a symbol.
 	*/
 	static let spritePath: RoutePath = "/assets/icons.svg"
+
+	/**
+	The ``spritePath`` with the hash of the sprite, so browsers can cache it for a year.
+	*/
+	static let versionedSpritePath = spritePath.versioned(content: sprite)
 
 	/**
 	The sprite, for ``spritePath``.

@@ -140,7 +140,7 @@ struct NowPage: Page {
 						span {
 							description
 						}
-						.style(Styles.rowDescription)
+						.style(Styles.detail)
 					}
 				}
 				.style(Styles.row, Styles.stackedRow)
@@ -167,7 +167,7 @@ struct NowPage: Page {
 					span {
 						stat.label
 					}
-					.style(Styles.statLabel)
+					.style(Styles.detail)
 				}
 				.style(Styles.stat)
 			}
@@ -277,7 +277,7 @@ struct NowPage: Page {
 											}
 
 											DateText(update.date, format: updateDateFormat)
-												.style(Styles.rowDescription)
+												.style(Styles.detail)
 										}
 										.style(Styles.text)
 									}
@@ -348,9 +348,9 @@ struct NowPage: Page {
 	@HTMLBuilder
 	private var latestPosts: some HTML {
 		let blueskyPost = content.recentActivity.blueskyPost
-		let blogPosts = latestBlogPosts
+		let blogPost = latestBlogPost
 
-		if blueskyPost != nil || !blogPosts.isEmpty {
+		if blueskyPost != nil || blogPost != nil {
 			Section("Latest Posts", id: "posts") {
 				div {
 					if let blueskyPost {
@@ -392,9 +392,7 @@ struct NowPage: Page {
 									" · Also on "
 
 									for (index, link) in socialLinks.enumerated() {
-										if index > 0 {
-											index == socialLinks.count - 1 ? " and " : ", "
-										}
+										Self.listSeparator(before: index, count: socialLinks.count)
 
 										a(.href(.url(link.url))) {
 											link.name
@@ -408,9 +406,9 @@ struct NowPage: Page {
 						}
 					}
 
-					if !blogPosts.isEmpty {
+					if let blogPost {
 						group("On the Blog") {
-							rows(blogPosts.map { Row(title: $0.title, destination: $0.url, description: $0.description) })
+							rows([Row(title: blogPost.title, destination: blogPost.url, description: blogPost.description)])
 						}
 					}
 				}
@@ -425,6 +423,7 @@ struct NowPage: Page {
 	private var footerRow: some HTML {
 		let anniversaries = onThisDay
 		let yearStats = yearStats
+		let repositoryCommits = repositoryCommits
 
 		return footer {
 			if !anniversaries.isEmpty {
@@ -436,6 +435,27 @@ struct NowPage: Page {
 			if !yearStats.isEmpty {
 				Section("\(currentYear) So Far", id: "year") {
 					statRow(yearStats)
+
+					if !repositoryCommits.isEmpty {
+						p {
+							"Most commits went to "
+
+							for (index, commits) in repositoryCommits.enumerated() {
+								Self.listSeparator(before: index, count: repositoryCommits.count)
+
+								a(.href(.url(commits.url))) {
+									commits.displayName
+								}
+
+								" (\(commits.count.formatted(.number.locale(.site))))"
+							}
+
+							"."
+						}
+						.style(Styles.caption)
+						// The space between a group title and its card.
+						.style { $0.margin(.top, .rootEm(0.75)) }
+					}
 				}
 			}
 
@@ -480,6 +500,20 @@ struct NowPage: Page {
 	}
 
 	/**
+	The text before an item of a list in a sentence, like “, and ” before the last of three items, with the comma of the lists of the site (``Foundation/Locale/site``), or nothing before the first item.
+	*/
+	private static func listSeparator(before index: Int, count: Int) -> String {
+		switch index {
+		case 0:
+			""
+		case count - 1:
+			count > 2 ? ", and " : " and "
+		default:
+			", "
+		}
+	}
+
+	/**
 	The other places where the posts are, as the card already says Bluesky.
 	*/
 	private var socialLinks: [Person.SocialLink] {
@@ -487,10 +521,10 @@ struct NowPage: Page {
 	}
 
 	/**
-	The three newest blog posts. Posts that only send visitors to another page, like an app page, are left out.
+	The newest blog post. Posts that only send visitors to another page, like an app page, are left out.
 	*/
-	private var latestBlogPosts: [BlogPost] {
-		Array(content.listedPosts.filter { !$0.isRedirect }.prefix(3))
+	private var latestBlogPost: BlogPost? {
+		content.listedPosts.first { !$0.isRedirect }
 	}
 
 	private struct AppUpdate {
@@ -594,35 +628,42 @@ struct NowPage: Page {
 	A number with what it counts, like “59 pull requests merged”.
 	*/
 	private struct Stat {
+		/**
+		How many things the number is about, like 59 pull requests, or the ratings of an average rating.
+		*/
 		let count: Int
 
-		/**
-		What one of them is, like “pull request”. The label adds an “s” when the count is not 1.
-		*/
-		let noun: String
+		let value: String
+		let label: String
 
 		/**
-		The plural of the noun, for a noun that does not add an “s”, like “repositories”.
+		- Parameters:
+			- noun: What one of them is, like “pull request”. The label adds an “s” when the count is not 1.
+			- pluralNoun: The plural of the noun, for a noun that does not add an “s”, like “repositories”.
+			- verb: What happened to them, like “merged”.
+			- isApproximate: Whether the count is rounded down and abbreviated, like “22B+”, for counts that are too large to read in full.
 		*/
-		var pluralNoun: String?
-
-		/**
-		What happened to them, like “merged”.
-		*/
-		var verb: String?
-
-		/**
-		Whether the count is rounded down and abbreviated, like “22B+”, for counts that are too large to read in full.
-		*/
-		var isApproximate = false
-
-		var value: String {
-			// No thousands separator, as the large numbers read better without it, like “3467”.
-			isApproximate ? count.approximateCount : count.formatted(.number.grouping(.never).locale(.site))
+		init(count: Int, noun: String, pluralNoun: String? = nil, verb: String? = nil, isApproximate: Bool = false) {
+			self.init(count: count, label: [count == 1 ? noun : pluralNoun ?? noun + "s", verb].compactMap(\.self).joined(separator: " "), isApproximate: isApproximate)
 		}
 
-		var label: String {
-			[count == 1 ? noun : pluralNoun ?? noun + "s", verb].compactMap(\.self).joined(separator: " ")
+		/**
+		A count with a label that is not what it counts, like “383” and “busiest day, September 19”.
+		*/
+		init(count: Int, label: String, isApproximate: Bool = false) {
+			self.count = count
+			// No thousands separator, as the large numbers read better without it, like “3467”.
+			self.value = isApproximate ? count.approximateCount : count.formatted(.number.grouping(.never).locale(.site))
+			self.label = label
+		}
+
+		/**
+		An average rating out of 5, like “4.7” and “average rating”.
+		*/
+		init(rating: AppStoreInfo.Rating) {
+			self.count = rating.count
+			self.value = rating.average.formatted(.number.locale(.site).precision(.fractionLength(1)))
+			self.label = "average rating"
 		}
 	}
 
@@ -642,13 +683,18 @@ struct NowPage: Page {
 	}
 
 	/**
-	The totals of the apps of all the years, like “61 apps”, “6M+ users”, and “11 years of craft”.
+	The totals of the apps of all the years, like “61 apps”, “6M+ users”, “11 years of craft”, and the ratings on the App Store.
 	*/
 	private var allTimeAppStats: [Stat] {
-		[
+		// All the apps on the App Store, also the archived ones, as their ratings are part of all the years.
+		let rating = content.appStoreInfo.values.combinedRating
+
+		return [
 			Stat(count: content.activeApps.count, noun: "app"),
 			Stat(count: Site.appUserCount, noun: "user", isApproximate: true),
 			content.yearsOfCraft.map { Stat(count: $0, noun: "year", verb: "of craft") },
+			rating.map { Stat(count: $0.count, noun: "App Store rating", isApproximate: true) },
+			rating.map { Stat(rating: $0) },
 		]
 		.compactMap(\.self)
 	}
@@ -734,6 +780,14 @@ struct NowPage: Page {
 	}
 
 	/**
+	The three public repositories with the most commits in the year of the build, like eslint-plugin-unicorn with 933.
+	*/
+	private var repositoryCommits: [ContributionYear.RepositoryCommits] {
+		let commits = content.contributionYears.last { $0.year == currentYear }?.totals?.repositoryCommits ?? []
+		return Array(commits.filter { !$0.isPrivate }.prefix(3))
+	}
+
+	/**
 	The new apps, app updates, and blog posts of the year of the build. Counts of zero are left out.
 	*/
 	private var yearStats: [Stat] {
@@ -752,14 +806,20 @@ struct NowPage: Page {
 		let year = content.contributionYears.last { $0.year == currentYear }
 		let totals = year?.totals
 
+		// Twelve numbers when all have data, which fill four rows of three. The issues that Sindre opened are left out, as they say the least.
 		let stats: [Stat?] = [
 			Stat(count: appCount, noun: "new app"),
 			Stat(count: updatedAppCount, noun: "app", verb: "updated"),
 			Stat(count: postCount, noun: "blog post"),
 			year.map { Stat(count: $0.calendar.totalCount, noun: "contribution") },
+			year.map { Stat(count: $0.activeDayCount, noun: "day", verb: "with contributions") },
+			year?.busiestDay.flatMap { day in
+				// Short enough for one line, also with the longest month.
+				day.startOfDay.map { Stat(count: day.count, label: "busiest day, \($0.formatted(.siteDayWithoutYear))") }
+			},
 			totals.map { Stat(count: $0.commitCount, noun: "commit") },
+			totals.map { Stat(count: $0.committedRepositoryCount, noun: "repository", pluralNoun: "repositories", verb: "committed to") },
 			totals.map { Stat(count: $0.pullRequestCount, noun: "pull request", verb: "opened") },
-			totals.map { Stat(count: $0.issueCount, noun: "issue", verb: "opened") },
 			totals.map { Stat(count: $0.reviewCount, noun: "code review") },
 			totals.map { Stat(count: $0.repositoryCount, noun: "new repository", pluralNoun: "new repositories") },
 			Stat(count: updatedPackageCount, noun: "npm package", verb: "updated"),
@@ -772,7 +832,7 @@ struct NowPage: Page {
 	When the newest of the things on the page happened, or the hand-written part changed, so the date only changes when the page does.
 	*/
 	private var lastChange: Date? {
-		let dates: [Date?] = [page.lastCommitDate, content.newestApp?.publicationDate, latestBlogPosts.first?.publicationDate, content.recentActivity.blueskyPost?.date]
+		let dates: [Date?] = [page.lastCommitDate, content.newestApp?.publicationDate, latestBlogPost?.publicationDate, content.recentActivity.blueskyPost?.date]
 		return (dates.compactMap(\.self) + appUpdates.map(\.date) + latestReleases.map(\.date) + content.recentRepositories.prefix(5).map(\.createdAt)).max()
 	}
 
@@ -806,14 +866,13 @@ struct NowPage: Page {
 		case rowLabel
 		case rowLink
 		case rowDate
-		case rowDescription
+		case detail
 		case version
 		case stats
 		case colophon
 		case colophonLink
 		case stat
 		case statValue
-		case statLabel
 		case caption
 		case post
 		case postSource
@@ -862,9 +921,8 @@ struct NowPage: Page {
 							.color(.secondaryText)
 					}
 			case .icon:
-				// The icon images have their own shape and shadow, and transparent margins. The size is the size of the image.
+				// The icon images have their own shape and shadow, and transparent margins. The size is the size of the image, as it does not shrink in the row.
 				Style()
-					.plainImage()
 					.flexShrink(0)
 			case .text:
 				// The text next to an icon, like the title of the newest app.
@@ -960,7 +1018,8 @@ struct NowPage: Page {
 					.secondaryText()
 					.monospacedDigit()
 					.textWrap(.nowrap)
-			case .rowDescription:
+			// Less important text, like the description of a row or the label of a stat.
+			case .detail:
 				Style()
 					.secondaryText()
 			case .version:
@@ -1024,9 +1083,6 @@ struct NowPage: Page {
 					.letterSpacing(.em(-0.02))
 					.monospacedDigit()
 					.color(.primaryText)
-			case .statLabel:
-				Style()
-					.secondaryText()
 			case .caption:
 				Style()
 					.margin(0)

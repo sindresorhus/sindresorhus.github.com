@@ -34,7 +34,7 @@ extension URL {
 	}
 
 	/**
-	The files in the directory and its subdirectories, sorted by path so the order does not depend on the file system.
+	The files in the directory and its subdirectories, sorted by path, by the characters, so the order does not depend on the file system or the language of the machine.
 
 	Throws if the directory does not exist, so a wrong path is an error instead of an empty list.
 	*/
@@ -45,7 +45,7 @@ extension URL {
 
 		return contentsRecursively()
 			.filter(\.isFile)
-			.sorted(using: KeyPathComparator(\.path))
+			.sorted(using: KeyPathComparator(\.path, comparator: String.StandardComparator.lexical))
 	}
 
 	/**
@@ -289,3 +289,20 @@ static let sourceURL = #URL("https://github.com/sindresorhus/sindresorhus.github
 */
 @freestanding(expression)
 public macro URL(_ string: StaticString) -> URL = #externalMacro(module: "SiteKitMacros", type: "URLMacro")
+
+extension JSONEncoder {
+	/**
+	The value as JSON for a page, with sorted keys, so the output is the same in every build, and with slashes as they are. Encoding plain values only fails for a mistake, like a `Double.nan`, which stops the build, so a page never has a script without its data.
+	*/
+	static func pageJSON(_ value: some Encodable, keyEncodingStrategy: KeyEncodingStrategy = .useDefaultKeys) -> String {
+		let encoder = JSONEncoder()
+		encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
+		encoder.keyEncodingStrategy = keyEncodingStrategy
+
+		do {
+			return String(decoding: try encoder.encode(value), as: UTF8.self)
+		} catch {
+			preconditionFailure("Could not encode \(type(of: value)) as JSON: \(error)")
+		}
+	}
+}

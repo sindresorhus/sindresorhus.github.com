@@ -65,14 +65,6 @@ public struct JSONScript: HTML, Sendable {
 	Encodes with sorted keys. Every `<` is escaped as `\u003C`, so the JSON cannot end the script element or change how the HTML parser reads it, like with `<!--<script`. In JSON, `<` can only be in strings, where the escape is the same character.
 	*/
 	private static func encode(_ value: some Encodable, keyEncodingStrategy: JSONEncoder.KeyEncodingStrategy = .useDefaultKeys) -> String {
-		let encoder = JSONEncoder()
-		encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
-		encoder.keyEncodingStrategy = keyEncodingStrategy
-
-		guard let data = try? encoder.encode(value) else {
-			preconditionFailure("Could not encode \(Swift.type(of: value)) as JSON.")
-		}
-
-		return String(decoding: data, as: UTF8.self).replacing("<", with: #"\u003C"#)
+		JSONEncoder.pageJSON(value, keyEncodingStrategy: keyEncodingStrategy).replacing("<", with: #"\u003C"#)
 	}
 }

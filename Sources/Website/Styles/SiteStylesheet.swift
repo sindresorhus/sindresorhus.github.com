@@ -4,6 +4,11 @@ extension Stylesheet {
 	static let sitePath: RoutePath = "/assets/site.css"
 
 	/**
+	The ``sitePath`` with the hash of the stylesheet, so browsers can cache it for a year.
+	*/
+	static let versionedSitePath = sitePath.versioned(content: site.css)
+
+	/**
 	The stylesheet that every page links to, so browsers cache it: the element defaults and the Markdown typography.
 
 	Each page has the styles of its components in a `<style>` element, collected while it renders, so no list of components has to be kept in sync. Markdown renders before the page, so a document collects the styles of its block directives, and the page adds them when it shows the document (``MarkdownContent``). The components here are the ones that most pages use, so they are cached with the stylesheet.

@@ -114,19 +114,16 @@ extension FeedsPage {
 				Style()
 					.display(.block)
 					.margin(.top, .rootEm(0.25))
-					.textStyle(.caption)
-					.color(.secondaryText)
+					.secondaryText()
 			case .appCard:
 				Style()
 					.cardSurface()
 					.hstack(alignment: .center, spacing: .rootEm(0.75))
 					.padding(.rootEm(0.75))
 			case .appIcon:
-				// Not like an image in prose.
+				// The size of the icon in the card.
 				Style()
-					.plainImage()
 					.frame(width: .rootEm(2.5), height: .rootEm(2.5))
-					.cornerRadius(.rootEm(0.75))
 			case .appTitle:
 				Style()
 					.fontWeight(.semibold)

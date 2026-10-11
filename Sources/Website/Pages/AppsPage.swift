@@ -104,21 +104,7 @@ struct AppsPage: Page {
 				.hiddenFromSearchSnippets()
 				.style(Styles.grid)
 
-				section {
-					Prose {
-						for group in Self.linkGroups {
-							Section(group.title) {
-								ul {
-									for link in group.links {
-										LinkRow(link: link)
-									}
-								}
-							}
-						}
-					}
-				}
-				.hiddenFromSearchSnippets()
-				.style(Styles.extra)
+				linkGroups
 			}
 			.style(Styles.container)
 		}
@@ -138,6 +124,40 @@ struct AppsPage: Page {
 	}
 
 	/**
+	The links to the other app pages, side by side from tablets, lined up with the cards. Their titles are quiet, like those of the cards, as they are extra content at the end of the page.
+	*/
+	private var linkGroups: some HTML<HTMLTag.section> {
+		section {
+			for group in Self.linkGroups {
+				Prose {
+					h2 {
+						group.title
+					}
+					.style(SectionStyles.label)
+					// Without the letter spacing of headings in prose, like the labels of the cards.
+					.style {
+						$0
+							.textAlign(.leading)
+							.letterSpacing(0)
+					}
+
+					ul {
+						for link in group.links {
+							LinkRow(link: link)
+						}
+					}
+				}
+				// The section already has the space at the sides of the page.
+				.style {
+					$0.padding(.horizontal, 0)
+				}
+			}
+		}
+		.hiddenFromSearchSnippets()
+		.style(Styles.extra)
+	}
+
+	/**
 	The app categories and more pages about the apps, in the menu next to the title and at the end of the page.
 	*/
 	private static let linkGroups = [
@@ -152,7 +172,7 @@ struct AppsPage: Page {
 			title: "More",
 			links: [
 				.faq,
-				LabeledLink("Tiny Apps", destination: .path("/tiny-apps"), description: "Smaller utilities"),
+				LabeledLink("Tiny Apps", destination: .path(.tinyApps), description: "Smaller utilities"),
 				.appTimeline,
 				.wallOfLove,
 				.olderVersions,
@@ -188,13 +208,13 @@ struct AppsPage: Page {
 	}
 
 	private var stats: [String] {
-
-		return [
+		[
 			content.activeApps.count.formatted(counting: "app"),
-			"\((content.yearsOfCraft ?? 0).formatted(counting: "year")) of craft",
+			content.yearsOfCraft.map { "\($0.formatted(counting: "year")) of craft" },
 			"\(Site.appUserCount.approximateCount) users",
 			"10K answered support emails",
 		]
+		.compactMap(\.self)
 	}
 }
 
@@ -362,7 +382,13 @@ extension AppsPage {
 					.margin(top: .rootEm(2.5), horizontal: .auto, bottom: .rootEm(3))
 			case .extra:
 				Style()
-					.margin(top: .pixels(120), horizontal: .auto, bottom: .pixels(60))
+					.contentColumn(.page)
+					.margin(top: .rootEm(7.5), horizontal: .auto, bottom: .rootEm(3.75))
+					.grid(columns: 1)
+					.gap(.rootEm(2.5))
+					.from(.tablet) {
+						$0.gridColumns(2)
+					}
 			case .filterNotice:
 				Style()
 					.margin(.bottom, .rootEm(1))

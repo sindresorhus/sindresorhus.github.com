@@ -74,6 +74,13 @@ struct MarkdownTests {
 	}
 
 	@Test
+	func `inline HTML removes the paragraph only when there is one`() {
+		#expect(MarkdownDocument(parsing: "Hello *world*").inlineHTML == "Hello <em>world</em>")
+		#expect(MarkdownDocument(parsing: "First\n\nSecond").inlineHTML == "<p>First</p>\n<p>Second</p>")
+		#expect(MarkdownDocument(parsing: #"First\#n\#n<p class="note">Second</p>"#).inlineHTML == #"<p>First</p>\#n<p class="note">Second</p>"#)
+	}
+
+	@Test
 	func `tables are in a container that keyboard users can scroll`() {
 		let document = MarkdownDocument(parsing: "| A | B |\n| --- | --- |\n| 1 | 2 |")
 		#expect(document.html.hasPrefix(#"<div class="table-container" tabindex="0" role="region" aria-label="Table">"# + "\n<table>"))
@@ -216,6 +223,19 @@ struct MarkdownTests {
 
 		#expect(MarkdownDocument(parsing: "## Heading\n\nParagraph.").htmlSeparatingIntroduction == nil)
 		#expect(MarkdownDocument(parsing: "![Screenshot](screenshot.png)\n\nParagraph.").htmlSeparatingIntroduction == nil)
+	}
+
+	@Test
+	func `a document can be separated before a heading`() throws {
+		let document = MarkdownDocument(parsing: "First.\n\n## Section\n\n`<h2 id=\"end\">`\n\n## End\n\nMore.")
+		let separated = try #require(document.htmlSeparated(beforeHeading: "end"))
+		#expect(separated.before.contains("Section"))
+		// The heading in code is not a heading.
+		#expect(separated.before.contains("<code>"))
+		#expect(separated.after.hasPrefix(#"<h2 id="end""#))
+		#expect(separated.after.contains("More."))
+
+		#expect(document.htmlSeparated(beforeHeading: "missing") == nil)
 	}
 
 	@Test
@@ -830,7 +850,7 @@ struct MarkdownTests {
 		)
 
 		let document = MarkdownDocument(parsing: """
-		^[Mac](platform: "macOS") only, ^[not](size: 2).
+		^[Mac](platform: "macOS") only, ^[not](size: 2), ^[broken](platform: ).
 
 		@Box(title: "Hi") {
 		  Inside.
@@ -853,13 +873,15 @@ struct MarkdownTests {
 		}
 		""", options: options)
 
-		#expect(document.html.contains(#"<b data-a='macOS'>Mac</b> only, not."#))
+		#expect(document.html.contains(#"<b data-a='macOS'>Mac</b> only, not, broken."#))
 		#expect(document.html.contains(#"<section title="Hi" data-wide="false"><p>Inside.</p>"#))
 		#expect(document.html.contains("<div><p>Text.</p>"))
-		#expect(document.problems.map(\.line) == [1, 7, 11, 15])
+		#expect(document.problems.map(\.line) == [1, 1, 7, 11, 15])
 		#expect(document.problems[0].message == "The inline attributes `size: 2` are invalid: Missing required key `platform`.")
-		#expect(document.problems[2].message == "`@Box`: Missing required key `title`.")
-		#expect(document.problems[3].message == "`@Plain`: It takes no arguments.")
+		// The attributes that cannot be parsed say what is wrong.
+		#expect(document.problems[1].message.hasPrefix("The inline attributes `platform: ` are invalid: Expected a value"))
+		#expect(document.problems[3].message == "`@Box`: Missing required key `title`.")
+		#expect(document.problems[4].message == "`@Plain`: It takes no arguments.")
 	}
 
 	@Test

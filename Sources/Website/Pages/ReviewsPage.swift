@@ -117,8 +117,9 @@ extension ReviewsPage {
 		var style: Style {
 			switch self {
 			case .root:
+				// The width of the header, like the pages of the app categories, so the title is at the same place on the pages about the apps.
 				Style()
-					.pageColumn(.wide)
+					.pageColumn(.page)
 			case .wall:
 				// Columns that the cards flow through, so cards of different heights fit together.
 				Style()

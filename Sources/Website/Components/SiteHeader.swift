@@ -342,8 +342,7 @@ extension SiteHeader {
 					}
 					.from(.tablet) {
 						$0
-							.display(.flex)
-							.alignItems(.center)
+							.hstack(alignment: .center)
 							.position(.static)
 							.padding(0)
 							.background(.transparent)
@@ -393,8 +392,7 @@ extension SiteHeader {
 					.hidden(below: .tablet)
 			case .iconLinks:
 				Style()
-					.display(.flex)
-					.alignItems(.center)
+					.hstack(alignment: .center)
 					.alignSelf(.center)
 					.margin(.leading, .rootEm(0.5))
 					.hidden(below: .tablet)

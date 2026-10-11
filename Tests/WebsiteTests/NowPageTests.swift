@@ -155,6 +155,52 @@ struct NowPageTests {
 	}
 
 	@Test
+	func `the year has the days with contributions, the busiest day, and the repositories with the most commits`() async throws {
+		let json = #"""
+		{
+			"totalContributions": 12,
+			"weeks": [
+				{"contributionDays": [{"date": "2026-01-01", "contributionCount": 2, "contributionLevel": "FIRST_QUARTILE"}, {"date": "2026-01-02", "contributionCount": 7, "contributionLevel": "FOURTH_QUARTILE"}, {"date": "2026-01-03", "contributionCount": 0, "contributionLevel": "NONE"}, {"date": "2026-01-04", "contributionCount": 3, "contributionLevel": "SECOND_QUARTILE"}]}
+			]
+		}
+		"""#
+		let calendar = try JSONDecoder().decode(ContributionCalendar.self, from: Data(json.utf8))
+		let buildDate = try Date("2026-01-04T12:00:00Z", strategy: .iso8601)
+		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
+		let totals = try JSONDecoder().decode(ContributionYear.Totals.self, from: Data(#"""
+		{
+			"totalCommitContributions": 12,
+			"totalPullRequestContributions": 0,
+			"totalIssueContributions": 0,
+			"totalPullRequestReviewContributions": 0,
+			"totalRepositoryContributions": 0,
+			"totalRepositoriesWithContributedCommits": 2,
+			"commitContributionsByRepository": [
+				{"repository": {"nameWithOwner": "sindresorhus/ky", "url": "https://github.com/sindresorhus/ky", "isPrivate": false}, "contributions": {"totalCount": 1163}},
+				{"repository": {"nameWithOwner": "sindresorhus/secret", "url": "https://github.com/sindresorhus/secret", "isPrivate": true}, "contributions": {"totalCount": 500}},
+				{"repository": {"nameWithOwner": "chalk/chalk", "url": "https://github.com/chalk/chalk", "isPrivate": false}, "contributions": {"totalCount": 2}},
+				{"repository": {"nameWithOwner": "sindresorhus/got", "url": "https://github.com/sindresorhus/got", "isPrivate": false}, "contributions": {"totalCount": 1}}
+			]
+		}
+		"""#.utf8))
+		let content = SiteContent(apps: [], posts: [], pages: [page], contributionYears: [ContributionYear(year: 2026, calendar: calendar, totals: totals, until: buildDate)], buildDate: buildDate, project: .empty)
+
+		guard case .page(_, let render) = NowPage(page: page, content: content).route.output else {
+			Issue.record("The now page is not a page.")
+			return
+		}
+
+		let html = try render()
+
+		#expect(html.contains(">3</span> <span class=\"\(NowPage.Styles.detail.className)\">days with contributions</span>"))
+		#expect(html.contains(">7</span> <span class=\"\(NowPage.Styles.detail.className)\">busiest day, January 2</span>"))
+		#expect(html.contains(">2</span> <span class=\"\(NowPage.Styles.detail.className)\">repositories committed to</span>"))
+		// A private repo, which a personal token can see, is left out.
+		#expect(html.contains(#"Most commits went to <a href="https://github.com/sindresorhus/ky">ky</a> (1,163), <a href="https://github.com/chalk/chalk">chalk/chalk</a> (2), and <a href="https://github.com/sindresorhus/got">got</a> (1)."#))
+		#expect(!html.contains("secret"))
+	}
+
+	@Test
 	func `only the now page can have a status`() async throws {
 		await #expect {
 			try await MarkdownPage(markdown: "---\ntitle: 'About'\nstatus: 'Busy'\n---\n\nText.", slug: "about")

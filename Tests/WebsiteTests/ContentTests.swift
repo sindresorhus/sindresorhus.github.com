@@ -170,13 +170,13 @@ struct ContentTests {
 		""")
 
 		// The menu bar question goes first, after the feedback question, and the others go after the questions of the file.
-		#expect(app.markdown.headings.map(\.id) == ["faq", "feedback", "the-app-does-not-show-up-in-the-menu-bar", "some-question", "why-is-this-free-without-ads", "can-you-localize-the-app-into-my-language"])
+		#expect(app.markdown.headings.map(\.id) == ["faq", "feedback", "app-not-showing-in-menu-bar", "some-question", "why-is-this-free-without-ads", "can-you-localize-the-app-into-my-language"])
 		#expect(app.markdown.links.filter { $0.destination == "/apps/faq#app-not-showing-in-menu-bar" }.map(\.line) == [nil])
 
-		// The feedback page suggests them like the questions of the file.
+		// The feedback page suggests them like the questions of the file, except the menu bar question, which only links to the general question.
 		let questions = try #require(FAQSuggestions.Questions(apps: [app], faq: nil).apps.first).questions
-		#expect(questions.map(\.question) == ["The app does not show up in the menu bar", "Some question", "Why is this free without ads?", "Can you localize the app into my language?"])
-		#expect(questions.first?.url == .path(app.path, fragment: "the-app-does-not-show-up-in-the-menu-bar"))
+		#expect(questions.map(\.question) == ["Some question", "Why is this free without ads?", "Can you localize the app into my language?"])
+		#expect(questions.first?.url == .path(app.path, fragment: "some-question"))
 	}
 
 	/**
@@ -228,8 +228,22 @@ struct ContentTests {
 
 		#expect(app.markdown.headings.map(\.id) == ["faq", "feedback", "language", "the-app-does-not-show-up-in-the-menu-bar"])
 		#expect(app.markdown.html.contains("My own answer."))
-		#expect(!app.markdown.html.contains("Try this"))
+		#expect(!app.markdown.html.contains("How to make the app show up in the menu bar"))
 		#expect(!app.markdown.html.contains("I don’t plan to localize the app."))
+	}
+
+	/**
+	The added menu bar question only links to the general question, which the feedback page suggests instead, as it has the answer. An answer of the app itself is suggested.
+	*/
+	@Test
+	func `the feedback page suggests the menu bar question only when the app has its own answer`() async throws {
+		let source = "---\ntitle: 'My App'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nisMenuBarApp: true\n---\n\n## Frequently Asked Questions {#faq}\n\n### Some question\n\nAnswer.\n"
+		let app = try await App(markdown: source)
+		let appWithAnswer = try await App(markdown: source + "\n### The app does not show up in the menu bar\n\nMy own answer.\n")
+
+		#expect(app.markdown.html.contains("How to make the app show up in the menu bar"))
+		#expect(app.faqHeadings.map(\.text) == ["Some question", "Can you localize the app into my language?"])
+		#expect(appWithAnswer.faqHeadings.map(\.text) == ["Some question", "The app does not show up in the menu bar", "Can you localize the app into my language?"])
 	}
 
 	@Test
@@ -499,6 +513,17 @@ struct ContentTests {
 		#expect(try years(on: "2026-12-31") == 11)
 	}
 
+	@Test
+	func `years of open source counts whole years since the first repo`() throws {
+		func years(on date: String) throws -> Int? {
+			let buildDate = try Date(date, strategy: .iso8601.year().month().day())
+			return SiteContent(apps: [], posts: [], pages: [], buildDate: buildDate, project: .empty).yearsOfOpenSource
+		}
+
+		#expect(try years(on: "2026-09-05") == 14)
+		#expect(try years(on: "2026-09-06") == 15)
+	}
+
 	/**
 	The wall of love only has the apps that are listed and maintained, so it would show all quotes for the link of another app.
 	*/
@@ -621,6 +646,18 @@ struct ContentTests {
 	}
 
 	/**
+	A tier with logos is a list of links, so a sponsor in it without a logo needs a URL too.
+	*/
+	@Test
+	func `a sponsor in a tier with logos needs a URL`() async throws {
+		await #expect {
+			try await MarkdownPage(markdown: "---\ntitle: 'Supporters'\nsponsorTiers: [{title: 'Sponsor', price: '$100/month', sponsors: [{name: 'Logo', url: 'https://example.com', logo: '/logo.png', logoWidth: 100}, {name: 'Someone'}]}]\n---\n\n@Sponsors\n", slug: "supporters")
+		} throws: { error in
+			(error as? ContentError)?.reason.contains("“Someone” is in a tier with logos") == true
+		}
+	}
+
+	/**
 	The content errors of loading the app, with lines in the file.
 	*/
 	private func loadingErrors(_ source: String) async -> [ContentError] {
@@ -703,6 +740,26 @@ struct ContentTests {
 		#expect(Schema.SoftwareApplication(app: app, info: info).aggregateRating?.ratingValue == 4.6)
 	}
 
+	@Test
+	func `the combined rating weights the apps by their number of ratings`() throws {
+		func info(_ json: String) throws -> AppStoreInfo {
+			try JSONDecoder().decode(AppStoreInfo.self, from: Data(json.utf8))
+		}
+
+		let infos = try [
+			info(#"{"trackId": 1, "averageUserRating": 4, "userRatingCount": 100}"#),
+			info(#"{"trackId": 2, "averageUserRating": 5, "userRatingCount": 200}"#),
+			// Mac App Store apps always have a rating count of 0.
+			info(#"{"trackId": 3, "averageUserRating": 0, "userRatingCount": 0, "kind": "mac-software"}"#),
+		]
+
+		let rating = try #require(infos.combinedRating)
+		// 4.67, which is not halfway, so it only rounds to 4.7 when the average is weighted. Without the weights, it is 4.5.
+		#expect(rating.average == 4.7)
+		#expect(rating.count == 300)
+		#expect(infos.suffix(1).combinedRating == nil)
+	}
+
 	/**
 	Google requires an `aggregateRating` with more than one review (“Multiple reviews without aggregateRating object”), and the App Store does not have a rating for every app, so the structured data only has the reviews with a rating.
 	*/
@@ -770,5 +827,61 @@ struct ContentTests {
 		#expect(!html.contains("No personal information"))
 		#expect(html.contains("anonymous crash reports"))
 		#expect(page.metadata.description == "The privacy policy of the Test app. Your questions are sent to OpenAI. Anonymous crash reports are sent to Sentry.")
+	}
+
+	@Test
+	func `an app is new for 30 days after its publication day`() async throws {
+		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\n---\n\nText.")
+
+		#expect(app.isNew(at: try Date("2026-01-30T23:59:59Z", strategy: .iso8601)))
+		#expect(!app.isNew(at: try Date("2026-01-31T00:00:00Z", strategy: .iso8601)))
+	}
+
+	@Test
+	func `the availability leaves out the platforms only when the requirement already says macOS`() async throws {
+		func availabilityText(_ frontmatter: String) async throws -> String? {
+			try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\n\(frontmatter)\n---\n\nText.").availabilityText
+		}
+
+		#expect(try await availabilityText("platforms: ['macOS']\nrequirement: 'Requires macOS 15 or later'") == "Requires macOS 15 or later")
+		#expect(try await availabilityText("platforms: ['iOS', 'macOS']\nrequirement: 'Requires macOS 15 or later'") == "Available on macOS, iOS — Requires macOS 15 or later")
+		#expect(try await availabilityText("platforms: ['macOS']") == "Available on macOS")
+		#expect(try await availabilityText("platforms: ['iOS']\nrequirement: 'Requires iOS 18 or later'") == "Available on iOS — Requires iOS 18 or later")
+	}
+
+	/**
+	Safari shows the App Store banner on the device that runs the app, but an Apple Watch app is installed from the iPhone, so it gets a QR code.
+	*/
+	@Test
+	func `only apps that run on iOS or visionOS get the App Store banner, and watch apps also get a QR code`() async throws {
+		func app(_ frontmatter: String) async throws -> App {
+			try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nappStoreID: 123\n\(frontmatter)\n---\n\nText.")
+		}
+
+		let watchApp = try await app("platforms: ['watchOS']")
+		#expect(!watchApp.showsAppStoreBanner)
+		#expect(watchApp.qrCodeURL != nil)
+
+		let macApp = try await app("platforms: ['macOS']")
+		#expect(!macApp.showsAppStoreBanner)
+		#expect(macApp.qrCodeURL == nil)
+
+		#expect(try await app("platforms: ['visionOS']").showsAppStoreBanner)
+		#expect(try await !app("platforms: ['iOS']\nisArchived: true").showsAppStoreBanner)
+	}
+
+	@Test
+	func `the feedback link of an app selects it, also when its name has a plus`() {
+		#expect(App.feedbackURL(appTitle: "Plash+", referrer: "Website-FAQ").description == "/feedback?product=Plash%2B&referrer=Website-FAQ")
+	}
+
+	@Test
+	func `dates are shown in English and UTC, whatever the settings of the build machine`() throws {
+		// The next day in time zones east of UTC, like in Norway, and the day before in time zones west of it, so the test fails on any machine that is not in UTC.
+		for date in [try Date("2024-06-05T23:30:00Z", strategy: .iso8601), try Date("2024-06-05T00:30:00Z", strategy: .iso8601)] {
+			#expect(date.formatted(.siteDay) == "June 5, 2024")
+			#expect(date.formatted(.siteDayWithoutYear) == "June 5")
+			#expect(date.formatted(.siteMonth) == "June 2024")
+		}
 	}
 }

@@ -115,10 +115,7 @@ enum ButtonStyles: StyleSet {
 		switch self {
 		case .root:
 			Style()
-				.display(.inlineFlex)
-				.alignItems(.center)
-				.justifyContent(.center)
-				.gap(.rootEm(0.5))
+				.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5), isInline: true)
 				.cornerRadius(.capsule)
 				.textAlign(.center)
 				.textWrap(.nowrap)

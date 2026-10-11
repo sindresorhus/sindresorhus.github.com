@@ -69,9 +69,7 @@ struct AnnouncementBanner: HTML {
 					}
 			case .icon:
 				Style()
-					.display(.flex)
-					.alignItems(.center)
-					.justifyContent(.center)
+					.hstack(alignment: .center, justification: .center)
 					.flexShrink(0)
 					.frame(width: .rootEm(2), height: .rootEm(2))
 					.cornerRadius(.capsule)

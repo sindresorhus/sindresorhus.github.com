@@ -179,6 +179,8 @@ async function addHiddenFields(form) {
 		} else if (key === 'messageField') {
 			form.elements.message.value = value;
 			form.elements.message.setSelectionRange(0, 0);
+			// Setting the value fires no `input` event, so the related help and the crash warning would wait for the visitor to type.
+			form.elements.message.dispatchEvent(new Event('input'));
 		} else if (key === 'product') {
 			// The real title of the app, also when the link has its slug or another case.
 			addHiddenField(form, key, product);
@@ -188,10 +190,10 @@ async function addHiddenFields(form) {
 	}
 
 	// The metadata is in the form now, so it is removed from the visible URL.
-	if (parameters.get('metadata')) {
+	if (parameters.has('metadata')) {
 		const url = new URL(location.href);
 		url.searchParams.delete('metadata');
-		history.replaceState({}, '', url);
+		history.replaceState(history.state, '', url);
 	}
 
 	// Apps send their own metadata. Otherwise, the environment of the browser is sent. It is added last, as it waits for the browser, so the fields above are filled before the visitor starts typing.
@@ -297,6 +299,11 @@ if (location.search === '?success') {
 		console.error('Could not add the hidden fields:', error);
 	});
 	setUpEmailTypoDetection(form.elements.email);
+
+	// An address from the link, like from an app, is checked too, as setting the value fires no `input` event.
+	if (parameters.has('emailField')) {
+		form.elements.email.dispatchEvent(new Event('input'));
+	}
 
 	// The disabled button shows “Sending…”.
 	const submitButton = document.querySelector('#submit-button');

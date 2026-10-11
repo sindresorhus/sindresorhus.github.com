@@ -318,6 +318,7 @@ extension RoutePath {
 	static let faq: Self = "/apps/faq"
 
 	static let terms: Self = "/apps/terms"
+	static let tinyApps: Self = "/tiny-apps"
 	static let discounts: Self = "/apps/discounts"
 
 	/**
@@ -353,6 +354,7 @@ extension LinkDestination {
 	static let crashReportQuestion = path(.faq, fragment: "crash-report")
 	static let refundQuestion = path(.faq, fragment: "refund")
 	static let resetPermissionsQuestion = path(.faq, fragment: "mac-reset-permissions")
+	static let menuBarQuestion = path(.faq, fragment: "app-not-showing-in-menu-bar")
 }
 
 extension RoutePath {
@@ -375,10 +377,10 @@ extension LinkDestination {
 
 extension FormatStyle where Self == Date.FormatStyle {
 	/**
-	Dates in English and UTC, so the output does not depend on the build machine.
+	Dates in English, the Gregorian calendar, and UTC, so the output does not depend on the build machine, like a Mac set to the Buddhist calendar.
 	*/
 	static var site: Self {
-		Date.FormatStyle(locale: .site, timeZone: .gmt)
+		Date.FormatStyle(locale: .site, calendar: .site, timeZone: .gmt)
 	}
 
 	/**

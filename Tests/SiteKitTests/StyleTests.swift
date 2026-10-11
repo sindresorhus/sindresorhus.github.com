@@ -23,6 +23,25 @@ struct StyleTests {
 	}
 
 	@Test
+	func `a condition that sets nothing writes no block`() {
+		let css = Stylesheet {
+			Rule(".card", Style().padding(.rootEm(1)).dark { $0 })
+		}.css
+
+		#expect(!css.contains("@media"))
+		#expect(css.contains("padding: 1rem;"))
+	}
+
+	@Test
+	func `a combined style keeps the scope of the other style`() {
+		let css = Stylesheet {
+			Rule(".prose", Style().combined(with: Style().padding(.rootEm(1)).scoped()))
+		}.css
+
+		#expect(css.contains("@scope (.prose)"))
+	}
+
+	@Test
 	func `a huge length is written as a CSS number with an exponent`() {
 		#expect(Length.pixels(1e19).description == "1e+19px")
 		#expect(Length.pixels(-1e19).description == "-1e+19px")
@@ -547,6 +566,15 @@ struct StyleTests {
 		#expect("Heading2Large".kebabCased == "heading2-large")
 		#expect("H2Title".kebabCased == "h2-title")
 		#expect("Base64".kebabCased == "base64")
+	}
+
+	@Test
+	func `an acronym in a class name is one word that ends at its last capital`() {
+		#expect("URLField".kebabCased == "url-field")
+		#expect("HTMLElement".kebabCased == "html-element")
+		#expect("FAQSuggestions".kebabCased == "faq-suggestions")
+		#expect("URL".kebabCased == "url")
+		#expect("feedCard".kebabCased == "feed-card")
 	}
 
 	@Test

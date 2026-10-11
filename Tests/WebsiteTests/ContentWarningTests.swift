@@ -8,7 +8,7 @@ struct ContentWarningTests {
 	@Test
 	@MainActor
 	func `finds spelling mistakes, vague links, and facts that the App Store does not agree with`() async throws {
-		let source = "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS', 'iOS']\nappStoreID: 123\n---\n\nThe app has a shorcut. Read more [here](https://example.com) or `in` in the code.\n\n*Requires macOS 15 or later*\n"
+		let source = "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS', 'iOS']\nappStoreID: 123\nrequirement: 'Requires macOS 14 or later'\n---\n\nThe app has a shorcut. Read more [here](https://example.com) or `in` in the code.\n\n*Requires macOS 15 or later*\n"
 		let app = try await App(markdown: source)
 		let info = AppStoreInfo(id: 123, version: nil, currentVersionReleaseDate: nil, priceAmount: 5, currencyCode: "USD", averageUserRating: nil, userRatingCount: nil, kind: "mac-software", minimumOsVersion: "26.0", supportedDevices: nil)
 		let content = SiteContent(apps: [app], posts: [], pages: [], appStoreInfo: [123: info], releases: [:], recentRepositories: [], buildDate: .now, project: .empty)
@@ -18,10 +18,11 @@ struct ContentWarningTests {
 		#expect(warnings == [
 			"content/apps/test.md: The App Store price is $5, but `isPaid` is false.",
 			"content/apps/test.md: `platforms` has iOS, but the App Store version is a Mac app.",
-			"content/apps/test.md:11: Mentions macOS 15, but the App Store version needs macOS 26.0.",
+			"content/apps/test.md:7: Mentions macOS 14, but the App Store version needs macOS 26.0.",
+			"content/apps/test.md:12: Mentions macOS 15, but the App Store version needs macOS 26.0.",
 			"content/apps/test.md: The app has no `icon.png` next to it, so it shows a placeholder icon.",
-			"content/apps/test.md:9: The link text “here” does not say where the link goes.",
-			"content/apps/test.md:9: Unknown word: “shorcut”.",
+			"content/apps/test.md:10: The link text “here” does not say where the link goes.",
+			"content/apps/test.md:10: Unknown word: “shorcut”.",
 		])
 	}
 
@@ -65,6 +66,40 @@ struct ContentWarningTests {
 		let warnings = content.warnings(project: .empty, output: Project.empty.root.appending(path: "dist")).map(\.description).filter { $0.contains("does not say where the link goes") }
 
 		#expect(warnings == ["Try this", "this shortcut", "Download", "Screenshot", "Learn more", "More"].map { "content/apps/test.md:8: The link text “\($0)” does not say where the link goes." })
+	}
+
+	@Test
+	@MainActor
+	func `repeated words are warnings, also in other case, except a repeated “a”`() async throws {
+		let source = "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\n---\n\nThe app is is fast. Press a a b.\n\nIt syncs the the settings.\n\nThe the app is a b b c.\n"
+		let app = try await App(markdown: source)
+		let content = SiteContent(apps: [app], posts: [], pages: [], appStoreInfo: [:], releases: [:], recentRepositories: [], buildDate: .now, project: .empty)
+
+		let warnings = content.warnings(project: .empty, output: Project.empty.root.appending(path: "dist")).map(\.description).filter { $0.contains("Repeated") }
+
+		#expect(warnings == [
+			"content/apps/test.md:8: Repeated word: “is is”.",
+			"content/apps/test.md:10: Repeated word: “the the”.",
+			"content/apps/test.md:12: Repeated word: “The the”.",
+			"content/apps/test.md:12: Repeated word: “b b”.",
+		])
+	}
+
+	/**
+	An Apple Watch app is listed with iPhone devices on the App Store, as it comes with an iPhone app.
+	*/
+	@Test
+	@MainActor
+	func `a platform that the App Store lists but the frontmatter does not is a warning, except iOS for a watch app`() async throws {
+		func warnings(platforms: String, devices: String) async throws -> [String] {
+			let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: \(platforms)\nappStoreID: 123\n---\n\nText.\n")
+			let info = try JSONDecoder().decode(AppStoreInfo.self, from: Data(#"{"trackId": 123, "kind": "software", "supportedDevices": \#(devices)}"#.utf8))
+			let content = SiteContent(apps: [app], posts: [], pages: [], appStoreInfo: [123: info], releases: [:], recentRepositories: [], buildDate: .now, project: .empty)
+			return content.warnings(project: .empty, output: Project.empty.root.appending(path: "dist")).map(\.description).filter { $0.contains("`platforms` does not have it") }
+		}
+
+		#expect(try await warnings(platforms: "['watchOS']", devices: #"["iPhone15-iPhone15", "Watch8-Watch8"]"#).isEmpty)
+		#expect(try await warnings(platforms: "['macOS']", devices: #"["iPhone15-iPhone15"]"#) == ["content/apps/test.md: The App Store version supports iOS, but `platforms` does not have it."])
 	}
 
 	@Test

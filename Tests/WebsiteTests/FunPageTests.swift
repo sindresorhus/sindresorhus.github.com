@@ -110,5 +110,6 @@ struct FunPageTests {
 		#expect(year.firstWeekday == 4)
 		#expect(year.days.map(\.date) == ["2026-01-01", "2026-01-02", "2026-01-03", "2026-01-04", "2026-01-05"])
 		#expect(year.busiestDay?.date == "2026-01-02")
+		#expect(year.activeDayCount == 4)
 	}
 }

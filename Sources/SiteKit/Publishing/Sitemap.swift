@@ -38,7 +38,7 @@ public struct Sitemap {
 
 	var routes: [Route] {
 		let entries = pages
-			.sorted(using: KeyPathComparator(\.path.description))
+			.sorted(using: KeyPathComparator(\.path.description, comparator: String.StandardComparator.lexical))
 			.compactMap { page -> String? in
 				guard let entry = page.sitemapEntry else {
 					return nil

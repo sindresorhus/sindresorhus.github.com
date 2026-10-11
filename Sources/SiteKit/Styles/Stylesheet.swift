@@ -422,6 +422,11 @@ private struct CSSRenderer {
 					renderer.render(children)
 				}
 			case .conditional(let prelude, let declarations, let children):
+				// Like an empty rule, as a condition that sets nothing, like `.dark { $0 }`, would be an empty block.
+				guard !declarations.isEmpty || !children.isEmpty else {
+					continue
+				}
+
 				precondition(depth > 0 || declarations.isEmpty, "Top-level \(prelude) declarations must be inside a rule.")
 
 				block(prelude) { renderer in

@@ -126,12 +126,9 @@ extension ScriptedElement {
 	The config as JSON, or `nil` when it is `nil`.
 	*/
 	private var configJSON: String? {
-		let encoder = JSONEncoder()
-		encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
-
-		// Encoding a config of plain values cannot fail.
-		let json = String(decoding: (try? encoder.encode(config)) ?? Data(), as: UTF8.self)
-		return json == "null" || json.isEmpty ? nil : json
+		// Encoding a config of plain values only fails for a mistake, like a `Double.nan`, which stops the build, like in ``JSONScript``, so the script never runs without its config.
+		let json = JSONEncoder.pageJSON(config)
+		return json == "null" ? nil : json
 	}
 
 	/**
