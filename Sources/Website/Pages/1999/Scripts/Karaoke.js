@@ -1,9 +1,8 @@
 // The karaoke machine of the Music Room on the 1999 page. A song is lines of syllables, each with its MIDI note and its length in beats, and two chords for each line, one a bar. The ball hops to each syllable when it is sung. Key Change moves the rest of the song up a semitone. It plays through the sound card of the Music Room, `geocities-sound-card.js`.
-import {context, master, connectVolume, startAudio, midiFrequency, tone, pluck, noiseHit, drums, chords, startPlaying, stopPlaying, makeBus, fadeOut} from '/scripts/geocities-sound-card.js';
+import GeoCitiesElement, {randomInteger, midiFrequency} from '/scripts/geocities-element.js';
+import {context, master, connectVolume, startAudio, tone, pluck, noiseHit, drums, chords, startPlaying, stopPlaying, makeBus, fadeOut} from '/scripts/geocities-sound-card.js';
 
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
-
-export default class extends GeoCitiesElement {
+class GeoCitiesKaraoke extends GeoCitiesElement {
 	#lastSongButton;
 
 	connected() {
@@ -82,7 +81,7 @@ export default class extends GeoCitiesElement {
 		});
 
 		const later = (time, callback) => {
-			timers.push(setTimeout(callback, Math.max(0, (time - context.currentTime) * 1000)));
+			timers.push(this.timeout(Math.max(0, (time - context.currentTime) * 1000), callback));
 		};
 
 		// Shows a line on each row of the screen, with a span for each syllable.
@@ -129,7 +128,7 @@ export default class extends GeoCitiesElement {
 
 		const stop = () => {
 			for (const timer of timers) {
-				clearTimeout(timer);
+				timer.cancel();
 			}
 
 			timers = [];
@@ -338,3 +337,5 @@ export default class extends GeoCitiesElement {
 		return control === keyChange || control === stop ? this.#lastSongButton : super.focusReplacement(control);
 	}
 }
+
+customElements.define('geo-cities-karaoke', GeoCitiesKaraoke);

@@ -97,7 +97,6 @@ struct GeoCitiesCasio: ScriptedElement {
 						button(.type(.button), .hook(Hooks.tone, value: tone.id), .ariaPressed(index == 0)) {
 							"\(tone.number) \(tone.title)"
 						}
-						.attributes(.hook(.state, value: "on"), when: index == 0)
 						.style(Styles.panelButton)
 					}
 				}
@@ -113,7 +112,6 @@ struct GeoCitiesCasio: ScriptedElement {
 						button(.type(.button), .hook(Hooks.rhythm, value: rhythm.id), .ariaPressed(index == 0)) {
 							rhythm.title
 						}
-						.attributes(.hook(.state, value: "on"), when: index == 0)
 						.style(Styles.panelButton)
 					}
 				}
@@ -200,6 +198,10 @@ struct GeoCitiesCasio: ScriptedElement {
 		case playback
 		case keyboard
 		case status
+	}
+
+	enum States: String, ElementStateSet {
+		case lit
 	}
 
 	enum Hooks: String, ScriptHookSet {
@@ -303,7 +305,7 @@ struct GeoCitiesCasio: ScriptedElement {
 					.textStyle(.caption)
 					.color(.white)
 					.handCursor()
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.background(Color("#ff9933"))
 							.color(.black)
@@ -325,7 +327,7 @@ struct GeoCitiesCasio: ScriptedElement {
 					.active {
 						$0.border(Color("#555"), width: .pixels(2), style: .inset)
 					}
-					.when(.state, is: "on") {
+					.pressed {
 						$0.background(Color("#ffcc33"))
 					}
 					.disabled {
@@ -338,7 +340,7 @@ struct GeoCitiesCasio: ScriptedElement {
 			case .record:
 				Style()
 					.color(Color("#cc0000"))
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.background(Color("#ff3333"))
 							.color(.white)
@@ -364,14 +366,14 @@ struct GeoCitiesCasio: ScriptedElement {
 			case .whiteKey:
 				Style()
 					.vstack(alignment: .center, justification: .end)
-					.frame(width: .percent(100), height: .percent(100))
+					.frame(size: .percent(100))
 					.padding(.bottom, .rootEm(0.25))
 					.background(Color("#fafafa"))
 					.border(Color("#999"), width: .pixels(1))
 					.cornerRadius(.pixels(3))
 					.color(Color("#999"))
 					.handCursor()
-					.when(.state, is: "lit") {
+					.when(States.lit) {
 						$0.background(Color("#ffcc66"))
 					}
 			case .blackKey:
@@ -382,14 +384,14 @@ struct GeoCitiesCasio: ScriptedElement {
 					.trailing(.percent(-30))
 					.zIndex(1)
 					.vstack(alignment: .center, justification: .end)
-					.frame(width: .percent(60), height: .percent(60))
+					.frame(size: .percent(60))
 					.padding(.bottom, .rootEm(0.125))
 					.background(Color("#111"))
 					.border(Color("#000"), width: .pixels(1))
 					.cornerRadius(.pixels(2))
 					.color(Color("#bbb"))
 					.handCursor()
-					.when(.state, is: "lit") {
+					.when(States.lit) {
 						$0.background(Color("#ff9933"))
 					}
 			case .keyLetter:

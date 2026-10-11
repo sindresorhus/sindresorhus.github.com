@@ -102,7 +102,7 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 			button(.part(Parts.undo), .type(.button), .disabled) {
 				"↶ Undo"
 			}
-			.style(GeoCitiesPage.Styles.smallButton)
+			.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 			button(.part(Parts.hint), .type(.button)) {
 				"💡 Hint"
@@ -201,6 +201,10 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 		case sound
 		case status
 		case stats
+	}
+
+	enum States: String, ElementStateSet {
+		case empty
 	}
 
 	/**
@@ -306,7 +310,7 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 							.background(Color("#000080"))
 							.color(.white)
 					}
-					.when(.state, is: "open") {
+					.expanded {
 						$0
 							.background(Color("#000080"))
 							.color(.white)
@@ -350,7 +354,7 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 					.focusVisible {
 						$0.focusRing(Color("#ffff00"), width: .pixels(2), offset: .pixels(1))
 					}
-					.when(.state, is: "empty") {
+					.when(States.empty) {
 						$0.border(Self.darkFelt, width: .pixels(1))
 					}
 					.when(Hooks.dropTarget) {
@@ -422,7 +426,7 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 					.position(.relative)
 					.flexShrink(0)
 					.margin(0)
-					.when(.state, is: "empty") {
+					.when(States.empty) {
 						$0
 							.border(Self.darkFelt, width: .pixels(1))
 							.cornerRadius(.pixels(3))
@@ -484,7 +488,7 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 					.focusVisible {
 						$0.focusRing(Color("#ffff00"), width: .pixels(2), offset: .pixels(1))
 					}
-					.when(.state, is: "empty") {
+					.when(States.empty) {
 						$0.border(Self.darkFelt, width: .pixels(1))
 					}
 			case .fireworks:
@@ -493,7 +497,7 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 					.position(.absolute)
 					.inset(0)
 					.zIndex(40)
-					.frame(width: .percent(100), height: .percent(100))
+					.frame(size: .percent(100))
 					.allowsHitTesting(false)
 			}
 		}

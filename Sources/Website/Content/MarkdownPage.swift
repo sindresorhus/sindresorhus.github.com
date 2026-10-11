@@ -92,14 +92,10 @@ extension MarkdownPage {
 		var listening = [NonEmptyString]()
 
 		func validate() throws(ContentError) {
-			for sponsor in sponsorTiers.flatMap(\.sponsors) where sponsor.logo != nil {
-				guard sponsor.logoWidth != nil else {
-					throw ContentError(reason: "The logo of “\(sponsor.name)” needs `logoWidth`.")
-				}
-
-				// A tier with logos is a list of links.
-				guard sponsor.url != nil else {
-					throw ContentError(reason: "The sponsor “\(sponsor.name)” has a logo, so it needs `url`.")
+			// A tier with logos is a list of links, also to the sponsors without a logo.
+			for tier in sponsorTiers where tier.sponsors.contains(where: { $0.logo != nil }) {
+				if let sponsor = tier.sponsors.first(where: { $0.url == nil }) {
+					throw ContentError(reason: "The sponsor “\(sponsor.name)” is in a tier with logos, which is a list of links, so it needs `url`.")
 				}
 			}
 		}
@@ -128,16 +124,24 @@ extension MarkdownPage {
 		/**
 		The logo, made for a light background, which it is shown on in both modes. Without a logo, the name is shown.
 		*/
-		var logo: RoutePath?
-
-		/**
-		The width of the logo, in pixels. A logo needs it.
-		*/
-		var logoWidth: Int?
+		var logo: Logo?
 
 		/**
 		Shows the name next to the logo, for a logo without the name in it.
 		*/
 		var showsName: Bool = false
+	}
+
+	/**
+	The logo of a sponsor, with its width, which a logo needs, so the layout does not move while it loads.
+	*/
+	@Frontmatter
+	struct Logo {
+		var path: RoutePath
+
+		/**
+		The width, in pixels.
+		*/
+		var width: Int
 	}
 }

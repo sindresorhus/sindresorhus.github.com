@@ -152,6 +152,10 @@ struct GeoCitiesHandheld: ScriptedElement {
 		case status
 	}
 
+	enum States: String, ElementStateSet {
+		case on
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		The button of the game console, like `a` or `left`.
@@ -218,16 +222,16 @@ struct GeoCitiesHandheld: ScriptedElement {
 					.color(Color("#e8dcff"))
 					.handCursor()
 					.buttonFocusRing(Color("#ffcc00"))
-					.when(.state, is: "on") {
+					.pressed {
 						$0.background(Color("#6a50b0"))
 					}
 			case .led:
 				// The power light, red while it is on.
 				Style()
-					.frame(width: .rootEm(0.625), height: .rootEm(0.625))
+					.frame(size: .rootEm(0.625))
 					.background(Color("#441111"))
 					.cornerRadius(.circle)
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0
 							.background(Color("#ff2222"))
 							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ff3333")))
@@ -279,7 +283,7 @@ struct GeoCitiesHandheld: ScriptedElement {
 			case .padButton:
 				// Big enough for a thumb, and pressed in while it is held down.
 				Style()
-					.frame(width: .rootEm(2.5), height: .rootEm(2.5))
+					.frame(size: .rootEm(2.5))
 					.background(Color("#222222"))
 					.border(Color("#111111"), width: .pixels(1))
 					.fontFamily(.system)
@@ -298,7 +302,7 @@ struct GeoCitiesHandheld: ScriptedElement {
 					.rotationEffect(.degrees(-20))
 			case .roundButton:
 				Style()
-					.frame(width: .rootEm(3.25), height: .rootEm(3.25))
+					.frame(size: .rootEm(3.25))
 					.background(Color("#c8c8d8"))
 					.border(Color("#555566"), width: .pixels(2))
 					.cornerRadius(.circle)
@@ -334,16 +338,17 @@ struct GeoCitiesHandheld: ScriptedElement {
 					.touchAction(.none)
 					.textSelection(.disabled)
 					.handCursor()
+					// The flat rubber has no raised edge, so it gets as dark as its edge while it is held down, like the buttons of the cross.
+					.active {
+						$0.background(Color("#22184a"))
+					}
 			case .below:
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.5))
 					.margin(top: .rootEm(1))
 			case .status:
 				Style()
-					.frame(minHeight: .lineHeight(2))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+					.toyStatus()
 					.textAlign(.center)
 			}
 		}

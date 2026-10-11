@@ -1,39 +1,15 @@
 // Klinkekuler on the 1999 page: the marbles of the school yard in Bergen, seen from above on the gravel, with rolling, friction, elastic collisions, and swirls that turn in 3D as the marbles roll. The visitor plays Hull, Ring, and Tårn against the kids of the school, for fun or for real, until the bell rings. The marble bag is kept in the browser. The canvas runs only while it is on screen and the tab is visible. Nothing makes a sound until the visitor turns on the sound.
+import GeoCitiesElement, {randomItem, clamp, shuffled, seededRandom} from '/scripts/geocities-element.js';
+import {canvasPoint} from '/scripts/geocities-canvas.js';
 
 // A phone has no keys to aim with, so the tips there only say what a finger does.
 const coarsePointer = matchMedia('(pointer: coarse)');
-
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
 
 // A random number with a bell curve around 0, for the aim of the kids, which is mostly close and sometimes far off.
 const gaussian = () => {
 	const first = 1 - Math.random();
 	const second = Math.random();
 	return Math.sqrt(-2 * Math.log(first)) * Math.cos(2 * Math.PI * second);
-};
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
-
-// A random number generator with a seed, so a marble has the same swirls on each frame, and the gravel the same stones on each visit.
-const seededRandom = seed => () => {
-	seed = (seed + 0x6D_2B_79_F5) | 0;
-	let value = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-	value = (value + Math.imul(value ^ (value >>> 7), 61 | value)) ^ value;
-	return ((value ^ (value >>> 14)) >>> 0) / 4_294_967_296;
 };
 
 // The kinds of marbles. A heavier marble hits harder: the steel ball is three times as heavy as glass of the same size.
@@ -880,7 +856,7 @@ const roundedRectangle = (context, x, y, rectangleWidth, rectangleHeight, radius
 	context.roundRect(x, y, rectangleWidth, rectangleHeight, radius);
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesMarbles extends GeoCitiesElement {
 	#yard;
 	#width;
 	#height;
@@ -1376,7 +1352,7 @@ export default class extends GeoCitiesElement {
 	#setUpMyTower() {
 		this.#buildTower([this.#match.stake.me[0], this.#match.stake.me[1], this.#match.stake.me.length > 2 ? this.#match.stake.me[2] : 'glass', this.#match.stake.me[3] ?? 'glass'], 'me');
 		this.#match.lineY = 350;
-		const others = ['trond', 'kevin', 'geir', 'sister', 'ola'].filter(id => id !== this.#match.kid).sort(() => Math.random() - 0.5);
+		const others = shuffled(['trond', 'kevin', 'geir', 'sister', 'ola'].filter(id => id !== this.#match.kid));
 		this.#match.queue = [this.#match.kid, ...others];
 		this.#match.turn = 'them';
 	}
@@ -2560,7 +2536,7 @@ export default class extends GeoCitiesElement {
 	#setRain(raining, isWeather = false) {
 		this.#isRaining = raining;
 		const {rain} = this.parts;
-		setPressed(rain, this.#isRaining);
+		rain.setAttribute('aria-pressed', String(this.#isRaining));
 		rain.textContent = this.#isRaining ? 'Rain: On' : 'Rain';
 		if (isWeather) {
 			this.toast(this.#isRaining ? 'Typisk Bergen: it is raining again.' : 'The sun is out! In Bergen!');
@@ -2572,8 +2548,7 @@ export default class extends GeoCitiesElement {
 	// MARK: The trade stand
 
 	#makeTrades() {
-		const shuffled = [...tradeOffers].sort(() => Math.random() - 0.5);
-		this.#trades = shuffled.slice(0, 3).map(offer => ({...offer, isDone: false}));
+		this.#trades = shuffled(tradeOffers).slice(0, 3).map(offer => ({...offer, isDone: false}));
 		this.#renderTrades();
 	}
 
@@ -2688,20 +2663,20 @@ export default class extends GeoCitiesElement {
 
 	#updateButtons() {
 		for (const button of this.#gameButtons) {
-			setPressed(button, button.dataset.marblesGame === this.#gameId);
+			button.setAttribute('aria-pressed', String(button.dataset.marblesGame === this.#gameId));
 		}
 
 		for (const button of this.#opponentButtons) {
-			setPressed(button, button.dataset.marblesOpponent === this.#opponentId);
+			button.setAttribute('aria-pressed', String(button.dataset.marblesOpponent === this.#opponentId));
 		}
 
 		for (const button of this.#spinButtons) {
-			setPressed(button, Number({none: 0, left: -1, right: 1}[button.dataset.marblesSpin]) === this.#spin);
+			button.setAttribute('aria-pressed', String(Number({none: 0, left: -1, right: 1}[button.dataset.marblesSpin]) === this.#spin));
 		}
 
 		const {stakes, goOn, cheat, teacher, newGame, drawer, drawerText} = this.parts;
 		stakes.textContent = this.#isForReal ? 'På ordentlig (for Real)' : 'På lek (for Fun)';
-		setPressed(stakes, this.#isForReal);
+		stakes.setAttribute('aria-pressed', String(this.#isForReal));
 		goOn.disabled = this.#match?.phase !== 'waiting';
 		goOn.dataset.state = this.#match?.phase === 'waiting' ? 'urgent' : '';
 		cheat.disabled = !this.#match || this.#match.phase === 'over';
@@ -3528,7 +3503,7 @@ export default class extends GeoCitiesElement {
 			}
 
 			const {sound} = this.parts;
-			setPressed(sound, this.#isSoundOn);
+			sound.setAttribute('aria-pressed', String(this.#isSoundOn));
 			sound.textContent = this.#isSoundOn ? 'Sound: On' : 'Sound: Off';
 			if (this.#isSoundOn) {
 				this.#effects.click(300, 'glass', 'glass');
@@ -3789,3 +3764,5 @@ export default class extends GeoCitiesElement {
 		this.#requestDraw();
 	}
 }
+
+customElements.define('geo-cities-marbles', GeoCitiesMarbles);

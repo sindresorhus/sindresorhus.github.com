@@ -3,7 +3,7 @@ import Markdown
 import SiteKit
 
 /**
-The plain files for crawlers, AI assistants, and other tools: `robots.txt`, `humans.txt`, `llms.txt`, `llms-full.txt`, `/apps.json`, and WebFinger.
+The plain files for crawlers, AI assistants, and other tools: `robots.txt`, `humans.txt`, `llms.txt`, `llms-full.txt`, `/apps.json`, and WebFinger, and the npm packages and the repos for the buttons of ``ProjectOfTheDay``.
 */
 extension Site {
 	@RouteBuilder
@@ -30,6 +30,22 @@ extension Site {
 
 		Route.file("/.well-known/webfinger") {
 			try Self.webFinger()
+		}
+
+		// Without projects, the about page has no card for them, so its button needs no file.
+		let packages = content.discoverablePackages
+		let repositories = content.discoverableRepositories
+
+		if !packages.isEmpty {
+			Route.file(.npmPackages) {
+				ProjectOfTheDay.listJSON(packages)
+			}
+		}
+
+		if !repositories.isEmpty {
+			Route.file(.repositories) {
+				ProjectOfTheDay.listJSON(repositories)
+			}
 		}
 	}
 
@@ -249,7 +265,7 @@ extension MarkdownFile {
 				let destination = (try? resolvingLink(String(match.1), project: project)) ?? String(match.1)
 				return "](\(URL(string: destination, relativeTo: page)?.absoluteString ?? destination))"
 			}
-			// The root-relative URLs of raw HTML, like `<img src="/apps/dato/icon.png">` and `href="/"`, but not `//example.com`, which is another host.
+			// The root-relative URLs of raw HTML, like `<img src="/dato/icon.png">` and `href="/"`, but not `//example.com`, which is another host.
 			.replacing(/\b(src|href)="(\/(?:[^"\/][^"]*)?)"/) { match in
 				#"\#(match.1)="\#(URL(string: String(match.2), relativeTo: page)?.absoluteString ?? String(match.2))""#
 			}

@@ -57,11 +57,9 @@ extension ContentEntry {
 			throw ContentErrors([ContentError(file: directoryURL, reason: "The content directory does not exist.")])
 		}
 
-		let markdownFiles = files
-			.filter { $0.pathExtension == "md" }
-			.sorted(using: KeyPathComparator(\.path, comparator: String.StandardComparator.lexical))
+		let markdownFiles = files.filter { $0.pathExtension == "md" }
 
-		// The files are loaded in parallel, and every file is loaded, so all mistakes are reported at once. The results are put back in path order, so entries with the same sort key always come out in the same order.
+		// The files are loaded in parallel, and every file is loaded, so all mistakes are reported at once. The results are put back in path order (``Foundation/URL/filesRecursively()`` sorts by path), so entries with the same sort key always come out in the same order.
 		var entriesByIndex = [Self?](repeating: nil, count: markdownFiles.count)
 		var errors = [ContentError]()
 

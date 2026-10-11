@@ -72,6 +72,13 @@ extension Int {
 	}
 
 	/**
+	The approximate count (``approximateCount``) with the noun, in the plural when the count is not 1, like “1 star” or “4.2M+ downloads”. The plural adds an “s”.
+	*/
+	func approximateCount(counting noun: String) -> String {
+		"\(approximateCount) \(self == 1 ? noun : noun + "s")"
+	}
+
+	/**
 	The count with the noun, in the plural when the count is not 1, like “1 day” or “1,234 days”. The plural adds an “s”.
 	*/
 	func formatted(counting noun: String) -> String {
@@ -97,6 +104,35 @@ extension Array {
 	*/
 	var nilIfEmpty: Self? {
 		isEmpty ? nil : self
+	}
+}
+
+extension Sequence {
+	/**
+	The elements without the later ones with the same key, in their order, like one release of each project.
+
+	```
+	["ky", "got", "ky"].uniqued(by: \.self)
+	//=> ["ky", "got"]
+	```
+	*/
+	func uniqued<Key: Hashable>(by key: (Element) -> Key) -> [Element] {
+		var keys = Set<Key>()
+		return filter { keys.insert(key($0)).inserted }
+	}
+}
+
+extension Sequence where Element: AdditiveArithmetic {
+	/**
+	The sum of the elements, and zero for an empty sequence.
+
+	```
+	[1, 2, 3].sum
+	//=> 6
+	```
+	*/
+	var sum: Element {
+		reduce(.zero, +)
 	}
 }
 
@@ -277,7 +313,7 @@ extension Schema.SoftwareApplication {
 			image: app.iconURL
 		)
 
-		screenshot = app.screenshotURLs.isEmpty ? nil : app.screenshotURLs
+		screenshot = app.screenshotURLs.nilIfEmpty
 
 		if
 			let info,
@@ -342,11 +378,11 @@ extension CGColor {
 
 extension CGImage {
 	/**
-	The most common vivid color of the image, like the blue of a blue app icon, as hex, like `#1e88e5`. `nil` when the image has almost no vivid colors, like a gray icon.
+	The most common vivid color of the image, like the blue of a blue app icon, written as hex, like `#1e88e5`. `nil` when the image has almost no vivid colors, like a gray icon.
 
 	The image is scaled down, and the colors of the opaque, saturated pixels are grouped by hue. The color is the average of the largest group, where more saturated and brighter pixels count more.
 	*/
-	var accentColor: String? {
+	var accentColor: Color? {
 		struct HueGroup {
 			var weight = 0.0
 			var red = 0.0
@@ -429,7 +465,7 @@ extension CGImage {
 			return (byte < 16 ? "0" : "") + String(byte, radix: 16)
 		}
 
-		return "#\(hex(largest.red))\(hex(largest.green))\(hex(largest.blue))"
+		return Color("#\(hex(largest.red))\(hex(largest.green))\(hex(largest.blue))")
 	}
 }
 
@@ -451,21 +487,40 @@ extension Locale {
 
 extension Calendar {
 	/**
-	The Gregorian calendar in UTC, so the year or the day of a date does not depend on the time zone of the build machine.
+	The Gregorian calendar in UTC and in the language of the site, so the year or the day of a date and the names of the weekdays do not depend on the build machine.
 	*/
 	static let site: Self = {
 		var calendar = Self(identifier: .gregorian)
 		calendar.timeZone = .gmt
+		calendar.locale = .site
 		return calendar
 	}()
 }
 
 extension Date {
 	/**
+	The start of a day in UTC (``Calendar/site``), for a date in the code, like `Date(year: 2011, month: 9, day: 6)`.
+	*/
+	init(year: Int, month: Int, day: Int) {
+		guard let date = Calendar.site.date(from: DateComponents(year: year, month: month, day: day)) else {
+			preconditionFailure("\(year)-\(month)-\(day) is not a date.")
+		}
+
+		self = date
+	}
+
+	/**
 	The year of the date in UTC (``Calendar/site``), like 2026.
 	*/
 	var siteYear: Int {
 		Calendar.site.component(.year, from: self)
+	}
+
+	/**
+	The whole years in UTC from the other date to this date, like 11 for the age of the first app. The count goes up on the day of the other date, not on January 1.
+	*/
+	func wholeYears(since date: Date) -> Int {
+		Calendar.site.dateComponents([.year], from: date, to: self).year ?? 0
 	}
 
 	/**

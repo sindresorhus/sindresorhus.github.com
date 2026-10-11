@@ -1,6 +1,5 @@
 // Taipei on the desktop of the 1999 page, the mahjong solitaire of the Microsoft Entertainment Pack (Dave Norris, 1990): the tiles of a mahjong set lie in layers, and the visitor takes them off in matching pairs. A tile is free when no tile lies on it, and its left or right side is open. Every deal is built backwards from an empty table, so it always has a solution. Nothing makes a sound until the visitor turns on the sound, and with reduced motion, nothing moves by itself.
-
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
+import GeoCitiesElement, {randomItem, clamp, shuffled, seededRandom, playTone} from '/scripts/geocities-element.js';
 
 // A place of a tile is in half tiles, so tiles can sit half a tile apart, like the ends of the turtle. The tile covers two half tiles both ways from its place.
 const block = (z, columns, rows) => {
@@ -99,28 +98,6 @@ const allPairs = () => {
 	return pairs;
 };
 
-// A small random generator with a seed, so a game number deals the same game again.
-const seededRandom = seed => {
-	let state = seed >>> 0;
-
-	return () => {
-		state = (state + 0x6D_2B_79_F5) >>> 0;
-		let value = state;
-		value = Math.imul(value ^ (value >>> 15), value | 1);
-		value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
-		return ((value ^ (value >>> 14)) >>> 0) / 4_294_967_296;
-	};
-};
-
-const shuffle = (items, random = Math.random) => {
-	for (let index = items.length - 1; index > 0; index--) {
-		const other = Math.floor(random() * (index + 1));
-		[items[index], items[other]] = [items[other], items[index]];
-	}
-
-	return items;
-};
-
 // The neighbors of each place: the tiles that touch it on the left and the right in its layer, and the tiles that lie on it, or under it, in other layers.
 const neighborsOf = places => places.map(place => {
 	const neighbors = {left: [], right: [], above: [], below: []};
@@ -184,7 +161,7 @@ const buildOrder = (neighbors, places, random) => {
 			return isGood;
 		};
 
-		const puttable = () => shuffle(places.flatMap((_, index) => (canPut(index) ? [index] : [])), random);
+		const puttable = () => shuffled(places.flatMap((_, index) => (canPut(index) ? [index] : [])), random);
 
 		while (left > 0) {
 			let pair;
@@ -546,7 +523,7 @@ const setToggle = (button, isOn, label) => {
 	button.textContent = `${isOn ? '☑' : '☐'} ${label}`;
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesWindowsTaipei extends GeoCitiesElement {
 	#context;
 	#title;
 	#viewWidth;
@@ -965,23 +942,7 @@ export default class extends GeoCitiesElement {
 			return;
 		}
 
-		const {context, output} = sound;
-		const oscillator = context.createOscillator();
-		const gain = context.createGain();
-		const time = context.currentTime + start;
-		oscillator.type = type;
-		oscillator.frequency.setValueAtTime(frequency, time);
-
-		if (slide) {
-			oscillator.frequency.exponentialRampToValueAtTime(slide, time + duration);
-		}
-
-		gain.gain.setValueAtTime(0.0001, time);
-		gain.gain.exponentialRampToValueAtTime(volume, time + 0.005);
-		gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-		oscillator.connect(gain).connect(output);
-		oscillator.start(time);
-		oscillator.stop(time + duration + 0.05);
+		playTone(sound, frequency, start, duration, {type, volume, slide, attack: 0.005});
 	}
 
 	// The clack of a tile is a short, high square wave, like two tiles that touch.
@@ -1259,6 +1220,7 @@ export default class extends GeoCitiesElement {
 		game.layout = this.#layoutOf(layoutId);
 		game.number = number;
 		const {places, neighbors} = game.layout;
+		// A small random generator with a seed, so a game number deals the same game again.
 		const random = seededRandom((number * 7919) + Object.keys(layouts).indexOf(layoutId));
 		const order = buildOrder(neighbors, places, random);
 
@@ -1268,7 +1230,7 @@ export default class extends GeoCitiesElement {
 			return;
 		}
 
-		const pairs = shuffle(allPairs(), random).slice(0, places.length / 2);
+		const pairs = shuffled(allPairs(), random).slice(0, places.length / 2);
 		game.kinds = [];
 
 		for (const [position, [first, second]] of order.entries()) {
@@ -1617,17 +1579,17 @@ export default class extends GeoCitiesElement {
 			groups.set(matchGroup(kind), [...(groups.get(matchGroup(kind)) ?? []), kind]);
 		}
 
-		const pairs = [];
+		const matchingPairs = [];
 
-		for (const kinds of groups.values()) {
-			shuffle(kinds);
+		for (const group of groups.values()) {
+			const kinds = shuffled(group);
 
 			for (let index = 0; index < kinds.length; index += 2) {
-				pairs.push([kinds[index], kinds[index + 1]]);
+				matchingPairs.push([kinds[index], kinds[index + 1]]);
 			}
 		}
 
-		shuffle(pairs);
+		const pairs = shuffled(matchingPairs);
 		const order = buildOrder(game.layout.neighbors, game.layout.places.map((place, index) => (game.isThere[index] ? place : undefined)), Math.random);
 		game.history.push({kinds: [...game.kinds]});
 		game.kinds = [...game.kinds];
@@ -1637,7 +1599,7 @@ export default class extends GeoCitiesElement {
 				[game.kinds[first], game.kinds[second]] = pairs[position];
 			}
 		} else {
-			const kinds = shuffle(pairs.flat());
+			const kinds = shuffled(pairs.flat());
 
 			for (const [position, index] of left.entries()) {
 				game.kinds[index] = kinds[position];
@@ -1929,9 +1891,9 @@ export default class extends GeoCitiesElement {
 		const rowIndex = rows.indexOf(row);
 		const cells = [...row.querySelectorAll('[data-taipei-cell]')];
 		const columnIndex = cells.indexOf(cell);
-		const nextRow = rows[Math.min(Math.max(rowIndex + move[1], 0), rows.length - 1)];
+		const nextRow = rows[clamp(rowIndex + move[1], 0, rows.length - 1)];
 		const nextCells = [...nextRow.querySelectorAll('[data-taipei-cell]')];
-		const next = nextCells[Math.min(Math.max(columnIndex + move[0], 0), nextCells.length - 1)];
+		const next = nextCells[clamp(columnIndex + move[0], 0, nextCells.length - 1)];
 		event.preventDefault();
 		next.focus();
 	}
@@ -1950,3 +1912,5 @@ export default class extends GeoCitiesElement {
 		screen.focus();
 	}
 }
+
+customElements.define('geo-cities-windows-taipei', GeoCitiesWindowsTaipei);

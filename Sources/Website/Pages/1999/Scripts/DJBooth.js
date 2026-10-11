@@ -1,11 +1,8 @@
 // The turntable of the DJ booth in the Music Room on the 1999 page. The record is two bars of a breakbeat, rendered once into a buffer. Scratching plays small pieces of it, forward or from a reversed copy, as fast as the record moves under the pointer. A record turns at 33⅓ RPM, so one turn is 1.8 seconds of music. It plays through the sound card of the Music Room, `geocities-sound-card.js`.
-import {context, connectVolume, startAudio, midiFrequency, tone, pluck, voice, drums, startPlaying, stopPlaying, makeBus, addStopHandler} from '/scripts/geocities-sound-card.js';
+import GeoCitiesElement, {randomItem, clamp, hasModifier, midiFrequency} from '/scripts/geocities-element.js';
+import {context, connectVolume, startAudio, tone, pluck, voice, drums, startPlaying, stopPlaying, makeBus, addStopHandler} from '/scripts/geocities-sound-card.js';
 
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const hasModifier = event => event.ctrlKey || event.metaKey || event.altKey;
-
-export default class extends GeoCitiesElement {
+class Turntable extends GeoCitiesElement {
 	connected() {
 		const {record, play: playButton, airHorn, rewind} = this.parts;
 		connectVolume(this.querySelectorAll('[data-music-volume]'), this.signal);
@@ -100,7 +97,7 @@ export default class extends GeoCitiesElement {
 
 		const player = {
 			stop() {
-				clearTimeout(rewindTimer);
+				rewindTimer?.cancel();
 				pauseBeat();
 				isBeatOn = false;
 				spinning.stop();
@@ -121,7 +118,9 @@ export default class extends GeoCitiesElement {
 				deckBus.gain.value = 2;
 			}
 			await renderRecord();
-			return true;
+
+			// The turntable can be removed while the record renders, and then it must not play.
+			return this.isConnected;
 		};
 
 		this.on(playButton, 'click', async () => {
@@ -262,11 +261,11 @@ export default class extends GeoCitiesElement {
 			turnTo(angle + ((change / secondsPerTurn) * 360));
 
 			if (wasPlaying) {
-				setTimeout(() => {
+				this.timeout(100, () => {
 					if (isBeatOn && !beatSource) {
 						startBeat();
 					}
-				}, 100);
+				});
 			}
 		});
 
@@ -311,8 +310,8 @@ export default class extends GeoCitiesElement {
 			}
 
 			this.say('Pull up! Wheel it up, selecta! From the top!');
-			clearTimeout(rewindTimer);
-			rewindTimer = setTimeout(() => {
+			rewindTimer?.cancel();
+			rewindTimer = this.timeout(850, () => {
 				position = 0;
 				turnTo(0);
 
@@ -327,12 +326,14 @@ export default class extends GeoCitiesElement {
 				if (!isHolding) {
 					startBeat();
 				}
-			}, 850);
+			});
 		});
 
 		// A rewind that started while the beat was off is not playing yet, so leaving the tab cancels it too.
 		addStopHandler(() => {
-			clearTimeout(rewindTimer);
+			rewindTimer?.cancel();
 		}, this.signal);
 	}
 }
+
+customElements.define('geo-cities-dj-booth-turntable', Turntable);

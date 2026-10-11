@@ -57,9 +57,7 @@ enum SectionStyles: StyleSet {
 		case .title:
 			Style()
 				.margin(.bottom, .rootEm(1.5))
-				.font(size: .rootEm(1.875), lineHeight: 1.15)
-				.bold()
-				.letterSpacing(.em(-0.025))
+				.textStyle(.sectionTitle)
 				.color(.primaryText)
 		case .label:
 			Style()

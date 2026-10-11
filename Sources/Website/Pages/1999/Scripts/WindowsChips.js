@@ -1,4 +1,5 @@
 // Chip’s Challenge on the desktop of the 1999 page, like the one of the Microsoft Entertainment Pack 4 (Chuck Sommerville, 1989): Chip collects the computer chips of a level, goes through the chip socket, and finds the exit. Keys open doors of their color, flippers let him swim, fire boots let him walk on fire, ice and force floors push him along, blocks sink into water and leave dirt, balls bounce, bugs follow the walls, teeth chase him, and a thief takes his boots. Each level has a four-letter password, like Chip’s Challenge. The game moves in ticks of a tenth of a second, and Chip one tile every two ticks. Nothing makes a sound until the visitor turns on the sound.
+import GeoCitiesElement, {clamp, playTone} from '/scripts/geocities-element.js';
 
 /*
 The levels. Each tile is a character:
@@ -754,7 +755,7 @@ const tilePicture = tile => {
 const panelX = view * size;
 const keyDirections = {ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right'};
 
-export default class extends GeoCitiesElement {
+class GeoCitiesWindowsChips extends GeoCitiesElement {
 	#context;
 	#loop;
 	#levelIndex;
@@ -769,7 +770,7 @@ export default class extends GeoCitiesElement {
 	connected() {
 		const {screen, restart, pause, sound, passwordForm, password} = this.parts;
 		this.#context = screen.getContext('2d');
-		this.#levelIndex = Math.min(Math.max(this.stored('level', 0), 0), levels.length - 1);
+		this.#levelIndex = clamp(this.stored('level', 0), 0, levels.length - 1);
 
 		// The game runs only while its board is on the screen, in its open window, and the tab is visible. With reduced motion, it moves one step for each move of Chip.
 		this.#loop = this.loop(seconds => {
@@ -960,23 +961,7 @@ export default class extends GeoCitiesElement {
 			return;
 		}
 
-		const {context, output} = audio;
-		const oscillator = context.createOscillator();
-		const gain = context.createGain();
-		const time = context.currentTime + start;
-		oscillator.type = type;
-		oscillator.frequency.setValueAtTime(frequency, time);
-
-		if (slide) {
-			oscillator.frequency.exponentialRampToValueAtTime(slide, time + duration);
-		}
-
-		gain.gain.setValueAtTime(0.0001, time);
-		gain.gain.exponentialRampToValueAtTime(volume, time + 0.01);
-		gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-		oscillator.connect(gain).connect(output);
-		oscillator.start(time);
-		oscillator.stop(time + duration + 0.05);
+		playTone(audio, frequency, start, duration, {type, volume, slide});
 	}
 
 	#sounds = {
@@ -1137,7 +1122,7 @@ export default class extends GeoCitiesElement {
 
 		const origin = axis => {
 			const length = axis === 'x' ? game.width : game.height;
-			return length <= view ? -Math.floor((view - length) / 2) : Math.min(Math.max(game.chip[axis] - 4, 0), length - view);
+			return length <= view ? -Math.floor((view - length) / 2) : clamp(game.chip[axis] - 4, 0, length - view);
 		};
 
 		return {x: origin('x'), y: origin('y')};
@@ -1423,3 +1408,5 @@ export default class extends GeoCitiesElement {
 		this.#release(direction);
 	}
 }
+
+customElements.define('geo-cities-windows-chips', GeoCitiesWindowsChips);

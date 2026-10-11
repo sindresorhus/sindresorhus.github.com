@@ -1,13 +1,8 @@
 // The Casio keyboard of the Music Room on the 1999 page. Each key holds its note while it is pressed, with the tone of the keyboard. The rhythms are patterns of sixteen steps (twelve for the waltz), and with Casio Chord, a key of the lowest octave picks the chord that the rhythm plays along. It plays through the sound card of the Music Room, `geocities-sound-card.js`.
-import {context, master, connectVolume, startAudio, midiFrequency, noteNames, pluck, drums, startPlaying, stopPlaying, makeBus, fadeOut, Clock, addStopHandler} from '/scripts/geocities-sound-card.js';
+import GeoCitiesElement, {clamp, isTypingTarget, hasModifier, midiFrequency} from '/scripts/geocities-element.js';
+import {context, master, connectVolume, startAudio, noteNames, pluck, drums, startPlaying, stopPlaying, makeBus, fadeOut, Clock, addStopHandler} from '/scripts/geocities-sound-card.js';
 
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-// A key handler ignores the keys that go to a text field or a menu inside the keyboard, and the shortcuts of the browser.
-const isTypingTarget = event => event.target.closest('input, textarea, select, [contenteditable]') !== null;
-const hasModifier = event => event.ctrlKey || event.metaKey || event.altKey;
-
-export default class extends GeoCitiesElement {
+class GeoCitiesCasio extends GeoCitiesElement {
 	connected() {
 		const {keyboard, display, start: startButton, slower, faster, chord: chordButton, demo: demoButton, record: recordButton, playback: playbackButton} = this.parts;
 		connectVolume(this.querySelectorAll('[data-music-volume]'), this.signal);
@@ -310,7 +305,7 @@ export default class extends GeoCitiesElement {
 		this.on(keyboard, 'pointerup', endPointer);
 		this.on(keyboard, 'pointercancel', endPointer);
 
-		// The keys of the computer play while the focus is anywhere in the keyboard, but not in a text field. They are letters, so Space and Enter still press the buttons.
+		// The keys of the computer play while the focus is anywhere in the keyboard, but not in a text field or a menu inside the keyboard, and not with the shortcuts of the browser. They are letters, so Space and Enter still press the buttons.
 		this.on(this, 'keydown', event => {
 			const index = computerKeys.indexOf(event.code);
 
@@ -381,7 +376,6 @@ export default class extends GeoCitiesElement {
 				rhythmBus = undefined;
 				stopPlaying(rhythmPlayer);
 				startButton.setAttribute('aria-pressed', 'false');
-				delete startButton.dataset.state;
 				showDisplay();
 			},
 		};
@@ -391,7 +385,6 @@ export default class extends GeoCitiesElement {
 			rhythmBus = makeBus();
 			rhythmClock.start();
 			startButton.setAttribute('aria-pressed', 'true');
-			startButton.dataset.state = 'on';
 			showDisplay();
 		};
 
@@ -422,12 +415,6 @@ export default class extends GeoCitiesElement {
 			for (const button of buttons) {
 				const isOn = button.dataset[attribute] === id;
 				button.setAttribute('aria-pressed', String(isOn));
-
-				if (isOn) {
-					button.dataset.state = 'on';
-				} else {
-					delete button.dataset.state;
-				}
 			}
 		};
 
@@ -461,12 +448,6 @@ export default class extends GeoCitiesElement {
 			chordRoot = undefined;
 			chordButton.setAttribute('aria-pressed', String(isChordMode));
 
-			if (isChordMode) {
-				chordButton.dataset.state = 'on';
-			} else {
-				delete chordButton.dataset.state;
-			}
-
 			showDisplay();
 			this.say(isChordMode ? 'Casio Chord is on: the lowest octave, A to J, plays a whole chord with one finger. Press Start/Stop for the rhythm.' : 'Casio Chord is off.');
 		});
@@ -487,7 +468,7 @@ export default class extends GeoCitiesElement {
 
 		const stopDemo = () => {
 			for (const timer of demoTimers) {
-				clearTimeout(timer);
+				timer.cancel();
 			}
 
 			demoTimers = [];
@@ -499,7 +480,6 @@ export default class extends GeoCitiesElement {
 			}
 
 			demoButton.setAttribute('aria-pressed', 'false');
-			delete demoButton.dataset.state;
 		};
 
 		const demoPlayer = {
@@ -518,11 +498,11 @@ export default class extends GeoCitiesElement {
 
 				if (note > 0) {
 					startNote({note, time, destination: bus, tone: 'piano'}).stop(time + (duration * 0.9));
-					demoTimers.push(setTimeout(() => {
+					demoTimers.push(this.timeout((time - context.currentTime) * 1000, () => {
 						light(note, true);
-					}, (time - context.currentTime) * 1000), setTimeout(() => {
+					}), this.timeout((time + (duration * 0.9) - context.currentTime) * 1000, () => {
 						light(note, false);
-					}, (time + (duration * 0.9) - context.currentTime) * 1000));
+					}));
 				}
 
 				time += duration;
@@ -545,7 +525,6 @@ export default class extends GeoCitiesElement {
 			startPlaying(demoPlayer);
 			demoBus = makeBus();
 			demoButton.setAttribute('aria-pressed', 'true');
-			demoButton.dataset.state = 'on';
 			const sixteenth = 60 / 92 / 4;
 			const start = context.currentTime + 0.1;
 			const end = playNotes(demoMelody, start, demoBus, sixteenth);
@@ -561,10 +540,10 @@ export default class extends GeoCitiesElement {
 				}
 			}
 
-			demoTimers.push(setTimeout(() => {
+			demoTimers.push(this.timeout((end - context.currentTime + 0.5) * 1000, () => {
 				demoPlayer.stop();
 				this.say('Clap clap clap! (You did not play that. I know.)');
-			}, (end - context.currentTime + 0.5) * 1000));
+			}));
 			this.say('Demo: The Entertainer, by Scott Joplin. Pretend you play it.');
 		});
 
@@ -573,9 +552,8 @@ export default class extends GeoCitiesElement {
 
 		const stopRecording = () => {
 			isRecording = false;
-			clearTimeout(recordTimer);
+			recordTimer?.cancel();
 			recordButton.setAttribute('aria-pressed', 'false');
-			delete recordButton.dataset.state;
 
 			for (const note of [...openNotes.keys()]) {
 				noteOff(note);
@@ -601,11 +579,10 @@ export default class extends GeoCitiesElement {
 			playbackButton.disabled = true;
 			recordingStart = context.currentTime;
 			recordButton.setAttribute('aria-pressed', 'true');
-			recordButton.dataset.state = 'on';
-			recordTimer = setTimeout(() => {
+			recordTimer = this.timeout(60_000, () => {
 				stopRecording();
 				this.say('The memory is full! One minute is all a Casio can hold.');
-			}, 60_000);
+			});
 			showDisplay();
 			this.say('Recording! Play some keys, then press Rec again.');
 		});
@@ -627,19 +604,21 @@ export default class extends GeoCitiesElement {
 				const stopTime = start + recorded.end - firstStart;
 				startNote({note: recorded.note, time, destination: demoBus, tone: recorded.tone}).stop(stopTime);
 				end = Math.max(end, stopTime);
-				demoTimers.push(setTimeout(() => {
+				demoTimers.push(this.timeout((time - context.currentTime) * 1000, () => {
 					light(recorded.note, true);
-				}, (time - context.currentTime) * 1000), setTimeout(() => {
+				}), this.timeout((stopTime - context.currentTime) * 1000, () => {
 					light(recorded.note, false);
-				}, (stopTime - context.currentTime) * 1000));
+				}));
 			}
 
-			demoTimers.push(setTimeout(() => {
+			demoTimers.push(this.timeout((end - context.currentTime + 0.5) * 1000, () => {
 				demoPlayer.stop();
-			}, (end - context.currentTime + 0.5) * 1000));
+			}));
 			this.say('Playing the memory.');
 		});
 
 		showDisplay();
 	}
 }
+
+customElements.define('geo-cities-casio', GeoCitiesCasio);

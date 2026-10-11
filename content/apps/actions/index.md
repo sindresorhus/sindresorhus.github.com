@@ -150,8 +150,6 @@ If you have any questions about how to use the different actions or for what, tr
 - Generate Haptic Feedback <sup>(iOS-only)</sup>
 - Generate Random Data
 - Generate Random Text
-- Generate SOML
-	:: Generate a [SOML](https://soml.sh) config file from a dictionary.
 - Generate UUID
 - Get All System Colors
 - Get Audio Playback Destination <sup>(iOS-only)</sup>
@@ -306,8 +304,6 @@ If you have any questions about how to use the different actions or for what, tr
 - Parse CSV
 - Parse JSON5
 - Parse Markdown Table
-- Parse SOML
-	:: Parse a [SOML](https://soml.sh) config file into a dictionary, with durations as seconds.
 - Pick Color
 	:: Pick a color using the system color picker, optionally from a reference image.
 - Ping

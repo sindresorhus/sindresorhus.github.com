@@ -24,7 +24,7 @@ struct ContributionYear: Sendable {
 	static let firstYear = 2010
 
 	/**
-	The contributions of a year by kind, from the same request as the calendar.
+	The contributions of a year by kind, and the repositories with the most commits, from the same request as the calendar.
 	*/
 	struct Totals: Decodable, Sendable {
 		let commitCount: Int
@@ -33,41 +33,98 @@ struct ContributionYear: Sendable {
 		let reviewCount: Int
 		let repositoryCount: Int
 
+		/**
+		The repositories with commits in the year, like 522.
+		*/
+		let committedRepositoryCount: Int
+
+		/**
+		The five repositories with the most commits in the year, most first. GitHub only counts the commits of the default branch. It includes private repositories when the token can see them, like a personal token, so a page that shows them leaves those out.
+		*/
+		let repositoryCommits: [RepositoryCommits]
+
 		enum CodingKeys: String, CodingKey {
 			case commitCount = "totalCommitContributions"
 			case pullRequestCount = "totalPullRequestContributions"
 			case issueCount = "totalIssueContributions"
 			case reviewCount = "totalPullRequestReviewContributions"
 			case repositoryCount = "totalRepositoryContributions"
+			case committedRepositoryCount = "totalRepositoriesWithContributedCommits"
+			case repositoryCommits = "commitContributionsByRepository"
+		}
+	}
+
+	/**
+	The commits of a year in one repository.
+	*/
+	struct RepositoryCommits: Decodable, Sendable {
+		/**
+		The repository with its owner, like `sindresorhus/ky`.
+		*/
+		let repository: String
+
+		let url: URL
+		let count: Int
+		let isPrivate: Bool
+
+		/**
+		The name to show, like `ky` or `chalk/chalk`.
+		*/
+		var displayName: String {
+			repository.repositoryDisplayName
+		}
+
+		private struct Repository: Decodable {
+			let nameWithOwner: String
+			let url: URL
+			let isPrivate: Bool
+		}
+
+		private struct Contributions: Decodable {
+			let totalCount: Int
+		}
+
+		enum CodingKeys: CodingKey {
+			case repository
+			case contributions
+		}
+
+		init(from decoder: any Decoder) throws {
+			let container = try decoder.container(keyedBy: CodingKeys.self)
+			let repository = try container.decode(Repository.self, forKey: .repository)
+			self.repository = repository.nameWithOwner
+			self.url = repository.url
+			self.isPrivate = repository.isPrivate
+			self.count = try container.decode(Contributions.self, forKey: .contributions).totalCount
 		}
 	}
 
 	init(year: Int, calendar: ContributionCalendar, totals: Totals? = nil, until date: Date) {
-		let today = date.isoDay
 		self.year = year
 		self.calendar = calendar
 		self.totals = totals
-		self.days = calendar.weeks.flatMap(\.days).filter { $0.date.hasPrefix("\(year)-") && $0.date <= today }
+		self.days = calendar.days.filter { Calendar.site.component(.year, from: $0.date) == year && $0.date <= date }
 	}
 
 	/**
 	The busiest day of the year, the earliest when several days have the same count. `nil` for a year without contributions.
 	*/
 	var busiestDay: ContributionCalendar.Day? {
-		days.reduce(nil) { busiest, day in
-			day.count > (busiest?.count ?? 0) ? day : busiest
-		}
+		days.busiest
+	}
+
+	/**
+	The number of days of the year with contributions, like 271.
+	*/
+	var activeDayCount: Int {
+		days.count { $0.count > 0 }
 	}
 
 	/**
 	The weekday of the first day of the year, from 0 for Sunday to 6 for Saturday, like the rows of the calendar.
 	*/
 	var firstWeekday: Int {
-		guard let date = days.first?.startOfDay else {
-			return 0
-		}
-
-		return Calendar.site.component(.weekday, from: date) - 1
+		days.first?.weekday ?? 0
 	}
 
 	/**
@@ -76,14 +133,11 @@ struct ContributionYear: Sendable {
 	var summary: String {
 		let total = "\(calendar.totalCount.formatted(counting: "contribution"))."
 
-		guard
-			let busiestDay,
-			let date = busiestDay.startOfDay
-		else {
+		guard let busiestDay else {
 			return total
 		}
 
-		return "\(total) The busiest day was \(date.formatted(.siteDayWithoutYear)), with \(busiestDay.count.formatted(.number.locale(.site)))."
+		return "\(total) The busiest day was \(busiestDay.date.formatted(.siteDayWithoutYear)), with \(busiestDay.count.formatted(.number.locale(.site)))."
 	}
 
 	/**
@@ -138,7 +192,7 @@ struct ContributionYear: Sendable {
 			let user: User
 		}
 
-		let fields = "contributionCalendar { totalContributions weeks { contributionDays { date contributionCount contributionLevel } } } totalCommitContributions totalPullRequestContributions totalIssueContributions totalPullRequestReviewContributions totalRepositoryContributions"
+		let fields = "contributionCalendar { totalContributions weeks { contributionDays { date contributionCount contributionLevel } } } totalCommitContributions totalPullRequestContributions totalIssueContributions totalPullRequestReviewContributions totalRepositoryContributions totalRepositoriesWithContributedCommits commitContributionsByRepository(maxRepositories: 5) { repository { nameWithOwner url isPrivate } contributions { totalCount } }"
 		let query = isPastYear
 			? "query($from: DateTime!, $to: DateTime!) { user(login: \"sindresorhus\") { contributionsCollection(from: $from, to: $to) { \(fields) } } }"
 			: "query($from: DateTime!) { user(login: \"sindresorhus\") { contributionsCollection(from: $from) { \(fields) } } }"
@@ -158,6 +212,59 @@ extension [ContributionYear] {
 	The contributions of all the years, like all the contributions since ``ContributionYear/firstYear`` for the years of the career quilt.
 	*/
 	var totalCount: Int {
-		map(\.calendar.totalCount).reduce(0, +)
+		map(\.calendar.totalCount).sum
+	}
+
+	/**
+	The most days in a row with contributions in all the years, like 412. The years are oldest first, so a streak goes on from one year to the next.
+	*/
+	var longestStreak: Int {
+		flatMap(\.days).split { $0.count == 0 }.map(\.count).max() ?? 0
+	}
+
+	/**
+	The sum of a number of the totals of all the years, like the commits. The years without totals count as zero.
+	*/
+	func total(_ keyPath: KeyPath<ContributionYear.Totals, Int>) -> Int {
+		compactMap { $0.totals?[keyPath: keyPath] }.sum
+	}
+
+	/**
+	The busiest day of all the years, the earliest when several days have the same count. `nil` without contributions.
+	*/
+	var busiestDay: ContributionCalendar.Day? {
+		flatMap(\.days).busiest
+	}
+
+	/**
+	The weekday with the most contributions in all the years, from 0 for Sunday to 6 for Saturday (``ContributionCalendar/Day/weekday``), and its contributions. The earliest in the week when several have the same count. `nil` without contributions.
+	*/
+	var busiestWeekday: (weekday: Int, count: Int)? {
+		var counts = [Int](repeating: 0, count: 7)
+
+		for day in flatMap(\.days) {
+			counts[day.weekday] += day.count
+		}
+
+		guard
+			let highest = counts.max(),
+			highest > 0,
+			let weekday = counts.firstIndex(of: highest)
+		else {
+			return nil
+		}
+
+		return (weekday, highest)
+	}
+}
+
+extension Sequence<ContributionCalendar.Day> {
+	/**
+	The day with the most contributions, the first when several days have the same count. `nil` without contributions.
+	*/
+	fileprivate var busiest: Element? {
+		reduce(nil) { busiest, day in
+			day.count > (busiest?.count ?? 0) ? day : busiest
+		}
 	}
 }

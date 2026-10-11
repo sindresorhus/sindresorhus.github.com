@@ -111,7 +111,11 @@ extension CareerQuiltPage {
 					.gridRows(7, size: .auto)
 					.gridAutoFlow(.column)
 					.gridAutoColumns(.fraction(1))
-					.gap(.pixels(2))
+					// Thin gaps on phones, where 53 weeks share a narrow card, so the squares are not much smaller than the gaps.
+					.gap(.pixels(1))
+					.from(.smallTablet) {
+						$0.gap(.pixels(2))
+					}
 					.from(.tablet) {
 						$0.gap(.pixels(3))
 					}

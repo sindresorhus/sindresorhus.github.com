@@ -1,10 +1,8 @@
 // WaffleTracker 2 in the Music Room on the 1999 page, a music tracker like FastTracker 2: a pattern of 32 rows and four channels. Each spot has a note and an instrument, or nothing. A row is a sixteenth note at 125 beats a minute, which is speed 6 in FastTracker 2. The pattern is kept in the browser. It plays through the sound card of the Music Room, `geocities-sound-card.js`.
-import {context, connectVolume, startAudio, midiFrequency, noteName, tone, pluck, drums, startPlaying, stopPlaying, makeBus, fadeOut, Clock, midiFile, download} from '/scripts/geocities-sound-card.js';
+import GeoCitiesElement, {clamp, hasModifier, midiFrequency} from '/scripts/geocities-element.js';
+import {context, connectVolume, startAudio, noteName, tone, pluck, drums, startPlaying, stopPlaying, makeBus, fadeOut, Clock, midiFile, download} from '/scripts/geocities-sound-card.js';
 
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const hasModifier = event => event.ctrlKey || event.metaKey || event.altKey;
-
-export default class extends GeoCitiesElement {
+class GeoCitiesTracker extends GeoCitiesElement {
 	connected() {
 		const {pattern, play: playButton, title, octave: octaveText, clear, midi} = this.parts;
 		connectVolume(this.querySelectorAll('[data-music-volume]'), this.signal);
@@ -232,12 +230,6 @@ export default class extends GeoCitiesElement {
 				for (const other of instrumentButtons) {
 					const isOn = other === button;
 					other.setAttribute('aria-pressed', String(isOn));
-
-					if (isOn) {
-						other.dataset.state = 'on';
-					} else {
-						delete other.dataset.state;
-					}
 				}
 
 				preview({note: (octave + 1) * 12, instrument});
@@ -250,13 +242,6 @@ export default class extends GeoCitiesElement {
 				const channel = Number(button.dataset.trackerMute);
 				muted[channel] = !muted[channel];
 				button.setAttribute('aria-pressed', String(muted[channel]));
-
-				if (muted[channel]) {
-					button.dataset.state = 'muted';
-				} else {
-					delete button.dataset.state;
-				}
-
 				this.say(`Channel ${channel + 1} ${muted[channel] ? 'muted' : 'on'}.`);
 			});
 		}
@@ -389,3 +374,5 @@ export default class extends GeoCitiesElement {
 		showSong();
 	}
 }
+
+customElements.define('geo-cities-tracker', GeoCitiesTracker);

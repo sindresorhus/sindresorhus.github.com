@@ -62,7 +62,7 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 						button(.type(.button), .hook(Hooks.move, value: direction)) {
 							label
 						}
-						.style(GeoCitiesPage.Styles.smallButton, Styles.moveButton)
+						.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 					}
 				}
 				.accessibilityLabel("Directions")
@@ -72,7 +72,7 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 				div {
 					for _ in 1...3 {
 						button(.type(.button), .part(Parts.spot), .hidden) {}
-							.style(GeoCitiesPage.Styles.smallButton, Styles.moveButton)
+							.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 					}
 				}
 				.accessibilityLabel("Things here")
@@ -107,6 +107,10 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 		case spot
 	}
 
+	enum States: String, ElementStateSet {
+		case on
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		A direction to go in the Brunost Age, like `forward`.
@@ -126,7 +130,6 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 		case ageView
 		case ageCanvas
 		case ageStatus
-		case moveButton
 		case flash
 
 		var style: Style {
@@ -196,9 +199,7 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 					.border(Color("#2a1a0a"), width: .pixels(4), style: .ridge)
 					.touchAction(.manipulation)
 					.handCursor()
-					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .ageStatus:
 				Style()
 					.frame(minHeight: .lineHeight(3))
@@ -209,8 +210,6 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 					.textStyle(.body)
 					.italic()
 					.color(Color("#efe2c0"))
-			case .moveButton:
-				Style().frame(minHeight: .rootEm(2.25))
 			case .flash:
 				// The white light of a link, which fades in and out over the book.
 				Style()
@@ -222,7 +221,7 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 					.media(.allowsMotion) {
 						$0.transition(.opacity, animation: .easeInOut(duration: .milliseconds(600)))
 					}
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0.opacity(1)
 					}
 			}

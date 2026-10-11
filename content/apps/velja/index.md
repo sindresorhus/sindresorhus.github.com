@@ -857,7 +857,7 @@ Velja benefits:
 - It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Can show the icon of the active default browser in the menu bar
 - Better user interface for browser profiles (OpenIn requires you to manually find the browser profile ID)
-- The user interface is more macOS-like and better follows the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/macos/overview/themes/)
+- The user interface is more macOS-like and better follows the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/designing-for-macos)
 - You can open copied links from the menu bar menu
 - You can quickly switch the primary browser
 - You can press a keyboard shortcut to use an alternative browser for a specific link
@@ -890,7 +890,7 @@ Velja benefits:
 - Expands [short URLs](https://en.wikipedia.org/wiki/URL_shortening) for better matching
 - Can [transform URLs before matching custom rules](#global-url-transformation), so wrapped links can be routed based on their actual destination
 - Removes tracking parameters on clicked and copied links
-- The user interface is more macOS-like and follows the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/macos/overview/themes/)
+- The user interface is more macOS-like and follows the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/designing-for-macos)
 - You can open copied links from the menu bar menu
 - You can quickly switch the primary browser
 - You can press a keyboard shortcut to use an alternative browser for a specific link

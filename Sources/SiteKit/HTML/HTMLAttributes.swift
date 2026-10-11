@@ -1,8 +1,11 @@
 import Elementary
 
 extension HTMLAttribute where Tag: HTMLTrait.Attributes.Global {
-	public static func ariaCurrent(_ value: String) -> Self {
-		.custom(name: "aria-current", value: value)
+	/**
+	The kind of current item in a navigation or sequence.
+	*/
+	public static func ariaCurrent(_ value: ARIACurrent) -> Self {
+		.custom(name: "aria-current", value: value.rawValue)
 	}
 
 	public static func ariaControls(_ id: String) -> Self {
@@ -199,4 +202,16 @@ extension HTMLAttribute where Tag == HTMLTag.img {
 	public static func fetchPriority(_ priority: FetchPriority) -> Self {
 		.custom(name: "fetchpriority", value: priority.rawValue)
 	}
+}
+
+/**
+The kind of current item for `aria-current`, so a misspelled state cannot silently lose its accessibility meaning.
+*/
+public enum ARIACurrent: String, Sendable {
+	case page
+	case step
+	case location
+	case date
+	case time
+	case item = "true"
 }

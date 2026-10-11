@@ -49,17 +49,7 @@ public enum MarkdownElement: Hashable, Sendable {
 	case alertIcon
 
 	/**
-	The section with the footnotes at the end.
-	*/
-	case footnotes
-
-	/**
-	The link from a footnote back to its reference.
-	*/
-	case footnoteBackReference
-
-	/**
-	The button of a reference that shows the footnote in a popover, with ``MarkdownDocument/Options/showsFootnotesInPopovers``.
+	The numbered button of a footnote reference, which shows the footnote in a popover.
 	*/
 	case footnoteReference
 
@@ -69,9 +59,14 @@ public enum MarkdownElement: Hashable, Sendable {
 	case footnotePopover
 
 	/**
-	Text only for screen readers, like the heading of the footnotes.
+	The button of the text of an inline note, like `^[Spotlight](note: "The search of macOS.")`, that shows the note in a popover, when ``MarkdownDocument/Options/inlineNote`` does not render the text.
 	*/
-	case visuallyHidden
+	case inlineNote
+
+	/**
+	The popover with an inline note.
+	*/
+	case inlineNotePopover
 
 	/**
 	The `+` between the keys of a keyboard shortcut.
@@ -135,9 +130,7 @@ public enum MarkdownElement: Hashable, Sendable {
 /**
 The classes of the HTML that the renderer creates for the Markdown extensions.
 
-The classes are only for styles. Scripts find the elements by their `data-` attributes, which the theme does not change:
-- `data-copy-link`: the link to a section (``MarkdownDocument/Options/addsHeadingAnchors``). The script copies its URL, and sets `data-state` on it.
-- `data-footnote-ref`, `data-footnotes`, and `data-footnote-backref`: a footnote reference, the footnotes section, and the link back to a reference, like on GitHub. The popovers of footnotes use `popovertarget`, so they need no script.
+The classes are only for styles. Scripts find the elements by their `data-` attributes, which the theme does not change, like `data-copy-link` on the link to a section (``MarkdownDocument/Options/addsHeadingAnchors``): the script copies its URL, and sets `data-state` on it. The popovers of footnotes, and of inline notes without ``MarkdownDocument/Options/inlineNote``, use `popovertarget`, so they need no script.
 
 ```swift
 let theme = MarkdownTheme { element in
@@ -243,8 +236,33 @@ extension MarkdownTheme {
 	The link after the collapsible sections, like to more questions.
 	*/
 	func collapsibleMoreLink(_ link: MarkdownDocument.CollapsibleSections.MoreLink) -> String {
-		a(.href(link.url), .class(classes(for: .collapsibleMoreLink))) {
+		a(.href(link.destination), .class(classes(for: .collapsibleMoreLink))) {
 			link.title
+		}
+		.render()
+	}
+
+	/**
+	The numbered reference to a footnote in the text: a button that opens the popover with the footnote.
+	*/
+	func footnoteReference(number: Int, popoverID: String) -> String {
+		sup {
+			button(.type(.button), .popoverTarget(popoverID), .class(classes(for: .footnoteReference))) {
+				"\(number)"
+			}
+			.accessibilityLabel("Footnote \(number)")
+		}
+		.render()
+	}
+
+	/**
+	A popover with a footnote or an inline note, which its reference or text opens.
+
+	The popover gets the focus when it opens, as it is after the text, at the end of the document, so screen readers read it, and Tab goes to its links. Escape gives the focus back to what opened it.
+	*/
+	func popover(id: String, element: MarkdownElement, contentHTML: String) -> String {
+		div(.popover, .id(id), .role("note"), .tabindex(-1), .autofocus, .class(classes(for: element))) {
+			HTMLRaw(contentHTML)
 		}
 		.render()
 	}

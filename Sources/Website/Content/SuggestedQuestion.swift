@@ -37,19 +37,21 @@ struct SuggestedQuestion: Encodable {
 		self.questionWords = questionWords
 
 		var words = [String]()
+		var seenWords = Set<String>()
 
 		for word in questionWords + Self.words(in: keywords.joined(separator: " ")) {
 			// A plural, like “images” or “crashes”, gets the synonyms of the singular.
 			let singulars = word.hasSuffix("s") ? [String(word.dropLast()), word.hasSuffix("es") ? String(word.dropLast(2)) : nil].compactMap(\.self) : []
 			let synonyms = Self.synonyms[word] ?? singulars.lazy.compactMap { Self.synonyms[$0] }.first ?? []
 
-			for match in [word] + synonyms where !words.contains(match) {
+			for match in [word] + synonyms where seenWords.insert(match).inserted {
 				words.append(match)
 			}
 		}
 
 		// Only the words that are not already in the question, so the page does not repeat them.
-		self.extraWords = words.filter { !questionWords.contains($0) }
+		let questionWordSet = Set(questionWords)
+		self.extraWords = words.filter { !questionWordSet.contains($0) }
 	}
 
 	/**

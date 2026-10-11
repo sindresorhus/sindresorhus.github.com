@@ -1,4 +1,6 @@
 // The “Best viewed with…” buttons on the 1999 page: each sets its view on the panel of the page, which the styles of the panel show. Lynx shows the text of each image in brackets instead of the image, like Lynx did, and [INLINE] for an image without text.
+import GeoCitiesElement, {cloneTemplate} from '/scripts/geocities-element.js';
+
 const viewMessages = {
 	eyes: 'Back to normal. Best viewed with eyes, and yours work fine.',
 	lynx: 'Welcome, Lynx user! No images, no colors, no problem.',
@@ -9,7 +11,7 @@ const viewMessages = {
 	australia: 'G’day, mate! The page is now the right way up for visitors in Australia.',
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesBestViewed extends GeoCitiesElement {
 	connected() {
 		const {lynxTemplate} = this.parts;
 		const panel = document.querySelector('#geocities-panel');
@@ -28,7 +30,7 @@ export default class extends GeoCitiesElement {
 			}
 
 			for (const image of panel.querySelectorAll('img[src^="/1999/"]')) {
-				const label = lynxTemplate.content.firstElementChild.cloneNode(true);
+				const label = cloneTemplate(lynxTemplate);
 				label.textContent = `[${image.alt || 'INLINE'}]`;
 				(image.closest('picture') ?? image).after(label);
 				lynxLabels.push(label);
@@ -50,14 +52,7 @@ export default class extends GeoCitiesElement {
 			}
 
 			for (const item of viewButtons) {
-				const isPressed = item === button;
-				item.ariaPressed = String(isPressed);
-
-				if (isPressed) {
-					item.dataset.state = 'on';
-				} else {
-					delete item.dataset.state;
-				}
+				item.setAttribute('aria-pressed', String(item === button));
 			}
 
 			this.toast(viewMessages[view]);
@@ -73,13 +68,11 @@ export default class extends GeoCitiesElement {
 		};
 
 		for (const button of viewButtons) {
-			if (button.ariaPressed === 'true') {
-				button.dataset.state = 'on';
-			}
-
 			this.on(button, 'click', () => {
 				showView(button.dataset.bestViewed, button);
 			});
 		}
 	}
 }
+
+customElements.define('geo-cities-best-viewed', GeoCitiesBestViewed);

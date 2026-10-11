@@ -126,7 +126,7 @@ struct GeoCitiesCoaster: ScriptedElement {
 								.style(Styles.light, Styles.lightColor(status.id))
 							status.name
 						}
-						.style(GeoCitiesPage.Styles.smallButton, Styles.toolButton)
+						.style(GeoCitiesPage.Styles.smallButton, Styles.toolButton, Styles.statusButton)
 					}
 				}
 				.style(Styles.lights)
@@ -134,18 +134,18 @@ struct GeoCitiesCoaster: ScriptedElement {
 				button(.part(Parts.camera), .type(.button), .ariaPressed(false)) {
 					"🎥 Ride camera"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.toolButton)
+				.style(GeoCitiesPage.Styles.smallButton, Styles.toolButton, Styles.toggle)
 
 				button(.part(Parts.speeds), .type(.button), .ariaPressed(false)) {
 					"Speeds"
 				}
 				.help("Writes the speeds of the last test run along the track")
-				.style(GeoCitiesPage.Styles.smallButton, Styles.toolButton)
+				.style(GeoCitiesPage.Styles.smallButton, Styles.toolButton, Styles.toggle)
 
 				button(.part(Parts.pause), .type(.button), .ariaPressed(false)) {
 					"Pause"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.toolButton)
+				.style(GeoCitiesPage.Styles.smallButton, Styles.toolButton, Styles.toggle)
 
 				button(.part(Parts.step), .type(.button)) {
 					"Step ▶"
@@ -157,7 +157,7 @@ struct GeoCitiesCoaster: ScriptedElement {
 					"🔈 Sound"
 				}
 				.help("Plays sound")
-				.style(GeoCitiesPage.Styles.smallButton, Styles.toolButton)
+				.style(GeoCitiesPage.Styles.smallButton, Styles.toolButton, Styles.toggle)
 			}
 			.style(Styles.toolbar)
 		}
@@ -180,7 +180,7 @@ struct GeoCitiesCoaster: ScriptedElement {
 					button(.part(Parts.build), .type(.button)) {
 						"Build this"
 					}
-					.style(GeoCitiesPage.Styles.retroButton, Styles.build)
+					.style(GeoCitiesPage.Styles.retroButton, GeoCitiesPage.Styles.bigButton)
 
 					p(.part(Parts.message)) {}
 						.style(Styles.message)
@@ -460,6 +460,8 @@ struct GeoCitiesCoaster: ScriptedElement {
 		case toolbar
 		case lights
 		case toolButton
+		case toggle
+		case statusButton
 		case light
 		case lightClosed
 		case lightTest
@@ -476,7 +478,6 @@ struct GeoCitiesCoaster: ScriptedElement {
 		case pieceButton
 		case arrow
 		case pieceName
-		case build
 		case message
 		case row
 		case label
@@ -520,27 +521,36 @@ struct GeoCitiesCoaster: ScriptedElement {
 					.hstack(alignment: .center, spacing: .rootEm(0.25))
 					.flexWrap()
 			case .toolButton:
-				// Big enough for a finger. A pressed toggle is sunken in, like a toggle of Windows 95.
+				// Big enough for a finger.
 				Style()
 					.frame(minHeight: .rootEm(2.25))
 					.disabled {
 						$0.opacity(0.5)
 					}
-					.when(.state, is: "on") {
+			case .toggle:
+				// A pressed toggle is sunken in, like a toggle of Windows 95.
+				Style().pressedIn(.white)
+			case .statusButton:
+				// The status buttons show their state with their lights, so they stay raised while pressed, unlike the other small buttons. They still sink in while they are held down, like all buttons.
+				Style()
+					.pressed {
 						$0
-							.background(.white)
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+							.background(GeoCitiesPage.windowGray)
+							.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+					}
+					.active {
+						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
 					}
 			case .light:
 				// A round lamp, dark until its status is on, like the lights of the ride window of the game.
 				Style()
 					.display(.inlineBlock)
-					.frame(width: .rootEm(0.75), height: .rootEm(0.75))
+					.frame(size: .rootEm(0.75))
 					.margin(.trailing, .rootEm(0.25))
 					.border(Color("#404040"), width: .pixels(1), style: .solid)
 					.cornerRadius(.capsule)
 					.opacity(0.35)
-					.when(.state, is: "on") {
+					.ancestorPressed {
 						$0
 							.opacity(1)
 							.shadow(Shadow(x: 0, y: 0, blur: .pixels(4), color: Color("#ffff99")))
@@ -562,9 +572,7 @@ struct GeoCitiesCoaster: ScriptedElement {
 					.imageRendering(.pixelated)
 					.touchAction(.manipulation)
 					.handCursor()
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .ticker:
 				// The news ticker at the bottom of the screen of the game, two lines high so the page does not jump.
 				Style()
@@ -613,13 +621,9 @@ struct GeoCitiesCoaster: ScriptedElement {
 					.frame(minHeight: .rootEm(2.5))
 					.padding(.pixels(2))
 					.disabled {
-						$0.opacity(0.4)
+						$0.opacity(0.5)
 					}
-					.when(.state, is: "on") {
-						$0
-							.background(Color("#fff8d0"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
+					.pressedIn(Color("#fff8d0"))
 			case .arrow:
 				Style()
 					.display(.block)
@@ -629,8 +633,6 @@ struct GeoCitiesCoaster: ScriptedElement {
 				Style()
 					.display(.block)
 					.font(.extraSmall)
-			case .build:
-				Style().frame(minHeight: .rootEm(2.75))
 			case .message:
 				// The cost of the next piece, or the error of the game, like “Too high!”.
 				Style()

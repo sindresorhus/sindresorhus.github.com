@@ -49,7 +49,6 @@ struct GeoCitiesStampComposer: ScriptedElement {
 					button(.type(.button), .hook(Hooks.stamp, value: stamp.id), .ariaPressed(index == 0)) {
 						stamp.emoji
 					}
-					.attributes(.hook(.state, value: "on"), when: index == 0)
 					.accessibilityLabel(stamp.title)
 					.help(stamp.title)
 					.style(Styles.stamp)
@@ -167,13 +166,16 @@ struct GeoCitiesStampComposer: ScriptedElement {
 			case .stamp:
 				Style()
 					.hstack(alignment: .center, justification: .center)
-					.frame(width: .rootEm(2.5), height: .rootEm(2.5))
+					.frame(size: .rootEm(2.5))
 					.background(.white)
 					.border(Color("#888"), width: .pixels(2), style: .outset)
 					.cornerRadius(.rootEm(0.5))
 					.font(.large)
 					.handCursor()
-					.when(.state, is: "on") {
+					.active {
+						$0.border(Color("#888"), width: .pixels(2), style: .inset)
+					}
+					.pressed {
 						$0
 							.background(Color("#ffeb3b"))
 							.border(Color("#ff6f3c"), width: .pixels(3))

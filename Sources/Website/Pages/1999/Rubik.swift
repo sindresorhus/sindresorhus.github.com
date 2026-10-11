@@ -210,7 +210,7 @@ struct GeoCitiesRubik: ScriptedElement {
 						button(.type(.button), .hook(Hooks.pattern, value: pattern.algorithm)) {
 							pattern.name
 						}
-						.style(GeoCitiesPage.Styles.smallButton, Styles.smallButton)
+						.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 					}
 				}
 				.accessibilityLabel("Patterns")
@@ -329,7 +329,7 @@ struct GeoCitiesRubik: ScriptedElement {
 						"◀"
 					}
 					.accessibilityLabel("Previous page")
-					.style(GeoCitiesPage.Styles.smallButton, Styles.smallButton)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 					span(.part(Parts.pageNumber)) {
 						"1 / \(GeoCitiesRubik.pages.count)"
@@ -340,7 +340,7 @@ struct GeoCitiesRubik: ScriptedElement {
 						"▶"
 					}
 					.accessibilityLabel("Next page")
-					.style(GeoCitiesPage.Styles.smallButton, Styles.smallButton)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 				}
 				.style(Styles.pageButtons)
 			}
@@ -374,14 +374,14 @@ struct GeoCitiesRubik: ScriptedElement {
 							button(.type(.button), .hook(Hooks.highlight, value: highlight)) {
 								"👆 Show Me"
 							}
-							.style(GeoCitiesPage.Styles.smallButton, Styles.smallButton)
+							.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 						}
 
 						for algorithm in page.algorithms {
 							button(.type(.button), .hook(Hooks.algorithmButton, value: algorithm)) {
 								"▶ \(algorithm)"
 							}
-							.style(GeoCitiesPage.Styles.smallButton, Styles.smallButton)
+							.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 						}
 					}
 					.style(Styles.pageActions)
@@ -461,6 +461,13 @@ struct GeoCitiesRubik: ScriptedElement {
 		case status
 	}
 
+	enum States: String, ElementStateSet {
+		case running
+		case solved
+		case current
+		case done
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		A step of the solution, with its number.
@@ -504,7 +511,6 @@ struct GeoCitiesRubik: ScriptedElement {
 		case form
 		case formLabel
 		case algorithmField
-		case smallButton
 		case status
 		case solution
 		case paperTitle
@@ -555,10 +561,10 @@ struct GeoCitiesRubik: ScriptedElement {
 			case .time:
 				Style()
 					.font(.large, weight: .bold)
-					.when(.state, is: "running") {
+					.when(States.running) {
 						$0.color(Color("#ffee55"))
 					}
-					.when(.state, is: "solved") {
+					.when(States.solved) {
 						$0
 							.color(Color("#66ffff"))
 							.textShadow(Shadow(y: 0, blur: .pixels(6), color: Color("#33ffff")))
@@ -588,11 +594,6 @@ struct GeoCitiesRubik: ScriptedElement {
 					.flex(1)
 					.frame(minWidth: .rootEm(6), minHeight: .rootEm(2.5))
 					.fontFamily(GeoCitiesPage.courier)
-			case .smallButton:
-				// Big enough for a finger.
-				Style()
-					.frame(minHeight: .rootEm(2.25))
-					.touchAction(.manipulation)
 			case .status:
 				Style()
 					.frame(maxWidth: .rootEm(40), minHeight: .lineHeight(3))
@@ -625,12 +626,12 @@ struct GeoCitiesRubik: ScriptedElement {
 				Style()
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.25))
 					.border(Color("#00000000"), width: .pixels(2))
-					.when(.state, is: "current") {
+					.when(States.current) {
 						$0
 							.background(Color("#fff6a8"))
 							.border(Color("#d0a000"), width: .pixels(2), style: .dashed)
 					}
-					.when(.state, is: "done") {
+					.when(States.done) {
 						$0.opacity(0.55)
 					}
 			case .stepTitle:

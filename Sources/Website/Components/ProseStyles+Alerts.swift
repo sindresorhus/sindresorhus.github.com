@@ -10,7 +10,7 @@ extension ProseStyles {
 	GitHub alerts, like `> [!NOTE]`.
 	*/
 	static let alertStyle = Style()
-		.margin(vertical: blockSpacing, horizontal: 0)
+		.proseBlockMargin()
 		.padding(vertical: .rootEm(0.75), horizontal: .rootEm(1.125))
 		.border(.leading, width: .rootEm(0.25))
 		.cornerRadius(.rootEm(0.5))
@@ -30,7 +30,7 @@ extension ProseStyles {
 		.fontWeight(.semibold)
 
 	static let alertIconStyle = Style()
-		.frame(width: .rootEm(1), height: .rootEm(1))
+		.frame(size: .rootEm(1))
 		.declaration(.fill, .currentColor)
 
 	/**

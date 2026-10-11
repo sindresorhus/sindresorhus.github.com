@@ -13,7 +13,6 @@ struct AppSecondaryNavigation: ScriptedElement {
 	var content: some HTML {
 		a(.href(app.url)) {
 			AppIcon(decorative: app, size: 32)
-				.style(Styles.icon)
 
 			span {
 				app.title
@@ -62,7 +61,6 @@ struct AppSecondaryNavigation: ScriptedElement {
 	enum Styles: ElementStyleSet {
 		case root
 		case identity
-		case icon
 		case name
 		case link
 		case overflow
@@ -75,7 +73,7 @@ struct AppSecondaryNavigation: ScriptedElement {
 				Style()
 					.position(.absolute)
 					.inset(0)
-					.display(.flex)
+					.hstack(alignment: .center, justification: .spaceBetween)
 					.filter(.opacity(0))
 					.visibility(false)
 					.transition(.filter, .visibility, animation: SiteHeader.navigationSwap)
@@ -84,9 +82,6 @@ struct AppSecondaryNavigation: ScriptedElement {
 							.filter(.opacity(1))
 							.visibility(true)
 					}
-					.alignItems(.center)
-					.justifyContent(.spaceBetween)
-					.frame(width: .percent(100))
 					.pageWidth()
 					.padding(.rootEm(0.75))
 					.color(.gray(600), dark: .gray(200))
@@ -105,8 +100,6 @@ struct AppSecondaryNavigation: ScriptedElement {
 					.hstack(alignment: .center, spacing: .rootEm(0.75))
 					.flexShrink(0)
 					.hidden(below: .tablet)
-			case .icon:
-				Style().cornerRadius(.rootEm(0.5))
 			case .name:
 				Style()
 					.display(.inline)
@@ -120,8 +113,7 @@ struct AppSecondaryNavigation: ScriptedElement {
 			case .link:
 				// Pills like the site navigation, with the section in view in a tint of the accent of the app.
 				Style()
-					.display(.flex)
-					.alignItems(.center)
+					.hstack(alignment: .center)
 					.textWrap(.nowrap)
 					.navigationPill(currentFill: Color.accent.value(default: .primary(500)).opacity(0.16))
 					.hidden(below: .tablet)
@@ -129,7 +121,7 @@ struct AppSecondaryNavigation: ScriptedElement {
 				Style()
 					.display(.flex)
 					.padding(.horizontal, .rootEm(1))
-					.setting(OverflowMenu.color, to: .lightDark(.gray(600), .gray(200)))
+					.setting(OverflowMenu.color, to: .currentColor)
 					.hidden(below: .tablet)
 			case .getButton:
 				Style()

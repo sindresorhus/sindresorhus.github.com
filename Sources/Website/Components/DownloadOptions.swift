@@ -3,32 +3,24 @@ import Foundation
 import SiteKit
 
 /**
-The download badges (App Store, Setapp) and custom download buttons.
+The download badges (App Store, Setapp) and custom download buttons. The parent leaves it out when the app has no download options, and sets the space around it.
 */
 struct DownloadOptions: HTML {
 	let app: App
 
-	var body: some HTML {
-		if !app.downloadOptions.isEmpty {
-			div {
-				for option in app.downloadOptions {
-					div {
-						OptionLink(option: option)
-					}
-					.style(Styles.option)
-				}
-
-				if app.hasTrial {
-					div {
-						Link("Free Trial", destination: .fragment(App.trialSectionID))
-							.buttonStyle(.secondary, size: .large)
-							.style(Styles.button)
-					}
-					.style(Styles.option)
-				}
+	var body: some HTML<HTMLTag.div> {
+		div {
+			for option in app.downloadOptions {
+				OptionLink(option: option)
 			}
-			.style(Styles.root)
+
+			if app.hasTrial {
+				Link("Free Trial", destination: .fragment(App.trialSectionID))
+					.buttonStyle(.secondary, size: .large)
+					.style(Styles.button)
+			}
 		}
+		.style(Styles.root)
 	}
 
 	private struct OptionLink: HTML {
@@ -51,7 +43,6 @@ struct DownloadOptions: HTML {
 
 	enum Styles: StyleSet {
 		case root
-		case option
 		case badge
 		case badgeImage
 		case button
@@ -59,12 +50,11 @@ struct DownloadOptions: HTML {
 		var style: Style {
 			switch self {
 			case .root:
-				// On phones, the options are a little smaller, so two fit side by side, like the App Store badge and “Free Trial”. A third option wraps to the next line.
+				// On phones, the options are a little smaller, so two fit side by side, like the App Store badge and “Free Trial”. A third option wraps to the next line. The options are at the top of the row, so a badge is not stretched to the height of a button and its bottom margin.
 				Style()
-					.hstack(justification: .center)
+					.hstack(alignment: .start, justification: .center)
 					.flexWrap()
 					.gap(.rootEm(1))
-					.margin(.top, .rootEm(0.5))
 					.below(.smallTablet) {
 						$0.declaration(.zoom, 0.9)
 					}
@@ -74,21 +64,11 @@ struct DownloadOptions: HTML {
 				Style()
 					.display(.block)
 					.textSelection(.disabled)
-					.pressEffect()
-					.filter(Self.badgeShadow)
-					.hover {
-						$0.filter(Self.badgeShadow, .brightness(1.08))
-					}
-					.active {
-						$0.filter(Self.badgeShadow, .brightness(0.95))
-					}
-			case .option:
-				Style().position(.relative)
+					.pressEffect(keeping: Self.badgeShadow)
 			case .badgeImage:
 				Style()
 					.display(.block)
 					.frame(height: .pixels(60))
-					.textSelection(.disabled)
 			case .button:
 				Style().margin(.bottom, .rootEm(0.5))
 			}

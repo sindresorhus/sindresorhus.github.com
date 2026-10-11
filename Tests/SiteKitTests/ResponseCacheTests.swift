@@ -1,6 +1,6 @@
 import Foundation
 import Network
-import SiteKit
+@testable import SiteKit
 import Synchronization
 import Testing
 
@@ -86,6 +86,41 @@ struct ResponseCacheTests {
 		}
 
 		#expect(String(describing: try #require(error)).contains(url.absoluteString))
+	}
+
+	@Test
+	func `cache identities distinguish methods and binary body bytes`() {
+		let original = URLRequest(url: #URL("https://example.com/api"))
+		var variants = [original]
+		var post = original
+		post.httpMethod = "POST"
+		variants.append(post)
+		for byte: UInt8 in [0x80, 0x81] {
+			var binary = post
+			binary.httpBody = Data([byte])
+			variants.append(binary)
+		}
+		#expect(Set(variants.map(\.responseCacheKey)).count == variants.count)
+		#expect(variants.allSatisfy { $0.responseCacheKey.count == 64 })
+	}
+
+	/**
+	The GitHub token of CI changes on each run, so a key with it would miss the cache on each run.
+	*/
+	@Test(.timeLimit(.minutes(1)), .temporaryDirectory)
+	func `a request with another token uses the same cached response`() async throws {
+		let server = try ETagServer(bodies: [#"{"value": 1}"#, #"{"value": 2}"#])
+		let port = try await server.start()
+		defer {
+			server.stop()
+		}
+		let cache = ResponseCache(directory: try URL.temporaryDirectory(), maximumAge: .seconds(60))
+		var request = URLRequest(url: try #require(URL(string: "http://127.0.0.1:\(port)/value")))
+		request.setValue("Bearer first", forHTTPHeaderField: "Authorization")
+		#expect(try await cache.decoded(Value.self, from: request) == Value(value: 1))
+		request.setValue("Bearer second", forHTTPHeaderField: "Authorization")
+		#expect(try await cache.decoded(Value.self, from: request) == Value(value: 1))
+		#expect(server.answers == ["200"])
 	}
 }
 

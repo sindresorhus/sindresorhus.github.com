@@ -144,18 +144,10 @@ struct GeoCitiesWindowsChips: ScriptedElement {
 					.grid(columns: 3)
 					.gap(.pixels(2))
 			case .padButton:
-				Style()
-					.frame(width: .rootEm(2.75), height: .rootEm(2.75))
-					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(3), style: .outset)
-					.fontFamily(.system)
-					.textStyle(.body, weight: .bold)
-					.color(.black)
-					.handCursor()
+				GeoCitiesPage.Styles.retroButton.style
+					.frame(size: .rootEm(2.75))
+					.padding(0)
 					.touchAction(.manipulation)
-					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
-					}
 			case .password:
 				// A short white field with a sunken edge, for four letters.
 				Style()

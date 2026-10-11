@@ -34,17 +34,18 @@ struct AppCategoryPage: Page {
 					"No apps found."
 				}
 			} else if category.isGroupedByPlatform {
-				for platform in Platform.allCases {
-					let platformApps = apps.filter { $0.platforms.contains(platform) }
+				let groups = Platform.allCases
+					.map { platform in (platform: platform, apps: apps.filter { $0.platforms.contains(platform) }) }
+					.filter { !$0.apps.isEmpty }
 
-					if !platformApps.isEmpty {
-						Section(platform.rawValue, id: platform.rawValue.lowercased()) {
-							AppGrid(apps: platformApps, content: content)
-						}
+				for (index, group) in groups.enumerated() {
+					Section(group.platform.rawValue, id: group.platform.rawValue.lowercased()) {
+						// The icons of the first section are at the top, so they load first.
+						AppGrid(apps: group.apps, content: content, isAtTop: index == 0)
 					}
 				}
 			} else {
-				AppGrid(apps: apps, content: content)
+				AppGrid(apps: apps, content: content, isAtTop: true)
 			}
 
 			if let footer = category.footer {

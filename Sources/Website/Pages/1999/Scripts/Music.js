@@ -1,86 +1,9 @@
 // My Discman and my Walkman on the 1999 page. The music is made in the browser: each song is a list of notes, written by a small composer from chords and a seed, and a sequencer plays the notes that are due, a moment ahead, through the speakers. Nothing plays out loud until the visitor puts on the headphones, with a button that says it plays sound. The Discman skips when it is shaken, unless the ESP buffer has music in it; the Walkman eats its tape, is wound back with a pencil, and slows down as its batteries die.
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
-
-// A tiny pixel font of 3 × 5 for the displays, so the text is crisp at any size. Each letter is five rows of three bits.
-const pixelFont = {
-	A: [2, 5, 7, 5, 5], B: [6, 5, 6, 5, 6], C: [3, 4, 4, 4, 3], D: [6, 5, 5, 5, 6], E: [7, 4, 6, 4, 7], F: [7, 4, 6, 4, 4], G: [3, 4, 5, 5, 3], H: [5, 5, 7, 5, 5], I: [7, 2, 2, 2, 7], J: [1, 1, 1, 5, 2], K: [5, 5, 6, 5, 5], L: [4, 4, 4, 4, 7], M: [5, 7, 7, 5, 5], N: [6, 5, 5, 5, 5], O: [2, 5, 5, 5, 2], P: [6, 5, 6, 4, 4], Q: [2, 5, 5, 6, 3], R: [6, 5, 6, 5, 5], S: [3, 4, 2, 1, 6], T: [7, 2, 2, 2, 2], U: [5, 5, 5, 5, 7], V: [5, 5, 5, 5, 2], W: [5, 5, 7, 7, 5], X: [5, 5, 2, 5, 5], Y: [5, 5, 2, 2, 2], Z: [7, 1, 2, 4, 7],
-	0: [7, 5, 5, 5, 7], 1: [2, 6, 2, 2, 7], 2: [6, 1, 2, 4, 7], 3: [6, 1, 2, 1, 6], 4: [5, 5, 7, 1, 1], 5: [7, 4, 6, 1, 6], 6: [3, 4, 7, 5, 7], 7: [7, 1, 2, 2, 2], 8: [7, 5, 7, 5, 7], 9: [7, 5, 7, 1, 6],
-	' ': [0, 0, 0, 0, 0], '.': [0, 0, 0, 0, 2], ',': [0, 0, 0, 2, 4], '!': [2, 2, 2, 0, 2], '?': [6, 1, 2, 0, 2], ':': [0, 2, 0, 2, 0], '-': [0, 0, 7, 0, 0], '+': [0, 2, 7, 2, 0], '/': [1, 1, 2, 4, 4], '\'': [2, 2, 0, 0, 0], '(': [1, 2, 2, 2, 1], ')': [4, 2, 2, 2, 4], '×': [0, 5, 2, 5, 0], '°': [2, 5, 2, 0, 0], '%': [5, 1, 2, 4, 5], '<': [1, 2, 4, 2, 1], '>': [4, 2, 1, 2, 4], '=': [0, 7, 0, 7, 0], '♥': [0, 5, 7, 7, 2], '*': [0, 5, 2, 5, 0],
-	Æ: [3, 6, 7, 6, 7], Ø: [3, 5, 7, 5, 6], Å: [2, 0, 2, 5, 7],
-};
-
-// Draws text in the pixel font, at a whole pixel, with a scale for bigger letters. The alignment is `left`, `center`, or `right`.
-const drawPixelText = (context, text, x, y, color, {scale = 1, align = 'left'} = {}) => {
-	const characters = [...String(text).toUpperCase()];
-	const width = ((characters.length * 4) - 1) * scale;
-	let left = Math.round(align === 'center' ? x - (width / 2) : (align === 'right' ? x - width : x));
-	context.fillStyle = color;
-
-	for (const character of characters) {
-		const rows = pixelFont[character] ?? pixelFont['?'];
-		for (const [row, bits] of rows.entries()) {
-			for (let column = 0; column < 3; column++) {
-				if (bits & (4 >> column)) {
-					context.fillRect(left + (column * scale), Math.round(y) + (row * scale), scale, scale);
-				}
-			}
-		}
-
-		left += 4 * scale;
-	}
-};
-
-// Shapes for the canvases of the players.
-const fillShape = (context, color, x, y, width, height) => {
-	context.fillStyle = color;
-	context.fillRect(Math.round(x), Math.round(y), Math.round(width), Math.round(height));
-};
-
-const fillEllipse = (context, color, x, y, radiusX, radiusY) => {
-	context.fillStyle = color;
-	context.beginPath();
-	context.ellipse(x, y, Math.max(radiusX, 0.1), Math.max(radiusY, 0.1), 0, 0, Math.PI * 2);
-	context.fill();
-};
-
-const fillPolygon = (context, color, points) => {
-	context.fillStyle = color;
-	context.beginPath();
-	for (const [x, y] of points) {
-		context.lineTo(x, y);
-	}
-
-	context.closePath();
-	context.fill();
-};
+import GeoCitiesElement, {clamp, seededRandom, midiFrequency} from '/scripts/geocities-element.js';
+import {canvasPoint, fillShape, fillEllipse, fillPolygon, drawPixelText} from '/scripts/geocities-canvas.js';
 
 // Sets up the headphones, the Discman, and the Walkman in the element, and gives the function that pauses them when another toy starts a tune.
 const setUp = (music, {sound: soundButton, discmanCanvas, discmanStatus, walkmanCanvas, walkmanStatus}) => {
-	const midi = note => 440 * (2 ** ((note - 69) / 12));
-
-	// A random number generator with a seed, so a song is the same every time.
-	const seeded = seed => () => {
-		seed = (seed + 0x6D2B79F5) | 0;
-		let value = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-		value = (value + Math.imul(value ^ (value >>> 7), 61 | value)) ^ value;
-		return ((value ^ (value >>> 14)) >>> 0) / 4_294_967_296;
-	};
-
 	const scales = {
 		major: [0, 2, 4, 5, 7, 9, 11],
 		minor: [0, 2, 3, 5, 7, 8, 10],
@@ -88,7 +11,7 @@ const setUp = (music, {sound: soundButton, discmanCanvas, discmanStatus, walkman
 
 	// Writes a song: a bass line, chords as arpeggios, drums, and a melody that lands on the notes of the chord on the strong beats, mostly in small steps.
 	const compose = ({seed, tempo, root, scale, progression, beatsPerBar = 4, repeats = 3, style}) => {
-		const random = seeded(seed);
+		const random = seededRandom(seed);
 		const beat = 60 / tempo;
 		const notes = [];
 		const steps = scales[scale];
@@ -126,20 +49,20 @@ const setUp = (music, {sound: soundButton, discmanCanvas, discmanStatus, walkman
 					// The bass: the root of the chord, walking up in a boogie, or in octaves in a disco.
 					if (style === 'boogie') {
 						const walk = [0, 2, 4, 5][beatIndex % 4];
-						notes.push({time, duration: beat * 0.9, frequency: midi(degreeNote(chord + walk, -2)), instrument: 'triangle', volume: 0.14});
+						notes.push({time, duration: beat * 0.9, frequency: midiFrequency(degreeNote(chord + walk, -2)), instrument: 'triangle', volume: 0.14});
 					} else if (style === 'disco') {
-						notes.push({time, duration: beat * 0.4, frequency: midi(degreeNote(chord, -2)), instrument: 'triangle', volume: 0.14});
-						notes.push({time: time + (beat / 2), duration: beat * 0.4, frequency: midi(degreeNote(chord, -1)), instrument: 'triangle', volume: 0.12});
+						notes.push({time, duration: beat * 0.4, frequency: midiFrequency(degreeNote(chord, -2)), instrument: 'triangle', volume: 0.14});
+						notes.push({time: time + (beat / 2), duration: beat * 0.4, frequency: midiFrequency(degreeNote(chord, -1)), instrument: 'triangle', volume: 0.12});
 					} else if (style === 'waltz') {
 						if (beatIndex === 0) {
-							notes.push({time, duration: beat * 0.9, frequency: midi(degreeNote(chord, -2)), instrument: 'triangle', volume: 0.14});
+							notes.push({time, duration: beat * 0.9, frequency: midiFrequency(degreeNote(chord, -2)), instrument: 'triangle', volume: 0.14});
 						} else {
 							for (const degree of [chord + 2, chord + 4]) {
-								notes.push({time, duration: beat * 0.4, frequency: midi(degreeNote(degree, -1)), instrument: 'square', volume: 0.025});
+								notes.push({time, duration: beat * 0.4, frequency: midiFrequency(degreeNote(degree, -1)), instrument: 'square', volume: 0.025});
 							}
 						}
 					} else if (beatIndex % 2 === 0) {
-						notes.push({time, duration: beat * 1.8, frequency: midi(degreeNote(chord, -2)), instrument: 'triangle', volume: 0.13});
+						notes.push({time, duration: beat * 1.8, frequency: midiFrequency(degreeNote(chord, -2)), instrument: 'triangle', volume: 0.13});
 					}
 
 					// The drums.
@@ -164,7 +87,7 @@ const setUp = (music, {sound: soundButton, discmanCanvas, discmanStatus, walkman
 					if (style !== 'waltz') {
 						for (let half = 0; half < 2; half++) {
 							const degree = [chord, chord + 2, chord + 4, chord + 7][((beatIndex * 2) + half) % 4];
-							notes.push({time: time + (half * beat / 2), duration: beat * 0.45, frequency: midi(degreeNote(degree, style === 'dream' ? 1 : 0)), instrument: style === 'dream' || style === 'rain' ? 'triangle' : 'square', volume: style === 'dream' ? 0.04 : 0.02});
+							notes.push({time: time + (half * beat / 2), duration: beat * 0.45, frequency: midiFrequency(degreeNote(degree, style === 'dream' ? 1 : 0)), instrument: style === 'dream' || style === 'rain' ? 'triangle' : 'square', volume: style === 'dream' ? 0.04 : 0.02});
 						}
 					}
 				}
@@ -172,7 +95,7 @@ const setUp = (music, {sound: soundButton, discmanCanvas, discmanStatus, walkman
 				// The melody, which sits out the first time through, so the song builds up.
 				if (repeat > 0 || style === 'pop') {
 					for (const entry of melody.filter(entry => entry.bar === barIndex && !entry.rest)) {
-						notes.push({time: barStart + (entry.eighth * beat / 2), duration: beat * (entry.isLong ? 0.95 : 0.45), frequency: midi(degreeNote(entry.degree)), instrument: style === 'disco' || style === 'pop' ? 'sawtooth' : 'square', volume: style === 'disco' || style === 'pop' ? 0.035 : 0.05});
+						notes.push({time: barStart + (entry.eighth * beat / 2), duration: beat * (entry.isLong ? 0.95 : 0.45), frequency: midiFrequency(degreeNote(entry.degree)), instrument: style === 'disco' || style === 'pop' ? 'sawtooth' : 'square', volume: style === 'disco' || style === 'pop' ? 0.035 : 0.05});
 					}
 				}
 
@@ -191,7 +114,7 @@ const setUp = (music, {sound: soundButton, discmanCanvas, discmanStatus, walkman
 
 	// A radio DJ who talks over the start of the song: syllables of a mumbling voice, like a grown-up in a cartoon.
 	const babble = (seed, length) => {
-		const random = seeded(seed);
+		const random = seededRandom(seed);
 		const notes = [];
 		let time = 0.1;
 		while (time < length - 0.2) {
@@ -395,7 +318,7 @@ const setUp = (music, {sound: soundButton, discmanCanvas, discmanStatus, walkman
 		}
 
 		sound.isOn = !sound.isOn;
-		setPressed(soundButton, sound.isOn);
+		soundButton.setAttribute('aria-pressed', String(sound.isOn));
 		for (const player of players) {
 			player.sequencer.newBus();
 			if (player.sequencer.isPlaying) {
@@ -646,14 +569,14 @@ const setUp = (music, {sound: soundButton, discmanCanvas, discmanStatus, walkman
 			},
 			esp() {
 				state.hasESP = !state.hasESP;
-				setPressed(espButton, state.hasESP);
+				espButton.setAttribute('aria-pressed', String(state.hasESP));
 				state.buffer = 0;
 				say(state.hasESP ? 'ESP on: Electronic Skip Protection. It fills a buffer with 10 seconds of music, so a bump does not skip.' : 'ESP off. Hold it very still.');
 				draw();
 			},
 			run() {
 				state.isRunning = !state.isRunning;
-				setPressed(runButton, state.isRunning);
+				runButton.setAttribute('aria-pressed', String(state.isRunning));
 				say(state.isRunning ? 'Running with the Discman! Bump, bump, bump.' : 'Stopped running. Out of breath.');
 				loop.start();
 			},
@@ -918,7 +841,7 @@ const setUp = (music, {sound: soundButton, discmanCanvas, discmanStatus, walkman
 		const actions = {
 			pencil() {
 				state.hasPencil = !state.hasPencil;
-				setPressed(pencilButton, state.hasPencil);
+				pencilButton.setAttribute('aria-pressed', String(state.hasPencil));
 				say(state.hasPencil ? 'The pencil is in the reel. Drag around it in circles, or press the arrow keys, to wind the tape.' : 'Pencil out.');
 				canvas.focus();
 				draw();
@@ -1049,7 +972,7 @@ const setUp = (music, {sound: soundButton, discmanCanvas, discmanStatus, walkman
 	};
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesMusic extends GeoCitiesElement {
 	#pause;
 
 	connected() {
@@ -1060,3 +983,5 @@ export default class extends GeoCitiesElement {
 		this.#pause();
 	}
 }
+
+customElements.define('geo-cities-music', GeoCitiesMusic);

@@ -10,7 +10,7 @@ extension MarkdownDocument.Options {
 	static let site = Self(theme: .site)
 
 	/**
-	The options for a content file: the site's classes, the known heading directives, links to other content files (`[Dato](dato.md)`), the sizes of local images, platform badges, the block directives, footnotes in popovers, and code blocks as `CodeBlock`, with a copy button and Swift highlighting.
+	The options for a content file: the site's classes, the known heading directives, links to other content files (`[Dato](dato.md)`), the sizes of local images, platform badges, the block directives, inline notes as `InlineNote`, and code blocks as `CodeBlock`, with a copy button and Swift highlighting.
 
 	- Parameter sponsorTiers: The sponsors from the frontmatter, which `@Sponsors` shows.
 	*/
@@ -24,10 +24,11 @@ extension MarkdownDocument.Options {
 				try file.resolvingLink(destination, project: project)
 			},
 			imageSize: { source in
-				source.hasPrefix("/") ? project.publicFile(RoutePath(source)).mediaSize : nil
+				// An invalid path is already a problem of its link, so it has no size instead of stopping the build. A screenshot of a Retina display is shown at half its pixel size, so it is sharp.
+				(try? RoutePath(validating: source)).flatMap { project.publicFile($0).displaySize }
 			},
-			showsFootnotesInPopovers: true,
-			codeBlock: CodeBlock.render
+			codeBlock: CodeBlock.render,
+			inlineNote: InlineNote.render
 		)
 
 		if !sponsorTiers.isEmpty {
@@ -40,7 +41,7 @@ extension MarkdownDocument.Options {
 	}
 
 	/**
-	The Markdown of content files without a file, for the samples in the gallery: platform badges, the block directives, collapsible sections for level 3 headings, like the questions of an FAQ, links that copy the URL of a section, footnotes in popovers, and code blocks as `CodeBlock`, with a copy button and Swift highlighting.
+	The Markdown of content files without a file, for the samples in the gallery: platform badges, the block directives, collapsible sections for level 3 headings, like the questions of an FAQ, links that copy the URL of a section, inline notes as `InlineNote`, and code blocks as `CodeBlock`, with a copy button and Swift highlighting.
 	*/
 	static let gallery = Self(
 		theme: .site,
@@ -48,8 +49,8 @@ extension MarkdownDocument.Options {
 		addsHeadingAnchors: true,
 		inlineAttributes: .init(render: renderPlatformBadge),
 		blockDirectives: contentBlockDirectives,
-		showsFootnotesInPopovers: true,
-		codeBlock: CodeBlock.render
+		codeBlock: CodeBlock.render,
+		inlineNote: InlineNote.render
 	)
 
 	/**
@@ -60,9 +61,11 @@ extension MarkdownDocument.Options {
 		"Feature": .init(render: renderFeature),
 		"QuickAnswer": .init(render: renderQuickAnswer),
 		"Trial": .init(render: renderTrial),
+		"TinyApp": .init(render: renderTinyApp),
 		"Tips": .init(render: renderTips),
 		"Cards": .init(render: renderCards),
 		"Steps": .init(render: renderSteps),
+		"Changelog": .init(render: renderChangelog),
 		"SocialLinks": .init(render: renderSocialLinks),
 	]
 
@@ -71,7 +74,7 @@ extension MarkdownDocument.Options {
 	*/
 	static func appPage(_ file: MarkdownFile, project: Project, frontmatter: App.Frontmatter) -> Self {
 		var options = content(file, project: project)
-		options.collapsibleSections = MarkdownDocument.CollapsibleSections(level: 3, startHeadingID: App.faqSectionID, name: "faq", moreLink: .init(title: "More FAQs", url: RoutePath.faq.description))
+		options.collapsibleSections = MarkdownDocument.CollapsibleSections(level: 3, startHeadingID: App.faqSectionID, name: "faq", moreLink: .init(title: "More FAQs", destination: .path(.faq)))
 		options.addsHeadingAnchors = true
 		options.rewrite = { document in
 			let document = document.addingCommonQuestions(CommonQuestion.questions(for: frontmatter))
@@ -190,7 +193,7 @@ enum FeatureSectionStyles: StyleSet {
 						.fontWeight(.bold)
 						.letterSpacing(.em(0.02))
 						.monospacedDigit()
-						.color(.lightDark(.accent(fallback: .primary(600), maximumLightness: 0.6), Color.accent.value(default: .primary(400))))
+						.color(.accentMark)
 				}
 		}
 	}
@@ -287,6 +290,146 @@ enum TrialStyles: StyleSet {
 }
 
 /**
+The arguments of `@TinyApp(title: "Copy URL", download: "https://example.com/Copy-URL.zip") { … }`.
+*/
+@Frontmatter
+private struct TinyAppArguments {
+	@NonEmpty var title: String
+
+	/**
+	Without an icon, the card shows the placeholder icon, so the titles of all cards line up.
+	*/
+	var icon: RoutePath?
+
+	/**
+	The app, or the page of its latest release.
+	*/
+	@Absolute var download: URL
+
+	@Absolute var source: URL?
+
+	/**
+	Like “Requires macOS 15 or later”.
+	*/
+	@NonEmpty var requirement: String?
+}
+
+/**
+A small app without a page of its own, like `@TinyApp(title: "Copy URL", download: "https://example.com/Copy-URL.zip") { What it does. }`: a card with the icon, the name, the text, a download button, and the requirement, like a small app card.
+*/
+@Sendable
+private func renderTinyApp(arguments: TinyAppArguments, contentHTML: String) -> String {
+	section {
+		AppIcon(decorative: arguments.icon ?? App.placeholderIconPath, size: 128)
+			.style(TinyAppStyles.icon)
+
+		h2 {
+			arguments.title
+		}
+		.style(TinyAppStyles.title)
+
+		div {
+			HTMLRaw(contentHTML)
+
+			// The name of the app is in the links for screen readers, as a page has several cards, and a list of the links would have the same names.
+			div {
+				Link(destination: .url(arguments.download)) {
+					"Download"
+					VisuallyHidden(" \(arguments.title)")
+				}
+				.buttonStyle(size: .small)
+
+				if let source = arguments.source {
+					Link(destination: .url(source)) {
+						"Source Code"
+						VisuallyHidden(" of \(arguments.title)")
+					}
+					.buttonStyle(.secondary, size: .small)
+				}
+
+				if let requirement = arguments.requirement {
+					span {
+						requirement
+					}
+					.style(TinyAppStyles.requirement)
+				}
+			}
+			.style(TinyAppStyles.actions)
+		}
+		.style(TinyAppStyles.text)
+	}
+	.style(TinyAppStyles.root)
+	.render()
+}
+
+/**
+The styles of `@TinyApp` cards.
+*/
+enum TinyAppStyles: StyleSet {
+	case root
+	case icon
+	case text
+	case title
+	case actions
+	case requirement
+
+	var style: Style {
+		switch self {
+		case .root:
+			// The icon is next to the title, and the text is below the title. On phones, the text is also below the icon, so it has the whole width.
+			Style()
+				.display(.grid)
+				.gridColumns(.auto, .fraction(1))
+				.gap(row: .rootEm(1), column: .rootEm(1))
+				.alignItems(.center)
+				.proseCard()
+				.widerThanProse()
+				// Less padding on phones, so the text has more of the narrow width.
+				.below(.smallTablet) {
+					$0.padding(.rootEm(1.25))
+				}
+				.from(.smallTablet) {
+					$0
+						.gap(row: .rootEm(0.5), column: .rootEm(1.5))
+						.alignItems(.start)
+				}
+		case .icon:
+			// The icon is smaller on phones, where it is only as high as the title.
+			Style()
+				.frame(size: .rootEm(3.5))
+				.filter(AppCard.iconShadow)
+				.from(.smallTablet) {
+					$0
+						.frame(size: .rootEm(4.5))
+						.gridRowSpan(2)
+				}
+		case .text:
+			// The paragraphs are closer than in prose, so they read as one text, which is closer to the title than to the buttons.
+			Style()
+				.frame(minWidth: 0)
+				.children("p") {
+					$0.margin(vertical: .em(0.5), horizontal: 0)
+				}
+				.trimmingChildMargins()
+				.below(.smallTablet) {
+					$0.gridColumnSpan(2)
+				}
+		case .title:
+			// Like the title of an app card. The margin of a heading in prose is reset.
+			AppCard.Styles.title.style.margin(0)
+		case .actions:
+			Style()
+				.hstack(alignment: .center, spacing: .rootEm(0.75))
+				.flexWrap()
+				.margin(.top, .rootEm(1.5))
+		case .requirement:
+			Style()
+				.secondaryText()
+		}
+	}
+}
+
+/**
 A box of tips, like `@Tips { - Tip }`, with the look of a tip alert.
 */
 @Sendable
@@ -315,7 +458,7 @@ enum CardListStyles: StyleSet {
 	var style: Style {
 		// The items are blocks instead of list items, so they have no bullets.
 		Style()
-			.margin(vertical: ProseStyles.blockSpacing, horizontal: 0)
+			.proseBlockMargin()
 			.children("ul") {
 				$0
 					.margin(0)
@@ -339,17 +482,9 @@ enum CardListStyles: StyleSet {
 							.color(.primaryText)
 							.children("ul") {
 								$0
-									.vstack(spacing: .rootEm(0.5))
-									.margin(top: .rootEm(0.625), horizontal: 0, bottom: 0)
-									.padding(0)
+									.detailsList()
 									.secondaryText()
 									.fontWeight(.regular)
-									.children("li") {
-										$0
-											.display(.block)
-											.margin(0)
-											.padding(0)
-									}
 							}
 					}
 			}
@@ -357,7 +492,7 @@ enum CardListStyles: StyleSet {
 }
 
 /**
-A numbered list with large numbers in the accent of the page, like `@Steps { 1. Write down every idea }`, for a short list where each item stands on its own, like principles. A nested list is smaller text below its item.
+A numbered list as steps, with each number in a circle in the accent of the page and a line to the next, like `@Steps { 1. Write down every idea }`, for a short list of steps in order, like how I make an app. A nested list is smaller text below its item.
 */
 @Sendable
 private func renderSteps(contentHTML: String) -> String {
@@ -376,7 +511,7 @@ enum StepListStyles: StyleSet {
 
 	var style: Style {
 		Style()
-			.margin(vertical: ProseStyles.blockSpacing, horizontal: 0)
+			.proseBlockMargin()
 			.children("ol") {
 				$0
 					.counterReset("step")
@@ -388,34 +523,196 @@ enum StepListStyles: StyleSet {
 							.display(.block)
 							.position(.relative)
 							.margin(0)
-							.padding(top: .rootEm(1), horizontal: 0, bottom: .rootEm(1))
+							.padding(top: 0, horizontal: 0, bottom: .rootEm(1.75))
 							.padding(.leading, .rootEm(3))
-							.border(.bottom, .separator)
-							.lastChild {
-								$0.border(.bottom, width: 0)
-							}
-							// The number has the line height of the text, so it lines up with the first line.
+							// The number in a circle as high as a line of the text, so it lines up with the first line.
 							.before {
 								$0
-									.content(counter: "step", style: .decimalLeadingZero)
+									.content(counter: "step", style: .decimal)
 									.position(.absolute)
-									.top(.rootEm(1))
+									.top(0)
 									.leading(0)
+									.frame(size: .lineHeight(1))
+									.cornerRadius(.circle)
+									.background(.accentMark.opacity(0.14))
 									.fontFamily(.rounded)
 									.bold()
 									.monospacedDigit()
-									.color(.lightDark(.accent(fallback: .primary(600), maximumLightness: 0.6), Color.accent.value(default: .primary(400))))
+									.textAlign(.center)
+									.color(.accentMark)
+							}
+							// The line from the circle to the next one, so the items read as steps in order.
+							.after {
+								$0
+									.content("")
+									.position(.absolute)
+									.top(.lineHeight(1) + .rootEm(0.375))
+									.bottom(.rootEm(0.375))
+									.leading(.lineHeight(0.5) - .pixels(1))
+									.frame(width: .pixels(2))
+									.cornerRadius(.capsule)
+									.background(.accentMark.opacity(0.14))
+							}
+							.lastChild {
+								$0
+									.padding(.bottom, 0)
+									.after {
+										$0.display(.none)
+									}
 							}
 							.children("ul") {
 								$0
+									.plainList()
 									.margin(top: .rootEm(0.25), horizontal: 0, bottom: 0)
-									.padding(0)
 									.secondaryText(.body)
+							}
+					}
+			}
+	}
+}
+
+/**
+A list of years with the changes of each, as a timeline, like `@Changelog { - 2014 }` with a nested `- Added: Awesome`. The kind before the colon of a change, like “Added”, becomes a badge. A change can also have no kind. Only the changes, the second level of the list, can have a kind.
+*/
+@Sendable
+private func renderChangelog(contentHTML: String) throws -> String {
+	// A change of a list with blank lines between the changes is in a paragraph.
+	let html = try contentHTML.replacing(#/(<li>(?:\s*<p>)?)([A-Z][a-z]+): /#) { match in
+		let title = String(match.2)
+
+		guard let kind = ChangeKind(rawValue: title) else {
+			throw ContentError(reason: "“\(title)” is not a kind of change. Use \(ChangeKind.allCases.map(\.rawValue).formatted(.list(type: .or))).")
+		}
+
+		return match.1 + Badge(title, kind: kind.badgeKind).render() + " "
+	}
+
+	return div {
+		HTMLRaw(html)
+	}
+	.style(ChangelogStyles.root)
+	.render()
+}
+
+/**
+The kinds of changes of `@Changelog`, like in a changelog of software. The raw value is the word in the Markdown, like “Added”.
+*/
+private enum ChangeKind: String, CaseIterable {
+	case added = "Added"
+	case changed = "Changed"
+	case fixed = "Fixed"
+	case removed = "Removed"
+	case deprecated = "Deprecated"
+
+	/**
+	The color of the badge of the kind.
+	*/
+	var badgeKind: Badge.Kind {
+		switch self {
+		case .added:
+			.added
+		case .changed:
+			.changed
+		case .fixed:
+			.fixed
+		case .removed:
+			.removed
+		case .deprecated:
+			.standard
+		}
+	}
+}
+
+/**
+The styles of `@Changelog` lists, like a timeline: a line on the leading side that fades out at the oldest year, a ring at each year, and the year as a label above its changes. The newest year has a filled dot with a soft halo, like the present.
+*/
+enum ChangelogStyles: StyleSet {
+	case root
+
+	var style: Style {
+		// The size of the dot of a year, and the space from its center to the changes.
+		let dotSize = 0.75
+		let indent = 1.75
+
+		// The items are blocks instead of list items, so they have no bullets.
+		return Style()
+			.proseBlockMargin()
+			.children("ul") {
+				$0
+					.position(.relative)
+					.margin(0)
+					.padding(0)
+					.padding(.leading, .rootEm(indent))
+					// The line, through the centers of the dots, from the newest year.
+					.before {
+						$0
+							.content("")
+							.position(.absolute)
+							.top(.rootEm(dotSize))
+							.bottom(0)
+							.leading(.rootEm(dotSize / 2) - .pixels(1))
+							.frame(width: .pixels(2))
+							.cornerRadius(.capsule)
+							.backgroundImage(.linearGradient("to bottom", Color.accentMark.opacity(0.3).at(.percent(0)), Color.accentMark.opacity(0.3).at(.percent(90)), Color.transparent.at(.percent(100))))
+					}
+					.children("li") {
+						$0
+							.display(.block)
+							.position(.relative)
+							.margin(0)
+							.padding(.bottom, .rootEm(2.25))
+							// The year.
+							.fontFamily(.rounded)
+							.textStyle(.headline, weight: .bold)
+							.monospacedDigit()
+							.color(.primaryText)
+							.lastChild {
+								$0.padding(.bottom, 0)
+							}
+							// The ring of the year, in the middle of the first line, with a gap of the page color around it, so it stands apart from the line.
+							.before {
+								$0
+									.content("")
+									.position(.absolute)
+									.top(.lineHeight(0.5) - .rootEm(dotSize / 2))
+									.leading(.rootEm(-indent))
+									.frame(size: .rootEm(dotSize))
+									.cornerRadius(.circle)
+									.border(.accentMark, width: .pixels(2))
+									.background(.pageBackground)
+									.shadow(Shadow(y: 0, spread: .pixels(4), color: .pageBackground))
+							}
+							.firstChild {
+								$0.before {
+									$0
+										.background(.accentMark)
+										.shadow(Shadow(y: 0, spread: .pixels(3), color: .pageBackground), Shadow(y: 0, spread: .pixels(7), color: .accentMark.opacity(0.2)))
+								}
+							}
+							.children("ul") {
+								$0
+									.detailsList()
+									.fontFamily(.system)
+									.textStyle(.body, weight: .regular)
+									.color(.bodyText)
+									// The badge hangs on the leading side, so the lines of a long change start after it, also on phones. The text starts 0.75 after the badge.
 									.children("li") {
 										$0
-											.display(.block)
-											.margin(0)
-											.padding(0)
+											.position(.relative)
+											.padding(.leading, .rootEm(5.75))
+											// The paragraph of a change in a list with blank lines, so it lines up with its badge like the others.
+											.children("p") {
+												$0.margin(0)
+											}
+									}
+									// The badges have the same width, so the changes line up. In the middle of the first line.
+									.nested(Badge.Styles.root.selector) {
+										$0
+											.position(.absolute)
+											.top(.em(0.3))
+											.leading(0)
+											.frame(width: .rootEm(5))
+											.textAlign(.center)
 									}
 							}
 					}
@@ -435,11 +732,8 @@ private func renderSocialLinks(contentHTML: String) throws -> String {
 	return ul {
 		for link in Site.author.socialLinks {
 			li {
-				a(.href(.url(link.url)), .rel("me")) {
-					link.icon.size(.rootEm(1))
-					link.name
-				}
-				.style(SocialLinksStyles.link)
+				ProfileLink(profile: link, iconSize: .rootEm(1))
+					.style(SocialLinksStyles.link)
 			}
 			.style(SocialLinksStyles.item)
 		}
@@ -462,8 +756,8 @@ enum SocialLinksStyles: StyleSet {
 			Style()
 				.hstack(spacing: .rootEm(0.5))
 				.flexWrap()
-				// The space of a list.
-				.margin(vertical: .em(1), horizontal: 0)
+				// The space of a block, like the cards, so the links are apart from the text above them.
+				.proseBlockMargin()
 				.padding(0)
 		// A flex container, so it has no bullet.
 		case .item:
@@ -472,12 +766,8 @@ enum SocialLinksStyles: StyleSet {
 				.margin(0)
 				.padding(0)
 		case .link:
-			Style()
-				.chip()
-				// A little less padding than other chips, so all the links fit on one line next to the prose.
-				.padding(.horizontal, .rootEm(0.75))
-				.hstack(alignment: .center, spacing: .rootEm(0.375))
-				.underline(false)
+			// The chips with icons have a little less padding than other chips, so all the links fit on one line next to the prose.
+			Style().chip(hasIcon: true)
 		}
 	}
 }
@@ -495,10 +785,15 @@ private struct CommonQuestion {
 	var isFirst = false
 
 	/**
+	The ID of the heading, instead of the slug of the title, for a question that code finds.
+	*/
+	var id: String?
+
+	/**
 	The question and its answer, as a level 3 heading and a paragraph, like the questions in the files.
 	*/
 	var blocks: [any BlockMarkup] {
-		[Markdown.Heading(level: 3, Markdown.Text(title)), answer]
+		[Markdown.Heading(level: 3, Markdown.Text(title + (id.map { " {#\($0)}" } ?? ""))), answer]
 	}
 
 	/**
@@ -510,8 +805,9 @@ private struct CommonQuestion {
 		if frontmatter.isMenuBarApp {
 			questions.append(Self(
 				title: "The app does not show up in the menu bar",
-				answer: Paragraph(Markdown.Link(destination: LinkDestination.path(.faq, fragment: "app-not-showing-in-menu-bar").description, Markdown.Text("Try this"))),
-				isFirst: true
+				answer: Paragraph(Markdown.Link(destination: LinkDestination.menuBarQuestion.description, Markdown.Text("How to make the app show up in the menu bar"))),
+				isFirst: true,
+				id: App.addedMenuBarQuestionID
 			))
 		}
 
@@ -682,5 +978,16 @@ extension [App.OlderVersion] {
 		}
 
 		return section
+	}
+}
+
+extension Style {
+	/**
+	The nested list of an item of a block directive, like the details of a card or the changes of a year: no bullets, in a column, a little below the item.
+	*/
+	fileprivate func detailsList() -> Self {
+		plainList()
+			.vstack(spacing: .rootEm(0.5))
+			.margin(top: .rootEm(0.625), horizontal: 0, bottom: 0)
 	}
 }

@@ -16,18 +16,25 @@ struct GeoCitiesCoolText: ScriptedElement {
 	let project: Project
 
 	/**
-	The styles of the logos, with their names.
+	The styles of the logos. The raw value is the value of the radio button, which the script sets as the state of the logo.
 	*/
-	private static let effects: [(id: String, title: String)] = [
-		("fire", "Fire"),
-		("neon", "Neon"),
-		("chrome", "Chrome"),
-		("rainbow", "Rainbow"),
-		("wavy", "Wavy"),
-		("earthquake", "Earthquake"),
-		("typewriter", "Typewriter"),
-		("blink", "Blink"),
-	]
+	enum Effect: String, ElementStateSet {
+		case fire
+		case neon
+		case chrome
+		case rainbow
+		case wavy
+		case earthquake
+		case typewriter
+		case blink
+
+		/**
+		The name of the style, like “Fire”.
+		*/
+		var title: String {
+			rawValue.capitalized
+		}
+	}
 
 	var content: some HTML {
 		h2 {
@@ -70,7 +77,7 @@ struct GeoCitiesCoolText: ScriptedElement {
 					span(.part(Parts.label)) {}
 						.style(VisuallyHidden.Styles.root)
 
-					span(.part(Parts.letters), .hook(ScriptAttribute.state, value: "fire")) {}
+					span(.part(Parts.letters), .state(Effect.fire)) {}
 						.accessibilityHidden()
 						.style(Styles.letters)
 				}
@@ -121,9 +128,9 @@ struct GeoCitiesCoolText: ScriptedElement {
 	*/
 	private var effectChoices: some HTML {
 		div {
-			for (index, effect) in Self.effects.enumerated() {
+			for (index, effect) in Effect.allCases.enumerated() {
 				label {
-					input(.type(.radio), .name("geocities-cool-text-effect"), .value(effect.id))
+					input(.type(.radio), .name("geocities-cool-text-effect"), .value(effect.rawValue))
 						.attributes(.checked, when: index == 0)
 						.style(Styles.radio)
 
@@ -143,6 +150,11 @@ struct GeoCitiesCoolText: ScriptedElement {
 		case title
 		case status
 	}
+
+	/**
+	The states of the element are the styles of the logos.
+	*/
+	typealias States = Effect
 
 	enum Hooks: String, ScriptHookSet {
 		/**
@@ -181,17 +193,12 @@ struct GeoCitiesCoolText: ScriptedElement {
 					.grid(minimumColumnWidth: .rootEm(7))
 					.gap(.rootEm(0.25))
 			case .effect:
-				// A raised button for each style, which is pressed in while it is picked.
-				Style()
+				// A raised button for each style, which is pressed in while it is picked. The radio button inside shows the focus of the panel.
+				GeoCitiesPage.Styles.smallButton.style
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
-					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
-					.fontFamily(.system)
-					.textStyle(.caption, weight: .bold)
-					.handCursor()
-					.focusWithin {
-						$0.focusRing(.black, width: .pixels(1), offset: .pixels(-4), style: .dotted)
+					.descendantChecked {
+						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
 					}
 			case .radio:
 				Style()
@@ -234,28 +241,24 @@ struct GeoCitiesCoolText: ScriptedElement {
 					.children("span") {
 						$0.display(.inlineBlock)
 					}
-					.when(.state, is: "fire") {
+					.when(Effect.fire) {
 						$0
 							.color(Color("#ffee66"))
 							.textShadow(Shadow(y: .pixels(-2), blur: .pixels(4), color: Color("#ffcc00")), Shadow(y: .pixels(-6), blur: .pixels(10), color: Color("#ff6600")), Shadow(y: .pixels(-12), blur: .pixels(18), color: Color("#cc0000")))
 							// The flames move only while the script sees them in view, as an animated shadow costs the whole page a layout on each frame.
 							.when(Hooks.onScreen) {
-								$0.media(.allowsMotion) {
-									$0.animation(Animations.fire, .easeInOut(duration: .milliseconds(180)).repeatForever())
-								}
+								$0.animation(Animations.fire, .easeInOut(duration: .milliseconds(180)).repeatForever())
 							}
 					}
-					.when(.state, is: "neon") {
+					.when(Effect.neon) {
 						$0
 							.fontFamily(GeoCitiesPage.comicSans)
 							.color(Color("#ffe0ff"))
 							.textShadow(Shadow(y: 0, blur: .pixels(4), color: Color("#ff66ff")), Shadow(y: 0, blur: .pixels(12), color: Color("#ff00cc")), Shadow(y: 0, blur: .pixels(24), color: Color("#ff00cc")))
-							.media(.allowsMotion) {
-								$0.animation(Animations.neon, .linear(duration: .seconds(3)).repeatForever(autoreverses: false))
-							}
+							.animation(Animations.neon, .linear(duration: .seconds(3)).repeatForever(autoreverses: false))
 					}
 					// Shiny metal, with a light top, a dark line in the middle, and a blue shadow, like the chrome logos of 1999. Each letter clips the metal to itself, as Safari does not paint the letters of its children through the clip of the parent. The metal is bright, so it shows on the black box.
-					.when(.state, is: "chrome") {
+					.when(Effect.chrome) {
 						$0.children("*") {
 							$0
 								.backgroundImage(.linearGradient("to bottom", Color("#ffffff"), Color("#dde3ee"), Color("#8f9bb0"), Color("#ffffff"), Color("#b8c2d4")))
@@ -264,53 +267,42 @@ struct GeoCitiesCoolText: ScriptedElement {
 								.filter(.dropShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#3366ff"))))
 						}
 					}
-					.when(.state, is: "rainbow") {
-						$0.media(.allowsMotion) {
-							$0.animation(GeoCitiesPage.Animations.rainbow, .linear(duration: .seconds(2)).repeatForever(autoreverses: false))
-						}
+					.when(Effect.rainbow) {
+						$0.animation(GeoCitiesPage.Animations.rainbow, .linear(duration: .seconds(2)).repeatForever(autoreverses: false))
 					}
-					.when(.state, is: "wavy") {
+					.when(Effect.wavy) {
 						$0
 							.color(Color("#66ffff"))
 							.textShadow(Shadow(x: .pixels(3), y: .pixels(3), color: Color("#0000cc")))
-							.media(.allowsMotion) {
-								$0.children("span") {
-									$0.animation(Animations.wave, .easeInOut(duration: .milliseconds(600)).repeatForever())
-								}
+							.children("span") {
+								$0.animation(Animations.wave, .easeInOut(duration: .milliseconds(600)).repeatForever())
 							}
 					}
-					.when(.state, is: "earthquake") {
+					.when(Effect.earthquake) {
 						$0
 							.color(Color("#ff9933"))
 							.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#663300")))
-							.media(.allowsMotion) {
-								$0.children("span") {
-									$0.animation(Animations.quake, .linear(duration: .milliseconds(120)).repeatForever())
-								}
+							.children("span") {
+								$0.animation(Animations.quake, .linear(duration: .milliseconds(120)).repeatForever())
 							}
 					}
-					.when(.state, is: "typewriter") {
+					.when(Effect.typewriter) {
 						$0
 							.fontFamily(GeoCitiesPage.courier)
 							.fontWeight(.bold)
 							.color(Color("#33ff66"))
 							.after {
-								$0.content("_")
-							}
-							.media(.allowsMotion) {
-								$0.after {
-									$0.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
-								}
+								$0
+									.content("_")
+									.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
 							}
 					}
-					.when(.state, is: "blink") {
+					.when(Effect.blink) {
 						$0
 							.fontFamily(GeoCitiesPage.times)
 							.fontWeight(.bold)
 							.color(Color("#ffff00"))
-							.media(.allowsMotion) {
-								$0.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
-							}
+							.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
 					}
 			}
 		}

@@ -2,6 +2,7 @@ import ArgumentParser
 import Foundation
 import SiteKit
 import System
+import SystemConfiguration
 import Website
 
 @main
@@ -22,7 +23,7 @@ struct SiteOptions: ParsableArguments {
 	var output: String?
 
 	var project: Project {
-		Project(root: URL(filePath: root, directoryHint: .isDirectory, relativeTo: .currentDirectory()))
+		Project.site(root: URL(filePath: root, directoryHint: .isDirectory, relativeTo: .currentDirectory()))
 	}
 
 	var outputDirectory: URL {
@@ -128,7 +129,7 @@ extension WebsiteCommand {
 			let content = try await SiteContent.load(from: options.project, externalData: options.externalData)
 			let routes = Site(content: content).routes(project: options.project)
 
-			for route in routes.sorted(using: KeyPathComparator(\.path.description)) {
+			for route in routes.sorted(using: KeyPathComparator(\.path.description, comparator: String.StandardComparator.lexical)) {
 				let kind = switch route.output {
 				case .page(let sitemapEntry, _):
 					sitemapEntry == nil ? "page (not indexed)" : "page"
@@ -155,6 +156,9 @@ extension WebsiteCommand {
 		@Option(name: .shortAndLong, help: "The HTTP port. 0 picks a free port.")
 		var port: UInt16 = 4321
 
+		@Flag(help: "Serve on the local network too, to test on other devices, like an iPhone. It prints the URL as a QR code. Anyone on the network can open the site while it runs.")
+		var localNetwork = false
+
 		/**
 		Set when the tool restarts itself after a source change, so it does not open the browser again.
 		*/
@@ -164,7 +168,7 @@ extension WebsiteCommand {
 		func run() async throws {
 			let project = options.project
 			let sources = project.root.appending(path: "Sources")
-			let server = PreviewServer(directory: options.outputDirectory, port: port, reloadsPages: true)
+			let server = PreviewServer(directory: options.outputDirectory, port: port, reloadsPages: true, servesLocalNetwork: localNetwork)
 
 			// The watcher starts before the first build, so edits during the build are seen.
 			let changes = DirectoryWatcher(directories: [project.contentDirectory, project.publicDirectory, sources]).makeAsyncIterator()
@@ -210,6 +214,9 @@ extension WebsiteCommand {
 		private func rebuildUntilSourcesChange(changes: DirectoryWatcher.Iterator, sources: URL, server: PreviewServer) async -> Bool {
 			var changes = changes
 
+			// The tool that does not build, so a rebuild of the site keeps showing it, as the server still runs the old tool.
+			var toolError: String?
+
 			while let changed = await changes.next() {
 				let changedSources = changed.filter { $0.isInside(sources) }
 
@@ -226,7 +233,8 @@ extension WebsiteCommand {
 					}
 
 					print("Fix the errors to continue.")
-					server.show(error: "The tool does not build. The errors are in the terminal.")
+					toolError = "The tool does not build. The errors are in the terminal."
+					server.show(error: toolError)
 
 					// Content that changed at the same time is still rebuilt.
 					guard changed.count > changedSources.count else {
@@ -235,22 +243,35 @@ extension WebsiteCommand {
 				}
 
 				print("Rebuilding the site…")
-				await build(server: server)
+				await build(server: server, toolError: toolError)
 			}
 
 			return false
 		}
 
 		/**
-		Prints the URL and opens it in the default browser, unless the tool restarted.
+		Prints the URL and opens it in the default browser, unless the tool restarted. On the local network, it also prints the URL for other devices, and as a QR code the first time.
 		*/
 		private func opened(port: UInt16) {
-			// The server only listens on the IPv4 loopback address, and `localhost` can resolve to IPv6 first.
+			// The server only listens on IPv4 addresses, and `localhost` can resolve to IPv6 first.
 			let url = "http://127.0.0.1:\(port)"
 			print("Serving at \(url)")
 
+			// By the Bonjour name of this Mac, which other devices resolve without a DNS server, and which stays the same when the IP address changes.
+			let localNetworkURL = localNetwork ? ProcessInfo.processInfo.localHostName.flatMap { URL(string: "http://\($0).local:\(port)") } : nil
+
+			if let localNetworkURL {
+				print("Serving on the local network at \(localNetworkURL)")
+			} else if localNetwork {
+				print("Serving on the local network, but this Mac has no local hostname. Set one in System Settings › General › Sharing.")
+			}
+
 			guard !restarted else {
 				return
+			}
+
+			if let localNetworkURL {
+				print(QRCode(url: localNetworkURL, label: "The URL on the local network").terminalText)
 			}
 
 			let process = Process()
@@ -261,19 +282,35 @@ extension WebsiteCommand {
 
 		/**
 		Builds the site, and reloads the open pages as soon as the files are written. Errors are printed and shown on the pages instead of thrown, so a mistake in the content does not stop the server.
+
+		- Parameter toolError: An error that stays on the pages, like a tool that does not build.
 		*/
-		private func build(server: PreviewServer) async {
+		private func build(server: PreviewServer, toolError: String? = nil) async {
+			let buildError: String?
+
 			do {
 				let report = try await options.build(includesGallery: true) {
 					server.reload()
 				}
 
-				server.show(error: report.brokenLinksText)
+				buildError = report.brokenLinksText
 			} catch {
 				print("Error: \(error)")
-				server.show(error: "\(error)")
+				buildError = "\(error)"
 			}
+
+			let errors = [toolError, buildError].compactMap(\.self)
+			server.show(error: errors.isEmpty ? nil : errors.joined(separator: "\n\n"))
 		}
+	}
+}
+
+extension ProcessInfo {
+	/**
+	The Bonjour name of this Mac, like `Sindres-MacBook-Pro`, which other devices find as `Sindres-MacBook-Pro.local`.
+	*/
+	fileprivate var localHostName: String? {
+		SCDynamicStoreCopyLocalHostName(nil) as String?
 	}
 }
 

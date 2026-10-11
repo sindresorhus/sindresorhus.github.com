@@ -92,6 +92,10 @@ struct GeoCitiesInsultFight: ScriptedElement {
 		case choice
 	}
 
+	enum States: String, ElementStateSet {
+		case locked
+	}
+
 	enum Styles: ElementStyleSet {
 		case root
 		case fightWindow
@@ -160,7 +164,7 @@ struct GeoCitiesInsultFight: ScriptedElement {
 					}
 			case .masterButton:
 				// Locked until the visitor knows enough comebacks, but still there to see, so the visitor knows what to aim for.
-				Style().when(.state, is: "locked") {
+				Style().when(States.locked) {
 					$0.opacity(0.6)
 				}
 			case .known:

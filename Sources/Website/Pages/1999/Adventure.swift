@@ -529,6 +529,20 @@ struct GeoCitiesAdventure: ScriptedElement {
 		case slot
 	}
 
+	enum States: String, ElementStateSet {
+		case done
+		case sindre
+		case mamma
+		case mormor
+		case kevin
+		case troll
+		case seagull
+		case fishmonger
+		case glitter
+		case conductor
+		case narrator
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		A thing in the box, like `sticker`.
@@ -710,7 +724,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 					.font(.large)
 					.color(.white)
 					.handCursor()
-					.when(.state, is: "done") {
+					.when(States.done) {
 						$0.opacity(0.4)
 					}
 			case .diskLabel:
@@ -802,34 +816,34 @@ struct GeoCitiesAdventure: ScriptedElement {
 					.color(.white)
 					.textShadow(Shadow(x: .pixels(-2), y: 0, color: .black), Shadow(x: .pixels(2), y: 0, color: .black), Shadow(x: 0, y: .pixels(-2), color: .black), Shadow(x: 0, y: .pixels(2), color: .black), Shadow(x: .pixels(2), y: .pixels(2), color: .black))
 					.allowsHitTesting(false)
-					.when(.state, is: "sindre") {
+					.when(States.sindre) {
 						$0.color(Color("#ffffff"))
 					}
-					.when(.state, is: "mamma") {
+					.when(States.mamma) {
 						$0.color(Color("#ff9ad5"))
 					}
-					.when(.state, is: "mormor") {
+					.when(States.mormor) {
 						$0.color(Color("#ffd27a"))
 					}
-					.when(.state, is: "kevin") {
+					.when(States.kevin) {
 						$0.color(Color("#7ad7ff"))
 					}
-					.when(.state, is: "troll") {
+					.when(States.troll) {
 						$0.color(Color("#9cff7a"))
 					}
-					.when(.state, is: "seagull") {
+					.when(States.seagull) {
 						$0.color(Color("#d0d0d0"))
 					}
-					.when(.state, is: "fishmonger") {
+					.when(States.fishmonger) {
 						$0.color(Color("#ffa060"))
 					}
-					.when(.state, is: "glitter") {
+					.when(States.glitter) {
 						$0.color(Color("#e6a0ff"))
 					}
-					.when(.state, is: "conductor") {
+					.when(States.conductor) {
 						$0.color(Color("#ff7070"))
 					}
-					.when(.state, is: "narrator") {
+					.when(States.narrator) {
 						$0.color(Color("#ffff66"))
 					}
 			case .titleScreen:
@@ -933,7 +947,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 					.focusVisible {
 						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(-2))
 					}
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.background(Color("#1f3f1f"))
 							.color(Color("#b6ffb6"))
@@ -963,7 +977,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 					.focusVisible {
 						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(-2))
 					}
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.background(Color("#3a1a6a"))
 							.color(Color("#ffffff"))
@@ -971,7 +985,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 					}
 			case .itemIcon:
 				Style()
-					.frame(width: .rootEm(2), height: .rootEm(2))
+					.frame(size: .rootEm(2))
 					.flexShrink(0)
 					.imageRendering(.pixelated)
 			case .empty:

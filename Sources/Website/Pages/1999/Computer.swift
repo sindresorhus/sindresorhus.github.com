@@ -19,7 +19,7 @@ struct GeoCitiesComputer: ScriptedElement {
 		div {
 			div {
 				// The CD-ROM drive, with its tray, which slides out with a cup on it.
-				div(.part(Parts.drive)) {
+				div {
 					span {
 						"CD-ROM 32×"
 					}
@@ -29,7 +29,7 @@ struct GeoCitiesComputer: ScriptedElement {
 						"⏏"
 					}
 					.accessibilityLabel("Open the CD-ROM tray")
-					.style(Styles.smallButton, GeoCitiesPage.Styles.scriptingOnly)
+					.style(Styles.ejectButton, GeoCitiesPage.Styles.scriptingOnly)
 
 					div {
 						GeoCitiesPage.GIFImage(gif: .javaCup, alt: "A cup of coffee on the tray", style: .gif, project: project)
@@ -133,7 +133,6 @@ struct GeoCitiesComputer: ScriptedElement {
 	}
 
 	enum Parts: String, ElementPartSet {
-		case drive
 		case eject
 		case hardDriveLight
 		case turboLight
@@ -145,12 +144,16 @@ struct GeoCitiesComputer: ScriptedElement {
 		case biosText
 	}
 
+	enum States: String, ElementStateSet {
+		case on
+	}
+
 	enum Styles: ElementStyleSet {
 		case root
 		case computerCase
 		case drive
 		case label
-		case smallButton
+		case ejectButton
 		case tray
 		case front
 		case badge
@@ -190,7 +193,7 @@ struct GeoCitiesComputer: ScriptedElement {
 					.backgroundImage(.linearGradient("to bottom", Color("#e2d9bc"), Color("#cbc09e")))
 					.border(Color("#a89c78"), width: .pixels(2), style: .inset)
 					// The tray is out while the drive is open.
-					.when(.state, is: "open") {
+					.descendantPressed {
 						$0.children("div") {
 							$0
 								.visibility(true)
@@ -202,7 +205,7 @@ struct GeoCitiesComputer: ScriptedElement {
 				Style()
 					.textStyle(.caption, weight: .bold)
 					.letterSpacing(.em(0.05))
-			case .smallButton:
+			case .ejectButton:
 				Style()
 					.padding(vertical: 0, horizontal: .rootEm(0.5))
 					.background(Color("#d6cba8"))
@@ -262,7 +265,7 @@ struct GeoCitiesComputer: ScriptedElement {
 				// A small round light, dark while it is off.
 				Style()
 					.display(.inlineBlock)
-					.frame(width: .rootEm(0.625), height: .rootEm(0.625))
+					.frame(size: .rootEm(0.625))
 					.cornerRadius(.percent(50))
 					.background(Color("#4a4a3a"))
 					.border(Color("#777766"), width: .pixels(1))
@@ -271,13 +274,13 @@ struct GeoCitiesComputer: ScriptedElement {
 					.background(Color("#33ff33"))
 					.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#33ff33")))
 			case .hardDriveLight:
-				Style().when(.state, is: "on") {
+				Style().when(States.on) {
 					$0
 						.background(Color("#ffaa00"))
 						.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ffaa00")))
 				}
 			case .turboLight:
-				Style().when(.state, is: "on") {
+				Style().when(States.on) {
 					$0
 						.background(Color("#ffff33"))
 						.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ffff33")))
@@ -311,7 +314,7 @@ struct GeoCitiesComputer: ScriptedElement {
 					.active {
 						$0.border(Color("#efe6c8"), width: .pixels(3), style: .inset)
 					}
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.background(Color("#c4b890"))
 							.border(Color("#efe6c8"), width: .pixels(3), style: .inset)

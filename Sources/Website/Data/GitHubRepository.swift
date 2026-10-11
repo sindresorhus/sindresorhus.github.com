@@ -10,6 +10,18 @@ struct GitHubRepository: Decodable, Sendable {
 	let stars: Int
 
 	/**
+	The main language of the code, like `TypeScript`. `nil` for a repo without code, like a list of links.
+	*/
+	let language: String?
+
+	/**
+	The owner and the name, like `sindresorhus/ky`.
+	*/
+	var nameWithOwner: String {
+		String(url.path().dropFirst())
+	}
+
+	/**
 	The description as plain text: without the notes in brackets, like “[Submissions are paused]”, without emoji, including GitHub emoji codes, like `:zap:`, and without the backticks of code, which GitHub shows as code.
 	*/
 	var summary: String? {
@@ -18,7 +30,8 @@ struct GitHubRepository: Decodable, Sendable {
 		}
 
 		let summary = String(description.filter { !$0.isEmoji })
-			.replacing(/\[[^\]]*\]/, with: "")
+			// One or more brackets, so a note in double brackets, like `[[Slow to reply]]`, is removed whole.
+			.replacing(/\[+[^\]]*\]+/, with: "")
 			// A whole word, so the `:30:` in `12:30:45` stays.
 			// TODO: Use a lookbehind, `(?<!\w)`, instead of capturing the character before the code, when Swift Regex supports lookbehinds.
 			// Codes next to each other, like `:unicorn::sparkles:`, are one match, as the character before the second code is the colon of the first.
@@ -38,6 +51,7 @@ struct GitHubRepository: Decodable, Sendable {
 		case isArchived = "archived"
 		case isFork = "fork"
 		case stars = "stargazers_count"
+		case language
 	}
 }
 

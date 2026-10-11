@@ -49,7 +49,7 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 
 				div(.part(Parts.ball)) {
 					div {
-						p(.part(Parts.answer), .role("status"), .hook(.state, value: "eight")) {
+						p(.part(Parts.answer), .role("status"), .state(States.eight)) {
 							"8"
 						}
 						.style(Styles.answer)
@@ -87,12 +87,12 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 							span {
 								"\(flap.numbers.0)"
 							}
-							.style(Styles.flapNumber, Styles.numberA)
+							.style(Styles.flapNumber, Styles.horizontalNumber)
 
 							span {
 								"\(flap.numbers.1)"
 							}
-							.style(Styles.flapNumber, Styles.numberB)
+							.style(Styles.flapNumber, Styles.verticalNumber)
 						}
 						.style(Styles.flap, flap.style)
 					}
@@ -179,6 +179,15 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 		case warm
 	}
 
+	enum States: String, ElementStateSet {
+		case eight
+		case shaking
+		case hidden
+		// The ways that the paper fortune teller opens: to the sides, or up and down.
+		case horizontal
+		case vertical
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		A flap of the paper fortune teller, with its color.
@@ -202,8 +211,8 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 		case bottomRight
 		case flapColor
 		case flapNumber
-		case numberA
-		case numberB
+		case horizontalNumber
+		case verticalNumber
 		case ring
 		case stone
 
@@ -231,19 +240,17 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 				// A black ball with a shine, and a dark blue window in the middle. It shakes while it thinks.
 				Style()
 					.hstack(alignment: .center, justification: .center)
-					.frame(width: .rootEm(10), height: .rootEm(10))
+					.frame(size: .rootEm(10))
 					.backgroundImage(.radialGradient("circle at 35% 30%", Color("#666666"), Color("#111111"), Color("#000000")))
 					.cornerRadius(.percent(50))
 					.shadow(Shadow(x: .pixels(3), y: .pixels(5), color: Color("#00000066")))
-					.media(.allowsMotion) {
-						$0.when(.state, is: "shaking") {
-							$0.animation(Animations.shake, .linear(duration: .seconds(0.12)).repeatForever())
-						}
+					.when(States.shaking) {
+						$0.animation(Animations.shake, .linear(duration: .seconds(0.12)).repeatForever())
 					}
 			case .ballWindow:
 				Style()
 					.hstack(alignment: .center, justification: .center)
-					.frame(width: .rootEm(5), height: .rootEm(5))
+					.frame(size: .rootEm(5))
 					.padding(.rootEm(0.375))
 					.background(Color("#0a0a40"))
 					.border(Color("#333333"), width: .pixels(3))
@@ -262,10 +269,10 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 					.media(.allowsMotion) {
 						$0.transition(.opacity, animation: .easeIn(duration: .seconds(0.8)))
 					}
-					.when(.state, is: "hidden") {
+					.when(States.hidden) {
 						$0.opacity(0)
 					}
-					.when(.state, is: "eight") {
+					.when(States.eight) {
 						$0
 							.fontFamily(GeoCitiesPage.times)
 							.font(size: .rootEm(2.5))
@@ -276,7 +283,7 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 				Style()
 					.grid(columns: 2)
 					.gap(.pixels(2))
-					.frame(width: .rootEm(10), height: .rootEm(10))
+					.frame(size: .rootEm(10))
 					.margin(.rootEm(0.75))
 			case .flap:
 				Style()
@@ -293,46 +300,49 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 				Style()
 					.background(Color("#ee3333"))
 					.cornerRadius(.rootEm(0.25))
-					.when(.state, is: "a") {
+					.when(States.horizontal) {
 						$0.offset(x: .rootEm(-0.75))
 					}
-					.when(.state, is: "b") {
+					.when(States.vertical) {
 						$0.offset(y: .rootEm(-0.75))
 					}
 			case .topRight:
 				Style()
 					.background(Color("#3366ff"))
 					.cornerRadius(.rootEm(0.25))
-					.when(.state, is: "a") {
+					.when(States.horizontal) {
 						$0.offset(x: .rootEm(0.75))
 					}
-					.when(.state, is: "b") {
+					.when(States.vertical) {
 						$0.offset(y: .rootEm(-0.75))
 					}
 			case .bottomLeft:
 				Style()
 					.background(Color("#33bb33"))
 					.cornerRadius(.rootEm(0.25))
-					.when(.state, is: "a") {
+					.when(States.horizontal) {
 						$0.offset(x: .rootEm(-0.75))
 					}
-					.when(.state, is: "b") {
+					.when(States.vertical) {
 						$0.offset(y: .rootEm(0.75))
 					}
 			case .bottomRight:
 				Style()
 					.background(Color("#ffdd00"))
 					.cornerRadius(.rootEm(0.25))
-					.when(.state, is: "a") {
+					.when(States.horizontal) {
 						$0.offset(x: .rootEm(0.75))
 					}
-					.when(.state, is: "b") {
+					.when(States.vertical) {
 						$0.offset(y: .rootEm(0.75))
 					}
 			case .flapColor:
 				// The color shows while the paper is closed, and the numbers inside while it is open.
 				Style()
-					.when(ancestorHas: .state) {
+					.when(ancestorHas: States.horizontal) {
+						$0.hidden()
+					}
+					.when(ancestorHas: States.vertical) {
 						$0.hidden()
 					}
 			case .flapNumber:
@@ -340,23 +350,23 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 				Style()
 					.hstack(alignment: .center, justification: .center)
 					.hidden()
-					.frame(width: .rootEm(2.5), height: .rootEm(2.5))
+					.frame(size: .rootEm(2.5))
 					.background(.white)
 					.cornerRadius(.percent(50))
 					.font(.extraLarge, weight: .bold)
-			case .numberA:
-				Style().when(ancestorHas: .state, is: "a") {
+			case .horizontalNumber:
+				Style().when(ancestorHas: States.horizontal) {
 					$0.display(.flex)
 				}
-			case .numberB:
-				Style().when(ancestorHas: .state, is: "b") {
+			case .verticalNumber:
+				Style().when(ancestorHas: States.vertical) {
 					$0.display(.flex)
 				}
 			case .ring:
 				// A silver ring, and the stone on it, which the script colors.
 				Style()
 					.hstack(alignment: .center, justification: .center)
-					.frame(width: .rootEm(9), height: .rootEm(9))
+					.frame(size: .rootEm(9))
 					.border(Color("#c0c0c0"), width: .rootEm(0.75), style: .ridge)
 					.cornerRadius(.percent(50))
 					.touchAction(.none)

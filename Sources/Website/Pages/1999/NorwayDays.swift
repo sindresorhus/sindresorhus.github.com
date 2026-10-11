@@ -215,12 +215,12 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 				button(.part(Parts.crabReel), .type(.button), .disabled) {
 					"Hold to Reel In"
 				}
-				.style(Styles.reel)
+				.style(Styles.reel, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 				button(.part(Parts.crabRelease), .type(.button), .disabled) {
 					"Let Them Go"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.dimmedWhenDisabled)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
@@ -388,7 +388,6 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 		case clothing
 		case reel
 		case cheeseCanvas
-		case dimmedWhenDisabled
 
 		var style: Style {
 			switch self {
@@ -404,9 +403,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 					.frame(width: .percent(100), height: .auto)
 					.imageRendering(.pixelated)
 					.border(Color("#808080"), width: .pixels(2), style: .inset)
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .list:
 				Style()
 					.margin(0)
@@ -416,11 +413,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 					.hstack(alignment: .center, spacing: .rootEm(0.25))
 					.flexWrap()
 			case .status:
-				Style()
-					.frame(minHeight: .lineHeight(2))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+				Style().toyStatus()
 			case .dressRow:
 				Style()
 					.hstack(alignment: .start, justification: .center, spacing: .rootEm(0.75))
@@ -448,11 +441,6 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 				Style()
 					.textStyle(.caption)
 					.handCursor()
-			case .dimmedWhenDisabled:
-				// The small buttons of the page have no look of their own when they do nothing.
-				Style().disabled {
-					$0.opacity(0.5)
-				}
 			case .cheeseCanvas:
 				// A finger slices instead of scrolling the page.
 				Style()
@@ -473,9 +461,6 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 					.handCursor()
 					.active {
 						$0.border(Color("#cc9900"), width: .pixels(3), style: .inset)
-					}
-					.disabled {
-						$0.opacity(0.5)
 					}
 			}
 		}

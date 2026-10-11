@@ -14,7 +14,7 @@ struct AppMedia: ScriptedElement {
 		section(.part(Parts.scroller)) {
 			for (index, asset) in app.media.enumerated() {
 				// The item has the sizes of its media (`--max-width` and `--phone-width`), so it has its width before the media loads.
-				div(.style(asset.sizeStyle(phoneMaximumHeight: phoneMaximumHeight))) {
+				div {
 					// The width and height attributes give the natural size and the aspect ratio, so the media reserves its space before it loads, and is never shown larger than its natural size. On wider screens, it is at most 640px tall.
 					switch asset.kind {
 					case .video:
@@ -38,6 +38,9 @@ struct AppMedia: ScriptedElement {
 					}
 				}
 				.style(Styles.item)
+				.style {
+					asset.settingSizes(on: $0, phoneMaximumHeight: phoneMaximumHeight)
+				}
 			}
 		}
 		.accessibilityLabel("App media")
@@ -46,13 +49,13 @@ struct AppMedia: ScriptedElement {
 		button(.part(Parts.previous)) {
 			Icon.chevronLeft.size(.rootEm(1.5))
 		}
-		.accessibilityLabel("Previous screenshot")
+		.accessibilityLabel("Previous item")
 		.style(Styles.control, Styles.previous)
 
 		button(.part(Parts.next)) {
 			Icon.chevronRight.size(.rootEm(1.5))
 		}
-		.accessibilityLabel("Next screenshot")
+		.accessibilityLabel("Next item")
 		.style(Styles.control, Styles.next)
 
 		// Hidden until the script shows them, as they need the script.
@@ -109,25 +112,25 @@ struct AppMedia: ScriptedElement {
 		case dots
 		case dot
 
+		/**
+		Shows the buttons that are not disabled. The script disables the button at each end, which stays hidden.
+		*/
+		private static func showingControls(_ style: Style) -> Style {
+			style.nested("\(control.selector):not(:disabled)") {
+				$0.opacity(1)
+			}
+		}
+
 		var style: Style {
 			switch self {
 			case .root:
+				// Keyboard users see the buttons too.
 				Style()
 					.display(.block)
 					.position(.relative)
-					.frame(maxWidth: .rootEm(64))
-					.margin(.horizontal, .auto)
-					// Keyboard users see the buttons too. The script disables the button at each end, which stays hidden.
-					.hover {
-						$0.nested("\(Self.control.selector):not(:disabled)") {
-							$0.opacity(1)
-						}
-					}
-					.focusWithin {
-						$0.nested("\(Self.control.selector):not(:disabled)") {
-							$0.opacity(1)
-						}
-					}
+					.centeredColumn(.wide)
+					.hover(Self.showingControls)
+					.focusWithin(Self.showingControls)
 			case .scroller:
 				// From tablets, the gap is wider than the padding, so the next item and its shadow do not show beside the current one, which can have another aspect ratio.
 				// The items are at the top, so a landscape screenshot next to a portrait one starts below the content above, and the empty space is below it.
@@ -154,7 +157,7 @@ struct AppMedia: ScriptedElement {
 							.position(.absolute)
 							.top(.percent(50))
 							.leading(.percent(50))
-							.frame(width: .rootEm(4), height: .rootEm(4))
+							.frame(size: .rootEm(4))
 							.offset(x: .percent(-50), y: .percent(-50))
 							.declaration(.backgroundImage, #"url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='rgb(0 0 0 / 50%25)'/%3E%3Cpath d='M26 20v24l19-12z' fill='white'/%3E%3C/svg%3E")"#)
 							.allowsHitTesting(false)
@@ -181,24 +184,19 @@ struct AppMedia: ScriptedElement {
 					.position(.absolute)
 					.top(.percent(50))
 					.zIndex(10)
-					.display(.flex)
-					.alignItems(.center)
-					.justifyContent(.center)
-					.frame(width: .rootEm(3), height: .rootEm(3))
+					.hstack(alignment: .center, justification: .center)
+					.frame(size: .rootEm(3))
 					.cornerRadius(.capsule)
 					.color(.bodyText)
-					.background(.white.opacity(0.4), dark: .gray(900).opacity(0.4))
-					.backdropFilter(.blur(radius: .pixels(8)))
-					.reducedTransparency {
-						$0
-							.background(.white, dark: .gray(900))
-							.backdropFilter(.none)
-					}
+					.frostedBackground(.lightDark(.white.opacity(0.4), .gray(900).opacity(0.4)), opaque: .lightDark(.white, .gray(900)), blur: .pixels(8))
 					.shadow(.medium)
 					.opacity(0)
 					.offset(y: .percent(-50))
-					.transition(.opacity, animation: .stateChange)
-					.cursor(.default)
+					.transition(.opacity, .backgroundColor, animation: .stateChange)
+					// A stronger fill under the pointer, also when the visitor prefers reduced transparency.
+					.hoverOrFocusVisible {
+						$0.frostedBackground(.lightDark(.white.opacity(0.6), .gray(900).opacity(0.6)), opaque: .lightDark(.gray(100), .gray(800)), blur: .pixels(8))
+					}
 					.disabled {
 						$0.allowsHitTesting(false)
 					}
@@ -218,7 +216,6 @@ struct AppMedia: ScriptedElement {
 				// The button is larger than the dot, which is drawn inside it, so it is easy to tap. The buttons touch, so their tap areas do not overlap. The script marks the dot of the item in view with `aria-current`.
 				Style()
 					.frame(width: .rootEm(1.25), height: .rootEm(1.75))
-					.cursor(.pointer)
 					.media(.coarsePointer) {
 						$0.frame(width: .rootEm(1.75), height: .rootEm(2.75))
 					}
@@ -226,7 +223,7 @@ struct AppMedia: ScriptedElement {
 						$0
 							.content("")
 							.display(.block)
-							.frame(width: .rootEm(0.5), height: .rootEm(0.5))
+							.frame(size: .rootEm(0.5))
 							.margin(.auto)
 							.cornerRadius(.circle)
 							.background(.gray(300), dark: .gray(600))
@@ -234,7 +231,7 @@ struct AppMedia: ScriptedElement {
 					}
 					.current {
 						$0.before {
-							$0.background(.accent(fallback: .primary(600), maximumLightness: 0.6), dark: .primary(400))
+							$0.background(.accentMark)
 						}
 					}
 			}
@@ -252,9 +249,12 @@ extension MediaAsset {
 
 	- Parameter phoneMaximumHeight: The maximum height on phones, in percent of the width of the screen.
 	*/
-	fileprivate func sizeStyle(phoneMaximumHeight: Double) -> String {
+	fileprivate func settingSizes(on style: Style, phoneMaximumHeight: Double) -> Style {
 		let maximumWidth = Length.pixels(min(Double(width), 640 * aspectRatio))
 		let phoneWidth = Length.min(.viewportWidth(AppMedia.phoneItemWidth), .viewportWidth(phoneMaximumHeight * aspectRatio), .smallViewportHeight(70 * aspectRatio), maximumWidth)
-		return "\(AppMedia.maximumWidth.name): \(maximumWidth); \(AppMedia.phoneWidth.name): \(phoneWidth)"
+
+		return style
+			.setting(AppMedia.maximumWidth, to: maximumWidth)
+			.setting(AppMedia.phoneWidth, to: phoneWidth)
 	}
 }

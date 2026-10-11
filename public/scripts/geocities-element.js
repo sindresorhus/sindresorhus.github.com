@@ -1,6 +1,148 @@
 // The base class of the toys of the 1999 page that are custom elements: the helpers of every element (`ScriptedElement`), the events of the 1999 page, which the other scripts of the page listen to, and for a program in a window of the desktop, its window (`desktopWindow` and `windowChanged(isOpen)`) and the message box (`ask()`).
 import ScriptedElement from '/scripts/scripted-element.js';
 
+// The helpers that the elements and the page scripts of the 1999 page share, so they are written once.
+
+// A copy of the element of a template, like a row for a list.
+export {cloneTemplate} from '/scripts/scripted-element.js';
+
+// A random item of the list.
+export const randomItem = items => items[Math.floor(Math.random() * items.length)];
+
+// A random whole number from the minimum to the maximum, both included.
+export const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
+
+// A random number from the minimum up to, but not including, the maximum.
+export const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
+
+// The value, but at least the minimum and at most the maximum.
+export const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
+
+// The value that is the amount of the way from one value to the other, like `lerp(0, 10, 0.5)` for 5.
+export const lerp = (from, to, amount) => from + ((to - from) * amount);
+
+// A copy of the list in a random order, where each order is equally possible (the Fisher–Yates shuffle). The random numbers come from `Math.random`, or from the function, like `seededRandom(seed)` for the same order each time.
+export const shuffled = (items, random = Math.random) => {
+	const result = [...items];
+
+	for (let index = result.length - 1; index > 0; index--) {
+		const other = Math.floor(random() * (index + 1));
+		[result[index], result[other]] = [result[other], result[index]];
+	}
+
+	return result;
+};
+
+// Random numbers from 0 up to 1 that are the same each time for the same seed (Mulberry32), like for a picture that must be the same on each frame. The result gives the next number each time that it is called.
+export const seededRandom = seed => () => {
+	seed = (seed + 0x6D_2B_79_F5) | 0;
+	let value = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+	value = (value + Math.imul(value ^ (value >>> 7), 61 | value)) ^ value;
+	return ((value ^ (value >>> 14)) >>> 0) / 4_294_967_296;
+};
+
+// A number from 0 up to 1 that is always the same for the same seed, for the things that must not flicker, like the shape of a stone.
+export const hash = seed => {
+	const value = Math.sin((seed * 127.1) + 311.7) * 43_758.5453;
+	return value - Math.floor(value);
+};
+
+// The frequency of a MIDI note. Note 69 is the A at 440 Hz, and each note up is a semitone, which is the twelfth root of 2 higher.
+export const midiFrequency = note => 440 * (2 ** ((note - 69) / 12));
+
+// Waits until the next frame, like `await nextFrame()` before a long step, so the page can show a change first.
+export const nextFrame = () => new Promise(resolve => {
+	requestAnimationFrame(() => {
+		resolve();
+	});
+});
+
+// Waits until the visitor opens a page that the site prerendered, for a page script, like `await prerendered;`.
+export {prerendered} from '/scripts/scripted-element.js';
+
+// Sets the text of a status message a frame after it is cleared, so screen readers announce it, also when it is the same text as before.
+export const announce = (element, message) => {
+	element.textContent = '';
+	requestAnimationFrame(() => {
+		element.textContent = message;
+	});
+};
+
+// Waits the time, in milliseconds, for a page script. An element uses its own `wait()`, which stops when the element is removed.
+export const wait = milliseconds => new Promise(resolve => {
+	setTimeout(resolve, milliseconds);
+});
+
+// Whether the visitor holds Control, Command, or Option with the key, so the key is a shortcut of the browser or the system, not a key of the toy.
+export const hasModifier = event => event.ctrlKey || event.metaKey || event.altKey;
+
+// Whether the visitor types in a field, so a key is text, not a key of the toy.
+export const isTypingTarget = event => event.target.closest('input, textarea, select, [contenteditable]') !== null;
+
+// The count with the word, plural when the count is not 1, like “1,000 points”.
+export const plural = (count, word, pluralWord = `${word}s`) => `${count.toLocaleString('en-US')} ${count === 1 ? word : pluralWord}`;
+
+// A short tone of an oscillator, which fades in over the attack, fades out until the end, and can slide to another frequency, like the sounds of the programs of the desktop. The sound is where it plays, like `{context, output}` of `sound()`, and the start is in seconds from now. The vibrato is how many hertz the frequency wobbles, six times a second.
+export const playTone = ({context, output}, frequency, start, duration, {type = 'sine', volume = 0.1, slide, attack = 0.01, vibrato} = {}) => {
+	const oscillator = context.createOscillator();
+	const gain = context.createGain();
+	const time = context.currentTime + start;
+	oscillator.type = type;
+	oscillator.frequency.setValueAtTime(frequency, time);
+
+	if (slide) {
+		oscillator.frequency.exponentialRampToValueAtTime(slide, time + duration);
+	}
+
+	if (vibrato) {
+		const wobble = context.createOscillator();
+		const depth = context.createGain();
+		wobble.frequency.value = 6;
+		depth.gain.value = vibrato;
+		wobble.connect(depth).connect(oscillator.frequency);
+		wobble.start(time);
+		wobble.stop(time + duration + 0.05);
+	}
+
+	gain.gain.setValueAtTime(0.0001, time);
+	gain.gain.exponentialRampToValueAtTime(volume, time + attack);
+	gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+	oscillator.connect(gain).connect(output);
+	oscillator.start(time);
+	oscillator.stop(time + duration + 0.05);
+};
+
+// A value that is kept in the browser, or the fallback when there is none, or it cannot be read.
+export const load = (key, fallback) => {
+	try {
+		const value = localStorage.getItem(key);
+		return value === null ? fallback : (JSON.parse(value) ?? fallback);
+	} catch {
+		return fallback;
+	}
+};
+
+export const save = (key, value) => {
+	try {
+		localStorage.setItem(key, JSON.stringify(value));
+	} catch {}
+};
+
+// Shows a message at the bottom of the page. `geocities.js` listens for these events.
+export const showToast = message => {
+	document.dispatchEvent(new CustomEvent('geocities-toast', {detail: {message}}));
+};
+
+// The big win of the page, with the cards of the win of Solitaire.
+export const celebratePage = () => {
+	document.dispatchEvent(new Event('geocities-celebrate'));
+};
+
+// A small win, like a new high score: Glitter cheers.
+export const cheerPage = () => {
+	document.dispatchEvent(new Event('geocities-cheer'));
+};
+
 export default class GeoCitiesElement extends ScriptedElement {
 	#signal;
 	#desktopWindow;
@@ -61,17 +203,17 @@ export default class GeoCitiesElement extends ScriptedElement {
 
 	// Shows a message at the bottom of the window, like when the visitor right-clicks a GIF.
 	toast(message) {
-		document.dispatchEvent(new CustomEvent('geocities-toast', {detail: {message}}));
+		showToast(message);
 	}
 
 	// The big win of the page, with the cards of the win of Solitaire.
 	celebrate() {
-		document.dispatchEvent(new Event('geocities-celebrate'));
+		celebratePage();
 	}
 
 	// A small win, like a new high score: Glitter cheers.
 	cheer() {
-		document.dispatchEvent(new Event('geocities-cheer'));
+		cheerPage();
 	}
 
 	// Tells the page that the toy starts or stops a tune, so only one tune plays at a time: when another toy starts one, the page calls `musicStopped()` of this one.

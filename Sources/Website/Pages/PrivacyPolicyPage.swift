@@ -54,18 +54,17 @@ struct PrivacyPolicyPage: Page {
 			}
 			.style(Styles.contact)
 		}
-		.style(Styles.root)
+		// Only below, like the release notes, so the back link is at the same place on all the pages of an app.
+		.style {
+			$0.padding(.bottom, .rootEm(4))
+		}
 	}
 
 	enum Styles: StyleSet {
-		case root
 		case contact
 
 		var style: Style {
 			switch self {
-			case .root:
-				// Only below, like the release notes, so the back link is at the same place on all the pages of an app.
-				Style().padding(.bottom, .rootEm(4))
 			case .contact:
 				Style()
 					.padding(.top, .rootEm(5))

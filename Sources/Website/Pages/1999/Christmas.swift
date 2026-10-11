@@ -65,17 +65,17 @@ struct GeoCitiesChristmas: ScriptedElement {
 					"🔔 Sound"
 				}
 				.help("Sleigh bells, the crunch of gingerbread, and the bowling")
-				.style(GeoCitiesPage.Styles.smallButton, Styles.toggle, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 
 				button(.type(.button), .hook(Hooks.music, value: "bjelleklang"), .ariaPressed(false)) {
 					"🎵 Play “Bjelleklang”"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.toggle, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 
 				button(.type(.button), .hook(Hooks.music, value: "glade-jul"), .ariaPressed(false)) {
 					"🎵 Play “Glade jul”"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.toggle, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 			}
 			.style(Styles.row, Styles.centeredRow)
 		}
@@ -161,8 +161,7 @@ struct GeoCitiesChristmas: ScriptedElement {
 					button(.type(.button), .hook(Hooks.tool, value: tool.id), .ariaPressed(index == 0)) {
 						tool.name
 					}
-					.attributes(.hook(.state, value: "on"), when: index == 0)
-					.style(GeoCitiesPage.Styles.smallButton, Styles.toggle, Styles.bigTarget)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 				}
 			}
 			.accessibilityLabel("Pieces and candy")
@@ -191,28 +190,28 @@ struct GeoCitiesChristmas: ScriptedElement {
 				button(.type(.button), .hook(Hooks.houseAction, value: "snow")) {
 					"❄️ Dust with Melis"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 
 				button(.type(.button), .hook(Hooks.houseAction, value: "bite")) {
 					"😋 Lillesøster Wants a Taste"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 
 				button(.type(.button), .hook(Hooks.houseAction, value: "bryggen")) {
 					"🏘 Bryggen Kit"
 				}
 				.help("Builds four Bryggen houses for you, without icing")
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 
 				button(.type(.button), .hook(Hooks.houseAction, value: "undo")) {
 					"↩ Undo"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 
 				button(.type(.button), .hook(Hooks.houseAction, value: "clear")) {
 					"🗑 Start Over"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 			}
 			.style(Styles.row)
 
@@ -244,12 +243,12 @@ struct GeoCitiesChristmas: ScriptedElement {
 				button(.part(Parts.toot), .type(.button)) {
 					"🚂 Tut-tut!"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 
 				button(.type(.button), .hook(Hooks.houseAction, value: "empty-town")) {
 					"🧹 Take My Houses Home"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 			}
 			.style(Styles.row)
 		}
@@ -309,7 +308,7 @@ struct GeoCitiesChristmas: ScriptedElement {
 				button(.type(.button), .hook(Hooks.bowl, value: "spin-left")) {
 					"↶ Spin"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 
 				p(.part(Parts.spin)) {
 					"Spin: none"
@@ -319,12 +318,12 @@ struct GeoCitiesChristmas: ScriptedElement {
 				button(.type(.button), .hook(Hooks.bowl, value: "spin-right")) {
 					"Spin ↷"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 
 				button(.type(.button), .hook(Hooks.bowl, value: "new")) {
 					"New Game"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 			}
 			.style(Styles.row, Styles.centeredRow)
 		}
@@ -436,7 +435,7 @@ struct GeoCitiesChristmas: ScriptedElement {
 				title
 			}
 			.attributes(.ariaPressed(false), when: isToggle)
-			.style(GeoCitiesPage.Styles.smallButton, Styles.toggle, Styles.bigTarget)
+			.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 		}
 	}
 
@@ -457,6 +456,11 @@ struct GeoCitiesChristmas: ScriptedElement {
 		case porridgeStatus
 		case pranks
 		case prankList
+	}
+
+	enum States: String, ElementStateSet {
+		case tilted
+		case piping
 	}
 
 	enum Hooks: String, ScriptHookSet {
@@ -498,8 +502,6 @@ struct GeoCitiesChristmas: ScriptedElement {
 		case row
 		case centeredRow
 		case stack
-		case toggle
-		case bigTarget
 		case thumb
 		case workshop
 		case house
@@ -525,7 +527,7 @@ struct GeoCitiesChristmas: ScriptedElement {
 				Style().vstack(spacing: .rootEm(1.25))
 			case .crooked:
 				// Knocked crooked by the angry barn nisse.
-				Style().when(.state, is: "tilted") {
+				Style().when(States.tilted) {
 					$0.rotationEffect(.degrees(-3))
 				}
 			case .row:
@@ -533,21 +535,10 @@ struct GeoCitiesChristmas: ScriptedElement {
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
 					.flexWrap()
 			case .centeredRow:
-				Style().hstack(alignment: .center, justification: .center, spacing: .rootEm(0.375))
+				// Use it only with `row`, which makes the stack.
+				Style().justifyContent(.center)
 			case .stack:
 				Style().vstack(spacing: .rootEm(0.5))
-			case .toggle:
-				// Pressed in while it is on.
-				Style().when(.state, is: "on") {
-					$0
-						.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-						.background(Color("#e8e8e8"))
-				}
-			case .bigTarget:
-				// Big enough for a finger.
-				Style()
-					.frame(minHeight: .rootEm(2.25))
-					.touchAction(.manipulation)
 			case .thumb:
 				// Big buttons for the thumbs, which can be held down.
 				Style()
@@ -569,13 +560,11 @@ struct GeoCitiesChristmas: ScriptedElement {
 					.aspectRatio(360.0 / 270.0)
 					.border(Color("#6b3a1a"), width: .pixels(4), style: .ridge)
 					.touchAction(.manipulation)
-					.when(.state, is: "piping") {
+					.when(States.piping) {
 						$0.touchAction(.none)
 					}
 					.cursor(.crosshair)
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .inlineLabel:
 				Style()
 					.fontFamily(GeoCitiesPage.comicSans)
@@ -599,9 +588,7 @@ struct GeoCitiesChristmas: ScriptedElement {
 					.aspectRatio(320.0 / 400.0)
 					.border(Color("#808080"), width: .pixels(2), style: .inset)
 					.touchAction(.manipulation)
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .spin:
 				Style()
 					.frame(minWidth: .rootEm(7))
@@ -658,13 +645,10 @@ struct GeoCitiesChristmas: ScriptedElement {
 			case .status:
 				// A yellow note from Mamma on the fridge, where the toys say what happens.
 				Style()
-					.frame(minHeight: .lineHeight(2))
-					.margin(0)
+					.toyStatus()
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 					.background(Color("#fff68f"))
 					.shadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#00000040")))
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
 					.color(.black)
 			case .pranks:
 				// A note from the angry nisse, on red paper.
@@ -698,6 +682,10 @@ struct GeoCitiesChristmas: ScriptedElement {
 							.color(.black)
 							.touchAction(.manipulation)
 							.handCursor()
+							.buttonFocusRing()
+							.active {
+								$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+							}
 					}
 			}
 		}

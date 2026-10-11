@@ -48,6 +48,10 @@ enum Icon: HTML, CaseIterable {
 	case deviceWatch
 	case deviceTV
 	case deviceVisionPro
+	case moon
+	case zzz
+	case coffee
+	case sun
 
 	/**
 	The selector of icons, for styles of the icons in a component, like a color.
@@ -59,18 +63,25 @@ enum Icon: HTML, CaseIterable {
 	}
 
 	/**
-	The icon in a size other than the default 1.25rem. The size is a presentation attribute, so a style can still change it.
+	The icon in a size other than the default 1.25rem, and optionally with thicker or thinner lines. The size is a presentation attribute, so a style can still change it.
 
 	The shapes are in the sprite at ``spritePath``, which browsers download once for all pages. The stroke attributes here apply to the shapes in it.
+
+	- Parameter strokeWidth: The width of the lines, in units of the 24-point grid of the icons. A thicker line is easier to see in a small icon, like the checkmark of a copy button.
 	*/
-	func size(_ size: Length) -> HTMLRaw {
-		HTMLRaw(#"<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="\#(size)" height="\#(size)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="\#(Self.spritePath.versioned)#\#(symbolID)"/></svg>"#)
+	func size(_ size: Length, strokeWidth: Double = 2) -> HTMLRaw {
+		HTMLRaw(#"<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="\#(size)" height="\#(size)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="\#(CSSValue(strokeWidth))" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="\#(Self.versionedSpritePath)#\#(symbolID)"/></svg>"#)
 	}
 
 	/**
 	The file with every icon as a symbol.
 	*/
 	static let spritePath: RoutePath = "/assets/icons.svg"
+
+	/**
+	The ``spritePath`` with the hash of the sprite, so browsers can cache it for a year.
+	*/
+	static let versionedSpritePath = spritePath.versioned(content: sprite)
 
 	/**
 	The sprite, for ``spritePath``.
@@ -146,6 +157,14 @@ enum Icon: HTML, CaseIterable {
 			#"<path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9M16 3l-4 4-4-4"/>"#
 		case .deviceVisionPro:
 			#"<path d="M12 7c1.143 0 2.235.035 3.275.104 1.017.068 1.95.207 2.798.42.813.203 1.52.505 2.119.909a3.903 3.903 0 0 1 1.328 1.531c.326.657.48 1.48.48 2.466 0 1.006-.189 1.91-.574 2.707-.375.779-.886 1.396-1.537 1.848a3.696 3.696 0 0 1-2.16.66c-.509 0-.97-.068-1.382-.21a5.84 5.84 0 0 1-1.17-.548 18.45 18.45 0 0 1-1.045-.695 9.104 9.104 0 0 0-1.001-.63 2.376 2.376 0 0 0-1.13-.301c-.373 0-.75.097-1.132.3-.316.17-.65.38-1 .63-.322.23-.67.462-1.047.695a5.78 5.78 0 0 1-1.168.548c-.413.142-.872.21-1.378.21a3.706 3.706 0 0 1-2.165-.659c-.651-.452-1.162-1.07-1.537-1.848-.385-.798-.574-1.7-.574-2.709-.004-.98.15-1.802.477-2.46a3.897 3.897 0 0 1 1.33-1.531c.6-.403 1.307-.704 2.12-.907a16.088 16.088 0 0 1 2.8-.423c1.04-.071 2.13-.107 3.273-.107"/>"#
+		case .moon:
+			#"<path d="M12 3h.393a7.5 7.5 0 0 0 7.92 12.446A9 9 0 1 1 12 2.992z"/>"#
+		case .zzz:
+			#"<path d="M4 12h6l-6 8h6M14 4h6l-6 8h6"/>"#
+		case .coffee:
+			#"<path d="M3 14c.83.642 2.077 1.017 3.5 1 1.423.017 2.67-.358 3.5-1 .83-.642 2.077-1.017 3.5-1 1.423-.017 2.67.358 3.5 1M8 3a2.4 2.4 0 0 0-1 2 2.4 2.4 0 0 0 1 2M12 3a2.4 2.4 0 0 0-1 2 2.4 2.4 0 0 0 1 2M3 10h14v5a6 6 0 0 1-6 6H9a6 6 0 0 1-6-6v-5M16.746 16.726a3 3 0 1 0 .252-5.555"/>"#
+		case .sun:
+			#"<path d="M8 12a4 4 0 1 0 8 0 4 4 0 1 0-8 0M3 12h1m8-9v1m8 8h1m-9 8v1M5.6 5.6l.7.7m12.1-.7-.7.7m0 11.4.7.7m-12.1-.7-.7.7"/>"#
 		case .star:
 			// Filled, unlike the other icons.
 			#"<path fill="currentColor" stroke="none" d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.63 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z"/>"#

@@ -517,11 +517,6 @@ struct GeoCitiesMacOS: HTML {
 		case depth = "data-mac-depth"
 
 		/**
-		On the Trash icon while something is in the Trash, so it bulges.
-		*/
-		case full = "data-mac-full"
-
-		/**
 		On an icon while it is selected, or while something is dragged over it.
 		*/
 		case selected = "data-mac-selected"

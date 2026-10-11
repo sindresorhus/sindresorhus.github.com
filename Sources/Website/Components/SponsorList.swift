@@ -23,11 +23,12 @@ struct SponsorList: HTML {
 
 			if tier.sponsors.contains(where: { $0.logo != nil }) {
 				div {
+					// A sponsor without a URL gets a link without a destination, which is not a link, but has the same look.
 					for sponsor in tier.sponsors {
-						a(.href(sponsor.url?.absoluteString ?? ""), .rel("nofollow")) {
+						Link(destination: sponsor.url.map(LinkDestination.url)) {
 							if let logo = sponsor.logo {
 								// When the name is shown next to it, the logo is decorative, so screen readers read the name once.
-								img(.src(logo.description), .alt(sponsor.showsName ? "" : sponsor.name), .width(sponsor.logoWidth ?? 0))
+								img(.src(logo.path.description), .alt(sponsor.showsName ? "" : sponsor.name), .width(logo.width))
 							}
 
 							if sponsor.logo == nil || sponsor.showsName {
@@ -37,6 +38,7 @@ struct SponsorList: HTML {
 								.style(Styles.name)
 							}
 						}
+						.attributes(.rel("nofollow"), when: sponsor.url != nil)
 						.style(Styles.sponsor)
 					}
 				}
@@ -84,7 +86,7 @@ struct SponsorList: HTML {
 					.cornerRadius(.boxRadius)
 					.color(.gray(900))
 					.background(.gray(50), dark: .gray(200))
-					.shadow(Shadow(y: 0, spread: .pixels(1), color: .lightDark(.black.opacity(0.06), .white.opacity(0.1)), isInset: true))
+					.shadow(.edge(.lightDark(.black.opacity(0.06), .white.opacity(0.1))))
 					.underline(false)
 					.nested("img") {
 						$0
@@ -104,7 +106,7 @@ struct SponsorList: HTML {
 					}
 			case .price:
 				Style()
-					.font(size: .rootEm(0.875))
+					.font(.small)
 					.letterSpacing(0)
 			}
 		}

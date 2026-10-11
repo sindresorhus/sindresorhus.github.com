@@ -56,11 +56,17 @@ extension [LabeledLink] {
 	*/
 	func merging(_ links: some Sequence<LabeledLink>) -> Self {
 		var result = self
+		var indices = [String: Int]()
+
+		for (index, link) in enumerated() where indices[link.title] == nil {
+			indices[link.title] = index
+		}
 
 		for link in links {
-			if let index = result.firstIndex(where: { $0.title == link.title }) {
+			if let index = indices[link.title] {
 				result[index] = link
 			} else {
+				indices[link.title] = result.endIndex
 				result.append(link)
 			}
 		}

@@ -1,12 +1,8 @@
 // The buddy list on the 1999 page: buddies sign on and off, go away, and send instant messages while the list is on screen, and answer the visitor in their own way. Warnings raise the warning level of a buddy, and a buddy at 100% is kicked off, like on the real network. The sounds are made with Web Audio, and only play after the visitor turns them on.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
-
-// A copy of the first element of a template.
-const cloneTemplate = template => template.content.firstElementChild.cloneNode(true);
+import GeoCitiesElement, {randomItem, randomInteger} from '/scripts/geocities-element.js';
 
 // Sets up the buddy list, with the element for its helpers, like `say()`, `on()`, and `timeout()`, and its parts.
-const setUpBuddyList = (buddyList, {myWarning: myWarningText, sound: soundCheckbox, list, groupTemplate, buddyTemplate, away: awayButton, awayForm, awayText, chatTitle, buddyWarning, log, lineTemplate, form, input, send: sendButton, warn: warnButton}) => {
+const setUpBuddyList = (buddyList, {myWarning: myWarningText, sound: soundCheckbox, list, away: awayButton, awayForm, awayText, chatTitle, buddyWarning, log, form, input, send: sendButton, warn: warnButton}) => {
 	const myName = 'SindreTheUnicorn';
 
 	// Each buddy has things to say first, answers, answers to some words, and what they say when warned.
@@ -83,10 +79,12 @@ const setUpBuddyList = (buddyList, {myWarning: myWarningText, sound: soundCheckb
 		buddy.hasNewMessage = false;
 		// When a buddy that was kicked off can sign on again.
 		buddy.bannedUntil = 0;
-		buddy.row = cloneTemplate(buddyTemplate);
-		buddy.button = buddy.row.querySelector('button');
-		[buddy.icon, buddy.label, buddy.note] = buddy.button.querySelectorAll('span');
-		buddy.label.textContent = buddy.name;
+		const {element: row, parts} = buddyList.clone('buddyTemplate');
+		buddy.row = row;
+		buddy.button = parts.button;
+		buddy.icon = parts.icon;
+		buddy.note = parts.note;
+		parts.label.textContent = buddy.name;
 		buddyList.on(buddy.button, 'click', () => {
 			openChat(buddy);
 		});
@@ -94,8 +92,7 @@ const setUpBuddyList = (buddyList, {myWarning: myWarningText, sound: soundCheckb
 
 	// The groups of the list, with a heading that counts the buddies online, like “Buddies (3/5)”. The co-workers group is empty, as I am 10.
 	const groups = ['Buddies', 'Family', 'Co-Workers'].map(name => {
-		const item = cloneTemplate(groupTemplate);
-		const [heading, members] = item.children;
+		const {element: item, parts: {heading, members}} = buddyList.clone('groupTemplate');
 		members.append(...buddies.filter(buddy => buddy.group === name).map(buddy => buddy.row));
 		list.append(item);
 		return {name, heading, members};
@@ -239,8 +236,7 @@ const setUpBuddyList = (buddyList, {myWarning: myWarningText, sound: soundCheckb
 	};
 
 	const renderLine = (buddy, {kind, text}) => {
-		const line = cloneTemplate(lineTemplate);
-		const [name, message] = line.children;
+		const {element: line, parts: {name, message}} = buddyList.clone('lineTemplate');
 		message.textContent = text;
 		if (kind === 'system') {
 			line.dataset.state = 'system';
@@ -512,7 +508,7 @@ const setUpBuddyList = (buddyList, {myWarning: myWarningText, sound: soundCheckb
 	};
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesBuddyList extends GeoCitiesElement {
 	#buddyList;
 
 	connected() {
@@ -527,3 +523,5 @@ export default class extends GeoCitiesElement {
 		return this.#buddyList.focusReplacement();
 	}
 }
+
+customElements.define('geo-cities-buddy-list', GeoCitiesBuddyList);

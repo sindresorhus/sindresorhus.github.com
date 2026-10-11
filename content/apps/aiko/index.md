@@ -390,7 +390,7 @@ This is something I plan to look into, but I have more popular requests I need t
 
 ### Can you support naming the people in the audio? {#diarization}
 
-This is called [Diarization](https://en.wikipedia.org/wiki/Speaker_diarisation). It’s something I would like to support, but it has to first be [implemented in the library](https://github.com/ggerganov/whisper.cpp/issues/64) the app uses.
+This is called [Diarization](https://en.wikipedia.org/wiki/Speaker_diarisation). It’s something I would like to support, but it has to first be [implemented in the library](https://github.com/ggml-org/whisper.cpp/issues/64) the app uses.
 
 ### How can I transcribe a Zoom meeting? {#zoom}
 

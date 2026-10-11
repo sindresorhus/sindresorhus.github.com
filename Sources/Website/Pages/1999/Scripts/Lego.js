@@ -1,60 +1,6 @@
 // My LEGO on the 1999 page: a builder like LEGO Creator (1998). Bricks go on a green baseplate of 10 × 10 studs, drawn in an isometric view, each brick dropped onto whatever is below it. A click on the plate or on a brick puts the chosen brick there, on top. The bricks are drawn as unit cells sorted from the back to the front, with only the faces that show, and lines only where one brick ends, so a 2×4 looks like one brick. A second canvas, not on the page, has each visible face in a color of its own, so a click finds the brick under the pointer. The building is kept in the browser.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const plural = (count, word) => `${count.toLocaleString('en-US')} ${word}${count === 1 ? '' : 's'}`;
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
-
-// A tiny pixel font of 3 × 5 for the text on the plate, so it is crisp at any size. Each letter is five rows of three bits.
-const pixelFont = {
-	A: [2, 5, 7, 5, 5], B: [6, 5, 6, 5, 6], C: [3, 4, 4, 4, 3], D: [6, 5, 5, 5, 6], E: [7, 4, 6, 4, 7], F: [7, 4, 6, 4, 4], G: [3, 4, 5, 5, 3], H: [5, 5, 7, 5, 5], I: [7, 2, 2, 2, 7], J: [1, 1, 1, 5, 2], K: [5, 5, 6, 5, 5], L: [4, 4, 4, 4, 7], M: [5, 7, 7, 5, 5], N: [6, 5, 5, 5, 5], O: [2, 5, 5, 5, 2], P: [6, 5, 6, 4, 4], Q: [2, 5, 5, 6, 3], R: [6, 5, 6, 5, 5], S: [3, 4, 2, 1, 6], T: [7, 2, 2, 2, 2], U: [5, 5, 5, 5, 7], V: [5, 5, 5, 5, 2], W: [5, 5, 7, 7, 5], X: [5, 5, 2, 5, 5], Y: [5, 5, 2, 2, 2], Z: [7, 1, 2, 4, 7],
-	0: [7, 5, 5, 5, 7], 1: [2, 6, 2, 2, 7], 2: [6, 1, 2, 4, 7], 3: [6, 1, 2, 1, 6], 4: [5, 5, 7, 1, 1], 5: [7, 4, 6, 1, 6], 6: [3, 4, 7, 5, 7], 7: [7, 1, 2, 2, 2], 8: [7, 5, 7, 5, 7], 9: [7, 5, 7, 1, 6],
-	' ': [0, 0, 0, 0, 0], '.': [0, 0, 0, 0, 2], ',': [0, 0, 0, 2, 4], '!': [2, 2, 2, 0, 2], '?': [6, 1, 2, 0, 2], ':': [0, 2, 0, 2, 0], '-': [0, 0, 7, 0, 0], '+': [0, 2, 7, 2, 0], '/': [1, 1, 2, 4, 4], '\'': [2, 2, 0, 0, 0], '(': [1, 2, 2, 2, 1], ')': [4, 2, 2, 2, 4], '×': [0, 5, 2, 5, 0], '°': [2, 5, 2, 0, 0], '%': [5, 1, 2, 4, 5], '<': [1, 2, 4, 2, 1], '>': [4, 2, 1, 2, 4], '=': [0, 7, 0, 7, 0], '♥': [0, 5, 7, 7, 2], '*': [0, 5, 2, 5, 0],
-	Æ: [3, 6, 7, 6, 7], Ø: [3, 5, 7, 5, 6], Å: [2, 0, 2, 5, 7],
-};
-
-// Draws text in the pixel font, at a whole pixel, with a scale for bigger letters. The alignment is `left`, `center`, or `right`.
-const drawPixelText = (context, text, x, y, color, {scale = 1, align = 'left'} = {}) => {
-	const characters = [...String(text).toUpperCase()];
-	const width = ((characters.length * 4) - 1) * scale;
-	let left = Math.round(align === 'center' ? x - (width / 2) : (align === 'right' ? x - width : x));
-	context.fillStyle = color;
-
-	for (const character of characters) {
-		const rows = pixelFont[character] ?? pixelFont['?'];
-		for (const [row, bits] of rows.entries()) {
-			for (let column = 0; column < 3; column++) {
-				if (bits & (4 >> column)) {
-					context.fillRect(left + (column * scale), Math.round(y) + (row * scale), scale, scale);
-				}
-			}
-		}
-
-		left += 4 * scale;
-	}
-};
-
-// A canvas that is not on the page, for picking.
-const makeCanvas = (width, height) => {
-	const canvas = document.createElement('canvas');
-	canvas.width = width;
-	canvas.height = height;
-	return canvas;
-};
+import GeoCitiesElement, {randomItem, randomInteger, clamp, plural} from '/scripts/geocities-element.js';
+import {canvasPoint, makeCanvas, drawPixelText} from '/scripts/geocities-canvas.js';
 
 // Sets up the builder in the element, and gives the function that draws the plate.
 const setUp = (lego, {canvas, step: stepText}) => {
@@ -560,20 +506,20 @@ const setUp = (lego, {canvas, step: stepText}) => {
 	const selectPiece = piece => {
 		state.piece = piece;
 		for (const button of lego.querySelectorAll('[data-lego-piece]')) {
-			setPressed(button, button.dataset.legoPiece === piece);
+			button.setAttribute('aria-pressed', String(button.dataset.legoPiece === piece));
 		}
 	};
 
 	const selectColor = color => {
 		state.color = color;
 		for (const button of lego.querySelectorAll('[data-lego-color]')) {
-			setPressed(button, button.dataset.legoColor === color);
+			button.setAttribute('aria-pressed', String(button.dataset.legoColor === color));
 		}
 	};
 
 	const setRemoving = isRemoving => {
 		state.isRemoving = isRemoving;
-		setPressed(lego.querySelector('[data-lego-action="remove"]'), isRemoving);
+		lego.querySelector('[data-lego-action="remove"]').setAttribute('aria-pressed', String(isRemoving));
 		rebuildPicking();
 	};
 
@@ -892,7 +838,7 @@ const setUp = (lego, {canvas, step: stepText}) => {
 	return draw;
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesLego extends GeoCitiesElement {
 	#draw;
 
 	connected() {
@@ -908,3 +854,5 @@ export default class extends GeoCitiesElement {
 		this.#draw();
 	}
 }
+
+customElements.define('geo-cities-lego', GeoCitiesLego);

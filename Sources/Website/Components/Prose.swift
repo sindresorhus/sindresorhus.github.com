@@ -24,7 +24,7 @@ struct Prose<Content: HTML>: HTML {
 		self.content = content()
 	}
 
-	var body: some HTML {
+	var body: some HTML<HTMLTag.div> {
 		div {
 			content
 		}
@@ -53,9 +53,8 @@ enum ProseStyles: StyleSet {
 	case root
 	case article
 
-	case footnotes
 	case footnoteReference
-	case footnotePopover
+	case popover
 	case keySeparator
 	case tableContainer
 	case alert
@@ -97,12 +96,10 @@ enum ProseStyles: StyleSet {
 				.combined(with: Self.keyboardKeys)
 		case .article:
 			Self.articleStyle
-		case .footnotes:
-			Self.footnotesStyle
 		case .footnoteReference:
 			Self.footnoteReferenceStyle
-		case .footnotePopover:
-			Self.footnotePopoverStyle
+		case .popover:
+			Self.popoverStyle
 		case .keySeparator:
 			Self.keySeparatorStyle
 		case .tableContainer:
@@ -167,16 +164,14 @@ extension MarkdownTheme {
 			[ProseStyles.alertTitle]
 		case .alertIcon:
 			[ProseStyles.alertIcon]
-		case .footnotes:
-			[ProseStyles.footnotes]
-		case .footnoteBackReference:
-			[]
 		case .footnoteReference:
 			[ProseStyles.footnoteReference]
-		case .footnotePopover:
-			[ProseStyles.footnotePopover]
-		case .visuallyHidden:
-			[VisuallyHidden.Styles.root]
+		// The text of a note is an `InlineNote`, with its own styles.
+		case .inlineNote:
+			[]
+		// A note has the popover of a footnote.
+		case .footnotePopover, .inlineNotePopover:
+			[ProseStyles.popover]
 		case .keySeparator:
 			[ProseStyles.keySeparator]
 		case .tableContainer:

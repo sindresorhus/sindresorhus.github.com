@@ -258,6 +258,12 @@ struct GeoCitiesTradingCards: ScriptedElement {
 		case binder
 	}
 
+	enum States: String, ElementStateSet {
+		case opening
+		case new
+		case filled
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		A place in the binder, with the ID of its card.
@@ -325,15 +331,8 @@ struct GeoCitiesTradingCards: ScriptedElement {
 					.active {
 						$0.scaleEffect(0.96)
 					}
-					.media(.allowsMotion) {
-						$0.when(.state, is: "opening") {
-							$0.animation(Animations.shake, .linear(duration: .seconds(0.1)).repeatForever())
-						}
-					}
-					.disabled {
-						$0
-							.opacity(0.6)
-							.cursor(GeoCitiesPage.arrowCursor, fallback: .default)
+					.when(States.opening) {
+						$0.animation(Animations.shake, .linear(duration: .seconds(0.1)).repeatForever())
 					}
 			case .packTitle:
 				Style()
@@ -364,10 +363,8 @@ struct GeoCitiesTradingCards: ScriptedElement {
 					.font(size: .rootEm(0.6875))
 					.lineHeight(1.2)
 					.color(.black)
-					.media(.allowsMotion) {
-						$0.when(.state, is: "new") {
-							$0.animation(Animations.flip, .easeOut(duration: .seconds(0.5)))
-						}
+					.when(States.new) {
+						$0.animation(Animations.flip, .easeOut(duration: .seconds(0.5)))
 					}
 			case .rainbow:
 				Style().background(Color("#ffd6f0"))
@@ -469,7 +466,7 @@ struct GeoCitiesTradingCards: ScriptedElement {
 							.frame(maxWidth: .percent(100), maxHeight: .rootEm(3.5))
 							.objectFit(.contain)
 					}
-					.when(.state, is: "filled") {
+					.when(States.filled) {
 						$0
 							.background(Color("#f2f2e8"))
 							.border(Color("#f5d000"), width: .pixels(3))

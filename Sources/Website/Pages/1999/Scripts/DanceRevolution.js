@@ -1,27 +1,15 @@
 // Dans Dans Revolusjon on the 1999 page: my own Dance Dance Revolution. The songs are made in the browser, the step charts are made from the beat and the tune of each song, and each step is judged by the clock of the sound. The screen is drawn on a canvas, which runs only while it is on the screen and the tab is visible. The settings, the delay, the kroner, and the best scores are kept in the browser.
+import GeoCitiesElement, {randomItem, clamp, seededRandom, midiFrequency} from '/scripts/geocities-element.js';
+import {pixelTextWidth, drawPixelText} from '/scripts/geocities-canvas.js';
 
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
-
-// A random number generator with a seed, so a song and a difficulty always have the same steps, like the real machine.
-const seededRandom = text => {
+// The seed of the random numbers of a chart, made from a text (FNV-1a), so a song and a difficulty always have the same steps, like the real machine.
+const textSeed = text => {
 	let seed = 2_166_136_261;
 	for (const character of text) {
 		seed = Math.imul(seed ^ character.codePointAt(0), 16_777_619);
 	}
 
-	return () => {
-		seed = (seed + 0x6D_2B_79_F5) | 0;
-		let value = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-		value = (value + Math.imul(value ^ (value >>> 7), 61 | value)) ^ value;
-		return ((value ^ (value >>> 14)) >>> 0) / 4_294_967_296;
-	};
+	return seed;
 };
 
 // Picks one of the choices by its weight, like `[[choice, 2], [other, 1]]`.
@@ -42,40 +30,9 @@ const weightedPick = (choices, random) => {
 	return choices.at(-1)[0];
 };
 
-// A tiny pixel font of 3 × 5 for the screen of the machine, so the text is crisp at any size. Each letter is five rows of three bits.
-const pixelFont = {
-	A: [2, 5, 7, 5, 5], B: [6, 5, 6, 5, 6], C: [3, 4, 4, 4, 3], D: [6, 5, 5, 5, 6], E: [7, 4, 6, 4, 7], F: [7, 4, 6, 4, 4], G: [3, 4, 5, 5, 3], H: [5, 5, 7, 5, 5], I: [7, 2, 2, 2, 7], J: [1, 1, 1, 5, 2], K: [5, 5, 6, 5, 5], L: [4, 4, 4, 4, 7], M: [5, 7, 7, 5, 5], N: [6, 5, 5, 5, 5], O: [2, 5, 5, 5, 2], P: [6, 5, 6, 4, 4], Q: [2, 5, 5, 6, 3], R: [6, 5, 6, 5, 5], S: [3, 4, 2, 1, 6], T: [7, 2, 2, 2, 2], U: [5, 5, 5, 5, 7], V: [5, 5, 5, 5, 2], W: [5, 5, 7, 7, 5], X: [5, 5, 2, 5, 5], Y: [5, 5, 2, 2, 2], Z: [7, 1, 2, 4, 7],
-	0: [7, 5, 5, 5, 7], 1: [2, 6, 2, 2, 7], 2: [6, 1, 2, 4, 7], 3: [6, 1, 2, 1, 6], 4: [5, 5, 7, 1, 1], 5: [7, 4, 6, 1, 6], 6: [3, 4, 7, 5, 7], 7: [7, 1, 2, 2, 2], 8: [7, 5, 7, 5, 7], 9: [7, 5, 7, 1, 6],
-	' ': [0, 0, 0, 0, 0], '.': [0, 0, 0, 0, 2], ',': [0, 0, 0, 2, 4], '!': [2, 2, 2, 0, 2], '?': [6, 1, 2, 0, 2], ':': [0, 2, 0, 2, 0], '-': [0, 0, 7, 0, 0], '+': [0, 2, 7, 2, 0], '/': [1, 1, 2, 4, 4], '\'': [2, 2, 0, 0, 0], '(': [1, 2, 2, 2, 1], ')': [4, 2, 2, 2, 4], '×': [0, 5, 2, 5, 0], '%': [5, 1, 2, 4, 5], '<': [1, 2, 4, 2, 1], '>': [4, 2, 1, 2, 4], '=': [0, 7, 0, 7, 0], '*': [0, 5, 2, 5, 0],
-	Æ: [3, 6, 7, 6, 7], Ø: [3, 5, 7, 5, 6], Å: [2, 0, 2, 5, 7],
-};
-
-// The width of a text in the pixel font, in pixels.
-const pixelTextWidth = (text, scale = 1) => (([...String(text)].length * 4) - 1) * scale;
-
 // Draws text in the pixel font, at a whole pixel, with a scale for bigger letters, and a dark shadow so it reads on the busy background. The alignment is `left`, `center`, or `right`.
-const drawPixelText = (context, text, x, y, color, {scale = 1, align = 'left', shadow = '#000000'} = {}) => {
-	const characters = [...String(text).toUpperCase()];
-	const width = pixelTextWidth(text, scale);
-	const left = Math.round(align === 'center' ? x - (width / 2) : (align === 'right' ? x - width : x));
-	const passes = shadow ? [[shadow, Math.max(1, Math.floor(scale / 2))], [color, 0]] : [[color, 0]];
-
-	for (const [fill, offset] of passes) {
-		context.fillStyle = fill;
-		let characterLeft = left;
-		for (const character of characters) {
-			const rows = pixelFont[character] ?? pixelFont['?'];
-			for (const [row, bits] of rows.entries()) {
-				for (let column = 0; column < 3; column++) {
-					if (bits & (4 >> column)) {
-						context.fillRect(characterLeft + (column * scale) + offset, Math.round(y) + (row * scale) + offset, scale, scale);
-					}
-				}
-			}
-
-			characterLeft += 4 * scale;
-		}
-	}
+const drawText = (context, text, x, y, color, {scale = 1, align = 'left', shadow = '#000000'} = {}) => {
+	drawPixelText(context, text, x, y, color, {scale, align, shadow, shadowOffset: Math.max(1, Math.floor(scale / 2))});
 };
 
 // MARK: The songs
@@ -95,8 +52,6 @@ const noteNumber = name => {
 
 	return (12 * (Number(name.slice(index)) + 1)) + semitone;
 };
-
-const frequencyOf = note => 440 * (2 ** ((note - 69) / 12));
 
 // A phrase of a tune, written as notes and their lengths in sixteenths, like `C5:2 -:2 E5:4`, where `-` is a rest.
 const parsePhrase = text => {
@@ -335,7 +290,7 @@ const jumpPairs = [[[0, 3], 5], [[1, 2], 2], [[0, 2], 1], [[0, 1], 1], [[1, 3], 
 // Puts the rows of a chart on arrows like a dancer would step: the feet take turns, the left foot never crosses to the right arrow and the other way around, a fast step never hits the same arrow twice in a row, and a jump only comes with time before and after it.
 const makeChart = (songId, difficulty) => {
 	const song = songs[songId];
-	const random = seededRandom(`${songId}/${difficulty}`);
+	const random = seededRandom(textSeed(`${songId}/${difficulty}`));
 	const rows = chartRows(song, difficulty);
 	const isManiac = difficulty === 'maniac';
 	const jumpGap = difficulty === 'basic' ? 4 : 2;
@@ -597,13 +552,13 @@ const playEvent = (event, start, destination, song) => {
 		}
 
 		case 'bass': {
-			tone(destination, frequencyOf(event.pitch), start, event.duration, {type: 'sawtooth', volume: 0.16, lowpass: song.bass === 'gallop' ? 500 : 800, q: 5});
+			tone(destination, midiFrequency(event.pitch), start, event.duration, {type: 'sawtooth', volume: 0.16, lowpass: song.bass === 'gallop' ? 500 : 800, q: 5});
 			break;
 		}
 
 		case 'stab': {
 			for (const pitch of event.chord) {
-				pluck(destination, frequencyOf(pitch + 12), start, 0.3, {type: 'square', volume: 0.028, lowpass: 2200});
+				pluck(destination, midiFrequency(pitch + 12), start, 0.3, {type: 'square', volume: 0.028, lowpass: 2200});
 			}
 
 			break;
@@ -611,15 +566,15 @@ const playEvent = (event, start, destination, song) => {
 
 		case 'pad': {
 			for (const pitch of event.chord) {
-				tone(destination, frequencyOf(pitch), start, event.duration, {type: 'sawtooth', volume: 0.018, attack: 0.25, lowpass: 1400, detune: -8});
-				tone(destination, frequencyOf(pitch), start, event.duration, {type: 'sawtooth', volume: 0.018, attack: 0.25, lowpass: 1400, detune: 8});
+				tone(destination, midiFrequency(pitch), start, event.duration, {type: 'sawtooth', volume: 0.018, attack: 0.25, lowpass: 1400, detune: -8});
+				tone(destination, midiFrequency(pitch), start, event.duration, {type: 'sawtooth', volume: 0.018, attack: 0.25, lowpass: 1400, detune: 8});
 			}
 
 			break;
 		}
 
 		case 'lead': {
-			const frequency = frequencyOf(event.pitch);
+			const frequency = midiFrequency(event.pitch);
 			const volume = event.volume ?? 1;
 			if (song.lead === 'bubble') {
 				tone(destination, frequency, start, event.duration, {type: 'square', volume: 0.05 * volume, lowpass: 3500});
@@ -1032,7 +987,7 @@ const drawSkin = (context, dancer, x, floor, pose) => {
 	}
 
 	context.fillRect(Math.round(head[0] - 2), Math.round(head[1] + 4), 4, 1);
-	drawPixelText(context, skin.name, x, floor + 5, '#ffffff', {align: 'center'});
+	drawText(context, skin.name, x, floor + 5, '#ffffff', {align: 'center'});
 };
 
 // Rocky the pet rock has no arms or legs, so he hops, tilts, and spins, with his sunglasses on.
@@ -1070,7 +1025,7 @@ const drawRocky = (context, x, floor, pose) => {
 	context.fillStyle = '#331111';
 	context.fillRect(-3, 5, 7, 1);
 	context.restore();
-	drawPixelText(context, 'ROCKY', x, floor + 5, '#ffffff', {align: 'center'});
+	drawText(context, 'ROCKY', x, floor + 5, '#ffffff', {align: 'center'});
 };
 
 // MARK: Drawing
@@ -1195,7 +1150,7 @@ class SongPlayer {
 	}
 }
 
-export default class extends GeoCitiesElement {
+class GeoCitiesDanceRevolution extends GeoCitiesElement {
 	#context;
 	#padButtons;
 	#loop;
@@ -1788,7 +1743,7 @@ export default class extends GeoCitiesElement {
 	#release(lane, {at = performance.now(), songTime, isDemo = false} = {}) {
 		const game = this.#game;
 		game.held[lane] = false;
-		this.#padButtons[lane].dataset.state = '';
+		delete this.#padButtons[lane].dataset.state;
 		if (!this.#isInSong || (game.isDemo && !isDemo)) {
 			return;
 		}
@@ -1803,7 +1758,7 @@ export default class extends GeoCitiesElement {
 	#releaseAll() {
 		for (const lane of [0, 1, 2, 3]) {
 			this.#game.held[lane] = false;
-			this.#padButtons[lane].dataset.state = '';
+			delete this.#padButtons[lane].dataset.state;
 		}
 	}
 
@@ -2225,7 +2180,7 @@ export default class extends GeoCitiesElement {
 		for (const item of game.freezeMessages) {
 			const age = (now - item.at) / 700;
 			if (age < 1) {
-				drawPixelText(context, item.isOk ? 'OK!' : 'NG', laneX(item.lane), targetY + 18, item.isOk ? '#ffee44' : '#ff3344', {align: 'center'});
+				drawText(context, item.isOk ? 'OK!' : 'NG', laneX(item.lane), targetY + 18, item.isOk ? '#ffee44' : '#ff3344', {align: 'center'});
 			}
 		}
 	}
@@ -2291,7 +2246,7 @@ export default class extends GeoCitiesElement {
 			const x = laneX(lane);
 			if (next.hold === 'holding') {
 				drawArrow(context, x, targetY, lane, 'green');
-				drawPixelText(context, 'HOLD', x, targetY + 18, '#88ffaa', {align: 'center'});
+				drawText(context, 'HOLD', x, targetY + 18, '#88ffaa', {align: 'center'});
 				continue;
 			}
 
@@ -2322,7 +2277,7 @@ export default class extends GeoCitiesElement {
 			context.fillRect(42 + (lamp * 22), 92, 14, 6);
 		}
 
-		drawPixelText(context, 'STILL MODE', 80, 104, '#99a3bb', {align: 'center'});
+		drawText(context, 'STILL MODE', 80, 104, '#99a3bb', {align: 'center'});
 	}
 
 	// The Dance Gauge at the top: it flows like a rainbow when it is full, and blinks red when it is almost empty.
@@ -2425,12 +2380,12 @@ export default class extends GeoCitiesElement {
 				color = `hsl(${(now / 3) % 360}, 100%, 70%)`;
 			}
 
-			drawPixelText(context, last.judgment.label, 80, 118 - pop, color, {scale: 3, align: 'center'});
+			drawText(context, last.judgment.label, 80, 118 - pop, color, {scale: 3, align: 'center'});
 		}
 
 		if (game.combo >= 4) {
-			drawPixelText(context, game.combo, 80, 140, '#ffffff', {scale: 5, align: 'center', shadow: '#ff2fa8'});
-			drawPixelText(context, 'COMBO', 80, 168, '#ffcc00', {scale: 2, align: 'center'});
+			drawText(context, game.combo, 80, 140, '#ffffff', {scale: 5, align: 'center', shadow: '#ff2fa8'});
+			drawText(context, 'COMBO', 80, 168, '#ffcc00', {scale: 2, align: 'center'});
 		}
 	}
 
@@ -2462,20 +2417,20 @@ export default class extends GeoCitiesElement {
 		// “Ready” and “Here we go!” in the first two bars, like the real machine.
 		const bar = time / (16 * song.sixteenth);
 		if (bar < 1 && game.screen === 'playing') {
-			drawPixelText(context, 'READY?', 80, 140, '#ffcc00', {scale: 3, align: 'center'});
+			drawText(context, 'READY?', 80, 140, '#ffcc00', {scale: 3, align: 'center'});
 		} else if (bar < 2 && game.screen === 'playing') {
-			drawPixelText(context, 'HERE WE GO!', 80, 140, '#ff66cc', {scale: 2, align: 'center'});
+			drawText(context, 'HERE WE GO!', 80, 140, '#ff66cc', {scale: 2, align: 'center'});
 		}
 
 		if (game.screen === 'ending') {
 			const text = game.isFailed ? 'FAILED' : (game.result?.isFullCombo ? 'FULL COMBO!' : 'CLEARED!');
-			drawPixelText(context, text, 80, 112, game.isFailed ? '#ff3344' : '#ffee44', {scale: game.isFailed ? 4 : 3, align: 'center', shadow: '#000000'});
+			drawText(context, text, 80, 112, game.isFailed ? '#ff3344' : '#ffee44', {scale: game.isFailed ? 4 : 3, align: 'center', shadow: '#000000'});
 		}
 
-		drawPixelText(context, formatScore(game.score), 20, 228, '#ffffff', {scale: 2});
-		drawPixelText(context, song.title, 312, 6, '#ffffff', {align: 'right'});
-		drawPixelText(context, this.#stageLabel, 312, 14, '#ffcc00', {align: 'right'});
-		drawPixelText(context, `${difficultyNames[game.difficulty]} ${footRating(game.songId, game.difficulty)}`, 312, 22, '#99ccff', {align: 'right'});
+		drawText(context, formatScore(game.score), 20, 228, '#ffffff', {scale: 2});
+		drawText(context, song.title, 312, 6, '#ffffff', {align: 'right'});
+		drawText(context, this.#stageLabel, 312, 14, '#ffcc00', {align: 'right'});
+		drawText(context, `${difficultyNames[game.difficulty]} ${footRating(game.songId, game.difficulty)}`, 312, 22, '#99ccff', {align: 'right'});
 
 		if (game.screen === 'ending') {
 			this.#setPose(game.isFailed ? 'slump' : 'cheer');
@@ -2492,37 +2447,37 @@ export default class extends GeoCitiesElement {
 		const game = this.#game;
 		this.#drawBackground(0, now);
 		const song = songs[settings.song];
-		drawPixelText(context, 'DANS DANS', 80, 14, '#ff66cc', {scale: 4, align: 'center', shadow: '#330044'});
-		drawPixelText(context, 'REVOLUSJON', 80, 38, '#ffcc00', {scale: 3, align: 'center', shadow: '#330044'});
+		drawText(context, 'DANS DANS', 80, 14, '#ff66cc', {scale: 4, align: 'center', shadow: '#330044'});
+		drawText(context, 'REVOLUSJON', 80, 38, '#ffcc00', {scale: 3, align: 'center', shadow: '#330044'});
 
 		context.fillStyle = 'rgba(0, 0, 20, 0.8)';
 		context.fillRect(12, 64, 136, 104);
 		context.strokeStyle = '#ff66cc';
 		context.lineWidth = 2;
 		context.strokeRect(13, 65, 134, 102);
-		drawPixelText(context, 'SELECT MUSIC', 80, 70, '#99ccff', {align: 'center'});
-		drawPixelText(context, song.title, 80, 82, '#ffffff', {scale: pixelTextWidth(song.title, 2) <= 128 ? 2 : 1, align: 'center'});
-		drawPixelText(context, song.artist, 80, 98, '#ffcc00', {align: 'center'});
-		drawPixelText(context, `${song.bpm} BPM`, 80, 106, '#ffcc00', {align: 'center'});
+		drawText(context, 'SELECT MUSIC', 80, 70, '#99ccff', {align: 'center'});
+		drawText(context, song.title, 80, 82, '#ffffff', {scale: pixelTextWidth(song.title, 2) <= 128 ? 2 : 1, align: 'center'});
+		drawText(context, song.artist, 80, 98, '#ffcc00', {align: 'center'});
+		drawText(context, `${song.bpm} BPM`, 80, 106, '#ffcc00', {align: 'center'});
 		const rating = footRating(settings.song, settings.difficulty);
-		drawPixelText(context, difficultyNames[settings.difficulty], 80, 118, '#66ff99', {scale: 2, align: 'center'});
+		drawText(context, difficultyNames[settings.difficulty], 80, 118, '#66ff99', {scale: 2, align: 'center'});
 		for (let foot = 0; foot < 10; foot++) {
 			context.fillStyle = foot < rating ? (foot < 4 ? '#66ff99' : (foot < 7 ? '#ffcc00' : '#ff3355')) : '#333a50';
 			context.fillRect(30 + (foot * 10), 133, 7, 5);
 		}
 
 		const best = this.#bestScores[`${settings.song}/${settings.difficulty}`];
-		drawPixelText(context, best ? `BEST ${best.grade}  ${formatScore(best.score)}` : 'NO RECORD YET', 80, 146, '#ffffff', {align: 'center'});
-		drawPixelText(context, `SPEED ×${settings.speed}${settings.isStill ? '  STILL' : ''}`, 80, 156, '#99a3bb', {align: 'center'});
+		drawText(context, best ? `BEST ${best.grade}  ${formatScore(best.score)}` : 'NO RECORD YET', 80, 146, '#ffffff', {align: 'center'});
+		drawText(context, `SPEED ×${settings.speed}${settings.isStill ? '  STILL' : ''}`, 80, 156, '#99a3bb', {align: 'center'});
 
 		const isBlinkOn = this.reducedMotion || Math.floor(now / 500) % 2 === 0;
 		if (isBlinkOn) {
-			drawPixelText(context, game.stagesLeft > 0 ? 'PRESS START' : 'INSERT COIN', 80, 176, '#ffffff', {scale: 2, align: 'center'});
+			drawText(context, game.stagesLeft > 0 ? 'PRESS START' : 'INSERT COIN', 80, 176, '#ffffff', {scale: 2, align: 'center'});
 		}
 
-		drawPixelText(context, game.stagesLeft > 0 ? `CREDIT: ${game.stagesLeft} STAGES` : '10 KR = 3 STAGES', 80, 194, '#ffcc00', {align: 'center'});
-		drawPixelText(context, 'TAP HERE TO DANCE (SOUND!)', 80, 208, '#99ccff', {align: 'center'});
-		drawPixelText(context, '(C) 1999 SINDRE, NOT KONAMI', 80, 226, '#666e88', {align: 'center'});
+		drawText(context, game.stagesLeft > 0 ? `CREDIT: ${game.stagesLeft} STAGES` : '10 KR = 3 STAGES', 80, 194, '#ffcc00', {align: 'center'});
+		drawText(context, 'TAP HERE TO DANCE (SOUND!)', 80, 208, '#99ccff', {align: 'center'});
+		drawText(context, '(C) 1999 SINDRE, NOT KONAMI', 80, 226, '#666e88', {align: 'center'});
 
 		if (!this.reducedMotion) {
 			this.#danceToBeat(Math.floor(now / 1000 / song.beat), now);
@@ -2538,21 +2493,21 @@ export default class extends GeoCitiesElement {
 		const {grade, isFullCombo, isRecord} = game.result;
 		context.fillStyle = 'rgba(0, 0, 20, 0.75)';
 		context.fillRect(8, 8, 304, 224);
-		drawPixelText(context, game.isFailed ? 'FAILED...' : (game.isDemo ? 'TROND\'S RESULT' : `${this.#stageLabel} CLEAR!`), 160, 14, game.isFailed ? '#ff3344' : '#ffcc00', {scale: 2, align: 'center'});
-		drawPixelText(context, songs[game.songId].title, 160, 30, '#ffffff', {align: 'center'});
+		drawText(context, game.isFailed ? 'FAILED...' : (game.isDemo ? 'TROND\'S RESULT' : `${this.#stageLabel} CLEAR!`), 160, 14, game.isFailed ? '#ff3344' : '#ffcc00', {scale: 2, align: 'center'});
+		drawText(context, songs[game.songId].title, 160, 30, '#ffffff', {align: 'center'});
 
 		let color = gradeColors[grade];
 		if (grade === 'AAA' && !this.reducedMotion) {
 			color = `hsl(${(now / 4) % 360}, 100%, 65%)`;
 		}
 
-		drawPixelText(context, grade, 72, 64, color, {scale: grade.length === 3 ? 8 : 11, align: 'center', shadow: '#330044'});
+		drawText(context, grade, 72, 64, color, {scale: grade.length === 3 ? 8 : 11, align: 'center', shadow: '#330044'});
 		if (isFullCombo) {
-			drawPixelText(context, 'FULL COMBO!', 72, 132, '#66ff99', {scale: 2, align: 'center'});
+			drawText(context, 'FULL COMBO!', 72, 132, '#66ff99', {scale: 2, align: 'center'});
 		}
 
 		if (isRecord && (this.reducedMotion || Math.floor(now / 400) % 2 === 0)) {
-			drawPixelText(context, 'NEW RECORD!', 72, 150, '#ff66cc', {scale: 2, align: 'center'});
+			drawText(context, 'NEW RECORD!', 72, 150, '#ff66cc', {scale: 2, align: 'center'});
 		}
 
 		const lines = [
@@ -2567,12 +2522,12 @@ export default class extends GeoCitiesElement {
 		];
 		for (const [index, [label, count, labelColor]] of lines.entries()) {
 			const y = 44 + (index * 13);
-			drawPixelText(context, label, 150, y, labelColor, {scale: 2});
-			drawPixelText(context, count, 304, y, '#ffffff', {scale: 2, align: 'right'});
+			drawText(context, label, 150, y, labelColor, {scale: 2});
+			drawText(context, count, 304, y, '#ffffff', {scale: 2, align: 'right'});
 		}
 
-		drawPixelText(context, 'SCORE', 150, 158, '#ffcc00', {scale: 2});
-		drawPixelText(context, formatScore(game.score), 304, 174, '#ffffff', {scale: 2, align: 'right'});
+		drawText(context, 'SCORE', 150, 158, '#ffcc00', {scale: 2});
+		drawText(context, formatScore(game.score), 304, 174, '#ffffff', {scale: 2, align: 'right'});
 
 		let footer = 'PRESS START FOR THE NEXT STAGE';
 		if (game.isDemo) {
@@ -2582,7 +2537,7 @@ export default class extends GeoCitiesElement {
 		}
 
 		// At scale 2, as a phone shows the canvas at about its own size, where the small letters are too small to read.
-		drawPixelText(context, footer, 160, 212, '#99ccff', {scale: 2, align: 'center'});
+		drawText(context, footer, 160, 212, '#99ccff', {scale: 2, align: 'center'});
 	}
 
 	#drawCalibration(now) {
@@ -2592,7 +2547,7 @@ export default class extends GeoCitiesElement {
 		this.#drawBackground(0, now);
 		context.fillStyle = 'rgba(0, 0, 20, 0.8)';
 		context.fillRect(8, 8, 304, 224);
-		drawPixelText(context, 'CALIBRATE THE DELAY', 160, 16, '#ffcc00', {scale: 2, align: 'center'});
+		drawText(context, 'CALIBRATE THE DELAY', 160, 16, '#ffcc00', {scale: 2, align: 'center'});
 		const time = this.#calibrationTimeAt(now);
 		const beat = Math.floor(time / calibration.beat);
 		const phase = time / calibration.beat - beat;
@@ -2615,8 +2570,8 @@ export default class extends GeoCitiesElement {
 			instruction = 'DONE!';
 		}
 
-		drawPixelText(context, instruction, 160, 100, '#ffffff', {scale: 3, align: 'center'});
-		drawPixelText(context, `STEPS: ${calibration.taps.length}/12`, 160, 128, '#99ccff', {scale: 2, align: 'center'});
+		drawText(context, instruction, 160, 100, '#ffffff', {scale: 3, align: 'center'});
+		drawText(context, `STEPS: ${calibration.taps.length}/12`, 160, 128, '#99ccff', {scale: 2, align: 'center'});
 
 		// A line of how early or late each step was: early to the left, late to the right.
 		const lineY = 170;
@@ -2624,15 +2579,15 @@ export default class extends GeoCitiesElement {
 		context.fillRect(40, lineY, 240, 2);
 		context.fillStyle = '#ffffff';
 		context.fillRect(159, lineY - 8, 2, 18);
-		drawPixelText(context, 'EARLY', 40, lineY + 10, '#99a3bb', {scale: 2});
-		drawPixelText(context, 'LATE', 280, lineY + 10, '#99a3bb', {scale: 2, align: 'right'});
+		drawText(context, 'EARLY', 40, lineY + 10, '#99a3bb', {scale: 2});
+		drawText(context, 'LATE', 280, lineY + 10, '#99a3bb', {scale: 2, align: 'right'});
 		for (const tap of calibration.taps) {
 			const x = 160 + clamp(tap * 600, -118, 118);
 			context.fillStyle = '#ff66cc';
 			context.fillRect(Math.round(x) - 2, lineY - 4, 4, 10);
 		}
 
-		drawPixelText(context, `NOW: ${delay > 0 ? '+' : ''}${delay} MS`, 160, 206, '#ffcc00', {scale: 2, align: 'center'});
+		drawText(context, `NOW: ${delay > 0 ? '+' : ''}${delay} MS`, 160, 206, '#ffcc00', {scale: 2, align: 'center'});
 	}
 
 	#draw(now = performance.now()) {
@@ -2668,19 +2623,19 @@ export default class extends GeoCitiesElement {
 		const settings = this.#settings;
 		const {speed, still, announcer} = this.parts;
 		for (const button of this.querySelectorAll('[data-ddr-song]')) {
-			setPressed(button, button.dataset.ddrSong === settings.song);
+			button.setAttribute('aria-pressed', String(button.dataset.ddrSong === settings.song));
 		}
 
 		for (const button of this.querySelectorAll('[data-ddr-difficulty]')) {
-			setPressed(button, button.dataset.ddrDifficulty === settings.difficulty);
+			button.setAttribute('aria-pressed', String(button.dataset.ddrDifficulty === settings.difficulty));
 		}
 
 		for (const button of this.querySelectorAll('[data-ddr-dancer]')) {
-			setPressed(button, button.dataset.ddrDancer === settings.dancer);
+			button.setAttribute('aria-pressed', String(button.dataset.ddrDancer === settings.dancer));
 		}
 
-		setPressed(still, settings.isStill);
-		setPressed(announcer, settings.isAnnouncerOn);
+		still.setAttribute('aria-pressed', String(settings.isStill));
+		announcer.setAttribute('aria-pressed', String(settings.isAnnouncerOn));
 		speed.textContent = `Speed: ×${settings.speed}`;
 		this.#updateBest();
 		this.#updateFeet();
@@ -2707,3 +2662,5 @@ export default class extends GeoCitiesElement {
 		this.#draw();
 	}
 }
+
+customElements.define('geo-cities-dance-revolution', GeoCitiesDanceRevolution);

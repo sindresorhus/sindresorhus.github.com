@@ -48,6 +48,269 @@ struct PageTests {
 		}
 	}
 
+	/**
+	A look belongs in a style (the “Styles” section of AGENTS.md), also in the Markdown of the content. A value of the build, like the accent of an app, is a custom property in a style of the element (``ElementStyle``), like `tint(_:)`.
+	*/
+	@Test(arguments: try await routes(where: isPage))
+	func `the page has no style attributes`(route: Route) throws {
+		// The text of a script is not markup.
+		let markup = try route.renderedHTML().replacing(/<script\b.*?<\/script>/.dotMatchesNewlines(), with: "")
+		let attributes = markup.matches(of: /<[a-zA-Z][^>]*?\sstyle="[^"]*"/).map { String($0.output) }
+		#expect(attributes.isEmpty, "\(attributes.joined(separator: "\n"))")
+	}
+
+	/**
+	Elementary does not check how elements nest, and raw HTML in content is not checked either.
+	*/
+	@Test(arguments: try await routes(where: isPage))
+	func `the page nests elements like the HTML parser does`(route: Route) throws {
+		let errors = Self.nestingErrors(in: try route.renderedHTML())
+		#expect(errors.isEmpty, "\(errors.joined(separator: "\n"))")
+	}
+
+	@Test
+	func `the nesting check finds elements that the HTML parser moves`() {
+		#expect(Self.nestingErrors(in: #"<a href="/"><button>Go</button></a>"#) == ["<button> inside <a>"])
+		#expect(Self.nestingErrors(in: #"<p>Text<ul><li>Item</li></ul></p>"#) == ["<ul> inside <p>", "</p> without <p>"])
+		#expect(Self.nestingErrors(in: #"<div><span></div></span>"#) == ["</div> closes <span>", "</span> without <span>"])
+		#expect(Self.nestingErrors(in: #"<button><textarea>Text</textarea></button><p><li>Item</li></p><section>"#) == ["<textarea> inside <button>", "<li> inside <p>", "</p> without <p>", "<section> without </section>"])
+		#expect(Self.nestingErrors(in: #"<a href="/"><a href="/about">About</a></a><form><form></form></form>"#) == ["<a> inside <a>", "<form> inside <form>"])
+
+		// A button starts a new scope, so a block in it does not close the paragraph around it.
+		#expect(Self.nestingErrors(in: #"<p><button><div>Go</div></button></p>"#).isEmpty)
+
+		// A hidden input is not interactive, a template has its own content, and the content of a script is text.
+		#expect(Self.nestingErrors(in: #"<button><input type="hidden"></button><p><template><div></div></template></p><a><script>"<a>"</script></a>"#).isEmpty)
+
+		// An attribute can contain `>`, a comment can look like a tag, and an SVG element can close itself.
+		#expect(Self.nestingErrors(in: #"<a title="a > b"><!-- <button> --></a><svg><path d="M0 0"/></svg>"#).isEmpty)
+	}
+
+	/**
+	Where the HTML nests elements in a way that the HTML spec does not allow, like a button in a link, which assistive technologies handle badly, or a list in a paragraph, which the HTML parser moves out of the paragraph. It also finds closing tags that do not match.
+	*/
+	private static func nestingErrors(in html: String) -> [String] {
+		// Elements that a link or a button must not contain. A hidden input is not interactive.
+		let interactiveElements: Set = ["a", "button", "details", "embed", "iframe", "input", "label", "select", "textarea"]
+
+		// Elements that close an open paragraph in the HTML parser.
+		let paragraphClosingElements: Set = ["address", "article", "aside", "blockquote", "dd", "details", "dialog", "div", "dl", "dt", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hgroup", "hr", "li", "main", "menu", "nav", "ol", "p", "pre", "search", "section", "summary", "table", "ul"]
+
+		// Elements that start a new scope, so the elements outside do not matter.
+		let scopeElements: Set = ["button", "caption", "math", "object", "svg", "table", "td", "template", "th"]
+
+		let voidElements: Set = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]
+
+		// The content of comments and raw text elements can look like tags. The raw text elements stay, as a text area is interactive.
+		let markup = html
+			.replacing(/<!--.*?-->/.dotMatchesNewlines(), with: "")
+			.replacing(/<(script|style|textarea|title)\b(?:[^>"']|"[^"]*"|'[^']*')*>.*?<\/\1>/.dotMatchesNewlines()) { "<\($0.1)></\($0.1)>" }
+
+		var errors = [String]()
+		var openElements = [String]()
+
+		for match in markup.matches(of: /<(\/?)([a-zA-Z][a-zA-Z0-9-]*)((?:[^>"']|"[^"]*"|'[^']*')*)>/) {
+			let name = match.2.lowercased()
+
+			guard match.1.isEmpty else {
+				guard let index = openElements.lastIndex(of: name) else {
+					errors.append("</\(name)> without <\(name)>")
+					continue
+				}
+
+				if index != openElements.indices.last {
+					errors.append("</\(name)> closes <\(openElements[index + 1])>")
+				}
+
+				openElements.removeSubrange(index...)
+				continue
+			}
+
+			let ancestors = openElements.reversed().prefix { $0 != "template" && $0 != "svg" && $0 != "math" }
+			let isInteractive = interactiveElements.contains(name) && !(name == "input" && match.3.contains(/type="hidden"/))
+
+			if
+				isInteractive,
+				let ancestor = ancestors.first(where: { $0 == "a" || $0 == "button" })
+			{
+				errors.append("<\(name)> inside <\(ancestor)>")
+			}
+
+			if
+				paragraphClosingElements.contains(name),
+				openElements.reversed().prefix(while: { !scopeElements.contains($0) }).contains("p"),
+				let paragraphIndex = openElements.lastIndex(of: "p")
+			{
+				errors.append("<\(name)> inside <p>")
+
+				// The HTML parser closes the paragraph here, so the elements after it are not in it.
+				openElements.removeSubrange(paragraphIndex...)
+			}
+
+			if
+				name == "form",
+				ancestors.contains("form")
+			{
+				errors.append("<form> inside <form>")
+			}
+
+			guard
+				!voidElements.contains(name),
+				!match.3.hasSuffix("/")
+			else {
+				continue
+			}
+
+			openElements.append(name)
+		}
+
+		return errors + openElements.map { "<\($0)> without </\($0)>" }
+	}
+
+	/**
+	Without the headings, what I am working on now, the numbers, and the projects are at the end of the page.
+	*/
+	@Test
+	func `the about page has the headings that the now card, the numbers, and the popular projects are above`() async throws {
+		let content = try await SiteContent.load(from: .website, externalData: .none, buildDate: .now)
+		let page = try #require(content.page(.about))
+
+		#expect(page.markdown.contentSeparated(beforeHeadings: [AboutPage.nowNextHeadingID, AboutPage.numbersNextHeadingID, AboutPage.projectsNextHeadingID]) != nil)
+	}
+
+	/**
+	Without the network, the numbers section has the numbers that the build does not get, like the years, and both cards.
+	*/
+	@Test
+	func `the about page has the numbers without the network`() async throws {
+		let content = try await SiteContent.website
+		let page = try #require(content.page(.about))
+
+		let html = try AboutPage(page: page, content: content).renderedHTML()
+		let parts = html.split(separator: #"id="\#(AboutPage.numbersID)""#)
+		try #require(parts.count == 2)
+		let numbers = try #require(parts[1].split(separator: #"id="\#(AboutPage.numbersNextHeadingID)""#).first)
+
+		#expect(numbers.contains("Apps</h3>"))
+		#expect(numbers.contains("years of craft"))
+		#expect(numbers.contains("Open Source</h3>"))
+		#expect(numbers.contains("years of open source"))
+	}
+
+	/**
+	The status of the now page is a card that links to it, at the end of the introduction.
+	*/
+	@Test
+	func `the about page shows the status of the now page before the first section`() async throws {
+		let content = try await SiteContent.website
+		let page = try #require(content.page(.about))
+		let status = try #require(content.page(.now)?.frontmatter.status)
+
+		let html = try AboutPage(page: page, content: content).renderedHTML()
+		let parts = html.split(separator: #"id="\#(AboutPage.nowNextHeadingID)""#)
+		try #require(parts.count == 2)
+		let introduction = parts[0]
+		let card = try #require(introduction.split(separator: #"<a href="/now""#).last)
+
+		#expect(card.contains(status))
+	}
+
+	/**
+	The numbers below the title are also in the numbers section, with the others.
+	*/
+	@Test
+	func `the about page has the numbers below the title in the numbers section too`() async throws {
+		let loadedContent = try await SiteContent.website
+		let repositoryCount = 1144
+		let content = SiteContent(apps: loadedContent.apps, posts: loadedContent.posts, pages: loadedContent.pages, gitHubAccount: GitHub.Account(repositoryCount: repositoryCount, followerCount: 84_740, starCount: 1_099_747, maintenance: GitHub.Maintenance(closedIssueCount: 22_815, mergedPullRequestCount: 13_831), repositories: []), buildDate: loadedContent.buildDate, project: .website)
+		let page = try #require(content.page(.about))
+
+		let html = try AboutPage(page: page, content: content).renderedHTML()
+		let parts = html.split(separator: #"id="\#(AboutPage.numbersID)""#)
+		try #require(parts.count == 2)
+		let top = parts[0]
+		let numbers = try #require(parts[1].split(separator: #"id="\#(AboutPage.numbersNextHeadingID)""#).first)
+
+		#expect(top.contains(">\(repositoryCount.approximateCount) repos</span>"))
+		#expect(top.contains("years of app craft"))
+		#expect(numbers.contains(#">\#(repositoryCount.approximateCount)</span> <span class="\#(StatCard.Styles.label.className)">repos</span>"#))
+		#expect(numbers.contains("years of craft"))
+		#expect(numbers.contains(">22K+</span> <span class=\"\(StatCard.Styles.label.className)\">issues closed</span>"))
+		#expect(numbers.contains(">13K+</span> <span class=\"\(StatCard.Styles.label.className)\">pull requests merged from others</span>"))
+	}
+
+	/**
+	The busiest weekday has its short name, like “Thu” for the Thursday of 2026-01-01.
+	*/
+	@Test
+	func `the about page shows the busiest weekday by its short name`() async throws {
+		let loadedContent = try await SiteContent.website
+		let page = try #require(loadedContent.page(.about))
+		let json = #"{"totalContributions": 13, "weeks": [{"contributionDays": [{"date": "2026-01-01", "contributionCount": 9, "contributionLevel": "FOURTH_QUARTILE"}, {"date": "2026-01-02", "contributionCount": 4, "contributionLevel": "FIRST_QUARTILE"}]}]}"#
+		let calendar = try JSONDecoder().decode(ContributionCalendar.self, from: Data(json.utf8))
+		let year = ContributionYear(year: 2026, calendar: calendar, until: try Date("2026-12-31T12:00:00Z", strategy: .iso8601))
+		let content = SiteContent(apps: loadedContent.apps, posts: loadedContent.posts, pages: loadedContent.pages, contributionYears: [year], buildDate: loadedContent.buildDate, project: .website)
+
+		let html = try AboutPage(page: page, content: content).renderedHTML()
+		#expect(html.contains(#">Thu</span> <span class="\#(StatCard.Styles.label.className)">busiest weekday</span>"#))
+	}
+
+	/**
+	The number of the most-downloaded packages on npm that are mine is left out when it is zero, like the other numbers.
+	*/
+	@Test
+	func `the about page shows how many of the most-downloaded npm packages are mine only when some are`() async throws {
+		let loadedContent = try await SiteContent.website
+		let page = try #require(loadedContent.page(.about))
+
+		func html(mostDownloadedPackageNames: [String]) throws -> String {
+			var npmStatistics = NPMStatistics()
+			npmStatistics.packages = [NPMStatistics.Package(name: "chalk", version: "6.0.0", description: nil, date: .now, weeklyDownloads: 1000, dependentCount: nil, repository: "chalk/chalk")]
+			npmStatistics.mostDownloadedPackageNames = mostDownloadedPackageNames
+			let content = SiteContent(apps: loadedContent.apps, posts: loadedContent.posts, pages: loadedContent.pages, npmStatistics: npmStatistics, buildDate: loadedContent.buildDate, project: .website)
+			return try AboutPage(page: page, content: content).renderedHTML()
+		}
+
+		let label = "of the 10 most-downloaded packages"
+		#expect(try html(mostDownloadedPackageNames: ["semver", "chalk"]).contains(#">1</span> <span class="\#(StatCard.Styles.label.className)">\#(label)</span>"#))
+		#expect(try !html(mostDownloadedPackageNames: ["semver"]).contains(label))
+	}
+
+	/**
+	The packages of the day leave out packages without a description, of the Yeoman and imagemin organizations, and with an archived repo. The repos of the day leave out forks, archived repos, repos for settings, and the repos of npm packages. The link of a package can have capitals, and it is still the same repo.
+	*/
+	@Test
+	func `the projects of the day leave out the packages and repos that are not worth finding`() throws {
+		func package(_ name: String, description: String? = "Does a thing", repository: String?) -> NPMStatistics.Package {
+			NPMStatistics.Package(name: name, version: "1.0.0", description: description, date: .now, weeklyDownloads: 10, dependentCount: nil, repository: repository)
+		}
+
+		var npmStatistics = NPMStatistics()
+		npmStatistics.packages = [
+			// The link of a package can have capitals, like `SindreSorhus/Ky`, and it is the same repo.
+			package("ky", repository: "SindreSorhus/Ky"),
+			package("no-description", description: nil, repository: "sindresorhus/no-description"),
+			package("yeoman-environment", repository: "yeoman/environment"),
+			package("imagemin-svgo", repository: "imagemin/imagemin-svgo"),
+			package("old-thing", repository: "sindresorhus/Old-Thing"),
+			package("no-repo", repository: nil),
+		]
+
+		let decoder = JSONDecoder()
+		decoder.dateDecodingStrategy = .iso8601
+		let repositories = try ["Defaults", "ky", "old-thing", "forked", ".github"].map { name in
+			let isArchived = name == "old-thing"
+			let isFork = name == "forked"
+			return try decoder.decode(GitHubRepository.self, from: Data(#"{"name": "\#(name)", "description": "Does a thing", "html_url": "https://github.com/sindresorhus/\#(name)", "created_at": "2020-01-01T00:00:00Z", "archived": \#(isArchived), "fork": \#(isFork), "stargazers_count": 1, "language": "Swift"}"#.utf8))
+		}
+
+		let account = GitHub.Account(repositoryCount: repositories.count, followerCount: 1, starCount: 1, maintenance: GitHub.Maintenance(closedIssueCount: 1, mergedPullRequestCount: 1), repositories: repositories)
+		let content = SiteContent(apps: [], posts: [], pages: [], gitHubAccount: account, npmStatistics: npmStatistics, buildDate: .now, project: .empty)
+
+		#expect(content.discoverablePackages.map(\.name) == ["ky", "no-repo"])
+		#expect(content.discoverableRepositories.map(\.name) == ["Defaults"])
+	}
+
 	@Test
 	func `every page has a unique title`() async throws {
 		var pathsByTitle = [String: RoutePath]()
@@ -64,6 +327,46 @@ struct PageTests {
 		}
 
 		#expect(pathsByTitle.count > 100)
+	}
+
+	/**
+	A page that search engines must not index, like the random app page, would otherwise be in the sitemap, which asks them to index it.
+	*/
+	@Test
+	func `a page is in the sitemap exactly when search engines may index it`() async throws {
+		var pageCount = 0
+
+		for route in try await Self.routes(where: Self.isPage) {
+			guard case .page(let sitemapEntry, let render) = route.output else {
+				continue
+			}
+
+			let isNotIndexed = try render().contains(#"<meta name="robots" content="noindex">"#)
+			#expect(isNotIndexed == (sitemapEntry == nil), "\(route.path)")
+			pageCount += 1
+		}
+
+		#expect(pageCount > 100)
+	}
+
+	/**
+	The 404 page suggests the closest page to a mistyped path, so it must only suggest pages that exist and that visitors look for.
+	*/
+	@Test
+	func `the 404 page suggests only indexed pages, without the home page and old paths`() async throws {
+		let site = try await Self.site()
+		let route = try #require(site.routes(project: .website).first { $0.path == .notFound })
+
+		let json = try #require(try route.renderedHTML().firstMatch(of: /<script[^>]*id="not-found-data"[^>]*>(.*?)<\/script>/)?.1)
+		let paths = try JSONDecoder().decode([String: [String]].self, from: Data(json.utf8))["paths"] ?? []
+		let oldPaths = Set(site.content.documents.flatMap(\.redirectFrom).map(\.description))
+
+		#expect(paths.contains(RoutePath.apps.description))
+		#expect(paths.contains(App.path(slug: "lungo").description))
+		#expect(!paths.contains("/"))
+		#expect(!paths.contains(RoutePath.notFound.description))
+		#expect(!paths.contains(RoutePath.randomApp.description))
+		#expect(oldPaths.isDisjoint(with: paths))
 	}
 
 	@Test(arguments: try await routes { $0.path.starts(with: "/og") })
@@ -108,7 +411,38 @@ struct PageTests {
 		// An element with an inline script, like the copy button, has its script in the page, once, and no script file.
 		let contact = try String(contentsOf: output.appending(path: "contact.html"), encoding: .utf8)
 		#expect(contact.ranges(of: "customElements.define('copy-button'").count == 1)
-		#expect(!output.appending(path: "scripts/elements/copy-button.js").exists)
+		#expect(!output.appending(path: "scripts/elements/CopyButton.js").exists)
+
+		// Each page has one import map, before its module scripts, as browsers only use an import map that comes first, and every script in it is published with the hash it maps to.
+		for page in try output.filesRecursively() where page.pathExtension == "html" {
+			let html = try String(contentsOf: page, encoding: .utf8)
+
+			// Not the files that are published unchanged, like `public/feedback/index.html`.
+			guard
+				!Project.website.publicDirectory.appending(path: page.path(relativeTo: output)).isFile,
+				html.contains(#"type="module""#)
+			else {
+				continue
+			}
+
+			// Every script that the page loads from `/scripts` has its hash, also the scripts of the elements, which the build finds in the `Scripts` folders.
+			for match in html.matches(of: /<script\b[^>]*\bsrc="(\/scripts\/[^"]+)"/) {
+				#expect(match.1.contains("?v="), "\(page.lastPathComponent) loads \(match.1) without its hash.")
+			}
+
+			let importMaps = html.matches(of: /<script type="importmap">(.*?)<\/script>/)
+			try #require(importMaps.count == 1, "\(page.lastPathComponent) must have one import map.")
+			let firstModule = try #require(html.firstRange(of: #"type="module""#))
+			#expect(importMaps[0].range.upperBound <= firstModule.lowerBound, "The import map of \(page.lastPathComponent) must come before its module scripts.")
+
+			let imports = try JSONDecoder().decode([String: [String: String]].self, from: Data(importMaps[0].1.utf8))["imports"] ?? [:]
+			#expect(imports["/scripts/geocities-element.js"]?.hasPrefix("/scripts/geocities-element.js?v=") == true)
+
+			for (path, url) in imports {
+				#expect(url.hasPrefix(path + "?v="), "The import map of \(page.lastPathComponent) maps \(path) to \(url).")
+				#expect(output.appending(path: String(path.dropFirst())).isFile, "The import map of \(page.lastPathComponent) has \(path), which is not published.")
+			}
+		}
 	}
 
 	/**
@@ -152,6 +486,54 @@ struct PageTests {
 		})
 	}
 
+	/**
+	With reduced motion, nothing moves by itself (“Motion” in `AGENTS.md`), as `animation()` writes the animation in `@media (prefers-reduced-motion: no-preference)`. The exceptions are the essential animations, and the scroll-driven animations, which follow the scrolling of the visitor and have their `animation-timeline` on the next line.
+	*/
+	@Test
+	func `animations only run for visitors who allow motion`() async throws {
+		let essentialAnimations = [ProseAnimations.targetHighlight.name]
+		var stylesheets = [Stylesheet.site.css]
+		var animationCount = 0
+
+		for route in try await Self.routes(where: Self.isPage) {
+			stylesheets += try route.renderedHTML().matches(of: /<style>(.*?)<\/style>/.dotMatchesNewlines()).map { String($0.1) }
+		}
+
+		for css in stylesheets {
+			let lines = css.split(separator: "\n").map { $0.trimmingPrefix(while: \.isWhitespace) }
+			var preludes = [Substring]()
+
+			for (index, line) in lines.enumerated() {
+				if line.hasSuffix("{") {
+					preludes.append(line)
+					continue
+				}
+
+				if line == "}" {
+					preludes.removeLast()
+					continue
+				}
+
+				guard
+					let value = line.wholeMatch(of: /animation: (.+);/)?.1,
+					value != "none"
+				else {
+					continue
+				}
+
+				animationCount += 1
+
+				let isAllowed = preludes.contains { $0.contains("prefers-reduced-motion: no-preference") }
+					|| essentialAnimations.contains { value.hasPrefix("\($0) ") }
+					|| lines.indices.contains(index + 1) && lines[index + 1].hasPrefix("animation-timeline:")
+
+				#expect(isAllowed, "The animation also runs with reduced motion: \(value)")
+			}
+		}
+
+		#expect(animationCount > 0)
+	}
+
 	@Test
 	func `the shared stylesheet defines each class once`() async {
 		// Top-level rules in the layers are indented once.
@@ -170,21 +552,27 @@ struct PageTests {
 	func `code blocks in Markdown are highlighted, and the page gets their script once`() async throws {
 		let route = try #require(try await Self.site().routes(project: .website, includesGallery: true).first { $0.path == "/_gallery" })
 
-		guard case .page(_, let render) = route.output else {
-			Issue.record("Expected a page, got \(route.output)")
-			return
-		}
-
-		let html = try render()
-		#expect(html.contains(#"<code class="code-block-code"><span class="code-block-attribute">@MainActor</span>"#))
+		let html = try route.renderedHTML()
+		#expect(html.contains(#"<code data-part="code" class="code-block-code"><span class="code-block-attribute">@MainActor</span>"#))
+		#expect(html.contains(#"<code data-part="code" class="code-block-code"><span class="code-block-comment"># Every kind of highlighted token.</span>"#))
 		#expect(html.ranges(of: "customElements.define('code-block'").count == 1)
+	}
+
+	/**
+	The icons have the hash of the sprite wherever they render, also outside a build, like Markdown that renders while the content loads.
+	*/
+	@Test
+	func `icons have the hash of the sprite without a build`() {
+		let html = CodeBlock(source: "ls\n", language: "console").render()
+
+		#expect(html.contains(/href="\/assets\/icons\.svg\?v=[0-9a-f]+#/))
 	}
 
 	@Test
 	func `each line of a console code block is an element, for the prompt of the styles`() {
 		let html = CodeBlock(source: "open -g 'a<b'\n\nls\n", language: "console").render()
 
-		#expect(html.contains(#"<code class="code-block-code code-block-console"><span>open -g 'a&lt;b'</span>\#n\#n<span>ls</span>\#n</code>"#))
+		#expect(html.contains(#"<code data-part="code" class="code-block-code code-block-console"><span>open -g 'a&lt;b'</span>\#n\#n<span>ls</span>\#n</code>"#))
 	}
 
 	@Test

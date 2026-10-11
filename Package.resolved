@@ -1,5 +1,5 @@
 {
-  "originHash" : "d0fb0988054dc69afa17d30d4f46f13d2597c2be049efabaa76d19631748e987",
+  "originHash" : "6d1ce6faef7d8f3335f2a61b2e73602016dfa8c148f8125057fd6f089e506e1c",
   "pins" : [
     {
       "identity" : "elementary",
@@ -15,7 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soml-lang/SOMLSwift.git",
       "state" : {
-        "revision" : "23fe09312afc845b8a369c46bf9beaf5b46908f2"
+        "revision" : "77213a19f8732283c7f039e33b1b79d9bc2f7bb6",
+        "version" : "0.0.1"
       }
     },
     {

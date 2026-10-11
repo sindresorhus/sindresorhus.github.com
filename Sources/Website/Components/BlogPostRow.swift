@@ -7,17 +7,25 @@ A blog post in a list of posts: the title, the description, and the date. The bl
 struct BlogPostRow: HTML {
 	let post: BlogPost
 
+	/**
+	Whether the list has a heading of its own, like “More Posts”, so the titles are a level below it.
+	*/
+	var isUnderHeading = false
+
 	var body: some HTML {
 		article {
 			header {
-				h2 {
-					a(.href(post.url)) {
-						post.title
+				if isUnderHeading {
+					h3 {
+						titleLink
 					}
-					.style(Styles.link)
-					.style(Styles.externalLink, when: post.isExternal)
+					.style(Styles.title)
+				} else {
+					h2 {
+						titleLink
+					}
+					.style(Styles.title)
 				}
-				.style(Styles.title)
 			}
 
 			p {
@@ -26,14 +34,19 @@ struct BlogPostRow: HTML {
 			.style(Styles.description)
 
 			footer {
-				span {
-					PublicationInfo(post: post, showsReadingTime: !post.isRedirect)
-				}
-				.style(Styles.meta)
+				PublicationInfo(post: post, showsReadingTime: !post.isRedirect)
 			}
 			.style(Styles.footer)
 		}
 		.style(Styles.root)
+	}
+
+	private var titleLink: some HTML<HTMLTag.a> {
+		a(.href(post.url)) {
+			post.title
+		}
+		.style(Styles.link)
+		.style(Styles.externalLink, when: post.isExternal)
 	}
 
 	enum Styles: StyleSet {
@@ -43,54 +56,53 @@ struct BlogPostRow: HTML {
 		case externalLink
 		case footer
 		case description
-		case meta
 
 		var style: Style {
 			switch self {
 			case .root:
 				Style()
-					.frame(maxWidth: .rootEm(28))
-					.margin(vertical: 0, horizontal: .auto)
-					.from(.tablet) {
-						$0.declaration(.maxWidth, .none)
+					.below(.tablet) {
+						$0
+							.frame(maxWidth: .rootEm(28))
+							.margin(vertical: 0, horizontal: .auto)
 					}
 			case .title:
+				// The size of a heading in prose, and a little larger from small tablets, with the tighter lines of titles.
 				Style()
 					.margin(.bottom, .rootEm(0.5))
+					.textStyle(.sectionTitle)
 					.color(.primaryText)
-					.font(size: .rootEm(1.875), lineHeight: 1.375)
-					.bold()
 					.from(.smallTablet) {
 						$0.font(size: .rootEm(2.25))
 					}
 			case .link:
-				// A shadow instead of an underline, so the arrow of external links is not underlined.
+				// A thick underline under the pointer. The arrow of external links is an inline block, so it is not underlined.
 				Style()
-					.hover {
-						$0
-							.shadow(Shadow(y: .pixels(-4), color: .currentColor, isInset: true))
-							.underline(false)
+					.underlineOffset(.pixels(6))
+					.hoverOrFocusVisible {
+						$0.underline(thickness: .pixels(3))
 					}
 			case .externalLink:
 				Style()
 					.after {
 						$0
-							.content(" ⤤")
+							.content("⤤")
+							.display(.inlineBlock)
+							.margin(.leading, .em(0.25))
 							.opacity(0.6)
 					}
 			case .footer:
-				Style().margin(.top, .rootEm(1))
+				Style()
+					.margin(.top, .rootEm(1))
+					.color(.secondaryText)
 			case .description:
 				Style()
 					.margin(.top, .rootEm(0.5))
 					.textStyle(.lead)
-					.opacity(0.8)
+					.color(.bodyText)
 					.from(.smallTablet) {
 						$0.font(.extraLarge)
 					}
-			case .meta:
-				Style()
-					.color(.secondaryText)
 			}
 		}
 	}

@@ -12,7 +12,7 @@ struct StatList: HTML {
 	*/
 	var isCentered = false
 
-	var body: some HTML {
+	var body: some HTML<HTMLTag.p> {
 		p {
 			for (index, stat) in stats.enumerated() {
 				// A space between the facts, for copied text and reader modes. The flex layout does not show it.
@@ -43,9 +43,11 @@ struct StatList: HTML {
 					.secondaryText()
 					.monospacedDigit()
 					.from(.tablet) {
+						// No space between the facts in a row, as the margins of the dots are the space, so the dots are in the middle.
 						$0
 							.flexDirection(.row)
 							.flexWrap()
+							.gap(row: .rootEm(0.25), column: 0)
 					}
 			case .centered:
 				Style()

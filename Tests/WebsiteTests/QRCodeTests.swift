@@ -45,4 +45,32 @@ struct QRCodeTests {
 		#expect(html.contains(#"aria-label="QR code for “Dato”""#))
 		#expect(html.contains(#"<path fill="currentColor" d="M"#))
 	}
+
+	@Test
+	func `the terminal text has the modules in half blocks with a margin`() throws {
+		let code = QRCode(url: try #require(URL(string: "https://sindresorhus.com")), label: "QR code")
+		let colors = "\u{1B}[38;5;16;48;5;231m"
+		let reset = "\u{1B}[0m"
+		let lines = code.terminalText.split(separator: "\n").map(String.init)
+
+		#expect(lines.allSatisfy { $0.hasPrefix(colors) && $0.hasSuffix(reset) })
+
+		// Each line has two rows of modules, the upper and the lower half of each character.
+		var rows = [[Bool]]()
+
+		for line in lines {
+			let characters = Array(line.dropFirst(colors.count).dropLast(reset.count))
+			rows.append(characters.map { "█▀".contains($0) })
+			rows.append(characters.map { "█▄".contains($0) })
+		}
+
+		// The margin of two modules is around the code, and the last line has an empty lower half when the rows are odd.
+		let margin = 2
+		let size = code.modules.count
+		#expect(rows.allSatisfy { $0.count == size + (margin * 2) })
+		#expect(rows.count == size + (margin * 2) + ((size + (margin * 2)) % 2))
+		#expect(rows[margin..<(margin + size)].map { Array($0[margin..<(margin + size)]) } == code.modules)
+		#expect(rows.allSatisfy { !$0[..<margin].contains(true) && !$0[(margin + size)...].contains(true) })
+		#expect(rows.enumerated().allSatisfy { y, row in (margin..<(margin + size)).contains(y) || !row.contains(true) })
+	}
 }

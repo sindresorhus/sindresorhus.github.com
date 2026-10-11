@@ -115,10 +115,7 @@ enum ButtonStyles: StyleSet {
 		switch self {
 		case .root:
 			Style()
-				.display(.inlineFlex)
-				.alignItems(.center)
-				.justifyContent(.center)
-				.gap(.rootEm(0.5))
+				.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5), isInline: true)
 				.cornerRadius(.capsule)
 				.textAlign(.center)
 				.textWrap(.nowrap)
@@ -136,9 +133,9 @@ enum ButtonStyles: StyleSet {
 					Shadow(y: .pixels(6), blur: .pixels(16), spread: .pixels(-6), color: Self.primaryFill.opacity(0.6)),
 					Shadow(y: .pixels(1), color: .white.opacity(0.25), isInset: true),
 					// A thin edge, like the edge of the App Store and Setapp badges next to it.
-					Shadow(y: 0, spread: .pixels(1), color: .white.opacity(0.12), isInset: true)
+					.edge(.white.opacity(0.12))
 				)
-				.hover {
+				.hoverOrFocusVisible {
 					$0.background(Self.primaryFill.lighter(0.06))
 				}
 		case .secondary:
@@ -149,24 +146,25 @@ enum ButtonStyles: StyleSet {
 				.shadow(
 					Shadow(y: .pixels(4), blur: .pixels(12), spread: .pixels(-6), color: Self.secondaryTint.opacity(0.3)),
 					Shadow(y: .pixels(1), color: .lightDark(.white.opacity(0.8), .white.opacity(0.1)), isInset: true),
-					Shadow(y: 0, spread: .pixels(1), color: .lightDark(Self.secondaryTint.opacity(0.15), .white.opacity(0.1)), isInset: true)
+					.edge(.lightDark(Self.secondaryTint.opacity(0.15), .white.opacity(0.1)))
 				)
 				.color(.accent(fallback: .primary(700), maximumLightness: 0.5), dark: .primary(200))
-				.hover {
+				.hoverOrFocusVisible {
 					$0.background(Self.secondaryTint.opacity(0.24))
 				}
 		case .dark:
 			Style()
 				.background(.gray(900), dark: .gray(700))
 				.shadow(.large)
-				.hover {
-					$0.background(.gray(800))
+				// Lighter in both modes, so the hover goes the same way.
+				.hoverOrFocusVisible {
+					$0.background(.gray(800), dark: .gray(600))
 				}
 		case .gradient:
 			Style()
 				.backgroundImage(.brandGradient)
 				.shadow(Shadow(y: .pixels(1), blur: .pixels(2), color: .black.opacity(0.05)))
-				.hover {
+				.hoverOrFocusVisible {
 					$0
 						.backgroundImage(.brandGradientHover)
 						.shadow(.medium)
@@ -181,14 +179,13 @@ enum ButtonStyles: StyleSet {
 				.fontWeight(.semibold)
 				.lineHeight(1.375)
 		case .large:
-			// Like the App Store badge next to it, it grows a little under the pointer.
 			Style()
-				// The corners are between those of the App Store badge (10px) and the Setapp badge (13px) next to it.
 				.frame(width: .pixels(180), height: .pixels(60))
-				.padding(vertical: .rootEm(1), horizontal: .rootEm(2.5))
+				// The corners are between those of the App Store badge (10px) and the Setapp badge (13px) next to it.
 				.cornerRadius(.rootEm(0.75))
 				.font(.extraLarge, weight: .bold)
-				.transition(.backgroundColor, animation: .default(duration: .milliseconds(200)))
+				// All the transitions of the button, as this list replaces the one of the root.
+				.transition(.backgroundColor, .shadow, animation: .stateChange)
 				.pressEffect()
 		}
 	}

@@ -44,11 +44,8 @@ struct SiteFooter: HTML {
 					ul {
 						for link in Site.author.socialLinks {
 							li {
-								a(.href(.url(link.url)), .rel("me")) {
-									link.icon.size(.rootEm(1))
-									link.name
-								}
-								.style(Styles.link, Styles.socialLink)
+								ProfileLink(profile: link, iconSize: Self.socialIconSize)
+									.style(Styles.link, Styles.socialLink)
 							}
 						}
 					}
@@ -87,7 +84,7 @@ struct SiteFooter: HTML {
 				.olderVersions,
 				.discounts,
 				LabeledLink("Refunds", destination: .refundQuestion),
-				LabeledLink("Terms", path: .terms),
+				.termsOfUse,
 			]
 		),
 		LinkGroup(
@@ -108,17 +105,17 @@ struct SiteFooter: HTML {
 	private static let sourceLink = LabeledLink("Source Code", destination: .url(Site.sourceURL))
 
 	/**
+	The size of the icons of the social links, which the style uses to put them in the middle of the capital letters.
+	*/
+	private static let socialIconSize = Length.rootEm(1)
+
+	/**
 	The IDs and data attributes that the scripts of the component find elements by.
 	*/
 	enum Hooks: String, ScriptHookSet {
 		case siteFooter = "site-footer"
 		case sourceLink = "data-source-link"
 	}
-
-	/**
-	A faint line, as the space and the smaller text already set the footer and its quote apart.
-	*/
-	private static let lineColor = Color.lightDark(.black.opacity(0.06), .white.opacity(0.06))
 
 	enum Styles: StyleSet {
 		case root
@@ -134,10 +131,11 @@ struct SiteFooter: HTML {
 		var style: Style {
 			switch self {
 			case .root:
+				// A faint line, as the space and the smaller text already set the footer and its quote apart.
 				Style()
-					.border(.top, SiteFooter.lineColor)
+					.border(.top, .separator)
 			case .content:
-				// On phones, the link groups and the social links are a grid of two columns, two groups in each row. From tablets, the social links are a column at the right end of the row of link columns. The space between the rows and the margin of the quote add up to the space above the quote.
+				// On phones, the link groups and the social links are a grid of two columns, two groups in each row. From tablets, they are four columns of the same width, spread over the width of the header, so there is no empty space between them. The space between the rows and the margin of the quote add up to the space above the quote.
 				Style()
 					.pageWidth()
 					.grid(columns: 2)
@@ -145,19 +143,12 @@ struct SiteFooter: HTML {
 					.padding(vertical: .rootEm(3), horizontal: .pageGutter)
 					.from(.tablet) {
 						$0
-							.gridColumns("1fr auto")
+							.gridColumns(4)
 							.padding(top: .rootEm(4), horizontal: .pageGutter, bottom: .rootEm(2.5))
 					}
 			case .groups:
-				// On phones, the groups are in the grid of the footer, with the social links. From tablets, they are one row of columns.
-				Style()
-					.display(.contents)
-					.from(.tablet) {
-						$0
-							.grid(columns: 3)
-							.gap(.rootEm(1.5))
-							.frame(maxWidth: .rootEm(40))
-					}
+				// The groups are in the grid of the footer, with the social links.
+				Style().display(.contents)
 			case .groupTitle:
 				Style()
 					.margin(.bottom, .rootEm(0.75))
@@ -168,7 +159,7 @@ struct SiteFooter: HTML {
 			case .link:
 				Style()
 					.secondaryText()
-					.hoverColor(.primaryText)
+					.quietLink()
 					// Larger on phones, so the links are easy to read and to tap.
 					.below(.smallTablet) {
 						$0.textStyle(.body)
@@ -176,16 +167,43 @@ struct SiteFooter: HTML {
 			case .bottom:
 				Style()
 					.gridColumnSpan(2)
+					.from(.tablet) {
+						$0.gridColumnSpan(4)
+					}
 					.margin(.top, .rootEm(0.5))
 					.padding(.top, .rootEm(1.5))
-					.border(.top, SiteFooter.lineColor)
+					.border(.top, .separator)
 					.textAlign(.center)
 			case .quote:
-				Style().secondaryText(.extraSmall)
+				// A block, so the lines have the line height of its small text, not of the larger text of its parent.
+				Style()
+					.display(.block)
+					.secondaryText(.extraSmall)
 			case .socialLink:
-				// Inline, so the lines are as high as the lines of the other columns.
-				Style().hstack(alignment: .center, spacing: .rootEm(0.5), isInline: true)
+				// The icon is in the line of the text, not in a stack, so the text is on the same baseline as the text of the other columns, and the lines are as high. The icon is in the middle of the capital letters, as `middle` puts it in the middle of the lowercase letters, which looks low.
+				Style()
+					.nested(Icon.selector) {
+						$0
+							.display(.inlineBlock)
+							.verticalAlign(.capitalHeight(0.5) - SiteFooter.socialIconSize * 0.5)
+							.margin(.trailing, .rootEm(0.5))
+					}
 			}
+		}
+	}
+}
+
+/**
+A link to a social profile of the author, with its icon and name, like in the footer. It has `rel="me"`, so the profile can check that it belongs to the site, like Mastodon does.
+*/
+struct ProfileLink: HTML {
+	let profile: Person.SocialLink
+	let iconSize: Length
+
+	var body: some HTML<HTMLTag.a> {
+		a(.href(.url(profile.url)), .rel("me")) {
+			profile.icon.size(iconSize)
+			profile.name
 		}
 	}
 }

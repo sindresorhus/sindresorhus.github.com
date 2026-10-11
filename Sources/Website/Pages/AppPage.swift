@@ -85,11 +85,13 @@ struct AppPage: Page {
 						}
 				}
 
-				// The links about the app belong to the app, so they come before the other apps.
-				AppFooterLinks(app: app)
-					.style {
-						$0.margin(.top, .rootEm(5))
-					}
+				// The links about the app belong to the app, so they come before the other apps. An archived app can have none.
+				if !app.pageOverflowLinks.isEmpty {
+					AppFooterLinks(app: app)
+						.style {
+							$0.margin(.top, .rootEm(5))
+						}
+				}
 
 				let relatedApps = app.relatedApps(from: content.activeApps, on: content.buildDate)
 
@@ -116,10 +118,10 @@ struct AppPage: Page {
 	}
 
 	/**
-	The three newest reviews. The wall of love has more.
+	The four newest reviews, which fill two rows of two, so none is alone in a row. The wall of love has more.
 	*/
 	private var reviews: [AppStoreReview] {
-		Array(content.appStoreReviews(of: app).prefix(3))
+		Array(content.appStoreReviews(of: app).prefix(4))
 	}
 
 	/**

@@ -64,7 +64,7 @@ struct GeoCitiesRoomToys: ScriptedElement {
 				button(.part(Parts.bedBang), .type(.button), .disabled) {
 					"Bang the Flashlight"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.dimmedWhenDisabled)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
@@ -184,7 +184,6 @@ struct GeoCitiesRoomToys: ScriptedElement {
 		case status
 		case nameLabel
 		case sketchCanvas
-		case dimmedWhenDisabled
 
 		var style: Style {
 			switch self {
@@ -208,9 +207,7 @@ struct GeoCitiesRoomToys: ScriptedElement {
 					.imageRendering(.pixelated)
 					.border(Color("#808080"), width: .pixels(2), style: .inset)
 					.background(.black)
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .bedCanvas:
 				// A finger moves the flashlight instead of scrolling the page.
 				Style()
@@ -237,20 +234,11 @@ struct GeoCitiesRoomToys: ScriptedElement {
 							.border(Color("#808080"), width: .pixels(1))
 					}
 			case .status:
-				Style()
-					.frame(minHeight: .lineHeight(2))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+				Style().toyStatus()
 			case .nameLabel:
 				Style()
 					.display(.block)
 					.textStyle(.caption, weight: .bold)
-			case .dimmedWhenDisabled:
-				// The small buttons of the page have no look of their own when they do nothing.
-				Style().disabled {
-					$0.opacity(0.5)
-				}
 			case .sketchCanvas:
 				// The red frame and the knobs are part of the drawing, and a finger turns the knobs instead of scrolling the page.
 				Style()
@@ -258,9 +246,7 @@ struct GeoCitiesRoomToys: ScriptedElement {
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(280.0 / 220.0)
 					.touchAction(.none)
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			}
 		}
 	}

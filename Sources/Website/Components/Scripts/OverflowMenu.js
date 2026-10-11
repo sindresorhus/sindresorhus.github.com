@@ -1,4 +1,4 @@
-export default class extends HTMLElement {
+class OverflowMenu extends HTMLElement {
 	connectedCallback() {
 		// The “Share…” option is hidden until the browser can share. Some browsers, like Firefox on desktop, cannot.
 		const shareOption = this.querySelector('[data-part="share"]');
@@ -58,3 +58,5 @@ export default class extends HTMLElement {
 		}
 	};
 }
+
+customElements.define('overflow-menu', OverflowMenu);

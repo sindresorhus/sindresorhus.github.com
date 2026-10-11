@@ -55,7 +55,7 @@ Convert [HEIC](https://www.macworld.co.uk/feature/iphone/what-is-heic-3660408/) 
 
 HEIC is Apple’s default image format since iOS 11, replacing JPEG. HEIC uses more advanced and modern compression methods to achieve much smaller file sizes with the same visual quality. Unfortunately, many websites, apps, and devices outside of Apple’s platforms still do not support HEIC.
 
-If you don’t have any HEIC images, you can try the app out with [this one](/apps/heic-converter/heic-example.heic).
+If you don’t have any HEIC images, you can try the app out with [this one](heic-example.heic).
 
 ## Frequently Asked Questions {#faq}
 

@@ -75,8 +75,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 						button(.type(.button), .hook(Hooks.lesson, value: lesson.id), .ariaPressed(index == 0)) {
 							lesson.name
 						}
-						.attributes(.hook(.state, value: "on"), when: index == 0)
-						.style(GeoCitiesPage.Styles.smallButton, Styles.toggle)
+						.style(GeoCitiesPage.Styles.smallButton)
 					}
 				}
 				.accessibilityLabel("Lesson")
@@ -88,7 +87,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 						"🔈 Sound"
 					}
 					.help("Plays sound, and the teacher reads caught notes out loud")
-					.style(GeoCitiesPage.Styles.smallButton, Styles.toggle, Styles.bigTarget)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 
 					button(.part(Parts.start), .type(.button)) {
 						"🔔 Start the Lesson"
@@ -158,7 +157,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 				button(.part(Parts.classic), .type(.button)) {
 					"☐ Use the Classic"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 
 				label {
 					input(.part(Parts.boxes), .type(.checkbox))
@@ -180,13 +179,13 @@ struct GeoCitiesClassNotes: ScriptedElement {
 					button(.type(.button), .hook(Hooks.doodle, value: doodle.id)) {
 						doodle.name
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 				}
 
 				button(.type(.button), .hook(Hooks.doodle, value: "erase")) {
 					"🧽 Erase"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 			}
 			.accessibilityLabel("Doodle on the note")
 			.attributes(.role("group"))
@@ -204,7 +203,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 					button(.type(.button), .hook(Hooks.fold, value: fold.id)) {
 						fold.name
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 				}
 			}
 			.accessibilityLabel("Fold the note")
@@ -263,7 +262,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 				button(.part(Parts.empty), .type(.button)) {
 					"Empty the Pencil Case"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 			}
 			.style(Styles.pencilCase)
 		}
@@ -283,6 +282,10 @@ struct GeoCitiesClassNotes: ScriptedElement {
 		case status
 		case pencilCase
 		case empty
+	}
+
+	enum States: String, ElementStateSet {
+		case shown
 	}
 
 	enum Hooks: String, ScriptHookSet {
@@ -307,8 +310,6 @@ struct GeoCitiesClassNotes: ScriptedElement {
 		case game
 		case toolbar
 		case row
-		case toggle
-		case bigTarget
 		case notebook
 		case paper
 		case controls
@@ -346,18 +347,6 @@ struct GeoCitiesClassNotes: ScriptedElement {
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
 					.flexWrap()
-			case .toggle:
-				// Pressed in while it is on.
-				Style().when(.state, is: "on") {
-					$0
-						.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-						.background(Color("#e8e8e8"))
-				}
-			case .bigTarget:
-				// Big enough for a finger.
-				Style()
-					.frame(minHeight: .rootEm(2.25))
-					.touchAction(.manipulation)
 			case .notebook:
 				Style()
 					.grid(minimumColumnWidth: .rootEm(16))
@@ -374,9 +363,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 					.shadow(Shadow(x: .pixels(3), y: .pixels(3), color: Color("#00000040")))
 					.touchAction(.none)
 					.cursor(.crosshair)
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .controls:
 				Style().vstack(spacing: .rootEm(0.5))
 			case .inlineLabel:
@@ -403,7 +390,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 							.flexShrink(0)
 							.margin(0)
 							.media(.coarsePointer) {
-								$0.frame(width: .rootEm(1.5), height: .rootEm(1.5))
+								$0.frame(size: .rootEm(1.5))
 							}
 					}
 			case .classroom:
@@ -436,7 +423,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 							.textStyle(.caption, weight: .bold)
 							.color(.black)
 					}
-					.when(.state, is: "shown") {
+					.when(States.shown) {
 						$0.display(.block)
 					}
 			case .room:
@@ -448,9 +435,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 					.border(Color("#5a4630"), width: .pixels(4), style: .ridge)
 					.touchAction(.manipulation)
 					.handCursor()
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .legend:
 				Style()
 					.margin(0)
@@ -465,13 +450,11 @@ struct GeoCitiesClassNotes: ScriptedElement {
 			case .status:
 				// A yellow sticky note, where the classroom says what happens.
 				Style()
-					.frame(width: .percent(100), maxWidth: .rootEm(36), minHeight: .lineHeight(2))
-					.margin(0)
+					.toyStatus()
+					.frame(width: .percent(100), maxWidth: .rootEm(36))
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 					.background(Color("#fff68f"))
 					.shadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#00000040")))
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
 			case .pencilCase:
 				// A pencil case of blue cloth, with a zipper all around.
 				Style()

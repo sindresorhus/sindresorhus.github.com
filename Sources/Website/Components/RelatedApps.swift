@@ -9,27 +9,19 @@ struct RelatedApps: HTML {
 	let relatedApps: [App]
 	let content: SiteContent
 
-	var body: some HTML<HTMLTag.div> {
-		div {
-			aside(.ariaLabelledBy(Self.titleID)) {
-				h2(.id(Self.titleID)) {
-					"You Might Also Like"
-				}
-				.style(SectionStyles.label)
-
-				AppGrid(apps: relatedApps, content: content)
+	var body: some HTML<HTMLTag.aside> {
+		aside(.ariaLabelledBy(Self.titleID)) {
+			h2(.id(Self.titleID)) {
+				"You Might Also Like"
 			}
+			.style(SectionStyles.label)
+
+			AppGrid(apps: relatedApps, content: content)
 		}
-		.style(Styles.root)
+		.style {
+			$0.contentColumn(.page)
+		}
 	}
 
 	private static let titleID = "related-apps"
-
-	enum Styles: StyleSet {
-		case root
-
-		var style: Style {
-			Style().contentColumn(.page)
-		}
-	}
 }

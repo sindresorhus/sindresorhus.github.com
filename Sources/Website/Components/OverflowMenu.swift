@@ -44,7 +44,8 @@ struct OverflowMenu: ScriptedElement {
 
 	init(label: String, links: [LabeledLink]...) {
 		self.label = label
-		self.groups = links.map { LinkGroup(title: "", links: $0) }
+		// An empty group would add a separator without links.
+		self.groups = links.filter { !$0.isEmpty }.map { LinkGroup(title: "", links: $0) }
 	}
 
 	init(label: String, groups: [LinkGroup], variant: Variant) {
@@ -54,13 +55,19 @@ struct OverflowMenu: ScriptedElement {
 	}
 
 	/**
-	The menu of an app page: the pages about the app, a random app, and then the ways to pass the app on, the QR code and sharing. The random app is in its own group, as it is not about this app.
+	The menu of an app page: the pages about the app, a random app, and then the ways to pass the app on, the QR code and sharing. The random app is in its own group, as it is not about this app. An archived app is no longer available, so it is not passed on.
 	*/
 	static func appPage(_ app: App, variant: Variant = .inline) -> Self {
+		let passingOn = app.isArchived ? [] : [LabeledLink("Show QR Code", destination: .fragment(AppHero.qrCodeID))]
+
 		// “Share…” comes after the QR code, as the menu adds it at the end.
-		var menu = Self(label: "More about \(app.title)", links: app.pageOverflowLinks, [LabeledLink("Show Random App", path: .randomApp)], [LabeledLink("Show QR Code", destination: .fragment(AppHero.qrCodeID))])
+		var menu = Self(label: "More about \(app.title)", links: app.pageOverflowLinks, [LabeledLink("Show Random App", path: .randomApp)], passingOn)
 		menu.variant = variant
-		menu.sharedPage = (app.title, app.shareURL, AppHero.sharePopoverID)
+
+		if !app.isArchived {
+			menu.sharedPage = (app.title, app.shareURL, AppHero.sharePopoverID)
+		}
+
 		return menu
 	}
 
@@ -174,29 +181,28 @@ struct OverflowMenu: ScriptedElement {
 					}
 					.nested(Icon.selector) {
 						$0
-							.frame(width: .rootEm(1.75), height: .rootEm(1.75))
-							.color(.secondary(400))
+							.frame(size: .rootEm(1.75))
+							.color(.secondary(600), dark: .secondary(400))
 							.from(.smallTablet) {
-								$0.frame(width: .rootEm(1.25), height: .rootEm(1.25))
+								$0.frame(size: .rootEm(1.25))
 							}
 					}
 			case .chip:
 				// The whole chip opens the menu, as the select covers it. The chip is a large enough target for fingers, so it does not get the negative margin of the root, which would make it overlap the chip before it.
 				Style()
-					.chip()
-					.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.75))
+					.chip(hasIcon: true)
 					.margin(0)
-					.setting(OverflowMenu.color, to: .bodyText)
+					.setting(OverflowMenu.color, to: .currentColor)
 			case .select:
 				Style()
 					.position(.absolute)
 					.inset(0)
-					.frame(width: .percent(100), height: .percent(100))
+					.frame(size: .percent(100))
 					.padding(0)
 					.opacity(0)
 					.cursor(.pointer)
-					.declaration(.fontFamily, "system-ui")
-					.declaration(.fontWeight, "initial")
+					.fontFamily("system-ui")
+					.fontWeight(.regular)
 					// Chrome and Firefox on Windows and Linux draw the menu with the colors of the select. The base styles make it transparent and give it the color of the text around it, so in dark mode, the options were light text on white.
 					.color("FieldText")
 					.background("Field")

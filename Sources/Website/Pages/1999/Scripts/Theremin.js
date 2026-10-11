@@ -1,10 +1,8 @@
 // The theremin of the DJ booth in the Music Room on the 1999 page. It plays while the pointer or a finger holds it: across is the pitch, over three octaves, and up is louder. Auto-Tune rounds the pitch to the nearest note at once, which makes the jumpy sound of “Believe” by Cher. It plays through the sound card of the Music Room, `geocities-sound-card.js`.
-import {context, master, connectVolume, startAudio, midiFrequency, noteName, addStopHandler} from '/scripts/geocities-sound-card.js';
+import GeoCitiesElement, {clamp, hasModifier, midiFrequency} from '/scripts/geocities-element.js';
+import {context, master, connectVolume, startAudio, noteName, addStopHandler} from '/scripts/geocities-sound-card.js';
 
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const hasModifier = event => event.ctrlKey || event.metaKey || event.altKey;
-
-export default class extends GeoCitiesElement {
+class GeoCitiesTheremin extends GeoCitiesElement {
 	connected() {
 		const {pad, hand, readout, autoTune, vibrato} = this.parts;
 		connectVolume(this.querySelectorAll('[data-music-volume]'), this.signal);
@@ -146,3 +144,5 @@ export default class extends GeoCitiesElement {
 		update();
 	}
 }
+
+customElements.define('geo-cities-theremin', GeoCitiesTheremin);

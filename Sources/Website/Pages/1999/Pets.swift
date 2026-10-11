@@ -158,7 +158,7 @@ struct GeoCitiesPets: HTML {
 	private func petPicture(for pet: Pet) -> some HTML {
 		if pet.id == "neko" {
 			// The basket, where Neko sleeps while it is home. The script shows Neko awake in it when it is poked, and an empty basket while Neko is out.
-			div(.id(Hooks.basket), .hook(ScriptAttribute.state, value: "home")) {
+			div(.id(Hooks.basket)) {
 				div {
 					img(.src(GeoCitiesPage.GIF.neko.path), .alt(""), .width(256), .height(128))
 						.style(Styles.nekoSheet)
@@ -243,6 +243,10 @@ struct GeoCitiesPets: HTML {
 		case picture = "data-critter-picture"
 	}
 
+	enum States: String, ElementStateSet {
+		case out
+	}
+
 	enum Styles: StyleSet {
 		case grid
 		case card
@@ -279,7 +283,7 @@ struct GeoCitiesPets: HTML {
 			case .picture:
 				Style()
 					.hstack(alignment: .center, justification: .center)
-					.frame(width: .rootEm(4), height: .rootEm(4))
+					.frame(size: .rootEm(4))
 					.flexShrink(0)
 					.background(Color("#000033"))
 					.border(Color("#808080"), width: .pixels(2), style: .inset)
@@ -290,7 +294,7 @@ struct GeoCitiesPets: HTML {
 			case .pixels:
 				Style()
 					.display(.block)
-					.frame(width: .rootEm(3), height: .rootEm(3))
+					.frame(size: .rootEm(3))
 					.imageRendering(.pixelated)
 			case .body:
 				Style()
@@ -331,7 +335,7 @@ struct GeoCitiesPets: HTML {
 				Style()
 					.position(.relative)
 					.hstack(alignment: .end, justification: .center)
-					.frame(width: .percent(100), height: .percent(100))
+					.frame(size: .percent(100))
 					.after {
 						$0
 							.content("")
@@ -344,17 +348,7 @@ struct GeoCitiesPets: HTML {
 							.border(Color("#8b4513"), width: .pixels(3), style: .ridge)
 							.cornerRadius(.rootEm(0.25))
 					}
-					.when(.state, is: "home") {
-						$0.children("*") {
-							$0.visibility(true)
-						}
-					}
-					.when(.state, is: "awake") {
-						$0.children("*") {
-							$0.visibility(true)
-						}
-					}
-					.when(.state, is: "out") {
+					.when(States.out) {
 						$0.children("*") {
 							$0.visibility(false)
 						}
@@ -363,7 +357,7 @@ struct GeoCitiesPets: HTML {
 				// One sprite of the sheet of Neko, of 32 × 32 pixels. The script moves the sheet behind it to show the other sprites. In the basket, Neko sleeps.
 				Style()
 					.overflow(.hidden)
-					.frame(width: .pixels(32), height: .pixels(32))
+					.frame(size: .pixels(32))
 					.flexShrink(0)
 					.margin(.bottom, .pixels(4))
 			case .nekoSheet:

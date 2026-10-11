@@ -57,7 +57,12 @@ struct AppHero: HTML {
 				.style(Styles.archivedBadge)
 			}
 
-			DownloadOptions(app: app)
+			if !app.downloadOptions.isEmpty {
+				DownloadOptions(app: app)
+					.style {
+						$0.margin(.top, .rootEm(2))
+					}
+			}
 
 			if let downloads = app.downloads {
 				p {
@@ -81,36 +86,42 @@ struct AppHero: HTML {
 				.style(Styles.details)
 			}
 
-			// The “Show QR Code” option of the “…” menu shows it, like on a computer, to open the App Store page on an iPhone. An app that is not on iPhone, Apple Watch, or Vision Pro gets the page of the app instead, to open it on a phone, like to send it to someone.
-			let appStoreURL = app.qrCodeURL
-			// A dialog named by its caption, which the “…” menu focuses, so screen readers announce it.
-			figure(.id(Self.qrCodeID), .popover, .role("dialog"), .ariaLabelledBy("\(Self.qrCodeID)-caption"), .tabindex(-1)) {
-				QRCode(url: appStoreURL ?? app.path.absoluteURL, label: appStoreURL != nil ? "QR code that opens \(app.title) on the App Store" : "QR code that opens this page")
-					.style(Styles.qrCodeImage)
+			// An archived app is no longer available, so the menu has no QR code or sharing.
+			if !app.isArchived {
+				// The “Show QR Code” option of the “…” menu shows it, like on a computer, to open the App Store page on an iPhone. An app that is not on iPhone, Apple Watch, or Vision Pro gets the page of the app instead, to open it on a phone, like to send it to someone.
+				let appStoreURL = app.qrCodeURL
+				// A dialog named by its caption, which the “…” menu focuses, so screen readers announce it.
+				figure(.id(Self.qrCodeID), .popover, .role("dialog"), .ariaLabelledBy("\(Self.qrCodeID)-caption"), .tabindex(-1)) {
+					QRCode(url: appStoreURL ?? app.path.absoluteURL, label: appStoreURL != nil ? "QR code that opens \(app.title) on the App Store" : "QR code that opens this page")
+						.style(Styles.qrCodeImage)
 
-				figcaption(.id("\(Self.qrCodeID)-caption")) {
-					appStoreURL != nil ? "Scan with your iPhone to open \(app.title) on the App Store" : "Scan with your phone to open this page"
+					figcaption(.id("\(Self.qrCodeID)-caption")) {
+						appStoreURL != nil ? "Scan with your iPhone to open \(app.title) on the App Store" : "Scan with your phone to open this page"
+					}
 				}
+				.style(Styles.dialog)
+
+				// The “Share…” option of the “…” menu shows it when it cannot share, like in Safari on the Mac, which does not count a choice in a menu as an action of the visitor. Its buttons count.
+				div(.id(Self.sharePopoverID), .popover, .role("dialog"), .ariaLabelledBy(Self.shareTitleID), .tabindex(-1)) {
+					p(.id(Self.shareTitleID)) {
+						"Share \(app.title)"
+					}
+					.style(Styles.shareTitle)
+
+					div {
+						ShareButton(pageTitle: app.title, url: app.shareURL)
+
+						CopyButton(title: "Copy Link", text: app.shareURL.absoluteString)
+					}
+					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
+				}
+				.style(Styles.dialog)
 			}
-			.style(Styles.dialog)
-
-			// The “Share…” option of the “…” menu shows it when it cannot share, like in Safari on the Mac, which does not count a choice in a menu as an action of the visitor. Its buttons count.
-			div(.id(Self.sharePopoverID), .popover, .role("dialog"), .ariaLabelledBy(Self.shareTitleID), .tabindex(-1)) {
-				p(.id(Self.shareTitleID)) {
-					"Share \(app.title)"
-				}
-				.style(Styles.shareTitle)
-
-				div {
-					ShareButton(pageTitle: app.title, url: app.shareURL)
-
-					CopyButton(title: "Copy Link", text: app.shareURL.absoluteString)
-				}
-				.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
-			}
-			.style(Styles.dialog)
 
 			AppLinks(app: app)
+				.style {
+					$0.margin(.top, .rootEm(2))
+				}
 		}
 		.style(Styles.root)
 	}
@@ -175,16 +186,13 @@ struct AppHero: HTML {
 					.vstack(alignment: .center)
 					.padding(.horizontal, .rootEm(1))
 					.textAlign(.center)
-					.children(DownloadOptions.Styles.root.selector) {
-						$0.margin(.top, .rootEm(2))
-					}
 					.from(.smallTablet) {
 						$0.padding(.horizontal, .rootEm(1.5))
 					}
 			case .icon:
-				// The icon images have transparent margins, so the icon looks smaller than its frame.
+				// A large icon above the title, with a soft shadow in layers.
 				Style()
-					.frame(width: .rootEm(8), height: .rootEm(8))
+					.frame(size: .rootEm(8))
 					.margin(.bottom, .rootEm(1.25))
 					.filter(
 						.dropShadow(Shadow(y: .pixels(1), blur: .pixels(2), color: .black.opacity(0.15))),
@@ -194,7 +202,7 @@ struct AppHero: HTML {
 						.dropShadow(Shadow(y: .pixels(10), blur: .pixels(24), color: Color.accent.value(default: .transparent).opacity(0.5)))
 					)
 					.from(.smallTablet) {
-						$0.frame(width: .rootEm(11), height: .rootEm(11))
+						$0.frame(size: .rootEm(11))
 					}
 			case .title:
 				Style()
@@ -204,7 +212,6 @@ struct AppHero: HTML {
 			case .subtitle:
 				Style()
 					.frame(maxWidth: .rootEm(36))
-					.margin(.horizontal, .auto)
 					.font(size: .clamp(.rootEm(1.25), .viewportWidth(3), .rootEm(1.5)), lineHeight: 1.3)
 					.fontWeight(.medium)
 					.letterSpacing(.em(-0.01))
@@ -214,10 +221,11 @@ struct AppHero: HTML {
 			case .introduction:
 				Style()
 					.frame(maxWidth: .rootEm(40))
-					.margin(top: .rootEm(1), horizontal: .auto, bottom: 0)
-					.textStyle(.lead)
-					.color(.secondaryText)
+					.margin(top: .rootEm(1), horizontal: 0, bottom: 0)
+					.secondaryText(.lead)
 					.textLinks()
+					// The text is centered, so lines of similar lengths look better than a short last line.
+					.textWrap(.balance)
 			case .anotherRandomApp:
 				Style()
 					.hidden()
@@ -240,7 +248,6 @@ struct AppHero: HTML {
 					.margin(.auto)
 					.frame(maxWidth: .rootEm(18))
 					.padding(.rootEm(1.5))
-					.cornerRadius(.rootEm(1))
 					.popoverSurface()
 					.secondaryText()
 					.textAlign(.center)
@@ -249,7 +256,7 @@ struct AppHero: HTML {
 					}
 			case .qrCodeImage:
 				Style()
-					.frame(width: .pixels(176), height: .pixels(176))
+					.frame(size: .pixels(176))
 					.padding(.pixels(8))
 					.cornerRadius(.rootEm(0.5))
 					.color(.gray(900))
@@ -258,7 +265,7 @@ struct AppHero: HTML {
 				// Below the introduction, which says why the app is archived.
 				Style()
 					.margin(.top, .rootEm(1))
-					.setting(Badge.fontSize, to: .pixels(16))
+					.setting(Badge.fontSize, to: .rootEm(1))
 			case .downloads:
 				Style()
 					.margin(.top, .rootEm(1))
@@ -274,9 +281,8 @@ struct AppHero: HTML {
 			case .details:
 				Style()
 					.margin(.top, .rootEm(1))
-					.textStyle(.caption)
+					.secondaryText()
 					.monospacedDigit()
-					.color(.secondaryText)
 			}
 		}
 	}
@@ -308,7 +314,12 @@ struct AppCallToAction: HTML {
 			}
 			.style(Styles.subtitle)
 
-			DownloadOptions(app: app)
+			if !app.downloadOptions.isEmpty {
+				DownloadOptions(app: app)
+					.style {
+						$0.margin(.top, .rootEm(0.5))
+					}
+			}
 
 			if let price = app.priceText(info: info) {
 				p {
@@ -332,11 +343,10 @@ struct AppCallToAction: HTML {
 			case .root:
 				// A panel, so the end of the page stands out from the text above it.
 				Style()
-					.frame(maxWidth: .rootEm(48))
-					.margin(.horizontal, .auto)
+					.centeredColumn(.standard)
 					.vstack(alignment: .center)
 					.padding(vertical: .rootEm(3), horizontal: .rootEm(1.5))
-					.background(.card)
+					.cardSurface(isInteractive: false)
 					.cornerRadius(.panelRadius)
 					.textAlign(.center)
 					.from(.smallTablet) {
@@ -348,7 +358,7 @@ struct AppCallToAction: HTML {
 					}
 			case .icon:
 				Style()
-					.frame(width: .rootEm(5.25), height: .rootEm(5.25))
+					.frame(size: .rootEm(5.25))
 					.filter(.dropShadow(Shadow(y: .pixels(4), blur: .pixels(10), color: .black.opacity(0.12))))
 			case .title:
 				Style()
@@ -358,8 +368,7 @@ struct AppCallToAction: HTML {
 			case .subtitle:
 				Style()
 					.margin(top: .rootEm(0.5), horizontal: 0, bottom: .rootEm(1.5))
-					.font(size: .rootEm(1.0625), lineHeight: 1.5)
-					.color(.secondaryText)
+					.secondaryText(.lead)
 			case .price:
 				Style()
 					.margin(.top, .rootEm(1))

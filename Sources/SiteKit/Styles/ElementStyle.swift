@@ -1,4 +1,5 @@
 import Elementary
+import Foundation
 
 /**
 A style that only one element has, written on the element itself, like a modifier in SwiftUI, so it needs no named case in a ``StyleSet``:
@@ -23,7 +24,7 @@ struct ElementStyle {
 	let nodes: [StyleNode]
 
 	init(_ style: Style, fileID: String) {
-		let fileName = fileID.split(separator: "/").last.map { String($0.split(separator: ".").first ?? $0) } ?? "element"
+		let fileName = URL(filePath: fileID).deletingPathExtension().lastPathComponent
 		let css = Stylesheet { Rule(".element", style) }.css
 		let hash = String(String(css.stableHash, radix: 36).suffix(7))
 		// Only the characters of a class name, as a file name can have others, like `+` in `Page+Styles.swift`.

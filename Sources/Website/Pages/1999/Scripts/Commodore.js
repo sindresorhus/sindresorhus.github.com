@@ -1,12 +1,5 @@
 // My Old Commodore 64 on the 1999 page: Pappa’s C64 from 1984 on the old Tandberg TV. The screen is drawn pixel by pixel from the memory of the C64, with its own font, so POKE and PEEK work like on the real one. It runs a little BASIC V2 in the screen editor of the C64, loads from the 1541 floppy drive and the Datassette with their sounds, keeps the programs of the visitor on Pappa’s disk in the browser, and has the cracktro of TEAM WAFFLE and the game Waffle Raid with SID music. The joystick is broken to the left, the power brick gets warm, and Pappa’s notebook types the famous programs in. It runs only while it is on the screen and the tab is visible. For visitors who prefer reduced motion, nothing moves by itself: the cursor does not blink, a program pauses until a key is pressed, and the game moves only while the joystick is held. The sound is off until the visitor turns it on.
-
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
+import GeoCitiesElement, {clamp, midiFrequency} from '/scripts/geocities-element.js';
 
 // The 16 colors of the C64, as the VIC-II chip makes them on a PAL TV, as words for the pixels of the canvas.
 const rgbWord = (red, green, blue) => ((255 << 24) | (blue << 16) | (green << 8) | red) >>> 0;
@@ -119,7 +112,7 @@ const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', '
 const frequencyOf = note => {
 	const octave = Number(note.at(-1));
 	const semitone = noteNames.indexOf(note.slice(0, -1)) + ((octave + 1) * 12);
-	return 440 * (2 ** ((semitone - 69) / 12));
+	return midiFrequency(semitone);
 };
 
 const chords = {
@@ -656,7 +649,7 @@ const notebook = {
 };
 const colorPairs = [[0, 0], [13, 5], [7, 2], [1, 12], [10, 4], [3, 11], [14, 6]];
 
-export default class extends GeoCitiesElement {
+class GeoCitiesCommodore extends GeoCitiesElement {
 	#context;
 	#keyButtons;
 	#tapeButtons;
@@ -2233,7 +2226,7 @@ export default class extends GeoCitiesElement {
 
 	#stopDrive() {
 		this.#drive.isActive = false;
-		this.parts.driveLight.dataset.state = '';
+		delete this.parts.driveLight.dataset.state;
 		this.#updateDriveHum();
 	}
 
@@ -2283,7 +2276,7 @@ export default class extends GeoCitiesElement {
 		for (const button of this.#tapeButtons) {
 			const control = button.dataset.c64Tape;
 			if (control !== 'stop') {
-				setPressed(button, control === motion || (motion === 'record' && control === 'play'));
+				button.setAttribute('aria-pressed', String(control === motion || (motion === 'record' && control === 'play')));
 			}
 		}
 
@@ -4315,7 +4308,7 @@ export default class extends GeoCitiesElement {
 		this.#stopDrive();
 		this.#setTapeMotion('stop');
 		this.parts.power.setAttribute('aria-pressed', 'false');
-		this.parts.powerLight.dataset.state = '';
+		delete this.parts.powerLight.dataset.state;
 		this.#screenMode = 'off';
 		this.#render();
 		this.say('Off. Everything that was not saved on the disk is gone, like in 1984.');
@@ -4407,7 +4400,7 @@ export default class extends GeoCitiesElement {
 		for (const button of this.#keyButtons) {
 			const modifier = modifierKeys[button.dataset.c64Key];
 			if (modifier) {
-				setPressed(button, this.#modifiers[modifier]);
+				button.setAttribute('aria-pressed', String(this.#modifiers[modifier]));
 			}
 		}
 	}
@@ -4460,3 +4453,5 @@ export default class extends GeoCitiesElement {
 		}
 	}
 }
+
+customElements.define('geo-cities-commodore', GeoCitiesCommodore);

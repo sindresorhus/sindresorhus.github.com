@@ -1,67 +1,19 @@
 // My iMac on the 1999 page: Mac OS 8.6 in Bondi Blue, with the startup and its keys, the Finder with its windows, menus, icons, and Trash, the extensions that conflict, the memory that runs out, the control panels, the desk accessories, the applications, and the game. The shared toys of `geocities.js`, like the toast, are used through events on the document. Nothing makes a sound until the visitor turns on the speakers, or presses a button that says it plays a sound. Loops run only while their part is on the screen and the tab is visible. The settings, the notes, and the clippings are kept in the browser.
+// The storage can be missing or full, like in a private window, so the iMac also works without it.
+import {load, save, showToast as toast, celebratePage as celebrate, cheerPage as cheer, cloneTemplate, randomItem, randomInteger, clamp, playTone, nextFrame, wait, prerendered} from '/scripts/geocities-element.js';
+
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
 // The speculation rules of the site can prerender the page. The iMac waits until the visitor opens it.
-if (document.prerendering) {
-	await new Promise(resolve => {
-		document.addEventListener('prerenderingchange', resolve, {once: true});
-	});
-}
+await prerendered;
 
-// The storage can be missing or full, like in a private window, so the iMac also works without it.
-const load = (key, fallback) => {
-	try {
-		const value = localStorage.getItem(key);
-		return value === null ? fallback : (JSON.parse(value) ?? fallback);
-	} catch {
-		return fallback;
-	}
-};
-
-const save = (key, value) => {
-	try {
-		localStorage.setItem(key, JSON.stringify(value));
-	} catch {}
-};
-
-const nextFrame = () => new Promise(resolve => {
-	requestAnimationFrame(() => {
-		resolve();
-	});
-});
-
-const wait = milliseconds => new Promise(resolve => {
-	setTimeout(resolve, milliseconds);
-});
-
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
 const formatK = kilobytes => `${Math.round(kilobytes).toLocaleString('en-US')}K`;
-
-const toast = message => {
-	document.dispatchEvent(new CustomEvent('geocities-toast', {detail: {message}}));
-};
-
-const celebrate = () => {
-	document.dispatchEvent(new Event('geocities-celebrate'));
-};
-
-const cheer = () => {
-	document.dispatchEvent(new Event('geocities-cheer'));
-};
 
 // Sets the text of a status a frame after it is cleared, so screen readers announce it, also when it is the same text again.
 const announce = async (element, text) => {
 	element.textContent = '';
 	await nextFrame();
 	element.textContent = text;
-};
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
 };
 
 // Calls back with whether the element is on screen while the tab is visible, so timers and loops only run then.
@@ -850,21 +802,7 @@ const tone = (frequency, start, duration, {type = 'sine', gain = 0.3, endFrequen
 	}
 
 	const context = audio();
-	const time = context.currentTime + start;
-	const oscillator = context.createOscillator();
-	const envelope = context.createGain();
-	oscillator.type = type;
-	oscillator.frequency.setValueAtTime(frequency, time);
-	if (endFrequency) {
-		oscillator.frequency.exponentialRampToValueAtTime(endFrequency, time + duration);
-	}
-
-	envelope.gain.setValueAtTime(0.0001, time);
-	envelope.gain.exponentialRampToValueAtTime(gain * volumeGain(), time + attack);
-	envelope.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-	oscillator.connect(envelope).connect(context.destination);
-	oscillator.start(time);
-	oscillator.stop(time + duration + 0.05);
+	playTone({context, output: context.destination}, frequency, start, duration, {type, volume: gain * volumeGain(), slide: endFrequency, attack});
 };
 
 // A burst of noise through a band-pass filter that sweeps, for the whooshes of Platinum Sounds, and for the quack.
@@ -972,7 +910,7 @@ const platinumSound = kind => {
 
 const setSpeakers = isOn => {
 	speakersOn = isOn;
-	setPressed(speakersButton, isOn);
+	speakersButton.setAttribute('aria-pressed', String(isOn));
 	speakersButton.textContent = isOn ? '🔊 The speakers are on (press to turn them off)' : '🔈 Turn on the speakers (the chime, beeps, sounds, and Talking Alerts)';
 	if (!isOn) {
 		stopSpeaking();
@@ -1517,7 +1455,7 @@ const showAlert = ({icon = 'caution', text, detail = '', buttons = [{label: 'OK'
 		};
 
 		for (const button of buttons) {
-			const element = buttonTemplate.content.firstElementChild.cloneNode(true);
+			const element = cloneTemplate(buttonTemplate);
 			element.textContent = button.label;
 			element.disabled = Boolean(button.disabled);
 			element.dataset.state = button === defaultButton ? 'default' : '';
@@ -1566,7 +1504,6 @@ const closeMenus = () => {
 
 	menuOf(openTitle).hidden = true;
 	openTitle.setAttribute('aria-expanded', 'false');
-	openTitle.dataset.state = '';
 	closeSubmenus();
 	openTitle = undefined;
 };
@@ -1577,7 +1514,6 @@ const openMenu = (title, focusFirst) => {
 	const list = menuOf(title);
 	list.hidden = false;
 	title.setAttribute('aria-expanded', 'true');
-	title.dataset.state = 'on';
 	openTitle = title;
 	platinumSound('menu');
 	if (focusFirst) {
@@ -1750,7 +1686,7 @@ const updateMenus = () => {
 	const front2 = programs[frontProgram];
 	appMenu.replaceChildren();
 	const addItem = (label, action, icon) => {
-		const item = menuItemTemplate.content.firstElementChild.cloneNode(true);
+		const item = cloneTemplate(menuItemTemplate);
 		const button = item.querySelector('button');
 		if (icon) {
 			const image = document.createElement('img');
@@ -1850,7 +1786,7 @@ const updateSwitcher = () => {
 	const list = windowPart('switcher', 'apps');
 	list.replaceChildren();
 	for (const id of running.keys()) {
-		const button = buttonTemplate.content.firstElementChild.cloneNode(true);
+		const button = cloneTemplate(buttonTemplate);
 		const image = document.createElement('img');
 		image.src = spriteURL(programs[id].icon);
 		image.alt = '';
@@ -1972,7 +1908,7 @@ const iconFor = item => {
 };
 
 const makeIconButton = item => {
-	const button = iconTemplate.content.firstElementChild.cloneNode(true);
+	const button = cloneTemplate(iconTemplate);
 	button.dataset.macIcon = item.id;
 	button.querySelector('span').textContent = item.name;
 	button.querySelector('img').src = spriteURL(iconFor(item));
@@ -1981,10 +1917,6 @@ const makeIconButton = item => {
 		button.dataset.macBalloon = 'This icon is blank, because the desktop file is a mess. Rebuild the desktop: hold Command and Option while the iMac starts up.';
 	} else {
 		button.dataset.macBalloon = item.id === 'trash' ? 'The Trash. Drag things here to throw them away. Choose Empty Trash in the Special menu to delete them for real.' : `${item.name}. Double-click it (or tap it twice) to open it, or drag it to the Trash.`;
-	}
-
-	if (item.id === 'trash' && trashItems().length > 0) {
-		button.dataset.macFull = '';
 	}
 
 	if (session.selected === item) {
@@ -2423,8 +2355,12 @@ const updateStrip = () => {
 	strip.hidden = !isExtensionActive('controlstrip') || session.extensionsOff;
 	for (const module of stripModules.querySelectorAll('[data-mac-strip-module]')) {
 		const name = module.dataset.macStripModule;
-		const isOn = {appletalk: settings.appleTalk, sharing: session.fileSharing, speech: settings.talkingAlerts}[name];
-		module.dataset.state = isOn ? 'on' : '';
+		// AppleTalk, File Sharing, and Talking Alerts are toggles. The volume and the monitor go to the next value.
+		const toggles = {appletalk: settings.appleTalk, sharing: session.fileSharing, speech: settings.talkingAlerts};
+		if (Object.hasOwn(toggles, name)) {
+			module.setAttribute('aria-pressed', String(Boolean(toggles[name])));
+		}
+
 		if (name === 'volume') {
 			module.textContent = settings.volume === 0 ? '🔇' : '🔊';
 		}
@@ -2486,7 +2422,7 @@ const setKey = (key, isDown) => {
 		session.keys.delete(key);
 	}
 
-	setPressed(keyButtons.find(button => button.dataset.macStartupKey === key), isDown);
+	keyButtons.find(button => button.dataset.macStartupKey === key).setAttribute('aria-pressed', String(isDown));
 };
 
 for (const button of keyButtons) {
@@ -2966,7 +2902,7 @@ const updateMemory = () => {
 	list.replaceChildren();
 	const rows = [['Mac OS', 'finder', systemMemory], ...[...running].filter(([id]) => id !== 'finder').map(([id, size]) => [programs[id].title, programs[id].icon, size])];
 	for (const [title, icon, size] of rows) {
-		const row = template.content.firstElementChild.cloneNode(true);
+		const row = cloneTemplate(template);
 		const [image, name, sizeLabel, bar] = row.children;
 		image.src = spriteURL(icon);
 		name.textContent = title;
@@ -3046,7 +2982,7 @@ const extensionInfo = windowPart('extensions', 'info');
 const renderExtensions = () => {
 	extensionList.replaceChildren();
 	for (const extension of extensions) {
-		const row = rowTemplate.content.firstElementChild.cloneNode(true);
+		const row = cloneTemplate(rowTemplate);
 		const checkbox = row.querySelector('input');
 		checkbox.checked = settings.enabled[extension.id];
 		checkbox.value = extension.id;
@@ -3162,13 +3098,11 @@ onOpen.appearance = () => {
 for (const tab of ['themes', 'desktop', 'sound']) {
 	part(appearance, `tab-${tab}`).addEventListener('click', () => {
 		for (const other of ['themes', 'desktop', 'sound']) {
-			setPressed(part(appearance, `tab-${other}`), other === tab);
+			part(appearance, `tab-${other}`).setAttribute('aria-pressed', String(other === tab));
 			part(appearance, `panel-${other}`).hidden = other !== tab;
 		}
 	});
 }
-
-setPressed(part(appearance, 'tab-themes'), true);
 
 appearance.addEventListener('change', async event => {
 	const name = event.target.dataset.macPart;
@@ -3648,7 +3582,7 @@ let stickyCount = 0;
 
 const makeSticky = note => {
 	stickyCount++;
-	const element = stickyTemplate.content.firstElementChild.cloneNode(true);
+	const element = cloneTemplate(stickyTemplate);
 	const name = `sticky-${stickyCount}`;
 	element.dataset.macWindow = name;
 	element.setAttribute('aria-labelledby', `geocities-mac-title-${name}`);
@@ -3898,7 +3832,7 @@ let keyIndex = 0;
 for (const row of keyRows) {
 	const rowElement = document.createElement('div');
 	for (const character of row) {
-		const button = keyTemplate.content.firstElementChild.cloneNode(true);
+		const button = cloneTemplate(keyTemplate);
 		const index = keyIndex;
 		button.addEventListener('click', () => {
 			typeKey(characterFor(index));
@@ -3914,7 +3848,7 @@ for (const row of keyRows) {
 for (const modifier of ['shift', 'option']) {
 	part(keyCaps, modifier).addEventListener('click', event => {
 		keyCapsState[modifier] = !keyCapsState[modifier];
-		setPressed(event.currentTarget, keyCapsState[modifier]);
+		event.currentTarget.setAttribute('aria-pressed', String(keyCapsState[modifier]));
 		renderKeys();
 	});
 }
@@ -3933,7 +3867,7 @@ keyCaps.addEventListener('keydown', event => {
 	const button = keyButtonsByCharacter.get(names[code] ?? code);
 	if (event.key === 'Shift' || event.key === 'Alt') {
 		keyCapsState[event.key === 'Shift' ? 'shift' : 'option'] = true;
-		setPressed(part(keyCaps, event.key === 'Shift' ? 'shift' : 'option'), true);
+		part(keyCaps, event.key === 'Shift' ? 'shift' : 'option').setAttribute('aria-pressed', 'true');
 		renderKeys();
 		return;
 	}
@@ -3946,7 +3880,7 @@ keyCaps.addEventListener('keydown', event => {
 		typeKey(characterFor(index));
 		button.dataset.state = 'on';
 		setTimeout(() => {
-			button.dataset.state = '';
+			delete button.dataset.state;
 		}, 150);
 	}
 });
@@ -3955,7 +3889,7 @@ keyCaps.addEventListener('keyup', event => {
 	if (event.key === 'Shift' || event.key === 'Alt') {
 		const modifier = event.key === 'Shift' ? 'shift' : 'option';
 		keyCapsState[modifier] = false;
-		setPressed(part(keyCaps, modifier), false);
+		part(keyCaps, modifier).setAttribute('aria-pressed', 'false');
 		renderKeys();
 	}
 });
@@ -3970,7 +3904,7 @@ let chooserDriver = settings.printer === 'laserwriter' ? 'laserwriter' : (settin
 
 const updateChooser = () => {
 	for (const driver of ['stylewriter', 'laserwriter', 'appleshare']) {
-		setPressed(part(chooser, `driver-${driver}`), driver === chooserDriver);
+		part(chooser, `driver-${driver}`).setAttribute('aria-pressed', String(driver === chooserDriver));
 	}
 
 	for (const radio of chooser.querySelectorAll('[data-mac-part="appletalk"]')) {
@@ -3999,7 +3933,7 @@ const updateChooser = () => {
 		const button = part(chooser, 'driver-stylewriter').cloneNode(false);
 		button.removeAttribute('data-mac-part');
 		button.textContent = title;
-		setPressed(button, settings.printer === id);
+		button.setAttribute('aria-pressed', String(settings.printer === id));
 		button.addEventListener('click', () => {
 			settings.printer = id;
 			persist();
@@ -4250,8 +4184,8 @@ const sherlockFill = part(sherlock, 'fill');
 
 const setSherlockMode = mode => {
 	sherlockMode = mode;
-	setPressed(part(sherlock, 'tab-internet'), mode === 'internet');
-	setPressed(part(sherlock, 'tab-content'), mode === 'content');
+	part(sherlock, 'tab-internet').setAttribute('aria-pressed', String(mode === 'internet'));
+	part(sherlock, 'tab-content').setAttribute('aria-pressed', String(mode === 'content'));
 	part(sherlock, 'sites').hidden = mode !== 'internet';
 	part(sherlock, 'indexing').hidden = mode !== 'content';
 	sherlockResults.replaceChildren();
@@ -4268,7 +4202,7 @@ part(sherlock, 'tab-content').addEventListener('click', () => {
 });
 
 const addResult = ({title, relevance, onChoose}) => {
-	const item = resultTemplate.content.firstElementChild.cloneNode(true);
+	const item = cloneTemplate(resultTemplate);
 	const button = item.querySelector('button');
 	const [titleElement, bar] = button.children;
 	titleElement.textContent = title;
@@ -5183,7 +5117,7 @@ onOpen.netscape = async () => {
 		}
 	}
 
-	throbber.dataset.state = '';
+	delete throbber.dataset.state;
 	settings.netscapeCrashes++;
 	persist();
 	crashProgram('netscape', randomItem([1, 2, 3, 10, 11]));

@@ -1,32 +1,6 @@
 // The Print Shop on the 1999 page: the blocky menus of the program on the screen of the school computer, where the visitor makes a greeting card, a sign, letterhead, or a banner from a border, a graphic, a layout, a font, and the words, and the dot matrix printer next to it, which prints the design line by line, with a fading ribbon, a box of paper that runs out, paper jams, and the paper that the visitor tears off, peels the strips off, folds into a card, or hangs over the page. The printer is drawn on a canvas, which runs only while it is on the screen and the tab is visible. With reduced motion, the printout appears a page at a time, without the moving head. Nothing makes a sound until the visitor turns on the sound. The design, the ribbon, the paper, and the hanging banner are kept in the browser.
-const nextFrame = () => new Promise(resolve => {
-	requestAnimationFrame(() => {
-		resolve();
-	});
-});
-
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-};
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
-
-// A number between 0 and 1 that is always the same for the same seed, for the things that must not flicker, like the folds of the pile.
-const hash = seed => {
-	const value = Math.sin((seed * 127.1) + 311.7) * 43_758.5453;
-	return value - Math.floor(value);
-};
+import GeoCitiesElement, {randomItem, clamp, nextFrame, hash} from '/scripts/geocities-element.js';
+import {canvasPoint} from '/scripts/geocities-canvas.js';
 
 // The fonts: one blocky font of 5 × 7, which the styles of The Print Shop draw in different ways. Each letter is seven rows of five bits.
 const glyphs = {
@@ -751,7 +725,7 @@ const makeNoise = context => {
 	return noise;
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesPrintShop extends GeoCitiesElement {
 	#design;
 	#steps;
 	#currentStep = 'menu';
@@ -1032,7 +1006,7 @@ export default class extends GeoCitiesElement {
 			const audio = this.#isSoundOn ? undefined : this.sound();
 			this.#isSoundOn = Boolean(audio);
 			audio?.context.resume();
-			setPressed(sound, this.#isSoundOn);
+			sound.setAttribute('aria-pressed', String(this.#isSoundOn));
 			sound.textContent = this.#isSoundOn ? '🔊 Sound' : '🔈 Sound';
 			if (this.#isSoundOn) {
 				this.#sounds.lineFeed();
@@ -1466,8 +1440,7 @@ export default class extends GeoCitiesElement {
 		const {screen} = this.parts;
 		for (const button of screen.querySelectorAll(`[${attribute}]`)) {
 			const isSelected = button.getAttribute(attribute) === value;
-			setPressed(button, isSelected);
-			button.dataset.state = isSelected ? 'selected' : '';
+			button.setAttribute('aria-pressed', String(isSelected));
 		}
 	}
 
@@ -1506,7 +1479,7 @@ export default class extends GeoCitiesElement {
 
 		if (focus) {
 			const buttons = this.#optionButtons(step);
-			const selected = buttons.find(button => button.dataset.state === 'selected');
+			const selected = buttons.find(button => button.getAttribute('aria-pressed') === 'true');
 			(selected ?? buttons[0])?.focus({preventScroll: true});
 		}
 	}
@@ -1685,8 +1658,8 @@ export default class extends GeoCitiesElement {
 		const printer = this.#printer;
 		onlineLight.dataset.state = printer.isOnline ? 'on' : '';
 		paperLight.dataset.state = printer.isOutOfPaper || printer.isJammed ? 'blink' : (printer.paperLeft <= 3 ? 'warning' : '');
-		setPressed(online, printer.isOnline);
-		setPressed(lid, printer.isLidOpen);
+		online.setAttribute('aria-pressed', String(printer.isOnline));
+		lid.setAttribute('aria-pressed', String(printer.isLidOpen));
 		lid.textContent = printer.isLidOpen ? 'Close the Lid' : 'Open the Lid';
 		unjam.hidden = !(printer.isJammed && printer.isLidOpen);
 		tear.disabled = Boolean(printer.job) || !this.#hasPrint();
@@ -2810,3 +2783,5 @@ export default class extends GeoCitiesElement {
 		this.#drawHanging(hung);
 	}
 }
+
+customElements.define('geo-cities-print-shop', GeoCitiesPrintShop);

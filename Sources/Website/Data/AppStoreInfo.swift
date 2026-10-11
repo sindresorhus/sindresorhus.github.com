@@ -122,6 +122,14 @@ struct AppStoreInfo: Decodable, Sendable {
 		let count: Int
 
 		/**
+		Rounds the average to one decimal.
+		*/
+		init(average: Double, count: Int) {
+			self.average = (average * 10).rounded() / 10
+			self.count = count
+		}
+
+		/**
 		The rating as a sentence, like “Rated 4.6 out of 5 from 565 ratings on the App Store”.
 		*/
 		var text: String {
@@ -141,7 +149,7 @@ struct AppStoreInfo: Decodable, Sendable {
 			return nil
 		}
 
-		return Rating(average: (averageUserRating * 10).rounded() / 10, count: userRatingCount)
+		return Rating(average: averageUserRating, count: userRatingCount)
 	}
 
 	var isMacApp: Bool {
@@ -211,9 +219,27 @@ struct AppStoreInfo: Decodable, Sendable {
 			return [:]
 		}
 
-		let url = #URL("https://itunes.apple.com/lookup").appending(queryItems: [URLQueryItem(name: "id", value: ids.map(\.description).joined(separator: ","))])
+		let url = #URL("https://itunes.apple.com/lookup").appending(queryItems: [URLQueryItem(name: "id", value: ids.uniqued(by: \.self).map(\.description).joined(separator: ","))])
 
 		let response = try await cache.decoded(Response.self, from: URLRequest(url: url, timeoutInterval: 15))
 		return Dictionary(response.results.map { ($0.id, $0) }) { first, _ in first }
+	}
+}
+
+extension Sequence<AppStoreInfo> {
+	/**
+	The ratings of all the apps together: the averages weighted by their number of ratings, and the total number of ratings. Like all the info, they are of the US App Store, and Mac App Store apps have none. `nil` when no app has ratings, like when all are Mac apps.
+	*/
+	var combinedRating: AppStoreInfo.Rating? {
+		let ratings = compactMap(\.rating)
+		let count = ratings.map(\.count).sum
+
+		guard count > 0 else {
+			return nil
+		}
+
+		// The averages are rounded to one decimal, which changes the combined average by at most 0.05.
+		let average = ratings.map { $0.average * Double($0.count) }.sum / Double(count)
+		return AppStoreInfo.Rating(average: average, count: count)
 	}
 }

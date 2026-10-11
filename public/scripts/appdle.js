@@ -1,12 +1,11 @@
 // Appdle: the visitor guesses the app of the day from a pixelated part of its icon. Each wrong guess shows more of the icon, sharper.
-const root = document.querySelector('#appdle');
 const {firstDay, maximumGuesses, puzzles} = JSON.parse(document.querySelector('#appdle-data').textContent);
-const canvas = root.querySelector('canvas');
-const form = root.querySelector('form');
+const canvas = document.querySelector('#appdle-canvas');
+const form = document.querySelector('#appdle-form');
 const input = form.elements.guess;
 const status = document.querySelector('#appdle-status');
-const attempts = root.querySelector('ol');
-const slots = [...canvas.nextElementSibling.children];
+const attempts = document.querySelector('#appdle-attempts');
+const slots = [...document.querySelector('#appdle-slots').children];
 const result = document.querySelector('#appdle-result');
 const copyButton = document.querySelector('#appdle-copy-result');
 const restartButton = document.querySelector('#appdle-restart');
@@ -30,7 +29,7 @@ const steps = [
 
 // Where the parts are centered, as fractions of the icon from its center. The most colorful of these places is used, so the first part is not an almost white corner of the icon.
 const offsetCandidates = [-0.15, 0, 0.15].flatMap(y => [-0.15, 0, 0.15].map(x => ({x, y})));
-let offset = {x: 0, y: 0};
+let offset;
 
 const normalize = name => name.trim().toLocaleLowerCase('en');
 const names = new Map([...input.list.options].map(option => [normalize(option.value), option.value]));
@@ -111,6 +110,22 @@ const colorfulness = candidate => {
 	return total / pixels.length;
 };
 
+const mostColorfulOffset = () => {
+	let bestScore = -1;
+	let bestOffset;
+
+	for (const candidate of offsetCandidates) {
+		const score = colorfulness(candidate);
+
+		if (score > bestScore) {
+			bestScore = score;
+			bestOffset = candidate;
+		}
+	}
+
+	return bestOffset;
+};
+
 const draw = () => {
 	// The icon did not load.
 	if (image.naturalWidth === 0) {
@@ -128,6 +143,9 @@ const draw = () => {
 		canvas.dataset.state = 'revealed';
 		return;
 	}
+
+	// The same image gives the same place for everybody. It is found on the first draw, as a cached image is complete before its `load` event.
+	offset ??= mostColorfulOffset();
 
 	const {crop, blocks} = steps[Math.min(wrongCount(), steps.length - 1)];
 	const {x, y, size} = part(crop, offset);
@@ -180,9 +198,9 @@ const render = () => {
 	if (isDone()) {
 		status.textContent = isWon() ? `You got it in ${guessCount(guesses.length)}!` : 'Out of guesses.';
 		status.dataset.state = 'done';
-		result.querySelector('span').textContent = isWon() ? 'The app is ' : 'The app was ';
+		document.querySelector('#appdle-answer-start').textContent = isWon() ? 'The app is ' : 'The app was ';
 
-		const answer = result.querySelector('a');
+		const answer = document.querySelector('#appdle-answer');
 		answer.href = puzzle.url;
 		answer.textContent = puzzle.title;
 		copyButton.setAttribute('text', shareText());
@@ -193,6 +211,15 @@ const render = () => {
 	if (image.complete) {
 		draw();
 	}
+};
+
+// A message after a guess that was not counted. It is cleared first, so screen readers say the same message again, like after the same mistake twice.
+const sayAgain = text => {
+	status.textContent = '';
+
+	requestAnimationFrame(() => {
+		status.textContent = text;
+	});
 };
 
 const remainingText = () => `${guessCount(maximumGuesses - guesses.length)} left.`;
@@ -207,12 +234,12 @@ form.addEventListener('submit', event => {
 	const name = names.get(normalize(input.value));
 
 	if (!name) {
-		status.textContent = `“${input.value.trim()}” is not one of the apps. Pick a name from the list.`;
+		sayAgain(`“${input.value.trim()}” is not one of the apps. Pick a name from the list.`);
 		return;
 	}
 
 	if (guesses.includes(name)) {
-		status.textContent = `You already guessed ${name}.`;
+		sayAgain(`You already guessed ${name}.`);
 		return;
 	}
 
@@ -243,21 +270,7 @@ restartButton.addEventListener('click', () => {
 	input.focus();
 });
 
-image.addEventListener('load', () => {
-	// The same image gives the same place for everybody.
-	let bestScore = -1;
-
-	for (const candidate of offsetCandidates) {
-		const score = colorfulness(candidate);
-
-		if (score > bestScore) {
-			bestScore = score;
-			offset = candidate;
-		}
-	}
-
-	draw();
-});
+image.addEventListener('load', draw);
 
 if (!isDone()) {
 	status.textContent = remainingText();

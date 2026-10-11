@@ -1,5 +1,4 @@
-const feedbackData = JSON.parse(document.querySelector('#feedback-data')?.textContent ?? '{}');
-const apps = feedbackData.apps ?? [];
+const {apps} = JSON.parse(document.querySelector('#feedback-data').textContent);
 const parameters = new URLSearchParams(location.search);
 const productParameter = parameters.get('product');
 
@@ -8,15 +7,15 @@ const productName = productParameter?.toLowerCase();
 const app = apps.find(app => app.title.toLowerCase() === productName || app.url.slice(1) === productName);
 const product = app?.title ?? productParameter;
 
-// Clones the content of a `<template>` in the page.
-function cloneTemplate(id) {
-	return document.querySelector(`#${id}`).content.firstElementChild.cloneNode(true);
+// Clones the content of a `<template>` in the page, like `'#success-template'`. The selector is written whole, so the tests find the ID.
+function cloneTemplate(selector) {
+	return document.querySelector(selector).content.firstElementChild.cloneNode(true);
 }
 
 // --- Success page ---
 
 function showSuccess() {
-	document.querySelector('#main').replaceChildren(cloneTemplate('success-template'));
+	document.querySelector('#main').replaceChildren(cloneTemplate('#success-template'));
 
 	setTimeout(() => {
 		location.href = '/apps';
@@ -54,13 +53,13 @@ function showProduct() {
 			body: `<!--\nProvide your feedback below. Include as many details as possible.\n-->\n\n\n\n---\n${parameters.get('metadata') ?? ''}`.trim(),
 		});
 
-		const paragraph = cloneTemplate('repository-template');
+		const paragraph = cloneTemplate('#repository-template');
 		paragraph.querySelector('[data-repository-link]').href = `${app.repositoryURL}/issues/new?${searchParameters}`;
 		additionalInformation.append(paragraph);
 	}
 
 	if (app.faqURL) {
-		const paragraph = cloneTemplate('app-faq-template');
+		const paragraph = cloneTemplate('#app-faq-template');
 		paragraph.querySelector('[data-app-faq-link]').href = app.faqURL;
 		additionalInformation.append(paragraph);
 	}
@@ -179,6 +178,8 @@ async function addHiddenFields(form) {
 		} else if (key === 'messageField') {
 			form.elements.message.value = value;
 			form.elements.message.setSelectionRange(0, 0);
+			// Setting the value fires no `input` event, so the related help and the crash warning would wait for the visitor to type.
+			form.elements.message.dispatchEvent(new Event('input'));
 		} else if (key === 'product') {
 			// The real title of the app, also when the link has its slug or another case.
 			addHiddenField(form, key, product);
@@ -187,15 +188,13 @@ async function addHiddenFields(form) {
 		}
 	}
 
-	// The metadata is in the form now, so it is removed from the visible URL.
-	if (parameters.get('metadata')) {
+	if (parameters.has('metadata')) {
+		// The metadata is in the form now, so it is removed from the visible URL.
 		const url = new URL(location.href);
 		url.searchParams.delete('metadata');
-		history.replaceState({}, '', url);
-	}
-
-	// Apps send their own metadata. Otherwise, the environment of the browser is sent. It is added last, as it waits for the browser, so the fields above are filled before the visitor starts typing.
-	if (!parameters.has('metadata')) {
+		history.replaceState(history.state, '', url);
+	} else {
+		// Apps send their own metadata. Otherwise, the environment of the browser is sent. It is added last, as it waits for the browser, so the fields above are filled before the visitor starts typing.
 		addHiddenField(form, 'metadata', await environmentInfo());
 	}
 }
@@ -211,7 +210,6 @@ function setUpEmailTypoDetection(emailInput) {
 		'gamil.com': 'gmail.com',
 		'gmai.com': 'gmail.com',
 		'gmail.co': 'gmail.com',
-		'gmail.con': 'gmail.com',
 		'gmail.cm': 'gmail.com',
 		'gmaill.com': 'gmail.com',
 		'gmaul.com': 'gmail.com',
@@ -219,18 +217,15 @@ function setUpEmailTypoDetection(emailInput) {
 		'yaho.com': 'yahoo.com',
 		'yahooo.com': 'yahoo.com',
 		'yhaoo.com': 'yahoo.com',
-		'yahoo.con': 'yahoo.com',
 		'yaoo.com': 'yahoo.com',
 		'yahol.com': 'yahoo.com',
 		'hotmial.com': 'hotmail.com',
 		'hotmai.com': 'hotmail.com',
 		'hotmil.com': 'hotmail.com',
 		'homail.com': 'hotmail.com',
-		'hotmail.con': 'hotmail.com',
 		'hotmali.com': 'hotmail.com',
 		'outlok.com': 'outlook.com',
 		'outloook.com': 'outlook.com',
-		'outlook.con': 'outlook.com',
 		'iclould.com': 'icloud.com',
 		'icoud.com': 'icloud.com',
 		'iclod.com': 'icloud.com',
@@ -271,15 +266,11 @@ function setUpEmailTypoDetection(emailInput) {
 	let timer;
 
 	emailInput.addEventListener('input', () => {
-		emailWarning.hidden = true;
+		emailWarning.textContent = '';
 		clearTimeout(timer);
 
 		timer = setTimeout(() => {
-			const warning = warningFor(emailInput.value.trim());
-			if (warning) {
-				emailWarning.textContent = warning;
-				emailWarning.hidden = false;
-			}
+			emailWarning.textContent = warningFor(emailInput.value.trim()) ?? '';
 		}, 600);
 	});
 }
@@ -297,6 +288,11 @@ if (location.search === '?success') {
 		console.error('Could not add the hidden fields:', error);
 	});
 	setUpEmailTypoDetection(form.elements.email);
+
+	// An address from the link, like from an app, is checked too, as setting the value fires no `input` event.
+	if (parameters.has('emailField')) {
+		form.elements.email.dispatchEvent(new Event('input'));
+	}
 
 	// The disabled button shows “Sending…”.
 	const submitButton = document.querySelector('#submit-button');

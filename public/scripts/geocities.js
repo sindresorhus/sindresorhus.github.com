@@ -1,44 +1,17 @@
 // The 1999 page: a rainbow trail of sparkles and a word behind the mouse pointer, Zap the Aliens, a game where the visitor zaps the aliens that appear in the holes in the last 30 seconds of 1999, and the toys of a home page: the splash with the sound of a modem, the MIDI jukebox, the pop-up, the Y2K countdown, Glitter the virtual unicorn, the butler, the fun facts, the poll, the visitor counter, the guestbook, the banner ad, the quiz show, the computer report, the Matrix, the downloads, the Display Properties with the wallpaper, the screen savers, the mouse trails, the snow, and the scrolling title, the Konami code, the win of Solitaire, the blue screen of the skull, Snake on a mobile phone, the midnight party of the year 2000, and my computer, a desktop of Windows 98 with Unicorn Paint, Y2K Bugsweeper, a secret diary, Solitaire, a defragmenter, and the Recycle Bin. What the visitor does is kept in the browser.
+// The storage can be missing or full, like in a private window, so each toy also works without it.
+// Saving can fail the same way, and then the toy only forgets what the visitor did when the page closes.
+import {load, save, cloneTemplate, randomItem, clamp, plural, shuffled, midiFrequency, wait, prerendered} from '/scripts/geocities-element.js';
+
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const finePointer = matchMedia('(pointer: fine)');
 const {facts, tunes, quiz} = JSON.parse(document.querySelector('#geocities-data').textContent);
 
 // The speculation rules of the site can prerender the page while the pointer rests on a link to it. The toys wait until the visitor opens it, so a page that nobody opens does not count a visit or make Glitter hungry.
-if (document.prerendering) {
-	await new Promise(resolve => {
-		document.addEventListener('prerenderingchange', resolve, {once: true});
-	});
-}
-
-// The storage can be missing or full, like in a private window, so each toy also works without it.
-const load = (key, fallback) => {
-	try {
-		const value = localStorage.getItem(key);
-		return value === null ? fallback : (JSON.parse(value) ?? fallback);
-	} catch {
-		return fallback;
-	}
-};
-
-// Saving can fail the same way, and then the toy only forgets what the visitor did when the page closes.
-const save = (key, value) => {
-	try {
-		localStorage.setItem(key, JSON.stringify(value));
-	} catch {}
-};
-
-// For the toys that show steps one after the other, like the dial-up and the Y2K check.
-const wait = milliseconds => new Promise(resolve => {
-	setTimeout(resolve, milliseconds);
-});
-
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
+await prerendered;
 
 // How many frames of 60 a second have passed since the last frame, so things move at the same speed on fast and slow screens. It is never negative, as a still frame can be drawn with an older time, and it is at most a few frames, so a long pause does not make things jump.
-const frameScale = (time, lastTime, maximum = 3) => Math.min(Math.max((time - (lastTime ?? time)) / (1000 / 60), 0), maximum);
-
-// Like “1 minute” or “2 minutes”.
-const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
+const frameScale = (time, lastTime, maximum = 3) => clamp((time - (lastTime ?? time)) / (1000 / 60), 0, maximum);
 
 // Removes the element when its animation ends, or is canceled, like when the visitor turns on reduced motion, which hides it.
 const removeWhenDone = (element, onRemove) => {
@@ -80,7 +53,7 @@ const addSparkle = (x, y) => {
 	// 23 degrees is not a divisor of 360, so the colors do not repeat in a short cycle.
 	hue = (hue + 23) % 360;
 	const isStar = Math.random() < 0.4;
-	const sparkle = (isStar ? starTemplate : sparkleTemplate).content.firstElementChild.cloneNode(true);
+	const sparkle = cloneTemplate(isStar ? starTemplate : sparkleTemplate);
 	// Scattered up to 12 pixels around the point, and a little below it, so the trail looks like it falls from the tip of the pointer.
 	sparkle.style.left = `${x + ((Math.random() - 0.5) * 24)}px`;
 	sparkle.style.top = `${y + 12 + ((Math.random() - 0.5) * 24)}px`;
@@ -156,7 +129,7 @@ const followPointer = (x, y) => {
 	target = {x: x + 18, y: y + 18};
 
 	letters ??= trailWord.map(character => {
-		const element = letterTemplate.content.firstElementChild.cloneNode(true);
+		const element = cloneTemplate(letterTemplate);
 		element.textContent = character;
 		document.body.append(element);
 		return {element, ...target};
@@ -284,7 +257,7 @@ const showAlien = () => {
 
 	// Not in a hole that still shows “ZAP!”.
 	const free = holes.filter(hole => !hole.dataset.state);
-	alienHole = free[Math.floor(Math.random() * free.length)];
+	alienHole = randomItem(free);
 	// Glitter peeks out of about one hole in six, but never in the first seconds, so the visitor first learns what an alien looks like.
 	alienHole.dataset.state = secondsLeft < duration - 3 && Math.random() < 0.17 ? 'friend' : 'alien';
 	label(alienHole);
@@ -512,9 +485,6 @@ const freeAudio = () => {
 // Counts the times the music starts and stops, so a Play that waits for the audio device does not start a second copy after another Play or a Stop.
 let playCount = 0;
 
-// The frequency of a MIDI note. Note 69 is the A at 440 Hz, and each note up is a semitone, which is the twelfth root of 2 higher.
-const frequency = note => 440 * (2 ** ((note - 69) / 12));
-
 // Plays the tones together from the time, for the length in seconds.
 const playTones = (frequencies, time, length, destination, type = 'sine') => {
 	for (const value of frequencies) {
@@ -586,7 +556,7 @@ const playTune = ({tune, speed, start, destination}) => {
 
 		if (note > 0) {
 			// Each note fades in quickly and stops before its end, so two notes of the same pitch in a row sound like two notes, not one long one.
-			const oscillator = new OscillatorNode(audioContext, {type: 'square', frequency: frequency(note)});
+			const oscillator = new OscillatorNode(audioContext, {type: 'square', frequency: midiFrequency(note)});
 			const envelope = new GainNode(audioContext, {gain: 0});
 			envelope.gain.setValueAtTime(0, time);
 			envelope.gain.linearRampToValueAtTime(1, time + 0.01);
@@ -761,7 +731,7 @@ const stages = [
 ];
 
 // The saved values are checked, as the storage can hold anything, like the values of an older version of the page.
-const clampHearts = value => Math.min(Math.max(Math.round(Number(value) || 0), 0), maximumHearts);
+const clampHearts = value => clamp(Math.round(Number(value) || 0), 0, maximumHearts);
 const count = value => Math.max(Math.round(Number(value) || 0), 0);
 const stored = load(petKey, {});
 const pet = {
@@ -888,7 +858,7 @@ const floatHearts = amount => {
 	}
 
 	for (let index = 0; index < amount; index++) {
-		const heart = petHeartTemplate.content.firstElementChild.cloneNode(true);
+		const heart = cloneTemplate(petHeartTemplate);
 		heart.style.left = `${20 + (Math.random() * 60)}%`;
 		heart.style.bottom = `${30 + (Math.random() * 30)}%`;
 		removeWhenDone(heart);
@@ -1366,7 +1336,7 @@ const storedEntries = load(guestbookKey, []);
 const savedEntries = Array.isArray(storedEntries) ? storedEntries.filter(entry => typeof entry === 'object' && entry !== null) : [];
 
 const addEntry = entry => {
-	const item = entryTemplate.content.firstElementChild.cloneNode(true);
+	const item = cloneTemplate(entryTemplate);
 
 	// As text, never as HTML, so an entry cannot add markup to the page.
 	for (const field of item.querySelectorAll('[data-field]')) {
@@ -1504,7 +1474,7 @@ let gameQuestions = quiz;
 const currentQuestion = () => gameQuestions[questionIndex];
 
 const shuffleAnswers = question => {
-	const order = question.answers.map((answer, index) => ({index, key: Math.random()})).toSorted((first, second) => first.key - second.key).map(item => item.index);
+	const order = shuffled(question.answers.keys());
 	return {...question, answers: order.map(index => question.answers[index]), correct: order.indexOf(question.correct)};
 };
 
@@ -1712,7 +1682,7 @@ const matrixTemplate = document.querySelector('#geocities-matrix');
 let stopRain;
 
 const rain = () => {
-	const canvas = matrixTemplate.content.firstElementChild.cloneNode(true);
+	const canvas = cloneTemplate(matrixTemplate);
 	canvas.width = innerWidth;
 	canvas.height = innerHeight;
 	document.body.append(canvas);
@@ -1921,7 +1891,7 @@ const showSaver = () => {
 	}
 
 	if (saverKind.value === 'unicorns') {
-		saver = saverTemplate.content.firstElementChild.cloneNode(true);
+		saver = cloneTemplate(saverTemplate);
 
 		for (const unicorn of saver.querySelectorAll('img')) {
 			// A negative delay starts each unicorn in the middle of its flight, so the screen is full right away.
@@ -1931,7 +1901,7 @@ const showSaver = () => {
 			unicorn.style.filter = `hue-rotate(${Math.random() * 360}deg) saturate(2)`;
 		}
 	} else {
-		saver = saverCanvasTemplate.content.firstElementChild.cloneNode(true);
+		saver = cloneTemplate(saverCanvasTemplate);
 		const canvas = saver.querySelector('canvas');
 		canvas.width = innerWidth;
 		canvas.height = innerHeight;
@@ -2058,7 +2028,7 @@ const showSnow = () => {
 	}
 
 	for (let index = 0; index < 30; index++) {
-		const flake = snowTemplate.content.firstElementChild.cloneNode(true);
+		const flake = cloneTemplate(snowTemplate);
 		flake.style.left = `${Math.random() * 100}%`;
 		flake.style.fontSize = `${0.75 + Math.random()}rem`;
 		flake.style.animationDuration = `${7 + (Math.random() * 9)}s`;
@@ -2252,7 +2222,7 @@ const drawLake = time => {
 	for (let row = 0; row < waterHeight; row++) {
 		const depth = row / waterHeight;
 		const shift = Math.sin((row * 0.4) - (time / 250)) * (1 + (depth * 5));
-		const sourceRow = Math.min(Math.max(Math.round(sceneHeight - 1 - row - (Math.sin((row * 0.25) - (time / 400)) * depth * 3)), 0), sceneHeight - 1);
+		const sourceRow = clamp(Math.round(sceneHeight - 1 - row - (Math.sin((row * 0.25) - (time / 400)) * depth * 3)), 0, sceneHeight - 1);
 		lakeContext.drawImage(lakeScene, 0, sourceRow, lakeCanvas.width, 1, shift, sceneHeight + row, lakeCanvas.width, 1);
 	}
 
@@ -2582,7 +2552,7 @@ document.addEventListener('konami', () => {
 		return;
 	}
 
-	parade = paradeTemplate.content.firstElementChild.cloneNode(true);
+	parade = cloneTemplate(paradeTemplate);
 	removeWhenDone(parade);
 	document.body.append(parade);
 });
@@ -2591,7 +2561,7 @@ document.addEventListener('konami', () => {
 const effectTemplate = document.querySelector('#geocities-effect');
 
 const addEffectCanvas = () => {
-	const canvas = effectTemplate.content.firstElementChild.cloneNode(true);
+	const canvas = cloneTemplate(effectTemplate);
 	canvas.width = innerWidth;
 	canvas.height = innerHeight;
 	document.body.append(canvas);
@@ -2713,7 +2683,7 @@ const celebrate = (piles = topRightPiles()) => {
 
 // A screen that covers the whole window, like the blue screen, until any key or click. The key or click that opened it does not close it. The focus goes back to the button that opened it, and a toast says what happened.
 const coverWindow = (template, opener, message) => {
-	const cover = template.content.firstElementChild.cloneNode(true);
+	const cover = cloneTemplate(template);
 	let canClose = false;
 
 	const close = event => {
@@ -2795,8 +2765,8 @@ const taskbar = startMenuButton.parentElement;
 const moveWindow = (appWindow, left, top) => {
 	const maximumLeft = Math.max(desktop.clientWidth - appWindow.offsetWidth, 0);
 	const maximumTop = Math.max(desktop.clientHeight - appWindow.offsetHeight - taskbar.offsetHeight, 0);
-	appWindow.style.left = `${Math.min(Math.max(left, 0), maximumLeft)}px`;
-	appWindow.style.top = `${Math.min(Math.max(top, 0), maximumTop)}px`;
+	appWindow.style.left = `${clamp(left, 0, maximumLeft)}px`;
+	appWindow.style.top = `${clamp(top, 0, maximumTop)}px`;
 };
 
 const closeStartMenu = () => {
@@ -2994,14 +2964,7 @@ clearPicture();
 // Presses the picked button in, and lets the others out.
 const pick = (buttons, picked) => {
 	for (const button of buttons) {
-		const isPicked = button === picked;
-		button.setAttribute('aria-pressed', String(isPicked));
-
-		if (isPicked) {
-			button.dataset.state = 'on';
-		} else {
-			delete button.dataset.state;
-		}
+		button.setAttribute('aria-pressed', String(button === picked));
 	}
 };
 
@@ -3205,8 +3168,8 @@ const paintAt = point => {
 const picturePoint = event => {
 	const rectangle = paintCanvas.getBoundingClientRect();
 	return {
-		x: Math.min(Math.max((event.clientX - rectangle.left) * paintCanvas.width / rectangle.width, 0), paintCanvas.width - 1),
-		y: Math.min(Math.max((event.clientY - rectangle.top) * paintCanvas.height / rectangle.height, 0), paintCanvas.height - 1),
+		x: clamp((event.clientX - rectangle.left) * paintCanvas.width / rectangle.width, 0, paintCanvas.width - 1),
+		y: clamp((event.clientY - rectangle.top) * paintCanvas.height / rectangle.height, 0, paintCanvas.height - 1),
 	};
 };
 
@@ -3284,8 +3247,8 @@ paintCanvas.addEventListener('keydown', event => {
 		// Shift moves faster.
 		const distance = event.shiftKey ? 16 : 4;
 		const from = {...keyboardPoint};
-		keyboardPoint.x = Math.min(Math.max(keyboardPoint.x + (moveX * distance), 0), paintCanvas.width - 1);
-		keyboardPoint.y = Math.min(Math.max(keyboardPoint.y + (moveY * distance), 0), paintCanvas.height - 1);
+		keyboardPoint.x = clamp(keyboardPoint.x + (moveX * distance), 0, paintCanvas.width - 1);
+		keyboardPoint.y = clamp(keyboardPoint.y + (moveY * distance), 0, paintCanvas.height - 1);
 
 		if (isSpaceDown && lastPoint) {
 			drawLine(from, {...keyboardPoint});
@@ -4354,7 +4317,7 @@ const saverDrawers = {
 
 			lastTime = time;
 			// Straight on most of the time, else a turn, to a square that is free.
-			const options = (Math.random() < 0.75 ? [pipe.turn] : []).concat(turns.toSorted(() => Math.random() - 0.5));
+			const options = (Math.random() < 0.75 ? [pipe.turn] : []).concat(shuffled(turns));
 			const turn = options.find(([stepX, stepY]) => {
 				const x = pipe.x + stepX;
 				const y = pipe.y + stepY;
@@ -4561,7 +4524,7 @@ showMonitor();
 const trailDotTemplate = document.querySelector('#geocities-trail-dot');
 
 const addTrailDot = (look, content = '') => {
-	const dot = trailDotTemplate.content.firstElementChild.cloneNode(true);
+	const dot = cloneTemplate(trailDotTemplate);
 	dot.textContent = content;
 	Object.assign(dot.style, look);
 	document.body.append(dot);
@@ -4734,7 +4697,7 @@ const effectState = (state, milliseconds) => {
 // Things that rain down the window for a few seconds, using the snowflakes as the falling parts.
 const rainDown = (text, amount) => {
 	const drops = Array.from({length: amount}, () => {
-		const drop = snowTemplate.content.firstElementChild.cloneNode(true);
+		const drop = cloneTemplate(snowTemplate);
 		drop.textContent = text;
 		drop.style.left = `${Math.random() * 100}%`;
 		drop.style.fontSize = `${1.5 + Math.random()}rem`;
@@ -4823,7 +4786,6 @@ const bigButtons = {
 		showToast('Taste the rainbow!');
 	},
 };
-
 
 for (const button of document.querySelectorAll('[data-big-button]')) {
 	button.addEventListener('click', () => {

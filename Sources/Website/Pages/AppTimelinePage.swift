@@ -33,7 +33,6 @@ struct AppTimelinePage: Page {
 								li {
 									a(.href(app.url)) {
 										AppIcon(decorative: app, size: 48)
-											.style(Styles.icon)
 
 										span {
 											span {
@@ -112,7 +111,6 @@ extension AppTimelinePage {
 		case yearItem
 		case year
 		case app
-		case icon
 		case appTitle
 		case subtitle
 		case moreLinks
@@ -133,13 +131,17 @@ extension AppTimelinePage {
 					.position(.relative)
 					.padding(.leading, .rootEm(1.75))
 					.padding(.bottom, .rootEm(2.5))
+					// The line ends at the last app, like the line of the steps.
+					.lastChild {
+						$0.padding(.bottom, 0)
+					}
 					.before {
 						$0
 							.content("")
 							.position(.absolute)
 							.top(.rootEm(0.625))
 							.leading(.rootEm(-0.4375))
-							.frame(width: .rootEm(0.75), height: .rootEm(0.75))
+							.frame(size: .rootEm(0.75))
 							.cornerRadius(.circle)
 							.backgroundImage(.brandGradient)
 					}
@@ -154,15 +156,12 @@ extension AppTimelinePage {
 					.hstack(alignment: .center, spacing: .rootEm(0.875))
 					.margin(.horizontal, .rootEm(-0.5))
 					.padding(.rootEm(0.5))
-					.cornerRadius(.rootEm(0.75))
+					.cornerRadius(.fieldRadius)
 					.transition(.backgroundColor, animation: .stateChange)
-					.hover {
-						$0.background(.gray(100), dark: .white.opacity(0.05))
+					// The fill of a card only under the pointer or with the focus of the keyboard, so a long list of years stays calm. The app picker of the feedback page, a short list of choices, has the fill at rest.
+					.hoverOrFocusVisible {
+						$0.background(.card)
 					}
-			case .icon:
-				Style()
-					.flexShrink(0)
-					.cornerRadius(.rootEm(0.625))
 			case .appTitle:
 				Style()
 					.fontWeight(.semibold)

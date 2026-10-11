@@ -80,7 +80,12 @@ enum PageHeaderStyles: StyleSet {
 				.secondaryText(.lead)
 				.textLinks()
 		case .centered:
-			Style().textAlign(.center)
+			Style()
+				.textAlign(.center)
+				// Centered lines of similar lengths, like a heading, instead of a short last line.
+				.nested(Self.intro.selector) {
+					$0.textWrap(.balance)
+				}
 		}
 	}
 }

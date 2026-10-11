@@ -1,9 +1,10 @@
+import SOML
 import SwiftIDEUtils
 import SwiftParser
 import SwiftSyntax
 
 /**
-A kind of token that highlighted code colors, like a keyword. See ``Swift/String/swiftCodeParts``.
+A kind of token that highlighted code colors, like a keyword. See ``Swift/String/swiftCodeParts`` and ``Swift/String/somlCodeParts``.
 */
 public enum CodeToken: String, CaseIterable, Sendable {
 	case keyword
@@ -41,6 +42,26 @@ public enum CodeToken: String, CaseIterable, Sendable {
 		case .lineComment, .blockComment, .docLineComment, .docBlockComment:
 			self = .comment
 		case .argumentLabel, .dollarIdentifier, .editorPlaceholder, .identifier, .none, .operator:
+			return nil
+		}
+	}
+
+	/**
+	The kind of a token that the lexer of SOML classified, or `nil` for a token that is not colored, like punctuation. A key has the color of the name of a declaration, and an instant and a duration have the color of a number.
+	*/
+	init?(_ kind: SOML.Token.Kind) {
+		switch kind {
+		case .comment:
+			self = .comment
+		case .key:
+			self = .declaration
+		case .string, .escape:
+			self = .string
+		case .number, .instant, .duration:
+			self = .number
+		case .keyword:
+			self = .keyword
+		case .punctuation, .invalid:
 			return nil
 		}
 	}
@@ -159,6 +180,39 @@ extension String {
 			}
 
 			parts.append((text, token))
+		}
+
+		return parts
+	}
+
+	/**
+	The parts of SOML code for syntax highlighting, in order, with the kind of each part that is colored, like ``swiftCodeParts``. Together, the parts are the whole code, also the whitespace.
+
+	The lexer of SOML never fails, so it also highlights a part of a document.
+	*/
+	public var somlCodeParts: [(text: String, token: CodeToken?)] {
+		// TODO: Use `SOML.Token.parts(in:)` when a version of SOMLSwift with it is out. It gives the text between the tokens too, so this only maps the kinds: `SOML.Token.parts(in: self).map { (String($0.text), $0.kind.flatMap(CodeToken.init)) }`.
+		let bytes = Array(utf8)
+
+		var parts = [(text: String, token: CodeToken?)]()
+		var end = 0
+
+		func append(_ range: Range<Int>, _ token: CodeToken?) {
+			parts.append((String(decoding: bytes[range], as: UTF8.self), token))
+		}
+
+		// The tokens do not cover the whitespace, so the text between them is a part without a kind.
+		for token in SOML.Token.tokens(in: self) {
+			if token.range.lowerBound > end {
+				append(end..<token.range.lowerBound, nil)
+			}
+
+			append(token.range, CodeToken(token.kind))
+			end = token.range.upperBound
+		}
+
+		if bytes.count > end {
+			append(end..<bytes.count, nil)
 		}
 
 		return parts

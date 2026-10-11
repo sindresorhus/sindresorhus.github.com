@@ -73,8 +73,9 @@ struct CopyButton: ScriptedElement {
 					}
 					.style(Styles.label)
 
+					// A thicker line than other icons, so the checkmark is easy to see in the small button.
 					span {
-						Icon.check.size(.rootEm(1.125))
+						Icon.check.size(.rootEm(1.125), strokeWidth: 2.75)
 					}
 					.style(Styles.checkmark)
 				}
@@ -87,6 +88,10 @@ struct CopyButton: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.retroButton)
 		}
+	}
+
+	enum States: String, ElementStateSet {
+		case copied
 	}
 
 	enum Styles: ElementStyleSet {
@@ -104,28 +109,9 @@ struct CopyButton: ScriptedElement {
 				Style().display(.grid)
 			case .label:
 				// The title fades out, and the checkmark grows in, centered in the space of the title.
-				Style()
-					.stackedInGrid()
-					.transition(.opacity, animation: .stateChange)
-					.when(ancestorHas: .state, is: "copied") {
-						$0.opacity(0)
-					}
+				Style().copyLabel(hiddenWhen: States.copied)
 			case .checkmark:
-				Style()
-					.stackedInGrid()
-					.hstack(alignment: .center, justification: .center)
-					// A thicker line than other icons, so the checkmark is easy to see in the small button.
-					.nested("svg") {
-						$0.declaration(.strokeWidth, 2.75)
-					}
-					.opacity(0)
-					.scaleEffect(0.5)
-					.transition(.opacity, .scaleEffect, animation: .pop)
-					.when(ancestorHas: .state, is: "copied") {
-						$0
-							.opacity(1)
-							.scaleEffect(1)
-					}
+				Style().copiedCheckmark(when: States.copied)
 			}
 		}
 	}

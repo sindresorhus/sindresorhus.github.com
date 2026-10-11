@@ -857,7 +857,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 					.border(Color("#444444"), width: .pixels(3), style: .inset)
 					.cornerRadius(.rootEm(0.75))
 			case .screen:
-				// While an event is on, a finger on the screen does not scroll the page, as the events are played with the buttons below it.
+				// A double tap on the screen does not zoom, as the events are played with the buttons below it. A finger on the screen still scrolls the page.
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
@@ -889,7 +889,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 				Style().hstack(alignment: .center, justification: .center, spacing: .rootEm(3))
 			case .padButton:
 				Style()
-					.frame(width: .rootEm(3), height: .rootEm(3))
+					.frame(size: .rootEm(3))
 					.background(Color("#3a5a9a"))
 					.border(Color("#7a9ada"), width: .pixels(3), style: .outset)
 					.cornerRadius(.rootEm(0.5))
@@ -904,7 +904,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 			case .actionButton:
 				// The big round button, which says what it does in the event, like JUMP.
 				Style()
-					.frame(width: .rootEm(5), height: .rootEm(5))
+					.frame(size: .rootEm(5))
 					.background(Color("#cc1a2a"))
 					.border(Color("#ff7a7a"), width: .pixels(4), style: .outset)
 					.cornerRadius(.percent(50))
@@ -972,7 +972,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 			case .eventButton:
 				Style()
 					.vstack(alignment: .start, spacing: 0)
-					.frame(width: .percent(100), height: .percent(100))
+					.frame(size: .percent(100))
 					.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.625))
 					.background(Color("#ffffff"))
 					.border(Color("#dfdfdf"), width: .pixels(3), style: .outset)
@@ -981,6 +981,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 					.textAlign(.leading)
 					.color(.black)
 					.handCursor()
+					.buttonFocusRing()
 					.hover {
 						$0.background(Color("#ffffcc"))
 					}

@@ -103,27 +103,27 @@ struct GeoCitiesBeeper: ScriptedElement {
 				button(.part(Parts.sound), .type(.button), .ariaPressed(false)) {
 					"🔊 Sound (Beeps!)"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.tool, Styles.toggle)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton, Styles.toggle)
 
 				button(.part(Parts.flip), .type(.button), .ariaPressed(false)) {
 					"🙃 Upside Down"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.tool, Styles.toggle)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton, Styles.toggle)
 
 				button(.part(Parts.over), .type(.button), .ariaPressed(false)) {
 					"🔄 Turn It Over"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.tool, Styles.toggle)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton, Styles.toggle)
 
 				button(.part(Parts.bed), .type(.button)) {
 					"🛏 Go to Bed"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.tool)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 
 				button(.part(Parts.pickUp), .type(.button), .hidden) {
 					"🫳 Pick It Up"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.tool, Styles.urgent)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton, Styles.urgent)
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
@@ -131,12 +131,12 @@ struct GeoCitiesBeeper: ScriptedElement {
 				button(.part(Parts.drawer), .type(.button)) {
 					"🔋 Battery from Pappa’s Drawer"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.tool)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 
 				button(.part(Parts.remote), .type(.button)) {
 					"📺 Battery from the TV Remote"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.tool)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 		}
@@ -269,17 +269,17 @@ struct GeoCitiesBeeper: ScriptedElement {
 					button(.part(Parts.take), .type(.button), .hidden) {
 						"🪙 Take the Coins from the Cup"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.tool, Styles.urgent)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton, Styles.urgent)
 
 					button(.part(Parts.narvesen), .type(.button)) {
 						"🏪 Buy a Telekort at Narvesen (40 kr)"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.tool)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 
 					button(.part(Parts.allowance), .type(.button)) {
 						"👩 Ask Mamma for Lommepenger"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.tool)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 				}
 				.style(GeoCitiesPage.Styles.buttonRow)
 			}
@@ -331,12 +331,12 @@ struct GeoCitiesBeeper: ScriptedElement {
 					button(.part(Parts.phoneBookPrevious), .type(.button)) {
 						"◀ Page"
 					}
-					.style(GeoCitiesPage.Styles.smallButton)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 					button(.part(Parts.phoneBookNext), .type(.button)) {
 						"Page ▶"
 					}
-					.style(GeoCitiesPage.Styles.smallButton)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 				}
 				.style(GeoCitiesPage.Styles.buttonRow)
 			}
@@ -472,6 +472,11 @@ struct GeoCitiesBeeper: ScriptedElement {
 		case memory
 	}
 
+	enum States: String, ElementStateSet {
+		case right
+		case wrong
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		A key of the keypad of the phone, with what it types: a digit, `*`, or `#`.
@@ -505,7 +510,6 @@ struct GeoCitiesBeeper: ScriptedElement {
 		case boothCanvas
 		case pagerButtons
 		case pagerButton
-		case tool
 		case toggle
 		case urgent
 		case wide
@@ -574,9 +578,7 @@ struct GeoCitiesBeeper: ScriptedElement {
 					.border(Color("#808080"), width: .pixels(2), style: .inset)
 					.background(.black)
 					.touchAction(.manipulation)
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .tableCanvas:
 				Style().aspectRatio(320.0 / 220.0)
 			case .boothCanvas:
@@ -602,28 +604,16 @@ struct GeoCitiesBeeper: ScriptedElement {
 					.active {
 						$0.border(Color("#5a1f8f"), width: .pixels(2), style: .inset)
 					}
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
-			case .tool:
-				Style().frame(minHeight: .rootEm(2.25))
+					.canvasFocusRing()
 			case .toggle:
 				Style()
-					.when(.state, is: "on") {
-						$0
-							.background(Color("#ffff99"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
+					.pressedIn(Color("#ffff99"))
 			case .urgent:
 				Style().background(Color("#ffcc66"))
 			case .wide:
 				Style().frame(width: .percent(100), minHeight: .rootEm(2.5))
 			case .status:
-				Style()
-					.frame(minHeight: .lineHeight(3))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+				Style().toyStatus(lines: 3)
 			case .phone:
 				// The gray metal card phone of Telenor, bolted to the wall of the booth.
 				Style()
@@ -737,7 +727,7 @@ struct GeoCitiesBeeper: ScriptedElement {
 						$0.scaleEffect(0.92)
 					}
 					.disabled {
-						$0.opacity(0.4)
+						$0.opacity(0.5)
 					}
 					.focusVisible {
 						$0.focusRing(Color("#ffff66"), width: .pixels(2), offset: .pixels(1))
@@ -754,21 +744,21 @@ struct GeoCitiesBeeper: ScriptedElement {
 				// The hole in the middle of the coins of 1 and 5 kroner, where the blue of my jacket pocket shows through.
 				Style()
 					.display(.block)
-					.frame(width: .percent(28), height: .percent(28))
+					.frame(size: .percent(28))
 					.cornerRadius(.circle)
 					.background(Color("#2c3e6b"))
 					.border(Color("#00000066"), width: .pixels(1), style: .inset)
 			case .oneKrone:
 				Style()
-					.frame(width: .rootEm(2.1), height: .rootEm(2.1))
+					.frame(size: .rootEm(2.1))
 					.backgroundImage(.radialGradient("circle at 35% 30%", Color("#ffffff"), Color("#c4c8cc"), Color("#7d838a")))
 			case .fiveKroner:
 				Style()
-					.frame(width: .rootEm(2.6), height: .rootEm(2.6))
+					.frame(size: .rootEm(2.6))
 					.backgroundImage(.radialGradient("circle at 35% 30%", Color("#ffffff"), Color("#bcc1c6"), Color("#70767d")))
 			case .tenKroner:
 				Style()
-					.frame(width: .rootEm(2.4), height: .rootEm(2.4))
+					.frame(size: .rootEm(2.4))
 					.backgroundImage(.radialGradient("circle at 35% 30%", Color("#fff3b0"), Color("#d9b440"), Color("#8a6a10")))
 			case .pocketLine:
 				Style()
@@ -816,24 +806,17 @@ struct GeoCitiesBeeper: ScriptedElement {
 					.grid(minimumColumnWidth: .rootEm(10))
 					.gap(.rootEm(0.375))
 			case .choice:
-				Style()
+				GeoCitiesPage.Styles.retroButton.style
 					.frame(minHeight: .rootEm(2.75))
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
-					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(3), style: .outset)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
-					.color(.black)
-					.handCursor()
-					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
-					}
-					.when(.state, is: "right") {
+					.when(States.right) {
 						$0
 							.background(Color("#99ff99"))
 							.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
 					}
-					.when(.state, is: "wrong") {
+					.when(States.wrong) {
 						$0
 							.background(Color("#ff9999"))
 							.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)

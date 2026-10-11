@@ -1,4 +1,6 @@
 // Kai’s Power Goo on the desktop of the 1999 page: a face that the brush warps like liquid, with the tools of Power Goo, the Goo Movie, Undo, and Save as PNG. The faces are drawn here, on a canvas of 256 × 256.
+import GeoCitiesElement, {clamp} from '/scripts/geocities-element.js';
+
 const size = 256;
 
 // The goo is a field of moves on a grid of 65 × 65 points, 4 pixels apart: each pixel of the face shows the pixel of the picture that the field moves it to. The tools change the field, never the picture, so Ungoo and Undo can always go back.
@@ -7,8 +9,8 @@ const grid = (size / spacing) + 1;
 
 // The field between the points of the grid.
 const sampleField = (fieldXValues, fieldYValues, x, y) => {
-	const gridX = Math.min(Math.max(x / spacing, 0), grid - 1.001);
-	const gridY = Math.min(Math.max(y / spacing, 0), grid - 1.001);
+	const gridX = clamp(x / spacing, 0, grid - 1.001);
+	const gridY = clamp(y / spacing, 0, grid - 1.001);
 	const left = Math.floor(gridX);
 	const top = Math.floor(gridY);
 	const fractionX = gridX - left;
@@ -422,7 +424,7 @@ const faceMessages = {
 	mona: 'The Mona Lisa, as I copied it in Paint. Leonardo took 4 years. I took 20 minutes.',
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesWindowsGoo extends GeoCitiesElement {
 	#context;
 	#output;
 	#fieldX = new Float32Array(grid * grid);
@@ -499,7 +501,7 @@ export default class extends GeoCitiesElement {
 				event.preventDefault();
 				const step = event.shiftKey ? 20 : 6;
 				this.#brush.isVisible = true;
-				this.#moveBrush(Math.min(Math.max(this.#brush.x + (arrow[0] * step), 0), size), Math.min(Math.max(this.#brush.y + (arrow[1] * step), 0), size));
+				this.#moveBrush(clamp(this.#brush.x + (arrow[0] * step), 0, size), clamp(this.#brush.y + (arrow[1] * step), 0, size));
 			} else if (event.key === ' ') {
 				event.preventDefault();
 
@@ -644,8 +646,8 @@ export default class extends GeoCitiesElement {
 		for (let y = 0; y < size; y++) {
 			for (let x = 0; x < size; x++) {
 				const [moveX, moveY] = sampleField(this.#fieldX, this.#fieldY, x, y);
-				const sourceX = Math.min(Math.max(x + (moveX * amount), 0), size - 1);
-				const sourceY = Math.min(Math.max(y + (moveY * amount), 0), size - 1);
+				const sourceX = clamp(x + (moveX * amount), 0, size - 1);
+				const sourceY = clamp(y + (moveY * amount), 0, size - 1);
 				const left = Math.floor(sourceX);
 				const top = Math.floor(sourceY);
 				const right = Math.min(left + 1, size - 1);
@@ -830,14 +832,7 @@ export default class extends GeoCitiesElement {
 		this.#tool = name;
 
 		for (const button of this.querySelectorAll('[data-goo-tool]')) {
-			const isPicked = button.dataset.gooTool === name;
-			button.setAttribute('aria-pressed', String(isPicked));
-
-			if (isPicked) {
-				button.dataset.state = 'on';
-			} else {
-				delete button.dataset.state;
-			}
+			button.setAttribute('aria-pressed', String(button.dataset.gooTool === name));
 		}
 	}
 
@@ -885,3 +880,5 @@ export default class extends GeoCitiesElement {
 		this.#show();
 	}
 }
+
+customElements.define('geo-cities-windows-goo', GeoCitiesWindowsGoo);

@@ -57,7 +57,6 @@ struct NotFoundPage: Page {
 					p(.id(Hooks.closestPage), .hidden) {
 						"Did you mean "
 						a(.id(Hooks.closestPageLink), .href(.root)) {}
-							.style(Styles.closestPageLink)
 						"?"
 					}
 					.style(Styles.closestPage)
@@ -92,8 +91,17 @@ struct NotFoundPage: Page {
 		.style(Styles.root)
 
 		// Not the home page, which is close to every short path, and already has a button.
-		JSONScript(id: Hooks.data, ["paths": suggestedPaths.filter { $0 != .root }])
+		JSONScript(id: Hooks.data, ScriptData(paths: suggestedPaths.filter { $0 != .root }))
 		ModuleScript("/scripts/not-found.js")
+	}
+}
+
+extension NotFoundPage {
+	/**
+	The data that `not-found.js` reads: the paths of the pages that the URL is close to.
+	*/
+	private struct ScriptData: Encodable {
+		let paths: [RoutePath]
 	}
 }
 
@@ -116,7 +124,6 @@ extension NotFoundPage {
 		case title
 		case message
 		case closestPage
-		case closestPageLink
 		case buttons
 		case apps
 
@@ -156,7 +163,6 @@ extension NotFoundPage {
 					.rotationEffect(.degrees(-8))
 			case .title:
 				Style()
-					.margin(0)
 					.textStyle(.title)
 					.color(.primaryText)
 			case .message:
@@ -167,8 +173,7 @@ extension NotFoundPage {
 				Style()
 					.margin(.bottom, .rootEm(2))
 					.textStyle(.lead, weight: .medium)
-			case .closestPageLink:
-				Style().textLink()
+					.textLinks()
 			case .buttons:
 				Style()
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.75))

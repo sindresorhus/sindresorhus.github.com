@@ -72,6 +72,15 @@ extension ContentDocument {
 	}
 }
 
+extension Project {
+	/**
+	The project of the site at the root, with the path of the pages of each content type, so the files of a page bundle are published next to its page, like `/dato/icon.png` for `content/apps/dato/icon.png` and `/blog/post/image.png` for `content/blog/post/image.png`.
+	*/
+	public static func site(root: URL) -> Self {
+		Self(root: root, pageRoutes: [App.directory: .root, BlogPost.directory: .blog, MarkdownPage.directory: .root])
+	}
+}
+
 extension RoutePath {
 	/**
 	The path of the page of a content file, like `/dato` for `content/apps/dato/index.md`, by the path rule of its content type. `nil` when the file is not in the directory of a content type with pages.
@@ -104,7 +113,7 @@ extension RoutePath {
 
 extension MarkdownFile {
 	/**
-	A link in the file, with a link to another content file, like `dato.md` or `../pages/about.md`, as the path of its page, and a link to a file of its page bundle, like `screenshot.png`, as the path of the published file. Other links stay as they are.
+	A link in the file, with a link to another content file, like `dato.md` or `../pages/about.md`, as the path of its page, and a link to a file of its page bundle, like `screenshot.png`, as the path of the published file. Other links stay as they are. A relative link with a file extension to a file that does not exist is an error, like a typo in a file name.
 	*/
 	func resolvingLink(_ destination: String, project: Project) throws(ContentError) -> String {
 		let path = String(destination.prefix { $0 != "#" })
@@ -122,7 +131,21 @@ extension MarkdownFile {
 
 		// A file of the page bundle, like `screenshot.png` next to `index.md`.
 		guard path.hasSuffix(".md") else {
-			return project.publicPath(ofContentFile: target).map { $0.description + fragment } ?? destination
+			if let publicPath = project.publicPath(ofContentFile: target) {
+				return publicPath.description + fragment
+			}
+
+			// A link with a file extension goes to a file, so a missing one is a mistake, like a typo. A link without one, like `donate`, goes to a page.
+			guard target.pathExtension.isEmpty else {
+				guard target.isFile else {
+					throw ContentError(reason: "The link `\(destination)` goes to a file that does not exist next to the page.")
+				}
+
+				// Like a file next to a page that is a single Markdown file.
+				throw ContentError(reason: "The link `\(destination)` goes to a file that is not published. Only the files directly next to the `index.md` of a page bundle are published.")
+			}
+
+			return destination
 		}
 
 		guard

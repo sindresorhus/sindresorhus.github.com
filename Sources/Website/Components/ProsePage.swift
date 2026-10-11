@@ -100,8 +100,7 @@ enum ProsePageStyles: StyleSet {
 		case .root:
 			// As wide as the prose, which has the space of the page at its sides, so the header lines up with the text, and the title is where the titles of the other pages are (``Style/pagePadding()``).
 			Style()
-				.frame(maxWidth: Style.ColumnWidth.prose.maximum)
-				.margin(.horizontal, .auto)
+				.centeredColumn(.prose)
 				.pagePadding()
 				.from(.tablet) {
 					$0.frame(minHeight: .smallViewportHeight(100))
@@ -118,7 +117,9 @@ enum ProsePageStyles: StyleSet {
 				.frame(height: .lineHeight(1))
 				.margin(.bottom, .rootEm(1.5))
 		case .photo:
+			// It is in the prose, so it starts without the margins and the shadow of the images of prose.
 			Style()
+				.plainImage()
 				.float(.trailing)
 				// Next to the first paragraph, and not taller than it, so the second paragraph starts below it, and its first line is not short.
 				.frame(width: .pixels(112))

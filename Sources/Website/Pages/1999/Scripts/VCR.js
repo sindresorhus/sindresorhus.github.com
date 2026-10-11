@@ -1,60 +1,8 @@
 // The VCR under the TV in our living room on the 1999 page: the TV with the rabbit ears, the channels, and the Degauss button, and the VCR with the blinking clock, the tapes, the tracking, the recordings, the ShowView timer, and the tape that it eats. The picture is drawn on a canvas, which runs only while the toy is on the screen and the tab is visible. With reduced motion, nothing moves by itself: the picture is a still frame, which changes with each press. Nothing makes a sound until the visitor turns on the sound. The clock, the tapes, and the fees are kept in the browser.
-
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
+import GeoCitiesElement, {clamp, randomItem, hash} from '/scripts/geocities-element.js';
+import {canvasPoint, fillEllipse, fillPolygon, makeCanvas, drawPixelText} from '/scripts/geocities-canvas.js';
 
 const now = () => performance.now() / 1000;
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
-
-// A number between 0 and 1 that is always the same for the same seed, for the things that must not flicker, like the places of the rain drops.
-const hash = seed => {
-	const value = Math.sin(seed * 127.1 + 311.7) * 43_758.5453;
-	return value - Math.floor(value);
-};
-
-// A tiny pixel font of 3 × 5, for the menus on the screen of the TV, which were blocky like this. Each letter is five rows of three bits.
-const pixelFont = {
-	A: [2, 5, 7, 5, 5], B: [6, 5, 6, 5, 6], C: [3, 4, 4, 4, 3], D: [6, 5, 5, 5, 6], E: [7, 4, 6, 4, 7], F: [7, 4, 6, 4, 4], G: [3, 4, 5, 5, 3], H: [5, 5, 7, 5, 5], I: [7, 2, 2, 2, 7], J: [1, 1, 1, 5, 2], K: [5, 5, 6, 5, 5], L: [4, 4, 4, 4, 7], M: [5, 7, 7, 5, 5], N: [6, 5, 5, 5, 5], O: [2, 5, 5, 5, 2], P: [6, 5, 6, 4, 4], Q: [2, 5, 5, 6, 3], R: [6, 5, 6, 5, 5], S: [3, 4, 2, 1, 6], T: [7, 2, 2, 2, 2], U: [5, 5, 5, 5, 7], V: [5, 5, 5, 5, 2], W: [5, 5, 7, 7, 5], X: [5, 5, 2, 5, 5], Y: [5, 5, 2, 2, 2], Z: [7, 1, 2, 4, 7],
-	0: [7, 5, 5, 5, 7], 1: [2, 6, 2, 2, 7], 2: [6, 1, 2, 4, 7], 3: [6, 1, 2, 1, 6], 4: [5, 5, 7, 1, 1], 5: [7, 4, 6, 1, 6], 6: [3, 4, 7, 5, 7], 7: [7, 1, 2, 2, 2], 8: [7, 5, 7, 5, 7], 9: [7, 5, 7, 1, 6],
-	' ': [0, 0, 0, 0, 0], '.': [0, 0, 0, 0, 2], ',': [0, 0, 0, 2, 4], '!': [2, 2, 2, 0, 2], '?': [6, 1, 2, 0, 2], ':': [0, 2, 0, 2, 0], '-': [0, 0, 7, 0, 0], '+': [0, 2, 7, 2, 0], '/': [1, 1, 2, 4, 4], '\'': [2, 2, 0, 0, 0], '(': [1, 2, 2, 2, 1], ')': [4, 2, 2, 2, 4], '°': [2, 5, 2, 0, 0], '<': [1, 2, 4, 2, 1], '>': [4, 2, 1, 2, 4], '=': [0, 7, 0, 7, 0], '%': [5, 1, 2, 4, 5], '♥': [0, 5, 7, 7, 2], '*': [0, 5, 2, 5, 0],
-	Æ: [3, 6, 7, 6, 7], Ø: [3, 5, 7, 5, 6], Å: [2, 0, 2, 5, 7],
-};
-
-// Draws text in the pixel font, at whole pixels, with a scale for bigger letters. The alignment is `left`, `center`, or `right`.
-const drawPixelText = (context, text, x, y, color, {scale = 1, align = 'left', shadow} = {}) => {
-	const characters = [...String(text).toUpperCase()];
-	const width = ((characters.length * 4) - 1) * scale;
-	const start = Math.round(align === 'center' ? x - (width / 2) : (align === 'right' ? x - width : x));
-
-	for (const [layer, fill] of [[1, shadow], [0, color]]) {
-		if (!fill) {
-			continue;
-		}
-
-		let left = start + (layer * scale);
-		context.fillStyle = fill;
-
-		for (const character of characters) {
-			const rows = pixelFont[character] ?? pixelFont['?'];
-			for (const [row, bits] of rows.entries()) {
-				for (let column = 0; column < 3; column++) {
-					if (bits & (4 >> column)) {
-						context.fillRect(left + (column * scale), Math.round(y) + (row * scale) + (layer * scale), scale, scale);
-					}
-				}
-			}
-
-			left += 4 * scale;
-		}
-	}
-};
 
 const channelNames = ['AV', 'NRK1', 'TV 2', 'TVNorge'];
 const channelName = channel => channelNames[channel] ?? `channel ${channel}`;
@@ -132,30 +80,8 @@ const fillRectangle = (context, x, y, rectangleWidth, rectangleHeight, color) =>
 	context.fillRect(x, y, rectangleWidth, rectangleHeight);
 };
 
-const fillEllipse = (context, x, y, radiusX, radiusY, color) => {
-	context.fillStyle = color;
-	context.beginPath();
-	context.ellipse(x, y, Math.max(radiusX, 0.1), Math.max(radiusY, 0.1), 0, 0, Math.PI * 2);
-	context.fill();
-};
-
-const fillCircle = (context, x, y, radius, color) => {
-	fillEllipse(context, x, y, radius, radius, color);
-};
-
-const fillPolygon = (context, points, color) => {
-	context.fillStyle = color;
-	context.beginPath();
-	for (const [index, [x, y]] of points.entries()) {
-		if (index === 0) {
-			context.moveTo(x, y);
-		} else {
-			context.lineTo(x, y);
-		}
-	}
-
-	context.closePath();
-	context.fill();
+const fillCircle = (context, color, x, y, radius) => {
+	fillEllipse(context, color, x, y, radius, radius);
 };
 
 const verticalGradient = (context, top, bottom, colors) => {
@@ -204,13 +130,13 @@ const drawPerson = (context, x, y, {size = 60, skin = '#f0c8a0', hair = '#6a4a2a
 		context.stroke();
 	}
 
-	fillCircle(context, x, y - (51 * unit), 8 * unit, skin);
+	fillCircle(context, skin, x, y - (51 * unit), 8 * unit);
 	if (hairStyle === 'long') {
-		fillEllipse(context, x, y - (50 * unit), 10 * unit, 11 * unit, hair);
-		fillCircle(context, x, y - (50 * unit), 7 * unit, skin);
+		fillEllipse(context, hair, x, y - (50 * unit), 10 * unit, 11 * unit);
+		fillCircle(context, skin, x, y - (50 * unit), 7 * unit);
 		fillRectangle(context, x - (7 * unit), y - (60 * unit), 14 * unit, 5 * unit, hair);
 	} else if (hairStyle === 'short') {
-		fillEllipse(context, x, y - (57 * unit), 8 * unit, 4 * unit, hair);
+		fillEllipse(context, hair, x, y - (57 * unit), 8 * unit, 4 * unit);
 	}
 
 	fillRectangle(context, x - (3 * unit), y - (53 * unit), 1.5 * unit, 1.5 * unit, '#222222');
@@ -239,10 +165,10 @@ const drawSimpsons = (context, time, isReducedMotion) => {
 	fillRectangle(context, 0, 180, width, 60, '#7a8a4a');
 	fillRectangle(context, 120, 30, 80, 50, '#7a4a2a');
 	fillRectangle(context, 124, 34, 72, 42, '#88c8f0');
-	fillPolygon(context, [[150, 70], [160, 40], [172, 70]], '#ffffff');
+	fillPolygon(context, '#ffffff', [[150, 70], [160, 40], [172, 70]]);
 	fillRectangle(context, 140, 70, 40, 4, '#7a4a2a');
 	fillRectangle(context, 30, 60, 6, 120, '#444444');
-	fillPolygon(context, [[18, 60], [48, 60], [40, 40], [26, 40]], '#f0e090');
+	fillPolygon(context, '#f0e090', [[18, 60], [48, 60], [40, 40], [26, 40]]);
 	fillRectangle(context, 60, 120, 200, 60, '#9a6a3a');
 	fillRectangle(context, 50, 110, 18, 75, '#8a5a2a');
 	fillRectangle(context, 252, 110, 18, 75, '#8a5a2a');
@@ -257,24 +183,24 @@ const drawSimpsons = (context, time, isReducedMotion) => {
 		{x: 95, draw: x => {
 			fillRectangle(context, x - 14, 120, 28, 40, '#ffffff');
 			fillRectangle(context, x - 14, 150, 28, 22, '#4a6ad0');
-			fillCircle(context, x, 106, 14, yellow);
-			fillEllipse(context, x, 116, 10, 6, '#c8a070');
+			fillCircle(context, yellow, x, 106, 14);
+			fillEllipse(context, '#c8a070', x, 116, 10, 6);
 		}},
 		{x: 140, draw: x => {
-			fillEllipse(context, x, 70, 12, 32, '#2a5cff');
+			fillEllipse(context, '#2a5cff', x, 70, 12, 32);
 			fillRectangle(context, x - 12, 118, 24, 52, '#7ac83a');
-			fillCircle(context, x, 106, 11, yellow);
+			fillCircle(context, yellow, x, 106, 11);
 		}},
 		{x: 178, draw: x => {
 			fillRectangle(context, x - 10, 128, 20, 22, '#ff7a1a');
 			fillRectangle(context, x - 10, 150, 20, 18, '#3a5ac8');
-			fillPolygon(context, [[x - 11, 112], [x - 9, 100], [x - 5, 106], [x - 1, 98], [x + 3, 106], [x + 7, 99], [x + 11, 112]], yellow);
-			fillCircle(context, x, 116, 11, yellow);
+			fillPolygon(context, yellow, [[x - 11, 112], [x - 9, 100], [x - 5, 106], [x - 1, 98], [x + 3, 106], [x + 7, 99], [x + 11, 112]]);
+			fillCircle(context, yellow, x, 116, 11);
 		}},
 		{x: 214, draw: x => {
 			fillRectangle(context, x - 10, 130, 20, 36, '#e8402a');
-			fillCircle(context, x, 120, 10, yellow);
-			fillPolygon(context, [[x - 13, 116], [x - 6, 112], [x, 104], [x + 6, 112], [x + 13, 116], [x, 118]], yellow);
+			fillCircle(context, yellow, x, 120, 10);
+			fillPolygon(context, yellow, [[x - 13, 116], [x - 6, 112], [x, 104], [x + 6, 112], [x + 13, 116], [x, 118]]);
 		}},
 	];
 
@@ -285,8 +211,8 @@ const drawSimpsons = (context, time, isReducedMotion) => {
 		seat.draw(seat.x);
 		const eyeY = [104, 104, 114, 118][index];
 		for (const eyeX of [seat.x - 4, seat.x + 4]) {
-			fillCircle(context, eyeX, eyeY, 4, '#ffffff');
-			fillCircle(context, eyeX + 1, eyeY, 1.2, '#111111');
+			fillCircle(context, '#ffffff', eyeX, eyeY, 4);
+			fillCircle(context, '#111111', eyeX + 1, eyeY, 1.2);
 		}
 		context.restore();
 	}
@@ -309,8 +235,8 @@ const scenes = {
 		glow.addColorStop(1, '#fff4a000');
 		context.fillStyle = glow;
 		context.fillRect(180, sunY - 60, 120, 120);
-		fillCircle(context, 240, sunY, 24, '#ffd23a');
-		fillCircle(context, 240, sunY, 15, '#f4c8a0');
+		fillCircle(context, '#ffd23a', 240, sunY, 24);
+		fillCircle(context, '#f4c8a0', 240, sunY, 15);
 		const isGiggling = Math.sin(time * 2.4) > 0.3;
 		context.strokeStyle = '#5a3a2a';
 		context.lineWidth = 1.5;
@@ -328,20 +254,20 @@ const scenes = {
 		context.beginPath();
 		context.arc(240, sunY + 3, isGiggling ? 6 : 4, 0, Math.PI);
 		context.stroke();
-		fillEllipse(context, 70, 250, 190, 90, '#5ac83a');
-		fillEllipse(context, 270, 260, 170, 95, '#4ab030');
+		fillEllipse(context, '#5ac83a', 70, 250, 190, 90);
+		fillEllipse(context, '#4ab030', 270, 260, 170, 95);
 		for (let index = 0; index < 14; index++) {
-			fillCircle(context, hash(index) * width, 200 + (hash(index + 50) * 38), 2.5, ['#ff5a8a', '#ffffff', '#ffe03a'][index % 3]);
+			fillCircle(context, ['#ff5a8a', '#ffffff', '#ffe03a'][index % 3], hash(index) * width, 200 + (hash(index + 50) * 38), 2.5);
 		}
 
 		const x = 140 + (Math.sin(time * 0.5) * 70);
 		const bob = Math.abs(Math.sin(time * 3)) * 4;
-		fillEllipse(context, x, 175 - bob, 22, 30, '#8d4fc8');
+		fillEllipse(context, '#8d4fc8', x, 175 - bob, 22, 30);
 		fillRectangle(context, x - 7, 168 - bob, 14, 11, '#c8c8d0');
 		fillRectangle(context, x - 5, 170 - bob, 10, 7, '#7ad0ff');
-		fillCircle(context, x, 135 - bob, 14, '#8d4fc8');
-		fillCircle(context, x, 137 - bob, 9, '#f4c8a0');
-		fillPolygon(context, [[x - 4, 122 - bob], [x, 108 - bob], [x + 4, 122 - bob]], '#8d4fc8');
+		fillCircle(context, '#8d4fc8', x, 135 - bob, 14);
+		fillCircle(context, '#f4c8a0', x, 137 - bob, 9);
+		fillPolygon(context, '#8d4fc8', [[x - 4, 122 - bob], [x, 108 - bob], [x + 4, 122 - bob]]);
 		fillRectangle(context, x - 4, 135 - bob, 2, 2, '#222222');
 		fillRectangle(context, x + 2, 135 - bob, 2, 2, '#222222');
 		context.strokeStyle = '#8d4fc8';
@@ -355,8 +281,8 @@ const scenes = {
 		for (let index = 0; index < 3; index++) {
 			const rabbitX = (index * 110) + 40 + ((time * 6) % 30);
 			const hop = Math.abs(Math.sin((time * 4) + index)) * 8;
-			fillEllipse(context, rabbitX, 215 - hop, 7, 5, '#f0e8e0');
-			fillEllipse(context, rabbitX + 5, 210 - hop, 2, 6, '#f0e8e0');
+			fillEllipse(context, '#f0e8e0', rabbitX, 215 - hop, 7, 5);
+			fillEllipse(context, '#f0e8e0', rabbitX + 5, 210 - hop, 2, 6);
 		}
 
 		drawLogo(context, 'NRK', {side: 'left'});
@@ -370,8 +296,8 @@ const scenes = {
 			background.addColorStop(1, '#020a2a');
 			context.fillStyle = background;
 			context.fillRect(0, 0, width, height);
-			fillCircle(context, 160, 108, 82, '#c8c8d0');
-			fillCircle(context, 160, 108, 78, '#f6f6f6');
+			fillCircle(context, '#c8c8d0', 160, 108, 82);
+			fillCircle(context, '#f6f6f6', 160, 108, 78);
 			for (let index = 0; index < 60; index++) {
 				const angle = (index / 60) * Math.PI * 2;
 				const isHour = index % 5 === 0;
@@ -402,7 +328,7 @@ const scenes = {
 				context.stroke();
 			}
 
-			fillCircle(context, 160, 108, 4, '#d01010');
+			fillCircle(context, '#d01010', 160, 108, 4);
 			drawText(context, 'NRK', 160, 214, {size: 20, color: '#ffffff'});
 			return;
 		}
@@ -427,15 +353,15 @@ const scenes = {
 		drawText(context, 'ÅR 2000', 242, 104, {size: 10, color: '#ffffff'});
 
 		fillRectangle(context, 0, 186, width, 54, '#b8c4dc');
-		fillEllipse(context, 110, 196, 52, 34, '#1c2433');
-		fillPolygon(context, [[98, 164], [122, 164], [110, 192]], '#ffffff');
-		fillPolygon(context, [[106, 168], [114, 168], [112, 190], [108, 190]], '#b01c2c');
+		fillEllipse(context, '#1c2433', 110, 196, 52, 34);
+		fillPolygon(context, '#ffffff', [[98, 164], [122, 164], [110, 192]]);
+		fillPolygon(context, '#b01c2c', [[106, 168], [114, 168], [112, 190], [108, 190]]);
 		fillRectangle(context, 102, 150, 16, 16, '#e0b088');
-		fillEllipse(context, 110, 128, 24, 28, '#6a3a1a');
-		fillEllipse(context, 110, 132, 18, 22, '#ecc098');
+		fillEllipse(context, '#6a3a1a', 110, 128, 24, 28);
+		fillEllipse(context, '#ecc098', 110, 132, 18, 22);
 		fillRectangle(context, 101, 126, 4, 2, '#222222');
 		fillRectangle(context, 115, 126, 4, 2, '#222222');
-		fillEllipse(context, 110, 143, 5, 1 + (Math.abs(Math.sin(time * 9)) * 3), '#8a2a2a');
+		fillEllipse(context, '#8a2a2a', 110, 143, 5, 1 + (Math.abs(Math.sin(time * 9)) * 3));
 		fillRectangle(context, 0, 200, width, 24, '#ffffffe6');
 		fillRectangle(context, 0, 200, 46, 24, '#c8102e');
 		drawText(context, 'NRK', 23, 212, {size: 13});
@@ -449,17 +375,17 @@ const scenes = {
 	// The weather map: rain in Bergen, sun in Oslo, like always.
 	weather(context, time) {
 		fillRectangle(context, 0, 0, width, height, '#2a5cae');
-		fillPolygon(context, [[138, 0], [120, 18], [134, 30], [108, 52], [122, 66], [96, 90], [112, 104], [88, 124], [104, 140], [84, 160], [98, 178], [118, 196], [150, 212], [190, 222], [236, 228], [320, 230], [320, 0]], '#4a9a50');
-		fillPolygon(context, [[210, 20], [250, 60], [230, 110], [270, 120], [300, 70], [320, 60], [320, 0], [220, 0]], '#5aaa5a');
+		fillPolygon(context, '#4a9a50', [[138, 0], [120, 18], [134, 30], [108, 52], [122, 66], [96, 90], [112, 104], [88, 124], [104, 140], [84, 160], [98, 178], [118, 196], [150, 212], [190, 222], [236, 228], [320, 230], [320, 0]]);
+		fillPolygon(context, '#5aaa5a', [[210, 20], [250, 60], [230, 110], [270, 120], [300, 70], [320, 60], [320, 0], [220, 0]]);
 		const cities = [['BERGEN', 100, 146], ['OSLO', 262, 182], ['TRONDHEIM', 196, 40]];
 		for (const [name, x, y] of cities) {
-			fillCircle(context, x, y, 3, '#ffffff');
+			fillCircle(context, '#ffffff', x, y, 3);
 			drawPixelText(context, name, x + 6, y - 2, '#ffffff', {scale: 1, shadow: '#00000088'});
 		}
 
 		for (const [x, y, radiusX, radiusY] of [[92, 120, 26, 14], [116, 116, 22, 12], [104, 108, 18, 12], [196, 30, 18, 9]]) {
-			fillEllipse(context, x, y, radiusX, radiusY, '#8a8f9a');
-			fillEllipse(context, x - 3, y - 3, radiusX * 0.8, radiusY * 0.7, '#b8bcc4');
+			fillEllipse(context, '#8a8f9a', x, y, radiusX, radiusY);
+			fillEllipse(context, '#b8bcc4', x - 3, y - 3, radiusX * 0.8, radiusY * 0.7);
 		}
 
 		context.strokeStyle = '#cfe8ff';
@@ -485,7 +411,7 @@ const scenes = {
 			context.stroke();
 		}
 
-		fillCircle(context, sunX, sunY, 10, '#ffe03a');
+		fillCircle(context, '#ffe03a', sunX, sunY, 10);
 		for (const [text, x, y] of [['9°', 60, 150], ['21°', 284, 196], ['12°', 226, 54]]) {
 			fillRectangle(context, x - 14, y - 9, 28, 18, '#ffffff');
 			drawText(context, text, x, y, {size: 13, color: '#c8102e'});
@@ -513,14 +439,14 @@ const scenes = {
 		fillRectangle(context, 222, 32, 64, 80, '#8a9ab0');
 		fillRectangle(context, 252, 32, 4, 80, '#d8d0b8');
 		drawPerson(context, 254, 200, {size: 92, hair: '#3a2a1a', top: '#5a6070', bottom: '#2a2a30'});
-		fillPolygon(context, [[86, 120], [154, 120], [168, 240], [72, 240]], '#c8b48a');
-		fillPolygon(context, [[110, 120], [130, 120], [124, 160], [116, 160]], '#e8e0d0');
-		fillPolygon(context, [[117, 124], [123, 124], [122, 156], [118, 156]], '#5a3a2a');
+		fillPolygon(context, '#c8b48a', [[86, 120], [154, 120], [168, 240], [72, 240]]);
+		fillPolygon(context, '#e8e0d0', [[110, 120], [130, 120], [124, 160], [116, 160]]);
+		fillPolygon(context, '#5a3a2a', [[117, 124], [123, 124], [122, 156], [118, 156]]);
 		fillRectangle(context, 112, 106, 16, 16, '#e0b090');
-		fillEllipse(context, 120, 92, 20, 24, '#e6bc98');
-		fillEllipse(context, 120, 72, 22, 10, '#c8c8c8');
-		fillEllipse(context, 101, 86, 5, 12, '#c8c8c8');
-		fillEllipse(context, 139, 86, 5, 12, '#c8c8c8');
+		fillEllipse(context, '#e6bc98', 120, 92, 20, 24);
+		fillEllipse(context, '#c8c8c8', 120, 72, 22, 10);
+		fillEllipse(context, '#c8c8c8', 101, 86, 5, 12);
+		fillEllipse(context, '#c8c8c8', 139, 86, 5, 12);
 		context.strokeStyle = '#2a2a2a';
 		context.lineWidth = 2;
 		context.strokeRect(105, 84, 13, 10);
@@ -558,7 +484,7 @@ const scenes = {
 		fillRectangle(context, 200, 30, 90, 60, '#6a4220');
 		for (let row = 0; row < 3; row++) {
 			for (let column = 0; column < 5; column++) {
-				fillCircle(context, 212 + (column * 17), 44 + (row * 18), 2.5, '#d8b040');
+				fillCircle(context, '#d8b040', 212 + (column * 17), 44 + (row * 18), 2.5);
 			}
 		}
 
@@ -589,10 +515,10 @@ const scenes = {
 			points.push([Math.cos(angle) * radius, Math.sin(angle) * radius]);
 		}
 
-		fillPolygon(context, points, '#ffffff88');
+		fillPolygon(context, '#ffffff88', points);
 		context.restore();
-		fillCircle(context, 120, 128, 30, '#1a1a1a');
-		fillCircle(context, 120, 128, 9, '#aaaaaa');
+		fillCircle(context, '#1a1a1a', 120, 128, 30);
+		fillCircle(context, '#aaaaaa', 120, 128, 9);
 		context.strokeStyle = '#555555';
 		context.lineWidth = 2;
 		for (let index = 0; index < 6; index++) {
@@ -623,7 +549,7 @@ const scenes = {
 			burst.push([Math.cos(angle) * radius, Math.sin(angle) * radius]);
 		}
 
-		fillPolygon(context, burst, '#d01010');
+		fillPolygon(context, '#d01010', burst);
 		drawText(context, 'KUN', 0, -14, {size: 11});
 		drawText(context, 'KR 399,-', 0, 4, {size: 16});
 		context.restore();
@@ -657,7 +583,7 @@ const scenes = {
 		fillRectangle(context, 252, 70, 4, 80, '#8a6a4a');
 		fillRectangle(context, 282, 70, 4, 80, '#8a6a4a');
 		fillRectangle(context, 244, 50, 50, 26, '#ffd23a');
-		fillPolygon(context, [[240, 50], [298, 50], [269, 34]], '#d01010');
+		fillPolygon(context, '#d01010', [[240, 50], [298, 50], [269, 34]]);
 		const progress = (time % 12) / 12;
 		const scale = 0.7 + (progress * 1.3);
 		const bounce = Math.abs(Math.sin(time * 2.2)) * 6 * scale;
@@ -678,13 +604,13 @@ const scenes = {
 		if (time >= 28 && time < 40) {
 			fillRectangle(context, -10, -10, width + 20, height + 20, '#6a6a6e');
 			for (let index = 0; index < 60; index++) {
-				fillCircle(context, hash(index) * width, ((hash(index + 3) * height) - (time * 40)) % height + height, 1.5, '#55555a');
+				fillCircle(context, '#55555a', hash(index) * width, ((hash(index + 3) * height) - (time * 40)) % height + height, 1.5);
 			}
 
 			for (const [index, x] of [100, 190].entries()) {
 				const step = Math.sin((time * 6) + (index * Math.PI)) * 14;
-				fillEllipse(context, x, 150 + step, 26, 44, '#5a3a1a');
-				fillEllipse(context, x, 130 + step, 18, 18, '#6a4a2a');
+				fillEllipse(context, '#5a3a1a', x, 150 + step, 26, 44);
+				fillEllipse(context, '#6a4a2a', x, 130 + step, 18, 18);
 			}
 		} else {
 			context.fillStyle = verticalGradient(context, 0, 120, ['#9ac8f0', '#dceaf4']);
@@ -693,7 +619,7 @@ const scenes = {
 			for (const [index, color] of houses.entries()) {
 				const x = (index * 58) - 10;
 				fillRectangle(context, x, 40, 54, 100, color);
-				fillPolygon(context, [[x - 4, 42], [x + 27, 14], [x + 58, 42]], '#5a4a4a');
+				fillPolygon(context, '#5a4a4a', [[x - 4, 42], [x + 27, 14], [x + 58, 42]]);
 				for (let window = 0; window < 2; window++) {
 					fillRectangle(context, x + 10 + (window * 22), 60, 12, 16, '#ffffff');
 					fillRectangle(context, x + 12 + (window * 22), 62, 8, 12, '#4a6a8a');
@@ -715,11 +641,11 @@ const scenes = {
 				drawPerson(context, 120, 214, {size: 110, hair: '#f0d070', top: '#c01c2c', bottom: '#1a1a2a', hairStyle: 'long'});
 				fillRectangle(context, 104, 150, 32, 6, '#ffffff');
 				const drip = time >= 46 ? 0 : 1;
-				fillPolygon(context, [[138, 130], [148, 130], [143, 150]], '#d8a050');
+				fillPolygon(context, '#d8a050', [[138, 130], [148, 130], [143, 150]]);
 				if (drip) {
-					fillCircle(context, 143, 126, 7, '#ffe8f0');
+					fillCircle(context, '#ffe8f0', 143, 126, 7);
 				} else {
-					fillCircle(context, 128, 168, 7, '#ffe8f0');
+					fillCircle(context, '#ffe8f0', 128, 168, 7);
 				}
 
 				drawPerson(context, 240, 220, {size: 120, hair: '#e8e8e8', top: '#2a5a3a', bottom: '#2a5a3a', armsUp: Math.abs(Math.sin(time * 4))});
@@ -779,18 +705,18 @@ const scenes = {
 		context.fillRect(0, 0, width, height);
 		fillRectangle(context, 0, 170, width, 70, '#7a8a5a');
 		fillRectangle(context, 60, 70, 200, 110, '#f4f0e8');
-		fillPolygon(context, [[50, 72], [160, 30], [270, 72]], '#5a3a3a');
+		fillPolygon(context, '#5a3a3a', [[50, 72], [160, 30], [270, 72]]);
 		fillRectangle(context, 140, 0, 40, 50, '#f4f0e8');
-		fillPolygon(context, [[134, 4], [160, -30], [186, 4]], '#5a3a3a');
+		fillPolygon(context, '#5a3a3a', [[134, 4], [160, -30], [186, 4]]);
 		fillRectangle(context, 145, 120, 30, 60, '#6a4a2a');
 		drawPerson(context, 130, 200, {size: 100, hair: '#4a2a1a', top: '#1a1a1a', bottom: '#1a1a1a'});
 		fillRectangle(context, 125, 145, 10, 3, '#3a2010');
-		fillPolygon(context, [[170, 200], [196, 200], [190, 132], [176, 132]], '#ffffff');
+		fillPolygon(context, '#ffffff', [[170, 200], [196, 200], [190, 132], [176, 132]]);
 		drawPerson(context, 184, 200, {size: 100, hair: '#6a3a1a', top: '#ffffff', bottom: '#ffffff', hairStyle: 'long'});
-		fillCircle(context, 172, 135, 7, '#ffffff');
-		fillCircle(context, 196, 135, 7, '#ffffff');
-		fillEllipse(context, 184, 140, 22, 18, '#6a3a1a');
-		fillCircle(context, 184, 147, 7, '#f0c8a0');
+		fillCircle(context, '#ffffff', 172, 135, 7);
+		fillCircle(context, '#ffffff', 196, 135, 7);
+		fillEllipse(context, '#6a3a1a', 184, 140, 22, 18);
+		fillCircle(context, '#f0c8a0', 184, 147, 7);
 		for (let index = 0; index < 40; index++) {
 			const x = (hash(index) * width) + (Math.sin(time + index) * 8);
 			const y = ((hash(index + 20) * 200) + (time * 60)) % 200;
@@ -838,9 +764,9 @@ const scenes = {
 		const step = (time - 5) * 18;
 		context.save();
 		context.translate(40 + step, 0);
-		fillEllipse(context, 0, 150, 40, 70, '#3a5a3a');
-		fillEllipse(context, 26, 70, 22, 18, '#3a5a3a');
-		fillPolygon(context, [[-10, 90], [-30, 60], [-14, 100], [-36, 80], [-20, 120]], '#4a6a4a');
+		fillEllipse(context, '#3a5a3a', 0, 150, 40, 70);
+		fillEllipse(context, '#3a5a3a', 26, 70, 22, 18);
+		fillPolygon(context, '#4a6a4a', [[-10, 90], [-30, 60], [-14, 100], [-36, 80], [-20, 120]]);
 		fillRectangle(context, 34, 64, 5, 4, '#ffee55');
 		context.restore();
 		drawText(context, 'GODZILLA', 160, 34, {size: 30, color: '#ffffff', font: 'Impact, Arial Black, sans-serif', weight: 'normal', outline: '#000000'});
@@ -864,13 +790,13 @@ const scenes = {
 				fillRectangle(context, hash(index) * width, hash(index + 7) * 120, 1, 1, '#ffffff');
 			}
 		} else {
-			fillCircle(context, 250, 140, 26, '#ffc860');
+			fillCircle(context, '#ffc860', 250, 140, 26);
 		}
 
 		if (time >= 40 && time < 70) {
 			// The bow, with the two of them, arms out.
-			fillPolygon(context, [[0, 240], [0, 150], [260, 180], [320, 240]], '#1a1a1a');
-			fillPolygon(context, [[0, 160], [260, 186], [256, 192], [0, 170]], '#ffffff');
+			fillPolygon(context, '#1a1a1a', [[0, 240], [0, 150], [260, 180], [320, 240]]);
+			fillPolygon(context, '#ffffff', [[0, 160], [260, 186], [256, 192], [0, 170]]);
 			context.strokeStyle = '#d8d8d8';
 			context.lineWidth = 2;
 			context.beginPath();
@@ -894,7 +820,7 @@ const scenes = {
 		context.save();
 		context.translate(shipX, 150 + (sinking * 60));
 		context.rotate(-sinking * 0.7);
-		fillPolygon(context, [[-80, -6], [90, -6], [80, 16], [-70, 16]], '#141414');
+		fillPolygon(context, '#141414', [[-80, -6], [90, -6], [80, 16], [-70, 16]]);
 		fillRectangle(context, -70, -8, 160, 4, '#ffffff');
 		fillRectangle(context, -60, -26, 130, 20, '#f4f0e8');
 		for (let index = 0; index < 4; index++) {
@@ -911,7 +837,7 @@ const scenes = {
 		context.restore();
 		if (isNight && time < 100) {
 			const approach = clamp((time - 70) / 28, 0, 1);
-			fillPolygon(context, [[320 - (approach * 110), 170], [340 - (approach * 110), 80], [380 - (approach * 110), 60], [420 - (approach * 110), 170]], '#d8e8f8');
+			fillPolygon(context, '#d8e8f8', [[320 - (approach * 110), 170], [340 - (approach * 110), 80], [380 - (approach * 110), 60], [420 - (approach * 110), 170]]);
 		}
 	},
 	tapeTwo(context) {
@@ -919,14 +845,6 @@ const scenes = {
 		drawPixelText(context, 'SLUTT PÅ KASSETT 1', 160, 90, '#ffffff', {scale: 2, align: 'center'});
 		drawPixelText(context, 'SETT INN KASSETT 2', 160, 120, '#ffffff', {scale: 2, align: 'center'});
 	},
-};
-
-// The picture is drawn small first, like the signal, and the TV makes it bigger, with the scan lines and the round glass on top.
-const makeCanvas = (canvasWidth, canvasHeight) => {
-	const canvas = document.createElement('canvas');
-	canvas.width = canvasWidth;
-	canvas.height = canvasHeight;
-	return canvas;
 };
 
 // A few frames of snow, made once, which the TV picks from at random, as making new snow for every frame would be slow.
@@ -949,7 +867,7 @@ const noiseFrames = Array.from({length: 4}, () => {
 const drawNoise = (context, x, y, noiseWidth, noiseHeight) => {
 	const sourceWidth = Math.min(Math.round(noiseWidth), width);
 	const sourceHeight = Math.max(1, Math.min(Math.round(noiseHeight), height));
-	const frame = noiseFrames[Math.floor(Math.random() * noiseFrames.length)];
+	const frame = randomItem(noiseFrames);
 	context.drawImage(frame, Math.floor(Math.random() * (width - sourceWidth + 1)), Math.floor(Math.random() * (height - sourceHeight + 1)), sourceWidth, sourceHeight, x, y, noiseWidth, noiseHeight);
 };
 
@@ -1042,12 +960,13 @@ const reelCenter = {x: 86, y: 70};
 // Three turns of the pencil wind the tape back in: six presses of the button, or a few circles with a finger.
 const rescueTurns = 3;
 
-export default class extends GeoCitiesElement {
+class GeoCitiesVCR extends GeoCitiesElement {
 	#programs;
 	#memory;
 	#screenContext;
 	#antennaContext;
 	#rescueContext;
+	// The picture is drawn small first, like the signal, and the TV makes it bigger, with the scan lines and the round glass on top.
 	#picture = makeCanvas(width, height);
 	#pictureContext = this.#picture.getContext('2d');
 	#ghost = makeCanvas(width, height);
@@ -1789,7 +1708,7 @@ export default class extends GeoCitiesElement {
 		}
 
 		if (description.isRecording) {
-			fillCircle(context, 560, 52, 12, Math.floor(time * 2) % 2 === 0 || this.reducedMotion ? '#ff2020' : '#661010');
+			fillCircle(context, Math.floor(time * 2) % 2 === 0 || this.reducedMotion ? '#ff2020' : '#661010', 560, 52, 12);
 			drawPixelText(context, 'REC', 536, 44, '#ff2020', {scale: 4, align: 'right', shadow: '#000000'});
 		}
 
@@ -1915,8 +1834,8 @@ export default class extends GeoCitiesElement {
 				context.stroke();
 			}
 
-			fillCircle(context, tip.x, tip.y, 5, '#6a6a74');
-			fillCircle(context, tip.x - 1, tip.y - 1, 3.5, '#f0f0f6');
+			fillCircle(context, '#6a6a74', tip.x, tip.y, 5);
+			fillCircle(context, '#f0f0f6', tip.x - 1, tip.y - 1, 3.5);
 			if (antennaState.held === side || (performance.now() < antennaState.heldUntil && antennaState.selected === side)) {
 				context.font = '24px serif';
 				context.textAlign = 'center';
@@ -1925,9 +1844,9 @@ export default class extends GeoCitiesElement {
 			}
 		}
 
-		fillEllipse(context, 200, 132, 50, 26, '#2a2a2e');
-		fillEllipse(context, 192, 120, 22, 7, '#4a4a52');
-		fillCircle(context, 200, 110, 6, '#1a1a1e');
+		fillEllipse(context, '#2a2a2e', 200, 132, 50, 26);
+		fillEllipse(context, '#4a4a52', 192, 120, 22, 7);
+		fillCircle(context, '#1a1a1e', 200, 110, 6);
 	}
 
 	// The clock of the VCR is the time of the visitor’s computer, plus the minutes that the visitor set it off by.
@@ -3024,14 +2943,14 @@ export default class extends GeoCitiesElement {
 		fillRectangle(context, 60, 34, 120, 14, '#fdfbf0');
 		drawPixelText(context, tapes[this.#vcr.tape].title, 120, 38, '#222222', {align: 'center'});
 		for (const x of [86, 154]) {
-			fillCircle(context, x, 70, 21, '#2a2a30');
+			fillCircle(context, '#2a2a30', x, 70, 21);
 		}
 
-		fillCircle(context, 154, 70, 10 + ((1 - rescue.wound) * 9), '#5a3010');
-		fillCircle(context, 86, 70, 10 + (rescue.wound * 9), '#5a3010');
+		fillCircle(context, '#5a3010', 154, 70, 10 + ((1 - rescue.wound) * 9));
+		fillCircle(context, '#5a3010', 86, 70, 10 + (rescue.wound * 9));
 		for (const x of [86, 154]) {
-			fillCircle(context, x, 70, 7, '#f0f0f0');
-			fillCircle(context, x, 70, 3, '#2a2a30');
+			fillCircle(context, '#f0f0f0', x, 70, 7);
+			fillCircle(context, '#2a2a30', x, 70, 3);
 		}
 
 		// The tape hangs out in loops. The more the visitor winds, the shorter they get.
@@ -3054,8 +2973,8 @@ export default class extends GeoCitiesElement {
 		fillRectangle(context, -4, -64, 8, 54, '#f2c230');
 		fillRectangle(context, -4, -70, 8, 7, '#e88aa0');
 		fillRectangle(context, -4, -63, 8, 3, '#c0c0c0');
-		fillPolygon(context, [[-4, -10], [4, -10], [0, 0]], '#e8c8a0');
-		fillPolygon(context, [[-1.5, -4], [1.5, -4], [0, 0]], '#333333');
+		fillPolygon(context, '#e8c8a0', [[-4, -10], [4, -10], [0, 0]]);
+		fillPolygon(context, '#333333', [[-1.5, -4], [1.5, -4], [0, 0]]);
 		context.restore();
 		drawPixelText(context, `${Math.round(rescue.wound * 100)}%`, 232, 6, '#5a3010', {scale: 2, align: 'right'});
 	}
@@ -3159,3 +3078,5 @@ export default class extends GeoCitiesElement {
 		});
 	}
 }
+
+customElements.define('geo-cities-vcr', GeoCitiesVCR);

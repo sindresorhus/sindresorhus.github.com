@@ -247,7 +247,7 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 			button(.part(Parts.demo), .type(.button)) {
 				"👀 Watch Trond Play (Sound!)"
 			}
-			.style(GeoCitiesPage.Styles.smallButton)
+			.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 			button(.part(Parts.speed), .type(.button)) {
 				"Speed: ×1.5"
@@ -272,7 +272,7 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 			button(.part(Parts.calibrate), .type(.button)) {
 				"⏱ Calibrate the Delay (Sound!)"
 			}
-			.style(GeoCitiesPage.Styles.smallButton)
+			.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 			// The delay is between its two buttons, and they wrap as one, so −10 ms and +10 ms stay on each side of it.
 			div {
@@ -311,6 +311,10 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 		case delay
 		case status
 		case coins
+	}
+
+	enum States: String, ElementStateSet {
+		case on
 	}
 
 	enum Hooks: String, ScriptHookSet {
@@ -471,7 +475,7 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 					.focusVisible {
 						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(1))
 					}
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0
 							.backgroundImage(.radialGradient("circle", Color("#ffffff"), Color("#ff66cc")))
 							.border(Color("#ffccee"), width: .pixels(3), style: .inset)
@@ -508,10 +512,11 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 					.textAlign(.leading)
 					.color(.black)
 					.handCursor()
+					.buttonFocusRing()
 					.active {
 						$0.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
 					}
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.backgroundImage(.linearGradient("to right", Color("#ff66cc"), Color("#9933ff")))
 							.border(Color("#ffccee"), width: .pixels(3), style: .inset)
@@ -531,11 +536,7 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 			case .toggle:
 				Style()
 					.frame(minHeight: .rootEm(2.25))
-					.when(.state, is: "on") {
-						$0
-							.background(Color("#ffff99"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
+					.pressedIn(Color("#ffff99"))
 			case .calibration:
 				Style().alignItems(.center)
 			case .delay:
@@ -543,11 +544,7 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 					.frame(minWidth: .rootEm(7))
 					.textAlign(.center)
 			case .status:
-				Style()
-					.frame(minHeight: .lineHeight(3))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+				Style().toyStatus(lines: 3)
 			case .coins:
 				Style()
 					.margin(0)

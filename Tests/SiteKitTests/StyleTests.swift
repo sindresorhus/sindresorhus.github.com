@@ -23,6 +23,57 @@ struct StyleTests {
 	}
 
 	@Test
+	func `a condition that sets nothing writes no block`() {
+		let css = Stylesheet {
+			Rule(".card", Style().padding(.rootEm(1)).dark { $0 })
+		}.css
+
+		#expect(!css.contains("@media"))
+		#expect(css.contains("padding: 1rem;"))
+	}
+
+	@Test
+	func `a combined style keeps the scope of the other style`() {
+		let css = Stylesheet {
+			Rule(".prose", Style().combined(with: Style().padding(.rootEm(1)).scoped()))
+		}.css
+
+		#expect(css.contains("@scope (.prose)"))
+	}
+
+	/**
+	In a nested rule, `& > p, label` would match a `label` at any depth.
+	*/
+	@Test
+	func `a list of child selectors only matches direct children`() {
+		let css = Stylesheet {
+			Rule(".form", Style()
+				.children("p, label") {
+					$0.padding(.rootEm(1))
+				}
+				.children("li") {
+					$0.padding(.rootEm(1))
+				}
+			)
+		}.css
+
+		#expect(css.contains("& > :is(p, label) {"))
+		#expect(css.contains("& > li {"))
+	}
+
+	/**
+	Safari only supports the prefixed property.
+	*/
+	@Test
+	func `text selection is set for Safari too`() {
+		let css = Stylesheet {
+			Rule(".button", Style().textSelection(.disabled))
+		}.css
+
+		#expect(css.contains("-webkit-user-select: none;\n\tuser-select: none;"))
+	}
+
+	@Test
 	func `a huge length is written as a CSS number with an exponent`() {
 		#expect(Length.pixels(1e19).description == "1e+19px")
 		#expect(Length.pixels(-1e19).description == "-1e+19px")
@@ -208,6 +259,24 @@ struct StyleTests {
 	}
 
 	@Test
+	func `grid items can span rows, and columns can have sizes without a grid`() {
+		#expect(Stylesheet { Rule(".x", Style().gridRowSpan(2)) }.css == ".x {\n\tgrid-row: span 2 / span 2;\n}\n")
+		#expect(Stylesheet { Rule(".x", Style().gridColumns(.auto, .fraction(1))) }.css == ".x {\n\tgrid-template-columns: auto 1fr;\n}\n")
+	}
+
+	@Test
+	func `text can be italic, or upright again`() {
+		#expect(Stylesheet { Rule(".x", Style().italic()) }.css == ".x {\n\tfont-style: italic;\n}\n")
+		#expect(Stylesheet { Rule(".x", Style().italic(false)) }.css == ".x {\n\tfont-style: normal;\n}\n")
+	}
+
+	@Test
+	func `inline elements can be raised by a length, like an icon in the middle of the capital letters`() {
+		#expect(Stylesheet { Rule(".x", Style().verticalAlign(.capitalHeight(0.5) - Length.rootEm(1) * 0.5)) }.css == ".x {\n\tvertical-align: calc(.5cap - .5rem);\n}\n")
+		#expect(Stylesheet { Rule(".x", Style().verticalAlign(.middle)) }.css == ".x {\n\tvertical-align: middle;\n}\n")
+	}
+
+	@Test
 	func `lengths support arithmetic`() {
 		#expect((Length.rootEm(1) * 2).description == "2rem")
 		#expect((Length.rootEm(1) + .rootEm(0.5)).description == "1.5rem")
@@ -224,9 +293,48 @@ struct StyleTests {
 	@Test
 	func `lengths support CSS math functions`() {
 		#expect(Length.clamp(.rootEm(2), .viewportWidth(5.8), .rootEm(100)).description == "clamp(2rem, 5.8vw, 100rem)")
-		#expect(Length.min(.rootEm(24), .viewportWidth(100) - .rootEm(2)).description == "min(24rem, calc(100vw - 2rem))")
+		#expect(Length.min(.rootEm(24), .viewportWidth(100) - .rootEm(2)).description == "min(24rem, 100vw - 2rem)")
 		#expect(Length.max(.percent(100), .rootEm(2.75), .pixels(44)).description == "max(100%, 2.75rem, 44px)")
 		#expect((Length.min(.percent(100), .rootEm(40)) - .rootEm(1)).description == "calc(min(100%, 40rem) - 1rem)")
+		#expect(Length.clamp(.rootEm(1), (.rootEm(0.5) + .viewportWidth(2)) * 2, .rootEm(3)).description == "clamp(1rem, (.5rem + 2vw) * 2, 3rem)")
+	}
+
+	@Test
+	func `a fluid font size is a clamp of rem and vw without noise`() {
+		#expect(Stylesheet { Rule(".x", Style().fluidFontSize(fromRem: 3, toRem: 3.5, between: Breakpoint(minimumWidthInRem: 40), and: Breakpoint(minimumWidthInRem: 48))) }.css == ".x {\n\tfont-size: clamp(3rem, .5rem + 6.25vw, 3.5rem);\n}\n")
+		#expect(Stylesheet { Rule(".x", Style().fluidFontSize(fromRem: 0.875, toRem: 1.125, between: Breakpoint(minimumWidthInRem: 24), and: Breakpoint(minimumWidthInRem: 48))) }.css == ".x {\n\tfont-size: clamp(.875rem, .625rem + 1.0417vw, 1.125rem);\n}\n")
+		#expect(Stylesheet { Rule(".x", Style().fluidFontSize(fromRem: 2, toRem: 1, between: Breakpoint(minimumWidthInRem: 20), and: Breakpoint(minimumWidthInRem: 40))) }.css == ".x {\n\tfont-size: clamp(2rem, 3rem + -5vw, 1rem);\n}\n")
+	}
+
+	@Test
+	func `lists can have no marker, bullets, or numbers`() {
+		#expect(Stylesheet { Rule(".x", Style().listStyle(.none)) }.css == ".x {\n\tlist-style: none;\n}\n")
+		#expect(Stylesheet { Rule(".x", Style().listStyle(.disc)) }.css == ".x {\n\tlist-style: disc;\n}\n")
+		#expect(Stylesheet { Rule(".x", Style().listStyle(.decimal)) }.css == ".x {\n\tlist-style: decimal;\n}\n")
+	}
+
+	@Test
+	func `hyphenation can be turned on and off`() {
+		#expect(Stylesheet { Rule(".x", Style().hyphenation(true)) }.css == ".x {\n\thyphens: auto;\n}\n")
+		#expect(Stylesheet { Rule(".x", Style().hyphenation(false)) }.css == ".x {\n\thyphens: none;\n}\n")
+	}
+
+	@Test
+	func `an element can be styled while a control around it is disabled`() {
+		let css = Stylesheet {
+			Rule(".icon", Style().ancestorDisabled { $0.opacity(0.5) })
+		}.css
+
+		#expect(css == ".icon {\n\t:disabled & {\n\t\topacity: .5;\n\t}\n}\n")
+	}
+
+	@Test
+	func `descendants are styled without the specificity of their selector`() {
+		let css = Stylesheet {
+			Rule(".prose", Style().descendants("ul, ol") { $0.padding(.leading, .rootEm(1)).before { $0.content("") } })
+		}.css
+
+		#expect(css == ".prose {\n\t& :where(ul, ol) {\n\t\tpadding-inline-start: 1rem;\n\t\t&::before {\n\t\t\tcontent: \"\";\n\t\t}\n\t}\n}\n")
 	}
 
 	@Test
@@ -261,7 +369,76 @@ struct StyleTests {
 	}
 
 	@Test
-	func `conditions for focus, open details, backdrops, and custom states`() {
+	func `conditions for ARIA states, checked controls, and the states that a script sets`() {
+		let css = Stylesheet {
+			Rule(".x", Style()
+				.current {
+					$0.opacity(0.95)
+				}
+				.pressed {
+					$0.opacity(1)
+				}
+				.ancestorPressed {
+					$0.opacity(0.9)
+				}
+				.descendantPressed {
+					$0.opacity(0.85)
+				}
+				.descendantChecked {
+					$0.opacity(0.82)
+				}
+				.ancestorCurrent {
+					$0.opacity(0.81)
+				}
+				.expanded {
+					$0.opacity(0.8)
+				}
+				.when(CopyStates.copied) {
+					$0.opacity(0.7)
+				}
+				.when(ancestorHas: CopyStates.copied) {
+					$0.opacity(0.6)
+				}
+			)
+		}.css
+
+		#expect(css == """
+		.x {
+			&[aria-current] {
+				opacity: .95;
+			}
+			&[aria-pressed="true"] {
+				opacity: 1;
+			}
+			[aria-pressed="true"] & {
+				opacity: .9;
+			}
+			&:has([aria-pressed="true"]) {
+				opacity: .85;
+			}
+			&:has(input:checked) {
+				opacity: .82;
+			}
+			[aria-current] & {
+				opacity: .81;
+			}
+			&[aria-expanded="true"] {
+				opacity: .8;
+			}
+			&[data-state="copied"] {
+				opacity: .7;
+			}
+			[data-state="copied"] & {
+				opacity: .6;
+			}
+		}
+
+		""")
+		#expect(CopyStates.copied.selector == #"[data-state="copied"]"#)
+	}
+
+	@Test
+	func `conditions for focus, open details, backdrops, custom states, and empty elements`() {
 		let css = Stylesheet {
 			Rule(".x", Style()
 				.focus {
@@ -277,6 +454,9 @@ struct StyleTests {
 				}
 				.state("playing") {
 					$0.opacity(0.5)
+				}
+				.empty {
+					$0.frame(minHeight: .rootEm(2))
 				}
 			)
 		}.css
@@ -296,6 +476,9 @@ struct StyleTests {
 			}
 			&:state(playing) {
 				opacity: .5;
+			}
+			&:empty {
+				min-height: 2rem;
 			}
 		}
 
@@ -331,6 +514,66 @@ struct StyleTests {
 	func `keyframe sets name their animations after the enclosing type and the case`() {
 		#expect(Animations.fadeIn.name == "style-tests-fade-in")
 		#expect(Stylesheet { Animations.self }.css == "@keyframes style-tests-fade-in {\n\tfrom {\n\t\topacity: 0;\n\t}\n}\n")
+	}
+
+	/**
+	A site without focus rings shows the look of the pointer for the focus of the keyboard. Only devices that can hover get the hover look.
+	*/
+	@Test
+	func `hover or focus visible writes both states`() {
+		let css = Stylesheet {
+			Rule(".link", Style().hoverOrFocusVisible { $0.underline() })
+		}.css
+
+		#expect(css.contains("@media (hover: hover) {\n\t\t&:hover {\n\t\t\ttext-decoration: underline;"))
+		#expect(css.contains("\t&:focus-visible {\n\t\ttext-decoration: underline;"))
+	}
+
+	@Test
+	func `an underline can have a style, which a state can change alone`() {
+		let css = Stylesheet {
+			Rule(".term", Style().underline(style: .dotted, thickness: .pixels(1)).hoverOrFocusVisible { $0.underlineStyle(.solid) })
+		}.css
+
+		#expect(css.contains("text-decoration: underline;\n\ttext-decoration-style: dotted;\n\ttext-decoration-thickness: 1px;"))
+		#expect(css.contains("\t&:focus-visible {\n\t\ttext-decoration-style: solid;"))
+	}
+
+	@Test
+	func `a square frame sets the width and the height`() {
+		let css = Stylesheet {
+			Rule(".icon", Style().frame(size: .rootEm(2)))
+		}.css
+
+		#expect(css.contains("width: 2rem;"))
+		#expect(css.contains("height: 2rem;"))
+	}
+
+	@Test
+	func `a list of filters is one declaration`() {
+		let css = Stylesheet {
+			Rule(".badge", Style().filter([.blur(radius: .pixels(2)), .brightness(0.5)]))
+		}.css
+
+		#expect(css.contains("filter: blur(2px) brightness(.5);"))
+	}
+
+	@Test
+	func `hidden without scripting only hides when scripting is off`() {
+		let css = Stylesheet {
+			Rule(".button", Style().hiddenWithoutScripting())
+		}.css
+
+		#expect(css.contains("@media (scripting: none) {\n\t\tdisplay: none;"))
+	}
+
+	@Test
+	func `a registered property can transition`() {
+		let css = Stylesheet {
+			Rule(".light", Style().transition(TransitionProperty(Self.hue), animation: .linear(duration: .milliseconds(300))))
+		}.css
+
+		#expect(css.contains("transition: --hue .3s linear;"))
 	}
 
 	static let hue = RegisteredProperty<CSSValue>("--hue", syntax: "<number>", initialValue: 0)
@@ -425,6 +668,18 @@ struct StyleTests {
 
 		#expect(css.contains("@keyframes style-tests-turn-hue"))
 		#expect(css.contains("@property --hue"))
+	}
+
+	@Test
+	func `animations only run for visitors who allow motion, unless they are essential`() {
+		let css = Stylesheet {
+			Rule("a", Style().opacity(0.5).animation(HueAnimations.turnHue, .linear(duration: .seconds(6))))
+			Rule("b", Style().animation(HueAnimations.turnHue, .linear(duration: .seconds(6)), isEssential: true))
+		}.css
+
+		#expect(css.contains("a {\n\topacity: .5;\n\t@media (prefers-reduced-motion: no-preference) {\n\t\tanimation: style-tests-turn-hue 6s linear;\n\t}\n}"))
+		#expect(css.contains("b {\n\tanimation: style-tests-turn-hue 6s linear;\n}"))
+		#expect(css.matches(of: /@keyframes/).count == 1)
 	}
 
 	@Test
@@ -547,6 +802,15 @@ struct StyleTests {
 		#expect("Heading2Large".kebabCased == "heading2-large")
 		#expect("H2Title".kebabCased == "h2-title")
 		#expect("Base64".kebabCased == "base64")
+	}
+
+	@Test
+	func `an acronym in a class name is one word that ends at its last capital`() {
+		#expect("URLField".kebabCased == "url-field")
+		#expect("HTMLElement".kebabCased == "html-element")
+		#expect("FAQSuggestions".kebabCased == "faq-suggestions")
+		#expect("URL".kebabCased == "url")
+		#expect("feedCard".kebabCased == "feed-card")
 	}
 
 	@Test
@@ -733,4 +997,8 @@ struct GenericWrapper<Value> {
 			Style().opacity(0.5)
 		}
 	}
+}
+
+private enum CopyStates: String, ElementStateSet {
+	case copied
 }

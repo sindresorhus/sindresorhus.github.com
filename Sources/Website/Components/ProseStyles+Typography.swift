@@ -12,6 +12,11 @@ extension ProseStyles {
 	static let blockSpacing = Length.em(1.75)
 
 	/**
+	The size of smaller text in prose, like code and captions: 16px next to the 18px of the text.
+	*/
+	static let smallTextSize = Length.em(0.8889)
+
+	/**
 	Typography based on the Tailwind Typography plugin (`prose prose-lg dark:prose-invert`), with shorter lines (about 78 characters, see ``Style/ColumnWidth/prose``) and a calmer heading scale.
 
 	The element rules use `:where()`, so they have the specificity of the prose class alone, and later rules, like the first-child margin, win over them.
@@ -24,97 +29,102 @@ extension ProseStyles {
 		.overflowWrap(.breakWord)
 		.color(.bodyText)
 		// A list has the space of a paragraph around it.
-		.nested(":where(p, ul, ol)") {
+		.descendants("p, ul, ol") {
 			$0.margin(vertical: .em(1), horizontal: 0)
 		}
-		.nested(":where(a)") {
+		.descendants("a") {
 			$0.textLink()
 		}
-		.nested(":where(strong)") {
+		.descendants("strong") {
 			$0
 				.color(.primaryText)
 				.fontWeight(.semibold)
 		}
 		// Headings, and the headers of tables.
-		.nested(":where(h1, h2, h3, h4, h5, h6, th)") {
+		.descendants("h1, h2, h3, h4, h5, h6, th") {
 			$0
 				.color(.primaryText)
 				.fontWeight(.semibold)
 		}
 		// The title of Markdown pages, the same as the title of other pages (``PageHeader``) and the space below it (``ProsePage``).
-		.nested(":where(h1)") {
+		.descendants("h1") {
 			$0
 				.margin(top: 0, horizontal: 0, bottom: .rootEm(2.5))
 				.textStyle(.largeTitle)
 		}
+		// A paragraph right below the title is its introduction, with the look and the space of the introduction of other pages (``PageHeader``).
+		.descendants("h1:has(+ p)") {
+			$0.margin(.bottom, .rootEm(0.5))
+		}
+		.descendants("h1 + p") {
+			$0
+				.margin(top: .rootEm(0.5), horizontal: 0, bottom: .rootEm(2.5))
+				.secondaryText(.lead)
+		}
 		// Larger headings, up to `h3`, get tighter letter spacing, like the system fonts of Apple platforms.
-		.nested(":where(h2)") {
+		.descendants("h2") {
 			$0
 				.margin(top: .rootEm(5), horizontal: 0, bottom: .rootEm(1.5))
-				.font(size: .em(1.6667), lineHeight: 1.15)
-				.bold()
-				.letterSpacing(.em(-0.025))
+				.textStyle(.sectionTitle)
 		}
 		// Each level is clearly smaller than the one above it: 22px, then the 18px of the text, and then 16px.
-		.nested(":where(h3)") {
+		.descendants("h3") {
 			$0
 				.margin(top: .rootEm(2.5), horizontal: 0, bottom: .rootEm(1))
 				.font(size: .em(1.2222), lineHeight: 1.3)
 				.letterSpacing(.em(-0.015))
 		}
-		.nested(":where(h4, h5, h6)") {
+		.descendants("h4, h5, h6") {
 			$0
 				.margin(top: .rootEm(2), horizontal: 0, bottom: .rootEm(1))
 				.lineHeight(1.5)
 		}
-		.nested(":where(h5, h6)") {
-			$0.font(size: .em(0.8889))
+		.descendants("h5, h6") {
+			$0.font(size: smallTextSize)
 		}
 		// A line break right after a heading, which some content uses for more space, does not add to the space below the heading.
-		.nested(":where(:is(h2, h3, h4, h5, h6) + br)") {
+		.descendants(":is(h2, h3, h4, h5, h6) + br") {
 			$0.hidden()
 		}
-		.nested(":where(ul, ol)") {
+		.descendants("ul, ol") {
 			$0.padding(.leading, .em(1.5556))
 		}
-		.nested(":where(ul)") {
-			$0.declaration(.listStyleType, "disc")
+		.descendants("ul") {
+			$0.listStyle(.disc)
 		}
-		.nested(":where(ol)") {
-			$0.declaration(.listStyleType, "decimal")
+		.descendants("ol") {
+			$0.listStyle(.decimal)
 		}
 		// List items, nested lists, and the paragraphs of a loose list, where Markdown wraps each item in a paragraph, have the space of list items.
-		.nested(":where(li, li > :is(p, ul, ol))") {
+		.descendants("li, li > :is(p, ul, ol)") {
 			$0.margin(vertical: listItemSpacing, horizontal: 0)
 		}
-		.nested(":where(li)") {
+		.descendants("li") {
 			$0.padding(.leading, .em(0.4444))
 		}
 		// In a list with `: ` and `:: ` lines, like the features of an app, a nested list is details of its item, so it looks like the `:: ` lines, and not heavier than them.
-		.nested(":where(:is(ul, ol):has(> li > :is(\(ProseStyles.listSubtitle.selector), \(ProseStyles.listDescription.selector))) > li > :is(ul, ol))") {
-			$0
-				.font(size: .rootEm(0.875), lineHeight: 1.625)
-				.color(.secondaryText)
+		.descendants(":is(ul, ol):has(> li > :is(\(ProseStyles.listSubtitle.selector), \(ProseStyles.listDescription.selector))) > li > :is(ul, ol)") {
+			$0.listDetailText()
 		}
 		.nested(":where(ol > li)::marker") {
-			$0.color(.gray(500))
+			$0.color(.secondaryText)
 		}
 		.nested(":where(ul > li)::marker") {
 			$0.color(.gray(300), dark: .gray(600))
 		}
 		// The margins are with the element rules, so the spacing rules after them, like no space below a heading, win.
-		.nested(":where(blockquote, pre, img, video, picture, figure, \(ProseStyles.tableContainer.selector), \(CodeBlock.Styles.root.selector))") {
-			$0.margin(vertical: blockSpacing, horizontal: 0)
+		.descendants("blockquote, pre, img, video, picture, figure, \(ProseStyles.tableContainer.selector), \(CodeBlock.Styles.root.selector)") {
+			$0.proseBlockMargin()
 		}
-		.nested(":where(\(CodeBlock.Styles.root.selector))") {
+		.descendants(CodeBlock.Styles.root.selector) {
 			$0.widerThanProse()
 		}
-		.nested(":where(hr)") {
+		.descendants("hr") {
 			$0
 				.margin(vertical: .em(3), horizontal: 0)
 				.border(.top, .separator)
 		}
-		.nested(":where(blockquote)") {
+		.descendants("blockquote") {
 			$0
 				.padding(.leading, .em(1))
 				.border(.leading, .separator, width: .rootEm(0.25))
@@ -122,42 +132,46 @@ extension ProseStyles {
 				.fontWeight(.medium)
 				.color(.gray(900), dark: .gray(100))
 		}
-		.nested(":where(blockquote p:first-of-type)::before") {
-			$0.declaration(.content, "open-quote")
+		.descendants("blockquote p:first-of-type") {
+			$0.before {
+				$0.declaration(.content, "open-quote")
+			}
 		}
-		.nested(":where(blockquote p:last-of-type)::after") {
-			$0.declaration(.content, "close-quote")
+		.descendants("blockquote p:last-of-type") {
+			$0.after {
+				$0.declaration(.content, "close-quote")
+			}
 		}
 		// App icons (`icon.png`) have their own shape and shadow.
-		.nested(":where(img:not([src$='/icon.png']))") {
+		.descendants("img:not([src$='/icon.png'])") {
 			$0
 				.cornerRadius(.rootEm(0.375))
 				.shadow(.large)
 		}
-		.nested(":where(figcaption)") {
+		.descendants("figcaption") {
 			$0
 				.margin(.top, .em(1))
-				.font(size: .em(0.8889), lineHeight: 1.5)
+				.font(size: smallTextSize, lineHeight: 1.5)
 				.color(.secondaryText)
 		}
 		// Code is not hyphenated, like in blog posts on phones, as a hyphen would change it.
-		.nested(":where(code)") {
+		.descendants("code") {
 			$0
-				.font(size: .em(0.8889))
+				.font(size: smallTextSize)
 				.fontWeight(.semibold)
 				.color(.primaryText)
-				.declaration(.hyphens, .none)
+				.hyphenation(false)
 		}
 		// Strong text and code in links, quotes, headings, and table headers have the color of the text around them.
-		.nested(":where(:is(a, blockquote, h1, h2, h3, h4, h5, h6, th) :is(strong, code))") {
+		.descendants(":is(a, blockquote, h1, h2, h3, h4, h5, h6, th) :is(strong, code)") {
 			$0.color(.inherit)
 		}
 		// Code that is not a `CodeBlock`, like in release notes.
-		.nested(":where(pre)") {
+		.descendants("pre") {
 			$0.codeSurface()
 		}
 		// The code in a code block has the font of the block, not of inline code.
-		.nested(":where(pre code)") {
+		.descendants("pre code") {
 			$0
 				.inheritsFont()
 				.color(.inherit)
@@ -168,7 +182,7 @@ extension ProseStyles {
 	*/
 	static let spacing = Style()
 		// Also after a line break that follows a heading, which takes no space.
-		.nested(":where(:is(hr, h2, h3, h4, h5, h6) + *, :is(h2, h3, h4, h5, h6) + br + *)") {
+		.descendants(":is(hr, h2, h3, h4, h5, h6) + *, :is(h2, h3, h4, h5, h6) + br + *") {
 			$0.margin(.top, 0)
 		}
 		// Low specificity, so a block that sets its own margin, like an alert, keeps it.
@@ -193,8 +207,7 @@ extension ProseStyles {
 	*/
 	static let listDescriptionStyle = Style()
 		.display(.block)
-		.font(size: .rootEm(0.875), lineHeight: 1.625)
-		.color(.secondaryText)
+		.listDetailText()
 		// Slightly more spacing when both are used, and the description is smaller.
 		.nested("\(ProseStyles.listSubtitle.selector) + &") {
 			$0
@@ -212,27 +225,19 @@ extension ProseStyles {
 		.declaration(.textRendering, "optimizeLegibility")
 		// Only on phones, where the column is narrow.
 		.below(.smallTablet) {
-			$0.declaration(.hyphens, .auto)
+			$0.hyphenation(true)
 		}
 		.declaration(.hangingPunctuation, "first")
-		.nested(":where(a)") {
+		.descendants("a") {
 			$0
 				.color(.link)
-				.hover {
+				// The color of the link, so the underline is not darker than the text in dark mode.
+				.hoverOrFocusVisible {
 					$0
-						.underlineColor(.primary(600))
+						.underlineColor(.link)
 						.underlineThickness(.pixels(4))
 				}
 		}
-
-	/**
-	The footnotes at the end, below a line, in smaller text, so they do not look like more of the text.
-	*/
-	static let footnotesStyle = Style()
-		.margin(.top, .rootEm(4))
-		.padding(.top, .rootEm(2))
-		.border(.top, .separator)
-		.font(size: .rootEm(0.9375), lineHeight: 1.6)
 
 	/**
 	The number of a footnote reference, a button that opens the footnote in a popover.
@@ -241,23 +246,21 @@ extension ProseStyles {
 		.padding(.horizontal, .pixels(2))
 		.fontWeight(.semibold)
 		.color(.link)
-		.cursor(.pointer)
-		.hover {
+		.hoverOrFocusVisible {
 			$0.underline()
 		}
 		.minimumTapArea()
 
 	/**
-	A footnote in a popover, above the reference that opened it, or below when there is no space above.
+	A footnote or an inline note in a popover, above the reference that opened it, or below when there is no space above.
 	*/
-	static let footnotePopoverStyle = Style()
+	static let popoverStyle = Style()
 		.positionArea(.top)
 		.positionTryFallbacks(.flipBlock)
 		.inset(.auto)
 		.margin(.pixels(8))
 		.frame(maxWidth: .min(.rootEm(24), .viewportWidth(100) - .rootEm(2)))
 		.padding(vertical: .rootEm(0.75), horizontal: .rootEm(1))
-		.cornerRadius(.rootEm(0.75))
 		.popoverSurface()
 		.font(size: .rootEm(0.9375), lineHeight: 1.5)
 		.textAlign(.leading)
@@ -276,10 +279,39 @@ extension Style {
 	}
 
 	/**
+	A list in prose that does not look like a list of prose, like the details below a card or a step: without the space of a list, and with items that are blocks, so they have no bullets. Put it first, so the styles after it win.
+	*/
+	func plainList() -> Self {
+		margin(0)
+			.padding(0)
+			.children("li") {
+				$0
+					.display(.block)
+					.margin(0)
+					.padding(0)
+			}
+	}
+
+	/**
+	The small, secondary text of the details of a list item in prose, like a `:: ` line, and a nested list below it, so they look the same.
+	*/
+	fileprivate func listDetailText() -> Self {
+		font(size: .rootEm(0.875), lineHeight: 1.625)
+			.color(.secondaryText)
+	}
+
+	/**
+	The space of a block in prose above and below the element (``ProseStyles/blockSpacing``), like code, an alert, or a card, so it is set off from the text.
+	*/
+	func proseBlockMargin() -> Self {
+		margin(vertical: ProseStyles.blockSpacing, horizontal: 0)
+	}
+
+	/**
 	A card that is set off from the text of prose, like a quick answer or a trial, with the space of a block around it.
 	*/
 	func proseCard() -> Self {
-		margin(vertical: ProseStyles.blockSpacing, horizontal: 0)
+		proseBlockMargin()
 			.padding(.rootEm(1.75))
 			.cardSurface(isInteractive: false)
 			.trimmingChildMargins()

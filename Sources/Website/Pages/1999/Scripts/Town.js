@@ -1,30 +1,8 @@
 // SimSindreville 2000 on the 1999 page: a strip of land of 480 × 160 pixels, drawn twice as large, with eight lots between the mountains and the road. The buildings are drawn with rectangles, so their windows can light up at night. The taxes come in each month, which is six seconds while the town is on the screen, and for the time the visitor was away.
+import GeoCitiesElement, {randomItem, randomBetween, clamp} from '/scripts/geocities-element.js';
+import {makeSprite} from '/scripts/geocities-canvas.js';
 
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-// Makes a canvas with a sprite of big pixels, from rows of letters where each letter is a color of the palette, and any other letter, like a dot, is clear. Short rows are clear at the end.
-const makeSprite = (rows, palette, scale = 1) => {
-	const width = Math.max(...rows.map(row => row.length));
-	const canvas = document.createElement('canvas');
-	canvas.width = width * scale;
-	canvas.height = rows.length * scale;
-	const context = canvas.getContext('2d');
-
-	for (const [y, row] of rows.entries()) {
-		for (const [x, letter] of [...row].entries()) {
-			if (palette[letter]) {
-				context.fillStyle = palette[letter];
-				context.fillRect(x * scale, y * scale, scale, scale);
-			}
-		}
-	}
-
-	return canvas;
-};
-
-export default class extends GeoCitiesElement {
+class GeoCitiesTown extends GeoCitiesElement {
 	// The town only lives while the picture is on the screen, not while only the newspaper below it is.
 	get visibilityTarget() {
 		return this.parts.city;
@@ -726,22 +704,6 @@ export default class extends GeoCitiesElement {
 
 		const pickedTool = () => toolInputs.find(item => item.checked)?.value ?? 'house';
 
-		const showTool = () => {
-			for (const item of toolInputs) {
-				const label = item.closest('label');
-
-				if (item.checked) {
-					label.dataset.state = 'on';
-				} else {
-					delete label.dataset.state;
-				}
-			}
-		};
-
-		for (const item of toolInputs) {
-			this.on(item, 'change', showTool);
-		}
-
 		const useLot = index => {
 			const tool = pickedTool();
 			const lot = lots[index];
@@ -888,9 +850,10 @@ export default class extends GeoCitiesElement {
 			news.textContent = isRaining ? 'Welcome, mayor! It is raining. Of course it is.' : 'Welcome, mayor! The sun is out. Nobody knows how long it will last.';
 		}
 
-		showTool();
 		showStats();
 		saveTown();
 		draw();
 	}
 }
+
+customElements.define('geo-cities-town', GeoCitiesTown);

@@ -291,7 +291,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 				button(.part(Parts.tear), .type(.button), .disabled) {
 					"✂️ Tear Off"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigSmallButton, Styles.dimmedWhenDisabled)
+				.style(GeoCitiesPage.Styles.smallButton, Styles.bigSmallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 				button(.part(Parts.roll), .type(.button)) {
 					"🧻 New Roll"
@@ -355,7 +355,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					button(.part(Parts.shutter), .type(.button)) {
 						"📸 Shoot (A)"
 					}
-					.style(GeoCitiesPage.Styles.retroButton, Styles.bigButton)
+					.style(GeoCitiesPage.Styles.retroButton, GeoCitiesPage.Styles.bigButton)
 
 					button(.part(Parts.turnEye), .type(.button), .ariaPressed(false)) {
 						"🔄 Turn the Eye"
@@ -465,7 +465,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					button(.part(Parts.printButton), .type(.button)) {
 						"🖨️ Print"
 					}
-					.style(GeoCitiesPage.Styles.retroButton, Styles.bigButton)
+					.style(GeoCitiesPage.Styles.retroButton, GeoCitiesPage.Styles.bigButton)
 
 					button(.part(Parts.toStamps), .type(.button)) {
 						"⭐ Stamps"
@@ -549,7 +549,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					button(.part(Parts.musicPlay), .type(.button), .ariaPressed(false)) {
 						"▶ Play (Sound!)"
 					}
-					.style(GeoCitiesPage.Styles.retroButton, Styles.bigButton)
+					.style(GeoCitiesPage.Styles.retroButton, GeoCitiesPage.Styles.bigButton)
 
 					button(.part(Parts.slower), .type(.button)) {
 						"🐢 Slower"
@@ -595,7 +595,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					button(.part(Parts.runStart), .type(.button)) {
 						"🏁 Start the Race"
 					}
-					.style(GeoCitiesPage.Styles.retroButton, Styles.bigButton)
+					.style(GeoCitiesPage.Styles.retroButton, GeoCitiesPage.Styles.bigButton)
 
 					p(.part(Parts.runBest)) {
 						"BEST --.-- ★ WINS 0"
@@ -652,14 +652,14 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 						button(.part(Parts.peel), .type(.button), .disabled) {
 							"🩹 Peel Off the Last One I Touched"
 						}
-						.style(GeoCitiesPage.Styles.smallButton, Styles.bigSmallButton, Styles.dimmedWhenDisabled)
+						.style(GeoCitiesPage.Styles.smallButton, Styles.bigSmallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 					}
 					.style(GeoCitiesPage.Styles.buttonRow)
 
 					// The script adds a copy for each sticker that is torn off the printer.
 					template(.part(Parts.stickerTemplate)) {
 						button(.type(.button), .hook(Hooks.sticker)) {
-							canvas(.width(176), .height(176)) {}
+							canvas(.part(Parts.stickerCanvas), .width(176), .height(176)) {}
 								.style(Styles.stickerCanvas)
 						}
 						.style(Styles.sticker)
@@ -731,6 +731,16 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 		case wallEmpty
 		case peel
 		case stickerTemplate
+		case stickerCanvas
+	}
+
+	enum States: String, ElementStateSet {
+		case turned
+		case open
+		case on
+		case busy
+		case left
+		case right
 	}
 
 	enum Hooks: String, ScriptHookSet {
@@ -804,8 +814,6 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 		case settings
 		case toggle
 		case bigSmallButton
-		case bigButton
-		case dimmedWhenDisabled
 		case panel
 		case belowButtons
 		case album
@@ -864,7 +872,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 				// The round eye, which turns around on the cartridge.
 				Style()
 					.hstack(alignment: .center, justification: .center)
-					.frame(width: .rootEm(3.25), height: .rootEm(3.25))
+					.frame(size: .rootEm(3.25))
 					.margin(.top, .rootEm(-1.75))
 					.backgroundImage(.radialGradient("circle at 35% 30%", Color("#9fb4f0"), Color("#3e5cc0"), Color("#1c2f70")))
 					.border(Color("#1c2f70"), width: .pixels(2))
@@ -873,14 +881,14 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 			case .lens:
 				// The lens, black with a glint. When the eye is turned toward me, the lens goes around to the back.
 				Style()
-					.frame(width: .rootEm(1.5), height: .rootEm(1.5))
+					.frame(size: .rootEm(1.5))
 					.backgroundImage(.radialGradient("circle at 35% 30%", Color("#8899aa"), Color("#111122"), Color("#000000")))
 					.border(Color("#cc2222"), width: .pixels(3))
 					.cornerRadius(.circle)
 					.media(.allowsMotion) {
 						$0.transition(.offset, .opacity, animation: .easeInOut(duration: .milliseconds(400)))
 					}
-					.when(.state, is: "turned") {
+					.when(States.turned) {
 						$0
 							.offset(x: .rootEm(1.25))
 							.opacity(0)
@@ -934,7 +942,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					.below(.smallTablet) {
 						$0
 							.frame(height: 0)
-							.when(.state, is: "open") {
+							.when(States.open) {
 								$0.frame(height: .auto)
 							}
 					}
@@ -983,21 +991,19 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 			case .printerLight:
 				// The power light, red while the printer is on, and blinking while it prints.
 				Style()
-					.frame(width: .rootEm(0.625), height: .rootEm(0.625))
+					.frame(size: .rootEm(0.625))
 					.background(Color("#441111"))
 					.cornerRadius(.circle)
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0
 							.background(Color("#ff2222"))
 							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ff3333")))
 					}
-					.when(.state, is: "busy") {
+					.when(States.busy) {
 						$0
 							.background(Color("#ff2222"))
 							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ff3333")))
-							.media(.allowsMotion) {
-								$0.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .milliseconds(400)).repeatForever(autoreverses: false))
-							}
+							.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .milliseconds(400)).repeatForever(autoreverses: false))
 					}
 			case .printerBrand:
 				Style()
@@ -1024,19 +1030,9 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 				// Big enough for a thumb, and pressed in while it is on.
 				Style()
 					.frame(minHeight: .rootEm(2.5))
-					.when(.state, is: "on") {
-						$0
-							.background(Color("#ffff99"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
+					.pressedIn(Color("#ffff99"))
 			case .bigSmallButton:
 				Style().frame(minHeight: .rootEm(2.5))
-			case .bigButton:
-				Style().frame(minHeight: .rootEm(2.75))
-			case .dimmedWhenDisabled:
-				Style().disabled {
-					$0.opacity(0.5)
-				}
 			case .panel:
 				Style().vstack(spacing: .rootEm(0.5))
 			case .belowButtons:
@@ -1057,10 +1053,10 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 							.handCursor()
 							.disabled {
 								$0
-									.opacity(0.4)
-									.cursor(.default)
+									.opacity(0.5)
+									.cursor(GeoCitiesPage.arrowCursor, fallback: .default)
 							}
-							.when(.state, is: "selected") {
+							.pressed {
 								$0
 									.background(Color("#ffff66"))
 									.border(Color("#cc0000"), width: .pixels(2), style: .solid)
@@ -1078,10 +1074,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					.textStyle(.caption)
 			case .status:
 				Style()
-					.frame(minHeight: .lineHeight(2))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+					.toyStatus()
 					.textAlign(.center)
 			case .help:
 				// On a phone, the keys are last, below the printer.
@@ -1122,10 +1115,10 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					.offset(x: .percent(-50), y: .percent(-50))
 					.touchAction(.none)
 					.cursor(.move)
-					.when(.state, is: "left") {
+					.when(States.left) {
 						$0.rotationEffect(.degrees(-6))
 					}
-					.when(.state, is: "right") {
+					.when(States.right) {
 						$0.rotationEffect(.degrees(5))
 					}
 					.active {

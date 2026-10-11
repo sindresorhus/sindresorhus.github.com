@@ -1,5 +1,7 @@
 // WaffleClues on the 1999 page, an extra of the adventure games: a hint book with invisible ink like the InvisiClues of Infocom. Rubbing a box with the pointer or a finger, or pressing it, makes the ink show in two steps.
-export default class extends GeoCitiesElement {
+import GeoCitiesElement from '/scripts/geocities-element.js';
+
+class GeoCitiesWaffleClues extends GeoCitiesElement {
 	connected() {
 		const steps = ['', 'faint', 'shown'];
 
@@ -58,3 +60,5 @@ export default class extends GeoCitiesElement {
 		}
 	}
 }
+
+customElements.define('geo-cities-waffle-clues', GeoCitiesWaffleClues);

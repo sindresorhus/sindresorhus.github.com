@@ -10,6 +10,11 @@ platforms: [
 appStoreID: 6465250302
 olderVersions: [
 	{
+		version: '1.5.1'
+		macOS: '26'
+		url: 'https://www.dropbox.com/scl/fi/z45d2f7ngiyc3t7qrbo4f/AI-Actions-1.5.1-macOS-26-1791816899.zip?rlkey=orqginnmip2anbb6jvw2xhi1n&raw=1'
+	}
+	{
 		version: '1.4.5'
 		macOS: '15'
 		url: 'https://www.dropbox.com/scl/fi/o80d948mabpohlip3je6m/AI-Actions-1.4.5-macOS-15-1769233269.zip?rlkey=lgxnxyzv75g6r82b4c3fitwuz&raw=1'
@@ -102,6 +107,6 @@ Workaround: Gemini already offers an OpenAI-compatible endpoint, which this app 
 
 A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
 
-[Download](https://www.dropbox.com/scl/fi/au3nr5btq9tk5exibiacx/AI-Actions-1.5.1-1777968530.zip?rlkey=cwlxu4j6sf3dy1wq23wx92vm0&raw=1) *(1.5.1)*
+[Download](https://www.dropbox.com/scl/fi/kmzufw5hv2we46ae9kcn2/AI-Actions-1.5.2-1791817015.zip?rlkey=117s2j2y3zhelr7vv05g6w8ov&raw=1) *(1.5.2)*
 
-*Requires macOS 26 or later*
+*Requires macOS 27 or later*

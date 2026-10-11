@@ -1,10 +1,15 @@
-// The base class of the custom elements of the site (`ScriptedElement` in SiteKit). Swift renders all the markup of an element, without a shadow DOM, and the class of the element only adds the behavior. The script of each element is next to its Swift file, with only its class, like `export default class extends ScriptedElement { … }`, and the build adds the import of this module and the definition of the element.
+// The base class of the custom elements of the site (`ScriptedElement` in SiteKit). Swift renders all the markup of an element, without a shadow DOM, and the class of the element only adds the behavior. The script of each element is next to its Swift file: it imports this module, declares its class, like `class FeedTicker extends ScriptedElement { … }`, and defines its element with `customElements.define(…)`.
 //
-// An element overrides the methods it needs: `connected()` and `disconnected()`, `visibilityChanged(isVisible)`, `reducedMotionChanged(isReduced)`, and `focusReplacement(control)`, and the getters `visibilityTarget` and `focusFallback`. The rest are helpers, so elements do not copy them: `parts`, `config`, `on()` and `signal`, `timeout()`, `interval()`, and `wait()`, `observe()`, `isVisible` and `watchVisibility()`, `loop()`, `reducedMotion`, `stored()` and `store()`, `say()`, and `sound()`.
+// An element overrides the methods it needs: `connected()` and `disconnected()`, `visibilityChanged(isVisible)`, `reducedMotionChanged(isReduced)`, and `focusReplacement(control)`, and the getters `visibilityTarget` and `focusFallback`. The rest are helpers, so elements do not copy them: `parts` and `clone()`, `config`, `on()` and `signal`, `timeout()`, `interval()`, and `wait()`, `observe()`, `isVisible` and `watchVisibility()`, `loop()`, `reducedMotion`, `stored()` and `store()`, `say()`, and `sound()`. The module also exports `cloneTemplate()` and `prerendered`, like `import ScriptedElement, {cloneTemplate} from '/scripts/scripted-element.js';`.
+//
+// An element shows a state to its styles with `data-state` on itself or a part, like `button.dataset.state = 'copied'`, where the state is a case of the `States` of the Swift component, which styles it with `.when(States.copied)`. A toggle button sets `aria-pressed` instead, which the styles read with `.pressed` (or `.descendantPressed` for the element around it), and a radio button needs no script, as the styles read `:checked` with `.descendantChecked`.
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
-// The speculation rules of the site can prerender the page. The elements start when the visitor opens it.
-const prerendering = document.prerendering ? new Promise(resolve => {
+// A copy of the element of a template, like a row for a list. The template has one element, which is the whole copy. It is not a method, so the page scripts of the 1999 page can use it too.
+export const cloneTemplate = template => template.content.firstElementChild.cloneNode(true);
+
+// The speculation rules of the site can prerender the page. The elements start when the visitor opens it, and so do the page scripts of the 1999 page, with `await prerendered;`. It is `undefined` when the page was not prerendered, so nothing waits.
+export const prerendered = document.prerendering ? new Promise(resolve => {
 	document.addEventListener('prerenderingchange', resolve, {once: true});
 }) : undefined;
 
@@ -19,7 +24,7 @@ export default class ScriptedElement extends HTMLElement {
 	#said = new Map();
 
 	async connectedCallback() {
-		await prerendering;
+		await prerendered;
 
 		// The element can be removed while the page prerenders, or be connected already, when it moved.
 		if (!this.isConnected || this.#controller) {
@@ -132,38 +137,46 @@ export default class ScriptedElement extends HTMLElement {
 
 	// The elements with `.part(Parts.name)` in Swift, by name, like `this.parts.screen`. The parts of an element inside this one belong to that element. They are found once, when first read, so a part that the element later moves out of itself, like a banner that it hangs on the page, stays a part. A part that the element does not have throws, so a typo or a part that the markup lost fails at once, not later with `undefined`.
 	get parts() {
-		if (!this.#parts) {
-			const parts = {};
-
-			for (const element of this.querySelectorAll('[data-part]')) {
-				if (this.#owner(element) === this) {
-					parts[element.dataset.part] ??= element;
-				}
-			}
-
-			this.#parts = new Proxy(parts, {
-				// `then` and `toJSON` are what `await` and `JSON.stringify()` look for, so they are not parts.
-				get: (target, name) => {
-					if (
-						typeof name === 'string'
-						&& !Object.hasOwn(target, name)
-						&& name !== 'then'
-						&& name !== 'toJSON'
-					) {
-						throw new Error(`<${this.localName}> has no part “${name}”.`);
-					}
-
-					return target[name];
-				},
-			});
-		}
-
+		this.#parts ??= this.#partsIn(this, `<${this.localName}>`);
 		return this.#parts;
 	}
 
-	#owner(element) {
+	// A copy of the element of the template part (`cloneTemplate()`), like a row for a list, and the parts in the copy, by name, like `const {element: row, parts} = this.clone('rowTemplate'); parts.name.textContent = name;`. A part in a template is a part of the element in Swift, but `this.parts` does not have it, as the content of a template is not in the element. A part that the copy does not have throws, like in `this.parts`. The element of the template itself is `element`, not a part.
+	clone(templateName) {
+		const element = cloneTemplate(this.parts[templateName]);
+		return {element, parts: this.#partsIn(element, `The copy of “${templateName}” in <${this.localName}>`)};
+	}
+
+	// The parts inside the root, without the parts of an element inside it, as a Proxy that throws for a part that the root does not have. The description names the root in the error.
+	#partsIn(root, description) {
+		const parts = {};
+
+		for (const element of root.querySelectorAll('[data-part]')) {
+			if (this.#owner(element, root) === root) {
+				parts[element.dataset.part] ??= element;
+			}
+		}
+
+		return new Proxy(parts, {
+			// `then` and `toJSON` are what `await` and `JSON.stringify()` look for, so they are not parts.
+			get: (target, part) => {
+				if (
+					typeof part === 'string'
+					&& !Object.hasOwn(target, part)
+					&& part !== 'then'
+					&& part !== 'toJSON'
+				) {
+					throw new Error(`${description} has no part “${part}”.`);
+				}
+
+				return target[part];
+			},
+		});
+	}
+
+	#owner(element, root) {
 		for (let ancestor = element.parentElement; ancestor; ancestor = ancestor.parentElement) {
-			if (ancestor === this || ancestor.localName.includes('-')) {
+			if (ancestor === root || ancestor.localName.includes('-')) {
 				return ancestor;
 			}
 		}

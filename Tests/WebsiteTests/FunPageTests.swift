@@ -90,13 +90,16 @@ struct FunPageTests {
 		#expect(paths.contains(.geoCities))
 	}
 
+	/**
+	A year has only its own days, from its first day, on its weekday, to the build date.
+	*/
 	@Test
 	func `a contribution year starts on its weekday and ends at the build date`() throws {
 		let json = #"""
 		{
 			"totalContributions": 12,
 			"weeks": [
-				{"contributionDays": [{"date": "2026-01-01", "contributionCount": 2, "contributionLevel": "FIRST_QUARTILE"}, {"date": "2026-01-02", "contributionCount": 7, "contributionLevel": "FOURTH_QUARTILE"}, {"date": "2026-01-03", "contributionCount": 0, "contributionLevel": "NONE"}]},
+				{"contributionDays": [{"date": "2025-12-31", "contributionCount": 50, "contributionLevel": "FOURTH_QUARTILE"}, {"date": "2026-01-01", "contributionCount": 2, "contributionLevel": "FIRST_QUARTILE"}, {"date": "2026-01-02", "contributionCount": 7, "contributionLevel": "FOURTH_QUARTILE"}, {"date": "2026-01-03", "contributionCount": 0, "contributionLevel": "NONE"}]},
 				{"contributionDays": [{"date": "2026-01-04", "contributionCount": 3, "contributionLevel": "SECOND_QUARTILE"}, {"date": "2026-01-05", "contributionCount": 7, "contributionLevel": "FOURTH_QUARTILE"}, {"date": "2026-01-06", "contributionCount": 0, "contributionLevel": "NONE"}]}
 			]
 		}
@@ -106,9 +109,34 @@ struct FunPageTests {
 		let buildDate = try Date("2026-01-05T12:00:00Z", strategy: .iso8601)
 		let year = ContributionYear(year: 2026, calendar: calendar, until: buildDate)
 
-		// 2026-01-01 is a Thursday.
+		// 2026-01-01 is a Thursday. The busier last day of the year before is not in the year.
 		#expect(year.firstWeekday == 4)
-		#expect(year.days.map(\.date) == ["2026-01-01", "2026-01-02", "2026-01-03", "2026-01-04", "2026-01-05"])
-		#expect(year.busiestDay?.date == "2026-01-02")
+		#expect(year.days.map(\.date.isoDay) == ["2026-01-01", "2026-01-02", "2026-01-03", "2026-01-04", "2026-01-05"])
+		#expect(year.busiestDay?.date.isoDay == "2026-01-02")
+		#expect(year.activeDayCount == 4)
+	}
+
+	@Test
+	func `the longest streak goes on from one year to the next, and the busiest day and weekday are of all the years`() throws {
+		func year(_ year: Int, days: [(date: String, count: Int)]) throws -> ContributionYear {
+			let days = days.map { #"{"date": "\#($0.date)", "contributionCount": \#($0.count), "contributionLevel": "\#($0.count > 0 ? "FIRST_QUARTILE" : "NONE")"}"# }.joined(separator: ", ")
+			let json = #"{"totalContributions": 0, "weeks": [{"contributionDays": [\#(days)]}]}"#
+			let calendar = try JSONDecoder().decode(ContributionCalendar.self, from: Data(json.utf8))
+			return ContributionYear(year: year, calendar: calendar, until: try Date("2026-12-31T12:00:00Z", strategy: .iso8601))
+		}
+
+		let years = [
+			try year(2025, days: [("2025-12-27", 9), ("2025-12-28", 0), ("2025-12-29", 1), ("2025-12-30", 2), ("2025-12-31", 3)]),
+			try year(2026, days: [("2026-01-01", 9), ("2026-01-02", 4), ("2026-01-03", 0), ("2026-01-04", 1)]),
+		]
+
+		#expect(years.longestStreak == 5)
+		// The earliest of the days with the same count.
+		#expect(years.busiestDay?.date.isoDay == "2025-12-27")
+		// Thursday (4) and Saturday (6) both have 9, so the earlier in the week wins.
+		#expect(years.busiestWeekday?.weekday == 4)
+		#expect(years.busiestWeekday?.count == 9)
+		#expect([ContributionYear]().longestStreak == 0)
+		#expect([ContributionYear]().busiestWeekday == nil)
 	}
 }

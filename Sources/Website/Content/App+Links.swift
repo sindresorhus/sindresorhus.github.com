@@ -14,7 +14,7 @@ extension App {
 	*/
 	private var sectionLinks: [LabeledLink] {
 		markdown.headings
-			.filter { $0.level == 2 && $0.id != Heading.footnotesID }
+			.filter { $0.level == 2 }
 			.map { heading in
 				LabeledLink(heading.id == Self.faqSectionID ? "FAQ" : heading.text, destination: .fragment(heading.id))
 			}
@@ -24,11 +24,8 @@ extension App {
 	Download buttons: the repo or redirect page as “Learn More”, then the custom links.
 	*/
 	var mainLinks: [LabeledLink] {
-		let learnMore = [frontmatter.repositoryURL, frontmatter.redirectURL]
-			.compactMap(\.self)
-			.map { LabeledLink("Learn More", url: $0) }
-
-		return [].merging(learnMore).merging(frontmatter.mainLinks.labeledLinks)
+		let learnMore = (frontmatter.redirectURL ?? frontmatter.repositoryURL).map { [LabeledLink("Learn More", url: $0)] } ?? []
+		return learnMore.merging(frontmatter.mainLinks.labeledLinks)
 	}
 
 	/**
@@ -70,12 +67,11 @@ extension App {
 			}
 
 			links.append(LabeledLink("Privacy Policy", path: privacyPolicyPath))
-		}
+			links.append(.termsOfUse)
 
-		links.append(.termsOfUse)
-
-		if frontmatter.isPaid {
-			links.append(.discounts)
+			if frontmatter.isPaid {
+				links.append(.discounts)
+			}
 		}
 
 		return links
@@ -129,7 +125,7 @@ extension App {
 	}
 
 	/**
-	The questions of the FAQ section: its level 3 headings, except the injected feedback question.
+	The questions of the FAQ section: its level 3 headings, except the injected feedback question and the added menu bar question, which only links to the general question.
 	*/
 	var faqHeadings: [Heading] {
 		guard let start = markdown.headings.firstIndex(where: \.isFAQSection) else {
@@ -145,7 +141,8 @@ extension App {
 
 			if
 				heading.level == 3,
-				heading.id != App.feedbackHeadingID
+				heading.id != App.feedbackHeadingID,
+				heading.id != App.addedMenuBarQuestionID
 			{
 				questions.append(heading)
 			}

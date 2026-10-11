@@ -688,7 +688,7 @@ extension GeoCitiesPage {
 	The certificate for the iMac of the banner ad, which only shows in a print. The button below the banner prints it after a catch, and a print of the page without a catch gets it too, with a note that there is no iMac.
 	*/
 	var certificate: some HTML {
-		div(.id(Hooks.certificate)) {
+		div {
 			p {
 				"Certificate of Winning"
 			}

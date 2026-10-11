@@ -49,7 +49,7 @@ struct AppdlePage: Page {
 			// Centered, like the game below it.
 			PageHeader(title: "Appdle", intro: "Guess the app from a pixelated part of its icon. Each wrong guess shows more of it. A new app every day.", isCentered: true)
 
-			div(.id(Hooks.game)) {
+			div {
 				p {
 					"Puzzle "
 					span(.id(Hooks.number)) {}
@@ -57,12 +57,12 @@ struct AppdlePage: Page {
 				.style(Styles.meta)
 
 				// `appdle.js` draws the part of the icon, and the whole icon when the game ends, with the `revealed` state.
-				canvas(.custom(name: "width", value: "480"), .custom(name: "height", value: "480"), .role("img")) {}
+				canvas(.id(Hooks.canvas), .custom(name: "width", value: "480"), .custom(name: "height", value: "480"), .role("img")) {}
 					.accessibilityLabel("A pixelated part of the icon of today’s app")
 					.style(Styles.canvas)
 
 				// One slot for each guess, which `appdle.js` marks as `correct` or `wrong`, like the squares of the shared result.
-				div {
+				div(.id(Hooks.slots)) {
 					for _ in 0..<Self.maximumGuesses {
 						span {}
 							.style(Styles.slot)
@@ -75,7 +75,7 @@ struct AppdlePage: Page {
 				p(.id(Hooks.status), .role("status")) {}
 					.style(Styles.status)
 
-				form {
+				form(.id(Hooks.form)) {
 					label(.for("appdle-guess")) {
 						"App name"
 					}
@@ -95,8 +95,8 @@ struct AppdlePage: Page {
 				div(.id(Hooks.result), .hidden, .tabindex(-1)) {
 					// `appdle.js` sets the start, like “The app is ”, and the link to the app.
 					p {
-						span {}
-						a {}
+						span(.id(Hooks.answerStart)) {}
+						a(.id(Hooks.answer)) {}
 						"."
 					}
 					.style(Styles.answer)
@@ -121,7 +121,7 @@ struct AppdlePage: Page {
 				}
 				.style(Styles.result)
 
-				ol {}
+				ol(.id(Hooks.attempts)) {}
 					.accessibilityLabel("Guesses")
 					.style(Styles.attempts)
 			}
@@ -177,13 +177,30 @@ extension AppdlePage {
 	The IDs and data attributes that the scripts of the page find elements by.
 	*/
 	enum Hooks: String, ScriptHookSet {
-		case game = "appdle"
 		case data = "appdle-data"
 		case number = "appdle-number"
 		case copyResult = "appdle-copy-result"
 		case restart = "appdle-restart"
 		case result = "appdle-result"
 		case status = "appdle-status"
+		case canvas = "appdle-canvas"
+		case slots = "appdle-slots"
+		case form = "appdle-form"
+		case attempts = "appdle-attempts"
+
+		/**
+		The start of the answer, like “The app is ”, before the link to the app.
+		*/
+		case answerStart = "appdle-answer-start"
+
+		case answer = "appdle-answer"
+	}
+
+	enum States: String, ElementStateSet {
+		case revealed
+		case wrong
+		case correct
+		case done
 	}
 
 	enum Styles: StyleSet {
@@ -211,9 +228,7 @@ extension AppdlePage {
 					.vstack(alignment: .center, spacing: .rootEm(1.25))
 					.frame(maxWidth: .rootEm(26))
 					.margin(.horizontal, .auto)
-					.media(.scriptingDisabled) {
-						$0.hidden()
-					}
+					.hiddenWithoutScripting()
 			case .meta:
 				Style()
 					.secondaryText()
@@ -221,12 +236,11 @@ extension AppdlePage {
 			case .canvas:
 				// The part of the icon is a tile with the corners of an app icon. The whole icon has its own shape, with space around it, so it has no corners or shadow. Both are the same size, so the page does not move when the game ends.
 				Style()
-					.display(.block)
 					.frame(width: .percent(100), maxWidth: .rootEm(15))
 					.aspectRatio(1)
 					.cornerRadius(.percent(22.5))
 					.shadow(.window)
-					.when(.state, is: "revealed") {
+					.when(States.revealed) {
 						$0
 							.cornerRadius(0)
 							.shadow([])
@@ -237,10 +251,10 @@ extension AppdlePage {
 					.frame(width: .rootEm(1.75), height: .rootEm(0.5))
 					.cornerRadius(.capsule)
 					.background(.gray(200), dark: .gray(800))
-					.when(.state, is: "wrong") {
+					.when(States.wrong) {
 						$0.background(.red(500))
 					}
-					.when(.state, is: "correct") {
+					.when(States.correct) {
 						$0.background(.emerald(400))
 					}
 			case .form:
@@ -256,7 +270,9 @@ extension AppdlePage {
 					.cornerRadius(.capsule)
 					.padding(.horizontal, .rootEm(1.125))
 					.nested("&::-webkit-calendar-picker-indicator") {
-						$0.declaration(.display, .important(.none))
+						$0.important {
+							$0.hidden()
+						}
 					}
 			case .status:
 				// The height of one line while it is empty, so the form below does not move when a message shows. When the game ends, it is the headline of the result.
@@ -265,7 +281,7 @@ extension AppdlePage {
 					.textAlign(.center)
 					.textWrap(.balance)
 					.color(.bodyText)
-					.when(.state, is: "done") {
+					.when(States.done) {
 						$0
 							.font(.extraLarge2, weight: .bold)
 							.letterSpacing(.em(-0.02))
@@ -278,13 +294,8 @@ extension AppdlePage {
 					.flexWrap()
 					.children("li") {
 						$0
-							.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.875))
-							.cornerRadius(.capsule)
-							.textStyle(.caption, weight: .medium)
-							.textWrap(.nowrap)
-							.color(.bodyText)
-							.background(.card)
-							.when(.state, is: "correct") {
+							.chip(isInteractive: false)
+							.when(States.correct) {
 								$0
 									.color(.emerald(700), dark: .emerald(400))
 									.background(.emerald(50), dark: .emerald(950))

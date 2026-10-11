@@ -57,11 +57,17 @@ public struct DirectoryWatcher: AsyncSequence, Sendable {
 		}
 
 		/**
-		The modification date of each file in the directories. Hidden files, like `.DS_Store`, are left out.
+		The modification date of each file in the directories. Hidden files, like `.DS_Store`, are left out. Directories are left out too, as an atomic save of a file changes the date of its directory, and the file is reported already.
 		*/
 		private static func snapshot(of directories: [URL]) -> [URL: Date] {
-			Dictionary(directories.flatMap { $0.contentsRecursively(includesHiddenFiles: false) }.map { file in
-				(file, (try? file.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast)
+			Dictionary(directories.flatMap { $0.contentsRecursively(includesHiddenFiles: false) }.compactMap { file in
+				let values = try? file.resourceValues(forKeys: [.isDirectoryKey, .contentModificationDateKey])
+
+				guard values?.isDirectory != true else {
+					return nil
+				}
+
+				return (file, values?.contentModificationDate ?? .distantPast)
 			}) { first, _ in first }
 		}
 	}

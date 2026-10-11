@@ -18,12 +18,14 @@ public struct MarkdownDocument: Sendable {
 	*/
 	public enum Style: Sendable {
 		/**
-		GitHub-flavored Markdown with extensions: heading IDs (`{#id}`) and directives, GitHub alerts, footnotes, bare URLs as links, keyboard shortcuts split into keys, and the options, like collapsible sections. The created HTML gets the classes of the theme in the options.
+		GitHub-flavored Markdown with extensions: heading IDs (`{#id}`) and directives, GitHub alerts, footnotes and inline notes in popovers, bare URLs as links, keyboard shortcuts split into keys, and the options, like collapsible sections. The created HTML gets the classes of the theme in the options.
+
+		Limitations: the parser reads the text between block directives on its own, so the definition of a footnote must be in the same part as its reference, before the next block directive, not at the end of a file that has a block directive after the reference. A popover is not printed, so a printed page has no footnotes and notes.
 		*/
 		case extended
 
 		/**
-		GitHub release notes, rendered like markdown-it with `linkify`: bare URLs and emails become links, and no other extensions apply.
+		GitHub release notes: bare URLs and emails become links, raw HTML other than `<kbd>` is escaped, and links allow only HTTP, HTTPS, mailto, and relative destinations. Images allow only HTTP, HTTPS, and relative destinations. No other extensions apply.
 		*/
 		case releaseNotes
 	}
@@ -91,8 +93,12 @@ public struct MarkdownDocument: Sendable {
 			public init<Attributes: Frontmatter>(render: @escaping @Sendable (_ attributes: Attributes, _ contentHTML: String) throws -> String) {
 				self.render = { attributes, contentHTML in
 					// The attributes are an object without the braces, which is a SOML object with them.
-					guard let value = try? SOML.Value(parsing: "{\(attributes)}") else {
-						throw ContentError(reason: "They are not valid, like `platform: \"macOS\"`.")
+					let value: SOML.Value
+
+					do throws(SOML.ParseError) {
+						value = try SOML.Value(parsing: "{\(attributes)}")
+					} catch {
+						throw ContentError(reason: "\(error.message). Write them like `platform: \"macOS\"`.")
 					}
 
 					return try render(Attributes.decode(from: value, root: "attributes"), contentHTML)
@@ -141,14 +147,14 @@ public struct MarkdownDocument: Sendable {
 		public var imageSize: (@Sendable (String) -> (width: Int, height: Int)?)?
 
 		/**
-		Shows a footnote in a popover when its reference is clicked, so it can be read in place, without a script. The footnotes are still listed at the end.
-		*/
-		public var showsFootnotesInPopovers: Bool
-
-		/**
 		Renders a fenced code block, like a component with syntax highlighting and a copy button. It gets the code and the language, which is the first word of the info string, like `swift`. Without it, a code block is `<pre><code class="language-swift">` with the code as text.
 		*/
 		public var codeBlock: (@Sendable (_ code: String, _ language: String?) -> String)?
+
+		/**
+		Renders the text of an inline note, like `^[Spotlight](note: "The search of macOS.")`. It gets the HTML of the text and the ID of the popover that the text opens, for a component with a script, so the text can wrap across lines. Without it, the text is a button with `popovertarget`, which needs no script, but does not wrap across lines, so the text of a note must be short.
+		*/
+		public var inlineNote: (@Sendable (_ textHTML: String, _ noteID: String) -> String)?
 
 		public init(
 			theme: MarkdownTheme = .default,
@@ -160,8 +166,8 @@ public struct MarkdownDocument: Sendable {
 			blockDirectives: [String: BlockDirectiveRenderer] = [:],
 			resolveLink: (@Sendable (String) throws -> String)? = nil,
 			imageSize: (@Sendable (String) -> (width: Int, height: Int)?)? = nil,
-			showsFootnotesInPopovers: Bool = false,
-			codeBlock: (@Sendable (_ code: String, _ language: String?) -> String)? = nil
+			codeBlock: (@Sendable (_ code: String, _ language: String?) -> String)? = nil,
+			inlineNote: (@Sendable (_ textHTML: String, _ noteID: String) -> String)? = nil
 		) {
 			self.theme = theme
 			self.collapsibleSections = collapsibleSections
@@ -172,8 +178,8 @@ public struct MarkdownDocument: Sendable {
 			self.blockDirectives = blockDirectives
 			self.resolveLink = resolveLink
 			self.imageSize = imageSize
-			self.showsFootnotesInPopovers = showsFootnotesInPopovers
 			self.codeBlock = codeBlock
+			self.inlineNote = inlineNote
 		}
 	}
 
@@ -214,11 +220,11 @@ public struct MarkdownDocument: Sendable {
 		*/
 		public struct MoreLink: Sendable {
 			public let title: String
-			public let url: String
+			public let destination: LinkDestination
 
-			public init(title: String, url: String) {
+			public init(title: String, destination: LinkDestination) {
 				self.title = title
-				self.url = url
+				self.destination = destination
 			}
 		}
 
@@ -255,7 +261,7 @@ public struct MarkdownDocument: Sendable {
 	let resources: PageResources
 
 	/**
-	The headings in document order, including the footnotes heading when there are footnotes.
+	The headings in document order.
 
 	Empty for the release notes style.
 	*/
@@ -286,10 +292,7 @@ public struct MarkdownDocument: Sendable {
 	init(parsing source: String, firstLine: Int, style: Style = .extended, options: Options) {
 		// Source positions and line-based extensions assume `\n` line endings, but GitHub release notes use `\r\n`.
 		let source = source.replacing("\r\n", with: "\n")
-		let parseOptions: ParseOptions = style == .extended && !options.blockDirectives.isEmpty ? .parseBlockDirectives : []
-		// Bare URLs and emails are links, like on GitHub, with its autolink extension. Limitation: like on GitHub, a file name with an at sign, like `icon@2x.png`, is an email link. Write it as code. Footnotes are only in the extended style.
-		let commonmarkOptions = style == .extended ? ConvertOptions.defaultCommonmarkOptions : ConvertOptions.defaultCommonmarkOptions.subtracting(.footnotes)
-		let convertOptions = ConvertOptions(parseOptions: parseOptions, commonmarkOptions: commonmarkOptions, extensions: ConvertOptions.defaultCommonmarkExtensions + ["autolink"])
+		let convertOptions = ConvertOptions(style: style, options: options)
 		var document = Document(parsing: source, convertOptions: convertOptions)
 
 		if
@@ -301,64 +304,52 @@ public struct MarkdownDocument: Sendable {
 
 		// The styles and scripts that the Markdown uses, like those of its block directives. The page that shows the document adds them (``content``), like a preference in SwiftUI.
 		let resources = PageResources()
-		var renderer = HTMLRenderer(style: style, options: options, footnoteDefinitions: document.footnoteDefinitions, lineOffset: firstLine - 1)
+		var renderer = HTMLRenderer(style: style, options: options, footnoteDefinitions: document.footnoteDefinitions, origin: .document(lineOffset: firstLine - 1))
 
 		PageResources.$current.withValue(resources) {
 			renderer.visit(document)
-		}
-		var html = renderer.html
-		var headings = renderer.headings
-		var problems = renderer.problems
-		var links = renderer.links
-
-		if !renderer.footnotes.isEmpty {
-			// The definitions resolve and report their links like the text, but without the options for the whole document. Limitation: like on GitHub, a definition without a reference is not shown, and the parser leaves it out, so it is not reported.
-			var definitionOptions = options
-			definitionOptions.collapsibleSections = nil
-			definitionOptions.addsHeadingAnchors = false
-			definitionOptions.rewrite = nil
-			definitionOptions.showsFootnotesInPopovers = false
-
-			html += PageResources.$current.withValue(resources) {
-				Footnotes.sectionHTML(for: renderer.footnotes, theme: options.theme, withPopovers: options.showsFootnotesInPopovers) { footnote in
-					var definitionRenderer = HTMLRenderer(style: style, options: definitionOptions, lineOffset: firstLine - 1)
-
-					for block in footnote.definition.children {
-						definitionRenderer.visit(block)
-					}
-
-					problems += definitionRenderer.problems
-					links += definitionRenderer.links
-					return definitionRenderer.html
-				}
-			}
-
-			headings.append(Heading(level: 2, text: "Footnotes", id: Heading.footnotesID, line: nil))
 		}
 
 		// A document inside another one, like the summary of a collapsible section, adds them to the outer one.
 		PageResources.current?.include(resources)
 
 		self.resources = resources
-		self.html = html
-		self.headings = headings
-		self.problems = problems
-		self.links = links
+		// The popovers of the footnotes and the notes are at the end, as they can have paragraphs, which a paragraph cannot contain. Limitation: like on GitHub, a footnote definition without a reference is not shown, and the parser leaves it out, so it is not reported.
+		self.html = renderer.html + renderer.popovers.joined()
+		self.headings = renderer.headings
+		self.problems = renderer.problems
+		self.links = renderer.links
 		// The introduction keeps the source punctuation, while the HTML gets smart punctuation. Footnote references are left out, as they have no text.
-		self.introduction = Document(parsing: source, options: parseOptions.union(.disableSmartOpts)).introduction
+		self.introduction = Document(parsing: source, options: convertOptions.parseOptions.union(.disableSmartOpts)).introduction
+	}
+}
+
+extension MarkdownDocument.Options {
+	/**
+	The options for Markdown inside the document, like a footnote definition or an inline note: without the options for the whole document, which are the collapsible sections, the heading anchors, and the rewrite.
+	*/
+	var forNestedMarkdown: Self {
+		var options = self
+		options.collapsibleSections = nil
+		options.addsHeadingAnchors = false
+		options.rewrite = nil
+		return options
 	}
 }
 
 extension MarkdownDocument {
 	/**
 	The HTML without the paragraph around it, for a short text, like a frontmatter field.
+
+	Limitation: a short text with footnotes or inline notes is not one paragraph, as their popovers are after it, so they are not supported.
 	*/
 	public var inlineHTML: String {
 		let html = html.trimmingCharacters(in: .newlines)
 
 		guard
 			let match = html.wholeMatch(of: /<p>(.*)<\/p>/.dotMatchesNewlines()),
-			!match.1.contains("<p>")
+			// Also a raw paragraph with attributes, like `<p class="note">`.
+			!match.1.contains(/<p[\s>]/)
 		else {
 			return html
 		}
@@ -367,26 +358,47 @@ extension MarkdownDocument {
 	}
 
 	/**
-	The HTML of the first paragraph without the `<p>` tags, and the HTML after it, so a page can show the introduction apart from the rest, like at the top of an app page. `nil` when the document does not start with a paragraph. HTML comments before the paragraph are left out.
+	The HTML of the first paragraph without the `<p>` tags, and the HTML after it, so a page can show the introduction apart from the rest, like at the top of an app page. `nil` when the document does not start with a paragraph. HTML comments before the paragraph do not count, as the renderer leaves out comments.
 	*/
 	public var htmlSeparatingIntroduction: (introduction: String, remainder: String)? {
 		guard
 			introduction != nil,
-			let match = html.prefixMatch(of: /\s*(?:<!--.*?-->\s*)*<p>(.*?)<\/p>\n?/.dotMatchesNewlines())
+			let match = html.prefixMatch(of: /\s*<p>(.*?)<\/p>\n?/.dotMatchesNewlines())
 		else {
 			return nil
 		}
 
 		return (String(match.1), String(html[match.range.upperBound...]))
 	}
+
+	/**
+	The HTML before the level 2 heading with the ID, and the HTML from that heading on, so a page can show something between two sections, like the projects on the about page. `nil` when the document has no level 2 heading with the ID. The heading must not be inside other markup, like a block directive.
+	*/
+	public func htmlSeparated(beforeHeading id: String) -> (before: String, after: String)? {
+		htmlSeparated(beforeHeadings: [id]).map { ($0[0], $0[1]) }
+	}
+
+	/**
+	The HTML separated before each level 2 heading with one of the IDs, in their order, so a page can show something between several sections, like the numbers and the projects on the about page. It has one part more than the IDs: the HTML before the first heading, and the HTML from each heading to the next. `nil` when one of the IDs has no level 2 heading, or the headings are in another order. The headings must not be inside other markup, like a block directive.
+	*/
+	public func htmlSeparated(beforeHeadings ids: [String]) -> [String]? {
+		var parts = [String]()
+		var remainder = html[...]
+
+		for id in ids {
+			guard let range = remainder.firstRange(of: "<h2 id=\"\(id)\"") else {
+				return nil
+			}
+
+			parts.append(String(remainder[..<range.lowerBound]))
+			remainder = remainder[range.lowerBound...]
+		}
+
+		return parts + [String(remainder)]
+	}
 }
 
 public struct Heading: Sendable {
-	/**
-	The ID of the heading of the footnotes, which the renderer adds at the end when there are footnotes.
-	*/
-	public static let footnotesID = "footnote-label"
-
 	public let level: Int
 
 	/**
@@ -397,7 +409,7 @@ public struct Heading: Sendable {
 	public let id: String
 
 	/**
-	The line in the Markdown source, starting at 1. `nil` for headings that are not in the source, like the footnotes heading.
+	The line in the Markdown source, starting at 1. `nil` for headings that are not in the source, like the ones that ``Options/rewrite`` adds.
 	*/
 	public let line: Int?
 
@@ -418,6 +430,23 @@ public struct Heading: Sendable {
 	*/
 	public func contains<Directive: HeadingDirective>(_ directive: Directive.Type) -> Bool {
 		directives[Directive.name] != nil
+	}
+}
+
+extension ConvertOptions {
+	/**
+	The options to parse Markdown in the style: block directives when the options have them, footnotes only in the extended style, and bare URLs and emails as links, like on GitHub, with its autolink extension.
+
+	Limitation: like on GitHub, a file name with an at sign, like `icon@2x.png`, is an email link. Write it as code.
+	*/
+	init(style: MarkdownDocument.Style, options: MarkdownDocument.Options) {
+		let commonmarkOptions = style == .extended ? Self.defaultCommonmarkOptions : Self.defaultCommonmarkOptions.subtracting(.footnotes)
+
+		self.init(
+			parseOptions: style == .extended && !options.blockDirectives.isEmpty ? .parseBlockDirectives : [],
+			commonmarkOptions: commonmarkOptions,
+			extensions: Self.defaultCommonmarkExtensions + ["autolink"]
+		)
 	}
 }
 
@@ -584,6 +613,20 @@ extension MarkdownDocument {
 	*/
 	public var contentSeparatingIntroduction: (introduction: MarkdownContent, remainder: MarkdownContent)? {
 		htmlSeparatingIntroduction.map { (MarkdownContent(html: $0.introduction, resources: resources), MarkdownContent(html: $0.remainder, resources: resources)) }
+	}
+
+	/**
+	The ``htmlSeparated(beforeHeading:)`` as content of a page. Each part adds the styles and scripts of the whole document, so either part can be shown alone.
+	*/
+	public func contentSeparated(beforeHeading id: String) -> (before: MarkdownContent, after: MarkdownContent)? {
+		htmlSeparated(beforeHeading: id).map { (MarkdownContent(html: $0.before, resources: resources), MarkdownContent(html: $0.after, resources: resources)) }
+	}
+
+	/**
+	The ``htmlSeparated(beforeHeadings:)`` as content of a page. Each part adds the styles and scripts of the whole document, so any part can be shown alone.
+	*/
+	public func contentSeparated(beforeHeadings ids: [String]) -> [MarkdownContent]? {
+		htmlSeparated(beforeHeadings: ids).map { $0.map { MarkdownContent(html: $0, resources: resources) } }
 	}
 }
 

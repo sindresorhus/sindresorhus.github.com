@@ -1,24 +1,6 @@
 // Passing Notes in Class on the 1999 page, a game of red light, green light in my classroom in 6B: the visitor writes a note on lined paper, doodles on it, folds it, and passes it from desk to desk to Ingrid or Trond while the teacher writes on the blackboard. A note that moves while she looks is caught, and she reads it out loud. Each kid has a personality, the teacher has tells, and the bell ends the lesson. The notes are kept in a pencil case in the browser. The classroom runs only while it is on the screen and the tab is visible. With reduced motion, the teacher turns at once, the notes fold at once, and nothing moves by itself. Nothing makes a sound until the visitor turns on the sound.
-const nextFrame = () => new Promise(resolve => {
-	requestAnimationFrame(() => {
-		resolve();
-	});
-});
-
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const lerp = (from, to, amount) => from + ((to - from) * amount);
-const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
+import GeoCitiesElement, {randomItem, randomBetween, clamp, lerp, plural, nextFrame} from '/scripts/geocities-element.js';
+import {canvasPoint} from '/scripts/geocities-canvas.js';
 
 const handwriting = '"Comic Sans MS", "Comic Sans", "Chalkboard SE", "Comic Neue", cursive';
 const lessonSeconds = 80;
@@ -694,7 +676,7 @@ const answers = {
 
 const makeReply = sent => randomItem(answers[sent.to][sent.boxes ? 'boxes' : 'free']);
 
-export default class extends GeoCitiesElement {
+class GeoCitiesClassNotes extends GeoCitiesElement {
 	#redraw;
 
 	connected() {
@@ -719,7 +701,6 @@ export default class extends GeoCitiesElement {
 			hush();
 			sound.isOn = !sound.isOn && sound.start(this.sound());
 			soundButton.setAttribute('aria-pressed', String(sound.isOn));
-			soundButton.dataset.state = sound.isOn ? 'on' : '';
 			soundButton.textContent = sound.isOn ? '🔊 Sound' : '🔈 Sound';
 			this.say(sound.isOn ? 'Sound on. Listen for the chalk: when it stops squeaking, she is about to turn around. And if she catches a note, she reads it out loud.' : 'Sound off.');
 		});
@@ -2286,7 +2267,7 @@ export default class extends GeoCitiesElement {
 				if (teacher.hasLaughed && clock > game.laughUntil) {
 					teacher.hasLaughed = false;
 					hush();
-					bubble.dataset.state = '';
+					delete bubble.dataset.state;
 					bubble.textContent = '';
 					this.say(`${current.teacher} puts your note in the desk drawer. Write a new one, if you dare.`);
 					teacher.state = 'back';
@@ -2530,7 +2511,7 @@ export default class extends GeoCitiesElement {
 			sound.bell();
 			hush();
 
-			bubble.dataset.state = '';
+			delete bubble.dataset.state;
 			bubble.textContent = '';
 			teacher.state = 'writing';
 			teacher.face = 0;
@@ -2610,7 +2591,6 @@ export default class extends GeoCitiesElement {
 				for (const other of lessonButtons) {
 					const isOn = other === button;
 					other.setAttribute('aria-pressed', String(isOn));
-					other.dataset.state = isOn ? 'on' : '';
 				}
 
 				teacher.board = lesson().board();
@@ -2785,3 +2765,5 @@ export default class extends GeoCitiesElement {
 		this.#redraw();
 	}
 }
+
+customElements.define('geo-cities-class-notes', GeoCitiesClassNotes);

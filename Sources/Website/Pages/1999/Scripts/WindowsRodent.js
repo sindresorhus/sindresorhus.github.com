@@ -1,4 +1,5 @@
 // Rodent’s Revenge on the desktop of the 1999 page, like the one of the Microsoft Entertainment Pack (Christopher Lee Fraley, 1991): the mouse pushes rows of movable blocks to box in the cats, which chase it along the shortest way. A cat that cannot move sits, and when all the cats of a wave sit, they turn into cheese, which the mouse eats for points. Sink holes hold the mouse for a while, mouse traps snap, and balls of yarn roll around and squash it. With reduced motion, the cats move only when the mouse moves. Nothing makes a sound until the visitor turns on the sound.
+import GeoCitiesElement, {randomItem, playTone, clamp, seededRandom} from '/scripts/geocities-element.js';
 
 // The field is 23 × 23 squares of 32 pixels, with the wall around it, under a panel with the spare mice, the clock, and the score.
 const size = 23;
@@ -30,17 +31,7 @@ const speeds = {
 
 const neighbors = [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]];
 
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-
 const distanceBetween = (first, second) => Math.max(Math.abs(first.x - second.x), Math.abs(first.y - second.y));
-
-// The same level gets the same layout every time, from a small random generator with the level as the seed.
-const seededRandom = seed => () => {
-	seed = (seed + 0x6D_2B_79_F5) | 0;
-	let value = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-	value = (value + Math.imul(value ^ (value >>> 7), 61 | value)) ^ value;
-	return ((value ^ (value >>> 14)) >>> 0) / 4_294_967_296;
-};
 
 const chebyshevFromCenter = (x, y) => Math.max(Math.abs(x - center), Math.abs(y - center));
 
@@ -169,7 +160,7 @@ const codeSteps = {
 
 const parseStep = button => button.dataset.rodentMove.split(' ').map(Number);
 
-export default class extends GeoCitiesElement {
+class GeoCitiesWindowsRodent extends GeoCitiesElement {
 	#context;
 	#loop;
 	#best;
@@ -384,21 +375,7 @@ export default class extends GeoCitiesElement {
 			return;
 		}
 
-		const {context, output} = audio;
-		const oscillator = context.createOscillator();
-		const gain = context.createGain();
-		const time = context.currentTime + start;
-		oscillator.type = type;
-		oscillator.frequency.setValueAtTime(frequency, time);
-
-		if (slide) {
-			oscillator.frequency.exponentialRampToValueAtTime(slide, time + duration);
-		}
-
-		this.#envelope(gain, time, duration, volume);
-		oscillator.connect(gain).connect(output);
-		oscillator.start(time);
-		oscillator.stop(time + duration + 0.05);
+		playTone(audio, frequency, start, duration, {type, volume, slide});
 	}
 
 	#noise(start, duration, {volume = 0.12, frequency = 1500} = {}) {
@@ -1355,7 +1332,7 @@ export default class extends GeoCitiesElement {
 		const pointX = (cellX * cell) + (cell / 2);
 		const pointY = top + (cellY * cell);
 		const isBelow = pointY - height - 12 < top;
-		const boxX = Math.min(Math.max(pointX - (width / 2), 4), screen.width - width - 4);
+		const boxX = clamp(pointX - (width / 2), 4, screen.width - width - 4);
 		const boxY = isBelow ? pointY + cell + 12 : pointY - height - 10;
 		context.fillStyle = '#ffffff';
 		context.strokeStyle = '#000000';
@@ -1368,7 +1345,7 @@ export default class extends GeoCitiesElement {
 		context.beginPath();
 		const tailY = isBelow ? boxY : boxY + height;
 		const tipY = isBelow ? pointY + cell - 2 : pointY + 2;
-		const tailX = Math.min(Math.max(pointX, boxX + 12), boxX + width - 12);
+		const tailX = clamp(pointX, boxX + 12, boxX + width - 12);
 		context.moveTo(tailX - 7, tailY);
 		context.lineTo(pointX, tipY);
 		context.lineTo(tailX + 7, tailY);
@@ -1654,3 +1631,5 @@ export default class extends GeoCitiesElement {
 		}
 	}
 }
+
+customElements.define('geo-cities-windows-rodent', GeoCitiesWindowsRodent);

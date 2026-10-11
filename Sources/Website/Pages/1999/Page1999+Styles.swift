@@ -9,7 +9,7 @@ extension GeoCitiesPage {
 	static let rootStylesheet = Stylesheet {
 		Rule(":root", Style()
 			.scrollbar(.bar) {
-				$0.frame(width: .pixels(16), height: .pixels(16))
+				$0.frame(size: .pixels(16))
 			}
 			.scrollbar(.track) {
 				// The dithered gray of the track.
@@ -71,6 +71,40 @@ extension GeoCitiesPage {
 	The gray of the windows and buttons of Windows 95.
 	*/
 	static let windowGray = Color("#c0c0c0")
+
+	enum States: String, ElementStateSet {
+		case y2k
+		case alien
+		case zapped
+		case friend
+		case ouch
+		case missed
+		case asleep
+		case left
+		case right
+		case sparkly
+		case eating
+		case petted
+		case jump
+		case backflip
+		case moonwalk
+		case rainbow
+		case dancing
+		case hidden
+		case picked
+		case correct
+		case removed
+		case online
+		case away
+		case busy
+		case playing
+		case open
+		case exploded
+		case fragment
+		case done
+		case read
+		case write
+	}
 
 	enum Styles: StyleSet {
 		// First, so the styles of the images that are not inline, like the dividers, win.
@@ -188,6 +222,9 @@ extension GeoCitiesPage {
 		case bluePill
 		case matrixRain
 		case smallButton
+		case tallButton
+		case bigButton
+		case dimmedWhenDisabled
 		case downloadList
 		case progressTrack
 		case progressFill
@@ -315,7 +352,7 @@ extension GeoCitiesPage {
 					}
 					.background(Color("#000033"))
 					.declaration(.backgroundImage, "radial-gradient(1px 1px at 12px 18px, #fff, transparent), radial-gradient(1px 1px at 52px 74px, #ffd, transparent), radial-gradient(2px 2px at 92px 30px, #fff, transparent), radial-gradient(1px 1px at 118px 104px, #aaf, transparent), radial-gradient(1px 1px at 30px 112px, #fff, transparent)")
-					.declaration(.backgroundSize, "128px 128px")
+					.backgroundSize(width: .pixels(128), height: .pixels(128))
 					.cursor(GeoCitiesPage.arrowCursor, fallback: .default)
 			case .panel:
 				// A light gray window with a raised edge, and the default link colors of old browsers. The controls are light in dark mode too, like the window. The focus is a dotted line, like the focus rectangle of Windows 95, in the color of the text, so it shows on the dark boxes too. The rest of the site has no focus rings.
@@ -334,15 +371,13 @@ extension GeoCitiesPage {
 					.lineHeight(1.4)
 					.letterSpacing(0)
 					.color(.black)
-					.declaration(.colorScheme, "light")
+					.colorScheme(.light)
 					.focusVisibleInside {
 						$0.focusRing(.currentColor, width: .pixels(1), offset: .pixels(2), style: .dotted)
 					}
 					// The big button Taste the Rainbow turns the colors of the whole page.
-					.media(.allowsMotion) {
-						$0.when(Hooks.effect, is: "rainbow") {
-							$0.animation(Animations.rainbow, .linear(duration: .seconds(2)).repeatForever(autoreverses: false))
-						}
+					.when(Hooks.effect, is: "rainbow") {
+						$0.animation(Animations.rainbow, .linear(duration: .seconds(2)).repeatForever(autoreverses: false))
 					}
 					// Links light up under the pointer, like the hover scripts of 1999.
 					.nested("& a") {
@@ -360,12 +395,12 @@ extension GeoCitiesPage {
 						$0.color(Color("#551a8b"))
 					}
 					// The Y2K bug of the midnight party shakes the page in strange colors for a moment.
-					.media(.allowsMotion) {
-						$0.when(.state, is: "y2k") {
-							$0
-								.filter(.hueRotation(.degrees(180)), .saturation(3))
-								.animation(Animations.y2kShake, .linear(duration: .milliseconds(160)).repeatForever())
-						}
+					.when(States.y2k) {
+						$0
+							.media(.allowsMotion) {
+								$0.filter(.hueRotation(.degrees(180)), .saturation(3))
+							}
+							.animation(Animations.y2kShake, .linear(duration: .milliseconds(160)).repeatForever())
 					}
 					// The views of the “Best viewed with…” buttons: Lynx, the green old monitor, 16-bit color, red and cyan for 3D glasses, dark for the cool shades, and upside down for Australia. The page turns around its middle, so all of it stays where the page can scroll, and the script of the buttons, `BestViewed.js`, then brings them back into view.
 					.when(GeoCitiesBestViewed.Hooks.view, is: "lynx") {
@@ -434,8 +469,8 @@ extension GeoCitiesPage {
 							.display(.inlineBlock)
 							.textWrap(.nowrap)
 							.padding(.leading, .percent(100))
-							.animation(Animations.marquee, .linear(duration: .seconds(16)).repeatForever(autoreverses: false))
 					}
+					.animation(Animations.marquee, .linear(duration: .seconds(16)).repeatForever(autoreverses: false))
 			case .construction:
 				// Yellow and black stripes around a yellow sign, with a worker on each side. The stripes move.
 				Style()
@@ -443,10 +478,8 @@ extension GeoCitiesPage {
 					.flexWrap()
 					.padding(.rootEm(0.75))
 					.declaration(.backgroundImage, "repeating-linear-gradient(45deg, #000 0 12px, #ffd700 12px 24px)")
-					.declaration(.backgroundSize, "34px 34px")
-					.media(.allowsMotion) {
-						$0.animation(Animations.stripes, .linear(duration: .seconds(1)).repeatForever(autoreverses: false))
-					}
+					.backgroundSize(width: .pixels(34), height: .pixels(34))
+					.animation(Animations.stripes, .linear(duration: .seconds(1)).repeatForever(autoreverses: false))
 			case .constructionText:
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.5))
@@ -492,9 +525,7 @@ extension GeoCitiesPage {
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
 					.color(.white)
-					.media(.allowsMotion) {
-						$0.animation(Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
-					}
+					.animation(Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
 			case .webring:
 				Style()
 					.padding(.rootEm(1))
@@ -523,7 +554,7 @@ extension GeoCitiesPage {
 			case .floating:
 				// Only where there is room next to the text.
 				Style()
-					.declaration(.float, "right")
+					.float(.trailing)
 					.margin(.leading, .rootEm(0.75))
 					.hidden(below: .smallTablet)
 			case .flame:
@@ -533,14 +564,11 @@ extension GeoCitiesPage {
 				// In the line, like the images of old pages. Like all images, they are narrower than their size on phones, like the wide dividers. They wiggle under the pointer, and spin with the big button Spin All GIFs. Lynx shows no images, and the 3D view gives them red and cyan edges.
 				Style()
 					.display(.inline)
-					.media(.allowsMotion) {
-						$0
-							.hover {
-								$0.animation(Animations.wiggle, .easeInOut(duration: .milliseconds(120)).repeatForever())
-							}
-							.when(ancestorHas: Hooks.effect, is: "spin") {
-								$0.animation(Animations.spin, .linear(duration: .seconds(1)).repeatForever(autoreverses: false))
-							}
+					.hover {
+						$0.animation(Animations.wiggle, .easeInOut(duration: .milliseconds(120)).repeatForever())
+					}
+					.when(ancestorHas: Hooks.effect, is: "spin") {
+						$0.animation(Animations.spin, .linear(duration: .seconds(1)).repeatForever(autoreverses: false))
 					}
 					.when(ancestorHas: GeoCitiesBestViewed.Hooks.view, is: "lynx") {
 						$0.hidden()
@@ -574,6 +602,10 @@ extension GeoCitiesPage {
 					.handCursor()
 					.buttonFocusRing()
 					.active {
+						$0.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
+					}
+					// A toggle stays pressed in while it is on, like the lights of the fish tank.
+					.pressed {
 						$0.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
 					}
 					// Grayed out with an engraved look, like a disabled button of Windows 95.
@@ -613,12 +645,12 @@ extension GeoCitiesPage {
 					.children("*") {
 						$0.visibility(false)
 					}
-					.when(.state, is: "alien") {
+					.when(States.alien) {
 						$0.children("*") {
 							$0.visibility(true)
 						}
 					}
-					.when(.state, is: "zapped") {
+					.when(States.zapped) {
 						$0
 							.background(Color("#ffff00"))
 							.after {
@@ -632,7 +664,7 @@ extension GeoCitiesPage {
 									.color(Color("#cc0000"))
 							}
 					}
-					.when(.state, is: "friend") {
+					.when(States.friend) {
 						$0
 							.background(Color("#ffccee"))
 							.after {
@@ -644,7 +676,7 @@ extension GeoCitiesPage {
 									.font(size: .rootEm(3), lineHeight: 1)
 							}
 					}
-					.when(.state, is: "ouch") {
+					.when(States.ouch) {
 						$0
 							.background(Color("#ff66cc"))
 							.after {
@@ -658,7 +690,7 @@ extension GeoCitiesPage {
 									.color(.white)
 							}
 					}
-					.when(.state, is: "missed") {
+					.when(States.missed) {
 						$0.after {
 							$0
 								.content("MISS")
@@ -729,7 +761,7 @@ extension GeoCitiesPage {
 				// On the right of the text, like the photo of a home page.
 				Style()
 					.position(.relative)
-					.declaration(.float, "right")
+					.float(.trailing)
 					.margin(.leading, .rootEm(1))
 			case .photoLoading:
 				// A gray cover that moves down the photo in steps, once, like a photo that loads over a modem. Without motion, the photo shows right away.
@@ -740,9 +772,7 @@ extension GeoCitiesPage {
 					.bottom(0)
 					.frame(height: 0)
 					.background(GeoCitiesPage.windowGray)
-					.media(.allowsMotion) {
-						$0.animation(Animations.load, .timingCurve("steps(12, end)", duration: .seconds(6)), fillMode: .both)
-					}
+					.animation(Animations.load, .timingCurve("steps(12, end)", duration: .seconds(6)), fillMode: .both)
 			case .splash:
 				// A black box with a big button, like the splash pages before the home pages of 1999.
 				Style()
@@ -805,21 +835,13 @@ extension GeoCitiesPage {
 					.flowSpacing(.rootEm(0.75))
 			case .closeButton:
 				// Like the close button of a window of Windows 95, but large enough for a finger.
-				Style()
+				Self.smallButton.style
 					.hstack(alignment: .center, justification: .center)
-					.frame(width: .rootEm(1.5), height: .rootEm(1.5))
+					.frame(size: .rootEm(1.5))
 					.flexShrink(0)
-					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
-					.fontFamily(.system)
+					.padding(0)
 					.textStyle(.body, weight: .bold)
 					.lineHeight(1)
-					.color(.black)
-					.handCursor()
-					.buttonFocusRing()
-					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
 			case .popUp:
 				Style()
 					.frame(maxWidth: .rootEm(26))
@@ -920,7 +942,7 @@ extension GeoCitiesPage {
 					.fontWeight(.bold)
 					.color(Color("#0f380f"))
 					.transition(.colors, animation: .easeInOut(duration: .milliseconds(600)))
-					.when(.state, is: "asleep") {
+					.when(States.asleep) {
 						$0
 							.background(Color("#1b2a12"))
 							.color(Color("#9bbc0f"))
@@ -929,10 +951,8 @@ extension GeoCitiesPage {
 				// A Rainbow Legend shines in every color.
 				Style()
 					.display(.block)
-					.media(.allowsMotion) {
-						$0.when(ancestorHas: Hooks.petStage, is: "legend") {
-							$0.animation(Animations.rainbow, .linear(duration: .seconds(3)).repeatForever(autoreverses: false))
-						}
+					.when(ancestorHas: Hooks.petStage, is: "legend") {
+						$0.animation(Animations.rainbow, .linear(duration: .seconds(3)).repeatForever(autoreverses: false))
 					}
 			case .petSpriteButton:
 				// Glitter herself, a button that pets her. She grows with her stage, and moves for what she does, which `geocities.js` sets as her state.
@@ -955,38 +975,35 @@ extension GeoCitiesPage {
 					.when(ancestorHas: Hooks.petStage, is: "legend") {
 						$0.scaleEffect(1.12)
 					}
-					.when(.state, is: "left") {
+					.when(States.left) {
 						$0.offset(x: .percent(-30))
 					}
-					.when(.state, is: "right") {
+					.when(States.right) {
 						$0.offset(x: .percent(30))
 					}
-					.when(.state, is: "sparkly") {
+					.when(States.sparkly) {
 						$0.filter(.brightness(1.4), .saturation(2))
 					}
-					.media(.allowsMotion) {
-						$0
-							.when(.state, is: "eating") {
-								$0.animation(Animations.petBounce, .easeInOut(duration: .milliseconds(250)).repeatForever())
-							}
-							.when(.state, is: "petted") {
-								$0.animation(Animations.petWiggle, .easeInOut(duration: .milliseconds(150)).repeatForever())
-							}
-							.when(.state, is: "jump") {
-								$0.animation(Animations.petJump, .easeOut(duration: .milliseconds(500)).repeatForever())
-							}
-							.when(.state, is: "backflip") {
-								$0.animation(Animations.petBackflip, .easeInOut(duration: .milliseconds(900)))
-							}
-							.when(.state, is: "moonwalk") {
-								$0.animation(Animations.petMoonwalk, .linear(duration: .milliseconds(1200)))
-							}
-							.when(.state, is: "rainbow") {
-								$0.animation(Animations.rainbow, .linear(duration: .milliseconds(600)).repeatForever(autoreverses: false))
-							}
-							.when(.state, is: "dancing") {
-								$0.animation(Animations.petDance, .easeInOut(duration: .milliseconds(450)).repeatForever())
-							}
+					.when(States.eating) {
+						$0.animation(Animations.petBounce, .easeInOut(duration: .milliseconds(250)).repeatForever())
+					}
+					.when(States.petted) {
+						$0.animation(Animations.petWiggle, .easeInOut(duration: .milliseconds(150)).repeatForever())
+					}
+					.when(States.jump) {
+						$0.animation(Animations.petJump, .easeOut(duration: .milliseconds(500)).repeatForever())
+					}
+					.when(States.backflip) {
+						$0.animation(Animations.petBackflip, .easeInOut(duration: .milliseconds(900)))
+					}
+					.when(States.moonwalk) {
+						$0.animation(Animations.petMoonwalk, .linear(duration: .milliseconds(1200)))
+					}
+					.when(States.rainbow) {
+						$0.animation(Animations.rainbow, .linear(duration: .milliseconds(600)).repeatForever(autoreverses: false))
+					}
+					.when(States.dancing) {
+						$0.animation(Animations.petDance, .easeInOut(duration: .milliseconds(450)).repeatForever())
 					}
 					.focusVisible {
 						$0.focusRing(Color("#0f380f"), width: .pixels(3), offset: .pixels(2))
@@ -1018,7 +1035,7 @@ extension GeoCitiesPage {
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
 					.transition(.opacity, animation: .easeOut(duration: .milliseconds(300)))
-					.when(.state, is: "hidden") {
+					.when(States.hidden) {
 						$0.opacity(0)
 					}
 			case .petHat:
@@ -1037,9 +1054,7 @@ extension GeoCitiesPage {
 					.leading(.rootEm(0.5))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.font(.large, weight: .bold)
-					.media(.allowsMotion) {
-						$0.animation(Animations.petFloat, .easeInOut(duration: .seconds(2)).repeatForever())
-					}
+					.animation(Animations.petFloat, .easeInOut(duration: .seconds(2)).repeatForever())
 			case .petMess:
 				// The messes she makes, which the Clean button cleans up.
 				Style()
@@ -1157,7 +1172,7 @@ extension GeoCitiesPage {
 			case .medal:
 				Style()
 					.hstack(alignment: .center, justification: .center)
-					.frame(width: .rootEm(2.5), height: .rootEm(2.5))
+					.frame(size: .rootEm(2.5))
 					.backgroundImage(.radialGradient("circle at 35% 35%", Color("#fff6a0"), Color("#d4a017")))
 					.border(Color("#8b6508"), width: .pixels(2))
 					.cornerRadius(.circle)
@@ -1230,9 +1245,7 @@ extension GeoCitiesPage {
 					.fontFamily(GeoCitiesPage.impact)
 					.font(.large)
 					.color(Color("#0000cc"))
-					.media(.allowsMotion) {
-						$0.animation(Animations.blink, .timingCurve("steps(1, end)", duration: .milliseconds(800)).repeatForever(autoreverses: false))
-					}
+					.animation(Animations.blink, .timingCurve("steps(1, end)", duration: .milliseconds(800)).repeatForever(autoreverses: false))
 			case .bannerStar:
 				// The star that moves back and forth along the bottom of the banner. It moves with `translate`, not `left`, so the browser does not lay out the page in every frame, and in percentages of the banner (`cqi`), as a percentage of `translate` is of the star.
 				Style()
@@ -1248,10 +1261,9 @@ extension GeoCitiesPage {
 					.textShadow(Shadow(x: .pixels(1), y: .pixels(1), color: .white))
 					.handCursor()
 					.media(.allowsMotion) {
-						$0
-							.leading(0)
-							.animation(Animations.bannerStar, .easeInOut(duration: .milliseconds(650)).repeatForever())
+						$0.leading(0)
 					}
+					.animation(Animations.bannerStar, .easeInOut(duration: .milliseconds(650)).repeatForever())
 			case .quiz:
 				// The dark blue stage of the quiz show, with gold lights.
 				Style()
@@ -1303,17 +1315,17 @@ extension GeoCitiesPage {
 					.hover {
 						$0.background(Color("#3333aa"))
 					}
-					.when(.state, is: "picked") {
+					.when(States.picked) {
 						$0
 							.background(Color("#ff9900"))
 							.color(.black)
 					}
-					.when(.state, is: "correct") {
+					.when(States.correct) {
 						$0
 							.background(Color("#00aa00"))
 							.color(.white)
 					}
-					.when(.state, is: "removed") {
+					.when(States.removed) {
 						$0.visibility(false)
 					}
 			case .quizButton:
@@ -1327,7 +1339,7 @@ extension GeoCitiesPage {
 					.color(Color("#ffcc00"))
 					.handCursor()
 					.disabled {
-						$0.opacity(0.4)
+						$0.opacity(0.5)
 					}
 			case .quizStatus:
 				Style()
@@ -1368,7 +1380,7 @@ extension GeoCitiesPage {
 					.position(.fixed)
 					.inset(0)
 					.zIndex(70)
-					.frame(width: .percent(100), height: .percent(100))
+					.frame(size: .percent(100))
 					.background(.black)
 			case .smallButton:
 				Style()
@@ -1383,6 +1395,21 @@ extension GeoCitiesPage {
 					.active {
 						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
 					}
+					// A pressed toggle sinks in with a light gray fill. A toy can give its toggles another fill in its own style set, like yellow. That fill wins, as the shell of the page uses these styles first, so the rules of the toys come after them.
+					.pressedIn(Color("#e0e0e0"))
+			case .tallButton:
+				// Big enough for a finger, for the buttons of a toy that a visitor taps a lot. A quick second tap presses it again, instead of zooming the page.
+				Style()
+					.frame(minHeight: .rootEm(2.25))
+					.touchAction(.manipulation)
+			case .bigButton:
+				// The size of a touch target in the guidelines of Apple, for the main buttons of a toy.
+				Style().frame(minHeight: .rootEm(2.75))
+			case .dimmedWhenDisabled:
+				// Fades a disabled button that has no disabled look of its own, like a small button of a toy.
+				Style().disabled {
+					$0.opacity(0.5)
+				}
 			case .downloadList:
 				Style().flowSpacing(.rootEm(0.5))
 			case .progressTrack:
@@ -1510,9 +1537,7 @@ extension GeoCitiesPage {
 				// A word in every color of the rainbow, one after the other.
 				Style()
 					.color(Color("#ff0000"))
-					.media(.allowsMotion) {
-						$0.animation(Animations.rainbow, .linear(duration: .seconds(2)).repeatForever(autoreverses: false))
-					}
+					.animation(Animations.rainbow, .linear(duration: .seconds(2)).repeatForever(autoreverses: false))
 			case .ticker:
 				// The news scrolls up in a box, like a `<marquee direction="up">`. With reduced motion, the box shows all the news.
 				Style()
@@ -1531,9 +1556,7 @@ extension GeoCitiesPage {
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.leading, 0)
-					.media(.allowsMotion) {
-						$0.animation(Animations.ticker, .linear(duration: .seconds(18)).repeatForever(autoreverses: false))
-					}
+					.animation(Animations.ticker, .linear(duration: .seconds(18)).repeatForever(autoreverses: false))
 			case .bounceStrip:
 				// The sea, where the dolphin swims back and forth above the caption. A container, for the track of the dolphin.
 				Style()
@@ -1549,9 +1572,7 @@ extension GeoCitiesPage {
 					.position(.absolute)
 					.top(.pixels(4))
 					.leading(0)
-					.media(.allowsMotion) {
-						$0.animation(Animations.bounce, .easeInOut(duration: .seconds(4)).repeatForever())
-					}
+					.animation(Animations.bounce, .easeInOut(duration: .seconds(4)).repeatForever())
 			case .bounceText:
 				Style()
 					.fontFamily(GeoCitiesPage.comicSans)
@@ -1623,7 +1644,7 @@ extension GeoCitiesPage {
 				Style()
 					.position(.absolute)
 					.inset(0)
-					.frame(width: .percent(100), height: .percent(100))
+					.frame(size: .percent(100))
 			case .webcamTime:
 				Style()
 					.position(.absolute)
@@ -1636,16 +1657,16 @@ extension GeoCitiesPage {
 			case .icqLight:
 				// The flower of ICQ is green when I am online, yellow when I am away, red when I am busy, and gray when I sleep. `geocities.js` sets the state.
 				Style()
-					.when(.state, is: "online") {
+					.when(States.online) {
 						$0.filter(.hueRotation(.degrees(80)))
 					}
-					.when(.state, is: "away") {
+					.when(States.away) {
 						$0.filter(.hueRotation(.degrees(25)))
 					}
-					.when(.state, is: "busy") {
+					.when(States.busy) {
 						$0.filter(.hueRotation(.degrees(-35)), .saturation(2))
 					}
-					.when(.state, is: "asleep") {
+					.when(States.asleep) {
 						$0.filter(.grayscale(1))
 					}
 			case .icqFlower:
@@ -1746,10 +1767,8 @@ extension GeoCitiesPage {
 					.flex(1)
 					.frame(height: .percent(10))
 					.backgroundImage(.linearGradient("to top", Color("#00cc00"), Color("#ffff00"), Color("#ff0000")))
-					.media(.allowsMotion) {
-						$0.when(.state, is: "playing") {
-							$0.animation(Animations.spectrum, .easeInOut(duration: .milliseconds(400)).repeatForever())
-						}
+					.when(States.playing) {
+						$0.animation(Animations.spectrum, .easeInOut(duration: .milliseconds(400)).repeatForever())
 					}
 			case .phone:
 				// A mobile phone of 1997, dark gray, with a green screen and a keypad.
@@ -1859,9 +1878,7 @@ extension GeoCitiesPage {
 					}
 					.when(ancestorHas: GeoCitiesWindows.Hooks.dancing) {
 						// CLEAN.AVI of the Windows 98 CD makes the icons dance.
-						$0.media(.allowsMotion) {
-							$0.animation(Animations.petDance, .easeInOut(duration: .seconds(0.24)).repeatForever())
-						}
+						$0.animation(Animations.petDance, .easeInOut(duration: .seconds(0.24)).repeatForever())
 					}
 			case .desktopIconTitle:
 				// Underlined like a link while the Active Desktop shows the desktop as a web page.
@@ -1965,19 +1982,10 @@ extension GeoCitiesPage {
 					.padding(.top, .rootEm(0.25))
 					.border(.top, Color("#808080"), width: .pixels(2), style: .groove)
 			case .startButton:
-				Style()
+				Self.smallButton.style
 					.hstack(alignment: .center, spacing: .rootEm(0.25))
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
-					.fontFamily(.system)
 					.textStyle(.body, weight: .bold)
-					.color(.black)
-					.handCursor()
-					.buttonFocusRing()
-					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
 			case .taskbar:
 				Style()
 					.position(.absolute)
@@ -1990,9 +1998,7 @@ extension GeoCitiesPage {
 					.background(GeoCitiesPage.windowGray)
 					.border(.top, Color("#ffffff"), width: .pixels(2))
 					.when(ancestorHas: GeoCitiesWindows.Hooks.dancing) {
-						$0.media(.allowsMotion) {
-							$0.animation(Animations.petBounce, .easeInOut(duration: .seconds(0.24)).repeatForever())
-						}
+						$0.animation(Animations.petBounce, .easeInOut(duration: .seconds(0.24)).repeatForever())
 					}
 					.when(ancestorHas: GeoCitiesWindows.Hooks.dimmed) {
 						$0.filter(.grayscale(1), .brightness(0.6))
@@ -2018,25 +2024,11 @@ extension GeoCitiesPage {
 					.flexWrap()
 			case .paintButton:
 				// A tool, which stays pressed in while it is picked.
-				Style()
+				Self.smallButton.style
 					.hstack(alignment: .center, justification: .center)
 					.frame(minWidth: .rootEm(2.25), minHeight: .rootEm(2.25))
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.25))
-					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
-					.fontFamily(.system)
-					.textStyle(.caption, weight: .bold)
-					.color(.black)
-					.handCursor()
-					.buttonFocusRing()
-					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
-					.when(.state, is: "on") {
-						$0
-							.background(Color("#ffffff"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
+					.pressedIn(Color("#ffffff"))
 			case .paintStampPicture:
 				Style().frame(width: .auto, height: .rootEm(1.75))
 			case .paintCanvasFrame:
@@ -2053,14 +2045,12 @@ extension GeoCitiesPage {
 					.imageRendering(.pixelated)
 					.touchAction(.none)
 					.cursor(.crosshair)
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .paintCursor:
 				// The brush, for the keyboard, which `geocities.js` moves with the arrow keys.
 				Style()
 					.position(.absolute)
-					.frame(width: .rootEm(1), height: .rootEm(1))
+					.frame(size: .rootEm(1))
 					.offset(x: .percent(-50), y: .percent(-50))
 					.border(Color("#ff00ff"), width: .pixels(2), style: .dashed)
 					.cornerRadius(.circle)
@@ -2077,7 +2067,7 @@ extension GeoCitiesPage {
 					.padding(0)
 					.border(Color("#808080"), width: .pixels(2), style: .inset)
 					.handCursor()
-					.when(.state, is: "on") {
+					.pressed {
 						$0.border(.black, width: .pixels(3))
 					}
 			case .sweeper:
@@ -2104,18 +2094,11 @@ extension GeoCitiesPage {
 					.letterSpacing(.em(0.1))
 					.color(Color("#ff0000"))
 			case .sweeperFace:
-				Style()
+				Self.retroButton.style
 					.hstack(alignment: .center, justification: .center)
-					.frame(width: .rootEm(2.25), height: .rootEm(2.25))
+					.frame(size: .rootEm(2.25))
 					.padding(0)
-					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(3), style: .outset)
-					.fontFamily(.system)
 					.font(size: .rootEm(1.25), lineHeight: 1)
-					.handCursor()
-					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
-					}
 			case .sweeperGrid:
 				Style()
 					.grid(columns: GeoCitiesPage.sweeperSize)
@@ -2137,12 +2120,12 @@ extension GeoCitiesPage {
 						.focusVisible {
 							$0.focusRing(.black, width: .pixels(2), offset: .pixels(-3), style: .dotted)
 						}
-						.when(.state, is: "open") {
+						.when(States.open) {
 							$0
 								.background(Color("#bdbdbd"))
 								.border(Color("#808080"), width: .pixels(1))
 						}
-						.when(.state, is: "exploded") {
+						.when(States.exploded) {
 							$0
 								.background(Color("#ff0000"))
 								.border(Color("#808080"), width: .pixels(1))
@@ -2193,16 +2176,16 @@ extension GeoCitiesPage {
 					.aspectRatio(0.7)
 					.background(.white)
 					.border(Color("#c0c0c0"), width: .pixels(1))
-					.when(.state, is: "fragment") {
+					.when(States.fragment) {
 						$0.background(Color("#00ffff"))
 					}
-					.when(.state, is: "done") {
+					.when(States.done) {
 						$0.background(Color("#0000aa"))
 					}
-					.when(.state, is: "read") {
+					.when(States.read) {
 						$0.background(Color("#00cc00"))
 					}
-					.when(.state, is: "write") {
+					.when(States.write) {
 						$0.background(Color("#ff0000"))
 					}
 			case .saverCanvas:
@@ -2210,14 +2193,14 @@ extension GeoCitiesPage {
 					.position(.absolute)
 					.inset(0)
 					.display(.block)
-					.frame(width: .percent(100), height: .percent(100))
+					.frame(size: .percent(100))
 			case .effectCanvas:
 				// Over the whole window, without catching the pointer, so the page still works under the cards and the fireworks.
 				Style()
 					.position(.fixed)
 					.inset(0)
 					.zIndex(69)
-					.frame(width: .percent(100), height: .percent(100))
+					.frame(size: .percent(100))
 					.allowsHitTesting(false)
 					.reducedMotion {
 						$0.hidden()
@@ -2272,9 +2255,7 @@ extension GeoCitiesPage {
 						}
 					}
 			case .blinkingCursor:
-				Style().media(.allowsMotion) {
-					$0.animation(Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
-				}
+				Style().animation(Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
 			case .bombScreen:
 				// The gray screen of a crashed Mac, with the dialog of the bomb in the middle.
 				Style()
@@ -2315,6 +2296,7 @@ extension GeoCitiesPage {
 					.textStyle(.body, weight: .bold)
 					.color(.black)
 					.handCursor()
+					.buttonFocusRing()
 			case .shutDown:
 				// The black screen with orange text, when Windows had shut down.
 				Style()
@@ -2361,9 +2343,7 @@ extension GeoCitiesPage {
 			case .mouseGIF:
 				Style().frame(width: .auto, height: .rootEm(2))
 			case .scriptingOnly:
-				Style().media(.scriptingDisabled) {
-					$0.hidden()
-				}
+				Style().hiddenWithoutScripting()
 			}
 		}
 	}
@@ -2489,6 +2469,40 @@ extension Style {
 	func buttonFocusRing(_ color: Color = Color("#000080")) -> Self {
 		focusVisible {
 			$0.focusRing(color, width: .pixels(2), offset: .pixels(-4))
+		}
+	}
+
+	/**
+	The focus of a canvas or another box of the 1999 page that has no raised edge, for the keyboard: a solid navy frame just outside it.
+	*/
+	func canvasFocusRing() -> Self {
+		focusVisible {
+			$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
+		}
+	}
+
+	/**
+	The status line of a toy, which says what happened, in bold Comic Sans. It is as high as the lines it can have, so the toy does not move when the text changes.
+	*/
+	func toyStatus(lines: Double = 2) -> Self {
+		frame(minHeight: .lineHeight(lines))
+			.margin(0)
+			.fontFamily(GeoCitiesPage.comicSans)
+			.textStyle(.caption, weight: .bold)
+	}
+
+	/**
+	Sinks a toggle button in while it is pressed (`aria-pressed="true"`), like a toggle of Windows 95: an inset light gray edge, and optionally a fill, like the yellow of a toy.
+	*/
+	func pressedIn(_ fill: Color? = nil) -> Self {
+		pressed {
+			let style = $0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+
+			guard let fill else {
+				return style
+			}
+
+			return style.background(fill)
 		}
 	}
 }

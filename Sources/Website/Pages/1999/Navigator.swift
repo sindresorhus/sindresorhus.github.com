@@ -52,7 +52,7 @@ struct GeoCitiesNavigator: HTML {
 								item.icon
 							}
 							.accessibilityHidden()
-							.style(Styles.icon, Styles.icon(item.id))
+							.style(Styles.icon(item.id))
 
 							span {
 								item.title
@@ -126,6 +126,10 @@ struct GeoCitiesNavigator: HTML {
 		case button = "data-navigator-button"
 	}
 
+	enum States: String, ElementStateSet {
+		case loading
+	}
+
 	enum Styles: StyleSet {
 		case frameTop
 		case menuBar
@@ -147,7 +151,7 @@ struct GeoCitiesNavigator: HTML {
 		case paper
 
 		/**
-		The color of the icon of a button, as the arrows and the stop sign are text.
+		The style of the icon of a button, with a color for the arrows and the stop sign, as they are text.
 		*/
 		static func icon(_ id: String) -> Self {
 			switch id {
@@ -222,38 +226,28 @@ struct GeoCitiesNavigator: HTML {
 					.lineHeight(1)
 					.color(.black)
 					.handCursor()
+					.buttonFocusRing()
 					.hover {
 						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
 					}
 					.active {
 						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
 					}
-					.when(.state, is: "on") {
-						$0
-							.background(Color("#dfdfdf"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
 			case .icon:
 				Style()
 					.fontFamily(.system)
 					.font(size: .rootEm(1.25), lineHeight: 1)
 			case .iconBack:
-				Style()
-					.fontFamily(.system)
-					.font(size: .rootEm(1.25), lineHeight: 1)
+				Self.icon.style
 					.color(Color("#008000"))
 					.textShadow(Shadow(x: .pixels(1), y: .pixels(1), color: .white))
 			case .iconStop:
-				Style()
-					.fontFamily(.system)
-					.font(size: .rootEm(1.25), lineHeight: 1)
+				Self.icon.style
 					.bold()
 					.color(Color("#cc0000"))
 					.textShadow(Shadow(x: .pixels(1), y: .pixels(1), color: .white))
 			case .iconReload:
-				Style()
-					.fontFamily(.system)
-					.font(size: .rootEm(1.25), lineHeight: 1)
+				Self.icon.style
 					.bold()
 					.color(Color("#000080"))
 					.textShadow(Shadow(x: .pixels(1), y: .pixels(1), color: .white))
@@ -266,7 +260,7 @@ struct GeoCitiesNavigator: HTML {
 				Style()
 					.position(.relative)
 					.hstack(alignment: .center, justification: .center)
-					.frame(width: .rootEm(2.75), height: .rootEm(2.75))
+					.frame(size: .rootEm(2.75))
 					.flexShrink(0)
 					.overflow(.hidden)
 					.backgroundImage(.radialGradient("ellipse 120% 45% at 50% 115%", Color("#3a6ad8"), Color("#14306e"), .transparent), .linearGradient("to bottom", Color("#000010"), Color("#101850")))
@@ -293,19 +287,17 @@ struct GeoCitiesNavigator: HTML {
 						$0.leading(.percent(85))
 					}
 					// Each meteor at its own speed, so they do not fall together.
-					.media(.allowsMotion) {
-						$0.when(.state, is: "loading") {
-							$0
-								.children("span") {
-									$0.animation(Animations.meteor, .linear(duration: .milliseconds(700)).repeatForever(autoreverses: false))
-								}
-								.children("span:nth-child(2)") {
-									$0.animation(Animations.meteor, .linear(duration: .milliseconds(950)).repeatForever(autoreverses: false))
-								}
-								.children("span:nth-child(3)") {
-									$0.animation(Animations.meteor, .linear(duration: .milliseconds(1200)).repeatForever(autoreverses: false))
-								}
-						}
+					.when(States.loading) {
+						$0
+							.children("span") {
+								$0.animation(Animations.meteor, .linear(duration: .milliseconds(700)).repeatForever(autoreverses: false))
+							}
+							.children("span:nth-child(2)") {
+								$0.animation(Animations.meteor, .linear(duration: .milliseconds(950)).repeatForever(autoreverses: false))
+							}
+							.children("span:nth-child(3)") {
+								$0.animation(Animations.meteor, .linear(duration: .milliseconds(1200)).repeatForever(autoreverses: false))
+							}
 					}
 			case .locationBar:
 				Style()

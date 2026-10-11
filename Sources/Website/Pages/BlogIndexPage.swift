@@ -48,13 +48,11 @@ extension BlogIndexPage {
 				Style()
 					.pageColumn(.prose)
 			case .list:
+				// A gap, not a margin below each post, so the last post adds no space above the footer.
 				Style()
-					.children("li") {
-						$0
-							.margin(.bottom, .rootEm(2.5))
-							.from(.tablet) {
-								$0.margin(.bottom, .rootEm(4))
-							}
+					.vstack(spacing: .rootEm(2.5))
+					.from(.tablet) {
+						$0.gap(.rootEm(4))
 					}
 			}
 		}

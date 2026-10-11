@@ -25,7 +25,7 @@ struct ReviewsPage: Page {
 			// The script shows it when the page shows the quotes of one app.
 			p(.id(Hooks.filterNotice), .hidden) {
 				"Showing what people say about "
-				strong {}
+				strong(.id(Hooks.filterApp)) {}
 				". "
 				a(.href(.reviews)) {
 					"Show All"
@@ -33,7 +33,7 @@ struct ReviewsPage: Page {
 			}
 			.style(Styles.filterNotice)
 
-			div {
+			div(.id(Hooks.wall)) {
 				for quote in quotes {
 					// The space below each card is padding of a wrapper, not a margin, as Safari moves the bottom margin of the last card in a column to the top of the next column, so the columns would not line up.
 					div(.hook(Hooks.app, value: quote.app?.slug ?? "")) {
@@ -48,7 +48,7 @@ struct ReviewsPage: Page {
 			script {
 				HTMLRaw(#"""
 				{
-					const wall = document.currentScript.previousElementSibling;
+					const wall = document.querySelector('#\#(Hooks.wall.rawValue)');
 					const reviews = [...wall.children].slice(\#(pressQuoteCount));
 
 					for (let index = reviews.length - 1; index > 0; index--) {
@@ -67,7 +67,7 @@ struct ReviewsPage: Page {
 						}
 
 						const notice = document.querySelector('#\#(Hooks.filterNotice.rawValue)');
-						notice.querySelector('strong').textContent = cards[0].querySelector('a').textContent.trim();
+						document.querySelector('#\#(Hooks.filterApp.rawValue)').textContent = \#(appTitlesJSON)[app];
 						notice.hidden = false;
 					}
 				}
@@ -77,8 +77,15 @@ struct ReviewsPage: Page {
 		.style(Styles.root)
 	}
 
+	/**
+	The titles of the apps with quotes, by slug, for the filter notice.
+	*/
+	private var appTitlesJSON: String {
+		JSONEncoder.pageJSON(Dictionary(quotes.compactMap(\.app).map { ($0.slug, $0.title) }) { first, _ in first })
+	}
+
 	private var pressQuoteCount: Int {
-		content.activeApps.map(\.pressQuotes.count).reduce(0, +)
+		content.activeApps.map(\.pressQuotes.count).sum
 	}
 
 	/**
@@ -106,6 +113,13 @@ extension ReviewsPage {
 		case app = "data-app"
 
 		case filterNotice = "reviews-filter-notice"
+
+		/**
+		The name of the app in the filter notice.
+		*/
+		case filterApp = "reviews-filter-app"
+
+		case wall = "reviews-wall"
 	}
 
 	enum Styles: StyleSet {
@@ -117,8 +131,9 @@ extension ReviewsPage {
 		var style: Style {
 			switch self {
 			case .root:
+				// The width of the header, like the pages of the app categories, so the title is at the same place on the pages about the apps.
 				Style()
-					.pageColumn(.wide)
+					.pageColumn(.page)
 			case .wall:
 				// Columns that the cards flow through, so cards of different heights fit together.
 				Style()

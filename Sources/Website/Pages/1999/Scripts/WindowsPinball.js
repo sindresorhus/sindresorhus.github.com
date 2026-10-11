@@ -1,5 +1,6 @@
 // 3D Pinball for Windows, Space Cadet, on the desktop of the 1999 page: a table in space with a plunger, two flippers, three attack bumpers, slingshots, the re-entry lanes, drop targets, a launch ramp, and a hyperspace hole. Missions promote the player from Cadet to Fleet Admiral, like in Space Cadet. The ball moves in small fixed steps, many for each frame, so it never goes through a flipper or a wall. The table runs only while its window is open, on the screen, and the tab is visible.
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
+import GeoCitiesElement, {clamp, playTone} from '/scripts/geocities-element.js';
+
 const formatScore = number => number.toLocaleString('en-US');
 
 // The table is 200 × 320 units, drawn at twice the size on the canvas, so the lines are sharp.
@@ -188,7 +189,7 @@ const keyControls = {
 const codeControls = {ShiftLeft: 'left', ShiftRight: 'right'};
 const nudgeKeys = {x: 1, X: 1, '.': -1, ArrowUp: 0};
 
-export default class extends GeoCitiesElement {
+class GeoCitiesWindowsPinball extends GeoCitiesElement {
 	#context;
 	#scale;
 	#loop;
@@ -462,23 +463,7 @@ export default class extends GeoCitiesElement {
 			return;
 		}
 
-		const {context, output} = sound;
-		const oscillator = context.createOscillator();
-		const gain = context.createGain();
-		const time = context.currentTime + delay;
-		oscillator.type = type;
-		oscillator.frequency.setValueAtTime(frequency, time);
-
-		if (slide) {
-			oscillator.frequency.exponentialRampToValueAtTime(slide, time + duration);
-		}
-
-		gain.gain.setValueAtTime(0.0001, time);
-		gain.gain.exponentialRampToValueAtTime(volume, time + 0.01);
-		gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-		oscillator.connect(gain).connect(output);
-		oscillator.start(time);
-		oscillator.stop(time + duration + 0.05);
+		playTone(sound, frequency, delay, duration, {type, volume, slide});
 	}
 
 	#sounds = {
@@ -1648,3 +1633,5 @@ export default class extends GeoCitiesElement {
 		}
 	}
 }
+
+customElements.define('geo-cities-windows-pinball', GeoCitiesWindowsPinball);

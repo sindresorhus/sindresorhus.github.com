@@ -64,7 +64,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 					button(.part(Parts.mammaPappa), .type(.button)) {
 						"Ask Pappa Instead"
 					}
-					.style(GeoCitiesPage.Styles.smallButton)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 					button(.part(Parts.mammaPromise), .type(.button)) {
 						"Promise to Clean My Room"
@@ -145,10 +145,10 @@ struct GeoCitiesMailOrder: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.smallButton)
 
-				button(.part(Parts.sound), .type(.button), .custom(name: "aria-pressed", value: "false")) {
+				button(.part(Parts.sound), .type(.button), .ariaPressed(false)) {
 					"🔊 Sound"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.toggle)
+				.style(GeoCitiesPage.Styles.smallButton)
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
@@ -214,7 +214,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 							button(.part(Parts.cut), .type(.button)) {
 								"Cut Out the Coupon"
 							}
-							.style(GeoCitiesPage.Styles.smallButton, Styles.dimmedWhenDisabled)
+							.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 						}
 						.style(Styles.coupon)
 
@@ -241,7 +241,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 				button(.part(Parts.tableAction), .type(.button), .disabled) {
 					"Lick the Stamp and Mail It"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.dimmedWhenDisabled)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 				button(.part(Parts.tablePopAll), .type(.button), .hidden) {
 					"Pop All"
@@ -290,7 +290,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 			// The script adds a copy for each thing that came in the mail, and for each tool of the thing.
 			template(.part(Parts.stuffTab)) {
 				button(.type(.button)) {}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.toggle)
+					.style(GeoCitiesPage.Styles.smallButton)
 			}
 
 			canvas(.part(Parts.stuffCanvas), .width(640), .height(360), .tabindex(0), .role("application")) {}
@@ -302,7 +302,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 
 			template(.part(Parts.stuffTool)) {
 				button(.type(.button)) {}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.toggle, Styles.dimmedWhenDisabled)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 			}
 
 			p(.part(Parts.stuffStatus), .role("status")) {}
@@ -323,7 +323,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.windowBody)
 		}
-		.style(GeoCitiesPage.Styles.window, Styles.window)
+		.style(GeoCitiesPage.Styles.window)
 	}
 
 	enum Parts: String, ElementPartSet {
@@ -384,6 +384,12 @@ struct GeoCitiesMailOrder: ScriptedElement {
 		case note
 	}
 
+	enum States: String, ElementStateSet {
+		case shaking
+		case cut
+		case said
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		An ad, with the ID of what it sells.
@@ -402,7 +408,6 @@ struct GeoCitiesMailOrder: ScriptedElement {
 		case bank
 		case piggy
 		case bankLabel
-		case toggle
 		case comic
 		case masthead
 		case ads
@@ -418,7 +423,6 @@ struct GeoCitiesMailOrder: ScriptedElement {
 		case mamma
 		case mammaText
 		case desk
-		case window
 		case panel
 		case canvas
 		case tableCanvas
@@ -427,7 +431,6 @@ struct GeoCitiesMailOrder: ScriptedElement {
 		case tabs
 		case status
 		case bankStatus
-		case dimmedWhenDisabled
 		case lens
 
 		var style: Style {
@@ -449,23 +452,14 @@ struct GeoCitiesMailOrder: ScriptedElement {
 				Style()
 					.display(.inlineBlock)
 					.font(size: .rootEm(2.25), lineHeight: 1)
-					.media(.allowsMotion) {
-						$0.when(.state, is: "shaking") {
-							$0.animation(Animations.shake, .linear(duration: .seconds(0.1)).repeatForever())
-						}
+					.when(States.shaking) {
+						$0.animation(Animations.shake, .linear(duration: .seconds(0.1)).repeatForever())
 					}
 			case .bankLabel:
 				Style()
 					.margin(0)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.body, weight: .bold)
-			case .toggle:
-				// Pressed in while it is on.
-				Style().when(.state, is: "on") {
-					$0
-						.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-						.background(Color("#e8e8e8"))
-				}
 			case .comic:
 				// The yellowed newsprint of the last pages of a comic book.
 				Style()
@@ -543,7 +537,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 					.background(.white)
 					.border(.black, width: .pixels(2), style: .dashed)
 					.textAlign(.center)
-					.when(.state, is: "cut") {
+					.when(States.cut) {
 						$0
 							.background(Color("#c9bfa0"))
 							.border(Color("#8a7f60"), width: .pixels(2), style: .dashed)
@@ -591,8 +585,6 @@ struct GeoCitiesMailOrder: ScriptedElement {
 					.children("*") {
 						$0.frame(minWidth: 0)
 					}
-			case .window:
-				Style().frame(minWidth: 0)
 			case .panel:
 				Style().vstack(spacing: .rootEm(0.5))
 			case .canvas:
@@ -601,9 +593,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 					.frame(width: .percent(100), height: .auto)
 					.border(Color("#808080"), width: .pixels(2), style: .inset)
 					.background(.black)
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .tableCanvas:
 				// A finger cuts, tears, and pops instead of scrolling the page.
 				Style()
@@ -632,7 +622,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 					.margin(0)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
-					.when(.state, is: "said") {
+					.when(States.said) {
 						$0.frame(minHeight: .lineHeight(2))
 					}
 			case .bankStatus:
@@ -643,17 +633,12 @@ struct GeoCitiesMailOrder: ScriptedElement {
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
-			case .dimmedWhenDisabled:
-				// The small buttons of the page have no look of their own when they do nothing.
-				Style().disabled {
-					$0.opacity(0.5)
-				}
 			case .lens:
 				// Over everything, and never in the way of the pointer.
 				Style()
 					.position(.fixed)
 					.inset(0)
-					.frame(width: .percent(100), height: .percent(100))
+					.frame(size: .percent(100))
 					.zIndex(2000)
 					.allowsHitTesting(false)
 			}

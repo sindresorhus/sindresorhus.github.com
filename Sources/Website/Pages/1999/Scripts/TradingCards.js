@@ -1,12 +1,5 @@
 // Unimon trading cards on the 1999 page: a pack has three common cards, an uncommon card, and a rare holo card in two packs of five, or else another uncommon card. The binder keeps how many of each card the visitor has, in the browser, and Kevin offers trades for the extra cards.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
-
-// A copy of the first element of a template.
-const cloneTemplate = template => template.content.firstElementChild.cloneNode(true);
-
-// Like “1 pack” or “2 packs”.
-const plural = (count, word) => `${count.toLocaleString('en-US')} ${word}${count === 1 ? '' : 's'}`;
+import GeoCitiesElement, {cloneTemplate, randomItem, randomInteger, plural} from '/scripts/geocities-element.js';
 
 // The foil of a holo card shines where the pointer is. The cards of a pack are made again for each pack, so their listeners go away with them.
 const addShine = element => {
@@ -21,7 +14,7 @@ const addShine = element => {
 	});
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesTradingCards extends GeoCitiesElement {
 	connected() {
 		const {pack: packButton, pull, status, trade, tradeText, tradeAccept: acceptButton, tradeDecline: declineButton, binderTitle, binder} = this.parts;
 		const cards = [...this.querySelectorAll('template[data-unimon-card]')].map(template => ({
@@ -190,3 +183,5 @@ export default class extends GeoCitiesElement {
 		renderBinder();
 	}
 }
+
+customElements.define('geo-cities-trading-cards', GeoCitiesTradingCards);

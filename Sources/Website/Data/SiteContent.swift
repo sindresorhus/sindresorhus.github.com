@@ -39,6 +39,11 @@ public struct SiteContent: Sendable {
 	*/
 	let popularRepositories: [GitHubRepository]
 
+	/**
+	The numbers of the GitHub account, like the repos and the stars, for the about page, and its repos, for the new npm packages of the now page. `nil` when a request failed.
+	*/
+	let gitHubAccount: GitHub.Account?
+
 	let npmStatistics: NPMStatistics
 
 	/**
@@ -67,7 +72,7 @@ public struct SiteContent: Sendable {
 	*/
 	let warnings: [Warning]
 
-	init(apps: [App], posts: [BlogPost], pages: [MarkdownPage], appStoreInfo: [AppStoreID: AppStoreInfo] = [:], appStoreReviews: [AppStoreID: [AppStoreReview]] = [:], releases: [String: [GitHubRelease]] = [:], recentRepositories: [GitHubRepository] = [], popularRepositories: [GitHubRepository] = [], npmStatistics: NPMStatistics = NPMStatistics(), recentActivity: RecentActivity = RecentActivity(), contributionYears: [ContributionYear] = [], buildDate: Date, project: Project, warnings: [Warning] = []) {
+	init(apps: [App], posts: [BlogPost], pages: [MarkdownPage], appStoreInfo: [AppStoreID: AppStoreInfo] = [:], appStoreReviews: [AppStoreID: [AppStoreReview]] = [:], releases: [String: [GitHubRelease]] = [:], recentRepositories: [GitHubRepository] = [], popularRepositories: [GitHubRepository] = [], gitHubAccount: GitHub.Account? = nil, npmStatistics: NPMStatistics = NPMStatistics(), recentActivity: RecentActivity = RecentActivity(), contributionYears: [ContributionYear] = [], buildDate: Date, project: Project, warnings: [Warning] = []) {
 		self.apps = apps
 		self.posts = posts
 		self.pages = pages
@@ -77,6 +82,7 @@ public struct SiteContent: Sendable {
 		self.releases = releases
 		self.recentRepositories = recentRepositories
 		self.popularRepositories = popularRepositories
+		self.gitHubAccount = gitHubAccount
 		self.npmStatistics = npmStatistics
 		self.recentActivity = recentActivity
 		self.contributionYears = contributionYears
@@ -131,7 +137,7 @@ public struct SiteContent: Sendable {
 	}
 
 	/**
-	The content with the data from the App Store, GitHub, npm, and Bluesky. Failures of the release notes and the recent repos on GitHub are errors. Other failures are warnings, as that data is extra: the App Store data, the popular repos and the npm numbers of the about page, the career quilt, and the activity of the now page.
+	The content with the data from the App Store, GitHub, npm, and Bluesky. Failures of the release notes and the recent repos on GitHub are errors. Other failures are warnings, as that data is extra: the App Store data, the popular repos, the numbers of the GitHub account, and the npm numbers of the about page, the career quilt, which also has the contribution numbers of the about page, and the activity of the now page.
 	*/
 	private static func fetching(apps: [App], posts: [BlogPost], pages: [MarkdownPage], cache: ResponseCache, buildDate: Date, project: Project, warnings: WarningCollector) async throws -> Self {
 		let github = GitHub(cache: cache)
@@ -140,6 +146,7 @@ public struct SiteContent: Sendable {
 		async let appStoreReviews = AppStoreReview.recentFiveStar(appIDs: apps.filter { !$0.isArchived }.compactMap(\.appStoreID), cache: cache, warnings: warnings)
 		async let recentRepositories = github.recentRepositories()
 		async let popularRepositories = github.popularRepositories()
+		async let gitHubAccount = github.account()
 		async let npmStatistics = NPMStatistics.load(cache: cache, warnings: warnings)
 		async let recentActivity = RecentActivity.load(github: github, cache: cache, buildDate: buildDate, warnings: warnings)
 		async let contributionYears = ContributionYear.load(github: github, until: buildDate)
@@ -183,7 +190,7 @@ public struct SiteContent: Sendable {
 		do {
 			loadedContributionYears = try await contributionYears ?? []
 		} catch {
-			warnings.add(Warning(message: "Could not get the GitHub contributions of each year, so the career quilt is left out: \(error)"))
+			warnings.add(Warning(message: "Could not get the GitHub contributions of each year, so the career quilt and the contribution numbers of the about page are left out: \(error)"))
 		}
 		var loadedPopularRepositories = [GitHubRepository]()
 
@@ -191,6 +198,14 @@ public struct SiteContent: Sendable {
 			loadedPopularRepositories = try await popularRepositories
 		} catch {
 			warnings.add(Warning(message: "Could not get the popular GitHub repos, so the about page leaves them out: \(error)"))
+		}
+
+		var loadedGitHubAccount: GitHub.Account?
+
+		do {
+			loadedGitHubAccount = try await gitHubAccount
+		} catch {
+			warnings.add(Warning(message: "Could not get the numbers of the GitHub account, like the repos and the stars, so the about page leaves them out, and the now page leaves out the new npm packages: \(error)"))
 		}
 
 		// After all requests, so the cache has all its warnings.
@@ -203,6 +218,7 @@ public struct SiteContent: Sendable {
 			releases: releases,
 			recentRepositories: loadedRecentRepositories,
 			popularRepositories: loadedPopularRepositories,
+			gitHubAccount: loadedGitHubAccount,
 			npmStatistics: loadedNPMStatistics,
 			recentActivity: loadedRecentActivity,
 			contributionYears: loadedContributionYears,
@@ -225,8 +241,15 @@ extension SiteContent {
 	The years since the first app launched, like 11, for “11 years of craft”. `nil` without apps.
 	*/
 	var yearsOfCraft: Int? {
-		// Whole years, so the count goes up on the day of the first app, not on January 1.
-		listedApps.map(\.publicationDate).min().flatMap { Calendar.site.dateComponents([.year], from: $0, to: buildDate).year }
+		listedApps.map(\.publicationDate).min().map { buildDate.wholeYears(since: $0) }
+	}
+
+	/**
+	The years since the first open-source repo of Sindre, like 15, for “15 years of open source”.
+	*/
+	var yearsOfOpenSource: Int {
+		// When he made his first repo.
+		buildDate.wholeYears(since: Date(year: 2011, month: 9, day: 6))
 	}
 
 	/**

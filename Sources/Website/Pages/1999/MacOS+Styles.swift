@@ -26,6 +26,11 @@ extension GeoCitiesMacOS {
 	*/
 	static let stripes: RoutePath = "/1999/mac-stripes.png"
 
+	enum States: String, ElementStateSet {
+		case on
+		case `default`
+	}
+
 	enum Styles: StyleSet {
 		case desk
 		case imac
@@ -232,10 +237,10 @@ extension GeoCitiesMacOS {
 			case .led:
 				// The light of the power button: green while it is on, and amber, breathing slowly, while it sleeps.
 				Style()
-					.frame(width: .rootEm(0.625), height: .rootEm(0.625))
+					.frame(size: .rootEm(0.625))
 					.background(Color("#335544"))
 					.cornerRadius(.circle)
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0
 							.background(Color("#33ff66"))
 							.shadow(Shadow(x: .pixels(0), y: .pixels(0), blur: .pixels(6), color: Color("#33ff66")))
@@ -243,9 +248,7 @@ extension GeoCitiesMacOS {
 					.when(Hooks.sleeping) {
 						$0
 							.background(Color("#ffaa22"))
-							.media(.allowsMotion) {
-								$0.animation(GeoCitiesPage.Animations.blink, .easeInOut(duration: .seconds(3)).repeatForever(autoreverses: true))
-							}
+							.animation(GeoCitiesPage.Animations.blink, .easeInOut(duration: .seconds(3)).repeatForever(autoreverses: true))
 					}
 			case .printer:
 				Style()
@@ -292,18 +295,14 @@ extension GeoCitiesMacOS {
 					.textStyle(.caption, weight: .bold)
 					.color(.black)
 					.handCursor()
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.offset(y: .pixels(3))
 							.background(Color("#bfe6ee"))
 							.shadow(Shadow(x: .pixels(0), y: .pixels(0), color: Color("#5d8c97")))
 					}
 			case .status:
-				Style()
-					.frame(minHeight: .lineHeight(1))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+				Style().toyStatus(lines: 1)
 			case .screen:
 				// The screen of 4:3, taller on a phone, so the windows fit. The colors of the monitor and the theme of the Appearance are on it.
 				Style()
@@ -398,7 +397,7 @@ extension GeoCitiesMacOS {
 					.border(.black, width: .pixels(1))
 					.shadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#00000066")), Shadow(x: .pixels(1), y: .pixels(1), color: .white, isInset: true))
 			case .face:
-				Style().frame(width: .rootEm(4), height: .rootEm(4))
+				Style().frame(size: .rootEm(4))
 			case .welcomeText:
 				Style()
 					.margin(0)
@@ -435,7 +434,7 @@ extension GeoCitiesMacOS {
 					.flexWrap()
 					.children("img") {
 						$0
-							.frame(width: .pixels(32), height: .pixels(32))
+							.frame(size: .pixels(32))
 							.imageRendering(.pixelated)
 					}
 			case .desktop:
@@ -447,7 +446,7 @@ extension GeoCitiesMacOS {
 				Style()
 					.position(.absolute)
 					.inset(0)
-					.frame(width: .percent(100), height: .percent(100))
+					.frame(size: .percent(100))
 					.imageRendering(.pixelated)
 			case .icons:
 				Style()
@@ -481,7 +480,7 @@ extension GeoCitiesMacOS {
 			case .iconImage:
 				Style()
 					.display(.block)
-					.frame(width: .pixels(32), height: .pixels(32))
+					.frame(size: .pixels(32))
 					.imageRendering(.pixelated)
 			case .iconLabel:
 				Style()
@@ -543,7 +542,7 @@ extension GeoCitiesMacOS {
 								$0.visuallyHidden()
 							}
 					}
-					.when(.state, is: "on") {
+					.expanded {
 						$0
 							.background(GeoCitiesMacOS.highlight.value)
 							.color(.white)
@@ -657,7 +656,7 @@ extension GeoCitiesMacOS {
 					.active {
 						$0.background(Color("#aaaaaa"))
 					}
-					.when(.state, is: "on") {
+					.pressed {
 						$0.background(Color("#bbbbee"))
 					}
 			case .stripTab:
@@ -686,7 +685,7 @@ extension GeoCitiesMacOS {
 					.position(.absolute)
 					.inset(0)
 					.zIndex(1950)
-					.frame(width: .percent(100), height: .percent(100))
+					.frame(size: .percent(100))
 					.background(.black)
 			case .alert:
 				// An alert of Mac OS 8, in the middle near the top, over everything, with the thick edge of a dialog.
@@ -713,7 +712,7 @@ extension GeoCitiesMacOS {
 			case .alertIcon:
 				Style()
 					.flexShrink(0)
-					.frame(width: .pixels(32), height: .pixels(32))
+					.frame(size: .pixels(32))
 					.imageRendering(.pixelated)
 			case .alertText:
 				Style()
@@ -756,6 +755,10 @@ extension GeoCitiesMacOS {
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
 					.flexShrink(0)
 					.frame(height: .rootEm(1.25))
+					// Taller for a finger, so the larger boxes fit.
+					.media(.coarsePointer) {
+						$0.frame(height: .rootEm(1.5))
+					}
 					.padding(.horizontal, .rootEm(0.375))
 					.background(GeoCitiesMacOS.face.value)
 					.border(.bottom, Color("#888888"), width: .pixels(1))
@@ -774,7 +777,11 @@ extension GeoCitiesMacOS {
 				// The square boxes of the title bar, with a bevel.
 				Style()
 					.flexShrink(0)
-					.frame(width: .rootEm(0.8125), height: .rootEm(0.8125))
+					.frame(size: .rootEm(0.8125))
+					// Larger for a finger.
+					.media(.coarsePointer) {
+						$0.frame(size: .rootEm(1.25))
+					}
 					.background(GeoCitiesMacOS.face.value)
 					.border(Color("#333333"), width: .pixels(1))
 					.shadow(Shadow(x: .pixels(1), y: .pixels(1), color: .white, isInset: true), Shadow(x: .pixels(-1), y: .pixels(-1), color: Color("#999999"), isInset: true))
@@ -848,10 +855,16 @@ extension GeoCitiesMacOS {
 					.focusVisible {
 						$0.focusRing(GeoCitiesMacOS.highlight.value, width: .pixels(2), offset: .pixels(2))
 					}
-					.when(.state, is: "default") {
+					.when(States.default) {
 						$0.shadow(Shadow(x: 0, y: 0, spread: .pixels(2), color: GeoCitiesMacOS.face.value), Shadow(x: 0, y: 0, spread: .pixels(3), color: .black))
 					}
-					.when(.state, is: "on") {
+					// The front program in the Application Switcher, which is a state, and the Shift and Option keys of Key Caps, which are toggle buttons.
+					.when(States.on) {
+						$0
+							.backgroundImage(.linearGradient("to bottom", Color("#9999cc"), Color("#7777bb")))
+							.color(.white)
+					}
+					.pressed {
 						$0
 							.backgroundImage(.linearGradient("to bottom", Color("#9999cc"), Color("#7777bb")))
 							.color(.white)
@@ -867,6 +880,9 @@ extension GeoCitiesMacOS {
 					.fontWeight(.bold)
 					.color(.black)
 					.handCursor()
+					.focusVisible {
+						$0.focusRing(GeoCitiesMacOS.highlight.value, width: .pixels(2), offset: .pixels(2))
+					}
 			case .buttons:
 				Style()
 					.hstack(alignment: .center, justification: .end, spacing: .rootEm(0.5))
@@ -924,7 +940,7 @@ extension GeoCitiesMacOS {
 					.fontWeight(.bold)
 					.color(.black)
 					.handCursor()
-					.when(.state, is: "on") {
+					.pressed {
 						$0.background(GeoCitiesMacOS.face.value)
 					}
 			case .panel:
@@ -952,7 +968,7 @@ extension GeoCitiesMacOS {
 					.textAlign(.leading)
 					.color(.black)
 					.handCursor()
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.background(GeoCitiesMacOS.highlight.value)
 							.color(.white)
@@ -971,7 +987,7 @@ extension GeoCitiesMacOS {
 			case .aboutFace:
 				Style()
 					.flexShrink(0)
-					.frame(width: .rootEm(3), height: .rootEm(3))
+					.frame(size: .rootEm(3))
 			case .aboutVersion:
 				Style()
 					.margin(0)
@@ -1121,7 +1137,7 @@ extension GeoCitiesMacOS {
 					.font(size: .rootEm(0.9375))
 					.color(.black)
 					.handCursor()
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0
 							.background(.black)
 							.color(.white)
@@ -1170,7 +1186,7 @@ extension GeoCitiesMacOS {
 							.background(GeoCitiesMacOS.highlight.value)
 							.color(.white)
 					}
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0
 							.background(GeoCitiesMacOS.highlight.value)
 							.color(.white)
@@ -1249,7 +1265,7 @@ extension GeoCitiesMacOS {
 				// The N of Netscape, with a meteor while it loads.
 				Style()
 					.margin(.leading, .auto)
-					.frame(width: .rootEm(1.75), height: .rootEm(1.75))
+					.frame(size: .rootEm(1.75))
 					.display(.flex)
 					.alignItems(.center)
 					.justifyContent(.center)
@@ -1258,10 +1274,8 @@ extension GeoCitiesMacOS {
 					.font(size: .rootEm(1.25))
 					.fontWeight(.heavy)
 					.color(Color("#66ccff"))
-					.when(.state, is: "on") {
-						$0.media(.allowsMotion) {
-							$0.animation(GeoCitiesPage.Animations.blink, .linear(duration: .seconds(0.4)).repeatForever(autoreverses: true))
-						}
+					.when(States.on) {
+						$0.animation(GeoCitiesPage.Animations.blink, .linear(duration: .seconds(0.4)).repeatForever(autoreverses: true))
 					}
 			case .location:
 				Style()

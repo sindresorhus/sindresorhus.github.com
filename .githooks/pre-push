@@ -1,0 +1,3 @@
+#!/bin/sh
+# Runs the tests before a push, like CI, so a push cannot fail the build. Skip it with `git push --no-verify`.
+exec swift test --disable-xctest

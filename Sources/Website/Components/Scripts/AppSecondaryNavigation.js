@@ -1,4 +1,4 @@
-export default class extends HTMLElement {
+class AppSecondaryNavigation extends HTMLElement {
 	// Stops the observers and the listeners of the page when the element is removed, so connecting it again does not add them twice.
 	#abortController;
 
@@ -47,17 +47,17 @@ export default class extends HTMLElement {
 	#markCurrentSection() {
 		const links = [...this.querySelectorAll('[data-part="sectionLink"]')];
 
-		// The heading of the section that a link goes to.
-		const headingOf = link => {
+		// The heading of the section that each link goes to, found once, as the scroll spy updates often.
+		const headingOf = new Map(links.map(link => {
 			try {
-				return document.getElementById(decodeURIComponent(link.hash.slice(1)));
+				return [link, document.getElementById(decodeURIComponent(link.hash.slice(1)))];
 			} catch {
-				return undefined;
+				return [link, undefined];
 			}
-		};
+		}));
 
 		// In the order of the page, which `findLast` needs.
-		const headings = [...new Set(links.map(link => headingOf(link)).filter(Boolean))].sort((first, second) => first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
+		const headings = [...new Set(headingOf.values().filter(Boolean))].sort((first, second) => first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
 
 		if (links.length === 0 || headings.length === 0) {
 			return;
@@ -72,7 +72,7 @@ export default class extends HTMLElement {
 			const activeHeading = isAtEnd ? headings.at(-1) : headings.findLast(heading => heading.getBoundingClientRect().top < line);
 
 			for (const link of links) {
-				if (activeHeading && headingOf(link) === activeHeading) {
+				if (activeHeading && headingOf.get(link) === activeHeading) {
 					link.setAttribute('aria-current', 'location');
 				} else {
 					link.removeAttribute('aria-current');
@@ -100,3 +100,5 @@ export default class extends HTMLElement {
 		}
 	}
 }
+
+customElements.define('app-secondary-navigation', AppSecondaryNavigation);

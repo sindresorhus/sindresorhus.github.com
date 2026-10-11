@@ -1,8 +1,7 @@
 // The neon sign on the 1999 page: now and then a letter flickers off and on, like an old tube, while the sign is in view. The kicks do something else each time, in a shuffled order.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
+import GeoCitiesElement, {randomItem, randomBetween, shuffled} from '/scripts/geocities-element.js';
 
-export default class extends GeoCitiesElement {
+class GeoCitiesNeonSign extends GeoCitiesElement {
 	connected() {
 		const {sign, kick: kickButton} = this.parts;
 		const signLetters = [...sign.querySelectorAll('[aria-hidden] > span')].filter(letter => /\p{L}/u.test(letter.textContent));
@@ -137,7 +136,7 @@ export default class extends GeoCitiesElement {
 			}
 
 			if (kickOutcomes.length === 0) {
-				kickOutcomes = Object.keys(kickResults).toSorted(() => Math.random() - 0.5);
+				kickOutcomes = shuffled(Object.keys(kickResults));
 
 				// A new round does not start with how the last round ended, so a kick never does the same as the one before.
 				if (kickOutcomes.at(-1) === lastKickOutcome) {
@@ -151,3 +150,5 @@ export default class extends GeoCitiesElement {
 		});
 	}
 }
+
+customElements.define('geo-cities-neon-sign', GeoCitiesNeonSign);

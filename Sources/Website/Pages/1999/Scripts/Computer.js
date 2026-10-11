@@ -1,5 +1,5 @@
 // My beige PC on the 1999 page: the hard drive light that flickers whenever the visitor clicks, types, or scrolls, the CD-ROM drive that opens into a cup holder, the Turbo button that makes the page faster, and the Reset button with the screen of the BIOS.
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
+import GeoCitiesElement, {randomBetween} from '/scripts/geocities-element.js';
 
 // The text keeps its spaces, like on a screen of fixed-width text, as the box only keeps the line breaks.
 const fixedWidth = text => text.replaceAll(' ', ' ');
@@ -35,7 +35,7 @@ const setAnimationSpeed = rate => {
 	}
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesComputer extends GeoCitiesElement {
 	connected() {
 		this.#setUpHardDrive();
 		this.#setUpDrive();
@@ -83,18 +83,12 @@ export default class extends GeoCitiesElement {
 
 	// The CD-ROM drive opens into a cup holder.
 	#setUpDrive() {
-		const {drive, eject: ejectButton} = this.parts;
+		const {eject: ejectButton} = this.parts;
 
+		// The drive shows the tray while the button is pressed.
 		this.on(ejectButton, 'click', () => {
-			const isOpen = drive.dataset.state !== 'open';
-
-			if (isOpen) {
-				drive.dataset.state = 'open';
-			} else {
-				delete drive.dataset.state;
-			}
-
-			ejectButton.ariaPressed = String(isOpen);
+			const isOpen = ejectButton.ariaPressed !== 'true';
+			ejectButton.setAttribute('aria-pressed', String(isOpen));
 			this.say(isOpen ? 'The cup holder is open! Best feature of the computer.' : 'The cup holder is closed. Mind the coffee.');
 		});
 	}
@@ -120,11 +114,10 @@ export default class extends GeoCitiesElement {
 
 		this.on(turboButton, 'click', () => {
 			isTurbo = !isTurbo;
-			turboButton.ariaPressed = String(isTurbo);
+			turboButton.setAttribute('aria-pressed', String(isTurbo));
 			turboTimer?.cancel();
 
 			if (isTurbo) {
-				turboButton.dataset.state = 'on';
 				turboLight.dataset.state = 'on';
 				setAnimationSpeed(turboRate);
 				// The animations that start later get the speed too, like the sparkles, while the tab is visible.
@@ -136,7 +129,6 @@ export default class extends GeoCitiesElement {
 				countSpeedTo(133);
 				this.say(this.reducedMotion ? 'TURBO! 133 MHz. Nothing moves on your page, so it is only faster in spirit.' : 'TURBO! 133 MHz. Everything that moves on the page is twice as fast now. Except the GIFs, which do what they want.');
 			} else {
-				delete turboButton.dataset.state;
 				delete turboLight.dataset.state;
 				setAnimationSpeed(1);
 				countSpeedTo(66);
@@ -227,3 +219,5 @@ export default class extends GeoCitiesElement {
 		});
 	}
 }
+
+customElements.define('geo-cities-computer', GeoCitiesComputer);

@@ -443,6 +443,17 @@ struct GeoCitiesVCR: ScriptedElement {
 		case status
 	}
 
+	enum States: String, ElementStateSet {
+		case on
+		case target
+		case loaded
+		case eaten
+		case blink
+		case dragging
+		case inserted
+		case circled
+	}
+
 	/**
 	The lists of the same kind of element, with a value for the script.
 	*/
@@ -605,10 +616,10 @@ struct GeoCitiesVCR: ScriptedElement {
 			case .led:
 				// Red in standby, and green while the TV is on.
 				Style()
-					.frame(width: .rootEm(0.5), height: .rootEm(0.5))
+					.frame(size: .rootEm(0.5))
 					.background(Color("#aa1111"))
 					.cornerRadius(.circle)
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0
 							.background(Color("#33ff55"))
 							.shadow(Shadow(y: 0, blur: .pixels(5), color: Color("#33ff55")))
@@ -638,15 +649,15 @@ struct GeoCitiesVCR: ScriptedElement {
 					.border(Color("#555555"), width: .pixels(3), style: .inset)
 					.cornerRadius(.rootEm(0.25))
 					.handCursor()
-					.when(.state, is: "target") {
+					.when(States.target) {
 						$0
 							.background(Color("#34446a"))
 							.shadow(Shadow(y: 0, blur: .pixels(8), color: Color("#66aaff")))
 					}
-					.when(.state, is: "loaded") {
+					.when(States.loaded) {
 						$0.border(Color("#333333"), width: .pixels(3), style: .inset)
 					}
-					.when(.state, is: "eaten") {
+					.when(States.eaten) {
 						$0.background(Color("#5a3010"))
 					}
 			case .slotFlap:
@@ -659,7 +670,7 @@ struct GeoCitiesVCR: ScriptedElement {
 					.italic()
 					.letterSpacing(.em(0.2))
 					.color(Color("#77777f"))
-					.when(ancestorHas: ScriptAttribute.state, is: "loaded") {
+					.when(ancestorHas: States.loaded) {
 						$0
 							.backgroundImage(.linearGradient("to bottom", Color("#111111"), Color("#000000")))
 							.color(Color("#444444"))
@@ -688,10 +699,8 @@ struct GeoCitiesVCR: ScriptedElement {
 					.monospacedDigit()
 			case .displayDigits:
 				Style()
-					.when(.state, is: "blink") {
-						$0.media(.allowsMotion) {
-							$0.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
-						}
+					.when(States.blink) {
+						$0.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
 					}
 			case .displayInfo:
 				Style()
@@ -703,7 +712,7 @@ struct GeoCitiesVCR: ScriptedElement {
 					.textStyle(.caption, weight: .heavy)
 					.color(Color("#3a1010"))
 					.textShadow(Shadow(y: 0, color: .transparent))
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0
 							.color(Color("#ff3b3b"))
 							.textShadow(Shadow(y: 0, blur: .pixels(5), color: Color("#ff0000")))
@@ -727,7 +736,7 @@ struct GeoCitiesVCR: ScriptedElement {
 					.active {
 						$0.border(Color("#7a7a82"), width: .pixels(2), style: .inset)
 					}
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0
 							.border(Color("#2bbf8f"), width: .pixels(2), style: .inset)
 							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#33ffaa")))
@@ -760,6 +769,9 @@ struct GeoCitiesVCR: ScriptedElement {
 					.textStyle(.caption, weight: .bold)
 					.color(Color("#222222"))
 					.handCursor()
+					.active {
+						$0.border(Color("#77777f"), width: .pixels(2), style: .inset)
+					}
 			case .flap:
 				// The panel under the flap, with the buttons that nobody in the family understands.
 				Style()
@@ -788,7 +800,7 @@ struct GeoCitiesVCR: ScriptedElement {
 					.active {
 						$0.scaleEffect(0.94)
 					}
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0
 							.background(Color("#2bbf8f"))
 							.color(.black)
@@ -861,13 +873,13 @@ struct GeoCitiesVCR: ScriptedElement {
 					.focusVisible {
 						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(2))
 					}
-					.when(.state, is: "dragging") {
+					.when(States.dragging) {
 						$0
 							.offset(x: GeoCitiesVCR.dragX.value(default: 0), y: GeoCitiesVCR.dragY.value(default: 0))
 							.zIndex(2)
 							.shadow(Shadow(x: .pixels(6), y: .pixels(10), blur: .pixels(6), color: Color("#00000080")))
 					}
-					.when(.state, is: "inserted") {
+					.when(States.inserted) {
 						$0
 							.opacity(0.25)
 							.border(Color("#000000"), width: .pixels(2), style: .dashed)
@@ -898,10 +910,8 @@ struct GeoCitiesVCR: ScriptedElement {
 					.color(Color("#77777f"))
 			case .status:
 				Style()
-					.frame(maxWidth: .rootEm(32), minHeight: .lineHeight(3))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+					.toyStatus(lines: 3)
+					.frame(maxWidth: .rootEm(32))
 					.textAlign(.center)
 			case .paper:
 				// The TV guide of the newspaper, on gray newsprint, a bit crooked on the table.
@@ -950,7 +960,7 @@ struct GeoCitiesVCR: ScriptedElement {
 					.hover {
 						$0.background(Color("#e2ddcc"))
 					}
-					.when(.state, is: "circled") {
+					.when(States.circled) {
 						$0
 							.border(Color("#d01010"), width: .pixels(2))
 							.rotationEffect(.degrees(-1))

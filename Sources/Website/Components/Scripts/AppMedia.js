@@ -1,6 +1,7 @@
-const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+// Read once, when the page loads, like on the rest of the site.
+const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-export default class extends HTMLElement {
+class AppMedia extends HTMLElement {
 	// Stops the observer and the listeners when the element is removed, so connecting it again does not add them twice.
 	#abortController;
 
@@ -19,21 +20,27 @@ export default class extends HTMLElement {
 		const {signal} = this.#abortController;
 		const videos = this.querySelectorAll('video');
 
+		// The videos that the visitor paused, which stay paused when they come back into view.
+		const pausedByVisitor = new WeakSet();
+
 		const toggle = video => {
 			if (video.paused) {
-				delete video.dataset.pausedByVisitor;
+				pausedByVisitor.delete(video);
 				video.play().catch(() => {});
 			} else {
-				video.dataset.pausedByVisitor = '';
+				pausedByVisitor.add(video);
 				video.pause();
 			}
 		};
 
 		const observer = new IntersectionObserver(entries => {
-			for (const {target: video, isIntersecting} of entries) {
-				if (isIntersecting && !prefersReducedMotion.matches && !('pausedByVisitor' in video.dataset)) {
+			// By the ratio, as the observer also reports when a video starts to show, like the next item that peeks in on phones.
+			for (const {target: video, intersectionRatio} of entries) {
+				const isInView = intersectionRatio >= 0.5;
+
+				if (isInView && !prefersReducedMotion && !pausedByVisitor.has(video)) {
 					video.play().catch(() => {});
-				} else if (!isIntersecting) {
+				} else if (!isInView) {
 					video.pause();
 				}
 			}
@@ -42,17 +49,6 @@ export default class extends HTMLElement {
 		signal.addEventListener('abort', () => {
 			observer.disconnect();
 		});
-
-		// A video that plays when the visitor turns on reduced motion stops. After they turn it off, it plays again when it comes back into view, as the observer only reports changes.
-		prefersReducedMotion.addEventListener('change', () => {
-			if (!prefersReducedMotion.matches) {
-				return;
-			}
-
-			for (const video of videos) {
-				video.pause();
-			}
-		}, {signal});
 
 		for (const video of videos) {
 			observer.observe(video);
@@ -128,7 +124,7 @@ export default class extends HTMLElement {
 
 		const scrollTo = index => {
 			currentIndex = Math.max(0, Math.min(items.length - 1, index));
-			items[currentIndex].scrollIntoView({behavior: prefersReducedMotion.matches ? 'instant' : 'smooth', block: 'nearest', inline: 'center'});
+			items[currentIndex].scrollIntoView({behavior: prefersReducedMotion ? 'instant' : 'smooth', block: 'nearest', inline: 'center'});
 			updateButtons();
 		};
 
@@ -154,8 +150,10 @@ export default class extends HTMLElement {
 		carousel.addEventListener('scrollend', () => {
 			currentIndex = visibleIndex();
 			updateButtons();
-		}, {passive: true, signal});
+		}, {signal});
 
 		updateButtons();
 	}
 }
+
+customElements.define('app-media', AppMedia);

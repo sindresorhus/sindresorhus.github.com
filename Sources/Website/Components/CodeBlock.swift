@@ -4,7 +4,7 @@ import SiteKit
 /**
 A block of code, with its language and a copy button in a bar at the top right, like a fenced code block in Markdown (``SiteKit/MarkdownDocument/Options/codeBlock``).
 
-Swift code is highlighted when the site builds, by the parser of Swift itself (``String/swiftCodeParts``), in the colors of Xcode. The code of other languages is plain. Each line of a `console` block is a command, after a `$ ` prompt that is not copied.
+Swift code is highlighted when the site builds, by the parser of Swift itself (``String/swiftCodeParts``), in the colors of Xcode. SOML code is highlighted by the lexer of SOML (``String/somlCodeParts``), in the same colors. The code of other languages is plain. Each line of a `console` block is a command, after a `$ ` prompt that is not copied.
 
 ```swift
 CodeBlock(source: "let greeting = \"Hello\"", language: "swift")
@@ -18,7 +18,7 @@ struct CodeBlock: ScriptedElement {
 
 		connectedCallback() {
 			// The same function, so connecting the element again does not add a second listener.
-			this.querySelector('button').addEventListener('click', this.#copy);
+			this.querySelector('[data-part="copyButton"]').addEventListener('click', this.#copy);
 		}
 
 		// Without clipboard access, it does nothing, as the visitor can still select the code.
@@ -26,7 +26,7 @@ struct CodeBlock: ScriptedElement {
 			const button = event.currentTarget;
 
 			try {
-				await navigator.clipboard.writeText(this.querySelector('code').textContent);
+				await navigator.clipboard.writeText(this.querySelector('[data-part="code"]').textContent);
 			} catch {
 				return;
 			}
@@ -68,13 +68,16 @@ struct CodeBlock: ScriptedElement {
 			}
 
 			// A copy icon, and a checkmark that the styles show after copying.
-			button(.type(.button)) {
+			button(.type(.button), .part(Parts.copyButton)) {
 				span {
 					Icon.copy.size(.rootEm(0.875))
 				}
+				.style(Styles.copyIcon)
+
 				span {
-					Icon.check.size(.rootEm(0.875))
+					Icon.check.size(.rootEm(0.875), strokeWidth: 2.75)
 				}
+				.style(Styles.checkmark)
 			}
 			.accessibilityLabel("Copy code")
 			.style(Styles.copyButton)
@@ -83,19 +86,12 @@ struct CodeBlock: ScriptedElement {
 
 		// Focusable, so keyboard users can scroll wide code.
 		pre(.tabindex(0)) {
-			code {
+			code(.part(Parts.code)) {
 				switch language {
 				case "swift":
-					for part in source.swiftCodeParts {
-						if let token = part.token {
-							span {
-								part.text
-							}
-							.style(Styles(token))
-						} else {
-							part.text
-						}
-					}
+					Self.highlighted(source.swiftCodeParts)
+				case "soml":
+					Self.highlighted(source.somlCodeParts)
 				case "console":
 					for (index, line) in source.split(separator: "\n", omittingEmptySubsequences: false).enumerated() {
 						if index > 0 {
@@ -118,11 +114,39 @@ struct CodeBlock: ScriptedElement {
 		.style(Styles.pre)
 	}
 
+	/**
+	The parts of highlighted code, with each colored part in a span with the style of its kind.
+	*/
+	@HTMLBuilder
+	private static func highlighted(_ parts: [(text: String, token: CodeToken?)]) -> some HTML {
+		for part in parts {
+			if let token = part.token {
+				span {
+					part.text
+				}
+				.style(Styles(token))
+			} else {
+				part.text
+			}
+		}
+	}
+
+	enum Parts: String, ElementPartSet {
+		case copyButton
+		case code
+	}
+
+	enum States: String, ElementStateSet {
+		case copied
+	}
+
 	enum Styles: ElementStyleSet {
 		case root
 		case bar
 		case language
 		case copyButton
+		case copyIcon
+		case checkmark
 		case pre
 		case code
 
@@ -161,6 +185,16 @@ struct CodeBlock: ScriptedElement {
 			}
 		}
 
+		/**
+		The space between the bar and the corner of the code.
+		*/
+		private static let barInset = Length.rootEm(0.5)
+
+		/**
+		The corners of the bar and its button, parallel to the corner of the code around them.
+		*/
+		private static let barRadius = Length.windowRadius - barInset
+
 		var style: Style {
 			switch self {
 			case .root:
@@ -172,23 +206,17 @@ struct CodeBlock: ScriptedElement {
 				// The bar shows while the pointer is over the code or it has focus, while the button shows its checkmark, and always on touch screens.
 				Style()
 					.position(.absolute)
-					.top(.rootEm(0.5))
-					.trailing(.rootEm(0.5))
+					.top(Self.barInset)
+					.trailing(Self.barInset)
 					.hstack(alignment: .center, spacing: .rootEm(0.5))
-					.font(size: .rootEm(0.75), lineHeight: 1.5)
-					// A frosted backdrop in the color of the code, so the language and the button are easy to read over a long line of code.
+					.font(.extraSmall)
 					.padding(.leading, .rootEm(0.5))
-					.cornerRadius(.rootEm(0.5))
-					.background(.gray(800).opacity(0.8), dark: .black.opacity(0.7))
-					.backdropFilter(.blur(radius: .pixels(6)))
-					.reducedTransparency {
-						$0
-							.background(.gray(800), dark: .black)
-							.backdropFilter(.none)
-					}
+					.cornerRadius(Self.barRadius)
+					// A frosted backdrop in the color of the code, so the language and the button are easy to read over a long line of code.
+					.frostedBackground(.lightDark(.gray(800).opacity(0.8), .black.opacity(0.7)), opaque: .lightDark(.gray(800), .black), blur: .pixels(6))
 					.opacity(0)
 					.transition(.opacity, animation: .stateChange)
-					.nested("\(Self.root.selector):hover &, \(Self.root.selector):focus-within &, &:has(> \(ScriptAttribute.state.selector()))") {
+					.nested("\(Self.root.selector):hover &, \(Self.root.selector):focus-within &, &:has(> \(States.copied.selector))") {
 						$0.opacity(1)
 					}
 					.media(.cannotHover) {
@@ -203,46 +231,27 @@ struct CodeBlock: ScriptedElement {
 				// A square button with a copy icon. After copying, the icon fades out, and a green checkmark grows in. Without JavaScript, there is no copy button.
 				Style()
 					.display(.grid)
-					.frame(width: .rootEm(1.75), height: .rootEm(1.75))
-					.cornerRadius(.rootEm(0.5))
+					.frame(size: .rootEm(1.75))
+					.cornerRadius(Self.barRadius)
 					.color(.gray(300))
 					.background(.white.opacity(0.08))
-					.shadow(Shadow(y: 0, spread: .pixels(1), color: .white.opacity(0.1), isInset: true))
+					.shadow(.edge(.white.opacity(0.1)))
 					.transition(.color, .backgroundColor, animation: .stateChange)
-					.children("span") {
-						$0
-							.stackedInGrid()
-							.hstack(alignment: .center, justification: .center)
-							.transition(.opacity, .scaleEffect, animation: .pop)
-					}
-					.children("span:last-child") {
-						$0
-							.color(.emerald(400))
-							.opacity(0)
-							.scaleEffect(0.5)
-					}
-					.when(.state, is: "copied") {
-						$0
-							.children("span:first-child") {
-								$0
-									.opacity(0)
-									.scaleEffect(0.5)
-							}
-							.children("span:last-child") {
-								$0
-									.opacity(1)
-									.scaleEffect(1)
-							}
-					}
-					.hover {
+					.hoverOrFocusVisible {
 						$0
 							.color(.white)
 							.background(.white.opacity(0.16))
 					}
-					.media(.scriptingDisabled) {
-						$0.hidden()
-					}
+					.hiddenWithoutScripting()
 					.minimumTapArea()
+			case .copyIcon:
+				Style()
+					.hstack(alignment: .center, justification: .center)
+					.copyLabel(hiddenWhen: States.copied)
+			case .checkmark:
+				Style()
+					.color(.emerald(400))
+					.copiedCheckmark(when: States.copied)
 			case .pre:
 				Style()
 					.margin(0)

@@ -18,6 +18,11 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 	*/
 	let resources: PageResources
 
+	/**
+	The scripts of the elements with an inline script that the body shows (``ScriptedElement/generatedScript()``).
+	*/
+	let inlineScripts: [String]
+
 	var title: String {
 		page.metadata.documentTitle
 	}
@@ -27,6 +32,13 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 	}
 
 	var head: some HTML {
+		// First, as an import map must come before any module script. Browsers other than Chrome and Safari only use one import map.
+		if let importMap = RoutePath.importMap {
+			script(.type("importmap")) {
+				HTMLRaw(importMap)
+			}
+		}
+
 		page.head
 
 		if let tint = page.tint {
@@ -61,10 +73,9 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 			script(.src(path.versioned), .type(.module)) {}
 		}
 
-		// The build generates these scripts before the pages render (`Site.contentHashes`), so a mistake in one fails the build there, and they cannot fail here.
-		for element in resources.inlineScriptElements {
+		for inlineScript in inlineScripts {
 			script(.type(.module)) {
-				HTMLRaw((try? element.generatedScript()) ?? "")
+				HTMLRaw(inlineScript)
 			}
 		}
 	}
@@ -76,6 +87,13 @@ The visible part of every page: the header, the page content, and the footer. Co
 struct SiteBody<Content: Page>: HTML {
 	let page: Content
 
+	/**
+	The ID of the content of the page, which the skip link goes to.
+	*/
+	private static var mainID: String {
+		"content"
+	}
+
 	var body: some HTML {
 		content
 			.environment(RoutePath.$current, page.path)
@@ -83,9 +101,26 @@ struct SiteBody<Content: Page>: HTML {
 
 	@ContentBuilder
 	private var content: some HTML {
+		// The first link of the page, for keyboard users, so they can skip the links of the header. It is above the screen until Tab reaches it.
+		a(.href("#\(Self.mainID)")) {
+			"Skip to Content"
+		}
+		.buttonStyle(size: .small)
+		.style {
+			$0
+				.position(.fixed)
+				.top(.rootEm(0.75))
+				.leading(.rootEm(0.75))
+				.zIndex(100)
+				.offset(y: .percent(-200))
+				.focus {
+					$0.offset(y: 0)
+				}
+		}
+
 		SiteHeader(variant: page.navigation, background: page.headerBackground)
 
-		main {
+		main(.id(Self.mainID)) {
 			page.body
 		}
 
@@ -145,7 +180,7 @@ private struct MetadataHead: HTML {
 		}
 
 		link(.rel(.canonical), .href(canonicalURL))
-		link(.rel(.stylesheet), .href(Stylesheet.sitePath.versioned))
+		link(.rel(.stylesheet), .href(Stylesheet.versionedSitePath))
 		link(.rel("apple-touch-icon"), .href(RoutePath("/apple-touch-icon.png")))
 		link(.rel(.icon), .href(metadata.favicon))
 
@@ -222,8 +257,9 @@ extension Stylesheet {
 			.noOutline()
 		)
 
+		// The text of the primary color in light mode, and of the softer body color in dark mode, where white text glares, with their colors for more contrast.
 		Rule("body", Style()
-			.color(.gray(900), dark: .gray(300))
+			.color(.primaryText, dark: .bodyText)
 			.background(.pageBackground)
 			.overflow(horizontal: .clip)
 			.declaration(.webkitFontSmoothing, "antialiased")

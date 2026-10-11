@@ -148,7 +148,7 @@ struct GeoCitiesWindows: HTML {
 	}
 
 	/**
-	A window of the desktop, like those of ``GeoCitiesPage/desktopWindow(_:title:content:)``, with the same hooks, so the window manager of `geocities.js` opens, drags, and closes it. Some programs need a wider window. A message box is an alert dialog, described by its message, so a screen reader reads the message with the button that gets the focus.
+	A window of the desktop, like Paint or Notepad, with a title bar to drag it by and a close button. It is hidden until its icon opens it. The window manager of `geocities.js` opens, drags, and closes it, also with Escape. Some programs need a wider window. A message box is an alert dialog, described by its message, so a screen reader reads the message with the button that gets the focus.
 	*/
 	static func window<Content: HTML>(_ app: String, title: String, size: WindowSize = .normal, describedBy message: Hooks? = nil, @HTMLBuilder content: () -> Content) -> some HTML {
 		section(.hook(GeoCitiesPage.Hooks.desktopWindow, value: app), .hidden, .tabindex(-1), .ariaLabelledBy("geocities-window-\(app)")) {
@@ -172,7 +172,9 @@ struct GeoCitiesWindows: HTML {
 			.style(GeoCitiesPage.Styles.windowBody)
 		}
 		.attributes(.role("alertdialog"), .ariaDescribedBy(message?.rawValue ?? ""), when: message != nil)
-		.style(GeoCitiesPage.Styles.window, size == .wide ? Styles.wideWindow : Styles.normalWindow)
+		.style(GeoCitiesPage.Styles.window)
+		.style(GeoCitiesPage.Styles.desktopWindow, when: size == .normal)
+		.style(Styles.wideWindow, when: size == .wide)
 	}
 
 	/**

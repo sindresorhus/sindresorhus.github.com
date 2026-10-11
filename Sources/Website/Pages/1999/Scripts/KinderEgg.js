@@ -1,27 +1,10 @@
 // What’s in My Pocket on the 1999 page: a Kinderegg from the Narvesen kiosk to peel, break, eat, open, and build, the shelf of its toys with Trond’s trades, and my light-up yo-yo on a real string. The canvases run only while they are on the screen and the tab is visible. For visitors who prefer reduced motion, nothing moves by itself: each step shows as a still picture. Nothing makes a sound until the visitor turns on the sound. The week, the shelf, and the tricks are kept in the browser.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const lerp = (from, to, amount) => from + ((to - from) * amount);
+import GeoCitiesElement, {randomItem, randomBetween, clamp, lerp, shuffled} from '/scripts/geocities-element.js';
+import ToySound from '/scripts/geocities-toy-sound.js';
+
 const easeOut = amount => 1 - ((1 - amount) ** 2);
 const easeInOut = amount => (amount < 0.5 ? 2 * amount * amount : 1 - (((-2 * amount) + 2) ** 2 / 2));
 const distance = (first, second) => Math.hypot(first.x - second.x, first.y - second.y);
-
-const shuffle = items => {
-	const result = [...items];
-	for (let index = result.length - 1; index > 0; index--) {
-		const other = Math.floor(Math.random() * (index + 1));
-		[result[index], result[other]] = [result[other], result[index]];
-	}
-
-	return result;
-};
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
 
 // The canvases draw at twice their size, so the round shapes stay sharp on all screens.
 const setUpCanvas = (canvas, width, height) => {
@@ -44,60 +27,12 @@ const comicFont = size => `bold ${size}px "Comic Sans MS", "Comic Sans", "Chalkb
 
 // MARK: Sound
 
-const audio = {
-	context: undefined,
-	output: undefined,
-	isOn: false,
-	// Starts the audio of the element (`sound()`), which is `undefined` when the browser does not allow it yet.
-	start(sound) {
-		if (!sound) {
-			return false;
-		}
-
-		if (!this.context) {
-			this.context = sound.context;
-			this.output = this.context.createGain();
-			this.output.gain.value = 0.6;
-			this.output.connect(sound.output);
-		}
-
-		return true;
-	},
-	ensure() {
-		if (this.context.state === 'suspended') {
-			this.context.resume();
-		}
-
-		return this.context;
-	},
-};
-
-// The audio context, only while the visitor has turned on the sound.
-const soundContext = () => (audio.isOn ? audio.ensure() : undefined);
-
-const tone = (frequency, delay, duration, {type = 'sine', volume = 0.1, attack = 0.004} = {}) => {
-	const context = soundContext();
-	if (!context) {
-		return;
-	}
-
-	const start = context.currentTime + delay;
-	const oscillator = context.createOscillator();
-	const gain = context.createGain();
-	oscillator.type = type;
-	oscillator.frequency.value = frequency;
-	gain.gain.setValueAtTime(0, start);
-	gain.gain.linearRampToValueAtTime(volume, start + attack);
-	gain.gain.setValueAtTime(volume, start + Math.max(attack, duration - 0.015));
-	gain.gain.linearRampToValueAtTime(0, start + duration);
-	oscillator.connect(gain).connect(audio.output);
-	oscillator.start(start);
-	oscillator.stop(start + duration + 0.05);
-};
+// The sound of the Kinderegg and the yo-yo, with short bursts of noise for the foil, the cracks, and the bites.
+const audio = new ToySound();
 
 // A tone that slides from one pitch to another, for zips, pops, and engines.
 const slide = (from, to, delay, duration, {type = 'sine', volume = 0.1} = {}) => {
-	const context = soundContext();
+	const context = audio.soundContext();
 	if (!context) {
 		return;
 	}
@@ -117,68 +52,44 @@ const slide = (from, to, delay, duration, {type = 'sine', volume = 0.1} = {}) =>
 	oscillator.stop(start + duration + 0.05);
 };
 
-// A short burst of noise, for the foil, the cracks, and the bites.
-const noise = (delay, duration, {volume = 0.1, frequency = 3000} = {}) => {
-	const context = soundContext();
-	if (!context) {
-		return;
-	}
-
-	const buffer = context.createBuffer(1, Math.ceil(context.sampleRate * duration), context.sampleRate);
-	const data = buffer.getChannelData(0);
-	for (let index = 0; index < data.length; index++) {
-		data[index] = ((Math.random() * 2) - 1) * (1 - (index / data.length));
-	}
-
-	const source = context.createBufferSource();
-	source.buffer = buffer;
-	const filter = context.createBiquadFilter();
-	filter.type = 'bandpass';
-	filter.frequency.value = frequency;
-	const gain = context.createGain();
-	gain.gain.value = volume;
-	source.connect(filter).connect(gain).connect(audio.output);
-	source.start(context.currentTime + delay);
-};
-
 const sounds = {
 	// Thin foil, which crinkles in many tiny bursts.
 	crinkle() {
 		for (let index = 0; index < 6; index++) {
-			noise(Math.random() * 0.14, randomBetween(0.015, 0.04), {volume: 0.09, frequency: randomBetween(4000, 9000)});
+			audio.noise(Math.random() * 0.14, randomBetween(0.015, 0.04), {volume: 0.09, frequency: randomBetween(4000, 9000)});
 		}
 	},
 	crack() {
-		noise(0, 0.05, {volume: 0.35, frequency: 1800});
-		noise(0.03, 0.04, {volume: 0.2, frequency: 2600});
-		tone(240, 0, 0.04, {type: 'triangle', volume: 0.1});
+		audio.noise(0, 0.05, {volume: 0.35, frequency: 1800});
+		audio.noise(0.03, 0.04, {volume: 0.2, frequency: 2600});
+		audio.tone(240, 0, 0.04, {type: 'triangle', volume: 0.1});
 	},
 	crunch() {
 		for (const delay of [0, 0.08, 0.17]) {
-			noise(delay, 0.06, {volume: 0.2, frequency: randomBetween(700, 1500)});
+			audio.noise(delay, 0.06, {volume: 0.2, frequency: randomBetween(700, 1500)});
 		}
 	},
 	ratchet(delay = 0) {
-		noise(delay, 0.012, {volume: 0.18, frequency: 3200});
+		audio.noise(delay, 0.012, {volume: 0.18, frequency: 3200});
 	},
 	pop() {
 		slide(260, 900, 0, 0.12, {type: 'triangle', volume: 0.15});
-		noise(0, 0.03, {volume: 0.25, frequency: 2500});
+		audio.noise(0, 0.03, {volume: 0.25, frequency: 2500});
 	},
 	click() {
-		tone(1900, 0, 0.025, {type: 'square', volume: 0.04});
-		noise(0, 0.02, {volume: 0.15, frequency: 3500});
+		audio.tone(1900, 0, 0.025, {type: 'square', volume: 0.04});
+		audio.noise(0, 0.02, {volume: 0.15, frequency: 3500});
 	},
 	wrong() {
-		tone(220, 0, 0.12, {type: 'square', volume: 0.04});
-		tone(165, 0.13, 0.2, {type: 'square', volume: 0.04});
+		audio.tone(220, 0, 0.12, {type: 'square', volume: 0.04});
+		audio.tone(165, 0.13, 0.2, {type: 'square', volume: 0.04});
 	},
 	paper() {
-		noise(0, 0.12, {volume: 0.08, frequency: 6000});
+		audio.noise(0, 0.12, {volume: 0.08, frequency: 6000});
 	},
 	yay() {
 		for (const [index, frequency] of [523, 659, 784, 1047].entries()) {
-			tone(frequency, index * 0.09, 0.14, {type: 'square', volume: 0.035});
+			audio.tone(frequency, index * 0.09, 0.14, {type: 'square', volume: 0.035});
 		}
 	},
 	vroom() {
@@ -189,7 +100,7 @@ const sounds = {
 	},
 	propeller() {
 		for (let index = 0; index < 30; index++) {
-			noise(index * 0.09, 0.05, {volume: 0.06, frequency: 300});
+			audio.noise(index * 0.09, 0.05, {volume: 0.06, frequency: 300});
 		}
 	},
 	boing() {
@@ -201,26 +112,26 @@ const sounds = {
 		slide(820, 420, 0.45, 0.7, {type: 'triangle', volume: 0.06});
 	},
 	no() {
-		tone(196, 0, 0.18, {type: 'triangle', volume: 0.08});
-		tone(147, 0.2, 0.3, {type: 'triangle', volume: 0.08});
+		audio.tone(196, 0, 0.18, {type: 'triangle', volume: 0.08});
+		audio.tone(147, 0.2, 0.3, {type: 'triangle', volume: 0.08});
 	},
 	zip() {
 		slide(240, 900, 0, 0.25, {type: 'triangle', volume: 0.05});
 	},
 	smack() {
-		noise(0, 0.04, {volume: 0.3, frequency: 1200});
-		tone(90, 0, 0.07, {volume: 0.2});
+		audio.noise(0, 0.04, {volume: 0.3, frequency: 1200});
+		audio.tone(90, 0, 0.07, {volume: 0.2});
 	},
 	thud() {
-		tone(70, 0, 0.1, {volume: 0.2});
-		noise(0, 0.05, {volume: 0.12, frequency: 400});
+		audio.tone(70, 0, 0.1, {volume: 0.2});
+		audio.noise(0, 0.05, {volume: 0.12, frequency: 400});
 	},
 	pick() {
-		noise(0, 0.03, {volume: 0.12, frequency: 2200});
+		audio.noise(0, 0.03, {volume: 0.12, frequency: 2200});
 	},
 	twang() {
 		slide(900, 70, 0, 0.4, {type: 'sawtooth', volume: 0.07});
-		noise(0, 0.06, {volume: 0.25, frequency: 3000});
+		audio.noise(0, 0.06, {volume: 0.25, frequency: 3000});
 	},
 };
 
@@ -975,7 +886,7 @@ const drawToy = (context, toy, x, y, {scale = 1, ...options} = {}) => {
 
 // MARK: The element
 
-export default class extends GeoCitiesElement {
+class GeoCitiesKinderEgg extends GeoCitiesElement {
 	#state;
 	#redrawEgg;
 	#redrawYoyo;
@@ -986,7 +897,7 @@ export default class extends GeoCitiesElement {
 		const {sound: soundButton} = this.parts;
 		this.on(soundButton, 'click', () => {
 			audio.isOn = !audio.isOn && audio.start(this.sound());
-			setPressed(soundButton, audio.isOn);
+			soundButton.setAttribute('aria-pressed', String(audio.isOn));
 			if (audio.isOn) {
 				audio.ensure();
 				sounds.crinkle();
@@ -994,7 +905,7 @@ export default class extends GeoCitiesElement {
 				setHum(0);
 			}
 		});
-		setPressed(soundButton, audio.isOn);
+		soundButton.setAttribute('aria-pressed', String(audio.isOn));
 
 		const renderShelf = this.#setUpShelf();
 		this.#setUpEgg(renderShelf);
@@ -2024,9 +1935,9 @@ export default class extends GeoCitiesElement {
 
 		const setUpItems = () => {
 			const parts = partsOf(egg.toy);
-			const spots = shuffle(looseSpots).slice(0, parts.length);
+			const spots = shuffled(looseSpots).slice(0, parts.length);
 			egg.items = parts.map((part, index) => ({part, isAttached: false, x: spots[index].x, y: spots[index].y, home: spots[index]}));
-			const byPlace = [...egg.items].sort((first, second) => first.x - second.x);
+			const byPlace = egg.items.toSorted((first, second) => first.x - second.x);
 			for (const [index, item] of byPlace.entries()) {
 				item.label = index + 1;
 			}
@@ -2448,7 +2359,7 @@ export default class extends GeoCitiesElement {
 						break;
 					}
 
-					const item = [...egg.items].reverse().find(other => !other.isAttached && distance(point, other) < other.part.radius + 8);
+					const item = egg.items.findLast(other => !other.isAttached && distance(point, other) < other.part.radius + 8);
 					if (item) {
 						egg.dragging = item;
 						item.offset = {x: item.x - point.x, y: item.y - point.y};
@@ -2922,7 +2833,7 @@ export default class extends GeoCitiesElement {
 			} else {
 				untangleButton.hidden = true;
 			}
-			setPressed(swapButton, yoyo.isBrain);
+			swapButton.setAttribute('aria-pressed', String(yoyo.isBrain));
 			renderTricks();
 		};
 
@@ -3759,3 +3670,5 @@ export default class extends GeoCitiesElement {
 		drawYoyo(performance.now());
 	}
 }
+
+customElements.define('geo-cities-kinder-egg', GeoCitiesKinderEgg);

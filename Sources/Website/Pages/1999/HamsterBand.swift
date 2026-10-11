@@ -173,7 +173,7 @@ struct GeoCitiesHamsterBand: ScriptedElement {
 							.filter(.grayscale(1))
 							.opacity(0.6)
 					}
-					.when(.state, is: "on") {
+					.descendantPressed {
 						$0
 							.background(Color("#ffff99"))
 							.border(Color("#ff6600"), width: .pixels(2))
@@ -194,11 +194,8 @@ struct GeoCitiesHamsterBand: ScriptedElement {
 					.textStyle(.caption)
 					.color(.black)
 					.handCursor()
-					.when(.state, is: "on") {
-						$0
-							.background(Color("#ffcc00"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
+					.buttonFocusRing()
+					.pressedIn(Color("#ffcc00"))
 			case .controls:
 				Style()
 					.padding(.rootEm(0.5))

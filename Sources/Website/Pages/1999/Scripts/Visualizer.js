@@ -1,9 +1,8 @@
 // The visualizer of the Music Room on the 1999 page, a Winamp plugin that draws the sound of the whole room on a screen of 320 × 200 pixels, from the analyser of the sound card after the volume. It runs only while the screen is on the screen and the tab is visible, and shows a still picture for visitors who prefer reduced motion.
+import GeoCitiesElement, {randomItem} from '/scripts/geocities-element.js';
 import {analyser} from '/scripts/geocities-sound-card.js';
 
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-
-export default class extends GeoCitiesElement {
+class GeoCitiesVisualizer extends GeoCitiesElement {
 	#update;
 
 	connected() {
@@ -229,14 +228,7 @@ export default class extends GeoCitiesElement {
 			preset = id;
 
 			for (const button of presetButtons) {
-				const isOn = button.dataset.visualizerPreset === id;
-				button.setAttribute('aria-pressed', String(isOn));
-
-				if (isOn) {
-					button.dataset.state = 'on';
-				} else {
-					delete button.dataset.state;
-				}
+				button.setAttribute('aria-pressed', String(button.dataset.visualizerPreset === id));
 			}
 
 			canvas.setAttribute('aria-label', `The visualizer, showing ${presetButtons.find(button => button.dataset.visualizerPreset === id).textContent.trim()}`);
@@ -292,3 +284,5 @@ export default class extends GeoCitiesElement {
 		this.#update();
 	}
 }
+
+customElements.define('geo-cities-visualizer', GeoCitiesVisualizer);

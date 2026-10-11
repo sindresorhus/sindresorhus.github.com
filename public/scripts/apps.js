@@ -2,18 +2,19 @@ const excluded = new URLSearchParams(location.search).get('exclude');
 
 if (excluded) {
 	const slugs = new Set(excluded.split(','));
-	let hiddenCount = 0;
+	const cards = [...document.querySelectorAll('[data-slug]')];
 
-	for (const card of document.querySelectorAll('[data-slug]')) {
-		if (slugs.has(card.dataset.slug)) {
-			card.hidden = true;
-			hiddenCount++;
-		}
+	const excludedCards = cards.filter(card => slugs.has(card.dataset.slug));
+
+	for (const card of excludedCards) {
+		card.hidden = true;
 	}
 
+	const hiddenCount = excludedCards.length;
+
 	// A section with all its apps hidden, like “Featured”, is hidden too, so its title is not above an empty grid.
-	for (const [section, cards] of Map.groupBy(document.querySelectorAll('[data-slug]'), card => card.closest('section'))) {
-		if (section && cards.every(card => card.hidden)) {
+	for (const [section, sectionCards] of Map.groupBy(cards, card => card.closest('section'))) {
+		if (section && sectionCards.every(card => card.hidden)) {
 			section.hidden = true;
 		}
 	}

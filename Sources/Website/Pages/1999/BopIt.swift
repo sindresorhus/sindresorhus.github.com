@@ -97,7 +97,7 @@ struct GeoCitiesBopIt: ScriptedElement {
 					button(.part(toy.part), .type(.button), .ariaPressed(toy.part == .classic)) {
 						toy.name
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.toggle)
+					.style(GeoCitiesPage.Styles.smallButton, Styles.toggle, GeoCitiesPage.Styles.dimmedWhenDisabled)
 				}
 			}
 			.style(Styles.choiceGroup)
@@ -107,7 +107,7 @@ struct GeoCitiesBopIt: ScriptedElement {
 					button(.part(game.part), .type(.button), .ariaPressed(game.part == .solo)) {
 						game.name
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.toggle)
+					.style(GeoCitiesPage.Styles.smallButton, Styles.toggle, GeoCitiesPage.Styles.dimmedWhenDisabled)
 				}
 			}
 			.style(Styles.choiceGroup)
@@ -123,13 +123,13 @@ struct GeoCitiesBopIt: ScriptedElement {
 					"📢 Add “Shout It!”"
 				}
 				.help("Only on Bop It Extreme")
-				.style(GeoCitiesPage.Styles.smallButton, Styles.toggle, Styles.dimmedWhenDisabled)
+				.style(GeoCitiesPage.Styles.smallButton, Styles.toggle, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 				button(.part(Parts.microphone), .type(.button), .ariaPressed(false), .disabled) {
 					"🎤 Really Shout"
 				}
 				.help("Uses the microphone, so you shout for real")
-				.style(GeoCitiesPage.Styles.smallButton, Styles.toggle, Styles.dimmedWhenDisabled)
+				.style(GeoCitiesPage.Styles.smallButton, Styles.toggle, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 				button(.part(Parts.sound), .type(.button), .ariaPressed(false)) {
 					"🔈 Sound Off"
@@ -169,17 +169,17 @@ struct GeoCitiesBopIt: ScriptedElement {
 			button(.part(Parts.start), .type(.button)) {
 				"▶ Start (Sound!)"
 			}
-			.style(GeoCitiesPage.Styles.retroButton, Styles.start, Styles.dimmedWhenDisabled)
+			.style(GeoCitiesPage.Styles.retroButton, GeoCitiesPage.Styles.bigButton)
 
 			button(.part(Parts.sister), .type(.button)) {
 				"👧 Lillesøster Wants a Turn (Sound!)"
 			}
-			.style(GeoCitiesPage.Styles.smallButton, Styles.bigSmallButton, Styles.sister, Styles.dimmedWhenDisabled)
+			.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.bigButton, Styles.sister, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 			button(.part(Parts.batteries), .type(.button)) {
 				"🔋 New Batteries"
 			}
-			.style(GeoCitiesPage.Styles.smallButton, Styles.bigSmallButton, Styles.batteries, Styles.dimmedWhenDisabled)
+			.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.bigButton, Styles.batteries, GeoCitiesPage.Styles.dimmedWhenDisabled)
 		}
 		.style(GeoCitiesPage.Styles.buttonRow)
 	}
@@ -228,6 +228,23 @@ struct GeoCitiesBopIt: ScriptedElement {
 		case scoreboard
 	}
 
+	enum States: String, ElementStateSet {
+		case bop
+		case twist
+		case pull
+		case flick
+		case spin
+		case shout
+		case pass
+		case fail
+		case dead
+		case nag
+		case low
+		case current
+		case out
+		case winner
+	}
+
 	enum Styles: ElementStyleSet {
 		case root
 		case toy
@@ -240,11 +257,8 @@ struct GeoCitiesBopIt: ScriptedElement {
 		case command
 		case canvas
 		case stats
-		case start
-		case bigSmallButton
 		case sister
 		case batteries
-		case dimmedWhenDisabled
 		case scoreboard
 		case status
 		case help
@@ -267,11 +281,7 @@ struct GeoCitiesBopIt: ScriptedElement {
 				// Big enough for a thumb, and pressed in while it is on.
 				Style()
 					.frame(minHeight: .rootEm(2.5))
-					.when(.state, is: "on") {
-						$0
-							.background(Color("#ffff99"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
+					.pressedIn(Color("#ffff99"))
 			case .fieldset:
 				Style()
 					.margin(0)
@@ -294,33 +304,33 @@ struct GeoCitiesBopIt: ScriptedElement {
 					.font(.extraLarge2)
 					.textAlign(.center)
 					.letterSpacing(.em(0.05))
-					.when(.state, is: "bop") {
+					.when(States.bop) {
 						$0.color(Color("#d58cff"))
 					}
-					.when(.state, is: "twist") {
+					.when(States.twist) {
 						$0.color(Color("#66b3ff"))
 					}
-					.when(.state, is: "pull") {
+					.when(States.pull) {
 						$0.color(Color("#66ff66"))
 					}
-					.when(.state, is: "flick") {
+					.when(States.flick) {
 						$0.color(Color("#ffaa33"))
 					}
-					.when(.state, is: "spin") {
+					.when(States.spin) {
 						$0.color(Color("#ff5555"))
 					}
-					.when(.state, is: "shout") {
+					.when(States.shout) {
 						$0.color(Color("#ffffff"))
 					}
-					.when(.state, is: "pass") {
+					.when(States.pass) {
 						$0.color(Color("#ffff66"))
 					}
-					.when(.state, is: "fail") {
+					.when(States.fail) {
 						$0
 							.background(Color("#550000"))
 							.color(Color("#ff6666"))
 					}
-					.when(.state, is: "dead") {
+					.when(States.dead) {
 						$0
 							.background(Color("#111111"))
 							.color(Color("#335533"))
@@ -336,42 +346,30 @@ struct GeoCitiesBopIt: ScriptedElement {
 					.touchAction(.manipulation)
 					.scrollMargin(top: .rootEm(3.75), bottom: .rootEm(6.5))
 					.handCursor()
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .stats:
 				Style()
 					.margin(0)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
-			case .start:
-				Style().frame(minHeight: .rootEm(2.75))
-			case .bigSmallButton:
-				Style().frame(minHeight: .rootEm(2.75))
 			case .sister:
 				// She asks again and again, and the button blinks while she does.
-				Style().when(.state, is: "nag") {
+				Style().when(States.nag) {
 					$0
 						.background(Color("#ffccee"))
-						.media(.allowsMotion) {
-							$0.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
-						}
+						.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
 				}
 			case .batteries:
 				// Red while the batteries are low or dead.
 				Style()
-					.when(.state, is: "low") {
+					.when(States.low) {
 						$0.background(Color("#ffcc66"))
 					}
-					.when(.state, is: "dead") {
+					.when(States.dead) {
 						$0
 							.background(Color("#ff6666"))
 							.color(.white)
 					}
-			case .dimmedWhenDisabled:
-				Style().disabled {
-					$0.opacity(0.5)
-				}
 			case .scoreboard:
 				// The players of Pass It, like name tags. The one with the toy is lit, and the ones who are out are gray.
 				Style()
@@ -386,29 +384,25 @@ struct GeoCitiesBopIt: ScriptedElement {
 							.border(Color("#808080"), width: .pixels(2), style: .outset)
 							.fontFamily(GeoCitiesPage.comicSans)
 							.textStyle(.caption, weight: .bold)
-							.when(.state, is: "current") {
+							.when(States.current) {
 								$0
 									.background(Color("#ffff66"))
 									.border(Color("#cc9900"), width: .pixels(2), style: .solid)
 							}
-							.when(.state, is: "out") {
+							.when(States.out) {
 								$0
 									.background(Color("#c0c0c0"))
 									.color(Color("#808080"))
 									.italic()
 							}
-							.when(.state, is: "winner") {
+							.when(States.winner) {
 								$0
 									.background(Color("#ffcc00"))
 									.border(Color("#cc0000"), width: .pixels(2), style: .solid)
 							}
 					}
 			case .status:
-				Style()
-					.frame(minHeight: .lineHeight(2))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+				Style().toyStatus()
 			case .help:
 				Style()
 					.margin(0)

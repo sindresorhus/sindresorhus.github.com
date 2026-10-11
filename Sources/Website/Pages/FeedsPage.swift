@@ -106,27 +106,27 @@ extension FeedsPage {
 							.color(.primary(500))
 					}
 			case .cardTitle:
+				// Like the titles of the app cards below.
 				Style()
 					.display(.block)
-					.bold()
+					.textStyle(.headline)
 					.color(.primaryText)
 			case .cardSubtitle:
+				// Like the subtitle of an app card, it does not end with one word on its last line.
 				Style()
 					.display(.block)
 					.margin(.top, .rootEm(0.25))
-					.textStyle(.caption)
-					.color(.secondaryText)
+					.secondaryText()
+					.textWrap(.pretty)
 			case .appCard:
 				Style()
 					.cardSurface()
 					.hstack(alignment: .center, spacing: .rootEm(0.75))
 					.padding(.rootEm(0.75))
 			case .appIcon:
-				// Not like an image in prose.
+				// The size of the icon in the card.
 				Style()
-					.plainImage()
-					.frame(width: .rootEm(2.5), height: .rootEm(2.5))
-					.cornerRadius(.rootEm(0.75))
+					.frame(size: .rootEm(2.5))
 			case .appTitle:
 				Style()
 					.fontWeight(.semibold)

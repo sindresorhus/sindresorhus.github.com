@@ -53,8 +53,8 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 
 		template(.part(Parts.cardTemplate)) {
 			button(.type(.button)) {
-				span {}
-				span {}
+				span(.part(Parts.cardRank)) {}
+				span(.part(Parts.cardSuit)) {}
 			}
 			.style(Styles.card)
 		}
@@ -198,6 +198,8 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 	enum Parts: String, ElementPartSet {
 		case hand
 		case cardTemplate
+		case cardRank
+		case cardSuit
 		case action
 		case sheetToggle
 		case newGame
@@ -206,6 +208,13 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 		case sheetRows
 		case status
 		case wins
+	}
+
+	enum States: String, ElementStateSet {
+		case played
+		case winner
+		case illegal
+		case received
 	}
 
 	/**
@@ -329,12 +338,12 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 					.textStyle(.body, weight: .bold)
 					.lineHeight(1)
 					.color(.black)
-					.when(.state, is: "played") {
+					.when(States.played) {
 						$0
 							.background(.white)
 							.border(.black, width: .pixels(1))
 					}
-					.when(.state, is: "winner") {
+					.when(States.winner) {
 						$0
 							.background(.white)
 							.border(Color("#ffff00"), width: .pixels(3))
@@ -372,17 +381,17 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 					.when(Hooks.red) {
 						$0.color(Color("#cc0000"))
 					}
-					.when(.state, is: "picked") {
+					.pressed {
 						$0
 							.offset(y: .rootEm(-0.5))
 							.background(Color("#c0d8ff"))
 					}
-					.when(.state, is: "illegal") {
+					.when(States.illegal) {
 						$0
 							.background(Color("#b0b0b0"))
 							.opacity(0.75)
 					}
-					.when(.state, is: "received") {
+					.when(States.received) {
 						$0.background(Color("#ffff99"))
 					}
 			case .sheet:

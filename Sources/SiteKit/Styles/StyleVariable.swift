@@ -41,6 +41,6 @@ extension Style {
 	Sets a variable for the element and its descendants, like the size of the badges inside.
 	*/
 	public func setting<Value>(_ variable: StyleVariable<Value>, to value: Value) -> Self {
-		declaration(Property(variable.name), CSSValue(value))
+		declaration(Property(variable.name), value)
 	}
 }

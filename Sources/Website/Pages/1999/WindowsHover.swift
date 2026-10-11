@@ -95,6 +95,10 @@ struct GeoCitiesWindowsHover: ScriptedElement {
 		case best
 	}
 
+	enum States: String, ElementStateSet {
+		case held
+	}
+
 	/**
 	The buttons for touch, which carry their control.
 	*/
@@ -137,7 +141,7 @@ struct GeoCitiesWindowsHover: ScriptedElement {
 					.font(.large)
 					.touchAction(.none)
 					.textSelection(.disabled)
-					.when(.state, is: "held") {
+					.when(States.held) {
 						$0.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
 					}
 			}

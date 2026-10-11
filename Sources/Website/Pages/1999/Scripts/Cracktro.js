@@ -1,14 +1,12 @@
 // The intro of TEAM WAFFLE on the 1999 page: a cracktro in seven parts, drawn pixel by pixel in a canvas of 320 × 200 with big square pixels, like the demos of the 1990s, with a sine scroller that the visitor can rewrite, a remote control, and a chiptune. It runs only while its screen is on the screen and the tab is visible. For visitors who prefer reduced motion, each part shows a still picture that changes only when the visitor does something. The music plays only after the visitor presses the button that says it plays music.
 //
 // The scroller thanks the visitor who registered the page with the serial of the keygen (`Keygen.js`), which sends the name with the `geocities-registration` event.
-
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const wrap = (value, size) => ((value % size) + size) % size;
+import GeoCitiesElement from '/scripts/geocities-element.js';
+import {makeCanvas} from '/scripts/geocities-canvas.js';
+import {wrap, rgb, palettes, firePalette, pixelSurface, canvasPixels, fastSine, loadImage, animate} from '/scripts/geocities-demo.js';
+import {pattern, playSong} from '/scripts/geocities-chip.js';
 
 // MARK: Pixels and colors
-
-// A color as the four bytes of a pixel in an `ImageData`, which is red first on the little-endian computers that run browsers.
-const rgb = (red, green, blue) => ((255 << 24) | (clamp(Math.round(blue), 0, 255) << 16) | (clamp(Math.round(green), 0, 255) << 8) | clamp(Math.round(red), 0, 255)) >>> 0;
 
 const channels = color => [color & 255, (color >> 8) & 255, (color >> 16) & 255];
 
@@ -22,275 +20,9 @@ const cssColor = color => {
 	return `rgb(${red} ${green} ${blue})`;
 };
 
-/**
-A palette of 256 colors that goes smoothly through the colors, like the palettes of VGA mode 13h.
-*/
-const makePalette = stops => {
-	const palette = new Uint32Array(256);
-
-	for (let index = 0; index < 256; index++) {
-		const position = (index / 256) * (stops.length - 1);
-		const from = stops[Math.floor(position)];
-		const to = stops[Math.min(Math.floor(position) + 1, stops.length - 1)];
-		const amount = position - Math.floor(position);
-		palette[index] = rgb(...from.map((value, channel) => value + ((to[channel] - value) * amount)));
-	}
-
-	return palette;
-};
-
-// The palettes of the intro. Each starts and ends with the same color, so the colors can go around and around. The Effect Toy Box (`EffectToys.js`) has the same.
-const palettes = [
-	{name: 'AMIGA', palette: makePalette([[0, 0, 60], [60, 0, 160], [220, 0, 170], [255, 140, 210], [255, 255, 255], [120, 210, 255], [0, 70, 180], [0, 0, 60]])},
-	{name: 'ACID', palette: makePalette([[0, 30, 0], [0, 200, 40], [230, 255, 0], [255, 0, 200], [80, 0, 120], [0, 30, 0]])},
-	{name: 'FIRE', palette: makePalette([[20, 0, 0], [170, 0, 0], [255, 120, 0], [255, 230, 60], [255, 255, 220], [255, 140, 0], [20, 0, 0]])},
-	{name: 'C64', palette: makePalette([[53, 40, 121], [108, 94, 181], [112, 164, 178], [154, 210, 132], [184, 199, 111], [111, 79, 37], [53, 40, 121]])},
-	{name: 'RAINBOW', palette: makePalette([[255, 0, 0], [255, 200, 0], [0, 255, 0], [0, 200, 255], [120, 0, 255], [255, 0, 160], [255, 0, 0]])},
-];
-
-const firePalette = makePalette([[0, 0, 0], [80, 0, 0], [200, 30, 0], [255, 120, 0], [255, 210, 40], [255, 255, 180], [255, 255, 255]]);
-
-/**
-A canvas that is drawn pixel by pixel, with the pixels as one number each.
-*/
-const pixelSurface = canvas => {
-	const context = canvas.getContext('2d');
-	const image = context.createImageData(canvas.width, canvas.height);
-
-	return {
-		context,
-		width: canvas.width,
-		height: canvas.height,
-		pixels: new Uint32Array(image.data.buffer),
-		show() {
-			context.putImageData(image, 0, 0);
-		},
-	};
-};
-
-// The pixels of a canvas that is drawn with the drawing functions of the browser, like text, as numbers.
-const canvasPixels = canvas => new Uint32Array(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data.buffer);
-
-const makeCanvas = (width, height) => {
-	const canvas = document.createElement('canvas');
-	canvas.width = width;
-	canvas.height = height;
-	return canvas;
-};
-
-// A sine from a table, which is much faster for the effects that need one for every pixel. The angle is in steps of 1/1024 of a turn.
-const sineTable = Float32Array.from({length: 1024}, (_, index) => Math.sin((index / 1024) * Math.PI * 2));
-const fastSine = steps => sineTable[steps & 1023];
-
-const loadImage = source => new Promise(resolve => {
-	const image = new Image();
-	image.addEventListener('load', () => {
-		resolve(image);
-	});
-	image.addEventListener('error', () => {
-		resolve(undefined);
-	});
-	image.src = source;
-});
-
-// MARK: The animation
-
-/**
-Runs `step(delta)` on each frame while the canvas is on the screen, the tab is visible, and motion is allowed, with a loop of the element. The first picture is drawn with `step(0)` when the canvas first shows, also when nothing moves. The returned controls pause it, `poke(delta)` draws one more frame when nothing runs by itself, like when the visitor prefers reduced motion and does something, and `drawStill()` draws a still picture when the motion changes.
-*/
-const animate = (element, canvas, step) => {
-	let isPaused = false;
-	let hasDrawn = false;
-
-	// A step of 0 seconds draws a still picture, like the vector balls that jump to their shape, so the first step of a run moves like a frame.
-	const loop = element.loop(seconds => {
-		step(seconds || (1 / 60));
-	}, {target: canvas, maximumStep: 0.05, while: () => !isPaused && !element.reducedMotion});
-
-	const visibility = element.watchVisibility(canvas, isVisible => {
-		if (isVisible && !hasDrawn) {
-			hasDrawn = true;
-			step(0);
-		}
-	});
-
-	const isRunning = () => visibility.isVisible && !isPaused && !element.reducedMotion;
-
-	return {
-		setPaused(value) {
-			isPaused = value;
-			loop.start();
-		},
-		poke(delta = 0) {
-			if (!isRunning()) {
-				step(delta);
-			}
-		},
-		drawStill() {
-			if (visibility.isVisible) {
-				step(0);
-			}
-		},
-	};
-};
-
 // MARK: The music
 
-// A chip with four channels, like the music of the demos and the keygens, made with the Web Audio API: a square lead, a thin square that plays a chord as a fast arpeggio, a triangle bass, and drums of noise. It starts only when the visitor presses the button that plays music. The keygen (`Keygen.js`) has the same chip, with its own song.
-let noiseBuffer;
-
-// One second of white noise for the drums.
-const makeNoise = context => {
-	const buffer = context.createBuffer(1, context.sampleRate, context.sampleRate);
-	const samples = buffer.getChannelData(0);
-
-	for (let index = 0; index < samples.length; index++) {
-		samples[index] = (Math.random() * 2) - 1;
-	}
-
-	return buffer;
-};
-
-const noteFrequency = note => 440 * (2 ** ((note - 69) / 12));
-
-// A square wave with a pulse of 12.5%, the thin and nasal sound of the arpeggios of keygen music.
-let thinPulse;
-
-const thinPulseWave = context => {
-	if (!thinPulse) {
-		const harmonics = 32;
-		const real = new Float32Array(harmonics);
-		const imaginary = new Float32Array(harmonics);
-
-		for (let harmonic = 1; harmonic < harmonics; harmonic++) {
-			imaginary[harmonic] = (2 / (harmonic * Math.PI)) * Math.sin(harmonic * Math.PI * 0.125);
-		}
-
-		thinPulse = context.createPeriodicWave(real, imaginary);
-	}
-
-	return thinPulse;
-};
-
-// The chords of the arpeggios: a major chord on C, E, F, and G, and a minor chord on the other notes, which fits the songs in A minor.
-const chordSteps = note => [0, 4, 5, 7].includes(note % 12) ? [0, 4, 7, 12] : [0, 3, 7, 12];
-
-// The drums by the key: C is the kick, D is the snare, and the other keys are hi-hats.
-const drumOf = note => {
-	const semitone = note % 12;
-
-	if (semitone <= 1) {
-		return 'kick';
-	}
-
-	if (semitone <= 4) {
-		return 'snare';
-	}
-
-	return 'hat';
-};
-
-const envelope = (gain, time, peak, duration) => {
-	gain.gain.setValueAtTime(0.0001, time);
-	gain.gain.exponentialRampToValueAtTime(peak, time + 0.005);
-	gain.gain.exponentialRampToValueAtTime(peak * 0.6, time + Math.max(0.01, Math.min(0.1, duration)));
-	gain.gain.setValueAtTime(peak * 0.6, time + Math.max(0.01, duration));
-	gain.gain.exponentialRampToValueAtTime(0.0001, time + duration + 0.04);
-};
-
-const playOscillator = (output, {type, wave, frequencies, time, duration, peak}) => {
-	const {context} = output;
-	const oscillator = context.createOscillator();
-	const gain = context.createGain();
-
-	if (wave) {
-		oscillator.setPeriodicWave(wave);
-	} else {
-		oscillator.type = type;
-	}
-
-	// An arpeggio changes the note 50 times a second, like the effect 0xy of the trackers.
-	for (let index = 0; index * 0.02 < duration; index++) {
-		oscillator.frequency.setValueAtTime(frequencies[index % frequencies.length], time + (index * 0.02));
-	}
-
-	envelope(gain, time, peak, duration);
-	oscillator.connect(gain).connect(output);
-	oscillator.start(time);
-	oscillator.stop(time + duration + 0.05);
-};
-
-const playNoise = (output, {time, duration, peak, filter, frequency}) => {
-	const {context} = output;
-	const source = context.createBufferSource();
-	source.buffer = noiseBuffer;
-	const filterNode = context.createBiquadFilter();
-	filterNode.type = filter;
-	filterNode.frequency.value = frequency;
-	const gain = context.createGain();
-	gain.gain.setValueAtTime(peak, time);
-	gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-	source.connect(filterNode).connect(gain).connect(output);
-	source.start(time, Math.random() * 0.5);
-	source.stop(time + duration);
-};
-
-const instruments = [
-	// The lead.
-	(output, note, time, duration) => {
-		playOscillator(output, {type: 'square', frequencies: [noteFrequency(note)], time, duration, peak: 0.1});
-	},
-	// The arpeggio.
-	(output, note, time, duration) => {
-		playOscillator(output, {wave: thinPulseWave(output.context), frequencies: chordSteps(note).map(step => noteFrequency(note + step)), time, duration, peak: 0.09});
-	},
-	// The bass.
-	(output, note, time, duration) => {
-		playOscillator(output, {type: 'triangle', frequencies: [noteFrequency(note)], time, duration, peak: 0.35});
-	},
-	// The drums.
-	(output, note, time) => {
-		const drum = drumOf(note);
-
-		if (drum === 'kick') {
-			const {context} = output;
-			const oscillator = context.createOscillator();
-			const gain = context.createGain();
-			oscillator.frequency.setValueAtTime(160, time);
-			oscillator.frequency.exponentialRampToValueAtTime(40, time + 0.12);
-			gain.gain.setValueAtTime(0.6, time);
-			gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.2);
-			oscillator.connect(gain).connect(output);
-			oscillator.start(time);
-			oscillator.stop(time + 0.2);
-		} else if (drum === 'snare') {
-			playNoise(output, {time, duration: 0.16, peak: 0.3, filter: 'bandpass', frequency: 1800});
-		} else {
-			playNoise(output, {time, duration: 0.04, peak: 0.12, filter: 'highpass', frequency: 7000});
-		}
-	},
-];
-
-// A note as the trackers write it, like `C-4` or `F#5`, or a drum by its name.
-const noteNames = ['C-', 'C#', 'D-', 'D#', 'E-', 'F-', 'F#', 'G-', 'G#', 'A-', 'A#', 'B-'];
-
-const parseNote = token => {
-	if (token === '---') {
-		return null;
-	}
-
-	const drum = {KCK: 36, SNR: 38, HAT: 42}[token];
-
-	if (drum) {
-		return drum;
-	}
-
-	return noteNames.indexOf(token.slice(0, 2)) + ((Number(token[2]) + 1) * 12);
-};
-
-// A pattern of 16 rows, written as one line of 16 notes for each of the four channels, like in a tracker.
-const pattern = (...lines) => lines.map(line => line.trim().split(/\s+/).map(token => parseNote(token)));
-
+// The intro plays its song on the chip of the demos (`geocities-chip.js`), like the keygen (`Keygen.js`).
 const anthem = pattern(
 	'A-5 --- E-5 A-5 C-6 --- A-5 F-5 G-5 --- E-5 C-6 B-5 D-6 G-5 B-5',
 	'A-4 --- --- --- F-4 --- --- --- C-5 --- --- --- G-4 --- --- ---',
@@ -307,84 +39,6 @@ const groove = pattern(
 
 // The song of the intro, as patterns in order, composed by me in FastTracker 2.
 const song = {bpm: 125, patterns: [groove, groove, anthem, anthem]};
-
-// How long a note plays: until the next note of its channel, but at most a beat, as the patterns have no note-off.
-const noteRows = (channelNotes, row) => {
-	for (let length = 1; length < 4; length++) {
-		if (row + length >= channelNotes.length || channelNotes[row + length] !== null) {
-			return length;
-		}
-	}
-
-	return 4;
-};
-
-let currentPlayer;
-
-/**
-Plays the song in a loop with the audio of the element, until `stop()`.
-*/
-const playSong = (element, {context, output}) => {
-	noiseBuffer ??= makeNoise(context);
-	context.resume();
-
-	const master = context.createGain();
-	master.gain.value = 0.5;
-	master.connect(output);
-
-	const rowDuration = 60 / song.bpm / 4;
-	let patternIndex = 0;
-	let row = 0;
-	let nextTime = context.currentTime + 0.06;
-
-	// The notes are scheduled a little ahead, so the timers of the browser can be late without a hiccup in the music.
-	const schedule = () => {
-		while (nextTime < context.currentTime + 0.15) {
-			for (const [channel, notes] of song.patterns[patternIndex].entries()) {
-				const note = notes[row];
-
-				if (note !== null) {
-					instruments[channel](master, note, nextTime, noteRows(notes, row) * rowDuration * 0.95);
-				}
-			}
-
-			row++;
-
-			if (row === 16) {
-				row = 0;
-				patternIndex = (patternIndex + 1) % song.patterns.length;
-			}
-
-			nextTime += rowDuration;
-		}
-	};
-
-	schedule();
-	const timer = element.interval(25, schedule);
-
-	const player = {
-		stop() {
-			timer.cancel();
-			master.gain.setTargetAtTime(0, context.currentTime, 0.02);
-
-			if (currentPlayer === player) {
-				currentPlayer = undefined;
-			}
-
-			// After the fade, the audio device is freed until the next song, unless one started in the meantime. It is a plain timer, as it also frees it after the element was removed.
-			setTimeout(() => {
-				master.disconnect();
-
-				if (!currentPlayer) {
-					context.suspend();
-				}
-			}, 200);
-		},
-	};
-
-	currentPlayer = player;
-	return player;
-};
 
 // MARK: The intro
 
@@ -1135,7 +789,7 @@ const setUpIntro = (cracktro, {screen, guru, part: partLabel, previous, next, fa
 	};
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesCracktro extends GeoCitiesElement {
 	#intro;
 	#player;
 
@@ -1165,7 +819,7 @@ export default class extends GeoCitiesElement {
 				return;
 			}
 
-			this.#player = playSong(this, sound);
+			this.#player = playSong(this, sound, song);
 
 			// One tune plays at a time on the page, so the jukebox, the keygen, and the Music Room stop when the song of the intro starts.
 			this.music(true);
@@ -1205,3 +859,5 @@ export default class extends GeoCitiesElement {
 		this.#intro.reducedMotionChanged();
 	}
 }
+
+customElements.define('geo-cities-cracktro', GeoCitiesCracktro);

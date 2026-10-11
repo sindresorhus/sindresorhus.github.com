@@ -74,6 +74,13 @@ struct MarkdownTests {
 	}
 
 	@Test
+	func `inline HTML removes the paragraph only when there is one`() {
+		#expect(MarkdownDocument(parsing: "Hello *world*").inlineHTML == "Hello <em>world</em>")
+		#expect(MarkdownDocument(parsing: "First\n\nSecond").inlineHTML == "<p>First</p>\n<p>Second</p>")
+		#expect(MarkdownDocument(parsing: #"First\#n\#n<p class="note">Second</p>"#).inlineHTML == #"<p>First</p>\#n<p class="note">Second</p>"#)
+	}
+
+	@Test
 	func `tables are in a container that keyboard users can scroll`() {
 		let document = MarkdownDocument(parsing: "| A | B |\n| --- | --- |\n| 1 | 2 |")
 		#expect(document.html.hasPrefix(#"<div class="table-container" tabindex="0" role="region" aria-label="Table">"# + "\n<table>"))
@@ -219,6 +226,32 @@ struct MarkdownTests {
 	}
 
 	@Test
+	func `a document can be separated before a heading`() throws {
+		let document = MarkdownDocument(parsing: "First.\n\n## Section\n\n`<h2 id=\"end\">`\n\n## End\n\nMore.")
+		let separated = try #require(document.htmlSeparated(beforeHeading: "end"))
+		#expect(separated.before.contains("Section"))
+		// The heading in code is not a heading.
+		#expect(separated.before.contains("<code>"))
+		#expect(separated.after.hasPrefix(#"<h2 id="end""#))
+		#expect(separated.after.contains("More."))
+
+		#expect(document.htmlSeparated(beforeHeading: "missing") == nil)
+	}
+
+	@Test
+	func `a document can be separated before several headings, in their order`() throws {
+		let document = MarkdownDocument(parsing: "First.\n\n## Middle\n\nSecond.\n\n## End\n\nThird.")
+		let parts = try #require(document.htmlSeparated(beforeHeadings: ["middle", "end"]))
+		#expect(parts.count == 3)
+		#expect(parts[0].contains("First.") && !parts[0].contains("Second."))
+		#expect(parts[1].hasPrefix(#"<h2 id="middle""#) && parts[1].contains("Second.") && !parts[1].contains("Third."))
+		#expect(parts[2].hasPrefix(#"<h2 id="end""#) && parts[2].contains("Third."))
+
+		#expect(document.htmlSeparated(beforeHeadings: ["end", "middle"]) == nil)
+		#expect(document.htmlSeparated(beforeHeadings: ["middle", "missing"]) == nil)
+	}
+
+	@Test
 	func `alerts keep all paragraphs and uppercase labels`() {
 		let document = MarkdownDocument(parsing: """
 		> [!IMPORTANT]
@@ -239,7 +272,7 @@ struct MarkdownTests {
 	}
 
 	@Test
-	func `footnotes are numbered by first reference`() {
+	func `footnotes are numbered by first reference, and open their definitions in popovers at the end`() {
 		let document = MarkdownDocument(parsing: """
 		First[^second], then[^first], again[^second].
 
@@ -247,29 +280,15 @@ struct MarkdownTests {
 		[^second]: Second definition.
 		""")
 
-		#expect(document.html.contains(##"<sup><a href="#user-content-fn-second" id="user-content-fnref-second" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>"##))
-		#expect(document.html.contains(##"<sup><a href="#user-content-fn-first" id="user-content-fnref-first" data-footnote-ref="" aria-describedby="footnote-label">2</a></sup>"##))
-		#expect(document.html.contains(##"id="user-content-fnref-second-2""##))
-		#expect(document.html.contains(#"<li id="user-content-fn-second"><p>Second definition. "#))
-		#expect(document.html.contains(#"aria-label="Back to reference 1-2""#))
-		#expect(document.headings.last?.id == "footnote-label")
-		#expect(document.headings.last?.line == nil)
-	}
+		#expect(document.html == """
+		<p>First<sup><button type="button" popovertarget="user-content-fn-1" class="footnote-reference" aria-label="Footnote 1">1</button></sup>, then<sup><button type="button" popovertarget="user-content-fn-2" class="footnote-reference" aria-label="Footnote 2">2</button></sup>, again<sup><button type="button" popovertarget="user-content-fn-1" class="footnote-reference" aria-label="Footnote 1">1</button></sup>.</p>
+		<div popover id="user-content-fn-1" role="note" tabindex="-1" autofocus class="footnote-popover"><p>Second definition.</p>
+		</div>
+		<div popover id="user-content-fn-2" role="note" tabindex="-1" autofocus class="footnote-popover"><p>First definition.</p>
+		</div>
 
-	@Test
-	func `footnotes can open in popovers next to their references`() {
-		let document = MarkdownDocument(parsing: """
-		Text[^note] and again[^note].
-
-		[^note]: The note.
-		""", options: .init(showsFootnotesInPopovers: true))
-
-		#expect(document.html.contains(##"<sup><button type="button" popovertarget="user-content-fn-popover-note" id="user-content-fnref-note" data-footnote-ref="" class="footnote-reference" aria-label="Footnote 1">1</button></sup>"##))
-		#expect(document.html.contains(##"id="user-content-fnref-note-2""##))
-		#expect(document.html.components(separatedBy: "<div popover").count == 2)
-		#expect(document.html.contains(#"<div popover id="user-content-fn-popover-note" role="note" class="footnote-popover"><p>The note.</p>"#))
-		// The list at the end stays, for printing and the links back.
-		#expect(document.html.contains(#"<li id="user-content-fn-note">"#))
+		""")
+		#expect(document.headings.isEmpty)
 	}
 
 	@Test
@@ -335,6 +354,27 @@ struct MarkdownTests {
 		#expect(multilineString.swiftCodeParts.compactMap { part in part.token.map { "\($0.rawValue) \(part.text)" } }.prefix(3) == ["keyword private", "keyword set", "keyword var"])
 	}
 
+	@Test
+	func `soml code is split into the parts that the lexer of SOML classifies, with the whitespace between them`() {
+		let source = "# A comment.\nname: \"é😀\\t\"\n\"is enabled\": true\ntags: [1, 1h30m, 2026-09-19T14:00:00Z]\n"
+		let parts = source.somlCodeParts
+
+		#expect(parts.map(\.text).joined() == source)
+		#expect(parts.compactMap { part in part.token.map { "\($0.rawValue) \(part.text)" } } == [
+			"comment # A comment.",
+			"declaration name",
+			"string \"é😀",
+			"string \\t",
+			"string \"",
+			"declaration \"is enabled\"",
+			"keyword true",
+			"declaration tags",
+			"number 1",
+			"number 1h30m",
+			"number 2026-09-19T14:00:00Z",
+		])
+	}
+
 	/**
 	Like on GitHub, an unused definition is not shown. The parser leaves it out, so it is not a problem.
 	*/
@@ -343,7 +383,7 @@ struct MarkdownTests {
 		let document = MarkdownDocument(parsing: "Text[^missing].\n\n[^unused]: Never referenced.")
 
 		#expect(document.problems.map(\.message) == [
-			"The footnote `[^missing]` has no definition, like `[^missing]: The note.` If it is not a footnote, write it as code. A definition inside a block directive is only for the footnotes in that directive.",
+			"The footnote `[^missing]` has no definition, like `[^missing]: The note.` If it is not a footnote, write it as code. The parser reads the text between block directives on its own, so a definition after a block directive, like at the end of the file, is only for the footnotes after that directive. A definition inside a block directive is only for the footnotes in that directive.",
 		])
 		#expect(document.html.contains("Text[^missing]."))
 		#expect(!document.html.contains("Never referenced."))
@@ -363,13 +403,35 @@ struct MarkdownTests {
 		#expect(inside.problems.first?.message.contains("inside the same directive") == true)
 		#expect(outside.problems.first?.message.contains("A definition inside a block directive") == true)
 		#expect(both.problems.isEmpty)
-		#expect(both.html.contains("data-footnote-ref"))
+		#expect(both.html.contains("footnote-reference"))
+	}
+
+	/**
+	Limitation: the parser reads the text between block directives on its own, so a definition at the end of the file is not found for a footnote before a block directive. The problem says why.
+	*/
+	@Test
+	func `a footnote before a block directive with its definition after it is a problem that says so`() {
+		let options = MarkdownDocument.Options(blockDirectives: ["Plain": .init { html in "<div>\(html)</div>" }])
+		let after = MarkdownDocument(parsing: "Text[^a].\n\n@Plain {\n  In.\n}\n\n[^a]: Note.", options: options)
+		let before = MarkdownDocument(parsing: "Text[^a].\n\n[^a]: Note.\n\n@Plain {\n  In.\n}", options: options)
+
+		#expect(after.problems.first?.message.contains("a definition after a block directive") == true)
+		#expect(before.problems.isEmpty)
+		#expect(before.html.contains("footnote-reference"))
 	}
 
 	@Test
 	func `a problem in a footnote has the line of the footnote`() {
 		let document = MarkdownDocument(parsing: "Text[^1].\n\n[^1]: See ![](x.png).", firstLine: 10, options: .init())
 		#expect(document.problems.map(\.line) == [12])
+	}
+
+	@Test
+	func `a heading in a footnote is a problem with its line`() {
+		let document = MarkdownDocument(parsing: "Text[^1].\n\n[^1]: Text.\n\n    ## Heading", firstLine: 10, options: .init())
+
+		#expect(document.problems.map(\.line) == [14])
+		#expect(document.problems.first?.message.contains("cannot have headings, like “Heading”") == true)
 	}
 
 	@Test
@@ -387,7 +449,7 @@ struct MarkdownTests {
 
 		#expect(document.html.contains("array[^1]\n[^1]: Not a definition."))
 		#expect(document.html.contains("The definition."))
-		#expect(document.html.components(separatedBy: "data-footnote-ref").count == 2)
+		#expect(document.html.components(separatedBy: "footnote-reference").count == 2)
 	}
 
 	@Test
@@ -509,12 +571,12 @@ struct MarkdownTests {
 	func `footnote references in code stay as they are`() {
 		let html = MarkdownDocument(parsing: "Text[^1] and `array[^1]`.\n\n[^1]: The note.").html
 		#expect(html.contains("<code>array[^1]</code>"))
-		#expect(html.components(separatedBy: "data-footnote-ref").count == 2)
+		#expect(html.components(separatedBy: "footnote-reference").count == 2)
 	}
 
 	@Test
 	func `headings of a level after a heading become collapsible sections`() {
-		let options = MarkdownDocument.Options(collapsibleSections: .init(level: 4, startHeadingID: "faq", name: "faq", moreLink: .init(title: "More", url: "/faq")), addsHeadingAnchors: true, headingDirectives: [Keywords.self])
+		let options = MarkdownDocument.Options(collapsibleSections: .init(level: 4, startHeadingID: "faq", name: "faq", moreLink: .init(title: "More", destination: .path("/faq"))), addsHeadingAnchors: true, headingDirectives: [Keywords.self])
 		let document = MarkdownDocument(parsing: """
 		#### Before
 
@@ -778,24 +840,24 @@ struct MarkdownTests {
 	}
 
 	@Test
-	func `footnotes whose IDs differ only in punctuation get different anchors`() {
+	func `footnotes whose IDs differ only in punctuation get different popovers`() {
 		let html = MarkdownDocument(parsing: "A[^a.b] B[^a-b]\n\n[^a.b]: One.\n\n[^a-b]: Two.").html
 		let ids = html.matches(of: /\sid="([^"]+)"/).map { String($0.1) }
 		#expect(Set(ids).count == ids.count)
-		#expect(html.contains(##"href="#user-content-fn-a-b-2""##))
+		#expect(html.contains(##"popovertarget="user-content-fn-2""##))
 	}
 
 	@Test
 	func `indented code that looks like a fence does not hide footnote definitions`() {
 		let document = MarkdownDocument(parsing: "Text[^1].\n\n    ```\n\n[^1]: Note.")
-		#expect(document.html.contains(##"href="#user-content-fn-1""##))
+		#expect(document.html.contains(##"popovertarget="user-content-fn-1""##))
 		#expect(document.problems.isEmpty)
 	}
 
 	@Test
 	func `a footnote definition can be indented up to three spaces`() {
 		let html = MarkdownDocument(parsing: "Text[^1].\n\n   [^1]: Note.").html
-		#expect(html.contains(##"href="#user-content-fn-1""##))
+		#expect(html.contains(##"popovertarget="user-content-fn-1""##))
 		#expect(!html.contains("[^1]: Note."))
 		#expect(MarkdownDocument(parsing: "Text.\n\n    [^1]: Code.").html.contains("<code>[^1]: Code."))
 	}
@@ -830,7 +892,7 @@ struct MarkdownTests {
 		)
 
 		let document = MarkdownDocument(parsing: """
-		^[Mac](platform: "macOS") only, ^[not](size: 2).
+		^[Mac](platform: "macOS") only, ^[not](size: 2), ^[broken](platform: ).
 
 		@Box(title: "Hi") {
 		  Inside.
@@ -853,13 +915,15 @@ struct MarkdownTests {
 		}
 		""", options: options)
 
-		#expect(document.html.contains(#"<b data-a='macOS'>Mac</b> only, not."#))
+		#expect(document.html.contains(#"<b data-a='macOS'>Mac</b> only, not, broken."#))
 		#expect(document.html.contains(#"<section title="Hi" data-wide="false"><p>Inside.</p>"#))
 		#expect(document.html.contains("<div><p>Text.</p>"))
-		#expect(document.problems.map(\.line) == [1, 7, 11, 15])
+		#expect(document.problems.map(\.line) == [1, 1, 7, 11, 15])
 		#expect(document.problems[0].message == "The inline attributes `size: 2` are invalid: Missing required key `platform`.")
-		#expect(document.problems[2].message == "`@Box`: Missing required key `title`.")
-		#expect(document.problems[3].message == "`@Plain`: It takes no arguments.")
+		// The attributes that cannot be parsed say what is wrong.
+		#expect(document.problems[1].message.hasPrefix("The inline attributes `platform: ` are invalid: Expected a value"))
+		#expect(document.problems[3].message == "`@Box`: Missing required key `title`.")
+		#expect(document.problems[4].message == "`@Plain`: It takes no arguments.")
 	}
 
 	@Test
@@ -891,15 +955,16 @@ struct MarkdownTests {
 		""")
 
 		#expect(document.html.contains("<kbd>Cmd</kbd>"))
-		#expect(document.html.contains(##"href="#user-content-fn-heading""##))
-		#expect(document.html.contains(##"href="#user-content-fn-list""##))
+		#expect(document.html.contains(##"popovertarget="user-content-fn-1""##))
+		#expect(document.html.contains(##"popovertarget="user-content-fn-2""##))
 		#expect(!document.html.contains("[^"))
 		#expect(document.problems.isEmpty)
 	}
+
 	@Test
 	func `a code fence of another kind does not end the code block for footnotes`() {
 		let document = MarkdownDocument(parsing: "~~~\n```\n~~~\n\n````\n```\n````\n\n``inline`` code.\n\nRef[^x].\n\n[^x]: Def.")
-		#expect(document.html.contains(##"href="#user-content-fn-x""##))
+		#expect(document.html.contains(##"popovertarget="user-content-fn-1""##))
 		#expect(document.problems.isEmpty)
 	}
 
@@ -923,7 +988,7 @@ struct MarkdownTests {
 	@Test
 	func `a footnote reference inside a link is a problem`() {
 		let document = MarkdownDocument(parsing: "[link[^x]](https://example.com)\n\n[^x]: Def.")
-		#expect(!document.html.contains("user-content-fn-x"))
+		#expect(!document.html.contains("popover"))
 		#expect(document.problems.contains { $0.message.contains("inside a link") })
 	}
 }
@@ -944,13 +1009,144 @@ struct MarkdownLinkTests {
 
 	@Test
 	func `links in footnote definitions are resolved and listed`() {
-		var options = Self.options
-		options.showsFootnotesInPopovers = true
-		let document = MarkdownDocument(parsing: "Text[^note].\n\n[^note]: See [the FAQ](faq.md).", options: options)
+		let document = MarkdownDocument(parsing: "Text[^note].\n\n[^note]: See [the FAQ](faq.md).", options: Self.options)
 
 		#expect(document.html.contains(#"<a href="/faq">the FAQ</a>"#))
-		// Once, although the definition is in the list and in the popover.
+		// Once, like a link in the text.
 		#expect(document.links.map(\.destination) == ["/faq"])
+	}
+
+	@Test
+	func `inline notes open their Markdown in a popover at the end, with resolved links`() {
+		let document = MarkdownDocument(parsing: #"""
+		The ^[Spotlight](note: "The *search*.\n\n- See [the FAQ](faq.md).") app.
+
+		After.
+		"""#, options: Self.options)
+
+		#expect(document.html.contains(#"<p>The <button type="button" popovertarget="user-content-note-1-5" class="inline-note">Spotlight</button> app.</p>"#))
+		#expect(document.html.hasSuffix(#"<p>After.</p>\#n<div popover id="user-content-note-1-5" role="note" tabindex="-1" autofocus class="inline-note-popover"><p>The <em>search</em>.</p>\#n<ul>\#n<li>See <a href="/faq">the FAQ</a>.</li>\#n</ul>\#n</div>\#n"#))
+		#expect(document.links.map(\.destination) == ["/faq"])
+		#expect(document.problems.isEmpty)
+	}
+
+	@Test
+	func `inline notes can have their text rendered by the options`() {
+		let options = MarkdownDocument.Options(inlineNote: { textHTML, noteID in
+			"<x-note for=\"\(noteID)\">\(textHTML)</x-note>"
+		})
+
+		#expect(MarkdownDocument(parsing: #"A ^[*term*](note: "Note.")."#, options: options).html.contains(#"<p>A <x-note for="user-content-note-1-3"><em>term</em></x-note>.</p>"#))
+	}
+
+	@Test
+	func `invalid inline notes are problems with their lines`() {
+		let document = MarkdownDocument(parsing: #"""
+		^[Empty](note: "").
+
+		[Link ^[inside](note: "A note.")](/x).
+
+		^[With [a link](/x)](note: "A note.").
+
+		^[Other](note: "A note.", size: 2).
+
+		^[Broken](note: "Text.\n\nSee [the FAQ](missing.md).").
+
+		^[Heading](note: "# A heading\n\nText.").
+
+		^[Nested](note: "A ^[nested](note: \"note\").").
+
+		^[Paragraphs](note: "A note.\n\nWith paragraphs, which are fine.").
+
+		^[Footnote](note: "A footnote[^x].\n\n[^x]: Text.").
+
+		^[Page footnote](note: "A footnote of the page[^page].").
+
+		[^page]: Text.
+		"""#, options: .init(resolveLink: { destination in
+			guard destination != "missing.md" else {
+				throw ContentError(reason: "Missing.")
+			}
+
+			return destination
+		}))
+
+		#expect(document.problems.map(\.line) == [1, 3, 5, 7, 9, 11, 13, 17, 19])
+		#expect(document.problems[5].message.contains("cannot have headings"))
+		#expect(document.problems[6].message.contains("cannot have another note"))
+		#expect(document.problems[7].message.contains("inside another footnote or a note"))
+		#expect(document.problems[8].message.contains("inside a note, which cannot have footnotes"))
+		// An invalid note is only its text, and a nested note is only text in its note.
+		#expect(document.html.contains("<p>Empty.</p>"))
+		#expect(document.html.contains(#"role="note" tabindex="-1" autofocus class="inline-note-popover"><p>A nested.</p>"#))
+		#expect(document.html.contains("<p>A note.</p>\n<p>With paragraphs, which are fine.</p>"))
+	}
+
+	@Test
+	func `inline notes on the same line get different IDs`() {
+		let html = MarkdownDocument(parsing: #"^[One](note: "First.") and ^[two](note: "Second.")."#).html
+
+		#expect(html.contains(#"popovertarget="user-content-note-1-1""#))
+		#expect(html.contains(#"popovertarget="user-content-note-1-28""#))
+	}
+
+	@Test
+	func `inline notes in footnotes are at the end too`() {
+		let document = MarkdownDocument(parsing: #"""
+		A footnote[^footnote].
+
+		[^footnote]: A footnote with ^[a note](note: "The note.").
+		"""#)
+
+		#expect(document.html.contains(#"A footnote with <button type="button" popovertarget="user-content-note-3-30" class="inline-note">a note</button>"#))
+		// After the popover of the footnote.
+		#expect(document.html.hasSuffix(#"</div>\#n<div popover id="user-content-note-3-30" role="note" tabindex="-1" autofocus class="inline-note-popover"><p>The note.</p>\#n</div>\#n"#))
+		#expect(document.problems.isEmpty)
+	}
+
+	@Test
+	func `inline notes in block directives are at the end of the document`() {
+		let options = MarkdownDocument.Options(blockDirectives: ["Plain": .init { html in "<div>\(html)</div>" }])
+		let document = MarkdownDocument(parsing: "@Plain {\n  A ^[term](note: \"The note.\").\n}\n\nAfter.", options: options)
+
+		#expect(document.html.contains(#"<div><p>A <button type="button" popovertarget="user-content-note-2-5" class="inline-note">term</button>.</p>"#))
+		#expect(document.html.hasSuffix(#"<p>After.</p>\#n<div popover id="user-content-note-2-5" role="note" tabindex="-1" autofocus class="inline-note-popover"><p>The note.</p>\#n</div>\#n"#))
+		#expect(document.problems.isEmpty)
+	}
+
+	@Test
+	func `problems and links in inline notes have the line of the note in the file`() {
+		let document = MarkdownDocument(parsing: #"Intro.\#n\#nThe ^[term](note: "See [the FAQ](/faq).\n\n![](x.png)")."#, firstLine: 10, options: .init())
+
+		#expect(document.html.contains(#"popovertarget="user-content-note-12-5""#))
+		#expect(document.problems.map(\.line) == [12])
+		#expect(document.problems.first?.message.contains("has no description") == true)
+		// The link and the image.
+		#expect(document.links.map(\.line) == [12, 12])
+	}
+
+	@Test
+	func `an inline note in the heading of a collapsible section is a problem`() {
+		let options = MarkdownDocument.Options(collapsibleSections: .init(level: 3))
+		let document = MarkdownDocument(parsing: #"### Question ^[term](note: "The note.")\#n\#nAnswer."#, options: options)
+
+		#expect(document.problems.map(\.line) == [1])
+		#expect(document.problems.first?.message.contains("the heading of a collapsible section") == true)
+		#expect(!document.html.contains("popover"))
+	}
+
+	@Test
+	func `a footnote in the text of an inline note is a problem`() {
+		let document = MarkdownDocument(parsing: #"^[Term[^1]](note: "The note.").\#n\#n[^1]: Text."#)
+
+		#expect(document.problems.first?.message.contains("the text of a note") == true)
+		#expect(document.html.contains(#"class="inline-note">Term[^1]</button>"#))
+		#expect(!document.html.contains("footnote-reference"))
+	}
+
+	@Test
+	func `the introduction has the text of an inline note, not the note`() {
+		#expect(MarkdownDocument(parsing: #"The ^[Spotlight](note: "The search.") app."#).introduction == "The Spotlight app.")
 	}
 
 	@Test
@@ -983,4 +1179,41 @@ private struct BadgeAttributes {
 private struct BoxArguments {
 	var title: String
 	var isWide = false
+}
+
+@Suite
+struct ReleaseNotesSecurityTests {
+	@Test(arguments: ["<script>alert(1)</script>", "<img src=x onerror=alert(1)>", "<table><tr><td><script>alert(1)</script></td></tr></table>", "Text <iframe src='https://evil.example'></iframe>", "<kbd onclick=alert(1)>Delete</kbd>"])
+	func `external release notes escape raw HTML`(source: String) {
+		let html = MarkdownDocument(parsing: source, style: .releaseNotes).html
+		#expect(!html.contains("<script>"))
+		#expect(!html.contains("<iframe"))
+		#expect(!html.contains("<table"))
+		#expect(!html.contains("<img src=x"))
+		#expect(!html.contains("<kbd onclick"))
+		#expect(html.contains("&lt;"))
+	}
+
+	@Test(arguments: ["javascript:alert(1)", "JAVASCRIPT:alert(1)", "data:text/html,evil", "file:///etc/passwd", "vbscript:evil"])
+	func `external release notes disable unsafe destinations`(destination: String) {
+		let html = MarkdownDocument(parsing: "[Link](\(destination)) ![Image](\(destination))", style: .releaseNotes).html
+		#expect(!html.contains("href=\"\(destination)\""))
+		#expect(!html.contains("src=\"\(destination)\""))
+	}
+
+	@Test(arguments: ["&#32;javascript:alert(1)", "&#x20;JAVASCRIPT:alert(1)", "&#32;data:text/html,evil"])
+	func `entity decoded spaces cannot conceal executable schemes`(destination: String) {
+		let html = MarkdownDocument(parsing: "[Link](\(destination))", style: .releaseNotes).html
+		#expect(html.contains(#"href="""#))
+		#expect(!html.lowercased().contains("javascript:"))
+		#expect(!html.contains("data:text/html"))
+	}
+
+	@Test
+	func `release notes retain Markdown and safe destinations`() {
+		let html = MarkdownDocument(parsing: "**Fixed** [Issue](https://github.com/test/repo/issues/1) ![Preview](https://example.com/image.png)", style: .releaseNotes).html
+		#expect(html.contains("<strong>Fixed</strong>"))
+		#expect(html.contains("href=\"https://github.com/test/repo/issues/1\""))
+		#expect(html.contains("src=\"https://example.com/image.png\""))
+	}
 }

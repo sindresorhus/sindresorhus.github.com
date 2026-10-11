@@ -1,6 +1,5 @@
 // The Microsoft Hearts Network on the desktop of the 1999 page, like Hearts of Windows 95 and 98, with the real rules, against my little sister, my grandmother, and the paperclip of Office, who talk while they play. The seats go around the table: 0 is me at the bottom, 1 is on my left, 2 is across, and 3 is on my right, and the play goes in that order. Nothing makes a sound until the visitor presses the Sound button.
-
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
+import GeoCitiesElement, {randomItem, shuffled, playTone} from '/scripts/geocities-element.js';
 
 const names = ['You', 'Lillesøster', 'Mormor', 'Clippy'];
 
@@ -92,17 +91,6 @@ const thinkingTime = {1: 450, 2: 1300, 3: 750};
 
 const sortHand = hand => hand.sort((first, second) => first - second);
 
-const shuffledDeck = () => {
-	const deck = Array.from({length: 52}, (_, index) => index);
-
-	for (let index = deck.length - 1; index > 0; index--) {
-		const other = Math.floor(Math.random() * (index + 1));
-		[deck[index], deck[other]] = [deck[other], deck[index]];
-	}
-
-	return deck;
-};
-
 // The rules of what a player can play now.
 const legalCards = (game, seat) => {
 	const hand = game.hands[seat];
@@ -168,7 +156,7 @@ const winningPlay = trick => {
 	return best;
 };
 
-const byRank = cards => [...cards].sort((first, second) => rankOf(first) - rankOf(second));
+const byRank = cards => cards.toSorted((first, second) => rankOf(first) - rankOf(second));
 const highest = cards => byRank(cards).at(-1);
 const lowest = cards => byRank(cards)[0];
 
@@ -208,7 +196,7 @@ const choosePass = (game, seat) => {
 		return (rank * 3) + (counts[suit] <= 3 ? 12 : 0);
 	};
 
-	return [...hand].sort((first, second) => danger(second) - danger(first)).slice(0, 3);
+	return hand.toSorted((first, second) => danger(second) - danger(first)).slice(0, 3);
 };
 
 // The card an opponent plays. It dumps the queen of spades when it can, ducks under the winning card, and gets rid of high cards when it is void.
@@ -312,7 +300,7 @@ const wantsMoon = (game, seat) => {
 	return highHearts >= 3 && highCards >= 8;
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesWindowsHearts extends GeoCitiesElement {
 	#game;
 	// Each game has a number, so the opponents of a game that was given up stop playing.
 	#gameRun = 0;
@@ -490,23 +478,7 @@ export default class extends GeoCitiesElement {
 			return;
 		}
 
-		const {context, output} = sound;
-		const oscillator = context.createOscillator();
-		const gain = context.createGain();
-		const time = context.currentTime + start;
-		oscillator.type = type;
-		oscillator.frequency.setValueAtTime(frequency, time);
-
-		if (slide) {
-			oscillator.frequency.exponentialRampToValueAtTime(slide, time + duration);
-		}
-
-		gain.gain.setValueAtTime(0.0001, time);
-		gain.gain.exponentialRampToValueAtTime(volume, time + 0.01);
-		gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-		oscillator.connect(gain).connect(output);
-		oscillator.start(time);
-		oscillator.stop(time + duration + 0.05);
+		playTone(sound, frequency, start, duration, {type, volume, slide});
 	}
 
 	#sounds = {
@@ -543,10 +515,9 @@ export default class extends GeoCitiesElement {
 
 	// Drawing.
 	#makeCardButton(card) {
-		const button = this.parts.cardTemplate.content.firstElementChild.cloneNode(true);
-		const [rank, suit] = button.querySelectorAll('span');
-		rank.textContent = rankSymbols[rankOf(card)];
-		suit.textContent = suitSymbols[suitOf(card)];
+		const {element: button, parts} = this.clone('cardTemplate');
+		parts.cardRank.textContent = rankSymbols[rankOf(card)];
+		parts.cardSuit.textContent = suitSymbols[suitOf(card)];
 
 		if (isRed(card)) {
 			button.dataset.heartsRed = '';
@@ -569,12 +540,7 @@ export default class extends GeoCitiesElement {
 			let label = cardName(card);
 
 			if (game.phase === 'pass') {
-				const isPicked = game.picked.has(card);
-				button.setAttribute('aria-pressed', String(isPicked));
-
-				if (isPicked) {
-					button.dataset.state = 'picked';
-				}
+				button.setAttribute('aria-pressed', String(game.picked.has(card)));
 			} else if (legal && !legal.includes(card)) {
 				button.dataset.state = 'illegal';
 				label += ', cannot be played now';
@@ -702,7 +668,7 @@ export default class extends GeoCitiesElement {
 
 	#startHand() {
 		const game = this.#game;
-		const deck = shuffledDeck();
+		const deck = shuffled(Array.from({length: 52}, (_, index) => index));
 		game.hands = [0, 1, 2, 3].map(seat => sortHand(deck.slice(seat * 13, (seat + 1) * 13)));
 		game.taken = [0, 0, 0, 0];
 		game.tricksTaken = [0, 0, 0, 0];
@@ -1036,3 +1002,5 @@ export default class extends GeoCitiesElement {
 		this.#nextTurn();
 	}
 }
+
+customElements.define('geo-cities-windows-hearts', GeoCitiesWindowsHearts);

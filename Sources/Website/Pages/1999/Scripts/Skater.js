@@ -1,7 +1,7 @@
 // Sindre Hawk’s Pro Skater on the 1999 page: a skateboarding game like Tony Hawk’s Pro Skater (Neversoft, 1999), seen from the side, in a level of Bergen. The visitor pushes, ollies, spins, flips, grabs, grinds, and manuals, links the tricks in combos with a multiplier, fills the special meter for the special tricks, collects the letters S, K, A, T, and E and a secret tape, and finds the named gaps, in a run of two minutes. A bail drops the skater in a ragdoll fall. Everything is drawn on one canvas of 400 × 240 pixels, which runs only while it is on the screen and the tab is visible. The high score, the best combo, and the gaps found are kept in the browser.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
+import GeoCitiesElement, {randomItem, randomBetween, clamp, midiFrequency, hasModifier} from '/scripts/geocities-element.js';
+import {fillShape, fillPolygon, pixelTextWidth, drawPixelText} from '/scripts/geocities-canvas.js';
+
 const formatNumber = value => Math.round(value).toLocaleString('en-US');
 
 const width = 400;
@@ -16,16 +16,6 @@ const pushTopSpeed = 260;
 const topSpeed = 380;
 const spinSpeed = 620;
 const runSeconds = 120;
-
-// A tiny pixel font of 3 × 5 for the screen, so the text is crisp at any size. Each letter is five rows of three bits.
-const pixelFont = {
-	A: [2, 5, 7, 5, 5], B: [6, 5, 6, 5, 6], C: [3, 4, 4, 4, 3], D: [6, 5, 5, 5, 6], E: [7, 4, 6, 4, 7], F: [7, 4, 6, 4, 4], G: [3, 4, 5, 5, 3], H: [5, 5, 7, 5, 5], I: [7, 2, 2, 2, 7], J: [1, 1, 1, 5, 2], K: [5, 5, 6, 5, 5], L: [4, 4, 4, 4, 7], M: [5, 7, 7, 5, 5], N: [6, 5, 5, 5, 5], O: [2, 5, 5, 5, 2], P: [6, 5, 6, 4, 4], Q: [2, 5, 5, 6, 3], R: [6, 5, 6, 5, 5], S: [3, 4, 2, 1, 6], T: [7, 2, 2, 2, 2], U: [5, 5, 5, 5, 7], V: [5, 5, 5, 5, 2], W: [5, 5, 7, 7, 5], X: [5, 5, 2, 5, 5], Y: [5, 5, 2, 2, 2], Z: [7, 1, 2, 4, 7],
-	0: [7, 5, 5, 5, 7], 1: [2, 6, 2, 2, 7], 2: [6, 1, 2, 4, 7], 3: [6, 1, 2, 1, 6], 4: [5, 5, 7, 1, 1], 5: [7, 4, 6, 1, 6], 6: [3, 4, 7, 5, 7], 7: [7, 1, 2, 2, 2], 8: [7, 5, 7, 5, 7], 9: [7, 5, 7, 1, 6],
-	' ': [0, 0, 0, 0, 0], '.': [0, 0, 0, 0, 2], ',': [0, 0, 0, 2, 4], '!': [2, 2, 2, 0, 2], '?': [6, 1, 2, 0, 2], ':': [0, 2, 0, 2, 0], '-': [0, 0, 7, 0, 0], '+': [0, 2, 7, 2, 0], '/': [1, 1, 2, 4, 4], '\'': [2, 2, 0, 0, 0], '’': [2, 2, 0, 0, 0], '(': [1, 2, 2, 2, 1], ')': [4, 2, 2, 2, 4], '×': [0, 5, 2, 5, 0], '%': [5, 1, 2, 4, 5], '<': [1, 2, 4, 2, 1], '>': [4, 2, 1, 2, 4], '=': [0, 7, 0, 7, 0], '♥': [0, 5, 7, 7, 2], '*': [0, 5, 2, 5, 0], '#': [5, 7, 5, 7, 5], '★': [2, 7, 2, 5, 0],
-	Æ: [3, 6, 7, 6, 7], Ø: [3, 5, 7, 5, 6], Å: [2, 0, 2, 5, 7],
-};
-
-const textWidth = (text, scale = 1) => ((([...String(text)].length * 4) - 1) * scale);
 
 // Splits a combo into lines that fit the screen, between its tricks.
 const wrapTricks = (names, maximumCharacters) => {
@@ -191,8 +181,6 @@ const songs = [
 	{band: 'Mormor Strikker', title: 'Pass deg!', tempo: 160, chords: [38, 41, 43, 38, 38, 41, 43, 46, 43, 43, 46, 48, 38, 41, 43, 45]},
 ];
 
-const midiFrequency = note => 440 * (2 ** ((note - 69) / 12));
-
 // The records from the storage, only when they look right, so an old or broken record does not show “undefined”.
 const validBestCombo = value => (Number.isFinite(value?.score) && typeof value.text === 'string' ? value : undefined);
 const validLastRun = value => (Number.isFinite(value?.score) && Number.isFinite(value.gaps) && Number.isFinite(value.plasters) && typeof value.letters === 'string' ? value : undefined);
@@ -240,7 +228,7 @@ const distortionCurve = amount => {
 	return curve;
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesSkater extends GeoCitiesElement {
 	#context;
 	#loop;
 	#state;
@@ -330,7 +318,7 @@ export default class extends GeoCitiesElement {
 		});
 
 		this.on(screen, 'keydown', event => {
-			if (event.ctrlKey || event.metaKey || event.altKey) {
+			if (hasModifier(event)) {
 				return;
 			}
 
@@ -811,48 +799,13 @@ export default class extends GeoCitiesElement {
 
 	// Draws text in the pixel font, at a whole pixel, with a scale for bigger letters, and a dark shadow so it shows on any background. The alignment is `left`, `center`, or `right`.
 	#drawText(text, x, y, color, {scale = 1, align = 'left', shadow = 'rgba(0, 0, 0, 0.75)'} = {}) {
-		const characters = [...String(text).toUpperCase()];
-		const textSize = textWidth(text, scale);
-		const left = Math.round(align === 'center' ? x - (textSize / 2) : (align === 'right' ? x - textSize : x));
-		const passes = shadow ? [[shadow, scale > 1 ? 2 : 1], [color, 0]] : [[color, 0]];
-		for (const [fill, offset] of passes) {
-			this.#context.fillStyle = fill;
-			let characterLeft = left;
-			for (const character of characters) {
-				const rows = pixelFont[character] ?? pixelFont['?'];
-				for (const [row, bits] of rows.entries()) {
-					for (let column = 0; column < 3; column++) {
-						if (bits & (4 >> column)) {
-							this.#context.fillRect(characterLeft + (column * scale) + offset, Math.round(y) + (row * scale) + offset, scale, scale);
-						}
-					}
-				}
-
-				characterLeft += 4 * scale;
-			}
-		}
-	}
-
-	#fillShape(color, x, y, shapeWidth, shapeHeight) {
-		this.#context.fillStyle = color;
-		this.#context.fillRect(Math.round(x), Math.round(y), Math.round(shapeWidth), Math.round(shapeHeight));
+		drawPixelText(this.#context, text, x, y, color, {scale, align, shadow, shadowOffset: scale > 1 ? 2 : 1});
 	}
 
 	#fillCircle(color, x, y, radius) {
 		this.#context.fillStyle = color;
 		this.#context.beginPath();
 		this.#context.arc(x, y, Math.max(radius, 0.1), 0, Math.PI * 2);
-		this.#context.fill();
-	}
-
-	#fillPolygon(color, points) {
-		this.#context.fillStyle = color;
-		this.#context.beginPath();
-		for (const [x, y] of points) {
-			this.#context.lineTo(x, y);
-		}
-
-		this.#context.closePath();
 		this.#context.fill();
 	}
 
@@ -2182,7 +2135,7 @@ export default class extends GeoCitiesElement {
 		if (mastX > -10 && mastX < width + 10) {
 			const top = horizon - 140 + farY;
 			this.#strokeLine('#c9c9c9', 1, [[mastX, top + 20], [mastX, top]]);
-			this.#fillShape(this.#isBlinkOn(0.8) ? '#ff3333' : '#882222', mastX - 1, top - 1, 2, 2);
+			fillShape(this.#context, this.#isBlinkOn(0.8) ? '#ff3333' : '#882222', mastX - 1, top - 1, 2, 2);
 		}
 	}
 
@@ -2201,23 +2154,23 @@ export default class extends GeoCitiesElement {
 			const houseHeight = isBryggen ? 46 + ((index * 7) % 13) : 54 + ((index * 11) % 20);
 			const color = isBryggen ? houseColors[index % houseColors.length] : ['#9c9a94', '#b5aea2', '#8f8b84'][index % 3];
 			const top = baseY - houseHeight;
-			this.#fillShape(color, x, top, 28, houseHeight + 40);
+			fillShape(this.#context, color, x, top, 28, houseHeight + 40);
 			if (isBryggen) {
-				this.#fillPolygon(color, [[x - 1, top], [x + 14, top - 18], [x + 29, top]]);
+				fillPolygon(this.#context, color, [[x - 1, top], [x + 14, top - 18], [x + 29, top]]);
 				this.#strokeLine('#3a2a20', 1, [[x - 1, top], [x + 14, top - 18], [x + 29, top]]);
 				for (let plank = 3; plank < 28; plank += 4) {
-					this.#fillShape('rgba(0, 0, 0, 0.12)', x + plank, top, 1, houseHeight + 40);
+					fillShape(this.#context, 'rgba(0, 0, 0, 0.12)', x + plank, top, 1, houseHeight + 40);
 				}
 
-				this.#fillShape('#f6f2e4', x + 11, top - 9, 6, 6);
+				fillShape(this.#context, '#f6f2e4', x + 11, top - 9, 6, 6);
 			} else {
-				this.#fillShape('#5a5652', x - 1, top - 3, 30, 3);
+				fillShape(this.#context, '#5a5652', x - 1, top - 3, 30, 3);
 			}
 
 			for (let row = 0; row < 3; row++) {
 				for (let column = 0; column < 2; column++) {
 					const windowColor = (index + row + column) % 5 === 0 ? '#ffe88a' : '#2f3a44';
-					this.#fillShape(windowColor, x + 5 + (column * 12), top + 8 + (row * 13), 6, 7);
+					fillShape(this.#context, windowColor, x + 5 + (column * 12), top + 8 + (row * 13), 6, 7);
 				}
 			}
 		}
@@ -2233,24 +2186,24 @@ export default class extends GeoCitiesElement {
 
 		const floor = this.#screenY(-60);
 		const roof = this.#screenY(ceiling);
-		this.#fillShape('#6f6f6f', left, roof, right - left, floor - roof);
+		fillShape(this.#context, '#6f6f6f', left, roof, right - left, floor - roof);
 		for (let row = ceiling - 12; row > -60; row -= 12) {
-			this.#fillShape('#666666', left, this.#screenY(row), right - left, 1);
+			fillShape(this.#context, '#666666', left, this.#screenY(row), right - left, 1);
 		}
 
 		for (const pillar of [100, 220, 360, 480]) {
 			const x = this.#screenX(pillar);
-			this.#fillShape('#858585', x - 7, roof, 14, floor - roof);
+			fillShape(this.#context, '#858585', x - 7, roof, 14, floor - roof);
 			for (let stripe = 0; stripe < 4; stripe++) {
-				this.#fillShape(stripe % 2 === 0 ? '#e8c000' : '#222222', x - 7, this.#screenY(14 - (stripe * 4)), 14, 4);
+				fillShape(this.#context, stripe % 2 === 0 ? '#e8c000' : '#222222', x - 7, this.#screenY(14 - (stripe * 4)), 14, 4);
 			}
 		}
 
 		const sign = (text, worldX, worldY, background, color = '#ffffff') => {
 			const x = this.#screenX(worldX);
 			const y = this.#screenY(worldY);
-			const signWidth = textWidth(text) + 6;
-			this.#fillShape(background, x - (signWidth / 2), y, signWidth, 9);
+			const signWidth = pixelTextWidth(text) + 6;
+			fillShape(this.#context, background, x - (signWidth / 2), y, signWidth, 9);
 			this.#drawText(text, x, y + 2, color, {align: 'center', shadow: undefined});
 		};
 
@@ -2263,14 +2216,14 @@ export default class extends GeoCitiesElement {
 
 		for (let light = 40; light < garageEnd; light += 80) {
 			const x = this.#screenX(light);
-			this.#fillShape(light % 160 === 120 && this.#isBlinkOn(0.15) && Math.sin(this.#state.time * 3) > 0.7 ? '#9a9a9a' : '#f4f8ff', x - 12, roof + 1, 24, 3);
-			this.#fillShape('rgba(244, 248, 255, 0.12)', x - 20, roof + 4, 40, 10);
+			fillShape(this.#context, light % 160 === 120 && this.#isBlinkOn(0.15) && Math.sin(this.#state.time * 3) > 0.7 ? '#9a9a9a' : '#f4f8ff', x - 12, roof + 1, 24, 3);
+			fillShape(this.#context, 'rgba(244, 248, 255, 0.12)', x - 20, roof + 4, 40, 10);
 		}
 
 		// The ceiling, as thick as a floor of the building, up to the top of the screen.
-		this.#fillShape('#4f4f4f', left, 0, right - left, roof);
-		this.#fillShape('#3a3a3a', left, roof - 3, right - left, 3);
-		this.#fillShape('#3a3a3a', right - 8, 0, 8, roof + 16);
+		fillShape(this.#context, '#4f4f4f', left, 0, right - left, roof);
+		fillShape(this.#context, '#3a3a3a', left, roof - 3, right - left, 3);
+		fillShape(this.#context, '#3a3a3a', right - 8, 0, 8, roof + 16);
 	}
 
 	#drawTrond() {
@@ -2282,14 +2235,14 @@ export default class extends GeoCitiesElement {
 		const y = this.#screenY(0);
 		this.#strokeLine('#22324a', 2, [[x - 2, y], [x - 1, y - 10]]);
 		this.#strokeLine('#22324a', 2, [[x + 2, y], [x + 1, y - 10]]);
-		this.#fillShape('#2b7a3a', x - 4, y - 19, 8, 10);
+		fillShape(this.#context, '#2b7a3a', x - 4, y - 19, 8, 10);
 		this.#fillCircle('#f0c8a0', x, y - 22, 3);
-		this.#fillShape('#6a3a1a', x - 3, y - 26, 7, 3);
+		fillShape(this.#context, '#6a3a1a', x - 3, y - 26, 7, 3);
 		// The video camera, filming a skate video like everyone did in 1999.
-		this.#fillShape('#222222', x - 10, y - 21, 7, 5);
-		this.#fillShape('#555555', x - 12, y - 20, 2, 3);
+		fillShape(this.#context, '#222222', x - 10, y - 21, 7, 5);
+		fillShape(this.#context, '#555555', x - 12, y - 20, 2, 3);
 		if (this.#isBlinkOn(0.6)) {
-			this.#fillShape('#ff2222', x - 5, y - 23, 2, 2);
+			fillShape(this.#context, '#ff2222', x - 5, y - 23, 2, 2);
 		}
 
 		this.#drawText('TROND', x, y + 4, '#ffffff', {align: 'center'});
@@ -2312,19 +2265,19 @@ export default class extends GeoCitiesElement {
 			this.#strokeLine('#5a4030', 2, [[x - 28, ground], [x - 28, ground - 40]]);
 			this.#strokeLine('#5a4030', 2, [[x + 28, ground], [x + 28, ground - 40]]);
 			for (let stripe = 0; stripe < 8; stripe++) {
-				this.#fillShape(stripe % 2 === 0 ? '#cc2222' : '#f4f4f4', x - 32 + (stripe * 8), ground - 48, 8, 9);
+				fillShape(this.#context, stripe % 2 === 0 ? '#cc2222' : '#f4f4f4', x - 32 + (stripe * 8), ground - 48, 8, 9);
 			}
 
-			this.#fillPolygon('#cc2222', [[x - 32, ground - 39], [x + 32, ground - 39], [x + 28, ground - 35], [x - 28, ground - 35]]);
-			this.#fillShape('#d8e8f0', x - 24, ground - 20, 48, 6);
+			fillPolygon(this.#context, '#cc2222', [[x - 32, ground - 39], [x + 32, ground - 39], [x + 28, ground - 35], [x - 28, ground - 35]]);
+			fillShape(this.#context, '#d8e8f0', x - 24, ground - 20, 48, 6);
 			for (let fish = 0; fish < 5; fish++) {
 				const fishX = x - 20 + (fish * 9);
-				this.#fillPolygon(fish % 2 === 0 ? '#7a8a9a' : '#e88a6a', [[fishX, ground - 21], [fishX + 6, ground - 23], [fishX + 6, ground - 19]]);
+				fillPolygon(this.#context, fish % 2 === 0 ? '#7a8a9a' : '#e88a6a', [[fishX, ground - 21], [fishX + 6, ground - 23], [fishX + 6, ground - 19]]);
 			}
 
-			this.#fillShape('#6a4a30', x - 24, ground - 14, 48, 14);
-			const signWidth = textWidth(stall.sign) + 6;
-			this.#fillShape('#ffffff', x - (signWidth / 2), ground - 60, signWidth, 9);
+			fillShape(this.#context, '#6a4a30', x - 24, ground - 14, 48, 14);
+			const signWidth = pixelTextWidth(stall.sign) + 6;
+			fillShape(this.#context, '#ffffff', x - (signWidth / 2), ground - 60, signWidth, 9);
 			this.#drawText(stall.sign, x, ground - 58, '#1a3a8a', {align: 'center', shadow: undefined});
 		}
 
@@ -2332,12 +2285,12 @@ export default class extends GeoCitiesElement {
 		const stationX = this.#screenX(1990);
 		if (stationX < width + 10) {
 			const ground = this.#screenY(-36);
-			this.#fillShape('#8a3a2a', stationX, ground - 140, 130, 140);
+			fillShape(this.#context, '#8a3a2a', stationX, ground - 140, 130, 140);
 			for (let row = 0; row < 140; row += 6) {
-				this.#fillShape('#7a3022', stationX, ground - 140 + row, 130, 1);
+				fillShape(this.#context, '#7a3022', stationX, ground - 140 + row, 130, 1);
 			}
 
-			this.#fillShape('#ffffff', stationX + 14, ground - 132, 74, 11);
+			fillShape(this.#context, '#ffffff', stationX + 14, ground - 132, 74, 11);
 			this.#drawText('FLØIBANEN', stationX + 51, ground - 129, '#aa2222', {align: 'center', shadow: undefined});
 		}
 	}
@@ -2353,18 +2306,18 @@ export default class extends GeoCitiesElement {
 			if (piece.kind === 'water') {
 				const surface = this.#screenY(waterSurface);
 				const wave = this.reducedMotion ? 0 : Math.round(Math.sin((worldX * 0.2) + (this.#state.time * 3)));
-				this.#fillShape('#2a5a7a', column, surface + wave, 2, height - surface);
-				this.#fillShape('#7ab0d0', column, surface + wave, 2, 1);
+				fillShape(this.#context, '#2a5a7a', column, surface + wave, 2, height - surface);
+				fillShape(this.#context, '#7ab0d0', column, surface + wave, 2, 1);
 				continue;
 			}
 
 			const top = this.#screenY(piece.height(worldX));
 			const [surface, body] = pieceColors[piece.kind];
-			this.#fillShape(body, column, top, 2, height - top);
-			this.#fillShape(surface, column, top, 2, 2);
+			fillShape(this.#context, body, column, top, 2, height - top);
+			fillShape(this.#context, surface, column, top, 2, 2);
 			// The cobblestones of Bryggen and the tiles of the fish market.
 			if ((piece.kind === 'street' || piece.kind === 'market') && Math.floor(worldX / 6) % 2 === 0) {
-				this.#fillShape('rgba(0, 0, 0, 0.12)', column, top + 3, 2, 2);
+				fillShape(this.#context, 'rgba(0, 0, 0, 0.12)', column, top + 3, 2, 2);
 			}
 		}
 
@@ -2383,7 +2336,7 @@ export default class extends GeoCitiesElement {
 			if (piece.kind === 'quarter') {
 				for (let beam = piece.from + 8; beam < piece.to; beam += 16) {
 					const top = this.#screenY(piece.height(beam)) + 3;
-					this.#fillShape('#7a5530', this.#screenX(beam), top, 2, height - top);
+					fillShape(this.#context, '#7a5530', this.#screenX(beam), top, 2, height - top);
 				}
 
 				const copingX = piece.outward < 0 ? piece.from : piece.to;
@@ -2393,15 +2346,15 @@ export default class extends GeoCitiesElement {
 			if (piece.kind === 'deck') {
 				const top = this.#screenY(piece.height(piece.from));
 				for (let post = piece.from + 6; post < piece.to; post += 14) {
-					this.#fillShape('#6a4a28', this.#screenX(post), top + 3, 2, height - top);
+					fillShape(this.#context, '#6a4a28', this.#screenX(post), top + 3, 2, height - top);
 				}
 			}
 
 			if (piece.kind === 'stairs') {
 				for (let stair = piece.from; stair < piece.to; stair += 10) {
 					const top = this.#screenY(piece.height(stair));
-					this.#fillShape('#6a655e', this.#screenX(stair), top, 1, height - top);
-					this.#fillShape('#d6d0c6', this.#screenX(stair), top, 10, 1);
+					fillShape(this.#context, '#6a655e', this.#screenX(stair), top, 1, height - top);
+					fillShape(this.#context, '#d6d0c6', this.#screenX(stair), top, 10, 1);
 				}
 			}
 
@@ -2423,16 +2376,16 @@ export default class extends GeoCitiesElement {
 				const top = this.#screenY(piece.height(piece.from));
 				const bottom = this.#screenY(groundAt(piece.from - 1));
 				for (let row = top + 5; row < bottom; row += 5) {
-					this.#fillShape('#777777', left, row, right - left, 1);
+					fillShape(this.#context, '#777777', left, row, right - left, 1);
 				}
 
 				for (let block = piece.from + 20; block < piece.to; block += 20) {
-					this.#fillShape('#777777', this.#screenX(block), top + 2, 1, bottom - top - 2);
+					fillShape(this.#context, '#777777', this.#screenX(block), top + 2, 1, bottom - top - 2);
 				}
 
-				this.#fillShape('#ffffff', left, top, right - left, 1);
-				this.#fillShape('#6a6a6a', left, top, 1, height - top);
-				this.#fillShape('#6a6a6a', right - 1, top, 1, height - top);
+				fillShape(this.#context, '#ffffff', left, top, right - left, 1);
+				fillShape(this.#context, '#6a6a6a', left, top, 1, height - top);
+				fillShape(this.#context, '#6a6a6a', right - 1, top, 1, height - top);
 				const label = piece.from < 1000 ? 'KAI' : 'TORGET';
 				this.#drawText(label, (left + right) / 2, top + 4, '#6a6a6a', {align: 'center', shadow: undefined});
 			}
@@ -2468,8 +2421,8 @@ export default class extends GeoCitiesElement {
 			}
 
 			const y = this.#screenY(puddle.level);
-			this.#fillShape('#4a6a8a', x, y - 1, right - x, 3);
-			this.#fillShape('#9ac0e0', x + 3, y - 1, right - x - 10, 1);
+			fillShape(this.#context, '#4a6a8a', x, y - 1, right - x, 3);
+			fillShape(this.#context, '#9ac0e0', x + 3, y - 1, right - x - 10, 1);
 		}
 
 		// The rain makes rings in the puddles and on the water.
@@ -2492,18 +2445,18 @@ export default class extends GeoCitiesElement {
 		const y = this.#screenY(mormor.level);
 		const mood = this.#state.mormorMood.until > this.#state.time ? this.#state.mormorMood.mood : 'knit';
 		// The bench.
-		this.#fillShape('#6a4424', x - 18, y - 10, 36, 3);
-		this.#fillShape('#6a4424', x - 18, y - 17, 36, 2);
-		this.#fillShape('#3a3a3a', x - 16, y - 10, 2, 10);
-		this.#fillShape('#3a3a3a', x + 14, y - 10, 2, 10);
+		fillShape(this.#context, '#6a4424', x - 18, y - 10, 36, 3);
+		fillShape(this.#context, '#6a4424', x - 18, y - 17, 36, 2);
+		fillShape(this.#context, '#3a3a3a', x - 16, y - 10, 2, 10);
+		fillShape(this.#context, '#3a3a3a', x + 14, y - 10, 2, 10);
 		// Mormor, in her red cardigan, with gray hair in a bun and glasses.
-		this.#fillShape('#3a3a6a', x - 4, y - 10, 9, 3);
-		this.#fillShape('#3a3a6a', x + 3, y - 10, 3, 9);
-		this.#fillShape('#b02a3a', x - 5, y - 22, 9, 12);
+		fillShape(this.#context, '#3a3a6a', x - 4, y - 10, 9, 3);
+		fillShape(this.#context, '#3a3a6a', x + 3, y - 10, 3, 9);
+		fillShape(this.#context, '#b02a3a', x - 5, y - 22, 9, 12);
 		this.#fillCircle('#f2d0b0', x, y - 25, 3.5);
 		this.#fillCircle('#d8d8d8', x - 1, y - 29, 3);
 		this.#fillCircle('#d8d8d8', x - 4, y - 28, 2);
-		this.#fillShape('#333333', x, y - 26, 3, 1);
+		fillShape(this.#context, '#333333', x, y - 26, 3, 1);
 		const hands = mood === 'cheer' ? [[x - 6, y - 32], [x + 6, y - 32]] : (mood === 'angry' ? [[x + 8, y - 26], [x + 6, y - 18]] : [[x + 4, y - 16], [x + 6, y - 15]]);
 		this.#strokeLine('#b02a3a', 2, [[x - 3, y - 20], hands[0]]);
 		this.#strokeLine('#b02a3a', 2, [[x + 3, y - 20], hands[1]]);
@@ -2511,15 +2464,15 @@ export default class extends GeoCitiesElement {
 			// The knitting, and the ball of yarn on the ground.
 			const needle = this.reducedMotion ? 0 : Math.round(Math.sin(this.#state.time * 8));
 			this.#strokeLine('#cccccc', 1, [[x + 2, y - 14 + needle], [x + 9, y - 18]]);
-			this.#fillShape('#4a8ae8', x + 4, y - 15, 5, 3);
+			fillShape(this.#context, '#4a8ae8', x + 4, y - 15, 5, 3);
 			this.#fillCircle('#4a8ae8', x + 14, y - 2, 2.5);
 		}
 
 		const bubble = mood === 'cheer' ? 'FLINK GUTT!' : (mood === 'angry' ? 'PASS DEG!' : '');
 		if (bubble) {
-			const bubbleWidth = textWidth(bubble) + 6;
-			this.#fillShape('#ffffff', x - (bubbleWidth / 2), y - 48, bubbleWidth, 10);
-			this.#fillPolygon('#ffffff', [[x - 2, y - 38], [x + 2, y - 38], [x, y - 34]]);
+			const bubbleWidth = pixelTextWidth(bubble) + 6;
+			fillShape(this.#context, '#ffffff', x - (bubbleWidth / 2), y - 48, bubbleWidth, 10);
+			fillPolygon(this.#context, '#ffffff', [[x - 2, y - 38], [x + 2, y - 38], [x, y - 34]]);
 			this.#drawText(bubble, x, y - 46, mood === 'cheer' ? '#1a7a2a' : '#cc0000', {align: 'center', shadow: undefined});
 		}
 
@@ -2552,10 +2505,10 @@ export default class extends GeoCitiesElement {
 			const y = this.#screenY(tapeSpot.y) + (this.reducedMotion ? 0 : Math.round(Math.sin(this.#state.time * 4) * 2));
 			if (x > -10 && x < width + 10) {
 				this.#fillCircle('rgba(102, 255, 255, 0.3)', x, y, 9);
-				this.#fillShape('#111111', x - 7, y - 4, 14, 9);
-				this.#fillShape('#f4f4f4', x - 5, y - 3, 10, 3);
-				this.#fillShape('#444444', x - 4, y + 1, 3, 2);
-				this.#fillShape('#444444', x + 1, y + 1, 3, 2);
+				fillShape(this.#context, '#111111', x - 7, y - 4, 14, 9);
+				fillShape(this.#context, '#f4f4f4', x - 5, y - 3, 10, 3);
+				fillShape(this.#context, '#444444', x - 4, y + 1, 3, 2);
+				fillShape(this.#context, '#444444', x + 1, y + 1, 3, 2);
 			}
 		}
 	}
@@ -2570,32 +2523,32 @@ export default class extends GeoCitiesElement {
 		const thickness = 2 + (Math.abs(face) * 5);
 		if (isCheese) {
 			// The Brunost Flip: the board turns into a cheese slicer for a moment, with a slice of brown cheese on top.
-			this.#fillShape('#c8c8d0', -7 * length, -1, 12 * length, 2);
-			this.#fillShape('#2a2a2a', 5 * length, -1, 5 * length, 2);
-			this.#fillShape('#a8642a', -8, -7 - (Math.abs(face) * 5), 15, 4);
-			this.#fillShape('#c8843a', -8, -7 - (Math.abs(face) * 5), 15, 1);
+			fillShape(this.#context, '#c8c8d0', -7 * length, -1, 12 * length, 2);
+			fillShape(this.#context, '#2a2a2a', 5 * length, -1, 5 * length, 2);
+			fillShape(this.#context, '#a8642a', -8, -7 - (Math.abs(face) * 5), 15, 4);
+			fillShape(this.#context, '#c8843a', -8, -7 - (Math.abs(face) * 5), 15, 1);
 			this.#context.restore();
 			return;
 		}
 
 		const deckColor = face > 0.2 ? '#222222' : (face < -0.2 ? '#cc2222' : '#3a2a1a');
-		this.#fillShape(deckColor, -9 * length, -thickness / 2, 18 * length, thickness);
+		fillShape(this.#context, deckColor, -9 * length, -thickness / 2, 18 * length, thickness);
 		if (face < -0.2) {
-			this.#fillShape('#ffdd00', -2 * length, -1, 4 * length, 2);
+			fillShape(this.#context, '#ffdd00', -2 * length, -1, 4 * length, 2);
 		}
 
 		if (Math.abs(face) < 0.6) {
 			const side = Math.cos(roll) >= 0 ? 1 : -1;
-			this.#fillShape('#888888', -6 * length, (thickness / 2) * side, 2, side);
-			this.#fillShape('#888888', 4 * length, (thickness / 2) * side, 2, side);
+			fillShape(this.#context, '#888888', -6 * length, (thickness / 2) * side, 2, side);
+			fillShape(this.#context, '#888888', 4 * length, (thickness / 2) * side, 2, side);
 			this.#fillCircle('#f2f2e8', -5 * length, ((thickness / 2) + 1.5) * side, 1.3);
 			this.#fillCircle('#f2f2e8', 5 * length, ((thickness / 2) + 1.5) * side, 1.3);
 		}
 
 		// The kicktails.
 		if (length > 0.5 && Math.abs(face) < 0.4) {
-			this.#fillShape(deckColor, 9 * length, (-thickness / 2) - 1, 2, 2);
-			this.#fillShape(deckColor, -11 * length, (-thickness / 2) - 1, 2, 2);
+			fillShape(this.#context, deckColor, 9 * length, (-thickness / 2) - 1, 2, 2);
+			fillShape(this.#context, deckColor, -11 * length, (-thickness / 2) - 1, 2, 2);
 		}
 
 		this.#context.restore();
@@ -2662,8 +2615,8 @@ export default class extends GeoCitiesElement {
 		if (isRocky) {
 			// Rocky the pet rock rides on the nose.
 			this.#fillCircle('#8a8a8a', 9, -6, 3);
-			this.#fillShape('#222222', 9, -7, 1, 1);
-			this.#fillShape('#222222', 11, -7, 1, 1);
+			fillShape(this.#context, '#222222', 9, -7, 1, 1);
+			fillShape(this.#context, '#222222', 11, -7, 1, 1);
 		}
 
 		this.#context.restore();
@@ -2676,20 +2629,20 @@ export default class extends GeoCitiesElement {
 		const knee = foot => [(foot[0] / 2) + (crouch * 3), ((foot[1] + hipY) / 2) - crouch];
 		this.#strokeLine('#2f4f8a', 2.5, [backFoot, knee(backFoot), [0, hipY]]);
 		this.#strokeLine('#2f4f8a', 2.5, [frontFoot, knee(frontFoot), [0, hipY]]);
-		this.#fillShape('#222222', backFoot[0] - 2, backFoot[1] - 1, 4, 2);
-		this.#fillShape('#222222', frontFoot[0] - 2, frontFoot[1] - 1, 4, 2);
+		fillShape(this.#context, '#222222', backFoot[0] - 2, backFoot[1] - 1, 4, 2);
+		fillShape(this.#context, '#222222', frontFoot[0] - 2, frontFoot[1] - 1, 4, 2);
 		// The yellow rain jacket of Bergen, the arms, and the head with a red beanie.
-		this.#fillShape('#f2c200', -3, shoulderY, 7, hipY - shoulderY + 1);
-		this.#fillShape('#c89a00', -3, hipY - 1, 7, 1);
+		fillShape(this.#context, '#f2c200', -3, shoulderY, 7, hipY - shoulderY + 1);
+		fillShape(this.#context, '#c89a00', -3, hipY - 1, 7, 1);
 		this.#strokeLine('#f2c200', 2, [[-1, shoulderY + 1], hands[0]]);
 		this.#strokeLine('#f2c200', 2, [[2, shoulderY + 1], hands[1]]);
 		this.#fillCircle('#f3c9a0', hands[0][0], hands[0][1], 1.2);
 		this.#fillCircle('#f3c9a0', hands[1][0], hands[1][1], 1.2);
 		this.#fillCircle('#f3c9a0', 1, shoulderY - 4, 3.5);
-		this.#fillShape('#f0d060', -3, shoulderY - 5, 2, 3);
-		this.#fillShape('#cc2222', -2, shoulderY - 9, 7, 3);
-		this.#fillShape('#ffffff', 1, shoulderY - 11, 2, 2);
-		this.#fillShape('#222222', 3, shoulderY - 5, 1, 1);
+		fillShape(this.#context, '#f0d060', -3, shoulderY - 5, 2, 3);
+		fillShape(this.#context, '#cc2222', -2, shoulderY - 9, 7, 3);
+		fillShape(this.#context, '#ffffff', 1, shoulderY - 11, 2, 2);
+		fillShape(this.#context, '#222222', 3, shoulderY - 5, 1, 1);
 		this.#context.restore();
 	}
 
@@ -2722,7 +2675,7 @@ export default class extends GeoCitiesElement {
 		this.#strokeLine('#f2c200', 2, [at(points.handBack), at(points.chest), at(points.handFront)]);
 		const [headX, headY] = at(points.head);
 		this.#fillCircle('#f3c9a0', headX, headY, 3.5);
-		this.#fillShape('#cc2222', headX - 3, headY - 5, 7, 3);
+		fillShape(this.#context, '#cc2222', headX - 3, headY - 5, 7, 3);
 		// Stars around the head.
 		if (this.#state.clock - this.#skater.ragdoll.startedAt > 0.6) {
 			for (let star = 0; star < 3; star++) {
@@ -2735,7 +2688,7 @@ export default class extends GeoCitiesElement {
 	#drawParticles() {
 		for (const particle of this.#state.particles) {
 			this.#context.globalAlpha = clamp(1 - (particle.age / particle.life), 0, 1);
-			this.#fillShape(particle.color, this.#screenX(particle.x), this.#screenY(particle.y), particle.size, particle.size);
+			fillShape(this.#context, particle.color, this.#screenX(particle.x), this.#screenY(particle.y), particle.size, particle.size);
 		}
 
 		this.#context.globalAlpha = 1;
@@ -2784,28 +2737,28 @@ export default class extends GeoCitiesElement {
 
 	#drawMeter(x, y, value, isVertical) {
 		if (isVertical) {
-			this.#fillShape('rgba(0, 0, 0, 0.6)', x - 2, y - 20, 5, 40);
-			this.#fillShape('#66ff66', x - 2, y - 6, 5, 12);
-			this.#fillShape('#ff3333', x - 2, y - 20, 5, 4);
-			this.#fillShape('#ff3333', x - 2, y + 16, 5, 4);
-			this.#fillShape('#ffffff', x - 4, y - Math.round(value * 18), 9, 2);
+			fillShape(this.#context, 'rgba(0, 0, 0, 0.6)', x - 2, y - 20, 5, 40);
+			fillShape(this.#context, '#66ff66', x - 2, y - 6, 5, 12);
+			fillShape(this.#context, '#ff3333', x - 2, y - 20, 5, 4);
+			fillShape(this.#context, '#ff3333', x - 2, y + 16, 5, 4);
+			fillShape(this.#context, '#ffffff', x - 4, y - Math.round(value * 18), 9, 2);
 			return;
 		}
 
-		this.#fillShape('rgba(0, 0, 0, 0.6)', x - 20, y - 2, 40, 5);
-		this.#fillShape('#66ff66', x - 6, y - 2, 12, 5);
-		this.#fillShape('#ff3333', x - 20, y - 2, 4, 5);
-		this.#fillShape('#ff3333', x + 16, y - 2, 4, 5);
-		this.#fillShape('#ffffff', x + Math.round(value * 18) - 1, y - 4, 2, 9);
+		fillShape(this.#context, 'rgba(0, 0, 0, 0.6)', x - 20, y - 2, 40, 5);
+		fillShape(this.#context, '#66ff66', x - 6, y - 2, 12, 5);
+		fillShape(this.#context, '#ff3333', x - 20, y - 2, 4, 5);
+		fillShape(this.#context, '#ff3333', x + 16, y - 2, 4, 5);
+		fillShape(this.#context, '#ffffff', x + Math.round(value * 18) - 1, y - 4, 2, 9);
 	}
 
 	#drawHud() {
 		this.#drawText(formatNumber(this.#state.score), 6, 6, '#ffffff', {scale: 2});
 		// The special meter.
-		this.#fillShape('rgba(0, 0, 0, 0.6)', 6, 20, 82, 6);
+		fillShape(this.#context, 'rgba(0, 0, 0, 0.6)', 6, 20, 82, 6);
 		const isFull = this.#state.special >= 1;
 		const specialColor = isFull ? (this.#isBlinkOn(0.15) ? '#ff66ff' : '#66ffff') : '#ffdd00';
-		this.#fillShape(specialColor, 7, 21, Math.round(80 * this.#state.special), 4);
+		fillShape(this.#context, specialColor, 7, 21, Math.round(80 * this.#state.special), 4);
 		if (isFull) {
 			this.#drawText('SPECIAL', 92, 21, specialColor);
 		}
@@ -2825,8 +2778,8 @@ export default class extends GeoCitiesElement {
 		}
 
 		if (this.#state.hasTape) {
-			this.#fillShape('#111111', 236, 7, 12, 8);
-			this.#fillShape('#f4f4f4', 238, 8, 8, 3);
+			fillShape(this.#context, '#111111', 236, 7, 12, 8);
+			fillShape(this.#context, '#f4f4f4', 238, 8, 8, 3);
 		}
 
 		if (this.#state.plasters > 0) {
@@ -2839,7 +2792,7 @@ export default class extends GeoCitiesElement {
 			const base = Math.round(sumPoints(this.#state.combo.entries));
 			const total = `${formatNumber(base)} × ${this.#state.combo.entries.length}`;
 			const top = height - 12 - (lines.length * 12);
-			this.#fillShape('rgba(0, 0, 0, 0.45)', 0, top - 4, width, height - top + 4);
+			fillShape(this.#context, 'rgba(0, 0, 0, 0.45)', 0, top - 4, width, height - top + 4);
 			for (const [index, line] of lines.entries()) {
 				this.#drawText(line, width / 2, top + (index * 12), '#ffffff', {scale: 2, align: 'center'});
 			}
@@ -2864,7 +2817,7 @@ export default class extends GeoCitiesElement {
 	}
 
 	#drawTitle() {
-		this.#fillShape('rgba(0, 0, 0, 0.55)', 0, 24, width, 110);
+		fillShape(this.#context, 'rgba(0, 0, 0, 0.55)', 0, 24, width, 110);
 		this.#drawText('SINDRE HAWK’S', width / 2, 34, '#ffffff', {scale: 3, align: 'center'});
 		this.#drawText('PRO SKATER', width / 2, 58, this.#isBlinkOn(0.3) ? '#ffdd00' : '#ff8800', {scale: 5, align: 'center', shadow: '#aa2200'});
 		this.#drawText('BERGEN 1999. IT RAINS. WE SKATE.', width / 2, 92, '#ffffff', {align: 'center'});
@@ -2876,7 +2829,7 @@ export default class extends GeoCitiesElement {
 	}
 
 	#drawResults() {
-		this.#fillShape('rgba(0, 0, 0, 0.7)', 30, 22, width - 60, 170);
+		fillShape(this.#context, 'rgba(0, 0, 0, 0.7)', 30, 22, width - 60, 170);
 		this.#drawText('RUN OVER', width / 2, 30, '#ffdd00', {scale: 3, align: 'center'});
 		const lines = [
 			[`SCORE: ${formatNumber(this.#state.score)}`, this.#state.isNewHighScore ? '#66ff66' : '#ffffff'],
@@ -2923,7 +2876,7 @@ export default class extends GeoCitiesElement {
 
 		// The loop stops while step mode waits for a button, and draws this when it stops.
 		if (this.#isPaused()) {
-			this.#fillShape('rgba(0, 0, 0, 0.6)', 80, 100, 240, 26);
+			fillShape(this.#context, 'rgba(0, 0, 0, 0.6)', 80, 100, 240, 26);
 			this.#drawText('STEP MODE', width / 2, 104, '#ffdd00', {align: 'center'});
 			this.#drawText('HOLD A BUTTON TO SKATE', width / 2, 114, '#ffffff', {align: 'center'});
 		}
@@ -3062,3 +3015,5 @@ export default class extends GeoCitiesElement {
 		this.parts.gapCount.textContent = `${this.#state.foundGaps.size}/${items.length}`;
 	}
 }
+
+customElements.define('geo-cities-skater', GeoCitiesSkater);

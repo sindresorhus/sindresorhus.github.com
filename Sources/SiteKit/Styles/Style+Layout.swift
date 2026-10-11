@@ -2,7 +2,7 @@
 
 extension Style {
 	public func display(_ display: Display) -> Self {
-		declaration(.display, CSSValue(display.rawValue))
+		declaration(.display, display)
 	}
 
 	/**
@@ -26,6 +26,15 @@ extension Style {
 	*/
 	public func hidden(from breakpoint: Breakpoint) -> Self {
 		from(breakpoint) {
+			$0.hidden()
+		}
+	}
+
+	/**
+	Hides the element when JavaScript is turned off, like a button that only works with its script.
+	*/
+	public func hiddenWithoutScripting() -> Self {
+		media(.scriptingDisabled) {
 			$0.hidden()
 		}
 	}
@@ -73,29 +82,15 @@ extension Style {
 	}
 
 	private func stack(direction: FlexDirection?, alignment: Alignment?, justification: Justification?, spacing: Length?, isInline: Bool) -> Self {
-		var style = display(isInline ? .inlineFlex : .flex)
-
-		if let direction {
-			style = style.flexDirection(direction)
-		}
-
-		if let alignment {
-			style = style.alignItems(alignment)
-		}
-
-		if let justification {
-			style = style.justifyContent(justification)
-		}
-
-		if let spacing {
-			style = style.gap(spacing)
-		}
-
-		return style
+		display(isInline ? .inlineFlex : .flex)
+			.declaration(.flexDirection, ifPresent: direction)
+			.declaration(.alignItems, ifPresent: alignment)
+			.declaration(.justifyContent, ifPresent: justification)
+			.declaration(.gap, ifPresent: spacing)
 	}
 
 	public func flexDirection(_ direction: FlexDirection) -> Self {
-		declaration(.flexDirection, CSSValue(direction.rawValue))
+		declaration(.flexDirection, direction)
 	}
 
 	/**
@@ -111,62 +106,53 @@ extension Style {
 	Where the lines of a wrapping flex container go, like at its start, when they do not fill it.
 	*/
 	public func alignContent(_ alignment: Alignment) -> Self {
-		declaration(.alignContent, CSSValue(alignment.rawValue))
+		declaration(.alignContent, alignment)
 	}
 
 	public func alignItems(_ alignment: Alignment) -> Self {
-		declaration(.alignItems, CSSValue(alignment.rawValue))
+		declaration(.alignItems, alignment)
 	}
 
 	public func alignSelf(_ alignment: Alignment) -> Self {
-		declaration(.alignSelf, CSSValue(alignment.rawValue))
+		declaration(.alignSelf, alignment)
 	}
 
 	/**
 	How the element lines up in the inline direction of its grid cell, like `.center` to center it horizontally.
 	*/
 	public func justifySelf(_ alignment: Alignment) -> Self {
-		declaration(.justifySelf, CSSValue(alignment.rawValue))
+		declaration(.justifySelf, alignment)
 	}
 
 	public func justifyContent(_ justification: Justification) -> Self {
-		declaration(.justifyContent, CSSValue(justification.rawValue))
+		declaration(.justifyContent, justification)
 	}
 
 	public func gap(_ length: Length) -> Self {
-		declaration(.gap, CSSValue(length))
+		declaration(.gap, length)
 	}
 
 	public func gap(row: Length? = nil, column: Length? = nil) -> Self {
-		var style = self
-
-		if let row {
-			style = style.declaration(.rowGap, CSSValue(row))
-		}
-
-		if let column {
-			style = style.declaration(.columnGap, CSSValue(column))
-		}
-
-		return style
+		declaration(.rowGap, ifPresent: row)
+			.declaration(.columnGap, ifPresent: column)
 	}
 
 	/**
 	How much the element grows to fill the free space of a stack, like `flex: 1`.
 	*/
 	public func flex(_ grow: Double) -> Self {
-		declaration(.flex, CSSValue(floatLiteral: grow))
+		declaration(.flex, CSSValue(grow))
 	}
 
 	public func flexShrink(_ value: Double) -> Self {
-		declaration(.flexShrink, CSSValue(floatLiteral: value))
+		declaration(.flexShrink, CSSValue(value))
 	}
 
 	/**
 	Where the element goes among the items of its stack or grid, like `order: 1` to show it after the items with the default order of `0`. It changes only where the item shows, not the order of the Tab key or of a screen reader.
 	*/
 	public func order(_ order: Int) -> Self {
-		declaration(.order, CSSValue(integerLiteral: order))
+		declaration(.order, CSSValue(order))
 	}
 
 	/**
@@ -212,6 +198,13 @@ extension Style {
 	}
 
 	/**
+	How many rows the element spans in a grid.
+	*/
+	public func gridRowSpan(_ count: Int) -> Self {
+		declaration(.gridRow, CSSValue("span \(count) / span \(count)"))
+	}
+
+	/**
 	Flows the content through columns, like a newspaper: as many columns as fit, each at least the minimum width, and at most the maximum count. Children of different heights fit together, like cards. Use ``keepsTogether()`` on the children, so each stays in one column, and ``gap(row:column:)`` for the space between the columns.
 	*/
 	public func columns(_ maximumCount: Int, minimumWidth: Length) -> Self {
@@ -254,6 +247,13 @@ extension Style {
 	}
 
 	/**
+	The size of each column, without making the element a grid, like `gridColumns(.auto, .fraction(1))` for a column as wide as its content and a column with the rest of the space.
+	*/
+	public func gridColumns(_ first: GridTrack, _ others: GridTrack...) -> Self {
+		gridColumns(CSSValue([first] + others, separator: " "))
+	}
+
+	/**
 	The number of rows, each with the size, like `gridRows(7, size: .auto)` for rows as tall as their content.
 	*/
 	public func gridRows(_ count: Int, size: GridTrack) -> Self {
@@ -264,14 +264,14 @@ extension Style {
 	The direction in which the items without a cell fill the grid, like `.column` to fill each column from the top before the next column.
 	*/
 	public func gridAutoFlow(_ flow: GridAutoFlow) -> Self {
-		declaration(.gridAutoFlow, CSSValue(flow.rawValue))
+		declaration(.gridAutoFlow, flow)
 	}
 
 	/**
 	The width of the columns that the grid adds for items outside its columns, like the columns of a grid that fills columns with ``gridAutoFlow(_:)``.
 	*/
 	public func gridAutoColumns(_ size: GridTrack) -> Self {
-		declaration(.gridAutoColumns, CSSValue(size.description))
+		declaration(.gridAutoColumns, size)
 	}
 }
 
@@ -279,47 +279,51 @@ extension Style {
 
 extension Style {
 	/**
+	The same width and height, like for a square icon or a circle.
+	*/
+	public func frame(size: Length) -> Self {
+		frame(width: size, height: size)
+	}
+
+	/**
 	The size constraints, like SwiftUI's `frame` modifier.
 	*/
 	public func frame(width: Length? = nil, height: Length? = nil, minWidth: Length? = nil, maxWidth: Length? = nil, minHeight: Length? = nil, maxHeight: Length? = nil) -> Self {
-		var style = self
-
-		for (property, length) in [(Property.width, width), (.height, height), (.minWidth, minWidth), (.maxWidth, maxWidth), (.minHeight, minHeight), (.maxHeight, maxHeight)] {
-			if let length {
-				style = style.declaration(property, CSSValue(length))
-			}
-		}
-
-		return style
+		declaration(.width, ifPresent: width)
+			.declaration(.height, ifPresent: height)
+			.declaration(.minWidth, ifPresent: minWidth)
+			.declaration(.maxWidth, ifPresent: maxWidth)
+			.declaration(.minHeight, ifPresent: minHeight)
+			.declaration(.maxHeight, ifPresent: maxHeight)
 	}
 
 	/**
 	The ratio of width to height, like `16 / 9`.
 	*/
 	public func aspectRatio(_ ratio: Double) -> Self {
-		declaration(.aspectRatio, CSSValue(floatLiteral: ratio))
+		declaration(.aspectRatio, CSSValue(ratio))
 	}
 
 	/**
 	How an image or a video fills its frame, like `.contain` to fit it without cropping, or `.cover` to fill it, like `scaledToFit()` and `scaledToFill()` in SwiftUI.
 	*/
 	public func objectFit(_ fit: ObjectFit) -> Self {
-		declaration(.objectFit, CSSValue(fit.rawValue))
+		declaration(.objectFit, fit)
 	}
 
 	/**
 	Makes the element a container, so the container units of its descendants, like ``Length/containerInlineSize(_:)``, are percentages of its content box.
 	*/
 	public func containerType(_ type: ContainerType) -> Self {
-		declaration(.containerType, CSSValue(type.rawValue))
+		declaration(.containerType, type)
 	}
 
 	public func padding(_ length: Length) -> Self {
-		declaration(.padding, CSSValue(length))
+		declaration(.padding, length)
 	}
 
 	public func padding(_ edges: Edge.Set, _ length: Length) -> Self {
-		declaration(.padding, CSSValue(length), edges: edges)
+		declaration(.padding, length, edges: edges)
 	}
 
 	public func padding(vertical: Length, horizontal: Length) -> Self {
@@ -334,11 +338,11 @@ extension Style {
 	}
 
 	public func margin(_ length: Length) -> Self {
-		declaration(.margin, CSSValue(length))
+		declaration(.margin, length)
 	}
 
 	public func margin(_ edges: Edge.Set, _ length: Length) -> Self {
-		declaration(.margin, CSSValue(length), edges: edges)
+		declaration(.margin, length, edges: edges)
 	}
 
 	public func margin(vertical: Length, horizontal: Length) -> Self {
@@ -368,7 +372,7 @@ extension Style {
 
 		for (edges, length) in [(Edge.Set.top, top), (.horizontal, horizontal), (.bottom, bottom)] {
 			if let length {
-				style = style.declaration(property, CSSValue(length), edges: edges)
+				style = style.declaration(property, length, edges: edges)
 			}
 		}
 
@@ -376,33 +380,33 @@ extension Style {
 	}
 
 	public func position(_ position: Position) -> Self {
-		declaration(.position, CSSValue(position.rawValue))
+		declaration(.position, position)
 	}
 
 	public func inset(_ length: Length) -> Self {
-		declaration(.inset, CSSValue(length))
+		declaration(.inset, length)
 	}
 
 	public func top(_ length: Length) -> Self {
-		declaration(.top, CSSValue(length))
+		declaration(.top, length)
 	}
 
 	public func bottom(_ length: Length) -> Self {
-		declaration(.bottom, CSSValue(length))
+		declaration(.bottom, length)
 	}
 
 	/**
 	The distance from the leading edge, like `inset-inline-start`.
 	*/
 	public func leading(_ length: Length) -> Self {
-		declaration(.insetInlineStart, CSSValue(length))
+		declaration(.insetInlineStart, length)
 	}
 
 	/**
 	The distance from the trailing edge, like `inset-inline-end`.
 	*/
 	public func trailing(_ length: Length) -> Self {
-		declaration(.insetInlineEnd, CSSValue(length))
+		declaration(.insetInlineEnd, length)
 	}
 
 	/**
@@ -423,84 +427,66 @@ extension Style {
 	Where the positioned element goes around its anchor, like `.top` for a tooltip above its button. A popover also needs `inset(.auto)`, as its default insets of `0` and auto margins center it in the area instead of next to the anchor.
 	*/
 	public func positionArea(_ area: PositionArea) -> Self {
-		declaration(.positionArea, CSSValue(area.rawValue))
+		declaration(.positionArea, area)
 	}
 
 	/**
 	The other positions that the browser tries, in order, when the positioned element does not fit, like `.flipBlock` for below the anchor when there is no space above it.
 	*/
 	public func positionTryFallbacks(_ fallback: PositionTryFallback, _ moreFallbacks: PositionTryFallback...) -> Self {
-		declaration(.positionTryFallbacks, CSSValue(([fallback] + moreFallbacks).map(\.rawValue).joined(separator: ", ")))
+		declaration(.positionTryFallbacks, CSSValue(([fallback] + moreFallbacks).map(\.rawValue), separator: ", "))
 	}
 
 	public func zIndex(_ index: Int) -> Self {
-		declaration(.zIndex, CSSValue(integerLiteral: index))
+		declaration(.zIndex, CSSValue(index))
 	}
 
 	public func overflow(_ overflow: Overflow) -> Self {
-		declaration(.overflow, CSSValue(overflow.rawValue))
+		declaration(.overflow, overflow)
 	}
 
 	/**
 	The overflow in the horizontal direction, like for a horizontally scrolling row.
 	*/
 	public func overflow(horizontal overflow: Overflow) -> Self {
-		declaration(.overflowX, CSSValue(overflow.rawValue))
+		declaration(.overflowX, overflow)
 	}
 
 	/**
 	Moves the element to the edge, with the text that follows flowing around it, like a photo at the trailing edge of a paragraph. The edges follow the writing direction.
 	*/
 	public func float(_ edge: HorizontalEdge) -> Self {
-		declaration(.float, CSSValue(edge.rawValue))
+		declaration(.float, edge)
 	}
 
 	/**
 	The areas at the top and the bottom of a scrolling element, like the page, that sticky bars cover, so links and focused controls scroll into view between the bars.
 	*/
 	public func scrollPadding(top: Length? = nil, bottom: Length? = nil) -> Self {
-		var style = self
-
-		if let top {
-			style = style.declaration(.scrollPaddingTop, CSSValue(top))
-		}
-
-		if let bottom {
-			style = style.declaration(.scrollPaddingBottom, CSSValue(bottom))
-		}
-
-		return style
+		declaration(.scrollPaddingTop, ifPresent: top)
+			.declaration(.scrollPaddingBottom, ifPresent: bottom)
 	}
 
 	/**
 	The space above and below an element that the browser keeps free when it scrolls the element into view, like for a focused control under a sticky bar that only covers part of a page.
 	*/
 	public func scrollMargin(top: Length? = nil, bottom: Length? = nil) -> Self {
-		var style = self
-
-		if let top {
-			style = style.declaration(.scrollMarginTop, CSSValue(top))
-		}
-
-		if let bottom {
-			style = style.declaration(.scrollMarginBottom, CSSValue(bottom))
-		}
-
-		return style
+		declaration(.scrollMarginTop, ifPresent: top)
+			.declaration(.scrollMarginBottom, ifPresent: bottom)
 	}
 
 	/**
 	Whether a scrolling element shows its scroll bars, like `.scrollIndicators(.hidden)` for a row that scrolls sideways with a swipe, like SwiftUI's `scrollIndicators(_:)`.
 	*/
 	public func scrollIndicators(_ visibility: ScrollIndicatorVisibility) -> Self {
-		declaration(.scrollbarWidth, CSSValue(visibility.rawValue))
+		declaration(.scrollbarWidth, visibility)
 	}
 
 	/**
 	What a horizontal scroll does at the end of the element, like `.contain` for a row that scrolls sideways, so a swipe on a trackpad at its end does not go back in the history.
 	*/
 	public func overscrollBehavior(horizontal behavior: Overscroll) -> Self {
-		declaration(.overscrollBehaviorX, CSSValue(behavior.rawValue))
+		declaration(.overscrollBehaviorX, behavior)
 	}
 
 	/**
@@ -516,21 +502,28 @@ extension Style {
 	Where the element stops in a scrolling element with ``scrollSnapType(_:isMandatory:)``, like `.center` for the item of a carousel.
 	*/
 	public func scrollSnapAlign(_ alignment: ScrollSnapAlignment) -> Self {
-		declaration(.scrollSnapAlign, CSSValue(alignment.rawValue))
+		declaration(.scrollSnapAlign, alignment)
 	}
 
 	/**
 	Whether the element keeps the space of a classic scroll bar when it does not scroll, like `.stable` on the page, so the layout does not move between pages that scroll and pages that do not.
 	*/
 	public func scrollbarGutter(_ gutter: ScrollbarGutter) -> Self {
-		declaration(.scrollbarGutter, CSSValue(gutter.rawValue))
+		declaration(.scrollbarGutter, gutter)
 	}
 
 	/**
 	How the element scrolls to a link or a script position, like `.smooth` for an animated scroll. Use it only when the visitor allows motion.
 	*/
 	public func scrollBehavior(_ behavior: ScrollBehavior) -> Self {
-		declaration(.scrollBehavior, CSSValue(behavior.rawValue))
+		declaration(.scrollBehavior, behavior)
+	}
+
+	/**
+	Sets a typed box value for the selected edges.
+	*/
+	func declaration(_ property: Property, _ value: some StyleValue, edges: Edge.Set) -> Self {
+		declaration(property, CSSValue(value), edges: edges)
 	}
 
 	/**
@@ -571,5 +564,28 @@ extension Edge.Set {
 		}
 
 		return declarations
+	}
+}
+
+extension Style {
+	/**
+	The direction of text and inline layout.
+	*/
+	public func direction(_ value: TextDirection) -> Self {
+		declaration(.direction, value)
+	}
+
+	/**
+	Whether a declared size includes padding and borders.
+	*/
+	public func boxSizing(_ value: BoxSizing) -> Self {
+		declaration(.boxSizing, value)
+	}
+
+	/**
+	Whether the borders of adjacent table cells merge.
+	*/
+	public func borderCollapse(_ value: BorderCollapse) -> Self {
+		declaration(.borderCollapse, value)
 	}
 }

@@ -1,7 +1,8 @@
 // The Hampster Band of the Music Room on the 1999 page plays a loop of four bars in G, a slow country song at 33 RPM. Like a record, a faster speed makes it both faster and higher, so at 78 RPM it becomes the Hampster Dance. It plays through the sound card of the Music Room, `geocities-sound-card.js`.
-import {context, connectVolume, startAudio, midiFrequency, tone, pluck, voice, drums, chords, startPlaying, stopPlaying, makeBus, fadeOut, Clock} from '/scripts/geocities-sound-card.js';
+import GeoCitiesElement, {midiFrequency} from '/scripts/geocities-element.js';
+import {context, connectVolume, startAudio, tone, pluck, voice, drums, chords, startPlaying, stopPlaying, makeBus, fadeOut, Clock} from '/scripts/geocities-sound-card.js';
 
-export default class extends GeoCitiesElement {
+class GeoCitiesHamsterBand extends GeoCitiesElement {
 	connected() {
 		const {everybody: everybodyButton, stop} = this.parts;
 		connectVolume(this.querySelectorAll('[data-music-volume]'), this.signal);
@@ -90,23 +91,11 @@ export default class extends GeoCitiesElement {
 				const isOn = parts.has(member.dataset.hamsterMember);
 				const image = member.querySelector('img');
 				image.src = isOn ? image.dataset.animated : image.dataset.still;
-
-				if (isOn) {
-					member.dataset.state = 'on';
-				} else {
-					delete member.dataset.state;
-				}
 			}
 
 			for (const button of partButtons) {
 				const isOn = parts.has(button.dataset.hamsterPart);
 				button.setAttribute('aria-pressed', String(isOn));
-
-				if (isOn) {
-					button.dataset.state = 'on';
-				} else {
-					delete button.dataset.state;
-				}
 			}
 		};
 
@@ -204,3 +193,5 @@ export default class extends GeoCitiesElement {
 		showMembers();
 	}
 }
+
+customElements.define('geo-cities-hamster-band', GeoCitiesHamsterBand);

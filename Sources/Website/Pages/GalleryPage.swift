@@ -161,6 +161,16 @@ struct GalleryPage: Page {
 				AppReviews(reviews: [], rating: AppStoreInfo.Rating(average: 4.6, count: 1234))
 			}
 
+			// With sample data, as the pages only show these with the data of npm and GitHub.
+			Section("Stats and Projects", id: "stats") {
+				StatCard(stats: [
+					Stat(count: 1234, noun: "package"),
+					Stat(perSecond: 30_000, label: "downloads of my packages while you have been here"),
+				])
+
+				ProjectOfTheDay(title: "Package of the Day", randomTitle: "Random Package", listPath: .npmPackages, projects: [ProjectOfTheDay.Project(name: "ky", description: "Tiny and elegant HTTP client based on the Fetch API", detail: "4.2M+ downloads a week", url: #URL("https://www.npmjs.com/package/ky"))], date: content.buildDate)
+			}
+
 			Section("Prose", id: "prose") {
 				Prose(markdown: MarkdownDocument(parsing: Self.markdownSample, options: .gallery).content)
 			}
@@ -174,7 +184,9 @@ struct GalleryPage: Page {
 	private static let longWord = "Supercalifragilisticexpialidociouslyunbreakablewordwithoutanyhyphens"
 
 	private static let markdownSample = """
-	Text with **bold**, *italic*, `code`, a [link](#prose), a footnote[^note], the shortcut ++Command+Shift+K++, a ^[platform badge](platform: "macOS"), and a long word: \(longWord).
+	Text with **bold**, *italic*, `code`, a [link](#prose), a footnote[^note], an ^[inline note that wraps like the text around it](note: "A note with *Markdown* and a [link](#prose), in a popover.\\n\\nA second paragraph."), the shortcut ++Command+Shift+K++, a ^[platform badge](platform: "macOS"), and a long word: \(longWord).
+
+	[^note]: The footnote, in a popover. Its definition is before the first block directive, as the parser reads the text between block directives on its own.
 
 	> A quote, with “quotes” around it.
 
@@ -214,6 +226,15 @@ struct GalleryPage: Page {
 	}
 	```
 
+	```soml
+	# Every kind of highlighted token.
+	name: "Hello\\tWorld"
+	"is enabled": true
+	count: 1
+	timeout: 1h30m
+	updated: 2026-09-19T14:00:00Z
+	```
+
 	@Details(summary: "A collapsible section") {
 		The content of the section.
 	}
@@ -235,6 +256,10 @@ struct GalleryPage: Page {
 		The second main feature.
 	}
 
+	@TinyApp(title: "A tiny app", download: "https://example.com/Tiny-App.zip", source: "https://github.com/sindresorhus", requirement: "Requires macOS 26 or later") {
+		A small app without a page of its own, with the placeholder icon.
+	}
+
 	@Cards {
 	- A card
 		- A point below its title.
@@ -247,6 +272,16 @@ struct GalleryPage: Page {
 		- A note below it.
 	}
 
+	@Changelog {
+	- 2026
+		- Added: Something new
+		- Changed: Something that is different now
+	- 2025
+		- Fixed: Something that was broken
+		- Removed: Something old
+		- Deprecated: Something on its way out
+	}
+
 	@SocialLinks
 
 	### A collapsible question
@@ -256,8 +291,6 @@ struct GalleryPage: Page {
 	### Another question
 
 	Another answer.
-
-	[^note]: The footnote, in a popover.
 	"""
 }
 
@@ -289,9 +322,7 @@ extension GalleryPage {
 					.color(.bodyText)
 			case .labelLink:
 				Style()
-					.display(.inlineFlex)
-					.alignItems(.center)
-					.gap(.rootEm(0.5))
+					.hstack(alignment: .center, spacing: .rootEm(0.5), isInline: true)
 					.color(.link)
 			}
 		}

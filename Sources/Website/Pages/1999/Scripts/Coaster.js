@@ -1,22 +1,6 @@
 // Sindre’s RollerCoaster Tycoon: Fløyen Park, a game like RollerCoaster Tycoon (Chris Sawyer, 1999) on the 1999 page: the visitor builds a steel roller coaster piece by piece in a side view, tests it with real physics, gets the Excitement, Intensity, and Nausea ratings of the ride, and opens it to little pixel guests, who queue, pay, ride, scream, think, and sometimes throw up. The park is kept in the browser. The canvas runs only while it is on screen and the tab is visible. Nothing makes a sound until the visitor turns on the sound. For visitors who prefer reduced motion, the park moves one second for each press of the Step button.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
+import GeoCitiesElement, {randomItem, randomBetween, clamp} from '/scripts/geocities-element.js';
+import {canvasPoint} from '/scripts/geocities-canvas.js';
 
 // The track: a list of samples a quarter of a meter apart, made by a turtle that walks along the pieces and turns its pitch, heading, and roll. The world is in meters, with x to the right, y up, and z toward the visitor.
 const sampleSpacing = 0.25;
@@ -808,7 +792,7 @@ const pappaSays = [
 	'Pappa says: “This is the last time. Next time, ask Mormor.”',
 ];
 
-export default class extends GeoCitiesElement {
+class GeoCitiesCoaster extends GeoCitiesElement {
 	#park;
 	#track;
 	#trainTrack;
@@ -1112,14 +1096,14 @@ export default class extends GeoCitiesElement {
 
 		this.on(this.parts.camera, 'click', () => {
 			this.#isCamera = !this.#isCamera;
-			setPressed(this.parts.camera, this.#isCamera);
+			this.parts.camera.setAttribute('aria-pressed', String(this.#isCamera));
 			this.say(this.#isCamera ? 'The ride camera is on. It sits in the front car.' : 'The ride camera is off.');
 			this.#refresh();
 		});
 
 		this.on(this.parts.speeds, 'click', () => {
 			this.#isShowingSpeeds = !this.#isShowingSpeeds;
-			setPressed(this.parts.speeds, this.#isShowingSpeeds);
+			this.parts.speeds.setAttribute('aria-pressed', String(this.#isShowingSpeeds));
 			if (this.#isShowingSpeeds && !this.#lastRun) {
 				this.say('Test the ride first, to know its speeds.');
 			}
@@ -1129,7 +1113,7 @@ export default class extends GeoCitiesElement {
 
 		this.on(this.parts.pause, 'click', () => {
 			this.#isPaused = !this.#isPaused;
-			setPressed(this.parts.pause, this.#isPaused);
+			this.parts.pause.setAttribute('aria-pressed', String(this.#isPaused));
 			if (this.#isPaused) {
 				this.#audio.setRumble(0);
 			}
@@ -1148,7 +1132,7 @@ export default class extends GeoCitiesElement {
 				this.#audio.setRumble(0);
 			}
 
-			setPressed(this.parts.sound, this.#audio.isOn);
+			this.parts.sound.setAttribute('aria-pressed', String(this.#audio.isOn));
 			this.parts.sound.textContent = this.#audio.isOn ? '🔊 Sound' : '🔈 Sound';
 			this.#audio.whistle();
 		});
@@ -1351,7 +1335,7 @@ export default class extends GeoCitiesElement {
 		const number = this.#nextGuestNumber++;
 		const special = number % 9 === 4 ? specialGuests.find(guest => !this.#guests.some(other => other.name === guest.name)) : undefined;
 		return {
-			name: `${randomItem(guestNames)} ${surnameLetters[Math.floor(Math.random() * surnameLetters.length)]}.`,
+			name: `${randomItem(guestNames)} ${randomItem(surnameLetters)}.`,
 			shirt: randomItem(shirts),
 			minimumIntensity: randomBetween(0, 4.5),
 			maximumIntensity: randomBetween(5, 11),
@@ -1680,7 +1664,6 @@ export default class extends GeoCitiesElement {
 		for (const [id, button] of this.#statusButtons) {
 			const isOn = id === this.#rideStatus;
 			button.setAttribute('aria-pressed', String(isOn));
-			button.querySelector('span').dataset.state = isOn ? 'on' : '';
 		}
 	}
 
@@ -2868,13 +2851,13 @@ export default class extends GeoCitiesElement {
 
 		for (const [id, button] of this.#pieceButtons) {
 			button.disabled = !allowed[id];
-			setPressed(button, id === this.#selectedPiece);
+			button.setAttribute('aria-pressed', String(id === this.#selectedPiece));
 		}
 
 		this.parts.chain.disabled = !takesChain(this.#selectedPiece);
-		setPressed(this.parts.chain, this.#isChain && takesChain(this.#selectedPiece));
+		this.parts.chain.setAttribute('aria-pressed', String(this.#isChain && takesChain(this.#selectedPiece)));
 		this.parts.banked.disabled = this.#selectedPiece !== 'helix';
-		setPressed(this.parts.banked, this.#isBanked);
+		this.parts.banked.setAttribute('aria-pressed', String(this.#isBanked));
 		this.#makeGhost();
 		this.parts.build.textContent = `Build this (${kroner(this.#ghost.cost)})`;
 		const name = `${pieceTypes[this.#selectedPiece].name}${this.#ghost.piece.chain ? ' with chain lift' : ''}${this.#selectedPiece === 'helix' ? (this.#isBanked ? ', banked' : ', not banked') : ''}`;
@@ -3090,13 +3073,15 @@ export default class extends GeoCitiesElement {
 		this.parts.pause.disabled = this.reducedMotion;
 		if (this.reducedMotion) {
 			this.#isShowingSpeeds = true;
-			setPressed(this.parts.speeds, true);
-			setPressed(this.parts.pause, true);
+			this.parts.speeds.setAttribute('aria-pressed', 'true');
+			this.parts.pause.setAttribute('aria-pressed', 'true');
 			this.parts.pause.textContent = 'Paused (less motion)';
 			this.#draw();
 		} else {
-			setPressed(this.parts.pause, this.#isPaused);
+			this.parts.pause.setAttribute('aria-pressed', String(this.#isPaused));
 			this.parts.pause.textContent = 'Pause';
 		}
 	}
 }
+
+customElements.define('geo-cities-coaster', GeoCitiesCoaster);

@@ -5,8 +5,8 @@ The properties without a typed modifier are static members, so they autocomplete
 
 ```swift
 Style()
-	.declaration(.hyphens, "auto")
-	.declaration(.webkitTextStroke, "1px")
+	.declaration(.tableLayout, "fixed")
+	.declaration(.transformOrigin, "top left")
 ```
 */
 public struct Property: Hashable, Sendable, CustomStringConvertible {
@@ -81,6 +81,7 @@ extension Property {
 	public static let gridAutoColumns = Self("grid-auto-columns")
 	public static let gridAutoFlow = Self("grid-auto-flow")
 	public static let gridColumn = Self("grid-column")
+	public static let gridRow = Self("grid-row")
 	public static let gridTemplateColumns = Self("grid-template-columns")
 	public static let gridTemplateRows = Self("grid-template-rows")
 	public static let hangingPunctuation = Self("hanging-punctuation")
@@ -146,6 +147,7 @@ extension Property {
 	public static let textBox = Self("text-box")
 	public static let textDecoration = Self("text-decoration")
 	public static let textDecorationColor = Self("text-decoration-color")
+	public static let textDecorationStyle = Self("text-decoration-style")
 	public static let textDecorationThickness = Self("text-decoration-thickness")
 	public static let textOverflow = Self("text-overflow")
 	public static let textRendering = Self("text-rendering")
@@ -172,6 +174,7 @@ extension Property {
 	public static let webkitTapHighlightColor = Self("-webkit-tap-highlight-color")
 	public static let webkitTextSizeAdjust = Self("-webkit-text-size-adjust")
 	public static let webkitTextStroke = Self("-webkit-text-stroke")
+	public static let webkitUserSelect = Self("-webkit-user-select")
 	public static let whiteSpace = Self("white-space")
 	public static let width = Self("width")
 	public static let willChange = Self("will-change")

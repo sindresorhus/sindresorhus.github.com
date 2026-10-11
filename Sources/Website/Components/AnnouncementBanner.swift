@@ -58,7 +58,7 @@ struct AnnouncementBanner: HTML {
 					.vstack(alignment: .center, spacing: .rootEm(1))
 					.padding(vertical: .rootEm(1), horizontal: .rootEm(1.25))
 					.border(.lightDark(.primary(200).opacity(0.4), .primary(700).opacity(0.3)))
-					.cornerRadius(.rootEm(1))
+					.cornerRadius(.boxRadius)
 					.backgroundImage(.linearGradient("to bottom right", .lightDark(.primary(100).opacity(0.5), .primary(900).opacity(0.25)), .lightDark(.secondary(50).opacity(0.4), .secondary(900).opacity(0.2)), .lightDark(.primary(50).opacity(0.5), .primary(950).opacity(0.25))))
 					.shadow(.small)
 					.textAlign(.center)
@@ -69,19 +69,17 @@ struct AnnouncementBanner: HTML {
 					}
 			case .icon:
 				Style()
-					.display(.flex)
-					.alignItems(.center)
-					.justifyContent(.center)
+					.hstack(alignment: .center, justification: .center)
 					.flexShrink(0)
-					.frame(width: .rootEm(2), height: .rootEm(2))
+					.frame(size: .rootEm(2))
 					.cornerRadius(.capsule)
 					.color(.white)
-					.backgroundImage(.linearGradient("to bottom right", .primary(500), .secondary(500), in: "oklch"))
+					.backgroundImage(.brandGradient)
 					.shadow(.small)
 					.hidden(below: .smallTablet)
 			case .text:
 				Style()
-					.font(size: .pixels(15))
+					.font(size: .rootEm(0.9375))
 					.fontWeight(.medium)
 					.color(.bodyText)
 					.from(.smallTablet) {

@@ -4,6 +4,14 @@ import SiteKit
 Collapsible sections, like the FAQ questions, and the links to sections on the FAQ page. The Markdown renderer creates the markup.
 */
 extension ProseStyles {
+	/**
+	The states that `site.js` sets on the link to a section: copied after a click, and hidden until the pointer leaves the section.
+	*/
+	enum States: String, ElementStateSet {
+		case copied
+		case hidden
+	}
+
 	static let collapsibleSectionsStyle = Style()
 		.vstack(spacing: .rootEm(0.625))
 		.widerThanProse()
@@ -29,7 +37,7 @@ extension ProseStyles {
 						.overflow(.hidden)
 						.frame(height: 0)
 						// The discrete transition of `content-visibility` keeps the content shown while it closes.
-						.transition(.height, .contentVisibility, animation: .default(duration: .milliseconds(250)))
+						.transition(.height, .contentVisibility, animation: .disclosure)
 				}
 				.open {
 					$0.detailsContent {
@@ -67,7 +75,7 @@ extension ProseStyles {
 		.cursor(.pointer)
 		.textSelection(.disabled)
 		.transition(.backgroundColor, animation: .stateChange)
-		.hover {
+		.hoverOrFocusVisible {
 			$0.background(.cardHover)
 		}
 		.nested("a") {
@@ -82,24 +90,24 @@ extension ProseStyles {
 		.frame(minWidth: 0)
 		.margin(0)
 		.inheritsFont()
-		.declaration(.letterSpacing, .inherit)
+		.letterSpacing(.inherit)
 		.color(.inherit)
-		.declaration(.textWrap, .inherit)
+		// Like a paragraph, so a question that wraps does not end with one word on its last line.
+		.textWrap(.pretty)
 		// The font has more space above the capitals than below the baseline, so the text looks a little low next to the chevron.
 		.offset(y: .pixels(-1))
 
 	static let collapsibleChevronStyle = Style()
-		.display(.inlineFlex)
-		.alignItems(.center)
+		.hstack(alignment: .center, isInline: true)
 		.flexShrink(0)
 		.margin(.leading, .rootEm(0.5))
 		.after {
 			$0
 				.content("")
-				.frame(width: .rootEm(0.5), height: .rootEm(0.5))
-				.border([.trailing, .bottom], .lightDark(.gray(400), .gray(500)), width: .pixels(2))
+				.frame(size: .rootEm(0.5))
+				.border([.trailing, .bottom], .secondaryText, width: .pixels(2))
 				.rotationEffect(.degrees(-45))
-				.transition(.rotationEffect, animation: .default(duration: .milliseconds(200)))
+				.transition(.rotationEffect, animation: .disclosure)
 		}
 		.nested("details:open > * > &::after") {
 			$0.rotationEffect(.degrees(45))
@@ -115,7 +123,7 @@ extension ProseStyles {
 	static let collapsibleMoreLinkStyle = collapsibleRow
 		.hstack(alignment: .center, justification: .spaceBetween)
 		.margin(.top, .rootEm(0.625))
-		.shadow(Shadow(y: 0, spread: .pixels(1), color: .separator, isInset: true))
+		.shadow(.edge(.separator))
 		.fontWeight(.medium)
 		.color(.secondaryText)
 		.underline(false)
@@ -123,7 +131,7 @@ extension ProseStyles {
 		.after {
 			$0.content("→")
 		}
-		.hover {
+		.hoverOrFocusVisible {
 			$0
 				.background(.card)
 				.color(.primaryText)
@@ -165,7 +173,7 @@ extension ProseStyles {
 			$0.leading(.pixels(-24))
 		}
 		.opacity(0)
-		.color(.gray(400))
+		.color(.secondaryText)
 		.allowsHitTesting(false)
 		.transition(.opacity, .color, animation: .stateChange)
 		.before {
@@ -188,19 +196,19 @@ extension ProseStyles {
 		.hover {
 			$0
 				.opacity(1)
-				.color(.primary(500))
+				.color(.accentMark)
 		}
 		// Keyboard users see the link they move to.
 		.focusVisible {
 			$0
 				.opacity(1)
 				.allowsHitTesting(true)
-				.color(.primary(500))
+				.color(.accentMark)
 		}
-		.when(.state, is: "copied") {
+		.when(States.copied) {
 			$0
 				.opacity(1)
-				.color(.primary(500))
+				.color(.accentMark)
 				.allowsHitTesting(false)
 				.nested(ProseStyles.headingAnchorLinkIcon.selector) {
 					$0.hidden()
@@ -209,7 +217,7 @@ extension ProseStyles {
 					$0.display(.block)
 				}
 		}
-		.when(.state, is: "hidden") {
+		.when(States.hidden) {
 			$0
 				.opacity(0)
 				.allowsHitTesting(false)
@@ -232,9 +240,9 @@ enum ProseAnimations: KeyframeSet {
 
 extension Style {
 	/**
-	Briefly highlights the background, like on the section or heading that a link points to.
+	Briefly highlights the background, like on the section or heading that a link points to. It also runs with reduced motion, as it only fades a color, and it shows the visitor where the link went.
 	*/
 	func targetHighlight() -> Self {
-		animation(ProseAnimations.targetHighlight, .easeOut(duration: .seconds(2)))
+		animation(ProseAnimations.targetHighlight, .easeOut(duration: .seconds(2)), isEssential: true)
 	}
 }

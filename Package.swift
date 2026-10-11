@@ -24,8 +24,7 @@ let package = Package(
 		.package(url: "https://github.com/elementary-swift/elementary.git", exact: "0.8.2"),
 		// A fork with footnotes, cmark extensions like autolinks, and GitHub alerts, which upstream does not have yet.
 		.package(url: "https://github.com/sindresorhus/swift-markdown.git", branch: "sindre-improvements"),
-		// Not tagged yet, so it is pinned to a commit.
-		.package(url: "https://github.com/soml-lang/SOMLSwift.git", revision: "23fe09312afc845b8a369c46bf9beaf5b46908f2"),
+		.package(url: "https://github.com/soml-lang/SOMLSwift.git", exact: "0.0.1"),
 		.package(url: "https://github.com/apple/swift-argument-parser.git", exact: "1.8.2"),
 		.package(url: "https://github.com/swiftlang/swift-syntax.git", "600.0.0"..<"605.0.0"),
 	],

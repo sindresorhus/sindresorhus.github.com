@@ -1,7 +1,6 @@
 // 3D Movie Maker on the desktop of the 1999 page, like the movie studio of Microsoft Kids (1995): a set in fake 3D, with a floor in perspective and actors that get smaller further back, three or four camera angles for each set, and a clock that runs while the visitor drags an actor, which records its path frame by frame. A movie is a list of scenes, and a scene has a set, a camera, actors with their paths and actions, and events at frames: speech balloons, sound effects, titles, and camera cuts. McZee, the guide of the studio, and his talking hand speak in the status balloon. Nothing makes a sound until the visitor presses the Sound button.
+import GeoCitiesElement, {cloneTemplate, randomItem, clamp} from '/scripts/geocities-element.js';
 
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
 const pad = number => String(number).padStart(3, '0');
 
 // A number from 0 to 1 that is always the same for the same seed, for the stones, the stars, and the rain, so they do not jump around between frames.
@@ -1290,7 +1289,7 @@ const drawFrame = (context, scene, frame, time, {isEditing = false, isRecording 
 			context.font = `bold ${14 * scale}px "Comic Sans MS", cursive`;
 			context.textAlign = 'center';
 			context.fillStyle = 'rgba(0, 0, 0, 0.6)';
-			const hintWidth = Math.min(Math.max(stageWidth - 140, context.measureText(hint).width + 20), stageWidth - 8);
+			const hintWidth = clamp(stageWidth - 140, context.measureText(hint).width + 20, stageWidth - 8);
 			context.fillRect((stageWidth - hintWidth) / 2, stageHeight - 18 - (26 * scale), hintWidth, 26 * scale);
 			context.fillStyle = '#ffff99';
 			context.fillText(hint, stageWidth / 2, stageHeight - 18 - (20 * scale));
@@ -1612,23 +1611,13 @@ const waffleHeist = {
 	],
 };
 
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-
-	if (isPressed) {
-		button.dataset.state = 'on';
-	} else {
-		delete button.dataset.state;
-	}
-};
-
 const setPathPoint = (actor, frame, spot) => {
 	actor.path = actor.path.filter(point => point[0] !== frame);
 	actor.path.push([frame, spot.x, spot.z]);
 	sortByFrame(actor.path);
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesWindowsMovieMaker extends GeoCitiesElement {
 	#context;
 	#guideContext;
 	#cameraButtons;
@@ -1774,7 +1763,7 @@ export default class extends GeoCitiesElement {
 		for (const button of toolButtons) {
 			this.on(button, 'click', () => {
 				for (const other of toolButtons) {
-					setPressed(other, other === button);
+					other.setAttribute('aria-pressed', String(other === button));
 				}
 
 				for (const panel of panels) {
@@ -2389,11 +2378,11 @@ export default class extends GeoCitiesElement {
 		const {scenes, sceneTemplate} = this.parts;
 
 		const buttons = this.#movie.scenes.map((scene, index) => {
-			const button = sceneTemplate.content.firstElementChild.cloneNode(true);
+			const button = cloneTemplate(sceneTemplate);
 			const set = sets[scene.set];
 			button.textContent = `${index + 1} ${set.emoji}`;
 			button.setAttribute('aria-label', `Scene ${index + 1}: ${set.name}`);
-			setPressed(button, index === this.#sceneIndex);
+			button.setAttribute('aria-pressed', String(index === this.#sceneIndex));
 			return button;
 		});
 
@@ -2411,7 +2400,7 @@ export default class extends GeoCitiesElement {
 		for (const [index, button] of this.#cameraButtons.entries()) {
 			button.hidden = index >= set.cameras.length;
 			button.title = set.cameras[index]?.name ?? '';
-			setPressed(button, index === camera);
+			button.setAttribute('aria-pressed', String(index === camera));
 		}
 
 		if (actor) {
@@ -2699,3 +2688,5 @@ export default class extends GeoCitiesElement {
 		}
 	}
 }
+
+customElements.define('geo-cities-windows-movie-maker', GeoCitiesWindowsMovieMaker);

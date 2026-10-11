@@ -12,8 +12,10 @@ struct AppsPage: Page {
 		.apps
 	}
 
+	private static let description = "Quality crafted apps by Sindre Sorhus"
+
 	var metadata: PageMetadata {
-		PageMetadata(title: "Apps", description: "Quality crafted apps by Sindre Sorhus")
+		PageMetadata(title: "Apps", description: Self.description)
 	}
 
 	var headerBackground: SiteHeader.Background {
@@ -27,8 +29,8 @@ struct AppsPage: Page {
 				header {
 					// `apps-glass.js` draws liquid glass on it in the colors of the featured apps. Without WebGL, and until it draws, the colors are a still gradient.
 					canvas(.id(Hooks.glass)) {}
-						// The colors are data of the build, like the accent of an app card, so they are custom properties in the `style` attribute.
-						.attributes(.style(glassColorDeclarations))
+						// The colors are data of the build, like the accent of an app card, so they are custom properties in a style of the element.
+						.style(settingGlassColors(on:))
 						.accessibilityHidden()
 						.style(Styles.glass)
 
@@ -49,7 +51,11 @@ struct AppsPage: Page {
 					}
 					.style(Styles.title)
 
+					// The stats are on the glass, so they are stronger than secondary text, with a contrast of at least 5:1 on its brightest color.
 					StatList(stats: stats, isCentered: true)
+						.style {
+							$0.color(.gray(700), dark: .gray(200))
+						}
 
 					// The menu is the last chip, so the heading is only the title.
 					nav {
@@ -74,7 +80,6 @@ struct AppsPage: Page {
 					a(.href(.apps)) {
 						"Show All"
 					}
-					.style(Styles.showAllLink)
 				}
 				.style(Styles.filterNotice)
 
@@ -104,28 +109,14 @@ struct AppsPage: Page {
 				.hiddenFromSearchSnippets()
 				.style(Styles.grid)
 
-				section {
-					Prose {
-						for group in Self.linkGroups {
-							Section(group.title) {
-								ul {
-									for link in group.links {
-										LinkRow(link: link)
-									}
-								}
-							}
-						}
-					}
-				}
-				.hiddenFromSearchSnippets()
-				.style(Styles.extra)
+				linkGroups
 			}
 			.style(Styles.container)
 		}
 
 		JSONScript(schema: Schema.ItemList(
 			name: "Sindre Sorhus Apps",
-			description: "Quality crafted apps by Sindre Sorhus",
+			description: Self.description,
 			url: path.absoluteURL,
 			items: content.activeApps.map { app in
 				Schema.SoftwareApplication(app: app, info: content.appStoreInfo(of: app))
@@ -135,6 +126,40 @@ struct AppsPage: Page {
 		ModuleScript("/scripts/apps.js")
 		// A page script, not imported by `apps.js`, so it gets the content hash in its URL, and a browser does not keep an old copy after a deploy.
 		ModuleScript("/scripts/apps-glass.js")
+	}
+
+	/**
+	The links to the other app pages, side by side from tablets, lined up with the cards. Their titles are quiet, like those of the cards, as they are extra content at the end of the page.
+	*/
+	private var linkGroups: some HTML<HTMLTag.section> {
+		section {
+			for group in Self.linkGroups {
+				Prose {
+					h2 {
+						group.title
+					}
+					.style(SectionStyles.label)
+					// Without the letter spacing of headings in prose, like the labels of the cards.
+					.style {
+						$0
+							.textAlign(.leading)
+							.letterSpacing(0)
+					}
+
+					ul {
+						for link in group.links {
+							LinkRow(link: link)
+						}
+					}
+				}
+				// The section already has the space at the sides of the page.
+				.style {
+					$0.padding(.horizontal, 0)
+				}
+			}
+		}
+		.hiddenFromSearchSnippets()
+		.style(Styles.extra)
 	}
 
 	/**
@@ -152,7 +177,7 @@ struct AppsPage: Page {
 			title: "More",
 			links: [
 				.faq,
-				LabeledLink("Tiny Apps", destination: .path("/tiny-apps"), description: "Smaller utilities"),
+				LabeledLink("Tiny Apps", destination: .path(.tinyApps), description: "Smaller utilities"),
 				.appTimeline,
 				.wallOfLove,
 				.olderVersions,
@@ -173,28 +198,32 @@ struct AppsPage: Page {
 	}
 
 	/**
-	The colors of the glass behind the title, as custom properties: the accent colors of the featured apps, between the violet and the pink of the brand gradient, so the glass matches “Apps”. A missing accent color is the blue of the brand.
+	Sets the colors of the glass behind the title, as custom properties: the accent colors of the featured apps, between the violet and the pink of the brand gradient, so the glass matches “Apps”. A missing accent color is the blue of the brand.
 	*/
-	private var glassColorDeclarations: String {
-		let accentColors = content.featuredApps.compactMap(\.accentColor).map { Color($0) }
+	private func settingGlassColors(on style: Style) -> Style {
+		let accentColors = content.featuredApps.compactMap(\.tint)
 
 		func accentColor(_ index: Int) -> Color {
 			accentColors.indices.contains(index) ? accentColors[index] : .primary(500)
 		}
 
-		return zip(Self.glassColors, [accentColor(0), .violet(500), accentColor(1), .secondary(500), accentColor(2)])
-			.map { "\($0.name): \($1)" }
-			.joined(separator: "; ")
+		var style = style
+
+		for (variable, color) in zip(Self.glassColors, [accentColor(0), .violet(500), accentColor(1), .secondary(500), accentColor(2)]) {
+			style = style.setting(variable, to: color)
+		}
+
+		return style
 	}
 
 	private var stats: [String] {
-
-		return [
+		[
 			content.activeApps.count.formatted(counting: "app"),
-			"\((content.yearsOfCraft ?? 0).formatted(counting: "year")) of craft",
+			content.yearsOfCraft.map { "\($0.formatted(counting: "year")) of craft" },
 			"\(Site.appUserCount.approximateCount) users",
-			"10K answered support emails",
+			"\(Site.supportEmailCount.approximateCount) answered support emails",
 		]
+		.compactMap(\.self)
 	}
 }
 
@@ -225,6 +254,10 @@ extension AppsPage {
 		case title = "apps-title"
 	}
 
+	enum States: String, ElementStateSet {
+		case drawing
+	}
+
 	enum Styles: StyleSet {
 		case container
 		case hero
@@ -237,15 +270,14 @@ extension AppsPage {
 		case grid
 		case extra
 		case filterNotice
-		case showAllLink
 
 		var style: Style {
 			switch self {
 			case .container:
 				Style()
-					.padding(.vertical, .rootEm(4))
+					.padding(.vertical, Self.topPadding)
 					.from(.laptop) {
-						$0.padding(.vertical, .rootEm(5))
+						$0.padding(.vertical, Self.laptopTopPadding)
 					}
 			case .hero:
 				// A stacking context, so the glass is behind the title, but not behind the page. A container, so the size of the title on phones follows the width of its content (`cqi`), which `vw` would not, as it includes a classic scroll bar.
@@ -256,10 +288,6 @@ extension AppsPage {
 					.margin(.bottom, .rootEm(1.25))
 					.padding(.horizontal, .pageGutter)
 					.textAlign(.center)
-					// The stats are on the glass, so they are stronger than secondary text, with a contrast of at least 5:1 on its brightest color.
-					.nested(StatList.Styles.root.selector) {
-						$0.color(.gray(700), dark: .gray(200))
-					}
 					.from(.tablet) {
 						$0.margin(.bottom, .rootEm(4))
 					}
@@ -281,7 +309,7 @@ extension AppsPage {
 						Self.glassField(3, x: 63, y: 48),
 						Self.glassField(4, x: 76, y: 54)
 					)
-					.when(.state, is: "drawing") {
+					.when(States.drawing) {
 						$0.backgroundImage(.none)
 					}
 					.from(.laptop) {
@@ -294,12 +322,13 @@ extension AppsPage {
 				Style()
 					.vstack(alignment: .center, spacing: .em(0.12))
 					.margin(.bottom, .rootEm(1.5))
-					.fontFamily(.expandable)
-					.fontWidth(.expanded)
+					.expandedFont()
 					.font(size: .min(.rootEm(2.5), .containerInlineSize(100) * (1 / 7.8)))
 					.lineHeight(1)
 					.bold()
 					.letterSpacing(.em(-0.05))
+					// The title is a decoration, so a click or a drag on it does not select it.
+					.textSelection(.disabled)
 					// A soft shadow of a few faint layers, each with a larger offset and blur than the one before, so it fades smoothly. It is a filter, not a text shadow, as a text shadow draws over the background that colors the letters of the lit title.
 					.filter(
 						.dropShadow(Shadow(y: .pixels(1), blur: .pixels(1), color: .lightDark(.black.opacity(0.07), .black.opacity(0.3)))),
@@ -307,7 +336,7 @@ extension AppsPage {
 						.dropShadow(Shadow(y: .pixels(5), blur: .pixels(10), color: .lightDark(.black.opacity(0.07), .black.opacity(0.3))))
 					)
 					.setting(AppsPage.titleLight, to: .percent(0))
-					.transition(TransitionProperty(Property(AppsPage.titleLight.name)), animation: .default(duration: .milliseconds(500)))
+					.transition(TransitionProperty(AppsPage.titleLight), animation: .default(duration: .milliseconds(500)))
 					.media(Self.litTitle) {
 						$0.hover {
 							$0.setting(AppsPage.titleLight, to: .percent(35))
@@ -362,20 +391,26 @@ extension AppsPage {
 					.margin(top: .rootEm(2.5), horizontal: .auto, bottom: .rootEm(3))
 			case .extra:
 				Style()
-					.margin(top: .pixels(120), horizontal: .auto, bottom: .pixels(60))
+					.contentColumn(.page)
+					// The padding of the container is the space below.
+					.margin(top: .rootEm(7.5), horizontal: .auto, bottom: 0)
+					.grid(columns: 1)
+					.gap(.rootEm(2.5))
+					.from(.tablet) {
+						$0.gridColumns(2)
+					}
 			case .filterNotice:
 				Style()
 					.margin(.bottom, .rootEm(1))
 					.padding(.horizontal, .pageGutter)
 					.secondaryText()
 					.textAlign(.center)
-			case .showAllLink:
-				Style().textLink()
+					.textLinks()
 			}
 		}
 
 		/**
-		The space above the title, which the glass extends into.
+		The space above the title, which the glass extends into. The container has the same space below the content.
 		*/
 		private static let topPadding = Length.rootEm(4)
 		private static let laptopTopPadding = Length.rootEm(5)

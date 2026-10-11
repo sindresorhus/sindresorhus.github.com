@@ -14,7 +14,7 @@ olderVersions: [
 		url: 'https://www.dropbox.com/scl/fi/p4ym425ivfp4ex1enlh1l/Googly-Eyes-1.1.4-macOS-15-1774281617.zip?rlkey=7jbf2llhjjielpvde6rcpvp8n&raw=1'
 	}
 ]
-script: '/apps/googly-eyes/eyes.js'
+script: '/googly-eyes/eyes.js'
 ---
 
 Add playful eyes to your menu bar that follow your cursor and blink when you click. Pure whimsy! 👀

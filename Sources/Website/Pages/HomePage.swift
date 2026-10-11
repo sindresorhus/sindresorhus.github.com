@@ -34,29 +34,20 @@ struct HomePage: Page {
 					div {
 						p {
 							// Non-breaking hyphens, so “Open-Sourcerer” does not break at the hyphen on phones.
-							span {
-								Site.description.replacing("-", with: "\u{2011}")
-							}
-							.style(Styles.taglineText)
+							Site.description.replacing("-", with: "\u{2011}")
 						}
 						.style(Styles.tagline)
 
 						div {
-							div {
-								a(.href(.apps)) {
-									Label("Apps", icon: .appStore)
-								}
-								.style(Styles.button, Styles.glass, Styles.glassPrimary)
+							a(.href(.apps)) {
+								Label("Apps", icon: .appStore)
 							}
-							.style(Styles.action)
+							.style(Styles.button, Styles.glass, Styles.glassPrimary)
 
-							div {
-								a(.href("https://github.com/sindresorhus")) {
-									Label("Code", icon: .github)
-								}
-								.style(Styles.button, Styles.glass, Styles.glassDark)
+							a(.href("https://github.com/sindresorhus")) {
+								Label("Code", icon: .github)
 							}
-							.style(Styles.action)
+							.style(Styles.button, Styles.glass, Styles.glassDark)
 						}
 						.hiddenFromSearchSnippets()
 						.style(Styles.actions)
@@ -96,9 +87,7 @@ extension HomePage {
 		case name
 		case text
 		case tagline
-		case taglineText
 		case actions
-		case action
 		case button
 		case glass
 		case glassPrimary
@@ -115,7 +104,7 @@ extension HomePage {
 					.position(.absolute)
 					.inset(0)
 					.hidden()
-					.frame(width: .percent(100), height: .percent(100))
+					.frame(size: .percent(100))
 					.allowsHitTesting(false)
 					.dark {
 						$0
@@ -128,8 +117,7 @@ extension HomePage {
 			case .container:
 				Style()
 					.display(.flex)
-					.pageWidth()
-					.padding(.horizontal, .pageGutter)
+					.contentColumn(.page)
 					.from(.tablet) {
 						$0
 							.frame(height: .smallViewportHeight(100))
@@ -164,17 +152,10 @@ extension HomePage {
 									.animation(Animations.ringRotate, .linear(duration: .seconds(10)).repeatForever(autoreverses: false))
 							}
 					}
-					.media(.dark && .reducedMotion) {
-						$0
-							.before {
-								$0.noAnimation()
-							}
-					}
 			case .profilePhoto:
 				Style()
 					.position(.relative)
 					.zIndex(1)
-					.display(.block)
 					.cornerRadius(.circle)
 					.transition(.scaleEffect, animation: .default(duration: .milliseconds(350)))
 					.maskImage(.radialGradient("circle", Color.black.at(.percent(80)), Color.transparent.at(.percent(100))))
@@ -185,8 +166,7 @@ extension HomePage {
 				// The expanded width of SF Pro on Apple platforms.
 				Style()
 					.margin(.bottom, .rootEm(1))
-					.fontFamily(.expandable)
-					.fontWidth(.expanded)
+					.expandedFont()
 					.fluidFontSize(fromRem: 3, toRem: 3.5, between: .smallTablet, and: .tablet)
 					.lineHeight(1)
 					.bold()
@@ -197,9 +177,6 @@ extension HomePage {
 					.backgroundImage(.linearGradient("to right", HomePage.gradientStart.value, HomePage.gradientEnd.value, in: "oklch"))
 					.backgroundClip(.text)
 					.animation(Animations.gradientShift, .default(duration: .seconds(4)).repeatForever(autoreverses: false))
-					.reducedMotion {
-						$0.noAnimation()
-					}
 					.from(.smallTablet) {
 						$0.textWrap(.nowrap)
 					}
@@ -208,23 +185,18 @@ extension HomePage {
 					}
 			case .text:
 				Style()
-					.frame(maxWidth: .rootEm(48))
-					.margin(vertical: 0, horizontal: .auto)
+					.centeredColumn(.standard)
 			case .tagline:
+				// Centered lines of similar lengths, like a heading.
 				Style()
 					.margin(.bottom, .rootEm(2.5))
-					.font(.extraLarge)
-					.color(.gray(600), dark: .gray(400))
-			case .taglineText:
-				Style()
-					.fontFamily(.expandable)
-					.fontWidth(.expanded)
+					.expandedFont()
 					.font(.extraLarge2, weight: 350)
 					.letterSpacing(.em(0.06))
+					.textWrap(.balance)
+					.color(.gray(600), dark: .gray(200).opacity(0.82))
 					.dark {
-						$0
-							.color(.gray(200).opacity(0.82))
-							.textShadow(Shadow(y: 0, blur: .pixels(28), color: Color.violet(500).opacity(0.28)))
+						$0.textShadow(Shadow(y: 0, blur: .pixels(28), color: Color.violet(500).opacity(0.28)))
 					}
 			case .actions:
 				Style()
@@ -236,19 +208,14 @@ extension HomePage {
 							.flexDirection(.row)
 							.justifyContent(.center)
 					}
-			case .action:
+			case .button:
 				Style()
-					.display(.flex)
+					.hstack(alignment: .center, justification: .center, isInline: true)
+					// As wide as the column on phones.
 					.frame(width: .percent(100))
 					.from(.smallTablet) {
 						$0.frame(width: .auto)
 					}
-			case .button:
-				Style()
-					.display(.inlineFlex)
-					.alignItems(.center)
-					.justifyContent(.center)
-					.frame(width: .percent(100))
 					.padding(vertical: .rootEm(1), horizontal: .rootEm(2))
 					.cornerRadius(.rootEm(1.5))
 					.fontWeight(.medium)
@@ -257,9 +224,7 @@ extension HomePage {
 					.shadow(.large)
 					.nested(Icon.selector) {
 						$0
-							.margin(.top, 0)
 							.margin(.trailing, .rootEm(0.25))
-							.margin(.bottom, 0)
 							.margin(.leading, .rootEm(-0.375))
 					}
 					.from(.smallTablet) {
@@ -271,7 +236,8 @@ extension HomePage {
 					.position(.relative)
 					.overflow(.hidden)
 					.color(.white)
-					.transition(.background, .shadow, animation: .default(duration: .milliseconds(250))).transition(.offset, animation: .default(duration: .milliseconds(200))).transition(.borderColor, animation: .default(duration: .milliseconds(250)))
+					.transition(.background, .shadow, .borderColor, animation: .default(duration: .milliseconds(250)))
+					.transition(.offset, animation: .default(duration: .milliseconds(200)))
 					.dark {
 						$0
 							.backdropFilter(.blur(radius: .pixels(20)), .saturation(1.8))
@@ -288,10 +254,7 @@ extension HomePage {
 									.backgroundImage(.linearGradient("175deg", Color.white.opacity(0.28).at(.percent(0)), Color.white.opacity(0.06).at(.percent(40)), Color.transparent.at(.percent(70))))
 									.allowsHitTesting(false)
 							}
-					}
-					.dark {
-						$0
-							.hover {
+							.hoverOrFocusVisible {
 								$0.offset(y: .pixels(-1))
 							}
 					}
@@ -302,7 +265,7 @@ extension HomePage {
 					.media(.dark && .reducedTransparency) {
 						$0.background(.primary(700))
 					}
-					.hover {
+					.hoverOrFocusVisible {
 						$0
 							.background(.primary(700), dark: .primary(500).opacity(0.32))
 							.borderColor(.primary(700), dark: .primary(400).opacity(0.6))
@@ -310,7 +273,7 @@ extension HomePage {
 					.dark {
 						$0
 							.shadow(Shadow(y: .pixels(1.5), color: .white.opacity(0.4), isInset: true), Shadow(y: .pixels(-1), color: .black.opacity(0.1), isInset: true), Shadow(y: .pixels(4), blur: .pixels(24), color: .primary(500).opacity(0.25)), Shadow(y: .pixels(1), blur: .pixels(4), color: .black.opacity(0.15)))
-							.hover {
+							.hoverOrFocusVisible {
 								$0.shadow(Shadow(y: .pixels(1.5), color: .white.opacity(0.5), isInset: true), Shadow(y: .pixels(-1), color: .black.opacity(0.1), isInset: true), Shadow(y: .pixels(8), blur: .pixels(32), color: .primary(500).opacity(0.35)), Shadow(y: .pixels(2), blur: .pixels(6), color: .black.opacity(0.15)))
 							}
 					}
@@ -321,7 +284,7 @@ extension HomePage {
 					.media(.dark && .reducedTransparency) {
 						$0.background(.gray(800))
 					}
-					.hover {
+					.hoverOrFocusVisible {
 						$0
 							.background(.gray(700), dark: .gray(950).opacity(0.55))
 							.borderColor(.transparent, dark: .white.opacity(0.26))
@@ -329,7 +292,7 @@ extension HomePage {
 					.dark {
 						$0
 							.shadow(Shadow(y: .pixels(1.5), color: .white.opacity(0.25), isInset: true), Shadow(y: .pixels(-1), color: .black.opacity(0.15), isInset: true), Shadow(y: .pixels(4), blur: .pixels(20), color: .black.opacity(0.3)), Shadow(y: .pixels(1), blur: .pixels(4), color: .black.opacity(0.2)))
-							.hover {
+							.hoverOrFocusVisible {
 								$0.shadow(Shadow(y: .pixels(1.5), color: .white.opacity(0.35), isInset: true), Shadow(y: .pixels(-1), color: .black.opacity(0.15), isInset: true), Shadow(y: .pixels(8), blur: .pixels(28), color: .black.opacity(0.4)), Shadow(y: .pixels(2), blur: .pixels(6), color: .black.opacity(0.2)))
 							}
 					}

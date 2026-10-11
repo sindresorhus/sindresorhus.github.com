@@ -94,7 +94,7 @@ struct GeoCitiesBigButtons: HTML {
 			case .button:
 				// A big round red arcade button that sinks in when pressed.
 				Style()
-					.frame(width: .rootEm(4.5), height: .rootEm(4.5))
+					.frame(size: .rootEm(4.5))
 					.backgroundImage(.radialGradient("circle at 35% 30%", Color("#ff8888"), Color("#dd0000"), Color("#880000")))
 					.border(Color("#333333"), width: .pixels(5))
 					.cornerRadius(.percent(50))

@@ -23,7 +23,7 @@ struct ContributionHeatmap: HTML {
 						.style(Styles.cell)
 				}
 
-				for day in calendar.weeks.flatMap(\.days) {
+				for day in calendar.days {
 					span {}
 						.style(Styles.cell, Styles.level(day.level))
 				}
@@ -49,16 +49,15 @@ struct ContributionHeatmap: HTML {
 			case .root:
 				// On phones, the year is wider than the screen, so it scrolls sideways. Right to left, so it starts at the newest week, without a script. The grid inside is left to right again.
 				Style()
-					.margin(vertical: .rootEm(1.5), horizontal: 0)
 					.overflow(horizontal: .auto)
 					.scrollIndicators(.hidden)
-					.declaration(.direction, "rtl")
+					.direction(.rightToLeft)
 			case .grid:
 				// Cells that are large enough to see on phones, in a grid that is as wide as its cells. From tablets, the cells fill the width, so the whole year fits.
 				Style()
 					.display(.inlineGrid)
 					.verticalAlign(.top)
-					.declaration(.direction, "ltr")
+					.direction(.leftToRight)
 					.gridAutoFlow(.column)
 					.gridRows(7, size: .auto)
 					.gridAutoColumns(.fixed(.rootEm(0.625)))

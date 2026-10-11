@@ -47,6 +47,14 @@ struct BlogPostPage: Page {
 				.style(Styles.header)
 
 				Prose(markdown: post.markdown.content, variant: .article)
+					.style {
+						$0
+							.margin(.top, .rootEm(2))
+							// A post that starts with an image moves up, so the gap below the header is the same as with text.
+							.nested("&:has(> p:first-child > img)") {
+								$0.margin(.top, .pixels(-16))
+							}
+					}
 			}
 
 			if !morePosts.isEmpty {
@@ -68,7 +76,7 @@ struct BlogPostPage: Page {
 					ul {
 						for post in morePosts {
 							li {
-								BlogPostRow(post: post)
+								BlogPostRow(post: post, isUnderHeading: true)
 							}
 						}
 					}
@@ -83,10 +91,10 @@ struct BlogPostPage: Page {
 	}
 
 	/**
-	The three newest other posts, for readers who reach the end.
+	The two newest other posts, for readers who reach the end.
 	*/
 	private var morePosts: [BlogPost] {
-		Array(content.listedPosts.filter { $0.slug != post.slug }.prefix(3))
+		Array(content.listedPosts.filter { $0.slug != post.slug }.prefix(2))
 	}
 
 	private static let morePostsTitleID = "more-posts"
@@ -119,23 +127,7 @@ extension BlogPostPage {
 		var style: Style {
 			switch self {
 			case .root:
-				Style()
-					.margin(vertical: 0, horizontal: .auto)
-					.nested(ProseStyles.root.selector) {
-						$0
-							.margin(.top, .rootEm(2))
-							// A post that starts with an image moves up, so the gap below the header is the same as with text.
-							.nested("&:has(> p:first-child > img)") {
-								$0.margin(.top, .pixels(-16))
-							}
-					}
-					.padding(vertical: .rootEm(2), horizontal: 0)
-					.from(.smallTablet) {
-						$0.padding(vertical: .rootEm(4), horizontal: 0)
-					}
-					.from(.laptop) {
-						$0.padding(vertical: .rootEm(3.5), horizontal: 0)
-					}
+				Style().pagePadding()
 			case .header:
 				// Lines up with the text of the post.
 				Style().contentColumn(.prose)
@@ -164,17 +156,12 @@ extension BlogPostPage {
 					.color(.secondaryText)
 			case .allPosts:
 				Style()
-					.textStyle(.caption, weight: .semibold)
-					.color(.link)
-					.underline(false)
-					.hover {
-						$0.underline()
-					}
+					.textStyle(.caption)
+					.moreLink()
 			case .rule:
 				Style()
 					.margin(top: .rootEm(2), horizontal: 0, bottom: 0)
-					.border(.top, style: .dashed)
-					.opacity(0.15)
+					.border(.top, .separator, style: .dashed)
 			}
 		}
 	}

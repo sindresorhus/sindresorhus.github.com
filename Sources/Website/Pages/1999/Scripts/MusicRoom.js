@@ -1,5 +1,6 @@
 // The mixer of the sound card at the start of Sindre’s Music Room on the 1999 page, with a speaker test that asks if the visitor heard it, and a button that stops all the music of the room. The toys of the room play through the sound card of `geocities-sound-card.js`.
-import {context, master, connectVolume, startAudio, pluck, midiFrequency, stopEverything} from '/scripts/geocities-sound-card.js';
+import GeoCitiesElement, {midiFrequency} from '/scripts/geocities-element.js';
+import {context, master, connectVolume, startAudio, pluck, stopEverything} from '/scripts/geocities-sound-card.js';
 
 const advice = [
 	'Is the speaker plugged in? The green plug goes in the back of the computer.',
@@ -9,7 +10,7 @@ const advice = [
 	'Did your big brother take the speakers to his room again?',
 ];
 
-export default class extends GeoCitiesElement {
+class Mixer extends GeoCitiesElement {
 	#adviceIndex = 0;
 
 	connected() {
@@ -59,3 +60,5 @@ export default class extends GeoCitiesElement {
 		});
 	}
 }
+
+customElements.define('geo-cities-music-room-mixer', Mixer);

@@ -56,6 +56,12 @@ struct GeoCitiesNeonSign: ScriptedElement {
 		case status
 	}
 
+	enum States: String, ElementStateSet {
+		case crooked
+		case off
+		case fallen
+	}
+
 	enum Styles: ElementStyleSet {
 		case root
 		case sign
@@ -86,7 +92,7 @@ struct GeoCitiesNeonSign: ScriptedElement {
 					.media(.allowsMotion) {
 						$0.transition(.rotationEffect, animation: .timingCurve(0.3, 1.6, 0.5, 1, duration: .milliseconds(600)))
 					}
-					.when(.state, is: "crooked") {
+					.when(States.crooked) {
 						$0.rotationEffect(.degrees(-9))
 					}
 			case .line:
@@ -100,12 +106,12 @@ struct GeoCitiesNeonSign: ScriptedElement {
 							.media(.allowsMotion) {
 								$0.transition(.offset, .rotationEffect, animation: .easeIn(duration: .milliseconds(500)))
 							}
-							.when(.state, is: "off") {
+							.when(States.off) {
 								$0
 									.color(Color("#4a2a3a"))
 									.textShadow()
 							}
-							.when(.state, is: "fallen") {
+							.when(States.fallen) {
 								$0
 									.color(Color("#4a2a3a"))
 									.textShadow()

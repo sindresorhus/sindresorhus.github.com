@@ -160,7 +160,6 @@ struct FeedbackPage: Page {
 				a(.href(.contact)) {
 					"the contact page"
 				}
-				.style(Styles.appNoticeLink)
 				"."
 			}
 			.style(Styles.appNotice)
@@ -193,8 +192,8 @@ struct FeedbackPage: Page {
 			input(.id("email"), .type(.email), .name("email"), .autocomplete("email"), .custom(name: "enterkeyhint", value: "send"), .required, .ariaDescribedBy("email-hint"))
 				.style(FormFieldStyles.control)
 
-			// `feedback.js` shows it for likely typos, like `gmial.com`.
-			p(.id(Hooks.emailWarning), .hidden, .role("alert")) {}
+			// `feedback.js` fills it for likely typos, like `gmial.com`. A polite live region that is always on the page, so screen readers announce the text without interrupting the typing.
+			p(.id(Hooks.emailWarning), .role("status")) {}
 				.style(Styles.emailWarning)
 		}
 	}
@@ -270,7 +269,6 @@ extension FeedbackPage {
 		case appPickerList
 		case appPickerLink
 		case appNotice
-		case appNoticeLink
 		case notes
 		case notesTitle
 		case notesContent
@@ -293,13 +291,14 @@ extension FeedbackPage {
 					.vstack()
 					.contentColumn(.prose)
 					.pagePadding()
-					.from(.smallTablet) {
+					.from(.tablet) {
 						$0.frame(minHeight: .smallViewportHeight(100))
 					}
 			case .header:
+				// The space below the title of the other pages.
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(1.25))
-					.margin(.bottom, .rootEm(2))
+					.margin(.bottom, .rootEm(2.5))
 			case .headerText:
 				Style().frame(minWidth: 0)
 			case .appIcon:
@@ -320,7 +319,7 @@ extension FeedbackPage {
 					.margin(.bottom, .rootEm(1))
 					.textStyle(.headline)
 			case .appPickerList:
-				// Two columns on phones, and three from small tablets, like the sponsors.
+				// Two columns on phones, and three from small tablets.
 				Style()
 					.grid(columns: 2)
 					.gap(.rootEm(0.5))
@@ -332,11 +331,11 @@ extension FeedbackPage {
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.75))
 					.padding(.rootEm(0.625))
-					.cornerRadius(.rootEm(0.75))
+					.cornerRadius(.fieldRadius)
 					.color(.bodyText)
 					.background(.card)
 					.transition(.backgroundColor, .color, animation: .stateChange)
-					.hover {
+					.hoverOrFocusVisible {
 						$0
 							.background(.cardHover)
 							.color(.primaryText)
@@ -345,27 +344,24 @@ extension FeedbackPage {
 				Style()
 					.margin(.bottom, .rootEm(1))
 					.padding(.rootEm(1))
-					.cornerRadius(.rootEm(0.75))
-					.background(.gray(50), dark: .white.opacity(0.05))
+					.fieldBox()
 					.color(.secondaryText)
-			case .appNoticeLink:
-				Style().textLink()
+					.textLinks()
 			case .notes:
 				// The prose inside has the space at the sides.
 				Style()
 					.margin(.bottom, .rootEm(1))
 					.padding(.vertical, .rootEm(1.25))
-					.border(.lightDark(.gray(200).opacity(0.8), .white.opacity(0.1)))
-					.cornerRadius(.rootEm(0.75))
+					.border(.separator)
+					.cornerRadius(.fieldRadius)
 			case .notesTitle:
 				Style()
 					.margin(.bottom, .rootEm(0.5))
 					.textStyle(.lead, weight: .semibold)
 					.color(.primaryText)
 			case .notesContent:
-				Style().important {
-					$0.font(size: .pixels(16))
-				}
+				// Smaller than the prose, which it is in. The components win over the styles of prose.
+				Style().font(size: .rootEm(1))
 			case .scriptingNotice:
 				// Only shown when JavaScript is turned off.
 				Style()
@@ -386,8 +382,12 @@ extension FeedbackPage {
 			case .emailWarning:
 				Style()
 					.margin(.top, .rootEm(0.375))
+					.empty {
+						$0.margin(0)
+					}
 					.textStyle(.caption)
-					.color(.amber(600), dark: .amber(400))
+					// Dark enough to read on white, like the stars on the about page.
+					.color(.amber(700), dark: .amber(400))
 			case .actions:
 				Style()
 					.vstack(spacing: .rootEm(0.75))
@@ -402,7 +402,6 @@ extension FeedbackPage {
 				Style()
 					.flexShrink(0)
 					.frame(width: .percent(100))
-					.cursor(.pointer)
 					.disabled {
 						$0
 							.opacity(0.5)
@@ -417,14 +416,14 @@ extension FeedbackPage {
 			case .submitLabel:
 				Style()
 					.stackedInGrid()
-					.nested(":disabled &") {
+					.ancestorDisabled {
 						$0.visibility(false)
 					}
 			case .sendingLabel:
 				Style()
 					.stackedInGrid()
 					.visibility(false)
-					.nested(":disabled &") {
+					.ancestorDisabled {
 						$0.visibility(true)
 					}
 			case .fineprint:

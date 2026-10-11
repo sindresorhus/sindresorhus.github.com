@@ -19,7 +19,7 @@ struct PublishingTests {
 		#expect(RoutePath("/blog//post") == "/blog/post")
 		#expect(try RoutePath(validating: "//example.com") == "/example.com")
 		#expect(RoutePath("//") == .root)
-		#expect(Route.redirect("/old//", to: .path(.root)).outputFile == "old.html")
+		#expect(Route.redirect("/old//", to: .root).outputFile == "old.html")
 		#expect(RoutePath("/blog/post").starts(with: "/blog"))
 		#expect(RoutePath("/blog").starts(with: "/blog"))
 		#expect(!RoutePath("/blogroll").starts(with: "/blog"))
@@ -27,12 +27,21 @@ struct PublishingTests {
 		#expect(RoutePath.root.appending("blog").appending("post") == "/blog/post")
 	}
 
+	@Test
+	func `the rest of a route path after another path`() {
+		#expect(RoutePath("/blog/post/image.png").relative(to: "/blog") == "post/image.png")
+		#expect(RoutePath("/dato/icon.png").relative(to: .root) == "dato/icon.png")
+		#expect(RoutePath("/blog").relative(to: "/blog") == "")
+		#expect(RoutePath.root.relative(to: .root) == "")
+		#expect(RoutePath("/blogroll").relative(to: "/blog") == nil)
+	}
+
 	@Test(arguments: [
 		(Route.page(.root) { "" }, "index.html"),
 		(Route.page("/apps") { "" }, "apps.html"),
 		(Route.page("/apps/") { "" }, "apps.html"),
 		(Route.page("/blog/macos-13.1") { "" }, "blog/macos-13.1.html"),
-		(Route.redirect("/v1.0", to: .path(.root)), "v1.0.html"),
+		(Route.redirect("/v1.0", to: .root), "v1.0.html"),
 		(Route.text("/dato/rss.xml") { "" }, "dato/rss.xml"),
 	])
 	func `the route kind decides the output file`(route: Route, outputFile: String) {
@@ -93,7 +102,7 @@ struct PublishingTests {
 			.page("/about", sitemapEntry: SitemapEntry(images: [image])) { "<h1 id=\"top\">About</h1>" },
 			.page("/hidden", sitemapEntry: nil) { "Hidden" },
 			.text("/feed.xml") { "<rss/>" },
-			.redirect("/old", to: .path("/about")),
+			.redirect("/old", to: "/about"),
 		])
 
 		#expect(try String(contentsOf: output.appending(path: "about.html"), encoding: .utf8) == "<h1 id=\"top\">About</h1>")
@@ -102,6 +111,86 @@ struct PublishingTests {
 
 		let sitemap = try String(contentsOf: output.appending(path: "sitemap-0.xml"), encoding: .utf8)
 		#expect(sitemap.contains("<url><loc>https://example.com/</loc></url><url><loc>https://example.com/about</loc><image:image><image:loc>https://example.com/a.png</image:loc></image:image></url></urlset>"))
+	}
+
+	@Test
+	func `a link from content cannot go to another host, and a plus in its query stays a plus`() throws {
+		// `//example.com` is a link to another host, not a path of the site.
+		#expect(throws: ContentError.self) {
+			try LinkDestination(validating: "//example.com/a")
+		}
+
+		#expect(throws: ContentError.self) {
+			try LinkDestination(validating: "example.com")
+		}
+
+		#expect(throws: ContentError.self) {
+			try RoutePath(validating: "apps")
+		}
+
+		#expect(try LinkDestination(validating: "/feedback?product=A+B").description == "/feedback?product=A%2BB")
+	}
+
+	@Test
+	func `links and paths encode as the text of an href, for scripts`() throws {
+		let data = try JSONEncoder().encode(["link": LinkDestination.path("/apps/faq", fragment: "refund"), "fragment": .fragment("top")])
+		#expect(try JSONDecoder().decode([String: String].self, from: data) == ["link": "/apps/faq#refund", "fragment": "#top"])
+		#expect(try JSONDecoder().decode([String].self, from: JSONEncoder().encode([RoutePath("/apps/")])) == ["/apps"])
+	}
+
+	@Test(.temporaryDirectory)
+	func `a redirect page escapes its destination, and search engines do not index it`() async throws {
+		let project = try makeProject(publicFiles: ["robots.txt": ""])
+		let output = project.root.appending(path: "dist")
+		let destination = LinkDestination.path("/feedback", query: [URLQueryItem(name: "product", value: "A"), URLQueryItem(name: "referrer", value: "B")])
+
+		try await Publisher(site: site, project: project, output: output).publish([
+			.page("/feedback") { "" },
+			// A path with a query, which only the general initializer takes, for the escaping.
+			Route("/old", output: .redirect(to: destination)),
+			.redirect("/elsewhere", to: #require(URL(string: "https://elsewhere.com/a?b=1&c=2"))),
+		])
+
+		let html = try String(contentsOf: output.appending(path: "old.html"), encoding: .utf8)
+		#expect(html.contains(#"<meta name="robots" content="noindex">"#))
+		#expect(html.contains(#"<meta http-equiv="refresh" content="0;url=/feedback?product=A&amp;referrer=B">"#))
+		#expect(html.contains(#"<link rel="canonical" href="https://example.com/feedback?product=A&amp;referrer=B">"#))
+		#expect(html.contains(#"<a href="/feedback?product=A&amp;referrer=B">"#))
+		#expect(!html.contains("&referrer"))
+
+		let external = try String(contentsOf: output.appending(path: "elsewhere.html"), encoding: .utf8)
+		#expect(external.contains(#"<link rel="canonical" href="https://elsewhere.com/a?b=1&amp;c=2">"#))
+		#expect(external.contains(#"content="0;url=https://elsewhere.com/a?b=1&amp;c=2""#))
+	}
+
+	@Test(.temporaryDirectory)
+	func `the sitemap has the day of the last change in UTC, and its index points to it`() async throws {
+		let project = try makeProject(publicFiles: ["robots.txt": ""])
+		let output = project.root.appending(path: "dist")
+
+		// The next day in time zones east of UTC, like in Norway.
+		let lastModified = try Date("2024-06-05T23:30:00Z", strategy: .iso8601)
+
+		try await Publisher(site: site, project: project, output: output).publish([
+			.page("/b", sitemapEntry: SitemapEntry(lastModified: lastModified)) { "" },
+			.page("/a") { "" },
+		])
+
+		let sitemap = try String(contentsOf: output.appending(path: "sitemap-0.xml"), encoding: .utf8)
+		#expect(sitemap.contains("<url><loc>https://example.com/a</loc></url><url><loc>https://example.com/b</loc><lastmod>2024-06-05</lastmod></url>"))
+
+		let index = try String(contentsOf: output.appending(path: "sitemap-index.xml"), encoding: .utf8)
+		#expect(index.contains("<sitemap><loc>https://example.com/sitemap-0.xml</loc></sitemap>"))
+	}
+
+	/**
+	The response cache names its files by the hash, so a different hash in another process would miss every cached response.
+	*/
+	@Test
+	func `the stable hash is FNV-1a`() {
+		#expect("".stableHash == 0xCBF2_9CE4_8422_2325)
+		#expect("a".stableHash == 0xAF63_DC4C_8601_EC8C)
+		#expect("foobar".stableHash == 0x8594_4171_F739_67E8)
 	}
 
 	@Test(.temporaryDirectory)
@@ -390,6 +479,34 @@ struct PublishingTests {
 		#expect(project.publicFile("/robots.txt") == project.publicDirectory.appending(path: "robots.txt"))
 	}
 
+	/**
+	A content directory with a page route publishes the files of its page bundles next to the pages, like `/dato/icon.png` for apps at `/dato`, and finds them by that path. A page can still be a single Markdown file.
+	*/
+	@Test(.temporaryDirectory)
+	func `the files of page bundles are published next to their pages`() async throws {
+		let project = try Project(root: URL.temporaryDirectory(files: [
+			"public/robots.txt": "",
+			"content/apps/dato/index.md": "Dato",
+			"content/apps/dato/icon.png": "icon",
+			"content/apps/gifski.md": "Gifski",
+			"content/blog/post/index.md": "Post",
+			"content/blog/post/image.png": "image",
+			"content/blog/other.md": "Other",
+		]), pageRoutes: ["content/apps": .root, "content/blog": "/blog"])
+		let output = project.root.appending(path: "dist")
+
+		let files = try await Publisher(site: site, project: project, output: output).publish([])
+
+		#expect(files.isSuperset(of: ["robots.txt", "dato/icon.png", "blog/post/image.png"]))
+		#expect(!files.contains("apps/dato/icon.png"))
+		#expect(project.publicFile("/dato/icon.png") == project.contentDirectory.appending(path: "apps/dato/icon.png"))
+		#expect(project.publicFile("/dato") == project.contentDirectory.appending(path: "apps/dato"))
+		#expect(project.publicFile("/blog/post/image.png") == project.contentDirectory.appending(path: "blog/post/image.png"))
+		// The old path, at the content directory, is not published, so it is not found.
+		#expect(project.publicFile("/apps/dato/icon.png") == project.publicDirectory.appending(path: "apps/dato/icon.png"))
+		#expect(project.publicPath(ofContentFile: project.contentDirectory.appending(path: "blog/post/image.png")) == "/blog/post/image.png")
+	}
+
 	@Test(.temporaryDirectory)
 	func `a public file and a page bundle file with the same path are a collision`() async throws {
 		let project = try Project(root: URL.temporaryDirectory(files: [
@@ -401,6 +518,56 @@ struct PublishingTests {
 		await #expect(throws: PublishingError.self) {
 			try await Publisher(site: site, project: project, output: project.root.appending(path: "dist")).publish([])
 		}
+	}
+
+	@Test(arguments: ["/../escape", "/a/./b", "/a/../../b"])
+	func `link destinations validate their route paths`(path: String) {
+		#expect(throws: ContentError.self) {
+			try LinkDestination(validating: path)
+		}
+	}
+
+	@Test
+	func `form queries round trip special characters without inventing parameters`() throws {
+		let query = "Swift + C# & Rust? a=b"
+		let items = [URLQueryItem(name: "q", value: query)]
+		let url = #URL("https://example.com/search").appending(formQueryItems: items)
+		let components = try #require(URLComponents(url: url, resolvingAgainstBaseURL: true))
+		#expect(components.queryItems == items)
+		#expect(!items.formEncodedQuery.contains("+"))
+		#expect(url.absoluteString.contains("%2B"))
+		#expect(#URL("https://example.com").appending(formQueryItems: []) == #URL("https://example.com"))
+	}
+
+	@Test
+	func `form queries keep the query that the URL already has`() {
+		let url = #URL("https://example.com/search?q=a+b#top").appending(formQueryItems: [URLQueryItem(name: "tag", value: "c+d")])
+		#expect(url.absoluteString == "https://example.com/search?q=a+b&tag=c%2Bd#top")
+	}
+
+	@Test(.temporaryDirectory)
+	func `served files cannot follow symlinks outside the site`() throws {
+		let outside = try URL.temporaryDirectory(files: ["secret.txt": "private"])
+		let output = try URL.temporaryDirectory(files: ["index.html": "Home"])
+		try FileManager.default.createSymbolicLink(at: output.appending(path: "secret.txt"), withDestinationURL: outside.appending(path: "secret.txt"))
+		try FileManager.default.createSymbolicLink(at: output.appending(path: "escape"), withDestinationURL: outside)
+		#expect(output.servedFile(forPath: "/secret.txt") == nil)
+		#expect(output.servedFile(forPath: "/escape/secret.txt") == nil)
+		#expect(output.servedFile(forPath: "/") != nil)
+	}
+
+	@Test(.temporaryDirectory)
+	func `publishing removes output symlinks without modifying their targets`() async throws {
+		let project = try makeProject(publicFiles: ["asset.txt": "Asset"])
+		let outside = try URL.temporaryDirectory(files: ["keep.txt": "Keep", "index.html": "Private"])
+		let output = try URL.temporaryDirectory(files: ["old.txt": "Old"])
+		try FileManager.default.createSymbolicLink(at: output.appending(path: "nested"), withDestinationURL: outside)
+		try FileManager.default.createSymbolicLink(at: output.appending(path: "index.html"), withDestinationURL: outside.appending(path: "index.html"))
+		try await Publisher(site: site, project: project, output: output).publish([.page(.root) { "Home" }, .page("/nested/new") { "New" }])
+		#expect(try String(contentsOf: outside.appending(path: "keep.txt"), encoding: .utf8) == "Keep")
+		#expect(try String(contentsOf: outside.appending(path: "index.html"), encoding: .utf8) == "Private")
+		#expect(!outside.appending(path: "new.html").exists)
+		#expect(try String(contentsOf: output.appending(path: "nested/new.html"), encoding: .utf8) == "New")
 	}
 
 	private func makeProject(publicFiles: [String: String]) throws -> Project {
@@ -487,6 +654,21 @@ struct PublishingTests {
 		#expect(size.width == 30)
 		#expect(size.height == 20)
 		#expect(file.deletingLastPathComponent().appending(path: "missing.png").mediaSize == nil)
+	}
+
+	@Test(.temporaryDirectory, arguments: [(72.0, 30), (144.0, 15), (300.0, 30)])
+	func `display sizes are half the pixel sizes of images with 144 DPI, like screenshots of a Retina display`(dpi: Double, expectedWidth: Int) throws {
+		let file = try URL.temporaryDirectory().appending(path: "image.png")
+		let context = try #require(CGContext(data: nil, width: 30, height: 20, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue))
+		let image = try #require(context.makeImage())
+		let destination = try #require(CGImageDestinationCreateWithURL(file as CFURL, UTType.png.identifier as CFString, 1, nil))
+		CGImageDestinationAddImage(destination, image, [kCGImagePropertyDPIWidth: dpi, kCGImagePropertyDPIHeight: dpi] as CFDictionary)
+		#expect(CGImageDestinationFinalize(destination))
+
+		let size = try #require(file.displaySize)
+		#expect(size.width == expectedWidth)
+		#expect(size.height == expectedWidth * 2 / 3)
+		#expect(file.mediaSize?.width == 30)
 	}
 
 }

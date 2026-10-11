@@ -83,22 +83,31 @@ extension StyleSet {
 
 	private static var caseNodes: [Self: [StyleNode]] {
 		cached(for: Self.self) {
-			Dictionary(uniqueKeysWithValues: allCases.map { ($0, [$0.style.node(selector: $0.selector)] + $0.style.definitions) })
+			Dictionary(uniqueKeysWithValues: allCases.map { value in
+				let style = value.style
+				return (value, [style.node(selector: value.selector)] + style.definitions)
+			})
 		}
 	}
 
 	/**
-	The rules of every case, and the keyframes and registered properties they use, each once. They are computed once.
+	The rules of every case, and then the keyframes and registered properties they use, each once. They are built from the cached nodes of the cases.
 	*/
 	static var nodes: [StyleNode] {
-		cached(for: Self.self) {
-			let styles = allCases.map { ($0, $0.style) }
-			return styles.map { $1.node(selector: $0.selector) } + styles.flatMap(\.1.definitions).uniqueDefinitions
-		}
+		let caseNodes = allCases.map(\.nodes)
+		return caseNodes.compactMap(\.first) + caseNodes.flatMap { $0.dropFirst() }.uniqueDefinitions
 	}
 }
 
-private let styleSetCache = Mutex<[[ObjectIdentifier]: any Sendable]>([:])
+/**
+The identity of a cached style-set value, without allocating an array for each lookup.
+*/
+private struct StyleSetCacheKey: Hashable {
+	let styleSet: ObjectIdentifier
+	let valueType: ObjectIdentifier
+}
+
+private let styleSetCache = Mutex<[StyleSetCacheKey: any Sendable]>([:])
 
 /**
 A value of a style set, like its class names, computed on first use and then cached by the style set and the type of the value.
@@ -106,7 +115,7 @@ A value of a style set, like its class names, computed on first use and then cac
 The value is computed outside the lock, as a style can use the selector of another case.
 */
 private func cached<Value: Sendable>(for styleSet: Any.Type, _ compute: () -> Value) -> Value {
-	let key = [ObjectIdentifier(styleSet), ObjectIdentifier(Value.self)]
+	let key = StyleSetCacheKey(styleSet: ObjectIdentifier(styleSet), valueType: ObjectIdentifier(Value.self))
 
 	if let value = styleSetCache.withLock({ $0[key] }) as? Value {
 		return value

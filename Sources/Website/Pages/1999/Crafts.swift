@@ -472,7 +472,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 			title
 		}
 		.attributes(.disabled, when: isDisabled)
-		.style(GeoCitiesPage.Styles.smallButton, Styles.dimmedWhenDisabled)
+		.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 	}
 
 	private func window(_ title: String, @HTMLBuilder content: () -> some HTML) -> some HTML {
@@ -561,7 +561,6 @@ struct GeoCitiesCrafts: ScriptedElement {
 		case drawingCanvas
 		case displayCanvas
 		case status
-		case dimmedWhenDisabled
 
 		var style: Style {
 			switch self {
@@ -586,14 +585,12 @@ struct GeoCitiesCrafts: ScriptedElement {
 				// Big enough for a finger, with a thick black ring while it is chosen.
 				Style()
 					.position(.relative)
-					.frame(width: .rootEm(2), height: .rootEm(2))
+					.frame(size: .rootEm(2))
 					.background(GeoCitiesCrafts.swatchColor.value(default: .white))
 					.border(Color("#00000066"), width: .pixels(1))
 					.handCursor()
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
-					.when(.state, is: "on") {
+					.canvasFocusRing()
+					.pressed {
 						$0
 							.border(.black, width: .pixels(3))
 							.scaleEffect(1.12)
@@ -621,11 +618,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 			case .swatchName:
 				Style().visuallyHidden()
 			case .toggle:
-				Style().when(.state, is: "on") {
-					$0
-						.background(Color("#ffcc66"))
-						.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-				}
+				Style().pressedIn(Color("#ffcc66"))
 			case .holdButton:
 				// A finger that moves a little while it holds the button keeps turning the wheel, instead of scrolling the page and letting go.
 				Style()
@@ -637,9 +630,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 					.frame(width: .percent(100), height: .auto)
 					.border(Color("#808080"), width: .pixels(2), style: .inset)
 					.background(Color("#e9e6dc"))
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .drawingCanvas:
 				// A finger draws, cuts, and irons on the canvas instead of scrolling the page.
 				Style()
@@ -649,16 +640,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 				// Only a tap takes something down, so a finger can still scroll the page.
 				Style().touchAction(.manipulation)
 			case .status:
-				Style()
-					.frame(minHeight: .lineHeight(2))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
-			case .dimmedWhenDisabled:
-				// The small buttons of the page have no look of their own when they do nothing.
-				Style().disabled {
-					$0.opacity(0.5)
-				}
+				Style().toyStatus()
 			}
 		}
 	}

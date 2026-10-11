@@ -264,22 +264,22 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 
 				template(.part(Parts.rowTemplate)) {
 					tr {
-						td {}
+						td(.part(Parts.personMedia)) {}
 							.style(Styles.cell)
 
 						td {
-							button(.type(.button)) {}
+							button(.part(Parts.personName), .type(.button)) {}
 								.style(Styles.rowButton)
 						}
 						.style(Styles.cell)
 
-						td {}
+						td(.part(Parts.personEmail)) {}
 							.style(Styles.cell)
 
-						td {}
+						td(.part(Parts.personCity)) {}
 							.style(Styles.cell)
 
-						td {}
+						td(.part(Parts.personComment)) {}
 							.style(Styles.cell)
 					}
 					.style(Styles.directoryRow)
@@ -524,7 +524,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 						button(.part(Parts.transferCancel), .type(.button), .disabled) {
 							"Cancel"
 						}
-						.style(GeoCitiesPage.Styles.smallButton)
+						.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 					}
 					.style(GeoCitiesWindows.Styles.stack, GeoCitiesWindows.Styles.grow)
 				}
@@ -605,6 +605,15 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 		case transferCancel
 		case history
 		case rowTemplate
+		case personMedia
+		case personName
+		case personEmail
+		case personCity
+		case personComment
+	}
+
+	enum States: String, ElementStateSet {
+		case selected
 	}
 
 	/**
@@ -707,7 +716,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 							.flexShrink(0)
 							.margin(0)
 							.media(.coarsePointer) {
-								$0.frame(width: .rootEm(1.25), height: .rootEm(1.25))
+								$0.frame(size: .rootEm(1.25))
 							}
 					}
 			case .meter:
@@ -764,7 +773,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					.focusVisible {
 						$0.focusRing(Color("#ffff00"), width: .pixels(2))
 					}
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.background(Color("#606060"))
 							.border(Color("#202020"), width: .pixels(2), style: .inset)
@@ -801,7 +810,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					.textWrap(.nowrap)
 			case .directoryRow:
 				// A person of the directory. The person picked to call is blue, like a selection of Windows.
-				Style().when(.state, is: "selected") {
+				Style().when(States.selected) {
 					$0
 						.background(Color("#000080"))
 						.color(.white)
@@ -959,11 +968,11 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 		*/
 		private static var swatchStyle: Style {
 			var style = Style()
-				.frame(width: .rootEm(2), height: .rootEm(2))
+				.frame(size: .rootEm(2))
 				.padding(0)
 				.border(Self.sunken, width: .pixels(2), style: .inset)
 				.handCursor()
-				.when(.state, is: "on") {
+				.pressed {
 					$0.border(.black, width: .pixels(3))
 				}
 

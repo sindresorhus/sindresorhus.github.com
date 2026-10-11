@@ -1,20 +1,7 @@
 // Sindre’s Arcade of the 1999 page: a cabinet with six games in one, drawn on a screen of 224 × 288 pixels, like the arcade machines of 1981: Unicorn Invaders, Paperclip Pong, Waffle Stacker, the Information Superhighway, 88×31 Breakout, and SkiFri. It takes coins, has an attract mode, a “CONTINUE?” countdown, high scores with three initials, and tickets for the Prize Counter. The games run only while the screen of the cabinet is in view and the tab is visible. With reduced motion, the games move a few steps for each key or tap, so nothing moves by itself. The arcade keeps the coins, the tickets, and the sound for the Game Room too (`GameRoom.js`), whose coin games take the same coins. What the visitor wins is kept in the browser.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
+import GeoCitiesElement, {randomItem, randomInteger, clamp, plural, shuffled} from '/scripts/geocities-element.js';
+
 const count = value => Math.max(Math.round(Number(value) || 0), 0);
-const plural = (amount, word) => `${amount.toLocaleString('en-US')} ${word}${amount === 1 ? '' : 's'}`;
-
-const shuffle = items => {
-	const copy = [...items];
-
-	for (let index = copy.length - 1; index > 0; index--) {
-		const other = Math.floor(Math.random() * (index + 1));
-		[copy[index], copy[other]] = [copy[other], copy[index]];
-	}
-
-	return copy;
-};
 
 // The letters of the screen, 5 × 7 pixels each, like the fonts of the arcade machines. Each number is a row, and its bits are the pixels from the left.
 const glyphs = {
@@ -942,7 +929,7 @@ const createStacker = ({context, fill, drawText, held, pressed, sounds}) => {
 
 	const takeFromBag = () => {
 		if (bag.length === 0) {
-			bag = shuffle([0, 1, 2, 3, 4, 5, 6]);
+			bag = shuffled([0, 1, 2, 3, 4, 5, 6]);
 		}
 
 		return bag.pop();
@@ -1393,7 +1380,7 @@ const createBreakout = ({context, fill, held, pressed, pointer, drawText, sounds
 	}
 
 	const setUpBricks = () => {
-		const images = shuffle(brickImages);
+		const images = shuffled(brickImages);
 		bricks = [];
 
 		for (let row = 0; row < 7; row++) {
@@ -1979,7 +1966,6 @@ const setUpArcade = (arcade, {cabinet, screen, start, credits: creditDisplay, in
 		for (const button of gameButtons) {
 			const isChosen = button.dataset.arcadeGame === chosen;
 			button.setAttribute('aria-pressed', String(isChosen));
-			button.dataset.state = isChosen ? 'on' : '';
 		}
 
 		showHighScores();
@@ -2627,7 +2613,7 @@ const setUpArcade = (arcade, {cabinet, screen, start, credits: creditDisplay, in
 	arcade.on(kick, 'click', () => {
 		cabinet.dataset.state = 'kicked';
 		arcade.timeout(450, () => {
-			cabinet.dataset.state = '';
+			delete cabinet.dataset.state;
 		});
 		sounds.hit();
 
@@ -2751,7 +2737,7 @@ const setUpArcade = (arcade, {cabinet, screen, start, credits: creditDisplay, in
 	};
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesArcade extends GeoCitiesElement {
 	#arcade;
 
 	// The games run only while the screen of the cabinet is in view, not while only the menu or the Prize Counter is.
@@ -2798,3 +2784,5 @@ export default class extends GeoCitiesElement {
 		return this.#arcade.sounds;
 	}
 }
+
+customElements.define('geo-cities-arcade', GeoCitiesArcade);

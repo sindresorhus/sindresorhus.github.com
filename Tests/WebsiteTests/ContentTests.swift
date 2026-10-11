@@ -45,6 +45,9 @@ struct ContentTests {
 		("description: ' '", "Invalid `description`"),
 		("downloads: 9007199254740992", "Invalid `downloads`"),
 		("pressQuotes: [{quote: '', source: 'Example'}]", "Invalid `pressQuotes.[0].quote`"),
+		("requirement: ' '", "Invalid `requirement`"),
+		("announcement: {text: ''}", "Invalid `announcement.text`"),
+		("announcement: {text: 'Sale', url: 'https://example.com', linkText: ' '}", "Invalid `announcement.linkText`"),
 	])
 	func `strict app frontmatter rejects invalid values`(line: String, reason: String) async {
 		let platforms = line.hasPrefix("platforms:") ? "" : "platforms: ['macOS']\n"
@@ -170,13 +173,13 @@ struct ContentTests {
 		""")
 
 		// The menu bar question goes first, after the feedback question, and the others go after the questions of the file.
-		#expect(app.markdown.headings.map(\.id) == ["faq", "feedback", "the-app-does-not-show-up-in-the-menu-bar", "some-question", "why-is-this-free-without-ads", "can-you-localize-the-app-into-my-language"])
+		#expect(app.markdown.headings.map(\.id) == ["faq", "feedback", "app-not-showing-in-menu-bar", "some-question", "why-is-this-free-without-ads", "can-you-localize-the-app-into-my-language"])
 		#expect(app.markdown.links.filter { $0.destination == "/apps/faq#app-not-showing-in-menu-bar" }.map(\.line) == [nil])
 
-		// The feedback page suggests them like the questions of the file.
+		// The feedback page suggests them like the questions of the file, except the menu bar question, which only links to the general question.
 		let questions = try #require(FAQSuggestions.Questions(apps: [app], faq: nil).apps.first).questions
-		#expect(questions.map(\.question) == ["The app does not show up in the menu bar", "Some question", "Why is this free without ads?", "Can you localize the app into my language?"])
-		#expect(questions.first?.url == .path(app.path, fragment: "the-app-does-not-show-up-in-the-menu-bar"))
+		#expect(questions.map(\.question) == ["Some question", "Why is this free without ads?", "Can you localize the app into my language?"])
+		#expect(questions.first?.url == .path(app.path, fragment: "some-question"))
 	}
 
 	/**
@@ -228,8 +231,22 @@ struct ContentTests {
 
 		#expect(app.markdown.headings.map(\.id) == ["faq", "feedback", "language", "the-app-does-not-show-up-in-the-menu-bar"])
 		#expect(app.markdown.html.contains("My own answer."))
-		#expect(!app.markdown.html.contains("Try this"))
+		#expect(!app.markdown.html.contains("How to make the app show up in the menu bar"))
 		#expect(!app.markdown.html.contains("I don’t plan to localize the app."))
+	}
+
+	/**
+	The added menu bar question only links to the general question, which the feedback page suggests instead, as it has the answer. An answer of the app itself is suggested.
+	*/
+	@Test
+	func `the feedback page suggests the menu bar question only when the app has its own answer`() async throws {
+		let source = "---\ntitle: 'My App'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nisMenuBarApp: true\n---\n\n## Frequently Asked Questions {#faq}\n\n### Some question\n\nAnswer.\n"
+		let app = try await App(markdown: source)
+		let appWithAnswer = try await App(markdown: source + "\n### The app does not show up in the menu bar\n\nMy own answer.\n")
+
+		#expect(app.markdown.html.contains("How to make the app show up in the menu bar"))
+		#expect(app.faqHeadings.map(\.text) == ["Some question", "Can you localize the app into my language?"])
+		#expect(appWithAnswer.faqHeadings.map(\.text) == ["Some question", "The app does not show up in the menu bar", "Can you localize the app into my language?"])
 	}
 
 	@Test
@@ -336,8 +353,77 @@ struct ContentTests {
 	}
 
 	@Test
+	func `a tiny app is a card with its icon, a download button, the source, and the requirement`() throws {
+		let file = try MarkdownFile(contents: "@TinyApp(title: \"Copy URL\", icon: \"/apps/copy-url/icon.png\", download: \"https://example.com/Copy-URL.zip\", source: \"https://github.com/sindresorhus/Copy-URL\", requirement: \"Requires macOS 13 or later\") {\n  Copies *URLs*.\n}\n\n@TinyApp(title: \"Safari Private\", download: \"https://example.com/Safari-Private.zip\") {\n  Opens URLs.\n}", url: Project.empty.root.appending(path: "content/pages/tiny-apps.md"))
+		let html = try MarkdownDocument(parsing: file, options: .content(file, project: .empty)).html
+
+		#expect(html.contains(#"<section class="\#(TinyAppStyles.root.className)">"#))
+		#expect(html.contains(#"<img src="/apps/copy-url/icon.png" width="128" height="128" alt="""#))
+		#expect(html.contains(">Copy URL</h2>"))
+		#expect(html.contains("Copies <em>URLs</em>."))
+		#expect(html.contains(#"<a href="https://example.com/Copy-URL.zip""#))
+		#expect(html.contains(#"<a href="https://github.com/sindresorhus/Copy-URL""#))
+		#expect(html.contains(">Requires macOS 13 or later</span>"))
+
+		// Without an icon, the card has the placeholder icon, and without a source, only the download button.
+		#expect(html.contains(#"<img src="\#(App.placeholderIconPath)""#))
+		#expect(html.components(separatedBy: ">Source Code<").count - 1 == 1)
+
+		// Screen readers hear the name of the app in each link, as the links of the cards would otherwise have the same names.
+		#expect(html.contains("> Copy URL</span></a>"))
+		#expect(html.contains("> of Copy URL</span></a>"))
+		#expect(html.contains("> Safari Private</span></a>"))
+	}
+
+	@Test
 	func `social links directive has no content`() throws {
 		let file = try MarkdownFile(contents: "@SocialLinks {\n- A link\n}", url: Project.empty.root.appending(path: "content/pages/about.md"))
+
+		#expect(throws: ContentErrors.self) {
+			try MarkdownDocument(parsing: file, options: .content(file, project: .empty))
+		}
+	}
+
+	@Test
+	func `a changelog shows the kind of each change as a badge, and a change without a kind as it is`() throws {
+		let file = try MarkdownFile(contents: "@Changelog {\n- 2014\n\t- Added: Awesome\n\t- Removed: Office job\n\t- A change\n}", url: Project.empty.root.appending(path: "content/pages/about.md"))
+		let html = try MarkdownDocument(parsing: file, options: .content(file, project: .empty)).html
+
+		#expect(html.contains(#"<div class="\#(ChangelogStyles.root.className)"><ul>\#n<li>2014\#n<ul>"#))
+		#expect(html.contains(#"<li><span class="\#(Badge.Styles.root.className) \#(Badge.Kind.added.className)">Added</span> Awesome</li>"#))
+		#expect(html.contains(#"<li><span class="\#(Badge.Styles.root.className) \#(Badge.Kind.removed.className)">Removed</span> Office job</li>"#))
+		#expect(html.contains("<li>A change</li>"))
+	}
+
+	/**
+	A list with blank lines between the changes has each change in a paragraph, which still gets its badge.
+	*/
+	@Test
+	func `a changelog with blank lines between the changes shows the kinds as badges`() throws {
+		let file = try MarkdownFile(contents: "@Changelog {\n- 2014\n\t- Added: Awesome\n\n\t- Improved: Something\n}", url: Project.empty.root.appending(path: "content/pages/about.md"))
+
+		// An unknown kind in a paragraph is an error too, so it is not shown as text.
+		#expect(throws: ContentErrors.self) {
+			try MarkdownDocument(parsing: file, options: .content(file, project: .empty))
+		}
+
+		let validFile = try MarkdownFile(contents: "@Changelog {\n- 2014\n\t- Added: Awesome\n\n\t- Removed: Office job\n}", url: Project.empty.root.appending(path: "content/pages/about.md"))
+		let html = try MarkdownDocument(parsing: validFile, options: .content(validFile, project: .empty)).html
+		#expect(html.contains(#"<li>\#n<p><span class="\#(Badge.Styles.root.className) \#(Badge.Kind.added.className)">Added</span> Awesome</p>"#))
+		#expect(html.contains(#"<p><span class="\#(Badge.Styles.root.className) \#(Badge.Kind.removed.className)">Removed</span> Office job</p>"#))
+	}
+
+	@Test
+	func `an image path with a dot component has no size instead of stopping the build`() throws {
+		let file = try MarkdownFile(contents: "![Photo](/images/../photo.png)", url: Project.empty.root.appending(path: "content/pages/about.md"))
+		let html = try MarkdownDocument(parsing: file, options: .content(file, project: .empty)).html
+
+		#expect(html.contains(#"<img src="/images/../photo.png" alt="Photo">"#))
+	}
+
+	@Test
+	func `a change of an unknown kind is a content error`() throws {
+		let file = try MarkdownFile(contents: "@Changelog {\n- 2014\n\t- Improved: Something\n}", url: Project.empty.root.appending(path: "content/pages/about.md"))
 
 		#expect(throws: ContentErrors.self) {
 			try MarkdownDocument(parsing: file, options: .content(file, project: .empty))
@@ -382,11 +468,12 @@ struct ContentTests {
 
 	@Test(.temporaryDirectory)
 	func `links to content files go to the pages of their content types`() throws {
-		let project = Project(root: try URL.temporaryDirectory(files: [
+		let project = Project.site(root: try URL.temporaryDirectory(files: [
 			"content/apps/dato.md": "",
 			"content/apps/gifski/index.md": "",
 			"content/apps/gifski/icon.png": "",
 			"content/blog/post.md": "",
+			"content/blog/photo.png": "",
 			"content/pages/apps/faq.md": "",
 		]))
 
@@ -400,17 +487,49 @@ struct ContentTests {
 			try file.resolvingLink("missing.md", project: project)
 		}
 
-		// A page bundle has the page of its directory, and its files are linked by their published path.
+		// A link without a file extension goes to a page, like `donate`, so it stays. A file next to a page that is not a page bundle is not published, so a link to it is an error.
+		#expect(try file.resolvingLink("donate", project: project) == "donate")
+		#expect(throws: ContentError.self) {
+			try file.resolvingLink("photo.png", project: project)
+		}
+
+		// A page bundle has the page of its directory, and its files are linked by their published path, next to the page.
 		let bundleFile = try MarkdownFile(contents: "Text.", url: project.root.appending(path: "content/apps/gifski/index.md"), relativeTo: project.root.appending(path: "content/apps"))
 		#expect(try file.resolvingLink("../apps/gifski/index.md", project: project) == App.path(slug: "gifski").description)
-		#expect(try bundleFile.resolvingLink("icon.png", project: project) == "/apps/gifski/icon.png")
-		#expect(try bundleFile.resolvingLink("missing.png", project: project) == "missing.png")
+		#expect(try bundleFile.resolvingLink("icon.png", project: project) == App.path(slug: "gifski").appending("icon.png").description)
 		#expect(try bundleFile.resolvingLink("../dato.md", project: project) == App.path(slug: "dato").description)
+
+		// A file that does not exist, like a typo, is an error instead of a broken link.
+		#expect(throws: ContentError.self) {
+			try bundleFile.resolvingLink("missing.png", project: project)
+		}
+	}
+
+	/**
+	The page routes of the site are the path rules of the content types, so the files of a page bundle are next to its page for each type.
+	*/
+	@Test(.temporaryDirectory)
+	func `the files of a page bundle are next to its page for every content type`() throws {
+		let project = Project.site(root: try URL.temporaryDirectory(files: [
+			"content/apps/dato/index.md": "",
+			"content/apps/dato/icon.png": "",
+			"content/blog/post/index.md": "",
+			"content/blog/post/image.png": "",
+			"content/pages/about/index.md": "",
+			"content/pages/about/photo.jpg": "",
+		]))
+
+		for (directory, slug, file) in [("content/apps", "dato", "icon.png"), ("content/blog", "post", "image.png"), ("content/pages", "about", "photo.jpg")] {
+			let contentFile = project.root.appending(path: "\(directory)/\(slug)/\(file)")
+			let page = try #require(RoutePath(contentFile: project.root.appending(path: "\(directory)/\(slug)/index.md"), project: project))
+			#expect(project.publicPath(ofContentFile: contentFile) == page.appending(file))
+			#expect(project.publicFile(page.appending(file)) == contentFile)
+		}
 	}
 
 	@Test(.temporaryDirectory)
 	func `apps and posts in a subdirectory are an error instead of a crash`() async throws {
-		let project = Project(root: try URL.temporaryDirectory(files: [
+		let project = Project.site(root: try URL.temporaryDirectory(files: [
 			"content/apps/sub/test.md": "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\n---",
 			"content/blog/sub/post.md": "---\ntitle: 'Post'\npublicationDate: '2026-01-01'\n---",
 		]))
@@ -499,6 +618,17 @@ struct ContentTests {
 		#expect(try years(on: "2026-12-31") == 11)
 	}
 
+	@Test
+	func `years of open source counts whole years since the first repo`() throws {
+		func years(on date: String) throws -> Int? {
+			let buildDate = try Date(date, strategy: .iso8601.year().month().day())
+			return SiteContent(apps: [], posts: [], pages: [], buildDate: buildDate, project: .empty).yearsOfOpenSource
+		}
+
+		#expect(try years(on: "2026-09-05") == 14)
+		#expect(try years(on: "2026-09-06") == 15)
+	}
+
 	/**
 	The wall of love only has the apps that are listed and maintained, so it would show all quotes for the link of another app.
 	*/
@@ -508,12 +638,7 @@ struct ContentTests {
 		let review = AppStoreReview(title: "Great", text: "A review that is long enough to be shown on the page of the app.", author: "A reviewer", rating: 5, date: try Date("2026-01-01T00:00:00Z", strategy: .iso8601))
 		let content = SiteContent(apps: [app], posts: [], pages: [], appStoreReviews: [123: [review]], buildDate: try Date("2026-10-07T12:00:00Z", strategy: .iso8601), project: .empty)
 
-		guard case .page(_, let render) = AppPage(app: app, content: content).route.output else {
-			Issue.record("The app page is not a page.")
-			return
-		}
-
-		let html = try render()
+		let html = try AppPage(app: app, content: content).renderedHTML()
 		#expect(html.contains("A review that is long enough"))
 		#expect(!html.contains("/apps/reviews?app=hidden"))
 	}
@@ -565,15 +690,24 @@ struct ContentTests {
 	*/
 	@Test
 	func `an app without section links still has the overflow menu`() async throws {
-		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2020-01-01'\nplatforms: ['macOS']\nisArchived: true\n---\n\nText.")
+		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2020-01-01'\nplatforms: ['macOS']\nshowsSupportLink: false\n---\n\nText.")
 		#expect(app.links.isEmpty)
 		#expect(AppHero(app: app, info: nil).render().contains("Show QR Code"))
 	}
 
+	/**
+	An archived app is no longer available, so it is not passed on, and it has no terms or discounts.
+	*/
 	@Test
-	func `an archived app shares its page, not its App Store page`() async throws {
-		let app = try await App(markdown: "---\nisArchived: true\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2020-01-01'\nplatforms: ['macOS']\nappStoreID: 123\n---\n\nThe app is no longer available.\n", slug: "test")
-		#expect(app.shareURL == app.path.absoluteURL)
+	func `an archived app has no QR code, sharing, terms, or discounts`() async throws {
+		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2020-01-01'\nplatforms: ['macOS']\nisArchived: true\nisPaid: true\n---\n\nText.")
+		let html = AppHero(app: app, info: nil).render()
+		#expect(html.contains("Show Random App"))
+		#expect(!html.contains("Show QR Code"))
+		#expect(!html.contains("Share…"))
+		#expect(!html.contains(AppHero.qrCodeID))
+		#expect(!html.contains(AppHero.sharePopoverID))
+		#expect(app.pageOverflowLinks.isEmpty)
 	}
 
 	@Test
@@ -606,7 +740,7 @@ struct ContentTests {
 			try root.appending(path: directory).createDirectory()
 		}
 
-		let content = try await SiteContent.load(from: Project(root: root), externalData: .none)
+		let content = try await SiteContent.load(from: Project.site(root: root), externalData: .none)
 		#expect(content.warnings.contains { $0.message.contains("dates of the last commits") })
 	}
 
@@ -617,6 +751,18 @@ struct ContentTests {
 		} throws: { error in
 			let error = error as? ContentError
 			return error?.line == 3 && error?.reason.contains("@Sponsors") == true
+		}
+	}
+
+	/**
+	A tier with logos is a list of links, so a sponsor in it without a logo needs a URL too.
+	*/
+	@Test
+	func `a sponsor in a tier with logos needs a URL`() async throws {
+		await #expect {
+			try await MarkdownPage(markdown: "---\ntitle: 'Supporters'\nsponsorTiers: [{title: 'Sponsor', price: '$100/month', sponsors: [{name: 'Logo', url: 'https://example.com', logo: {path: '/logo.png', width: 100}}, {name: 'Someone'}]}]\n---\n\n@Sponsors\n", slug: "supporters")
+		} throws: { error in
+			(error as? ContentError)?.reason.contains("“Someone” is in a tier with logos") == true
 		}
 	}
 
@@ -703,6 +849,26 @@ struct ContentTests {
 		#expect(Schema.SoftwareApplication(app: app, info: info).aggregateRating?.ratingValue == 4.6)
 	}
 
+	@Test
+	func `the combined rating weights the apps by their number of ratings`() throws {
+		func info(_ json: String) throws -> AppStoreInfo {
+			try JSONDecoder().decode(AppStoreInfo.self, from: Data(json.utf8))
+		}
+
+		let infos = try [
+			info(#"{"trackId": 1, "averageUserRating": 4, "userRatingCount": 100}"#),
+			info(#"{"trackId": 2, "averageUserRating": 5, "userRatingCount": 200}"#),
+			// Mac App Store apps always have a rating count of 0.
+			info(#"{"trackId": 3, "averageUserRating": 0, "userRatingCount": 0, "kind": "mac-software"}"#),
+		]
+
+		let rating = try #require(infos.combinedRating)
+		// 4.67, which is not halfway, so it only rounds to 4.7 when the average is weighted. Without the weights, it is 4.5.
+		#expect(rating.average == 4.7)
+		#expect(rating.count == 300)
+		#expect(infos.suffix(1).combinedRating == nil)
+	}
+
 	/**
 	Google requires an `aggregateRating` with more than one review (“Multiple reviews without aggregateRating object”), and the App Store does not have a rating for every app, so the structured data only has the reviews with a rating.
 	*/
@@ -731,12 +897,7 @@ struct ContentTests {
 		let info = try JSONDecoder().decode(AppStoreInfo.self, from: Data(#"{"trackId": 123, "price": 0, "currency": "USD", "averageUserRating": 4.5623, "userRatingCount": 1563}"#.utf8))
 		let content = SiteContent(apps: [app], posts: [], pages: [], appStoreInfo: [123: info], buildDate: .now, project: .empty)
 
-		guard case .page(_, let render) = AppPage(app: app, content: content).route.output else {
-			Issue.record("The app page is not a page.")
-			return
-		}
-
-		let html = try render()
+		let html = try AppPage(app: app, content: content).renderedHTML()
 		#expect(html.contains(">Rated 4.6 out of 5 from 1,563 ratings on the App Store</p>"))
 		#expect(!html.contains("Recent Reviews"))
 		#expect(!html.contains("/apps/reviews?app=test"))
@@ -770,5 +931,103 @@ struct ContentTests {
 		#expect(!html.contains("No personal information"))
 		#expect(html.contains("anonymous crash reports"))
 		#expect(page.metadata.description == "The privacy policy of the Test app. Your questions are sent to OpenAI. Anonymous crash reports are sent to Sentry.")
+	}
+
+	@Test
+	func `an app is new for 30 days after its publication day`() async throws {
+		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\n---\n\nText.")
+
+		#expect(app.isNew(at: try Date("2026-01-30T23:59:59Z", strategy: .iso8601)))
+		#expect(!app.isNew(at: try Date("2026-01-31T00:00:00Z", strategy: .iso8601)))
+	}
+
+	@Test
+	func `the availability leaves out the platforms only when the requirement already says macOS`() async throws {
+		func availabilityText(_ frontmatter: String) async throws -> String? {
+			try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\n\(frontmatter)\n---\n\nText.").availabilityText
+		}
+
+		#expect(try await availabilityText("platforms: ['macOS']\nrequirement: 'Requires macOS 15 or later'") == "Requires macOS 15 or later")
+		#expect(try await availabilityText("platforms: ['iOS', 'macOS']\nrequirement: 'Requires macOS 15 or later'") == "Available on macOS, iOS — Requires macOS 15 or later")
+		#expect(try await availabilityText("platforms: ['macOS']") == "Available on macOS")
+		#expect(try await availabilityText("platforms: ['iOS']\nrequirement: 'Requires iOS 18 or later'") == "Available on iOS — Requires iOS 18 or later")
+	}
+
+	/**
+	Safari shows the App Store banner on the device that runs the app, but an Apple Watch app is installed from the iPhone, so it gets a QR code.
+	*/
+	@Test
+	func `only apps that run on iOS or visionOS get the App Store banner, and watch apps also get a QR code`() async throws {
+		func app(_ frontmatter: String) async throws -> App {
+			try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nappStoreID: 123\n\(frontmatter)\n---\n\nText.")
+		}
+
+		let watchApp = try await app("platforms: ['watchOS']")
+		#expect(!watchApp.showsAppStoreBanner)
+		#expect(watchApp.qrCodeURL != nil)
+
+		let macApp = try await app("platforms: ['macOS']")
+		#expect(!macApp.showsAppStoreBanner)
+		#expect(macApp.qrCodeURL == nil)
+
+		#expect(try await app("platforms: ['visionOS']").showsAppStoreBanner)
+		#expect(try await !app("platforms: ['iOS']\nisArchived: true").showsAppStoreBanner)
+	}
+
+	@Test
+	func `the feedback link of an app selects it, also when its name has a plus`() {
+		#expect(App.feedbackURL(appTitle: "Plash+", referrer: "Website-FAQ").description == "/feedback?product=Plash%2B&referrer=Website-FAQ")
+	}
+
+	@Test
+	func `dates are shown in English and UTC, whatever the settings of the build machine`() throws {
+		// The next day in time zones east of UTC, like in Norway, and the day before in time zones west of it, so the test fails on any machine that is not in UTC.
+		for date in [try Date("2024-06-05T23:30:00Z", strategy: .iso8601), try Date("2024-06-05T00:30:00Z", strategy: .iso8601)] {
+			#expect(date.formatted(.siteDay) == "June 5, 2024")
+			#expect(date.formatted(.siteDayWithoutYear) == "June 5")
+			#expect(date.formatted(.siteMonth) == "June 2024")
+		}
+	}
+
+	@Test
+	func `the sum of a sequence`() {
+		#expect([1, 2, 3].sum == 6)
+		#expect([Int]().sum == 0)
+		#expect([0.5, 0.25].sum == 0.75 as Double)
+	}
+
+	@Test
+	func `a sequence without the later elements with the same key`() {
+		#expect(["ky", "got", "ky", "Got"].uniqued(by: \.self) == ["ky", "got", "Got"])
+		#expect(["ky", "got", "Got"].uniqued { $0.lowercased() } == ["ky", "got"])
+	}
+}
+
+@Suite
+struct AppTests {
+	private let markdown = "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nrepositoryURL: 'https://github.com/test/repo?view=readme#old'\n---\n\nText."
+
+	@Test
+	func `new app badges begin at publication and end after thirty days`() async throws {
+		let app = try await App(markdown: markdown)
+		#expect(!app.isNew(at: app.publicationDate.addingTimeInterval(-1)))
+		#expect(app.isNew(at: app.publicationDate))
+		#expect(app.isNew(at: app.publicationDate.addingTimeInterval(30 * 86400 - 1)))
+		#expect(!app.isNew(at: app.publicationDate.addingTimeInterval(30 * 86400)))
+	}
+
+	@Test
+	func `older version links replace existing fragments and preserve queries`() async throws {
+		let app = try await App(markdown: markdown)
+		#expect(app.olderVersionsURL?.absoluteString == "https://github.com/test/repo?view=readme#download")
+	}
+
+	@Test
+	func `link merging preserves order while the final replacement wins`() {
+		let original = [LabeledLink("A", path: "/a"), LabeledLink("B", path: "/b")]
+		let additions = [LabeledLink("A", path: "/first"), LabeledLink("C", path: "/c"), LabeledLink("A", path: "/last"), LabeledLink("C", path: "/latest")]
+		let merged = original.merging(additions)
+		#expect(merged.map(\.title) == ["A", "B", "C"])
+		#expect(merged.map(\.destination) == [.path("/last"), .path("/b"), .path("/latest")])
 	}
 }

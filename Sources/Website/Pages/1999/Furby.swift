@@ -197,6 +197,10 @@ struct GeoCitiesFurby: ScriptedElement {
 		case sound
 	}
 
+	enum States: String, ElementStateSet {
+		case urgent
+	}
+
 	enum Styles: ElementStyleSet {
 		case root
 		case layout
@@ -235,7 +239,7 @@ struct GeoCitiesFurby: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.flex(3)
-					.frame(minWidth: .rootEm(20))
+					.frame(minWidth: .min(.rootEm(20), .percent(100)))
 			case .canvas:
 				// A finger on the wall or the floor scrolls the page. A finger on the Furby strokes and tickles it, as the script stops the scroll there.
 				Style()
@@ -246,15 +250,9 @@ struct GeoCitiesFurby: ScriptedElement {
 					.background(Color("#9fd3e6"))
 					.touchAction(.manipulation)
 					.handCursor()
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .status:
-				Style()
-					.frame(minHeight: .lineHeight(3))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+				Style().toyStatus(lines: 3)
 			case .panel:
 				Style()
 					.vstack(spacing: .rootEm(0.625))
@@ -276,15 +274,8 @@ struct GeoCitiesFurby: ScriptedElement {
 				// Big enough for a finger. The batteries button is yellow while the Furby wakes the house, as nothing else helps.
 				Style()
 					.frame(minHeight: .rootEm(2))
-					.disabled {
-						$0.opacity(0.5)
-					}
-					.when(.state, is: "on") {
-						$0
-							.background(.white)
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
-					.when(.state, is: "urgent") {
+					.pressedIn(.white)
+					.when(States.urgent) {
 						$0
 							.background(Color("#ffff00"))
 							.color(Color("#cc0000"))

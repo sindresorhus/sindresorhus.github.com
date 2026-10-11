@@ -1,9 +1,6 @@
 // The Bergen Trail on the 1999 page: a game like The Oregon Trail on the Apple II, about the summer car trip of the family in Pappa’s old Volvo 240, from Bergen to Nordkapp. The text of each screen is built in the page, with numbered choices, and the pictures are drawn on a canvas in the six colors of the Apple II. The trip, the gravestones, and the Top Ten are kept in the browser. The canvas runs only while it is on the screen and the tab is visible, and with reduced motion, nothing moves by itself: the car drives one day for each press.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * ((maximum - minimum) + 1));
-
-const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
+import GeoCitiesElement, {randomItem, randomInteger, clamp, hash} from '/scripts/geocities-element.js';
+import {pixelFont, drawPixelText} from '/scripts/geocities-canvas.js';
 
 // Picks one of the items by their `weight`.
 const weightedItem = items => {
@@ -21,12 +18,6 @@ const weightedItem = items => {
 	}
 
 	return items.at(-1);
-};
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
 };
 
 // MARK: The trip
@@ -413,21 +404,8 @@ const spriteColors = {
 	b: color.blue,
 };
 
-// A number from 0 to 1 that is always the same for the same seed, for scenery that looks random but stays put.
-const hash = seed => {
-	const value = Math.sin((seed * 127.1) + 311.7) * 43_758.5453;
-	return value - Math.floor(value);
-};
-
-// A tiny pixel font of 3 × 5, like the letters of the Apple II but smaller. Each letter is five rows of three bits.
-const pixelFont = {
-	A: [2, 5, 7, 5, 5], B: [6, 5, 6, 5, 6], C: [3, 4, 4, 4, 3], D: [6, 5, 5, 5, 6], E: [7, 4, 6, 4, 7], F: [7, 4, 6, 4, 4], G: [3, 4, 5, 5, 3], H: [5, 5, 7, 5, 5], I: [7, 2, 2, 2, 7], J: [1, 1, 1, 5, 2], K: [5, 5, 6, 5, 5], L: [4, 4, 4, 4, 7], M: [5, 7, 7, 5, 5], N: [6, 5, 5, 5, 5], O: [2, 5, 5, 5, 2], P: [6, 5, 6, 4, 4], Q: [2, 5, 5, 6, 3], R: [6, 5, 6, 5, 5], S: [3, 4, 2, 1, 6], T: [7, 2, 2, 2, 2], U: [5, 5, 5, 5, 7], V: [5, 5, 5, 5, 2], W: [5, 5, 7, 7, 5], X: [5, 5, 2, 5, 5], Y: [5, 5, 2, 2, 2], Z: [7, 1, 2, 4, 7],
-	0: [7, 5, 5, 5, 7], 1: [2, 6, 2, 2, 7], 2: [6, 1, 2, 4, 7], 3: [6, 1, 2, 1, 6], 4: [5, 5, 7, 1, 1], 5: [7, 4, 6, 1, 6], 6: [3, 4, 7, 5, 7], 7: [7, 1, 2, 2, 2], 8: [7, 5, 7, 5, 7], 9: [7, 5, 7, 1, 6],
-	' ': [0, 0, 0, 0, 0], '.': [0, 0, 0, 0, 2], ',': [0, 0, 0, 2, 4], '!': [2, 2, 2, 0, 2], '?': [6, 1, 2, 0, 2], ':': [0, 2, 0, 2, 0], '-': [0, 0, 7, 0, 0], '+': [0, 2, 7, 2, 0], '’': [2, 2, 0, 0, 0], '\'': [2, 2, 0, 0, 0], '“': [5, 5, 0, 0, 0], '”': [5, 5, 0, 0, 0], '"': [5, 5, 0, 0, 0], '(': [1, 2, 2, 2, 1], ')': [4, 2, 2, 2, 4], '/': [1, 1, 2, 4, 4], '°': [7, 5, 7, 0, 0], '′': [2, 2, 0, 0, 0], '♥': [0, 5, 7, 7, 2],
-	Æ: [3, 6, 7, 6, 7], Ø: [3, 5, 7, 5, 6], Å: [2, 0, 2, 5, 7], Ä: [5, 0, 2, 5, 7], Ö: [5, 0, 2, 5, 2], É: [1, 2, 7, 6, 7],
-};
-
-const textWidth = (text, scale = 1) => (([...text].length * 4) - 1) * scale;
+// The pixel font of the toys, like the letters of the Apple II but smaller. This game has its own `°`, a bigger ring, and its own `Ä` and `Ö`, with the dots above a small letter, like `Å`.
+const trailFont = {...pixelFont, '°': [7, 5, 7, 0, 0], Ä: [5, 0, 2, 5, 7], Ö: [5, 0, 2, 5, 2]};
 
 // Breaks text into lines of at most `length` letters, at the spaces.
 const wrapText = (text, length) => {
@@ -637,7 +615,7 @@ const learnPages = [
 	'Your score is the health of the family, the supplies, and the money that are left at Nordkapp, times the points of Pappa’s job. Trail Guides get 7000 points or more.',
 ];
 
-export default class extends GeoCitiesElement {
+class GeoCitiesBergenTrail extends GeoCitiesElement {
 	#context;
 	#loop;
 
@@ -1022,7 +1000,7 @@ export default class extends GeoCitiesElement {
 			const audio = this.#audio;
 			audio.sound ??= this.sound();
 			audio.isOn = !audio.isOn && audio.sound !== undefined;
-			setPressed(sound, audio.isOn);
+			sound.setAttribute('aria-pressed', String(audio.isOn));
 			sound.textContent = audio.isOn ? '🔊 Sound On' : '🔇 Sound Off';
 			audio.click();
 		});
@@ -1284,22 +1262,7 @@ export default class extends GeoCitiesElement {
 
 	// Draws text in the pixel font. `x` is the center, unless `align` is `left`.
 	#drawText(text, x, y, textColor, scale = 1, align = 'center') {
-		const characters = [...String(text).toUpperCase()];
-		let left = align === 'left' ? Math.round(x) : Math.round(x - (textWidth(characters.join(''), scale) / 2));
-		this.#context.fillStyle = textColor;
-
-		for (const character of characters) {
-			const rows = pixelFont[character] ?? pixelFont['?'];
-			for (const [row, bits] of rows.entries()) {
-				for (let column = 0; column < 3; column++) {
-					if (bits & (4 >> column)) {
-						this.#context.fillRect(left + (column * scale), Math.round(y) + (row * scale), scale, scale);
-					}
-				}
-			}
-
-			left += 4 * scale;
-		}
+		drawPixelText(this.#context, text, x, y, textColor, {scale, align, font: trailFont});
 	}
 
 	// Draws a picture from rows of letters, where each letter is a color of `spriteColors`, and a dot is see-through.
@@ -3665,3 +3628,5 @@ export default class extends GeoCitiesElement {
 		this.say('The trip begins in Bergen.');
 	}
 }
+
+customElements.define('geo-cities-bergen-trail', GeoCitiesBergenTrail);

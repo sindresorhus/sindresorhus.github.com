@@ -71,8 +71,10 @@ A part of a stylesheet: a rule, a conditional group, a layer, keyframes, a regis
 */
 public struct StyleNode: Sendable {
 	enum Kind {
-		case rule(selector: String, declarations: [Declaration], children: [StyleNode])
-		case conditional(prelude: String, declarations: [Declaration], children: [StyleNode])
+		/**
+		A rule, like `.a { … }`, or a conditional group, like `@media (…) { … }`, with its declarations and nested nodes. The prelude is the selector of a rule. A conditional group only has declarations when it is nested in a rule.
+		*/
+		case block(prelude: String, declarations: [Declaration], children: [StyleNode])
 		case layer(name: String, children: [StyleNode])
 		case keyframes(name: String, frames: [StyleNode])
 		case property(name: String, declarations: [Declaration])
@@ -87,21 +89,28 @@ public struct StyleNode: Sendable {
 	let kind: Kind
 
 	static func rule(selector: String, declarations: [Declaration], children: [StyleNode]) -> Self {
-		Self(kind: .rule(selector: selector, declarations: declarations, children: children))
+		Self(kind: .block(prelude: selector, declarations: declarations, children: children))
 	}
 
 	static func conditional(prelude: String, declarations: [Declaration], children: [StyleNode]) -> Self {
-		Self(kind: .conditional(prelude: prelude, declarations: declarations, children: children))
+		Self(kind: .block(prelude: prelude, declarations: declarations, children: children))
 	}
 
 	/**
 	The name of keyframes or a registered property, which a stylesheet defines once.
 	*/
-	var definitionName: String? {
+	enum Definition: Hashable {
+		case keyframes(String)
+		case property(String)
+	}
+
+	var definition: Definition? {
 		switch kind {
-		case .keyframes(let name, _), .property(let name, _):
-			name
-		case .rule, .conditional, .layer, .statement, .styleSet:
+		case .keyframes(let name, _):
+			.keyframes(name)
+		case .property(let name, _):
+			.property(name)
+		case .block, .layer, .statement, .styleSet:
 			nil
 		}
 	}
@@ -116,7 +125,7 @@ extension [StyleNode] {
 			switch node.kind {
 			case .styleSet(let styles):
 				[styles]
-			case .rule(_, _, let children), .conditional(_, _, let children), .layer(_, let children):
+			case .block(_, _, let children), .layer(_, let children):
 				children.styleSets
 			case .keyframes, .property, .statement:
 				[]
@@ -128,22 +137,24 @@ extension [StyleNode] {
 extension [StyleNode] {
 	/**
 	The nodes without repeated keyframes and registered properties, as several styles can use the same animation.
+
+	Limitation: The first definition of a name is kept without comparing the others, so two different keyframes with the same generated name, like of `Foo.Animations` and of a top-level `FooAnimations`, end up as one. Unlike the class names of style sets, the names are not checked for duplicates, as it has not happened.
 	*/
 	var uniqueDefinitions: Self {
-		var names = Set<String>()
+		var names = Set<StyleNode.Definition>()
 		return removingDuplicateDefinitions(names: &names)
 	}
 
 	/**
 	The nodes without the definitions that have a name in `names`, also in layers, so a definition in two layers is written once.
 	*/
-	private func removingDuplicateDefinitions(names: inout Set<String>) -> Self {
+	private func removingDuplicateDefinitions(names: inout Set<StyleNode.Definition>) -> Self {
 		compactMap { node in
 			if case .layer(let name, let children) = node.kind {
 				return StyleNode(kind: .layer(name: name, children: children.removingDuplicateDefinitions(names: &names)))
 			}
 
-			guard let name = node.definitionName else {
+			guard let name = node.definition else {
 				return node
 			}
 
@@ -179,18 +190,7 @@ extension StyleNode {
 	*/
 	fileprivate func merged(with next: Self) -> Self? {
 		switch (kind, next.kind) {
-		case (.rule(let selector, let declarations, let children), .rule(let nextSelector, let nextDeclarations, let nextChildren)):
-			guard
-				selector == nextSelector,
-				children.isEmpty || nextDeclarations.isEmpty
-			else {
-				return nil
-			}
-
-			var mergedChildren = children
-			mergedChildren.append(merging: nextChildren)
-			return .rule(selector: selector, declarations: declarations + nextDeclarations, children: mergedChildren)
-		case (.conditional(let prelude, let declarations, let children), .conditional(let nextPrelude, let nextDeclarations, let nextChildren)):
+		case (.block(let prelude, let declarations, let children), .block(let nextPrelude, let nextDeclarations, let nextChildren)):
 			guard
 				prelude == nextPrelude,
 				children.isEmpty || nextDeclarations.isEmpty
@@ -200,7 +200,7 @@ extension StyleNode {
 
 			var mergedChildren = children
 			mergedChildren.append(merging: nextChildren)
-			return .conditional(prelude: prelude, declarations: declarations + nextDeclarations, children: mergedChildren)
+			return Self(kind: .block(prelude: prelude, declarations: declarations + nextDeclarations, children: mergedChildren))
 		default:
 			return nil
 		}
@@ -412,17 +412,13 @@ private struct CSSRenderer {
 	mutating func render(_ nodes: [StyleNode]) {
 		for node in nodes {
 			switch node.kind {
-			case .rule(let selector, let declarations, let children):
+			case .block(let prelude, let declarations, let children):
+				// An empty rule or condition, like `.dark { $0 }`, would be an empty block.
 				guard !declarations.isEmpty || !children.isEmpty else {
 					continue
 				}
 
-				block(selector) { renderer in
-					renderer.write(declarations)
-					renderer.render(children)
-				}
-			case .conditional(let prelude, let declarations, let children):
-				precondition(depth > 0 || declarations.isEmpty, "Top-level \(prelude) declarations must be inside a rule.")
+				precondition(depth > 0 || declarations.isEmpty || !prelude.hasPrefix("@"), "Top-level \(prelude) declarations must be inside a rule.")
 
 				block(prelude) { renderer in
 					renderer.write(declarations)

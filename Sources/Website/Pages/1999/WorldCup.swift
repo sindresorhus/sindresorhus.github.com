@@ -101,7 +101,7 @@ struct GeoCitiesWorldCup: ScriptedElement {
 							symbol
 						}
 						.accessibilityLabel(label)
-						.style(GeoCitiesPage.Styles.smallButton, Styles.padButton)
+						.style(GeoCitiesPage.Styles.smallButton, Styles.padButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 					}
 				}
 				.style(Styles.pad)
@@ -216,7 +216,7 @@ struct GeoCitiesWorldCup: ScriptedElement {
 					button(.type(.button), .part(part)) {
 						label
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.button)
+					.style(GeoCitiesPage.Styles.smallButton, Styles.button, GeoCitiesPage.Styles.dimmedWhenDisabled)
 				}
 			}
 			.style(Styles.buttons)
@@ -257,6 +257,13 @@ struct GeoCitiesWorldCup: ScriptedElement {
 		case shootout
 		case paper
 		case italy
+	}
+
+	enum States: String, ElementStateSet {
+		case play
+		case on
+		case earned
+		case shiny
 	}
 
 	enum Hooks: String, ScriptHookSet {
@@ -318,18 +325,12 @@ struct GeoCitiesWorldCup: ScriptedElement {
 					.background(Color("#3a2a1a"))
 					.touchAction(.manipulation)
 					.handCursor()
-					.when(.state, is: "play") {
+					.when(States.play) {
 						$0.touchAction(.none)
 					}
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .status:
-				Style()
-					.frame(minHeight: .lineHeight(3))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+				Style().toyStatus(lines: 3)
 			case .pad:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
@@ -339,9 +340,6 @@ struct GeoCitiesWorldCup: ScriptedElement {
 				Style()
 					.frame(minWidth: .rootEm(2.75), minHeight: .rootEm(2.75))
 					.textStyle(.body, weight: .bold)
-					.disabled {
-						$0.opacity(0.5)
-					}
 			case .kickButton:
 				// The big red button, held down to fill a meter.
 				Style()
@@ -353,7 +351,7 @@ struct GeoCitiesWorldCup: ScriptedElement {
 					.touchAction(.none)
 					// White, as the navy ring of the other buttons does not show on the red.
 					.buttonFocusRing(.white)
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0
 							.background(Color("#800000"))
 							.border(Color("#400000"), width: .pixels(2), style: .inset)
@@ -367,7 +365,7 @@ struct GeoCitiesWorldCup: ScriptedElement {
 					.margin(0)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#cc0000"))
+					.color(Color("#800000"))
 			case .buttons:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
@@ -375,14 +373,7 @@ struct GeoCitiesWorldCup: ScriptedElement {
 			case .button:
 				Style()
 					.frame(minHeight: .rootEm(2))
-					.disabled {
-						$0.opacity(0.5)
-					}
-					.when(.state, is: "on") {
-						$0
-							.background(.white)
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
+					.pressedIn(.white)
 			case .album:
 				// The album of stickers, on the blue of the Panini albums of the time.
 				Style()
@@ -402,10 +393,10 @@ struct GeoCitiesWorldCup: ScriptedElement {
 					.padding(.rootEm(0.25))
 					.background(.white)
 					.border(Color("#8080a0"), width: .pixels(2), style: .dashed)
-					.when(.state, is: "earned") {
+					.when(States.earned) {
 						$0.border(Color("#cc0000"), width: .pixels(2), style: .solid)
 					}
-					.when(.state, is: "shiny") {
+					.when(States.shiny) {
 						$0
 							.border(Color("#c0a000"), width: .pixels(2), style: .solid)
 							.backgroundImage(.linearGradient("135deg", Color("#fff8c0"), Color("#ffffff"), Color("#ffe080")))

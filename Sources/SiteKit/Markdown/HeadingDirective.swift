@@ -66,6 +66,13 @@ struct DirectiveComment {
 	let isOnOwnLine: Bool
 
 	/**
+	The problem of a directive that is not where it belongs.
+	*/
+	var misplacedMessage: String {
+		"The directive `@\(name)` must be directly below a heading, on its own line, with only other directives between."
+	}
+
+	/**
 	Reads the directive comment in the line. `nil` when the line has none.
 	*/
 	init?(line: Substring) {
@@ -99,8 +106,8 @@ extension HTMLBlock {
 	Whether every line that is not empty is a directive comment on its own line.
 	*/
 	public var isOnlyDirectives: Bool {
-		zip(rawHTML.split(separator: "\n", omittingEmptySubsequences: false), directiveComments).allSatisfy { line, comment in
-			comment?.isOnOwnLine ?? line.allSatisfy(\.isWhitespace)
+		rawHTML.split(separator: "\n", omittingEmptySubsequences: false).allSatisfy { line in
+			DirectiveComment(line: line)?.isOnOwnLine ?? line.allSatisfy(\.isWhitespace)
 		}
 	}
 

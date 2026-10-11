@@ -19,6 +19,8 @@ if (!prefersReducedMotion) {
 	document.fonts.ready.then(measure);
 	email.closest('section').addEventListener('animationend', measure);
 	new ResizeObserver(measure).observe(email);
+	// The address is centered in the height of the window, so a change of only the height moves it without changing its size.
+	addEventListener('resize', measure);
 
 	const lift = (pointerX, pointerY) => {
 		const nearness = centers.map(({x, y}) => {
@@ -75,7 +77,12 @@ if (!prefersReducedMotion) {
 
 	let liftFrame = 0;
 
-	document.addEventListener('mousemove', event => {
+	// Only for a mouse, as a tap also moves the pointer, but nothing tells when the finger leaves, so the letters would stay lifted.
+	document.addEventListener('pointermove', event => {
+		if (event.pointerType !== 'mouse') {
+			return;
+		}
+
 		email.dataset.rainbow = '';
 
 		cancelAnimationFrame(liftFrame);
@@ -104,13 +111,18 @@ if (!prefersReducedMotion) {
 	const sparkleTemplate = document.querySelector('#sparkle-template');
 
 	email.addEventListener('click', event => {
+		// A click with the keyboard has no pointer position, so the sparkles start from the middle of the address.
+		const rect = email.getBoundingClientRect();
+		const startX = event.detail === 0 ? rect.left + (rect.width / 2) : event.clientX;
+		const startY = event.detail === 0 ? rect.top + (rect.height / 2) : event.clientY;
+
 		for (let index = 0; index < 26; index++) {
 			const sparkle = sparkleTemplate.content.firstElementChild.cloneNode(true);
 			const angle = ((index / 26) * Math.PI * 2) + (Math.random() * 0.35);
 			const distance = 55 + (Math.random() * 110);
 
-			sparkle.style.setProperty('--start-x', `${event.clientX}px`);
-			sparkle.style.setProperty('--start-y', `${event.clientY}px`);
+			sparkle.style.setProperty('--start-x', `${startX}px`);
+			sparkle.style.setProperty('--start-y', `${startY}px`);
 			sparkle.style.setProperty('--x', `${Math.cos(angle) * distance}px`);
 			sparkle.style.setProperty('--y', `${Math.sin(angle) * distance}px`);
 			sparkle.style.setProperty('--size', `${4 + (Math.random() * 8)}px`);
@@ -141,5 +153,8 @@ if (!prefersReducedMotion) {
 	const pageURL = new URL(location.href);
 	pageURL.searchParams.delete('subject');
 	pageURL.searchParams.delete('body');
-	history.replaceState({}, '', pageURL);
+
+	if (pageURL.href !== location.href) {
+		history.replaceState(history.state, '', pageURL);
+	}
 }

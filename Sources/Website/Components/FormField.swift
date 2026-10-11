@@ -105,7 +105,7 @@ enum FormFieldStyles: StyleSet {
 				.padding(.rootEm(0.625))
 				.border()
 				.borderColor(.gray(300), dark: .white.opacity(0.1))
-				.cornerRadius(.rootEm(0.5))
+				.cornerRadius(.fieldRadius)
 				.textStyle(.lead)
 				.color(.primaryText)
 				.background(.white.opacity(0.6), dark: .white.opacity(0.06))

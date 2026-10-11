@@ -1,19 +1,5 @@
 // Lillesøster’s Dollz corner on the 1999 page: a Dollz Maker that draws a real pixel doll at 1x on a canvas, which the page scales up with crisp pixels. Every piece is drawn into its own layer with shapes, shaded with a ramp of its color (light from the top left), and gets a black outline, like the dollz that kids drew in MS Paint. The recolor tool swaps the ramp of a piece. The glitter and the blinking only animate while the doll is on the screen and the tab is visible, and never for visitors who prefer reduced motion. The Dollz House keeps the saved dolls in the browser. Nothing here makes a sound.
-const nextFrame = () => new Promise(resolve => {
-	requestAnimationFrame(() => {
-		resolve();
-	});
-});
-
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
+import GeoCitiesElement, {randomItem, clamp, nextFrame, hasModifier} from '/scripts/geocities-element.js';
 
 // The size of the canvas of the doll in Swift, in pixels. The pieces of the doll are drawn for this size.
 const width = 128;
@@ -2563,7 +2549,7 @@ const drawCertificate = (context, adopted, number, adopter) => {
 
 const houseSize = 12;
 
-export default class extends GeoCitiesElement {
+class GeoCitiesDollz extends GeoCitiesElement {
 	#context;
 	#tabButtons;
 	#panels;
@@ -2761,7 +2747,7 @@ export default class extends GeoCitiesElement {
 		// The keys of the canvas change the tab and the piece, so the doll can be dressed from the keyboard.
 		this.on(canvas, 'keydown', event => {
 			// Keys with Ctrl, Cmd, or Alt belong to the browser, like Ctrl+R to reload and Cmd+Z.
-			if (event.ctrlKey || event.metaKey || event.altKey) {
+			if (hasModifier(event)) {
 				return;
 			}
 
@@ -2931,7 +2917,7 @@ export default class extends GeoCitiesElement {
 	#syncControls() {
 		const {recolorTarget, glitter, stamp, blink, undo, nameLabel, name, maker} = this.parts;
 		for (const button of this.#tabButtons) {
-			setPressed(button, button.dataset.dollzTab === this.#currentTab);
+			button.setAttribute('aria-pressed', String(button.dataset.dollzTab === this.#currentTab));
 		}
 
 		for (const panel of this.#panels) {
@@ -2940,19 +2926,19 @@ export default class extends GeoCitiesElement {
 
 		for (const button of this.#itemButtons) {
 			const {dollzSlot: slot, dollzItem: item} = button.dataset;
-			setPressed(button, slot === 'extras' ? this.#doll.extras.includes(item) : this.#doll[slot] === item);
+			button.setAttribute('aria-pressed', String(slot === 'extras' ? this.#doll.extras.includes(item) : this.#doll[slot] === item));
 		}
 
 		const key = this.#recolorKey;
 		recolorTarget.textContent = recolorName(key);
 		const color = this.#doll.colors[key] ?? defaultColor(this.#doll, key);
 		for (const swatch of this.#swatches) {
-			setPressed(swatch, swatch.dataset.dollzColor === color);
+			swatch.setAttribute('aria-pressed', String(swatch.dataset.dollzColor === color));
 		}
 
-		setPressed(glitter, this.#doll.glitter);
-		setPressed(stamp, this.#doll.stamp);
-		setPressed(blink, this.#isBlinkOn);
+		glitter.setAttribute('aria-pressed', String(this.#doll.glitter));
+		stamp.setAttribute('aria-pressed', String(this.#doll.stamp));
+		blink.setAttribute('aria-pressed', String(this.#isBlinkOn));
 		undo.disabled = this.#history.length === 0;
 		const isGuy = this.#doll.body === 'guy';
 		nameLabel.textContent = isGuy ? 'His name:' : 'Her name:';
@@ -3117,3 +3103,5 @@ export default class extends GeoCitiesElement {
 		return true;
 	}
 }
+
+customElements.define('geo-cities-dollz', GeoCitiesDollz);

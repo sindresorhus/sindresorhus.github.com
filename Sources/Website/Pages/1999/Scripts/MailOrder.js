@@ -1,27 +1,6 @@
 // Order Now! on the 1999 page: the ads on the back pages of my comic books, the coupons that the visitor cuts out with scissors, the piggy bank that pays, Mamma who says no, the 6 to 8 weeks of waiting for the mailman, the packages with bubble wrap, and the things that came, to play with. The orders are kept in the browser. The kitchen table, the mailbox, and my stuff each run only while their canvas is on the screen and the tab is visible, and for visitors who prefer reduced motion, nothing moves by itself.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	if (isPressed) {
-		button.dataset.state = 'on';
-	} else {
-		delete button.dataset.state;
-	}
-};
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
+import GeoCitiesElement, {cloneTemplate, randomItem, randomInteger, randomBetween, clamp} from '/scripts/geocities-element.js';
+import {canvasPoint} from '/scripts/geocities-canvas.js';
 
 // What each ad sells, what really comes in the mail, and what Mamma and Pappa say about it.
 const catalog = {
@@ -1232,7 +1211,7 @@ const royalNames = ['King Harald', 'Queen Sonja', 'Crown Prince Haakon', 'Prince
 const chairs = [{x: 170, name: 'Pappa’s chair'}, {x: 330, name: 'Mormor’s chair'}, {x: 490, name: 'Lillesøster’s chair'}];
 const paper = {left: 340, top: 104, right: 624, bottom: 346};
 
-export default class extends GeoCitiesElement {
+class GeoCitiesMailOrder extends GeoCitiesElement {
 	#state;
 	#toys;
 	#xray;
@@ -1490,7 +1469,7 @@ export default class extends GeoCitiesElement {
 				}).catch(() => {});
 			}
 
-			setPressed(sound, audio.isOn);
+			sound.setAttribute('aria-pressed', String(audio.isOn));
 		});
 
 		this.on(mammaPappa, 'click', () => {
@@ -1713,7 +1692,7 @@ export default class extends GeoCitiesElement {
 		const firstOwned = catalogOrder.find(id => this.#state.items[id]?.status === 'mine');
 		if (firstOwned) {
 			this.#stuff.selected = firstOwned;
-			setPressed(this.#stuff.tabs.get(firstOwned), true);
+			this.#stuff.tabs.get(firstOwned).setAttribute('aria-pressed', 'true');
 		}
 
 		this.#renderTools();
@@ -4207,12 +4186,12 @@ export default class extends GeoCitiesElement {
 		const owned = catalogOrder.filter(id => this.#state.items[id]?.status === 'mine');
 		this.#stuff.tabs.clear();
 		this.parts.stuffTabs.replaceChildren(...owned.map(id => {
-			const button = this.parts.stuffTab.content.firstElementChild.cloneNode(true);
+			const button = cloneTemplate(this.parts.stuffTab);
 			button.textContent = catalog[id].name;
 			button.addEventListener('click', () => {
 				this.#selectToy(id);
 			});
-			setPressed(button, id === this.#stuff.selected);
+			button.setAttribute('aria-pressed', String(id === this.#stuff.selected));
 			this.#stuff.tabs.set(id, button);
 			return button;
 		}));
@@ -4225,7 +4204,7 @@ export default class extends GeoCitiesElement {
 		for (const [index, tool] of tools.entries()) {
 			let button = buttons[index];
 			if (!button) {
-				button = this.parts.stuffTool.content.firstElementChild.cloneNode(true);
+				button = cloneTemplate(this.parts.stuffTool);
 				button.addEventListener('click', () => {
 					this.#stuff.tools[index]?.action();
 					this.#afterInput();
@@ -4237,9 +4216,8 @@ export default class extends GeoCitiesElement {
 			button.disabled = Boolean(tool.disabled);
 			if (tool.pressed === undefined) {
 				button.removeAttribute('aria-pressed');
-				delete button.dataset.state;
 			} else {
-				setPressed(button, tool.pressed);
+				button.setAttribute('aria-pressed', String(tool.pressed));
 			}
 		}
 
@@ -4293,7 +4271,7 @@ export default class extends GeoCitiesElement {
 	#selectToy(id) {
 		this.#stuff.selected = id;
 		for (const [tabId, button] of this.#stuff.tabs) {
-			setPressed(button, tabId === id);
+			button.setAttribute('aria-pressed', String(tabId === id));
 		}
 
 		this.#toys[id].enter?.();
@@ -4325,3 +4303,5 @@ export default class extends GeoCitiesElement {
 		this.#sayBank('A brand new comic book, with all the coupons, and 120 kr in the piggy bank!');
 	}
 }
+
+customElements.define('geo-cities-mail-order', GeoCitiesMailOrder);

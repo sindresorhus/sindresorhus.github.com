@@ -104,7 +104,7 @@ struct GeoCitiesDJBooth: HTML {
 					// A black record with grooves. The script turns it.
 					Style()
 						.hstack(alignment: .center, justification: .center)
-						.frame(width: .rootEm(12), height: .rootEm(12))
+						.frame(size: .rootEm(12))
 						.backgroundImage(.radialGradient("circle", Color("#cc0000"), Color("#111111"), Color("#2a2a2a"), Color("#111111"), Color("#2a2a2a"), Color("#111111"), Color("#2a2a2a"), Color("#111111")))
 						.border(Color("#000"), width: .pixels(3))
 						.cornerRadius(.percent(50))
@@ -118,7 +118,7 @@ struct GeoCitiesDJBooth: HTML {
 					// The red label in the middle, with the text of the record.
 					Style()
 						.hstack(alignment: .center, justification: .center)
-						.frame(width: .rootEm(4.5), height: .rootEm(4.5))
+						.frame(size: .rootEm(4.5))
 						.padding(.rootEm(0.5))
 						.background(Color("#cc0000"))
 						.cornerRadius(.percent(50))
@@ -144,16 +144,13 @@ struct GeoCitiesDJBooth: HTML {
 		var style: Style {
 			switch self {
 			case .booth:
-				// Black, with neon green, like a booth in a club.
+				// Black, with neon green, like a booth in a club. The text inherits the white, so a part with its own color, like the green of an LCD, keeps it.
 				Style()
 					.flowSpacing(.rootEm(0.75))
 					.padding(.rootEm(0.75))
 					.background(Color("#111111"))
 					.border(Color("#39ff14"), width: .pixels(3))
 					.color(.white)
-					.children("label, p") {
-						$0.color(.white)
-					}
 			case .title:
 				Style()
 					.textAlign(.center)

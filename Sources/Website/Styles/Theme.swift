@@ -42,9 +42,9 @@ enum Palette: String, CaseIterable {
 		case .secondary:
 			[50: "oklch(97.1% .014 343.198)", 200: "oklch(89.9% .061 343.231)", 400: "oklch(71.8% .202 349.761)", 500: "oklch(65.6% .241 354.308)", 600: "oklch(59.2% .249 .584)", 800: "oklch(45.9% .187 3.815)", 900: "oklch(40.8% .153 2.432)"]
 		case .red:
-			[400: "oklch(70.4% .191 22.216)", 500: "oklch(63.7% .237 25.331)", 600: "oklch(57.7% .245 27.325)"]
+			[100: "oklch(93.6% .032 17.717)", 200: "oklch(88.5% .062 18.334)", 400: "oklch(70.4% .191 22.216)", 500: "oklch(63.7% .237 25.331)", 600: "oklch(57.7% .245 27.325)"]
 		case .amber:
-			[50: "oklch(98.7% .022 95.277)", 200: "oklch(92.4% .12 95.746)", 300: "oklch(87.9% .169 91.605)", 400: "oklch(82.8% .189 84.429)", 600: "oklch(66.6% .179 58.318)", 700: "oklch(55.5% .163 48.998)", 800: "oklch(47.3% .137 46.201)", 900: "oklch(41.4% .112 45.904)", 950: "oklch(27.9% .077 45.635)"]
+			[50: "oklch(98.7% .022 95.277)", 100: "oklch(96.2% .059 95.617)", 200: "oklch(92.4% .12 95.746)", 300: "oklch(87.9% .169 91.605)", 400: "oklch(82.8% .189 84.429)", 600: "oklch(66.6% .179 58.318)", 700: "oklch(55.5% .163 48.998)", 800: "oklch(47.3% .137 46.201)", 900: "oklch(41.4% .112 45.904)", 950: "oklch(27.9% .077 45.635)"]
 		case .orange:
 			[100: "oklch(95.4% .038 75.164)", 200: "oklch(90.1% .076 70.697)"]
 		case .teal:
@@ -52,11 +52,11 @@ enum Palette: String, CaseIterable {
 		case .sky:
 			[100: "oklch(95.1% .026 236.824)", 200: "oklch(90.1% .058 230.902)"]
 		case .indigo:
-			[50: "oklch(96.2% .018 272.314)", 200: "oklch(87% .065 274.039)", 500: "oklch(58.5% .233 277.117)", 950: "oklch(25.7% .09 281.288)"]
+			[50: "oklch(96.2% .018 272.314)", 100: "oklch(93% .034 272.788)", 200: "oklch(87% .065 274.039)", 500: "oklch(58.5% .233 277.117)", 950: "oklch(25.7% .09 281.288)"]
 		case .violet:
 			[500: "oklch(60.6% .25 292.717)"]
 		case .emerald:
-			[50: "oklch(97.9% .021 166.113)", 400: "oklch(76.5% .177 163.223)", 700: "oklch(50.8% .118 165.612)", 950: "oklch(26.2% .051 172.552)"]
+			[50: "oklch(97.9% .021 166.113)", 100: "oklch(95% .052 163.051)", 200: "oklch(90.5% .093 164.15)", 400: "oklch(76.5% .177 163.223)", 700: "oklch(50.8% .118 165.612)", 950: "oklch(26.2% .051 172.552)"]
 		case .purple:
 			[50: "oklch(97.7% .014 308.299)", 400: "oklch(71.4% .203 305.504)", 700: "oklch(49.6% .265 301.924)", 950: "oklch(29.1% .149 302.717)"]
 		case .rose:
@@ -125,7 +125,7 @@ enum SemanticColor: String, CaseIterable {
 	case cardHover
 
 	/**
-	The light and dark colors, and the colors when the visitor asks for more contrast in the system settings, when they differ. Secondary text, links, and separators get darker in light mode and lighter in dark mode.
+	The light and dark colors, and the colors when the visitor asks for more contrast in the system settings, when they differ. Body text, secondary text, links, and separators get darker in light mode and lighter in dark mode.
 	*/
 	private var definition: (colors: Color.LightDark, moreContrast: Color.LightDark?) {
 		switch self {
@@ -138,8 +138,8 @@ enum SemanticColor: String, CaseIterable {
 		case .link:
 			(Color.LightDark(light: .primary(600), dark: .primary(400)), Color.LightDark(light: .primary(700), dark: .primary(300)))
 		case .separator:
-			// In dark mode, between two shades, so the lines are not brighter than they need to be on the near black background.
-			(Color.LightDark(light: .gray(200), dark: .gray(700).mix(with: .gray(800), amount: .percent(50))), Color.LightDark(light: .gray(500), dark: .gray(400)))
+			// Faint, between two shades in light mode, so the lines set things apart without drawing the eye.
+			(Color.LightDark(light: .gray(200).mix(with: .gray(100), amount: .percent(50)), dark: .gray(800)), Color.LightDark(light: .gray(500), dark: .gray(400)))
 		// In dark mode, a near black with a tiny blue tint.
 		case .pageBackground:
 			(Color.LightDark(light: .white, dark: "oklch(14% .012 264)"), nil)
@@ -155,8 +155,11 @@ enum SemanticColor: String, CaseIterable {
 		definition.colors
 	}
 
-	var moreContrast: Color.LightDark {
-		definition.moreContrast ?? colors
+	/**
+	The colors when the visitor asks for more contrast, or `nil` when they are the same as ``colors``.
+	*/
+	private var moreContrast: Color.LightDark? {
+		definition.moreContrast
 	}
 
 	private var variable: StyleVariable<Color> {
@@ -168,13 +171,19 @@ enum SemanticColor: String, CaseIterable {
 	}
 
 	/**
-	The custom properties of every semantic color, for `:root`.
+	The custom properties of every semantic color, for `:root`, and the colors that change when the visitor asks for more contrast.
 	*/
 	static var customProperties: Style {
 		allCases
 			.reduce(Style()) { $0.setting($1.variable, to: .lightDark($1.colors.light, $1.colors.dark)) }
 			.media(.moreContrast) { style in
-				allCases.reduce(style) { $0.setting($1.variable, to: .lightDark($1.moreContrast.light, $1.moreContrast.dark)) }
+				allCases.reduce(style) { style, color in
+					guard let colors = color.moreContrast else {
+						return style
+					}
+
+					return style.setting(color.variable, to: .lightDark(colors.light, colors.dark))
+				}
 			}
 	}
 }
@@ -193,6 +202,11 @@ extension Color {
 	}
 
 	/**
+	The accent for small marks on the page background, like the numbers of steps and the current dot of a carousel. It is dark enough on white, and the accent itself in dark mode, so an app page shows the color of its icon in both.
+	*/
+	static let accentMark = lightDark(.accent(fallback: .primary(600), maximumLightness: 0.6), accent.value(default: .primary(400)))
+
+	/**
 	A color for light mode and one for dark mode.
 	*/
 	struct LightDark {
@@ -201,7 +215,7 @@ extension Color {
 	}
 
 	/**
-	The value of a palette shade, like `oklch(12.9% .042 264.695)` for `.gray(950)`, for places that cannot use custom properties, like the `theme-color` meta tag. Other colors are returned as they are.
+	The value of a palette shade, like `oklch(18.8% .004 286)` for `.gray(950)`, for places that cannot use custom properties, like the `theme-color` meta tag. Other colors are returned as they are.
 	*/
 	var resolved: Self {
 		for palette in Palette.allCases {
@@ -376,6 +390,11 @@ enum TextStyle {
 	case title
 
 	/**
+	The title of a section, like a heading in prose (`h2`) and ``Section``, so a section in prose looks the same as one outside it.
+	*/
+	case sectionTitle
+
+	/**
 	The title of a card.
 	*/
 	case headline
@@ -401,6 +420,8 @@ enum TextStyle {
 			.clamp(.rootEm(2.5), .viewportWidth(6), .rootEm(3.75))
 		case .title:
 			.clamp(.rootEm(1.875), .viewportWidth(4), .rootEm(2.5))
+		case .sectionTitle:
+			.rootEm(1.875)
 		case .headline:
 			.rootEm(1.1875)
 		case .lead:
@@ -418,6 +439,8 @@ enum TextStyle {
 			1.04
 		case .title:
 			1.08
+		case .sectionTitle:
+			1.15
 		case .headline:
 			1.3
 		case .lead, .body:
@@ -432,7 +455,7 @@ enum TextStyle {
 	*/
 	var weight: FontWeight? {
 		switch self {
-		case .largeTitle, .title:
+		case .largeTitle, .title, .sectionTitle:
 			.bold
 		case .headline:
 			.semibold
@@ -450,6 +473,8 @@ enum TextStyle {
 			.em(-0.032)
 		case .title:
 			.em(-0.026)
+		case .sectionTitle:
+			.em(-0.025)
 		case .headline:
 			.em(-0.01)
 		case .lead, .body, .caption:
@@ -554,9 +579,14 @@ extension Length {
 	static let boxRadius = rootEm(1.25)
 
 	/**
-	Screenshots and other pictures of windows (0.75rem).
+	Screenshots and other pictures of windows, and blocks of code (0.75rem).
 	*/
 	static let windowRadius = rootEm(0.75)
+
+	/**
+	Form fields, and the boxes of a form next to them, like the files to attach and the help that the feedback page suggests, so they look like one form (0.75rem).
+	*/
+	static let fieldRadius = rootEm(0.75)
 }
 
 extension Length {
@@ -589,6 +619,15 @@ extension [Shadow] {
 	}
 }
 
+extension Shadow {
+	/**
+	A thin line inside the edge of the element, like the faint edge of a card, which gives a light fill a clear outline, like the materials of Apple platforms.
+	*/
+	static func edge(_ color: Color) -> Self {
+		Self(y: 0, spread: .pixels(1), color: color, isInset: true)
+	}
+}
+
 extension Animation {
 	/**
 	A quick change from one state to another, like the color of a link while the pointer is over it.
@@ -598,16 +637,35 @@ extension Animation {
 	/**
 	A quick change that goes a little past the end and settles back, like the checkmark of a copy button that grows in.
 	*/
-	static let pop = Self.timingCurve(0.34, 1.56, 0.64, 1, duration: .milliseconds(250))
+	static let pop = pop(duration: .milliseconds(250))
+
+	/**
+	A change that goes a little past the end and settles back (``pop``), with another duration, like a very quick one that follows the pointer.
+	*/
+	static func pop(duration: Duration) -> Self {
+		timingCurve(0.34, 1.56, 0.64, 1, duration: duration)
+	}
+
+	/**
+	Opening and closing something, like a question of a FAQ, so its height and its chevron move together.
+	*/
+	static let disclosure = Self.default(duration: .milliseconds(250))
 }
 
 extension Style {
+	/**
+	A link that looks like the text around it, without an underline, and has the primary text color under the pointer, like the links of the footer. The parent or the style sets its color, like a secondary color.
+	*/
+	func quietLink() -> Self {
+		underline(false).hoverColor(.primaryText)
+	}
+
 	/**
 	Changes the text color while the pointer is over the element, with a quick transition.
 	*/
 	func hoverColor(_ color: Color) -> Self {
 		transition(.color, animation: .stateChange)
-			.hover {
+			.hoverOrFocusVisible {
 				$0.color(color)
 			}
 	}
@@ -640,7 +698,7 @@ extension Style {
 			.cornerRadius(.capsule)
 			.fontWeight(.medium)
 			.transition(.color, .backgroundColor, animation: .stateChange)
-			.hover {
+			.hoverOrFocusVisible {
 				$0
 					.color(.primaryText)
 					.background(.card)
@@ -719,9 +777,9 @@ extension Style {
 	*/
 	func codeSurface() -> Self {
 		padding(vertical: .em(1), horizontal: .em(1.5))
-			.cornerRadius(.rootEm(0.375))
+			.cornerRadius(.windowRadius)
 			.overflow(horizontal: .auto)
-			.font(size: .em(0.8889), lineHeight: 1.75)
+			.font(size: ProseStyles.smallTextSize, lineHeight: 1.75)
 			.fontWeight(.regular)
 			// Code is often indented with tabs, which are 8 spaces wide by default.
 			.declaration(.tabSize, 4)
@@ -730,7 +788,10 @@ extension Style {
 			// The code is light on dark in both modes, so the scroll bar is too. The dark background is not `light-dark()`, as that would follow this color scheme.
 			.colorScheme(.dark)
 			.dark {
-				$0.background(.black.opacity(0.5))
+				// Darker than the page, with the faint edge of the cards, as the near black page and the box are almost the same.
+				$0
+					.background(.black.opacity(0.5))
+					.shadow(.edge(.white.opacity(0.06)))
 			}
 	}
 
@@ -748,11 +809,18 @@ extension Style {
 	}
 
 	/**
+	A centered column of a width, without space at the sides, like a block inside a page that already has it.
+	*/
+	func centeredColumn(_ width: ColumnWidth) -> Self {
+		frame(maxWidth: width.maximum)
+			.margin(.horizontal, .auto)
+	}
+
+	/**
 	The centered column of the content of a page, with the space of the page at the sides (``Length/pageGutter``).
 	*/
 	func contentColumn(_ width: ColumnWidth = .standard) -> Self {
-		frame(maxWidth: width.maximum)
-			.margin(.horizontal, .auto)
+		centeredColumn(width)
 			.padding(.horizontal, .pageGutter)
 	}
 
@@ -760,8 +828,8 @@ extension Style {
 	The centered width of the header, the footer, and other parts that line up with them, 72rem.
 	*/
 	func pageWidth() -> Self {
-		frame(maxWidth: ColumnWidth.page.maximum)
-			.margin(vertical: 0, horizontal: .auto)
+		centeredColumn(.page)
+			.margin(.vertical, 0)
 	}
 
 	/**
@@ -796,8 +864,20 @@ extension Style {
 			.underlineColor(.lightDark(Color.accent(fallback: .primary(500), maximumLightness: 0.65).opacity(0.5), Color.accent.value(default: .primary(400)).opacity(0.55)))
 			.underlineOffset(.pixels(4))
 			.transition(.underlineColor, animation: .stateChange)
-			.hover {
-				$0.underlineColor(.lightDark(.accent(fallback: .primary(500), maximumLightness: 0.6), Color.accent.value(default: .primary(400))))
+			.hoverOrFocusVisible {
+				$0.underlineColor(.accentMark)
+			}
+	}
+
+	/**
+	A link to more of something, like all the posts below a post: semibold, in the link color, and underlined only under the pointer or with the focus of the keyboard.
+	*/
+	func moreLink() -> Self {
+		fontWeight(.semibold)
+			.color(.link)
+			.underline(false)
+			.hoverOrFocusVisible {
+				$0.underline()
 			}
 	}
 
@@ -811,6 +891,68 @@ extension Style {
 	}
 
 	/**
+	A card that is a link, like the newest app on the now page: its content in a row, without the look of a link in prose, as the whole card is the link, and its icons, like a chevron, in a quiet color.
+	*/
+	func linkCard() -> Self {
+		hstack(alignment: .center, spacing: .rootEm(1.25))
+			.padding(.rootEm(1.25))
+			.cardSurface()
+			.fontWeight(.regular)
+			.color(.primaryText)
+			.children(Icon.selector) {
+				$0
+					.flexShrink(0)
+					.color(.secondaryText)
+			}
+	}
+
+	/**
+	The expanded width of SF Pro on Apple platforms, for large display text, like the name on the home page. Other platforms show their regular sans-serif font.
+	*/
+	func expandedFont() -> Self {
+		fontFamily(.expandable)
+			.fontWidth(.expanded)
+	}
+
+	/**
+	A short label above a title, like “Newest App” on a card: small, semibold, and in the link color, not the accent, as small text in the color of some icons is hard to read.
+	*/
+	func eyebrow() -> Self {
+		textStyle(.caption, weight: .semibold)
+			.color(.link)
+	}
+
+	/**
+	A small, quiet capsule with a state, like the date the now page was updated. It is smaller and quieter than ``chip(isInteractive:)``, with secondary text and digits of the same width.
+	*/
+	func statusChip() -> Self {
+		hstack(alignment: .center, isInline: true)
+			.margin(0)
+			.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.75))
+			.cornerRadius(.capsule)
+			.textStyle(.caption, weight: .medium)
+			.monospacedDigit()
+			.color(.secondaryText)
+			.background(.card)
+	}
+
+	/**
+	A green dot before the content of the element, like a status light, for something that is current, like the date the now page was updated. It does not move.
+	*/
+	func statusLight() -> Self {
+		before {
+			$0
+				.content("")
+				// A box, also outside of a stack.
+				.display(.inlineBlock)
+				.frame(size: .rootEm(0.5))
+				.margin(.trailing, .rootEm(0.5))
+				.cornerRadius(.circle)
+				.background(.emerald(700), dark: .emerald(400))
+		}
+	}
+
+	/**
 	The look of a card: a light, see-through fill with a faint edge. A card that links somewhere looks like glass while the pointer is over it: a soft light in the accent color shines through it, and it glows around its edges. The accent can be set on the card, like the color of the icon of an app card. Nothing moves. A card that links somewhere has no underline, like a link in prose has.
 	*/
 	func cardSurface(isInteractive: Bool = true) -> Self {
@@ -818,7 +960,7 @@ extension Style {
 		// A faint edge gives the light fill a clear outline, like the materials of Apple platforms.
 		let style = background(.card)
 			.cornerRadius(.cardRadius)
-			.shadow(Shadow(y: 0, spread: .pixels(1), color: .lightDark(.black.opacity(0.04), .white.opacity(0.06)), isInset: true))
+			.shadow(.edge(.lightDark(.black.opacity(0.04), .white.opacity(0.06))))
 
 		guard isInteractive else {
 			return style
@@ -839,28 +981,46 @@ extension Style {
 				$0.backgroundImage(light(strength: 17))
 			}
 			.transition(.backgroundColor, .shadow, animation: .stateChange)
-			.transition(TransitionProperty(Property(cardLight.name)), animation: .default(duration: .milliseconds(300)))
-			.hover {
+			.transition(TransitionProperty(cardLight), animation: .default(duration: .milliseconds(300)))
+			.hoverOrFocusVisible {
 				$0
 					.setting(cardLight, to: 1)
 					.background(.cardHover)
 					// The glow around the card, and a thin light edge, like the rim of glass.
-					.shadow(.extraLarge(color: .lightDark(accent.opacity(0.07), accent.opacity(0.12))) + [Shadow(y: 0, spread: .pixels(1), color: .lightDark(accent.opacity(0.12), .white.opacity(0.1)), isInset: true)])
+					.shadow(.extraLarge(color: .lightDark(accent.opacity(0.07), accent.opacity(0.12))) + [.edge(.lightDark(accent.opacity(0.12), .white.opacity(0.1)))])
 			}
 	}
 
 	/**
-	A small, quiet link in a row of links, like the categories on the apps page and the sections of an app page, so the main button of a page stays the only strong color.
+	A quiet button or link with only an icon, like the contact link and the menu button of the header: the icon in the secondary color, which only shows a round fill under the pointer or with the focus of the keyboard. On touch screens, it gets a larger target without moving the layout.
+
+	- Parameter hoverFill: The fill under the pointer, like the stronger ``Color/cardHover`` for a button on a card, where the card fill would not show.
+	- Parameter isOutset: Whether the fill goes beyond the icon without taking space, so a row with a title and the button stays as high as the title, and the icon lines up with the edge of the text.
 	*/
-	func chip() -> Self {
-		padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.875))
+	func iconButton(hoverFill: Color = .card, isOutset: Bool = false) -> Self {
+		let padding = Length.rootEm(0.375)
+		let style = hstack(alignment: .center, isInline: true)
+			// As high as the pills of the navigation next to the icon links of the header.
+			.padding(padding)
+			// A larger target for fingers, without moving the layout.
+			.media(.coarsePointer) {
+				$0
+					.padding(padding * 2)
+					.margin(isOutset ? padding * -2 : padding * -1)
+			}
+
+		return (isOutset ? style.margin(padding * -1) : style)
+			// Round, like the pills of the navigation next to the icon links of the header.
 			.cornerRadius(.capsule)
-			.textStyle(.caption, weight: .medium)
-			.textWrap(.nowrap)
-			.color(.bodyText)
-			.background(.card)
+			.color(.secondaryText)
 			.transition(.backgroundColor, .color, animation: .stateChange)
-			.hover {
+			.hoverOrFocusVisible {
+				$0
+					.background(hoverFill)
+					.color(.primaryText)
+			}
+			// Like the current page in the navigation.
+			.current {
 				$0
 					.background(.cardHover)
 					.color(.primaryText)
@@ -868,10 +1028,94 @@ extension Style {
 	}
 
 	/**
-	The look of a popover, like a footnote or a QR code: a light border, an opaque background, and a large shadow.
+	The title or the icon of a copy button, which fades out while the button shows that it copied, so the checkmark (``copiedCheckmark(when:)``) can grow in, in the same cell of a grid.
+	*/
+	func copyLabel(hiddenWhen copied: some ElementStateSet) -> Self {
+		stackedInGrid()
+			.transition(.opacity, animation: .stateChange)
+			.when(ancestorHas: copied) {
+				$0.opacity(0)
+			}
+	}
+
+	/**
+	The checkmark of a copy button, which grows in over its title or icon (``copyLabel(hiddenWhen:)``), while the button shows that it copied.
+	*/
+	func copiedCheckmark(when copied: some ElementStateSet) -> Self {
+		stackedInGrid()
+			.hstack(alignment: .center, justification: .center)
+			.opacity(0)
+			.scaleEffect(0.5)
+			.transition(.opacity, .scaleEffect, animation: .pop)
+			.when(ancestorHas: copied) {
+				$0
+					.opacity(1)
+					.scaleEffect(1)
+			}
+	}
+
+	/**
+	A box next to the fields of a form, like a notice or a file to attach: the fill and the faint edge of a card, with the corners of the fields (``Length/fieldRadius``), so they look like one form.
+	*/
+	func fieldBox() -> Self {
+		cardSurface(isInteractive: false)
+			.cornerRadius(.fieldRadius)
+	}
+
+	/**
+	A small, quiet capsule, like a link in a row of links, such as the categories on the apps page and the sections of an app page, so the main button of a page stays the only strong color.
+
+	- Parameter isInteractive: Whether it reacts to the pointer. A chip that is not a link, like a guess in Appdle, does not.
+	- Parameter hasIcon: Whether it has an icon before its text, like the social links. The icon is in line with the text, and the chip has a little less padding at the sides, as the icon has some space of its own.
+	*/
+	func chip(isInteractive: Bool = true, hasIcon: Bool = false) -> Self {
+		var style = padding(vertical: .rootEm(0.375), horizontal: .rootEm(hasIcon ? 0.75 : 0.875))
+			.cornerRadius(.capsule)
+			.textStyle(.caption, weight: .medium)
+			.textWrap(.nowrap)
+			.color(.bodyText)
+			.background(.card)
+
+		if hasIcon {
+			style = style.hstack(alignment: .center, spacing: .rootEm(0.375), isInline: true)
+		}
+
+		guard isInteractive else {
+			return style
+		}
+
+		// Without the underline of links in prose.
+		return style
+			.underline(false)
+			.transition(.backgroundColor, .color, animation: .stateChange)
+			.hoverOrFocusVisible {
+				$0
+					.background(.cardHover)
+					.color(.primaryText)
+			}
+	}
+
+	/**
+	A see-through fill that blurs what is behind it, like the materials of Apple platforms, such as the bar of the site header. When the visitor prefers reduced transparency, the fill is opaque and nothing is blurred.
+
+	- Parameter opaque: The fill with reduced transparency, usually the see-through fill without its opacity.
+	*/
+	func frostedBackground(_ fill: Color, opaque: Color, blur radius: Length) -> Self {
+		background(fill)
+			.backdropFilter(.blur(radius: radius))
+			.reducedTransparency {
+				$0
+					.background(opaque)
+					.backdropFilter(.none)
+			}
+	}
+
+	/**
+	The look of a popover, like a footnote or a QR code: an opaque background, the corners of a window, and the soft shadow and thin outline of a window.
 	*/
 	func popoverSurface() -> Self {
-		background(.white, dark: .gray(900))
+		cornerRadius(.windowRadius)
+			.background(.white, dark: .gray(900))
 			.shadow(.window)
 	}
 
@@ -896,15 +1140,18 @@ extension Style {
 
 	/**
 	Brightens the element a little while the pointer is over it, and shrinks and darkens it a little while it is pressed, like the App Store badge. Download badges and large buttons use it, so they feel the same next to each other. It does not grow on hover, as that moves the page.
+
+	- Parameter filters: Filters that the element always has, like a drop shadow, as the brightness replaces the filter of the element.
 	*/
-	func pressEffect() -> Self {
-		transition(.scaleEffect, .filter, animation: .default(duration: .milliseconds(200)))
-			.hover {
-				$0.filter(.brightness(1.08))
+	func pressEffect(keeping filters: Filter...) -> Self {
+		(filters.isEmpty ? self : filter(filters))
+			.transition(.scaleEffect, .filter, animation: .default(duration: .milliseconds(200)))
+			.hoverOrFocusVisible {
+				$0.filter(filters + [.brightness(1.08)])
 			}
 			.active {
 				$0
-					.filter(.brightness(0.95))
+					.filter(filters + [.brightness(0.95)])
 					.scaleEffect(0.985)
 			}
 	}

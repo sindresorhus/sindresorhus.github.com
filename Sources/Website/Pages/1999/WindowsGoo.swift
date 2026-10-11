@@ -203,18 +203,18 @@ struct GeoCitiesWindowsGoo: ScriptedElement {
 					.focusVisible {
 						$0.focusRing(Color("#ffd27a"), width: .pixels(2), offset: .pixels(1))
 					}
-					.when(.state, is: "on") {
+					.pressed {
 						$0.color(Color("#ffd27a"))
 					}
 			case .toolBall:
 				Style()
 					.hstack(alignment: .center, justification: .center)
-					.frame(width: .rootEm(2.25), height: .rootEm(2.25))
+					.frame(size: .rootEm(2.25))
 					.backgroundImage(.radialGradient("circle at 35% 30%", Color("#a89a8a"), Color("#4a4038"), Color("#1a1410")))
 					.cornerRadius(.circle)
 					.shadow(Shadow(x: 0, y: .pixels(2), blur: .pixels(3), color: .black))
 					.font(.large)
-					.when(ancestorHas: ScriptAttribute.state, is: "on") {
+					.ancestorPressed {
 						$0
 							.backgroundImage(.radialGradient("circle at 35% 30%", Color("#fff2b0"), Color("#e8a020"), Color("#7a3a00")))
 							.shadow(Shadow(x: 0, y: 0, blur: .pixels(10), color: Color("#ffb040")))

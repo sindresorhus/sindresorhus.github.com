@@ -72,6 +72,11 @@ struct AppCard: HTML {
 		case slug = "data-slug"
 	}
 
+	/**
+	The soft shadow below the icon of an app on a card, like the cards of tiny apps.
+	*/
+	static let iconShadow = Filter.dropShadow(Shadow(y: .pixels(2), blur: .pixels(2), color: .black.opacity(0.1)))
+
 	enum Styles: StyleSet {
 		case root
 		case icon
@@ -95,14 +100,13 @@ struct AppCard: HTML {
 							.padding(.rootEm(1.75))
 					}
 			case .icon:
-				// The icon images have transparent margins, so the icon is larger than it looks.
+				// The negative margin makes the icon take a little less space than its size, so it is nearer to the edges of the card and to the text.
 				Style()
-					.flexShrink(0)
-					.frame(width: .rootEm(5), height: .rootEm(5))
+					.frame(size: .rootEm(5))
 					.margin(.rootEm(-0.25))
-					.filter(.dropShadow(Shadow(y: .pixels(2), blur: .pixels(2), color: .black.opacity(0.1))))
+					.filter(AppCard.iconShadow)
 					.from(.laptop) {
-						$0.frame(width: .rootEm(6.5), height: .rootEm(6.5))
+						$0.frame(size: .rootEm(6.5))
 					}
 			case .text:
 				Style()
@@ -128,7 +132,6 @@ struct AppCard: HTML {
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
 					.flexWrap()
 					.margin(.top, .rootEm(0.625))
-					.opacity(0.9)
 			case .platforms:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.25))
@@ -181,13 +184,15 @@ struct AppGrid: HTML {
 
 extension HTML where Tag: HTMLTrait.Attributes.Global {
 	/**
-	Sets the accent of the element and its content, like `tint(_:)` in SwiftUI, like the color of the icon of an app for the light of its card. `nil` keeps the accent of the page (``Page/tint``).
+	Sets the accent of the element and its content, like `tint(_:)` in SwiftUI, like the color of the icon of an app for the light of its card. `nil` keeps the accent of the page (``Page/tint``). It is a style of the element (``ElementStyle``), so each color is one rule.
 	*/
-	func tint(_ color: Color?) -> _AttributedContent<Self> {
+	func tint(_ color: Color?, fileID: String = #fileID) -> _AttributedContent<Self> {
 		guard let color else {
 			return attributes(contentsOf: [])
 		}
 
-		return attributes(.style("\(Color.accent.name): \(CSSValue(color))"))
+		return style(fileID: fileID) {
+			$0.setting(Color.accent, to: color)
+		}
 	}
 }

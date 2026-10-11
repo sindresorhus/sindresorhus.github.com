@@ -1,5 +1,7 @@
+import Elementary
 import Foundation
 import Markdown
+import SOML
 
 /**
 Renders a Markdown tree as HTML, like GitHub-flavored Markdown renderers do.
@@ -11,12 +13,22 @@ struct HTMLRenderer: MarkupWalker {
 	private(set) var headings = [Heading]()
 
 	/**
-	The footnotes in the order of their first reference.
+	The numbers of the GitHub-style footnotes, by ID, in the order of their first reference. The parser reads the references (`[^id]`) and the definitions (`[^id]: Text`), like GitHub, and the renderer numbers the references, and shows each definition in a popover, which its numbered reference opens. Unreferenced definitions are dropped.
 	*/
-	private(set) var footnotes = [Footnotes.Footnote]()
+	private var footnoteNumbers = [String: Int]()
 
 	/**
-	The footnote definitions of the document, by ID. They are rendered in the footnotes section, in the order of their first reference.
+	A reference to a footnote, like `[^note]`, with the ID. The parser turns a reference with a definition into a ``FootnoteReference``, so one in the text has no definition.
+	*/
+	nonisolated(unsafe) private static let footnoteReferencePattern = /\[\^([^\]\s]+)\]/
+
+	/**
+	The popovers of the footnotes and the inline notes, which the document adds at the end, as they can have paragraphs, which a paragraph cannot contain.
+	*/
+	private(set) var popovers = [String]()
+
+	/**
+	The footnote definitions of the document, by ID. Each is rendered in a popover at its first reference.
 	*/
 	private let footnoteDefinitions: [String: FootnoteDefinition]
 
@@ -33,7 +45,7 @@ struct HTMLRenderer: MarkupWalker {
 	private var tableLabelCounts = [String: Int]()
 
 	/**
-	How many links the renderer is inside, and the summary of a collapsible section, which cannot have links either. A link inside them is only its text, as nested links are invalid HTML. Limitation: raw `<a>` tags are not counted, so a link or bare URL in the text of one is a nested link. Use Markdown links.
+	How many links the renderer is inside, and the summary of a collapsible section and the text of an inline note, which cannot have links either. A link inside them is only its text, as nested links are invalid HTML. Limitation: raw `<a>` tags are not counted, so a link or bare URL in the text of one is a nested link. Use Markdown links.
 	*/
 	private var linkDepth = 0
 
@@ -43,22 +55,50 @@ struct HTMLRenderer: MarkupWalker {
 	private var renderedKeyboardNodes = 0
 
 	/**
-	How many lines are above the source in its file.
+	Where the source is in its file, which gives the lines of its problems and links.
 	*/
-	private let lineOffset: Int
+	enum Origin {
+		/**
+		The Markdown of the document, or of a part of it, like a footnote definition, after the given number of lines of the file.
+		*/
+		case document(lineOffset: Int)
 
-	init(style: MarkdownDocument.Style, options: MarkdownDocument.Options = .init(), footnoteDefinitions: [String: FootnoteDefinition] = [:], lineOffset: Int = 0) {
+		/**
+		The Markdown of an inline note, which is one line of the file, so the lines of its Markdown are not lines of the file.
+		*/
+		case inlineNote(line: Int?)
+	}
+
+	private let origin: Origin
+
+	init(style: MarkdownDocument.Style, options: MarkdownDocument.Options = .init(), footnoteDefinitions: [String: FootnoteDefinition] = [:], origin: Origin = .document(lineOffset: 0)) {
 		self.style = style
 		self.options = options
 		self.footnoteDefinitions = footnoteDefinitions
-		self.lineOffset = lineOffset
+		self.origin = origin
 	}
 
 	/**
 	The line where the markup starts, in the file of the source.
 	*/
 	private func line(of markup: any Markup) -> Int? {
-		markup.range.map { $0.lowerBound.line + lineOffset }
+		switch origin {
+		case .document(let lineOffset):
+			markup.range.map { $0.lowerBound.line + lineOffset }
+		case .inlineNote(let line):
+			line
+		}
+	}
+
+	/**
+	Whether the source is the Markdown of an inline note, which cannot have footnotes or other notes.
+	*/
+	private var isInlineNote: Bool {
+		guard case .inlineNote = origin else {
+			return false
+		}
+
+		return true
 	}
 
 	private var theme: MarkdownTheme {
@@ -148,13 +188,8 @@ struct HTMLRenderer: MarkupWalker {
 	private mutating func renderCollapsibleSection(_ heading: Markdown.Heading, content: ArraySlice<any BlockMarkup>, name: String?) {
 		let id = recordHeading(heading)
 
-		// A bare URL is only text in the heading, so it is not a lost link.
-		func containsLink(_ markup: any Markup) -> Bool {
-			((markup as? Link).map { !$0.isBareURL } ?? false) || markup.children.contains(where: containsLink)
-		}
-
 		// A summary is a button, so a link in it is invalid, and a click would open the link instead of the section. The links of the heading are only their text, and a problem, as the link would be lost.
-		if containsLink(heading) {
+		if heading.containsLink {
 			reportProblem("The heading of a collapsible section cannot have a link, as it is the button that opens the section. Put the link in the text below it.", line: line(of: heading))
 		}
 
@@ -346,12 +381,13 @@ struct HTMLRenderer: MarkupWalker {
 		let trimmedHTML = rawHTML.trimmingCharacters(in: .whitespacesAndNewlines)
 
 		if
+			style == .extended,
 			trimmedHTML.hasPrefix("<table>") || trimmedHTML.hasPrefix("<table "),
 			trimmedHTML.hasSuffix("</table>")
 		{
 			html += theme.tableContainer(label: tableLabel(), tableHTML: rawHTML) + "\n"
 		} else {
-			html += rawHTML
+			html += style == .releaseNotes ? rawHTML.escapedForHTML : rawHTML
 		}
 	}
 
@@ -495,11 +531,14 @@ struct HTMLRenderer: MarkupWalker {
 			// The parser reads the content of a block directive on its own, so a definition outside the directive is not found, and the parser leaves out a definition without a reference.
 			let isInBlockDirective = sequence(first: text as any Markup, next: \.parent).contains { $0 is BlockDirective }
 
-			for match in string.matches(of: Footnotes.reference) {
-				if isInBlockDirective {
+			for match in string.matches(of: Self.footnoteReferencePattern) {
+				// A note is parsed on its own, so the definitions of the document are not found.
+				if isInlineNote {
+					reportProblem("The footnote `[^\(match.1)]` is inside a note, which cannot have footnotes.", line: line(of: text))
+				} else if isInBlockDirective {
 					reportProblem("The footnote `[^\(match.1)]` has no definition in its block directive. A footnote in a block directive, like `@Tips`, needs its definition, like `[^\(match.1)]: The note.`, inside the same directive.", line: line(of: text))
 				} else {
-					reportProblem("The footnote `[^\(match.1)]` has no definition, like `[^\(match.1)]: The note.` If it is not a footnote, write it as code. A definition inside a block directive is only for the footnotes in that directive.", line: line(of: text))
+					reportProblem("The footnote `[^\(match.1)]` has no definition, like `[^\(match.1)]: The note.` If it is not a footnote, write it as code. The parser reads the text between block directives on its own, so a definition after a block directive, like at the end of the file, is only for the footnotes after that directive. A definition inside a block directive is only for the footnotes in that directive.", line: line(of: text))
 				}
 			}
 		}
@@ -510,16 +549,16 @@ struct HTMLRenderer: MarkupWalker {
 	mutating func visitFootnoteReference(_ footnoteReference: FootnoteReference) {
 		let id = footnoteReference.footnoteID
 
-		// A footnote reference is a link, and a link must not be inside another link or the heading of a collapsible section.
+		// A footnote reference is a button, and it must not be inside a link, the heading of a collapsible section, or the text of a note.
 		guard linkDepth == 0 else {
-			reportProblem("The footnote `[^\(id)]` is inside a link or the heading of a collapsible section, which cannot have links. Put it after the link, or in the text below the heading.", line: line(of: footnoteReference))
+			reportProblem("The footnote `[^\(id)]` is inside a link, the heading of a collapsible section, or the text of a note, which cannot have links. Put it after the link or the note, or in the text below the heading.", line: line(of: footnoteReference))
 			renderText("[^\(id)]")
 			return
 		}
 
-		// The definitions are rendered on their own, without the definitions of the document.
+		// The definitions and notes are rendered on their own, without the definitions of the document.
 		guard let referenceHTML = self.footnoteReference(id: id) else {
-			reportProblem("The footnote `[^\(id)]` is inside another footnote. Footnotes cannot be nested.", line: line(of: footnoteReference))
+			reportProblem("The footnote `[^\(id)]` is inside another footnote or a note, which cannot have footnotes.", line: line(of: footnoteReference))
 			renderText("[^\(id)]")
 			return
 		}
@@ -528,7 +567,7 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	/**
-	The definitions are rendered in the footnotes section, not where they are.
+	The definitions are rendered in popovers at the end, not where they are.
 	*/
 	mutating func visitFootnoteDefinition(_ footnoteDefinition: FootnoteDefinition) {}
 
@@ -553,22 +592,50 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	/**
-	The numbered link to a footnote, or `nil` when the footnote is not defined.
+	The numbered button that opens a footnote, or `nil` when the footnote is not defined. The first reference adds the popover with the definition, which resolves and reports its links like the text.
 	*/
 	private mutating func footnoteReference(id: String) -> String? {
 		guard let definition = footnoteDefinitions[id] else {
 			return nil
 		}
 
-		let index = footnotes.firstIndex { $0.id == id } ?? {
-			footnotes.append(Footnotes.Footnote(id: id, definition: definition, otherFootnotes: footnotes))
-			return footnotes.count - 1
-		}()
+		if let number = footnoteNumbers[id] {
+			return theme.footnoteReference(number: number, popoverID: Self.footnotePopoverID(number: number))
+		}
 
-		let anchor = footnotes[index].referenceID(occurrence: footnotes[index].referenceAnchors.count + 1)
-		footnotes[index].referenceAnchors.append(anchor)
+		// A footnote that is not referenced yet gets the next number.
+		let number = footnoteNumbers.count + 1
+		footnoteNumbers[id] = number
+		addPopover(id: Self.footnotePopoverID(number: number), element: .footnotePopover, content: definition.children, origin: origin)
+		return theme.footnoteReference(number: number, popoverID: Self.footnotePopoverID(number: number))
+	}
 
-		return footnotes[index].referenceHTML(number: index + 1, anchor: anchor, opensPopover: options.showsFootnotesInPopovers, theme: theme)
+	/**
+	The ID of the popover with a footnote. The numbers of a document are unique, so the ID is from the number, like `user-content-fn-1`, which is the ID of GitHub without the name of the footnote. Limitation: two documents on one page with footnotes give their first footnotes the same ID.
+	*/
+	private static func footnotePopoverID(number: Int) -> String {
+		"user-content-fn-\(number)"
+	}
+
+	/**
+	Adds a popover at the end of the document with Markdown inside the document, like the definition of a footnote or an inline note. It renders with the options for nested Markdown (``MarkdownDocument/Options/forNestedMarkdown``), and its problems, links, and popovers are those of the document. A heading in it is a problem, as its ID could be the same as another ID of the page.
+	*/
+	private mutating func addPopover(id: String, element: MarkdownElement, content: some Sequence<any Markup>, origin: Origin) {
+		var renderer = HTMLRenderer(style: style, options: options.forNestedMarkdown, origin: origin)
+
+		for block in content {
+			renderer.visit(block)
+		}
+
+		problems += renderer.problems
+		links += renderer.links
+
+		for heading in renderer.headings {
+			reportProblem("A footnote or a note cannot have headings, like “\(heading.text)”, as their IDs could be the same as other IDs of the page.", line: heading.line)
+		}
+
+		popovers.append(theme.popover(id: id, element: element, contentHTML: renderer.html) + "\n")
+		popovers += renderer.popovers
 	}
 
 	mutating func visitInlineCode(_ inlineCode: InlineCode) {
@@ -638,6 +705,13 @@ struct HTMLRenderer: MarkupWalker {
 		var resolved = destination
 
 		if
+			style == .releaseNotes,
+			!destination.isSafeReleaseNotesDestination(isImage: markup is Image)
+		{
+			resolved = ""
+		}
+
+		if
 			style == .extended,
 			let resolveLink = options.resolveLink
 		{
@@ -653,6 +727,16 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	mutating func visitInlineAttributes(_ attributes: InlineAttributes) {
+		// An inline note is part of the extended style. Other attributes are for the renderer of the options.
+		if
+			style == .extended,
+			let value = try? SOML.Value(parsing: "{\(attributes.attributes)}"),
+			value["note"] != nil
+		{
+			renderInlineNote(attributes, value: value)
+			return
+		}
+
 		let contentHTML = capturingHTML {
 			$0.descendInto(attributes)
 		}
@@ -670,6 +754,63 @@ struct HTMLRenderer: MarkupWalker {
 		} catch {
 			reportProblem("The inline attributes `\(attributes.attributes)` are invalid: \(error)", line: line(of: attributes))
 			html += contentHTML
+		}
+	}
+
+	/**
+	An inline note, like `^[Spotlight](note: "The search of macOS.")`: the text opens the note in a popover (``MarkdownDocument/Options/inlineNote``), which is at the end of the document, like the popovers of the footnotes (``addPopover(id:element:content:origin:)``). The note is Markdown, rendered with the options of the document, so its links are resolved and checked like the text.
+
+	Limitations: a note in a short text that is shown inline, like a frontmatter field, is not supported, as its popover is not inline HTML (``MarkdownDocument/inlineHTML``). A note cannot have headings, footnotes, or other notes, as their IDs could be the same as other IDs of the page, so they are problems.
+	*/
+	private mutating func renderInlineNote(_ attributes: InlineAttributes, value: SOML.Value) {
+		// The text opens the note, so its links are only text, like in the heading of a collapsible section.
+		let contentHTML = capturingHTML {
+			$0.linkDepth += 1
+			$0.descendInto(attributes)
+			$0.linkDepth -= 1
+		}
+
+		guard let note = noteMarkdown(of: attributes, value: value) else {
+			html += contentHTML
+			return
+		}
+
+		// The ID is from the place of the note in the file, so it is the same in each build. Limitation: two documents on one page with a note at the same line and column give their notes the same ID.
+		let noteLine = line(of: attributes)
+		let id = "user-content-note-\(noteLine ?? 0)-\(attributes.range?.lowerBound.column ?? 0)"
+
+		html += options.inlineNote?(contentHTML, id) ?? button(.type(.button), .popoverTarget(id), .class(theme.classes(for: .inlineNote))) {
+			HTMLRaw(contentHTML)
+		}
+		.render()
+
+		let noteDocument = Document(parsing: note, convertOptions: ConvertOptions(style: style, options: options))
+		addPopover(id: id, element: .inlineNotePopover, content: noteDocument.children, origin: .inlineNote(line: noteLine))
+	}
+
+	/**
+	The Markdown of an inline note, or `nil` when the note cannot be here, or its attributes are invalid, which are problems. A link in the text of the note is only a problem, as the note still opens.
+	*/
+	private mutating func noteMarkdown(of attributes: InlineAttributes, value: SOML.Value) -> String? {
+		guard linkDepth == 0 else {
+			reportProblem("The note is inside a link, the heading of a collapsible section, or the text of another note, which cannot contain the text that opens it. Put it after the link or the note, or in the text below the heading.", line: line(of: attributes))
+			return nil
+		}
+
+		guard !isInlineNote else {
+			reportProblem("A note cannot have another note, as their IDs could be the same. Put its text in the note.", line: line(of: attributes))
+			return nil
+		}
+
+		if attributes.containsLink {
+			reportProblem("The text of a note cannot have a link, as it opens the note. Put the link in the note.", line: line(of: attributes))
+		}
+
+		do {
+			return try InlineNoteAttributes.decode(from: value, root: "attributes").note
+		} catch {
+			reportProblem("The inline attributes `\(attributes.attributes)` are invalid: \(error)", line: line(of: attributes))
+			return nil
 		}
 	}
 
@@ -745,13 +886,14 @@ struct HTMLRenderer: MarkupWalker {
 				style == .extended,
 				let comment = DirectiveComment(line: rawHTML[...])
 			{
-				reportProblem("The directive `@\(comment.name)` must be directly below a heading, on its own line, with only other directives between.", line: line(of: inlineHTML))
+				reportProblem(comment.misplacedMessage, line: line(of: inlineHTML))
 			}
 
 			return
 		}
 
-		html += rawHTML
+		// Release notes keep only keyboard keys, like `<kbd>Delete</kbd>`.
+		html += style == .releaseNotes && !["<kbd>", "</kbd>"].contains(rawHTML) ? rawHTML.escapedForHTML : rawHTML
 	}
 
 	mutating func visitLineBreak(_ lineBreak: LineBreak) {
@@ -814,7 +956,7 @@ struct HTMLRenderer: MarkupWalker {
 			}
 
 			guard isBelowHeading else {
-				reportProblem("The directive `@\(comment.name)` must be directly below a heading, on its own line, with only other directives between.", line: line)
+				reportProblem(comment.misplacedMessage, line: line)
 				continue
 			}
 
@@ -927,4 +1069,48 @@ extension String {
 			theme.keyboardShortcut(keysHTML: String(match.1).keyboardKeys)
 		}
 	}
+}
+
+extension String {
+	/**
+	Whether external release notes can use this link or image without an executable or local-file URL.
+	*/
+	fileprivate func isSafeReleaseNotesDestination(isImage: Bool) -> Bool {
+		guard
+			!unicodeScalars.contains(where: { $0.value < 0x20 || $0.value == 0x7F }),
+			let components = URLComponents(string: trimmingCharacters(in: .whitespaces))
+		else {
+			return false
+		}
+
+		guard let scheme = components.scheme?.lowercased() else {
+			return true
+		}
+
+		return scheme == "https" || scheme == "http" || (!isImage && scheme == "mailto")
+	}
+}
+
+extension Markup {
+	/**
+	Whether the markup has a link that is not a bare URL. A bare URL is only text in a button, like the heading of a collapsible section, so it is not a lost link.
+	*/
+	fileprivate var containsLink: Bool {
+		if
+			let link = self as? Link,
+			!link.isBareURL
+		{
+			return true
+		}
+
+		return children.contains(where: \.containsLink)
+	}
+}
+
+/**
+The inline attributes of a note, like `^[Spotlight](note: "The search of macOS.")`.
+*/
+@Frontmatter
+private struct InlineNoteAttributes {
+	@NonEmpty var note: String
 }

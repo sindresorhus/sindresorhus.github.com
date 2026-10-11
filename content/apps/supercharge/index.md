@@ -117,7 +117,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 
 ##### Finder {#finder}
 
-- Move files by cutting[^commandx] (<kbd>Command+X</kbd>) and pasting (<kbd>Command+V</kbd>)
+- Move files by ^[cutting](note: "Without this feature, you have to first copy (<kbd>Command+C</kbd>) and then remember to move (<kbd>Option+Command+V</kbd>). The feature works by overriding the normal cut <kbd>⌘X</kbd> keyboard shortcut when Finder is active and executes a copy <kbd>⌘C</kbd> instead. When you then paste <kbd>⌘V</kbd>, it executes the native move <kbd>⌥⌘V</kbd> keyboard shortcut. So really, it’s Finder moving the files. This app just makes the keyboard shortcuts more intuitive. If you don’t paste, the files just stay in place. This feature also works with the Forklift app.") (<kbd>Command+X</kbd>) and pasting (<kbd>Command+V</kbd>)
 - Open files with <kbd>Return</kbd> (you can then rename with <kbd>Shift+Return</kbd> or <kbd>F2</kbd>)
 - Reopen last closed tab with <kbd>⇧⌘T</kbd>
 	:: Works for tabs closed with <kbd>⌘W</kbd>. Similar to “Reopen Closed Tab” in browsers.
@@ -190,7 +190,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 ##### Apps {#apps}
 
 - [Automatically quit or hide apps after inactivity](#auto-quit-apps)
-- Prevent accidental app quits[^quit] by instead using <kbd>⇧⌘Q</kbd>, pressing <kbd>Q</kbd> twice while holding <kbd>⌘</kbd>, or [press and hold <kbd>⌘Q</kbd>](https://github.com/user-attachments/assets/0515e50f-2a93-4369-836e-085ad462fdf8)
+- Prevent ^[accidental app quits](note: "The <kbd>Q</kbd> key is next to <kbd>W</kbd>, making it easy to accidentally hit <kbd>Command+Q</kbd> (quit) when reaching for <kbd>Command+W</kbd> (close window).") by instead using <kbd>⇧⌘Q</kbd>, pressing <kbd>Q</kbd> twice while holding <kbd>⌘</kbd>, or [press and hold <kbd>⌘Q</kbd>](https://github.com/user-attachments/assets/0515e50f-2a93-4369-836e-085ad462fdf8)
 - [Launch any app with a customizable global keyboard shortcut](https://github.com/user-attachments/assets/22bf135a-cc39-45ef-82ef-bf23176f0746)
 	:: Pressing the shortcut again hides the app and activates the previous app, so it works as a quick toggle.
 - [Export/import (backup) settings for any apps](#export-import-app-settings)
@@ -278,7 +278,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 	:: Disables keyboard and mouse to prevent cats and other cute creatures from interfering with your computer. Similar to Cleaning Mode but without blacking out the screen. [Screenshot.](https://www.dropbox.com/scl/fi/tpxsx5i9r1vkjlf2recad/Cat-Mode-1756829427.mp4?rlkey=wfyu7192971mnu19p3i2mmqs4&raw=1)
 - [Run shortcuts from the menu](#run-shortcuts)
 	:: Show your favorite shortcuts from the Shortcuts app in the menu.
-	- Also available as an [independent app](/short-run).
+	- Also available in [Short Run](/short-run)
 - [Keep computer awake](#keep-awake)
 - [Change default browser](https://github.com/user-attachments/assets/b58a04da-2bdc-4bd0-bed4-ba62ba456491) (without a prompt)
 	- Also available as an [independent app](/default-browser).
@@ -340,7 +340,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 - Toggle [Night Shift](https://support.apple.com/en-us/102191)
 - Toggle [True Tone](https://support.apple.com/en-us/102147)
 - Toggle low power mode
-- Toggle grayscale mode[^grayscale]
+- Toggle ^[grayscale mode](note: "Grayscale mode on macOS can be a useful tool for various purposes. It can help reduce eye strain during long work sessions, especially in low-light environments. For designers and developers, it’s valuable for checking contrast and readability of user interfaces without the influence of color. Content creators may use it to evaluate the tonal balance of images or videos. Additionally, some users find that grayscale helps minimize distractions and improve focus by reducing the visual appeal of non-work-related apps and websites. While initially an adjustment, many users report increased productivity and a more mindful approach to computer usage when employing grayscale mode periodically.")
 - Toggle desktop icons and widgets visibility
 - Toggle [hot corners](https://support.apple.com/guide/mac-help/mchlp3000/mac)
 - Toggle function keys (switch between using F1, F2, etc., as standard function keys or media keys)
@@ -381,12 +381,6 @@ Mentions:
 - [11 Mac Apps I (Almost) Can’t Live Without (FromSergio)](https://www.youtube.com/watch?v=ozVkroyqVGU&t=122s)
 - [Tiny macOS utility apps I love – Part 6](https://creativerly.com/tiny-macos-utility-apps-part-6/#supercharge)
 - [Video walkthrough (Spanish)](https://www.youtube.com/watch?v=jvwbDM4cfC8)
-
-[^commandx]: Without this feature, you have to first copy (<kbd>Command+C</kbd>) and then remember to move (<kbd>Option+Command+V</kbd>). The feature works by overriding the normal cut <kbd>⌘X</kbd> keyboard shortcut when Finder is active and executes a copy <kbd>⌘C</kbd> instead. When you then paste <kbd>⌘V</kbd>, it executes the native move <kbd>⌥⌘V</kbd> keyboard shortcut. So really, it’s Finder moving the files. This app just makes the keyboard shortcuts more intuitive. If you don’t paste, the files just stay in place. This feature also works with the Forklift app.
-
-[^quit]: The <kbd>Q</kbd> key is next to <kbd>W</kbd>, making it easy to accidentally hit <kbd>Command+Q</kbd> (quit) when reaching for <kbd>Command+W</kbd> (close window).
-
-[^grayscale]: Grayscale mode on macOS can be a useful tool for various purposes. It can help reduce eye strain during long work sessions, especially in low-light environments. For designers and developers, it’s valuable for checking contrast and readability of user interfaces without the influence of color. Content creators may use it to evaluate the tonal balance of images or videos. Additionally, some users find that grayscale helps minimize distractions and improve focus by reducing the visual appeal of non-work-related apps and websites. While initially an adjustment, many users report increased productivity and a more mindful approach to computer usage when employing grayscale mode periodically.
 
 ---
 
@@ -510,7 +504,7 @@ Remaps <kbd>Caps Lock</kbd> to function as a Hyper key — a single key that sim
 
 #### Automatically quit or hide inactive apps {#auto-quit-apps}
 
-Automatically quits or hides apps when you’re not using them, to maintain focus and free system resources. Like [Quitter](https://marco.org/apps#quitter) or Raycast’s [Auto Quit](https://manual.raycast.com/window-management/auto-quit-applications), but built into Supercharge.
+Automatically quits or hides apps when you’re not using them, to maintain focus and free system resources. Like [Quitter](https://marco.org/apps#quitter) or Raycast’s [Auto Quit](https://manual.raycast.com/auto-quit), but built into Supercharge.
 
 Set up rules per app: quit or hide after a certain amount of inactivity. You might hide Slack after 3 minutes but quit X (Twitter) after 5 minutes, depending on how you work.
 

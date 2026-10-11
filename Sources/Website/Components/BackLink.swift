@@ -15,7 +15,7 @@ struct BackLink: HTML {
 			$0
 				.secondaryText()
 				.fontWeight(.medium)
-				.hoverColor(.primaryText)
+				.quietLink()
 		}
 	}
 }

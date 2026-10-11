@@ -197,8 +197,8 @@ struct GeoCitiesTown: ScriptedElement {
 					.focusWithin {
 						$0.focusRing(.black, width: .pixels(1), offset: .pixels(-4), style: .dotted)
 					}
-					// The script marks the tool that is picked, which is pressed in.
-					.when(.state, is: "on") {
+					// The tool that is picked is pressed in.
+					.descendantChecked {
 						$0
 							.background(Color("#ffffff"))
 							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)

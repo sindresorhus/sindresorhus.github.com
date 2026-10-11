@@ -35,16 +35,9 @@ struct App: ContentDocument {
 	let iconEnclosure: Enclosure?
 
 	/**
-	The most common vivid color of the icon, like `#1e88e5`, which the app page uses as its accent (``Color/accent``). `nil` for a gray icon.
+	The accent of the app: the most common vivid color of the icon, like `#1e88e5`, which the app page uses as its accent (``Color/accent``), for ``Page/tint`` and ``Elementary/HTML/tint(_:)``. `nil` for a gray icon.
 	*/
-	let accentColor: String?
-
-	/**
-	The accent of the app (``accentColor``) as a color, for ``Page/tint`` and ``Elementary/HTML/tint(_:)``.
-	*/
-	var tint: Color? {
-		accentColor.map { Color($0) }
-	}
+	let tint: Color?
 
 	static let directory = "content/apps"
 
@@ -91,14 +84,14 @@ struct App: ContentDocument {
 			let script = frontmatter.script,
 			!project.publicFile(script).isFile
 		{
-			throw ContentError(file: file.url, line: file.line(ofFrontmatterKey: "script"), reason: "The `script` \(script) does not exist in `public`.")
+			throw ContentError(file: file.url, line: file.line(ofFrontmatterKey: "script"), reason: "The `script` \(script) does not exist in `public` or next to the page.")
 		}
 
 		self.media = try await MediaAsset.discover(in: Self.assetDirectory(slug: file.slug), project: project)
 
 		let iconPath = project.publicFile(Self.iconPath(slug: file.slug)).isFile ? Self.iconPath(slug: file.slug) : Self.placeholderIconPath
 		self.iconPath = iconPath
-		self.accentColor = CGImageSourceCreateWithURL(project.publicFile(iconPath) as CFURL, nil)
+		self.tint = CGImageSourceCreateWithURL(project.publicFile(iconPath) as CFURL, nil)
 			.flatMap { CGImageSourceCreateImageAtIndex($0, 0, nil) }?
 			.accentColor
 		self.iconEnclosure = (try? project.publicFile(iconPath).resourceValues(forKeys: [.fileSizeKey]).fileSize).map { size in
@@ -160,10 +153,10 @@ extension App {
 	}
 
 	/**
-	The directory with the icon, the screenshots, and the videos of an app, like `/apps/dato`.
+	The directory with the icon, the screenshots, and the videos of an app, like `/dato`. They are files of its page bundle, so they are next to its page.
 	*/
 	static func assetDirectory(slug: String) -> RoutePath {
-		RoutePath.apps.appending(slug)
+		path(slug: slug)
 	}
 
 	private static func iconPath(slug: String) -> RoutePath {
@@ -235,10 +228,10 @@ extension App {
 	}
 
 	/**
-	The page that sharing the app shares: the App Store page, or the app page for apps that are not on the App Store or are archived, as the page has no App Store download for them.
+	The page that sharing the app shares: the App Store page, or the app page for apps that are not on the App Store. Archived apps are not shared.
 	*/
 	var shareURL: URL {
-		frontmatter.isArchived ? path.absoluteURL : (appStoreURL ?? path.absoluteURL)
+		appStoreURL ?? path.absoluteURL
 	}
 
 	var setappURL: URL? {
@@ -249,7 +242,11 @@ extension App {
 	The list of older versions in the readme of the repo. Frontmatter with `olderMacOSVersions` needs `repositoryURL`.
 	*/
 	var olderVersionsURL: URL? {
-		frontmatter.repositoryURL.map { URL(string: "\($0.absoluteString)#download") ?? $0 }
+		frontmatter.repositoryURL.map {
+			var components = URLComponents(url: $0, resolvingAgainstBaseURL: true)
+			components?.fragment = "download"
+			return components?.url ?? $0
+		}
 	}
 
 	/**
@@ -360,7 +357,7 @@ extension App {
 	Whether the app was published in the last 30 days.
 	*/
 	func isNew(at date: Date) -> Bool {
-		date.duration(since: publicationDate) < .days(30)
+		(.zero..<Duration.days(30)).contains(date.duration(since: publicationDate))
 	}
 
 	/**
@@ -490,7 +487,7 @@ extension App {
 		The macOS versions that have an older version listed elsewhere, like in the readme of the repo (`olderVersionsURL`). Apps with `olderVersions` do not need it.
 		*/
 		var olderMacOSVersions = [MacOSVersion]()
-		var requirement: String?
+		@NonEmpty var requirement: String?
 		@JavaScriptSafe var downloads: Int?
 
 		/**
@@ -514,7 +511,7 @@ extension App {
 		var redirectFrom = [RoutePath]()
 
 		/**
-		A script for the app page, like a demo, as a path in `public`.
+		A script for the app page, like a demo, as the path of a file in `public` or of the page bundle, like `/googly-eyes/eyes.js`.
 		*/
 		var script: RoutePath?
 
@@ -527,16 +524,8 @@ extension App {
 				throw ContentError(reason: "`subtitle` must not end with punctuation, because the default description adds a period after it.")
 			}
 
-			if announcement?.text.isEmpty == true {
-				throw ContentError(reason: "`announcement.text` must not be empty.")
-			}
-
 			if platforms.isEmpty {
 				throw ContentError(reason: "`platforms` must have at least one platform.")
-			}
-
-			if requirement?.allSatisfy(\.isWhitespace) == true {
-				throw ContentError(reason: "`requirement` must not be empty.")
 			}
 
 			if
@@ -607,10 +596,10 @@ extension App {
 		/**
 		Plain text, not Markdown.
 		*/
-		var text: String
+		@NonEmpty var text: String
 
 		var url: LinkDestination?
-		var linkText: String?
+		@NonEmpty var linkText: String?
 	}
 }
 
@@ -639,6 +628,11 @@ extension App {
 	The ID of the feedback question that every FAQ section gets.
 	*/
 	static let feedbackHeadingID = "feedback"
+
+	/**
+	The ID of the menu bar question that the build adds to menu bar apps. Its answer only links to the general question, so the feedback page suggests the general question instead.
+	*/
+	static let addedMenuBarQuestionID = "app-not-showing-in-menu-bar"
 
 	/**
 	The ID of the level 2 heading of the FAQ section, which the page, the links, and the feedback page find the section by.

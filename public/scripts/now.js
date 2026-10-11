@@ -1,4 +1,14 @@
-// The now page is complete without this script. It adds the latest commits, which are only loaded here, and shows a newer Bluesky post than the one of the build.
+// The now page is complete without this script. It adds the latest commits, which are only loaded here, in the card that is waiting for them, and shows a newer Bluesky post than the one of the build.
+
+// The speculation rules of the site can prerender the page while the pointer is over a link to it. The script waits until the visitor opens the page, so a page that nobody opens spends none of the GitHub searches of the visitor, and the relative times are not old when the page shows.
+if (document.prerendering) {
+	await new Promise(resolve => {
+		document.addEventListener('prerenderingchange', resolve, {once: true});
+	});
+}
+
+// A request that hangs gives up, so the placeholder rows do not stay forever.
+const requestTimeout = 10_000;
 
 const relativeTimeFormat = new Intl.RelativeTimeFormat('en', {numeric: 'auto'});
 
@@ -33,39 +43,52 @@ const relativeTime = date => {
 const showLatestCommits = async () => {
 	const container = document.querySelector('#latest-commits');
 	const template = document.querySelector('#commit-template');
+	const list = container.querySelector('ul');
 
-	// Without a token, GitHub allows 10 searches a minute for each visitor. When the request fails, the commits stay hidden.
-	const response = await fetch('https://api.github.com/search/commits?q=author:sindresorhus&sort=author-date&order=desc&per_page=5', {
-		headers: {
-			Accept: 'application/vnd.github+json',
-		},
-	});
+	// Without a token, GitHub allows 10 searches a minute for each visitor. When the request fails, a link to GitHub replaces the placeholder rows. The section is shown too, as it can be hidden until the commits load.
+	const showError = () => {
+		list.hidden = true;
+		list.removeAttribute('aria-busy');
+		document.querySelector('#latest-commits-error').hidden = false;
+		container.closest('section').hidden = false;
+	};
 
-	if (!response.ok) {
-		return;
+	let items;
+
+	try {
+		const response = await fetch('https://api.github.com/search/commits?q=author:sindresorhus&sort=author-date&order=desc&per_page=5', {
+			headers: {
+				Accept: 'application/vnd.github+json',
+			},
+			signal: AbortSignal.timeout(requestTimeout),
+		});
+
+		items = response.ok ? (await response.json()).items : undefined;
+	} catch (error) {
+		showError();
+		throw error;
 	}
 
-	const {items} = await response.json();
-
 	if (!items?.length) {
+		showError();
 		return;
 	}
 
 	const rows = items.map(item => {
 		const row = template.content.firstElementChild.cloneNode(true);
-		const link = row.querySelector('a');
+		const link = row.querySelector('[data-commit-link]');
 		link.href = item.html_url;
 		// Without the backticks of code, which GitHub shows as code.
 		link.textContent = item.commit.message.split('\n')[0].replaceAll('`', '');
-		row.querySelector('span span').textContent = item.repository.full_name.replace(/^sindresorhus\//, '');
-		const time = row.querySelector('time');
+		row.querySelector('[data-commit-repository]').textContent = item.repository.full_name.replace(/^sindresorhus\//, '');
+		const time = row.querySelector('[data-commit-time]');
 		time.dateTime = item.commit.author.date;
 		time.textContent = relativeTime(new Date(item.commit.author.date));
 		return row;
 	});
 
-	container.querySelector('ul').replaceChildren(...rows);
-	container.hidden = false;
+	list.replaceChildren(...rows);
+	list.removeAttribute('aria-busy');
 	container.closest('section').hidden = false;
 };
 
@@ -137,7 +160,9 @@ const showLatestBlueskyPost = async () => {
 		return;
 	}
 
-	const response = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=${handle}&limit=5&filter=posts_no_replies`);
+	const response = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=${handle}&limit=5&filter=posts_no_replies`, {
+		signal: AbortSignal.timeout(requestTimeout),
+	});
 
 	if (!response.ok) {
 		return;
@@ -153,9 +178,8 @@ const showLatestBlueskyPost = async () => {
 	}
 
 	const url = `https://bsky.app/profile/${handle}/post/${post.uri.split('/').at(-1)}`;
-	const details = quote.nextElementSibling;
-	const link = details.querySelector('a');
-	const time = details.querySelector('time');
+	const link = document.querySelector('#bluesky-post-link');
+	const time = document.querySelector('#bluesky-post-time');
 	const date = new Date(post.record.createdAt);
 
 	// Only a post that is newer than the one of the build, so the page never goes back to an older post.
@@ -163,7 +187,7 @@ const showLatestBlueskyPost = async () => {
 		return;
 	}
 
-	quote.querySelector('p').replaceChildren(...textNodes(post.record.text, post.record.facets));
+	document.querySelector('#bluesky-post-text').replaceChildren(...textNodes(post.record.text, post.record.facets));
 	link.href = url;
 	time.dateTime = date.toISOString();
 	time.textContent = date.toLocaleDateString('en-US', {

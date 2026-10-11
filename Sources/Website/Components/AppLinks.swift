@@ -3,12 +3,12 @@ import Foundation
 import SiteKit
 
 /**
-The section links of the app page, with the overflow menu. The menu is there also without links, as it has the QR code and sharing.
+The section links of the app page, with the overflow menu. The menu is there also without links, as it has a random app, and the QR code and sharing for apps that are not archived.
 */
 struct AppLinks: HTML {
 	let app: App
 
-	var body: some HTML {
+	var body: some HTML<HTMLTag.nav> {
 		nav {
 			for link in links {
 				a(.href(link.destination)) {
@@ -41,7 +41,6 @@ struct AppLinks: HTML {
 				Style()
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
 					.flexWrap()
-					.margin(.top, .rootEm(2))
 			case .link:
 				Style().chip()
 			}

@@ -210,7 +210,7 @@ struct GeoCitiesWindowsRodent: ScriptedElement {
 			case .padButton:
 				// Big enough for a thumb, which holds it down to keep running, so it does not select the arrow.
 				Style()
-					.frame(width: .rootEm(2.75), height: .rootEm(2.75))
+					.frame(size: .rootEm(2.75))
 					.padding(0)
 					.lineHeight(1)
 					.touchAction(.manipulation)

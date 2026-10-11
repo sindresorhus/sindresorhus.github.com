@@ -72,13 +72,13 @@ struct GeoCitiesNapster: ScriptedElement {
 				template(.part(Parts.resultTemplate)) {
 					li {
 						div {
-							strong {}
+							strong(.part(Parts.resultName)) {}
 								.style(Styles.fileName)
-							span {}
+							span(.part(Parts.resultDetails)) {}
 								.style(GeoCitiesPage.Styles.caption)
 						}
 
-						button(.type(.button)) {
+						button(.part(Parts.get), .type(.button)) {
 							"Get"
 						}
 						.style(GeoCitiesPage.Styles.retroButton)
@@ -106,21 +106,21 @@ struct GeoCitiesNapster: ScriptedElement {
 				// The script adds a copy for each download.
 				template(.part(Parts.transferTemplate)) {
 					li {
-						strong {}
+						strong(.part(Parts.transferName)) {}
 							.style(Styles.fileName)
 
 						div {
-							div {}
+							div(.part(Parts.transferFill)) {}
 								.style(GeoCitiesPage.Styles.progressFill)
 						}
 						.accessibilityHidden()
 						.style(GeoCitiesPage.Styles.progressTrack)
 
-						span {}
+						span(.part(Parts.transferText)) {}
 							.style(GeoCitiesPage.Styles.caption)
 
 						// Shown when the download fails, so the visitor does not have to search for the song again.
-						button(.type(.button), .hidden) {
+						button(.part(Parts.retry), .type(.button), .hidden) {
 							"Try Again"
 						}
 						.style(GeoCitiesPage.Styles.smallButton)
@@ -154,8 +154,8 @@ struct GeoCitiesNapster: ScriptedElement {
 				template(.part(Parts.songTemplate)) {
 					li {
 						label {
-							input(.type(.checkbox))
-							span {}
+							input(.part(Parts.songCheckbox), .type(.checkbox))
+							span(.part(Parts.songText)) {}
 						}
 						.style(Styles.song)
 					}
@@ -252,12 +252,21 @@ struct GeoCitiesNapster: ScriptedElement {
 		case query
 		case results
 		case resultTemplate
+		case resultName
+		case resultDetails
+		case get
 		case clock
 		case transfers
 		case transferTemplate
+		case transferName
+		case transferFill
+		case transferText
+		case retry
 		case status
 		case library
 		case songTemplate
+		case songCheckbox
+		case songText
 		case capacity
 		case capacityFill
 		case label
@@ -269,6 +278,13 @@ struct GeoCitiesNapster: ScriptedElement {
 		case disc
 		case discLabel
 		case coasters
+	}
+
+	enum States: String, ElementStateSet {
+		case failed
+		case done
+		case low
+		case coaster
 	}
 
 	enum Hooks: String, ScriptHookSet {
@@ -344,10 +360,10 @@ struct GeoCitiesNapster: ScriptedElement {
 					.children("button") {
 						$0.alignSelf(.start)
 					}
-					.when(.state, is: "failed") {
+					.when(States.failed) {
 						$0.background(Color("#ffdddd"))
 					}
-					.when(.state, is: "done") {
+					.when(States.done) {
 						$0.background(Color("#ddffdd"))
 					}
 			case .status:
@@ -371,9 +387,9 @@ struct GeoCitiesNapster: ScriptedElement {
 			case .bufferFill:
 				// The buffer of the burner, green while it is full and red when it runs low.
 				Style()
-					.frame(width: .percent(100), height: .percent(100))
+					.frame(size: .percent(100))
 					.background(Color("#00aa00"))
-					.when(.state, is: "low") {
+					.when(States.low) {
 						$0.background(Color("#cc0000"))
 					}
 			case .disc:
@@ -381,7 +397,7 @@ struct GeoCitiesNapster: ScriptedElement {
 				Style()
 					.position(.relative)
 					.hstack(alignment: .end, justification: .center)
-					.frame(width: .rootEm(12), height: .rootEm(12))
+					.frame(size: .rootEm(12))
 					.margin(.horizontal, .auto)
 					.padding(.rootEm(1.5))
 					.backgroundImage(.radialGradient("circle", Color("#c0c0c0"), Color("#f7efc4"), Color("#d8c060"), Color("#f4e7a1"), Color("#c9a83e"), Color("#efe0a0")))
@@ -392,7 +408,7 @@ struct GeoCitiesNapster: ScriptedElement {
 					.textAlign(.center)
 					.color(Color("#1a1aa0"))
 					.rotationEffect(.degrees(-8))
-					.when(.state, is: "coaster") {
+					.when(States.coaster) {
 						$0.filter(.grayscale(0.8), .brightness(0.8))
 					}
 			}

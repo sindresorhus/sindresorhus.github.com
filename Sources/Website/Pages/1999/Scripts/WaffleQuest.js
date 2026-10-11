@@ -1,24 +1,8 @@
 // WAFFLE QUEST: The Great Underground Kitchen on the 1999 page, a text adventure like Zork (1980) by Infocom. A parser reads what the visitor types: a verb, a thing, and maybe a second thing after a word like IN or WITH. The world is a list of rooms and things, and everything that changes is in one state, so SAVE, RESTORE, and UNDO only copy it, and SAVE keeps it in the browser. It beeps when the sound button of Sindre’s Quest is on, which tells it with the `geocities-adventure-sound` event.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
+import GeoCitiesElement, {randomItem} from '/scripts/geocities-element.js';
+import {beep} from '/scripts/geocities-adventure.js';
 
-// A short sound effect, made in the browser.
-const beep = (audio, frequency, duration = 0.1, {type = 'square', volume = 0.05, when = 0} = {}) => {
-	if (audio?.context.state !== 'running') {
-		return;
-	}
-
-	const start = audio.context.currentTime + when;
-	const oscillator = new OscillatorNode(audio.context, {type, frequency});
-	const gain = new GainNode(audio.context, {gain: 0});
-	gain.gain.setValueAtTime(0, start);
-	gain.gain.linearRampToValueAtTime(volume, start + 0.005);
-	gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-	oscillator.connect(gain).connect(audio.output);
-	oscillator.start(start);
-	oscillator.stop(start + duration + 0.02);
-};
-
-export default class extends GeoCitiesElement {
+class GeoCitiesWaffleQuest extends GeoCitiesElement {
 	#isSoundOn = false;
 
 	connected() {
@@ -1200,3 +1184,5 @@ export default class extends GeoCitiesElement {
 		}
 	}
 }
+
+customElements.define('geo-cities-waffle-quest', GeoCitiesWaffleQuest);

@@ -29,25 +29,18 @@ struct AppFooterLinks: HTML {
 			case .root:
 				Style()
 					.contentColumn()
-					.hstack()
+					.hstack(justification: .center)
 					.flexWrap()
-					.justifyContent(.center)
 					.gap(row: .rootEm(0.5), column: .rootEm(1.5))
 					.secondaryText()
 					// Larger on phones, so the links are easy to read and to tap.
 					.below(.smallTablet) {
 						$0
 							.textStyle(.body)
-							.gap(row: .rootEm(0.75), column: .rootEm(1.5))
+							.gap(row: .rootEm(0.75))
 					}
 			case .link:
-				Style()
-					.underlineOffset(.pixels(4))
-					.hover {
-						$0
-							.underline()
-							.color(.primaryText)
-					}
+				Style().quietLink()
 			}
 		}
 	}

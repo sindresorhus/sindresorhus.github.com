@@ -21,34 +21,36 @@ struct FAQSuggestions: ScriptedElement {
 	}
 
 	var content: some HTML {
-		div(.part(Parts.crashWarning), .hidden) {
-			"Looks like you’re reporting a crash. It would be very helpful if you could also attach a "
-			Link("crash report", destination: .crashReportQuestion, opensInNewTab: true)
-				.style(Styles.crashReportLink)
-			"."
-		}
-		.style(Styles.notice, Styles.crashWarning)
-
-		// A live region, so screen readers announce the suggestions while the visitor types. The links are reached with Tab.
-		div(.part(Parts.panel), .hidden, .role("status")) {
-			div {
-				span {
-					"Related Help"
-				}
-				.style(Styles.title)
-
-				button(.part(Parts.dismiss), .type(.button)) {
-					Icon.close.size(.rootEm(0.875))
-				}
-				.accessibilityLabel("Dismiss")
-				.style(Styles.dismissButton)
+		// A live region, so screen readers announce the crash warning and the suggestions while the visitor types. The links are reached with Tab. It is around them, as screen readers only announce changes in a live region that is already on the page, not one that is shown with its content.
+		div(.role("status")) {
+			div(.part(Parts.crashWarning), .hidden) {
+				"Looks like you’re reporting a crash. It would be very helpful if you could also attach a "
+				Link("crash report", destination: .crashReportQuestion, opensInNewTab: true)
+					.style(Styles.crashReportLink)
+				"."
 			}
-			.style(Styles.header)
+			.style(Styles.crashWarning)
 
-			ul(.part(Parts.list)) {}
-				.style(Styles.list)
+			div(.part(Parts.panel), .hidden) {
+				div {
+					span {
+						"Related Help"
+					}
+					.style(Styles.title)
+
+					button(.part(Parts.dismiss), .type(.button)) {
+						Icon.close.size(.rootEm(0.875))
+					}
+					.accessibilityLabel("Dismiss")
+					.style(Styles.dismissButton)
+				}
+				.style(Styles.header)
+
+				ul(.part(Parts.list)) {}
+					.style(Styles.list)
+			}
+			.style(Styles.panel)
 		}
-		.style(Styles.notice, Styles.panel)
 
 		template(.part(Parts.template)) {
 			li {
@@ -61,6 +63,7 @@ struct FAQSuggestions: ScriptedElement {
 					span(.part(Parts.question)) {}
 						.style(Styles.question)
 				}
+				.attributes(.part(Parts.link))
 				.style(Styles.link)
 			}
 		}
@@ -114,16 +117,12 @@ struct FAQSuggestions: ScriptedElement {
 		case dismiss
 		case list
 		case template
+		case link
 		case question
 		case questions
 	}
 
 	enum Styles: ElementStyleSet {
-		/**
-		The box of the crash warning and the suggestions. It comes first, so the colors of the others win over its border color.
-		*/
-		case notice
-
 		case root
 
 		/**
@@ -143,24 +142,17 @@ struct FAQSuggestions: ScriptedElement {
 
 		var style: Style {
 			switch self {
-			case .notice:
-				Style()
-					.margin(.top, .rootEm(0.75))
-					.padding(.rootEm(0.75))
-					.border()
-					.cornerRadius(.rootEm(0.5))
-					.textStyle(.caption)
 			case .root:
 				// The element only adds the behavior, so the warning and the suggestions are laid out as if it were not there.
 				Style().display(.contents)
 			case .panel:
 				// A card, like the other help on the site. Fades in when shown, and out when hidden. The discrete transition of `display` keeps it displayed until the fade ends.
 				Style()
+					.margin(.top, .rootEm(0.75))
 					.padding(.rootEm(1))
-					.borderColor(.transparent)
-					.cardSurface(isInteractive: false)
+					.textStyle(.caption)
 					// Less round than a card, like the fields above and below it.
-					.cornerRadius(.rootEm(0.75))
+					.fieldBox()
 					.transition(.opacity, .offset, .display, animation: .easeOut(duration: .milliseconds(150)))
 					.startingStyle {
 						$0
@@ -174,6 +166,11 @@ struct FAQSuggestions: ScriptedElement {
 					}
 			case .crashWarning:
 				Style()
+					.margin(.top, .rootEm(0.75))
+					.padding(.rootEm(0.75))
+					.border()
+					.cornerRadius(.fieldRadius)
+					.textStyle(.caption)
 					.borderColor(.amber(300), dark: .amber(700))
 					.color(.amber(800), dark: .amber(300))
 					.background(.amber(50), dark: .amber(900).opacity(0.2))
@@ -181,9 +178,7 @@ struct FAQSuggestions: ScriptedElement {
 				Style()
 					.fontWeight(.medium)
 					.underline()
-					.hover {
-						$0.color(.amber(900), dark: .amber(200))
-					}
+					.hoverColor(.amber(900), dark: .amber(200))
 			case .header:
 				Style()
 					.hstack(alignment: .center, justification: .spaceBetween)
@@ -193,13 +188,7 @@ struct FAQSuggestions: ScriptedElement {
 					.fontWeight(.semibold)
 					.color(.secondaryText)
 			case .dismissButton:
-				Style()
-					.margin(.rootEm(-0.375))
-					.padding(.rootEm(0.375))
-					.color(.secondaryText)
-					.hover {
-						$0.color(.primaryText)
-					}
+				Style().iconButton(hoverFill: .cardHover, isOutset: true)
 			case .list:
 				Style().vstack(spacing: .rootEm(0.5))
 			// A question that wraps keeps its lines next to the chevron.

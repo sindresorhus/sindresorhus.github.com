@@ -15,7 +15,7 @@ struct GeoCitiesPage: Page {
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: "Sindre’s Home Page, 1999 Edition", description: "Sindre Sorhus as a personal home page from 1999, with a guestbook, an alien game, a virtual unicorn, and a MIDI jukebox.")
+		PageMetadata(title: "Sindre’s Home Page, 1999 Edition", description: "The site of Sindre Sorhus reimagined as a personal home page from 1999, with a guestbook, an alien game, a virtual unicorn, and a MIDI jukebox.")
 	}
 
 	var head: some HTML {

@@ -1,15 +1,7 @@
 // The Craft Table on the 1999 page: the kitchen table on a rainy Saturday in Bergen, covered in Bergens Tidende, with Hama beads and Mamma’s iron, paper snowflakes for the kitchen window, a Spirograph, and Shrinky Dinks that shrink in the oven. Each craft is drawn on a canvas at twice the size it has on the page, so the beads and the lines are sharp. Canvases and timers run only while they are on the screen and the tab is visible. What the visitor makes is kept in the browser.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const lerp = (from, to, amount) => from + ((to - from) * amount);
-const easeInOut = amount => amount < 0.5 ? 2 * amount * amount : 1 - (((-2 * amount) + 2) ** 2 / 2);
+import GeoCitiesElement, {randomItem, randomBetween, clamp, lerp, seededRandom} from '/scripts/geocities-element.js';
 
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
+const easeInOut = amount => amount < 0.5 ? 2 * amount * amount : 1 - (((-2 * amount) + 2) ** 2 / 2);
 
 // Draws on the next frame, once, however many times it is asked for in the same frame.
 const makeRenderer = render => {
@@ -91,14 +83,6 @@ const mixColors = (from, to, amount) => {
 	const start = hexToRgb(from);
 	const end = hexToRgb(to);
 	return `rgb(${start.map((channel, index) => Math.round(lerp(channel, end[index], amount))).join(', ')})`;
-};
-
-// The same random numbers each time for the same seed, so the newspaper and the scraps look the same on each frame.
-const seededRandom = seed => () => {
-	seed = (seed + 0x6D_2B_79_F5) | 0;
-	let value = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-	value = (value + Math.imul(value ^ (value >>> 7), 61 | value)) ^ value;
-	return ((value ^ (value >>> 14)) >>> 0) / 4_294_967_296;
 };
 
 // The sound of the crafts, made in the browser. It is off until the visitor turns it on.
@@ -468,7 +452,7 @@ const drawSnowflake = (context, wedge, folds, {x, y, scale, amount = 1, resoluti
 	}
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesCrafts extends GeoCitiesElement {
 	#soundLoops;
 	#actions;
 
@@ -480,7 +464,7 @@ export default class extends GeoCitiesElement {
 		const {sound: soundButton} = this.parts;
 		this.on(soundButton, 'click', () => {
 			sound.isOn = !sound.isOn && sound.start(this.sound());
-			setPressed(soundButton, sound.isOn);
+			soundButton.setAttribute('aria-pressed', String(sound.isOn));
 			soundButton.textContent = sound.isOn ? '🔊 Sound On' : '🔇 Sound Off';
 			if (sound.isOn) {
 				sounds.rattle(10, 0.3);
@@ -521,13 +505,9 @@ export default class extends GeoCitiesElement {
 				button.style.setProperty('--crafts-swatch', craftsColor);
 			}
 
-			if (button.getAttribute('aria-pressed') === 'true') {
-				setPressed(button, true);
-			}
-
 			this.on(button, 'click', () => {
 				for (const other of buttons) {
-					setPressed(other, other === button);
+					other.setAttribute('aria-pressed', String(other === button));
 				}
 
 				onChoose(craftsColor, button);
@@ -540,13 +520,9 @@ export default class extends GeoCitiesElement {
 	#setUpTools(container, onChoose) {
 		const buttons = [...container.querySelectorAll('[data-crafts-tool]')];
 		for (const button of buttons) {
-			if (button.getAttribute('aria-pressed') === 'true') {
-				setPressed(button, true);
-			}
-
 			this.on(button, 'click', () => {
 				for (const other of buttons) {
-					setPressed(other, other === button);
+					other.setAttribute('aria-pressed', String(other === button));
 				}
 
 				onChoose(button.dataset.craftsTool);
@@ -556,7 +532,7 @@ export default class extends GeoCitiesElement {
 		return {
 			choose(tool) {
 				for (const button of buttons) {
-					setPressed(button, button.dataset.craftsTool === tool);
+					button.setAttribute('aria-pressed', String(button.dataset.craftsTool === tool));
 				}
 			},
 		};
@@ -1768,7 +1744,6 @@ export default class extends GeoCitiesElement {
 		let tableScraps = [];
 		let unfoldAmount = 0;
 		let foldAmount = 1;
-		let foldFrom = 1;
 		let isHung = false;
 
 		const halfAngle = () => Math.PI / (2 * folds);
@@ -2891,7 +2866,7 @@ export default class extends GeoCitiesElement {
 
 			isHolding = true;
 			holdStart = performance.now();
-			setPressed(turnButton, true);
+			turnButton.setAttribute('aria-pressed', 'true');
 			loop.start();
 		};
 
@@ -2902,7 +2877,7 @@ export default class extends GeoCitiesElement {
 			}
 
 			isHolding = false;
-			setPressed(turnButton, false);
+			turnButton.setAttribute('aria-pressed', 'false');
 			endDrag();
 		};
 
@@ -3996,3 +3971,5 @@ export default class extends GeoCitiesElement {
 		});
 	}
 }
+
+customElements.define('geo-cities-crafts', GeoCitiesCrafts);

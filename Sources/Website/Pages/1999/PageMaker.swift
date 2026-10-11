@@ -287,7 +287,7 @@ struct GeoCitiesPageMaker: ScriptedElement {
 					.textStyle(.caption)
 					.children("picture > img") {
 						$0
-							.frame(width: .rootEm(1.75), height: .rootEm(1.75))
+							.frame(size: .rootEm(1.75))
 							.objectFit(.contain)
 					}
 			case .check:

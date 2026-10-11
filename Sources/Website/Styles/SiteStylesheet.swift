@@ -4,6 +4,11 @@ extension Stylesheet {
 	static let sitePath: RoutePath = "/assets/site.css"
 
 	/**
+	The ``sitePath`` with the hash of the stylesheet, so browsers can cache it for a year.
+	*/
+	static let versionedSitePath = sitePath.versioned(content: site.css)
+
+	/**
 	The stylesheet that every page links to, so browsers cache it: the element defaults and the Markdown typography.
 
 	Each page has the styles of its components in a `<style>` element, collected while it renders, so no list of components has to be kept in sync. Markdown renders before the page, so a document collects the styles of its block directives, and the page adds them when it shows the document (``MarkdownContent``). The components here are the ones that most pages use, so they are cached with the stylesheet.
@@ -55,18 +60,17 @@ extension Stylesheet {
 	/**
 	The element defaults and utilities that every page uses.
 	*/
-
 	static let base = Stylesheet {
 		Rule(":root", Palette.customProperties
 			.combined(with: SemanticColor.customProperties)
 			.colorScheme(.lightDark)
-			// Animate details open/close via ::details-content (requires interpolate-size support)
+			// Lets `::details-content` animate to `auto`, so the collapsible sections open and close smoothly, in browsers that support it.
 			.declaration(.interpolateSize, "allow-keywords")
 		)
 
 		// A small reset: elements have no spacing or borders until a component styles them.
 		Rule("*, ::before, ::after", Style()
-			.declaration(.boxSizing, "border-box")
+			.boxSizing(.borderBox)
 			.margin(0)
 			.padding(0)
 			.declaration(.border, "0 solid")
@@ -82,7 +86,7 @@ extension Stylesheet {
 		)
 
 		// Avoids a last line with one word, and short lines in the middle of paragraphs.
-		Rule("p, li, dd, blockquote", Style().textWrap(.pretty))
+		Rule("p, li, dd, blockquote, figcaption", Style().textWrap(.pretty))
 
 		// In the accent of the page, like the color of the app on an app page. See-through, so the text keeps its color, also the colors of highlighted code on the dark code blocks.
 		Rule("::selection", Style()
@@ -104,7 +108,7 @@ extension Stylesheet {
 
 		Rule("code, kbd, samp, pre", Style().fontFamily(.monospace))
 
-		Rule("ol, ul, menu", Style().declaration(.listStyle, .none))
+		Rule("ol, ul, menu", Style().listStyle(.none))
 
 		Rule("img, svg, video, canvas", Style()
 			.display(.block)
@@ -116,7 +120,7 @@ extension Stylesheet {
 		Rule("button, input, select, optgroup, textarea", Style()
 			.inheritsFont()
 			.color(.inherit)
-			.declaration(.letterSpacing, .inherit)
+			.letterSpacing(.inherit)
 			.background(.transparent)
 		)
 

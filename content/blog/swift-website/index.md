@@ -7,15 +7,15 @@ tags: [
 ]
 ---
 
-This website used to be made with Astro. Now it's all Swift: every page, component, and style. The same language as my apps, and it feels a lot like SwiftUI.
+This website used to be made with Astro. Now every page, component, and style is written in Swift, the same language as my apps, and it feels a lot like SwiftUI.
 
-The browser still gets plain HTML and CSS, with a little JavaScript. What changed is how it's made, and how much I enjoy working on it.
+The browser still gets plain HTML and CSS, with a little JavaScript. The difference is how I make it, and I enjoy working on it a lot more.
 
 ## Why Swift?
 
 I write Swift all day, and I love it. I no longer have to switch languages and tools when I go from an app to the website.
 
-But the real reason is the compiler. A website is lots of small things that need to agree: links, class names, styles, scripts, and the data of more than 60 apps. In a typical web stack, they only meet in the browser, and a mistake becomes a broken page. Here, most of them meet in the compiler. Rename a page, and every link to it in the code stops compiling.
+But the main reason is the compiler. A website is lots of small things that need to agree: links, class names, styles, scripts, and the data of more than 60 apps. In a typical web stack, they only meet in the browser, and a mistake becomes a broken page. Here, most of them meet in the compiler. Rename a page, and every link to it in the code stops compiling.
 
 ## It looks like SwiftUI
 
@@ -95,7 +95,7 @@ Using it is just like using a SwiftUI view:
 Badge(title: "New", kind: .new)
 ```
 
-Each page only gets the CSS of the components it shows. Under the hood, it's modern CSS: cascade layers, `light-dark()`, relative colors, scroll-driven animations, and container units. No preprocessor and no Tailwind.
+Each page only gets the CSS of the components it shows. Under the hood, it's modern CSS: cascade layers, `light-dark()`, relative colors, scroll-driven animations, and container units. I don't use a preprocessor or Tailwind.
 
 ## Typed CSS variables
 
@@ -157,7 +157,7 @@ Pages are static members, so `.apps` autocompletes, and a page that doesn't exis
 
 ## Scripts
 
-A component with behavior is a custom element. Swift renders the HTML, and the script is the class of the element. A small script lives right in the Swift file, and a larger one in a `.js` file next to it. A script only touches its own element, so it can't break something else on the page. No framework and no bundler.
+A component with behavior is a custom element. Swift renders the HTML, and the script is the class of the element. A small script lives right in the Swift file, and a larger one in a `.js` file next to it. A script only touches its own element, so it can't break something else on the page. There's no framework or bundler.
 
 ## Small and fast
 
@@ -180,11 +180,11 @@ struct Frontmatter {
 
 [`@Frontmatter`](https://github.com/sindresorhus/sindresorhus.github.com/blob/main/Sources/SiteKitMacros/FrontmatterMacro.swift) is a Swift macro that writes the decoder at compile time. `@NonEmpty` rejects an empty value, and `@CalendarDay` turns `'2017-07-26'` into a `Date` and rejects days like `'2026-02-30'`. A mistake, like an unknown platform or a misspelled key, is an error with the file and the line, sometimes with a “Did you mean” suggestion.
 
-The build also gets the ratings, prices, and reviews of each app from the App Store. `swift run website check` catches what the compiler can't, like spelling mistakes, or a page that says an app needs macOS 14 when the App Store says macOS 15.
+The build also gets the ratings, prices, and reviews of each app from the App Store, and the numbers on the [about page](/about#stats) and the [now page](/now) from GitHub and npm, like the stars and the weekly downloads. The responses are cached, so a build usually costs nothing, and a request that fails only leaves its number out. `swift run website check` catches what the compiler can't, like spelling mistakes, or a page that says an app needs macOS 14 when the App Store says macOS 15.
 
 ## Delight
 
-Warnings fail the build, and a few hundred tests check what the types can't, like that every class has a CSS rule. So I make big changes without fear. Everything autocompletes, and a refactor is a rename. The code reads like SwiftUI, with no class soup and no selectors to keep in my head. A component keeps its markup, styles, and script in one place, and when I delete it, its CSS and JavaScript go with it. And `swift run website serve` reloads the page when I save.
+Warnings fail the build, and a few hundred tests check what the types can't, like that every class has a CSS rule. So I can make big changes without worrying. Everything autocompletes, and a refactor is a rename. The code reads like SwiftUI, with no class soup and no selectors to keep in my head. A component keeps its markup, styles, and script in one place, and when I delete it, its CSS and JavaScript go with it. And `swift run website serve` reloads the page when I save.
 
 Working on the website is now as much fun as working on the apps.
 
@@ -192,4 +192,4 @@ The [source code](https://github.com/sindresorhus/sindresorhus.github.com) is op
 
 ## One more thing
 
-The best stress test of all this is [my home page from 1999](/1999): the site as a personal home page from back then, with a guestbook, an alien game, a virtual unicorn, and a MIDI jukebox. It has 81 custom elements, made with the same components and styles as the rest of the site. Go sign the guestbook.
+The best stress test of all this is [my home page, 1999 edition](/1999): the site reimagined as a personal home page from back then, with a guestbook, an alien game, a virtual unicorn, and a MIDI jukebox. It has 81 custom elements, made with the same components and styles as the rest of the site. Go sign the guestbook.
