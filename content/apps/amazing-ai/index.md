@@ -53,7 +53,7 @@ Click a thumbnail to view a larger version of it. Click again to exit.
 
 ### Negative prompt
 
-To write a [negative prompt](https://dreamlike.art/guides/guide-to-stable-diffusion-negative-prompt-parameter) (what to exclude), write `##` after your prompt, followed by your negative prompt. For example, “photo of a cake, high-quality ## strawberry, out of frame”, where `strawberry, out of frame` is your negative prompt. Anything after the `##` is your negative prompt. You only write `##` once.
+To write a [negative prompt](https://en.wikipedia.org/wiki/Stable_Diffusion#Text_to_image_generation) (what to exclude), write `##` after your prompt, followed by your negative prompt. For example, “photo of a cake, high-quality ## strawberry, out of frame”, where `strawberry, out of frame` is your negative prompt. Anything after the `##` is your negative prompt. You only write `##` once.
 
 ### Keyboard shortcuts
 

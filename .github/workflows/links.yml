@@ -5,17 +5,18 @@ on:
     - cron: '0 6 * * 1' # Every Monday
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     # Xcode 27 is the default Xcode on this image.
     runs-on: xcode-27
     timeout-minutes: 20
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v7
       # The build of the CI workflow, so only what changed since compiles.
-      - uses: actions/cache/restore@v5
+      - uses: actions/cache/restore@v6
         with:
           path: |
             .build
@@ -29,23 +30,23 @@ jobs:
         run: |
           swift build --build-tests -Xswiftc -Xfrontend -Xswiftc -warn-long-expression-type-checking=200
           .build/debug/website build
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: site
           path: dist
+          # Only the check job uses it.
+          retention-days: 1
 
   check:
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    timeout-minutes: 30
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           name: site
           path: dist
-      # Internal links are checked by every build. This checks the links to other sites, which break over time. The root directory resolves links like `/apps` to files, which are then left out.
+      # Internal links are checked by every build. This checks the links to other sites, which break over time. The root directory resolves links like `/apps` to files, which are then left out. Many sites, like X, Instagram, Unsplash, Reddit, and Stack Exchange, block bots with 401, 403, or 429, so these count as OK. A page that is gone is still a 404.
       - uses: lycheeverse/lychee-action@v2
         with:
-          args: --no-progress --max-concurrency 8 --root-dir '${{ github.workspace }}/dist' --exclude '^file://' --exclude '^https://sindresorhus\.com' 'dist/**/*.html'
-          fail: true
+          args: --no-progress --max-concurrency 8 --accept '200..=299,401,403,429' --root-dir '${{ github.workspace }}/dist' --exclude '^file://' --exclude '^https://sindresorhus\.com' 'dist/**/*.html'

@@ -112,9 +112,3 @@ See all supporters on [GitHub Sponsors](https://github.com/sponsors/sindresorhus
 ## Become a supporter
 
 [Support my open source work 🙌](donate)
-
-> I’m launching a Patreon 🦄
->
-> For the past 3 years I’ve been doing open source full-time while living off savings. Now I need your support. If you or your company use any of my projects or just like what I’m doing, please consider backing me.
-
-— [Sindre Sorhus on X, December 13, 2017](https://x.com/sindresorhus/status/941032894964883457)

@@ -49,7 +49,7 @@ Editing, validation, formatting, and conversion all run locally on your Mac. The
 
 ### Can I edit JSON, TOML, or YAML files?
 
-The app edits SOML files. You can convert JSON to SOML and export SOML as JSON. TOML and YAML are not supported.
+The app edits SOML files. You can import JSON, TOML, and YAML as SOML, and export SOML as JSON. TOML and YAML import discards comments and formatting, and converts dates and times to strings. Exporting to TOML or YAML is not supported.
 
 ### Does converting to JSON preserve everything?
 

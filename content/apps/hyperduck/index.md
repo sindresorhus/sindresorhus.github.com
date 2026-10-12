@@ -91,7 +91,7 @@ You can use the Shortcuts support mentioned above to shut down your computer rem
 
 ### Trigger Raycast deeplinks {#raycast}
 
-Similar to the above, we can use a [Raycast deeplink](https://manual.raycast.com/deeplinks).
+Similar to the above, we can use a [Raycast deeplink](https://developers.raycast.com/information/lifecycle/deeplinks).
 
 For example, on your iOS device, make a new shortcut, add the “Send URLs to Mac” action, and in the URL field, write:
 

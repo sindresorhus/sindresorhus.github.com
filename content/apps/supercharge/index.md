@@ -510,7 +510,7 @@ Remaps <kbd>Caps Lock</kbd> to function as a Hyper key — a single key that sim
 
 #### Automatically quit or hide inactive apps {#auto-quit-apps}
 
-Automatically quits or hides apps when you’re not using them, to maintain focus and free system resources. Like [Quitter](https://marco.org/apps#quitter) or Raycast’s [Auto Quit](https://manual.raycast.com/window-management/auto-quit-applications), but built into Supercharge.
+Automatically quits or hides apps when you’re not using them, to maintain focus and free system resources. Like [Quitter](https://marco.org/apps#quitter) or Raycast’s [Auto Quit](https://manual.raycast.com/auto-quit), but built into Supercharge.
 
 Set up rules per app: quit or hide after a certain amount of inactivity. You might hide Slack after 3 minutes but quit X (Twitter) after 5 minutes, depending on how you work.
 
