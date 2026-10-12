@@ -232,14 +232,14 @@ extension Sequence<AppStoreInfo> {
 	*/
 	var combinedRating: AppStoreInfo.Rating? {
 		let ratings = compactMap(\.rating)
-		let count = ratings.map(\.count).reduce(0, +)
+		let count = ratings.map(\.count).sum
 
 		guard count > 0 else {
 			return nil
 		}
 
 		// The averages are rounded to one decimal, which changes the combined average by at most 0.05.
-		let average = ratings.map { $0.average * Double($0.count) }.reduce(0, +) / Double(count)
+		let average = ratings.map { $0.average * Double($0.count) }.sum / Double(count)
 		return AppStoreInfo.Rating(average: average, count: count)
 	}
 }

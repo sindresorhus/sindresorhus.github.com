@@ -1,17 +1,17 @@
 import Foundation
 import SiteKit
-import Website
+@testable import Website
 
 extension Project {
 	/**
 	The project of the website, with the real content.
 	*/
-	static let website = Project(root: URL(filePath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent())
+	static let website = Project.site(root: URL(filePath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent())
 
 	/**
 	A project in a directory that does not exist, for content that a test makes without files.
 	*/
-	static let empty = Project(root: FileManager.default.temporaryDirectory.appending(path: "website-tests-empty-project"))
+	static let empty = Project.site(root: URL.temporaryDirectory.appending(path: "website-tests-empty-project"))
 }
 
 extension SiteContent {
@@ -54,5 +54,43 @@ extension ResponseCache {
 		}
 
 		self.init(directory: directory, maximumAge: .seconds(60 * 60))
+	}
+
+	/**
+	A cache with the responses of npm for ``NPMStatistics/load(cache:warnings:)``: the first page of the search, the downloads of all of npm, and the most-downloaded packages, so the test does not use the network.
+	*/
+	static func npm(search: String, registryDownloads: String = #"{"downloads": 0}"#, mostDownloaded: String = "export const topDownload = [\n  'semver',\n]") throws -> Self {
+		try Self(responses: [
+			"https://registry.npmjs.org/-/v1/search?text=maintainer:sindresorhus&size=250&from=0": search,
+			"https://api.npmjs.org/downloads/point/last-week": registryDownloads,
+			"https://unpkg.com/npm-high-impact/lib/top-download.js": mostDownloaded,
+		])
+	}
+}
+
+/**
+The error when a route is not a page, like a redirect.
+*/
+private struct NotAPageError: Error {}
+
+extension Route {
+	/**
+	The HTML of the page of the route. It throws when the route is not a page.
+	*/
+	func renderedHTML() throws -> String {
+		guard case .page(_, let render) = output else {
+			throw NotAPageError()
+		}
+
+		return try render()
+	}
+}
+
+extension Page {
+	/**
+	The HTML of the page. It throws when the route is not a page.
+	*/
+	func renderedHTML() throws -> String {
+		try route.renderedHTML()
 	}
 }

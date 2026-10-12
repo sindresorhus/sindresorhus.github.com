@@ -91,7 +91,7 @@ struct App: ContentDocument {
 			let script = frontmatter.script,
 			!project.publicFile(script).isFile
 		{
-			throw ContentError(file: file.url, line: file.line(ofFrontmatterKey: "script"), reason: "The `script` \(script) does not exist in `public`.")
+			throw ContentError(file: file.url, line: file.line(ofFrontmatterKey: "script"), reason: "The `script` \(script) does not exist in `public` or next to the page.")
 		}
 
 		self.media = try await MediaAsset.discover(in: Self.assetDirectory(slug: file.slug), project: project)
@@ -160,10 +160,10 @@ extension App {
 	}
 
 	/**
-	The directory with the icon, the screenshots, and the videos of an app, like `/apps/dato`.
+	The directory with the icon, the screenshots, and the videos of an app, like `/dato`. They are files of its page bundle, so they are next to its page.
 	*/
 	static func assetDirectory(slug: String) -> RoutePath {
-		RoutePath.apps.appending(slug)
+		path(slug: slug)
 	}
 
 	private static func iconPath(slug: String) -> RoutePath {
@@ -235,10 +235,10 @@ extension App {
 	}
 
 	/**
-	The page that sharing the app shares: the App Store page, or the app page for apps that are not on the App Store or are archived, as the page has no App Store download for them.
+	The page that sharing the app shares: the App Store page, or the app page for apps that are not on the App Store. Archived apps are not shared.
 	*/
 	var shareURL: URL {
-		frontmatter.isArchived ? path.absoluteURL : (appStoreURL ?? path.absoluteURL)
+		appStoreURL ?? path.absoluteURL
 	}
 
 	var setappURL: URL? {
@@ -514,7 +514,7 @@ extension App {
 		var redirectFrom = [RoutePath]()
 
 		/**
-		A script for the app page, like a demo, as a path in `public`.
+		A script for the app page, like a demo, as the path of a file in `public` or of the page bundle, like `/googly-eyes/eyes.js`.
 		*/
 		var script: RoutePath?
 

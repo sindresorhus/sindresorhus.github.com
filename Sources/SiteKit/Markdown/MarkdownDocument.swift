@@ -389,11 +389,26 @@ extension MarkdownDocument {
 	The HTML before the level 2 heading with the ID, and the HTML from that heading on, so a page can show something between two sections, like the projects on the about page. `nil` when the document has no level 2 heading with the ID. The heading must not be inside other markup, like a block directive.
 	*/
 	public func htmlSeparated(beforeHeading id: String) -> (before: String, after: String)? {
-		guard let range = html.firstRange(of: "<h2 id=\"\(id)\"") else {
-			return nil
+		htmlSeparated(beforeHeadings: [id]).map { ($0[0], $0[1]) }
+	}
+
+	/**
+	The HTML separated before each level 2 heading with one of the IDs, in their order, so a page can show something between several sections, like the numbers and the projects on the about page. It has one part more than the IDs: the HTML before the first heading, and the HTML from each heading to the next. `nil` when one of the IDs has no level 2 heading, or the headings are in another order. The headings must not be inside other markup, like a block directive.
+	*/
+	public func htmlSeparated(beforeHeadings ids: [String]) -> [String]? {
+		var parts = [String]()
+		var remainder = html[...]
+
+		for id in ids {
+			guard let range = remainder.firstRange(of: "<h2 id=\"\(id)\"") else {
+				return nil
+			}
+
+			parts.append(String(remainder[..<range.lowerBound]))
+			remainder = remainder[range.lowerBound...]
 		}
 
-		return (String(html[..<range.lowerBound]), String(html[range.lowerBound...]))
+		return parts + [String(remainder)]
 	}
 }
 
@@ -607,6 +622,13 @@ extension MarkdownDocument {
 	*/
 	public func contentSeparated(beforeHeading id: String) -> (before: MarkdownContent, after: MarkdownContent)? {
 		htmlSeparated(beforeHeading: id).map { (MarkdownContent(html: $0.before, resources: resources), MarkdownContent(html: $0.after, resources: resources)) }
+	}
+
+	/**
+	The ``htmlSeparated(beforeHeadings:)`` as content of a page. Each part adds the styles and scripts of the whole document, so any part can be shown alone.
+	*/
+	public func contentSeparated(beforeHeadings ids: [String]) -> [MarkdownContent]? {
+		htmlSeparated(beforeHeadings: ids).map { $0.map { MarkdownContent(html: $0, resources: resources) } }
 	}
 }
 

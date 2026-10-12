@@ -249,7 +249,7 @@ extension MarkdownFile {
 				let destination = (try? resolvingLink(String(match.1), project: project)) ?? String(match.1)
 				return "](\(URL(string: destination, relativeTo: page)?.absoluteString ?? destination))"
 			}
-			// The root-relative URLs of raw HTML, like `<img src="/apps/dato/icon.png">` and `href="/"`, but not `//example.com`, which is another host.
+			// The root-relative URLs of raw HTML, like `<img src="/dato/icon.png">` and `href="/"`, but not `//example.com`, which is another host.
 			.replacing(/\b(src|href)="(\/(?:[^"\/][^"]*)?)"/) { match in
 				#"\#(match.1)="\#(URL(string: String(match.2), relativeTo: page)?.absoluteString ?? String(match.2))""#
 			}

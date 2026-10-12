@@ -70,12 +70,11 @@ extension App {
 			}
 
 			links.append(LabeledLink("Privacy Policy", path: privacyPolicyPath))
-		}
+			links.append(.termsOfUse)
 
-		links.append(.termsOfUse)
-
-		if frontmatter.isPaid {
-			links.append(.discounts)
+			if frontmatter.isPaid {
+				links.append(.discounts)
+			}
 		}
 
 		return links

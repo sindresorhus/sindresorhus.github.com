@@ -6,7 +6,7 @@
 
 ## Development
 
-The site is generated with Swift. Content is Markdown in `content/`, and static files are in `public/`.
+The site is generated with Swift. Content is Markdown in `content/`, and static files are in `public/`. A page with files of its own, like images, is a directory with an `index.md`, and its files are published next to the page, like `/dato/icon.png` for `content/apps/dato/icon.png`.
 
 ```sh
 swift run website build # Writes the site to `dist`

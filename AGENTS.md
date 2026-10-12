@@ -16,6 +16,12 @@ Prefer modern syntax and APIs to the fastest ones. For example, use Swift `Regex
 
 Do not use AVIF. The owner waits for JPEG XL instead. Keep PNG and JPEG until then.
 
+## Assets
+
+A page is a Markdown file, or a directory with an `index.md` (a page bundle) when it has files of its own, like images. The files of a page bundle are published next to its page: `content/apps/dato/icon.png` at `/dato/icon.png`, `content/blog/post/image.png` at `/blog/post/image.png`, and `content/pages/about/lego.jpg` at `/about/lego.jpg` (`Project.site(root:)`). An app's icon, screenshots (`screenshot*.png/jpg`), and videos (`video*.mp4`) are files of its page bundle.
+
+Link to them relatively in the Markdown, like `[photo](lego.jpg)`. A relative link with a file extension to a file that does not exist is a build error. Files that many pages use, or that other sites link to, like the logos in `public/assets/thanks`, go in `public/`, as their URLs must not change.
+
 ## Motion
 
 Keep motion to a minimum in the content. Small transitions that help to understand a change, like a hover color or a menu that fades in, are fine. Do not add scroll animations, elements that move into view, parallax, or animations of the content itself, like text or cards that move by themselves.
@@ -35,7 +41,8 @@ Use full words in names, also for CSS units and keywords, like `.pixels(1)`, not
 Content files can use the block directives in `Sources/Website/Components/MarkdownOptions.swift`, like `@Feature(title: "…") { … }` and `@Tips { … }`. Prefer one of them to raw HTML in content, and use Markdown links, not raw `<a>` tags, as a link inside one would be a nested link. Each has a sample in the gallery (`GalleryPage`), and the styles of each are a style set. Markdown renders before the pages, so a document collects the styles that its directives use, and the page adds them when it shows the document. So show a document with `document.content` (or `Prose(markdown:)`), not with `HTMLRaw(document.html)`, which leaves its styles out. A test checks that every class on a page has a rule.
 
 - `@Cards { - … }`: a list as cards that flow through two columns from tablets. The text of each item is the title of its card, and a nested list is smaller text below it. Like the lists of the about page.
-- `@Steps { 1. … }`: a numbered list with large numbers in the accent of the page. A nested list is smaller text below its item.
+- `@Steps { 1. … }`: a numbered list as steps, with each number in a circle in the accent of the page and a line to the next. A nested list is smaller text below its item.
+- `@Changelog { - 2014 }`: a list of years, each with a nested list of changes, like the release notes of an app. A change can start with its kind, like `Added: Awesome`, which becomes a badge: Added, Changed, Fixed, and Removed in their colors, or Deprecated in gray. Another kind is a content error. Like the life changelog of the about page.
 - `@SocialLinks`: the social links of `Site.author` as chips with icons. The footer has the same links, as plain links. It has no content.
 - `@Details(summary: "…") { … }`: a collapsible section with the look of the FAQ questions, for long details that most readers skip, like the steps for an older macOS version.
 - `@QuickAnswer { … }`: the short answer at the top of a how-to post, in a box with a “Quick Answer” label, for readers who only want the answer.

@@ -355,7 +355,7 @@ extension ContactPage {
 		private static let sparkleColor = Color.primary(500).mix(with: .secondary(500), amount: ContactPage.sparkleColorMix.value(default: .percent(50)))
 
 		private static var letterCount: Int {
-			ContactPage.emailParts.map(\.count).reduce(0, +)
+			ContactPage.emailParts.map(\.count).sum
 		}
 
 		/**

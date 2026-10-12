@@ -16,9 +16,14 @@ public struct Site: Sendable {
 	static let name = "Sindre Sorhus"
 
 	/**
-	About how many people use the apps. No service counts this, so it is updated by hand. The apps page and the now page show it rounded down, like “6M+ users”.
+	About how many people use the apps. No service counts this, so it is updated by hand. The apps page and the about page show it rounded down, like “6M+ users”.
 	*/
 	static let appUserCount = 6_000_000
+
+	/**
+	About how many support emails Sindre has answered. No service counts this, so it is updated by hand. The apps page and the about page show it rounded down, like “10K+”.
+	*/
+	static let supportEmailCount = 10_000
 	static let url = #URL("https://sindresorhus.com")
 	static let description = "Full-Time Open-Sourcerer & App Maker"
 	static let author = Person.sindreSorhus

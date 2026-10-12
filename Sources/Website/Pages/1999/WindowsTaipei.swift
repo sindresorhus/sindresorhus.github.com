@@ -269,7 +269,7 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 				row.append(SheetCell(name: "\(columnLetters[month + 1])\(number)", value: kroner(value), formula: post.formulas[month], isNumber: true))
 			}
 
-			row.append(SheetCell(name: "E\(number)", value: kroner(post.values.reduce(0, +)), formula: "=SUM(B\(number):D\(number))", isNumber: true))
+			row.append(SheetCell(name: "E\(number)", value: kroner(post.values.sum), formula: "=SUM(B\(number):D\(number))", isNumber: true))
 			row.append(SheetCell(name: "F\(number)", value: post.note, isNote: true))
 			rows.append(row)
 		}
@@ -278,7 +278,7 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 
 		for column in 1...4 {
 			let letter = columnLetters[column]
-			let total = column == 4 ? budget.flatMap(\.values).reduce(0, +) : budget.map { $0.values[column - 1] }.reduce(0, +)
+			let total = column == 4 ? budget.flatMap(\.values).sum : budget.map { $0.values[column - 1] }.sum
 			totals.append(SheetCell(name: "\(letter)\(totalRow)", value: kroner(total), formula: "=SUM(\(letter)2:\(letter)\(totalRow - 1))", isNumber: true, isBold: true))
 		}
 

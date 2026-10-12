@@ -81,34 +81,37 @@ struct AppHero: HTML {
 				.style(Styles.details)
 			}
 
-			// The “Show QR Code” option of the “…” menu shows it, like on a computer, to open the App Store page on an iPhone. An app that is not on iPhone, Apple Watch, or Vision Pro gets the page of the app instead, to open it on a phone, like to send it to someone.
-			let appStoreURL = app.qrCodeURL
-			// A dialog named by its caption, which the “…” menu focuses, so screen readers announce it.
-			figure(.id(Self.qrCodeID), .popover, .role("dialog"), .ariaLabelledBy("\(Self.qrCodeID)-caption"), .tabindex(-1)) {
-				QRCode(url: appStoreURL ?? app.path.absoluteURL, label: appStoreURL != nil ? "QR code that opens \(app.title) on the App Store" : "QR code that opens this page")
-					.style(Styles.qrCodeImage)
+			// An archived app is no longer available, so the menu has no QR code or sharing.
+			if !app.isArchived {
+				// The “Show QR Code” option of the “…” menu shows it, like on a computer, to open the App Store page on an iPhone. An app that is not on iPhone, Apple Watch, or Vision Pro gets the page of the app instead, to open it on a phone, like to send it to someone.
+				let appStoreURL = app.qrCodeURL
+				// A dialog named by its caption, which the “…” menu focuses, so screen readers announce it.
+				figure(.id(Self.qrCodeID), .popover, .role("dialog"), .ariaLabelledBy("\(Self.qrCodeID)-caption"), .tabindex(-1)) {
+					QRCode(url: appStoreURL ?? app.path.absoluteURL, label: appStoreURL != nil ? "QR code that opens \(app.title) on the App Store" : "QR code that opens this page")
+						.style(Styles.qrCodeImage)
 
-				figcaption(.id("\(Self.qrCodeID)-caption")) {
-					appStoreURL != nil ? "Scan with your iPhone to open \(app.title) on the App Store" : "Scan with your phone to open this page"
+					figcaption(.id("\(Self.qrCodeID)-caption")) {
+						appStoreURL != nil ? "Scan with your iPhone to open \(app.title) on the App Store" : "Scan with your phone to open this page"
+					}
 				}
+				.style(Styles.dialog)
+
+				// The “Share…” option of the “…” menu shows it when it cannot share, like in Safari on the Mac, which does not count a choice in a menu as an action of the visitor. Its buttons count.
+				div(.id(Self.sharePopoverID), .popover, .role("dialog"), .ariaLabelledBy(Self.shareTitleID), .tabindex(-1)) {
+					p(.id(Self.shareTitleID)) {
+						"Share \(app.title)"
+					}
+					.style(Styles.shareTitle)
+
+					div {
+						ShareButton(pageTitle: app.title, url: app.shareURL)
+
+						CopyButton(title: "Copy Link", text: app.shareURL.absoluteString)
+					}
+					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
+				}
+				.style(Styles.dialog)
 			}
-			.style(Styles.dialog)
-
-			// The “Share…” option of the “…” menu shows it when it cannot share, like in Safari on the Mac, which does not count a choice in a menu as an action of the visitor. Its buttons count.
-			div(.id(Self.sharePopoverID), .popover, .role("dialog"), .ariaLabelledBy(Self.shareTitleID), .tabindex(-1)) {
-				p(.id(Self.shareTitleID)) {
-					"Share \(app.title)"
-				}
-				.style(Styles.shareTitle)
-
-				div {
-					ShareButton(pageTitle: app.title, url: app.shareURL)
-
-					CopyButton(title: "Copy Link", text: app.shareURL.absoluteString)
-				}
-				.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
-			}
-			.style(Styles.dialog)
 
 			AppLinks(app: app)
 		}

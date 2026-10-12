@@ -104,16 +104,14 @@ struct ContributionYear: Sendable {
 		self.year = year
 		self.calendar = calendar
 		self.totals = totals
-		self.days = calendar.weeks.flatMap(\.days).filter { $0.date.hasPrefix("\(year)-") && $0.date <= today }
+		self.days = calendar.days.filter { $0.date.hasPrefix("\(year)-") && $0.date <= today }
 	}
 
 	/**
 	The busiest day of the year, the earliest when several days have the same count. `nil` for a year without contributions.
 	*/
 	var busiestDay: ContributionCalendar.Day? {
-		days.reduce(nil) { busiest, day in
-			day.count > (busiest?.count ?? 0) ? day : busiest
-		}
+		days.busiest
 	}
 
 	/**
@@ -127,11 +125,7 @@ struct ContributionYear: Sendable {
 	The weekday of the first day of the year, from 0 for Sunday to 6 for Saturday, like the rows of the calendar.
 	*/
 	var firstWeekday: Int {
-		guard let date = days.first?.startOfDay else {
-			return 0
-		}
-
-		return Calendar.site.component(.weekday, from: date) - 1
+		days.first?.weekday ?? 0
 	}
 
 	/**
@@ -222,6 +216,61 @@ extension [ContributionYear] {
 	The contributions of all the years, like all the contributions since ``ContributionYear/firstYear`` for the years of the career quilt.
 	*/
 	var totalCount: Int {
-		map(\.calendar.totalCount).reduce(0, +)
+		map(\.calendar.totalCount).sum
+	}
+
+	/**
+	The most days in a row with contributions in all the years, like 412. The years are oldest first, so a streak goes on from one year to the next.
+	*/
+	var longestStreak: Int {
+		flatMap(\.days).split { $0.count == 0 }.map(\.count).max() ?? 0
+	}
+
+	/**
+	The sum of a number of the totals of all the years, like the commits. The years without totals count as zero.
+	*/
+	func total(_ keyPath: KeyPath<ContributionYear.Totals, Int>) -> Int {
+		compactMap { $0.totals?[keyPath: keyPath] }.sum
+	}
+
+	/**
+	The busiest day of all the years, the earliest when several days have the same count. `nil` without contributions.
+	*/
+	var busiestDay: ContributionCalendar.Day? {
+		flatMap(\.days).busiest
+	}
+
+	/**
+	The weekday with the most contributions in all the years, from 0 for Sunday to 6 for Saturday (``ContributionCalendar/Day/weekday``), and its contributions. The earliest in the week when several have the same count. `nil` without contributions.
+	*/
+	var busiestWeekday: (weekday: Int, count: Int)? {
+		var counts = [Int](repeating: 0, count: 7)
+
+		for day in flatMap(\.days) {
+			if let weekday = day.weekday {
+				counts[weekday] += day.count
+			}
+		}
+
+		guard
+			let highest = counts.max(),
+			highest > 0,
+			let weekday = counts.firstIndex(of: highest)
+		else {
+			return nil
+		}
+
+		return (weekday, highest)
+	}
+}
+
+extension Sequence<ContributionCalendar.Day> {
+	/**
+	The day with the most contributions, the first when several days have the same count. `nil` without contributions.
+	*/
+	fileprivate var busiest: Element? {
+		reduce(nil) { busiest, day in
+			day.count > (busiest?.count ?? 0) ? day : busiest
+		}
 	}
 }

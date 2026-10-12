@@ -6,8 +6,14 @@ The source directory of a site: content, data, and the public assets that are co
 public struct Project: Sendable {
 	public let root: URL
 
-	public init(root: URL) {
+	/**
+	The path of the pages of each content directory, keyed by the path of the directory relative to the root, like `/` for `content/apps`, so the files of a page bundle are published next to its page, like `/dato/icon.png` for `content/apps/dato/icon.png`. The files of the other content directories are published at their path relative to the content directory. The directories must not be inside each other.
+	*/
+	public let pageRoutes: [String: RoutePath]
+
+	public init(root: URL, pageRoutes: [String: RoutePath] = [:]) {
 		self.root = root.standardizedFileURL
+		self.pageRoutes = pageRoutes
 	}
 
 	/**
@@ -18,7 +24,7 @@ public struct Project: Sendable {
 	}
 
 	/**
-	The content files. A page can be a directory with an `index.md` (a page bundle), and the other files in that directory, like images, are published unchanged at their path relative to this directory, like `/apps/dato/icon.png` for `content/apps/dato/icon.png`.
+	The content files. A page is a Markdown file, or a directory with an `index.md` (a page bundle). The other files in that directory, like images, are published unchanged next to the page (``pageRoutes``).
 
 	Limitation: Only the files directly next to the `index.md` are published, not the files in its subdirectories.
 	*/
@@ -27,23 +33,26 @@ public struct Project: Sendable {
 	}
 
 	/**
-	The file or directory behind a public URL path, like `/apps/dato/icon.png`: in a page bundle in the content directory, or else in the public directory.
+	The file or directory behind a public URL path, like `/dato/icon.png`: in a page bundle in the content directory, or else in the public directory.
 	*/
 	public func publicFile(_ path: RoutePath) -> URL {
-		let contentFile = contentDirectory.appending(path: path.relativePath)
+		let candidates = pageRoutes.compactMap { directory, route in
+			path.relative(to: route).map { root.appending(path: directory).appending(path: $0) }
+		}
+		// The files of the content directories without a page route are at their path relative to the content directory.
+		let unroutedFile = contentDirectory.appending(path: path.relativePath)
+		let isUnrouted = !pageRoutes.keys.contains { unroutedFile.isInside(root.appending(path: $0)) }
 
-		if
-			contentFile.appending(path: "index.md").isFile
-				|| contentFile.isPageBundleFile
-		{
-			return contentFile
+		let file = (candidates + (isUnrouted ? [unroutedFile] : [])).first {
+			$0.appending(path: "index.md").isFile
+				|| $0.isPageBundleFile
 		}
 
-		return publicDirectory.appending(path: path.relativePath)
+		return file ?? publicDirectory.appending(path: path.relativePath)
 	}
 
 	/**
-	The path of a file of a page bundle in the site, like `/apps/dato/icon.png` for `content/apps/dato/icon.png`. `nil` for any other file.
+	The path of a file of a page bundle in the site, like `/dato/icon.png` for `content/apps/dato/icon.png`. `nil` for any other file.
 	*/
 	public func publicPath(ofContentFile file: URL) -> RoutePath? {
 		guard
@@ -53,6 +62,14 @@ public struct Project: Sendable {
 			return nil
 		}
 
+		for (directory, route) in pageRoutes {
+			let directoryURL = root.appending(path: directory)
+
+			if file.isInside(directoryURL) {
+				return RoutePath("\(route)/\(file.path(relativeTo: directoryURL))")
+			}
+		}
+
 		return RoutePath("/" + file.path(relativeTo: contentDirectory))
 	}
 
@@ -60,9 +77,9 @@ public struct Project: Sendable {
 	The files that are published unchanged, as their path relative to the output directory and their source: the files in the public directory, and the files of the page bundles in the content directory. `.DS_Store` files are left out.
 	*/
 	public func publicFiles() throws -> [(path: String, source: URL)] {
-		let bundleFiles = contentDirectory.isDirectory ? try contentDirectory.filesRecursively().filter(\.isPageBundleFile) : []
+		let bundleFiles = contentDirectory.isDirectory ? try contentDirectory.filesRecursively().compactMap { file in publicPath(ofContentFile: file).map { (path: $0.relativePath, source: file) } } : []
 
-		return (try publicDirectory.filesRecursively().map { (path: $0.path(relativeTo: publicDirectory), source: $0) } + bundleFiles.map { (path: $0.path(relativeTo: contentDirectory), source: $0) })
+		return (try publicDirectory.filesRecursively().map { (path: $0.path(relativeTo: publicDirectory), source: $0) } + bundleFiles)
 			.filter { $0.source.lastPathComponent != ".DS_Store" }
 	}
 

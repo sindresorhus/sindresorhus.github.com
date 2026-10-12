@@ -239,6 +239,19 @@ struct MarkdownTests {
 	}
 
 	@Test
+	func `a document can be separated before several headings, in their order`() throws {
+		let document = MarkdownDocument(parsing: "First.\n\n## Middle\n\nSecond.\n\n## End\n\nThird.")
+		let parts = try #require(document.htmlSeparated(beforeHeadings: ["middle", "end"]))
+		#expect(parts.count == 3)
+		#expect(parts[0].contains("First.") && !parts[0].contains("Second."))
+		#expect(parts[1].hasPrefix(#"<h2 id="middle""#) && parts[1].contains("Second.") && !parts[1].contains("Third."))
+		#expect(parts[2].hasPrefix(#"<h2 id="end""#) && parts[2].contains("Third."))
+
+		#expect(document.htmlSeparated(beforeHeadings: ["end", "middle"]) == nil)
+		#expect(document.htmlSeparated(beforeHeadings: ["middle", "missing"]) == nil)
+	}
+
+	@Test
 	func `alerts keep all paragraphs and uppercase labels`() {
 		let document = MarkdownDocument(parsing: """
 		> [!IMPORTANT]

@@ -247,6 +247,16 @@ struct GalleryPage: Page {
 		- A note below it.
 	}
 
+	@Changelog {
+	- 2026
+		- Added: Something new
+		- Changed: Something that is different now
+	- 2025
+		- Fixed: Something that was broken
+		- Removed: Something old
+		- Deprecated: Something on its way out
+	}
+
 	@SocialLinks
 
 	### A collapsible question

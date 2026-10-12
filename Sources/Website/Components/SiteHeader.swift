@@ -96,9 +96,9 @@ struct SiteHeader: ScriptedElement {
 				nav(.id(Self.menuID), .popover, .part(Parts.menu)) {
 					ul {
 						link("Apps", to: .apps)
-						link("About", to: .about)
 						link("Blog", to: .blog)
 						link("Now", to: .now)
+						link("About", to: .about)
 						// On larger screens, the contact link is an icon.
 						link("Contact", to: .contact, isMobileOnly: true)
 

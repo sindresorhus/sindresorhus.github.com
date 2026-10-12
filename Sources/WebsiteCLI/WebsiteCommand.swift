@@ -22,7 +22,7 @@ struct SiteOptions: ParsableArguments {
 	var output: String?
 
 	var project: Project {
-		Project(root: URL(filePath: root, directoryHint: .isDirectory, relativeTo: .currentDirectory()))
+		Project.site(root: URL(filePath: root, directoryHint: .isDirectory, relativeTo: .currentDirectory()))
 	}
 
 	var outputDirectory: URL {

@@ -15,6 +15,13 @@ struct GitHubRepository: Decodable, Sendable {
 	let language: String?
 
 	/**
+	The owner and the name, like `sindresorhus/ky`.
+	*/
+	var nameWithOwner: String {
+		String(url.path().dropFirst())
+	}
+
+	/**
 	The description as plain text: without the notes in brackets, like “[Submissions are paused]”, without emoji, including GitHub emoji codes, like `:zap:`, and without the backticks of code, which GitHub shows as code.
 	*/
 	var summary: String? {

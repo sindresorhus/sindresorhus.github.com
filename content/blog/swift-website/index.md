@@ -180,7 +180,7 @@ struct Frontmatter {
 
 [`@Frontmatter`](https://github.com/sindresorhus/sindresorhus.github.com/blob/main/Sources/SiteKitMacros/FrontmatterMacro.swift) is a Swift macro that writes the decoder at compile time. `@NonEmpty` rejects an empty value, and `@CalendarDay` turns `'2017-07-26'` into a `Date` and rejects days like `'2026-02-30'`. A mistake, like an unknown platform or a misspelled key, is an error with the file and the line, sometimes with a “Did you mean” suggestion.
 
-The build also gets the ratings, prices, and reviews of each app from the App Store. `swift run website check` catches what the compiler can't, like spelling mistakes, or a page that says an app needs macOS 14 when the App Store says macOS 15.
+The build also gets the ratings, prices, and reviews of each app from the App Store, and the numbers on the [about page](/about#stats) and the [now page](/now) from GitHub and npm, like the stars and the weekly downloads. The responses are cached, so a build usually costs nothing, and a request that fails only leaves its number out. `swift run website check` catches what the compiler can't, like spelling mistakes, or a page that says an app needs macOS 14 when the App Store says macOS 15.
 
 ## Delight
 

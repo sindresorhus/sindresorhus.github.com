@@ -27,6 +27,15 @@ struct PublishingTests {
 		#expect(RoutePath.root.appending("blog").appending("post") == "/blog/post")
 	}
 
+	@Test
+	func `the rest of a route path after another path`() {
+		#expect(RoutePath("/blog/post/image.png").relative(to: "/blog") == "post/image.png")
+		#expect(RoutePath("/dato/icon.png").relative(to: .root) == "dato/icon.png")
+		#expect(RoutePath("/blog").relative(to: "/blog") == "")
+		#expect(RoutePath.root.relative(to: .root) == "")
+		#expect(RoutePath("/blogroll").relative(to: "/blog") == nil)
+	}
+
 	@Test(arguments: [
 		(Route.page(.root) { "" }, "index.html"),
 		(Route.page("/apps") { "" }, "apps.html"),
@@ -467,6 +476,34 @@ struct PublishingTests {
 		#expect(try String(contentsOf: output.appending(path: "apps/dato/icon.png"), encoding: .utf8) == "icon")
 		#expect(project.publicFile("/apps/dato/icon.png") == project.contentDirectory.appending(path: "apps/dato/icon.png"))
 		#expect(project.publicFile("/robots.txt") == project.publicDirectory.appending(path: "robots.txt"))
+	}
+
+	/**
+	A content directory with a page route publishes the files of its page bundles next to the pages, like `/dato/icon.png` for apps at `/dato`, and finds them by that path. A page can still be a single Markdown file.
+	*/
+	@Test(.temporaryDirectory)
+	func `the files of page bundles are published next to their pages`() async throws {
+		let project = try Project(root: URL.temporaryDirectory(files: [
+			"public/robots.txt": "",
+			"content/apps/dato/index.md": "Dato",
+			"content/apps/dato/icon.png": "icon",
+			"content/apps/gifski.md": "Gifski",
+			"content/blog/post/index.md": "Post",
+			"content/blog/post/image.png": "image",
+			"content/blog/other.md": "Other",
+		]), pageRoutes: ["content/apps": .root, "content/blog": "/blog"])
+		let output = project.root.appending(path: "dist")
+
+		let files = try await Publisher(site: site, project: project, output: output).publish([])
+
+		#expect(files.isSuperset(of: ["robots.txt", "dato/icon.png", "blog/post/image.png"]))
+		#expect(!files.contains("apps/dato/icon.png"))
+		#expect(project.publicFile("/dato/icon.png") == project.contentDirectory.appending(path: "apps/dato/icon.png"))
+		#expect(project.publicFile("/dato") == project.contentDirectory.appending(path: "apps/dato"))
+		#expect(project.publicFile("/blog/post/image.png") == project.contentDirectory.appending(path: "blog/post/image.png"))
+		// The old path, at the content directory, is not published, so it is not found.
+		#expect(project.publicFile("/apps/dato/icon.png") == project.publicDirectory.appending(path: "apps/dato/icon.png"))
+		#expect(project.publicPath(ofContentFile: project.contentDirectory.appending(path: "blog/post/image.png")) == "/blog/post/image.png")
 	}
 
 	@Test(.temporaryDirectory)

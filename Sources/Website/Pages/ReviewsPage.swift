@@ -78,7 +78,7 @@ struct ReviewsPage: Page {
 	}
 
 	private var pressQuoteCount: Int {
-		content.activeApps.map(\.pressQuotes.count).reduce(0, +)
+		content.activeApps.map(\.pressQuotes.count).sum
 	}
 
 	/**

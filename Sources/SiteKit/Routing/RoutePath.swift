@@ -64,6 +64,17 @@ public struct RoutePath: Hashable, Sendable, CustomStringConvertible, Expressibl
 	}
 
 	/**
+	The rest of the path after another path that it starts with (``starts(with:)``), like `post/image.png` for `/blog/post/image.png` after `/blog`, and empty for the same path. `nil` when it does not start with the other path.
+	*/
+	func relative(to other: Self) -> String? {
+		guard starts(with: other) else {
+			return nil
+		}
+
+		return String(description.dropFirst(other.description.count).trimmingPrefix("/"))
+	}
+
+	/**
 	The whole URL of the path on the site, like `https://sindresorhus.com/apps`.
 	*/
 	public func absoluteURL(site: URL) -> URL {

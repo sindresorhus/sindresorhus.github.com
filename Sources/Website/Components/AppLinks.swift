@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-The section links of the app page, with the overflow menu. The menu is there also without links, as it has the QR code and sharing.
+The section links of the app page, with the overflow menu. The menu is there also without links, as it has a random app, and the QR code and sharing for apps that are not archived.
 */
 struct AppLinks: HTML {
 	let app: App

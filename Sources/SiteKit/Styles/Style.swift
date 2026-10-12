@@ -197,6 +197,13 @@ extension Style {
 	}
 
 	/**
+	Styles while the element is the first child of its parent.
+	*/
+	public func firstChild(_ content: (Self) -> Self) -> Self {
+		nested("&:first-child", content)
+	}
+
+	/**
 	Styles while the element is the last child of its parent.
 	*/
 	public func lastChild(_ content: (Self) -> Self) -> Self {

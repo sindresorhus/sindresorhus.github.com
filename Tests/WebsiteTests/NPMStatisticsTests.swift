@@ -5,42 +5,75 @@ import Testing
 
 @Suite
 struct NPMStatisticsTests {
-	private static let searchURL = "https://registry.npmjs.org/-/v1/search?text=maintainer:sindresorhus&size=250&from=0"
-
 	@Test(.temporaryDirectory)
 	func `the package count is read`() async throws {
-		let cache = try ResponseCache(responses: [
-			Self.searchURL: #"{"objects": [], "total": 1068, "time": "2026-10-06T00:21:12.561Z"}"#,
-		])
+		let cache = try ResponseCache.npm(search: #"{"objects": [], "total": 1068, "time": "2026-10-06T00:21:12.561Z"}"#)
 
 		let warnings = WarningCollector()
 		let statistics = await NPMStatistics.load(cache: cache, warnings: warnings)
 
 		#expect(statistics.packageCount == 1068)
+		// Without packages, there is no share and no count of the most downloaded.
+		#expect(statistics.downloadShare == nil)
+		#expect(statistics.mostDownloadedCount(of: 10) == nil)
 		#expect(warnings.all.isEmpty)
 	}
 
+	/**
+	A list in another format, like with double quotes, has no names, so it is left out with a warning instead of counting wrong names.
+	*/
 	@Test(.temporaryDirectory)
-	func `the packages are read with their weekly downloads and the date of the latest version`() async throws {
-		let cache = try ResponseCache(responses: [
-			Self.searchURL: #"{"objects": [{"package": {"name": "chalk", "version": "6.0.0", "date": "2026-10-05T14:57:36.835Z"}, "downloads": {"monthly": 4000, "weekly": 1000}}, {"package": {"name": "execa", "version": "10.1.0", "date": "2026-10-06T16:08:09.000Z"}, "downloads": {"monthly": 2000, "weekly": 500}}], "total": 2}"#,
-		])
+	func `a list of the most-downloaded packages in another format is left out with a warning`() async throws {
+		let cache = try ResponseCache.npm(search: #"{"objects": [], "total": 0}"#, mostDownloaded: "// Don't edit.\nexport const topDownload = [\n  \"chalk\",\n]")
+		let warnings = WarningCollector()
+		let statistics = await NPMStatistics.load(cache: cache, warnings: warnings)
+
+		#expect(statistics.mostDownloadedPackageNames.isEmpty)
+		#expect(warnings.all.count == 1)
+	}
+
+	@Test(.temporaryDirectory)
+	func `the packages are read with their weekly downloads, their dependents, the date of the latest version, and how they compare with all of npm`() async throws {
+		let cache = try ResponseCache.npm(
+			search: #"{"objects": [{"package": {"name": "chalk", "version": "6.0.0", "date": "2026-10-05T14:57:36.835Z"}, "downloads": {"monthly": 4000, "weekly": 1000}, "dependents": "3845"}, {"package": {"name": "execa", "version": "10.1.0", "date": "2026-10-06T16:08:09.000Z"}, "downloads": {"monthly": 2000, "weekly": 500}, "dependents": 155}, {"package": {"name": "ora", "version": "9.0.0", "date": "2026-10-06T16:08:09.000Z"}, "downloads": {"monthly": 20, "weekly": 5}}], "total": 3}"#,
+			registryDownloads: #"{"downloads": 15050, "start": "2026-10-05", "end": "2026-10-11"}"#,
+			mostDownloaded: "export const topDownload = [\n  'semver',\n  'chalk',\n  'execa',\n]"
+		)
 
 		let warnings = WarningCollector()
 		let statistics = await NPMStatistics.load(cache: cache, warnings: warnings)
 
-		#expect(statistics.packageCount == 2)
-		#expect(statistics.weeklyDownloads == 1500)
-		#expect(statistics.packages.map(\.version) == ["6.0.0", "10.1.0"])
+		#expect(statistics.packageCount == 3)
+		#expect(statistics.weeklyDownloads == 1505)
+		// The dependents are a string or a number, and a package without them is left out of the sum.
+		#expect(statistics.dependentCount == 4000)
+		#expect(statistics.packages.map(\.version) == ["6.0.0", "10.1.0", "9.0.0"])
+		// 1505 of the 15050 downloads of all of npm, and chalk and execa are among the most downloaded.
+		#expect(statistics.downloadShare == 0.1)
+		#expect(statistics.mostDownloadedCount(of: 10) == 2)
+		#expect(statistics.mostDownloadedCount(of: 1) == 0)
 		#expect(statistics.packages.last?.date == Date(timeIntervalSince1970: 1_791_302_889))
+		#expect(warnings.all.isEmpty)
+	}
+
+	/**
+	The dependents of a package in another form are unknown, so the package is still read, instead of failing the page of the search. Without downloads on npm, there is no share of them.
+	*/
+	@Test(.temporaryDirectory)
+	func `dependents in another form are unknown, and no downloads on npm give no share`() async throws {
+		let cache = try ResponseCache.npm(search: #"{"objects": [{"package": {"name": "chalk", "version": "6.0.0", "date": "2026-10-05T14:57:36.835Z"}, "downloads": {"weekly": 1000}, "dependents": "many"}, {"package": {"name": "execa", "version": "10.1.0", "date": "2026-10-06T16:08:09.000Z"}, "downloads": {"weekly": 500}, "dependents": null}], "total": 2}"#, registryDownloads: #"{"downloads": 0}"#)
+		let warnings = WarningCollector()
+		let statistics = await NPMStatistics.load(cache: cache, warnings: warnings)
+
+		#expect(statistics.packages.map(\.dependentCount) == [nil, nil])
+		#expect(statistics.dependentCount == nil)
+		#expect(statistics.downloadShare == nil)
 		#expect(warnings.all.isEmpty)
 	}
 
 	@Test(.temporaryDirectory)
 	func `a failed request leaves out its number with a warning`() async throws {
-		let cache = try ResponseCache(responses: [
-			Self.searchURL: #"{"error": "Search is down"}"#,
-		])
+		let cache = try ResponseCache.npm(search: #"{"error": "Search is down"}"#)
 
 		let warnings = WarningCollector()
 		let statistics = await NPMStatistics.load(cache: cache, warnings: warnings)

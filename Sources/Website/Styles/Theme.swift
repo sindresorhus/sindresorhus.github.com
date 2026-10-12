@@ -42,9 +42,9 @@ enum Palette: String, CaseIterable {
 		case .secondary:
 			[50: "oklch(97.1% .014 343.198)", 200: "oklch(89.9% .061 343.231)", 400: "oklch(71.8% .202 349.761)", 500: "oklch(65.6% .241 354.308)", 600: "oklch(59.2% .249 .584)", 800: "oklch(45.9% .187 3.815)", 900: "oklch(40.8% .153 2.432)"]
 		case .red:
-			[400: "oklch(70.4% .191 22.216)", 500: "oklch(63.7% .237 25.331)", 600: "oklch(57.7% .245 27.325)"]
+			[100: "oklch(93.6% .032 17.717)", 200: "oklch(88.5% .062 18.334)", 400: "oklch(70.4% .191 22.216)", 500: "oklch(63.7% .237 25.331)", 600: "oklch(57.7% .245 27.325)"]
 		case .amber:
-			[50: "oklch(98.7% .022 95.277)", 200: "oklch(92.4% .12 95.746)", 300: "oklch(87.9% .169 91.605)", 400: "oklch(82.8% .189 84.429)", 600: "oklch(66.6% .179 58.318)", 700: "oklch(55.5% .163 48.998)", 800: "oklch(47.3% .137 46.201)", 900: "oklch(41.4% .112 45.904)", 950: "oklch(27.9% .077 45.635)"]
+			[50: "oklch(98.7% .022 95.277)", 100: "oklch(96.2% .059 95.617)", 200: "oklch(92.4% .12 95.746)", 300: "oklch(87.9% .169 91.605)", 400: "oklch(82.8% .189 84.429)", 600: "oklch(66.6% .179 58.318)", 700: "oklch(55.5% .163 48.998)", 800: "oklch(47.3% .137 46.201)", 900: "oklch(41.4% .112 45.904)", 950: "oklch(27.9% .077 45.635)"]
 		case .orange:
 			[100: "oklch(95.4% .038 75.164)", 200: "oklch(90.1% .076 70.697)"]
 		case .teal:
@@ -52,11 +52,11 @@ enum Palette: String, CaseIterable {
 		case .sky:
 			[100: "oklch(95.1% .026 236.824)", 200: "oklch(90.1% .058 230.902)"]
 		case .indigo:
-			[50: "oklch(96.2% .018 272.314)", 200: "oklch(87% .065 274.039)", 500: "oklch(58.5% .233 277.117)", 950: "oklch(25.7% .09 281.288)"]
+			[50: "oklch(96.2% .018 272.314)", 100: "oklch(93% .034 272.788)", 200: "oklch(87% .065 274.039)", 500: "oklch(58.5% .233 277.117)", 950: "oklch(25.7% .09 281.288)"]
 		case .violet:
 			[500: "oklch(60.6% .25 292.717)"]
 		case .emerald:
-			[50: "oklch(97.9% .021 166.113)", 400: "oklch(76.5% .177 163.223)", 700: "oklch(50.8% .118 165.612)", 950: "oklch(26.2% .051 172.552)"]
+			[50: "oklch(97.9% .021 166.113)", 100: "oklch(95% .052 163.051)", 200: "oklch(90.5% .093 164.15)", 400: "oklch(76.5% .177 163.223)", 700: "oklch(50.8% .118 165.612)", 950: "oklch(26.2% .051 172.552)"]
 		case .purple:
 			[50: "oklch(97.7% .014 308.299)", 400: "oklch(71.4% .203 305.504)", 700: "oklch(49.6% .265 301.924)", 950: "oklch(29.1% .149 302.717)"]
 		case .rose:
@@ -138,8 +138,8 @@ enum SemanticColor: String, CaseIterable {
 		case .link:
 			(Color.LightDark(light: .primary(600), dark: .primary(400)), Color.LightDark(light: .primary(700), dark: .primary(300)))
 		case .separator:
-			// In dark mode, between two shades, so the lines are not brighter than they need to be on the near black background.
-			(Color.LightDark(light: .gray(200), dark: .gray(700).mix(with: .gray(800), amount: .percent(50))), Color.LightDark(light: .gray(500), dark: .gray(400)))
+			// Faint, between two shades in light mode, so the lines set things apart without drawing the eye.
+			(Color.LightDark(light: .gray(200).mix(with: .gray(100), amount: .percent(50)), dark: .gray(800)), Color.LightDark(light: .gray(500), dark: .gray(400)))
 		// In dark mode, a near black with a tiny blue tint.
 		case .pageBackground:
 			(Color.LightDark(light: .white, dark: "oklch(14% .012 264)"), nil)
@@ -815,6 +815,38 @@ extension Style {
 	func textLinks() -> Self {
 		nested("a") {
 			$0.textLink()
+		}
+	}
+
+	/**
+	A card that is a link, like the newest app on the now page: its content in a row, without the look of a link in prose, as the whole card is the link, and its icons, like a chevron, in a quiet color.
+	*/
+	func linkCard() -> Self {
+		hstack(alignment: .center, spacing: .rootEm(1.25))
+			.padding(.rootEm(1.25))
+			.cardSurface()
+			.fontWeight(.regular)
+			.color(.primaryText)
+			.children(Icon.selector) {
+				$0
+					.flexShrink(0)
+					.color(.secondaryText)
+			}
+	}
+
+	/**
+	A green dot before the content of the element, like a status light, for something that is current, like the date the now page was updated. It does not move.
+	*/
+	func statusLight() -> Self {
+		before {
+			$0
+				.content("")
+				// A box, also outside of a stack.
+				.display(.inlineBlock)
+				.frame(width: .rootEm(0.5), height: .rootEm(0.5))
+				.margin(.trailing, .rootEm(0.5))
+				.cornerRadius(.circle)
+				.background(.emerald(700), dark: .emerald(400))
 		}
 	}
 

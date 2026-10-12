@@ -13,7 +13,7 @@ const PUPIL_SIZE = 0.104;
 
 // Replace the image source
 const icon = document.querySelector('#app-icon');
-icon.src = '/apps/googly-eyes/icon-no-pupils.png';
+icon.src = '/googly-eyes/icon-no-pupils.png';
 
 // The pupils are positioned in a box around the icon, in percent of its size, so they follow the size of the icon.
 const container = document.createElement('div');

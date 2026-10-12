@@ -85,11 +85,13 @@ struct AppPage: Page {
 						}
 				}
 
-				// The links about the app belong to the app, so they come before the other apps.
-				AppFooterLinks(app: app)
-					.style {
-						$0.margin(.top, .rootEm(5))
-					}
+				// The links about the app belong to the app, so they come before the other apps. An archived app can have none.
+				if !app.pageOverflowLinks.isEmpty {
+					AppFooterLinks(app: app)
+						.style {
+							$0.margin(.top, .rootEm(5))
+						}
+				}
 
 				let relatedApps = app.relatedApps(from: content.activeApps, on: content.buildDate)
 

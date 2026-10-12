@@ -44,7 +44,8 @@ struct OverflowMenu: ScriptedElement {
 
 	init(label: String, links: [LabeledLink]...) {
 		self.label = label
-		self.groups = links.map { LinkGroup(title: "", links: $0) }
+		// An empty group would add a separator without links.
+		self.groups = links.filter { !$0.isEmpty }.map { LinkGroup(title: "", links: $0) }
 	}
 
 	init(label: String, groups: [LinkGroup], variant: Variant) {
@@ -54,13 +55,19 @@ struct OverflowMenu: ScriptedElement {
 	}
 
 	/**
-	The menu of an app page: the pages about the app, a random app, and then the ways to pass the app on, the QR code and sharing. The random app is in its own group, as it is not about this app.
+	The menu of an app page: the pages about the app, a random app, and then the ways to pass the app on, the QR code and sharing. The random app is in its own group, as it is not about this app. An archived app is no longer available, so it is not passed on.
 	*/
 	static func appPage(_ app: App, variant: Variant = .inline) -> Self {
+		let passingOn = app.isArchived ? [] : [LabeledLink("Show QR Code", destination: .fragment(AppHero.qrCodeID))]
+
 		// “Share…” comes after the QR code, as the menu adds it at the end.
-		var menu = Self(label: "More about \(app.title)", links: app.pageOverflowLinks, [LabeledLink("Show Random App", path: .randomApp)], [LabeledLink("Show QR Code", destination: .fragment(AppHero.qrCodeID))])
+		var menu = Self(label: "More about \(app.title)", links: app.pageOverflowLinks, [LabeledLink("Show Random App", path: .randomApp)], passingOn)
 		menu.variant = variant
-		menu.sharedPage = (app.title, app.shareURL, AppHero.sharePopoverID)
+
+		if !app.isArchived {
+			menu.sharedPage = (app.title, app.shareURL, AppHero.sharePopoverID)
+		}
+
 		return menu
 	}
 

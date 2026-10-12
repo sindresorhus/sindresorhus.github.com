@@ -100,6 +100,35 @@ extension Array {
 	}
 }
 
+extension Sequence {
+	/**
+	The elements without the later ones with the same key, in their order, like one release of each project.
+
+	```
+	["ky", "got", "ky"].uniqued(by: \.self)
+	//=> ["ky", "got"]
+	```
+	*/
+	func uniqued<Key: Hashable>(by key: (Element) -> Key) -> [Element] {
+		var keys = Set<Key>()
+		return filter { keys.insert(key($0)).inserted }
+	}
+}
+
+extension Sequence where Element: AdditiveArithmetic {
+	/**
+	The sum of the elements, and zero for an empty sequence.
+
+	```
+	[1, 2, 3].sum
+	//=> 6
+	```
+	*/
+	var sum: Element {
+		reduce(.zero, +)
+	}
+}
+
 /**
 Schema.org types for structured data (JSON-LD). Unset properties are left out.
 */
@@ -451,11 +480,12 @@ extension Locale {
 
 extension Calendar {
 	/**
-	The Gregorian calendar in UTC, so the year or the day of a date does not depend on the time zone of the build machine.
+	The Gregorian calendar in UTC and in the language of the site, so the year or the day of a date and the names of the weekdays do not depend on the build machine.
 	*/
 	static let site: Self = {
 		var calendar = Self(identifier: .gregorian)
 		calendar.timeZone = .gmt
+		calendar.locale = .site
 		return calendar
 	}()
 }

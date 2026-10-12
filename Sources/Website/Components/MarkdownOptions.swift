@@ -63,6 +63,7 @@ extension MarkdownDocument.Options {
 		"Tips": .init(render: renderTips),
 		"Cards": .init(render: renderCards),
 		"Steps": .init(render: renderSteps),
+		"Changelog": .init(render: renderChangelog),
 		"SocialLinks": .init(render: renderSocialLinks),
 	]
 
@@ -357,7 +358,7 @@ enum CardListStyles: StyleSet {
 }
 
 /**
-A numbered list with large numbers in the accent of the page, like `@Steps { 1. Write down every idea }`, for a short list where each item stands on its own, like principles. A nested list is smaller text below its item.
+A numbered list as steps, with each number in a circle in the accent of the page and a line to the next, like `@Steps { 1. Write down every idea }`, for a short list of steps in order, like how I make an app. A nested list is smaller text below its item.
 */
 @Sendable
 private func renderSteps(contentHTML: String) -> String {
@@ -388,23 +389,42 @@ enum StepListStyles: StyleSet {
 							.display(.block)
 							.position(.relative)
 							.margin(0)
-							.padding(top: .rootEm(1), horizontal: 0, bottom: .rootEm(1))
+							.padding(top: 0, horizontal: 0, bottom: .rootEm(1.75))
 							.padding(.leading, .rootEm(3))
-							.border(.bottom, .separator)
-							.lastChild {
-								$0.border(.bottom, width: 0)
-							}
-							// The number has the line height of the text, so it lines up with the first line.
+							// The number in a circle as high as a line of the text, so it lines up with the first line.
 							.before {
 								$0
-									.content(counter: "step", style: .decimalLeadingZero)
+									.content(counter: "step", style: .decimal)
 									.position(.absolute)
-									.top(.rootEm(1))
+									.top(0)
 									.leading(0)
+									.frame(width: .lineHeight(1), height: .lineHeight(1))
+									.cornerRadius(.circle)
+									.background(.accentMark.opacity(0.14))
 									.fontFamily(.rounded)
 									.bold()
 									.monospacedDigit()
+									.textAlign(.center)
 									.color(.accentMark)
+							}
+							// The line from the circle to the next one, so the items read as steps in order.
+							.after {
+								$0
+									.content("")
+									.position(.absolute)
+									.top(.lineHeight(1) + .rootEm(0.375))
+									.bottom(.rootEm(0.375))
+									.leading(.lineHeight(0.5) - .pixels(1))
+									.frame(width: .pixels(2))
+									.cornerRadius(.circle)
+									.background(.accentMark.opacity(0.14))
+							}
+							.lastChild {
+								$0
+									.padding(.bottom, 0)
+									.after {
+										$0.display(.none)
+									}
 							}
 							.children("ul") {
 								$0
@@ -416,6 +436,142 @@ enum StepListStyles: StyleSet {
 											.display(.block)
 											.margin(0)
 											.padding(0)
+									}
+							}
+					}
+			}
+	}
+}
+
+/**
+A list of years with the changes of each, as a timeline, like `@Changelog { - 2014 }` with a nested `- Added: Awesome`. The kind before the colon of a change, like “Added”, becomes a badge. A change can also have no kind. Only the changes, the second level of the list, can have a kind.
+*/
+@Sendable
+private func renderChangelog(contentHTML: String) throws -> String {
+	// A change of a list with blank lines between the changes is in a paragraph.
+	let html = try contentHTML.replacing(#/(<li>(?:\s*<p>)?)([A-Z][a-z]+): /#) { match in
+		let title = String(match.2)
+
+		guard let kind = changelogKinds[title] else {
+			throw ContentError(reason: "“\(title)” is not a kind of change. Use \(changelogKinds.keys.sorted().formatted(.list(type: .or))).")
+		}
+
+		return match.1 + Badge(title, kind: kind).render() + " "
+	}
+
+	return div {
+		HTMLRaw(html)
+	}
+	.style(ChangelogStyles.root)
+	.render()
+}
+
+/**
+The kinds of changes of `@Changelog`, like in a changelog of software, and the color of each.
+*/
+private let changelogKinds: [String: Badge.Kind] = [
+	"Added": .added,
+	"Changed": .changed,
+	"Fixed": .fixed,
+	"Removed": .removed,
+	"Deprecated": .standard,
+]
+
+/**
+The styles of `@Changelog` lists, like a timeline: a line on the leading side that fades out at the oldest year, a ring at each year, and the year as a label above its changes. The newest year has a filled dot with a soft halo, like the present.
+*/
+enum ChangelogStyles: StyleSet {
+	case root
+
+	var style: Style {
+		// The size of the dot of a year, and the space from its center to the changes.
+		let dotSize = 0.75
+		let indent = 1.75
+
+		// The items are blocks instead of list items, so they have no bullets.
+		return Style()
+			.margin(vertical: ProseStyles.blockSpacing, horizontal: 0)
+			.children("ul") {
+				$0
+					.position(.relative)
+					.margin(0)
+					.padding(0)
+					.padding(.leading, .rootEm(indent))
+					// The line, through the centers of the dots, from the newest year.
+					.before {
+						$0
+							.content("")
+							.position(.absolute)
+							.top(.rootEm(dotSize))
+							.bottom(0)
+							.leading(.rootEm(dotSize / 2) - .pixels(1))
+							.frame(width: .pixels(2))
+							.cornerRadius(.circle)
+							.backgroundImage(.linearGradient("to bottom", Color.accentMark.opacity(0.3).at(.percent(0)), Color.accentMark.opacity(0.3).at(.percent(90)), Color.transparent.at(.percent(100))))
+					}
+					.children("li") {
+						$0
+							.display(.block)
+							.position(.relative)
+							.margin(0)
+							.padding(.bottom, .rootEm(2.25))
+							// The year.
+							.fontFamily(.rounded)
+							.textStyle(.headline, weight: .bold)
+							.monospacedDigit()
+							.color(.primaryText)
+							.lastChild {
+								$0.padding(.bottom, 0)
+							}
+							// The ring of the year, in the middle of the first line, with a gap of the page color around it, so it stands apart from the line.
+							.before {
+								$0
+									.content("")
+									.position(.absolute)
+									.top(.lineHeight(0.5) - .rootEm(dotSize / 2))
+									.leading(.rootEm(-indent))
+									.frame(width: .rootEm(dotSize), height: .rootEm(dotSize))
+									.cornerRadius(.circle)
+									.border(.accentMark, width: .pixels(2))
+									.background(.pageBackground)
+									.shadow(Shadow(y: 0, spread: .pixels(4), color: .pageBackground))
+							}
+							.firstChild {
+								$0.before {
+									$0
+										.background(.accentMark)
+										.shadow(Shadow(y: 0, spread: .pixels(3), color: .pageBackground), Shadow(y: 0, spread: .pixels(7), color: .accentMark.opacity(0.2)))
+								}
+							}
+							.children("ul") {
+								$0
+									.vstack(spacing: .rootEm(0.5))
+									.margin(top: .rootEm(0.625), horizontal: 0, bottom: 0)
+									.padding(0)
+									.fontFamily(.system)
+									.textStyle(.body, weight: .regular)
+									.color(.bodyText)
+									// The badge hangs on the leading side, so the lines of a long change start after it, also on phones. The text starts 0.75 after the badge.
+									.children("li") {
+										$0
+											.display(.block)
+											.position(.relative)
+											.margin(0)
+											.padding(0)
+											.padding(.leading, .rootEm(5.75))
+											// The paragraph of a change in a list with blank lines, so it lines up with its badge like the others.
+											.children("p") {
+												$0.margin(0)
+											}
+									}
+									// The badges have the same width, so the changes line up. In the middle of the first line.
+									.nested(Badge.Styles.root.selector) {
+										$0
+											.position(.absolute)
+											.top(.em(0.3))
+											.leading(0)
+											.frame(width: .rootEm(5))
+											.textAlign(.center)
 									}
 							}
 					}

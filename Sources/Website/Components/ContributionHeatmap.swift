@@ -23,7 +23,7 @@ struct ContributionHeatmap: HTML {
 						.style(Styles.cell)
 				}
 
-				for day in calendar.weeks.flatMap(\.days) {
+				for day in calendar.days {
 					span {}
 						.style(Styles.cell, Styles.level(day.level))
 				}

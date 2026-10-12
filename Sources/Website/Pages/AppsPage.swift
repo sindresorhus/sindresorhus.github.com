@@ -212,7 +212,7 @@ struct AppsPage: Page {
 			content.activeApps.count.formatted(counting: "app"),
 			content.yearsOfCraft.map { "\($0.formatted(counting: "year")) of craft" },
 			"\(Site.appUserCount.approximateCount) users",
-			"10K answered support emails",
+			"\(Site.supportEmailCount.approximateCount) answered support emails",
 		]
 		.compactMap(\.self)
 	}

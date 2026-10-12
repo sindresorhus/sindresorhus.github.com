@@ -49,14 +49,112 @@ struct PageTests {
 	}
 
 	/**
-	Without the heading, the projects are at the end of the page.
+	Without the headings, what I am working on now, the numbers, and the projects are at the end of the page.
 	*/
 	@Test
-	func `the about page has the heading that the popular projects are above`() async throws {
+	func `the about page has the headings that the now card, the numbers, and the popular projects are above`() async throws {
 		let content = try await SiteContent.load(from: .website, externalData: .none, buildDate: .now)
 		let page = try #require(content.page(.about))
 
-		#expect(page.markdown.contentSeparated(beforeHeading: AboutPage.projectsNextHeadingID) != nil)
+		#expect(page.markdown.contentSeparated(beforeHeadings: [AboutPage.nowNextHeadingID, AboutPage.numbersNextHeadingID, AboutPage.projectsNextHeadingID]) != nil)
+	}
+
+	/**
+	Without the network, the numbers section has the numbers that the build does not get, like the years, and both cards.
+	*/
+	@Test
+	func `the about page has the numbers without the network`() async throws {
+		let content = try await SiteContent.website
+		let page = try #require(content.page(.about))
+
+		let html = try AboutPage(page: page, content: content).renderedHTML()
+		let parts = html.split(separator: #"id="\#(AboutPage.numbersID)""#)
+		try #require(parts.count == 2)
+		let numbers = try #require(parts[1].split(separator: #"id="\#(AboutPage.numbersNextHeadingID)""#).first)
+
+		#expect(numbers.contains("Apps</h3>"))
+		#expect(numbers.contains("years of craft"))
+		#expect(numbers.contains("Open Source</h3>"))
+		#expect(numbers.contains("years of open source"))
+	}
+
+	/**
+	The status of the now page is a card that links to it, at the end of the introduction.
+	*/
+	@Test
+	func `the about page shows the status of the now page before the first section`() async throws {
+		let content = try await SiteContent.website
+		let page = try #require(content.page(.about))
+		let status = try #require(content.page(.now)?.frontmatter.status)
+
+		let html = try AboutPage(page: page, content: content).renderedHTML()
+		let parts = html.split(separator: #"id="\#(AboutPage.nowNextHeadingID)""#)
+		try #require(parts.count == 2)
+		let introduction = parts[0]
+		let card = try #require(introduction.split(separator: #"<a href="/now""#).last)
+
+		#expect(card.contains(status))
+	}
+
+	/**
+	The numbers below the title are also in the numbers section, with the others.
+	*/
+	@Test
+	func `the about page has the numbers below the title in the numbers section too`() async throws {
+		let loadedContent = try await SiteContent.website
+		let repositoryCount = 1144
+		let content = SiteContent(apps: loadedContent.apps, posts: loadedContent.posts, pages: loadedContent.pages, gitHubAccount: GitHub.Account(repositoryCount: repositoryCount, followerCount: 84_740, starCount: 1_099_747, maintenance: GitHub.Maintenance(closedIssueCount: 22_815, mergedPullRequestCount: 13_831), repositories: []), buildDate: loadedContent.buildDate, project: .website)
+		let page = try #require(content.page(.about))
+
+		let html = try AboutPage(page: page, content: content).renderedHTML()
+		let parts = html.split(separator: #"id="\#(AboutPage.numbersID)""#)
+		try #require(parts.count == 2)
+		let top = parts[0]
+		let numbers = try #require(parts[1].split(separator: #"id="\#(AboutPage.numbersNextHeadingID)""#).first)
+
+		#expect(top.contains(">\(repositoryCount.approximateCount) repos</span>"))
+		#expect(top.contains("years of app craft"))
+		#expect(numbers.contains(#">\#(repositoryCount.approximateCount)</span> <span class="\#(StatCard.Styles.label.className)">repos</span>"#))
+		#expect(numbers.contains("years of craft"))
+		#expect(numbers.contains(">22K+</span> <span class=\"\(StatCard.Styles.label.className)\">issues closed</span>"))
+		#expect(numbers.contains(">13K+</span> <span class=\"\(StatCard.Styles.label.className)\">pull requests merged from others</span>"))
+	}
+
+	/**
+	The busiest weekday has its short name, like “Thu” for the Thursday of 2026-01-01.
+	*/
+	@Test
+	func `the about page shows the busiest weekday by its short name`() async throws {
+		let loadedContent = try await SiteContent.website
+		let page = try #require(loadedContent.page(.about))
+		let json = #"{"totalContributions": 13, "weeks": [{"contributionDays": [{"date": "2026-01-01", "contributionCount": 9, "contributionLevel": "FOURTH_QUARTILE"}, {"date": "2026-01-02", "contributionCount": 4, "contributionLevel": "FIRST_QUARTILE"}]}]}"#
+		let calendar = try JSONDecoder().decode(ContributionCalendar.self, from: Data(json.utf8))
+		let year = ContributionYear(year: 2026, calendar: calendar, until: try Date("2026-12-31T12:00:00Z", strategy: .iso8601))
+		let content = SiteContent(apps: loadedContent.apps, posts: loadedContent.posts, pages: loadedContent.pages, contributionYears: [year], buildDate: loadedContent.buildDate, project: .website)
+
+		let html = try AboutPage(page: page, content: content).renderedHTML()
+		#expect(html.contains(#">Thu</span> <span class="\#(StatCard.Styles.label.className)">busiest weekday</span>"#))
+	}
+
+	/**
+	The number of the most-downloaded packages on npm that are mine is left out when it is zero, like the other numbers.
+	*/
+	@Test
+	func `the about page shows how many of the most-downloaded npm packages are mine only when some are`() async throws {
+		let loadedContent = try await SiteContent.website
+		let page = try #require(loadedContent.page(.about))
+
+		func html(mostDownloadedPackageNames: [String]) throws -> String {
+			var npmStatistics = NPMStatistics()
+			npmStatistics.packages = [NPMStatistics.Package(name: "chalk", version: "6.0.0", date: .now, weeklyDownloads: 1000, dependentCount: nil, repository: "chalk/chalk")]
+			npmStatistics.mostDownloadedPackageNames = mostDownloadedPackageNames
+			let content = SiteContent(apps: loadedContent.apps, posts: loadedContent.posts, pages: loadedContent.pages, npmStatistics: npmStatistics, buildDate: loadedContent.buildDate, project: .website)
+			return try AboutPage(page: page, content: content).renderedHTML()
+		}
+
+		let label = "of the 10 most-downloaded packages"
+		#expect(try html(mostDownloadedPackageNames: ["semver", "chalk"]).contains(#">1</span> <span class="\#(StatCard.Styles.label.className)">\#(label)</span>"#))
+		#expect(try !html(mostDownloadedPackageNames: ["semver"]).contains(label))
 	}
 
 	@Test
@@ -105,12 +203,7 @@ struct PageTests {
 		let site = try await Self.site()
 		let route = try #require(site.routes(project: .website).first { $0.path == .notFound })
 
-		guard case .page(_, let render) = route.output else {
-			Issue.record("Expected a page, got \(route.output)")
-			return
-		}
-
-		let json = try #require(try render().firstMatch(of: /<script[^>]*id="not-found-data"[^>]*>(.*?)<\/script>/)?.1)
+		let json = try #require(try route.renderedHTML().firstMatch(of: /<script[^>]*id="not-found-data"[^>]*>(.*?)<\/script>/)?.1)
 		let paths = try JSONDecoder().decode([String: [String]].self, from: Data(json.utf8))["paths"] ?? []
 		let oldPaths = Set(site.content.documents.flatMap(\.redirectFrom).map(\.description))
 
@@ -226,12 +319,7 @@ struct PageTests {
 	func `code blocks in Markdown are highlighted, and the page gets their script once`() async throws {
 		let route = try #require(try await Self.site().routes(project: .website, includesGallery: true).first { $0.path == "/_gallery" })
 
-		guard case .page(_, let render) = route.output else {
-			Issue.record("Expected a page, got \(route.output)")
-			return
-		}
-
-		let html = try render()
+		let html = try route.renderedHTML()
 		#expect(html.contains(#"<code class="code-block-code"><span class="code-block-attribute">@MainActor</span>"#))
 		#expect(html.ranges(of: "customElements.define('code-block'").count == 1)
 	}

@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-What Sindre is working on now, like the pages on https://nownownow.com: the hand-written status, focus, reading, and listening of `content/pages/now.md`, and what the build gets, so the rest never goes stale: the newest app, app updates, a review, GitHub and npm activity, and the latest posts.
+What Sindre is working on now, like the pages on https://nownownow.com: the hand-written status, focus, reading, and listening of `content/pages/now.md`, and what the build gets, so the rest never goes stale: the newest app, app updates, two reviews, GitHub and npm activity, and the latest posts.
 
 Each part that the build could not get is left out. The latest commits are only loaded in the browser (`now.js`), which also shows a newer Bluesky post than the one of the build.
 */
@@ -101,6 +101,23 @@ struct NowPage: Page {
 	}
 
 	/**
+	The contributions of each week of the last year as a sparkline, so this week can be seen next to the others.
+	*/
+	private func weeklyContributions(_ counts: [Int]) -> some HTML {
+		figure {
+			// The caption says what the chart is, and the label what it shows.
+			Sparkline(values: counts, label: "Lowest week: \(counts.min() ?? 0). Highest week: \(counts.max() ?? 0). Last 7 days: \(counts.last ?? 0).")
+
+			figcaption {
+				"Contributions a week in the last year"
+			}
+			.style(Styles.caption)
+		}
+		.vstack(spacing: .rootEm(0.75))
+		.style(Styles.card)
+	}
+
+	/**
 	A part of a section: a small title above a card, or above other content. The parts of a section are in two columns on larger screens, and a wide part spans both.
 	*/
 	private func group<Content: HTML>(_ title: String, isWide: Bool = false, @HTMLBuilder content: () -> Content) -> some HTML {
@@ -150,32 +167,6 @@ struct NowPage: Page {
 	}
 
 	/**
-	Numbers that stand out, each with a label below it, like “59” and “pull requests merged”.
-	*/
-	private func statRow(_ stats: [Stat]) -> some HTML {
-		ul {
-			for stat in stats {
-				li {
-					span {
-						stat.value
-					}
-					.style(Styles.statValue)
-
-					// A space between the number and the label, for copied text and screen readers. The stack does not show it.
-					" "
-
-					span {
-						stat.label
-					}
-					.style(Styles.detail)
-				}
-				.style(Styles.stat)
-			}
-		}
-		.style(Styles.card, Styles.stats)
-	}
-
-	/**
 	The latest commits, the numbers of the week, and the contributions. The latest commits are only loaded in the browser, so without the other parts, the section is hidden until they load.
 	*/
 	private var buildingNow: some HTML {
@@ -214,7 +205,14 @@ struct NowPage: Page {
 
 				if !weekStats.isEmpty {
 					group("This Week in Open Source", isWide: true) {
-						statRow(weekStats)
+						StatCard(stats: weekStats)
+
+						if
+							let counts = contributions?.weeklyCounts,
+							counts.count > 1
+						{
+							weeklyContributions(counts)
+						}
 					}
 				}
 
@@ -249,11 +247,11 @@ struct NowPage: Page {
 	@HTMLBuilder
 	private var apps: some HTML {
 		let updates = appUpdates
-		// The newest five-star review of all the apps.
-		let review = content.activeAppReviews.first
+		// The newest five-star reviews of all the apps.
+		let reviews = recentReviews
 		let updateDateFormat = dayFormat(for: updates.map(\.date))
 
-		if !updates.isEmpty || review != nil {
+		if !updates.isEmpty || !reviews.isEmpty {
 			Section("Apps", id: "apps") {
 				div {
 					if !updates.isEmpty {
@@ -288,9 +286,20 @@ struct NowPage: Page {
 						}
 					}
 
-					if let review {
-						group("A Recent Review") {
-							QuoteFigure(kind: .review(review.review), app: review.app)
+					if !reviews.isEmpty {
+						group(reviews.count == 1 ? "A Recent Review" : "Recent Reviews") {
+							for review in reviews {
+								QuoteFigure(kind: .review(review.review), app: review.app)
+							}
+
+							// A caption, as the reviews are the point.
+							p {
+								"More on the "
+								a(.href(.path(.reviews))) {
+									"Wall of Love"
+								}
+							}
+							.style(Styles.caption)
 						}
 					}
 				}
@@ -418,12 +427,10 @@ struct NowPage: Page {
 	}
 
 	/**
-	On this day in earlier years, the year so far, the sponsors, and where the idea of a now page is from.
+	On this day in earlier years, the year so far, the sponsors, a link to the numbers of all the years, and where the idea of a now page is from.
 	*/
 	private var footerRow: some HTML {
 		let anniversaries = onThisDay
-		let yearStats = yearStats
-		let repositoryCommits = repositoryCommits
 
 		return footer {
 			if !anniversaries.isEmpty {
@@ -432,58 +439,37 @@ struct NowPage: Page {
 				}
 			}
 
-			if !yearStats.isEmpty {
-				Section("\(currentYear) So Far", id: "year") {
-					statRow(yearStats)
+			yearSection
 
-					if !repositoryCommits.isEmpty {
-						p {
-							"Most commits went to "
-
-							for (index, commits) in repositoryCommits.enumerated() {
-								Self.listSeparator(before: index, count: repositoryCommits.count)
-
-								a(.href(.url(commits.url))) {
-									commits.displayName
-								}
-
-								" (\(commits.count.formatted(.number.locale(.site))))"
-							}
-
-							"."
+			// Apart from the cards above, as they are not about the year. The link to the numbers of all the years is last and a little larger than the sponsors, as it leads on from the page.
+			div {
+				if let sponsorCount = content.recentActivity.sponsorCount {
+					p {
+						"\(sponsorCount.formatted(.number.locale(.site))) people and companies "
+						a(.href(.path(.supporters))) {
+							"sponsor my open-source work"
 						}
-						.style(Styles.caption)
-						// The space between a group title and its card.
-						.style { $0.margin(.top, .rootEm(0.75)) }
+						"."
 					}
+					.style(Styles.caption)
 				}
-			}
 
-			// The totals, after the numbers of the year, as the page is about what is happening now. The apps and the open-source work are apart, so it is clear what the users are of.
-			Section("All Time", id: "all-time") {
-				div {
-					group("Apps", isWide: true) {
-						statRow(allTimeAppStats)
-					}
-
-					// Without npm and contribution data, like in a build without the network, there are no open-source totals.
-					if !allTimeOpenSourceStats.isEmpty {
-						group("Open Source", isWide: true) {
-							statRow(allTimeOpenSourceStats)
-						}
-					}
-				}
-				.style(Styles.groups)
-			}
-
-			if let sponsorCount = content.recentActivity.sponsorCount {
 				p {
-					"\(sponsorCount.formatted(.number.locale(.site))) people and companies "
-					a(.href(.path(.supporters))) {
-						"sponsor my open-source work"
+					"All-time numbers are on the "
+					a(.href(.path(.about, fragment: AboutPage.numbersID))) {
+						"About"
 					}
-					"."
+					" page."
 				}
+				.style {
+					$0
+						.margin(0)
+						.secondaryText(.body)
+				}
+			}
+			.vstack(spacing: .rootEm(0.5))
+			.style {
+				$0.margin(.top, .rootEm(1.5))
 			}
 
 			// A quiet note at the end of the page, like a colophon.
@@ -492,10 +478,72 @@ struct NowPage: Page {
 				a(.href(.url(#URL("https://nownownow.com/about")))) {
 					"now page"
 				}
-				.style(Styles.colophonLink)
 				", like on many other personal sites."
 			}
 			.style(Styles.colophon)
+		}
+	}
+
+	/**
+	The numbers of the year so far. The apps, the open-source work, and npm are apart, so it is clear what each number is about, like the busiest day.
+	*/
+	@HTMLBuilder
+	private var yearSection: some HTML {
+		let appStats = yearAppStats
+		let openSourceStats = yearOpenSourceStats
+		let npmStats = yearNPMStats
+
+		if !appStats.isEmpty || !openSourceStats.isEmpty || !npmStats.isEmpty {
+			Section("\(currentYear) So Far", id: "year") {
+				div {
+					if !appStats.isEmpty {
+						group("Apps and Blog", isWide: true) {
+							StatCard(stats: appStats)
+						}
+					}
+
+					if !openSourceStats.isEmpty {
+						group("Open Source", isWide: true) {
+							StatCard(stats: openSourceStats)
+							repositoryCommitsCaption
+						}
+					}
+
+					if !npmStats.isEmpty {
+						group("npm", isWide: true) {
+							StatCard(stats: npmStats)
+						}
+					}
+				}
+				.style(Styles.groups)
+			}
+		}
+	}
+
+	/**
+	The repos with the most commits of the year, like “Most commits went to ky (1,163), chalk/chalk (2), and got (1).”
+	*/
+	@HTMLBuilder
+	private var repositoryCommitsCaption: some HTML {
+		let repositoryCommits = repositoryCommits
+
+		if !repositoryCommits.isEmpty {
+			p {
+				"Most commits went to "
+
+				for (index, commits) in repositoryCommits.enumerated() {
+					Self.listSeparator(before: index, count: repositoryCommits.count)
+
+					a(.href(.url(commits.url))) {
+						commits.displayName
+					}
+
+					" (\(commits.count.formatted(.number.locale(.site))))"
+				}
+
+				"."
+			}
+			.style(Styles.caption)
 		}
 	}
 
@@ -532,6 +580,13 @@ struct NowPage: Page {
 		let version: String
 		let date: Date
 		let destination: LinkDestination
+	}
+
+	/**
+	The two newest five-star reviews of the apps, of two different apps, so they do not say the same.
+	*/
+	private var recentReviews: [SiteContent.AppReview] {
+		Array(content.activeAppReviews.uniqued(by: \.app.path).prefix(2))
 	}
 
 	/**
@@ -582,7 +637,7 @@ struct NowPage: Page {
 	*/
 	private var latestReleases: [Release] {
 		let gitHubReleases = content.recentActivity.releases
-			.filter { Self.releaseOwners.contains(String($0.repository.prefix { $0 != "/" })) }
+			.filter { GitHub.owners.contains($0.repository.repositoryOwner) }
 			.map { release in
 				Release(name: release.name, displayName: release.displayName, version: release.version, url: release.url, date: release.date)
 			}
@@ -591,133 +646,43 @@ struct NowPage: Page {
 
 		// Only the packages of repositories that the same owners have, as the npm search also finds packages that he only helps maintain, like `yeoman-generator`.
 		let npmReleases = content.npmStatistics.packages
-			.filter { $0.repositoryOwner.map(Self.releaseOwners.contains) ?? false }
+			.filter { GitHub.owners.contains($0.repository?.repositoryOwner ?? "") }
 			.map { Release(name: String($0.name.split(separator: "/").last ?? ""), displayName: $0.name, version: $0.version, url: $0.url, date: $0.date) }
 			.filter { !names.contains($0.name) }
-
-		var listedNames = Set<String>()
 
 		return Array(
 			(gitHubReleases + npmReleases)
 				.sorted(using: [KeyPathComparator(\.date, order: .reverse), KeyPathComparator(\.displayName, comparator: .localizedStandard)])
-				.filter { listedNames.insert($0.name).inserted }
+				.uniqued(by: \.name)
 				.prefix(5)
 		)
 	}
 
 	/**
-	The owners of the repos whose releases the page shows: his own, and the organizations of his bigger projects.
-	*/
-	private static let releaseOwners: Set = ["sindresorhus", "xojs", "chalk", "soml-lang"]
-
-	/**
 	The format of the dates of a list: without the year when they are all in the year of the build, which is shorter and easier to read.
 	*/
 	private func dayFormat(for dates: [Date]) -> Date.FormatStyle {
-		dates.allSatisfy { $0.siteYear == currentYear } ? .siteDayWithoutYear : .siteDay
+		dates.allSatisfy(isThisYear) ? .siteDayWithoutYear : .siteDay
 	}
 
 	/**
-	When a week ago was, for the numbers of the week.
-	*/
-	private var weekStart: Date {
-		RecentActivity.weekStart(before: content.buildDate)
-	}
-
-	/**
-	A number with what it counts, like “59 pull requests merged”.
-	*/
-	private struct Stat {
-		/**
-		How many things the number is about, like 59 pull requests, or the ratings of an average rating.
-		*/
-		let count: Int
-
-		let value: String
-		let label: String
-
-		/**
-		- Parameters:
-			- noun: What one of them is, like “pull request”. The label adds an “s” when the count is not 1.
-			- pluralNoun: The plural of the noun, for a noun that does not add an “s”, like “repositories”.
-			- verb: What happened to them, like “merged”.
-			- isApproximate: Whether the count is rounded down and abbreviated, like “22B+”, for counts that are too large to read in full.
-		*/
-		init(count: Int, noun: String, pluralNoun: String? = nil, verb: String? = nil, isApproximate: Bool = false) {
-			self.init(count: count, label: [count == 1 ? noun : pluralNoun ?? noun + "s", verb].compactMap(\.self).joined(separator: " "), isApproximate: isApproximate)
-		}
-
-		/**
-		A count with a label that is not what it counts, like “383” and “busiest day, September 19”.
-		*/
-		init(count: Int, label: String, isApproximate: Bool = false) {
-			self.count = count
-			// No thousands separator, as the large numbers read better without it, like “3467”.
-			self.value = isApproximate ? count.approximateCount : count.formatted(.number.grouping(.never).locale(.site))
-			self.label = label
-		}
-
-		/**
-		An average rating out of 5, like “4.7” and “average rating”.
-		*/
-		init(rating: AppStoreInfo.Rating) {
-			self.count = rating.count
-			self.value = rating.average.formatted(.number.locale(.site).precision(.fractionLength(1)))
-			self.label = "average rating"
-		}
-	}
-
-	/**
-	The pull requests merged, the issues closed, and the npm packages published in the last 7 days.
+	The contributions, the commits, the issues closed, the pull requests merged from others, the comments, and the npm packages updated in the week (``RecentActivity/weekStart(before:)``), with the same labels as the numbers of the year.
 	*/
 	private var weekStats: [Stat] {
 		let activity = content.recentActivity
-		let publishedCount = content.npmStatistics.packages.isEmpty ? nil : content.npmStatistics.packages.count { $0.date >= weekStart }
+		let week = activity.weekActivity
+		let updatedPackageCount = content.npmStatistics.updatedPackageCount(since: RecentActivity.weekStart(before: content.buildDate))
 
-		return [
-			activity.mergedPullRequestCount.map { Stat(count: $0, noun: "pull request", verb: "merged") },
-			activity.closedIssueCount.map { Stat(count: $0, noun: "issue", verb: "closed") },
-			publishedCount.map { Stat(count: $0, noun: "npm package", verb: "published") },
+		let stats: [Stat?] = [
+			week.map { Stat(count: $0.contributionCount, noun: "contribution") },
+			week.map { Stat(count: $0.commitCount, noun: "commit") },
+			activity.weekMaintenance.map { Stat(count: $0.closedIssueCount, noun: "issue", suffix: "closed") },
+			activity.weekMaintenance.map { Stat(count: $0.mergedPullRequestCount, noun: "pull request", suffix: "merged from others") },
+			week.map { Stat(count: $0.commentCount, noun: "comment") },
+			updatedPackageCount.map { Stat(count: $0, noun: "npm package", suffix: "updated") },
 		]
-		.compactMap(\.self)
-	}
 
-	/**
-	The totals of the apps of all the years, like “61 apps”, “6M+ users”, “11 years of craft”, and the ratings on the App Store.
-	*/
-	private var allTimeAppStats: [Stat] {
-		// All the apps on the App Store, also the archived ones, as their ratings are part of all the years.
-		let rating = content.appStoreInfo.values.combinedRating
-
-		return [
-			Stat(count: content.activeApps.count, noun: "app"),
-			Stat(count: Site.appUserCount, noun: "user", isApproximate: true),
-			content.yearsOfCraft.map { Stat(count: $0, noun: "year", verb: "of craft") },
-			rating.map { Stat(count: $0.count, noun: "App Store rating", isApproximate: true) },
-			rating.map { Stat(rating: $0) },
-		]
-		.compactMap(\.self)
-	}
-
-	/**
-	The totals of the open-source work of all the years: the contributions on GitHub since the first year of the career quilt, and the npm packages and their weekly downloads.
-	*/
-	private var allTimeOpenSourceStats: [Stat] {
-		// The career quilt has every year, so their sum is all the contributions.
-		let contributionCount = content.contributionYears.isEmpty ? nil : content.contributionYears.totalCount
-
-		return [contributionCount.map { Stat(count: $0, noun: "contribution", verb: "on GitHub", isApproximate: true) }].compactMap(\.self) + npmStats
-	}
-
-	/**
-	The npm packages and their weekly downloads, rounded down, like “1K+ npm packages” and “21B+ downloads a week”.
-	*/
-	private var npmStats: [Stat] {
-		[
-			content.npmStatistics.packageCount.map { Stat(count: $0, noun: "npm package", isApproximate: true) },
-			content.npmStatistics.weeklyDownloads.map { Stat(count: $0, noun: "download", verb: "a week", isApproximate: true) },
-		]
-		.compactMap(\.self)
+		return stats.compactMap(\.self)
 	}
 
 	/**
@@ -788,41 +753,68 @@ struct NowPage: Page {
 	}
 
 	/**
+	Whether the date is in the year of the build.
+	*/
+	private func isThisYear(_ date: Date) -> Bool {
+		date.siteYear == currentYear
+	}
+
+	/**
 	The new apps, app updates, and blog posts of the year of the build. Counts of zero are left out.
 	*/
-	private var yearStats: [Stat] {
-		func isThisYear(_ date: Date) -> Bool {
-			date.siteYear == currentYear
-		}
-
+	private var yearAppStats: [Stat] {
 		let appCount = content.listedApps.count { isThisYear($0.publicationDate) }
 		// The App Store only has the date of the current version, so this counts the apps with an update this year, not the updates. The apps that launched this year are new apps, not updated ones.
 		let updatedAppCount = content.activeApps.count { app in
 			!isThisYear(app.publicationDate) && (content.appStoreInfo(of: app)?.currentVersionReleaseDate.map(isThisYear) ?? false)
 		}
 		let postCount = content.listedPosts.count { isThisYear($0.publicationDate) }
-		// The npm search only has the date of the latest version, which is enough to know that a package was updated this year.
-		let updatedPackageCount = content.npmStatistics.packages.count { isThisYear($0.date) }
+
+		return [
+			Stat(count: appCount, noun: "new app"),
+			Stat(count: updatedAppCount, noun: "app", suffix: "updated"),
+			Stat(count: postCount, noun: "blog post"),
+		]
+		.filter { $0.count > 0 }
+	}
+
+	/**
+	The open-source work of the year of the build on GitHub: the contributions, like the commits, the busiest day, and the new repos, and the issues closed and the pull requests merged from others. Counts of zero are left out.
+	*/
+	private var yearOpenSourceStats: [Stat] {
 		let year = content.contributionYears.last { $0.year == currentYear }
 		let totals = year?.totals
+		let maintenance = content.recentActivity.yearMaintenance
 
-		// Twelve numbers when all have data, which fill four rows of three. The issues that Sindre opened are left out, as they say the least.
+		// Ten numbers when all have data, so from tablets, the last row has one number. The issues that Sindre opened are left out, as they say the least.
 		let stats: [Stat?] = [
-			Stat(count: appCount, noun: "new app"),
-			Stat(count: updatedAppCount, noun: "app", verb: "updated"),
-			Stat(count: postCount, noun: "blog post"),
 			year.map { Stat(count: $0.calendar.totalCount, noun: "contribution") },
-			year.map { Stat(count: $0.activeDayCount, noun: "day", verb: "with contributions") },
-			year?.busiestDay.flatMap { day in
-				// Short enough for one line, also with the longest month.
-				day.startOfDay.map { Stat(count: day.count, label: "busiest day, \($0.formatted(.siteDayWithoutYear))") }
-			},
+			year.map { Stat(count: $0.activeDayCount, noun: "day", suffix: "with contributions") },
+			// Short enough for one line, also with the longest month.
+			year?.busiestDay.flatMap { Stat(busiestDay: $0, format: .siteDayWithoutYear) },
 			totals.map { Stat(count: $0.commitCount, noun: "commit") },
-			totals.map { Stat(count: $0.committedRepositoryCount, noun: "repository", pluralNoun: "repositories", verb: "committed to") },
-			totals.map { Stat(count: $0.pullRequestCount, noun: "pull request", verb: "opened") },
+			totals.map { Stat(count: $0.committedRepositoryCount, noun: "repository", pluralNoun: "repositories", suffix: "committed to") },
+			totals.map { Stat(count: $0.pullRequestCount, noun: "pull request", suffix: "opened") },
 			totals.map { Stat(count: $0.reviewCount, noun: "code review") },
 			totals.map { Stat(count: $0.repositoryCount, noun: "new repository", pluralNoun: "new repositories") },
-			Stat(count: updatedPackageCount, noun: "npm package", verb: "updated"),
+			maintenance.map { Stat(count: $0.closedIssueCount, noun: "issue", suffix: "closed") },
+			maintenance.map { Stat(count: $0.mergedPullRequestCount, noun: "pull request", suffix: "merged from others") },
+		]
+
+		return stats.compactMap(\.self).filter { $0.count > 0 }
+	}
+
+	/**
+	The new npm packages and the npm packages updated in the year of the build. A new package counts as updated too. Counts of zero are left out.
+	*/
+	private var yearNPMStats: [Stat] {
+		let npm = content.npmStatistics
+		// The npm search has no date of the first version, so a new package is one in a repo of the account that was made this year.
+		let newRepositories = content.gitHubAccount.map { $0.repositories.filter { isThisYear($0.createdAt) }.map(\.nameWithOwner) }
+
+		let stats: [Stat?] = [
+			newRepositories.flatMap(npm.packageCount(inRepositories:)).map { Stat(count: $0, noun: "new package") },
+			npm.updatedPackageCount(since: Date(year: currentYear, month: 1, day: 1)).map { Stat(count: $0, noun: "package", suffix: "updated") },
 		]
 
 		return stats.compactMap(\.self).filter { $0.count > 0 }
@@ -868,11 +860,7 @@ struct NowPage: Page {
 		case rowDate
 		case detail
 		case version
-		case stats
 		case colophon
-		case colophonLink
-		case stat
-		case statValue
 		case caption
 		case post
 		case postSource
@@ -883,7 +871,6 @@ struct NowPage: Page {
 		var style: Style {
 			switch self {
 			case .updated:
-				// The dot is like a status light. It does not move.
 				Style()
 					.hstack(alignment: .center, isInline: true)
 					.margin(0)
@@ -893,33 +880,16 @@ struct NowPage: Page {
 					.monospacedDigit()
 					.color(.secondaryText)
 					.background(.card)
-					.before {
-						$0
-							.content("")
-							.frame(width: .rootEm(0.5), height: .rootEm(0.5))
-							.margin(.trailing, .rootEm(0.5))
-							.cornerRadius(.circle)
-							.background(.emerald(700), dark: .emerald(400))
-					}
+					.statusLight()
 			case .status:
 				Style()
 					.margin(top: .rootEm(1.5), horizontal: 0, bottom: .rootEm(2))
 					.font(.extraLarge)
 					.color(.primaryText)
 			case .newestApp:
-				// A link, but without the look of a link in prose, as the whole card is the link.
 				Style()
-					.hstack(alignment: .center, spacing: .rootEm(1.25))
+					.linkCard()
 					.margin(top: .rootEm(2), horizontal: 0, bottom: .rootEm(1))
-					.padding(.rootEm(1.25))
-					.cardSurface()
-					.fontWeight(.regular)
-					.color(.primaryText)
-					.children(Icon.selector) {
-						$0
-							.flexShrink(0)
-							.color(.secondaryText)
-					}
 			case .icon:
 				// The icon images have their own shape and shadow, and transparent margins. The size is the size of the image, as it does not shrink in the row.
 				Style()
@@ -1018,7 +988,7 @@ struct NowPage: Page {
 					.secondaryText()
 					.monospacedDigit()
 					.textWrap(.nowrap)
-			// Less important text, like the description of a row or the label of a stat.
+			// Less important text, like the description of a row.
 			case .detail:
 				Style()
 					.secondaryText()
@@ -1035,54 +1005,11 @@ struct NowPage: Page {
 					.background(.card)
 			case .colophon:
 				Style()
-					.margin(top: .rootEm(4), horizontal: 0, bottom: 0)
+					.margin(top: .rootEm(5), horizontal: 0, bottom: 0)
 					.padding(.top, .rootEm(1.5))
 					.border(.top, .separator)
 					.textAlign(.center)
 					.secondaryText()
-			case .colophonLink:
-				Style()
-					.color(.inherit)
-					.fontWeight(.regular)
-					.underlineColor(.separator)
-					.hover {
-						$0.underlineColor(.inherit)
-					}
-			case .stats:
-				// Two columns on phones, and three from tablets, so the numbers of all the cards line up. Three numbers are in three columns on phones too, a little smaller, as the numbers are short, so none is alone in a row.
-				Style()
-					.display(.grid)
-					.gridColumns(2)
-					.gap(row: .rootEm(1.25), column: .rootEm(1))
-					.below(.tablet) {
-						$0.nested("&:has(> :nth-child(3):last-child)") {
-							$0
-								.gridColumns(3)
-								.nested(Self.statValue.selector) {
-									$0.font(size: .rootEm(1.875))
-								}
-						}
-					}
-					.from(.tablet) {
-						$0.gridColumns(3)
-					}
-			case .stat:
-				Style()
-					.vstack(spacing: .rootEm(0.25))
-					.flex(1)
-					.frame(minWidth: .rootEm(4))
-					.margin(0)
-					.padding(0)
-			case .statValue:
-				Style()
-					.fontFamily(.rounded)
-					.font(size: .rootEm(2.25), lineHeight: 1.1)
-					// On one line, so the “+” of a rounded number stays with it.
-					.textWrap(.nowrap)
-					.bold()
-					.letterSpacing(.em(-0.02))
-					.monospacedDigit()
-					.color(.primaryText)
 			case .caption:
 				Style()
 					.margin(0)

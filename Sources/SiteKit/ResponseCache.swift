@@ -1,7 +1,7 @@
 import Foundation
 
 /**
-Fetches JSON, like from the App Store and GitHub, with a cache on disk.
+Fetches a response, like JSON from the App Store and GitHub, or a JavaScript file, with a cache on disk.
 
 A cached response is used while it is younger than `maximumAge`. After that, it is revalidated with its ETag, so an unchanged response costs no download and, for GitHub, no rate limit.
 
@@ -64,6 +64,16 @@ public struct ResponseCache: Sendable {
 	public func decoded<Value: Decodable>(_ type: Value.Type = Value.self, from request: URLRequest, maximumAge: Duration? = nil) async throws -> Value {
 		let decoder = JSONDecoder()
 		decoder.dateDecodingStrategy = .iso8601
+
+		return try await decoded(from: request, maximumAge: maximumAge) {
+			try decoder.decode(Value.self, from: $0)
+		}
+	}
+
+	/**
+	Fetches the body and reads it with the function, like the names in a JavaScript file, with the caching of ``decoded(_:from:maximumAge:)``. The function throws for a body that it cannot read, so the body is not saved, and the cached response is used.
+	*/
+	public func decoded<Value>(from request: URLRequest, maximumAge: Duration? = nil, decode: (Data) throws -> Value) async throws -> Value {
 		let maximumAge = maximumAge ?? self.maximumAge
 		let file = file(for: request)
 		let entry = file.flatMap { try? JSONDecoder().decode(Entry.self, from: Data(contentsOf: $0)) }
@@ -73,7 +83,7 @@ public struct ResponseCache: Sendable {
 			Date.now.timeIntervalSince(entry.date) < maximumAge / .seconds(1)
 		{
 			do {
-				return try decoder.decode(Value.self, from: entry.body)
+				return try decode(entry.body)
 			} catch {
 				try? file?.removeIfExists()
 				throw error
@@ -82,7 +92,7 @@ public struct ResponseCache: Sendable {
 
 		// An outdated cached response that cannot be decoded is neither revalidated nor used when the request fails.
 		let cached = entry.flatMap { entry in
-			(try? decoder.decode(Value.self, from: entry.body)).map { (entry: entry, value: $0) }
+			(try? decode(entry.body)).map { (entry: entry, value: $0) }
 		}
 
 		var request = request
@@ -128,7 +138,7 @@ public struct ResponseCache: Sendable {
 		let value: Value
 
 		do {
-			value = try decoder.decode(Value.self, from: data)
+			value = try decode(data)
 		} catch {
 			return try cachedValue(after: error, reason: "the response could not be read")
 		}
