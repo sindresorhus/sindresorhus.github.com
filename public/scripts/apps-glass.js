@@ -149,7 +149,8 @@ if (program) {
 	canvas.dataset.state = 'drawing';
 
 	const darkQuery = matchMedia('(prefers-color-scheme: dark)');
-	const reducedMotionQuery = matchMedia('(prefers-reduced-motion: reduce)');
+	// Read once, when the page loads (AGENTS.md).
+	const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 	const finePointerQuery = matchMedia('(hover: hover) and (pointer: fine)');
 
 	// The glass is soft, so half the CSS pixels in each direction is enough, and it saves battery. The browser scales it up smoothly.
@@ -222,7 +223,7 @@ if (program) {
 	};
 
 	const update = () => {
-		const shouldRun = isOnScreen && !document.hidden && !reducedMotionQuery.matches;
+		const shouldRun = isOnScreen && !document.hidden && !prefersReducedMotion;
 
 		if (shouldRun === isRunning) {
 			return;
@@ -252,16 +253,4 @@ if (program) {
 
 	// A still frame in the new colors, or with the time where it is now.
 	darkQuery.addEventListener('change', draw);
-
-	// With reduced motion, the glass shows the same still frame as when the page loads with it, without the light of the pointer.
-	reducedMotionQuery.addEventListener('change', () => {
-		if (reducedMotionQuery.matches) {
-			time = stillTime;
-			pointer.strength = 0;
-			targetPointer.strength = 0;
-		}
-
-		update();
-		draw();
-	});
 }

@@ -34,10 +34,7 @@ struct BlogPostRow: HTML {
 			.style(Styles.description)
 
 			footer {
-				span {
-					PublicationInfo(post: post, showsReadingTime: !post.isRedirect)
-				}
-				.style(Styles.meta)
+				PublicationInfo(post: post, showsReadingTime: !post.isRedirect)
 			}
 			.style(Styles.footer)
 		}
@@ -59,16 +56,15 @@ struct BlogPostRow: HTML {
 		case externalLink
 		case footer
 		case description
-		case meta
 
 		var style: Style {
 			switch self {
 			case .root:
 				Style()
-					.frame(maxWidth: .rootEm(28))
-					.margin(vertical: 0, horizontal: .auto)
-					.from(.tablet) {
-						$0.declaration(.maxWidth, .none)
+					.below(.tablet) {
+						$0
+							.frame(maxWidth: .rootEm(28))
+							.margin(vertical: 0, horizontal: .auto)
 					}
 			case .title:
 				Style()
@@ -95,18 +91,17 @@ struct BlogPostRow: HTML {
 							.opacity(0.6)
 					}
 			case .footer:
-				Style().margin(.top, .rootEm(1))
+				Style()
+					.margin(.top, .rootEm(1))
+					.color(.secondaryText)
 			case .description:
 				Style()
 					.margin(.top, .rootEm(0.5))
 					.textStyle(.lead)
-					.opacity(0.8)
+					.color(.bodyText)
 					.from(.smallTablet) {
 						$0.font(.extraLarge)
 					}
-			case .meta:
-				Style()
-					.color(.secondaryText)
 			}
 		}
 	}

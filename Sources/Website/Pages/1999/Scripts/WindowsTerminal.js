@@ -1,7 +1,6 @@
 // HyperTerminal on the desktop of the 1999 page: the Connection Description, a list of the BBSes of Bergen to dial, and Fjordnet BBS, with ANSI art, a log on, messages, files, who is online, a chat with the SysOp, and Legend of the Red Troll, a door game like Legend of the Red Dragon. The modem makes its sounds only after the visitor turns them on.
+import GeoCitiesElement, {cloneTemplate, randomItem, randomInteger} from '/scripts/geocities-element.js';
 
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
 const formatNumber = number => number.toLocaleString('en-US');
 
 const setUpTerminal = (terminal, {call: callButton, hangUp: hangUpButton, sound: soundButton, setup, name: nameField, number: numberPicker, monitor, screen, form, input, keys: keyBar, statusBar, textTemplate, artTemplate, keyTemplate}) => {
@@ -21,7 +20,7 @@ const setUpTerminal = (terminal, {call: callButton, hangUp: hangUpButton, sound:
 		if (lastSpan?.isConnected && lastSpan.dataset.termColor === String(color)) {
 			lastSpan.append(text);
 		} else {
-			lastSpan = textTemplate.content.firstElementChild.cloneNode(true);
+			lastSpan = cloneTemplate(textTemplate);
 			lastSpan.dataset.termColor = String(color);
 			lastSpan.textContent = text;
 			screen.append(lastSpan);
@@ -125,7 +124,7 @@ const setUpTerminal = (terminal, {call: callButton, hangUp: hangUpButton, sound:
 	// A text that changes in place, like the progress of a download.
 	const printLive = text => {
 		flush();
-		const span = textTemplate.content.firstElementChild.cloneNode(true);
+		const span = cloneTemplate(textTemplate);
 		span.dataset.termColor = '11';
 		span.textContent = text;
 		screen.append(span);
@@ -139,7 +138,7 @@ const setUpTerminal = (terminal, {call: callButton, hangUp: hangUpButton, sound:
 
 	const printArt = (rows, indent = 2) => {
 		flush();
-		const art = artTemplate.content.firstElementChild.cloneNode(true);
+		const art = cloneTemplate(artTemplate);
 		const columns = rows[0].length;
 		art.width = columns;
 		art.height = rows.length;
@@ -215,7 +214,7 @@ const setUpTerminal = (terminal, {call: callButton, hangUp: hangUpButton, sound:
 	};
 
 	const keyButton = (label, onClick) => {
-		const button = keyTemplate.content.firstElementChild.cloneNode(true);
+		const button = cloneTemplate(keyTemplate);
 		button.textContent = label;
 		button.addEventListener('click', onClick);
 		return button;
@@ -1668,7 +1667,7 @@ Rest 30 minutes. Serve with brunost.
 	};
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesWindowsTerminal extends GeoCitiesElement {
 	#terminal;
 
 	connected() {
@@ -1683,3 +1682,5 @@ export default class extends GeoCitiesElement {
 		return this.#terminal.focusReplacement(control) ?? super.focusReplacement(control);
 	}
 }
+
+customElements.define('geo-cities-windows-terminal', GeoCitiesWindowsTerminal);

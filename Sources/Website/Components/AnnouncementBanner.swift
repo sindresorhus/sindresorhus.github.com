@@ -79,7 +79,7 @@ struct AnnouncementBanner: HTML {
 					.hidden(below: .smallTablet)
 			case .text:
 				Style()
-					.font(size: .pixels(15))
+					.font(size: .rootEm(0.9375))
 					.fontWeight(.medium)
 					.color(.bodyText)
 					.from(.smallTablet) {

@@ -52,21 +52,20 @@ struct FeedbackSuccess: HTML {
 					.hstack(alignment: .center, justification: .center)
 					.frame(width: .rootEm(5), height: .rootEm(5))
 					.cornerRadius(.capsule)
-					.color(.primary(700))
+					.color(.primary(700), dark: .primary(300))
 					.background(.primary(600).opacity(0.15))
 			case .title:
 				Style()
 					.margin(.bottom, .rootEm(0.5))
 					.font(.extraLarge3, weight: .bold)
+					.color(.primaryText)
 			case .message:
 				Style()
 					.frame(maxWidth: .rootEm(24))
 					.margin(vertical: 0, horizontal: .auto)
 					.color(.secondaryText)
 			case .redirect:
-				Style()
-					.textStyle(.caption)
-					.color(.gray(400))
+				Style().secondaryText()
 			}
 		}
 	}

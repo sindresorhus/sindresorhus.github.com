@@ -219,7 +219,7 @@ struct AppStoreInfo: Decodable, Sendable {
 			return [:]
 		}
 
-		let url = #URL("https://itunes.apple.com/lookup").appending(queryItems: [URLQueryItem(name: "id", value: ids.map(\.description).joined(separator: ","))])
+		let url = #URL("https://itunes.apple.com/lookup").appending(queryItems: [URLQueryItem(name: "id", value: ids.uniqued(by: \.self).map(\.description).joined(separator: ","))])
 
 		let response = try await cache.decoded(Response.self, from: URLRequest(url: url, timeoutInterval: 15))
 		return Dictionary(response.results.map { ($0.id, $0) }) { first, _ in first }

@@ -161,6 +161,16 @@ struct GalleryPage: Page {
 				AppReviews(reviews: [], rating: AppStoreInfo.Rating(average: 4.6, count: 1234))
 			}
 
+			// With sample data, as the pages only show these with the data of npm and GitHub.
+			Section("Stats and Projects", id: "stats") {
+				StatCard(stats: [
+					Stat(count: 1234, noun: "package"),
+					Stat(perSecond: 30_000, label: "downloads of my packages while you have been here"),
+				])
+
+				ProjectOfTheDay(title: "Package of the Day", randomTitle: "Random Package", listPath: .npmPackages, projects: [ProjectOfTheDay.Project(name: "ky", description: "Tiny and elegant HTTP client based on the Fetch API", detail: "4.2M+ downloads a week", url: #URL("https://www.npmjs.com/package/ky"))], date: content.buildDate)
+			}
+
 			Section("Prose", id: "prose") {
 				Prose(markdown: MarkdownDocument(parsing: Self.markdownSample, options: .gallery).content)
 			}
@@ -233,6 +243,10 @@ struct GalleryPage: Page {
 
 	@Feature(title: "Another main feature") {
 		The second main feature.
+	}
+
+	@TinyApp(title: "A tiny app", download: "https://example.com/Tiny-App.zip", source: "https://github.com/sindresorhus", requirement: "Requires macOS 26 or later") {
+		A small app without a page of its own, with the placeholder icon.
 	}
 
 	@Cards {

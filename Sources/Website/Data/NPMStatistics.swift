@@ -34,6 +34,11 @@ struct NPMStatistics: Sendable {
 		let version: String
 
 		/**
+		What the package does, like “Map over promises concurrently”, without the backticks of code. `nil` when the package has none.
+		*/
+		let description: String?
+
+		/**
 		When the latest version was published.
 		*/
 		let date: Date
@@ -52,6 +57,13 @@ struct NPMStatistics: Sendable {
 
 		var url: URL {
 			#URL("https://www.npmjs.com/package/").appending(path: name)
+		}
+
+		/**
+		The weekly downloads, rounded down when they are large, like “4.2M+ downloads a week” or “6 downloads a week”.
+		*/
+		var weeklyDownloadsLabel: String {
+			"\(weeklyDownloads.approximateCount(counting: "download")) a week"
 		}
 	}
 
@@ -128,7 +140,8 @@ struct NPMStatistics: Sendable {
 			var packages = [Package]()
 
 			for offset in stride(from: 0, to: Int.max, by: SearchResult.pageSize) {
-				let page = try await cache.decoded(SearchResult.self, from: URLRequest(url: URL(string: "https://registry.npmjs.org/-/v1/search?text=maintainer:sindresorhus&size=\(SearchResult.pageSize)&from=\(offset)")!, timeoutInterval: 15))
+				let url = #URL("https://registry.npmjs.org/-/v1/search").appending(formQueryItems: [URLQueryItem(name: "text", value: "maintainer:sindresorhus"), URLQueryItem(name: "size", value: String(SearchResult.pageSize)), URLQueryItem(name: "from", value: String(offset))])
+				let page = try await cache.decoded(SearchResult.self, from: URLRequest(url: url, timeoutInterval: 15))
 				statistics.packageCount = statistics.packageCount ?? page.total
 				packages += page.packages
 
@@ -208,6 +221,7 @@ private struct SearchResult: Decodable {
 
 			let name: String
 			let version: String
+			let description: String?
 			let date: String
 			let links: Links?
 		}
@@ -254,7 +268,10 @@ private struct SearchResult: Decodable {
 			// The repository can be written in several ways, like `git+https://github.com/owner/name.git`.
 			let repository = object.package.links?.repository?.firstMatch(of: /github\.com[\/:]([^\/]+\/[^\/#?]+)/).map { String($0.1).replacing(/\.git$/, with: "") }
 
-			return NPMStatistics.Package(name: object.package.name, version: object.package.version, date: date, weeklyDownloads: object.downloads?.weekly ?? 0, dependentCount: object.dependents?.count, repository: repository)
+			// Without the backticks of code, which some descriptions have, as the description is shown as text.
+			let description = object.package.description?.replacing("`", with: "").trimmingCharacters(in: .whitespaces)
+
+			return NPMStatistics.Package(name: object.package.name, version: object.package.version, description: description?.isEmpty == false ? description : nil, date: date, weeklyDownloads: object.downloads?.weekly ?? 0, dependentCount: object.dependents?.count, repository: repository)
 		}
 	}
 }

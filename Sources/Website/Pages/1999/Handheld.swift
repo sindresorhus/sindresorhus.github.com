@@ -152,6 +152,10 @@ struct GeoCitiesHandheld: ScriptedElement {
 		case status
 	}
 
+	enum States: String, ElementStateSet {
+		case on
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		The button of the game console, like `a` or `left`.
@@ -218,7 +222,7 @@ struct GeoCitiesHandheld: ScriptedElement {
 					.color(Color("#e8dcff"))
 					.handCursor()
 					.buttonFocusRing(Color("#ffcc00"))
-					.when(.state, is: "on") {
+					.pressed {
 						$0.background(Color("#6a50b0"))
 					}
 			case .led:
@@ -227,7 +231,7 @@ struct GeoCitiesHandheld: ScriptedElement {
 					.frame(width: .rootEm(0.625), height: .rootEm(0.625))
 					.background(Color("#441111"))
 					.cornerRadius(.circle)
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0
 							.background(Color("#ff2222"))
 							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ff3333")))
@@ -334,16 +338,17 @@ struct GeoCitiesHandheld: ScriptedElement {
 					.touchAction(.none)
 					.textSelection(.disabled)
 					.handCursor()
+					// The flat rubber has no raised edge, so it gets as dark as its edge while it is held down, like the buttons of the cross.
+					.active {
+						$0.background(Color("#22184a"))
+					}
 			case .below:
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.5))
 					.margin(top: .rootEm(1))
 			case .status:
 				Style()
-					.frame(minHeight: .lineHeight(2))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+					.toyStatus()
 					.textAlign(.center)
 			}
 		}

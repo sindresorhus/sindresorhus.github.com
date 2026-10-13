@@ -10,7 +10,7 @@ struct StarRating: HTML {
 	var body: some HTML<HTMLTag.div> {
 		div(.role("img")) {
 			for _ in 0..<rating {
-				Icon.star.size(.rootEm(1.25))
+				Icon.star
 			}
 		}
 		.accessibilityLabel("\(rating) out of 5 stars")

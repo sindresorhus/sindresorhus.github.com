@@ -120,7 +120,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 			button(.part(Parts.stop), .type(.button)) {
 				"■ Stop"
 			}
-			.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+			.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 			button(.part(Parts.step), .type(.button)) {
 				"⏭ Step"
@@ -131,7 +131,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 			button(.part(Parts.undo), .type(.button), .disabled) {
 				"↶ Undo"
 			}
-			.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+			.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 			button(.part(Parts.sound), .type(.button), .ariaPressed(false)) {
 				"🔈 Sound"
@@ -158,7 +158,6 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 
 					tool.name
 				}
-				.attributes(.hook(ScriptAttribute.state, value: "on"), when: tool.id == "scenes")
 				.style(Styles.toolButton)
 			}
 		}
@@ -192,7 +191,6 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 							"📷 \(camera + 1)"
 						}
 						.accessibilityLabel("Camera \(camera + 1)")
-						.attributes(.hook(ScriptAttribute.state, value: "on"), when: camera == 0)
 						.style(Styles.toolButton)
 					}
 				}
@@ -219,7 +217,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 				button(.part(Parts.deleteScene), .type(.button)) {
 					"✂️ Cut Scene"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget, GeoCitiesPage.Styles.dimmedWhenDisabled)
 			}
 			.style(GeoCitiesWindows.Styles.wrapRow)
 		}
@@ -275,7 +273,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 				button(.part(Parts.removeActor), .type(.button)) {
 					"🗑️ Remove"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget, GeoCitiesPage.Styles.dimmedWhenDisabled)
 			}
 			.style(GeoCitiesWindows.Styles.wrapRow)
 		}
@@ -539,24 +537,11 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 					}
 			case .toolButton:
 				// A tool of the studio, which stays pressed in while its panel is open.
-				Style()
+				GeoCitiesPage.Styles.smallButton.style
 					.vstack(alignment: .center, justification: .center, spacing: 0)
 					.frame(minWidth: .rootEm(2.25), minHeight: .rootEm(2.5))
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.25))
-					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
-					.fontFamily(.system)
-					.textStyle(.caption, weight: .bold)
-					.color(.black)
-					.handCursor()
-					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
-					.when(.state, is: "on") {
-						$0
-							.background(Color("#ffffcc"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
+					.pressedIn(Color("#ffffcc"))
 			case .toolIcon:
 				Style().font(.large)
 			case .panel:
@@ -581,7 +566,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 					.textStyle(.caption, weight: .bold)
 					.color(.white)
 					.handCursor()
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.background(Color("#ffff99"))
 							.color(.black)
@@ -594,18 +579,9 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 					.gap(.rootEm(0.375))
 			case .guideButton:
 				// McZee himself, who gives a tip when he is clicked.
-				Style()
+				GeoCitiesPage.Styles.smallButton.style
 					.vstack(alignment: .center, spacing: 0)
 					.padding(.rootEm(0.125))
-					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
-					.fontFamily(.system)
-					.textStyle(.caption, weight: .bold)
-					.color(.black)
-					.handCursor()
-					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
 			case .guide:
 				Style()
 					.display(.block)

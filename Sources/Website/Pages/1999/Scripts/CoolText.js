@@ -1,9 +1,10 @@
 // The Cool Text generator on the 1999 page: the word in the picked style, one box for each letter, so the letters can wave, shake, and have their own colors. The visitor can put the logo at the top of the page, as its title.
+import GeoCitiesElement from '/scripts/geocities-element.js';
 
 // By what the eye sees as one letter, so an emoji made of several characters, like a flag, stays whole.
 const graphemes = new Intl.Segmenter('en');
 
-export default class extends GeoCitiesElement {
+class GeoCitiesCoolText extends GeoCitiesElement {
 	#typewriterTimers = new Map();
 	#titleLetters;
 
@@ -119,3 +120,5 @@ export default class extends GeoCitiesElement {
 		type();
 	}
 }
+
+customElements.define('geo-cities-cool-text', GeoCitiesCoolText);

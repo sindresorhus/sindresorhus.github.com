@@ -1,29 +1,14 @@
 // Pappa’s Desk Toys on the 1999 page: the Newton’s cradle, the plasma ball, the pin art, the drinking bird, the Zen garden, the magnet sculpture, the stress ball, the Executive Decision Maker, and the perpetual motion machine, each drawn on its own canvas. A canvas runs only while it is on the screen and the tab is visible. With reduced motion, nothing moves by itself: the toys take one step for each press. Nothing makes a sound until the visitor turns on the sound.
 //
 // Each toy is set up by its own function, with the desk (the element, for its helpers, like `say()`, `on()`, and `loop()`), its canvas, and the sound of the desk.
+import GeoCitiesElement, {clamp, randomItem, hash} from '/scripts/geocities-element.js';
+import {canvasPoint} from '/scripts/geocities-canvas.js';
 
 // A stored count can be broken or changed by hand, so anything that is not a whole number from 0 is a count of 0.
 const loadCount = (desk, key) => Math.max(0, Math.round(Number(desk.stored(key, 0)) || 0));
 
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
 // A loop of a toy, which runs while its canvas is on the screen and the tab is visible, and while `isBusy` says so. A step is at most a 30th of a second, so a toy does not jump after a pause.
 const toyLoop = (desk, canvas, update, isBusy) => desk.loop(update, {while: isBusy, target: canvas, maximumStep: 1 / 30});
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
-
-// A number between 0 and 1 that is always the same for the same seed, for the things that must not flicker, like the shape of a stone.
-const hash = seed => {
-	const value = Math.sin(seed * 127.1 + 311.7) * 43_758.5453;
-	return value - Math.floor(value);
-};
 
 const turn = Math.PI * 2;
 const width = 480;
@@ -2471,7 +2456,7 @@ const setupMagnet = (desk, canvas, sound) => {
 		const isOnSpike = parents.length > 0 && Math.random() < 0.75;
 		let parent = -1;
 		for (let attempt = 0; isOnSpike && attempt < 12; attempt++) {
-			const candidate = parents[Math.floor(Math.random() * parents.length)];
+			const candidate = randomItem(parents);
 			const end = outerEnd(clips[candidate]);
 			if (end.y > 30 && end.x > 20 && end.x < width - 20) {
 				parent = candidate;
@@ -2764,7 +2749,7 @@ const setupMagnet = (desk, canvas, sound) => {
 	for (let index = 0; index < 24; index++) {
 		const clip = clips[index];
 		const parents = clips.slice(0, index).map((other, otherIndex) => otherIndex).filter(otherIndex => clips[otherIndex].depth < 4);
-		const parent = parents.length > 0 && index % 3 !== 0 ? parents[Math.floor(Math.random() * parents.length)] : -1;
+		const parent = parents.length > 0 && index % 3 !== 0 ? randomItem(parents) : -1;
 		attach(clip, parent, {x: magnet.x + ((Math.random() - 0.5) * magnet.radius * 1.9), y: magnet.top});
 		if (clip.target) {
 			clip.x = clip.target.x;
@@ -3553,7 +3538,7 @@ const setupPerpetual = (desk, canvas, sound) => {
 	draw();
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesDeskToys extends GeoCitiesElement {
 	connected() {
 		const {sound: soundButton, cradle, plasma, pins, bird, sand, magnet, stress, spinner, perpetual} = this.parts;
 		const sound = makeSounds();
@@ -3578,3 +3563,5 @@ export default class extends GeoCitiesElement {
 		});
 	}
 }
+
+customElements.define('geo-cities-desk-toys', GeoCitiesDeskToys);

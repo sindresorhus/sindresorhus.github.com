@@ -857,7 +857,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 					.border(Color("#444444"), width: .pixels(3), style: .inset)
 					.cornerRadius(.rootEm(0.75))
 			case .screen:
-				// While an event is on, a finger on the screen does not scroll the page, as the events are played with the buttons below it.
+				// A double tap on the screen does not zoom, as the events are played with the buttons below it. A finger on the screen still scrolls the page.
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
@@ -981,6 +981,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 					.textAlign(.leading)
 					.color(.black)
 					.handCursor()
+					.buttonFocusRing()
 					.hover {
 						$0.background(Color("#ffffcc"))
 					}

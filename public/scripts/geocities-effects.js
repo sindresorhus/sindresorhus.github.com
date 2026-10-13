@@ -1,36 +1,14 @@
 // The visual noise of the 1999 page: the window of Netscape Navigator around the page, with its silly buttons, the N that throbs, and the status bar, and the sparkles over the title. It uses the toast of `geocities.js` through an event on the document.
+// The storage can be missing, like in a private window, and then the visitor number starts at the beginning.
+import {load, showToast, cloneTemplate, randomItem, randomBetween, wait, prerendered} from '/scripts/geocities-element.js';
+
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
 // Like `geocities.js`, the window and the sparkles wait until the visitor opens a page that the site prerendered.
-if (document.prerendering) {
-	await new Promise(resolve => {
-		document.addEventListener('prerenderingchange', resolve, {once: true});
-	});
-}
+await prerendered;
 
 const panel = document.querySelector('#geocities-panel');
 const welcome = document.querySelector('#geocities-welcome');
-
-const showToast = message => {
-	document.dispatchEvent(new CustomEvent('geocities-toast', {detail: {message}}));
-};
-
-const wait = milliseconds => new Promise(resolve => {
-	setTimeout(resolve, milliseconds);
-});
-
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
-
-// The storage can be missing, like in a private window, and then the visitor number starts at the beginning.
-const load = (key, fallback) => {
-	try {
-		const value = localStorage.getItem(key);
-		return value === null ? fallback : (JSON.parse(value) ?? fallback);
-	} catch {
-		return fallback;
-	}
-};
 
 // The text keeps its spaces, like on a screen of fixed-width text, as the boxes only keep the line breaks.
 const fixedWidth = text => text.replaceAll(' ', ' ');
@@ -377,7 +355,7 @@ const addTitleSparkle = () => {
 		return;
 	}
 
-	const sparkle = sparkleTemplate.content.firstElementChild.cloneNode(true);
+	const sparkle = cloneTemplate(sparkleTemplate);
 	sparkle.style.left = `${randomBetween(5, 95)}%`;
 	sparkle.style.top = `${randomBetween(15, 85)}%`;
 	sparkle.addEventListener('animationend', () => {

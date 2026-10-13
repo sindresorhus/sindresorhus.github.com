@@ -126,7 +126,7 @@ extension Site {
 	private var redirectRoutes: [Route] {
 		for document in content.documents {
 			for oldPath in document.redirectFrom {
-				Route.redirect(oldPath, to: .path(document.path))
+				Route.redirect(oldPath, to: document.path)
 			}
 		}
 	}
@@ -144,7 +144,7 @@ extension Site {
 		for app in content.apps {
 			// An app with a page elsewhere has no page here. Its other pages stay, as the App Store links to the privacy policy.
 			if let redirectURL = app.redirectURL {
-				Route.redirect(app.path, to: .url(redirectURL))
+				Route.redirect(app.path, to: redirectURL)
 			} else {
 				AppPage(app: app, content: content)
 			}
@@ -168,7 +168,7 @@ extension Site {
 		// A post on another site has no page. Its URL sends visitors there, as it was published as a page before. An unlisted post keeps its page, as its URL may already be shared.
 		for post in content.posts {
 			if let redirectURL = post.redirectURL {
-				Route.redirect(post.path, to: .url(redirectURL))
+				Route.redirect(post.path, to: redirectURL)
 			} else {
 				BlogPostPage(post: post, content: content)
 			}
@@ -197,116 +197,29 @@ extension Site {
 			Icon.sprite
 		}
 
-		for element in Self.scriptedElements where !element.script.isInline {
-			Route.text(element.scriptPath) {
-				try element.generatedScript()
+		// Published unchanged. Each one defines its element itself.
+		for (path, source) in project.elementScripts() {
+			Route.file(path) {
+				try Data(contentsOf: source)
 			}
 		}
 	}
-
-	/**
-	The components that are custom elements with a script. The build writes their scripts before the pages render, and the tests check them, so each one must be listed here, also an element with an inline script.
-	*/
-	static let scriptedElements: [any ScriptedElement.Type] = [
-		AppMedia.self,
-		AppSecondaryNavigation.self,
-		AttachmentPicker.self,
-		CodeBlock.self,
-		CopyButton.self,
-		FAQSuggestions.self,
-		GeoCitiesAdventure.self,
-		GeoCitiesArcade.self,
-		GeoCitiesBeeper.self,
-		GeoCitiesBergenTrail.self,
-		GeoCitiesBestViewed.self,
-		GeoCitiesBopIt.self,
-		GeoCitiesBuddyList.self,
-		GeoCitiesCalculator.self,
-		GeoCitiesCasio.self,
-		GeoCitiesChristmas.self,
-		GeoCitiesClassNotes.self,
-		GeoCitiesCoaster.self,
-		GeoCitiesComicChat.self,
-		GeoCitiesCommodore.self,
-		GeoCitiesComputer.self,
-		GeoCitiesCoolText.self,
-		GeoCitiesCracktro.self,
-		GeoCitiesCrafts.self,
-		GeoCitiesDanceRevolution.self,
-		GeoCitiesDeskToys.self,
-		GeoCitiesDJBooth.Turntable.self,
-		GeoCitiesDollz.self,
-		GeoCitiesEffectToys.self,
-		GeoCitiesFishTank.self,
-		GeoCitiesFortuneToys.self,
-		GeoCitiesFurby.self,
-		GeoCitiesGameRoom.self,
-		GeoCitiesGIFPile.self,
-		GeoCitiesHamsterBand.self,
-		GeoCitiesHandheld.self,
-		GeoCitiesHandheldCamera.self,
-		GeoCitiesInbox.self,
-		GeoCitiesInsultFight.self,
-		GeoCitiesKaraoke.self,
-		GeoCitiesKeygen.self,
-		GeoCitiesKinderEgg.self,
-		GeoCitiesLego.self,
-		GeoCitiesLemmings.self,
-		GeoCitiesLinkingBook.self,
-		GeoCitiesMailOrder.self,
-		GeoCitiesMarbles.self,
-		GeoCitiesMusic.self,
-		GeoCitiesMusicRoom.Mixer.self,
-		GeoCitiesNapster.self,
-		GeoCitiesNeonSign.self,
-		GeoCitiesNorwayDays.self,
-		GeoCitiesNorwayHolidays.self,
-		GeoCitiesPageMaker.self,
-		GeoCitiesPrintShop.self,
-		GeoCitiesRingtones.self,
-		GeoCitiesRoom.self,
-		GeoCitiesRoomToys.self,
-		GeoCitiesRubik.self,
-		GeoCitiesSkater.self,
-		GeoCitiesStampComposer.self,
-		GeoCitiesTekstTV.self,
-		GeoCitiesTheremin.self,
-		GeoCitiesTown.self,
-		GeoCitiesTracker.self,
-		GeoCitiesTradingCards.self,
-		GeoCitiesVCR.self,
-		GeoCitiesVisualizer.self,
-		GeoCitiesWaffleClues.self,
-		GeoCitiesWaffleJay.self,
-		GeoCitiesWaffleQuest.self,
-		GeoCitiesWindowsChips.self,
-		GeoCitiesWindowsEncarta.self,
-		GeoCitiesWindowsFunStuff.self,
-		GeoCitiesWindowsGoo.self,
-		GeoCitiesWindowsHearts.self,
-		GeoCitiesWindowsHover.self,
-		GeoCitiesWindowsJezzBall.self,
-		GeoCitiesWindowsMovieMaker.self,
-		GeoCitiesWindowsNetMeeting.self,
-		GeoCitiesWindowsPinball.self,
-		GeoCitiesWindowsRodent.self,
-		GeoCitiesWindowsSpider.self,
-		GeoCitiesWindowsTaipei.self,
-		GeoCitiesWindowsTerminal.self,
-		GeoCitiesWinterGames.self,
-		GeoCitiesWorldCup.self,
-		GeoCitiesWorms.self,
-		GeoCitiesY2KKit.self,
-		OverflowMenu.self,
-		ShareButton.self,
-		SiteHeader.self,
-	]
 }
 
 /**
 The paths of the pages that code links to. Apps and posts have their paths on their models, like `App.path`.
 */
 extension RoutePath {
+	/**
+	The npm packages for the button of ``ProjectOfTheDay``.
+	*/
+	static let npmPackages: Self = "/npm-packages.json"
+
+	/**
+	The repos for the button of ``ProjectOfTheDay``.
+	*/
+	static let repositories: Self = "/repos.json"
+
 	static let apps: Self = "/apps"
 	static let randomApp: Self = "/apps/random"
 	static let olderVersions: Self = "/apps/older-versions"

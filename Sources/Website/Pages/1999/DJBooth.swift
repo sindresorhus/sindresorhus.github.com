@@ -144,16 +144,13 @@ struct GeoCitiesDJBooth: HTML {
 		var style: Style {
 			switch self {
 			case .booth:
-				// Black, with neon green, like a booth in a club.
+				// Black, with neon green, like a booth in a club. The text inherits the white, so a part with its own color, like the green of an LCD, keeps it.
 				Style()
 					.flowSpacing(.rootEm(0.75))
 					.padding(.rootEm(0.75))
 					.background(Color("#111111"))
 					.border(Color("#39ff14"), width: .pixels(3))
 					.color(.white)
-					.children("label, p") {
-						$0.color(.white)
-					}
 			case .title:
 				Style()
 					.textAlign(.center)

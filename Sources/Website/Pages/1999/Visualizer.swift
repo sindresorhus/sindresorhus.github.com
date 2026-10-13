@@ -147,7 +147,10 @@ struct GeoCitiesVisualizer: ScriptedElement {
 					.textStyle(.caption, weight: .bold)
 					.color(Color("#00e000"))
 					.handCursor()
-					.when(.state, is: "on") {
+					.active {
+						$0.border(Color("#5a5a7a"), width: .pixels(2), style: .inset)
+					}
+					.pressed {
 						$0
 							.border(Color("#5a5a7a"), width: .pixels(2), style: .inset)
 							.color(Color("#ffff66"))

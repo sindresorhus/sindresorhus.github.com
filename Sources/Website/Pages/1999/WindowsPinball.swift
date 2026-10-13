@@ -130,6 +130,10 @@ struct GeoCitiesWindowsPinball: ScriptedElement {
 		case status
 	}
 
+	enum States: String, ElementStateSet {
+		case down
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		A button under the table for a finger, with its ID: `left`, `launch`, or `right`.
@@ -197,20 +201,12 @@ struct GeoCitiesWindowsPinball: ScriptedElement {
 					.frame(width: .percent(100))
 			case .control:
 				// Big buttons for thumbs, pressed in while a finger holds them.
-				Style()
+				GeoCitiesPage.Styles.retroButton.style
 					.padding(vertical: .rootEm(0.5), horizontal: .rootEm(0.25))
-					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(3), style: .outset)
-					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(.black)
 					.touchAction(.none)
 					.textSelection(.disabled)
-					.handCursor()
-					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
-					}
-					.when(.state, is: "down") {
+					.when(States.down) {
 						$0
 							.background(Color("#a0a0a0"))
 							.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)

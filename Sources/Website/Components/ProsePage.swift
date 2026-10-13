@@ -118,7 +118,9 @@ enum ProsePageStyles: StyleSet {
 				.frame(height: .lineHeight(1))
 				.margin(.bottom, .rootEm(1.5))
 		case .photo:
+			// It is in the prose, so it starts without the margins and the shadow of the images of prose.
 			Style()
+				.plainImage()
 				.float(.trailing)
 				// Next to the first paragraph, and not taller than it, so the second paragraph starts below it, and its first line is not short.
 				.frame(width: .pixels(112))

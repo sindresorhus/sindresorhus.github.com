@@ -346,12 +346,13 @@ struct HTMLRenderer: MarkupWalker {
 		let trimmedHTML = rawHTML.trimmingCharacters(in: .whitespacesAndNewlines)
 
 		if
+			style == .extended,
 			trimmedHTML.hasPrefix("<table>") || trimmedHTML.hasPrefix("<table "),
 			trimmedHTML.hasSuffix("</table>")
 		{
 			html += theme.tableContainer(label: tableLabel(), tableHTML: rawHTML) + "\n"
 		} else {
-			html += rawHTML
+			html += style == .releaseNotes ? rawHTML.escapedForHTML : rawHTML
 		}
 	}
 
@@ -638,6 +639,13 @@ struct HTMLRenderer: MarkupWalker {
 		var resolved = destination
 
 		if
+			style == .releaseNotes,
+			!destination.isSafeReleaseNotesDestination(isImage: markup is Image)
+		{
+			resolved = ""
+		}
+
+		if
 			style == .extended,
 			let resolveLink = options.resolveLink
 		{
@@ -751,7 +759,8 @@ struct HTMLRenderer: MarkupWalker {
 			return
 		}
 
-		html += rawHTML
+		// Release notes keep only keyboard keys, like `<kbd>Delete</kbd>`.
+		html += style == .releaseNotes && !["<kbd>", "</kbd>"].contains(rawHTML) ? rawHTML.escapedForHTML : rawHTML
 	}
 
 	mutating func visitLineBreak(_ lineBreak: LineBreak) {
@@ -926,5 +935,25 @@ extension String {
 		return replacing(/<kbd>([^<]*\+[^<]*)<\/kbd>/) { match in
 			theme.keyboardShortcut(keysHTML: String(match.1).keyboardKeys)
 		}
+	}
+}
+
+extension String {
+	/**
+	Whether external release notes can use this link or image without an executable or local-file URL.
+	*/
+	fileprivate func isSafeReleaseNotesDestination(isImage: Bool) -> Bool {
+		guard
+			!unicodeScalars.contains(where: { $0.value < 0x20 || $0.value == 0x7F }),
+			let components = URLComponents(string: trimmingCharacters(in: .whitespaces))
+		else {
+			return false
+		}
+
+		guard let scheme = components.scheme?.lowercased() else {
+			return true
+		}
+
+		return scheme == "https" || scheme == "http" || (!isImage && scheme == "mailto")
 	}
 }

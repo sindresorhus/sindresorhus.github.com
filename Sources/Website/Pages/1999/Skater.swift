@@ -355,6 +355,10 @@ struct GeoCitiesSkater: ScriptedElement {
 		case gapCount
 	}
 
+	enum States: String, ElementStateSet {
+		case found
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		The control of a touch button, like `left` or `ollie`.
@@ -569,7 +573,7 @@ struct GeoCitiesSkater: ScriptedElement {
 				Style()
 					.hstack(alignment: .start, spacing: .rootEm(0.375))
 					.color(Color("#666666"))
-					.when(.state, is: "found") {
+					.when(States.found) {
 						$0.color(Color("#006600"))
 					}
 			case .gapMark:

@@ -14,14 +14,18 @@ sponsorTiers: [
 			{
 				name: 'GitHub'
 				url: 'https://github.com'
-				logo: '/assets/thanks/github-logo.svg'
-				logoWidth: 310
+				logo: {
+					path: '/assets/thanks/github-logo.svg'
+					width: 310
+				}
 			}
 			{
 				name: 'Depot'
 				url: 'https://depot.dev'
-				logo: '/assets/thanks/depot-logo-light.svg'
-				logoWidth: 240
+				logo: {
+					path: '/assets/thanks/depot-logo-light.svg'
+					width: 240
+				}
 			}
 		]
 	}
@@ -32,8 +36,10 @@ sponsorTiers: [
 			{
 				name: 'ESLint'
 				url: 'https://eslint.org'
-				logo: '/assets/thanks/eslint-logo.png'
-				logoWidth: 200
+				logo: {
+					path: '/assets/thanks/eslint-logo.png'
+					width: 200
+				}
 			}
 			{
 				name: 'Jared Wray'
@@ -42,33 +48,43 @@ sponsorTiers: [
 			{
 				name: 'CodeRabbit'
 				url: 'https://coderabbit.ai'
-				logo: '/assets/thanks/coderabbit-logo.png'
-				logoWidth: 280
+				logo: {
+					path: '/assets/thanks/coderabbit-logo.png'
+					width: 280
+				}
 			}
 			{
 				name: 'Fame Helsinki'
 				url: 'https://www.fame.fi'
-				logo: '/assets/thanks/fame-logo-light.svg'
-				logoWidth: 200
+				logo: {
+					path: '/assets/thanks/fame-logo-light.svg'
+					width: 200
+				}
 			}
 			{
 				name: 'FetchFox'
 				url: 'https://fetchfox.ai?ref=sindre'
-				logo: '/assets/thanks/fetchfox-logo.svg'
-				logoWidth: 120
+				logo: {
+					path: '/assets/thanks/fetchfox-logo.svg'
+					width: 120
+				}
 				showsName: true
 			}
 			{
 				name: 'nitric'
 				url: 'https://nitric.io'
-				logo: '/assets/thanks/nitric-logo.svg'
-				logoWidth: 240
+				logo: {
+					path: '/assets/thanks/nitric-logo.svg'
+					width: 240
+				}
 			}
 			{
 				name: 'KRUU'
 				url: 'https://kruu.com'
-				logo: '/assets/thanks/kruu-logo-light.svg'
-				logoWidth: 240
+				logo: {
+					path: '/assets/thanks/kruu-logo-light.svg'
+					width: 240
+				}
 			}
 		]
 	}

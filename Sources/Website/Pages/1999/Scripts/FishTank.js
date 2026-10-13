@@ -1,48 +1,8 @@
 // The aquarium on the 1999 page: fish of big pixels on a canvas of 320 × 180, drawn twice as large. Each fish swims to food when it is hungry, follows the finger of the visitor when it is close, and else wanders. Food that nobody eats rots on the sand and turns the water green. The glass scares the fish when tapped and puffs up the pufferfish.
+import GeoCitiesElement, {randomItem, randomBetween, clamp} from '/scripts/geocities-element.js';
+import {makeSprite, makeFacingSprite} from '/scripts/geocities-canvas.js';
 
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-// Makes a canvas with a sprite of big pixels, from rows of letters where each letter is a color of the palette, and any other letter, like a dot, is clear. Short rows are clear at the end.
-const makeSprite = (rows, palette, scale = 1) => {
-	const width = Math.max(...rows.map(row => row.length));
-	const canvas = document.createElement('canvas');
-	canvas.width = width * scale;
-	canvas.height = rows.length * scale;
-	const context = canvas.getContext('2d');
-
-	for (const [y, row] of rows.entries()) {
-		for (const [x, letter] of [...row].entries()) {
-			if (palette[letter]) {
-				context.fillStyle = palette[letter];
-				context.fillRect(x * scale, y * scale, scale, scale);
-			}
-		}
-	}
-
-	return canvas;
-};
-
-// The same sprite, facing the other way.
-const mirrorSprite = sprite => {
-	const canvas = document.createElement('canvas');
-	canvas.width = sprite.width;
-	canvas.height = sprite.height;
-	const context = canvas.getContext('2d');
-	context.translate(sprite.width, 0);
-	context.scale(-1, 1);
-	context.drawImage(sprite, 0, 0);
-	return canvas;
-};
-
-// A sprite that faces right, and its mirror, which faces left.
-const makeFacingSprite = (rows, palette, scale) => {
-	const right = makeSprite(rows, palette, scale);
-	return {right, left: mirrorSprite(right)};
-};
-
-export default class extends GeoCitiesElement {
+class GeoCitiesFishTank extends GeoCitiesElement {
 	// The fish only swim while the water is on the screen, not while only the buttons below it are.
 	get visibilityTarget() {
 		return this.parts.tank;
@@ -610,3 +570,5 @@ export default class extends GeoCitiesElement {
 		draw();
 	}
 }
+
+customElements.define('geo-cities-fish-tank', GeoCitiesFishTank);

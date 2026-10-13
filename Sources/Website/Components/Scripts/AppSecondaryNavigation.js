@@ -1,4 +1,4 @@
-export default class extends HTMLElement {
+class AppSecondaryNavigation extends HTMLElement {
 	// Stops the observers and the listeners of the page when the element is removed, so connecting it again does not add them twice.
 	#abortController;
 
@@ -100,3 +100,5 @@ export default class extends HTMLElement {
 		}
 	}
 }
+
+customElements.define('app-secondary-navigation', AppSecondaryNavigation);

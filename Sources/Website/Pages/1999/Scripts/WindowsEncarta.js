@@ -1,53 +1,7 @@
 // Microsoft Encarta Encyclopedia Deluxe 99 on the desktop of the 1999 page: the disc that loads, the Pinpointer, the articles with their media, the timeline, and MindMaze, the trivia castle. Encarta came on two discs, so some places ask for the other disc. Nothing makes a sound until the visitor turns on the sound or presses something that plays.
+import GeoCitiesElement, {cloneTemplate, randomItem, clamp, shuffled, midiFrequency, playTone} from '/scripts/geocities-element.js';
 
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-const shuffled = items => {
-	const copy = [...items];
-
-	for (let index = copy.length - 1; index > 0; index--) {
-		const other = Math.floor(Math.random() * (index + 1));
-		[copy[index], copy[other]] = [copy[other], copy[index]];
-	}
-
-	return copy;
-};
-
-const fromTemplate = template => template.content.firstElementChild.cloneNode(true);
-
-// A tone and a noise, on the audio context of the node that they connect to.
-const playTone = (output, frequency, start, duration, {type = 'triangle', volume = 0.1, slide, vibrato} = {}) => {
-	const {context} = output;
-	const oscillator = context.createOscillator();
-	const gain = context.createGain();
-	const time = context.currentTime + start;
-	oscillator.type = type;
-	oscillator.frequency.setValueAtTime(frequency, time);
-
-	if (slide) {
-		oscillator.frequency.exponentialRampToValueAtTime(slide, time + duration);
-	}
-
-	if (vibrato) {
-		const wobble = context.createOscillator();
-		const depth = context.createGain();
-		wobble.frequency.value = 6;
-		depth.gain.value = vibrato;
-		wobble.connect(depth).connect(oscillator.frequency);
-		wobble.start(time);
-		wobble.stop(time + duration + 0.05);
-	}
-
-	gain.gain.setValueAtTime(0.0001, time);
-	gain.gain.exponentialRampToValueAtTime(volume, time + 0.01);
-	gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-	oscillator.connect(gain).connect(output);
-	oscillator.start(time);
-	oscillator.stop(time + duration + 0.05);
-	return oscillator;
-};
-
+// A noise, on the audio context of the node that it connects to.
 let noiseBuffer;
 
 const playNoise = (output, start, duration, {frequency = 1500, quality = 1, volume = 0.08} = {}) => {
@@ -110,7 +64,7 @@ const speak = (text, {lang = 'en-US', pitch = 1, rate = 0.9} = {}) => {
 const noteFrequency = name => {
 	const [, letter, accidental, octave] = /^([A-G])([#b]?)(\d)$/.exec(name);
 	const semitone = {C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11}[letter] + (accidental === '#' ? 1 : (accidental === 'b' ? -1 : 0));
-	return 440 * (2 ** ((((Number(octave) + 1) * 12) + semitone - 69) / 12));
+	return midiFrequency(((Number(octave) + 1) * 12) + semitone);
 };
 
 // The heart of a waffle, with the tip down, around its middle.
@@ -473,7 +427,7 @@ const drawDoor = (context, corners, passage, openness, arch) => {
 	}
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesWindowsEncarta extends GeoCitiesElement {
 	#goButtons;
 	#eraButtons;
 	#answerButtons;
@@ -615,11 +569,10 @@ export default class extends GeoCitiesElement {
 		});
 
 		this.#eventElements = events.map(([date, icon, text, links = []], index) => {
-			const item = fromTemplate(this.parts.eventTemplate);
-			const [iconElement, dateElement, textElement] = item.children;
-			iconElement.textContent = icon;
-			dateElement.textContent = date;
-			textElement.textContent = text;
+			const {element: item, parts} = this.clone('eventTemplate');
+			parts.eventIcon.textContent = icon;
+			parts.eventDate.textContent = date;
+			parts.eventText.textContent = text;
 
 			for (const id of links) {
 				item.append(this.#linkButton(`📖 ${this.#articles[id].title}`, event => {
@@ -899,9 +852,7 @@ export default class extends GeoCitiesElement {
 
 	// The waits of Encarta, like the disc that loads and the doors that open, stop while its window is closed or off the screen, or the tab is hidden.
 	async #wait(milliseconds) {
-		await new Promise(resolve => {
-			setTimeout(resolve, milliseconds);
-		});
+		await this.wait(milliseconds);
 
 		while (!this.isVisible) {
 			await new Promise(resolve => {
@@ -927,12 +878,12 @@ export default class extends GeoCitiesElement {
 		return this.parts.sound.getAttribute('aria-pressed') === 'true';
 	}
 
-	// A sound effect plays only while the sound is on. The sounds go through the volume of the tray, which the desktop gives in the handler of the click on the sound button.
+	// A sound effect plays only while the sound is on. The sounds go through the volume of the tray, which the desktop gives in the handler of the click on the sound button. A tone is a triangle wave, unless it says another type, also in a clip.
 	#tone(frequency, start, duration, options) {
 		const sound = this.#isSoundOn() && this.isVisible && this.sound();
 
 		if (sound) {
-			playTone(sound.output, frequency, start, duration, options);
+			playTone(sound, frequency, start, duration, {type: 'triangle', ...options});
 		}
 	}
 
@@ -1037,7 +988,7 @@ export default class extends GeoCitiesElement {
 		const gain = sound.context.createGain();
 		gain.connect(sound.output);
 		const output = {
-			tone: (...parameters) => playTone(gain, ...parameters),
+			tone: (frequency, start, duration, options) => playTone({context: sound.context, output: gain}, frequency, start, duration, {type: 'triangle', ...options}),
 			noise: (...parameters) => playNoise(gain, ...parameters),
 		};
 		build(output);
@@ -1780,9 +1731,9 @@ export default class extends GeoCitiesElement {
 						state.giggles = 0;
 						speak(word.replaceAll('-', ''), {lang: 'en-US', pitch: 2, rate: 1.1});
 						this.say(`Furby says “${word}”, which means “${meaning}”`);
-						setTimeout(() => {
+						this.timeout(300, () => {
 							this.#drawMedia();
-						}, 300);
+						});
 					}},
 					{label: () => '🪶 Tickle', run: state => {
 						state.giggles++;
@@ -1793,9 +1744,9 @@ export default class extends GeoCitiesElement {
 						}
 
 						this.say(state.giggles > 2 ? 'Furby has had enough tickles. “Boo” means no.' : 'Furby giggles.');
-						setTimeout(() => {
+						this.timeout(300, () => {
 							this.#drawMedia();
-						}, 300);
+						});
 					}},
 				],
 				isMoving: () => false,
@@ -2334,13 +2285,11 @@ export default class extends GeoCitiesElement {
 		this.parts.results.replaceChildren();
 
 		for (const {id} of sorted) {
-			const item = fromTemplate(this.parts.resultTemplate);
-			const button = item.querySelector('button');
-			const [icon, title, categoryName] = button.children;
-			icon.textContent = this.#articles[id].icon;
-			title.textContent = this.#articles[id].title;
-			categoryName.textContent = `Disc ${this.#articles[id].disc} ★ ${this.#articles[id].category}`;
-			button.dataset.article = id;
+			const {element: item, parts} = this.clone('resultTemplate');
+			parts.resultIcon.textContent = this.#articles[id].icon;
+			parts.resultTitle.textContent = this.#articles[id].title;
+			parts.resultCategory.textContent = `Disc ${this.#articles[id].disc} ★ ${this.#articles[id].category}`;
+			parts.resultButton.dataset.article = id;
 			this.parts.results.append(item);
 		}
 
@@ -2372,7 +2321,7 @@ export default class extends GeoCitiesElement {
 	#factIndex = 0;
 
 	#linkButton(title, action) {
-		const button = fromTemplate(this.parts.linkTemplate);
+		const button = cloneTemplate(this.parts.linkTemplate);
 		button.textContent = title;
 		button.addEventListener('click', action);
 		return button;
@@ -2398,7 +2347,7 @@ export default class extends GeoCitiesElement {
 		this.parts.mediaCaption.textContent = article.media.caption;
 		this.parts.media.setAttribute('aria-label', article.media.label);
 		this.parts.mediaActions.replaceChildren(...article.media.actions.map(action => {
-			const button = fromTemplate(this.parts.actionTemplate);
+			const button = cloneTemplate(this.parts.actionTemplate);
 
 			button.addEventListener('click', () => {
 				const state = this.#media.state;
@@ -2581,10 +2530,10 @@ export default class extends GeoCitiesElement {
 		const character = characters[who];
 		this.parts.mazeBalloon.textContent = `${character.icon} ${character.name}: ${text}`;
 		this.parts.mazeBalloon.hidden = false;
-		clearTimeout(this.#balloonTimer);
-		this.#balloonTimer = setTimeout(() => {
+		this.#balloonTimer?.cancel();
+		this.#balloonTimer = this.timeout(6500, () => {
 			this.parts.mazeBalloon.hidden = true;
-		}, 6500);
+		});
 	}
 
 	#drawCharacter(context, who, time) {
@@ -3108,19 +3057,19 @@ export default class extends GeoCitiesElement {
 			this.#speech(person, `${randomItem(character.lines)} (+50 points)`);
 		} else if (person === 'knight') {
 			this.#speech(person, character.lines[0]);
-			setTimeout(() => {
+			this.timeout(this.reducedMotion ? 0 : 900, () => {
 				if (this.#game.people.get(this.#game.cell) === 'knight' && !this.#game.question && !this.#game.isRiddleSolved) {
 					this.#askQuestion('riddle');
 				}
-			}, this.reducedMotion ? 0 : 900);
+			});
 		} else if (person === 'king') {
 			this.#sounds.fanfare();
 			this.#speech(person, character.lines[0]);
-			setTimeout(() => {
+			this.timeout(this.reducedMotion ? 0 : 900, () => {
 				if (this.#game.people.get(this.#game.cell) === 'king' && !this.#game.isKnighted && !this.#game.question) {
 					this.#askQuestion('king');
 				}
-			}, this.reducedMotion ? 0 : 900);
+			});
 		}
 
 		this.#updateHud();
@@ -3488,3 +3437,5 @@ export default class extends GeoCitiesElement {
 		}
 	}
 }
+
+customElements.define('geo-cities-windows-encarta', GeoCitiesWindowsEncarta);

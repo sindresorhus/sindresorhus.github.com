@@ -1,74 +1,13 @@
 // Sindre’s Winter Games ’99 on the 1999 page: a game of winter sports in eight events, like Winter Games by Epyx (1985), Track & Field by Konami (1983), and Nagano Winter Olympics ’98. The visitor signs up, carries the torch in the opening ceremony, and competes against five rivals for the medals of a country, with a commentator, the weather of the day, a podium with the anthem of the winner, an interview, world records with three initials, a medal table, and a closing ceremony. Everything is drawn on one canvas of 320 × 200 pixels, which runs only while it is on the screen and the tab is visible. The athlete, the records, the medals, the ghost of the best skating race, and the replay of the best jump are kept in the browser.
-
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const shuffle = items => {
-	const copy = [...items];
-	for (let index = copy.length - 1; index > 0; index--) {
-		const other = Math.floor(Math.random() * (index + 1));
-		[copy[index], copy[other]] = [copy[other], copy[index]];
-	}
-
-	return copy;
-};
+import GeoCitiesElement, {randomItem, randomBetween, clamp, shuffled, midiFrequency, hasModifier} from '/scripts/geocities-element.js';
+import {fillShape, fillEllipse, fillPolygon, drawPixelText} from '/scripts/geocities-canvas.js';
 
 // A random number around 0, mostly between -1 and 1, like the luck of the day.
 const randomNormal = () => (Math.random() + Math.random() + Math.random() - 1.5) / 0.75;
 
-// A tiny pixel font of 3 × 5 for the screen, so the text is crisp at any size. Each letter is five rows of three bits.
-const pixelFont = {
-	A: [2, 5, 7, 5, 5], B: [6, 5, 6, 5, 6], C: [3, 4, 4, 4, 3], D: [6, 5, 5, 5, 6], E: [7, 4, 6, 4, 7], F: [7, 4, 6, 4, 4], G: [3, 4, 5, 5, 3], H: [5, 5, 7, 5, 5], I: [7, 2, 2, 2, 7], J: [1, 1, 1, 5, 2], K: [5, 5, 6, 5, 5], L: [4, 4, 4, 4, 7], M: [5, 7, 7, 5, 5], N: [6, 5, 5, 5, 5], O: [2, 5, 5, 5, 2], P: [6, 5, 6, 4, 4], Q: [2, 5, 5, 6, 3], R: [6, 5, 6, 5, 5], S: [3, 4, 2, 1, 6], T: [7, 2, 2, 2, 2], U: [5, 5, 5, 5, 7], V: [5, 5, 5, 5, 2], W: [5, 5, 7, 7, 5], X: [5, 5, 2, 5, 5], Y: [5, 5, 2, 2, 2], Z: [7, 1, 2, 4, 7],
-	0: [7, 5, 5, 5, 7], 1: [2, 6, 2, 2, 7], 2: [6, 1, 2, 4, 7], 3: [6, 1, 2, 1, 6], 4: [5, 5, 7, 1, 1], 5: [7, 4, 6, 1, 6], 6: [3, 4, 7, 5, 7], 7: [7, 1, 2, 2, 2], 8: [7, 5, 7, 5, 7], 9: [7, 5, 7, 1, 6],
-	' ': [0, 0, 0, 0, 0], '.': [0, 0, 0, 0, 2], ',': [0, 0, 0, 2, 4], '!': [2, 2, 2, 0, 2], '?': [6, 1, 2, 0, 2], ':': [0, 2, 0, 2, 0], '-': [0, 0, 7, 0, 0], '+': [0, 2, 7, 2, 0], '/': [1, 1, 2, 4, 4], '\'': [2, 2, 0, 0, 0], '’': [2, 2, 0, 0, 0], '(': [1, 2, 2, 2, 1], ')': [4, 2, 2, 2, 4], '×': [0, 5, 2, 5, 0], '°': [2, 5, 2, 0, 0], '%': [5, 1, 2, 4, 5], '<': [1, 2, 4, 2, 1], '>': [4, 2, 1, 2, 4], '=': [0, 7, 0, 7, 0], '♥': [0, 5, 7, 7, 2], '*': [0, 5, 2, 5, 0], '#': [5, 7, 5, 7, 5],
-	Æ: [3, 6, 7, 6, 7], Ø: [3, 5, 7, 5, 6], Å: [2, 0, 2, 5, 7], Ö: [5, 2, 5, 5, 2], Ä: [5, 2, 5, 7, 5], Ü: [5, 0, 5, 5, 7], É: [1, 2, 7, 6, 7],
-};
-
 // Draws text in the pixel font, at a whole pixel, with a scale for bigger letters, and a dark shadow so it shows on the snow. The alignment is `left`, `center`, or `right`.
 const drawText = (context, text, x, y, color, {scale = 1, align = 'left', shadow = 'rgba(0, 0, 0, 0.6)'} = {}) => {
-	const characters = [...String(text).toUpperCase()];
-	const width = ((characters.length * 4) - 1) * scale;
-	const left = Math.round(align === 'center' ? x - (width / 2) : (align === 'right' ? x - width : x));
-	const passes = shadow ? [[shadow, 1], [color, 0]] : [[color, 0]];
-	for (const [fill, offset] of passes) {
-		context.fillStyle = fill;
-		let characterLeft = left;
-		for (const character of characters) {
-			const rows = pixelFont[character] ?? pixelFont['?'];
-			for (const [row, bits] of rows.entries()) {
-				for (let column = 0; column < 3; column++) {
-					if (bits & (4 >> column)) {
-						context.fillRect(characterLeft + (column * scale) + offset, Math.round(y) + (row * scale) + offset, scale, scale);
-					}
-				}
-			}
-
-			characterLeft += 4 * scale;
-		}
-	}
-};
-
-const fillShape = (context, color, x, y, width, height) => {
-	context.fillStyle = color;
-	context.fillRect(Math.round(x), Math.round(y), Math.round(width), Math.round(height));
-};
-
-const fillEllipse = (context, color, x, y, radiusX, radiusY) => {
-	context.fillStyle = color;
-	context.beginPath();
-	context.ellipse(x, y, Math.max(radiusX, 0.1), Math.max(radiusY, 0.1), 0, 0, Math.PI * 2);
-	context.fill();
-};
-
-const fillPolygon = (context, color, points) => {
-	context.fillStyle = color;
-	context.beginPath();
-	for (const [x, y] of points) {
-		context.lineTo(x, y);
-	}
-
-	context.closePath();
-	context.fill();
+	drawPixelText(context, text, x, y, color, {scale, align, shadow, shadowOffset: 1});
 };
 
 const strokeLine = (context, color, width, points) => {
@@ -280,7 +219,7 @@ const drawAthlete = (context, code, x, y, {pose = 0, size = 1} = {}) => {
 const noteFrequency = note => {
 	const [, letter, accidental, octave] = /^([A-G])([#b]?)(\d)$/.exec(note);
 	const semitone = {C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11}[letter] + (accidental === '#' ? 1 : (accidental === 'b' ? -1 : 0));
-	return 440 * (2 ** ((((Number(octave) + 1) * 12) + semitone - 69) / 12));
+	return midiFrequency(((Number(octave) + 1) * 12) + semitone);
 };
 
 // A melody written as notes with their beats, like `B4:1.5 A4:.5 R:2`, as a list of notes with a start and a length in beats. `R` is a rest.
@@ -510,7 +449,7 @@ const setUpGames = (element, {screen: canvas, commentary, sound: soundButton, qu
 
 	// The five rivals of the Games, each from another country than the athlete, from the best to the worst.
 	const makeGames = () => {
-		const others = shuffle(Object.keys(countries).filter(code => code !== state.athlete.country)).slice(0, 5);
+		const others = shuffled(Object.keys(countries).filter(code => code !== state.athlete.country)).slice(0, 5);
 		return {
 			rivals: others.map((code, index) => ({code, skill: [0.96, 0.82, 0.68, 0.52, 0.36][index]})),
 			medals: {},
@@ -931,7 +870,7 @@ const setUpGames = (element, {screen: canvas, commentary, sound: soundButton, qu
 		// The marks of the five judges: 20 at most, less for a wobbly flight and a bad landing. The highest and the lowest do not count.
 		const judge = deduction => {
 			const marks = Array.from({length: 5}, () => clamp(Math.round((20 - deduction + (randomNormal() * 0.4)) * 2) / 2, 0, 20));
-			const sorted = [...marks].sort((first, second) => first - second);
+			const sorted = marks.toSorted((first, second) => first - second);
 			return {marks, style: sorted[1] + sorted[2] + sorted[3], lowest: sorted[0], highest: sorted[4]};
 		};
 
@@ -3976,7 +3915,7 @@ const setUpGames = (element, {screen: canvas, commentary, sound: soundButton, qu
 	const keyControls = {ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down', ' ': 'action', Enter: 'action'};
 
 	element.on(canvas, 'keydown', event => {
-		if (event.ctrlKey || event.metaKey || event.altKey) {
+		if (hasModifier(event)) {
 			return;
 		}
 
@@ -4173,7 +4112,7 @@ const setUpGames = (element, {screen: canvas, commentary, sound: soundButton, qu
 	return {draw, tune};
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesWinterGames extends GeoCitiesElement {
 	#games;
 
 	// The Games run only while the screen is on the screen, not while only the parts below it are.
@@ -4198,3 +4137,5 @@ export default class extends GeoCitiesElement {
 		this.#games.tune.stop();
 	}
 }
+
+customElements.define('geo-cities-winter-games', GeoCitiesWinterGames);

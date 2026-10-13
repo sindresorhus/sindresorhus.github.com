@@ -80,6 +80,7 @@ struct GeoCitiesFishTank: ScriptedElement {
 						}
 					}
 				}
+				.style(GeoCitiesPage.Styles.select)
 
 				button(.part(Parts.buy), .type(.button)) {
 					"Buy (free!)"

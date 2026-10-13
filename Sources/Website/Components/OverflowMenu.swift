@@ -191,9 +191,9 @@ struct OverflowMenu: ScriptedElement {
 				// The whole chip opens the menu, as the select covers it. The chip is a large enough target for fingers, so it does not get the negative margin of the root, which would make it overlap the chip before it.
 				Style()
 					.chip()
-					.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.75))
+					.padding(.horizontal, .rootEm(0.75))
 					.margin(0)
-					.setting(OverflowMenu.color, to: .bodyText)
+					.setting(OverflowMenu.color, to: .currentColor)
 			case .select:
 				Style()
 					.position(.absolute)
@@ -202,8 +202,8 @@ struct OverflowMenu: ScriptedElement {
 					.padding(0)
 					.opacity(0)
 					.cursor(.pointer)
-					.declaration(.fontFamily, "system-ui")
-					.declaration(.fontWeight, "initial")
+					.fontFamily("system-ui")
+					.fontWeight(.regular)
 					// Chrome and Firefox on Windows and Linux draw the menu with the colors of the select. The base styles make it transparent and give it the color of the text around it, so in dark mode, the options were light text on white.
 					.color("FieldText")
 					.background("Field")

@@ -1,32 +1,6 @@
 // My camera cartridge and the little printer on the 1999 page. The screen of the game console is a canvas of 160 × 144 pixels in 4 shades, and everything on it is drawn into a buffer of shades first, so it is always the 4 shades of the palette. The camera looks at drawn scenes, or at the webcam after the visitor asks for it, and makes photos of 128 × 112 pixels with ordered dithering. The album, the stickers, the song, and the best time are kept in the browser. The loop runs only while the window of the game console is on the screen and the tab is visible. Nothing makes a sound until the visitor turns on the sound or plays the song.
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
-
-// A random number generator with a seed, so the same sheet of paper always has the same streaks.
-const seededRandom = seed => {
-	let value = seed | 0;
-	return () => {
-		value = (value + 0x6D_2B_79_F5) | 0;
-		let mixed = Math.imul(value ^ (value >>> 15), 1 | value);
-		mixed = (mixed + Math.imul(mixed ^ (mixed >>> 7), 61 | mixed)) ^ mixed;
-		return ((mixed ^ (mixed >>> 14)) >>> 0) / 4_294_967_296;
-	};
-};
+import GeoCitiesElement, {randomItem, clamp, seededRandom} from '/scripts/geocities-element.js';
+import {canvasPoint, pixelFont, pixelTextWidth} from '/scripts/geocities-canvas.js';
 
 // The screen of the game console, and the photo in the middle of it, like on the real camera.
 const width = 160;
@@ -56,16 +30,6 @@ const palettes = [
 	{name: 'Dark Green', colors: ['#ffffff', '#7bff31', '#0063c5', '#000000'], combo: '▶ and A'},
 	{name: 'Inverted', colors: ['#000000', '#008486', '#ffde00', '#ffffff'], combo: '▶ and B'},
 ].map(palette => ({...palette, rgb: palette.colors.map(color => [1, 3, 5].map(index => Number.parseInt(color.slice(index, index + 2), 16)))}));
-
-// A tiny pixel font of 3 × 5, like on the screens of the other toys. Each letter is five rows of three bits.
-const pixelFont = {
-	A: [2, 5, 7, 5, 5], B: [6, 5, 6, 5, 6], C: [3, 4, 4, 4, 3], D: [6, 5, 5, 5, 6], E: [7, 4, 6, 4, 7], F: [7, 4, 6, 4, 4], G: [3, 4, 5, 5, 3], H: [5, 5, 7, 5, 5], I: [7, 2, 2, 2, 7], J: [1, 1, 1, 5, 2], K: [5, 5, 6, 5, 5], L: [4, 4, 4, 4, 7], M: [5, 7, 7, 5, 5], N: [6, 5, 5, 5, 5], O: [2, 5, 5, 5, 2], P: [6, 5, 6, 4, 4], Q: [2, 5, 5, 6, 3], R: [6, 5, 6, 5, 5], S: [3, 4, 2, 1, 6], T: [7, 2, 2, 2, 2], U: [5, 5, 5, 5, 7], V: [5, 5, 5, 5, 2], W: [5, 5, 7, 7, 5], X: [5, 5, 2, 5, 5], Y: [5, 5, 2, 2, 2], Z: [7, 1, 2, 4, 7],
-	0: [7, 5, 5, 5, 7], 1: [2, 6, 2, 2, 7], 2: [6, 1, 2, 4, 7], 3: [6, 1, 2, 1, 6], 4: [5, 5, 7, 1, 1], 5: [7, 4, 6, 1, 6], 6: [3, 4, 7, 5, 7], 7: [7, 1, 2, 2, 2], 8: [7, 5, 7, 5, 7], 9: [7, 5, 7, 1, 6],
-	' ': [0, 0, 0, 0, 0], '.': [0, 0, 0, 0, 2], ',': [0, 0, 0, 2, 4], '!': [2, 2, 2, 0, 2], '?': [6, 1, 2, 0, 2], ':': [0, 2, 0, 2, 0], '-': [0, 0, 7, 0, 0], '+': [0, 2, 7, 2, 0], '/': [1, 1, 2, 4, 4], '\'': [2, 2, 0, 0, 0], '(': [1, 2, 2, 2, 1], ')': [4, 2, 2, 2, 4], '×': [0, 5, 2, 5, 0], '%': [5, 1, 2, 4, 5], '<': [1, 2, 4, 2, 1], '>': [4, 2, 1, 2, 4], '=': [0, 7, 0, 7, 0], '♥': [0, 5, 7, 7, 2], '*': [0, 5, 2, 5, 0], '▶': [4, 6, 7, 6, 4], '■': [0, 7, 7, 7, 0],
-	Æ: [3, 6, 7, 6, 7], Ø: [3, 5, 7, 5, 6], Å: [2, 0, 2, 5, 7],
-};
-
-const textWidth = (text, scale = 1) => ((([...text].length * 4) - 1) * scale);
 
 /*
 A picture in the 4 shades: 0 is the lightest and 3 the darkest. Everything on the screen, the photos, and the prints is drawn into one, so the colors come from the palette only at the end.
@@ -171,7 +135,7 @@ class Surface {
 	}
 
 	centeredText(text, y, shade, scale = 1) {
-		this.text(text, Math.round((this.width - textWidth(String(text), scale)) / 2), y, shade, scale);
+		this.text(text, Math.round((this.width - pixelTextWidth(text, scale)) / 2), y, shade, scale);
 	}
 
 	// Copies a picture of shades, where 4 is see-through.
@@ -256,7 +220,7 @@ const frames = [
 			}
 
 			target.text(`${String(number).padStart(2, '0')}A`, 4, 132 - 3, 1);
-			target.text('SINDRE 400', width - 4 - textWidth('SINDRE 400'), 11, 1);
+			target.text('SINDRE 400', width - 4 - pixelTextWidth('SINDRE 400'), 11, 1);
 		},
 	},
 	{
@@ -980,13 +944,13 @@ const tricks = [
 	{id: 'panorama', name: 'Panorama'},
 ];
 
-export default class extends GeoCitiesElement {
+class GeoCitiesHandheldCamera extends GeoCitiesElement {
 	#refresh;
 	#stopWebcam;
 	#stopMusic;
 
 	connected() {
-		const {screen, power: powerButton, led, eye, sound: soundButton, colors: colorsButton, webcam: webcamButton, shutter: shutterButton, turnEye: turnEyeButton, trick: trickButton, timer: timerButton, darker: darkerButton, brighter: brighterButton, lessContrast: lessContrastButton, moreContrast: moreContrastButton, panLeft: panLeftButton, panRight: panRightButton, framePrevious: framePreviousButton, frameNext: frameNextButton, printButton, toStamps: toStampsButton, png: pngButton, erase: eraseButton, undo: undoButton, stampsDone: stampsDoneButton, musicPlay: musicPlayButton, slower: slowerButton, faster: fasterButton, demo: demoButton, random: randomButton, clear: clearButton, runStart: runStartButton, runBest, printer, paperHolder, paperClip, print: printCanvas, printerLight, paperLeft: paperLeftDisplay, tear: tearButton, roll: rollButton, wall, wallEmpty, peel: peelButton, stickerTemplate} = this.parts;
+		const {screen, power: powerButton, led, eye, sound: soundButton, colors: colorsButton, webcam: webcamButton, shutter: shutterButton, turnEye: turnEyeButton, trick: trickButton, timer: timerButton, darker: darkerButton, brighter: brighterButton, lessContrast: lessContrastButton, moreContrast: moreContrastButton, panLeft: panLeftButton, panRight: panRightButton, framePrevious: framePreviousButton, frameNext: frameNextButton, printButton, toStamps: toStampsButton, png: pngButton, erase: eraseButton, undo: undoButton, stampsDone: stampsDoneButton, musicPlay: musicPlayButton, slower: slowerButton, faster: fasterButton, demo: demoButton, random: randomButton, clear: clearButton, runStart: runStartButton, runBest, printer, paperHolder, paperClip, print: printCanvas, printerLight, paperLeft: paperLeftDisplay, tear: tearButton, roll: rollButton, wall, wallEmpty, peel: peelButton} = this.parts;
 		const context = screen.getContext('2d');
 		const printContext = printCanvas.getContext('2d');
 		const modeButtons = [...this.querySelectorAll('[data-gb-camera-mode]')];
@@ -1215,7 +1179,7 @@ export default class extends GeoCitiesElement {
 
 		const setSound = isOn => {
 			audio.isOn = isOn;
-			setPressed(soundButton, isOn);
+			soundButton.setAttribute('aria-pressed', String(isOn));
 			soundButton.textContent = isOn ? '🔊 Sound On' : '🔈 Sound Off';
 		};
 
@@ -1309,7 +1273,7 @@ export default class extends GeoCitiesElement {
 			clearInterval(music.interval);
 			music.interval = undefined;
 			music.queue = [];
-			setPressed(musicPlayButton, false);
+			musicPlayButton.setAttribute('aria-pressed', 'false');
 			musicPlayButton.textContent = '▶ Play (Sound!)';
 			this.music(false);
 		};
@@ -1337,7 +1301,7 @@ export default class extends GeoCitiesElement {
 
 				music.queue = music.queue.filter(item => item.time > audio.context.currentTime - 1);
 			}, 25);
-			setPressed(musicPlayButton, true);
+			musicPlayButton.setAttribute('aria-pressed', 'true');
 			musicPlayButton.textContent = '⏹ Stop';
 			this.music(true);
 			loop.start();
@@ -1520,6 +1484,7 @@ export default class extends GeoCitiesElement {
 			const composed = compose({shades: printed.shades, frame: printed.frame}, printed.number);
 			const image = targetContext.createImageData(printSize, printSize);
 			const paper = paperColors[printed.paper] ?? paperColors.white;
+			// The random numbers have the seed of the sheet, so the same sheet of paper always has the same streaks.
 			const random = seededRandom(printed.seed);
 			const stripes = Array.from({length: width}, () => 0.88 + (random() * 0.12));
 			const tear = Array.from({length: printSize}, (_, x) => 2 + ((x * 7) % 5) + Math.floor(random() * 3));
@@ -1629,7 +1594,7 @@ export default class extends GeoCitiesElement {
 				if (state.isOn) {
 					printerLight.dataset.state = 'on';
 				} else {
-					printerLight.dataset.state = '';
+					delete printerLight.dataset.state;
 				}
 
 				tearButton.disabled = false;
@@ -1638,12 +1603,12 @@ export default class extends GeoCitiesElement {
 		};
 
 		for (const button of paperButtons) {
-			setPressed(button, button.dataset.gbCameraPaperColor === settings.paper);
+			button.setAttribute('aria-pressed', String(button.dataset.gbCameraPaperColor === settings.paper));
 			this.on(button, 'click', () => {
 				settings.paper = button.dataset.gbCameraPaperColor;
 				saveSettings();
 				for (const other of paperButtons) {
-					setPressed(other, other === button);
+					other.setAttribute('aria-pressed', String(other === button));
 				}
 
 				this.say(settings.paper === 'white' ? 'White sticker paper, the one that came with the printer. It fades in the sun, so not on the window.' : `The ${settings.paper} sticker paper. Mamma bought it at Elkjøp, and it was not cheap.`);
@@ -1738,7 +1703,7 @@ export default class extends GeoCitiesElement {
 		};
 
 		const addStickerElement = sticker => {
-			const element = stickerTemplate.content.firstElementChild.cloneNode(true);
+			const {element, parts: {stickerCanvas}} = this.clone('stickerTemplate');
 			sticker.element = element;
 			element.dataset.gbCameraSticker = String(sticker.stickerNumber);
 			element.setAttribute('aria-label', `Sticker ${sticker.stickerNumber}: photo ${sticker.number} in the frame ${frames[sticker.frame].name}. Drag it, or use the arrow keys. Delete peels it off.`);
@@ -1748,7 +1713,7 @@ export default class extends GeoCitiesElement {
 				element.dataset.state = 'right';
 			}
 
-			renderPrint(element.querySelector('canvas').getContext('2d'), sticker, true);
+			renderPrint(stickerCanvas.getContext('2d'), sticker, true);
 			placeSticker(sticker);
 			wall.append(element);
 
@@ -1870,7 +1835,6 @@ export default class extends GeoCitiesElement {
 				const slotContext = canvas.getContext('2d');
 				slot.disabled = !photo;
 				const isSelected = Boolean(photo) && index === state.selected;
-				slot.dataset.state = isSelected ? 'selected' : '';
 				slot.setAttribute('aria-pressed', String(isSelected));
 				slot.setAttribute('aria-label', photo ? `Photo ${index + 1}, in the frame ${frames[photo.frame].name}` : `Photo ${index + 1}, empty`);
 				if (photo) {
@@ -2101,7 +2065,7 @@ export default class extends GeoCitiesElement {
 				webcam.video.srcObject = undefined;
 			}
 
-			setPressed(webcamButton, false);
+			webcamButton.setAttribute('aria-pressed', 'false');
 			webcamButton.textContent = '🎥 Use My Webcam';
 			updateSceneButtons();
 			if (message) {
@@ -2113,7 +2077,7 @@ export default class extends GeoCitiesElement {
 
 		const updateSceneButtons = () => {
 			for (const button of sceneButtons) {
-				setPressed(button, !webcam.stream && button.dataset.gbCameraScene === state.scene);
+				button.setAttribute('aria-pressed', String(!webcam.stream && button.dataset.gbCameraScene === state.scene));
 			}
 		};
 
@@ -2171,7 +2135,7 @@ export default class extends GeoCitiesElement {
 				});
 			}
 
-			setPressed(webcamButton, true);
+			webcamButton.setAttribute('aria-pressed', 'true');
 			webcamButton.textContent = '⏹️ Stop My Webcam';
 			updateSceneButtons();
 			if (state.isOn) {
@@ -2238,7 +2202,7 @@ export default class extends GeoCitiesElement {
 				state.menuIndex = menuIndex;
 			}
 			for (const button of modeButtons) {
-				setPressed(button, button.dataset.gbCameraMode === mode);
+				button.setAttribute('aria-pressed', String(button.dataset.gbCameraMode === mode));
 			}
 
 			for (const panel of panels) {
@@ -2257,7 +2221,6 @@ export default class extends GeoCitiesElement {
 		const turnOn = mode => {
 			state.isOn = true;
 			powerButton.setAttribute('aria-pressed', 'true');
-			powerButton.dataset.state = 'on';
 			led.dataset.state = 'on';
 			if (!printJob) {
 				printerLight.dataset.state = 'on';
@@ -2282,14 +2245,13 @@ export default class extends GeoCitiesElement {
 			state.timer = undefined;
 			setMode('off');
 			powerButton.setAttribute('aria-pressed', 'false');
-			powerButton.dataset.state = '';
-			led.dataset.state = '';
+			delete led.dataset.state;
 			if (!printJob) {
-				printerLight.dataset.state = '';
+				delete printerLight.dataset.state;
 			}
 
 			for (const button of modeButtons) {
-				setPressed(button, false);
+				button.setAttribute('aria-pressed', 'false');
 			}
 
 			this.say('It is off. The photos are still in the album, as the cartridge has a battery.');
@@ -2333,8 +2295,8 @@ export default class extends GeoCitiesElement {
 				state.panDirection = 1;
 				if (state.isEyeTurned) {
 					state.isEyeTurned = false;
-					eye.dataset.state = '';
-					setPressed(turnEyeButton, false);
+					delete eye.dataset.state;
+					turnEyeButton.setAttribute('aria-pressed', 'false');
 				}
 
 				stopWebcam();
@@ -2354,7 +2316,7 @@ export default class extends GeoCitiesElement {
 		const turnEye = () => {
 			state.isEyeTurned = !state.isEyeTurned;
 			eye.dataset.state = state.isEyeTurned ? 'turned' : '';
-			setPressed(turnEyeButton, state.isEyeTurned);
+			turnEyeButton.setAttribute('aria-pressed', String(state.isEyeTurned));
 			state.pan = 32;
 			sounds.blip();
 			if (webcam.stream) {
@@ -2572,7 +2534,7 @@ export default class extends GeoCitiesElement {
 		const setStamp = id => {
 			state.stamp = id;
 			for (const button of stampButtons) {
-				setPressed(button, button.dataset.gbCameraStamp === id);
+				button.setAttribute('aria-pressed', String(button.dataset.gbCameraStamp === id));
 			}
 		};
 
@@ -2865,7 +2827,7 @@ export default class extends GeoCitiesElement {
 				return;
 			}
 
-			const boxWidth = textWidth(state.message.text, 2) + 12;
+			const boxWidth = pixelTextWidth(state.message.text, 2) + 12;
 			surface.box(Math.round((width - boxWidth) / 2), 62, boxWidth, 20);
 			surface.centeredText(state.message.text, 67, 3, 2);
 		};
@@ -2903,7 +2865,7 @@ export default class extends GeoCitiesElement {
 			const trick = tricks[state.trick];
 			surface.text(webcam.stream ? 'SHOOT: WEBCAM' : 'SHOOT', photoX, 5, 3);
 			const count = `${album.length}/30`;
-			surface.text(count, photoX + photoWidth - textWidth(count), 5, 3);
+			surface.text(count, photoX + photoWidth - pixelTextWidth(count), 5, 3);
 			if (trick.id === 'panorama') {
 				surface.text(`PANO ${state.panorama.count + 1}/4`, 66, 5, 2);
 				const left = photoX + (state.panorama.count * 32);
@@ -2945,7 +2907,7 @@ export default class extends GeoCitiesElement {
 				surface.fill(39, 77, Math.round(82 * progress), 4, 2);
 			} else if (state.infoTime > 0) {
 				const text = `${state.selected + 1}/${album.length} ${frames[photo.frame].name}`;
-				surface.box(2, height - 12, textWidth(text) + 8, 11);
+				surface.box(2, height - 12, pixelTextWidth(text) + 8, 11);
 				surface.text(text, 6, height - 9, 3);
 			}
 
@@ -2967,7 +2929,7 @@ export default class extends GeoCitiesElement {
 			}
 
 			const text = `EDIT: ${stamps[state.stamp].name.replaceAll(/[“”]/g, '')}`;
-			surface.box(2, 2, textWidth(text) + 8, 11);
+			surface.box(2, 2, pixelTextWidth(text) + 8, 11);
 			surface.text(text, 6, 5, 3);
 		};
 
@@ -3006,7 +2968,7 @@ export default class extends GeoCitiesElement {
 			surface.text('MUSIC', 2, 3, 3);
 			surface.text(music.isPlaying ? '▶ PLAY' : '■ STOP', 50, 3, music.isPlaying ? 3 : 2);
 			const tempo = `${song.tempo} BPM`;
-			surface.text(tempo, width - 2 - textWidth(tempo), 3, 3);
+			surface.text(tempo, width - 2 - pixelTextWidth(tempo), 3, 3);
 			const playing = currentStep();
 			if (playing >= 0) {
 				surface.fill(gridLeft + (playing * cellWidth), 12, cellWidth, 89, 1);
@@ -3157,7 +3119,7 @@ export default class extends GeoCitiesElement {
 			surface.fill(0, 0, width, 11, 0);
 			surface.text(`TIME ${formatTime(race.time)}`, 2, 3, 3);
 			const distance = `${Math.floor(race.player.distance)}M`;
-			surface.text(distance, width - 2 - textWidth(distance), 3, 3);
+			surface.text(distance, width - 2 - pixelTextWidth(distance), 3, 3);
 			if (race.phase === 'ready') {
 				surface.box(14, 18, 132, 44);
 				surface.centeredText('RACE', 24, 3, 2);
@@ -3545,3 +3507,5 @@ export default class extends GeoCitiesElement {
 		return control.closest('[data-gb-camera-panel]') && modeButton ? modeButton : super.focusReplacement(control);
 	}
 }
+
+customElements.define('geo-cities-handheld-camera', GeoCitiesHandheldCamera);

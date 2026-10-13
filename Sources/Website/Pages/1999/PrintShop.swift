@@ -296,7 +296,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 			button(.part(Parts.print), .type(.button)) {
 				"Print It!"
 			}
-			.style(Styles.menuItem)
+			.style(Styles.menuItem, GeoCitiesPage.Styles.dimmedWhenDisabled)
 		}
 		.style(Styles.step)
 	}
@@ -418,9 +418,9 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.accessibilityHidden()
 					.style(Styles.light)
 			} else {
-				span {}
+				span(.state(States.on)) {}
 					.accessibilityHidden()
-					.style(Styles.light, Styles.lightOn)
+					.style(Styles.light)
 			}
 			name
 		}
@@ -561,6 +561,18 @@ struct GeoCitiesPrintShop: ScriptedElement {
 		case takeDown
 	}
 
+	enum States: String, ElementStateSet {
+		case on
+		case warning
+		case blink
+		case page
+		case banner
+		case standing
+		case turning
+		case back
+		case folding
+	}
+
 	/**
 	The steps and the choices of the program, which carry a value, like `font` or `banner`, that a part cannot have, so they stay data attributes.
 	*/
@@ -612,7 +624,6 @@ struct GeoCitiesPrintShop: ScriptedElement {
 		case lights
 		case lightLabel
 		case light
-		case lightOn
 		case panelButtons
 		case panelButton
 		case printerBrand
@@ -728,7 +739,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 							.color(.black)
 							.focusRing(Self.magenta, width: .pixels(2), offset: .pixels(2))
 					}
-					.when(.state, is: "selected") {
+					.pressed {
 						$0.border(Self.magenta, width: .pixels(2))
 					}
 			case .tiles:
@@ -757,7 +768,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 							.border(Self.cyan, width: .pixels(2))
 							.focusRing(Self.magenta, width: .pixels(2), offset: .pixels(1))
 					}
-					.when(.state, is: "selected") {
+					.pressed {
 						$0
 							.border(Self.magenta, width: .pixels(2))
 							.color(Self.magenta)
@@ -864,9 +875,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(600.0 / 560.0)
 					.touchAction(.panY)
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .panel:
 				// The front panel of the printer, beige like the printer, with the lights and the three buttons.
 				Style()
@@ -896,27 +905,21 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.background(Color("#3a3a2a"))
 					.border(Color("#222222"), width: .pixels(1))
 					.cornerRadius(.circle)
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0
 							.background(Color("#44ff44"))
 							.shadow(Shadow(y: 0, blur: .pixels(5), color: Color("#44ff44")))
 					}
-					.when(.state, is: "warning") {
+					.when(States.warning) {
 						$0
 							.background(Color("#ffaa00"))
 							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ff8800")))
 					}
-					.when(.state, is: "blink") {
+					.when(States.blink) {
 						$0
 							.background(Color("#ffaa00"))
-							.media(.allowsMotion) {
-								$0.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(0.6)).repeatForever(autoreverses: false))
-							}
+							.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(0.6)).repeatForever(autoreverses: false))
 					}
-			case .lightOn:
-				Style()
-					.background(Color("#44ff44"))
-					.shadow(Shadow(y: 0, blur: .pixels(5), color: Color("#44ff44")))
 			case .panelButtons:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
@@ -937,9 +940,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.active {
 						$0.border(Color("#bdb59a"), width: .pixels(2), style: .inset)
 					}
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .printerBrand:
 				Style()
 					.margin(0)
@@ -955,10 +956,8 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.textAlign(.center)
 			case .status:
 				Style()
-					.frame(maxWidth: .rootEm(34), minHeight: .lineHeight(3))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+					.toyStatus(lines: 3)
+					.frame(maxWidth: .rootEm(34))
 					.textAlign(.center)
 			case .printout:
 				Style()
@@ -978,13 +977,11 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.display(.block)
 					.touchAction(.panY)
 					.handCursor()
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
-					.when(.state, is: "page") {
+					.canvasFocusRing()
+					.when(States.page) {
 						$0.frame(width: .percent(100), height: .auto, maxWidth: .rootEm(24))
 					}
-					.when(.state, is: "banner") {
+					.when(States.banner) {
 						$0.frame(width: .auto, height: .rootEm(12), maxWidth: .none)
 					}
 			case .card:
@@ -1010,32 +1007,32 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					}
 			case .cardFront:
 				Style()
-					.when(ancestorHas: ScriptAttribute.state, is: "standing") {
+					.when(ancestorHas: States.standing) {
 						$0
 							.transform("perspective(700px) translateY(50%) rotateX(22deg) translateY(-50%)")
 							.shadow(Shadow(x: .pixels(10), y: .pixels(14), blur: .pixels(10), color: Color("#00000066")))
 					}
-					.when(ancestorHas: ScriptAttribute.state, is: "turning") {
+					.when(ancestorHas: States.turning) {
 						$0.transform("perspective(700px) translateY(50%) rotateX(22deg) translateY(-50%) rotateY(90deg)")
 					}
-					.when(ancestorHas: ScriptAttribute.state, is: "back") {
+					.when(ancestorHas: States.back) {
 						$0.hidden()
 					}
 			case .cardInside:
 				// The inside is printed upside down, so it is turned the right way up on the back of the standing card.
 				Style()
-					.when(ancestorHas: ScriptAttribute.state, is: "folding") {
+					.when(ancestorHas: States.folding) {
 						$0
 							.transform("perspective(700px) translateY(-50%) rotateX(-90deg) translateY(50%)")
 							.opacity(0.4)
 					}
-					.when(ancestorHas: ScriptAttribute.state, is: "standing") {
+					.when(ancestorHas: States.standing) {
 						$0.hidden()
 					}
-					.when(ancestorHas: ScriptAttribute.state, is: "turning") {
+					.when(ancestorHas: States.turning) {
 						$0.hidden()
 					}
-					.when(ancestorHas: ScriptAttribute.state, is: "back") {
+					.when(ancestorHas: States.back) {
 						$0
 							.transform("perspective(700px) translateY(50%) rotateX(22deg) translateY(-50%) rotate(180deg)")
 							.shadow(Shadow(x: .pixels(10), y: .pixels(14), blur: .pixels(10), color: Color("#00000066")))

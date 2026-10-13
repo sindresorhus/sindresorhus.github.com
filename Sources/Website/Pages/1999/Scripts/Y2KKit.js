@@ -1,4 +1,6 @@
 // The Y2K survival kit on the 1999 page: the points of what the visitor has, as a grade on a report card, with a comment for the worst choices.
+import GeoCitiesElement from '/scripts/geocities-element.js';
+
 const grades = [
 	{points: 80, grade: 'A+', comment: 'Excellent! You will survive the year 2000. Glitter is proud of you.'},
 	{points: 65, grade: 'A', comment: 'Very good! Maybe one more can of beans.'},
@@ -24,7 +26,7 @@ const sum = numbers => {
 	return total;
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesY2KKit extends GeoCitiesElement {
 	connected() {
 		const {form, card, grade, comment} = this.parts;
 
@@ -51,3 +53,5 @@ export default class extends GeoCitiesElement {
 		});
 	}
 }
+
+customElements.define('geo-cities-y2-k-kit', GeoCitiesY2KKit);

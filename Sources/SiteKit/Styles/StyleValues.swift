@@ -256,6 +256,11 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 	public static let auto = Self("auto")
 
 	/**
+	The value of the parent for the property, like `.letterSpacing(.inherit)` for a control with the letter spacing of the text around it.
+	*/
+	public static let inherit = Self("inherit")
+
+	/**
 	The preferred length, but not less than the minimum or more than the maximum, like `clamp()` in CSS. Good for sizes that follow the viewport within limits.
 
 	```swift
@@ -272,7 +277,7 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 
 	```swift
 	Length.min(.rootEm(24), .viewportWidth(100) - .rootEm(2))
-	//=> min(24rem, calc(100vw - 2rem))
+	//=> min(24rem, 100vw - 2rem)
 	```
 	*/
 	public static func min(_ lengths: Self...) -> Self {
@@ -311,10 +316,10 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 	}
 
 	/**
-	A CSS function of lengths, like `min(1rem, 5vw)`.
+	A CSS function of lengths, like `min(1rem, 5vw)`. An argument is a sum without `calc()` around it, like `min(24rem, 100vw - 2rem)`, as the arguments of the math functions are calculations.
 	*/
 	private static func function(_ name: String, _ arguments: [Self]) -> Self {
-		Self("\(name)(\(arguments.map(\.description).joined(separator: ", ")))")
+		Self("\(name)(\(arguments.map(\.calculationSum).joined(separator: ", ")))")
 	}
 
 	/**
@@ -329,9 +334,9 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 	}
 
 	/**
-	The length as the first operand of an addition or a subtraction in `calc()`, which needs no parentheses, as they are evaluated from left to right.
+	The length in a calculation without `calc()` around it: as the first operand of an addition or a subtraction, which needs no parentheses, as they are evaluated from left to right, or as an argument of a math function, like `min()`.
 	*/
-	private var leadingSummand: String {
+	private var calculationSum: String {
 		guard case .calculation(let expression) = storage else {
 			return description
 		}
@@ -359,7 +364,7 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 			return lhs
 		}
 
-		return Self(storage: .calculation("\(lhs.leadingSummand) \(`operator`) \(rhs.calculationOperand)"))
+		return Self(storage: .calculation("\(lhs.calculationSum) \(`operator`) \(rhs.calculationOperand)"))
 	}
 
 	public static func + (lhs: Self, rhs: Self) -> Self {
@@ -430,11 +435,10 @@ public struct Color: StyleValue, Hashable, ExpressibleByStringLiteral {
 	}
 
 	/**
-	A fraction from 0 to 1 as a percentage, like `3.5%` for 0.035.
+	A fraction from 0 to 1 as a percentage, like `3.5%` for 0.035. The number is rounded when it is written (``CSSValue/format(_:)``), as `0.035 * 100` is `3.5000000000000004`.
 	*/
 	private static func percentage(ofFraction fraction: Double) -> CSSValue {
-		// Rounded, as `0.035 * 100` is `3.5000000000000004`.
-		.percent((fraction * 100_000).rounded() / 1000)
+		.percent(fraction * 100)
 	}
 
 	/**
@@ -629,11 +633,18 @@ public struct FontWeight: Hashable, Sendable, ExpressibleByIntegerLiteral {
 /**
 A font stack, like `ui-monospace, monospace`.
 */
-public struct FontFamily: Hashable, Sendable, CustomStringConvertible, ExpressibleByStringLiteral {
+public struct FontFamily: StyleValue, Hashable, ExpressibleByStringLiteral {
 	public let description: String
 
+	/**
+	A font stack written as CSS.
+	*/
+	public init(_ css: String) {
+		self.description = css
+	}
+
 	public init(stringLiteral value: String) {
-		self.description = value
+		self.init(value)
 	}
 }
 
@@ -676,7 +687,7 @@ public enum Edge {
 	}
 }
 
-public enum Display: String, Sendable {
+public enum Display: String, CSSKeyword {
 	case none
 	case block
 	case inline
@@ -700,7 +711,7 @@ public enum Display: String, Sendable {
 /**
 What a container measures for the container units of its descendants, like ``Length/containerInlineSize(_:)``. See ``Style/containerType(_:)``.
 */
-public enum ContainerType: String, Sendable {
+public enum ContainerType: String, CSSKeyword {
 	/**
 	The inline size, which is the width for horizontal text. The inline size of the element does not depend on its content, so it must get it from its parent, like a block.
 	*/
@@ -712,7 +723,7 @@ public enum ContainerType: String, Sendable {
 	case size
 }
 
-public enum Position: String, Sendable {
+public enum Position: String, CSSKeyword {
 	/**
 	The normal flow, like for an element that is positioned only on some screens.
 	*/
@@ -723,32 +734,32 @@ public enum Position: String, Sendable {
 	case sticky
 }
 
-public enum FlexDirection: String, Sendable {
+public enum FlexDirection: String, CSSKeyword {
 	case row
 	case column
 }
 
-public enum Alignment: String, Sendable {
+public enum Alignment: String, CSSKeyword {
 	case start = "flex-start"
 	case center
 	case end = "flex-end"
 	case baseline
 }
 
-public enum Justification: String, Sendable {
+public enum Justification: String, CSSKeyword {
 	case start = "flex-start"
 	case center
 	case end = "flex-end"
 	case spaceBetween = "space-between"
 }
 
-public enum TextAlignment: String, Sendable {
+public enum TextAlignment: String, CSSKeyword {
 	case leading = "start"
 	case center
 	case trailing = "end"
 }
 
-public enum TextCase: String, Sendable {
+public enum TextCase: String, CSSKeyword {
 	case uppercase
 	case none
 }
@@ -756,7 +767,7 @@ public enum TextCase: String, Sendable {
 /**
 How a counter is written, for ``Style/content(counter:style:)``.
 */
-public enum CounterStyle: String, Sendable {
+public enum CounterStyle: String, CSSKeyword {
 	/**
 	Like “1” and “12”.
 	*/
@@ -769,9 +780,29 @@ public enum CounterStyle: String, Sendable {
 }
 
 /**
+The marker of the items of a list, for ``Style/listStyle(_:)``.
+*/
+public enum ListStyle: String, CSSKeyword {
+	/**
+	No marker, like for a list of links in a navigation.
+	*/
+	case none
+
+	/**
+	A bullet.
+	*/
+	case disc
+
+	/**
+	The number of the item, like “1.” and “12.”.
+	*/
+	case decimal
+}
+
+/**
 How an inline element lines up with the text of its line, for ``Style/verticalAlign(_:)``.
 */
-public enum VerticalTextAlignment: String, Sendable {
+public enum VerticalTextAlignment: String, CSSKeyword {
 	case baseline
 	case top
 	case middle
@@ -781,7 +812,7 @@ public enum VerticalTextAlignment: String, Sendable {
 /**
 What a background is drawn in, for ``Style/backgroundClip(_:)``. `text` draws it only in the letters, like for gradient text.
 */
-public enum BackgroundClip: String, Sendable {
+public enum BackgroundClip: String, CSSKeyword {
 	case borderBox = "border-box"
 	case paddingBox = "padding-box"
 	case contentBox = "content-box"
@@ -791,7 +822,7 @@ public enum BackgroundClip: String, Sendable {
 /**
 How an element blends with what is behind it. See ``Style/blendMode(_:)``.
 */
-public enum BlendMode: String, Sendable {
+public enum BlendMode: String, CSSKeyword {
 	case normal
 	case multiply
 	case screen
@@ -803,7 +834,7 @@ public enum BlendMode: String, Sendable {
 /**
 How an image or a video fills its frame. See ``Style/objectFit(_:)``.
 */
-public enum ObjectFit: String, Sendable {
+public enum ObjectFit: String, CSSKeyword {
 	case fill
 	case contain
 	case cover
@@ -811,12 +842,12 @@ public enum ObjectFit: String, Sendable {
 	case scaleDown = "scale-down"
 }
 
-public enum TextSelection: String, Sendable {
+public enum TextSelection: String, CSSKeyword {
 	case enabled = "auto"
 	case disabled = "none"
 }
 
-public enum FontWidth: String, Sendable {
+public enum FontWidth: String, CSSKeyword {
 	case standard = "normal"
 	case expanded
 }
@@ -845,11 +876,18 @@ public enum RoundedShape: Sendable {
 /**
 An angle, like for ``Style/rotationEffect(_:)``.
 */
-public struct Angle: Hashable, Sendable, CustomStringConvertible {
+public struct Angle: StyleValue, Hashable {
 	public let description: String
 
+	/**
+	An angle written as CSS, like a custom property reference.
+	*/
+	public init(_ css: String) {
+		self.description = css
+	}
+
 	public static func degrees(_ degrees: Double) -> Self {
-		Self(description: CSSValue.format(degrees) + "deg")
+		Self(CSSValue.format(degrees) + "deg")
 	}
 }
 
@@ -990,7 +1028,7 @@ public struct Anchor: Hashable, Sendable {
 /**
 A side of an anchor, for ``Length/anchor(_:_:)``.
 */
-public enum AnchorSide: String, Sendable {
+public enum AnchorSide: String, CSSKeyword {
 	/**
 	The top of the anchor, only in an inset of the vertical axis, like `top`.
 	*/
@@ -1017,7 +1055,7 @@ public enum AnchorSide: String, Sendable {
 /**
 Where a positioned element goes around its anchor, for ``Style/positionArea(_:)``.
 */
-public enum PositionArea: String, Sendable {
+public enum PositionArea: String, CSSKeyword {
 	/**
 	Above the anchor, centered on it, like a tooltip. It can be wider than the anchor, as the area spans the whole width (`top span-all`).
 	*/
@@ -1042,7 +1080,7 @@ public enum PositionArea: String, Sendable {
 /**
 Another position that the browser tries when a positioned element does not fit, for ``Style/positionTryFallbacks(_:_:)``.
 */
-public enum PositionTryFallback: String, Sendable {
+public enum PositionTryFallback: String, CSSKeyword {
 	/**
 	The other side of the anchor in the block direction, like below it instead of above it.
 	*/
@@ -1105,7 +1143,7 @@ public struct BrowserFeature: Hashable, Sendable, CustomStringConvertible {
 	}
 }
 
-public enum AnimationFillMode: String, Sendable {
+public enum AnimationFillMode: String, CSSKeyword {
 	case forwards
 	case both
 }
@@ -1192,7 +1230,7 @@ extension Duration {
 	}
 }
 
-public enum TextWrap: String, Sendable {
+public enum TextWrap: String, CSSKeyword {
 	case balance
 	case pretty
 
@@ -1205,7 +1243,7 @@ public enum TextWrap: String, Sendable {
 /**
 Where a long word, like a URL, can break when it does not fit on a line.
 */
-public enum OverflowWrap: String, Sendable {
+public enum OverflowWrap: String, CSSKeyword {
 	/**
 	Breaks a word that does not fit on a line of its own.
 	*/
@@ -1220,19 +1258,19 @@ public enum OverflowWrap: String, Sendable {
 /**
 Whether a scrolling element shows its scroll bars.
 */
-public enum ScrollIndicatorVisibility: String, Sendable {
+public enum ScrollIndicatorVisibility: String, CSSKeyword {
 	case automatic = "auto"
 	case hidden = "none"
 }
 
-public enum Overflow: String, Sendable {
+public enum Overflow: String, CSSKeyword {
 	case visible
 	case hidden
 	case clip
 	case auto
 }
 
-public enum Overscroll: String, Sendable {
+public enum Overscroll: String, CSSKeyword {
 	case auto
 	case contain
 	case none
@@ -1241,7 +1279,7 @@ public enum Overscroll: String, Sendable {
 /**
 The direction of the scrolling that snaps, for ``Style/scrollSnapType(_:isMandatory:)``.
 */
-public enum ScrollSnapAxis: String, Sendable {
+public enum ScrollSnapAxis: String, CSSKeyword {
 	case horizontal = "x"
 	case vertical = "y"
 	case both
@@ -1250,7 +1288,7 @@ public enum ScrollSnapAxis: String, Sendable {
 /**
 Where an element stops when the scrolling snaps, for ``Style/scrollSnapAlign(_:)``.
 */
-public enum ScrollSnapAlignment: String, Sendable {
+public enum ScrollSnapAlignment: String, CSSKeyword {
 	case start
 	case center
 	case end
@@ -1259,7 +1297,7 @@ public enum ScrollSnapAlignment: String, Sendable {
 /**
 Whether an element keeps the space of a classic scroll bar, for ``Style/scrollbarGutter(_:)``.
 */
-public enum ScrollbarGutter: String, Sendable {
+public enum ScrollbarGutter: String, CSSKeyword {
 	case auto
 
 	/**
@@ -1276,7 +1314,7 @@ public enum ScrollbarGutter: String, Sendable {
 /**
 How an element scrolls to a link or a script position, for ``Style/scrollBehavior(_:)``.
 */
-public enum ScrollBehavior: String, Sendable {
+public enum ScrollBehavior: String, CSSKeyword {
 	case auto
 	case smooth
 }
@@ -1284,7 +1322,7 @@ public enum ScrollBehavior: String, Sendable {
 /**
 The color schemes that an element supports, for ``Style/colorScheme(_:)``.
 */
-public enum ColorScheme: String, Sendable {
+public enum ColorScheme: String, CSSKeyword {
 	case light
 	case dark
 
@@ -1297,7 +1335,7 @@ public enum ColorScheme: String, Sendable {
 /**
 How a form field is sized, for ``Style/fieldSizing(_:)``.
 */
-public enum FieldSizing: String, Sendable {
+public enum FieldSizing: String, CSSKeyword {
 	/**
 	The default size of the field, like the number of rows of a text area.
 	*/
@@ -1312,7 +1350,7 @@ public enum FieldSizing: String, Sendable {
 /**
 A leading or trailing edge, which follows the writing direction, for ``Style/float(_:)``.
 */
-public enum HorizontalEdge: String, Sendable {
+public enum HorizontalEdge: String, CSSKeyword {
 	case leading = "inline-start"
 	case trailing = "inline-end"
 }
@@ -1320,10 +1358,13 @@ public enum HorizontalEdge: String, Sendable {
 /**
 The size of the rows or the columns of a grid, for ``Style/gridRows(_:size:)`` and ``Style/gridAutoColumns(_:)``.
 */
-public struct GridTrack: Hashable, Sendable, CustomStringConvertible {
+public struct GridTrack: StyleValue, Hashable {
 	public let description: String
 
-	private init(_ css: String) {
+	/**
+	A grid track written as CSS, like `minmax(0, 1fr)`.
+	*/
+	public init(_ css: String) {
 		self.description = css
 	}
 
@@ -1350,12 +1391,12 @@ public struct GridTrack: Hashable, Sendable, CustomStringConvertible {
 /**
 The direction in which the items without a cell fill a grid, for ``Style/gridAutoFlow(_:)``.
 */
-public enum GridAutoFlow: String, Sendable {
+public enum GridAutoFlow: String, CSSKeyword {
 	case row
 	case column
 }
 
-public enum Cursor: String, Sendable {
+public enum Cursor: String, CSSKeyword {
 	case pointer
 	case auto
 	case `default`
@@ -1379,7 +1420,7 @@ public enum Cursor: String, Sendable {
 /**
 What a touch on the element does by default. See ``Style/touchAction(_:)``.
 */
-public enum TouchAction: String, Sendable {
+public enum TouchAction: String, CSSKeyword {
 	case auto
 
 	/**
@@ -1401,7 +1442,7 @@ public enum TouchAction: String, Sendable {
 /**
 The direction of the lines of text. See ``Style/writingMode(_:)``.
 */
-public enum WritingMode: String, Sendable {
+public enum WritingMode: String, CSSKeyword {
 	case horizontal = "horizontal-tb"
 
 	/**
@@ -1413,7 +1454,7 @@ public enum WritingMode: String, Sendable {
 /**
 How an image is scaled. See ``Style/imageRendering(_:)``.
 */
-public enum ImageRendering: String, Sendable {
+public enum ImageRendering: String, CSSKeyword {
 	case auto
 
 	/**
@@ -1425,7 +1466,7 @@ public enum ImageRendering: String, Sendable {
 /**
 How a border is drawn. The 3D styles, like `outset`, draw the edges in lighter and darker shades of the color.
 */
-public enum BorderStyle: String, Sendable {
+public enum BorderStyle: String, CSSKeyword {
 	case solid
 	case dashed
 	case dotted
@@ -1476,3 +1517,42 @@ public enum ScrollbarPart: String, Sendable {
 	case corner = "::-webkit-scrollbar-corner"
 }
 
+/**
+The direction of text and inline layout (`direction` in CSS).
+*/
+public enum TextDirection: String, CSSKeyword {
+	case leftToRight = "ltr"
+	case rightToLeft = "rtl"
+}
+
+/**
+Whether a declared size includes padding and borders (`box-sizing` in CSS).
+*/
+public enum BoxSizing: String, CSSKeyword {
+	case contentBox = "content-box"
+	case borderBox = "border-box"
+}
+
+/**
+Whether adjacent table-cell borders merge (`border-collapse` in CSS).
+*/
+public enum BorderCollapse: String, CSSKeyword {
+	case separate
+	case collapse
+}
+
+/**
+Whether transformed children remain in three dimensions (`transform-style` in CSS).
+*/
+public enum TransformStyle: String, CSSKeyword {
+	case flat
+	case preserveDepth = "preserve-3d"
+}
+
+/**
+How clipped inline text is marked (`text-overflow` in CSS).
+*/
+public enum TextOverflow: String, CSSKeyword {
+	case clip
+	case ellipsis
+}

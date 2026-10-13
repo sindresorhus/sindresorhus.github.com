@@ -34,6 +34,7 @@ The split keeps site knowledge out of the generic parts, so each layer can be re
 - **Incremental publishing.** The output directory is not deleted. Unchanged files are not written, and files that are no longer published are removed, so rebuilds are fast and the published files always match the routes.
 - **Cached data for local builds.** App Store and GitHub responses are cached for an hour and revalidated with ETags. Local builds fall back to the cache when offline. CI always revalidates and never uses stale data.
 - **Reproducible output.** Dates use a fixed locale and UTC. The related apps rotate daily with a seeded shuffle, so two builds on the same day give the same files, and diffs only show real changes.
+- **No HTML minification.** The markup is already output without whitespace between tags. Only the indentation of the CSS is left, and removing it saves about 1.5% after brotli (measured October 2026), which Cloudflare already applies. A Node minifier also needs Node at build time, and `html-minifier-terser` (clean-css) drops nested CSS rules.
 
 ## Styles
 
@@ -47,6 +48,7 @@ The split keeps site knowledge out of the generic parts, so each layer can be re
 - **Native CSS nesting.** Nested selectors and conditions are written as nested CSS, which all current browsers support. The output is smaller and reads like the Swift.
 - **Selector rules stay where components do not own the markup**: Markdown output (`.prose` typography), and elements that scripts create.
 - **Scripts use IDs and `data-` attributes**, never style classes. Renaming a style cannot break a script.
+- **Element scripts are found by folder, not listed.** Swift cannot list the types that conform to a protocol (`@section` records in Swift 6.3 have no API to read them), so a script file defines its own element with its tag written by hand, and the build publishes every `Scripts/*.js` file unchanged. Tests check that each element on a rendered page is defined, once. One import map per page adds the hashes to imports, as Firefox only uses one.
 - **Verification.** The style migration was checked by comparing the computed style of every element in Chrome (light and dark, desktop and mobile) before and after. Pixel screenshots were too noisy, because of image loading.
 
 ## Data flow
@@ -74,6 +76,7 @@ Do not change these, even when a review or a research round suggests it.
 
 - **The overflow menu (“…”) is a native `<select>`.** Not a popover, not a custom menu, not `appearance: base-select`. It works with the keyboard and on touch devices, and it looks native.
 - **No fade between pages.** Do not add a cross-document view transition that fades the page on navigation, or that morphs app icons into the next page.
+- **No TypeScript check of the scripts.** We tried it (2026-10): a test made a `.d.ts` of the parts, templates, and config of each element from the pages, and ran `tsc --checkJs` on the scripts that opt in. It found typos of parts and config keys, but the Swift tests already find most of them. And a script that opts in must have no type errors at all, which for the larger toys means many casts and JSDoc for code that works (the VCR had 37 errors). It also adds Node and TypeScript to the tests.
 
 ## Known limitations
 

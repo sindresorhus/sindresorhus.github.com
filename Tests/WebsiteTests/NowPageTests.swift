@@ -74,8 +74,9 @@ struct NowPageTests {
 			{"package": {"name": "chalk", "version": "6.0.0", "date": "2026-10-05T14:57:36.835Z", "links": {"repository": "https://github.com/chalk/chalk"}}, "downloads": {"weekly": 1000}},
 			{"package": {"name": "yeoman-generator", "version": "10.0.0", "date": "2026-10-06T14:57:36.835Z", "links": {"repository": "https://github.com/yeoman/generator"}}, "downloads": {"weekly": 1000}},
 			{"package": {"name": "no-repository", "version": "1.0.0", "date": "2026-10-06T14:57:36.835Z", "links": {}}, "downloads": {"weekly": 1000}},
-			{"package": {"name": "pid-port", "version": "2.2.0", "date": "2026-10-04T14:57:36.835Z", "links": {"repository": "git+https://github.com/sindresorhus/pid-port.git"}}, "downloads": {"weekly": 1000}}
-		], "total": 4}
+			{"package": {"name": "pid-port", "version": "2.2.0", "date": "2026-10-04T14:57:36.835Z", "links": {"repository": "git+https://github.com/sindresorhus/pid-port.git"}}, "downloads": {"weekly": 1000}},
+			{"package": {"name": "capital-owner", "version": "1.0.0", "date": "2026-10-03T14:57:36.835Z", "links": {"repository": "https://github.com/SindreSorhus/capital-owner"}}, "downloads": {"weekly": 1000}}
+		], "total": 5}
 		"""#
 		let cache = try ResponseCache.npm(search: search)
 		let statistics = await NPMStatistics.load(cache: cache, warnings: WarningCollector())
@@ -86,10 +87,38 @@ struct NowPageTests {
 
 		#expect(html.contains("npmjs.com/package/chalk"))
 		#expect(html.contains("npmjs.com/package/pid-port"))
+		// The owner of a link with capitals is the same owner.
+		#expect(html.contains("npmjs.com/package/capital-owner"))
 		// The repo is read from a link in another form, without its `.git`.
 		#expect(statistics.packages.first { $0.name == "pid-port" }?.repository == "sindresorhus/pid-port")
 		#expect(!html.contains("yeoman-generator"))
 		#expect(!html.contains("no-repository"))
+	}
+
+	/**
+	The npm downloads while the visitor is on the page run at the average of the last week, so 604,800 downloads a week are 1 a second. They show the section, also without the other numbers. Without npm data, there is no count.
+	*/
+	@Test
+	func `the npm downloads while the visitor is on the page run at the rate of the last week`() async throws {
+		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
+		var npmStatistics = NPMStatistics()
+		npmStatistics.packages = [NPMStatistics.Package(name: "chalk", version: "6.0.0", description: nil, date: .now, weeklyDownloads: 604_800, dependentCount: nil, repository: "chalk/chalk")]
+
+		// The section, and whether it is hidden.
+		func buildingNow(npmStatistics: NPMStatistics) throws -> (html: Substring, isHidden: Bool) {
+			let content = SiteContent(apps: [], posts: [], pages: [page], npmStatistics: npmStatistics, buildDate: .now, project: .empty)
+			let html = try NowPage(page: page, content: content).renderedHTML()
+			let section = try #require(html.firstMatch(of: /<section([^>]*)><h2 id="building-now".*?<\/section>/.dotMatchesNewlines()))
+			return (section.output.0, section.output.1.contains("hidden"))
+		}
+
+		let section = try buildingNow(npmStatistics: npmStatistics)
+		#expect(section.html.contains(#"<running-count class="running-count" data-config="{&quot;perSecond&quot;:1}">0</running-count>"#))
+		#expect(!section.isHidden)
+
+		let withoutNPM = try buildingNow(npmStatistics: NPMStatistics())
+		#expect(!withoutNPM.html.contains("<running-count"))
+		#expect(withoutNPM.isHidden)
 	}
 
 	@Test(.temporaryDirectory)
@@ -130,7 +159,11 @@ struct NowPageTests {
 		#expect(html.contains("<h1"))
 		#expect(html.contains(try #require(page.frontmatter.status)))
 		#expect(html.contains("Newest App"))
-		#expect(html.contains(#"id="latest-commits" hidden"#))
+		// The commits load in the browser, so the group is there, with placeholder rows that screen readers skip, and the hidden link to GitHub for when they cannot load.
+		#expect(html.contains(#"id="latest-commits""#))
+		#expect(!html.contains(#"id="latest-commits" hidden"#))
+		#expect(html.components(separatedBy: #"<li aria-hidden="true" class="\#(NowPage.Styles.row.className) \#(NowPage.Styles.stackedRow.className) \#(NowPage.Styles.placeholderRow.className)""#).count - 1 == 5)
+		#expect(html.contains(#"<p id="latest-commits-error" hidden"#))
 		#expect(html.contains("nownownow.com"))
 		#expect(!html.contains("Contributions"))
 		#expect(!html.contains("On Social Media"))
@@ -264,9 +297,9 @@ struct NowPageTests {
 		activity.yearMaintenance = GitHub.Maintenance(closedIssueCount: 2146, mergedPullRequestCount: 303)
 		var npmStatistics = NPMStatistics()
 		npmStatistics.packages = [
-			NPMStatistics.Package(name: "chalk", version: "6.0.0", date: try Date("2026-03-01T00:00:00Z", strategy: .iso8601), weeklyDownloads: 1000, dependentCount: nil, repository: "chalk/chalk"),
-			NPMStatistics.Package(name: "ora", version: "9.0.0", date: try Date("2025-12-31T00:00:00Z", strategy: .iso8601), weeklyDownloads: 5, dependentCount: nil, repository: "sindresorhus/ora"),
-			NPMStatistics.Package(name: "new-thing", version: "1.0.0", date: try Date("2026-05-01T00:00:00Z", strategy: .iso8601), weeklyDownloads: 5, dependentCount: nil, repository: "sindresorhus/New-Thing"),
+			NPMStatistics.Package(name: "chalk", version: "6.0.0", description: nil, date: try Date("2026-03-01T00:00:00Z", strategy: .iso8601), weeklyDownloads: 1000, dependentCount: nil, repository: "chalk/chalk"),
+			NPMStatistics.Package(name: "ora", version: "9.0.0", description: nil, date: try Date("2025-12-31T00:00:00Z", strategy: .iso8601), weeklyDownloads: 5, dependentCount: nil, repository: "sindresorhus/ora"),
+			NPMStatistics.Package(name: "new-thing", version: "1.0.0", description: nil, date: try Date("2026-05-01T00:00:00Z", strategy: .iso8601), weeklyDownloads: 5, dependentCount: nil, repository: "sindresorhus/New-Thing"),
 		]
 		let decoder = JSONDecoder()
 		decoder.dateDecodingStrategy = .iso8601

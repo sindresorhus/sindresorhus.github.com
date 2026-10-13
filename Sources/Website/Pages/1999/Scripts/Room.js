@@ -1,66 +1,11 @@
 // My room on the 1999 page, as a QuickTime VR panorama with a Polaroid camera. The shared toys of `geocities.js`, like Glitter, are used through events on the document.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const plural = (count, word) => `${count.toLocaleString('en-US')} ${word}${count === 1 ? '' : 's'}`;
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
+import GeoCitiesElement, {randomItem, clamp, plural} from '/scripts/geocities-element.js';
+import {canvasPoint, makeCanvas, pixelTextWidth, drawPixelText} from '/scripts/geocities-canvas.js';
 
 // Scrolls to a section and focuses it, like a link to it, so the keyboard goes on from there.
 const goTo = (element, isReduced) => {
 	element.scrollIntoView({behavior: isReduced ? 'auto' : 'smooth', block: 'start'});
 	element.focus({preventScroll: true});
-};
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
-
-// A tiny pixel font of 3 × 5 for the labels of the room, so the text is crisp at any size. Each letter is five rows of three bits.
-const pixelFont = {
-	A: [2, 5, 7, 5, 5], B: [6, 5, 6, 5, 6], C: [3, 4, 4, 4, 3], D: [6, 5, 5, 5, 6], E: [7, 4, 6, 4, 7], F: [7, 4, 6, 4, 4], G: [3, 4, 5, 5, 3], H: [5, 5, 7, 5, 5], I: [7, 2, 2, 2, 7], J: [1, 1, 1, 5, 2], K: [5, 5, 6, 5, 5], L: [4, 4, 4, 4, 7], M: [5, 7, 7, 5, 5], N: [6, 5, 5, 5, 5], O: [2, 5, 5, 5, 2], P: [6, 5, 6, 4, 4], Q: [2, 5, 5, 6, 3], R: [6, 5, 6, 5, 5], S: [3, 4, 2, 1, 6], T: [7, 2, 2, 2, 2], U: [5, 5, 5, 5, 7], V: [5, 5, 5, 5, 2], W: [5, 5, 7, 7, 5], X: [5, 5, 2, 5, 5], Y: [5, 5, 2, 2, 2], Z: [7, 1, 2, 4, 7],
-	0: [7, 5, 5, 5, 7], 1: [2, 6, 2, 2, 7], 2: [6, 1, 2, 4, 7], 3: [6, 1, 2, 1, 6], 4: [5, 5, 7, 1, 1], 5: [7, 4, 6, 1, 6], 6: [3, 4, 7, 5, 7], 7: [7, 1, 2, 2, 2], 8: [7, 5, 7, 5, 7], 9: [7, 5, 7, 1, 6],
-	' ': [0, 0, 0, 0, 0], '.': [0, 0, 0, 0, 2], ',': [0, 0, 0, 2, 4], '!': [2, 2, 2, 0, 2], '?': [6, 1, 2, 0, 2], ':': [0, 2, 0, 2, 0], '-': [0, 0, 7, 0, 0], '+': [0, 2, 7, 2, 0], '/': [1, 1, 2, 4, 4], '\'': [2, 2, 0, 0, 0], '(': [1, 2, 2, 2, 1], ')': [4, 2, 2, 2, 4], '×': [0, 5, 2, 5, 0], '°': [2, 5, 2, 0, 0], '%': [5, 1, 2, 4, 5], '<': [1, 2, 4, 2, 1], '>': [4, 2, 1, 2, 4], '=': [0, 7, 0, 7, 0], '♥': [0, 5, 7, 7, 2], '*': [0, 5, 2, 5, 0],
-	Æ: [3, 6, 7, 6, 7], Ø: [3, 5, 7, 5, 6], Å: [2, 0, 2, 5, 7],
-};
-
-// Draws text in the pixel font, at a whole pixel, with a scale for bigger letters. The alignment is `left`, `center`, or `right`.
-const drawPixelText = (context, text, x, y, color, {scale = 1, align = 'left'} = {}) => {
-	const characters = [...String(text).toUpperCase()];
-	const width = ((characters.length * 4) - 1) * scale;
-	let left = Math.round(align === 'center' ? x - (width / 2) : (align === 'right' ? x - width : x));
-	context.fillStyle = color;
-
-	for (const character of characters) {
-		const rows = pixelFont[character] ?? pixelFont['?'];
-		for (const [row, bits] of rows.entries()) {
-			for (let column = 0; column < 3; column++) {
-				if (bits & (4 >> column)) {
-					context.fillRect(left + (column * scale), Math.round(y) + (row * scale), scale, scale);
-				}
-			}
-		}
-
-		left += 4 * scale;
-	}
-};
-
-const pixelTextWidth = (text, scale = 1) => (([...String(text)].length * 4) - 1) * scale;
-
-// A canvas that is not on the page, for drawing in layers.
-const makeCanvas = (width, height) => {
-	const canvas = document.createElement('canvas');
-	canvas.width = width;
-	canvas.height = height;
-	return canvas;
 };
 
 // My room as a QuickTime VR panorama: a picture of the whole room, 360° around, which is bent for each column of the view like a cylinder, so the walls look straight, like the panoramas of QuickTime VR (1995). The mouse turns the room the way QuickTime VR did: hold it down, and the further it moves from where it was pressed, the faster the room turns. A finger drags the room instead, as it would on a phone. The things in the room are hot spots: some do something in the room, and the rest lead to the toys further down the page. The Polaroid camera takes a picture of what the view shows.
@@ -941,7 +886,7 @@ const setUpPanorama = (room, {view, flash, status}) => {
 				state.zoom /= 1.2;
 			} else if (roomAction === 'hotspots') {
 				state.showsHotspots = !state.showsHotspots;
-				setPressed(button, state.showsHotspots);
+				button.setAttribute('aria-pressed', String(state.showsHotspots));
 			}
 
 			update();
@@ -984,7 +929,7 @@ const setUpPanorama = (room, {view, flash, status}) => {
 	};
 
 	const takeFlash = () => {
-		flash.dataset.state = '';
+		delete flash.dataset.state;
 		// Reading the size restarts the animation of the flash.
 		void flash.offsetWidth;
 		flash.dataset.state = 'flash';
@@ -994,7 +939,7 @@ const setUpPanorama = (room, {view, flash, status}) => {
 };
 
 // The Polaroid camera: a film pack of 10 pictures, which develop slowly on the cork board, from a dark green to the colors of the room in about a minute, like Polaroid 600 film. The visitor writes on the white edge. The pictures are kept in the browser.
-const setUpPolaroid = (room, {film: filmCounter, shutter, newFilm, cameraStatus: status, photos: board, photoTemplate: template}, panorama) => {
+const setUpPolaroid = (room, {film: filmCounter, shutter, newFilm, cameraStatus: status, photos: board}, panorama) => {
 	const developTime = 60_000;
 	const maximumPhotos = 12;
 
@@ -1049,11 +994,7 @@ const setUpPolaroid = (room, {film: filmCounter, shutter, newFilm, cameraStatus:
 		developing.clear();
 		// Each picture is made again on each change, and its listeners go with it when it is replaced, so they are not listeners of the element.
 		const items = photos.map((photo, index) => {
-			const item = template.content.firstElementChild.cloneNode(true);
-			const frame = item.firstElementChild;
-			const canvas = item.querySelector('canvas');
-			const caption = item.querySelector('input');
-			const remove = item.querySelector('button');
+			const {element: item, parts: {photoFrame: frame, photoCanvas: canvas, photoCaption: caption, takeDown: remove}} = room.clone('photoTemplate');
 			frame.dataset.state = index % 2 === 0 ? '' : 'right';
 			canvas.setAttribute('role', 'img');
 			canvas.setAttribute('aria-label', labelOf(photo));
@@ -1134,7 +1075,7 @@ const setUpPolaroid = (room, {film: filmCounter, shutter, newFilm, cameraStatus:
 	showPhotos();
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesRoom extends GeoCitiesElement {
 	#panorama;
 
 	connected() {
@@ -1146,3 +1087,5 @@ export default class extends GeoCitiesElement {
 		this.#panorama.render();
 	}
 }
+
+customElements.define('geo-cities-room', GeoCitiesRoom);

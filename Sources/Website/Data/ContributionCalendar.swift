@@ -17,9 +17,9 @@ struct ContributionCalendar: Decodable, Sendable {
 		}
 
 		/**
-		The day, like `2026-10-07`.
+		The start of the day in UTC, from a day like `2026-10-07`.
 		*/
-		let date: String
+		let date: Date
 
 		let count: Int
 		let level: Level
@@ -30,18 +30,19 @@ struct ContributionCalendar: Decodable, Sendable {
 			case level = "contributionLevel"
 		}
 
-		/**
-		The start of the day in UTC, or `nil` when the date is not a day, like `2026-10-07`.
-		*/
-		var startOfDay: Date? {
-			try? Date(date, strategy: .iso8601.year().month().day())
+		init(from decoder: any Decoder) throws {
+			let container = try decoder.container(keyedBy: CodingKeys.self)
+			// A day, like `2026-10-07`, not a date with a time, so it is read here, not by the date strategy of the decoder.
+			self.date = try Date(container.decode(String.self, forKey: .date), strategy: .iso8601.year().month().day())
+			self.count = try container.decode(Int.self, forKey: .count)
+			self.level = try container.decode(Level.self, forKey: .level)
 		}
 
 		/**
-		The weekday of the day, from 0 for Sunday to 6 for Saturday, like the rows of the calendar. `nil` when the date is not a day.
+		The weekday of the day, from 0 for Sunday to 6 for Saturday, like the rows of the calendar.
 		*/
-		var weekday: Int? {
-			startOfDay.map { Calendar.site.component(.weekday, from: $0) - 1 }
+		var weekday: Int {
+			Calendar.site.component(.weekday, from: date) - 1
 		}
 	}
 

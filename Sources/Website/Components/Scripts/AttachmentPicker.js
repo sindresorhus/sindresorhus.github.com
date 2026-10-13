@@ -7,7 +7,7 @@ const formatSize = bytes => bytes < 1024 * 1024
 	? kilobytes.format(Math.max(bytes / 1024, 1))
 	: megabytes.format(bytes / (1024 * 1024));
 
-export default class extends HTMLElement {
+class AttachmentPicker extends HTMLElement {
 	// The files of the input are rebuilt from this list, so files can be added in several picks and removed one by one.
 	#files = [];
 
@@ -42,10 +42,10 @@ export default class extends HTMLElement {
 
 	#chip(file) {
 		const chip = this.querySelector('[data-part="template"]').content.firstElementChild.cloneNode(true);
-		const thumbnail = chip.querySelector('img');
+		const thumbnail = chip.querySelector('[data-part="thumbnail"]');
 
 		if (imageExtensions.has(file.name.split('.').pop().toLowerCase())) {
-			const icon = chip.querySelector('svg');
+			const icon = chip.querySelector('[data-part="fileIcon"]');
 			thumbnail.src = URL.createObjectURL(file);
 			thumbnail.addEventListener('load', () => {
 				URL.revokeObjectURL(thumbnail.src);
@@ -65,7 +65,7 @@ export default class extends HTMLElement {
 		chip.querySelector('[data-part="name"]').textContent = file.name;
 		chip.querySelector('[data-part="size"]').textContent = formatSize(file.size);
 
-		const removeButton = chip.querySelector('button');
+		const removeButton = chip.querySelector('[data-part="removeButton"]');
 		removeButton.ariaLabel = `Remove ${file.name}`;
 		removeButton.addEventListener('click', () => {
 			const fileList = chip.parentElement;
@@ -75,10 +75,12 @@ export default class extends HTMLElement {
 			this.#updateInput();
 
 			// The removed chip had the focus, so it moves to the next remove button, the previous one for the last chip, or the file input.
-			const removeButtons = fileList.querySelectorAll('button');
+			const removeButtons = fileList.querySelectorAll('[data-part="removeButton"]');
 			(removeButtons[Math.min(index, removeButtons.length - 1)] ?? this.querySelector('[data-part="input"]')).focus();
 		});
 
 		return chip;
 	}
 }
+
+customElements.define('attachment-picker', AttachmentPicker);

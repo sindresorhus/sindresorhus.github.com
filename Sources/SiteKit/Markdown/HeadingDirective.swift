@@ -106,8 +106,8 @@ extension HTMLBlock {
 	Whether every line that is not empty is a directive comment on its own line.
 	*/
 	public var isOnlyDirectives: Bool {
-		zip(rawHTML.split(separator: "\n", omittingEmptySubsequences: false), directiveComments).allSatisfy { line, comment in
-			comment?.isOnOwnLine ?? line.allSatisfy(\.isWhitespace)
+		rawHTML.split(separator: "\n", omittingEmptySubsequences: false).allSatisfy { line in
+			DirectiveComment(line: line)?.isOnOwnLine ?? line.allSatisfy(\.isWhitespace)
 		}
 	}
 

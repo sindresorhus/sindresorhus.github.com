@@ -43,7 +43,7 @@ public enum LinkDestination: ValidatedValue, Hashable, Sendable, CustomStringCon
 				throw ContentError(reason: "Must have a valid query and fragment, got “\(string)”.")
 			}
 
-			self = .path(RoutePath(String(path)), query: components.queryItems ?? [], fragment: components.percentEncodedFragment)
+			self = .path(try RoutePath(validating: String(path)), query: components.queryItems ?? [], fragment: components.percentEncodedFragment)
 			return
 		}
 
@@ -104,11 +104,8 @@ public enum LinkDestination: ValidatedValue, Hashable, Sendable, CustomStringCon
 			return ""
 		}
 
-		var components = URLComponents()
-		components.queryItems = queryItems
-
 		// Forms read `+` in a query as a space, and `URLComponents` leaves it as is.
-		return "?" + (components.percentEncodedQuery ?? "").replacing("+", with: "%2B")
+		return "?" + queryItems.formEncodedQuery
 	}
 }
 

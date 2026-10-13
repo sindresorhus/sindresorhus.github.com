@@ -1,10 +1,8 @@
 // The stamp composer of the Music Room on the 1999 page, like the music maker of a painting game for game consoles from 1992: a staff of 32 beats, where each beat holds up to three stamps, like in that game. The height of a stamp is its note, from the C below the staff to the G above it, and the stamp is its instrument. The song is kept in the browser. It plays through the sound card of the Music Room, `geocities-sound-card.js`.
-import {context, connectVolume, startAudio, midiFrequency, noteName, tone, pluck, noiseHit, voice, drums, startPlaying, stopPlaying, makeBus, fadeOut, Clock} from '/scripts/geocities-sound-card.js';
+import GeoCitiesElement, {clamp, hasModifier, midiFrequency} from '/scripts/geocities-element.js';
+import {context, connectVolume, startAudio, noteName, tone, pluck, noiseHit, voice, drums, startPlaying, stopPlaying, makeBus, fadeOut, Clock} from '/scripts/geocities-sound-card.js';
 
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const hasModifier = event => event.ctrlKey || event.metaKey || event.altKey;
-
-export default class extends GeoCitiesElement {
+class GeoCitiesStampComposer extends GeoCitiesElement {
 	connected() {
 		const {staff: canvas, runner, play: playButton, tempo: tempoInput, clear} = this.parts;
 		connectVolume(this.querySelectorAll('[data-music-volume]'), this.signal);
@@ -272,12 +270,6 @@ export default class extends GeoCitiesElement {
 				for (const other of stampButtons) {
 					const isOn = other === button;
 					other.setAttribute('aria-pressed', String(isOn));
-
-					if (isOn) {
-						other.dataset.state = 'on';
-					} else {
-						delete other.dataset.state;
-					}
 				}
 
 				if (selected !== 'eraser') {
@@ -400,3 +392,5 @@ export default class extends GeoCitiesElement {
 		draw();
 	}
 }
+
+customElements.define('geo-cities-stamp-composer', GeoCitiesStampComposer);

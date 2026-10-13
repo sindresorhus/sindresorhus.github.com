@@ -226,7 +226,7 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 					button(.type(.button), .hook(Hooks.tab, value: tab)) {
 						title
 					}
-					.attributes(.hook(.state, value: "active"), when: tab == "ark1")
+					.attributes(.state(States.active), when: tab == "ark1")
 					.style(Styles.tab)
 				}
 			}
@@ -325,6 +325,11 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 		case nameBox
 		case formula
 		case sheetStatus
+	}
+
+	enum States: String, ElementStateSet {
+		case active
+		case selected
 	}
 
 	enum Hooks: String, ScriptHookSet {
@@ -503,7 +508,7 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 					.background(.white)
 					.border(.white, width: .pixels(2))
 					.textWrap(.nowrap)
-					.when(.state, is: "selected") {
+					.when(States.selected) {
 						$0.border(.black, width: .pixels(2))
 					}
 			case .numberCell:
@@ -531,7 +536,7 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 					.textStyle(.caption)
 					.color(.black)
 					.handCursor()
-					.when(.state, is: "active") {
+					.when(States.active) {
 						$0
 							.background(.white)
 							.fontWeight(.bold)

@@ -133,6 +133,10 @@ extension AppTimelinePage {
 					.position(.relative)
 					.padding(.leading, .rootEm(1.75))
 					.padding(.bottom, .rootEm(2.5))
+					// The line ends at the last app, like the line of the steps.
+					.lastChild {
+						$0.padding(.bottom, 0)
+					}
 					.before {
 						$0
 							.content("")
@@ -154,10 +158,11 @@ extension AppTimelinePage {
 					.hstack(alignment: .center, spacing: .rootEm(0.875))
 					.margin(.horizontal, .rootEm(-0.5))
 					.padding(.rootEm(0.5))
-					.cornerRadius(.rootEm(0.75))
+					.cornerRadius(.fieldRadius)
 					.transition(.backgroundColor, animation: .stateChange)
+					// The fill of a card, like the rows of the app picker of the feedback page.
 					.hover {
-						$0.background(.gray(100), dark: .white.opacity(0.05))
+						$0.background(.card)
 					}
 			case .icon:
 				Style()

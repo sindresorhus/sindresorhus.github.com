@@ -1,17 +1,7 @@
 // My TI-83 on the 1999 page: the graphing calculator of Texas Instruments (1996), drawn pixel by pixel on a canvas of 96 × 64 pixels with the pixel fonts of the real one. It calculates with the order of operations of a TI, draws graphs slowly, runs the games of the PRGM menu, gets new games over the link cable from Trond’s calculator, and runs down its four AAA batteries. The state is kept in the browser. The screen only animates while it is on the screen and the tab is visible. With reduced motion, the cursor does not blink, the graph draws at once, the LCD has no shadow, and the games only go on while the visitor presses keys. The TI-83 has no speaker, so it makes no sound.
 //
 // The calculator is set up by one function, with the element (for its helpers, like `say()`, `on()`, and `loop()`) and its parts, as its screens, its games, and the buttons around it share the state of the calculator.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
-
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
+import GeoCitiesElement, {randomItem, randomInteger, clamp, hasModifier} from '/scripts/geocities-element.js';
 
 const width = 96;
 const height = 64;
@@ -3506,10 +3496,10 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 					problemCount++;
 					answerLines = value === undefined ? ['EVEN I CANT DO', 'THAT ONE. ASK', 'PAPPA.'] : badAnswer(value);
 					state = 'thinking';
-					setTimeout(() => {
+					ti83.timeout(1600, () => {
 						state = 'answer';
 						requestRender();
-					}, 1600);
+					});
 				} else if (name === 'clear') {
 					editor.clear();
 				} else if (name) {
@@ -3732,7 +3722,7 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 	});
 
 	const openProgramMenu = () => {
-		const names = [...memory.programs].sort();
+		const names = memory.programs.toSorted();
 		go(makeMenu([
 			{title: 'EXEC', items: names.map(name => ({label: name, action() {
 				// Like on the real one, EXEC only types the name, and ENTER runs it, so the visitor gets told.
@@ -3783,7 +3773,7 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 		go({
 			selection: 0,
 			draw(target) {
-				const names = [...memory.programs].sort();
+				const names = memory.programs.toSorted();
 				target.text(0, 0, 'DELETE:Prgm');
 				if (names.length === 0) {
 					target.text(0, 2, 'Nothing left.');
@@ -3798,7 +3788,7 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 				}
 			},
 			key(name) {
-				const names = [...memory.programs].sort();
+				const names = memory.programs.toSorted();
 				if (name === 'up' || name === 'down') {
 					this.selection = clamp(this.selection + (name === 'up' ? -1 : 1), 0, Math.max(0, names.length - 1));
 				} else if (name === 'enter' && names[this.selection]) {
@@ -3999,13 +3989,13 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 			isTrondDirty = true;
 			wake();
 			ti83.say('ERR:LINK on Trond’s. Trond: “Yours is not waiting! 2nd LINK, ▶ RECEIVE, ENTER.” Or press Get My TI-83 Ready to Receive.');
-			setTimeout(() => {
+			ti83.timeout(2500, () => {
 				if (trond.mode === 'error') {
 					trond.mode = 'select';
 					isTrondDirty = true;
 					wake();
 				}
-			}, 2500);
+			});
 			return;
 		}
 
@@ -4015,9 +4005,9 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 		isTrondDirty = true;
 		requestRender();
 		ti83.say(`Transmitting ${name}… The link cable is slow.`);
-		setTimeout(() => {
+		ti83.timeout(1200 + (programCatalog[name].size / 5), () => {
 			finishTransfer(name);
-		}, 1200 + (programCatalog[name].size / 5));
+		});
 	};
 
 	const openLinkMenu = () => {
@@ -4033,14 +4023,14 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 		};
 		const sendAll = {label: 'All+…', action() {
 			go(transmittingScreen);
-			setTimeout(() => {
+			ti83.timeout(2000, () => {
 				if (screen !== transmittingScreen) {
 					return;
 				}
 
 				go(home);
 				ti83.say(isLinked ? 'Trond: “I have all of yours already. Mine are better.”' : 'ERR:LINK would come, but there is no cable. Press 🔌 Link Cable to Trond.');
-			}, 2000);
+			});
 		}};
 		go(makeMenu([
 			{title: 'SEND', items: [sendAll, {...sendAll, label: 'AllK…'}, {...sendAll, label: 'Prgm…'}, {...sendAll, label: 'List…'}]},
@@ -4056,7 +4046,7 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 	const updateBatteryButton = () => {
 		const charge = batteryCharge();
 		batteriesButton.setAttribute('aria-pressed', String(isDoorOpen));
-		batteriesButton.dataset.state = isDoorOpen ? 'on' : (charge <= 0 ? 'dead' : (charge < 25 ? 'low' : ''));
+		batteriesButton.dataset.state = isDoorOpen ? '' : (charge <= 0 ? 'dead' : (charge < 25 ? 'low' : ''));
 	};
 
 	const lowBatteryScreen = makeMessage(['Your batteries', 'are low.', '', 'Recommend', 'change of', 'batteries.']);
@@ -4222,7 +4212,7 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 	function sendTeacherAway() {
 		isTeacherHere = false;
 		teacherButton.textContent = '👨‍🏫 The Teacher Is Coming!';
-		teacherButton.dataset.state = '';
+		delete teacherButton.dataset.state;
 		if (screenBeforeTeacher) {
 			go(screenBeforeTeacher);
 		}
@@ -4294,7 +4284,7 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 	ti83.on(flipButton, 'click', () => {
 		isFlipped = !isFlipped;
 		calculatorElement.dataset.state = isFlipped ? 'flipped' : '';
-		setPressed(flipButton, isFlipped);
+		flipButton.setAttribute('aria-pressed', String(isFlipped));
 		upsideDownLine.hidden = !isFlipped;
 		if (isFlipped) {
 			const {line, text} = describeUpsideDown();
@@ -4623,9 +4613,6 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 		for (const [id, isArmed] of [['2nd', modifier === '2nd'], ['alpha', modifier === 'alpha' || modifier === 'alphaLock']]) {
 			const button = keyButtonsById.get(id);
 			button.setAttribute('aria-pressed', String(isArmed));
-			if (button.dataset.state !== 'down') {
-				button.dataset.state = isArmed ? 'on' : '';
-			}
 		}
 	}
 
@@ -4677,20 +4664,20 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 		}
 
 		button.dataset.state = 'down';
-		setTimeout(() => {
-			button.dataset.state = '';
+		ti83.timeout(120, () => {
+			delete button.dataset.state;
 			updateModifierKeys();
-		}, 120);
+		});
 	};
 
 	for (const button of keyButtons) {
 		const id = button.dataset.ti83Key;
 		let repeatTimer;
 		const release = () => {
-			clearTimeout(repeatTimer);
+			repeatTimer?.cancel();
 			heldKeys.delete(id);
 			if (button.dataset.state === 'down') {
-				button.dataset.state = '';
+				delete button.dataset.state;
 			}
 
 			updateModifierKeys();
@@ -4711,10 +4698,10 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 			if (repeatingKeys.has(id)) {
 				const repeat = () => {
 					pressKey(id, {isRepeat: true});
-					repeatTimer = setTimeout(repeat, 70);
+					repeatTimer = ti83.timeout(70, repeat);
 				};
 
-				repeatTimer = setTimeout(repeat, 400);
+				repeatTimer = ti83.timeout(400, repeat);
 			}
 		});
 		ti83.on(button, 'pointerup', release);
@@ -4726,9 +4713,9 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 				// The games read the held keys, so the key counts as held for a moment.
 				heldKeys.add(id);
 				pressKey(id);
-				setTimeout(() => {
+				ti83.timeout(150, () => {
 					heldKeys.delete(id);
-				}, 150);
+				});
 			}
 		});
 	}
@@ -4776,7 +4763,7 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 	let isShiftAlone = false;
 
 	ti83.on(calculatorElement, 'keydown', event => {
-		if (event.ctrlKey || event.metaKey || event.altKey) {
+		if (hasModifier(event)) {
 			return;
 		}
 
@@ -4854,7 +4841,7 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 	ti83.on(linkButton, 'click', () => {
 		isLinked = !isLinked;
 		trondPanel.hidden = !isLinked;
-		setPressed(linkButton, isLinked);
+		linkButton.setAttribute('aria-pressed', String(isLinked));
 		trond.mode = 'select';
 		isTrondDirty = true;
 		wake();
@@ -4970,7 +4957,7 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 	};
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesCalculator extends GeoCitiesElement {
 	#calculator;
 
 	connected() {
@@ -4986,3 +4973,5 @@ export default class extends GeoCitiesElement {
 		this.#calculator.requestRender();
 	}
 }
+
+customElements.define('geo-cities-calculator', GeoCitiesCalculator);

@@ -238,27 +238,27 @@ extension GeoCitiesPage {
 				.accessibilityLabel("Desktop")
 				.style(Styles.desktopIcons)
 
-				desktopWindow("paint", title: "untitled - Unicorn Paint") {
+				GeoCitiesWindows.window("paint", title: "untitled - Unicorn Paint") {
 					Deferred(paint)
 				}
 
-				desktopWindow("sweeper", title: "Y2K Bugsweeper") {
+				GeoCitiesWindows.window("sweeper", title: "Y2K Bugsweeper") {
 					Deferred(sweeper)
 				}
 
-				desktopWindow("notepad", title: "SECRET.TXT - Notepad") {
+				GeoCitiesWindows.window("notepad", title: "SECRET.TXT - Notepad") {
 					Deferred(notepad)
 				}
 
-				desktopWindow("solitaire", title: "Solitaire") {
+				GeoCitiesWindows.window("solitaire", title: "Solitaire") {
 					Deferred(solitaire)
 				}
 
-				desktopWindow("computer", title: "System Properties") {
+				GeoCitiesWindows.window("computer", title: "System Properties") {
 					Deferred(systemProperties)
 				}
 
-				desktopWindow("recycle", title: "Recycle Bin") {
+				GeoCitiesWindows.window("recycle", title: "Recycle Bin") {
 					Deferred(recycleBin)
 				}
 
@@ -324,33 +324,6 @@ extension GeoCitiesPage {
 			.style(Styles.scriptingDisabledOnly)
 		}
 		.style(Styles.section)
-	}
-
-	/**
-	A window of the desktop, with a title bar to drag it by and a close button. It is hidden until its icon opens it, and Escape closes it.
-	*/
-	func desktopWindow<Content: HTML>(_ app: String, title: String, @HTMLBuilder content: () -> Content) -> some HTML {
-		section(.hook(Hooks.desktopWindow, value: app), .hidden, .tabindex(-1), .ariaLabelledBy("geocities-window-\(app)")) {
-			div(.hook(Hooks.desktopTitleBar)) {
-				h3(.id("geocities-window-\(app)")) {
-					title
-				}
-				.style(Styles.desktopWindowTitle)
-
-				button(.type(.button), .hook(Hooks.desktopClose)) {
-					"×"
-				}
-				.accessibilityLabel("Close \(title)")
-				.style(Styles.closeButton)
-			}
-			.style(Styles.titleBar, Styles.titleBarWithButton, Styles.desktopTitleBar)
-
-			div {
-				content()
-			}
-			.style(Styles.windowBody)
-		}
-		.style(Styles.window, Styles.desktopWindow)
 	}
 
 	/**
@@ -521,7 +494,10 @@ extension GeoCitiesPage {
 				}
 				.style(Styles.row)
 			}
-			.style(Styles.windowBody)
+			// The window already has the padding.
+			.style {
+				$0.flowSpacing(.rootEm(0.75))
+			}
 
 			p(.id(Hooks.diaryStatus), .role("status")) {}
 
@@ -540,105 +516,99 @@ extension GeoCitiesPage {
 	/**
 	Solitaire, where I already won: the four kings are on the piles. The button makes the cards jump off the piles and bounce down the window, like the win of Solitaire. `geocities.js` runs it.
 	*/
+	@HTMLBuilder
 	var solitaire: some HTML {
 		div {
-			div {
-				for suit in [(symbol: "♠", name: "spades", isRed: false), (symbol: "♥", name: "hearts", isRed: true), (symbol: "♣", name: "clubs", isRed: false), (symbol: "♦", name: "diamonds", isRed: true)] {
-					p(.hook(Hooks.solitairePile), .role("img")) {
-						"K\(suit.symbol)"
-					}
-					.accessibilityLabel("King of \(suit.name)")
-					.style(suit.isRed ? Styles.redCard : Styles.card)
+			for suit in [(symbol: "♠", name: "spades", isRed: false), (symbol: "♥", name: "hearts", isRed: true), (symbol: "♣", name: "clubs", isRed: false), (symbol: "♦", name: "diamonds", isRed: true)] {
+				p(.hook(Hooks.solitairePile), .role("img")) {
+					"K\(suit.symbol)"
 				}
+				.accessibilityLabel("King of \(suit.name)")
+				.style(suit.isRed ? Styles.redCard : Styles.card)
 			}
-			.style(Styles.felt)
-
-			p {
-				"I already won! It took me 4 hours. The best part is the end, so here it is."
-			}
-
-			button(.id(Hooks.solitaireWin), .type(.button)) {
-				"Watch the Cards Jump!"
-			}
-			.style(Styles.retroButton)
-
-			p(.id(Hooks.solitaireStatus), .role("status")) {}
 		}
-		.style(Styles.windowBody)
+		.style(Styles.felt)
+
+		p {
+			"I already won! It took me 4 hours. The best part is the end, so here it is."
+		}
+
+		button(.id(Hooks.solitaireWin), .type(.button)) {
+			"Watch the Cards Jump!"
+		}
+		.style(Styles.retroButton)
+
+		p(.id(Hooks.solitaireStatus), .role("status")) {}
 	}
 
 	/**
 	The System Properties of my computer, and a defragmenter that tidies up the hard drive, with the colored blocks of the one of Windows 98. `geocities.js` runs it.
 	*/
+	@HTMLBuilder
 	var systemProperties: some HTML {
-		div {
-			dl {
-				for (label, value) in [("System", "Microsoft Windows 98, Second Edition"), ("Registered to", "Sindre, Norway"), ("Computer", "iMac in Bondi Blue (yes, really)"), ("Memory", "32.0 MB RAM"), ("Hard drive", "4 GB, 3.9 GB full of GIFs")] {
-					div {
-						dt {
-							"\(label):"
-						}
-						.style(Styles.factLabel)
-
-						dd {
-							value
-						}
-						.style(Styles.factValue)
+		dl {
+			for (label, value) in [("System", "Microsoft Windows 98, Second Edition"), ("Registered to", "Sindre, Norway"), ("Computer", "iMac in Bondi Blue (yes, really)"), ("Memory", "32.0 MB RAM"), ("Hard drive", "4 GB, 3.9 GB full of GIFs")] {
+				div {
+					dt {
+						"\(label):"
 					}
+					.style(Styles.factLabel)
+
+					dd {
+						value
+					}
+					.style(Styles.factValue)
 				}
 			}
-			.style(Styles.facts)
-
-			button(.id(Hooks.defragStart), .type(.button)) {
-				"Defragment Drive C:"
-			}
-			.style(Styles.retroButton)
-
-			div(.id(Hooks.defrag)) {
-				for index in 0..<Self.defragBlockCount {
-					span(.hook(Hooks.defragBlock, value: "\(index)")) {}
-						.style(Styles.defragBlock)
-				}
-			}
-			.accessibilityHidden()
-			.style(Styles.defrag)
-
-			p(.id(Hooks.defragStatus), .role("status")) {
-				"Drive C: is 61% fragmented. Ouch."
-			}
-			.style(Styles.statusBar)
 		}
-		.style(Styles.windowBody)
+		.style(Styles.facts)
+
+		button(.id(Hooks.defragStart), .type(.button)) {
+			"Defragment Drive C:"
+		}
+		.style(Styles.retroButton)
+
+		div {
+			for index in 0..<Self.defragBlockCount {
+				span(.hook(Hooks.defragBlock, value: "\(index)")) {}
+					.style(Styles.defragBlock)
+			}
+		}
+		.accessibilityHidden()
+		.style(Styles.defrag)
+
+		p(.id(Hooks.defragStatus), .role("status")) {
+			"Drive C: is 61% fragmented. Ouch."
+		}
+		.style(Styles.statusBar)
 	}
 
 	/**
 	The Recycle Bin, with the files I deleted. `geocities.js` empties it, after asking, like Windows.
 	*/
+	@HTMLBuilder
 	var recycleBin: some HTML {
-		div {
-			ul(.id(Hooks.recycleList)) {
-				for (file, note) in Self.recycledFiles {
-					li {
-						strong {
-							file
-						}
-						" "
-						span {
-							"(\(note))"
-						}
-						.style(Styles.caption)
+		ul(.id(Hooks.recycleList)) {
+			for (file, note) in Self.recycledFiles {
+				li {
+					strong {
+						file
 					}
+					" "
+					span {
+						"(\(note))"
+					}
+					.style(Styles.caption)
 				}
 			}
-			.style(Styles.facts)
-
-			button(.id(Hooks.recycleEmpty), .type(.button)) {
-				"Empty Recycle Bin"
-			}
-			.style(Styles.retroButton)
-
-			p(.id(Hooks.recycleStatus), .role("status")) {}
 		}
-		.style(Styles.windowBody)
+		.style(Styles.facts)
+
+		button(.id(Hooks.recycleEmpty), .type(.button)) {
+			"Empty Recycle Bin"
+		}
+		.style(Styles.retroButton)
+
+		p(.id(Hooks.recycleStatus), .role("status")) {}
 	}
 }

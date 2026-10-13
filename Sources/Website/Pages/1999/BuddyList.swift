@@ -72,9 +72,9 @@ struct GeoCitiesBuddyList: ScriptedElement {
 					// The script adds a copy for each group of buddies, like “Family”.
 					template(.part(Parts.groupTemplate)) {
 						li {
-							strong {}
+							strong(.part(Parts.heading)) {}
 								.style(Styles.group)
-							ul {}
+							ul(.part(Parts.members)) {}
 								.style(Styles.members)
 						}
 					}
@@ -82,12 +82,12 @@ struct GeoCitiesBuddyList: ScriptedElement {
 					// The script adds a copy for each buddy.
 					template(.part(Parts.buddyTemplate)) {
 						li {
-							button(.type(.button)) {
-								span {}
+							button(.part(Parts.button), .type(.button)) {
+								span(.part(Parts.icon)) {}
 									.accessibilityHidden()
 									.style(Styles.icon)
-								span {}
-								span {}
+								span(.part(Parts.label)) {}
+								span(.part(Parts.note)) {}
 									.style(Styles.note)
 							}
 							.style(Styles.buddy)
@@ -147,9 +147,9 @@ struct GeoCitiesBuddyList: ScriptedElement {
 					// The script adds a copy for each message of the chat.
 					template(.part(Parts.lineTemplate)) {
 						p {
-							strong {}
+							strong(.part(Parts.name)) {}
 								.style(Styles.name)
-							span {}
+							span(.part(Parts.message)) {}
 						}
 						.style(Styles.line)
 					}
@@ -191,7 +191,13 @@ struct GeoCitiesBuddyList: ScriptedElement {
 		case sound
 		case list
 		case groupTemplate
+		case heading
+		case members
 		case buddyTemplate
+		case button
+		case icon
+		case label
+		case note
 		case away
 		case awayForm
 		case awayText
@@ -200,10 +206,22 @@ struct GeoCitiesBuddyList: ScriptedElement {
 		case buddyWarning
 		case log
 		case lineTemplate
+		case name
+		case message
 		case form
 		case input
 		case send
 		case warn
+	}
+
+	enum States: String, ElementStateSet {
+		case away
+		case signingOn = "signing-on"
+		case signingOff = "signing-off"
+		case message
+		case auto
+		case system
+		case mine
 	}
 
 	enum Styles: ElementStyleSet {
@@ -244,7 +262,7 @@ struct GeoCitiesBuddyList: ScriptedElement {
 					.margin(0)
 					.padding(.leading, .rootEm(0.5))
 			case .buddy:
-				// A buddy in the list: gray and italic while away or idle, and highlighted for a moment while signing on or off, like the open and closed doors of the real list. A buddy with a new message blinks.
+				// A buddy in the list: gray and italic while away, and highlighted for a moment while signing on or off, like the open and closed doors of the real list. A buddy with a new message is white on blue.
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
 					.frame(width: .percent(100), minHeight: .rootEm(2))
@@ -257,22 +275,22 @@ struct GeoCitiesBuddyList: ScriptedElement {
 					.hover {
 						$0.background(Color("#e0e0ff"))
 					}
-					.when(.state, is: "away") {
+					.when(States.away) {
 						$0
 							.italic()
 							.color(Color("#666666"))
 					}
-					.when(.state, is: "signing-on") {
+					.when(States.signingOn) {
 						$0
 							.background(Color("#ffff99"))
 							.fontWeight(.bold)
 					}
-					.when(.state, is: "signing-off") {
+					.when(States.signingOff) {
 						$0
 							.background(Color("#dddddd"))
 							.color(Color("#808080"))
 					}
-					.when(.state, is: "message") {
+					.when(States.message) {
 						$0
 							.background(Color("#000080"))
 							.color(.white)
@@ -293,7 +311,7 @@ struct GeoCitiesBuddyList: ScriptedElement {
 				Style()
 					.margin(.leading, .auto)
 					.color(Color("#808080"))
-					.when(ancestorHas: .state, is: "message") {
+					.when(ancestorHas: States.message) {
 						$0.color(Color("#ccccff"))
 					}
 			case .log:
@@ -310,10 +328,10 @@ struct GeoCitiesBuddyList: ScriptedElement {
 			case .line:
 				Style()
 					.margin(.bottom, .rootEm(0.25))
-					.when(.state, is: "auto") {
+					.when(States.auto) {
 						$0.italic()
 					}
-					.when(.state, is: "system") {
+					.when(States.system) {
 						$0
 							.color(Color("#808080"))
 							.fontFamily(.system)
@@ -324,7 +342,7 @@ struct GeoCitiesBuddyList: ScriptedElement {
 				Style()
 					.margin(.trailing, .rootEm(0.25))
 					.color(Color("#cc0000"))
-					.when(.state, is: "mine") {
+					.when(States.mine) {
 						$0.color(Color("#0000cc"))
 					}
 			}

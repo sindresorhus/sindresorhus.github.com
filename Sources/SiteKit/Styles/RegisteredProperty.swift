@@ -36,7 +36,7 @@ public struct RegisteredProperty<Value: StyleValue>: Sendable {
 
 	var node: StyleNode {
 		StyleNode(kind: .property(name: name, declarations: [
-			Declaration(property: Property("syntax"), value: CSSValue("\"\(syntax)\"")),
+			Declaration(property: Property("syntax"), value: .string(syntax)),
 			Declaration(property: Property("inherits"), value: CSSValue(inherits ? "true" : "false")),
 			Declaration(property: Property("initial-value"), value: CSSValue(initialValue)),
 		]))
@@ -48,7 +48,7 @@ extension Style {
 	Sets a registered custom property.
 	*/
 	public func setting<Value>(_ property: RegisteredProperty<Value>, to value: Value) -> Self {
-		var copy = declaration(Property(property.name), CSSValue(value))
+		var copy = declaration(Property(property.name), value)
 		copy.definitions.append(property.node)
 		return copy
 	}

@@ -196,7 +196,7 @@ struct GeoCitiesRingtones: ScriptedElement {
 								"TONE \(tone.code)"
 							}
 							.accessibilityLabel("Order \(tone.title) for 15 kroner")
-							.style(Styles.order)
+							.style(Styles.order, GeoCitiesPage.Styles.dimmedWhenDisabled)
 						}
 						.style(Styles.adItem)
 					}
@@ -242,6 +242,11 @@ struct GeoCitiesRingtones: ScriptedElement {
 		case status
 		case bill
 		case pay
+	}
+
+	enum States: String, ElementStateSet {
+		case ringing
+		case held
 	}
 
 	enum Hooks: String, ScriptHookSet {
@@ -306,10 +311,8 @@ struct GeoCitiesRingtones: ScriptedElement {
 					.backgroundImage(.linearGradient("to right", Color("#1b2a4a"), Color("#2e4677"), Color("#1b2a4a")))
 					.cornerRadius(.rootEm(3))
 					.shadow(Shadow(x: .pixels(3), y: .pixels(5), color: Color("#00000080")))
-					.when(.state, is: "ringing") {
-						$0.media(.allowsMotion) {
-							$0.animation(Animations.buzz, .linear(duration: .milliseconds(90)).repeatForever())
-						}
+					.when(States.ringing) {
+						$0.animation(Animations.buzz, .linear(duration: .milliseconds(90)).repeatForever())
 					}
 			case .brand:
 				Style()
@@ -354,9 +357,7 @@ struct GeoCitiesRingtones: ScriptedElement {
 			case .callIcon:
 				Style()
 					.font(.extraLarge)
-					.media(.allowsMotion) {
-						$0.animation(Animations.buzz, .linear(duration: .milliseconds(120)).repeatForever())
-					}
+					.animation(Animations.buzz, .linear(duration: .milliseconds(120)).repeatForever())
 			case .softKeys:
 				Style()
 					.hstack(justification: .spaceBetween, spacing: .rootEm(0.5))
@@ -391,7 +392,7 @@ struct GeoCitiesRingtones: ScriptedElement {
 					.active {
 						$0.background(Color("#9bbc4f"))
 					}
-					.when(.state, is: "pressed") {
+					.when(States.held) {
 						$0.background(Color("#9bbc4f"))
 					}
 			case .wideKey:

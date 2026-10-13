@@ -1,4 +1,5 @@
 // JezzBall on the desktop of the 1999 page, like the one of the Microsoft Entertainment Pack (Dima Pavlovsky, 1992): atoms bounce in a room, and walls that grow both ways from a click box them in. An atom that hits a wall while it grows breaks that half and takes a life. The parts of the room without atoms fill in, and `config.goal` percent cleared wins the level. Level n has n + 1 atoms, n + 1 lives, and a clock. Nothing makes a sound until the visitor turns on the sound.
+import GeoCitiesElement, {clamp, playTone} from '/scripts/geocities-element.js';
 
 // The room is a grid of 40 × 25 tiles of 12 pixels. A tile is open or filled, and the atoms bounce off the filled ones.
 const tile = 12;
@@ -8,7 +9,7 @@ const step = 1 / 120;
 
 const levelTime = level => 50 + (level * 15);
 
-export default class extends GeoCitiesElement {
+class GeoCitiesWindowsJezzBall extends GeoCitiesElement {
 	#context;
 	#columns;
 	#rows;
@@ -172,23 +173,7 @@ export default class extends GeoCitiesElement {
 			return;
 		}
 
-		const {context, output} = sound;
-		const oscillator = context.createOscillator();
-		const gain = context.createGain();
-		const time = context.currentTime + start;
-		oscillator.type = type;
-		oscillator.frequency.setValueAtTime(frequency, time);
-
-		if (slide) {
-			oscillator.frequency.exponentialRampToValueAtTime(slide, time + duration);
-		}
-
-		gain.gain.setValueAtTime(0.0001, time);
-		gain.gain.exponentialRampToValueAtTime(volume, time + 0.01);
-		gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-		oscillator.connect(gain).connect(output);
-		oscillator.start(time);
-		oscillator.stop(time + duration + 0.05);
+		playTone(sound, frequency, start, duration, {type, volume, slide});
 	}
 
 	#sounds = {
@@ -272,7 +257,7 @@ export default class extends GeoCitiesElement {
 	#halfTiles(half) {
 		return half.tiles.map((tilePosition, index) => {
 			const isTip = index === half.tiles.length - 1 && !half.isDone;
-			const part = isTip ? Math.min(Math.max(half.progress - index, 0), 1) : 1;
+			const part = isTip ? clamp(half.progress - index, 0, 1) : 1;
 			let x = tilePosition.column * tile;
 			let y = tilePosition.row * tile;
 			let width = tile;
@@ -746,8 +731,8 @@ export default class extends GeoCitiesElement {
 	#tileAt(event) {
 		const box = this.parts.screen.getBoundingClientRect();
 		return {
-			column: Math.min(Math.max(Math.floor(((event.clientX - box.left) / box.width) * this.#columns), 0), this.#columns - 1),
-			row: Math.min(Math.max(Math.floor(((event.clientY - box.top) / box.height) * this.#rows), 0), this.#rows - 1),
+			column: clamp(Math.floor(((event.clientX - box.left) / box.width) * this.#columns), 0, this.#columns - 1),
+			row: clamp(Math.floor(((event.clientY - box.top) / box.height) * this.#rows), 0, this.#rows - 1),
 		};
 	}
 
@@ -762,8 +747,8 @@ export default class extends GeoCitiesElement {
 			event.preventDefault();
 			const distance = event.shiftKey ? 4 : 1;
 			this.#crosshair = {
-				column: Math.min(Math.max(this.#crosshair.column + (move[0] * distance), 0), this.#columns - 1),
-				row: Math.min(Math.max(this.#crosshair.row + (move[1] * distance), 0), this.#rows - 1),
+				column: clamp(this.#crosshair.column + (move[0] * distance), 0, this.#columns - 1),
+				row: clamp(this.#crosshair.row + (move[1] * distance), 0, this.#rows - 1),
 			};
 			this.#isCrosshairShown = true;
 			this.#drawWhenStill();
@@ -784,3 +769,5 @@ export default class extends GeoCitiesElement {
 		}
 	}
 }
+
+customElements.define('geo-cities-windows-jezz-ball', GeoCitiesWindowsJezzBall);

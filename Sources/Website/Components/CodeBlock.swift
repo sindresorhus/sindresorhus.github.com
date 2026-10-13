@@ -73,7 +73,7 @@ struct CodeBlock: ScriptedElement {
 					Icon.copy.size(.rootEm(0.875))
 				}
 				span {
-					Icon.check.size(.rootEm(0.875))
+					Icon.check.size(.rootEm(0.875), strokeWidth: 2.75)
 				}
 			}
 			.accessibilityLabel("Copy code")
@@ -116,6 +116,10 @@ struct CodeBlock: ScriptedElement {
 			.style(Styles.console, when: language == "console")
 		}
 		.style(Styles.pre)
+	}
+
+	enum States: String, ElementStateSet {
+		case copied
 	}
 
 	enum Styles: ElementStyleSet {
@@ -176,19 +180,13 @@ struct CodeBlock: ScriptedElement {
 					.trailing(.rootEm(0.5))
 					.hstack(alignment: .center, spacing: .rootEm(0.5))
 					.font(size: .rootEm(0.75), lineHeight: 1.5)
-					// A frosted backdrop in the color of the code, so the language and the button are easy to read over a long line of code.
 					.padding(.leading, .rootEm(0.5))
 					.cornerRadius(.rootEm(0.5))
-					.background(.gray(800).opacity(0.8), dark: .black.opacity(0.7))
-					.backdropFilter(.blur(radius: .pixels(6)))
-					.reducedTransparency {
-						$0
-							.background(.gray(800), dark: .black)
-							.backdropFilter(.none)
-					}
+					// A frosted backdrop in the color of the code, so the language and the button are easy to read over a long line of code.
+					.frostedBackground(.lightDark(.gray(800).opacity(0.8), .black.opacity(0.7)), opaque: .lightDark(.gray(800), .black), blur: .pixels(6))
 					.opacity(0)
 					.transition(.opacity, animation: .stateChange)
-					.nested("\(Self.root.selector):hover &, \(Self.root.selector):focus-within &, &:has(> \(ScriptAttribute.state.selector()))") {
+					.nested("\(Self.root.selector):hover &, \(Self.root.selector):focus-within &, &:has(> \(States.copied.selector))") {
 						$0.opacity(1)
 					}
 					.media(.cannotHover) {
@@ -221,7 +219,7 @@ struct CodeBlock: ScriptedElement {
 							.opacity(0)
 							.scaleEffect(0.5)
 					}
-					.when(.state, is: "copied") {
+					.when(States.copied) {
 						$0
 							.children("span:first-child") {
 								$0

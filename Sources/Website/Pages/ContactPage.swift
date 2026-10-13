@@ -173,6 +173,16 @@ extension ContactPage {
 		case notesLink
 		case sparkle
 
+		/**
+		The color of the small text, darker than the secondary text in light mode, as the tinted background behind it is darker than white.
+		*/
+		private static let smallTextColor = Color.lightDark(.gray(600), .secondaryText)
+
+		/**
+		How the rainbow of the email address turns, under the pointer, or all the time on touch screens.
+		*/
+		private static let rainbowTurn = Animation.linear(duration: .seconds(6)).repeatForever(autoreverses: false)
+
 		var style: Style {
 			switch self {
 			case .root:
@@ -196,16 +206,13 @@ extension ContactPage {
 						$0.opacity(0.14)
 					}
 			case .blueOrb:
-				// Each orb stops for reduced motion in its own case, as a later case with an animation wins over the shared one.
+				// Each orb drifts on its own path, at its own speed.
 				Style()
 					.top(.percent(-20))
 					.trailing(.percent(-20))
 					.frame(width: .pixels(700), height: .pixels(700))
 					.background(.primary(500))
 					.animation(Animations.driftA, .easeInOut(duration: .seconds(18)).repeatForever())
-					.reducedMotion {
-						$0.noAnimation()
-					}
 			case .pinkOrb:
 				Style()
 					.bottom(.percent(-20))
@@ -213,9 +220,6 @@ extension ContactPage {
 					.frame(width: .pixels(600), height: .pixels(600))
 					.background(.secondary(500))
 					.animation(Animations.driftB, .easeInOut(duration: .seconds(13)).repeatForever())
-					.reducedMotion {
-						$0.noAnimation()
-					}
 			case .center:
 				Style()
 					.position(.relative)
@@ -227,9 +231,9 @@ extension ContactPage {
 				// The parts fade in one after the other. The first part is the second child, after the hidden title.
 				Style()
 					.animation(Animations.reveal, .timingCurve(0.22, 1, 0.36, 1, duration: .milliseconds(800)), fillMode: .both)
-					.declaration(.animationDelay, "calc((sibling-index() - 2) * 100ms)")
-					.reducedMotion {
-						$0.noAnimation()
+					// In the media query after the animation, as its shorthand resets the delay.
+					.media(.allowsMotion) {
+						$0.declaration(.animationDelay, "calc((sibling-index() - 2) * 100ms)")
 					}
 			case .eyebrow:
 				Style()
@@ -238,16 +242,13 @@ extension ContactPage {
 					.font(.extraSmall)
 					.letterSpacing(.em(0.1))
 					.textCase(.uppercase)
-					// Like the notes, darker than the secondary text in light mode, as the tinted background is darker than white.
-					.color(.lightDark(.gray(600), .secondaryText))
+					.color(Self.smallTextColor)
 			case .emailContainer:
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(1.25))
 					.margin(.bottom, .rootEm(2.5))
 			case .tilt:
-				Style()
-					.display(.block)
-					.declaration(.perspective, .pixels(800))
+				Style().perspective(.pixels(800))
 			case .email:
 				// The outline helps the rainbow colors stand out on a light background. `contact.js` tilts it toward the pointer with `--tilt-x` and `--tilt-y`, and sets `data-rainbow` while the pointer is on the page. On touch screens, the rainbow always turns.
 				Style()
@@ -259,18 +260,15 @@ extension ContactPage {
 					.color(.inherit)
 					// Only the outer half of the stroke shows, so it is twice as wide.
 					.textStroke(.black.opacity(0.18), width: .pixels(2))
-					.declaration(.transformStyle, "preserve-3d")
+					.transformStyle(.preserveDepth)
 					.transform(CSSValue("rotateX(calc(\(ContactPage.tiltX.value(default: 0)) * 1deg)) rotateY(calc(\(ContactPage.tiltY.value(default: 0)) * 1deg))"))
 					.setting(ContactPage.hue, to: 0)
 					// The rainbow only turns when the visitor allows motion.
-					.media(.allowsMotion) {
-						$0
-							.when(Hooks.rainbow) {
-								$0.animation(Animations.turnHue, .linear(duration: .seconds(6)).repeatForever(autoreverses: false))
-							}
-							.media(.cannotHover) {
-								$0.animation(Animations.turnHue, .linear(duration: .seconds(6)).repeatForever(autoreverses: false))
-							}
+					.when(Hooks.rainbow) {
+						$0.animation(Animations.turnHue, Self.rainbowTurn)
+					}
+					.media(.cannotHover) {
+						$0.animation(Animations.turnHue, Self.rainbowTurn)
 					}
 					.from(.smallTablet) {
 						$0.font(size: .clamp(.rootEm(2), .viewportWidth(5.8), .rootEm(100)))
@@ -284,7 +282,7 @@ extension ContactPage {
 					.display(.inlineBlock)
 					.textWrap(.nowrap)
 					.lastChild {
-						$0.setting(ContactPage.letterOffset, to: CSSValue(integerLiteral: ContactPage.emailParts.first?.count ?? 0))
+						$0.setting(ContactPage.letterOffset, to: CSSValue(ContactPage.emailParts.first?.count ?? 0))
 					}
 			case .letter:
 				// `contact.js` sets `--strength` (0 to 1) by how close the pointer is, which lifts and grows the letter, and `data-leaving` when the pointer moves away, which springs it back.
@@ -294,7 +292,7 @@ extension ContactPage {
 					.transform(CSSValue("translateY(calc(\(ContactPage.letterStrength.value(default: 0)) * -22px)) scale(calc(1 + \(ContactPage.letterStrength.value(default: 0)) * 0.8)) translateZ(calc(\(ContactPage.letterStrength.value(default: 0)) * 55px))"))
 					.transition(.transform, animation: .timingCurve(0.34, 1.56, 0.64, 1, duration: .milliseconds(80))).transition(.color, .textShadow, animation: .default(duration: .milliseconds(80)))
 					.declaration(.willChange, "transform")
-					.setting(ContactPage.letterHue, to: CSSValue("calc(\(ContactPage.hue.value) + (sibling-index() - 1 + \(ContactPage.letterOffset.value(default: 0))) * \(CSSValue(floatLiteral: 360 / Double(max(Self.letterCount, 1)))))"))
+					.setting(ContactPage.letterHue, to: CSSValue("calc(\(ContactPage.hue.value) + (sibling-index() - 1 + \(ContactPage.letterOffset.value(default: 0))) * \(CSSValue(360 / Double(max(Self.letterCount, 1)))))"))
 					.when(Hooks.leaving) {
 						$0.transition(.transform, animation: .timingCurve("linear(0, .5 7.7%, .9 14.4%, 1.04 19.4%, 1.06 23.7%, 1.02 30%, 1 35%, .99 45%, 1)", duration: .milliseconds(600))).transition(.color, .textShadow, animation: .default(duration: .milliseconds(500)))
 					}
@@ -318,8 +316,7 @@ extension ContactPage {
 					.vstack(alignment: .center)
 					.gap(row: .rootEm(0.25))
 					.font(.extraSmall)
-					// Darker than the secondary text in light mode, as the tinted background behind the small text is darker than white.
-					.color(.lightDark(.gray(600), .secondaryText))
+					.color(Self.smallTextColor)
 					.from(.smallTablet) {
 						$0
 							.flexDirection(.row)

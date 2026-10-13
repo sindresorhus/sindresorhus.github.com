@@ -178,11 +178,9 @@ enum ButtonStyles: StyleSet {
 				.fontWeight(.semibold)
 				.lineHeight(1.375)
 		case .large:
-			// Like the App Store badge next to it, it grows a little under the pointer.
 			Style()
-				// The corners are between those of the App Store badge (10px) and the Setapp badge (13px) next to it.
 				.frame(width: .pixels(180), height: .pixels(60))
-				.padding(vertical: .rootEm(1), horizontal: .rootEm(2.5))
+				// The corners are between those of the App Store badge (10px) and the Setapp badge (13px) next to it.
 				.cornerRadius(.rootEm(0.75))
 				.font(.extraLarge, weight: .bold)
 				.transition(.backgroundColor, animation: .default(duration: .milliseconds(200)))

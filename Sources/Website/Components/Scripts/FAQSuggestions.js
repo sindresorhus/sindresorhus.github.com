@@ -91,7 +91,7 @@ function questionMatcher(data, appTitle) {
 	return matchingQuestions;
 }
 
-export default class extends HTMLElement {
+class FAQSuggestions extends HTMLElement {
 	// The function that finds the questions a message is about. It is made on the first input, after the page script has set the `app` attribute.
 	#matchingQuestions;
 
@@ -143,7 +143,7 @@ export default class extends HTMLElement {
 				this.#renderedURLs = urls;
 				list.replaceChildren(...matches.map(({question, url}) => {
 					const item = this.querySelector('[data-part="template"]').content.firstElementChild.cloneNode(true);
-					item.querySelector('a').href = url;
+					item.querySelector('[data-part="link"]').href = url;
 					item.querySelector('[data-part="question"]').textContent = question;
 					return item;
 				}));
@@ -161,3 +161,5 @@ export default class extends HTMLElement {
 		this.#message.focus();
 	};
 }
+
+customElements.define('faq-suggestions', FAQSuggestions);

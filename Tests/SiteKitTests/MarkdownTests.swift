@@ -547,7 +547,7 @@ struct MarkdownTests {
 
 	@Test
 	func `headings of a level after a heading become collapsible sections`() {
-		let options = MarkdownDocument.Options(collapsibleSections: .init(level: 4, startHeadingID: "faq", name: "faq", moreLink: .init(title: "More", url: "/faq")), addsHeadingAnchors: true, headingDirectives: [Keywords.self])
+		let options = MarkdownDocument.Options(collapsibleSections: .init(level: 4, startHeadingID: "faq", name: "faq", moreLink: .init(title: "More", destination: .path("/faq"))), addsHeadingAnchors: true, headingDirectives: [Keywords.self])
 		let document = MarkdownDocument(parsing: """
 		#### Before
 
@@ -1018,4 +1018,41 @@ private struct BadgeAttributes {
 private struct BoxArguments {
 	var title: String
 	var isWide = false
+}
+
+@Suite
+struct ReleaseNotesSecurityTests {
+	@Test(arguments: ["<script>alert(1)</script>", "<img src=x onerror=alert(1)>", "<table><tr><td><script>alert(1)</script></td></tr></table>", "Text <iframe src='https://evil.example'></iframe>", "<kbd onclick=alert(1)>Delete</kbd>"])
+	func `external release notes escape raw HTML`(source: String) {
+		let html = MarkdownDocument(parsing: source, style: .releaseNotes).html
+		#expect(!html.contains("<script>"))
+		#expect(!html.contains("<iframe"))
+		#expect(!html.contains("<table"))
+		#expect(!html.contains("<img src=x"))
+		#expect(!html.contains("<kbd onclick"))
+		#expect(html.contains("&lt;"))
+	}
+
+	@Test(arguments: ["javascript:alert(1)", "JAVASCRIPT:alert(1)", "data:text/html,evil", "file:///etc/passwd", "vbscript:evil"])
+	func `external release notes disable unsafe destinations`(destination: String) {
+		let html = MarkdownDocument(parsing: "[Link](\(destination)) ![Image](\(destination))", style: .releaseNotes).html
+		#expect(!html.contains("href=\"\(destination)\""))
+		#expect(!html.contains("src=\"\(destination)\""))
+	}
+
+	@Test(arguments: ["&#32;javascript:alert(1)", "&#x20;JAVASCRIPT:alert(1)", "&#32;data:text/html,evil"])
+	func `entity decoded spaces cannot conceal executable schemes`(destination: String) {
+		let html = MarkdownDocument(parsing: "[Link](\(destination))", style: .releaseNotes).html
+		#expect(html.contains(#"href="""#))
+		#expect(!html.lowercased().contains("javascript:"))
+		#expect(!html.contains("data:text/html"))
+	}
+
+	@Test
+	func `release notes retain Markdown and safe destinations`() {
+		let html = MarkdownDocument(parsing: "**Fixed** [Issue](https://github.com/test/repo/issues/1) ![Preview](https://example.com/image.png)", style: .releaseNotes).html
+		#expect(html.contains("<strong>Fixed</strong>"))
+		#expect(html.contains("href=\"https://github.com/test/repo/issues/1\""))
+		#expect(html.contains("src=\"https://example.com/image.png\""))
+	}
 }

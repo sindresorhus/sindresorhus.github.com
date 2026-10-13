@@ -223,6 +223,10 @@ struct GeoCitiesWorms: ScriptedElement {
 		case status
 	}
 
+	enum States: String, ElementStateSet {
+		case empty
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		The button of a weapon, with its ID, like `bazooka`.
@@ -313,12 +317,12 @@ struct GeoCitiesWorms: ScriptedElement {
 					.active {
 						$0.border(Color("#7070d0"), width: .pixels(2), style: .inset)
 					}
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.background(Color("#c08020"))
 							.border(Color("#ffd060"), width: .pixels(2), style: .inset)
 					}
-					.when(.state, is: "empty") {
+					.when(States.empty) {
 						$0.opacity(0.45)
 					}
 			case .weaponIcon:
@@ -333,23 +337,14 @@ struct GeoCitiesWorms: ScriptedElement {
 					.grid(columns: 4)
 					.gap(.pixels(4))
 			case .control:
-				Style()
+				GeoCitiesPage.Styles.retroButton.style
 					.vstack(alignment: .center, justification: .center, spacing: 0)
 					.frame(minHeight: .rootEm(2.75))
 					// No padding at the sides, so the longest names, like “Walk right”, stay on one line in the narrow buttons of a phone.
 					.padding(vertical: .rootEm(0.25), horizontal: 0)
-					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(3), style: .outset)
-					.fontFamily(.system)
-					.textStyle(.body, weight: .bold)
 					.lineHeight(1.1)
-					.color(.black)
-					.handCursor()
 					.textSelection(.disabled)
 					.touchAction(.none)
-					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
-					}
 			case .controlName:
 				Style()
 					.textStyle(.caption)
@@ -363,17 +358,15 @@ struct GeoCitiesWorms: ScriptedElement {
 					.background(Color("#c02020"))
 					.border(Color("#ff8080"), width: .pixels(3), style: .outset)
 					.color(.white)
+					// The navy ring of the other buttons does not show on the red.
+					.buttonFocusRing(.white)
 					.active {
 						$0.border(Color("#ff8080"), width: .pixels(3), style: .inset)
 					}
 			case .fuse:
 				Style()
 					.frame(minWidth: .rootEm(2.75), minHeight: .rootEm(2.75))
-					.when(.state, is: "on") {
-						$0
-							.background(Color("#ffd060"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
+					.pressedIn(Color("#ffd060"))
 			case .fuses:
 				// The five fuse buttons stay together on one line, also when the label above them wraps on a phone.
 				Style().hstack(alignment: .center, spacing: .rootEm(0.5))

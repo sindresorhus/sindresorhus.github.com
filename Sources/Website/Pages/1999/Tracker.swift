@@ -82,7 +82,6 @@ struct GeoCitiesTracker: ScriptedElement {
 							button(.type(.button), .hook(Hooks.instrument, value: "\(index + 1)"), .ariaPressed(index == 0)) {
 								"0\(index + 1) \(instrument)"
 							}
-							.attributes(.hook(.state, value: "on"), when: index == 0)
 							.style(Styles.instrument)
 						}
 					}
@@ -182,6 +181,12 @@ struct GeoCitiesTracker: ScriptedElement {
 		case octave
 		case pattern
 		case status
+	}
+
+	enum States: String, ElementStateSet {
+		case now
+		case hit
+		case cursor
 	}
 
 	enum Hooks: String, ScriptHookSet {
@@ -299,7 +304,7 @@ struct GeoCitiesTracker: ScriptedElement {
 					.textStyle(.caption)
 					.color(Color("#ffff88"))
 					.handCursor()
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.background(Color("#ffff88"))
 							.color(.black)
@@ -310,7 +315,7 @@ struct GeoCitiesTracker: ScriptedElement {
 					.grid(columns: "2.5ch repeat(4, 1fr)")
 					.gap(.rootEm(0.25))
 					.padding(.horizontal, .rootEm(0.25))
-					.when(.state, is: "now") {
+					.when(States.now) {
 						$0.background(Color("#3a4f8f"))
 					}
 			case .beatRow:
@@ -330,7 +335,10 @@ struct GeoCitiesTracker: ScriptedElement {
 					.textStyle(.caption, weight: .bold)
 					.color(.white)
 					.handCursor()
-					.when(.state, is: "muted") {
+					.active {
+						$0.border(Self.lightColor, width: .pixels(1), style: .inset)
+					}
+					.pressed {
 						$0
 							.color(Color("#ff8888"))
 							.underline()
@@ -341,7 +349,7 @@ struct GeoCitiesTracker: ScriptedElement {
 					.frame(height: .pixels(4))
 					.background(Self.darkColor)
 					.transition(.background, animation: .easeOut(duration: .milliseconds(200)))
-					.when(.state, is: "hit") {
+					.when(States.hit) {
 						$0
 							.background(Color("#33ff66"))
 							.noTransition()
@@ -369,7 +377,7 @@ struct GeoCitiesTracker: ScriptedElement {
 					.padding(.horizontal, .pixels(2))
 					.textWrap(.nowrap)
 					.handCursor()
-					.when(.state, is: "cursor") {
+					.when(States.cursor) {
 						$0
 							.background(Color("#cccccc"))
 							.color(.black)

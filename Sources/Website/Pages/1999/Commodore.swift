@@ -469,6 +469,13 @@ struct GeoCitiesCommodore: ScriptedElement {
 		case output
 	}
 
+	enum States: String, ElementStateSet {
+		case game
+		case on
+		case warm
+		case hot
+	}
+
 	/**
 	The lists of the same kind of element, with a value for the script.
 	*/
@@ -582,7 +589,7 @@ struct GeoCitiesCommodore: ScriptedElement {
 					.shadow(Shadow(x: .pixels(4), y: .pixels(6), color: Color("#00000066")))
 					// On a phone, the TV sticks under the header of the site while the tape plays and while a game runs, so the screen and the Datassette or the joystick far below it fit on the screen together.
 					.below(.tablet) {
-						$0.when(.state, is: "game") {
+						$0.when(States.game) {
 							$0
 								.position(.sticky)
 								.top(SiteHeader.height)
@@ -679,7 +686,7 @@ struct GeoCitiesCommodore: ScriptedElement {
 					.frame(width: .rootEm(0.75), height: .rootEm(0.375))
 					.background(Color("#4a1612"))
 					.cornerRadius(.rootEm(0.125))
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0
 							.background(Color("#ff3322"))
 							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ff4433")))
@@ -721,7 +728,7 @@ struct GeoCitiesCommodore: ScriptedElement {
 							.offset(y: .pixels(2))
 							.shadow(Shadow(y: 0, color: Color("#1e1813")))
 					}
-					.when(.state, is: "on") {
+					.pressed {
 						$0.background(Color("#8a6d3b"))
 					}
 			case .key:
@@ -833,7 +840,7 @@ struct GeoCitiesCommodore: ScriptedElement {
 					.frame(width: .rootEm(0.75), height: .rootEm(0.375))
 					.background(Color("#4a1612"))
 					.cornerRadius(.rootEm(0.125))
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0
 							.background(Color("#ff3322"))
 							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ff4433")))
@@ -874,7 +881,7 @@ struct GeoCitiesCommodore: ScriptedElement {
 					.textStyle(.caption, weight: .bold)
 					.color(Color("#efe6d6"))
 					.handCursor()
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.offset(y: .pixels(3))
 							.shadow(Shadow(y: 0, color: Color("#1d1813")))
@@ -940,12 +947,12 @@ struct GeoCitiesCommodore: ScriptedElement {
 					.textStyle(.caption, weight: .bold)
 					.color(Color("#dddddd"))
 					.handCursor()
-					.when(.state, is: "warm") {
+					.when(States.warm) {
 						$0
 							.background(Color("#4a2a18"))
 							.shadow(Shadow(y: 0, blur: .pixels(10), color: Color("#ff8a3380")))
 					}
-					.when(.state, is: "hot") {
+					.when(States.hot) {
 						$0
 							.background(Color("#7a2010"))
 							.shadow(Shadow(y: 0, blur: .pixels(16), color: Color("#ff3311cc")))

@@ -75,7 +75,7 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.windowBody, Styles.stack)
 			}
-			.style(GeoCitiesPage.Styles.window, Styles.window)
+			.style(GeoCitiesPage.Styles.window)
 		}
 	}
 
@@ -167,7 +167,7 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.windowBody, Styles.stack)
 			}
-			.style(GeoCitiesPage.Styles.window, Styles.window)
+			.style(GeoCitiesPage.Styles.window)
 		}
 	}
 
@@ -180,12 +180,12 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 				button(.part(Parts.throwDown), .type(.button)) {
 					"⬇️ Throw"
 				}
-				.style(GeoCitiesPage.Styles.retroButton, Styles.bigButton)
+				.style(GeoCitiesPage.Styles.retroButton, GeoCitiesPage.Styles.bigButton)
 
 				button(.part(Parts.tug), .type(.button)) {
 					"⬆️ Tug!"
 				}
-				.style(GeoCitiesPage.Styles.retroButton, Styles.bigButton)
+				.style(GeoCitiesPage.Styles.retroButton, GeoCitiesPage.Styles.bigButton)
 			}
 			.style(Styles.pair)
 
@@ -303,7 +303,7 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.windowBody, Styles.stack)
 			}
-			.style(GeoCitiesPage.Styles.window, Styles.window)
+			.style(GeoCitiesPage.Styles.window)
 		}
 	}
 
@@ -370,6 +370,12 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 		case shelfStatus
 	}
 
+	enum States: String, ElementStateSet {
+		case drag
+		case learned
+		case locked
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		A trick of the trick list, with its ID in the script, which the script marks as learned or locked.
@@ -386,7 +392,6 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 		case root
 		case toys
 		case eggColumn
-		case window
 		case stack
 		case canvas
 		case eggCanvas
@@ -397,7 +402,6 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 		case urgent
 		case wide
 		case pair
-		case bigButton
 		case status
 		case prompt
 		case speech
@@ -420,8 +424,6 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 					}
 			case .eggColumn:
 				Style().vstack(spacing: .rootEm(1.25))
-			case .window:
-				Style().frame(minWidth: 0)
 			case .stack:
 				Style().vstack(spacing: .rootEm(0.625))
 			case .canvas:
@@ -433,15 +435,13 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 					.background(Color("#f3e3c3"))
 					.touchAction(.none)
 					.cursor(.pointer)
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .eggCanvas:
 				// The kiosk, the cracking, and the bites only take taps, so a finger can scroll the page over the table then. The foil, the capsule, and the parts take drags.
 				Style()
 					.aspectRatio(320.0 / 260.0)
 					.touchAction(.manipulation)
-					.when(.state, is: "drag") {
+					.when(States.drag) {
 						$0.touchAction(.none)
 					}
 			case .yoyoCanvas:
@@ -461,11 +461,7 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 			case .toggle:
 				Style()
 					.frame(minHeight: .rootEm(2.25))
-					.when(.state, is: "on") {
-						$0
-							.background(Color("#ffff99"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
+					.pressedIn(Color("#ffff99"))
 			case .urgent:
 				Style()
 					.frame(minHeight: .rootEm(2.25))
@@ -476,14 +472,8 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 				Style()
 					.grid(columns: 2)
 					.gap(.rootEm(0.5))
-			case .bigButton:
-				Style().frame(minHeight: .rootEm(2.75))
 			case .status:
-				Style()
-					.frame(minHeight: .lineHeight(3))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+				Style().toyStatus(lines: 3)
 			case .prompt:
 				// A yellow note, like the speech of a comic, for Lillesøster and for Trond.
 				Style()
@@ -522,12 +512,12 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 					.children("strong") {
 						$0.display(.block)
 					}
-					.when(.state, is: "learned") {
+					.when(States.learned) {
 						$0
 							.color(Color("#006600"))
 							.opacity(1)
 					}
-					.when(.state, is: "locked") {
+					.when(States.locked) {
 						$0
 							.color(Color("#888888"))
 							.opacity(0.7)
@@ -557,6 +547,10 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 							.textStyle(.caption, weight: .bold)
 							.color(.black)
 							.handCursor()
+							.buttonFocusRing()
+							.active {
+								$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+							}
 					}
 			}
 		}

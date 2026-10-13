@@ -528,7 +528,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.windowBody)
 		}
-		.style(GeoCitiesPage.Styles.window, Styles.window)
+		.style(GeoCitiesPage.Styles.window)
 	}
 
 	private func gif(_ gif: GeoCitiesPage.GIF, alt: String = "", style: GeoCitiesPage.Styles = .gif) -> GeoCitiesPage.GIFImage {
@@ -624,10 +624,23 @@ struct GeoCitiesGameRoom: ScriptedElement {
 		case typingNew
 	}
 
+	enum States: String, ElementStateSet {
+		case win
+		case lit
+		case open
+		case matched
+		case hit
+		case miss
+		case scored
+		case wait
+		case go
+		case typed
+		case mistyped
+	}
+
 	enum Styles: ElementStyleSet {
 		case root
 		case room
-		case window
 		case windowTitle
 		case game
 		case status
@@ -678,8 +691,6 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					.children("*") {
 						$0.frame(minWidth: 0)
 					}
-			case .window:
-				Style().frame(minWidth: 0)
 			case .windowTitle:
 				Style().margin(0)
 			case .game:
@@ -710,7 +721,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					.background(.white)
 					.border(Color("#808080"), width: .pixels(2), style: .inset)
 					.font(size: .rootEm(2.25), lineHeight: 1)
-					.when(.state, is: "win") {
+					.when(States.win) {
 						$0.background(Color("#ffff66"))
 					}
 			case .payTable:
@@ -778,7 +789,8 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					.color(Color("#00000066"))
 					.opacity(0.55)
 					.handCursor()
-					.when(.state, is: "lit") {
+					.buttonFocusRing(.white)
+					.when(States.lit) {
 						$0
 							.opacity(1)
 							.shadow(Shadow(x: 0, y: 0, blur: .pixels(16), color: .white))
@@ -806,6 +818,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					.background(Color("#000080"))
 					.border(Color("#dfdfdf"), width: .pixels(3), style: .outset)
 					.handCursor()
+					.buttonFocusRing()
 					// The GIFs have different sizes, so each fits in its card.
 					.children("picture > img") {
 						$0
@@ -823,7 +836,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 							.font(.extraLarge2, weight: .bold)
 							.color(Color("#ffee55"))
 					}
-					.when(.state, is: "open") {
+					.when(States.open) {
 						$0
 							.background(.white)
 							.children("*") {
@@ -833,7 +846,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 								$0.content("")
 							}
 					}
-					.when(.state, is: "matched") {
+					.when(States.matched) {
 						$0
 							.background(Color("#ccffcc"))
 							.border(Color("#00aa00"), width: .pixels(3), style: .inset)
@@ -874,12 +887,15 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					.fontWeight(.bold)
 					.color(.black)
 					.handCursor()
-					.when(.state, is: "hit") {
+					.active {
+						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+					}
+					.when(States.hit) {
 						$0
 							.background(Color("#99ee99"))
 							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
 					}
-					.when(.state, is: "miss") {
+					.when(States.miss) {
 						$0
 							.background(Color("#ee9999"))
 							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
@@ -909,7 +925,8 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					.font(size: .rootEm(2.5), lineHeight: 1)
 					.color(.black)
 					.handCursor()
-					.when(.state, is: "kept") {
+					.buttonFocusRing()
+					.pressed {
 						$0
 							.background(Color("#ffee55"))
 							.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
@@ -942,14 +959,19 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					.fontWeight(.bold)
 					.color(Color("#000080"))
 					.handCursor()
-					.when(.state, is: "scored") {
+					.buttonFocusRing()
+					.disabled {
+						$0
+							.opacity(0.5)
+							.cursor(GeoCitiesPage.arrowCursor, fallback: .default)
+					}
+					// After the disabled look, so a score stays clear.
+					.when(States.scored) {
 						$0
 							.background(.transparent)
 							.border(.transparent, width: .pixels(2))
 							.color(.black)
-					}
-					.disabled {
-						$0.cursor(GeoCitiesPage.arrowCursor, fallback: .default)
+							.opacity(1)
 					}
 			case .sumRow:
 				Style()
@@ -965,10 +987,15 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					.font(.extraLarge2)
 					.color(.white)
 					.handCursor()
-					.when(.state, is: "wait") {
+					// Navy on the light edge, as the ring is on the edge of the button.
+					.buttonFocusRing()
+					.active {
+						$0.border(Color("#dfdfdf"), width: .pixels(4), style: .inset)
+					}
+					.when(States.wait) {
 						$0.background(Color("#cc0000"))
 					}
-					.when(.state, is: "go") {
+					.when(States.go) {
 						$0
 							.background(Color("#00cc44"))
 							.color(.black)
@@ -988,10 +1015,10 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					.textAlign(.leading)
 					.children("span") {
 						$0
-							.when(.state, is: "typed") {
+							.when(States.typed) {
 								$0.color(Color("#008800"))
 							}
-							.when(.state, is: "mistyped") {
+							.when(States.mistyped) {
 								$0
 									.background(Color("#ffaaaa"))
 									.color(Color("#cc0000"))

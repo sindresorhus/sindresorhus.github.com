@@ -35,16 +35,9 @@ struct App: ContentDocument {
 	let iconEnclosure: Enclosure?
 
 	/**
-	The most common vivid color of the icon, like `#1e88e5`, which the app page uses as its accent (``Color/accent``). `nil` for a gray icon.
+	The accent of the app: the most common vivid color of the icon, like `#1e88e5`, which the app page uses as its accent (``Color/accent``), for ``Page/tint`` and ``Elementary/HTML/tint(_:)``. `nil` for a gray icon.
 	*/
-	let accentColor: String?
-
-	/**
-	The accent of the app (``accentColor``) as a color, for ``Page/tint`` and ``Elementary/HTML/tint(_:)``.
-	*/
-	var tint: Color? {
-		accentColor.map { Color($0) }
-	}
+	let tint: Color?
 
 	static let directory = "content/apps"
 
@@ -98,7 +91,7 @@ struct App: ContentDocument {
 
 		let iconPath = project.publicFile(Self.iconPath(slug: file.slug)).isFile ? Self.iconPath(slug: file.slug) : Self.placeholderIconPath
 		self.iconPath = iconPath
-		self.accentColor = CGImageSourceCreateWithURL(project.publicFile(iconPath) as CFURL, nil)
+		self.tint = CGImageSourceCreateWithURL(project.publicFile(iconPath) as CFURL, nil)
 			.flatMap { CGImageSourceCreateImageAtIndex($0, 0, nil) }?
 			.accentColor
 		self.iconEnclosure = (try? project.publicFile(iconPath).resourceValues(forKeys: [.fileSizeKey]).fileSize).map { size in
@@ -249,7 +242,11 @@ extension App {
 	The list of older versions in the readme of the repo. Frontmatter with `olderMacOSVersions` needs `repositoryURL`.
 	*/
 	var olderVersionsURL: URL? {
-		frontmatter.repositoryURL.map { URL(string: "\($0.absoluteString)#download") ?? $0 }
+		frontmatter.repositoryURL.map {
+			var components = URLComponents(url: $0, resolvingAgainstBaseURL: true)
+			components?.fragment = "download"
+			return components?.url ?? $0
+		}
 	}
 
 	/**
@@ -360,7 +357,7 @@ extension App {
 	Whether the app was published in the last 30 days.
 	*/
 	func isNew(at date: Date) -> Bool {
-		date.duration(since: publicationDate) < .days(30)
+		(.zero..<Duration.days(30)).contains(date.duration(since: publicationDate))
 	}
 
 	/**
@@ -490,7 +487,7 @@ extension App {
 		The macOS versions that have an older version listed elsewhere, like in the readme of the repo (`olderVersionsURL`). Apps with `olderVersions` do not need it.
 		*/
 		var olderMacOSVersions = [MacOSVersion]()
-		var requirement: String?
+		@NonEmpty var requirement: String?
 		@JavaScriptSafe var downloads: Int?
 
 		/**
@@ -527,16 +524,8 @@ extension App {
 				throw ContentError(reason: "`subtitle` must not end with punctuation, because the default description adds a period after it.")
 			}
 
-			if announcement?.text.isEmpty == true {
-				throw ContentError(reason: "`announcement.text` must not be empty.")
-			}
-
 			if platforms.isEmpty {
 				throw ContentError(reason: "`platforms` must have at least one platform.")
-			}
-
-			if requirement?.allSatisfy(\.isWhitespace) == true {
-				throw ContentError(reason: "`requirement` must not be empty.")
 			}
 
 			if
@@ -607,10 +596,10 @@ extension App {
 		/**
 		Plain text, not Markdown.
 		*/
-		var text: String
+		@NonEmpty var text: String
 
 		var url: LinkDestination?
-		var linkText: String?
+		@NonEmpty var linkText: String?
 	}
 }
 

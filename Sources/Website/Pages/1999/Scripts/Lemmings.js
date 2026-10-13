@@ -1,10 +1,7 @@
 // Lemmingz ’99 on the 1999 page: a screen of 256 × 144 pixels of dirt, steel, and bricks, drawn twice as large, and lemmings of 3 × 10 pixels, which take 15 steps a second, like the Lemmings of 1991. A lemming walks up steps of up to 6 pixels and turns at higher walls, and a fall of more than 56 pixels kills it, unless it has an umbrella.
+import GeoCitiesElement, {randomItem, randomBetween, clamp} from '/scripts/geocities-element.js';
 
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-export default class extends GeoCitiesElement {
+class GeoCitiesLemmings extends GeoCitiesElement {
 	// The lemmings only walk while their canvas is on the screen, not while only the buttons below it are.
 	get visibilityTarget() {
 		return this.parts.screen;
@@ -192,13 +189,6 @@ export default class extends GeoCitiesElement {
 				const isPicked = skill === game.skill;
 				this.querySelector(`[data-lemmings-count="${skill}"]`).textContent = String(game.skills[skill]);
 				button.setAttribute('aria-pressed', String(isPicked));
-
-				if (isPicked) {
-					button.dataset.state = 'on';
-				} else {
-					delete button.dataset.state;
-				}
-
 				button.disabled = game.skills[skill] === 0 && !isPicked;
 			}
 		};
@@ -1022,3 +1012,5 @@ export default class extends GeoCitiesElement {
 		startLevel(progress.current);
 	}
 }
+
+customElements.define('geo-cities-lemmings', GeoCitiesLemmings);

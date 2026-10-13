@@ -51,7 +51,7 @@ struct GeoCitiesLemmings: ScriptedElement {
 							"\(index + 1) \(skill.name)"
 						}
 					}
-					.style(Styles.skill)
+					.style(Styles.skill, GeoCitiesPage.Styles.dimmedWhenDisabled)
 				}
 
 				button(.part(Parts.nuke), .type(.button)) {
@@ -93,6 +93,7 @@ struct GeoCitiesLemmings: ScriptedElement {
 				label {
 					"Level: "
 					select(.part(Parts.level)) {}
+						.style(GeoCitiesPage.Styles.select)
 				}
 			}
 			.style(GeoCitiesPage.Styles.buttonRow, GeoCitiesPage.Styles.scriptingOnly)
@@ -162,6 +163,10 @@ struct GeoCitiesLemmings: ScriptedElement {
 					.imageRendering(.pixelated)
 					.touchAction(.manipulation)
 					.cursor(.crosshair)
+					// The focus ring is inside the edge, as the box of the screen scrolls sideways and cuts off a ring outside it.
+					.focusVisible {
+						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(-4))
+					}
 			case .skills:
 				// The panel of jobs at the bottom of the screen, like in Lemmings.
 				Style()
@@ -186,7 +191,7 @@ struct GeoCitiesLemmings: ScriptedElement {
 					.active {
 						$0.border(Color("#8080ff"), width: .pixels(2), style: .inset)
 					}
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.background(Color("#8080ff"))
 							.border(Color("#c0c0ff"), width: .pixels(2), style: .inset)

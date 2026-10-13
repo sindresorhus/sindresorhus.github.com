@@ -41,7 +41,7 @@ struct IconLink: HTML {
 		.media(.coarsePointer) {
 			$0
 				.padding(.rootEm(0.75))
-				.margin(.rootEm(-0.125))
+				.margin(.rootEm(-0.375))
 		}
 		// Round, like the pills of the navigation next to it.
 		.cornerRadius(.capsule)

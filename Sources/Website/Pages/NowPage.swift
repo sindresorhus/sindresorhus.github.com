@@ -5,7 +5,7 @@ import SiteKit
 /**
 What Sindre is working on now, like the pages on https://nownownow.com: the hand-written status, focus, reading, and listening of `content/pages/now.md`, and what the build gets, so the rest never goes stale: the newest app, app updates, two reviews, GitHub and npm activity, and the latest posts.
 
-Each part that the build could not get is left out. The latest commits are only loaded in the browser (`now.js`), which also shows a newer Bluesky post than the one of the build.
+Each part that the build could not get is left out. The latest commits are only loaded in the browser (`now.js`), which also shows a newer Bluesky post than the one of the build. Whether Sindre is probably awake (``AwakeStatus``) and the npm downloads while the visitor has been on the page (``RunningCount``) are also only in the browser.
 */
 struct NowPage: Page {
 	let page: MarkdownPage
@@ -25,15 +25,25 @@ struct NowPage: Page {
 
 	var body: some HTML {
 		ProsePage(title: page.title) {
-			if let lastChange {
-				// The text is in a span, so the stack keeps the space after “Updated”.
-				p {
-					span {
-						"Updated "
-						DateText(lastChange, format: .siteDay)
+			// The chips are in a row, which wraps on small screens.
+			div {
+				if let lastChange {
+					// The text is in a span, so the stack keeps the space after “Updated”.
+					p {
+						span {
+							"Updated "
+							DateText(lastChange, format: .siteDay)
+						}
 					}
+					.style(Styles.updated)
 				}
-				.style(Styles.updated)
+
+				AwakeStatus()
+			}
+			.style {
+				$0
+					.hstack(spacing: .rootEm(0.5))
+					.flexWrap()
 			}
 
 			if let status = page.frontmatter.status {
@@ -118,6 +128,48 @@ struct NowPage: Page {
 	}
 
 	/**
+	The widths of the repo and the message of each placeholder commit, in `em` of the root. They are different, like real commits. There are five, as `now.js` gets five commits (`per_page=5`).
+	*/
+	private static let placeholderCommitWidths: [(repository: Double, message: Double)] = [(5.5, 24), (4, 17), (7, 21), (5, 12), (6, 19)]
+
+	/**
+	A row that holds the place of a commit while the commits load. Each line is in a span with the text style of the commit, so the row is as high as a commit.
+	*/
+	private func placeholderCommit(repositoryWidth: Double, messageWidth: Double) -> some HTML {
+		li {
+			span {
+				span {
+					placeholder(width: repositoryWidth)
+				}
+				.style(Styles.rowLabel)
+
+				span {
+					placeholder(width: 5)
+				}
+				.style(Styles.rowDate)
+			}
+			.style(Styles.rowHeader)
+
+			span {
+				placeholder(width: messageWidth)
+			}
+		}
+		.accessibilityHidden()
+		.style(Styles.row, Styles.stackedRow, Styles.placeholderRow)
+	}
+
+	/**
+	A gray line in the place of a text that is still loading. The width is in `em` of the root, not a percentage, as the parent is only as wide as its content, so a percentage would be zero.
+	*/
+	private func placeholder(width: Double) -> some HTML {
+		span {}
+			.style(Styles.placeholder)
+			.style {
+				$0.frame(width: .rootEm(width))
+			}
+	}
+
+	/**
 	A part of a section: a small title above a card, or above other content. The parts of a section are in two columns on larger screens, and a wide part spans both.
 	*/
 	private func group<Content: HTML>(_ title: String, isWide: Bool = false, @HTMLBuilder content: () -> Content) -> some HTML {
@@ -167,28 +219,46 @@ struct NowPage: Page {
 	}
 
 	/**
-	The latest commits, the numbers of the week, and the contributions. The latest commits are only loaded in the browser, so without the other parts, the section is hidden until they load.
+	The latest commits, the npm downloads while the visitor has been on the page, the numbers of the week, and the contributions. The latest commits are only loaded in the browser, so without the other parts, the section is hidden until they load.
 	*/
 	private var buildingNow: some HTML {
 		let contributions = content.recentActivity.contributions
 		let weekStats = weekStats
+		// From the average of the last week, so it is not live downloads.
+		let downloadStat = content.npmStatistics.weeklyDownloads.map { Stat(perSecond: Double($0) / (Duration.days(7) / .seconds(1)), label: "downloads of my packages while you have been here") }
 
 		return Section("Building Now", id: "building-now") {
 			div {
-				div(.id(Hooks.latestCommits), .hidden) {
+				// `now.js` fills in the commits, or shows a link to GitHub when it cannot get them. Without scripts, there are no commits to show.
+				div(.id(Hooks.latestCommits)) {
 					h3 {
 						"Right Now on GitHub"
 					}
 					.style(Styles.groupTitle)
 
-					ul {}
-						.style(Styles.card, Styles.rows)
+					// While the commits load, gray lines take the place of five of them, so the page does not move when they come in.
+					ul {
+						ForEach(Self.placeholderCommitWidths) { widths in
+							placeholderCommit(repositoryWidth: widths.repository, messageWidth: widths.message)
+						}
+					}
+					.style(Styles.card, Styles.rows)
+
+					// `now.js` shows it instead of the commits when GitHub does not send them, like when the visitor has made too many searches. Without a token, GitHub allows 10 searches a minute.
+					p(.id(Hooks.latestCommitsError), .hidden) {
+						"GitHub did not send the latest commits right now. "
+						a(.href(.url(#URL("https://github.com/sindresorhus")))) {
+							"See them on GitHub"
+						}
+						"."
+					}
+					.style(Styles.card)
 
 					// `now.js` fills in the repo, the message, and when it was committed.
 					template(.id(Hooks.commitTemplate)) {
 						li {
 							span {
-								span {}
+								span(.hook(Hooks.commitRepository)) {}
 									.style(Styles.rowLabel)
 
 								time {}
@@ -202,6 +272,17 @@ struct NowPage: Page {
 					}
 				}
 				.style(Styles.group, Styles.wideGroup)
+				.style {
+					$0.media(.scriptingDisabled) {
+						$0.hidden()
+					}
+				}
+
+				if let downloadStat {
+					group("Right Now on npm", isWide: true) {
+						StatCard(stats: [downloadStat])
+					}
+				}
 
 				if !weekStats.isEmpty {
 					group("This Week in Open Source", isWide: true) {
@@ -241,7 +322,7 @@ struct NowPage: Page {
 			}
 			.style(Styles.groups)
 		}
-		.attributes(.hidden, when: contributions == nil && weekStats.isEmpty)
+		.attributes(.hidden, when: contributions == nil && downloadStat == nil && weekStats.isEmpty)
 	}
 
 	@HTMLBuilder
@@ -637,16 +718,16 @@ struct NowPage: Page {
 	*/
 	private var latestReleases: [Release] {
 		let gitHubReleases = content.recentActivity.releases
-			.filter { GitHub.owners.contains($0.repository.repositoryOwner) }
+			.filter { GitHub.owners.contains($0.repository.repositoryOwner.lowercased()) }
 			.map { release in
 				Release(name: release.name, displayName: release.displayName, version: release.version, url: release.url, date: release.date)
 			}
 
 		let names = Set(gitHubReleases.map(\.name))
 
-		// Only the packages of repositories that the same owners have, as the npm search also finds packages that he only helps maintain, like `yeoman-generator`.
+		// Only the packages of repositories that the same owners have, as the npm search also finds packages that he only helps maintain, like `yeoman-generator`. The owner is compared in lowercase, as the link of a package can have capitals, like `SindreSorhus/x`.
 		let npmReleases = content.npmStatistics.packages
-			.filter { GitHub.owners.contains($0.repository?.repositoryOwner ?? "") }
+			.filter { GitHub.owners.contains($0.repository?.repositoryOwner.lowercased() ?? "") }
 			.map { Release(name: String($0.name.split(separator: "/").last ?? ""), displayName: $0.name, version: $0.version, url: $0.url, date: $0.date) }
 			.filter { !names.contains($0.name) }
 
@@ -791,7 +872,7 @@ struct NowPage: Page {
 			year.map { Stat(count: $0.calendar.totalCount, noun: "contribution") },
 			year.map { Stat(count: $0.activeDayCount, noun: "day", suffix: "with contributions") },
 			// Short enough for one line, also with the longest month.
-			year?.busiestDay.flatMap { Stat(busiestDay: $0, format: .siteDayWithoutYear) },
+			year?.busiestDay.map { Stat(busiestDay: $0, format: .siteDayWithoutYear) },
 			totals.map { Stat(count: $0.commitCount, noun: "commit") },
 			totals.map { Stat(count: $0.committedRepositoryCount, noun: "repository", pluralNoun: "repositories", suffix: "committed to") },
 			totals.map { Stat(count: $0.pullRequestCount, noun: "pull request", suffix: "opened") },
@@ -835,6 +916,12 @@ struct NowPage: Page {
 		case blueskyPost = "bluesky-post"
 		case commitTemplate = "commit-template"
 		case latestCommits = "latest-commits"
+		case latestCommitsError = "latest-commits-error"
+
+		/**
+		The repo of a commit in its template, which `now.js` fills in.
+		*/
+		case commitRepository = "data-commit-repository"
 	}
 
 	enum Styles: StyleSet {
@@ -858,6 +945,8 @@ struct NowPage: Page {
 		case rowLabel
 		case rowLink
 		case rowDate
+		case placeholderRow
+		case placeholder
 		case detail
 		case version
 		case colophon
@@ -872,14 +961,7 @@ struct NowPage: Page {
 			switch self {
 			case .updated:
 				Style()
-					.hstack(alignment: .center, isInline: true)
-					.margin(0)
-					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.75))
-					.cornerRadius(.capsule)
-					.textStyle(.caption, weight: .medium)
-					.monospacedDigit()
-					.color(.secondaryText)
-					.background(.card)
+					.statusChip()
 					.statusLight()
 			case .status:
 				Style()
@@ -988,6 +1070,20 @@ struct NowPage: Page {
 					.secondaryText()
 					.monospacedDigit()
 					.textWrap(.nowrap)
+			// A row that holds the place of a commit while the commits load. On phones, it is as high as a commit with a message on two lines, as most messages wrap there.
+			case .placeholderRow:
+				Style()
+					.below(.tablet) {
+						$0.frame(minHeight: .rootEm(5.875))
+					}
+			// A gray line that holds the place of a text while it loads, like `redacted(reason: .placeholder)` in SwiftUI. It is inline, in a line of the text, so the line is as high as the text. It does not pulse, as it only shows for a moment.
+			case .placeholder:
+				Style()
+					.display(.inlineBlock)
+					.frame(height: .em(0.75), maxWidth: .percent(100))
+					.cornerRadius(.capsule)
+					.verticalAlign(.middle)
+					.background(.secondaryText.opacity(0.2))
 			// Less important text, like the description of a row.
 			case .detail:
 				Style()
@@ -1034,16 +1130,11 @@ struct NowPage: Page {
 					.border(.top, .separator)
 					.secondaryText(.extraSmall)
 			case .postFooterLink:
+				// Without the look of a link in prose.
 				Style()
 					.color(.inherit)
 					.fontWeight(.regular)
-					.underline(false)
-					.transition(.color, animation: .stateChange)
-					.hover {
-						$0
-							.color(.primaryText)
-							.underline()
-					}
+					.quietLink()
 			case .postText:
 				// The paragraphs of the post are lines in its text.
 				Style()

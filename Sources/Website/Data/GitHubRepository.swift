@@ -30,7 +30,8 @@ struct GitHubRepository: Decodable, Sendable {
 		}
 
 		let summary = String(description.filter { !$0.isEmoji })
-			.replacing(/\[[^\]]*\]/, with: "")
+			// One or more brackets, so a note in double brackets, like `[[Slow to reply]]`, is removed whole.
+			.replacing(/\[+[^\]]*\]+/, with: "")
 			// A whole word, so the `:30:` in `12:30:45` stays.
 			// TODO: Use a lookbehind, `(?<!\w)`, instead of capturing the character before the code, when Swift Regex supports lookbehinds.
 			// Codes next to each other, like `:unicorn::sparkles:`, are one match, as the character before the second code is the colon of the first.

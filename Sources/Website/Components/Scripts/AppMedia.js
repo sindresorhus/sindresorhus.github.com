@@ -1,6 +1,6 @@
 const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
-export default class extends HTMLElement {
+class AppMedia extends HTMLElement {
 	// Stops the observer and the listeners when the element is removed, so connecting it again does not add them twice.
 	#abortController;
 
@@ -162,3 +162,5 @@ export default class extends HTMLElement {
 		updateButtons();
 	}
 }
+
+customElements.define('app-media', AppMedia);

@@ -23,7 +23,7 @@ public struct MarkdownDocument: Sendable {
 		case extended
 
 		/**
-		GitHub release notes, rendered like markdown-it with `linkify`: bare URLs and emails become links, and no other extensions apply.
+		GitHub release notes: bare URLs and emails become links, raw HTML other than `<kbd>` is escaped, and links allow only HTTP, HTTPS, mailto, and relative destinations. Images allow only HTTP, HTTPS, and relative destinations. No other extensions apply.
 		*/
 		case releaseNotes
 	}
@@ -218,11 +218,11 @@ public struct MarkdownDocument: Sendable {
 		*/
 		public struct MoreLink: Sendable {
 			public let title: String
-			public let url: String
+			public let destination: LinkDestination
 
-			public init(title: String, url: String) {
+			public init(title: String, destination: LinkDestination) {
 				self.title = title
-				self.url = url
+				self.destination = destination
 			}
 		}
 

@@ -1,7 +1,7 @@
 // France 98 on the 1999 page: Norway against Brazil on 23 June 1998, replayed on the TV in our living room, with the family in the sofa. The visitor plays Flo’s 1–1 in the 83rd minute and Rekdal’s penalty in the 89th, earns Panini stickers, reads the paper of the next morning, takes a penalty shootout against Taffarel, and sees the sad match against Italy four days later. The stickers and the shirt are kept in the browser. The TV runs only while it is on screen and the tab is visible. Nothing makes a sound until the visitor turns on the sound or starts the chant.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const lerp = (from, to, amount) => from + ((to - from) * amount);
+import GeoCitiesElement, {randomItem, clamp, lerp, midiFrequency} from '/scripts/geocities-element.js';
+import {canvasPoint} from '/scripts/geocities-canvas.js';
+
 const easeOut = amount => 1 - ((1 - amount) ** 2);
 const progressOf = (time, start, end) => clamp((time - start) / (end - start), 0, 1);
 
@@ -9,21 +9,6 @@ const progressOf = (time, start, end) => clamp((time - start) / (end - start), 0
 const triangle = time => {
 	const phase = time % 2;
 	return phase < 1 ? phase : 2 - phase;
-};
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
 };
 
 // Splits a text into lines that fit a width, for the subtitles and the speech bubbles.
@@ -395,7 +380,7 @@ const outfitLines = {
 	helmet: ['Vikinghjelm! Ekte plast fra Narvesen.', 'A Viking helmet! Real plastic from the kiosk.'],
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesWorldCup extends GeoCitiesElement {
 	#context;
 	#buttons;
 	#stickerCanvases;
@@ -1527,7 +1512,7 @@ export default class extends GeoCitiesElement {
 		const formants = {o: [480, 850], e: [420, 1950]};
 		let when = this.#audio.context.currentTime + 0.05;
 		for (const [vowel, note, duration] of syllables) {
-			const frequency = 440 * (2 ** ((note - 69) / 12));
+			const frequency = midiFrequency(note);
 			for (let voice = 0; voice < 5; voice++) {
 				const start = when + (Math.random() * 0.04);
 				const oscillator = new OscillatorNode(this.#audio.context, {type: 'sawtooth', frequency: frequency * (voice === 4 ? 0.5 : 1), detune: (Math.random() * 30) - 15});
@@ -2108,7 +2093,7 @@ export default class extends GeoCitiesElement {
 
 	#stopHold() {
 		this.#isHolding = false;
-		this.#buttons.get('kick').dataset.state = '';
+		delete this.#buttons.get('kick').dataset.state;
 	}
 
 	// A hold that loses its release, like when the focus moves away, is cancelled instead of judged.
@@ -2711,7 +2696,6 @@ export default class extends GeoCitiesElement {
 	#drawCelebration(current) {
 		const tv = this.#tv;
 		const {time} = current;
-		const isPenalty = current.scorer.includes('REKDAL');
 		const corner = {x: 100, y: 66};
 		const players = [];
 		for (let index = 0; index < 8; index++) {
@@ -4172,16 +4156,16 @@ export default class extends GeoCitiesElement {
 			this.#buttons.get(action).disabled = !acceptsArrows || (isDive && action === 'up') || (isMeter && (action === 'left' || action === 'right'));
 		}
 
-		setPressed(this.#buttons.get('sound'), this.#isSoundOn);
+		this.#buttons.get('sound').setAttribute('aria-pressed', String(this.#isSoundOn));
 		this.#buttons.get('sound').textContent = this.#isSoundOn ? 'Sound: On' : 'Sound: Off';
-		setPressed(this.#buttons.get('chant'), this.#isChanting);
+		this.#buttons.get('chant').setAttribute('aria-pressed', String(this.#isChanting));
 		this.#buttons.get('chant').textContent = this.#isChanting ? 'Stop the Chant' : 'Start the “Olé, Olé, Olé”';
 		this.#buttons.get('replay').disabled = !this.#lastGoal || !type.isResting;
 		this.#buttons.get('paper').disabled = !this.#progress.lastMatch;
-		setPressed(this.#buttons.get('paper'), this.#paperIsShown);
+		this.#buttons.get('paper').setAttribute('aria-pressed', String(this.#paperIsShown));
 		this.#buttons.get('paper').textContent = this.#paperIsShown ? 'Put Away the Paper' : 'Read Tomorrow’s Paper';
 		for (const piece of ['shirt', 'scarf', 'paint', 'helmet']) {
-			setPressed(this.#buttons.get(piece), this.#progress.outfit[piece]);
+			this.#buttons.get(piece).setAttribute('aria-pressed', String(this.#progress.outfit[piece]));
 		}
 
 		this.#buttons.get('shirt').textContent = this.#progress.outfit.shirt ? 'Take Off the Norway Shirt' : 'Put On the Norway Shirt';
@@ -4218,3 +4202,5 @@ export default class extends GeoCitiesElement {
 		this.#updateButtons();
 	}
 }
+
+customElements.define('geo-cities-world-cup', GeoCitiesWorldCup);

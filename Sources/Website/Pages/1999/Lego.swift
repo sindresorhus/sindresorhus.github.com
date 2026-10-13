@@ -205,26 +205,16 @@ struct GeoCitiesLego: ScriptedElement {
 					.flexWrap()
 			case .toolButton:
 				// A raised button, pressed in while its brick is chosen.
-				Style()
+				GeoCitiesPage.Styles.smallButton.style
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
-					.fontFamily(.system)
-					.textStyle(.caption, weight: .bold)
-					.color(.black)
-					.handCursor()
-					.when(.state, is: "on") {
-						$0
-							.background(Color("#ffffff"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
+					.pressedIn(Color("#ffffff"))
 			case .swatch:
 				// A square of the color, with a thick black edge while it is chosen.
 				Style()
 					.frame(width: .rootEm(2), height: .rootEm(2))
 					.border(Color("#555555"), width: .pixels(2), style: .outset)
 					.handCursor()
-					.when(.state, is: "on") {
+					.pressed {
 						$0.border(.black, width: .pixels(4), style: .solid)
 					}
 			case .red:
@@ -247,11 +237,7 @@ struct GeoCitiesLego: ScriptedElement {
 			case .swatchName:
 				Style().visuallyHidden()
 			case .toggle:
-				Style().when(.state, is: "on") {
-					$0
-						.background(Color("#ffcc66"))
-						.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-				}
+				Style().pressedIn(Color("#ffcc66"))
 			case .canvas:
 				// A tap puts a brick on, and a finger can still scroll the page over the plate, as the bricks go on with a click.
 				Style()
@@ -261,9 +247,7 @@ struct GeoCitiesLego: ScriptedElement {
 					.background(Color("#9cc3e6"))
 					.border(Color("#808080"), width: .pixels(2), style: .inset)
 					.touchAction(.manipulation)
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .step:
 				// A page of the instructions, in the blue of the LEGO books of the 1990s.
 				Style()
@@ -274,11 +258,7 @@ struct GeoCitiesLego: ScriptedElement {
 					.textStyle(.caption, weight: .bold)
 					.color(.white)
 			case .status:
-				Style()
-					.frame(minHeight: .lineHeight(2))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+				Style().toyStatus()
 			}
 		}
 	}

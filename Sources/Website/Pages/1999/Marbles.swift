@@ -118,7 +118,7 @@ struct GeoCitiesMarbles: ScriptedElement {
 				button(.type(.button), .part(Parts.drawer)) {
 					"Ask for It Back"
 				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.button)
+				.style(GeoCitiesPage.Styles.smallButton, Styles.button, GeoCitiesPage.Styles.dimmedWhenDisabled)
 			}
 			.style(Styles.drawerCard)
 
@@ -151,7 +151,7 @@ struct GeoCitiesMarbles: ScriptedElement {
 					button(.type(.button), attribute) {
 						label
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.button)
+					.style(GeoCitiesPage.Styles.smallButton, Styles.button, GeoCitiesPage.Styles.dimmedWhenDisabled)
 				}
 			}
 			.style(Styles.buttons)
@@ -174,6 +174,10 @@ struct GeoCitiesMarbles: ScriptedElement {
 		case drawerText
 		case drawer
 		case tradeList
+	}
+
+	enum States: String, ElementStateSet {
+		case urgent
 	}
 
 	/**
@@ -246,15 +250,9 @@ struct GeoCitiesMarbles: ScriptedElement {
 					.background(Color("#a89a80"))
 					.touchAction(.none)
 					.handCursor()
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .status:
-				Style()
-					.frame(minHeight: .lineHeight(3))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+				Style().toyStatus(lines: 3)
 			case .controls:
 				Style().vstack(spacing: .rootEm(0.5))
 			case .group:
@@ -273,15 +271,8 @@ struct GeoCitiesMarbles: ScriptedElement {
 				// Big enough for a finger. The picked game, kid, and spin look pressed in, and a button that wants a click now is yellow, like “Juks!” when Kevin just cheated.
 				Style()
 					.frame(minHeight: .rootEm(2))
-					.disabled {
-						$0.opacity(0.5)
-					}
-					.when(.state, is: "on") {
-						$0
-							.background(.white)
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
-					.when(.state, is: "urgent") {
+					.pressedIn(.white)
+					.when(States.urgent) {
 						$0
 							.background(Color("#ffff00"))
 							.color(Color("#cc0000"))
@@ -331,17 +322,17 @@ struct GeoCitiesMarbles: ScriptedElement {
 							.color(.black)
 							.handCursor()
 							.disabled {
-								$0.opacity(0.45)
+								$0.opacity(0.5)
 							}
 							.focusVisible {
 								$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(1))
 							}
-					}
-					.children("button[aria-pressed=\"true\"]") {
-						$0
-							.background(Color("#ffff99"))
-							.border(Color("#cc9900"), width: .pixels(2), style: .inset)
-							.fontWeight(.bold)
+							.pressed {
+								$0
+									.background(Color("#ffff99"))
+									.border(Color("#cc9900"), width: .pixels(2), style: .inset)
+									.fontWeight(.bold)
+							}
 					}
 					.children("button canvas") {
 						$0
@@ -374,9 +365,6 @@ struct GeoCitiesMarbles: ScriptedElement {
 					.textStyle(.caption)
 					.children("li") {
 						$0.vstack(alignment: .start, spacing: .rootEm(0.25))
-					}
-					.children("li button") {
-						$0.frame(minHeight: .rootEm(2))
 					}
 			}
 		}

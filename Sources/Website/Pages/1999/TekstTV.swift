@@ -236,7 +236,7 @@ struct GeoCitiesTekstTV: ScriptedElement {
 					.active {
 						$0.scaleEffect(0.94)
 					}
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.background(Color("#ffff00"))
 							.color(.black)

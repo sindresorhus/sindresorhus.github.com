@@ -100,11 +100,10 @@ struct ContributionYear: Sendable {
 	}
 
 	init(year: Int, calendar: ContributionCalendar, totals: Totals? = nil, until date: Date) {
-		let today = date.isoDay
 		self.year = year
 		self.calendar = calendar
 		self.totals = totals
-		self.days = calendar.days.filter { $0.date.hasPrefix("\(year)-") && $0.date <= today }
+		self.days = calendar.days.filter { Calendar.site.component(.year, from: $0.date) == year && $0.date <= date }
 	}
 
 	/**
@@ -134,14 +133,11 @@ struct ContributionYear: Sendable {
 	var summary: String {
 		let total = "\(calendar.totalCount.formatted(counting: "contribution"))."
 
-		guard
-			let busiestDay,
-			let date = busiestDay.startOfDay
-		else {
+		guard let busiestDay else {
 			return total
 		}
 
-		return "\(total) The busiest day was \(date.formatted(.siteDayWithoutYear)), with \(busiestDay.count.formatted(.number.locale(.site)))."
+		return "\(total) The busiest day was \(busiestDay.date.formatted(.siteDayWithoutYear)), with \(busiestDay.count.formatted(.number.locale(.site)))."
 	}
 
 	/**
@@ -247,9 +243,7 @@ extension [ContributionYear] {
 		var counts = [Int](repeating: 0, count: 7)
 
 		for day in flatMap(\.days) {
-			if let weekday = day.weekday {
-				counts[weekday] += day.count
-			}
+			counts[day.weekday] += day.count
 		}
 
 		guard

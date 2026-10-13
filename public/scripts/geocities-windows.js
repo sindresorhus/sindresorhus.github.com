@@ -1,57 +1,17 @@
 // More of Windows 98 on the desktop of the 1999 page: the Start menu with its submenus, the menu of the right mouse button, icons that drag and go to the Recycle Bin, the taskbar buttons, the tray, and the programs: Calculator, the MS-DOS Prompt, WordPad with an Office Assistant, Internet Explorer with Dial-Up Networking, Network Neighborhood, My Documents, Notepad, Media Player, Sound Recorder, FreeCell, the Control Panel, Y2K Fixer 2000 (which stops responding), Find, Run, Close Program, the Welcome tour, the log on, the startup screen, the blue screen of the launch of Windows 98, the 3D Maze, Flying Windows, and Scrolling Marquee screen savers, the Active Desktop, Shut Down Windows with Stand by and MS-DOS mode, ScanDisk after a crash, CIH, StickyKeys, low memory, shy icons, the Kit-Cat Klock, and a Recycle Bin that overflows. `geocities.js` opens, drags, and closes the windows. Nothing makes a sound until the visitor turns on the sounds of a desktop theme, or presses Play.
+// The storage can be missing or full, like in a private window, so everything also works without it.
+import {load, save, showToast as toast, celebratePage, cheerPage, cloneTemplate, randomItem, randomInteger, clamp, playTone, wait, hasModifier, prerendered, announce} from '/scripts/geocities-element.js';
+
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
 // The speculation rules of the site can prerender the page. The desktop waits until the visitor opens it.
-if (document.prerendering) {
-	await new Promise(resolve => {
-		document.addEventListener('prerenderingchange', resolve, {once: true});
-	});
-}
+await prerendered;
 
-// The storage can be missing or full, like in a private window, so everything also works without it.
-const load = (key, fallback) => {
-	try {
-		const value = localStorage.getItem(key);
-		return value === null ? fallback : (JSON.parse(value) ?? fallback);
-	} catch {
-		return fallback;
-	}
-};
-
-const save = (key, value) => {
-	try {
-		localStorage.setItem(key, JSON.stringify(value));
-	} catch {}
-};
-
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-const wait = milliseconds => new Promise(resolve => {
-	setTimeout(resolve, milliseconds);
-});
-
-// The toast and the win of Solitaire are in `geocities.js`, which listens for these events.
-const toast = message => {
-	document.dispatchEvent(new CustomEvent('geocities-toast', {detail: {message}}));
-};
-
+// The win of Solitaire, which `geocities.js` shows when it gets the event, and Glitter cheers too.
 const celebrate = () => {
-	document.dispatchEvent(new Event('geocities-celebrate'));
-	document.dispatchEvent(new Event('geocities-cheer'));
+	celebratePage();
+	cheerPage();
 };
-
-// A status message is set a frame later, so screen readers announce the same message again.
-const announce = (element, message) => {
-	element.textContent = '';
-	requestAnimationFrame(() => {
-		element.textContent = message;
-	});
-};
-
-// Copies the first element of a template.
-const fromTemplate = template => template.content.firstElementChild.cloneNode(true);
 
 const desktop = document.querySelector('#geocities-desktop');
 const startMenu = document.querySelector('#geocities-start-menu');
@@ -81,7 +41,6 @@ document.addEventListener('visibilitychange', notifyVisibility);
 
 // The windows. `geocities.js` opens them in a cascade and gives the focus back to the opener when they close.
 const windowOf = name => desktop.querySelector(`[data-desktop-window="${name}"]`);
-const allWindows = [...desktop.querySelectorAll('[data-desktop-window]')];
 const titleOf = appWindow => appWindow.querySelector('h3').textContent;
 
 const openWindow = (name, opener = document.activeElement) => {
@@ -230,23 +189,7 @@ const audio = () => {
 
 // A short tone, like the beeps and chords of Windows.
 const tone = (frequency, start, duration, {type = 'sine', volume = 0.2, slide} = {}) => {
-	const context = audio();
-	const oscillator = context.createOscillator();
-	const gain = context.createGain();
-	const time = context.currentTime + start;
-	oscillator.type = type;
-	oscillator.frequency.setValueAtTime(frequency, time);
-
-	if (slide) {
-		oscillator.frequency.exponentialRampToValueAtTime(slide, time + duration);
-	}
-
-	gain.gain.setValueAtTime(0.0001, time);
-	gain.gain.exponentialRampToValueAtTime(volume, time + 0.02);
-	gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-	oscillator.connect(gain).connect(masterGain);
-	oscillator.start(time);
-	oscillator.stop(time + duration + 0.05);
+	playTone({context: audio(), output: masterGain}, frequency, start, duration, {type, volume, slide, attack: 0.02});
 };
 
 // The sounds of the desktop themes, made with tones instead of the WAV files of Windows.
@@ -435,7 +378,7 @@ function updateTasks() {
 
 	for (const appWindow of openOrder) {
 		if (!taskButtons.has(appWindow)) {
-			const button = fromTemplate(taskTemplate);
+			const button = cloneTemplate(taskTemplate);
 
 			button.addEventListener('click', () => {
 				setDesktopShown(false);
@@ -726,7 +669,7 @@ const deleteIcon = async item => {
 	const next = iconItems().filter(other => !other.hidden && other !== item).at(Math.max(iconItems().indexOf(item) - 1, 0));
 	item.hidden = true;
 	next?.querySelector('button').focus();
-	const entry = fromTemplate(restoreTemplate);
+	const entry = cloneTemplate(restoreTemplate);
 	entry.querySelector('strong').textContent = name;
 
 	entry.querySelector('button').addEventListener('click', () => {
@@ -744,7 +687,7 @@ const deleteIcon = async item => {
 let folderNumber = 37;
 
 commands['new-folder'] = () => {
-	const item = fromTemplate(iconTemplate);
+	const item = cloneTemplate(iconTemplate);
 	const name = `New Folder (${folderNumber++})`;
 	iconPicture(item).textContent = '📁';
 	item.querySelector('span:last-child').textContent = name;
@@ -1218,7 +1161,7 @@ for (const button of document.querySelectorAll('[data-win-calc-key]')) {
 // The keys of the keyboard, like in Calculator: @ is the square root, and Delete clears the entry.
 windowOf('calc').addEventListener('keydown', event => {
 	// Shortcuts of the browser, like reload and copy, stay with the browser.
-	if (event.ctrlKey || event.metaKey || event.altKey) {
+	if (hasModifier(event)) {
 		return;
 	}
 
@@ -1822,13 +1765,6 @@ for (const button of document.querySelectorAll('[data-win-wordpad-format]')) {
 		const isOn = button.getAttribute('aria-pressed') !== 'true';
 		const [property, value] = formatStyles[button.dataset.winWordpadFormat];
 		button.setAttribute('aria-pressed', String(isOn));
-
-		if (isOn) {
-			button.dataset.state = 'on';
-		} else {
-			delete button.dataset.state;
-		}
-
 		wordpadText.style[property] = isOn ? value : '';
 		wordpadWingdings.style[property] = wordpadText.style[property];
 	});
@@ -2077,7 +2013,7 @@ const normalizeAddress = address => {
 };
 
 const showPage = (address, name, title) => {
-	const page = fromTemplate(ieTemplates[name]);
+	const page = cloneTemplate(ieTemplates[name]);
 
 	for (const slot of page.querySelectorAll('[data-win-ie-slot]')) {
 		slot.textContent = address;
@@ -2262,7 +2198,7 @@ const fileTemplate = document.querySelector('#geocities-win-file-template');
 
 const showFiles = (list, status, files) => {
 	list.replaceChildren(...files.map(file => {
-		const item = fromTemplate(fileTemplate);
+		const item = cloneTemplate(fileTemplate);
 		const [picture, name] = item.querySelectorAll('span');
 		picture.textContent = file.icon;
 		name.textContent = file.name;
@@ -2908,7 +2844,7 @@ const canGoHome = card => freecell.homes[suitOf(card)] === rankOf(card) - 1;
 const snapshot = () => structuredClone({columns: freecell.columns, cells: freecell.cells, homes: freecell.homes});
 
 const makeCard = (card, isSelected) => {
-	const element = fromTemplate(cardTemplate);
+	const element = cloneTemplate(cardTemplate);
 	element.textContent = `${ranks[rankOf(card)]}${suits[suitOf(card)]}`;
 
 	if (isRed(card)) {
@@ -5061,10 +4997,10 @@ let paperPile;
 let hasOverflowed = false;
 
 new MutationObserver(() => {
-	const extra = Math.min(Math.max(recycleList.children.length - 5, 0), 14);
+	const extra = clamp(recycleList.children.length - 5, 0, 14);
 
 	if (!paperPile) {
-		paperPile = fromTemplate(paperTemplate);
+		paperPile = cloneTemplate(paperTemplate);
 		paperPile.firstElementChild.remove();
 		recycleIcon().append(paperPile);
 	}

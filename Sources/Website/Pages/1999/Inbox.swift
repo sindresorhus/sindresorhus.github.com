@@ -44,10 +44,10 @@ struct GeoCitiesInbox: ScriptedElement {
 				// The script adds a copy for each message.
 				template(.part(Parts.rowTemplate)) {
 					li {
-						button(.type(.button)) {
-							span {}
+						button(.part(Parts.rowButton), .type(.button)) {
+							span(.part(Parts.rowFrom)) {}
 								.style(Styles.from)
-							span {}
+							span(.part(Parts.rowSubject)) {}
 						}
 						.style(Styles.row)
 					}
@@ -82,7 +82,7 @@ struct GeoCitiesInbox: ScriptedElement {
 					.style(Styles.status)
 
 				div {
-					button(.part(Parts.compose), .type(.button)) {
+					button(.part(Parts.compose), .type(.button), .ariaExpanded(false)) {
 						"✎ Write a Chain Letter"
 					}
 					.style(GeoCitiesPage.Styles.retroButton)
@@ -146,6 +146,9 @@ struct GeoCitiesInbox: ScriptedElement {
 		case title
 		case list
 		case rowTemplate
+		case rowButton
+		case rowFrom
+		case rowSubject
 		case reader
 		case readerFrom
 		case readerSubject
@@ -159,6 +162,10 @@ struct GeoCitiesInbox: ScriptedElement {
 		case luck
 		case curse
 		case count
+	}
+
+	enum States: String, ElementStateSet {
+		case unread
 	}
 
 	enum Styles: ElementStyleSet {
@@ -198,10 +205,14 @@ struct GeoCitiesInbox: ScriptedElement {
 					.textAlign(.leading)
 					.color(.black)
 					.handCursor()
-					.when(.state, is: "unread") {
+					// A dotted line inside the row, as the list cuts off a ring around it.
+					.focusVisible {
+						$0.focusRing(.currentColor, width: .pixels(1), offset: .pixels(-3), style: .dotted)
+					}
+					.when(States.unread) {
 						$0.fontWeight(.bold)
 					}
-					.when(.state, is: "open") {
+					.current {
 						$0
 							.background(Color("#000080"))
 							.color(.white)
@@ -210,7 +221,7 @@ struct GeoCitiesInbox: ScriptedElement {
 				// Gray, and light on the blue of an open message.
 				Style()
 					.color(Color("#555555"))
-					.when(ancestorHas: .state, is: "open") {
+					.ancestorCurrent {
 						$0.color(Color("#ccccff"))
 					}
 			case .reader:

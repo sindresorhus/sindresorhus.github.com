@@ -12,19 +12,13 @@ struct DownloadOptions: HTML {
 		if !app.downloadOptions.isEmpty {
 			div {
 				for option in app.downloadOptions {
-					div {
-						OptionLink(option: option)
-					}
-					.style(Styles.option)
+					OptionLink(option: option)
 				}
 
 				if app.hasTrial {
-					div {
-						Link("Free Trial", destination: .fragment(App.trialSectionID))
-							.buttonStyle(.secondary, size: .large)
-							.style(Styles.button)
-					}
-					.style(Styles.option)
+					Link("Free Trial", destination: .fragment(App.trialSectionID))
+						.buttonStyle(.secondary, size: .large)
+						.style(Styles.button)
 				}
 			}
 			.style(Styles.root)
@@ -51,7 +45,6 @@ struct DownloadOptions: HTML {
 
 	enum Styles: StyleSet {
 		case root
-		case option
 		case badge
 		case badgeImage
 		case button
@@ -59,9 +52,9 @@ struct DownloadOptions: HTML {
 		var style: Style {
 			switch self {
 			case .root:
-				// On phones, the options are a little smaller, so two fit side by side, like the App Store badge and “Free Trial”. A third option wraps to the next line.
+				// On phones, the options are a little smaller, so two fit side by side, like the App Store badge and “Free Trial”. A third option wraps to the next line. The options are at the top of the row, so a badge is not stretched to the height of a button and its bottom margin.
 				Style()
-					.hstack(justification: .center)
+					.hstack(alignment: .start, justification: .center)
 					.flexWrap()
 					.gap(.rootEm(1))
 					.margin(.top, .rootEm(0.5))
@@ -82,13 +75,10 @@ struct DownloadOptions: HTML {
 					.active {
 						$0.filter(Self.badgeShadow, .brightness(0.95))
 					}
-			case .option:
-				Style().position(.relative)
 			case .badgeImage:
 				Style()
 					.display(.block)
 					.frame(height: .pixels(60))
-					.textSelection(.disabled)
 			case .button:
 				Style().margin(.bottom, .rootEm(0.5))
 			}

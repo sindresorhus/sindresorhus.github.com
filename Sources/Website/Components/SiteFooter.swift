@@ -45,7 +45,7 @@ struct SiteFooter: HTML {
 						for link in Site.author.socialLinks {
 							li {
 								a(.href(.url(link.url)), .rel("me")) {
-									link.icon.size(.rootEm(1))
+									link.icon.size(Self.socialIconSize)
 									link.name
 								}
 								.style(Styles.link, Styles.socialLink)
@@ -108,6 +108,11 @@ struct SiteFooter: HTML {
 	private static let sourceLink = LabeledLink("Source Code", destination: .url(Site.sourceURL))
 
 	/**
+	The size of the icons of the social links, which the style uses to put them in the middle of the capital letters.
+	*/
+	private static let socialIconSize = Length.rootEm(1)
+
+	/**
 	The IDs and data attributes that the scripts of the component find elements by.
 	*/
 	enum Hooks: String, ScriptHookSet {
@@ -161,7 +166,7 @@ struct SiteFooter: HTML {
 			case .link:
 				Style()
 					.secondaryText()
-					.hoverColor(.primaryText)
+					.quietLink()
 					// Larger on phones, so the links are easy to read and to tap.
 					.below(.smallTablet) {
 						$0.textStyle(.body)
@@ -179,8 +184,14 @@ struct SiteFooter: HTML {
 			case .quote:
 				Style().secondaryText(.extraSmall)
 			case .socialLink:
-				// Inline, so the lines are as high as the lines of the other columns.
-				Style().hstack(alignment: .center, spacing: .rootEm(0.5), isInline: true)
+				// The icon is in the line of the text, not in a stack, so the text is on the same baseline as the text of the other columns, and the lines are as high. The icon is in the middle of the capital letters, as `middle` puts it in the middle of the lowercase letters, which looks low.
+				Style()
+					.nested(Icon.selector) {
+						$0
+							.display(.inlineBlock)
+							.verticalAlign(.capitalHeight(0.5) - SiteFooter.socialIconSize * 0.5)
+							.margin(.trailing, .rootEm(0.5))
+					}
 			}
 		}
 	}

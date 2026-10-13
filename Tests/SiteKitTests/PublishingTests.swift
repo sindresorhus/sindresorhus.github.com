@@ -19,7 +19,7 @@ struct PublishingTests {
 		#expect(RoutePath("/blog//post") == "/blog/post")
 		#expect(try RoutePath(validating: "//example.com") == "/example.com")
 		#expect(RoutePath("//") == .root)
-		#expect(Route.redirect("/old//", to: .path(.root)).outputFile == "old.html")
+		#expect(Route.redirect("/old//", to: .root).outputFile == "old.html")
 		#expect(RoutePath("/blog/post").starts(with: "/blog"))
 		#expect(RoutePath("/blog").starts(with: "/blog"))
 		#expect(!RoutePath("/blogroll").starts(with: "/blog"))
@@ -41,7 +41,7 @@ struct PublishingTests {
 		(Route.page("/apps") { "" }, "apps.html"),
 		(Route.page("/apps/") { "" }, "apps.html"),
 		(Route.page("/blog/macos-13.1") { "" }, "blog/macos-13.1.html"),
-		(Route.redirect("/v1.0", to: .path(.root)), "v1.0.html"),
+		(Route.redirect("/v1.0", to: .root), "v1.0.html"),
 		(Route.text("/dato/rss.xml") { "" }, "dato/rss.xml"),
 	])
 	func `the route kind decides the output file`(route: Route, outputFile: String) {
@@ -102,7 +102,7 @@ struct PublishingTests {
 			.page("/about", sitemapEntry: SitemapEntry(images: [image])) { "<h1 id=\"top\">About</h1>" },
 			.page("/hidden", sitemapEntry: nil) { "Hidden" },
 			.text("/feed.xml") { "<rss/>" },
-			.redirect("/old", to: .path("/about")),
+			.redirect("/old", to: "/about"),
 		])
 
 		#expect(try String(contentsOf: output.appending(path: "about.html"), encoding: .utf8) == "<h1 id=\"top\">About</h1>")
@@ -146,8 +146,9 @@ struct PublishingTests {
 
 		try await Publisher(site: site, project: project, output: output).publish([
 			.page("/feedback") { "" },
-			.redirect("/old", to: destination),
-			.redirect("/elsewhere", to: .url(#require(URL(string: "https://elsewhere.com/a?b=1&c=2")))),
+			// A path with a query, which only the general initializer takes, for the escaping.
+			Route("/old", output: .redirect(to: destination)),
+			.redirect("/elsewhere", to: #require(URL(string: "https://elsewhere.com/a?b=1&c=2"))),
 		])
 
 		let html = try String(contentsOf: output.appending(path: "old.html"), encoding: .utf8)
@@ -519,6 +520,56 @@ struct PublishingTests {
 		}
 	}
 
+	@Test(arguments: ["/../escape", "/a/./b", "/a/../../b"])
+	func `link destinations validate their route paths`(path: String) {
+		#expect(throws: ContentError.self) {
+			try LinkDestination(validating: path)
+		}
+	}
+
+	@Test
+	func `form queries round trip special characters without inventing parameters`() throws {
+		let query = "Swift + C# & Rust? a=b"
+		let items = [URLQueryItem(name: "q", value: query)]
+		let url = #URL("https://example.com/search").appending(formQueryItems: items)
+		let components = try #require(URLComponents(url: url, resolvingAgainstBaseURL: true))
+		#expect(components.queryItems == items)
+		#expect(!items.formEncodedQuery.contains("+"))
+		#expect(url.absoluteString.contains("%2B"))
+		#expect(#URL("https://example.com").appending(formQueryItems: []) == #URL("https://example.com"))
+	}
+
+	@Test
+	func `form queries keep the query that the URL already has`() {
+		let url = #URL("https://example.com/search?q=a+b#top").appending(formQueryItems: [URLQueryItem(name: "tag", value: "c+d")])
+		#expect(url.absoluteString == "https://example.com/search?q=a+b&tag=c%2Bd#top")
+	}
+
+	@Test(.temporaryDirectory)
+	func `served files cannot follow symlinks outside the site`() throws {
+		let outside = try URL.temporaryDirectory(files: ["secret.txt": "private"])
+		let output = try URL.temporaryDirectory(files: ["index.html": "Home"])
+		try FileManager.default.createSymbolicLink(at: output.appending(path: "secret.txt"), withDestinationURL: outside.appending(path: "secret.txt"))
+		try FileManager.default.createSymbolicLink(at: output.appending(path: "escape"), withDestinationURL: outside)
+		#expect(output.servedFile(forPath: "/secret.txt") == nil)
+		#expect(output.servedFile(forPath: "/escape/secret.txt") == nil)
+		#expect(output.servedFile(forPath: "/") != nil)
+	}
+
+	@Test(.temporaryDirectory)
+	func `publishing removes output symlinks without modifying their targets`() async throws {
+		let project = try makeProject(publicFiles: ["asset.txt": "Asset"])
+		let outside = try URL.temporaryDirectory(files: ["keep.txt": "Keep", "index.html": "Private"])
+		let output = try URL.temporaryDirectory(files: ["old.txt": "Old"])
+		try FileManager.default.createSymbolicLink(at: output.appending(path: "nested"), withDestinationURL: outside)
+		try FileManager.default.createSymbolicLink(at: output.appending(path: "index.html"), withDestinationURL: outside.appending(path: "index.html"))
+		try await Publisher(site: site, project: project, output: output).publish([.page(.root) { "Home" }, .page("/nested/new") { "New" }])
+		#expect(try String(contentsOf: outside.appending(path: "keep.txt"), encoding: .utf8) == "Keep")
+		#expect(try String(contentsOf: outside.appending(path: "index.html"), encoding: .utf8) == "Private")
+		#expect(!outside.appending(path: "new.html").exists)
+		#expect(try String(contentsOf: output.appending(path: "nested/new.html"), encoding: .utf8) == "New")
+	}
+
 	private func makeProject(publicFiles: [String: String]) throws -> Project {
 		try Project(root: URL.temporaryDirectory(files: Dictionary(uniqueKeysWithValues: publicFiles.map { ("public/\($0.key)", $0.value) })))
 	}
@@ -603,6 +654,21 @@ struct PublishingTests {
 		#expect(size.width == 30)
 		#expect(size.height == 20)
 		#expect(file.deletingLastPathComponent().appending(path: "missing.png").mediaSize == nil)
+	}
+
+	@Test(.temporaryDirectory, arguments: [(72.0, 30), (144.0, 15), (300.0, 30)])
+	func `display sizes are half the pixel sizes of images with 144 DPI, like screenshots of a Retina display`(dpi: Double, expectedWidth: Int) throws {
+		let file = try URL.temporaryDirectory().appending(path: "image.png")
+		let context = try #require(CGContext(data: nil, width: 30, height: 20, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue))
+		let image = try #require(context.makeImage())
+		let destination = try #require(CGImageDestinationCreateWithURL(file as CFURL, UTType.png.identifier as CFString, 1, nil))
+		CGImageDestinationAddImage(destination, image, [kCGImagePropertyDPIWidth: dpi, kCGImagePropertyDPIHeight: dpi] as CFDictionary)
+		#expect(CGImageDestinationFinalize(destination))
+
+		let size = try #require(file.displaySize)
+		#expect(size.width == expectedWidth)
+		#expect(size.height == expectedWidth * 2 / 3)
+		#expect(file.mediaSize?.width == 30)
 	}
 
 }

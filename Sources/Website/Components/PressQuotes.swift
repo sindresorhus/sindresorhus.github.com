@@ -179,19 +179,18 @@ struct QuoteFigure: HTML {
 			case .appIcon:
 				Style().flexShrink(0)
 			case .text:
-				// Without the look of a quote in prose, like on the now page.
+				// Without the look of a quote in prose, like on the now page. The title of a review is a little apart from its text. It is a gap, as the root resets the margins of the paragraphs.
 				Style()
+					.vstack(spacing: .rootEm(0.25))
 					.margin(0)
 					.padding(0)
 					.declaration(.border, "none")
-					.declaration(.fontStyle, "normal")
+					.italic(false)
 					.declaration(.quotes, "none")
 					.textStyle(.body)
 					.color(.primaryText)
 			case .reviewTitle:
-				Style()
-					.margin(.bottom, .rootEm(0.25))
-					.fontWeight(.semibold)
+				Style().fontWeight(.semibold)
 			case .reviewText:
 				// Keeps the line breaks of the review.
 				Style().preservesLineBreaks()
@@ -201,8 +200,7 @@ struct QuoteFigure: HTML {
 					.fontWeight(.medium)
 					.color(.secondaryText)
 			case .sourceLink:
-				Style()
-					.hoverColor(.primaryText)
+				Style().quietLink()
 			}
 		}
 	}

@@ -163,13 +163,13 @@ struct GeoCitiesComicChat: ScriptedElement {
 		// The parts of a panel, which the script copies: the panel with its background, a balloon, and a character.
 		template(.part(Parts.panelTemplate)) {
 			figure {
-				div {}
+				div(.part(Parts.balloons)) {}
 					.style(Styles.balloons)
 
-				div {}
+				div(.part(Parts.cast)) {}
 					.style(Styles.cast)
 
-				figcaption {}
+				figcaption(.part(Parts.caption)) {}
 					.style(VisuallyHidden.Styles.root)
 			}
 			.style(Styles.panel)
@@ -195,8 +195,17 @@ struct GeoCitiesComicChat: ScriptedElement {
 		case clear
 		case reconnect
 		case panelTemplate
+		case balloons
+		case cast
+		case caption
 		case balloonTemplate
 		case characterTemplate
+	}
+
+	enum States: String, ElementStateSet {
+		case mom
+		case shout
+		case think
 	}
 
 	enum Hooks: String, ScriptHookSet {
@@ -255,7 +264,7 @@ struct GeoCitiesComicChat: ScriptedElement {
 					.margin(0)
 					.backgroundImage(.linearGradient("to bottom", Color("#fff7d6"), Color("#fff7d6"), Color("#ffe6a8"), Color("#d9a066"), Color("#c08040")))
 					.border(.black, width: .pixels(3))
-					.when(.state, is: "mom") {
+					.when(States.mom) {
 						$0.backgroundImage(.linearGradient("to bottom", Color("#ffd6d6"), Color("#ffb0b0"), Color("#d96666")))
 					}
 			case .balloons:
@@ -298,7 +307,7 @@ struct GeoCitiesComicChat: ScriptedElement {
 									.trailing(.rootEm(1))
 							}
 					}
-					.when(.state, is: "shout") {
+					.when(States.shout) {
 						$0
 							.background(Color("#ffff99"))
 							.border(.black, width: .pixels(3))
@@ -312,7 +321,7 @@ struct GeoCitiesComicChat: ScriptedElement {
 									.border([.bottom, .trailing], .black, width: .pixels(3))
 							}
 					}
-					.when(.state, is: "think") {
+					.when(States.think) {
 						$0
 							.border(.black, width: .pixels(2), style: .dashed)
 							.cornerRadius(.rootEm(2))
@@ -377,8 +386,8 @@ struct GeoCitiesComicChat: ScriptedElement {
 					.focusWithin {
 						$0.focusRing(.black, width: .pixels(1), offset: .pixels(-2), style: .dotted)
 					}
-					// The script marks the smiley that is picked, as the radio button is hidden.
-					.when(.state, is: "picked") {
+					// The radio button is hidden, so the smiley shows that it is picked.
+					.descendantChecked {
 						$0
 							.background(Color("#000080"))
 							.color(.white)

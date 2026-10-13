@@ -185,7 +185,7 @@ struct AppHero: HTML {
 						$0.padding(.horizontal, .rootEm(1.5))
 					}
 			case .icon:
-				// The icon images have transparent margins, so the icon looks smaller than its frame.
+				// A large icon above the title, with a soft shadow in layers.
 				Style()
 					.frame(width: .rootEm(8), height: .rootEm(8))
 					.margin(.bottom, .rootEm(1.25))
@@ -220,6 +220,8 @@ struct AppHero: HTML {
 					.margin(top: .rootEm(1), horizontal: .auto, bottom: 0)
 					.secondaryText(.lead)
 					.textLinks()
+					// The text is centered, so lines of similar lengths look better than a short last line.
+					.textWrap(.balance)
 			case .anotherRandomApp:
 				Style()
 					.hidden()
@@ -242,7 +244,7 @@ struct AppHero: HTML {
 					.margin(.auto)
 					.frame(maxWidth: .rootEm(18))
 					.padding(.rootEm(1.5))
-					.cornerRadius(.rootEm(1))
+					.cornerRadius(.windowRadius)
 					.popoverSurface()
 					.secondaryText()
 					.textAlign(.center)
@@ -276,9 +278,8 @@ struct AppHero: HTML {
 			case .details:
 				Style()
 					.margin(.top, .rootEm(1))
-					.textStyle(.caption)
+					.secondaryText()
 					.monospacedDigit()
-					.color(.secondaryText)
 			}
 		}
 	}
@@ -334,7 +335,7 @@ struct AppCallToAction: HTML {
 			case .root:
 				// A panel, so the end of the page stands out from the text above it.
 				Style()
-					.frame(maxWidth: .rootEm(48))
+					.frame(maxWidth: Style.ColumnWidth.standard.maximum)
 					.margin(.horizontal, .auto)
 					.vstack(alignment: .center)
 					.padding(vertical: .rootEm(3), horizontal: .rootEm(1.5))

@@ -1,36 +1,6 @@
 // My handheld game console on the 1999 page, with Super Sindre Land on its screen of 160 × 144 pixels: a platform game in three levels through Bergen, Bryggen, the fish market, and up Fløyen, with waffles to collect, lemmings to jump on, seagulls that steal waffles, rain clouds, an umbrella that keeps the rain off and lets the kid float down, and the flag of Norway at the end of each level. The jump goes higher while A is held, and forgives a press a moment too early or a moment after running off an edge, so it feels fair. The cartridge does not always start, like a real one, until the visitor blows on it. The game runs only while the game console is on the screen and the tab is visible, and it pauses by itself when either goes away.
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const plural = (count, word) => `${count.toLocaleString('en-US')} ${word}${count === 1 ? '' : 's'}`;
-
-// A tiny pixel font of 3 × 5 for the screen, so the text is crisp at any size. Each letter is five rows of three bits.
-const pixelFont = {
-	A: [2, 5, 7, 5, 5], B: [6, 5, 6, 5, 6], C: [3, 4, 4, 4, 3], D: [6, 5, 5, 5, 6], E: [7, 4, 6, 4, 7], F: [7, 4, 6, 4, 4], G: [3, 4, 5, 5, 3], H: [5, 5, 7, 5, 5], I: [7, 2, 2, 2, 7], J: [1, 1, 1, 5, 2], K: [5, 5, 6, 5, 5], L: [4, 4, 4, 4, 7], M: [5, 7, 7, 5, 5], N: [6, 5, 5, 5, 5], O: [2, 5, 5, 5, 2], P: [6, 5, 6, 4, 4], Q: [2, 5, 5, 6, 3], R: [6, 5, 6, 5, 5], S: [3, 4, 2, 1, 6], T: [7, 2, 2, 2, 2], U: [5, 5, 5, 5, 7], V: [5, 5, 5, 5, 2], W: [5, 5, 7, 7, 5], X: [5, 5, 2, 5, 5], Y: [5, 5, 2, 2, 2], Z: [7, 1, 2, 4, 7],
-	0: [7, 5, 5, 5, 7], 1: [2, 6, 2, 2, 7], 2: [6, 1, 2, 4, 7], 3: [6, 1, 2, 1, 6], 4: [5, 5, 7, 1, 1], 5: [7, 4, 6, 1, 6], 6: [3, 4, 7, 5, 7], 7: [7, 1, 2, 2, 2], 8: [7, 5, 7, 5, 7], 9: [7, 5, 7, 1, 6],
-	' ': [0, 0, 0, 0, 0], '.': [0, 0, 0, 0, 2], ',': [0, 0, 0, 2, 4], '!': [2, 2, 2, 0, 2], '?': [6, 1, 2, 0, 2], ':': [0, 2, 0, 2, 0], '-': [0, 0, 7, 0, 0], '+': [0, 2, 7, 2, 0], '/': [1, 1, 2, 4, 4], '\'': [2, 2, 0, 0, 0], '(': [1, 2, 2, 2, 1], ')': [4, 2, 2, 2, 4], '×': [0, 5, 2, 5, 0], '°': [2, 5, 2, 0, 0], '%': [5, 1, 2, 4, 5], '<': [1, 2, 4, 2, 1], '>': [4, 2, 1, 2, 4], '=': [0, 7, 0, 7, 0], '♥': [0, 5, 7, 7, 2], '*': [0, 5, 2, 5, 0],
-	Æ: [3, 6, 7, 6, 7], Ø: [3, 5, 7, 5, 6], Å: [2, 0, 2, 5, 7],
-};
-
-// Draws text in the pixel font, at a whole pixel, with a scale for bigger letters. The alignment is `left`, `center`, or `right`.
-const drawPixelText = (context, text, x, y, color, {scale = 1, align = 'left'} = {}) => {
-	const characters = [...String(text).toUpperCase()];
-	const width = ((characters.length * 4) - 1) * scale;
-	let left = Math.round(align === 'center' ? x - (width / 2) : (align === 'right' ? x - width : x));
-	context.fillStyle = color;
-
-	for (const character of characters) {
-		const rows = pixelFont[character] ?? pixelFont['?'];
-		for (const [row, bits] of rows.entries()) {
-			for (let column = 0; column < 3; column++) {
-				if (bits & (4 >> column)) {
-					context.fillRect(left + (column * scale), Math.round(y) + (row * scale), scale, scale);
-				}
-			}
-		}
-
-		left += 4 * scale;
-	}
-};
+import GeoCitiesElement, {randomInteger, clamp, plural} from '/scripts/geocities-element.js';
+import {drawPixelText} from '/scripts/geocities-canvas.js';
 
 // Sets up the game console in the element, and gives what it does when the screen comes and goes.
 const setUp = (handheld, {screen, power, led, blow}) => {
@@ -875,7 +845,6 @@ const setUp = (handheld, {screen, power, led, blow}) => {
 		game.isGarbled = !game.isCartridgeClean && (game.bootTime === 0 || Math.random() < 0.3);
 		game.bootTime++;
 		game.isCartridgeClean = false;
-		power.dataset.state = 'on';
 		power.setAttribute('aria-pressed', 'true');
 		led.dataset.state = 'on';
 		if (game.isGarbled) {
@@ -895,9 +864,8 @@ const setUp = (handheld, {screen, power, led, blow}) => {
 	const turnOff = () => {
 		game.isOn = false;
 		game.mode = 'off';
-		power.dataset.state = '';
 		power.setAttribute('aria-pressed', 'false');
-		led.dataset.state = '';
+		delete led.dataset.state;
 		handheld.say('It is off.');
 		drawScreen();
 	};
@@ -1005,7 +973,7 @@ const setUp = (handheld, {screen, power, led, blow}) => {
 	};
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesHandheld extends GeoCitiesElement {
 	#handheld;
 
 	connected() {
@@ -1021,3 +989,5 @@ export default class extends GeoCitiesElement {
 		this.#handheld.visibilityChanged(isVisible);
 	}
 }
+
+customElements.define('geo-cities-handheld', GeoCitiesHandheld);

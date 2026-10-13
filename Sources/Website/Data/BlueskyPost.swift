@@ -34,7 +34,7 @@ struct BlueskyPost: Sendable {
 	The newest post with text, without replies and reposts, from the five newest posts. `nil` when none of them has text, like posts with only an image.
 	*/
 	static func latest(cache: ResponseCache) async throws -> Self? {
-		let url = URL(string: "https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=\(handle)&limit=5&filter=posts_no_replies")!
+		let url = #URL("https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed").appending(formQueryItems: [URLQueryItem(name: "actor", value: handle), URLQueryItem(name: "limit", value: "5"), URLQueryItem(name: "filter", value: "posts_no_replies")])
 		return try await cache.decoded(AuthorFeed.self, from: URLRequest(url: url, timeoutInterval: 15)).posts.first
 	}
 }

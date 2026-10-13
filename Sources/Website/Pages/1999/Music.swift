@@ -178,18 +178,14 @@ struct GeoCitiesMusic: ScriptedElement {
 					.aspectRatio(1)
 					.touchAction(.none)
 					.cursor(.move)
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .walkman:
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto, maxWidth: .rootEm(17.5))
 					.aspectRatio(280.0 / 200.0)
 					.touchAction(.none)
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .playerButtons:
 				Style().hstack(alignment: .center, justification: .center, spacing: .rootEm(0.375))
 			case .playerButton:
@@ -206,17 +202,12 @@ struct GeoCitiesMusic: ScriptedElement {
 						$0.backgroundImage(.linearGradient("to bottom", Color("#b8b8c0"), Color("#e4e4e4")))
 					}
 			case .toggle:
-				Style().when(.state, is: "on") {
-					$0
-						.background(Color("#99ff99"))
-						.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+				// Green while it is on. The shared style of the button sinks it in.
+				Style().pressed {
+					$0.background(Color("#99ff99"))
 				}
 			case .status:
-				Style()
-					.frame(minHeight: .lineHeight(2))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+				Style().toyStatus()
 			}
 		}
 	}

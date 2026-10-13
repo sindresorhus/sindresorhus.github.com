@@ -173,10 +173,10 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 
 					template(.part(Parts.resultTemplate)) {
 						li {
-							button(.type(.button)) {
-								span {}
-								span {}
-								span {}
+							button(.part(Parts.resultButton), .type(.button)) {
+								span(.part(Parts.resultIcon)) {}
+								span(.part(Parts.resultTitle)) {}
+								span(.part(Parts.resultCategory)) {}
 									.style(Styles.resultCategory)
 							}
 							.style(Styles.result)
@@ -249,7 +249,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 
 					template(.part(Parts.actionTemplate)) {
 						button(.type(.button)) {}
-							.style(GeoCitiesPage.Styles.smallButton, Styles.mediaButton)
+							.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 					}
 				}
 				.style(Styles.media)
@@ -302,7 +302,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					button(.part(Parts.timelineEarlier), .type(.button)) {
 						"◀ Earlier"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 					p(.part(Parts.timelineYear)) {}
 						.style(GeoCitiesPage.Styles.lcd, Styles.timelineYear)
@@ -310,12 +310,12 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					button(.part(Parts.timelineLater), .type(.button)) {
 						"Later ▶"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 					button(.part(Parts.timelinePlay), .type(.button), .ariaPressed(false)) {
 						"🚀 Travel to 1999"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 				}
 				.style(GeoCitiesWindows.Styles.wrapRow)
 
@@ -336,14 +336,14 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 
 				template(.part(Parts.eventTemplate)) {
 					li {
-						span {}
+						span(.part(Parts.eventIcon)) {}
 							.accessibilityHidden()
 							.style(Styles.eventIcon)
 
-						strong {}
+						strong(.part(Parts.eventDate)) {}
 							.style(Styles.eventDate)
 
-						span {}
+						span(.part(Parts.eventText)) {}
 					}
 					.style(Styles.event)
 				}
@@ -367,12 +367,12 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					button(.part(Parts.mazeMapToggle), .type(.button), .ariaPressed(true)) {
 						"🗺️ Map"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 
 					button(.part(Parts.mazeNew), .type(.button)) {
 						"New Game"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 				}
 				.style(GeoCitiesWindows.Styles.wrapRow)
 
@@ -407,17 +407,17 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 							button(.part(Parts.mazeHint), .type(.button)) {
 								"🃏 Ask the jester"
 							}
-							.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+							.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 							button(.part(Parts.mazeLookup), .type(.button)) {
 								"📖 Look it up"
 							}
-							.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+							.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 							button(.part(Parts.mazeStepBack), .type(.button)) {
 								"Step back"
 							}
-							.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+							.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 						}
 						.style(GeoCitiesWindows.Styles.wrapRow)
 					}
@@ -434,7 +434,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					button(.part(Parts.mazeTalk), .type(.button), .hidden) {
 						"💬 Talk"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 				}
 				.style(GeoCitiesWindows.Styles.wrapRow)
 			}
@@ -446,7 +446,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 				symbol
 			}
 			.accessibilityLabel(label)
-			.style(GeoCitiesPage.Styles.smallButton, Styles.doorButton)
+			.style(GeoCitiesPage.Styles.smallButton, Styles.doorButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 		}
 	}
 
@@ -465,6 +465,10 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 		case results
 		case resultsCount
 		case resultTemplate
+		case resultButton
+		case resultIcon
+		case resultTitle
+		case resultCategory
 		case homeFact
 		case homeFactRead
 		case homeFactNext
@@ -485,6 +489,9 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 		case timeline
 		case timelineStrip
 		case eventTemplate
+		case eventIcon
+		case eventDate
+		case eventText
 		case timelineEarlier
 		case timelineLater
 		case timelineYear
@@ -503,6 +510,14 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 		case mazeHint
 		case mazeLookup
 		case mazeStepBack
+	}
+
+	enum States: String, ElementStateSet {
+		case current
+		case spinning
+		case cut
+		case wrong
+		case right
 	}
 
 	enum Hooks: String, ScriptHookSet {
@@ -553,7 +568,6 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 		case articleTitle
 		case media
 		case mediaCanvas
-		case mediaButton
 		case articleBody
 		case link
 		case timeline
@@ -562,7 +576,6 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 		case eventIcon
 		case eventDate
 		case timelineYear
-		case bigTarget
 		case doorButton
 		case mazeScore
 		case mazeStage
@@ -607,15 +620,21 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					.hover {
 						$0.border(Self.gold, width: .pixels(1))
 					}
+					// Sound is sunk in on the bar while it is on.
+					.pressed {
+						$0
+							.background(Color("#3b3b9a"))
+							.border(Self.gold, width: .pixels(1), style: .inset)
+					}
 					.focusVisible {
 						$0.focusRing(Color("#ffff00"), width: .pixels(2), offset: .pixels(1))
 					}
 					.disabled {
 						$0
-							.opacity(0.45)
+							.opacity(0.5)
 							.cursor(.default)
 					}
-					.when(.state, is: "current") {
+					.when(States.current) {
 						$0
 							.background(Color("#3b3b9a"))
 							.border(Self.gold, width: .pixels(1))
@@ -656,10 +675,8 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 				// The disc spins while the drive reads it.
 				Style()
 					.font(size: .rootEm(2.5), lineHeight: 1)
-					.when(.state, is: "spinning") {
-						$0.media(.allowsMotion) {
-							$0.animation(Animations.spin, .linear(duration: .seconds(0.6)).repeatForever(autoreverses: false))
-						}
+					.when(States.spinning) {
+						$0.animation(Animations.spin, .linear(duration: .seconds(0.6)).repeatForever(autoreverses: false))
 					}
 			case .splashProgress:
 				Style().frame(width: .rootEm(12))
@@ -779,8 +796,6 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					.aspectRatio(240.0 / 150.0)
 					.background(.black)
 					.border(Color("#808080"), width: .pixels(2), style: .inset)
-			case .mediaButton:
-				Style().frame(minHeight: .rootEm(2.25))
 			case .articleBody:
 				Style()
 					.vstack(spacing: .rootEm(0.5))
@@ -832,7 +847,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.color(.black)
-					.when(.state, is: "current") {
+					.when(States.current) {
 						$0
 							.background(Color("#fff4b0"))
 							.border(Self.gold, width: .pixels(3), style: .solid)
@@ -849,9 +864,6 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					.frame(minWidth: .rootEm(6))
 					.textStyle(.caption)
 					.textAlign(.center)
-			case .bigTarget:
-				// Big enough for a thumb.
-				Style().frame(minHeight: .rootEm(2.25))
 			case .doorButton:
 				Style().frame(minWidth: .rootEm(2.25), minHeight: .rootEm(2.25))
 			case .mazeScore:
@@ -938,17 +950,17 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 				Style()
 					.frame(minHeight: .rootEm(2.25))
 					.textAlign(.leading)
-					.when(.state, is: "cut") {
+					.when(States.cut) {
 						$0
 							.opacity(0.35)
 							.underline(false)
 					}
-					.when(.state, is: "wrong") {
+					.when(States.wrong) {
 						$0
 							.background(Color("#ff9999"))
 							.opacity(0.8)
 					}
-					.when(.state, is: "right") {
+					.when(States.right) {
 						$0.background(Color("#99ff99"))
 					}
 			}

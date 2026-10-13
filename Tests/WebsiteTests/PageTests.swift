@@ -49,6 +49,125 @@ struct PageTests {
 	}
 
 	/**
+	A look belongs in a style (the “Styles” section of AGENTS.md), also in the Markdown of the content. A value of the build, like the accent of an app, is a custom property in a style of the element (``ElementStyle``), like `tint(_:)`.
+	*/
+	@Test(arguments: try await routes(where: isPage))
+	func `the page has no style attributes`(route: Route) throws {
+		// The text of a script is not markup.
+		let markup = try route.renderedHTML().replacing(/<script\b.*?<\/script>/.dotMatchesNewlines(), with: "")
+		let attributes = markup.matches(of: /<[a-zA-Z][^>]*?\sstyle="[^"]*"/).map { String($0.output) }
+		#expect(attributes.isEmpty, "\(attributes.joined(separator: "\n"))")
+	}
+
+	/**
+	Elementary does not check how elements nest, and raw HTML in content is not checked either.
+	*/
+	@Test(arguments: try await routes(where: isPage))
+	func `the page nests elements like the HTML parser does`(route: Route) throws {
+		let errors = Self.nestingErrors(in: try route.renderedHTML())
+		#expect(errors.isEmpty, "\(errors.joined(separator: "\n"))")
+	}
+
+	@Test
+	func `the nesting check finds elements that the HTML parser moves`() {
+		#expect(Self.nestingErrors(in: #"<a href="/"><button>Go</button></a>"#) == ["<button> inside <a>"])
+		#expect(Self.nestingErrors(in: #"<p>Text<ul><li>Item</li></ul></p>"#) == ["<ul> inside <p>", "</p> without <p>"])
+		#expect(Self.nestingErrors(in: #"<div><span></div></span>"#) == ["</div> closes <span>", "</span> without <span>"])
+		#expect(Self.nestingErrors(in: #"<button><textarea>Text</textarea></button><p><li>Item</li></p><section>"#) == ["<textarea> inside <button>", "<li> inside <p>", "</p> without <p>", "<section> without </section>"])
+		#expect(Self.nestingErrors(in: #"<a href="/"><a href="/about">About</a></a><form><form></form></form>"#) == ["<a> inside <a>", "<form> inside <form>"])
+
+		// A button starts a new scope, so a block in it does not close the paragraph around it.
+		#expect(Self.nestingErrors(in: #"<p><button><div>Go</div></button></p>"#).isEmpty)
+
+		// A hidden input is not interactive, a template has its own content, and the content of a script is text.
+		#expect(Self.nestingErrors(in: #"<button><input type="hidden"></button><p><template><div></div></template></p><a><script>"<a>"</script></a>"#).isEmpty)
+
+		// An attribute can contain `>`, a comment can look like a tag, and an SVG element can close itself.
+		#expect(Self.nestingErrors(in: #"<a title="a > b"><!-- <button> --></a><svg><path d="M0 0"/></svg>"#).isEmpty)
+	}
+
+	/**
+	Where the HTML nests elements in a way that the HTML spec does not allow, like a button in a link, which assistive technologies handle badly, or a list in a paragraph, which the HTML parser moves out of the paragraph. It also finds closing tags that do not match.
+	*/
+	private static func nestingErrors(in html: String) -> [String] {
+		// Elements that a link or a button must not contain. A hidden input is not interactive.
+		let interactiveElements: Set = ["a", "button", "details", "embed", "iframe", "input", "label", "select", "textarea"]
+
+		// Elements that close an open paragraph in the HTML parser.
+		let paragraphClosingElements: Set = ["address", "article", "aside", "blockquote", "dd", "details", "dialog", "div", "dl", "dt", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hgroup", "hr", "li", "main", "menu", "nav", "ol", "p", "pre", "search", "section", "summary", "table", "ul"]
+
+		// Elements that start a new scope, so the elements outside do not matter.
+		let scopeElements: Set = ["button", "caption", "math", "object", "svg", "table", "td", "template", "th"]
+
+		let voidElements: Set = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]
+
+		// The content of comments and raw text elements can look like tags. The raw text elements stay, as a text area is interactive.
+		let markup = html
+			.replacing(/<!--.*?-->/.dotMatchesNewlines(), with: "")
+			.replacing(/<(script|style|textarea|title)\b(?:[^>"']|"[^"]*"|'[^']*')*>.*?<\/\1>/.dotMatchesNewlines()) { "<\($0.1)></\($0.1)>" }
+
+		var errors = [String]()
+		var openElements = [String]()
+
+		for match in markup.matches(of: /<(\/?)([a-zA-Z][a-zA-Z0-9-]*)((?:[^>"']|"[^"]*"|'[^']*')*)>/) {
+			let name = match.2.lowercased()
+
+			guard match.1.isEmpty else {
+				guard let index = openElements.lastIndex(of: name) else {
+					errors.append("</\(name)> without <\(name)>")
+					continue
+				}
+
+				if index != openElements.indices.last {
+					errors.append("</\(name)> closes <\(openElements[index + 1])>")
+				}
+
+				openElements.removeSubrange(index...)
+				continue
+			}
+
+			let ancestors = openElements.reversed().prefix { $0 != "template" && $0 != "svg" && $0 != "math" }
+			let isInteractive = interactiveElements.contains(name) && !(name == "input" && match.3.contains(/type="hidden"/))
+
+			if
+				isInteractive,
+				let ancestor = ancestors.first(where: { $0 == "a" || $0 == "button" })
+			{
+				errors.append("<\(name)> inside <\(ancestor)>")
+			}
+
+			if
+				paragraphClosingElements.contains(name),
+				openElements.reversed().prefix(while: { !scopeElements.contains($0) }).contains("p"),
+				let paragraphIndex = openElements.lastIndex(of: "p")
+			{
+				errors.append("<\(name)> inside <p>")
+
+				// The HTML parser closes the paragraph here, so the elements after it are not in it.
+				openElements.removeSubrange(paragraphIndex...)
+			}
+
+			if
+				name == "form",
+				ancestors.contains("form")
+			{
+				errors.append("<form> inside <form>")
+			}
+
+			guard
+				!voidElements.contains(name),
+				!match.3.hasSuffix("/")
+			else {
+				continue
+			}
+
+			openElements.append(name)
+		}
+
+		return errors + openElements.map { "<\($0)> without </\($0)>" }
+	}
+
+	/**
 	Without the headings, what I am working on now, the numbers, and the projects are at the end of the page.
 	*/
 	@Test
@@ -146,7 +265,7 @@ struct PageTests {
 
 		func html(mostDownloadedPackageNames: [String]) throws -> String {
 			var npmStatistics = NPMStatistics()
-			npmStatistics.packages = [NPMStatistics.Package(name: "chalk", version: "6.0.0", date: .now, weeklyDownloads: 1000, dependentCount: nil, repository: "chalk/chalk")]
+			npmStatistics.packages = [NPMStatistics.Package(name: "chalk", version: "6.0.0", description: nil, date: .now, weeklyDownloads: 1000, dependentCount: nil, repository: "chalk/chalk")]
 			npmStatistics.mostDownloadedPackageNames = mostDownloadedPackageNames
 			let content = SiteContent(apps: loadedContent.apps, posts: loadedContent.posts, pages: loadedContent.pages, npmStatistics: npmStatistics, buildDate: loadedContent.buildDate, project: .website)
 			return try AboutPage(page: page, content: content).renderedHTML()
@@ -155,6 +274,41 @@ struct PageTests {
 		let label = "of the 10 most-downloaded packages"
 		#expect(try html(mostDownloadedPackageNames: ["semver", "chalk"]).contains(#">1</span> <span class="\#(StatCard.Styles.label.className)">\#(label)</span>"#))
 		#expect(try !html(mostDownloadedPackageNames: ["semver"]).contains(label))
+	}
+
+	/**
+	The packages of the day leave out packages without a description, of the Yeoman and imagemin organizations, and with an archived repo. The repos of the day leave out forks, archived repos, repos for settings, and the repos of npm packages. The link of a package can have capitals, and it is still the same repo.
+	*/
+	@Test
+	func `the projects of the day leave out the packages and repos that are not worth finding`() throws {
+		func package(_ name: String, description: String? = "Does a thing", repository: String?) -> NPMStatistics.Package {
+			NPMStatistics.Package(name: name, version: "1.0.0", description: description, date: .now, weeklyDownloads: 10, dependentCount: nil, repository: repository)
+		}
+
+		var npmStatistics = NPMStatistics()
+		npmStatistics.packages = [
+			// The link of a package can have capitals, like `SindreSorhus/Ky`, and it is the same repo.
+			package("ky", repository: "SindreSorhus/Ky"),
+			package("no-description", description: nil, repository: "sindresorhus/no-description"),
+			package("yeoman-environment", repository: "yeoman/environment"),
+			package("imagemin-svgo", repository: "imagemin/imagemin-svgo"),
+			package("old-thing", repository: "sindresorhus/Old-Thing"),
+			package("no-repo", repository: nil),
+		]
+
+		let decoder = JSONDecoder()
+		decoder.dateDecodingStrategy = .iso8601
+		let repositories = try ["Defaults", "ky", "old-thing", "forked", ".github"].map { name in
+			let isArchived = name == "old-thing"
+			let isFork = name == "forked"
+			return try decoder.decode(GitHubRepository.self, from: Data(#"{"name": "\#(name)", "description": "Does a thing", "html_url": "https://github.com/sindresorhus/\#(name)", "created_at": "2020-01-01T00:00:00Z", "archived": \#(isArchived), "fork": \#(isFork), "stargazers_count": 1, "language": "Swift"}"#.utf8))
+		}
+
+		let account = GitHub.Account(repositoryCount: repositories.count, followerCount: 1, starCount: 1, maintenance: GitHub.Maintenance(closedIssueCount: 1, mergedPullRequestCount: 1), repositories: repositories)
+		let content = SiteContent(apps: [], posts: [], pages: [], gitHubAccount: account, npmStatistics: npmStatistics, buildDate: .now, project: .empty)
+
+		#expect(content.discoverablePackages.map(\.name) == ["ky", "no-repo"])
+		#expect(content.discoverableRepositories.map(\.name) == ["Defaults"])
 	}
 
 	@Test
@@ -257,7 +411,38 @@ struct PageTests {
 		// An element with an inline script, like the copy button, has its script in the page, once, and no script file.
 		let contact = try String(contentsOf: output.appending(path: "contact.html"), encoding: .utf8)
 		#expect(contact.ranges(of: "customElements.define('copy-button'").count == 1)
-		#expect(!output.appending(path: "scripts/elements/copy-button.js").exists)
+		#expect(!output.appending(path: "scripts/elements/CopyButton.js").exists)
+
+		// Each page has one import map, before its module scripts, as browsers only use an import map that comes first, and every script in it is published with the hash it maps to.
+		for page in try output.filesRecursively() where page.pathExtension == "html" {
+			let html = try String(contentsOf: page, encoding: .utf8)
+
+			// Not the files that are published unchanged, like `public/feedback/index.html`.
+			guard
+				!Project.website.publicDirectory.appending(path: page.path(relativeTo: output)).isFile,
+				html.contains(#"type="module""#)
+			else {
+				continue
+			}
+
+			// Every script that the page loads from `/scripts` has its hash, also the scripts of the elements, which the build finds in the `Scripts` folders.
+			for match in html.matches(of: /<script\b[^>]*\bsrc="(\/scripts\/[^"]+)"/) {
+				#expect(match.1.contains("?v="), "\(page.lastPathComponent) loads \(match.1) without its hash.")
+			}
+
+			let importMaps = html.matches(of: /<script type="importmap">(.*?)<\/script>/)
+			try #require(importMaps.count == 1, "\(page.lastPathComponent) must have one import map.")
+			let firstModule = try #require(html.firstRange(of: #"type="module""#))
+			#expect(importMaps[0].range.upperBound <= firstModule.lowerBound, "The import map of \(page.lastPathComponent) must come before its module scripts.")
+
+			let imports = try JSONDecoder().decode([String: [String: String]].self, from: Data(importMaps[0].1.utf8))["imports"] ?? [:]
+			#expect(imports["/scripts/geocities-element.js"]?.hasPrefix("/scripts/geocities-element.js?v=") == true)
+
+			for (path, url) in imports {
+				#expect(url.hasPrefix(path + "?v="), "The import map of \(page.lastPathComponent) maps \(path) to \(url).")
+				#expect(output.appending(path: String(path.dropFirst())).isFile, "The import map of \(page.lastPathComponent) has \(path), which is not published.")
+			}
+		}
 	}
 
 	/**
@@ -299,6 +484,54 @@ struct PageTests {
 		Set(css.split(separator: "\n").filter { $0.hasSuffix("{") && !$0.contains("view-transition") }.flatMap { line in
 			line.replacing(/'[^']*'|"[^"]*"/, with: "").matches(of: /\.([a-z][a-z0-9-]*)/).map { String($0.1) }
 		})
+	}
+
+	/**
+	With reduced motion, nothing moves by itself (“Motion” in `AGENTS.md`), as `animation()` writes the animation in `@media (prefers-reduced-motion: no-preference)`. The exceptions are the essential animations, and the scroll-driven animations, which follow the scrolling of the visitor and have their `animation-timeline` on the next line.
+	*/
+	@Test
+	func `animations only run for visitors who allow motion`() async throws {
+		let essentialAnimations = [ProseAnimations.targetHighlight.name]
+		var stylesheets = [Stylesheet.site.css]
+		var animationCount = 0
+
+		for route in try await Self.routes(where: Self.isPage) {
+			stylesheets += try route.renderedHTML().matches(of: /<style>(.*?)<\/style>/.dotMatchesNewlines()).map { String($0.1) }
+		}
+
+		for css in stylesheets {
+			let lines = css.split(separator: "\n").map { $0.trimmingPrefix(while: \.isWhitespace) }
+			var preludes = [Substring]()
+
+			for (index, line) in lines.enumerated() {
+				if line.hasSuffix("{") {
+					preludes.append(line)
+					continue
+				}
+
+				if line == "}" {
+					preludes.removeLast()
+					continue
+				}
+
+				guard
+					let value = line.wholeMatch(of: /animation: (.+);/)?.1,
+					value != "none"
+				else {
+					continue
+				}
+
+				animationCount += 1
+
+				let isAllowed = preludes.contains { $0.contains("prefers-reduced-motion: no-preference") }
+					|| essentialAnimations.contains { value.hasPrefix("\($0) ") }
+					|| lines.indices.contains(index + 1) && lines[index + 1].hasPrefix("animation-timeline:")
+
+				#expect(isAllowed, "The animation also runs with reduced motion: \(value)")
+			}
+		}
+
+		#expect(animationCount > 0)
 	}
 
 	@Test

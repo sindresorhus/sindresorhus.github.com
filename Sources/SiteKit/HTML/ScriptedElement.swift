@@ -6,19 +6,27 @@ A component that is a custom element with a script: Swift renders all its markup
 
 The element replaces the root element of the component: it renders `content` inside the custom element, with the `root` style of the component. The tag name comes from the type name, like the class names of a ``StyleSet``, so it is the class name of the root style too, like `feed-ticker` for `FeedTicker`.
 
-The script is the `.js` file with the same name in the `Scripts` folder next to the Swift file, or a short script inline in the Swift file (``ElementScript``). It only has the class of the element, which extends a base class of the site, or `HTMLElement` for a small element that needs none of its helpers:
+The script is the `.js` file with the same name in the `Scripts` folder next to the Swift file, or a short script inline in the Swift file (``ElementScript``).
+
+A script file is a module that defines its element, with the tag name of the element, and a class named like the type. It extends a base class of the site, or `HTMLElement` for a small element that needs none of its helpers:
 
 ```js
-export default class extends ScriptedElement {
+import ScriptedElement from '/scripts/scripted-element.js';
+
+class FeedTicker extends ScriptedElement {
 	connected() {
 		this.on(this.parts.refresh, 'click', () => {
 			this.parts.refresh.disabled = true;
 		});
 	}
 }
+
+customElements.define('feed-ticker', FeedTicker);
 ```
 
-The build writes it to `/scripts/elements/<tag name>.js` with the import of the base class and `customElements.define(…)`, and the page loads it like a ``ModuleScript``. An inline script is instead written into each page that shows the element, once, so it needs no file. The site lists its elements, so the build knows the scripts before the pages render, and the tests check them.
+The build publishes every script file unchanged at `/scripts/elements/<file name>`, like `/scripts/elements/FeedTicker.js` (``Project/elementScripts()``), and the page loads it like a ``ModuleScript``. So the build needs no list of the elements: it finds the scripts in the `Scripts` folders. The tag name is written twice, in the type name and in the script, so the site tests that each element on a page is defined.
+
+An inline script is for a small element: it only has the class, `export default class extends HTMLElement {`, and the page that shows the element gets it once, with the definition of the element (``generatedScript()``), so its tag name is never written by hand.
 
 ```swift
 struct FeedTicker: ScriptedElement {
@@ -57,6 +65,7 @@ public protocol ScriptedElement: HTML, SendableMetatype {
 	associatedtype Content: HTML
 	associatedtype Styles: ElementStyleSet
 	associatedtype Parts: ElementPartSet = NoElementParts
+	associatedtype States: ElementStateSet = NoElementStates
 	associatedtype Config: Encodable = Never?
 
 	/**
@@ -101,11 +110,7 @@ extension ScriptedElement {
 	}
 
 	public var body: HTMLElement<ElementTag<Self>, Content> {
-		if Self.script.isInline {
-			PageResources.current?.require(inlineScriptOf: Self.self)
-		} else {
-			PageResources.current?.require(script: Self.scriptPath)
-		}
+		PageResources.current?.require(element: Self.self)
 
 		PageResources.current?.use(Styles.root)
 
@@ -139,53 +144,28 @@ extension ScriptedElement {
 	}
 
 	/**
-	The path of the script that the build writes for the element.
+	The script that the page writes for an element with an inline script: the class with the name of the type, so it can be defined, and the definition of the element. A script file defines its element itself.
+
+	An inline script is for a small element, so it extends `HTMLElement` and imports nothing. Throws when it does not have exactly one `export default class extends HTMLElement {` line.
 	*/
-	public static var scriptPath: RoutePath {
-		RoutePath("/scripts/elements/\(tagName).js")
-	}
-
-	/**
-	The script that the build writes for the element: the import of the base class that the class of ``script`` extends, the class with the name of the type, so it can be defined, and the definition of the element.
-
-	Throws when the file is missing, when it does not have exactly one `export default class extends Base {` line, or when it extends another class. `HTMLElement` needs no import.
-
-	- Parameter baseClasses: The URLs of the modules of the base classes, by class name, like `/scripts/scripted-element.js` for `ScriptedElement`.
-	*/
-	public static func generatedScript(baseClasses: [String: String]) throws -> String {
-		let name = script.file?.path(percentEncoded: false) ?? "The inline script of \(Self.self)"
+	public static func generatedScript() throws -> String {
 		var source = try script.source
-		let declarations = source.matches(of: /^export default class extends (\w+) \{$/.anchorsMatchLineEndings())
+		let declarations = source.ranges(of: /^export default class extends HTMLElement \{$/.anchorsMatchLineEndings())
 
 		guard
 			declarations.count == 1,
 			let declaration = declarations.first
 		else {
-			throw ElementScriptError.classDeclaration(name)
+			throw ElementScriptError.classDeclaration("The inline script of \(Self.self)")
 		}
 
-		let baseClass = String(declaration.output.1)
 		let className = String(describing: Self.self)
-		source.replaceSubrange(declaration.range, with: "export default class \(className) extends \(baseClass) {")
+		source.replaceSubrange(declaration, with: "export default class \(className) extends HTMLElement {")
 
-		let definition = """
+		return """
 		\(source)
 		customElements.define('\(tagName)', \(className));
 
-		"""
-
-		if baseClass == "HTMLElement" {
-			return definition
-		}
-
-		guard let baseClassPath = baseClasses[baseClass] else {
-			throw ElementScriptError.unknownBaseClass(baseClass, script: name, baseClasses: (baseClasses.keys + ["HTMLElement"]).sorted())
-		}
-
-		return """
-		import \(baseClass) from '\(baseClassPath)';
-
-		\(definition)
 		"""
 	}
 }
@@ -202,6 +182,11 @@ public struct ElementScript: Sendable {
 	}
 
 	private let location: Location
+
+	/**
+	The directory that the build publishes the script files in (``Project/elementScripts()``).
+	*/
+	public static let directory: RoutePath = "/scripts/elements"
 
 	/**
 	- Parameter swiftFile: The Swift file. Leave it out, so it is the file that creates the script.
@@ -241,10 +226,10 @@ public struct ElementScript: Sendable {
 	}
 
 	/**
-	Whether the script is in the Swift file, so the page gets it instead of a script file.
+	The path that the build publishes the script file at, like `/scripts/elements/Clock.js`, or `nil` for an inline script.
 	*/
-	public var isInline: Bool {
-		file == nil
+	public var path: RoutePath? {
+		file.map { Self.directory.appending($0.lastPathComponent) }
 	}
 
 	/**
@@ -264,14 +249,11 @@ public struct ElementScript: Sendable {
 
 public enum ElementScriptError: Error, CustomStringConvertible {
 	case classDeclaration(String)
-	case unknownBaseClass(String, script: String, baseClasses: [String])
 
 	public var description: String {
 		switch self {
 		case .classDeclaration(let script):
-			"\(script) must have one line “export default class extends Base {”, where Base is a base class of the site, like ScriptedElement, or HTMLElement."
-		case .unknownBaseClass(let baseClass, let script, let baseClasses):
-			"\(script) extends \(baseClass), which is not a base class of the site. Use one of: \(baseClasses.joined(separator: ", "))."
+			"\(script) must have one line “export default class extends HTMLElement {”. A script that needs a base class of the site, like ScriptedElement, is a script file."
 		}
 	}
 }
@@ -293,7 +275,7 @@ public protocol ElementStyleSet: StyleSet {
 }
 
 /**
-The elements inside a ``ScriptedElement`` that its script uses, like a canvas and its buttons, as a nested `enum Parts: String, ElementPartSet`. The raw value is the name of the case, so `.part(Parts.newGame)` renders `data-part="newGame"`, and the script finds it as `this.parts.newGame`. The script only finds the parts of its own element, not the parts of an element inside it.
+The elements inside a ``ScriptedElement`` that its script uses, like a canvas and its buttons, as a nested `enum Parts: String, ElementPartSet`. The raw value is the name of the case, so `.part(Parts.newGame)` renders `data-part="newGame"`, and the script finds it as `this.parts.newGame`. The script only finds the parts of its own element, not the parts of an element inside it. A part inside a `template` is in the same enum, and the script finds it in a copy of the template, with `clone()`, like `const {element: row, parts} = this.clone('rowTemplate'); parts.name.textContent = name;`.
 
 Use parts instead of IDs. Only use an ID where HTML needs one, like for `label(for:)` and ARIA references.
 */
@@ -312,11 +294,49 @@ public enum NoElementParts: ElementPartSet {
 	}
 }
 
+/**
+The states that the script of a ``ScriptedElement`` sets on the element or its parts as `data-state`, for the styles, like `copied` for a copy button, as a nested `enum States: String, ElementStateSet`. The raw value is the name of the case, so the script sets it as `button.dataset.state = 'copied'`, the styles use it as `.when(States.copied) { … }`, and Swift renders a first state with `.state(States.copied)`. A test checks that the states that the script sets as literals are cases, and that each case is set and styled.
+
+A component that is not a custom element, but that a page script sets states on, declares its states the same way.
+
+Do not copy an ARIA state or a checked control to a state. Style it directly, so the look always matches what screen readers say: a toggle button with ``Style/pressed(_:)``, the current item of a set with ``Style/current(_:)``, and the element around them with ``Style/descendantPressed(_:)`` or ``Style/descendantChecked(_:)``.
+*/
+public protocol ElementStateSet: RawRepresentable<String>, CaseIterable, Sendable {}
+
+extension ElementStateSet {
+	/**
+	The attribute selector of the state, like `[data-state="copied"]`, for a selector that a style builds itself, like `&:has(> [data-state="copied"])`.
+	*/
+	public var selector: String {
+		"[data-state=\"\(rawValue)\"]"
+	}
+}
+
+/**
+The states of an element without states.
+*/
+public enum NoElementStates: ElementStateSet {
+	public init?(rawValue: String) {
+		nil
+	}
+
+	public var rawValue: String {
+		switch self {}
+	}
+}
+
 extension HTMLAttribute where Tag: HTMLTrait.Attributes.Global {
 	/**
-	Marks the element as a part of its ``ScriptedElement``, which the script finds as `this.parts.name`.
+	Marks the element as a part of its ``ScriptedElement``, which the script finds as `this.parts.name`, or as `parts.name` in a copy of a template (`clone()`).
 	*/
 	public static func part(_ part: some ElementPartSet) -> Self {
 		.custom(name: "data-part", value: part.rawValue)
+	}
+
+	/**
+	The state that the element has before its script changes it, like the tab that is open first.
+	*/
+	public static func state(_ state: some ElementStateSet) -> Self {
+		.custom(name: "data-state", value: state.rawValue)
 	}
 }

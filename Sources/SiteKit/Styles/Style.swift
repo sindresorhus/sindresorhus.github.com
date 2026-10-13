@@ -50,6 +50,42 @@ public struct Style: Sendable {
 	}
 
 	/**
+	Sets a property from a typed value without converting it at the call site.
+	*/
+	public func declaration(_ property: Property, _ value: some StyleValue) -> Self {
+		declaration(property, CSSValue(value))
+	}
+
+	/**
+	Sets a property to a keyword, like ``Display/grid``.
+	*/
+	public func declaration(_ property: Property, _ keyword: some CSSKeyword) -> Self {
+		declaration(property, CSSValue(keyword))
+	}
+
+	/**
+	Sets a property from a typed value when there is one, like for an optional parameter of a modifier.
+	*/
+	func declaration(_ property: Property, ifPresent value: (some StyleValue)?) -> Self {
+		guard let value else {
+			return self
+		}
+
+		return declaration(property, value)
+	}
+
+	/**
+	Sets a property to a keyword when there is one, like for an optional parameter of a modifier.
+	*/
+	func declaration(_ property: Property, ifPresent keyword: (some CSSKeyword)?) -> Self {
+		guard let keyword else {
+			return self
+		}
+
+		return declaration(property, keyword)
+	}
+
+	/**
 	Puts the style and its nested rules in a scope of the element, like `@scope (…)` in CSS. When two scoped rules have the same specificity, the rule of the closer element wins, whatever their order. Use it for styles of markup that components do not own, like typography for Markdown, where an alert inside prose should win over the prose.
 	*/
 	public func scoped() -> Self {
@@ -88,32 +124,28 @@ public struct Style: Sendable {
 	Styles for a nested selector, like CSS nesting: `&` is this element (`"&:first-child"`, `"& > li"`), and a selector without `&` matches descendants (`".icon"`).
 	*/
 	public func nested(_ selector: String, _ content: (Self) -> Self) -> Self {
-		let style = content(Self())
-		var copy = self
-		copy.children.append(merging: [.rule(selector: selector, declarations: style.declarations, children: style.children)])
-		copy.definitions += style.definitions
-		return copy
+		block(selector, content)
 	}
 
 	/**
 	Styles that apply when the media query matches.
 	*/
 	public func media(_ query: MediaQuery, _ content: (Self) -> Self) -> Self {
-		conditional("@media \(query)", content)
+		block("@media \(query)", content)
 	}
 
 	/**
 	Styles that apply when the browser supports a feature, like `.supports(.scrollTimeline)`.
 	*/
 	public func supports(_ feature: BrowserFeature, _ content: (Self) -> Self) -> Self {
-		conditional("@supports \(feature)", content)
+		block("@supports \(feature)", content)
 	}
 
 	/**
 	The styles an element transitions from when it appears, like when it stops being hidden.
 	*/
 	public func startingStyle(_ content: (Self) -> Self) -> Self {
-		conditional("@starting-style", content)
+		block("@starting-style", content)
 	}
 
 	/**
@@ -128,10 +160,13 @@ public struct Style: Sendable {
 		return copy
 	}
 
-	private func conditional(_ prelude: String, _ content: (Self) -> Self) -> Self {
+	/**
+	A nested block with the style of the closure: a rule for a nested selector, like `&:hover`, or a condition, like `@media (…)`. Both are blocks in CSS, with the same nesting.
+	*/
+	private func block(_ prelude: String, _ content: (Self) -> Self) -> Self {
 		let style = content(Self())
 		var copy = self
-		copy.children.append(merging: [.conditional(prelude: prelude, declarations: style.declarations, children: style.children)])
+		copy.children.append(merging: [StyleNode(kind: .block(prelude: prelude, declarations: style.declarations, children: style.children))])
 		copy.definitions += style.definitions
 		return copy
 	}
@@ -188,12 +223,61 @@ extension Style {
 		nested("&[aria-current]", content)
 	}
 
+	/**
+	Styles while an element around the element is the current one of a set (`aria-current`), like the text of the open message in a list.
+	*/
+	public func ancestorCurrent(_ content: (Self) -> Self) -> Self {
+		nested("[aria-current] &", content)
+	}
+
+	/**
+	Styles while a toggle button is pressed (`aria-pressed="true"`), like the tool that is picked, so the look always matches what screen readers say. The script only sets `aria-pressed`, and Swift renders the first value with ``HTMLAttribute/ariaPressed(_:)``.
+	*/
+	public func pressed(_ content: (Self) -> Self) -> Self {
+		nested("&[aria-pressed=\"true\"]", content)
+	}
+
+	/**
+	Styles while a toggle button around the element is pressed (`aria-pressed="true"`), like the light of the button.
+	*/
+	public func ancestorPressed(_ content: (Self) -> Self) -> Self {
+		nested("[aria-pressed=\"true\"] &", content)
+	}
+
+	/**
+	Styles while a toggle button in the element is pressed (`aria-pressed="true"`), like the box around the button.
+	*/
+	public func descendantPressed(_ content: (Self) -> Self) -> Self {
+		nested("&:has([aria-pressed=\"true\"])", content)
+	}
+
+	/**
+	Styles while a checkbox or radio button in the element is checked, like the label of a hidden radio button.
+	*/
+	public func descendantChecked(_ content: (Self) -> Self) -> Self {
+		nested("&:has(input:checked)", content)
+	}
+
+	/**
+	Styles while the element that a button controls is open (`aria-expanded="true"`), like a menu button while its menu shows, so the look always matches what screen readers say.
+	*/
+	public func expanded(_ content: (Self) -> Self) -> Self {
+		nested("&[aria-expanded=\"true\"]", content)
+	}
+
 	public func active(_ content: (Self) -> Self) -> Self {
 		nested("&:active", content)
 	}
 
 	public func disabled(_ content: (Self) -> Self) -> Self {
 		nested("&:disabled", content)
+	}
+
+	/**
+	Styles while a control around the element is disabled, like the icon of a disabled button: `:disabled &`.
+	*/
+	public func ancestorDisabled(_ content: (Self) -> Self) -> Self {
+		nested(":disabled &", content)
 	}
 
 	/**
@@ -208,6 +292,13 @@ extension Style {
 	*/
 	public func lastChild(_ content: (Self) -> Self) -> Self {
 		nested("&:last-child", content)
+	}
+
+	/**
+	Styles while the element has no children, not even text, like a list that a script has not filled in yet.
+	*/
+	public func empty(_ content: (Self) -> Self) -> Self {
+		nested("&:empty", content)
 	}
 
 	/**
@@ -232,7 +323,7 @@ extension Style {
 	}
 
 	/**
-	Styles while a custom element has the custom state, which its script adds to the states of its element internals (a `CustomStateSet`): `&:state(name)`. It is not a data attribute, like `data-state`.
+	Styles while a custom element has the custom state, which its script adds to the states of its element internals (a `CustomStateSet`): `&:state(name)`. It is not a data attribute, like `data-state`, which a style reads with `when(States.copied)` (``ElementStateSet``).
 
 	```swift
 	// The script of the element: `this.#internals.states.add('playing')`
@@ -245,6 +336,27 @@ extension Style {
 	*/
 	public func state(_ name: String, _ content: (Self) -> Self) -> Self {
 		nested("&:state(\(name))", content)
+	}
+
+	/**
+	Styles while a script has set the state on the element (``ElementStateSet``): `&[data-state="copied"]`.
+
+	```swift
+	Style()
+		.when(States.copied) {
+			$0.color(.green)
+		}
+	```
+	*/
+	public func when(_ state: some ElementStateSet, _ content: (Self) -> Self) -> Self {
+		nested("&\(state.selector)", content)
+	}
+
+	/**
+	Styles while a script has set the state on an ancestor of the element (``ElementStateSet``), like the label of a copy button while the button shows that it copied: `[data-state="copied"] &`.
+	*/
+	public func when(ancestorHas state: some ElementStateSet, _ content: (Self) -> Self) -> Self {
+		nested("\(state.selector) &", content)
 	}
 
 	public func placeholder(_ content: (Self) -> Self) -> Self {
@@ -309,10 +421,19 @@ extension Style {
 	}
 
 	/**
-	Styles for the direct children that match the selector, like `children("li")` for `& > li`.
+	Styles for the direct children that match the selector, like `children("li")` for `& > li`. A list of selectors, like `children("p, label")`, is in `:is()`, as `& > p, label` would match a `label` at any depth. So the list cannot have a pseudo-element.
 	*/
 	public func children(_ selector: String, _ content: (Self) -> Self) -> Self {
-		nested("& > \(selector)", content)
+		nested(selector.contains(",") ? "& > :is(\(selector))" : "& > \(selector)", content)
+	}
+
+	/**
+	Styles for the descendants that match the selector, without specificity, so a component inside wins, like the elements of prose: `& :where(selector)`. The selector can be a list, like `descendants("ul, ol")`.
+
+	The selector cannot have a pseudo-element, as `:where()` cannot match one. Style it inside, like `descendants("li") { $0.before { … } }`.
+	*/
+	public func descendants(_ selector: String, _ content: (Self) -> Self) -> Self {
+		nested("& :where(\(selector))", content)
 	}
 
 	/**

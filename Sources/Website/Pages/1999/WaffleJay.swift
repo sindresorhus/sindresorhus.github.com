@@ -174,6 +174,11 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 		case ghostTemplate
 	}
 
+	enum States: String, ElementStateSet {
+		case now
+		case target
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		A sample of the palette, by its ID.
@@ -267,7 +272,12 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 						.textAlign(.leading)
 						.color(.black)
 						.handCursor()
-						.when(.state, is: "selected") {
+						// Black, as the navy ring does not show well on the blue and the violet.
+						.buttonFocusRing(.black)
+						.active {
+							$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+						}
+						.pressed {
 							$0
 								.border(.black, width: .pixels(2), style: .inset)
 								.underline()
@@ -287,7 +297,7 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
 					.color(Color("#8888cc"))
-					.when(.state, is: "now") {
+					.when(States.now) {
 						$0
 							.background(Color("#ffff00"))
 							.color(.black)
@@ -313,10 +323,10 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 						.color(.black)
 						.overflow(.hidden)
 						.handCursor()
-						.when(.state, is: "now") {
+						.when(States.now) {
 							$0.filter(.brightness(1.4))
 						}
-						.when(.state, is: "target") {
+						.when(States.target) {
 							$0.border(Color("#ffff00"), width: .pixels(2))
 						}
 				)

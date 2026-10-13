@@ -1,8 +1,6 @@
 // The sound card of Sindre’s Music Room on the 1999 page, which the toys of the room share: one audio context that starts at the first click on something that plays sound, the volume of the whole room, which all the volume sliders set, the analyser that the visualizer reads, the instruments, and the clock of the sequencers. One tune of the room plays at a time, the volume starts low, and the music stops when the visitor leaves the tab, or when other music of the page starts. Each toy is a custom element that imports what it needs from this module, so they all play through the same sound card.
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
+import {clamp} from '/scripts/geocities-element.js';
 
-// The frequency of a MIDI note. Note 69 is the A at 440 Hz, and each note up is a semitone, which is the twelfth root of 2 higher.
-export const midiFrequency = note => 440 * (2 ** ((note - 69) / 12));
 export const noteNames = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
 export const noteName = note => `${noteNames[((note % 12) + 12) % 12]}${Math.floor(note / 12) - 1}`;
 

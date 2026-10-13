@@ -1,8 +1,5 @@
 // The fortune toys on the 1999 page: the Magic 8-Ball, the paper fortune teller, and the mood ring.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-
-// A copy of the first element of a template.
-const cloneTemplate = template => template.content.firstElementChild.cloneNode(true);
+import GeoCitiesElement, {cloneTemplate, randomItem} from '/scripts/geocities-element.js';
 
 // The 20 answers of the real Magic 8-Ball, and a few of 1999.
 const answers = [
@@ -43,8 +40,8 @@ const fortunes = {
 
 // The numbers inside each flap of the paper fortune teller, for each way that the paper opens, in the order of the flaps.
 const numbers = {
-	a: [1, 3, 8, 6],
-	b: [2, 4, 7, 5],
+	horizontal: [1, 3, 8, 6],
+	vertical: [2, 4, 7, 5],
 };
 
 const moods = [
@@ -55,7 +52,7 @@ const moods = [
 	{speed: 0, color: '#8a3fd1', name: 'Happy and in love (violet)'},
 ];
 
-export default class extends GeoCitiesElement {
+class GeoCitiesFortuneToys extends GeoCitiesElement {
 	connected() {
 		this.#setUpEightBall();
 		this.#setUpFortuneTeller();
@@ -115,7 +112,7 @@ export default class extends GeoCitiesElement {
 		// Opens the paper the other way, once for each step, and says each step.
 		const pump = async labels => {
 			for (const label of labels) {
-				setWay(way === 'a' ? 'b' : 'a');
+				setWay(way === 'horizontal' ? 'vertical' : 'horizontal');
 				status.textContent = label;
 				await this.wait(this.reducedMotion ? 250 : 450);
 			}
@@ -249,3 +246,5 @@ export default class extends GeoCitiesElement {
 		});
 	}
 }
+
+customElements.define('geo-cities-fortune-toys', GeoCitiesFortuneToys);

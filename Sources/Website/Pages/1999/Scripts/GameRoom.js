@@ -1,19 +1,7 @@
 // The Game Room of the 1999 page: the small games of the web of 1999, each in a window: a slot machine, a unicorn race, Simon, memory, Hangman, Rock Paper Scissors against Rocky, a reaction test, a typing tutor, and Yatzy. The coin games take the coins of the arcade (`Arcade.js`), and every game gives tickets for its Prize Counter. With reduced motion, the reels, the race, and the dice show only where they stop. The best scores are kept in the browser.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
+import GeoCitiesElement, {randomItem, randomInteger, plural, shuffled} from '/scripts/geocities-element.js';
+
 const count = value => Math.max(Math.round(Number(value) || 0), 0);
-const plural = (amount, word) => `${amount.toLocaleString('en-US')} ${word}${amount === 1 ? '' : 's'}`;
-
-const shuffle = items => {
-	const copy = [...items];
-
-	for (let index = copy.length - 1; index > 0; index--) {
-		const other = Math.floor(Math.random() * (index + 1));
-		[copy[index], copy[other]] = [copy[other], copy[index]];
-	}
-
-	return copy;
-};
 
 const setUpGameRoom = (room, {slotPull, slotStatus, derbyPick, derbyBet, derbyStart, derbyStatus, simonBoard, simonStart, simonStatus, memoryBoard, memoryStatus, memoryRestart, hangmanDrawing, hangmanWord, hangmanHint, hangmanKeys, hangmanStatus, hangmanNew, rpsScore, rpsStatus, rpsVisit, yatzyRoll, yatzyStatus, yatzyBonus, yatzyTotal, reactionButton, reactionStatus, reactionBest, typingText, typingLabel, typingInput, typingStatus, typingNew}) => {
 	// The arcade keeps the coins, the tickets, and the sound, so the coin games take the coins of the arcade, and every game gives tickets for its Prize Counter. It is found once, and its methods are only called on a click, when its script has run.
@@ -55,7 +43,7 @@ const setUpGameRoom = (room, {slotPull, slotStatus, derbyPick, derbyBet, derbySt
 		const result = reels.map(() => randomItem(reelSymbols));
 
 		for (const reel of reels) {
-			reel.dataset.state = '';
+			delete reel.dataset.state;
 		}
 
 		// The reels spin together and stop one after the other, unless the visitor prefers less motion.
@@ -222,7 +210,7 @@ const setUpGameRoom = (room, {slotPull, slotStatus, derbyPick, derbyBet, derbySt
 		simonPads[index].dataset.state = 'lit';
 		arcade.beep(simonTones[index], milliseconds / 1000, {type: 'triangle', volume: 0.1});
 		await room.wait(milliseconds);
-		simonPads[index].dataset.state = '';
+		delete simonPads[index].dataset.state;
 	};
 
 	const showSimonSequence = async () => {
@@ -324,10 +312,10 @@ const setUpGameRoom = (room, {slotPull, slotStatus, derbyPick, derbyBet, derbySt
 
 	const dealMemory = () => {
 		memoryTimer?.cancel();
-		memoryBoard.replaceChildren(...shuffle([...memoryBoard.children]));
+		memoryBoard.replaceChildren(...shuffled([...memoryBoard.children]));
 
 		for (const card of memoryBoard.children) {
-			card.dataset.state = '';
+			delete card.dataset.state;
 			card.setAttribute('aria-label', memoryLabel(card, false));
 		}
 
@@ -341,7 +329,7 @@ const setUpGameRoom = (room, {slotPull, slotStatus, derbyPick, derbyBet, derbySt
 		memoryTimer?.cancel();
 
 		for (const open of memoryOpen) {
-			open.dataset.state = '';
+			delete open.dataset.state;
 			open.setAttribute('aria-label', memoryLabel(open, false));
 		}
 
@@ -458,7 +446,7 @@ const setUpGameRoom = (room, {slotPull, slotStatus, derbyPick, derbyBet, derbySt
 
 		for (const button of hangmanButtons) {
 			button.removeAttribute('aria-disabled');
-			button.dataset.state = '';
+			delete button.dataset.state;
 		}
 
 		hangmanStatus.textContent = `${word.length} letters. Click a letter, or type it.`;
@@ -622,13 +610,13 @@ const setUpGameRoom = (room, {slotPull, slotStatus, derbyPick, derbyBet, derbySt
 		} else if (reactionState === 'wait') {
 			reactionTimer.cancel();
 			reactionState = 'done';
-			reactionButton.dataset.state = '';
+			delete reactionButton.dataset.state;
 			reactionButton.textContent = 'Try Again';
 			room.say('Too soon! You disconnected. Wait for green.', reactionStatus);
 		} else if (reactionState === 'go') {
 			const time = Math.round(performance.now() - reactionStart);
 			reactionState = 'done';
-			reactionButton.dataset.state = '';
+			delete reactionButton.dataset.state;
 			reactionButton.textContent = `${time} ms`;
 			const isBest = reactionRecord === 0 || time < reactionRecord;
 
@@ -813,7 +801,6 @@ const setUpGameRoom = (room, {slotPull, slotStatus, derbyPick, derbyBet, derbySt
 			const value = yatzy.dice[index];
 			die.textContent = value ? dieFaces[value - 1] : '⚀';
 			die.disabled = yatzy.rolls === 0 || yatzy.rolls === 3 || yatzy.isOver || yatzy.isRolling;
-			die.dataset.state = yatzy.kept[index] ? 'kept' : '';
 			die.setAttribute('aria-pressed', String(yatzy.kept[index]));
 			die.setAttribute('aria-label', value ? `Die ${index + 1}: ${value}` : `Die ${index + 1}`);
 		}
@@ -938,7 +925,7 @@ const setUpGameRoom = (room, {slotPull, slotStatus, derbyPick, derbyBet, derbySt
 	newYatzy();
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesGameRoom extends GeoCitiesElement {
 	connected() {
 		setUpGameRoom(this, this.parts);
 	}
@@ -954,3 +941,5 @@ export default class extends GeoCitiesElement {
 		this.cheer();
 	}
 }
+
+customElements.define('geo-cities-game-room', GeoCitiesGameRoom);

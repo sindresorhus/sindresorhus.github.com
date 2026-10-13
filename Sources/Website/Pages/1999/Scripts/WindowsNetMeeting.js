@@ -1,7 +1,5 @@
 // Microsoft NetMeeting 2.1 on the desktop of the 1999 page, for a video call with Mormor in Ålesund, who just got a computer. The directory server is busy, she ignores the first call, her video is 160 × 120 at 2 frames per second, her sound comes seconds late, she types with caps lock and one finger, draws a cat that looks like a potato, sends a photo that takes forever, clicks everything on the shared desktop, cannot find Hang Up, and Mamma picks up the phone. Everything waits while the window is closed, off the screen, or the tab is hidden. Nothing makes a sound until the visitor presses Sound.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
+import GeoCitiesElement, {randomItem, randomInteger, clamp, playTone} from '/scripts/geocities-element.js';
 
 // Each call has a number, and a wait of a call that ended throws this, so the rest of what Mormor was doing stops.
 class Cancelled extends Error {}
@@ -732,8 +730,7 @@ const timeLeft = seconds => {
 	return seconds < 60 ? 'Less than a minute left.' : (minutes === 1 ? 'About a minute left.' : `About ${minutes} minutes left.`);
 };
 
-
-export default class extends GeoCitiesElement {
+class GeoCitiesWindowsNetMeeting extends GeoCitiesElement {
 	#viewButtons;
 	#panels;
 	#toolPanels;
@@ -975,14 +972,11 @@ export default class extends GeoCitiesElement {
 			soundButton.firstElementChild.textContent = isOn ? '🔊' : '🔈';
 
 			if (isOn) {
-				soundButton.dataset.state = 'on';
-
 				// The desktop starts its audio in the handler of this click, as browsers only allow sound after one.
 				this.sound();
 				this.#sounds.blip();
 				this.say('Sound is on: the ringing, the modem, and Mormor’s voice.');
 			} else {
-				delete soundButton.dataset.state;
 				this.#stopSpeaking();
 				this.say('Sound is off. The subtitles still show what Mormor says.');
 			}
@@ -1267,21 +1261,11 @@ export default class extends GeoCitiesElement {
 		});
 
 		for (const button of this.#colorButtons) {
-			if (button.getAttribute('aria-pressed') === 'true') {
-				button.dataset.state = 'on';
-			}
-
 			this.on(button, 'click', () => {
 				this.#pen.color = penColors[button.dataset.netmeetingColor];
 
 				for (const other of this.#colorButtons) {
 					other.setAttribute('aria-pressed', String(other === button));
-
-					if (other === button) {
-						other.dataset.state = 'on';
-					} else {
-						delete other.dataset.state;
-					}
 				}
 
 				this.#renderBoard();
@@ -1490,9 +1474,7 @@ export default class extends GeoCitiesElement {
 	}
 
 	async #wait(milliseconds) {
-		await new Promise(resolve => {
-			setTimeout(resolve, milliseconds);
-		});
+		await this.wait(milliseconds);
 
 		while (!this.isVisible) {
 			await new Promise(resolve => {
@@ -1524,23 +1506,7 @@ export default class extends GeoCitiesElement {
 			return;
 		}
 
-		const {context, output} = this.sound();
-		const oscillator = context.createOscillator();
-		const gain = context.createGain();
-		const time = context.currentTime + start;
-		oscillator.type = type;
-		oscillator.frequency.setValueAtTime(frequency, time);
-
-		if (slide) {
-			oscillator.frequency.exponentialRampToValueAtTime(slide, time + duration);
-		}
-
-		gain.gain.setValueAtTime(0.0001, time);
-		gain.gain.exponentialRampToValueAtTime(volume, time + 0.01);
-		gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-		oscillator.connect(gain).connect(output);
-		oscillator.start(time);
-		oscillator.stop(time + duration + 0.05);
+		playTone(this.sound(), frequency, start, duration, {type, volume, slide});
 	}
 
 	// A burst of noise, for the scream of the modem.
@@ -1610,14 +1576,7 @@ export default class extends GeoCitiesElement {
 		}
 
 		for (const button of this.#viewButtons) {
-			const isOn = button.dataset.netmeetingView === name;
-			button.setAttribute('aria-pressed', String(isOn));
-
-			if (isOn) {
-				button.dataset.state = 'on';
-			} else {
-				delete button.dataset.state;
-			}
+			button.setAttribute('aria-pressed', String(button.dataset.netmeetingView === name));
 		}
 	}
 
@@ -1665,16 +1624,15 @@ export default class extends GeoCitiesElement {
 		}
 
 		for (const person of people) {
-			const row = this.parts.rowTemplate.content.firstElementChild.cloneNode(true);
-			const cells = row.children;
+			const {element: row, parts} = this.clone('rowTemplate');
 			row.dataset.person = person.id;
-			cells[0].textContent = person.media;
-			cells[1].firstElementChild.textContent = person.name;
-			cells[2].textContent = person.email;
-			cells[3].textContent = person.city;
-			cells[4].textContent = person.comment;
+			parts.personMedia.textContent = person.media;
+			parts.personName.textContent = person.name;
+			parts.personEmail.textContent = person.email;
+			parts.personCity.textContent = person.city;
+			parts.personComment.textContent = person.comment;
 
-			cells[1].firstElementChild.addEventListener('click', () => {
+			parts.personName.addEventListener('click', () => {
 				this.#selectPerson(person.id);
 				this.say(`${person.name} is picked. Press 📞 Call to call.`);
 			});
@@ -2293,12 +2251,6 @@ export default class extends GeoCitiesElement {
 
 		button.setAttribute('aria-pressed', String(isOpen));
 
-		if (isOpen) {
-			button.dataset.state = 'on';
-		} else {
-			delete button.dataset.state;
-		}
-
 		if (name === 'whiteboard' && isOpen) {
 			this.#renderBoard();
 		}
@@ -2627,12 +2579,6 @@ export default class extends GeoCitiesElement {
 		this.#share.hasControl = hasControl;
 		this.parts.collaborate.setAttribute('aria-pressed', String(hasControl));
 
-		if (hasControl) {
-			this.parts.collaborate.dataset.state = 'on';
-		} else {
-			delete this.parts.collaborate.dataset.state;
-		}
-
 		this.#renderShare();
 	}
 
@@ -2823,3 +2769,5 @@ export default class extends GeoCitiesElement {
 		}
 	}
 }
+
+customElements.define('geo-cities-windows-net-meeting', GeoCitiesWindowsNetMeeting);

@@ -1,6 +1,5 @@
 // Comic Chat ’99 on the 1999 page: each line becomes a balloon in a panel of a comic strip, and the characters act it out with the rules of Microsoft Comic Chat (Kurlander, Skelly, and Salesin, SIGGRAPH 1996): greetings wave, “I” points to yourself, “you” points to the other, LOL laughs, capitals and “!!!” shout, and smileys set the face. The emotion wheel overrides the face. A panel holds two balloons, and a new panel starts when it is full or the speaker already spoke in it.
-
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
+import GeoCitiesElement, {cloneTemplate, randomItem} from '/scripts/geocities-element.js';
 
 const people = {
 	kid: {name: 'Propeller Kid', skin: '#ffd8b0', shirt: '#ff3333', pants: '#3344aa', look: 'propeller'},
@@ -108,9 +107,9 @@ const replies = [
 	[/./, ['Cool.', 'I will put that on my page!', 'You are my 3rd visitor today! :-)', 'Did you sign my guestbook yet?', 'I am not allowed on the Internet after 8. Mom says.', 'Brb, getting a waffle. Ok I am back.']],
 ];
 
-export default class extends GeoCitiesElement {
+class GeoCitiesComicChat extends GeoCitiesElement {
 	connected() {
-		const {strip, form, input, character: characterSelect, clear: clearButton, reconnect: reconnectButton, panelTemplate, balloonTemplate, characterTemplate: castTemplate} = this.parts;
+		const {strip, form, input, character: characterSelect, clear: clearButton, reconnect: reconnectButton, balloonTemplate, characterTemplate: castTemplate} = this.parts;
 		const emotionInputs = [...this.querySelectorAll('input[name="geocities-comic-emotion"]')];
 		let neutralTurn = 0;
 
@@ -187,8 +186,7 @@ export default class extends GeoCitiesElement {
 
 		// A new panel with its cast, from left to right. The first faces right, and the others face left, so they talk to each other.
 		const newPanel = (cast, state) => {
-			const element = panelTemplate.content.firstElementChild.cloneNode(true);
-			const castElement = element.children[1];
+			const {element, parts: {balloons, cast: castElement, caption}} = this.clone('panelTemplate');
 			const figures = {};
 
 			if (state) {
@@ -196,7 +194,7 @@ export default class extends GeoCitiesElement {
 			}
 
 			for (const [index, key] of cast.entries()) {
-				const figure = castTemplate.content.firstElementChild.cloneNode(true);
+				const figure = cloneTemplate(castTemplate);
 				figure.innerHTML = drawCharacter(key, ['neutral', 'hips'][(neutralTurn + index) % 2], 'neutral', index > 0);
 				castElement.append(figure);
 				figures[key] = {element: figure, isFacingLeft: index > 0};
@@ -209,7 +207,7 @@ export default class extends GeoCitiesElement {
 				strip.firstElementChild.remove();
 			}
 
-			current = {element, balloons: element.children[0], caption: element.children[2], count: 0, speakers: new Set(), figures};
+			current = {element, balloons, caption, count: 0, speakers: new Set(), figures};
 			return current;
 		};
 
@@ -224,7 +222,7 @@ export default class extends GeoCitiesElement {
 			}
 
 			act(key, reading);
-			const balloon = balloonTemplate.content.firstElementChild.cloneNode(true);
+			const balloon = cloneTemplate(balloonTemplate);
 			balloon.textContent = text;
 
 			if (reading.kind !== 'say') {
@@ -342,22 +340,6 @@ export default class extends GeoCitiesElement {
 			input.focus();
 		});
 
-		const showEmotion = () => {
-			for (const item of emotionInputs) {
-				const label = item.closest('label');
-
-				if (item.checked) {
-					label.dataset.state = 'picked';
-				} else {
-					delete label.dataset.state;
-				}
-			}
-		};
-
-		for (const item of emotionInputs) {
-			this.on(item, 'change', showEmotion);
-		}
-
 		// A new page of the comic. While Mom has the phone, Sindre is not there to say hi.
 		const welcome = () => {
 			current = undefined;
@@ -375,7 +357,8 @@ export default class extends GeoCitiesElement {
 
 		this.on(clearButton, 'click', welcome);
 
-		showEmotion();
 		welcome();
 	}
 }
+
+customElements.define('geo-cities-comic-chat', GeoCitiesComicChat);

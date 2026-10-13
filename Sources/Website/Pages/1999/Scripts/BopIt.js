@@ -1,14 +1,5 @@
 // Bop It! on the 1999 page: the toy of Hasbro (1996) that yells commands, and Bop It Extreme (1998), drawn on a canvas. A voice of `speechSynthesis` yells “Bop it!”, “Twist it!”, or “Pull it!” over a drum loop made with the Web Audio API, and the visitor does it the right way before the next beat. The beat speeds up, a wrong or late move ends the round, and the best scores and the charge of the batteries are kept in the browser. Nothing makes a sound until the visitor presses Start or turns on the sound, and the canvas only animates while it is on the screen and the tab is visible. With reduced motion, the toy does not wiggle, and the parts only move while the visitor moves them.
-
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
+import GeoCitiesElement, {randomItem, clamp} from '/scripts/geocities-element.js';
 
 // What the toy yells, in English and in Norwegian. “Dunk den” is what we said for “bop it” in the schoolyard.
 const languages = {
@@ -248,7 +239,7 @@ const keys = {
 	y: ['shout', 1],
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesBopIt extends GeoCitiesElement {
 	#context;
 	#background;
 	#loop;
@@ -398,7 +389,7 @@ export default class extends GeoCitiesElement {
 			this.on(button, 'click', () => {
 				settings.toy = button.dataset.part;
 				for (const other of [classic, extreme]) {
-					setPressed(other, other === button);
+					other.setAttribute('aria-pressed', String(other === button));
 				}
 
 				this.#updateControls();
@@ -412,7 +403,7 @@ export default class extends GeoCitiesElement {
 			this.on(button, 'click', () => {
 				settings.kind = button.dataset.part;
 				for (const other of [solo, pass]) {
-					setPressed(other, other === button);
+					other.setAttribute('aria-pressed', String(other === button));
 				}
 
 				this.#updateControls();
@@ -422,14 +413,14 @@ export default class extends GeoCitiesElement {
 
 		this.on(norwegian, 'click', () => {
 			settings.isNorwegian = !settings.isNorwegian;
-			setPressed(norwegian, settings.isNorwegian);
+			norwegian.setAttribute('aria-pressed', String(settings.isNorwegian));
 			this.#speak(settings.isNorwegian ? 'Dunk den! Vri den! Dra den!' : 'Bop it! Twist it! Pull it!');
 			this.say(settings.isNorwegian ? 'Nå roper den på norsk: “Dunk den! Vri den! Dra den!” (Now it yells in Norwegian.)' : 'The toy yells in English again.');
 		});
 
 		this.on(shout, 'click', () => {
 			settings.hasShout = !settings.hasShout;
-			setPressed(shout, settings.hasShout);
+			shout.setAttribute('aria-pressed', String(settings.hasShout));
 			if (!settings.hasShout) {
 				this.#setMicrophoneWanted(false);
 			}
@@ -443,7 +434,7 @@ export default class extends GeoCitiesElement {
 			if (this.#audio.isOn) {
 				this.#audio.isOn = false;
 				hushVoice();
-				setPressed(sound, false);
+				sound.setAttribute('aria-pressed', 'false');
 				sound.textContent = '🔈 Sound Off';
 				return;
 			}
@@ -1270,7 +1261,7 @@ export default class extends GeoCitiesElement {
 			return;
 		}
 
-		setTimeout(() => {
+		this.timeout(180, () => {
 			if (this.#gesture === undefined) {
 				const motion = this.#motion;
 				motion.bop = 0;
@@ -1279,7 +1270,7 @@ export default class extends GeoCitiesElement {
 				motion.shout = 0;
 				this.#draw();
 			}
-		}, 180);
+		});
 	}
 
 	#wiggle(amount) {
@@ -1365,7 +1356,7 @@ export default class extends GeoCitiesElement {
 		} else if (battery < lowBattery) {
 			batteries.dataset.state = 'low';
 		} else {
-			batteries.dataset.state = '';
+			delete batteries.dataset.state;
 		}
 	}
 
@@ -1434,22 +1425,22 @@ export default class extends GeoCitiesElement {
 		}
 
 		const {sound} = this.parts;
-		setPressed(sound, true);
+		sound.setAttribute('aria-pressed', 'true');
 		sound.textContent = '🔊 Sound On';
 		return true;
 	}
 
 	#clearTimers() {
 		const game = this.#game;
-		clearTimeout(game.timer);
-		clearTimeout(game.sisterTimer);
+		game.timer?.cancel();
+		game.sisterTimer?.cancel();
 		game.timer = undefined;
 		game.sisterTimer = undefined;
 	}
 
 	#later(seconds, callback) {
-		clearTimeout(this.#game.timer);
-		this.#game.timer = setTimeout(callback, seconds * 1000);
+		this.#game.timer?.cancel();
+		this.#game.timer = this.timeout(seconds * 1000, callback);
 	}
 
 	#nextPlayerIndex() {
@@ -1468,7 +1459,7 @@ export default class extends GeoCitiesElement {
 		const sister = this.#sister;
 		const sisterButton = this.parts.sister;
 		if (sister.gamesSince < 2) {
-			sisterButton.dataset.state = '';
+			delete sisterButton.dataset.state;
 			return '';
 		}
 
@@ -1630,7 +1621,7 @@ export default class extends GeoCitiesElement {
 			this.say('Lillesøster grabs the toy with both hands. “Jeg kan selv!” (I can do it myself!) Hands off while she plays.');
 			this.#sister.gamesSince = 0;
 			this.#sister.nags = 0;
-			this.parts.sister.dataset.state = '';
+			delete this.parts.sister.dataset.state;
 		} else if (game.kind === 'pass') {
 			this.say(`Pass It! ${game.players[0].name} starts. When the toy says “Pass it!”, give it to the next one.`);
 		} else {
@@ -1772,10 +1763,10 @@ export default class extends GeoCitiesElement {
 		}
 
 		const move = roll < mistake ? randomItem(game.parts.filter(other => other !== part)) : part;
-		game.sisterTimer = setTimeout(() => {
+		game.sisterTimer = this.timeout(period * 1000 * (0.3 + (Math.random() * 0.35)), () => {
 			this.#moveByItself(move, Math.random() < 0.5 ? -1 : 1);
 			this.#useToy(move, 'sister');
-		}, period * 1000 * (0.3 + (Math.random() * 0.35)));
+		});
 	}
 
 	#sisterDone() {
@@ -1949,7 +1940,7 @@ export default class extends GeoCitiesElement {
 
 	#setMicrophoneWanted(isWanted) {
 		this.#microphone.isWanted = isWanted;
-		setPressed(this.parts.microphone, isWanted);
+		this.parts.microphone.setAttribute('aria-pressed', String(isWanted));
 		this.#updateMicrophone();
 	}
 
@@ -2171,3 +2162,5 @@ export default class extends GeoCitiesElement {
 		this.#useToy(part);
 	}
 }
+
+customElements.define('geo-cities-bop-it', GeoCitiesBopIt);

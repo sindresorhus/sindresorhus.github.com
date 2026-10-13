@@ -293,13 +293,14 @@ extension FeedbackPage {
 					.vstack()
 					.contentColumn(.prose)
 					.pagePadding()
-					.from(.smallTablet) {
+					.from(.tablet) {
 						$0.frame(minHeight: .smallViewportHeight(100))
 					}
 			case .header:
+				// The space below the title of the other pages.
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(1.25))
-					.margin(.bottom, .rootEm(2))
+					.margin(.bottom, .rootEm(2.5))
 			case .headerText:
 				Style().frame(minWidth: 0)
 			case .appIcon:
@@ -332,7 +333,7 @@ extension FeedbackPage {
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.75))
 					.padding(.rootEm(0.625))
-					.cornerRadius(.rootEm(0.75))
+					.cornerRadius(.fieldRadius)
 					.color(.bodyText)
 					.background(.card)
 					.transition(.backgroundColor, .color, animation: .stateChange)
@@ -345,8 +346,8 @@ extension FeedbackPage {
 				Style()
 					.margin(.bottom, .rootEm(1))
 					.padding(.rootEm(1))
-					.cornerRadius(.rootEm(0.75))
-					.background(.gray(50), dark: .white.opacity(0.05))
+					.cornerRadius(.fieldRadius)
+					.background(.card)
 					.color(.secondaryText)
 			case .appNoticeLink:
 				Style().textLink()
@@ -356,16 +357,15 @@ extension FeedbackPage {
 					.margin(.bottom, .rootEm(1))
 					.padding(.vertical, .rootEm(1.25))
 					.border(.lightDark(.gray(200).opacity(0.8), .white.opacity(0.1)))
-					.cornerRadius(.rootEm(0.75))
+					.cornerRadius(.fieldRadius)
 			case .notesTitle:
 				Style()
 					.margin(.bottom, .rootEm(0.5))
 					.textStyle(.lead, weight: .semibold)
 					.color(.primaryText)
 			case .notesContent:
-				Style().important {
-					$0.font(size: .pixels(16))
-				}
+				// Smaller than the prose, which it is in. The components win over the styles of prose.
+				Style().font(size: .rootEm(1))
 			case .scriptingNotice:
 				// Only shown when JavaScript is turned off.
 				Style()
@@ -387,7 +387,8 @@ extension FeedbackPage {
 				Style()
 					.margin(.top, .rootEm(0.375))
 					.textStyle(.caption)
-					.color(.amber(600), dark: .amber(400))
+					// Dark enough to read on white, like the stars on the about page.
+					.color(.amber(700), dark: .amber(400))
 			case .actions:
 				Style()
 					.vstack(spacing: .rootEm(0.75))
@@ -402,7 +403,6 @@ extension FeedbackPage {
 				Style()
 					.flexShrink(0)
 					.frame(width: .percent(100))
-					.cursor(.pointer)
 					.disabled {
 						$0
 							.opacity(0.5)
@@ -417,14 +417,14 @@ extension FeedbackPage {
 			case .submitLabel:
 				Style()
 					.stackedInGrid()
-					.nested(":disabled &") {
+					.ancestorDisabled {
 						$0.visibility(false)
 					}
 			case .sendingLabel:
 				Style()
 					.stackedInGrid()
 					.visibility(false)
-					.nested(":disabled &") {
+					.ancestorDisabled {
 						$0.visibility(true)
 					}
 			case .fineprint:

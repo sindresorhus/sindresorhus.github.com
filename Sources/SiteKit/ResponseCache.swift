@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 
 /**
@@ -32,6 +33,9 @@ public struct ResponseCache: Sendable {
 	private static let session: URLSession = {
 		let configuration = URLSessionConfiguration.ephemeral
 		configuration.urlCache = nil
+		configuration.httpCookieStorage = nil
+		configuration.urlCredentialStorage = nil
+		configuration.httpShouldSetCookies = false
 		// The timeout of a request only counts the time without data, so a slow response that keeps sending could run until the build is stopped. This is the most time a whole request can take.
 		configuration.timeoutIntervalForResource = 60
 		return URLSession(configuration: configuration)
@@ -45,8 +49,8 @@ public struct ResponseCache: Sendable {
 	/**
 	The cache for builds of the project: in `.cache/responses`, and fresh on CI.
 	*/
-	public static func forBuilds(of project: Project, environment: [String: String] = ProcessInfo.processInfo.environment) -> Self {
-		let isContinuousIntegration = environment["CI"] != nil
+	public static func forBuilds(of project: Project) -> Self {
+		let isContinuousIntegration = ProcessInfo.processInfo.environment["CI"] != nil
 
 		return Self(
 			directory: project.root.appending(path: ".cache/responses"),
@@ -74,6 +78,7 @@ public struct ResponseCache: Sendable {
 	Fetches the body and reads it with the function, like the names in a JavaScript file, with the caching of ``decoded(_:from:maximumAge:)``. The function throws for a body that it cannot read, so the body is not saved, and the cached response is used.
 	*/
 	public func decoded<Value>(from request: URLRequest, maximumAge: Duration? = nil, decode: (Data) throws -> Value) async throws -> Value {
+		try Task.checkCancellation()
 		let maximumAge = maximumAge ?? self.maximumAge
 		let file = file(for: request)
 		let entry = file.flatMap { try? JSONDecoder().decode(Entry.self, from: Data(contentsOf: $0)) }
@@ -117,6 +122,7 @@ public struct ResponseCache: Sendable {
 		do {
 			(data, response) = try await Self.session.data(for: request)
 		} catch {
+			try Task.checkCancellation()
 			return try cachedValue(after: error)
 		}
 
@@ -148,13 +154,14 @@ public struct ResponseCache: Sendable {
 	}
 
 	/**
-	The file of the cached response. The body is part of the key, as GraphQL requests have the same URL. Requests without a body keep the key of the URL alone.
+	The file of the cached response, by the method, the URL, and the body, as GraphQL requests have the same URL. The headers are not part of it, as the GitHub token of CI changes on each run, which would make each run miss the cache.
 	*/
 	private func file(for request: URLRequest) -> URL? {
-		request.url.flatMap { url in
-			let key = url.absoluteString + (request.httpBody.map { String(decoding: $0, as: UTF8.self) } ?? "")
-			return directory?.appending(path: "\(String(key.stableHash, radix: 16)).json")
+		guard request.url != nil else {
+			return nil
 		}
+
+		return directory?.appending(path: "\(request.responseCacheKey).json")
 	}
 
 	/**
@@ -185,5 +192,27 @@ extension ResponseCache {
 		var description: String {
 			"The request for \(url, default: "an unknown URL") failed: \(underlyingError)"
 		}
+	}
+}
+
+extension URLRequest {
+	/**
+	A stable digest of the method, the URL, and the exact bytes of the body, for the name of a cache file.
+	*/
+	var responseCacheKey: String {
+		struct Identity: Encodable {
+			let url: String?
+			let method: String
+			let body: Data?
+		}
+
+		let identity = Identity(
+			url: url?.absoluteString,
+			method: httpMethod ?? "GET",
+			body: httpBody
+		)
+
+		let data = Data(JSONEncoder.pageJSON(identity).utf8)
+		return SHA256.hash(data: data).map { ($0 < 16 ? "0" : "") + String($0, radix: 16) }.joined()
 	}
 }

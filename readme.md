@@ -19,6 +19,17 @@ The preview server also has a gallery of every component at `/_gallery`.
 
 Set `GITHUB_TOKEN` to avoid the GitHub API rate limit. Local builds cache the responses, like from the App Store and GitHub, for an hour in `.cache`, so they are fast and work offline after a build with the network.
 
+## Architecture
+
+- **Packages:** `SiteKit` is the generic toolkit (content loading, Markdown, routes, publishing, styles), `Website` is everything specific to this site, `WebsiteCLI` is the `website` command, and `RSS` writes the feeds.
+- **Routes:** Every output file is a `Route`, listed in `Site.routes`. The publisher renders them in parallel, writes only changed files, and removes files that are no longer published. The sitemap comes from the routes.
+- **Content and data:** The Markdown and its frontmatter are loaded into typed models, and the App Store, GitHub, and npm data is fetched at build time.
+- **Components:** HTML is written in Swift with [Elementary](https://github.com/elementary-swift/elementary). Styles are typed Swift values. A page collects the styles that its components use while it renders, and gets them in a `<style>` element, so no list of components is kept.
+- **Behavior:** A component with behavior is a light DOM custom element (`ScriptedElement`). Its script is a `.js` file in the `Scripts` folder next to its Swift file, which defines the element, or a short script inline in the Swift file. The build finds the script files by folder and publishes them unchanged. An import map in each page adds the content hash to imports.
+- **Tests:** The tests render every page and check what the compiler cannot, like that every custom element on a page is defined, every class has a rule, and every link works.
+
+The reasons for the main choices are in [`meta.md`](meta.md).
+
 ## Deploy
 
 Pushes to `main`, manual runs, and the nightly run build, test, and publish the site to GitHub Pages in one workflow (`ci.yml`). A deploy is skipped when the site did not change.

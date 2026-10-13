@@ -1,7 +1,7 @@
 /**
 The animations of a component. Each case is an animation, and its name is generated from the component and the case, so names cannot clash.
 
-Nest it in the component as `Animations`, and run one with ``Style/animation(_:_:fillMode:)``. A style that runs an animation brings its keyframes, so no stylesheet has to list them:
+Nest it in the component as `Animations`, and run one with ``Style/animation(_:_:fillMode:isEssential:)``. A style that runs an animation brings its keyframes, so no stylesheet has to list them:
 
 ```swift
 enum Animations: KeyframeSet {
@@ -31,18 +31,15 @@ extension KeyframeSet {
 	}
 
 	static var nodes: [StyleNode] {
-		allCases.flatMap { [$0.node] + $0.definitions }.uniqueDefinitions
-	}
-
-	var node: StyleNode {
-		StyleNode(kind: .keyframes(name: name, frames: keyframes.map(\.node)))
+		allCases.flatMap(\.nodes).uniqueDefinitions
 	}
 
 	/**
-	The registered properties that the keyframes animate.
+	The keyframes and the registered properties they animate, built from the same frames.
 	*/
-	var definitions: [StyleNode] {
-		keyframes.flatMap(\.definitions)
+	var nodes: [StyleNode] {
+		let frames = keyframes
+		return [StyleNode(kind: .keyframes(name: name, frames: frames.map(\.node)))] + frames.flatMap(\.definitions)
 	}
 }
 

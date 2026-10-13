@@ -125,7 +125,7 @@ enum SemanticColor: String, CaseIterable {
 	case cardHover
 
 	/**
-	The light and dark colors, and the colors when the visitor asks for more contrast in the system settings, when they differ. Secondary text, links, and separators get darker in light mode and lighter in dark mode.
+	The light and dark colors, and the colors when the visitor asks for more contrast in the system settings, when they differ. Body text, secondary text, links, and separators get darker in light mode and lighter in dark mode.
 	*/
 	private var definition: (colors: Color.LightDark, moreContrast: Color.LightDark?) {
 		switch self {
@@ -155,8 +155,11 @@ enum SemanticColor: String, CaseIterable {
 		definition.colors
 	}
 
-	var moreContrast: Color.LightDark {
-		definition.moreContrast ?? colors
+	/**
+	The colors when the visitor asks for more contrast, or `nil` when they are the same as ``colors``.
+	*/
+	private var moreContrast: Color.LightDark? {
+		definition.moreContrast
 	}
 
 	private var variable: StyleVariable<Color> {
@@ -168,13 +171,19 @@ enum SemanticColor: String, CaseIterable {
 	}
 
 	/**
-	The custom properties of every semantic color, for `:root`.
+	The custom properties of every semantic color, for `:root`, and the colors that change when the visitor asks for more contrast.
 	*/
 	static var customProperties: Style {
 		allCases
 			.reduce(Style()) { $0.setting($1.variable, to: .lightDark($1.colors.light, $1.colors.dark)) }
 			.media(.moreContrast) { style in
-				allCases.reduce(style) { $0.setting($1.variable, to: .lightDark($1.moreContrast.light, $1.moreContrast.dark)) }
+				allCases.reduce(style) { style, color in
+					guard let colors = color.moreContrast else {
+						return style
+					}
+
+					return style.setting(color.variable, to: .lightDark(colors.light, colors.dark))
+				}
 			}
 	}
 }
@@ -206,7 +215,7 @@ extension Color {
 	}
 
 	/**
-	The value of a palette shade, like `oklch(12.9% .042 264.695)` for `.gray(950)`, for places that cannot use custom properties, like the `theme-color` meta tag. Other colors are returned as they are.
+	The value of a palette shade, like `oklch(18.8% .004 286)` for `.gray(950)`, for places that cannot use custom properties, like the `theme-color` meta tag. Other colors are returned as they are.
 	*/
 	var resolved: Self {
 		for palette in Palette.allCases {
@@ -562,6 +571,11 @@ extension Length {
 	Screenshots and other pictures of windows (0.75rem).
 	*/
 	static let windowRadius = rootEm(0.75)
+
+	/**
+	Form fields, and the boxes of a form next to them, like the files to attach and the help that the feedback page suggests, so they look like one form (0.75rem).
+	*/
+	static let fieldRadius = rootEm(0.75)
 }
 
 extension Length {
@@ -607,6 +621,13 @@ extension Animation {
 }
 
 extension Style {
+	/**
+	A link that looks like the text around it, without an underline, and has the primary text color under the pointer, like the links of the footer. The parent or the style sets its color, like a secondary color.
+	*/
+	func quietLink() -> Self {
+		underline(false).hoverColor(.primaryText)
+	}
+
 	/**
 	Changes the text color while the pointer is over the element, with a quick transition.
 	*/
@@ -835,6 +856,20 @@ extension Style {
 	}
 
 	/**
+	A small, quiet capsule with a state, like the date the now page was updated. It is smaller and quieter than ``chip(isInteractive:)``, with secondary text and digits of the same width.
+	*/
+	func statusChip() -> Self {
+		hstack(alignment: .center, isInline: true)
+			.margin(0)
+			.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.75))
+			.cornerRadius(.capsule)
+			.textStyle(.caption, weight: .medium)
+			.monospacedDigit()
+			.color(.secondaryText)
+			.background(.card)
+	}
+
+	/**
 	A green dot before the content of the element, like a status light, for something that is current, like the date the now page was updated. It does not move.
 	*/
 	func statusLight() -> Self {
@@ -890,20 +925,43 @@ extension Style {
 	}
 
 	/**
-	A small, quiet link in a row of links, like the categories on the apps page and the sections of an app page, so the main button of a page stays the only strong color.
+	A small, quiet capsule, like a link in a row of links, such as the categories on the apps page and the sections of an app page, so the main button of a page stays the only strong color.
+
+	- Parameter isInteractive: Whether it reacts to the pointer. A chip that is not a link, like a guess in Appdle, does not.
 	*/
-	func chip() -> Self {
-		padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.875))
+	func chip(isInteractive: Bool = true) -> Self {
+		let style = padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.875))
 			.cornerRadius(.capsule)
 			.textStyle(.caption, weight: .medium)
 			.textWrap(.nowrap)
 			.color(.bodyText)
 			.background(.card)
+
+		guard isInteractive else {
+			return style
+		}
+
+		return style
 			.transition(.backgroundColor, .color, animation: .stateChange)
 			.hover {
 				$0
 					.background(.cardHover)
 					.color(.primaryText)
+			}
+	}
+
+	/**
+	A see-through fill that blurs what is behind it, like the materials of Apple platforms, such as the bar of the site header. When the visitor prefers reduced transparency, the fill is opaque and nothing is blurred.
+
+	- Parameter opaque: The fill with reduced transparency, usually the see-through fill without its opacity.
+	*/
+	func frostedBackground(_ fill: Color, opaque: Color, blur radius: Length) -> Self {
+		background(fill)
+			.backdropFilter(.blur(radius: radius))
+			.reducedTransparency {
+				$0
+					.background(opaque)
+					.backdropFilter(.none)
 			}
 	}
 

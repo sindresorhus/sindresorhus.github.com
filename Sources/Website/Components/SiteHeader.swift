@@ -116,7 +116,7 @@ struct SiteHeader: ScriptedElement {
 					// The feeds are in the footer, and feed readers find them from the `<link>` elements of the pages.
 					div {
 						IconLink("Contact", icon: .mail, destination: .path(.contact))
-							.attributes(.ariaCurrent("page"), when: currentPath == .contact)
+							.attributes(.ariaCurrent(.page), when: currentPath == .contact)
 					}
 					.style(Styles.iconLinks)
 				}
@@ -163,7 +163,7 @@ struct SiteHeader: ScriptedElement {
 				}
 			}
 			// A parent section, like “Apps” on an app page, is the current location, but not the current page.
-			.attributes(.ariaCurrent(currentPath == path ? "page" : "true"), when: isInSection(path))
+			.attributes(.ariaCurrent(currentPath == path ? .page : .item), when: isInSection(path))
 			.style(Styles.link)
 			.style(Styles.mobileOnly, when: isMobileOnly)
 		}
@@ -208,6 +208,12 @@ extension SiteHeader {
 		*/
 		private static let anchor = Anchor("--site-header")
 
+		/**
+		The fill and the blur of the glass of the header, which the transparent header at the top of some pages fades into while the page scrolls, so the two must look the same.
+		*/
+		private static let glassFill = Color.pageBackground.opacity(0.8)
+		private static let glassBlur = Length.pixels(24)
+
 		var style: Style {
 			switch self {
 			case .root:
@@ -229,14 +235,7 @@ extension SiteHeader {
 					}
 					.background(.pageBackground)
 					.from(.tablet) {
-						$0
-							.background(.pageBackground.opacity(0.8))
-							.backdropFilter(.blur(radius: .pixels(24)))
-							.reducedTransparency {
-								$0
-									.background(.pageBackground)
-									.backdropFilter(.none)
-							}
+						$0.frostedBackground(Self.glassFill, opaque: .pageBackground, blur: Self.glassBlur)
 					}
 					.dark {
 						$0.border(.bottom, width: 0)
@@ -252,14 +251,8 @@ extension SiteHeader {
 							.position(.absolute)
 							.inset(0)
 							.zIndex(-1)
-							.background(.pageBackground.opacity(0.8))
-							.backdropFilter(.blur(radius: .pixels(24)))
+							.frostedBackground(Self.glassFill, opaque: .pageBackground, blur: Self.glassBlur)
 							.allowsHitTesting(false)
-							.reducedTransparency {
-								$0
-									.background(.pageBackground)
-									.backdropFilter(.none)
-							}
 							.supports(.scrollTimeline) {
 								$0.animation(Animations.showFill, timeline: .scroll, range: "0 \(SiteHeader.height)")
 							}
@@ -307,8 +300,6 @@ extension SiteHeader {
 					.color(.primaryText)
 			case .menuToggle:
 				IconLink.look
-					.margin(.leading, .rootEm(0.375))
-					.transition(.backgroundColor, animation: .stateChange)
 					.hidden(from: .tablet)
 			case .menuIcon:
 				Style()
@@ -388,7 +379,8 @@ extension SiteHeader {
 					.frame(width: .pixels(1), height: .rootEm(1.5))
 					.margin(vertical: 0, horizontal: .rootEm(0.75))
 					.cornerRadius(.capsule)
-					.background(.gray(200).opacity(0.6), dark: .gray(600).opacity(0.5))
+					// As visible in light mode as in dark mode, also on the tinted glass of the apps page.
+					.background(.gray(300), dark: .gray(600).opacity(0.5))
 					.hidden(below: .tablet)
 			case .iconLinks:
 				Style()

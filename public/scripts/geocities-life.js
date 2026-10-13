@@ -1,92 +1,22 @@
 // The living page of 1999: the desktop pets that live all over the page (Neko, Dolly the sheep, the sparrows and the seagull, the mouse, the UFO, and the bookworm). They only run while the tab is visible, and nothing moves for visitors who prefer reduced motion: the pets stand still and answer when poked.
+// The storage can be missing, like in a private window, and then the toys start over each time.
+import {load, save, cloneTemplate, randomItem, randomBetween, clamp, prerendered, announce} from '/scripts/geocities-element.js';
+import {makeSprite, makeFacingSprite} from '/scripts/geocities-canvas.js';
+
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
 // Like `geocities.js`, the pets wait until the visitor opens a page that the site prerendered.
-if (document.prerendering) {
-	await new Promise(resolve => {
-		document.addEventListener('prerenderingchange', resolve, {once: true});
-	});
-}
+await prerendered;
 
 const panel = document.querySelector('#geocities-panel');
-
-const showToast = message => {
-	document.dispatchEvent(new CustomEvent('geocities-toast', {detail: {message}}));
-};
-
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-// The storage can be missing, like in a private window, and then the toys start over each time.
-const load = (key, fallback) => {
-	try {
-		const value = localStorage.getItem(key);
-		return value === null ? fallback : (JSON.parse(value) ?? fallback);
-	} catch {
-		return fallback;
-	}
-};
-
-const save = (key, value) => {
-	try {
-		localStorage.setItem(key, JSON.stringify(value));
-	} catch {}
-};
-
-// Sets the text of a status message a frame after it changed, so screen readers announce it also when the text is the same as before.
-const announce = (element, message) => {
-	element.textContent = '';
-	requestAnimationFrame(() => {
-		element.textContent = message;
-	});
-};
-
-// Makes a canvas with a sprite of big pixels, from rows of letters where each letter is a color of the palette, and any other letter, like a dot, is clear. Short rows are clear at the end.
-const makeSprite = (rows, palette, scale = 1) => {
-	const width = Math.max(...rows.map(row => row.length));
-	const canvas = document.createElement('canvas');
-	canvas.width = width * scale;
-	canvas.height = rows.length * scale;
-	const context = canvas.getContext('2d');
-
-	for (const [y, row] of rows.entries()) {
-		for (const [x, letter] of [...row].entries()) {
-			if (palette[letter]) {
-				context.fillStyle = palette[letter];
-				context.fillRect(x * scale, y * scale, scale, scale);
-			}
-		}
-	}
-
-	return canvas;
-};
-
-// The same sprite, facing the other way.
-const mirrorSprite = sprite => {
-	const canvas = document.createElement('canvas');
-	canvas.width = sprite.width;
-	canvas.height = sprite.height;
-	const context = canvas.getContext('2d');
-	context.translate(sprite.width, 0);
-	context.scale(-1, 1);
-	context.drawImage(sprite, 0, 0);
-	return canvas;
-};
-
-// A sprite that faces right, and its mirror, which faces left.
-const makeFacingSprite = (rows, palette, scale) => {
-	const right = makeSprite(rows, palette, scale);
-	return {right, left: mirrorSprite(right)};
-};
 
 // Sindre’s Desktop Pets: the pets that live all over the page, with their control panel. The pets on the windows, Dolly, the sparrows, and the bookworm, live in a layer that scrolls with the page, and stand on the top edges of the sections. The pets on the glass, Neko, the yarn, the mouse, and the UFO, live in a layer that stays on the screen. With motion, one loop of frames moves them all. For visitors who prefer reduced motion, a slow timer makes them appear, disappear, and change their pose instead, without moving.
 const petsRoot = document.querySelector('#geocities-pets');
 
 if (petsRoot) {
 	const petStatus = document.querySelector('#geocities-pets-status');
-	const pageLayer = document.querySelector('#geocities-pets-page-layer').content.firstElementChild.cloneNode(true);
-	const screenLayer = document.querySelector('#geocities-pets-screen-layer').content.firstElementChild.cloneNode(true);
+	const pageLayer = cloneTemplate(document.querySelector('#geocities-pets-page-layer'));
+	const screenLayer = cloneTemplate(document.querySelector('#geocities-pets-screen-layer'));
 	const critterTemplate = document.querySelector('#geocities-pets-critter');
 	const bubbleTemplate = document.querySelector('#geocities-pets-bubble');
 	document.body.append(pageLayer, screenLayer);
@@ -129,7 +59,7 @@ if (petsRoot) {
 
 	// A pet is a canvas in one of the layers, which shows one sprite at a time.
 	const createCritter = (layer, width, height) => {
-		const element = critterTemplate.content.firstElementChild.cloneNode(true);
+		const element = cloneTemplate(critterTemplate);
 		const canvas = document.createElement('canvas');
 		canvas.width = width;
 		canvas.height = height;
@@ -156,7 +86,7 @@ if (petsRoot) {
 	// A speech bubble above a pet for a moment, like “Mæ!”.
 	const sayBubble = (critter, text, seconds = 1.6) => {
 		critter.bubble?.remove();
-		const bubble = bubbleTemplate.content.firstElementChild.cloneNode(true);
+		const bubble = cloneTemplate(bubbleTemplate);
 		bubble.textContent = text;
 		bubble.style.translate = `calc(${critter.width / 2}px - 50%) calc(-100% - 4px)`;
 		critter.element.append(bubble);
@@ -355,7 +285,7 @@ if (petsRoot) {
 
 	const basket = document.querySelector('#geocities-pets-basket');
 	const basketImage = basket.querySelector('img');
-	const nekoElement = document.querySelector('#geocities-pets-neko').content.firstElementChild.cloneNode(true);
+	const nekoElement = cloneTemplate(document.querySelector('#geocities-pets-neko'));
 	const nekoImage = nekoElement.querySelector('img');
 	const nekoCritter = {element: nekoElement, width: 32, height: 32};
 	const homeButton = petsRoot.querySelector('[data-critter-action="neko-home"]');
@@ -560,7 +490,7 @@ if (petsRoot) {
 	};
 
 	const showNekoHome = isHome => {
-		basket.dataset.state = isHome ? 'home' : 'out';
+		basket.dataset.state = isHome ? '' : 'out';
 		nekoElement.hidden = isHome;
 		homeButton.textContent = isHome ? 'Call Neko' : 'Send Neko to the basket';
 	};
@@ -603,13 +533,11 @@ if (petsRoot) {
 
 		if (neko.state === 'home') {
 			// In the basket, Neko wakes up for a moment.
-			basket.dataset.state = 'awake';
 			showNekoPose(basketImage, 'alert');
 			announce(petStatus, 'Neko woke up in the basket, looked at you, and went back to sleep. Purrr.');
 
 			setTimeout(() => {
 				if (neko.state === 'home') {
-					basket.dataset.state = 'home';
 					basketImage.style.translate = '';
 				}
 			}, 2000);
@@ -1874,7 +1802,7 @@ if (petsRoot) {
 
 		// A copy of the GIF goes up the beam, while the GIF itself is hidden.
 		if (!isStill()) {
-			const carry = critterTemplate.content.firstElementChild.cloneNode(true);
+			const carry = cloneTemplate(critterTemplate);
 			const image = ufo.target.cloneNode();
 			image.style.visibility = '';
 			image.style.width = `${rect.width}px`;
@@ -2113,7 +2041,7 @@ if (petsRoot) {
 	};
 
 	const sendWorker = () => {
-		const element = critterTemplate.content.firstElementChild.cloneNode(true);
+		const element = cloneTemplate(critterTemplate);
 		const image = document.createElement('img');
 		image.src = isStill() ? '/1999/still/construction-worker.gif' : '/1999/construction-worker.gif';
 		image.alt = '';

@@ -14,7 +14,7 @@ struct AppMedia: ScriptedElement {
 		section(.part(Parts.scroller)) {
 			for (index, asset) in app.media.enumerated() {
 				// The item has the sizes of its media (`--max-width` and `--phone-width`), so it has its width before the media loads.
-				div(.style(asset.sizeStyle(phoneMaximumHeight: phoneMaximumHeight))) {
+				div {
 					// The width and height attributes give the natural size and the aspect ratio, so the media reserves its space before it loads, and is never shown larger than its natural size. On wider screens, it is at most 640px tall.
 					switch asset.kind {
 					case .video:
@@ -38,6 +38,9 @@ struct AppMedia: ScriptedElement {
 					}
 				}
 				.style(Styles.item)
+				.style {
+					asset.settingSizes(on: $0, phoneMaximumHeight: phoneMaximumHeight)
+				}
 			}
 		}
 		.accessibilityLabel("App media")
@@ -115,7 +118,7 @@ struct AppMedia: ScriptedElement {
 				Style()
 					.display(.block)
 					.position(.relative)
-					.frame(maxWidth: .rootEm(64))
+					.frame(maxWidth: Style.ColumnWidth.wide.maximum)
 					.margin(.horizontal, .auto)
 					// Keyboard users see the buttons too. The script disables the button at each end, which stays hidden.
 					.hover {
@@ -185,18 +188,15 @@ struct AppMedia: ScriptedElement {
 					.frame(width: .rootEm(3), height: .rootEm(3))
 					.cornerRadius(.capsule)
 					.color(.bodyText)
-					.background(.white.opacity(0.4), dark: .gray(900).opacity(0.4))
-					.backdropFilter(.blur(radius: .pixels(8)))
-					.reducedTransparency {
-						$0
-							.background(.white, dark: .gray(900))
-							.backdropFilter(.none)
-					}
+					.frostedBackground(.lightDark(.white.opacity(0.4), .gray(900).opacity(0.4)), opaque: .lightDark(.white, .gray(900)), blur: .pixels(8))
 					.shadow(.medium)
 					.opacity(0)
 					.offset(y: .percent(-50))
-					.transition(.opacity, animation: .stateChange)
-					.cursor(.default)
+					.transition(.opacity, .backgroundColor, animation: .stateChange)
+					// A stronger fill under the pointer, also when the visitor prefers reduced transparency.
+					.hover {
+						$0.frostedBackground(.lightDark(.white.opacity(0.6), .gray(900).opacity(0.6)), opaque: .lightDark(.gray(100), .gray(800)), blur: .pixels(8))
+					}
 					.disabled {
 						$0.allowsHitTesting(false)
 					}
@@ -216,7 +216,6 @@ struct AppMedia: ScriptedElement {
 				// The button is larger than the dot, which is drawn inside it, so it is easy to tap. The buttons touch, so their tap areas do not overlap. The script marks the dot of the item in view with `aria-current`.
 				Style()
 					.frame(width: .rootEm(1.25), height: .rootEm(1.75))
-					.cursor(.pointer)
 					.media(.coarsePointer) {
 						$0.frame(width: .rootEm(1.75), height: .rootEm(2.75))
 					}
@@ -250,9 +249,12 @@ extension MediaAsset {
 
 	- Parameter phoneMaximumHeight: The maximum height on phones, in percent of the width of the screen.
 	*/
-	fileprivate func sizeStyle(phoneMaximumHeight: Double) -> String {
+	fileprivate func settingSizes(on style: Style, phoneMaximumHeight: Double) -> Style {
 		let maximumWidth = Length.pixels(min(Double(width), 640 * aspectRatio))
 		let phoneWidth = Length.min(.viewportWidth(AppMedia.phoneItemWidth), .viewportWidth(phoneMaximumHeight * aspectRatio), .smallViewportHeight(70 * aspectRatio), maximumWidth)
-		return "\(AppMedia.maximumWidth.name): \(maximumWidth); \(AppMedia.phoneWidth.name): \(phoneWidth)"
+
+		return style
+			.setting(AppMedia.maximumWidth, to: maximumWidth)
+			.setting(AppMedia.phoneWidth, to: phoneWidth)
 	}
 }

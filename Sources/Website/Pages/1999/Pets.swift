@@ -158,7 +158,7 @@ struct GeoCitiesPets: HTML {
 	private func petPicture(for pet: Pet) -> some HTML {
 		if pet.id == "neko" {
 			// The basket, where Neko sleeps while it is home. The script shows Neko awake in it when it is poked, and an empty basket while Neko is out.
-			div(.id(Hooks.basket), .hook(ScriptAttribute.state, value: "home")) {
+			div(.id(Hooks.basket)) {
 				div {
 					img(.src(GeoCitiesPage.GIF.neko.path), .alt(""), .width(256), .height(128))
 						.style(Styles.nekoSheet)
@@ -241,6 +241,10 @@ struct GeoCitiesPets: HTML {
 		The canvas where the script draws a pet for its card, with the ID of the pet.
 		*/
 		case picture = "data-critter-picture"
+	}
+
+	enum States: String, ElementStateSet {
+		case out
 	}
 
 	enum Styles: StyleSet {
@@ -344,17 +348,7 @@ struct GeoCitiesPets: HTML {
 							.border(Color("#8b4513"), width: .pixels(3), style: .ridge)
 							.cornerRadius(.rootEm(0.25))
 					}
-					.when(.state, is: "home") {
-						$0.children("*") {
-							$0.visibility(true)
-						}
-					}
-					.when(.state, is: "awake") {
-						$0.children("*") {
-							$0.visibility(true)
-						}
-					}
-					.when(.state, is: "out") {
+					.when(States.out) {
 						$0.children("*") {
 							$0.visibility(false)
 						}

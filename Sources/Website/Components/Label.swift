@@ -33,11 +33,11 @@ struct Label: HTML {
 	var body: some HTML {
 		switch iconPosition {
 		case .leading:
-			icon.size(.rootEm(1.25))
+			icon
 			title
 		case .trailing:
 			title
-			icon.size(.rootEm(1.25))
+			icon
 		}
 	}
 }

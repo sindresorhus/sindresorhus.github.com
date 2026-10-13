@@ -24,7 +24,8 @@ extension MarkdownDocument.Options {
 				try file.resolvingLink(destination, project: project)
 			},
 			imageSize: { source in
-				source.hasPrefix("/") ? project.publicFile(RoutePath(source)).mediaSize : nil
+				// An invalid path is already a problem of its link, so it has no size instead of stopping the build. A screenshot of a Retina display is shown at half its pixel size, so it is sharp.
+				(try? RoutePath(validating: source)).flatMap { project.publicFile($0).displaySize }
 			},
 			showsFootnotesInPopovers: true,
 			codeBlock: CodeBlock.render
@@ -60,6 +61,7 @@ extension MarkdownDocument.Options {
 		"Feature": .init(render: renderFeature),
 		"QuickAnswer": .init(render: renderQuickAnswer),
 		"Trial": .init(render: renderTrial),
+		"TinyApp": .init(render: renderTinyApp),
 		"Tips": .init(render: renderTips),
 		"Cards": .init(render: renderCards),
 		"Steps": .init(render: renderSteps),
@@ -72,7 +74,7 @@ extension MarkdownDocument.Options {
 	*/
 	static func appPage(_ file: MarkdownFile, project: Project, frontmatter: App.Frontmatter) -> Self {
 		var options = content(file, project: project)
-		options.collapsibleSections = MarkdownDocument.CollapsibleSections(level: 3, startHeadingID: App.faqSectionID, name: "faq", moreLink: .init(title: "More FAQs", url: RoutePath.faq.description))
+		options.collapsibleSections = MarkdownDocument.CollapsibleSections(level: 3, startHeadingID: App.faqSectionID, name: "faq", moreLink: .init(title: "More FAQs", destination: .path(.faq)))
 		options.addsHeadingAnchors = true
 		options.rewrite = { document in
 			let document = document.addingCommonQuestions(CommonQuestion.questions(for: frontmatter))
@@ -288,6 +290,146 @@ enum TrialStyles: StyleSet {
 }
 
 /**
+The arguments of `@TinyApp(title: "Copy URL", download: "https://example.com/Copy-URL.zip") { … }`.
+*/
+@Frontmatter
+private struct TinyAppArguments {
+	@NonEmpty var title: String
+
+	/**
+	Without an icon, the card shows the placeholder icon, so the titles of all cards line up.
+	*/
+	var icon: RoutePath?
+
+	/**
+	The app, or the page of its latest release.
+	*/
+	@Absolute var download: URL
+
+	@Absolute var source: URL?
+
+	/**
+	Like “Requires macOS 15 or later”.
+	*/
+	@NonEmpty var requirement: String?
+}
+
+/**
+A small app without a page of its own, like `@TinyApp(title: "Copy URL", download: "https://example.com/Copy-URL.zip") { What it does. }`: a card with the icon, the name, the text, a download button, and the requirement, like a small app card.
+*/
+@Sendable
+private func renderTinyApp(arguments: TinyAppArguments, contentHTML: String) -> String {
+	section {
+		AppIcon(decorative: arguments.icon ?? App.placeholderIconPath, size: 128)
+			.style(TinyAppStyles.icon)
+
+		h2 {
+			arguments.title
+		}
+		.style(TinyAppStyles.title)
+
+		div {
+			HTMLRaw(contentHTML)
+
+			// The name of the app is in the links for screen readers, as a page has several cards, and a list of the links would have the same names.
+			div {
+				Link(destination: .url(arguments.download)) {
+					"Download"
+					VisuallyHidden(" \(arguments.title)")
+				}
+				.buttonStyle(size: .small)
+
+				if let source = arguments.source {
+					Link(destination: .url(source)) {
+						"Source Code"
+						VisuallyHidden(" of \(arguments.title)")
+					}
+					.buttonStyle(.secondary, size: .small)
+				}
+
+				if let requirement = arguments.requirement {
+					span {
+						requirement
+					}
+					.style(TinyAppStyles.requirement)
+				}
+			}
+			.style(TinyAppStyles.actions)
+		}
+		.style(TinyAppStyles.text)
+	}
+	.style(TinyAppStyles.root)
+	.render()
+}
+
+/**
+The styles of `@TinyApp` cards.
+*/
+enum TinyAppStyles: StyleSet {
+	case root
+	case icon
+	case text
+	case title
+	case actions
+	case requirement
+
+	var style: Style {
+		switch self {
+		case .root:
+			// The icon is next to the title, and the text is below the title. On phones, the text is also below the icon, so it has the whole width.
+			Style()
+				.display(.grid)
+				.gridColumns(.auto, .fraction(1))
+				.gap(row: .rootEm(1), column: .rootEm(1))
+				.alignItems(.center)
+				.proseCard()
+				.widerThanProse()
+				// Less padding on phones, so the text has more of the narrow width.
+				.below(.smallTablet) {
+					$0.padding(.rootEm(1.25))
+				}
+				.from(.smallTablet) {
+					$0
+						.gap(row: .rootEm(0.5), column: .rootEm(1.5))
+						.alignItems(.start)
+				}
+		case .icon:
+			// The icon is smaller on phones, where it is only as high as the title.
+			Style()
+				.frame(width: .rootEm(3.5), height: .rootEm(3.5))
+				.filter(AppCard.iconShadow)
+				.from(.smallTablet) {
+					$0
+						.frame(width: .rootEm(4.5), height: .rootEm(4.5))
+						.gridRowSpan(2)
+				}
+		case .text:
+			// The paragraphs are closer than in prose, so they read as one text, which is closer to the title than to the buttons.
+			Style()
+				.frame(minWidth: 0)
+				.children("p") {
+					$0.margin(vertical: .em(0.5), horizontal: 0)
+				}
+				.trimmingChildMargins()
+				.below(.smallTablet) {
+					$0.gridColumnSpan(2)
+				}
+		case .title:
+			// Like the title of an app card. The margin of a heading in prose is reset.
+			AppCard.Styles.title.style.margin(0)
+		case .actions:
+			Style()
+				.hstack(alignment: .center, spacing: .rootEm(0.75))
+				.flexWrap()
+				.margin(.top, .rootEm(1.5))
+		case .requirement:
+			Style()
+				.secondaryText()
+		}
+	}
+}
+
+/**
 A box of tips, like `@Tips { - Tip }`, with the look of a tip alert.
 */
 @Sendable
@@ -340,17 +482,11 @@ enum CardListStyles: StyleSet {
 							.color(.primaryText)
 							.children("ul") {
 								$0
+									.plainList()
 									.vstack(spacing: .rootEm(0.5))
 									.margin(top: .rootEm(0.625), horizontal: 0, bottom: 0)
-									.padding(0)
 									.secondaryText()
 									.fontWeight(.regular)
-									.children("li") {
-										$0
-											.display(.block)
-											.margin(0)
-											.padding(0)
-									}
 							}
 					}
 			}
@@ -416,7 +552,7 @@ enum StepListStyles: StyleSet {
 									.bottom(.rootEm(0.375))
 									.leading(.lineHeight(0.5) - .pixels(1))
 									.frame(width: .pixels(2))
-									.cornerRadius(.circle)
+									.cornerRadius(.capsule)
 									.background(.accentMark.opacity(0.14))
 							}
 							.lastChild {
@@ -428,15 +564,9 @@ enum StepListStyles: StyleSet {
 							}
 							.children("ul") {
 								$0
+									.plainList()
 									.margin(top: .rootEm(0.25), horizontal: 0, bottom: 0)
-									.padding(0)
 									.secondaryText(.body)
-									.children("li") {
-										$0
-											.display(.block)
-											.margin(0)
-											.padding(0)
-									}
 							}
 					}
 			}
@@ -452,11 +582,11 @@ private func renderChangelog(contentHTML: String) throws -> String {
 	let html = try contentHTML.replacing(#/(<li>(?:\s*<p>)?)([A-Z][a-z]+): /#) { match in
 		let title = String(match.2)
 
-		guard let kind = changelogKinds[title] else {
-			throw ContentError(reason: "“\(title)” is not a kind of change. Use \(changelogKinds.keys.sorted().formatted(.list(type: .or))).")
+		guard let kind = ChangeKind(rawValue: title) else {
+			throw ContentError(reason: "“\(title)” is not a kind of change. Use \(ChangeKind.allCases.map(\.rawValue).formatted(.list(type: .or))).")
 		}
 
-		return match.1 + Badge(title, kind: kind).render() + " "
+		return match.1 + Badge(title, kind: kind.badgeKind).render() + " "
 	}
 
 	return div {
@@ -467,15 +597,33 @@ private func renderChangelog(contentHTML: String) throws -> String {
 }
 
 /**
-The kinds of changes of `@Changelog`, like in a changelog of software, and the color of each.
+The kinds of changes of `@Changelog`, like in a changelog of software. The raw value is the word in the Markdown, like “Added”.
 */
-private let changelogKinds: [String: Badge.Kind] = [
-	"Added": .added,
-	"Changed": .changed,
-	"Fixed": .fixed,
-	"Removed": .removed,
-	"Deprecated": .standard,
-]
+private enum ChangeKind: String, CaseIterable {
+	case added = "Added"
+	case changed = "Changed"
+	case fixed = "Fixed"
+	case removed = "Removed"
+	case deprecated = "Deprecated"
+
+	/**
+	The color of the badge of the kind.
+	*/
+	var badgeKind: Badge.Kind {
+		switch self {
+		case .added:
+			.added
+		case .changed:
+			.changed
+		case .fixed:
+			.fixed
+		case .removed:
+			.removed
+		case .deprecated:
+			.standard
+		}
+	}
+}
 
 /**
 The styles of `@Changelog` lists, like a timeline: a line on the leading side that fades out at the oldest year, a ring at each year, and the year as a label above its changes. The newest year has a filled dot with a soft halo, like the present.
@@ -506,7 +654,7 @@ enum ChangelogStyles: StyleSet {
 							.bottom(0)
 							.leading(.rootEm(dotSize / 2) - .pixels(1))
 							.frame(width: .pixels(2))
-							.cornerRadius(.circle)
+							.cornerRadius(.capsule)
 							.backgroundImage(.linearGradient("to bottom", Color.accentMark.opacity(0.3).at(.percent(0)), Color.accentMark.opacity(0.3).at(.percent(90)), Color.transparent.at(.percent(100))))
 					}
 					.children("li") {
@@ -545,19 +693,16 @@ enum ChangelogStyles: StyleSet {
 							}
 							.children("ul") {
 								$0
+									.plainList()
 									.vstack(spacing: .rootEm(0.5))
 									.margin(top: .rootEm(0.625), horizontal: 0, bottom: 0)
-									.padding(0)
 									.fontFamily(.system)
 									.textStyle(.body, weight: .regular)
 									.color(.bodyText)
 									// The badge hangs on the leading side, so the lines of a long change start after it, also on phones. The text starts 0.75 after the badge.
 									.children("li") {
 										$0
-											.display(.block)
 											.position(.relative)
-											.margin(0)
-											.padding(0)
 											.padding(.leading, .rootEm(5.75))
 											// The paragraph of a change in a list with blank lines, so it lines up with its badge like the others.
 											.children("p") {

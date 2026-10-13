@@ -72,6 +72,10 @@ struct GeoCitiesTheremin: ScriptedElement {
 		case status
 	}
 
+	enum States: String, ElementStateSet {
+		case on
+	}
+
 	enum Styles: ElementStyleSet {
 		case root
 		case pad
@@ -111,7 +115,7 @@ struct GeoCitiesTheremin: ScriptedElement {
 					.cornerRadius(.percent(50))
 					.opacity(0.4)
 					.allowsHitTesting(false)
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0
 							.opacity(1)
 							.scaleEffect(1.6)

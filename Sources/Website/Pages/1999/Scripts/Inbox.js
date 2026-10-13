@@ -1,9 +1,5 @@
 // WaffleMail on the 1999 page: an inbox of 1999, with a list of messages and the open one below it. Some messages have buttons that play out the hoax or the spam, and new messages arrive when the visitor breaks a chain, writes one, or waits for Bill Gates to pay. How far the e-mail of Bill Gates went is kept in the browser.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
-
-// A copy of the first element of a template.
-const cloneTemplate = template => template.content.firstElementChild.cloneNode(true);
+import GeoCitiesElement, {cloneTemplate, randomItem, randomInteger, clamp} from '/scripts/geocities-element.js';
 
 // The hoax promised $245 for each person the visitor sent it to, $243 for each person they sent it to, and $241 for everyone after that. Each day, everyone sends it to 10 more people.
 const gatesMoney = days => {
@@ -21,14 +17,14 @@ const gatesMoney = days => {
 // About the number of people on the Internet in 1999.
 const internetPopulation = 250_000_000;
 
-export default class extends GeoCitiesElement {
+class GeoCitiesInbox extends GeoCitiesElement {
 	connected() {
-		const {title, list, rowTemplate, reader, readerFrom, readerSubject, readerBody, actions, actionTemplate, compose: composeButton, composer, who: whoSelect, luck: luckSelect, curse: curseSelect, count: countSelect} = this.parts;
+		const {title, list, reader, readerFrom, readerSubject, readerBody, actions, actionTemplate, compose: composeButton, composer, who: whoSelect, luck: luckSelect, curse: curseSelect, count: countSelect} = this.parts;
 
 		// How far the e-mail of Bill Gates went, by the days since the visitor forwarded it, kept between visits.
 		const gates = this.stored('gates', {days: 0});
 		// The stored days could be anything, so they are a small whole number, as the money is counted day by day.
-		gates.days = Math.min(Math.max(Math.trunc(Number(gates.days)) || 0, 0), 12);
+		gates.days = clamp(Math.trunc(Number(gates.days)) || 0, 0, 12);
 
 		const gatesText = () => {
 			if (gates.days === 0) {
@@ -223,13 +219,10 @@ export default class extends GeoCitiesElement {
 
 		const renderList = () => {
 			list.replaceChildren(...messages.map(message => {
-				const row = cloneTemplate(rowTemplate);
-				const button = row.querySelector('button');
-				const [from, subject] = button.querySelectorAll('span');
-				from.textContent = `${message.from} · ${message.date}`;
-				subject.textContent = message.subject;
+				const {element: row, parts: {rowButton: button, rowFrom, rowSubject}} = this.clone('rowTemplate');
+				rowFrom.textContent = `${message.from} · ${message.date}`;
+				rowSubject.textContent = message.subject;
 				if (message === openMessage) {
-					button.dataset.state = 'open';
 					button.setAttribute('aria-current', 'true');
 				} else if (message.isUnread) {
 					button.dataset.state = 'unread';
@@ -353,3 +346,5 @@ export default class extends GeoCitiesElement {
 		renderReader();
 	}
 }
+
+customElements.define('geo-cities-inbox', GeoCitiesInbox);

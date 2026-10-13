@@ -41,6 +41,11 @@ struct AppReviews: HTML {
 					a(.href(.path(.reviews, query: [URLQueryItem(name: "app", value: app.slug)]))) {
 						"More about \(app.title) on the Wall of Love →"
 					}
+					.style {
+						$0.hover {
+							$0.underline()
+						}
+					}
 				}
 				.style(Styles.moreLink)
 			}

@@ -109,7 +109,7 @@ struct GeoCitiesBestViewed: ScriptedElement {
 					.hover {
 						$0.border(Color("#000080"), width: .pixels(2), style: .dotted)
 					}
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.background(Color("#ffff00"))
 							.border(Color("#808080"), width: .pixels(2), style: .inset)

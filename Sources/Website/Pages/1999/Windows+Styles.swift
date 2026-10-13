@@ -3,8 +3,11 @@ import Foundation
 import SiteKit
 
 extension GeoCitiesWindows {
+	enum States: String, ElementStateSet {
+		case scandisk
+	}
+
 	enum Styles: StyleSet {
-		case normalWindow
 		case wideWindow
 		case stack
 		case wrapRow
@@ -144,8 +147,6 @@ extension GeoCitiesWindows {
 
 		var style: Style {
 			switch self {
-			case .normalWindow:
-				GeoCitiesPage.Styles.desktopWindow.style
 			case .wideWindow:
 				// For the programs with toolbars or cards, like Internet Explorer and FreeCell. A phone still gets a window as wide as its desktop.
 				GeoCitiesPage.Styles.desktopWindow.style
@@ -287,6 +288,10 @@ extension GeoCitiesWindows {
 					.font(size: .rootEm(1), lineHeight: 1)
 					.handCursor()
 					.buttonFocusRing()
+					// Show Desktop stays lit while the windows are hidden.
+					.pressed {
+						$0.background(Color("#e0e0e0"))
+					}
 			case .volumePopup:
 				// Above the tray, like the volume of Windows.
 				Style()
@@ -348,11 +353,8 @@ extension GeoCitiesWindows {
 					.textWrap(.nowrap)
 					.color(Color("#cc0000"))
 			case .calcBlueKey:
-				GeoCitiesPage.Styles.retroButton.style
-					.padding(vertical: .rootEm(0.25), horizontal: 0)
-					.textStyle(.caption, weight: .bold)
-					.textWrap(.nowrap)
-					.color(Color("#0000cc"))
+				// Like the red keys, in blue.
+				Self.calcRedKey.style.color(Color("#0000cc"))
 			case .dos:
 				Style()
 					.vstack(spacing: 0)
@@ -405,25 +407,10 @@ extension GeoCitiesWindows {
 						$0.frame(minHeight: .rootEm(1.75))
 					}
 			case .toolbarButton:
-				Style()
+				GeoCitiesPage.Styles.smallButton.style
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.25))
 					.frame(minWidth: .rootEm(1.75))
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.375))
-					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
-					.fontFamily(.system)
-					.textStyle(.caption, weight: .bold)
-					.color(.black)
-					.handCursor()
-					.buttonFocusRing()
-					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
-					.when(.state, is: "on") {
-						$0
-							.background(Color("#e0e0e0"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
 			case .toolbarLabel:
 				// Only the icons on a phone, where the toolbar is narrow.
 				Style()
@@ -467,9 +454,7 @@ extension GeoCitiesWindows {
 					.position(.relative)
 					.fontFamily(.system)
 					.font(size: .rootEm(3), lineHeight: 1)
-					.media(.allowsMotion) {
-						$0.animation(Animations.bob, .easeInOut(duration: .seconds(1)).repeatForever())
-					}
+					.animation(Animations.bob, .easeInOut(duration: .seconds(1)).repeatForever())
 			case .assistantEyes:
 				// Googly eyes on the paper clip.
 				Style()
@@ -514,9 +499,7 @@ extension GeoCitiesWindows {
 					.lineHeight(1)
 					.color(Color("#1e5bd6"))
 					.when(ancestorHas: Hooks.loading) {
-						$0.media(.allowsMotion) {
-							$0.animation(GeoCitiesPage.Animations.spin, .linear(duration: .seconds(1)).repeatForever(autoreverses: false))
-						}
+						$0.animation(GeoCitiesPage.Animations.spin, .linear(duration: .seconds(1)).repeatForever(autoreverses: false))
 					}
 			case .ieAddressBar:
 				Style()
@@ -636,9 +619,7 @@ extension GeoCitiesWindows {
 			case .soundButton:
 				GeoCitiesPage.Styles.retroButton.style.padding(vertical: .rootEm(0.25), horizontal: 0)
 			case .recordButton:
-				GeoCitiesPage.Styles.retroButton.style
-					.padding(vertical: .rootEm(0.25), horizontal: 0)
-					.color(Color("#cc0000"))
+				Self.soundButton.style.color(Color("#cc0000"))
 			case .freecellTable:
 				// The green of FreeCell, under the cells and the columns.
 				Style()
@@ -789,9 +770,7 @@ extension GeoCitiesWindows {
 					.leading(.rootEm(0.5))
 					.top(.rootEm(0.5))
 					.font(size: .rootEm(1.25), lineHeight: 1)
-					.media(.allowsMotion) {
-						$0.animation(Animations.circle, .linear(duration: .seconds(1)).repeatForever(autoreverses: false))
-					}
+					.animation(Animations.circle, .linear(duration: .seconds(1)).repeatForever(autoreverses: false))
 			case .taskList:
 				Style().frame(minHeight: .rootEm(8))
 			case .welcomeTitle:
@@ -817,6 +796,9 @@ extension GeoCitiesWindows {
 					.textAlign(.leading)
 					.color(.white)
 					.handCursor()
+					.active {
+						$0.border(Color("#4040c0"), width: .pixels(2), style: .inset)
+					}
 			case .welcomePane:
 				Style()
 					.padding(.rootEm(0.5))
@@ -914,6 +896,9 @@ extension GeoCitiesWindows {
 					.textStyle(.caption, weight: .bold)
 					.color(.white)
 					.handCursor()
+					.active {
+						$0.border(Color("#99ccff"), width: .pixels(2), style: .inset)
+					}
 			case .ticker:
 				// The news ticker of the Active Desktop, above the taskbar.
 				Style()
@@ -932,9 +917,7 @@ extension GeoCitiesWindows {
 			case .tickerText:
 				Style()
 					.textWrap(.nowrap)
-					.media(.allowsMotion) {
-						$0.animation(GeoCitiesPage.Animations.marquee, .linear(duration: .seconds(14)).repeatForever(autoreverses: false))
-					}
+					.animation(GeoCitiesPage.Animations.marquee, .linear(duration: .seconds(14)).repeatForever(autoreverses: false))
 			case .contextMenu:
 				// The menu of the right mouse button, where the pointer is. `geocities-windows.js` places it.
 				Style()
@@ -959,7 +942,7 @@ extension GeoCitiesWindows {
 					.focusVisible {
 						$0.focusRing(.white, width: .pixels(2), offset: .pixels(-4))
 					}
-					.when(.state, is: "scandisk") {
+					.when(States.scandisk) {
 						// ScanDisk after Windows was not shut down properly, on the blue screen of DOS.
 						$0.background(Color("#0000aa"))
 					}
@@ -1002,9 +985,7 @@ extension GeoCitiesWindows {
 					.bottom(0)
 					.frame(width: .percent(200), height: .rootEm(0.75))
 					.backgroundImage(.linearGradient("to right", Color("#000080"), Color("#00ffff"), Color("#ff00ff"), Color("#000080"), Color("#00ffff"), Color("#ff00ff"), Color("#000080")))
-					.media(.allowsMotion) {
-						$0.animation(Animations.bootBar, .linear(duration: .seconds(2)).repeatForever(autoreverses: false))
-					}
+					.animation(Animations.bootBar, .linear(duration: .seconds(2)).repeatForever(autoreverses: false))
 			case .bsod:
 				// The blue screen of the launch of Windows 98, over the desktop only.
 				Style()
@@ -1077,9 +1058,7 @@ extension GeoCitiesWindows {
 			case .beginArrow:
 				Style()
 					.display(.inlineBlock)
-					.media(.allowsMotion) {
-						$0.animation(Animations.nudge, .easeInOut(duration: .seconds(0.5)).repeatForever())
-					}
+					.animation(Animations.nudge, .easeInOut(duration: .seconds(0.5)).repeatForever())
 			case .cat:
 				// The Kit-Cat Klock of the wallpaper, on the right of the desktop, behind the icons.
 				Style()

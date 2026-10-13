@@ -54,6 +54,7 @@ extension Site {
 		}
 
 		let hashes = try contentHashes(project: project)
+		let importedScripts = try importedScripts(project: project)
 
 		let site = try await measure("Load content and data") {
 			try await Site(content: SiteContent.load(from: project, externalData: externalData))
@@ -63,7 +64,9 @@ extension Site {
 
 		let publishedFiles = try await measure("Render and write \(routes.count) routes") {
 			try await RoutePath.$contentHashes.withValue(hashes) {
-				try await Publisher(site: url, project: project, output: output).publish(routes)
+				try await RoutePath.$importedScripts.withValue(importedScripts) {
+					try await Publisher(site: url, project: project, output: output).publish(routes)
+				}
 			}
 		}
 
@@ -88,48 +91,51 @@ extension Site {
 
 extension Site {
 	/**
-	The content hashes of the scripts that the pages load. Their URLs include the hash, so browsers and Cloudflare can cache them for a year, and still get a changed file right after a deploy. The stylesheet and the icons are values, so they have their hashes without the project (``RoutePath/versioned(content:)``).
+	The content hashes of the scripts that the pages load: the scripts in `public`, and the scripts of the elements. Their URLs include the hash, so browsers and Cloudflare can cache them for a year, and still get a changed file right after a deploy. The stylesheet and the icons are values, so they have their hashes without the project (``RoutePath/versioned(content:)``).
 
-	The scripts of the elements import their base class with its hash, so they are hashed after the other scripts. An inline script is in the page, so it has no hash, but its script is generated here too, so a mistake in it fails the build.
+	A script imports another one without the hash, like `/scripts/geocities-element.js`, and the import map of each page adds it (``RoutePath/importMap``), so the hash of a script is the hash of its own text.
 	*/
 	static func contentHashes(project: Project) throws -> [RoutePath: String] {
 		var hashes = [RoutePath: String]()
 
-		for (path, source) in try project.publicFiles() where source.pathExtension == "js" {
-			hashes[RoutePath("/" + path)] = try String(contentsOf: source, encoding: .utf8).contentHash
-		}
-
-		try RoutePath.$contentHashes.withValue(hashes) {
-			for element in scriptedElements {
-				let script = try element.generatedScript()
-
-				if !element.script.isInline {
-					hashes[element.scriptPath] = script.contentHash
-				}
-			}
+		for (path, source) in try scripts(project: project) {
+			hashes[path] = try String(contentsOf: source, encoding: .utf8).contentHash
 		}
 
 		return hashes
 	}
-}
 
-extension ScriptedElement {
 	/**
-	The script that the build writes for the element, which imports its base class from `public/scripts` with the content hash of the module.
+	The scripts that other scripts import, like `/scripts/geocities-element.js`: the imports at the start of a line, like `import X from '/scripts/x.js';`, and the dynamic imports, like `import('./nebula.js')`. A relative import is resolved from the path of the script that imports it. The import map of the pages has only these (``RoutePath/importMap``).
 	*/
-	static func generatedScript() throws -> String {
-		try generatedScript(baseClasses: Site.elementBaseClasses.mapValues(\.versioned))
+	static func importedScripts(project: Project) throws -> Set<RoutePath> {
+		var imported = Set<RoutePath>()
+
+		for (path, source) in try scripts(project: project) {
+			let text = try String(contentsOf: source, encoding: .utf8)
+
+			for match in text.matches(of: /^import\b[^;'\n]*?(?:\bfrom\s*)?'([^']+)'|\bimport\(\s*'([^']+)'\s*\)/.anchorsMatchLineEndings()) {
+				let specifier = String(match.1 ?? match.2 ?? "")
+
+				if let resolved = URL(string: specifier, relativeTo: URL(string: path.description, relativeTo: url))?.path() {
+					imported.insert(RoutePath(resolved))
+				}
+			}
+		}
+
+		return imported
 	}
-}
 
-extension Site {
 	/**
-	The base classes that the scripts of elements extend, and their modules. `ScriptedElement` has the helpers of every element, and `GeoCitiesElement` adds the helpers of the 1999 page.
+	The scripts that the build publishes: the scripts in `public`, and the scripts of the elements.
 	*/
-	static let elementBaseClasses: [String: RoutePath] = [
-		"ScriptedElement": "/scripts/scripted-element.js",
-		"GeoCitiesElement": "/scripts/geocities-element.js",
-	]
+	private static func scripts(project: Project) throws -> [(path: RoutePath, source: URL)] {
+		let publicScripts = try project.publicFiles()
+			.filter { $0.source.pathExtension == "js" }
+			.map { (path: RoutePath("/" + $0.path), source: $0.source) }
+
+		return publicScripts + project.elementScripts()
+	}
 }
 
 extension RoutePath {
@@ -141,10 +147,32 @@ extension RoutePath {
 	/**
 	The path of a script with the content hash of its file, like `/scripts/site.js?v=1a2b3c4d`, or the path alone when it has no hash.
 
-	The hash changes with the content, so a cached file is never used for new pages. A script that a script imports, like `nebula.js`, has no hash, so it is cached like other files.
+	The hash changes with the content, so a cached file is never used for new pages. A script that a script imports, like `nebula.js`, gets the hash from the import map of the page (``importMap``).
 	*/
 	var versioned: String {
 		Self.contentHashes[self].map { "\(self)?v=\($0)" } ?? description
+	}
+
+	/**
+	The scripts that other scripts import, from ``Site/importedScripts(project:)``, set while the site is published.
+	*/
+	@TaskLocal static var importedScripts = Set<RoutePath>()
+
+	/**
+	The import map of the pages, as JSON: each script that another script imports (``importedScripts``) to its path with the content hash, like `/scripts/geocities-element.js` to `/scripts/geocities-element.js?v=1a2b3c4d`, so an import of it, also a relative one, like `./nebula.js`, gets the file with the hash. `nil` without hashes or imports.
+
+	Only the imported scripts, as the map is in every page.
+	*/
+	static var importMap: String? {
+		let imports = importedScripts
+			.filter { contentHashes[$0] != nil }
+			.map { ($0.description, $0.versioned) }
+
+		guard !imports.isEmpty else {
+			return nil
+		}
+
+		return JSONEncoder.pageJSON(["imports": Dictionary(uniqueKeysWithValues: imports)])
 	}
 
 	/**

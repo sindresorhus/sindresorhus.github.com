@@ -167,7 +167,7 @@ struct GeoCitiesRoom: ScriptedElement {
 				div {
 					button(.part(Parts.shutter), .type(.button)) {}
 						.accessibilityLabel("Take a picture of my room")
-						.style(Styles.shutter)
+						.style(Styles.shutter, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 					button(.part(Parts.newFilm), .type(.button), .hidden) {
 						"Buy a New Film Pack"
@@ -195,17 +195,17 @@ struct GeoCitiesRoom: ScriptedElement {
 			// The script adds a copy for each picture on the cork board.
 			template(.part(Parts.photoTemplate)) {
 				li {
-					div {
-						canvas(.width(160), .height(160)) {}
+					div(.part(Parts.photoFrame)) {
+						canvas(.part(Parts.photoCanvas), .width(160), .height(160)) {}
 							.style(Styles.photoPicture)
 
-						input(.type(.text), .maxlength(30), .autocomplete("off"), .placeholder("Write on it"))
+						input(.part(Parts.photoCaption), .type(.text), .maxlength(30), .autocomplete("off"), .placeholder("Write on it"))
 							.accessibilityLabel("Write on the picture")
 							.style(Styles.photoCaption)
 					}
 					.style(Styles.photo)
 
-					button(.type(.button)) {
+					button(.part(Parts.takeDown), .type(.button)) {
 						"Take Down"
 					}
 					.style(GeoCitiesPage.Styles.smallButton)
@@ -226,6 +226,16 @@ struct GeoCitiesRoom: ScriptedElement {
 		case cameraStatus
 		case photos
 		case photoTemplate
+		case photoFrame
+		case photoCanvas
+		case photoCaption
+		case takeDown
+	}
+
+	enum States: String, ElementStateSet {
+		case hotspot
+		case flash
+		case right
 	}
 
 	enum Hooks: String, ScriptHookSet {
@@ -310,7 +320,7 @@ struct GeoCitiesRoom: ScriptedElement {
 					.focusVisible {
 						$0.focusRing(Color("#ffcc00"), width: .pixels(3), offset: .pixels(-3))
 					}
-					.when(.state, is: "hotspot") {
+					.when(States.hotspot) {
 						$0.cursor(.pointer)
 					}
 			case .flash:
@@ -321,15 +331,9 @@ struct GeoCitiesRoom: ScriptedElement {
 					.background(.white)
 					.opacity(0)
 					.allowsHitTesting(false)
-					.when(.state, is: "flash") {
-						$0
-							.opacity(1)
-							.media(.allowsMotion) {
-								$0.animation(Animations.flash, .easeOut(duration: .milliseconds(600)), fillMode: .forwards)
-							}
-							.reducedMotion {
-								$0.opacity(0)
-							}
+					// The animation goes from full opacity to the opacity of the style, so it needs no fill mode. With reduced motion, it does not run, so the flash does not show.
+					.when(States.flash) {
+						$0.animation(Animations.flash, .easeOut(duration: .milliseconds(600)))
 					}
 			case .controller:
 				// The controller of QuickTime VR: the buttons on the left, and the name of the hot spot under the pointer.
@@ -352,7 +356,7 @@ struct GeoCitiesRoom: ScriptedElement {
 					.active {
 						$0.background(Color("#999999"))
 					}
-					.when(.state, is: "on") {
+					.pressed {
 						$0.background(Color("#9999ff"))
 					}
 			case .label:
@@ -423,9 +427,6 @@ struct GeoCitiesRoom: ScriptedElement {
 					.active {
 						$0.offset(y: .pixels(2))
 					}
-					.disabled {
-						$0.opacity(0.5)
-					}
 			case .cork:
 				// A cork board with the pictures pinned on it, side by side where there is room.
 				Style()
@@ -448,7 +449,7 @@ struct GeoCitiesRoom: ScriptedElement {
 					.background(Color("#fbfbf5"))
 					.shadow(Shadow(x: .pixels(2), y: .pixels(3), color: Color("#00000066")))
 					.rotationEffect(.degrees(-2))
-					.when(.state, is: "right") {
+					.when(States.right) {
 						$0.rotationEffect(.degrees(3))
 					}
 			case .photoPicture:

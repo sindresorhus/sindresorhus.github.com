@@ -1,4 +1,4 @@
-// The now page is complete without this script. It adds the latest commits, which are only loaded here, and shows a newer Bluesky post than the one of the build.
+// The now page is complete without this script. It adds the latest commits, which are only loaded here, in the card that is waiting for them, and shows a newer Bluesky post than the one of the build.
 
 const relativeTimeFormat = new Intl.RelativeTimeFormat('en', {numeric: 'auto'});
 
@@ -33,21 +33,32 @@ const relativeTime = date => {
 const showLatestCommits = async () => {
 	const container = document.querySelector('#latest-commits');
 	const template = document.querySelector('#commit-template');
+	const list = container.querySelector('ul');
 
-	// Without a token, GitHub allows 10 searches a minute for each visitor. When the request fails, the commits stay hidden.
-	const response = await fetch('https://api.github.com/search/commits?q=author:sindresorhus&sort=author-date&order=desc&per_page=5', {
-		headers: {
-			Accept: 'application/vnd.github+json',
-		},
-	});
+	// Without a token, GitHub allows 10 searches a minute for each visitor. When the request fails, a link to GitHub replaces the placeholder rows. The section is shown too, as it can be hidden until the commits load.
+	const showError = () => {
+		list.hidden = true;
+		document.querySelector('#latest-commits-error').hidden = false;
+		container.closest('section').hidden = false;
+	};
 
-	if (!response.ok) {
-		return;
+	let items;
+
+	try {
+		const response = await fetch('https://api.github.com/search/commits?q=author:sindresorhus&sort=author-date&order=desc&per_page=5', {
+			headers: {
+				Accept: 'application/vnd.github+json',
+			},
+		});
+
+		items = response.ok ? (await response.json()).items : undefined;
+	} catch (error) {
+		showError();
+		throw error;
 	}
 
-	const {items} = await response.json();
-
 	if (!items?.length) {
+		showError();
 		return;
 	}
 
@@ -57,15 +68,14 @@ const showLatestCommits = async () => {
 		link.href = item.html_url;
 		// Without the backticks of code, which GitHub shows as code.
 		link.textContent = item.commit.message.split('\n')[0].replaceAll('`', '');
-		row.querySelector('span span').textContent = item.repository.full_name.replace(/^sindresorhus\//, '');
+		row.querySelector('[data-commit-repository]').textContent = item.repository.full_name.replace(/^sindresorhus\//, '');
 		const time = row.querySelector('time');
 		time.dateTime = item.commit.author.date;
 		time.textContent = relativeTime(new Date(item.commit.author.date));
 		return row;
 	});
 
-	container.querySelector('ul').replaceChildren(...rows);
-	container.hidden = false;
+	list.replaceChildren(...rows);
 	container.closest('section').hidden = false;
 };
 

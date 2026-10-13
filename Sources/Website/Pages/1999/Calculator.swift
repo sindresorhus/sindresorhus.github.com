@@ -196,6 +196,17 @@ struct GeoCitiesCalculator: ScriptedElement {
 		case closeDoor
 	}
 
+	enum States: String, ElementStateSet {
+		case flipped
+		case down
+		case old
+		case out
+		case new
+		case on
+		case low
+		case dead
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		A key of the calculator, by its ID, like `enter` or `7`.
@@ -293,7 +304,7 @@ struct GeoCitiesCalculator: ScriptedElement {
 					.cornerRadius(.rootEm(1.25))
 					.shadow(Shadow(x: .pixels(4), y: .pixels(6), color: Color("#00000066")), Shadow(x: .pixels(-2), y: .pixels(-2), blur: .pixels(4), color: Color("#00000055"), isInset: true))
 					.color(.white)
-					.when(.state, is: "flipped") {
+					.when(States.flipped) {
 						$0.rotationEffect(.degrees(180))
 					}
 					.media(.allowsMotion) {
@@ -388,12 +399,12 @@ struct GeoCitiesCalculator: ScriptedElement {
 							.offset(y: .pixels(2))
 							.shadow(Shadow(y: 0, color: Color("#101012")))
 					}
-					.when(.state, is: "down") {
+					.when(States.down) {
 						$0
 							.offset(y: .pixels(2))
 							.shadow(Shadow(y: 0, color: Color("#101012")))
 					}
-					.when(.state, is: "on") {
+					.pressed {
 						$0.focusRing(Color("#ffffff"), width: .pixels(2), offset: .pixels(1))
 					}
 					// The dotted ring of the page is dark on the light keys, so it would not show on the dark plastic.
@@ -448,7 +459,7 @@ struct GeoCitiesCalculator: ScriptedElement {
 					.active {
 						$0.background(Color("#7d7e83"))
 					}
-					.when(.state, is: "down") {
+					.when(States.down) {
 						$0.background(Color("#7d7e83"))
 					}
 					.focusVisible {
@@ -550,16 +561,16 @@ struct GeoCitiesCalculator: ScriptedElement {
 					.textStyle(.caption, weight: .bold)
 					.color(.white)
 					.handCursor()
-					.when(.state, is: "old") {
+					.when(States.old) {
 						$0.background(Color("#7a5a2a"))
 					}
-					.when(.state, is: "out") {
+					.when(States.out) {
 						$0
 							.background(Color("#1b1b1d"))
 							.border(Color("#777"), width: .pixels(2), style: .dashed)
 							.color(Color("#bbb"))
 					}
-					.when(.state, is: "new") {
+					.when(States.new) {
 						$0
 							.background(Color("#d4a017"))
 							.color(.black)
@@ -575,7 +586,7 @@ struct GeoCitiesCalculator: ScriptedElement {
 					.textStyle(.caption, weight: .bold)
 					.color(.black)
 					.handCursor()
-					.when(.state, is: "out") {
+					.when(States.out) {
 						$0
 							.background(Color("#1b1b1d"))
 							.border(Color("#777"), width: .pixels(2), style: .dashed)
@@ -587,22 +598,25 @@ struct GeoCitiesCalculator: ScriptedElement {
 				// Pressed in while it is on.
 				Style()
 					.frame(minHeight: .rootEm(2.75))
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.background(Color("#ffff99"))
 							.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
 					}
 			case .teacher:
-				Style().when(.state, is: "on") {
-					$0.background(Color("#ccffcc"))
+				// Pressed in and green while Herr Olsen is here.
+				Style().when(States.on) {
+					$0
+						.background(Color("#ccffcc"))
+						.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
 				}
 			case .batteries:
 				// Orange while the batteries are low, and red when they are dead.
 				Style()
-					.when(.state, is: "low") {
+					.when(States.low) {
 						$0.background(Color("#ffcc66"))
 					}
-					.when(.state, is: "dead") {
+					.when(States.dead) {
 						$0
 							.background(Color("#ff6666"))
 							.color(.white)
@@ -617,10 +631,7 @@ struct GeoCitiesCalculator: ScriptedElement {
 					.color(Color("#000080"))
 			case .status:
 				Style()
-					.frame(minHeight: .lineHeight(2))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+					.toyStatus()
 					.textAlign(.center)
 			}
 		}

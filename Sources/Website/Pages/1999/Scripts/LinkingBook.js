@@ -1,57 +1,9 @@
 // My linking book on the 1999 page, an extra of the adventure games: a linking book to the Brunost Age, like Myst. The picture in the book moves like a flyby, and touching it links to the Age, a few still views to click through. The edges of a view turn, the middle walks on, and the things in it can be clicked. Three marker switches open the tower, and a red page and a blue page wake up who is trapped in the two books of the library. It makes its sounds when the sound button of Sindre’s Quest is on, which tells it with the `geocities-adventure-sound` event.
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
+import GeoCitiesElement from '/scripts/geocities-element.js';
+import {canvasPoint, fillEllipse, fillPolygon, makeCanvas} from '/scripts/geocities-canvas.js';
+import {beep} from '/scripts/geocities-adventure.js';
 
-// Shapes for the canvases of the games.
-const fillEllipse = (context, color, x, y, radiusX, radiusY) => {
-	context.fillStyle = color;
-	context.beginPath();
-	context.ellipse(x, y, Math.max(radiusX, 0.1), Math.max(radiusY, 0.1), 0, 0, Math.PI * 2);
-	context.fill();
-};
-
-const fillPolygon = (context, color, points) => {
-	context.fillStyle = color;
-	context.beginPath();
-	for (const [x, y] of points) {
-		context.lineTo(x, y);
-	}
-
-	context.closePath();
-	context.fill();
-};
-
-const makeCanvas = (width, height) => {
-	const canvas = document.createElement('canvas');
-	canvas.width = width;
-	canvas.height = height;
-	return canvas;
-};
-
-// A short sound effect, made in the browser.
-const beep = (audio, frequency, duration = 0.1, {type = 'square', volume = 0.05, when = 0} = {}) => {
-	if (audio?.context.state !== 'running') {
-		return;
-	}
-
-	const start = audio.context.currentTime + when;
-	const oscillator = new OscillatorNode(audio.context, {type, frequency});
-	const gain = new GainNode(audio.context, {gain: 0});
-	gain.gain.setValueAtTime(0, start);
-	gain.gain.linearRampToValueAtTime(volume, start + 0.005);
-	gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-	oscillator.connect(gain).connect(audio.output);
-	oscillator.start(start);
-	oscillator.stop(start + duration + 0.02);
-};
-
-export default class extends GeoCitiesElement {
+class GeoCitiesLinkingBook extends GeoCitiesElement {
 	#isSoundOn = false;
 	#panelLoop;
 
@@ -383,7 +335,7 @@ export default class extends GeoCitiesElement {
 				panelLoop.start();
 			}
 
-			flash.dataset.state = '';
+			delete flash.dataset.state;
 			isLinking = false;
 		};
 
@@ -533,3 +485,5 @@ export default class extends GeoCitiesElement {
 		}
 	}
 }
+
+customElements.define('geo-cities-linking-book', GeoCitiesLinkingBook);

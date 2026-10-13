@@ -12,7 +12,7 @@ struct StatList: HTML {
 	*/
 	var isCentered = false
 
-	var body: some HTML {
+	var body: some HTML<HTMLTag.p> {
 		p {
 			for (index, stat) in stats.enumerated() {
 				// A space between the facts, for copied text and reader modes. The flex layout does not show it.

@@ -1,14 +1,8 @@
 // The Composer of the Nokia 3210 in the Music Room on the 1999 page, and the ringtone ad of a magazine. A note is written like `8.#f2`: its length (1 is a whole note and 32 the shortest), a dot for one and a half times as long, a sharp, the note or `-` for a rest, and the octave from 1 to 3. Octave 1 starts at the C of 523 Hz, as phones beeped high. The tune and the phone bill are kept in the browser. It plays through the sound card of the Music Room, `geocities-sound-card.js`.
-import {context, connectVolume, startAudio, midiFrequency, tone, startPlaying, stopPlaying, makeBus, fadeOut, midiFile, download} from '/scripts/geocities-sound-card.js';
+import GeoCitiesElement, {randomItem, clamp, isTypingTarget, hasModifier, midiFrequency} from '/scripts/geocities-element.js';
+import {context, connectVolume, startAudio, tone, startPlaying, stopPlaying, makeBus, fadeOut, midiFile, download} from '/scripts/geocities-sound-card.js';
 
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-
-// A key handler ignores the keys that go to a text field or a menu inside the phone, and the shortcuts of the browser.
-const isTypingTarget = event => event.target.closest('input, textarea, select, [contenteditable]') !== null;
-const hasModifier = event => event.ctrlKey || event.metaKey || event.altKey;
-
-export default class extends GeoCitiesElement {
+class GeoCitiesRingtones extends GeoCitiesElement {
 	connected() {
 		const {phone, code: screenCode, text, tempo: tempoSelect, status, call: callScreen, caller, answer: answerButton, reject: rejectButton, play, ring: ringButton, midi, clear, bill, pay: payButton} = this.parts;
 		connectVolume(this.querySelectorAll('[data-music-volume]'), this.signal);
@@ -88,7 +82,7 @@ export default class extends GeoCitiesElement {
 
 		const player = {
 			stop() {
-				clearTimeout(timer);
+				timer?.cancel();
 				fadeOut(bus);
 				bus = undefined;
 				stopPlaying(player);
@@ -119,12 +113,12 @@ export default class extends GeoCitiesElement {
 				time += 0.6;
 			}
 
-			timer = setTimeout(() => {
+			timer = this.timeout((time - context.currentTime) * 1000, () => {
 				fadeOut(bus);
 				bus = undefined;
 				stopPlaying(player);
 				onEnd?.();
-			}, (time - context.currentTime) * 1000);
+			});
 		};
 
 		// The keys of the phone, like on the real Composer: 1 to 7 add a note with the length and the octave of the last one, 8 and 9 make the last note shorter and longer, 0 adds a rest, * changes the octave of the last note, # makes it sharp, and C deletes it.
@@ -177,7 +171,7 @@ export default class extends GeoCitiesElement {
 			});
 		}
 
-		// The keys of the computer work like the keys of the phone while the focus is on the phone, but not in the text field.
+		// The keys of the computer work like the keys of the phone while the focus is on the phone. The handler ignores the keys that go to a text field or a menu inside the phone, and the shortcuts of the browser.
 		this.on(this, 'keydown', event => {
 			if (isTypingTarget(event) || hasModifier(event) || !phone.contains(event.target)) {
 				return;
@@ -193,10 +187,10 @@ export default class extends GeoCitiesElement {
 			event.preventDefault();
 			event.stopPropagation();
 			const button = this.querySelector(`[data-nokia-key="${CSS.escape(key)}"]`);
-			button.dataset.state = 'pressed';
-			setTimeout(() => {
+			button.dataset.state = 'held';
+			this.timeout(120, () => {
 				delete button.dataset.state;
-			}, 120);
+			});
 			press(key);
 		});
 
@@ -346,7 +340,7 @@ export default class extends GeoCitiesElement {
 				const total = spent;
 				this.say(`Sending SMS: ${button.textContent} to 1999…`);
 
-				setTimeout(() => {
+				this.timeout(1200, () => {
 					notes = parse(ringtones[id].code).notes;
 					tempoSelect.value = String(ringtones[id].tempo);
 					show();
@@ -363,7 +357,7 @@ export default class extends GeoCitiesElement {
 					}
 
 					showBill();
-				}, 1200);
+				});
 
 				bill.textContent = `Phone bill this month: kr ${spent},-`;
 			});
@@ -388,3 +382,5 @@ export default class extends GeoCitiesElement {
 		return super.focusReplacement(control);
 	}
 }
+
+customElements.define('geo-cities-ringtones', GeoCitiesRingtones);

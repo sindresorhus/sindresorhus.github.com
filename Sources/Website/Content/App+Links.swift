@@ -24,11 +24,8 @@ extension App {
 	Download buttons: the repo or redirect page as “Learn More”, then the custom links.
 	*/
 	var mainLinks: [LabeledLink] {
-		let learnMore = [frontmatter.repositoryURL, frontmatter.redirectURL]
-			.compactMap(\.self)
-			.map { LabeledLink("Learn More", url: $0) }
-
-		return [].merging(learnMore).merging(frontmatter.mainLinks.labeledLinks)
+		let learnMore = (frontmatter.redirectURL ?? frontmatter.repositoryURL).map { [LabeledLink("Learn More", url: $0)] } ?? []
+		return learnMore.merging(frontmatter.mainLinks.labeledLinks)
 	}
 
 	/**

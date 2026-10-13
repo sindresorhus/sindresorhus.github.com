@@ -35,7 +35,7 @@ struct GitHubTests {
 	@Test(.temporaryDirectory)
 	func `popular repositories are read from the search result, without repos without code or hidden repos, and with descriptions without emoji and notes`() async throws {
 		let result = #"{"total_count": 1, "incomplete_results": false, "items": [{"name": "awesome", "description": "Awesome lists about all kinds of interesting topics", "html_url": "https://github.com/sindresorhus/awesome", "created_at": "2014-07-11T13:42:37Z", "archived": false, "fork": false, "stargazers_count": 515161, "language": null}, {"name": "ky", "description": "😎 Tiny :zap: HTTP client based on `fetch` [NOTE: Pull requests are disabled] ❤️", "html_url": "https://github.com/sindresorhus/ky", "created_at": "2014-07-11T13:42:37Z", "archived": false, "fork": false, "stargazers_count": 17000, "language": "TypeScript"}, {"name": "awesome-nodejs", "description": "Delightful Node.js packages", "html_url": "https://github.com/sindresorhus/awesome-nodejs", "created_at": "2014-07-11T13:42:37Z", "archived": false, "fork": false, "stargazers_count": 67000, "language": null}, {"name": "chalk", "description": "🖍 Terminal string styling done right, 2 colors #1", "html_url": "https://github.com/chalk/chalk", "created_at": "2013-08-03T00:20:36Z", "archived": false, "fork": false, "stargazers_count": 23000, "language": "JavaScript"}, {"name": "ava", "description": "Node.js test runner that lets you develop with confidence", "html_url": "https://github.com/avajs/ava", "created_at": "2014-11-13T19:50:51Z", "archived": false, "fork": false, "stargazers_count": 20000, "language": "JavaScript"}]}"#
-		let github = GitHub(token: nil, cache: try ResponseCache(responses: ["https://api.github.com/search/repositories?q=user:sindresorhus+user:chalk+user:avajs+user:xojs+user:soml-lang+fork:false+archived:false&sort=stars&order=desc&per_page=30": result]))
+		let github = GitHub(token: nil, cache: try ResponseCache(responses: ["https://api.github.com/search/repositories?q=user:sindresorhus%20user:chalk%20user:avajs%20user:xojs%20user:soml-lang%20fork:false%20archived:false&sort=stars&order=desc&per_page=30": result]))
 		let repositories = try await github.popularRepositories()
 
 		// The lists of links, without a language, and the hidden repos, like AVA, are left out.
@@ -53,9 +53,20 @@ struct GitHubTests {
 	@Test(.temporaryDirectory)
 	func `the summary of a repository keeps times and removes emoji codes next to each other`() async throws {
 		let result = #"{"total_count": 1, "incomplete_results": false, "items": [{"name": "parse-time", "description": ":unicorn::sparkles: Parse a time like 12:30:45 into seconds :zap:", "html_url": "https://github.com/sindresorhus/parse-time", "created_at": "2014-07-11T13:42:37Z", "archived": false, "fork": false, "stargazers_count": 10, "language": "JavaScript"}]}"#
-		let github = GitHub(token: nil, cache: try ResponseCache(responses: ["https://api.github.com/search/repositories?q=user:sindresorhus+user:chalk+user:avajs+user:xojs+user:soml-lang+fork:false+archived:false&sort=stars&order=desc&per_page=30": result]))
+		let github = GitHub(token: nil, cache: try ResponseCache(responses: ["https://api.github.com/search/repositories?q=user:sindresorhus%20user:chalk%20user:avajs%20user:xojs%20user:soml-lang%20fork:false%20archived:false&sort=stars&order=desc&per_page=30": result]))
 
 		#expect(try await github.popularRepositories().first?.summary == "Parse a time like 12:30:45 into seconds")
+	}
+
+	/**
+	A note in double brackets, like the one of `ama`, is removed whole, without a bracket left over.
+	*/
+	@Test(.temporaryDirectory)
+	func `the summary of a repository removes a note in double brackets`() async throws {
+		let result = #"{"total_count": 1, "incomplete_results": false, "items": [{"name": "ama", "description": "[[I'm slow at replying these days]] Ask me anything!", "html_url": "https://github.com/sindresorhus/ama", "created_at": "2014-07-11T13:42:37Z", "archived": false, "fork": false, "stargazers_count": 10, "language": "JavaScript"}]}"#
+		let github = GitHub(token: nil, cache: try ResponseCache(responses: ["https://api.github.com/search/repositories?q=user:sindresorhus%20user:chalk%20user:avajs%20user:xojs%20user:soml-lang%20fork:false%20archived:false&sort=stars&order=desc&per_page=30": result]))
+
+		#expect(try await github.popularRepositories().first?.summary == "Ask me anything!")
 	}
 
 	/**

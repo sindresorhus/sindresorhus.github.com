@@ -407,6 +407,12 @@ struct GeoCitiesArcade: ScriptedElement {
 		case bricks
 	}
 
+	enum States: String, ElementStateSet {
+		case kicked
+		case playing
+		case empty
+	}
+
 	enum Styles: ElementStyleSet {
 		case root
 		case layout
@@ -465,10 +471,8 @@ struct GeoCitiesArcade: ScriptedElement {
 					.cornerRadius(.rootEm(0.5))
 					.shadow(Shadow(x: .pixels(4), y: .pixels(6), blur: .pixels(6), color: Color("#00000066")))
 					.color(.white)
-					.media(.allowsMotion) {
-						$0.when(.state, is: "kicked") {
-							$0.animation(GeoCitiesPage.Animations.y2kShake, .linear(duration: .milliseconds(400)))
-						}
+					.when(States.kicked) {
+						$0.animation(GeoCitiesPage.Animations.y2kShake, .linear(duration: .milliseconds(400)))
 					}
 			case .marquee:
 				// The lit sign at the top of the cabinet.
@@ -498,7 +502,7 @@ struct GeoCitiesArcade: ScriptedElement {
 					.aspectRatio(224.0 / 288.0)
 					.background(.black)
 					.cornerRadius(.rootEm(0.375))
-					.when(.state, is: "playing") {
+					.when(States.playing) {
 						$0.touchAction(.none)
 					}
 			case .status:
@@ -623,11 +627,17 @@ struct GeoCitiesArcade: ScriptedElement {
 					.textAlign(.leading)
 					.color(.black)
 					.handCursor()
-					.when(.state, is: "on") {
+					.buttonFocusRing()
+					.active {
+						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+					}
+					.pressed {
 						$0
 							.background(.black)
 							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
 							.color(Color("#ffee55"))
+							// Yellow on the black, as navy does not show on it.
+							.buttonFocusRing(Color("#ffee55"))
 					}
 			case .tagline:
 				Style().font(.extraSmall)
@@ -671,6 +681,7 @@ struct GeoCitiesArcade: ScriptedElement {
 					.textStyle(.caption)
 					.color(.black)
 					.handCursor()
+					.buttonFocusRing()
 					.active {
 						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
 					}
@@ -695,7 +706,7 @@ struct GeoCitiesArcade: ScriptedElement {
 					.children("li") {
 						$0.display(.block)
 					}
-					.when(.state, is: "empty") {
+					.when(States.empty) {
 						$0
 							.fontFamily(GeoCitiesPage.comicSans)
 							.textStyle(.caption)

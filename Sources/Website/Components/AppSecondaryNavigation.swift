@@ -73,7 +73,7 @@ struct AppSecondaryNavigation: ScriptedElement {
 				Style()
 					.position(.absolute)
 					.inset(0)
-					.display(.flex)
+					.hstack(alignment: .center, justification: .spaceBetween)
 					.filter(.opacity(0))
 					.visibility(false)
 					.transition(.filter, .visibility, animation: SiteHeader.navigationSwap)
@@ -82,9 +82,6 @@ struct AppSecondaryNavigation: ScriptedElement {
 							.filter(.opacity(1))
 							.visibility(true)
 					}
-					.alignItems(.center)
-					.justifyContent(.spaceBetween)
-					.frame(width: .percent(100))
 					.pageWidth()
 					.padding(.rootEm(0.75))
 					.color(.gray(600), dark: .gray(200))
@@ -124,7 +121,7 @@ struct AppSecondaryNavigation: ScriptedElement {
 				Style()
 					.display(.flex)
 					.padding(.horizontal, .rootEm(1))
-					.setting(OverflowMenu.color, to: .lightDark(.gray(600), .gray(200)))
+					.setting(OverflowMenu.color, to: .currentColor)
 					.hidden(below: .tablet)
 			case .getButton:
 				Style()

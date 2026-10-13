@@ -1,5 +1,5 @@
 // The home page maker on the 1999 page: it writes the page of the visitor as the HTML of 1999, with `<marquee>`, `<bgsound>`, and a WordArt title, and shows it in a sandboxed frame, so nothing in it can run. The GIFs have full addresses, so the saved file shows them too.
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
+import GeoCitiesElement, {randomInteger} from '/scripts/geocities-element.js';
 
 // Sets up the page maker, with the element for its helpers, like `say()`, `on()`, and `timeout()`, and its parts.
 const setUpPageMaker = (pageMaker, {form, title: titleInput, wordArt: wordArtSelect, background: backgroundSelect, about: aboutInput, marquee: marqueeInput, tune: tuneSelect, counter: counterCheckbox, construction: constructionCheckbox, gifs: gifChoices, preview, viewSource: viewSourceButton, save: saveButton, publish: publishButton, source, log}) => {
@@ -151,7 +151,7 @@ ${constructionCheckbox.checked ? `<p><img src="${gifPath(constructionCheckbox)}"
 	};
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesPageMaker extends GeoCitiesElement {
 	#pageMaker;
 
 	connected() {
@@ -163,3 +163,5 @@ export default class extends GeoCitiesElement {
 		this.#pageMaker.updatePreview();
 	}
 }
+
+customElements.define('geo-cities-page-maker', GeoCitiesPageMaker);

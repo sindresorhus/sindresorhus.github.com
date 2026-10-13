@@ -29,12 +29,12 @@ struct GeoCitiesWindowsTerminal: ScriptedElement {
 			button(.part(Parts.call), .type(.button)) {
 				"📞 Call"
 			}
-			.style(GeoCitiesPage.Styles.smallButton)
+			.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 			button(.part(Parts.hangUp), .type(.button), .disabled) {
 				"🔌 Hang Up"
 			}
-			.style(GeoCitiesPage.Styles.smallButton)
+			.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 			button(.part(Parts.sound), .type(.button), .ariaPressed(false)) {
 				"🔊 Modem sounds"

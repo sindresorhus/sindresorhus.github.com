@@ -194,12 +194,12 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 
 			template(.part(Parts.bobItemTemplate)) {
 				li {
-					button(.type(.button)) {
-						span {}
+					button(.part(Parts.bobItemButton), .type(.button)) {
+						span(.part(Parts.bobItemPicture)) {}
 							.accessibilityHidden()
 							.style(Styles.bobItemPicture)
 
-						span {}
+						span(.part(Parts.bobItemLabel)) {}
 					}
 					.style(Styles.bobItem)
 				}
@@ -384,9 +384,9 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 
 			template(.part(Parts.antivirusTemplate)) {
 				li {
-					p {}
+					p(.part(Parts.findingText)) {}
 
-					div {
+					div(.part(Parts.findingActions)) {
 						for action in ["Repair", "Quarantine", "Delete"] {
 							button(.type(.button), .hook(Hooks.antivirusAction, value: action.lowercased())) {
 								action
@@ -437,7 +437,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 					button(.part(Parts.winzipExtract), .type(.button)) {
 						"📂 Extract"
 					}
-					.style(GeoCitiesWindows.Styles.toolbarButton)
+					.style(GeoCitiesWindows.Styles.toolbarButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 					p {
 						"GAMES.ZIP"
@@ -677,6 +677,9 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 		case bobRoom
 		case bobRoverText
 		case bobItemTemplate
+		case bobItemButton
+		case bobItemPicture
+		case bobItemLabel
 		case cdromStatus
 		case movieCanvas
 		case movieCaption
@@ -692,6 +695,8 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 		case antivirusProgress
 		case antivirusResults
 		case antivirusTemplate
+		case findingText
+		case findingActions
 		case antivirusStatus
 		case winzipNag
 		case winzipDays
@@ -711,6 +716,13 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 		case cleanupStart
 		case cleanupProgress
 		case cleanupStatus
+	}
+
+	enum States: String, ElementStateSet {
+		case talking
+		case checked
+		case bad
+		case reading
 	}
 
 	/**
@@ -805,7 +817,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 					.leading(0)
 					.zIndex(0)
 					.vstack(alignment: .center, spacing: .rootEm(0.25))
-					.when(.state, is: "talking") {
+					.when(States.talking) {
 						$0.zIndex(900)
 					}
 			case .bonziBalloon:
@@ -879,9 +891,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 				Style()
 					.fontFamily(.system)
 					.font(size: .rootEm(2.5), lineHeight: 1)
-					.media(.allowsMotion) {
-						$0.animation(GeoCitiesPage.Animations.petWiggle, .easeInOut(duration: .seconds(0.6)).repeatForever())
-					}
+					.animation(GeoCitiesPage.Animations.petWiggle, .easeInOut(duration: .seconds(0.6)).repeatForever())
 			case .cdBanner:
 				// The Autorun screen of the CD, with the clouds of Windows 95.
 				Style()
@@ -970,13 +980,13 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 					.font(size: .rootEm(0.5), lineHeight: 1.2)
 					.textAlign(.center)
 					.color(.white)
-					.when(.state, is: "checked") {
+					.when(States.checked) {
 						$0.background(Color("#0000aa"))
 					}
-					.when(.state, is: "bad") {
+					.when(States.bad) {
 						$0.background(Color("#cc0000"))
 					}
-					.when(.state, is: "reading") {
+					.when(States.reading) {
 						$0.background(Color("#ffff00"))
 					}
 			}

@@ -47,6 +47,14 @@ struct BlogPostPage: Page {
 				.style(Styles.header)
 
 				Prose(markdown: post.markdown.content, variant: .article)
+					.style {
+						$0
+							.margin(.top, .rootEm(2))
+							// A post that starts with an image moves up, so the gap below the header is the same as with text.
+							.nested("&:has(> p:first-child > img)") {
+								$0.margin(.top, .pixels(-16))
+							}
+					}
 			}
 
 			if !morePosts.isEmpty {
@@ -119,23 +127,7 @@ extension BlogPostPage {
 		var style: Style {
 			switch self {
 			case .root:
-				Style()
-					.margin(vertical: 0, horizontal: .auto)
-					.nested(ProseStyles.root.selector) {
-						$0
-							.margin(.top, .rootEm(2))
-							// A post that starts with an image moves up, so the gap below the header is the same as with text.
-							.nested("&:has(> p:first-child > img)") {
-								$0.margin(.top, .pixels(-16))
-							}
-					}
-					.padding(vertical: .rootEm(2), horizontal: 0)
-					.from(.smallTablet) {
-						$0.padding(vertical: .rootEm(4), horizontal: 0)
-					}
-					.from(.laptop) {
-						$0.padding(vertical: .rootEm(3.5), horizontal: 0)
-					}
+				Style().pagePadding()
 			case .header:
 				// Lines up with the text of the post.
 				Style().contentColumn(.prose)

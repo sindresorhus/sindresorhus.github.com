@@ -72,6 +72,13 @@ extension Int {
 	}
 
 	/**
+	The approximate count (``approximateCount``) with the noun, in the plural when the count is not 1, like “1 star” or “4.2M+ downloads”. The plural adds an “s”.
+	*/
+	func approximateCount(counting noun: String) -> String {
+		"\(approximateCount) \(self == 1 ? noun : noun + "s")"
+	}
+
+	/**
 	The count with the noun, in the plural when the count is not 1, like “1 day” or “1,234 days”. The plural adds an “s”.
 	*/
 	func formatted(counting noun: String) -> String {
@@ -306,7 +313,7 @@ extension Schema.SoftwareApplication {
 			image: app.iconURL
 		)
 
-		screenshot = app.screenshotURLs.isEmpty ? nil : app.screenshotURLs
+		screenshot = app.screenshotURLs.nilIfEmpty
 
 		if
 			let info,
@@ -371,11 +378,11 @@ extension CGColor {
 
 extension CGImage {
 	/**
-	The most common vivid color of the image, like the blue of a blue app icon, as hex, like `#1e88e5`. `nil` when the image has almost no vivid colors, like a gray icon.
+	The most common vivid color of the image, like the blue of a blue app icon, written as hex, like `#1e88e5`. `nil` when the image has almost no vivid colors, like a gray icon.
 
 	The image is scaled down, and the colors of the opaque, saturated pixels are grouped by hue. The color is the average of the largest group, where more saturated and brighter pixels count more.
 	*/
-	var accentColor: String? {
+	var accentColor: Color? {
 		struct HueGroup {
 			var weight = 0.0
 			var red = 0.0
@@ -458,7 +465,7 @@ extension CGImage {
 			return (byte < 16 ? "0" : "") + String(byte, radix: 16)
 		}
 
-		return "#\(hex(largest.red))\(hex(largest.green))\(hex(largest.blue))"
+		return Color("#\(hex(largest.red))\(hex(largest.green))\(hex(largest.blue))")
 	}
 }
 

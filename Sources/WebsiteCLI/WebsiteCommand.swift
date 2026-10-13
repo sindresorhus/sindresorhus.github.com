@@ -2,6 +2,7 @@ import ArgumentParser
 import Foundation
 import SiteKit
 import System
+import SystemConfiguration
 import Website
 
 @main
@@ -155,6 +156,9 @@ extension WebsiteCommand {
 		@Option(name: .shortAndLong, help: "The HTTP port. 0 picks a free port.")
 		var port: UInt16 = 4321
 
+		@Flag(help: "Serve on the local network too, to test on other devices, like an iPhone. It prints the URL as a QR code. Anyone on the network can open the site while it runs.")
+		var localNetwork = false
+
 		/**
 		Set when the tool restarts itself after a source change, so it does not open the browser again.
 		*/
@@ -164,7 +168,7 @@ extension WebsiteCommand {
 		func run() async throws {
 			let project = options.project
 			let sources = project.root.appending(path: "Sources")
-			let server = PreviewServer(directory: options.outputDirectory, port: port, reloadsPages: true)
+			let server = PreviewServer(directory: options.outputDirectory, port: port, reloadsPages: true, servesLocalNetwork: localNetwork)
 
 			// The watcher starts before the first build, so edits during the build are seen.
 			let changes = DirectoryWatcher(directories: [project.contentDirectory, project.publicDirectory, sources]).makeAsyncIterator()
@@ -246,15 +250,28 @@ extension WebsiteCommand {
 		}
 
 		/**
-		Prints the URL and opens it in the default browser, unless the tool restarted.
+		Prints the URL and opens it in the default browser, unless the tool restarted. On the local network, it also prints the URL for other devices, and as a QR code the first time.
 		*/
 		private func opened(port: UInt16) {
-			// The server only listens on the IPv4 loopback address, and `localhost` can resolve to IPv6 first.
+			// The server only listens on IPv4 addresses, and `localhost` can resolve to IPv6 first.
 			let url = "http://127.0.0.1:\(port)"
 			print("Serving at \(url)")
 
+			// By the Bonjour name of this Mac, which other devices resolve without a DNS server, and which stays the same when the IP address changes.
+			let localNetworkURL = localNetwork ? ProcessInfo.processInfo.localHostName.flatMap { URL(string: "http://\($0).local:\(port)") } : nil
+
+			if let localNetworkURL {
+				print("Serving on the local network at \(localNetworkURL)")
+			} else if localNetwork {
+				print("Serving on the local network, but this Mac has no local hostname. Set one in System Settings › General › Sharing.")
+			}
+
 			guard !restarted else {
 				return
+			}
+
+			if let localNetworkURL {
+				print(QRCode(url: localNetworkURL, label: "The URL on the local network").terminalText)
 			}
 
 			let process = Process()
@@ -285,6 +302,15 @@ extension WebsiteCommand {
 			let errors = [toolError, buildError].compactMap(\.self)
 			server.show(error: errors.isEmpty ? nil : errors.joined(separator: "\n\n"))
 		}
+	}
+}
+
+extension ProcessInfo {
+	/**
+	The Bonjour name of this Mac, like `Sindres-MacBook-Pro`, which other devices find as `Sindres-MacBook-Pro.local`.
+	*/
+	fileprivate var localHostName: String? {
+		SCDynamicStoreCopyLocalHostName(nil) as String?
 	}
 }
 

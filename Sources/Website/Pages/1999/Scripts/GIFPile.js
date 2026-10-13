@@ -1,8 +1,7 @@
 // The GIF-O-Matic on the 1999 page: each GIF of the pile is a random GIF of the page, in a picture with its still frame, like the GIFs of the page, so visitors who prefer reduced motion see the still frame, and Stop and Reload of the browser stop and start it too. The size of each comes from the browser, when it knows it.
-const maximumPile = 200;
+import GeoCitiesElement, {randomItem, randomBetween} from '/scripts/geocities-element.js';
 
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
+const maximumPile = 200;
 
 // The still frame of a GIF of the page, which is in the source before its image, or `undefined` for a GIF that does not move.
 const stillOf = image => {
@@ -36,9 +35,9 @@ const pileMilestone = count => {
 	return '';
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesGIFPile extends GeoCitiesElement {
 	connected() {
-		const {pile, warning, template, more, moreTen, clean, earthquake} = this.parts;
+		const {pile, warning, more, moreTen, clean, earthquake} = this.parts;
 		const panel = document.querySelector('#geocities-panel');
 		const pileGIFs = [...new Map([...panel.querySelectorAll('picture > img[src$=".gif"]')].map(image => [image.getAttribute('src'), stillOf(image) ?? image.getAttribute('src')])).entries()];
 		let pileCount = 0;
@@ -56,14 +55,13 @@ export default class extends GeoCitiesElement {
 
 			for (let index = 0; index < amount && pileCount < maximumPile; index++) {
 				const [source, still] = randomItem(pileGIFs);
-				const picture = template.content.firstElementChild.cloneNode(true);
-				const image = picture.querySelector('img');
+				const {element: picture, parts: {stillFrame, gif: image}} = this.clone('pictureTemplate');
 
 				// A GIF that does not move has no still frame.
 				if (still === source) {
-					picture.querySelector('source').remove();
+					stillFrame.remove();
 				} else {
-					picture.querySelector('source').srcset = still;
+					stillFrame.srcset = still;
 				}
 
 				image.src = isStopped ? still : source;
@@ -140,3 +138,5 @@ export default class extends GeoCitiesElement {
 		});
 	}
 }
+
+customElements.define('geo-cities-gif-pile', GeoCitiesGIFPile);

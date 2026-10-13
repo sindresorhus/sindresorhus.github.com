@@ -1,22 +1,8 @@
 // My Furby on the 1999 page: a Furby of 1998, drawn on a canvas, that blinks, wiggles its ears, talks Furbish, learns English as the visitor plays with it, gets hungry, sleepy, and sick, dances to music, chatters with Lillesøster’s Furby, and wakes the house at 3 in the morning until its batteries come out. What it learns is kept in the browser. The canvas runs only while it is on screen and the tab is visible. Nothing makes a sound until the visitor turns on the sound or plays music.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
+import GeoCitiesElement, {randomItem, clamp, seededRandom} from '/scripts/geocities-element.js';
+import {canvasPoint} from '/scripts/geocities-canvas.js';
+
 const now = () => performance.now() / 1000;
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
 
 // The Furbish words of the real Furby of 1998, with what they mean. The dictionary card fills in as the Furby says them.
 const dictionary = {
@@ -126,14 +112,7 @@ const furs = {
 const defaultName = 'Tee-Loo';
 const sisterName = 'Noo-Noo';
 
-// A random number generator with a seed, so the fur of a Furby is the same on each frame.
-const seededRandom = seed => () => {
-	seed = (seed + 0x6D_2B_79_F5) | 0;
-	let value = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-	value = (value + Math.imul(value ^ (value >>> 7), 61 | value)) ^ value;
-	return ((value ^ (value >>> 14)) >>> 0) / 4_294_967_296;
-};
-
+// The fur of a Furby, from a random number generator with a seed, so the fur is the same on each frame.
 const makeFur = seed => {
 	const random = seededRandom(seed);
 	const strands = Array.from({length: 240}, (_, index) => ({
@@ -237,7 +216,7 @@ const localPoint = (creature, point) => {
 
 const keyActions = {f: 'feed', t: 'tickle', p: 'pet', u: 'flip', s: 'shake', c: 'clap', l: 'light', m: 'music'};
 
-export default class extends GeoCitiesElement {
+class GeoCitiesFurby extends GeoCitiesElement {
 	#context;
 	#furby;
 	#hoursAway = 0;
@@ -723,9 +702,7 @@ export default class extends GeoCitiesElement {
 	#setUpsideDown(isOn) {
 		this.#isUpsideDown = isOn;
 		this.#upsideDownSince = now();
-		const {flip} = this.parts;
-		setPressed(flip, isOn);
-		flip.textContent = isOn ? 'Turn It Right Side Up' : 'Turn It Upside Down';
+		this.#updateButtons();
 	}
 
 	// While it wakes the house at night, everything the visitor tries only makes it louder.
@@ -811,11 +788,11 @@ export default class extends GeoCitiesElement {
 			}
 
 			if (this.#hasSister && !this.#sister.isSleeping) {
-				setTimeout(() => {
+				this.timeout(900, () => {
 					if (this.#hasSister && !this.#sister.isSleeping && furby.hasBatteries) {
 						this.#talk(this.#sister, 'Hee hee hee!', {note: 'Giggles are catching.'});
 					}
-				}, 900);
+				});
 			}
 
 			this.#interact(2);
@@ -843,12 +820,12 @@ export default class extends GeoCitiesElement {
 			furby.happiness = clamp(furby.happiness + 8, 0, 100);
 			if (this.#isDark) {
 				this.#talk(mine, randomItem(phrases.hugged), {note: 'A hug in the dark. It falls asleep.'});
-				setTimeout(() => {
+				this.timeout(2500, () => {
 					if (this.#isDark && !this.#isAlarm && furby.hasBatteries) {
 						this.#fallAsleep(mine);
 						this.#fallAsleep(this.#sister);
 					}
-				}, 2500);
+				});
 			} else {
 				this.#talk(mine, randomItem(phrases.petted));
 			}
@@ -1044,16 +1021,16 @@ export default class extends GeoCitiesElement {
 			if (this.#hasSister) {
 				this.#sister.isSleeping = this.#isDark && this.#mine.isSleeping;
 				this.#sister.isSick = this.#mine.isSick;
-				setTimeout(() => {
+				this.timeout(400, () => {
 					if (this.#hasSister) {
 						this.#talk(this.#sister, 'Hee hee! {kah} {may-may}!', {note: 'Lillesøster lent you her pink Furby. Do not lose it.'});
 						if (this.#furby.hasBatteries && !this.#mine.isSleeping) {
-							setTimeout(() => {
+							this.timeout(2500, () => {
 								this.#chat();
-							}, 2500);
+							});
 						}
 					}
-				}, 400);
+				});
 			} else {
 				this.say(`Lillesøster wants ${sisterName} back. She takes it to her room.`);
 			}
@@ -1088,12 +1065,12 @@ export default class extends GeoCitiesElement {
 				this.#talk(this.#mine, randomItem(phrases.night), {note: 'It is 22:00, bedtime. Good night!'});
 			}
 
-			setTimeout(() => {
+			this.timeout(2500, () => {
 				if (this.#night?.phase === 'asleep') {
 					this.#fallAsleep(this.#mine);
 					this.#fallAsleep(this.#sister);
 				}
-			}, 2500);
+			});
 			this.#interact(1);
 		},
 		batteries: () => {
@@ -1363,15 +1340,15 @@ export default class extends GeoCitiesElement {
 	}
 
 	#updateButtons() {
-		const {light, music, sister, chat, bed, batteries, nsa, sound} = this.parts;
+		const {light, music, sister, chat, bed, batteries, flip, nsa, sound} = this.parts;
 		light.textContent = this.#isDark ? 'Turn On the Light' : 'Turn Off the Light';
-		setPressed(light, this.#isDark);
+		light.setAttribute('aria-pressed', String(this.#isDark));
 
 		music.textContent = this.#isMusicPlaying ? 'Stop the Music' : 'Play Music';
-		setPressed(music, this.#isMusicPlaying);
+		music.setAttribute('aria-pressed', String(this.#isMusicPlaying));
 
 		sister.textContent = this.#hasSister ? 'Give Lillesøster’s Furby Back' : 'Borrow Lillesøster’s Furby';
-		setPressed(sister, this.#hasSister);
+		sister.setAttribute('aria-pressed', String(this.#hasSister));
 		chat.hidden = !this.#hasSister;
 
 		bed.textContent = this.#night ? 'Skip to the Morning' : 'Go to Bed';
@@ -1379,10 +1356,13 @@ export default class extends GeoCitiesElement {
 		batteries.textContent = this.#puzzle ? 'Close the Hatch Again' : (this.#furby.hasBatteries ? 'Take Out the Batteries' : 'Put the Batteries Back');
 		batteries.dataset.state = this.#isAlarm && !this.#puzzle ? 'urgent' : '';
 
-		setPressed(nsa, this.#isNsa);
+		flip.textContent = this.#isUpsideDown ? 'Turn It Right Side Up' : 'Turn It Upside Down';
+		flip.setAttribute('aria-pressed', String(this.#isUpsideDown));
+
+		nsa.setAttribute('aria-pressed', String(this.#isNsa));
 
 		sound.textContent = this.#isSoundOn ? 'Sound: On' : 'Sound: Off';
-		setPressed(sound, this.#isSoundOn);
+		sound.setAttribute('aria-pressed', String(this.#isSoundOn));
 	}
 
 	get #moodText() {
@@ -1591,11 +1571,11 @@ export default class extends GeoCitiesElement {
 				this.#mine.perkUntil = now() + 0.8;
 				this.#talk(this.#mine, randomItem(phrases.alarm), {isLoud: true});
 				if (this.#hasSister && Math.random() < 0.5) {
-					setTimeout(() => {
+					this.timeout(1100, () => {
 						if (this.#hasSister && this.#isAlarm) {
 							this.#talk(this.#sister, randomItem(phrases.alarm), {isLoud: true, note: 'Lillesøster cries: “Mammaaa! Furbyen vekket meg!” (The Furby woke me!)'});
 						}
-					}, 1100);
+					});
 				}
 			}
 		}
@@ -2435,12 +2415,12 @@ export default class extends GeoCitiesElement {
 		}
 
 		this.#talk(mine, phrases.coveredEyes[0], {note: 'You cover its light sensor. Keep it covered, and it falls asleep.'});
-		this.#drag.sleepTimer = setTimeout(() => {
+		this.#drag.sleepTimer = this.timeout(2500, () => {
 			if (this.#drag?.hasCovered && !this.#isAlarm) {
 				this.#talk(mine, phrases.sleepy[0], {note: 'In the dark of your hand, it falls asleep.'});
 				this.#fallAsleep(mine);
 			}
-		}, 2500);
+		});
 	}
 
 	#turnScrew(delta) {
@@ -2492,8 +2472,8 @@ export default class extends GeoCitiesElement {
 
 	// A second finger is ignored, so it does not take over the drag of the first one.
 	#clearDrag() {
-		clearTimeout(this.#drag?.holdTimer);
-		clearTimeout(this.#drag?.sleepTimer);
+		this.#drag?.holdTimer?.cancel();
+		this.#drag?.sleepTimer?.cancel();
 		this.#drag = undefined;
 	}
 
@@ -2547,9 +2527,9 @@ export default class extends GeoCitiesElement {
 		} else if (hit.part === 'tummy') {
 			this.#runAction('tickle');
 		} else if (hit.part === 'eyes') {
-			this.#drag.holdTimer = setTimeout(() => {
+			this.#drag.holdTimer = this.timeout(700, () => {
 				this.#coverEyes();
-			}, 700);
+			});
 		}
 	}
 
@@ -2583,7 +2563,7 @@ export default class extends GeoCitiesElement {
 		drag.x = point.x;
 		drag.y = point.y;
 		if (drag.holdTimer && drag.distance > 20) {
-			clearTimeout(drag.holdTimer);
+			drag.holdTimer.cancel();
 			drag.holdTimer = undefined;
 		}
 
@@ -2621,7 +2601,7 @@ export default class extends GeoCitiesElement {
 			return;
 		}
 
-		clearTimeout(this.#drag.holdTimer);
+		this.#drag.holdTimer?.cancel();
 		if (this.#drag.hasCovered && !this.#mine.isSleeping && this.#furby.hasBatteries) {
 			this.#talk(this.#mine, phrases.peekaboo[0], {note: 'Peekaboo!'});
 			this.#interact(1);
@@ -2686,3 +2666,5 @@ export default class extends GeoCitiesElement {
 		this.#updateLcd();
 	}
 }
+
+customElements.define('geo-cities-furby', GeoCitiesFurby);

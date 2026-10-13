@@ -1,70 +1,6 @@
 // The everyday life of a kid in Norway in 1999 on the 1999 page, as toys: my matpakke, dressing for the weather of Bergen, crab fishing off the dock, brown cheese and the cheese slicer, and the Saturday candy. Canvases run only while they are on the screen and the tab is visible.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const plural = (count, word) => `${count.toLocaleString('en-US')} ${word}${count === 1 ? '' : 's'}`;
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
-
-// A tiny pixel font of 3 × 5 for the canvases, so the text is crisp at any size. Each letter is five rows of three bits.
-const pixelFont = {
-	A: [2, 5, 7, 5, 5], B: [6, 5, 6, 5, 6], C: [3, 4, 4, 4, 3], D: [6, 5, 5, 5, 6], E: [7, 4, 6, 4, 7], F: [7, 4, 6, 4, 4], G: [3, 4, 5, 5, 3], H: [5, 5, 7, 5, 5], I: [7, 2, 2, 2, 7], J: [1, 1, 1, 5, 2], K: [5, 5, 6, 5, 5], L: [4, 4, 4, 4, 7], M: [5, 7, 7, 5, 5], N: [6, 5, 5, 5, 5], O: [2, 5, 5, 5, 2], P: [6, 5, 6, 4, 4], Q: [2, 5, 5, 6, 3], R: [6, 5, 6, 5, 5], S: [3, 4, 2, 1, 6], T: [7, 2, 2, 2, 2], U: [5, 5, 5, 5, 7], V: [5, 5, 5, 5, 2], W: [5, 5, 7, 7, 5], X: [5, 5, 2, 5, 5], Y: [5, 5, 2, 2, 2], Z: [7, 1, 2, 4, 7],
-	0: [7, 5, 5, 5, 7], 1: [2, 6, 2, 2, 7], 2: [6, 1, 2, 4, 7], 3: [6, 1, 2, 1, 6], 4: [5, 5, 7, 1, 1], 5: [7, 4, 6, 1, 6], 6: [3, 4, 7, 5, 7], 7: [7, 1, 2, 2, 2], 8: [7, 5, 7, 5, 7], 9: [7, 5, 7, 1, 6],
-	' ': [0, 0, 0, 0, 0], '.': [0, 0, 0, 0, 2], ',': [0, 0, 0, 2, 4], '!': [2, 2, 2, 0, 2], '?': [6, 1, 2, 0, 2], ':': [0, 2, 0, 2, 0], '-': [0, 0, 7, 0, 0], '+': [0, 2, 7, 2, 0], '/': [1, 1, 2, 4, 4], '\'': [2, 2, 0, 0, 0], '(': [1, 2, 2, 2, 1], ')': [4, 2, 2, 2, 4], '×': [0, 5, 2, 5, 0], '°': [2, 5, 2, 0, 0], '%': [5, 1, 2, 4, 5], '<': [1, 2, 4, 2, 1], '>': [4, 2, 1, 2, 4], '=': [0, 7, 0, 7, 0], '♥': [0, 5, 7, 7, 2], '*': [0, 5, 2, 5, 0],
-	Æ: [3, 6, 7, 6, 7], Ø: [3, 5, 7, 5, 6], Å: [2, 0, 2, 5, 7],
-};
-
-// Draws text in the pixel font, at a whole pixel, with a scale for bigger letters. The alignment is `left`, `center`, or `right`.
-const drawPixelText = (context, text, x, y, color, {scale = 1, align = 'left'} = {}) => {
-	const characters = [...String(text).toUpperCase()];
-	const width = ((characters.length * 4) - 1) * scale;
-	let left = Math.round(align === 'center' ? x - (width / 2) : (align === 'right' ? x - width : x));
-	context.fillStyle = color;
-
-	for (const character of characters) {
-		const rows = pixelFont[character] ?? pixelFont['?'];
-		for (const [row, bits] of rows.entries()) {
-			for (let column = 0; column < 3; column++) {
-				if (bits & (4 >> column)) {
-					context.fillRect(left + (column * scale), Math.round(y) + (row * scale), scale, scale);
-				}
-			}
-		}
-
-		left += 4 * scale;
-	}
-};
-
-// Shapes for the canvases of the toys.
-const fillShape = (context, color, x, y, width, height) => {
-	context.fillStyle = color;
-	context.fillRect(Math.round(x), Math.round(y), Math.round(width), Math.round(height));
-};
-
-const fillEllipse = (context, color, x, y, radiusX, radiusY) => {
-	context.fillStyle = color;
-	context.beginPath();
-	context.ellipse(x, y, Math.max(radiusX, 0.1), Math.max(radiusY, 0.1), 0, 0, Math.PI * 2);
-	context.fill();
-};
-
-const fillPolygon = (context, color, points) => {
-	context.fillStyle = color;
-	context.beginPath();
-	for (const [x, y] of points) {
-		context.lineTo(x, y);
-	}
-
-	context.closePath();
-	context.fill();
-};
+import GeoCitiesElement, {randomItem, randomInteger, clamp, plural} from '/scripts/geocities-element.js';
+import {canvasPoint, fillShape, fillEllipse, fillPolygon, drawPixelText} from '/scripts/geocities-canvas.js';
 
 // My matpakke: up to four slices of bread, each with something on it, and a sheet of paper between them, in a lunch box. At school, Mom’s idea of a good lunch and the class’s idea of a cool one are scored, with what happens at the lunch break. A few combinations please both, which is the puzzle.
 const setUpLunch = (days, {lunchCanvas: canvas, lunchSlices: slicesText, lunchUndo: undo, lunchGo: go, lunchStatus: status}) => {
@@ -1032,7 +968,7 @@ const setUpCandy = (days, {candyCanvas: canvas, candyBack: back, candyPay: pay, 
 	draw();
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesNorwayDays extends GeoCitiesElement {
 	connected() {
 		setUpLunch(this, this.parts);
 		setUpWeather(this, this.parts);
@@ -1041,3 +977,5 @@ export default class extends GeoCitiesElement {
 		setUpCandy(this, this.parts);
 	}
 }
+
+customElements.define('geo-cities-norway-days', GeoCitiesNorwayDays);

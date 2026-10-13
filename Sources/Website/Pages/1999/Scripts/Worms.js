@@ -1,16 +1,8 @@
 // Sindre’s Wurms ’99 on the 1999 page, a game like Worms Armageddon (Team17, 1999): Team Sindre against Team Trond on a random island in the rain of Bergen, made of soil, a giant waffle, brown cheese, the houses of Bryggen, a waffle iron, and Rocky the pet rock, kept pixel by pixel, so explosions cut round holes in it. The worms take turns to walk, jump, aim, and fire nine weapons and tools against the wind, and Team Trond is the computer or a friend on the same keyboard. The game only runs while it is on screen and the tab is visible. Nothing makes a sound until the visitor turns on the sound. For visitors who prefer reduced motion, the rain and the sea stand still, and every shot and every turn of the computer happens at once, with its path drawn as dots.
+import GeoCitiesElement, {randomItem, randomBetween, clamp, shuffled} from '/scripts/geocities-element.js';
+import {makeSprite, drawPixelText} from '/scripts/geocities-canvas.js';
 
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
+// The position of a pointer on a canvas, in the pixels of the canvas. Unlike the shared `canvasPoint`, it leaves out the border of the screen: it subtracts the border and scales by the size inside it, so a click on the island is exact.
 const canvasPoint = (canvas, event) => {
 	const rectangle = canvas.getBoundingClientRect();
 	return {
@@ -21,15 +13,7 @@ const canvasPoint = (canvas, event) => {
 
 // MARK: The pixel font
 
-// A tiny pixel font of 3 × 5, like the labels of Worms, so the text is crisp at any size. Each letter is five rows of three bits.
-const pixelFont = {
-	A: [2, 5, 7, 5, 5], B: [6, 5, 6, 5, 6], C: [3, 4, 4, 4, 3], D: [6, 5, 5, 5, 6], E: [7, 4, 6, 4, 7], F: [7, 4, 6, 4, 4], G: [3, 4, 5, 5, 3], H: [5, 5, 7, 5, 5], I: [7, 2, 2, 2, 7], J: [1, 1, 1, 5, 2], K: [5, 5, 6, 5, 5], L: [4, 4, 4, 4, 7], M: [5, 7, 7, 5, 5], N: [6, 5, 5, 5, 5], O: [2, 5, 5, 5, 2], P: [6, 5, 6, 4, 4], Q: [2, 5, 5, 6, 3], R: [6, 5, 6, 5, 5], S: [3, 4, 2, 1, 6], T: [7, 2, 2, 2, 2], U: [5, 5, 5, 5, 7], V: [5, 5, 5, 5, 2], W: [5, 5, 7, 7, 5], X: [5, 5, 2, 5, 5], Y: [5, 5, 2, 2, 2], Z: [7, 1, 2, 4, 7],
-	0: [7, 5, 5, 5, 7], 1: [2, 6, 2, 2, 7], 2: [6, 1, 2, 4, 7], 3: [6, 1, 2, 1, 6], 4: [5, 5, 7, 1, 1], 5: [7, 4, 6, 1, 6], 6: [3, 4, 7, 5, 7], 7: [7, 1, 2, 2, 2], 8: [7, 5, 7, 5, 7], 9: [7, 5, 7, 1, 6],
-	' ': [0, 0, 0, 0, 0], '.': [0, 0, 0, 0, 2], ',': [0, 0, 0, 2, 4], '!': [2, 2, 2, 0, 2], '?': [6, 1, 2, 0, 2], ':': [0, 2, 0, 2, 0], '-': [0, 0, 7, 0, 0], '+': [0, 2, 7, 2, 0], '/': [1, 1, 2, 4, 4], '\'': [2, 2, 0, 0, 0], '"': [5, 5, 0, 0, 0], '(': [1, 2, 2, 2, 1], ')': [4, 2, 2, 2, 4], '°': [2, 5, 2, 0, 0], '%': [5, 1, 2, 4, 5], '<': [1, 2, 4, 2, 1], '>': [4, 2, 1, 2, 4], '=': [0, 7, 0, 7, 0], '♥': [0, 5, 7, 7, 2], '*': [0, 5, 2, 5, 0],
-	Æ: [3, 6, 7, 6, 7], Ø: [3, 5, 7, 5, 6], Å: [2, 0, 2, 5, 7],
-};
-
-// The font has capitals only, and plain quotes, so the text of the game is turned into what it has.
+// The font has capitals only, so the text of the game is turned into capitals, with plain quotes and three dots, like the labels of Worms.
 const pixelText = text => String(text).replaceAll('’', '\'').replaceAll('‘', '\'').replaceAll('“', '"').replaceAll('”', '"').replaceAll('…', '...').toUpperCase();
 
 const textWidth = (text, scale = 1) => Math.max(0, (([...pixelText(text)].length * 4) - 1) * scale);
@@ -164,23 +148,6 @@ const makeProjectile = (weaponId, worm, angle, facing, power, fuse) => {
 
 // MARK: Drawing
 
-const makeSprite = (rows, palette) => {
-	const sprite = document.createElement('canvas');
-	sprite.width = rows[0].length;
-	sprite.height = rows.length;
-	const spriteContext = sprite.getContext('2d');
-	for (const [y, row] of rows.entries()) {
-		for (const [x, character] of [...row].entries()) {
-			if (palette[character]) {
-				spriteContext.fillStyle = palette[character];
-				spriteContext.fillRect(x, y, 1, 1);
-			}
-		}
-	}
-
-	return sprite;
-};
-
 // A pink worm, facing right, with the cap of its team.
 const wormRows = [
 	'...CCCC...',
@@ -261,8 +228,7 @@ const howToShoot = () => (coarsePointer.matches ? 'TAP TO AIM, HOLD FIRE TO SHOO
 
 const keyControls = {ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down'};
 
-
-export default class extends GeoCitiesElement {
+class GeoCitiesWorms extends GeoCitiesElement {
 	#context;
 	#loop;
 	#accumulator = 0;
@@ -634,7 +600,7 @@ export default class extends GeoCitiesElement {
 		}
 
 		for (const button of this.querySelectorAll('[data-worms-fuse]')) {
-			setPressed(button, Number(button.dataset.wormsFuse) === this.#game.fuse);
+			button.setAttribute('aria-pressed', String(Number(button.dataset.wormsFuse) === this.#game.fuse));
 		}
 
 		opponentSelect.value = this.stored('opponent', 'computer') === 'friend' ? 'friend' : 'computer';
@@ -674,27 +640,7 @@ export default class extends GeoCitiesElement {
 
 	// Draws text in the pixel font, at a whole pixel. The alignment is `left`, `center`, or `right`.
 	#drawText(text, x, y, color, {scale = 1, align = 'left', shadow} = {}) {
-		const characters = [...pixelText(text)];
-		const width = textWidth(text, scale);
-		const start = Math.round(align === 'center' ? x - (width / 2) : (align === 'right' ? x - width : x));
-
-		for (const [ink, offset] of shadow ? [[shadow, scale], [color, 0]] : [[color, 0]]) {
-			let left = start + offset;
-			this.#context.fillStyle = ink;
-
-			for (const character of characters) {
-				const rows = pixelFont[character] ?? pixelFont['?'];
-				for (const [row, bits] of rows.entries()) {
-					for (let column = 0; column < 3; column++) {
-						if (bits & (4 >> column)) {
-							this.#context.fillRect(left + (column * scale), Math.round(y) + (row * scale) + offset, scale, scale);
-						}
-					}
-				}
-
-				left += 4 * scale;
-			}
-		}
+		drawPixelText(this.#context, pixelText(text), x, y, color, {scale, align, shadow});
 	}
 
 	// A label in a black box, like the names and health of the worms of Worms.
@@ -1165,10 +1111,10 @@ export default class extends GeoCitiesElement {
 
 		// The props of Bergen stand on the island.
 		const props = [this.#stampWaffle, this.#stampBrownCheese, this.#stampBryggen, this.#stampRocky, this.#stampWaffleIron];
-		const shuffled = props.toSorted(() => Math.random() - 0.5);
+		const shuffledProps = shuffled(props);
 		for (const [index, fraction] of [0.2, 0.4, 0.6, 0.8].entries()) {
 			const x = Math.round((fraction * worldWidth) + randomBetween(-40, 40));
-			shuffled[index].call(this, x, Math.round(this.#surface[x]) + 3);
+			shuffledProps[index].call(this, x, Math.round(this.#surface[x]) + 3);
 		}
 
 		this.#isTerrainChanged = true;
@@ -1879,7 +1825,7 @@ export default class extends GeoCitiesElement {
 			const count = ammo[weaponId] ?? 0;
 			const isOn = weaponId === this.#currentWeapon();
 			button.setAttribute('aria-pressed', String(isOn));
-			button.dataset.state = isOn ? 'on' : (count <= 0 ? 'empty' : '');
+			button.dataset.state = !isOn && count <= 0 ? 'empty' : '';
 			const label = this.querySelector(`[data-worms-ammo="${weaponId}"]`);
 			const text = count === Number.POSITIVE_INFINITY ? '∞' : (weaponId === 'girder' && isOn ? `${count} ⟳${girderAngles[this.#game.girderAngle]}°` : String(count));
 			if (label.textContent !== text) {
@@ -3180,7 +3126,7 @@ export default class extends GeoCitiesElement {
 	#setFuse(seconds) {
 		this.#game.fuse = seconds;
 		for (const button of this.querySelectorAll('[data-worms-fuse]')) {
-			setPressed(button, Number(button.dataset.wormsFuse) === seconds);
+			button.setAttribute('aria-pressed', String(Number(button.dataset.wormsFuse) === seconds));
 		}
 
 		this.say(`Fuse: ${seconds} ${seconds === 1 ? 'second' : 'seconds'}.`);
@@ -3256,3 +3202,5 @@ export default class extends GeoCitiesElement {
 		this.#afterInput();
 	}
 }
+
+customElements.define('geo-cities-worms', GeoCitiesWorms);

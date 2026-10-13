@@ -1,7 +1,5 @@
 // The fun stuff of Windows 95 and 98 on the desktop of the 1999 page: BonziBUDDY, Microsoft Bob, the Windows 95 CD-ROM with its videos, Happy99, Nordmann AntiVirus 99, WinZip, Phone Dialer, ScanDisk, and Disk Cleanup. `geocities.js` opens, drags, and closes the windows, and `geocities-windows.js` asks the questions with its message box and gives the sounds its volume. Nothing makes a sound until the visitor clicks something that says it plays sound.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
+import GeoCitiesElement, {randomItem, randomInteger, clamp, playTone} from '/scripts/geocities-element.js';
 
 // A tone through the audio of `sound()`, or through the volume of one song, which can stop it. A note before the start, like a note of a video that resumes in the middle, is left out.
 const tone = (sound, frequency, start, duration, {type = 'sine', volume = 0.12, slide} = {}) => {
@@ -9,23 +7,7 @@ const tone = (sound, frequency, start, duration, {type = 'sine', volume = 0.12, 
 		return;
 	}
 
-	const {context, output} = sound;
-	const oscillator = context.createOscillator();
-	const gain = context.createGain();
-	const time = context.currentTime + start;
-	oscillator.type = type;
-	oscillator.frequency.setValueAtTime(frequency, time);
-
-	if (slide) {
-		oscillator.frequency.exponentialRampToValueAtTime(slide, time + duration);
-	}
-
-	gain.gain.setValueAtTime(0.0001, time);
-	gain.gain.exponentialRampToValueAtTime(volume, time + 0.01);
-	gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-	oscillator.connect(gain).connect(output);
-	oscillator.start(time);
-	oscillator.stop(time + duration + 0.05);
+	playTone(sound, frequency, start, duration, {type, volume, slide});
 };
 
 // A burst of noise, for drums, a laugh track, and a crowd.
@@ -603,7 +585,7 @@ const playDialTone = (sound, key, start = 0) => {
 	}
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesWindowsFunStuff extends GeoCitiesElement {
 	#desktop;
 	#taskbar;
 	#bonziContext;
@@ -1226,19 +1208,18 @@ export default class extends GeoCitiesElement {
 	}
 
 	#showBobRoom(name, focusFirst = false) {
-		const {bobRoomName, bobRoom, bobRoverText, bobItemTemplate} = this.parts;
+		const {bobRoomName, bobRoom, bobRoverText} = this.parts;
 		this.#bob.room = name;
 		const room = bobRooms[name];
 		bobRoomName.textContent = room.name;
 		bobRoom.setAttribute('aria-label', `Things in the ${room.name}`);
 
 		bobRoom.replaceChildren(...room.items.map(item => {
-			const element = bobItemTemplate.content.firstElementChild.cloneNode(true);
-			const [picture, label] = element.querySelectorAll('span');
-			picture.textContent = item.icon;
-			label.textContent = item.name;
+			const {element, parts} = this.clone('bobItemTemplate');
+			parts.bobItemPicture.textContent = item.icon;
+			parts.bobItemLabel.textContent = item.name;
 
-			element.querySelector('button').addEventListener('click', event => {
+			parts.bobItemButton.addEventListener('click', event => {
 				if (item.room) {
 					this.#showBobRoom(item.room, true);
 					this.say(`Woof! This is the ${bobRooms[item.room].name}. ${roverTips[this.#bob.tip++ % roverTips.length]}`, bobRoverText);
@@ -1488,7 +1469,7 @@ export default class extends GeoCitiesElement {
 
 	// Nordmann AntiVirus 99 scans the files of the hard drive one by one, and finds the viruses of 1999, like Happy99 if the visitor ran it, and a few that only live on my computer.
 	#connectAntivirus() {
-		const {antivirusFile, antivirusProgress, antivirusResults, antivirusTemplate, antivirusStatus, antivirusScan, antivirusUpdate} = this.parts;
+		const {antivirusFile, antivirusProgress, antivirusResults, antivirusStatus, antivirusScan, antivirusUpdate} = this.parts;
 
 		this.on(antivirusScan, 'click', async () => {
 			const run = ++this.#antivirusRun;
@@ -1511,14 +1492,14 @@ export default class extends GeoCitiesElement {
 			antivirusFile.textContent = `Scanned ${scannedFiles.length} files. Found ${findings.length} viruses.`;
 
 			for (const finding of findings) {
-				const item = antivirusTemplate.content.firstElementChild.cloneNode(true);
-				item.querySelector('p').textContent = `⚠️ ${finding.name} in ${finding.file}. ${finding.note}`;
+				const {element: item, parts: {findingText, findingActions}} = this.clone('antivirusTemplate');
+				findingText.textContent = `⚠️ ${finding.name} in ${finding.file}. ${finding.note}`;
 
-				for (const button of item.querySelectorAll('[data-fun-antivirus-action]')) {
+				for (const button of findingActions.querySelectorAll('[data-fun-antivirus-action]')) {
 					button.addEventListener('click', () => {
 						const result = finding.results[button.dataset.funAntivirusAction];
-						item.querySelector('p').textContent = `✔️ ${finding.name}: ${result}`;
-						item.querySelector('div').remove();
+						findingText.textContent = `✔️ ${finding.name}: ${result}`;
+						findingActions.remove();
 						this.say(result, antivirusStatus);
 						antivirusScan.focus();
 
@@ -1914,3 +1895,5 @@ export default class extends GeoCitiesElement {
 		});
 	}
 }
+
+customElements.define('geo-cities-windows-fun-stuff', GeoCitiesWindowsFunStuff);

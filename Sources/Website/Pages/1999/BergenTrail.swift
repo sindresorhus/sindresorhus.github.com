@@ -25,7 +25,7 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 			button(.part(Parts.sound), .type(.button), .ariaPressed(false)) {
 				"🔇 Sound Off"
 			}
-			.style(GeoCitiesPage.Styles.smallButton, Styles.toggle)
+			.style(GeoCitiesPage.Styles.smallButton)
 
 			button(.part(Parts.restart), .type(.button)) {
 				"Start a New Trip"
@@ -102,7 +102,6 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 		case prompt
 		case badge
 		case controls
-		case toggle
 		case status
 
 		var style: Style {
@@ -293,17 +292,10 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 				Style()
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
 					.margin(.top, .rootEm(0.5))
-			case .toggle:
-				Style().when(.state, is: "on") {
-					$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-				}
 			case .status:
 				Style()
-					.frame(minHeight: .lineHeight(2))
-					.margin(0)
+					.toyStatus()
 					.textAlign(.center)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
 			}
 		}
 	}

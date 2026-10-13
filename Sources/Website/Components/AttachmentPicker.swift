@@ -10,7 +10,7 @@ struct AttachmentPicker: ScriptedElement {
 	var content: some HTML {
 		// The label has the input, so it opens the file picker without an ID.
 		label {
-			Icon.paperclip.size(.pixels(14))
+			Icon.paperclip.size(.rootEm(0.875))
 			"Attach Files"
 			input(.type(.file), .name("attachments"), .multiple, .part(Parts.input))
 				.style(VisuallyHidden.Styles.root)
@@ -23,10 +23,16 @@ struct AttachmentPicker: ScriptedElement {
 		template(.part(Parts.template)) {
 			span {
 				// The script keeps the thumbnail for images and the icon for other files.
-				img(.alt(""), .width(28), .height(28))
+				img(.alt(""), .width(28), .height(28), .part(Parts.thumbnail))
 					.style(Styles.thumbnail)
 
-				Icon.file.size(.pixels(16))
+				// The icon is raw SVG, so the span has the part, and it is laid out as if it were not there.
+				span(.part(Parts.fileIcon)) {
+					Icon.file.size(.rootEm(1))
+				}
+				.style {
+					$0.display(.contents)
+				}
 
 				span(.part(Parts.name)) {}
 					.style(Styles.name)
@@ -34,8 +40,8 @@ struct AttachmentPicker: ScriptedElement {
 				span(.part(Parts.size)) {}
 					.style(Styles.size)
 
-				button(.type(.button)) {
-					Icon.close.size(.pixels(12))
+				button(.type(.button), .part(Parts.removeButton)) {
+					Icon.close.size(.rootEm(0.75))
 				}
 				.style(Styles.removeButton)
 			}
@@ -47,8 +53,11 @@ struct AttachmentPicker: ScriptedElement {
 		case input
 		case fileList
 		case template
+		case thumbnail
+		case fileIcon
 		case name
 		case size
+		case removeButton
 	}
 
 	enum Styles: ElementStyleSet {
@@ -82,7 +91,7 @@ struct AttachmentPicker: ScriptedElement {
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.625))
 					.padding(vertical: .rootEm(0.5), horizontal: .rootEm(0.75))
-					.cornerRadius(.rootEm(0.625))
+					.cornerRadius(.fieldRadius)
 					.secondaryText()
 					.background(.card)
 					.nested(Icon.selector) {
@@ -97,7 +106,7 @@ struct AttachmentPicker: ScriptedElement {
 				// It is the only part that shrinks, as `overflow: hidden` lets it shrink below its content.
 				Style()
 					.overflow(.hidden)
-					.declaration(.textOverflow, "ellipsis")
+					.textOverflow(.ellipsis)
 					.textWrap(.nowrap)
 					.fontWeight(.medium)
 					.color(.primaryText)
@@ -113,6 +122,7 @@ struct AttachmentPicker: ScriptedElement {
 					.margin(.leading, .auto)
 					.flexShrink(0)
 					.cornerRadius(.capsule)
+					.minimumTapArea()
 					.color(.secondaryText)
 					.transition(.color, .backgroundColor, animation: .stateChange)
 					.hover {

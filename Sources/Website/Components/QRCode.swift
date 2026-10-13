@@ -5,9 +5,9 @@ import Foundation
 import SiteKit
 
 /**
-A QR code of a URL as SVG, made at build time, like for opening the App Store page of an app on an iPhone. It is drawn in the current text color, and fills the width of its container, which the parent can style.
+A QR code of a URL as SVG, made at build time, like for opening the App Store page of an app on an iPhone. It is drawn in the current text color, and fills the width of its container, which the parent can style. The tool also prints it in the terminal (`website serve --local-network`).
 */
-struct QRCode: HTML {
+public struct QRCode: HTML {
 	/**
 	The modules of the code, row by row, where `true` is dark. The quiet zone around the code is included.
 	*/
@@ -15,12 +15,12 @@ struct QRCode: HTML {
 
 	let label: String
 
-	init(url: URL, label: String) {
+	public init(url: URL, label: String) {
 		self.modules = Self.modules(for: url)
 		self.label = label
 	}
 
-	var body: some HTML<HTMLTag.div> {
+	public var body: some HTML<HTMLTag.div> {
 		div {
 			SVG.svg(
 				.xmlns(),
@@ -60,6 +60,45 @@ struct QRCode: HTML {
 		}
 
 		return commands.joined()
+	}
+
+	/**
+	The code for a terminal, with two rows of modules in each line of half blocks. The colors are set, so a camera reads it in a dark terminal too.
+	*/
+	public var terminalText: String {
+		// The code has a quiet zone of one module, and a camera needs more light around it in a dark terminal, so it gets two more.
+		let margin = 2
+		let padding = Array(repeating: false, count: margin)
+		let emptyRow = Array(repeating: false, count: modules.count + (margin * 2))
+		let emptyRows = Array(repeating: emptyRow, count: margin)
+		var rows = emptyRows + modules.map { padding + $0 + padding } + emptyRows
+
+		// Each line has two rows.
+		if !rows.count.isMultiple(of: 2) {
+			rows.append(emptyRow)
+		}
+
+		// Black foreground on a white background, reset at the end of the line. The colors are from the 256-color palette, as the theme of the terminal can make the basic black and white gray.
+		let colors = "\u{1B}[38;5;16;48;5;231m"
+		let reset = "\u{1B}[0m"
+
+		return stride(from: 0, to: rows.count, by: 2).map { y in
+			let line = zip(rows[y], rows[y + 1]).map { isUpperDark, isLowerDark in
+				switch (isUpperDark, isLowerDark) {
+				case (true, true):
+					"█"
+				case (true, false):
+					"▀"
+				case (false, true):
+					"▄"
+				case (false, false):
+					" "
+				}
+			}
+
+			return "\(colors)\(line.joined())\(reset)"
+		}
+		.joined(separator: "\n")
 	}
 
 	/**

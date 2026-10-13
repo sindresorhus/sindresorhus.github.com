@@ -3,7 +3,7 @@ extension Style {
 	The font size, and the line height as a multiple of it.
 	*/
 	public func font(size: Length, lineHeight: Double? = nil) -> Self {
-		let style = declaration(.fontSize, CSSValue(size))
+		let style = declaration(.fontSize, size)
 
 		guard let lineHeight else {
 			return style
@@ -13,11 +13,11 @@ extension Style {
 	}
 
 	public func lineHeight(_ multiple: Double) -> Self {
-		declaration(.lineHeight, CSSValue(floatLiteral: multiple))
+		declaration(.lineHeight, CSSValue(multiple))
 	}
 
 	public func fontWeight(_ weight: FontWeight) -> Self {
-		declaration(.fontWeight, CSSValue(integerLiteral: weight.value))
+		declaration(.fontWeight, CSSValue(weight.value))
 	}
 
 	/**
@@ -28,18 +28,21 @@ extension Style {
 	}
 
 	public func fontFamily(_ family: FontFamily) -> Self {
-		declaration(.fontFamily, CSSValue(family.description))
+		declaration(.fontFamily, family)
 	}
 
 	/**
 	The width of the font, like `.expanded` for SF Pro Expanded.
 	*/
 	public func fontWidth(_ width: FontWidth) -> Self {
-		declaration(.fontStretch, CSSValue(width.rawValue))
+		declaration(.fontStretch, width)
 	}
 
-	public func italic() -> Self {
-		declaration(.fontStyle, "italic")
+	/**
+	Makes the text italic, like SwiftUI's `italic(_:)`, or upright with `italic(false)`, like a quote that prose styles as italic.
+	*/
+	public func italic(_ isActive: Bool = true) -> Self {
+		declaration(.fontStyle, isActive ? "italic" : "normal")
 	}
 
 	/**
@@ -50,18 +53,25 @@ extension Style {
 	}
 
 	public func letterSpacing(_ length: Length) -> Self {
-		declaration(.letterSpacing, CSSValue(length))
+		declaration(.letterSpacing, length)
 	}
 
 	public func textAlign(_ alignment: TextAlignment) -> Self {
-		declaration(.textAlign, CSSValue(alignment.rawValue))
+		declaration(.textAlign, alignment)
 	}
 
 	/**
 	How an inline element, like an icon in text, lines up with the text of its line, or how the content of a table cell lines up.
 	*/
 	public func verticalAlign(_ alignment: VerticalTextAlignment) -> Self {
-		declaration(.verticalAlign, CSSValue(alignment.rawValue))
+		declaration(.verticalAlign, alignment)
+	}
+
+	/**
+	Raises an inline element, like an icon in text, by the length above the baseline of its line, or lowers it for a negative length, like `.verticalAlign(.capitalHeight(0.5) - .rootEm(0.5))` for an icon of `1rem` in the middle of the capital letters.
+	*/
+	public func verticalAlign(_ offset: Length) -> Self {
+		declaration(.verticalAlign, offset)
 	}
 
 	/**
@@ -75,35 +85,43 @@ extension Style {
 	The letter case of the text, like SwiftUI's `textCase(_:)`.
 	*/
 	public func textCase(_ textCase: TextCase) -> Self {
-		declaration(.textTransform, CSSValue(textCase.rawValue))
+		declaration(.textTransform, textCase)
 	}
 
 	/**
 	The direction of the lines, like `.verticalRightToLeft` for text that runs down the side of a menu.
 	*/
 	public func writingMode(_ mode: WritingMode) -> Self {
-		declaration(.writingMode, CSSValue(mode.rawValue))
+		declaration(.writingMode, mode)
 	}
 
 	/**
-	Whether the visitor can select the text, like SwiftUI's `textSelection(_:)`.
+	Whether the visitor can select the text, like SwiftUI's `textSelection(_:)`. Safari only supports `-webkit-user-select`, so both are set.
 	*/
 	public func textSelection(_ selection: TextSelection) -> Self {
-		declaration(.userSelect, CSSValue(selection.rawValue))
+		declaration(.webkitUserSelect, selection)
+			.declaration(.userSelect, selection)
 	}
 
 	/**
 	How the text wraps, like `.nowrap` to keep it on one line.
 	*/
 	public func textWrap(_ wrap: TextWrap) -> Self {
-		declaration(.textWrap, CSSValue(wrap.rawValue))
+		declaration(.textWrap, wrap)
 	}
 
 	/**
 	Where a long word, like a URL, can break, so it does not overflow.
 	*/
 	public func overflowWrap(_ wrap: OverflowWrap) -> Self {
-		declaration(.overflowWrap, CSSValue(wrap.rawValue))
+		declaration(.overflowWrap, wrap)
+	}
+
+	/**
+	Whether the browser breaks long words at the end of a line with a hyphen, by the language of the page (`hyphens: auto`), like for narrow columns of text.
+	*/
+	public func hyphenation(_ isEnabled: Bool) -> Self {
+		declaration(.hyphens, isEnabled ? .auto : .none)
 	}
 
 	/**
@@ -117,7 +135,7 @@ extension Style {
 	The text color.
 	*/
 	public func color(_ color: Color) -> Self {
-		declaration(.color, CSSValue(color))
+		declaration(.color, color)
 	}
 
 	/**
@@ -153,15 +171,15 @@ extension Style {
 	}
 
 	public func underlineColor(_ color: Color) -> Self {
-		declaration(.textDecorationColor, CSSValue(color))
+		declaration(.textDecorationColor, color)
 	}
 
 	public func underlineThickness(_ thickness: Length) -> Self {
-		declaration(.textDecorationThickness, CSSValue(thickness))
+		declaration(.textDecorationThickness, thickness)
 	}
 
 	public func underlineOffset(_ offset: Length) -> Self {
-		declaration(.textUnderlineOffset, CSSValue(offset))
+		declaration(.textUnderlineOffset, offset)
 	}
 
 	/**
@@ -175,7 +193,7 @@ extension Style {
 	public func fluidFontSize(fromRem minimum: Double, toRem maximum: Double, between start: Breakpoint, and end: Breakpoint) -> Self {
 		let slope = (maximum - minimum) / (end.minimumWidthInRem - start.minimumWidthInRem)
 		let intercept = minimum - (slope * start.minimumWidthInRem)
-		return declaration(.fontSize, CSSValue("clamp(\(CSSValue.format(minimum))rem, \(CSSValue.format(intercept))rem + \(CSSValue.format(slope * 100))vw, \(CSSValue.format(maximum))rem)"))
+		return declaration(.fontSize, Length.clamp(.rootEm(minimum), .rootEm(intercept) + .viewportWidth(slope * 100), .rootEm(maximum)))
 	}
 
 	/**
@@ -192,7 +210,7 @@ extension Style {
 	Shadows of the text, like a glow. Text shadows have no spread, so the spread of the shadows is not used.
 	*/
 	public func textShadow(_ shadows: Shadow...) -> Self {
-		declaration(.textShadow, CSSValue(shadows.isEmpty ? "none" : shadows.map(\.descriptionWithoutSpread).joined(separator: ", ")))
+		declaration(.textShadow, shadows.isEmpty ? .none : CSSValue(shadows.map(\.descriptionWithoutSpread), separator: ", "))
 	}
 
 	/**
@@ -209,9 +227,7 @@ extension Style {
 	- Parameter alternativeText: What screen readers say instead, like an empty string for a decorative separator.
 	*/
 	public func content(_ text: String, alternativeText: String? = nil) -> Self {
-		// A line break ends a CSS string, so it is the escape `\A`, with a space that ends the escape.
-		let quoted = [text, alternativeText].compactMap(\.self).map { "\"\($0.replacing("\\", with: "\\\\").replacing("\"", with: "\\\"").replacing("\r\n", with: "\\A ").replacing("\n", with: "\\A ").replacing("\r", with: "\\A "))\"" }
-		return declaration(.content, CSSValue(quoted.joined(separator: " / ")))
+		declaration(.content, CSSValue([text, alternativeText].compactMap(\.self).map(CSSValue.string), separator: " / "))
 	}
 
 	/**
@@ -241,5 +257,21 @@ extension Style {
 	*/
 	public func counterReset(_ name: String) -> Self {
 		declaration(.counterReset, CSSValue(name))
+	}
+
+	/**
+	The marker of the items of a list, like `.none` for a list without bullets, or `.decimal` for numbers. It is the `list-style` shorthand, so it also resets the position and the image of the marker.
+	*/
+	public func listStyle(_ style: ListStyle) -> Self {
+		declaration(.listStyle, style)
+	}
+}
+
+extension Style {
+	/**
+	How clipped inline text is marked.
+	*/
+	public func textOverflow(_ value: TextOverflow) -> Self {
+		declaration(.textOverflow, value)
 	}
 }

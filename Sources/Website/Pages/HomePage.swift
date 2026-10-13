@@ -164,17 +164,10 @@ extension HomePage {
 									.animation(Animations.ringRotate, .linear(duration: .seconds(10)).repeatForever(autoreverses: false))
 							}
 					}
-					.media(.dark && .reducedMotion) {
-						$0
-							.before {
-								$0.noAnimation()
-							}
-					}
 			case .profilePhoto:
 				Style()
 					.position(.relative)
 					.zIndex(1)
-					.display(.block)
 					.cornerRadius(.circle)
 					.transition(.scaleEffect, animation: .default(duration: .milliseconds(350)))
 					.maskImage(.radialGradient("circle", Color.black.at(.percent(80)), Color.transparent.at(.percent(100))))
@@ -197,9 +190,6 @@ extension HomePage {
 					.backgroundImage(.linearGradient("to right", HomePage.gradientStart.value, HomePage.gradientEnd.value, in: "oklch"))
 					.backgroundClip(.text)
 					.animation(Animations.gradientShift, .default(duration: .seconds(4)).repeatForever(autoreverses: false))
-					.reducedMotion {
-						$0.noAnimation()
-					}
 					.from(.smallTablet) {
 						$0.textWrap(.nowrap)
 					}
@@ -255,9 +245,7 @@ extension HomePage {
 					.shadow(.large)
 					.nested(Icon.selector) {
 						$0
-							.margin(.top, 0)
 							.margin(.trailing, .rootEm(0.25))
-							.margin(.bottom, 0)
 							.margin(.leading, .rootEm(-0.375))
 					}
 					.from(.smallTablet) {
@@ -269,9 +257,8 @@ extension HomePage {
 					.position(.relative)
 					.overflow(.hidden)
 					.color(.white)
-					.transition(.background, .shadow, animation: .default(duration: .milliseconds(250)))
+					.transition(.background, .shadow, .borderColor, animation: .default(duration: .milliseconds(250)))
 					.transition(.offset, animation: .default(duration: .milliseconds(200)))
-					.transition(.borderColor, animation: .default(duration: .milliseconds(250)))
 					.dark {
 						$0
 							.backdropFilter(.blur(radius: .pixels(20)), .saturation(1.8))

@@ -13,7 +13,7 @@ public struct Route: Sendable {
 		case page(sitemapEntry: SitemapEntry?, render: @Sendable () throws -> String)
 
 		/**
-		An HTML page that sends visitors to another route, or to a page on another site.
+		An HTML page that sends visitors to another route, or to a page on another site. Not to a fragment of the same page, which a redirect page cannot go to, so the `redirect` functions take a path or a URL.
 		*/
 		case redirect(to: LinkDestination)
 
@@ -39,10 +39,17 @@ public struct Route: Sendable {
 	}
 
 	/**
-	A page that sends visitors to another page of the site, or to a page on another site, like a blog post that moved.
+	A page that sends visitors to another page of the site, like a blog post that moved.
 	*/
-	public static func redirect(_ path: RoutePath, to destination: LinkDestination) -> Self {
-		Self(path, output: .redirect(to: destination))
+	public static func redirect(_ path: RoutePath, to destination: RoutePath) -> Self {
+		Self(path, output: .redirect(to: .path(destination)))
+	}
+
+	/**
+	A page that sends visitors to a page on another site, like an app page that moved to the site of the app.
+	*/
+	public static func redirect(_ path: RoutePath, to url: URL) -> Self {
+		Self(path, output: .redirect(to: .url(url)))
 	}
 
 	public static func file(_ path: RoutePath, render: @escaping @Sendable () async throws -> Data) -> Self {
@@ -107,7 +114,7 @@ var routes: [Route] {
 		Route.page("/blog/\(post.slug)") { post.render() }
 	}
 
-	Route.redirect("/thanks", to: .path("/supporters"))
+	Route.redirect("/thanks", to: "/supporters")
 }
 ```
 */

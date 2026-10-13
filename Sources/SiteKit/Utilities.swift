@@ -27,10 +27,17 @@ extension URL {
 	}
 
 	/**
+	Whether the URL itself is a symbolic link, including a broken one.
+	*/
+	public var isSymbolicLink: Bool {
+		(try? resourceValues(forKeys: [.isSymbolicLinkKey]))?.isSymbolicLink == true
+	}
+
+	/**
 	The files directly in the directory, without the files in subdirectories. Empty when the directory does not exist.
 	*/
 	public var files: [URL] {
-		((try? FileManager.default.contentsOfDirectory(at: self, includingPropertiesForKeys: nil)) ?? []).filter(\.isFile)
+		((try? FileManager.default.contentsOfDirectory(at: self, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey])) ?? []).filter(\.isFile)
 	}
 
 	/**
@@ -54,7 +61,7 @@ extension URL {
 	- Parameter includesHiddenFiles: Whether hidden files and directories, like `.DS_Store`, are included.
 	*/
 	public func contentsRecursively(includesHiddenFiles: Bool = true) -> [URL] {
-		FileManager.default.enumerator(at: self, includingPropertiesForKeys: nil, options: includesHiddenFiles ? [] : .skipsHiddenFiles)?.compactMap { $0 as? URL } ?? []
+		FileManager.default.enumerator(at: self, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey, .fileSizeKey, .contentModificationDateKey], options: includesHiddenFiles ? [] : .skipsHiddenFiles)?.compactMap { $0 as? URL } ?? []
 	}
 
 	/**
@@ -84,7 +91,7 @@ extension URL {
 	public func removeIfExists() throws {
 		guard
 			exists
-				|| (try? resourceValues(forKeys: [.isSymbolicLinkKey]))?.isSymbolicLink == true
+				|| isSymbolicLink
 		else {
 			return
 		}
@@ -96,14 +103,14 @@ extension URL {
 	Whether the URL is in the directory or its subdirectories. Symbolic links of the directories are resolved first, like in ``path(relativeTo:)``, so a symbolic link to a file is where the link is.
 	*/
 	public func isInside(_ directory: URL) -> Bool {
-		deletingLastPathComponent().resolvingSymlinksInPath().appending(path: lastPathComponent).path(percentEncoded: false).hasPrefix(directory.resolvedDirectoryPath)
+		pathWithResolvedParent.hasPrefix(directory.resolvedDirectoryPath)
 	}
 
 	/**
 	The path relative to the directory, like `apps/dato.html`. Symbolic links of the directories are resolved first, so `/tmp` and `/private/tmp` match. A symbolic link to a file keeps its own name and place, as its target can be anywhere. A file outside the directory gives its file name.
 	*/
 	public func path(relativeTo directory: URL) -> String {
-		let path = deletingLastPathComponent().resolvingSymlinksInPath().appending(path: lastPathComponent).path(percentEncoded: false)
+		let path = pathWithResolvedParent
 		let directoryPath = directory.resolvedDirectoryPath
 
 		guard path.hasPrefix(directoryPath) else {
@@ -111,6 +118,13 @@ extension URL {
 		}
 
 		return String(path.dropFirst(directoryPath.count))
+	}
+
+	/**
+	The path with symbolic links of the directories resolved, but not of the file itself, so a symbolic link to a file keeps its own name and place.
+	*/
+	private var pathWithResolvedParent: String {
+		deletingLastPathComponent().resolvingSymlinksInPath().appending(path: lastPathComponent).path(percentEncoded: false)
 	}
 
 	/**
@@ -131,7 +145,7 @@ extension URL {
 	public func servedFile(forPath urlPath: String) -> URL? {
 		urlPath.servedFileCandidates.lazy
 			.map { self.appending(path: $0) }
-			.first(where: \.isFile)
+			.first { $0.resolvingSymlinksInPath().isInside(self) && $0.isFile }
 	}
 }
 
@@ -180,16 +194,67 @@ extension URL {
 	The pixel size of an image, or `nil` when it cannot be read, like for the `width` and `height` of an image, so the layout does not move while it loads. Only the header of the image is read. For a video, use ``videoSize``.
 	*/
 	public var mediaSize: (width: Int, height: Int)? {
+		imageProperties.flatMap(Self.pixelSize(of:))
+	}
+
+	/**
+	The size of an image on a page, in CSS pixels, or `nil` when it cannot be read. It is the pixel size, or half of it for an image with 144 DPI, like a screenshot of a Retina display on macOS, so the image is sharp. Other DPI values, like 300 from a photo editor, say nothing about the screen, so those images keep their pixel size.
+	*/
+	public var displaySize: (width: Int, height: Int)? {
 		guard
-			let source = CGImageSourceCreateWithURL(self as CFURL, nil),
-			let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
-			let width = properties[kCGImagePropertyPixelWidth] as? Int,
-			let height = properties[kCGImagePropertyPixelHeight] as? Int
+			let properties = imageProperties,
+			let size = Self.pixelSize(of: properties)
+		else {
+			return nil
+		}
+
+		guard properties[kCGImagePropertyDPIWidth] as? Double == 144 else {
+			return size
+		}
+
+		return (size.width / 2, size.height / 2)
+	}
+
+	/**
+	The pixel size in the properties of an image.
+	*/
+	private static func pixelSize(of imageProperties: [CFString: Any]) -> (width: Int, height: Int)? {
+		guard
+			let width = imageProperties[kCGImagePropertyPixelWidth] as? Int,
+			let height = imageProperties[kCGImagePropertyPixelHeight] as? Int
 		else {
 			return nil
 		}
 
 		return (width, height)
+	}
+
+	/**
+	The properties of an image, like its pixel size. Only the header of the image is read.
+	*/
+	private var imageProperties: [CFString: Any]? {
+		guard let source = CGImageSourceCreateWithURL(self as CFURL, nil) else {
+			return nil
+		}
+
+		return CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
+	}
+
+	/**
+	An image decoded at a bounded pixel size, with its orientation applied, for color sampling or previews without loading the full raster.
+	*/
+	public func imageThumbnail(maximumPixelSize: Int) -> CGImage? {
+		precondition(maximumPixelSize > 0, "A thumbnail size must be positive.")
+
+		guard let source = CGImageSourceCreateWithURL(self as CFURL, [kCGImageSourceShouldCache: false] as CFDictionary) else {
+			return nil
+		}
+
+		return CGImageSourceCreateThumbnailAtIndex(source, 0, [
+			kCGImageSourceCreateThumbnailFromImageAlways: true,
+			kCGImageSourceCreateThumbnailWithTransform: true,
+			kCGImageSourceThumbnailMaxPixelSize: maximumPixelSize,
+		] as CFDictionary)
 	}
 
 	/**
@@ -294,7 +359,7 @@ extension JSONEncoder {
 	/**
 	The value as JSON for a page, with sorted keys, so the output is the same in every build, and with slashes as they are. Encoding plain values only fails for a mistake, like a `Double.nan`, which stops the build, so a page never has a script without its data.
 	*/
-	static func pageJSON(_ value: some Encodable, keyEncodingStrategy: KeyEncodingStrategy = .useDefaultKeys) -> String {
+	public static func pageJSON(_ value: some Encodable, keyEncodingStrategy: KeyEncodingStrategy = .useDefaultKeys) -> String {
 		let encoder = JSONEncoder()
 		encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
 		encoder.keyEncodingStrategy = keyEncodingStrategy
@@ -304,5 +369,48 @@ extension JSONEncoder {
 		} catch {
 			preconditionFailure("Could not encode \(type(of: value)) as JSON: \(error)")
 		}
+	}
+}
+
+extension [URLQueryItem] {
+	/**
+	The query without `?`, encoding literal plus signs so form-style decoders preserve them. An empty list has an empty query.
+	*/
+	public var formEncodedQuery: String {
+		var components = URLComponents()
+		components.queryItems = self
+		return (components.percentEncodedQuery ?? "").replacing("+", with: "%2B")
+	}
+}
+
+extension URL {
+	/**
+	Appends query values with literal plus signs escaped for servers that decode queries like forms. A query that the URL already has is kept as it is.
+	*/
+	public func appending(formQueryItems queryItems: [URLQueryItem]) -> Self {
+		guard !queryItems.isEmpty else {
+			return self
+		}
+
+		guard var components = URLComponents(url: self, resolvingAgainstBaseURL: true) else {
+			preconditionFailure("The URL cannot have query items: \(self)")
+		}
+
+		let query = queryItems.formEncodedQuery
+
+		components.percentEncodedQuery = if
+			let existingQuery = components.percentEncodedQuery,
+			!existingQuery.isEmpty
+		{
+			"\(existingQuery)&\(query)"
+		} else {
+			query
+		}
+
+		guard let url = components.url else {
+			preconditionFailure("The URL cannot have query items: \(self)")
+		}
+
+		return url
 	}
 }

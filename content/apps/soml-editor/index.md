@@ -19,15 +19,72 @@ Browse your document as a tree alongside its source. Find keys and values, inspe
 
 **Features**
 
-- Syntax highlighting and clear error messages
+- Syntax highlighting, bracket matching, and clear error messages
 - Searchable outline and quick navigation by key path
-- Edit values, rename keys, and reorder items
-- Format documents and switch between single-line and multiline layouts
-- Convert between SOML and JSON
+- Edit values, rename keys, duplicate, and reorder items, while keeping comments
+- View lists of records as a sortable, editable table
+- Automatic formatting as you type
+- Change how a value is written, like an int in hexadecimal or an instant in local time
+- Import JSON, YAML, TOML, and property lists, and export JSON and PDF
+- Paste JSON and get SOML
 - Preview files with Quick Look
-- Automate formatting, validation, and conversion with Shortcuts
+- Automate editing, merging, validation, and conversion with Shortcuts
 
 *iOS version is planned*
+
+## Tips {#tips}
+
+### Work with several rows at once
+
+<kbd>Command</kbd>-click or <kbd>Shift</kbd>-click rows in the outline to select several. Move Up, Move Down, and Delete in the Node menu then apply to all of them. Drag rows to reorder them within their object or array. Drag rows to another app to get them as SOML text, or as JSON in apps that want JSON.
+
+### Show a list of records as a table
+
+When every member of an object or an array is an object, like a list of servers, choose “Node › Show as Table” or press <kbd>Control+Command+T</kbd>. Click a column header to sort, and choose “Apply Order” to put the items in that order in the document. Edit a cell in place. “Copy as TSV” copies the table for a spreadsheet.
+
+### Duplicate and rename in one go
+
+Press <kbd>Command+D</kbd> to duplicate the selected item. For a member, the key of the copy is selected in the source, so you can type the new name right away.
+
+### Change a number, duration, or date with the keyboard
+
+Put the caret on a value and press <kbd>Control+Command+Up Arrow</kbd> or <kbd>Control+Command+Down Arrow</kbd>. The value changes by one and keeps how it is written, so `0x00FF` becomes `0x0100`, and the caret on the minutes of `1h30m` gives `1h31m`. On an instant, the part under the caret changes. On a bool, it switches between `true` and `false`.
+
+### Write a value in another way
+
+Right-click an item and choose “Convert” to write an int in decimal, hexadecimal, octal, or binary, group its digits, write a duration in its shortest form, or an instant in UTC or your local time. A string such as `'false'` or `'30s'` can become the value it looks like.
+
+### Turn a setting off without deleting it
+
+Choose “Node › Comment Out” or press <kbd>Option+Command+/</kbd> to make the item a `#` comment. In the source, <kbd>Command+/</kbd> comments or uncomments the selected lines.
+
+### Paste JSON
+
+Paste JSON in the source and it becomes SOML that fits where you paste it: members on their own lines, or a value with braces after a key. Use “Edit › Paste and Match Style” to paste the text as it is.
+
+### Convert text in any app
+
+Select JSON, YAML, or TOML in any app and choose “Services › Convert Selection to SOML”. “Convert Selection to JSON” does the opposite.
+
+### See what a date or duration means
+
+Hover over an instant or a duration in the outline to see it in your local time or in words. The edit sheet shows the same while you type.
+
+### Use the outline from the keyboard
+
+Press <kbd>Command+1</kbd> to focus the outline and <kbd>Command+2</kbd> to return to the source. <kbd>Return</kbd> edits the selected value, switches a bool, or expands a container. <kbd>Option</kbd>-click a disclosure arrow to expand or collapse everything inside it.
+
+### Paste code with colors
+
+Choose “Edit › Copy with Syntax Highlighting” to paste the source with colors into apps like Pages, Keynote, or Mail.
+
+### Files from Windows
+
+SOML uses LF line endings. When you open a file with CRLF line endings, the app converts it, and you can undo that.
+
+### Layered config with Shortcuts
+
+The “Merge SOML” action puts an overlay, like your own settings, over a base file, like the defaults, and the base keeps its comments. The “Canonicalize SOML” action can give a hash that only changes when the values change, not when comments or formatting do.
 
 ## Frequently Asked Questions {#faq}
 
@@ -49,7 +106,7 @@ Editing, validation, formatting, and conversion all run locally on your Mac. The
 
 ### Can I edit JSON, TOML, or YAML files?
 
-The app edits SOML files. You can import JSON, TOML, and YAML as SOML, and export SOML as JSON. TOML and YAML import discards comments and formatting, and converts dates and times to strings. Exporting to TOML or YAML is not supported.
+The app edits SOML files. You can import JSON, TOML, YAML, and property lists as SOML, and export SOML as JSON. Import discards comments and formatting. TOML and YAML dates and times become strings, and property list dates become SOML dates. Exporting to TOML, YAML, or property lists is not supported.
 
 ### Does converting to JSON preserve everything?
 
@@ -59,7 +116,7 @@ No. JSON has no comments, dates, or durations. Comments and source formatting ar
 
 Editing an individual value preserves the surrounding source. Renaming keys and moving items also preserve their source spelling and attached comments.
 
-“Format Document” intentionally normalizes the layout and expands nonempty objects and arrays onto separate lines, while keeping comments and value spelling.
+When you pause typing, the app formats the document: it fixes indentation, spacing, and commas, and keeps one-line objects and arrays on one line. You can turn this off in settings. “Edit › Format Document” also expands nonempty objects and arrays onto separate lines. Both keep comments and value spelling.
 
 ### Can I open my files in other editors?
 
@@ -67,7 +124,7 @@ Yes. SOML files are ordinary UTF-8 text files. There is no app-specific wrapper 
 
 ### Can I preview a file without opening it?
 
-Yes. Select a `.soml` file in Finder and press Space to see its Quick Look preview.
+Yes. Select a `.soml` file in Finder and press <kbd>Space</kbd> to see its Quick Look preview.
 
 ### How can I sync files between devices?
 
@@ -75,15 +132,15 @@ Save your files in iCloud Drive or another file provider available on your devic
 
 ### Can I automate the app with Shortcuts?
 
-Yes. It provides actions to format SOML, validate SOML, convert between SOML and JSON, and get a value at a key path. The actions accept text or a file and run without opening the editor.
+Yes. It provides actions to format, validate, and canonicalize SOML, convert between SOML and JSON, convert YAML, TOML, and property lists to SOML, get, set, and remove a value at a key path, rename a key, set a comment, get the keys or items at a path, and merge two documents. The editing actions keep comments and formatting. The actions accept text or a file and run without opening the editor.
 
 ### How can I jump to a deeply nested value?
 
-Choose “View › Go to Path…” or press Command+Shift+O, then search for a path such as `server.host` or `items[0]`. You can also filter keys and values in the outline.
+Choose “View › Go to Path…” or press <kbd>Command+Shift+O</kbd>, then search for a path such as `server.host` or `items[0]`. You can also filter keys and values in the outline.
 
 ### Can I navigate the outline with the keyboard?
 
-Press Command+1 to focus the outline, then use the arrow keys to navigate it. Press Command+2 to return to the source editor. The Node menu lists shortcuts for editing, renaming, moving, and deleting items.
+Press <kbd>Command+1</kbd> to focus the outline, then use the arrow keys to navigate it. Press <kbd>Command+2</kbd> to return to the source editor. The Node menu lists shortcuts for editing, renaming, moving, and deleting items.
 
 ### How can I copy a string without its quotes?
 

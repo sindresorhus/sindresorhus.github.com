@@ -197,9 +197,8 @@ struct GeoCitiesCracktro: ScriptedElement {
 					.color(Color("#ff2200"))
 					.textAlign(.center)
 					.handCursor()
-					.media(.allowsMotion) {
-						$0.animation(Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
-					}
+					.buttonFocusRing(.white)
+					.animation(Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
 			case .part:
 				Style()
 					.frame(width: .percent(100))

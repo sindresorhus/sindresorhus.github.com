@@ -1,27 +1,6 @@
 // Christmas in Bergen on the 1999 page, three toys with the Norwegian traditions of Christmas: Pepperkakebyen, where the visitor builds a gingerbread house, glues it with icing, decorates it, and brings it to the gingerbread town with the little train, Nisse Bowling, like Elf Bowling, where Julenissen bowls at ten nisser who taunt him, and the porridge of Christmas Eve, with the almond, the marzipan pig, and the bowl for the barn nisse, who plays pranks on the page when he gets no butter. Each canvas runs only while it is on the screen and the tab is visible. The pranks of the nisse reach outside the element, on the rest of the page, and go on while the toy is off screen (but not while the tab is hidden), and he puts them all back when he gets a bowl with butter, or when the toy is removed. With reduced motion, nothing moves by itself. Nothing makes a sound until the visitor turns on the sound or plays a song.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
-const randomInteger = (minimum, maximum) => Math.floor(randomBetween(minimum, maximum + 1));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const lerp = (from, to, amount) => from + ((to - from) * amount);
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
-
-const setPressed = (button, isPressed) => {
-	button.ariaPressed = String(isPressed);
-	if (isPressed) {
-		button.dataset.state = 'on';
-	} else {
-		delete button.dataset.state;
-	}
-};
+import GeoCitiesElement, {randomItem, randomInteger, randomBetween, clamp, lerp, midiFrequency} from '/scripts/geocities-element.js';
+import {canvasPoint} from '/scripts/geocities-canvas.js';
 
 // A speech bubble on a canvas, with its tail down to the one who speaks. It stays inside the canvas.
 const drawBubble = (context, text, x, y) => {
@@ -252,7 +231,7 @@ const songs = {
 	},
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesChristmas extends GeoCitiesElement {
 	#music = {playing: undefined, gain: undefined, timer: undefined};
 	#toys = [];
 
@@ -260,7 +239,7 @@ export default class extends GeoCitiesElement {
 		const {sound: soundButton} = this.parts;
 		this.on(soundButton, 'click', () => {
 			sound.isOn = !sound.isOn && sound.start(this.sound());
-			setPressed(soundButton, sound.isOn);
+			soundButton.setAttribute('aria-pressed', String(sound.isOn));
 			soundButton.textContent = sound.isOn ? '🔔 Sound On' : '🔔 Sound';
 			// The audio can still be waking up after the click.
 			sound.context?.resume().then(() => {
@@ -311,7 +290,7 @@ export default class extends GeoCitiesElement {
 	#updateMusicButtons() {
 		for (const button of this.#musicButtons) {
 			const isPlaying = this.#music.playing === button.dataset.christmasMusic;
-			setPressed(button, isPlaying);
+			button.setAttribute('aria-pressed', String(isPlaying));
 			button.textContent = `${isPlaying ? '⏹ Stop' : '🎵 Play'} ${songs[button.dataset.christmasMusic].name}`;
 		}
 	}
@@ -355,7 +334,7 @@ export default class extends GeoCitiesElement {
 
 			let when = 0.1;
 			for (const [note, beats] of song.notes) {
-				const frequency = 440 * (2 ** ((note - 69) / 12));
+				const frequency = midiFrequency(note);
 				const length = beats * song.beat;
 				// A bell: the note, and the bright overtones of metal that die away fast.
 				sound.tone(frequency, Math.max(length * 1.4, 0.4), {type: 'sine', volume: 0.09, when, destination, force: true});
@@ -1194,7 +1173,7 @@ export default class extends GeoCitiesElement {
 			}
 
 			for (const button of toolButtons) {
-				setPressed(button, button.dataset.christmasTool === tool);
+				button.setAttribute('aria-pressed', String(button.dataset.christmasTool === tool));
 			}
 
 			this.say(toolMessages[tool], houseStatus);
@@ -1814,7 +1793,6 @@ export default class extends GeoCitiesElement {
 			drawTown();
 			this.say('Tut-tut! The little train of Pepperkakebyen goes around the town.', houseStatus);
 		});
-
 
 		// The house that the visitor was building is kept, so it is still there after a reload.
 		const draft = this.stored('house', undefined);
@@ -2837,7 +2815,6 @@ export default class extends GeoCitiesElement {
 		// A tap on the lane bowls, from where Julenissen stands.
 		this.on(laneCanvas, 'click', throwBall);
 
-
 		// A game in the middle is kept, so a reload goes on with it.
 		if (!Array.isArray(bowling.rolls) || bowling.rolls.some(roll => !Number.isInteger(roll) || roll < 0 || roll > 10)) {
 			bowling.rolls = [];
@@ -2962,7 +2939,7 @@ export default class extends GeoCitiesElement {
 			}
 
 			for (const action of ['butter', 'sugar', 'cinnamon']) {
-				setPressed(porridgeButtons.get(action), porridge.nisseBowl[action]);
+				porridgeButtons.get(action).setAttribute('aria-pressed', String(porridge.nisseBowl[action]));
 			}
 		};
 
@@ -3905,7 +3882,6 @@ export default class extends GeoCitiesElement {
 			drawBarn();
 		}, {while: () => !this.reducedMotion, target: barnCanvas});
 
-
 		// An angry nisse stays angry after a reload, and goes on with his pranks a little later.
 		if (nisse.isAngry) {
 			nisse.timer = this.interval(20_000, playPrank);
@@ -3934,3 +3910,5 @@ export default class extends GeoCitiesElement {
 		};
 	}
 }
+
+customElements.define('geo-cities-christmas', GeoCitiesChristmas);

@@ -186,6 +186,13 @@ extension AppdlePage {
 		case status = "appdle-status"
 	}
 
+	enum States: String, ElementStateSet {
+		case revealed
+		case wrong
+		case correct
+		case done
+	}
+
 	enum Styles: StyleSet {
 		case root
 		case game
@@ -221,12 +228,11 @@ extension AppdlePage {
 			case .canvas:
 				// The part of the icon is a tile with the corners of an app icon. The whole icon has its own shape, with space around it, so it has no corners or shadow. Both are the same size, so the page does not move when the game ends.
 				Style()
-					.display(.block)
 					.frame(width: .percent(100), maxWidth: .rootEm(15))
 					.aspectRatio(1)
 					.cornerRadius(.percent(22.5))
 					.shadow(.window)
-					.when(.state, is: "revealed") {
+					.when(States.revealed) {
 						$0
 							.cornerRadius(0)
 							.shadow([])
@@ -237,10 +243,10 @@ extension AppdlePage {
 					.frame(width: .rootEm(1.75), height: .rootEm(0.5))
 					.cornerRadius(.capsule)
 					.background(.gray(200), dark: .gray(800))
-					.when(.state, is: "wrong") {
+					.when(States.wrong) {
 						$0.background(.red(500))
 					}
-					.when(.state, is: "correct") {
+					.when(States.correct) {
 						$0.background(.emerald(400))
 					}
 			case .form:
@@ -256,7 +262,9 @@ extension AppdlePage {
 					.cornerRadius(.capsule)
 					.padding(.horizontal, .rootEm(1.125))
 					.nested("&::-webkit-calendar-picker-indicator") {
-						$0.declaration(.display, .important(.none))
+						$0.important {
+							$0.hidden()
+						}
 					}
 			case .status:
 				// The height of one line while it is empty, so the form below does not move when a message shows. When the game ends, it is the headline of the result.
@@ -265,7 +273,7 @@ extension AppdlePage {
 					.textAlign(.center)
 					.textWrap(.balance)
 					.color(.bodyText)
-					.when(.state, is: "done") {
+					.when(States.done) {
 						$0
 							.font(.extraLarge2, weight: .bold)
 							.letterSpacing(.em(-0.02))
@@ -278,13 +286,8 @@ extension AppdlePage {
 					.flexWrap()
 					.children("li") {
 						$0
-							.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.875))
-							.cornerRadius(.capsule)
-							.textStyle(.caption, weight: .medium)
-							.textWrap(.nowrap)
-							.color(.bodyText)
-							.background(.card)
-							.when(.state, is: "correct") {
+							.chip(isInteractive: false)
+							.when(States.correct) {
 								$0
 									.color(.emerald(700), dark: .emerald(400))
 									.background(.emerald(50), dark: .emerald(950))

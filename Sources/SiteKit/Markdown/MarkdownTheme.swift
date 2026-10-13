@@ -243,7 +243,7 @@ extension MarkdownTheme {
 	The link after the collapsible sections, like to more questions.
 	*/
 	func collapsibleMoreLink(_ link: MarkdownDocument.CollapsibleSections.MoreLink) -> String {
-		a(.href(link.url), .class(classes(for: .collapsibleMoreLink))) {
+		a(.href(link.destination), .class(classes(for: .collapsibleMoreLink))) {
 			link.title
 		}
 		.render()

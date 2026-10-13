@@ -116,6 +116,11 @@ struct GeoCitiesWaffleClues: ScriptedElement {
 		case ink
 	}
 
+	enum States: String, ElementStateSet {
+		case faint
+		case shown
+	}
+
 	enum Styles: ElementStyleSet {
 		case root
 		case book
@@ -190,12 +195,12 @@ struct GeoCitiesWaffleClues: ScriptedElement {
 					.textSelection(.disabled)
 					.handCursor()
 					.transition(.colors, animation: .easeOut(duration: .milliseconds(300)))
-					.when(.state, is: "faint") {
+					.when(States.faint) {
 						$0
 							.background(Color("#f2f0c8"))
 							.color(Color("#b8d0a8"))
 					}
-					.when(.state, is: "shown") {
+					.when(States.shown) {
 						$0
 							.background(Color("#e8f0c0"))
 							.color(Color("#1a5a2a"))

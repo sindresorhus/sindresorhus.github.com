@@ -178,7 +178,6 @@ extension GeoCitiesPage {
 		case newMailClose = "geocities-new-mail-close"
 
 		case bannerPrint = "geocities-banner-print"
-		case certificate = "geocities-certificate"
 		case certificateText = "geocities-certificate-text"
 
 		/**
@@ -330,7 +329,6 @@ extension GeoCitiesPage {
 		case solitaireWin = "geocities-solitaire-win"
 		case solitaireStatus = "geocities-solitaire-status"
 
-		case defrag = "geocities-defrag"
 		case defragStart = "geocities-defrag-start"
 		case defragStatus = "geocities-defrag-status"
 

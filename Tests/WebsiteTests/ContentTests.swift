@@ -45,6 +45,9 @@ struct ContentTests {
 		("description: ' '", "Invalid `description`"),
 		("downloads: 9007199254740992", "Invalid `downloads`"),
 		("pressQuotes: [{quote: '', source: 'Example'}]", "Invalid `pressQuotes.[0].quote`"),
+		("requirement: ' '", "Invalid `requirement`"),
+		("announcement: {text: ''}", "Invalid `announcement.text`"),
+		("announcement: {text: 'Sale', url: 'https://example.com', linkText: ' '}", "Invalid `announcement.linkText`"),
 	])
 	func `strict app frontmatter rejects invalid values`(line: String, reason: String) async {
 		let platforms = line.hasPrefix("platforms:") ? "" : "platforms: ['macOS']\n"
@@ -350,6 +353,29 @@ struct ContentTests {
 	}
 
 	@Test
+	func `a tiny app is a card with its icon, a download button, the source, and the requirement`() throws {
+		let file = try MarkdownFile(contents: "@TinyApp(title: \"Copy URL\", icon: \"/apps/copy-url/icon.png\", download: \"https://example.com/Copy-URL.zip\", source: \"https://github.com/sindresorhus/Copy-URL\", requirement: \"Requires macOS 13 or later\") {\n  Copies *URLs*.\n}\n\n@TinyApp(title: \"Safari Private\", download: \"https://example.com/Safari-Private.zip\") {\n  Opens URLs.\n}", url: Project.empty.root.appending(path: "content/pages/tiny-apps.md"))
+		let html = try MarkdownDocument(parsing: file, options: .content(file, project: .empty)).html
+
+		#expect(html.contains(#"<section class="\#(TinyAppStyles.root.className)">"#))
+		#expect(html.contains(#"<img src="/apps/copy-url/icon.png" width="128" height="128" alt="""#))
+		#expect(html.contains(">Copy URL</h2>"))
+		#expect(html.contains("Copies <em>URLs</em>."))
+		#expect(html.contains(#"<a href="https://example.com/Copy-URL.zip""#))
+		#expect(html.contains(#"<a href="https://github.com/sindresorhus/Copy-URL""#))
+		#expect(html.contains(">Requires macOS 13 or later</span>"))
+
+		// Without an icon, the card has the placeholder icon, and without a source, only the download button.
+		#expect(html.contains(#"<img src="\#(App.placeholderIconPath)""#))
+		#expect(html.components(separatedBy: ">Source Code<").count - 1 == 1)
+
+		// Screen readers hear the name of the app in each link, as the links of the cards would otherwise have the same names.
+		#expect(html.contains("> Copy URL</span></a>"))
+		#expect(html.contains("> of Copy URL</span></a>"))
+		#expect(html.contains("> Safari Private</span></a>"))
+	}
+
+	@Test
 	func `social links directive has no content`() throws {
 		let file = try MarkdownFile(contents: "@SocialLinks {\n- A link\n}", url: Project.empty.root.appending(path: "content/pages/about.md"))
 
@@ -385,6 +411,14 @@ struct ContentTests {
 		let html = try MarkdownDocument(parsing: validFile, options: .content(validFile, project: .empty)).html
 		#expect(html.contains(#"<li>\#n<p><span class="\#(Badge.Styles.root.className) \#(Badge.Kind.added.className)">Added</span> Awesome</p>"#))
 		#expect(html.contains(#"<p><span class="\#(Badge.Styles.root.className) \#(Badge.Kind.removed.className)">Removed</span> Office job</p>"#))
+	}
+
+	@Test
+	func `an image path with a dot component has no size instead of stopping the build`() throws {
+		let file = try MarkdownFile(contents: "![Photo](/images/../photo.png)", url: Project.empty.root.appending(path: "content/pages/about.md"))
+		let html = try MarkdownDocument(parsing: file, options: .content(file, project: .empty)).html
+
+		#expect(html.contains(#"<img src="/images/../photo.png" alt="Photo">"#))
 	}
 
 	@Test
@@ -726,7 +760,7 @@ struct ContentTests {
 	@Test
 	func `a sponsor in a tier with logos needs a URL`() async throws {
 		await #expect {
-			try await MarkdownPage(markdown: "---\ntitle: 'Supporters'\nsponsorTiers: [{title: 'Sponsor', price: '$100/month', sponsors: [{name: 'Logo', url: 'https://example.com', logo: '/logo.png', logoWidth: 100}, {name: 'Someone'}]}]\n---\n\n@Sponsors\n", slug: "supporters")
+			try await MarkdownPage(markdown: "---\ntitle: 'Supporters'\nsponsorTiers: [{title: 'Sponsor', price: '$100/month', sponsors: [{name: 'Logo', url: 'https://example.com', logo: {path: '/logo.png', width: 100}}, {name: 'Someone'}]}]\n---\n\n@Sponsors\n", slug: "supporters")
 		} throws: { error in
 			(error as? ContentError)?.reason.contains("“Someone” is in a tier with logos") == true
 		}
@@ -966,5 +1000,34 @@ struct ContentTests {
 	func `a sequence without the later elements with the same key`() {
 		#expect(["ky", "got", "ky", "Got"].uniqued(by: \.self) == ["ky", "got", "Got"])
 		#expect(["ky", "got", "Got"].uniqued { $0.lowercased() } == ["ky", "got"])
+	}
+}
+
+@Suite
+struct AppTests {
+	private let markdown = "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nrepositoryURL: 'https://github.com/test/repo?view=readme#old'\n---\n\nText."
+
+	@Test
+	func `new app badges begin at publication and end after thirty days`() async throws {
+		let app = try await App(markdown: markdown)
+		#expect(!app.isNew(at: app.publicationDate.addingTimeInterval(-1)))
+		#expect(app.isNew(at: app.publicationDate))
+		#expect(app.isNew(at: app.publicationDate.addingTimeInterval(30 * 86400 - 1)))
+		#expect(!app.isNew(at: app.publicationDate.addingTimeInterval(30 * 86400)))
+	}
+
+	@Test
+	func `older version links replace existing fragments and preserve queries`() async throws {
+		let app = try await App(markdown: markdown)
+		#expect(app.olderVersionsURL?.absoluteString == "https://github.com/test/repo?view=readme#download")
+	}
+
+	@Test
+	func `link merging preserves order while the final replacement wins`() {
+		let original = [LabeledLink("A", path: "/a"), LabeledLink("B", path: "/b")]
+		let additions = [LabeledLink("A", path: "/first"), LabeledLink("C", path: "/c"), LabeledLink("A", path: "/last"), LabeledLink("C", path: "/latest")]
+		let merged = original.merging(additions)
+		#expect(merged.map(\.title) == ["A", "B", "C"])
+		#expect(merged.map(\.destination) == [.path("/last"), .path("/b"), .path("/latest")])
 	}
 }

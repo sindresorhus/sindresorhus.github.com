@@ -1,6 +1,5 @@
 // Spider Solitaire on the desktop of the 1999 page, like the one of Microsoft Plus! 98: 104 cards in ten columns and a stock of five deals, runs of one suit from the king to the ace that fly off the table, three difficulties, a score, Undo, hints, statistics, and fireworks for a win. Mormor watches and gives bad advice. Nothing makes a sound until the visitor presses the Sound button.
-
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
+import GeoCitiesElement, {cloneTemplate, randomItem, plural, playTone, shuffled} from '/scripts/geocities-element.js';
 
 // A finger needs about 24 pixels of each face-up card to pick it, so on a touch screen the narrow cards of a phone are further apart, and the columns can be longer before they squeeze together.
 const coarsePointer = matchMedia('(pointer: coarse)');
@@ -56,20 +55,7 @@ const lines = {
 // The statistics of each difficulty: wins, losses, the high score, and the streaks. The current streak is positive for wins and negative for losses.
 const emptyStats = () => ({wins: 0, losses: 0, best: 0, streak: 0, mostWins: 0, mostLosses: 0});
 
-const plural = (count, word, pluralWord = `${word}s`) => `${count.toLocaleString('en-US')} ${count === 1 ? word : pluralWord}`;
-
 const streakText = streak => (streak === 0 ? 'none' : (streak > 0 ? plural(streak, 'win') : plural(-streak, 'loss', 'losses')));
-
-const shuffled = items => {
-	const result = [...items];
-
-	for (let index = result.length - 1; index > 0; index--) {
-		const other = Math.floor(Math.random() * (index + 1));
-		[result[index], result[other]] = [result[other], result[index]];
-	}
-
-	return result;
-};
 
 const deal = suitCount => {
 	const suits = suitsOf[suitCount];
@@ -103,7 +89,7 @@ const isValidGame = saved => {
 	}
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesWindowsSpider extends GeoCitiesElement {
 	#game;
 	#columnElements;
 	#menus;
@@ -149,7 +135,7 @@ export default class extends GeoCitiesElement {
 
 		// The card backs of the stock are made once, as a new back under the pointer would lose the click on the stock.
 		this.#stockBacks = Array.from({length: 5}, () => {
-			const back = cardTemplate.content.firstElementChild.cloneNode(true);
+			const back = cloneTemplate(cardTemplate);
 			back.dataset.spiderDown = '';
 			return back;
 		});
@@ -363,23 +349,7 @@ export default class extends GeoCitiesElement {
 			return;
 		}
 
-		const {context, output} = sound;
-		const oscillator = context.createOscillator();
-		const gain = context.createGain();
-		const time = context.currentTime + start;
-		oscillator.type = type;
-		oscillator.frequency.setValueAtTime(frequency, time);
-
-		if (slide) {
-			oscillator.frequency.exponentialRampToValueAtTime(slide, time + duration);
-		}
-
-		gain.gain.setValueAtTime(0.0001, time);
-		gain.gain.exponentialRampToValueAtTime(volume, time + 0.01);
-		gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-		oscillator.connect(gain).connect(output);
-		oscillator.start(time);
-		oscillator.stop(time + duration + 0.05);
+		playTone(sound, frequency, start, duration, {type, volume, slide});
 	}
 
 	// The snap of a card on the table, a short burst of noise through a filter.
@@ -577,7 +547,7 @@ export default class extends GeoCitiesElement {
 		this.#cardElements = new Map();
 
 		for (const id of this.#game.deck.keys()) {
-			const element = this.parts.cardTemplate.content.firstElementChild.cloneNode(true);
+			const element = cloneTemplate(this.parts.cardTemplate);
 
 			if (this.#isRed(id)) {
 				element.dataset.spiderRed = '';
@@ -1082,7 +1052,7 @@ export default class extends GeoCitiesElement {
 		this.#setChildren(foundation, foundationCards);
 		foundation.style.width = `${this.#size.width + (Math.max(game.completed.length - 1, 0) * foundationStep)}px`;
 		foundation.style.height = `${this.#size.height}px`;
-		foundation.dataset.state = game.completed.length === 0 ? 'empty' : 'full';
+		foundation.dataset.state = game.completed.length === 0 ? 'empty' : '';
 		foundation.setAttribute('aria-label', game.completed.length === 0 ? 'No completed suits' : `${game.completed.length} of 8 suits completed`);
 
 		// The stock, one card back for each deal that is left.
@@ -1630,7 +1600,6 @@ export default class extends GeoCitiesElement {
 		for (const {button, list} of this.#menus) {
 			list.hidden = true;
 			button.setAttribute('aria-expanded', 'false');
-			delete button.dataset.state;
 		}
 	}
 
@@ -1643,7 +1612,6 @@ export default class extends GeoCitiesElement {
 				if (isOpen) {
 					list.hidden = false;
 					button.setAttribute('aria-expanded', 'true');
-					button.dataset.state = 'open';
 					list.querySelector('button').focus();
 				}
 			});
@@ -1693,3 +1661,5 @@ export default class extends GeoCitiesElement {
 		});
 	}
 }
+
+customElements.define('geo-cities-windows-spider', GeoCitiesWindowsSpider);

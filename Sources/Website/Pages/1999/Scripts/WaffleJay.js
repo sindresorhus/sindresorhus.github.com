@@ -1,13 +1,10 @@
 // WaffleJay ’99 on the 1999 page, a music program like Dance eJay: each sample is one bar of sixteen steps, which follows the chord of its bar. The four chords repeat (A minor, F, C, G), so every sample fits with every other. The mix and the best place on the chart are kept in the browser. It plays through the sound card of the Music Room, `geocities-sound-card.js`.
-import {context, connectVolume, startAudio, noiseBuffer, midiFrequency, tone, pluck, noiseHit, voice, drums, chords, startPlaying, stopPlaying, makeBus, fadeOut, Clock} from '/scripts/geocities-sound-card.js';
+import GeoCitiesElement, {cloneTemplate, randomItem, randomInteger, clamp, midiFrequency} from '/scripts/geocities-element.js';
+import {context, connectVolume, startAudio, noiseBuffer, tone, pluck, noiseHit, voice, drums, chords, startPlaying, stopPlaying, makeBus, fadeOut, Clock} from '/scripts/geocities-sound-card.js';
 
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
-
-export default class extends GeoCitiesElement {
+class GeoCitiesWaffleJay extends GeoCitiesElement {
 	connected() {
-		const {play: playButton, status, hit, clear, release, songTitle, chart: chartBox, place: placeText, review, best: bestText, ghostTemplate} = this.parts;
+		const {play: playButton, hit, clear, release, songTitle, chart: chartBox, place: placeText, review, best: bestText, ghostTemplate} = this.parts;
 		connectVolume(this.querySelectorAll('[data-music-volume]'), this.signal);
 		const sampleButtons = [...this.querySelectorAll('[data-jay-sample]')];
 		const cells = [...this.querySelectorAll('[data-jay-cell]')];
@@ -226,14 +223,7 @@ export default class extends GeoCitiesElement {
 			selected = sample;
 
 			for (const button of sampleButtons) {
-				const isSelected = button.dataset.jaySample === sample;
-				button.setAttribute('aria-pressed', String(isSelected));
-
-				if (isSelected) {
-					button.dataset.state = 'selected';
-				} else {
-					delete button.dataset.state;
-				}
+				button.setAttribute('aria-pressed', String(button.dataset.jaySample === sample));
 			}
 		};
 
@@ -402,7 +392,7 @@ export default class extends GeoCitiesElement {
 					return;
 				}
 
-				ghost = ghostTemplate.content.firstElementChild.cloneNode(true);
+				ghost = cloneTemplate(ghostTemplate);
 				ghost.textContent = dragStart.button.dataset.jayShort;
 				ghost.dataset.jayGroup = dragStart.button.dataset.jayGroup;
 				document.body.append(ghost);
@@ -575,3 +565,5 @@ export default class extends GeoCitiesElement {
 		showMix();
 	}
 }
+
+customElements.define('geo-cities-waffle-jay', GeoCitiesWaffleJay);

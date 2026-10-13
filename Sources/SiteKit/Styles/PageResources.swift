@@ -18,12 +18,13 @@ resources.styleNodes // The rules of every style the body used.
 public final class PageResources: Sendable {
 	private struct State {
 		var styleSets = Set<ObjectIdentifier>()
+		var usedStyles = [ObjectIdentifier: Set<String>]()
 		var styleNodes = [@Sendable (_ usedClassNames: Set<String>) -> [StyleNode]]()
 		var usedClassNames = Set<String>()
 		var classNames = [String: ObjectIdentifier]()
 		var duplicateClassNames = Set<String>()
 		var scripts = [RoutePath]()
-		var inlineScriptElements = [any ScriptedElement.Type]()
+		var elements = [any ScriptedElement.Type]()
 		var elementStyleClassNames = Set<String>()
 		var elementStyleNodes = [StyleNode]()
 
@@ -62,14 +63,17 @@ public final class PageResources: Sendable {
 	}
 
 	/**
-	Runs the rendering with this collector, so the styles and scripts that the rendering uses are added to it.
+	Runs the rendering with this collector, so the styles and scripts that the rendering uses are added to it. A collector that is collecting around this one gets them too, like the elements of all the pages that render inside it.
 
 	Throws ``StyleError/duplicateClassNames(_:)`` when two style sets that the page uses generate the same class name.
 	*/
 	public func collect<Value>(_ render: () throws -> Value) throws -> Value {
+		let outer = Self.current
 		let value = try Self.$current.withValue(self) {
 			try render()
 		}
+
+		outer?.include(self)
 
 		let duplicateClassNames = state.withLock(\.duplicateClassNames)
 
@@ -82,9 +86,13 @@ public final class PageResources: Sendable {
 
 	func use<Styles: StyleSet>(_ style: Styles) {
 		state.withLock { state in
-			state.replays.append { $0.use(style) }
-
 			let identifier = ObjectIdentifier(Styles.self)
+
+			guard state.usedStyles[identifier, default: []].insert(style.className).inserted else {
+				return
+			}
+
+			state.replays.append { $0.use(style) }
 
 			guard !sharedStyleSets.contains(identifier) else {
 				return
@@ -121,36 +129,45 @@ public final class PageResources: Sendable {
 	*/
 	func use(_ elementStyle: ElementStyle) {
 		state.withLock { state in
-			state.replays.append { $0.use(elementStyle) }
-
 			guard state.elementStyleClassNames.insert(elementStyle.className).inserted else {
 				return
 			}
 
+			state.replays.append { $0.use(elementStyle) }
 			state.elementStyleNodes += elementStyle.nodes
 		}
 	}
 
 	func require(script path: RoutePath) {
 		state.withLock { state in
-			state.replays.append { $0.require(script: path) }
-
-			if !state.scripts.contains(path) {
-				state.scripts.append(path)
+			guard !state.scripts.contains(path) else {
+				return
 			}
+
+			state.scripts.append(path)
+			state.replays.append { $0.require(script: path) }
 		}
 	}
 
 	/**
-	Adds the inline script of the element to the page, once, however many times the page shows the element.
+	Adds the element to the page, once, however many times the page shows it, and its script file to the scripts of the page.
 	*/
-	func require<Element: ScriptedElement>(inlineScriptOf element: Element.Type) {
-		state.withLock { state in
-			state.replays.append { $0.require(inlineScriptOf: element) }
-
-			if !state.inlineScriptElements.contains(where: { $0 == element }) {
-				state.inlineScriptElements.append(element)
+	func require<Element: ScriptedElement>(element: Element.Type) {
+		let isNew = state.withLock { state in
+			guard !state.elements.contains(where: { $0 == element }) else {
+				return false
 			}
+
+			state.elements.append(element)
+			state.replays.append { $0.require(element: element) }
+			return true
+		}
+
+		if
+			isNew,
+			let path = Element.script.path
+		{
+			require(script: path)
 		}
 	}
 
@@ -186,10 +203,17 @@ public final class PageResources: Sendable {
 	}
 
 	/**
+	The custom elements (``ScriptedElement``) that the page shows, in the order the page first showed them, each once.
+	*/
+	public var elements: [any ScriptedElement.Type] {
+		state.withLock(\.elements)
+	}
+
+	/**
 	The elements with an inline script (``ElementScript/init(inline:)``) that the page shows, in the order the page first showed them, each once, as an element can only be defined once.
 	*/
 	public var inlineScriptElements: [any ScriptedElement.Type] {
-		state.withLock(\.inlineScriptElements)
+		elements.filter { $0.script.path == nil }
 	}
 }
 

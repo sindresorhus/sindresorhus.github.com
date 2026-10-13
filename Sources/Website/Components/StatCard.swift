@@ -11,8 +11,31 @@ struct Stat {
 	*/
 	let count: Int
 
-	let value: String
+	let value: Value
 	let label: String
+
+	enum Value {
+		/**
+		A number or text that does not change, like “3467”, “22B+”, or “Fri”.
+		*/
+		case text(String)
+
+		/**
+		A count that starts at 0 when the page is opened and goes up by the rate each second (``RunningCount``).
+		*/
+		case running(perSecond: Double)
+
+		/**
+		Whether the number goes up while the visitor is on the page.
+		*/
+		var isRunning: Bool {
+			if case .running = self {
+				true
+			} else {
+				false
+			}
+		}
+	}
 
 	/**
 	- Parameters:
@@ -41,14 +64,10 @@ struct Stat {
 	}
 
 	/**
-	The busiest day of contributions, like “383” and “busiest day, September 19”. `nil` when the date cannot be read.
+	The busiest day of contributions, like “383” and “busiest day, September 19”.
 	*/
-	init?(busiestDay day: ContributionCalendar.Day, format: Date.FormatStyle) {
-		guard let date = day.startOfDay else {
-			return nil
-		}
-
-		self.init(count: day.count, label: "busiest day, \(date.formatted(format))")
+	init(busiestDay day: ContributionCalendar.Day, format: Date.FormatStyle) {
+		self.init(count: day.count, label: "busiest day, \(day.date.formatted(format))")
 	}
 
 	/**
@@ -56,7 +75,17 @@ struct Stat {
 	*/
 	init(count: Int, value: String, label: String) {
 		self.count = count
-		self.value = value
+		self.value = .text(value)
+		self.label = label
+	}
+
+	/**
+	A count that starts at 0 when the page is opened and goes up at the rate, like the npm downloads while the visitor has been on the page (``RunningCount``).
+	*/
+	init(perSecond: Double, label: String) {
+		// Rounded up, so a page that leaves out the numbers with a count of zero keeps a slow count.
+		self.count = Int(perSecond.rounded(.up))
+		self.value = .running(perSecond: perSecond)
 		self.label = label
 	}
 }
@@ -72,7 +101,12 @@ struct StatCard: HTML {
 			for stat in stats {
 				li {
 					span {
-						stat.value
+						switch stat.value {
+						case .text(let text):
+							text
+						case .running(let perSecond):
+							RunningCount(perSecond: perSecond)
+						}
 					}
 					.style(Styles.value)
 
@@ -85,6 +119,7 @@ struct StatCard: HTML {
 					.style(Styles.label)
 				}
 				.style(Styles.stat)
+				.style(Styles.runningStat, when: stat.value.isRunning)
 			}
 		}
 		.style(Styles.root)
@@ -93,13 +128,14 @@ struct StatCard: HTML {
 	enum Styles: StyleSet {
 		case root
 		case stat
+		case runningStat
 		case value
 		case label
 
 		var style: Style {
 			switch self {
 			case .root:
-				// Two columns on phones, and three from tablets, so the numbers of all the cards line up. Three numbers are in three columns on phones too, a little smaller, as the numbers are short, so none is alone in a row.
+				// Two columns on phones, and three from tablets, so the numbers of all the cards line up. Three numbers are in three columns on phones too, a little smaller, as the numbers are short, so none is alone in a row, unless the third is a running count, which gets long and has its own row.
 				Style()
 					.display(.grid)
 					.gridColumns(2)
@@ -109,7 +145,7 @@ struct StatCard: HTML {
 					.cardSurface(isInteractive: false)
 					.textStyle(.body)
 					.below(.tablet) {
-						$0.nested("&:has(> :nth-child(3):last-child)") {
+						$0.nested("&:has(> :nth-child(3):last-child:not(\(Self.runningStat.selector)))") {
 							$0
 								.gridColumns(3)
 								.nested(Self.value.selector) {
@@ -126,6 +162,11 @@ struct StatCard: HTML {
 					.frame(minWidth: .rootEm(4))
 					.margin(0)
 					.padding(0)
+			case .runningStat:
+				Style()
+					.below(.tablet) {
+						$0.gridColumnSpan(2)
+					}
 			case .value:
 				Style()
 					.fontFamily(.rounded)

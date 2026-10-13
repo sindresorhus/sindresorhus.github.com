@@ -9,7 +9,14 @@ public struct RoutePath: Hashable, Sendable, CustomStringConvertible, Expressibl
 	public let description: String
 
 	public init(_ path: String) {
-		precondition(path.hasPrefix("/"), "A route path must start with “/”: \(path)")
+		do {
+			try self.init(validating: path)
+		} catch {
+			preconditionFailure(error.reason)
+		}
+	}
+
+	private init(normalizing path: String) {
 		// Repeated slashes, as `/blog//post` would write the same file as `/blog/post`, and `//example.com` in a link goes to another host. And all trailing slashes, as one left would write a hidden file, like `old/.html` for `/old//`.
 		let trimmed = path.replacing(/\/{2,}/, with: "/").replacing(/\/+$/, with: "")
 		self.description = trimmed.isEmpty ? "/" : trimmed
@@ -31,7 +38,7 @@ public struct RoutePath: Hashable, Sendable, CustomStringConvertible, Expressibl
 			throw ContentError(reason: "Must not have “.” or “..” in it, got “\(path)”.")
 		}
 
-		self.init(path)
+		self.init(normalizing: path)
 	}
 
 	public static let root: Self = "/"

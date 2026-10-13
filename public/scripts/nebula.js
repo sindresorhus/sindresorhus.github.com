@@ -3,12 +3,12 @@ const canvas = document.querySelector('#nebula');
 const gl = canvas?.getContext('webgl', {alpha: true, premultipliedAlpha: false});
 
 if (canvas && gl) {
-	const vert = `
+	const vertexShaderSource = `
 		attribute vec2 a_pos;
 		void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }
 	`;
 
-	const frag = `
+	const fragmentShaderSource = `
 		precision highp float;
 		uniform float u_time;
 		uniform vec2  u_res;
@@ -280,37 +280,37 @@ if (canvas && gl) {
 		}
 	`;
 
-	function compile(type, src) {
-		const s = gl.createShader(type);
-		gl.shaderSource(s, src);
-		gl.compileShader(s);
-		return s;
+	function compileShader(type, source) {
+		const shader = gl.createShader(type);
+		gl.shaderSource(shader, source);
+		gl.compileShader(shader);
+		return shader;
 	}
 
 	// Compile and link the shader program
-	const prog = gl.createProgram();
-	gl.attachShader(prog, compile(gl.VERTEX_SHADER, vert));
-	gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, frag));
-	gl.linkProgram(prog);
+	const program = gl.createProgram();
+	gl.attachShader(program, compileShader(gl.VERTEX_SHADER, vertexShaderSource));
+	gl.attachShader(program, compileShader(gl.FRAGMENT_SHADER, fragmentShaderSource));
+	gl.linkProgram(program);
 
 	// The shaders do not compile on some devices, like one without high precision. Then nothing is drawn, so the animation never starts.
-	const isLinked = gl.getProgramParameter(prog, gl.LINK_STATUS);
-	gl.useProgram(prog);
+	const isLinked = gl.getProgramParameter(program, gl.LINK_STATUS);
+	gl.useProgram(program);
 
 	// Full-screen quad: two triangles covering clip space [-1,1]
-	const buf = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+	const buffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
 
-	const posLoc = gl.getAttribLocation(prog, 'a_pos');
-	gl.enableVertexAttribArray(posLoc);
-	gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+	const positionLocation = gl.getAttribLocation(program, 'a_pos');
+	gl.enableVertexAttribArray(positionLocation);
+	gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-	const uTime     = gl.getUniformLocation(prog, 'u_time');
-	const uRes      = gl.getUniformLocation(prog, 'u_res');
-	const uMouse    = gl.getUniformLocation(prog, 'u_mouse');
-	const uMouseVel = gl.getUniformLocation(prog, 'u_mouse_vel');
-	const uRipple   = gl.getUniformLocation(prog, 'u_ripple');
+	const timeLocation = gl.getUniformLocation(program, 'u_time');
+	const resolutionLocation = gl.getUniformLocation(program, 'u_res');
+	const pointerLocation = gl.getUniformLocation(program, 'u_mouse');
+	const pointerVelocityLocation = gl.getUniformLocation(program, 'u_mouse_vel');
+	const rippleLocation = gl.getUniformLocation(program, 'u_ripple');
 
 	// Alpha blending so the galaxy composites over the dark page background
 	gl.enable(gl.BLEND);
@@ -320,37 +320,36 @@ if (canvas && gl) {
 	// Scale render resolution by DPR (capped) for sharper arms on retina screens
 	const scale = Math.min(window.devicePixelRatio, 2) * 0.45;
 	function resize() {
-		canvas.width  = Math.floor(canvas.clientWidth  * scale);
+		canvas.width = Math.floor(canvas.clientWidth * scale);
 		canvas.height = Math.floor(canvas.clientHeight * scale);
 		gl.viewport(0, 0, canvas.width, canvas.height);
 	}
 
-
 	// Mouse position — aspect-corrected, normalised to centred [-0.5, 0.5] coords
-	let targetMx = 0;
-	let targetMy = 0;
-	let smoothMx = 0;
-	let smoothMy = 0;
+	let targetPointerX = 0;
+	let targetPointerY = 0;
+	let smoothPointerX = 0;
+	let smoothPointerY = 0;
 
-	let rawVelX  = 0;
-	let rawVelY  = 0;
-	let smoothVelX = 0;
-	let smoothVelY = 0;
+	let pointerVelocityX = 0;
+	let pointerVelocityY = 0;
+	let smoothVelocityX = 0;
+	let smoothVelocityY = 0;
 
 	document.addEventListener('mousemove', event => {
 		const aspect = window.innerWidth / window.innerHeight;
 		const newX = (event.clientX / window.innerWidth  - 0.5) * aspect;
 		const newY = -(event.clientY / window.innerHeight - 0.5);
-		rawVelX  = newX - targetMx; // frame delta = instant velocity
-		rawVelY  = newY - targetMy;
-		targetMx = newX;
-		targetMy = newY;
+		pointerVelocityX = newX - targetPointerX; // frame delta = instant velocity
+		pointerVelocityY = newY - targetPointerY;
+		targetPointerX = newX;
+		targetPointerY = newY;
 	}, {passive: true});
 
 	// Click ripple — record normalised position + shader-time at moment of click
 	let rippleX = 0;
 	let rippleY = 0;
-	let rippleT = -100; // far in the past so no ripple on load
+	let rippleTime = -100; // far in the past so no ripple on load
 
 	document.addEventListener('click', event => {
 		// The time is stopped while the galaxy is paused, so a click then would give a ripple later.
@@ -361,37 +360,37 @@ if (canvas && gl) {
 		const aspect = window.innerWidth / window.innerHeight;
 		rippleX = (event.clientX / window.innerWidth  - 0.5) * aspect;
 		rippleY = -(event.clientY / window.innerHeight - 0.5);
-		rippleT = (performance.now() - t0) / 1000;
+		rippleTime = (performance.now() - startTime) / 1000;
 	});
 
-	let t0 = performance.now();
+	let startTime = performance.now();
 	// Time starts at 0 when the galaxy first renders.
-	let pauseStart = t0;
-	let rafId = 0;
+	let pauseStart = startTime;
+	let frame = 0;
 	let isRunning = false;
 	let isShown = false;
 	let isOnScreen = false;
 
 	function draw() {
 		// Smooth cursor position for natural lag
-		smoothMx += (targetMx - smoothMx) * 0.05;
-		smoothMy += (targetMy - smoothMy) * 0.05;
+		smoothPointerX += (targetPointerX - smoothPointerX) * 0.05;
+		smoothPointerY += (targetPointerY - smoothPointerY) * 0.05;
 
 		// Smooth velocity; decay raw to zero so flow fades when mouse stops
-		smoothVelX += (rawVelX - smoothVelX) * 0.05;
-		smoothVelY += (rawVelY - smoothVelY) * 0.05;
-		rawVelX *= 0.90;
-		rawVelY *= 0.90;
+		smoothVelocityX += (pointerVelocityX - smoothVelocityX) * 0.05;
+		smoothVelocityY += (pointerVelocityY - smoothVelocityY) * 0.05;
+		pointerVelocityX *= 0.90;
+		pointerVelocityY *= 0.90;
 
 		gl.clear(gl.COLOR_BUFFER_BIT);
-		const shaderTime = (performance.now() - t0) / 1000;
-		gl.uniform1f(uTime, shaderTime);
-		gl.uniform2f(uRes, canvas.width, canvas.height);
-		gl.uniform2f(uMouse, smoothMx, smoothMy);
-		gl.uniform2f(uMouseVel, smoothVelX, smoothVelY);
-		gl.uniform3f(uRipple, rippleX, rippleY, rippleT);
+		const shaderTime = (performance.now() - startTime) / 1000;
+		gl.uniform1f(timeLocation, shaderTime);
+		gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+		gl.uniform2f(pointerLocation, smoothPointerX, smoothPointerY);
+		gl.uniform2f(pointerVelocityLocation, smoothVelocityX, smoothVelocityY);
+		gl.uniform3f(rippleLocation, rippleX, rippleY, rippleTime);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		rafId = requestAnimationFrame(draw);
+		frame = requestAnimationFrame(draw);
 	}
 
 	// Pause rendering when the tab is hidden, the canvas is scrolled off screen, or the canvas is not shown (light mode or reduced motion) to save GPU/battery
@@ -405,11 +404,11 @@ if (canvas && gl) {
 		isRunning = shouldRun;
 
 		if (shouldRun) {
-			// Shift t0 forward by pause duration so time is continuous on resume
-			t0 += performance.now() - pauseStart;
+			// Shift startTime forward by pause duration so time is continuous on resume
+			startTime += performance.now() - pauseStart;
 			draw();
 		} else {
-			cancelAnimationFrame(rafId);
+			cancelAnimationFrame(frame);
 			pauseStart = performance.now();
 		}
 	}

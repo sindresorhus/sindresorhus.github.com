@@ -1,55 +1,7 @@
 // My Beeper on the 1999 page: a numeric pager in see-through purple plastic, on the kitchen table, and the red Telenor phone booth on the corner, where the visitor pages me and my friends. The beeper has its own clock, which runs fast through a day in November 1999 while the toy is on the screen, and the pages come at the times of that day. Each canvas runs only while it is on the screen, and the clock only while the toy is, and only while the tab is visible. Nothing makes a sound until the visitor turns on the sound. The beeper, the pocket, and the code book are kept in the browser.
-
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomBetween = (minimum, maximum) => minimum + (Math.random() * (maximum - minimum));
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-const shuffle = items => {
-	const result = [...items];
-	for (let index = result.length - 1; index > 0; index--) {
-		const other = Math.floor(Math.random() * (index + 1));
-		[result[index], result[other]] = [result[other], result[index]];
-	}
-
-	return result;
-};
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
-
-// A tiny pixel font of 3 × 5 for the small letters of the LCD and the signs of the street, so the text is crisp at any size. Each letter is five rows of three bits.
-const pixelFont = {
-	A: [2, 5, 7, 5, 5], B: [6, 5, 6, 5, 6], C: [3, 4, 4, 4, 3], D: [6, 5, 5, 5, 6], E: [7, 4, 6, 4, 7], F: [7, 4, 6, 4, 4], G: [3, 4, 5, 5, 3], H: [5, 5, 7, 5, 5], I: [7, 2, 2, 2, 7], J: [1, 1, 1, 5, 2], K: [5, 5, 6, 5, 5], L: [4, 4, 4, 4, 7], M: [5, 7, 7, 5, 5], N: [6, 5, 5, 5, 5], O: [2, 5, 5, 5, 2], P: [6, 5, 6, 4, 4], Q: [2, 5, 5, 6, 3], R: [6, 5, 6, 5, 5], S: [3, 4, 2, 1, 6], T: [7, 2, 2, 2, 2], U: [5, 5, 5, 5, 7], V: [5, 5, 5, 5, 2], W: [5, 5, 7, 7, 5], X: [5, 5, 2, 5, 5], Y: [5, 5, 2, 2, 2], Z: [7, 1, 2, 4, 7],
-	0: [7, 5, 5, 5, 7], 1: [2, 6, 2, 2, 7], 2: [6, 1, 2, 4, 7], 3: [6, 1, 2, 1, 6], 4: [5, 5, 7, 1, 1], 5: [7, 4, 6, 1, 6], 6: [3, 4, 7, 5, 7], 7: [7, 1, 2, 2, 2], 8: [7, 5, 7, 5, 7], 9: [7, 5, 7, 1, 6],
-	' ': [0, 0, 0, 0, 0], '.': [0, 0, 0, 0, 2], ',': [0, 0, 0, 2, 4], '!': [2, 2, 2, 0, 2], '?': [6, 1, 2, 0, 2], ':': [0, 2, 0, 2, 0], '-': [0, 0, 7, 0, 0], '+': [0, 2, 7, 2, 0], '/': [1, 1, 2, 4, 4], '\'': [2, 2, 0, 0, 0], '(': [1, 2, 2, 2, 1], ')': [4, 2, 2, 2, 4], '×': [0, 5, 2, 5, 0], '*': [0, 5, 2, 5, 0], '#': [5, 7, 5, 7, 5], '_': [0, 0, 0, 0, 7], '…': [0, 0, 0, 0, 5],
-	Æ: [3, 6, 7, 6, 7], Ø: [3, 5, 7, 5, 6], Å: [2, 0, 2, 5, 7],
-};
-
-const pixelTextWidth = (text, scale = 1) => (([...String(text)].length * 4) - 1) * scale;
-
-// Draws text in the pixel font at a whole pixel. The alignment is `left`, `center`, or `right`.
-const drawPixelText = (context, text, x, y, color, {scale = 1, align = 'left'} = {}) => {
-	const characters = [...String(text).toUpperCase()];
-	const width = pixelTextWidth(text, scale);
-	const left = Math.round(align === 'center' ? x - (width / 2) : (align === 'right' ? x - width : x));
-	context.fillStyle = color;
-	let characterLeft = left;
-	for (const character of characters) {
-		const rows = pixelFont[character] ?? pixelFont['?'];
-		for (const [row, bits] of rows.entries()) {
-			for (let column = 0; column < 3; column++) {
-				if (bits & (4 >> column)) {
-					context.fillRect(characterLeft + (column * scale), Math.round(y) + (row * scale), scale, scale);
-				}
-			}
-		}
-
-		characterLeft += 4 * scale;
-	}
-};
+import GeoCitiesElement, {randomItem, randomBetween, clamp, shuffled} from '/scripts/geocities-element.js';
+import {pixelTextWidth, drawPixelText} from '/scripts/geocities-canvas.js';
+import ToySound from '/scripts/geocities-toy-sound.js';
 
 // Small icons of the LCD, as rows of bits, like the pixel font.
 const icons = {
@@ -230,94 +182,26 @@ const entryFor = page => codes.find(entry => entry.code === (page.sender === 'li
 
 // MARK: Sound
 
-const audio = {
-	context: undefined,
-	output: undefined,
-	isOn: false,
-	// Uses the audio of the element, which is `undefined` until the visitor clicks, as browsers only let audio play then.
-	start(sound) {
-		if (this.context || !sound) {
-			return;
-		}
-
-		this.context = sound.context;
-		this.output = this.context.createGain();
-		this.output.gain.value = 0.6;
-		this.output.connect(sound.output);
-	},
-	ensure() {
-		if (this.context?.state === 'suspended') {
-			this.context.resume();
-		}
-
-		return this.context;
-	},
-};
-
-// The audio context, only while the visitor has the sound on.
-const soundContext = () => (audio.isOn ? audio.ensure() : undefined);
-
-const tone = (frequency, delay, duration, {type = 'sine', volume = 0.1, attack = 0.004} = {}) => {
-	const context = soundContext();
-	if (!context) {
-		return;
-	}
-
-	const start = context.currentTime + delay;
-	const oscillator = context.createOscillator();
-	const gain = context.createGain();
-	oscillator.type = type;
-	oscillator.frequency.value = frequency;
-	gain.gain.setValueAtTime(0, start);
-	gain.gain.linearRampToValueAtTime(volume, start + attack);
-	gain.gain.setValueAtTime(volume, start + Math.max(attack, duration - 0.015));
-	gain.gain.linearRampToValueAtTime(0, start + duration);
-	oscillator.connect(gain).connect(audio.output);
-	oscillator.start(start);
-	oscillator.stop(start + duration + 0.05);
-};
-
-// A short burst of noise, for the clicks of the card slot and the rattle of the coins.
-const noise = (delay, duration, {volume = 0.1, frequency = 3000} = {}) => {
-	const context = soundContext();
-	if (!context) {
-		return;
-	}
-
-	const buffer = context.createBuffer(1, Math.ceil(context.sampleRate * duration), context.sampleRate);
-	const data = buffer.getChannelData(0);
-	for (let index = 0; index < data.length; index++) {
-		data[index] = ((Math.random() * 2) - 1) * (1 - (index / data.length));
-	}
-
-	const source = context.createBufferSource();
-	source.buffer = buffer;
-	const filter = context.createBiquadFilter();
-	filter.type = 'bandpass';
-	filter.frequency.value = frequency;
-	const gain = context.createGain();
-	gain.gain.value = volume;
-	source.connect(filter).connect(gain).connect(audio.output);
-	source.start(context.currentTime + delay);
-};
+// The sound of the beeper and the phone booth, with short bursts of noise for the clicks of the card slot and the rattle of the coins.
+const audio = new ToySound();
 
 const sounds = {
 	// The beep of the beeper: three short, shrill beeps, twice, from the little piezo speaker.
 	beep() {
 		for (const group of [0, 0.55]) {
 			for (const index of [0, 1, 2]) {
-				tone(2730, group + (index * 0.13), 0.08, {type: 'square', volume: 0.04});
+				audio.tone(2730, group + (index * 0.13), 0.08, {type: 'square', volume: 0.04});
 			}
 		}
 	},
 	chirp() {
-		tone(3400, 0, 0.05, {type: 'square', volume: 0.035});
+		audio.tone(3400, 0, 0.05, {type: 'square', volume: 0.035});
 	},
 	// The motor with the weight on it, rattling on the wood of the table.
 	buzz() {
 		for (const start of [0, 0.65]) {
 			for (let index = 0; index < 22; index++) {
-				tone(140 + (Math.random() * 30), start + (index * 0.02), 0.018, {type: 'sawtooth', volume: 0.07});
+				audio.tone(140 + (Math.random() * 30), start + (index * 0.02), 0.018, {type: 'sawtooth', volume: 0.07});
 			}
 		}
 	},
@@ -326,44 +210,44 @@ const sounds = {
 			1: [697, 1209], 2: [697, 1336], 3: [697, 1477], 4: [770, 1209], 5: [770, 1336], 6: [770, 1477], 7: [852, 1209], 8: [852, 1336], 9: [852, 1477], '*': [941, 1209], 0: [941, 1336], '#': [941, 1477],
 		};
 		for (const frequency of pairs[key] ?? []) {
-			tone(frequency, 0, 0.14, {volume: 0.06});
+			audio.tone(frequency, 0, 0.14, {volume: 0.06});
 		}
 	},
 	coin() {
-		tone(2600, 0, 0.06, {volume: 0.05});
-		tone(4100, 0.01, 0.05, {volume: 0.03});
-		tone(3300, 0.12, 0.05, {volume: 0.03});
-		tone(180, 0.32, 0.1, {type: 'triangle', volume: 0.12});
+		audio.tone(2600, 0, 0.06, {volume: 0.05});
+		audio.tone(4100, 0.01, 0.05, {volume: 0.03});
+		audio.tone(3300, 0.12, 0.05, {volume: 0.03});
+		audio.tone(180, 0.32, 0.1, {type: 'triangle', volume: 0.12});
 	},
 	clunk() {
-		tone(120, 0, 0.12, {type: 'triangle', volume: 0.14});
-		noise(0, 0.08, {volume: 0.12, frequency: 900});
+		audio.tone(120, 0, 0.12, {type: 'triangle', volume: 0.14});
+		audio.noise(0, 0.08, {volume: 0.12, frequency: 900});
 	},
 	card() {
-		noise(0, 0.05, {volume: 0.15, frequency: 2500});
-		noise(0.12, 0.04, {volume: 0.12, frequency: 1800});
+		audio.noise(0, 0.05, {volume: 0.15, frequency: 2500});
+		audio.noise(0.12, 0.04, {volume: 0.12, frequency: 1800});
 	},
 	notInUse() {
 		for (const [index, frequency] of [950, 1400, 1800].entries()) {
-			tone(frequency, index * 0.34, 0.33, {volume: 0.06});
+			audio.tone(frequency, index * 0.34, 0.33, {volume: 0.06});
 		}
 	},
 	serviceTone() {
-		tone(1000, 0, 0.6, {volume: 0.07});
+		audio.tone(1000, 0, 0.6, {volume: 0.07});
 	},
 	sent() {
 		for (const [index, frequency] of [600, 900, 1200].entries()) {
-			tone(frequency, index * 0.15, 0.12, {volume: 0.06});
+			audio.tone(frequency, index * 0.15, 0.12, {volume: 0.06});
 		}
 	},
 	warning() {
-		tone(1400, 0, 0.12, {volume: 0.06});
-		tone(1400, 0.25, 0.12, {volume: 0.06});
+		audio.tone(1400, 0, 0.12, {volume: 0.06});
+		audio.tone(1400, 0.25, 0.12, {volume: 0.06});
 	},
 	// The bell of the phone in the booth, a fast electric trill.
 	ring() {
 		for (let index = 0; index < 18; index++) {
-			tone(index % 2 === 0 ? 1100 : 880, index * 0.05, 0.045, {type: 'square', volume: 0.03});
+			audio.tone(index % 2 === 0 ? 1100 : 880, index * 0.05, 0.045, {type: 'square', volume: 0.03});
 		}
 	},
 };
@@ -378,7 +262,7 @@ const stopLine = () => {
 
 const playLine = kind => {
 	stopLine();
-	const context = soundContext();
+	const context = audio.soundContext();
 	if (!context) {
 		return;
 	}
@@ -680,7 +564,7 @@ const canvasPoint = (canvas, event, width, height) => {
 
 const isInside = (point, region) => point.x >= region.x && point.x <= region.x + region.width && point.y >= region.y && point.y <= region.y + region.height;
 
-export default class extends GeoCitiesElement {
+class GeoCitiesBeeper extends GeoCitiesElement {
 	#state;
 	#tableContext;
 	#boothContext;
@@ -820,7 +704,7 @@ export default class extends GeoCitiesElement {
 
 		this.on(sound, 'click', () => {
 			audio.isOn = !audio.isOn;
-			setPressed(sound, audio.isOn);
+			sound.setAttribute('aria-pressed', String(audio.isOn));
 			if (audio.isOn) {
 				audio.start(this.sound());
 				sounds.chirp();
@@ -839,7 +723,7 @@ export default class extends GeoCitiesElement {
 		this.on(flip, 'click', () => {
 			const pager = this.#pager;
 			pager.isUpsideDown = !pager.isUpsideDown;
-			setPressed(flip, pager.isUpsideDown);
+			flip.setAttribute('aria-pressed', String(pager.isUpsideDown));
 			const page = pager.viewPage;
 			const isHello = page?.code === '07734' && (pager.view === 'message' || pager.view === 'alert');
 			this.say(pager.isUpsideDown ? (isHello ? 'Upside down, 07734 says hELLO!' : 'Upside down. Like a calculator, the numbers turn into letters: 07734 says hELLO, and 0.7734 is how Trond says hi.') : 'Right side up again.');
@@ -848,7 +732,7 @@ export default class extends GeoCitiesElement {
 
 		this.on(over, 'click', () => {
 			this.#pager.isOver = !this.#pager.isOver;
-			setPressed(over, this.#pager.isOver);
+			over.setAttribute('aria-pressed', String(this.#pager.isOver));
 			this.say(this.#pager.isOver ? 'The back: the belt clip for my jeans, the sticker with my number from Telenor, and the door of the one AAA battery. And you can see the inside, because it is see-through!' : 'Face up again.');
 			this.#drawTable();
 		});
@@ -1043,9 +927,9 @@ export default class extends GeoCitiesElement {
 			}
 		});
 
-		setPressed(sound, false);
-		setPressed(flip, false);
-		setPressed(over, false);
+		sound.setAttribute('aria-pressed', 'false');
+		flip.setAttribute('aria-pressed', 'false');
+		over.setAttribute('aria-pressed', 'false');
 		this.#renderBatteryButtons();
 		this.#renderBed();
 		this.#renderScore();
@@ -1304,9 +1188,9 @@ export default class extends GeoCitiesElement {
 		this.say(this.#isNight() ? 'The LCD glows green in the dark room. So cool.' : 'The light is on: the LCD glows green for 3 seconds.');
 		this.#tableLoop.start();
 		this.#drawTable();
-		setTimeout(() => {
+		this.timeout(3600, () => {
 			this.#drawTable();
-		}, 3600);
+		});
 	}
 
 	#pressClear() {
@@ -1350,9 +1234,9 @@ export default class extends GeoCitiesElement {
 	#pressed(name) {
 		this.#pressedButtons.set(name, performance.now() + 180);
 		this.#drawTable();
-		setTimeout(() => {
+		this.timeout(200, () => {
 			this.#drawTable();
-		}, 200);
+		});
 	}
 
 	#newBattery() {
@@ -1362,7 +1246,7 @@ export default class extends GeoCitiesElement {
 		this.#pager.view = 'boot';
 		this.#pager.viewSince = performance.now();
 		sounds.chirp();
-		setTimeout(() => {
+		this.timeout(1400, () => {
 			sounds.beep();
 			// A page that came during the test stays on the LCD.
 			if (this.#pager.view === 'boot') {
@@ -1370,7 +1254,7 @@ export default class extends GeoCitiesElement {
 			}
 
 			this.#drawTable();
-		}, 1400);
+		});
 		this.#persist();
 		this.#renderBatteryButtons();
 		this.#drawTable();
@@ -2189,7 +2073,7 @@ export default class extends GeoCitiesElement {
 						['Du har ringt Sorhus. Jeg er ikke på kontoret. Legg igjen en beskjed etter pipetonen.', 'You called Sorhus. I am not in the office. Leave a message after the beep.'],
 					]);
 					this.#phoneLater(4.5, () => {
-						tone(1000, 0, 0.5, {volume: 0.07});
+						audio.tone(1000, 0, 0.5, {volume: 0.07});
 					});
 				}
 
@@ -2629,10 +2513,10 @@ export default class extends GeoCitiesElement {
 			this.#phone.flash = this.#phone.stage === 'pay' ? 'KORTET ER TOMT\nSETT INN MYNT' : 'KORTET ER TOMT\nTA UT KORTET';
 			this.say('The phone spits the card back out: KORTET ER TOMT. 0 tellerskritt. I keep it for my collection, and buy a new one at Narvesen.', this.parts.phoneStatus);
 			this.#renderPhone();
-			setTimeout(() => {
+			this.timeout(2500, () => {
 				this.#phone.flash = '';
 				this.#renderPhone();
-			}, 2500);
+			});
 			return;
 		}
 
@@ -2996,13 +2880,13 @@ export default class extends GeoCitiesElement {
 		const entry = entryFor(page);
 		if (this.#decoder.pageId !== page.id) {
 			this.#decoder.pageId = page.id;
-			this.#decoder.choices = shuffle([entry.meaning, ...entry.wrong]);
+			this.#decoder.choices = shuffled([entry.meaning, ...entry.wrong]);
 		}
 
 		this.parts.decodeCode.textContent = `${dayTimeText(page.time)} · ${page.text}`;
 		for (const [index, button] of this.#choiceButtons.entries()) {
 			button.hidden = false;
-			button.dataset.state = '';
+			delete button.dataset.state;
 			button.textContent = this.#decoder.choices[index];
 		}
 	}
@@ -3058,10 +2942,10 @@ export default class extends GeoCitiesElement {
 		this.#renderScore();
 		this.#renderBook();
 		this.#renderMemory();
-		setTimeout(() => {
+		this.timeout(1800, () => {
 			this.#decoder.isLocked = false;
 			this.#renderDecoder();
-		}, 1800);
+		});
 	}
 
 	#renderScore() {
@@ -3123,3 +3007,5 @@ export default class extends GeoCitiesElement {
 		this.parts.bed.textContent = this.#isNight() ? '☀️ Get Up' : '🛏 Go to Bed';
 	}
 }
+
+customElements.define('geo-cities-beeper', GeoCitiesBeeper);

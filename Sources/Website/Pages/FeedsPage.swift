@@ -106,15 +106,18 @@ extension FeedsPage {
 							.color(.primary(500))
 					}
 			case .cardTitle:
+				// Like the titles of the app cards below.
 				Style()
 					.display(.block)
-					.bold()
+					.textStyle(.headline)
 					.color(.primaryText)
 			case .cardSubtitle:
+				// Like the subtitle of an app card, it does not end with one word on its last line.
 				Style()
 					.display(.block)
 					.margin(.top, .rootEm(0.25))
 					.secondaryText()
+					.textWrap(.pretty)
 			case .appCard:
 				Style()
 					.cardSurface()

@@ -313,6 +313,11 @@ struct GeoCitiesKeygen: ScriptedElement {
 		case notepad
 	}
 
+	enum States: String, ElementStateSet {
+		case wrong
+		case notepad
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		The speed of the modem that types the NFO file, in bits a second.
@@ -356,13 +361,9 @@ struct GeoCitiesKeygen: ScriptedElement {
 					}
 			case .nag:
 				// It shakes when the serial is wrong.
-				Style()
-					.frame(minWidth: 0)
-					.media(.allowsMotion) {
-						$0.when(.state, is: "wrong") {
-							$0.animation(Animations.shake, .linear(duration: .milliseconds(400)))
-						}
-					}
+				Style().when(States.wrong) {
+					$0.animation(Animations.shake, .linear(duration: .milliseconds(400)))
+				}
 			case .nagTitle:
 				Style()
 					.fontFamily(GeoCitiesPage.comicSans)
@@ -384,18 +385,14 @@ struct GeoCitiesKeygen: ScriptedElement {
 					.frame(minHeight: .lineHeight(1))
 					.fontWeight(.bold)
 			case .rainbow:
-				Style()
-					.display(.grid)
-					.frame(minWidth: 0)
+				Style().display(.grid)
 			case .rainbowBorder:
 				// The border of the keygen goes around the colors of the rainbow.
 				Style()
 					.stackedInGrid()
 					.backgroundImage(.linearGradient("135deg", Color("#ff0000"), Color("#ffcc00"), Color("#33ff00"), Color("#00ccff"), Color("#6600ff"), Color("#ff00cc")))
 					.cornerRadius(.rootEm(0.5))
-					.media(.allowsMotion) {
-						$0.animation(Animations.rainbow, .linear(duration: .seconds(3)).repeatForever(autoreverses: false))
-					}
+					.animation(Animations.rainbow, .linear(duration: .seconds(3)).repeatForever(autoreverses: false))
 			case .keygen:
 				// Positioned, so it is drawn over the border, which its filter puts in a layer of its own.
 				Style()
@@ -468,7 +465,7 @@ struct GeoCitiesKeygen: ScriptedElement {
 					.font(size: .clamp(.pixels(10), .viewportWidth(2.6), .pixels(15)), lineHeight: 1.15)
 					.color(Color("#c0c0c0"))
 					// Black on white in Notepad.
-					.when(.state, is: "notepad") {
+					.when(States.notepad) {
 						$0
 							.background(.white)
 							.color(.black)

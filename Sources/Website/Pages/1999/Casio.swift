@@ -97,7 +97,6 @@ struct GeoCitiesCasio: ScriptedElement {
 						button(.type(.button), .hook(Hooks.tone, value: tone.id), .ariaPressed(index == 0)) {
 							"\(tone.number) \(tone.title)"
 						}
-						.attributes(.hook(.state, value: "on"), when: index == 0)
 						.style(Styles.panelButton)
 					}
 				}
@@ -113,7 +112,6 @@ struct GeoCitiesCasio: ScriptedElement {
 						button(.type(.button), .hook(Hooks.rhythm, value: rhythm.id), .ariaPressed(index == 0)) {
 							rhythm.title
 						}
-						.attributes(.hook(.state, value: "on"), when: index == 0)
 						.style(Styles.panelButton)
 					}
 				}
@@ -200,6 +198,10 @@ struct GeoCitiesCasio: ScriptedElement {
 		case playback
 		case keyboard
 		case status
+	}
+
+	enum States: String, ElementStateSet {
+		case lit
 	}
 
 	enum Hooks: String, ScriptHookSet {
@@ -303,7 +305,7 @@ struct GeoCitiesCasio: ScriptedElement {
 					.textStyle(.caption)
 					.color(.white)
 					.handCursor()
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.background(Color("#ff9933"))
 							.color(.black)
@@ -325,7 +327,7 @@ struct GeoCitiesCasio: ScriptedElement {
 					.active {
 						$0.border(Color("#555"), width: .pixels(2), style: .inset)
 					}
-					.when(.state, is: "on") {
+					.pressed {
 						$0.background(Color("#ffcc33"))
 					}
 					.disabled {
@@ -338,7 +340,7 @@ struct GeoCitiesCasio: ScriptedElement {
 			case .record:
 				Style()
 					.color(Color("#cc0000"))
-					.when(.state, is: "on") {
+					.pressed {
 						$0
 							.background(Color("#ff3333"))
 							.color(.white)
@@ -371,7 +373,7 @@ struct GeoCitiesCasio: ScriptedElement {
 					.cornerRadius(.pixels(3))
 					.color(Color("#999"))
 					.handCursor()
-					.when(.state, is: "lit") {
+					.when(States.lit) {
 						$0.background(Color("#ffcc66"))
 					}
 			case .blackKey:
@@ -389,7 +391,7 @@ struct GeoCitiesCasio: ScriptedElement {
 					.cornerRadius(.pixels(2))
 					.color(Color("#bbb"))
 					.handCursor()
-					.when(.state, is: "lit") {
+					.when(States.lit) {
 						$0.background(Color("#ff9933"))
 					}
 			case .keyLetter:

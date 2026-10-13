@@ -1,5 +1,5 @@
 // NRK Tekst-TV on the 1999 page: pages of 40 letters by 22 lines, in the eight colors of teletext. A line is text with codes: `^` and a lowercase letter sets the color of the text, and an uppercase letter sets the background, like the control codes of real teletext. A line that starts with `#` is double height. A page has subpages, which turn by themselves, like the news, and a text for each language.
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
+import GeoCitiesElement, {randomInteger} from '/scripts/geocities-element.js';
 
 const width = 40;
 const colors = {
@@ -259,7 +259,7 @@ const renderLine = (text, line) => {
 	}
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesTekstTV extends GeoCitiesElement {
 	#current = 100;
 	#shown = 100;
 	#subpage = 0;
@@ -329,12 +329,6 @@ export default class extends GeoCitiesElement {
 		this.on(translateButton, 'click', () => {
 			this.#isEnglish = !this.#isEnglish;
 			translateButton.setAttribute('aria-pressed', String(this.#isEnglish));
-			if (this.#isEnglish) {
-				translateButton.dataset.state = 'on';
-			} else {
-				delete translateButton.dataset.state;
-			}
-
 			this.#render();
 			this.#renderHeader();
 		});
@@ -465,3 +459,5 @@ export default class extends GeoCitiesElement {
 		}
 	}
 }
+
+customElements.define('geo-cities-tekst-tv', GeoCitiesTekstTV);

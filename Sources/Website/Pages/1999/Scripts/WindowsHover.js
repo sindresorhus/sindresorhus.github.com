@@ -1,7 +1,5 @@
 // Hover! on the desktop of the 1999 page, like the game of the “Fun Stuff” folder of the Windows 95 CD: a hovercraft that slides through a 3D arena, to collect the blue flags before the red hovercraft of the computer collect the red ones. The arena is drawn with a raycaster, like the 3D Maze screen saver, into the pixels of a canvas of 320 × 200: the sky, the floor, the walls with their tops while the hovercraft jumps, and the flags and the robots as sprites. Nothing makes a sound until the visitor presses the Sound button.
-
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
+import GeoCitiesElement, {randomItem, clamp, playTone, hasModifier} from '/scripts/geocities-element.js';
 
 // The camera plane, for a field of view of about 66 degrees.
 const planeLength = 0.66;
@@ -255,7 +253,7 @@ const angleDifference = (from, to) => Math.atan2(Math.sin(to - from), Math.cos(t
 const formatTime = seconds => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
 const keyControls = {ArrowUp: 'forward', w: 'forward', ArrowDown: 'back', s: 'back', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right'};
 
-export default class extends GeoCitiesElement {
+class GeoCitiesWindowsHover extends GeoCitiesElement {
 	#context;
 	#loop;
 	#controlButtons;
@@ -323,7 +321,7 @@ export default class extends GeoCitiesElement {
 
 		// The keys only steer while the arena has the focus, so they do not steer while the visitor types or plays something else.
 		this.on(screen, 'keydown', event => {
-			if (event.ctrlKey || event.metaKey || event.altKey) {
+			if (hasModifier(event)) {
 				return;
 			}
 
@@ -467,23 +465,7 @@ export default class extends GeoCitiesElement {
 			return;
 		}
 
-		const {context, output} = sound;
-		const oscillator = context.createOscillator();
-		const gain = context.createGain();
-		const time = context.currentTime + start;
-		oscillator.type = type;
-		oscillator.frequency.setValueAtTime(frequency, time);
-
-		if (slide) {
-			oscillator.frequency.exponentialRampToValueAtTime(slide, time + duration);
-		}
-
-		gain.gain.setValueAtTime(0.0001, time);
-		gain.gain.exponentialRampToValueAtTime(volume, time + 0.01);
-		gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-		oscillator.connect(gain).connect(output);
-		oscillator.start(time);
-		oscillator.stop(time + duration + 0.05);
+		playTone(sound, frequency, start, duration, {type, volume, slide});
 	}
 
 	#sounds = {
@@ -1419,3 +1401,5 @@ export default class extends GeoCitiesElement {
 		}
 	}
 }
+
+customElements.define('geo-cities-windows-hover', GeoCitiesWindowsHover);

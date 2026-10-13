@@ -274,17 +274,17 @@ struct GeoCitiesDollz: ScriptedElement {
 					button(.part(Parts.random), .type(.button)) {
 						"🎲 Random"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.bigButton, Styles.belowDoll)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.bigButton, Styles.belowDoll)
 
 					button(.part(Parts.undo), .type(.button), .disabled) {
 						"↶ Undo"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.bigButton, Styles.dimmedWhenDisabled, Styles.belowDoll)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.bigButton, GeoCitiesPage.Styles.dimmedWhenDisabled, Styles.belowDoll)
 
 					button(.part(Parts.reset), .type(.button)) {
 						"🧹 Start Over"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.bigButton, Styles.belowDoll)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.bigButton, Styles.belowDoll)
 				}
 				.style(GeoCitiesPage.Styles.buttonRow)
 
@@ -292,17 +292,17 @@ struct GeoCitiesDollz: ScriptedElement {
 					button(.part(Parts.house), .type(.button)) {
 						"🏠 Put in the Dollz House"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.bigButton, Styles.belowDoll)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.bigButton, Styles.belowDoll)
 
 					button(.part(Parts.png), .type(.button)) {
 						"💾 Save PNG (Real Size)"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.bigButton, Styles.belowDoll)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.bigButton, Styles.belowDoll)
 
 					button(.part(Parts.bigPNG), .type(.button)) {
 						"💾 Save PNG (Big)"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.bigButton, Styles.belowDoll)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.bigButton, Styles.belowDoll)
 				}
 				.style(GeoCitiesPage.Styles.buttonRow)
 			}
@@ -521,7 +521,7 @@ struct GeoCitiesDollz: ScriptedElement {
 						button(.part(Parts.adopt), .type(.button)) {
 							"💕 Adopt a Doll!"
 						}
-						.style(GeoCitiesPage.Styles.retroButton, Styles.bigButton)
+						.style(GeoCitiesPage.Styles.retroButton, GeoCitiesPage.Styles.bigButton)
 					}
 					.style(GeoCitiesPage.Styles.buttonRow)
 
@@ -544,7 +544,7 @@ struct GeoCitiesDollz: ScriptedElement {
 					button(.part(Parts.saveCertificate), .type(.button)) {
 						"💾 Save the Certificate"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, Styles.bigButton)
+					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.bigButton)
 				}
 				.style(GeoCitiesPage.Styles.buttonRow)
 
@@ -587,6 +587,10 @@ struct GeoCitiesDollz: ScriptedElement {
 		case linkCode
 	}
 
+	enum States: String, ElementStateSet {
+		case sister
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		case tab = "data-dollz-tab"
 		case panel = "data-dollz-panel"
@@ -604,8 +608,6 @@ struct GeoCitiesDollz: ScriptedElement {
 		case figure
 		case canvas
 		case status
-		case bigButton
-		case dimmedWhenDisabled
 		case belowDoll
 		case controls
 		case tabs
@@ -675,26 +677,16 @@ struct GeoCitiesDollz: ScriptedElement {
 					.imageRendering(.pixelated)
 					.background(.white)
 					.border(Color("#808080"), width: .pixels(2), style: .inset)
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 					// On a phone, the height is capped, so the sticky doll and what Lillesøster says leave most of the screen for the clothes.
 					.below(.smallTablet) {
 						$0.frame(width: .auto, height: .smallViewportHeight(22))
 					}
 			case .status:
 				Style()
-					.frame(minHeight: .lineHeight(2))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
-					.color(Color("#cc0099"))
-			case .bigButton:
-				Style().frame(minHeight: .rootEm(2.75))
-			case .dimmedWhenDisabled:
-				Style().disabled {
-					$0.opacity(0.5)
-				}
+					.toyStatus()
+					// Darker than the pink of the title, so the small text is easy to read on the gray.
+					.color(Color("#990066"))
 			case .belowDoll:
 				// On a phone, the doll and what Lillesøster says stick to the top of the screen (the canvas, 2 lines of the status, and the gaps), so a control of the maker that gets focus scrolls into view below them. The site header is already in the scroll padding of the page.
 				Style().below(.smallTablet) {
@@ -710,11 +702,7 @@ struct GeoCitiesDollz: ScriptedElement {
 				// The open tab is pink and pressed in.
 				Style()
 					.frame(minHeight: .rootEm(2.5))
-					.when(.state, is: "on") {
-						$0
-							.background(Color("#ffccee"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
+					.pressedIn(Color("#ffccee"))
 			case .panel:
 				Style().vstack(spacing: .rootEm(0.5))
 			case .fieldset:
@@ -737,15 +725,14 @@ struct GeoCitiesDollz: ScriptedElement {
 				// Big enough for a thumb, and pink and pressed in while it is on.
 				Style()
 					.frame(minHeight: .rootEm(2.5))
-					.when(.state, is: "on") {
-						$0
-							.background(Color("#ff99dd"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-					}
+					.pressedIn(Color("#ff99dd"))
 			case .palette:
-				// Two rows of 14, like the palette of MS Paint.
+				// Two rows of 14, like the palette of MS Paint. On a phone, four rows of 7, so each color is large enough for a finger.
 				Style()
 					.grid(columns: 14)
+					.below(.smallTablet) {
+						$0.gridColumns(7)
+					}
 					.gap(.pixels(2))
 					.margin(.bottom, .rootEm(0.5))
 			case .swatch:
@@ -755,7 +742,7 @@ struct GeoCitiesDollz: ScriptedElement {
 					.background(GeoCitiesDollz.swatchColor.value(default: .white))
 					.border(Color("#808080"), width: .pixels(2), style: .inset)
 					.handCursor()
-					.when(.state, is: "on") {
+					.pressed {
 						$0.border(.black, width: .pixels(2), style: .solid)
 					}
 					.focusVisible {
@@ -787,7 +774,7 @@ struct GeoCitiesDollz: ScriptedElement {
 							.textStyle(.caption, weight: .bold)
 							.fontFamily(GeoCitiesPage.comicSans)
 							.textAlign(.center)
-							.when(.state, is: "sister") {
+							.when(States.sister) {
 								$0.background(Color("#ffffcc"))
 							}
 					}
@@ -798,9 +785,7 @@ struct GeoCitiesDollz: ScriptedElement {
 					.fontFamily(GeoCitiesPage.comicSans)
 					.font(.large, weight: .bold)
 					.color(Color("#ff0099"))
-					.media(.allowsMotion) {
-						$0.animation(GeoCitiesPage.Animations.rainbow, .linear(duration: .seconds(2)).repeatForever(autoreverses: false))
-					}
+					.animation(GeoCitiesPage.Animations.rainbow, .linear(duration: .seconds(2)).repeatForever(autoreverses: false))
 			case .agree:
 				Style()
 					.display(.block)

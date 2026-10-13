@@ -84,6 +84,21 @@ public struct Project: Sendable {
 	}
 
 	/**
+	The script files of the elements (``ElementScript``): every `.js` file in a `Scripts` folder in the `Sources` directory, with the path that the build publishes it at, like `/scripts/elements/Clock.js` for `Sources/Website/Scripts/Clock.js`. Empty without a `Sources` directory.
+
+	The file name is the path, so two scripts with the same name would be published to the same file, which the publisher refuses.
+	*/
+	public func elementScripts() -> [(path: RoutePath, source: URL)] {
+		root.appending(path: "Sources").contentsRecursively(includesHiddenFiles: false)
+			.filter {
+				$0.pathExtension == "js"
+					&& $0.deletingLastPathComponent().lastPathComponent == "Scripts"
+			}
+			.sorted(using: KeyPathComparator(\.path, comparator: String.StandardComparator.lexical))
+			.map { (path: ElementScript.directory.appending($0.lastPathComponent), source: $0) }
+	}
+
+	/**
 	The date of the last commit that changed each Markdown file, keyed by the path relative to the project root, like `content/apps/dato/index.md`. Load it once for all content types, as it runs `git log`.
 
 	Moving a file without changing it does not count as a change, so the dates survive a reorganization. Empty when the project is not a git repository or git is missing. A shallow clone only knows the dates of its commits.
@@ -98,57 +113,51 @@ public struct Project: Sendable {
 		process.standardOutput = pipe
 
 		// The output is read asynchronously, so waiting for git does not block a thread of the concurrency pool.
-		var lines = [String]()
-
-		let exitStatus = try? await process.runUntilExit {
-			for try await line in pipe.fileHandleForReading.bytes.lines {
-				lines.append(line)
-			}
-		}
-
-		guard exitStatus == 0 else {
-			return [:]
-		}
-
 		var dates = [String: Date]()
 		var date: Date?
 
 		// The name that an older path has today, after the renames seen so far.
 		var currentNames = [String: String]()
 
-		// Commits are newest first, so the first change of a file is its latest.
-		for line in lines {
-			if line.hasPrefix("\0") {
-				date = try? Date(String(line.dropFirst()), strategy: .iso8601)
-				continue
+		let exitStatus = try? await process.runUntilExit {
+			// Commits are newest first, so the first change of a file is its latest.
+			for try await line in pipe.fileHandleForReading.bytes.lines {
+				if line.hasPrefix("\0") {
+					date = try? Date(String(line.dropFirst()), strategy: .iso8601)
+					continue
+				}
+
+				let fields = line.split(separator: "\t")
+
+				guard
+					let date,
+					let status = fields.first,
+					let path = fields.last.map(String.init)
+				else {
+					continue
+				}
+
+				let currentName = currentNames[path] ?? path
+
+				// `R100` is a rename without changes.
+				if
+					status != "R100",
+					dates[currentName] == nil
+				{
+					dates[currentName] = date
+				}
+
+				if
+					status.hasPrefix("R"),
+					fields.count == 3
+				{
+					currentNames[String(fields[1])] = currentName
+				}
 			}
+		}
 
-			let fields = line.split(separator: "\t").map(String.init)
-
-			guard
-				let date,
-				let status = fields.first,
-				let path = fields.last
-			else {
-				continue
-			}
-
-			let currentName = currentNames[path] ?? path
-
-			// `R100` is a rename without changes.
-			if
-				status != "R100",
-				dates[currentName] == nil
-			{
-				dates[currentName] = date
-			}
-
-			if
-				status.hasPrefix("R"),
-				fields.count == 3
-			{
-				currentNames[fields[1]] = currentName
-			}
+		guard exitStatus == 0 else {
+			return [:]
 		}
 
 		return dates

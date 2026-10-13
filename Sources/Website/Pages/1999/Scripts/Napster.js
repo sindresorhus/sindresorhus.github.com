@@ -1,9 +1,5 @@
 // Napster and the CD burner on the 1999 page. The search finds the hits of 1999 on the computers of other kids, often with the wrong name. The downloads share the modem of the visitor, and each goes no faster than the modem at the other end, by a clock of the night where a second is a minute. Then the burner writes the songs to a CD, as long as nobody touches the computer. The coasters are kept in the browser.
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const randomInteger = (minimum, maximum) => minimum + Math.floor(Math.random() * (maximum - minimum + 1));
-
-// A copy of the first element of a template.
-const cloneTemplate = template => template.content.firstElementChild.cloneNode(true);
+import GeoCitiesElement, {randomItem, randomInteger, plural} from '/scripts/geocities-element.js';
 
 const sum = numbers => {
 	let total = 0;
@@ -13,9 +9,6 @@ const sum = numbers => {
 
 	return total;
 };
-
-// Like “1 minute” or “2 minutes”.
-const plural = (count, word) => `${count.toLocaleString('en-US')} ${word}${count === 1 ? '' : 's'}`;
 
 const songs = [
 	{artist: 'Eiffel 65', title: 'Blue (Da Ba Dee)', seconds: 219},
@@ -66,7 +59,7 @@ const formatSize = kilobytes => `${(kilobytes / 1024).toFixed(1)} MB`;
 const formatLength = seconds => `${Math.floor(seconds / 60)}:${String(Math.round(seconds % 60)).padStart(2, '0')}`;
 
 // Sets up Napster and the CD burner, with the element for its helpers, like `say()`, `on()`, and `interval()`, and its parts.
-const setUpNapster = (napster, {search: searchForm, query, results, resultTemplate, clock, transfers: transferList, transferTemplate, library, songTemplate, capacity, capacityFill, label: labelInput, burn: burnButton, burner, buffer: bufferFill, written: writtenFill, burnStatus, disc, discLabel, coasters: coastersText}) => {
+const setUpNapster = (napster, {search: searchForm, query, results, clock, transfers: transferList, library, capacity, capacityFill, label: labelInput, burn: burnButton, burner, buffer: bufferFill, written: writtenFill, burnStatus, disc, discLabel, coasters: coastersText}) => {
 	// The songs that the visitor has, which starts with two that I ripped from my own CDs.
 	const owned = [
 		{song: songs.find(song => song.title === 'Take On Me'), note: 'ripped from my CD'},
@@ -122,12 +115,9 @@ const setUpNapster = (napster, {search: searchForm, query, results, resultTempla
 	const showResults = text => {
 		const files = search(text);
 		results.replaceChildren(...files.map(file => {
-			const item = cloneTemplate(resultTemplate);
-			const name = item.querySelector('strong');
-			const details = item.querySelector('span');
-			const button = item.querySelector('button');
-			name.textContent = file.name;
-			details.textContent = `${formatSize(file.size)} · ${file.bitrate} kbps · ${file.line.name} · ${file.user}`;
+			const {element: item, parts: {resultName, resultDetails, get: button}} = napster.clone('resultTemplate');
+			resultName.textContent = file.name;
+			resultDetails.textContent = `${formatSize(file.size)} · ${file.bitrate} kbps · ${file.line.name} · ${file.user}`;
 			button.setAttribute('aria-label', `Get ${file.name}`);
 			// The results are made again for each search, so their listeners go away with them.
 			button.addEventListener('click', () => {
@@ -161,9 +151,8 @@ const setUpNapster = (napster, {search: searchForm, query, results, resultTempla
 			transferList.replaceChildren();
 		}
 
-		const item = cloneTemplate(transferTemplate);
-		item.querySelector('strong').textContent = file.name;
-		const retryButton = item.querySelector('button');
+		const {element: item, parts: {transferName, transferFill, transferText, retry: retryButton}} = napster.clone('transferTemplate');
+		transferName.textContent = file.name;
 		retryButton.setAttribute('aria-label', `Try again: ${file.name}`);
 		// A new try replaces the failed one, and the focus goes to the new one, as the button is gone. The listener goes away with the button.
 		retryButton.addEventListener('click', () => {
@@ -175,8 +164,8 @@ const setUpNapster = (napster, {search: searchForm, query, results, resultTempla
 		const transfer = {
 			file,
 			item,
-			fill: item.querySelector('div > div'),
-			text: item.querySelector('span'),
+			fill: transferFill,
+			text: transferText,
 			retryButton,
 			received: 0,
 			speed: 0,
@@ -318,12 +307,11 @@ const setUpNapster = (napster, {search: searchForm, query, results, resultTempla
 		// The songs are made again, so the focus goes back to the same song.
 		const focusedValue = library.contains(document.activeElement) ? document.activeElement.value : undefined;
 		library.replaceChildren(...owned.map(({song, note}, index) => {
-			const item = cloneTemplate(songTemplate);
-			const checkbox = item.querySelector('input');
+			const {element: item, parts: {songCheckbox: checkbox, songText}} = napster.clone('songTemplate');
 			checkbox.value = String(index);
 			checkbox.checked = checked.has(String(index));
 			checkbox.disabled = isBurning;
-			item.querySelector('span').textContent = `${songName(song)} (${formatLength(song.seconds)}, ${note})`;
+			songText.textContent = `${songName(song)} (${formatLength(song.seconds)}, ${note})`;
 			return item;
 		}));
 		if (focusedValue !== undefined) {
@@ -456,7 +444,7 @@ const setUpNapster = (napster, {search: searchForm, query, results, resultTempla
 	};
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesNapster extends GeoCitiesElement {
 	#napster;
 
 	connected() {
@@ -467,3 +455,5 @@ export default class extends GeoCitiesElement {
 		this.#napster.visibilityChanged();
 	}
 }
+
+customElements.define('geo-cities-napster', GeoCitiesNapster);

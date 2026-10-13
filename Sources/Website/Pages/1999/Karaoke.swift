@@ -122,6 +122,11 @@ struct GeoCitiesKaraoke: ScriptedElement {
 		case judges
 	}
 
+	enum States: String, ElementStateSet {
+		case sung
+		case on
+	}
+
 	enum Hooks: String, ScriptHookSet {
 		/**
 		A line of the lyrics on the screen, the first or the second.
@@ -159,9 +164,6 @@ struct GeoCitiesKaraoke: ScriptedElement {
 					.background(Color("#1a0033"))
 					.border(Color("#ff33cc"), width: .pixels(4), style: .double)
 					.color(.white)
-					.children("p, label") {
-						$0.color(.white)
-					}
 			case .machine:
 				Style()
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
@@ -205,7 +207,7 @@ struct GeoCitiesKaraoke: ScriptedElement {
 					.color(.white)
 					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: .black))
 					.children("span") {
-						$0.when(.state, is: "sung") {
+						$0.when(States.sung) {
 							$0.color(Color("#ffee00"))
 						}
 					}
@@ -219,7 +221,7 @@ struct GeoCitiesKaraoke: ScriptedElement {
 					.backgroundImage(.radialGradient("circle at 35% 35%", Color("#ffaaaa"), Color("#ee0000"), Color("#880000")))
 					.cornerRadius(.percent(50))
 					.opacity(0)
-					.when(.state, is: "on") {
+					.when(States.on) {
 						$0.opacity(1)
 					}
 					.reducedMotion {
@@ -249,9 +251,6 @@ struct GeoCitiesKaraoke: ScriptedElement {
 					.fontFamily(GeoCitiesPage.comicSans)
 					.color(.black)
 					.flowSpacing(.rootEm(0.375))
-					.children("p") {
-						$0.color(.black)
-					}
 			}
 		}
 	}

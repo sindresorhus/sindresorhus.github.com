@@ -1,158 +1,7 @@
 // Sindre’s Quest for the Golden Waffle on the 1999 page, a point-and-click adventure like the games of LucasArts and Sierra in the 1990s, with verbs, an inventory, conversations, deaths, saves, and a hint line, and its box, its manual, its copy protection, and its four floppy disks. The canvas runs only while it is on the screen and the tab is visible. Saved games are kept in the browser. The sound button turns on the sound of the other adventure games of the page too (WAFFLE QUEST, Insult Seagull Fighting, and the linking book), with the `geocities-adventure-sound` event.
-const nextFrame = () => new Promise(resolve => {
-	requestAnimationFrame(() => {
-		resolve();
-	});
-});
-
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-// Shows a toggle button as pressed, for screen readers and for the style.
-const setPressed = (button, isPressed) => {
-	button.setAttribute('aria-pressed', String(isPressed));
-	button.dataset.state = isPressed ? 'on' : '';
-};
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
-
-// Shapes for the canvases of the games.
-const fillShape = (context, color, x, y, width, height) => {
-	context.fillStyle = color;
-	context.fillRect(Math.round(x), Math.round(y), Math.round(width), Math.round(height));
-};
-
-const fillEllipse = (context, color, x, y, radiusX, radiusY) => {
-	context.fillStyle = color;
-	context.beginPath();
-	context.ellipse(x, y, Math.max(radiusX, 0.1), Math.max(radiusY, 0.1), 0, 0, Math.PI * 2);
-	context.fill();
-};
-
-const fillPolygon = (context, color, points) => {
-	context.fillStyle = color;
-	context.beginPath();
-	for (const [x, y] of points) {
-		context.lineTo(x, y);
-	}
-
-	context.closePath();
-	context.fill();
-};
-
-const makeCanvas = (width, height) => {
-	const canvas = document.createElement('canvas');
-	canvas.width = width;
-	canvas.height = height;
-	return canvas;
-};
-
-// A tiny pixel font of 3 × 5 for the screens of the toys, so the text is crisp at any size. Each letter is five rows of three bits.
-const pixelFont = {
-	A: [2, 5, 7, 5, 5], B: [6, 5, 6, 5, 6], C: [3, 4, 4, 4, 3], D: [6, 5, 5, 5, 6], E: [7, 4, 6, 4, 7], F: [7, 4, 6, 4, 4], G: [3, 4, 5, 5, 3], H: [5, 5, 7, 5, 5], I: [7, 2, 2, 2, 7], J: [1, 1, 1, 5, 2], K: [5, 5, 6, 5, 5], L: [4, 4, 4, 4, 7], M: [5, 7, 7, 5, 5], N: [6, 5, 5, 5, 5], O: [2, 5, 5, 5, 2], P: [6, 5, 6, 4, 4], Q: [2, 5, 5, 6, 3], R: [6, 5, 6, 5, 5], S: [3, 4, 2, 1, 6], T: [7, 2, 2, 2, 2], U: [5, 5, 5, 5, 7], V: [5, 5, 5, 5, 2], W: [5, 5, 7, 7, 5], X: [5, 5, 2, 5, 5], Y: [5, 5, 2, 2, 2], Z: [7, 1, 2, 4, 7],
-	0: [7, 5, 5, 5, 7], 1: [2, 6, 2, 2, 7], 2: [6, 1, 2, 4, 7], 3: [6, 1, 2, 1, 6], 4: [5, 5, 7, 1, 1], 5: [7, 4, 6, 1, 6], 6: [3, 4, 7, 5, 7], 7: [7, 1, 2, 2, 2], 8: [7, 5, 7, 5, 7], 9: [7, 5, 7, 1, 6],
-	' ': [0, 0, 0, 0, 0], '.': [0, 0, 0, 0, 2], ',': [0, 0, 0, 2, 4], '!': [2, 2, 2, 0, 2], '?': [6, 1, 2, 0, 2], ':': [0, 2, 0, 2, 0], '-': [0, 0, 7, 0, 0], '+': [0, 2, 7, 2, 0], '/': [1, 1, 2, 4, 4], '\'': [2, 2, 0, 0, 0], '(': [1, 2, 2, 2, 1], ')': [4, 2, 2, 2, 4], '×': [0, 5, 2, 5, 0], '°': [2, 5, 2, 0, 0], '%': [5, 1, 2, 4, 5], '<': [1, 2, 4, 2, 1], '>': [4, 2, 1, 2, 4], '=': [0, 7, 0, 7, 0], '♥': [0, 5, 7, 7, 2], '*': [0, 5, 2, 5, 0],
-	Æ: [3, 6, 7, 6, 7], Ø: [3, 5, 7, 5, 6], Å: [2, 0, 2, 5, 7],
-};
-
-// Draws text in the pixel font, at a whole pixel, with a scale for bigger letters. The alignment is `left`, `center`, or `right`.
-const drawPixelText = (context, text, x, y, color, {scale = 1, align = 'left'} = {}) => {
-	const characters = [...String(text).toUpperCase()];
-	const width = ((characters.length * 4) - 1) * scale;
-	let left = Math.round(align === 'center' ? x - (width / 2) : (align === 'right' ? x - width : x));
-	context.fillStyle = color;
-
-	for (const character of characters) {
-		const rows = pixelFont[character] ?? pixelFont['?'];
-		for (const [row, bits] of rows.entries()) {
-			for (let column = 0; column < 3; column++) {
-				if (bits & (4 >> column)) {
-					context.fillRect(left + (column * scale), Math.round(y) + (row * scale), scale, scale);
-				}
-			}
-		}
-
-		left += 4 * scale;
-	}
-};
-
-const pixelTextWidth = (text, scale = 1) => (([...String(text)].length * 4) - 1) * scale;
-
-// A short sound effect, made in the browser.
-const beep = (audio, frequency, duration = 0.1, {type = 'square', volume = 0.05, when = 0} = {}) => {
-	if (audio?.context.state !== 'running') {
-		return;
-	}
-
-	const start = audio.context.currentTime + when;
-	const oscillator = new OscillatorNode(audio.context, {type, frequency});
-	const gain = new GainNode(audio.context, {gain: 0});
-	gain.gain.setValueAtTime(0, start);
-	gain.gain.linearRampToValueAtTime(volume, start + 0.005);
-	gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-	oscillator.connect(gain).connect(audio.output);
-	oscillator.start(start);
-	oscillator.stop(start + duration + 0.02);
-};
-
-// The colors of the pixel art, by the letter that the sprites use for them, a palette like the 256 colors of VGA.
-const palette = {
-	k: '#000000',
-	w: '#ffffff',
-	s: '#f4c49c',
-	S: '#d8956a',
-	h: '#f2d16b',
-	H: '#c99a36',
-	b: '#2a5bd7',
-	B: '#1b3a8a',
-	j: '#ffd400',
-	J: '#c9a400',
-	r: '#d42a2a',
-	R: '#8a1414',
-	g: '#3fa34d',
-	G: '#1f5c2a',
-	n: '#8b5a2b',
-	N: '#5a3519',
-	e: '#8a8a8a',
-	E: '#4a4a4a',
-	l: '#c8c8c8',
-	o: '#ff8c1a',
-	p: '#ff8fc8',
-	P: '#7a3fb0',
-	y: '#ffd700',
-	Y: '#b8860b',
-	c: '#7fd4ff',
-	t: '#8fa86a',
-	T: '#5d7a45',
-	m: '#b07a3a',
-	u: '#9a9aa8',
-	U: '#5c5c6a',
-};
-
-// Draws a sprite of letters, one letter a pixel and a dot for nothing, at a scale, with its feet at `y`, facing right, or left when it is flipped. The colors can be swapped, like the shirt of Sindre for his rain jacket.
-const drawSprite = (context, rows, x, y, {scale = 2, isFlipped = false, colors = {}} = {}) => {
-	const width = rows[0].length;
-	const top = Math.round(y - (rows.length * scale));
-	const left = Math.round(x - (width * scale / 2));
-	for (const [row, line] of rows.entries()) {
-		for (let column = 0; column < width; column++) {
-			const letter = line[isFlipped ? width - 1 - column : column];
-			if (letter === '.') {
-				continue;
-			}
-
-			context.fillStyle = colors[letter] ?? palette[letter];
-			context.fillRect(left + (column * scale), top + (row * scale), scale, scale);
-		}
-	}
-};
+import GeoCitiesElement, {randomItem, clamp, nextFrame} from '/scripts/geocities-element.js';
+import {canvasPoint, fillShape, fillEllipse, fillPolygon, makeCanvas, pixelTextWidth, drawPixelText} from '/scripts/geocities-canvas.js';
+import {beep, palette, drawSprite} from '/scripts/geocities-adventure.js';
 
 // The people and animals of Sindre's Quest, as sprites that face right.
 const sprites = {
@@ -411,7 +260,7 @@ const itemIcons = {
 	},
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesAdventure extends GeoCitiesElement {
 	#game;
 	#isSoundOn = false;
 
@@ -513,7 +362,6 @@ export default class extends GeoCitiesElement {
 		let walkTarget;
 		let walkDone;
 		let skipLine;
-		let lineSpeaker;
 		let step = 0;
 		let hintStep = 0;
 		let bill = this.stored('bill', 0);
@@ -568,7 +416,7 @@ export default class extends GeoCitiesElement {
 				}
 
 				button.hidden = isHidden;
-				setPressed(button, item === firstItem);
+				button.setAttribute('aria-pressed', String(item === firstItem));
 			}
 
 			emptyInventory.hidden = state.items.length > 0;
@@ -576,7 +424,6 @@ export default class extends GeoCitiesElement {
 
 		// Says a line in the color of whoever says it, at the top of the scene, until it was there long enough to read, or the visitor skips it with a click or the period key, like in the LucasArts games.
 		const say = async (speaker, text) => {
-			lineSpeaker = speaker;
 			speech.dataset.state = speaker;
 			speech.textContent = speaker === 'sindre' || speaker === 'narrator' ? text : `${speakerNames[speaker]}: ${text}`;
 			beep(speaker === 'troll' ? 110 : (speaker === 'seagull' ? 1400 : 440), 0.03, {volume: 0.02});
@@ -587,7 +434,6 @@ export default class extends GeoCitiesElement {
 				}),
 			]);
 			skipLine = undefined;
-			lineSpeaker = undefined;
 			speech.textContent = '';
 		};
 
@@ -2055,7 +1901,7 @@ export default class extends GeoCitiesElement {
 			verb = name;
 			firstItem = undefined;
 			for (const button of verbButtons) {
-				setPressed(button, button.dataset.adventureVerb === name);
+				button.setAttribute('aria-pressed', String(button.dataset.adventureVerb === name));
 			}
 
 			updateInventory();
@@ -2590,7 +2436,7 @@ export default class extends GeoCitiesElement {
 				document.dispatchEvent(new CustomEvent('geocities-adventure-sound', {detail: {isOn: !this.#isSoundOn}}));
 				beep(660, 0.1);
 				soundButton.textContent = this.#isSoundOn ? '🔊 Sound: On' : '🔈 Sound: Off';
-				setPressed(soundButton, this.#isSoundOn);
+				soundButton.setAttribute('aria-pressed', String(this.#isSoundOn));
 			},
 		};
 
@@ -2710,7 +2556,7 @@ export default class extends GeoCitiesElement {
 
 			neededDisk = 1;
 			for (const disk of disks) {
-				disk.dataset.state = '';
+				delete disk.dataset.state;
 			}
 
 			this.say(`C:\\> INSTALL\nInstalling Sindre’s Quest to C:\\SINDRE\n${progressBar(0)}\nPlease insert Disk 1 and click it.`, installStatus);
@@ -2759,3 +2605,5 @@ export default class extends GeoCitiesElement {
 		}
 	}
 }
+
+customElements.define('geo-cities-adventure', GeoCitiesAdventure);

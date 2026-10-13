@@ -3,7 +3,7 @@ import Foundation
 /**
 Finds problems with the internal links in the published HTML: links to missing files, links to missing fragment IDs, IDs that are used twice on a page, which makes fragment links ambiguous, and references to IDs that are not on the page, like `aria-labelledby` of a dialog.
 
-It checks `href` and `src` attributes, the `og:image` and `og:url` meta tags, and the attributes that refer to elements by ID (``idReferenceAttributes``), in the pages and redirects of the routes. Public files are copied as they are, so their links are not checked.
+It checks `href` and `src` attributes, the `og:image` and `og:url` meta tags, and the attributes that refer to elements by ID, like `aria-labelledby`, `for`, and `popovertarget`, in the pages and redirects of the routes. Public files are copied as they are, so their links are not checked.
 */
 public struct LinkValidator: Sendable {
 	public struct BrokenLink: Hashable, Sendable, CustomStringConvertible {
@@ -62,11 +62,9 @@ public struct LinkValidator: Sendable {
 	nonisolated(unsafe) private static let link = /\s(href|src)="([^"]+)"|\sproperty="og:(?:image|url)" content="([^"]+)"/
 
 	/**
-	The attributes that refer to other elements of the page by ID. Some take a list of IDs, separated by spaces.
+	The attributes that refer to other elements of the page by ID, and their IDs. Some take a list of IDs, separated by spaces. A literal, so the compiler checks its captures.
 	*/
-	public static let idReferenceAttributes = ["aria-labelledby", "aria-describedby", "aria-controls", "aria-owns", "for", "list", "popovertarget", "commandfor"]
-
-	nonisolated(unsafe) private static let idReference = try! Regex<(Substring, Substring, Substring)>(#"\s(\#(idReferenceAttributes.joined(separator: "|")))="([^"]*)""#)
+	nonisolated(unsafe) private static let idReference = /\s(aria-labelledby|aria-describedby|aria-controls|aria-owns|for|list|popovertarget|commandfor)="([^"]*)"/
 
 	public init(site: URL, output: URL) {
 		self.site = site

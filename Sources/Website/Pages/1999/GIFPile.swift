@@ -88,11 +88,11 @@ struct GeoCitiesGIFPile: ScriptedElement {
 		.style(GeoCitiesPage.Styles.windowBody)
 
 		// The script adds a copy for each GIF of the pile, with the still frame of the GIF for visitors who prefer reduced motion, like ``GeoCitiesPage/GIFImage``.
-		template(.part(Parts.template)) {
+		template(.part(Parts.pictureTemplate)) {
 			picture {
-				source(.media(.reducedMotion))
+				source(.part(Parts.stillFrame), .media(.reducedMotion))
 
-				img(.alt(""))
+				img(.part(Parts.gif), .alt(""))
 					.style(Styles.pileGIF)
 			}
 			.style(GeoCitiesPage.Styles.picture)
@@ -107,7 +107,9 @@ struct GeoCitiesGIFPile: ScriptedElement {
 		case pile
 		case warning
 		case status
-		case template
+		case pictureTemplate
+		case stillFrame
+		case gif
 	}
 
 	enum Styles: ElementStyleSet {
@@ -157,9 +159,7 @@ struct GeoCitiesGIFPile: ScriptedElement {
 						$0.hidden()
 					}
 					.frame(width: .auto, height: .auto, maxWidth: .rootEm(6), maxHeight: .rootEm(3))
-					.media(.allowsMotion) {
-						$0.animation(Animations.drop, .easeIn(duration: .milliseconds(450)))
-					}
+					.animation(Animations.drop, .easeIn(duration: .milliseconds(450)))
 			case .warning:
 				// Over the pile, at the top, blinking.
 				Style()
@@ -176,9 +176,7 @@ struct GeoCitiesGIFPile: ScriptedElement {
 						$0
 							.padding(.horizontal, .rootEm(0.25))
 							.background(.black)
-							.media(.allowsMotion) {
-								$0.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
-							}
+							.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
 					}
 					.children("picture img") {
 						$0.frame(width: .rootEm(2), height: .auto)

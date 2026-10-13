@@ -34,7 +34,7 @@ struct AppStoreReview: Hashable, Sendable {
 	/**
 	The most recent five-star reviews of each app, newest first and at most ``maximumCountPerApp``, from the public reviews feeds of the ``storefronts``. A feed is read page by page while the pages are full. Reviews that are very short or long are left out, so they fit the page.
 
-	Limitation: an entry that cannot be decoded makes its page look shorter than full, so the next pages of that feed are not read.
+	Limitation: an entry that cannot be decoded rejects its page. The earlier pages are kept, and the later pages of that feed are not read.
 
 	The reviews are extra, so a failed request leaves out the reviews of that app on that App Store, with a warning, instead of failing the build. When every feed has no reviews at all, which happens when Apple stops filling the feeds, there is one warning, so the missing reviews are not silent.
 	*/

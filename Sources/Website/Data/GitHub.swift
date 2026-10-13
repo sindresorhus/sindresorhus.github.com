@@ -33,7 +33,7 @@ struct GitHub: Sendable {
 	The 20 most recently created repos that are not archived or forks.
 	*/
 	func recentRepositories() async throws -> [GitHubRepository] {
-		let repositories: [GitHubRepository] = try await get("users/sindresorhus/repos?type=owner&sort=created&per_page=20")
+		let repositories: [GitHubRepository] = try await get("users/sindresorhus/repos", query: [URLQueryItem(name: "type", value: "owner"), URLQueryItem(name: "sort", value: "created"), URLQueryItem(name: "per_page", value: "20")])
 		return repositories.filter { !$0.isArchived && !$0.isFork }
 	}
 
@@ -42,7 +42,7 @@ struct GitHub: Sendable {
 	*/
 	func popularRepositories() async throws -> [GitHubRepository] {
 		// More than eight, as some of the most popular repos are lists or hidden.
-		let result: SearchResult<GitHubRepository> = try await get("search/repositories?q=\(Self.ownerQualifiers.replacing(" ", with: "+"))+fork:false+archived:false&sort=stars&order=desc&per_page=30")
+		let result: SearchResult<GitHubRepository> = try await get("search/repositories", query: [URLQueryItem(name: "q", value: "\(Self.ownerQualifiers) fork:false archived:false"), URLQueryItem(name: "sort", value: "stars"), URLQueryItem(name: "order", value: "desc"), URLQueryItem(name: "per_page", value: "30")])
 
 		return Array(
 			result.items
@@ -143,7 +143,7 @@ struct GitHub: Sendable {
 		// All at the same time.
 		async let allTimeMaintenance = maintenance()
 		async let user: User = get("users/sindresorhus")
-		let repositories: [GitHubRepository] = try await allPages("users/sindresorhus/repos", query: "type=owner")
+		let repositories: [GitHubRepository] = try await allPages("users/sindresorhus/repos", query: [URLQueryItem(name: "type", value: "owner")])
 
 		return Account(
 			repositoryCount: try await user.publicRepositoryCount,
@@ -161,8 +161,7 @@ struct GitHub: Sendable {
 		// Only the count is read.
 		struct Issue: Decodable {}
 
-		let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed.subtracting(CharacterSet(charactersIn: "&+=>"))) ?? query
-		let result: SearchResult<Issue> = try await get("search/issues?q=\(encodedQuery)&per_page=1")
+		let result: SearchResult<Issue> = try await get("search/issues", query: [URLQueryItem(name: "q", value: query), URLQueryItem(name: "per_page", value: "1")])
 		return result.totalCount
 	}
 
@@ -232,7 +231,7 @@ struct GitHub: Sendable {
 			}
 		}
 
-		let events: [Event] = try await get("users/sindresorhus/events/public?per_page=100")
+		let events: [Event] = try await get("users/sindresorhus/events/public", query: [URLQueryItem(name: "per_page", value: "100")])
 
 		return events
 			.filter { $0.type == "ReleaseEvent" && $0.payload.action == "published" }
@@ -376,8 +375,8 @@ struct GitHub: Sendable {
 		var request = URLRequest(url: #URL("https://api.github.com/graphql"), timeoutInterval: 30)
 		request.httpMethod = "POST"
 		request.httpBody = try encoder.encode(GraphQLRequest(query: query, variables: variables))
-		request.setValue("sindresorhus.com", forHTTPHeaderField: "User-Agent")
-		request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+		request = request.forGitHub(token: token)
+		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
 		return try await cache.decoded(GraphQLResponse<Value>.self, from: request, maximumAge: maximumAge).data
 	}
@@ -395,15 +394,15 @@ struct GitHub: Sendable {
 	All the items of a list that the API returns in pages, like the releases of a repo. The API returns at most 100 items per request, so it asks for pages until one is not full.
 
 	- Parameters:
-		- query: The query of the URL without the page, like `type=owner`.
+		- query: The query items without the page, like `URLQueryItem(name: "type", value: "owner")`.
 	*/
-	private func allPages<Element: Decodable>(_ path: String, query: String? = nil) async throws -> [Element] {
+	private func allPages<Element: Decodable>(_ path: String, query: [URLQueryItem] = []) async throws -> [Element] {
 		let pageSize = 100
 		var elements = [Element]()
 
 		for page in 1... {
-			let parameters = [query, "per_page=\(pageSize)", "page=\(page)"].compactMap(\.self).joined(separator: "&")
-			let entries: [Element] = try await get("\(path)?\(parameters)")
+			let parameters = query + [URLQueryItem(name: "per_page", value: String(pageSize)), URLQueryItem(name: "page", value: String(page))]
+			let entries: [Element] = try await get(path, query: parameters)
 			elements += entries
 
 			guard entries.count == pageSize else {
@@ -414,19 +413,9 @@ struct GitHub: Sendable {
 		return elements
 	}
 
-	private func get<Value: Decodable>(_ path: String) async throws -> Value {
-		guard let url = URL(string: "https://api.github.com/\(path)") else {
-			throw URLError(.badURL)
-		}
-
-		var request = URLRequest(url: url, timeoutInterval: 20)
-		request.setValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
-		request.setValue("sindresorhus.com", forHTTPHeaderField: "User-Agent")
-
-		if let token {
-			request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-		}
-
+	private func get<Value: Decodable>(_ path: String, query: [URLQueryItem] = []) async throws -> Value {
+		let url = #URL("https://api.github.com").appending(path: path).appending(formQueryItems: query)
+		let request = URLRequest(url: url, timeoutInterval: 20).forGitHub(token: token)
 		return try await cache.decoded(from: request)
 	}
 }
@@ -479,5 +468,22 @@ extension String {
 	*/
 	var repositoryOwner: String {
 		String(prefix { $0 != "/" })
+	}
+}
+
+extension URLRequest {
+	/**
+	The shared GitHub API headers for REST and GraphQL, including the versioned media type and optional authentication.
+	*/
+	fileprivate func forGitHub(token: String?) -> Self {
+		var request = self
+		request.setValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
+		request.setValue("sindresorhus.com", forHTTPHeaderField: "User-Agent")
+
+		if let token {
+			request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+		}
+
+		return request
 	}
 }

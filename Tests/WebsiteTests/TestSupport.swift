@@ -1,5 +1,5 @@
 import Foundation
-import SiteKit
+@testable import SiteKit
 @testable import Website
 
 extension Project {
@@ -49,8 +49,12 @@ extension ResponseCache {
 		let directory = try directory ?? URL.temporaryDirectory()
 
 		for (url, body) in responses {
+			guard let responseURL = URL(string: url) else {
+				preconditionFailure("An invalid fixture URL: \(url)")
+			}
+
 			let entry = #"{"date": \#(Date.now.timeIntervalSinceReferenceDate), "body": "\#(Data(body.utf8).base64EncodedString())"}"#
-			try Data(entry.utf8).write(to: directory.appending(path: "\(String(url.stableHash, radix: 16)).json"))
+			try Data(entry.utf8).write(to: directory.appending(path: "\(URLRequest(url: responseURL).responseCacheKey).json"))
 		}
 
 		self.init(directory: directory, maximumAge: .seconds(60 * 60))

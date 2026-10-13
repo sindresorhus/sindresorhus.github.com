@@ -197,15 +197,9 @@ struct GeoCitiesNorwayHolidays: ScriptedElement {
 					.frame(width: .percent(100), height: .auto)
 					.imageRendering(.pixelated)
 					.border(Color("#808080"), width: .pixels(2), style: .inset)
-					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(2))
-					}
+					.canvasFocusRing()
 			case .status:
-				Style()
-					.frame(minHeight: .lineHeight(2))
-					.margin(0)
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
+				Style().toyStatus()
 			case .stepTitle:
 				Style()
 					.margin(0)
@@ -226,7 +220,10 @@ struct GeoCitiesNorwayHolidays: ScriptedElement {
 					.textStyle(.caption)
 					.color(.white)
 					.handCursor()
-					.when(.state, is: "on") {
+					.active {
+						$0.border(Color("#333333"), width: .pixels(2), style: .inset)
+					}
+					.pressed {
 						$0
 							.border(Color("#ffcc00"), width: .pixels(4), style: .solid)
 							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ffcc00")))
@@ -247,19 +244,10 @@ struct GeoCitiesNorwayHolidays: ScriptedElement {
 					.color(.black)
 			case .kick:
 				// Big buttons for the thumbs, for the left and the right ski.
-				Style()
+				GeoCitiesPage.Styles.retroButton.style
 					.frame(minWidth: .rootEm(8), minHeight: .rootEm(3))
-					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(3), style: .outset)
-					.fontFamily(.system)
-					.textStyle(.body, weight: .bold)
-					.color(.black)
 					.touchAction(.manipulation)
 					.textSelection(.disabled)
-					.handCursor()
-					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
-					}
 			case .wrapper:
 				// The red wrapper of a Kvikk Lunsj, with the mountain code on the back.
 				Style()

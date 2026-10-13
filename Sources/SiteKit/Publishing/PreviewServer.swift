@@ -4,7 +4,7 @@ import Synchronization
 import UniformTypeIdentifiers
 
 /**
-Serves a published site on `127.0.0.1`, like GitHub Pages: `/about` serves `about.html`, a directory serves its `index.html`, and a missing file serves `404.html` with status 404.
+Serves a published site like GitHub Pages, on `127.0.0.1`, or on all IPv4 addresses with `servesLocalNetwork`: `/about` serves `about.html`, a directory serves its `index.html`, and a missing file serves `404.html` with status 404.
 
 It is for previewing only. It handles `GET` requests and closes the connection after each response. It does not answer range requests, so Safari does not play videos in the preview.
 
@@ -19,12 +19,19 @@ public struct PreviewServer: Sendable {
 	public let port: UInt16
 
 	public let reloadsPages: Bool
+
+	/**
+	Whether other devices on the local network can open the site too, like an iPhone, and not only this Mac.
+	*/
+	public let servesLocalNetwork: Bool
+
 	private let state = State()
 
-	public init(directory: URL, port: UInt16, reloadsPages: Bool = false) {
+	public init(directory: URL, port: UInt16, reloadsPages: Bool = false, servesLocalNetwork: Bool = false) {
 		self.directory = directory.standardizedFileURL
 		self.port = port
 		self.reloadsPages = reloadsPages
+		self.servesLocalNetwork = servesLocalNetwork
 	}
 
 	/**
@@ -48,7 +55,7 @@ public struct PreviewServer: Sendable {
 	*/
 	public func run(onReady: @escaping @Sendable (_ port: UInt16) -> Void = { _ in }) async throws {
 		let parameters = NWParameters.tcp
-		parameters.requiredLocalEndpoint = .hostPort(host: .ipv4(.loopback), port: NWEndpoint.Port(integerLiteral: port))
+		parameters.requiredLocalEndpoint = .hostPort(host: .ipv4(servesLocalNetwork ? .any : .loopback), port: NWEndpoint.Port(integerLiteral: port))
 		let listener = try NWListener(using: parameters)
 
 		listener.newConnectionHandler = { connection in
@@ -106,7 +113,7 @@ public struct PreviewServer: Sendable {
 			requestLine.count == 3,
 			requestLine[0] == "GET"
 		else {
-			return Self.response(status: "405 Method Not Allowed", contentType: "text/plain", body: Data("Only GET is supported.".utf8))
+			return Self.response(status: .methodNotAllowed, contentType: "text/plain", body: Data("Only GET is supported.".utf8))
 		}
 
 		let target = URLComponents(string: String(requestLine[1]))
@@ -116,7 +123,7 @@ public struct PreviewServer: Sendable {
 			target?.path == Self.statePath
 		{
 			let snapshot = await state.change(after: target?.queryItems?.first { $0.name == "since" }?.value ?? "")
-			return Self.response(status: "200 OK", contentType: "application/json", body: (try? JSONEncoder().encode(snapshot)) ?? Data())
+			return Self.response(status: .ok, contentType: "application/json", body: (try? JSONEncoder().encode(snapshot)) ?? Data())
 		}
 
 		// The version is read before the file, so a rebuild in between makes the page reload, instead of showing the old file with the new version.
@@ -127,11 +134,17 @@ public struct PreviewServer: Sendable {
 			let body = try? Data(contentsOf: file)
 		{
 			let contentType = Self.contentType(of: file)
-			return Self.response(status: "200 OK", contentType: contentType, body: contentType.hasPrefix("text/html") ? addingReloadScript(to: body, version: version) : body)
+			return Self.response(status: .ok, contentType: contentType, body: contentType.hasPrefix("text/html") ? addingReloadScript(to: body, version: version) : body)
 		}
 
-		let notFound = (try? Data(contentsOf: directory.appending(path: "404.html"))) ?? Data("Not found".utf8)
-		return Self.response(status: "404 Not Found", contentType: "text/html; charset=utf-8", body: addingReloadScript(to: notFound, version: version))
+		let notFound = directory.servedFile(forPath: "/404.html").flatMap { try? Data(contentsOf: $0) } ?? Data("Not found".utf8)
+		return Self.response(status: .notFound, contentType: "text/html; charset=utf-8", body: addingReloadScript(to: notFound, version: version))
+	}
+
+	private enum HTTPStatus: String {
+		case ok = "200 OK"
+		case notFound = "404 Not Found"
+		case methodNotAllowed = "405 Method Not Allowed"
 	}
 
 	private static let statePath = "/_preview-server/state"
@@ -155,8 +168,8 @@ public struct PreviewServer: Sendable {
 		return type.hasPrefix("text/") || type == "application/javascript" ? "\(type); charset=utf-8" : type
 	}
 
-	private static func response(status: String, contentType: String, body: Data) -> Data {
-		let header = "HTTP/1.1 \(status)\r\nContent-Type: \(contentType)\r\nContent-Length: \(body.count)\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n"
+	private static func response(status: HTTPStatus, contentType: String, body: Data) -> Data {
+		let header = "HTTP/1.1 \(status.rawValue)\r\nContent-Type: \(contentType)\r\nContent-Length: \(body.count)\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nConnection: close\r\n\r\n"
 		return Data(header.utf8) + body
 	}
 }
@@ -220,7 +233,11 @@ extension PreviewServer {
 				snapshot.revision == revision,
 				ContinuousClock.now < deadline
 			{
-				try? await Task.sleep(for: .milliseconds(50))
+				do {
+					try await Task.sleep(for: .milliseconds(50))
+				} catch {
+					break
+				}
 			}
 
 			return snapshot

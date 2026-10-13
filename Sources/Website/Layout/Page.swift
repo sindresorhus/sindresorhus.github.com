@@ -90,7 +90,7 @@ extension Page {
 	}
 
 	/**
-	The body renders first and collects the styles and scripts it uses. Then the document is rendered with only those.
+	The body renders first and collects the styles and scripts it uses. Then the document is rendered with only those. The inline scripts of the elements are generated here, so a mistake in one fails the build.
 	*/
 	var route: Route {
 		.page(path, sitemapEntry: sitemapEntry) {
@@ -99,7 +99,9 @@ extension Page {
 				SiteBody(page: self).render()
 			}
 
-			return SiteLayout(page: self, bodyHTML: body, resources: resources).render()
+			let inlineScripts = try resources.inlineScriptElements.map { try $0.generatedScript() }
+
+			return SiteLayout(page: self, bodyHTML: body, resources: resources, inlineScripts: inlineScripts).render()
 		}
 	}
 }

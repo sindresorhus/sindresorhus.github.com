@@ -15,13 +15,14 @@ AppIcon(decorative: app, size: 32)
 ```
 */
 struct AppIcon: HTML {
-	let app: App
-	let size: Int
+	private let path: RoutePath
 
 	/**
-	Whether screen readers skip the icon, as the name of the app is next to it.
+	The name of the app, for the text of the image. `nil` for an icon that screen readers skip, as the name of the app is next to it.
 	*/
-	private let isDecorative: Bool
+	private let title: String?
+
+	let size: Int
 
 	/**
 	Whether the icon is at the top of the page, so it loads at once, before other images.
@@ -34,9 +35,9 @@ struct AppIcon: HTML {
 	var imageID: String?
 
 	init(_ app: App, size: Int, isAboveFold: Bool = false, imageID: String? = nil) {
-		self.app = app
+		self.path = app.iconPath
+		self.title = app.title
 		self.size = size
-		self.isDecorative = false
 		self.isAboveFold = isAboveFold
 		self.imageID = imageID
 	}
@@ -45,15 +46,22 @@ struct AppIcon: HTML {
 	An icon that screen readers skip, because the name of the app is next to it, like `Image(decorative:)` in SwiftUI.
 	*/
 	init(decorative app: App, size: Int, isAboveFold: Bool = false) {
-		self.app = app
+		self.init(decorative: app.iconPath, size: size, isAboveFold: isAboveFold)
+	}
+
+	/**
+	The icon of an app without a page, like a tiny app, which screen readers skip, because the name of the app is next to it.
+	*/
+	init(decorative path: RoutePath, size: Int, isAboveFold: Bool = false) {
+		self.path = path
+		self.title = nil
 		self.size = size
-		self.isDecorative = true
 		self.isAboveFold = isAboveFold
 	}
 
 	var body: some HTML<HTMLTag.span> {
 		span {
-			img(.src(app.iconPath), .width(size), .height(size), .alt(isDecorative ? "" : "\(app.title) app icon"))
+			img(.src(path), .width(size), .height(size), .alt(title.map { "\($0) app icon" } ?? ""))
 				.attributes(.fetchPriority(.high), when: isAboveFold)
 				.attributes(.lazyLoading, when: !isAboveFold)
 				.attributes(.id(imageID ?? ""), when: imageID != nil)

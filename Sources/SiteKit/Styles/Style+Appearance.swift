@@ -5,7 +5,7 @@ extension Style {
 	The background color.
 	*/
 	public func background(_ color: Color) -> Self {
-		declaration(.backgroundColor, CSSValue(color))
+		declaration(.backgroundColor, color)
 	}
 
 	/**
@@ -19,21 +19,21 @@ extension Style {
 	A background image, like a gradient from ``CSSValue/linearGradient(_:_:in:)``. Several images are layers, and the first one is on top.
 	*/
 	public func backgroundImage(_ image: CSSValue, _ moreImages: CSSValue...) -> Self {
-		declaration(.backgroundImage, CSSValue(([image] + moreImages).map(\.description).joined(separator: ", ")))
+		declaration(.backgroundImage, CSSValue([image] + moreImages, separator: ", "))
 	}
 
 	/**
 	Images that hide the element where they are transparent, like a radial gradient that fades the edges of a photo. Several images are layers, and the element shows where any of them is opaque.
 	*/
 	public func maskImage(_ image: CSSValue, _ moreImages: CSSValue...) -> Self {
-		declaration(.maskImage, CSSValue(([image] + moreImages).map(\.description).joined(separator: ", ")))
+		declaration(.maskImage, CSSValue([image] + moreImages, separator: ", "))
 	}
 
 	/**
 	What the background is drawn in, like `.text` for a gradient in the letters.
 	*/
 	public func backgroundClip(_ clip: BackgroundClip) -> Self {
-		declaration(.backgroundClip, CSSValue(clip.rawValue))
+		declaration(.backgroundClip, clip)
 	}
 
 	/**
@@ -48,7 +48,7 @@ extension Style {
 	}
 
 	public func borderColor(_ color: Color) -> Self {
-		declaration(.borderColor, CSSValue(color))
+		declaration(.borderColor, color)
 	}
 
 	/**
@@ -59,7 +59,7 @@ extension Style {
 	}
 
 	public func cornerRadius(_ radius: Length) -> Self {
-		declaration(.borderRadius, CSSValue(radius))
+		declaration(.borderRadius, radius)
 	}
 
 	/**
@@ -86,7 +86,7 @@ extension Style {
 	Box shadows, drawn from the first to the last. No shadows removes them.
 	*/
 	public func shadow(_ shadows: [Shadow]) -> Self {
-		declaration(.boxShadow, CSSValue(shadows.isEmpty ? "none" : shadows.map(\.description).joined(separator: ", ")))
+		declaration(.boxShadow, shadows.isEmpty ? .none : CSSValue(shadows, separator: ", "))
 	}
 
 	public func shadow(_ shadows: Shadow...) -> Self {
@@ -110,13 +110,8 @@ extension Style {
 	- Parameter style: The line of the outline, like `.dashed` for stitches.
 	*/
 	public func outline(_ color: Color = .currentColor, width: Length = .pixels(1), offset: Length? = nil, style lineStyle: BorderStyle = .solid) -> Self {
-		let style = declaration(.outline, CSSValue("\(width) \(lineStyle.rawValue) \(color)"))
-
-		guard let offset else {
-			return style
-		}
-
-		return style.declaration(.outlineOffset, CSSValue(offset))
+		declaration(.outline, CSSValue("\(width) \(lineStyle.rawValue) \(color)"))
+			.declaration(.outlineOffset, ifPresent: offset)
 	}
 
 	/**
@@ -130,15 +125,15 @@ extension Style {
 	How the element blends with what is behind it, like `.darken` to drop a white background of an image on a light surface, like SwiftUI's `blendMode(_:)`.
 	*/
 	public func blendMode(_ mode: BlendMode) -> Self {
-		declaration(.mixBlendMode, CSSValue(mode.rawValue))
+		declaration(.mixBlendMode, mode)
 	}
 
 	public func opacity(_ opacity: Double) -> Self {
-		declaration(.opacity, CSSValue(floatLiteral: opacity))
+		declaration(.opacity, CSSValue(opacity))
 	}
 
 	public func cursor(_ cursor: Cursor) -> Self {
-		declaration(.cursor, CSSValue(cursor.rawValue))
+		declaration(.cursor, cursor)
 	}
 
 	/**
@@ -182,35 +177,35 @@ extension Style {
 	What a touch on the element does by default, like `.none` for a canvas that the visitor draws on with a finger, so the page does not scroll instead.
 	*/
 	public func touchAction(_ action: TouchAction) -> Self {
-		declaration(.touchAction, CSSValue(action.rawValue))
+		declaration(.touchAction, action)
 	}
 
 	/**
 	How the image or the canvas is scaled, like `.pixelated` for pixel art that is shown larger than its size.
 	*/
 	public func imageRendering(_ rendering: ImageRendering) -> Self {
-		declaration(.imageRendering, CSSValue(rendering.rawValue))
+		declaration(.imageRendering, rendering)
 	}
 
 	/**
 	The color schemes that the element supports, which the browser uses for its controls and scroll bars, and to pick the colors of `light-dark()`. Like `.dark` for a code block that is light on dark in both modes.
 	*/
 	public func colorScheme(_ scheme: ColorScheme) -> Self {
-		declaration(.colorScheme, CSSValue(scheme.rawValue))
+		declaration(.colorScheme, scheme)
 	}
 
 	/**
 	The color of the native controls, like check boxes, radio buttons, sliders, and progress bars, instead of the system color.
 	*/
 	public func accentColor(_ color: Color) -> Self {
-		declaration(.accentColor, CSSValue(color))
+		declaration(.accentColor, color)
 	}
 
 	/**
 	How a form field is sized, like `.content` for a text area that grows with its text.
 	*/
 	public func fieldSizing(_ sizing: FieldSizing) -> Self {
-		declaration(.fieldSizing, CSSValue(sizing.rawValue))
+		declaration(.fieldSizing, sizing)
 	}
 }
 
@@ -221,7 +216,7 @@ extension Style {
 	Scales the element from its center, like SwiftUI's `scaleEffect(_:)`.
 	*/
 	public func scaleEffect(_ scale: Double) -> Self {
-		declaration(.scale, CSSValue(floatLiteral: scale))
+		declaration(.scale, CSSValue(scale))
 	}
 
 	/**
@@ -235,7 +230,7 @@ extension Style {
 	Rotates the element around its center, like SwiftUI's `rotationEffect(_:)`.
 	*/
 	public func rotationEffect(_ angle: Angle) -> Self {
-		declaration(.rotate, CSSValue(angle.description))
+		declaration(.rotate, angle)
 	}
 
 	/**
@@ -249,14 +244,14 @@ extension Style {
 	Filters for the element, applied in order, like `.filter(.blur(radius: .pixels(2)), .brightness(1.1))`. Use `.filter(.none)` to remove them.
 	*/
 	public func filter(_ filter: Filter, _ moreFilters: Filter...) -> Self {
-		declaration(.filter, CSSValue(([filter] + moreFilters).map(\.description).joined(separator: " ")))
+		declaration(.filter, CSSValue([filter] + moreFilters, separator: " "))
 	}
 
 	/**
 	Filters for the area behind the element, like `.backdropFilter(.blur(radius: .pixels(14)))` for frosted glass. Use `.backdropFilter(.none)` to remove them.
 	*/
 	public func backdropFilter(_ filter: Filter, _ moreFilters: Filter...) -> Self {
-		declaration(.backdropFilter, CSSValue(([filter] + moreFilters).map(\.description).joined(separator: " ")))
+		declaration(.backdropFilter, CSSValue([filter] + moreFilters, separator: " "))
 	}
 
 	/**
@@ -315,9 +310,14 @@ extension Style {
 	/**
 	Runs the keyframes, like `.animation(Animations.spin, .linear(duration: .seconds(1)).repeatForever(autoreverses: false))`.
 
+	The animation only runs for visitors who allow motion: it is written in `@media (prefers-reduced-motion: no-preference)` (``MediaQuery/allowsMotion``). With reduced motion, the element shows its style without the animation, which must be its still frame, like the end of a fade in. Hide a decoration that only makes sense while it moves with `.reducedMotion { $0.hidden() }`. See “Motion” in `AGENTS.md`.
+
+	The media query comes after the declarations of the style, so the `animation` shorthand in it resets longhands like `animation-delay` that the style sets. Set them in `.media(.allowsMotion)` after the animation.
+
 	- Parameter fillMode: Whether the element keeps the styles of the first keyframe before the animation and of the last after it.
+	- Parameter isEssential: Whether the animation also runs with reduced motion, as it carries meaning and hardly moves, like the highlight of the section that a link points to.
 	*/
-	public func animation(_ keyframes: some KeyframeSet, _ animation: Animation, fillMode: AnimationFillMode? = nil) -> Self {
+	public func animation(_ keyframes: some KeyframeSet, _ animation: Animation, fillMode: AnimationFillMode? = nil, isEssential: Bool = false) -> Self {
 		let parts = [
 			keyframes.name,
 			animation.timing,
@@ -326,13 +326,24 @@ extension Style {
 			fillMode?.rawValue,
 		]
 
-		var style = declaration(.animation, CSSValue(parts.compactMap(\.self).joined(separator: " ")))
-		style.definitions += [keyframes.node] + keyframes.definitions
+		let value = CSSValue(parts.compactMap(\.self), separator: " ")
+
+		var style = if isEssential {
+			declaration(.animation, value)
+		} else {
+			media(.allowsMotion) {
+				$0.declaration(.animation, value)
+			}
+		}
+
+		style.definitions += keyframes.nodes
 		return style
 	}
 
 	/**
 	Runs the keyframes as the page scrolls instead of over time, like a header that changes when a section scrolls away. A ``AnimationTimeline/view(_:)`` timeline is named with ``viewTimeline(_:)`` on the element that scrolls through the view, and a shared ancestor makes it available with ``timelineScope(_:)``.
+
+	It also runs with reduced motion, as it follows the scrolling of the visitor instead of moving by itself.
 
 	- Parameter range: The part of the scrolling that runs the animation, like `exit 90% exit 100%`.
 	*/
@@ -341,7 +352,7 @@ extension Style {
 			.declaration(.animationTimeline, CSSValue(timeline.description))
 			.declaration(.animationRange, CSSValue(range))
 
-		style.definitions += [keyframes.node] + keyframes.definitions
+		style.definitions += keyframes.nodes
 		return style
 	}
 
@@ -360,9 +371,36 @@ extension Style {
 	}
 
 	/**
-	Stops the animations, like for reduced motion.
+	Stops the animations, like the animation of a shared style in one case. Reduced motion does not need it, as ``animation(_:_:fillMode:isEssential:)`` only runs for visitors who allow motion.
+
+	Use it in a condition, like `.when(States.paused) { $0.noAnimation() }`, or in a later rule. In the style that runs the animation, the animation wins, as its media query comes after the declarations.
 	*/
 	public func noAnimation() -> Self {
 		declaration(.animation, .none)
+	}
+}
+
+extension Style {
+	/**
+	Whether transformed children remain in three dimensions.
+	*/
+	public func transformStyle(_ value: TransformStyle) -> Self {
+		declaration(.transformStyle, value)
+	}
+}
+
+extension Style {
+	/**
+	The size of each background image tile.
+	*/
+	public func backgroundSize(width: Length, height: Length) -> Self {
+		declaration(.backgroundSize, [CSSValue(width), CSSValue(height)])
+	}
+
+	/**
+	The distance from the viewer to a three-dimensional scene (`perspective` in CSS).
+	*/
+	public func perspective(_ distance: Length) -> Self {
+		declaration(.perspective, distance)
 	}
 }

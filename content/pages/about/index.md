@@ -20,7 +20,6 @@ In open source, I maintain [many npm packages](https://www.npmjs.com/~sindresorh
 - Didn’t learn programming properly until my twenties
 	- Before that, I copied PHP and JavaScript without quite understanding them
 - Got into open source by contributing to [TodoMVC](https://todomvc.com), and later became one of its maintainers
-- Became a Mac developer the day Swift was released
 - Speak Swift, JavaScript, English, and Norwegian, in that order
 - Not a company, just me
 - Coined the term “[ponyfill](https://github.com/sindresorhus/ponyfill)”
@@ -32,6 +31,26 @@ In open source, I maintain [many npm packages](https://www.npmjs.com/~sindresorh
 - On [tabs](https://en.wikipedia.org/wiki/Indentation_style#Tab_vs._space) since the ’90s
 - Permanent dark mode
 }
+
+## How I Learned to Make Things
+
+At school, we watched Flash movies and played Flash games in every break. I wanted to know how they were made, but unlike websites, they had no “View Source”. So I decompiled them. Nobody obfuscated their files back then, so everything was there to see.
+
+Then I started to change them. I redrew the characters, added new enemies, and put in high scores. I didn’t really understand the code. I changed things, broke them, and changed them back until the game did what I wanted. The first time other people played a game I had glued together, I was very proud.
+
+That is still how I learn. I take something apart to see how it works, and then I make my own. Today, it’s macOS internals instead of Flash games.
+
+## The Apps That Made Me Want to Make Apps {#why-mac-apps}
+
+In 2007, I left Windows for my first Mac, a 17-inch MacBook Pro, right in the middle of what people called the “Delicious Generation”. The name came from [Delicious Library](https://en.wikipedia.org/wiki/Delicious_Library), an app that put your books and movies on a realistic wooden shelf. Independent developers were making Mac apps that felt more like crafted objects than software, and [Coda](https://web.archive.org/web/20080526024010/http://www.panic.com/coda/) and [Things](https://web.archive.org/web/20090302220524/http://www.culturedcode.com/things/) were my favorites. Coda put a whole web workflow (editor, preview, file transfer, and terminal) into one beautiful window. Things made a to-do list feel calm. Small teams made them, and every detail felt cared for.
+
+I remember thinking: “One day, I’m going to make an app on that level.”
+
+Then, for a long time, nothing happened. My biggest blocker was Objective-C. It never clicked with me: the square brackets, the manual memory management, the header files. So I made websites, and then open source, and then much more open source. In 2014, Apple released Swift, and that changed everything. I started learning it the same day.
+
+The first app still took three more years. In January 2017, I got an idea for a small Mac app and had some free time, so I jumped right in and learned what I needed as I went. A month later, I released [my first Mac app](/battery-indicator). It was a battery indicator. Not exactly Coda. But after ten years of dreaming, it took one month to make.
+
+That era is mostly gone. Even [Delicious Library shut down](https://daringfireball.net/linked/2024/11/26/delicious-library-eol) in 2024. But the goal is still the same: make [apps](/apps) that would wow the younger me who opened Coda for the first time. Apple has featured some of them, but none of them are on that level yet. I’m slowly getting there.
 
 ## Changelog
 
@@ -104,6 +123,7 @@ In open source, I maintain [many npm packages](https://www.npmjs.com/~sindresorh
 	- Removed: School
 - 2007
 	- Added: My first Mac, a 17-inch [MacBook Pro](https://support.apple.com/en-us/docs/mac/pp215)
+	- Added: A dream of making apps like [Coda and Things](#why-mac-apps)
 	- Removed: Windows
 - 2005
 	- Added: My first laptop, a 17-inch [Dell Inspiron 9300](https://www.ifixit.com/Device/Dell_Inspiron_9300)

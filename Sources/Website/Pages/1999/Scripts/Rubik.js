@@ -1,19 +1,6 @@
 // Pappa’s Rubik’s Cube from 1981 on the 1999 page: a real 3D cube on a canvas, which the visitor turns by dragging the faces or with the keys of the notation, scrambles, times, solves with the help of a layer-by-layer solver, and cheats on like every kid did: by peeling the stickers, or by taking it apart with a screwdriver. The canvas runs only while it is on the screen and the tab is visible. With reduced motion, nothing moves by itself: every turn happens at once. Nothing makes a sound until the visitor turns on the sound. The cube and the best times are kept in the browser.
-
-// The position of a pointer on a canvas, in the pixels of the canvas.
-const canvasPoint = (canvas, event) => {
-	const rectangle = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rectangle.left) * canvas.width / rectangle.width,
-		y: (event.clientY - rectangle.top) * canvas.height / rectangle.height,
-	};
-};
-
-// A number between 0 and 1 that is always the same for the same seed, for the things that must not flicker, like the wear of the stickers.
-const hash = seed => {
-	const value = Math.sin(seed * 127.1 + 311.7) * 43_758.5453;
-	return value - Math.floor(value);
-};
+import GeoCitiesElement, {randomItem, shuffled, hash, hasModifier} from '/scripts/geocities-element.js';
+import {canvasPoint} from '/scripts/geocities-canvas.js';
 
 // Vectors are arrays of three numbers, and matrices are arrays of nine numbers, row by row.
 const add = (first, second) => [first[0] + second[0], first[1] + second[1], first[2] + second[2]];
@@ -888,18 +875,6 @@ const rotations = (() => {
 // The rotation that a piece has now, compared to how it was in the shop.
 const rotationOfCubie = cubie => rotations.find(rotation => isSameVector(roundVector(transform(rotation, cubie.home)), cubie.position) && cubie.stickers.every(sticker => isSameVector(roundVector(transform(rotation, sticker.homeNormal)), sticker.normal) && isSameVector(roundVector(transform(rotation, sticker.homeRight)), sticker.right)));
 
-const randomItem = items => items[Math.floor(Math.random() * items.length)];
-
-const shuffled = items => {
-	const result = [...items];
-	for (let index = result.length - 1; index > 0; index--) {
-		const other = Math.floor(Math.random() * (index + 1));
-		[result[index], result[other]] = [result[other], result[index]];
-	}
-
-	return result;
-};
-
 // Pappa’s scramble from 1981, which has been on the shelf since.
 const pappasScramble = 'F2 U’ R2 D B’ L2 U R’ F D2 L’ B2 U’ F2 R D’ L B U2 R2 F’ D L2 B’';
 
@@ -1238,7 +1213,7 @@ const tableSpots = () => {
 	return shuffled(spots);
 };
 
-export default class extends GeoCitiesElement {
+class GeoCitiesRubik extends GeoCitiesElement {
 	#context;
 	#pixelScale;
 	#loop;
@@ -2443,7 +2418,7 @@ export default class extends GeoCitiesElement {
 			return;
 		}
 
-		if (event.ctrlKey || event.metaKey || event.altKey) {
+		if (hasModifier(event)) {
 			return;
 		}
 
@@ -2824,3 +2799,5 @@ export default class extends GeoCitiesElement {
 		this.#sounds.click();
 	}
 }
+
+customElements.define('geo-cities-rubik', GeoCitiesRubik);

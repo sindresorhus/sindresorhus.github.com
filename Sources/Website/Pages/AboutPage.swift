@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-The about page: the text of `content/pages/about/index.md`, with the main numbers below the title, what I am working on now above the first section, all the numbers above the section about how I make an app, and the most popular repos above the section about support, which the build gets, so they do not go stale.
+The about page: the text of `content/pages/about/index.md`, with the main numbers below the title, what I am working on now above the first section, all the numbers and a package and a repo of the day above the section about how I make an app, and the most popular repos above the section about support, which the build gets, so they do not go stale.
 
 The Markdown is rendered when the content loads, before the GitHub and npm data, so the numbers are not in the text. The large numbers are rounded down, so nightly builds only change the page when a number passes a round value. Each number that the build could not get is left out.
 */
@@ -25,17 +25,19 @@ struct AboutPage: Page {
 
 	var body: some HTML {
 		ProsePage(title: "About \(Site.name)", photo: page.frontmatter.photo ?? .path(Site.author.photoPath)) {
-			div {
-				StatList(stats: stats)
-			}
-			.style(Styles.stats)
+			// Close to the title, like the intro below the title of other pages, and set apart from the text below. The margin of the header above is 2.5rem.
+			StatList(stats: stats)
+				.style {
+					$0.margin(top: .rootEm(-2), horizontal: 0, bottom: .rootEm(1.75))
+				}
 
-			// What I am working on now ends the introduction. The numbers are before the section about how I make an app. The projects are before the section about support, as they are the work that it supports.
+			// What I am working on now ends the introduction. The numbers and the projects of the day are before the section about how I make an app. The projects are before the section about support, as they are the work that it supports.
 			if let parts = page.markdown.contentSeparated(beforeHeadings: [Self.nowNextHeadingID, Self.numbersNextHeadingID, Self.projectsNextHeadingID]) {
 				parts[0]
 				now
 				parts[1]
 				numbers
+				projectsOfTheDay
 				parts[2]
 				popularProjects
 				parts[3]
@@ -43,6 +45,7 @@ struct AboutPage: Page {
 				page.markdown.content
 				now
 				numbers
+				projectsOfTheDay
 				popularProjects
 			}
 
@@ -190,7 +193,7 @@ struct AboutPage: Page {
 			Stat(count: years.total(\.reviewCount), noun: "code review", isApproximate: true),
 			content.recentActivity.commentCount.map { Stat(count: $0, noun: "comment", isApproximate: true) },
 			Stat(count: years.longestStreak, noun: "day", suffix: "in a row with contributions"),
-			years.busiestDay.flatMap { Stat(busiestDay: $0, format: .siteDay) },
+			years.busiestDay.map { Stat(busiestDay: $0, format: .siteDay) },
 			// The short name, like “Fri”, as a long one, like “Wednesday”, does not fit a column on phones.
 			years.busiestWeekday.map { Stat(count: $0.count, value: Calendar.site.shortWeekdaySymbols[$0.weekday], label: "busiest weekday") },
 		]
@@ -256,6 +259,33 @@ struct AboutPage: Page {
 	}
 
 	/**
+	A package and a repo of the day, after the numbers, so visitors also find the projects they do not know. Each card has a button for a random other one.
+	*/
+	@HTMLBuilder
+	private var projectsOfTheDay: some HTML {
+		let package = ProjectOfTheDay(title: "Package of the Day", randomTitle: "Random Package", listPath: .npmPackages, projects: content.discoverablePackages, date: content.buildDate)
+		let repository = ProjectOfTheDay(title: "Repo of the Day", randomTitle: "Random Repo", listPath: .repositories, projects: content.discoverableRepositories, date: content.buildDate)
+
+		if package != nil || repository != nil {
+			Section("Discover", id: "discover") {
+				div {
+					package
+					repository
+				}
+				.style {
+					// Side by side from tablets.
+					$0
+						.display(.grid)
+						.gap(.rootEm(1))
+						.from(.tablet) {
+							$0.gridColumns(2)
+						}
+				}
+			}
+		}
+	}
+
+	/**
 	The main numbers below the title, like “61 apps · 12 years of app craft · 1.1K+ repos · 15 years of open source”. The numbers section has them too, with the others.
 	*/
 	private var stats: [String] {
@@ -269,7 +299,6 @@ struct AboutPage: Page {
 
 extension AboutPage {
 	enum Styles: StyleSet {
-		case stats
 		case projects
 		case project
 		case projectName
@@ -278,23 +307,13 @@ extension AboutPage {
 
 		var style: Style {
 			switch self {
-			case .stats:
-				// Close to the title, like the intro below the title of other pages, and set apart from the text below.
-				Style()
-					.margin(top: .rootEm(-1.5), horizontal: 0, bottom: .rootEm(1.75))
 			case .projects:
 				// Without the bullets and the space of the lists of the prose around it.
 				Style()
+					.plainList()
 					.grid(minimumColumnWidth: .rootEm(16))
 					.gap(.rootEm(1))
 					.margin(top: .rootEm(1.5), horizontal: 0, bottom: 0)
-					.padding(0)
-					.declaration(.listStyle, .none)
-					.children("li") {
-						$0
-							.margin(0)
-							.padding(0)
-					}
 			case .project:
 				Style()
 					.vstack(spacing: .rootEm(0.375))

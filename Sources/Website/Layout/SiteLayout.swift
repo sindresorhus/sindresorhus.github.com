@@ -18,6 +18,11 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 	*/
 	let resources: PageResources
 
+	/**
+	The scripts of the elements with an inline script that the body shows (``ScriptedElement/generatedScript()``).
+	*/
+	let inlineScripts: [String]
+
 	var title: String {
 		page.metadata.documentTitle
 	}
@@ -27,6 +32,13 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 	}
 
 	var head: some HTML {
+		// First, as an import map must come before any module script. Browsers other than Chrome and Safari only use one import map.
+		if let importMap = RoutePath.importMap {
+			script(.type("importmap")) {
+				HTMLRaw(importMap)
+			}
+		}
+
 		page.head
 
 		if let tint = page.tint {
@@ -61,10 +73,9 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 			script(.src(path.versioned), .type(.module)) {}
 		}
 
-		// The build generates these scripts before the pages render (`Site.contentHashes`), so a mistake in one fails the build there, and they cannot fail here.
-		for element in resources.inlineScriptElements {
+		for inlineScript in inlineScripts {
 			script(.type(.module)) {
-				HTMLRaw((try? element.generatedScript()) ?? "")
+				HTMLRaw(inlineScript)
 			}
 		}
 	}
@@ -222,8 +233,9 @@ extension Stylesheet {
 			.noOutline()
 		)
 
+		// The text of the primary color in light mode, and of the softer body color in dark mode, where white text glares, with their colors for more contrast.
 		Rule("body", Style()
-			.color(.gray(900), dark: .gray(300))
+			.color(.primaryText, dark: .bodyText)
 			.background(.pageBackground)
 			.overflow(horizontal: .clip)
 			.declaration(.webkitFontSmoothing, "antialiased")

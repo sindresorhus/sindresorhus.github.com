@@ -131,12 +131,14 @@ public struct Publisher: Sendable {
 	*/
 	private func removeFiles(except publishedFiles: Set<String>) throws {
 		// Everything that is not a directory, also broken symbolic links, which are not files.
-		for file in output.contentsRecursively() where !file.isDirectory && !publishedFiles.contains(file.path(relativeTo: output)) {
+		// Output symlinks are replaced, so neither writes nor cleanup follow them outside the site.
+		let contents = output.contentsRecursively()
+		for file in contents where file.isSymbolicLink || (!file.isDirectory && !publishedFiles.contains(file.path(relativeTo: output))) {
 			try file.removeIfExists()
 		}
 
-		let directories = output.contentsRecursively()
-			.filter(\.isDirectory)
+		let directories = contents
+			.filter { !$0.isSymbolicLink && $0.isDirectory }
 			.sorted(using: KeyPathComparator(\.path.count, order: .reverse))
 
 		for directory in directories where directory.isEmptyDirectory {

@@ -23,11 +23,12 @@ struct SponsorList: HTML {
 
 			if tier.sponsors.contains(where: { $0.logo != nil }) {
 				div {
+					// A sponsor without a URL gets a link without a destination, which is not a link, but has the same look.
 					for sponsor in tier.sponsors {
-						a(.href(sponsor.url?.absoluteString ?? ""), .rel("nofollow")) {
+						Link(destination: sponsor.url.map(LinkDestination.url)) {
 							if let logo = sponsor.logo {
 								// When the name is shown next to it, the logo is decorative, so screen readers read the name once.
-								img(.src(logo.description), .alt(sponsor.showsName ? "" : sponsor.name), .width(sponsor.logoWidth ?? 0))
+								img(.src(logo.path.description), .alt(sponsor.showsName ? "" : sponsor.name), .width(logo.width))
 							}
 
 							if sponsor.logo == nil || sponsor.showsName {
@@ -37,6 +38,7 @@ struct SponsorList: HTML {
 								.style(Styles.name)
 							}
 						}
+						.attributes(.rel("nofollow"), when: sponsor.url != nil)
 						.style(Styles.sponsor)
 					}
 				}

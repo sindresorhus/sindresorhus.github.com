@@ -273,13 +273,10 @@ struct GeoCitiesDeskToys: ScriptedElement {
 			case .status:
 				// A yellow sticky note from Pappa, where the toys say what they do.
 				Style()
-					.frame(minHeight: .lineHeight(2))
-					.margin(0)
+					.toyStatus()
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 					.background(Color("#fff68f"))
 					.shadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#00000059")))
-					.fontFamily(GeoCitiesPage.comicSans)
-					.textStyle(.caption, weight: .bold)
 					.color(.black)
 			case .toys:
 				Style()

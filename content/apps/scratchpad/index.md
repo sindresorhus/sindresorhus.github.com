@@ -20,6 +20,11 @@ pressQuotes: [
 ]
 olderVersions: [
 	{
+		version: '1.4.4'
+		macOS: '26'
+		url: 'https://www.dropbox.com/scl/fi/04rzf69wbgl4jb1ubcjwc/Scratchpad-1.4.4-macOS-26-1792018799.zip?rlkey=k9yr2pl4k8l311vb355ceot5q&raw=1'
+	}
+	{
 		version: '1.3.7'
 		macOS: '15'
 		url: 'https://www.dropbox.com/scl/fi/xw6k068700wg41jjt7ens/Scratchpad-1.3.7-macOS-15-1771197879.zip?rlkey=ruqmud5mrvhscs0i6dgeres16&raw=1'
@@ -66,11 +71,13 @@ The app uses iCloud syncing to securely sync your text across devices. This feat
 
 ## Trial
 
-@Trial(url: "https://www.dropbox.com/scl/fi/dxuv8fq20p5grer501fu0/Scratchpad-1.4.2-trial-1782300540.zip?rlkey=nkljqicen6hdzlovv3usy2cht&raw=1") {
+@Trial(url: "https://www.dropbox.com/scl/fi/af7ry35naarkttdq6d6fr/Scratchpad-1.5.0-trial-1792017662.zip?rlkey=q6lxjpekmfh0lvt42txvthat6&raw=1") {
 	The trial of the macOS app is fully functional. The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 }
 
 *Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
+
+*Requires macOS 27 or later*
 
 There is no trial for the iOS version.
 

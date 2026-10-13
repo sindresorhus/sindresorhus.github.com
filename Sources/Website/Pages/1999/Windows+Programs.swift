@@ -544,7 +544,7 @@ extension GeoCitiesWindows {
 				button(.id(Hooks.networkUp), .type(.button), .disabled) {
 					"⬆️ Up"
 				}
-				.style(GeoCitiesPage.Styles.smallButton)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 				p(.id(Hooks.networkPath)) {
 					"Network Neighborhood"
@@ -743,7 +743,7 @@ extension GeoCitiesWindows {
 				button(.id(Hooks.freecellUndo), .type(.button), .disabled) {
 					"Undo"
 				}
-				.style(GeoCitiesPage.Styles.smallButton)
+				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
 				label(.for(Hooks.freecellNumber.rawValue)) {
 					"Game #"
@@ -994,7 +994,7 @@ extension GeoCitiesWindows {
 							button(.type(.button), .hook(Hooks.removeProgram, value: program)) {
 								"Remove"
 							}
-							.style(GeoCitiesPage.Styles.smallButton)
+							.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 						}
 						.style(Styles.programRow)
 					}
