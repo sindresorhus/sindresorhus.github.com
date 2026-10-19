@@ -9,6 +9,9 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 1615988943
+sharedQuestions: [
+	'backup-settings'
+]
 hasSentry: true
 olderVersions: [
 	{
@@ -242,7 +245,3 @@ Compared to [XMenu](https://apps.apple.com/us/app/xmenu/id419332741):
 ### Can I add shortcuts or scripts to the menu? {#short-run}
 
 The app is for folders only. However, I have an app for exactly this: [Short Run](/short-run), which lets you run shortcuts from the menu bar.
-
-### How can I export, import, sync, or back up the settings?
-
-[See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)

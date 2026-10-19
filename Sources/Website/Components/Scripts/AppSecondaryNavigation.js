@@ -72,11 +72,7 @@ class AppSecondaryNavigation extends HTMLElement {
 			const activeHeading = isAtEnd ? headings.at(-1) : headings.findLast(heading => heading.getBoundingClientRect().top < line);
 
 			for (const link of links) {
-				if (activeHeading && headingOf.get(link) === activeHeading) {
-					link.setAttribute('aria-current', 'location');
-				} else {
-					link.removeAttribute('aria-current');
-				}
+				link.ariaCurrent = activeHeading && headingOf.get(link) === activeHeading ? 'location' : null;
 			}
 		};
 

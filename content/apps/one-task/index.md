@@ -4,6 +4,14 @@ subtitle: 'Conquer one task at a time'
 publicationDate: '2023-09-19'
 isPaid: true
 appStoreID: 6465745322
+sharedQuestions: [
+	'blurry-secondary-display'
+	'widget-transparent-background'
+	'widget-missing'
+	'lock-screen-centered'
+	'lock-screen-after-restart'
+	'lock-screen-widget-disappears'
+]
 platforms: [
 	'macOS'
 	'iOS'
@@ -105,14 +113,6 @@ I don’t plan to add this. I want to keep the app super simple.
 ### Can I choose any color for the menu bar text on macOS? {#menu-bar-text-color}
 
 The picker only offers system colors, not a freeform color. System colors automatically adapt to stay readable on both light and dark menu bars, while a fixed custom color could become unreadable when the menu bar background changes, for example with a dynamic wallpaper or when switching between light and dark mode.
-
-### The menu bar text looks blurry or is not dimmed on my secondary display
-
-[See this answer](/apps/faq#menu-bar-secondary-display)
-
-### Can you make the widget background transparent?
-
-This is not possible.
 
 ### The text in the widget is quite large
 

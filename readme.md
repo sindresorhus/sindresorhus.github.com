@@ -6,12 +6,16 @@
 
 ## Development
 
-The site is generated with Swift. Content is Markdown in `content/`, and static files are in `public/`. A page with files of its own, like images, is a directory with an `index.md`, and its files are published next to the page, like `/dato/icon.png` for `content/apps/dato/icon.png`.
+The site is generated with Swift. Content is Markdown in `content/`, and static files are in `public/`. A page with files of its own, like images, is a directory with an `index.md`, and its files are published next to the page, like `/dato/icon.png` for `content/apps/dato/icon.png`. A draft (`isDraft: true`) publishes neither its page nor its files.
 
 ```sh
 swift run website build # Writes the site to `dist`
+swift run website build --verbose # Also prints how long each step of the build takes
 swift run website serve # Serves the site, and rebuilds and reloads it on changes
+swift run website serve --local-network # Also serves the site on the local network, to test on other devices, like an iPhone
 swift run website check # Builds the site, and prints possible mistakes, like spelling mistakes (`content/spelling-allowlist.txt` has the known words)
+swift run website check --strict # Also fails when there is a warning, like a failed request or a spelling mistake (`build --strict` too)
+swift run website routes # Lists every route
 swift test
 ```
 
@@ -24,7 +28,7 @@ Set `GITHUB_TOKEN` to avoid the GitHub API rate limit. Local builds cache the re
 ## Architecture
 
 - **Packages:** `SiteKit` is the generic toolkit (content loading, Markdown, routes, publishing, styles), `Website` is everything specific to this site, `WebsiteCLI` is the `website` command, and `RSS` writes the feeds.
-- **Routes:** Every output file is a `Route`, listed in `Site.routes`. The publisher renders them in parallel, writes only changed files, and removes files that are no longer published. The sitemap comes from the routes.
+- **Routes:** Every output file is a `Route`, listed in `Site.routes`. The publisher renders them in parallel, writes only changed files, and removes files that are no longer published. The sitemap comes from the routes of the pages that search engines may index.
 - **Content and data:** The Markdown and its frontmatter are loaded into typed models, and the App Store, GitHub, and npm data is fetched at build time.
 - **Components:** HTML is written in Swift with [Elementary](https://github.com/elementary-swift/elementary). Styles are typed Swift values. A page collects the styles that its components use while it renders, and gets them in a `<style>` element, so no list of components is kept.
 - **Behavior:** A component with behavior is a light DOM custom element (`ScriptedElement`). Its script is a `.js` file in the `Scripts` folder next to its Swift file, which defines the element, or a short script inline in the Swift file. The build finds the script files by folder and publishes them unchanged. An import map in each page adds the content hash to imports.
@@ -36,7 +40,7 @@ The reasons for the main choices are in [`meta.md`](meta.md).
 
 Pushes to `main`, manual runs, and the nightly run build, test, and publish the site to GitHub Pages in one workflow (`ci.yml`). A deploy is skipped when the site did not change.
 
-After a deploy, the workflow sends the URLs in the sitemap to [IndexNow](https://www.indexnow.org) (Bing and other search engines), with the key in `public/indexnow.txt`.
+After a deploy that is not the nightly one, the workflow sends the URLs in the sitemap to [IndexNow](https://www.indexnow.org) (Bing and other search engines), with the key in `public/indexnow.txt`.
 
 Cloudflare can cache the HTML too, with a cache rule for `sindresorhus.com/*` (“Cache everything”). The workflow purges the cache after each deploy when the `CLOUDFLARE_API_TOKEN` (with the “Cache Purge” permission) and `CLOUDFLARE_ZONE_ID` secrets are set.
 

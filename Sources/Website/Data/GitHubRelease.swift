@@ -31,7 +31,7 @@ struct GitHubRelease: Decodable, Sendable {
 	/**
 	A release in a response of the API. The release is `nil` when it has no publication date, like a draft.
 	*/
-	struct Entry: Decodable {
+	struct Entry: Decodable, Sendable {
 		let release: GitHubRelease?
 
 		init(from decoder: any Decoder) throws {

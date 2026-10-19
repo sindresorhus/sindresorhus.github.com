@@ -86,7 +86,6 @@ struct QuoteFigure: HTML {
 			if let app {
 				a(.href(app.url)) {
 					AppIcon(decorative: app, size: 32)
-						.style(Styles.appIcon)
 
 					app.title
 				}
@@ -148,7 +147,6 @@ struct QuoteFigure: HTML {
 	enum Styles: StyleSet {
 		case root
 		case appLink
-		case appIcon
 		case text
 		case reviewTitle
 		case reviewText
@@ -176,8 +174,6 @@ struct QuoteFigure: HTML {
 					.textStyle(.caption, weight: .semibold)
 					.color(.primaryText)
 					.hoverColor(.link)
-			case .appIcon:
-				Style().flexShrink(0)
 			case .text:
 				// Without the look of a quote in prose, like on the now page. The title of a review is a little apart from its text. It is a gap, as the root resets the margins of the paragraphs.
 				Style()

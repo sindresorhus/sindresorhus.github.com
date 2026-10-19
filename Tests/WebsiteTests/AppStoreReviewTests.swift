@@ -1,5 +1,6 @@
 import Foundation
 import SiteKit
+import TestSupport
 import Testing
 @testable import Website
 
@@ -56,7 +57,7 @@ struct AppStoreReviewTests {
 	func `a full page of a feed reads the next page, and each app keeps the newest reviews up to the maximum`() async throws {
 		func entry(number: Int) -> String {
 			// One review a day, from the first of January, so a higher number is newer.
-			let date = Calendar.current.date(byAdding: .day, value: number, to: Date(timeIntervalSince1970: 1_767_225_600))!.ISO8601Format()
+			let date = Date(timeIntervalSince1970: 1_767_225_600 + Double(number * 86_400)).ISO8601Format()
 			return #"{"author": {"name": {"label": "A reviewer"}}, "title": {"label": "Review \#(number)"}, "content": {"label": "A review that is long enough to be shown on the page of the app."}, "im:rating": {"label": "5"}, "updated": {"label": "\#(date)"}}"#
 		}
 
@@ -78,8 +79,8 @@ struct AppStoreReviewTests {
 		let warnings = WarningCollector()
 		let reviews = await AppStoreReview.recentFiveStar(appIDs: [1], cache: cache, warnings: warnings)
 
+		// The 25 newest.
 		#expect(reviews[1]?.map(\.title) == (36...60).reversed().map { "Review \($0)" })
-		#expect(AppStoreReview.maximumCountPerApp == 25)
 		#expect(warnings.all.isEmpty)
 	}
 }

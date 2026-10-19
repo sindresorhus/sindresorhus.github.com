@@ -74,10 +74,7 @@ extension ProseStyles {
 		.color(.primaryText)
 		.cursor(.pointer)
 		.textSelection(.disabled)
-		.transition(.backgroundColor, animation: .stateChange)
-		.hoverOrFocusVisible {
-			$0.background(.cardHover)
-		}
+		.hoverFill(.cardHover)
 		.nested("a") {
 			$0.declaration(.fontWeight, .inherit)
 		}
@@ -127,15 +124,10 @@ extension ProseStyles {
 		.fontWeight(.medium)
 		.color(.secondaryText)
 		.underline(false)
-		.transition(.color, .backgroundColor, animation: .stateChange)
 		.after {
-			$0.content("→")
+			$0.content("→", alternativeText: "")
 		}
-		.hoverOrFocusVisible {
-			$0
-				.background(.card)
-				.color(.primaryText)
-		}
+		.hoverFill(.card, color: .primaryText)
 
 	static let anchoredHeadingStyle = Style()
 		.position(.relative)

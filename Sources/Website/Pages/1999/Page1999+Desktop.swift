@@ -293,7 +293,7 @@ extension GeoCitiesPage {
 				.style(Styles.startMenu)
 
 				div {
-					button(.id(Hooks.startButton), .type(.button), .ariaExpanded(false), .ariaControls(Hooks.startMenu.rawValue)) {
+					button(.id(Hooks.startButton), .type(.button), .ariaExpanded(false), .ariaControls(Hooks.startMenu.id)) {
 						span {
 							"⊞"
 						}
@@ -472,7 +472,7 @@ extension GeoCitiesPage {
 				}
 
 				div {
-					label(.for(Hooks.diaryPassword.rawValue)) {
+					label(.for(Hooks.diaryPassword.id)) {
 						"Password:"
 					}
 
@@ -501,7 +501,7 @@ extension GeoCitiesPage {
 
 			p(.id(Hooks.diaryStatus), .role("status")) {}
 
-			label(.for(Hooks.diaryText.rawValue)) {
+			label(.for(Hooks.diaryText.id)) {
 				"My diary"
 			}
 			.style(VisuallyHidden.Styles.root)

@@ -19,6 +19,8 @@ struct ReviewsPage: Page {
 	}
 
 	var body: some HTML {
+		let quotes = pressQuotes + reviews
+
 		section {
 			PageHeader(title: "Wall of Love", intro: "What the press and App Store reviewers say about my apps.")
 
@@ -48,8 +50,8 @@ struct ReviewsPage: Page {
 			script {
 				HTMLRaw(#"""
 				{
-					const wall = document.querySelector('#\#(Hooks.wall.rawValue)');
-					const reviews = [...wall.children].slice(\#(pressQuoteCount));
+					const wall = document.querySelector('#\#(Hooks.wall.id)');
+					const reviews = [...wall.children].slice(\#(pressQuotes.count));
 
 					for (let index = reviews.length - 1; index > 0; index--) {
 						const other = Math.floor(Math.random() * (index + 1));
@@ -66,8 +68,8 @@ struct ReviewsPage: Page {
 							card.hidden = !cards.includes(card);
 						}
 
-						const notice = document.querySelector('#\#(Hooks.filterNotice.rawValue)');
-						document.querySelector('#\#(Hooks.filterApp.rawValue)').textContent = \#(appTitlesJSON)[app];
+						const notice = document.querySelector('#\#(Hooks.filterNotice.id)');
+						document.querySelector('#\#(Hooks.filterApp.id)').textContent = \#(Self.appTitlesJSON(quotes))[app];
 						notice.hidden = false;
 					}
 				}
@@ -80,25 +82,24 @@ struct ReviewsPage: Page {
 	/**
 	The titles of the apps with quotes, by slug, for the filter notice.
 	*/
-	private var appTitlesJSON: String {
+	private static func appTitlesJSON(_ quotes: [QuoteFigure]) -> String {
 		JSONEncoder.pageJSON(Dictionary(quotes.compactMap(\.app).map { ($0.slug, $0.title) }) { first, _ in first })
 	}
 
-	private var pressQuoteCount: Int {
-		content.activeApps.map(\.pressQuotes.count).sum
+	/**
+	The press quotes in the order of the apps. They are before the reviews.
+	*/
+	private var pressQuotes: [QuoteFigure] {
+		content.activeApps.flatMap { app in
+			app.pressQuotes.map { QuoteFigure(kind: .press($0), app: app) }
+		}
 	}
 
 	/**
-	The press quotes in the order of the apps, and then the reviews, newest first. Reviews of the same date are in the order of the app titles and the review titles.
+	The reviews, newest first. Reviews of the same date are in the order of the app titles and the review titles.
 	*/
-	private var quotes: [QuoteFigure] {
-		let pressQuotes = content.activeApps.flatMap { app in
-			app.pressQuotes.map { QuoteFigure(kind: .press($0), app: app) }
-		}
-
-		let reviews = content.activeAppReviews.map { QuoteFigure(kind: .review($0.review), app: $0.app) }
-
-		return pressQuotes + reviews
+	private var reviews: [QuoteFigure] {
+		content.activeAppReviews.map { QuoteFigure(kind: .review($0.review), app: $0.app) }
 	}
 }
 

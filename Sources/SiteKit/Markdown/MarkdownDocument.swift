@@ -25,7 +25,7 @@ public struct MarkdownDocument: Sendable {
 		case extended
 
 		/**
-		GitHub release notes: bare URLs and emails become links, raw HTML other than `<kbd>` is escaped, and links allow only HTTP, HTTPS, mailto, and relative destinations. Images allow only HTTP, HTTPS, and relative destinations. No other extensions apply.
+		GitHub release notes: bare URLs and emails become links, raw HTML other than `<kbd>` is escaped, and links allow only HTTP, HTTPS, mailto, and relative destinations, so another link is only its text. Images allow only HTTP, HTTPS, and relative destinations. Tables are in the container of the theme in the options, like in the extended style, so a wide table scrolls. No other extensions apply.
 		*/
 		case releaseNotes
 	}
@@ -51,14 +51,14 @@ public struct MarkdownDocument: Sendable {
 		```
 		*/
 		public struct BlockDirectiveRenderer: Sendable {
-			let render: @Sendable (_ arguments: [String: String], _ contentHTML: String) throws -> String
+			let render: @Sendable (_ arguments: [DirectiveArgument], _ contentHTML: String) throws -> String
 
 			/**
 			- Parameter render: Throw a ``ContentError`` to report a problem with the directive.
 			*/
 			public init<Arguments: Frontmatter>(render: @escaping @Sendable (_ arguments: Arguments, _ contentHTML: String) throws -> String) {
 				self.render = { arguments, contentHTML in
-					let value = SOML.Value.object(SOML.Object(arguments.sorted(using: KeyPathComparator(\.key)).map { ($0.key, SOML.Value.string($0.value)) }))
+					let value = SOML.Value.object(SOML.Object(arguments.map { ($0.name, SOML.Value.string($0.value)) }))
 					return try render(Arguments.decode(from: value, root: "arguments"), contentHTML)
 				}
 			}
@@ -122,7 +122,7 @@ public struct MarkdownDocument: Sendable {
 		/**
 		Changes the Markdown tree before it is rendered, like adding a section.
 
-		Build the added nodes with their initializers, not from another `Document(parsing:)`, as the nodes of another parse keep its source ranges, so their lines would be wrong.
+		Build the added nodes with their initializers, or parse them with their file as the source (`Document(parsing:file:options:)`), so they have no lines in this document. The nodes of another parse without a source keep its source ranges, so their lines would be wrong.
 		*/
 		public var rewrite: (@Sendable (Document) -> Document)?
 
@@ -144,7 +144,7 @@ public struct MarkdownDocument: Sendable {
 		/**
 		The size of an image by its source, for the `width` and `height` attributes, so the layout does not move while the image loads.
 		*/
-		public var imageSize: (@Sendable (String) -> (width: Int, height: Int)?)?
+		public var imageSize: (@Sendable (String) -> PixelSize?)?
 
 		/**
 		Renders a fenced code block, like a component with syntax highlighting and a copy button. It gets the code and the language, which is the first word of the info string, like `swift`. Without it, a code block is `<pre><code class="language-swift">` with the code as text.
@@ -165,7 +165,7 @@ public struct MarkdownDocument: Sendable {
 			inlineAttributes: InlineAttributesRenderer? = nil,
 			blockDirectives: [String: BlockDirectiveRenderer] = [:],
 			resolveLink: (@Sendable (String) throws -> String)? = nil,
-			imageSize: (@Sendable (String) -> (width: Int, height: Int)?)? = nil,
+			imageSize: (@Sendable (String) -> PixelSize?)? = nil,
 			codeBlock: (@Sendable (_ code: String, _ language: String?) -> String)? = nil,
 			inlineNote: (@Sendable (_ textHTML: String, _ noteID: String) -> String)? = nil
 		) {
@@ -180,22 +180,6 @@ public struct MarkdownDocument: Sendable {
 			self.imageSize = imageSize
 			self.codeBlock = codeBlock
 			self.inlineNote = inlineNote
-		}
-	}
-
-	/**
-	A mistake in the Markdown, like an image without a description.
-	*/
-	public struct Problem: Hashable, Sendable, CustomStringConvertible {
-		/**
-		The line in the Markdown source, starting at 1.
-		*/
-		public let line: Int?
-
-		public let message: String
-
-		public var description: String {
-			line.map { "Line \($0): \(message)" } ?? message
 		}
 	}
 
@@ -273,9 +257,9 @@ public struct MarkdownDocument: Sendable {
 	public let introduction: String?
 
 	/**
-	The mistakes in the Markdown, in document order. Empty for the release notes style.
+	The mistakes in the Markdown, like an image without a description, in document order, with their lines in the source, but without the file. For the release notes style, only an HTML comment that is not closed.
 	*/
-	public let problems: [Problem]
+	public let problems: [ContentError]
 
 	/**
 	The links and images, in document order.
@@ -293,7 +277,8 @@ public struct MarkdownDocument: Sendable {
 		// Source positions and line-based extensions assume `\n` line endings, but GitHub release notes use `\r\n`.
 		let source = source.replacing("\r\n", with: "\n")
 		let convertOptions = ConvertOptions(style: style, options: options)
-		var document = Document(parsing: source, convertOptions: convertOptions)
+		let parsedDocument = Document(parsing: source, convertOptions: convertOptions)
+		var document = parsedDocument
 
 		if
 			style == .extended,
@@ -319,8 +304,9 @@ public struct MarkdownDocument: Sendable {
 		self.headings = renderer.headings
 		self.problems = renderer.problems
 		self.links = renderer.links
-		// The introduction keeps the source punctuation, while the HTML gets smart punctuation. Footnote references are left out, as they have no text.
-		self.introduction = Document(parsing: source, options: convertOptions.parseOptions.union(.disableSmartOpts)).introduction
+		// The introduction keeps the source punctuation, while the HTML gets smart punctuation. Smart punctuation only adds typographic quotes, dashes, and ellipses, so the source is only parsed again without it when the introduction has one. Footnote references are left out, as they have no text.
+		let introduction = parsedDocument.introduction
+		self.introduction = introduction?.contains(where: "‘’“”–—…".contains) == true ? Document(parsing: source, options: convertOptions.parseOptions.union(.disableSmartOpts)).introduction : introduction
 	}
 }
 
@@ -360,7 +346,7 @@ extension MarkdownDocument {
 	/**
 	The HTML of the first paragraph without the `<p>` tags, and the HTML after it, so a page can show the introduction apart from the rest, like at the top of an app page. `nil` when the document does not start with a paragraph. HTML comments before the paragraph do not count, as the renderer leaves out comments.
 	*/
-	public var htmlSeparatingIntroduction: (introduction: String, remainder: String)? {
+	var htmlSeparatingIntroduction: (introduction: String, remainder: String)? {
 		guard
 			introduction != nil,
 			let match = html.prefixMatch(of: /\s*<p>(.*?)<\/p>\n?/.dotMatchesNewlines())
@@ -374,14 +360,14 @@ extension MarkdownDocument {
 	/**
 	The HTML before the level 2 heading with the ID, and the HTML from that heading on, so a page can show something between two sections, like the projects on the about page. `nil` when the document has no level 2 heading with the ID. The heading must not be inside other markup, like a block directive.
 	*/
-	public func htmlSeparated(beforeHeading id: String) -> (before: String, after: String)? {
+	func htmlSeparated(beforeHeading id: String) -> (before: String, after: String)? {
 		htmlSeparated(beforeHeadings: [id]).map { ($0[0], $0[1]) }
 	}
 
 	/**
 	The HTML separated before each level 2 heading with one of the IDs, in their order, so a page can show something between several sections, like the numbers and the projects on the about page. It has one part more than the IDs: the HTML before the first heading, and the HTML from each heading to the next. `nil` when one of the IDs has no level 2 heading, or the headings are in another order. The headings must not be inside other markup, like a block directive.
 	*/
-	public func htmlSeparated(beforeHeadings ids: [String]) -> [String]? {
+	func htmlSeparated(beforeHeadings ids: [String]) -> [String]? {
 		var parts = [String]()
 		var remainder = html[...]
 
@@ -452,12 +438,27 @@ extension ConvertOptions {
 
 extension Document {
 	/**
-	The footnote definitions, by ID, also the ones in block directives. The parser moves the definitions to the end of their container.
+	Parses the Markdown of another file, like the part that a ``MarkdownDocument/Options/rewrite`` adds, with the parse options of the document, and the file as its source, so its nodes have no lines in the document.
+	*/
+	public init(parsing source: String, file: URL, options: MarkdownDocument.Options) {
+		self.init(parsing: source.replacing("\r\n", with: "\n"), source: file, convertOptions: ConvertOptions(style: .extended, options: options))
+	}
+
+	/**
+	The footnote definitions, by ID, also the ones in block directives. The parser moves the definitions to the end of their container. Of two definitions with the same ID, the first is used, and the renderer reports the second.
 	*/
 	fileprivate var footnoteDefinitions: [String: FootnoteDefinition] {
 		func definitions(in markup: any Markup) -> [FootnoteDefinition] {
-			markup.children.flatMap { child in
-				(child as? FootnoteDefinition).map { [$0] } ?? definitions(in: child)
+			markup.children.flatMap { child -> [FootnoteDefinition] in
+				switch child {
+				case let definition as FootnoteDefinition:
+					[definition]
+				// A definition is a block, so the inline content of a paragraph or a heading has none.
+				case is any InlineContainer:
+					[]
+				default:
+					definitions(in: child)
+				}
 			}
 		}
 
@@ -493,7 +494,7 @@ extension Markdown.Text {
 	The text with each keyboard shortcut, like `++Cmd+K++`, as its keys, like `Cmd+K`.
 	*/
 	fileprivate var plainString: String {
-		string.contains("++") ? string[...].keyboardShortcutParts.map(\.text).joined() : string
+		string[...].keyboardShortcutParts.map(\.text).joined()
 	}
 }
 
@@ -502,6 +503,11 @@ extension Substring {
 	The text in parts: plain text, and the keys of each keyboard shortcut written as `++Cmd+K++`. The `++` must not touch a letter, a digit, or another `+`, so `C++` stays text.
 	*/
 	var keyboardShortcutParts: [(text: Substring, isShortcut: Bool)] {
+		// Most text has no shortcut, and the search is slow.
+		guard contains("++") else {
+			return [(self, false)]
+		}
+
 		var parts = [(text: Substring, isShortcut: Bool)]()
 		var remainder = self
 

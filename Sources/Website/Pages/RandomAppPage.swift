@@ -20,17 +20,18 @@ struct RandomAppPage: Page {
 	A classic script in the head redirects before the page shows, so the visitor never sees this page. It skips the app the visitor comes from, and `#another-random-app` shows the “Another Random App” button on the app page.
 	*/
 	var head: some HTML {
-		JSONScript(id: Hooks.slugs, content.activeAppsWithPages.map(\.slug))
+		JSONScript(id: Hooks.apps, content.activeAppsWithPages.map { AppTarget(slug: $0.slug, path: $0.path) })
 
 		script {
 			HTMLRaw(#"""
 			{
-				const slugs = JSON.parse(document.querySelector('#\#(Hooks.slugs.rawValue)').textContent);
+				const apps = JSON.parse(document.querySelector('#\#(Hooks.apps.id)').textContent);
 				const referrerApp = URL.parse(document.referrer)?.pathname.split('/')[1];
-				const candidates = slugs.filter(slug => slug !== referrerApp);
+				const candidates = apps.filter(app => app.slug !== referrerApp);
 
 				if (candidates.length > 0) {
-					location.replace(`/${candidates[Math.floor(Math.random() * candidates.length)]}#\#(AppHero.anotherRandomAppID)`);
+					const app = candidates[Math.floor(Math.random() * candidates.length)];
+					location.replace(`${app.path}#\#(AppHero.anotherRandomAppID)`);
 				}
 			}
 			"""#)
@@ -54,7 +55,15 @@ struct RandomAppPage: Page {
 	The IDs and data attributes that the scripts of the page find elements by.
 	*/
 	enum Hooks: String, ScriptHookSet {
-		case slugs = "random-app-slugs"
+		case apps = "random-apps"
+	}
+
+	/**
+	An app to pick: the slug that the page skips when the visitor comes from the app, and the path of its page, which content owns.
+	*/
+	private struct AppTarget: Encodable {
+		let slug: String
+		let path: RoutePath
 	}
 
 	enum Styles: StyleSet {

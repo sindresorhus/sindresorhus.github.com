@@ -17,10 +17,15 @@ resources.styleNodes // The rules of every style the body used.
 */
 public final class PageResources: Sendable {
 	private struct State {
-		var styleSets = Set<ObjectIdentifier>()
+		/**
+		The class names that the page used, by style set.
+		*/
 		var usedStyles = [ObjectIdentifier: Set<String>]()
-		var styleNodes = [@Sendable (_ usedClassNames: Set<String>) -> [StyleNode]]()
-		var usedClassNames = Set<String>()
+
+		/**
+		The style sets that the page used, without the shared ones, in the order the page first used them.
+		*/
+		var styleSets = [any StyleSet.Type]()
 		var classNames = [String: ObjectIdentifier]()
 		var duplicateClassNames = Set<String>()
 		var scripts = [RoutePath]()
@@ -87,6 +92,7 @@ public final class PageResources: Sendable {
 	func use<Styles: StyleSet>(_ style: Styles) {
 		state.withLock { state in
 			let identifier = ObjectIdentifier(Styles.self)
+			let isNewStyleSet = state.usedStyles[identifier] == nil
 
 			guard state.usedStyles[identifier, default: []].insert(style.className).inserted else {
 				return
@@ -94,22 +100,14 @@ public final class PageResources: Sendable {
 
 			state.replays.append { $0.use(style) }
 
-			guard !sharedStyleSets.contains(identifier) else {
+			guard
+				isNewStyleSet,
+				!sharedStyleSets.contains(identifier)
+			else {
 				return
 			}
 
-			state.usedClassNames.insert(style.className)
-
-			guard state.styleSets.insert(identifier).inserted else {
-				return
-			}
-
-			// Only the cases that the page uses, in the order of the style set, so the rules keep their order.
-			state.styleNodes.append { usedClassNames in
-				Styles.allCases
-					.filter { usedClassNames.contains($0.className) }
-					.flatMap(\.nodes)
-			}
+			state.styleSets.append(Styles.self)
 
 			for style in Styles.allCases {
 				if
@@ -174,25 +172,25 @@ public final class PageResources: Sendable {
 	/**
 	Uses everything that the other collector collected, like the styles of the block directives of a Markdown document that rendered before the page, when the page shows it (``MarkdownContent``).
 	*/
-	public func include(_ other: PageResources) {
+	func include(_ other: PageResources) {
 		for replay in other.state.withLock(\.replays) {
 			replay(self)
 		}
 	}
 
 	/**
-	The rules of the styles that the page used, by style set in the order the page first used them.
+	The rules of the styles that the page used, by style set in the order the page first used them. A ``Stylesheet`` with them writes each keyframes and registered property once.
 	*/
 	public var styleNodes: [StyleNode] {
-		let (styleNodes, usedClassNames) = state.withLock { ($0.styleNodes, $0.usedClassNames) }
-		return styleNodes.flatMap { $0(usedClassNames) }.uniqueDefinitions
+		let (styleSets, usedStyles) = state.withLock { ($0.styleSets, $0.usedStyles) }
+		return styleSets.flatMap { $0.nodes(usedClassNames: usedStyles[ObjectIdentifier($0)] ?? []) }
 	}
 
 	/**
-	The rules of the styles that only one element has (``ElementStyle``), in the order the page first used them. The layout puts them in a cascade layer after the styles of the components, so they win over them.
+	The rules of the styles that only one element has (``ElementStyle``), in the order the page first used them. The layout puts them in a cascade layer after the styles of the components, so they win over them. A ``Stylesheet`` with them writes each keyframes and registered property once.
 	*/
 	public var elementStyleNodes: [StyleNode] {
-		state.withLock(\.elementStyleNodes).uniqueDefinitions
+		state.withLock(\.elementStyleNodes)
 	}
 
 	/**

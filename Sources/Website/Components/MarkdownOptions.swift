@@ -1,6 +1,5 @@
 import Elementary
 import Foundation
-import Markdown
 import SiteKit
 
 extension MarkdownDocument.Options {
@@ -10,26 +9,22 @@ extension MarkdownDocument.Options {
 	static let site = Self(theme: .site)
 
 	/**
-	The options for a content file: the site's classes, the known heading directives, links to other content files (`[Dato](dato.md)`), the sizes of local images, platform badges, the block directives, inline notes as `InlineNote`, and code blocks as `CodeBlock`, with a copy button and Swift highlighting.
+	The options for a content file: the features of ``contentFeatures``, the known heading directives, links to other content files (`[Dato](dato.md)`), and the sizes of local images.
 
 	- Parameter sponsorTiers: The sponsors from the frontmatter, which `@Sponsors` shows.
 	*/
 	static func content(_ file: MarkdownFile, project: Project, sponsorTiers: [MarkdownPage.SponsorTier] = []) -> Self {
-		var options = Self(
-			theme: .site,
-			headingDirectives: FAQDirectives.all,
-			inlineAttributes: .init(render: renderPlatformBadge),
-			blockDirectives: contentBlockDirectives,
-			resolveLink: { destination in
-				try file.resolvingLink(destination, project: project)
-			},
-			imageSize: { source in
-				// An invalid path is already a problem of its link, so it has no size instead of stopping the build. A screenshot of a Retina display is shown at half its pixel size, so it is sharp.
-				(try? RoutePath(validating: source)).flatMap { project.publicFile($0).displaySize }
-			},
-			codeBlock: CodeBlock.render,
-			inlineNote: InlineNote.render
-		)
+		var options = contentFeatures
+		options.headingDirectives = FAQDirectives.all
+
+		options.resolveLink = { destination in
+			try file.resolvingLink(destination, project: project)
+		}
+
+		options.imageSize = { source in
+			// An invalid path is already a problem of its link, so it has no size instead of stopping the build. Limitation: A path from content must not have a space or “%”, so an image with one in its file name, like `<Screenshot 1.png>`, has no size either. A screenshot of a Retina display is shown at half its pixel size, so it is sharp.
+			(try? RoutePath(validating: source)).flatMap { project.publicFile($0).displaySize }
+		}
 
 		if !sponsorTiers.isEmpty {
 			options.blockDirectives["Sponsors"] = .init { _ in
@@ -41,47 +36,47 @@ extension MarkdownDocument.Options {
 	}
 
 	/**
-	The Markdown of content files without a file, for the samples in the gallery: platform badges, the block directives, collapsible sections for level 3 headings, like the questions of an FAQ, links that copy the URL of a section, inline notes as `InlineNote`, and code blocks as `CodeBlock`, with a copy button and Swift highlighting.
+	The Markdown of content files without a file, for the samples in the gallery: the features of ``contentFeatures``, collapsible sections for level 3 headings, like the questions of an FAQ, and links that copy the URL of a section.
 	*/
-	static let gallery = Self(
+	static let gallery: Self = {
+		var options = contentFeatures
+		options.collapsibleSections = MarkdownDocument.CollapsibleSections(level: 3, name: "gallery")
+		options.addsHeadingAnchors = true
+		return options
+	}()
+
+	/**
+	What content files and the samples of the gallery have: the site's classes, platform badges, the block directives, inline notes as `InlineNote`, and code blocks as `CodeBlock`, with a copy button and Swift and SOML highlighting.
+	*/
+	private static let contentFeatures = Self(
 		theme: .site,
-		collapsibleSections: MarkdownDocument.CollapsibleSections(level: 3, name: "gallery"),
-		addsHeadingAnchors: true,
 		inlineAttributes: .init(render: renderPlatformBadge),
-		blockDirectives: contentBlockDirectives,
+		blockDirectives: [
+			"Details": .init(render: renderDetails),
+			"Feature": .init(render: renderFeature),
+			"QuickAnswer": .init(render: renderQuickAnswer),
+			"Trial": .init(render: renderTrial),
+			"TinyApp": .init(render: renderTinyApp),
+			"Tips": .init(render: renderTips),
+			"Cards": .init(render: renderCards),
+			"Steps": .init(render: renderSteps),
+			"Changelog": .init(render: renderChangelog),
+			"SocialLinks": .init(render: renderSocialLinks),
+		],
 		codeBlock: CodeBlock.render,
 		inlineNote: InlineNote.render
 	)
 
 	/**
-	The block directives of content files.
+	The questions below the “Frequently Asked Questions” heading of an app page are collapsible, followed by a link to the general FAQ. Each section has a link that copies its URL. The common questions that apply to the app (``CommonQuestion``), the shared questions that it picks, and, unless the app is archived, the feedback question are added to the questions, and the older versions get their section (``App/Frontmatter/addingGeneratedSections(to:sharedQuestions:)``).
 	*/
-	private static let contentBlockDirectives: [String: BlockDirectiveRenderer] = [
-		"Details": .init(render: renderDetails),
-		"Feature": .init(render: renderFeature),
-		"QuickAnswer": .init(render: renderQuickAnswer),
-		"Trial": .init(render: renderTrial),
-		"TinyApp": .init(render: renderTinyApp),
-		"Tips": .init(render: renderTips),
-		"Cards": .init(render: renderCards),
-		"Steps": .init(render: renderSteps),
-		"Changelog": .init(render: renderChangelog),
-		"SocialLinks": .init(render: renderSocialLinks),
-	]
-
-	/**
-	The questions below the “Frequently Asked Questions” heading of an app page are collapsible, followed by a link to the general FAQ. Each section has a link that copies its URL. The common questions that apply to the app (``CommonQuestion``) and, unless the app is archived, the feedback question are added to the questions, and the older versions get their section.
-	*/
-	static func appPage(_ file: MarkdownFile, project: Project, frontmatter: App.Frontmatter) -> Self {
+	static func appPage(_ file: MarkdownFile, project: Project, frontmatter: App.Frontmatter, sharedQuestions: App.SharedQuestions) -> Self {
 		var options = content(file, project: project)
+		options.headingDirectives.append(App.SharedQuestions.First.self)
 		options.collapsibleSections = MarkdownDocument.CollapsibleSections(level: 3, startHeadingID: App.faqSectionID, name: "faq", moreLink: .init(title: "More FAQs", destination: .path(.faq)))
 		options.addsHeadingAnchors = true
 		options.rewrite = { document in
-			let document = document.addingCommonQuestions(CommonQuestion.questions(for: frontmatter))
-
-			// An archived app gets no support, and the feedback page does not list it.
-			return (frontmatter.isArchived ? document : document.addingFeedbackQuestion(appTitle: frontmatter.title))
-				.addingOlderVersions(frontmatter.olderVersions, isPaid: frontmatter.isPaid)
+			frontmatter.addingGeneratedSections(to: document, sharedQuestions: sharedQuestions)
 		}
 		return options
 	}
@@ -169,7 +164,7 @@ private func renderFeature(arguments: FeatureArguments, contentHTML: String) -> 
 /**
 The styles of `@Feature` sections. The sections of a page are numbered in order with a CSS counter.
 */
-enum FeatureSectionStyles: StyleSet {
+private enum FeatureSectionStyles: StyleSet {
 	case root
 	case title
 
@@ -219,7 +214,7 @@ private func renderQuickAnswer(contentHTML: String) -> String {
 /**
 The styles of `@QuickAnswer` boxes.
 */
-enum QuickAnswerStyles: StyleSet {
+private enum QuickAnswerStyles: StyleSet {
 	case root
 	case label
 
@@ -251,9 +246,9 @@ private struct TrialArguments {
 	@Absolute var url: URL
 
 	/**
-	The text of the button, like “Try on TestFlight”. Defaults to “Download Free Trial”.
+	The text of the button, like “Try on TestFlight”.
 	*/
-	@NonEmpty var title: String?
+	@NonEmpty var title = "Download Free Trial"
 }
 
 /**
@@ -265,7 +260,7 @@ private func renderTrial(arguments: TrialArguments, contentHTML: String) -> Stri
 	div {
 		HTMLRaw(contentHTML)
 
-		Link(arguments.title ?? "Download Free Trial", destination: .url(arguments.url))
+		Link(arguments.title, destination: .url(arguments.url))
 			.buttonStyle()
 	}
 	.style(TrialStyles.root)
@@ -275,7 +270,7 @@ private func renderTrial(arguments: TrialArguments, contentHTML: String) -> Stri
 /**
 The styles of `@Trial` cards.
 */
-enum TrialStyles: StyleSet {
+private enum TrialStyles: StyleSet {
 	case root
 
 	var style: Style {
@@ -745,7 +740,7 @@ private func renderSocialLinks(contentHTML: String) throws -> String {
 /**
 The styles of `@SocialLinks`.
 */
-enum SocialLinksStyles: StyleSet {
+private enum SocialLinksStyles: StyleSet {
 	case root
 	case item
 	case link
@@ -769,215 +764,6 @@ enum SocialLinksStyles: StyleSet {
 			// The chips with icons have a little less padding than other chips, so all the links fit on one line next to the prose.
 			Style().chip(hasIcon: true)
 		}
-	}
-}
-
-/**
-A question that many apps have, like “Can you localize the app into my language?”. The build adds it to the FAQ section of each app that it applies to, so the app files do not repeat it. A file that has a question with the same text in its FAQ section keeps its own answer, like one with more details about the app.
-*/
-private struct CommonQuestion {
-	let title: String
-	let answer: Paragraph
-
-	/**
-	Whether the question goes before the questions of the file instead of after them, as visitors with a problem look for it. The feedback question still goes first.
-	*/
-	var isFirst = false
-
-	/**
-	The ID of the heading, instead of the slug of the title, for a question that code finds.
-	*/
-	var id: String?
-
-	/**
-	The question and its answer, as a level 3 heading and a paragraph, like the questions in the files.
-	*/
-	var blocks: [any BlockMarkup] {
-		[Markdown.Heading(level: 3, Markdown.Text(title + (id.map { " {#\($0)}" } ?? ""))), answer]
-	}
-
-	/**
-	The questions that apply to the app: the menu bar question for menu bar apps, the free question for free apps on the App Store that are not archived, and the localization question for all apps.
-	*/
-	static func questions(for frontmatter: App.Frontmatter) -> [Self] {
-		var questions = [Self]()
-
-		if frontmatter.isMenuBarApp {
-			questions.append(Self(
-				title: "The app does not show up in the menu bar",
-				answer: Paragraph(Markdown.Link(destination: LinkDestination.menuBarQuestion.description, Markdown.Text("How to make the app show up in the menu bar"))),
-				isFirst: true,
-				id: App.addedMenuBarQuestionID
-			))
-		}
-
-		// The answer asks for a review on the App Store, so archived apps and apps that are not there do not get it.
-		if
-			!frontmatter.isPaid,
-			!frontmatter.isArchived,
-			frontmatter.appStoreID != nil
-		{
-			questions.append(Self(
-				title: "Why is this free without ads?",
-				answer: Paragraph(Markdown.Text("I just enjoy making apps. Consider leaving a nice review on the App Store."))
-			))
-		}
-
-		questions.append(Self(
-			title: "Can you localize the app into my language?",
-			answer: Paragraph(Markdown.Text("I don’t plan to localize the app."))
-		))
-
-		return questions
-	}
-}
-
-extension [any BlockMarkup] {
-	/**
-	The blocks of the FAQ section of an app page, after its heading. `nil` when the page has no FAQ section.
-	*/
-	fileprivate var faqSection: Range<Int>? {
-		guard let headingIndex = firstIndex(where: { block in
-			guard let heading = block as? Markdown.Heading else {
-				return false
-			}
-
-			// The custom ID is still in the text, as the IDs are read while rendering.
-			return heading.level == 2 && heading.plainText.hasSuffix("{#\(App.faqSectionID)}")
-		}) else {
-			return nil
-		}
-
-		let start = headingIndex + 1
-		return start..<(self[start...].firstIndex { (($0 as? Markdown.Heading)?.level ?? 3) <= 2 } ?? endIndex)
-	}
-
-	/**
-	Where the questions of the FAQ section start: at its first heading, after any text under the FAQ heading. `nil` when the page has no FAQ section.
-	*/
-	fileprivate var faqQuestionsStart: Int? {
-		faqSection.map { section in
-			self[section].firstIndex { $0 is Markdown.Heading } ?? section.upperBound
-		}
-	}
-}
-
-extension Document {
-	/**
-	Adds the common questions that the FAQ section does not have yet: the first ones before the other questions, and the rest after them.
-	*/
-	fileprivate func addingCommonQuestions(_ questions: [CommonQuestion]) -> Document {
-		var blocks = Array(blockChildren)
-
-		guard
-			let section = blocks.faqSection,
-			let questionsStart = blocks.faqQuestionsStart
-		else {
-			return self
-		}
-
-		let existingTitles = Set(blocks[section].compactMap { ($0 as? Markdown.Heading)?.plainText.removingCustomHeadingID })
-		let newQuestions = questions.filter { !existingTitles.contains($0.title) }
-		// The later position first, so the earlier one stays the same.
-		blocks.insert(contentsOf: newQuestions.filter { !$0.isFirst }.flatMap(\.blocks), at: section.upperBound)
-		blocks.insert(contentsOf: newQuestions.filter(\.isFirst).flatMap(\.blocks), at: questionsStart)
-
-		return Document(blocks)
-	}
-
-	/**
-	Adds the feedback question to the FAQ section, or adds the answer to an existing question with the same title.
-	*/
-	fileprivate func addingFeedbackQuestion(appTitle: String) -> Document {
-		var blocks = Array(blockChildren)
-
-		guard let section = blocks.faqSection else {
-			return self
-		}
-
-		let answer = Paragraph(
-			Markdown.Text("Click the feedback button in the app or "),
-			Markdown.Link(destination: App.feedbackURL(appTitle: appTitle, referrer: "Website-FAQ").absoluteURL.absoluteString, Markdown.Text("send it here."))
-		)
-
-		let customID = Markdown.Text(" {#\(App.feedbackHeadingID)}")
-
-		if let questionIndex = blocks[section].firstIndex(where: { block in
-			guard let heading = block as? Markdown.Heading else {
-				return false
-			}
-
-			return heading.level == 3 && heading.plainText.removingCustomHeadingID == App.feedbackQuestionTitle
-		}), let question = blocks[questionIndex] as? Markdown.Heading {
-			// The question gets the feedback ID instead of its own.
-			let content = question.inlineChildren.map { child -> any InlineMarkup in
-				guard let text = child as? Markdown.Text else {
-					return child
-				}
-
-				return Markdown.Text(text.string.removingCustomHeadingID)
-			}
-
-			blocks[questionIndex] = Markdown.Heading(level: question.level, content + [customID])
-
-			// After the directives of the question, which must be directly below it.
-			let answerIndex = blocks[(questionIndex + 1)...].firstIndex { !(($0 as? HTMLBlock)?.isOnlyDirectives ?? false) } ?? blocks.endIndex
-			blocks.insert(answer, at: answerIndex)
-		} else {
-			let question = Markdown.Heading(level: 3, [Markdown.Text(App.feedbackQuestionTitle), customID])
-			blocks.insert(contentsOf: [question, answer] as [any BlockMarkup], at: blocks.faqQuestionsStart ?? section.lowerBound)
-		}
-
-		return Document(blocks)
-	}
-
-	/**
-	Adds the “Older Versions” section before the “Non-App Store Version” section, or at the end.
-	*/
-	fileprivate func addingOlderVersions(_ olderVersions: [App.OlderVersion], isPaid: Bool) -> Document {
-		guard !olderVersions.isEmpty else {
-			return self
-		}
-
-		var blocks = Array(blockChildren)
-
-		let nonAppStoreVersionIndex = blocks.firstIndex { block in
-			guard let heading = block as? Markdown.Heading else {
-				return false
-			}
-
-			return heading.level == 2 && heading.plainText == App.nonAppStoreVersionTitle
-		}
-
-		blocks.insert(contentsOf: olderVersions.markdownSection(isPaid: isPaid), at: nonAppStoreVersionIndex ?? blocks.endIndex)
-		return Document(blocks)
-	}
-}
-
-extension [App.OlderVersion] {
-	/**
-	The “Older Versions” section of an app page.
-
-	The versions of paid apps are free, but they only run on their macOS version, so they do not say “or later” (`+`).
-	*/
-	func markdownSection(isPaid: Bool) -> [any BlockMarkup] {
-		let items = map { olderVersion in
-			ListItem(Paragraph(
-				Markdown.Link(destination: olderVersion.url.absoluteString, Markdown.Text(olderVersion.version)),
-				Markdown.Text(" for macOS \(olderVersion.macOS.rawValue)\(isPaid ? "" : "+")")
-			))
-		}
-
-		var section: [any BlockMarkup] = [
-			Markdown.Heading(level: 2, Markdown.Text("Older Versions")),
-			UnorderedList(items),
-		]
-
-		if isPaid {
-			section.append(Paragraph(Markdown.Text("These are free for everyone but they will not run on newer macOS versions.")))
-		}
-
-		return section
 	}
 }
 

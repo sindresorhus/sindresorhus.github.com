@@ -1,7 +1,9 @@
 import Elementary
 import Foundation
 import ImageIO
+import RSS
 import SiteKit
+import TestSupport
 import Testing
 @testable import Website
 
@@ -14,47 +16,29 @@ struct PageTests {
 		try await Site(content: .website)
 	}
 
-	private static func routes(where isIncluded: (Route) -> Bool) async throws -> [Route] {
-		try await site().routes(project: .website, includesGallery: true).filter(isIncluded)
-	}
-
-	private static func isPage(_ route: Route) -> Bool {
-		guard case .page = route.output else {
-			return false
-		}
-
-		return true
-	}
-
-	@Test(arguments: try await routes(where: isPage))
-	func `the page has one h1 and a short description`(route: Route) throws {
-		guard case .page(_, let render) = route.output else {
-			return
-		}
-
-		let html = try render()
-
+	@Test(arguments: try await RenderedPage.website)
+	func `the page has one h1 and a short description`(page: RenderedPage) {
 		// The content of a template is not part of the page until a script uses it.
-		let document = html.replacing(/<template[\s>].*?<\/template>/.dotMatchesNewlines(), with: "")
+		let document = page.html.replacing(/<template[\s>].*?<\/template>/.dotMatchesNewlines(), with: "")
 		let hasOneHeading = document.matches(of: /<h1[\s>]/).count == 1
 		#expect(hasOneHeading, "The page must have one <h1>.")
 
-		let description = html.firstMatch(of: /<meta name="description" content="([^"]*)">/).map { String($0.1).replacing("&amp;", with: "&").replacing("&quot;", with: "\"").replacing("&lt;", with: "<").replacing("&gt;", with: ">") }
+		let description = page.html.firstMatch(of: /<meta name="description" content="([^"]*)">/).map { String($0.1).replacing("&amp;", with: "&").replacing("&quot;", with: "\"").replacing("&lt;", with: "<").replacing("&gt;", with: ">") }
 		let hasShortDescription = (description?.count ?? 0) <= 160
 		#expect(hasShortDescription, "The description is longer than 160 characters.")
 
 		if !hasOneHeading || !hasShortDescription {
-			Attachment.record(html, named: "\(route.outputFile.replacing("/", with: "_"))")
+			Attachment.record(page.html, named: "\(page.route.outputFile.replacing("/", with: "_"))")
 		}
 	}
 
 	/**
 	A look belongs in a style (the “Styles” section of AGENTS.md), also in the Markdown of the content. A value of the build, like the accent of an app, is a custom property in a style of the element (``ElementStyle``), like `tint(_:)`.
 	*/
-	@Test(arguments: try await routes(where: isPage))
-	func `the page has no style attributes`(route: Route) throws {
+	@Test(arguments: try await RenderedPage.website)
+	func `the page has no style attributes`(page: RenderedPage) {
 		// The text of a script is not markup.
-		let markup = try route.renderedHTML().replacing(/<script\b.*?<\/script>/.dotMatchesNewlines(), with: "")
+		let markup = page.html.replacing(/<script\b.*?<\/script>/.dotMatchesNewlines(), with: "")
 		let attributes = markup.matches(of: /<[a-zA-Z][^>]*?\sstyle="[^"]*"/).map { String($0.output) }
 		#expect(attributes.isEmpty, "\(attributes.joined(separator: "\n"))")
 	}
@@ -62,9 +46,9 @@ struct PageTests {
 	/**
 	Elementary does not check how elements nest, and raw HTML in content is not checked either.
 	*/
-	@Test(arguments: try await routes(where: isPage))
-	func `the page nests elements like the HTML parser does`(route: Route) throws {
-		let errors = Self.nestingErrors(in: try route.renderedHTML())
+	@Test(arguments: try await RenderedPage.website)
+	func `the page nests elements like the HTML parser does`(page: RenderedPage) {
+		let errors = Self.nestingErrors(in: page.html)
 		#expect(errors.isEmpty, "\(errors.joined(separator: "\n"))")
 	}
 
@@ -172,7 +156,7 @@ struct PageTests {
 	*/
 	@Test
 	func `the about page has the headings that the now card, the numbers, and the popular projects are above`() async throws {
-		let content = try await SiteContent.load(from: .website, externalData: .none, buildDate: .now)
+		let content = try await SiteContent.website
 		let page = try #require(content.page(.about))
 
 		#expect(page.markdown.contentSeparated(beforeHeadings: [AboutPage.nowNextHeadingID, AboutPage.numbersNextHeadingID, AboutPage.projectsNextHeadingID]) != nil)
@@ -247,8 +231,8 @@ struct PageTests {
 		let loadedContent = try await SiteContent.website
 		let page = try #require(loadedContent.page(.about))
 		let json = #"{"totalContributions": 13, "weeks": [{"contributionDays": [{"date": "2026-01-01", "contributionCount": 9, "contributionLevel": "FOURTH_QUARTILE"}, {"date": "2026-01-02", "contributionCount": 4, "contributionLevel": "FIRST_QUARTILE"}]}]}"#
-		let calendar = try JSONDecoder().decode(ContributionCalendar.self, from: Data(json.utf8))
-		let year = ContributionYear(year: 2026, calendar: calendar, until: try Date("2026-12-31T12:00:00Z", strategy: .iso8601))
+		let calendar = try ContributionCalendar(json: json)
+		let year = ContributionYear(year: 2026, calendar: calendar, totals: .zero, until: try Date("2026-12-31T12:00:00Z", strategy: .iso8601))
 		let content = SiteContent(apps: loadedContent.apps, posts: loadedContent.posts, pages: loadedContent.pages, contributionYears: [year], buildDate: loadedContent.buildDate, project: .website)
 
 		let html = try AboutPage(page: page, content: content).renderedHTML()
@@ -281,7 +265,7 @@ struct PageTests {
 	*/
 	@Test
 	func `the projects of the day leave out the packages and repos that are not worth finding`() throws {
-		func package(_ name: String, description: String? = "Does a thing", repository: String?) -> NPMStatistics.Package {
+		func package(_ name: String, description: String? = "Does a thing", repository: GitHubRepositoryName?) -> NPMStatistics.Package {
 			NPMStatistics.Package(name: name, version: "1.0.0", description: description, date: .now, weeklyDownloads: 10, dependentCount: nil, repository: repository)
 		}
 
@@ -296,12 +280,10 @@ struct PageTests {
 			package("no-repo", repository: nil),
 		]
 
-		let decoder = JSONDecoder()
-		decoder.dateDecodingStrategy = .iso8601
 		let repositories = try ["Defaults", "ky", "old-thing", "forked", ".github"].map { name in
 			let isArchived = name == "old-thing"
 			let isFork = name == "forked"
-			return try decoder.decode(GitHubRepository.self, from: Data(#"{"name": "\#(name)", "description": "Does a thing", "html_url": "https://github.com/sindresorhus/\#(name)", "created_at": "2020-01-01T00:00:00Z", "archived": \#(isArchived), "fork": \#(isFork), "stargazers_count": 1, "language": "Swift"}"#.utf8))
+			return try GitHubRepository(json: #"{"name": "\#(name)", "description": "Does a thing", "html_url": "https://github.com/sindresorhus/\#(name)", "created_at": "2020-01-01T00:00:00Z", "archived": \#(isArchived), "fork": \#(isFork), "stargazers_count": 1, "language": "Swift"}"#)
 		}
 
 		let account = GitHub.Account(repositoryCount: repositories.count, followerCount: 1, starCount: 1, maintenance: GitHub.Maintenance(closedIssueCount: 1, mergedPullRequestCount: 1), repositories: repositories)
@@ -315,15 +297,11 @@ struct PageTests {
 	func `every page has a unique title`() async throws {
 		var pathsByTitle = [String: RoutePath]()
 
-		for route in try await Self.routes(where: Self.isPage) {
-			guard case .page(_, let render) = route.output else {
-				continue
-			}
-
-			let html = try render()
-			let title = try #require(html.firstMatch(of: /<title>([^<]*)<\/title>/)?.1, "\(route.path) has no <title>.")
-			#expect(pathsByTitle[String(title)] == nil, "\(route.path) has the same title as \(pathsByTitle[String(title)]?.description ?? ""): \(title)")
-			pathsByTitle[String(title)] = route.path
+		for page in try await RenderedPage.website {
+			let path = page.route.path
+			let title = try #require(page.html.firstMatch(of: /<title>([^<]*)<\/title>/)?.1, "\(path) has no <title>.")
+			#expect(pathsByTitle[String(title)] == nil, "\(path) has the same title as \(pathsByTitle[String(title)]?.description ?? ""): \(title)")
+			pathsByTitle[String(title)] = path
 		}
 
 		#expect(pathsByTitle.count > 100)
@@ -336,13 +314,9 @@ struct PageTests {
 	func `a page is in the sitemap exactly when search engines may index it`() async throws {
 		var pageCount = 0
 
-		for route in try await Self.routes(where: Self.isPage) {
-			guard case .page(let sitemapEntry, let render) = route.output else {
-				continue
-			}
-
-			let isNotIndexed = try render().contains(#"<meta name="robots" content="noindex">"#)
-			#expect(isNotIndexed == (sitemapEntry == nil), "\(route.path)")
+		for page in try await RenderedPage.website {
+			let isNotIndexed = page.html.contains(#"<meta name="robots" content="noindex">"#)
+			#expect(isNotIndexed == (page.route.sitemapEntry == nil), "\(page.route.path)")
 			pageCount += 1
 		}
 
@@ -350,16 +324,53 @@ struct PageTests {
 	}
 
 	/**
+	The real content may have no unlisted post with a page of its own, so the test above may not cover it.
+	*/
+	@Test
+	func `an unlisted post is not in the sitemap and not indexed`() async throws {
+		let post = try await BlogPost(markdown: "---\nisUnlisted: true\ntitle: 'Hidden'\npublicationDate: '2026-01-01'\n---\n\nText.", slug: "hidden")
+		let page = BlogPostPage(post: post, content: SiteContent(apps: [], posts: [post], pages: [], buildDate: .now, project: .empty))
+
+		#expect(page.route.sitemapEntry == nil)
+		#expect(try page.renderedHTML().contains(#"<meta name="robots" content="noindex">"#))
+	}
+
+	/**
+	The real posts all have a description, and a post on another site has no text here to read.
+	*/
+	@Test
+	func `a blog post row leaves out a missing description and the reading time of a post on another site`() async throws {
+		let post = try await BlogPost(markdown: "---\ntitle: 'Elsewhere'\npublicationDate: '2026-01-01'\nredirectURL: 'https://example.com/post'\n---\n", slug: "elsewhere")
+		let html = BlogPostRow(post: post).render()
+
+		#expect(!html.contains("<p"))
+		#expect(!html.contains("min read"))
+		#expect(html.contains(#"<time datetime="2026-01-01">January 2026</time>"#))
+	}
+
+	/**
+	Sighted visitors see the new tab open, so only screen readers get the text.
+	*/
+	@Test
+	func `a link that opens in a new tab says so to screen readers`() {
+		let newTabLink = Link("crash report", destination: .crashReportQuestion, opensInNewTab: true).render()
+		let link = Link("crash report", destination: .crashReportQuestion).render()
+
+		#expect(newTabLink.contains(#"target="_blank""#))
+		#expect(newTabLink.contains(#"<span class="visually-hidden"> (opens in a new tab)</span></a>"#))
+		#expect(!link.contains("new tab"))
+	}
+
+	/**
 	The 404 page suggests the closest page to a mistyped path, so it must only suggest pages that exist and that visitors look for.
 	*/
 	@Test
 	func `the 404 page suggests only indexed pages, without the home page and old paths`() async throws {
-		let site = try await Self.site()
-		let route = try #require(site.routes(project: .website).first { $0.path == .notFound })
+		let page = try #require(try await RenderedPage.website.first { $0.route.path == .notFound })
 
-		let json = try #require(try route.renderedHTML().firstMatch(of: /<script[^>]*id="not-found-data"[^>]*>(.*?)<\/script>/)?.1)
-		let paths = try JSONDecoder().decode([String: [String]].self, from: Data(json.utf8))["paths"] ?? []
-		let oldPaths = Set(site.content.documents.flatMap(\.redirectFrom).map(\.description))
+		let json = try #require(page.html.firstMatch(of: /<script[^>]*id="not-found-data"[^>]*>(.*?)<\/script>/)?.1)
+		let paths = try JSONDecoder().decode([String].self, from: Data(json.utf8))
+		let oldPaths = Set(try await SiteContent.website.documents.flatMap(\.redirectFrom).map(\.description))
 
 		#expect(paths.contains(RoutePath.apps.description))
 		#expect(paths.contains(App.path(slug: "lungo").description))
@@ -367,22 +378,6 @@ struct PageTests {
 		#expect(!paths.contains(RoutePath.notFound.description))
 		#expect(!paths.contains(RoutePath.randomApp.description))
 		#expect(oldPaths.isDisjoint(with: paths))
-	}
-
-	@Test(arguments: try await routes { $0.path.starts(with: "/og") })
-	func `the social card is a 1200×630 image`(route: Route) async throws {
-		guard case .file(let render) = route.output else {
-			return
-		}
-
-		let data = try await render()
-		let properties = CGImageSourceCreateWithData(data as CFData, nil).flatMap { CGImageSourceCopyPropertiesAtIndex($0, 0, nil) as? [CFString: Any] }
-		let hasCardSize = properties?[kCGImagePropertyPixelWidth] as? Int == 1200 && properties?[kCGImagePropertyPixelHeight] as? Int == 630
-		#expect(hasCardSize)
-
-		if !hasCardSize {
-			Attachment.record(data, named: route.path.description.split(separator: "/").last.map(String.init) ?? "card")
-		}
 	}
 
 	/**
@@ -413,6 +408,16 @@ struct PageTests {
 		#expect(contact.ranges(of: "customElements.define('copy-button'").count == 1)
 		#expect(!output.appending(path: "scripts/elements/CopyButton.js").exists)
 
+		// Every social card is a 1200×630 image. Only the header of each file is read.
+		let cards = try output.appending(path: "og").filesRecursively()
+		#expect(cards.count > 50)
+
+		for card in cards {
+			let properties = CGImageSourceCreateWithURL(card as CFURL, nil).flatMap { CGImageSourceCopyPropertiesAtIndex($0, 0, nil) as? [CFString: Any] }
+			let hasCardSize = properties?[kCGImagePropertyPixelWidth] as? Int == 1200 && properties?[kCGImagePropertyPixelHeight] as? Int == 630
+			#expect(hasCardSize, "\(card.lastPathComponent) is not a 1200×630 image.")
+		}
+
 		// Each page has one import map, before its module scripts, as browsers only use an import map that comes first, and every script in it is published with the hash it maps to.
 		for page in try output.filesRecursively() where page.pathExtension == "html" {
 			let html = try String(contentsOf: page, encoding: .utf8)
@@ -436,7 +441,7 @@ struct PageTests {
 			#expect(importMaps[0].range.upperBound <= firstModule.lowerBound, "The import map of \(page.lastPathComponent) must come before its module scripts.")
 
 			let imports = try JSONDecoder().decode([String: [String: String]].self, from: Data(importMaps[0].1.utf8))["imports"] ?? [:]
-			#expect(imports["/scripts/geocities-element.js"]?.hasPrefix("/scripts/geocities-element.js?v=") == true)
+			#expect(imports.keys.contains("/scripts/geocities-element.js"))
 
 			for (path, url) in imports {
 				#expect(url.hasPrefix(path + "?v="), "The import map of \(page.lastPathComponent) maps \(path) to \(url).")
@@ -450,21 +455,15 @@ struct PageTests {
 	*/
 	@Test
 	func `every class has a rule, and every shared rule has a class`() async throws {
-		let routes = try await Self.site().routes(project: .website, includesGallery: true)
 		let sharedClasses = Self.classNames(inCSS: Stylesheet.site.css)
 		var usedClasses = Set<String>()
 
-		for route in routes {
-			guard case .page(_, let render) = route.output else {
-				continue
-			}
-
-			let html = try render()
-			let pageClasses = Set(html.matches(of: /\sclass="([^"]*)"/).flatMap { $0.1.split(separator: " ").map(String.init) })
-			let definedClasses = html.matches(of: /<style>(.*?)<\/style>/.dotMatchesNewlines()).reduce(into: sharedClasses) { $0.formUnion(Self.classNames(inCSS: String($1.1))) }
+		for page in try await RenderedPage.website {
+			let pageClasses = Set(page.html.matches(of: /\sclass="([^"]*)"/).flatMap { $0.1.split(separator: " ").map(String.init) })
+			let definedClasses = page.html.matches(of: /<style>(.*?)<\/style>/.dotMatchesNewlines()).reduce(into: sharedClasses) { $0.formUnion(Self.classNames(inCSS: String($1.1))) }
 			let undefinedClasses = pageClasses.subtracting(definedClasses).filter { !Self.classesWithoutRules.contains($0) && !$0.hasPrefix("language-") }
 
-			#expect(undefinedClasses.isEmpty, "\(route.path) uses classes without rules: \(undefinedClasses.sorted())")
+			#expect(undefinedClasses.isEmpty, "\(page.route.path) uses classes without rules: \(undefinedClasses.sorted())")
 			usedClasses.formUnion(pageClasses)
 		}
 
@@ -481,8 +480,12 @@ struct PageTests {
 	The class names in the selectors of the CSS, like `prose` for `.prose :where(p)`. View transition classes, like `*.app-icon`, are not element classes, and neither are quoted attribute values, like `png` in `[src$='/icon.png']`.
 	*/
 	private static func classNames(inCSS css: String) -> Set<String> {
-		Set(css.split(separator: "\n").filter { $0.hasSuffix("{") && !$0.contains("view-transition") }.flatMap { line in
-			line.replacing(/'[^']*'|"[^"]*"/, with: "").matches(of: /\.([a-z][a-z0-9-]*)/).map { String($0.1) }
+		// Before the loop, as Swift parses a regex literal each time the code runs.
+		let quotedValue = /'[^']*'|"[^"]*"/
+		let className = /\.([a-z][a-z0-9-]*)/
+
+		return Set(css.split(separator: "\n").filter { $0.hasSuffix("{") && !$0.contains("view-transition") }.flatMap { line in
+			line.replacing(quotedValue, with: "").matches(of: className).map { String($0.1) }
 		})
 	}
 
@@ -492,11 +495,13 @@ struct PageTests {
 	@Test
 	func `animations only run for visitors who allow motion`() async throws {
 		let essentialAnimations = [ProseAnimations.targetHighlight.name]
+		// Before the loops, as Swift parses a regex literal each time the code runs.
+		let animationDeclaration = /animation: (.+);/
 		var stylesheets = [Stylesheet.site.css]
 		var animationCount = 0
 
-		for route in try await Self.routes(where: Self.isPage) {
-			stylesheets += try route.renderedHTML().matches(of: /<style>(.*?)<\/style>/.dotMatchesNewlines()).map { String($0.1) }
+		for page in try await RenderedPage.website {
+			stylesheets += page.html.matches(of: /<style>(.*?)<\/style>/.dotMatchesNewlines()).map { String($0.1) }
 		}
 
 		for css in stylesheets {
@@ -515,7 +520,7 @@ struct PageTests {
 				}
 
 				guard
-					let value = line.wholeMatch(of: /animation: (.+);/)?.1,
+					let value = line.wholeMatch(of: animationDeclaration)?.1,
 					value != "none"
 				else {
 					continue
@@ -550,9 +555,7 @@ struct PageTests {
 	*/
 	@Test
 	func `code blocks in Markdown are highlighted, and the page gets their script once`() async throws {
-		let route = try #require(try await Self.site().routes(project: .website, includesGallery: true).first { $0.path == "/_gallery" })
-
-		let html = try route.renderedHTML()
+		let html = try #require(try await RenderedPage.website.first { $0.route.path == "/_gallery" }).html
 		#expect(html.contains(#"<code data-part="code" class="code-block-code"><span class="code-block-attribute">@MainActor</span>"#))
 		#expect(html.contains(#"<code data-part="code" class="code-block-code"><span class="code-block-comment"># Every kind of highlighted token.</span>"#))
 		#expect(html.ranges(of: "customElements.define('code-block'").count == 1)
@@ -576,18 +579,28 @@ struct PageTests {
 	}
 
 	@Test
-	func `llms-full.txt has the older versions and the sponsors from the frontmatter`() async throws {
-		let route = try #require(try await Self.site().routes(project: .website).first { $0.path == "/llms-full.txt" })
-
-		guard case .file(let render) = route.output else {
-			Issue.record("Expected a file, got \(route.output)")
-			return
-		}
-
-		let text = String(decoding: try await render(), as: UTF8.self)
+	func `llms-full.txt has the older versions, the shared questions, and the sponsors from the frontmatter`() async throws {
+		let route = try #require(try await Self.site().routes().first { $0.path == "/llms-full.txt" })
+		let text = String(decoding: try await route.renderedFile(), as: UTF8.self)
 		#expect(text.contains("## Older Versions\n\n- ["))
+		#expect(text.contains("### Why does it not show week 53? {#week-53}\n\nYou are probably expecting"))
 		#expect(text.contains("- [GitHub](https://github.com)"))
 		#expect(!text.contains("@Sponsors"))
+	}
+
+	/**
+	The blocks of the file keep their source, and the build only adds blocks, except for the feedback question, which gets its ID. Lines with links are left out, as the links are absolute.
+	*/
+	@Test
+	func `llms-full.txt has each line of the app files`() async throws {
+		let route = try #require(try await Self.site().routes().first { $0.path == "/llms-full.txt" })
+		let lines = Set(String(decoding: try await route.renderedFile(), as: UTF8.self).split(separator: "\n"))
+
+		for app in try await SiteContent.website.activeAppsWithPages {
+			for line in app.file.body.split(separator: "\n") where !line.allSatisfy(\.isWhitespace) && !line.contains("](") && !line.contains(#"="/"#) && !line.hasPrefix("### \(App.feedbackQuestionTitle)") {
+				#expect(lines.contains(line), "\(app.file.slug): \(line)")
+			}
+		}
 	}
 
 	/**
@@ -595,14 +608,8 @@ struct PageTests {
 	*/
 	@Test
 	func `llms-full.txt has absolute links`() async throws {
-		let route = try #require(try await Self.site().routes(project: .website).first { $0.path == "/llms-full.txt" })
-
-		guard case .file(let render) = route.output else {
-			Issue.record("Expected a file, got \(route.output)")
-			return
-		}
-
-		let text = String(decoding: try await render(), as: UTF8.self)
+		let route = try #require(try await Self.site().routes().first { $0.path == "/llms-full.txt" })
+		let text = String(decoding: try await route.renderedFile(), as: UTF8.self)
 		#expect(!text.contains("](donate.md)"))
 		#expect(!text.contains("](../"))
 		#expect(text.contains("](https://sindresorhus.com/supporters)"))
@@ -611,32 +618,28 @@ struct PageTests {
 	}
 
 	@Test
-	func `every feed renders, and redirect items keep their GUIDs`() async throws {
-		let site = try await Self.site()
-		var feeds = [String: String]()
+	func `every feed renders`() async throws {
+		var feedCount = 0
 
-		for route in site.routes(project: .website) where route.path.description.hasSuffix("rss.xml") || route.path.description.hasPrefix("/rss-") {
-			guard case .file(let render) = route.output else {
-				continue
-			}
-
-			feeds[route.path.description] = String(decoding: try await render(), as: UTF8.self)
+		for route in try await Self.site().routes() where route.path.description.hasSuffix("rss.xml") || route.path.description.hasPrefix("/rss-") {
+			_ = try await route.renderedFile()
+			feedCount += 1
 		}
 
-		#expect(feeds.count >= 3)
-
-		// Feed readers know the items by their GUIDs, so the GUIDs of redirect posts must not change. The content may have no listed redirect posts.
-		let blogFeed = try #require(feeds["/rss.xml"])
-		let redirectPosts = site.content.listedPosts.filter(\.isRedirect)
-
-		for post in redirectPosts {
-			#expect(blogFeed.contains("<guid isPermaLink=\"false\">https://sindresorhus.com/blog/\(post.slug)</guid>"))
-		}
+		#expect(feedCount >= 3)
 	}
-}
 
-extension Route: CustomTestStringConvertible {
-	public var testDescription: String {
-		path.description
+	/**
+	Feed readers know the items by their GUIDs, so the GUIDs of redirect posts and of the launch of Super Menu must not change. The real content has no listed redirect posts, and Super Menu is a draft.
+	*/
+	@Test
+	func `the blog feed keeps the GUIDs of redirect posts and of the launch of Super Menu`() async throws {
+		let post = try await BlogPost(markdown: "---\ntitle: 'Elsewhere'\npublicationDate: '2026-01-01'\nredirectURL: 'https://example.com/post'\n---\n", slug: "elsewhere")
+		let app = try await App(markdown: "---\ntitle: 'Super Menu'\nsubtitle: 'A menu'\npublicationDate: '2026-01-02'\nplatforms: ['macOS']\n---\n\nText.", slug: "super-menu")
+		let content = SiteContent(apps: [app], posts: [post], pages: [], buildDate: .now, project: .empty)
+		let xml = try SiteFeed.blog.feed(content: content).xmlString()
+
+		#expect(xml.contains(#"<guid isPermaLink="false">https://sindresorhus.com/blog/elsewhere</guid>"#))
+		#expect(xml.contains(#"<guid isPermaLink="false">https://sindresorhus.com/super-menu#launch</guid>"#))
 	}
 }

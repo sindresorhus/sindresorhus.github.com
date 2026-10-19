@@ -5,10 +5,10 @@ import SiteKit
 A link with a visible label, like a button in the app header.
 */
 struct LabeledLink: Hashable, Sendable {
-	var title: String
-	var destination: LinkDestination
+	let title: String
+	let destination: LinkDestination
 
-	var description: String?
+	let description: String?
 
 	init(_ title: String, destination: LinkDestination, description: String? = nil) {
 		self.title = title
@@ -41,13 +41,8 @@ extension LabeledLink {
 Links under a heading, like the app categories.
 */
 struct LinkGroup: Sendable {
-	var title: String
-	var links: [LabeledLink]
-
-	init(title: String, links: [LabeledLink]) {
-		self.title = title
-		self.links = links
-	}
+	let title: String
+	let links: [LabeledLink]
 }
 
 extension [LabeledLink] {

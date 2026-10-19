@@ -57,19 +57,11 @@ struct AppsPage: Page {
 							$0.color(.gray(700), dark: .gray(200))
 						}
 
-					// The menu is the last chip, so the heading is only the title.
-					nav {
-						for category in AppCategory.browsable {
-							a(.href(category.path)) {
-								category.name
-							}
-							.style(Styles.categoryLink)
+					// The categories as chips below the stats, so visitors find the kind of app they want without opening the menu. The menu is the last chip, so the heading is only the title.
+					ChipNavigation(label: "App categories", links: AppCategory.browsable.map(\.link), menu: OverflowMenu(label: "More app pages", groups: Self.linkGroups, variant: .chip))
+						.style {
+							$0.margin(.top, .rootEm(2))
 						}
-
-						OverflowMenu(label: "More app pages", groups: Self.linkGroups, variant: .chip)
-					}
-					.accessibilityLabel("App categories")
-					.style(Styles.categories)
 				}
 				.style(Styles.hero)
 
@@ -109,7 +101,7 @@ struct AppsPage: Page {
 				.hiddenFromSearchSnippets()
 				.style(Styles.grid)
 
-				linkGroups
+				linkGroupsSection
 			}
 			.style(Styles.container)
 		}
@@ -131,7 +123,7 @@ struct AppsPage: Page {
 	/**
 	The links to the other app pages, side by side from tablets, lined up with the cards. Their titles are quiet, like those of the cards, as they are extra content at the end of the page.
 	*/
-	private var linkGroups: some HTML<HTMLTag.section> {
+	private var linkGroupsSection: some HTML<HTMLTag.section> {
 		section {
 			for group in Self.linkGroups {
 				Prose {
@@ -218,9 +210,10 @@ struct AppsPage: Page {
 
 	private var stats: [String] {
 		[
-			content.activeApps.count.formatted(counting: "app"),
+			// All the apps that were made, also the archived ones, like the years of craft.
+			content.listedApps.count.formatted(counting: "app"),
 			content.yearsOfCraft.map { "\($0.formatted(counting: "year")) of craft" },
-			"\(Site.appUserCount.approximateCount) users",
+			Site.appUserCount.approximateCount(counting: "user"),
 			"\(Site.supportEmailCount.approximateCount) answered support emails",
 		]
 		.compactMap(\.self)
@@ -236,7 +229,7 @@ extension AppsPage {
 	/**
 	How strong the light on the title is. It is registered, so it fades in and out.
 	*/
-	fileprivate static let titleLight = RegisteredProperty<CSSValue>("--title-light", syntax: "<percentage>", initialValue: .percent(0))
+	fileprivate static let titleLight = RegisteredProperty<CSSValue>("--title-light", syntax: .percentage, initialValue: .percent(0))
 
 	/**
 	Where the pointer is on a part of the title, for the light. `apps.js` sets them.
@@ -265,8 +258,6 @@ extension AppsPage {
 		case title
 		case titleText
 		case titleApps
-		case categories
-		case categoryLink
 		case grid
 		case extra
 		case filterNotice
@@ -318,12 +309,12 @@ extension AppsPage {
 							.frame(height: .percent(100) + Self.laptopTopPadding + SiteHeader.height)
 					}
 			case .title:
-				// The expanded width of SF Pro on Apple platforms, like the name on the home page. On phones, the size makes “Quality Crafted” fill the line.
+				// The expanded width of SF Pro on Apple platforms, like the name on the home page. On phones, the size makes “Quality Crafted” fill the line. With the zoom of the browser, the line gets narrower in CSS pixels, so the minimum, half the maximum, keeps the title at least as large at 200% zoom as without zoom. Then it is wider than the line, and with more zoom on a narrow window, wider than the screen, but only when the screen is narrower than the 320 CSS pixels that WCAG asks to work.
 				Style()
 					.vstack(alignment: .center, spacing: .em(0.12))
 					.margin(.bottom, .rootEm(1.5))
 					.expandedFont()
-					.font(size: .min(.rootEm(2.5), .containerInlineSize(100) * (1 / 7.8)))
+					.font(size: .clamp(.rootEm(1.25), .containerInlineSize(100) * (1 / 7.8), .rootEm(2.5)))
 					.lineHeight(1)
 					.bold()
 					.letterSpacing(.em(-0.05))
@@ -376,14 +367,6 @@ extension AppsPage {
 					.from(.smallTablet) {
 						$0.font(size: .em(1))
 					}
-			case .categories:
-				// The categories as chips below the stats, so visitors find the kind of app they want without opening the menu.
-				Style()
-					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
-					.flexWrap()
-					.margin(.top, .rootEm(2))
-			case .categoryLink:
-				Style().chip()
 			case .grid:
 				// The cards line up with the content of the header and the footer, like on the other pages with app cards.
 				Style()

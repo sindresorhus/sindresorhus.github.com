@@ -3,7 +3,7 @@ import Markdown
 import SiteKit
 
 /**
-The plain files for crawlers, AI assistants, and other tools: `robots.txt`, `humans.txt`, `llms.txt`, `llms-full.txt`, `/apps.json`, and WebFinger, and the npm packages and the repos for the buttons of ``ProjectOfTheDay``.
+The plain files for crawlers, AI assistants, and other tools: `robots.txt`, `humans.txt`, `llms.txt`, `llms-full.txt`, `/apps.json`, WebFinger, and the app site association, and the npm packages and the repos for the buttons of ``ProjectOfTheDay``.
 */
 extension Site {
 	@RouteBuilder
@@ -29,7 +29,13 @@ extension Site {
 		}
 
 		Route.file("/.well-known/webfinger") {
-			try Self.webFinger()
+			Self.webFinger()
+		}
+
+		if let sharedPuzzlePage = SharedPuzzlePage(apps: content.apps) {
+			Route.file("/.well-known/apple-app-site-association") {
+				sharedPuzzlePage.appSiteAssociation
+			}
 		}
 
 		// Without projects, the about page has no card for them, so its button needs no file.
@@ -193,12 +199,12 @@ extension Site {
 	/**
 	WebFinger for the Mastodon account, so searching for `@sindre@sindresorhus.com` (any name) finds it. A static file answers every query with the same account.
 	*/
-	private static func webFinger() throws -> Data {
+	private static func webFinger() -> Data {
 		let handle = author.fediverseHandle.drop { $0 == "@" }
 		let parts = handle.split(separator: "@")
 
 		guard parts.count == 2 else {
-			throw URLError(.badURL)
+			preconditionFailure("A fediverse handle is a user and a server, like `@sindresorhus@mastodon.social`, got `\(author.fediverseHandle)`.")
 		}
 
 		struct Resource: Encodable {
@@ -228,30 +234,37 @@ extension Site {
 			]
 		)
 
-		let encoder = JSONEncoder()
-		encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
-		return try encoder.encode(resource)
+		return Data(JSONEncoder.pageJSON(resource).utf8)
 	}
 }
 
 extension App {
 	/**
-	The Markdown of the page with the older versions from the frontmatter, where the page shows them.
+	The Markdown of the page with what the build adds from the facts of the app, like the common and shared questions and the older versions, where the page shows them (``App/Frontmatter/addingGeneratedSections(to:sharedQuestions:)``). The blocks of the file keep their source, and the added blocks are formatted.
+
+	Limitation: the parser leaves link reference definitions and footnote definitions out of the blocks, so they are left out, and it gives a setext heading (underlined with `=` or `-`) directly followed by text a range that has the next line, so that line is there twice. The app files have none.
 	*/
 	fileprivate var fullMarkdown: String {
-		guard !frontmatter.olderVersions.isEmpty else {
-			return file.body
+		let lines = file.body.split(separator: "\n", omittingEmptySubsequences: false)
+		let document = frontmatter.addingGeneratedSections(to: Document(parsing: file.body, options: .parseBlockDirectives), sharedQuestions: sharedQuestions)
+
+		return document.blockChildren.map { block in
+			guard
+				// Raw HTML is formatted as it is written, and the parser ends the range of an HTML comment of several lines a line early.
+				!(block is HTMLBlock),
+				// The added blocks have no range, or the source of their own file, like the shared questions.
+				let range = block.range,
+				range.lowerBound.source == nil
+			else {
+				return block.format()
+			}
+
+			// A top-level block has whole lines.
+			return lines[(range.lowerBound.line - 1)..<range.upperBound.line].joined(separator: "\n")
 		}
-
-		let section = Document(frontmatter.olderVersions.markdownSection(isPaid: frontmatter.isPaid)).format()
-
-		guard let nonAppStoreVersion = file.body.firstRange(of: "\n## \(Self.nonAppStoreVersionTitle)\n") else {
-			return "\(file.body)\n\n\(section)"
-		}
-
-		var body = file.body
-		body.insert(contentsOf: "\n\(section)\n", at: nonAppStoreVersion.lowerBound)
-		return body
+		// Raw HTML ends with its line break, and the range of a list has the blank line after it.
+		.map { $0.trimmingCharacters(in: .newlines) }
+		.joined(separator: "\n\n")
 	}
 }
 
@@ -260,15 +273,20 @@ extension MarkdownFile {
 	The Markdown with the destinations of its links and images, and the root-relative URLs of its raw HTML, as absolute URLs, as the file is read outside the site. A link to a content file, like `donate.md`, goes to its page.
 	*/
 	fileprivate func withAbsoluteLinks(_ markdown: String, page: URL, project: Project) -> String {
-		markdown
-			.replacing(/\]\(([^()\s]+)\)/) { match in
-				let destination = (try? resolvingLink(String(match.1), project: project)) ?? String(match.1)
-				return "](\(URL(string: destination, relativeTo: page)?.absoluteString ?? destination))"
-			}
-			// The root-relative URLs of raw HTML, like `<img src="/dato/icon.png">` and `href="/"`, but not `//example.com`, which is another host.
-			.replacing(/\b(src|href)="(\/(?:[^"\/][^"]*)?)"/) { match in
-				#"\#(match.1)="\#(URL(string: String(match.2), relativeTo: page)?.absoluteString ?? String(match.2))""#
-			}
+		let markdown = markdown.replacing(/\]\(([^()\s]+)\)/) { match in
+			let destination = (try? resolvingLink(String(match.1), project: project)) ?? String(match.1)
+			return "](\(URL(string: destination, relativeTo: page)?.absoluteString ?? destination))"
+		}
+
+		// Most files have no root-relative URL in raw HTML, and the word boundary makes the search slow (about 0.1 s for all the files).
+		guard markdown.contains(#"="/"#) else {
+			return markdown
+		}
+
+		// The root-relative URLs of raw HTML, like `<img src="/dato/icon.png">` and `href="/"`, but not `//example.com`, which is another host.
+		return markdown.replacing(/\b(src|href)="(\/(?:[^"\/][^"]*)?)"/) { match in
+			#"\#(match.1)="\#(URL(string: String(match.2), relativeTo: page)?.absoluteString ?? String(match.2))""#
+		}
 	}
 }
 

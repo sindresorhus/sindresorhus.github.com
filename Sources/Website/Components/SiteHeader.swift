@@ -292,12 +292,14 @@ extension SiteHeader {
 				Style()
 					.hstack(justification: .spaceBetween)
 			case .brand:
+				// The space before the name is padding, so the keyboard focus can show as a fill around the name, like on the links. The name already has the strongest text color, so a color change would not show.
 				Style()
 					.hstack(alignment: .center)
-					.margin(.leading, Self.brandMargin)
+					.padding(.horizontal, Self.brandMargin)
 					.font(.extraLarge2, weight: .heavy)
 					.textWrap(.nowrap)
 					.color(.primaryText)
+					.focusFill()
 			case .menuToggle:
 				// The look of an icon link, as a style value instead of the class of ``IconLink``, as the order of rules from different style sets is not defined.
 				Style()
@@ -364,7 +366,12 @@ extension SiteHeader {
 					.fontWeight(.medium)
 					.hoverColor(.primaryText)
 					.current {
-						$0.color(.primaryText)
+						$0
+							.color(.primaryText)
+							// The current page already has the color of the focus, so in the menu, the focus of the keyboard shows as a fill, like on the site name. From tablets, the pill shows it.
+							.below(.tablet) {
+								$0.focusFill()
+							}
 					}
 					.from(.tablet) {
 						$0.navigationPill()

@@ -23,7 +23,7 @@ struct CareerQuiltPage: Page {
 
 	var body: some HTML {
 		section {
-			PageHeader(title: "Career Quilt", intro: "\(years.totalCount.formatted(.number.locale(.site))) contributions on GitHub since \(ContributionYear.firstYear), one patch for each year.")
+			PageHeader(title: "Career Quilt", intro: "\(years.totalCount.formatted(counting: "contribution")) on GitHub since \(ContributionYear.firstYear), one patch for each year.")
 
 			ol {
 				for year in years {
@@ -38,17 +38,9 @@ struct CareerQuiltPage: Page {
 						}
 						.style(Styles.summary)
 
-						// The summary says what the squares show. The squares look like the ones of the contributions on the now page. Blank squares before the first day of the year keep each weekday in its row.
+						// The summary says what the squares show. The squares are the ones of the contributions on the now page.
 						div {
-							for _ in 0..<year.firstWeekday {
-								span {}
-									.style(ContributionHeatmap.Styles.cell)
-							}
-
-							for day in year.days {
-								span {}
-									.style(ContributionHeatmap.Styles.cell, ContributionHeatmap.Styles.level(day.level))
-							}
+							ContributionHeatmap.Days(days: year.days)
 						}
 						.accessibilityHidden()
 						.style(Styles.calendar)

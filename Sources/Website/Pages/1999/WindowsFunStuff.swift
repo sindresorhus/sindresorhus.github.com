@@ -295,7 +295,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 			}
 			.style(GeoCitiesWindows.Styles.mediaScreen)
 
-			p(.part(Parts.movieCaption), .custom(name: "aria-live", value: "polite")) {}
+			p(.part(Parts.movieCaption), .ariaLive(.polite)) {}
 				.style(Styles.movieCaption)
 
 			div {

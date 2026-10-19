@@ -38,7 +38,7 @@ struct AppSecondaryNavigation: ScriptedElement {
 
 			// With one download option, “Get” links to it. With more, it goes up to the download options.
 			if app.isDownloadable {
-				Link("Get", destination: app.downloadOptions.count == 1 ? app.downloadOptions[0].url : .fragment(AppHero.Hooks.hero.rawValue))
+				Link("Get", destination: app.downloadOptions.count == 1 ? app.downloadOptions[0].url : .fragment(AppHero.Hooks.hero.id))
 					.buttonStyle(size: .small)
 					.style(Styles.getButton)
 			}
@@ -96,9 +96,13 @@ struct AppSecondaryNavigation: ScriptedElement {
 						$0.padding(vertical: .rootEm(0.75), horizontal: .rootEm(1))
 					}
 			case .identity:
+				// The focus of the keyboard shows as a fill around the icon and the name, like on the site name. The negative margin cancels the padding, so the layout does not change.
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.75))
 					.flexShrink(0)
+					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
+					.margin(vertical: .rootEm(-0.25), horizontal: .rootEm(-0.5))
+					.focusFill()
 					.hidden(below: .tablet)
 			case .name:
 				Style()
@@ -115,7 +119,7 @@ struct AppSecondaryNavigation: ScriptedElement {
 				Style()
 					.hstack(alignment: .center)
 					.textWrap(.nowrap)
-					.navigationPill(currentFill: Color.accent.value(default: .primary(500)).opacity(0.16))
+					.navigationPill(currentFill: Color.pageAccent.opacity(0.16))
 					.hidden(below: .tablet)
 			case .overflow:
 				Style()

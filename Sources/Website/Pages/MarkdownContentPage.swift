@@ -13,14 +13,16 @@ struct MarkdownContentPage: Page {
 	}
 
 	var sitemapEntry: SitemapEntry? {
-		SitemapEntry(lastModified: page.lastCommitDate)
+		page.sitemapEntry
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: page.title, description: page.description)
+		page.metadata
 	}
 
 	var body: some HTML {
-		ProsePage(photo: page.frontmatter.photo, markdown: page.markdown.content)
+		ProsePage(photo: page.frontmatter.photo) {
+			page.markdown.content
+		}
 	}
 }

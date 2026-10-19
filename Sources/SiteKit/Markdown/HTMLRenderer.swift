@@ -1,4 +1,3 @@
-import Elementary
 import Foundation
 import Markdown
 import SOML
@@ -32,12 +31,15 @@ struct HTMLRenderer: MarkupWalker {
 	*/
 	private let footnoteDefinitions: [String: FootnoteDefinition]
 
-	private(set) var problems = [MarkdownDocument.Problem]()
+	/**
+	The IDs of the footnote definitions that the renderer visited, to find a repeated one.
+	*/
+	private var definedFootnoteIDs = Set<String>()
+
+	private(set) var problems = [ContentError]()
 	private(set) var links = [MarkdownDocument.Link]()
 	private var slugger = HeadingSlugger()
 	private var tableColumnAlignments = [Table.ColumnAlignment?]()
-	private var tableColumn = 0
-	private var isInTableHead = false
 
 	/**
 	How many tables have each region name, so each name is unique.
@@ -79,12 +81,12 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	/**
-	The line where the markup starts, in the file of the source.
+	The line where the markup starts, in the file of the source. `nil` for markup that a rewrite adds from another file, which was parsed with the URL of its file as its source (``MarkdownDocument/Options/rewrite``).
 	*/
 	private func line(of markup: any Markup) -> Int? {
 		switch origin {
 		case .document(let lineOffset):
-			markup.range.map { $0.lowerBound.line + lineOffset }
+			markup.range.flatMap { $0.lowerBound.source == nil ? $0.lowerBound.line + lineOffset : nil }
 		case .inlineNote(let line):
 			line
 		}
@@ -118,75 +120,63 @@ struct HTMLRenderer: MarkupWalker {
 
 		let blocks = Array(document.blockChildren)
 		var isInSections = sections.startHeadingID == nil
-		var isGroupOpen = false
 		var index = 0
 
-		func closeGroup(_ renderer: inout Self) {
-			guard isGroupOpen else {
-				return
+		func sectionHeading(at index: Int) -> Markdown.Heading? {
+			guard
+				isInSections,
+				index < blocks.count,
+				let heading = blocks[index] as? Markdown.Heading,
+				heading.level == sections.level
+			else {
+				return nil
 			}
 
-			if let moreLink = sections.moreLink {
-				renderer.html += renderer.theme.collapsibleMoreLink(moreLink) + "\n"
-			}
-
-			renderer.html += "</div>\n"
-			isGroupOpen = false
+			return heading
 		}
 
 		while index < blocks.count {
-			let heading = blocks[index] as? Markdown.Heading
-
-			// A heading with a lower level ends the group, and ends the sections when they follow a heading.
-			if
-				let heading,
-				heading.level < sections.level
-			{
-				closeGroup(&self)
-
-				if sections.startHeadingID != nil {
-					isInSections = false
-				}
-			}
-
-			guard
-				isInSections,
-				let heading,
-				heading.level == sections.level
-			else {
+			guard sectionHeading(at: index) != nil else {
 				visit(blocks[index])
 
+				// When the sections follow a heading, they start after it, and end at the next heading with a lower level.
 				if
-					heading != nil,
-					let startHeadingID = sections.startHeadingID,
-					headings.last?.id == startHeadingID
+					let heading = blocks[index] as? Markdown.Heading,
+					let startHeadingID = sections.startHeadingID
 				{
-					isInSections = true
+					if headings.last?.id == startHeadingID {
+						isInSections = true
+					} else if heading.level < sections.level {
+						isInSections = false
+					}
 				}
 
 				index += 1
 				continue
 			}
 
-			let end = blocks[(index + 1)...].firstIndex { ($0 as? Markdown.Heading).map { $0.level <= sections.level } ?? false } ?? blocks.count
+			// The sections up to the next heading with a lower level are one group. Each section ends at the next heading with its level or a lower one.
+			html += "<div\(theme.classAttribute(.collapsibleSections))>\n"
 
-			if !isGroupOpen {
-				html += #"<div class="\#(theme.classes(for: .collapsibleSections))">"# + "\n"
-				isGroupOpen = true
+			while let heading = sectionHeading(at: index) {
+				let end = blocks[(index + 1)...].firstIndex { ($0 as? Markdown.Heading).map { $0.level <= sections.level } ?? false } ?? blocks.count
+				renderCollapsibleSection(heading, content: blocks[(index + 1)..<end], name: sections.name)
+				index = end
 			}
 
-			renderCollapsibleSection(heading, content: blocks[(index + 1)..<end], name: sections.name)
-			index = end
-		}
+			if let moreLink = sections.moreLink {
+				html += theme.collapsibleMoreLink(moreLink) + "\n"
+			}
 
-		closeGroup(&self)
+			html += "</div>\n"
+		}
 	}
 
 	/**
 	Renders the heading and its content as a collapsible section. The heading stays a heading inside the summary, so it is in the outline of the page.
 	*/
 	private mutating func renderCollapsibleSection(_ heading: Markdown.Heading, content: ArraySlice<any BlockMarkup>, name: String?) {
-		let id = recordHeading(heading)
+		let recorded = recordHeading(heading)
 
 		// A summary is a button, so a link in it is invalid, and a click would open the link instead of the section. The links of the heading are only their text, and a problem, as the link would be lost.
 		if heading.containsLink {
@@ -205,14 +195,14 @@ struct HTMLRenderer: MarkupWalker {
 			}
 		}
 
-		let section = theme.collapsibleSection(id: id, name: name, headingLevel: heading.level, titleHTML: titleHTML, contentHTML: "\n" + contentHTML)
+		let section = theme.collapsibleSection(id: recorded.id, name: name, headingLevel: heading.level, titleHTML: titleHTML, contentHTML: "\n" + contentHTML)
 
 		guard options.addsHeadingAnchors else {
 			html += section + "\n"
 			return
 		}
 
-		html += #"<div class="\#(theme.classes(for: .anchoredSection))">\#(theme.headingAnchor(id: id))\#(section)</div>"# + "\n"
+		html += "<div\(theme.classAttribute(.anchoredSection))>\(theme.headingAnchor(for: recorded))\(section)</div>\n"
 	}
 
 	mutating func visitHeading(_ heading: Markdown.Heading) {
@@ -223,27 +213,34 @@ struct HTMLRenderer: MarkupWalker {
 			return
 		}
 
-		let id = recordHeading(heading)
+		let recorded = recordHeading(heading)
 		let hasAnchor = options.addsHeadingAnchors && (2...4).contains(heading.level)
-		let classAttribute = hasAnchor ? #" class="\#(theme.classes(for: .anchoredHeading))""# : ""
-		html += #"<h\#(heading.level) id="\#(id.escapedForHTML)"\#(classAttribute)>"#
+		// The link is inside the heading, so the heading is named by its text, as the name of the link would otherwise be part of the name of the heading, like “Tips Copy link to section: Tips”.
+		let attributes = hasAnchor ? #"\#(theme.classAttribute(.anchoredHeading)) aria-label="\#(recorded.text.escapedForHTML)""# : ""
+		html += #"<h\#(heading.level) id="\#(recorded.id.escapedForHTML)"\#(attributes)>"#
 		renderInlineChildren(of: heading, removingCustomID: true)
 
 		if hasAnchor {
-			html += theme.headingAnchor(id: id)
+			html += theme.headingAnchor(for: recorded)
 		}
 
 		html += "</h\(heading.level)>\n"
 	}
 
 	/**
-	Adds the heading to the list of headings and returns its ID: the custom ID (`{#id}`), or a slug of the text.
+	Adds the heading to the list of headings and returns it. Its ID is the custom ID (`{#id}`), or a slug of the text. An ID that another heading already has is a problem, like a custom ID that is the slug of another heading. The slugs do not change to avoid it, so the URLs of the sections keep working.
 	*/
-	private mutating func recordHeading(_ heading: Markdown.Heading) -> String {
+	private mutating func recordHeading(_ heading: Markdown.Heading) -> Heading {
 		let (text, customID) = heading.plainTextAndCustomID
 		let id = customID ?? slugger.slug(for: text)
-		headings.append(Heading(level: heading.level, text: text, id: id, line: line(of: heading)))
-		return id
+
+		if headings.contains(where: { $0.id == id }) {
+			reportProblem("The heading ID `\(id)` is already the ID of another heading, so links to it are ambiguous. Give one of the headings another custom ID, like `{#\(id)-2}`.", line: line(of: heading))
+		}
+
+		let recorded = Heading(level: heading.level, text: text, id: id, line: line(of: heading))
+		headings.append(recorded)
+		return recorded
 	}
 
 	mutating func visitParagraph(_ paragraph: Paragraph) {
@@ -297,9 +294,9 @@ struct HTMLRenderer: MarkupWalker {
 				let text = child as? Text,
 				let (element, rest) = Self.listLineMarker(text.string)
 			{
-				html += #"<span class="\#(theme.classes(for: element))">"#
+				html += "<span\(theme.classAttribute(element))>"
 				openSpan = true
-				renderTextCheckingFootnotes(rest[...], of: text)
+				renderTextCheckingFootnotes(rest, of: text)
 			} else {
 				visit(child)
 			}
@@ -315,13 +312,13 @@ struct HTMLRenderer: MarkupWalker {
 	/**
 	The element of a `: ` (subtitle) or `:: ` (description) line, and the text after the marker.
 	*/
-	private static func listLineMarker(_ text: String) -> (MarkdownElement, String)? {
+	private static func listLineMarker(_ text: String) -> (MarkdownElement, Substring)? {
 		if text.hasPrefix(":: ") {
-			return (.listDescription, String(text.dropFirst(3)))
+			return (.listDescription, text.dropFirst(3))
 		}
 
 		if text.hasPrefix(": ") {
-			return (.listSubtitle, String(text.dropFirst(2)))
+			return (.listSubtitle, text.dropFirst(2))
 		}
 
 		return nil
@@ -363,7 +360,7 @@ struct HTMLRenderer: MarkupWalker {
 		var rawHTML = htmlBlock.rawHTML.removingHTMLComments
 
 		// An unclosed comment would hide the rest of the page in the browser, including the footer of the site.
-		if let commentStart = rawHTML.range(of: "<!--") {
+		if let commentStart = rawHTML.firstRange(of: "<!--") {
 			reportProblem("The HTML comment is not closed. End it with `-->`.", line: line(of: htmlBlock))
 			rawHTML = String(rawHTML[..<commentStart.lowerBound])
 		}
@@ -450,12 +447,9 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	mutating func visitTableHead(_ tableHead: Table.Head) {
-		isInTableHead = true
-		tableColumn = 0
 		html += "<thead><tr>\n"
 		descendInto(tableHead)
 		html += "</tr></thead>\n"
-		isInTableHead = false
 	}
 
 	mutating func visitTableBody(_ tableBody: Table.Body) {
@@ -469,28 +463,27 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	mutating func visitTableRow(_ tableRow: Table.Row) {
-		tableColumn = 0
 		html += "<tr>\n"
 		descendInto(tableRow)
 		html += "</tr>\n"
 	}
 
 	mutating func visitTableCell(_ tableCell: Table.Cell) {
-		// A cell that a span covers has a span of 0, and no cell of its own.
+		// A cell that a span covers has a span of 0, and no cell of its own, but it still counts as a column.
 		guard
 			tableCell.colspan > 0,
 			tableCell.rowspan > 0
 		else {
-			tableColumn += 1
 			return
 		}
 
-		let tag = isInTableHead ? "th" : "td"
+		let tag = tableCell.parent is Table.Head ? "th" : "td"
+		let column = tableCell.indexInParent
 		var attributes = ""
 
 		if
-			tableColumnAlignments.indices.contains(tableColumn),
-			let alignment = tableColumnAlignments[tableColumn]
+			tableColumnAlignments.indices.contains(column),
+			let alignment = tableColumnAlignments[column]
 		{
 			attributes += #" align="\#(alignment)""#
 		}
@@ -503,7 +496,6 @@ struct HTMLRenderer: MarkupWalker {
 			attributes += #" colspan="\#(tableCell.colspan)""#
 		}
 
-		tableColumn += 1
 		html += "<\(tag)\(attributes)>"
 		descendInto(tableCell)
 		html += "</\(tag)>\n"
@@ -567,9 +559,18 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	/**
-	The definitions are rendered in popovers at the end, not where they are.
+	The definitions are rendered in popovers at the end, not where they are. The parser reads the parts between block directives on their own, so two parts can define the same ID, and the references of both would show the first definition, which is a problem.
 	*/
-	mutating func visitFootnoteDefinition(_ footnoteDefinition: FootnoteDefinition) {}
+	mutating func visitFootnoteDefinition(_ footnoteDefinition: FootnoteDefinition) {
+		let id = footnoteDefinition.footnoteID
+
+		// The first definition of an ID is not a problem.
+		guard !definedFootnoteIDs.insert(id).inserted else {
+			return
+		}
+
+		reportProblem("The footnote `[^\(id)]` is already defined, so its references would show the first definition. Give one of them another ID.", line: line(of: footnoteDefinition))
+	}
 
 	private mutating func renderText(_ text: Substring) {
 		// Keyboard shortcuts written as `++Cmd+K++` become one `<kbd>` per key.
@@ -599,15 +600,16 @@ struct HTMLRenderer: MarkupWalker {
 			return nil
 		}
 
-		if let number = footnoteNumbers[id] {
-			return theme.footnoteReference(number: number, popoverID: Self.footnotePopoverID(number: number))
+		// A footnote that is not referenced yet gets the next number.
+		let number = footnoteNumbers[id, default: footnoteNumbers.count + 1]
+		let popoverID = Self.footnotePopoverID(number: number)
+
+		if footnoteNumbers[id] == nil {
+			footnoteNumbers[id] = number
+			addPopover(id: popoverID, element: .footnotePopover, content: definition.children, origin: origin)
 		}
 
-		// A footnote that is not referenced yet gets the next number.
-		let number = footnoteNumbers.count + 1
-		footnoteNumbers[id] = number
-		addPopover(id: Self.footnotePopoverID(number: number), element: .footnotePopover, content: definition.children, origin: origin)
-		return theme.footnoteReference(number: number, popoverID: Self.footnotePopoverID(number: number))
+		return theme.footnoteReference(number: number, popoverID: popoverID)
 	}
 
 	/**
@@ -661,13 +663,19 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	mutating func visitLink(_ link: Link) {
-		guard linkDepth == 0 else {
+		let destination = link.destination ?? ""
+
+		// An unsafe link of release notes, like `javascript:`, is only its text too.
+		guard
+			linkDepth == 0,
+			style == .extended || destination.isSafeReleaseNotesDestination(isImage: false)
+		else {
 			descendInto(link)
 			return
 		}
 
 		let title = link.title.map { #" title="\#($0.escapedForHTML)""# } ?? ""
-		html += #"<a href="\#(resolvedDestination(link.destination ?? "", of: link).escapedForHTML)"\#(title)>"#
+		html += #"<a href="\#(resolvedDestination(destination, of: link).escapedForHTML)"\#(title)>"#
 		linkDepth += 1
 		descendInto(link)
 		linkDepth -= 1
@@ -699,7 +707,7 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	/**
-	The destination after ``MarkdownDocument/Options/resolveLink``, recorded in the links. A destination that cannot be resolved is a problem.
+	The destination after ``MarkdownDocument/Options/resolveLink``, recorded in the links. A destination that cannot be resolved is a problem. An unsafe image source of release notes is empty.
 	*/
 	private mutating func resolvedDestination(_ destination: String, of markup: any Markup) -> String {
 		var resolved = destination
@@ -779,10 +787,7 @@ struct HTMLRenderer: MarkupWalker {
 		let noteLine = line(of: attributes)
 		let id = "user-content-note-\(noteLine ?? 0)-\(attributes.range?.lowerBound.column ?? 0)"
 
-		html += options.inlineNote?(contentHTML, id) ?? button(.type(.button), .popoverTarget(id), .class(theme.classes(for: .inlineNote))) {
-			HTMLRaw(contentHTML)
-		}
-		.render()
+		html += options.inlineNote?(contentHTML, id) ?? theme.inlineNote(textHTML: contentHTML, popoverID: id)
 
 		let noteDocument = Document(parsing: note, convertOptions: ConvertOptions(style: style, options: options))
 		addPopover(id: id, element: .inlineNotePopover, content: noteDocument.children, origin: .inlineNote(line: noteLine))
@@ -825,15 +830,18 @@ struct HTMLRenderer: MarkupWalker {
 			return
 		}
 
-		var problems = [DirectiveArgumentText.ParseError]()
-		let arguments = blockDirective.argumentText.parseNameValueArguments(parseErrors: &problems)
+		var parseErrors = [DirectiveArgumentText.ParseError]()
+		let arguments = blockDirective.argumentText.parseNameValueArguments(parseErrors: &parseErrors)
 
-		for argumentProblem in problems {
-			reportProblem("The arguments of `@\(blockDirective.name)` are invalid: \(argumentProblem).", line: line(of: blockDirective))
+		// One mistake, like a missing quote, gives several parse errors and arguments that are read wrong, so only the first error is reported, and the directive is only its content.
+		if let parseError = parseErrors.first {
+			reportProblem("The arguments of `@\(blockDirective.name)` are invalid: \(parseError.message). Write them like `name: \"Value\"`, with a comma between them.", line: line(of: blockDirective))
+			html += contentHTML
+			return
 		}
 
 		do {
-			html += try renderer.render(Dictionary(arguments.map { ($0.name, $0.value) }) { first, _ in first }, contentHTML) + "\n"
+			html += try renderer.render(arguments, contentHTML) + "\n"
 		} catch {
 			reportProblem("`@\(blockDirective.name)`: \(error)", line: line(of: blockDirective))
 			html += contentHTML
@@ -960,6 +968,12 @@ struct HTMLRenderer: MarkupWalker {
 				continue
 			}
 
+			// A second directive with the name would replace the values of the first, like keywords on two lines.
+			guard headings[headings.count - 1].directives[comment.name] == nil else {
+				reportProblem("The heading already has `@\(comment.name)`. Put all its values in one directive.", line: line)
+				continue
+			}
+
 			do {
 				headings[headings.count - 1].directives[comment.name] = try directive.decode(comment.values)
 			} catch {
@@ -969,7 +983,7 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	private mutating func reportProblem(_ message: String, line: Int?) {
-		problems.append(MarkdownDocument.Problem(line: line, message: message))
+		problems.append(ContentError(line: line, reason: message))
 	}
 
 	private mutating func renderInlineChildren(of markup: any Markup, removingCustomID: Bool = false) {
@@ -1005,7 +1019,7 @@ extension Markdown.Heading {
 			return (text.trimmingCharacters(in: .whitespaces), nil)
 		}
 
-		return (String(text[..<match.range.lowerBound]).trimmingCharacters(in: .whitespaces), String(match.1))
+		return (String(text[..<match.range.lowerBound]).trimmingCharacters(in: .whitespaces), String(match.1).removingSmartPunctuation)
 	}
 }
 
@@ -1023,13 +1037,18 @@ extension String {
 	The HTML without `<!-- … -->` comments.
 	*/
 	var removingHTMLComments: String {
-		contains("<!--") ? replacing(/(?s)<!--.*?-->/, with: "") : self
+		contains("<!--") ? replacing(Self.htmlComment, with: "") : self
 	}
 
 	/**
-	A custom heading ID at the end of a heading, like ` {#install}`.
+	An HTML comment, like `<!-- Draft -->`.
 	*/
-	nonisolated(unsafe) fileprivate static let customHeadingID = /\s*\{#([\w-]+)\}\s*$/
+	nonisolated(unsafe) private static let htmlComment = /(?s)<!--.*?-->/
+
+	/**
+	A custom heading ID at the end of a heading, like ` {#install}`. Smart punctuation makes the `--` and `---` of an ID dashes, like of the slug `cut--paste` of “Cut & Paste”, so the ID can have dashes, which are hyphens in the ID.
+	*/
+	nonisolated(unsafe) fileprivate static let customHeadingID = /\s*\{#([\w–—-]+)\}\s*$/
 
 	/**
 	The heading text without its custom ID, like `Install` for `Install {#install}`.
@@ -1104,6 +1123,22 @@ extension Markup {
 		}
 
 		return children.contains(where: \.containsLink)
+	}
+}
+
+extension DirectiveArgumentText.ParseError {
+	/**
+	The mistake in the arguments of a block directive, like “a `:` is missing”.
+	*/
+	fileprivate var message: String {
+		switch self {
+		case .duplicateArgument(let name, _, _):
+			"`\(name)` is given twice"
+		case .missingExpectedCharacter(let character, _):
+			"a `\(character)` is missing"
+		case .unexpectedCharacter(let character, _):
+			"a `\(character)` is not expected"
+		}
 	}
 }
 

@@ -43,6 +43,13 @@ extension String {
 		let wordBoundary = shortened.lastIndex(of: " ") ?? shortened.endIndex
 		return shortened[..<wordBoundary].replacing(/[,.:;]$/, with: "") + "…"
 	}
+
+	/**
+	The noun for the count: as it is for 1, else in the plural, like “day” and “days”. The plural adds an “s”, unless it is given, like “repositories”.
+	*/
+	func pluralized(for count: Int, plural: String? = nil) -> String {
+		count == 1 ? self : plural ?? self + "s"
+	}
 }
 
 extension Int {
@@ -75,14 +82,14 @@ extension Int {
 	The approximate count (``approximateCount``) with the noun, in the plural when the count is not 1, like “1 star” or “4.2M+ downloads”. The plural adds an “s”.
 	*/
 	func approximateCount(counting noun: String) -> String {
-		"\(approximateCount) \(self == 1 ? noun : noun + "s")"
+		"\(approximateCount) \(noun.pluralized(for: self))"
 	}
 
 	/**
 	The count with the noun, in the plural when the count is not 1, like “1 day” or “1,234 days”. The plural adds an “s”.
 	*/
 	func formatted(counting noun: String) -> String {
-		"\(formatted(.number.locale(.site))) \(self == 1 ? noun : noun + "s")"
+		"\(formatted(.number.locale(.site))) \(noun.pluralized(for: self))"
 	}
 }
 
@@ -122,6 +129,29 @@ extension Sequence {
 	}
 }
 
+extension Sequence where Element: Sendable {
+	/**
+	The results of the transform of each element, in the order of the elements. The transforms run at the same time, like a request for each element, and the first error stops them.
+
+	```
+	let pages = try await urls.concurrentMap { try await download($0) }
+	```
+	*/
+	func concurrentMap<Transformed: Sendable>(_ transform: @escaping @Sendable (Element) async throws -> Transformed) async throws -> [Transformed] {
+		try await withThrowingTaskGroup { group in
+			for (index, element) in enumerated() {
+				group.addTask {
+					(index: index, value: try await transform(element))
+				}
+			}
+
+			return try await group.reduce(into: []) { $0.append($1) }
+				.sorted(using: KeyPathComparator(\.index))
+				.map(\.value)
+		}
+	}
+}
+
 extension Sequence where Element: AdditiveArithmetic {
 	/**
 	The sum of the elements, and zero for an empty sequence.
@@ -158,7 +188,6 @@ enum Schema {
 		var jobTitle: String?
 		var description: String?
 		var sameAs: [URL]?
-		var worksFor: Organization?
 		var knowsAbout: [String]?
 	}
 
@@ -195,12 +224,6 @@ enum Schema {
 		let type = "WebSite"
 		let name: String
 		let url: URL
-	}
-
-	struct Organization: Object {
-		var context: String?
-		let type = "Organization"
-		let name: String
 	}
 
 	struct SoftwareApplication: Object {
@@ -306,7 +329,8 @@ extension Schema.SoftwareApplication {
 			name: app.title,
 			description: app.description,
 			url: app.path.absoluteURL,
-			applicationCategory: app.schemaCategory,
+			// Mac apps are utilities.
+			applicationCategory: app.platforms.contains(.macOS) ? "UtilitiesApplication" : "MobileApplication",
 			operatingSystem: app.operatingSystems,
 			author: .author,
 			datePublished: app.publicationDate.isoDay,
@@ -331,7 +355,7 @@ extension Schema.SoftwareApplication {
 			}
 
 			if let rating = info.rating {
-				aggregateRating = Schema.AggregateRating(ratingValue: rating.average, ratingCount: rating.count)
+				aggregateRating = Schema.AggregateRating(ratingValue: rating.roundedAverage, ratingCount: rating.count)
 
 				if !reviews.isEmpty {
 					review = reviews.map(Schema.Review.init)
@@ -344,7 +368,7 @@ extension Schema.SoftwareApplication {
 			// A free app that is downloaded from its own site, or a paid app that is sold there.
 			if !app.isPaid {
 				downloadUrl = url
-				offers = Schema.Offer(url: url, seller: .authorName, price: Price(0))
+				offers = Schema.Offer(url: url, seller: .authorName, price: .free)
 			} else if let price = app.frontmatter.price {
 				offers = Schema.Offer(url: url, seller: .authorName, price: price)
 			}

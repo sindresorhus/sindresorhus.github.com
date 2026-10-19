@@ -9,6 +9,13 @@ platforms: [
 ]
 isPaid: true
 appStoreID: 1643660089
+sharedQuestions: [
+	'widget-missing'
+	'lock-screen-widget-disappears'
+	'widget-transparent-background'
+	'widget-run-shortcut'
+	'lock-screen-full-color'
+]
 hasSentry: true
 ---
 
@@ -26,38 +33,13 @@ You can also open a URL or run a shortcut instead when tapping the widget. This 
 - [iOS](https://support.apple.com/HT207122)
 <!-- - [macOS](https://support.apple.com/guide/mac-help/mchl52be5da5/mac) -->
 
-### The widget does not show up in the widget picker
-
-This is a well-known iOS issue. See [how to fix a widget that does not show up](/apps/faq#widget-not-showing).
-
-### The Lock Screen widget sometimes disappears
-
-Make sure Lock Screen widgets are allowed when locked: “Settings › Face ID & Passcode › Allow Access When Locked › Lock Screen Widgets”. If it’s “off”, iOS may hide the widget until you unlock.
-
 ### Can I call someone by just tapping the widget without the confirmation dialog?
 
 Yes. Enable the “Quick Call” setting in the app.
 
-### Can the Lock Screen photos be full-colored?
-
-This is unfortunately not possible. iOS enforces that Lock Screen widgets are single-colored.
-
 ### Can you support more actions when tapping a widget?
 
 Sure. I’m happy to consider requests. [Send it here.](https://sindresorhus.com/feedback?product=Favorites%20Widget&referrer=Website-FAQ)
-
-### Can you make the widget background transparent?
-
-This is not possible.
-
-### When using the “Run Shortcut” action, why does tapping the widget first open the main app and then the Shortcuts app?
-
-This is because of iOS limitations. A widget can only open its own app when a user taps it. And the only way to run a shortcut is to open the Shortcuts app using a special URL. So when you tap the widget, the widget opens the main app, and the main app then opens the Shortcuts app. It’s not a very good user experience, but only Apple can fix this.
-
-If you work at Apple, you know what to do:
-- [FB9745173](https://github.com/feedback-assistant/reports/issues/240)
-- [FB11516334](https://github.com/feedback-assistant/reports/issues/357)
-- [FB11516273](https://github.com/feedback-assistant/reports/issues/356)
 
 <!-- #### Why is this free without ads?
 

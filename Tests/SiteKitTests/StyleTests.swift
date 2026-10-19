@@ -8,18 +8,29 @@ struct StyleTests {
 	A number that is not finite, like from a division by zero, is a mistake in the code, so the build stops and names it, instead of writing CSS that the browser ignores.
 	*/
 	@Test
-	func `a length that is not finite stops the build with a message`() async {
-		await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+	func `a length that is not finite stops the build with a message`() async throws {
+		let result = try #require(await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
 			_ = Length.pixels(.nan).description
-		}
-		.map { result in
-			#expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("must be finite"))
-		}
+		})
+		#expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("must be finite"))
 
 		await #expect(processExitsWith: .failure) {
 			let breakpoint = Breakpoint(minimumWidthInRem: 40)
 			_ = Style().fluidFontSize(fromRem: 1, toRem: 2, between: breakpoint, and: breakpoint)
 		}
+	}
+
+	/**
+	A length like `1` without a unit is invalid CSS, which the browser ignores, so a literal other than `0` stops the build, like `.padding(1)` for `.padding(.pixels(1))`.
+	*/
+	@Test
+	func `a length literal other than 0 stops the build with a message`() async throws {
+		#expect(ruleCSS(Style().padding(0)) == ".x {\n\tpadding: 0;\n}\n")
+
+		let result = try #require(await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+			_ = Style().padding(1)
+		})
+		#expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("must be 0"))
 	}
 
 	@Test
@@ -260,20 +271,20 @@ struct StyleTests {
 
 	@Test
 	func `grid items can span rows, and columns can have sizes without a grid`() {
-		#expect(Stylesheet { Rule(".x", Style().gridRowSpan(2)) }.css == ".x {\n\tgrid-row: span 2 / span 2;\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().gridColumns(.auto, .fraction(1))) }.css == ".x {\n\tgrid-template-columns: auto 1fr;\n}\n")
+		#expect(ruleCSS(Style().gridRowSpan(2)) == ".x {\n\tgrid-row: span 2 / span 2;\n}\n")
+		#expect(ruleCSS(Style().gridColumns(.auto, .fraction(1))) == ".x {\n\tgrid-template-columns: auto 1fr;\n}\n")
 	}
 
 	@Test
 	func `text can be italic, or upright again`() {
-		#expect(Stylesheet { Rule(".x", Style().italic()) }.css == ".x {\n\tfont-style: italic;\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().italic(false)) }.css == ".x {\n\tfont-style: normal;\n}\n")
+		#expect(ruleCSS(Style().italic()) == ".x {\n\tfont-style: italic;\n}\n")
+		#expect(ruleCSS(Style().italic(false)) == ".x {\n\tfont-style: normal;\n}\n")
 	}
 
 	@Test
 	func `inline elements can be raised by a length, like an icon in the middle of the capital letters`() {
-		#expect(Stylesheet { Rule(".x", Style().verticalAlign(.capitalHeight(0.5) - Length.rootEm(1) * 0.5)) }.css == ".x {\n\tvertical-align: calc(.5cap - .5rem);\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().verticalAlign(.middle)) }.css == ".x {\n\tvertical-align: middle;\n}\n")
+		#expect(ruleCSS(Style().verticalAlign(.capitalHeight(0.5) - Length.rootEm(1) * 0.5)) == ".x {\n\tvertical-align: calc(.5cap - .5rem);\n}\n")
+		#expect(ruleCSS(Style().verticalAlign(.middle)) == ".x {\n\tvertical-align: middle;\n}\n")
 	}
 
 	@Test
@@ -301,22 +312,22 @@ struct StyleTests {
 
 	@Test
 	func `a fluid font size is a clamp of rem and vw without noise`() {
-		#expect(Stylesheet { Rule(".x", Style().fluidFontSize(fromRem: 3, toRem: 3.5, between: Breakpoint(minimumWidthInRem: 40), and: Breakpoint(minimumWidthInRem: 48))) }.css == ".x {\n\tfont-size: clamp(3rem, .5rem + 6.25vw, 3.5rem);\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().fluidFontSize(fromRem: 0.875, toRem: 1.125, between: Breakpoint(minimumWidthInRem: 24), and: Breakpoint(minimumWidthInRem: 48))) }.css == ".x {\n\tfont-size: clamp(.875rem, .625rem + 1.0417vw, 1.125rem);\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().fluidFontSize(fromRem: 2, toRem: 1, between: Breakpoint(minimumWidthInRem: 20), and: Breakpoint(minimumWidthInRem: 40))) }.css == ".x {\n\tfont-size: clamp(2rem, 3rem + -5vw, 1rem);\n}\n")
+		#expect(ruleCSS(Style().fluidFontSize(fromRem: 3, toRem: 3.5, between: Breakpoint(minimumWidthInRem: 40), and: Breakpoint(minimumWidthInRem: 48))) == ".x {\n\tfont-size: clamp(3rem, .5rem + 6.25vw, 3.5rem);\n}\n")
+		#expect(ruleCSS(Style().fluidFontSize(fromRem: 0.875, toRem: 1.125, between: Breakpoint(minimumWidthInRem: 24), and: Breakpoint(minimumWidthInRem: 48))) == ".x {\n\tfont-size: clamp(.875rem, .625rem + 1.0417vw, 1.125rem);\n}\n")
+		#expect(ruleCSS(Style().fluidFontSize(fromRem: 2, toRem: 1, between: Breakpoint(minimumWidthInRem: 20), and: Breakpoint(minimumWidthInRem: 40))) == ".x {\n\tfont-size: clamp(2rem, 3rem + -5vw, 1rem);\n}\n")
 	}
 
 	@Test
 	func `lists can have no marker, bullets, or numbers`() {
-		#expect(Stylesheet { Rule(".x", Style().listStyle(.none)) }.css == ".x {\n\tlist-style: none;\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().listStyle(.disc)) }.css == ".x {\n\tlist-style: disc;\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().listStyle(.decimal)) }.css == ".x {\n\tlist-style: decimal;\n}\n")
+		#expect(ruleCSS(Style().listStyle(.none)) == ".x {\n\tlist-style: none;\n}\n")
+		#expect(ruleCSS(Style().listStyle(.disc)) == ".x {\n\tlist-style: disc;\n}\n")
+		#expect(ruleCSS(Style().listStyle(.decimal)) == ".x {\n\tlist-style: decimal;\n}\n")
 	}
 
 	@Test
 	func `hyphenation can be turned on and off`() {
-		#expect(Stylesheet { Rule(".x", Style().hyphenation(true)) }.css == ".x {\n\thyphens: auto;\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().hyphenation(false)) }.css == ".x {\n\thyphens: none;\n}\n")
+		#expect(ruleCSS(Style().hyphenation(true)) == ".x {\n\thyphens: auto;\n}\n")
+		#expect(ruleCSS(Style().hyphenation(false)) == ".x {\n\thyphens: none;\n}\n")
 	}
 
 	@Test
@@ -341,31 +352,33 @@ struct StyleTests {
 	func `container units are percentages of the size of a container`() {
 		#expect([Length.containerInlineSize(50), .containerBlockSize(50), .containerWidth(50), .containerHeight(50), .containerMinimum(50), .containerMaximum(50)].map(\.description) == ["50cqi", "50cqb", "50cqw", "50cqh", "50cqmin", "50cqmax"])
 		#expect((Length.containerInlineSize(75) + .rootEm(0.75)).description == "calc(75cqi + .75rem)")
-		#expect(Stylesheet { Rule(".x", Style().containerType(.inlineSize)) }.css == ".x {\n\tcontainer-type: inline-size;\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().containerType(.size)) }.css == ".x {\n\tcontainer-type: size;\n}\n")
+		#expect(ruleCSS(Style().containerType(.inlineSize)) == ".x {\n\tcontainer-type: inline-size;\n}\n")
+		#expect(ruleCSS(Style().containerType(.size)) == ".x {\n\tcontainer-type: size;\n}\n")
 	}
 
 	@Test
 	func `trimmed text grows the vertical padding by the trimmed space`() {
 		#expect(Length.capitalHeight(1).description == "1cap")
-		#expect(Stylesheet { Rule(".x", Style().trimmedText()) }.css == ".x {\n\ttext-box: trim-both cap alphabetic;\n\tpadding-block: calc(.5lh - .5cap);\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().trimmedText(verticalPadding: .rootEm(0.25))) }.css == ".x {\n\ttext-box: trim-both cap alphabetic;\n\tpadding-block: calc(.25rem + .5lh - .5cap);\n}\n")
+		#expect(ruleCSS(Style().trimmedText()) == ".x {\n\ttext-box: trim-both cap alphabetic;\n\tpadding-block: calc(.5lh - .5cap);\n}\n")
+		#expect(ruleCSS(Style().trimmedText(verticalPadding: .rootEm(0.25))) == ".x {\n\ttext-box: trim-both cap alphabetic;\n\tpadding-block: calc(.25rem + .5lh - .5cap);\n}\n")
 	}
 
 	@Test
 	func `outlines can be dashed inside the element, or removed`() {
-		#expect(Stylesheet { Rule(".x", Style().outline(.currentColor, offset: .pixels(-6), style: .dashed)) }.css == ".x {\n\toutline: 1px dashed currentColor;\n\toutline-offset: -6px;\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().noOutline()) }.css == ".x {\n\toutline: none;\n}\n")
+		#expect(ruleCSS(Style().outline(.currentColor, offset: .pixels(-6), style: .dashed)) == ".x {\n\toutline: 1px dashed currentColor;\n\toutline-offset: -6px;\n}\n")
+		#expect(ruleCSS(Style().noOutline()) == ".x {\n\toutline: none;\n}\n")
 	}
 
 	@Test
 	func `gradients can have color stops, go around a center, and be masks`() {
-		#expect(CSSValue.linearGradient("to right", Color("red"), Color("blue"), in: "oklch").description == "linear-gradient(to right in oklch, red, blue)")
+		#expect(CSSValue.linearGradient("to right", Color("red"), Color("blue"), in: .oklch).description == "linear-gradient(to right in oklch, red, blue)")
 		#expect(CSSValue.linearGradient("175deg", Color.white.at(.percent(0)), Color.transparent.at(.percent(70))).description == "linear-gradient(175deg, #fff 0%, transparent 70%)")
 		#expect(CSSValue.radialGradient("circle", Color.black.at(.percent(80)), Color.transparent.at(.percent(100))).description == "radial-gradient(circle, #000 80%, transparent 100%)")
 		#expect(CSSValue.conicGradient(Color("red"), Color("blue")).description == "conic-gradient(red, blue)")
-		#expect(CSSValue.conicGradient(Color("red"), Color("blue"), from: .degrees(90), in: "oklch").description == "conic-gradient(from 90deg in oklch, red, blue)")
-		#expect(Stylesheet { Rule(".x", Style().maskImage(.radialGradient("circle", .black, .transparent), .url("/mask.png"))) }.css == ".x {\n\tmask-image: radial-gradient(circle, #000, transparent), url(\"/mask.png\");\n}\n")
+		#expect(CSSValue.conicGradient(Color("red"), Color("blue"), in: .oklab).description == "conic-gradient(in oklab, red, blue)")
+		#expect(CSSValue.conicGradient(Color("red"), Color("blue"), from: .degrees(90)).description == "conic-gradient(from 90deg, red, blue)")
+		#expect(CSSValue.conicGradient(Color("red"), Color("blue"), from: .degrees(90), in: .oklch).description == "conic-gradient(from 90deg in oklch, red, blue)")
+		#expect(ruleCSS(Style().maskImage(.radialGradient("circle", .black, .transparent), .url("/mask.png"))) == ".x {\n\tmask-image: radial-gradient(circle, #000, transparent), url(\"/mask.png\");\n}\n")
 	}
 
 	@Test
@@ -490,9 +503,9 @@ struct StyleTests {
 		let header = Anchor("--header")
 		#expect(Length.anchor(header, .bottom).description == "anchor(--header bottom)")
 		#expect(Length.anchor(.start).description == "anchor(start)")
-		#expect(Stylesheet { Rule(".x", Style().anchorName(header)) }.css == ".x {\n\tanchor-name: --header;\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().inset(0).top(.anchor(header, .bottom))) }.css == ".x {\n\tinset: 0;\n\ttop: anchor(--header bottom);\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().positionAnchor(header).positionArea(.top).positionTryFallbacks(.flipBlock, .flipInline)) }.css == ".x {\n\tposition-anchor: --header;\n\tposition-area: top;\n\tposition-try-fallbacks: flip-block, flip-inline;\n}\n")
+		#expect(ruleCSS(Style().anchorName(header)) == ".x {\n\tanchor-name: --header;\n}\n")
+		#expect(ruleCSS(Style().inset(0).top(.anchor(header, .bottom))) == ".x {\n\tinset: 0;\n\ttop: anchor(--header bottom);\n}\n")
+		#expect(ruleCSS(Style().positionAnchor(header).positionArea(.top).positionTryFallbacks(.flipBlock, .flipInline)) == ".x {\n\tposition-anchor: --header;\n\tposition-area: top;\n\tposition-try-fallbacks: flip-block, flip-inline;\n}\n")
 	}
 
 	@Test
@@ -576,7 +589,7 @@ struct StyleTests {
 		#expect(css.contains("transition: --hue .3s linear;"))
 	}
 
-	static let hue = RegisteredProperty<CSSValue>("--hue", syntax: "<number>", initialValue: 0)
+	static let hue = RegisteredProperty<CSSValue>("--hue", syntax: .number, initialValue: 0)
 
 	enum HueAnimations: KeyframeSet {
 		case turnHue
@@ -661,16 +674,6 @@ struct StyleTests {
 	}
 
 	@Test
-	func `rules keep the keyframes of their animations`() {
-		let css = Stylesheet {
-			Rule("body", Style().animation(HueAnimations.turnHue, .default(duration: .seconds(6))))
-		}.css
-
-		#expect(css.contains("@keyframes style-tests-turn-hue"))
-		#expect(css.contains("@property --hue"))
-	}
-
-	@Test
 	func `animations only run for visitors who allow motion, unless they are essential`() {
 		let css = Stylesheet {
 			Rule("a", Style().opacity(0.5).animation(HueAnimations.turnHue, .linear(duration: .seconds(6))))
@@ -705,18 +708,6 @@ struct StyleTests {
 	}
 
 	/**
-	A line break in a CSS string ends the string, so the browser drops the declaration. It is written as the escape `\A`.
-	*/
-	@Test
-	func `generated content with a line break is a valid CSS string`() {
-		let css = Stylesheet {
-			Rule(".a::before", Style().content("a\nb"))
-		}.css
-
-		#expect(css.contains(#"content: "a\A b";"#))
-	}
-
-	/**
 	Media Queries 4 does not allow `not` or `or` next to `and` without parentheses, so the browser would skip the block.
 	*/
 	@Test
@@ -734,42 +725,42 @@ struct StyleTests {
 
 	@Test
 	func `no text shadows is none, like no box shadows`() {
-		#expect(Stylesheet { Rule(".x", Style().textShadow()) }.css == ".x {\n\ttext-shadow: none;\n}\n")
+		#expect(ruleCSS(Style().textShadow()) == ".x {\n\ttext-shadow: none;\n}\n")
 	}
 
 	@Test
 	func `filters can invert the colors and tint them sepia`() {
-		#expect(Stylesheet { Rule(".x", Style().filter(.invert(1), .sepia(0.5))) }.css == ".x {\n\tfilter: invert(1) sepia(.5);\n}\n")
+		#expect(ruleCSS(Style().filter(.invert(1), .sepia(0.5))) == ".x {\n\tfilter: invert(1) sepia(.5);\n}\n")
 	}
 
 	@Test
 	func `flex lines can wrap upward and be packed at the start`() {
-		#expect(Stylesheet { Rule(".x", Style().flexWrap(isReversed: true).alignContent(.start)) }.css == ".x {\n\tflex-wrap: wrap-reverse;\n\talign-content: flex-start;\n}\n")
+		#expect(ruleCSS(Style().flexWrap(isReversed: true).alignContent(.start)) == ".x {\n\tflex-wrap: wrap-reverse;\n\talign-content: flex-start;\n}\n")
 	}
 
 	@Test
 	func `the scroll padding keeps links below a sticky bar`() {
-		#expect(Stylesheet { Rule(".x", Style().scrollPadding(top: .rootEm(4) + .rootEm(0.5))) }.css == ".x {\n\tscroll-padding-top: 4.5rem;\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().scrollPadding(bottom: .rootEm(2.5))) }.css == ".x {\n\tscroll-padding-bottom: 2.5rem;\n}\n")
+		#expect(ruleCSS(Style().scrollPadding(top: .rootEm(4) + .rootEm(0.5))) == ".x {\n\tscroll-padding-top: 4.5rem;\n}\n")
+		#expect(ruleCSS(Style().scrollPadding(bottom: .rootEm(2.5))) == ".x {\n\tscroll-padding-bottom: 2.5rem;\n}\n")
 	}
 
 	@Test
 	func `scrolling can snap, keep the space of the scroll bar, and be smooth`() {
-		#expect(Stylesheet { Rule(".x", Style().scrollSnapType(.horizontal, isMandatory: true).scrollSnapAlign(.center)) }.css == ".x {\n\tscroll-snap-type: x mandatory;\n\tscroll-snap-align: center;\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().scrollSnapType(.vertical)) }.css == ".x {\n\tscroll-snap-type: y;\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().overscrollBehavior(horizontal: .contain).scrollbarGutter(.stable).scrollBehavior(.smooth)) }.css == ".x {\n\toverscroll-behavior-x: contain;\n\tscrollbar-gutter: stable;\n\tscroll-behavior: smooth;\n}\n")
+		#expect(ruleCSS(Style().scrollSnapType(.horizontal, isMandatory: true).scrollSnapAlign(.center)) == ".x {\n\tscroll-snap-type: x mandatory;\n\tscroll-snap-align: center;\n}\n")
+		#expect(ruleCSS(Style().scrollSnapType(.vertical)) == ".x {\n\tscroll-snap-type: y;\n}\n")
+		#expect(ruleCSS(Style().overscrollBehavior(horizontal: .contain).scrollbarGutter(.stable).scrollBehavior(.smooth)) == ".x {\n\toverscroll-behavior-x: contain;\n\tscrollbar-gutter: stable;\n\tscroll-behavior: smooth;\n}\n")
 	}
 
 	@Test
 	func `color schemes, accent colors, field sizing, and floats at a logical edge`() {
-		#expect(Stylesheet { Rule(".x", Style().colorScheme(.lightDark).accentColor(Color("blue")).fieldSizing(.content)) }.css == ".x {\n\tcolor-scheme: light dark;\n\taccent-color: blue;\n\tfield-sizing: content;\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().float(.trailing)) }.css == ".x {\n\tfloat: inline-end;\n}\n")
+		#expect(ruleCSS(Style().colorScheme(.lightDark).accentColor(Color("blue")).fieldSizing(.content)) == ".x {\n\tcolor-scheme: light dark;\n\taccent-color: blue;\n\tfield-sizing: content;\n}\n")
+		#expect(ruleCSS(Style().float(.trailing)) == ".x {\n\tfloat: inline-end;\n}\n")
 	}
 
 	@Test
 	func `grids can fill columns with rows and track sizes`() {
-		#expect(Stylesheet { Rule(".x", Style().gridRows(7, size: .auto).gridAutoFlow(.column).gridAutoColumns(.fraction(1))) }.css == ".x {\n\tgrid-template-rows: repeat(7, auto);\n\tgrid-auto-flow: column;\n\tgrid-auto-columns: 1fr;\n}\n")
-		#expect(Stylesheet { Rule(".x", Style().gridAutoColumns(.fixed(.rootEm(0.625)))) }.css == ".x {\n\tgrid-auto-columns: .625rem;\n}\n")
+		#expect(ruleCSS(Style().gridRows(7, size: .auto).gridAutoFlow(.column).gridAutoColumns(.fraction(1))) == ".x {\n\tgrid-template-rows: repeat(7, auto);\n\tgrid-auto-flow: column;\n\tgrid-auto-columns: 1fr;\n}\n")
+		#expect(ruleCSS(Style().gridAutoColumns(.fixed(.rootEm(0.625)))) == ".x {\n\tgrid-auto-columns: .625rem;\n}\n")
 	}
 
 	@Test
@@ -857,7 +848,7 @@ struct StyleListTests {
 	}
 
 	@Test
-	func `keyframes that several style sets use are written once`() {
+	func `rules keep the keyframes and the registered property of their animation, once for several rules`() {
 		let css = Stylesheet {
 			Rule(".a", Style().animation(StyleTests.HueAnimations.turnHue, .default(duration: .seconds(1))))
 			Rule(".b", Style().animation(StyleTests.HueAnimations.turnHue, .default(duration: .seconds(2))))
@@ -1001,4 +992,13 @@ struct GenericWrapper<Value> {
 
 private enum CopyStates: String, ElementStateSet {
 	case copied
+}
+
+/**
+The CSS of a rule for `.x` with the style.
+*/
+private func ruleCSS(_ style: Style) -> String {
+	Stylesheet {
+		Rule(".x", style)
+	}.css
 }

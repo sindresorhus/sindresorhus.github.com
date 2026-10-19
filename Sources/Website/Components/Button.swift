@@ -106,11 +106,6 @@ enum ButtonStyles: StyleSet {
 	*/
 	private static let primaryFill = Color.accent(fallback: .primary(700), maximumLightness: 0.55)
 
-	/**
-	The accent of the page, for the tints of a secondary button.
-	*/
-	private static let secondaryTint = Color.accent.value(default: .primary(500))
-
 	var style: Style {
 		switch self {
 		case .root:
@@ -141,16 +136,16 @@ enum ButtonStyles: StyleSet {
 		case .secondary:
 			// A light tint of the accent of the page, with the depth of the primary button, but softer.
 			Style()
-				.background(Self.secondaryTint.opacity(0.16))
+				.background(Color.pageAccent.opacity(0.16))
 				.backgroundImage(.linearGradient("to bottom", .lightDark(.white.opacity(0.5), .white.opacity(0.06)), .transparent))
 				.shadow(
-					Shadow(y: .pixels(4), blur: .pixels(12), spread: .pixels(-6), color: Self.secondaryTint.opacity(0.3)),
+					Shadow(y: .pixels(4), blur: .pixels(12), spread: .pixels(-6), color: Color.pageAccent.opacity(0.3)),
 					Shadow(y: .pixels(1), color: .lightDark(.white.opacity(0.8), .white.opacity(0.1)), isInset: true),
-					.edge(.lightDark(Self.secondaryTint.opacity(0.15), .white.opacity(0.1)))
+					.edge(.lightDark(Color.pageAccent.opacity(0.15), .white.opacity(0.1)))
 				)
 				.color(.accent(fallback: .primary(700), maximumLightness: 0.5), dark: .primary(200))
 				.hoverOrFocusVisible {
-					$0.background(Self.secondaryTint.opacity(0.24))
+					$0.background(Color.pageAccent.opacity(0.24))
 				}
 		case .dark:
 			Style()

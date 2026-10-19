@@ -1,4 +1,5 @@
 import Foundation
+import TestSupport
 import Testing
 @testable import SiteKit
 
@@ -76,19 +77,18 @@ struct ContentLoadingTests {
 			try await Note.load(from: Project(root: root))
 		}
 
-		#expect(error.errors.count == 1)
-		#expect(error.errors.first?.reason.contains("a.md") == true)
+		try #require(error.errors.count == 1)
+		#expect(error.errors[0].reason.contains("a.md"))
 	}
 
 	@Test(.temporaryDirectory)
 	func `loading leaves out drafts, sorts, and names all broken files`() async throws {
-		let root = try URL.temporaryDirectory()
+		let root = try URL.temporaryDirectory(files: [
+			"\(Note.directory)/b.md": "---\ntitle: 'B'\n---\nBody",
+			"\(Note.directory)/a.md": "---\ntitle: 'A'\n---\nBody",
+			"\(Note.directory)/c.md": "---\ntitle: 'C'\nisDraft: true\n---\nBody",
+		])
 		let directory = root.appending(path: Note.directory)
-		try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-
-		for (name, frontmatter) in [("b", "title: 'B'"), ("a", "title: 'A'"), ("c", "title: 'C'\nisDraft: true")] {
-			try Data("---\n\(frontmatter)\n---\nBody".utf8).write(to: directory.appending(path: "\(name).md"))
-		}
 
 		#expect(try await Note.load(from: Project(root: root)).map(\.title) == ["A", "B"])
 
@@ -165,9 +165,10 @@ struct ContentLoadingTests {
 		("title: 'Title'\nurl: 'example.com'\ndate: '2026-02-23'", 3, "Invalid `url`: Must be an absolute URL, got “example.com”."),
 		("title: 'Title'\ndownloads: 0\ndate: '2026-02-23'", 3, "Invalid `downloads`: Must be a positive integer of at most 2⁵³ − 1, got 0."),
 		("title: 'Title'\ndate: '2026-02-30'", 3, "Invalid `date`: “2026-02-30” is not a real day."),
-		("date: '2026-02-23'", nil, "Missing required key `title`."),
+		// A missing key is at the line of its parent, here the start of the frontmatter.
+		("date: '2026-02-23'", 2, "Missing required key `title`."),
 	])
-	func `property wrappers report invalid values at their line`(frontmatter: String, line: Int?, reason: String) throws {
+	func `property wrappers report invalid values at their line`(frontmatter: String, line: Int, reason: String) throws {
 		let file = try MarkdownFile(contents: "---\n\(frontmatter)\n---\nBody", url: URL(filePath: "/content/test.md"))
 
 		let error = try #require(throws: ContentError.self) {
@@ -175,10 +176,19 @@ struct ContentLoadingTests {
 		}
 
 		#expect(error.reason == reason)
+		#expect(error.line == line)
+	}
 
-		if let line {
-			#expect(error.line == line)
-		}
+	@Test
+	func `the line of a frontmatter key uses its SOML name`() throws {
+		let file = try MarkdownFile(contents: "---\ntitle: 'Title'\ndate: '2026-02-23'\n---\nBody", url: URL(filePath: "/content/test.md"))
+		#expect(file.line(of: CheckedFrontmatter.CodingKeys.publicationDate) == 3)
+	}
+
+	@Test
+	func `a body without frontmatter has the line endings of a body with frontmatter`() throws {
+		let file = try MarkdownFile(contents: "First\r\nSecond", url: URL(filePath: "/content/test.md"))
+		#expect(file.body == "First\nSecond")
 	}
 
 	@Test
@@ -199,6 +209,28 @@ struct ContentLoadingTests {
 		#expect(error.description == "content/test.md:3: Wrong.")
 	}
 
+	@Test
+	func `converting other errors keeps their description`() {
+		struct Failure: Error, CustomStringConvertible {
+			let description = "The image dimensions could not be read."
+		}
+		struct LocalizedFailure: LocalizedError {
+			var errorDescription: String? {
+				"The image format is not supported."
+			}
+		}
+
+		let file = URL(filePath: "/content/test.md")
+		let errors = ContentErrors(converting: Failure(), file: file)
+		#expect(errors.description == "/content/test.md: The image dimensions could not be read.")
+		#expect(ContentErrors(converting: LocalizedFailure(), file: file).description == "/content/test.md: The image format is not supported.")
+		let foundationError = NSError(domain: "test", code: 1, userInfo: [NSLocalizedDescriptionKey: "The file could not be read."])
+		#expect(ContentErrors(converting: foundationError, file: file).description == "/content/test.md: The file could not be read.")
+		// A Foundation error struct, not boxed as `any Error`.
+		let cocoaError = CocoaError(.fileReadNoSuchFile)
+		#expect(cocoaError.descriptiveMessage == cocoaError.localizedDescription)
+	}
+
 	@Test(.temporaryDirectory)
 	func `a missing content directory is an error`() async {
 		await #expect(throws: ContentErrors.self) {
@@ -208,28 +240,25 @@ struct ContentLoadingTests {
 
 	@Test(.temporaryDirectory)
 	func `last commit dates ignore moves without changes`() async throws {
-		let root = try URL.temporaryDirectory()
-		try root.appending(path: "old").createDirectory()
+		let root = try URL.temporaryDirectory(files: ["old/a.md": "A", "old/b.md": "B"])
 
-		func git(_ arguments: String..., date: String = "2026-01-01T00:00:00Z") throws {
+		func git(_ arguments: String..., date: String = "2026-01-01T00:00:00Z") async throws {
 			let process = Process()
 			process.executableURL = URL(filePath: "/usr/bin/env")
 			process.arguments = ["git", "-C", root.path(percentEncoded: false), "-c", "user.name=Test", "-c", "user.email=test@example.com"] + arguments
-			process.environment = ["GIT_COMMITTER_DATE": date, "GIT_AUTHOR_DATE": date, "PATH": "/usr/bin:/bin:/opt/homebrew/bin"]
+			// The `PATH` of the tests, so it runs the same git as `lastCommitDates()`. A `PATH` with `/usr/bin` first runs `/usr/bin/git`, which asks `xcodebuild` where the git of Xcode is when its cache does not know it yet, like on CI, where git is the one of Homebrew. The test took 24 to 31 s on CI.
+			process.environment = ["GIT_COMMITTER_DATE": date, "GIT_AUTHOR_DATE": date, "PATH": ProcessInfo.processInfo.environment["PATH"] ?? "/usr/bin:/bin"]
 			process.standardOutput = FileHandle.nullDevice
-			try process.run()
-			process.waitUntilExit()
+			try #require(await process.runUntilExit() == 0, "git \(arguments.joined(separator: " ")) failed.")
 		}
 
-		try git("init", "--quiet")
-		try Data("A".utf8).write(to: root.appending(path: "old/a.md"))
-		try Data("B".utf8).write(to: root.appending(path: "old/b.md"))
-		try git("add", ".")
-		try git("commit", "--quiet", "-m", "Add")
+		try await git("init", "--quiet")
+		try await git("add", ".")
+		try await git("commit", "--quiet", "-m", "Add")
 		try Data("A, changed".utf8).write(to: root.appending(path: "old/a.md"))
-		try git("commit", "--quiet", "-am", "Change", date: "2026-02-01T00:00:00Z")
-		try git("mv", "old", "content")
-		try git("commit", "--quiet", "-m", "Move", date: "2026-03-01T00:00:00Z")
+		try await git("commit", "--quiet", "-am", "Change", date: "2026-02-01T00:00:00Z")
+		try await git("mv", "old", "content")
+		try await git("commit", "--quiet", "-m", "Move", date: "2026-03-01T00:00:00Z")
 
 		let dates = await Project(root: root).lastCommitDates()
 		#expect(dates["content/a.md"] == Date(timeIntervalSince1970: 1_769_904_000))

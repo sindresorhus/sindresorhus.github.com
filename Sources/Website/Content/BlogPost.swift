@@ -4,7 +4,6 @@ import SiteKit
 /**
 A blog post, loaded from `content/blog/<slug>.md`.
 */
-@dynamicMemberLookup
 struct BlogPost: ContentDocument {
 	enum Tag: String, Codable, Sendable {
 		case programming
@@ -50,35 +49,14 @@ struct BlogPost: ContentDocument {
 		frontmatter.isDraft
 	}
 
-	subscript<Value>(dynamicMember keyPath: KeyPath<Frontmatter, Value>) -> Value {
-		frontmatter[keyPath: keyPath]
-	}
-
-	/**
-	When the post was published, at midnight UTC.
-	*/
-	var publicationDate: Date {
-		frontmatter.publicationDate
-	}
-
-	var title: String {
-		frontmatter.title
-	}
-
 	/**
 	When the post last changed: the last commit of the content file, but never before the post was published.
 	*/
 	var lastModified: Date {
-		max(lastCommitDate ?? publicationDate, publicationDate)
+		max(lastCommitDate ?? frontmatter.publicationDate, frontmatter.publicationDate)
 	}
 
-	var description: String? {
-		frontmatter.description
-	}
-
-	static func path(slug: String) -> RoutePath {
-		RoutePath.blog.appending(slug)
-	}
+	static let pageRoute: RoutePath = .blog
 
 	var redirectURL: URL? {
 		frontmatter.redirectURL
@@ -110,7 +88,12 @@ extension BlogPost {
 		var isUnlisted = false
 		@NonEmpty var title: String
 		@NonEmpty var description: String?
+
+		/**
+		When the post was published, at midnight UTC.
+		*/
 		@CalendarDay var publicationDate: Date
+
 		var tags = [Tag]()
 
 		/**

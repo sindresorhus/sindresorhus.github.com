@@ -318,6 +318,13 @@ extension Style {
 		declaration(.containerType, type)
 	}
 
+	/**
+	Whether a declared size includes padding and borders.
+	*/
+	public func boxSizing(_ value: BoxSizing) -> Self {
+		declaration(.boxSizing, value)
+	}
+
 	public func padding(_ length: Length) -> Self {
 		declaration(.padding, length)
 	}
@@ -564,28 +571,5 @@ extension Edge.Set {
 		}
 
 		return declarations
-	}
-}
-
-extension Style {
-	/**
-	The direction of text and inline layout.
-	*/
-	public func direction(_ value: TextDirection) -> Self {
-		declaration(.direction, value)
-	}
-
-	/**
-	Whether a declared size includes padding and borders.
-	*/
-	public func boxSizing(_ value: BoxSizing) -> Self {
-		declaration(.boxSizing, value)
-	}
-
-	/**
-	Whether the borders of adjacent table cells merge.
-	*/
-	public func borderCollapse(_ value: BorderCollapse) -> Self {
-		declaration(.borderCollapse, value)
 	}
 }

@@ -7,6 +7,9 @@ platforms: [
 ]
 isPaid: true
 appStoreID: 1319884285
+sharedQuestions: [
+	'suggested-filenames'
+]
 olderVersions: [
 	{
 		version: '2.6.0'

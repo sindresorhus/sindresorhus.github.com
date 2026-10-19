@@ -6,6 +6,9 @@ platforms: [
 	'macOS'
 ]
 appStoreID: 6758187147
+sharedQuestions: [
+	'suggested-filenames'
+]
 hasSentry: true
 # olderVersions: [
 # 	{

@@ -2,6 +2,7 @@ import Foundation
 import Network
 @testable import SiteKit
 import Synchronization
+import TestSupport
 import Testing
 
 @Suite
@@ -61,10 +62,11 @@ struct ResponseCacheTests {
 		#expect(try await cache.decoded(Value.self, from: request) == Value(value: 1))
 		#expect(try await cache.decoded(Value.self, from: request) == Value(value: 1))
 		#expect(server.answers == ["200", "200"])
-		#expect(cache.warnings.count == 1)
+		try #require(cache.warnings.count == 1)
 		// The request worked, so the warning says that the response could not be read.
-		#expect(cache.warnings.first?.message.contains("could not be read") == true)
-		#expect(cache.warnings.first?.message.contains("request failed") == false)
+		let message = cache.warnings[0].message
+		#expect(message.hasSuffix("could not be read: Missing required key `value`."))
+		#expect(!message.contains("request failed"))
 
 		// The file still has the response that can be decoded, so a cache that uses it without asking gets the value.
 		let freshCache = ResponseCache(directory: directory, maximumAge: .seconds(60))
@@ -81,11 +83,41 @@ struct ResponseCacheTests {
 		let cache = ResponseCache(directory: try URL.temporaryDirectory(), maximumAge: .zero)
 		let url = try #require(URL(string: "http://127.0.0.1:\(port)/value"))
 
-		let error = await #expect(throws: (any Error).self) {
+		let error = try await #require(throws: (any Error).self) {
 			try await cache.decoded(Value.self, from: URLRequest(url: url))
 		}
 
-		#expect(String(describing: try #require(error)).contains(url.absoluteString))
+		let description = String(describing: error)
+		#expect(description.hasPrefix("Could not get \(url), because the request failed: "))
+		// The message of the error, not all its details.
+		#expect(!description.contains("Error Domain"))
+	}
+
+	@Test(.timeLimit(.minutes(1)), .temporaryDirectory)
+	func `a custom decoding failure keeps its description in the warning`() async throws {
+		let server = try ETagServer(bodies: ["valid", "invalid"])
+		let port = try await server.start()
+		defer {
+			server.stop()
+		}
+
+		let cache = ResponseCache(directory: try URL.temporaryDirectory(), maximumAge: .zero)
+		let request = URLRequest(url: try #require(URL(string: "http://127.0.0.1:\(port)/value")))
+
+		for _ in 0..<2 {
+			let value = try await cache.decoded(from: request) { data in
+				guard String(decoding: data, as: UTF8.self) == "valid" else {
+					throw ContentError(reason: "The response has no usable values.")
+				}
+
+				return "valid"
+			}
+			#expect(value == "valid")
+		}
+
+		#expect(server.answers == ["200", "200"])
+		let message = try #require(cache.warnings.first).message
+		#expect(message.hasSuffix("could not be read: The response has no usable values."))
 	}
 
 	@Test

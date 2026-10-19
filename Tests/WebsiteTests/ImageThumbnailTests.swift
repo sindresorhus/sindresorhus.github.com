@@ -2,6 +2,7 @@ import CoreGraphics
 import Foundation
 import ImageIO
 import SiteKit
+import TestSupport
 import Testing
 import UniformTypeIdentifiers
 @testable import Website

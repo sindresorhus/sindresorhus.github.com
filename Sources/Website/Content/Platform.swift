@@ -27,7 +27,7 @@ enum Platform: String, CaseIterable, Codable, Sendable {
 /**
 A macOS version that has a free older version of an app.
 
-Future versions are listed ahead of time on purpose, so the list never needs updating. Keep it an enum, and do not remove the future cases.
+Future versions are listed ahead of time on purpose, so the list never needs updating. Keep it an enum, and do not remove the future cases. The cases are in version order, oldest first, which the older versions page sorts by.
 */
 enum MacOSVersion: String, CaseIterable, Codable, Sendable {
 	case v10_13 = "10.13"
@@ -47,13 +47,6 @@ enum MacOSVersion: String, CaseIterable, Codable, Sendable {
 	case v32 = "32"
 	case v33 = "33"
 	case v34 = "34"
-
-	/**
-	For sorting, since `10.15` comes before `11`.
-	*/
-	var number: Double {
-		Double(rawValue) ?? 0
-	}
 
 	/**
 	A fragment-safe ID, like `macos-10-15`.

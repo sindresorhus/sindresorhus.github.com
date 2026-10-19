@@ -1,3 +1,4 @@
+import Elementary
 import Foundation
 import SiteKit
 import Testing
@@ -138,7 +139,7 @@ struct SourceGuardTests {
 	}
 
 	/**
-	The text of every script: the files in `public/scripts`, the scripts of content files, like the script of an app page, the scripts of elements next to their Swift files, and the inline scripts in the Swift sources. Inline scripts refer to hooks with `Hooks`, which is replaced with the hook. Comment lines are left out, so an example in a comment, like `#id`, is not a hook.
+	The text of every script: the files in `public/scripts`, the scripts of content files, like the script of an app page, the scripts of elements next to their Swift files, and the inline scripts in the Swift sources. Inline scripts refer to hooks with `Hooks.x.id`, which is replaced with the hook. Comment lines are left out, so an example in a comment, like `#id`, is not a hook.
 	*/
 	private static func scripts() throws -> String {
 		let files = try (Project.website.publicDirectory.appending(path: "scripts").filesRecursively() + Project.website.contentDirectory.filesRecursively() + sourceDirectory.filesRecursively())
@@ -149,7 +150,7 @@ struct SourceGuardTests {
 		let inlineScripts = sources.flatMap { source in
 			let hooks = declaredHooks(in: source)
 			return source.matches(of: /(?:script \{\s*HTMLRaw|ElementScript)\((?:inline: )?#\"\"\"(.*?)\"\"\"#\)/.dotMatchesNewlines()).map { match in
-				String(match.1).replacing(/\\#\(Hooks\.(\w+)\.rawValue\)/) { reference in
+				String(match.1).replacing(/\\#\(Hooks\.(\w+)\.id\)/) { reference in
 					hooks[String(reference.1)] ?? String(reference.0)
 				}
 			}
@@ -222,13 +223,30 @@ struct SourceGuardTests {
 		#expect(undeclaredAttributes.sorted() == [], "Scripts use these data attributes, but no `Hooks` of a component has them.")
 
 		let variables = Set(scripts.matches(of: /setProperty\('(--[\w-]+)'/).map { String($0.1) })
-		let undeclaredVariables = variables.filter { !swift.contains(try! Regex(#"(StyleVariable|RegisteredProperty)<[^>]+>\("\#($0)""#)) }
-		#expect(undeclaredVariables.sorted() == [], "Scripts set these custom properties, but no `StyleVariable` declares them.")
+		let declaredVariables = Set(swift.matches(of: /(?:StyleVariable|RegisteredProperty)<[^>]+>\("(--[\w-]+)"/).map { String($0.1) })
+		#expect(variables.count > 10)
+		#expect(variables.subtracting(declaredVariables).sorted() == [], "Scripts set these custom properties, but no `StyleVariable` declares them.")
 
 		let states = try Set(Self.swiftSources().flatMap { Self.declaredStates(in: $0) })
 		#expect(states.count > 100)
 		#expect(scripts.assignedDataStates.count > 50)
 		#expect(scripts.assignedDataStates.subtracting(states).sorted() == [], "Scripts set these states, but no `States` of a component has them.")
+	}
+
+	@Test
+	func `a hook used as the other kind stops the build`() async throws {
+		let result = try #require(await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+			_ = div(.id(ContactPage.Hooks.leaving)) {}.render()
+		})
+		#expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("is a data attribute, not an ID"))
+
+		await #expect(processExitsWith: .failure) {
+			_ = div(.hook(AppHero.Hooks.hero)) {}.render()
+		}
+
+		await #expect(processExitsWith: .failure) {
+			_ = AppHero.Hooks.hero.selector()
+		}
 	}
 
 	@Test

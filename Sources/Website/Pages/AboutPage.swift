@@ -16,15 +16,15 @@ struct AboutPage: Page {
 	}
 
 	var sitemapEntry: SitemapEntry? {
-		SitemapEntry(lastModified: page.lastCommitDate)
+		page.sitemapEntry
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: page.title, description: page.description)
+		page.metadata
 	}
 
 	var body: some HTML {
-		ProsePage(title: "About \(Site.name)", photo: page.frontmatter.photo ?? .path(Site.author.photoPath)) {
+		ProsePage(title: "About \(Site.name)", photo: page.frontmatter.photo ?? .path(Site.author.smallPhotoPath)) {
 			// Close to the title, like the intro below the title of other pages, and set apart from the text below. The margin of the header above is 2.5rem.
 			StatList(stats: stats)
 				.style {
@@ -148,15 +148,16 @@ struct AboutPage: Page {
 	}
 
 	/**
-	The numbers of the apps of all the years, like “61 apps”, the free apps, “6M+ users”, “12 years of craft”, the ratings on the App Store, and the support emails.
+	The numbers of the apps of all the years, like “64 apps”, the free apps, “6M+ users”, “12 years of craft”, the ratings on the App Store, and the support emails.
 	*/
 	private var appStats: [Stat] {
 		// All the apps on the App Store, also the archived ones, as their ratings are part of all the years.
 		let rating = content.appStoreInfo.values.combinedRating
 
 		let stats: [Stat?] = [
-			Stat(count: content.activeApps.count, noun: "app"),
-			Stat(count: content.activeApps.count { !$0.isPaid }, noun: "free app"),
+			// All the apps that were made, also the archived ones, like the years of craft.
+			Stat(count: content.listedApps.count, noun: "app"),
+			Stat(count: AppCategory.free.apps(in: content).count, noun: "free app"),
 			Stat(count: Site.appUserCount, noun: "user", isApproximate: true),
 			content.yearsOfCraft.map { Stat(count: $0, noun: "year", suffix: "of craft") },
 			rating.map { Stat(count: $0.count, noun: "App Store rating", isApproximate: true) },
@@ -211,7 +212,7 @@ struct AboutPage: Page {
 			npm.dependentCount.map { Stat(count: $0, noun: "dependent", isApproximate: true) },
 			npm.mostDownloadedCount(of: 10).map { Stat(count: $0, label: "of the 10 most-downloaded packages") },
 			npm.weeklyDownloads.map { Stat(count: $0, noun: "download", suffix: "a week", isApproximate: true) },
-			npm.weeklyDownloads.map { Stat(count: $0 / Int(Duration.days(7) / .seconds(1)), noun: "download", suffix: "a second", isApproximate: true) },
+			npm.downloadsPerSecond.map { Stat(count: Int($0), noun: "download", suffix: "a second", isApproximate: true) },
 			// A whole percent, like “10%”, as the weeks of the two numbers differ a little.
 			npm.downloadShare.map { Stat(count: Int(($0 * 100).rounded()), value: $0.formatted(.percent.precision(.fractionLength(0)).locale(.site)), label: "of all npm downloads") },
 		]
@@ -244,7 +245,7 @@ struct AboutPage: Page {
 
 								span {
 									Icon.star.size(.rootEm(0.875))
-									"\(repository.stars.approximateCount) stars"
+									repository.stars.approximateCount(counting: "star")
 								}
 								.style(Styles.projectStars)
 							}
@@ -285,14 +286,14 @@ struct AboutPage: Page {
 	}
 
 	/**
-	The main numbers below the title, like “61 apps · 12 years of app craft · 1.1K+ repos · 15 years of open source”. The numbers section has them too, with the others.
+	The main numbers below the title, like “64 apps · 12 years of app craft · 1.1K+ repos · 15 years of open source”. The numbers section has them too, with the others.
 	*/
 	private var stats: [String] {
 		let yearsOfCraft = content.yearsOfCraft.map { "\($0.formatted(counting: "year")) of app craft" }
-		let repositoryCount = content.gitHubAccount.map { "\($0.repositoryCount.approximateCount) repos" }
+		let repositoryCount = content.gitHubAccount.map { $0.repositoryCount.approximateCount(counting: "repo") }
 		let yearsOfOpenSource = "\(content.yearsOfOpenSource.formatted(counting: "year")) of open source"
 
-		return [content.activeApps.count.formatted(counting: "app"), yearsOfCraft, repositoryCount, yearsOfOpenSource].compactMap(\.self)
+		return [content.listedApps.count.formatted(counting: "app"), yearsOfCraft, repositoryCount, yearsOfOpenSource].compactMap(\.self)
 	}
 }
 

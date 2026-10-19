@@ -10,6 +10,10 @@ platforms: [
 ]
 isPaid: true
 appStoreID: 1532588789
+sharedQuestions: [
+	'widget-missing'
+	'widget-run-shortcut'
+]
 # links: {
 # 	TestFlight: 'https://testflight.apple.com/join/ybGzYJ28',
 # }
@@ -29,10 +33,6 @@ See your favorite photos every time you look at your Home Screen or desktop. Mak
 For macOS, it’s only available for Apple silicon Macs.
 
 ## Frequently Asked Questions {#faq}
-
-### The widget does not show up in the widget picker, the widget is stuck, or is missing from the Home Screen
-
-The iOS widget system is quite buggy and can fail a lot. This is not a problem with the app and out of my control. See [how to fix a widget that does not show up](/apps/faq#widget-not-showing).
 
 ### I’m not seeing the new widget settings for showing date and album title
 
@@ -83,15 +83,6 @@ The built-in widget only shows photos from “Memories” and “Featured Photos
 ### Can you make the cropping prioritize faces?
 
 This is something I want to add, but it’s more complicated than it sounds. Widgets have limited resources, and currently, it’s not enough to do face detection. Apple works around that by having the face data already available, but this data is not available to third-party apps. Other photo widget apps solve this by letting the user pick the album in the app itself and then they do the face detection in the app upfront, however, that would require a rewrite of this app, which is not something I have time to do right now.
-
-### When using the “Run Shortcut” action, why does tapping the widget first open the main app and then the Shortcuts app?
-
-This is because of iOS limitations. A widget can only open its own app when a user taps it. And the only way to run a shortcut is to open the Shortcuts app using a special URL. So when you tap the widget, the widget opens the main app, and the main app then opens the Shortcuts app. It’s not a very good user experience, but only Apple can fix this.
-
-If you work at Apple, you know what to do:
-- [FB9745173](https://github.com/feedback-assistant/reports/issues/240)
-- [FB11516334](https://github.com/feedback-assistant/reports/issues/357)
-- [FB11516273](https://github.com/feedback-assistant/reports/issues/356)
 
 ### Why are the images in the widget not full quality?
 

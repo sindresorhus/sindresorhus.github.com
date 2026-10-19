@@ -11,6 +11,9 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 6504040051
+sharedQuestions: [
+	'menu-bar-icons'
+]
 pressQuotes: [
 	{
 		quote: 'One of the best indicators of how sticky a cross-device utility will be in my setup is how quickly I install it everywhere. For Scratchpad, the answer was “very sticky”.'

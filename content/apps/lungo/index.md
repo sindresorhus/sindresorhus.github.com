@@ -9,6 +9,9 @@ isPaid: true
 isMenuBarApp: true
 appStoreID: 1263070803
 setappID: 270
+sharedQuestions: [
+	'backup-settings'
+]
 olderVersions: [
 	{
 		version: '2.7.2'

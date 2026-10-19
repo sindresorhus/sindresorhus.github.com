@@ -8,6 +8,12 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 6755328989
+sharedQuestions: [
+	'blurry-secondary-display'
+	'menu-bar-icons'
+	'sync'
+	'backup-settings'
+]
 requirement: 'Requires macOS 26 or later'
 # olderVersions: [
 # 	{
@@ -48,10 +54,6 @@ Your clocks never leave your device. The app is built without internet permissio
 - Press <kbd>Command+</kbd> when the time zone window is open to quickly add a new time zone.
 
 ## Frequently Asked Questions {#faq}
-
-### The clocks look blurry or are not dimmed on my secondary display
-
-[See this answer](/apps/faq#menu-bar-secondary-display)
 
 ### Some world clocks are missing from the menu bar
 
@@ -97,10 +99,6 @@ No. Digital only.
 
 The spacing is controlled by the system, but you could use [Menu Bar Spacing](/menu-bar-spacing) to change it for all items.
 
-### Can you add sync?
-
-No. iCloud sync is unreliable and causes a huge support burden. It’s not worth the effort for this app.
-
 ### Can you add widgets?
 
 No. This is a simple menu bar app.
@@ -108,10 +106,6 @@ No. This is a simple menu bar app.
 ### Can you support iOS?
 
 No.
-
-### Can you add another menu bar icon option?
-
-Sure! Find an icon you like in the [SF Symbols app](https://developer.apple.com/sf-symbols/) or [here](https://thenounproject.com/icons/), and send me the name or a link.
 
 ### I already own Dato. Does this offer any benefits over its similar feature? {#dato}
 

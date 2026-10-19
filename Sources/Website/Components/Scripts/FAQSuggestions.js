@@ -4,16 +4,15 @@ FAQ suggestions: while the visitor types, the message is split into words (three
 
 // The function that finds the questions a message is about, among the general questions and the questions of the app with the title.
 function questionMatcher(data, appTitle) {
-	const generalQuestions = data.generalQuestions ?? [];
-	const stopwords = new Set(data.stopwords ?? []);
-	const app = (data.apps ?? []).find(app => app.title === appTitle);
+	const stopwords = new Set(data.stopwords);
+	const app = data.apps.find(app => app.title === appTitle);
 
-	let questions = generalQuestions;
+	let questions = data.generalQuestions;
 
 	if (app) {
 		// Questions about platforms the app is not on are left out.
 		questions = questions.filter(question => !question.platforms || question.platforms.some(platform => app.platforms.includes(platform)));
-		questions = [...(app.questions ?? []).map(question => ({...question, isAppSpecific: true})), ...questions];
+		questions = [...app.questions.map(question => ({...question, isAppSpecific: true})), ...questions];
 	}
 
 	// The words a message can match: the words of the question, and its keywords and synonyms.

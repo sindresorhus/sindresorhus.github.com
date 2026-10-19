@@ -15,7 +15,7 @@ struct AppPage: Page {
 	}
 
 	/**
-	With the icon and the screenshots.
+	With the icon and the screenshots. An unlisted app is left out, as it is not indexed, like it is left out of the app lists, and like an unlisted post.
 	*/
 	var sitemapEntry: SitemapEntry? {
 		SitemapEntry(lastModified: app.lastModified, images: [app.iconURL] + app.screenshotURLs)
@@ -30,8 +30,9 @@ struct AppPage: Page {
 			title: "\(app.title): \(app.subtitle)",
 			description: app.description,
 			socialTitle: app.title,
+			// Search engines do not index an unlisted app, like it is not in the sitemap.
+			isIndexed: app.isListed,
 			appStoreID: app.showsAppStoreBanner ? app.appStoreID : nil,
-			appStoreCampaign: app.appStoreBannerCampaign,
 			favicon: app.iconPath,
 			feeds: app.releaseNotes.map { [$0.feed] } ?? []
 		)

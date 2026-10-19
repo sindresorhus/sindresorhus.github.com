@@ -8,7 +8,7 @@ struct HomePage: Page {
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: Site.name, description: Site.description)
+		PageMetadata(title: Site.name, description: Site.description, kind: .home)
 	}
 
 	var body: some HTML {
@@ -21,7 +21,8 @@ struct HomePage: Page {
 			div {
 				div {
 					div {
-						img(.src(Site.author.photoPath), .alt("\(Site.author.name) profile photo"), .width(144), .height(144))
+						// The small photo is sharp up to two pixels for each CSS pixel, so screens with three, like most phones, get the large one.
+						img(.src(Site.author.smallPhotoPath), .custom(name: "srcset", value: "\(Site.author.smallPhotoPath) 2x, \(Site.author.photoPath) 3x"), .alt("\(Site.author.name) profile photo"), .width(144), .height(144))
 							.style(Styles.profilePhoto)
 					}
 					.style(Styles.profileRing)
@@ -44,7 +45,7 @@ struct HomePage: Page {
 							}
 							.style(Styles.button, Styles.glass, Styles.glassPrimary)
 
-							a(.href("https://github.com/sindresorhus")) {
+							a(.href(.url(Site.author.gitHubURL))) {
 								Label("Code", icon: .github)
 							}
 							.style(Styles.button, Styles.glass, Styles.glassDark)
@@ -174,7 +175,7 @@ extension HomePage {
 					.color(.transparent)
 					.setting(HomePage.gradientStart, to: .primary(500))
 					.setting(HomePage.gradientEnd, to: Self.gradientColor(at: 25))
-					.backgroundImage(.linearGradient("to right", HomePage.gradientStart.value, HomePage.gradientEnd.value, in: "oklch"))
+					.backgroundImage(.linearGradient("to right", HomePage.gradientStart.value, HomePage.gradientEnd.value, in: .oklch))
 					.backgroundClip(.text)
 					.animation(Animations.gradientShift, .default(duration: .seconds(4)).repeatForever(autoreverses: false))
 					.from(.smallTablet) {
@@ -250,7 +251,7 @@ extension HomePage {
 									.content("")
 									.position(.absolute)
 									.inset(0)
-									.declaration(.borderRadius, .inherit)
+									.cornerRadius(.inherit)
 									.backgroundImage(.linearGradient("175deg", Color.white.opacity(0.28).at(.percent(0)), Color.white.opacity(0.06).at(.percent(40)), Color.transparent.at(.percent(70))))
 									.allowsHitTesting(false)
 							}
@@ -310,8 +311,8 @@ extension HomePage {
 	/**
 	The colors at the ends of the gradient of the name. They are registered properties, so they can animate: the gradient moves from the blue end of the brand gradient to the pink end and back.
 	*/
-	fileprivate static let gradientStart = RegisteredProperty<Color>("--gradient-start", syntax: "<color>", initialValue: .black, inherits: false)
-	fileprivate static let gradientEnd = RegisteredProperty<Color>("--gradient-end", syntax: "<color>", initialValue: .black, inherits: false)
+	fileprivate static let gradientStart = RegisteredProperty<Color>("--gradient-start", syntax: .color, initialValue: .black, inherits: false)
+	fileprivate static let gradientEnd = RegisteredProperty<Color>("--gradient-end", syntax: .color, initialValue: .black, inherits: false)
 
 	enum Animations: KeyframeSet {
 		case nebulaFadeIn

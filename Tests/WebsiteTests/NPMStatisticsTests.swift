@@ -1,5 +1,6 @@
 import Foundation
 import SiteKit
+import TestSupport
 import Testing
 @testable import Website
 
@@ -29,7 +30,8 @@ struct NPMStatisticsTests {
 		let statistics = await NPMStatistics.load(cache: cache, warnings: warnings)
 
 		#expect(statistics.mostDownloadedPackageNames.isEmpty)
-		#expect(warnings.all.count == 1)
+		try #require(warnings.all.count == 1)
+		#expect(warnings.all[0].message.contains("The file has no package names."))
 	}
 
 	@Test(.temporaryDirectory)

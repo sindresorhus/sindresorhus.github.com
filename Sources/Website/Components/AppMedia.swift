@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-A horizontally scrolling carousel of videos and screenshots, with dots below it when there is more than one item, as the next item is not visible on wider screens. Its script wires up the buttons and the dots, and plays the videos.
+A horizontally scrolling carousel of videos and screenshots, with buttons at its sides and dots below it when there is more than one item, as the next item is not visible on wider screens. Its script wires up the buttons and the dots, and plays the videos.
 */
 struct AppMedia: ScriptedElement {
 	static let script = ElementScript()
@@ -11,7 +11,8 @@ struct AppMedia: ScriptedElement {
 	let app: App
 
 	var content: some HTML {
-		section(.part(Parts.scroller)) {
+		// Not a Tab stop, which browsers make a scroller without controls, as it has no focus look: the buttons and the dots move through the items, and one item has nothing to scroll to.
+		section(.part(Parts.scroller), .tabindex(-1)) {
 			for (index, asset) in app.media.enumerated() {
 				// The item has the sizes of its media (`--max-width` and `--phone-width`), so it has its width before the media loads.
 				div {
@@ -21,8 +22,8 @@ struct AppMedia: ScriptedElement {
 						// The script plays it while it is visible, unless the visitor prefers reduced motion. It can be paused with a click or the keyboard. The time in the URL makes iOS draw the first frame, which it otherwise does not with `preload="metadata"`.
 						video(
 							.src("\(asset.path)#t=0.001"),
-							.width(asset.width),
-							.height(asset.height),
+							.width(asset.size.width),
+							.height(asset.size.height),
 							.loop,
 							.muted,
 							.playsInline,
@@ -33,7 +34,7 @@ struct AppMedia: ScriptedElement {
 						.style(Styles.media)
 					case .image:
 						// Numbered without the videos, which have their own label.
-						img(.src(asset.path), .width(asset.width), .height(asset.height), .alt("\(app.title) screenshot \(app.media[..<index].count { $0.kind == .image } + 1)"), .lazyLoading, .asyncDecoding)
+						img(.src(asset.path), .width(asset.size.width), .height(asset.size.height), .alt("\(app.title) screenshot \(app.media[..<index].count { $0.kind == .image } + 1)"), .lazyLoading, .asyncDecoding)
 							.style(Styles.media)
 					}
 				}
@@ -46,20 +47,21 @@ struct AppMedia: ScriptedElement {
 		.accessibilityLabel("App media")
 		.style(Styles.scroller)
 
-		button(.part(Parts.previous)) {
-			Icon.chevronLeft.size(.rootEm(1.5))
-		}
-		.accessibilityLabel("Previous item")
-		.style(Styles.control, Styles.previous)
-
-		button(.part(Parts.next)) {
-			Icon.chevronRight.size(.rootEm(1.5))
-		}
-		.accessibilityLabel("Next item")
-		.style(Styles.control, Styles.next)
-
-		// Hidden until the script shows them, as they need the script.
+		// One item has nothing to scroll to, so it gets no buttons, as screen readers also read the disabled buttons that the styles hide.
 		if app.media.count > 1 {
+			button(.part(Parts.previous)) {
+				Icon.chevronLeft.size(.rootEm(1.5))
+			}
+			.accessibilityLabel("Previous item")
+			.style(Styles.control, Styles.previous)
+
+			button(.part(Parts.next)) {
+				Icon.chevronRight.size(.rootEm(1.5))
+			}
+			.accessibilityLabel("Next item")
+			.style(Styles.control, Styles.next)
+
+			// Hidden until the script shows them, as they need the script.
 			div(.part(Parts.dots), .hidden) {
 				for index in app.media.indices {
 					button(.type(.button)) {}
@@ -90,7 +92,7 @@ struct AppMedia: ScriptedElement {
 	The maximum height of an item on phones, in percent of the width of the screen: a quarter more than the height of the shortest item, the one with the widest shape, so a tall item, like a portrait screenshot next to landscape ones, is not much taller than the others, and the shorter items do not leave a large empty space below them. When the items have the same shape, it does not limit them. It is at least 60% of the width of the screen, so a very wide item does not make the others tiny.
 	*/
 	private var phoneMaximumHeight: Double {
-		let widestAspectRatio = app.media.map(\.aspectRatio).max() ?? 1
+		let widestAspectRatio = app.media.map(\.size.aspectRatio).max() ?? 1
 		return max(Self.phoneItemWidth / widestAspectRatio * 1.25, 60)
 	}
 
@@ -214,11 +216,13 @@ struct AppMedia: ScriptedElement {
 					.margin(.top, .rootEm(0.75))
 			case .dot:
 				// The button is larger than the dot, which is drawn inside it, so it is easy to tap. The buttons touch, so their tap areas do not overlap. The script marks the dot of the item in view with `aria-current`.
+				// The focus of the keyboard shows as a round fill around the dot, like on the icon buttons of the site, as the dot of the item in view already has the accent.
 				Style()
 					.frame(width: .rootEm(1.25), height: .rootEm(1.75))
 					.media(.coarsePointer) {
 						$0.frame(width: .rootEm(1.75), height: .rootEm(2.75))
 					}
+					.focusFill()
 					.before {
 						$0
 							.content("")
@@ -240,18 +244,14 @@ struct AppMedia: ScriptedElement {
 }
 
 extension MediaAsset {
-	fileprivate var aspectRatio: Double {
-		Double(width) / Double(height)
-	}
-
 	/**
 	The width at a height of at most 640 pixels, for wider screens, and the width on phones: at most 85% of the screen, and at most as tall as 70% of the screen and the maximum height of the carousel, so a tall item is not taller than most of the screen, nor much taller than the other items.
 
 	- Parameter phoneMaximumHeight: The maximum height on phones, in percent of the width of the screen.
 	*/
 	fileprivate func settingSizes(on style: Style, phoneMaximumHeight: Double) -> Style {
-		let maximumWidth = Length.pixels(min(Double(width), 640 * aspectRatio))
-		let phoneWidth = Length.min(.viewportWidth(AppMedia.phoneItemWidth), .viewportWidth(phoneMaximumHeight * aspectRatio), .smallViewportHeight(70 * aspectRatio), maximumWidth)
+		let maximumWidth = Length.pixels(min(Double(size.width), 640 * size.aspectRatio))
+		let phoneWidth = Length.min(.viewportWidth(AppMedia.phoneItemWidth), .viewportWidth(phoneMaximumHeight * size.aspectRatio), .smallViewportHeight(70 * size.aspectRatio), maximumWidth)
 
 		return style
 			.setting(AppMedia.maximumWidth, to: maximumWidth)

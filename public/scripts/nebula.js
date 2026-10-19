@@ -1,8 +1,8 @@
 // The galaxy on the home page, drawn with WebGL. `home.js` loads it in dark mode, for visitors who allow motion.
 const canvas = document.querySelector('#nebula');
-const gl = canvas?.getContext('webgl', {alpha: true, premultipliedAlpha: false});
+const gl = canvas.getContext('webgl', {alpha: true, premultipliedAlpha: false});
 
-if (canvas && gl) {
+if (gl) {
 	const vertexShaderSource = `
 		attribute vec2 a_pos;
 		void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }
@@ -394,7 +394,7 @@ if (canvas && gl) {
 		frame = requestAnimationFrame(draw);
 	}
 
-	// Pause rendering when the tab is hidden, the canvas is scrolled off screen, or the canvas is not shown (light mode or reduced motion) to save GPU/battery
+	// Pause rendering when the tab is hidden, the canvas is scrolled off screen, or the canvas is not shown (light mode) to save GPU/battery
 	function update() {
 		const shouldRun = isLinked && isShown && isOnScreen && !document.hidden && !isContextLost;
 

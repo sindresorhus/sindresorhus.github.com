@@ -76,7 +76,7 @@ struct FeedTests {
 	@Test
 	func `uses custom GUIDs`() throws {
 		let feed = Feed(title: "A", link: site, description: "B") {
-			Item(title: "Moved", link: URL(string: "https://elsewhere.com/post")!, guid: GUID("https://example.com/post"))
+			Item(title: "Moved", link: URL(string: "https://elsewhere.com/post")!, guid: .identifier("https://example.com/post"))
 		}
 
 		#expect(try feed.xmlString().contains(#"<guid isPermaLink="false">https://example.com/post</guid>"#))
@@ -111,7 +111,7 @@ struct FeedTests {
 	@Test
 	func `escapes attribute values`() throws {
 		let feed = Feed(title: "A", link: site, description: "B") {
-			Item(title: "Item", guid: GUID(#"a"b'c<d>&e"#))
+			Item(title: "Item", guid: .identifier(#"a"b'c<d>&e"#))
 		}
 
 		#expect(try feed.xmlString().contains(#"<guid isPermaLink="false">a&quot;b&apos;c&lt;d&gt;&amp;e</guid>"#))
@@ -203,8 +203,8 @@ struct FeedTests {
 			try Feed(title: "A", link: site, description: "B", items: [Item(title: "Episode", enclosure: Enclosure(url: URL(string: "/episode.mp3")!, length: 1, mimeType: "audio/mpeg"))]).validate()
 		}
 
-		#expect(throws: FeedValidationError.invalidPermaLink("post-1", item: "Post")) {
-			try Feed(title: "A", link: site, description: "B", items: [Item(title: "Post", guid: GUID("post-1", isPermaLink: true))]).validate()
+		#expect(throws: FeedValidationError.relativeURL(URL(string: "post-1")!, item: "Post")) {
+			try Feed(title: "A", link: site, description: "B", items: [Item(title: "Post", guid: .permalink(URL(string: "post-1")!))]).validate()
 		}
 	}
 
@@ -215,7 +215,7 @@ struct FeedTests {
 		}
 
 		#expect(throws: FeedValidationError.itemWithoutTitleOrDescription(item: "post-1")) {
-			try Feed(title: "A", link: site, description: "B", items: [Item(guid: GUID("post-1"))]).validate()
+			try Feed(title: "A", link: site, description: "B", items: [Item(guid: .identifier("post-1"))]).validate()
 		}
 
 		#expect(throws: FeedValidationError.itemWithoutTitleOrDescription(item: "#2")) {
@@ -228,7 +228,7 @@ struct FeedTests {
 		#expect(throws: FeedValidationError.duplicateGUID("https://example.com/post", item: "Second")) {
 			try Feed(title: "A", link: site, description: "B") {
 				Item(title: "First", link: site.appending(path: "post"))
-				Item(title: "Second", guid: GUID("https://example.com/post", isPermaLink: true))
+				Item(title: "Second", guid: .permalink(site.appending(path: "post")))
 			}
 			.validate()
 		}

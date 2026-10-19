@@ -36,8 +36,10 @@ struct AppCard: HTML {
 						Badge("New", kind: .new)
 					}
 
-					// The price is on the page of the app, so visitors see the app before the price.
-					Badge(app.isPaid ? "Paid" : "Free")
+					// The price is on the page of the app, so visitors see the app before the price. An archived app has no App Store or Setapp download, so it has no price, like its page shows.
+					if !app.isArchived {
+						Badge(app.isPaid ? "Paid" : "Free")
+					}
 
 					if app.hasTrial {
 						Badge("Free Trial")

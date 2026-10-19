@@ -12,8 +12,7 @@ struct MediaAsset: Hashable, Sendable {
 
 	let kind: Kind
 	let path: RoutePath
-	let width: Int
-	let height: Int
+	let size: PixelSize
 
 	/**
 	The videos (`video*.mp4`) and then the screenshots (`screenshot*.png/jpg`) in the directory, each in natural order.
@@ -33,13 +32,13 @@ struct MediaAsset: Hashable, Sendable {
 		var assets = [Self]()
 
 		for (kind, file) in videos + screenshots {
-			let size = kind == .video ? await file.videoSize : file.mediaSize
+			let size = kind == .video ? await file.videoSize : file.imageSize
 
 			guard let size else {
 				throw ContentError(file: file, reason: "Could not read the size of the media file.")
 			}
 
-			assets.append(Self(kind: kind, path: directory.appending(file.lastPathComponent), width: size.width, height: size.height))
+			assets.append(Self(kind: kind, path: directory.appending(file.lastPathComponent), size: size))
 		}
 
 		return assets

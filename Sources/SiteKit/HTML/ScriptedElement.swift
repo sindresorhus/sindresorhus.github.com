@@ -112,9 +112,7 @@ extension ScriptedElement {
 	public var body: HTMLElement<ElementTag<Self>, Content> {
 		PageResources.current?.require(element: Self.self)
 
-		PageResources.current?.use(Styles.root)
-
-		var attributes: [HTMLAttribute<ElementTag<Self>>] = [.class(Styles.root.className)]
+		var attributes: [HTMLAttribute<ElementTag<Self>>] = [.class(classNames(Styles.root))]
 
 		if let config = configJSON {
 			attributes.append(.custom(name: "data-config", value: config))
@@ -138,9 +136,13 @@ extension ScriptedElement {
 
 	/**
 	The name of the custom element, like `feed-ticker` for `FeedTicker`, or `geo-cities-page-clock` for `GeoCitiesPage.Clock`. It is the class name of the root style too.
+
+	It is computed once, as Elementary reads it for the start tag and the end tag each time an element renders, and the name comes from reflection.
 	*/
 	public static var tagName: String {
-		typePath(of: Self.self).joined().kebabCased
+		cached(for: Self.self) {
+			typePath(of: Self.self).joined().kebabCased
+		}
 	}
 
 	/**
@@ -150,7 +152,7 @@ extension ScriptedElement {
 	*/
 	public static func generatedScript() throws -> String {
 		var source = try script.source
-		let declarations = source.ranges(of: /^export default class extends HTMLElement \{$/.anchorsMatchLineEndings())
+		let declarations = source.ranges(of: inlineClassDeclaration)
 
 		guard
 			declarations.count == 1,
@@ -171,6 +173,11 @@ extension ScriptedElement {
 }
 
 /**
+The line that declares the class of an inline script (``ScriptedElement/generatedScript()``). Not a literal in the function, as Swift parses a regex literal each time the code runs, and the function runs for each page that shows the element.
+*/
+nonisolated(unsafe) private let inlineClassDeclaration = /^export default class extends HTMLElement \{$/.anchorsMatchLineEndings()
+
+/**
 The script of a ``ScriptedElement``: the `.js` file with the same name as the Swift file that creates it, in the `Scripts` folder next to it, like `Scripts/Clock.js` for `Clock.swift`, or a short script inline in the Swift file.
 
 The build reads a file from the source directory, so the preview server shows a change to it without building the tool again. The target of the Swift file excludes the `Scripts` folder in `Package.swift`, so the scripts need no entry each. An inline script needs neither, but a change to it builds the tool again, and it has no syntax highlighting, so use it only for a few lines.
@@ -184,9 +191,11 @@ public struct ElementScript: Sendable {
 	private let location: Location
 
 	/**
-	The directory that the build publishes the script files in (``Project/elementScripts()``).
+	The path that the build publishes a script file at, like `/scripts/elements/Clock.js` for `Scripts/Clock.js` (``Project/elementScripts()``).
 	*/
-	public static let directory: RoutePath = "/scripts/elements"
+	static func publishedPath(of file: URL) -> RoutePath {
+		RoutePath("/scripts/elements").appending(file.lastPathComponent)
+	}
 
 	/**
 	- Parameter swiftFile: The Swift file. Leave it out, so it is the file that creates the script.
@@ -229,7 +238,7 @@ public struct ElementScript: Sendable {
 	The path that the build publishes the script file at, like `/scripts/elements/Clock.js`, or `nil` for an inline script.
 	*/
 	public var path: RoutePath? {
-		file.map { Self.directory.appending($0.lastPathComponent) }
+		file.map(Self.publishedPath(of:))
 	}
 
 	/**
@@ -307,8 +316,8 @@ extension ElementStateSet {
 	/**
 	The attribute selector of the state, like `[data-state="copied"]`, for a selector that a style builds itself, like `&:has(> [data-state="copied"])`.
 	*/
-	public var selector: String {
-		"[data-state=\"\(rawValue)\"]"
+	public var selector: CSSSelector {
+		"[data-state=\"\(raw: rawValue)\"]"
 	}
 }
 

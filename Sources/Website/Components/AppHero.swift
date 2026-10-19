@@ -20,7 +20,7 @@ struct AppHero: HTML {
 
 	var body: some HTML {
 		header(.id(Hooks.hero)) {
-			AppIcon(app, size: 256, isAboveFold: true, imageID: Hooks.icon.rawValue)
+			AppIcon(app, size: 256, isAboveFold: true, imageID: Hooks.icon)
 				.style(Styles.icon)
 
 			h1 {
@@ -87,15 +87,15 @@ struct AppHero: HTML {
 			}
 
 			// An archived app is no longer available, so the menu has no QR code or sharing.
-			if !app.isArchived {
+			if let shareURL = app.shareURL {
 				// The “Show QR Code” option of the “…” menu shows it, like on a computer, to open the App Store page on an iPhone. An app that is not on iPhone, Apple Watch, or Vision Pro gets the page of the app instead, to open it on a phone, like to send it to someone.
 				let appStoreURL = app.qrCodeURL
 				// A dialog named by its caption, which the “…” menu focuses, so screen readers announce it.
-				figure(.id(Self.qrCodeID), .popover, .role("dialog"), .ariaLabelledBy("\(Self.qrCodeID)-caption"), .tabindex(-1)) {
+				figure(.id(Self.qrCodeID), .popover, .role("dialog"), .ariaLabelledBy(Self.qrCodeCaptionID), .tabindex(-1)) {
 					QRCode(url: appStoreURL ?? app.path.absoluteURL, label: appStoreURL != nil ? "QR code that opens \(app.title) on the App Store" : "QR code that opens this page")
 						.style(Styles.qrCodeImage)
 
-					figcaption(.id("\(Self.qrCodeID)-caption")) {
+					figcaption(.id(Self.qrCodeCaptionID)) {
 						appStoreURL != nil ? "Scan with your iPhone to open \(app.title) on the App Store" : "Scan with your phone to open this page"
 					}
 				}
@@ -109,16 +109,17 @@ struct AppHero: HTML {
 					.style(Styles.shareTitle)
 
 					div {
-						ShareButton(pageTitle: app.title, url: app.shareURL)
+						ShareButton(pageTitle: app.title, url: shareURL)
 
-						CopyButton(title: "Copy Link", text: app.shareURL.absoluteString)
+						CopyButton(title: "Copy Link", text: shareURL.absoluteString)
 					}
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
 				}
 				.style(Styles.dialog)
 			}
 
-			AppLinks(app: app)
+			// The menu is there also without links, as it has a random app, and the QR code and sharing for apps that are not archived.
+			ChipNavigation(label: "App links", links: sectionLinks, menu: .appPage(app, variant: .chip))
 				.style {
 					$0.margin(.top, .rootEm(2))
 				}
@@ -138,6 +139,13 @@ struct AppHero: HTML {
 	}
 
 	/**
+	The section links of the app, without the trial section, as the “Free Trial” button right above links to it.
+	*/
+	private var sectionLinks: [LabeledLink] {
+		app.links.filter { $0.destination != .fragment(App.trialSectionID) }
+	}
+
+	/**
 	The fragment that the random app page adds, which shows the “Another Random App” button. The app page has the ID at its top, so the page does not scroll.
 	*/
 	static let anotherRandomAppID = "another-random-app"
@@ -146,6 +154,8 @@ struct AppHero: HTML {
 	The ID of the QR code popover, which the “…” menu shows.
 	*/
 	static let qrCodeID = "qr-code"
+
+	private static let qrCodeCaptionID = "qr-code-caption"
 
 	/**
 	The ID of the share popover, which the “Share…” option of the “…” menu shows when the browser refuses to share from the menu.
@@ -289,7 +299,7 @@ struct AppHero: HTML {
 }
 
 /**
-The end of an app page, for visitors who read the whole page: the icon, the name, the download options, and the price.
+The end of an app page, for visitors who read the whole page: the icon, the name, the download options, and the price. The page shows it only for an app that can be downloaded (``App/isDownloadable``).
 */
 struct AppCallToAction: HTML {
 	let app: App
@@ -314,12 +324,10 @@ struct AppCallToAction: HTML {
 			}
 			.style(Styles.subtitle)
 
-			if !app.downloadOptions.isEmpty {
-				DownloadOptions(app: app)
-					.style {
-						$0.margin(.top, .rootEm(0.5))
-					}
-			}
+			DownloadOptions(app: app)
+				.style {
+					$0.margin(.top, .rootEm(0.5))
+				}
 
 			if let price = app.priceText(info: info) {
 				p {

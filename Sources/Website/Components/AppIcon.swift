@@ -32,9 +32,9 @@ struct AppIcon: HTML {
 	/**
 	The ID of the image, for a script that changes the image, like the googly eyes of the Googly Eyes page.
 	*/
-	var imageID: String?
+	var imageID: (any ScriptHookSet)?
 
-	init(_ app: App, size: Int, isAboveFold: Bool = false, imageID: String? = nil) {
+	init(_ app: App, size: Int, isAboveFold: Bool = false, imageID: (any ScriptHookSet)? = nil) {
 		self.path = app.iconPath
 		self.title = app.title
 		self.size = size
@@ -64,7 +64,7 @@ struct AppIcon: HTML {
 			img(.src(path), .width(size), .height(size), .alt(title.map { "\($0) app icon" } ?? ""))
 				.attributes(.fetchPriority(.high), when: isAboveFold)
 				.attributes(.lazyLoading, when: !isAboveFold)
-				.attributes(.id(imageID ?? ""), when: imageID != nil)
+				.attributes(.id(imageID?.id ?? ""), when: imageID != nil)
 				.style(Styles.image)
 		}
 		.style(Styles.root)

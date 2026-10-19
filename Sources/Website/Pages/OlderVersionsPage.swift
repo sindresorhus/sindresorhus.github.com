@@ -47,6 +47,6 @@ struct OlderVersionsPage: Page {
 	The versions that have older app versions, newest first.
 	*/
 	private var versions: [MacOSVersion] {
-		Set(content.listedApps.flatMap(\.olderMacOSVersions)).sorted(using: KeyPathComparator(\.number, order: .reverse))
+		MacOSVersion.allCases.reversed().filter(Set(content.listedApps.flatMap(\.olderMacOSVersions)).contains)
 	}
 }

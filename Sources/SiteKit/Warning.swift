@@ -19,6 +19,13 @@ public struct Warning: Hashable, Sendable, CustomStringConvertible {
 		self.message = message
 	}
 
+	/**
+	A warning about a file, or a line of it, with the path like in content errors (``Foundation/URL/location(ofLine:)``).
+	*/
+	public init(file: URL, line: Int? = nil, message: String) {
+		self.init(location: file.location(ofLine: line), message: message)
+	}
+
 	public var description: String {
 		location.map { "\($0): \(message)" } ?? message
 	}
@@ -46,5 +53,17 @@ public final class WarningCollector: Sendable {
 	*/
 	public var all: [Warning] {
 		warnings.withLock(\.self).sorted(using: KeyPathComparator(\.description, comparator: .localizedStandard))
+	}
+
+	/**
+	The value of the request, or `nil` with a warning when it fails, so the page leaves the value out. The warning is the message followed by the error, like “Could not get the popular GitHub repos, so the about page leaves them out: …”.
+	*/
+	public func value<Value: Sendable>(warning message: String, _ request: @Sendable () async throws -> Value) async -> Value? {
+		do {
+			return try await request()
+		} catch {
+			add(Warning(message: "\(message): \(error)"))
+			return nil
+		}
 	}
 }

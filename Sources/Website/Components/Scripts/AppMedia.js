@@ -70,12 +70,14 @@ class AppMedia extends HTMLElement {
 		const previousButton = this.querySelector('[data-part="previous"]');
 		const nextButton = this.querySelector('[data-part="next"]');
 		const dotList = this.querySelector('[data-part="dots"]');
-		const dots = dotList ? [...dotList.children] : [];
 		const items = [...carousel.children];
 
-		if (items.length === 0) {
+		// One item has no buttons.
+		if (items.length < 2) {
 			return;
 		}
+
+		const dots = [...dotList.children];
 
 		// Shows the first item, instead of the scroll position that the browser restores.
 		carousel.scrollLeft = 0;
@@ -106,7 +108,7 @@ class AppMedia extends HTMLElement {
 			previousButton.disabled = currentIndex === 0;
 			nextButton.disabled = currentIndex === items.length - 1;
 
-			// A disabled button loses the focus, like “Next screenshot” at the last item, so the focus goes to the other button instead of the start of the page.
+			// A disabled button loses the focus, like “Next item” at the last item, so the focus goes to the other button instead of the start of the page.
 			if (focusedElement === previousButton && previousButton.disabled) {
 				nextButton.focus();
 			} else if (focusedElement === nextButton && nextButton.disabled) {
@@ -114,11 +116,7 @@ class AppMedia extends HTMLElement {
 			}
 
 			for (const [index, dot] of dots.entries()) {
-				if (index === currentIndex) {
-					dot.setAttribute('aria-current', 'true');
-				} else {
-					dot.removeAttribute('aria-current');
-				}
+				dot.ariaCurrent = index === currentIndex ? 'true' : null;
 			}
 		};
 
@@ -142,9 +140,7 @@ class AppMedia extends HTMLElement {
 			}, {signal});
 		}
 
-		if (dotList) {
-			dotList.hidden = false;
-		}
+		dotList.hidden = false;
 
 		// Keeps the buttons right after the visitor swipes.
 		carousel.addEventListener('scrollend', () => {

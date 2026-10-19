@@ -9,6 +9,8 @@ const slots = [...document.querySelector('#appdle-slots').children];
 const result = document.querySelector('#appdle-result');
 const copyButton = document.querySelector('#appdle-copy-result');
 const restartButton = document.querySelector('#appdle-restart');
+// The label of the pixelated part, which the whole icon replaces when the game ends.
+const pixelatedLabel = canvas.ariaLabel;
 
 // The local date as days since 1970, like the daily seed of the build, so the app changes at midnight for the visitor, and everybody gets the same app on the same date.
 const today = new Date();
@@ -264,7 +266,7 @@ restartButton.addEventListener('click', () => {
 	guesses.length = 0;
 	save();
 	delete canvas.dataset.state;
-	canvas.ariaLabel = 'A pixelated part of the icon of today’s app';
+	canvas.ariaLabel = pixelatedLabel;
 	status.textContent = remainingText();
 	render();
 	input.focus();

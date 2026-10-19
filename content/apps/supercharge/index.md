@@ -12,6 +12,10 @@ price: 20
 isMenuBarApp: true
 hasSentry: true
 setappID: 742
+sharedQuestions: [
+	'not-in-app-store'
+	'menu-bar-icons'
+]
 releasesRepository: 'supercharge-meta'
 mainLinks: {
 	Buy: 'https://sindresorhus.gumroad.com/l/supercharge?wanted=true'
@@ -1138,10 +1142,6 @@ Supercharge has the following Shortcuts actions that Shortcutie does not have:
 - Toggle Hot Corners
 - Show Poof Animation
 - Get/Set Media Keys App Control Target
-
-### Why is this not in the App Store?
-
-Much of the functionality would not be possible in the App Store because of [sandboxing](/apps/faq#macos-sandbox).
 
 <!-- Intentionally using the wrong header level so it doesn't show up as a main thing. -->
 

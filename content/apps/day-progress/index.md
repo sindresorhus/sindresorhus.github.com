@@ -8,6 +8,9 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 6450280202
+sharedQuestions: [
+	'blurry-secondary-display'
+]
 # links: {
 # 	TestFlight: 'https://testflight.apple.com/join/mFx764Kp',
 # }
@@ -74,10 +77,6 @@ Unfortunately, it’s not possible to fully hide the built-in menu bar clock. Ho
 The [distributed notification](/apps/faq#distributed-notifications) `com.sindresorhus.Day-Progress.dayEnded` is emitted when a progress finishes.
 
 ## Frequently Asked Questions {#faq}
-
-### The menu bar item looks blurry or is not dimmed on my secondary display
-
-[See this answer](/apps/faq#menu-bar-secondary-display)
 
 ### Can you add widgets?
 

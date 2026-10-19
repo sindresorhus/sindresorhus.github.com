@@ -4,7 +4,7 @@ import SOML
 /**
 Makes a struct decode strictly from SOML frontmatter.
 
-It generates the coding keys and an initializer that uses the default value of a property when its key is missing. Rename a key with `@Key`, and check a value with a ``Validated`` property wrapper, like `@NonEmpty`. Every stored property needs a type annotation, a literal default value (`false`, `"text"`, `1`, `1.5`), or an empty initializer that names the type (`[String]()`).
+It generates the coding keys and an initializer that uses the default value of a property when its key is missing. Rename a key with `@Key`, and check a value with a ``Validated`` property wrapper, like `@NonEmpty`. The struct needs at least one stored property, and every stored property needs a type annotation, a literal default value (`false`, `"text"`, `1`, `1.5`), or an empty initializer that names the type (`[String]()`).
 
 ```swift
 @Frontmatter
@@ -39,6 +39,8 @@ Decoding is strict: unknown keys are rejected (see `SOML.Decoder.frontmatter`), 
 public protocol Frontmatter: Decodable, Sendable {
 	/**
 	Checks requirements that the types cannot express, like two keys that need each other.
+
+	It runs after decoding, and only for the decoded value, like the frontmatter of a file, not for the values in it: decoding does not call it for a nested `@Frontmatter` value, like an item of a list, so the type that contains the value checks it. It does not run during decoding, because then a failed check would hide an unknown key, which is often the cause, like a misspelled key.
 	*/
 	func validate() throws(ContentError)
 }
@@ -47,21 +49,82 @@ extension Frontmatter {
 	public func validate() throws(ContentError) {}
 
 	/**
-	Decodes and validates a value, like the arguments of a Markdown directive.
+	Decodes and validates a value, like the frontmatter of a file, or the arguments of a Markdown directive.
 
 	- Parameter root: What the value is, like `arguments`, for the messages.
+	- Parameter line: The line of the key or item at the coding path of a decoding error, for the error.
 	*/
-	static func decode(from somlValue: SOML.Value, root: String) throws(ContentError) -> Self {
+	static func decode(from somlValue: SOML.Value, root: String, line: ([any CodingKey]) -> Int? = { _ in nil }) throws(ContentError) -> Self {
+		let value: Self
+
 		do {
-			let value = try SOML.Decoder.frontmatter.decode(Self.self, from: somlValue)
-			try value.validate()
-			return value
+			value = try SOML.Decoder.frontmatter.decode(Self.self, from: somlValue)
 		} catch let error as DecodingError {
-			throw ContentError(reason: error.readableDescription(root: root))
-		} catch let error as ContentError {
-			throw error
+			throw ContentError(line: line(error.codingPath), reason: error.readableDescription(root: root))
 		} catch {
 			throw ContentError(reason: "\(error)")
+		}
+
+		try value.validate()
+		return value
+	}
+}
+
+extension DecodingError {
+	var codingPath: [any CodingKey] {
+		switch self {
+		case .keyNotFound(_, let context), .typeMismatch(_, let context), .valueNotFound(_, let context), .dataCorrupted(let context):
+			context.codingPath
+		@unknown default:
+			[]
+		}
+	}
+
+	/**
+	What is wrong, without the coding path, like `Cannot initialize Platform from invalid String value Amiga`.
+	*/
+	var reason: String {
+		switch self {
+		case .keyNotFound(let key, _):
+			"Missing required key `\(key.stringValue)`."
+		case .typeMismatch(_, let context), .valueNotFound(_, let context), .dataCorrupted(let context):
+			context.debugDescription
+		@unknown default:
+			"\(self)"
+		}
+	}
+
+	/**
+	The mistake with the key path where it is, like “Invalid `links.Docs`: Must be an absolute URL”.
+
+	- Parameter root: What the decoded value is, for a mistake at the top level, like `frontmatter`.
+	*/
+	func readableDescription(root: String) -> String {
+		// Written like SOML writes key paths, like `platforms[0]` and `links.'Mac App Store'`.
+		func path(_ context: Context) -> String {
+			// A key path needs at least one key, so a mistake at the top level, like a frontmatter that is a list, names the root.
+			guard !context.codingPath.isEmpty else {
+				return root
+			}
+
+			let path = SOML.KeyPath(context.codingPath.map { key in
+				key.intValue.map(SOML.KeyPath.Segment.index) ?? .key(key.stringValue)
+			})
+
+			return "`\(path)`"
+		}
+
+		switch self {
+		case .keyNotFound(let key, let context):
+			let parent = context.codingPath.isEmpty ? "" : " in \(path(context))"
+			return "Missing required key `\(key.stringValue)`\(parent)."
+		case .dataCorrupted(let context) where context.debugDescription.hasPrefix("Unknown key"):
+			// The message names the key, and the line of the error is the line of the key. SOML leaves out the period, except after its question “Did you mean …?”.
+			return context.debugDescription.hasSuffix("?") ? context.debugDescription : "\(context.debugDescription)."
+		case .typeMismatch(_, let context), .valueNotFound(_, let context), .dataCorrupted(let context):
+			return "Invalid \(path(context)): \(context.debugDescription)"
+		@unknown default:
+			return "\(self)"
 		}
 	}
 }
@@ -143,12 +206,8 @@ public struct AbsoluteURL: PlainValidatedValue, Hashable, Sendable, CustomString
 		self.value = url
 	}
 
-	public var absoluteString: String {
-		value.absoluteString
-	}
-
 	public var description: String {
-		absoluteString
+		value.absoluteString
 	}
 }
 
@@ -229,7 +288,7 @@ public struct Day: PlainValidatedValue, Hashable, Sendable, CustomStringConverti
 		calendar.timeZone = .gmt
 
 		guard
-			let match = text.wholeMatch(of: /(\d{4})-(\d{2})-(\d{2})/),
+			let match = text.wholeMatch(of: Self.pattern),
 			let year = Int(match.1),
 			let month = Int(match.2),
 			let day = Int(match.3)
@@ -248,6 +307,11 @@ public struct Day: PlainValidatedValue, Hashable, Sendable, CustomStringConverti
 
 		self.value = date
 	}
+
+	/**
+	Not a literal in the initializer, as Swift parses a regex literal each time the code runs, and every post and app has a day.
+	*/
+	nonisolated(unsafe) private static let pattern = /(\d{4})-(\d{2})-(\d{2})/
 
 	public var description: String {
 		value.isoDay

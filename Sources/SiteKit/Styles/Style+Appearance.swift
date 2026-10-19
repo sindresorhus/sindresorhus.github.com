@@ -23,6 +23,13 @@ extension Style {
 	}
 
 	/**
+	The size of each background image tile.
+	*/
+	public func backgroundSize(width: Length, height: Length) -> Self {
+		declaration(.backgroundSize, [CSSValue(width), CSSValue(height)])
+	}
+
+	/**
 	Images that hide the element where they are transparent, like a radial gradient that fades the edges of a photo. Several images are layers, and the element shows where any of them is opaque.
 	*/
 	public func maskImage(_ image: CSSValue, _ moreImages: CSSValue...) -> Self {
@@ -56,6 +63,13 @@ extension Style {
 	*/
 	public func borderColor(_ color: Color, dark: Color) -> Self {
 		borderColor(.lightDark(color, dark))
+	}
+
+	/**
+	Whether the borders of adjacent table cells merge.
+	*/
+	public func borderCollapse(_ value: BorderCollapse) -> Self {
+		declaration(.borderCollapse, value)
 	}
 
 	public func cornerRadius(_ radius: Length) -> Self {
@@ -159,7 +173,7 @@ extension Style {
 	Styles for a part of the scroll bars of the element, like the thumb, in Chrome and Safari. For the scroll bars of the page, style the root element, like with ``onPageRoot(_:)``.
 	*/
 	public func scrollbar(_ part: ScrollbarPart, _ content: (Self) -> Self) -> Self {
-		nested("&\(part.rawValue)", content)
+		nested("&\(raw: part.rawValue)", content)
 	}
 
 	/**
@@ -241,6 +255,20 @@ extension Style {
 	}
 
 	/**
+	Whether transformed children remain in three dimensions.
+	*/
+	public func transformStyle(_ value: TransformStyle) -> Self {
+		declaration(.transformStyle, value)
+	}
+
+	/**
+	The distance from the viewer to a three-dimensional scene (`perspective` in CSS).
+	*/
+	public func perspective(_ distance: Length) -> Self {
+		declaration(.perspective, distance)
+	}
+
+	/**
 	Filters for the element, applied in order, like `.filter(.blur(radius: .pixels(2)), .brightness(1.1))`. Use `.filter(.none)` to remove them.
 	*/
 	public func filter(_ filter: Filter, _ moreFilters: Filter...) -> Self {
@@ -269,7 +297,7 @@ extension Style {
 		// A previous `none`, like from `noTransition()`, is replaced, as `none` cannot be in a list. An important value cannot be in a list either, so the value is a declaration of its own, and the important one still wins.
 		guard
 			let index = declarations.lastIndex(where: { $0.property == property }),
-			declarations[index].value.description != "none",
+			declarations[index].value != .none,
 			!declarations[index].value.description.hasSuffix("!important")
 		else {
 			return declaration(property, CSSValue(value))
@@ -385,31 +413,6 @@ extension Style {
 	*/
 	public func noAnimation() -> Self {
 		declaration(.animation, .none)
-	}
-}
-
-extension Style {
-	/**
-	Whether transformed children remain in three dimensions.
-	*/
-	public func transformStyle(_ value: TransformStyle) -> Self {
-		declaration(.transformStyle, value)
-	}
-}
-
-extension Style {
-	/**
-	The size of each background image tile.
-	*/
-	public func backgroundSize(width: Length, height: Length) -> Self {
-		declaration(.backgroundSize, [CSSValue(width), CSSValue(height)])
-	}
-
-	/**
-	The distance from the viewer to a three-dimensional scene (`perspective` in CSS).
-	*/
-	public func perspective(_ distance: Length) -> Self {
-		declaration(.perspective, distance)
 	}
 }
 

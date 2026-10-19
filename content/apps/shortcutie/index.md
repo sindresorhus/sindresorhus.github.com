@@ -9,6 +9,9 @@ isPaid: true
 price: 10
 hasSentry: true
 setappID: 1814
+sharedQuestions: [
+	'not-in-app-store'
+]
 releasesRepository: 'shortcutie-meta'
 mainLinks: {
 	Buy: 'https://sindresorhus.gumroad.com/l/shortcutie?wanted=true'
@@ -302,10 +305,6 @@ Some things you could try:
 ### I get a “errorDomain error 2” error when running an action
 
 Same solution as above.
-
-### Why is this not in the App Store?
-
-Much of the functionality would not be possible in the App Store because of [sandboxing](/apps/faq#macos-sandbox).
 
 ### Why is this paid when your Actions app is free?
 

@@ -36,6 +36,8 @@ struct FeedCard: HTML {
 ```
 
 The class names are `feed-card` for `root` and `feed-card-title` for `title`.
+
+Limitation: A style set in a generic type has the same class names for every specialization, but each specialization is another style set, so a page that uses two of them fails with ``StyleError/duplicateClassNames(_:)``. Declare the styles of a generic component outside it, like a top-level `FormFieldStyles` for `FormField<Content>`.
 */
 public protocol StyleSet: CaseIterable, Hashable, Sendable {
 	var style: Style { get }
@@ -46,10 +48,10 @@ extension StyleSet {
 	The class name, like `feed-card-title`. The `root` case uses the component name alone, like `feed-card`.
 	*/
 	public var className: String {
-		Self.classNames[self] ?? Self.className(of: self)
+		Self.classNames[self] ?? Self.className(of: self, componentName: Self.componentName)
 	}
 
-	private static func className(of style: Self) -> String {
+	private static func className(of style: Self, componentName: String) -> String {
 		let name = String(describing: style)
 		return name == "root" ? componentName : "\(componentName)-\(name.kebabCased)"
 	}
@@ -57,8 +59,8 @@ extension StyleSet {
 	/**
 	The class selector, like `.feed-card-title`, for styling the element from a parent style with ``Style/nested(_:_:)``.
 	*/
-	public var selector: String {
-		".\(className)"
+	public var selector: CSSSelector {
+		CSSSelector(className: className)
 	}
 
 	private static var componentName: String {
@@ -70,7 +72,9 @@ extension StyleSet {
 	*/
 	private static var classNames: [Self: String] {
 		cached(for: Self.self) {
-			Dictionary(uniqueKeysWithValues: allCases.map { ($0, className(of: $0)) })
+			// Once for all the cases, as it reads the name of the type.
+			let componentName = componentName
+			return Dictionary(uniqueKeysWithValues: allCases.map { ($0, className(of: $0, componentName: componentName)) })
 		}
 	}
 
@@ -83,47 +87,53 @@ extension StyleSet {
 
 	private static var caseNodes: [Self: [StyleNode]] {
 		cached(for: Self.self) {
-			Dictionary(uniqueKeysWithValues: allCases.map { value in
-				let style = value.style
-				return (value, [style.node(selector: value.selector)] + style.definitions)
-			})
+			Dictionary(uniqueKeysWithValues: allCases.map { ($0, $0.style.nodes(selector: $0.selector)) })
 		}
 	}
 
 	/**
-	The rules of every case, and then the keyframes and registered properties they use, each once. They are built from the cached nodes of the cases.
+	The rules of every case, and then the keyframes and registered properties they use. They are built from the cached nodes of the cases. The stylesheet writes each definition once.
 	*/
 	static var nodes: [StyleNode] {
 		let caseNodes = allCases.map(\.nodes)
-		return caseNodes.compactMap(\.first) + caseNodes.flatMap { $0.dropFirst() }.uniqueDefinitions
+		return caseNodes.compactMap(\.first) + caseNodes.flatMap { $0.dropFirst() }
+	}
+
+	/**
+	The rules of the cases with the class names, like the cases that a page uses, in the order of the style set, so the rules keep their order.
+	*/
+	static func nodes(usedClassNames: Set<String>) -> [StyleNode] {
+		allCases
+			.filter { usedClassNames.contains($0.className) }
+			.flatMap(\.nodes)
 	}
 }
 
 /**
-The identity of a cached style-set value, without allocating an array for each lookup.
+The identity of a cached value of a type, without allocating an array for each lookup.
 */
-private struct StyleSetCacheKey: Hashable {
-	let styleSet: ObjectIdentifier
+private struct TypeCacheKey: Hashable {
+	let type: ObjectIdentifier
 	let valueType: ObjectIdentifier
 }
 
-private let styleSetCache = Mutex<[StyleSetCacheKey: any Sendable]>([:])
+private let typeCache = Mutex<[TypeCacheKey: any Sendable]>([:])
 
 /**
-A value of a style set, like its class names, computed on first use and then cached by the style set and the type of the value.
+A value of a type, like the class names of a style set or the tag name of a scripted element, computed on first use and then cached by the type and the type of the value, so a type has one cached value of each value type. A protocol extension cannot have a stored property, so the values that it computes once are cached here.
 
-The value is computed outside the lock, as a style can use the selector of another case.
+The value is computed outside the lock, as a style can use the selector of another case, and so other render threads do not wait for the reflection.
 */
-private func cached<Value: Sendable>(for styleSet: Any.Type, _ compute: () -> Value) -> Value {
-	let key = StyleSetCacheKey(styleSet: ObjectIdentifier(styleSet), valueType: ObjectIdentifier(Value.self))
+func cached<Value: Sendable>(for type: Any.Type, _ compute: () -> Value) -> Value {
+	let key = TypeCacheKey(type: ObjectIdentifier(type), valueType: ObjectIdentifier(Value.self))
 
-	if let value = styleSetCache.withLock({ $0[key] }) as? Value {
+	if let value = typeCache.withLock({ $0[key] }) as? Value {
 		return value
 	}
 
 	let value = compute()
 
-	styleSetCache.withLock {
+	typeCache.withLock {
 		$0[key] = value
 	}
 
@@ -148,13 +158,18 @@ func typePath(of type: Any.Type) -> [Substring] {
 	// The generic arguments of a generic type, like `<Swift.Int>`, are not part of the name, and can have dots. The innermost first, as they can be nested.
 	var reflectedName = String(reflecting: type)
 
-	while let genericArguments = reflectedName.firstRange(of: /<[^<>]*>/) {
+	while let genericArguments = reflectedName.firstRange(of: genericArgumentsPattern) {
 		reflectedName.removeSubrange(genericArguments)
 	}
 
 	// A private type has its context in its name, like `(unknown context at $1088071a4)`, which is not part of the name.
 	return reflectedName.split(separator: ".").dropFirst().filter { !$0.hasPrefix("(") }
 }
+
+/**
+The innermost generic arguments of a reflected type name, like `<Swift.Int>`. Not a literal in ``typePath(of:)``, as Swift parses a regex literal each time the code runs, and it runs for each scripted element that a page shows.
+*/
+nonisolated(unsafe) private let genericArgumentsPattern = /<[^<>]*>/
 
 extension String {
 	/**
@@ -215,7 +230,7 @@ extension HTML where Tag: HTMLTrait.Attributes.Global {
 /**
 The class names of the styles. The page collects the style sets, so it has their rules.
 */
-private func classNames<each Styles: StyleSet>(_ styles: repeat each Styles) -> String {
+func classNames<each Styles: StyleSet>(_ styles: repeat each Styles) -> String {
 	var names = [String]()
 
 	for style in repeat each styles {

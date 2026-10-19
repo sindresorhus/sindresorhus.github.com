@@ -11,10 +11,10 @@ struct BlogPostPage: Page {
 	}
 
 	/**
-	An unlisted post is left out, like from the blog and the feeds.
+	An unlisted post is left out, as it is not indexed, like it is left out of the blog and the feeds.
 	*/
 	var sitemapEntry: SitemapEntry? {
-		post.isListed ? SitemapEntry(lastModified: post.lastModified) : nil
+		SitemapEntry(lastModified: post.lastModified)
 	}
 
 	var socialCard: OpenGraphCard? {
@@ -26,7 +26,9 @@ struct BlogPostPage: Page {
 			title: post.title,
 			description: post.description,
 			socialTitle: post.title,
-			kind: .article(publishedAt: post.publicationDate, tags: post.tags)
+			kind: .article(publishedAt: post.publicationDate, tags: post.tags),
+			// Search engines do not index an unlisted post, like it is not in the sitemap.
+			isIndexed: post.isListed
 		)
 	}
 
@@ -35,7 +37,7 @@ struct BlogPostPage: Page {
 			article {
 				div {
 					p {
-						PublicationInfo(post: post, showsReadingTime: true)
+						PublicationInfo(post: post)
 					}
 					.style(Styles.meta)
 
@@ -107,7 +109,7 @@ struct BlogPostPage: Page {
 			datePublished: post.publicationDate.formatted(.iso8601),
 			dateModified: post.lastModified.formatted(.iso8601),
 			author: .author,
-			image: (socialCard?.path ?? OpenGraphCard.sitePath).absoluteURL,
+			image: socialImageURL,
 			keywords: post.tags.map(\.rawValue).nilIfEmpty
 		)
 	}

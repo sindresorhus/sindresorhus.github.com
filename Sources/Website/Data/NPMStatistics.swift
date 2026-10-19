@@ -43,7 +43,10 @@ struct NPMStatistics: Sendable {
 		*/
 		let date: Date
 
-		let weeklyDownloads: Int
+		/**
+		The weekly downloads. `nil` when the search does not have them, which is not the same as no downloads.
+		*/
+		let weeklyDownloads: Int?
 
 		/**
 		The number of packages on npm that depend on the package, like 3845 for `ansi-styles`. `nil` when the search does not have it.
@@ -51,27 +54,41 @@ struct NPMStatistics: Sendable {
 		let dependentCount: Int?
 
 		/**
-		The owner and the name of the GitHub repository of the package, like `chalk/chalk` for `https://github.com/chalk/chalk`. `nil` when the package has no GitHub repository.
+		The GitHub repository of the package, like `chalk/chalk` for `https://github.com/chalk/chalk`. `nil` when the package has no GitHub repository.
 		*/
-		let repository: String?
+		let repository: GitHubRepositoryName?
 
 		var url: URL {
 			#URL("https://www.npmjs.com/package/").appending(path: name)
 		}
 
 		/**
-		The weekly downloads, rounded down when they are large, like “4.2M+ downloads a week” or “6 downloads a week”.
+		The name without the scope, like `is` for `@sindresorhus/is`.
 		*/
-		var weeklyDownloadsLabel: String {
-			"\(weeklyDownloads.approximateCount(counting: "download")) a week"
+		var unscopedName: String {
+			String(name.split(separator: "/").last ?? "")
+		}
+
+		/**
+		The weekly downloads, rounded down when they are large, like “4.2M+ downloads a week” or “6 downloads a week”. `nil` without the downloads.
+		*/
+		var weeklyDownloadsLabel: String? {
+			weeklyDownloads.map { "\($0.approximateCount(counting: "download")) a week" }
 		}
 	}
 
 	/**
-	The downloads of all the packages in the last week, when the search worked.
+	The downloads of all the packages in the last week, when the search worked. A package without the downloads does not count, so the total is a lower bound.
 	*/
 	var weeklyDownloads: Int? {
-		packages.isEmpty ? nil : packages.map(\.weeklyDownloads).sum
+		packages.compactMap(\.weeklyDownloads).nilIfEmpty?.sum
+	}
+
+	/**
+	The downloads of all the packages a second, on average over the last week, like 34,722.2, when the search worked.
+	*/
+	var downloadsPerSecond: Double? {
+		weeklyDownloads.map { Double($0) / (Duration.days(7) / .seconds(1)) }
 	}
 
 	/**
@@ -82,11 +99,11 @@ struct NPMStatistics: Sendable {
 	}
 
 	/**
-	How many packages are in the GitHub repos, like `sindresorhus/ky`, ignoring case. The now page counts the packages in the repos that were made this year as new, as the npm search has no date of the first version. `nil` when the search did not give the packages.
+	How many packages are in the GitHub repos, like `sindresorhus/ky`. The now page counts the packages in the repos that were made this year as new, as the npm search has no date of the first version. `nil` when the search did not give the packages.
 	*/
-	func packageCount(inRepositories repositories: [String]) -> Int? {
-		let names = Set(repositories.map { $0.lowercased() })
-		return packages.nilIfEmpty?.count { $0.repository.map { names.contains($0.lowercased()) } ?? false }
+	func packageCount(inRepositories repositories: [GitHubRepositoryName]) -> Int? {
+		let repositories = Set(repositories)
+		return packages.nilIfEmpty?.count { $0.repository.map(repositories.contains) ?? false }
 	}
 
 	/**
@@ -142,11 +159,13 @@ struct NPMStatistics: Sendable {
 			for offset in stride(from: 0, to: Int.max, by: SearchResult.pageSize) {
 				let url = #URL("https://registry.npmjs.org/-/v1/search").appending(formQueryItems: [URLQueryItem(name: "text", value: "maintainer:sindresorhus"), URLQueryItem(name: "size", value: String(SearchResult.pageSize)), URLQueryItem(name: "from", value: String(offset))])
 				let page = try await cache.decoded(SearchResult.self, from: URLRequest(url: url, timeoutInterval: 15))
+				// Read once, as each read parses the dates and the repository links of the page again.
+				let pagePackages = page.packages
 				statistics.packageCount = statistics.packageCount ?? page.total
-				packages += page.packages
+				packages += pagePackages
 
 				guard
-					!page.packages.isEmpty,
+					!pagePackages.isEmpty,
 					offset + SearchResult.pageSize < page.total
 				else {
 					break
@@ -178,11 +197,8 @@ struct NPMStatistics: Sendable {
 			let downloads: Int
 		}
 
-		do {
-			return try await cache.decoded(Downloads.self, from: URLRequest(url: #URL("https://api.npmjs.org/downloads/point/last-week"), timeoutInterval: 15)).downloads
-		} catch {
-			warnings.add(Warning(message: "Could not get the downloads of all of npm, so the about page leaves out the share of the downloads: \(error)"))
-			return nil
+		return await warnings.value(warning: "Could not get the downloads of all of npm, so the about page leaves out the share of the downloads") {
+			try await cache.decoded(Downloads.self, from: URLRequest(url: #URL("https://api.npmjs.org/downloads/point/last-week"), timeoutInterval: 15)).downloads
 		}
 	}
 
@@ -190,22 +206,19 @@ struct NPMStatistics: Sendable {
 	The names of the most-downloaded packages, from the list of npm-high-impact, which is a JavaScript file with each name in single quotes on its own line, like `  'chalk',`. Empty with a warning when the request failed or the file has no names.
 	*/
 	private static func mostDownloadedPackageNames(cache: ResponseCache, warnings: WarningCollector) async -> [String] {
-		do {
-			return try await cache.decoded(from: URLRequest(url: #URL("https://unpkg.com/npm-high-impact/lib/top-download.js"), timeoutInterval: 15)) { data in
+		await warnings.value(warning: "Could not get the most-downloaded npm packages, so the about page leaves out how many of them are his") {
+			try await cache.decoded(from: URLRequest(url: #URL("https://unpkg.com/npm-high-impact/lib/top-download.js"), timeoutInterval: 15)) { data in
 				// Only whole lines, so a quote elsewhere in the file, like in a comment, is not a name.
 				let names = String(decoding: data, as: UTF8.self).matches(of: /^\s*'([^']+)',?$/.anchorsMatchLineEndings()).map { String($0.1) }
 
 				// A file in another format has no names, so it is not saved over the cached one.
 				guard !names.isEmpty else {
-					throw URLError(.cannotParseResponse)
+					throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "The file has no package names."))
 				}
 
 				return names
 			}
-		} catch {
-			warnings.add(Warning(message: "Could not get the most-downloaded npm packages, so the about page leaves out how many of them are his: \(error)"))
-			return []
-		}
+		} ?? []
 	}
 }
 
@@ -265,13 +278,12 @@ private struct SearchResult: Decodable {
 				return nil
 			}
 
-			// The repository can be written in several ways, like `git+https://github.com/owner/name.git`.
-			let repository = object.package.links?.repository?.firstMatch(of: /github\.com[\/:]([^\/]+\/[^\/#?]+)/).map { String($0.1).replacing(/\.git$/, with: "") }
+			let repository = object.package.links?.repository.flatMap(GitHubRepositoryName.init(npmRepositoryLink:))
 
 			// Without the backticks of code, which some descriptions have, as the description is shown as text.
 			let description = object.package.description?.replacing("`", with: "").trimmingCharacters(in: .whitespaces)
 
-			return NPMStatistics.Package(name: object.package.name, version: object.package.version, description: description?.isEmpty == false ? description : nil, date: date, weeklyDownloads: object.downloads?.weekly ?? 0, dependentCount: object.dependents?.count, repository: repository)
+			return NPMStatistics.Package(name: object.package.name, version: object.package.version, description: description?.isEmpty == false ? description : nil, date: date, weeklyDownloads: object.downloads?.weekly, dependentCount: object.dependents?.count, repository: repository)
 		}
 	}
 }

@@ -8,6 +8,11 @@ platforms: [
 ]
 isMenuBarApp: true
 appStoreID: 1569600264
+sharedQuestions: [
+	'blurry-secondary-display'
+	'sync'
+	'menu-bar-icons'
+]
 hasSentry: true
 olderVersions: [
 	{
@@ -75,10 +80,6 @@ You could also use the “Flash Screen” action from the [Actions app](https://
 ### How can I run multiple shortcuts as a notification?
 
 Pandan lets you run a single shortcut as a notification, but a shortcut can run other shortcuts. So make the shortcuts you want to run, make another shortcut that uses the “Run Shortcut” action to run the other shortcuts, and then select this shortcut in Pandan.
-
-### Can you support iCloud sync?
-
-No. iCloud sync is unreliable and creates too many support issues, especially for a free app.
 
 ### How can I use this as an eye-break reminder? {#eye-break-reminder}
 

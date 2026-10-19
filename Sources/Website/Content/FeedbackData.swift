@@ -7,7 +7,7 @@ The apps for `feedback.js`. The questions that the form suggests are in ``FAQSug
 struct FeedbackData: Encodable {
 	struct AppData: Encodable {
 		let title: String
-		let url: LinkDestination
+		let slug: String
 		let iconURL: RoutePath
 
 		/**
@@ -24,7 +24,7 @@ struct FeedbackData: Encodable {
 		self.apps = apps.map { app in
 			AppData(
 				title: app.title,
-				url: app.url,
+				slug: app.slug,
 				iconURL: app.iconPath,
 				faqURL: app.hasFAQSection ? .path(app.path, fragment: App.faqSectionID) : nil,
 				repositoryURL: app.repositoryURL,

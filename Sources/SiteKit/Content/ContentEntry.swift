@@ -39,6 +39,13 @@ extension ContentEntry {
 	}
 
 	/**
+	Whether a file with the slug can be an entry: any file when ``allowsSubdirectories``, else only a file directly in ``directory``, or the `index.md` of a page bundle, like `dato` for `dato/index.md`.
+	*/
+	public static func allows(slug: String) -> Bool {
+		allowsSubdirectories || !slug.contains("/")
+	}
+
+	/**
 	Loads the entries from the Markdown files in ``directory`` and, when ``allowsSubdirectories``, its subdirectories.
 
 	```swift
@@ -67,7 +74,7 @@ extension ContentEntry {
 			for (index, url) in markdownFiles.enumerated() {
 				group.addTask {
 					do {
-						guard allowsSubdirectories || !MarkdownFile.slug(of: url, relativeTo: directoryURL).contains("/") else {
+						guard allows(slug: MarkdownFile.slug(of: url, relativeTo: directoryURL)) else {
 							throw ContentError(file: url, reason: "The file must be directly in `\(directory)`.")
 						}
 

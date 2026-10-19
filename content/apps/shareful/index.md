@@ -6,6 +6,9 @@ platforms: [
 	'macOS'
 ]
 appStoreID: 1522267256
+sharedQuestions: [
+	'suggested-filenames'
+]
 olderVersions: [
 	{
 		version: '1.11.0'

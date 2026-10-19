@@ -23,10 +23,14 @@ extension Stylesheet {
 			ProseStyles.self
 		}
 
-		// Most pages use these, so they are cached with the stylesheet.
+		// Most pages use these, so they are cached with the stylesheet. Every page has the header and the footer of ``SiteBody``.
 		Layer(.components) {
 			VisuallyHidden.Styles.self
 			ButtonStyles.self
+			SiteHeader.Styles.self
+			IconLink.Styles.self
+			SiteFooter.Styles.self
+			UnicornEasterEgg.Styles.self
 		}
 
 		// The styles that only one element has, which pages add (``ElementStyle``). Empty here, so the order of the layers has it.
@@ -79,7 +83,7 @@ extension Stylesheet {
 		document
 
 		Rule("h1, h2, h3, h4, h5, h6", Style()
-			.declaration(.fontSize, .inherit)
+			.font(size: .inherit)
 			.declaration(.fontWeight, .inherit)
 			// Lines of a heading get similar lengths, instead of a last line with one word.
 			.textWrap(.balance)
@@ -90,7 +94,7 @@ extension Stylesheet {
 
 		// In the accent of the page, like the color of the app on an app page. See-through, so the text keeps its color, also the colors of highlighted code on the dark code blocks.
 		Rule("::selection", Style()
-			.background(Color.accent.value(default: .primary(500)).opacity(0.22), dark: Color.accent.value(default: .primary(400)).opacity(0.35))
+			.background(Color.pageAccent.opacity(0.22), dark: Color.darkModeAccent.opacity(0.35))
 		)
 
 		Rule("a", Style()

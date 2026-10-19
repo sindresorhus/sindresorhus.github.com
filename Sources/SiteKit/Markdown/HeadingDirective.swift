@@ -73,19 +73,25 @@ struct DirectiveComment {
 	}
 
 	/**
+	The start of a directive comment, with the name and the rest of the line. The name stops before `--`, so a flag like `<!--@faq.general-->` has no space before the end.
+	*/
+	nonisolated(unsafe) private static let pattern = /<!--\s*@((?:[\w.]|-(?!-))+)(.*)/
+
+	nonisolated(unsafe) private static let commentEnd = /-->$/
+
+	/**
 	Reads the directive comment in the line. `nil` when the line has none.
 	*/
 	init?(line: Substring) {
 		guard
 			line.contains("@"),
-			// The name stops before `--`, so a flag like `<!--@faq.general-->` has no space before the end.
-			let match = line.firstMatch(of: /<!--\s*@((?:[\w.]|-(?!-))+)(.*)/)
+			let match = line.firstMatch(of: Self.pattern)
 		else {
 			return nil
 		}
 
 		let rest = match.2.trimmingCharacters(in: .whitespaces)
-		let values = rest.replacing(/-->$/, with: "")
+		let values = rest.replacing(Self.commentEnd, with: "")
 		self.name = String(match.1)
 
 		// Another comment on the line, like `<!-- @a x --><!-- @b y -->`, is not part of the values.

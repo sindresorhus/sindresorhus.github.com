@@ -1,20 +1,11 @@
 import Foundation
 import SiteKit
+import TestSupport
 import Testing
 @testable import Website
 
 @Suite
 struct ExternalDataDecodingTests {
-	@Test
-	func `the App Store file size is read from its string`() throws {
-		let json = #"{"trackId": 1453273600, "fileSizeBytes": "7719936"}"#
-		let info = try JSONDecoder().decode(AppStoreInfo.self, from: Data(json.utf8))
-		#expect(info.fileSizeBytes == 7_719_936)
-
-		let infoWithoutSize = try JSONDecoder().decode(AppStoreInfo.self, from: Data(#"{"trackId": 1}"#.utf8))
-		#expect(infoWithoutSize.fileSizeBytes == nil)
-	}
-
 	/**
 	A response that cannot be decoded is removed from the cache, so the next build asks again instead of using it until it expires.
 	*/
@@ -24,13 +15,13 @@ struct ExternalDataDecodingTests {
 			let count: Int
 		}
 
-		let url = "https://example.com/totals"
+		let url = #URL("https://example.com/totals")
 		let directory = try URL.temporaryDirectory()
-		let cache = try ResponseCache(responses: [url: #"{"error": "Not found"}"#], directory: directory)
+		let cache = try ResponseCache(responses: [url.absoluteString: #"{"error": "Not found"}"#], directory: directory)
 		#expect(try directory.filesRecursively().count == 1)
 
 		await #expect(throws: (any Error).self) {
-			try await cache.decoded(Totals.self, from: URLRequest(url: URL(string: url)!))
+			try await cache.decoded(Totals.self, from: URLRequest(url: url))
 		}
 
 		#expect(try directory.filesRecursively().isEmpty)

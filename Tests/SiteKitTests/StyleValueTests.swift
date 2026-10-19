@@ -6,6 +6,9 @@ import Testing
 
 @Suite
 struct StyleValueTests {
+	/**
+	A quote or a line break in a CSS string ends the string, so the browser drops the declaration. A line break is written as the escape `\A`.
+	*/
 	@Test
 	func `CSS strings escape controls and combining quotes without ending the value`() {
 		let text = "\"\u{301}\\\u{c}\t\n\0a"
@@ -35,7 +38,7 @@ struct StyleValueTests {
 
 	@Test
 	func `CSS definitions with the same name occupy separate namespaces`() {
-		let property = RegisteredProperty<Length>("--progress", syntax: "<length>", initialValue: 0)
+		let property = RegisteredProperty<Length>("--progress", syntax: .length, initialValue: 0)
 		let css = Stylesheet {
 			Keyframes("--progress") {
 				Rule("to", Style().opacity(1))
@@ -56,8 +59,8 @@ struct StyleValueTests {
 	}
 
 	@Test
-	func `the nodes of a style set are the rules of its cases, and then the keyframes that they share, once`() {
-		#expect(FadingStyles.nodes.map(\.definition) == [nil, nil, .keyframes("fade-fade")])
+	func `a stylesheet has the rules of the cases of a style set, and then the keyframes that they share, once`() {
+		#expect(Stylesheet { FadingStyles.self }.nodes.map(\.definition) == [nil, nil, nil, .keyframes("fade-fade")])
 	}
 
 	@Test

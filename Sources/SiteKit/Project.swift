@@ -7,7 +7,7 @@ public struct Project: Sendable {
 	public let root: URL
 
 	/**
-	The path of the pages of each content directory, keyed by the path of the directory relative to the root, like `/` for `content/apps`, so the files of a page bundle are published next to its page, like `/dato/icon.png` for `content/apps/dato/icon.png`. The files of the other content directories are published at their path relative to the content directory. The directories must not be inside each other.
+	The path of the pages of each content directory, keyed by the path of the directory relative to the root, like `/` for `content/apps`, so the files of a page bundle are published next to its page, like `/dato/icon.png` for `content/apps/dato/icon.png`. The files of the page bundles in the other content directories are published at their path relative to the content directory. Either way, they are only published when the site publishes their page (``contentDirectory``). The directories must not be inside each other.
 	*/
 	public let pageRoutes: [String: RoutePath]
 
@@ -24,7 +24,7 @@ public struct Project: Sendable {
 	}
 
 	/**
-	The content files. A page is a Markdown file, or a directory with an `index.md` (a page bundle). The other files in that directory, like images, are published unchanged next to the page (``pageRoutes``).
+	The content files. A page is a Markdown file, or a directory with an `index.md` (a page bundle). The other files in that directory, like images, are published unchanged next to the page (``pageRoutes``), but only when the site publishes the page, so a draft does not publish its files.
 
 	Limitation: Only the files directly next to the `index.md` are published, not the files in its subdirectories.
 	*/
@@ -52,6 +52,14 @@ public struct Project: Sendable {
 	}
 
 	/**
+	The file behind a public URL path, like `dato/icon.png`, or `nil` when there is none. Use it to check that a file that content names exists, like an icon or a script, so a call site cannot forget to test the result of ``publicFile(_:)``.
+	*/
+	public func existingPublicFile(_ path: RoutePath) -> URL? {
+		let file = publicFile(path)
+		return file.isFile ? file : nil
+	}
+
+	/**
 	The path of a file of a page bundle in the site, like `/dato/icon.png` for `content/apps/dato/icon.png`. `nil` for any other file.
 	*/
 	public func publicPath(ofContentFile file: URL) -> RoutePath? {
@@ -74,12 +82,12 @@ public struct Project: Sendable {
 	}
 
 	/**
-	The files that are published unchanged, as their path relative to the output directory and their source: the files in the public directory, and the files of the page bundles in the content directory. `.DS_Store` files are left out.
+	The files that are published unchanged, as their path in the site and their source: the files in the public directory, and the files of the page bundles in the content directory. `.DS_Store` files are left out.
 	*/
-	public func publicFiles() throws -> [(path: String, source: URL)] {
-		let bundleFiles = contentDirectory.isDirectory ? try contentDirectory.filesRecursively().compactMap { file in publicPath(ofContentFile: file).map { (path: $0.relativePath, source: file) } } : []
+	public func publicFiles() throws -> [(path: RoutePath, source: URL)] {
+		let bundleFiles = contentDirectory.isDirectory ? try contentDirectory.filesRecursively().compactMap { file in publicPath(ofContentFile: file).map { (path: $0, source: file) } } : []
 
-		return (try publicDirectory.filesRecursively().map { (path: $0.path(relativeTo: publicDirectory), source: $0) } + bundleFiles)
+		return (try publicDirectory.filesRecursively().map { (path: RoutePath("/" + $0.path(relativeTo: publicDirectory)), source: $0) } + bundleFiles)
 			.filter { $0.source.lastPathComponent != ".DS_Store" }
 	}
 
@@ -95,7 +103,7 @@ public struct Project: Sendable {
 					&& $0.deletingLastPathComponent().lastPathComponent == "Scripts"
 			}
 			.sorted(using: KeyPathComparator(\.path, comparator: String.StandardComparator.lexical))
-			.map { (path: ElementScript.directory.appending($0.lastPathComponent), source: $0) }
+			.map { (path: ElementScript.publishedPath(of: $0), source: $0) }
 	}
 
 	/**

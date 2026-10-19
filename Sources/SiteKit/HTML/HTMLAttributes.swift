@@ -40,6 +40,27 @@ extension HTMLAttribute where Tag: HTMLTrait.Attributes.Global {
 	public static var ariaModal: Self {
 		.custom(name: "aria-modal", value: "true")
 	}
+
+	/**
+	The name that screen readers say for the element, like for an icon or a region.
+	*/
+	public static func ariaLabel(_ label: String) -> Self {
+		.custom(name: "aria-label", value: label)
+	}
+
+	/**
+	How the element announces a change while the visitor reads the page, like a status line that a script fills.
+	*/
+	public static func ariaLive(_ value: ARIALive) -> Self {
+		.custom(name: "aria-live", value: value.rawValue)
+	}
+
+	/**
+	Whether the content is still loading, so screen readers wait for it.
+	*/
+	public static func ariaBusy(_ isBusy: Bool = true) -> Self {
+		.custom(name: "aria-busy", value: isBusy ? "true" : "false")
+	}
 }
 
 extension HTML where Tag: HTMLTrait.Attributes.Global {
@@ -47,7 +68,7 @@ extension HTML where Tag: HTMLTrait.Attributes.Global {
 	The name that screen readers say for the element, like SwiftUI's `accessibilityLabel(_:)`. Use it when the visible content does not describe the element, like an icon.
 	*/
 	public func accessibilityLabel(_ label: String) -> _AttributedContent<Self> {
-		attributes(.custom(name: "aria-label", value: label))
+		attributes(.ariaLabel(label))
 	}
 
 	/**
@@ -214,4 +235,13 @@ public enum ARIACurrent: String, Sendable {
 	case date
 	case time
 	case item = "true"
+}
+
+/**
+How a live region announces its changes, for `aria-live`.
+*/
+public enum ARIALive: String, Sendable {
+	case off
+	case polite
+	case assertive
 }

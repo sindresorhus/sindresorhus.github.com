@@ -170,7 +170,7 @@ const showLatestBlueskyPost = async () => {
 
 	const {feed} = await response.json();
 
-	// Reposts and the pinned post have a reason.
+	// Reposts have a reason. The feed has no pinned post, as the request does not ask for it (`includePins`).
 	const post = feed?.find(item => !item.reason && item.post.record.text.trim())?.post;
 
 	if (!post) {

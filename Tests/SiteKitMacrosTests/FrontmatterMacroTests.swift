@@ -1,3 +1,4 @@
+import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacroExpansion
@@ -218,6 +219,96 @@ struct FrontmatterMacroTests {
 				DiagnosticSpec(message: "'@Frontmatter' requires a type annotation, a literal default value like 'false', or an empty initializer like '[String]()', because macros cannot infer other types", line: 4, column: 6),
 				DiagnosticSpec(message: "'@Frontmatter' requires a type annotation, a literal default value like 'false', or an empty initializer like '[String]()', because macros cannot infer other types", line: 5, column: 6),
 				DiagnosticSpec(message: "'@Frontmatter' requires a type annotation, a literal default value like 'false', or an empty initializer like '[String]()', because macros cannot infer other types", line: 6, column: 6),
+			],
+			macroSpecs: macros,
+			indentationWidth: .tab
+		)
+	}
+
+	@Test
+	func `rejects a struct without stored properties`() {
+		assertMacroExpansion(
+			"""
+			@Frontmatter
+			struct Post {
+				static let directory = "posts"
+			}
+			""",
+			expandedSource: """
+			struct Post {
+				static let directory = "posts"
+			}
+
+			extension Post: SiteKit.Frontmatter {
+			}
+			""",
+			diagnostics: [
+				DiagnosticSpec(message: "'@Frontmatter' requires at least one stored property", line: 1, column: 1),
+			],
+			macroSpecs: macros,
+			indentationWidth: .tab
+		)
+	}
+
+	@Test
+	func `rejects a property in a conditional block`() {
+		assertMacroExpansion(
+			"""
+			@Frontmatter
+			struct Post {
+				var title: String
+				#if os(macOS)
+				var windowSize: Int
+				#if DEBUG
+				var debugName: String
+				#endif
+				#endif
+			}
+			""",
+			expandedSource: """
+			struct Post {
+				var title: String
+				#if os(macOS)
+				var windowSize: Int
+				#if DEBUG
+				var debugName: String
+				#endif
+				#endif
+			}
+
+			extension Post: SiteKit.Frontmatter {
+			}
+			""",
+			diagnostics: [
+				DiagnosticSpec(message: "A property in an '#if' block cannot be decoded, so '@Frontmatter' does not support it. Move it out of the conditional block.", line: 5, column: 2),
+				DiagnosticSpec(message: "A property in an '#if' block cannot be decoded, so '@Frontmatter' does not support it. Move it out of the conditional block.", line: 7, column: 2),
+			],
+			macroSpecs: macros,
+			indentationWidth: .tab
+		)
+	}
+
+	@Test
+	func `rejects an attribute with arguments`() {
+		assertMacroExpansion(
+			"""
+			@Frontmatter
+			struct Post {
+				var title: String
+				@Environment(\\.locale) var locale: String
+			}
+			""",
+			expandedSource: """
+			struct Post {
+				var title: String
+				@Environment(\\.locale) var locale: String
+			}
+
+			extension Post: SiteKit.Frontmatter {
+			}
+			""",
+			diagnostics: [
+				DiagnosticSpec(message: "'@Frontmatter' supports only '@Key' and a property wrapper without arguments, like '@NonEmpty', got '@Environment(\\.locale)'.", line: 4, column: 2),
 			],
 			macroSpecs: macros,
 			indentationWidth: .tab

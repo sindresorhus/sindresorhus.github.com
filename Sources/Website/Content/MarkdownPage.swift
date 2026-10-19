@@ -16,21 +16,19 @@ struct MarkdownPage: ContentDocument {
 	/**
 	The line that places the sponsors of `sponsorTiers` in the Markdown.
 	*/
-	static var sponsorsDirective: Regex<Substring> {
-		/(?m)^@Sponsors[ \t]*$/
-	}
+	nonisolated(unsafe) static let sponsorsDirective = /(?m)^@Sponsors[ \t]*$/
 
 	init(file: MarkdownFile, frontmatter: Frontmatter, project: Project) throws {
 		// The sponsors are only shown where the Markdown places them, so without the directive they would be silently missing.
 		guard frontmatter.sponsorTiers.isEmpty || file.body.contains(Self.sponsorsDirective) else {
-			throw ContentError(file: file.url, line: file.line(ofFrontmatterKey: "sponsorTiers"), reason: "The page has `sponsorTiers`, so the Markdown needs a `@Sponsors` line where the sponsors are shown.")
+			throw ContentError(file: file.url, line: file.line(of: Frontmatter.CodingKeys.sponsorTiers), reason: "The page has `sponsorTiers`, so the Markdown needs a `@Sponsors` line where the sponsors are shown.")
 		}
 
 		// Only the now page shows them, so on another page they would be silently missing.
-		let nowKeys = [("status", frontmatter.status != nil), ("reading", !frontmatter.reading.isEmpty), ("listening", !frontmatter.listening.isEmpty)]
+		let nowKeys: [(key: Frontmatter.CodingKeys, isSet: Bool)] = [(.status, frontmatter.status != nil), (.reading, !frontmatter.reading.isEmpty), (.listening, !frontmatter.listening.isEmpty)]
 
 		for (key, isSet) in nowKeys where isSet && Self.path(slug: file.slug) != .now {
-			throw ContentError(file: file.url, line: file.line(ofFrontmatterKey: key), reason: "Only `content/pages/now.md` can have `\(key)`.")
+			throw ContentError(file: file.url, line: file.line(of: key), reason: "Only `content/pages/now.md` can have `\(key.stringValue)`.")
 		}
 
 		self.frontmatter = frontmatter
@@ -38,20 +36,22 @@ struct MarkdownPage: ContentDocument {
 		self.markdown = try MarkdownDocument(parsing: file, options: Self.path(slug: file.slug) == .faq ? .faqPage(file, project: project) : .content(file, project: project, sponsorTiers: frontmatter.sponsorTiers))
 	}
 
-	static func path(slug: String) -> RoutePath {
-		RoutePath("/\(slug)")
-	}
-
 	var redirectFrom: [RoutePath] {
 		frontmatter.redirectFrom
 	}
 
-	var title: String {
-		frontmatter.title
+	/**
+	The metadata of a page that shows the document: its title and description.
+	*/
+	var metadata: PageMetadata {
+		PageMetadata(title: frontmatter.title, description: frontmatter.description)
 	}
 
-	var description: String? {
-		frontmatter.description
+	/**
+	The sitemap entry of a page that shows the document, which changes when the content file does.
+	*/
+	var sitemapEntry: SitemapEntry {
+		SitemapEntry(lastModified: lastCommitDate)
 	}
 }
 

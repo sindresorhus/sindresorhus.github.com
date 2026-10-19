@@ -14,6 +14,18 @@ platforms: [
 ]
 isPaid: true
 appStoreID: 1643199620
+sharedQuestions: [
+	'widget-missing'
+	'lock-screen-widget-disappears'
+	'lock-screen-centered'
+	'lock-screen-text-color'
+	'lock-screen-background-color'
+	'lock-screen-update'
+	'lock-screen-delayed-update'
+	'widget-transparent-background'
+	'lock-screen-after-restart'
+	'widget-run-shortcut'
+]
 feedbackNote: 'If you are having problems with sync, [read this](/any-text#troubleshoot-syncing).'
 pressQuotes: [
 	{
@@ -64,20 +76,12 @@ For example:
 - [macOS](https://support.apple.com/guide/mac-help/mchl52be5da5/mac)
 - [watchOS](https://support.apple.com/guide/watch/see-widgets-in-the-smart-stack-apdecf142fb9/watchos)
 
-### The widget does not show up in the widget picker, the widget is stuck, or is missing from the Home Screen
-
-The iOS widget system is quite buggy and can fail a lot. This is not a problem with the app and out of my control. See [how to fix a widget that does not show up](/apps/faq#widget-not-showing).
-
 ### The widget is blank
 
 Try this:
 - Restart your device.
 - Change the language of the device to something else and then back.
 - Ensure Lock Screen widgets are allowed to show content while the device is locked at “Settings › Face ID & Passcode › Allow Access When Locked › Lock Screen Widgets”.
-
-### The Lock Screen text sometimes disappears
-
-Make sure Lock Screen widgets are allowed when locked: “Settings › Face ID & Passcode › Allow Access When Locked › Lock Screen Widgets”. If it’s “off”, iOS may hide the widget until you unlock.
 
 ### Can you support having multiple pieces of text that change during the day?
 
@@ -89,28 +93,6 @@ You could also put multiple widgets in a [widget stack](https://support.apple.co
 
 This is unfortunately not possible as widgets cannot access user-installed fonts.
 
-### Can I make the widget horizontally centered on the Lock Screen?
-
-This is unfortunately not possible. Apple has decided that the rectangular widget can only appear on the left or right side.
-
-### Can I pick a color for the text on the Lock Screen?
-
-Lock Screen widgets cannot have colors. You can set a custom text color for the normal widgets though.
-
-### Can I pick a background color for the Lock Screen widgets?
-
-Same answer as the above.
-
-### The widget does not update if I write some text in the app and then reveal the Lock Screen
-
-You need to first close the app. This is an iOS bug.
-
-If you work at Apple → [FB11522275](https://github.com/feedback-assistant/reports/issues/360)
-
-### The widget does not update even if I do the above
-
-The app tells iOS to update the widget, unfortunately, iOS can decide to delay an update for various reasons (low battery, low-power mode, etc). This is completely out of my control.
-
 ### The widget does not update when setting the text with the Shortcuts action
 
 This is unfortunately an iOS bug. The app correctly tells iOS to update the widget, but iOS delays it for some reason. The text will update eventually.
@@ -120,10 +102,6 @@ If you work at Apple → [FB11522170](https://github.com/feedback-assistant/repo
 ### Can you make the widget bigger?
 
 The widget sizes are controlled by Apple. The provided size is the largest it allows.
-
-### Can you make the widget background transparent?
-
-This is not possible.
 
 ### Can you remove the title shown below the widget?
 
@@ -148,19 +126,6 @@ You can set the “Widget Tap Action” setting to “None”.
 ### Can I edit the text directly from the Home Screen or Lock Screen?
 
 No, widgets only support tapping interactions.
-
-### The Lock Screen widget does not show the text after restarting the device, before unlocking it
-
-This is an iOS limitation and is out of my control. It shows a placeholder until the first unlock. This is how all Lock Screen widgets work.
-
-### When using the “Run Shortcut” action, why does tapping the widget first open the main app and then the Shortcuts app?
-
-This is because of iOS limitations. A widget can only open its own app when a user taps it. And the only way to run a shortcut is to open the Shortcuts app using a special URL. So when you tap the widget, the widget opens the main app, and the main app then opens the Shortcuts app. It’s not a very good user experience, but only Apple can fix this.
-
-If you work at Apple, you know what to do:
-- [FB9745173](https://github.com/feedback-assistant/reports/issues/240)
-- [FB11516334](https://github.com/feedback-assistant/reports/issues/357)
-- [FB11516273](https://github.com/feedback-assistant/reports/issues/356)
 
 ## Scripting
 

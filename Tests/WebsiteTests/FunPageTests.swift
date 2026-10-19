@@ -20,8 +20,8 @@ struct FunPageTests {
 
 		for puzzle in puzzles {
 			#expect(!puzzle.title.isEmpty)
-			#expect(!puzzle.url.isEmpty)
-			#expect(Project.website.publicFile(RoutePath(puzzle.icon)).isFile, "\(puzzle.title) has no icon at \(puzzle.icon).")
+			#expect(!puzzle.url.description.isEmpty)
+			#expect(Project.website.publicFile(puzzle.icon).isFile, "\(puzzle.title) has no icon at \(puzzle.icon).")
 		}
 	}
 
@@ -55,7 +55,9 @@ struct FunPageTests {
 
 		#expect(Set(gifs.map { $0.deletingPathExtension().lastPathComponent }) == Set(GeoCitiesPage.GIF.allCases.map(\.rawValue)))
 
-		let html = GeoCitiesPage(content: try await SiteContent.website).body.render()
+		let html = try #require(try await RenderedPage.website.first { $0.route.path == .geoCities }).html
+		// The images of the page, like `src=/1999/smiley.gif`, found once, as a search of the long page for each GIF is slow.
+		let images = Set(html.matches(of: /(src|srcset)="([^"]*)"/).map { "\($0.1)=\($0.2)" })
 		let frameCount = { (file: URL) in
 			CGImageSourceCreateWithURL(file as CFURL, nil).map(CGImageSourceGetCount) ?? 0
 		}
@@ -64,13 +66,14 @@ struct FunPageTests {
 			let file = Project.website.publicFile(gif.path)
 			let still = Project.website.publicFile(gif.stillPath)
 
-			#expect(html.contains("src=\"\(gif.path)\""), "\(gif.path) is not on the page.")
+			#expect(images.contains("src=\(gif.path)"), "\(gif.path) is not on the page.")
 			#expect(frameCount(file) > 0, "\(gif.path) is not a GIF.")
+			#expect(gif.size(in: .website) == file.imageSize, "The size in the header of \(gif.path) is not the size that ImageIO reads.")
 			#expect(still.isFile == (frameCount(file) > 1), "\(gif.path) needs a still frame only when it moves.")
 
 			if still.isFile {
 				#expect(frameCount(still) == 1, "\(gif.stillPath) moves.")
-				#expect(html.contains("srcset=\"\(gif.stillPath)\""), "\(gif.stillPath) is not on the page.")
+				#expect(images.contains("srcset=\(gif.stillPath)"), "\(gif.stillPath) is not on the page.")
 			}
 		}
 
@@ -81,10 +84,10 @@ struct FunPageTests {
 	func `without a GitHub token, the quilt is left out without a request or a warning`() async throws {
 		let cache = ResponseCache(directory: nil, maximumAge: .zero)
 		let years = try await ContributionYear.load(github: GitHub(token: nil, cache: cache), until: .now)
-		#expect(years == nil)
+		#expect(years.isEmpty)
 
 		let content = try await SiteContent.website
-		let paths = Site(content: content).routes(project: .website).map(\.path)
+		let paths = Site(content: content).routes().map(\.path)
 		#expect(!paths.contains(.careerQuilt))
 		#expect(paths.contains(.appdle))
 		#expect(paths.contains(.geoCities))
@@ -105,15 +108,40 @@ struct FunPageTests {
 		}
 		"""#
 
-		let calendar = try JSONDecoder().decode(ContributionCalendar.self, from: Data(json.utf8))
+		let calendar = try ContributionCalendar(json: json)
 		let buildDate = try Date("2026-01-05T12:00:00Z", strategy: .iso8601)
-		let year = ContributionYear(year: 2026, calendar: calendar, until: buildDate)
+		let year = ContributionYear(year: 2026, calendar: calendar, totals: .zero, until: buildDate)
 
 		// 2026-01-01 is a Thursday. The busier last day of the year before is not in the year.
-		#expect(year.firstWeekday == 4)
+		#expect(year.days.first?.weekday == 4)
 		#expect(year.days.map(\.date.isoDay) == ["2026-01-01", "2026-01-02", "2026-01-03", "2026-01-04", "2026-01-05"])
 		#expect(year.busiestDay?.date.isoDay == "2026-01-02")
 		#expect(year.activeDayCount == 4)
+	}
+
+	/**
+	The first day is in the row of its weekday, after a blank cell for each weekday before it, in the contributions of the last year and in a patch of the quilt.
+	*/
+	@Test
+	func `the contribution calendars start with blank cells before the weekday of the first day`() throws {
+		// 2026-01-01 is a Thursday, so the first week has three days.
+		let json = #"""
+		{
+			"totalContributions": 5,
+			"weeks": [
+				{"contributionDays": [{"date": "2026-01-01", "contributionCount": 2, "contributionLevel": "FIRST_QUARTILE"}, {"date": "2026-01-02", "contributionCount": 3, "contributionLevel": "FOURTH_QUARTILE"}, {"date": "2026-01-03", "contributionCount": 0, "contributionLevel": "NONE"}]},
+				{"contributionDays": [{"date": "2026-01-04", "contributionCount": 0, "contributionLevel": "NONE"}]}
+			]
+		}
+		"""#
+
+		let calendar = try ContributionCalendar(json: json)
+		let year = ContributionYear(year: 2026, calendar: calendar, totals: .zero, until: try Date("2026-01-04T12:00:00Z", strategy: .iso8601))
+		let blankCell = #"<span class="\#(ContributionHeatmap.Styles.cell.className)"></span>"#
+
+		for html in [ContributionHeatmap(calendar: calendar).render(), try CareerQuiltPage(years: [year]).renderedHTML()] {
+			#expect(html.ranges(of: blankCell).count == 4)
+		}
 	}
 
 	@Test
@@ -121,8 +149,8 @@ struct FunPageTests {
 		func year(_ year: Int, days: [(date: String, count: Int)]) throws -> ContributionYear {
 			let days = days.map { #"{"date": "\#($0.date)", "contributionCount": \#($0.count), "contributionLevel": "\#($0.count > 0 ? "FIRST_QUARTILE" : "NONE")"}"# }.joined(separator: ", ")
 			let json = #"{"totalContributions": 0, "weeks": [{"contributionDays": [\#(days)]}]}"#
-			let calendar = try JSONDecoder().decode(ContributionCalendar.self, from: Data(json.utf8))
-			return ContributionYear(year: year, calendar: calendar, until: try Date("2026-12-31T12:00:00Z", strategy: .iso8601))
+			let calendar = try ContributionCalendar(json: json)
+			return ContributionYear(year: year, calendar: calendar, totals: .zero, until: try Date("2026-12-31T12:00:00Z", strategy: .iso8601))
 		}
 
 		let years = [

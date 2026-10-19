@@ -1,6 +1,7 @@
 import Elementary
 import Foundation
 import SiteKit
+import TestSupport
 import Testing
 @testable import Website
 
@@ -22,10 +23,9 @@ struct NowPageTests {
 
 		#expect(post.url.absoluteString == "https://bsky.app/profile/sindresorhus.com/post/3mwxsirxlbs2y")
 		#expect(post.date == Date(timeIntervalSince1970: 1_791_027_627.083))
-		#expect(post.text == "🦄 New: github.com/sindresorhus... Enjoy")
 		#expect(post.segments == [
 			BlueskyPost.Segment(text: "🦄 New: ", link: nil),
-			BlueskyPost.Segment(text: "github.com/sindresorhus...", link: URL(string: "https://github.com/sindresorhus/eslint-cssicorn")),
+			BlueskyPost.Segment(text: "github.com/sindresorhus...", link: #URL("https://github.com/sindresorhus/eslint-cssicorn")),
 			BlueskyPost.Segment(text: " Enjoy", link: nil),
 		])
 	}
@@ -41,7 +41,7 @@ struct NowPageTests {
 	func `the streak counts the days in a row with contributions`(counts: [Int], streak: Int) throws {
 		let days = counts.enumerated().map { #"{"date": "2026-10-0\#($0.offset + 1)", "contributionCount": \#($0.element), "contributionLevel": "\#($0.element == 0 ? "NONE" : "FIRST_QUARTILE")"}"# }
 		let json = #"{"totalContributions": \#(counts.sum), "weeks": [{"contributionDays": [\#(days.joined(separator: ","))]}]}"#
-		let calendar = try JSONDecoder().decode(ContributionCalendar.self, from: Data(json.utf8))
+		let calendar = try ContributionCalendar(json: json)
 
 		#expect(calendar.currentStreak == streak)
 	}
@@ -58,10 +58,12 @@ struct NowPageTests {
 
 		// 2026-10-07 12:00 UTC.
 		let content = SiteContent(apps: [app], posts: posts, pages: [page], buildDate: Date(timeIntervalSince1970: 1_791_374_400), project: .empty)
-		let anniversaries = NowPage(page: page, content: content).onThisDay
+		let html = try NowPage(page: page, content: content).renderedHTML()
+		let section = try #require(html.firstMatch(of: /<h2 id="on-this-day".*?<\/section>/.dotMatchesNewlines())).output
+		let rows = section.matches(of: /<a href="[^"]*">([^<]*)<\/a><span[^>]*>([^<]*)<\/span>/)
 
-		#expect(anniversaries.map(\.title) == ["same-day", "Test"])
-		#expect(anniversaries.map(\.description) == ["posted in 2021", "launched in 2019"])
+		#expect(rows.map(\.output.1) == ["same-day", "Test"])
+		#expect(rows.map(\.output.2) == ["posted in 2021", "launched in 2019"])
 	}
 
 	/**
@@ -121,22 +123,26 @@ struct NowPageTests {
 		#expect(withoutNPM.isHidden)
 	}
 
+	/**
+	A package version with a GitHub release is shown as the release, like `is` 7.1.0, and a newer version without a release as the package, like `got` 16.1.0.
+	*/
 	@Test(.temporaryDirectory)
 	func `the latest releases list a project once, with its newest release`() async throws {
 		let search = #"""
 		{"objects": [
-			{"package": {"name": "@sindresorhus/is", "version": "7.1.0", "date": "2026-10-06T14:57:36.835Z", "links": {"repository": "https://github.com/sindresorhus/is"}}, "downloads": {"weekly": 1000}}
-		], "total": 1}
+			{"package": {"name": "@sindresorhus/is", "version": "7.1.0", "date": "2026-10-06T14:57:36.835Z", "links": {"repository": "https://github.com/sindresorhus/is"}}, "downloads": {"weekly": 1000}},
+			{"package": {"name": "got", "version": "16.1.0", "date": "2026-10-05T14:57:36.835Z", "links": {"repository": "https://github.com/sindresorhus/got"}}, "downloads": {"weekly": 1000}}
+		], "total": 2}
 		"""#
 		let cache = try ResponseCache.npm(search: search)
 		let statistics = await NPMStatistics.load(cache: cache, warnings: WarningCollector())
 
-		func release(_ repository: String, _ tagName: String, day: Int) throws -> OpenSourceRelease {
+		func release(_ repository: GitHubRepositoryName, _ tagName: String, day: Int) throws -> OpenSourceRelease {
 			OpenSourceRelease(repository: repository, tagName: tagName, url: try #require(URL(string: "https://github.com/\(repository)/releases/tag/\(tagName)")), date: Date(timeIntervalSince1970: 1_791_374_400 - Double(day * 86_400)))
 		}
 
 		var activity = RecentActivity()
-		activity.releases = try [release("sindresorhus/execa", "v10.1.0", day: 1), release("sindresorhus/execa", "v10.0.0", day: 2), release("sindresorhus/is", "v7.1.0", day: 3)]
+		activity.releases = try [release("sindresorhus/execa", "v10.1.0", day: 1), release("sindresorhus/execa", "v10.0.0", day: 2), release("sindresorhus/is", "v7.1.0", day: 3), release("sindresorhus/got", "v16.0.0", day: 4)]
 
 		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
 		let content = SiteContent(apps: [], posts: [], pages: [page], npmStatistics: statistics, recentActivity: activity, buildDate: Date(timeIntervalSince1970: 1_791_374_400), project: .empty)
@@ -147,11 +153,13 @@ struct NowPageTests {
 		#expect(!html.contains("execa/releases/tag/v10.0.0"))
 		#expect(html.contains("is/releases/tag/v7.1.0"))
 		#expect(!html.contains("npmjs.com/package/@sindresorhus/is"))
+		#expect(html.contains("npmjs.com/package/got"))
+		#expect(!html.contains("got/releases/tag/v16.0.0"))
 	}
 
 	@Test
 	func `the page renders without the network, with the hand-written part and without the parts the build could not get`() async throws {
-		let content = try await SiteContent.load(from: .website, externalData: .none, buildDate: Date(timeIntervalSince1970: 1_791_374_400))
+		let content = try await SiteContent.website
 		let page = try #require(content.page(.now))
 
 		let html = try NowPage(page: page, content: content).renderedHTML()
@@ -184,14 +192,13 @@ struct NowPageTests {
 			]
 		}
 		"""#
-		let calendar = try JSONDecoder().decode(ContributionCalendar.self, from: Data(json.utf8))
+		let calendar = try ContributionCalendar(json: json)
 		let buildDate = try Date("2026-01-04T12:00:00Z", strategy: .iso8601)
 		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
-		let totals = try JSONDecoder().decode(ContributionYear.Totals.self, from: Data(#"""
+		let totals = try ContributionYear.Totals(json: #"""
 		{
 			"totalCommitContributions": 12,
 			"totalPullRequestContributions": 0,
-			"totalIssueContributions": 0,
 			"totalPullRequestReviewContributions": 0,
 			"totalRepositoryContributions": 0,
 			"totalRepositoriesWithContributedCommits": 2,
@@ -202,7 +209,7 @@ struct NowPageTests {
 				{"repository": {"nameWithOwner": "sindresorhus/got", "url": "https://github.com/sindresorhus/got", "isPrivate": false}, "contributions": {"totalCount": 1}}
 			]
 		}
-		"""#.utf8))
+		"""#)
 		let content = SiteContent(apps: [], posts: [], pages: [page], contributionYears: [ContributionYear(year: 2026, calendar: calendar, totals: totals, until: buildDate)], buildDate: buildDate, project: .empty)
 
 		let html = try NowPage(page: page, content: content).renderedHTML()
@@ -220,16 +227,16 @@ struct NowPageTests {
 
 	@Test
 	func `only the now page can have a status`() async throws {
-		await #expect {
+		let error = try await #require(throws: ContentError.self) {
 			try await MarkdownPage(markdown: "---\ntitle: 'About'\nstatus: 'Busy'\n---\n\nText.", slug: "about")
-		} throws: { error in
-			let error = error as? ContentError
-			return error?.line == 3 && error?.reason.contains("now.md") == true
 		}
+
+		#expect(error.line == 3)
+		#expect(error.reason.contains("now.md"))
 	}
 
 	/**
-	The two reviews are of two different apps, so they do not say the same.
+	The two reviews are of two different apps, so they do not say the same. The newest review is the last change of the page.
 	*/
 	@Test
 	func `the page shows the two newest reviews of two different apps, with a link to the wall of love`() async throws {
@@ -254,12 +261,48 @@ struct NowPageTests {
 			project: .empty
 		)
 
-		let html = try NowPage(page: page, content: content).renderedHTML()
+		let nowPage = NowPage(page: page, content: content)
+		let html = try nowPage.renderedHTML()
+		#expect(nowPage.sitemapEntry?.lastModified == (try Date("2026-10-06T00:00:00Z", strategy: .iso8601)))
 		#expect(html.contains("Recent Reviews"))
 		#expect(html.contains("Review of the first app"))
 		#expect(html.contains("Review of the second app"))
 		#expect(!html.contains("Older review of the first app"))
 		#expect(html.contains(#"More on the <a href="/apps/reviews">Wall of Love</a>"#))
+	}
+
+	/**
+	The version of an app from the day of its launch is the launch, not an update, like in the numbers of the year.
+	*/
+	@Test
+	func `the latest updates leave out the version that an app launched with`() async throws {
+		func app(_ title: String, id: Int, publicationDate: String) async throws -> App {
+			try await App(markdown: "---\ntitle: '\(title)'\nsubtitle: 'An app'\npublicationDate: '\(publicationDate)'\nplatforms: ['iOS']\nappStoreID: \(id)\n---\n\nText.", slug: title.lowercased())
+		}
+
+		func info(id: AppStoreID, version: String, date: String) throws -> AppStoreInfo {
+			AppStoreInfo(id: id, version: version, currentVersionReleaseDate: try Date(date, strategy: .iso8601), priceAmount: nil, currencyCode: nil, averageUserRating: nil, userRatingCount: nil, kind: "software", minimumOsVersion: "26.0", supportedDevices: nil)
+		}
+
+		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
+		let content = SiteContent(
+			apps: [try await app("Launched", id: 1, publicationDate: "2026-10-01"), try await app("Updated", id: 2, publicationDate: "2020-01-01")],
+			posts: [],
+			pages: [page],
+			appStoreInfo: [
+				1: try info(id: 1, version: "1.0", date: "2026-10-01T15:00:00Z"),
+				2: try info(id: 2, version: "2.1", date: "2026-10-05T15:00:00Z"),
+			],
+			buildDate: try Date("2026-10-07T12:00:00Z", strategy: .iso8601),
+			project: .empty
+		)
+
+		let html = try NowPage(page: page, content: content).renderedHTML()
+		let updates = try #require(html.firstMatch(of: /Latest Updates<\/h3>.*?<\/ul>/.dotMatchesNewlines())).output
+
+		#expect(updates.contains(">Updated</a>"))
+		#expect(updates.contains(">2.1</span>"))
+		#expect(!updates.contains(">Launched</a>"))
 	}
 
 	/**
@@ -288,7 +331,7 @@ struct NowPageTests {
 	}
 
 	/**
-	The issues and the pull requests of the year are with the other numbers of the open-source work, and npm has its own group, after it. A package of an earlier year is not counted. A new package is one in a repo of the account that was made this year, and it counts as updated too.
+	The issues and the pull requests of the year are with the other numbers of the open-source work, and npm has its own group, after it. A package of an earlier year is not counted. A new package is one in a repo of the account or of the organizations of its projects that was made this year, and it counts as updated too.
 	*/
 	@Test
 	func `the year has the issues closed and the pull requests merged from others, and the npm packages in their own group`() async throws {
@@ -301,9 +344,7 @@ struct NowPageTests {
 			NPMStatistics.Package(name: "ora", version: "9.0.0", description: nil, date: try Date("2025-12-31T00:00:00Z", strategy: .iso8601), weeklyDownloads: 5, dependentCount: nil, repository: "sindresorhus/ora"),
 			NPMStatistics.Package(name: "new-thing", version: "1.0.0", description: nil, date: try Date("2026-05-01T00:00:00Z", strategy: .iso8601), weeklyDownloads: 5, dependentCount: nil, repository: "sindresorhus/New-Thing"),
 		]
-		let decoder = JSONDecoder()
-		decoder.dateDecodingStrategy = .iso8601
-		let repositories = try decoder.decode([GitHubRepository].self, from: Data(#"[{"name": "new-thing", "description": null, "html_url": "https://github.com/sindresorhus/new-thing", "created_at": "2026-04-30T00:00:00Z", "archived": false, "fork": false, "stargazers_count": 1, "language": "JavaScript"}, {"name": "ora", "description": null, "html_url": "https://github.com/sindresorhus/ora", "created_at": "2016-04-30T00:00:00Z", "archived": false, "fork": false, "stargazers_count": 1, "language": "JavaScript"}]"#.utf8))
+		let repositories = try [GitHubRepository](json: #"[{"name": "new-thing", "description": null, "html_url": "https://github.com/sindresorhus/new-thing", "created_at": "2026-04-30T00:00:00Z", "archived": false, "fork": false, "stargazers_count": 1, "language": "JavaScript"}, {"name": "ora", "description": null, "html_url": "https://github.com/sindresorhus/ora", "created_at": "2016-04-30T00:00:00Z", "archived": false, "fork": false, "stargazers_count": 1, "language": "JavaScript"}]"#)
 		let account = GitHub.Account(repositoryCount: 2, followerCount: 1, starCount: 2, maintenance: GitHub.Maintenance(closedIssueCount: 1, mergedPullRequestCount: 1), repositories: repositories)
 		let content = SiteContent(apps: [], posts: [], pages: [page], gitHubAccount: account, npmStatistics: npmStatistics, recentActivity: activity, buildDate: try Date("2026-10-13T12:00:00Z", strategy: .iso8601), project: .empty)
 
@@ -333,7 +374,7 @@ struct NowPageTests {
 	func `the weekly contributions are the sums of each 7 days up to the last day`(dayCount: Int, weeklyCounts: [Int]) throws {
 		let days = (1...dayCount).map { #"{"date": "2026-10-\#($0.formatted(.number.precision(.integerLength(2))))", "contributionCount": \#($0), "contributionLevel": "FIRST_QUARTILE"}"# }
 		let json = #"{"totalContributions": 0, "weeks": [{"contributionDays": [\#(days.joined(separator: ","))]}]}"#
-		let calendar = try JSONDecoder().decode(ContributionCalendar.self, from: Data(json.utf8))
+		let calendar = try ContributionCalendar(json: json)
 
 		#expect(calendar.weeklyCounts == weeklyCounts)
 	}

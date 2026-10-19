@@ -13,14 +13,19 @@ struct AppdlePage: Page {
 	/**
 	The day of the first puzzle, 2026-10-07, as days since 1970, like the daily seed. The script numbers the puzzles from it.
 	*/
-	static let firstDay = 20_733
+	private static let firstDay = 20_733
 
-	static let maximumGuesses = 6
+	private static let maximumGuesses = 6
 
 	/**
 	The ID of the list of app names that the guess input suggests.
 	*/
 	private static let namesID = "appdle-names"
+
+	/**
+	The ID of the guess input, for its label.
+	*/
+	private static let guessID = "appdle-guess"
 
 	var path: RoutePath {
 		.appdle
@@ -31,7 +36,7 @@ struct AppdlePage: Page {
 	}
 
 	/**
-	The listed apps with a page here and an icon, in a shuffled order that is the same for each build. The puzzle of a day is the one at the day number modulo the count.
+	The active apps (listed and not archived) with a page here and an icon, in a shuffled order that is the same for each build. The puzzle of a day is the one at the day number modulo the count.
 	*/
 	var puzzles: [Puzzle] {
 		var generator = SeededRandomNumberGenerator(seed: "appdle".stableHash)
@@ -76,12 +81,12 @@ struct AppdlePage: Page {
 					.style(Styles.status)
 
 				form(.id(Hooks.form)) {
-					label(.for("appdle-guess")) {
+					label(.for(Self.guessID)) {
 						"App name"
 					}
 					.style(VisuallyHidden.Styles.root)
 
-					input(.id("appdle-guess"), .type(.text), .name("guess"), .custom(name: "list", value: Self.namesID), .autocomplete("off"), .custom(name: "enterkeyhint", value: "send"), .placeholder("Type an app name"))
+					input(.id(Self.guessID), .type(.text), .name("guess"), .custom(name: "list", value: Self.namesID), .autocomplete("off"), .custom(name: "enterkeyhint", value: "send"), .placeholder("Type an app name"))
 						.style(Styles.input)
 
 					button(.type(.submit)) {
@@ -155,13 +160,13 @@ extension AppdlePage {
 	*/
 	struct Puzzle: Encodable {
 		let title: String
-		let url: String
-		let icon: String
+		let url: LinkDestination
+		let icon: RoutePath
 
 		init(app: App) {
 			self.title = app.title
-			self.url = app.url.description
-			self.icon = app.iconPath.description
+			self.url = app.url
+			self.icon = app.iconPath
 		}
 	}
 

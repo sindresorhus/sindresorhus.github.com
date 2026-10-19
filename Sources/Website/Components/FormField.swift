@@ -57,7 +57,7 @@ struct FormField<Content: HTML>: HTML {
 }
 
 /**
-The styles of ``FormField``. They are not nested in the generic type, as each specialization would get its own class names.
+The styles of ``FormField``. They are not nested in the generic type, as each specialization would be another style set with the same class names (``StyleSet``).
 */
 enum FormFieldStyles: StyleSet {
 	case root

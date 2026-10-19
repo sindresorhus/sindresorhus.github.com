@@ -5,6 +5,10 @@ publicationDate: '2025-01-13'
 platforms: [
 	'macOS'
 ]
+sharedQuestions: [
+	'not-in-app-store'
+	'menu-bar-icons'
+]
 isPaid: true
 price: 6
 isMenuBarApp: true
@@ -125,10 +129,6 @@ Compared to the browser switcher in [Supercharge](/supercharge):
 - Larger app icons in the menu.
 - Keyboard shortcut to show the menu.
 - Number key selection for browsers in the menu.
-
-### Why is this not in the App Store?
-
-Much of the functionality would not be possible in the App Store because of [sandboxing](/apps/faq#macos-sandbox).
 
 ### Can the default browser change based on the macOS desktop Space I’m in? {#macos-spaces}
 

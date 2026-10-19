@@ -2,7 +2,7 @@ import Elementary
 import SiteKit
 
 /**
-The text of an inline note in Markdown, like `^[Spotlight](note: "The search of macOS.")` (``SiteKit/MarkdownDocument/Options/inlineNote``): a link that wraps like the text around it and opens the note in a popover next to it, on a click, a tap, or Enter. A second click closes it, like Escape or a click outside.
+The text of an inline note in Markdown, like `^[Spotlight](note: "The search of macOS.")` (``SiteKit/MarkdownDocument/Options/inlineNote``): a link that wraps like the text around it and opens the note in a popover next to it, on a click, a tap, or Enter. A second click closes it, like Escape, a click outside, or Tab out of the note (`site.js`, like for footnotes).
 
 The note is a popover at the end of the document, which the link names. Only a button can open a popover without a script, and a button does not wrap across lines. Without JavaScript, the link does nothing.
 */

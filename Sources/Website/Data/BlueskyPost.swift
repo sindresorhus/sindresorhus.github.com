@@ -21,17 +21,10 @@ struct BlueskyPost: Sendable {
 	let date: Date
 	let segments: [Segment]
 
-	/**
-	The text of the post, without links.
-	*/
-	var text: String {
-		segments.map(\.text).joined()
-	}
-
 	static let handle = "sindresorhus.com"
 
 	/**
-	The newest post with text, without replies and reposts, from the five newest posts. `nil` when none of them has text, like posts with only an image.
+	The newest post with text, without replies and reposts, from the five newest posts and reposts. `nil` when none of them has text, like posts with only an image.
 	*/
 	static func latest(cache: ResponseCache) async throws -> Self? {
 		let url = #URL("https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed").appending(formQueryItems: [URLQueryItem(name: "actor", value: handle), URLQueryItem(name: "limit", value: "5"), URLQueryItem(name: "filter", value: "posts_no_replies")])
@@ -40,7 +33,7 @@ struct BlueskyPost: Sendable {
 }
 
 /**
-The posts of an account, newest first. Reposts and the pinned post are in the feed with a `reason`.
+The posts of an account, newest first. Reposts are in the feed with a `reason`. The pinned post is not, as the request does not ask for it (`includePins`).
 */
 private struct AuthorFeed: Decodable {
 	private struct Item: Decodable {
@@ -114,14 +107,15 @@ private struct AuthorFeed: Decodable {
 	}
 
 	/**
-	The posts with text, newest first, without reposts and the pinned post. Posts with a date that cannot be read are left out.
+	The posts with text, newest first, without reposts. Posts with a date that cannot be read are left out.
 	*/
 	var posts: [BlueskyPost] {
 		items.compactMap { item in
+			// The date is read with or without fractional seconds, which Bluesky dates have.
 			guard
 				item.reason == nil,
 				!item.post.record.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-				let date = Self.date(item.post.record.createdAt),
+				let date = try? Date(item.post.record.createdAt, strategy: .iso8601),
 				let key = item.post.uri.split(separator: "/").last,
 				let url = URL(string: "https://bsky.app/profile/\(BlueskyPost.handle)/post/\(key)")
 			else {
@@ -167,12 +161,5 @@ private struct AuthorFeed: Decodable {
 		}
 
 		return segments
-	}
-
-	/**
-	The date of a post, with or without fractional seconds, which Bluesky dates have.
-	*/
-	private static func date(_ text: String) -> Date? {
-		try? Date(text, strategy: .iso8601)
 	}
 }

@@ -1,4 +1,5 @@
 import Foundation
+import Markdown
 import SOML
 
 /**
@@ -49,7 +50,8 @@ public struct MarkdownFile: Sendable {
 		self.slug = Self.slug(of: url, relativeTo: directory ?? url.deletingLastPathComponent())
 
 		// A byte order mark, which editors on Windows can add, is already removed when the file is read as UTF-8.
-		let lines = contents.replacing("\r\n", with: "\n").split(separator: "\n", omittingEmptySubsequences: false)
+		let contents = contents.replacing("\r\n", with: "\n")
+		let lines = contents.split(separator: "\n", omittingEmptySubsequences: false)
 
 		guard lines.first?.isFrontmatterFence == true else {
 			self.frontmatter = ""
@@ -73,9 +75,15 @@ public struct MarkdownFile: Sendable {
 	*/
 	public static func slug(of url: URL, relativeTo directory: URL) -> String {
 		url.path(relativeTo: directory)
-			.replacing(/\.[^.\/]+$/, with: "")
-			.replacing(/\/index$/, with: "")
+			.replacing(fileExtension, with: "")
+			.replacing(indexComponent, with: "")
 	}
+
+	/**
+	The extension of a file, and the `index` of a page bundle, after it. Not literals in ``slug(of:relativeTo:)``, as Swift parses a regex literal each time the code runs, and loading computes the slug of each file several times.
+	*/
+	nonisolated(unsafe) private static let fileExtension = /\.[^.\/]+$/
+	nonisolated(unsafe) private static let indexComponent = /\/index$/
 
 	/**
 	Decodes and validates the frontmatter.
@@ -84,16 +92,10 @@ public struct MarkdownFile: Sendable {
 		let document = try parseFrontmatter()
 
 		do {
-			let value = try SOML.Decoder.frontmatter.decode(Value.self, from: document.value)
-			try value.validate()
-			return value
-		} catch let error as DecodingError {
-			throw ContentError(file: url, line: frontmatterLine(of: error.codingPath, in: document), reason: error.readableDescription())
-		} catch var error as ContentError {
+			return try Value.decode(from: document.value, root: "frontmatter") { frontmatterLine(of: $0, in: document) }
+		} catch var error {
 			error.file = url
 			throw error
-		} catch {
-			throw ContentError(file: url, reason: "\(error)")
 		}
 	}
 
@@ -108,14 +110,21 @@ public struct MarkdownFile: Sendable {
 	}
 
 	/**
-	The line in the file of a top-level frontmatter key, like `script`, for a mistake in its value.
+	The line in the file of a top-level frontmatter key, like `Frontmatter.CodingKeys.script`, for a mistake in its value. The key is a coding key of the frontmatter type, so a renamed key (`@Key`) cannot silently miss.
 	*/
-	public func line(ofFrontmatterKey key: String) -> Int? {
+	public func line(of key: some CodingKey) -> Int? {
 		guard let document = try? parseFrontmatter() else {
 			return nil
 		}
 
-		return frontmatterLine(of: [AnyCodingKey(stringValue: key)], in: document)
+		return frontmatterLine(of: [key], in: document)
+	}
+
+	/**
+	The line in the file of parsed Markdown of the body.
+	*/
+	public func line(of markup: any Markup) -> Int {
+		bodyStartLine + (markup.range?.lowerBound.line ?? 1) - 1
 	}
 
 	/**
@@ -125,13 +134,15 @@ public struct MarkdownFile: Sendable {
 		// The frontmatter starts on the line after the opening `---`.
 		document.location(of: codingPath).line + 1
 	}
+}
 
+extension URL {
 	/**
-	A line of the file as a location, like `content/apps/dato/index.md:12` (relative to the directory).
+	A line of the file as a location in a message, like `content/apps/dato/index.md:12`, or the file alone without a line. The path is relative to the current directory when the file is in it, else it is the full path. The site is built in its project root, so the paths are relative to the project, for the content errors, the warnings, and the broken links.
 	*/
-	public func location(ofLine line: Int?, relativeTo directory: URL) -> String {
-		let path = url.path(relativeTo: directory)
-		return line.map { "\(path):\($0)" } ?? path
+	public func location(ofLine line: Int?) -> String {
+		let shownPath = isInside(.currentDirectory()) ? path(relativeTo: .currentDirectory()) : path(percentEncoded: false)
+		return line.map { "\(shownPath):\($0)" } ?? shownPath
 	}
 }
 
@@ -145,7 +156,7 @@ extension MarkdownDocument {
 		self.init(parsing: file.body, firstLine: file.bodyStartLine, options: options)
 
 		guard problems.isEmpty else {
-			throw ContentErrors(problems.map { ContentError(file: file.url, line: $0.line, reason: $0.message) })
+			throw ContentErrors(problems.map { ContentError(file: file.url, line: $0.line, reason: $0.reason) })
 		}
 	}
 }
@@ -172,15 +183,14 @@ public struct ContentError: Error, CustomStringConvertible {
 	}
 
 	/**
-	The mistake after where it is, like `content/apps/dato/index.md:12: …`. The path is relative to the current directory when the file is in it, like the paths of the warnings of `website check`, else it is the full path.
+	The mistake after where it is, like `content/apps/dato/index.md:12: …` (see ``Foundation/URL/location(ofLine:)``).
 	*/
 	public var description: String {
-		let path = file.map { file in
-			file.isInside(.currentDirectory()) ? file.path(relativeTo: .currentDirectory()) : file.path(percentEncoded: false)
+		guard let location = file?.location(ofLine: line) ?? line.map(String.init) else {
+			return reason
 		}
 
-		let location = [path, line.map(String.init)].compactMap(\.self).joined(separator: ":")
-		return location.isEmpty ? reason : "\(location): \(reason)"
+		return "\(location): \(reason)"
 	}
 }
 
@@ -204,7 +214,8 @@ public struct ContentErrors: Error, CustomStringConvertible {
 		case let error as ContentError:
 			[error]
 		default:
-			[ContentError(reason: "\(error)")]
+			// The localized description of a Foundation error, like a file error, is a sentence that names the file, without the details of the error. Swift errors keep their own description.
+			[ContentError(reason: error.descriptiveMessage)]
 		}
 
 		self.init(errors.map { error in
@@ -225,59 +236,5 @@ extension Substring {
 	*/
 	fileprivate var isFrontmatterFence: Bool {
 		hasPrefix("---") && dropFirst(3).allSatisfy(\.isWhitespace)
-	}
-}
-
-extension DecodingError {
-	fileprivate var codingPath: [any CodingKey] {
-		switch self {
-		case .keyNotFound(_, let context), .typeMismatch(_, let context), .valueNotFound(_, let context), .dataCorrupted(let context):
-			context.codingPath
-		@unknown default:
-			[]
-		}
-	}
-
-	/**
-	What is wrong, without the coding path, like `Cannot initialize Platform from invalid String value Amiga`.
-	*/
-	var reason: String {
-		switch self {
-		case .keyNotFound(let key, _):
-			"Missing required key `\(key.stringValue)`."
-		case .typeMismatch(_, let context), .valueNotFound(_, let context), .dataCorrupted(let context):
-			context.debugDescription
-		@unknown default:
-			"\(self)"
-		}
-	}
-
-	/**
-	The mistake with the key path where it is, like “Invalid `links.Docs`: Must be an absolute URL”.
-
-	- Parameter root: What the decoded value is, for a mistake at the top level, like `frontmatter`.
-	*/
-	func readableDescription(root: String = "frontmatter") -> String {
-		func path(_ context: Context) -> String {
-			let path = context.codingPath.map { key in
-				key.intValue.map { "[\($0)]" } ?? key.stringValue
-			}
-			.joined(separator: ".")
-
-			return path.isEmpty ? root : "`\(path)`"
-		}
-
-		switch self {
-		case .keyNotFound(let key, let context):
-			let parent = context.codingPath.isEmpty ? "" : " in \(path(context))"
-			return "Missing required key `\(key.stringValue)`\(parent)."
-		case .dataCorrupted(let context) where context.debugDescription.hasPrefix("Unknown key"):
-			// The message names the key, and the line of the error is the line of the key. SOML leaves out the period, except after its question “Did you mean …?”.
-			return context.debugDescription.hasSuffix("?") ? context.debugDescription : "\(context.debugDescription)."
-		case .typeMismatch(_, let context), .valueNotFound(_, let context), .dataCorrupted(let context):
-			return "Invalid \(path(context)): \(context.debugDescription)"
-		@unknown default:
-			return "\(self)"
-		}
 	}
 }

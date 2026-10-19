@@ -45,7 +45,7 @@ struct Stat {
 		- isApproximate: Whether the count is rounded down and abbreviated, like “22B+”, for counts that are too large to read in full.
 	*/
 	init(count: Int, noun: String, pluralNoun: String? = nil, suffix: String? = nil, isApproximate: Bool = false) {
-		self.init(count: count, label: [count == 1 ? noun : pluralNoun ?? noun + "s", suffix].compactMap(\.self).joined(separator: " "), isApproximate: isApproximate)
+		self.init(count: count, label: [noun.pluralized(for: count, plural: pluralNoun), suffix].compactMap(\.self).joined(separator: " "), isApproximate: isApproximate)
 	}
 
 	/**
@@ -60,7 +60,7 @@ struct Stat {
 	An average rating out of 5, like “4.7” and “average rating”.
 	*/
 	init(rating: AppStoreInfo.Rating) {
-		self.init(count: rating.count, value: rating.average.formatted(.number.locale(.site).precision(.fractionLength(1))), label: "average rating")
+		self.init(count: rating.count, value: rating.roundedAverage.formatted(.number.locale(.site).precision(.fractionLength(1))), label: "average rating")
 	}
 
 	/**

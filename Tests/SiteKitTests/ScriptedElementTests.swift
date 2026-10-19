@@ -1,5 +1,6 @@
 import Elementary
 import Foundation
+import TestSupport
 import Testing
 import SiteKit
 
@@ -18,13 +19,14 @@ struct ScriptedElementTests {
 	*/
 	@Test(.temporaryDirectory)
 	func `the project finds the scripts of the elements in the Scripts folders of the sources`() throws {
-		let root = try #require(TemporaryDirectoryTrait.current)
-
-		for file in ["Sources/Website/Scripts/Clock.js", "Sources/Website/Pages/Scripts/Game.js", "Sources/Website/Scripts/notes.txt", "Sources/Website/helper.js", "Sources/Website/Scripts/Nested/Deep.js", "public/scripts/site.js"] {
-			let url = root.appending(path: file)
-			try url.deletingLastPathComponent().createDirectory()
-			try Data().write(to: url)
-		}
+		let root = try URL.temporaryDirectory(files: [
+			"Sources/Website/Scripts/Clock.js": "",
+			"Sources/Website/Pages/Scripts/Game.js": "",
+			"Sources/Website/Scripts/notes.txt": "",
+			"Sources/Website/helper.js": "",
+			"Sources/Website/Scripts/Nested/Deep.js": "",
+			"public/scripts/site.js": "",
+		])
 
 		let scripts = Project(root: root).elementScripts()
 

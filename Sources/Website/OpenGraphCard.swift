@@ -134,10 +134,9 @@ struct OpenGraphCard: RouteConvertible {
 	Draws the title, the subtitle, and the domain as a column that is vertically centered, laid out like CSS line boxes. Long texts wrap, and are cut off with an ellipsis after three lines.
 	*/
 	private func drawText(in context: CGContext) throws {
-		let title = try TextBlock(lines: Self.lines(title, font: Self.font(.bold, size: 68), color: .hex(0x0F172A), maximumLines: 3), font: Self.font(.bold, size: 68), lineHeight: 68 * 1.1)
-		let subtitle = try TextBlock(lines: Self.lines(subtitle, font: Self.font(.regular, size: 32), color: .hex(0x64748B), maximumLines: 3), font: Self.font(.regular, size: 32), lineHeight: 32 * 1.4)
-		let domainFont = try Self.font(.bold, size: 22)
-		let domain = TextBlock(lines: Self.lines("sindresorhus.com", font: domainFont, color: .hex(0x94A3B8), maximumLines: 1), font: domainFont, lineHeight: nil)
+		let title = try TextBlock(title, font: Self.font(.bold, size: 68), color: .hex(0x0F172A), maximumLines: 3, lineHeight: 68 * 1.1)
+		let subtitle = try TextBlock(subtitle, font: Self.font(.regular, size: 32), color: .hex(0x64748B), maximumLines: 3, lineHeight: 32 * 1.4)
+		let domain = try TextBlock("sindresorhus.com", font: Self.font(.bold, size: 22), color: .hex(0x94A3B8), maximumLines: 1)
 
 		let titleMargin = 20.0
 		let domainMargin = 48.0
@@ -159,18 +158,44 @@ struct OpenGraphCard: RouteConvertible {
 		let lines: [CTLine]
 		let ascent: Double
 		let lineHeight: Double
+		private let contentHeight: Double
 
 		/**
+		Wraps the text to the text width at word boundaries.
+
 		- Parameter lineHeight: The height of each line. `nil` uses the normal line height of the font.
 		*/
-		init(lines: [CTLine], font: CTFont, lineHeight: Double?) {
+		init(_ text: String, font: CTFont, color: CGColor, maximumLines: Int, lineHeight: Double? = nil) {
+			let attributes: [NSAttributedString.Key: Any] = [
+				NSAttributedString.Key(kCTFontAttributeName as String): font,
+				NSAttributedString.Key(kCTForegroundColorAttributeName as String): color,
+			]
+
+			let attributedText = NSAttributedString(string: text, attributes: attributes)
+			let typesetter = CTTypesetterCreateWithAttributedString(attributedText)
+			var lines = [CTLine]()
+			var start = 0
+
+			while start < attributedText.length {
+				let count = CTTypesetterSuggestLineBreak(typesetter, start, textWidth)
+
+				guard lines.count < maximumLines - 1 || start + count >= attributedText.length else {
+					// The last line gets the rest of the text, cut off with an ellipsis.
+					let rest = CTTypesetterCreateLine(typesetter, CFRange(location: start, length: attributedText.length - start))
+					let ellipsis = CTLineCreateWithAttributedString(NSAttributedString(string: "…", attributes: attributes))
+					lines.append(CTLineCreateTruncatedLine(rest, textWidth, .end, ellipsis) ?? rest)
+					break
+				}
+
+				lines.append(CTTypesetterCreateLine(typesetter, CFRange(location: start, length: count)))
+				start += count
+			}
+
 			self.lines = lines
 			self.ascent = CTFontGetAscent(font)
-			self.lineHeight = lineHeight ?? CTFontGetAscent(font) + CTFontGetDescent(font)
 			self.contentHeight = CTFontGetAscent(font) + CTFontGetDescent(font)
+			self.lineHeight = lineHeight ?? contentHeight
 		}
-
-		private let contentHeight: Double
 
 		var height: Double {
 			Double(lines.count) * lineHeight
@@ -188,48 +213,27 @@ struct OpenGraphCard: RouteConvertible {
 		}
 	}
 
-	/**
-	Wraps the text to the text width at word boundaries.
-	*/
-	private static func lines(_ text: String, font: CTFont, color: CGColor, maximumLines: Int) -> [CTLine] {
-		let attributes: [NSAttributedString.Key: Any] = [
-			NSAttributedString.Key(kCTFontAttributeName as String): font,
-			NSAttributedString.Key(kCTForegroundColorAttributeName as String): color,
-		]
-
-		let attributedText = NSAttributedString(string: text, attributes: attributes)
-		let typesetter = CTTypesetterCreateWithAttributedString(attributedText)
-		var lines = [CTLine]()
-		var start = 0
-
-		while start < attributedText.length {
-			let count = CTTypesetterSuggestLineBreak(typesetter, start, textWidth)
-
-			guard lines.count < maximumLines - 1 || start + count >= attributedText.length else {
-				// The last line gets the rest of the text, cut off with an ellipsis.
-				let rest = CTTypesetterCreateLine(typesetter, CFRange(location: start, length: attributedText.length - start))
-				let ellipsis = CTLineCreateWithAttributedString(NSAttributedString(string: "…", attributes: attributes))
-				lines.append(CTLineCreateTruncatedLine(rest, textWidth, .end, ellipsis) ?? rest)
-				break
-			}
-
-			lines.append(CTTypesetterCreateLine(typesetter, CFRange(location: start, length: count)))
-			start += count
-		}
-
-		return lines
-	}
-
-	private enum FontWeight: String {
+	private enum FontWeight: String, CaseIterable {
 		case regular = "Inter-Regular"
 		case bold = "Inter-Bold"
 	}
 
-	private static func font(_ weight: FontWeight, size: Double) throws -> CTFont {
+	/**
+	The fonts in the bundle, read once for all the cards. A font that cannot be read is left out. Font descriptors cannot change, so the cards can share them while they draw at the same time.
+	*/
+	nonisolated(unsafe) private static let fontDescriptors: [FontWeight: CTFontDescriptor] = Dictionary(uniqueKeysWithValues: FontWeight.allCases.compactMap { weight in
 		guard
 			let url = Bundle.module.url(forResource: weight.rawValue, withExtension: "ttf", subdirectory: "Fonts"),
 			let descriptor = (CTFontManagerCreateFontDescriptorsFromURL(url as CFURL) as? [CTFontDescriptor])?.first
 		else {
+			return nil
+		}
+
+		return (weight, descriptor)
+	})
+
+	private static func font(_ weight: FontWeight, size: Double) throws -> CTFont {
+		guard let descriptor = fontDescriptors[weight] else {
 			throw OpenGraphCardError.missingFont(weight.rawValue)
 		}
 
@@ -259,7 +263,7 @@ extension OpenGraphCard {
 	}
 }
 
-enum OpenGraphCardError: Error, CustomStringConvertible {
+private enum OpenGraphCardError: Error, CustomStringConvertible {
 	case couldNotDraw
 	case couldNotEncode
 	case missingFont(String)

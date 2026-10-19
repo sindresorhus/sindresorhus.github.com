@@ -195,7 +195,7 @@ struct GeoCitiesPageMaker: ScriptedElement {
 	The still frame of a GIF for visitors who prefer reduced motion, or the GIF itself when it does not move.
 	*/
 	private func stillPath(of gif: GeoCitiesPage.GIF) -> RoutePath {
-		project.publicFile(gif.stillPath).isFile ? gif.stillPath : gif.path
+		gif.hasStill(in: project) ? gif.stillPath : gif.path
 	}
 
 	private func field(_ title: String, id: String, @HTMLBuilder content: () -> some HTML) -> some HTML {

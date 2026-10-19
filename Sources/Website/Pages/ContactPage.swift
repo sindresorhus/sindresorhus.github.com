@@ -103,7 +103,7 @@ extension ContactPage {
 	/**
 	The hue of the rainbow, which turns while the pointer is on the page. Each letter adds its place in the address, so the colors go around once across it.
 	*/
-	fileprivate static let hue = RegisteredProperty<CSSValue>("--hue", syntax: "<number>", initialValue: 0)
+	fileprivate static let hue = RegisteredProperty<CSSValue>("--hue", syntax: .number, initialValue: 0)
 
 	/**
 	The hue of a letter: the hue of the rainbow, plus the place of the letter in the address.
@@ -177,14 +177,21 @@ extension ContactPage {
 		private static let smallTextColor = Color.lightDark(.gray(600), .secondaryText)
 
 		/**
-		How the rainbow of the email address turns, under the pointer, or all the time on touch screens.
-		*/
-		/**
 		How far the light of an orb reaches past its circle on each side. It is about where the blur of 140 pixels that the gradient replaced ended.
 		*/
 		private static let orbFade = Length.pixels(280)
 
+		/**
+		How the rainbow of the email address turns, under the pointer, or all the time on touch screens.
+		*/
 		private static let rainbowTurn = Animation.linear(duration: .seconds(6)).repeatForever(autoreverses: false)
+
+		/**
+		The size of the email address, which grows with the screen, so it fills most of the line, up to 5 rem on very wide screens. The `rem` part grows with the zoom of the browser, and the maximum is at most 2.5 times the minimum, also with the larger root size of large screens, so the text reaches 200% within the zoom of browsers (up to 500%), as WCAG asks. With zoom on a narrow window, the part before the `@` can be wider than the screen, as it does not break, but not at the 320 CSS pixels that WCAG asks to work.
+		*/
+		private static func emailSize(viewportWidth: Double) -> Length {
+			.clamp(.rootEm(2.125), .rootEm(0.5) + .viewportWidth(viewportWidth), .rootEm(5))
+		}
 
 		/**
 		A fast start and a long, soft end, for the parts that fade in and the sparkles.
@@ -258,10 +265,10 @@ extension ContactPage {
 			case .tilt:
 				Style().perspective(.pixels(800))
 			case .email:
-				// The outline helps the rainbow colors stand out on a light background. `contact.js` tilts it toward the pointer with `--tilt-x` and `--tilt-y`, and sets `data-rainbow` while the pointer is on the page. On touch screens, the rainbow always turns.
+				// The outline helps the rainbow colors stand out on a light background. `contact.js` tilts it toward the pointer with `--tilt-x` and `--tilt-y`, and sets `data-rainbow` while the pointer is on the page. On touch screens, the rainbow always turns. The focus of the keyboard shows the rainbow too.
 				Style()
 					.display(.block)
-					.font(size: .max(.rootEm(2), .viewportWidth(10)), lineHeight: 1)
+					.font(size: Self.emailSize(viewportWidth: 8), lineHeight: 1)
 					.expandedFont()
 					.bold()
 					.letterSpacing(.em(-0.025))
@@ -275,11 +282,14 @@ extension ContactPage {
 					.when(Hooks.rainbow) {
 						$0.animation(Animations.turnHue, Self.rainbowTurn)
 					}
+					.focusVisible {
+						$0.animation(Animations.turnHue, Self.rainbowTurn)
+					}
 					.media(.cannotHover) {
 						$0.animation(Animations.turnHue, Self.rainbowTurn)
 					}
 					.from(.smallTablet) {
-						$0.font(size: .max(.rootEm(2), .viewportWidth(5.8)))
+						$0.font(size: Self.emailSize(viewportWidth: 5))
 					}
 					.dark {
 						$0.declaration(.webkitTextStroke, 0)
@@ -304,15 +314,14 @@ extension ContactPage {
 					.when(Hooks.leaving) {
 						$0.transition(.transform, animation: .timingCurve("linear(0, .5 7.7%, .9 14.4%, 1.04 19.4%, 1.06 23.7%, 1.02 30%, 1 35%, .99 45%, 1)", duration: .milliseconds(600))).transition(.color, .textShadow, animation: .default(duration: .milliseconds(500)))
 					}
-					// The rainbow only turns when the visitor allows motion.
+					// The rainbow only turns when the visitor allows motion (`contact.js` only sets `data-rainbow` then). The focus of the keyboard shows the colors also with reduced motion, as they do not move then.
+					.nested(":is(\(Hooks.rainbow.selector()), \(Self.email.selector):focus-visible) &") {
+						$0.combined(with: Self.rainbowLetter)
+					}
 					.media(.allowsMotion) {
-						$0
-							.nested("\(Hooks.rainbow.selector()) &") {
-								$0.combined(with: Self.rainbowLetter)
-							}
-							.media(.cannotHover) {
-								$0.combined(with: Self.rainbowLetter)
-							}
+						$0.media(.cannotHover) {
+							$0.combined(with: Self.rainbowLetter)
+						}
 					}
 					.reducedMotion {
 						$0.nested("&, &\(Hooks.leaving.selector())") {
@@ -358,9 +367,7 @@ extension ContactPage {
 
 		private static let sparkleColor = Color.primary(500).mix(with: .secondary(500), amount: ContactPage.sparkleColorMix.value(default: .percent(50)))
 
-		private static var letterCount: Int {
-			ContactPage.emailParts.map(\.count).sum
-		}
+		private static let letterCount = Site.author.email.count
 
 		/**
 		The color of a letter in the rainbow, with a glow.

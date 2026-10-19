@@ -4,7 +4,7 @@ const productParameter = parameters.get('product');
 
 // The app is found by its title or its slug (the URL path), in any case, like `supercharge` for “Supercharge”.
 const productName = productParameter?.toLowerCase();
-const app = apps.find(app => app.title.toLowerCase() === productName || app.url.slice(1) === productName);
+const app = apps.find(app => app.title.toLowerCase() === productName || app.slug === productName);
 const product = app?.title ?? productParameter;
 
 // Clones the content of a `<template>` in the page, like `'#success-template'`. The selector is written whole, so the tests find the ID.
@@ -30,8 +30,14 @@ function showProduct() {
 	productNameElement.textContent = product;
 	productNameElement.hidden = false;
 	document.querySelector('#app-picker').hidden = true;
-	document.querySelector('#feedback-form').hidden = false;
+	const form = document.querySelector('#feedback-form');
+	form.hidden = false;
 	document.querySelector('#before-you-write').hidden = false;
+
+	// The form is hidden when the page loads, so `autofocus` is not reliable. Like `autofocus`, it leaves the focus where the visitor already put it. The page does not scroll to the message, so the app and the notes above it stay in view.
+	if (document.activeElement === document.body) {
+		form.elements.message.focus({preventScroll: true});
+	}
 
 	if (!app) {
 		return;

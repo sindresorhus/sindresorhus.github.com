@@ -11,6 +11,14 @@ isMenuBarApp: true
 hasSentry: true
 appStoreID: 1470584107
 setappID: 571
+sharedQuestions: [
+	'week-53'
+	'december-week-1'
+	'incorrect-week-number'
+	'iso-week-number'
+	'menu-bar-icons'
+	'backup-settings'
+]
 olderVersions: [
 	{
 		version: '5.7.2'
@@ -664,22 +672,6 @@ For example, you could display the full month name, the year, or the day of the 
 
 Either change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340) or go to the “Menu Bar” pane in the Dato settings, and in the “Date & Time Format” text field, write `YYYY-MM-dd  HH:mm:ss`, which is the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
 
-### Why does it not show week 53?
-
-You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar). You can change it with [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
-
-### Why does it show the last days of December as week 1?
-
-That is called [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date).
-
-### It shows the incorrect week number {#incorrect-week-number}
-
-You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar), or the inverse. You can change it with [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
-
-### How can I change the week number to ISO 8601 format?
-
-Change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340) to use [ISO 8601](https://en.wikipedia.org/wiki/ISO_week_date) week numbers.
-
 ### How can I open a calendar event in my favorite calendar app (Fantastical, BusyCal, etc.) instead of the built-in Calendar app?
 
 ~~Dato uses the system default calendar app. To change the default calendar app, open the Calendar app’s settings, and in the “Default calendar app” setting, select the app you want.~~ **Because of a [macOS bug](https://github.com/feedback-assistant/reports/issues/290), this does not work. Instead, drag an event from the Calendar app into Finder, right-click on it, select “Get Info”, select your calendar in the “Open with” field, and click “Change All”. Then relaunch Dato.**
@@ -786,10 +778,6 @@ In the “Custom date & time format” setting, write `D` to show the [day of ye
 ### Can I change the background color of Dato?
 
 No, but you can make it white/black by turning off the “Vibrancy” setting.
-
-### Can you add more menu bar icons?
-
-I’m happy to consider requests. You can find icons [here](https://developer.apple.com/sf-symbols/) and [here](https://thenounproject.com).
 
 ### The widgets provided by Dato do not show up in the widget picker
 

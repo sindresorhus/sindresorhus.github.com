@@ -1,5 +1,6 @@
 import Elementary
 import Foundation
+import System
 
 /**
 A style that only one element has, written on the element itself, like a modifier in SwiftUI, so it needs no named case in a ``StyleSet``:
@@ -18,19 +19,27 @@ a(.href(app.path)) {
 The class name is the name of the file and a hash of the rules, like `back-link-1x2y3z4`, so the same style in the same file is one rule, and the class name tells where the style comes from. The page collects the rules like the rules of style sets, in their own cascade layer after the layer of the components (``PageResources/elementStyleNodes``), so a style on an element wins over the style of its component.
 
 Use a named style set for a look that more than one element has, for variants, and for a style that another selector refers to, like a parent that changes the style of a child while it is hovered, as a hashed class name cannot be referred to.
+
+Two styles on the same element must not set the same property, like a parent that sets the margin of a child component whose root sets it too: their rules are in the order the page first used them, and a parent uses its style before the child renders.
 */
 struct ElementStyle {
 	let className: String
 	let nodes: [StyleNode]
 
+	/**
+	The characters that a class name cannot have, as a file name can have them, like `+` in `Page+Styles.swift`. Not a literal in the initializer, as Swift parses a regex literal each time the code runs, and the initializer runs for each element style that a page renders.
+	*/
+	nonisolated(unsafe) private static let invalidClassNameCharacters = /[^a-z0-9-]+/
+
 	init(_ style: Style, fileID: String) {
-		let fileName = URL(filePath: fileID).deletingPathExtension().lastPathComponent
+		// A `FilePath`, as a `URL` is slow for the many element styles of a page.
+		let fileName = FilePath(fileID).stem ?? ""
 		let css = Stylesheet { Rule(".element", style) }.css
 		let hash = String(String(css.stableHash, radix: 36).suffix(7))
-		// Only the characters of a class name, as a file name can have others, like `+` in `Page+Styles.swift`.
-		let prefix = fileName.kebabCased.replacing(/[^a-z0-9-]+/, with: "-")
+		// Only the characters of a class name.
+		let prefix = fileName.kebabCased.replacing(Self.invalidClassNameCharacters, with: "-")
 		self.className = "\(prefix)-\(hash)"
-		self.nodes = [style.node(selector: ".\(className)")] + style.definitions
+		self.nodes = style.nodes(selector: CSSSelector(className: className))
 	}
 }
 

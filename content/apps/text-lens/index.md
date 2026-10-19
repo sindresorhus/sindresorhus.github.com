@@ -9,6 +9,9 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 6743369285
+sharedQuestions: [
+	'menu-bar-icons'
+]
 olderVersions: [
 	{
 		version: '1.2.0'

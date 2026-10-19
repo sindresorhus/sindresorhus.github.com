@@ -2,7 +2,7 @@ import Foundation
 import SiteKit
 
 /**
-Where the App Store, GitHub, and npm data of a build comes from.
+Where the App Store, GitHub, npm, and Bluesky data of a build comes from.
 */
 public enum ExternalData: Sendable {
 	/**
@@ -11,7 +11,7 @@ public enum ExternalData: Sendable {
 	case fetch(ResponseCache)
 
 	/**
-	No App Store, GitHub, or npm data, so the build runs offline, like in tests.
+	No App Store, GitHub, npm, or Bluesky data, so the build runs offline, like in tests.
 	*/
 	case none
 }

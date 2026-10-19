@@ -22,18 +22,27 @@ public struct Publisher: Sendable {
 	/**
 	Publishes the routes and a sitemap of the pages that are in it. Returns the published files, relative to the output directory, like `apps/dato.html`.
 
-	Throws if two routes or a route and a public file are written to the same file, or if a route fails to render.
+	Throws if two routes or a route and a public file are written to the same file, if a file answers the URL of a page before the page's own file, if the output directory is unsafe or a checkout, or if a route fails to render.
 	*/
 	@discardableResult
 	public func publish(_ routes: [Route]) async throws(PublishingError) -> Set<String> {
 		let routes = routes + Sitemap(site: site, pages: routes).routes
 		try checkOutputLocation()
+		// The files of a page bundle are published with its page, so a draft, which has no page, does not publish its images before its launch.
+		let pagePaths = Set(routes.map(\.path))
 		let publicFiles = try wrappingFileSystemErrors { try project.publicFiles() }
+			.filter { file in
+				guard file.source.isInside(project.contentDirectory) else {
+					return true
+				}
+
+				return pagePaths.contains(file.path.parent)
+			}
 		try checkForCollisions(routes, publicFiles: publicFiles.map(\.path))
 		try wrappingFileSystemErrors { try output.createDirectory() }
 
 		// The old files are removed first. Otherwise, on a case-insensitive disk, a file renamed from `Logo.png` to `logo.png` would be seen as unchanged, and then removed as `Logo.png`.
-		let publishedFiles = Set(publicFiles.map(\.path) + routes.map(\.outputFile))
+		let publishedFiles = Set(publicFiles.map(\.path.relativePath) + routes.map(\.outputFile))
 		try wrappingFileSystemErrors {
 			try removeFiles(except: publishedFiles)
 			try copy(publicFiles)
@@ -106,9 +115,9 @@ public struct Publisher: Sendable {
 	/**
 	Copies the public files that are missing or changed (by size and modification date). Copies keep the modification date, and APFS clones them, so this is fast.
 	*/
-	private func copy(_ publicFiles: [(path: String, source: URL)]) throws {
-		for (file, source) in publicFiles {
-			let destination = output.appending(path: file)
+	private func copy(_ publicFiles: [(path: RoutePath, source: URL)]) throws {
+		for (path, source) in publicFiles {
+			let destination = output.appending(path: path.relativePath)
 
 			// The target of a symbolic link, as a copy of the link itself, like `../shared/font.woff2`, would not resolve from the output directory.
 			let source = source.resolvingSymlinksInPath()
@@ -147,7 +156,7 @@ public struct Publisher: Sendable {
 	}
 
 	/**
-	The output directory is published into and files are removed from it, so it must not contain the project or be inside the public or content directory.
+	The output directory is published into and files are removed from it, so it must not contain the project, be inside the public or content directory, or be a checkout.
 	*/
 	private func checkOutputLocation() throws(PublishingError) {
 		// With symlinks resolved, so a link to the project is the project, and in lowercase, as the default disk of macOS ignores case, so the project in other case is the same directory.
@@ -164,20 +173,50 @@ public struct Publisher: Sendable {
 		else {
 			throw PublishingError.unsafeOutput(output)
 		}
+
+		// The files of the checkout that did not change are removed, so the history and the other branches would be lost.
+		guard !output.appending(path: ".git").exists else {
+			throw PublishingError.repositoryOutput(output)
+		}
 	}
 
 	/**
-	Different paths can write the same file, like `/a` and `/a.html`, so collisions are checked on the output files. Case is ignored, as the files of `/About` and `/about` are the same file on a case-insensitive disk. A file in the public directory and a file of a page bundle can also have the same path.
-	*/
-	private func checkForCollisions(_ routes: [Route], publicFiles: [String]) throws(PublishingError) {
-		var files = Set<String>()
+	Different paths can write the same file, like `/a` and `/a.html`, so collisions are checked on the output files. Case is ignored, as the files of `/About` and `/about` are the same file on a case-insensitive disk, and a name in another Unicode normalization is the same file on APFS. A file in the public directory and a file of a page bundle can also have the same path.
 
-		for file in publicFiles where !files.insert(file.lowercased()).inserted {
-			throw PublishingError.collision(RoutePath("/" + file), file: file)
+	A static host tries the file at the path itself before `<path>.html`, so a public file there answers the URL of a page.
+	*/
+	private func checkForCollisions(_ routes: [Route], publicFiles: [RoutePath]) throws(PublishingError) {
+		func key(_ path: String) -> String {
+			path.precomposedStringWithCanonicalMapping.lowercased()
 		}
 
-		for route in routes where !files.insert(route.outputFile.lowercased()).inserted {
-			throw PublishingError.collision(route.path, file: route.outputFile)
+		// The paths by their key, so the message of a collision has the path as it is written.
+		var filesByKey = [String: String]()
+
+		for path in publicFiles {
+			guard filesByKey.updateValue(path.relativePath, forKey: key(path.relativePath)) == nil else {
+				throw PublishingError.collision(path, file: path.relativePath)
+			}
+		}
+
+		for route in routes {
+			guard filesByKey.updateValue(route.outputFile, forKey: key(route.outputFile)) == nil else {
+				throw PublishingError.collision(route.path, file: route.outputFile)
+			}
+		}
+
+		for route in routes {
+			let exactFile = key(route.path.relativePath)
+
+			// A page is written to `<path>.html`, which the host serves after the file at the path. A file route is written at its path, which the loop above already checks.
+			guard
+				exactFile != key(route.outputFile),
+				let file = filesByKey[exactFile]
+			else {
+				continue
+			}
+
+			throw PublishingError.shadowed(route.path, file: file)
 		}
 	}
 }
@@ -208,8 +247,10 @@ private struct FileStamp: Equatable {
 
 public enum PublishingError: Error, CustomStringConvertible {
 	case collision(RoutePath, file: String)
+	case shadowed(RoutePath, file: String)
 	case renderFailed(RoutePath, any Error)
 	case unsafeOutput(URL)
+	case repositoryOutput(URL)
 
 	/**
 	Reading or writing a file failed, like when the public directory is missing.
@@ -220,12 +261,17 @@ public enum PublishingError: Error, CustomStringConvertible {
 		switch self {
 		case .collision(let path, let file):
 			"The route \(path) writes \(file), which another route or a public file also writes."
+		case .shadowed(let path, let file):
+			"The URL \(path) is also served from \(file), so the host may serve that file instead."
 		case .renderFailed(let path, let error):
 			"Could not render \(path): \(error)"
 		case .fileSystem(let error):
-			"Could not read or write a file: \(error)"
+			// The localized description of a file error names the file, like `The folder “public” doesn’t exist.`, without the details of the error.
+			"Could not read or write a file: \(error.localizedDescription)"
 		case .unsafeOutput(let output):
 			"Refusing to publish to \(output.path(percentEncoded: false)), because it would delete the project or write into the public or content directory."
+		case .repositoryOutput(let output):
+			"Refusing to publish to \(output.path(percentEncoded: false)), because it is a git checkout, and the files that are not part of the site would be removed."
 		}
 	}
 }

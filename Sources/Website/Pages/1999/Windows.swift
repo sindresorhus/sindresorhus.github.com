@@ -171,7 +171,7 @@ struct GeoCitiesWindows: HTML {
 			}
 			.style(GeoCitiesPage.Styles.windowBody)
 		}
-		.attributes(.role("alertdialog"), .ariaDescribedBy(message?.rawValue ?? ""), when: message != nil)
+		.attributes(.role("alertdialog"), .ariaDescribedBy(message?.id ?? ""), when: message != nil)
 		.style(GeoCitiesPage.Styles.window)
 		.style(GeoCitiesPage.Styles.desktopWindow, when: size == .normal)
 		.style(Styles.wideWindow, when: size == .wide)
@@ -213,8 +213,8 @@ struct GeoCitiesWindows: HTML {
 	/**
 	A label that only screen readers read, for a control whose purpose the window shows.
 	*/
-	static func hiddenLabel(_ text: String, for id: Hooks) -> some HTML {
-		label(.for(id.rawValue)) {
+	static func hiddenLabel(_ text: String, for control: Hooks) -> some HTML {
+		label(.for(control.id)) {
 			text
 		}
 		.style(VisuallyHidden.Styles.root)
@@ -451,7 +451,7 @@ extension GeoCitiesWindows {
 				.help("You have new mail")
 				.style(Styles.trayButton)
 
-				button(.id(Hooks.volumeButton), .type(.button), .ariaExpanded(false), .ariaControls(Hooks.volume.rawValue)) {
+				button(.id(Hooks.volumeButton), .type(.button), .ariaExpanded(false), .ariaControls(Hooks.volume.id)) {
 					"🔊"
 				}
 				.accessibilityLabel("Volume")

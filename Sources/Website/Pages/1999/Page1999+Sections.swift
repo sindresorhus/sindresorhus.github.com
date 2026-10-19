@@ -18,7 +18,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.wordArt)
 
-			a(.id(Hooks.enter), .href("#\(Hooks.welcome.rawValue)")) {
+			a(.id(Hooks.enter), .href(.fragment(Hooks.welcome.id))) {
 				"Click here to enter"
 			}
 			.style(Styles.enter)
@@ -111,7 +111,7 @@ extension GeoCitiesPage {
 				p(.id(Hooks.quizQuestion), .hidden) {}
 					.style(Styles.quizQuestion)
 
-				div(.id(Hooks.quizAnswers), .hidden, .role("group"), .ariaLabelledBy(Hooks.quizQuestion.rawValue)) {
+				div(.id(Hooks.quizAnswers), .hidden, .role("group"), .ariaLabelledBy(Hooks.quizQuestion.id)) {
 					for (index, letter) in ["A", "B", "C", "D"].enumerated() {
 						button(.type(.button), .hook(Hooks.quizAnswer, value: "\(index)")) {
 							"\(letter): "
@@ -304,7 +304,7 @@ extension GeoCitiesPage {
 
 			div {
 				div {
-					label(.for(Hooks.wallpaper.rawValue)) {
+					label(.for(Hooks.wallpaper.id)) {
 						"Wallpaper:"
 					}
 
@@ -328,7 +328,7 @@ extension GeoCitiesPage {
 				.style(Styles.monitor)
 
 				div {
-					label(.for(Hooks.saverKind.rawValue)) {
+					label(.for(Hooks.saverKind.id)) {
 						"Screen saver:"
 					}
 
@@ -344,7 +344,7 @@ extension GeoCitiesPage {
 				.style(Styles.formRow)
 
 				div {
-					label(.for(Hooks.saverWait.rawValue)) {
+					label(.for(Hooks.saverWait.id)) {
 						"Wait:"
 					}
 
@@ -368,7 +368,7 @@ extension GeoCitiesPage {
 				div {
 					gif(.mouse, style: .mouseGIF)
 
-					label(.for(Hooks.trailKind.rawValue)) {
+					label(.for(Hooks.trailKind.id)) {
 						"Mouse trail:"
 					}
 
@@ -386,7 +386,7 @@ extension GeoCitiesPage {
 				div {
 					input(.id(Hooks.snow), .type(.checkbox), .checked)
 
-					label(.for(Hooks.snow.rawValue)) {
+					label(.for(Hooks.snow.id)) {
 						"Let it snow (it is always December 1999 here!)"
 					}
 				}
@@ -395,7 +395,7 @@ extension GeoCitiesPage {
 				div {
 					input(.id(Hooks.titleScroll), .type(.checkbox), .checked)
 
-					label(.for(Hooks.titleScroll.rawValue)) {
+					label(.for(Hooks.titleScroll.id)) {
 						"Scroll the title in the tab"
 					}
 				}
@@ -444,7 +444,7 @@ extension GeoCitiesPage {
 				.style(Styles.spectrum, Styles.scriptingOnly)
 
 				div {
-					label(.for(Hooks.midiTune.rawValue)) {
+					label(.for(Hooks.midiTune.id)) {
 						"Song:"
 					}
 
@@ -846,7 +846,7 @@ extension GeoCitiesPage {
 			}
 
 			form(.id(Hooks.butlerForm)) {
-				label(.for(Hooks.butlerQuestion.rawValue)) {
+				label(.for(Hooks.butlerQuestion.id)) {
 					"Your question:"
 				}
 				.style(Styles.label)

@@ -132,7 +132,7 @@ struct GalleryPage: Page {
 
 				if let post = content.posts.first {
 					p {
-						PublicationInfo(post: post, showsReadingTime: true)
+						PublicationInfo(post: post)
 					}
 				}
 			}
@@ -173,6 +173,21 @@ struct GalleryPage: Page {
 
 			Section("Prose", id: "prose") {
 				Prose(markdown: MarkdownDocument(parsing: Self.markdownSample, options: .gallery).content)
+			}
+
+			Section("Sudoku", id: "sudoku") {
+				p {
+					a(.href(.path(path, query: [URLQueryItem(name: "puzzle", value: "53..7....6..195....98....6.8...6...34..8.3..17...2...6.6....28....419..5....8..79")], fragment: "sudoku"))) {
+						"Show a sample puzzle"
+					}
+				}
+
+				SudokuBoard()
+			}
+
+			// Without footnotes and notes, as their IDs would be the same as the ones of the sample above.
+			Section("Article Prose", id: "article-prose") {
+				Prose(markdown: MarkdownDocument(parsing: "“The text of a blog post”, with an opening quote that hangs into the margin in Safari, a [colored link](#article-prose), and oldstyle numerals, like 1234567890.", options: .gallery).content, variant: .article)
 			}
 		}
 		.style(Styles.root)
@@ -254,6 +269,14 @@ struct GalleryPage: Page {
 
 	@Feature(title: "Another main feature") {
 		The second main feature.
+	}
+
+	@Trial(url: "https://example.com/App-trial.zip") {
+		The trial of an app, with a download button. The only limitation is that it shows a reminder once a day.
+	}
+
+	@Trial(url: "https://example.com/testflight", title: "Try on TestFlight") {
+		A trial with another title on its button.
 	}
 
 	@TinyApp(title: "A tiny app", download: "https://example.com/Tiny-App.zip", source: "https://github.com/sindresorhus", requirement: "Requires macOS 26 or later") {

@@ -16,7 +16,7 @@ struct NowPage: Page {
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: page.title, description: page.description)
+		page.metadata
 	}
 
 	var sitemapEntry: SitemapEntry? {
@@ -185,26 +185,29 @@ struct NowPage: Page {
 	}
 
 	/**
-	A link with an optional description below it, like a new project.
+	A section of parts (``group(_:isWide:content:)``), in two columns on larger screens.
 	*/
-	private struct Row {
-		let title: String
-		let destination: LinkDestination
-		let description: String?
+	private func groupedSection<Content: HTML>(_ title: String, id: String, @HTMLBuilder content: () -> Content) -> some HTML<HTMLTag.section> {
+		Section(title, id: id) {
+			div {
+				content()
+			}
+			.style(Styles.groups)
+		}
 	}
 
 	/**
 	Links in a card, one in each row, with thin lines between them, like the new projects.
 	*/
-	private func rows(_ rows: [Row]) -> some HTML {
+	private func rows(_ links: [LabeledLink]) -> some HTML {
 		ul {
-			for row in rows {
+			for link in links {
 				li {
-					a(.href(row.destination)) {
-						row.title
+					a(.href(link.destination)) {
+						link.title
 					}
 
-					if let description = row.description {
+					if let description = link.description {
 						span {
 							description
 						}
@@ -224,103 +227,100 @@ struct NowPage: Page {
 		let contributions = content.recentActivity.contributions
 		let weekStats = weekStats
 		// From the average of the last week, so it is not live downloads.
-		let downloadStat = content.npmStatistics.weeklyDownloads.map { Stat(perSecond: Double($0) / (Duration.days(7) / .seconds(1)), label: "downloads of my packages while you have been here") }
+		let downloadStat = content.npmStatistics.downloadsPerSecond.map { Stat(perSecond: $0, label: "downloads of my packages while you have been here") }
 
-		return Section("Building Now", id: "building-now") {
-			div {
-				// `now.js` fills in the commits, or shows a link to GitHub when it cannot get them. Without scripts, there are no commits to show.
-				div(.id(Hooks.latestCommits)) {
-					h3 {
-						"Right Now on GitHub"
-					}
-					.style(Styles.groupTitle)
+		return groupedSection("Building Now", id: "building-now") {
+			// `now.js` fills in the commits, or shows a link to GitHub when it cannot get them. Without scripts, there are no commits to show.
+			div(.id(Hooks.latestCommits)) {
+				h3 {
+					"Right Now on GitHub"
+				}
+				.style(Styles.groupTitle)
 
-					// While the commits load, gray lines take the place of five of them, so the page does not move when they come in. Screen readers know that the list is loading, so they do not read the empty rows.
-					ul(.custom(name: "aria-busy", value: "true")) {
-						ForEach(Self.placeholderCommitWidths) { widths in
-							placeholderCommit(repositoryWidth: widths.repository, messageWidth: widths.message)
-						}
-					}
-					.style(Styles.card, Styles.rows)
-
-					// `now.js` shows it instead of the commits when GitHub does not send them, like when the visitor has made too many searches. Without a token, GitHub allows 10 searches a minute.
-					p(.id(Hooks.latestCommitsError), .hidden) {
-						"GitHub did not send the latest commits right now. "
-						a(.href(.url(#URL("https://github.com/sindresorhus")))) {
-							"See them on GitHub"
-						}
-						"."
-					}
-					.style(Styles.card)
-
-					// `now.js` fills in the repo, the message, and when it was committed.
-					template(.id(Hooks.commitTemplate)) {
-						li {
-							span {
-								span(.hook(Hooks.commitRepository)) {}
-									.style(Styles.rowLabel)
-
-								time(.hook(Hooks.commitTime)) {}
-									.style(Styles.rowDate)
-							}
-							.style(Styles.rowHeader)
-
-							a(.hook(Hooks.commitLink), .href(.url(#URL("https://github.com/sindresorhus")))) {}
-						}
-						.style(Styles.row, Styles.stackedRow)
+				// While the commits load, gray lines take the place of five of them, so the page does not move when they come in. Screen readers know that the list is loading, so they do not read the empty rows.
+				ul(.ariaBusy()) {
+					ForEach(Self.placeholderCommitWidths) { widths in
+						placeholderCommit(repositoryWidth: widths.repository, messageWidth: widths.message)
 					}
 				}
-				.style(Styles.group, Styles.wideGroup)
-				.style {
-					$0.hiddenWithoutScripting()
-				}
+				.style(Styles.card, Styles.rows)
 
-				if let downloadStat {
-					group("Right Now on npm", isWide: true) {
-						StatCard(stats: [downloadStat])
+				// `now.js` shows it instead of the commits when GitHub does not send them, like when the visitor has made too many searches. Without a token, GitHub allows 10 searches a minute.
+				p(.id(Hooks.latestCommitsError), .hidden) {
+					"GitHub did not send the latest commits right now. "
+					a(.href(.url(Site.author.gitHubURL))) {
+						"See them on GitHub"
 					}
+					"."
 				}
+				.style(Styles.card)
 
-				if !weekStats.isEmpty {
-					group("This Week in Open Source", isWide: true) {
-						StatCard(stats: weekStats)
+				// `now.js` fills in the repo, the message, and when it was committed.
+				template(.id(Hooks.commitTemplate)) {
+					li {
+						span {
+							span(.hook(Hooks.commitRepository)) {}
+								.style(Styles.rowLabel)
 
-						if
-							let counts = contributions?.weeklyCounts,
-							counts.count > 1
-						{
-							weeklyContributions(counts)
+							time(.hook(Hooks.commitTime)) {}
+								.style(Styles.rowDate)
 						}
+						.style(Styles.rowHeader)
+
+						a(.hook(Hooks.commitLink), .href(.url(Site.author.gitHubURL))) {}
 					}
+					.style(Styles.row, Styles.stackedRow)
 				}
+			}
+			.style(Styles.group, Styles.wideGroup)
+			.style {
+				$0.hiddenWithoutScripting()
+			}
 
-				if let contributions {
-					group("Contributions", isWide: true) {
-						div {
-							ContributionHeatmap(calendar: contributions)
-								.style {
-									$0.margin(vertical: .rootEm(1.5), horizontal: 0)
-								}
+			if let downloadStat {
+				group("Right Now on npm", isWide: true) {
+					StatCard(stats: [downloadStat])
+				}
+			}
 
-							p {
-								"\(contributions.totalCount.formatted(.number.locale(.site))) contributions on GitHub in the last year, and a streak of \(contributions.currentStreak.formatted(counting: "day"))."
+			if !weekStats.isEmpty {
+				group("This Week in Open Source", isWide: true) {
+					StatCard(stats: weekStats)
 
-								// The quilt is only built with a GitHub token.
-								if !content.contributionYears.isEmpty {
-									" See every year in the "
-									a(.href(.careerQuilt)) {
-										"Career Quilt"
-									}
-									"."
-								}
-							}
-							.style(Styles.caption)
-						}
-						.style(Styles.card)
+					if
+						let counts = contributions?.weeklyCounts,
+						counts.count > 1
+					{
+						weeklyContributions(counts)
 					}
 				}
 			}
-			.style(Styles.groups)
+
+			if let contributions {
+				group("Contributions", isWide: true) {
+					div {
+						ContributionHeatmap(calendar: contributions)
+							.style {
+								$0.margin(vertical: .rootEm(1.5), horizontal: 0)
+							}
+
+						p {
+							"\(contributions.totalCount.formatted(counting: "contribution")) on GitHub in the last year, and a streak of \(contributions.currentStreak.formatted(counting: "day"))."
+
+							// The quilt is only built with a GitHub token.
+							if !content.contributionYears.isEmpty {
+								" See every year in the "
+								a(.href(.careerQuilt)) {
+									"Career Quilt"
+								}
+								"."
+							}
+						}
+						.style(Styles.caption)
+					}
+					.style(Styles.card)
+				}
+			}
 		}
 		.attributes(.hidden, when: contributions == nil && downloadStat == nil && weekStats.isEmpty)
 	}
@@ -333,103 +333,97 @@ struct NowPage: Page {
 		let updateDateFormat = dayFormat(for: updates.map(\.date))
 
 		if !updates.isEmpty || !reviews.isEmpty {
-			Section("Apps", id: "apps") {
-				div {
-					if !updates.isEmpty {
-						group("Latest Updates") {
-							ul {
-								for update in updates {
-									li {
-										AppIcon(decorative: update.app, size: 32)
+			groupedSection("Apps", id: "apps") {
+				if !updates.isEmpty {
+					group("Latest Updates") {
+						ul {
+							for update in updates {
+								li {
+									AppIcon(decorative: update.app, size: 32)
 
+									span {
 										span {
-											span {
-												a(.href(update.destination)) {
-													update.app.title
-												}
-												" "
-												span {
-													update.version
-												}
-												.style(Styles.version)
+											a(.href(update.destination)) {
+												update.app.title
 											}
-
-											DateText(update.date, format: updateDateFormat)
-												.style(Styles.caption)
+											" "
+											span {
+												update.version
+											}
+											.style(Styles.version)
 										}
-										.style(Styles.text)
+
+										DateText(update.date, format: updateDateFormat)
+											.style(Styles.caption)
 									}
-									.style(Styles.row)
+									.style(Styles.text)
 								}
+								.style(Styles.row)
 							}
-							.style(Styles.card, Styles.rows)
 						}
-					}
-
-					if !reviews.isEmpty {
-						group(reviews.count == 1 ? "A Recent Review" : "Recent Reviews") {
-							for review in reviews {
-								QuoteFigure(kind: .review(review.review), app: review.app)
-							}
-
-							// A caption, as the reviews are the point.
-							p {
-								"More on the "
-								a(.href(.path(.reviews))) {
-									"Wall of Love"
-								}
-							}
-							.style(Styles.caption)
-						}
+						.style(Styles.card, Styles.rows)
 					}
 				}
-				.style(Styles.groups)
+
+				if !reviews.isEmpty {
+					group(reviews.count == 1 ? "A Recent Review" : "Recent Reviews") {
+						for review in reviews {
+							QuoteFigure(kind: .review(review.review), app: review.app)
+						}
+
+						// A caption, as the reviews are the point.
+						p {
+							"More on the "
+							a(.href(.path(.reviews))) {
+								"Wall of Love"
+							}
+						}
+						.style(Styles.caption)
+					}
+				}
 			}
 		}
 	}
 
 	@HTMLBuilder
 	private var openSource: some HTML {
-		let repositories = Array(content.recentRepositories.prefix(5))
+		let repositories = newProjects
 		let releases = latestReleases
 		let releaseDateFormat = dayFormat(for: releases.map(\.date))
 		if !repositories.isEmpty || !releases.isEmpty {
-			Section("Open Source", id: "open-source") {
-				div {
-					if !releases.isEmpty {
-						group("Latest Releases") {
-							ul {
-								for release in releases {
-									li {
-										span {
-											a(.href(.url(release.url))) {
-												release.displayName
-											}
-											" "
-											span {
-												release.version
-											}
-											.style(Styles.version)
+			groupedSection("Open Source", id: "open-source") {
+				if !releases.isEmpty {
+					group("Latest Releases") {
+						ul {
+							for release in releases {
+								li {
+									span {
+										a(.href(.url(release.url))) {
+											release.displayName
 										}
-										.style(Styles.rowLink)
-
-										DateText(release.date, format: releaseDateFormat)
-											.style(Styles.rowDate)
+										" "
+										span {
+											release.version
+										}
+										.style(Styles.version)
 									}
-									.style(Styles.row)
-								}
-							}
-							.style(Styles.card, Styles.rows)
-						}
-					}
+									.style(Styles.rowLink)
 
-					if !repositories.isEmpty {
-						group("New Projects") {
-							rows(repositories.map { Row(title: $0.name, destination: .url($0.url), description: $0.summary) })
+									DateText(release.date, format: releaseDateFormat)
+										.style(Styles.rowDate)
+								}
+								.style(Styles.row)
+							}
 						}
+						.style(Styles.card, Styles.rows)
 					}
 				}
-				.style(Styles.groups)
+
+				if !repositories.isEmpty {
+					group("New Projects") {
+						rows(repositories.map { LabeledLink($0.displayName, destination: .url($0.url), description: $0.summary) })
+					}
+				}
 			}
 		}
 	}
@@ -440,68 +434,65 @@ struct NowPage: Page {
 		let blogPost = latestBlogPost
 
 		if blueskyPost != nil || blogPost != nil {
-			Section("Latest Posts", id: "posts") {
-				div {
-					if let blueskyPost {
-						group("On Social Media") {
-							div {
-								span {
-									Icon.bluesky.size(.rootEm(1.125))
-									"Bluesky"
-								}
-								.style(Styles.postSource)
+			groupedSection("Latest Posts", id: "posts") {
+				if let blueskyPost {
+					group("On Social Media") {
+						div {
+							span {
+								Icon.bluesky.size(.rootEm(1.125))
+								"Bluesky"
+							}
+							.style(Styles.postSource)
 
-								// `now.js` replaces the text, the link, and the date with a newer post.
-								blockquote(.id(Hooks.blueskyPost)) {
-									p(.id(Hooks.blueskyPostText)) {
-										for segment in blueskyPost.segments {
-											if let link = segment.link {
-												a(.href(.url(link))) {
-													segment.text
-												}
-											} else {
+							// `now.js` replaces the text, the link, and the date with a newer post.
+							blockquote(.id(Hooks.blueskyPost)) {
+								p(.id(Hooks.blueskyPostText)) {
+									for segment in blueskyPost.segments {
+										if let link = segment.link {
+											a(.href(.url(link))) {
 												segment.text
 											}
+										} else {
+											segment.text
 										}
 									}
-									.style(Styles.postText)
 								}
-								.style(QuoteFigure.Styles.text)
+								.style(Styles.postText)
+							}
+							.style(QuoteFigure.Styles.text)
 
-								// The date links to the post. `now.js` changes the link and the date for a newer post.
-								p {
-									a(.id(Hooks.blueskyPostLink), .href(.url(blueskyPost.url))) {
-										// With the year, like the date that `now.js` writes for a newer post. The `datetime` has the time, so `now.js` only shows a post that is newer.
-										time(.id(Hooks.blueskyPostTime), .custom(name: "datetime", value: blueskyPost.date.ISO8601Format())) {
-											blueskyPost.date.formatted(.siteDay)
-										}
+							// The date links to the post. `now.js` changes the link and the date for a newer post.
+							p {
+								a(.id(Hooks.blueskyPostLink), .href(.url(blueskyPost.url))) {
+									// With the year, like the date that `now.js` writes for a newer post. The `datetime` has the time, so `now.js` only shows a post that is newer.
+									time(.id(Hooks.blueskyPostTime), .custom(name: "datetime", value: blueskyPost.date.ISO8601Format())) {
+										blueskyPost.date.formatted(.siteDay)
+									}
+								}
+								.style(Styles.postFooterLink)
+
+								" · Also on "
+
+								for (index, link) in socialLinks.enumerated() {
+									Self.listSeparator(before: index, count: socialLinks.count)
+
+									a(.href(.url(link.url))) {
+										link.name
 									}
 									.style(Styles.postFooterLink)
-
-									" · Also on "
-
-									for (index, link) in socialLinks.enumerated() {
-										Self.listSeparator(before: index, count: socialLinks.count)
-
-										a(.href(.url(link.url))) {
-											link.name
-										}
-										.style(Styles.postFooterLink)
-									}
 								}
-								.style(Styles.postFooter)
 							}
-							.style(Styles.card, Styles.post)
+							.style(Styles.postFooter)
 						}
-					}
-
-					if let blogPost {
-						group("On the Blog") {
-							rows([Row(title: blogPost.title, destination: blogPost.url, description: blogPost.description)])
-						}
+						.style(Styles.card, Styles.post)
 					}
 				}
-				.style(Styles.groups)
+
+				if let blogPost {
+					group("On the Blog") {
+						rows([LabeledLink(blogPost.title, destination: blogPost.url, description: blogPost.description)])
+					}
+				}
 			}
 		}
 	}
@@ -515,7 +506,7 @@ struct NowPage: Page {
 		return footer {
 			if !anniversaries.isEmpty {
 				Section("On This Day", id: "on-this-day") {
-					rows(anniversaries.map { Row(title: $0.title, destination: $0.destination, description: $0.description) })
+					rows(anniversaries.map { LabeledLink($0.title, destination: $0.destination, description: $0.description) })
 				}
 			}
 
@@ -574,28 +565,25 @@ struct NowPage: Page {
 		let npmStats = yearNPMStats
 
 		if !appStats.isEmpty || !openSourceStats.isEmpty || !npmStats.isEmpty {
-			Section("\(currentYear) So Far", id: "year") {
-				div {
-					if !appStats.isEmpty {
-						group("Apps and Blog", isWide: true) {
-							StatCard(stats: appStats)
-						}
-					}
-
-					if !openSourceStats.isEmpty {
-						group("Open Source", isWide: true) {
-							StatCard(stats: openSourceStats)
-							repositoryCommitsCaption
-						}
-					}
-
-					if !npmStats.isEmpty {
-						group("npm", isWide: true) {
-							StatCard(stats: npmStats)
-						}
+			groupedSection("\(currentYear) So Far", id: "year") {
+				if !appStats.isEmpty {
+					group("Apps and Blog", isWide: true) {
+						StatCard(stats: appStats)
 					}
 				}
-				.style(Styles.groups)
+
+				if !openSourceStats.isEmpty {
+					group("Open Source", isWide: true) {
+						StatCard(stats: openSourceStats)
+						repositoryCommitsCaption
+					}
+				}
+
+				if !npmStats.isEmpty {
+					group("npm", isWide: true) {
+						StatCard(stats: npmStats)
+					}
+				}
 			}
 		}
 	}
@@ -615,7 +603,7 @@ struct NowPage: Page {
 					Self.listSeparator(before: index, count: repositoryCommits.count)
 
 					a(.href(.url(commits.url))) {
-						commits.displayName
+						commits.repository.displayName
 					}
 
 					" (\(commits.count.formatted(.number.locale(.site))))"
@@ -655,6 +643,13 @@ struct NowPage: Page {
 		content.listedPosts.first { !$0.isRedirect }
 	}
 
+	/**
+	The five newest repos.
+	*/
+	private var newProjects: ArraySlice<GitHubRepository> {
+		content.recentRepositories.prefix(5)
+	}
+
 	private struct AppUpdate {
 		let app: App
 		let version: String
@@ -670,10 +665,10 @@ struct NowPage: Page {
 	}
 
 	/**
-	The five apps that were updated last, each with its latest version: the newer of the App Store version and the latest release of its releases repo.
+	The five apps that were updated last, each with its latest version: the newer of the App Store version and the latest release of its releases repo. A version from the day of the launch or before is the launch, and like in the numbers of the year, a launch is not an update.
 	*/
 	private var appUpdates: [AppUpdate] {
-		let updates = content.activeAppsWithPages.compactMap { app in
+		let updates = content.activeApps.compactMap { app in
 			let release = app.releaseNotes.flatMap { releaseNotes in
 				content.releases(of: app)
 					.sorted(using: KeyPathComparator(\.publishedAt, order: .reverse))
@@ -689,6 +684,7 @@ struct NowPage: Page {
 
 			return [release, appStoreVersion]
 				.compactMap(\.self)
+				.filter { $0.date.duration(since: app.publicationDate) >= .days(1) }
 				.sorted(using: KeyPathComparator(\.date, order: .reverse))
 				.first
 		}
@@ -717,18 +713,19 @@ struct NowPage: Page {
 	*/
 	private var latestReleases: [Release] {
 		let gitHubReleases = content.recentActivity.releases
-			.filter { GitHub.owners.contains($0.repository.repositoryOwner.lowercased()) }
+			.filter(\.repository.isOwners)
 			.map { release in
-				Release(name: release.name, displayName: release.displayName, version: release.version, url: release.url, date: release.date)
+				Release(name: release.repository.name, displayName: release.repository.displayName, version: release.version, url: release.url, date: release.date)
 			}
 
-		let names = Set(gitHubReleases.map(\.name))
+		// A package version that has a GitHub release is shown as the release, which has the release notes. A newer version without a release is shown as the package.
+		let gitHubVersions = Set(gitHubReleases.map { "\($0.name)@\($0.version)" })
 
-		// Only the packages of repositories that the same owners have, as the npm search also finds packages that he only helps maintain, like `yeoman-generator`. The owner is compared in lowercase, as the link of a package can have capitals, like `SindreSorhus/x`.
+		// Only the packages of repositories that the same owners have, as the npm search also finds packages that he only helps maintain, like `yeoman-generator`.
 		let npmReleases = content.npmStatistics.packages
-			.filter { GitHub.owners.contains($0.repository?.repositoryOwner.lowercased() ?? "") }
-			.map { Release(name: String($0.name.split(separator: "/").last ?? ""), displayName: $0.name, version: $0.version, url: $0.url, date: $0.date) }
-			.filter { !names.contains($0.name) }
+			.filter { $0.repository?.isOwners ?? false }
+			.map { Release(name: $0.unscopedName, displayName: $0.name, version: $0.version, url: $0.url, date: $0.date) }
+			.filter { !gitHubVersions.contains("\($0.name)@\($0.version)") }
 
 		return Array(
 			(gitHubReleases + npmReleases)
@@ -768,7 +765,7 @@ struct NowPage: Page {
 	/**
 	Something from an earlier year on the day of the build, like an app that launched on this day.
 	*/
-	struct Anniversary {
+	private struct Anniversary {
 		let title: String
 		let destination: LinkDestination
 		let description: String
@@ -778,41 +775,28 @@ struct NowPage: Page {
 	/**
 	The apps that launched, the app versions that were released, and the blog posts that were published on this day in earlier years (UTC), newest first, at most six.
 	*/
-	var onThisDay: [Anniversary] {
-		let today = Calendar.site.dateComponents([.year, .month, .day], from: content.buildDate)
+	private var onThisDay: [Anniversary] {
+		let today = Calendar.site.dateComponents([.month, .day], from: content.buildDate)
 
 		func isAnniversary(_ date: Date) -> Bool {
-			let components = Calendar.site.dateComponents([.year, .month, .day], from: date)
-
-			guard
-				let year = components.year,
-				let currentYear = today.year
-			else {
-				return false
-			}
-
-			return components.month == today.month && components.day == today.day && year < currentYear
-		}
-
-		func year(_ date: Date) -> String {
-			String(date.siteYear)
+			date.siteYear < currentYear && Calendar.site.dateComponents([.month, .day], from: date) == today
 		}
 
 		let apps = content.listedApps
 			.filter { !$0.isRedirect && isAnniversary($0.publicationDate) }
-			.map { Anniversary(title: $0.title, destination: $0.url, description: "launched in \(year($0.publicationDate))", date: $0.publicationDate) }
+			.map { Anniversary(title: $0.title, destination: $0.url, description: "launched in \($0.publicationDate.siteYear)", date: $0.publicationDate) }
 
 		let releases = content.activeApps.flatMap { app in
 			app.releaseNotes.map { releaseNotes in
 				content.releases(of: app)
 					.filter { isAnniversary($0.publishedAt) }
-					.map { Anniversary(title: "\(app.title) \($0.version)", destination: releaseNotes.destination(of: $0), description: "released in \(year($0.publishedAt))", date: $0.publishedAt) }
+					.map { Anniversary(title: "\(app.title) \($0.version)", destination: releaseNotes.destination(of: $0), description: "released in \($0.publishedAt.siteYear)", date: $0.publishedAt) }
 			} ?? []
 		}
 
 		let posts = content.listedPosts
 			.filter { isAnniversary($0.publicationDate) }
-			.map { Anniversary(title: $0.title, destination: $0.url, description: "posted in \(year($0.publicationDate))", date: $0.publicationDate) }
+			.map { Anniversary(title: $0.title, destination: $0.url, description: "posted in \($0.publicationDate.siteYear)", date: $0.publicationDate) }
 
 		return Array((apps + releases + posts).sorted(using: [KeyPathComparator(\.date, order: .reverse), KeyPathComparator(\.title, comparator: .localizedStandard)]).prefix(6))
 	}
@@ -825,10 +809,17 @@ struct NowPage: Page {
 	}
 
 	/**
+	The GitHub contributions of the year of the build. It needs a GitHub token.
+	*/
+	private var contributionYear: ContributionYear? {
+		content.contributionYears.last { $0.year == currentYear }
+	}
+
+	/**
 	The three public repositories with the most commits in the year of the build, like eslint-plugin-unicorn with 933.
 	*/
 	private var repositoryCommits: [ContributionYear.RepositoryCommits] {
-		let commits = content.contributionYears.last { $0.year == currentYear }?.totals?.repositoryCommits ?? []
+		let commits = contributionYear?.totals.repositoryCommits ?? []
 		return Array(commits.filter { !$0.isPrivate }.prefix(3))
 	}
 
@@ -862,7 +853,7 @@ struct NowPage: Page {
 	The open-source work of the year of the build on GitHub: the contributions, like the commits, the busiest day, and the new repos, and the issues closed and the pull requests merged from others. Counts of zero are left out.
 	*/
 	private var yearOpenSourceStats: [Stat] {
-		let year = content.contributionYears.last { $0.year == currentYear }
+		let year = contributionYear
 		let totals = year?.totals
 		let maintenance = content.recentActivity.yearMaintenance
 
@@ -889,7 +880,7 @@ struct NowPage: Page {
 	*/
 	private var yearNPMStats: [Stat] {
 		let npm = content.npmStatistics
-		// The npm search has no date of the first version, so a new package is one in a repo of the account that was made this year.
+		// The npm search has no date of the first version, so a new package is one in a repo of the account or of the organizations of its projects (``GitHub/owners``) that was made this year.
 		let newRepositories = content.gitHubAccount.map { $0.repositories.filter { isThisYear($0.createdAt) }.map(\.nameWithOwner) }
 
 		let stats: [Stat?] = [
@@ -905,7 +896,7 @@ struct NowPage: Page {
 	*/
 	private var lastChange: Date? {
 		let dates: [Date?] = [page.lastCommitDate, content.newestApp?.publicationDate, latestBlogPost?.publicationDate, content.recentActivity.blueskyPost?.date]
-		return (dates.compactMap(\.self) + appUpdates.map(\.date) + latestReleases.map(\.date) + content.recentRepositories.prefix(5).map(\.createdAt)).max()
+		return (dates.compactMap(\.self) + appUpdates.map(\.date) + recentReviews.map(\.review.date) + latestReleases.map(\.date) + newProjects.map(\.createdAt)).max()
 	}
 
 	/**
@@ -1087,7 +1078,6 @@ struct NowPage: Page {
 					.cornerRadius(.capsule)
 					.verticalAlign(.middle)
 					.background(.secondaryText.opacity(0.2))
-			// Less important text, like the description of a row.
 			case .version:
 				// After the link, so the underline of the link does not go under it.
 				Style()
@@ -1106,6 +1096,7 @@ struct NowPage: Page {
 					.border(.top, .separator)
 					.textAlign(.center)
 					.secondaryText()
+			// Less important text, like the description of a row.
 			case .caption:
 				Style()
 					.margin(0)

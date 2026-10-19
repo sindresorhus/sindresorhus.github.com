@@ -82,18 +82,10 @@ extension Item {
 			throw .itemWithoutTitleOrDescription(item: name)
 		}
 
-		for url in [link, enclosure?.url].compactMap(\.self) {
+		for url in [link, guid?.permalink, enclosure?.url].compactMap(\.self) {
 			guard url.isAbsolute else {
 				throw .relativeURL(url, item: name)
 			}
-		}
-
-		if
-			let guid = resolvedGUID,
-			guid.isPermaLink,
-			URL(string: guid.value)?.isAbsolute != true
-		{
-			throw .invalidPermaLink(guid.value, item: name)
 		}
 
 		// The specification requires an email address, optionally followed by the name, like `jane@example.com (Jane Doe)`.
@@ -123,7 +115,7 @@ extension Item {
 			}
 
 			if let guid = resolvedGUID {
-				writer.element("guid", attributes: [("isPermaLink", guid.isPermaLink ? "true" : "false")], text: guid.value)
+				writer.element("guid", attributes: [("isPermaLink", guid.permalink != nil ? "true" : "false")], text: guid.value)
 			}
 
 			if let publicationDate {
@@ -160,21 +152,35 @@ extension Item {
 /**
 A string that uniquely identifies an item.
 */
-public struct GUID: Hashable, Sendable {
-	public var value: String
+public enum GUID: Hashable, Sendable {
+	/**
+	The URL of the item, which feed readers may open, written with `isPermaLink="true"`.
+	*/
+	case permalink(URL)
 
 	/**
-	Whether the value is a URL that points to the item.
+	Any other string that only this item has, like a URL that does not point to the item, written with `isPermaLink="false"`.
 	*/
-	public var isPermaLink: Bool
+	case identifier(String)
 
-	public init(_ value: String, isPermaLink: Bool = false) {
-		self.value = value
-		self.isPermaLink = isPermaLink
+	public var value: String {
+		switch self {
+		case .permalink(let url):
+			url.absoluteString
+		case .identifier(let value):
+			value
+		}
 	}
 
-	public static func permalink(_ url: URL) -> Self {
-		Self(url.absoluteString, isPermaLink: true)
+	/**
+	The URL of a permalink GUID, or else `nil`.
+	*/
+	var permalink: URL? {
+		guard case .permalink(let url) = self else {
+			return nil
+		}
+
+		return url
 	}
 }
 
@@ -208,7 +214,6 @@ public enum FeedValidationError: Error, Hashable, CustomStringConvertible {
 	case relativeURL(URL, item: String?)
 
 	case itemWithoutTitleOrDescription(item: String)
-	case invalidPermaLink(String, item: String)
 
 	/**
 	Two items have the same GUID, so feed readers would show only one of them.
@@ -232,8 +237,6 @@ public enum FeedValidationError: Error, Hashable, CustomStringConvertible {
 			"The URL “\(url)”\(item.map { " of the item “\($0)”" } ?? " of the channel") must be absolute."
 		case .itemWithoutTitleOrDescription(let item):
 			"The item “\(item)” must have a title or a description."
-		case .invalidPermaLink(let value, let item):
-			"The permalink GUID “\(value)” of the item “\(item)” must be an absolute URL."
 		case .duplicateGUID(let value, let item):
 			"The GUID “\(value)” of the item “\(item)” is also used by an earlier item. Each item needs its own GUID."
 		case .authorWithoutEmailAddress(let author, let item):

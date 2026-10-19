@@ -75,7 +75,7 @@ struct AppStoreInfo: Decodable, Sendable {
 	let kind: String?
 
 	/**
-	The lowest version of macOS for Mac apps, or else of iOS, like `26.0`.
+	The lowest version of macOS for Mac apps, of visionOS for Apple Vision apps, or else of iOS, like `26.0`.
 	*/
 	let minimumOsVersion: String?
 
@@ -83,18 +83,6 @@ struct AppStoreInfo: Decodable, Sendable {
 	The devices that can run an app that is not a Mac app, like `iPhone5s-iPhone5s` and `MacDesktop-MacDesktop`.
 	*/
 	let supportedDevices: [String]?
-
-	/**
-	The download size, which the lookup has as a string, like `"7719936"`. Use ``fileSizeBytes``.
-	*/
-	var fileSizeText: String? = nil
-
-	/**
-	The download size in bytes, like 7,719,936 for a 7.7 MB app.
-	*/
-	var fileSizeBytes: Int? {
-		fileSizeText.flatMap { Int($0) }
-	}
 
 	enum CodingKeys: String, CodingKey {
 		case id = "trackId"
@@ -107,7 +95,6 @@ struct AppStoreInfo: Decodable, Sendable {
 		case kind
 		case minimumOsVersion
 		case supportedDevices
-		case fileSizeText = "fileSizeBytes"
 	}
 
 	/**
@@ -115,25 +102,24 @@ struct AppStoreInfo: Decodable, Sendable {
 	*/
 	struct Rating {
 		/**
-		Rounded to one decimal, like 4.6.
+		The average as the App Store gives it, like 4.6333. It is rounded to one decimal where it is shown.
 		*/
 		let average: Double
 
 		let count: Int
 
 		/**
-		Rounds the average to one decimal.
+		The average rounded to one decimal, like 4.6, for the places that show it, like the rating sentence and structured data, so a value just below a tie, like 4.64999, reads as 4.6 and not 4.7.
 		*/
-		init(average: Double, count: Int) {
-			self.average = (average * 10).rounded() / 10
-			self.count = count
+		var roundedAverage: Double {
+			(average * 10).rounded() / 10
 		}
 
 		/**
 		The rating as a sentence, like “Rated 4.6 out of 5 from 565 ratings on the App Store”.
 		*/
 		var text: String {
-			"Rated \(average.formatted(.number.locale(.site).precision(.fractionLength(1)))) out of 5 from \(count.formatted(counting: "rating")) on the App Store"
+			"Rated \(roundedAverage.formatted(.number.locale(.site).precision(.fractionLength(1)))) out of 5 from \(count.formatted(counting: "rating")) on the App Store"
 		}
 	}
 
@@ -238,8 +224,8 @@ extension Sequence<AppStoreInfo> {
 			return nil
 		}
 
-		// The averages are rounded to one decimal, which changes the combined average by at most 0.05.
-		let average = ratings.map { $0.average * Double($0.count) }.sum / Double(count)
+		// Summed in a fixed order, as the sum of floating point numbers depends on the order, which would make the number on the about page change between builds of the same content.
+		let average = ratings.sorted(using: [KeyPathComparator(\.average), KeyPathComparator(\.count)]).map { $0.average * Double($0.count) }.sum / Double(count)
 		return AppStoreInfo.Rating(average: average, count: count)
 	}
 }

@@ -1,6 +1,7 @@
 import Elementary
 import Foundation
 import SiteKit
+import TestSupport
 import Testing
 @testable import Website
 
@@ -31,31 +32,43 @@ struct ContentTests {
 	@Test(arguments: [
 		("isDraft: 'false'", "Invalid `isDraft`"),
 		("unexpected: true", "Unknown key unexpected,"),
-		("platforms: ['Amiga']", "Invalid `platforms.[0]`"),
+		("platforms: ['Amiga']", "Invalid `platforms[0]`"),
 		("appStoreID: -1", "Invalid `appStoreID`"),
 		("repositoryURL: 'github.com/sindresorhus'", "Invalid `repositoryURL`"),
 		("links: {Docs: '/docs'}", "Invalid `links.Docs`"),
-		("pressQuotes: [{quote: 'Great', source: 'Example', url: 'example.com'}]", "Invalid `pressQuotes.[0].url`"),
-		("olderMacOSVersions: ['9']", "Invalid `olderMacOSVersions.[0]`"),
-		("olderVersions: [{version: '1.0.0', macOS: '9', url: 'https://example.com/app.zip'}]", "Invalid `olderVersions.[0].macOS`"),
-		("olderVersions: [{version: '1.0.0', macOS: '13', url: 'app.zip'}]", "Invalid `olderVersions.[0].url`"),
+		("links: {'Mac App Store': '/docs'}", "Invalid `links.'Mac App Store'`"),
+		("pressQuotes: [{quote: 'Great', source: 'Example', url: 'example.com'}]", "Invalid `pressQuotes[0].url`"),
+		("olderMacOSVersions: ['9']", "Invalid `olderMacOSVersions[0]`"),
+		("olderVersions: [{version: '1.0.0', macOS: '9', url: 'https://example.com/app.zip'}]", "Invalid `olderVersions[0].macOS`"),
+		("olderVersions: [{version: '1.0.0', macOS: '13', url: 'app.zip'}]", "Invalid `olderVersions[0].url`"),
 		("announcement: {text: 'Sale', url: 'relative/path'}", "Invalid `announcement.url`"),
-		("redirectFrom: ['old-name']", "Invalid `redirectFrom.[0]`"),
+		("redirectFrom: ['old-name']", "Invalid `redirectFrom[0]`"),
 		("script: '/missing.js'", "The `script` /missing.js does not exist"),
 		("description: ' '", "Invalid `description`"),
 		("downloads: 9007199254740992", "Invalid `downloads`"),
-		("pressQuotes: [{quote: '', source: 'Example'}]", "Invalid `pressQuotes.[0].quote`"),
+		("pressQuotes: [{quote: '', source: 'Example'}]", "Invalid `pressQuotes[0].quote`"),
 		("requirement: ' '", "Invalid `requirement`"),
 		("announcement: {text: ''}", "Invalid `announcement.text`"),
 		("announcement: {text: 'Sale', url: 'https://example.com', linkText: ' '}", "Invalid `announcement.linkText`"),
 	])
-	func `strict app frontmatter rejects invalid values`(line: String, reason: String) async {
+	func `strict app frontmatter rejects invalid values`(line: String, reason: String) async throws {
 		let platforms = line.hasPrefix("platforms:") ? "" : "platforms: ['macOS']\n"
 		let errors = await loadingErrors("---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\n\(platforms)\(line)\n---")
 
-		#expect(errors.count == 1)
-		#expect(errors.first?.reason.hasPrefix(reason) == true, "\(errors)")
-		#expect(errors.first?.line != nil)
+		try #require(errors.count == 1, "\(errors)")
+		#expect(errors[0].reason.hasPrefix(reason))
+		#expect(errors[0].line != nil)
+	}
+
+	/**
+	A mistake at the top level has no key, so the message names the frontmatter.
+	*/
+	@Test
+	func `a frontmatter that is not an object is an error, not a crash`() async throws {
+		let errors = await loadingErrors("---\n[1]\n---")
+
+		try #require(errors.count == 1, "\(errors)")
+		#expect(errors[0].reason.hasPrefix("Invalid frontmatter"))
 	}
 
 	@Test
@@ -235,6 +248,138 @@ struct ContentTests {
 		#expect(!app.markdown.html.contains("I don’t plan to localize the app."))
 	}
 
+	@Test(.temporaryDirectory)
+	func `an app gets the shared questions it picks`() async throws {
+		let project = Project.site(root: try URL.temporaryDirectory(files: [
+			"content/shared-questions.md": "About the file.\n\n### Shared question {#shared}\n<!-- @faq.keywords automatic -->\n\n1. Open [the FAQ](/apps/faq).\n2. Uncheck it.\n\n### Not picked {#not-picked}\n\nAnswer.\n",
+		]))
+		let source = "---\ntitle: 'My App'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nsharedQuestions: [\n\t'shared'\n]\n---\n\n## Frequently Asked Questions {#faq}\n\n### Some question\n\nAnswer.\n"
+		let app = try await App(markdown: source, project: project)
+		let appWithAnswer = try await App(markdown: source + "\n### Shared question\n\nMy own answer.\n", project: project)
+
+		#expect(app.markdown.headings.map(\.id) == ["faq", "feedback", "some-question", "shared", "can-you-localize-the-app-into-my-language"])
+		#expect(app.markdown.html.contains("<li>Uncheck it.</li>"))
+		// The text before the first question explains the file, and the questions that the app does not pick are left out.
+		#expect(!app.markdown.html.contains("About the file."))
+		#expect(!app.markdown.html.contains("Not picked"))
+		// The added answer is not in the file of the app, so it has no line.
+		#expect(app.markdown.links.filter { $0.destination == "/apps/faq" }.map(\.line) == [nil])
+		#expect(app.faqHeadings.map(\.text) == ["Some question", "Shared question", "Can you localize the app into my language?"])
+
+		let questions = try #require(FAQSuggestions.Questions(apps: [app], faq: nil).apps.first).questions
+		#expect(questions.first { $0.question == "Shared question" }?.extraWords.contains("automatic") == true)
+
+		#expect(appWithAnswer.markdown.html.contains("My own answer."))
+		#expect(!appWithAnswer.markdown.html.contains("Uncheck it."))
+		// An unknown ID, an ID that is picked twice, and a page without a FAQ section are reported at the `sharedQuestions` key.
+		let unknownErrors = await loadingErrors(source.replacing("'shared'", with: "'unknown'"), project: project)
+		#expect(unknownErrors.map(\.line) == [6])
+		#expect(unknownErrors.map(\.reason) == ["`sharedQuestions` has `unknown`, which is not the ID of a question in `content/shared-questions.md`."])
+		let twiceErrors = await loadingErrors(source.replacing("'shared'", with: "'shared', 'shared'"), project: project)
+		#expect(twiceErrors.map(\.line) == [6])
+		#expect(twiceErrors.map(\.reason) == ["`sharedQuestions` has `shared` twice."])
+		let noFAQErrors = await loadingErrors(source.replacing("## Frequently Asked Questions {#faq}", with: "## Other"), project: project)
+		#expect(noFAQErrors.map(\.line) == [6])
+		#expect(noFAQErrors.map(\.reason) == ["The shared questions are added to the FAQ section, but the page has none: `## Frequently Asked Questions {#faq}`."])
+	}
+
+	/**
+	A question with `@faq.first` goes before the questions of the app, after the menu bar question, and the others after them, before the localization question.
+	*/
+	@Test(.temporaryDirectory)
+	func `the shared questions are in the order that the app picks them`() async throws {
+		let project = Project.site(root: try URL.temporaryDirectory(files: [
+			"content/shared-questions.md": "### First {#first}\n\nAnswer.\n\n### Problem {#problem}\n<!-- @faq.first -->\n\nAnswer.\n\n### Third {#third}\n\nAnswer.\n",
+		]))
+		let app = try await App(markdown: "---\ntitle: 'My App'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nisMenuBarApp: true\nsharedQuestions: ['third', 'problem', 'first']\n---\n\n## Frequently Asked Questions {#faq}\n\n### Own question\n\nAnswer.\n", project: project)
+
+		#expect(app.markdown.headings.map(\.id) == ["faq", "feedback", "app-not-showing-in-menu-bar", "problem", "own-question", "third", "first", "can-you-localize-the-app-into-my-language"])
+		#expect(!app.markdown.html.contains("@faq.first"))
+	}
+
+	@Test
+	func `a question of the app cannot go first`() async {
+		let errors = await loadingErrors("---\ntitle: 'My App'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\n---\n\n## Frequently Asked Questions {#faq}\n\n### Own question\n<!-- @faq.first -->\n\nAnswer.\n")
+
+		#expect(errors.map(\.line) == [10])
+		#expect(errors.map(\.reason) == ["`@faq.first` is only for the questions in `content/shared-questions.md`. A question of the app goes where it is written."])
+	}
+
+	@Test(.temporaryDirectory)
+	func `a shared question that is not a level 3 heading is an error in the file of the shared questions`() async throws {
+		let project = Project.site(root: try URL.temporaryDirectory(files: [
+			"content/shared-questions.md": "### Shared question {#shared}\n\nAnswer.\n\n## Section\n",
+		]))
+		let errors = await loadingErrors("---\ntitle: 'My App'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nsharedQuestions: ['shared']\n---\n\nText.", project: project)
+
+		#expect(errors.map(\.file?.lastPathComponent) == ["shared-questions.md"])
+		#expect(errors.map(\.line) == [5])
+	}
+
+	@Test(.temporaryDirectory)
+	func `two shared questions with the same ID are an error in the file of the shared questions`() async throws {
+		let project = Project.site(root: try URL.temporaryDirectory(files: [
+			"content/shared-questions.md": "### Shared question {#shared}\n\nAnswer.\n\n### Other question {#shared}\n\nAnswer.\n",
+		]))
+		let errors = await loadingErrors("---\ntitle: 'My App'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nsharedQuestions: ['shared']\n---\n\nText.", project: project)
+
+		#expect(errors.map(\.file?.lastPathComponent) == ["shared-questions.md"])
+		#expect(errors.map(\.line) == [5])
+	}
+
+	/**
+	The picked question goes after the question of the app, so the error is at the picked question, which has no line, but the reason names the ID.
+	*/
+	@Test(.temporaryDirectory)
+	func `a shared question with the ID of a question of the app is an error`() async throws {
+		let project = Project.site(root: try URL.temporaryDirectory(files: [
+			"content/shared-questions.md": "### Shared question {#shared}\n\nAnswer.\n",
+		]))
+		let errors = await loadingErrors("---\ntitle: 'My App'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nsharedQuestions: ['shared']\n---\n\n## Frequently Asked Questions {#faq}\n\n### Own question {#shared}\n\nAnswer.\n", project: project)
+
+		#expect(errors.map(\.line) == [nil])
+		#expect(errors.map(\.reason) == ["The heading ID `shared` is already the ID of another heading, so links to it are ambiguous. Give one of the headings another custom ID, like `{#shared-2}`."])
+	}
+
+	/**
+	A heading in a block directive is not the heading of a question, so it would give the questions after it the wrong answers.
+	*/
+	@Test(.temporaryDirectory)
+	func `a heading in a shared answer is an error in the file of the shared questions`() async throws {
+		let project = Project.site(root: try URL.temporaryDirectory(files: [
+			"content/shared-questions.md": "### Shared question {#shared}\n\n@Details(summary: \"More\") {\n### Nested\n}\n\n### Other question {#other}\n\nAnswer.\n",
+		]))
+		let errors = await loadingErrors("---\ntitle: 'My App'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nsharedQuestions: ['other']\n---\n\nText.", project: project)
+
+		#expect(errors.map(\.file?.lastPathComponent) == ["shared-questions.md"])
+		#expect(errors.map(\.line) == [4])
+	}
+
+	@Test(.temporaryDirectory)
+	func `a mistake in a shared answer is an error in the file of the shared questions`() async throws {
+		let project = Project.site(root: try URL.temporaryDirectory(files: [
+			"content/shared-questions.md": "### Shared question {#shared}\n<!-- @faq.unknown -->\n\nAnswer.\n",
+		]))
+		let errors = await loadingErrors("---\ntitle: 'My App'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nsharedQuestions: ['shared']\n---\n\nText.", project: project)
+
+		#expect(errors.map(\.file?.lastPathComponent) == ["shared-questions.md"])
+		#expect(errors.map(\.line) == [2])
+	}
+
+	/**
+	The answers are parsed with the block directives of the app page.
+	*/
+	@Test(.temporaryDirectory)
+	func `a shared answer can have block directives`() async throws {
+		let project = Project.site(root: try URL.temporaryDirectory(files: [
+			"content/shared-questions.md": "### Shared question {#shared}\n\n@Details(summary: \"Older macOS\") {\nOpen System Settings.\n}\n",
+		]))
+		let app = try await App(markdown: "---\ntitle: 'My App'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nsharedQuestions: ['shared']\n---\n\n## Frequently Asked Questions {#faq}\n", project: project)
+
+		#expect(app.markdown.html.contains("Older macOS"))
+		#expect(!app.markdown.html.contains("@Details"))
+	}
+
 	/**
 	The added menu bar question only links to the general question, which the feedback page suggests instead, as it has the answer. An answer of the app itself is suggested.
 	*/
@@ -273,11 +418,11 @@ struct ContentTests {
 	}
 
 	@Test
-	func `the FAQ heading needs its ID`() async {
+	func `the FAQ heading needs its ID`() async throws {
 		let errors = await loadingErrors("---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\n---\n\n## Frequently Asked Questions\n\n### A question\n\nAn answer.")
 
-		#expect(errors.map(\.line) == [8])
-		#expect(errors.first?.reason.hasPrefix("The “Frequently Asked Questions” heading needs the ID `faq`") == true)
+		try #require(errors.map(\.line) == [8])
+		#expect(errors[0].reason.hasPrefix("The “Frequently Asked Questions” heading needs the ID `faq`"))
 	}
 
 	@Test
@@ -286,6 +431,15 @@ struct ContentTests {
 
 		#expect(errors.map(\.line) == [6, 6])
 		#expect(errors.allSatisfy { $0.reason.hasPrefix("`feedbackNote`: ") })
+	}
+
+	@Test
+	func `other errors of a content file are a readable sentence`() throws {
+		let errors = ContentErrors(converting: CocoaError(.fileReadNoSuchFile, userInfo: [NSFilePathErrorKey: "/missing.png"]), file: URL(filePath: "/test.md")).errors
+
+		try #require(errors.map(\.file) == [URL(filePath: "/test.md")])
+		#expect(errors[0].reason.contains("missing.png"))
+		#expect(!errors[0].reason.contains("NSCocoaErrorDomain"))
 	}
 
 	@Test
@@ -301,28 +455,28 @@ struct ContentTests {
 			try await BlogPost(markdown: "---\ntitle: 'Post'\npublicationDate: '2026-01-01'\n---\n\n## Question\n<!-- @faq.platforms Amiga -->", slug: "post")
 		}
 
-		#expect(errors.errors.map(\.line) == [7])
-		#expect(errors.errors.first?.reason.hasPrefix("The values of `@faq.platforms` are invalid") == true)
+		try #require(errors.errors.map(\.line) == [7])
+		#expect(errors.errors[0].reason.hasPrefix("The values of `@faq.platforms` are invalid"))
 	}
 
 	@Test
-	func `a pinned question needs one rank`() async {
-		let error = await #expect(throws: ContentErrors.self) {
+	func `a pinned question needs one rank`() async throws {
+		let error = try await #require(throws: ContentErrors.self) {
 			try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\n---\n\n## Frequently Asked Questions {#faq}\n\n### A question {#question}\n<!-- @faq.pinned -->\n\n### Another question {#another}\n<!-- @faq.pinned 1 2 -->\n\nAn answer.")
 		}
 
-		#expect(error?.errors.map(\.line) == [11, 14])
-		#expect(error?.errors.first?.reason.hasSuffix("It needs one rank, like `<!-- @faq.pinned 1 -->`.") == true)
+		try #require(error.errors.map(\.line) == [11, 14])
+		#expect(error.errors[0].reason.hasSuffix("It needs one rank, like `<!-- @faq.pinned 1 -->`."))
 	}
 
 	@Test
-	func `only the general FAQ page can mark general questions`() async {
-		let error = await #expect(throws: ContentErrors.self) {
+	func `only the general FAQ page can mark general questions`() async throws {
+		let error = try await #require(throws: ContentErrors.self) {
 			try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\n---\n\n## Frequently Asked Questions {#faq}\n\n### A question {#question}\n<!-- @faq.general -->\n\nAn answer.")
 		}
 
-		#expect(error?.errors.map(\.line) == [11])
-		#expect(error?.errors.first?.reason.hasPrefix("Unknown directive `@faq.general`.") == true)
+		try #require(error.errors.map(\.line) == [11])
+		#expect(error.errors[0].reason.hasPrefix("Unknown directive `@faq.general`."))
 	}
 
 	@Test
@@ -561,7 +715,7 @@ struct ContentTests {
 		let post = try await BlogPost(markdown: "---\ntitle: 'Post'\npublicationDate: '2026-01-01'\nredirectFrom: ['/blog/old-name']\n---\n\nText.", slug: "post")
 		let content = SiteContent(apps: [], posts: [post], pages: [], appStoreInfo: [:], releases: [:], recentRepositories: [], buildDate: .now, project: .empty)
 
-		let redirect = try #require(Site(content: content).routes(project: .empty).first { $0.path == "/blog/old-name" })
+		let redirect = try #require(Site(content: content).routes().first { $0.path == "/blog/old-name" })
 
 		guard case .redirect(let destination) = redirect.output else {
 			Issue.record("Expected a redirect, got \(redirect.output)")
@@ -579,21 +733,13 @@ struct ContentTests {
 		let listed = try await BlogPost(markdown: "---\ntitle: 'Listed'\npublicationDate: '2026-01-01'\n---\n\nText.", slug: "listed")
 		let unlisted = try await BlogPost(markdown: "---\ntitle: 'Unlisted'\npublicationDate: '2026-01-02'\nisUnlisted: true\n---\n\nText.", slug: "unlisted")
 		let content = SiteContent(apps: [], posts: [listed, unlisted], pages: [], buildDate: .now, project: .empty)
-		let routes = Site(content: content).routes(project: .empty)
+		let routes = Site(content: content).routes()
 
 		let route = try #require(routes.first { $0.path == "/blog/unlisted" })
 		#expect(route.sitemapEntry == nil)
 
-		guard
-			case .page(_, let renderBlog) = try #require(routes.first { $0.path == .blog }).output,
-			case .file(let renderFeed) = try #require(routes.first { $0.path == SiteFeed.blog.path }).output
-		else {
-			Issue.record("The blog is not a page, or its feed is not a file.")
-			return
-		}
-
-		let blog = try renderBlog()
-		let feed = try String(decoding: await renderFeed(), as: UTF8.self)
+		let blog = try #require(routes.first { $0.path == .blog }).renderedHTML()
+		let feed = try await String(decoding: #require(routes.first { $0.path == SiteFeed.blog.path }).renderedFile(), as: UTF8.self)
 
 		for html in [blog, feed] {
 			#expect(html.contains("/blog/listed"))
@@ -644,22 +790,18 @@ struct ContentTests {
 	}
 
 	/**
-	Like the apps page and the about page, which count the active apps, without the archived ones.
-	*/
-	/**
-	The videos have their own label, so the screenshots are numbered without them.
-	*/
-	/**
 	AVFoundation reads the size of a video, so the page reserves its space before it loads.
 	*/
 	@Test
 	func `app videos have their pixel size`() async throws {
 		let app = try #require(try await SiteContent.website.apps.first { $0.slug == "googly-eyes" })
 		let video = try #require(app.media.first { $0.kind == .video })
-		#expect(video.width == 1280)
-		#expect(video.height == 720)
+		#expect(video.size == PixelSize(width: 1280, height: 720))
 	}
 
+	/**
+	The videos have their own label, so the screenshots are numbered without them.
+	*/
 	@Test
 	func `the first screenshot after a video is screenshot 1`() async throws {
 		let app = try #require(try await SiteContent.website.apps.first { $0.slug == "googly-eyes" })
@@ -667,16 +809,22 @@ struct ContentTests {
 		#expect(AppMedia(app: app).render().matches(of: /alt="[^"]*"/).map { String($0.output) } == [#"alt="Googly Eyes screenshot 1""#])
 	}
 
-	/**
-	An archived app gets no support, and the feedback page does not list it.
-	*/
+	@Test
+	func `app media with one item has no buttons`() async throws {
+		let apps = try await SiteContent.website.apps
+		let single = try #require(apps.first { $0.media.count == 1 })
+		let several = try #require(apps.first { $0.media.count > 1 })
+		#expect(!AppMedia(app: single).render().contains("<button"))
+		#expect(AppMedia(app: several).render().contains(#"data-part="next""#))
+	}
+
 	/**
 	The page has no App Store download for an archived app, so the structured data does not offer it there.
 	*/
 	@Test
 	func `the structured data of an archived app does not offer it on the App Store`() async throws {
 		let app = try await App(markdown: "---\nisArchived: true\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2020-01-01'\nplatforms: ['macOS']\nappStoreID: 123\n---\n\nThe app is no longer available.\n")
-		let info = try JSONDecoder().decode(AppStoreInfo.self, from: Data(#"{"trackId": 123, "version": "2.0.0", "price": 0, "currency": "USD", "averageUserRating": 4.5, "userRatingCount": 10}"#.utf8))
+		let info = try AppStoreInfo(json: #"{"trackId": 123, "version": "2.0.0", "price": 0, "currency": "USD", "averageUserRating": 4.5, "userRatingCount": 10}"#)
 		let schema = Schema.SoftwareApplication(app: app, info: info)
 
 		#expect(app.downloadOptions.isEmpty)
@@ -710,6 +858,9 @@ struct ContentTests {
 		#expect(app.pageOverflowLinks.isEmpty)
 	}
 
+	/**
+	An archived app gets no support, and the feedback page does not list it.
+	*/
 	@Test
 	func `an archived app does not invite feedback in its FAQ`() async throws {
 		let app = try await App(markdown: "---\ntitle: 'Old App'\nsubtitle: 'Test app'\npublicationDate: '2020-01-01'\nplatforms: ['macOS']\nisArchived: true\n---\n\n## Frequently Asked Questions {#faq}\n\n### A question\n\nAn answer.")
@@ -717,6 +868,9 @@ struct ContentTests {
 		#expect(app.faqHeadings.map(\.text).contains("A question"))
 	}
 
+	/**
+	Like the apps page and the about page, which count the active apps, without the archived ones.
+	*/
 	@Test
 	func `the 1999 page counts the active apps`() async throws {
 		var apps = [App]()
@@ -744,14 +898,34 @@ struct ContentTests {
 		#expect(content.warnings.contains { $0.message.contains("dates of the last commits") })
 	}
 
+	@Test(.temporaryDirectory)
+	func `two files of one page and two apps with one App Store ID are errors`() async throws {
+		let app = "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nappStoreID: 123\n---"
+		let project = Project.site(root: try URL.temporaryDirectory(files: [
+			"content/apps/about.md": app.replacing("appStoreID: 123\n", with: ""),
+			"content/apps/first.md": app,
+			"content/apps/second.md": app,
+			"content/blog/.keep": "",
+			"content/pages/about.md": "---\ntitle: 'About'\n---",
+		]))
+
+		let errors = try await #require(throws: ContentErrors.self) {
+			try await SiteContent.load(from: project, externalData: .none)
+		}
+
+		#expect(errors.errors.count == 2)
+		#expect(errors.errors.contains { $0.reason.contains("the same page as `content/") && $0.reason.contains("which is at /about") })
+		#expect(errors.errors.contains { $0.reason == "It has the same `appStoreID` as Test, so they would share its price, rating, and reviews." })
+	}
+
 	@Test
 	func `sponsors without a place in the Markdown are an error`() async throws {
-		await #expect {
+		let error = try await #require(throws: ContentError.self) {
 			try await MarkdownPage(markdown: "---\ntitle: 'Supporters'\nsponsorTiers: [{title: 'Sponsor', price: '$100/month', sponsors: [{name: 'Someone'}]}]\n---\n\nThanks.", slug: "supporters")
-		} throws: { error in
-			let error = error as? ContentError
-			return error?.line == 3 && error?.reason.contains("@Sponsors") == true
 		}
+
+		#expect(error.line == 3)
+		#expect(error.reason.contains("@Sponsors"))
 	}
 
 	/**
@@ -759,19 +933,19 @@ struct ContentTests {
 	*/
 	@Test
 	func `a sponsor in a tier with logos needs a URL`() async throws {
-		await #expect {
+		let error = try await #require(throws: ContentError.self) {
 			try await MarkdownPage(markdown: "---\ntitle: 'Supporters'\nsponsorTiers: [{title: 'Sponsor', price: '$100/month', sponsors: [{name: 'Logo', url: 'https://example.com', logo: {path: '/logo.png', width: 100}}, {name: 'Someone'}]}]\n---\n\n@Sponsors\n", slug: "supporters")
-		} throws: { error in
-			(error as? ContentError)?.reason.contains("“Someone” is in a tier with logos") == true
 		}
+
+		#expect(error.reason.contains("“Someone” is in a tier with logos"))
 	}
 
 	/**
 	The content errors of loading the app, with lines in the file.
 	*/
-	private func loadingErrors(_ source: String) async -> [ContentError] {
+	private func loadingErrors(_ source: String, project: Project = .empty) async -> [ContentError] {
 		do {
-			_ = try await App(markdown: source)
+			_ = try await App(markdown: source, project: project)
 			return []
 		} catch {
 			return ContentErrors(converting: error, file: URL(filePath: "/test.md")).errors
@@ -831,17 +1005,15 @@ struct ContentTests {
 		#expect(offer.url.absoluteString == "https://example.com/buy")
 	}
 
-	@Test
-	func `a price in frontmatter has at most two decimals`() async {
-		#expect(await !loadingErrors("---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nisPaid: true\nprice: 4.999\n---\n\nText.").isEmpty)
-		#expect(await !loadingErrors("---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nisPaid: true\nprice: 0\n---\n\nText.").isEmpty)
-		#expect(await loadingErrors("---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nisPaid: true\nprice: 20\n---\n\nText.").isEmpty)
+	@Test(arguments: [("4.999", false), ("0", false), ("20", true)])
+	func `a price in frontmatter has at most two decimals`(price: String, isValid: Bool) async {
+		#expect(await loadingErrors("---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nisPaid: true\nprice: \(price)\n---\n\nText.").isEmpty == isValid)
 	}
 
 	@Test
 	func `the reviews show the rounded App Store rating, and the hero does not`() async throws {
 		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['iOS']\nappStoreID: 123\n---\n\nText.")
-		let info = try JSONDecoder().decode(AppStoreInfo.self, from: Data(#"{"trackId": 123, "price": 0, "currency": "USD", "averageUserRating": 4.5623, "userRatingCount": 1563}"#.utf8))
+		let info = try AppStoreInfo(json: #"{"trackId": 123, "price": 0, "currency": "USD", "averageUserRating": 4.5623, "userRatingCount": 1563}"#)
 		let review = AppStoreReview(title: "Great", text: "A review.", author: "A reviewer", rating: 5, date: .now)
 
 		#expect(AppReviews(reviews: [review], rating: info.rating).render().contains(">Rated 4.6 out of 5 from 1,563 ratings on the App Store</p>"))
@@ -851,20 +1023,17 @@ struct ContentTests {
 
 	@Test
 	func `the combined rating weights the apps by their number of ratings`() throws {
-		func info(_ json: String) throws -> AppStoreInfo {
-			try JSONDecoder().decode(AppStoreInfo.self, from: Data(json.utf8))
-		}
-
 		let infos = try [
-			info(#"{"trackId": 1, "averageUserRating": 4, "userRatingCount": 100}"#),
-			info(#"{"trackId": 2, "averageUserRating": 5, "userRatingCount": 200}"#),
+			AppStoreInfo(json: #"{"trackId": 1, "averageUserRating": 4, "userRatingCount": 100}"#),
+			AppStoreInfo(json: #"{"trackId": 2, "averageUserRating": 5, "userRatingCount": 200}"#),
 			// Mac App Store apps always have a rating count of 0.
-			info(#"{"trackId": 3, "averageUserRating": 0, "userRatingCount": 0, "kind": "mac-software"}"#),
+			AppStoreInfo(json: #"{"trackId": 3, "averageUserRating": 0, "userRatingCount": 0, "kind": "mac-software"}"#),
 		]
 
 		let rating = try #require(infos.combinedRating)
 		// 4.67, which is not halfway, so it only rounds to 4.7 when the average is weighted. Without the weights, it is 4.5.
-		#expect(rating.average == 4.7)
+		#expect(rating.average == 14.0 / 3)
+		#expect(rating.roundedAverage == 4.7)
 		#expect(rating.count == 300)
 		#expect(infos.suffix(1).combinedRating == nil)
 	}
@@ -875,8 +1044,8 @@ struct ContentTests {
 	@Test
 	func `the structured data only has the reviews of an app when it has a rating`() async throws {
 		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['iOS']\nappStoreID: 123\n---\n\nText.")
-		let rated = try JSONDecoder().decode(AppStoreInfo.self, from: Data(#"{"trackId": 123, "price": 0, "currency": "USD", "averageUserRating": 4.5, "userRatingCount": 10}"#.utf8))
-		let unrated = try JSONDecoder().decode(AppStoreInfo.self, from: Data(#"{"trackId": 123, "price": 0, "currency": "USD"}"#.utf8))
+		let rated = try AppStoreInfo(json: #"{"trackId": 123, "price": 0, "currency": "USD", "averageUserRating": 4.5, "userRatingCount": 10}"#)
+		let unrated = try AppStoreInfo(json: #"{"trackId": 123, "price": 0, "currency": "USD"}"#)
 		let reviews = [
 			AppStoreReview(title: "Great", text: "A review.", author: "A reviewer", rating: 5, date: .now),
 			AppStoreReview(title: "Nice", text: "Another review.", author: "Another reviewer", rating: 5, date: .now),
@@ -894,7 +1063,7 @@ struct ContentTests {
 	@Test
 	func `an app page shows the rating without reviews`() async throws {
 		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['iOS']\nappStoreID: 123\n---\n\nText.", slug: "test")
-		let info = try JSONDecoder().decode(AppStoreInfo.self, from: Data(#"{"trackId": 123, "price": 0, "currency": "USD", "averageUserRating": 4.5623, "userRatingCount": 1563}"#.utf8))
+		let info = try AppStoreInfo(json: #"{"trackId": 123, "price": 0, "currency": "USD", "averageUserRating": 4.5623, "userRatingCount": 1563}"#)
 		let content = SiteContent(apps: [app], posts: [], pages: [], appStoreInfo: [123: info], buildDate: .now, project: .empty)
 
 		let html = try AppPage(app: app, content: content).renderedHTML()
@@ -913,7 +1082,7 @@ struct ContentTests {
 	@Test
 	func `the price shows cents only when it has them`() throws {
 		func priceText(_ price: String) throws -> String? {
-			try JSONDecoder().decode(AppStoreInfo.self, from: Data(#"{"trackId": 123, "price": \#(price), "currency": "USD"}"#.utf8)).priceText(isPaid: true)
+			try AppStoreInfo(json: #"{"trackId": 123, "price": \#(price), "currency": "USD"}"#).priceText(isPaid: true)
 		}
 
 		#expect(try priceText("4.99") == "$4.99, one-time purchase")
@@ -931,14 +1100,6 @@ struct ContentTests {
 		#expect(!html.contains("No personal information"))
 		#expect(html.contains("anonymous crash reports"))
 		#expect(page.metadata.description == "The privacy policy of the Test app. Your questions are sent to OpenAI. Anonymous crash reports are sent to Sentry.")
-	}
-
-	@Test
-	func `an app is new for 30 days after its publication day`() async throws {
-		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\n---\n\nText.")
-
-		#expect(app.isNew(at: try Date("2026-01-30T23:59:59Z", strategy: .iso8601)))
-		#expect(!app.isNew(at: try Date("2026-01-31T00:00:00Z", strategy: .iso8601)))
 	}
 
 	@Test
@@ -976,12 +1137,12 @@ struct ContentTests {
 
 	@Test
 	func `the feedback link of an app selects it, also when its name has a plus`() {
-		#expect(App.feedbackURL(appTitle: "Plash+", referrer: "Website-FAQ").description == "/feedback?product=Plash%2B&referrer=Website-FAQ")
+		#expect(App.feedbackURL(appTitle: "Plash+", referrer: .faq).description == "/feedback?product=Plash%2B&referrer=Website-FAQ")
 	}
 
 	@Test
 	func `dates are shown in English and UTC, whatever the settings of the build machine`() throws {
-		// The next day in time zones east of UTC, like in Norway, and the day before in time zones west of it, so the test fails on any machine that is not in UTC.
+		// The next day in time zones east of UTC, like in Norway, and the day before in time zones west of it, so a format in the time zone of the machine fails the test on any machine that is not in UTC.
 		for date in [try Date("2024-06-05T23:30:00Z", strategy: .iso8601), try Date("2024-06-05T00:30:00Z", strategy: .iso8601)] {
 			#expect(date.formatted(.siteDay) == "June 5, 2024")
 			#expect(date.formatted(.siteDayWithoutYear) == "June 5")
@@ -1000,6 +1161,19 @@ struct ContentTests {
 	func `a sequence without the later elements with the same key`() {
 		#expect(["ky", "got", "ky", "Got"].uniqued(by: \.self) == ["ky", "got", "Got"])
 		#expect(["ky", "got", "Got"].uniqued { $0.lowercased() } == ["ky", "got"])
+	}
+
+	/**
+	The first element finishes last, so the results are in the order of the elements, not of the transforms.
+	*/
+	@Test
+	func `a concurrent map keeps the order of the elements`() async throws {
+		let results = try await [3, 2, 1, 0].concurrentMap { number in
+			try await Task.sleep(for: .milliseconds(number * 20))
+			return number * 2
+		}
+
+		#expect(results == [6, 4, 2, 0])
 	}
 }
 
@@ -1029,5 +1203,18 @@ struct AppTests {
 		let merged = original.merging(additions)
 		#expect(merged.map(\.title) == ["A", "B", "C"])
 		#expect(merged.map(\.destination) == [.path("/last"), .path("/b"), .path("/latest")])
+	}
+
+	/**
+	The other categories come from fields, like `isMenuBarApp`, so in `categories` they would silently do nothing.
+	*/
+	@Test
+	func `only hand-picked categories are allowed in the frontmatter`() async throws {
+		await #expect(throws: ContentError.self) {
+			try await App(markdown: markdown.replacing("---\n\nText.", with: "categories: ['menu-bar']\n---\n\nText."))
+		}
+
+		let app = try await App(markdown: markdown.replacing("---\n\nText.", with: "categories: ['shortcuts']\n---\n\nText."))
+		#expect(app.categories == [.shortcuts])
 	}
 }

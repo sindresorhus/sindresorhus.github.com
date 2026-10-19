@@ -21,7 +21,7 @@ struct FeedbackPage: Page {
 		PageMetadata(
 			title: "Feedback & Support",
 			description: "Send feedback, report a bug, or get support for apps by Sindre Sorhus.",
-			preconnectOrigins: ["https://formcarry.com"]
+			preconnectOrigins: [#URL("https://formcarry.com")]
 		)
 	}
 
@@ -142,7 +142,7 @@ struct FeedbackPage: Page {
 			ul {
 				for app in apps.sorted(using: KeyPathComparator(\.title, comparator: .localizedStandard)) {
 					li {
-						a(.href(App.feedbackURL(appTitle: app.title, referrer: "Website-Feedback"))) {
+						a(.href(App.feedbackURL(appTitle: app.title, referrer: .appPicker))) {
 							AppIcon(decorative: app, size: 32)
 
 							span {
@@ -175,7 +175,6 @@ struct FeedbackPage: Page {
 				.minlength(20),
 				.rows(7),
 				.required,
-				.autofocus,
 				.custom(name: "autocapitalize", value: "sentences"),
 				// Right-to-left messages, like Arabic, show in their own direction.
 				.dir(.auto)
@@ -334,12 +333,7 @@ extension FeedbackPage {
 					.cornerRadius(.fieldRadius)
 					.color(.bodyText)
 					.background(.card)
-					.transition(.backgroundColor, .color, animation: .stateChange)
-					.hoverOrFocusVisible {
-						$0
-							.background(.cardHover)
-							.color(.primaryText)
-					}
+					.hoverFill(.cardHover, color: .primaryText)
 			case .appNotice:
 				Style()
 					.margin(.bottom, .rootEm(1))

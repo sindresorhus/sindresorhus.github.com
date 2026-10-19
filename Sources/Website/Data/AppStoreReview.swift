@@ -19,7 +19,7 @@ struct AppStoreReview: Hashable, Sendable {
 	/**
 	The most reviews of one app, so the reviews of a popular app do not fill the wall of love.
 	*/
-	static let maximumCountPerApp = 25
+	private static let maximumCountPerApp = 25
 
 	/**
 	The number of reviews on a page of a feed. A full page means that the next page may have more.

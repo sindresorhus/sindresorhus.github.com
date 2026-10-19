@@ -1,5 +1,3 @@
-import Elementary
-
 /**
 A GitHub alert kind, like `> [!NOTE]`.
 */
@@ -13,14 +11,14 @@ public enum MarkdownAlert: String, CaseIterable, Sendable {
 	/**
 	The label, like `NOTE`.
 	*/
-	public var title: String {
+	var title: String {
 		rawValue.uppercased()
 	}
 
 	/**
 	The path of the GitHub Octicon of the kind.
 	*/
-	public var iconPath: String {
+	var iconPath: String {
 		switch self {
 		case .note:
 			"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"
@@ -161,6 +159,7 @@ public struct MarkdownTheme: Sendable {
 	}
 }
 
+// The markup is written as HTML, like in ``HTMLRenderer``, as rendering each element with Elementary is slow, and Elementary writes an SVG path as `<path … />`.
 extension MarkdownTheme {
 	/**
 	A collapsible section (`<details>`) with the look of the collapsible sections, like for a `@Details` directive.
@@ -174,85 +173,34 @@ extension MarkdownTheme {
 	/**
 	A collapsible section (`<details>`).
 
-	- Parameter headingLevel: The level of the heading that is the title in the summary, like `3` for a question of a FAQ. Without it, the title is a `span`.
+	- Parameter headingLevel: The level of the heading that is the title in the summary, like `3` for a question of a FAQ. The heading is like the headings of the document (``HTMLRenderer/visitHeading(_:)``). Without it, the title is a `span`.
 	*/
 	func collapsibleSection(id: String?, name: String?, headingLevel: Int?, titleHTML: String, contentHTML: String) -> String {
-		let attributes: [HTMLAttribute<HTMLTag.details>?] = [
-			id.map { .id($0) },
-			name.map { .custom(name: "name", value: $0) },
-			.class(classes(for: .collapsibleSection))
-		]
-
-		return details(attributes: attributes.compactMap(\.self)) {
-			summary(.class(classes(for: .collapsibleSummary))) {
-				collapsibleTitle(headingLevel: headingLevel, html: titleHTML)
-				span(.class(classes(for: .collapsibleChevron))) {}
-					.accessibilityHidden()
-			}
-			div(.class(classes(for: .collapsibleContent))) {
-				HTMLRaw(contentHTML)
-			}
-		}
-		.render()
-	}
-
-	@HTMLBuilder
-	private func collapsibleTitle(headingLevel: Int?, html: String) -> some HTML {
-		let classes = classes(for: .collapsibleTitle)
-
-		switch headingLevel {
-		case 1:
-			h1(.class(classes)) {
-				HTMLRaw(html)
-			}
-		case 2:
-			h2(.class(classes)) {
-				HTMLRaw(html)
-			}
-		case 3:
-			h3(.class(classes)) {
-				HTMLRaw(html)
-			}
-		case 4:
-			h4(.class(classes)) {
-				HTMLRaw(html)
-			}
-		case 5:
-			h5(.class(classes)) {
-				HTMLRaw(html)
-			}
-		case 6:
-			h6(.class(classes)) {
-				HTMLRaw(html)
-			}
-		default:
-			span(.class(classes)) {
-				HTMLRaw(html)
-			}
-		}
+		let idAttribute = id.map { #" id="\#($0.escapedForHTML)""# } ?? ""
+		let nameAttribute = name.map { #" name="\#($0.escapedForHTML)""# } ?? ""
+		let titleTag = headingLevel.map { "h\($0)" } ?? "span"
+		return #"<details\#(idAttribute)\#(nameAttribute)\#(classAttribute(.collapsibleSection))><summary\#(classAttribute(.collapsibleSummary))><\#(titleTag)\#(classAttribute(.collapsibleTitle))>\#(titleHTML)</\#(titleTag)><span\#(classAttribute(.collapsibleChevron)) aria-hidden="true"></span></summary><div\#(classAttribute(.collapsibleContent))>\#(contentHTML)</div></details>"#
 	}
 
 	/**
 	The link after the collapsible sections, like to more questions.
 	*/
 	func collapsibleMoreLink(_ link: MarkdownDocument.CollapsibleSections.MoreLink) -> String {
-		a(.href(link.destination), .class(classes(for: .collapsibleMoreLink))) {
-			link.title
-		}
-		.render()
+		#"<a href="\#(link.destination.description.escapedForHTML)"\#(classAttribute(.collapsibleMoreLink))>\#(link.title.escapedForHTML)</a>"#
 	}
 
 	/**
 	The numbered reference to a footnote in the text: a button that opens the popover with the footnote.
 	*/
 	func footnoteReference(number: Int, popoverID: String) -> String {
-		sup {
-			button(.type(.button), .popoverTarget(popoverID), .class(classes(for: .footnoteReference))) {
-				"\(number)"
-			}
-			.accessibilityLabel("Footnote \(number)")
-		}
-		.render()
+		#"<sup><button type="button" popovertarget="\#(popoverID.escapedForHTML)"\#(classAttribute(.footnoteReference)) aria-label="Footnote \#(number)">\#(number)</button></sup>"#
+	}
+
+	/**
+	The text of an inline note: a button that opens the popover with the note.
+	*/
+	func inlineNote(textHTML: String, popoverID: String) -> String {
+		#"<button type="button" popovertarget="\#(popoverID.escapedForHTML)"\#(classAttribute(.inlineNote))>\#(textHTML)</button>"#
 	}
 
 	/**
@@ -261,10 +209,7 @@ extension MarkdownTheme {
 	The popover gets the focus when it opens, as it is after the text, at the end of the document, so screen readers read it, and Tab goes to its links. Escape gives the focus back to what opened it.
 	*/
 	func popover(id: String, element: MarkdownElement, contentHTML: String) -> String {
-		div(.popover, .id(id), .role("note"), .tabindex(-1), .autofocus, .class(classes(for: element))) {
-			HTMLRaw(contentHTML)
-		}
-		.render()
+		#"<div popover id="\#(id.escapedForHTML)" role="note" tabindex="-1" autofocus\#(classAttribute(element))>\#(contentHTML)</div>"#
 	}
 
 	/**
@@ -273,15 +218,7 @@ extension MarkdownTheme {
 	- Parameter title: The title, which is the title of the kind by default, like `NOTE`.
 	*/
 	public func alert(_ kind: MarkdownAlert, title: String? = nil, contentHTML: String) -> String {
-		div(.class(classes(for: .alert(kind))), .dir(.auto)) {
-			p(.class(classes(for: .alertTitle)), .dir(.auto)) {
-				// Elementary writes an SVG path as `<path … />`, so the icon is written as HTML, which keeps the markup as it was.
-				HTMLRaw(#"<svg class="\#(classes(for: .alertIcon).escapedForHTML)" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="\#(kind.iconPath)"></path></svg>"#)
-				title ?? kind.title
-			}
-			HTMLRaw(contentHTML)
-		}
-		.render()
+		#"<div\#(classAttribute(.alert(kind))) dir="auto"><p\#(classAttribute(.alertTitle)) dir="auto"><svg\#(classAttribute(.alertIcon)) viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="\#(kind.iconPath)"></path></svg>\#((title ?? kind.title).escapedForHTML)</p>\#(contentHTML)</div>"#
 	}
 
 	/**
@@ -292,27 +229,19 @@ extension MarkdownTheme {
 	func keyboardShortcut(keysHTML: [String]) -> String {
 		keysHTML.enumerated()
 			.map { index, key in
-				let separator = index == 0 ? "" : #"<span class="\#(classes(for: .keySeparator))" aria-hidden="true">+</span>"#
+				let separator = index == 0 ? "" : #"<span\#(classAttribute(.keySeparator)) aria-hidden="true">+</span>"#
 				return "\(separator)<kbd>\(key)</kbd>"
 			}
 			.joined()
 	}
 
 	/**
-	A link to the section, with a link icon and a check icon that `site.js` shows after copying the URL.
+	A link to the section, with a link icon and a check icon that the script shows after copying the URL (`data-copy-link`). Its name has the text of the heading, so each link in a list of the links of the page has its own name.
 	*/
-	func headingAnchor(id: String) -> String {
-		// Elementary writes an SVG path as `<path … />`, so the icons are written as HTML, which keeps the markup as it was.
-		let icon = { (element: MarkdownElement, path: String) in
-			HTMLRaw(#"<svg class="\#(classes(for: element).escapedForHTML)" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="\#(path)"/></svg>"#)
-		}
-
-		return a(.href("#\(id)"), .class(classes(for: .headingAnchor)), .data("copy-link", value: "")) {
-			icon(.headingAnchorLinkIcon, "M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-.025 9.45a.75.75 0 01-1.06-1.06l-1.25 1.25a2 2 0 01-2.83-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25z")
-			icon(.headingAnchorCheckIcon, "M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z")
-		}
-		.accessibilityLabel("Copy link to section")
-		.render()
+	func headingAnchor(for heading: Heading) -> String {
+		let linkIcon = #"<svg\#(classAttribute(.headingAnchorLinkIcon)) width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-.025 9.45a.75.75 0 01-1.06-1.06l-1.25 1.25a2 2 0 01-2.83-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25z"/></svg>"#
+		let checkIcon = #"<svg\#(classAttribute(.headingAnchorCheckIcon)) width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"/></svg>"#
+		return ##"<a href="#\##(heading.id.escapedForHTML)"\##(classAttribute(.headingAnchor)) data-copy-link="" aria-label="\##("Copy link to section: \(heading.text)".escapedForHTML)">\##(linkIcon)\##(checkIcon)</a>"##
 	}
 
 	/**
@@ -321,10 +250,13 @@ extension MarkdownTheme {
 	- Parameter label: The name of the region, for screen readers.
 	*/
 	func tableContainer(label: String, tableHTML: String) -> String {
-		div(.class(classes(for: .tableContainer)), .tabindex(0), .role("region")) {
-			HTMLRaw("\n" + tableHTML)
-		}
-		.accessibilityLabel(label)
-		.render()
+		#"<div\#(classAttribute(.tableContainer)) tabindex="0" role="region" aria-label="\#(label.escapedForHTML)">"# + "\n" + tableHTML + "</div>"
+	}
+
+	/**
+	The `class` attribute with the classes of the element, with a space before it.
+	*/
+	func classAttribute(_ element: MarkdownElement) -> String {
+		#" class="\#(classes(for: element).escapedForHTML)""#
 	}
 }

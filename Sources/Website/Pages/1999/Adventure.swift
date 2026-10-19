@@ -317,7 +317,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 					}
 					.style(Styles.panel)
 
-					div(.part(Parts.death), .hidden, .role("alertdialog"), .custom(name: "aria-label", value: "You have died"), .ariaDescribedBy("geocities-adventure-death-text")) {
+					div(.part(Parts.death), .hidden, .role("alertdialog"), .ariaLabel("You have died"), .ariaDescribedBy("geocities-adventure-death-text")) {
 						h4 {
 							"☠ You have died!"
 						}
@@ -368,7 +368,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 					}
 					.style(Styles.panel)
 
-					div(.part(Parts.hintLine), .hidden, .role("dialog"), .custom(name: "aria-label", value: "Sindresoft Hint Line")) {
+					div(.part(Parts.hintLine), .hidden, .role("dialog"), .ariaLabel("Sindresoft Hint Line")) {
 						h4 {
 							"☎ Sindresoft Hint Line"
 						}

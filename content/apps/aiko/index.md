@@ -9,6 +9,10 @@ platforms: [
 ]
 isPaid: true
 appStoreID: 1672085276
+sharedQuestions: [
+	'native'
+	'suggested-filenames'
+]
 olderVersions: [
 	{
 		version: '1.10.1'
@@ -460,7 +464,3 @@ You can also use the [Replaceicon](https://replacicon.app) app (paid).
 IPA (International Phonetic Alphabet): `[a.i.ko̞]`
 
 English approximation: `ah-ee-ko`
-
-### Is the app native?
-
-Yes, it’s native and written in Swift and SwiftUI.

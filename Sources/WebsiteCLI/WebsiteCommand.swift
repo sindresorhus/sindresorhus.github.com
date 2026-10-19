@@ -15,27 +15,35 @@ struct WebsiteCommand: AsyncParsableCommand {
 	)
 }
 
-struct SiteOptions: ParsableArguments {
-	@Option(help: "The repository root.")
-	var root = "."
-
-	@Option(help: "The output directory. Files in it that the site does not publish are deleted. Defaults to <root>/dist.")
-	var output: String?
-
-	var project: Project {
-		Project.site(root: URL(filePath: root, directoryHint: .isDirectory, relativeTo: .currentDirectory()))
+extension Project {
+	/**
+	The project in the current directory, the repository root.
+	*/
+	fileprivate static var current: Self {
+		.site(root: .currentDirectory())
 	}
 
+	fileprivate var externalData: ExternalData {
+		.fetch(.forBuilds(of: self))
+	}
+}
+
+/**
+The options of the commands that publish the site.
+*/
+struct SiteOptions: ParsableArguments {
+	@Option(help: "The output directory. Files in it that the site does not publish are deleted.")
+	var output = "dist"
+
 	var outputDirectory: URL {
-		output.map { URL(filePath: $0, directoryHint: .isDirectory, relativeTo: .currentDirectory()) } ?? project.root.appending(path: "dist")
+		URL(filePath: output, directoryHint: .isDirectory, relativeTo: .currentDirectory())
 	}
 
 	@Flag(help: "Print how long each build step takes.")
 	var verbose = false
 
-	var externalData: ExternalData {
-		.fetch(.forBuilds(of: project))
-	}
+	@Flag(help: "Fail the build and the check when there is a warning, like a failed request or a spelling mistake.")
+	var strict = false
 
 	/**
 	Publishes the site, checks the internal links, and prints the report, with the broken links.
@@ -45,7 +53,8 @@ struct SiteOptions: ParsableArguments {
 	*/
 	@discardableResult
 	func build(includesGallery: Bool = false, onPublished: @Sendable () -> Void = {}) async throws -> Site.BuildReport {
-		let report = try await Site.build(project: project, output: outputDirectory, externalData: externalData, includesGallery: includesGallery, onPublished: onPublished)
+		let project = Project.current
+		let report = try await Site.build(project: project, output: outputDirectory, externalData: project.externalData, includesGallery: includesGallery, onPublished: onPublished)
 
 		for warning in report.warnings {
 			print("Warning: \(warning)")
@@ -88,7 +97,12 @@ extension WebsiteCommand {
 		var options: SiteOptions
 
 		func run() async throws {
-			guard try await options.build().brokenLinks.isEmpty else {
+			let report = try await options.build()
+
+			guard
+				report.brokenLinks.isEmpty,
+				!options.strict || report.warnings.isEmpty
+			else {
 				throw ExitCode.failure
 			}
 		}
@@ -102,7 +116,7 @@ extension WebsiteCommand {
 
 		func run() async throws {
 			let report = try await options.build()
-			let warnings = await report.content.warnings(project: options.project, output: options.outputDirectory)
+			let warnings = await report.content.warnings(output: options.outputDirectory)
 
 			for warning in warnings {
 				print("Warning: \(warning)")
@@ -116,18 +130,20 @@ extension WebsiteCommand {
 			guard report.brokenLinks.isEmpty else {
 				throw ExitCode.failure
 			}
+
+			guard !options.strict || count == 0 else {
+				throw ExitCode.failure
+			}
 		}
 	}
 
 	struct Routes: AsyncParsableCommand {
 		static let configuration = CommandConfiguration(abstract: "List every route of the site.")
 
-		@OptionGroup
-		var options: SiteOptions
-
 		func run() async throws {
-			let content = try await SiteContent.load(from: options.project, externalData: options.externalData)
-			let routes = Site(content: content).routes(project: options.project)
+			let project = Project.current
+			let content = try await SiteContent.load(from: project, externalData: project.externalData)
+			let routes = Site(content: content).routes()
 
 			for route in routes.sorted(using: KeyPathComparator(\.path.description, comparator: String.StandardComparator.lexical)) {
 				let kind = switch route.output {
@@ -166,7 +182,7 @@ extension WebsiteCommand {
 		var restarted = false
 
 		func run() async throws {
-			let project = options.project
+			let project = Project.current
 			let sources = project.root.appending(path: "Sources")
 			let server = PreviewServer(directory: options.outputDirectory, port: port, reloadsPages: true, servesLocalNetwork: localNetwork)
 
@@ -204,7 +220,7 @@ extension WebsiteCommand {
 			if sourcesChanged {
 				// The port the system chose for `--port 0`, so the open pages find the new server.
 				var ports = listeningPorts.makeAsyncIterator()
-				try ToolRestarter.restart(project: options.project, port: await ports.next() ?? port)
+				try ToolRestarter.restart(project: project, port: await ports.next() ?? port)
 			}
 		}
 
@@ -223,7 +239,7 @@ extension WebsiteCommand {
 				if changedSources.contains(where: { $0.pathExtension != "js" }) {
 					print("The sources changed. Rebuilding the tool…")
 
-					if await ToolRestarter.build(project: options.project) {
+					if await ToolRestarter.build(project: .current) {
 						return true
 					}
 
@@ -295,8 +311,10 @@ extension WebsiteCommand {
 
 				buildError = report.brokenLinksText
 			} catch {
-				print("Error: \(error)")
-				buildError = "\(error)"
+				// Like `website build` prints it (ArgumentParser): a Foundation error, like a missing directory, as its sentence, without its domain and code. Foundation errors are `NSError` objects, and the errors of the site are Swift types.
+				let message = error.descriptiveMessage
+				print("Error: \(message)")
+				buildError = message
 			}
 
 			let errors = [toolError, buildError].compactMap(\.self)

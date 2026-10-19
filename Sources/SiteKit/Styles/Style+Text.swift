@@ -96,6 +96,13 @@ extension Style {
 	}
 
 	/**
+	The direction of text and inline layout.
+	*/
+	public func direction(_ value: TextDirection) -> Self {
+		declaration(.direction, value)
+	}
+
+	/**
 	Whether the visitor can select the text, like SwiftUI's `textSelection(_:)`. Safari only supports `-webkit-user-select`, so both are set.
 	*/
 	public func textSelection(_ selection: TextSelection) -> Self {
@@ -115,6 +122,13 @@ extension Style {
 	*/
 	public func overflowWrap(_ wrap: OverflowWrap) -> Self {
 		declaration(.overflowWrap, wrap)
+	}
+
+	/**
+	How clipped inline text is marked.
+	*/
+	public func textOverflow(_ value: TextOverflow) -> Self {
+		declaration(.textOverflow, value)
 	}
 
 	/**
@@ -180,7 +194,7 @@ extension Style {
 	}
 
 	/**
-	A font size that grows with the screen between two screen widths, instead of jumping at a breakpoint, with `clamp()`. The size is in `rem` plus `vw`, so it still follows the zoom of the browser.
+	A font size that grows with the screen between two screen widths, instead of jumping at a breakpoint, with `clamp()`. The size is in `rem` plus `vw`. The `rem` part follows the zoom of the browser, but the `vw` part does not, as zoom makes the screen narrower in CSS pixels. So zoomed text grows less than the zoom until it is at its minimum size, from where it follows the zoom fully. With a maximum of at most 2.5 times the minimum, the text reaches 200% within the zoom of browsers (up to 500%), as WCAG asks, unless the root size also grows with the screen.
 
 	```swift
 	// 3rem on phones, 4.5rem from tablets, and in between on screens in between.
@@ -261,14 +275,5 @@ extension Style {
 	*/
 	public func listStyle(_ style: ListStyle) -> Self {
 		declaration(.listStyle, style)
-	}
-}
-
-extension Style {
-	/**
-	How clipped inline text is marked.
-	*/
-	public func textOverflow(_ value: TextOverflow) -> Self {
-		declaration(.textOverflow, value)
 	}
 }

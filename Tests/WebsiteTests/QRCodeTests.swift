@@ -1,6 +1,7 @@
 import CoreImage
 import Elementary
 import Foundation
+import SiteKit
 import Testing
 @testable import Website
 
@@ -8,7 +9,7 @@ import Testing
 struct QRCodeTests {
 	@Test
 	func `the modules read back as the URL`() throws {
-		let url = try #require(URL(string: "https://apps.apple.com/app/id1234567890"))
+		let url = #URL("https://apps.apple.com/app/id1234567890")
 		let code = QRCode(url: url, label: "QR code")
 		let size = code.modules.count
 		#expect(size > 20)
@@ -38,8 +39,8 @@ struct QRCodeTests {
 	}
 
 	@Test
-	func `the SVG draws the dark modules in the current color`() throws {
-		let html = QRCode(url: try #require(URL(string: "https://sindresorhus.com")), label: "QR code for “Dato”").render()
+	func `the SVG draws the dark modules in the current color`() {
+		let html = QRCode(url: #URL("https://sindresorhus.com"), label: "QR code for “Dato”").render()
 
 		#expect(html.hasPrefix(#"<div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 "#))
 		#expect(html.contains(#"aria-label="QR code for “Dato”""#))
@@ -47,8 +48,8 @@ struct QRCodeTests {
 	}
 
 	@Test
-	func `the terminal text has the modules in half blocks with a margin`() throws {
-		let code = QRCode(url: try #require(URL(string: "https://sindresorhus.com")), label: "QR code")
+	func `the terminal text has the modules in half blocks with a margin`() {
+		let code = QRCode(url: #URL("https://sindresorhus.com"), label: "QR code")
 		let colors = "\u{1B}[38;5;16;48;5;231m"
 		let reset = "\u{1B}[0m"
 		let lines = code.terminalText.split(separator: "\n").map(String.init)

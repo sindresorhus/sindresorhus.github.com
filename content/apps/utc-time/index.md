@@ -7,6 +7,9 @@ platforms: [
 ]
 isMenuBarApp: true
 appStoreID: 1538245904
+sharedQuestions: [
+	'blurry-secondary-display'
+]
 hasSentry: true
 olderVersions: [
 	{
@@ -40,10 +43,6 @@ olderVersions: [
 See the time in UTC at a glance, in your menu bar or a widget. Useful when you work with servers, logs, or people in many time zones.
 
 ## Frequently Asked Questions {#faq}
-
-### The time looks blurry or is not dimmed on my secondary display
-
-[See this answer](/apps/faq#menu-bar-secondary-display)
 
 ### Can you localize the app into my language?
 

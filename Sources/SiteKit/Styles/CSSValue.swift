@@ -146,30 +146,30 @@ extension CSSValue {
 	/**
 	A linear gradient, like `linearGradient("to right", .blue, .pink)`.
 
-	- Parameter colorSpace: The color space the colors are mixed in, like `oklch`, which avoids the gray middle of gradients between distant colors.
+	- Parameter colorSpace: The color space the colors are mixed in, like ``ColorSpace/oklch``, which avoids the gray middle of gradients between distant colors.
 	*/
-	public static func linearGradient(_ direction: String, _ colors: Color..., in colorSpace: String? = nil) -> Self {
+	public static func linearGradient(_ direction: String, _ colors: Color..., in colorSpace: ColorSpace? = nil) -> Self {
 		gradient("linear-gradient", direction, colors.map(\.description), in: colorSpace)
 	}
 
 	/**
 	A linear gradient with the colors at positions, like `linearGradient("175deg", Color.white.at(.percent(0)), Color.transparent.at(.percent(70)))`.
 	*/
-	public static func linearGradient(_ direction: String, _ stops: GradientStop..., in colorSpace: String? = nil) -> Self {
+	public static func linearGradient(_ direction: String, _ stops: GradientStop..., in colorSpace: ColorSpace? = nil) -> Self {
 		gradient("linear-gradient", direction, stops.map(\.description), in: colorSpace)
 	}
 
 	/**
 	A radial gradient, like `radialGradient("circle at 20% 40%", .blue, .transparent)`. The colors are spread evenly, so a color twice in a row is solid between them, like `.black, .black, .transparent` for a shape that is solid to the middle of its radius and then fades.
 	*/
-	public static func radialGradient(_ shape: String, _ colors: Color..., in colorSpace: String? = nil) -> Self {
+	public static func radialGradient(_ shape: String, _ colors: Color..., in colorSpace: ColorSpace? = nil) -> Self {
 		gradient("radial-gradient", shape, colors.map(\.description), in: colorSpace)
 	}
 
 	/**
 	A radial gradient with the colors at positions, like `radialGradient("circle", Color.black.at(.percent(80)), Color.transparent.at(.percent(100)))` for a shape that fades at its edge.
 	*/
-	public static func radialGradient(_ shape: String, _ stops: GradientStop..., in colorSpace: String? = nil) -> Self {
+	public static func radialGradient(_ shape: String, _ stops: GradientStop..., in colorSpace: ColorSpace? = nil) -> Self {
 		gradient("radial-gradient", shape, stops.map(\.description), in: colorSpace)
 	}
 
@@ -178,16 +178,17 @@ extension CSSValue {
 
 	- Parameter angle: Where the first color is, clockwise from the top.
 	*/
-	public static func conicGradient(_ colors: Color..., from angle: Angle? = nil, in colorSpace: String? = nil) -> Self {
+	public static func conicGradient(_ colors: Color..., from angle: Angle? = nil, in colorSpace: ColorSpace? = nil) -> Self {
 		gradient("conic-gradient", angle.map { "from \($0)" }, colors.map(\.description), in: colorSpace)
 	}
 
 	/**
 	A gradient function, like `linear-gradient(to right in oklch, blue, pink)`. The shape and the color space are the first argument, which is left out when there are none.
 	*/
-	private static func gradient(_ name: String, _ shape: String?, _ colors: [String], in colorSpace: String?) -> Self {
-		let shape = [shape, colorSpace.map { "in \($0)" }].compactMap(\.self).joined(separator: " ")
-		return Self("\(name)(\(((shape.isEmpty ? [] : [shape]) + colors).joined(separator: ", ")))")
+	private static func gradient(_ name: String, _ shape: String?, _ colors: [String], in colorSpace: ColorSpace?) -> Self {
+		let prelude = [shape, colorSpace.map { "in \($0.rawValue)" }].compactMap(\.self).joined(separator: " ")
+		let arguments = prelude.isEmpty ? colors : [prelude] + colors
+		return Self("\(name)(\(arguments.joined(separator: ", ")))")
 	}
 
 	/**

@@ -7,7 +7,7 @@ extension App {
 	/**
 	The ID of the “Non-App Store Version” heading, which is in the “…” menu instead of the links of the app.
 	*/
-	static let nonAppStoreVersionID = "non-app-store-version"
+	private static let nonAppStoreVersionID = "non-app-store-version"
 
 	/**
 	Links to the sections of the page (level 2 headings).
@@ -33,7 +33,10 @@ extension App {
 	*/
 	var links: [LabeledLink] {
 		var support = [LabeledLink]()
-		if frontmatter.showsSupportLink, !frontmatter.isArchived {
+		if
+			frontmatter.showsSupportLink,
+			!frontmatter.isArchived
+		{
 			support.append(LabeledLink("Support", destination: feedbackURL))
 		}
 
@@ -121,34 +124,38 @@ extension App {
 	}
 
 	var hasFAQSection: Bool {
-		markdown.headings.contains(where: \.isFAQSection)
+		markdown.headings.hasFAQSection
 	}
 
 	/**
 	The questions of the FAQ section: its level 3 headings, except the injected feedback question and the added menu bar question, which only links to the general question.
 	*/
 	var faqHeadings: [Heading] {
-		guard let start = markdown.headings.firstIndex(where: \.isFAQSection) else {
+		markdown.headings.faqSection.filter { heading in
+			heading.level == 3
+				&& heading.id != App.feedbackHeadingID
+				&& heading.id != App.addedMenuBarQuestionID
+		}
+	}
+}
+
+extension [Heading] {
+	/**
+	Whether the headings have the FAQ section of an app.
+	*/
+	var hasFAQSection: Bool {
+		contains(where: \.isFAQSection)
+	}
+
+	/**
+	The headings in the FAQ section of an app, after its level 2 heading and before the next heading of level 2 or less. Empty without a FAQ section.
+	*/
+	var faqSection: ArraySlice<Heading> {
+		guard let start = firstIndex(where: \.isFAQSection) else {
 			return []
 		}
 
-		var questions = [Heading]()
-
-		for heading in markdown.headings[(start + 1)...] {
-			if heading.level <= 2 {
-				break
-			}
-
-			if
-				heading.level == 3,
-				heading.id != App.feedbackHeadingID,
-				heading.id != App.addedMenuBarQuestionID
-			{
-				questions.append(heading)
-			}
-		}
-
-		return questions
+		return self[(start + 1)...].prefix { $0.level > 2 }
 	}
 }
 

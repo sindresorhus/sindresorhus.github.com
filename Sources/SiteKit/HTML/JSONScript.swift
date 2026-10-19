@@ -49,7 +49,7 @@ public struct JSONScript: HTML, Sendable {
 	Speculation rules, which tell the browser which pages to prefetch or prerender. Property names are written in snake case, like `href_matches` for `hrefMatches`.
 	*/
 	public init(speculationRules value: some Encodable) {
-		self.type = "speculationrules"
+		self.type = .speculationrules
 		self.attribute = nil
 		self.json = Self.encode(value, keyEncodingStrategy: .convertToSnakeCase)
 	}

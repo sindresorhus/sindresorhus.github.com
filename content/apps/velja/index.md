@@ -11,6 +11,9 @@ isPaid: true
 isMenuBarApp: true
 hasSentry: true
 appStoreID: 1607635845
+sharedQuestions: [
+	'menu-bar-icons'
+]
 olderVersions: [
 	{
 		version: '3.0.1'
@@ -745,10 +748,6 @@ Firefox and Firefox Beta use the same [identifier](https://cocoacasts.com/what-a
 ### How do I disable Velja?
 
 [Change the system default browser back to Safari.](https://support.apple.com/HT201607)
-
-### Can you add another menu bar icon option?
-
-Sure! Find an icon you like in the [SF Symbols app](https://developer.apple.com/sf-symbols/) or [here](https://thenounproject.com/icons/), and send me the name or a link.
 
 ### Why do I sometimes see a cog icon in the menu bar when opening a link? {#url-support-infoplist}
 

@@ -157,55 +157,53 @@ extension MarkdownTheme {
 	The classes of the site's styles for the markup that the Markdown renderer creates.
 	*/
 	static let site = Self { element in
-		let styles: [any StyleSet] = switch element {
+		switch element {
 		case .alert(let kind):
-			[ProseStyles.alert, kind.style]
+			"\(ProseStyles.alert.className) \(kind.style.className)"
 		case .alertTitle:
-			[ProseStyles.alertTitle]
+			ProseStyles.alertTitle.className
 		case .alertIcon:
-			[ProseStyles.alertIcon]
+			ProseStyles.alertIcon.className
 		case .footnoteReference:
-			[ProseStyles.footnoteReference]
+			ProseStyles.footnoteReference.className
 		// The text of a note is an `InlineNote`, with its own styles.
 		case .inlineNote:
-			[]
+			""
 		// A note has the popover of a footnote.
 		case .footnotePopover, .inlineNotePopover:
-			[ProseStyles.popover]
+			ProseStyles.popover.className
 		case .keySeparator:
-			[ProseStyles.keySeparator]
+			ProseStyles.keySeparator.className
 		case .tableContainer:
-			[ProseStyles.tableContainer]
+			ProseStyles.tableContainer.className
 		case .collapsibleSections:
-			[ProseStyles.collapsibleSections]
+			ProseStyles.collapsibleSections.className
 		case .collapsibleSection:
-			[ProseStyles.collapsibleSection]
+			ProseStyles.collapsibleSection.className
 		case .collapsibleSummary:
-			[ProseStyles.collapsibleSummary]
+			ProseStyles.collapsibleSummary.className
 		case .collapsibleTitle:
-			[ProseStyles.collapsibleTitle]
+			ProseStyles.collapsibleTitle.className
 		case .collapsibleChevron:
-			[ProseStyles.collapsibleChevron]
+			ProseStyles.collapsibleChevron.className
 		case .collapsibleContent:
-			[ProseStyles.collapsibleContent]
+			ProseStyles.collapsibleContent.className
 		case .collapsibleMoreLink:
-			[ProseStyles.collapsibleMoreLink]
+			ProseStyles.collapsibleMoreLink.className
 		case .anchoredHeading:
-			[ProseStyles.anchoredHeading]
+			ProseStyles.anchoredHeading.className
 		case .anchoredSection:
-			[ProseStyles.anchoredSection]
+			ProseStyles.anchoredSection.className
 		case .headingAnchor:
-			[ProseStyles.headingAnchor]
+			ProseStyles.headingAnchor.className
 		case .headingAnchorLinkIcon:
-			[ProseStyles.headingAnchorLinkIcon]
+			ProseStyles.headingAnchorLinkIcon.className
 		case .headingAnchorCheckIcon:
-			[ProseStyles.headingAnchorCheckIcon]
+			ProseStyles.headingAnchorCheckIcon.className
 		case .listSubtitle:
-			[ProseStyles.listSubtitle]
+			ProseStyles.listSubtitle.className
 		case .listDescription:
-			[ProseStyles.listDescription]
+			ProseStyles.listDescription.className
 		}
-
-		return styles.map(\.className).joined(separator: " ")
 	}
 }

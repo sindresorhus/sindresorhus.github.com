@@ -26,10 +26,12 @@ struct PrivacyPolicyPage: Page {
 
 	var metadata: PageMetadata {
 		let crashReports = app.hasSentry ? " Anonymous crash reports are sent to Sentry." : ""
-		return PageMetadata(title: "Privacy Policy — \(app.title)", description: "The privacy policy of the \(app.title) app. \(statement)\(crashReports)")
+		// Search engines do not index the page of an unlisted app, like the page of the app.
+		return PageMetadata(title: "Privacy Policy — \(app.title)", description: "The privacy policy of the \(app.title) app. \(statement)\(crashReports)", isIndexed: app.isListed)
 	}
 
 	var body: some HTML {
+		// The privacy policy of an unlisted app is public before the app launches, as App Review checks it. It has no link back to the app, so a reviewer does not go on to the rest of the site and comment on something there.
 		ProsePage(title: "Privacy Policy for \(app.title)", backTo: app.isListed ? app : nil) {
 			p {
 				statement

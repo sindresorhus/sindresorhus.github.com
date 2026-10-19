@@ -8,6 +8,9 @@ platforms: [
 	'visionOS'
 ]
 appStoreID: 6744484427
+sharedQuestions: [
+	'suggested-filenames'
+]
 olderVersions: [
 	{
 		version: '1.2.0'

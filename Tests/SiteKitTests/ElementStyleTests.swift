@@ -34,7 +34,7 @@ struct ElementStyleTests {
 		}
 
 		let classNames = html.matches(of: /class="([\w-]+)"/).map { String($0.1) }
-		#expect(classNames.count == 3)
+		try #require(classNames.count == 3)
 		#expect(classNames[0] == classNames[1])
 		#expect(classNames[0] != classNames[2])
 		#expect(classNames.allSatisfy { $0.hasPrefix("element-style-tests-") })

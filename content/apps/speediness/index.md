@@ -6,6 +6,9 @@ platforms: [
 	'macOS'
 ]
 appStoreID: 1596706466
+sharedQuestions: [
+	'native'
+]
 hasSentry: true
 olderVersions: [
 	{
@@ -100,10 +103,6 @@ This is unfortunately not possible at this time as the app relies on the built-i
 ### Can you make a command-line tool for this app?
 
 This app uses the built-in [`networkQuality` command-line tool](https://support.apple.com/HT212313) under the hood. You can use it too.
-
-### Is the app native?
-
-Yes, it’s native and written in Swift and SwiftUI.
 
 ## Non-App Store Version
 

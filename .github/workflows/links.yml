@@ -15,6 +15,9 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          # The full history, for the dates of the sources.
+          fetch-depth: 0
       # The build of the CI workflow, so only what changed since compiles.
       - uses: actions/cache/restore@v6
         with:
@@ -23,6 +26,9 @@ jobs:
             .cache/responses
           key: build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-${{ github.sha }}
           restore-keys: build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-
+      # Like CI, so the sources that did not change since its build do not compile again.
+      - name: Date the sources by their last commit
+        run: git -c core.quotePath=false log --format=date:%ct --name-only --diff-merges=first-parent -- Package.swift Package.resolved Sources Tests | perl -nle 'if (/^date:(\d+)$/) { $date = $1 } elsif ($_ ne "" && !$seen{$_}++ && -e) { utime $date, $date, $_ }'
       # The same build command as CI, as other flags would compile everything again.
       - name: Build site
         env:

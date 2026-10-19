@@ -47,7 +47,7 @@ extension GeoCitiesWindows {
 					button(.type(.button), .hook(Hooks.calcKey, value: key)) {
 						key
 					}
-					.attributes(.custom(name: "aria-label", value: name ?? key), when: name != nil)
+					.attributes(.ariaLabel(name ?? key), when: name != nil)
 					.style(key.first?.isNumber == true || key == "." ? Styles.calcBlueKey : Styles.calcRedKey)
 				}
 			}
@@ -78,7 +78,7 @@ extension GeoCitiesWindows {
 			.style(Styles.dosOutput)
 
 			form(.id(Hooks.dosForm)) {
-				label(.id(Hooks.dosPrompt), .for(Hooks.dosInput.rawValue)) {
+				label(.id(Hooks.dosPrompt), .for(Hooks.dosInput.id)) {
 					"C:\\WINDOWS>"
 				}
 
@@ -210,7 +210,7 @@ extension GeoCitiesWindows {
 			.style(Styles.toolbar)
 
 			form(.id(Hooks.ieForm)) {
-				label(.for(Hooks.ieAddress.rawValue)) {
+				label(.for(Hooks.ieAddress.id)) {
 					"Address"
 				}
 
@@ -224,7 +224,7 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.ieAddressBar)
 
-			div(.id(Hooks.iePage), .role("region"), .tabindex(-1), .custom(name: "aria-live", value: "polite")) {}
+			div(.id(Hooks.iePage), .role("region"), .tabindex(-1), .ariaLive(.polite)) {}
 				.accessibilityLabel("Web page")
 				.style(Styles.iePage)
 
@@ -745,7 +745,7 @@ extension GeoCitiesWindows {
 				}
 				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
-				label(.for(Hooks.freecellNumber.rawValue)) {
+				label(.for(Hooks.freecellNumber.id)) {
 					"Game #"
 				}
 
@@ -797,7 +797,7 @@ extension GeoCitiesWindows {
 			.style(Styles.fileList)
 
 			controlPane("display", title: "Display Properties") {
-				label(.for(Hooks.wallpaperPicker.rawValue)) {
+				label(.for(Hooks.wallpaperPicker.id)) {
 					"Wallpaper:"
 				}
 				.style(GeoCitiesPage.Styles.label)
@@ -811,7 +811,7 @@ extension GeoCitiesWindows {
 				}
 				.style(GeoCitiesPage.Styles.field)
 
-				label(.for(Hooks.scheme.rawValue)) {
+				label(.for(Hooks.scheme.id)) {
 					"Appearance:"
 				}
 				.style(GeoCitiesPage.Styles.label)
@@ -826,7 +826,7 @@ extension GeoCitiesWindows {
 				.style(GeoCitiesPage.Styles.field)
 
 				div {
-					label(.for(Hooks.saver.rawValue)) {
+					label(.for(Hooks.saver.id)) {
 						"Screen Saver:"
 					}
 
@@ -845,7 +845,7 @@ extension GeoCitiesWindows {
 				}
 				.style(Styles.wrapRow)
 
-				label(.for(Hooks.marqueeText.rawValue)) {
+				label(.for(Hooks.marqueeText.id)) {
 					"Text of the Scrolling Marquee:"
 				}
 				.style(GeoCitiesPage.Styles.label)
@@ -867,7 +867,7 @@ extension GeoCitiesWindows {
 			}
 
 			controlPane("themes", title: "Desktop Themes (Microsoft Plus! 98)") {
-				label(.for(Hooks.theme.rawValue)) {
+				label(.for(Hooks.theme.id)) {
 					"Theme:"
 				}
 				.style(GeoCitiesPage.Styles.label)
@@ -946,7 +946,7 @@ extension GeoCitiesWindows {
 				.accessibilityLabel("Test area: double-click the box, or press Enter twice")
 				.style(Styles.jackBox)
 
-				label(.for(Hooks.doubleClickSpeed.rawValue)) {
+				label(.for(Hooks.doubleClickSpeed.id)) {
 					"Double-click speed: Slow to Fast"
 				}
 				.style(GeoCitiesPage.Styles.label)
@@ -1099,7 +1099,7 @@ extension GeoCitiesWindows {
 	var findFiles: some HTML {
 		div {
 			form(.id(Hooks.findForm)) {
-				label(.for(Hooks.findName.rawValue)) {
+				label(.for(Hooks.findName.id)) {
 					"Named:"
 				}
 				.style(GeoCitiesPage.Styles.label)
@@ -1152,7 +1152,7 @@ extension GeoCitiesWindows {
 			}
 
 			div {
-				label(.for(Hooks.runInput.rawValue)) {
+				label(.for(Hooks.runInput.id)) {
 					"Open:"
 				}
 
@@ -1279,7 +1279,7 @@ extension GeoCitiesWindows {
 			}
 
 			div {
-				label(.for(Hooks.logOnUser.rawValue)) {
+				label(.for(Hooks.logOnUser.id)) {
 					"User name:"
 				}
 
@@ -1289,7 +1289,7 @@ extension GeoCitiesWindows {
 			.style(Styles.nowrapRow)
 
 			div {
-				label(.for(Hooks.logOnPassword.rawValue)) {
+				label(.for(Hooks.logOnPassword.id)) {
 					"Password:"
 				}
 

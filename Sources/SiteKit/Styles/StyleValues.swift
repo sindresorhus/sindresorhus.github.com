@@ -1,5 +1,7 @@
 import Foundation
 
+// MARK: Lengths and colors
+
 /**
 A CSS length, like `1rem`, `50%`, or `auto`: a number and a unit, or a CSS expression.
 
@@ -124,8 +126,12 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 		self.init(storage: .expression(css))
 	}
 
+	/**
+	The length `0`. Another number needs a unit, like `.pixels(1)`, as the browser ignores a length like `1`.
+	*/
 	public init(integerLiteral value: Int) {
-		self.init(Double(value), .unitless)
+		precondition(value == 0, "A length without a unit must be 0, but it is \(value). Write it with a unit, like `.pixels(\(value))`.")
+		self.init(0, .unitless)
 	}
 
 	public var description: String {
@@ -496,6 +502,18 @@ public struct GradientStop: Hashable, Sendable, CustomStringConvertible {
 }
 
 /**
+The color space that a gradient mixes its colors in, like `in oklch` in `linear-gradient(to right in oklch, blue, pink)`.
+*/
+public enum ColorSpace: String, CSSKeyword {
+	/**
+	Mixes the hues, so a gradient between distant colors has no gray middle.
+	*/
+	case oklch
+
+	case oklab
+}
+
+/**
 A box shadow.
 */
 public struct Shadow: Hashable, Sendable, CustomStringConvertible {
@@ -527,126 +545,7 @@ public struct Shadow: Hashable, Sendable, CustomStringConvertible {
 	}
 }
 
-/**
-A filter for ``Style/filter(_:)`` and ``Style/backdropFilter(_:)``, like a blur.
-*/
-public struct Filter: Hashable, Sendable, CustomStringConvertible {
-	public let description: String
-
-	/**
-	A filter written as CSS, like a `drop-shadow()` with `calc()`.
-	*/
-	public init(_ css: String) {
-		self.description = css
-	}
-
-	/**
-	No filters.
-	*/
-	public static let none = Self("none")
-
-	/**
-	Blurs the element, like SwiftUI's `blur(radius:)`.
-	*/
-	public static func blur(radius: Length) -> Self {
-		Self("blur(\(radius))")
-	}
-
-	/**
-	Brightens (above 1) or darkens (below 1) the element, with 1 as no change, as in CSS.
-	*/
-	public static func brightness(_ amount: Double) -> Self {
-		Self("brightness(\(CSSValue.format(amount)))")
-	}
-
-	/**
-	Makes the colors more (above 1) or less (below 1) intense, like SwiftUI's `saturation(_:)`.
-	*/
-	public static func saturation(_ amount: Double) -> Self {
-		Self("saturate(\(CSSValue.format(amount)))")
-	}
-
-	/**
-	Turns the colors around the color wheel by the angle, like SwiftUI's `hueRotation(_:)`.
-	*/
-	public static func hueRotation(_ angle: Angle) -> Self {
-		Self("hue-rotate(\(angle))")
-	}
-
-	/**
-	Removes the colors (1) or part of them (between 0 and 1), like SwiftUI's `grayscale(_:)`.
-	*/
-	public static func grayscale(_ amount: Double) -> Self {
-		Self("grayscale(\(CSSValue.format(amount)))")
-	}
-
-	/**
-	Makes the difference between light and dark larger (above 1) or smaller (below 1), like SwiftUI's `contrast(_:)`.
-	*/
-	public static func contrast(_ amount: Double) -> Self {
-		Self("contrast(\(CSSValue.format(amount)))")
-	}
-
-	/**
-	Inverts the colors (1) or part of the way (between 0 and 1), like SwiftUI's `colorInvert()`, where black becomes white.
-	*/
-	public static func invert(_ amount: Double) -> Self {
-		Self("invert(\(CSSValue.format(amount)))")
-	}
-
-	/**
-	Tints the colors brown like an old photo (1), or part of the way (between 0 and 1).
-	*/
-	public static func sepia(_ amount: Double) -> Self {
-		Self("sepia(\(CSSValue.format(amount)))")
-	}
-
-	/**
-	Makes the element transparent, where `1` is opaque. Unlike the `opacity` property, it can be in a list of filters.
-	*/
-	public static func opacity(_ opacity: Double) -> Self {
-		Self("opacity(\(CSSValue.format(opacity)))")
-	}
-
-	/**
-	A shadow that follows the shape of the content, like transparent parts of an image.
-	*/
-	public static func dropShadow(_ shadow: Shadow) -> Self {
-		Self("drop-shadow(\(shadow.descriptionWithoutSpread))")
-	}
-}
-
-public struct FontWeight: Hashable, Sendable, ExpressibleByIntegerLiteral {
-	public let value: Int
-
-	public init(integerLiteral value: Int) {
-		self.value = value
-	}
-
-	public static let regular: Self = 400
-	public static let medium: Self = 500
-	public static let semibold: Self = 600
-	public static let bold: Self = 700
-	public static let heavy: Self = 800
-}
-
-/**
-A font stack, like `ui-monospace, monospace`.
-*/
-public struct FontFamily: StyleValue, Hashable, ExpressibleByStringLiteral {
-	public let description: String
-
-	/**
-	A font stack written as CSS.
-	*/
-	public init(_ css: String) {
-		self.description = css
-	}
-
-	public init(stringLiteral value: String) {
-		self.init(value)
-	}
-}
+// MARK: Conditions
 
 /**
 A minimum screen width for styles, like `.tablet` for screens at least as wide as a tablet.
@@ -667,25 +566,52 @@ public struct Breakpoint: Hashable, Sendable {
 }
 
 /**
-The edges of a box. The leading and trailing edges follow the writing direction, like in SwiftUI.
+A feature that some browsers do not support yet, for ``Style/supports(_:_:)``.
 */
-public enum Edge {
-	public struct Set: OptionSet, Hashable, Sendable {
-		public let rawValue: Int
+public struct BrowserFeature: Hashable, Sendable, CustomStringConvertible {
+	/**
+	The condition of `@supports`, like `(position-area: top)`.
+	*/
+	public let description: String
 
-		public init(rawValue: Int) {
-			self.rawValue = rawValue
-		}
+	public init(_ condition: String) {
+		self.description = condition
+	}
 
-		public static let top = Self(rawValue: 1 << 0)
-		public static let trailing = Self(rawValue: 1 << 1)
-		public static let bottom = Self(rawValue: 1 << 2)
-		public static let leading = Self(rawValue: 1 << 3)
-		public static let horizontal: Self = [.leading, .trailing]
-		public static let vertical: Self = [.top, .bottom]
-		public static let all: Self = [.horizontal, .vertical]
+	/**
+	Transitions to and from keywords like `auto`, like the height of the content of a `details` element.
+	*/
+	public static let interpolateSize = Self("(interpolate-size: allow-keywords)")
+
+	/**
+	Animations that follow the scrolling of the page.
+	*/
+	public static let scrollTimeline = Self("(animation-timeline: scroll())")
+
+	/**
+	Animations that follow an element through the view.
+	*/
+	public static let viewTimeline = Self("(animation-timeline: view())")
+
+	/**
+	Trimming the space above the capital letters and below the baseline with `text-box`.
+	*/
+	public static let textBoxTrim = Self("(text-box: trim-both cap alphabetic)")
+
+	/**
+	Styles for the parts of scroll bars, like ``Style/scrollbar(_:_:)``, which Chrome and Safari have.
+	*/
+	public static let webKitScrollbar = Self("selector(::-webkit-scrollbar)")
+
+	/**
+	The browser does not support the feature, like `.supports(!.webKitScrollbar)`.
+	*/
+	public static prefix func ! (feature: Self) -> Self {
+		Self("not (\(feature))")
 	}
 }
+
+// MARK: Stacks and grids
 
 public enum Display: String, CSSKeyword {
 	case none
@@ -708,32 +634,6 @@ public enum Display: String, CSSKeyword {
 	case flowRoot = "flow-root"
 }
 
-/**
-What a container measures for the container units of its descendants, like ``Length/containerInlineSize(_:)``. See ``Style/containerType(_:)``.
-*/
-public enum ContainerType: String, CSSKeyword {
-	/**
-	The inline size, which is the width for horizontal text. The inline size of the element does not depend on its content, so it must get it from its parent, like a block.
-	*/
-	case inlineSize = "inline-size"
-
-	/**
-	The inline size and the block size. The size of the element does not depend on its content, so it needs a height.
-	*/
-	case size
-}
-
-public enum Position: String, CSSKeyword {
-	/**
-	The normal flow, like for an element that is positioned only on some screens.
-	*/
-	case `static`
-	case relative
-	case absolute
-	case fixed
-	case sticky
-}
-
 public enum FlexDirection: String, CSSKeyword {
 	case row
 	case column
@@ -753,82 +653,68 @@ public enum Justification: String, CSSKeyword {
 	case spaceBetween = "space-between"
 }
 
-public enum TextAlignment: String, CSSKeyword {
-	case leading = "start"
-	case center
-	case trailing = "end"
-}
+/**
+The size of the rows or the columns of a grid, for ``Style/gridRows(_:size:)`` and ``Style/gridAutoColumns(_:)``.
+*/
+public struct GridTrack: StyleValue, Hashable {
+	public let description: String
 
-public enum TextCase: String, CSSKeyword {
-	case uppercase
-	case none
+	/**
+	A grid track written as CSS, like `minmax(0, 1fr)`.
+	*/
+	public init(_ css: String) {
+		self.description = css
+	}
+
+	/**
+	The size of the content.
+	*/
+	public static let auto = Self("auto")
+
+	/**
+	A fixed size, like `.fixed(.rootEm(0.625))`.
+	*/
+	public static func fixed(_ size: Length) -> Self {
+		Self(size.description)
+	}
+
+	/**
+	A share of the free space, like `.fraction(1)` for tracks that share it equally (`1fr`).
+	*/
+	public static func fraction(_ share: Double) -> Self {
+		Self(CSSValue.format(share) + "fr")
+	}
 }
 
 /**
-How a counter is written, for ``Style/content(counter:style:)``.
+The direction in which the items without a cell fill a grid, for ``Style/gridAutoFlow(_:)``.
 */
-public enum CounterStyle: String, CSSKeyword {
-	/**
-	Like “1” and “12”.
-	*/
-	case decimal
-
-	/**
-	Like “01” and “12”.
-	*/
-	case decimalLeadingZero = "decimal-leading-zero"
+public enum GridAutoFlow: String, CSSKeyword {
+	case row
+	case column
 }
 
-/**
-The marker of the items of a list, for ``Style/listStyle(_:)``.
-*/
-public enum ListStyle: String, CSSKeyword {
-	/**
-	No marker, like for a list of links in a navigation.
-	*/
-	case none
-
-	/**
-	A bullet.
-	*/
-	case disc
-
-	/**
-	The number of the item, like “1.” and “12.”.
-	*/
-	case decimal
-}
+// MARK: Size and position
 
 /**
-How an inline element lines up with the text of its line, for ``Style/verticalAlign(_:)``.
+The edges of a box. The leading and trailing edges follow the writing direction, like in SwiftUI.
 */
-public enum VerticalTextAlignment: String, CSSKeyword {
-	case baseline
-	case top
-	case middle
-	case bottom
-}
+public enum Edge {
+	public struct Set: OptionSet, Hashable, Sendable {
+		public let rawValue: Int
 
-/**
-What a background is drawn in, for ``Style/backgroundClip(_:)``. `text` draws it only in the letters, like for gradient text.
-*/
-public enum BackgroundClip: String, CSSKeyword {
-	case borderBox = "border-box"
-	case paddingBox = "padding-box"
-	case contentBox = "content-box"
-	case text
-}
+		public init(rawValue: Int) {
+			self.rawValue = rawValue
+		}
 
-/**
-How an element blends with what is behind it. See ``Style/blendMode(_:)``.
-*/
-public enum BlendMode: String, CSSKeyword {
-	case normal
-	case multiply
-	case screen
-	case overlay
-	case darken
-	case lighten
+		public static let top = Self(rawValue: 1 << 0)
+		public static let trailing = Self(rawValue: 1 << 1)
+		public static let bottom = Self(rawValue: 1 << 2)
+		public static let leading = Self(rawValue: 1 << 3)
+		public static let horizontal: Self = [.leading, .trailing]
+		public static let vertical: Self = [.top, .bottom]
+		public static let all: Self = [.horizontal, .vertical]
+	}
 }
 
 /**
@@ -842,172 +728,38 @@ public enum ObjectFit: String, CSSKeyword {
 	case scaleDown = "scale-down"
 }
 
-public enum TextSelection: String, CSSKeyword {
-	case enabled = "auto"
-	case disabled = "none"
-}
+/**
+What a container measures for the container units of its descendants, like ``Length/containerInlineSize(_:)``. See ``Style/containerType(_:)``.
+*/
+public enum ContainerType: String, CSSKeyword {
+	/**
+	The inline size, which is the width for horizontal text. The inline size of the element does not depend on its content, so it must get it from its parent, like a block.
+	*/
+	case inlineSize = "inline-size"
 
-public enum FontWidth: String, CSSKeyword {
-	case standard = "normal"
-	case expanded
+	/**
+	The inline size and the block size. The size of the element does not depend on its content, so it needs a height.
+	*/
+	case size
 }
 
 /**
-A shape for ``Style/cornerRadius(_:)-(RoundedShape)``.
+Whether a declared size includes padding and borders (`box-sizing` in CSS).
 */
-public enum RoundedShape: Sendable {
-	/**
-	Fully rounded ends, like a pill.
-	*/
-	case capsule
-
-	case circle
-
-	var radius: Length {
-		switch self {
-		case .capsule:
-			.pixels(9999)
-		case .circle:
-			.percent(50)
-		}
-	}
+public enum BoxSizing: String, CSSKeyword {
+	case contentBox = "content-box"
+	case borderBox = "border-box"
 }
 
-/**
-An angle, like for ``Style/rotationEffect(_:)``.
-*/
-public struct Angle: StyleValue, Hashable {
-	public let description: String
-
+public enum Position: String, CSSKeyword {
 	/**
-	An angle written as CSS, like a custom property reference.
+	The normal flow, like for an element that is positioned only on some screens.
 	*/
-	public init(_ css: String) {
-		self.description = css
-	}
-
-	public static func degrees(_ degrees: Double) -> Self {
-		Self(CSSValue.format(degrees) + "deg")
-	}
-}
-
-/**
-How long an animation or a transition takes, and how it speeds up and slows down, like SwiftUI's `Animation`:
-
-```swift
-.easeInOut(duration: .seconds(18)).repeatForever()
-```
-*/
-public struct Animation: Hashable, Sendable {
-	let duration: Duration
-
-	/**
-	The timing function, or `nil` for the CSS default, `ease`.
-	*/
-	let timingFunction: String?
-
-	private(set) var repeatsForever = false
-	private(set) var autoreverses = false
-
-	private init(duration: Duration, timingFunction: String?) {
-		self.duration = duration
-		self.timingFunction = timingFunction
-	}
-
-	/**
-	The CSS default, `ease`, which starts a little slowly, is fastest early on, and slows down gently at the end.
-	*/
-	public static func `default`(duration: Duration) -> Self {
-		Self(duration: duration, timingFunction: nil)
-	}
-
-	public static func linear(duration: Duration) -> Self {
-		Self(duration: duration, timingFunction: "linear")
-	}
-
-	public static func easeIn(duration: Duration) -> Self {
-		Self(duration: duration, timingFunction: "ease-in")
-	}
-
-	public static func easeOut(duration: Duration) -> Self {
-		Self(duration: duration, timingFunction: "ease-out")
-	}
-
-	public static func easeInOut(duration: Duration) -> Self {
-		Self(duration: duration, timingFunction: "ease-in-out")
-	}
-
-	/**
-	A cubic Bézier timing curve with two control points, like SwiftUI's `timingCurve(_:_:_:_:duration:)`. Control points above 1 overshoot, like a spring.
-	*/
-	public static func timingCurve(_ c0x: Double, _ c0y: Double, _ c1x: Double, _ c1y: Double, duration: Duration) -> Self {
-		Self(duration: duration, timingFunction: "cubic-bezier(\([c0x, c0y, c1x, c1y].map(CSSValue.format).joined(separator: ", ")))")
-	}
-
-	/**
-	A timing function written as CSS, like `linear(0, .5 7.7%, 1.06 23.7%, 1)` for a spring that bounces.
-	*/
-	public static func timingCurve(_ timingFunction: String, duration: Duration) -> Self {
-		Self(duration: duration, timingFunction: timingFunction)
-	}
-
-	/**
-	The animation, repeated forever.
-
-	- Parameter autoreverses: Whether every other run plays backwards.
-	*/
-	public func repeatForever(autoreverses: Bool = true) -> Self {
-		var copy = self
-		copy.repeatsForever = true
-		copy.autoreverses = autoreverses
-		return copy
-	}
-
-	/**
-	The duration and the timing function, like `.2s ease-out`.
-	*/
-	var timing: String {
-		[duration.cssValue, timingFunction].compactMap(\.self).joined(separator: " ")
-	}
-}
-
-/**
-The progress of an element through the view, which scroll-driven animations of other elements can follow. Give it to the element with ``Style/viewTimeline(_:)``.
-*/
-public struct ViewTimeline: Hashable, Sendable {
-	let name: String
-
-	/**
-	- Parameter name: A custom property name, like `--hero`.
-	*/
-	public init(_ name: String) {
-		precondition(name.hasPrefix("--"), "A timeline name starts with two hyphens: \(name)")
-		self.name = name
-	}
-}
-
-/**
-What a scroll-driven animation follows instead of time.
-*/
-public enum AnimationTimeline: Hashable, Sendable, CustomStringConvertible {
-	/**
-	The scrolling of the nearest scroll container, like the page.
-	*/
-	case scroll
-
-	/**
-	The progress of another element through the view.
-	*/
-	case view(ViewTimeline)
-
-	public var description: String {
-		switch self {
-		case .scroll:
-			"scroll()"
-		case .view(let timeline):
-			timeline.name
-		}
-	}
+	case `static`
+	case relative
+	case absolute
+	case fixed
+	case sticky
 }
 
 /**
@@ -1097,56 +849,550 @@ public enum PositionTryFallback: String, CSSKeyword {
 	case flipStart = "flip-start"
 }
 
-/**
-A feature that some browsers do not support yet, for ``Style/supports(_:_:)``.
-*/
-public struct BrowserFeature: Hashable, Sendable, CustomStringConvertible {
-	/**
-	The condition of `@supports`, like `(position-area: top)`.
-	*/
-	public let description: String
-
-	public init(_ condition: String) {
-		self.description = condition
-	}
-
-	/**
-	Transitions to and from keywords like `auto`, like the height of the content of a `details` element.
-	*/
-	public static let interpolateSize = Self("(interpolate-size: allow-keywords)")
-
-	/**
-	Animations that follow the scrolling of the page.
-	*/
-	public static let scrollTimeline = Self("(animation-timeline: scroll())")
-
-	/**
-	Animations that follow an element through the view.
-	*/
-	public static let viewTimeline = Self("(animation-timeline: view())")
-
-	/**
-	Trimming the space above the capital letters and below the baseline with `text-box`.
-	*/
-	public static let textBoxTrim = Self("(text-box: trim-both cap alphabetic)")
-
-	/**
-	Styles for the parts of scroll bars, like ``Style/scrollbar(_:_:)``, which Chrome and Safari have.
-	*/
-	public static let webKitScrollbar = Self("selector(::-webkit-scrollbar)")
-
-	/**
-	The browser does not support the feature, like `.supports(!.webKitScrollbar)`.
-	*/
-	public static prefix func ! (feature: Self) -> Self {
-		Self("not (\(feature))")
-	}
+public enum Overflow: String, CSSKeyword {
+	case visible
+	case hidden
+	case clip
+	case auto
 }
 
-public enum AnimationFillMode: String, CSSKeyword {
-	case forwards
+/**
+A leading or trailing edge, which follows the writing direction, for ``Style/float(_:)``.
+*/
+public enum HorizontalEdge: String, CSSKeyword {
+	case leading = "inline-start"
+	case trailing = "inline-end"
+}
+
+/**
+Whether a scrolling element shows its scroll bars.
+*/
+public enum ScrollIndicatorVisibility: String, CSSKeyword {
+	case automatic = "auto"
+	case hidden = "none"
+}
+
+public enum Overscroll: String, CSSKeyword {
+	case auto
+	case contain
+	case none
+}
+
+/**
+The direction of the scrolling that snaps, for ``Style/scrollSnapType(_:isMandatory:)``.
+*/
+public enum ScrollSnapAxis: String, CSSKeyword {
+	case horizontal = "x"
+	case vertical = "y"
 	case both
 }
+
+/**
+Where an element stops when the scrolling snaps, for ``Style/scrollSnapAlign(_:)``.
+*/
+public enum ScrollSnapAlignment: String, CSSKeyword {
+	case start
+	case center
+	case end
+}
+
+/**
+Whether an element keeps the space of a classic scroll bar, for ``Style/scrollbarGutter(_:)``.
+*/
+public enum ScrollbarGutter: String, CSSKeyword {
+	case auto
+
+	/**
+	The space of the scroll bar, also when the element does not scroll.
+	*/
+	case stable
+
+	/**
+	The space of the scroll bar on both sides, so the content stays centered.
+	*/
+	case stableBothEdges = "stable both-edges"
+}
+
+/**
+How an element scrolls to a link or a script position, for ``Style/scrollBehavior(_:)``.
+*/
+public enum ScrollBehavior: String, CSSKeyword {
+	case auto
+	case smooth
+}
+
+// MARK: Text
+
+public struct FontWeight: Hashable, Sendable, ExpressibleByIntegerLiteral {
+	public let value: Int
+
+	public init(integerLiteral value: Int) {
+		self.value = value
+	}
+
+	public static let regular: Self = 400
+	public static let medium: Self = 500
+	public static let semibold: Self = 600
+	public static let bold: Self = 700
+	public static let heavy: Self = 800
+}
+
+/**
+A font stack, like `ui-monospace, monospace`.
+*/
+public struct FontFamily: StyleValue, Hashable, ExpressibleByStringLiteral {
+	public let description: String
+
+	/**
+	A font stack written as CSS.
+	*/
+	public init(_ css: String) {
+		self.description = css
+	}
+
+	public init(stringLiteral value: String) {
+		self.init(value)
+	}
+}
+
+public enum FontWidth: String, CSSKeyword {
+	case standard = "normal"
+	case expanded
+}
+
+public enum TextAlignment: String, CSSKeyword {
+	case leading = "start"
+	case center
+	case trailing = "end"
+}
+
+/**
+How an inline element lines up with the text of its line, for ``Style/verticalAlign(_:)``.
+*/
+public enum VerticalTextAlignment: String, CSSKeyword {
+	case baseline
+	case top
+	case middle
+	case bottom
+}
+
+public enum TextCase: String, CSSKeyword {
+	case uppercase
+	case none
+}
+
+/**
+The direction of the lines of text. See ``Style/writingMode(_:)``.
+*/
+public enum WritingMode: String, CSSKeyword {
+	case horizontal = "horizontal-tb"
+
+	/**
+	Lines from top to bottom, like a label on the side of a box. Rotate it by 180 degrees to read it from the bottom up.
+	*/
+	case verticalRightToLeft = "vertical-rl"
+}
+
+/**
+The direction of text and inline layout (`direction` in CSS).
+*/
+public enum TextDirection: String, CSSKeyword {
+	case leftToRight = "ltr"
+	case rightToLeft = "rtl"
+}
+
+public enum TextSelection: String, CSSKeyword {
+	case enabled = "auto"
+	case disabled = "none"
+}
+
+public enum TextWrap: String, CSSKeyword {
+	case balance
+	case pretty
+
+	/**
+	Keeps the text on one line.
+	*/
+	case nowrap
+}
+
+/**
+Where a long word, like a URL, can break when it does not fit on a line.
+*/
+public enum OverflowWrap: String, CSSKeyword {
+	/**
+	Breaks a word that does not fit on a line of its own.
+	*/
+	case breakWord = "break-word"
+
+	/**
+	Breaks a word that does not fit, and the element can shrink to the width of a letter, like in a flex item or a grid cell.
+	*/
+	case anywhere
+}
+
+/**
+How clipped inline text is marked (`text-overflow` in CSS).
+*/
+public enum TextOverflow: String, CSSKeyword {
+	case clip
+	case ellipsis
+}
+
+/**
+How an underline is drawn (`text-decoration-style` in CSS), like a dotted line under a term that has a note.
+*/
+public enum UnderlineStyle: String, CSSKeyword {
+	case solid
+	case double
+	case dotted
+	case dashed
+	case wavy
+}
+
+/**
+How a counter is written, for ``Style/content(counter:style:)``.
+*/
+public enum CounterStyle: String, CSSKeyword {
+	/**
+	Like “1” and “12”.
+	*/
+	case decimal
+
+	/**
+	Like “01” and “12”.
+	*/
+	case decimalLeadingZero = "decimal-leading-zero"
+}
+
+/**
+The marker of the items of a list, for ``Style/listStyle(_:)``.
+*/
+public enum ListStyle: String, CSSKeyword {
+	/**
+	No marker, like for a list of links in a navigation.
+	*/
+	case none
+
+	/**
+	A bullet.
+	*/
+	case disc
+
+	/**
+	The number of the item, like “1.” and “12.”.
+	*/
+	case decimal
+}
+
+// MARK: Background, border, and shadow
+
+/**
+What a background is drawn in, for ``Style/backgroundClip(_:)``. `text` draws it only in the letters, like for gradient text.
+*/
+public enum BackgroundClip: String, CSSKeyword {
+	case borderBox = "border-box"
+	case paddingBox = "padding-box"
+	case contentBox = "content-box"
+	case text
+}
+
+/**
+How a border is drawn. The 3D styles, like `outset`, draw the edges in lighter and darker shades of the color.
+*/
+public enum BorderStyle: String, CSSKeyword {
+	case solid
+	case dashed
+	case dotted
+	case double
+	case groove
+	case ridge
+	case inset
+	case outset
+}
+
+/**
+Whether adjacent table-cell borders merge (`border-collapse` in CSS).
+*/
+public enum BorderCollapse: String, CSSKeyword {
+	case separate
+	case collapse
+}
+
+/**
+A shape for ``Style/cornerRadius(_:)-(RoundedShape)``.
+*/
+public enum RoundedShape: Sendable {
+	/**
+	Fully rounded ends, like a pill.
+	*/
+	case capsule
+
+	case circle
+
+	var radius: Length {
+		switch self {
+		case .capsule:
+			.pixels(9999)
+		case .circle:
+			.percent(50)
+		}
+	}
+}
+
+/**
+How an element blends with what is behind it. See ``Style/blendMode(_:)``.
+*/
+public enum BlendMode: String, CSSKeyword {
+	case normal
+	case multiply
+	case screen
+	case overlay
+	case darken
+	case lighten
+}
+
+public enum Cursor: String, CSSKeyword {
+	case pointer
+	case auto
+	case `default`
+
+	/**
+	A cross, for drawing or picking a point.
+	*/
+	case crosshair
+
+	/**
+	Arrows in four directions, for something that can be dragged.
+	*/
+	case move
+
+	/**
+	The busy pointer, like the hourglass of Windows, while something loads and the element cannot be used.
+	*/
+	case wait
+}
+
+/**
+A part of a scroll bar in Chrome and Safari, for ``Style/scrollbar(_:_:)``. A part only shows a style when the `bar` has a style too, like a width.
+*/
+public enum ScrollbarPart: String, Sendable {
+	/**
+	The whole scroll bar. Its width and height are the size of the vertical and the horizontal scroll bar.
+	*/
+	case bar = "::-webkit-scrollbar"
+
+	/**
+	The groove that the thumb moves in.
+	*/
+	case track = "::-webkit-scrollbar-track"
+
+	/**
+	The handle that shows the position, which the visitor drags.
+	*/
+	case thumb = "::-webkit-scrollbar-thumb"
+
+	/**
+	The arrow buttons at the ends. They are hidden until they have a size. With a size, browsers show a pair at each end, so hide them and show `upButton` and `downButton` for one button at each end.
+	*/
+	case button = "::-webkit-scrollbar-button"
+
+	/**
+	The button at the top of a vertical scroll bar, which scrolls up.
+	*/
+	case upButton = "::-webkit-scrollbar-button:vertical:start:decrement"
+
+	/**
+	The button at the bottom of a vertical scroll bar, which scrolls down.
+	*/
+	case downButton = "::-webkit-scrollbar-button:vertical:end:increment"
+
+	/**
+	The corner where a vertical and a horizontal scroll bar meet.
+	*/
+	case corner = "::-webkit-scrollbar-corner"
+}
+
+/**
+What a touch on the element does by default. See ``Style/touchAction(_:)``.
+*/
+public enum TouchAction: String, CSSKeyword {
+	case auto
+
+	/**
+	No scrolling or zooming, so a finger draws or drags instead, like on a canvas for drawing.
+	*/
+	case none
+
+	/**
+	Scrolling and pinch zooming, without the delay of a double-tap zoom.
+	*/
+	case manipulation
+
+	/**
+	Only scrolling up and down, so a finger that moves sideways drags instead, like on a toy that steers left and right, while the page still scrolls over it.
+	*/
+	case panY = "pan-y"
+}
+
+/**
+How an image is scaled. See ``Style/imageRendering(_:)``.
+*/
+public enum ImageRendering: String, CSSKeyword {
+	case auto
+
+	/**
+	Large square pixels instead of a blur, for pixel art.
+	*/
+	case pixelated
+}
+
+/**
+The color schemes that an element supports, for ``Style/colorScheme(_:)``.
+*/
+public enum ColorScheme: String, CSSKeyword {
+	case light
+	case dark
+
+	/**
+	Both, following the setting of the visitor.
+	*/
+	case lightDark = "light dark"
+}
+
+/**
+How a form field is sized, for ``Style/fieldSizing(_:)``.
+*/
+public enum FieldSizing: String, CSSKeyword {
+	/**
+	The default size of the field, like the number of rows of a text area.
+	*/
+	case fixed
+
+	/**
+	The size of its content, so a text area grows with its text.
+	*/
+	case content
+}
+
+// MARK: Effects
+
+/**
+An angle, like for ``Style/rotationEffect(_:)``.
+*/
+public struct Angle: StyleValue, Hashable {
+	public let description: String
+
+	/**
+	An angle written as CSS, like a custom property reference.
+	*/
+	public init(_ css: String) {
+		self.description = css
+	}
+
+	public static func degrees(_ degrees: Double) -> Self {
+		Self(CSSValue.format(degrees) + "deg")
+	}
+}
+
+/**
+A filter for ``Style/filter(_:_:)`` and ``Style/backdropFilter(_:_:)``, like a blur.
+*/
+public struct Filter: Hashable, Sendable, CustomStringConvertible {
+	public let description: String
+
+	/**
+	A filter written as CSS, like a `drop-shadow()` with `calc()`.
+	*/
+	public init(_ css: String) {
+		self.description = css
+	}
+
+	/**
+	No filters.
+	*/
+	public static let none = Self("none")
+
+	/**
+	Blurs the element, like SwiftUI's `blur(radius:)`.
+	*/
+	public static func blur(radius: Length) -> Self {
+		Self("blur(\(radius))")
+	}
+
+	/**
+	Brightens (above 1) or darkens (below 1) the element, with 1 as no change, as in CSS.
+	*/
+	public static func brightness(_ amount: Double) -> Self {
+		Self("brightness(\(CSSValue.format(amount)))")
+	}
+
+	/**
+	Makes the colors more (above 1) or less (below 1) intense, like SwiftUI's `saturation(_:)`.
+	*/
+	public static func saturation(_ amount: Double) -> Self {
+		Self("saturate(\(CSSValue.format(amount)))")
+	}
+
+	/**
+	Turns the colors around the color wheel by the angle, like SwiftUI's `hueRotation(_:)`.
+	*/
+	public static func hueRotation(_ angle: Angle) -> Self {
+		Self("hue-rotate(\(angle))")
+	}
+
+	/**
+	Removes the colors (1) or part of them (between 0 and 1), like SwiftUI's `grayscale(_:)`.
+	*/
+	public static func grayscale(_ amount: Double) -> Self {
+		Self("grayscale(\(CSSValue.format(amount)))")
+	}
+
+	/**
+	Makes the difference between light and dark larger (above 1) or smaller (below 1), like SwiftUI's `contrast(_:)`.
+	*/
+	public static func contrast(_ amount: Double) -> Self {
+		Self("contrast(\(CSSValue.format(amount)))")
+	}
+
+	/**
+	Inverts the colors (1) or part of the way (between 0 and 1), like SwiftUI's `colorInvert()`, where black becomes white.
+	*/
+	public static func invert(_ amount: Double) -> Self {
+		Self("invert(\(CSSValue.format(amount)))")
+	}
+
+	/**
+	Tints the colors brown like an old photo (1), or part of the way (between 0 and 1).
+	*/
+	public static func sepia(_ amount: Double) -> Self {
+		Self("sepia(\(CSSValue.format(amount)))")
+	}
+
+	/**
+	Makes the element transparent, where `1` is opaque. Unlike the `opacity` property, it can be in a list of filters.
+	*/
+	public static func opacity(_ opacity: Double) -> Self {
+		Self("opacity(\(CSSValue.format(opacity)))")
+	}
+
+	/**
+	A shadow that follows the shape of the content, like transparent parts of an image.
+	*/
+	public static func dropShadow(_ shadow: Shadow) -> Self {
+		Self("drop-shadow(\(shadow.descriptionWithoutSpread))")
+	}
+}
+
+/**
+Whether transformed children remain in three dimensions (`transform-style` in CSS).
+*/
+public enum TransformStyle: String, CSSKeyword {
+	case flat
+	case preserveDepth = "preserve-3d"
+}
+
+// MARK: Transitions and animations
 
 /**
 The properties a transition animates. The effects are named like the modifiers that set them, like ``scaleEffect`` for ``Style/scaleEffect(_:)``, so a transition lists only the property that changes.
@@ -1167,7 +1413,7 @@ public struct TransitionProperty: Hashable, Sendable {
 	A registered custom property, which can transition, as the browser knows its type.
 	*/
 	public init(_ property: RegisteredProperty<some StyleValue>) {
-		self.init(Property(property.name))
+		self.init(Property(property.variable.name))
 	}
 
 	private init(properties: [Property], isDiscrete: Bool = false) {
@@ -1228,6 +1474,86 @@ public struct TransitionProperty: Hashable, Sendable {
 	public static let contentVisibility = Self(properties: [.contentVisibility], isDiscrete: true)
 }
 
+/**
+How long an animation or a transition takes, and how it speeds up and slows down, like SwiftUI's `Animation`:
+
+```swift
+.easeInOut(duration: .seconds(18)).repeatForever()
+```
+*/
+public struct Animation: Hashable, Sendable {
+	let duration: Duration
+
+	/**
+	The timing function, or `nil` for the CSS default, `ease`.
+	*/
+	private let timingFunction: String?
+
+	private(set) var repeatsForever = false
+	private(set) var autoreverses = false
+
+	private init(duration: Duration, timingFunction: String?) {
+		self.duration = duration
+		self.timingFunction = timingFunction
+	}
+
+	/**
+	The CSS default, `ease`, which starts a little slowly, is fastest early on, and slows down gently at the end.
+	*/
+	public static func `default`(duration: Duration) -> Self {
+		Self(duration: duration, timingFunction: nil)
+	}
+
+	public static func linear(duration: Duration) -> Self {
+		Self(duration: duration, timingFunction: "linear")
+	}
+
+	public static func easeIn(duration: Duration) -> Self {
+		Self(duration: duration, timingFunction: "ease-in")
+	}
+
+	public static func easeOut(duration: Duration) -> Self {
+		Self(duration: duration, timingFunction: "ease-out")
+	}
+
+	public static func easeInOut(duration: Duration) -> Self {
+		Self(duration: duration, timingFunction: "ease-in-out")
+	}
+
+	/**
+	A cubic Bézier timing curve with two control points, like SwiftUI's `timingCurve(_:_:_:_:duration:)`. Control points above 1 overshoot, like a spring.
+	*/
+	public static func timingCurve(_ c0x: Double, _ c0y: Double, _ c1x: Double, _ c1y: Double, duration: Duration) -> Self {
+		Self(duration: duration, timingFunction: "cubic-bezier(\([c0x, c0y, c1x, c1y].map(CSSValue.format).joined(separator: ", ")))")
+	}
+
+	/**
+	A timing function written as CSS, like `linear(0, .5 7.7%, 1.06 23.7%, 1)` for a spring that bounces.
+	*/
+	public static func timingCurve(_ timingFunction: String, duration: Duration) -> Self {
+		Self(duration: duration, timingFunction: timingFunction)
+	}
+
+	/**
+	The animation, repeated forever.
+
+	- Parameter autoreverses: Whether every other run plays backwards.
+	*/
+	public func repeatForever(autoreverses: Bool = true) -> Self {
+		var copy = self
+		copy.repeatsForever = true
+		copy.autoreverses = autoreverses
+		return copy
+	}
+
+	/**
+	The duration and the timing function, like `.2s ease-out`.
+	*/
+	var timing: String {
+		[duration.cssValue, timingFunction].compactMap(\.self).joined(separator: " ")
+	}
+}
+
 extension Duration {
 	/**
 	The duration in seconds, like `.15s`.
@@ -1237,340 +1563,46 @@ extension Duration {
 	}
 }
 
-public enum TextWrap: String, CSSKeyword {
-	case balance
-	case pretty
-
-	/**
-	Keeps the text on one line.
-	*/
-	case nowrap
-}
-
-/**
-Where a long word, like a URL, can break when it does not fit on a line.
-*/
-public enum OverflowWrap: String, CSSKeyword {
-	/**
-	Breaks a word that does not fit on a line of its own.
-	*/
-	case breakWord = "break-word"
-
-	/**
-	Breaks a word that does not fit, and the element can shrink to the width of a letter, like in a flex item or a grid cell.
-	*/
-	case anywhere
-}
-
-/**
-Whether a scrolling element shows its scroll bars.
-*/
-public enum ScrollIndicatorVisibility: String, CSSKeyword {
-	case automatic = "auto"
-	case hidden = "none"
-}
-
-public enum Overflow: String, CSSKeyword {
-	case visible
-	case hidden
-	case clip
-	case auto
-}
-
-public enum Overscroll: String, CSSKeyword {
-	case auto
-	case contain
-	case none
-}
-
-/**
-The direction of the scrolling that snaps, for ``Style/scrollSnapType(_:isMandatory:)``.
-*/
-public enum ScrollSnapAxis: String, CSSKeyword {
-	case horizontal = "x"
-	case vertical = "y"
+public enum AnimationFillMode: String, CSSKeyword {
+	case forwards
 	case both
 }
 
 /**
-Where an element stops when the scrolling snaps, for ``Style/scrollSnapAlign(_:)``.
+What a scroll-driven animation follows instead of time.
 */
-public enum ScrollSnapAlignment: String, CSSKeyword {
-	case start
-	case center
-	case end
-}
-
-/**
-Whether an element keeps the space of a classic scroll bar, for ``Style/scrollbarGutter(_:)``.
-*/
-public enum ScrollbarGutter: String, CSSKeyword {
-	case auto
+public enum AnimationTimeline: Hashable, Sendable, CustomStringConvertible {
+	/**
+	The scrolling of the nearest scroll container, like the page.
+	*/
+	case scroll
 
 	/**
-	The space of the scroll bar, also when the element does not scroll.
+	The progress of another element through the view.
 	*/
-	case stable
+	case view(ViewTimeline)
 
-	/**
-	The space of the scroll bar on both sides, so the content stays centered.
-	*/
-	case stableBothEdges = "stable both-edges"
-}
-
-/**
-How an element scrolls to a link or a script position, for ``Style/scrollBehavior(_:)``.
-*/
-public enum ScrollBehavior: String, CSSKeyword {
-	case auto
-	case smooth
-}
-
-/**
-The color schemes that an element supports, for ``Style/colorScheme(_:)``.
-*/
-public enum ColorScheme: String, CSSKeyword {
-	case light
-	case dark
-
-	/**
-	Both, following the setting of the visitor.
-	*/
-	case lightDark = "light dark"
-}
-
-/**
-How a form field is sized, for ``Style/fieldSizing(_:)``.
-*/
-public enum FieldSizing: String, CSSKeyword {
-	/**
-	The default size of the field, like the number of rows of a text area.
-	*/
-	case fixed
-
-	/**
-	The size of its content, so a text area grows with its text.
-	*/
-	case content
-}
-
-/**
-A leading or trailing edge, which follows the writing direction, for ``Style/float(_:)``.
-*/
-public enum HorizontalEdge: String, CSSKeyword {
-	case leading = "inline-start"
-	case trailing = "inline-end"
-}
-
-/**
-The size of the rows or the columns of a grid, for ``Style/gridRows(_:size:)`` and ``Style/gridAutoColumns(_:)``.
-*/
-public struct GridTrack: StyleValue, Hashable {
-	public let description: String
-
-	/**
-	A grid track written as CSS, like `minmax(0, 1fr)`.
-	*/
-	public init(_ css: String) {
-		self.description = css
-	}
-
-	/**
-	The size of the content.
-	*/
-	public static let auto = Self("auto")
-
-	/**
-	A fixed size, like `.fixed(.rootEm(0.625))`.
-	*/
-	public static func fixed(_ size: Length) -> Self {
-		Self(size.description)
-	}
-
-	/**
-	A share of the free space, like `.fraction(1)` for tracks that share it equally (`1fr`).
-	*/
-	public static func fraction(_ share: Double) -> Self {
-		Self(CSSValue.format(share) + "fr")
+	public var description: String {
+		switch self {
+		case .scroll:
+			"scroll()"
+		case .view(let timeline):
+			timeline.name
+		}
 	}
 }
 
 /**
-The direction in which the items without a cell fill a grid, for ``Style/gridAutoFlow(_:)``.
+The progress of an element through the view, which scroll-driven animations of other elements can follow. Give it to the element with ``Style/viewTimeline(_:)``.
 */
-public enum GridAutoFlow: String, CSSKeyword {
-	case row
-	case column
-}
-
-public enum Cursor: String, CSSKeyword {
-	case pointer
-	case auto
-	case `default`
+public struct ViewTimeline: Hashable, Sendable {
+	let name: String
 
 	/**
-	A cross, for drawing or picking a point.
+	- Parameter name: A custom property name, like `--hero`.
 	*/
-	case crosshair
-
-	/**
-	Arrows in four directions, for something that can be dragged.
-	*/
-	case move
-
-	/**
-	The busy pointer, like the hourglass of Windows, while something loads and the element cannot be used.
-	*/
-	case wait
-}
-
-/**
-What a touch on the element does by default. See ``Style/touchAction(_:)``.
-*/
-public enum TouchAction: String, CSSKeyword {
-	case auto
-
-	/**
-	No scrolling or zooming, so a finger draws or drags instead, like on a canvas for drawing.
-	*/
-	case none
-
-	/**
-	Scrolling and pinch zooming, without the delay of a double-tap zoom.
-	*/
-	case manipulation
-
-	/**
-	Only scrolling up and down, so a finger that moves sideways drags instead, like on a toy that steers left and right, while the page still scrolls over it.
-	*/
-	case panY = "pan-y"
-}
-
-/**
-The direction of the lines of text. See ``Style/writingMode(_:)``.
-*/
-public enum WritingMode: String, CSSKeyword {
-	case horizontal = "horizontal-tb"
-
-	/**
-	Lines from top to bottom, like a label on the side of a box. Rotate it by 180 degrees to read it from the bottom up.
-	*/
-	case verticalRightToLeft = "vertical-rl"
-}
-
-/**
-How an image is scaled. See ``Style/imageRendering(_:)``.
-*/
-public enum ImageRendering: String, CSSKeyword {
-	case auto
-
-	/**
-	Large square pixels instead of a blur, for pixel art.
-	*/
-	case pixelated
-}
-
-/**
-How an underline is drawn (`text-decoration-style` in CSS), like a dotted line under a term that has a note.
-*/
-public enum UnderlineStyle: String, CSSKeyword {
-	case solid
-	case double
-	case dotted
-	case dashed
-	case wavy
-}
-
-/**
-How a border is drawn. The 3D styles, like `outset`, draw the edges in lighter and darker shades of the color.
-*/
-public enum BorderStyle: String, CSSKeyword {
-	case solid
-	case dashed
-	case dotted
-	case double
-	case groove
-	case ridge
-	case inset
-	case outset
-}
-
-/**
-A part of a scroll bar in Chrome and Safari, for ``Style/scrollbar(_:_:)``. A part only shows a style when the `bar` has a style too, like a width.
-*/
-public enum ScrollbarPart: String, Sendable {
-	/**
-	The whole scroll bar. Its width and height are the size of the vertical and the horizontal scroll bar.
-	*/
-	case bar = "::-webkit-scrollbar"
-
-	/**
-	The groove that the thumb moves in.
-	*/
-	case track = "::-webkit-scrollbar-track"
-
-	/**
-	The handle that shows the position, which the visitor drags.
-	*/
-	case thumb = "::-webkit-scrollbar-thumb"
-
-	/**
-	The arrow buttons at the ends. They are hidden until they have a size. With a size, browsers show a pair at each end, so hide them and show `upButton` and `downButton` for one button at each end.
-	*/
-	case button = "::-webkit-scrollbar-button"
-
-	/**
-	The button at the top of a vertical scroll bar, which scrolls up.
-	*/
-	case upButton = "::-webkit-scrollbar-button:vertical:start:decrement"
-
-	/**
-	The button at the bottom of a vertical scroll bar, which scrolls down.
-	*/
-	case downButton = "::-webkit-scrollbar-button:vertical:end:increment"
-
-	/**
-	The corner where a vertical and a horizontal scroll bar meet.
-	*/
-	case corner = "::-webkit-scrollbar-corner"
-}
-
-/**
-The direction of text and inline layout (`direction` in CSS).
-*/
-public enum TextDirection: String, CSSKeyword {
-	case leftToRight = "ltr"
-	case rightToLeft = "rtl"
-}
-
-/**
-Whether a declared size includes padding and borders (`box-sizing` in CSS).
-*/
-public enum BoxSizing: String, CSSKeyword {
-	case contentBox = "content-box"
-	case borderBox = "border-box"
-}
-
-/**
-Whether adjacent table-cell borders merge (`border-collapse` in CSS).
-*/
-public enum BorderCollapse: String, CSSKeyword {
-	case separate
-	case collapse
-}
-
-/**
-Whether transformed children remain in three dimensions (`transform-style` in CSS).
-*/
-public enum TransformStyle: String, CSSKeyword {
-	case flat
-	case preserveDepth = "preserve-3d"
-}
-
-/**
-How clipped inline text is marked (`text-overflow` in CSS).
-*/
-public enum TextOverflow: String, CSSKeyword {
-	case clip
-	case ellipsis
+	public init(_ name: String) {
+		precondition(name.hasPrefix("--"), "A timeline name starts with two hyphens: \(name)")
+		self.name = name
+	}
 }

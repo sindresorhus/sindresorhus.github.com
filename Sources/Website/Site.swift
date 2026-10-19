@@ -13,7 +13,7 @@ public struct Site: Sendable {
 	- The customizable `<select>` (`appearance: base-select`), instead of drop-downs made by hand.
 	- `focusgroup`, for one Tab stop with arrow keys in a group of controls (like the keys of the TI-83 and the color swatches of the 1999 page), instead of a Tab stop for each control or a roving `tabindex`.
 	*/
-	static let name = "Sindre Sorhus"
+	static let name = author.name
 
 	/**
 	About how many people use the apps. No service counts this, so it is updated by hand. The apps page and the about page show it rounded down, like “6M+ users”.
@@ -36,12 +36,12 @@ public struct Site: Sendable {
 	/**
 	The picture that feed readers show for the site feeds.
 	*/
-	static let feedImage = RoutePath("/assets/sindre-sorhus-small.jpg").absoluteURL
+	static let feedImage = Site.author.smallPhotoPath.absoluteURL
 
 	/**
 	The source code of the site.
 	*/
-	static let sourceURL = #URL("https://github.com/sindresorhus/sindresorhus.github.com")
+	static let sourceURL = author.gitHubURL.appending(path: "sindresorhus.github.com")
 
 	let content: SiteContent
 
@@ -71,7 +71,6 @@ extension Schema.Person {
 		jobTitle: Site.description,
 		description: "Full-time open-source developer and app maker focused on macOS apps, Node.js packages, and CLI tools.",
 		sameAs: Site.author.sameAs,
-		worksFor: Schema.Organization(name: "Independent"),
 		knowsAbout: ["Software Development", "Open Source", "Swift", "Node.js", "CLI Tools", "macOS", "iOS"]
 	)
 }
@@ -83,8 +82,8 @@ extension Site {
 	- Parameter includesGallery: Adds the component gallery at `/_gallery`, for the preview server.
 	*/
 	@RouteBuilder
-	public func routes(project: Project, includesGallery: Bool = false) -> [Route] {
-		let routes = pageRoutes + appRoutes + blogRoutes + redirectRoutes + feedRoutes + textFileRoutes + assetRoutes(project: project)
+	public func routes(includesGallery: Bool = false) -> [Route] {
+		let routes = pageRoutes + appRoutes + blogRoutes + redirectRoutes + feedRoutes + textFileRoutes + assetRoutes
 		routes
 
 		// The 404 page suggests the closest page, so it is made from the other routes.
@@ -159,6 +158,10 @@ extension Site {
 				Route.feed(releaseNotes.feed.path, .releaseNotes(of: app, at: releaseNotes, releases: releases))
 			}
 		}
+
+		if let sharedPuzzlePage = SharedPuzzlePage(apps: content.apps) {
+			sharedPuzzlePage
+		}
 	}
 
 	@RouteBuilder
@@ -186,8 +189,8 @@ extension Site {
 	The site social card, the stylesheet, the icons, and the scripts of the elements. Pages with their own social card publish it with the page.
 	*/
 	@RouteBuilder
-	private func assetRoutes(project: Project) -> [Route] {
-		OpenGraphCard.site(project: project)
+	private var assetRoutes: [Route] {
+		OpenGraphCard.site(project: content.project)
 
 		Route.text(Stylesheet.sitePath) {
 			Stylesheet.site.css
@@ -198,7 +201,7 @@ extension Site {
 		}
 
 		// Published unchanged. Each one defines its element itself.
-		for (path, source) in project.elementScripts() {
+		for (path, source) in content.project.elementScripts() {
 			Route.file(path) {
 				try Data(contentsOf: source)
 			}
@@ -272,7 +275,7 @@ extension LinkDestination {
 	static let crashReportQuestion = path(.faq, fragment: "crash-report")
 	static let refundQuestion = path(.faq, fragment: "refund")
 	static let resetPermissionsQuestion = path(.faq, fragment: "mac-reset-permissions")
-	static let menuBarQuestion = path(.faq, fragment: "app-not-showing-in-menu-bar")
+	static let menuBarQuestion = path(.faq, fragment: App.addedMenuBarQuestionID)
 }
 
 extension RoutePath {

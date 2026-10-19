@@ -5,7 +5,7 @@ import SiteKit
 /**
 The sponsors on the supporters page, by tier: logos, or a list of names for a tier without logos.
 
-The Markdown of the page places it with `@Sponsors`, so it is rendered with the Markdown, and its styles are in the shared stylesheet.
+The Markdown of the page places it with `@Sponsors`, so it is rendered with the Markdown, and the document collects its styles, like the styles of the other block directives.
 */
 struct SponsorList: HTML {
 	let tiers: [MarkdownPage.SponsorTier]
@@ -28,7 +28,7 @@ struct SponsorList: HTML {
 						Link(destination: sponsor.url.map(LinkDestination.url)) {
 							if let logo = sponsor.logo {
 								// When the name is shown next to it, the logo is decorative, so screen readers read the name once.
-								img(.src(logo.path.description), .alt(sponsor.showsName ? "" : sponsor.name), .width(logo.width))
+								img(.src(logo.path), .alt(sponsor.showsName ? "" : sponsor.name), .width(logo.width))
 							}
 
 							if sponsor.logo == nil || sponsor.showsName {
@@ -88,6 +88,8 @@ struct SponsorList: HTML {
 					.background(.gray(50), dark: .gray(200))
 					.shadow(.edge(.lightDark(.black.opacity(0.06), .white.opacity(0.1))))
 					.underline(false)
+					// A darker plate under the pointer and with keyboard focus.
+					.hoverFill(.lightDark(.gray(200), .gray(300)))
 					.nested("img") {
 						$0
 							.plainImage()

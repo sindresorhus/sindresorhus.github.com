@@ -5,7 +5,7 @@ import SiteKit
 /**
 The GitHub contributions of the last year as a grid of days, like on a GitHub profile, with one column for each week. Screen readers skip the grid, so show the numbers as text next to it.
 
-The career quilt uses the same cells and colors (``Styles/cell`` and ``Styles/level(_:)``) for its calendars.
+The career quilt uses the same cells (``Days``) and colors (``Styles/level(_:)``) for its calendars.
 
 ```swift
 ContributionHeatmap(calendar: calendar)
@@ -17,21 +17,33 @@ struct ContributionHeatmap: HTML {
 	var body: some HTML<HTMLTag.div> {
 		div {
 			div {
-				// The first week can start after Sunday, so empty cells keep each weekday in its row.
-				for _ in 0..<(7 - (calendar.weeks.first?.days.count ?? 7)) {
-					span {}
-						.style(Styles.cell)
-				}
-
-				for day in calendar.days {
-					span {}
-						.style(Styles.cell, Styles.level(day.level))
-				}
+				Days(days: calendar.days)
 			}
 			.style(Styles.grid)
 		}
 		.accessibilityHidden()
+		// Not a Tab stop, which browsers make a scroller without controls on phones, as it is hidden from screen readers and starts at the newest week.
+		.attributes(.tabindex(-1))
 		.style(Styles.root)
+	}
+
+	/**
+	A cell for each day, after a blank cell for each weekday before the first day, as the first week can start after Sunday, so each weekday is in its row. The parent is a grid of seven rows that fills its columns first.
+	*/
+	struct Days: HTML {
+		let days: [ContributionCalendar.Day]
+
+		var body: some HTML {
+			for _ in 0..<(days.first?.weekday ?? 0) {
+				span {}
+					.style(Styles.cell)
+			}
+
+			for day in days {
+				span {}
+					.style(Styles.cell, Styles.level(day.level))
+			}
+		}
 	}
 
 	enum Styles: StyleSet {

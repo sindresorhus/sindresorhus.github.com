@@ -6,6 +6,9 @@ platforms: [
 	'macOS'
 ]
 appStoreID: 1206020918
+sharedQuestions: [
+	'blurry-secondary-display'
+]
 isPaid: true
 isMenuBarApp: true
 hasSentry: true

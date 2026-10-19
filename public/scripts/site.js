@@ -13,7 +13,7 @@ console.log(`%c
   \\ r=._\\        \`.
 `, 'color: #ec4899; font-family: ui-monospace, monospace;');
 
-// Opens the collapsible section that the URL fragment points to. Browsers open a section for find-in-page and for a fragment inside it, but not for a fragment that is the section itself.
+// Opens the collapsible section that the URL fragment points to, and returns it. Browsers open a section for find-in-page and for a fragment inside it, but not for a fragment that is the section itself.
 function openTargetedSection() {
 	let id;
 
@@ -28,11 +28,30 @@ function openTargetedSection() {
 
 	if (target instanceof HTMLDetailsElement) {
 		target.open = true;
+		return target;
 	}
 }
 
 openTargetedSection();
-window.addEventListener('hashchange', openTargetedSection);
+
+window.addEventListener('hashchange', async () => {
+	const {hash} = location;
+	const section = openTargetedSection();
+
+	if (!section) {
+		return;
+	}
+
+	// Opening a section closes the open section of its group, like a question with a link to another question, which animates its height. When that section is above, the page above shrinks while the browser scrolls, so the section is scrolled to again after the animation. Chrome does not list the height transition of `::details-content`, so this waits for the rotation of the chevrons, which has the same duration (`.disclosure` in `ProseStyles+CollapsibleSections.swift`).
+	await Promise.allSettled(document.getAnimations().filter(animation => animation instanceof CSSTransition).map(animation => animation.finished));
+
+	// The visitor went somewhere else while it waited.
+	if (location.hash !== hash) {
+		return;
+	}
+
+	section.scrollIntoView();
+});
 
 // Copies the text, marks the element as copied for the styles, and says “Copied” to screen readers. Returns whether it worked. Without clipboard access, it does nothing, as the visitor can still select the text.
 async function copy(text, element) {
@@ -78,6 +97,22 @@ document.addEventListener('click', async event => {
 			}
 		}, {once: true});
 	}, 1500));
+});
+
+// A footnote or an inline note closes when the keyboard moves the focus out of it, like with Tab, as it would stay open over the text otherwise. Only the keyboard, as a click on the button or the link that opens the note moves the focus there in some browsers before it closes the note, and a click outside closes the note anyway.
+document.addEventListener('focusin', ({target}) => {
+	if (!target.matches(':focus-visible')) {
+		return;
+	}
+
+	for (const note of document.querySelectorAll('[role="note"]:popover-open')) {
+		// Shift+Tab from the note goes back to the button or the link that opened it, which keeps it open.
+		const isOpener = target.getAttribute('popovertarget') === note.id || target.getAttribute('href') === `#${note.id}`;
+
+		if (!note.contains(target) && !isOpener) {
+			note.hidePopover();
+		}
+	}
 });
 
 // A unicorn gallops across the page after the Konami code: ↑ ↑ ↓ ↓ ← → ← → B A. The code is also a `konami` event on the document, for the surprises of a page, like the unicorn parade of the 1999 page.

@@ -2,6 +2,20 @@ import AVFoundation
 import Foundation
 import ImageIO
 
+extension Error {
+	/**
+	The localized message of a Foundation error or `LocalizedError`, or the description of another Swift error, so diagnostics keep the details that a generic localized description would discard.
+	*/
+	public var descriptiveMessage: String {
+		if let description = (self as? any LocalizedError)?.errorDescription {
+			return description
+		}
+
+		// Boxing the error as `any Error` bridges a Foundation error struct, like `CocoaError` or `URLError`, to its `NSError`, so it is also found when it is called on the struct itself.
+		return type(of: self as any Error) is NSError.Type ? localizedDescription : String(describing: self)
+	}
+}
+
 extension URL {
 	/**
 	Whether a file or directory exists at the URL.
@@ -189,21 +203,62 @@ extension Date {
 	}
 }
 
+/**
+The size of an image or a video in pixels, like 1280×800.
+*/
+public struct PixelSize: Hashable, Sendable, CustomStringConvertible {
+	public let width: Int
+	public let height: Int
+
+	public init(width: Int, height: Int) {
+		self.width = width
+		self.height = height
+	}
+
+	/**
+	The pixel size in the properties of an image.
+	*/
+	fileprivate init?(imageProperties: [CFString: Any]) {
+		guard
+			let width = imageProperties[kCGImagePropertyPixelWidth] as? Int,
+			let height = imageProperties[kCGImagePropertyPixelHeight] as? Int
+		else {
+			return nil
+		}
+
+		self.init(width: width, height: height)
+	}
+
+	/**
+	The width divided by the height, like 1.6 for 1280×800.
+	*/
+	public var aspectRatio: Double {
+		Double(width) / Double(height)
+	}
+
+	/**
+	Like `1280×800`.
+	*/
+	public var description: String {
+		"\(width)×\(height)"
+	}
+}
+
 extension URL {
 	/**
 	The pixel size of an image, or `nil` when it cannot be read, like for the `width` and `height` of an image, so the layout does not move while it loads. Only the header of the image is read. For a video, use ``videoSize``.
 	*/
-	public var mediaSize: (width: Int, height: Int)? {
-		imageProperties.flatMap(Self.pixelSize(of:))
+	public var imageSize: PixelSize? {
+		imageProperties.flatMap(PixelSize.init(imageProperties:))
 	}
 
 	/**
 	The size of an image on a page, in CSS pixels, or `nil` when it cannot be read. It is the pixel size, or half of it for an image with 144 DPI, like a screenshot of a Retina display on macOS, so the image is sharp. Other DPI values, like 300 from a photo editor, say nothing about the screen, so those images keep their pixel size.
 	*/
-	public var displaySize: (width: Int, height: Int)? {
+	public var displaySize: PixelSize? {
 		guard
 			let properties = imageProperties,
-			let size = Self.pixelSize(of: properties)
+			let size = PixelSize(imageProperties: properties)
 		else {
 			return nil
 		}
@@ -212,21 +267,14 @@ extension URL {
 			return size
 		}
 
-		return (size.width / 2, size.height / 2)
+		return PixelSize(width: size.width / 2, height: size.height / 2)
 	}
 
 	/**
-	The pixel size in the properties of an image.
+	The bits per channel of an image, like 8 or 16, or `nil` when it cannot be read. Only the header of the image is read.
 	*/
-	private static func pixelSize(of imageProperties: [CFString: Any]) -> (width: Int, height: Int)? {
-		guard
-			let width = imageProperties[kCGImagePropertyPixelWidth] as? Int,
-			let height = imageProperties[kCGImagePropertyPixelHeight] as? Int
-		else {
-			return nil
-		}
-
-		return (width, height)
+	public var imageBitDepth: Int? {
+		imageProperties?[kCGImagePropertyDepth] as? Int
 	}
 
 	/**
@@ -260,7 +308,7 @@ extension URL {
 	/**
 	The pixel size of a video, like an MP4, or `nil` when it cannot be read, so the layout does not move while it loads. It is the size of the first video track, without its rotation.
 	*/
-	public var videoSize: (width: Int, height: Int)? {
+	public var videoSize: PixelSize? {
 		get async {
 			guard
 				let track = try? await AVURLAsset(url: self).loadTracks(withMediaType: .video).first,
@@ -269,7 +317,7 @@ extension URL {
 				return nil
 			}
 
-			return (Int(size.width.rounded()), Int(size.height.rounded()))
+			return PixelSize(width: Int(size.width.rounded()), height: Int(size.height.rounded()))
 		}
 	}
 }
@@ -281,6 +329,26 @@ extension String {
 	It works on Unicode scalars, as a combining mark after a quote makes them one character, which would not equal the quote.
 	*/
 	public var escapedForHTML: String {
+		// Most text has nothing to escape, so it is returned as it is. The four characters are single bytes in UTF-8, which are never part of another character. The bytes are read with `withUTF8`, which is much faster than the `utf8` view in a debug build.
+		var text = self
+
+		let needsEscaping = text.withUTF8 { bytes in
+			for byte in bytes {
+				switch byte {
+				case UInt8(ascii: "&"), UInt8(ascii: "<"), UInt8(ascii: ">"), UInt8(ascii: "\""):
+					return true
+				default:
+					continue
+				}
+			}
+
+			return false
+		}
+
+		guard needsEscaping else {
+			return self
+		}
+
 		var result = ""
 		result.reserveCapacity(utf8.count)
 
@@ -306,7 +374,18 @@ extension String {
 	A hash that is the same in every process (FNV-1a), unlike `hashValue`.
 	*/
 	public var stableHash: UInt64 {
-		utf8.reduce(0xCBF2_9CE4_8422_2325) { ($0 ^ UInt64($1)) &* 0x100_0000_01B3 }
+		// The bytes are read with `withUTF8`, which is much faster than the `utf8` view in a debug build.
+		var text = self
+
+		return text.withUTF8 { bytes in
+			var hash: UInt64 = 0xCBF2_9CE4_8422_2325
+
+			for byte in bytes {
+				hash = (hash ^ UInt64(byte)) &* 0x100_0000_01B3
+			}
+
+			return hash
+		}
 	}
 }
 

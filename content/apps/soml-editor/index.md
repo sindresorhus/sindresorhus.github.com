@@ -9,6 +9,9 @@ platforms: [
 	# 'visionOS'
 ]
 appStoreID: 6821636565
+sharedQuestions: [
+	'suggested-filenames'
+]
 # requirement: 'macOS 27 or iOS 27 or later'
 requirement: 'macOS 27 or later'
 ---

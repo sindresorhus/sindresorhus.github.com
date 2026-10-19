@@ -8,6 +8,13 @@ platforms: [
 ]
 isMenuBarApp: true
 appStoreID: 6502579523
+sharedQuestions: [
+	'blurry-secondary-display'
+	'week-53'
+	'december-week-1'
+	'incorrect-week-number'
+	'iso-week-number'
+]
 olderVersions: [
 	{
 		version: '1.2.1'
@@ -48,29 +55,9 @@ Check out [Dato](/dato) for week number in the menu bar and more features and se
 
 ## Frequently Asked Questions {#faq}
 
-### The week number looks blurry or is not dimmed on my secondary display
-
-[See this answer](/apps/faq#menu-bar-secondary-display)
-
 ### Can you add custom week numbering options (for example, fiscal weeks, school terms, or work weeks)?
 
 No, the app is intentionally simple.
-
-### Why does it not show week 53?
-
-You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar). You can change it with [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
-
-### Why does it show the last days of December as week 1?
-
-That is called [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date).
-
-### It shows the incorrect week number {#incorrect-week-number}
-
-You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar), or the inverse. You can change it with [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
-
-### How can I change the week number to ISO 8601 format?
-
-Change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340) to use [ISO 8601](https://en.wikipedia.org/wiki/ISO_week_date) week numbers.
 
 ## Non-App Store Version
 

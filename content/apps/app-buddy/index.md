@@ -5,6 +5,9 @@ publicationDate: '2024-10-20'
 platforms: [
 	'macOS'
 ]
+sharedQuestions: [
+	'not-in-app-store'
+]
 hasSentry: true
 releasesRepository: 'app-buddy-meta'
 mainLinks: {
@@ -37,7 +40,3 @@ I welcome suggestions for what more useful support tools it could contain.
 No. This is intended for my apps only.
 
 If you need app setting import/export for any apps, check out my [Supercharge](/supercharge) app.
-
-### Why is this not in the App Store?
-
-Much of the functionality would not be possible in the App Store because of [sandboxing](/apps/faq#macos-sandbox).

@@ -4,9 +4,15 @@ import SiteKit
 /**
 A content file with a page, like an app, a blog post, or a Markdown page.
 
-The type owns the rule for the path of its pages, so links to content files, like `[Dato](dato.md)`, always go to the real page.
+The type owns the rule for the path of its pages, so links to content files, like `[Dato](dato.md)`, always go to the real page. Frontmatter values are available directly on the document, like `app.title`.
 */
+@dynamicMemberLookup
 protocol ContentDocument: ContentEntry {
+	/**
+	The path that the pages of the type are at, like `.blog` for `/blog/post`. The default is the root, like `/dato`.
+	*/
+	static var pageRoute: RoutePath { get }
+
 	/**
 	The path of the page of a file, by its slug, like `/dato` for `dato`.
 	*/
@@ -17,6 +23,7 @@ protocol ContentDocument: ContentEntry {
 	*/
 	var file: MarkdownFile { get }
 
+	var frontmatter: Frontmatter { get }
 	var markdown: MarkdownDocument { get }
 
 	/**
@@ -30,7 +37,24 @@ protocol ContentDocument: ContentEntry {
 	var redirectURL: URL? { get }
 }
 
+/**
+The content types that have pages, in the order the build loads them, so the paths of their files and the files of their page bundles have one owner.
+*/
+private let contentDocumentTypes: [any ContentDocument.Type] = [App.self, BlogPost.self, MarkdownPage.self]
+
 extension ContentDocument {
+	static var pageRoute: RoutePath {
+		.root
+	}
+
+	static func path(slug: String) -> RoutePath {
+		pageRoute.appending(path: slug)
+	}
+
+	subscript<Value>(dynamicMember keyPath: KeyPath<Frontmatter, Value>) -> Value {
+		frontmatter[keyPath: keyPath]
+	}
+
 	/**
 	The path of the file relative to the content directory, without the extension, like `dato`.
 	*/
@@ -77,7 +101,7 @@ extension Project {
 	The project of the site at the root, with the path of the pages of each content type, so the files of a page bundle are published next to its page, like `/dato/icon.png` for `content/apps/dato/icon.png` and `/blog/post/image.png` for `content/blog/post/image.png`.
 	*/
 	public static func site(root: URL) -> Self {
-		Self(root: root, pageRoutes: [App.directory: .root, BlogPost.directory: .blog, MarkdownPage.directory: .root])
+		Self(root: root, pageRoutes: Dictionary(uniqueKeysWithValues: contentDocumentTypes.map { ($0.directory, $0.pageRoute) }))
 	}
 }
 
@@ -88,9 +112,7 @@ extension RoutePath {
 	Limitation: Apps and posts are flat, so a file in a subdirectory of `content/apps` or `content/blog` has no page, except for the `index.md` of a page bundle, like `content/apps/dato/index.md`.
 	*/
 	init?(contentFile file: URL, project: Project) {
-		let types: [any ContentDocument.Type] = [App.self, BlogPost.self, MarkdownPage.self]
-
-		for type in types {
+		for type in contentDocumentTypes {
 			let directory = project.root.appending(path: type.directory)
 
 			guard file.isInside(directory) else {
@@ -99,7 +121,7 @@ extension RoutePath {
 
 			let slug = MarkdownFile.slug(of: file, relativeTo: directory)
 
-			guard type.allowsSubdirectories || !slug.contains("/") else {
+			guard type.allows(slug: slug) else {
 				return nil
 			}
 

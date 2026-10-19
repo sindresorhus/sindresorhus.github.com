@@ -28,9 +28,9 @@ public struct SiteContent: Sendable {
 	let appStoreReviews: [AppStoreID: [AppStoreReview]]
 
 	/**
-	The releases of each app's releases repo.
+	The releases of each app's releases repo, by its name in the `sindresorhus` account (``App/ReleaseNotes/repository``). Pages read them with ``releases(of:)``, so nothing else looks them up by a name.
 	*/
-	let releases: [String: [GitHubRelease]]
+	private let releases: [String: [GitHubRelease]]
 
 	let recentRepositories: [GitHubRepository]
 
@@ -40,7 +40,7 @@ public struct SiteContent: Sendable {
 	let popularRepositories: [GitHubRepository]
 
 	/**
-	The numbers of the GitHub account, like the repos and the stars, for the about page, and its repos, for the new npm packages of the now page. `nil` when a request failed.
+	The numbers of the GitHub account and the organizations of its projects (``GitHub/owners``), like the repos and the stars, for the about page, and their repos, for the new npm packages of the now page. `nil` when a request failed.
 	*/
 	let gitHubAccount: GitHub.Account?
 
@@ -55,7 +55,6 @@ public struct SiteContent: Sendable {
 	The GitHub contributions of each year since 2010, oldest first, for the career quilt. Empty without a GitHub token, or when a request failed.
 	*/
 	let contributionYears: [ContributionYear]
-
 
 	/**
 	When the site is built. Everything that depends on the date uses it, like the “new” badge and the daily related apps, so one build is consistent.
@@ -76,7 +75,8 @@ public struct SiteContent: Sendable {
 		self.apps = apps
 		self.posts = posts
 		self.pages = pages
-		self.pagesByPath = Dictionary(uniqueKeysWithValues: pages.map { ($0.path, $0) })
+		// The loader rejects two pages with the same path, so the first is the only one.
+		self.pagesByPath = Dictionary(pages.map { ($0.path, $0) }, uniquingKeysWith: { first, _ in first })
 		self.appStoreInfo = appStoreInfo
 		self.appStoreReviews = appStoreReviews
 		self.releases = releases
@@ -128,6 +128,12 @@ public struct SiteContent: Sendable {
 			throw ContentErrors(loadedApps.errors + loadedPosts.errors + loadedPages.errors)
 		}
 
+		let duplicates = duplicateErrors(apps: apps, posts: posts, pages: pages, project: project)
+
+		guard duplicates.isEmpty else {
+			throw ContentErrors(duplicates)
+		}
+
 		switch externalData {
 		case .fetch(let cache):
 			return try await fetching(apps: apps, posts: posts, pages: pages, cache: cache, buildDate: buildDate, project: project, warnings: warnings)
@@ -137,19 +143,61 @@ public struct SiteContent: Sendable {
 	}
 
 	/**
+	Two content files that write the same page, like `content/pages/about.md` and `content/apps/about/index.md`, and two apps with one App Store ID, which would share its price, rating, and reviews. The loader reports them, so the rest of the build can assume that a page path and an App Store ID identify one document. A path that two redirects claim is still the publisher's check.
+	*/
+	private static func duplicateErrors(apps: [App], posts: [BlogPost], pages: [MarkdownPage], project: Project) -> [ContentError] {
+		var errors = [ContentError]()
+		let documents: [any ContentDocument] = apps + posts + pages
+		let documentsByPath = Dictionary(grouping: documents, by: \.path)
+
+		for (path, documents) in documentsByPath where documents.count > 1 {
+			for document in documents.dropFirst() {
+				errors.append(ContentError(file: document.file.url, reason: "It is the same page as `\(documents[0].file.url.path(relativeTo: project.root))`, which is at \(path). Rename or remove one of them."))
+			}
+		}
+
+		var appsByID = [AppStoreID: App]()
+
+		for app in apps {
+			guard let id = app.appStoreID else {
+				continue
+			}
+
+			guard let other = appsByID[id] else {
+				appsByID[id] = app
+				continue
+			}
+
+			errors.append(ContentError(file: app.file.url, reason: "It has the same `appStoreID` as \(other.title), so they would share its price, rating, and reviews."))
+		}
+
+		return errors.sorted(using: KeyPathComparator(\.description, comparator: String.StandardComparator.lexical))
+	}
+
+	/**
 	The content with the data from the App Store, GitHub, npm, and Bluesky. Failures of the release notes and the recent repos on GitHub are errors. Other failures are warnings, as that data is extra: the App Store data, the popular repos, the numbers of the GitHub account, and the npm numbers of the about page, the career quilt, which also has the contribution numbers of the about page, and the activity of the now page.
 	*/
 	private static func fetching(apps: [App], posts: [BlogPost], pages: [MarkdownPage], cache: ResponseCache, buildDate: Date, project: Project, warnings: WarningCollector) async throws -> Self {
 		let github = GitHub(cache: cache)
 
-		async let appStoreInfo = AppStoreInfo.lookup(ids: apps.compactMap(\.appStoreID), cache: cache)
+		// The info only adds the prices, the ratings, and the versions, like to the app pages and to the numbers of the about and now pages, so a failed lookup does not fail the build.
+		async let appStoreInfo = warnings.value(warning: "Could not get the App Store info, so the app pages leave out the prices and the ratings and have less structured data, the about page leaves out the ratings, and the now page leaves out the App Store updates") {
+			try await AppStoreInfo.lookup(ids: apps.compactMap(\.appStoreID), cache: cache)
+		}
 		async let appStoreReviews = AppStoreReview.recentFiveStar(appIDs: apps.filter { !$0.isArchived }.compactMap(\.appStoreID), cache: cache, warnings: warnings)
 		async let recentRepositories = github.recentRepositories()
-		async let popularRepositories = github.popularRepositories()
-		async let gitHubAccount = github.account()
+		async let popularRepositories = warnings.value(warning: "Could not get the popular GitHub repos, so the about page leaves them out") {
+			try await github.popularRepositories()
+		}
+		async let gitHubAccount = warnings.value(warning: "Could not get the numbers of the GitHub account and its organizations, like the repos and the stars, so the about page leaves them out, and the now page leaves out the new npm packages") {
+			try await github.account()
+		}
 		async let npmStatistics = NPMStatistics.load(cache: cache, warnings: warnings)
 		async let recentActivity = RecentActivity.load(github: github, cache: cache, buildDate: buildDate, warnings: warnings)
-		async let contributionYears = ContributionYear.load(github: github, until: buildDate)
+		// The career quilt is extra, and it is left out without a token.
+		async let contributionYears = warnings.value(warning: "Could not get the GitHub contributions of each year, so the career quilt and the contribution numbers of the about page are left out") {
+			try await ContributionYear.load(github: github, until: buildDate)
+		}
 
 		let releases = try await withThrowingTaskGroup { group in
 			for repository in Set(apps.compactMap(\.releaseNotes?.repository)) {
@@ -161,59 +209,34 @@ public struct SiteContent: Sendable {
 			return try await group.reduce(into: [:]) { $0[$1.0] = $1.1 }
 		}
 
-		// The info only adds structured data and prices to the app pages, so a failed lookup does not fail the build.
-		var loadedAppStoreInfo = [AppStoreID: AppStoreInfo]()
+		let loadedAppStoreInfo = await appStoreInfo
 
-		do {
-			loadedAppStoreInfo = try await appStoreInfo
-
-			// When the lookup works, an app without a result likely has a wrong App Store ID, so its links go nowhere.
+		// When the lookup works, an app without a result likely has a wrong App Store ID, so its links go nowhere.
+		if let loadedAppStoreInfo {
 			for app in apps where !app.isArchived {
 				if
 					let id = app.appStoreID,
 					loadedAppStoreInfo[id] == nil
 				{
-					warnings.add(Warning(location: app.file.location(ofLine: nil, relativeTo: project.root), message: "The App Store has no app with the ID \(id), which \(app.title) uses. Check its `appStoreID`."))
+					warnings.add(Warning(file: app.file.url, message: "The App Store has no app with the ID \(id), which \(app.title) uses. Check its `appStoreID`."))
 				}
 			}
-		} catch {
-			warnings.add(Warning(message: "Could not get App Store info, so app pages have less structured data: \(error)"))
 		}
 
 		let loadedAppStoreReviews = await appStoreReviews
 		let loadedRecentRepositories = try await recentRepositories
 		let loadedNPMStatistics = await npmStatistics
 		let loadedRecentActivity = await recentActivity
-		var loadedContributionYears = [ContributionYear]()
-
-		// The career quilt is extra, and it is left out without a token.
-		do {
-			loadedContributionYears = try await contributionYears ?? []
-		} catch {
-			warnings.add(Warning(message: "Could not get the GitHub contributions of each year, so the career quilt and the contribution numbers of the about page are left out: \(error)"))
-		}
-		var loadedPopularRepositories = [GitHubRepository]()
-
-		do {
-			loadedPopularRepositories = try await popularRepositories
-		} catch {
-			warnings.add(Warning(message: "Could not get the popular GitHub repos, so the about page leaves them out: \(error)"))
-		}
-
-		var loadedGitHubAccount: GitHub.Account?
-
-		do {
-			loadedGitHubAccount = try await gitHubAccount
-		} catch {
-			warnings.add(Warning(message: "Could not get the numbers of the GitHub account, like the repos and the stars, so the about page leaves them out, and the now page leaves out the new npm packages: \(error)"))
-		}
+		let loadedContributionYears = await contributionYears ?? []
+		let loadedPopularRepositories = await popularRepositories ?? []
+		let loadedGitHubAccount = await gitHubAccount
 
 		// After all requests, so the cache has all its warnings.
 		return Self(
 			apps: apps,
 			posts: posts,
 			pages: pages,
-			appStoreInfo: loadedAppStoreInfo,
+			appStoreInfo: loadedAppStoreInfo ?? [:],
 			appStoreReviews: loadedAppStoreReviews,
 			releases: releases,
 			recentRepositories: loadedRecentRepositories,
@@ -287,6 +310,9 @@ extension SiteContent {
 		posts.filter(\.isListed)
 	}
 
+	/**
+	The published releases of the app, newest first, like on its release notes page. Empty for an app without release notes, like an archived app.
+	*/
 	func releases(of app: App) -> [GitHubRelease] {
 		app.releaseNotes.flatMap { releases[$0.repository] } ?? []
 	}
@@ -342,7 +368,7 @@ extension SiteContent {
 			.flatMap { document in
 				document.markdown.links
 					.filter { $0.destination == link }
-					.map { document.file.location(ofLine: $0.line, relativeTo: project.root) }
+					.map { document.file.url.location(ofLine: $0.line) }
 			}
 	}
 

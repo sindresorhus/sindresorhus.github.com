@@ -12,7 +12,7 @@ A property with a property wrapper, like `@NonEmpty var description: String?`, d
 
 The type of a stored property comes from its type annotation, from an empty initializer that names the type (`[String]()`, `[String: Int]()`, `OrderedMapping<URL>()`), or from a literal default value: `false` is a `Bool`, `"text"` is a `String`, `1` is an `Int`, and `1.5` is a `Double`.
 
-Limitations: Properties inside `#if` blocks are ignored. Every attribute of a property, other than `@Key`, is taken to be a property wrapper that is generic over its wrapped value, like `NonEmpty<Value>`, written without generic arguments. Other default values need a type annotation, because macros cannot infer types. This includes string literals with interpolation, and literals that should be another type, like `var scale: Float = 1`.
+Limitations: A property inside an `#if` block is an error. Every attribute of a property without arguments, other than `@Key`, is taken to be a property wrapper that is generic over its wrapped value, like `NonEmpty<Value>`, written without generic arguments, and an attribute with arguments, other than `@Key`, is an error. Other default values need a type annotation, because macros cannot infer types. This includes string literals with interpolation, and literals that should be another type, like `var scale: Float = 1`.
 */
 public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 	struct Property {
@@ -40,6 +40,23 @@ public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 
 			return nil
 		}
+
+		/**
+		The statement of `init(from:)` that decodes the property. An optional property, or a property with a default value, is decoded with `decodeIfPresent`, so its key can be missing.
+		*/
+		var decodingStatement: ExprSyntax {
+			let valueType = optionalWrappedType ?? type
+			let decodedType: TypeSyntax = wrapper.map { "\($0)<\(valueType)>" } ?? valueType
+
+			guard optionalWrappedType != nil || defaultValue != nil else {
+				let unwrap = wrapper == nil ? "" : ".wrappedValue"
+				return "self.\(name) = try container.decode(\(decodedType).self, forKey: .\(name))\(raw: unwrap)"
+			}
+
+			let unwrap = wrapper == nil ? "" : "?.wrappedValue"
+			let decode: ExprSyntax = "try container.decodeIfPresent(\(decodedType).self, forKey: .\(name))\(raw: unwrap)"
+			return defaultValue.map { "self.\(name) = \(decode) ?? \($0)" } ?? "self.\(name) = \(decode)"
+		}
 	}
 
 	public static func expansion(
@@ -53,6 +70,12 @@ public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 		}
 
 		let properties = try storedProperties(of: declaration)
+
+		// A `CodingKeys` enum without cases cannot have the raw type that `@Key` needs.
+		guard !properties.isEmpty else {
+			throw MacroExpansionErrorMessage("'@Frontmatter' requires at least one stored property")
+		}
+
 		let access = declaration.modifiers.accessModifierForGeneratedMembers
 
 		let codingKeys = try EnumDeclSyntax("enum CodingKeys: Swift.String, Swift.CodingKey") {
@@ -69,7 +92,7 @@ public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 			DeclSyntax("let container = try decoder.container(keyedBy: CodingKeys.self)")
 
 			for property in properties {
-				decodingStatement(for: property)
+				property.decodingStatement
 			}
 		}
 
@@ -94,33 +117,36 @@ public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 		return [try ExtensionDeclSyntax("extension \(type.trimmed): SiteKit.Frontmatter {}")]
 	}
 
-	/**
-	An optional property, or a property with a default value, is decoded with `decodeIfPresent`, so its key can be missing.
-	*/
-	private static func decodingStatement(for property: Property) -> ExprSyntax {
-		let wrappedType = property.optionalWrappedType
-		let valueType = wrappedType ?? property.type
-		let decodedType: TypeSyntax = property.wrapper.map { "\($0)<\(valueType)>" } ?? valueType
-
-		guard wrappedType != nil || property.defaultValue != nil else {
-			let unwrap = property.wrapper == nil ? "" : ".wrappedValue"
-			return "self.\(property.name) = try container.decode(\(decodedType).self, forKey: .\(property.name))\(raw: unwrap)"
-		}
-
-		let unwrap = property.wrapper == nil ? "" : "?.wrappedValue"
-		let decode: ExprSyntax = "try container.decodeIfPresent(\(decodedType).self, forKey: .\(property.name))\(raw: unwrap)"
-		return property.defaultValue.map { "self.\(property.name) = \(decode) ?? \($0)" } ?? "self.\(property.name) = \(decode)"
-	}
-
 	private static func storedProperties(of declaration: some DeclGroupSyntax) throws -> [Property] {
 		var properties = [Property]()
-		var diagnostics = [Diagnostic]()
+		var diagnostics = conditionalDiagnostics(in: declaration.memberBlock.members.map(\.decl))
 
 		for member in declaration.memberBlock.members {
 			guard
 				let variable = member.decl.as(VariableDeclSyntax.self),
 				variable.isStoredInstanceProperty
 			else {
+				continue
+			}
+
+			// A property wrapper is written without arguments, so the type of the wrapper is the name alone.
+			var attributeWithArguments: AttributeSyntax?
+
+			for element in variable.attributes {
+				guard
+					case .attribute(let attribute) = element,
+					attribute.attributeName.trimmedDescription != "Key",
+					attribute.arguments != nil
+				else {
+					continue
+				}
+
+				attributeWithArguments = attribute
+				break
+			}
+
+			if let attributeWithArguments {
+				diagnostics.append(Diagnostic(node: attributeWithArguments, message: MacroExpansionErrorMessage("'@Frontmatter' supports only '@Key' and a property wrapper without arguments, like '@NonEmpty', got '\(attributeWithArguments.trimmedDescription)'.")))
 				continue
 			}
 
@@ -160,6 +186,40 @@ public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 		}
 
 		return properties
+	}
+
+	/**
+	The mistakes of the properties inside an `#if`, which are not members of the struct, so the macro would leave them out and they would keep their default for every file. Blocks inside blocks are checked too.
+	*/
+	private static func conditionalDiagnostics(in declarations: [DeclSyntax]) -> [Diagnostic] {
+		var diagnostics = [Diagnostic]()
+
+		for declaration in declarations {
+			guard let conditional = declaration.as(IfConfigDeclSyntax.self) else {
+				continue
+			}
+
+			for clause in conditional.clauses {
+				guard case .decls(let members) = clause.elements else {
+					continue
+				}
+
+				for member in members {
+					guard
+						let variable = member.decl.as(VariableDeclSyntax.self),
+						variable.isStoredInstanceProperty
+					else {
+						continue
+					}
+
+					diagnostics.append(Diagnostic(node: variable, message: MacroExpansionErrorMessage("A property in an '#if' block cannot be decoded, so '@Frontmatter' does not support it. Move it out of the conditional block.")))
+				}
+
+				diagnostics += conditionalDiagnostics(in: members.map(\.decl))
+			}
+		}
+
+		return diagnostics
 	}
 }
 

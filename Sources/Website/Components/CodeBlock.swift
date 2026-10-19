@@ -48,7 +48,7 @@ struct CodeBlock: ScriptedElement {
 	/**
 	The language, like `swift`, which the bar shows.
 	*/
-	var language: String?
+	let language: String?
 
 	/**
 	The HTML of a code block, for ``SiteKit/MarkdownDocument/Options/codeBlock``.
@@ -236,12 +236,7 @@ struct CodeBlock: ScriptedElement {
 					.color(.gray(300))
 					.background(.white.opacity(0.08))
 					.shadow(.edge(.white.opacity(0.1)))
-					.transition(.color, .backgroundColor, animation: .stateChange)
-					.hoverOrFocusVisible {
-						$0
-							.color(.white)
-							.background(.white.opacity(0.16))
-					}
+					.hoverFill(.white.opacity(0.16), color: .white)
 					.hiddenWithoutScripting()
 					.minimumTapArea()
 			case .copyIcon:

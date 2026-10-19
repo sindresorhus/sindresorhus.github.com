@@ -47,22 +47,22 @@ struct RecentActivity: Sendable {
 		let weekStart = Self.weekStart(before: buildDate)
 
 		// Child tasks, so the requests run at the same time, and are cancelled with the build.
-		async let blueskyPost = value(missing: "the latest Bluesky post", warnings: warnings) {
+		async let blueskyPost = warnings.value(warning: "Could not get the latest Bluesky post, so the page leaves that out") {
 			try await BlueskyPost.latest(cache: cache)
 		}
-		async let profile = value(missing: "the GitHub contributions, sponsors, and comments", warnings: warnings) {
+		async let profile = warnings.value(warning: "Could not get the GitHub contributions, sponsors, and comments, so the page leaves that out") {
 			try await github.profile()
 		}
-		async let weekMaintenance = value(missing: "the issues closed and the pull requests merged this week", warnings: warnings) {
+		async let weekMaintenance = warnings.value(warning: "Could not get the issues closed and the pull requests merged this week, so the page leaves that out") {
 			try await github.maintenance(since: weekStart)
 		}
-		async let releases = value(missing: "the latest open-source releases", warnings: warnings) {
+		async let releases = warnings.value(warning: "Could not get the latest open-source releases, so the page leaves that out") {
 			try await github.latestReleases()
 		}
-		async let weekActivity = value(missing: "the GitHub contributions, commits, and comments of the week", warnings: warnings) {
+		async let weekActivity = warnings.value(warning: "Could not get the GitHub contributions, commits, and comments of the week, so the page leaves that out") {
 			try await github.activity(since: weekStart)
 		}
-		async let yearMaintenance = value(missing: "the issues closed and the pull requests merged this year", warnings: warnings) {
+		async let yearMaintenance = warnings.value(warning: "Could not get the issues closed and the pull requests merged this year, so the page leaves that out") {
 			try await github.maintenance(since: Date(year: buildDate.siteYear, month: 1, day: 1))
 		}
 
@@ -77,17 +77,5 @@ struct RecentActivity: Sendable {
 		activity.weekActivity = await weekActivity ?? nil
 		activity.yearMaintenance = await yearMaintenance
 		return activity
-	}
-
-	/**
-	The value of the request, or `nil` with a warning when it fails, so the page leaves the value out.
-	*/
-	private static func value<Value: Sendable>(missing: String, warnings: WarningCollector, _ request: @Sendable () async throws -> Value) async -> Value? {
-		do {
-			return try await request()
-		} catch {
-			warnings.add(Warning(message: "Could not get \(missing), so the page leaves that out: \(error)"))
-			return nil
-		}
 	}
 }

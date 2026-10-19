@@ -33,8 +33,8 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 
 	var head: some HTML {
 		// First, as an import map must come before any module script. Browsers other than Chrome and Safari only use one import map.
-		if let importMap = RoutePath.importMap {
-			script(.type("importmap")) {
+		if let importMap = Site.Scripts.published.importMap {
+			script(.type(.importmap)) {
 				HTMLRaw(importMap)
 			}
 		}
@@ -47,7 +47,7 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 			}
 		}
 
-		MetadataHead(path: page.path, metadata: page.metadata, socialCard: page.socialCard)
+		MetadataHead(path: page.path, metadata: page.metadata, socialCard: page.socialCard, imageURL: page.socialImageURL)
 
 		// The styles of the components on the page. The shared styles are in the stylesheet that every page links to.
 		Elementary.style {
@@ -141,6 +141,11 @@ private struct MetadataHead: HTML {
 	*/
 	let socialCard: OpenGraphCard?
 
+	/**
+	The URL of the card (``Page/socialImageURL``).
+	*/
+	let imageURL: URL
+
 	private var canonicalURL: String {
 		path.absoluteURL.absoluteString
 	}
@@ -149,9 +154,18 @@ private struct MetadataHead: HTML {
 		metadata.socialTitle ?? metadata.documentTitle
 	}
 
-	private var imageURL: String {
-		(socialCard?.path ?? OpenGraphCard.sitePath).absoluteURL.absoluteString
-	}
+	/**
+	The page background in light and dark mode, for the bar of the browser. Resolved once, as finding the value of a palette shade is slow and every page has it.
+	*/
+	private static let themeColors = (
+		light: SemanticColor.pageBackground.colors.light.resolved.description,
+		dark: SemanticColor.pageBackground.colors.dark.resolved.description
+	)
+
+	/**
+	Prerenders a page of the site when the pointer rests on a link to it, so it opens at once. Not the random app page, which picks another app each time, or the feedback form. Browsers without the Speculation Rules API ignore it. Encoded once, as every page has the same rules.
+	*/
+	private static let speculationRules = JSONScript(speculationRules: SpeculationRules(excludedPaths: [.randomApp, .feedback]))
 
 	var body: some HTML {
 		meta(.name(.viewport), .content("width=device-width, initial-scale=1"))
@@ -161,8 +175,8 @@ private struct MetadataHead: HTML {
 		meta(.name("twitter:creator"), .content(Site.author.twitterHandle))
 		meta(.name("fediverse:creator"), .content(Site.author.fediverseHandle))
 		meta(.name("twitter:card"), .content("summary_large_image"))
-		meta(.name("theme-color"), .content(SemanticColor.pageBackground.colors.light.resolved.description), .media(.light))
-		meta(.name("theme-color"), .content(SemanticColor.pageBackground.colors.dark.resolved.description), .media(.dark))
+		meta(.name("theme-color"), .content(Self.themeColors.light), .media(.light))
+		meta(.name("theme-color"), .content(Self.themeColors.dark), .media(.dark))
 
 		// Dark mode visitors do not see a white page before the stylesheet loads.
 		meta(.name("color-scheme"), .content("light dark"))
@@ -176,7 +190,7 @@ private struct MetadataHead: HTML {
 		}
 
 		if let appStoreID = metadata.appStoreID {
-			meta(.name("apple-itunes-app"), .content("app-id=\(appStoreID)\(metadata.appStoreCampaign.map { ", affiliate-data=\($0)" } ?? "")"))
+			meta(.name("apple-itunes-app"), .content("app-id=\(appStoreID)\(App.appStoreBannerCampaign.map { ", affiliate-data=\($0)" } ?? "")"))
 		}
 
 		link(.rel(.canonical), .href(canonicalURL))
@@ -189,16 +203,15 @@ private struct MetadataHead: HTML {
 		}
 
 		for origin in metadata.preconnectOrigins {
-			link(.rel("preconnect"), .href(origin))
+			link(.rel("preconnect"), .href(.url(origin)))
 		}
 
-		// Prerenders a page of the site when the pointer rests on a link to it, so it opens at once. Not the random app page, which picks another app each time, or the feedback form. Browsers without the Speculation Rules API ignore it.
-		JSONScript(speculationRules: SpeculationRules(excludedPaths: [.randomApp, .feedback]))
+		Self.speculationRules
 
 		meta(.property("og:title"), .content(socialTitle))
 		meta(.property("og:type"), .content(metadata.kind.openGraphType))
 		meta(.property("og:url"), .content(canonicalURL))
-		meta(.property("og:image"), .content(imageURL))
+		meta(.property("og:image"), .content(imageURL.absoluteString))
 		meta(.property("og:image:width"), .content(String(OpenGraphCard.width)))
 		meta(.property("og:image:height"), .content(String(OpenGraphCard.height)))
 		meta(.property("og:image:alt"), .content(socialCard?.description ?? Site.name))

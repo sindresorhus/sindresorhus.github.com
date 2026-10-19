@@ -8,6 +8,9 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 1611378436
+sharedQuestions: [
+	'backup-settings'
+]
 pressQuotes: [
 	{
 		quote: 'Now, Pure Paste looks to provide an end to this most annoying headache by pasting plain text by default, hopefully spelling an end to formatting issues across all your files.'

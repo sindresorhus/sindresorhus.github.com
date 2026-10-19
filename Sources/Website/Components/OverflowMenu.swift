@@ -9,7 +9,7 @@ Search engines do not follow the options, so a page also links the pages somewhe
 
 Limitation: in Chrome and Firefox on Windows and Linux, the arrow keys change the value of a closed `<select>`, so the first arrow key press opens the first option. Keyboard users can open the menu with Space or Alt+Down first.
 
-Titled groups become option groups. Untitled groups are separated by a rule.
+The links are in sections separated by a rule, or in titled groups, which become option groups.
 
 A menu can also share a page, with a “Share…” option at the end. It is hidden until the script finds that the browser can share, so it is not there in browsers that cannot, like Firefox on desktop.
 */
@@ -33,24 +33,32 @@ struct OverflowMenu: ScriptedElement {
 		case chip
 	}
 
+	/**
+	The links of a menu: sections separated by a rule, or titled groups.
+	*/
+	private enum Links {
+		case sections([[LabeledLink]])
+		case groups([LinkGroup])
+	}
+
 	let label: String
-	let groups: [LinkGroup]
-	var variant = Variant.inline
+	private let links: Links
+	private var variant = Variant.inline
 
 	/**
 	The page that the “Share…” option shares, and the ID of the popover that shows instead when the browser refuses to share from the menu, like Safari on the Mac.
 	*/
-	var sharedPage: (title: String, url: URL, popoverID: String)?
+	private var sharedPage: (title: String, url: URL, popoverID: String)?
 
 	init(label: String, links: [LabeledLink]...) {
 		self.label = label
-		// An empty group would add a separator without links.
-		self.groups = links.filter { !$0.isEmpty }.map { LinkGroup(title: "", links: $0) }
+		// An empty section would add a separator without links.
+		self.links = .sections(links.filter { !$0.isEmpty })
 	}
 
 	init(label: String, groups: [LinkGroup], variant: Variant) {
 		self.label = label
-		self.groups = groups
+		self.links = .groups(groups)
 		self.variant = variant
 	}
 
@@ -58,16 +66,12 @@ struct OverflowMenu: ScriptedElement {
 	The menu of an app page: the pages about the app, a random app, and then the ways to pass the app on, the QR code and sharing. The random app is in its own group, as it is not about this app. An archived app is no longer available, so it is not passed on.
 	*/
 	static func appPage(_ app: App, variant: Variant = .inline) -> Self {
-		let passingOn = app.isArchived ? [] : [LabeledLink("Show QR Code", destination: .fragment(AppHero.qrCodeID))]
+		let passingOn = app.shareURL == nil ? [] : [LabeledLink("Show QR Code", destination: .fragment(AppHero.qrCodeID))]
 
 		// “Share…” comes after the QR code, as the menu adds it at the end.
 		var menu = Self(label: "More about \(app.title)", links: app.pageOverflowLinks, [LabeledLink("Show Random App", path: .randomApp)], passingOn)
 		menu.variant = variant
-
-		if !app.isArchived {
-			menu.sharedPage = (app.title, app.shareURL, AppHero.sharePopoverID)
-		}
-
+		menu.sharedPage = app.shareURL.map { (app.title, $0, AppHero.sharePopoverID) }
 		return menu
 	}
 
@@ -86,18 +90,21 @@ struct OverflowMenu: ScriptedElement {
 					""
 				}
 
-				for (index, group) in groups.enumerated() {
-					if group.title.isEmpty {
+				switch links {
+				case .sections(let sections):
+					for (index, section) in sections.enumerated() {
 						if index > 0 {
 							hr()
 						}
 
-						for link in group.links {
+						for link in section {
 							option(.value(link.destination.description)) {
 								link.title
 							}
 						}
-					} else {
+					}
+				case .groups(let groups):
+					for group in groups {
 						optgroup(.label(group.title)) {
 							for link in group.links {
 								option(.value(link.destination.description)) {

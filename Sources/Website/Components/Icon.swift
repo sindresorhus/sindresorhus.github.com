@@ -56,7 +56,7 @@ enum Icon: HTML, CaseIterable {
 	/**
 	The selector of icons, for styles of the icons in a component, like a color.
 	*/
-	static let selector = ".icon"
+	static let selector: CSSSelector = ".icon"
 
 	var body: some HTML {
 		size(.rootEm(1.25))
@@ -81,7 +81,7 @@ enum Icon: HTML, CaseIterable {
 	/**
 	The ``spritePath`` with the hash of the sprite, so browsers can cache it for a year.
 	*/
-	static let versionedSpritePath = spritePath.versioned(content: sprite)
+	private static let versionedSpritePath = spritePath.versioned(content: sprite)
 
 	/**
 	The sprite, for ``spritePath``.
@@ -92,8 +92,13 @@ enum Icon: HTML, CaseIterable {
 	}
 
 	private var symbolID: String {
-		String(describing: self).kebabCased
+		Self.symbolIDs[self]!
 	}
+
+	/**
+	The ``symbolID`` of each icon, like `app-store`, computed once, as pages show icons thousands of times.
+	*/
+	private static let symbolIDs = Dictionary(uniqueKeysWithValues: allCases.map { ($0, String(describing: $0).kebabCased) })
 
 	private var shapes: String {
 		switch self {

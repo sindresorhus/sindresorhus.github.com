@@ -506,5 +506,28 @@ extension GeoCitiesPage {
 		var stillPath: RoutePath {
 			RoutePath("/1999/still/\(rawValue).gif")
 		}
+
+		/**
+		The pixel size of the GIF, or `nil` when its file is missing, like in a test without the public files, or is not a GIF. It is the logical screen size in the header of the file (bytes 6 to 9, little endian), so only 10 bytes are read. The page has hundreds of GIFs, and reading their sizes with ImageIO (`imageSize`) made the 1999 page the slowest route to render. The GIFs are in `public/1999`, so the file is found there, not with `Project.publicFile(_:)`, which also looks in the page bundles.
+		*/
+		func size(in project: Project) -> PixelSize? {
+			guard
+				let file = try? FileHandle(forReadingFrom: project.publicDirectory.appending(path: path.relativePath)),
+				let header = try? file.read(upToCount: 10),
+				header.count == 10,
+				header.starts(with: "GIF".utf8)
+			else {
+				return nil
+			}
+
+			return PixelSize(width: Int(header[6]) | Int(header[7]) << 8, height: Int(header[8]) | Int(header[9]) << 8)
+		}
+
+		/**
+		Whether the GIF has a still frame (``stillPath``), which only GIFs that move have.
+		*/
+		func hasStill(in project: Project) -> Bool {
+			project.publicDirectory.appending(path: stillPath.relativePath).isFile
+		}
 	}
 }

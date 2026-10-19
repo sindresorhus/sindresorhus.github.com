@@ -77,10 +77,15 @@ struct AttachmentPicker: ScriptedElement {
 					.display(.block)
 					.margin(.bottom, .rootEm(2))
 			case .picker:
-				// A chip, like a small button, as the label opens the file picker.
+				// A chip, like a small button, as the label opens the file picker. The hidden input inside gets the focus of the keyboard, so the label shows the fill of the chip while the input has it.
 				Style()
 					.chip(hasIcon: true)
 					.cursor(.pointer)
+					.nested("&:has(:focus-visible)") {
+						$0
+							.background(.cardHover)
+							.color(.primaryText)
+					}
 			case .fileList:
 				Style()
 					.vstack(spacing: .rootEm(0.5))
@@ -122,12 +127,7 @@ struct AttachmentPicker: ScriptedElement {
 					.cornerRadius(.capsule)
 					.minimumTapArea()
 					.color(.secondaryText)
-					.transition(.color, .backgroundColor, animation: .stateChange)
-					.hoverOrFocusVisible {
-						$0
-							.color(.primaryText)
-							.background(.cardHover)
-					}
+					.hoverFill(.cardHover, color: .primaryText)
 			}
 		}
 	}

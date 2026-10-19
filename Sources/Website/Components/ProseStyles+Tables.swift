@@ -31,12 +31,12 @@ extension ProseStyles {
 		.descendants("td") {
 			$0.verticalAlign(.baseline)
 		}
-		// Keyboard shortcuts in the first column stay on one line.
-		.descendants("td:first-child:has(> kbd)") {
+		// Keyboard shortcuts in the first column of a table of shortcuts stay on one line. A table of one column is text, like tips, so a key in a sentence does not stop it from wrapping.
+		.descendants("td:first-child:not(:last-child):has(> kbd)") {
 			$0.textWrap(.nowrap)
 		}
-		// The column of the shortcuts has the same width in each table of shortcuts, so the descriptions line up from one table to the next, like the groups of shortcuts of an app. A longer shortcut still makes its column wider. A table is a table of shortcuts when a first cell has a shortcut, so other tables should not start a row with one.
-		.descendants("table:has(td:first-child > kbd) td:first-child") {
+		// The column of the shortcuts has the same width in each table of shortcuts, so the descriptions line up from one table to the next, like the groups of shortcuts of an app. A longer shortcut still makes its column wider. A table is a table of shortcuts when a first cell of a row with more than one cell has a shortcut, so other tables should not start such a row with one.
+		.descendants("table:has(td:first-child:not(:last-child) > kbd) td:first-child") {
 			$0.frame(width: .percent(40))
 		}
 
@@ -46,11 +46,14 @@ extension ProseStyles {
 	private static let tableBorder = Color.lightDark(.gray(200), .white.opacity(0.1))
 
 	/**
-	A table that is wider than the content scrolls horizontally instead of making the page scroll. A thin border around it, like a box.
+	A table that is wider than the content scrolls horizontally instead of making the page scroll. A thin border around it, like a box, which has the color of the secondary text while the container has the focus of the keyboard (it is focusable, so keyboard users can scroll a wide table).
 	*/
 	static let tableContainerStyle = Style()
 		.overflow(horizontal: .auto)
 		.widerThanProse()
 		.border(tableBorder)
 		.cornerRadius(.rootEm(1))
+		.focusVisible {
+			$0.borderColor(.secondaryText)
+		}
 }

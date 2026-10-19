@@ -15,6 +15,11 @@ struct Price: Hashable, Sendable {
 		self.currency = currency
 	}
 
+	/**
+	Free, like for the offer of an app that costs nothing. Frontmatter prices are positive, so only the build makes this one.
+	*/
+	static let free = Self(0)
+
 	var isFree: Bool {
 		amount == 0
 	}

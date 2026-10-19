@@ -8,6 +8,11 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 6745427035
+sharedQuestions: [
+	'sync'
+	'menu-bar-icons'
+	'backup-settings'
+]
 olderVersions: [
 	{
 		version: '1.3.3'
@@ -153,10 +158,6 @@ Short Run is what actually executes the shortcut, so it needs the same permissio
 
 No. Use Shortcuts’ own keyboard shortcuts (or Raycast/Alfred) if you want per-shortcut bindings.
 
-### Can you add sync?
-
-No. iCloud sync is unreliable and causes a huge support burden. It’s not worth the effort for this app.
-
 ### Can you add export/import for the shortcuts organization?
 
 Maybe at some point, but I want the app to be mature first, since it commits me to that exact format.
@@ -166,7 +167,3 @@ For now, you can [export/import all app data](https://sindresorhus.com/apps/faq#
 ### Can you support iOS?
 
 No, because there is no way to run shortcuts in the background on iOS.
-
-### Can you add another menu bar icon option?
-
-Sure! Find an icon you like in the [SF Symbols app](https://developer.apple.com/sf-symbols/) or [here](https://thenounproject.com/icons/), and send me the name or a link.

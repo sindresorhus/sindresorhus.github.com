@@ -9,9 +9,9 @@ struct ContributionYear: Sendable {
 	let calendar: ContributionCalendar
 
 	/**
-	The contributions of the year by kind, like the commits. `nil` when they were not loaded.
+	The contributions of the year by kind, like the commits.
 	*/
-	let totals: Totals?
+	let totals: Totals
 
 	/**
 	The days of the year up to the build date. The calendar of the current year goes on to the end of the year, and one day after it.
@@ -29,7 +29,6 @@ struct ContributionYear: Sendable {
 	struct Totals: Decodable, Sendable {
 		let commitCount: Int
 		let pullRequestCount: Int
-		let issueCount: Int
 		let reviewCount: Int
 		let repositoryCount: Int
 
@@ -46,7 +45,6 @@ struct ContributionYear: Sendable {
 		enum CodingKeys: String, CodingKey {
 			case commitCount = "totalCommitContributions"
 			case pullRequestCount = "totalPullRequestContributions"
-			case issueCount = "totalIssueContributions"
 			case reviewCount = "totalPullRequestReviewContributions"
 			case repositoryCount = "totalRepositoryContributions"
 			case committedRepositoryCount = "totalRepositoriesWithContributedCommits"
@@ -59,23 +57,16 @@ struct ContributionYear: Sendable {
 	*/
 	struct RepositoryCommits: Decodable, Sendable {
 		/**
-		The repository with its owner, like `sindresorhus/ky`.
+		The repository, like `sindresorhus/ky`.
 		*/
-		let repository: String
+		let repository: GitHubRepositoryName
 
 		let url: URL
 		let count: Int
 		let isPrivate: Bool
 
-		/**
-		The name to show, like `ky` or `chalk/chalk`.
-		*/
-		var displayName: String {
-			repository.repositoryDisplayName
-		}
-
 		private struct Repository: Decodable {
-			let nameWithOwner: String
+			let nameWithOwner: GitHubRepositoryName
 			let url: URL
 			let isPrivate: Bool
 		}
@@ -99,7 +90,7 @@ struct ContributionYear: Sendable {
 		}
 	}
 
-	init(year: Int, calendar: ContributionCalendar, totals: Totals? = nil, until date: Date) {
+	init(year: Int, calendar: ContributionCalendar, totals: Totals, until date: Date) {
 		self.year = year
 		self.calendar = calendar
 		self.totals = totals
@@ -121,13 +112,6 @@ struct ContributionYear: Sendable {
 	}
 
 	/**
-	The weekday of the first day of the year, from 0 for Sunday to 6 for Saturday, like the rows of the calendar.
-	*/
-	var firstWeekday: Int {
-		days.first?.weekday ?? 0
-	}
-
-	/**
 	The total of the year and its busiest day, like “4,078 contributions. The busiest day was March 3, with 92.”
 	*/
 	var summary: String {
@@ -141,27 +125,21 @@ struct ContributionYear: Sendable {
 	}
 
 	/**
-	The contributions of every year since ``firstYear``, oldest first, with one request for each year at the same time. The GraphQL API needs a token, so it is `nil` without one.
+	The contributions of every year since ``firstYear``, oldest first, with one request for each year at the same time. The GraphQL API needs a token, so it is empty without one.
 
-	A past year does not change once its last contributions show, which takes GitHub up to a day, so its response is cached for 100 years from a week after the year ended. The current year asks with only a start date, so its response has another cache key, and a past year that was cached as the current year is asked for again.
+	A past year does not change once its last contributions show, which takes GitHub up to a day, so a response fetched more than a week after the year ended is used for good: its maximum age is the time since then, so only a response fetched earlier is asked for again. The current year asks with only a start date, so its response has another cache key, and a past year that was cached as the current year is asked for again.
 	*/
-	static func load(github: GitHub, until date: Date) async throws -> [Self]? {
+	static func load(github: GitHub, until date: Date) async throws -> [Self] {
 		guard github.token != nil else {
-			return nil
+			return []
 		}
 
 		let currentYear = date.siteYear
-		let lastSettledYear = date.addingTimeInterval(-(Duration.days(7) / .seconds(1))).siteYear - 1
 
-		return try await withThrowingTaskGroup { group in
-			for year in firstYear...currentYear {
-				group.addTask {
-					let contributions = try await contributions(of: year, isPastYear: year < currentYear, isSettled: year <= lastSettledYear, github: github)
-					return Self(year: year, calendar: contributions.contributionCalendar, totals: contributions.totals, until: date)
-				}
-			}
-
-			return try await group.reduce(into: []) { $0.append($1) }.sorted(using: KeyPathComparator(\.year))
+		return try await (firstYear...currentYear).concurrentMap { year in
+			let timeSinceSettled = date.duration(since: Date(year: year + 1, month: 1, day: 8))
+			let contributions = try await contributions(of: year, isPastYear: year < currentYear, maximumAge: timeSinceSettled > .zero ? timeSinceSettled : nil, github: github)
+			return Self(year: year, calendar: contributions.contributionCalendar, totals: contributions.totals, until: date)
 		}
 	}
 
@@ -183,7 +161,7 @@ struct ContributionYear: Sendable {
 		}
 	}
 
-	private static func contributions(of year: Int, isPastYear: Bool, isSettled: Bool, github: GitHub) async throws -> Contributions {
+	private static func contributions(of year: Int, isPastYear: Bool, maximumAge: Duration?, github: GitHub) async throws -> Contributions {
 		struct Content: Decodable {
 			struct User: Decodable {
 				let contributionsCollection: Contributions
@@ -192,10 +170,10 @@ struct ContributionYear: Sendable {
 			let user: User
 		}
 
-		let fields = "contributionCalendar { totalContributions weeks { contributionDays { date contributionCount contributionLevel } } } totalCommitContributions totalPullRequestContributions totalIssueContributions totalPullRequestReviewContributions totalRepositoryContributions totalRepositoriesWithContributedCommits commitContributionsByRepository(maxRepositories: 5) { repository { nameWithOwner url isPrivate } contributions { totalCount } }"
+		let fields = "contributionCalendar { totalContributions weeks { contributionDays { date contributionCount contributionLevel } } } totalCommitContributions totalPullRequestContributions totalPullRequestReviewContributions totalRepositoryContributions totalRepositoriesWithContributedCommits commitContributionsByRepository(maxRepositories: 5) { repository { nameWithOwner url isPrivate } contributions { totalCount } }"
 		let query = isPastYear
-			? "query($from: DateTime!, $to: DateTime!) { user(login: \"sindresorhus\") { contributionsCollection(from: $from, to: $to) { \(fields) } } }"
-			: "query($from: DateTime!) { user(login: \"sindresorhus\") { contributionsCollection(from: $from) { \(fields) } } }"
+			? "query($from: DateTime!, $to: DateTime!) { user(login: \"\(GitHub.account)\") { contributionsCollection(from: $from, to: $to) { \(fields) } } }"
+			: "query($from: DateTime!) { user(login: \"\(GitHub.account)\") { contributionsCollection(from: $from) { \(fields) } } }"
 
 		var variables = ["from": "\(year)-01-01T00:00:00Z"]
 
@@ -203,7 +181,7 @@ struct ContributionYear: Sendable {
 			variables["to"] = "\(year)-12-31T23:59:59Z"
 		}
 
-		return try await github.graphQL(Content.self, query: query, variables: variables, maximumAge: isSettled ? .days(365 * 100) : nil).user.contributionsCollection
+		return try await github.graphQL(Content.self, query: query, variables: variables, maximumAge: maximumAge).user.contributionsCollection
 	}
 }
 
@@ -223,10 +201,10 @@ extension [ContributionYear] {
 	}
 
 	/**
-	The sum of a number of the totals of all the years, like the commits. The years without totals count as zero.
+	The sum of a number of the totals of all the years, like the commits.
 	*/
 	func total(_ keyPath: KeyPath<ContributionYear.Totals, Int>) -> Int {
-		compactMap { $0.totals?[keyPath: keyPath] }.sum
+		map { $0.totals[keyPath: keyPath] }.sum
 	}
 
 	/**

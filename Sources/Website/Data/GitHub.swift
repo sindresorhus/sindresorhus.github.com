@@ -2,7 +2,7 @@ import Foundation
 import SiteKit
 
 /**
-The GitHub API for the `sindresorhus` account. A token raises the rate limit.
+The GitHub API for the `sindresorhus` account and the organizations of its projects. A token raises the rate limit.
 */
 struct GitHub: Sendable {
 	let token: String?
@@ -14,31 +14,39 @@ struct GitHub: Sendable {
 	}
 
 	/**
-	The published releases of a repo, newest first, from all the pages (``allPages(_:query:)``).
+	The published releases of a repo, newest first, from all the pages (``allPages(_:query:expectedCount:)``).
 	*/
 	func releases(repository: String) async throws -> [GitHubRelease] {
-		let entries: [GitHubRelease.Entry] = try await allPages("repos/sindresorhus/\(repository)/releases")
+		let entries: [GitHubRelease.Entry] = try await allPages("repos/\(Self.account)/\(repository)/releases")
 
 		return entries
 			.compactMap(\.release)
 			.filter { !$0.isDraft && !$0.isPrerelease }
 			.map { release in
 				var release = release
-				release.notesHTML = release.body.map { MarkdownDocument(parsing: $0, style: .releaseNotes).html } ?? ""
+				// The site's classes, so a table is in the scrolling container of the prose.
+				release.notesHTML = release.body.map { MarkdownDocument(parsing: $0, style: .releaseNotes, options: .site).html } ?? ""
 				return release
 			}
 	}
 
 	/**
-	The 20 most recently created repos that are not archived or forks.
+	The repos that are not archived or forks among the 20 most recently created repos of the ``owners``, newest first, so there can be fewer than 20, like 18 when two are forks. The search cannot sort by the creation date, so it asks for the 20 newest repos of each owner at the same time.
 	*/
 	func recentRepositories() async throws -> [GitHubRepository] {
-		let repositories: [GitHubRepository] = try await get("users/sindresorhus/repos", query: [URLQueryItem(name: "type", value: "owner"), URLQueryItem(name: "sort", value: "created"), URLQueryItem(name: "per_page", value: "20")])
-		return repositories.filter { !$0.isArchived && !$0.isFork }
+		let repositories: [[GitHubRepository]] = try await Self.owners.concurrentMap { owner in
+			try await get("users/\(owner)/repos", query: [URLQueryItem(name: "type", value: "owner"), URLQueryItem(name: "sort", value: "created"), URLQueryItem(name: "per_page", value: "20")])
+		}
+
+		return repositories
+			.joined()
+			.sorted(using: KeyPathComparator(\.createdAt, order: .reverse))
+			.prefix(20)
+			.filter { !$0.isArchived && !$0.isFork }
 	}
 
 	/**
-	The eight repos with code that have the most stars and are not archived or forks, most stars first. The organizations of the bigger projects (``owners``) are included, as the about page links to the same search. Some repos are left out by their owner and name (``hiddenPopularRepositories``). Repos without code, like the Awesome lists, are left out, as the about page is about the projects that he made.
+	The eight repos with code that have the most stars and are not archived or forks, most stars first. The organizations of his projects (``owners``) are included, as the about page links to the same search. Some repos are left out by their owner and name (``hiddenPopularRepositories``). Repos without code, like the Awesome lists, are left out, as the about page is about the projects that he made.
 	*/
 	func popularRepositories() async throws -> [GitHubRepository] {
 		// More than eight, as some of the most popular repos are lists or hidden.
@@ -54,33 +62,36 @@ struct GitHub: Sendable {
 	/**
 	The popular repos that the about page does not show, with their owners.
 	*/
-	private static let hiddenPopularRepositories: Set = ["avajs/ava", "sindresorhus/pageres", "sindresorhus/github-markdown-css"]
+	private static let hiddenPopularRepositories: Set<GitHubRepositoryName> = ["avajs/ava", "sindresorhus/pageres", "sindresorhus/github-markdown-css"]
 
 	/**
-	The account and the organizations of the bigger projects (Chalk, AVA, XO, SOML), whose repos the pages count, like the issues closed and the latest releases.
+	The account of the site, in lowercase, whose repos, contributions, and releases the pages show. It is the account of the GitHub profile of the author, so the links and the data are of one account.
 	*/
-	static let owners = ["sindresorhus", "chalk", "avajs", "xojs", "soml-lang"]
+	static let account = Site.author.gitHubURL.lastPathComponent.lowercased()
+
+	/**
+	The account and the organizations of the projects that he made (Chalk, AVA, XO, SOML, Simple Color Palette), in lowercase, whose repos the pages show and count as his, like the new projects, the repo of the day, the repos and their stars, the popular repos, the issues closed, and the latest releases.
+	*/
+	static let owners = [account, "chalk", "avajs", "xojs", "soml-lang", "simple-color-palette"]
 
 	/**
 	The search qualifiers of the repos of the ``owners``, like `user:sindresorhus user:chalk`.
 	*/
-	static var ownerQualifiers: String {
-		owners.map { "user:\($0)" }.joined(separator: " ")
-	}
+	private static let ownerQualifiers = owners.map { "user:\($0)" }.joined(separator: " ")
 
 	/**
-	The numbers of the account, for the about page, and its repos, for the now page.
+	The numbers of the account, for the about page, and the repos of the account and the organizations (``owners``), for the about page and the now page.
 	*/
 	struct Account: Sendable {
 		/**
-		The public repos, like 1,144, also the forks and the archived ones.
+		The public repos of the ``owners``, like 1,144, also the forks and the archived ones.
 		*/
 		let repositoryCount: Int
 
 		let followerCount: Int
 
 		/**
-		The stars of the repos of the account that are not forks, like 1,099,747. Not the repos of the organizations, like Chalk.
+		The stars of the repos of the ``owners`` that are not forks, like 1,099,747.
 		*/
 		let starCount: Int
 
@@ -90,13 +101,13 @@ struct GitHub: Sendable {
 		let maintenance: Maintenance
 
 		/**
-		All the public repos of the account, also the forks and the archived ones, so the now page can find the repos that were made this year. Not the repos of the organizations.
+		All the public repos of the ``owners``, also the forks and the archived ones, in the order of the owners, so the now page can find the repos that were made this year.
 		*/
 		let repositories: [GitHubRepository]
 	}
 
 	/**
-	The work of a maintainer in the repos of the account and of the organizations of the bigger projects (``owners``), like 26,249 issues closed and 15,974 pull requests by other people merged.
+	The work of a maintainer in the repos of the account and of the organizations of his projects (``owners``), like 26,249 issues closed and 15,974 pull requests by other people merged.
 	*/
 	struct Maintenance: Sendable {
 		/**
@@ -120,14 +131,14 @@ struct GitHub: Sendable {
 		}
 
 		async let closedIssueCount = issueCount(matching: "is:issue is:closed \(Self.ownerQualifiers)\(dateQualifier("closed"))")
-		async let mergedPullRequestCount = issueCount(matching: "is:pr is:merged \(Self.ownerQualifiers) -author:sindresorhus\(dateQualifier("merged"))")
+		async let mergedPullRequestCount = issueCount(matching: "is:pr is:merged \(Self.ownerQualifiers) -author:\(Self.account)\(dateQualifier("merged"))")
 		return Maintenance(closedIssueCount: try await closedIssueCount, mergedPullRequestCount: try await mergedPullRequestCount)
 	}
 
 	/**
-	The numbers of the account. The stars are the sum of the stars of each repo, so it asks for all the pages of repos. The closed issues and the merged pull requests are searches.
+	The numbers of the account. The stars are the sum of the stars of each repo, so it asks for all the pages of repos of each of the ``owners``. The closed issues and the merged pull requests are searches.
 
-	That is about 13 requests, and two searches. Without a token, GitHub allows 60 requests an hour and 10 searches a minute.
+	That is about 23 requests, and two searches. Without a token, GitHub allows 60 requests an hour and 10 searches a minute.
 	*/
 	func account() async throws -> Account {
 		struct User: Decodable {
@@ -140,14 +151,21 @@ struct GitHub: Sendable {
 			}
 		}
 
-		// All at the same time.
+		// All at the same time, and the pages of repos of each owner once its user gives their number.
 		async let allTimeMaintenance = maintenance()
-		async let user: User = get("users/sindresorhus")
-		let repositories: [GitHubRepository] = try await allPages("users/sindresorhus/repos", query: [URLQueryItem(name: "type", value: "owner")])
+
+		let owners = try await Self.owners.concurrentMap { owner in
+			let user: User = try await get("users/\(owner)")
+			let repositories: [GitHubRepository] = try await allPages("users/\(owner)/repos", query: [URLQueryItem(name: "type", value: "owner")], expectedCount: user.publicRepositoryCount)
+			return (user: user, repositories: repositories)
+		}
+
+		let repositories = owners.flatMap(\.repositories)
 
 		return Account(
-			repositoryCount: try await user.publicRepositoryCount,
-			followerCount: try await user.followerCount,
+			repositoryCount: owners.map(\.user.publicRepositoryCount).sum,
+			// The account is the first owner.
+			followerCount: owners.first?.user.followerCount ?? 0,
 			starCount: repositories.filter { !$0.isFork }.map(\.stars).sum,
 			maintenance: try await allTimeMaintenance,
 			repositories: repositories
@@ -196,7 +214,7 @@ struct GitHub: Sendable {
 	func latestReleases() async throws -> [OpenSourceRelease] {
 		struct Event: Decodable {
 			struct Repository: Decodable {
-				let name: String
+				let name: GitHubRepositoryName
 			}
 
 			struct Payload: Decodable {
@@ -231,7 +249,7 @@ struct GitHub: Sendable {
 			}
 		}
 
-		let events: [Event] = try await get("users/sindresorhus/events/public", query: [URLQueryItem(name: "per_page", value: "100")])
+		let events: [Event] = try await get("users/\(Self.account)/events/public", query: [URLQueryItem(name: "per_page", value: "100")])
 
 		return events
 			.filter { $0.type == "ReleaseEvent" && $0.payload.action == "published" }
@@ -275,7 +293,7 @@ struct GitHub: Sendable {
 			return nil
 		}
 
-		let user = try await graphQL(Content.self, query: "{ user(login: \"sindresorhus\") { sponsors { totalCount } issueComments { totalCount } contributionsCollection { contributionCalendar { totalContributions weeks { contributionDays { date contributionCount contributionLevel } } } } } }").user
+		let user = try await graphQL(Content.self, query: "{ user(login: \"\(Self.account)\") { sponsors { totalCount } issueComments { totalCount } contributionsCollection { contributionCalendar { totalContributions weeks { contributionDays { date contributionCount contributionLevel } } } } } }").user
 		return (user.contributionsCollection.contributionCalendar, user.sponsors.totalCount, user.issueComments.totalCount)
 	}
 
@@ -335,7 +353,7 @@ struct GitHub: Sendable {
 			return nil
 		}
 
-		let query = "query($from: DateTime!, $after: String) { user(login: \"sindresorhus\") { contributionsCollection(from: $from) { totalCommitContributions contributionCalendar { totalContributions } } issueComments(first: 100, after: $after, orderBy: {field: UPDATED_AT, direction: DESC}) { nodes { createdAt updatedAt } pageInfo { hasNextPage endCursor } } } }"
+		let query = "query($from: DateTime!, $after: String) { user(login: \"\(Self.account)\") { contributionsCollection(from: $from) { totalCommitContributions contributionCalendar { totalContributions } } issueComments(first: 100, after: $after, orderBy: {field: UPDATED_AT, direction: DESC}) { nodes { createdAt updatedAt } pageInfo { hasNextPage endCursor } } } }"
 		var variables = ["from": start.formatted(.iso8601)]
 		var commentCount = 0
 
@@ -359,13 +377,13 @@ struct GitHub: Sendable {
 	}
 
 	/**
-	The `data` of a GraphQL query. The GraphQL API needs a token, so it throws without one.
+	The `data` of a GraphQL query. The GraphQL API needs a token. The callers leave their data out without one, so a call without one is a mistake in the code.
 
 	- Parameter maximumAge: How long the cached response is used, like a long time for data that never changes.
 	*/
 	func graphQL<Value: Decodable>(_ type: Value.Type, query: String, variables: [String: String]? = nil, maximumAge: Duration? = nil) async throws -> Value {
 		guard let token else {
-			throw URLError(.userAuthenticationRequired)
+			preconditionFailure("The GraphQL API needs a token. Check `token` before the query.")
 		}
 
 		// Sorted keys, so the body, which is part of the cache key, is the same each time.
@@ -393,19 +411,31 @@ struct GitHub: Sendable {
 	/**
 	All the items of a list that the API returns in pages, like the releases of a repo. The API returns at most 100 items per request, so it asks for pages until one is not full.
 
+	The pages of the expected items are asked for at the same time, as a request can take a second, like each of the 12 pages of repos of the account. The later pages are asked for one at a time.
+
 	- Parameters:
 		- query: The query items without the page, like `URLQueryItem(name: "type", value: "owner")`.
+		- expectedCount: The number of items, when another response has it, like the repos of the user.
 	*/
-	private func allPages<Element: Decodable>(_ path: String, query: [URLQueryItem] = []) async throws -> [Element] {
+	private func allPages<Element: Decodable & Sendable>(_ path: String, query: [URLQueryItem] = [], expectedCount: Int = 0) async throws -> [Element] {
 		let pageSize = 100
+		let expectedPageCount = max(1, (expectedCount + pageSize - 1) / pageSize)
+
+		@Sendable func entries(page: Int) async throws -> [Element] {
+			try await get(path, query: query + [URLQueryItem(name: "per_page", value: String(pageSize)), URLQueryItem(name: "page", value: String(page))])
+		}
+
+		let expectedPages = try await (1...expectedPageCount).concurrentMap { page in
+			try await entries(page: page)
+		}
+
 		var elements = [Element]()
 
 		for page in 1... {
-			let parameters = query + [URLQueryItem(name: "per_page", value: String(pageSize)), URLQueryItem(name: "page", value: String(page))]
-			let entries: [Element] = try await get(path, query: parameters)
-			elements += entries
+			let pageEntries = try await (page <= expectedPageCount ? expectedPages[page - 1] : entries(page: page))
+			elements += pageEntries
 
-			guard entries.count == pageSize else {
+			guard pageEntries.count == pageSize else {
 				break
 			}
 		}
@@ -425,49 +455,19 @@ A release of an open-source project, from the public events of the account.
 */
 struct OpenSourceRelease: Sendable {
 	/**
-	The repo with its owner, like `sindresorhus/execa`.
+	The repo, like `sindresorhus/execa`. Its name is usually also the name of its npm package.
 	*/
-	let repository: String
+	let repository: GitHubRepositoryName
 
 	let tagName: String
 	let url: URL
 	let date: Date
 
 	/**
-	The repo name without the owner, like `execa`, which is usually also the name of its npm package.
-	*/
-	var name: String {
-		String(repository.split(separator: "/").last ?? "")
-	}
-
-	/**
-	The repo name, with the owner only when it is not `sindresorhus`, like `execa` or `chalk/chalk`.
-	*/
-	var displayName: String {
-		repository.repositoryDisplayName
-	}
-
-	/**
 	The version, without the `v` of the tag, like `10.1.0`.
 	*/
 	var version: String {
 		String(tagName.trimmingPrefix("v"))
-	}
-}
-
-extension String {
-	/**
-	The name of a repo to show, with the owner only when it is not `sindresorhus`, like `execa` for `sindresorhus/execa`, or `chalk/chalk`.
-	*/
-	var repositoryDisplayName: String {
-		String(trimmingPrefix("sindresorhus/"))
-	}
-
-	/**
-	The owner of a repo, like `chalk` for `chalk/chalk`.
-	*/
-	var repositoryOwner: String {
-		String(prefix { $0 != "/" })
 	}
 }
 

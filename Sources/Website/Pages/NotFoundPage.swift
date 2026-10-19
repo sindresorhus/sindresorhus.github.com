@@ -91,17 +91,8 @@ struct NotFoundPage: Page {
 		.style(Styles.root)
 
 		// Not the home page, which is close to every short path, and already has a button.
-		JSONScript(id: Hooks.data, ScriptData(paths: suggestedPaths.filter { $0 != .root }))
+		JSONScript(id: Hooks.data, suggestedPaths.filter { $0 != .root })
 		ModuleScript("/scripts/not-found.js")
-	}
-}
-
-extension NotFoundPage {
-	/**
-	The data that `not-found.js` reads: the paths of the pages that the URL is close to.
-	*/
-	private struct ScriptData: Encodable {
-		let paths: [RoutePath]
 	}
 }
 

@@ -92,7 +92,7 @@ struct Badge: HTML {
 Using it is just like using a SwiftUI view:
 
 ```swift
-Badge(title: "New", kind: .new)
+Badge("New", kind: .new)
 ```
 
 Each page only gets the CSS of the components it shows. Under the hood, it's modern CSS: cascade layers, `light-dark()`, relative colors, scroll-driven animations, and container units. I don't use a preprocessor or Tailwind.
@@ -114,7 +114,7 @@ static let color = StyleVariable<Color>("--overflow-menu-color")
 Setting it to a length doesn't compile. With `RegisteredProperty`, the page also gets the `@property` rule, so the browser can animate it, like the gradient on the home page:
 
 ```swift
-static let gradientStart = RegisteredProperty<Color>("--gradient-start", syntax: "<color>", initialValue: .black)
+static let gradientStart = RegisteredProperty<Color>("--gradient-start", syntax: .color, initialValue: .black)
 ```
 
 ## Responsive and accessible

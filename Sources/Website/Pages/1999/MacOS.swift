@@ -197,7 +197,7 @@ struct GeoCitiesMacOS: HTML {
 			}
 			.style(Styles.desktop)
 
-			div(.id(Hooks.alert), .hidden, .role("alertdialog"), .ariaModal, .tabindex(-1), .ariaDescribedBy(Hooks.alertText.rawValue)) {
+			div(.id(Hooks.alert), .hidden, .role("alertdialog"), .ariaModal, .tabindex(-1), .ariaDescribedBy(Hooks.alertText.id)) {
 				div {
 					canvas(.id(Hooks.alertIcon), .width(32), .height(32)) {}
 						.accessibilityHidden()
@@ -339,7 +339,7 @@ struct GeoCitiesMacOS: HTML {
 					.style(Styles.menuTitle)
 
 				div {
-					button(.id(Hooks.appMenuButton), .type(.button), .ariaExpanded(false), .ariaControls(Hooks.appMenu.rawValue)) {
+					button(.id(Hooks.appMenuButton), .type(.button), .ariaExpanded(false), .ariaControls(Hooks.appMenu.id)) {
 						img(.alt(""), .width(16), .height(16))
 							.style(Styles.menuIcon)
 						span {
@@ -376,7 +376,7 @@ struct GeoCitiesMacOS: HTML {
 			}
 			.style(Styles.stripModules)
 
-			button(.id(Hooks.stripTab), .type(.button), .ariaExpanded(true), .ariaControls(Hooks.stripModules.rawValue)) {
+			button(.id(Hooks.stripTab), .type(.button), .ariaExpanded(true), .ariaControls(Hooks.stripModules.id)) {
 				"▸"
 			}
 			.accessibilityLabel("Control Strip")

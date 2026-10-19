@@ -7,6 +7,11 @@ platforms: [
 ]
 isMenuBarApp: true
 appStoreID: 1604176982
+sharedQuestions: [
+	'blurry-secondary-display'
+	'backup-settings'
+	'native'
+]
 olderVersions: [
 	{
 		version: '1.13.2'
@@ -94,10 +99,6 @@ macOS hides menu bar items that do not fit. [Click here](one-thing:?text=) to re
 
 [Click here](one-thing:?text=) to reset the text.
 
-### The text looks blurry or is not dimmed on my secondary display
-
-[See this answer](/apps/faq#menu-bar-secondary-display)
-
 ### How is this different from your One Task app? {#one-task-difference}
 
 See [this answer](/one-task#one-thing-difference).
@@ -149,14 +150,6 @@ You can use the macOS Shortcuts app for this. Make a shortcut for each piece of 
 ### Can you add iOS / watchOS support?
 
 I plan to do it if the app takes off. So tell your friends.
-
-### How can I export, import, sync, or back up the settings?
-
-[See this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md)
-
-### Is the app native?
-
-Yes, it’s native and written in Swift and SwiftUI.
 
 ## Scripting
 

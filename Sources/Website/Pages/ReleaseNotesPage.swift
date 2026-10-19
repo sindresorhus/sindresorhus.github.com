@@ -15,6 +15,9 @@ struct ReleaseNotesPage: Page {
 		.appSubpage
 	}
 
+	/**
+	An unlisted app is left out, as it is not indexed, like its app page.
+	*/
 	var sitemapEntry: SitemapEntry? {
 		SitemapEntry(lastModified: releases.first?.publishedAt)
 	}
@@ -23,6 +26,7 @@ struct ReleaseNotesPage: Page {
 		PageMetadata(
 			title: "Release Notes — \(app.title)",
 			description: "The changes in each version of the \(app.title) app.",
+			isIndexed: app.isListed,
 			feeds: [releaseNotes.feed]
 		)
 	}

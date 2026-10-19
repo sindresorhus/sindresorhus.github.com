@@ -2,7 +2,7 @@ import Elementary
 import SiteKit
 
 /**
-A link. A link that opens in a new tab gets `rel="noopener noreferrer"`, so the new page cannot control this one and does not see where the visitor came from.
+A link. A link that opens in a new tab gets `rel="noopener noreferrer"`, so the new page cannot control this one and does not see where the visitor came from, and screen readers say that it opens a new tab.
 
 ```swift
 Link("crash report", destination: .crashReportQuestion, opensInNewTab: true)
@@ -24,6 +24,10 @@ struct Link<Content: HTML>: HTML {
 	var body: some HTML<HTMLTag.a> {
 		a {
 			content
+
+			if opensInNewTab {
+				VisuallyHidden(" (opens in a new tab)")
+			}
 		}
 		.attributes(.href(destination?.description ?? ""), when: destination != nil)
 		.attributes(.target(.blank), .rel("noopener noreferrer"), when: opensInNewTab)

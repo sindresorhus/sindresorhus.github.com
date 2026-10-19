@@ -10,6 +10,7 @@ The projects for the button are in a JSON file (``listJSON(_:)``), which the scr
 struct ProjectOfTheDay: ScriptedElement {
 	static let script = ElementScript(inline: #"""
 	export default class extends HTMLElement {
+		// The request for the projects, so more clicks while it loads wait for it, instead of loading the file again.
 		#projects;
 
 		connectedCallback() {
@@ -19,17 +20,20 @@ struct ProjectOfTheDay: ScriptedElement {
 
 		#showAnother = async () => {
 			const {listPath, randomTitle} = JSON.parse(this.dataset.config);
+			this.#projects ??= fetch(listPath).then(response => response.json());
+			let projects;
 
 			try {
-				this.#projects ??= await (await fetch(listPath)).json();
+				projects = await this.#projects;
 			} catch (error) {
-				// The project of the day stays.
+				// The project of the day stays, and the next click tries again.
+				this.#projects = undefined;
 				console.error('Could not load the projects:', error);
 				return;
 			}
 
 			const name = this.querySelector('[data-part="name"]');
-			const others = this.#projects.filter(project => project.name !== name.textContent);
+			const others = projects.filter(project => project.name !== name.textContent);
 			const pick = others[Math.floor(Math.random() * others.length)];
 
 			// A list with only the shown project has no other one.
@@ -137,7 +141,8 @@ struct ProjectOfTheDay: ScriptedElement {
 			$0.frame(width: .percent(100))
 		}
 
-		div {
+		// A live region, so screen readers announce the next project after a press of the button, which keeps the focus.
+		div(.role("status")) {
 			a(.part(Parts.name), .href(.url(project.url))) {
 				project.name
 			}
@@ -201,11 +206,15 @@ struct ProjectOfTheDay: ScriptedElement {
 
 extension ProjectOfTheDay.Project {
 	init?(package: NPMStatistics.Package) {
-		guard let description = package.description else {
+		// The card shows a number, so a package without its downloads is left out, like one without a description.
+		guard
+			let description = package.description,
+			let downloads = package.weeklyDownloadsLabel
+		else {
 			return nil
 		}
 
-		self.init(name: package.name, description: description, detail: package.weeklyDownloadsLabel, url: package.url)
+		self.init(name: package.name, description: description, detail: downloads, url: package.url)
 	}
 
 	init?(repository: GitHubRepository) {
@@ -213,28 +222,28 @@ extension ProjectOfTheDay.Project {
 			return nil
 		}
 
-		self.init(name: repository.name, description: summary, detail: repository.stars.approximateCount(counting: "star"), url: repository.url)
+		self.init(name: repository.displayName, description: summary, detail: repository.stars.approximateCount(counting: "star"), url: repository.url)
 	}
 }
 
 extension SiteContent {
 	/**
-	The npm packages for ``ProjectOfTheDay``: the ones with a description, as a package without one says nothing about itself. Not the packages of the Yeoman and imagemin organizations. The repos only have the repos of my account, so they have none of theirs.
+	The npm packages for ``ProjectOfTheDay``: the ones with a description, as a package without one says nothing about itself. Not the packages of the Yeoman and imagemin organizations. The repos only have the repos of my account and of the organizations of my projects (``GitHub/owners``), so they have none of theirs.
 
-	The npm search does not say whether a package is deprecated, so a package with an archived repo is left out instead. Only the repos of my account are known, so a deprecated package in the repo of an organization, like Chalk, can still be shown.
+	The npm search does not say whether a package is deprecated, so a package with an archived repo is left out instead. Only the repos of the ``GitHub/owners`` are known, so a deprecated package in the repo of another organization can still be shown.
 	*/
 	var discoverablePackages: [ProjectOfTheDay.Project] {
 		let excludedOwners: Set = ["yeoman", "imagemin"]
-		let archivedRepositories = Set((gitHubAccount?.repositories ?? []).filter(\.isArchived).map { $0.nameWithOwner.lowercased() })
+		let archivedRepositories = Set((gitHubAccount?.repositories ?? []).filter(\.isArchived).map(\.nameWithOwner))
 
 		return npmStatistics.packages
 			.filter { package in
 				// The repository is like `yeoman/environment`.
-				guard let repository = package.repository?.lowercased() else {
+				guard let repository = package.repository else {
 					return true
 				}
 
-				return !excludedOwners.contains(repository.repositoryOwner)
+				return !excludedOwners.contains(repository.owner.lowercased())
 					&& !archivedRepositories.contains(repository)
 			}
 			.compactMap(ProjectOfTheDay.Project.init(package:))
@@ -244,14 +253,14 @@ extension SiteContent {
 	The repos for ``ProjectOfTheDay``: the ones with a description that are not forks or archived. The repos of npm packages are left out, as the packages have their own card, so the repos are the other projects, like Swift packages and lists. Repos for settings, like `.github`, are not projects.
 	*/
 	var discoverableRepositories: [ProjectOfTheDay.Project] {
-		let packageRepositories = Set(npmStatistics.packages.compactMap { $0.repository?.lowercased() })
+		let packageRepositories = Set(npmStatistics.packages.compactMap(\.repository))
 
 		return (gitHubAccount?.repositories ?? [])
 			.filter {
 				!$0.isFork
 					&& !$0.isArchived
 					&& !$0.name.hasPrefix(".")
-					&& !packageRepositories.contains($0.nameWithOwner.lowercased())
+					&& !packageRepositories.contains($0.nameWithOwner)
 			}
 			.compactMap(ProjectOfTheDay.Project.init(repository:))
 	}

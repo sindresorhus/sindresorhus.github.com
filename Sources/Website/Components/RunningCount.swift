@@ -17,11 +17,11 @@ struct RunningCount: ScriptedElement {
 			const perMillisecond = JSON.parse(this.dataset.config).perSecond / 1000;
 			// With reduced motion, the count changes once a second instead of in every frame.
 			const step = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1000 : 1;
-			// The time of a frame counts from the start of the navigation. A page that the speculation rules prerendered was opened later, at `activationStart`.
-			const openedTime = performance.getEntriesByType('navigation')[0]?.activationStart ?? 0;
+			// The time of a frame counts from the start of the navigation. A page that the speculation rules prerendered was opened later, at `activationStart`, which the entry only has from then on, while the element connects during the prerendering, so it is read in each frame.
+			const navigation = performance.getEntriesByType('navigation')[0];
 
 			const update = time => {
-				const elapsed = Math.floor(Math.max(0, time - openedTime) / step) * step;
+				const elapsed = Math.floor(Math.max(0, time - (navigation?.activationStart ?? 0)) / step) * step;
 				// Without a thousands separator, like the other numbers of a stat card. Only a new number is written, as with reduced motion, most frames have the same one.
 				const count = String(Math.floor(elapsed * perMillisecond));
 

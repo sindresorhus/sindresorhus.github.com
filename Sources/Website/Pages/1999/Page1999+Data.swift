@@ -209,11 +209,11 @@ extension GeoCitiesPage {
 	The buttons of the site map, like the navigation frame of a home page from 1999, with the ID of the part that each one jumps to.
 	*/
 	static let siteMapItems: [(gif: GIF, title: String, anchor: String)] = [
-		(.navHome, "Home", Hooks.welcome.rawValue),
+		(.navHome, "Home", Hooks.welcome.id),
 		(.musicNotes, "Jukebox", "geocities-jukebox"),
 		(.buttonAmigaDemo, "Demos", "geocities-cracktro"),
 		(.newStuff, "New Stuff", "geocities-java"),
-		(.cat, "My Pets", GeoCitiesPets.Hooks.root.rawValue),
+		(.cat, "My Pets", GeoCitiesPets.Hooks.root.id),
 		(.pacman, "Games", "geocities-games"),
 		(.mobilePhone, "Snake", "geocities-snake"),
 		(.skiSlope, "Winter Games", GeoCitiesWinterGames.rootID),
@@ -222,11 +222,11 @@ extension GeoCitiesPage {
 		(.computerGame, "Arcade", "geocities-arcade"),
 		(.turnBook, "Adventures", GeoCitiesAdventure.rootID),
 		(.computerSmall, "My PC", "geocities-pc"),
-		(.buttonMacVsWindows, "My iMac", GeoCitiesMacOS.Hooks.root.rawValue),
+		(.buttonMacVsWindows, "My iMac", GeoCitiesMacOS.Hooks.root.id),
 		(.iMac, "My Room", GeoCitiesRoom.rootID),
 		(.hotSites, "Cool Links", "geocities-links"),
 		(.candle, "Shrine", "geocities-shrine"),
-		(.speakerNotes, "Music Room", GeoCitiesMusicRoom.Hooks.root.rawValue),
+		(.speakerNotes, "Music Room", GeoCitiesMusicRoom.Hooks.root.id),
 		(.signGuestbook, "Guestbook", "geocities-guestbook"),
 		(.mailbox, "WaffleMail", GeoCitiesInbox.rootID),
 		(.computerGame, "Make a Page", GeoCitiesPageMaker.rootID),

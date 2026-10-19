@@ -2,7 +2,7 @@ import SiteKit
 
 extension ProseStyles {
 	/**
-	The color of the links in an alert, which each alert kind sets.
+	The color of the underline of the links in an alert, which each alert kind sets.
 	*/
 	static let alertLinkColor = StyleVariable<Color>("--alert-color")
 
@@ -18,11 +18,15 @@ extension ProseStyles {
 			$0.margin(0)
 		}
 		.flowSpacing(.rootEm(0.25))
-		// Important, as the hover style of links in the prose is more specific, and would replace the color of the alert.
+		// Important, as the hover style of links in the prose is more specific, and would replace the color of the alert. So the underline is thicker under the pointer and with the focus of the keyboard instead, like the links of blog posts.
 		.nested("a") {
-			$0.important {
-				$0.underlineColor(alertLinkColor.value)
-			}
+			$0
+				.important {
+					$0.underlineColor(alertLinkColor.value)
+				}
+				.hoverOrFocusVisible {
+					$0.underlineThickness(.pixels(4))
+				}
 		}
 
 	static let alertTitleStyle = Style()

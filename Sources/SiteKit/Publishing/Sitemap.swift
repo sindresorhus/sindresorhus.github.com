@@ -29,6 +29,11 @@ public struct Sitemap {
 	*/
 	public static let indexPath: RoutePath = "/sitemap-index.xml"
 
+	/**
+	The path of the sitemap that the index points to.
+	*/
+	public static let contentPath: RoutePath = "/sitemap-0.xml"
+
 	let site: URL
 
 	/**
@@ -50,13 +55,13 @@ public struct Sitemap {
 			}
 			.joined()
 
-		let index = RoutePath("/sitemap-0.xml").absoluteURL(site: site).absoluteString.escapedForHTML
+		let index = Self.contentPath.absoluteURL(site: site).absoluteString.escapedForHTML
 
 		return [
 			.text(Self.indexPath) {
 				#"<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><sitemap><loc>\#(index)</loc></sitemap></sitemapindex>"#
 			},
-			.text("/sitemap-0.xml") {
+			.text(Self.contentPath) {
 				#"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\#(entries)</urlset>"#
 			},
 		]

@@ -18,7 +18,7 @@ struct AppTimelinePage: Page {
 
 	var body: some HTML {
 		section {
-			PageHeader(title: "App Timeline", intro: years.last.map { "\(content.listedApps.count) apps since \($0.number), newest first." })
+			PageHeader(title: "App Timeline", intro: years.last.map { "\(content.listedApps.count.formatted(counting: "app")) since \($0.number), newest first." })
 
 			ol {
 				for year in years {
@@ -157,11 +157,8 @@ extension AppTimelinePage {
 					.margin(.horizontal, .rootEm(-0.5))
 					.padding(.rootEm(0.5))
 					.cornerRadius(.fieldRadius)
-					.transition(.backgroundColor, animation: .stateChange)
 					// The fill of a card only under the pointer or with the focus of the keyboard, so a long list of years stays calm. The app picker of the feedback page, a short list of choices, has the fill at rest.
-					.hoverOrFocusVisible {
-						$0.background(.card)
-					}
+					.hoverFill(.card)
 			case .appTitle:
 				Style()
 					.fontWeight(.semibold)

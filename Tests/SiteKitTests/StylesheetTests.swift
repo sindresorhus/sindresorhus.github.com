@@ -84,6 +84,21 @@ struct StylesheetTests {
 	}
 
 	@Test
+	func `keyframes in a condition are written once in it, and again outside it`() {
+		let animated = Style().animation(FadeAnimations.fade, .default(duration: .seconds(1)))
+		let css = Stylesheet {
+			Media(.dark) {
+				Rule(".a", animated)
+				Rule(".b", animated)
+			}
+
+			Rule(".c", animated)
+		}.css
+
+		#expect(css.ranges(of: "@keyframes fade-fade").count == 2)
+	}
+
+	@Test
 	func `keeps selectors with parentheses intact`() {
 		let css = Stylesheet {
 			Rule("table:not(:has(> thead, > tfoot))", Style()

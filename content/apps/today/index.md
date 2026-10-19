@@ -7,6 +7,11 @@ platforms: [
 ]
 isMenuBarApp: true
 appStoreID: 6443714928
+sharedQuestions: [
+	'menu-bar-icons'
+	'blurry-secondary-display'
+	'backup-settings'
+]
 hasSentry: true
 olderVersions: [
 	{
@@ -92,10 +97,6 @@ I don’t plan to add this. You can get this feature in my [Dato app](/dato).
 ### Can you make the app show events for more days?
 
 “Today” 😁
-
-### Can you add more menu bar icons?
-
-I’m happy to consider requests. You can find icons [here](https://developer.apple.com/sf-symbols/) and [here](https://thenounproject.com).
 
 ### I added a calendar to the Calendar app but it doesn’t show up in the app
 

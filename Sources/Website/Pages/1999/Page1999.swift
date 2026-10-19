@@ -714,7 +714,7 @@ struct GeoCitiesPage: Page {
 			}
 
 			p {
-				a(.href("#\(Hooks.welcome.rawValue)")) {
+				a(.href(.fragment(Hooks.welcome.id))) {
 					gif(.topArrow)
 					" Back to the top"
 				}
@@ -807,8 +807,8 @@ extension GeoCitiesPage {
 		let project: Project
 
 		var body: some HTML {
-			let size = project.publicFile(gif.path).mediaSize
-			let stillPath = project.publicFile(gif.stillPath).isFile ? gif.stillPath : nil
+			let size = gif.size(in: project)
+			let stillPath = gif.hasStill(in: project) ? gif.stillPath : nil
 
 			return picture {
 				if let stillPath {

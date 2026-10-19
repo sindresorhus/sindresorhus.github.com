@@ -8,6 +8,9 @@ platforms: [
 	'visionOS'
 ]
 appStoreID: 1660147028
+sharedQuestions: [
+	'suggested-filenames'
+]
 hasSentry: true
 olderVersions: [
 	{

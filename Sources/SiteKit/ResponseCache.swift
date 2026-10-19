@@ -106,13 +106,13 @@ public struct ResponseCache: Sendable {
 			request.setValue(etag, forHTTPHeaderField: "If-None-Match")
 		}
 
-		// A failed request, an error status like a rate limit, or a response that cannot be decoded, uses the cached response.
-		func cachedValue(after error: any Error, reason: String = "the request failed") throws -> Value {
+		// A failed request, an error status like a rate limit, or a response that cannot be decoded, uses the cached response. The reason is a sentence, like “the request failed: Could not connect to the server.”
+		func cachedValue(because reason: String) throws -> Value {
 			guard let cached else {
-				throw RequestError(url: request.url, underlyingError: error)
+				throw RequestError(url: request.url, reason: reason)
 			}
 
-			staleResponses.add(Warning(message: "Using a cached response for \(request.url, default: ""), because \(reason): \(error.localizedDescription)"))
+			staleResponses.add(Warning(message: "Using a cached response for \(request.url, default: ""), because \(reason)"))
 			return cached.value
 		}
 
@@ -123,7 +123,7 @@ public struct ResponseCache: Sendable {
 			(data, response) = try await Self.session.data(for: request)
 		} catch {
 			try Task.checkCancellation()
-			return try cachedValue(after: error)
+			return try cachedValue(because: "the request failed: \(error.descriptiveMessage)")
 		}
 
 		let httpResponse = response as? HTTPURLResponse
@@ -138,7 +138,7 @@ public struct ResponseCache: Sendable {
 		}
 
 		guard (200..<300).contains(statusCode) else {
-			return try cachedValue(after: URLError(.badServerResponse, userInfo: [NSURLErrorFailingURLErrorKey: request.url as Any, NSLocalizedDescriptionKey: "The server responded with status \(statusCode)."]))
+			return try cachedValue(because: "the request failed: The server responded with status \(statusCode).")
 		}
 
 		let value: Value
@@ -146,7 +146,8 @@ public struct ResponseCache: Sendable {
 		do {
 			value = try decode(data)
 		} catch {
-			return try cachedValue(after: error, reason: "the response could not be read")
+			// The localized description of a decoding error does not say what is wrong, like which key is missing.
+			return try cachedValue(because: "the response could not be read: \((error as? DecodingError)?.readableDescription(root: "response") ?? error.descriptiveMessage)")
 		}
 
 		try save(Entry(etag: httpResponse?.value(forHTTPHeaderField: "ETag"), date: .now, body: data), to: file)
@@ -185,12 +186,16 @@ extension ResponseCache {
 	/**
 	A request that failed without a cached response to use. It says the URL, as the error of the request often does not, like when the network is off.
 	*/
-	struct RequestError: Error, CustomStringConvertible {
+	private struct RequestError: Error, CustomStringConvertible {
 		let url: URL?
-		let underlyingError: any Error
+
+		/**
+		Why there is no response, like “the request failed: Could not connect to the server.”
+		*/
+		let reason: String
 
 		var description: String {
-			"The request for \(url, default: "an unknown URL") failed: \(underlyingError)"
+			"Could not get \(url, default: "an unknown URL"), because \(reason)"
 		}
 	}
 }

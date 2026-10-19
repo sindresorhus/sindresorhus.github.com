@@ -60,11 +60,17 @@ struct SuggestedQuestion: Encodable {
 	static func words(in text: String) -> [String] {
 		text
 			.lowercased()
-			.replacing(/['’]/, with: "")
-			.matches(of: /[a-z0-9_]{3,}/)
+			.replacing(apostrophe, with: "")
+			.matches(of: word)
 			.map { String($0.output) }
 			.filter { !stopwords.contains($0) }
 	}
+
+	/**
+	The apostrophes and the words for ``words(in:)``. Not literals in the function, as Swift parses a regex literal each time the code runs, and it runs for each question.
+	*/
+	nonisolated(unsafe) private static let apostrophe = /['’]/
+	nonisolated(unsafe) private static let word = /[a-z0-9_]{3,}/
 
 	/**
 	Common English words that carry no meaning for finding a support question, and the words that almost every question is about (“app”, “Mac”). With prefix matching, those would also match words like “apple”, “appearing”, and “macOS”.
@@ -130,29 +136,12 @@ extension SuggestedQuestion {
 	A FAQ question, with the words, the platforms, and the pinned rank from the directives of its heading.
 	*/
 	init(_ heading: Heading, url: LinkDestination) {
-		self.init(question: heading.text, url: url, keywords: heading.faqKeywords, platforms: heading.faqPlatforms, pinnedRank: heading.faqPinnedRank)
-	}
-}
-
-extension Heading {
-	/**
-	Extra words that match the question (`<!-- @faq.keywords … -->`).
-	*/
-	fileprivate var faqKeywords: [String] {
-		self[FAQDirectives.Keywords.self] ?? []
-	}
-
-	/**
-	The platforms the question applies to (`<!-- @faq.platforms … -->`). All platforms when `nil`.
-	*/
-	fileprivate var faqPlatforms: [Platform]? {
-		self[FAQDirectives.Platforms.self]?.nilIfEmpty
-	}
-
-	/**
-	The place of the question among the questions that are suggested first (`<!-- @faq.pinned 1 -->`). Lower ranks come first.
-	*/
-	fileprivate var faqPinnedRank: Int? {
-		self[FAQDirectives.Pinned.self]?.rank
+		self.init(
+			question: heading.text,
+			url: url,
+			keywords: heading[FAQDirectives.Keywords.self] ?? [],
+			platforms: heading[FAQDirectives.Platforms.self]?.nilIfEmpty,
+			pinnedRank: heading[FAQDirectives.Pinned.self]?.rank
+		)
 	}
 }

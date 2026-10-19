@@ -25,7 +25,7 @@ public struct Stylesheet: StyleContent {
 	/**
 	The style sets in the stylesheet, also the ones in layers and conditions, so pages that link to the stylesheet do not repeat them.
 	*/
-	public let styleSets: [any StyleSet.Type]
+	let styleSets: [any StyleSet.Type]
 
 	/**
 	Keyframes and registered properties that several style sets use are written once.
@@ -45,7 +45,7 @@ public struct Stylesheet: StyleContent {
 			}
 		}
 
-		self.nodes = layerNames.count > 1 ? [StyleNode(kind: .statement("@layer \(layerNames.joined(separator: ", "));"))] + nodes : nodes
+		self.nodes = layerNames.count > 1 ? [StyleNode(kind: .layerOrder(layerNames))] + nodes : nodes
 		self.styleSets = nodes.styleSets
 	}
 
@@ -67,7 +67,7 @@ public protocol StyleContent: Sendable {
 }
 
 /**
-A part of a stylesheet: a rule, a conditional group, a layer, keyframes, a registered property, a statement, or a record of a style set.
+A part of a stylesheet: a rule, a conditional group, a layer, keyframes, a registered property, the order of the layers, or a record of a style set.
 */
 public struct StyleNode: Sendable {
 	enum Kind {
@@ -78,7 +78,11 @@ public struct StyleNode: Sendable {
 		case layer(name: String, children: [StyleNode])
 		case keyframes(name: String, frames: [StyleNode])
 		case property(name: String, declarations: [Declaration])
-		case statement(String)
+
+		/**
+		The order of the cascade layers, like `@layer base, components;`.
+		*/
+		case layerOrder([String])
 
 		/**
 		A record that the style set is in the stylesheet. It renders nothing, as the rules of the style set are the nodes after it.
@@ -88,11 +92,7 @@ public struct StyleNode: Sendable {
 
 	let kind: Kind
 
-	static func rule(selector: String, declarations: [Declaration], children: [StyleNode]) -> Self {
-		Self(kind: .block(prelude: selector, declarations: declarations, children: children))
-	}
-
-	static func conditional(prelude: String, declarations: [Declaration], children: [StyleNode]) -> Self {
+	static func block(_ prelude: String, declarations: [Declaration] = [], children: [StyleNode]) -> Self {
 		Self(kind: .block(prelude: prelude, declarations: declarations, children: children))
 	}
 
@@ -110,7 +110,7 @@ public struct StyleNode: Sendable {
 			.keyframes(name)
 		case .property(let name, _):
 			.property(name)
-		case .block, .layer, .statement, .styleSet:
+		case .block, .layer, .layerOrder, .styleSet:
 			nil
 		}
 	}
@@ -127,7 +127,7 @@ extension [StyleNode] {
 				[styles]
 			case .block(_, _, let children), .layer(_, let children):
 				children.styleSets
-			case .keyframes, .property, .statement:
+			case .keyframes, .property, .layerOrder:
 				[]
 			}
 		}
@@ -140,25 +140,30 @@ extension [StyleNode] {
 
 	Limitation: The first definition of a name is kept without comparing the others, so two different keyframes with the same generated name, like of `Foo.Animations` and of a top-level `FooAnimations`, end up as one. Unlike the class names of style sets, the names are not checked for duplicates, as it has not happened.
 	*/
-	var uniqueDefinitions: Self {
+	fileprivate var uniqueDefinitions: Self {
 		var names = Set<StyleNode.Definition>()
 		return removingDuplicateDefinitions(names: &names)
 	}
 
 	/**
-	The nodes without the definitions that have a name in `names`, also in layers, so a definition in two layers is written once.
+	The nodes without the definitions that have a name in `names`, also in layers, so a definition in two layers is written once. In a condition, like `@media`, a definition is removed when the condition or the nodes around it already have it.
 	*/
 	private func removingDuplicateDefinitions(names: inout Set<StyleNode.Definition>) -> Self {
 		compactMap { node in
-			if case .layer(let name, let children) = node.kind {
+			switch node.kind {
+			case .layer(let name, let children):
 				return StyleNode(kind: .layer(name: name, children: children.removingDuplicateDefinitions(names: &names)))
-			}
+			case .block(let prelude, let declarations, let children):
+				// A definition in a condition, like `@media`, only applies when the condition matches, so it does not count for the nodes after the block.
+				var blockNames = names
+				return .block(prelude, declarations: declarations, children: children.removingDuplicateDefinitions(names: &blockNames))
+			case .keyframes, .property, .layerOrder, .styleSet:
+				guard let name = node.definition else {
+					return node
+				}
 
-			guard let name = node.definition else {
-				return node
+				return names.insert(name).inserted ? node : nil
 			}
-
-			return names.insert(name).inserted ? node : nil
 		}
 	}
 }
@@ -200,7 +205,7 @@ extension StyleNode {
 
 			var mergedChildren = children
 			mergedChildren.append(merging: nextChildren)
-			return Self(kind: .block(prelude: prelude, declarations: declarations + nextDeclarations, children: mergedChildren))
+			return .block(prelude, declarations: declarations + nextDeclarations, children: mergedChildren)
 		default:
 			return nil
 		}
@@ -218,8 +223,57 @@ A style for a selector, for markup that components do not own, like Markdown out
 public struct Rule: StyleContent {
 	public let nodes: [StyleNode]
 
-	public init(_ selector: String, _ style: Style) {
-		self.nodes = [style.node(selector: selector)] + style.definitions.uniqueDefinitions
+	public init(_ selector: CSSSelector, _ style: Style) {
+		self.nodes = style.nodes(selector: selector)
+	}
+}
+
+/**
+A selector, like `.feed-card-title` or `& > li`. Write it as a literal, and put other selectors in it with interpolation, like `"\(Styles.root.selector):hover &"`. Only selectors can be interpolated, so a class name without its dot, or other text, does not compile. Interpolate other text with `raw:`, like `"&:state(\(raw: name))"`.
+*/
+public struct CSSSelector: Hashable, Sendable, CustomStringConvertible, ExpressibleByStringInterpolation {
+	public let description: String
+
+	private init(_ selector: String) {
+		self.description = selector
+	}
+
+	/**
+	The class selector of the class name, like `.feed-card` for `feed-card`.
+	*/
+	init(className: String) {
+		self.init(".\(className)")
+	}
+
+	public init(stringLiteral value: String) {
+		self.init(value)
+	}
+
+	public init(stringInterpolation: StringInterpolation) {
+		self.init(stringInterpolation.selector)
+	}
+
+	public struct StringInterpolation: StringInterpolationProtocol {
+		fileprivate var selector = ""
+
+		public init(literalCapacity: Int, interpolationCount: Int) {
+			selector.reserveCapacity(literalCapacity)
+		}
+
+		public mutating func appendLiteral(_ literal: String) {
+			selector += literal
+		}
+
+		public mutating func appendInterpolation(_ selector: CSSSelector) {
+			self.selector += selector.description
+		}
+
+		/**
+		Text that is part of a selector, like the name of a state in `"&:state(\(raw: name))"`. It stands out in a review, like ``Property/init(_:)``.
+		*/
+		public mutating func appendInterpolation(raw text: String) {
+			selector += text
+		}
 	}
 }
 
@@ -230,7 +284,7 @@ public struct Media: StyleContent {
 	public let nodes: [StyleNode]
 
 	public init(_ query: MediaQuery, @StyleBuilder rules: () -> [StyleNode]) {
-		self.nodes = [.conditional(prelude: "@media \(query)", declarations: [], children: rules())]
+		self.nodes = [.block("@media \(query)", children: rules())]
 	}
 }
 
@@ -258,7 +312,7 @@ public struct Layer: StyleContent {
 	public let nodes: [StyleNode]
 
 	public init(_ layer: CascadeLayer, @StyleBuilder rules: () -> [StyleNode]) {
-		self.nodes = [StyleNode(kind: .layer(name: layer.name, children: rules().uniqueDefinitions))]
+		self.nodes = [StyleNode(kind: .layer(name: layer.name, children: rules()))]
 	}
 }
 
@@ -436,8 +490,8 @@ private struct CSSRenderer {
 				block("@property \(name)") { renderer in
 					renderer.write(declarations)
 				}
-			case .statement(let statement):
-				line(statement)
+			case .layerOrder(let names):
+				line("@layer \(names.joined(separator: ", "));")
 			case .styleSet:
 				continue
 			}

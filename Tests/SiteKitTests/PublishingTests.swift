@@ -1,16 +1,17 @@
 import Elementary
 import Foundation
 import ImageIO
+import TestSupport
 import Testing
 import UniformTypeIdentifiers
 @testable import SiteKit
 
 @Suite
 struct PublishingTests {
-	private let site = URL(string: "https://example.com")!
+	private let site = #URL("https://example.com")
 
 	@Test
-	func `route paths append components`() throws {
+	func `route paths drop extra slashes, and compare and append whole components`() throws {
 		#expect(RoutePath("/apps/") == "/apps")
 		// All trailing slashes, as a path with one left, like `/old/`, writes a hidden file, `old/.html`.
 		#expect(RoutePath("/old//") == "/old")
@@ -25,6 +26,10 @@ struct PublishingTests {
 		#expect(!RoutePath("/blogroll").starts(with: "/blog"))
 		#expect(RoutePath("/apps").starts(with: .root))
 		#expect(RoutePath.root.appending("blog").appending("post") == "/blog/post")
+		#expect(RoutePath.root.appending(path: "blog/post") == "/blog/post")
+		#expect(RoutePath("/blog").appending(path: "/post//images/") == "/blog/post/images")
+		#expect(RoutePath("/blog").appending(path: "") == "/blog")
+		#expect(RoutePath.root.appending(path: "/") == .root)
 	}
 
 	@Test
@@ -84,7 +89,7 @@ struct PublishingTests {
 		#expect(try LinkDestination(validating: "/feedback?product=Dato") == .path("/feedback", query: [URLQueryItem(name: "product", value: "Dato")]))
 		#expect(try LinkDestination(validating: "#faq") == .fragment("faq"))
 		#expect(try LinkDestination(validating: "/a#a%20b").description == "/a#a%20b")
-		#expect(try LinkDestination(validating: "mailto:a@example.com") == .url(#require(URL(string: "mailto:a@example.com"))))
+		#expect(try LinkDestination(validating: "mailto:a@example.com") == .url(#URL("mailto:a@example.com")))
 		#expect(throws: ContentError.self) {
 			try LinkDestination(validating: "apps/faq")
 		}
@@ -95,7 +100,7 @@ struct PublishingTests {
 		let project = try makeProject(publicFiles: ["robots.txt": "User-agent: *"])
 		let output = project.root.appending(path: "dist")
 
-		let image = try #require(URL(string: "https://example.com/a.png"))
+		let image = #URL("https://example.com/a.png")
 
 		try await Publisher(site: site, project: project, output: output).publish([
 			.page("/") { "<a href=\"/about\">About</a>" },
@@ -106,7 +111,7 @@ struct PublishingTests {
 		])
 
 		#expect(try String(contentsOf: output.appending(path: "about.html"), encoding: .utf8) == "<h1 id=\"top\">About</h1>")
-		#expect(FileManager.default.fileExists(atPath: output.appending(path: "robots.txt").path))
+		#expect(output.appending(path: "robots.txt").exists)
 		#expect(try String(contentsOf: output.appending(path: "old.html"), encoding: .utf8).contains(#"<link rel="canonical" href="https://example.com/about">"#))
 
 		let sitemap = try String(contentsOf: output.appending(path: "sitemap-0.xml"), encoding: .utf8)
@@ -148,7 +153,7 @@ struct PublishingTests {
 			.page("/feedback") { "" },
 			// A path with a query, which only the general initializer takes, for the escaping.
 			Route("/old", output: .redirect(to: destination)),
-			.redirect("/elsewhere", to: #require(URL(string: "https://elsewhere.com/a?b=1&c=2"))),
+			.redirect("/elsewhere", to: #URL("https://elsewhere.com/a?b=1&c=2")),
 		])
 
 		let html = try String(contentsOf: output.appending(path: "old.html"), encoding: .utf8)
@@ -184,7 +189,7 @@ struct PublishingTests {
 	}
 
 	/**
-	The response cache names its files by the hash, so a different hash in another process would miss every cached response.
+	The class names of element styles and seeded shuffles, like the puzzles of Appdle, come from the hash, so a different hash in another process would change the output of every build.
 	*/
 	@Test
 	func `the stable hash is FNV-1a`() {
@@ -225,6 +230,7 @@ struct PublishingTests {
 		}
 
 		#expect((error as? CocoaError)?.code == .fileReadNoSuchFile)
+		#expect(publishingError.description == "Could not read or write a file: The directory “\(project.publicDirectory.path(percentEncoded: false))” does not exist.")
 
 		let validationError = try await #require(throws: CocoaError.self) {
 			try await LinkValidator(site: site, output: project.root.appending(path: "missing")).brokenLinks(in: [.page("/") { "" }], files: ["index.html"])
@@ -262,7 +268,7 @@ struct PublishingTests {
 			}
 		}
 
-		#expect(FileManager.default.fileExists(atPath: project.publicDirectory.appending(path: "robots.txt").path))
+		#expect(project.publicDirectory.appending(path: "robots.txt").exists)
 	}
 
 	/**
@@ -331,7 +337,7 @@ struct PublishingTests {
 		try fonts.createDirectory()
 		try FileManager.default.createSymbolicLink(at: fonts.appending(path: "font.woff2"), withDestinationURL: outside.appending(path: "font.woff2"))
 
-		#expect(try project.publicFiles().map(\.path).contains("fonts/font.woff2"))
+		#expect(try project.publicFiles().map(\.path).contains("/fonts/font.woff2"))
 	}
 
 	/**
@@ -361,7 +367,7 @@ struct PublishingTests {
 		let publisher = Publisher(site: site, project: project, output: output)
 
 		try await publisher.publish([])
-		#expect((try? String(contentsOf: output.appending(path: "font.woff2"), encoding: .utf8)) == "font")
+		#expect(try String(contentsOf: output.appending(path: "font.woff2"), encoding: .utf8) == "font")
 		await #expect(throws: Never.self) {
 			try await publisher.publish([])
 		}
@@ -379,7 +385,7 @@ struct PublishingTests {
 		try FileManager.default.createSymbolicLink(atPath: output.appending(path: "old.txt").path(percentEncoded: false), withDestinationPath: "missing.txt")
 
 		try await Publisher(site: site, project: project, output: output).publish([])
-		#expect((try? String(contentsOf: output.appending(path: "font.woff2"), encoding: .utf8)) == "font")
+		#expect(try String(contentsOf: output.appending(path: "font.woff2"), encoding: .utf8) == "font")
 		#expect((try? FileManager.default.destinationOfSymbolicLink(atPath: output.appending(path: "old.txt").path(percentEncoded: false))) == nil)
 	}
 
@@ -393,7 +399,7 @@ struct PublishingTests {
 		let link = project.contentDirectory.appending(path: "apps/dato/icon.png")
 		try FileManager.default.createSymbolicLink(at: link, withDestinationURL: outside.appending(path: "icon.png"))
 
-		#expect(try project.publicFiles().map(\.path).contains("apps/dato/icon.png"))
+		#expect(try project.publicFiles().map(\.path).contains("/apps/dato/icon.png"))
 		#expect(project.publicPath(ofContentFile: link) == "/apps/dato/icon.png")
 	}
 
@@ -457,6 +463,28 @@ struct PublishingTests {
 		])
 	}
 
+	/**
+	The quotes of text are not escaped, so an HTML code sample has text that looks like attributes.
+	*/
+	@Test(.temporaryDirectory)
+	func `the text of code blocks is not checked, but the attributes of the code block are`() async throws {
+		let project = try makeProject(publicFiles: ["robots.txt": ""])
+		let output = project.root.appending(path: "dist")
+
+		let routes: [Route] = [
+			.page("/") {
+				##"<pre id="sample" tabindex="0"><code>&lt;a href="/missing"&gt;&lt;p id="sample" aria-labelledby="nope"&gt;</code></pre> <a href="#sample">Fine</a> <pre aria-labelledby="missing-label">Text</pre>"##
+			},
+		]
+
+		let files = try await Publisher(site: site, project: project, output: output).publish(routes)
+		let brokenLinks = try await LinkValidator(site: site, output: output).brokenLinks(in: routes, files: files)
+
+		#expect(brokenLinks.map(\.description) == [
+			#"/: aria-labelledby="missing-label" (missing ID)"#,
+		])
+	}
+
 	@Test(.temporaryDirectory)
 	func `the files of page bundles are published at their path in the content directory`() async throws {
 		let project = try Project(root: URL.temporaryDirectory(files: [
@@ -468,7 +496,7 @@ struct PublishingTests {
 		]))
 		let output = project.root.appending(path: "dist")
 
-		let files = try await Publisher(site: site, project: project, output: output).publish([])
+		let files = try await Publisher(site: site, project: project, output: output).publish([.page("/apps/dato") { "" }])
 
 		#expect(files.isSuperset(of: ["robots.txt", "apps/dato/icon.png"]))
 		#expect(!files.contains("apps/dato/index.md"))
@@ -495,7 +523,7 @@ struct PublishingTests {
 		]), pageRoutes: ["content/apps": .root, "content/blog": "/blog"])
 		let output = project.root.appending(path: "dist")
 
-		let files = try await Publisher(site: site, project: project, output: output).publish([])
+		let files = try await Publisher(site: site, project: project, output: output).publish([.page("/dato") { "" }, .page("/blog/post") { "" }])
 
 		#expect(files.isSuperset(of: ["robots.txt", "dato/icon.png", "blog/post/image.png"]))
 		#expect(!files.contains("apps/dato/icon.png"))
@@ -507,6 +535,23 @@ struct PublishingTests {
 		#expect(project.publicPath(ofContentFile: project.contentDirectory.appending(path: "blog/post/image.png")) == "/blog/post/image.png")
 	}
 
+	/**
+	A draft has no page, so the images of an app before its launch are not published either.
+	*/
+	@Test(.temporaryDirectory)
+	func `the files of a page bundle without a page are not published`() async throws {
+		let project = try Project(root: URL.temporaryDirectory(files: [
+			"public/robots.txt": "",
+			"content/apps/draft/index.md": "Draft",
+			"content/apps/draft/icon.png": "icon",
+		]), pageRoutes: ["content/apps": .root])
+
+		let files = try await Publisher(site: site, project: project, output: project.root.appending(path: "dist")).publish([])
+
+		#expect(files.contains("robots.txt"))
+		#expect(!files.contains("draft/icon.png"))
+	}
+
 	@Test(.temporaryDirectory)
 	func `a public file and a page bundle file with the same path are a collision`() async throws {
 		let project = try Project(root: URL.temporaryDirectory(files: [
@@ -516,7 +561,7 @@ struct PublishingTests {
 		]))
 
 		await #expect(throws: PublishingError.self) {
-			try await Publisher(site: site, project: project, output: project.root.appending(path: "dist")).publish([])
+			try await Publisher(site: site, project: project, output: project.root.appending(path: "dist")).publish([.page("/apps/dato") { "" }])
 		}
 	}
 
@@ -524,6 +569,67 @@ struct PublishingTests {
 	func `link destinations validate their route paths`(path: String) {
 		#expect(throws: ContentError.self) {
 			try LinkDestination(validating: path)
+		}
+	}
+
+	@Test(arguments: ["/a b", "/a?b", "/a%20b"])
+	func `route paths reject characters that a link must encode`(path: String) {
+		#expect(throws: ContentError.self) {
+			try RoutePath(validating: path)
+		}
+	}
+
+	@Test(.temporaryDirectory)
+	func `a public file at the path of a page shadows it`() async throws {
+		let project = try Project(root: URL.temporaryDirectory(files: [
+			"public/apps": "",
+		]))
+
+		do {
+			try await Publisher(site: site, project: project, output: project.root.appending(path: "dist")).publish([.page("/apps") { "Apps" }])
+			Issue.record("The publisher accepted a file that answers the URL of a page.")
+		} catch {
+			#expect("\(error)".contains("is also served from"))
+		}
+	}
+
+	@Test(.temporaryDirectory)
+	func `a public file with a space in its name is published`() async throws {
+		// A screenshot has a space in its name, which is fine in a file name and encoded in the link.
+		let file = "Screenshot 2026-10-21 at 10.00.00.png"
+		let project = try Project(root: URL.temporaryDirectory(files: [
+			"public/\(file)": "",
+		]))
+
+		let files = try await Publisher(site: site, project: project, output: project.root.appending(path: "dist")).publish([])
+		#expect(files.contains(file))
+	}
+
+	@Test(.temporaryDirectory)
+	func `a file at the path with index.html does not shadow the page`() async throws {
+		// `/feedback` is served from `feedback.html`, so a page of a file at `/feedback/` is a different URL.
+		let project = try Project(root: URL.temporaryDirectory(files: [
+			"public/feedback/index.html": "",
+		]))
+
+		let files = try await Publisher(site: site, project: project, output: project.root.appending(path: "dist")).publish([.page("/feedback") { "Feedback" }])
+		#expect(files.contains("feedback.html"))
+	}
+
+	@Test(.temporaryDirectory)
+	func `refuses to publish into a git checkout`() async throws {
+		let project = try Project(root: URL.temporaryDirectory(files: [
+			"public/robots.txt": "",
+			"dist/.git/HEAD": "",
+		]))
+
+		let error = try await #require(throws: PublishingError.self) {
+			try await Publisher(site: site, project: project, output: project.root.appending(path: "dist")).publish([.page("/") { "Home" }])
+		}
+
+		guard case .repositoryOutput = error else {
+			Issue.record("Expected a repository output error, got \(error)")
+			return
 		}
 	}
 
@@ -627,13 +733,8 @@ struct PublishingTests {
 	}
 
 	@Test
-	func `JSON in a script cannot end the script element`() {
-		#expect(!JSONScript(id: "data", ["text": "</script><b>"]).render().contains("</script><b>"))
-	}
-
-	@Test
-	func `JSON in a script has no less-than sign, so a comment cannot keep the script element open`() throws {
-		let text = "Great <!--<script> app"
+	func `JSON in a script has no less-than sign, so it cannot end the script element or keep it open with a comment`() throws {
+		let text = "Great </script><b> <!--<script> app"
 		let html = JSONScript(id: "data", ["text": text]).render()
 		let json = try #require(html.firstMatch(of: /<script[^>]*>(.*)<\/script>/)?.1)
 		#expect(!json.contains("<"))
@@ -641,34 +742,40 @@ struct PublishingTests {
 	}
 
 	@Test(.temporaryDirectory, arguments: ["png", "jpg"])
-	func `media sizes are the pixel sizes of images`(fileExtension: String) throws {
+	func `image sizes are the pixel sizes of images`(fileExtension: String) throws {
 		let file = try URL.temporaryDirectory().appending(path: "image.\(fileExtension)")
-		let context = try #require(CGContext(data: nil, width: 30, height: 20, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue))
-		let image = try #require(context.makeImage())
-		let type = fileExtension == "png" ? UTType.png : UTType.jpeg
-		let destination = try #require(CGImageDestinationCreateWithURL(file as CFURL, type.identifier as CFString, 1, nil))
-		CGImageDestinationAddImage(destination, image, nil)
-		#expect(CGImageDestinationFinalize(destination))
+		try writeImage(to: file, type: fileExtension == "png" ? .png : .jpeg)
 
-		let size = try #require(file.mediaSize)
-		#expect(size.width == 30)
-		#expect(size.height == 20)
-		#expect(file.deletingLastPathComponent().appending(path: "missing.png").mediaSize == nil)
+		#expect(file.imageSize == PixelSize(width: 30, height: 20))
+		#expect(file.deletingLastPathComponent().appending(path: "missing.png").imageSize == nil)
 	}
 
 	@Test(.temporaryDirectory, arguments: [(72.0, 30), (144.0, 15), (300.0, 30)])
 	func `display sizes are half the pixel sizes of images with 144 DPI, like screenshots of a Retina display`(dpi: Double, expectedWidth: Int) throws {
 		let file = try URL.temporaryDirectory().appending(path: "image.png")
-		let context = try #require(CGContext(data: nil, width: 30, height: 20, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue))
-		let image = try #require(context.makeImage())
-		let destination = try #require(CGImageDestinationCreateWithURL(file as CFURL, UTType.png.identifier as CFString, 1, nil))
-		CGImageDestinationAddImage(destination, image, [kCGImagePropertyDPIWidth: dpi, kCGImagePropertyDPIHeight: dpi] as CFDictionary)
-		#expect(CGImageDestinationFinalize(destination))
+		try writeImage(to: file, properties: [kCGImagePropertyDPIWidth: dpi, kCGImagePropertyDPIHeight: dpi])
 
-		let size = try #require(file.displaySize)
-		#expect(size.width == expectedWidth)
-		#expect(size.height == expectedWidth * 2 / 3)
-		#expect(file.mediaSize?.width == 30)
+		#expect(file.displaySize == PixelSize(width: expectedWidth, height: expectedWidth * 2 / 3))
+		#expect(file.imageSize?.width == 30)
 	}
 
+	@Test(.temporaryDirectory, arguments: [8, 16])
+	func `the bit depth of an image is its bits per channel`(bitsPerComponent: Int) throws {
+		let file = try URL.temporaryDirectory().appending(path: "image.png")
+		try writeImage(to: file, bitsPerComponent: bitsPerComponent)
+
+		#expect(file.imageBitDepth == bitsPerComponent)
+		#expect(file.deletingLastPathComponent().appending(path: "missing.png").imageBitDepth == nil)
+	}
+}
+
+/**
+Writes a 30×20 image of the type to the file, like a screenshot, with the bits per channel and the properties, like its DPI.
+*/
+private func writeImage(to file: URL, type: UTType = .png, bitsPerComponent: Int = 8, properties: [CFString: Any] = [:]) throws {
+	let context = try #require(CGContext(data: nil, width: 30, height: 20, bitsPerComponent: bitsPerComponent, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue))
+	let image = try #require(context.makeImage())
+	let destination = try #require(CGImageDestinationCreateWithURL(file as CFURL, type.identifier as CFString, 1, nil))
+	CGImageDestinationAddImage(destination, image, properties as CFDictionary)
+	try #require(CGImageDestinationFinalize(destination))
 }

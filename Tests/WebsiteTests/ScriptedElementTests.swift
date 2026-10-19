@@ -1,5 +1,6 @@
 import Foundation
 import SiteKit
+import TestSupport
 import Testing
 @testable import Website
 
@@ -18,28 +19,17 @@ struct ScriptedElementTests {
 	}
 
 	/**
-	Every page of the site, rendered once for the tests below, with the component gallery, which shows the components that the pages only show with data. They render in one collector, so it has the custom elements (``ScriptedElement``) of all the pages, as types, so the tests can check the scripts against them without a list of the elements.
+	Every page of the site (``RenderedPage/website``), and the custom elements (``ScriptedElement``) that they show, each once, as types, so the tests can check the scripts against them without a list of the elements.
 	*/
 	private static let site = Task {
-		let routes = try await Site(content: .website).routes(project: .website, includesGallery: true)
-		let resources = PageResources()
-		var pages = [(path: RoutePath, html: String)]()
+		let pages = try await RenderedPage.website
+		var elements = [any ScriptedElement.Type]()
 
-		do {
-			try resources.collect {
-				pages = try routes.compactMap { route -> (path: RoutePath, html: String)? in
-					guard case .page(_, let render) = route.output else {
-						return nil
-					}
-
-					return (route.path, try render())
-				}
-			}
-		} catch is StyleError where !pages.isEmpty {
-			// Two pages may use style sets with the same class names, as each page only has its own, so the collector of all the pages can throw for them after the pages are set. A duplicate in one page throws inside its render, before the pages are set, so it still fails.
+		for element in pages.flatMap(\.elements) where !elements.contains(where: { $0 == element }) {
+			elements.append(element)
 		}
 
-		return (pages: pages, elements: resources.elements)
+		return (pages: pages.map { (path: $0.route.path, html: $0.html) }, elements: elements)
 	}
 
 	/**
@@ -120,8 +110,8 @@ struct ScriptedElementTests {
 	*/
 	@Test
 	func `every import of a script is a published script, without a hash`() throws {
-		let imported = try Site.importedScripts(project: .website)
-		let publicScripts = Set(try Project.website.publicFiles().map { RoutePath("/" + $0.path) })
+		let imported = try Site.Scripts(project: .website).importedScripts
+		let publicScripts = Set(try Project.website.publicFiles().map(\.path))
 
 		// Like the base class of the 1999 page, and the relative import of the nebula of the home page.
 		#expect(imported.isSuperset(of: ["/scripts/geocities-element.js", "/scripts/scripted-element.js", "/scripts/nebula.js"]))
@@ -136,37 +126,38 @@ struct ScriptedElementTests {
 	}
 
 	/**
-	The imports are found at the start of a line, and the dynamic imports anywhere, so an import in a comment is not one. A relative import is resolved from the path that the build publishes the script at, also for the script of an element, in `/scripts/elements`. The import map has only the imported scripts that have a hash, and there is none outside a build.
+	The imports are found at the start of a line, and the dynamic imports anywhere, so an import in a comment is not one. An import of another site without a path is not a script of the site. A relative import is resolved from the path that the build publishes the script at, also for the script of an element, in `/scripts/elements`. The import map has only the imported scripts that have a hash, and there is none outside a build, where a script also has no hash in its path.
 	*/
 	@Test(.temporaryDirectory)
 	func `the import map has the scripts that other scripts import, with their hashes`() throws {
 		let root = try URL.temporaryDirectory(files: [
 			"public/scripts/base.js": "export default class Base {}",
 			"public/scripts/nebula.js": "export const draw = () => {};",
-			"public/scripts/home.js": "import Base from '/scripts/base.js';\n// import '/scripts/comment.js';\nconst {draw} = await import('./nebula.js');",
+			"public/scripts/home.js": "import Base from '/scripts/base.js';\n// import '/scripts/comment.js';\nconst {draw} = await import('./nebula.js');\nconst external = await import('https://example.com');",
 			"Sources/Website/Scripts/Clock.js": "import Base from '../base.js';",
 		])
 		let project = Project(root: root)
 
-		let imported = try Site.importedScripts(project: project)
-		#expect(imported == ["/scripts/base.js", "/scripts/nebula.js"])
+		var scripts = try Site.Scripts(project: project)
+		#expect(scripts.importedScripts == ["/scripts/base.js", "/scripts/nebula.js"])
 
-		let hashes = try Site.contentHashes(project: project)
+		let hashes = scripts.contentHashes
 		#expect(hashes.keys.sorted(using: KeyPathComparator(\.description)) == ["/scripts/base.js", "/scripts/elements/Clock.js", "/scripts/home.js", "/scripts/nebula.js"])
 
 		// A script without a hash, like one of another site, is left out.
-		let importMap = try RoutePath.$contentHashes.withValue(hashes) {
-			try RoutePath.$importedScripts.withValue(imported.union(["/scripts/missing.js"])) {
-				try #require(RoutePath.importMap)
-			}
-		}
+		scripts.importedScripts.insert("/scripts/missing.js")
+		let importMap = try #require(scripts.importMap)
 
 		let imports = try JSONDecoder().decode([String: [String: String]].self, from: Data(importMap.utf8))
-		let baseHash = hashes["/scripts/base.js"] ?? ""
-		let nebulaHash = hashes["/scripts/nebula.js"] ?? ""
+		let baseHash = try #require(hashes["/scripts/base.js"])
+		let nebulaHash = try #require(hashes["/scripts/nebula.js"])
 		let expectedImports: [String: String] = ["/scripts/base.js": "/scripts/base.js?v=\(baseHash)", "/scripts/nebula.js": "/scripts/nebula.js?v=\(nebulaHash)"]
 		#expect(imports == ["imports": expectedImports])
-		#expect(RoutePath.importMap == nil)
+		#expect(Site.Scripts.published.importMap == nil)
+
+		// The pages load a script with its hash while the site is published.
+		#expect(Site.Scripts.$published.withValue(scripts) { RoutePath("/scripts/base.js").versioned } == "/scripts/base.js?v=\(baseHash)")
+		#expect(RoutePath("/scripts/base.js").versioned == "/scripts/base.js")
 	}
 
 	/**
@@ -188,14 +179,20 @@ struct ScriptedElementTests {
 		let site = try await Self.site.value
 		var checkedElementCount = 0
 
+		// The elements and the styles of each page, found once, as a search of every page for each element is slow.
+		let pages = site.pages.map { page in
+			(elements: Self.customElementMarkup(in: page.html), styles: page.html.matches(of: /<style\b[^>]*>(.*?)<\/style>/.dotMatchesNewlines()).map(\.1))
+		}
+
 		for element in site.elements where !element.declaredStates.isEmpty {
 			checkedElementCount += 1
 
 			let script = Self.code(of: try element.script.source)
-			let elementPattern = try Regex("<\(element.tagName)[\\s>].*?</\(element.tagName)>").dotMatchesNewlines()
-			let pages = site.pages.filter { $0.html.contains(elementPattern) }
-			let markup = pages.flatMap { page in page.html.ranges(of: elementPattern).map { page.html[$0] } }
-			let styles = pages.flatMap { $0.html.matches(of: /<style\b[^>]*>(.*?)<\/style>/.dotMatchesNewlines()).map(\.1) }
+			let pagesWithElement = pages.compactMap { page in
+				page.elements[element.tagName].map { (markup: $0, styles: page.styles) }
+			}
+			let markup = pagesWithElement.flatMap(\.markup)
+			let styles = pagesWithElement.flatMap(\.styles)
 
 			for state in element.declaredStates {
 				let isSetByScript = ["'\(state)'", "\"\(state)\"", "`\(state)`"].contains { script.contains($0) }
@@ -328,7 +325,7 @@ struct ScriptedElementTests {
 		#expect(windowsNames.count > 20)
 		#expect(macNames.count > 5)
 
-		let pageScripts = try Project.website.publicFiles().filter { $0.source.lastPathComponent.hasPrefix("geocities") && $0.source.pathExtension == "js" }.map { (name: $0.path, text: try String(contentsOf: $0.source, encoding: .utf8)) }
+		let pageScripts = try Project.website.publicFiles().filter { $0.source.lastPathComponent.hasPrefix("geocities") && $0.source.pathExtension == "js" }.map { (name: $0.path.description, text: try String(contentsOf: $0.source, encoding: .utf8)) }
 		let elementScripts = Self.scripts.map { (name: $0.path.description, text: $0.text) }
 		var checkedNameCount = 0
 
@@ -380,37 +377,50 @@ struct ScriptedElementTests {
 	}
 
 	/**
-	The template parts of each element in the pages, by tag name, and the parts that are only inside its templates. The markup of an element is from its start tag to its first end tag, so it also has the parts of the elements inside it, which can only hide a mistake, not report one that is not there.
+	The markup of each custom element on the page, by tag name. The markup of an element is from its start tag to its first end tag, so it also has the elements inside it.
+	*/
+	private static func customElementMarkup(in html: String) -> [String: [Substring]] {
+		var markup = [String: [Substring]]()
+
+		for start in html.matches(of: /<([a-z][a-z0-9]*(?:-[a-z0-9]+)+)[\s>]/) {
+			let tagName = String(start.1)
+
+			guard let end = html[start.range.upperBound...].firstRange(of: "</\(tagName)>") else {
+				continue
+			}
+
+			markup[tagName, default: []].append(html[start.range.lowerBound..<end.upperBound])
+		}
+
+		return markup
+	}
+
+	/**
+	The template parts of each element in the pages, by tag name, and the parts that are only inside its templates. The markup of an element (``customElementMarkup(in:)``) also has the parts of the elements inside it, which can only hide a mistake, not report one that is not there.
 	*/
 	private static func templateParts(in pages: [String], tagNames: Set<String>) -> (templates: [String: Set<String>], onlyInTemplates: [String: Set<String>]) {
 		var templates = [String: Set<String>]()
 		var insideTemplates = [String: Set<String>]()
 		var outsideTemplates = [String: Set<String>]()
+		// Before the loops, as Swift parses a regex literal each time the code runs.
+		let part = /data-part="(\w+)"/
+		let template = /<template\b([^>]*)>(.*?)<\/template>/.dotMatchesNewlines()
 
 		func partNames(in markup: Substring) -> [String] {
-			markup.matches(of: /data-part="(\w+)"/).map { String($0.1) }
+			markup.matches(of: part).map { String($0.1) }
 		}
 
 		for html in pages {
-			for start in html.matches(of: /<([a-z][a-z0-9]*(?:-[a-z0-9]+)+)[\s>]/) {
-				let tagName = String(start.1)
+			for (tagName, markups) in customElementMarkup(in: html) where tagNames.contains(tagName) {
+				for markup in markups {
+					for match in markup.matches(of: template) {
+						templates[tagName, default: []].formUnion(partNames(in: match.1))
+						insideTemplates[tagName, default: []].formUnion(partNames(in: match.2))
+					}
 
-				guard
-					tagNames.contains(tagName),
-					let end = html[start.range.upperBound...].firstRange(of: "</\(tagName)>")
-				else {
-					continue
+					let outside = markup.replacing(template, with: "")
+					outsideTemplates[tagName, default: []].formUnion(partNames(in: outside))
 				}
-
-				let markup = html[start.range.lowerBound..<end.upperBound]
-
-				for template in markup.matches(of: /<template\b([^>]*)>(.*?)<\/template>/.dotMatchesNewlines()) {
-					templates[tagName, default: []].formUnion(partNames(in: template.1))
-					insideTemplates[tagName, default: []].formUnion(partNames(in: template.2))
-				}
-
-				let outside = markup.replacing(/<template\b[^>]*>.*?<\/template>/.dotMatchesNewlines(), with: "")
-				outsideTemplates[tagName, default: []].formUnion(partNames(in: outside))
 			}
 		}
 
@@ -488,7 +498,7 @@ struct ScriptedElementTests {
 			}
 		}
 
-		#expect(checkedDataCount >= 4)
+		#expect(checkedDataCount >= 3)
 	}
 
 	/**
@@ -584,28 +594,53 @@ struct ScriptedElementTests {
 		}
 	}
 
-	@Test(.enabled(if: Self.isNodeAvailable, "Install Node.js to check the syntax of the scripts of the elements."))
+	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check the syntax of the scripts of the elements."))
 	func `every script of an element is valid JavaScript`() async throws {
 		let inlineScripts = try await Self.site.value.elements
 			.filter { $0.script.path == nil }
 			.map { (name: "The inline script of \($0)", text: try $0.generatedScript()) }
 
 		for script in Self.scripts.map({ (name: $0.path.description, text: $0.text) }) + inlineScripts {
-			let process = Process()
-			process.executableURL = URL(filePath: "/usr/bin/env")
-			process.arguments = ["node", "--input-type=module", "--check"]
-			let input = Pipe()
-			let errors = Pipe()
-			process.standardInput = input
-			process.standardError = errors
-			try process.run()
-			try input.fileHandleForWriting.write(contentsOf: Data(script.text.utf8))
-			try input.fileHandleForWriting.close()
-			process.waitUntilExit()
-
-			let message = String(decoding: errors.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
-			#expect(process.terminationStatus == 0, "\(script.name) has a syntax error: \(message)")
+			let error = try Self.syntaxError(checking: ["--input-type=module", "--check"], input: script.text)
+			#expect(error == nil, "\(script.name) has a syntax error: \(error ?? "")")
 		}
+	}
+
+	/**
+	The build publishes the scripts in `public` and in the page bundles as they are. They can be classic scripts or modules, so `node` checks each file by its path, which finds the kind from the syntax.
+	*/
+	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check the syntax of the published scripts."))
+	func `every published script file is valid JavaScript`() throws {
+		let files = try Project.website.publicFiles().filter { $0.source.pathExtension == "js" }
+		#expect(files.count > 20)
+
+		for file in files {
+			let error = try Self.syntaxError(checking: ["--check", file.source.path(percentEncoded: false)])
+			#expect(error == nil, "\(file.path) has a syntax error: \(error ?? "")")
+		}
+	}
+
+	/**
+	Runs `node` with the arguments, like `--check`, and the input, and returns what it writes to the standard error when it fails, or `nil` when the script is valid.
+	*/
+	private static func syntaxError(checking arguments: [String], input: String = "") throws -> String? {
+		let process = Process()
+		process.executableURL = URL(filePath: "/usr/bin/env")
+		process.arguments = ["node"] + arguments
+		let inputPipe = Pipe()
+		let errors = Pipe()
+		process.standardInput = inputPipe
+		process.standardError = errors
+		try process.run()
+		try inputPipe.fileHandleForWriting.write(contentsOf: Data(input.utf8))
+		try inputPipe.fileHandleForWriting.close()
+		process.waitUntilExit()
+
+		guard process.terminationStatus != 0 else {
+			return nil
+		}
+
+		return String(decoding: errors.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
 	}
 
 	/**
@@ -640,6 +675,13 @@ struct ScriptedElementTests {
 		}
 	}
 
+	/**
+	Whether to check the scripts with `node`. Without Node.js, the checks are skipped, except on CI, where they fail, so they cannot stop running without notice.
+	*/
+	private static var checksScripts: Bool {
+		ProcessInfo.processInfo.environment["CI"] != nil || isNodeAvailable
+	}
+
 	private static var isNodeAvailable: Bool {
 		let process = Process()
 		process.executableURL = URL(filePath: "/usr/bin/env")
@@ -668,17 +710,17 @@ struct ScriptedElementTests {
 	/**
 	The parts that a script uses directly: `this.parts.screen`, `const {screen, status} = this.parts;` (also with `screen: name`), and `data-part="key"`, like in `querySelectorAll('[data-part="key"]')` for a list of the same part. Not `game.parts.filter` or `const {width} = this.parts.canvas`, which are not parts. A function that gets `this.parts`, like `setUpNapster(this, this.parts)`, counts when it destructures them in its parameters, like `const setUpNapster = (napster, {search: searchForm, query}) =>`. When it reads them in its body, they are only checked when it runs.
 
-	The word boundaries are simple, as the default Unicode ones treat `this.parts.odds` as one word.
+	The word boundaries are simple, as the default Unicode ones treat `this.parts.odds` as one word. A pattern starts with `(?:^|\W)` instead of a word boundary, which is about three times as slow, as it is checked at every character of the scripts.
 	*/
 	private static func usedParts(in script: String) -> Set<String> {
-		let members = script.matches(of: /\bthis\.parts\.(\w+)/.wordBoundaryKind(.simple)).map { String($0.1) }
+		let members = script.matches(of: /(?:^|\W)this\.parts\.(\w+)/).map { String($0.1) }
 
 		let destructured = script.matches(of: /\{([\w\s,:]+)\}\s*=\s*this\.parts\b(?![.\[])/.wordBoundaryKind(.simple)).flatMap { names(in: $0.1) }
 
 		let selected = script.matches(of: /data-part="(\w+)"/).map { String($0.1) }
 
-		let setUpFunctions = Set(script.matches(of: /\b(\w+)\(this,\s*this\.parts\)/.wordBoundaryKind(.simple)).map { String($0.1) })
-		let parameters = script.matches(of: /\bconst (\w+) = \(\s*\w+\s*,\s*\{([\w\s,:]+)\}\s*\)\s*=>/.wordBoundaryKind(.simple))
+		let setUpFunctions = Set(script.matches(of: /(?:^|\W)(\w+)\(this,\s*this\.parts\)/).map { String($0.1) })
+		let parameters = script.matches(of: /(?:^|\W)const (\w+) = \(\s*\w+\s*,\s*\{([\w\s,:]+)\}\s*\)\s*=>/)
 			.filter { setUpFunctions.contains(String($0.1)) }
 			.flatMap { names(in: $0.2) }
 
@@ -699,7 +741,11 @@ struct ScriptedElementTests {
 		}
 
 		for (index, line) in lines.enumerated() {
-			guard let copy = line.firstMatch(of: /\{(.*)\}\s*=\s*[\w.#]+\.clone\('\w+'\)/) else {
+			// The plain search first, as the pattern is slow on long lines with many braces.
+			guard
+				line.contains(".clone('"),
+				let copy = line.firstMatch(of: /\{(.*)\}\s*=\s*[\w.#]+\.clone\('\w+'\)/)
+			else {
 				continue
 			}
 

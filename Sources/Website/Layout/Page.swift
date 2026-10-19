@@ -52,7 +52,7 @@ protocol Page: RouteConvertible, Sendable {
 	var headerBackground: SiteHeader.Background { get }
 
 	/**
-	How the page is listed in the sitemap, like when its content last changed. Defaults to a plain entry when search engines may index the page, and none otherwise.
+	How the page is listed in the sitemap, like when its content last changed. Defaults to a plain entry. A page that search engines may not index (``PageMetadata/isIndexed``) is left out of the sitemap, whatever its entry, as the sitemap asks them to index its pages.
 	*/
 	var sitemapEntry: SitemapEntry? { get }
 
@@ -82,7 +82,7 @@ extension Page {
 	}
 
 	var sitemapEntry: SitemapEntry? {
-		metadata.isIndexed ? SitemapEntry() : nil
+		SitemapEntry()
 	}
 
 	var socialCard: OpenGraphCard? {
@@ -90,10 +90,17 @@ extension Page {
 	}
 
 	/**
+	The URL of the preview image for social media: the card of the page, or the site card.
+	*/
+	var socialImageURL: URL {
+		(socialCard?.path ?? OpenGraphCard.sitePath).absoluteURL
+	}
+
+	/**
 	The body renders first and collects the styles and scripts it uses. Then the document is rendered with only those. The inline scripts of the elements are generated here, so a mistake in one fails the build.
 	*/
 	var route: Route {
-		.page(path, sitemapEntry: sitemapEntry) {
+		.page(path, sitemapEntry: metadata.isIndexed ? sitemapEntry : nil) {
 			let resources = PageResources(sharedStylesheet: .site)
 			let body = try resources.collect {
 				SiteBody(page: self).render()

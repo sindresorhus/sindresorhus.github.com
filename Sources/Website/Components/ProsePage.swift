@@ -73,18 +73,10 @@ extension ProsePage where Accessory == EmptyHTML {
 	}
 }
 
-extension ProsePage where Content == MarkdownContent, Accessory == EmptyHTML {
-	init(photo: LinkDestination? = nil, markdown: MarkdownContent) {
-		self.init(photo: photo) {
-			markdown
-		}
-	}
-}
-
 /**
 The styles of ``ProsePage``, outside the generic type, so the class names are the same for every content type.
 */
-enum ProsePageStyles: StyleSet {
+private enum ProsePageStyles: StyleSet {
 	case root
 	case header
 

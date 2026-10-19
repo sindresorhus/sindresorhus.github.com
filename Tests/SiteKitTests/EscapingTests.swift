@@ -4,6 +4,14 @@ import Testing
 @Suite
 struct EscapingTests {
 	@Test
+	func `text is escaped, and text without special characters stays the same`() {
+		#expect(#"Tom & “Jerry” <3 "quoted" >"#.escapedForHTML == "Tom &amp; “Jerry” &lt;3 &quot;quoted&quot; &gt;")
+		#expect("&amp;".escapedForHTML == "&amp;amp;")
+		#expect("Plain text, café 🦄".escapedForHTML == "Plain text, café 🦄")
+		#expect("".escapedForHTML == "")
+	}
+
+	@Test
 	func `a combining mark after a special character does not stop the escaping`() {
 		let attack = "x\"\u{301} onerror=alert(1) <\u{301}b &\u{301}"
 		let escaped = attack.escapedForHTML

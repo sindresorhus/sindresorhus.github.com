@@ -28,13 +28,15 @@ struct BlogPostRow: HTML {
 				}
 			}
 
-			p {
-				post.description ?? ""
+			if let description = post.description {
+				p {
+					description
+				}
+				.style(Styles.description)
 			}
-			.style(Styles.description)
 
 			footer {
-				PublicationInfo(post: post, showsReadingTime: !post.isRedirect)
+				PublicationInfo(post: post)
 			}
 			.style(Styles.footer)
 		}
@@ -86,7 +88,7 @@ struct BlogPostRow: HTML {
 				Style()
 					.after {
 						$0
-							.content("⤤")
+							.content("⤤", alternativeText: "")
 							.display(.inlineBlock)
 							.margin(.leading, .em(0.25))
 							.opacity(0.6)

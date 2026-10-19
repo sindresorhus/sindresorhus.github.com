@@ -31,7 +31,7 @@ extension KeyframeSet {
 	}
 
 	static var nodes: [StyleNode] {
-		allCases.flatMap(\.nodes).uniqueDefinitions
+		allCases.flatMap(\.nodes)
 	}
 
 	/**
@@ -51,7 +51,7 @@ public struct Keyframe: Sendable {
 	let definitions: [StyleNode]
 
 	private init(selector: String, style: Style) {
-		self.node = .rule(selector: selector, declarations: style.declarations, children: style.children)
+		self.node = .block(selector, declarations: style.declarations, children: style.children)
 		self.definitions = style.definitions
 	}
 

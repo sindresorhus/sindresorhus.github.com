@@ -7,7 +7,7 @@ Hi, I’m Sindre ([hear how to say it](/assets/sindre-sorhus-pronunciation.m4a))
 
 My time goes to [apps](/apps) for Apple devices and to open source. The apps are small, focused tools that each solve one problem well, and many of them are free. You can [read what people say about them](/apps/reviews), or [see what I’m working on now](/now).
 
-In open source, I maintain [many npm packages](https://www.npmjs.com/~sindresorhus) and [popular projects](https://github.com/search?q=user:sindresorhus+user:chalk+user:avajs+user:xojs+user:soml-lang+archived:false&type=Repositories), from Node.js libraries to CLI tools and Swift packages, and I started [Awesome](https://github.com/sindresorhus/awesome), the lists about all kinds of interesting topics.
+In open source, I maintain [many npm packages](https://www.npmjs.com/~sindresorhus) and [popular projects](https://github.com/search?q=user:sindresorhus+user:chalk+user:avajs+user:xojs+user:soml-lang+user:simple-color-palette+archived:false&type=Repositories), from Node.js libraries to CLI tools and Swift packages, and I started [Awesome](https://github.com/sindresorhus/awesome), the lists about all kinds of interesting topics.
 
 @SocialLinks
 
@@ -144,11 +144,12 @@ That era is mostly gone. Even [Delicious Library shut down](https://daringfireba
 ## Some Things I Believe
 
 @Cards {
-- I’m all in on AI
+- I’m all in on AI, but I don’t vibe code
 	- It’s the biggest shift in how software gets made in my lifetime, and I use it every day
+	- It makes me faster, not sloppier. I use it to brainstorm, fix bugs, and write the first version of a feature, which I then polish by hand
+	- I read every line of code. More than a decade of experience tells me when the AI is wrong, and the design, the decisions, and the quality bar stay mine
 	- The bottleneck is no longer writing code. It’s taste, judgment, and knowing what to build
 	- With AI, I can make, verify, and ship a fix faster than I can review a pull request for it
-	- I still own the result. The design, the decisions, and the quality bar are mine
 - I make things for fun, and to solve my own problems
 	- The easiest way to build a great app is to be your own customer
 	- Enthusiasm is an input. It’s easier to do great work on things that excite you

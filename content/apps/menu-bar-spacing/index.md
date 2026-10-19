@@ -8,7 +8,7 @@ platforms: [
 mainLinks: {
 	Download: 'https://github.com/sindresorhus/menu-bar-spacing-meta/releases/latest/download/Menu.Bar.Spacing.zip'
 }
-requirement: 'Free · Requires macOS 26 or later'
+requirement: 'Requires macOS 26 or later'
 olderVersions: [
 	{
 		version: '1.1.0'

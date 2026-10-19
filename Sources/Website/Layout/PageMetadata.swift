@@ -6,12 +6,16 @@ What the head says about a page: title, description, social previews, and robots
 */
 struct PageMetadata {
 	enum Kind {
+		/**
+		The home page, whose title is the name of the site alone.
+		*/
+		case home
 		case website
 		case article(publishedAt: Date, tags: [BlogPost.Tag])
 
 		var openGraphType: String {
 			switch self {
-			case .website:
+			case .home, .website:
 				"website"
 			case .article:
 				"article"
@@ -22,7 +26,7 @@ struct PageMetadata {
 	/**
 	The title of the page, like “Apps” or “Older Versions — Apps”. The document title adds the site name.
 	*/
-	var title: String
+	let title: String
 
 	var description: String?
 
@@ -43,11 +47,6 @@ struct PageMetadata {
 	*/
 	var appStoreID: AppStoreID?
 
-	/**
-	The campaign of the App Store banner, like `pt=123&ct=web-smart-banner`.
-	*/
-	var appStoreCampaign: String?
-
 	var favicon: RoutePath = "/favicon.png"
 
 	/**
@@ -58,12 +57,17 @@ struct PageMetadata {
 	/**
 	Origins the page will connect to soon, like a form endpoint.
 	*/
-	var preconnectOrigins = [String]()
+	var preconnectOrigins = [URL]()
 
 	/**
 	The title with the site name, like “Apps — Sindre Sorhus”, for the browser tab and search results. The home page has only the site name.
 	*/
 	var documentTitle: String {
-		title == Site.name ? title : "\(title) — \(Site.name)"
+		switch kind {
+		case .home:
+			title
+		case .website, .article:
+			"\(title) — \(Site.name)"
+		}
 	}
 }

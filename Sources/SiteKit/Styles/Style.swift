@@ -31,10 +31,10 @@ public struct Style: Sendable {
 	/**
 	Whether the nested rules are in a scope of the element. See ``scoped()``.
 	*/
-	var isScoped = false
+	private var isScoped = false
 
 	/**
-	The keyframes and the registered custom properties that the style and its conditions use, so a stylesheet with the style also has them. They are written at the top level of the stylesheet.
+	The keyframes and the registered custom properties that the style and its conditions use, so a stylesheet with the style also has them. They are written after the rule of the style, not in it (``nodes(selector:)``).
 	*/
 	var definitions = [StyleNode]()
 
@@ -95,17 +95,17 @@ public struct Style: Sendable {
 	}
 
 	/**
-	The rule of the style for the selector. A scoped style is wrapped in `@scope`, with `:scope` as the selector.
+	The rule of the style for the selector, and then the keyframes and registered properties it uses. A scoped style is wrapped in `@scope`, with `:scope` as the selector.
 	*/
-	func node(selector: String) -> StyleNode {
+	func nodes(selector: CSSSelector) -> [StyleNode] {
 		guard
 			isScoped,
 			!declarations.isEmpty || !children.isEmpty
 		else {
-			return .rule(selector: selector, declarations: declarations, children: children)
+			return [.block(selector.description, declarations: declarations, children: children)] + definitions
 		}
 
-		return .conditional(prelude: "@scope (\(selector))", declarations: [], children: [.rule(selector: ":scope", declarations: declarations, children: children)])
+		return [.block("@scope (\(selector))", children: [.block(":scope", declarations: declarations, children: children)])] + definitions
 	}
 
 	/**
@@ -123,8 +123,8 @@ public struct Style: Sendable {
 	/**
 	Styles for a nested selector, like CSS nesting: `&` is this element (`"&:first-child"`, `"& > li"`), and a selector without `&` matches descendants (`".icon"`).
 	*/
-	public func nested(_ selector: String, _ content: (Self) -> Self) -> Self {
-		block(selector, content)
+	public func nested(_ selector: CSSSelector, _ content: (Self) -> Self) -> Self {
+		block(selector.description, content)
 	}
 
 	/**
@@ -166,7 +166,7 @@ public struct Style: Sendable {
 	private func block(_ prelude: String, _ content: (Self) -> Self) -> Self {
 		let style = content(Self())
 		var copy = self
-		copy.children.append(merging: [StyleNode(kind: .block(prelude: prelude, declarations: style.declarations, children: style.children))])
+		copy.children.append(merging: [.block(prelude, declarations: style.declarations, children: style.children)])
 		copy.definitions += style.definitions
 		return copy
 	}
@@ -342,7 +342,7 @@ extension Style {
 	```
 	*/
 	public func state(_ name: String, _ content: (Self) -> Self) -> Self {
-		nested("&:state(\(name))", content)
+		nested("&:state(\(raw: name))", content)
 	}
 
 	/**
@@ -385,14 +385,14 @@ extension Style {
 	}
 
 	/**
-	The `::before` pseudo-element. Set ``content(_:)`` to show it.
+	The `::before` pseudo-element. Set ``content(_:alternativeText:)`` to show it.
 	*/
 	public func before(_ content: (Self) -> Self) -> Self {
 		nested("&::before", content)
 	}
 
 	/**
-	The `::after` pseudo-element. Set ``content(_:)`` to show it.
+	The `::after` pseudo-element. Set ``content(_:alternativeText:)`` to show it.
 	*/
 	public func after(_ content: (Self) -> Self) -> Self {
 		nested("&::after", content)
@@ -430,8 +430,8 @@ extension Style {
 	/**
 	Styles for the direct children that match the selector, like `children("li")` for `& > li`. A list of selectors, like `children("p, label")`, is in `:is()`, as `& > p, label` would match a `label` at any depth. So the list cannot have a pseudo-element.
 	*/
-	public func children(_ selector: String, _ content: (Self) -> Self) -> Self {
-		nested(selector.contains(",") ? "& > :is(\(selector))" : "& > \(selector)", content)
+	public func children(_ selector: CSSSelector, _ content: (Self) -> Self) -> Self {
+		nested(selector.description.contains(",") ? "& > :is(\(selector))" : "& > \(selector)", content)
 	}
 
 	/**
@@ -439,14 +439,14 @@ extension Style {
 
 	The selector cannot have a pseudo-element, as `:where()` cannot match one. Style it inside, like `descendants("li") { $0.before { … } }`.
 	*/
-	public func descendants(_ selector: String, _ content: (Self) -> Self) -> Self {
+	public func descendants(_ selector: CSSSelector, _ content: (Self) -> Self) -> Self {
 		nested("& :where(\(selector))", content)
 	}
 
 	/**
 	Styles for another element on a page that has this element, like the site header on a page with a background that continues behind it: `:root:has(&) selector`.
 	*/
-	public func onSamePage(_ selector: String, _ content: (Self) -> Self) -> Self {
+	public func onSamePage(_ selector: CSSSelector, _ content: (Self) -> Self) -> Self {
 		nested(":root:has(&) \(selector)", content)
 	}
 
