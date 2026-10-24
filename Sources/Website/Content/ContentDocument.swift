@@ -135,7 +135,7 @@ extension RoutePath {
 
 extension MarkdownFile {
 	/**
-	A link in the file, with a link to another content file, like `dato.md` or `../pages/about.md`, as the path of its page, and a link to a file of its page bundle, like `screenshot.png`, as the path of the published file. Other links stay as they are. A relative link with a file extension to a file that does not exist is an error, like a typo in a file name.
+	A link in the file, with a link to another content file, like `dato.md` or `../pages/about.md`, as the path of its page, and a link to a file of its page bundle, like `screenshot.png`, as the path of the published file. Other links stay as they are, and every link is checked as a ``LinkDestination``, except a relative link without an extension, like `donate`, which the browser resolves, as ``LinkDestination`` has no relative case. So a malformed URL or a path with `.` or `..` is an error, and so is a relative link with a file extension to a file that does not exist, like a typo in a file name.
 	*/
 	func resolvingLink(_ destination: String, project: Project) throws(ContentError) -> String {
 		let path = String(destination.prefix { $0 != "#" })
@@ -146,7 +146,7 @@ extension MarkdownFile {
 			!path.contains(":"),
 			!path.hasPrefix("/")
 		else {
-			return destination
+			return try destination.checkedAsLink
 		}
 
 		let target = url.deletingLastPathComponent().appending(path: path).standardizedFileURL
@@ -154,10 +154,10 @@ extension MarkdownFile {
 		// A file of the page bundle, like `screenshot.png` next to `index.md`.
 		guard path.hasSuffix(".md") else {
 			if let publicPath = project.publicPath(ofContentFile: target) {
-				return publicPath.description + fragment
+				return try "\(publicPath.description)\(fragment)".checkedAsLink
 			}
 
-			// A link with a file extension goes to a file, so a missing one is a mistake, like a typo. A link without one, like `donate`, goes to a page.
+			// A link with a file extension goes to a file, so a missing one is a mistake, like a typo. A link without one, like `donate`, goes to a page, so it stays relative, and the browser resolves it against the page's own path.
 			guard target.pathExtension.isEmpty else {
 				guard target.isFile else {
 					throw ContentError(reason: "The link `\(destination)` goes to a file that does not exist next to the page.")
@@ -177,6 +177,18 @@ extension MarkdownFile {
 			throw ContentError(reason: "The link `\(destination)` goes to a content file that does not exist.")
 		}
 
-		return route.description + fragment
+		return try "\(route.description)\(fragment)".checkedAsLink
+	}
+}
+
+extension String {
+	/**
+	The link, checked as a ``LinkDestination``, which rejects a relative link and a malformed URL. The value stays the same, so the `href` is the text of the content, not a URL that Foundation rewrote.
+	*/
+	fileprivate var checkedAsLink: String {
+		get throws(ContentError) {
+			_ = try LinkDestination(validating: self)
+			return self
+		}
 	}
 }

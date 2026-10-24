@@ -96,7 +96,7 @@ The AI model used to generate images is large. This is reasonable given the mode
 
 ### How can I remove Imago and the Flux model entirely? {#uninstall}
 
-First, open the app and click “Show Model Folder” in the settings to reveal the model in Finder, then delete that folder (~20 GB). After that, [delete the app](https://support.apple.com/en-us/102610) from your Applications folder as usual.
+First, open the app and click “Show Model Folder” in the settings to reveal the model in Finder, then delete that folder (~20 GB). After that, [delete the app](https://support.apple.com/102610) from your Applications folder as usual.
 
 ## Non-App Store Version
 

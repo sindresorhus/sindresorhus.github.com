@@ -297,12 +297,10 @@ extension App {
 	}
 
 	/**
-	For search results and link previews: the custom description, or the subtitle continued by the introduction, shortened to 160 characters.
+	For search results and link previews: the custom description, or the introduction, shortened to 160 characters. The title of the page already has the subtitle, so the description does not begin with it.
 	*/
 	var description: String {
-		frontmatter.description ?? [frontmatter.subtitle, markdown.introduction]
-			.compactMap(\.self)
-			.joined(separator: ". ")
+		(frontmatter.description ?? markdown.introduction ?? frontmatter.subtitle)
 			.shortenedForSnippet
 	}
 
@@ -428,12 +426,12 @@ extension App {
 		@NonEmpty var title: String
 
 		/**
-		Has no ending punctuation, because the default description adds a period after it.
+		Has no ending punctuation, because `llms.txt` and `llms-full.txt` add a period after it.
 		*/
 		@NonEmpty var subtitle: String
 
 		/**
-		For search results and link previews. Defaults to the subtitle followed by the introduction.
+		For search results and link previews. Defaults to the introduction, as the title already has the subtitle.
 		*/
 		@NonEmpty var description: String?
 

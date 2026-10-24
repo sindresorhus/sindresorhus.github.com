@@ -1,7 +1,6 @@
 ---
 title: 'Week Number'
 subtitle: 'The current week number in your menu bar'
-description: 'The current week number in your menu bar, with a customizable prefix. You can also find the week number for a specific date and add a widget.'
 publicationDate: '2024-05-19'
 platforms: [
 	'macOS'

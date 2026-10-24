@@ -216,6 +216,15 @@ extension ProseStyles {
 		}
 
 	/**
+	A paragraph that only has bold text, like `**Highlights**` or `**More features**`, which works as a label for the list or text below it. It has slightly more space above than the space between paragraphs, so it reads as the start of a new group, and not as the end of the text above. The space below stays, so the label stays with its content. The renderer only gives this class to a paragraph that has nothing but bold text, so a line like `**macOS:** Click …` keeps the normal space. This is intentional.
+	*/
+	static let boldLabelStyle = Style()
+		// Not as the first block, which has no space above, and not below a heading or a rule, which has its own space below.
+		.nested("&:not(:first-child, :is(hr, h1, h2, h3, h4, h5, h6, br) + &)") {
+			$0.margin(.top, .em(1.5))
+		}
+
+	/**
 	Blog posts: colored links and typographic refinements.
 	*/
 	static let articleStyle = Style()

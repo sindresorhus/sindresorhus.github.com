@@ -123,6 +123,11 @@ public enum MarkdownElement: Hashable, Sendable {
 	A `:: ` line in a list item.
 	*/
 	case listDescription
+
+	/**
+	A paragraph that only has bold text, like `**Highlights**`, which works as a label for the text below it.
+	*/
+	case boldLabel
 }
 
 /**

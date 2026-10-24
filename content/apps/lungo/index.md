@@ -73,8 +73,8 @@ Keep your Mac awake and the screen on, for a set time or until you turn it off. 
 
 Some things you could try:
 - Make sure you are on the latest macOS and Lungo versions.
-- [Reset NVRAM](https://support.apple.com/en-us/HT204063)
-- [Reset SMC](https://support.apple.com/en-us/HT201295)
+- [Reset NVRAM](https://support.apple.com/HT204063)
+- [Reset SMC](https://support.apple.com/HT201295)
 
 ### Does it work when the lid is closed? {#lid-closed}
 

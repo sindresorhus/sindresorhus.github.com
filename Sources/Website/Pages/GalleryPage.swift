@@ -177,7 +177,8 @@ struct GalleryPage: Page {
 
 			Section("Sudoku", id: "sudoku") {
 				p {
-					a(.href(.path(path, query: [URLQueryItem(name: "puzzle", value: "53..7....6..195....98....6.8...6...34..8.3..17...2...6.6....28....419..5....8..79")], fragment: "sudoku"))) {
+					// The code of `53..7....6..195....98....6.8...6...34..8.3..17...2...6.6....28....419..5....8..79`.
+					a(.href(.path(path, query: [URLQueryItem(name: "p", value: "yE4YURlMRQw5CYBTdhlZhoY0gxcmYoQZWHkZ")], fragment: "sudoku"))) {
 						"Show a sample puzzle"
 					}
 				}

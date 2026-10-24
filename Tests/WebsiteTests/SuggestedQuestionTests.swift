@@ -32,8 +32,8 @@ struct SuggestedQuestionTests {
 
 	@Test
 	func `every word of a synonym group matches the others`() {
-		#expect(SuggestedQuestion(question: "Wrong display", url: .path("/a")).extraWords == ["screen", "monitor"])
-		#expect(SuggestedQuestion(question: "Wrong monitor", url: .path("/b")).extraWords == ["screen", "display"])
+		#expect(SuggestedQuestion(question: "Blurry display", url: .path("/a")).extraWords == ["screen", "monitor"])
+		#expect(SuggestedQuestion(question: "Blurry monitor", url: .path("/b")).extraWords == ["screen", "display"])
 	}
 
 	@Test

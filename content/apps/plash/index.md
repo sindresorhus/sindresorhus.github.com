@@ -1,7 +1,6 @@
 ---
 title: 'Plash'
 subtitle: 'Make any website your desktop wallpaper'
-description: 'Make any website your Mac desktop wallpaper: your calendar, a dashboard, the Bing photo of the day, or an animated GIF.'
 publicationDate: '2020-01-09'
 platforms: [
 	'macOS'

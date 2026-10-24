@@ -5,9 +5,9 @@ description: 'Sindre Sorhus is a full-time open-source developer who makes apps 
 
 Hi, I’m Sindre ([hear how to say it](/assets/sindre-sorhus-pronunciation.m4a)). I make apps and open-source software, full time and on my own. In 2014, I quit my office job to backpack around Southeast Asia and work on open source. The backpacking ended, but the open source never did.
 
-My time goes to [apps](/apps) for Apple devices and to open source. The apps are small, focused tools that each solve one problem well, and many of them are free. You can [read what people say about them](/apps/reviews), or [see what I’m working on now](/now).
+The [apps](/apps) are small, focused tools for Apple devices that each solve one problem well, and many of them are free. You can [read what people say about them](/apps/reviews).
 
-In open source, I maintain [many npm packages](https://www.npmjs.com/~sindresorhus) and [popular projects](https://github.com/search?q=user:sindresorhus+user:chalk+user:avajs+user:xojs+user:soml-lang+user:simple-color-palette+archived:false&type=Repositories), from Node.js libraries to CLI tools and Swift packages, and I started [Awesome](https://github.com/sindresorhus/awesome), the lists about all kinds of interesting topics.
+In open source, I maintain [many npm packages](https://www.npmjs.com/~sindresorhus) and [popular projects](https://github.com/search?q=user:sindresorhus+user:chalk+user:avajs+user:xojs+user:soml-lang+user:simple-color-palette+archived:false&type=Repositories), from Node.js libraries to CLI tools and Swift packages.
 
 @SocialLinks
 
@@ -102,7 +102,7 @@ That era is mostly gone. Even [Delicious Library shut down](https://daringfireba
 	- Removed: Objective-C
 	- Added: First sweet internet dollars
 - 2013
-	- Changed: Laptop, to a 15-inch [MacBook Pro](https://support.apple.com/en-us/111971)
+	- Changed: Laptop, to a 15-inch [MacBook Pro](https://support.apple.com/111971)
 	- Added: Released my [first iPhone app](/front-flash)
 	- Added: Released my first popular project, [Chalk](https://github.com/chalk/chalk)
 - 2012
@@ -118,11 +118,11 @@ That era is mostly gone. Even [Delicious Library shut down](https://daringfireba
 	- Added: [Twitter account](https://x.com/sindresorhus)
 - 2009
 	- Added: GitHub account
-	- Added: My first iPhone, a [3GS](https://support.apple.com/en-us/112307)
+	- Added: My first iPhone, a [3GS](https://support.apple.com/112307)
 - 2008
 	- Removed: School
 - 2007
-	- Added: My first Mac, a 17-inch [MacBook Pro](https://support.apple.com/en-us/docs/mac/pp215)
+	- Added: My first Mac, a 17-inch [MacBook Pro](https://support.apple.com/docs/mac/pp215)
 	- Added: A dream of making apps like [Coda and Things](#why-mac-apps)
 	- Removed: Windows
 - 2005
@@ -170,7 +170,8 @@ That era is mostly gone. Even [Delicious Library shut down](https://daringfireba
 	- Faster, smaller, and at home on the platform. Most of my apps are below 4 MB
 	- Fit in, don’t stand out. The best app feels like it came with the system
 	- I support only the latest macOS and iOS, and spend the time on making the apps better instead
-	- Redesign only when it helps. Change for the sake of change creates work for everyone and value for no one
+- Redesign only when it helps
+	- Change for the sake of change creates work for everyone and value for no one
 - The people who use my apps deserve respect
 	- No ads, no tracking, and no personal data
 	- Pay once, own forever
@@ -178,7 +179,7 @@ That era is mostly gone. Even [Delicious Library shut down](https://daringfireba
 	- Behind every issue and support email is a real person. [Empathy and kindness](../../blog/empathy-in-open-source/index.md) matter as much as code
 - Readability beats cleverness
 	- Code is read far more often than it’s written
-	- Silent on success, loud on failure
+- Silent on success, loud on failure
 }
 
 ## How I Make an App
@@ -232,8 +233,8 @@ Open source travels. I write a small package to solve my own problem, and years 
 - [Got](https://github.com/sindresorhus/got/blob/eac0aa1294395a1bbe2a9825141fd320346aa6c1/readme.md?plain=1#L436) once powered Segment’s main backend API
 	- And the RPC client for all their microservices. That’s a long journey for a package with a three-letter name
 - [Chalk](https://github.com/chalk/chalk) prints NASA’s green checkmarks
-	- [Terra UI](https://github.com/nasa/terra-ui-components/blob/656f320a3245be325ce79f10f1826cf0710bbe3a/packages/create-terra-ui-app/bin/create-terra-ui-app.js#L29) uses it for its build messages, and Google’s [zx](https://github.com/google/zx/blob/d24bef75cc3ad7cabc51ae4db993978cbe3d2202/src/log.ts#L96-L105) colors its output with it
-- NASA, Wikipedia, and the BBC have unicorns in their code
+	- NASA’s [app generator for Terra UI](https://github.com/nasa/terra-ui-components/blob/656f320a3245be325ce79f10f1826cf0710bbe3a/packages/create-terra-ui-app/bin/create-terra-ui-app.js#L29) uses it for its build messages, and Google’s [zx](https://github.com/google/zx/blob/d24bef75cc3ad7cabc51ae4db993978cbe3d2202/src/log.ts#L96-L105) colors its output with it
+- NASA, Wikimedia, and the BBC lint their code with unicorns
 	- My code-quality plugin, `eslint-plugin-unicorn`, is in NASA’s [Cumulus](https://github.com/nasa/cumulus/blob/a6d4bfcf7512d6bf4226198c54af7c7a30da05b3/package.json#L139) and [Open MCT](https://github.com/nasa/openmct/blob/8782f884ed3b31d853fe655ee07ed89fd27f7eef/package.json#L45), [Wikimedia’s ESLint config](https://github.com/wikimedia/eslint-config-wikimedia/blob/d6ff6d803c0adc240b57d275496e373037fc3f82/package.json#L75), and the BBC’s [TV player](https://github.com/bbc/bigscreen-player/blob/41a0be6d21316b0f95bc2fe83e6f975f29d5a497/package.json#L66). Somewhere between space science and encyclopedic seriousness sits a mythical horse
 }
 
@@ -245,7 +246,7 @@ Open source travels. I write a small package to solve my own problem, and years 
 - My namesake made Thor’s hammer, so I was destined to make tools
 	- It shipped with a bug: Loki, as a fly, bit the smith at the bellows, and the handle came out too short
 - The web and I were born the same year
-	- Tim Berners-Lee [proposed it at CERN](https://home.cern/science/computing/birth-web) in 1989. My release notes were shorter
+	- Tim Berners-Lee [proposed it at CERN](https://home.cern/science/computing/the-birth-of-the-web/) in 1989. My release notes were shorter
 - GIF is older than me
 	- CompuServe made it in 1987, and my [Gifski](/gifski) app still helps it look good
 - [Velja](/velja) means “to choose” in [Nynorsk](https://en.wikipedia.org/wiki/Nynorsk)
@@ -258,7 +259,7 @@ Open source travels. I write a small package to solve my own problem, and years 
 
 ## Support My Work
 
-If my apps or my open-source work are useful to you, you can [sponsor me or donate](../donate.md), [buy one of my paid apps](/apps/paid), or leave a nice review on the App Store. [These people and companies](../supporters.md) already support me. Thank you!
+If what I make is useful to you, you can [sponsor me or donate](../donate.md), [buy one of my paid apps](/apps/paid), or leave a nice review on the App Store. [These people and companies](../supporters.md) already support me. Thank you!
 
 ## More
 

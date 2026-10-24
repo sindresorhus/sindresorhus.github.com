@@ -110,6 +110,14 @@ struct SuggestedQuestion: Encodable {
 			["theme", "appearance"],
 			["location", "gps"],
 			["picture", "image", "photo"],
+			["missing", "disappear", "gone"],
+			["wrong", "incorrect"],
+			["order", "sort", "reorder", "rearrange"],
+			["share", "sharing", "collaborate"],
+			["suggestion", "autocomplete"],
+			["quantity", "amount"],
+			["haptic", "vibration", "vibrate"],
+			["internet", "online", "offline"],
 		]
 
 		var synonyms = [

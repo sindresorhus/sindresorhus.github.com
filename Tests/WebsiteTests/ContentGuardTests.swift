@@ -40,21 +40,71 @@ struct ContentGuardTests {
 
 	@Test
 	func `content has no raw scripts, styles, or Astro attributes`() throws {
-		let files = try Self.contentDirectory.filesRecursively().filter { $0.pathExtension == "md" }
+		let files = try Self.markdownFiles()
 		#expect(!files.isEmpty)
 
-		for file in files {
-			// Code is shown as text, like `style="long"` in a guide, so it is not checked.
-			let contents = try String(contentsOf: file, encoding: .utf8)
-				.replacing(/(?s)```.*?```/, with: "")
-				.replacing(/`[^`\n]*`/, with: "")
-			let path = file.path(relativeTo: Self.contentDirectory)
+		for (path, contents) in files {
 			let found = Set(Pattern.allCases.filter { contents.contains($0.regex) })
 			let allowed = Self.allowed[path] ?? []
 
 			#expect(found.isSubset(of: allowed), "Move the styles or scripts of \(path) into a component: \(found.subtracting(allowed))")
 			#expect(allowed.isSubset(of: found), "Remove the cleaned-up patterns of \(path) from the allowlist: \(allowed.subtracting(found))")
 		}
+	}
+
+	/**
+	Links to Apple’s support pages and the App Store have no locale or storefront in the path, like `https://support.apple.com/102426` and `https://apps.apple.com/app/…`, so Apple shows the page in the language of the visitor and their storefront.
+	*/
+	@Test
+	func `Apple links have no locale or storefront`() throws {
+		let files = try Self.markdownFiles()
+		#expect(!files.isEmpty)
+
+		for (path, contents) in files {
+			let links = Self.localizedAppleLinks(in: contents)
+			#expect(links.isEmpty, "Use an Apple link without the locale or storefront: \(links.joined(separator: ", ")) in \(path)")
+		}
+	}
+
+	@Test(arguments: [
+		("https://support.apple.com/en-us/HT203129", ["https://support.apple.com/en-us/HT203129"]),
+		("https://apps.apple.com/us/app/example/id123", ["https://apps.apple.com/us/app/example/id123"]),
+		("https://support.apple.com/HT203129", []),
+		("https://apps.apple.com/app/example/id123", []),
+		("https://web.archive.org/web/20180711015728/https://support.apple.com/en-us/HT203129", []),
+	])
+	func `Apple link guard checks the destination`(destination: String, expected: [String]) {
+		#expect(Self.localizedAppleLinks(in: "[Help](\(destination))") == expected)
+	}
+
+	// `support.apple.com/en-us/102426` and `apps.apple.com/us/app/…`. The whole link is matched, so the message shows it.
+	nonisolated(unsafe) private static let localizedAppleLinkPattern = /https?:\/\/(?:support|apps)\.apple\.com\/(?:[a-z]{2}-[a-z]{2}|[a-z]{2})\/[^\s)\]"'>]*/
+	nonisolated(unsafe) private static let linkPattern = /https?:\/\/[^\s)\]"'>]*/
+
+	/**
+	Apple links whose locale or storefront prevents Apple from choosing it for the visitor.
+	*/
+	private static func localizedAppleLinks(in contents: String) -> [String] {
+		contents.matches(of: linkPattern)
+			.map(\.output)
+			.filter { $0.wholeMatch(of: localizedAppleLinkPattern) != nil }
+			.map(String.init)
+	}
+
+	/**
+	The path and text of each content file, without its code, which is shown as text, so a URL in a code block is not a link, and `style="long"` in a guide is not a style.
+	*/
+	private static func markdownFiles() throws -> [(path: String, contents: String)] {
+		try contentDirectory.filesRecursively()
+			.filter { $0.pathExtension == "md" }
+			.map { file in
+				(
+					path: file.path(relativeTo: contentDirectory),
+					contents: try String(contentsOf: file, encoding: .utf8)
+						.replacing(/(?s)```.*?```/, with: "")
+						.replacing(/`[^`\n]*`/, with: "")
+				)
+			}
 	}
 }
 
@@ -97,8 +147,8 @@ struct SourceGuardTests {
 		".declaration(": 34,
 		"Length(\"": 0,
 		"CSSValue(\"": 4,
-		// The prose styles need selectors for the Markdown markup that no component owns, like the introduction below the title of a Markdown page, and the column of the shortcuts in a table.
-		".nested(\"": 32,
+		// The prose styles need selectors for the Markdown markup that no component owns, like the introduction below the title of a Markdown page, the space above a bold label, and the column of the shortcuts in a table.
+		".nested(\"": 33,
 	]
 
 	@Test

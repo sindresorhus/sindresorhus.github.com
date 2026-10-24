@@ -249,7 +249,8 @@ struct HTMLRenderer: MarkupWalker {
 			let listItem = paragraph.parent as? ListItem,
 			listItem.isInTightList
 		else {
-			html += "<p>"
+			let isLabel = style == .extended && paragraph.parent is ListItem == false && paragraph.childCount == 1 && paragraph.child(at: 0) is Strong
+			html += isLabel ? "<p\(theme.classAttribute(.boldLabel))>" : "<p>"
 			renderParagraphContent(paragraph)
 			html += "</p>\n"
 			return

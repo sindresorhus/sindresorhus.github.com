@@ -175,6 +175,8 @@ struct AppsPage: Page {
 				.olderVersions,
 				LabeledLink("RSS Feed for New Apps", destination: .path(.feeds), description: "Get notified about new apps I publish"),
 				.discounts,
+				// Intentionally left out for now.
+				// LabeledLink("Affiliates", destination: .path(.affiliates), description: "Earn money by promoting my apps"),
 				.termsOfUse,
 				LabeledLink(AppCategory.archived.title, destination: .path(AppCategory.archived.path), description: AppCategory.archived.summary),
 			]

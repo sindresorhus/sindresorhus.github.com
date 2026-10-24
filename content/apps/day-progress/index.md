@@ -64,7 +64,7 @@ Run [this shortcut](https://www.icloud.com/shortcuts/830746d544ce471cb1ff70b2f4d
 
 ### Reminder about shortcuts
 
-A shortcut can be run from the menu bar, using a global keyboard shortcut, from Spotlight, or from Raycast. You can use Shortcuts automations to make it run automatically, for example, when you change to the work focus. For more automation triggers, you can use [Shortery](https://apps.apple.com/us/app/shortery/id1594183810?mt=12).
+A shortcut can be run from the menu bar, using a global keyboard shortcut, from Spotlight, or from Raycast. You can use Shortcuts automations to make it run automatically, for example, when you change to the work focus. For more automation triggers, you can use [Shortery](https://apps.apple.com/app/shortery/id1594183810?mt=12).
 
 ### Hide the system clock {#hide-system-clock}
 

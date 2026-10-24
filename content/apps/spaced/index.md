@@ -43,7 +43,7 @@ Spacer positions are saved and restored by macOS, not the app. Menu bar manager 
 
 ### Can the app let me hide and show menu bar items?
 
-That is out of scope for this app. You want something like [Bartender](https://www.macbartender.com) or [Hidden Bar](https://apps.apple.com/no/app/hidden-bar/id1452453066?mt=12).
+That is out of scope for this app. You want something like [Bartender](https://www.macbartender.com) or [Hidden Bar](https://apps.apple.com/app/hidden-bar/id1452453066?mt=12).
 
 ### Can you support more separator characters and wider spacers? {#custom-separator}
 

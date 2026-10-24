@@ -154,7 +154,7 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 	: View or change the system accent color
 	:: Also includes special iMac and MacBook Neo colors normally only accessible on these Macs.
 - Toggle Dock Folder
-	: Expands or collapses a [folder in the Dock](https://support.apple.com/kk-kz/guide/mac-help/mchl231f08fb/mac), similar to manually clicking on it
+	: Expands or collapses a [folder in the Dock](https://support.apple.com/guide/mac-help/mchl231f08fb/mac), similar to manually clicking on it
 	:: Tip: Add this to a shortcut and give it a keyboard shortcut to expand or collapse Dock folders from the keyboard.
 - Get/Set Default Audio Device
 	: View or change the default audio input (microphone) or output (speaker)
@@ -225,7 +225,7 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 	: View or change the keyboard backlight brightness level
 	:: Only works on Macs with a built-in backlit keyboard.
 - Get/Set Night Shift Color Temperature
-	: Control the [Night Shift](https://support.apple.com/en-us/102191) color temperature.
+	: Control the [Night Shift](https://support.apple.com/102191) color temperature.
 - Get/Set Network Location
 	: Switch between different [network configurations](https://support.apple.com/105129)
 	:: Tip: Use Shortcuts automations to switch automatically on certain conditions.

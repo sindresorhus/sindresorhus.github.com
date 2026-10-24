@@ -79,6 +79,7 @@ enum ProseStyles: StyleSet {
 	case headingAnchorCheckIcon
 	case listSubtitle
 	case listDescription
+	case boldLabel
 
 	/**
 	Every style is scoped, so the closest one wins over the prose root, like an alert inside prose, as the nearest scope wins when specificity is equal.
@@ -148,6 +149,8 @@ enum ProseStyles: StyleSet {
 			Self.listSubtitleStyle
 		case .listDescription:
 			Self.listDescriptionStyle
+		case .boldLabel:
+			Self.boldLabelStyle
 		}
 	}
 }
@@ -204,6 +207,8 @@ extension MarkdownTheme {
 			ProseStyles.listSubtitle.className
 		case .listDescription:
 			ProseStyles.listDescription.className
+		case .boldLabel:
+			ProseStyles.boldLabel.className
 		}
 	}
 }

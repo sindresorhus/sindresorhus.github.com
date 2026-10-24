@@ -239,6 +239,7 @@ extension RoutePath {
 	static let faq: Self = "/apps/faq"
 
 	static let terms: Self = "/apps/terms"
+	static let affiliates: Self = "/apps/affiliates"
 	static let tinyApps: Self = "/tiny-apps"
 	static let discounts: Self = "/apps/discounts"
 

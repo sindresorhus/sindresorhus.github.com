@@ -204,7 +204,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 	:: Optionally exclude specific apps.
 - Quit all apps except frontmost (menu action and keyboard shortcut)
 	:: Optionally exclude specific apps.
-- Reset [privacy permissions](https://support.apple.com/en-vn/guide/mac-help/mchl211c911f/mac) for any apps
+- Reset [privacy permissions](https://support.apple.com/guide/mac-help/mchl211c911f/mac) for any apps
 
 ##### Keyboard {#keyboard}
 
@@ -271,7 +271,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 
 - [Automatically clear clipboard for improved privacy](#automatic-clipboard-clearing)
 - Clear clipboard *(menu action and keyboard shortcut)*
-- Disable [Universal Clipboard](https://support.apple.com/en-us/102430) without disabling [Handoff](https://support.apple.com/en-us/102426)
+- Disable [Universal Clipboard](https://support.apple.com/102430) without disabling [Handoff](https://support.apple.com/102426)
 	:: Useful if clipboard syncing feels slow or annoying.
 
 ##### Utilities {#utilities}
@@ -341,8 +341,8 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 ##### Toggles {#toggles}
 
 - Toggle dark mode
-- Toggle [Night Shift](https://support.apple.com/en-us/102191)
-- Toggle [True Tone](https://support.apple.com/en-us/102147)
+- Toggle [Night Shift](https://support.apple.com/102191)
+- Toggle [True Tone](https://support.apple.com/102147)
 - Toggle low power mode
 - Toggle ^[grayscale mode](note: "Grayscale mode on macOS can be a useful tool for various purposes. It can help reduce eye strain during long work sessions, especially in low-light environments. For designers and developers, it’s valuable for checking contrast and readability of user interfaces without the influence of color. Content creators may use it to evaluate the tonal balance of images or videos. Additionally, some users find that grayscale helps minimize distractions and improve focus by reducing the visual appeal of non-work-related apps and websites. While initially an adjustment, many users report increased productivity and a more mindful approach to computer usage when employing grayscale mode periodically.")
 - Toggle desktop icons and widgets visibility

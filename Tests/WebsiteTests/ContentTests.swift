@@ -17,16 +17,36 @@ struct ContentTests {
 		platforms: ['macOS']
 		---
 
-		Test app.
+		An app that does one thing.
 		""")
 
 		#expect(app.title == "Test")
 		#expect(app.platforms == [.macOS])
 		#expect(!app.isPaid)
 		#expect(app.showsSupportLink)
-		#expect(app.description == "Test app. Test app.")
+		// The description is the introduction, not the subtitle, which the title of the page already has.
+		#expect(app.description == "An app that does one thing.")
 		// A new app can be previewed before it has an icon.
 		#expect(app.iconPath == App.placeholderIconPath)
+	}
+
+	/**
+	A page without an introduction, like one that starts with a heading, still has a description, as search results and link previews need one.
+	*/
+	@Test
+	func `the description of a page without an introduction is the subtitle`() async throws {
+		let app = try await App(markdown: """
+		---
+		title: 'Test'
+		subtitle: 'Test app'
+		publicationDate: '2026-01-01'
+		platforms: ['macOS']
+		---
+
+		## Features
+		""")
+
+		#expect(app.description == "Test app")
 	}
 
 	@Test(arguments: [
@@ -568,11 +588,12 @@ struct ContentTests {
 	}
 
 	@Test
-	func `an image path with a dot component has no size instead of stopping the build`() throws {
+	func `an image path with a dot component is a content error`() throws {
 		let file = try MarkdownFile(contents: "![Photo](/images/../photo.png)", url: Project.empty.root.appending(path: "content/pages/about.md"))
-		let html = try MarkdownDocument(parsing: file, options: .content(file, project: .empty)).html
 
-		#expect(html.contains(#"<img src="/images/../photo.png" alt="Photo">"#))
+		#expect(throws: ContentErrors.self) {
+			try MarkdownDocument(parsing: file, options: .content(file, project: .empty))
+		}
 	}
 
 	@Test
@@ -637,6 +658,8 @@ struct ContentTests {
 		#expect(try file.resolvingLink("post.md", project: project) == BlogPost.path(slug: "post").description)
 		#expect(try file.resolvingLink("../pages/apps/faq.md", project: project) == RoutePath.faq.description)
 		#expect(try file.resolvingLink("https://example.com/readme.md", project: project) == "https://example.com/readme.md")
+		// The link stays as it is written, so Foundation does not encode it differently from the text of the content.
+		#expect(try file.resolvingLink("https://example.com/über", project: project) == "https://example.com/über")
 		#expect(throws: ContentError.self) {
 			try file.resolvingLink("missing.md", project: project)
 		}

@@ -14,7 +14,7 @@ description: 'Common questions about apps by Sindre Sorhus, including bug report
 <!-- @faq.general -->
 <!-- @faq.pinned 1 -->
 
-For apps purchased on the Apple App Store, you can [request a refund](https://support.apple.com/en-us/HT204084) from Apple. App developers have no control over the purchase and refund process. Please don’t contact me about it.
+For apps purchased on the Apple App Store, you can [request a refund](https://support.apple.com/HT204084) from Apple. App developers have no control over the purchase and refund process. Please don’t contact me about it.
 
 For apps purchased on Gumroad (NOT on the App Store), refunds are generally not offered. You can [request a refund](mailto:sindresorhus@gmail.com?subject=Gumroad%20refund&body=Mention%20which%20app%20you%20want%20a%20refund%20for%20and%20your%20Gumroad%20account%20email) if you have a good reason (like duplicate purchase). But most purchases are final.
 
@@ -35,7 +35,7 @@ Apps that are on Setapp can also be tried for free for 7 days on Setapp.
 ### How many devices can I install an app on? {#device-limit}
 <!-- @faq.general -->
 
-Apps purchased on the Apple App Store can be installed on up to 10 devices, with a maximum of 5 computers. [Learn more.](https://support.apple.com/en-us/HT204074)
+Apps purchased on the Apple App Store can be installed on up to 10 devices, with a maximum of 5 computers. [Learn more.](https://support.apple.com/HT204074)
 
 Apps purchased on Gumroad can be used by one user on unlimited computers.
 
@@ -43,7 +43,7 @@ Apps purchased on Gumroad can be used by one user on unlimited computers.
 <!-- @faq.keywords share household spouse kids children -->
 <!-- @faq.general -->
 
-Yes, all paid apps on the App Store support [Family Sharing](https://support.apple.com/en-us/108380) by default. Once one family member purchases the app, everyone in the family group can download it at no additional cost. Make sure Purchase Sharing is enabled in your family group settings.
+Yes, all paid apps on the App Store support [Family Sharing](https://support.apple.com/108380) by default. Once one family member purchases the app, everyone in the family group can download it at no additional cost. Make sure Purchase Sharing is enabled in your family group settings.
 
 ### I previously bought the app on the App Store but it still says I need to pay {#restore-purchase}
 <!-- @faq.keywords restore purchased redownload -->
@@ -67,8 +67,8 @@ Some things you could try:
 - Sign out and in again to the App Store.
 
 Apple troubleshooting guide:
-- [macOS](https://support.apple.com/en-us/102331)
-- [iOS](https://support.apple.com/en-us/102632)
+- [macOS](https://support.apple.com/102331)
+- [iOS](https://support.apple.com/102632)
 
 ### How can I transfer an app bought on the Apple App Store to a different account? {#transfer-purchase}
 <!-- @faq.general -->
@@ -156,18 +156,22 @@ If macOS shows the “Support Ending for Intel-based Apps” notification for on
 
 To check, select the app in Finder and press Command+I. “Kind” shows “Universal” or “Apple silicon”. If “Open using Rosetta” is checked there, uncheck it.
 
-### I’m getting a “The application can’t be opened” error when trying to launch your app {#app-cant-be-opened}
+### macOS says the app can’t be opened or is damaged {#app-cant-be-opened}
+<!-- @faq.keywords corrupt quarantine gatekeeper xattr unquarantine malware virus verify installing download trash -->
+<!-- @faq.platforms macOS -->
 <!-- @faq.general -->
 
-Make sure the app is in the “/Applications” folder, and then open it. If macOS blocks it, open “System Settings › Privacy & Security”, go to the “Security” section, click “Open Anyway”, and enter your login password. The button is only there for about an hour after you try to open the app. On macOS 15 and later, right-clicking the app and selecting “Open” no longer works for this. See [Apple’s guide to opening a blocked app](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac).
+The app is most likely fine. macOS blocks a downloaded app when Gatekeeper cannot verify it, which is a security check, not a sign of damage. You do not need to move it to the Trash.
 
-If it still doesn’t work, the app may be quarantined, and the system is not showing the proper dialog. To fix this, open Terminal and run:
+Make sure the app is in the “Applications” folder. Open it, then click “Open Anyway” in “System Settings › Privacy & Security › Security” and enter your login password. macOS only shows that button for about an hour after the failed launch. On macOS 15 and later, right-clicking the app and selecting “Open” no longer works. See [Apple’s guide to opening a blocked app](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac).
+
+If there is no button, or macOS still refuses, remove the quarantine flag that macOS adds to downloads. Open Terminal and run:
 
 ```sh
 xattr -d com.apple.quarantine -r /Applications/AppName.app
 ```
 
-Replace `AppName` with the name of the app. [Learn more.](https://superuser.com/a/28400/6877)
+Replace `AppName` with the app name and open the app again. If it still refuses, download it again, as the download may be incomplete. If that does not help, [contact me](/feedback).
 
 ### The app does not show up in the macOS menu bar {#app-not-showing-in-menu-bar}
 <!-- @faq.keywords launching launch start open opening appear missing disappeared hidden gone -->
@@ -417,7 +421,7 @@ Yes, most of my apps have Shortcuts actions. You can find them in the Shortcuts 
 
 ### Can you add AppleScript support to your apps? {#applescript}
 
-No. AppleScript is a dying technology that Apple barely cares about anymore. [Shortcuts](https://support.apple.com/en-gb/guide/shortcuts/welcome/ios) is the modern replacement and where Apple is investing its automation efforts. Most of my apps support Shortcuts.
+No. AppleScript is a dying technology that Apple barely cares about anymore. [Shortcuts](https://support.apple.com/guide/shortcuts/welcome/ios) is the modern replacement and where Apple is investing its automation efforts. Most of my apps support Shortcuts.
 
 ### What are distributed notifications? {#distributed-notifications}
 

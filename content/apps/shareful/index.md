@@ -54,7 +54,7 @@ Shareful provides share services (Copy, Open In, etc.) which macOS is supposed t
 Here are some things you could try:
 - Restart your computer
 - Reinstall the app
-- [Reset NVRAM](https://support.apple.com/en-us/HT204063)
+- [Reset NVRAM](https://support.apple.com/HT204063)
 - [Reset the share services registry](https://web.archive.org/web/20180711015728/https://support.apple.com/en-us/HT203129)
 
 If you are on a work computer, it could also be that your company has blocked third-party share services.

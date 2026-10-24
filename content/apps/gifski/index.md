@@ -1,7 +1,6 @@
 ---
 title: 'Gifski'
 subtitle: 'Convert videos to high-quality GIFs'
-description: 'Convert videos to high-quality GIFs. Gifski uses thousands of colors per frame, so gradients stay smooth instead of turning into bands.'
 publicationDate: '2018-02-23'
 platforms: [
 	'macOS'

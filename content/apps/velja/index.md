@@ -633,7 +633,7 @@ I don’t plan to add this. I recommend giving the horizontal prompt a try. A lo
 
 Yes. It will open the handoff in the chosen primary browser.
 
-Note that it shows the Velja app icon for [Handoff](https://support.apple.com/en-vn/102426), not the chosen primary browser. There is no way to work around this.
+Note that it shows the Velja app icon for [Handoff](https://support.apple.com/102426), not the chosen primary browser. There is no way to work around this.
 
 ### How can I set the last active browser as the default browser?
 

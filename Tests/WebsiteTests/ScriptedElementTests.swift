@@ -607,6 +607,125 @@ struct ScriptedElementTests {
 	}
 
 	/**
+	The board decodes the codes of Pipoku, which are the same as in the tests of the app, and rejects every other code, so it shows the puzzles that the app opens. It runs the script of the element in `node`, with only the parts of the DOM that it uses.
+	*/
+	@Test(.enabled(if: Self.checksScripts, "Install Node.js to run the script of the sudoku board."))
+	func `the sudoku board shows the puzzle of a Pipoku code`() throws {
+		let validCodes = [
+			"KkpNhsgJsNkpKgAyaTURhkgSl4Z4ImlYI5UTYQ": "003020600900305001001806400008102900700000008006708200002609500800203009005010300",
+			"_____________4BIOSFleWc0WCElGHZJNUgTKXZylWQTgTZ5gkU3JolRSBQlN2lpVBc4IAU": "483921657967345821251876493548132976729564138136798245372689514814253769695417382",
+			"AUAQAVIhQkigFAAUJUeDGTQlGGAU": "000000010400000000020000000000050407008000300001090000300400200050100000000806000",
+			"gBgSiIDgiIZiQgCDZ5JXRXExaIUZQD0": "800000000003600000070090200050007000000045700000100030001000068008500010090000400",
+			"AAAAAAAAAAAAAAAA": String(repeating: "0", count: 81),
+			"gAAAAAAAAAAAAABQ_Q": "5" + String(repeating: "0", count: 80),
+			"AAAAAAAAAAAAAICQTw": String(repeating: "0", count: 80) + "9"
+		]
+
+		let invalidCodes = [
+			"",
+			"A",
+			"AAAAAAAAAAAAAAA",
+			"AAAAAAAAAAAAAAAAA",
+			// Other forms of base64 of the same bytes: unused bits that are not 0, padding, a line break, and the standard alphabet.
+			"KkpNhsgJsNkpKgAyaTURhkgSl4Z4ImlYI5UTYR",
+			"KkpNhsgJsNkpKgAyaTURhkgSl4Z4ImlYI5UTYQ==",
+			"KkpNhsgJsN\nkpKgAyaTURhkgSl4Z4ImlYI5UTYQ",
+			"/////////////4BIOSFleWc0WCElGHZJNUgTKXZylWQTgTZ5gkU3JolRSBQlN2lpVBc4IAU",
+			// The text of the grid, like in the first format.
+			"..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..",
+			// Bytes with their check byte that are not a grid: a bit after the cells, the digit 0, a digit over 9, the 4 bits after an odd count of digits that are not 0, and too few or too many digits.
+			"AAAAAAAAAAAAAAEH",
+			"gAAAAAAAAAAAAAAASg",
+			"gAAAAAAAAAAAAACgIw",
+			"gAAAAAAAAAAAAABR-g",
+			"wAAAAAAAAAAAAAB4",
+			"gAAAAAAAAAAAAABQAP0"
+		]
+
+		let harness = """
+		globalThis.HTMLElement = class {};
+		globalThis.customElements = {define() {}};
+
+		const element = () => ({
+			hidden: true,
+			textContent: '',
+			children: [],
+			get childElementCount() {
+				return this.children.length;
+			},
+			append(child) {
+				this.children.push(child);
+			},
+			cloneNode() {
+				return element();
+			},
+		});
+
+		const {default: SudokuBoard} = await import('data:text/javascript,' + encodeURIComponent(\(JSONEncoder.pageJSON(try SudokuBoard.generatedScript()))));
+
+		// The cells in reading order, with 0 for an empty cell, or `undefined` when the board shows that the link is invalid.
+		const show = code => {
+			globalThis.location = {search: '?' + new URLSearchParams({p: code})};
+			const parts = {board: element(), invalid: element()};
+			const template = {content: {firstElementChild: element()}};
+			const board = new SudokuBoard();
+			board.querySelector = selector => parts[selector.match(/data-part="(\\w+)"/)[1]] ?? template;
+			board.connectedCallback();
+
+			if (!parts.invalid.hidden) {
+				return parts.board.hidden && parts.board.childElementCount === 0 ? undefined : 'both';
+			}
+
+			const cells = Array.from({length: 81});
+
+			for (const [box, boxElement] of parts.board.children.entries()) {
+				for (const [cell, cellElement] of boxElement.children.entries()) {
+					const row = (Math.floor(box / 3) * 3) + Math.floor(cell / 3);
+					const column = ((box % 3) * 3) + (cell % 3);
+					cells[(row * 9) + column] = cellElement.textContent === '' ? '0' : String(cellElement.textContent);
+				}
+			}
+
+			return parts.board.hidden ? 'hidden' : cells.join('');
+		};
+
+		const failures = [];
+
+		for (const [code, cells] of Object.entries(\(JSONEncoder.pageJSON(validCodes)))) {
+			if (show(code) !== cells) {
+				failures.push(`${code} shows ${show(code)}, not ${cells}`);
+			}
+
+			// Every change of one character, which the check byte detects.
+			for (let index = 0; index < code.length; index++) {
+				for (const character of 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_+/=. ') {
+					const changed = code.slice(0, index) + character + code.slice(index + 1);
+
+					if (changed !== code && show(changed) !== undefined) {
+						failures.push(`${changed} is not rejected`);
+					}
+				}
+			}
+		}
+
+		for (const code of \(JSONEncoder.pageJSON(invalidCodes))) {
+			if (show(code) !== undefined) {
+				failures.push(`${JSON.stringify(code)} is not rejected`);
+			}
+		}
+
+		if (failures.length > 0) {
+			console.error(failures.join('\\n'));
+			process.exit(1);
+		}
+		"""
+
+		// Node.js 24 has `Uint8Array.fromBase64` only with the flag. Later versions have it by default, and still accept the flag.
+		let error = try Self.syntaxError(checking: ["--js-base-64", "--input-type=module"], input: harness)
+		#expect(error == nil, "\(error ?? "")")
+	}
+
+	/**
 	The build publishes the scripts in `public` and in the page bundles as they are. They can be classic scripts or modules, so `node` checks each file by its path, which finds the kind from the syntax.
 	*/
 	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check the syntax of the published scripts."))

@@ -41,7 +41,7 @@ You agree to indemnify me against any claims, liabilities, damages, or expenses 
 
 ## Refunds
 
-For apps purchased on the Apple App Store, you can [request a refund](https://support.apple.com/en-us/HT204084). However, I would appreciate if you [reached out](/feedback) first. I may be able to resolve any problems you are having.
+For apps purchased on the Apple App Store, you can [request a refund](https://support.apple.com/HT204084). However, I would appreciate if you [reached out](/feedback) first. I may be able to resolve any problems you are having.
 
 ## Support
 

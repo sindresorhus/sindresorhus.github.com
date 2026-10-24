@@ -64,9 +64,13 @@ Content files can use the block directives in `Sources/Website/Components/Markdo
 - `@Tips { - … }`: a box of tips, with the look of a tip alert.
 - `@TinyApp(title: "…", icon: "/apps/…/icon.png", download: "…", source: "…", requirement: "…") { … }`: a small app without a page of its own, as a card with its icon, the text, a download button, and the requirement, like on the tiny apps page. Only `title` and `download` are required. Without an icon, it shows the placeholder icon. The icons are in `public/apps/<slug>/`.
 
+A paragraph that only has bold text, like `**Highlights**` or `**More features**`, is a label for the list or text below it. The renderer gives it the `boldLabel` class (`ProseStyles.boldLabelStyle`), which adds slightly more space above than between paragraphs, so it reads as the start of a new group. This is intentional. A paragraph that has other text after the bold text, like `**macOS:** Click …`, is not a label and keeps the normal space.
+
 Inline, a platform badge marks a part that only works on some platforms: `^[macOS only](platform: "macOS")`.
 
 An inline note shows more about a text in a popover when the text is clicked: `^[Spotlight](note: "The *search* of macOS. See [the FAQ](faq.md).")`. The text is an `InlineNote`, a link that wraps like the text around it, and the note is a popover at the end of the document. The note is Markdown, and its links are resolved and checked like other links. Write `"` in a note as `\"`, and a new paragraph as `\n\n`. A note cannot have headings, footnotes, or other notes (a content error), and it does not work in a short text that is shown inline, like a frontmatter field. The script of `InlineNote` finds its note by the ID in the link, as the note is at the end of the document, not in the element. Use a note, not a footnote (`[^id]`): the site shows both in a popover, but a note does not need a definition in another place.
+
+Write a keyboard shortcut as `++Shift+Command+N++`, which becomes one `<kbd>` per key. Spell out the modifier keys (`Command`, `Option`, `Control`, `Shift`), and do not write shortcuts as plain text like “Command-N”.
 
 A fenced code block in content renders as a `CodeBlock` (`Sources/Website/Components/CodeBlock.swift`), with its language and a copy button. The build highlights Swift code with the parser of Swift (`swiftCodeParts` in SiteKit) and SOML code with the lexer of SOML (`somlCodeParts`), each line of a `console` block gets a `$ ` prompt, and the code of other languages is plain. Markdown without the options of the site, like release notes, has a plain `pre`.
 
@@ -124,7 +128,7 @@ Any markdown heading with a `{#id}` can be annotated with directives on the line
 - The known directives are `FAQDirectives.all`, plus `FAQDirectives.General` on the general FAQ page (`Sources/Website/Components/MarkdownOptions.swift`), and `App.SharedQuestions.First` in the shared questions (`Sources/Website/Content/App.swift`). An unknown name, invalid values, a directive given twice on one heading, or a directive that is not directly below a heading, is a content error with its line.
 - The `@faq.` namespace is consumed by the feedback page, except `@faq.first`, which places a shared question on the app page. Add a type to `FAQDirectives` for a new directive.
 
-**`@faq.keywords`**: extra words that make a FAQ matchable by queries that don't use the same words as the heading text.
+**`@faq.keywords`**: extra words that make a FAQ matchable by queries that don't use the same words as the heading text. Only add a keyword that a user would likely type and that is not already matched: not a word of the heading, not a word that prefix matching covers (“sort” covers “sorted”), not a stopword, and not a synonym. When a word pair is useful for many FAQs, add it to `SuggestedQuestion.synonyms` instead.
 
 **`@faq.platforms`**: restricts the FAQ to apps that support at least one of these platforms. FAQs without this annotation are shown for all apps. An unknown platform is a content error.
 

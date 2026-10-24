@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-A sudoku puzzle that someone shared from Pipoku, for visitors without the app. A shared link, like `/pipoku/play?puzzle=…`, opens in the app when it is installed, as the site associates the path with it (``appSiteAssociation``), and shows this page otherwise.
+A sudoku puzzle that someone shared from Pipoku, for visitors without the app. A shared link, like `/pipoku/play?p=…`, opens in the app when it is installed, as the site associates the path with it (``appSiteAssociation``), and shows this page otherwise.
 */
 struct SharedPuzzlePage: Page {
 	let app: App
@@ -54,7 +54,7 @@ struct SharedPuzzlePage: Page {
 	}
 
 	/**
-	The associated domain file (`/.well-known/apple-app-site-association`), so a shared puzzle opens in the app as a universal link, and shows this page without the app. It matches only the page with a `puzzle` query item.
+	The associated domain file (`/.well-known/apple-app-site-association`), so a shared puzzle opens in the app as a universal link, and shows this page without the app. It matches only the page with a `p` query item.
 
 	The app needs the Associated Domains entitlement with `applinks:sindresorhus.com`. Apple’s CDN fetches the file, not the devices, so a change can take a day to reach them (https://developer.apple.com/documentation/xcode/supporting-associated-domains). GitHub Pages serves it as `application/octet-stream`, as it has no extension, which the CDN accepts.
 	*/
@@ -86,8 +86,8 @@ struct SharedPuzzlePage: Page {
 			applinks: .init(details: [
 				.init(
 					appIDs: ["YG56YK5RN5.com.sindresorhus.Pipoku"],
-					// `?*` is one or more characters. The app checks the puzzle.
-					components: [.init(path: path.description, query: ["puzzle": "?*"])]
+					// `?*` is one or more characters. The app checks the code.
+					components: [.init(path: path.description, query: ["p": "?*"])]
 				),
 			])
 		)

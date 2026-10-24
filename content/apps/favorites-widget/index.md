@@ -1,6 +1,6 @@
 ---
 title: 'Favorites Widget'
-subtitle: 'Contacts on your Lock Screen, Home Screen, and desktop'
+subtitle: 'Contacts on your Lock Screen and Home Screen'
 publicationDate: '2022-09-12'
 platforms: [
 	# 'macOS', # because it crashes because of missing API shim.

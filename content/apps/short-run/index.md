@@ -52,7 +52,7 @@ Since shortcuts can open URLs, folders, apps, and run shell scripts or AppleScri
 
 #### URL scheme {#url-scheme}
 
-Supports the `shortrun://` URL scheme for running shortcuts silently in the background without opening the Shortcuts app. Works exactly like the standard [Shortcuts URL scheme](https://support.apple.com/en-ke/guide/shortcuts-mac/apd624386f42/mac) `shortcuts://` but executes silently. Perfect for automation workflows and third-party integrations.
+Supports the `shortrun://` URL scheme for running shortcuts silently in the background without opening the Shortcuts app. Works exactly like the standard [Shortcuts URL scheme](https://support.apple.com/guide/shortcuts-mac/apd624386f42/mac) `shortcuts://` but executes silently. Perfect for automation workflows and third-party integrations.
 
 Examples:
 - `shortrun://run-shortcut?name=My%20Shortcut`

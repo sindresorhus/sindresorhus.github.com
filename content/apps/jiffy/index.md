@@ -96,6 +96,22 @@ Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found 
 	</tr>
 </table> -->
 
+## Keyboard shortcuts {#keyboard-shortcuts}
+
+You can use the following keyboard shortcuts in the app:
+
+- Popular tab: <kbd>Command</kbd> <kbd>1</kbd>
+- Favorites tab: <kbd>Command</kbd> <kbd>2</kbd>
+- Recents tab: <kbd>Command</kbd> <kbd>3</kbd>
+- Next tab: <kbd>Control</kbd> <kbd>Tab</kbd>
+- Previous tab: <kbd>Shift</kbd> <kbd>Control</kbd> <kbd>Tab</kbd>
+- Focus the search field: <kbd>Command</kbd> <kbd>f</kbd>
+- Close the preview: <kbd>Esc</kbd>
+
+The tab and search shortcuts are disabled while the preview is open.
+
+You can also set a global keyboard shortcut to show/hide the app in “Settings › Advanced”. It has no default and only works in menu bar mode.
+
 ## Frequently Asked Questions {#faq}
 
 <!-- #### I have a feature request, bug report, or some feedback

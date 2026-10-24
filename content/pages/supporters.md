@@ -127,4 +127,4 @@ See all supporters on [GitHub Sponsors](https://github.com/sponsors/sindresorhus
 
 ## Become a supporter
 
-[Support my open source work 🙌](donate)
+[Support my open source work 🙌](/donate)

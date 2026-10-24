@@ -1,7 +1,6 @@
 ---
 title: 'Folder Peek'
 subtitle: 'Put folders in your menu bar'
-description: 'Put folders in your menu bar for quick access to files. Preview files, drag and drop them from the menu, and open each folder with a keyboard shortcut.'
 publicationDate: '2022-04-05'
 platforms: [
 	'macOS'
@@ -227,7 +226,7 @@ Compared to [folders in the Dock](https://support.apple.com/guide/mac-help/use-f
 
 ### How is this better than XMenu? {#xmenu}
 
-Compared to [XMenu](https://apps.apple.com/us/app/xmenu/id419332741):
+Compared to [XMenu](https://apps.apple.com/app/xmenu/id419332741):
 
 - You can choose any folder and as many as you want, not just a few predefined ones and a single custom folder.
 - Each folder can be individually customized.

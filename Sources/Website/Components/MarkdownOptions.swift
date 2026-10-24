@@ -22,7 +22,7 @@ extension MarkdownDocument.Options {
 		}
 
 		options.imageSize = { source in
-			// An invalid path is already a problem of its link, so it has no size instead of stopping the build. Limitation: A path from content must not have a space or “%”, so an image with one in its file name, like `<Screenshot 1.png>`, has no size either. A screenshot of a Retina display is shown at half its pixel size, so it is sharp.
+			// An image from another site has no size, as it is not a file of this one, and a path from content is already checked by the link. A screenshot of a Retina display is shown at half its pixel size, so it is sharp.
 			(try? RoutePath(validating: source)).flatMap { project.publicFile($0).displaySize }
 		}
 

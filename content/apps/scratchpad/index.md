@@ -60,7 +60,7 @@ On macOS, the app sits in your menu bar or Dock, ready whenever inspiration stri
 - 30+ menu bar icons to choose from <sup>(macOS)</sup>
 - Translucent background <sup>(macOS)</sup>
 - Font settings
-- Support for [Shortcuts](https://support.apple.com/en-ng/guide/shortcuts/welcome/ios), [share service](https://support.apple.com/en-ng/guide/mac-help/mh40614/mac), and [macOS Services](https://support.apple.com/en-bh/guide/mac-help/mchlp1012/mac)
+- Support for [Shortcuts](https://support.apple.com/guide/shortcuts/welcome/ios), [share service](https://support.apple.com/guide/mac-help/mh40614/mac), and [macOS Services](https://support.apple.com/guide/mac-help/mchlp1012/mac)
 
 Perfect for brain dumps, quick drafts, and fleeting ideas. Your thoughts are just a click away, without breaking your workflow.
 
@@ -194,7 +194,7 @@ No, see my [Plain Text Editor](/plain-text-editor) app for that.
 
 ### Does it support Advanced Data Protection for iCloud?
 
-No. The app stores the note in iCloud Drive, which is covered by [Advanced Data Protection](https://support.apple.com/en-us/102651). But it also syncs using [`NSUbiquitousKeyValueStore`](https://developer.apple.com/documentation/foundation/nsubiquitouskeyvaluestore) to be able to support watchOS, and this is not covered by Advanced Data Protection. I also don’t want to commit to Advanced Data Protection support because I could potentially change how syncing works in the future.
+No. The app stores the note in iCloud Drive, which is covered by [Advanced Data Protection](https://support.apple.com/102651). But it also syncs using [`NSUbiquitousKeyValueStore`](https://developer.apple.com/documentation/foundation/nsubiquitouskeyvaluestore) to be able to support watchOS, and this is not covered by Advanced Data Protection. I also don’t want to commit to Advanced Data Protection support because I could potentially change how syncing works in the future.
 
 ### Why doesn’t the app appear in my Dock?
 

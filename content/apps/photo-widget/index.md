@@ -1,7 +1,6 @@
 ---
 title: 'Photo Widget'
 subtitle: 'Photos on your Home Screen and desktop'
-description: 'Photos on your Home Screen and desktop. Make widgets with a single photo, a slideshow of photos, or photos from an album in your photo library.'
 publicationDate: '2020-09-22'
 platforms: [
 	'macOS'
@@ -44,11 +43,11 @@ Same as the above.
 
 ### How do I add a widget to the Home Screen?
 
-When on the Home Screen, long-press on the background (not on any icons), press the top-left “+” button, and select “Photo Widget”. [Learn more.](https://support.apple.com/en-us/HT207122)
+When on the Home Screen, long-press on the background (not on any icons), press the top-left “+” button, and select “Photo Widget”. [Learn more.](https://support.apple.com/HT207122)
 
 ### How do I edit a widget?
 
-When on the Home Screen, long-press on the widget, and select “Edit Widget”. [Learn more.](https://support.apple.com/en-us/HT207122)
+When on the Home Screen, long-press on the widget, and select “Edit Widget”. [Learn more.](https://support.apple.com/HT207122)
 
 ### Why is there no Lock Screen widget?
 
