@@ -41,6 +41,11 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/7119520/Shareful.1.4.0.-.macOS.10.15.zip'
 	}
 ]
+nonAppStoreVersion: {
+	version: '1.12.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/aq893jnt65u57xr70yjoo/Shareful-1.12.0-1777048683.zip?rlkey=ikakp6yyejrgjigc9cd9ki4zd&raw=1'
+}
 ---
 
 Shareful makes the system share menu even more useful by providing some commonly needed share services like copy and save.
@@ -65,18 +70,10 @@ This is unfortunately not possible. [Share extensions](https://support.apple.com
 
 ### Can you add a “Copy Path” action for use in Finder?
 
-That would be moot. Right-click a file in Finder, press the <kbd>Option</kbd> key, and select “Copy as Pathname”.
+That would be moot. Right-click a file in Finder, press the ++Option++ key, and select “Copy as Pathname”.
 
 ### Can you add items that run specific Shortcuts in the Share menu? {#shortcuts}
 
 No. This is not possible.
 
 You could use my [Short Run](/short-run) app instead. It can show a curated list of shortcuts in the menu bar, automatically showing some based on which app is currently active. Although, it won’t be able to receive what the share items receive.
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/aq893jnt65u57xr70yjoo/Shareful-1.12.0-1777048683.zip?rlkey=ikakp6yyejrgjigc9cd9ki4zd&raw=1) *(1.12.0)*
-
-*Requires macOS 26 or later*

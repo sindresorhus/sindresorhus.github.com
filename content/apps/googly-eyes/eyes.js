@@ -13,6 +13,8 @@ const PUPIL_SIZE = 0.104;
 
 // Replace the image source
 const icon = document.querySelector('#app-icon');
+// The JPEG XL copy of the icon has pupils, and a source of a picture takes the place of the image.
+icon.parentElement.querySelector('source')?.remove();
 icon.src = '/googly-eyes/icon-no-pupils.png';
 
 // The pupils are positioned in a box around the icon, in percent of its size, so they follow the size of the icon.

@@ -28,7 +28,13 @@ struct SuggestedQuestion: Encodable {
 	*/
 	let extraWords: [String]
 
-	init(question: String, url: LinkDestination, keywords: [String] = [], platforms: [Platform]? = nil, pinnedRank: Int? = nil) {
+	init(
+		question: String,
+		url: LinkDestination,
+		keywords: [String] = [],
+		platforms: [Platform]? = nil,
+		pinnedRank: Int? = nil
+	) {
 		self.question = question
 		self.url = url
 		self.platforms = platforms
@@ -75,7 +81,7 @@ struct SuggestedQuestion: Encodable {
 	/**
 	Common English words that carry no meaning for finding a support question, and the words that almost every question is about (“app”, “Mac”). With prefix matching, those would also match words like “apple”, “appearing”, and “macOS”.
 	*/
-	static let stopwords: Set<String> = [
+	static let stopwords: Set = [
 		"ago", "all", "also", "and", "any", "app", "application", "apps", "are", "about", "after", "again", "back",
 		"been", "being", "both", "but", "can",
 		"come", "could", "day", "did", "does", "done", "each", "even", "ever", "every",

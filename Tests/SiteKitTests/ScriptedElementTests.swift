@@ -4,7 +4,6 @@ import TestSupport
 import Testing
 import SiteKit
 
-@Suite
 struct ScriptedElementTests {
 	@Test
 	func `the tag name comes from the type, like the class name of the root style, and the path of the script from its file`() {
@@ -31,7 +30,7 @@ struct ScriptedElementTests {
 		let scripts = Project(root: root).elementScripts()
 
 		#expect(scripts.map(\.path) == ["/scripts/elements/Game.js", "/scripts/elements/Clock.js"])
-		#expect(scripts.map { $0.source.lastPathComponent } == ["Game.js", "Clock.js"])
+		#expect(scripts.map(\.source.lastPathComponent) == ["Game.js", "Clock.js"])
 		#expect(Project(root: root.appending(path: "missing")).elementScripts().isEmpty)
 	}
 

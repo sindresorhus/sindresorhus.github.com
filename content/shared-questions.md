@@ -32,6 +32,12 @@ Much of the functionality would not be possible in the App Store because of [san
 
 [See this answer](/apps/faq#export-settings)
 
+### The app randomly quits {#randomly-quits}
+<!-- @faq.first -->
+<!-- @faq.keywords disappears vanishes closes -->
+
+If there is no [crash report](/apps/faq#crash-report), macOS most likely quit the app to free up memory or disk space. Keep at least 10–20 GB of free disk space, and do not use tools that “free up purgeable space”, like CleanMyMac, as they make macOS quit apps too. A restart of the computer can also help. This is a [common problem for macOS apps](https://bitsplitting.org/2022/06/18/purgeable-mac-apps/).
+
 ### Can you add sync? {#sync}
 
 No. iCloud sync is unreliable and causes a huge support burden. It’s not worth the effort for this app.

@@ -150,7 +150,13 @@ struct GeoCitiesWindows: HTML {
 	/**
 	A window of the desktop, like Paint or Notepad, with a title bar to drag it by and a close button. It is hidden until its icon opens it. The window manager of `geocities.js` opens, drags, and closes it, also with Escape. Some programs need a wider window. A message box is an alert dialog, described by its message, so a screen reader reads the message with the button that gets the focus.
 	*/
-	static func window<Content: HTML>(_ app: String, title: String, size: WindowSize = .normal, describedBy message: Hooks? = nil, @HTMLBuilder content: () -> Content) -> some HTML {
+	static func window(
+		_ app: String,
+		title: String,
+		size: WindowSize = .normal,
+		describedBy message: Hooks? = nil,
+		@HTMLBuilder content: () -> some HTML
+	) -> some HTML {
 		section(.hook(GeoCitiesPage.Hooks.desktopWindow, value: app), .hidden, .tabindex(-1), .ariaLabelledBy("geocities-window-\(app)")) {
 			div(.hook(GeoCitiesPage.Hooks.desktopTitleBar)) {
 				h3(.id("geocities-window-\(app)")) {

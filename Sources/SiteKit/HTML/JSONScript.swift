@@ -34,14 +34,14 @@ public struct JSONScript: HTML, Sendable {
 	}
 
 	/**
-	Schema.org structured data (JSON-LD) for search engines. Properties named `type` and `context` are written as the JSON-LD keywords `@type` and `@context`.
+	Schema.org structured data (JSON-LD) for search engines. Properties named `type`, `context`, and `id` are written as the JSON-LD keywords `@type`, `@context`, and `@id`.
 	*/
 	public init(structuredData value: some Encodable) {
 		self.type = "application/ld+json"
 		self.attribute = nil
 		self.json = Self.encode(value, keyEncodingStrategy: .custom { codingPath in
 			let key = codingPath.last?.stringValue ?? ""
-			return AnyCodingKey(stringValue: ["type", "context"].contains(key) ? "@\(key)" : key)
+			return AnyCodingKey(stringValue: ["type", "context", "id"].contains(key) ? "@\(key)" : key)
 		})
 	}
 

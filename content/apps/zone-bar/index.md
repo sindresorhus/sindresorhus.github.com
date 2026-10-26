@@ -14,7 +14,7 @@ sharedQuestions: [
 	'sync'
 	'backup-settings'
 ]
-requirement: 'Requires macOS 26 or later'
+minimumOSVersion: 26
 # olderVersions: [
 # 	{
 # 		version: '',

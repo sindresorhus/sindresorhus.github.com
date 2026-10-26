@@ -6,7 +6,7 @@ A labeled form control, with an optional hint next to the label. When the contro
 
 ```swift
 FormField(label: "Email", controlID: "email", hint: "Only used for replying to you", errorMessage: "Enter a valid email address.") {
-	input(.id("email"), .type(.email), .required)
+	input(.id("email"), .type(.email), .required, .ariaDescribedBy("email-hint email-error"))
 		.style(FormFieldStyles.control)
 }
 ```
@@ -25,6 +25,13 @@ struct FormField<Content: HTML>: HTML {
 		"\(controlID)-hint"
 	}
 
+	/**
+	The ID of the error message, for the `aria-describedby` of the control, so screen readers say what a valid value is, like “Write at least 20 characters.”, also while the message is hidden. It is the ID of the control with `-error`.
+	*/
+	var errorID: String {
+		"\(controlID)-error"
+	}
+
 	var body: some HTML {
 		div {
 			div {
@@ -33,7 +40,7 @@ struct FormField<Content: HTML>: HTML {
 				}
 				.style(FormFieldStyles.label)
 
-				// The control can name it in `aria-describedby`, with ``hintID``.
+				// The control can name it in `aria-describedby`, with ``hintID``, like the error message below, with ``errorID``.
 				if let hint {
 					span(.id(hintID)) {
 						hint
@@ -46,7 +53,7 @@ struct FormField<Content: HTML>: HTML {
 			content
 
 			if let errorMessage {
-				p {
+				p(.id(errorID)) {
 					errorMessage
 				}
 				.style(FormFieldStyles.errorMessage)

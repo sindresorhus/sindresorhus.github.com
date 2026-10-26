@@ -15,7 +15,12 @@ struct IconLink: HTML {
 	let destination: LinkDestination
 	let iconSize: Length
 
-	init(_ label: String, icon: Icon, destination: LinkDestination, iconSize: Length = .rootEm(1.25)) {
+	init(
+		_ label: String,
+		icon: Icon,
+		destination: LinkDestination,
+		iconSize: Length = .rootEm(1.25)
+	) {
 		self.label = label
 		self.icon = icon
 		self.destination = destination

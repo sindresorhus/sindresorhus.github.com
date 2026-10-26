@@ -8,7 +8,7 @@ A CSS length, like `1rem`, `50%`, or `auto`: a number and a unit, or a CSS expre
 The integer literal `0` is a length without a unit. Lengths with the same unit add up to one length, and other lengths add up to a `calc()` expression.
 */
 public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
-	private enum Unit: String, Sendable {
+	private enum Unit: String {
 		/**
 		No unit, like `0`.
 		*/
@@ -95,7 +95,7 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 		case containerMaximum = "cqmax"
 	}
 
-	private enum Storage: Hashable, Sendable {
+	private enum Storage: Hashable {
 		case value(Double, Unit)
 
 		/**
@@ -357,7 +357,12 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 	/**
 	The sum or the difference of two lengths: one length when they have the same unit, and a `calc()` expression otherwise. A unitless `0` is left out, as it is invalid next to a length in `calc()`.
 	*/
-	private static func combine(_ lhs: Self, _ rhs: Self, operator: String, _ operation: (Double, Double) -> Double) -> Self {
+	private static func combine(
+		_ lhs: Self,
+		_ rhs: Self,
+		operator: String,
+		_ operation: (Double, Double) -> Double
+	) -> Self {
 		if
 			case .value(let lhsValue, let lhsUnit) = lhs.storage,
 			case .value(let rhsValue, let rhsUnit) = rhs.storage,
@@ -524,7 +529,14 @@ public struct Shadow: Hashable, Sendable, CustomStringConvertible {
 	public let color: Color
 	public let isInset: Bool
 
-	public init(x: Length = 0, y: Length, blur: Length = 0, spread: Length = 0, color: Color, isInset: Bool = false) {
+	public init(
+		x: Length = 0,
+		y: Length,
+		blur: Length = 0,
+		spread: Length = 0,
+		color: Color,
+		isInset: Bool = false
+	) {
 		self.x = x
 		self.y = y
 		self.blur = blur
@@ -953,6 +965,11 @@ public struct FontFamily: StyleValue, Hashable, ExpressibleByStringLiteral {
 	public init(stringLiteral value: String) {
 		self.init(value)
 	}
+
+	/**
+	The font of the parent, like for a `<kbd>` or `<code>`, which browsers show in a monospaced font.
+	*/
+	public static let inherit = Self("inherit")
 }
 
 public enum FontWidth: String, CSSKeyword {
@@ -1492,11 +1509,6 @@ public struct Animation: Hashable, Sendable {
 	private(set) var repeatsForever = false
 	private(set) var autoreverses = false
 
-	private init(duration: Duration, timingFunction: String?) {
-		self.duration = duration
-		self.timingFunction = timingFunction
-	}
-
 	/**
 	The CSS default, `ease`, which starts a little slowly, is fastest early on, and slows down gently at the end.
 	*/
@@ -1523,7 +1535,13 @@ public struct Animation: Hashable, Sendable {
 	/**
 	A cubic Bézier timing curve with two control points, like SwiftUI's `timingCurve(_:_:_:_:duration:)`. Control points above 1 overshoot, like a spring.
 	*/
-	public static func timingCurve(_ c0x: Double, _ c0y: Double, _ c1x: Double, _ c1y: Double, duration: Duration) -> Self {
+	public static func timingCurve(
+		_ c0x: Double,
+		_ c0y: Double,
+		_ c1x: Double,
+		_ c1y: Double,
+		duration: Duration
+	) -> Self {
 		Self(duration: duration, timingFunction: "cubic-bezier(\([c0x, c0y, c1x, c1y].map(CSSValue.format).joined(separator: ", ")))")
 	}
 

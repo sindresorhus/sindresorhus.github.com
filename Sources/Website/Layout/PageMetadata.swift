@@ -50,6 +50,11 @@ struct PageMetadata {
 	var favicon: RoutePath = "/favicon.png"
 
 	/**
+	A video for link previews, like the demo of an app, which some apps play in the preview.
+	*/
+	var video: MediaAsset?
+
+	/**
 	Feeds in addition to the site-wide feeds.
 	*/
 	var feeds = [FeedLink]()

@@ -7,12 +7,12 @@ extension ProseStyles {
 	private static let keyEdgeColor = Color.lightDark(.gray(300), .white.opacity(0.15))
 
 	/**
-	Keys, like ⌘ and K, with a line at the bottom, like a key cap. The colors are see-through in dark mode, so the keys look the same on the page and on cards.
+	Keys, like ⌘ and K, with a line at the bottom, like a key cap. The colors are see-through in dark mode, so the keys look the same on the page and on cards. A `<kbd>` with keys in it is a shortcut (``keyboardShortcutStyle``), not a key.
 	*/
 	static let keyboardKeys = Style()
-		.nested("kbd") {
+		.nested("kbd:not(:has(kbd))") {
 			$0
-				.declaration(.fontFamily, .inherit)
+				.fontFamily(.inherit)
 				.font(size: .em(0.8))
 				.background(.gray(50), dark: .white.opacity(0.06))
 				.color(.bodyText)
@@ -24,12 +24,18 @@ extension ProseStyles {
 		}
 
 	/**
-	The `+` between the keys of a shortcut.
+	A shortcut of more than one key, which stays on one line, so “Shift +” and “Command” are not on two lines.
+	*/
+	static let keyboardShortcutStyle = Style()
+		.fontFamily(.inherit)
+		.textWrap(.nowrap)
+
+	/**
+	The `+` between the keys of a shortcut. It can be selected, so a copied shortcut is “Command+C”, not “CommandC”. Screen readers skip it, as they read each key.
 	*/
 	static let keySeparatorStyle = Style()
 		.font(size: .em(0.6))
 		.fontWeight(.semibold)
 		.color(.secondaryText)
-		.textSelection(.disabled)
 		.verticalAlign(.middle)
 }

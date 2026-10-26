@@ -19,6 +19,7 @@ pressQuotes: [
 		quote: 'One of the best indicators of how sticky a cross-device utility will be in my setup is how quickly I install it everywhere. For Scratchpad, the answer was “very sticky”.'
 		source: 'MacStories'
 		url: 'https://www.macstories.net/reviews/scratchpad-the-cross-device-text-utility-that-pairs-perfectly-with-your-clipboard-manager/'
+		year: 2025
 	}
 ]
 olderVersions: [
@@ -56,15 +57,13 @@ On macOS, the app sits in your menu bar or Dock, ready whenever inspiration stri
 - Lightning-fast and lightweight
 - Sync with iCloud, or not
 - Word and character count
-- Custom hotkey for instant writing <sup>(macOS)</sup>
-- 30+ menu bar icons to choose from <sup>(macOS)</sup>
-- Translucent background <sup>(macOS)</sup>
+- Custom hotkey for instant writing ^[macOS](platform: "macOS")
+- 30+ menu bar icons to choose from ^[macOS](platform: "macOS")
+- Translucent background ^[macOS](platform: "macOS")
 - Font settings
 - Support for [Shortcuts](https://support.apple.com/guide/shortcuts/welcome/ios), [share service](https://support.apple.com/guide/mac-help/mh40614/mac), and [macOS Services](https://support.apple.com/guide/mac-help/mchlp1012/mac)
 
 Perfect for brain dumps, quick drafts, and fleeting ideas. Your thoughts are just a click away, without breaking your workflow.
-
-It’s a [Universal Purchase](/apps/faq#universal-purchase).
 
 [Review by MacStories](https://www.macstories.net/reviews/scratchpad-the-cross-device-text-utility-that-pairs-perfectly-with-your-clipboard-manager/)
 
@@ -72,15 +71,11 @@ It’s a [Universal Purchase](/apps/faq#universal-purchase).
 
 The app uses iCloud syncing to securely sync your text across devices. This feature is opt-in. Neither the app developer nor Apple can access the text in your scratchpad. The app does not collect any personal data and contains no tracking.
 
-## Trial
+## Trial {#trial}
 
-@Trial(url: "https://www.dropbox.com/scl/fi/af7ry35naarkttdq6d6fr/Scratchpad-1.5.0-trial-1792017662.zip?rlkey=q6lxjpekmfh0lvt42txvthat6&raw=1") {
+@Trial(url: "https://www.dropbox.com/scl/fi/af7ry35naarkttdq6d6fr/Scratchpad-1.5.0-trial-1792017662.zip?rlkey=q6lxjpekmfh0lvt42txvthat6&raw=1", macOS: "27") {
 	The trial of the macOS app is fully functional. The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
 }
-
-*Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
-
-*Requires macOS 27 or later*
 
 There is no trial for the iOS version.
 
@@ -103,14 +98,14 @@ To restore a previous version:
 
 Backups are created on changes (about every 10 minutes) and when the app moves to the background. The most recent 100 backups are kept. Backups are stored locally on each device and are not synced. You can turn automatic backups off in the settings.
 
-### Keyboard shortcuts <sup>macOS</sup>
+### Keyboard shortcuts ^[macOS](platform: "macOS")
 
-- Copy text <kbd>⇧⌘C</kbd>
-- Share text <kbd>⇧⌘S</kbd>
-- Select all text <kbd>⌘A</kbd>
+- Copy text ++Shift+Command+C++
+- Share text ++Shift+Command+S++
+- Select all text ++Command+A++
 - Increase text size: <kbd>⌘+</kbd>
-- Decrease text size: <kbd>⌘-</kbd>
-- Reset text size: <kbd>⌘0</kbd>
+- Decrease text size: ++Command+-++
+- Reset text size: ++Command+0++
 
 ### Launch app from Lock Screen
 
@@ -166,7 +161,7 @@ The app keeps automatic local backups. Open the “…” menu and choose “Bac
 
 ### Why is “Clear Text” tucked inside a menu instead of being directly accessible?
 
-It clears your entire note in a single action, so it’s placed one step away to prevent accidental deletion. A confirmation dialog would add even more friction every time, so the menu is the simpler middle ground. On macOS, you can also clear instantly with <kbd>⇧⌘N</kbd>. And if you ever clear by mistake, just undo to bring it back (something many people don’t realize you can do here).
+It clears your entire note in a single action, so it’s placed one step away to prevent accidental deletion. A confirmation dialog would add even more friction every time, so the menu is the simpler middle ground. On macOS, you can also clear instantly with ++Shift+Command+N++. And if you ever clear by mistake, just undo to bring it back (something many people don’t realize you can do here).
 
 ### Can you add Markdown syntax highlighting?
 
@@ -277,7 +272,7 @@ The app can be automated using the Shortcuts app or with a custom URL scheme.
 
 **Examples**
 
-- [*Tell me if you have done anything cool with scripting*](https://sindresorhus.com/feedback?product=Scratchpad&referrer=Website-FAQ)
+- [*Tell me if you have done anything cool with scripting*](/feedback?product=Scratchpad&referrer=Website-FAQ)
 
 ### Custom URL scheme
 
@@ -307,4 +302,4 @@ You can also use the custom URL scheme on iOS.
 
 There is no way to get the text using the URL scheme, but you can use Shortcuts for that.
 
-I have not included a way to overwrite the text because I don’t want anything to be able to overwrite the scratchpad. If you want this, [tell me your use-case](https://sindresorhus.com/feedback?product=Scratchpad&referrer=Website-FAQ). I may add this with an opt-in setting. For now, you can do it with Shortcuts.
+I have not included a way to overwrite the text because I don’t want anything to be able to overwrite the scratchpad. If you want this, [tell me your use-case](/feedback?product=Scratchpad&referrer=Website-FAQ). I may add this with an opt-in setting. For now, you can do it with Shortcuts.

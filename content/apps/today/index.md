@@ -8,6 +8,7 @@ platforms: [
 isMenuBarApp: true
 appStoreID: 6443714928
 sharedQuestions: [
+	'randomly-quits'
 	'menu-bar-icons'
 	'blurry-secondary-display'
 	'backup-settings'
@@ -30,7 +31,12 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/13997505/Today.1.5.0.-.macOS.13.zip'
 	}
 ]
-feedbackNote: '[The app randomly disappears/quits](/apps/faq#randomly-quits)'
+feedbackNote: '[The app randomly disappears/quits](/today#randomly-quits)'
+nonAppStoreVersion: {
+	version: '1.8.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/06fgch1tc9yp87n44203e/Today-1.8.0-1770891350.zip?rlkey=8kgvpzcdme7bq917h717nlbk5&raw=1'
+}
 ---
 
 See today’s events in your menu bar, and nothing else. Click an event to show it in the Calendar app, or join an upcoming video call directly from the menu.
@@ -43,11 +49,11 @@ It integrates with Calendar, Fantastical, and BusyCal.
 
 ### How do I get back to the settings if I have hidden the `…` menu item?
 
-Press the <kbd>Option</kbd> key while opening the Today menu.
+Press the ++Option++ key while opening the Today menu.
 
 ### It does not support the video call service I use
 
-I’m happy to add support for more services. Just [send me](https://sindresorhus.com/feedback?product=Today&referrer=Website-FAQ) an invitation link (replace a few characters at the end to anonymize it).
+I’m happy to add support for more services. Just [send me](/feedback?product=Today&referrer=Website-FAQ) an invitation link (replace a few characters at the end to anonymize it).
 
 The app can also detect the link of any video call service if you correctly add it in the Calendar app:
 - Create a new event.
@@ -68,7 +74,7 @@ https://some-video-call-service.com/join/23423
 
 ### How can I open meeting links (Google Meet, Zoom, Microsoft Teams, etc.) in a specific browser?
 
-Check out my [Velja app](https://sindresorhus.com/velja). It has built-in support for this without any setup. It can even open links to Zoom and Microsoft Teams directly in their desktop app.
+Check out my [Velja app](/velja). It has built-in support for this without any setup. It can even open links to Zoom and Microsoft Teams directly in their desktop app.
 
 ### I have Fantastical set as my default calendar app but Today still opens Calendar
 
@@ -129,11 +135,3 @@ MeetingBar is mainly for video calls and has a gadzillion settings and features 
 ### How does it compare to Meeter? {#meeter}
 
 Meeter is mainly for video calls. It’s also quite buggy and does not follow macOS conventions. Today has a cleaner look and is opinionated so you don’t have to make so many choices. If all you need is a quick way to join video calls, Today is probably what you want. If you need more advanced features, MeetingBar or [Dato](/dato) may be a better choice.
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/06fgch1tc9yp87n44203e/Today-1.8.0-1770891350.zip?rlkey=8kgvpzcdme7bq917h717nlbk5&raw=1) *(1.8.0)*
-
-*Requires macOS 26 or later*

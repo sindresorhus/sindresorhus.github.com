@@ -2,7 +2,6 @@ import Foundation
 import Testing
 import RSS
 
-@Suite
 struct FeedTests {
 	private let site = URL(string: "https://example.com")!
 

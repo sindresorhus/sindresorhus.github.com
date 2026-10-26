@@ -5,7 +5,6 @@ import TestSupport
 import Testing
 @testable import Website
 
-@Suite
 struct NowPageTests {
 	@Test(.temporaryDirectory)
 	func `the latest Bluesky post skips reposts and keeps the links of its text`() async throws {
@@ -352,7 +351,8 @@ struct NowPageTests {
 		let year = try #require(html.split(separator: #"id="year""#).last)
 		let parts = year.split(separator: "npm</h3>")
 		try #require(parts.count == 2)
-		let (openSource, npm) = (parts[0], parts[1])
+		let openSource = parts[0]
+		let npm = parts[1]
 
 		#expect(openSource.contains(">2146</span> <span class=\"\(StatCard.Styles.label.className)\">issues closed</span>"))
 		#expect(openSource.contains(">303</span> <span class=\"\(StatCard.Styles.label.className)\">pull requests merged from others</span>"))

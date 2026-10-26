@@ -12,11 +12,9 @@ setappID: 1814
 sharedQuestions: [
 	'not-in-app-store'
 ]
-releasesRepository: 'shortcutie-meta'
-mainLinks: {
-	Buy: 'https://sindresorhus.gumroad.com/l/shortcutie?wanted=true'
-}
-requirement: 'Requires macOS 26 or later'
+releasesRepository: 'sindresorhus/shortcutie-meta'
+gumroadID: 'shortcutie'
+minimumOSVersion: 26
 announcement: {
 	text: 'Save 28% with the Power User Bundle: Default Browser, Shortcutie, and Supercharge'
 	url: 'https://sindresorhus.gumroad.com/l/power-user'
@@ -27,6 +25,7 @@ pressQuotes: [
 		quote: 'Once you have Shortcutie, you can add these triggers to your shortcuts and execute complex automations that your Mac doesn’t otherwise support.'
 		source: 'Lifehacker'
 		url: 'https://lifehacker.com/tech/this-app-lets-you-create-automations-your-mac-usually-doesnt-support'
+		year: 2025
 	}
 	{
 		quote: 'It’s absolutely essential for anyone who uses Shortcuts because it unlocks so many new things you can do. I love the extra power it gives my Mac and it’s totally worth it for those advanced features!'

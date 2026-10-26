@@ -18,6 +18,11 @@ olderVersions: [
 		url: 'https://www.dropbox.com/scl/fi/pn0p37paa3no0izdnmo0g/Simple-Color-Palette-1.2.0-macOS-15-1772815829.zip?rlkey=lnt9co9xdb2b9n6bn9rao9pux&raw=1'
 	}
 ]
+nonAppStoreVersion: {
+	version: '1.3.1'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/bbpfawkllfq81gw2xvksl/Simple-Color-Palette-1.3.1-1775986497.zip?rlkey=di7lacf9mdqhozck8tl37am9m&raw=1'
+}
 ---
 
 View, create, and edit color palettes in the [Simple Color Palette](https://github.com/simple-color-palette) format.
@@ -133,11 +138,3 @@ Just open both palettes and move the windows next to each other.
 ### Does it support gradients?
 
 No, only flat colors are supported.
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/bbpfawkllfq81gw2xvksl/Simple-Color-Palette-1.3.1-1775986497.zip?rlkey=di7lacf9mdqhozck8tl37am9m&raw=1) *(1.3.1)*
-
-*Requires macOS 26 or later*

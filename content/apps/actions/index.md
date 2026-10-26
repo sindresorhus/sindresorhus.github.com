@@ -9,9 +9,7 @@ platforms: [
 ]
 hasSentry: true
 appStoreID: 1586435171
-links: {
-	TestFlight: 'https://testflight.apple.com/join/fJGUrsZx'
-}
+testFlightURL: 'https://testflight.apple.com/join/fJGUrsZx'
 olderVersions: [
 	{
 		version: '3.8.0'
@@ -54,8 +52,14 @@ pressQuotes: [
 		quote: '[…] my shortcut uses an action from the excellent free (and aptly-named) Actions utility by Sindre Sorhus.'
 		source: 'Daring Fireball'
 		url: 'https://daringfireball.net/2023/09/the_iphones_15_pro'
+		year: 2023
 	}
 ]
+nonAppStoreVersion: {
+	version: '4.0.1'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/7mt9uvbmn589y4qobdpe9/Actions-4.0.1-1774194992.zip?rlkey=7tg0zlun69c19t6m5lmn2ph0q&raw=1'
+}
 ---
 
 Adds 180+ free actions to the Shortcuts app on macOS, iOS, and visionOS. They do what the built-in actions cannot, and turn long shortcuts into a few steps.
@@ -128,13 +132,13 @@ If you have any questions about how to use the different actions or for what, tr
 - Encrypt Text
 - Filter List
 - Filter List of Dictionaries
-- Find Music Playlist <sup>(iOS-only)</sup>
-- Find Wi-Fi Network <sup>(macOS-only)</sup>
-- Find Workout <sup>(iOS-only)</sup>
+- Find Music Playlist ^[iOS only](platform: "iOS")
+- Find Wi-Fi Network ^[macOS only](platform: "macOS")
+- Find Workout ^[iOS only](platform: "iOS")
 	:: Returns workouts from the Health app, including workout type, duration, source details, and metrics like active calories, heart rate, etc.
 - Find Points of Interest
 	:: Find nearby places matching a query around a location.
-- Flash Screen <sup>(macOS-only)</sup>
+- Flash Screen ^[macOS only](platform: "macOS")
 - Format Currency
 - Format Date Difference
 - Format Duration
@@ -147,26 +151,26 @@ If you have any questions about how to use the different actions or for what, tr
 	:: Formats a URL into text with customizations of what to show.
 - Generate CSV
 - Generate Emojis
-- Generate Haptic Feedback <sup>(iOS-only)</sup>
+- Generate Haptic Feedback ^[iOS only](platform: "iOS")
 - Generate Random Data
 - Generate Random Text
 - Generate UUID
 - Get All System Colors
-- Get Audio Playback Destination <sup>(iOS-only)</sup>
+- Get Audio Playback Destination ^[iOS only](platform: "iOS")
 - Get Average Color
 - Get Average Color of Image
 - Get Battery State
 - Get Bluetooth Device
 - Get Bluetooth Devices
 - Get Boolean from Input
-- Get Compass Heading <sup>(iOS-only)</sup>
+- Get Compass Heading ^[iOS only](platform: "iOS")
 - Get Contents of URL (Extended)
 	:: Enhanced HTTP requests with complete response details (status codes, headers, all methods) instead of just the response body like the built-in action, and also timeout.
 - Get Date Added of File
 	:: Returns the date when a file was added to its parent folder.
 - Get Dates in Range
 	:: Returns all dates between two dates filtered by type. For example, get all Mondays between two dates, or list every weekend in a month.
-- Get Default Browser <sup>(macOS-only)</sup>
+- Get Default Browser ^[macOS only](platform: "macOS")
 - Get Default Gateway IP Address
 	:: Returns the default gateway IP address for the current network, usually the router address on Wi-Fi or Ethernet.
 - Get Device Details (Extended)
@@ -179,17 +183,17 @@ If you have any questions about how to use the different actions or for what, tr
 	- Thermal state
 	- Total storage capacity
 	- Available storage capacity
-	- Battery condition <sup>(macOS-only)</sup>
-	- Battery health <sup>(macOS-only)</sup>
-	- Serial number <sup>(macOS-only)</sup>
+	- Battery condition ^[macOS only](platform: "macOS")
+	- Battery health ^[macOS only](platform: "macOS")
+	- Serial number ^[macOS only](platform: "macOS")
 - Get Device Motion Activity
 	:: (stationary, walking, running, cycling, automotive, etc.)
-- Get Device Motion Data <sup>(iOS-only)</sup>
+- Get Device Motion Data ^[iOS only](platform: "iOS")
 - Get Device Orientation
 - Get Dominant Colors of Image
-- Get Barometric Pressure <sup>(iOS-only)</sup>
+- Get Barometric Pressure ^[iOS only](platform: "iOS")
 	:: Returns the current barometric pressure from the device’s built-in barometer.
-- Get Elevation <sup>(iOS-only)</sup>
+- Get Elevation ^[iOS only](platform: "iOS")
 - Get Emojis
 - Get/Set Extended Attribute
 	:: Returns or sets an [extended attribute](https://en.wikipedia.org/wiki/Extended_file_attributes) for a file.
@@ -208,9 +212,9 @@ If you have any questions about how to use the different actions or for what, tr
 - Get Media Metadata
 - Get Meta Tags of URL
 	:: Extract meta tags (title, description, Open Graph, etc.) from a webpage.
-- Get Modifier Key State <sup>(macOS-only)</sup>
+- Get Modifier Key State ^[macOS only](platform: "macOS")
 - Get Paragraphs from Text
-- Get Printers <sup>(macOS-only)</sup>
+- Get Printers ^[macOS only](platform: "macOS")
 - Get Query Item Value from URL
 - Get Query Items from URL
 - Get Query Items from URL as Dictionary
@@ -222,26 +226,26 @@ If you have any questions about how to use the different actions or for what, tr
 - Get Random Number from Seed
 - Get Raw Media Metadata
 - Get Related Words
-- Get Running Apps <sup>(macOS-only)</sup>
+- Get Running Apps ^[macOS only](platform: "macOS")
 - Get Sentences from Text
 - Get SF Symbol Image
 - Get System Color
 - Get Title of URL
 - Get User Details
-	- Username <sup>(macOS-only)</sup>
+	- Username ^[macOS only](platform: "macOS")
 	- Full Name
 	- Given Name
 	- Family Name
 	- Initials
 	- Shell
 	- Language Code
-	- Idle Time <sup>(macOS-only)</sup>
-	- Administrator Status <sup>(macOS-only)</sup>
+	- Idle Time ^[macOS only](platform: "macOS")
+	- Administrator Status ^[macOS only](platform: "macOS")
 - Get Values Using [JSONPath](https://en.wikipedia.org/wiki/JSONPath)
-- Get/Set Default Printer <sup>(macOS-only)</sup>
-- Get/Set File Extension Visibility <sup>(macOS-only)</sup>
+- Get/Set Default Printer ^[macOS only](platform: "macOS")
+- Get/Set File Extension Visibility ^[macOS only](platform: "macOS")
 	:: Check and control whether file extensions are shown in Finder for specific files. Only works if the “Show all filename extensions” Finder setting is disabled.
-- Get/Set File Icon <sup>(macOS-only)</sup>
+- Get/Set File Icon ^[macOS only](platform: "macOS")
 	:: Get the icon of files and folders or set custom icons for them.
 - Get/Set File Tags
 - Get/Set Image/Video Capture Date
@@ -255,15 +259,15 @@ If you have any questions about how to use the different actions or for what, tr
 - Invert Images
 - Is 24-Hour Time Format
 - Is Accessibility Feature On
-- Is Audio Playing <sup>(iOS-only)</sup>
+- Is Audio Playing ^[iOS only](platform: "iOS")
 - Is Bluetooth Device Connected
 - Is Bluetooth On
-- Is Call Active <sup>(iOS-only)</sup>
-- Is Camera On <sup>(macOS-only)</sup>
+- Is Call Active ^[iOS only](platform: "iOS")
+- Is Camera On ^[macOS only](platform: "macOS")
 - Is Cellular Data On
 - Is Cellular Low Data Mode On
 - Is Conforming to Uniform Type Identifier
-- Is Connected to VPN <sup>(iOS-only)</sup>
+- Is Connected to VPN ^[iOS only](platform: "iOS")
 - Is Dark Mode On
 - Is Day
 - Is Device Locked
@@ -272,19 +276,19 @@ If you have any questions about how to use the different actions or for what, tr
 - Is Host Reachable
 - Is Location Services Enabled
 - Is Low Power Mode On
-- Is Microphone On <sup>(macOS-only)</sup>
+- Is Microphone On ^[macOS only](platform: "macOS")
 - Is Online
-- Is Screen Locked <sup>(macOS-only)</sup>
+- Is Screen Locked ^[macOS only](platform: "macOS")
 - Is Screen Saver Active
 - Is Shaking Device
-- Is Silent Mode On <sup>(iOS-only)</sup>
+- Is Silent Mode On ^[iOS only](platform: "iOS")
 - Is Time
 - Is Time In Range
 - Is True
 	:: Check if boolean values satisfy a logical condition: all true (AND), all false (NOR), any true (OR), any false (NAND), or exactly one true (XOR). Supports up to 10 values.
 - Is Web Server Reachable
-- Is Wi-Fi On <sup>(macOS-only)</sup>
-- Join Wi-Fi <sup>(iOS-only)</sup>
+- Is Wi-Fi On ^[macOS only](platform: "macOS")
+- Join Wi-Fi ^[iOS only](platform: "iOS")
 - Keychain
 	:: Securely stores a value in the device [keychain](https://developer.apple.com/documentation/security/keychain-services). Useful for sensitive data like API keys, tokens, and passwords. Can be synced.
 - Make Live Photo from Video
@@ -292,11 +296,11 @@ If you have any questions about how to use the different actions or for what, tr
 - Manage Shortcut Lock
 	:: Prevents multiple instances of a shortcut from running simultaneously
 - Merge Dictionaries
-- Named Clipboard <sup>(macOS-only)</sup>
+- Named Clipboard ^[macOS only](platform: "macOS")
 - Normalize URL
 	:: Clean up URLs by lowercasing scheme and host, removing default ports, optional query/fragment removal, text-fragment cleanup, etc.
 - Open URLs in Safari
-- Open URLs with App <sup>(macOS-only)</sup>
+- Open URLs with App ^[macOS only](platform: "macOS")
 	:: For example, open URLs in a specific browser.
 - Overwrite File
 - Overlay Image (Extended)
@@ -308,11 +312,11 @@ If you have any questions about how to use the different actions or for what, tr
 	:: Pick a color using the system color picker, optionally from a reference image.
 - Ping
 	:: Ping a host using ICMP, similar to the `ping` command-line tool, and get statistics including average/min/max round-trip time and packet loss.
-- Play Alert Sound <sup>(macOS-only)</sup>
+- Play Alert Sound ^[macOS only](platform: "macOS")
 - Play Media with Controls
 	:: Play media from a URL or file with in-app playback controls, and optionally wait until playback ends.
 - Pretty Print Dictionaries
-- Read/Write NFC Tag <sup>(iOS-only)</sup>
+- Read/Write NFC Tag ^[iOS only](platform: "iOS")
 	:: Read the identifier and content of an NFC tag, or write text or a URL to it.
 - Remove Dictionary Values
 - Remove Duplicate Lines
@@ -328,11 +332,11 @@ If you have any questions about how to use the different actions or for what, tr
 - Round Number to Multiple
 - Run cURL Command
 	:: Execute an HTTP request from a cURL command string. Simply paste a cURL command from Postman, Swagger, or browser dev tools. Supports common options like headers, body data, authentication, redirects, and more.
-- Sample Color from Screen <sup>(macOS-only)</sup>
+- Sample Color from Screen ^[macOS only](platform: "macOS")
 - Scan Barcodes in Image
-- Scan Documents <sup>(iOS-only)</sup>
+- Scan Documents ^[iOS only](platform: "iOS")
 - Scan QR Codes in Image
-- Send Distributed Notification <sup>(macOS-only)</sup>
+- Send Distributed Notification ^[macOS only](platform: "macOS")
 	- [What are distributed notifications?](/apps/faq#distributed-notifications)
 - Set Capture Date of Photos
 	:: Change the capture date of photos and videos directly in your Photos library.
@@ -340,7 +344,7 @@ If you have any questions about how to use the different actions or for what, tr
 - Set Dictionary Value Using [JSONPath](https://en.wikipedia.org/wiki/JSONPath)
 - Set Location of Photos
 	:: Change the location of photos and videos directly in your Photos library.
-- Show Black Screen <sup>(iOS-only)</sup>
+- Show Black Screen ^[iOS only](platform: "iOS")
 - Show Notification
 - Show Overlay
 	:: Display large centered text on a fullscreen overlay. Supports plain text with custom colors and HTML mode for custom styling. The overlay stays until tapped or an optional duration expires.
@@ -384,9 +388,9 @@ If you have any questions about how to use the different actions or for what, tr
 - Truncate Text
 - Use System Font in Rich Text
 	- [Example shortcut](https://www.icloud.com/shortcuts/03aecdb46eca496aaf996ebc625a0c54)
-- Wake on LAN <sup>(macOS-only)</sup>
+- Wake on LAN ^[macOS only](platform: "macOS")
 	:: Wake a sleeping computer or network device by sending a [Wake on LAN](https://en.wikipedia.org/wiki/Wake-on-LAN) magic packet.
-- Wait for Distributed Notification <sup>(macOS-only)</sup>
+- Wait for Distributed Notification ^[macOS only](platform: "macOS")
 	- [What are distributed notifications?](/apps/faq#distributed-notifications)
 - Wait Milliseconds
 - Write or Edit Text
@@ -478,9 +482,3 @@ iOS does not have a way to prevent individual apps from being offloaded (even th
 
 No. I applied for Apple’s [Critical Alerts entitlement](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.developer.usernotifications.critical-alerts), but it was declined.
 Critical Alerts are reserved for very limited use cases such as medical, health, home security, and public safety notifications. General-purpose automation apps like Actions are not eligible.
-
-## Non-App Store Version
-
-A special macOS version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/7mt9uvbmn589y4qobdpe9/Actions-4.0.1-1774194992.zip?rlkey=7tg0zlun69c19t6m5lmn2ph0q&raw=1) *(4.0.1 · macOS 26+)*

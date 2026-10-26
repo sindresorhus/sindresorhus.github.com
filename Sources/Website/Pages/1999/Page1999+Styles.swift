@@ -7,7 +7,9 @@ extension GeoCitiesPage {
 	The styles of the root element of the page: the scroll bar of Windows 95, the room for the sticky bars when a link or the focus scrolls the page, and nothing but the certificate when the visitor prints. They are plain `:root` rules in the head of the page, not `:root:has()` rules of the page's styles, as the browser checks `:has()` again on every change of the page, and this page changes all the time, which made every change lay out the whole page.
 	*/
 	static let rootStylesheet = Stylesheet {
-		Rule(":root", Style()
+		Rule(
+			":root",
+			Style()
 			.scrollbar(.bar) {
 				$0.frame(size: .pixels(16))
 			}

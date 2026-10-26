@@ -28,12 +28,18 @@ jobs:
           fetch-depth: 0
       - name: Swift version
         run: swift --version
+      # `cjxl` makes the JPEG XL copies of the icons and the screenshots, for the tests and the site. Without updating Homebrew, as that takes a minute.
+      - name: Install JPEG XL
+        run: brew install jpeg-xl
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
       - uses: actions/cache@v6
         with:
-          # The build, the package checkouts with the prebuilt swift-syntax, and the App Store and GitHub responses, which are revalidated with ETags.
+          # The build, the package checkouts with the prebuilt swift-syntax, the App Store and GitHub responses, which are revalidated with ETags, and the JPEG XL copies of the images, which are made again only for a changed image.
           path: |
             .build
             .cache/responses
+            .cache/jpeg-xl
           key: build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-${{ github.sha }}
           restore-keys: build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-
       # A checkout gives each file the current date, so the build would compile every target of the project again. The date of the last commit of a file only changes with the file, so only what changed since the cached build compiles. A merge commit dates the files it changes against the first parent. Limitation: SwiftPM compiles a file again only when its date changes, so a file changed by two commits in the same second could stay stale.
@@ -87,6 +93,11 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
     steps:
+      # The sitemap before the deploy, so IndexNow gets only the pages that changed.
+      - name: Save the published sitemap
+        if: github.event_name != 'schedule'
+        continue-on-error: true
+        run: curl --fail --silent --show-error https://sindresorhus.com/sitemap-0.xml --output "$RUNNER_TEMP/published-sitemap.xml"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
@@ -98,12 +109,31 @@ jobs:
             --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
             --header "Content-Type: application/json" \
             --data '{"purge_everything":true}'
-      # Tells Bing and the other IndexNow search engines (they feed ChatGPT search, Copilot, and DuckDuckGo) about the pages, so they find changes sooner. The key is the published `indexnow.txt`. A failure does not fail the deploy. Not for the nightly deploys, which mostly change the rotating related apps, as IndexNow is for changed pages.
+      # Tells Bing and the other IndexNow search engines (they feed ChatGPT search, Copilot, and DuckDuckGo) about the pages that changed, so they find the changes sooner: new pages, pages with another `lastmod`, and removed pages, compared with the sitemap before the deploy. IndexNow asks for only the changed pages, and sending all of them each time can look like spam. Without the earlier sitemap, it sends all of them. The key is the published `indexnow.txt`. A failure does not fail the deploy. Not for the nightly deploys, which mostly change the rotating related apps.
       - name: Notify IndexNow
         if: github.event_name != 'schedule'
         continue-on-error: true
         run: |
           key="$(curl --fail --silent --show-error https://sindresorhus.com/indexnow.txt)"
-          urls="$(curl --fail --silent --show-error https://sindresorhus.com/sitemap-0.xml | grep -o '<loc>[^<]*</loc>' | sed -e 's/<loc>//' -e 's/<\/loc>//' | jq --raw-input . | jq --slurp .)"
+          # The query skips the cache of Cloudflare, so the sitemap is the deployed one, even when the purge has not reached the edge yet, which would look like no changes.
+          curl --fail --silent --show-error "https://sindresorhus.com/sitemap-0.xml?deploy=$GITHUB_SHA" --output "$RUNNER_TEMP/sitemap.xml"
+          urls="$(python3 - "$RUNNER_TEMP/published-sitemap.xml" "$RUNNER_TEMP/sitemap.xml" <<'PYTHON'
+          import json, os, re, sys
+
+          def pages(path):
+              if not os.path.exists(path):
+                  return None
+              text = open(path, encoding="utf-8").read()
+              return {match[0]: match[1] for match in re.findall(r"<loc>([^<]*)</loc>(?:\s*<lastmod>([^<]*)</lastmod>)?", text)}
+
+          published, current = pages(sys.argv[1]), pages(sys.argv[2])
+          changed = list(current) if published is None else [url for url in current if published.get(url) != current[url]] + [url for url in published if url not in current]
+          print(json.dumps(changed))
+          PYTHON
+          )"
+          if [ "$urls" = "[]" ]; then
+            echo "No pages changed."
+            exit 0
+          fi
           jq --null-input --arg key "$key" --argjson urls "$urls" '{host: "sindresorhus.com", key: $key, keyLocation: "https://sindresorhus.com/indexnow.txt", urlList: $urls}' \
             | curl --fail --silent --show-error --request POST https://api.indexnow.org/indexnow --header "Content-Type: application/json; charset=utf-8" --data @-

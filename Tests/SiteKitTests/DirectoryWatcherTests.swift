@@ -3,7 +3,6 @@ import TestSupport
 import Testing
 import SiteKit
 
-@Suite
 struct DirectoryWatcherTests {
 	@Test(.timeLimit(.minutes(1)), .temporaryDirectory)
 	func `reports the changed files`() async throws {

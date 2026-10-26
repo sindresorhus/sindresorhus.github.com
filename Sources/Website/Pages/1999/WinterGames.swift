@@ -41,7 +41,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 		/**
 		How the GIF sits next to the text: floating where there is room, or centered above it for a wide one.
 		*/
-		var gifStyle: GeoCitiesPage.Styles = .floating
+		var gifStyle = GeoCitiesPage.Styles.floating
 	}
 
 	/**

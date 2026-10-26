@@ -3,7 +3,6 @@ import TestSupport
 import Testing
 @testable import SiteKit
 
-@Suite
 struct ContentLoadingTests {
 	struct Frontmatter: SiteKit.Frontmatter {
 		let links: OrderedMapping<String>
@@ -262,6 +261,48 @@ struct ContentLoadingTests {
 
 		let dates = await Project(root: root).lastCommitDates()
 		#expect(dates["content/a.md"] == Date(timeIntervalSince1970: 1_769_904_000))
+		#expect(dates["content/b.md"] == Date(timeIntervalSince1970: 1_767_225_600))
+	}
+
+	@Test(.temporaryDirectory)
+	func `last commit dates leave out the ignored commits`() async throws {
+		let root = try URL.temporaryDirectory(files: ["content/a.md": "A", "content/b.md": "B"])
+
+		func git(_ arguments: String..., date: String = "2026-01-01T00:00:00Z") async throws -> String {
+			let process = Process()
+			process.executableURL = URL(filePath: "/usr/bin/env")
+			process.arguments = ["git", "-C", root.path(percentEncoded: false), "-c", "user.name=Test", "-c", "user.email=test@example.com"] + arguments
+			// The `PATH` of the tests, like in the test above.
+			process.environment = ["GIT_COMMITTER_DATE": date, "GIT_AUTHOR_DATE": date, "PATH": ProcessInfo.processInfo.environment["PATH"] ?? "/usr/bin:/bin"]
+			let pipe = Pipe()
+			process.standardOutput = pipe
+			var output = ""
+
+			try #require(await process.runUntilExit {
+				for try await line in pipe.fileHandleForReading.bytes.lines {
+					output += line
+				}
+			} == 0, "git \(arguments.joined(separator: " ")) failed.")
+
+			return output
+		}
+
+		_ = try await git("init", "--quiet")
+		_ = try await git("add", ".")
+		_ = try await git("commit", "--quiet", "-m", "Add")
+		try Data("A, changed".utf8).write(to: root.appending(path: "content/a.md"))
+		try Data("B, changed".utf8).write(to: root.appending(path: "content/b.md"))
+		_ = try await git("commit", "--quiet", "-am", "Change the syntax of all files", date: "2026-02-01T00:00:00Z")
+		let hash = try await git("rev-parse", "HEAD")
+		try Data("A, changed again".utf8).write(to: root.appending(path: "content/a.md"))
+		_ = try await git("commit", "--quiet", "-am", "Change", date: "2026-03-01T00:00:00Z")
+
+		let project = Project(root: root)
+		try Data("# A change of syntax\n\n\(hash.prefix(8)) # The frontmatter\n".utf8).write(to: project.ignoredCommitsFile)
+		let dates = await project.lastCommitDates()
+
+		// The ignored commit changed both, so `b.md` keeps the date of the commit before it.
+		#expect(dates["content/a.md"] == Date(timeIntervalSince1970: 1_772_323_200))
 		#expect(dates["content/b.md"] == Date(timeIntervalSince1970: 1_767_225_600))
 	}
 

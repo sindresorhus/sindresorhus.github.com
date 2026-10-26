@@ -38,6 +38,11 @@ struct App: ContentDocument {
 	let iconEnclosure: Enclosure?
 
 	/**
+	The JPEG XL copy of the icon, when the app has its own icon.
+	*/
+	let iconJPEGXL: JPEGXLCopy?
+
+	/**
 	The accent of the app: the most common vivid color of the icon, like `#1e88e5`, which the app page uses as its accent (``Color/accent``), for ``Page/tint`` and ``Elementary/HTML/tint(_:)``. `nil` for a gray icon.
 	*/
 	let tint: Color?
@@ -109,6 +114,7 @@ struct App: ContentDocument {
 		self.tint = CGImageSourceCreateWithURL(project.publicFile(iconPath) as CFURL, nil)
 			.flatMap { CGImageSourceCreateImageAtIndex($0, 0, nil) }?
 			.accentColor
+		self.iconJPEGXL = icon == nil ? nil : try await JPEGXLCopy(of: iconPath, project: project)
 		let iconSize = icon.flatMap { try? $0.resourceValues(forKeys: [.fileSizeKey]).fileSize }
 		self.iconEnclosure = iconSize.map { Enclosure(url: iconPath.absoluteURL, length: $0, mimeType: "image/png") }
 	}
@@ -129,6 +135,21 @@ extension App {
 
 	var iconURL: URL {
 		iconPath.absoluteURL
+	}
+
+	/**
+	Whether the press quotes show their years, like “MacStories, 2021”: when the years of the quotes span more than one year, as years of praise show that the app has been good for long. One year says nothing, so it is left out. A quote without a year, like one from a person, shows no year.
+	*/
+	var showsPressQuoteYears: Bool {
+		// A quote without a year, like one from a person, does not turn the years off for the others.
+		Set(frontmatter.pressQuotes.compactMap(\.year)).count > 1
+	}
+
+	/**
+	The JPEG XL copies of the icon and the screenshots, which the build publishes next to them.
+	*/
+	var jpegXLCopies: [JPEGXLCopy] {
+		[iconJPEGXL].compactMap(\.self) + media.compactMap(\.jpegXL)
 	}
 
 	/**
@@ -224,8 +245,15 @@ extension App {
 		return appStoreURL ?? path.absoluteURL
 	}
 
+	/**
+	The Gumroad page of the app, which opens the checkout (`wanted=true`).
+	*/
+	var gumroadURL: URL? {
+		frontmatter.gumroadID.map { $0.url.appending(queryItems: [URLQueryItem(name: "wanted", value: "true")]) }
+	}
+
 	var setappURL: URL? {
-		frontmatter.setappID.map { #URL("https://go.setapp.com/stp181").appending(queryItems: [URLQueryItem(name: "refAppID", value: String($0)), URLQueryItem(name: "utm_medium", value: "vendor_program"), URLQueryItem(name: "utm_content", value: "button")]) }
+		frontmatter.setappURL
 	}
 
 	/**
@@ -305,12 +333,62 @@ extension App {
 	}
 
 	/**
-	The platforms and the requirement, like “Available on macOS, iOS — Requires macOS 15 or later”. The platforms are left out when the requirement already says macOS.
+	The lowest OS version, like “Requires macOS 26 or later”. An app on several platforms says “version”, as the platforms share their version numbers.
+	*/
+	var requirementSentence: String? {
+		frontmatter.minimumOSVersion.map { version in
+			let system = platforms.count == 1 ? platforms[0].rawValue : "version"
+			return "Requires \(system) \(version) or later"
+		}
+	}
+
+	/**
+	The lowest version of each platform, like “macOS 26 or later, iOS 26 or later”, for places without the platforms next to it, like the facts at the end of the page and the structured data.
+	*/
+	var minimumVersionsByPlatform: String? {
+		frontmatter.minimumOSVersion.map { version in
+			platforms.map { "\($0.rawValue) \(version) or later" }.joined(separator: ", ")
+		}
+	}
+
+	/**
+	The platforms and the requirement, like “Available on macOS, iOS — Requires version 26 or later”. The platforms are left out when the requirement already names the one platform, like “Requires macOS 26 or later”.
 	*/
 	var availabilityText: String {
-		let requirementMentionsMacOS = frontmatter.requirement?.localizedStandardContains("macOS") == true
-		let platformList = requirementMentionsMacOS && frontmatter.platforms == [.macOS] ? nil : "Available on \(operatingSystems)"
-		return [platformList, frontmatter.requirement].compactMap(\.self).joined(separator: " — ")
+		let platformList = requirementSentence != nil && platforms.count == 1 ? nil : "Available on \(operatingSystems)"
+		return [platformList, requirementSentence].compactMap(\.self).joined(separator: " — ")
+	}
+
+	/**
+	Whether one purchase on the App Store is for the app on the Mac and on iPhone, iPad, or Apple Vision. An app on several platforms with one App Store ID is one app on the App Store, so it is bought once.
+	*/
+	var isUniversalPurchase: Bool {
+		frontmatter.isPaid
+			&& frontmatter.appStoreID != nil
+			&& platforms.contains(.macOS)
+			&& (platforms.contains(.iOS) || platforms.contains(.visionOS))
+	}
+
+	/**
+	What the app collects or sends, without the crash reports, as a sentence, for the privacy policy: the `privacyNote`, or that it collects no data.
+	*/
+	var privacyStatement: String {
+		if let privacyNote = frontmatter.privacyNote {
+			return privacyNote
+		}
+
+		return frontmatter.hasSentry ? "No personal information is collected by this app." : "No data or personal information is collected by this app."
+	}
+
+	/**
+	The privacy in a few words, for the link to the privacy policy in the hero, like “No data collected”. An app with a `privacyNote` sends some data, which needs the whole sentence, so the link only says that the policy has the details.
+	*/
+	var privacySummary: String {
+		guard frontmatter.privacyNote == nil else {
+			return "Privacy details"
+		}
+
+		return frontmatter.hasSentry ? "No personal data collected" : "No data collected"
 	}
 
 	/**
@@ -328,10 +406,16 @@ extension App {
 	}
 
 	/**
-	The price for the app page, like “$4.99, one-time purchase” or “Free”, from the App Store or the `price` frontmatter. A free app that is not on the App Store is “Free” too.
+	The price for the app page, like “$4.99, one-time purchase” or “Free”, from the App Store or the `price` frontmatter. A free app that is not on the App Store is “Free” too. A universal purchase says that the purchase is for all the platforms, like “$4.99, one-time purchase for all platforms”.
 	*/
 	func priceText(info: AppStoreInfo?) -> String? {
-		info?.priceText(isPaid: frontmatter.isPaid) ?? frontmatter.price?.oneTimePurchaseText ?? (frontmatter.isPaid ? nil : "Free")
+		let text = info?.priceText(isPaid: frontmatter.isPaid) ?? frontmatter.price?.oneTimePurchaseText ?? (frontmatter.isPaid ? nil : "Free")
+
+		guard isUniversalPurchase else {
+			return text
+		}
+
+		return text.map { "\($0) for all platforms" }
 	}
 
 	/**
@@ -349,10 +433,30 @@ extension App {
 	static let maximumIntroductionLength = 160
 
 	/**
+	The first OS version that all the platforms share, as Apple gave them the same version numbers from 26, so one `minimumOSVersion` is enough for all of them.
+	*/
+	static let firstSharedOSVersion = 26
+
+	/**
+	How long the app has been available, like “Since 2019”, for an app that is at least two years old, as a sign that it is maintained. A newer app says nothing, as a recent year is not a sign of anything. It is next to “Available on macOS”, so it does not say “available” again.
+	*/
+	func availableSinceText(at date: Date) -> String? {
+		guard date.duration(since: frontmatter.publicationDate) >= .days(365 * 2) else {
+			return nil
+		}
+
+		return "Since \(frontmatter.publicationDate.siteYear)"
+	}
+
+	/**
 	Whether the app was published in the last 30 days.
+
+	A day in frontmatter is midnight UTC, and the site is often built from a timezone ahead of UTC, which is hours before the publication day starts. The site shows the app at any date, so it is new from the moment the site shows it, not only from its publication day.
+
+	Do not add a lower bound to the range, like `(.zero..<Duration.days(30))`: then an app has no badge for the first hours of its launch day, when the build runs between local midnight and UTC midnight.
 	*/
 	func isNew(at date: Date) -> Bool {
-		(.zero..<Duration.days(30)).contains(date.duration(since: frontmatter.publicationDate))
+		date.duration(since: frontmatter.publicationDate) < .days(30)
 	}
 
 	/**
@@ -463,9 +567,19 @@ extension App {
 		var sharedQuestions = [String]()
 
 		/**
-		Download buttons, in addition to the App Store and Setapp.
+		The product of the app on Gumroad, like `shortcutie` in `https://sindresorhus.gumroad.com/l/shortcutie`, for a paid app that is sold there. The page gets a “Buy” button.
 		*/
-		var mainLinks = OrderedMapping<AbsoluteURL>()
+		var gumroadID: GumroadProductID?
+
+		/**
+		A file of the latest release of a GitHub repo, for a free app that is downloaded there. The page gets a “Download” button.
+		*/
+		var gitHubDownload: GitHubDownload?
+
+		/**
+		The public beta of the app on TestFlight, like `https://testflight.apple.com/join/fJGUrsZx`. The page links to it.
+		*/
+		@Absolute var testFlightURL: URL?
 
 		var links = OrderedMapping<AbsoluteURL>()
 		var overflowLinks = OrderedMapping<AbsoluteURL>()
@@ -477,9 +591,9 @@ extension App {
 		@Absolute var redirectURL: URL?
 
 		/**
-		The GitHub repo in the `sindresorhus` account with the release notes.
+		The GitHub repo with the release notes, like `sindresorhus/dato-meta`.
 		*/
-		var releasesRepository: String?
+		var releasesRepository: GitHubRepositoryName?
 
 		/**
 		Free older versions for older macOS versions, newest first. The app page shows them in an “Older Versions” section.
@@ -490,7 +604,18 @@ extension App {
 		The macOS versions that have an older version listed elsewhere, like in the readme of the repo (`olderVersionsURL`). Apps with `olderVersions` do not need it.
 		*/
 		var olderMacOSVersions = [MacOSVersion]()
-		@NonEmpty var requirement: String?
+
+		/**
+		A free version of the app for users that cannot access the App Store, which the build adds as the “Non-App Store Version” section at the end of the page.
+		*/
+		var nonAppStoreVersion: NonAppStoreVersion?
+
+		// TODO: When all apps require version 27, remove the text about Apple silicon Macs from the app pages, like in `any-text`, `memo-widget`, `photo-widget`, `ai-actions`, `amazing-ai`, and `imago`, as macOS 27 only runs on Apple silicon.
+
+		/**
+		The lowest OS version that the app runs on, like `26` for “Requires macOS 26 or later”. All the platforms have the same version numbers from 26, so one version is enough.
+		*/
+		var minimumOSVersion: Int?
 		@JavaScriptSafe var downloads: Int?
 
 		/**
@@ -567,9 +692,85 @@ extension App {
 				throw ContentError(reason: "`olderMacOSVersions` needs `repositoryURL`, which has the list of older versions.")
 			}
 
+			if let year = pressQuotes.compactMap(\.year).first(where: { !(2000...2100).contains($0) }) {
+				throw ContentError(reason: "`pressQuotes` has the year \(year), which is not the year of an article.")
+			}
+
 			if Set(olderVersions.map(\.macOS)).count < olderVersions.count {
 				throw ContentError(reason: "`olderVersions` must have one version for each macOS version.")
 			}
+
+			if
+				let minimumOSVersion,
+				minimumOSVersion < App.firstSharedOSVersion
+			{
+				throw ContentError(reason: "`minimumOSVersion` must be \(App.firstSharedOSVersion) or later, as the platforms only share their version numbers from \(App.firstSharedOSVersion), got \(minimumOSVersion).")
+			}
+
+			if
+				let nonAppStoreVersion,
+				nonAppStoreVersion.macOS < App.firstSharedOSVersion
+			{
+				throw ContentError(reason: "`nonAppStoreVersion.macOS` must be \(App.firstSharedOSVersion) or later, got \(nonAppStoreVersion.macOS). An older version goes in `olderVersions`.")
+			}
+
+			if
+				nonAppStoreVersion != nil,
+				appStoreID == nil
+			{
+				throw ContentError(reason: "`nonAppStoreVersion` is for apps on the App Store, for users that cannot access it.")
+			}
+
+			// The product is sold for the price, so one without the other would show a “Buy” button without a price, or a price without a place to buy.
+			if (gumroadID == nil) != (price == nil) {
+				throw ContentError(reason: "`gumroadID` and `price` need each other, as an app that is not on the App Store is sold on Gumroad.")
+			}
+
+			if
+				let testFlightURL,
+				testFlightURL.scheme != "https" || testFlightURL.host() != "testflight.apple.com" || testFlightURL.pathComponents.count != 3 || testFlightURL.pathComponents[1] != "join"
+			{
+				throw ContentError(reason: "`testFlightURL` must be a link to join a beta, like `https://testflight.apple.com/join/fJGUrsZx`, got \(testFlightURL).")
+			}
+		}
+	}
+
+	/**
+	A free version of an app outside the App Store, which does not update by itself.
+	*/
+	@Frontmatter
+	struct NonAppStoreVersion {
+		/**
+		The version of the app, like `1.2.0`.
+		*/
+		@NonEmpty var version: String
+
+		/**
+		The oldest macOS version that the app version supports, like `26`.
+
+		It is an `Int` on purpose, not a ``MacOSVersion`` like in `olderVersions`. The non-App Store version is always for macOS 26 or later, which has whole version numbers, so the frontmatter is a plain number, like `macOS: 26`. Do not change it to `MacOSVersion`.
+		*/
+		var macOS: Int
+
+		/**
+		The download, usually a zip file.
+		*/
+		@Absolute var url: URL
+	}
+
+	/**
+	A file of the latest release of a GitHub repo, like `App.Buddy.zip` of `sindresorhus/app-buddy-meta`.
+	*/
+	@Frontmatter
+	struct GitHubDownload {
+		var repository: GitHubRepositoryName
+		@NonEmpty var file: String
+
+		/**
+		The link that always downloads the file of the latest release.
+		*/
+		var url: URL {
+			#URL("https://github.com").appending(path: "\(repository)/releases/latest/download/\(file)")
 		}
 	}
 
@@ -600,6 +801,11 @@ extension App {
 		@NonEmpty var source: String
 		@Absolute var url: URL?
 		var isStarRating = false
+
+		/**
+		The year of the article, like `2021`, which the source shows when the quotes of an app span years (``App/showsPressQuoteYears``).
+		*/
+		var year: Int?
 	}
 
 	@Frontmatter
@@ -618,11 +824,11 @@ extension App {
 	/**
 	Where the release notes of an app are published.
 	*/
-	struct ReleaseNotes: Sendable {
+	struct ReleaseNotes {
 		/**
-		The GitHub repo in the `sindresorhus` account with the releases.
+		The GitHub repo with the releases.
 		*/
-		let repository: String
+		let repository: GitHubRepositoryName
 
 		let path: RoutePath
 		let feed: FeedLink
@@ -679,7 +885,14 @@ extension App {
 
 extension App.Frontmatter {
 	/**
-	The Markdown of the app page with what the build adds from the facts of the app: the common questions that apply to it (``CommonQuestion``), the shared questions that it picks, and, unless the app is archived, the feedback question in the FAQ section, and the “Older Versions” section.
+	The Setapp page of the app, with the referral of the vendor program. The trial of the app page links to it too, so it is on the frontmatter, which the Markdown options have.
+	*/
+	var setappURL: URL? {
+		setappID.map { #URL("https://go.setapp.com/stp181").appending(queryItems: [URLQueryItem(name: "refAppID", value: String($0)), URLQueryItem(name: "utm_medium", value: "vendor_program"), URLQueryItem(name: "utm_content", value: "button")]) }
+	}
+
+	/**
+	The Markdown of the app page with what the build adds from the facts of the app: the common questions that apply to it (``CommonQuestion``), the shared questions that it picks, and, unless the app is archived, the feedback question in the FAQ section, and the “Older Versions” and “Non-App Store Version” sections.
 	*/
 	func addingGeneratedSections(to document: Document, sharedQuestions: App.SharedQuestions) -> Document {
 		var blocks = Array(document.blockChildren)
@@ -690,8 +903,31 @@ extension App.Frontmatter {
 			blocks.addFeedbackQuestion(appTitle: title)
 		}
 
+		// Before the older versions, which go before it.
+		if let nonAppStoreVersion {
+			blocks += nonAppStoreVersion.markdownSection(isOnSeveralPlatforms: platforms.count > 1)
+		}
+
 		blocks.addOlderVersions(olderVersions, isPaid: isPaid)
 		return Document(blocks)
+	}
+}
+
+extension App.NonAppStoreVersion {
+	/**
+	The “Non-App Store Version” section of an app page. It says “macOS version” for an app on several platforms, as the version is only for the Mac.
+	*/
+	func markdownSection(isOnSeveralPlatforms: Bool) -> [any BlockMarkup] {
+		[
+			Markdown.Heading(level: 2, Markdown.Text(App.nonAppStoreVersionTitle)),
+			Paragraph(Markdown.Text("A special \(isOnSeveralPlatforms ? "macOS " : "")version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.")),
+			Paragraph(
+				Markdown.Link(destination: url.absoluteString, Markdown.Text("Download")),
+				Markdown.Text(" "),
+				Markdown.Emphasis(Markdown.Text("(\(version))"))
+			),
+			Paragraph(Markdown.Emphasis(Markdown.Text("Requires macOS \(macOS) or later"))),
+		]
 	}
 }
 
@@ -755,7 +991,12 @@ extension CommonQuestion {
 
 	- Parameter id: The ID of the heading, instead of the slug of the title, for a question that code finds.
 	*/
-	init(title: String, answer: Paragraph, isFirst: Bool = false, id: String? = nil) {
+	init(
+		title: String,
+		answer: Paragraph,
+		isFirst: Bool = false,
+		id: String? = nil
+	) {
 		self.init(
 			title: title,
 			blocks: [Markdown.Heading(level: 3, Markdown.Text(title + (id.map { " {#\($0)}" } ?? ""))), answer],

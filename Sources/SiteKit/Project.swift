@@ -109,13 +109,15 @@ public struct Project: Sendable {
 	/**
 	The date of the last commit that changed each Markdown file, keyed by the path relative to the project root, like `content/apps/dato/index.md`. Load it once for all content types, as it runs `git log`.
 
-	Moving a file without changing it does not count as a change, so the dates survive a reorganization. Empty when the project is not a git repository or git is missing. A shallow clone only knows the dates of its commits.
+	Moving a file without changing it does not count as a change, so the dates survive a reorganization. The commits in ``ignoredCommitsFile``, like a change of the syntax of all the files, do not count either, as search engines trust the dates only when they are the last real change of a page. Empty when the project is not a git repository or git is missing. A shallow clone only knows the dates of its commits.
 	*/
 	public func lastCommitDates() async -> [String: Date] {
+		let ignoredCommits = ignoredCommits
+
 		let process = Process()
 		process.executableURL = URL(filePath: "/usr/bin/env")
 		// Without `core.quotePath=false`, git quotes paths with non-ASCII characters, so they would not match the files.
-		process.arguments = ["git", "-C", root.path(percentEncoded: false), "-c", "core.quotePath=false", "log", "--find-renames", "--name-status", "--format=%x00%cI", "--relative", "--", "*.md"]
+		process.arguments = ["git", "-C", root.path(percentEncoded: false), "-c", "core.quotePath=false", "log", "--find-renames", "--name-status", "--format=%x00%H %cI", "--relative", "--", "*.md"]
 		process.standardError = FileHandle.nullDevice
 		let pipe = Pipe()
 		process.standardOutput = pipe
@@ -131,14 +133,16 @@ public struct Project: Sendable {
 			// Commits are newest first, so the first change of a file is its latest.
 			for try await line in pipe.fileHandleForReading.bytes.lines {
 				if line.hasPrefix("\0") {
-					date = try? Date(String(line.dropFirst()), strategy: .iso8601)
+					let parts = line.dropFirst().split(separator: " ")
+					let isIgnored = parts.first.map { hash in ignoredCommits.contains { hash.hasPrefix($0) } } ?? false
+					// An ignored commit has no date, so it changes no date, but its renames still count.
+					date = isIgnored ? nil : parts.last.flatMap { try? Date(String($0), strategy: .iso8601) }
 					continue
 				}
 
 				let fields = line.split(separator: "\t")
 
 				guard
-					let date,
 					let status = fields.first,
 					let path = fields.last.map(String.init)
 				else {
@@ -149,6 +153,7 @@ public struct Project: Sendable {
 
 				// `R100` is a rename without changes.
 				if
+					let date,
 					status != "R100",
 					dates[currentName] == nil
 				{
@@ -169,6 +174,26 @@ public struct Project: Sendable {
 		}
 
 		return dates
+	}
+}
+
+extension Project {
+	/**
+	The file with the commits that do not count as changes of the pages (``lastCommitDates()``), one hash or the start of one per line, like `fb119204`, with `#` comments. For a commit that changes many files without changing what they say to readers, like a change of the syntax of the frontmatter.
+	*/
+	public var ignoredCommitsFile: URL {
+		root.appending(path: ".lastmod-ignore-revs")
+	}
+
+	/**
+	The hashes in ``ignoredCommitsFile``, or none without the file.
+	*/
+	private var ignoredCommits: [String] {
+		let text = (try? String(contentsOf: ignoredCommitsFile, encoding: .utf8)) ?? ""
+
+		return text.split(whereSeparator: \.isNewline)
+			.map { line in line.prefix { $0 != "#" }.trimmingCharacters(in: .whitespaces) }
+			.filter { !$0.isEmpty }
 	}
 }
 

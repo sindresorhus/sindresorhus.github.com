@@ -20,6 +20,11 @@ olderVersions: [
 # feedbackNote: '''
 # 	[The app randomly disappears/quits](/apps/faq#randomly-quits)
 # 	'''
+nonAppStoreVersion: {
+	version: '1.0.1'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/2f4gtf7nau0rhrthxwmpl/Menu-Drop-1.0.1-1760766251.zip?rlkey=wedsedjf0v97dpw034by2vtbw&raw=1'
+}
 ---
 
 AirDrop files, folders, links, and text simply by dragging them onto the app’s menu bar icon.
@@ -72,9 +77,3 @@ No. App Store limits (sandboxing) prevent the app from knowing what you’ve sel
 My [Supercharge](/supercharge) app has a [Finder context menu item](https://www.dropbox.com/scl/fi/gc760wtbraxtgtq3gsrd3/AirDrop-Finder-context-menu-item-Screen-Shot-2025-11-19-at-00.23.31-1763486630.png?rlkey=4qleot753u1cc8xzez26afj0x&raw=1) to send selected files directly to AirDrop.
 
 <!-- My app also has a keyboard shortcut to send the selection to AirDrop -->
-
-## Non-App Store Version
-
-A special macOS version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/2f4gtf7nau0rhrthxwmpl/Menu-Drop-1.0.1-1760766251.zip?rlkey=wedsedjf0v97dpw034by2vtbw&raw=1) *(1.0.1 · macOS 26+)*

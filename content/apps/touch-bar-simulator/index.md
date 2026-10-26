@@ -9,6 +9,6 @@ platforms: [
 repositoryURL: 'https://github.com/sindresorhus/touch-bar-simulator'
 ---
 
-Launch the Touch Bar simulator from anywhere, without Xcode. Apple only lets you launch it from inside Xcode.
+The app let you launch the Touch Bar simulator from anywhere, without Xcode. It is discontinued, as changes in macOS stopped it from working.
 
-It also comes with a handy transparency slider, a screenshot button, and a service to toggle the Touch Bar in the Services menu or with a keyboard shortcut.
+It also had a transparency slider, a screenshot button, and a menu bar icon and a system service that showed and hid the Touch Bar with a click or a keyboard shortcut. The Touch Bar window could dock to the top or bottom of the screen and show on all desktops.

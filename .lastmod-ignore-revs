@@ -1,0 +1,2 @@
+# Commits that do not count as changes of the pages, for the `lastmod` of the sitemap and the `dateModified` of the structured data (`Project.lastCommitDates()`). Search engines trust these dates only when they are the last real change of a page.
+# Add a commit that changes many files without changing what they say to readers, like a change of the syntax of the frontmatter. One hash, or the start of one, per line.

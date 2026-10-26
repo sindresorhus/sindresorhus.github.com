@@ -120,7 +120,8 @@ struct SiteHeader: ScriptedElement {
 					}
 					.style(Styles.iconLinks)
 				}
-				.accessibilityLabel("Primary navigation")
+				// Not “Primary navigation”, as screen readers add the role, so it would be “Primary navigation navigation”.
+				.accessibilityLabel("Primary")
 				.style(Styles.menu)
 			}
 			.style(Styles.navigation)

@@ -8,7 +8,7 @@ On purpose, the package count and the weekly downloads include all the packages 
 
 The numbers are extra, so a failed request leaves out its number, with a warning, instead of failing the build.
 */
-struct NPMStatistics: Sendable {
+struct NPMStatistics {
 	/**
 	The number of packages that `sindresorhus` maintains.
 	*/
@@ -29,7 +29,7 @@ struct NPMStatistics: Sendable {
 	*/
 	var mostDownloadedPackageNames = [String]()
 
-	struct Package: Sendable {
+	struct Package {
 		let name: String
 		let version: String
 

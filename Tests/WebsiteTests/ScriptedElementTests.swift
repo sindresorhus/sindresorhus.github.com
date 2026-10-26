@@ -7,7 +7,6 @@ import Testing
 /**
 The components that are custom elements (``ScriptedElement``) and their scripts next to their Swift files.
 */
-@Suite
 struct ScriptedElementTests {
 	private static let sourceDirectory = Project.website.root.appending(path: "Sources/Website")
 
@@ -287,7 +286,7 @@ struct ScriptedElementTests {
 			}
 		}
 
-		let pageScripts = try Project.website.publicFiles().filter { $0.source.pathExtension == "js" }.map { try String(contentsOf: $0.source, encoding: .utf8) }.joined(separator: "\n")
+		let pageScripts = try Project.website.publicFiles().filter { $0.source.pathExtension == "js" }.lazy.map { try String(contentsOf: $0.source, encoding: .utf8) }.joined(separator: "\n")
 		let attributesSetByPageScripts = Set(pageScripts.matches(of: /\.setAttribute\('([\w-]+)'/).map { String($0.1) })
 
 		var checkedElementCount = 0
@@ -480,7 +479,7 @@ struct ScriptedElementTests {
 		var checkedDataCount = 0
 
 		for page in try await Self.site.value.pages {
-			let scripts = try page.html.matches(of: /<script\b[^>]*\bsrc="(\/[^"?]+)[^"]*"/).map { match in
+			let scripts = try page.html.matches(of: /<script\b[^>]*\bsrc="(\/[^"?]+)[^"]*"/).lazy.map { match in
 				let path = RoutePath(String(match.1))
 				return try String(contentsOf: Self.scripts.first { $0.path == path }?.source ?? Project.website.publicFile(path), encoding: .utf8)
 			}

@@ -7,7 +7,6 @@ import Testing
 /**
 Checks the real content files in `content/`.
 */
-@Suite
 struct ContentGuardTests {
 	private static let contentDirectory = Project.website.contentDirectory
 
@@ -16,7 +15,7 @@ struct ContentGuardTests {
 
 	A file that is older than this rule can be listed here with the patterns it keeps. No file needs it now.
 	*/
-	private static let allowed: [String: Set<Pattern>] = [:]
+	private static let allowed = [String: Set<Pattern>]()
 
 	private enum Pattern: CaseIterable {
 		case script
@@ -111,7 +110,6 @@ struct ContentGuardTests {
 /**
 Checks the source of the site.
 */
-@Suite
 struct SourceGuardTests {
 	private static let sourceDirectory = Project.website.root.appending(path: "Sources/Website")
 
@@ -147,8 +145,8 @@ struct SourceGuardTests {
 		".declaration(": 34,
 		"Length(\"": 0,
 		"CSSValue(\"": 4,
-		// The prose styles need selectors for the Markdown markup that no component owns, like the introduction below the title of a Markdown page, the space above a bold label, and the column of the shortcuts in a table.
-		".nested(\"": 33,
+		// The prose styles need selectors for the Markdown markup that no component owns, like the introduction below the title of a Markdown page, the space above a bold label, the column of the shortcuts in a table, and the copy link of a closed question, which depends on the state of the `<details>` next to it.
+		".nested(\"": 34,
 	]
 
 	@Test

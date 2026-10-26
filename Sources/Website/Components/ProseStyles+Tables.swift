@@ -31,10 +31,6 @@ extension ProseStyles {
 		.descendants("td") {
 			$0.verticalAlign(.baseline)
 		}
-		// Keyboard shortcuts in the first column of a table of shortcuts stay on one line. A table of one column is text, like tips, so a key in a sentence does not stop it from wrapping.
-		.descendants("td:first-child:not(:last-child):has(> kbd)") {
-			$0.textWrap(.nowrap)
-		}
 		// The column of the shortcuts has the same width in each table of shortcuts, so the descriptions line up from one table to the next, like the groups of shortcuts of an app. A longer shortcut still makes its column wider. A table is a table of shortcuts when a first cell of a row with more than one cell has a shortcut, so other tables should not start such a row with one.
 		.descendants("table:has(td:first-child:not(:last-child) > kbd) td:first-child") {
 			$0.frame(width: .percent(40))

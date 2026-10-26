@@ -8,10 +8,8 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 price: 6
-releasesRepository: 'quickgpt-meta'
-mainLinks: {
-	Download: 'https://sindresorhus.gumroad.com/l/quickgpt?wanted=true'
-}
+releasesRepository: 'sindresorhus/quickgpt-meta'
+gumroadID: 'quickgpt'
 olderVersions: [
 	{
 		version: '1.7.0'

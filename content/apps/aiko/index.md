@@ -50,6 +50,7 @@ pressQuotes: [
 		quote: 'Aiko does not upload the file to the cloud to make the transcription; everything happens on your device. And it works fairly quickly, too: I was able to transcribe a half hour radio drama in just a few minutes.'
 		source: 'Lifehacker'
 		url: 'https://lifehacker.com/tech/aiko-free-ai-transcription-app'
+		year: 2024
 	}
 ]
 ---
@@ -59,8 +60,6 @@ Turn recordings of meetings, lectures, and voice memos into text. The transcript
 The transcription is powered by OpenAI’s [Whisper model](https://openai.com/research/whisper) running locally on your device.
 
 The app also includes [support for Shortcuts](#tips).
-
-It’s a [Universal Purchase](/apps/faq#universal-purchase).
 
 <details>
 <summary><b>Supports audio in 100 languages</b></summary>
@@ -176,7 +175,7 @@ Aiko transcribes audio directly on your device, ensuring complete privacy. It’
 
 The app uses the Whisper large v2 model on macOS and the medium or small model on iOS depending on available memory.
 
-## Trial
+## Trial {#trial}
 
 @Trial(url: "https://testflight.apple.com/join/P1qnhHCC", title: "Try on TestFlight") {
 	Try Aiko free for 14 days with TestFlight. It’s the full app, no limitations. No auto-charges or commitment. Simply purchase it from the App Store after the trial if you want to continue using it.
@@ -240,7 +239,7 @@ You can use [this shortcut](https://www.icloud.com/shortcuts/e43220d72f3343659e0
 
 The v3 model is [worse](https://github.com/openai/whisper/discussions/1762#discussioncomment-7532295) than v2 in too many cases. I tried releasing v3, but got a lot of emails about the quality being worse, so I ended up reverting it.
 
-### Can you add support for v3 turbo?
+### Can you add support for v3 turbo? {#can-you-add-support-for-v3-turbo}
 
 I have plans to look into it, but it’s not something I have time to prioritize right now. It cannot be the default model as it’s worse than v2. Which means, I will need to add support for downloading models, which is a huge amount of work.
 

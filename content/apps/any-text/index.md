@@ -32,6 +32,7 @@ pressQuotes: [
 		quote: 'Any Text is a great example of an app that uses Shortcuts to its advantage to make what would otherwise be a static widget that you’d have to change manually or with Focus modes into one that is far more dynamic.'
 		source: 'MacStories'
 		url: 'https://www.macstories.net/reviews/lock-screen-one-text-widgets-for-your-ios-16-lock-screen-automated-with-shortcuts/'
+		year: 2022
 	}
 ]
 ---

@@ -45,13 +45,20 @@ pressQuotes: [
 		quote: 'If you’re tired of trying to find the right desktop wallpaper, a free Mac app has the answer.'
 		source: 'iMore'
 		url: 'https://www.imore.com/turn-your-macs-desktop-interactive-webpage-free-plash-app'
+		year: 2020
 	}
 	{
 		quote: 'This is the kind of application you can spend a lot of time playing with, so enjoy.'
 		source: 'Lifehacker'
 		url: 'https://lifehacker.com/tech/turn-any-website-into-your-mac-wallpaper'
+		year: 2024
 	}
 ]
+nonAppStoreVersion: {
+	version: '2.17.2'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/fye9v3csnxpgk7o81vacq/Plash-2.17.2-1777967935.zip?rlkey=14wtfv7vew49om93lcss5qtac&raw=1'
+}
 ---
 
 Show your calendar, a dashboard, the Bing photo of the day, or an animated GIF as your desktop wallpaper.
@@ -101,7 +108,7 @@ You can interact with the website by enabling “Browsing Mode”. When in this 
 
 Plash injects a CSS class named `plash-is-browsing-mode` on the `<html>` element while browsing mode is active. You could use this class to customize the website for browsing mode.
 
-If clicking a link opens it in a new window, you can hold the <kbd>Option</kbd> key while clicking the link to open it in the main Plash window.
+If clicking a link opens it in a new window, you can hold the ++Option++ key while clicking the link to open it in the main Plash window.
 
 ### Zoom in website
 
@@ -293,11 +300,3 @@ import subprocess
 
 subprocess.run(['open', '--background', 'plash:reload'])
 ```
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/fye9v3csnxpgk7o81vacq/Plash-2.17.2-1777967935.zip?rlkey=14wtfv7vew49om93lcss5qtac&raw=1) *(2.17.2)*
-
-*Requires macOS 26 or later*

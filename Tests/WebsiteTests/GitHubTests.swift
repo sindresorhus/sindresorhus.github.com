@@ -5,7 +5,6 @@ import TestSupport
 import Testing
 @testable import Website
 
-@Suite
 struct GitHubTests {
 	/**
 	The search of the popular repos.
@@ -44,7 +43,13 @@ struct GitHubTests {
 	/**
 	A repo in the JSON of the API, like `sindresorhus/ky`.
 	*/
-	private static func repositoryJSON(_ nameWithOwner: String, createdAt: String = "2014-07-11", stars: Int = 1, isArchived: Bool = false, isFork: Bool = false) -> String {
+	private static func repositoryJSON(
+		_ nameWithOwner: String,
+		createdAt: String = "2014-07-11",
+		stars: Int = 1,
+		isArchived: Bool = false,
+		isFork: Bool = false
+	) -> String {
 		#"{"name": "\#(nameWithOwner.split(separator: "/")[1])", "description": null, "html_url": "https://github.com/\#(nameWithOwner)", "created_at": "\#(createdAt)T00:00:00Z", "archived": \#(isArchived), "fork": \#(isFork), "stargazers_count": \#(stars)}"#
 	}
 
@@ -59,7 +64,7 @@ struct GitHubTests {
 
 		let responses = [response(page: 1, releaseCount: 100), response(page: 2, releaseCount: 3)]
 		let github = GitHub(token: nil, cache: try ResponseCache(responses: Dictionary(uniqueKeysWithValues: responses)))
-		let releases = try await github.releases(repository: "test")
+		let releases = try await github.releases(repository: "sindresorhus/test")
 
 		#expect(releases.count == 103)
 		#expect(releases.last?.version == "2.2")
@@ -72,7 +77,7 @@ struct GitHubTests {
 	func `a table in release notes has the container of the prose`() async throws {
 		let releases = #"[{"tag_name": "v1.0.0", "published_at": "2026-01-01T00:00:00Z", "draft": false, "prerelease": false, "body": "| A |\n| - |\n| 1 |"}]"#
 		let github = GitHub(token: nil, cache: try ResponseCache(responses: ["https://api.github.com/repos/sindresorhus/test/releases?per_page=100&page=1": releases]))
-		let notesHTML = try #require(try await github.releases(repository: "test").first?.notesHTML)
+		let notesHTML = try #require(try await github.releases(repository: "sindresorhus/test").first?.notesHTML)
 
 		#expect(notesHTML.hasPrefix(#"<div class="\#(ProseStyles.tableContainer.className)""#))
 	}
@@ -81,7 +86,7 @@ struct GitHubTests {
 	func `drafts without a publication date are left out`() async throws {
 		let releases = #"[{"tag_name": "v2.0.0", "published_at": null, "draft": true, "prerelease": false}, {"tag_name": "v1.0.0", "published_at": "2026-01-01T00:00:00Z", "draft": false, "prerelease": false}]"#
 		let github = GitHub(token: nil, cache: try ResponseCache(responses: ["https://api.github.com/repos/sindresorhus/test/releases?per_page=100&page=1": releases]))
-		let versions = try await github.releases(repository: "test").map(\.version)
+		let versions = try await github.releases(repository: "sindresorhus/test").map(\.version)
 
 		#expect(versions == ["1.0.0"])
 	}
@@ -249,7 +254,7 @@ struct GitHubTests {
 
 	@Test
 	func `the release notes feed leaves out the launch and links each release to its heading`() async throws {
-		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nreleasesRepository: 'test'\n---\n\nText.", slug: "test")
+		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nreleasesRepository: 'sindresorhus/test'\n---\n\nText.", slug: "test")
 		let releaseNotes = try #require(app.releaseNotes)
 		let releases = [
 			GitHubRelease(tagName: "v1.1.0", publishedAt: Date(timeIntervalSince1970: 1_780_000_000), body: nil, isDraft: false, isPrerelease: false, notesHTML: "<p>Fixed a bug.</p>"),

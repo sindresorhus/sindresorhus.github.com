@@ -187,7 +187,12 @@ struct GeoCitiesSkater: ScriptedElement {
 		.style(Styles.controls)
 	}
 
-	private func trickButton(_ control: String, label: String, symbol: String, style: Styles) -> some HTML {
+	private func trickButton(
+		_ control: String,
+		label: String,
+		symbol: String,
+		style: Styles
+	) -> some HTML {
 		button(.type(.button), .tabindex(-1), .hook(Hooks.control, value: control)) {
 			span {
 				symbol

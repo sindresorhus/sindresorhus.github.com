@@ -2,7 +2,6 @@ import Elementary
 import Testing
 import SiteKit
 
-@Suite
 struct ElementStyleTests {
 	@Test
 	func `a style on an element gets a class from the file and the rules, and the page gets the rule once`() throws {

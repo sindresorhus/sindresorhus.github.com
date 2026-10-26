@@ -1,12 +1,13 @@
 import Testing
 import SiteKit
 
-@Suite
 struct StylesheetTests {
 	@Test
 	func `renders typed and raw declarations in order`() {
 		let css = Stylesheet {
-			Rule(".card", Style()
+			Rule(
+				".card",
+				Style()
 				.display(.flex)
 				.padding(vertical: .rootEm(0.5), horizontal: .rootEm(1.5))
 				.color(Color("red").opacity(0.06))
@@ -32,7 +33,9 @@ struct StylesheetTests {
 	@Test
 	func `nests rules and media queries`() {
 		let css = Stylesheet {
-			Rule(".a, .b", Style()
+			Rule(
+				".a, .b",
+				Style()
 				.color("red")
 				.hover {
 					$0.color("blue")
@@ -101,7 +104,9 @@ struct StylesheetTests {
 	@Test
 	func `keeps selectors with parentheses intact`() {
 		let css = Stylesheet {
-			Rule("table:not(:has(> thead, > tfoot))", Style()
+			Rule(
+				"table:not(:has(> thead, > tfoot))",
+				Style()
 				.nested("> tbody") {
 					$0.display(.block)
 				}
@@ -114,7 +119,9 @@ struct StylesheetTests {
 	@Test
 	func `merges sibling conditions with the same query`() {
 		let css = Stylesheet {
-			Rule(".a", Style()
+			Rule(
+				".a",
+				Style()
 				.dark {
 					$0.color("white")
 				}
@@ -144,7 +151,9 @@ struct StylesheetTests {
 	@Test
 	func `keeps sibling conditions apart when merging would reorder declarations`() {
 		let css = Stylesheet {
-			Rule(".a", Style()
+			Rule(
+				".a",
+				Style()
 				.dark {
 					$0.hover {
 						$0.color("gray")

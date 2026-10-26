@@ -6,7 +6,7 @@ What Sindre did lately on Bluesky and GitHub, like in the week and in the year, 
 
 All of it is extra, so a failed request leaves out its part, with a warning, instead of failing the build. The contributions, the sponsors, the comments, and the activity of the week need a GitHub token, so without one they are left out without a warning.
 */
-struct RecentActivity: Sendable {
+struct RecentActivity {
 	var blueskyPost: BlueskyPost?
 	var contributions: ContributionCalendar?
 	var sponsorCount: Int?
@@ -43,7 +43,12 @@ struct RecentActivity: Sendable {
 		Calendar.site.startOfDay(for: buildDate.addingTimeInterval(-(Duration.days(6) / .seconds(1))))
 	}
 
-	static func load(github: GitHub, cache: ResponseCache, buildDate: Date, warnings: WarningCollector) async -> Self {
+	static func load(
+		github: GitHub,
+		cache: ResponseCache,
+		buildDate: Date,
+		warnings: WarningCollector
+	) async -> Self {
 		let weekStart = Self.weekStart(before: buildDate)
 
 		// Child tasks, so the requests run at the same time, and are cancelled with the build.

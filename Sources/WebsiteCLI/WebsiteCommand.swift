@@ -127,11 +127,7 @@ extension WebsiteCommand {
 			print(count == 1 ? "1 warning." : "\(count == 0 ? "No" : String(count)) warnings.")
 
 			// After the warnings, so a broken link does not hide them.
-			guard report.brokenLinks.isEmpty else {
-				throw ExitCode.failure
-			}
-
-			guard !options.strict || count == 0 else {
+			guard report.brokenLinks.isEmpty, !options.strict || count == 0 else {
 				throw ExitCode.failure
 			}
 		}

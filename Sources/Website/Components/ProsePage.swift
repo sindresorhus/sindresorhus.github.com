@@ -24,7 +24,12 @@ struct ProsePage<Content: HTML, Accessory: HTML>: HTML {
 	- Parameter backTo: The app to link back to, above the title.
 	- Parameter accessory: Shown next to the back link, like an RSS feed link.
 	*/
-	init(title: String? = nil, photo: LinkDestination? = nil, backTo app: App? = nil, @ContentBuilder content: () -> Content, @ContentBuilder accessory: () -> Accessory) {
+	init(
+		title: String? = nil,
+		photo: LinkDestination? = nil,
+		backTo app: App? = nil,
+		@ContentBuilder content: () -> Content, @ContentBuilder accessory: () -> Accessory
+	) {
 		self.title = title
 		self.photo = photo
 		self.app = app
@@ -66,7 +71,12 @@ struct ProsePage<Content: HTML, Accessory: HTML>: HTML {
 }
 
 extension ProsePage where Accessory == EmptyHTML {
-	init(title: String? = nil, photo: LinkDestination? = nil, backTo app: App? = nil, @ContentBuilder content: () -> Content) {
+	init(
+		title: String? = nil,
+		photo: LinkDestination? = nil,
+		backTo app: App? = nil,
+		@ContentBuilder content: () -> Content
+	) {
 		self.init(title: title, photo: photo, backTo: app, content: content) {
 			EmptyHTML()
 		}

@@ -66,7 +66,7 @@ public struct Style: Sendable {
 	/**
 	Sets a property from a typed value when there is one, like for an optional parameter of a modifier.
 	*/
-	func declaration(_ property: Property, ifPresent value: (some StyleValue)?) -> Self {
+	func declaration(_ property: Property, ifPresent value: some StyleValue?) -> Self {
 		guard let value else {
 			return self
 		}
@@ -77,7 +77,7 @@ public struct Style: Sendable {
 	/**
 	Sets a property to a keyword when there is one, like for an optional parameter of a modifier.
 	*/
-	func declaration(_ property: Property, ifPresent keyword: (some CSSKeyword)?) -> Self {
+	func declaration(_ property: Property, ifPresent keyword: some CSSKeyword?) -> Self {
 		guard let keyword else {
 			return self
 		}
@@ -207,6 +207,13 @@ extension Style {
 	*/
 	public func focusVisibleInside(_ content: (Self) -> Self) -> Self {
 		nested("& :focus-visible", content)
+	}
+
+	/**
+	Styles while an element inside shows its focus, like a card that is lit while the keyboard is on its link.
+	*/
+	public func descendantFocusVisible(_ content: (Self) -> Self) -> Self {
+		nested("&:has(:focus-visible)", content)
 	}
 
 	/**

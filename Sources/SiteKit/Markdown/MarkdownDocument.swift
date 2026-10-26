@@ -229,7 +229,12 @@ public struct MarkdownDocument: Sendable {
 
 		public let moreLink: MoreLink?
 
-		public init(level: Int, startHeadingID: String? = nil, name: String? = nil, moreLink: MoreLink? = nil) {
+		public init(
+			level: Int,
+			startHeadingID: String? = nil,
+			name: String? = nil,
+			moreLink: MoreLink? = nil
+		) {
 			self.level = level
 			self.startHeadingID = startHeadingID
 			self.name = name
@@ -273,7 +278,12 @@ public struct MarkdownDocument: Sendable {
 	/**
 	- Parameter firstLine: The line of the source in its file, so the lines of problems, headings, and links are lines in the file.
 	*/
-	init(parsing source: String, firstLine: Int, style: Style = .extended, options: Options) {
+	init(
+		parsing source: String,
+		firstLine: Int,
+		style: Style = .extended,
+		options: Options
+	) {
 		// Source positions and line-based extensions assume `\n` line endings, but GitHub release notes use `\r\n`.
 		let source = source.replacing("\r\n", with: "\n")
 		let convertOptions = ConvertOptions(style: style, options: options)
@@ -368,8 +378,17 @@ extension MarkdownDocument {
 	The HTML separated before each level 2 heading with one of the IDs, in their order, so a page can show something between several sections, like the numbers and the projects on the about page. It has one part more than the IDs: the HTML before the first heading, and the HTML from each heading to the next. `nil` when one of the IDs has no level 2 heading, or the headings are in another order. The headings must not be inside other markup, like a block directive.
 	*/
 	func htmlSeparated(beforeHeadings ids: [String]) -> [String]? {
+		html.separated(beforeHeadings: ids)
+	}
+}
+
+extension String {
+	/**
+	The HTML separated before each level 2 heading with one of the IDs, in their order (``MarkdownDocument/htmlSeparated(beforeHeadings:)``).
+	*/
+	fileprivate func separated(beforeHeadings ids: [String]) -> [String]? {
 		var parts = [String]()
-		var remainder = html[...]
+		var remainder = self[...]
 
 		for id in ids {
 			guard let range = remainder.firstRange(of: "<h2 id=\"\(id)\"") else {
@@ -511,7 +530,8 @@ extension Substring {
 		var parts = [(text: Substring, isShortcut: Bool)]()
 		var remainder = self
 
-		while let match = remainder.firstMatch(of: /\+\+(\S(?:[^\n]*?\S)?)\+\+/) {
+		// The rest of the keys is lazy too, so a shortcut of one key, like `++Q++`, ends at its own plus signs, not at the ones of the next shortcut on the line.
+		while let match = remainder.firstMatch(of: /\+\+(\S(?:[^\n]*?\S)??)\+\+/) {
 			let before = remainder[..<match.range.lowerBound].last
 			let after = remainder[match.range.upperBound...].first
 
@@ -646,5 +666,12 @@ public struct MarkdownContent: HTML, Sendable {
 	public var body: HTMLRaw {
 		PageResources.current?.include(resources)
 		return HTMLRaw(html)
+	}
+
+	/**
+	The content before the level 2 heading with the ID, and the content from that heading on, so a page can show something between them, like the reviews of an app after its description. Each part adds the styles and scripts of the whole document. `nil` when the content has no level 2 heading with the ID. The heading must not be inside other markup, like a block directive.
+	*/
+	public func separated(beforeHeading id: String) -> (before: Self, after: Self)? {
+		html.separated(beforeHeadings: [id]).map { (Self(html: $0[0], resources: resources), Self(html: $0[1], resources: resources)) }
 	}
 }

@@ -4,7 +4,6 @@ import TestSupport
 import Testing
 @testable import Website
 
-@Suite
 struct NPMStatisticsTests {
 	@Test(.temporaryDirectory)
 	func `the package count is read`() async throws {

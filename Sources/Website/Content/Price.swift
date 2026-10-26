@@ -6,7 +6,7 @@ An amount of money in a currency, like $4.99.
 
 In frontmatter, it is a number of US dollars, like `20` or `4.99`.
 */
-struct Price: Hashable, Sendable {
+struct Price: Hashable {
 	let amount: Decimal
 	let currency: Locale.Currency
 

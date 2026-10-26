@@ -45,7 +45,8 @@ struct AppCategoryPage: Page {
 					}
 				}
 			} else {
-				AppGrid(apps: apps, content: content, isAtTop: true)
+				// Right below the title of the page, so the names of the apps are level 2 headings.
+				AppGrid(apps: apps, content: content, isAtTop: true, headingLevel: 2)
 			}
 
 			if let footer = category.footer {

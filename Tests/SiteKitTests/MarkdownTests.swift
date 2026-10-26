@@ -3,7 +3,6 @@ import Markdown
 import Testing
 @testable import SiteKit
 
-@Suite
 struct MarkdownTests {
 	/**
 	A cell that a span covers has no cell of its own, like in GitHub’s tables.
@@ -209,7 +208,7 @@ struct MarkdownTests {
 	The added markup has the lines of the other file, so it has no lines in this one, but its directives still apply.
 	*/
 	@Test
-	func `markup that a rewrite adds from another file has no lines`() throws {
+	func `markup that a rewrite adds from another file has no lines`() {
 		let document = MarkdownDocument(parsing: "### Own {#own}\n\n[Own link](https://example.com/own)", options: .init(headingDirectives: [Keywords.self], rewrite: { document in
 			let added = Document(parsing: "Text.\n\n### Added {#added}\n<!-- @faq.keywords launch -->\n<!-- @faq.unknown -->\n\n[Link](https://example.com)", file: URL(filePath: "/shared.md"), options: .init())
 			return Document(Array(document.blockChildren) + Array(added.blockChildren.dropFirst()))
@@ -285,7 +284,7 @@ struct MarkdownTests {
 		let separated = try #require(document.htmlSeparated(beforeHeading: "end"))
 		#expect(separated.before.contains("Section"))
 		// The heading in code is not a heading.
-		#expect(separated.before.contains("<code>"))
+		#expect(separated.before.contains(#"<code translate="no">"#))
 		#expect(separated.after.hasPrefix(#"<h2 id="end""#))
 		#expect(separated.after.contains("More."))
 
@@ -535,13 +534,13 @@ struct MarkdownTests {
 		let html = MarkdownDocument(parsing: "<kbd>Command+Shift+C</kbd>, <kbd>Command+</kbd>, and <kbd>+</kbd>").html
 		#expect(html.contains(#"<kbd>Command</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>Shift</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>C</kbd>"#))
 		#expect(html.contains(#"<kbd>Command</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>+</kbd>"#))
-		#expect(html.contains(", and <kbd>+</kbd>"))
+		#expect(html.contains(#", and <kbd translate="no">+</kbd>"#))
 	}
 
 	@Test
 	func `kbd elements in raw HTML blocks are split into keys`() {
 		let html = MarkdownDocument(parsing: "<div><kbd>Cmd+K</kbd> and <kbd>A</kbd></div>").html
-		#expect(html.contains(#"<div><kbd>Cmd</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>K</kbd> and <kbd>A</kbd></div>"#))
+		#expect(html.contains(#"<div><kbd class="keyboard-shortcut" translate="no"><kbd>Cmd</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>K</kbd></kbd> and <kbd>A</kbd></div>"#))
 	}
 
 	@Test
@@ -613,7 +612,7 @@ struct MarkdownTests {
 		let html = MarkdownDocument(parsing: "See https://example.com/a. [Link https://example.com/b](https://example.com/c) `https://example.com/d`").html
 		#expect(html.contains(#"See <a href="https://example.com/a">https://example.com/a</a>."#))
 		#expect(html.contains(#"<a href="https://example.com/c">Link https://example.com/b</a>"#))
-		#expect(html.contains("<code>https://example.com/d</code>"))
+		#expect(html.contains(#"<code translate="no">https://example.com/d</code>"#))
 	}
 
 	@Test
@@ -627,7 +626,7 @@ struct MarkdownTests {
 	@Test
 	func `footnote references in code stay as they are`() {
 		let html = MarkdownDocument(parsing: "Text[^1] and `array[^1]`.\n\n[^1]: The note.").html
-		#expect(html.contains("<code>array[^1]</code>"))
+		#expect(html.contains(#"<code translate="no">array[^1]</code>"#))
 		#expect(html.components(separatedBy: "footnote-reference").count == 2)
 	}
 
@@ -671,7 +670,7 @@ struct MarkdownTests {
 	func `links to sections are named after their headings, which are named by their text`() {
 		let options = MarkdownDocument.Options(collapsibleSections: .init(level: 3, startHeadingID: "faq"), addsHeadingAnchors: true)
 		let html = MarkdownDocument(parsing: "## Use `Cmd` & “Shift” {#faq}\n\n### Why?\n\nBecause.", options: options).html
-		#expect(html.contains(##"<h2 id="faq" class="anchored-heading" aria-label="Use Cmd &amp; “Shift”">Use <code>Cmd</code> &amp; “Shift”<a href="#faq" class="heading-anchor" data-copy-link="" aria-label="Copy link to section: Use Cmd &amp; “Shift”">"##))
+		#expect(html.contains(##"<h2 id="faq" class="anchored-heading" aria-label="Use Cmd &amp; “Shift”">Use <code translate="no">Cmd</code> &amp; “Shift”<a href="#faq" class="heading-anchor" data-copy-link="" aria-label="Copy link to section: Use Cmd &amp; “Shift”">"##))
 		#expect(html.contains(##"<a href="#why" class="heading-anchor" data-copy-link="" aria-label="Copy link to section: Why?">"##))
 		#expect(html.contains(#"<h3 class="collapsible-title">Why?</h3>"#))
 	}
@@ -807,6 +806,40 @@ struct MarkdownTests {
 	}
 
 	@Test
+	func `content can be separated before a level 2 heading`() throws {
+		let content = MarkdownDocument(parsing: "Intro.\n\n## First {#first}\n\nText.").content
+		let parts = try #require(content.separated(beforeHeading: "first"))
+
+		#expect(parts.before.html == "<p>Intro.</p>\n")
+		#expect(parts.after.html.hasPrefix(#"<h2 id="first""#))
+		#expect(content.separated(beforeHeading: "missing") == nil)
+	}
+
+	@Test
+	func `a shortcut of more than one key is a key combination, and its modifiers must be in the order of Apple`() {
+		let document = MarkdownDocument(parsing: "Press ++Command+Shift+V++ or ++Q++.")
+
+		#expect(document.html.contains(#"<kbd class="keyboard-shortcut" translate="no"><kbd>Command</kbd>"#))
+		#expect(document.html.contains(#"or <kbd translate="no">Q</kbd>."#))
+		#expect(document.problems.map(\.reason) == ["The modifiers of the keyboard shortcut `Command+Shift+V` must be in the order of Apple: Shift, Command, like `Shift+Command+V`."])
+		#expect(MarkdownDocument(parsing: "Press ++Control+Option+Shift+Command+K++.").problems.isEmpty)
+	}
+
+	@Test
+	func `long code can break at its dots and slashes, and short code is as it is`() {
+		let html = MarkdownDocument(parsing: "Run `com.sindresorhus.Dato.joinedVideoCall` or `a.b`.").html
+
+		#expect(html.contains(#"<code translate="no">com<wbr>.sindresorhus<wbr>.Dato<wbr>.joinedVideoCall</code>"#))
+		#expect(html.contains(#"<code translate="no">a.b</code>"#))
+	}
+
+	@Test
+	func `a shortcut of one key ends at its own plus signs, not at the next shortcut`() {
+		let html = MarkdownDocument(parsing: "Press ++Q++ twice while holding ++Command++.").html
+		#expect(html.contains(#"Press <kbd translate="no">Q</kbd> twice while holding <kbd translate="no">Command</kbd>."#))
+	}
+
+	@Test
 	func `links can be resolved and keep their lines`() {
 		let document = MarkdownDocument(parsing: "Intro.\n\nSee [Dato](dato.md) and [broken](nope.md).", options: .init(resolveLink: { destination in
 			guard destination != "nope.md" else {
@@ -883,7 +916,7 @@ struct MarkdownTests {
 	func `a quote key in a keyboard shortcut is not a smart quote`() {
 		let html = MarkdownDocument(parsing: "Press ++Shift+'++ or ++\"++.").html
 		#expect(html.contains("<kbd>'</kbd>"))
-		#expect(html.contains("<kbd>&quot;</kbd>") || html.contains("<kbd>\"</kbd>"))
+		#expect(html.contains(#"<kbd translate="no">&quot;</kbd>"#) || html.contains(#"<kbd translate="no">"</kbd>"#))
 	}
 
 	@Test
@@ -1013,7 +1046,7 @@ struct MarkdownTests {
 	*/
 	@Test
 	func `invalid block directive arguments are one problem`() {
-		let options = MarkdownDocument.Options(blockDirectives: ["Box": .init { (arguments: BoxArguments, html) in "<section>\(html)</section>" }])
+		let options = MarkdownDocument.Options(blockDirectives: ["Box": .init { (_: BoxArguments, html) in "<section>\(html)</section>" }])
 		let document = MarkdownDocument(parsing: "Intro.\n\n@Box(title: \"Hi\" isWide: \"true\") {\n  Inside.\n}", options: options)
 
 		#expect(document.problems.map(\.line) == [3])
@@ -1088,7 +1121,6 @@ struct MarkdownTests {
 	}
 }
 
-@Suite
 struct MarkdownLinkTests {
 	private static let options = MarkdownDocument.Options(resolveLink: { destination in
 		destination.hasSuffix(".md") ? "/" + destination.dropLast(3) : destination
@@ -1292,7 +1324,6 @@ private struct BoxArguments {
 	var isWide = false
 }
 
-@Suite
 struct ReleaseNotesSecurityTests {
 	@Test(arguments: ["<script>alert(1)</script>", "<img src=x onerror=alert(1)>", "<table><tr><td><script>alert(1)</script></td></tr></table>", "Text <iframe src='https://evil.example'></iframe>", "<kbd onclick=alert(1)>Delete</kbd>"])
 	func `external release notes escape raw HTML`(source: String) {

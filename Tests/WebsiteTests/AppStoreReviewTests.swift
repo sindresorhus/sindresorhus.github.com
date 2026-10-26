@@ -4,7 +4,6 @@ import TestSupport
 import Testing
 @testable import Website
 
-@Suite
 struct AppStoreReviewTests {
 	@Test(.temporaryDirectory)
 	func `reviews come from all the App Stores, newest first, without duplicates, and a malformed feed gives a warning`() async throws {

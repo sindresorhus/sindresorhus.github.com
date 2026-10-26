@@ -83,13 +83,13 @@ public struct Publisher: Sendable {
 		let data: Data
 
 		do {
-			switch route.output {
+			data = switch route.output {
 			case .page(_, let render):
-				data = try Data(render().utf8)
+				try Data(render().utf8)
 			case .redirect(let destination):
-				data = Data(redirectHTML(to: destination).utf8)
+				Data(redirectHTML(to: destination).utf8)
 			case .file(let render):
-				data = try await render()
+				try await render()
 			}
 		} catch {
 			throw PublishingError.renderFailed(route.path, error)

@@ -136,7 +136,7 @@ extension HTMLBlock {
 }
 
 extension Markup {
-	fileprivate var previousSibling: (any Markup)? {
+	fileprivate var previousSibling: any Markup? {
 		guard
 			let parent,
 			indexInParent > 0

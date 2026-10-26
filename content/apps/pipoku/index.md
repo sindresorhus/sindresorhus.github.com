@@ -7,7 +7,7 @@ publicationDate: '2026-10-22'
 platforms: [
 	'iOS'
 ]
-requirement: 'Requires iOS 27 or later'
+minimumOSVersion: 27
 ---
 
 Classic sudoku on a clean, full-width board. No mistake limit, no streaks, and no notifications. Just you and the puzzle.

@@ -4,7 +4,7 @@ import SiteKit
 /**
 The ID of an app on the App Store, like 1607635845 in `https://apps.apple.com/app/id1607635845`.
 */
-struct AppStoreID: Hashable, Sendable, CustomStringConvertible, ExpressibleByIntegerLiteral {
+struct AppStoreID: Hashable, CustomStringConvertible, ExpressibleByIntegerLiteral {
 	let value: Int
 
 	init(_ value: Int) {
@@ -49,7 +49,7 @@ The App Store info of an app, like the price and rating, from the US App Store.
 
 Mac App Store apps always have a rating count of 0.
 */
-struct AppStoreInfo: Decodable, Sendable {
+struct AppStoreInfo: Decodable {
 	let id: AppStoreID
 
 	let version: String?
@@ -84,6 +84,16 @@ struct AppStoreInfo: Decodable, Sendable {
 	*/
 	let supportedDevices: [String]?
 
+	/**
+	The download size in bytes, as text, like `"19244046"`. Use ``fileSize``.
+	*/
+	var fileSizeBytes: String? = nil
+
+	/**
+	The main category of the app on the App Store, like `Developer Tools`.
+	*/
+	var primaryGenreName: String? = nil
+
 	enum CodingKeys: String, CodingKey {
 		case id = "trackId"
 		case version
@@ -95,38 +105,14 @@ struct AppStoreInfo: Decodable, Sendable {
 		case kind
 		case minimumOsVersion
 		case supportedDevices
-	}
-
-	/**
-	The average rating of the app and the number of ratings.
-	*/
-	struct Rating {
-		/**
-		The average as the App Store gives it, like 4.6333. It is rounded to one decimal where it is shown.
-		*/
-		let average: Double
-
-		let count: Int
-
-		/**
-		The average rounded to one decimal, like 4.6, for the places that show it, like the rating sentence and structured data, so a value just below a tie, like 4.64999, reads as 4.6 and not 4.7.
-		*/
-		var roundedAverage: Double {
-			(average * 10).rounded() / 10
-		}
-
-		/**
-		The rating as a sentence, like “Rated 4.6 out of 5 from 565 ratings on the App Store”.
-		*/
-		var text: String {
-			"Rated \(roundedAverage.formatted(.number.locale(.site).precision(.fractionLength(1)))) out of 5 from \(count.formatted(counting: "rating")) on the App Store"
-		}
+		case fileSizeBytes
+		case primaryGenreName
 	}
 
 	/**
 	The rating, when the app has ratings. Mac App Store apps have none.
 	*/
-	var rating: Rating? {
+	var rating: StoreRating? {
 		guard
 			let userRatingCount,
 			userRatingCount > 0,
@@ -135,7 +121,52 @@ struct AppStoreInfo: Decodable, Sendable {
 			return nil
 		}
 
-		return Rating(average: averageUserRating, count: userRatingCount)
+		return StoreRating(average: averageUserRating, count: userRatingCount)
+	}
+
+	/**
+	The download size in bytes.
+	*/
+	var fileSize: Int64? {
+		fileSizeBytes.flatMap { Int64($0) }
+	}
+
+	/**
+	The App Store category as a category of structured data, like `DeveloperApplication` for `Developer Tools`, from the list that Google supports. `nil` for a category without a match, like `Productivity`.
+	*/
+	var schemaApplicationCategory: String? {
+		switch primaryGenreName {
+		case "Developer Tools":
+			"DeveloperApplication"
+		case "Graphics & Design":
+			"DesignApplication"
+		case "Photo & Video", "Music":
+			"MultimediaApplication"
+		case "Games":
+			"GameApplication"
+		case "Entertainment":
+			"EntertainmentApplication"
+		case "Lifestyle":
+			"LifestyleApplication"
+		case "Health & Fitness", "Medical":
+			"HealthApplication"
+		case "Education":
+			"EducationalApplication"
+		case "Finance":
+			"FinanceApplication"
+		case "Business":
+			"BusinessApplication"
+		case "Reference":
+			"ReferenceApplication"
+		case "Travel":
+			"TravelApplication"
+		case "Social Networking":
+			"SocialNetworkingApplication"
+		case "Sports":
+			"SportsApplication"
+		default:
+			nil
+		}
 	}
 
 	var isMacApp: Bool {
@@ -216,7 +247,7 @@ extension Sequence<AppStoreInfo> {
 	/**
 	The ratings of all the apps together: the averages weighted by their number of ratings, and the total number of ratings. Like all the info, they are of the US App Store, and Mac App Store apps have none. `nil` when no app has ratings, like when all are Mac apps.
 	*/
-	var combinedRating: AppStoreInfo.Rating? {
+	var combinedRating: StoreRating? {
 		let ratings = compactMap(\.rating)
 		let count = ratings.map(\.count).sum
 
@@ -226,6 +257,54 @@ extension Sequence<AppStoreInfo> {
 
 		// Summed in a fixed order, as the sum of floating point numbers depends on the order, which would make the number on the about page change between builds of the same content.
 		let average = ratings.sorted(using: [KeyPathComparator(\.average), KeyPathComparator(\.count)]).map { $0.average * Double($0.count) }.sum / Double(count)
-		return AppStoreInfo.Rating(average: average, count: count)
+		return StoreRating(average: average, count: count)
+	}
+}
+
+/**
+The average rating of the app and the number of ratings, on the App Store or on another store, like Gumroad.
+*/
+struct StoreRating {
+	enum Store {
+		case appStore
+		case gumroad
+
+		/**
+		The name of the store in a sentence, like “the App Store”.
+		*/
+		var name: String {
+			switch self {
+			case .appStore:
+				"the App Store"
+			case .gumroad:
+				"Gumroad"
+			}
+		}
+	}
+
+	/**
+	The average as the store gives it, like 4.6333. It is rounded to one decimal where it is shown.
+	*/
+	let average: Double
+
+	let count: Int
+
+	/**
+	The store of the ratings.
+	*/
+	var store = Store.appStore
+
+	/**
+	The average rounded to one decimal, like 4.6, for the places that show it, like the rating sentence and structured data, so a value just below a tie, like 4.64999, reads as 4.6 and not 4.7.
+	*/
+	var roundedAverage: Double {
+		(average * 10).rounded() / 10
+	}
+
+	/**
+	The rating as a sentence, like “Rated 4.6 out of 5 from 565 ratings on the App Store”.
+	*/
+	var text: String {
+		"Rated \(roundedAverage.formatted(.number.locale(.site).precision(.fractionLength(1)))) out of 5 from \(count.formatted(counting: "rating")) on \(store.name)"
 	}
 }

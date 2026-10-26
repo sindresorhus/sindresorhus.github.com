@@ -5,7 +5,7 @@ import SiteKit
 A blog post, loaded from `content/blog/<slug>.md`.
 */
 struct BlogPost: ContentDocument {
-	enum Tag: String, Codable, Sendable {
+	enum Tag: String, Codable {
 		case programming
 		case openSource = "open-source"
 		case swift
@@ -56,7 +56,7 @@ struct BlogPost: ContentDocument {
 		max(lastCommitDate ?? frontmatter.publicationDate, frontmatter.publicationDate)
 	}
 
-	static let pageRoute: RoutePath = .blog
+	static let pageRoute = RoutePath.blog
 
 	var redirectURL: URL? {
 		frontmatter.redirectURL

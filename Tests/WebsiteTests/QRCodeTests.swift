@@ -5,7 +5,6 @@ import SiteKit
 import Testing
 @testable import Website
 
-@Suite
 struct QRCodeTests {
 	@Test
 	func `the modules read back as the URL`() throws {

@@ -58,16 +58,18 @@ pressQuotes: [
 		quote: 'If you ever need to use more than one browser on your Mac, you need to try Velja, a utility that lets you control which links open in which browsers.'
 		source: 'Lifehacker'
 		url: 'https://lifehacker.com/download-this-app-if-you-use-multiple-browsers-on-your-1850083609'
+		year: 2023
 	}
 	{
 		quote: 'Velja is a must-have Mac app if you use multiple browsers.'
 		source: 'Cult of Mac'
 		url: 'https://www.cultofmac.com/reviews/best-mac-utilities'
+		year: 2025
 	}
 ]
 ---
 
-Open each link in the right browser, profile, or app, automatically, or pick one from a prompt when you hold <kbd>Fn</kbd>.
+Open each link in the right browser, profile, or app, automatically, or pick one from a prompt when you hold ++Fn++.
 
 For example, Google Meet links open in Chrome, Figma links in the Figma app, and links from Slack in your work profile.
 
@@ -80,7 +82,7 @@ For example, Google Meet links open in Chrome, Figma links in the Figma app, and
 }
 
 @Feature(title: "Pick a browser when you click") {
-	Velja can show a prompt with your browsers for all links, only for links from some apps, or only when you hold <kbd>Fn</kbd> while you click. Press a key to pick a browser. <kbd>Command</kbd>-click a browser to always open that website there.
+	Velja can show a prompt with your browsers for all links, only for links from some apps, or only when you hold ++Fn++ while you click. Press a key to pick a browser. ++Command++-click a browser to always open that website there.
 }
 
 @Feature(title: "Use browser profiles and private windows") {
@@ -142,35 +144,31 @@ Any browser.
 
 Safari is not supported built-in, but can be supported by doing [this](https://github.com/sindresorhus/Safari-Private).
 
-## Trial
+## Trial {#trial}
 
-@Trial(url: "https://www.dropbox.com/scl/fi/4qmbgqvgr5x3oiupm7ekz/Velja-3.2.4-trial-1789044969.zip?rlkey=vwh6ptvawi4sn5oh7sh7lmssg&raw=1") {
+@Trial(url: "https://www.dropbox.com/scl/fi/4qmbgqvgr5x3oiupm7ekz/Velja-3.2.4-trial-1789044969.zip?rlkey=vwh6ptvawi4sn5oh7sh7lmssg&raw=1", macOS: "26") {
 	The trial is fully functional. The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 }
-
-*Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
-
-*Requires macOS 26 or later*
 
 ## Tips
 
 ### Prompt
 
-Instead of showing the browser prompt by default, you could set it as the alternative browser, which would make it show when you hold the <kbd>Fn</kbd> key while clicking a link.
+Instead of showing the browser prompt by default, you could set it as the alternative browser, which would make it show when you hold the ++Fn++ key while clicking a link.
 
 You could also create a custom rule and select `Prompt` as the browser. For example, you could only show the prompt when clicking links in the Slack app.
 
-If you want to open a link in the background, press <kbd>Control</kbd> when selecting a browser in the prompt. [Known issue.](#chrome-background-bug)
+If you want to open a link in the background, press ++Control++ when selecting a browser in the prompt. [Known issue.](#chrome-background-bug)
 
 ### Prompt shortcuts
 
-While showing the browser prompt, you can press <kbd>Option</kbd> to show buttons to copy or share the link. Or press <kbd>Shift</kbd> or <kbd>Command+C</kbd> to quickly copy the link.
+While showing the browser prompt, you can press ++Option++ to show buttons to copy or share the link. Or press ++Shift++ or ++Command+C++ to quickly copy the link.
 
 Assign a custom letter to each browser in the “Shown Browsers” list to pick it directly by key while the prompt is open.
 
-Press <kbd>Control+Tab</kbd>/<kbd>Shift+Control+Tab</kbd> or arrow keys to cycle through browsers. Press <kbd>Return</kbd> or <kbd>Space</kbd> to select one.
+Press ++Control+Tab++/++Control+Shift+Tab++ or arrow keys to cycle through browsers. Press ++Return++ or ++Space++ to select one.
 
-<kbd>Command</kbd>-click a browser to create a rule that always opens the current domain in that browser. You can also right-click a browser for more options, including creating a rule and opening in a new window (if supported by the browser).
+++Command++-click a browser to create a rule that always opens the current domain in that browser. You can also right-click a browser for more options, including creating a rule and opening in a new window (if supported by the browser).
 
 ### Copy URL
 
@@ -245,9 +243,9 @@ For example, select some text with URLs, right-click, go to “Services”, and 
 
 When you right-click a link in Chrome, the service gets only the title of the link, not the URL. Please star [the Chrome issue about links sent to services](https://issues.chromium.org/issues/40839891).
 
-If you want to force the browser prompt, you can either press <kbd>Option</kbd> when activating the service or use the “Open URLs with Velja Prompt” service.
+If you want to force the browser prompt, you can either press ++Option++ when activating the service or use the “Open URLs with Velja Prompt” service.
 
-If you want to force the link to open in the background, press <kbd>Shift</kbd> when activating the service. [Known issue.](#chrome-background-bug)
+If you want to force the link to open in the background, press ++Shift++ when activating the service. [Known issue.](#chrome-background-bug)
 
 *You may have to enable the service in “System Settings › Keyboard › Keyboard Shortcuts › Services”.*
 
@@ -295,7 +293,7 @@ For other Chrome-based browsers, replace `com.google.Chrome` with their bundle i
 
 ### Launch browsers from Velja menu
 
-Hold the <kbd>Option</kbd> key when clicking a browser in the Velja menu to launch it instead of setting it as the current browser. You can also press <kbd>Option+1</kbd> through <kbd>Option+9</kbd> to quickly open a browser by its position in the list. This even works with browser profiles.
+Hold the ++Option++ key when clicking a browser in the Velja menu to launch it instead of setting it as the current browser. You can also press ++Option+1++ through ++Option+9++ to quickly open a browser by its position in the list. This even works with browser profiles.
 
 ### Open certain URLs in a specific browser profile
 
@@ -647,7 +645,7 @@ Keep the log window open, click the problematic link, and read the entries in or
 
 You can also enable the link history in the advanced settings to keep a persistent record of opened URLs.
 
-To see more detailed debug info: Quit Velja if it’s open. Press <kbd>Shift+Control</kbd> while launching Velja, click the menu bar icon, click “Debug”, and then go to “Logs”.
+To see more detailed debug info: Quit Velja if it’s open. Press ++Control+Shift++ while launching Velja, click the menu bar icon, click “Debug”, and then go to “Logs”.
 
 If a rule with a “source app” condition isn’t working, check the history to verify the source app matches what you expect. Some apps launch URLs through helper processes, causing a different app to appear.
 

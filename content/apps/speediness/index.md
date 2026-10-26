@@ -32,6 +32,11 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/10847708/Speediness.1.5.0.-.macOS.12.zip'
 	}
 ]
+nonAppStoreVersion: {
+	version: '2.0.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/xt04xgqt32n6ekqdao10b/Speediness-2.0.0-1770359964.zip?rlkey=d16dzbs51ys756sb2cw49merv&raw=1'
+}
 ---
 
 Quickly check your internet connection speed, ping, and [RPM](#rpm).
@@ -42,7 +47,7 @@ Quickly check your internet connection speed, ping, and [RPM](#rpm).
 
 <img src="https://github.com/sindresorhus/meta/assets/170270/a7ffaf8f-6fb0-4c90-822f-446ec5ff8960" alt="Speediness output in the menu bar" width="230">
 
-You will need the [One Thing](https://sindresorhus.com/one-thing) app. Add [this shortcut](https://www.icloud.com/shortcuts/d073ad4fd89f4c9cb110795780ed2377) and then use the [Shortery](https://apps.apple.com/app/id1594183810) app to run it at an interval, as Shortcuts automations cannot do that. I would recommend an interval higher than 10 minutes.
+You will need the [One Thing](/one-thing) app. Add [this shortcut](https://www.icloud.com/shortcuts/d073ad4fd89f4c9cb110795780ed2377) and then use the [Shortery](https://apps.apple.com/app/id1594183810) app to run it at an interval, as Shortcuts automations cannot do that. I would recommend an interval higher than 10 minutes.
 
 Tip: If you have limited space in the menu bar, you could switch the info shown in One Thing at an interval too. For example, you could show the internet speed for 10 minutes and then the weather for the next 10 minutes.
 
@@ -103,11 +108,3 @@ This is unfortunately not possible at this time as the app relies on the built-i
 ### Can you make a command-line tool for this app?
 
 This app uses the built-in [`networkQuality` command-line tool](https://support.apple.com/HT212313) under the hood. You can use it too.
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/xt04xgqt32n6ekqdao10b/Speediness-2.0.0-1770359964.zip?rlkey=d16dzbs51ys756sb2cw49merv&raw=1) *(2.0.0)*
-
-*Requires macOS 26 or later*

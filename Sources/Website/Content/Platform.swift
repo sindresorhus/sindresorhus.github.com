@@ -1,4 +1,4 @@
-enum Platform: String, CaseIterable, Codable, Sendable {
+enum Platform: String, CaseIterable, Codable {
 	case macOS
 	case iOS
 	case watchOS
@@ -29,7 +29,7 @@ A macOS version that has a free older version of an app.
 
 Future versions are listed ahead of time on purpose, so the list never needs updating. Keep it an enum, and do not remove the future cases. The cases are in version order, oldest first, which the older versions page sorts by.
 */
-enum MacOSVersion: String, CaseIterable, Codable, Sendable {
+enum MacOSVersion: String, CaseIterable, Codable {
 	case v10_13 = "10.13"
 	case v10_14 = "10.14"
 	case v10_15 = "10.15"

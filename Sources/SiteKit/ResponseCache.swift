@@ -218,6 +218,6 @@ extension URLRequest {
 		)
 
 		let data = Data(JSONEncoder.pageJSON(identity).utf8)
-		return SHA256.hash(data: data).map { ($0 < 16 ? "0" : "") + String($0, radix: 16) }.joined()
+		return SHA256.hash(data: data).hexString
 	}
 }

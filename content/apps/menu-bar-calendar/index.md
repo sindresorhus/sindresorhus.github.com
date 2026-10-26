@@ -30,6 +30,11 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/13922546/Menu.Bar.Calendar.1.2.0.-.macOS.13.zip'
 	}
 ]
+nonAppStoreVersion: {
+	version: '1.7.1'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/up9hlj2ooxxarugsusr69/Menu-Bar-Calendar-1.7.1-1781624290.zip?rlkey=5k0n02u6gwqm94gd8mvezgqxx&raw=1'
+}
 ---
 
 Click the menu bar icon to see a monthly calendar. Click a date to open it in the Calendar app or Google Calendar, or right-click a day to create an event.
@@ -40,13 +45,13 @@ The calendar displays dates and days in your language, but the rest of the app i
 
 ## Tips
 
-- **Go to today (current month):** Click the month name or press the <kbd>space</kbd> key.
+- **Go to today (current month):** Click the month name or press the ++Space++ key.
 - **Switch months:** Press arrow keys or swipe horizontally on the calendar.
-- **Switch years:** While holding the <kbd>option</kbd> key, click the `‹` / `›` button, press arrow keys, or swipe horizontally on the calendar.
-- **Close calendar window:** Press the <kbd>esc</kbd> key.
+- **Switch years:** While holding the ++Option++ key, click the `‹` / `›` button, press arrow keys, or swipe horizontally on the calendar.
+- **Close calendar window:** Press the ++Esc++ key.
 - **Open date in the Calendar app (or Google Calendar):** Click a date in the calendar.
 - **Open week in the Calendar app (or Google Calendar):** Click a week number in the calendar.
-- **Go to a specific date:** Right-click the month name or press <kbd>G</kbd>.
+- **Go to a specific date:** Right-click the month name or press ++G++.
 - **Create new event on a specific day:** Right-click the day in the calendar.
 - **Copy the date for a day in the calendar:** Right-click the day in the calendar.
 
@@ -80,18 +85,10 @@ No. Zoho Calendar does not support opening to a specific date via URL, so this i
 
 ### How can I open Google Calendar in a specific browser?
 
-Use my [Velja app](https://sindresorhus.com/velja). You can create a rule to open any link clicked in this app in your chosen browser.
+Use my [Velja app](/velja). You can create a rule to open any link clicked in this app in your chosen browser.
 
 ### How can I scroll to switch months?
 
 You can swipe horizontally to switch months.
 
 If you don’t have a trackpad, there are [apps](https://mybyways.com/blog/configure-a-mouse-for-macos-trackpad-like-gestures) that let you make scrolling trigger swipe.
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/up9hlj2ooxxarugsusr69/Menu-Bar-Calendar-1.7.1-1781624290.zip?rlkey=5k0n02u6gwqm94gd8mvezgqxx&raw=1) *(1.7.1)*
-
-*Requires macOS 26 or later*

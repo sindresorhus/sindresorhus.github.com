@@ -82,7 +82,7 @@ public struct QRCode: HTML {
 		let colors = "\u{1B}[38;5;16;48;5;231m"
 		let reset = "\u{1B}[0m"
 
-		return stride(from: 0, to: rows.count, by: 2).map { y in
+		return stride(from: 0, to: rows.count, by: 2).lazy.map { y in
 			let line = zip(rows[y], rows[y + 1]).map { isUpperDark, isLowerDark in
 				switch (isUpperDark, isLowerDark) {
 				case (true, true):

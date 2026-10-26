@@ -50,7 +50,12 @@ extension Style {
 		border(.all, color, width: width, style: style)
 	}
 
-	public func border(_ edges: Edge.Set, _ color: Color = .currentColor, width: Length = .pixels(1), style: BorderStyle = .solid) -> Self {
+	public func border(
+		_ edges: Edge.Set,
+		_ color: Color = .currentColor,
+		width: Length = .pixels(1),
+		style: BorderStyle = .solid
+	) -> Self {
 		declaration(.border, .line(color, width: width, style: style), edges: edges)
 	}
 
@@ -113,7 +118,12 @@ extension Style {
 	- Parameter offset: The space between the ring and the border, like a negative offset to draw the ring over the border of a field.
 	- Parameter style: The line of the ring, like `.dotted` for the focus rectangle of Windows 95.
 	*/
-	public func focusRing(_ color: Color, width: Length = .pixels(4), offset: Length? = nil, style lineStyle: BorderStyle = .solid) -> Self {
+	public func focusRing(
+		_ color: Color,
+		width: Length = .pixels(4),
+		offset: Length? = nil,
+		style lineStyle: BorderStyle = .solid
+	) -> Self {
 		outline(color, width: width, offset: offset, style: lineStyle)
 	}
 
@@ -123,7 +133,12 @@ extension Style {
 	- Parameter offset: The space between the outline and the border, like a negative offset to draw the outline inside the element.
 	- Parameter style: The line of the outline, like `.dashed` for stitches.
 	*/
-	public func outline(_ color: Color = .currentColor, width: Length = .pixels(1), offset: Length? = nil, style lineStyle: BorderStyle = .solid) -> Self {
+	public func outline(
+		_ color: Color = .currentColor,
+		width: Length = .pixels(1),
+		offset: Length? = nil,
+		style lineStyle: BorderStyle = .solid
+	) -> Self {
 		declaration(.outline, .line(color, width: width, style: lineStyle))
 			.declaration(.outlineOffset, ifPresent: offset)
 	}
@@ -158,7 +173,12 @@ extension Style {
 		- y: The vertical position of the point of the pointer in the image, in pixels from the top.
 		- fallback: The pointer while the image loads, or when it cannot be used.
 	*/
-	public func cursor(_ image: RoutePath, x: Int = 0, y: Int = 0, fallback: Cursor = .auto) -> Self {
+	public func cursor(
+		_ image: RoutePath,
+		x: Int = 0,
+		y: Int = 0,
+		fallback: Cursor = .auto
+	) -> Self {
 		declaration(.cursor, CSSValue("\(CSSValue.url(image)) \(x) \(y), \(fallback.rawValue)"))
 	}
 
@@ -353,7 +373,12 @@ extension Style {
 	- Parameter fillMode: Whether the element keeps the styles of the first keyframe before the animation and of the last after it.
 	- Parameter isEssential: Whether the animation also runs with reduced motion, as it carries meaning and hardly moves, like the highlight of the section that a link points to.
 	*/
-	public func animation(_ keyframes: some KeyframeSet, _ animation: Animation, fillMode: AnimationFillMode? = nil, isEssential: Bool = false) -> Self {
+	public func animation(
+		_ keyframes: some KeyframeSet,
+		_ animation: Animation,
+		fillMode: AnimationFillMode? = nil,
+		isEssential: Bool = false
+	) -> Self {
 		let parts = [
 			keyframes.name,
 			animation.timing,

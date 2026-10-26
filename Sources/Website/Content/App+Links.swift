@@ -21,29 +21,46 @@ extension App {
 	}
 
 	/**
-	Download buttons: the repo or redirect page as “Learn More”, then the custom links.
+	Download buttons: the repo or redirect page as “Learn More”, then the download on GitHub, or the purchase on Gumroad.
 	*/
 	var mainLinks: [LabeledLink] {
-		let learnMore = (frontmatter.redirectURL ?? frontmatter.repositoryURL).map { [LabeledLink("Learn More", url: $0)] } ?? []
-		return learnMore.merging(frontmatter.mainLinks.labeledLinks)
+		[
+			(frontmatter.redirectURL ?? frontmatter.repositoryURL).map { LabeledLink("Learn More", url: $0) },
+			frontmatter.gitHubDownload.map { LabeledLink("Download", url: $0.url) },
+			gumroadURL.map { LabeledLink("Buy", url: $0) },
+		]
+		.compactMap(\.self)
 	}
 
 	/**
-	The links in the app header: page sections, custom links, and support.
+	The links in the app header: page sections, custom links, the older versions in the readme of the repo, the beta on TestFlight, and support.
 	*/
 	var links: [LabeledLink] {
-		var support = [LabeledLink]()
+		var extraLinks = [LabeledLink]()
+
+		// Apps with `olderVersions` have the “Older Versions” section, which the section links already have.
+		if
+			!frontmatter.olderMacOSVersions.isEmpty,
+			let olderVersionsURL
+		{
+			extraLinks.append(LabeledLink("Older Versions", url: olderVersionsURL))
+		}
+
+		if let testFlightURL = frontmatter.testFlightURL {
+			extraLinks.append(LabeledLink("TestFlight", url: testFlightURL))
+		}
+
 		if
 			frontmatter.showsSupportLink,
 			!frontmatter.isArchived
 		{
-			support.append(LabeledLink("Support", destination: feedbackURL))
+			extraLinks.append(LabeledLink("Support", destination: feedbackURL))
 		}
 
 		return sectionLinks
 			.filter { $0.destination != .fragment(Self.nonAppStoreVersionID) }
 			.merging(frontmatter.links.labeledLinks)
-			.merging(support)
+			.merging(extraLinks)
 	}
 
 	/**
@@ -136,6 +153,23 @@ extension App {
 				&& heading.id != App.feedbackHeadingID
 				&& heading.id != App.addedMenuBarQuestionID
 		}
+	}
+
+	/**
+	The Markdown of the answer of a question of the FAQ section, as it is in the file: the lines up to the next question or section, not to a heading in the answer, without the directives below the question, like `<!-- @faq.keywords … -->`. `nil` for a question that the build adds, which is not in the file.
+	*/
+	func faqAnswerMarkdown(of question: Heading) -> String? {
+		guard let line = question.line else {
+			return nil
+		}
+
+		let bodyLines = file.bodyLines
+		let end = markdown.headings.first { $0.level <= 3 && ($0.line ?? 0) > line }?.line ?? file.bodyStartLine + bodyLines.count
+
+		return bodyLines[(line + 1 - file.bodyStartLine)..<(end - file.bodyStartLine)]
+			.filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("<!--") }
+			.joined(separator: "\n")
+			.trimmingCharacters(in: .whitespacesAndNewlines)
 	}
 }
 

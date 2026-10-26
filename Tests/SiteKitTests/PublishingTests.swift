@@ -6,9 +6,34 @@ import Testing
 import UniformTypeIdentifiers
 @testable import SiteKit
 
-@Suite
 struct PublishingTests {
 	private let site = #URL("https://example.com")
+
+	@Test(.temporaryDirectory)
+	func `a JPEG XL copy of an image is made once and then read from the cache`() async throws {
+		let directory = try URL.temporaryDirectory()
+		let image = directory.appending(path: "image.png")
+		let context = try #require(CGContext(data: nil, width: 256, height: 256, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+
+		// Stripes, so the image has some detail.
+		for row in 0..<256 {
+			context.setFillColor(red: Double(row) / 255, green: 0.5, blue: 1 - Double(row) / 255, alpha: 1)
+			context.fill(CGRect(x: 0, y: row, width: 256, height: 1))
+		}
+
+		let destination = try #require(CGImageDestinationCreateWithURL(image as CFURL, UTType.png.identifier as CFString, 1, nil))
+		CGImageDestinationAddImage(destination, try #require(context.makeImage()), nil)
+		#expect(CGImageDestinationFinalize(destination))
+
+		let cache = directory.appending(path: "cache")
+		let copy = try #require(try await image.jpegXLVersion(cacheDirectory: cache))
+		let signature = try Data(contentsOf: copy).prefix(2)
+
+		// A JPEG XL codestream starts with `FF 0A`, and the container with a box of 12 bytes.
+		#expect(signature == Data([0xFF, 0x0A]) || signature == Data([0x00, 0x00]))
+		#expect(try copy.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? .max < image.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0)
+		#expect(try await image.jpegXLVersion(cacheDirectory: cache) == copy)
+	}
 
 	@Test
 	func `route paths drop extra slashes, and compare and append whole components`() throws {
@@ -188,6 +213,20 @@ struct PublishingTests {
 		#expect(index.contains("<sitemap><loc>https://example.com/sitemap-0.xml</loc></sitemap>"))
 	}
 
+	@Test
+	func `bytes become lowercase hexadecimal digits`() {
+		#expect([0, 10, 255].hexString == "000aff")
+		#expect([UInt8]().hexString == "")
+	}
+
+	@Test
+	func `straight quotes become typographic quotes`() {
+		#expect(#"She said "it's fine" ('really')."#.typographicQuotes == "She said “it’s fine” (‘really’).")
+		#expect(#""Great app""#.typographicQuotes == "“Great app”")
+		#expect(#""'Nested'" quotes"#.typographicQuotes == "“‘Nested’” quotes")
+		#expect("Typographic “quotes” stay".typographicQuotes == "Typographic “quotes” stay")
+	}
+
 	/**
 	The class names of element styles and seeded shuffles, like the puzzles of Appdle, come from the hash, so a different hash in another process would change the output of every build.
 	*/
@@ -330,7 +369,7 @@ struct PublishingTests {
 	Only the directories of the path are resolved, as resolving the symlink itself gives the path of its target, which can be outside the public directory.
 	*/
 	@Test(.temporaryDirectory)
-	func `a symlinked public file keeps its path`() async throws {
+	func `a symlinked public file keeps its path`() throws {
 		let outside = try URL.temporaryDirectory(files: ["font.woff2": "font"])
 		let project = try makeProject(publicFiles: ["robots.txt": ""])
 		let fonts = project.publicDirectory.appending(path: "fonts")
@@ -772,7 +811,12 @@ struct PublishingTests {
 /**
 Writes a 30×20 image of the type to the file, like a screenshot, with the bits per channel and the properties, like its DPI.
 */
-private func writeImage(to file: URL, type: UTType = .png, bitsPerComponent: Int = 8, properties: [CFString: Any] = [:]) throws {
+private func writeImage(
+	to file: URL,
+	type: UTType = .png,
+	bitsPerComponent: Int = 8,
+	properties: [CFString: Any] = [:]
+) throws {
 	let context = try #require(CGContext(data: nil, width: 30, height: 20, bitsPerComponent: bitsPerComponent, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue))
 	let image = try #require(context.makeImage())
 	let destination = try #require(CGImageDestinationCreateWithURL(file as CFURL, type.identifier as CFString, 1, nil))

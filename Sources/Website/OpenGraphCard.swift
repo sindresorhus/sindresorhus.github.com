@@ -165,7 +165,13 @@ struct OpenGraphCard: RouteConvertible {
 
 		- Parameter lineHeight: The height of each line. `nil` uses the normal line height of the font.
 		*/
-		init(_ text: String, font: CTFont, color: CGColor, maximumLines: Int, lineHeight: Double? = nil) {
+		init(
+			_ text: String,
+			font: CTFont,
+			color: CGColor,
+			maximumLines: Int,
+			lineHeight: Double? = nil
+		) {
 			let attributes: [NSAttributedString.Key: Any] = [
 				NSAttributedString.Key(kCTFontAttributeName as String): font,
 				NSAttributedString.Key(kCTForegroundColorAttributeName as String): color,

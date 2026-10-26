@@ -129,7 +129,7 @@ extension MarkdownPage {
 		/**
 		Shows the name next to the logo, for a logo without the name in it.
 		*/
-		var showsName: Bool = false
+		var showsName = false
 	}
 
 	/**

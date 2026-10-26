@@ -5,7 +5,6 @@ import Synchronization
 import TestSupport
 import Testing
 
-@Suite
 struct ResponseCacheTests {
 	private struct Value: Decodable, Equatable {
 		let value: Int
@@ -177,7 +176,7 @@ private final class ETagServer: Sendable {
 		self.bodies = bodies
 		let parameters = NWParameters.tcp
 		parameters.requiredLocalEndpoint = .hostPort(host: .ipv4(.loopback), port: .any)
-		listener = try NWListener(using: parameters)
+		self.listener = try NWListener(using: parameters)
 	}
 
 	/**

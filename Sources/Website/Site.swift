@@ -54,17 +54,23 @@ extension Schema.Person {
 	/**
 	The author with the profiles that identify him.
 	*/
-	static let author = Self(name: Site.author.name, givenName: Site.author.givenName, familyName: Site.author.familyName, url: Site.url, sameAs: Site.author.sameAs)
+	static let author = Self(id: authorID, name: Site.author.name, givenName: Site.author.givenName, familyName: Site.author.familyName, url: Site.url, sameAs: Site.author.sameAs)
 
 	/**
 	The author by name only, for nested mentions like the seller of an app.
 	*/
-	static let authorName = Self(name: Site.author.name)
+	static let authorName = Self(id: authorID, name: Site.author.name)
+
+	/**
+	The ID of the author in the structured data of all the pages, like the author of an app and of the about page.
+	*/
+	private static let authorID = #URL("https://sindresorhus.com/#person")
 
 	/**
 	The author with the full profile, for the home page and the about page.
 	*/
 	static let authorProfile = Self(
+		id: authorID,
 		name: Site.author.name,
 		url: Site.url,
 		image: Site.author.photoPath.absoluteURL,
@@ -141,6 +147,11 @@ extension Site {
 		AppdlePage(content: content)
 
 		for app in content.apps {
+			// The app lists show the icon also of an app with a page elsewhere.
+			for copy in app.jpegXLCopies {
+				copy.route
+			}
+
 			// An app with a page elsewhere has no page here. Its other pages stay, as the App Store links to the privacy policy.
 			if let redirectURL = app.redirectURL {
 				Route.redirect(app.path, to: redirectURL)

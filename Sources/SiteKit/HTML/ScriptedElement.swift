@@ -183,7 +183,7 @@ The script of a ``ScriptedElement``: the `.js` file with the same name as the Sw
 The build reads a file from the source directory, so the preview server shows a change to it without building the tool again. The target of the Swift file excludes the `Scripts` folder in `Package.swift`, so the scripts need no entry each. An inline script needs neither, but a change to it builds the tool again, and it has no syntax highlighting, so use it only for a few lines.
 */
 public struct ElementScript: Sendable {
-	private enum Location: Sendable {
+	private enum Location {
 		case file(URL)
 		case inline(String)
 	}

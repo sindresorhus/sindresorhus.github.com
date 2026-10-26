@@ -66,7 +66,7 @@ Don’t want to open anything? Set the target to “Copy to Clipboard” and cli
 
 ### Alternative email app
 
-Hold a <kbd>Fn</kbd> key when clicking a `mailto:` link to use an alternative email app, bypassing all rules.
+Hold a ++Fn++ key when clicking a `mailto:` link to use an alternative email app, bypassing all rules.
 
 ### Shortcuts
 

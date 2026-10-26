@@ -1,7 +1,7 @@
 import Foundation
 import SiteKit
 
-struct GitHubRelease: Decodable, Sendable {
+struct GitHubRelease: Decodable {
 	let tagName: String
 	let publishedAt: Date
 	let body: String?
@@ -31,7 +31,7 @@ struct GitHubRelease: Decodable, Sendable {
 	/**
 	A release in a response of the API. The release is `nil` when it has no publication date, like a draft.
 	*/
-	struct Entry: Decodable, Sendable {
+	struct Entry: Decodable {
 		let release: GitHubRelease?
 
 		init(from decoder: any Decoder) throws {

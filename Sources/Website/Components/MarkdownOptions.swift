@@ -55,10 +55,13 @@ extension MarkdownDocument.Options {
 			"Details": .init(render: renderDetails),
 			"Feature": .init(render: renderFeature),
 			"QuickAnswer": .init(render: renderQuickAnswer),
-			"Trial": .init(render: renderTrial),
+			"Trial": .init { (arguments: TrialArguments, contentHTML: String) in
+				renderTrial(arguments: arguments, contentHTML: contentHTML, setappURL: nil)
+			},
 			"TinyApp": .init(render: renderTinyApp),
 			"Tips": .init(render: renderTips),
 			"Cards": .init(render: renderCards),
+			"Columns": .init(render: renderColumns),
 			"Steps": .init(render: renderSteps),
 			"Changelog": .init(render: renderChangelog),
 			"SocialLinks": .init(render: renderSocialLinks),
@@ -68,9 +71,14 @@ extension MarkdownDocument.Options {
 	)
 
 	/**
-	The questions below the “Frequently Asked Questions” heading of an app page are collapsible, followed by a link to the general FAQ. Each section has a link that copies its URL. The common questions that apply to the app (``CommonQuestion``), the shared questions that it picks, and, unless the app is archived, the feedback question are added to the questions, and the older versions get their section (``App/Frontmatter/addingGeneratedSections(to:sharedQuestions:)``).
+	The questions below the “Frequently Asked Questions” heading of an app page are collapsible, followed by a link to the general FAQ. A platform badge must be for a platform of the app. Each section has a link that copies its URL. The common questions that apply to the app (``CommonQuestion``), the shared questions that it picks, and, unless the app is archived, the feedback question are added to the questions, and the older versions get their section (``App/Frontmatter/addingGeneratedSections(to:sharedQuestions:)``).
 	*/
-	static func appPage(_ file: MarkdownFile, project: Project, frontmatter: App.Frontmatter, sharedQuestions: App.SharedQuestions) -> Self {
+	static func appPage(
+		_ file: MarkdownFile,
+		project: Project,
+		frontmatter: App.Frontmatter,
+		sharedQuestions: App.SharedQuestions
+	) -> Self {
 		var options = content(file, project: project)
 		options.headingDirectives.append(App.SharedQuestions.First.self)
 		options.collapsibleSections = MarkdownDocument.CollapsibleSections(level: 3, startHeadingID: App.faqSectionID, name: "faq", moreLink: .init(title: "More FAQs", destination: .path(.faq)))
@@ -78,6 +86,21 @@ extension MarkdownDocument.Options {
 		options.rewrite = { document in
 			frontmatter.addingGeneratedSections(to: document, sharedQuestions: sharedQuestions)
 		}
+
+		// The trial of an app links to the app on Setapp too.
+		options.blockDirectives["Trial"] = .init { (arguments: TrialArguments, contentHTML: String) in
+			renderTrial(arguments: arguments, contentHTML: contentHTML, setappURL: frontmatter.setappURL)
+		}
+
+		// A badge for a platform that the app is not on would say that a part works on a platform where the app is not.
+		options.inlineAttributes = .init { (attributes: PlatformBadgeAttributes, contentHTML: String) in
+			guard frontmatter.platforms.contains(attributes.platform) else {
+				throw ContentError(reason: "The platform badge is for \(attributes.platform.rawValue), but the app is not on it. Add it to `platforms`, or remove the badge.")
+			}
+
+			return renderPlatformBadge(attributes: attributes, contentHTML: contentHTML)
+		}
+
 		return options
 	}
 
@@ -176,11 +199,11 @@ private enum FeatureSectionStyles: StyleSet {
 				.counterIncrement("feature")
 				.margin(.bottom, .rootEm(4))
 		case .title:
-			// The number is in the accent of the page, like the color of the icon on an app page.
+			// The number is in the accent of the page, like the color of the icon on an app page. Screen readers skip it, as the title says what the section is, and “zero one” before it is noise.
 			Style()
 				.before {
 					$0
-						.content(counter: "feature", style: .decimalLeadingZero)
+						.content(counter: "feature", style: .decimalLeadingZero, alternativeText: "")
 						.display(.block)
 						.margin(.bottom, .rootEm(0.75))
 						.fontFamily(.rounded)
@@ -249,13 +272,22 @@ private struct TrialArguments {
 	The text of the button, like “Try on TestFlight”.
 	*/
 	@NonEmpty var title = "Download Free Trial"
+
+	/**
+	The oldest macOS version that the trial runs on, like `macOS: "26"`, which the trial shows below the card. The trial can need a newer version than the app on the App Store, so it is not the `minimumOSVersion` of the app. The arguments of a directive are text, so it is a ``MacOSVersion``, not a number.
+	*/
+	var macOS: MacOSVersion?
 }
 
 /**
-The trial of an app, like `@Trial(url: "https://example.com/App-trial.zip") { The only limitation is … }`: a card with the text and a download button. It goes below the “Trial” heading, which the “Free Trial” button of the app links to, so the card is highlighted when the visitor comes from there.
+The trial of an app, like `@Trial(url: "https://example.com/App-trial.zip", macOS: "26") { The only limitation is … }`: a card with the text and a download button. It goes below the “Trial” heading, which the “Free Trial” button of the app links to, so the card is highlighted when the visitor comes from there.
+
+Below the card are the macOS version that it needs, how to install a download (a zip file, not a link to TestFlight), and the trial on Setapp, when the app is there.
+
+- Parameter setappURL: The app on Setapp, which has its own trial.
 */
 @Sendable
-private func renderTrial(arguments: TrialArguments, contentHTML: String) -> String {
+private func renderTrial(arguments: TrialArguments, contentHTML: String, setappURL: URL?) -> String {
 	// Not an aside, as the trial is part of the page about the app.
 	div {
 		HTMLRaw(contentHTML)
@@ -265,6 +297,43 @@ private func renderTrial(arguments: TrialArguments, contentHTML: String) -> Stri
 	}
 	.style(TrialStyles.root)
 	.render()
+		+ trialNotes(arguments: arguments, setappURL: setappURL).render()
+}
+
+/**
+The notes below the card of `@Trial`: the macOS version, how to install a download, and the trial on Setapp.
+*/
+@HTMLBuilder
+private func trialNotes(arguments: TrialArguments, setappURL: URL?) -> some HTML {
+	if let macOS = arguments.macOS {
+		p {
+			em {
+				"Requires macOS \(macOS.rawValue) or later"
+			}
+		}
+	}
+
+	if arguments.url.pathExtension == "zip" {
+		p {
+			em {
+				"Download it to the Downloads folder, double-click to unzip, and then move it to the "
+				code(.notTranslated) {
+					"/Applications"
+				}
+				" folder."
+			}
+		}
+	}
+
+	if let setappURL {
+		p {
+			"You can also "
+			a(.href(.url(setappURL))) {
+				"try it on Setapp"
+			}
+			" for 7 days for free."
+		}
+	}
 }
 
 /**
@@ -425,11 +494,22 @@ enum TinyAppStyles: StyleSet {
 }
 
 /**
+The arguments of `@Tips(title: "Hidden features") { … }`.
+*/
+@Frontmatter
+private struct TipsArguments {
+	/**
+	The title of the box, for a box below a heading that already says “Tips”.
+	*/
+	@NonEmpty var title = "Tips"
+}
+
+/**
 A box of tips, like `@Tips { - Tip }`, with the look of a tip alert.
 */
 @Sendable
-private func renderTips(contentHTML: String) -> String {
-	MarkdownTheme.site.alert(.tip, title: "Tips", contentHTML: contentHTML)
+private func renderTips(arguments: TipsArguments, contentHTML: String) -> String {
+	MarkdownTheme.site.alert(.tip, title: arguments.title, contentHTML: contentHTML)
 }
 
 /**
@@ -442,6 +522,42 @@ private func renderCards(contentHTML: String) -> String {
 	}
 	.style(CardListStyles.root)
 	.render()
+}
+
+/**
+A list of short items in columns, like `@Columns { - Zoom }`, so a long list of names, like the services that an app supports, does not make a narrow column several screens tall. It is opt-in, as a list of sentences reads better in one column.
+*/
+@Sendable
+private func renderColumns(contentHTML: String) -> String {
+	div {
+		HTMLRaw(contentHTML)
+	}
+	.style(ColumnListStyles.root)
+	.render()
+}
+
+/**
+The styles of `@Columns` lists.
+*/
+private enum ColumnListStyles: StyleSet {
+	case root
+
+	var style: Style {
+		// As many columns of at least 11 em as fit, at most four, so a column is not wider than its names. An item is not split across two columns.
+		Style()
+			.proseBlockMargin()
+			.children("ul") {
+				$0
+					.margin(0)
+					.columns(4, minimumWidth: .rootEm(11))
+					.gap(column: .rootEm(2))
+					.children("li") {
+						$0
+							.keepsTogether()
+							.margin(top: 0, horizontal: 0, bottom: .rootEm(0.25))
+					}
+			}
+	}
 }
 
 /**

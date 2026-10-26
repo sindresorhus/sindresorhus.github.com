@@ -71,9 +71,9 @@ public struct Route: Sendable {
 	public var outputFile: String {
 		switch output {
 		case .page, .redirect:
-			return path == .root ? "index.html" : "\(path.relativePath).html"
+			path == .root ? "index.html" : "\(path.relativePath).html"
 		case .file:
-			return path.relativePath
+			path.relativePath
 		}
 	}
 

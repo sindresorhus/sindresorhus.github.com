@@ -8,6 +8,7 @@ platforms: [
 isMenuBarApp: true
 appStoreID: 1569600264
 sharedQuestions: [
+	'randomly-quits'
 	'blurry-secondary-display'
 	'sync'
 	'menu-bar-icons'
@@ -40,14 +41,20 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/8003835/Pandan.1.9.1.-.macOS.11.zip'
 	}
 ]
-feedbackNote: '[The app randomly disappears/quits](/apps/faq#randomly-quits)'
+feedbackNote: '[The app randomly disappears/quits](/pandan#randomly-quits)'
 pressQuotes: [
 	{
 		quote: 'Pandan is instead about gently reminding you how long you’ve been on the computer so you can be aware of that.'
 		source: 'Lifehacker'
 		url: 'https://lifehacker.com/tech/pandan-app-shows-how-long-you-have-been-using-your-mac'
+		year: 2025
 	}
 ]
+nonAppStoreVersion: {
+	version: '1.18.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/z38d9ejud0mid9tlvk6ax/Pandan-1.18.0-1774710864.zip?rlkey=p73ny62ik1yif3pru812akfzm&raw=1'
+}
 ---
 
 Pandan shows in the menu bar how long you have been actively using your computer, so you know when it is time to take a break.
@@ -68,7 +75,7 @@ This is unfortunately not possible as iOS does not let an app continuously check
 
 Make a [shortcut](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) that uses the [`Play Sound` action](https://www.icloud.com/shortcuts/9cfae8edd2dd48f3bf318a3d825b1212) and then select that shortcut in the Pandan settings.
 
-If you have my [Dato app](https://sindresorhus.com/dato) installed (even the free trial), you could use one of the sounds it provides. Find the `Get Sound` action. [Example](https://www.icloud.com/shortcuts/2bf58f1c90134803a4765745f54794f6)
+If you have my [Dato app](/dato) installed (even the free trial), you could use one of the sounds it provides. Find the `Get Sound` action. [Example](https://www.icloud.com/shortcuts/2bf58f1c90134803a4765745f54794f6)
 
 ### How can I show an alert as a notification? {#alert-as-notification}
 
@@ -92,7 +99,7 @@ You can use the Shortcuts app for this. Make a shortcut that uses the “Set Ena
 
 ### How can I show the total active duration today as a countdown? {#countdown}
 
-Get [this shortcut](https://www.icloud.com/shortcuts/fdf0cd45fedb4290bfe14d84a394b601) (requires the [Actions](https://sindresorhus.com/actions) and [One Thing](https://sindresorhus.com/one-thing) apps) and select it in the Pandan settings. The countdown will update every time Pandan shows a notification. If you want the countdown to update more often, use the [Shortery](https://apps.apple.com/app/id1594183810) app to run the shortcut at an interval.
+Get [this shortcut](https://www.icloud.com/shortcuts/fdf0cd45fedb4290bfe14d84a394b601) (requires the [Actions](/actions) and [One Thing](/one-thing) apps) and select it in the Pandan settings. The countdown will update every time Pandan shows a notification. If you want the countdown to update more often, use the [Shortery](https://apps.apple.com/app/id1594183810) app to run the shortcut at an interval.
 
 ### How can I start a new session from the command-line?
 
@@ -121,11 +128,3 @@ Pandan comes bundled with actions for the built-in Shortcuts app which you can u
 - [Show the total active duration today as a countdown](#countdown)
 
 *And you can combine these too.*
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/z38d9ejud0mid9tlvk6ax/Pandan-1.18.0-1774710864.zip?rlkey=p73ny62ik1yif3pru812akfzm&raw=1) *(1.18.0)*
-
-*Requires macOS 26 or later*

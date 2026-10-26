@@ -171,7 +171,7 @@ struct NowPage: Page {
 	/**
 	A part of a section: a small title above a card, or above other content. The parts of a section are in two columns on larger screens, and a wide part spans both.
 	*/
-	private func group<Content: HTML>(_ title: String, isWide: Bool = false, @HTMLBuilder content: () -> Content) -> some HTML {
+	private func group(_ title: String, isWide: Bool = false, @HTMLBuilder content: () -> some HTML) -> some HTML {
 		div {
 			h3 {
 				title
@@ -187,7 +187,7 @@ struct NowPage: Page {
 	/**
 	A section of parts (``group(_:isWide:content:)``), in two columns on larger screens.
 	*/
-	private func groupedSection<Content: HTML>(_ title: String, id: String, @HTMLBuilder content: () -> Content) -> some HTML<HTMLTag.section> {
+	private func groupedSection(_ title: String, id: String, @HTMLBuilder content: () -> some HTML) -> some HTML<HTMLTag.section> {
 		Section(title, id: id) {
 			div {
 				content()
@@ -373,6 +373,8 @@ struct NowPage: Page {
 
 						// A caption, as the reviews are the point.
 						p {
+							// The stars of the reviews are decorative, as they are all five stars.
+							VisuallyHidden("All with five stars. ")
 							"More on the "
 							a(.href(.path(.reviews))) {
 								"Wall of Love"

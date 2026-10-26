@@ -162,7 +162,13 @@ extension Style {
 	/**
 	Underlines the text, or removes the underline, like of a link, with `underline(false)`.
 	*/
-	public func underline(_ isActive: Bool = true, style: UnderlineStyle? = nil, color: Color? = nil, thickness: Length? = nil, offset: Length? = nil) -> Self {
+	public func underline(
+		_ isActive: Bool = true,
+		style: UnderlineStyle? = nil,
+		color: Color? = nil,
+		thickness: Length? = nil,
+		offset: Length? = nil
+	) -> Self {
 		guard isActive else {
 			return declaration(.textDecoration, .none)
 		}
@@ -201,7 +207,12 @@ extension Style {
 	Style().fluidFontSize(fromRem: 3, toRem: 4.5, between: .smallTablet, and: .tablet)
 	```
 	*/
-	public func fluidFontSize(fromRem minimum: Double, toRem maximum: Double, between start: Breakpoint, and end: Breakpoint) -> Self {
+	public func fluidFontSize(
+		fromRem minimum: Double,
+		toRem maximum: Double,
+		between start: Breakpoint,
+		and end: Breakpoint
+	) -> Self {
 		let slope = (maximum - minimum) / (end.minimumWidthInRem - start.minimumWidthInRem)
 		let intercept = minimum - (slope * start.minimumWidthInRem)
 		return declaration(.fontSize, Length.clamp(.rootEm(minimum), .rootEm(intercept) + .viewportWidth(slope * 100), .rootEm(maximum)))
@@ -251,9 +262,17 @@ extension Style {
 			$0.content(counter: "step", style: .decimalLeadingZero)
 		}
 	```
+
+	- Parameter alternativeText: What screen readers say instead, like an empty string for a number that only decorates a heading.
 	*/
-	public func content(counter name: String, style: CounterStyle = .decimal) -> Self {
-		declaration(.content, CSSValue("counter(\(name), \(style.rawValue))"))
+	public func content(counter name: String, style: CounterStyle = .decimal, alternativeText: String? = nil) -> Self {
+		let counter = CSSValue("counter(\(name), \(style.rawValue))")
+
+		guard let alternativeText else {
+			return declaration(.content, counter)
+		}
+
+		return declaration(.content, CSSValue([counter, .string(alternativeText)], separator: " / "))
 	}
 
 	/**

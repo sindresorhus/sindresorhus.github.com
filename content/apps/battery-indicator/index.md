@@ -75,7 +75,7 @@ The system needs some time to accurately calculate the time remaining estimate.
 
 ### How do I remove the system battery menu bar item?
 
-Drag it out of the menu bar while pressing <kbd>Command</kbd>.
+Drag it out of the menu bar while pressing ++Command++.
 
 ### Can it show “apps using significant energy” like the built-in battery indicator?
 

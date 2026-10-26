@@ -34,6 +34,7 @@ struct AppPage: Page {
 			isIndexed: app.isListed,
 			appStoreID: app.showsAppStoreBanner ? app.appStoreID : nil,
 			favicon: app.iconPath,
+			video: app.media.first { $0.kind == .video },
 			feeds: app.releaseNotes.map { [$0.feed] } ?? []
 		)
 	}
@@ -44,7 +45,7 @@ struct AppPage: Page {
 			article(.id(AppHero.anotherRandomAppID)) {
 				let separatedContent = app.markdown.contentSeparatingIntroduction
 
-				AppHero(app: app, info: appStoreInfo, introduction: separatedContent?.introduction)
+				AppHero(app: app, info: appStoreInfo, introduction: separatedContent?.introduction, buildDate: content.buildDate)
 
 				// The space below is the space between the parts, so the screenshots are not far from it.
 				if let announcement = app.announcement {
@@ -59,7 +60,7 @@ struct AppPage: Page {
 				}
 
 				if !app.pressQuotes.isEmpty {
-					PressQuotes(quotes: app.pressQuotes)
+					PressQuotes(quotes: app.pressQuotes, showsYears: app.showsPressQuoteYears)
 						.style {
 							$0
 								.margin(.top, .rootEm(7))
@@ -67,22 +68,40 @@ struct AppPage: Page {
 						}
 				}
 
+				// The reviews come after the description of the app and before its first section, like the trial or the FAQ, so visitors know what the app does before they read what others think of it.
+				let remainder = separatedContent?.remainder ?? app.markdown.content
+				let sections = app.markdown.headings.first { $0.level == 2 }.flatMap { remainder.separated(beforeHeading: $0.id) }
+				let description = sections?.before ?? remainder
+
+				if !description.html.allSatisfy(\.isWhitespace) {
+					Prose(markdown: description)
+				}
+
 				// The rating is in the structured data, so it is shown without reviews too.
-				if !reviews.isEmpty || appStoreInfo?.rating != nil {
+				if !reviews.isEmpty || content.rating(of: app) != nil {
 					// The wall of love only has the reviews of the active apps, so another app, or an app without reviews, has no link to it.
-					AppReviews(reviews: reviews, rating: appStoreInfo?.rating, app: app.isActive && !reviews.isEmpty ? app : nil)
+					AppReviews(reviews: reviews, rating: content.rating(of: app), app: app.isActive && !reviews.isEmpty ? app : nil)
 						.style {
-							$0.margin(.bottom, .rootEm(6))
+							$0.margin(.vertical, .rootEm(6))
 						}
 				}
 
-				Prose(markdown: separatedContent?.remainder ?? app.markdown.content)
+				if let sections {
+					Prose(markdown: sections.after)
+				}
 
 				// The end of the page is set apart from the text above it, like the FAQ.
 				if app.isDownloadable {
 					AppCallToAction(app: app, info: appStoreInfo)
 						.style {
 							$0.margin(.top, .rootEm(9))
+						}
+				}
+
+				if !app.isArchived {
+					AppFacts(app: app, info: appStoreInfo)
+						.style {
+							$0.margin(.vertical, .rootEm(9))
 						}
 				}
 
@@ -133,7 +152,7 @@ struct AppPage: Page {
 	}
 
 	private var structuredData: Schema.SoftwareApplication {
-		Schema.SoftwareApplication(app: app, info: appStoreInfo, reviews: reviews)
+		Schema.SoftwareApplication(app: app, info: appStoreInfo, reviews: reviews, latestRelease: content.releases(of: app).first, gumroadRating: content.gumroadProduct(of: app)?.rating)
 	}
 }
 

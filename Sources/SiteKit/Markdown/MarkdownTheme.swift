@@ -72,6 +72,11 @@ public enum MarkdownElement: Hashable, Sendable {
 	case keySeparator
 
 	/**
+	The `<kbd>` around the keys of a shortcut of more than one key, which is a key combination in HTML, so the shortcut can be kept on one line.
+	*/
+	case keyboardShortcut
+
+	/**
 	The container of a table, which scrolls a table that is wider than the content. It has keyboard focus and a label, so keyboard and screen reader users can scroll it too.
 	*/
 	case tableContainer
@@ -180,7 +185,13 @@ extension MarkdownTheme {
 
 	- Parameter headingLevel: The level of the heading that is the title in the summary, like `3` for a question of a FAQ. The heading is like the headings of the document (``HTMLRenderer/visitHeading(_:)``). Without it, the title is a `span`.
 	*/
-	func collapsibleSection(id: String?, name: String?, headingLevel: Int?, titleHTML: String, contentHTML: String) -> String {
+	func collapsibleSection(
+		id: String?,
+		name: String?,
+		headingLevel: Int?,
+		titleHTML: String,
+		contentHTML: String
+	) -> String {
 		let idAttribute = id.map { #" id="\#($0.escapedForHTML)""# } ?? ""
 		let nameAttribute = name.map { #" name="\#($0.escapedForHTML)""# } ?? ""
 		let titleTag = headingLevel.map { "h\($0)" } ?? "span"
@@ -227,17 +238,19 @@ extension MarkdownTheme {
 	}
 
 	/**
-	A keyboard shortcut as one `<kbd>` per key, with a `+` between them that screen readers skip, like GitHub.
+	A keyboard shortcut as one `<kbd>` per key, with a `+` between them that screen readers skip, like GitHub. A shortcut of more than one key is in another `<kbd>`, which HTML defines as a key combination. Keys are not translated, as they are the names on the keyboard.
 
 	- Parameter keysHTML: The HTML of each key, like `Cmd` and `K`.
 	*/
 	func keyboardShortcut(keysHTML: [String]) -> String {
-		keysHTML.enumerated()
-			.map { index, key in
-				let separator = index == 0 ? "" : #"<span\#(classAttribute(.keySeparator)) aria-hidden="true">+</span>"#
-				return "\(separator)<kbd>\(key)</kbd>"
-			}
-			.joined()
+		guard keysHTML.count > 1 else {
+			return keysHTML.map { #"<kbd translate="no">\#($0)</kbd>"# }.joined()
+		}
+
+		let keys = keysHTML.lazy.map { "<kbd>\($0)</kbd>" }
+			.joined(separator: #"<span\#(classAttribute(.keySeparator)) aria-hidden="true">+</span>"#)
+
+		return #"<kbd\#(classAttribute(.keyboardShortcut)) translate="no">\#(keys)</kbd>"#
 	}
 
 	/**

@@ -85,7 +85,13 @@ struct ProjectOfTheDay: ScriptedElement {
 	/**
 	The project of the day of the projects, which changes each day of the build, like the related apps. `nil` when there are no projects.
 	*/
-	init?(title: String, randomTitle: String, listPath: RoutePath, projects: [Project], date: Date) {
+	init?(
+		title: String,
+		randomTitle: String,
+		listPath: RoutePath,
+		projects: [Project],
+		date: Date
+	) {
 		var generator = SeededRandomNumberGenerator.daily(listPath.description, on: date)
 
 		guard let project = projects.randomElement(using: &generator) else {

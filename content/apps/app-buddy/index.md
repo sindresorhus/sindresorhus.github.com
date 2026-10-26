@@ -9,11 +9,12 @@ sharedQuestions: [
 	'not-in-app-store'
 ]
 hasSentry: true
-releasesRepository: 'app-buddy-meta'
-mainLinks: {
-	Download: 'https://github.com/sindresorhus/app-buddy-meta/releases/latest/download/App.Buddy.zip'
+releasesRepository: 'sindresorhus/app-buddy-meta'
+gitHubDownload: {
+	repository: 'sindresorhus/app-buddy-meta'
+	file: 'App.Buddy.zip'
 }
-requirement: 'Requires macOS 26 or later'
+minimumOSVersion: 26
 olderVersions: [
 	{
 		version: '1.2.1'

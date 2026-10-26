@@ -19,6 +19,11 @@ olderVersions: [
 		url: 'https://github.com/user-attachments/files/18203304/Icon.Preview.1.0.2.zip'
 	}
 ]
+nonAppStoreVersion: {
+	version: '1.2.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/qz25ebardzubedros2p1y/Icon-Preview-1.2.0-1764590537.zip?rlkey=8ty3u35x9rprn7ectqm0mcwaz&raw=1'
+}
 ---
 
 Preview how your macOS app icon will look in the Dock and how your menu bar item icon will appear.
@@ -34,7 +39,7 @@ An essential tool for developers and designers to perfect the look of their macO
 - Drag and drop an image onto the Dock icon or menu bar icon to preview it there.
 - Click the Dock icon to pick an icon.
 - Right-click the Dock icon while the app is running for more actions.
-- In Finder, right-click an image file, and select “Open With › Icon Preview” to set it as the Dock icon. To instead set it as the menu bar icon, press the <kbd>Option</kbd> key while doing this.
+- In Finder, right-click an image file, and select “Open With › Icon Preview” to set it as the Dock icon. To instead set it as the menu bar icon, press the ++Option++ key while doing this.
 
 #### Preview multiple icons
 
@@ -59,11 +64,3 @@ See Apple’s [Human Interface Guidelines](https://developer.apple.com/design/hu
 ### What are the specifications for designing a menu bar icon?
 
 See [this blog post](https://bjango.com/articles/designingmenubarextras/).
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/qz25ebardzubedros2p1y/Icon-Preview-1.2.0-1764590537.zip?rlkey=8ty3u35x9rprn7ectqm0mcwaz&raw=1) *(1.2.0)*
-
-*Requires macOS 26 or later*

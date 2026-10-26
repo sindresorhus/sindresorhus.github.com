@@ -38,6 +38,11 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/8007477/UTC.Time.1.3.0.-.macOS.11.zip'
 	}
 ]
+nonAppStoreVersion: {
+	version: '1.11.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/t98b3p4kebmb7hrmahms4/UTC-Time-1.11.0-1769179922.zip?rlkey=2i3xk1wm2okqh1237rfkbuj3t&raw=1'
+}
 ---
 
 See the time in UTC at a glance, in your menu bar or a widget. Useful when you work with servers, logs, or people in many time zones.
@@ -67,11 +72,3 @@ Same answer as above.
 ### Can it show seconds in the clock?
 
 I don’t plan to add this. Showing seconds wastes a lot of system resources and energy as macOS is very inefficient at rendering updates in the menu bar. Instead, just enable seconds in the system clock.
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/t98b3p4kebmb7hrmahms4/UTC-Time-1.11.0-1769179922.zip?rlkey=2i3xk1wm2okqh1237rfkbuj3t&raw=1) *(1.11.0)*
-
-*Requires macOS 26 or later*

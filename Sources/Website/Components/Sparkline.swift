@@ -18,7 +18,7 @@ struct Sparkline: HTML {
 	var body: some HTML<HTMLTag.div> {
 		let points = points
 		// The line through the points.
-		let line = "M" + points.map { "\($0.x) \($0.y)" }.joined(separator: "L")
+		let line = "M" + points.lazy.map { "\($0.x) \($0.y)" }.joined(separator: "L")
 
 		return div {
 			// The scale of the drawing is not uniform, so it fills any width, and the lines keep their width (`vector-effect`).

@@ -11,7 +11,7 @@ struct AppReviews: HTML {
 	/**
 	The App Store rating, when the app has one.
 	*/
-	var rating: AppStoreInfo.Rating?
+	var rating: StoreRating?
 
 	/**
 	The app, for a link to all its quotes and reviews on the wall of love.
@@ -22,6 +22,11 @@ struct AppReviews: HTML {
 		section {
 			h2 {
 				reviews.isEmpty ? "Rating" : "Recent Reviews"
+
+				// The stars of the reviews are decorative, so the heading says their rating once.
+				if !reviews.isEmpty {
+					VisuallyHidden(", all with five stars")
+				}
 			}
 			.style(SectionStyles.label, Styles.title)
 

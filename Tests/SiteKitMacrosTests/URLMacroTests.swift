@@ -7,7 +7,6 @@ import Testing
 #if canImport(SiteKitMacros)
 import SiteKitMacros
 
-@Suite
 struct URLMacroTests {
 	private let macros = [
 		"URL": MacroSpec(type: URLMacro.self),

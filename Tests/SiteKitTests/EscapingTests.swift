@@ -1,7 +1,6 @@
 import Testing
 @testable import SiteKit
 
-@Suite
 struct EscapingTests {
 	@Test
 	func `text is escaped, and text without special characters stays the same`() {

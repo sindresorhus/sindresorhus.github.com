@@ -24,6 +24,11 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/13852708/Spaced.1.0.4.-.macOS.13.zip'
 	}
 ]
+nonAppStoreVersion: {
+	version: '1.3.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/spty4pij7c9geahzhzubx/Spaced-1.3.0-1774258825.zip?rlkey=fboyvze8lg2boa5fcs3kai0rr&raw=1'
+}
 ---
 
 Add separators to your menu bar, so related items sit together in groups.
@@ -47,7 +52,7 @@ That is out of scope for this app. You want something like [Bartender](https://w
 
 ### Can you support more separator characters and wider spacers? {#custom-separator}
 
-Already supported, but hidden for now because of a macOS alignment bug with characters padded by spaces. Hold <kbd>Shift+Option</kbd> while clicking the menu bar icon to be able to specify custom separator.
+Already supported, but hidden for now because of a macOS alignment bug with characters padded by spaces. Hold ++Option+Shift++ while clicking the menu bar icon to be able to specify custom separator.
 
 ### Can the app support changing the distance between menu bar items?
 
@@ -56,11 +61,3 @@ You can do that with my [Menu Bar Spacing](/menu-bar-spacing) app.
 ### Can the app also support grouping icons in the Dock?
 
 You can do that with my [Supercharge](/supercharge) app.
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/spty4pij7c9geahzhzubx/Spaced-1.3.0-1774258825.zip?rlkey=fboyvze8lg2boa5fcs3kai0rr&raw=1) *(1.3.0)*
-
-*Requires macOS 26 or later*

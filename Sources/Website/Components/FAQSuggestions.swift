@@ -21,7 +21,7 @@ struct FAQSuggestions: ScriptedElement {
 	}
 
 	var content: some HTML {
-		// A live region, so screen readers announce the crash warning and the suggestions while the visitor types. The links are reached with Tab. It is around them, as screen readers only announce changes in a live region that is already on the page, not one that is shown with its content.
+		// A live region, so screen readers announce the crash warning and the number of suggestions while the visitor types. It is around it, as screen readers only announce changes in a live region that is already on the page, not one that is shown with its content.
 		div(.role("status")) {
 			div(.part(Parts.crashWarning), .hidden) {
 				"Looks like you’re reporting a crash. It would be very helpful if you could also attach a "
@@ -31,26 +31,31 @@ struct FAQSuggestions: ScriptedElement {
 			}
 			.style(Styles.crashWarning)
 
-			div(.part(Parts.panel), .hidden) {
-				div {
-					span {
-						"Related Help"
-					}
-					.style(Styles.title)
-
-					button(.part(Parts.dismiss), .type(.button)) {
-						Icon.close.size(.rootEm(0.875))
-					}
-					.accessibilityLabel("Dismiss")
-					.style(Styles.dismissButton)
-				}
-				.style(Styles.header)
-
-				ul(.part(Parts.list)) {}
-					.style(Styles.list)
-			}
-			.style(Styles.panel)
+			// The number of suggestions, which the script sets when they change, so screen readers hear the number, not all the questions again.
+			span(.part(Parts.count)) {}
+				.style(VisuallyHidden.Styles.root)
 		}
+
+		// Not a live region, as it would read all the questions again for each change. The live region above has their number, and the links are reached with Tab.
+		div(.part(Parts.panel), .hidden) {
+			div {
+				span {
+					"Related Help"
+				}
+				.style(Styles.title)
+
+				button(.part(Parts.dismiss), .type(.button)) {
+					Icon.close.size(.rootEm(0.875))
+				}
+				.accessibilityLabel("Dismiss")
+				.style(Styles.dismissButton)
+			}
+			.style(Styles.header)
+
+			ul(.part(Parts.list)) {}
+				.style(Styles.list)
+		}
+		.style(Styles.panel)
 
 		template(.part(Parts.template)) {
 			li {
@@ -113,6 +118,7 @@ struct FAQSuggestions: ScriptedElement {
 
 	enum Parts: String, ElementPartSet {
 		case crashWarning
+		case count
 		case panel
 		case dismiss
 		case list

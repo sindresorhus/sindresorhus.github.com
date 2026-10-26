@@ -97,7 +97,7 @@ class FAQSuggestions extends HTMLElement {
 	#isDismissed = false;
 	#timer;
 
-	// The URLs of the questions in the list, so the list is only rebuilt when they change, as the live region reads all of it again.
+	// The URLs of the questions in the list, so the list is only rebuilt, and its count announced, when they change.
 	#renderedURLs;
 
 	connectedCallback() {
@@ -116,6 +116,7 @@ class FAQSuggestions extends HTMLElement {
 		const panel = this.querySelector('[data-part="panel"]');
 		const list = this.querySelector('[data-part="list"]');
 		const crashWarning = this.querySelector('[data-part="crashWarning"]');
+		const count = this.querySelector('[data-part="count"]');
 
 		clearTimeout(this.#timer);
 
@@ -132,7 +133,8 @@ class FAQSuggestions extends HTMLElement {
 			const matches = this.#matchingQuestions(textarea.value);
 			if (matches.length === 0) {
 				panel.hidden = true;
-				// The list is built again when the panel comes back, so screen readers read it again.
+				count.textContent = '';
+				// The list is built again when the panel comes back, so screen readers hear its number again.
 				this.#renderedURLs = undefined;
 				return;
 			}
@@ -146,6 +148,9 @@ class FAQSuggestions extends HTMLElement {
 					item.querySelector('[data-part="question"]').textContent = question;
 					return item;
 				}));
+
+				// Screen readers hear the number in the live region, not all the questions again for each change.
+				count.textContent = `${matches.length} related help ${matches.length === 1 ? 'answer' : 'answers'}`;
 			}
 
 			panel.hidden = false;

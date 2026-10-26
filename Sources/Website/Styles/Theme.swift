@@ -127,7 +127,7 @@ enum SemanticColor: String, CaseIterable {
 	case cardHover
 
 	/**
-	The light and dark colors, and the colors when the visitor asks for more contrast in the system settings, when they differ. Body text, secondary text, links, and separators get darker in light mode and lighter in dark mode.
+	The light and dark colors, and the colors when the visitor asks for more contrast in the system settings, when they differ. Body text, secondary text, links, and separators get darker in light mode and lighter in dark mode, and the fills of cards get stronger, so a card stands out from the page.
 	*/
 	private var definition: (colors: Color.LightDark, moreContrast: Color.LightDark?) {
 		switch self {
@@ -147,9 +147,9 @@ enum SemanticColor: String, CaseIterable {
 			(Color.LightDark(light: .white, dark: "oklch(14% .012 264)"), nil)
 		// See-through, so a card takes a little of the color behind it.
 		case .card:
-			(Color.LightDark(light: .black.opacity(0.035), dark: .white.opacity(0.065)), nil)
+			(Color.LightDark(light: .black.opacity(0.035), dark: .white.opacity(0.065)), Color.LightDark(light: .black.opacity(0.07), dark: .white.opacity(0.12)))
 		case .cardHover:
-			(Color.LightDark(light: .primary(500).opacity(0.06), dark: .white.opacity(0.095)), nil)
+			(Color.LightDark(light: .primary(500).opacity(0.06), dark: .white.opacity(0.095)), Color.LightDark(light: .primary(500).opacity(0.12), dark: .white.opacity(0.17)))
 		}
 	}
 
@@ -800,14 +800,17 @@ private let cardLight = RegisteredProperty<CSSValue>("--card-light", syntax: .nu
 
 extension Style {
 	/**
-	The look of a card: a light, see-through fill with a faint edge. A card that links somewhere looks like glass while the pointer is over it: a soft light in the accent color shines through it, and it glows around its edges. The accent can be set on the card, like the color of the icon of an app card. Nothing moves. A card that links somewhere has no underline, like a link in prose has.
+	The look of a card: a light, see-through fill with a faint edge. A card that links somewhere looks like glass while the pointer is over it, or while the keyboard is on it or on a link in it, like the link of the title of an app card: a soft light in the accent color shines through it, and it glows around its edges. The accent can be set on the card, like the color of the icon of an app card. Nothing moves. A card that links somewhere has no underline, like a link in prose has.
 	*/
 	func cardSurface(isInteractive: Bool = true) -> Self {
 		// TODO: Add `corner-shape: squircle` when Safari and Firefox support it.
-		// A faint edge gives the light fill a clear outline, like the materials of Apple platforms.
+		// A faint edge gives the light fill a clear outline, like the materials of Apple platforms. With more contrast, the edge has the color of the separators, which is strong then.
 		let style = background(.card)
 			.cornerRadius(.cardRadius)
 			.shadow(.edge(.lightDark(.black.opacity(0.04), .white.opacity(0.06))))
+			.media(.moreContrast) {
+				$0.shadow(.edge(.separator))
+			}
 
 		guard isInteractive else {
 			return style
@@ -820,6 +823,15 @@ extension Style {
 			CSSValue("radial-gradient(circle at 15% 40%, color-mix(in oklab, \(accent) calc(\(cardLight.value) * \(strength)%), transparent), transparent 70%)")
 		}
 
+		// The same look for the pointer, and for the keyboard on the card or on a link in it.
+		func lit(_ style: Style) -> Style {
+			style
+				.setting(cardLight, to: 1)
+				.background(.cardHover)
+				// The glow around the card, and a thin light edge, like the rim of glass.
+				.shadow(.extraLarge(color: .lightDark(accent.opacity(0.07), accent.opacity(0.12))) + [.edge(.lightDark(accent.opacity(0.12), .white.opacity(0.1)))])
+		}
+
 		return style
 			.underline(false)
 			.setting(cardLight, to: 0)
@@ -829,13 +841,8 @@ extension Style {
 			}
 			.transition(.backgroundColor, .shadow, animation: .stateChange)
 			.transition(TransitionProperty(cardLight), animation: .default(duration: .milliseconds(300)))
-			.hoverOrFocusVisible {
-				$0
-					.setting(cardLight, to: 1)
-					.background(.cardHover)
-					// The glow around the card, and a thin light edge, like the rim of glass.
-					.shadow(.extraLarge(color: .lightDark(accent.opacity(0.07), accent.opacity(0.12))) + [.edge(.lightDark(accent.opacity(0.12), .white.opacity(0.1)))])
-			}
+			.hoverOrFocusVisible(lit)
+			.descendantFocusVisible(lit)
 	}
 
 	/**

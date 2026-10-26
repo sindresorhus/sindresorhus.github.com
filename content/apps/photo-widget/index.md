@@ -13,9 +13,7 @@ sharedQuestions: [
 	'widget-missing'
 	'widget-run-shortcut'
 ]
-# links: {
-# 	TestFlight: 'https://testflight.apple.com/join/ybGzYJ28',
-# }
+# testFlightURL: 'https://testflight.apple.com/join/ybGzYJ28'
 feedbackNote:
 	'''
 	If you are seeing black/white widgets, this is an iOS bug. Possible workaround:

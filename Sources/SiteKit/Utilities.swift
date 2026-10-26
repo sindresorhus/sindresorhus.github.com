@@ -1,6 +1,16 @@
 import AVFoundation
+import CryptoKit
 import Foundation
 import ImageIO
+
+extension Sequence<UInt8> {
+	/**
+	The bytes as lowercase hexadecimal digits, two for each byte, like `0aff` for `[10, 255]`, like for a hash.
+	*/
+	public var hexString: String {
+		map { ($0 < 16 ? "0" : "") + String($0, radix: 16) }.joined()
+	}
+}
 
 extension Error {
 	/**
@@ -246,6 +256,80 @@ public struct PixelSize: Hashable, Sendable, CustomStringConvertible {
 
 extension URL {
 	/**
+	A JPEG XL copy of a PNG or JPEG image, or `nil` when the copy is not smaller. A PNG is encoded losslessly, and a JPEG is wrapped losslessly, so the JPEG can be restored bit for bit. So the copy looks exactly like the image.
+
+	It runs `cjxl` (`brew install jpeg-xl`), which throws when it is missing. The copy is cached in the directory by a hash of the bytes of the image and the options, so an image is only encoded again when it changes.
+	*/
+	public func jpegXLVersion(cacheDirectory: URL) async throws -> URL? {
+		let data = try Data(contentsOf: self)
+		let isJPEG = ["jpg", "jpeg"].contains(pathExtension.lowercased())
+		// The options are part of the key, so a change of them encodes the images again.
+		let options = isJPEG ? ["--lossless_jpeg=1"] : ["--distance=0"]
+		let key = SHA256.hash(data: data + Data(options.joined(separator: " ").utf8)).hexString
+		let output = cacheDirectory.appending(path: "\(key).jxl")
+
+		// An image whose copy is not smaller is remembered too, so it is not encoded in every build.
+		let notSmallerMarker = cacheDirectory.appending(path: "\(key).not-smaller")
+
+		if output.isFile {
+			return output
+		}
+
+		if notSmallerMarker.isFile {
+			return nil
+		}
+
+		try cacheDirectory.createDirectory()
+
+		// To a temporary file first, so an encode that stops halfway does not leave a broken copy in the cache.
+		let temporaryOutput = cacheDirectory.appending(path: "\(key)-\(UUID().uuidString).jxl")
+		let process = Process()
+		process.executableURL = URL(filePath: "/usr/bin/env")
+		process.arguments = ["cjxl", "--quiet"] + options + [path(percentEncoded: false), temporaryOutput.path(percentEncoded: false)]
+		process.standardOutput = FileHandle.nullDevice
+		let errorPipe = Pipe()
+		process.standardError = errorPipe
+		var errorOutput = Data()
+
+		let status = try await process.runUntilExit {
+			for try await byte in errorPipe.fileHandleForReading.bytes {
+				errorOutput.append(byte)
+			}
+		}
+
+		// `env` exits with 127 when it cannot find the command.
+		guard status != 127 else {
+			throw ContentError(file: self, reason: "`cjxl` is missing, which makes the JPEG XL copies of the images. Install it with `brew install jpeg-xl`.")
+		}
+
+		guard status == 0 else {
+			try? temporaryOutput.removeIfExists()
+			throw ContentError(file: self, reason: "`cjxl` could not make a JPEG XL copy of the image: \(String(decoding: errorOutput, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines))")
+		}
+
+		let size = try temporaryOutput.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? .max
+
+		guard size < data.count else {
+			try? temporaryOutput.removeIfExists()
+			try Data().write(to: notSmallerMarker)
+			return nil
+		}
+
+		// Another build can have made the same copy at the same time, which is the same file, so the move can find it there.
+		do {
+			try FileManager.default.moveItem(at: temporaryOutput, to: output)
+		} catch {
+			try? temporaryOutput.removeIfExists()
+
+			guard output.isFile else {
+				throw error
+			}
+		}
+
+		return output
+	}
+
+	/**
 	The pixel size of an image, or `nil` when it cannot be read, like for the `width` and `height` of an image, so the layout does not move while it loads. Only the header of the image is read. For a video, use ``videoSize``.
 	*/
 	public var imageSize: PixelSize? {
@@ -364,6 +448,34 @@ extension String {
 				result += "&quot;"
 			default:
 				result.unicodeScalars.append(scalar)
+			}
+		}
+
+		return result
+	}
+
+	/**
+	The text with typographic quotes and apostrophes instead of straight ones, like “it’s” for "it's", for text from others that is not Markdown, like an App Store review. A quote at the start or after a space or an opening bracket opens, and any other closes, so an apostrophe in a word is ’.
+
+	```swift
+	#"She said "it's fine""#.typographicQuotes
+	//=> "She said “it’s fine”"
+	```
+	*/
+	public var typographicQuotes: String {
+		var result = ""
+
+		for character in self {
+			// The character before it in the result, so a quote right after an opening quote opens too, like in `"'Hi'"`.
+			let isOpening = result.last.map { $0.isWhitespace || "([{“‘—–-".contains($0) } ?? true
+
+			switch character {
+			case "\"":
+				result.append(isOpening ? "“" : "”")
+			case "'":
+				result.append(isOpening ? "‘" : "’")
+			default:
+				result.append(character)
 			}
 		}
 

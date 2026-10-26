@@ -4,7 +4,7 @@ import SiteKit
 /**
 A link with a visible label, like a button in the app header.
 */
-struct LabeledLink: Hashable, Sendable {
+struct LabeledLink: Hashable {
 	let title: String
 	let destination: LinkDestination
 
@@ -40,7 +40,7 @@ extension LabeledLink {
 /**
 Links under a heading, like the app categories.
 */
-struct LinkGroup: Sendable {
+struct LinkGroup {
 	let title: String
 	let links: [LabeledLink]
 }

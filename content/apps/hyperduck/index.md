@@ -32,11 +32,13 @@ pressQuotes: [
 		quote: 'I love Hyperduck. […] It does a great job bridging iOS and iPadOS to macOS, which Shortcuts doesn’t do very well yet. […] Hyperduck has become one of my primary tools for controlling my Mac remotely.'
 		source: 'MacStories'
 		url: 'https://www.macstories.net/reviews/automation-april-hyperduck-leverages-the-power-of-url-schemes-to-control-your-mac-from-an-iphone-or-ipad/'
+		year: 2023
 	}
 	{
 		quote: 'We’ve previously covered Hyperduck, which is better than AirDrop for sending links from your iPhone to your Mac.'
 		source: 'Lifehacker'
 		url: 'https://lifehacker.com/9-apps-that-can-automate-almost-everything-on-your-mac-1850460688'
+		year: 2023
 	}
 ]
 ---
@@ -60,7 +62,7 @@ My personal use-case is that I often discover cool stuff when I check X (Twitter
 
 The app uses iCloud syncing to securely send links from your iOS/visionOS device to your Mac. The app developer will not see the links you share. The app does not collect any personal data and does not have any tracking.
 
-## Troubleshooting
+## Troubleshooting {#troubleshooting}
 
 - If the “Send to Mac” button is not showing up in share sheets, you may have to enable it at the bottom of the share sheet with the “Edit Actions” button. You may even have to restart your device for it to show up (iOS bugs…).
 - Ensure Hyperduck is running on the Mac.

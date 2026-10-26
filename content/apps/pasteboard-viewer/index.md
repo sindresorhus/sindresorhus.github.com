@@ -9,9 +9,6 @@ platforms: [
 ]
 repositoryURL: 'https://github.com/sindresorhus/Pasteboard-Viewer'
 appStoreID: 1499215709
-links: {
-	'Older Versions': 'https://github.com/sindresorhus/Pasteboard-Viewer#download'
-}
 olderMacOSVersions: [
 	'10.15'
 	'11'
@@ -24,6 +21,6 @@ olderMacOSVersions: [
 
 A developer utility that shows the contents of the system pasteboards live, with previews of text, RTF, images, and anything that has a Quick Look preview.
 
-Useful to check that your app puts the correct data on the pasteboard.
+Use it to check that your app puts the correct data on [`NSPasteboard`](https://developer.apple.com/documentation/appkit/nspasteboard) or [`UIPasteboard`](https://developer.apple.com/documentation/uikit/uipasteboard).
 
-Note that this is not a clipboard manager.
+Note that this is not a clipboard manager. If you are not a developer, you probably don’t want this app.

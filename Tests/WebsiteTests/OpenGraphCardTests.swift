@@ -4,7 +4,6 @@ import SiteKit
 import Testing
 @testable import Website
 
-@Suite
 struct OpenGraphCardTests {
 	@Test
 	func `renders a 1200×630 JPEG with the bundled font`() throws {

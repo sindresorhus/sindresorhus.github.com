@@ -14,7 +14,7 @@ struct AppSecondaryNavigation: ScriptedElement {
 		a(.href(app.url)) {
 			AppIcon(decorative: app, size: 32)
 
-			span {
+			span(.notTranslated) {
 				app.title
 			}
 			.style(Styles.name)
@@ -38,9 +38,13 @@ struct AppSecondaryNavigation: ScriptedElement {
 
 			// With one download option, “Get” links to it. With more, it goes up to the download options.
 			if app.isDownloadable {
-				Link("Get", destination: app.downloadOptions.count == 1 ? app.downloadOptions[0].url : .fragment(AppHero.Hooks.hero.id))
-					.buttonStyle(size: .small)
-					.style(Styles.getButton)
+				// The name of the app is only for screen readers, so the link says what it gets in a list of the links of the page.
+				Link(destination: app.downloadOptions.count == 1 ? app.downloadOptions[0].url : .fragment(AppHero.Hooks.hero.id)) {
+					"Get"
+					VisuallyHidden(" \(app.title)")
+				}
+				.buttonStyle(size: .small)
+				.style(Styles.getButton)
 			}
 		}
 		.accessibilityLabel("\(app.title) sections")

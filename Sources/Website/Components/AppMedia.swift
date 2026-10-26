@@ -12,10 +12,11 @@ struct AppMedia: ScriptedElement {
 
 	var content: some HTML {
 		// Not a Tab stop, which browsers make a scroller without controls, as it has no focus look: the buttons and the dots move through the items, and one item has nothing to scroll to.
-		section(.part(Parts.scroller), .tabindex(-1)) {
+		// Screen readers announce it as a carousel of slides, like in the carousel pattern of ARIA.
+		section(.part(Parts.scroller), .tabindex(-1), .ariaRoleDescription("carousel")) {
 			for (index, asset) in app.media.enumerated() {
 				// The item has the sizes of its media (`--max-width` and `--phone-width`), so it has its width before the media loads.
-				div {
+				div(.role("group"), .ariaRoleDescription("slide")) {
 					// The width and height attributes give the natural size and the aspect ratio, so the media reserves its space before it loads, and is never shown larger than its natural size. On wider screens, it is at most 640px tall.
 					switch asset.kind {
 					case .video:
@@ -33,11 +34,19 @@ struct AppMedia: ScriptedElement {
 						.accessibilityLabel("\(app.title) demo video. Press to pause or play.")
 						.style(Styles.media)
 					case .image:
-						// Numbered without the videos, which have their own label.
-						img(.src(asset.path), .width(asset.size.width), .height(asset.size.height), .alt("\(app.title) screenshot \(app.media[..<index].count { $0.kind == .image } + 1)"), .lazyLoading, .asyncDecoding)
+						// Numbered without the videos, which have their own label. The first item is in view when the page loads on a computer, so it loads at once instead of lazily. Not with a high priority, as on phones it is below the first screen, and the icon of the app is the largest image there.
+						let image = img(.src(asset.path), .width(asset.size.width), .height(asset.size.height), .alt("\(app.title) screenshot \(app.media[..<index].count { $0.kind == .image } + 1)"))
+							.attributes(.lazyLoading, when: index > 0)
+							.attributes(.asyncDecoding)
 							.style(Styles.media)
+
+						// The smaller JPEG XL copy, for browsers that show it.
+						JPEGXLPicture(copy: asset.jpegXL) {
+							image
+						}
 					}
 				}
+				.accessibilityLabel("\(index + 1) of \(app.media.count)")
 				.style(Styles.item)
 				.style {
 					asset.settingSizes(on: $0, phoneMaximumHeight: phoneMaximumHeight)
@@ -215,10 +224,10 @@ struct AppMedia: ScriptedElement {
 					.zIndex(1)
 					.margin(.top, .rootEm(0.75))
 			case .dot:
-				// The button is larger than the dot, which is drawn inside it, so it is easy to tap. The buttons touch, so their tap areas do not overlap. The script marks the dot of the item in view with `aria-current`.
+				// The button is larger than the dot, which is drawn inside it, so it is easy to tap, and at least 24px wide, the smallest target of WCAG 2.2. The buttons touch, so their tap areas do not overlap. The script marks the dot of the item in view with `aria-current`.
 				// The focus of the keyboard shows as a round fill around the dot, like on the icon buttons of the site, as the dot of the item in view already has the accent.
 				Style()
-					.frame(width: .rootEm(1.25), height: .rootEm(1.75))
+					.frame(width: .rootEm(1.5), height: .rootEm(1.75))
 					.media(.coarsePointer) {
 						$0.frame(width: .rootEm(1.75), height: .rootEm(2.75))
 					}

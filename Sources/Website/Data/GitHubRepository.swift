@@ -1,6 +1,6 @@
 import Foundation
 
-struct GitHubRepository: Decodable, Sendable {
+struct GitHubRepository: Decodable {
 	let name: String
 	let description: String?
 	let url: URL
@@ -65,7 +65,7 @@ struct GitHubRepository: Decodable, Sendable {
 /**
 The owner and the name of a GitHub repo, like `sindresorhus/ky`. GitHub ignores their case, so equality does too, as the link of an npm package can have capitals, like `SindreSorhus/ky`.
 */
-struct GitHubRepositoryName: Hashable, Sendable, CustomStringConvertible, ExpressibleByStringLiteral {
+struct GitHubRepositoryName: Hashable, CustomStringConvertible, ExpressibleByStringLiteral {
 	/**
 	The owner and the name in the link of an npm package, and the `.git` extension after the name. Not literals in ``init(npmRepositoryLink:)``, as Swift parses a regex literal each time the code runs, and it runs for each package.
 	*/

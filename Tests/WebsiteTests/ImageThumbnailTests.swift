@@ -7,7 +7,6 @@ import Testing
 import UniformTypeIdentifiers
 @testable import Website
 
-@Suite
 struct ImageThumbnailTests {
 	@Test(.temporaryDirectory, arguments: [(0xFF0000, "#ff0000" as String?), (0x808080, nil as String?)])
 	func `thumbnail decoding bounds dimensions and preserves vivid and neutral accents`(hex: Int, accent: String?) throws {

@@ -44,8 +44,6 @@ The optimal workflow in One Task is to add only the tasks you’re committed to 
 
 It syncs tasks over iCloud. Note that the macOS version has an issue where it doesn’t sync while being the active window (macOS bug).
 
-It’s a [Universal Purchase](/apps/faq#universal-purchase).
-
 <br>
 
 > You can achieve almost anything in life — as long as you focus on achieving one thing at a time. It’s a time-tested strategy that’s been shared by many successful people.

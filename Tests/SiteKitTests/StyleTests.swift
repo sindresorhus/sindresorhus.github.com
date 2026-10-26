@@ -2,7 +2,6 @@ import Elementary
 import Testing
 import SiteKit
 
-@Suite
 struct StyleTests {
 	/**
 	A number that is not finite, like from a division by zero, is a mistake in the code, so the build stops and names it, instead of writing CSS that the browser ignores.
@@ -58,7 +57,9 @@ struct StyleTests {
 	@Test
 	func `a list of child selectors only matches direct children`() {
 		let css = Stylesheet {
-			Rule(".form", Style()
+			Rule(
+				".form",
+				Style()
 				.children("p, label") {
 					$0.padding(.rootEm(1))
 				}
@@ -96,7 +97,9 @@ struct StyleTests {
 	@Test
 	func `image cursors, border styles, and the scroll bars of the page`() {
 		let css = Stylesheet {
-			Rule(".page", Style()
+			Rule(
+				".page",
+				Style()
 				.cursor("/arrow.png", x: 1, y: 2, fallback: .default)
 				.border(Color("#ccc"), width: .pixels(2), style: .outset)
 				.children("canvas") {
@@ -184,7 +187,9 @@ struct StyleTests {
 	@Test
 	func `modifiers render in order, and conditions nest`() {
 		let css = Stylesheet {
-			Rule(".card", Style()
+			Rule(
+				".card",
+				Style()
 				.display(.flex)
 				.padding(.horizontal, .rootEm(1))
 				.border(.top, .currentColor)
@@ -230,7 +235,9 @@ struct StyleTests {
 	@Test
 	func `typed modifiers render CSS`() {
 		let css = Stylesheet {
-			Rule(".a", Style()
+			Rule(
+				".a",
+				Style()
 				.margin(top: 0, horizontal: .auto, bottom: .rootEm(5))
 				.padding(top: .rootEm(1), bottom: .rootEm(2))
 				.padding(.leading, .rootEm(1))
@@ -384,7 +391,9 @@ struct StyleTests {
 	@Test
 	func `conditions for ARIA states, checked controls, and the states that a script sets`() {
 		let css = Stylesheet {
-			Rule(".x", Style()
+			Rule(
+				".x",
+				Style()
 				.current {
 					$0.opacity(0.95)
 				}
@@ -453,7 +462,9 @@ struct StyleTests {
 	@Test
 	func `conditions for focus, open details, backdrops, custom states, and empty elements`() {
 		let css = Stylesheet {
-			Rule(".x", Style()
+			Rule(
+				".x",
+				Style()
 				.focus {
 					$0.opacity(1)
 				}
@@ -822,7 +833,6 @@ struct StyleTests {
 	}
 }
 
-@Suite
 struct StyleListTests {
 	@Test
 	func `a transition after no transition replaces it`() {
@@ -837,7 +847,9 @@ struct StyleListTests {
 	@Test
 	func `transitions add up with other modifiers between them`() {
 		let css = Stylesheet {
-			Rule(".a", Style()
+			Rule(
+				".a",
+				Style()
 				.transition(.color, animation: .default(duration: .milliseconds(150)))
 				.padding(.rootEm(1))
 				.transition(.opacity, animation: .default(duration: .milliseconds(500)))
@@ -886,7 +898,6 @@ enum PanelStyles: StyleSet {
 	}
 }
 
-@Suite
 struct PageResourcesTests {
 	@Test
 	func `a page style set with the class name of a shared style set is a duplicate`() throws {
@@ -929,7 +940,7 @@ struct PageResourcesTests {
 /**
 A private component, for the class names of style sets in private types.
 */
-private struct PrivateCard {
+private enum PrivateCard {
 	enum Styles: StyleSet {
 		case root
 
@@ -980,7 +991,7 @@ enum SecondFadeStyles: StyleSet {
 /**
 A component with a type parameter, like a list of any content.
 */
-struct GenericWrapper<Value> {
+enum GenericWrapper<Value> {
 	enum Styles: StyleSet {
 		case title
 

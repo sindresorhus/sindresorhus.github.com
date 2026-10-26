@@ -29,6 +29,11 @@ olderVersions: [
 		url: 'https://drive.google.com/file/d/1mcEhAKhmQGYzmSS-zlejt3_qsKFzqm0h/view?usp=sharing'
 	}
 ]
+nonAppStoreVersion: {
+	version: '1.7.0'
+	macOS: 26
+	url: 'https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Amazing.AI.1.7.0.zip'
+}
 ---
 
 Describe the image you want, and the app makes it for you.
@@ -61,11 +66,11 @@ To write a [negative prompt](https://en.wikipedia.org/wiki/Stable_Diffusion#Text
 ### Keyboard shortcuts
 
 On macOS, when in preview mode, there are some keyboard shortcuts available:
-- <kbd>◀</kbd> — Previous image
-- <kbd>▶</kbd> — Next image
-- <kbd>Space</kbd> — Save image
-- <kbd>Command+C</kbd> — Copy image
-- <kbd>Esc</kbd> — Exit preview
+- ++◀++ — Previous image
+- ++▶++ — Next image
+- ++Space++ — Save image
+- ++Command+C++ — Copy image
+- ++Esc++ — Exit preview
 
 ### Metadata
 
@@ -133,11 +138,3 @@ The AI model used to generate images is large. This is reasonable given the mode
 - Outpainting
 - Image-to-image
 - Custom models
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Amazing.AI.1.7.0.zip) *(1.7.0)*
-
-*Requires macOS 26 or later*

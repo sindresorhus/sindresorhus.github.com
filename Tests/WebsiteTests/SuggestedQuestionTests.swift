@@ -1,8 +1,9 @@
+import Foundation
+import JavaScriptCore
 import SiteKit
 import Testing
 @testable import Website
 
-@Suite
 struct SuggestedQuestionTests {
 	@Test
 	func `words are lowercase, at least three letters, and without stopwords or apostrophes`() {
@@ -67,5 +68,41 @@ struct SuggestedQuestionTests {
 		let other = SuggestedQuestion(headings[1], url: .path("/apps/faq", fragment: "other"))
 		#expect(other.platforms == nil)
 		#expect(other.pinnedRank == nil)
+	}
+
+	/**
+	The matching runs in the browser, so this runs the real script of `FAQSuggestions` with JavaScriptCore, the engine of Safari, on the real questions, with messages like the ones visitors write. A new synonym or keyword that pushes a good answer out of the first four fails it.
+	*/
+	@Test
+	func `the script of the feedback page suggests the right answers for real messages`() async throws {
+		let content = try await SiteContent.website
+		let questions = FAQSuggestions.Questions(apps: content.maintainedApps, faq: content.page(.faq))
+		let source = try FAQSuggestions.script.source
+		// Only the matching, without the custom element, which needs a page.
+		let matcherSource = String(source[..<(try #require(source.range(of: "class FAQSuggestions")).lowerBound)])
+		let context = try #require(JSContext())
+		context.evaluateScript(matcherSource)
+		context.setObject(String(decoding: try JSONEncoder().encode(questions), as: UTF8.self), forKeyedSubscript: "data" as NSString)
+
+		func suggestions(for message: String, app: String) -> [String] {
+			context.setObject(message, forKeyedSubscript: "message" as NSString)
+			context.setObject(app, forKeyedSubscript: "app" as NSString)
+			return context.evaluateScript("questionMatcher(JSON.parse(data), app)(message).map(question => question.url)")?.toArray() as? [String] ?? []
+		}
+
+		let cases = [
+			(message: "Dato does not show up in my menu bar anymore after updating", app: "Dato", answer: "#app-not-showing-in-menu-bar"),
+			(message: "I bought the app by mistake and want a refund please", app: "Dato", answer: "/apps/faq#refund"),
+			(message: "The week number shown is wrong, it says week 1 in December", app: "Dato", answer: "#december-week-1"),
+			// The app has its own answer, which comes before the general one.
+			(message: "How can I export my settings and move them to a new Mac?", app: "Velja", answer: "/velja#how-can-i-export-import-sync-transfer-or-back-up-the-settings"),
+		]
+
+		for (message, app, answer) in cases {
+			let urls = suggestions(for: message, app: app)
+			#expect(urls.contains { $0.contains(answer) }, "“\(message)” suggests \(urls), not \(answer).")
+		}
+
+		#expect(context.exception == nil, "\(context.exception?.toString() ?? "")")
 	}
 }

@@ -3,7 +3,7 @@ import SiteKit
 /**
 A themed list of apps, like the free apps or the menu bar apps.
 */
-enum AppCategory: String, CaseIterable, Codable, Sendable {
+enum AppCategory: String, CaseIterable, Codable {
 	// The order of the “Categories” menu of the apps page.
 	case free
 	case paid

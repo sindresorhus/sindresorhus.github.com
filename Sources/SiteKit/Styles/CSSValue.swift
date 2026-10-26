@@ -185,7 +185,12 @@ extension CSSValue {
 	/**
 	A gradient function, like `linear-gradient(to right in oklch, blue, pink)`. The shape and the color space are the first argument, which is left out when there are none.
 	*/
-	private static func gradient(_ name: String, _ shape: String?, _ colors: [String], in colorSpace: ColorSpace?) -> Self {
+	private static func gradient(
+		_ name: String,
+		_ shape: String?,
+		_ colors: [String],
+		in colorSpace: ColorSpace?
+	) -> Self {
 		let prelude = [shape, colorSpace.map { "in \($0.rawValue)" }].compactMap(\.self).joined(separator: " ")
 		let arguments = prelude.isEmpty ? colors : [prelude] + colors
 		return Self("\(name)(\(arguments.joined(separator: ", ")))")

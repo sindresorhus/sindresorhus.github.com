@@ -185,9 +185,8 @@ private struct MetadataHead: HTML {
 			meta(.name(.description), .content(description))
 		}
 
-		if !metadata.isIndexed {
-			meta(.name("robots"), .content("noindex"))
-		}
+		// Search engines may show a large image of an indexed page, like in Google Discover, instead of a thumbnail.
+		meta(.name("robots"), .content(metadata.isIndexed ? "max-image-preview:large" : "noindex"))
 
 		if let appStoreID = metadata.appStoreID {
 			meta(.name("apple-itunes-app"), .content("app-id=\(appStoreID)\(App.appStoreBannerCampaign.map { ", affiliate-data=\($0)" } ?? "")"))
@@ -222,6 +221,13 @@ private struct MetadataHead: HTML {
 			meta(.property("og:description"), .content(description))
 		}
 
+		if let video = metadata.video {
+			meta(.property("og:video"), .content(video.path.absoluteURL.absoluteString))
+			meta(.property("og:video:type"), .content("video/mp4"))
+			meta(.property("og:video:width"), .content(String(video.size.width)))
+			meta(.property("og:video:height"), .content(String(video.size.height)))
+		}
+
 		// X reads the title, description, and image from the Open Graph tags.
 
 		if case .article(let publishedAt, let tags) = metadata.kind {
@@ -249,7 +255,9 @@ extension Stylesheet {
 	The styles of the `html` and `body` elements that ``SiteLayout`` renders. They are in the base layer of the shared stylesheet.
 	*/
 	static let document = Stylesheet {
-		Rule("html", Style()
+		Rule(
+			"html",
+			Style()
 			.lineHeight(1.5)
 			.fontFamily(.system)
 			.declaration(.webkitTextSizeAdjust, .percent(100))
@@ -266,12 +274,16 @@ extension Stylesheet {
 		)
 
 		// No focus rings, not even the ones of the browser, as the site does not want them. Text fields show their focus with their border (`FormField`), and parts that only show on focus, like the link of a section, still show.
-		Rule(":focus-visible", Style()
+		Rule(
+			":focus-visible",
+			Style()
 			.noOutline()
 		)
 
 		// The text of the primary color in light mode, and of the softer body color in dark mode, where white text glares, with their colors for more contrast.
-		Rule("body", Style()
+		Rule(
+			"body",
+			Style()
 			.color(.primaryText, dark: .bodyText)
 			.background(.pageBackground)
 			.overflow(horizontal: .clip)

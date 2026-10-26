@@ -65,7 +65,9 @@ extension Stylesheet {
 	The element defaults and utilities that every page uses.
 	*/
 	static let base = Stylesheet {
-		Rule(":root", Palette.customProperties
+		Rule(
+			":root",
+			Palette.customProperties
 			.combined(with: SemanticColor.customProperties)
 			.colorScheme(.lightDark)
 			// Lets `::details-content` animate to `auto`, so the collapsible sections open and close smoothly, in browsers that support it.
@@ -73,7 +75,9 @@ extension Stylesheet {
 		)
 
 		// A small reset: elements have no spacing or borders until a component styles them.
-		Rule("*, ::before, ::after", Style()
+		Rule(
+			"*, ::before, ::after",
+			Style()
 			.boxSizing(.borderBox)
 			.margin(0)
 			.padding(0)
@@ -82,7 +86,9 @@ extension Stylesheet {
 
 		document
 
-		Rule("h1, h2, h3, h4, h5, h6", Style()
+		Rule(
+			"h1, h2, h3, h4, h5, h6",
+			Style()
 			.font(size: .inherit)
 			.declaration(.fontWeight, .inherit)
 			// Lines of a heading get similar lengths, instead of a last line with one word.
@@ -93,16 +99,30 @@ extension Stylesheet {
 		Rule("p, li, dd, blockquote, figcaption", Style().textWrap(.pretty))
 
 		// In the accent of the page, like the color of the app on an app page. See-through, so the text keeps its color, also the colors of highlighted code on the dark code blocks.
-		Rule("::selection", Style()
+		Rule(
+			"::selection",
+			Style()
 			.background(Color.pageAccent.opacity(0.22), dark: Color.darkModeAccent.opacity(0.35))
 		)
 
-		Rule("a", Style()
+		// The text that a link to a text fragment points to, like from search results (`#:~:text=`), like the selection, but stronger, so it is found on the page.
+		Rule(
+			"::target-text",
+			Style()
+			.color(.inherit)
+			.background(Color.pageAccent.opacity(0.35), dark: Color.darkModeAccent.opacity(0.5))
+		)
+
+		Rule(
+			"a",
+			Style()
 			.color(.inherit)
 			.declaration(.textDecoration, .inherit)
 		)
 
-		Rule("hr", Style()
+		Rule(
+			"hr",
+			Style()
 			.frame(height: 0)
 			.color(.inherit)
 			.border(.top, width: .pixels(1))
@@ -114,14 +134,18 @@ extension Stylesheet {
 
 		Rule("ol, ul, menu", Style().listStyle(.none))
 
-		Rule("img, svg, video, canvas", Style()
+		Rule(
+			"img, svg, video, canvas",
+			Style()
 			.display(.block)
 			.verticalAlign(.middle)
 		)
 
 		Rule("img, video", Style().frame(height: .auto, maxWidth: .percent(100)))
 
-		Rule("button, input, select, optgroup, textarea", Style()
+		Rule(
+			"button, input, select, optgroup, textarea",
+			Style()
 			.inheritsFont()
 			.color(.inherit)
 			.letterSpacing(.inherit)
@@ -130,7 +154,9 @@ extension Stylesheet {
 
 		Rule("button, label[for]", Style().cursor(.pointer))
 
-		Rule("[hidden]", Style()
+		Rule(
+			"[hidden]",
+			Style()
 			.important {
 				$0.hidden()
 			}

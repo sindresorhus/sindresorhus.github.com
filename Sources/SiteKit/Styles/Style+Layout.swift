@@ -68,7 +68,12 @@ extension Style {
 
 	- Parameter isInline: Whether the stack flows with the text around it, like `inline-flex`.
 	*/
-	public func hstack(alignment: Alignment? = nil, justification: Justification? = nil, spacing: Length? = nil, isInline: Bool = false) -> Self {
+	public func hstack(
+		alignment: Alignment? = nil,
+		justification: Justification? = nil,
+		spacing: Length? = nil,
+		isInline: Bool = false
+	) -> Self {
 		stack(direction: nil, alignment: alignment, justification: justification, spacing: spacing, isInline: isInline)
 	}
 
@@ -77,11 +82,22 @@ extension Style {
 
 	- Parameter isInline: Whether the stack flows with the text around it, like `inline-flex`.
 	*/
-	public func vstack(alignment: Alignment? = nil, justification: Justification? = nil, spacing: Length? = nil, isInline: Bool = false) -> Self {
+	public func vstack(
+		alignment: Alignment? = nil,
+		justification: Justification? = nil,
+		spacing: Length? = nil,
+		isInline: Bool = false
+	) -> Self {
 		stack(direction: .column, alignment: alignment, justification: justification, spacing: spacing, isInline: isInline)
 	}
 
-	private func stack(direction: FlexDirection?, alignment: Alignment?, justification: Justification?, spacing: Length?, isInline: Bool) -> Self {
+	private func stack(
+		direction: FlexDirection?,
+		alignment: Alignment?,
+		justification: Justification?,
+		spacing: Length?,
+		isInline: Bool
+	) -> Self {
 		display(isInline ? .inlineFlex : .flex)
 			.declaration(.flexDirection, ifPresent: direction)
 			.declaration(.alignItems, ifPresent: alignment)
@@ -288,7 +304,14 @@ extension Style {
 	/**
 	The size constraints, like SwiftUI's `frame` modifier.
 	*/
-	public func frame(width: Length? = nil, height: Length? = nil, minWidth: Length? = nil, maxWidth: Length? = nil, minHeight: Length? = nil, maxHeight: Length? = nil) -> Self {
+	public func frame(
+		width: Length? = nil,
+		height: Length? = nil,
+		minWidth: Length? = nil,
+		maxWidth: Length? = nil,
+		minHeight: Length? = nil,
+		maxHeight: Length? = nil
+	) -> Self {
 		declaration(.width, ifPresent: width)
 			.declaration(.height, ifPresent: height)
 			.declaration(.minWidth, ifPresent: minWidth)
@@ -366,7 +389,12 @@ extension Style {
 	/**
 	Sets the shorthand when all three are given, and each given side otherwise.
 	*/
-	private func sides(top: Length?, horizontal: Length?, bottom: Length?, property: Property) -> Self {
+	private func sides(
+		top: Length?,
+		horizontal: Length?,
+		bottom: Length?,
+		property: Property
+	) -> Self {
 		if
 			let top,
 			let horizontal,

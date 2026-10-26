@@ -4,7 +4,7 @@ import SiteKit
 /**
 A review of an app on an English-language App Store.
 */
-struct AppStoreReview: Hashable, Sendable {
+struct AppStoreReview: Hashable {
 	let title: String
 	let text: String
 	let author: String
@@ -158,10 +158,11 @@ private struct ReviewFeed: Decodable {
 		}
 
 		self.reviews = try entries.map { entry in
+			// With typographic quotes, like the rest of the site, as reviewers type straight ones.
 			AppStoreReview(
 				// Some reviewers start the title with star emoji, which would repeat the stars of the rating.
-				title: entry.title.label.trimmingCharacters(in: .whitespacesAndNewlines.union(CharacterSet(charactersIn: "⭐★\u{FE0F}"))),
-				text: entry.content.label.trimmingCharacters(in: .whitespacesAndNewlines),
+				title: entry.title.label.trimmingCharacters(in: .whitespacesAndNewlines.union(CharacterSet(charactersIn: "⭐★\u{FE0F}"))).typographicQuotes,
+				text: entry.content.label.trimmingCharacters(in: .whitespacesAndNewlines).typographicQuotes,
 				author: entry.author.name.label,
 				rating: Int(entry.rating.label) ?? 0,
 				date: try Date(entry.updated.label, strategy: .iso8601)

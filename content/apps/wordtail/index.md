@@ -6,7 +6,7 @@ publicationDate: '2026-10-23'
 platforms: [
 	'iOS'
 ]
-requirement: 'Requires iOS 27 or later'
+minimumOSVersion: 27
 ---
 
 Make words on a 15×15 board against a lemur, by yourself, or with a friend. Learn the meanings of the words you meet along the way.

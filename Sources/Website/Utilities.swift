@@ -180,6 +180,12 @@ enum Schema {
 	struct Person: Object {
 		var context: String?
 		let type = "Person"
+
+		/**
+		The ID of the person, so the structured data of all the pages is about the same person.
+		*/
+		var id: URL?
+
 		var name: String?
 		var givenName: String?
 		var familyName: String?
@@ -226,9 +232,12 @@ enum Schema {
 		let url: URL
 	}
 
+	/**
+	An app. The type is `MobileApplication` for an app that does not run on the Mac.
+	*/
 	struct SoftwareApplication: Object {
 		var context: String?
-		let type = "SoftwareApplication"
+		let type: String
 		let name: String
 		let description: String
 		let url: URL
@@ -236,10 +245,33 @@ enum Schema {
 		let operatingSystem: String
 		let author: Person
 		var datePublished: String?
+
+		/**
+		When the current version was released.
+		*/
+		var dateModified: String?
+
 		var image: URL?
 		var screenshot: [URL]?
 		var downloadUrl: URL?
 		var softwareVersion: String?
+		var softwareRequirements: String?
+
+		/**
+		The release notes page.
+		*/
+		var releaseNotes: URL?
+
+		/**
+		The download size with its unit, like “19.2 MB”, as a number alone is read as kilobytes.
+		*/
+		var fileSize: String?
+
+		/**
+		The other pages of the app, like the App Store and the repo.
+		*/
+		var sameAs: [URL]?
+
 		var offers: Offer?
 		var aggregateRating: AggregateRating?
 		var review: [Review]?
@@ -297,7 +329,12 @@ enum Schema {
 		let numberOfItems: Int
 		let itemListElement: [ListItem]
 
-		init(name: String, description: String, url: URL, items: [Item]) {
+		init(
+			name: String,
+			description: String,
+			url: URL,
+			items: [Item]
+		) {
 			self.name = name
 			self.description = description
 			self.url = url
@@ -320,17 +357,27 @@ extension JSONScript {
 
 extension Schema.SoftwareApplication {
 	/**
-	An app, with the version, price, and rating from the App Store when there is info. A free app that is downloaded from its own site, like from GitHub, gets an offer with the price 0.
+	An app, with the version, price, size, and rating from the App Store when there is info. A free app that is downloaded from its own site, like from GitHub, gets an offer with the price 0.
 
 	The reviews are only included when there is a rating, as Google requires an `aggregateRating` with reviews (“Multiple reviews without aggregateRating object”). The rating is not computed from the reviews, as they are only the newest five-star ones.
+
+	- Parameter latestRelease: The newest release on GitHub, for the date of the current version of an app that is not on the App Store.
+	- Parameter gumroadRating: The rating of an app that is sold on Gumroad.
 	*/
-	init(app: App, info: AppStoreInfo?, reviews: [AppStoreReview] = []) {
+	init(
+		app: App,
+		info: AppStoreInfo?,
+		reviews: [AppStoreReview] = [],
+		latestRelease: GitHubRelease? = nil,
+		gumroadRating: StoreRating? = nil
+	) {
 		self.init(
+			type: app.platforms.contains(.macOS) ? "SoftwareApplication" : "MobileApplication",
 			name: app.title,
 			description: app.description,
 			url: app.path.absoluteURL,
-			// Mac apps are utilities.
-			applicationCategory: app.platforms.contains(.macOS) ? "UtilitiesApplication" : "MobileApplication",
+			// The category of the App Store, or else a utility, as most of the apps are. A category is required, and `MobileApplication` is a type, not a category.
+			applicationCategory: info?.schemaApplicationCategory ?? "UtilitiesApplication",
 			operatingSystem: app.operatingSystems,
 			author: .author,
 			datePublished: app.publicationDate.isoDay,
@@ -338,6 +385,12 @@ extension Schema.SoftwareApplication {
 		)
 
 		screenshot = app.screenshotURLs.nilIfEmpty
+		softwareRequirements = app.minimumVersionsByPlatform
+		releaseNotes = app.releaseNotes?.path.absoluteURL
+		dateModified = (info?.currentVersionReleaseDate ?? latestRelease?.publishedAt)?.isoDay
+		fileSize = info?.fileSize?.formatted(.byteCount(style: .file).locale(.site))
+		// Not the Setapp link, as it is a referral link.
+		sameAs = [app.appStoreURL, app.frontmatter.repositoryURL].compactMap(\.self).nilIfEmpty
 
 		if
 			let info,
@@ -371,6 +424,10 @@ extension Schema.SoftwareApplication {
 				offers = Schema.Offer(url: url, seller: .authorName, price: .free)
 			} else if let price = app.frontmatter.price {
 				offers = Schema.Offer(url: url, seller: .authorName, price: price)
+			}
+
+			if let gumroadRating {
+				aggregateRating = Schema.AggregateRating(ratingValue: gumroadRating.roundedAverage, ratingCount: gumroadRating.count)
 			}
 		}
 	}

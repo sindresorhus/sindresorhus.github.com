@@ -65,7 +65,13 @@ extension HTML where Tag: HTMLTrait.Attributes.Global {
 	/**
 	Lays out the children of the element in a column, like `VStack` in SwiftUI. See ``Style/vstack(alignment:justification:spacing:isInline:)``.
 	*/
-	public func vstack(alignment: Alignment? = nil, justification: Justification? = nil, spacing: Length? = nil, isInline: Bool = false, fileID: String = #fileID) -> _AttributedContent<Self> {
+	public func vstack(
+		alignment: Alignment? = nil,
+		justification: Justification? = nil,
+		spacing: Length? = nil,
+		isInline: Bool = false,
+		fileID: String = #fileID
+	) -> _AttributedContent<Self> {
 		style(fileID: fileID) {
 			$0.vstack(alignment: alignment, justification: justification, spacing: spacing, isInline: isInline)
 		}
@@ -74,7 +80,13 @@ extension HTML where Tag: HTMLTrait.Attributes.Global {
 	/**
 	Lays out the children of the element in a row, like `HStack` in SwiftUI. See ``Style/hstack(alignment:justification:spacing:isInline:)``.
 	*/
-	public func hstack(alignment: Alignment? = nil, justification: Justification? = nil, spacing: Length? = nil, isInline: Bool = false, fileID: String = #fileID) -> _AttributedContent<Self> {
+	public func hstack(
+		alignment: Alignment? = nil,
+		justification: Justification? = nil,
+		spacing: Length? = nil,
+		isInline: Bool = false,
+		fileID: String = #fileID
+	) -> _AttributedContent<Self> {
 		style(fileID: fileID) {
 			$0.hstack(alignment: alignment, justification: justification, spacing: spacing, isInline: isInline)
 		}

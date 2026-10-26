@@ -88,7 +88,7 @@ struct GalleryPage: Page {
 
 			Section("Form Field", id: "form-field") {
 				FormField(label: "Email", controlID: "gallery-email", hint: "A hint", errorMessage: "Shown after an invalid value is entered.") {
-					input(.id("gallery-email"), .type(.email), .required, .placeholder("Type and leave the field"))
+					input(.id("gallery-email"), .type(.email), .required, .placeholder("Type and leave the field"), .ariaDescribedBy("gallery-email-hint gallery-email-error"))
 						.style(FormFieldStyles.control)
 				}
 			}
@@ -156,9 +156,9 @@ struct GalleryPage: Page {
 					AppStoreReview(title: "Exactly what I needed", text: "A review that is long enough to show how the text wraps across a few lines in the card.", author: "A reviewer", rating: 5, date: content.buildDate),
 					AppStoreReview(title: "Great", text: "A shorter review, with\na line break.", author: "Another reviewer", rating: 5, date: content.buildDate),
 					AppStoreReview(title: Self.longWord, text: "A title with a long word that cannot break must not overflow the card: \(Self.longWord)", author: "A reviewer with a very long name", rating: 4, date: content.buildDate),
-				], rating: AppStoreInfo.Rating(average: 4.6, count: 1234))
+				], rating: StoreRating(average: 4.6, count: 1234))
 
-				AppReviews(reviews: [], rating: AppStoreInfo.Rating(average: 4.6, count: 1234))
+				AppReviews(reviews: [], rating: StoreRating(average: 4.6, count: 1234))
 			}
 
 			// With sample data, as the pages only show these with the data of npm and GitHub.
@@ -253,6 +253,17 @@ struct GalleryPage: Page {
 
 	@Details(summary: "A collapsible section") {
 		The content of the section.
+	}
+
+	@Columns {
+		- 8x8
+		- Amazon Chime
+		- BlueJeans
+		- Google Meet
+		- Microsoft Teams
+		- Webex
+		- Whereby
+		- Zoom
 	}
 
 	@Tips {

@@ -25,6 +25,7 @@ pressQuotes: [
 		quote: 'There are many ways to copy text that can’t be easily selected, but few that are as simple and fast as Text Lens […]'
 		source: 'Lifehacker'
 		url: 'https://lifehacker.com/tech/text-lens-can-copy-any-text-from-mac-screen'
+		year: 2025
 	}
 ]
 ---
@@ -86,7 +87,7 @@ Everything is done locally on your device. Nothing leaves your device. The app i
 
 ### General
 
-- When in capturing mode, simply click again to exit. You could also press <kbd>Esc</kbd>.
+- When in capturing mode, simply click again to exit. You could also press ++Esc++.
 - Right-click menu bar icon to capture.
 
 ### Capture and search the web
@@ -102,8 +103,8 @@ You can adapt this to search any service (DuckDuckGo, Wikipedia, translate, etc.
 When you set the “After Capture” setting to “Show in Window” (or “Copy and Show in Window”), captured text is shown in a floating window where you can view and edit it. This is also useful for consolidating multiple captures into a single text.
 
 - If you start a new capture while the window is visible (the window is temporarily hidden while you capture), the new text will be appended to the existing one.
-- Copy the whole text with <kbd>Command+Shift+C</kbd>.
-- Clicking the close button or pressing <kbd>Esc</kbd> will discard the text.
+- Copy the whole text with ++Shift+Command+C++.
+- Clicking the close button or pressing ++Esc++ will discard the text.
 
 ## Frequently Asked Questions {#faq}
 

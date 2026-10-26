@@ -28,7 +28,12 @@ struct GeoCitiesMacOSWindows: HTML {
 	/**
 	A window of the desktop, with the hooks that the window manager of `geocities-mac.js` finds: the title bar that drags it, the close box, the collapse box of WindowShade, and the zoom box.
 	*/
-	static func window<Content: HTML>(_ name: String, title: String, width: WindowWidth = .medium, @HTMLBuilder content: () -> Content) -> some HTML {
+	static func window(
+		_ name: String,
+		title: String,
+		width: WindowWidth = .medium,
+		@HTMLBuilder content: () -> some HTML
+	) -> some HTML {
 		section(.hook(Hooks.window, value: name), .hidden, .tabindex(-1), .ariaLabelledBy("geocities-mac-title-\(name)")) {
 			div(.hook(Hooks.titleBar)) {
 				button(.type(.button), .hook(Hooks.close), .hook(Hooks.balloonText, value: "The close box. Click it to close the window. When the last window of a program closes, the program quits.")) {}

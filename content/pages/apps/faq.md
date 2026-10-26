@@ -10,7 +10,7 @@ description: 'Common questions about apps by Sindre Sorhus, including bug report
 ## Purchases {#purchases}
 
 ### How can I get a refund? {#refund}
-<!-- @faq.keywords money charged accidental -->
+<!-- @faq.keywords money charged accidental mistake bought -->
 <!-- @faq.general -->
 <!-- @faq.pinned 1 -->
 
@@ -301,7 +301,7 @@ Select the app in [App Buddy](/app-buddy) and click “Reset Permissions”.
 
 First, quit the app.
 
-Copy the following, open the Terminal app, paste it into the Terminal window, replace `<app-name>` with the name of the app, and then press the <kbd>Return</kbd> key:
+Copy the following, open the Terminal app, paste it into the Terminal window, replace `<app-name>` with the name of the app, and then press the ++Return++ key:
 
 ```sh
 osascript -e 'id of app "<app-name>"'
@@ -315,7 +315,7 @@ osascript -e 'id of app "Dato"'
 
 You now have the app’s identifier.
 
-Next, copy the following, and paste it into the Terminal window, replace `<app-identifier>` with the app’s identifier, and then press the <kbd>Return</kbd> key:
+Next, copy the following, and paste it into the Terminal window, replace `<app-identifier>` with the app’s identifier, and then press the ++Return++ key:
 
 ```sh
 tccutil reset All <app-identifier>
@@ -332,7 +332,7 @@ You can now launch the app again.
 ### How can I delete all settings and data to start over in one of your apps? {#reset-app}
 <!-- @faq.general -->
 
-macOS: Make sure the app is not running (you can force-quit it from the Activity Monitor app) and then press <kbd>Shift</kbd>+<kbd>Control</kbd>+<kbd>Option</kbd>+<kbd>Command</kbd> while launching the app.
+macOS: Make sure the app is not running (you can force-quit it from the Activity Monitor app) and then press ++Control+Option+Shift+Command++ while launching the app.
 
 iOS: Open the Settings app, go to “General › iPhone/iPad Storage”, tap the app in the list, tap “Delete App”, then go to the App Store and install the app again.
 
@@ -357,7 +357,7 @@ User-reported bugs are prioritized based on their impact on the app’s function
 
 ### How can I send you debug info for one of your apps? {#debug-info}
 
-macOS: Make sure the app is not running (you can force-quit it from the Activity Monitor app) and then press <kbd>Shift</kbd>+<kbd>Control</kbd>+<kbd>Option</kbd> while launching the app.
+macOS: Make sure the app is not running (you can force-quit it from the Activity Monitor app) and then press ++Control+Option+Shift++ while launching the app.
 
 iOS: In the app, tap the “Share App” button (usually found in settings), triple tap on the QR code, and then tap “Send Debug Info to Developer”.
 

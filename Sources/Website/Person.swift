@@ -4,8 +4,8 @@ import SiteKit
 /**
 A person, for the footer links and structured data.
 */
-struct Person: Sendable {
-	struct SocialLink: Sendable {
+struct Person {
+	struct SocialLink {
 		let name: String
 		let url: URL
 		let icon: Icon

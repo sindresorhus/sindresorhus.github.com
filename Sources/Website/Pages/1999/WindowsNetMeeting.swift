@@ -547,7 +547,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 	/**
 	A window of a tool of the call, like the Chat, with a small title bar, which the toolbar opens and closes.
 	*/
-	private static func toolPanel<Content: HTML>(_ value: String, title: String, @HTMLBuilder content: () -> Content) -> some HTML {
+	private static func toolPanel(_ value: String, title: String, @HTMLBuilder content: () -> some HTML) -> some HTML {
 		section(.hook(Hooks.tool, value: value), .hidden) {
 			p {
 				title

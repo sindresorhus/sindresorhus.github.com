@@ -24,6 +24,11 @@ struct ReviewsPage: Page {
 		section {
 			PageHeader(title: "Wall of Love", intro: "What the press and App Store reviewers say about my apps.")
 
+			// The stars of the reviews are decorative, so the page says their rating once.
+			p {
+				VisuallyHidden("The App Store reviews all have five stars.")
+			}
+
 			// The script shows it when the page shows the quotes of one app.
 			p(.id(Hooks.filterNotice), .hidden) {
 				"Showing what people say about "
@@ -91,7 +96,8 @@ struct ReviewsPage: Page {
 	*/
 	private var pressQuotes: [QuoteFigure] {
 		content.activeApps.flatMap { app in
-			app.pressQuotes.map { QuoteFigure(kind: .press($0), app: app) }
+			// The wall of love has the quotes of many apps and years, so each shows its year, when it has one.
+			app.pressQuotes.map { QuoteFigure(kind: .press($0), app: app, showsYear: true) }
 		}
 	}
 

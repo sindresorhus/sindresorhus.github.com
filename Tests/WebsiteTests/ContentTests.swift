@@ -5,7 +5,6 @@ import TestSupport
 import Testing
 @testable import Website
 
-@Suite
 struct ContentTests {
 	@Test
 	func `minimal app frontmatter loads with defaults`() async throws {
@@ -67,7 +66,11 @@ struct ContentTests {
 		("description: ' '", "Invalid `description`"),
 		("downloads: 9007199254740992", "Invalid `downloads`"),
 		("pressQuotes: [{quote: '', source: 'Example'}]", "Invalid `pressQuotes[0].quote`"),
-		("requirement: ' '", "Invalid `requirement`"),
+		("minimumOSVersion: '26'", "Invalid `minimumOSVersion`"),
+		("releasesRepository: 'dato-meta'", "Invalid `releasesRepository`"),
+		("testFlightURL: 'testflight.apple.com/join/abc'", "Invalid `testFlightURL`"),
+		("gitHubDownload: {repository: 'sindresorhus/test', file: ''}", "Invalid `gitHubDownload.file`"),
+		("nonAppStoreVersion: {version: '1.0.0', macOS: 26, url: 'app.zip'}", "Invalid `nonAppStoreVersion.url`"),
 		("announcement: {text: ''}", "Invalid `announcement.text`"),
 		("announcement: {text: 'Sale', url: 'https://example.com', linkText: ' '}", "Invalid `announcement.linkText`"),
 	])
@@ -106,17 +109,51 @@ struct ContentTests {
 		subtitle: 'Test app'
 		publicationDate: '2026-01-01'
 		platforms: ['macOS']
-		repositoryURL: 'https://github.com/sindresorhus/test'
-		mainLinks: {
+		testFlightURL: 'https://testflight.apple.com/join/abc'
+		showsSupportLink: false
+		links: {
 			Zebra: 'https://example.com/zebra',
-			'Learn More': 'https://example.com/more',
+			TestFlight: 'https://example.com/beta',
 			Apple: 'https://example.com/apple',
 		}
 		---
 		""")
 
-		#expect(app.mainLinks.map(\.destination.description) == ["https://example.com/more", "https://example.com/zebra", "https://example.com/apple"])
-		#expect(app.mainLinks.map(\.title) == ["Learn More", "Zebra", "Apple"])
+		#expect(app.links.map(\.title) == ["Zebra", "TestFlight", "Apple"])
+		#expect(app.links.map(\.destination.description) == ["https://example.com/zebra", "https://testflight.apple.com/join/abc", "https://example.com/apple"])
+	}
+
+	@Test
+	func `the download buttons come from the repo, the GitHub download, and Gumroad`() async throws {
+		let freeApp = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nrepositoryURL: 'https://github.com/sindresorhus/test'\ngitHubDownload: {repository: 'sindresorhus/test-meta', file: 'Test.App.zip'}\n---\n\nText.")
+		let paidApp = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nisPaid: true\nprice: 6\ngumroadID: 'test'\n---\n\nText.")
+
+		#expect(freeApp.mainLinks.map(\.title) == ["Learn More", "Download"])
+		#expect(freeApp.mainLinks.map(\.destination.description) == ["https://github.com/sindresorhus/test", "https://github.com/sindresorhus/test-meta/releases/latest/download/Test.App.zip"])
+		#expect(paidApp.mainLinks.map(\.title) == ["Buy"])
+		#expect(paidApp.mainLinks.map(\.destination.description) == ["https://sindresorhus.gumroad.com/l/test?wanted=true"])
+	}
+
+	@Test
+	func `older macOS versions in the readme get a link`() async throws {
+		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nrepositoryURL: 'https://github.com/sindresorhus/test'\nolderMacOSVersions: ['14']\nshowsSupportLink: false\n---\n\nText.")
+
+		#expect(app.links == [LabeledLink("Older Versions", url: #URL("https://github.com/sindresorhus/test#download"))])
+	}
+
+	@Test(arguments: [
+		"minimumOSVersion: 18",
+		"testFlightURL: 'https://example.com/join/abc'",
+		"gumroadID: 'test'",
+		"isPaid: true\nprice: 6",
+		"isPaid: true\nprice: 6\ngumroadID: 'Test App'",
+		"nonAppStoreVersion: {version: '1.0.0', macOS: 26, url: 'https://example.com/app.zip'}",
+		"appStoreID: 123\nnonAppStoreVersion: {version: '1.0.0', macOS: 15, url: 'https://example.com/app.zip'}",
+	])
+	func `typed app facts are checked`(lines: String) async {
+		await #expect(throws: ContentError.self) {
+			try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\n\(lines)\n---\n\nText.")
+		}
 	}
 
 	@Test
@@ -608,13 +645,17 @@ struct ContentTests {
 	@Test
 	func `older versions get a section before the non-App Store version`() async throws {
 		func loadApp(isPaid: Bool) async throws -> App {
-			try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nisPaid: \(isPaid)\nolderVersions: [\n\t{version: '2.0.0', macOS: '15', url: 'https://example.com/a.zip?b=1&c=2'},\n\t{version: '1.10', macOS: '10.15', url: 'https://example.com/old.zip'},\n]\n---\n\nText.\n\n## Non-App Store Version\n\nDownload.")
+			try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nappStoreID: 123\nisPaid: \(isPaid)\nolderVersions: [\n\t{version: '2.0.0', macOS: '15', url: 'https://example.com/a.zip?b=1&c=2'},\n\t{version: '1.10', macOS: '10.15', url: 'https://example.com/old.zip'},\n]\nnonAppStoreVersion: {version: '3.0.0', macOS: 26, url: 'https://example.com/new.zip'}\n---\n\nText.")
 		}
 
 		let freeApp = try await loadApp(isPaid: false)
 		let paidApp = try await loadApp(isPaid: true)
 
 		#expect(freeApp.markdown.headings.map(\.id) == ["older-versions", "non-app-store-version"])
+		#expect(freeApp.markdown.html.contains(#"<p>A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.</p>"#))
+		#expect(freeApp.markdown.html.contains(#"<a href="https://example.com/new.zip">Download</a> <em>(3.0.0)</em>"#))
+		#expect(freeApp.markdown.html.contains("<em>Requires macOS 26 or later</em>"))
+		#expect(freeApp.overflowLinks.contains(LabeledLink("Non-App Store Version", destination: .fragment("non-app-store-version"))))
 		#expect(freeApp.links.contains(LabeledLink("Older Versions", destination: .fragment("older-versions"))))
 		#expect(freeApp.olderMacOSVersions == [.v15, .v10_15])
 		#expect(freeApp.markdown.html.contains(#"<li><a href="https://example.com/a.zip?b=1&amp;c=2">2.0.0</a> for macOS 15+</li>"#))
@@ -863,7 +904,7 @@ struct ContentTests {
 	func `an app without section links still has the overflow menu`() async throws {
 		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2020-01-01'\nplatforms: ['macOS']\nshowsSupportLink: false\n---\n\nText.")
 		#expect(app.links.isEmpty)
-		#expect(AppHero(app: app, info: nil).render().contains("Show QR Code"))
+		#expect(AppHero(app: app, info: nil, buildDate: .now).render().contains("Show QR Code"))
 	}
 
 	/**
@@ -872,7 +913,7 @@ struct ContentTests {
 	@Test
 	func `an archived app has no QR code, sharing, terms, or discounts`() async throws {
 		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2020-01-01'\nplatforms: ['macOS']\nisArchived: true\nisPaid: true\n---\n\nText.")
-		let html = AppHero(app: app, info: nil).render()
+		let html = AppHero(app: app, info: nil, buildDate: .now).render()
 		#expect(html.contains("Show Random App"))
 		#expect(!html.contains("Show QR Code"))
 		#expect(!html.contains("Share…"))
@@ -1019,18 +1060,18 @@ struct ContentTests {
 
 	@Test
 	func `a paid app sold on its own site shows its price and gets an offer`() async throws {
-		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nisPaid: true\nprice: 4.99\nsetappID: 1\nmainLinks: {Buy: 'https://example.com/buy'}\n---\n\nText.")
+		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nisPaid: true\nprice: 4.99\nsetappID: 1\ngumroadID: 'test'\n---\n\nText.")
 		let offer = try #require(Schema.SoftwareApplication(app: app, info: nil).offers)
 
 		#expect(app.priceText(info: nil) == "$4.99, one-time purchase")
 		#expect(offer.price == Decimal(string: "4.99"))
 		#expect(offer.priceCurrency == "USD")
-		#expect(offer.url.absoluteString == "https://example.com/buy")
+		#expect(offer.url.absoluteString == "https://sindresorhus.gumroad.com/l/test?wanted=true")
 	}
 
 	@Test(arguments: [("4.999", false), ("0", false), ("20", true)])
 	func `a price in frontmatter has at most two decimals`(price: String, isValid: Bool) async {
-		#expect(await loadingErrors("---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nisPaid: true\nprice: \(price)\n---\n\nText.").isEmpty == isValid)
+		#expect(await loadingErrors("---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nisPaid: true\nprice: \(price)\ngumroadID: 'test'\n---\n\nText.").isEmpty == isValid)
 	}
 
 	@Test
@@ -1040,7 +1081,7 @@ struct ContentTests {
 		let review = AppStoreReview(title: "Great", text: "A review.", author: "A reviewer", rating: 5, date: .now)
 
 		#expect(AppReviews(reviews: [review], rating: info.rating).render().contains(">Rated 4.6 out of 5 from 1,563 ratings on the App Store</p>"))
-		#expect(!AppHero(app: app, info: info).render().contains("Rated"))
+		#expect(!AppHero(app: app, info: info, buildDate: .now).render().contains("Rated"))
 		#expect(Schema.SoftwareApplication(app: app, info: info).aggregateRating?.ratingValue == 4.6)
 	}
 
@@ -1126,15 +1167,136 @@ struct ContentTests {
 	}
 
 	@Test
-	func `the availability leaves out the platforms only when the requirement already says macOS`() async throws {
+	func `the availability leaves out the platforms only when the requirement already names the one platform`() async throws {
 		func availabilityText(_ frontmatter: String) async throws -> String? {
 			try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\n\(frontmatter)\n---\n\nText.").availabilityText
 		}
 
-		#expect(try await availabilityText("platforms: ['macOS']\nrequirement: 'Requires macOS 15 or later'") == "Requires macOS 15 or later")
-		#expect(try await availabilityText("platforms: ['iOS', 'macOS']\nrequirement: 'Requires macOS 15 or later'") == "Available on macOS, iOS — Requires macOS 15 or later")
+		#expect(try await availabilityText("platforms: ['macOS']\nminimumOSVersion: 26") == "Requires macOS 26 or later")
+		#expect(try await availabilityText("platforms: ['iOS', 'macOS']\nminimumOSVersion: 27") == "Available on macOS, iOS — Requires version 27 or later")
 		#expect(try await availabilityText("platforms: ['macOS']") == "Available on macOS")
-		#expect(try await availabilityText("platforms: ['iOS']\nrequirement: 'Requires iOS 18 or later'") == "Available on iOS — Requires iOS 18 or later")
+		#expect(try await availabilityText("platforms: ['iOS']\nminimumOSVersion: 27") == "Requires iOS 27 or later")
+	}
+
+	@Test
+	func `a paid app on the Mac and iOS is one purchase for all platforms`() async throws {
+		func priceText(platforms: String) async throws -> String? {
+			let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: \(platforms)\nisPaid: true\nappStoreID: 123\n---\n\nText.")
+			return app.priceText(info: try AppStoreInfo(json: #"{"trackId": 123, "price": 4.99, "currency": "USD"}"#))
+		}
+
+		#expect(try await priceText(platforms: "['macOS', 'iOS']") == "$4.99, one-time purchase for all platforms")
+		#expect(try await priceText(platforms: "['macOS']") == "$4.99, one-time purchase")
+		#expect(try await priceText(platforms: "['iOS', 'watchOS']") == "$4.99, one-time purchase")
+	}
+
+	@Test
+	func `an app that is two years old says since when it is available`() async throws {
+		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2020-06-01'\nplatforms: ['macOS']\n---\n\nText.")
+
+		#expect(app.availableSinceText(at: try Date("2026-01-01T00:00:00Z", strategy: .iso8601)) == "Since 2020")
+		#expect(app.availableSinceText(at: try Date("2021-06-01T00:00:00Z", strategy: .iso8601)) == nil)
+	}
+
+	@Test
+	func `the trial of an app page shows the requirement, how to install it, and Setapp`() async throws {
+		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nisPaid: true\nsetappID: 1\n---\n\n## Trial {#trial}\n\n@Trial(url: \"https://example.com/App-trial.zip\", macOS: \"26\") {\n  Try it.\n}\n")
+
+		#expect(app.markdown.html.contains("<p><em>Requires macOS 26 or later</em></p>"))
+		#expect(app.markdown.html.contains("<p><em>Download it to the Downloads folder, double-click to unzip, and then move it to the <code translate=\"no\">/Applications</code> folder.</em></p>"))
+		#expect(app.markdown.html.contains(#"<p>You can also <a href="https://go.setapp.com/stp181?refAppID=1&amp;utm_medium=vendor_program&amp;utm_content=button">try it on Setapp</a> for 7 days for free.</p>"#))
+	}
+
+	@Test
+	func `a platform badge must be for a platform of the app`() async throws {
+		func load(platforms: String) async throws -> App {
+			try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: \(platforms)\n---\n\nWorks ^[iOS only](platform: \"iOS\").")
+		}
+
+		let error = await #expect(throws: (any Error).self) {
+			try await load(platforms: "['macOS']")
+		}
+
+		#expect(String(describing: error).contains("The platform badge is for iOS, but the app is not on it."))
+		#expect(try await load(platforms: "['macOS', 'iOS']").markdown.html.contains(#"data-platform="iOS">iOS only</span>"#))
+	}
+
+	@Test
+	func `the facts at the end of an app page have the platforms, the requirement, the category, the release, the privacy, and the developer`() async throws {
+		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2019-07-13'\nplatforms: ['macOS', 'iOS']\nappStoreID: 123\nminimumOSVersion: 26\n---\n\nText.", slug: "test")
+		let info = try AppStoreInfo(json: #"{"trackId": 123, "price": 0, "currency": "USD", "primaryGenreName": "Productivity"}"#)
+		let html = AppFacts(app: app, info: info).render()
+
+		for fact in ["<dt class=\"app-facts-label\">Platforms</dt>", "macOS, iOS", "macOS 26 or later, iOS 26 or later", "Productivity", "July 2019", #"<a href="/test/privacy-policy" class="app-facts-link">No data collected</a>"#, "Sindre Sorhus"] {
+			#expect(html.contains(fact), "\(fact)")
+		}
+	}
+
+	@Test
+	func `the tips box can have another title, and a list can be in columns`() {
+		let html = MarkdownDocument(parsing: "@Tips(title: \"Hidden features\") {\n- A tip.\n}\n\n@Columns {\n- Zoom\n- Webex\n}", options: .gallery).html
+
+		#expect(html.contains("Hidden features</p>"))
+		#expect(html.contains("<li>Zoom</li>"))
+		#expect(!html.contains(">Tips</p>"))
+	}
+
+	@Test
+	func `press quotes show their years only when they span years`() async throws {
+		func showsYears(_ quotes: String) async throws -> Bool {
+			try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\npressQuotes: [\(quotes)]\n---\n\nText.").showsPressQuoteYears
+		}
+
+		#expect(try await showsYears("{quote: 'Good', source: 'A', year: 2021}, {quote: 'Great', source: 'B', year: 2025}"))
+		#expect(try await !showsYears("{quote: 'Good', source: 'A', year: 2025}, {quote: 'Great', source: 'B', year: 2025}"))
+		#expect(try await showsYears("{quote: 'Good', source: 'A', year: 2021}, {quote: 'Great', source: 'B', year: 2025}, {quote: 'Nice', source: 'Mom'}"))
+		#expect(try await !showsYears("{quote: 'Good', source: 'A', year: 2021}, {quote: 'Great', source: 'B'}"))
+		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\npressQuotes: [{quote: 'Good', source: 'MacStories', year: 2021}]\n---\n\nText.")
+		#expect(PressQuotes(quotes: app.pressQuotes, showsYears: true).render().contains("MacStories, 2021"))
+	}
+
+	@Test
+	func `a Gumroad product gives the rating and the price of an app that is sold there`() throws {
+		let product = try GumroadProduct(json: #"{"price_cents": 2000, "ratings": {"count": 283, "average": 4.96}}"#)
+
+		#expect(product.price == Price(20))
+		#expect(product.rating?.text == "Rated 5.0 out of 5 from 283 ratings on Gumroad")
+		#expect(try GumroadProduct(json: #"{"price_cents": 600, "ratings": {"count": 0, "average": 0}}"#).rating == nil)
+	}
+
+	@Test
+	func `an app card is a heading with a link, at the level of its place on the page`() async throws {
+		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\n---\n\nText.", slug: "test")
+
+		#expect(AppCard(app: app, isNew: false).render().contains(#"<h3 translate="no""#))
+		#expect(AppCard(app: app, isNew: false, headingLevel: 2).render().contains(#"<h2 translate="no""#))
+		#expect(AppCard(app: app, isNew: false).render().contains(#"<a href="/test""#))
+	}
+
+	@Test
+	func `the privacy summary links to the policy`() async throws {
+		func privacySummary(_ frontmatter: String) async throws -> String {
+			try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\n\(frontmatter)\n---\n\nText.").privacySummary
+		}
+
+		#expect(try await privacySummary("") == "No data collected")
+		#expect(try await privacySummary("hasSentry: true") == "No personal data collected")
+		#expect(try await privacySummary("privacyNote: 'Your questions are sent to OpenAI.'") == "Privacy details")
+	}
+
+	@Test
+	func `the structured data has the category, the requirement, the release notes, the size, and the other pages`() async throws {
+		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['iOS']\nappStoreID: 123\nrepositoryURL: 'https://github.com/sindresorhus/test'\nminimumOSVersion: 26\n---\n\nText.")
+		let info = try AppStoreInfo(json: #"{"trackId": 123, "price": 0, "currency": "USD", "currentVersionReleaseDate": "2026-09-10T22:21:32Z", "fileSizeBytes": "19244046", "primaryGenreName": "Developer Tools"}"#)
+		let schema = Schema.SoftwareApplication(app: app, info: info)
+
+		#expect(schema.type == "MobileApplication")
+		#expect(schema.applicationCategory == "DeveloperApplication")
+		#expect(Schema.SoftwareApplication(app: app, info: nil).applicationCategory == "UtilitiesApplication")
+		#expect(schema.softwareRequirements == "iOS 26 or later")
+		#expect(schema.dateModified == "2026-09-10")
+		#expect(schema.fileSize == "19.2 MB")
+		#expect(schema.sameAs == [#URL("https://apps.apple.com/app/id123"), #URL("https://github.com/sindresorhus/test")])
 	}
 
 	/**
@@ -1200,14 +1362,14 @@ struct ContentTests {
 	}
 }
 
-@Suite
 struct AppTests {
 	private let markdown = "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2026-01-01'\nplatforms: ['macOS']\nrepositoryURL: 'https://github.com/test/repo?view=readme#old'\n---\n\nText."
 
 	@Test
-	func `new app badges begin at publication and end after thirty days`() async throws {
+	func `new app badges begin before the publication day and end thirty days after it`() async throws {
 		let app = try await App(markdown: markdown)
-		#expect(!app.isNew(at: app.publicationDate.addingTimeInterval(-1)))
+		#expect(app.isNew(at: app.publicationDate.addingTimeInterval(-30 * 86400)))
+		#expect(app.isNew(at: app.publicationDate.addingTimeInterval(-1)))
 		#expect(app.isNew(at: app.publicationDate))
 		#expect(app.isNew(at: app.publicationDate.addingTimeInterval(30 * 86400 - 1)))
 		#expect(!app.isNew(at: app.publicationDate.addingTimeInterval(30 * 86400)))

@@ -85,7 +85,8 @@ struct CodeBlock: ScriptedElement {
 		.style(Styles.bar)
 
 		// Focusable, so keyboard users can scroll wide code.
-		pre(.tabindex(0)) {
+		// Code is not translated, as a translation would change the command that the copy button copies.
+		pre(.tabindex(0), .notTranslated) {
 			code(.part(Parts.code)) {
 				switch language {
 				case "swift":
@@ -165,23 +166,23 @@ struct CodeBlock: ScriptedElement {
 		case member
 
 		init(_ token: CodeToken) {
-			switch token {
+			self = switch token {
 			case .keyword:
-				self = .keyword
+				.keyword
 			case .type:
-				self = .type
+				.type
 			case .attribute:
-				self = .attribute
+				.attribute
 			case .string:
-				self = .string
+				.string
 			case .number:
-				self = .number
+				.number
 			case .comment:
-				self = .comment
+				.comment
 			case .declaration:
-				self = .declaration
+				.declaration
 			case .member:
-				self = .member
+				.member
 			}
 		}
 

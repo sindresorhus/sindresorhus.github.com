@@ -73,7 +73,12 @@ struct HTMLRenderer: MarkupWalker {
 
 	private let origin: Origin
 
-	init(style: MarkdownDocument.Style, options: MarkdownDocument.Options = .init(), footnoteDefinitions: [String: FootnoteDefinition] = [:], origin: Origin = .document(lineOffset: 0)) {
+	init(
+		style: MarkdownDocument.Style,
+		options: MarkdownDocument.Options = .init(),
+		footnoteDefinitions: [String: FootnoteDefinition] = [:],
+		origin: Origin = .document(lineOffset: 0)
+	) {
 		self.style = style
 		self.options = options
 		self.footnoteDefinitions = footnoteDefinitions
@@ -536,7 +541,7 @@ struct HTMLRenderer: MarkupWalker {
 			}
 		}
 
-		renderText(string)
+		renderText(string, line: line(of: text))
 	}
 
 	mutating func visitFootnoteReference(_ footnoteReference: FootnoteReference) {
@@ -573,7 +578,10 @@ struct HTMLRenderer: MarkupWalker {
 		reportProblem("The footnote `[^\(id)]` is already defined, so its references would show the first definition. Give one of them another ID.", line: line(of: footnoteDefinition))
 	}
 
-	private mutating func renderText(_ text: Substring) {
+	/**
+	- Parameter line: The line of the text, for the problems of its keyboard shortcuts.
+	*/
+	private mutating func renderText(_ text: Substring, line: Int? = nil) {
 		// Keyboard shortcuts written as `++Cmd+K++` become one `<kbd>` per key.
 		guard style == .extended else {
 			renderPlainText(text)
@@ -582,7 +590,7 @@ struct HTMLRenderer: MarkupWalker {
 
 		for part in text.keyboardShortcutParts {
 			if part.isShortcut {
-				html += keyboardShortcutHTML(String(part.text))
+				html += keyboardShortcutHTML(String(part.text), line: line)
 			} else {
 				renderPlainText(part.text)
 			}
@@ -623,7 +631,12 @@ struct HTMLRenderer: MarkupWalker {
 	/**
 	Adds a popover at the end of the document with Markdown inside the document, like the definition of a footnote or an inline note. It renders with the options for nested Markdown (``MarkdownDocument/Options/forNestedMarkdown``), and its problems, links, and popovers are those of the document. A heading in it is a problem, as its ID could be the same as another ID of the page.
 	*/
-	private mutating func addPopover(id: String, element: MarkdownElement, content: some Sequence<any Markup>, origin: Origin) {
+	private mutating func addPopover(
+		id: String,
+		element: MarkdownElement,
+		content: some Sequence<any Markup>,
+		origin: Origin
+	) {
 		var renderer = HTMLRenderer(style: style, options: options.forNestedMarkdown, origin: origin)
 
 		for block in content {
@@ -642,7 +655,10 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	mutating func visitInlineCode(_ inlineCode: InlineCode) {
-		html += "<code>\(inlineCode.code.escapedForHTML)</code>"
+		// Code is not translated, as a translation would change it. Long code, like `com.sindresorhus.Dato.joinedVideoCall` or a path, can break before a dot and after a slash, like a URL in a book, instead of at any letter. `<wbr>` adds no text, so copying is the same.
+		let code = inlineCode.code.escapedForHTML
+		let breakableCode = code.count > 24 ? code.replacing(".", with: "<wbr>.").replacing("/", with: "/<wbr>") : code
+		html += #"<code translate="no">\#(breakableCode)</code>"#
 	}
 
 	mutating func visitEmphasis(_ emphasis: Emphasis) {
@@ -826,7 +842,7 @@ struct HTMLRenderer: MarkupWalker {
 		}
 
 		guard let renderer = options.blockDirectives[blockDirective.name] else {
-			reportProblem("Unknown block directive `@\(blockDirective.name)`. Known directives: \(options.blockDirectives.keys.sorted().map { "`@\($0)`" }.joined(separator: ", ")).", line: line(of: blockDirective))
+			reportProblem("Unknown block directive `@\(blockDirective.name)`. Known directives: \(options.blockDirectives.keys.sorted().lazy.map { "`@\($0)`" }.joined(separator: ", ")).", line: line(of: blockDirective))
 			html += contentHTML
 			return
 		}
@@ -863,9 +879,20 @@ struct HTMLRenderer: MarkupWalker {
 
 	/**
 	A keyboard shortcut, like `Cmd+K`, as one `<kbd>` per key. Smart punctuation changed keys like quotes, but a key is the character on the keyboard.
+
+	The modifiers must be in the order of Apple: Control, Option, Shift, Command, like in the menus of macOS, so a shortcut on a page looks like the one in the app. Another order is a problem.
 	*/
-	private func keyboardShortcutHTML(_ shortcut: String) -> String {
-		theme.keyboardShortcut(keysHTML: shortcut.removingSmartPunctuation.keyboardKeys.map(\.escapedForHTML))
+	private mutating func keyboardShortcutHTML(_ shortcut: String, line: Int?) -> String {
+		let keys = shortcut.removingSmartPunctuation.keyboardKeys
+		let modifierOrder = ["Control", "Option", "Shift", "Command"]
+		let modifiers = keys.filter(modifierOrder.contains)
+		let orderedModifiers = modifierOrder.filter(modifiers.contains)
+
+		if modifiers != orderedModifiers {
+			reportProblem("The modifiers of the keyboard shortcut `\(shortcut)` must be in the order of Apple: \(orderedModifiers.joined(separator: ", ")), like `\((orderedModifiers + keys.filter { !modifierOrder.contains($0) }).joined(separator: "+"))`.", line: line)
+		}
+
+		return theme.keyboardShortcut(keysHTML: keys.map(\.escapedForHTML))
 	}
 
 	mutating func visitInlineHTML(_ inlineHTML: InlineHTML) {
@@ -884,7 +911,7 @@ struct HTMLRenderer: MarkupWalker {
 			let text = parent.child(at: inlineHTML.indexInParent + 1) as? Text,
 			(parent.child(at: inlineHTML.indexInParent + 2) as? InlineHTML)?.rawHTML == "</kbd>"
 		{
-			html += keyboardShortcutHTML(text.string)
+			html += keyboardShortcutHTML(text.string, line: line(of: inlineHTML))
 			renderedKeyboardNodes = 2
 			return
 		}

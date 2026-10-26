@@ -10,7 +10,6 @@ import Testing
 /**
 Renders every page of the site from the real content, without the network: there is no App Store or GitHub data.
 */
-@Suite
 struct PageTests {
 	private static func site() async throws -> Site {
 		try await Site(content: .website)
@@ -317,6 +316,7 @@ struct PageTests {
 		for page in try await RenderedPage.website {
 			let isNotIndexed = page.html.contains(#"<meta name="robots" content="noindex">"#)
 			#expect(isNotIndexed == (page.route.sitemapEntry == nil), "\(page.route.path)")
+			#expect(page.html.contains(#"<meta name="robots" content="max-image-preview:large">"#) == !isNotIndexed, "\(page.route.path)")
 			pageCount += 1
 		}
 
@@ -540,7 +540,7 @@ struct PageTests {
 	}
 
 	@Test
-	func `the shared stylesheet defines each class once`() async {
+	func `the shared stylesheet defines each class once`() {
 		// Top-level rules in the layers are indented once.
 		let selectors = Stylesheet.site.css.split(separator: "\n").compactMap { line in
 			line.wholeMatch(of: /\t(\.[a-z0-9-]+) \{/).map { String($0.1) }

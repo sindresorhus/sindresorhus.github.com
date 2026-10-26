@@ -153,7 +153,7 @@ public struct LinkValidator: Sendable {
 /**
 What the check reads from the HTML of a page, with the escapes of the values decoded.
 */
-private struct LinkedPage: Sendable {
+private struct LinkedPage {
 	let route: Route
 
 	/**
@@ -193,7 +193,8 @@ private struct LinkedPage: Sendable {
 		var followsOpenGraphProperty = false
 
 		for match in html.matches(of: Self.attribute) {
-			let (name, value) = (match.1, match.2)
+			let name = match.1
+			let value = match.2
 
 			defer {
 				// Like `<meta property="og:image" content="…">`.

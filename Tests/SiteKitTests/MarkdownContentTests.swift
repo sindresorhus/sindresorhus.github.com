@@ -2,7 +2,6 @@ import Elementary
 import Testing
 import SiteKit
 
-@Suite
 struct MarkdownContentTests {
 	/**
 	A `@Box` directive with the style of a box.

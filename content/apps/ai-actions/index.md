@@ -30,6 +30,11 @@ categories: [
 	'shortcuts'
 ]
 privacyNote: 'The actions send their input to the AI service you choose, like OpenAI. The app collects nothing else.'
+nonAppStoreVersion: {
+	version: '1.5.2'
+	macOS: 27
+	url: 'https://www.dropbox.com/scl/fi/kmzufw5hv2we46ae9kcn2/AI-Actions-1.5.2-1791817015.zip?rlkey=117s2j2y3zhelr7vv05g6w8ov&raw=1'
+}
 ---
 
 The app provides additional AI-related actions (GPT, Claude Sonnet/Opus, etc.) for the Shortcuts app.
@@ -102,11 +107,3 @@ No, the Whisper API isn’t suitable for this app due to Shortcuts’ 30-second 
 No. I don’t want to keep adding more providers, and I especially don’t want to take on Google-specific APIs and auth quirks. More providers means a larger API surface, more edge-cases, and more maintenance.
 
 Workaround: Gemini already offers an OpenAI-compatible endpoint, which this app supports. Set the Base URL to `https://generativelanguage.googleapis.com/v1beta/openai/`, then choose “Custom” and enter the Gemini model name. You can also use an OpenAI-compatible proxy like [OpenRouter](https://openrouter.ai) if you prefer one unified endpoint.
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/kmzufw5hv2we46ae9kcn2/AI-Actions-1.5.2-1791817015.zip?rlkey=117s2j2y3zhelr7vv05g6w8ov&raw=1) *(1.5.2)*
-
-*Requires macOS 27 or later*

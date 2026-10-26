@@ -23,14 +23,19 @@ public struct SiteContent: Sendable {
 	let appStoreInfo: [AppStoreID: AppStoreInfo]
 
 	/**
+	The products of the apps that are sold on Gumroad, by their `gumroadID`.
+	*/
+	let gumroadProducts: [GumroadProductID: GumroadProduct]
+
+	/**
 	Recent five-star reviews by App Store ID, newest first.
 	*/
 	let appStoreReviews: [AppStoreID: [AppStoreReview]]
 
 	/**
-	The releases of each app's releases repo, by its name in the `sindresorhus` account (``App/ReleaseNotes/repository``). Pages read them with ``releases(of:)``, so nothing else looks them up by a name.
+	The releases of each app's releases repo, by the repo (``App/ReleaseNotes/repository``). Pages read them with ``releases(of:)``, so nothing else looks them up by a name.
 	*/
-	private let releases: [String: [GitHubRelease]]
+	private let releases: [GitHubRepositoryName: [GitHubRelease]]
 
 	let recentRepositories: [GitHubRepository]
 
@@ -71,13 +76,31 @@ public struct SiteContent: Sendable {
 	*/
 	let warnings: [Warning]
 
-	init(apps: [App], posts: [BlogPost], pages: [MarkdownPage], appStoreInfo: [AppStoreID: AppStoreInfo] = [:], appStoreReviews: [AppStoreID: [AppStoreReview]] = [:], releases: [String: [GitHubRelease]] = [:], recentRepositories: [GitHubRepository] = [], popularRepositories: [GitHubRepository] = [], gitHubAccount: GitHub.Account? = nil, npmStatistics: NPMStatistics = NPMStatistics(), recentActivity: RecentActivity = RecentActivity(), contributionYears: [ContributionYear] = [], buildDate: Date, project: Project, warnings: [Warning] = []) {
+	init(
+		apps: [App],
+		posts: [BlogPost],
+		pages: [MarkdownPage],
+		appStoreInfo: [AppStoreID: AppStoreInfo] = [:],
+		gumroadProducts: [GumroadProductID: GumroadProduct] = [:],
+		appStoreReviews: [AppStoreID: [AppStoreReview]] = [:],
+		releases: [GitHubRepositoryName: [GitHubRelease]] = [:],
+		recentRepositories: [GitHubRepository] = [],
+		popularRepositories: [GitHubRepository] = [],
+		gitHubAccount: GitHub.Account? = nil,
+		npmStatistics: NPMStatistics = NPMStatistics(),
+		recentActivity: RecentActivity = RecentActivity(),
+		contributionYears: [ContributionYear] = [],
+		buildDate: Date,
+		project: Project,
+		warnings: [Warning] = []
+	) {
 		self.apps = apps
 		self.posts = posts
 		self.pages = pages
 		// The loader rejects two pages with the same path, so the first is the only one.
 		self.pagesByPath = Dictionary(pages.map { ($0.path, $0) }, uniquingKeysWith: { first, _ in first })
 		self.appStoreInfo = appStoreInfo
+		self.gumroadProducts = gumroadProducts
 		self.appStoreReviews = appStoreReviews
 		self.releases = releases
 		self.recentRepositories = recentRepositories
@@ -145,7 +168,12 @@ public struct SiteContent: Sendable {
 	/**
 	Two content files that write the same page, like `content/pages/about.md` and `content/apps/about/index.md`, and two apps with one App Store ID, which would share its price, rating, and reviews. The loader reports them, so the rest of the build can assume that a page path and an App Store ID identify one document. A path that two redirects claim is still the publisher's check.
 	*/
-	private static func duplicateErrors(apps: [App], posts: [BlogPost], pages: [MarkdownPage], project: Project) -> [ContentError] {
+	private static func duplicateErrors(
+		apps: [App],
+		posts: [BlogPost],
+		pages: [MarkdownPage],
+		project: Project
+	) -> [ContentError] {
 		var errors = [ContentError]()
 		let documents: [any ContentDocument] = apps + posts + pages
 		let documentsByPath = Dictionary(grouping: documents, by: \.path)
@@ -177,13 +205,23 @@ public struct SiteContent: Sendable {
 	/**
 	The content with the data from the App Store, GitHub, npm, and Bluesky. Failures of the release notes and the recent repos on GitHub are errors. Other failures are warnings, as that data is extra: the App Store data, the popular repos, the numbers of the GitHub account, and the npm numbers of the about page, the career quilt, which also has the contribution numbers of the about page, and the activity of the now page.
 	*/
-	private static func fetching(apps: [App], posts: [BlogPost], pages: [MarkdownPage], cache: ResponseCache, buildDate: Date, project: Project, warnings: WarningCollector) async throws -> Self {
+	private static func fetching(
+		apps: [App],
+		posts: [BlogPost],
+		pages: [MarkdownPage],
+		cache: ResponseCache,
+		buildDate: Date,
+		project: Project,
+		warnings: WarningCollector
+	) async throws -> Self {
 		let github = GitHub(cache: cache)
 
 		// The info only adds the prices, the ratings, and the versions, like to the app pages and to the numbers of the about and now pages, so a failed lookup does not fail the build.
 		async let appStoreInfo = warnings.value(warning: "Could not get the App Store info, so the app pages leave out the prices and the ratings and have less structured data, the about page leaves out the ratings, and the now page leaves out the App Store updates") {
 			try await AppStoreInfo.lookup(ids: apps.compactMap(\.appStoreID), cache: cache)
 		}
+		// Like the App Store info, the ratings and prices of the Gumroad apps only add to the pages.
+		async let gumroadProducts = GumroadProduct.load(ids: apps.compactMap(\.frontmatter.gumroadID), cache: cache, warnings: warnings)
 		async let appStoreReviews = AppStoreReview.recentFiveStar(appIDs: apps.filter { !$0.isArchived }.compactMap(\.appStoreID), cache: cache, warnings: warnings)
 		async let recentRepositories = github.recentRepositories()
 		async let popularRepositories = warnings.value(warning: "Could not get the popular GitHub repos, so the about page leaves them out") {
@@ -237,6 +275,7 @@ public struct SiteContent: Sendable {
 			posts: posts,
 			pages: pages,
 			appStoreInfo: loadedAppStoreInfo ?? [:],
+			gumroadProducts: await gumroadProducts,
 			appStoreReviews: loadedAppStoreReviews,
 			releases: releases,
 			recentRepositories: loadedRecentRepositories,
@@ -319,6 +358,17 @@ extension SiteContent {
 
 	func appStoreInfo(of app: App) -> AppStoreInfo? {
 		app.appStoreID.flatMap { appStoreInfo[$0] }
+	}
+
+	func gumroadProduct(of app: App) -> GumroadProduct? {
+		app.frontmatter.gumroadID.flatMap { gumroadProducts[$0] }
+	}
+
+	/**
+	The rating of the app on the App Store, or on Gumroad for an app that is sold there.
+	*/
+	func rating(of app: App) -> StoreRating? {
+		appStoreInfo(of: app)?.rating ?? gumroadProduct(of: app)?.rating
 	}
 
 	func appStoreReviews(of app: App) -> [AppStoreReview] {

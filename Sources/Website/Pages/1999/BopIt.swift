@@ -87,7 +87,6 @@ struct GeoCitiesBopIt: ScriptedElement {
 			"Bop It! needs JavaScript. And batteries."
 		}
 		.style(GeoCitiesPage.Styles.scriptingDisabledOnly)
-
 	}
 
 	private var choices: some HTML {

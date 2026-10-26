@@ -8,7 +8,6 @@ import Testing
 /**
 The fun pages: Appdle, the career quilt, and the 1999 page, from the real content, without the network.
 */
-@Suite
 struct FunPageTests {
 	@Test
 	func `every Appdle puzzle has a name, an icon, and a link`() async throws {
@@ -147,7 +146,7 @@ struct FunPageTests {
 	@Test
 	func `the longest streak goes on from one year to the next, and the busiest day and weekday are of all the years`() throws {
 		func year(_ year: Int, days: [(date: String, count: Int)]) throws -> ContributionYear {
-			let days = days.map { #"{"date": "\#($0.date)", "contributionCount": \#($0.count), "contributionLevel": "\#($0.count > 0 ? "FIRST_QUARTILE" : "NONE")"}"# }.joined(separator: ", ")
+			let days = days.lazy.map { #"{"date": "\#($0.date)", "contributionCount": \#($0.count), "contributionLevel": "\#($0.count > 0 ? "FIRST_QUARTILE" : "NONE")"}"# }.joined(separator: ", ")
 			let json = #"{"totalContributions": 0, "weeks": [{"contributionDays": [\#(days)]}]}"#
 			let calendar = try ContributionCalendar(json: json)
 			return ContributionYear(year: year, calendar: calendar, totals: .zero, until: try Date("2026-12-31T12:00:00Z", strategy: .iso8601))

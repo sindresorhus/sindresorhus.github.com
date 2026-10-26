@@ -18,6 +18,11 @@ struct AppIcon: HTML {
 	private let path: RoutePath
 
 	/**
+	The smaller JPEG XL copy of the icon, which browsers that show JPEG XL load instead.
+	*/
+	private var jpegXL: JPEGXLCopy?
+
+	/**
 	The name of the app, for the text of the image. `nil` for an icon that screen readers skip, as the name of the app is next to it.
 	*/
 	private let title: String?
@@ -32,10 +37,16 @@ struct AppIcon: HTML {
 	/**
 	The ID of the image, for a script that changes the image, like the googly eyes of the Googly Eyes page.
 	*/
-	var imageID: (any ScriptHookSet)?
+	var imageID: any ScriptHookSet?
 
-	init(_ app: App, size: Int, isAboveFold: Bool = false, imageID: (any ScriptHookSet)? = nil) {
+	init(
+		_ app: App,
+		size: Int,
+		isAboveFold: Bool = false,
+		imageID: any ScriptHookSet? = nil
+	) {
 		self.path = app.iconPath
+		self.jpegXL = app.iconJPEGXL
 		self.title = app.title
 		self.size = size
 		self.isAboveFold = isAboveFold
@@ -47,6 +58,7 @@ struct AppIcon: HTML {
 	*/
 	init(decorative app: App, size: Int, isAboveFold: Bool = false) {
 		self.init(decorative: app.iconPath, size: size, isAboveFold: isAboveFold)
+		self.jpegXL = app.iconJPEGXL
 	}
 
 	/**
@@ -61,13 +73,19 @@ struct AppIcon: HTML {
 
 	var body: some HTML<HTMLTag.span> {
 		span {
-			img(.src(path), .width(size), .height(size), .alt(title.map { "\($0) app icon" } ?? ""))
-				.attributes(.fetchPriority(.high), when: isAboveFold)
-				.attributes(.lazyLoading, when: !isAboveFold)
-				.attributes(.id(imageID?.id ?? ""), when: imageID != nil)
-				.style(Styles.image)
+			JPEGXLPicture(copy: jpegXL) {
+				image
+			}
 		}
 		.style(Styles.root)
+	}
+
+	private var image: some HTML<HTMLTag.img> {
+		img(.src(path), .width(size), .height(size), .alt(title.map { "\($0) app icon" } ?? ""))
+			.attributes(.fetchPriority(.high), when: isAboveFold)
+			.attributes(.lazyLoading, when: !isAboveFold)
+			.attributes(.id(imageID?.id ?? ""), when: imageID != nil)
+			.style(Styles.image)
 	}
 
 	enum Styles: StyleSet {

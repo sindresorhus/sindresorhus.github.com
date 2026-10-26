@@ -15,6 +15,11 @@ olderVersions: [
 	}
 ]
 script: '/googly-eyes/eyes.js'
+nonAppStoreVersion: {
+	version: '1.2.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/t8qoulw2nfo2wbzoekbop/Googly-Eyes-1.2.0-1774281367.zip?rlkey=purr5ntc70na53ndpt06oxcuh&raw=1'
+}
 ---
 
 Add playful eyes to your menu bar that follow your cursor and blink when you click. Pure whimsy! 👀
@@ -34,9 +39,3 @@ The eyes follow your cursor across displays. However, menu bar items on inactive
 The real eyes live on the display with the active menu bar. macOS only makes another display active when you click something on it, for example a window or the desktop. Moving the pointer there is not enough. So when you move the pointer to another display, the eyes there stay frozen until you click on that display.
 
 This is a macOS limitation and cannot be worked around. There is no supported way for an app to change which display has the active menu bar.
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/t8qoulw2nfo2wbzoekbop/Googly-Eyes-1.2.0-1774281367.zip?rlkey=purr5ntc70na53ndpt06oxcuh&raw=1) *(1.2.0 · macOS 26+)*

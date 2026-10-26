@@ -175,6 +175,7 @@ struct FeedbackPage: Page {
 				.minlength(20),
 				.rows(7),
 				.required,
+				.ariaDescribedBy("message-error"),
 				.custom(name: "autocapitalize", value: "sentences"),
 				// Right-to-left messages, like Arabic, show in their own direction.
 				.dir(.auto)
@@ -188,7 +189,7 @@ struct FeedbackPage: Page {
 
 	private var emailField: some HTML {
 		FormField(label: "Email", controlID: "email", hint: "Only used for replying to you", errorMessage: "Enter a valid email address.") {
-			input(.id("email"), .type(.email), .name("email"), .autocomplete("email"), .custom(name: "enterkeyhint", value: "send"), .required, .ariaDescribedBy("email-hint"))
+			input(.id("email"), .type(.email), .name("email"), .autocomplete("email"), .custom(name: "enterkeyhint", value: "send"), .required, .ariaDescribedBy("email-hint email-error"))
 				.style(FormFieldStyles.control)
 
 			// `feedback.js` fills it for likely typos, like `gmial.com`. A polite live region that is always on the page, so screen readers announce the text without interrupting the typing.

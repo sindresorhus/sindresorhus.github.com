@@ -3,12 +3,12 @@ import Foundation
 /**
 The GitHub contributions of the last year, by day, like the calendar on a GitHub profile.
 */
-struct ContributionCalendar: Decodable, Sendable {
-	struct Day: Decodable, Sendable {
+struct ContributionCalendar: Decodable {
+	struct Day: Decodable {
 		/**
 		How many contributions the day has, compared to the other days, like on GitHub.
 		*/
-		enum Level: String, Decodable, Sendable, CaseIterable {
+		enum Level: String, Decodable, CaseIterable {
 			case none = "NONE"
 			case first = "FIRST_QUARTILE"
 			case second = "SECOND_QUARTILE"
@@ -46,7 +46,7 @@ struct ContributionCalendar: Decodable, Sendable {
 		}
 	}
 
-	struct Week: Decodable, Sendable {
+	struct Week: Decodable {
 		/**
 		The days from Sunday to Saturday. The first and the last week can have fewer days.
 		*/
@@ -76,7 +76,7 @@ struct ContributionCalendar: Decodable, Sendable {
 	The number of days in a row with contributions, up to the last day. The last day is today, which may not have contributions yet, so then the streak ends the day before.
 	*/
 	var currentStreak: Int {
-		let days = self.days
+		let days = days
 		let pastDays = days.last?.count == 0 ? days.dropLast() : days[...]
 		return pastDays.reversed().prefix { $0.count > 0 }.count
 	}

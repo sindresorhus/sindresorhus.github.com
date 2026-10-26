@@ -9,6 +9,9 @@ isPaid: true
 isMenuBarApp: true
 appStoreID: 6448461551
 hasSentry: true
+sharedQuestions: [
+	'randomly-quits'
+]
 olderVersions: [
 	{
 		version: '1.6.2'
@@ -37,7 +40,7 @@ feedbackNote:
 	'''
 	### If you get a “Failed to listen to system events” error or getting continuously re-prompted about permissions after updating to macOS 27, try [resetting privacy permissions](/apps/faq#mac-reset-permissions) and then restart your system. macOS sometimes corrupts these when updating...
 
-	[The app randomly disappears/quits](/apps/faq#randomly-quits)
+	[The app randomly disappears/quits](/command-x#randomly-quits)
 	'''
 ---
 
@@ -57,7 +60,7 @@ Known limitation: You cannot cut the name of a file when editing a filename in F
 
 ## Frequently Asked Questions {#faq}
 
-### Why? I can already use <kbd>Option+Command+V</kbd>
+### Why? I can already use ++Option+Command+V++
 
 - It’s more logical to cut & paste than copy & move.
 - Consistency and muscle memory benefits if you also use Linux or Windows.
@@ -66,9 +69,9 @@ Known limitation: You cannot cut the name of a file when editing a filename in F
 
 First try relaunching the app. If that doesn’t help, try restarting your computer.
 
-Then, make sure you pressed <kbd>Command+X</kbd> and not <kbd>Command+C</kbd>.
+Then, make sure you pressed ++Command+X++ and not ++Command+C++.
 
-To make sure you used the app correctly, try this: Select a file in Finder, press <kbd>Command+X</kbd>, change to a different folder, press <kbd>Command+V</kbd>. The file should have been moved to this new folder.
+To make sure you used the app correctly, try this: Select a file in Finder, press ++Command+X++, change to a different folder, press ++Command+V++. The file should have been moved to this new folder.
 
 **Note:** You cannot cut, highlight a folder, and then paste. You have to actually go into the folder to paste to it. That’s just how Finder works. Same with copy-pasting.
 
@@ -78,7 +81,7 @@ If still not working, try closing down all apps and menu bar items, just to rule
 
 Then try toggling the setting “Use more reliable way of handling Command+X”, and try the above steps again. If it works then, please report it to me.
 
-If it’s still not working, try this: Select a file in Finder, press <kbd>Command+C</kbd>, change to a different folder, press <kbd>Option+Command+V</kbd>. The file should have been moved to this new folder. If this did not work, the problem is not this app, as those are the keyboard shortcuts it simulates.
+If it’s still not working, try this: Select a file in Finder, press ++Command+C++, change to a different folder, press ++Option+Command+V++. The file should have been moved to this new folder. If this did not work, the problem is not this app, as those are the keyboard shortcuts it simulates.
 
 If it’s a work computer, your company may have something installed that prevents the app from working.
 
@@ -98,11 +101,11 @@ The last thing you could try is to reset the permissions. Either use [App Buddy]
 tccutil reset All com.sindresorhus.Command-X
 ```
 
-To help me figure out the issue, make sure the “Use more reliable way of handling Command+X” setting is enabled, press <kbd>Command+X</kbd> and <kbd>Command+V</kbd> in Finder, click the “Copy Debug Info” button in the Command X menu bar menu, and then [send the debug info to me](/feedback?product=Command%20X&referrer=Website-FAQ), including a short explanation of what didn’t work.
+To help me figure out the issue, make sure the “Use more reliable way of handling Command+X” setting is enabled, press ++Command+X++ and ++Command+V++ in Finder, click the “Copy Debug Info” button in the Command X menu bar menu, and then [send the debug info to me](/feedback?product=Command%20X&referrer=Website-FAQ), including a short explanation of what didn’t work.
 
 ### How does the app work?
 
-The app works by overriding the normal cut <kbd>⌘X</kbd> keyboard shortcut when Finder is active and executes a copy <kbd>⌘C</kbd> instead. When you then paste <kbd>⌘V</kbd>, it executes the native move <kbd>⌥⌘V</kbd> keyboard shortcut. So really, it’s Finder moving the files. This app just makes the keyboard shortcuts more intuitive.
+The app works by overriding the normal cut ++Command+X++ keyboard shortcut when Finder is active and executes a copy ++Command+C++ instead. When you then paste ++Command+V++, it executes the native move ++Option+Command+V++ keyboard shortcut. So really, it’s Finder moving the files. This app just makes the keyboard shortcuts more intuitive.
 
 ### Is there any risk of data loss if I forget to paste?
 
@@ -122,7 +125,7 @@ The cutting sound is a macOS system sound effect, so its volume follows the aler
 
 ### It does not work when I try to paste directly to an expanded subfolder shown in its parent folder
 
-This is a Finder bug. You can reproduce it even without Command X by selecting the file to move, pressing <kbd>Command+C</kbd>, selecting the destination folder, and then pressing <kbd>Option+Command+V</kbd>.
+This is a Finder bug. You can reproduce it even without Command X by selecting the file to move, pressing ++Command+C++, selecting the destination folder, and then pressing ++Option+Command+V++.
 
 ### It does not work when I try to paste into a folder in column view where the parent is a tag
 

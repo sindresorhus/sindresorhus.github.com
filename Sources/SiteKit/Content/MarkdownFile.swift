@@ -26,6 +26,13 @@ public struct MarkdownFile: Sendable {
 	public let bodyStartLine: Int
 
 	/**
+	The lines of the body, the first at ``bodyStartLine``.
+	*/
+	public var bodyLines: [Substring] {
+		body.split(separator: "\n", omittingEmptySubsequences: false)
+	}
+
+	/**
 	When a commit last changed the file. `nil` outside a git repository and for files without commits.
 	*/
 	public var lastCommitDate: Date?

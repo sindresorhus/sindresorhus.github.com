@@ -2,6 +2,13 @@ import Elementary
 
 extension HTMLAttribute where Tag: HTMLTrait.Attributes.Global {
 	/**
+	Tells the translation of browsers, like Safari and Chrome, to leave the text as it is (`translate="no"` in HTML), like code, keys, and names, which a translation would change, like a command that then fails when it is copied, or an app name that then cannot be found on the App Store.
+	*/
+	public static var notTranslated: Self {
+		.custom(name: "translate", value: "no")
+	}
+
+	/**
 	The kind of current item in a navigation or sequence.
 	*/
 	public static func ariaCurrent(_ value: ARIACurrent) -> Self {
@@ -39,6 +46,13 @@ extension HTMLAttribute where Tag: HTMLTrait.Attributes.Global {
 	*/
 	public static var ariaModal: Self {
 		.custom(name: "aria-modal", value: "true")
+	}
+
+	/**
+	What screen readers call the kind of the element, instead of its role, like “carousel” for a section of slides (`aria-roledescription` in HTML).
+	*/
+	public static func ariaRoleDescription(_ description: String) -> Self {
+		.custom(name: "aria-roledescription", value: description)
 	}
 
 	/**
@@ -151,6 +165,13 @@ extension HTMLAttribute where Tag == HTMLTag.source {
 	*/
 	public static func srcset(_ path: RoutePath) -> Self {
 		.custom(name: "srcset", value: path.description)
+	}
+
+	/**
+	The media type of the image of the source, like `image/jxl`, so a browser that cannot show it uses the next source, or the image of the `<picture>`.
+	*/
+	public static func type(_ mediaType: String) -> Self {
+		.custom(name: "type", value: mediaType)
 	}
 }
 

@@ -1011,7 +1011,7 @@ extension GeoCitiesWindows {
 	/**
 	A part of the Control Panel, like the Display Properties, with a button back to the icons.
 	*/
-	private func controlPane<Content: HTML>(_ pane: String, title: String, @HTMLBuilder content: () -> Content) -> some HTML {
+	private func controlPane(_ pane: String, title: String, @HTMLBuilder content: () -> some HTML) -> some HTML {
 		div(.hook(Hooks.controlPane, value: pane), .hidden) {
 			div {
 				button(.type(.button), .hook(Hooks.controlBack)) {

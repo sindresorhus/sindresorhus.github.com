@@ -3,6 +3,8 @@ import SiteKit
 
 /**
 An app in a grid of apps: icon, name, subtitle, whether it is paid, and the platforms.
+
+The name is a heading with the link, which covers the whole card, so the link has a short name, like “Scratchpad”, not the text of the whole card, and screen readers can move from app to app by the headings.
 */
 struct AppCard: HTML {
 	let app: App
@@ -13,18 +15,30 @@ struct AppCard: HTML {
 	*/
 	var isAboveFold = false
 
+	/**
+	The level of the heading of the name: 3 below a section heading, or 2 right below the title of the page.
+	*/
+	var headingLevel = 3
+
 	var body: some HTML {
 		// `apps.js` filters the cards by `data-slug`.
 		// The accent of the card is the color of the icon, for the light while the pointer is over it.
-		a(.href(app.url), .hook(Hooks.slug, value: app.slug)) {
+		div(.hook(Hooks.slug, value: app.slug)) {
 			AppIcon(decorative: app, size: 128, isAboveFold: isAboveFold)
 				.style(Styles.icon)
 
 			div {
-				div {
-					app.title
+				if headingLevel == 2 {
+					h2(.notTranslated) {
+						titleLink
+					}
+					.style(Styles.title)
+				} else {
+					h3(.notTranslated) {
+						titleLink
+					}
+					.style(Styles.title)
 				}
-				.style(Styles.title)
 
 				div {
 					app.subtitle
@@ -56,7 +70,6 @@ struct AppCard: HTML {
 
 						VisuallyHidden(app.operatingSystems)
 					}
-					.attributes(.title(app.operatingSystems))
 					.style(Styles.platforms)
 				}
 				.style(Styles.details)
@@ -65,6 +78,13 @@ struct AppCard: HTML {
 		}
 		.tint(app.tint)
 		.style(Styles.root)
+	}
+
+	private var titleLink: some HTML<HTMLTag.a> {
+		a(.href(app.url)) {
+			app.title
+		}
+		.style(Styles.link)
 	}
 
 	/**
@@ -84,6 +104,7 @@ struct AppCard: HTML {
 		case icon
 		case text
 		case title
+		case link
 		case subtitle
 		case details
 		case platforms
@@ -93,6 +114,7 @@ struct AppCard: HTML {
 			case .root:
 				// The fill and a soft glow change while the pointer is over the card, but nothing moves. The card is compact until laptops, as the grid has two columns from small tablets.
 				Style()
+					.position(.relative)
 					.hstack(alignment: .center, spacing: .rootEm(1))
 					.padding(.rootEm(1.25))
 					.cardSurface()
@@ -120,6 +142,18 @@ struct AppCard: HTML {
 					.color(.primaryText)
 					.from(.laptop) {
 						$0.font(size: .rootEm(1.375), lineHeight: 1.25)
+					}
+			case .link:
+				// It covers the card, so the whole card is the link, like before, but its name is only the name of the app.
+				Style()
+					.color(.inherit)
+					.underline(false)
+					.after {
+						$0
+							.content("")
+							.position(.absolute)
+							.inset(0)
+							.cornerRadius(.cardRadius)
 					}
 			case .subtitle:
 				Style()
@@ -156,11 +190,16 @@ struct AppGrid: HTML {
 	*/
 	var isAtTop = false
 
+	/**
+	The level of the headings of the names of the apps (``AppCard/headingLevel``).
+	*/
+	var headingLevel = 3
+
 	var body: some HTML {
 		div {
 			// The first cards fill the screen on most devices.
 			for (index, app) in apps.enumerated() {
-				AppCard(app: app, isNew: app.isNew(at: content.buildDate), isAboveFold: isAtTop && index < 6)
+				AppCard(app: app, isNew: app.isNew(at: content.buildDate), isAboveFold: isAtTop && index < 6, headingLevel: headingLevel)
 			}
 		}
 		.style(Styles.root)

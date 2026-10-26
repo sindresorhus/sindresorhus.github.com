@@ -8,9 +8,14 @@ Quotes from reviews, or a five-star rating, as cards. ``AppReviews`` uses the sa
 struct PressQuotes: HTML {
 	let quotes: [App.PressQuote]
 
+	/**
+	Whether the sources show the years of the articles (``App/showsPressQuoteYears``).
+	*/
+	var showsYears = false
+
 	var body: some HTML<HTMLTag.section> {
 		section {
-			QuoteGrid(quotes: quotes.map { .press($0) })
+			QuoteGrid(quotes: quotes.map { .press($0) }, showsYears: showsYears)
 		}
 		.style(Styles.root)
 	}
@@ -30,10 +35,15 @@ A grid of quote cards: two columns when there are two or more quotes, and an odd
 struct QuoteGrid: HTML {
 	let quotes: [QuoteFigure.Kind]
 
+	/**
+	Whether the sources of the press quotes show the years of the articles.
+	*/
+	var showsYears = false
+
 	var body: some HTML {
 		div {
 			for quote in quotes {
-				QuoteFigure(kind: quote)
+				QuoteFigure(kind: quote, showsYear: showsYears)
 			}
 		}
 		.style(Styles.root)
@@ -81,6 +91,11 @@ struct QuoteFigure: HTML {
 	*/
 	var app: App?
 
+	/**
+	Whether the source of a press quote shows the year of the article, like “MacStories, 2021”.
+	*/
+	var showsYear = false
+
 	var body: some HTML {
 		figure {
 			if let app {
@@ -116,10 +131,18 @@ struct QuoteFigure: HTML {
 					} else {
 						quote.source
 					}
+
+					if
+						showsYear,
+						let year = quote.year
+					{
+						", \(year)"
+					}
 				}
 				.style(Styles.source)
 			case .review(let review):
-				StarRating(rating: review.rating)
+				// The reviews are the five-star reviews, which the heading of the reviews says once, so screen readers do not read “5 out of 5 stars” for each.
+				StarRating(rating: review.rating, isDecorative: true)
 
 				blockquote {
 					p {

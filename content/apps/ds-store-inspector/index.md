@@ -13,6 +13,11 @@ appStoreID: 6758286374
 # 		url: '',
 # 	},
 # ]
+nonAppStoreVersion: {
+	version: '1.0.2'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/amjh96y5np88k35a29o91/DS_Store-Inspector-1.0.2-1770388348.zip?rlkey=laf8sa8yybe2v1i21oe9ps86d&raw=1'
+}
 ---
 
 A read-only viewer for Finder metadata stored in [`.DS_Store`](https://en.wikipedia.org/wiki/.DS_Store) files.
@@ -42,11 +47,3 @@ The format is undocumented. Many record types were reverse-engineered, and some 
 This is just a small, free project I built for fun. Supporting older macOS versions would mean extra testing, compatibility layers, and working around bugs Apple will never fix.
 
 Keeping it macOS 26+ lets me keep the code simple and spend time building things I enjoy instead of maintaining legacy support.
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/amjh96y5np88k35a29o91/DS_Store-Inspector-1.0.2-1770388348.zip?rlkey=laf8sa8yybe2v1i21oe9ps86d&raw=1) *(1.0.2)*
-
-*Requires macOS 26 or later*

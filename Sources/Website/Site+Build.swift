@@ -96,7 +96,7 @@ extension Site {
 	- The content hashes of the scripts that the pages load. Their URLs include the hash, so browsers and Cloudflare can cache them for a year, and still get a changed file right after a deploy. The stylesheet and the icons are values, so they have their hashes without the project (``RoutePath/versioned(content:)``). A script imports another one without the hash, like `/scripts/geocities-element.js`, and the import map of each page adds it (``importMap``), so the hash of a script is the hash of its own text.
 	- The scripts that other scripts import, like `/scripts/geocities-element.js`: the imports at the start of a line, like `import X from '/scripts/x.js';`, and the dynamic imports, like `import('./nebula.js')`, each on one line. A relative import is resolved from the path of the script that imports it. The import map of the pages has only these (``importMap``).
 	*/
-	struct Scripts: Sendable {
+	struct Scripts {
 		/**
 		The scripts of the site that is being published. Empty outside a build.
 		*/

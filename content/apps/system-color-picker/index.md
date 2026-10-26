@@ -42,6 +42,11 @@ feedbackNote:
 
 	Note that the app wraps the macOS color picker as an app and adds some features. I have no control over how most things work though, like the tabs, color palettes, etc. Bugs with these must be fixed by macOS, not me. To see how it differs: select an image in Finder, open Quick Look, click the markup button, click the color button, and then click "Show Colors".
 	'''
+nonAppStoreVersion: {
+	version: '2.2.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/kk4c8p47uj791k5t0nj0n/Color-Picker-2.2.0-1767305140.zip?rlkey=jivahp9p4k5f24q76473zrnkd&raw=1'
+}
 ---
 
 The macOS color picker as an app, with more features. Pick a color from anywhere on the screen, and copy it as Hex, HSL, RGB, OKLCH, and more.
@@ -66,37 +71,37 @@ The macOS color picker as an app, with more features. Pick a color from anywhere
 
 ## Tips
 
-- Press the <kbd>Space</kbd> key while using the color sampler to show the RGB values. The color sampler is a system component and it can unfortunately not show other kinds of color values.
-- Press the <kbd>Option</kbd> key when copying the Hex color to invert whether to include `#`.
-- Press the <kbd>Shift</kbd> key while selecting a color using the color sampler to prevent it from disappearing after your selection.
+- Press the ++Space++ key while using the color sampler to show the RGB values. The color sampler is a system component and it can unfortunately not show other kinds of color values.
+- Press the ++Option++ key when copying the Hex color to invert whether to include `#`.
+- Press the ++Shift++ key while selecting a color using the color sampler to prevent it from disappearing after your selection.
 
 ### Keyboard shortcuts
 
 You can use the following keyboard shortcuts in the app:
 
-- Pick color: <kbd>Command</kbd> <kbd>p</kbd>
-- Copy as Hex: <kbd>Shift</kbd> <kbd>Command</kbd> <kbd>h</kbd>
-- Copy as HSL: <kbd>Shift</kbd> <kbd>Command</kbd> <kbd>s</kbd>
-- Copy as RGB: <kbd>Shift</kbd> <kbd>Command</kbd> <kbd>r</kbd>
-- Copy as Unit RGB: <kbd>Shift</kbd> <kbd>Command</kbd> <kbd>u</kbd>
-- Copy as OKLCH: <kbd>Shift</kbd> <kbd>Command</kbd> <kbd>o</kbd>
-- Copy as LCH: <kbd>Shift</kbd> <kbd>Command</kbd> <kbd>l</kbd>
-- Copy as CMYK: <kbd>Shift</kbd> <kbd>Command</kbd> <kbd>k</kbd>
-- Paste color: <kbd>Shift</kbd> <kbd>Command</kbd> <kbd>v</kbd> *(In the format Hex, HSL, RGB, Unit RGB, OKLCH, LCH, or CMYK)*
-- Reset opacity: <kbd>Control</kbd> <kbd>Shift</kbd> <kbd>o</kbd>
+- Pick color: ++Command+P++
+- Copy as Hex: ++Shift+Command+H++
+- Copy as HSL: ++Shift+Command+S++
+- Copy as RGB: ++Shift+Command+R++
+- Copy as Unit RGB: ++Shift+Command+U++
+- Copy as OKLCH: ++Shift+Command+O++
+- Copy as LCH: ++Shift+Command+L++
+- Copy as CMYK: ++Shift+Command+K++
+- Paste color: ++Shift+Command+V++ *(In the format Hex, HSL, RGB, Unit RGB, OKLCH, LCH, or CMYK)*
+- Reset opacity: ++Control+Shift+O++
 
 #### Switch between picker tabs
 
 You can quickly switch between different color picker tabs:
 
-- Next tab: <kbd>Control</kbd> <kbd>Tab</kbd>
-- Previous tab: <kbd>Shift</kbd> <kbd>Control</kbd> <kbd>Tab</kbd>
-- Wheel: <kbd>Control</kbd> <kbd>1</kbd>
-- Sliders: <kbd>Control</kbd> <kbd>2</kbd>
-- Color Palettes: <kbd>Control</kbd> <kbd>3</kbd>
-- Image Palettes: <kbd>Control</kbd> <kbd>4</kbd>
-- Pencils: <kbd>Control</kbd> <kbd>5</kbd>
-- Extensions: <kbd>Control</kbd> <kbd>6</kbd>-<kbd>9</kbd> *(if installed)*
+- Next tab: ++Control+Tab++
+- Previous tab: ++Control+Shift+Tab++
+- Wheel: ++Control+1++
+- Sliders: ++Control+2++
+- Color Palettes: ++Control+3++
+- Image Palettes: ++Control+4++
+- Pencils: ++Control+5++
+- Extensions: ++Control+6++-++9++ *(if installed)*
 
 ### Plugins
 
@@ -111,7 +116,7 @@ The built-in color picker supports plugins:
 
 ### Can the color sampler show Hex values?
 
-No. The color sampler in the app is provided by macOS and only supports showing RGB values when you press the <kbd>Space</kbd> key. To show Hex (or other formats) directly in the sampler would require a completely custom sampler, which in turn would need extra system permissions like “Screen Recording”. For now, the fastest workflow is to pick a color with the sampler and then copy it in Hex format from the app.
+No. The color sampler in the app is provided by macOS and only supports showing RGB values when you press the ++Space++ key. To show Hex (or other formats) directly in the sampler would require a completely custom sampler, which in turn would need extra system permissions like “Screen Recording”. For now, the fastest workflow is to pick a color with the sampler and then copy it in Hex format from the app.
 
 ### What is OKLCH color?
 
@@ -151,7 +156,7 @@ You can find palettes on [Coolors](https://coolors.co/palettes/trending). Downlo
 
 ### How can I remove a color in a palette or swatch?
 
-Select the color and press the <kbd>Delete</kbd> key or drag and drop the color onto the trash icon in the Dock.
+Select the color and press the ++Delete++ key or drag and drop the color onto the trash icon in the Dock.
 
 ### How can I remove all the swatch colors at once?
 
@@ -178,7 +183,7 @@ The app displays the OKLCH chroma value as a percentage instead of an absolute v
 
 **CLR format**
 1. Open Finder
-1. Press <kbd>Command+Shift+G</kbd>
+1. Press ++Shift+Command+G++
 1. Enter `~/Library/Colors`
 1. Copy the desired palette files
 
@@ -212,9 +217,3 @@ You can use the “Sample Color from Screen” action for Shortcuts to sample co
 
 > [!TIP]
 > You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
-
-## Non-App Store Version
-
-A special macOS version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/kk4c8p47uj791k5t0nj0n/Color-Picker-2.2.0-1767305140.zip?rlkey=jivahp9p4k5f24q76473zrnkd&raw=1) *(2.2.0 · macOS 26+)*

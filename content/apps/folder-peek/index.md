@@ -39,6 +39,7 @@ pressQuotes: [
 		quote: 'FolderPeek reduces micro-frictions when it comes to accessing commonly used folders and is a must-have utility in my books.'
 		source: 'OWC Rocket Yard'
 		url: 'https://eshop.macsales.com/blog/97227-folder-peek-instantly-access-your-most-used-mac-files-and-folders-right-from-the-menu-bar/'
+		year: 2025
 	}
 ]
 ---
@@ -68,16 +69,16 @@ Make sure you read the below tips and FAQ.
 ## Tips
 
 - Click a file or folder in the menu to open it. Folders open in Finder.
-- Click a file while pressing the <kbd>Option</kbd> key to show it in Finder.
+- Click a file while pressing the ++Option++ key to show it in Finder.
 - Click the folder title ([the top menu item](https://github.com/sindresorhus/meta/assets/170270/79c4e9c7-8abf-49da-b8fb-3a942017442e)) to open the folder.
-- You can drag files directly from the menu. You can also drag the file thumbnail in the file submenu. Press the <kbd>Option</kbd> key while dragging to copy instead of moving.
-- Press the <kbd>Option</kbd> key when viewing the file details to copy the path or image/video dimensions.
+- You can drag files directly from the menu. You can also drag the file thumbnail in the file submenu. Press the ++Option++ key while dragging to copy instead of moving.
+- Press the ++Option++ key when viewing the file details to copy the path or image/video dimensions.
 - You can use the Shortcuts support to show/hide certain folders depending on what project you are working on.
-- If you have the menu bar item folders next to each other and you have one folder open, you can press <kbd>Control+Tab</kbd> or <kbd>Shift+Control+Tab</kbd> to switch between them.
+- If you have the menu bar item folders next to each other and you have one folder open, you can press ++Control+Tab++ or ++Control+Shift+Tab++ to switch between them.
 - In Settings, you can configure the keyboard shortcut to open the menu at the cursor position instead of at the menu bar icon.
-- Press the <kbd>Option</kbd> key while the menu is open to show the `…` menu item at the top if it normally is at the bottom.
-- Right-click or <kbd>Option</kbd>-click the menu bar item to open the folder.
-- Press the <kbd>Shift</kbd> key while viewing a subfolder to reveal more actions. For example, sort order settings.
+- Press the ++Option++ key while the menu is open to show the `…` menu item at the top if it normally is at the bottom.
+- Right-click or ++Option++-click the menu bar item to open the folder.
+- Press the ++Shift++ key while viewing a subfolder to reveal more actions. For example, sort order settings.
 - Search: Just start typing when the menu is open to find a file or folder in the menu. This is just the standard menu behavior where you can type to highlight a certain menu item. It’s not a full-blown search.
 
 ### Links
@@ -128,19 +129,19 @@ You can create a shortcut in the Shortcuts app using the “Set Folder Visibilit
 
 ### How can I drag & drop a file from the menu?
 
-You can drag & drop files directly from the menu. Press the <kbd>Option</kbd> key while dragging to copy instead of moving.
+You can drag & drop files directly from the menu. Press the ++Option++ key while dragging to copy instead of moving.
 
 ### How can I copy the file path? {#copy-file-path}
 
-Press the <kbd>Option</kbd> key while viewing a file to reveal a “Copy Path” button.
+Press the ++Option++ key while viewing a file to reveal a “Copy Path” button.
 
 ### How can I copy the image/video dimensions?
 
-Press the <kbd>Option</kbd> key while viewing an image or video to reveal a “Copy Dimensions” button.
+Press the ++Option++ key while viewing an image or video to reveal a “Copy Dimensions” button.
 
 ### How can I change the sort order for a subfolder?
 
-Press the <kbd>Shift</kbd> key while viewing a subfolder to reveal more actions, including a sort order setting.
+Press the ++Shift++ key while viewing a subfolder to reveal more actions, including a sort order setting.
 
 ### How can I have a menu bar folder with my most recent screenshots?
 
@@ -207,7 +208,7 @@ There is a hidden setting for it. Run the following command in the Terminal app:
 defaults write com.sindresorhus.Folder-Peek showFolderMoreMenu -bool false
 ```
 
-You can show the `…` menu item again by pressing the <kbd>Option</kbd> key.
+You can show the `…` menu item again by pressing the ++Option++ key.
 
 ### How is this better than having folders in the Dock? {#dock-folders}
 

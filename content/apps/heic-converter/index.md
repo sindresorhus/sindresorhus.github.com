@@ -49,6 +49,11 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/13539124/HEIC-Converter-for-macOS-10.13.zip'
 	}
 ]
+nonAppStoreVersion: {
+	version: '3.6.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/ftfkqamu1yd2pjk4r8jyb/HEIC-Converter-3.6.0-1777069218.zip?rlkey=8ljysol8pl6syee2t5ubk46e3&raw=1'
+}
 ---
 
 Convert [HEIC](https://www.macworld.co.uk/feature/iphone/what-is-heic-3660408/) photos from your iPhone to JPEG or PNG, so you can upload them anywhere and share them with people who don’t use Apple devices.
@@ -81,11 +86,3 @@ I expect JPEG XL to gain more widespread support and become the preferred format
 ### What’s the benefit of this app over the built-in Quick Actions converter?
 
 The built-in converter (right-click › Quick Actions › Convert Image) works well for basic conversions. This app offers adjustable JPEG quality and granular metadata control (separately toggle location data and modification dates instead of all-or-nothing).
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/ftfkqamu1yd2pjk4r8jyb/HEIC-Converter-3.6.0-1777069218.zip?rlkey=8ljysol8pl6syee2t5ubk46e3&raw=1) *(3.6.0)*
-
-*Requires macOS 26 or later*

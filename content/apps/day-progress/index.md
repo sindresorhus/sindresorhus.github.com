@@ -11,9 +11,7 @@ appStoreID: 6450280202
 sharedQuestions: [
 	'blurry-secondary-display'
 ]
-# links: {
-# 	TestFlight: 'https://testflight.apple.com/join/mFx764Kp',
-# }
+# testFlightURL: 'https://testflight.apple.com/join/mFx764Kp'
 olderVersions: [
 	{
 		version: '2.0.3'
@@ -36,6 +34,7 @@ pressQuotes: [
 		quote: 'It’s a really simple idea but is at the same time important for those who really take productivity seriously.'
 		source: '9to5Mac'
 		url: 'https://9to5mac.com/2023/06/20/day-progress-mac-app/'
+		year: 2023
 	}
 ]
 ---

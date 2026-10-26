@@ -22,7 +22,12 @@ public struct RegisteredProperty<Value: StyleValue>: Sendable {
 	- Parameter syntax: The type of the values, like ``PropertySyntax/number``, ``PropertySyntax/color``, or ``PropertySyntax/angle``.
 	- Parameter inherits: Whether descendants get the value, like for a hue that letters inside use.
 	*/
-	public init(_ name: String, syntax: PropertySyntax, initialValue: Value, inherits: Bool = true) {
+	public init(
+		_ name: String,
+		syntax: PropertySyntax,
+		initialValue: Value,
+		inherits: Bool = true
+	) {
 		self.variable = StyleVariable(name)
 		self.syntax = syntax
 		self.initialValue = initialValue

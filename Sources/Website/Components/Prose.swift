@@ -56,6 +56,7 @@ enum ProseStyles: StyleSet {
 	case footnoteReference
 	case popover
 	case keySeparator
+	case keyboardShortcut
 	case tableContainer
 	case alert
 	case alertNote
@@ -103,6 +104,8 @@ enum ProseStyles: StyleSet {
 			Self.popoverStyle
 		case .keySeparator:
 			Self.keySeparatorStyle
+		case .keyboardShortcut:
+			Self.keyboardShortcutStyle
 		case .tableContainer:
 			Self.tableContainerStyle
 		case .alert:
@@ -177,6 +180,8 @@ extension MarkdownTheme {
 			ProseStyles.popover.className
 		case .keySeparator:
 			ProseStyles.keySeparator.className
+		case .keyboardShortcut:
+			ProseStyles.keyboardShortcut.className
 		case .tableContainer:
 			ProseStyles.tableContainer.className
 		case .collapsibleSections:

@@ -17,6 +17,11 @@ hasSentry: true
 # 		url: '',
 # 	},
 # ]
+nonAppStoreVersion: {
+	version: '1.0.1'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/3vgrzu42y0b8ex4ucer9w/Imago-1.0.1-1774386003.zip?rlkey=6m80smt12qv8dccxlb4uk8sfw&raw=1'
+}
 ---
 
 Describe the image you want, and the app makes it for you.
@@ -42,11 +47,11 @@ Click a thumbnail to view a larger version of it. Click again to exit.
 
 <!-- On macOS, when in preview mode, there are some keyboard shortcuts available: -->
 When in preview mode, there are some keyboard shortcuts available:
-- <kbd>◀</kbd> — Previous image
-- <kbd>▶</kbd> — Next image
-- <kbd>Space</kbd> — Save image
-- <kbd>Command+C</kbd> — Copy image
-- <kbd>Esc</kbd> — Exit preview
+- ++◀++ — Previous image
+- ++▶++ — Next image
+- ++Space++ — Save image
+- ++Command+C++ — Copy image
+- ++Esc++ — Exit preview
 
 ### Metadata
 
@@ -97,11 +102,3 @@ The AI model used to generate images is large. This is reasonable given the mode
 ### How can I remove Imago and the Flux model entirely? {#uninstall}
 
 First, open the app and click “Show Model Folder” in the settings to reveal the model in Finder, then delete that folder (~20 GB). After that, [delete the app](https://support.apple.com/102610) from your Applications folder as usual.
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/3vgrzu42y0b8ex4ucer9w/Imago-1.0.1-1774386003.zip?rlkey=6m80smt12qv8dccxlb4uk8sfw&raw=1) *(1.0.1)*
-
-*Requires macOS 26 or later*

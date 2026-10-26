@@ -330,7 +330,9 @@ extension HomePage {
 				[.to(Style().rotationEffect(.degrees(360)))]
 			case .gradientShift:
 				[
-					.at(50, Style()
+					.at(
+						50,
+						Style()
 						.setting(HomePage.gradientStart, to: HomePage.Styles.gradientColor(at: 75))
 						.setting(HomePage.gradientEnd, to: .secondary(500))
 					),

@@ -27,7 +27,12 @@ public struct PreviewServer: Sendable {
 
 	private let state = State()
 
-	public init(directory: URL, port: UInt16, reloadsPages: Bool = false, servesLocalNetwork: Bool = false) {
+	public init(
+		directory: URL,
+		port: UInt16,
+		reloadsPages: Bool = false,
+		servesLocalNetwork: Bool = false
+	) {
 		self.directory = directory.standardizedFileURL
 		self.port = port
 		self.reloadsPages = reloadsPages

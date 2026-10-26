@@ -91,8 +91,8 @@ extension ProseStyles {
 		.color(.inherit)
 		// Like a paragraph, so a question that wraps does not end with one word on its last line.
 		.textWrap(.pretty)
-		// The font has more space above the capitals than below the baseline, so the text looks a little low next to the chevron.
-		.offset(y: .pixels(-1))
+		// The font has more space above the capitals than below the baseline, so the text would look a little low next to the chevron. Trimming the text to the capitals and the baseline centers it at every size and zoom, and the padding keeps the height of the line.
+		.trimmedText()
 
 	static let collapsibleChevronStyle = Style()
 		.hstack(alignment: .center, isInline: true)
@@ -168,6 +168,10 @@ extension ProseStyles {
 		.color(.secondaryText)
 		.allowsHitTesting(false)
 		.transition(.opacity, .color, animation: .stateChange)
+		// The link of a closed question is not in the tab order, so a keyboard user does not press Tab twice for each question of a long FAQ, like the 75 of Dato. It is there when the question is open, and under the pointer. In `:where()`, so it adds no specificity, and the hovered section below wins.
+		.nested(":where(\(ProseStyles.anchoredSection.selector):not(:has(> details[open]))) > &") {
+			$0.visibility(false)
+		}
 		.before {
 			$0
 				.content("")
@@ -182,7 +186,9 @@ extension ProseStyles {
 				}
 				// The link takes the pointer in every state while the heading is hovered, so the pointer stays over the heading, and `site.js` sees it leave after a copy. This rule stays more specific than the states below.
 				.nested(":is(\(ProseStyles.anchoredHeading.selector), \(ProseStyles.anchoredSection.selector)):hover > &") {
-					$0.allowsHitTesting(true)
+					$0
+						.allowsHitTesting(true)
+						.visibility(true)
 				}
 		}
 		.hover {

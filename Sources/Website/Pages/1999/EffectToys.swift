@@ -108,7 +108,6 @@ struct GeoCitiesEffectToys: ScriptedElement {
 				img(.src(gif.path), .alt(""), .hook(Hooks.still, value: gif.stillPath.description))
 			}
 		}
-
 	}
 
 	private func gif(_ gif: GeoCitiesPage.GIF, alt: String = "") -> GeoCitiesPage.GIFImage {

@@ -28,6 +28,11 @@ extension ProseStyles {
 		.letterSpacing(0)
 		.overflowWrap(.breakWord)
 		.color(.bodyText)
+		// Long words break with a hyphen only on phones, where the column is narrow, like the long answers of an FAQ. An opening quote hangs outside the column, so the text lines up. Like in a book, for all prose, not only blog posts.
+		.below(.smallTablet) {
+			$0.hyphenation(true)
+		}
+		.declaration(.hangingPunctuation, "first")
 		// A list has the space of a paragraph around it.
 		.descendants("p, ul, ol") {
 			$0.margin(vertical: .em(1), horizontal: 0)
@@ -154,7 +159,7 @@ extension ProseStyles {
 				.font(size: smallTextSize, lineHeight: 1.5)
 				.color(.secondaryText)
 		}
-		// Code is not hyphenated, like in blog posts on phones, as a hyphen would change it.
+		// Code is not hyphenated, like the prose on phones, as a hyphen would change it.
 		.descendants("code") {
 			$0
 				.font(size: smallTextSize)
@@ -225,18 +230,13 @@ extension ProseStyles {
 		}
 
 	/**
-	Blog posts: colored links and typographic refinements.
+	Blog posts: colored links, oldstyle numerals, and optimized legibility. The hyphenation and hanging punctuation are in ``typography``, for all prose.
 	*/
 	static let articleStyle = Style()
 		.padding(.bottom, .rootEm(5))
 		// Oldstyle numerals. Ligatures and kerning are on by default.
 		.declaration(.fontVariantNumeric, "oldstyle-nums")
 		.declaration(.textRendering, "optimizeLegibility")
-		// Only on phones, where the column is narrow.
-		.below(.smallTablet) {
-			$0.hyphenation(true)
-		}
-		.declaration(.hangingPunctuation, "first")
 		.descendants("a") {
 			$0
 				.color(.link)

@@ -4,7 +4,7 @@ import SiteKit
 /**
 The GitHub contributions of one year, for the career quilt.
 */
-struct ContributionYear: Sendable {
+struct ContributionYear {
 	let year: Int
 	let calendar: ContributionCalendar
 
@@ -26,7 +26,7 @@ struct ContributionYear: Sendable {
 	/**
 	The contributions of a year by kind, and the repositories with the most commits, from the same request as the calendar.
 	*/
-	struct Totals: Decodable, Sendable {
+	struct Totals: Decodable {
 		let commitCount: Int
 		let pullRequestCount: Int
 		let reviewCount: Int
@@ -55,7 +55,7 @@ struct ContributionYear: Sendable {
 	/**
 	The commits of a year in one repository.
 	*/
-	struct RepositoryCommits: Decodable, Sendable {
+	struct RepositoryCommits: Decodable {
 		/**
 		The repository, like `sindresorhus/ky`.
 		*/
@@ -90,7 +90,12 @@ struct ContributionYear: Sendable {
 		}
 	}
 
-	init(year: Int, calendar: ContributionCalendar, totals: Totals, until date: Date) {
+	init(
+		year: Int,
+		calendar: ContributionCalendar,
+		totals: Totals,
+		until date: Date
+	) {
 		self.year = year
 		self.calendar = calendar
 		self.totals = totals
@@ -161,7 +166,12 @@ struct ContributionYear: Sendable {
 		}
 	}
 
-	private static func contributions(of year: Int, isPastYear: Bool, maximumAge: Duration?, github: GitHub) async throws -> Contributions {
+	private static func contributions(
+		of year: Int,
+		isPastYear: Bool,
+		maximumAge: Duration?,
+		github: GitHub
+	) async throws -> Contributions {
 		struct Content: Decodable {
 			struct User: Decodable {
 				let contributionsCollection: Contributions

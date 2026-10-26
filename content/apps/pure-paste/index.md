@@ -16,6 +16,7 @@ pressQuotes: [
 		quote: 'Now, Pure Paste looks to provide an end to this most annoying headache by pasting plain text by default, hopefully spelling an end to formatting issues across all your files.'
 		source: 'TechRadar'
 		url: 'https://www.techradar.com/news/your-biggest-copy-and-paste-issue-could-finally-be-fixed'
+		year: 2022
 	}
 	{
 		quote: 'Works so seamlessly. This app just works in the background, you never need to open it, it just does its thing. It feels just like something Apple would invent and it is done so perfectly I never noticed how much I crutched it until I tried working on one of my friends windows laptops. A must get.'
@@ -210,7 +211,7 @@ The solution is to either:
 
 ### The exclude setting does not work
 
-Copy something from the app you have excluded, press the <kbd>Option</kbd> key while clicking the Pure Paste menu bar item, and then make sure the app shown in the menu is the same as the one you excluded.
+Copy something from the app you have excluded, press the ++Option++ key while clicking the Pure Paste menu bar item, and then make sure the app shown in the menu is the same as the one you excluded.
 
 ### How can I exclude certain websites?
 
@@ -218,7 +219,7 @@ This will not be supported. A workaround would be to [turn the website into an a
 
 The need for such a setting only arises because many web apps do not adhere to platform clipboard standards, unlike native apps.
 
-### Can it support pasting with formatting when pressing <kbd>Command+Shift+V</kbd>?
+### Can it support pasting with formatting when pressing ++Shift+Command+V++?
 
 The app technically clears formatting when something is copied not pasted, so the formatting is already cleared when that shortcut is pressed.
 

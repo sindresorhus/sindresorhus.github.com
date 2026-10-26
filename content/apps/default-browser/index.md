@@ -12,11 +12,9 @@ sharedQuestions: [
 isPaid: true
 price: 6
 isMenuBarApp: true
-releasesRepository: 'default-browser-meta'
-mainLinks: {
-	Buy: 'https://sindresorhus.gumroad.com/l/default-browser?wanted=true'
-}
-requirement: 'Requires macOS 26 or later'
+releasesRepository: 'sindresorhus/default-browser-meta'
+gumroadID: 'default-browser'
+minimumOSVersion: 26
 announcement: {
 	text: 'Save 28% with the Power User Bundle: Default Browser, Shortcutie, and Supercharge'
 	url: 'https://sindresorhus.gumroad.com/l/power-user'
@@ -27,11 +25,13 @@ pressQuotes: [
 		quote: '[…] it makes it easy to quickly switch between browsers whether you’re testing them like me, you’re a developer testing code in different browsers, or you simply prefer certain browsers for certain tasks.'
 		source: 'MacStories'
 		url: 'https://www.macstories.net/reviews/default-browser-a-mac-menu-bar-utility-for-quickly-switching-browsers/'
+		year: 2025
 	}
 	{
 		quote: 'Sindre Sorhus is a serial indie app developer that specializes in creating niche apps that solve a particularly nagging problem in an often seamless way. Default Browser is one of my favorites.'
 		source: 'Lifehacker'
 		url: 'https://lifehacker.com/tech/finally-an-easier-way-to-change-your-default-browser-on-mac'
+		year: 2025
 	}
 	{
 		quote: 'Works flawlessly! It’s exactly what I needed to quickly switch between browsers! Thank you for this fantastic app!'

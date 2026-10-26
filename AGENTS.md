@@ -1,5 +1,7 @@
 # Codebase Notes
 
+Also follow the global `AGENTS.md` instructions, when the file exists. This file adds the notes of this project.
+
 ## Commits
 
 Never commit the owner’s uncommitted changes, especially in `content/`. They are often about app features that are not released yet, like new actions in `content/apps/actions/index.md`. Before you commit, list the uncommitted changes that you did not make: run `git diff` and check `git stash list`, as the owner may have stashed them. When you and the owner changed the same file, stage only your hunks (for example with `git apply --cached` and a patch of your hunks), and check with `git diff` that only the owner’s changes stay uncommitted. Do not run git commands that change the index or the working tree while another agent stages a commit.
@@ -16,7 +18,7 @@ Swift makes the `Regex` of a literal again, and compiles its program again, each
 
 ## Image formats
 
-Do not use AVIF. The owner waits for JPEG XL instead. Keep PNG and JPEG until then.
+Do not use AVIF. Keep the images PNG and JPEG. The build makes a JPEG XL copy of the icon and the screenshots of each app (`JPEGXLCopy`), which is lossless, so it looks exactly like the image, and the pages offer it in a `<picture>` when it is smaller. It needs `cjxl` (`brew install jpeg-xl`), and the copies are cached in `.cache/jpeg-xl`. The places that need a common format keep the PNG or JPEG, like the favicon, the social card, and the sitemap.
 
 ## Assets
 
@@ -56,12 +58,13 @@ Content files can use the block directives in `Sources/Website/Components/Markdo
 - `@Steps { 1. … }`: a numbered list as steps, with each number in a circle in the accent of the page and a line to the next. A nested list is smaller text below its item.
 - `@Changelog { - 2014 }`: a list of years, each with a nested list of changes, like the release notes of an app. A change can start with its kind, like `Added: Awesome`, which becomes a badge: Added, Changed, Fixed, and Removed in their colors, or Deprecated in gray. Another kind is a content error. Like the life changelog of the about page.
 - `@Feature(title: "…") { … }`: a main feature of an app, as a section with a numbered title, like “01”, so a few main features stand out from the rest of the page.
-- `@Trial(url: "…") { … }`: the trial of an app, as a card with the text and a download button. `title` changes the text of the button, like “Try on TestFlight”. It goes below the “Trial” heading, which the “Free Trial” button of the app links to.
+- `@Trial(url: "…", macOS: "26") { … }`: the trial of an app, as a card with the text and a download button. `title` changes the text of the button, like “Try on TestFlight”. Below the card, the build adds the macOS version of `macOS`, how to install a zip download, and, on an app page with a `setappID`, the trial on Setapp, so the content does not repeat them. It goes below the “Trial” heading (`{#trial}`), which the “Free Trial” button of the app links to.
 - `@Sponsors`: the sponsors of the `sponsorTiers` frontmatter of the page, on a line of its own, like on the supporters page. A page with `sponsorTiers` must have it. It has no content.
 - `@SocialLinks`: the social links of `Site.author` as chips with icons. The footer has the same links, as plain links. It has no content.
 - `@Details(summary: "…") { … }`: a collapsible section with the look of the FAQ questions, for long details that most readers skip, like the steps for an older macOS version.
 - `@QuickAnswer { … }`: the short answer at the top of a how-to post, in a box with a “Quick Answer” label, for readers who only want the answer.
-- `@Tips { - … }`: a box of tips, with the look of a tip alert.
+- `@Tips { - … }`: a box of tips, with the look of a tip alert. `title` changes its title, like `@Tips(title: "Hidden features")` below a “Tips” heading.
+- `@Columns { - … }`: a list of short items in columns, like the video call services of Dato, so a long list of names is not a narrow column several screens tall. Only for short items, as sentences read better in one column.
 - `@TinyApp(title: "…", icon: "/apps/…/icon.png", download: "…", source: "…", requirement: "…") { … }`: a small app without a page of its own, as a card with its icon, the text, a download button, and the requirement, like on the tiny apps page. Only `title` and `download` are required. Without an icon, it shows the placeholder icon. The icons are in `public/apps/<slug>/`.
 
 A paragraph that only has bold text, like `**Highlights**` or `**More features**`, is a label for the list or text below it. The renderer gives it the `boldLabel` class (`ProseStyles.boldLabelStyle`), which adds slightly more space above than between paragraphs, so it reads as the start of a new group. This is intentional. A paragraph that has other text after the bold text, like `**macOS:** Click …`, is not a label and keeps the normal space.
@@ -74,7 +77,7 @@ Write a keyboard shortcut as `++Shift+Command+N++`, which becomes one `<kbd>` pe
 
 A fenced code block in content renders as a `CodeBlock` (`Sources/Website/Components/CodeBlock.swift`), with its language and a copy button. The build highlights Swift code with the parser of Swift (`swiftCodeParts` in SiteKit) and SOML code with the lexer of SOML (`somlCodeParts`), each line of a `console` block gets a `$ ` prompt, and the code of other languages is plain. Markdown without the options of the site, like release notes, has a plain `pre`.
 
-No content uses `@QuickAnswer`, `@Tips`, or the platform badge yet. They are kept for content that needs them, so use them when they fit, instead of raw HTML or a new directive. Good places: platform badges on app pages where a feature works only on some platforms, like the Actions app (`content/apps/actions/index.md`), `@QuickAnswer` at the top of how-to posts, and `@Details` for long notes in an FAQ answer.
+No content uses `@QuickAnswer` yet. It is kept for content that needs it, so use it and the other directives when they fit, instead of raw HTML or a new directive. Good places: `@QuickAnswer` at the top of how-to posts, and `@Details` for long notes in an FAQ answer. Mark a part of an app that works only on some of its platforms with a platform badge, like the actions of the Actions app (`content/apps/actions/index.md`), not with `<sup>`. A badge must be for a platform of the app, and `website check` warns about a `<sup>` with a platform and about a raw `<kbd>`.
 
 Do not indent the content of a directive that has a nested list. swift-markdown removes as many whitespace characters from each line as the first line has columns of indentation, so a tab-indented first line removes the tab of the nested items too, and the nested list becomes part of the outer list.
 

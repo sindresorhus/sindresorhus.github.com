@@ -4,11 +4,11 @@ import SiteKit
 /**
 A post on Bluesky, with the links in its text, for the now page. Sindre posts the same text to X, Mastodon, and Bluesky, and only Bluesky has a free API.
 */
-struct BlueskyPost: Sendable {
+struct BlueskyPost {
 	/**
 	A part of the text, with its link, like a shortened URL with the whole URL.
 	*/
-	struct Segment: Hashable, Sendable {
+	struct Segment: Hashable {
 		let text: String
 		let link: URL?
 	}

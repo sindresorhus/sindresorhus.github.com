@@ -32,13 +32,13 @@ olderVersions: [
 ]
 ---
 
-Check your hair and lighting before a video call. Click the menu bar icon to see your Mac’s camera, and press <kbd>Return</kbd> to take a photo.
+Check your hair and lighting before a video call. Click the menu bar icon to see your Mac’s camera, and press ++Return++ to take a photo.
 
 ## Tips
 
-- Press the <kbd>Return</kbd> or <kbd>Space</kbd> key while showing the camera feed to take a photo.
-- Press <kbd>Command+</kbd> to zoom in, <kbd>Command−</kbd> to zoom out, and <kbd>Command+0</kbd> to reset the zoom.
-- Press the <kbd>Option</kbd> key while resizing the window to resize from the center (this works with any app).
+- Press the ++Return++ or ++Space++ key while showing the camera feed to take a photo.
+- Press <kbd>Command+</kbd> to zoom in, ++Command+-++ to zoom out, and ++Command+0++ to reset the zoom.
+- Press the ++Option++ key while resizing the window to resize from the center (this works with any app).
 
 ## Frequently Asked Questions {#faq}
 

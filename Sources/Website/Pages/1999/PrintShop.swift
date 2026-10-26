@@ -180,7 +180,12 @@ struct GeoCitiesPrintShop: ScriptedElement {
 	/**
 	A step where the visitor picks one of the options, each with a sample that the script draws in the button.
 	*/
-	private func choiceStep(_ id: String, prompt: String, options: [(id: String, name: String)], hook: Hooks) -> some HTML {
+	private func choiceStep(
+		_ id: String,
+		prompt: String,
+		options: [(id: String, name: String)],
+		hook: Hooks
+	) -> some HTML {
 		div(.hook(Hooks.step, value: id), .hidden) {
 			p {
 				prompt

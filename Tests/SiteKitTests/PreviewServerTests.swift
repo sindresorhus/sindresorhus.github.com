@@ -3,7 +3,6 @@ import TestSupport
 import Testing
 import SiteKit
 
-@Suite
 struct PreviewServerTests {
 	private struct State: Decodable {
 		let version: String

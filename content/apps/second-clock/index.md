@@ -22,6 +22,11 @@ olderVersions: [
 		url: 'https://github.com/user-attachments/files/18694293/Second.Clock.1.0.2.-.macOS.14.zip'
 	}
 ]
+nonAppStoreVersion: {
+	version: '1.2.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/9a20p7mo6bdw45xqzl1a8/Second-Clock-1.2.0-1774271996.zip?rlkey=udacl6dtg5apz9guctolox1tu&raw=1'
+}
 ---
 
 The clock sits next to the system clock, so you always know the time for colleagues, family, or servers in another time zone.
@@ -81,11 +86,3 @@ This is not planned. The menu bar should generally be monochrome (no colors) and
 ### Can you localize the app into my language?
 
 The time output adheres to your locale. I don’t plan to localize the app itself.
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/9a20p7mo6bdw45xqzl1a8/Second-Clock-1.2.0-1774271996.zip?rlkey=udacl6dtg5apz9guctolox1tu&raw=1) *(1.2.0)*
-
-*Requires macOS 26 or later*

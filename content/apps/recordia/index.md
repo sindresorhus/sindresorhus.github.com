@@ -44,6 +44,11 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/6538283/Recordia.1.5.1.-.macOS.10.15.zip'
 	}
 ]
+nonAppStoreVersion: {
+	version: '2.11.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/4pzfvx3ixiybchnlka327/Recordia-2.11.0-1769966188.zip?rlkey=27gzy58hhao7ih3jrysp3v68w&raw=1'
+}
 ---
 
 Press a keyboard shortcut or click the menu bar icon, and you are recording. Recordia records the microphone, the audio playing on your Mac, or both at once.
@@ -87,11 +92,3 @@ macOS does some noise reduction by default. For stronger noise reduction, check 
 ### Can I use my iPhone as a microphone?
 
 Yes, follow the guide [here](https://www.switchingtomac.com/tutorials/how-to-use-your-iphone-as-a-microphone-on-a-mac/).
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/4pzfvx3ixiybchnlka327/Recordia-2.11.0-1769966188.zip?rlkey=27gzy58hhao7ih3jrysp3v68w&raw=1) *(2.11.0)*
-
-*Requires macOS 26 or later*

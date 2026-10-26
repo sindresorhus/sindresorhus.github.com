@@ -16,11 +16,9 @@ sharedQuestions: [
 	'not-in-app-store'
 	'menu-bar-icons'
 ]
-releasesRepository: 'supercharge-meta'
-mainLinks: {
-	Buy: 'https://sindresorhus.gumroad.com/l/supercharge?wanted=true'
-}
-requirement: 'Requires macOS 26 or later'
+releasesRepository: 'sindresorhus/supercharge-meta'
+gumroadID: 'supercharge'
+minimumOSVersion: 26
 downloads: 13000
 announcement: {
 	text: 'Save 28% with the Power User Bundle: Default Browser, Shortcutie, and Supercharge'
@@ -32,16 +30,19 @@ pressQuotes: [
 		quote: 'Ultimately, though, Supercharge’s utility isn’t any one of its features; it’s the collection itself that brings disparate functionality together under one easily accessible roof.'
 		source: 'MacStories'
 		url: 'https://www.macstories.net/stories/macstories-selects-2025-recognizing-the-best-apps-of-the-year/'
+		year: 2025
 	}
 	{
 		quote: 'The Finder is where Supercharge shines, fixing legacy behaviors that have frustrated Windows switchers for years.'
 		source: 'Lifehacker'
 		url: 'https://lifehacker.com/tech/this-app-brings-some-of-my-favorite-windows-features-to-mac'
+		year: 2026
 	}
 	{
 		quote: 'It’s almost as if Sindre Sorhus heard every gripe you’ve ever muttered about macOS and turned them into a to-do list of app features.'
 		source: 'Today on Mac'
 		url: 'https://todayonmac.com/supercharge/'
+		year: 2024
 	}
 	{
 		quote: 'Once you try the app, you’ll see it was created by a developer using macOS to solve those minor yet never truly minor annoyances. It packs a lot of functionality into one app. It’s a really great app.'
@@ -67,9 +68,9 @@ feedbackNote:
 
 	When reporting bugs, try quitting Supercharge, and if the issue disappears, it is likely not an issue with Supercharge. If the issue is still there, try turning off things in the “Tweaks” settings tab until it does not happen anymore, to narrow down which feature is causing the issue, and let me know.
 
-	If the issue is that a keyboard shortcut is not working, it could be [this](/apps/faq#secure-input-problem).
+	If the issue is that a keyboard shortcut is not working, it could be [the secure input problem](/apps/faq#secure-input-problem).
 
-	If you are seeing the Supercharge icon showing up for drives in the Finder sidebar, see [this](/supercharge#finder-extension-sidebar-icon).
+	If you are seeing the Supercharge icon showing up for drives in the Finder sidebar, see [why the icon shows in the sidebar](/supercharge#finder-extension-sidebar-icon).
 
 	The Finder context menu items will not show up in any [sync folder like iCloud, Dropbox, OneDrive, etc](/supercharge#finder-context-menu-icloud)
 	'''
@@ -80,11 +81,11 @@ Cut and paste files in Finder, close apps in Mission Control, and make the green
 Supercharge has fixes like these for Finder, the Dock, windows, and more.
 
 @Feature(title: "Cut and paste files in Finder") {
-	Press <kbd>Command+X</kbd> and then <kbd>Command+V</kbd> to move files, like on Windows. Open files with <kbd>Return</kbd>, reopen a closed tab with <kbd>⇧⌘T</kbd>, and create a new text file with <kbd>Option+N</kbd>. The right-click menu gets [actions like Copy Path, New From Template, and Open in Terminal](#finder-context-menu).
+	Press ++Command+X++ and then ++Command+V++ to move files, like on Windows. Open files with ++Return++, reopen a closed tab with ++Shift+Command+T++, and create a new text file with ++Option+N++. The right-click menu gets [actions like Copy Path, New From Template, and Open in Terminal](#finder-context-menu).
 }
 
 @Feature(title: "Close windows from Mission Control") {
-	Right-click a window in Mission Control to close it or quit its app, or press <kbd>⌘W</kbd>, <kbd>⌘Q</kbd>, <kbd>⌘H</kbd>, or <kbd>⌘M</kbd> on the window you point at. You do not have to leave Mission Control first. [Learn more.](#mission-control-improvements)
+	Right-click a window in Mission Control to close it or quit its app, or press ++Command+W++, ++Command+Q++, ++Command+H++, or ++Command+M++ on the window you point at. You do not have to leave Mission Control first. [Learn more.](#mission-control-improvements)
 
 	The green window button can [fill the screen](#green-traffic-light-button-fill) instead of going fullscreen, and the yellow one can [hide the app](#yellow-traffic-light-button-hide).
 }
@@ -121,18 +122,18 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 
 ##### Finder {#finder}
 
-- Move files by ^[cutting](note: "Without this feature, you have to first copy (<kbd>Command+C</kbd>) and then remember to move (<kbd>Option+Command+V</kbd>). The feature works by overriding the normal cut <kbd>⌘X</kbd> keyboard shortcut when Finder is active and executes a copy <kbd>⌘C</kbd> instead. When you then paste <kbd>⌘V</kbd>, it executes the native move <kbd>⌥⌘V</kbd> keyboard shortcut. So really, it’s Finder moving the files. This app just makes the keyboard shortcuts more intuitive. If you don’t paste, the files just stay in place. This feature also works with the Forklift app.") (<kbd>Command+X</kbd>) and pasting (<kbd>Command+V</kbd>)
-- Open files with <kbd>Return</kbd> (you can then rename with <kbd>Shift+Return</kbd> or <kbd>F2</kbd>)
-- Reopen last closed tab with <kbd>⇧⌘T</kbd>
-	:: Works for tabs closed with <kbd>⌘W</kbd>. Similar to “Reopen Closed Tab” in browsers.
-- Create new text file with <kbd>Option+N</kbd> *([video](https://github.com/user-attachments/assets/cb2c4606-12eb-4915-a64c-9b8ac3e123cf))* or from the [context menu](#finder-context-menu)
+- Move files by ^[cutting](note: "Without this feature, you have to first copy (++Command+C++) and then remember to move (++Option+Command+V++). The feature works by overriding the normal cut ++Command+X++ keyboard shortcut when Finder is active and executes a copy ++Command+C++ instead. When you then paste ++Command+V++, it executes the native move ++Option+Command+V++ keyboard shortcut. So really, it’s Finder moving the files. This app just makes the keyboard shortcuts more intuitive. If you don’t paste, the files just stay in place. This feature also works with the Forklift app.") (++Command+X++) and pasting (++Command+V++)
+- Open files with ++Return++ (you can then rename with ++Shift+Return++ or ++F2++)
+- Reopen last closed tab with ++Shift+Command+T++
+	:: Works for tabs closed with ++Command+W++. Similar to “Reopen Closed Tab” in browsers.
+- Create new text file with ++Option+N++ *([video](https://github.com/user-attachments/assets/cb2c4606-12eb-4915-a64c-9b8ac3e123cf))* or from the [context menu](#finder-context-menu)
 	:: Set default extension, auto-open after naming, and choose app.
-- Move files to the trash with <kbd>⌫</kbd> (Delete) instead of <kbd>⌘⌫</kbd>
-- Go back to the previous folder with <kbd>⌫</kbd> (Delete)
+- Move files to the trash with ++⌫++ (Delete) instead of ++Command+⌫++
+- Go back to the previous folder with ++⌫++ (Delete)
 	:: This has a bonus feature of highlighting the folder you came from.
 - [Adds many useful actions to the context menu:](#finder-context-menu) copy path, move to, open folder with, AirDrop, folder colors, etc.
-- Paste image or plain text as file with <kbd>⌘V</kbd>
-	:: When the clipboard contains an image or plain text, pressing <kbd>⌘V</kbd> in Finder/Desktop creates a file in the current folder. Normally, this would do nothing as Finder can only paste files. macOS 27 has this built-in for images, but it pastes images as TIFF, which is generally not desirable. Supercharge pastes as PNG.
+- Paste image or plain text as file with ++Command+V++
+	:: When the clipboard contains an image or plain text, pressing ++Command+V++ in Finder/Desktop creates a file in the current folder. Normally, this would do nothing as Finder can only paste files. macOS 27 has this built-in for images, but it pastes images as TIFF, which is generally not desirable. Supercharge pastes as PNG.
 - Middle-click sidebar items to open in a new tab
 - Auto-adjust column widths to filenames in column view, or do it once with a keyboard shortcut
 	- Known (unfixable) issues:
@@ -143,9 +144,9 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 - Move or copy selected files with a keyboard shortcut
 	:: Shows a system file dialog to choose where to move files.
 - Open new window when activating without windows
-	:: By default, when you <kbd>Command-Tab</kbd> to Finder without any windows open, nothing happens. This ensures a new window opens automatically.
-- Make <kbd>⌘Q</kbd> close all windows
-	:: By default, <kbd>⌘Q</kbd> does nothing in Finder.
+	:: By default, when you ++Command-Tab++ to Finder without any windows open, nothing happens. This ensures a new window opens automatically.
+- Make ++Command+Q++ close all windows
+	:: By default, ++Command+Q++ does nothing in Finder.
 - Customize clicking Finder icon in Dock
 	:: Choose what happens when you click the Finder icon in the Dock: System default behavior, open new window when already focused (first click focuses, subsequent clicks open new windows), or always open new window.<!-- - [Remap dedicated function keys to custom keyboard shortcuts](#remap-dedicated-function-keys)
 	:: Make the dedicated Mission Control (F3), Spotlight (F4), Dictation (F5), and Do Not Disturb (F6) keys trigger any keyboard shortcut, action, or run a Shortcuts app shortcut instead. -->
@@ -156,7 +157,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 ##### Windows {#windows}
 
 - [Close & minimize windows and hide & quit apps directly from Mission Control](#mission-control-improvements)
-- Unminimizes an app’s windows (all or one) when activated <sup>(e.g., via <kbd>Command+Tab</kbd>)</sup>
+- Unminimizes an app’s windows (all or one) when activated <sup>(e.g., via ++Command+Tab++)</sup>
 - Hide all windows <sup>(aka. boss mode)</sup>
 - [Isolate window](#isolate-window)
 - Prevent accidental ⌘W window closes
@@ -194,7 +195,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 ##### Apps {#apps}
 
 - [Automatically quit or hide apps after inactivity](#auto-quit-apps)
-- Prevent ^[accidental app quits](note: "The <kbd>Q</kbd> key is next to <kbd>W</kbd>, making it easy to accidentally hit <kbd>Command+Q</kbd> (quit) when reaching for <kbd>Command+W</kbd> (close window).") by instead using <kbd>⇧⌘Q</kbd>, pressing <kbd>Q</kbd> twice while holding <kbd>⌘</kbd>, or [press and hold <kbd>⌘Q</kbd>](https://github.com/user-attachments/assets/0515e50f-2a93-4369-836e-085ad462fdf8)
+- Prevent ^[accidental app quits](note: "The ++Q++ key is next to ++W++, making it easy to accidentally hit ++Command+Q++ (quit) when reaching for ++Command+W++ (close window).") by instead using ++Shift+Command+Q++, pressing ++Q++ twice while holding ++Command++, or [press and hold ++Command+Q++](https://github.com/user-attachments/assets/0515e50f-2a93-4369-836e-085ad462fdf8)
 - [Launch any app with a customizable global keyboard shortcut](https://github.com/user-attachments/assets/22bf135a-cc39-45ef-82ef-bf23176f0746)
 	:: Pressing the shortcut again hides the app and activates the previous app, so it works as a quick toggle.
 - [Export/import (backup) settings for any apps](#export-import-app-settings)
@@ -356,7 +357,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 
 - [Mail: Copy message link](#mail-copy-message-link)
 - [Notes: Copy note link](#notes-copy-note-link)
-- Safari: Use <kbd>Delete</kbd> and <kbd>Shift+Delete</kbd> to navigate back and forward
+- Safari: Use ++Delete++ and ++Shift+Delete++ to navigate back and forward
 - TextEdit: Open a blank document instead of file picker on launch
 - Override Maps app language
 	:: macOS doesn’t allow changing the Maps app language in System Settings. This fixes that. Useful when search doesn’t work well with your system language.
@@ -420,7 +421,7 @@ Example shortcuts:
 
 Prevent your Mac from sleeping and optionally prevent your screen from dimming.
 
-Hold <kbd>Option</kbd> while choosing “Keep Awake” in the Supercharge menu to temporarily use the opposite screen behavior without changing the setting.
+Hold ++Option++ while choosing “Keep Awake” in the Supercharge menu to temporarily use the opposite screen behavior without changing the setting.
 
 While active, the menu item shows whether the current session keeps the display on or allows it to sleep.
 
@@ -444,7 +445,7 @@ You can also choose to unminimize all windows instead of just one when clicking 
 
 #### Clicking green traffic light button fills window instead of entering fullscreen {#green-traffic-light-button-fill}
 
-Makes clicking the green traffic light button fill the window to fit the screen instead of entering fullscreen mode. Hold <kbd>Option</kbd> while clicking for the default fullscreen behavior. Click again to restore the previous window size.
+Makes clicking the green traffic light button fill the window to fit the screen instead of entering fullscreen mode. Hold ++Option++ while clicking for the default fullscreen behavior. Click again to restore the previous window size.
 
 [Screenshot](https://github.com/user-attachments/assets/41dd0f46-05f7-46f2-b9a5-a5ae441da8a9)
 
@@ -452,13 +453,13 @@ Makes clicking the green traffic light button fill the window to fit the screen 
 
 #### Clicking yellow traffic light button hides app instead of minimizing window {#yellow-traffic-light-button-hide}
 
-Makes clicking the yellow traffic light button hide the app instead of minimizing the window. Hold <kbd>Option</kbd> while clicking for the default minimize behavior.
+Makes clicking the yellow traffic light button hide the app instead of minimizing the window. Hold ++Option++ while clicking for the default minimize behavior.
 
 #### Prevent accidental window closing for certain apps {#prevent-accidental-window-closing}
 
 Disables the red traffic light button for selected apps to prevent accidentally closing windows. This is particularly useful for apps where you want to be extra careful about not losing your work.
 
-You can hold <kbd>Option</kbd> while clicking the red traffic light button to close the window.
+You can hold ++Option++ while clicking the red traffic light button to close the window.
 
 #### Keyboard shortcut inspector {#keyboard-shortcut-inspector}
 
@@ -504,7 +505,7 @@ Available as a menu action, a customizable keyboard shortcut, and as a Shortcuts
 
 ##### Hyper key {#hyper-key}
 
-Remaps <kbd>Caps Lock</kbd> to function as a Hyper key — a single key that simultaneously activates all standard modifiers (Control + Option + Shift + Command). This enables the creation of highly unique shortcuts that are unlikely to conflict with existing ones, making them both easy to remember and quick to use.
+Remaps ++Caps Lock++ to function as a Hyper key — a single key that simultaneously activates all standard modifiers (Control + Option + Shift + Command). This enables the creation of highly unique shortcuts that are unlikely to conflict with existing ones, making them both easy to remember and quick to use.
 
 #### Automatically quit or hide inactive apps {#auto-quit-apps}
 
@@ -828,22 +829,22 @@ Back up and restore settings for Mac apps. Export to `.app-settings` files, then
 
 Just moved to macOS from Windows? Supercharge helps you feel at home:
 
-- Use <kbd>Command+X</kbd> and <kbd>Command+V</kbd> to move files in Finder — just like Cut and Paste in Windows Explorer.
+- Use ++Command+X++ and ++Command+V++ to move files in Finder — just like Cut and Paste in Windows Explorer.
 - Fill windows to screen size instead of entering fullscreen — matches Windows maximize behavior.
 - Hide apps by clicking their Dock icon — like minimizing to the taskbar in Windows.
-- Press <kbd>Return</kbd> to open files in Finder (rename with <kbd>F2</kbd> or <kbd>Shift+Return</kbd>).
-- <kbd>Delete</kbd> moves files to the trash (no need for <kbd>Command+Delete</kbd>).
-- Create new text files in Finder with <kbd>Option+N</kbd> or from the right-click menu — just like in Windows Explorer.
+- Press ++Return++ to open files in Finder (rename with ++F2++ or ++Shift+Return++).
+- ++Delete++ moves files to the trash (no need for ++Command+Delete++).
+- Create new text files in Finder with ++Option+N++ or from the right-click menu — just like in Windows Explorer.
 - Add “Move To” and “Copy To” to Finder’s right-click menu — like in Windows.
 - Open Terminal from Finder — like “Open in Terminal” in Windows Explorer.
 - Restore all app windows when focusing an app — like taskbar behavior in Windows.
-- “Delete Immediately” in Finder’s right-click menu — like <kbd>Shift+Delete</kbd> in Windows.
-- Minimize all windows or all but the frontmost — same as <kbd>Win+M</kbd> or <kbd>Win+Home</kbd>.
+- “Delete Immediately” in Finder’s right-click menu — like ++Shift+Delete++ in Windows.
+- Minimize all windows or all but the frontmost — same as ++Win+M++ or ++Win+Home++.
 - Shift-click Dock icons to open a new window — just like Shift+clicking taskbar icons.
-- <kbd>Command+Q</kbd> (kinda) quits Finder — like closing Explorer in Windows.
+- ++Command+Q++ (kinda) quits Finder — like closing Explorer in Windows.
 - Finder shows a new window when activated with no windows open — Windows Explorer always shows a window when launched.
 - Click Dock folders to open them in Finder — like clicking taskbar folders in Windows, which opens Explorer.
-- Use <kbd>Delete</kbd> / <kbd>Shift+Delete</kbd> in Safari to go back/forward — just like in Windows browsers.
+- Use ++Delete++ / ++Shift+Delete++ in Safari to go back/forward — just like in Windows browsers.
 - Invert selection in Finder — matches “Invert Selection” in Windows Explorer.
 - Print files from Finder’s right-click menu — like Windows’ right-click “Print”.
 
@@ -854,17 +855,11 @@ Make macOS feel less foreign — and more powerful.
 > [!TIP]
 > You may also like my [Shareful](/shareful), [Menu Bar Spacing](/menu-bar-spacing), and [Pure Paste](/pure-paste) apps.
 
-## Trial
+## Trial {#trial}
 
-@Trial(url: "https://www.dropbox.com/scl/fi/58ujynvqo09r1ni8ywl0n/Supercharge-1.30.1-trial-1790570015.zip?rlkey=bgo4hf47jnmqqrxxleilcferf&raw=1") {
+@Trial(url: "https://www.dropbox.com/scl/fi/58ujynvqo09r1ni8ywl0n/Supercharge-1.30.1-trial-1790570015.zip?rlkey=bgo4hf47jnmqqrxxleilcferf&raw=1", macOS: "26") {
 	The trial is fully functional. The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
 }
-
-*Download it to the Downloads folder, double-click to unzip, and then move it to the `/Applications` folder.*
-
-You can also [try it on Setapp](https://go.setapp.com/stp181?refAppID=742&utm_medium=vendor_program&utm_content=button) for 7 days for free.
-
-*Requires macOS 26 or later*
 
 ## Tips
 
@@ -883,14 +878,14 @@ If the Supercharge menu reports `loginwindow` as blocking keyboard shortcuts, lo
 
 #### Cut and paste files troubleshooting
 
-When you cut the files, ensure you pressed <kbd>Command+X</kbd> (cut) and not <kbd>Command+C</kbd> (copy). You still paste with <kbd>Command+V</kbd>.
+When you cut the files, ensure you pressed ++Command+X++ (cut) and not ++Command+C++ (copy). You still paste with ++Command+V++.
 
-To make sure you used the feature correctly, try this: Select a file in Finder, press <kbd>Command+X</kbd>, change to a different folder, press <kbd>Command+V</kbd>. The file should have been moved to this new folder.
+To make sure you used the feature correctly, try this: Select a file in Finder, press ++Command+X++, change to a different folder, press ++Command+V++. The file should have been moved to this new folder.
 
 > [!NOTE]
 > You cannot cut, highlight a folder, and then paste. You have to actually go into the folder to paste to it. That’s just how Finder works. Same with copy-pasting.
 
-If it’s still not working, try this: Select a file in Finder, press <kbd>Command+C</kbd>, change to a different folder, press <kbd>Option+Command+V</kbd>. The file should have been moved to this new folder. If this did not work, the problem is not this app, as those are the keyboard shortcuts it simulates.
+If it’s still not working, try this: Select a file in Finder, press ++Command+C++, change to a different folder, press ++Option+Command+V++. The file should have been moved to this new folder. If this did not work, the problem is not this app, as those are the keyboard shortcuts it simulates.
 
 As a last resort, try [resetting permissions](/apps/faq#mac-reset-permissions) and restarting your computer.
 
@@ -904,20 +899,20 @@ If you have enabled showing browsers in the menu, you can hold the Option key an
 
 Some things you can already do that you may not know about:
 
-- Hide an app by <kbd>Option</kbd>-clicking on the app’s Dock icon.
-- Show Control Center by pressing <kbd>Fn+C</kbd>.
+- Hide an app by ++Option++-clicking on the app’s Dock icon.
+- Show Control Center by pressing ++Fn+C++.
 - Toggle a specific VPN using a keyboard shortcut with Shortcuts. Add [this shortcut](https://www.icloud.com/shortcuts/a0c3171fe98a4379b8197299a84b060e) and set the VPN parameter and a keyboard shortcut.
 - [Make Finder remember its size and position.](https://apple.stackexchange.com/a/171274/2363)
 - [Prevent opening apps when clicking links that are Universal Links.](https://lapcatsoftware.com/articles/universal-links2.html)
 - [Change the keyboard shortcut for menu item actions in a specific app.](https://support.apple.com/guide/mac-help/create-keyboard-shortcuts-for-apps-mchlp2271/mac)
 - [Change the keyboard shortcut for menu item actions in all apps.](https://apple.stackexchange.com/a/125628/2363)
-- Set Finder’s default view options: Open a folder, press <kbd>Command+J</kbd>, adjust settings, and click “Use as Defaults”. To reset a folder’s custom settings, press <kbd>Command+J</kbd>, hold <kbd>Option</kbd>, and click “Restore to Defaults”.
+- Set Finder’s default view options: Open a folder, press ++Command+J++, adjust settings, and click “Use as Defaults”. To reset a folder’s custom settings, press ++Command+J++, hold ++Option++, and click “Restore to Defaults”.
 - [Show “Dimensions” column in Finder.](https://apple.stackexchange.com/questions/18728/how-can-i-show-the-dimension-column-in-finder)
 - Option-click the sound menu bar icon to be able to also choose input device. Or use the tweak in Supercharge to see it by default.
-- In open/save dialogs, navigate to a copied absolute path by pressing <kbd>Command+V</kbd>.
+- In open/save dialogs, navigate to a copied absolute path by pressing ++Command+V++.
 - [Translate website in Safari using a keyboard shortcut.](https://www.reddit.com/r/Safari/comments/1auqjjc/how_to_make_safari_full_page_translation_by/)
-- In Safari, enter Picture-in-Picture by pressing <kbd>Shift+Command+R</kbd>.
-- In Finder, select a file, and then press <kbd>Command+Option+C</kbd> to copy its path.
+- In Safari, enter Picture-in-Picture by pressing ++Shift+Command+R++.
+- In Finder, select a file, and then press ++Option+Command+C++ to copy its path.
 
 ## Frequently Asked Questions {#faq}
 
@@ -991,7 +986,7 @@ Try the [trial](#trial) and see for yourself.
 
 Supercharge offers a simpler, more user-friendly approach. It’s designed for users who want quick access to useful features without the complexity of scripting or configuring advanced tools. Supercharge provides a curated set of enhancements that work right out of the box, saving you time and effort in setup and maintenance. If you prefer more granular control and don’t mind the setup process, those other tools might be a better fit for you.
 
-### Why <kbd>Command+X</kbd>? I can already move files with <kbd>Command+C</kbd> and <kbd>Option+Command+V</kbd>
+### Why ++Command+X++? I can already move files with ++Command+C++ and ++Option+Command+V++
 
 - It’s more logical to cut & paste than copy & move.
 - Consistency and muscle memory benefits if you also use Linux or Windows.
@@ -1002,7 +997,7 @@ Dock spacers are [invisible gaps](https://res.cloudinary.com/cpenned/image/uploa
 
 ### How do I exit Cat Mode and Cleaning Mode?
 
-Press <kbd>Command</kbd> six times.
+Press ++Command++ six times.
 
 ### Can I add custom actions to the app?
 
@@ -1023,11 +1018,11 @@ No, the app is optimized to run efficiently in the background with minimal CPU, 
 
 ### Why doesn’t the “Prevent accidental quit” tweak apply in the Command+Tab app switcher?
 
-This is intentional. The feature exists for one specific slip: <kbd>Q</kbd> sits right next to <kbd>W</kbd>, so it’s easy to hit <kbd>⌘Q</kbd> (quit) when you meant <kbd>⌘W</kbd> (close window). That mix-up can’t happen in the app switcher, because there’s no window to close there in the first place.
+This is intentional. The feature exists for one specific slip: ++Q++ sits right next to ++W++, so it’s easy to hit ++Command+Q++ (quit) when you meant ++Command+W++ (close window). That mix-up can’t happen in the app switcher, because there’s no window to close there in the first place.
 
-Quitting from the switcher is also already a deliberate, multi-step act: you hold <kbd>⌘</kbd>, tab to a specific app, and only then press <kbd>Q</kbd>. It’s very hard to do by accident. And forcing a press-and-hold or double-tap there would defeat the purpose of the switcher, which is to quit apps quickly while cycling through them.
+Quitting from the switcher is also already a deliberate, multi-step act: you hold ++Command++, tab to a specific app, and only then press ++Q++. It’s very hard to do by accident. And forcing a press-and-hold or double-tap there would defeat the purpose of the switcher, which is to quit apps quickly while cycling through them.
 
-### I cannot use <kbd>Control+Space</kbd> or <kbd>Control+Shift+Space</kbd> as a keyboard shortcut
+### I cannot use ++Control+Space++ or ++Control+Shift+Space++ as a keyboard shortcut
 
 Go to “System Settings › Keyboard › Keyboard Shortcuts › Input Sources” and disable them all.
 
@@ -1078,7 +1073,7 @@ The pre-defined shortcuts are intentionally curated to help users quickly select
 
 ### Can you add a Finder keyboard shortcut to move selected items into a new folder?
 
-This is already supported natively. See the “File › New Folder with Selection” menu item. Select some items and then press <kbd>Control+Command+N</kbd>. You can change the keyboard shortcut in the [System Settings](https://support.apple.com/guide/mac-help/create-keyboard-shortcuts-for-apps-mchlp2271/mac).
+This is already supported natively. See the “File › New Folder with Selection” menu item. Select some items and then press ++Control+Command+N++. You can change the keyboard shortcut in the [System Settings](https://support.apple.com/guide/mac-help/create-keyboard-shortcuts-for-apps-mchlp2271/mac).
 
 ### Can the app support clearing clipboard formatting? {#pure-paste}
 

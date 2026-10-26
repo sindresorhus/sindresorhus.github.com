@@ -35,8 +35,6 @@ Simple text editor without any rich text nonsense. The simplicity is a feature.
 
 It won’t handle your 1 million line log file, but it is a nice way to write down some ideas.
 
-It’s a [Universal Purchase](/apps/faq#universal-purchase).
-
 *It only handles UTF-8 text files (meaning no UTF-16).*
 
 ## Frequently Asked Questions {#faq}
@@ -72,7 +70,7 @@ This is a macOS bug. There is unfortunately nothing I can do about it.
 
 Yes. Click “View › Show Tab Bar” in the menu bar and then click the plus button in the window.
 
-You can also press <kbd>Command+N</kbd> if you have [tabs enabled for document apps](https://support.apple.com/guide/mac-help/mchla4695cce/mac).
+You can also press ++Command+N++ if you have [tabs enabled for document apps](https://support.apple.com/guide/mac-help/mchla4695cce/mac).
 
 ### Can I keep it in the menu bar?
 
@@ -100,7 +98,7 @@ It helps you focus on the actual writing, instead of getting distracted with edi
 
 ### When I save a file using the popover in the title bar on macOS, it always appends `.txt` when I choose a different file extension
 
-This is a macOS bug. Instead, save the file from the “File” menu or by pressing <kbd>Command+S</kbd>.
+This is a macOS bug. Instead, save the file from the “File” menu or by pressing ++Command+S++.
 
 ### How can I toggle “Stay on Top” with a keyboard shortcut on macOS?
 

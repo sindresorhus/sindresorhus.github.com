@@ -39,13 +39,20 @@ pressQuotes: [
 		quote: 'One Thing is a super simple menu bar app that helps you remember the one main thing that you need to accomplish. Whatever you type in will show up in your menu bar so it’s front and center.'
 		source: 'MacRumors'
 		url: 'https://www.macrumors.com/2025/12/24/10-mac-apps-worth-trying-in-2026/'
+		year: 2025
 	}
 	{
 		quote: 'Overall, this is a simple application you can use to leave yourself reminders somewhere that’s impossible to ignore.'
 		source: 'Lifehacker'
 		url: 'https://lifehacker.com/tech/one-thing-app-turns-your-macs-menu-bar-into-sticky-note'
+		year: 2024
 	}
 ]
+nonAppStoreVersion: {
+	version: '2.0.2'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/4d3zqtuj4j2erm6ck80ei/One-Thing-2.0.2-1778696587.zip?rlkey=s2h6g802mi674wkg7s5olfb9l&raw=1'
+}
 ---
 
 Write the one task or goal that matters most today, and see it in your menu bar all day. A quiet reminder to focus on one thing at a time.
@@ -81,8 +88,8 @@ However, what you use this space for is really up to you.
 
 ## Tips
 
-- Press <kbd>return</kbd>/<kbd>esc</kbd> or click the menu bar item to close the edit window.
-- Click the menu bar item while pressing <kbd>shift</kbd> to clear the text.
+- Press ++Return++/++Esc++ or click the menu bar item to close the edit window.
+- Click the menu bar item while pressing ++Shift++ to clear the text.
 - Right-click the menu bar item to be able to quit the app quickly.
 - If the menu bar item text is truncated, hover over it to see the full text in a tooltip.
 - You can use [Markdown](https://www.markdownguide.org/basic-syntax/#emphasis) to [style the text](https://x.com/sindresorhus/status/1481818533294407680) (supports bold, italic, and strikethrough) and add links.
@@ -190,11 +197,3 @@ There is no way to get the text using the URL scheme, but if you are in the term
 ```sh
 defaults read com.sindresorhus.One-Thing text
 ```
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/4d3zqtuj4j2erm6ck80ei/One-Thing-2.0.2-1778696587.zip?rlkey=s2h6g802mi674wkg7s5olfb9l&raw=1) *(2.0.2)*
-
-*Requires macOS 26 or later*

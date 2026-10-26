@@ -5,10 +5,11 @@ publicationDate: '2024-07-09'
 platforms: [
 	'macOS'
 ]
-mainLinks: {
-	Download: 'https://github.com/sindresorhus/menu-bar-spacing-meta/releases/latest/download/Menu.Bar.Spacing.zip'
+gitHubDownload: {
+	repository: 'sindresorhus/menu-bar-spacing-meta'
+	file: 'Menu.Bar.Spacing.zip'
 }
-requirement: 'Requires macOS 26 or later'
+minimumOSVersion: 26
 olderVersions: [
 	{
 		version: '1.1.0'

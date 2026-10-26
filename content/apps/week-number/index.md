@@ -31,8 +31,14 @@ pressQuotes: [
 		quote: 'Some are simple utilities that do one thing well, like Week Number putting the week number in your Mac’s menu bar.'
 		source: 'MacStories'
 		url: 'https://www.macstories.net/stories/macstories-selects-2025-recognizing-the-best-apps-of-the-year/'
+		year: 2025
 	}
 ]
+nonAppStoreVersion: {
+	version: '1.3.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/4d61fatess5oqykg4hne9/Week-Number-1.3.0-1769172114.zip?rlkey=y8hvpd0sci9zwqqy03i2hu0f5&raw=1'
+}
 ---
 
 Always know which week it is. Useful if your work or school plans by week number.
@@ -57,11 +63,3 @@ Check out [Dato](/dato) for week number in the menu bar and more features and se
 ### Can you add custom week numbering options (for example, fiscal weeks, school terms, or work weeks)?
 
 No, the app is intentionally simple.
-
-## Non-App Store Version
-
-A special version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.
-
-[Download](https://www.dropbox.com/scl/fi/4d61fatess5oqykg4hne9/Week-Number-1.3.0-1769172114.zip?rlkey=y8hvpd0sci9zwqqy03i2hu0f5&raw=1) *(1.3.0)*
-
-*Requires macOS 26 or later*

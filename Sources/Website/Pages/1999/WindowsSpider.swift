@@ -145,7 +145,13 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 	/**
 	A menu of the menu bar, like Game, with its commands under it while it is open. An empty command is a line between the groups. The list has an ID for the `aria-controls` of its button.
 	*/
-	private func menu(_ title: String, button buttonPart: Parts, list: Parts, id: String, commands: [(command: String, title: String, key: String)?]) -> some HTML {
+	private func menu(
+		_ title: String,
+		button buttonPart: Parts,
+		list: Parts,
+		id: String,
+		commands: [(command: String, title: String, key: String)?]
+	) -> some HTML {
 		div {
 			button(.part(buttonPart), .type(.button), .ariaExpanded(false), .ariaControls(id)) {
 				title

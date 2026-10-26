@@ -71,8 +71,8 @@ Your shortcuts and data never leave your device. The app is built without intern
 
 ## Tips
 
-- <kbd>Option</kbd>-click a shortcut in the menu to edit it.
-- Use <kbd>Command</kbd>+<kbd>Z</kbd> to undo changes in the shortcut organizer.
+- ++Option++-click a shortcut in the menu to edit it.
+- Use ++Command+Z++ to undo changes in the shortcut organizer.
 
 ## Frequently Asked Questions {#faq}
 
@@ -134,7 +134,7 @@ You can set certain shortcuts to only appear when specific apps are active. For 
 
 ### Can I use keyboard shortcuts to navigate the menu?
 
-Yes. Set a keyboard shortcut to open the menu, then use arrow keys to navigate and <kbd>return</kbd> to run shortcuts. Much faster than clicking.
+Yes. Set a keyboard shortcut to open the menu, then use arrow keys to navigate and ++Return++ to run shortcuts. Much faster than clicking.
 
 ### Can I pass arguments to a shortcut from the menu?
 
@@ -162,7 +162,7 @@ No. Use Shortcuts’ own keyboard shortcuts (or Raycast/Alfred) if you want per-
 
 Maybe at some point, but I want the app to be mature first, since it commits me to that exact format.
 
-For now, you can [export/import all app data](https://sindresorhus.com/apps/faq#export-settings).
+For now, you can [export/import all app data](/apps/faq#export-settings).
 
 ### Can you support iOS?
 

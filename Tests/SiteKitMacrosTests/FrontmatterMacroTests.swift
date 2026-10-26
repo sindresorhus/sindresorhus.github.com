@@ -9,7 +9,6 @@ import Testing
 #if canImport(SiteKitMacros)
 import SiteKitMacros
 
-@Suite
 struct FrontmatterMacroTests {
 	private let macros = [
 		"Frontmatter": MacroSpec(type: FrontmatterMacro.self, conformances: ["Frontmatter"]),

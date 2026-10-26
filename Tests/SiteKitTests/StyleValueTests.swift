@@ -4,7 +4,6 @@ import Synchronization
 import Testing
 @testable import SiteKit
 
-@Suite
 struct StyleValueTests {
 	/**
 	A quote or a line break in a CSS string ends the string, so the browser drops the declaration. A line break is written as the escape `\A`.

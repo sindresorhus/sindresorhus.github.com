@@ -551,7 +551,7 @@ extension GeoCitiesMacOS {
 	/**
 	A menu of the menu bar.
 	*/
-	struct MenuBarMenu: Sendable {
+	struct MenuBarMenu {
 		let id: String
 		let title: String
 		let items: [MenuItem]

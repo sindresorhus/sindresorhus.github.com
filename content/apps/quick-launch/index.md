@@ -36,7 +36,7 @@ When on the Lock Screen, tap and hold on the clock, tap the “Customize” butt
 
 ### Can you support more actions when tapping a widget?
 
-Sure. I’m happy to consider requests. [Send it here.](https://sindresorhus.com/feedback?product=Quick%20Launch&referrer=Website-FAQ)
+Sure. I’m happy to consider requests. [Send it here.](/feedback?product=Quick%20Launch&referrer=Website-FAQ)
 
 ### How does it compare to other similar Lock Screen launchers?
 

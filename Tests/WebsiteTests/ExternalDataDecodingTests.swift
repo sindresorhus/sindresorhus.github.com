@@ -4,7 +4,6 @@ import TestSupport
 import Testing
 @testable import Website
 
-@Suite
 struct ExternalDataDecodingTests {
 	/**
 	A response that cannot be decoded is removed from the cache, so the next build asks again instead of using it until it expires.

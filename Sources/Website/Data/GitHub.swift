@@ -4,7 +4,7 @@ import SiteKit
 /**
 The GitHub API for the `sindresorhus` account and the organizations of its projects. A token raises the rate limit.
 */
-struct GitHub: Sendable {
+struct GitHub {
 	let token: String?
 	let cache: ResponseCache
 
@@ -16,8 +16,8 @@ struct GitHub: Sendable {
 	/**
 	The published releases of a repo, newest first, from all the pages (``allPages(_:query:expectedCount:)``).
 	*/
-	func releases(repository: String) async throws -> [GitHubRelease] {
-		let entries: [GitHubRelease.Entry] = try await allPages("repos/\(Self.account)/\(repository)/releases")
+	func releases(repository: GitHubRepositoryName) async throws -> [GitHubRelease] {
+		let entries: [GitHubRelease.Entry] = try await allPages("repos/\(repository)/releases")
 
 		return entries
 			.compactMap(\.release)
@@ -77,12 +77,12 @@ struct GitHub: Sendable {
 	/**
 	The search qualifiers of the repos of the ``owners``, like `user:sindresorhus user:chalk`.
 	*/
-	private static let ownerQualifiers = owners.map { "user:\($0)" }.joined(separator: " ")
+	private static let ownerQualifiers = owners.lazy.map { "user:\($0)" }.joined(separator: " ")
 
 	/**
 	The numbers of the account, for the about page, and the repos of the account and the organizations (``owners``), for the about page and the now page.
 	*/
-	struct Account: Sendable {
+	struct Account {
 		/**
 		The public repos of the ``owners``, like 1,144, also the forks and the archived ones.
 		*/
@@ -109,7 +109,7 @@ struct GitHub: Sendable {
 	/**
 	The work of a maintainer in the repos of the account and of the organizations of his projects (``owners``), like 26,249 issues closed and 15,974 pull requests by other people merged.
 	*/
-	struct Maintenance: Sendable {
+	struct Maintenance {
 		/**
 		The closed issues, by anyone.
 		*/
@@ -300,7 +300,7 @@ struct GitHub: Sendable {
 	/**
 	The contributions, commits, and comments since a date, like the start of the week of the now page.
 	*/
-	struct Activity: Sendable {
+	struct Activity {
 		let contributionCount: Int
 		let commitCount: Int
 
@@ -381,7 +381,12 @@ struct GitHub: Sendable {
 
 	- Parameter maximumAge: How long the cached response is used, like a long time for data that never changes.
 	*/
-	func graphQL<Value: Decodable>(_ type: Value.Type, query: String, variables: [String: String]? = nil, maximumAge: Duration? = nil) async throws -> Value {
+	func graphQL<Value: Decodable>(
+		_ type: Value.Type,
+		query: String,
+		variables: [String: String]? = nil,
+		maximumAge: Duration? = nil
+	) async throws -> Value {
 		guard let token else {
 			preconditionFailure("The GraphQL API needs a token. Check `token` before the query.")
 		}
@@ -453,7 +458,7 @@ struct GitHub: Sendable {
 /**
 A release of an open-source project, from the public events of the account.
 */
-struct OpenSourceRelease: Sendable {
+struct OpenSourceRelease {
 	/**
 	The repo, like `sindresorhus/execa`. Its name is usually also the name of its npm package.
 	*/

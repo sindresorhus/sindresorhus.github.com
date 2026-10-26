@@ -68,7 +68,7 @@ extension Site {
 		Allow: /
 
 		# AI crawlers may use the content, for search and for training.
-		\(aiCrawlers.map { "User-agent: \($0)" }.joined(separator: "\n"))
+		\(aiCrawlers.lazy.map { "User-agent: \($0)" }.joined(separator: "\n"))
 		Allow: /
 
 		Sitemap: \(Sitemap.indexPath.absoluteURL.absoluteString)
@@ -220,7 +220,8 @@ extension Site {
 			let links: [Link]
 		}
 
-		let (user, server) = (parts[0], parts[1])
+		let user = parts[0]
+		let server = parts[1]
 		let profile = "https://\(server)/@\(user)"
 		let actor = "https://\(server)/users/\(user)"
 
@@ -263,7 +264,7 @@ extension App {
 			return lines[(range.lowerBound.line - 1)..<range.upperBound.line].joined(separator: "\n")
 		}
 		// Raw HTML ends with its line break, and the range of a list has the blank line after it.
-		.map { $0.trimmingCharacters(in: .newlines) }
+		.lazy.map { $0.trimmingCharacters(in: .newlines) }
 		.joined(separator: "\n\n")
 	}
 }

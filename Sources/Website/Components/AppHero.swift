@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-The top of an app page: the icon, the name, the subtitle, the introduction, the download buttons, the price and platforms, and the links. The rating is with the reviews (``AppReviews``), so the hero is not crowded.
+The top of an app page: the icon, the name, the subtitle, the introduction, the download buttons, the price, the platforms, a link to the privacy policy, and the links. The rating is with the reviews (``AppReviews``), so the hero is not crowded.
 */
 struct AppHero: HTML {
 	let app: App
@@ -18,12 +18,18 @@ struct AppHero: HTML {
 	*/
 	var introduction: MarkdownContent?
 
+	/**
+	When the site is built, for how long the app has been available.
+	*/
+	let buildDate: Date
+
 	var body: some HTML {
 		header(.id(Hooks.hero)) {
 			AppIcon(app, size: 256, isAboveFold: true, imageID: Hooks.icon)
 				.style(Styles.icon)
 
-			h1 {
+			// The name of the app is not translated, so visitors find it on the App Store.
+			h1(.notTranslated) {
 				app.title
 			}
 			.style(Styles.title)
@@ -79,9 +85,18 @@ struct AppHero: HTML {
 				.style(Styles.downloads)
 			}
 
-			if !details.isEmpty {
+			// An archived app is no longer available, so it has no price, platforms, or privacy.
+			if !app.isArchived {
 				p {
-					details.joined(separator: " · ")
+					details.map { "\($0) · " }.joined()
+
+					// It looks like the text around it, so the line stays quiet, and shows that it is a link under the pointer or with the focus of the keyboard.
+					a(.href(app.privacyPolicyPath)) {
+						app.privacySummary
+					}
+					.style {
+						$0.quietLink()
+					}
 				}
 				.style(Styles.details)
 			}
@@ -128,14 +143,10 @@ struct AppHero: HTML {
 	}
 
 	/**
-	The price and the platforms. An archived app is no longer available, so it has neither.
+	The price, the platforms, and how long the app has been available, before the link to the privacy policy.
 	*/
 	private var details: [String] {
-		guard !app.isArchived else {
-			return []
-		}
-
-		return [app.priceText(info: info), app.availabilityText].compactMap(\.self)
+		[app.priceText(info: info), app.availabilityText, app.availableSinceText(at: buildDate)].compactMap(\.self)
 	}
 
 	/**
@@ -315,7 +326,11 @@ struct AppCallToAction: HTML {
 				.style(Styles.icon)
 
 			h2 {
-				"Get \(app.title)"
+				"Get "
+
+				span(.notTranslated) {
+					app.title
+				}
 			}
 			.style(Styles.title)
 
@@ -381,6 +396,112 @@ struct AppCallToAction: HTML {
 				Style()
 					.margin(.top, .rootEm(1))
 					.secondaryText()
+			}
+		}
+	}
+}
+
+/**
+The facts of an app at the end of its page, like the “Information” of the App Store: the platforms, the requirement, the category, when it was released, the privacy, and the developer, so visitors who scan find them in one place. The price is in the box to get the app right above it, so it is not repeated. An archived app is no longer available, so it has none.
+*/
+struct AppFacts: HTML {
+	let app: App
+
+	/**
+	The App Store info, for the category.
+	*/
+	let info: AppStoreInfo?
+
+	private struct Fact {
+		let label: String
+		let value: String
+		var destination: LinkDestination?
+	}
+
+	private var facts: [Fact] {
+		[
+			Fact(label: app.platforms.count == 1 ? "Platform" : "Platforms", value: app.operatingSystems),
+			app.minimumVersionsByPlatform.map { Fact(label: "Requires", value: $0) },
+			info?.primaryGenreName.map { Fact(label: "Category", value: $0) },
+			Fact(label: "Released", value: app.publicationDate.formatted(.siteMonth)),
+			// The summary of an app that sends some data says that the policy has the details, which the label already says.
+			Fact(label: "Privacy", value: app.privacyNote == nil ? app.privacySummary : "Read the policy", destination: .path(app.privacyPolicyPath)),
+			Fact(label: "Developer", value: Site.author.name, destination: .path(.about)),
+		]
+		.compactMap(\.self)
+	}
+
+	var body: some HTML<HTMLTag.section> {
+		section {
+			h2 {
+				"Information"
+			}
+			.style(SectionStyles.label)
+
+			dl {
+				for fact in facts {
+					div {
+						dt {
+							fact.label
+						}
+						.style(Styles.label)
+
+						dd {
+							if let destination = fact.destination {
+								a(.href(destination)) {
+									fact.value
+								}
+								.style(Styles.link)
+							} else {
+								fact.value
+							}
+						}
+						.style(Styles.value)
+					}
+					.style(Styles.fact)
+				}
+			}
+			.style(Styles.list)
+		}
+		.style(Styles.root)
+	}
+
+	enum Styles: StyleSet {
+		case root
+		case list
+		case fact
+		case label
+		case value
+		case link
+
+		var style: Style {
+			switch self {
+			case .root:
+				Style()
+					.centeredColumn(.standard)
+			case .list:
+				// Rows of facts, like the information of the App Store, centered like the other parts at the end of the page, so a shorter last row is centered too. The space above the list is larger than the space below the title, which it collapses with, so the title stands apart from the facts.
+				Style()
+					.hstack(alignment: .start, justification: .center)
+					.flexWrap()
+					.gap(row: .rootEm(4), column: .rootEm(1.5))
+					.margin(top: .rootEm(3), horizontal: 0, bottom: 0)
+					.textAlign(.center)
+			case .fact:
+				// The same width for each fact, so they line up in columns, and wide enough for most values, like “July 2019”, so three fit in a row.
+				Style()
+					.frame(width: .rootEm(12))
+			case .label:
+				Style()
+					.textStyle(.caption)
+					.color(.secondaryText)
+			case .value:
+				Style()
+					.margin(top: .rootEm(0.25), horizontal: 0, bottom: 0)
+					.color(.bodyText)
+			case .link:
+				Style()
+					.quietLink()
 			}
 		}
 	}

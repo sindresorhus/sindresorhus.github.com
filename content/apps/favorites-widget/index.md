@@ -39,7 +39,7 @@ Yes. Enable the “Quick Call” setting in the app.
 
 ### Can you support more actions when tapping a widget?
 
-Sure. I’m happy to consider requests. [Send it here.](https://sindresorhus.com/feedback?product=Favorites%20Widget&referrer=Website-FAQ)
+Sure. I’m happy to consider requests. [Send it here.](/feedback?product=Favorites%20Widget&referrer=Website-FAQ)
 
 <!-- #### Why is this free without ads?
 
