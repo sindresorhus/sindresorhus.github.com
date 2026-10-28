@@ -8,13 +8,11 @@ All of it is extra, so a failed request leaves out its part, with a warning, ins
 */
 struct RecentActivity {
 	var blueskyPost: BlueskyPost?
-	var contributions: ContributionCalendar?
-	var sponsorCount: Int?
 
 	/**
-	The comments of Sindre on issues and pull requests of all time, for the about page. It needs a GitHub token.
+	The contributions, sponsors, and comments returned together by the GitHub profile request. The comments on issues and pull requests are of all time, for the about page. It needs a GitHub token.
 	*/
-	var commentCount: Int?
+	var profile: GitHub.Profile?
 
 	/**
 	The issues closed and the pull requests by other people merged in the week (``weekStart(before:)``), like the numbers of the year and of all time.
@@ -73,10 +71,7 @@ struct RecentActivity {
 
 		var activity = Self()
 		activity.blueskyPost = await blueskyPost ?? nil
-		let loadedProfile = await profile ?? nil
-		activity.contributions = loadedProfile?.contributions
-		activity.sponsorCount = loadedProfile?.sponsorCount
-		activity.commentCount = loadedProfile?.commentCount
+		activity.profile = await profile ?? nil
 		activity.weekMaintenance = await weekMaintenance
 		activity.releases = await releases ?? []
 		activity.weekActivity = await weekActivity ?? nil

@@ -1,7 +1,7 @@
 ---
 title: 'Pure Paste'
 subtitle: 'Paste as plain text by default'
-publicationDate: '2022-03-02'
+publicationDate: 2022-03-02
 platforms: [
 	'macOS'
 ]
@@ -10,24 +10,7 @@ isMenuBarApp: true
 appStoreID: 1611378436
 sharedQuestions: [
 	'backup-settings'
-]
-pressQuotes: [
-	{
-		quote: 'Now, Pure Paste looks to provide an end to this most annoying headache by pasting plain text by default, hopefully spelling an end to formatting issues across all your files.'
-		source: 'TechRadar'
-		url: 'https://www.techradar.com/news/your-biggest-copy-and-paste-issue-could-finally-be-fixed'
-		year: 2022
-	}
-	{
-		quote: 'Works so seamlessly. This app just works in the background, you never need to open it, it just does its thing. It feels just like something Apple would invent and it is done so perfectly I never noticed how much I crutched it until I tried working on one of my friends windows laptops. A must get.'
-		source: 'Isaac Majer'
-		isStarRating: true
-	}
-	{
-		quote: 'Best app in the world. Probably been using it for 4 years but genuinely haven’t thought about it once since I installed it to today. Works so seamlessly and does what its meant to perfectly.'
-		source: '@ek2100'
-		isStarRating: true
-	}
+	'tracking-parameters'
 ]
 olderVersions: [
 	{
@@ -51,17 +34,41 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/10793621/Pure.Paste.1.6.4.-.macOS.12.zip'
 	}
 ]
+pressQuotes: [
+	{
+		quote: 'Now, Pure Paste looks to provide an end to this most annoying headache by pasting plain text by default, hopefully spelling an end to formatting issues across all your files.'
+		source: 'TechRadar'
+		url: 'https://www.techradar.com/news/your-biggest-copy-and-paste-issue-could-finally-be-fixed'
+		year: 2022
+	}
+	{
+		quote: "If you think about it, when's the last time you copied some text and wanted to maintain its original formatting? I honestly can't remember, and it's a bit odd that the default is to carry over formatting when it's so rarely needed. Pure Paste aims to turn things around, making the default action to paste as plain text."
+		source: 'Softpedia'
+		url: 'https://mac.softpedia.com/get/Word-Processing/Pure-Paste.shtml'
+		year: 2022
+	}
+	{
+		quote: 'Works so seamlessly. This app just works in the background, you never need to open it, it just does its thing. It feels just like something Apple would invent and it is done so perfectly I never noticed how much I crutched it until I tried working on one of my friends windows laptops. A must get.'
+		source: 'Isaac Majer'
+		isStarRating: true
+	}
+	{
+		quote: 'Best app in the world. Probably been using it for 4 years but genuinely haven’t thought about it once since I installed it to today. Works so seamlessly and does what its meant to perfectly.'
+		source: '@ek2100'
+		isStarRating: true
+	}
+]
 ---
 
 Copy text from a web page or a document, and paste it without the fonts, colors, and links.
 
 Pure Paste clears the formatting (fonts, colors, bold, links, tables, etc.) in the background as you copy, and leaves files, images, and passwords from password managers alone.
 
-Beyond basic formatting removal, Pure Paste can also remove invisible characters (including AI watermarks), normalize quotes and lists, remove tracking parameters from URLs, and much more.
+Beyond basic formatting removal, Pure Paste can also remove invisible characters (including AI watermarks), footnote references (like in text from Wikipedia), and the “mailto:” prefix of email addresses, normalize quotes and lists, trim leading and trailing whitespace, remove tracking parameters from URLs, and much more.
 
 You can also choose to manually clear formatting whenever needed instead of automatically.
 
-You can right-click the menu bar icon to toggle automatic mode or clear formatting (like Plain Clip).
+You can right-click the menu bar icon to toggle automatic mode or clear formatting.
 
 <br>
 
@@ -72,10 +79,12 @@ Rich text copied from a different device will not have its formatting cleared be
 ## Tips
 
 - Right-click the menu bar icon to toggle the “Automatically clear formatting” setting.
+- When “Automatically clear formatting” is off, set the “Copy and clear formatting” keyboard shortcut in the settings to copy and clear formatting in one step.
+- When “Automatically clear formatting” is off, set the “Clear formatting” keyboard shortcut in the settings to clear the formatting of the text on the clipboard without pasting it.
 
 ## Frequently Asked Questions {#faq}
 
-### Why not just use the `Paste and Match Style` menu item or `⌥⇧⌘V`?
+### Why not just use the `Paste and Match Style` menu item or ++Option+Shift+Command+V++? {#why-not-just-use-the-paste-and-match-style-menu-item-or-v}
 
 - This app can make it the default behavior.
 - That menu item is not available in all apps.
@@ -84,17 +93,17 @@ Rich text copied from a different device will not have its formatting cleared be
 - This app can exclude certain apps, preserve links, normalize (quotes, newlines, lists, etc.) and also remove tracking parameters from URLs.
 - The app has workarounds (9000+ lines of code) for lots of apps to make the experience *just work*.
 
-### Why not just remap the `Paste and Match Style` keyboard shortcut to `⌘V`?
+### Why not just remap the `Paste and Match Style` keyboard shortcut to ++Command+V++? {#why-not-just-remap-the-paste-and-match-style-keyboard-shortcut-to-v}
 
 Same as the above except the first two list items.
 
-### The app does not show up in the menu bar
+### The app does not show up in the menu bar {#the-app-does-not-show-up-in-the-menu-bar}
 
-[Try this](/apps/faq#app-not-showing-in-menu-bar)
+[Try the steps in the general FAQ](/apps/faq#app-not-showing-in-menu-bar)
 
-You may also have enabled the “Hide menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
+You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 
-### The app does not work
+### The app does not work {#the-app-does-not-work}
 
 - Ensure automatic clearing is enabled or you have set a keyboard shortcut for clearing.
 - Ensure you have not excluded (in the settings) the app you want to use it with.
@@ -102,11 +111,11 @@ You may also have enabled the “Hide menu bar icon” setting, which hides the 
 - If you are using a custom keyboard shortcut for clearing, try [resetting privacy permissions](/apps/faq#mac-reset-permissions).
 - If you have “Preserve links” enabled, try disabling it. When links are preserved, all styling is cleared but the clipboard remains rich text. Some apps restyle rich text anyway.
 - Verify that Pure Paste actually cleared formatting by using my [Pasteboard Viewer](/pasteboard-viewer). If you see the item `com.sindresorhus.Pure-Paste.hasRun` in the sidebar, Pure Paste worked. Any remaining formatting is added by the app you paste into. Some apps do this even for plain text.
-- [More…](/apps/faq#app-problem)
+- [More troubleshooting steps…](/apps/faq#app-problem)
 
-### Pure Paste conflicts with my clipboard manager
+### Pure Paste conflicts with my clipboard manager {#pure-paste-conflicts-with-my-clipboard-manager}
 
-This is a known issue. It’s just a flaw in how the clipboard works. If your clipboard manager reads the clipboard first, it will get it. If Pure Paste then reads the clipboard, it will do its thing, but also tell clipboard managers not to fetch the new contents as otherwise, they might end up with duplicates. This is required as otherwise certain features like “fast-append” don’t work in Alfred and other clipboard managers. I’m working on a way all apps can collaborate, but it will take some time.
+This is a known issue. It’s just a flaw in how the clipboard works. If your clipboard manager reads the clipboard first, it will get it. If Pure Paste then reads the clipboard, it will do its thing, but also tell clipboard managers not to fetch the new contents as otherwise, they might end up with duplicates. This is required as otherwise certain features like “fast-append” don’t work in Alfred and other clipboard managers.
 
 For now, I suggest setting a keyboard shortcut for “Clear formatting and paste” and then turning off “Automatically clear formatting”.
 
@@ -116,40 +125,29 @@ For now, I suggest setting a keyboard shortcut for “Clear formatting and paste
 
 There are some cases I cannot fix though:
 - **The Pages and Keynote apps paste text as a table.**
-	These apps paste any text with multiple lines as a table. This is not a problem with Pure Paste and is also not something I can fix. You can complain to Apple about the behavior [here](https://www.apple.com/feedback/pages.html).
+	These apps paste any text with multiple lines as a table. This is not a problem with Pure Paste and is also not something I can fix. You can [complain to Apple about the behavior](https://www.apple.com/feedback/pages.html).
 - [**Tables in Word are not preserved.**](#word-tables)
 - Formatting is not cleared when copying and pasting inside LibreOffice.
 	This is a LibreOffice bug. Pure Paste correctly clears the formatting of the clipboard contents, but LibreOffice does not read the new clipboard contents until you first focus a different window. Try copying some styled text in LibreOffice, focus a different window, focus LibreOffice again, and then paste. It now correctly pastes the text without formatting.
 - Mail app: Formatting is cleared but does not match the style used for emails. Pure Paste correctly clears the formatting, but the Mail app does not correctly make text without formatting match the existing style.
 
-### The copy/paste custom keyboard shortcut does not work
+### The copy/paste custom keyboard shortcut does not work {#the-copypaste-custom-keyboard-shortcut-does-not-work}
 
 Try [resetting privacy permissions](/apps/faq#mac-reset-permissions) for the app. macOS can sometimes corrupt these permissions, causing the shortcut to fail.
-
-### What are tracking parameters and why would I want to remove them?
-
-Removing tracking parameters improves privacy and also makes URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Learn more.](https://en.wikipedia.org/wiki/UTM_parameters)
-
-Pure Paste supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to X (Twitter), Facebook, and TikTok.
-
-Before: `https://foo.com?utm_content=buffercf3b2&utm_source=snapchat.com`\
-After: `https://foo.com`
-
-Did you know that if you click a TikTok link that someone shared with you, they will be able to see that you watched it? Pure Paste anonymizes TikTok links so that you will not be tracked.
 
 ### Tracking parameters are not removed {#tracking-parameters-not-removed}
 
 First, make sure the setting to remove tracking parameters is enabled.
 
-Tracking parameters are not removed if the “Automatically Clear Formatting” preference is disabled or you did not manually trigger format clearing.
+Tracking parameters are not removed if the “Automatically clear formatting” setting is disabled or you did not manually trigger format clearing.
 
 The app contains a list of tracking parameters to remove, but there may be site-specific tracking parameters it doesn’t know about. If you encounter any tracking parameters not being removed, [let me know](/feedback?product=Pure%20Paste&referrer=Website-FAQ) and I’ll add support for them.
 
-### Can you add a setting to preserve bold and italic?
+### Can you add a setting to preserve bold and italic? {#can-you-add-a-setting-to-preserve-bold-and-italic}
 
 In short, no. To preserve bold and italic, the app has to preserve the font too, and by preserving the font, it has to set a font name and size. This means the text will not match the destination formatting. Instead, for example, in Word, you can copy with formatting and select “Paste and Match Formatting”, which correctly preserves bold and italic while clearing color and sizes.
 
-### I have “Preserve links” enabled, and when I paste into an app (for example, Mimestream), it ends up with the “Times New Roman” font instead of the system font
+### I have “Preserve links” enabled, and when I paste into an app (for example, Mimestream), it ends up with the “Times New Roman” font instead of the system font {#i-have-preserve-links-enabled-and-when-i-paste-into-an-app-for-example-mimestream-it-ends-up-with-the-times-new-roman-font-instead-of-the-system-font}
 
 When “Preserve links” is enabled, Pure Paste removes formatting but keeps the text as rich text instead of plain text. Some apps don’t handle this properly and default to “Times New Roman”. The only workaround is to disable “Preserve links”.
 
@@ -177,19 +175,19 @@ Pure Paste works by modifying the clipboard. Office hides most of the “Paste O
 
 The solution is to either:
 1. Exclude the Office apps in the Pure Paste settings.
-1. Turn off “Automatically Clear Formatting” and instead set a keyboard shortcut in the settings. That way the clipboard stays unmodified until you use the keyboard shortcut to clear & paste.
+1. Turn off “Automatically clear formatting” and instead set a keyboard shortcut in the settings. That way the clipboard stays unmodified until you use the keyboard shortcut to clear & paste.
 
 ### Tables are not preserved when I copy-paste in Word {#word-tables}
 
-There is no way to preserve tables while clearing formatting of their cell contents. Different apps have different ways to represent tables on the clipboard. When you need to preserve a table, just temporarily disable Pure Paste. See the “Automatic clear formatting” setting on how to skip format clearing once. You can also right-click the menu bar icon to enable/disable automatic format clearing. Or set a global keyboard shortcut.
+There is no way to preserve tables while clearing formatting of their cell contents. Different apps have different ways to represent tables on the clipboard. When you need to preserve a table, skip clearing formatting once: press and release ++Option++, and then press ++Command+C++. Or hold ++Option++ while you click “Copy” in the menu. You can also right-click the menu bar icon to enable/disable automatic format clearing. Or set a global keyboard shortcut.
 
-### Why doesn’t cutting work in Excel when Pure Paste is active?
+### Why doesn’t cutting work in Excel when Pure Paste is active? {#why-doesnt-cutting-work-in-excel-when-pure-paste-is-active}
 
 Excel has unique (incorrect) interactions with the clipboard, which is incompatible with Pure Paste. When you cut text in Excel, the app puts metadata on the clipboard that a cut operation is being performed. Pure Paste, designed to remove formatting from copied text, inadvertently clears this info when it cleans the clipboard. The result is that Excel thinks it’s a copy operation instead.
 
 You can either add Excel to the exclude list in the Pure Paste settings or turn off automatic format clearing and set a “clear formatting and paste” keyboard shortcut instead.
 
-### The app does not clear formatting when copy-pasting an image inside Google Docs
+### The app does not clear formatting when copy-pasting an image inside Google Docs {#the-app-does-not-clear-formatting-when-copy-pasting-an-image-inside-google-docs}
 
 Web apps do not follow the standard clipboard conventions that native desktop apps do. When you copy an image in Google Docs, it just puts a bunch of HTML code on the clipboard. Pure Paste cannot easily know it’s an image you copied.
 
@@ -197,7 +195,7 @@ Web apps do not follow the standard clipboard conventions that native desktop ap
 
 Web apps do not follow the standard clipboard conventions that native desktop apps do. When you copy some rich text in Figma, it just puts a bunch of HTML code on the clipboard. Pure Paste cannot easily know it’s rich text you copied.
 
-### The app does not preserve links when pasting into Google Docs even with the “Preserve links” setting enabled
+### The app does not preserve links when pasting into Google Docs even with the “Preserve links” setting enabled {#the-app-does-not-preserve-links-when-pasting-into-google-docs-even-with-the-preserve-links-setting-enabled}
 
 There is a [problem with Google Docs](https://webapps.stackexchange.com/questions/69248/is-there-a-way-to-paste-rtf-text-into-google-document) where it strips links from rich text content. It happens even without Pure Paste. Web apps are generally bad at following platform conventions.
 
@@ -206,20 +204,20 @@ There is a [problem with Google Docs](https://webapps.stackexchange.com/question
 Pure Paste clears formatting by replacing the clipboard with a plain text version (this is the only reliable way to clear formatting). However, some apps store metadata on the clipboard, and in this specific case, these apps store the formula as metadata in the clipboard, which is then lost. There is no reliable way to detect this.
 
 The solution is to either:
-1. Skip clearing formatting for just this copy (see instructions in the app settings).
+1. Skip clearing formatting for just this copy: press and release ++Option++, and then press ++Command+C++.
 1. Exclude the app in the Pure Paste settings.
 
-### The exclude setting does not work
+### The exclude setting does not work {#the-exclude-setting-does-not-work}
 
 Copy something from the app you have excluded, press the ++Option++ key while clicking the Pure Paste menu bar item, and then make sure the app shown in the menu is the same as the one you excluded.
 
-### How can I exclude certain websites?
+### How can I exclude certain websites? {#how-can-i-exclude-certain-websites}
 
 This will not be supported. A workaround would be to [turn the website into an app in Safari](https://support.apple.com/guide/safari/add-to-dock-ibrw9e991864/mac). You could then exclude that app.
 
 The need for such a setting only arises because many web apps do not adhere to platform clipboard standards, unlike native apps.
 
-### Can it support pasting with formatting when pressing ++Shift+Command+V++?
+### Can it support pasting with formatting when pressing ++Shift+Command+V++? {#can-it-support-pasting-with-formatting-when-pressing-shiftcommandv}
 
 The app technically clears formatting when something is copied not pasted, so the formatting is already cleared when that shortcut is pressed.
 
@@ -249,13 +247,15 @@ And if you want to preserve paragraphs, use:
 return $.text.replace(/([^\r\n])(?:\r?\n)(?!\r?\n)/g, '$1 ');
 ```
 
-### Can I temporarily pause “Automatically clear formatting”?
+### Can I temporarily pause “Automatically clear formatting”? {#can-i-temporarily-pause-automatically-clear-formatting}
 
-Not built in. You can run [this shortcut](https://www.icloud.com/shortcuts/38ed17936c784768a36b6220700260cc) from Spotlight that disables “Automatically clear formatting”, waits 5 minutes, then re-enables it.
+Yes. Set a keyboard shortcut to toggle “Automatically clear formatting” in the “Shortcuts” settings, or right-click the menu bar icon.
 
-### Does it respect nspasteboard.org conventions?
+For a timed pause, run the [“Turn clear formatting off for 5 minutes” shortcut](https://www.icloud.com/shortcuts/38ed17936c784768a36b6220700260cc) from Spotlight. It disables “Automatically clear formatting”, waits 5 minutes, then re-enables it.
 
-Yes, it follows the [nspasteboard.org](http://nspasteboard.org) conventions, so it ignores concealed (passwords), transient, and auto-generated content.
+### Does it respect nspasteboard.org conventions? {#does-it-respect-nspasteboardorg-conventions}
+
+Yes, it follows the [nspasteboard.org](https://nspasteboard.org) conventions, so it ignores concealed (passwords), transient, and auto-generated content.
 
 <!-- It also adds the `org.nspasteboard.AutoGeneratedType` identifier when putting the plain text content on the clipboard. -->
 

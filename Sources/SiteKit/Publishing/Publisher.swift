@@ -9,23 +9,23 @@ public struct Publisher: Sendable {
 	/**
 	The site URL without a trailing slash, like `https://sindresorhus.com`.
 	*/
-	public let site: URL
+	public let site: SiteOrigin
 	public let project: Project
 	public let output: URL
 
-	public init(site: URL, project: Project, output: URL) {
+	public init(site: SiteOrigin, project: Project, output: URL) {
 		self.site = site
 		self.project = project
 		self.output = output.standardizedFileURL
 	}
 
 	/**
-	Publishes the routes and a sitemap of the pages that are in it. Returns the published files, relative to the output directory, like `apps/dato.html`.
+	Publishes the routes and a sitemap of the pages that are in it. Returns what it published, for the checks of the site (``PublishedSite``).
 
 	Throws if two routes or a route and a public file are written to the same file, if a file answers the URL of a page before the page's own file, if the output directory is unsafe or a checkout, or if a route fails to render.
 	*/
 	@discardableResult
-	public func publish(_ routes: [Route]) async throws(PublishingError) -> Set<String> {
+	public func publish(_ routes: [Route]) async throws(PublishingError) -> PublishedSite {
 		let routes = routes + Sitemap(site: site, pages: routes).routes
 		try checkOutputLocation()
 		// The files of a page bundle are published with its page, so a draft, which has no page, does not publish its images before its launch.
@@ -38,11 +38,12 @@ public struct Publisher: Sendable {
 
 				return pagePaths.contains(file.path.parent)
 			}
-		try checkForCollisions(routes, publicFiles: publicFiles.map(\.path))
+		try checkForCollisions(routes, publicFiles: publicFiles)
 		try wrappingFileSystemErrors { try output.createDirectory() }
 
 		// The old files are removed first. Otherwise, on a case-insensitive disk, a file renamed from `Logo.png` to `logo.png` would be seen as unchanged, and then removed as `Logo.png`.
-		let publishedFiles = Set(publicFiles.map(\.path.relativePath) + routes.map(\.outputFile))
+		let publicFilePaths = Set(publicFiles.map(\.outputFile))
+		let publishedFiles = publicFilePaths.union(routes.map(\.outputFile))
 		try wrappingFileSystemErrors {
 			try removeFiles(except: publishedFiles)
 			try copy(publicFiles)
@@ -50,22 +51,17 @@ public struct Publisher: Sendable {
 
 		// The routes render in parallel, as many at a time as the cooperative thread pool runs. Files start first, as they are the slow ones, like the social cards.
 		do {
-			try await withThrowingTaskGroup(of: Void.self) { group in
-				for route in routes.filter(\.isFile) + routes.filter({ !$0.isFile }) {
-					group.addTask {
-						try await write(route)
-					}
-				}
-
-				try await group.waitForAll()
+			let routesInWriteOrder = routes.filter(\.isFile) + routes.filter { !$0.isFile }
+			let routeFiles = try await routesInWriteOrder.concurrentMap { route in
+				(route.outputFile, try await write(route))
 			}
+
+			return PublishedSite(routeFiles: Dictionary(uniqueKeysWithValues: routeFiles), publicFiles: publicFilePaths)
 		} catch let error as PublishingError {
 			throw error
 		} catch {
 			throw .fileSystem(error)
 		}
-
-		return publishedFiles
 	}
 
 	/**
@@ -79,48 +75,39 @@ public struct Publisher: Sendable {
 		}
 	}
 
-	private func write(_ route: Route) async throws {
+	/**
+	Writes the file of the route, when it changed, and returns its content.
+	*/
+	private func write(_ route: Route) async throws -> Data {
 		let data: Data
 
 		do {
-			data = switch route.output {
-			case .page(_, let render):
-				try Data(render().utf8)
-			case .redirect(let destination):
-				Data(redirectHTML(to: destination).utf8)
-			case .file(let render):
-				try await render()
-			}
+			data = try await route.output.render(site: site)
 		} catch {
 			throw PublishingError.renderFailed(route.path, error)
 		}
 
-		let file = output.appending(path: route.outputFile)
+		let file = route.outputFile.fileURL(in: output)
 
 		guard (try? Data(contentsOf: file)) != data else {
-			return
+			return data
 		}
 
 		// Atomic, so the preview server never serves a half-written page during a rebuild.
 		try file.deletingLastPathComponent().createDirectory()
 		try data.write(to: file, options: .atomic)
-	}
-
-	private func redirectHTML(to destination: LinkDestination) -> String {
-		let canonicalURL = destination.absoluteURL(site: site)
-		let href = destination.description.escapedForHTML
-		return #"<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0;url=\#(href)"><link rel="canonical" href="\#(canonicalURL.absoluteString.escapedForHTML)"><title>Redirecting to: \#(href)</title><a href="\#(href)">Redirecting…</a>"#
+		return data
 	}
 
 	/**
 	Copies the public files that are missing or changed (by size and modification date). Copies keep the modification date, and APFS clones them, so this is fast.
 	*/
-	private func copy(_ publicFiles: [(path: RoutePath, source: URL)]) throws {
-		for (path, source) in publicFiles {
-			let destination = output.appending(path: path.relativePath)
+	private func copy(_ publicFiles: [PublishedAsset]) throws {
+		for asset in publicFiles {
+			let destination = asset.outputFile.fileURL(in: output)
 
 			// The target of a symbolic link, as a copy of the link itself, like `../shared/font.woff2`, would not resolve from the output directory.
-			let source = source.resolvingSymlinksInPath()
+			let source = asset.source.resolvingSymlinksInPath()
 
 			guard
 				!destination.isFile
@@ -138,11 +125,11 @@ public struct Publisher: Sendable {
 	/**
 	Removes the files from earlier builds that are no longer published, and the directories that become empty.
 	*/
-	private func removeFiles(except publishedFiles: Set<String>) throws {
+	private func removeFiles(except publishedFiles: Set<PublishedFilePath>) throws {
 		// Everything that is not a directory, also broken symbolic links, which are not files.
 		// Output symlinks are replaced, so neither writes nor cleanup follow them outside the site.
 		let contents = output.contentsRecursively()
-		for file in contents where file.isSymbolicLink || (!file.isDirectory && !publishedFiles.contains(file.path(relativeTo: output))) {
+		for file in contents where file.isSymbolicLink || (!file.isDirectory && !publishedFiles.contains(PublishedFilePath(file.path(relativeTo: output)))) {
 			try file.removeIfExists()
 		}
 
@@ -185,24 +172,30 @@ public struct Publisher: Sendable {
 
 	A static host tries the file at the path itself before `<path>.html`, so a public file there answers the URL of a page.
 	*/
-	private func checkForCollisions(_ routes: [Route], publicFiles: [RoutePath]) throws(PublishingError) {
+	private func checkForCollisions(_ routes: [Route], publicFiles: [PublishedAsset]) throws(PublishingError) {
 		func key(_ path: String) -> String {
 			path.precomposedStringWithCanonicalMapping.lowercased()
 		}
 
-		// The paths by their key, so the message of a collision has the path as it is written.
-		var filesByKey = [String: String]()
+		// The files by their key, so the message of a collision has the path as it is written, and where each file comes from.
+		var filesByKey = [String: (file: PublishedFilePath, source: Route.Source)]()
 
-		for path in publicFiles {
-			guard filesByKey.updateValue(path.relativePath, forKey: key(path.relativePath)) == nil else {
-				throw PublishingError.collision(path, file: path.relativePath)
+		func add(_ file: PublishedFilePath, source: Route.Source) throws(PublishingError) {
+			if let other = filesByKey.updateValue((file, source), forKey: key(file.description)) {
+				throw PublishingError.collision(file: file, firstSource: other.source, secondSource: source, root: project.root)
 			}
 		}
 
+		for asset in publicFiles {
+			try add(asset.outputFile, source: Route.Source(role: "the file", location: .file(asset.source)))
+		}
+
+		func source(of route: Route) -> Route.Source {
+			route.source ?? Route.Source(role: "the route", location: .page(route.path))
+		}
+
 		for route in routes {
-			guard filesByKey.updateValue(route.outputFile, forKey: key(route.outputFile)) == nil else {
-				throw PublishingError.collision(route.path, file: route.outputFile)
-			}
+			try add(route.outputFile, source: source(of: route))
 		}
 
 		for route in routes {
@@ -210,13 +203,13 @@ public struct Publisher: Sendable {
 
 			// A page is written to `<path>.html`, which the host serves after the file at the path. A file route is written at its path, which the loop above already checks.
 			guard
-				exactFile != key(route.outputFile),
-				let file = filesByKey[exactFile]
+				exactFile != key(route.outputFile.description),
+				let other = filesByKey[exactFile]
 			else {
 				continue
 			}
 
-			throw PublishingError.shadowed(route.path, file: file)
+			throw PublishingError.shadowed(route.path, source: source(of: route), file: other.file, fileSource: other.source, root: project.root)
 		}
 	}
 }
@@ -234,20 +227,63 @@ extension Route {
 /**
 The size and modification date of a file, which tell whether a copy is out of date.
 */
-private struct FileStamp: Equatable {
+struct FileStamp: Equatable, Sendable {
 	let size: Int?
 	let modificationDate: Date?
 
-	init(_ file: URL) {
-		let values = try? file.resourceValues(forKeys: [.fileSizeKey, .contentModificationDateKey])
+	/**
+	From resource values that the caller already read, so a scan of many files reads them once.
+	*/
+	init(_ values: URLResourceValues?) {
 		self.size = values?.fileSize
 		self.modificationDate = values?.contentModificationDate
+	}
+
+	init(_ file: URL) {
+		self.init(try? file.resourceValues(forKeys: [.fileSizeKey, .contentModificationDateKey]))
+	}
+}
+
+/**
+What ``Publisher/publish(_:)`` published, so the checks of the site, like the links, check what the build wrote, without reading the output directory again.
+*/
+public struct PublishedSite: Sendable {
+	/**
+	Every published file, relative to the output directory, like `apps/dato.html`: the files of the routes, and the public files.
+	*/
+	public let files: Set<PublishedFilePath>
+
+	/**
+	The content of the file of each route, by the file, like `apps/dato.html`. The public files are not in it, as they are copied as they are, so a check reads them from the project.
+	*/
+	public let routeFiles: [PublishedFilePath: Data]
+
+	/**
+	- Parameter publicFiles: The published public files, and the files of page bundles, relative to the output directory, like `robots.txt`.
+	*/
+	public init(routeFiles: [PublishedFilePath: Data], publicFiles: Set<PublishedFilePath>) {
+		self.files = publicFiles.union(routeFiles.keys)
+		self.routeFiles = routeFiles
+	}
+
+	/**
+	The text of the file of the route, like the HTML of a page, or `nil` when it was not published.
+	*/
+	public func text(of route: Route) -> String? {
+		routeFiles[route.outputFile].map { String(decoding: $0, as: UTF8.self) }
 	}
 }
 
 public enum PublishingError: Error, CustomStringConvertible {
-	case collision(RoutePath, file: String)
-	case shadowed(RoutePath, file: String)
+	/**
+	Two sources write the same file, like a redirect and a page, by where they come from (``Route/source``).
+	*/
+	case collision(file: PublishedFilePath, firstSource: Route.Source, secondSource: Route.Source, root: URL)
+
+	/**
+	The host serves a file at the path of a route, like `dato.html` for a redirect from `/dato.html`, instead of the route, by where the route and the file come from (``Route/source``).
+	*/
+	case shadowed(RoutePath, source: Route.Source, file: PublishedFilePath, fileSource: Route.Source, root: URL)
 	case renderFailed(RoutePath, any Error)
 	case unsafeOutput(URL)
 	case repositoryOutput(URL)
@@ -259,10 +295,10 @@ public enum PublishingError: Error, CustomStringConvertible {
 
 	public var description: String {
 		switch self {
-		case .collision(let path, let file):
-			"The route \(path) writes \(file), which another route or a public file also writes."
-		case .shadowed(let path, let file):
-			"The URL \(path) is also served from \(file), so the host may serve that file instead."
+		case .collision(let file, let firstSource, let secondSource, let root):
+			"Two sources write \(file): \([firstSource, secondSource].map { $0.description(relativeTo: root) }.formatted(.list(type: .and).locale(.site))). Change one of them."
+		case .shadowed(let path, let source, let file, let fileSource, let root):
+			"The URL \(path) of \(source.description(relativeTo: root)) is also served from \(file), \(fileSource.description(relativeTo: root)), so the host may serve that file instead. Change one of them."
 		case .renderFailed(let path, let error):
 			"Could not render \(path): \(error)"
 		case .fileSystem(let error):

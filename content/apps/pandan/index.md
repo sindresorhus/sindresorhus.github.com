@@ -1,19 +1,24 @@
 ---
 title: 'Pandan'
 subtitle: 'Time awareness in your menu bar'
-publicationDate: '2021-05-31'
+publicationDate: 2021-05-31
 platforms: [
 	'macOS'
 ]
 isMenuBarApp: true
 appStoreID: 1569600264
+hasSentry: true
+nonAppStoreVersion: {
+	version: '1.18.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/z38d9ejud0mid9tlvk6ax/Pandan-1.18.0-1774710864.zip?rlkey=p73ny62ik1yif3pru812akfzm&raw=1'
+}
 sharedQuestions: [
 	'randomly-quits'
 	'blurry-secondary-display'
 	'sync'
 	'menu-bar-icons'
 ]
-hasSentry: true
 olderVersions: [
 	{
 		version: '1.17.0'
@@ -41,7 +46,6 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/8003835/Pandan.1.9.1.-.macOS.11.zip'
 	}
 ]
-feedbackNote: '[The app randomly disappears/quits](/pandan#randomly-quits)'
 pressQuotes: [
 	{
 		quote: 'Pandan is instead about gently reminding you how long you’ve been on the computer so you can be aware of that.'
@@ -50,24 +54,27 @@ pressQuotes: [
 		year: 2025
 	}
 ]
-nonAppStoreVersion: {
-	version: '1.18.0'
-	macOS: 26
-	url: 'https://www.dropbox.com/scl/fi/z38d9ejud0mid9tlvk6ax/Pandan-1.18.0-1774710864.zip?rlkey=p73ny62ik1yif3pru812akfzm&raw=1'
-}
+feedbackNote: '[The app randomly disappears/quits](/pandan#randomly-quits)'
 ---
 
 Pandan shows in the menu bar how long you have been actively using your computer, so you know when it is time to take a break.
 
 It notices when you step away, and it can remind you when it is time.
 
+The “History” window (in the menu) shows your sessions of the last 120 days, and you can export them as CSV or JSON.
+
 ## Frequently Asked Questions {#faq}
 
-### Can you make the history be further back than 120 days?
+### The timer stops while I am on a video call {#video-call}
+<!-- @faq.keywords zoom meeting facetime teams idle -->
+
+Pandan knows that you are active from the keyboard and the mouse. If you only listen and talk on a call, it thinks that you are away. Increase the “End session when idle for” setting in the settings, so a long call does not end the session.
+
+### Can you make the history be further back than 120 days? {#can-you-make-the-history-be-further-back-than-120-days}
 
 The history is intentionally limited. Pandan is about time awareness right now, not analyzing past behavior. If you need more stats and graphs, check out the system [Screen Time](https://support.apple.com/HT210387) feature.
 
-### Can you make the app available on iOS too?
+### Can you make the app available on iOS too? {#can-you-make-the-app-available-on-ios-too}
 
 This is unfortunately not possible as iOS does not let an app continuously check whether the user is idle.
 
@@ -81,9 +88,9 @@ If you have my [Dato app](/dato) installed (even the free trial), you could use 
 
 Same as the above, but use the `Show Alert` action instead.
 
-You could also use the “Flash Screen” action from the [Actions app](https://github.com/sindresorhus/Actions) to momentarily flash the screen.
+You could also use the “Flash Screen” action from the [Actions app](/actions) to momentarily flash the screen.
 
-### How can I run multiple shortcuts as a notification?
+### How can I run multiple shortcuts as a notification? {#how-can-i-run-multiple-shortcuts-as-a-notification}
 
 Pandan lets you run a single shortcut as a notification, but a shortcut can run other shortcuts. So make the shortcuts you want to run, make another shortcut that uses the “Run Shortcut” action to run the other shortcuts, and then select this shortcut in Pandan.
 
@@ -99,9 +106,9 @@ You can use the Shortcuts app for this. Make a shortcut that uses the “Set Ena
 
 ### How can I show the total active duration today as a countdown? {#countdown}
 
-Get [this shortcut](https://www.icloud.com/shortcuts/fdf0cd45fedb4290bfe14d84a394b601) (requires the [Actions](/actions) and [One Thing](/one-thing) apps) and select it in the Pandan settings. The countdown will update every time Pandan shows a notification. If you want the countdown to update more often, use the [Shortery](https://apps.apple.com/app/id1594183810) app to run the shortcut at an interval.
+Get the [“Pandan countdown” shortcut](https://www.icloud.com/shortcuts/fdf0cd45fedb4290bfe14d84a394b601) (requires the [Actions](/actions) and [One Thing](/one-thing) apps) and select it in the Pandan settings. The countdown will update every time Pandan shows a notification. If you want the countdown to update more often, use the [Shortery](https://apps.apple.com/app/id1594183810) app to run the shortcut at an interval.
 
-### How can I start a new session from the command-line?
+### How can I start a new session from the command-line? {#how-can-i-start-a-new-session-from-the-command-line}
 
 Make a [shortcut](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) that uses the `New Session` action and [run that shortcut from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
@@ -120,7 +127,7 @@ Pandan comes bundled with actions for the built-in Shortcuts app which you can u
 - [Play custom notification sound](#custom-notification-sound)
 - [Use Pandan as an eye break reminder](#eye-break-reminder)
 - [Show an alert as a notification](#alert-as-notification)
-- Flash the screen as a notification by using the “Flash Screen” action from the [Actions app](https://github.com/sindresorhus/Actions)
+- Flash the screen as a notification by using the “Flash Screen” action from the [Actions app](/actions)
 - [Show a web page as a notification](https://www.icloud.com/shortcuts/0e3914da016b446dbf2fef7aa0341567)
 - [Lock the screen as a notification](https://www.icloud.com/shortcuts/a3aa4ba2640d4f1b97c85f498e9dd945)
 - [Invert the screen for 20 seconds](https://www.icloud.com/shortcuts/0710b22b12b74ec1bad0f28b327412fd)

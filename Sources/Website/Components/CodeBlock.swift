@@ -7,119 +7,94 @@ A block of code, with its language and a copy button in a bar at the top right, 
 Swift code is highlighted when the site builds, by the parser of Swift itself (``String/swiftCodeParts``), in the colors of Xcode. SOML code is highlighted by the lexer of SOML (``String/somlCodeParts``), in the same colors. The code of other languages is plain. Each line of a `console` block is a command, after a `$ ` prompt that is not copied.
 
 ```swift
-CodeBlock(source: "let greeting = \"Hello\"", language: "swift")
+CodeBlock(source: "let greeting = \"Hello\"", language: .swift)
 ```
 */
-struct CodeBlock: ScriptedElement {
-	static let script = ElementScript(inline: #"""
-	export default class extends HTMLElement {
-		// The pending timer that removes the copied state, so a second click restarts it.
-		#copiedStateTimer;
-
-		connectedCallback() {
-			// The same function, so connecting the element again does not add a second listener.
-			this.querySelector('[data-part="copyButton"]').addEventListener('click', this.#copy);
-		}
-
-		// Without clipboard access, it does nothing, as the visitor can still select the code.
-		#copy = async event => {
-			const button = event.currentTarget;
-
-			try {
-				await navigator.clipboard.writeText(this.querySelector('[data-part="code"]').textContent);
-			} catch {
-				return;
-			}
-
-			button.dataset.state = 'copied';
-			// Older browsers, like Safari 26, have no `ariaNotify`. They say nothing, but the copied state still goes away.
-			button.ariaNotify?.('Copied');
-
-			clearTimeout(this.#copiedStateTimer);
-			this.#copiedStateTimer = setTimeout(() => {
-				delete button.dataset.state;
-			}, 1500);
-		};
+struct CodeBlock: HTML {
+	/**
+	A language of a code block, which the bar shows. The bar shows the name as it is written, so another language is a content error, like a typo of `swfit`, which would show as the label. Add a language here when the content needs it.
+	*/
+	enum Language: String, ContentEnum {
+		case applescript
+		case console
+		case css
+		case diff
+		case js
+		case python
+		case sh
+		case soml
+		case swift
+		case xml
+		case yaml
 	}
-	"""#)
 
 	let source: String
 
 	/**
 	The language, like `swift`, which the bar shows.
 	*/
-	let language: String?
+	let language: Language?
 
 	/**
-	The HTML of a code block, for ``SiteKit/MarkdownDocument/Options/codeBlock``.
+	The HTML of a code block, for ``SiteKit/MarkdownDocument/Options/codeBlock``. An unknown language is an error.
 	*/
 	@Sendable
-	static func render(source: String, language: String?) -> String {
-		Self(source: source, language: language).render()
+	static func render(source: String, language: String?) throws(ContentError) -> String {
+		Self(source: source, language: try language.map(Language.init(validating:))).render()
 	}
 
-	var content: some HTML {
+	var body: some HTML {
 		div {
-			if let language {
-				span {
-					language
+			div {
+				if let language {
+					span {
+						language.rawValue
+					}
+					.style(Styles.language)
 				}
-				.style(Styles.language)
+
+				CopyButton(title: "Copy code", text: source, look: .icon)
 			}
+			.style(Styles.bar)
 
-			// A copy icon, and a checkmark that the styles show after copying.
-			button(.type(.button), .part(Parts.copyButton)) {
-				span {
-					Icon.copy.size(.rootEm(0.875))
-				}
-				.style(Styles.copyIcon)
+			// Focusable, so keyboard users can scroll wide code.
+			// Code is not translated, as a translation would change the command that the copy button copies.
+			pre(.tabindex(0), .notTranslated) {
+				code {
+					switch language {
+					case .swift:
+						Self.highlighted(source.swiftCodeParts)
+					case .soml:
+						Self.highlighted(source.somlCodeParts)
+					case .console:
+						for (index, line) in source.split(separator: "\n", omittingEmptySubsequences: false).enumerated() {
+							if index > 0 {
+								"\n"
+							}
 
-				span {
-					Icon.check.size(.rootEm(0.875), strokeWidth: 2.75)
-				}
-				.style(Styles.checkmark)
-			}
-			.accessibilityLabel("Copy code")
-			.style(Styles.copyButton)
-		}
-		.style(Styles.bar)
-
-		// Focusable, so keyboard users can scroll wide code.
-		// Code is not translated, as a translation would change the command that the copy button copies.
-		pre(.tabindex(0), .notTranslated) {
-			code(.part(Parts.code)) {
-				switch language {
-				case "swift":
-					Self.highlighted(source.swiftCodeParts)
-				case "soml":
-					Self.highlighted(source.somlCodeParts)
-				case "console":
-					for (index, line) in source.split(separator: "\n", omittingEmptySubsequences: false).enumerated() {
-						if index > 0 {
-							"\n"
-						}
-
-						if !line.isEmpty {
-							span {
-								String(line)
+							if !line.isEmpty {
+								span {
+									String(line)
+								}
 							}
 						}
+					default:
+						source
 					}
-				default:
-					source
 				}
+				.style(Styles.code)
+				.style(Styles.console, when: language == .console)
 			}
-			.style(Styles.code)
-			.style(Styles.console, when: language == "console")
+			.style(Styles.pre)
 		}
-		.style(Styles.pre)
+		.style(Styles.root)
 	}
 
 	/**
 	The parts of highlighted code, with each colored part in a span with the style of its kind.
 	*/
 	@HTMLBuilder
-	private static func highlighted(_ parts: [(text: String, token: CodeToken?)]) -> some HTML {
+	private static func highlighted(_ parts: [CodePart]) -> some HTML {
 		for part in parts {
 			if let token = part.token {
 				span {
@@ -132,22 +107,10 @@ struct CodeBlock: ScriptedElement {
 		}
 	}
 
-	enum Parts: String, ElementPartSet {
-		case copyButton
-		case code
-	}
-
-	enum States: String, ElementStateSet {
-		case copied
-	}
-
-	enum Styles: ElementStyleSet {
+	enum Styles: StyleSet {
 		case root
 		case bar
 		case language
-		case copyButton
-		case copyIcon
-		case checkmark
 		case pre
 		case code
 
@@ -189,26 +152,35 @@ struct CodeBlock: ScriptedElement {
 		/**
 		The space between the bar and the corner of the code.
 		*/
-		private static let barInset = Length.rootEm(0.5)
+		private static let barInset = LengthPercentage.rootEm(0.5)
 
 		/**
-		The corners of the bar and its button, parallel to the corner of the code around them.
+		The corners of the bar and its copy button (``CopyButton/Look/icon``), parallel to the corner of the code around them.
 		*/
-		private static let barRadius = Length.windowRadius - barInset
+		static let barRadius = LengthPercentage.windowRadius - barInset
 
 		var style: Style {
 			switch self {
 			case .root:
 				// The bar is positioned in the corner of the code.
+				// On phones, a code block in the text goes to the edges of the screen, so a line shows more characters. Only a block directly in the prose, as the prose is one gutter from the edges, but a list, a collapsible section, or a box is not.
 				Style()
-					.display(.block)
 					.position(.relative)
+					.below(.smallTablet) {
+						$0.directlyInside(ProseStyles.root.selector) {
+							$0
+								.margin(.horizontal, .length(-.pageGutter))
+								.children(Self.pre.selector) {
+									$0.cornerRadius(.zero)
+								}
+						}
+					}
 			case .bar:
 				// The bar shows while the pointer is over the code or it has focus, while the button shows its checkmark, and always on touch screens.
 				Style()
 					.position(.absolute)
-					.top(Self.barInset)
-					.trailing(Self.barInset)
+					.top(.length(Self.barInset))
+					.trailing(.length(Self.barInset))
 					.hstack(alignment: .center, spacing: .rootEm(0.5))
 					.font(.extraSmall)
 					.padding(.leading, .rootEm(0.5))
@@ -216,8 +188,8 @@ struct CodeBlock: ScriptedElement {
 					// A frosted backdrop in the color of the code, so the language and the button are easy to read over a long line of code.
 					.frostedBackground(.lightDark(.gray(800).opacity(0.8), .black.opacity(0.7)), opaque: .lightDark(.gray(800), .black), blur: .pixels(6))
 					.opacity(0)
-					.transition(.opacity, animation: .stateChange)
-					.nested("\(Self.root.selector):hover &, \(Self.root.selector):focus-within &, &:has(> \(States.copied.selector))") {
+					.transition(.opacity, timing: .stateChange)
+					.nested("\(Self.root.selector):hover &, \(Self.root.selector):focus-within &, &:has(\(CopyButton.States.copied.selector))") {
 						$0.opacity(1)
 					}
 					.media(.cannotHover) {
@@ -228,39 +200,25 @@ struct CodeBlock: ScriptedElement {
 					.fontFamily(.monospace)
 					.color(.gray(400))
 					.textSelection(.disabled)
-			case .copyButton:
-				// A square button with a copy icon. After copying, the icon fades out, and a green checkmark grows in. Without JavaScript, there is no copy button.
-				Style()
-					.display(.grid)
-					.frame(size: .rootEm(1.75))
-					.cornerRadius(Self.barRadius)
-					.color(.gray(300))
-					.background(.white.opacity(0.08))
-					.shadow(.edge(.white.opacity(0.1)))
-					.hoverFill(.white.opacity(0.16), color: .white)
-					.hiddenWithoutScripting()
-					.minimumTapArea()
-			case .copyIcon:
-				Style()
-					.hstack(alignment: .center, justification: .center)
-					.copyLabel(hiddenWhen: States.copied)
-			case .checkmark:
-				Style()
-					.color(.emerald(400))
-					.copiedCheckmark(when: States.copied)
 			case .pre:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.codeSurface()
 					// The bar always shows on touch screens, so the code starts below it, instead of under it.
 					.media(.cannotHover) {
 						$0.padding(.top, .rootEm(2.75))
 					}
+					// On phones, smaller code with less space at the sides, so a line shows more characters.
+					.below(.smallTablet) {
+						$0
+							.font(size: .rootEm(0.875))
+							.padding(.horizontal, .rootEm(1))
+					}
 			case .code:
 				// The font of the block, not of inline code.
 				Style()
 					.inheritsFont()
-					.color(.inherit)
+					.inherits(.color)
 			case .console:
 				Style().children("span") {
 					$0.before {

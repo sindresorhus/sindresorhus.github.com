@@ -7,7 +7,7 @@ Hi, I’m Sindre ([hear how to say it](/assets/sindre-sorhus-pronunciation.m4a))
 
 The [apps](/apps) are small, focused tools for Apple devices that each solve one problem well, and many of them are free. You can [read what people say about them](/apps/reviews).
 
-In open source, I maintain [many npm packages](https://www.npmjs.com/~sindresorhus) and [popular projects](https://github.com/search?q=user:sindresorhus+user:chalk+user:avajs+user:xojs+user:soml-lang+user:simple-color-palette+archived:false&type=Repositories), from Node.js libraries to CLI tools and Swift packages.
+In open source, I maintain [many npm packages](https://www.npmjs.com/~sindresorhus) and [popular projects](/open-source), from Node.js libraries to CLI tools and Swift packages.
 
 @SocialLinks
 
@@ -26,6 +26,9 @@ In open source, I maintain [many npm packages](https://www.npmjs.com/~sindresorh
 - Started [Awesome](https://github.com/sindresorhus/awesome), one of the most-starred repos on GitHub
 - Love [Cà phê muối](https://en.wikipedia.org/wiki/Vietnamese_iced_coffee#Variations), [Es yen](https://en.wikipedia.org/wiki/Es_yen), and [Kaeng khiao wan](https://en.wikipedia.org/wiki/Green_curry)
 	- Vietnamese salt coffee, Thai iced espresso, and Thai green curry
+- Thailand, Japan, and Vietnam are my favorite countries
+- Big fan of Japanese culture
+	- The craft, the care for small details, and the calm. And [onsen](https://en.wikipedia.org/wiki/Onsen): nothing beats a long soak in a hot spring
 - Once coded for 43 hours straight. Would not recommend
 - Unicorns everywhere. Open source is hard work, so it should also be fun
 - On [tabs](https://en.wikipedia.org/wiki/Indentation_style#Tab_vs._space) since the ’90s
@@ -167,7 +170,7 @@ That era is mostly gone. Even [Delicious Library shut down](https://daringfireba
 	- Free APIs go away, so I don’t depend on them
 	- A platform feature that makes my package obsolete is a win. Node.js made seven of them obsolete
 - Native apps are better
-	- Faster, smaller, and at home on the platform. Most of my apps are below 4 MB
+	- Faster, smaller, and at home on the platform. Most of my apps are below 10 MB
 	- Fit in, don’t stand out. The best app feels like it came with the system
 	- I support only the latest macOS and iOS, and spend the time on making the apps better instead
 - Redesign only when it helps
@@ -201,7 +204,7 @@ The things I use every day.
 @Cards {
 - 16-inch MacBook Pro
 	- M4 Pro, with 48 GB of memory
-- iPhone 17 Pro, Apple Watch 7, and AirPods Pro 2
+- iPhone 17 Pro, Apple Watch Series 7, and AirPods Pro 2
 - Desk: my lap. External displays: none
 	- I travel light: the laptop, the phone, some T-shirts, shorts, and boxers. That’s it
 - The apps in my Dock, for code
@@ -224,6 +227,7 @@ Open source travels. I write a small package to solve my own problem, and years 
 @Cards {
 - Three of the big AI coding agents started on [Ink](https://github.com/vadimdemedes/ink), which I maintain
 	- [Claude Code](https://github.com/vadimdemedes/ink/blob/91eb50a53875623da26191f73f35658d3d9b91a5/readme.md?plain=1#L79) and [Gemini CLI](https://github.com/google-gemini/gemini-cli/blob/9656cff4aca74ebd158506c94927c70e9f8e46fb/packages/cli/package.json#L40-L66) draw their terminal UI with it, and [Codex](https://github.com/openai/codex/blob/73fe1381aa56f249b7c511fb033e7548c14d9100/codex-cli/package.json#L31-L49) did too, before the Rust rewrite
+- Some of my code is [part of Node.js itself](https://github.com/nodejs/node/blob/2758c59105a4d4cffacf7ffde734379d8af1565a/lib/internal/tty.js#L1-L3)
 - Apple ships my code
 	- [The Books app](https://www.dropbox.com/scl/fi/iu88c6g9lxyh43n9hagte/IMG_3061-1792170168.PNG?rlkey=fpzxuemvzvbhafhzu4f483jvz&raw=1) on iOS includes `object-assign`, and [the Report a Problem website](https://reportaproblem.apple.com/static/en-us/acknowledgements.html) uses `query-string`. Both list me in their acknowledgements
 - The native ChatGPT app for Mac used my [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) package

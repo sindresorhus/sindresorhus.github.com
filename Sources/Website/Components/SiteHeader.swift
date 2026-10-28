@@ -36,7 +36,19 @@ struct SiteHeader: ScriptedElement {
 		/**
 		A page about an app, like its release notes, which is in the “Apps” section, like the page of the app. It keeps the “Donate” link, like other pages.
 		*/
-		case appSubpage
+		case appSubpage(App)
+
+		/**
+		The app that the page is about: the app of an app page, or of a page about the app, like its release notes.
+		*/
+		var app: App? {
+			switch self {
+			case .standard:
+				nil
+			case .app(let app), .appSubpage(let app):
+				app
+			}
+		}
 	}
 
 	/**
@@ -49,7 +61,7 @@ struct SiteHeader: ScriptedElement {
 		case standard
 
 		/**
-		See-through at the top of the page, so a background of the page, like the glass of the apps page, continues behind it without an edge. The fill and the blur fade in as the page scrolls under the header. Without scroll-driven animations, the header keeps them.
+		See-through at the top of the page, so a background of the page, like the glass of the apps page, continues behind it without an edge. The fill and the blur fade in as the page scrolls under the header.
 		*/
 		case transparentAtTop
 	}
@@ -60,9 +72,9 @@ struct SiteHeader: ScriptedElement {
 	/**
 	The height of the header, without its border. Pages use it for the area that the header covers, like the scroll padding of section links.
 	*/
-	static let height = Length.rootEm(4)
+	static let height = LengthPercentage.rootEm(4)
 
-	@Environment(requiring: RoutePath.$current) private var currentPath
+	@TaskLocalValue(requiring: RoutePath.$current) private var currentPath
 
 	var content: some HTML {
 		header {
@@ -175,7 +187,7 @@ extension SiteHeader {
 	/**
 	The ID of the menu, which its button shows and hides. It has a prefix, so it is not the same as the ID of a heading, like “Menu”.
 	*/
-	private static let menuID = "site-menu"
+	private static let menuID = ElementID("site-menu")
 
 	enum Parts: String, ElementPartSet {
 		case menu
@@ -202,12 +214,17 @@ extension SiteHeader {
 		/**
 		The space before the site name, and at the sides of the text of the links in the menu, so the text lines up with the name.
 		*/
-		private static let brandMargin = Length.rootEm(0.5)
+		private static let brandMargin = LengthPercentage.rootEm(0.5)
+
+		/**
+		Narrower than a phone, like a phone with the text at 200%, where the site name and the menu button only fit when the name is smaller.
+		*/
+		static let narrowScreen = Breakpoint(minimumWidthInRem: 22)
 
 		/**
 		The header, which the open menu on small screens starts below.
 		*/
-		private static let anchor = Anchor("--site-header")
+		private static let anchor = Anchor("site-header")
 
 		/**
 		The fill and the blur of the glass of the header, which the transparent header at the top of some pages fades into while the page scrolls, so the two must look the same.
@@ -224,39 +241,38 @@ extension SiteHeader {
 				Style()
 					.anchorName(Self.anchor)
 					.position(.sticky)
-					.top(0)
+					.top(.zero)
+					// On a short screen, like a phone in landscape, it scrolls away with the page, as it would cover a third of it. So the “Get” button of an app page is not there while scrolled, which is fine, as the download buttons are at the top and the end of the page.
+					.media(.shortScreen) {
+						$0.position(.relative)
+					}
 					.zIndex(40)
 					.frame(width: .percent(100))
 					.border(.bottom, .separator)
 					// The border fades in as the page scrolls under the header. At the top, and on pages that do not scroll, the header is part of the page.
-					.supports(.scrollTimeline) {
-						$0
-							.borderColor(.transparent)
-							.animation(Animations.showBorder, timeline: .scroll, range: "0 2rem")
-					}
+					.borderColor(.transparent)
+					.animation(Animations.showBorder, timeline: .scroll, from: .zero, to: .rootEm(2))
 					.background(.pageBackground)
 					.from(.tablet) {
 						$0.frostedBackground(Self.glassFill, opaque: .pageBackground, blur: Self.glassBlur)
 					}
 					.dark {
-						$0.border(.bottom, width: 0)
+						$0.border(.bottom, width: .zero)
 					}
 			case .transparentAtTop:
 				// The fill and the blur are on a layer behind the header, so they can fade in, as the backdrop filter of the header itself would also blur its links.
 				Style()
 					.background(.transparent)
-					.backdropFilter(.none)
+					.backdropFilter()
 					.before {
 						$0
 							.content("")
 							.position(.absolute)
-							.inset(0)
+							.inset(.zero)
 							.zIndex(-1)
 							.frostedBackground(Self.glassFill, opaque: .pageBackground, blur: Self.glassBlur)
 							.allowsHitTesting(false)
-							.supports(.scrollTimeline) {
-								$0.animation(Animations.showFill, timeline: .scroll, range: "0 \(SiteHeader.height)")
-							}
+							.animation(Animations.showFill, timeline: .scroll, from: .zero, to: SiteHeader.height)
 					}
 					// The links are stronger than secondary text, as they are on the background of the page at the top.
 					.nested(Self.menu.selector) {
@@ -266,7 +282,7 @@ extension SiteHeader {
 				Style()
 					.pageWidth()
 					.vstack(justification: .center)
-					.frame(height: SiteHeader.height)
+					.frame(height: .length(SiteHeader.height))
 					// With the margin of the site name, the name lines up with the content of the page.
 					.padding(.horizontal, .pageGutter - Self.brandMargin)
 					.from(.tablet) {
@@ -282,7 +298,7 @@ extension SiteHeader {
 				Style()
 					.from(.tablet) {
 						$0
-							.transition(.filter, .visibility, animation: SiteHeader.navigationSwap)
+							.transition(.filter, .visibility, timing: SiteHeader.navigationSwap)
 							.when(ancestorHas: AppSecondaryNavigation.Hooks.appHeroScrolledAway) {
 								$0
 									.filter(.opacity(0))
@@ -301,10 +317,24 @@ extension SiteHeader {
 					.textWrap(.nowrap)
 					.color(.primaryText)
 					.focusFill()
+					// On very narrow screens, like a phone with the text at 200%, the name is smaller, so the menu button stays on the screen. It can still be clipped, but never pushes the menu button out.
+					.frame(minWidth: .zero)
+					.below(Self.narrowScreen) {
+						$0
+							.overflow(.hidden)
+							.font(.regular, weight: .heavy)
+					}
+					// On phones, the icon and the name of the app replace it while the app header has scrolled away (``AppSecondaryNavigation``).
+					.below(.tablet) {
+						$0.when(ancestorHas: AppSecondaryNavigation.Hooks.appHeroScrolledAway) {
+							$0.visibility(false)
+						}
+					}
 			case .menuToggle:
-				// The look of an icon link, as a style value instead of the class of ``IconLink``, as the order of rules from different style sets is not defined.
+				// The look of an icon link, as a style value instead of the class of ``IconLink``, as the order of rules from different style sets is not defined. It never shrinks, so it stays on the screen.
 				Style()
 					.iconButton()
+					.flexShrink(0)
 					.hidden(from: .tablet)
 			case .menuIcon:
 				Style()
@@ -323,7 +353,7 @@ extension SiteHeader {
 				Style()
 					.alignItems(.start)
 					.inset(.auto)
-					.margin(0)
+					.margin(.zero)
 					// The links have the padding of the site name as their padding, so their text lines up with it.
 					.padding(horizontal: .pageGutter - Self.brandMargin, bottom: .rootEm(0.75))
 					.color(.secondaryText)
@@ -332,15 +362,15 @@ extension SiteHeader {
 						$0
 							.display(.flex)
 							.position(.fixed)
-							.inset(0)
-							.top(.anchor(Self.anchor, .bottom))
+							.inset(.zero)
+							.top(anchor: Self.anchor, side: .bottom)
 							.frame(size: .auto)
 					}
 					.from(.tablet) {
 						$0
 							.hstack(alignment: .center)
 							.position(.static)
-							.padding(0)
+							.padding(.zero)
 							.background(.transparent)
 							.overflow(.visible)
 					}
@@ -356,7 +386,7 @@ extension SiteHeader {
 							.alignSelf(.center)
 							.gap(.rootEm(0.25))
 							.frame(width: .auto)
-							.padding(.top, 0)
+							.padding(.top, .zero)
 							.textStyle(.caption)
 					}
 			case .link:
@@ -384,7 +414,7 @@ extension SiteHeader {
 					.display(.block)
 					.alignSelf(.center)
 					.frame(width: .pixels(1), height: .rootEm(1.5))
-					.margin(vertical: 0, horizontal: .rootEm(0.75))
+					.margin(vertical: .zero, horizontal: .rootEm(0.75))
 					.cornerRadius(.capsule)
 					// As visible in light mode as in dark mode, also on the tinted glass of the apps page.
 					.background(.gray(300), dark: .gray(600).opacity(0.5))
@@ -424,5 +454,5 @@ extension SiteHeader {
 
 	The fades use `filter: opacity()` instead of `opacity`, as the backdrop filter of the header blocks opacity animations of its children. `visibility` keeps the hidden links out of the keyboard focus.
 	*/
-	static let navigationSwap = Animation.easeInOut(duration: .milliseconds(250))
+	static let navigationSwap = AnimationTiming.easeInOut(duration: .milliseconds(250))
 }

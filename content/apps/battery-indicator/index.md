@@ -1,17 +1,17 @@
 ---
 title: 'Battery Indicator'
 subtitle: 'Remaining battery time in your menu bar'
-publicationDate: '2017-02-18'
+publicationDate: 2017-02-18
 platforms: [
 	'macOS'
 ]
+isPaid: true
+isMenuBarApp: true
 appStoreID: 1206020918
+hasSentry: true
 sharedQuestions: [
 	'blurry-secondary-display'
 ]
-isPaid: true
-isMenuBarApp: true
-hasSentry: true
 olderVersions: [
 	{
 		version: '2.19.0'
@@ -53,46 +53,61 @@ olderVersions: [
 
 See how long your battery will last, right in your menu bar, without clicking anything. You can show the percentage instead.
 
+**Features**
+
+- Show the time remaining or the percentage, as an icon or as text
+- Hover over the menu bar item to see the other one (percentage or time remaining)
+- Notify when the battery is fully charged or at the percentages you choose, on battery or while charging
+- Hide the menu bar item while on power or while fully charged on power
+- See the battery condition, health, and cycle count (press ++Option++ while the menu is open)
+- Get battery details, like health and power draw, in Shortcuts
+
 ## Frequently Asked Questions {#faq}
 
-### The app does not show up in the menu bar
+### The app does not show up in the menu bar {#the-app-does-not-show-up-in-the-menu-bar}
 
-[Try this](/apps/faq#app-not-showing-in-menu-bar)
+[Try the steps in the general FAQ](/apps/faq#app-not-showing-in-menu-bar)
 
-You may also have enabled the “Hide while on power” preference, which hides the menu bar icon while the power adapter is connected. Launch the app again to reveal the menu bar item for 5 seconds or disconnect the power adapter.
+You may also have set the “Hide menu bar item” setting, which hides the menu bar icon while the power adapter is connected, or while the battery is fully charged on power. Launch the app again to reveal the menu bar item for 5 seconds or disconnect the power adapter.
 
-### The estimated time left is incorrect
+### The estimated time left is incorrect {#the-estimated-time-left-is-incorrect}
 
 The number comes from macOS and the app has no control over it.
 
-### The menu bar icon is vertically stretched when shown on a secondary display
-
-This is a macOS 11 bug. I have tried to work around this issue, but it’s out of my control.
-
-### Why does the menu bar icon show `…` when I unplug the power adapter?
+### Why does the menu bar icon show `…` when I unplug the power adapter? {#why-does-the-menu-bar-icon-show--when-i-unplug-the-power-adapter}
 
 The system needs some time to accurately calculate the time remaining estimate.
 
-### How do I remove the system battery menu bar item?
+### Can macOS do this without an app? {#built-in}
+
+Partly. The battery item of macOS can show the percentage: go to “System Settings › Menu Bar”, open the options of “Battery”, and enable “Show Percentage”. It cannot show the time remaining in the menu bar.
+
+Battery Indicator shows the time remaining or the percentage, notifies you at the percentages you choose, and can hide itself while on power.
+
+### How do I remove the system battery menu bar item? {#how-do-i-remove-the-system-battery-menu-bar-item}
 
 Drag it out of the menu bar while pressing ++Command++.
 
-### Can it show “apps using significant energy” like the built-in battery indicator?
+### Can it show “apps using significant energy” like the built-in battery indicator? {#can-it-show-apps-using-significant-energy-like-the-built-in-battery-indicator}
 
 It can unfortunately not show this because of restrictions ([sandboxing](/apps/faq#macos-sandbox)) imposed on apps on the App Store. However, you could change the menu bar item type to text instead of the icon and use this app in combination with the system battery indicator.
 
-### Can it have a “charge to full now” button?
+### Can it have a “charge to full now” button? {#can-it-have-a-charge-to-full-now-button}
 
 This is not possible for the same reason as mentioned above.
 
 ### Can it play a sound when the battery is charged a certain percentage? {#notification-sound}
 
-The app has a built-in sound when showing notifications. However, if you want a different sound, you can disable the default notification sound in the “Notification Settings” and then follow the below steps.
+Yes. In the settings, click “Choose…” next to “Notify at percentages”, and select the percentages, on battery or while charging. The notification plays a sound.
+
+If you want a different sound, you can disable the default notification sound in the “Notification Settings” and then follow the below steps.
 
 This is a perfect use case for the built-in Shortcuts app. You can use the `Play Sound` action to play the sound you want. To run the shortcut when the battery is at a certain percentage, use Shortcuts automations.
 
-You can find sound effects [here](https://pixabay.com/sound-effects/search/interface/).
+You can find sound effects on [Pixabay](https://pixabay.com/sound-effects/search/interface/).
 
-### Can the battery icon hide when the battery is charged a certain percentage?
+### Can the battery icon hide when the battery is charged a certain percentage? {#can-the-battery-icon-hide-when-the-battery-is-charged-a-certain-percentage}
 
-This is a perfect use case for the built-in Shortcuts app. Create a shortcut that quits the app and one that launches it. To run the shortcut when the battery is at a certain percentage, use Shortcuts automations.
+To hide it when the battery is full, set “Hide menu bar item” to “while fully charged on power” in the settings.
+
+For other percentages, use the built-in Shortcuts app. Create a shortcut that quits the app and one that launches it. To run the shortcut when the battery is at a certain percentage, use Shortcuts automations.

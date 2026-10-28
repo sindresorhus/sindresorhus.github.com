@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-The download badges (App Store, Setapp) and custom download buttons. The parent leaves it out when the app has no download options, and sets the space around it.
+The download badges (App Store, Setapp), custom download buttons, and the “Source Code” and “Free Trial” buttons. The parent leaves it out when the app has no download options, and sets the space around it.
 */
 struct DownloadOptions: HTML {
 	let app: App
@@ -13,12 +13,6 @@ struct DownloadOptions: HTML {
 			for option in app.downloadOptions {
 				OptionLink(option: option)
 			}
-
-			if app.hasTrial {
-				Link("Free Trial", destination: .fragment(App.trialSectionID))
-					.buttonStyle(.secondary, size: .large)
-					.style(Styles.button)
-			}
 		}
 		.style(Styles.root)
 	}
@@ -26,18 +20,43 @@ struct DownloadOptions: HTML {
 	private struct OptionLink: HTML {
 		let option: DownloadOption
 
+		// A switch, so a new kind of option does not compile until it has its look.
 		var body: some HTML {
-			if let badge = option.badge {
-				a(.href(option.url)) {
-					img(.src(badge.imagePath), .width(badge.width), .height(60), .alt(badge.label))
-						.style(Styles.badgeImage)
-				}
-				.style(Styles.badge)
-			} else if case .link(let link) = option {
-				Link(link.title, destination: link.destination)
-					.buttonStyle(size: .large)
-					.style(Styles.button)
+			switch option {
+			case .appStore:
+				badgeLink(.appStore)
+			case .setapp:
+				badgeLink(.setapp)
+			case .link(let link):
+				buttonLink(link.title, destination: link.destination)
+			case .sourceCode:
+				// Secondary, like “Free Trial”, so the store or the purchase stays the strongest action.
+				buttonLink("Source Code", destination: option.url, fill: .secondary)
+			case .trial:
+				buttonLink("Free Trial", destination: option.url, fill: .secondary)
 			}
+		}
+
+		/**
+		The common markup of download actions that are not store badges.
+		*/
+		private func buttonLink(_ title: String, destination: LinkDestination, fill: ButtonStyles.Fill = .primary) -> some HTML<HTMLTag.a> {
+			Link(title, destination: destination)
+				.buttonStyle(fill, size: .large)
+				.style(Styles.button)
+		}
+
+		private func badgeLink(_ badge: DownloadOption.Badge) -> some HTML<HTMLTag.a> {
+			a(.href(option.url)) {
+				img(
+					.src(badge.imagePath),
+					.width(badge.width),
+					.height(60),
+					.alt(badge.label)
+				)
+					.style(Styles.badgeImage)
+			}
+			.style(Styles.badge)
 		}
 	}
 

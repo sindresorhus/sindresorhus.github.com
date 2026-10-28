@@ -35,126 +35,214 @@ struct GeoCitiesDollz: ScriptedElement {
 	}
 
 	fileprivate static let tabs: [Tab] = [
-		Tab(id: "base", name: "👤 Base", groups: [
-			Group(slot: "body", title: "Dollz base:", items: [
-				Item(id: "girl", name: "👧 Girl Dollz"),
-				Item(id: "guy", name: "👦 Guy Dollz"),
-			]),
-			Group(slot: "skin", title: "Skin:", items: [
-				Item(id: "porcelain", name: "Porcelain"),
-				Item(id: "peach", name: "Peach"),
-				Item(id: "tan", name: "Tan"),
-				Item(id: "golden", name: "Golden"),
-				Item(id: "brown", name: "Brown"),
-				Item(id: "deep", name: "Deep Brown"),
-			]),
-		]),
-		Tab(id: "face", name: "👀 Face", groups: [
-			Group(slot: "eyes", title: "Eyes:", items: [
-				Item(id: "sparkly", name: "✨ Sparkly"),
-				Item(id: "lashes", name: "Long Lashes"),
-				Item(id: "anime", name: "🌸 Anime"),
-				Item(id: "sleepy", name: "😴 Sleepy"),
-				Item(id: "wink", name: "😉 Wink"),
-				Item(id: "cool", name: "😎 Cool (Guy)"),
-			]),
-			Group(slot: "mouth", title: "Mouth:", items: [
-				Item(id: "smile", name: "🙂 Smile"),
-				Item(id: "gloss", name: "💋 Lip Gloss"),
-				Item(id: "grin", name: "😁 Grin"),
-				Item(id: "tongue", name: "😛 :P"),
-				Item(id: "surprised", name: "😮 Oh!"),
-			]),
-			Group(slot: "cheeks", title: "Cheeks:", items: [
-				Item(id: "none", name: "Nothing"),
-				Item(id: "blush", name: "🌸 Blush"),
-				Item(id: "freckles", name: "Freckles"),
-				Item(id: "gems", name: "💎 Face Gems"),
-			]),
-		]),
-		Tab(id: "hair", name: "💇 Hair", groups: [
-			Group(slot: "hair", title: "Hair:", items: [
-				Item(id: "long", name: "Long & Straight"),
-				Item(id: "pigtails", name: "Pigtails"),
-				Item(id: "buns", name: "Space Buns"),
-				Item(id: "bob", name: "Bob"),
-				Item(id: "curly", name: "Big Curls (Scary Spice)"),
-				Item(id: "ponytail", name: "High Ponytail (Sporty Spice)"),
-				Item(id: "spiky", name: "Spiky + Frosted Tips (Guy)"),
-				Item(id: "curtains", name: "Curtains (Boy Band)"),
-				Item(id: "none", name: "No Hair"),
-			]),
-		]),
-		Tab(id: "top", name: "👚 Tops", groups: [
-			Group(slot: "top", title: "Tops:", items: [
-				Item(id: "none", name: "None"),
-				Item(id: "tank", name: "Tank Top"),
-				Item(id: "babytee", name: "Baby Tee ★"),
-				Item(id: "tube", name: "Tube Top"),
-				Item(id: "girlpower", name: "“Girl Power” Tee"),
-				Item(id: "lusekofte", name: "Lusekofte Sweater"),
-				Item(id: "jersey", name: "Backstreet Boys Jersey"),
-			]),
-		]),
-		Tab(id: "bottom", name: "👖 Bottoms", groups: [
-			Group(slot: "bottom", title: "Bottoms:", items: [
-				Item(id: "none", name: "None"),
-				Item(id: "flares", name: "Flared Jeans"),
-				Item(id: "plaid", name: "Plaid Skirt (like Britney)"),
-				Item(id: "shorts", name: "Jean Shorts"),
-				Item(id: "cargo", name: "Cargo Pants"),
-				Item(id: "trackpants", name: "Track Pants (Sporty)"),
-				Item(id: "overalls", name: "Overalls, One Strap Down"),
-			]),
-		]),
-		Tab(id: "dress", name: "👗 Dresses & Coats", groups: [
-			Group(slot: "dress", title: "Dresses:", items: [
-				Item(id: "none", name: "No Dress"),
-				Item(id: "unionjack", name: "Union Jack Dress (Ginger Spice)"),
-				Item(id: "bunad", name: "🇳🇴 Bunad for the 17th of May"),
-				Item(id: "slip", name: "Slip Dress"),
-			]),
-			Group(slot: "coat", title: "Over it:", items: [
-				Item(id: "none", name: "No Coat"),
-				Item(id: "raincoat", name: "☔ Raincoat for Bergen"),
-				Item(id: "puffer", name: "Shiny Puffer Jacket"),
-			]),
-		]),
-		Tab(id: "shoes", name: "👟 Shoes", groups: [
-			Group(slot: "shoes", title: "Shoes:", items: [
-				Item(id: "none", name: "Barefoot"),
-				Item(id: "platforms", name: "Spice Girls Platforms"),
-				Item(id: "boots", name: "Rain Boots (Gummistøvler)"),
-				Item(id: "skate", name: "Skate Shoes"),
-				Item(id: "maryjanes", name: "Mary Janes + Socks"),
-			]),
-		]),
-		Tab(id: "extras", name: "🦋 Extras", groups: [
-			Group(slot: "extras", title: "Extras (take as many as you want):", items: [
-				Item(id: "sunglasses", name: "🕶 Tiny Sunglasses"),
-				Item(id: "clips", name: "🦋 Butterfly Clips"),
-				Item(id: "choker", name: "Tattoo Choker"),
-				Item(id: "wings", name: "👼 Angel Wings"),
-				Item(id: "halo", name: "😇 Glitter Halo"),
-				Item(id: "furby", name: "Furby"),
-				Item(id: "tamagotchi", name: "🥚 Tamagotchi"),
-				Item(id: "discman", name: "💿 Discman"),
-				Item(id: "skateboard", name: "🛹 Skateboard"),
-				Item(id: "flag", name: "🇳🇴 Flag"),
-				Item(id: "rocky", name: "🪨 Rocky the Pet Rock"),
-			]),
-		]),
-		Tab(id: "background", name: "🌈 Backgrounds", groups: [
-			Group(slot: "background", title: "Background:", items: [
-				Item(id: "none", name: "None (See-Through)"),
-				Item(id: "rainbow", name: "🌈 Rainbow"),
-				Item(id: "stars", name: "⭐ Stars"),
-				Item(id: "bryggen", name: "🏠 Bryggen"),
-				Item(id: "tiles", name: "GeoCities Tiles"),
-				Item(id: "hearts", name: "💕 Hearts"),
-				Item(id: "rain", name: "☔ Rain in Bergen"),
-			]),
-		]),
+		Tab(
+			id: "base",
+			name: "👤 Base",
+			groups: [
+				Group(
+					slot: "body",
+					title: "Dollz base:",
+					items: [
+						Item(id: "girl", name: "👧 Girl Dollz"),
+						Item(id: "guy", name: "👦 Guy Dollz"),
+					]
+				),
+				Group(
+					slot: "skin",
+					title: "Skin:",
+					items: [
+						Item(id: "porcelain", name: "Porcelain"),
+						Item(id: "peach", name: "Peach"),
+						Item(id: "tan", name: "Tan"),
+						Item(id: "golden", name: "Golden"),
+						Item(id: "brown", name: "Brown"),
+						Item(id: "deep", name: "Deep Brown"),
+					]
+				),
+			]
+		),
+		Tab(
+			id: "face",
+			name: "👀 Face",
+			groups: [
+				Group(
+					slot: "eyes",
+					title: "Eyes:",
+					items: [
+						Item(id: "sparkly", name: "✨ Sparkly"),
+						Item(id: "lashes", name: "Long Lashes"),
+						Item(id: "anime", name: "🌸 Anime"),
+						Item(id: "sleepy", name: "😴 Sleepy"),
+						Item(id: "wink", name: "😉 Wink"),
+						Item(id: "cool", name: "😎 Cool (Guy)"),
+					]
+				),
+				Group(
+					slot: "mouth",
+					title: "Mouth:",
+					items: [
+						Item(id: "smile", name: "🙂 Smile"),
+						Item(id: "gloss", name: "💋 Lip Gloss"),
+						Item(id: "grin", name: "😁 Grin"),
+						Item(id: "tongue", name: "😛 :P"),
+						Item(id: "surprised", name: "😮 Oh!"),
+					]
+				),
+				Group(
+					slot: "cheeks",
+					title: "Cheeks:",
+					items: [
+						Item(id: "none", name: "Nothing"),
+						Item(id: "blush", name: "🌸 Blush"),
+						Item(id: "freckles", name: "Freckles"),
+						Item(id: "gems", name: "💎 Face Gems"),
+					]
+				),
+			]
+		),
+		Tab(
+			id: "hair",
+			name: "💇 Hair",
+			groups: [
+				Group(
+					slot: "hair",
+					title: "Hair:",
+					items: [
+						Item(id: "long", name: "Long & Straight"),
+						Item(id: "pigtails", name: "Pigtails"),
+						Item(id: "buns", name: "Space Buns"),
+						Item(id: "bob", name: "Bob"),
+						Item(id: "curly", name: "Big Curls (Scary Spice)"),
+						Item(id: "ponytail", name: "High Ponytail (Sporty Spice)"),
+						Item(id: "spiky", name: "Spiky + Frosted Tips (Guy)"),
+						Item(id: "curtains", name: "Curtains (Boy Band)"),
+						Item(id: "none", name: "No Hair"),
+					]
+				),
+			]
+		),
+		Tab(
+			id: "top",
+			name: "👚 Tops",
+			groups: [
+				Group(
+					slot: "top",
+					title: "Tops:",
+					items: [
+						Item(id: "none", name: "None"),
+						Item(id: "tank", name: "Tank Top"),
+						Item(id: "babytee", name: "Baby Tee ★"),
+						Item(id: "tube", name: "Tube Top"),
+						Item(id: "girlpower", name: "“Girl Power” Tee"),
+						Item(id: "lusekofte", name: "Lusekofte Sweater"),
+						Item(id: "jersey", name: "Backstreet Boys Jersey"),
+					]
+				),
+			]
+		),
+		Tab(
+			id: "bottom",
+			name: "👖 Bottoms",
+			groups: [
+				Group(
+					slot: "bottom",
+					title: "Bottoms:",
+					items: [
+						Item(id: "none", name: "None"),
+						Item(id: "flares", name: "Flared Jeans"),
+						Item(id: "plaid", name: "Plaid Skirt (like Britney)"),
+						Item(id: "shorts", name: "Jean Shorts"),
+						Item(id: "cargo", name: "Cargo Pants"),
+						Item(id: "trackpants", name: "Track Pants (Sporty)"),
+						Item(id: "overalls", name: "Overalls, One Strap Down"),
+					]
+				),
+			]
+		),
+		Tab(
+			id: "dress",
+			name: "👗 Dresses & Coats",
+			groups: [
+				Group(
+					slot: "dress",
+					title: "Dresses:",
+					items: [
+						Item(id: "none", name: "No Dress"),
+						Item(id: "unionjack", name: "Union Jack Dress (Ginger Spice)"),
+						Item(id: "bunad", name: "🇳🇴 Bunad for the 17th of May"),
+						Item(id: "slip", name: "Slip Dress"),
+					]
+				),
+				Group(
+					slot: "coat",
+					title: "Over it:",
+					items: [
+						Item(id: "none", name: "No Coat"),
+						Item(id: "raincoat", name: "☔ Raincoat for Bergen"),
+						Item(id: "puffer", name: "Shiny Puffer Jacket"),
+					]
+				),
+			]
+		),
+		Tab(
+			id: "shoes",
+			name: "👟 Shoes",
+			groups: [
+				Group(
+					slot: "shoes",
+					title: "Shoes:",
+					items: [
+						Item(id: "none", name: "Barefoot"),
+						Item(id: "platforms", name: "Spice Girls Platforms"),
+						Item(id: "boots", name: "Rain Boots (Gummistøvler)"),
+						Item(id: "skate", name: "Skate Shoes"),
+						Item(id: "maryjanes", name: "Mary Janes + Socks"),
+					]
+				),
+			]
+		),
+		Tab(
+			id: "extras",
+			name: "🦋 Extras",
+			groups: [
+				Group(
+					slot: "extras",
+					title: "Extras (take as many as you want):",
+					items: [
+						Item(id: "sunglasses", name: "🕶 Tiny Sunglasses"),
+						Item(id: "clips", name: "🦋 Butterfly Clips"),
+						Item(id: "choker", name: "Tattoo Choker"),
+						Item(id: "wings", name: "👼 Angel Wings"),
+						Item(id: "halo", name: "😇 Glitter Halo"),
+						Item(id: "furby", name: "Furby"),
+						Item(id: "tamagotchi", name: "🥚 Tamagotchi"),
+						Item(id: "discman", name: "💿 Discman"),
+						Item(id: "skateboard", name: "🛹 Skateboard"),
+						Item(id: "flag", name: "🇳🇴 Flag"),
+						Item(id: "rocky", name: "🪨 Rocky the Pet Rock"),
+					]
+				),
+			]
+		),
+		Tab(
+			id: "background",
+			name: "🌈 Backgrounds",
+			groups: [
+				Group(
+					slot: "background",
+					title: "Background:",
+					items: [
+						Item(id: "none", name: "None (See-Through)"),
+						Item(id: "rainbow", name: "🌈 Rainbow"),
+						Item(id: "stars", name: "⭐ Stars"),
+						Item(id: "bryggen", name: "🏠 Bryggen"),
+						Item(id: "tiles", name: "GeoCities Tiles"),
+						Item(id: "hearts", name: "💕 Hearts"),
+						Item(id: "rain", name: "☔ Rain in Bergen"),
+					]
+				),
+			]
+		),
 	]
 
 	/**
@@ -203,7 +291,7 @@ struct GeoCitiesDollz: ScriptedElement {
 	/**
 	The color of a swatch of the recolor tool, which the script sets from its `data-dollz-color`.
 	*/
-	static let swatchColor = StyleVariable<Color>("--dollz-swatch")
+	static let swatchColor = StyleVariable<Color>("dollz-swatch")
 
 	var content: some HTML {
 		h2 {
@@ -259,7 +347,13 @@ struct GeoCitiesDollz: ScriptedElement {
 		var body: some HTML {
 			div {
 				div {
-					canvas(.part(Parts.canvas), .width(128), .height(200), .tabindex(0), .role("application")) {}
+					canvas(
+						.part(Parts.canvas),
+						.width(128),
+						.height(200),
+						.tabindex(0),
+						.role("application")
+					) {}
 						.accessibilityLabel("The doll. The left and right arrow keys change the tab, the up and down arrow keys change the piece of the tab, R makes a random doll, G turns the glitter on or off, and Z undoes.")
 						.style(Styles.canvas)
 
@@ -279,7 +373,12 @@ struct GeoCitiesDollz: ScriptedElement {
 					button(.part(Parts.undo), .type(.button), .disabled) {
 						"↶ Undo"
 					}
-					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.bigButton, GeoCitiesPage.Styles.dimmedWhenDisabled, Styles.belowDoll)
+					.style(
+						GeoCitiesPage.Styles.smallButton,
+						GeoCitiesPage.Styles.bigButton,
+						GeoCitiesPage.Styles.dimmedWhenDisabled,
+						Styles.belowDoll
+					)
 
 					button(.part(Parts.reset), .type(.button)) {
 						"🧹 Start Over"
@@ -364,7 +463,12 @@ struct GeoCitiesDollz: ScriptedElement {
 
 				div {
 					for item in group.items {
-						button(.type(.button), .hook(Hooks.slot, value: group.slot), .hook(Hooks.item, value: item.id), .ariaPressed(false)) {
+						button(
+							.type(.button),
+							.hook(Hooks.slot, value: group.slot),
+							.hook(Hooks.item, value: item.id),
+							.ariaPressed(false)
+						) {
 							item.name
 						}
 						.style(GeoCitiesPage.Styles.smallButton, Styles.choice, Styles.belowDoll)
@@ -423,14 +527,26 @@ struct GeoCitiesDollz: ScriptedElement {
 							"Her name:"
 						}
 
-						input(.part(Parts.name), .type(.text), .maxlength(14), .autocomplete("off"), .placeholder("Sparkle"))
+						input(
+							.part(Parts.name),
+							.type(.text),
+							.maxlength(14),
+							.autocomplete("off"),
+							.placeholder("Sparkle")
+						)
 							.style(GeoCitiesPage.Styles.field, Styles.belowDoll)
 					}
 					.style(Styles.fieldLabel)
 
 					label {
 						"Made by (you):"
-						input(.part(Parts.maker), .type(.text), .maxlength(14), .autocomplete("off"), .placeholder("Your name"))
+						input(
+							.part(Parts.maker),
+							.type(.text),
+							.maxlength(14),
+							.autocomplete("off"),
+							.placeholder("Your name")
+						)
 							.style(GeoCitiesPage.Styles.field, Styles.belowDoll)
 					}
 					.style(Styles.fieldLabel)
@@ -553,7 +669,12 @@ struct GeoCitiesDollz: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.label)
 
-				textarea(.id("geocities-dollz-link-code"), .part(Parts.linkCode), .rows(3), .readonly) {}
+				textarea(
+					.id("geocities-dollz-link-code"),
+					.part(Parts.linkCode),
+					.rows(3),
+					.readonly
+				) {}
 					.style(GeoCitiesPage.Styles.field, GeoCitiesPage.Styles.code)
 			}
 			.hidden(when: true)
@@ -591,12 +712,12 @@ struct GeoCitiesDollz: ScriptedElement {
 		case sister
 	}
 
-	enum Hooks: String, ScriptHookSet {
-		case tab = "data-dollz-tab"
-		case panel = "data-dollz-panel"
-		case slot = "data-dollz-slot"
-		case item = "data-dollz-item"
-		case color = "data-dollz-color"
+	enum Hooks: String, ScriptDataAttributeSet {
+		case tab = "dollz-tab"
+		case panel = "dollz-panel"
+		case slot = "dollz-slot"
+		case item = "dollz-item"
+		case color = "dollz-color"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -633,7 +754,7 @@ struct GeoCitiesDollz: ScriptedElement {
 			case .root:
 				GeoCitiesPage.Styles.section.style
 			case .title:
-				Style().color(Color("#cc0099"))
+				Style().color(Color(raw: "#cc0099"))
 			case .corner:
 				Style().vstack(spacing: .rootEm(1))
 			case .maker:
@@ -643,7 +764,7 @@ struct GeoCitiesDollz: ScriptedElement {
 					.gap(.rootEm(1))
 					.alignItems(.start)
 					.children("*") {
-						$0.frame(minWidth: 0)
+						$0.frame(minWidth: .zero)
 					}
 					.below(.smallTablet) {
 						$0.gridColumns(1)
@@ -662,7 +783,7 @@ struct GeoCitiesDollz: ScriptedElement {
 					.below(.smallTablet) {
 						$0
 							.position(.sticky)
-							.top(SiteHeader.height)
+							.top(.length(SiteHeader.height))
 							.zIndex(1)
 							.padding(.vertical, .rootEm(0.25))
 							.background(GeoCitiesPage.windowGray)
@@ -676,7 +797,7 @@ struct GeoCitiesDollz: ScriptedElement {
 					.aspectRatio(128.0 / 200.0)
 					.imageRendering(.pixelated)
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.canvasFocusRing()
 					// On a phone, the height is capped, so the sticky doll and what Lillesøster says leave most of the screen for the clothes.
 					.below(.smallTablet) {
@@ -686,7 +807,7 @@ struct GeoCitiesDollz: ScriptedElement {
 				Style()
 					.toyStatus()
 					// Darker than the pink of the title, so the small text is easy to read on the gray.
-					.color(Color("#990066"))
+					.color(Color(raw: "#990066"))
 			case .belowDoll:
 				// On a phone, the doll and what Lillesøster says stick to the top of the screen (the canvas, 2 lines of the status, and the gaps), so a control of the maker that gets focus scrolls into view below them. The site header is already in the scroll padding of the page.
 				Style().below(.smallTablet) {
@@ -702,21 +823,21 @@ struct GeoCitiesDollz: ScriptedElement {
 				// The open tab is pink and pressed in.
 				Style()
 					.frame(minHeight: .rootEm(2.5))
-					.pressedIn(Color("#ffccee"))
+					.pressedIn(Color(raw: "#ffccee"))
 			case .panel:
 				Style().vstack(spacing: .rootEm(0.5))
 			case .fieldset:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.5))
-					.background(Color("#fff0fa"))
-					.border(Color("#ff99cc"), width: .pixels(2), style: .groove)
+					.background(Color(raw: "#fff0fa"))
+					.border(Color(raw: "#ff99cc"), width: .pixels(2), style: .groove)
 			case .legend:
 				Style()
 					.padding(.horizontal, .rootEm(0.25))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#cc0099"))
+					.color(Color(raw: "#cc0099"))
 			case .choices:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
@@ -725,7 +846,7 @@ struct GeoCitiesDollz: ScriptedElement {
 				// Big enough for a thumb, and pink and pressed in while it is on.
 				Style()
 					.frame(minHeight: .rootEm(2.5))
-					.pressedIn(Color("#ff99dd"))
+					.pressedIn(Color(raw: "#ff99dd"))
 			case .palette:
 				// Two rows of 14, like the palette of MS Paint. On a phone, four rows of 7, so each color is large enough for a finger.
 				Style()
@@ -738,15 +859,15 @@ struct GeoCitiesDollz: ScriptedElement {
 			case .swatch:
 				Style()
 					.frame(minHeight: .rootEm(1.75))
-					.padding(0)
+					.padding(.zero)
 					.background(GeoCitiesDollz.swatchColor.value(default: .white))
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.handCursor()
 					.pressed {
 						$0.border(.black, width: .pixels(2), style: .solid)
 					}
 					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(1))
+						$0.focusRing(Color(raw: "#000080"), width: .pixels(2), offset: .pixels(1))
 					}
 			case .options:
 				Style().vstack(spacing: .rootEm(0.5))
@@ -763,28 +884,28 @@ struct GeoCitiesDollz: ScriptedElement {
 				Style()
 					.grid(minimumColumnWidth: .pixels(136))
 					.gap(.rootEm(0.5))
-					.margin(0)
-					.padding(0)
+					.margin(.zero)
+					.padding(.zero)
 					.children("li") {
 						$0
 							.vstack(alignment: .center, spacing: .rootEm(0.25))
 							.padding(.rootEm(0.25))
-							.background(Color("#fff0fa"))
-							.border(Color("#ff99cc"), width: .pixels(2), style: .outset)
+							.background(Color(raw: "#fff0fa"))
+							.border(Color(raw: "#ff99cc"), width: .pixels(2), style: .outset)
 							.textStyle(.caption, weight: .bold)
 							.fontFamily(GeoCitiesPage.comicSans)
 							.textAlign(.center)
 							.when(States.sister) {
-								$0.background(Color("#ffffcc"))
+								$0.background(Color(raw: "#ffffcc"))
 							}
 					}
 			case .rules:
 				// The rules sparkle in the colors of the rainbow, but hold still for reduced motion.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.font(.large, weight: .bold)
-					.color(Color("#ff0099"))
+					.color(Color(raw: "#ff0099"))
 					.animation(GeoCitiesPage.Animations.rainbow, .linear(duration: .seconds(2)).repeatForever(autoreverses: false))
 			case .agree:
 				Style()
@@ -801,7 +922,7 @@ struct GeoCitiesDollz: ScriptedElement {
 					.aspectRatio(288.0 / 208.0)
 					.imageRendering(.pixelated)
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			}
 		}
 	}

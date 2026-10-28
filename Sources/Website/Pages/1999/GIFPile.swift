@@ -18,7 +18,12 @@ struct GeoCitiesGIFPile: ScriptedElement {
 
 		div {
 			div {
-				GeoCitiesPage.GIFImage(gif: .copyingFiles, alt: "A window of Windows that copies a GIF", style: .gif, project: project)
+				GeoCitiesPage.GIFImage(
+					gif: .copyingFiles,
+					alt: "A window of Windows that copies a GIF",
+					style: .gif,
+					project: project
+				)
 			}
 			.style(Styles.dialog)
 
@@ -44,7 +49,12 @@ struct GeoCitiesGIFPile: ScriptedElement {
 				.style(GeoCitiesPage.Styles.retroButton)
 
 				button(.part(Parts.earthquake), .type(.button)) {
-					GeoCitiesPage.GIFImage(gif: .siren, alt: "", style: .gif, project: project)
+					GeoCitiesPage.GIFImage(
+						gif: .siren,
+						alt: "",
+						style: .gif,
+						project: project
+					)
 					" Earthquake!"
 				}
 				.style(GeoCitiesPage.Styles.retroButton)
@@ -62,11 +72,21 @@ struct GeoCitiesGIFPile: ScriptedElement {
 
 				// It shows when the pile has too many GIFs. It is outside the pile, so it stays at the top of the box while the pile shows its top.
 				div(.part(Parts.warning), .hidden) {
-					GeoCitiesPage.GIFImage(gif: .siren, alt: "", style: .gif, project: project)
+					GeoCitiesPage.GIFImage(
+						gif: .siren,
+						alt: "",
+						style: .gif,
+						project: project
+					)
 					span {
 						"WARNING: TOO MANY GIFs"
 					}
-					GeoCitiesPage.GIFImage(gif: .siren, alt: "", style: .gif, project: project)
+					GeoCitiesPage.GIFImage(
+						gif: .siren,
+						alt: "",
+						style: .gif,
+						project: project
+					)
 				}
 				.style(Styles.warning)
 			}
@@ -78,7 +98,12 @@ struct GeoCitiesGIFPile: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.centeredText, GeoCitiesPage.Styles.scriptingOnly)
 
-			GeoCitiesPage.GIFImage(gif: .dividerHelix, alt: "", style: .centered, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .dividerHelix,
+				alt: "",
+				style: .centered,
+				project: project
+			)
 
 			p {
 				"The GIF-O-Matic needs JavaScript, so you have to make do with the 200 GIFs that are already here."
@@ -135,8 +160,8 @@ struct GeoCitiesGIFPile: ScriptedElement {
 					}
 			case .moreButton:
 				Style()
-					.color(Color("#cc0000"))
-					.textShadow(Shadow(x: .pixels(1), y: .pixels(1), color: Color("#ffff00")))
+					.color(Color(raw: "#cc0000"))
+					.textShadow(Shadow(x: .pixels(1), y: .pixels(1), color: Color(raw: "#ffff00")))
 			case .pileFrame:
 				// The warning is over the pile.
 				Style().position(.relative)
@@ -144,13 +169,13 @@ struct GeoCitiesGIFPile: ScriptedElement {
 				// The GIFs pile up from the bottom, row on row. When the pile is higher than the box, the script scrolls it to its top, where the newest GIFs land, and the bottom rows go out of the box.
 				Style()
 					.hstack(alignment: .end, justification: .center, spacing: .pixels(2))
-					.flexWrap(isReversed: true)
+					.flexWrap(.wrapReversed)
 					.alignContent(.start)
 					.frame(height: .rootEm(14))
 					.overflow(.hidden)
 					.padding(.rootEm(0.25))
-					.backgroundImage(.linearGradient("to bottom", Color("#000033"), Color("#330066")))
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#000033"), Color(raw: "#330066")))
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
 			case .pileGIF:
 				// Each GIF lands on the pile from above, a little tilted. The script tilts it. Lynx shows no images.
 				Style()
@@ -158,25 +183,30 @@ struct GeoCitiesGIFPile: ScriptedElement {
 					.when(ancestorHas: GeoCitiesBestViewed.Hooks.view, is: "lynx") {
 						$0.hidden()
 					}
-					.frame(width: .auto, height: .auto, maxWidth: .rootEm(6), maxHeight: .rootEm(3))
+					.frame(
+						width: .auto,
+						height: .auto,
+						maxWidth: .rootEm(6),
+						maxHeight: .rootEm(3)
+					)
 					.animation(Animations.drop, .easeIn(duration: .milliseconds(450)))
 			case .warning:
 				// Over the pile, at the top, blinking.
 				Style()
 					.position(.absolute)
 					.top(.rootEm(0.25))
-					.leading(0)
-					.trailing(0)
+					.leading(.zero)
+					.trailing(.zero)
 					.zIndex(1)
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
 					.fontFamily(GeoCitiesPage.impact)
-					.color(Color("#ff3333"))
+					.color(Color(raw: "#ff3333"))
 					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: .black))
 					.children("span") {
 						$0
 							.padding(.horizontal, .rootEm(0.25))
 							.background(.black)
-							.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
+							.animation(GeoCitiesPage.Animations.blink, .steps(1, duration: .seconds(1)).repeatForever(autoreverses: false))
 					}
 					.children("picture img") {
 						$0.frame(width: .rootEm(2), height: .auto)

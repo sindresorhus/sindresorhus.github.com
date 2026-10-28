@@ -34,11 +34,22 @@ struct GeoCitiesFishTank: ScriptedElement {
 
 		div {
 			p {
-				GeoCitiesPage.GIFImage(gif: .fishbowl, alt: "", style: .floating, project: project)
+				GeoCitiesPage.GIFImage(
+					gif: .fishbowl,
+					alt: "",
+					style: .floating,
+					project: project
+				)
 				"My fish tank! Move your mouse (or your finger) in the water and the fish follow it. Click to drop food. Do NOT tap on the glass. Mom says it scares them. Dad says it is a screen."
 			}
 
-			canvas(.part(Parts.tank), .width(640), .height(360), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.tank),
+				.width(640),
+				.height(360),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The fish tank. The fish follow your pointer or finger. Click or press Space to drop food, and move your finger with the arrow keys.")
 				.style(Styles.tank, GeoCitiesPage.Styles.scriptingOnly)
 
@@ -128,13 +139,13 @@ struct GeoCitiesFishTank: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(16.0 / 9.0)
-					.border(Color("#222222"), width: .pixels(6), style: .ridge)
+					.border(Color(raw: "#222222"), width: .pixels(6), style: .ridge)
 					.imageRendering(.pixelated)
 					.touchAction(.manipulation)
 					.cursor(.crosshair)
 			case .stats:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)

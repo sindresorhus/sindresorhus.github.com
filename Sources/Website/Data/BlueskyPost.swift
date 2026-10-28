@@ -28,7 +28,7 @@ struct BlueskyPost {
 	*/
 	static func latest(cache: ResponseCache) async throws -> Self? {
 		let url = #URL("https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed").appending(formQueryItems: [URLQueryItem(name: "actor", value: handle), URLQueryItem(name: "limit", value: "5"), URLQueryItem(name: "filter", value: "posts_no_replies")])
-		return try await cache.decoded(AuthorFeed.self, from: URLRequest(url: url, timeoutInterval: 15)).posts.first
+		return try await cache.decoded(AuthorFeed.self, from: url).posts.first
 	}
 }
 
@@ -66,11 +66,14 @@ private struct AuthorFeed: Decodable {
 			let byteEnd: Int
 		}
 
-		struct Feature: Decodable {
-			let type: String
-			let uri: String?
-			let did: String?
-			let tag: String?
+		/**
+		The supported feature variants, with unknown or incomplete variants ignored.
+		*/
+		enum Feature: Decodable {
+			case link(URL)
+			case mention(String)
+			case tag(String)
+			case ignored
 
 			enum CodingKeys: String, CodingKey {
 				case type = "$type"
@@ -79,18 +82,47 @@ private struct AuthorFeed: Decodable {
 				case tag
 			}
 
+			init(from decoder: any Decoder) throws {
+				let container = try decoder.container(keyedBy: CodingKeys.self)
+				let type = try container.decode(String.self, forKey: .type)
+				// Read every known field, so a field with the wrong type still fails decoding, also on an unknown variant.
+				let uri = try container.decodeIfPresent(String.self, forKey: .uri)
+				let did = try container.decodeIfPresent(String.self, forKey: .did)
+				let tag = try container.decodeIfPresent(String.self, forKey: .tag)
+
+				switch type {
+				case "app.bsky.richtext.facet#link":
+					guard
+						let uri,
+						let url = URL(string: uri),
+						["http", "https"].contains(url.scheme)
+					else {
+						self = .ignored
+						return
+					}
+
+					self = .link(url)
+				case "app.bsky.richtext.facet#mention":
+					self = did.map(Self.mention) ?? .ignored
+				case "app.bsky.richtext.facet#tag":
+					self = tag.map(Self.tag) ?? .ignored
+				default:
+					self = .ignored
+				}
+			}
+
 			/**
 			Where the feature links to: a URL, the profile of a mention, or the posts of a hashtag.
 			*/
 			var link: URL? {
-				switch type {
-				case "app.bsky.richtext.facet#link":
-					uri.flatMap(URL.init(string:)).flatMap { ["http", "https"].contains($0.scheme) ? $0 : nil }
-				case "app.bsky.richtext.facet#mention":
-					did.flatMap { URL(string: "https://bsky.app/profile/\($0)") }
-				case "app.bsky.richtext.facet#tag":
-					tag.flatMap { URL(string: "https://bsky.app/hashtag/")?.appending(path: $0) }
-				default:
+				switch self {
+				case .link(let url):
+					url
+				case .mention(let did):
+					URL(string: "https://bsky.app/profile/\(did)")
+				case .tag(let tag):
+					#URL("https://bsky.app/hashtag/").appending(path: tag)
+				case .ignored:
 					nil
 				}
 			}

@@ -325,7 +325,12 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 		var body: some HTML {
 			div {
 				figure {
-					canvas(.part(Parts.remoteVideo), .width(160), .height(120), .role("img")) {}
+					canvas(
+						.part(Parts.remoteVideo),
+						.width(160),
+						.height(120),
+						.role("img")
+					) {}
 						.accessibilityLabel("Mormor’s video")
 						.style(Styles.video)
 
@@ -347,7 +352,12 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 				.style(Styles.videoFigure)
 
 				figure {
-					canvas(.part(Parts.localVideo), .width(160), .height(120), .role("img")) {}
+					canvas(
+						.part(Parts.localVideo),
+						.width(160),
+						.height(120),
+						.role("img")
+					) {}
 						.accessibilityLabel("My video: a drawing of Sindre")
 						.style(Styles.video)
 
@@ -405,7 +415,15 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 							"Faster video"
 						}
 
-						input(.id("geocities-netmeeting-quality"), .part(Parts.quality), .type(.range), .min(1), .max(3), .step(1), .value("2"))
+						input(
+							.id("geocities-netmeeting-quality"),
+							.part(Parts.quality),
+							.type(.range),
+							.min(1),
+							.max(3),
+							.step(1),
+							.value("2")
+						)
 							.style(Styles.quality)
 
 						span {
@@ -439,7 +457,13 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					}
 					.style(VisuallyHidden.Styles.root)
 
-					input(.id("geocities-netmeeting-chat-input"), .part(Parts.chatInput), .type(.text), .autocomplete("off"), .maxlength(80))
+					input(
+						.id("geocities-netmeeting-chat-input"),
+						.part(Parts.chatInput),
+						.type(.text),
+						.autocomplete("off"),
+						.maxlength(80)
+					)
 						.style(GeoCitiesPage.Styles.field, GeoCitiesWindows.Styles.grow)
 
 					button(.type(.submit)) {
@@ -476,7 +500,13 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 				.accessibilityLabel("Pen")
 				.style(GeoCitiesWindows.Styles.wrapRow)
 
-				canvas(.part(Parts.board), .width(320), .height(200), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.board),
+					.width(320),
+					.height(200),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("Whiteboard. Draw with the mouse or a finger, or move the pen with the arrow keys. Space lifts the pen and puts it down.")
 					.style(Styles.board)
 			}
@@ -486,7 +516,13 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 	private struct SharePanel: HTML {
 		var body: some HTML {
 			GeoCitiesWindowsNetMeeting.toolPanel("share", title: "Sharing: Desktop") {
-				canvas(.part(Parts.shareScreen), .width(320), .height(200), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.shareScreen),
+					.width(320),
+					.height(200),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("My shared desktop, as Mormor sees it. While Mormor has the control, Escape, Enter, or a click takes it back. Otherwise, Enter or a click on the Recycle Bin gets back what she threw away.")
 					.style(Styles.shareScreen)
 
@@ -502,7 +538,12 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 		var body: some HTML {
 			GeoCitiesWindowsNetMeeting.toolPanel("transfer", title: "File Transfer") {
 				div {
-					canvas(.part(Parts.photo), .width(80), .height(60), .role("img")) {}
+					canvas(
+						.part(Parts.photo),
+						.width(80),
+						.height(60),
+						.role("img")
+					) {}
 						.accessibilityLabel("The photo, not received yet")
 						.style(Styles.photo)
 
@@ -619,36 +660,36 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 	/**
 	The lists of the same kind of element, with a value for the script.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A button of the bar on the left, by the view it shows.
 		*/
-		case view = "data-netmeeting-view"
+		case view = "netmeeting-view"
 
 		/**
 		A view of the window, by its name.
 		*/
-		case panel = "data-netmeeting-panel"
+		case panel = "netmeeting-panel"
 
 		/**
 		A button of SpeedDial, by who it calls.
 		*/
-		case dial = "data-netmeeting-dial"
+		case dial = "netmeeting-dial"
 
 		/**
 		A button of what I can say in the call, by what it says.
 		*/
-		case say = "data-netmeeting-say"
+		case say = "netmeeting-say"
 
 		/**
 		A window of a tool of the call, like the Chat, by its name.
 		*/
-		case tool = "data-netmeeting-tool"
+		case tool = "netmeeting-tool"
 
 		/**
 		A color of the pen of the Whiteboard, by its name.
 		*/
-		case color = "data-netmeeting-color"
+		case color = "netmeeting-color"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -690,7 +731,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 		case historyList
 		case statusLine
 
-		private static let sunken = Color("#808080")
+		private static let sunken = Color(raw: "#808080")
 
 		var style: Style {
 			switch self {
@@ -714,7 +755,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					.children("input") {
 						$0
 							.flexShrink(0)
-							.margin(0)
+							.margin(.zero)
 							.media(.coarsePointer) {
 								$0.frame(size: .rootEm(1.25))
 							}
@@ -730,11 +771,11 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 				// `WindowsNetMeeting.js` sets how loud.
 				Style()
 					.display(.block)
-					.frame(width: 0, height: .percent(100))
-					.backgroundImage("repeating-linear-gradient(to right, #00ff00 0 4px, transparent 4px 6px)")
+					.frame(width: .zero, height: .percent(100))
+					.backgroundImage(CSSImage(raw: "repeating-linear-gradient(to right, #00ff00 0 4px, transparent 4px 6px)"))
 			case .delay:
 				Style()
-					.padding(vertical: 0, horizontal: .rootEm(0.375))
+					.padding(vertical: .zero, horizontal: .rootEm(0.375))
 					.textStyle(.caption)
 					.monospacedDigit()
 			case .main:
@@ -743,13 +784,13 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					.grid(columns: 1)
 					.gap(.rootEm(0.375))
 					.from(.smallTablet) {
-						$0.gridColumns("5.5rem minmax(0, 1fr)")
+						$0.gridColumns(.fixed(.rootEm(5.5)), .flexible())
 					}
 			case .nav:
 				Style()
 					.hstack(spacing: .rootEm(0.125))
 					.padding(.rootEm(0.25))
-					.background(Color("#404040"))
+					.background(Color(raw: "#404040"))
 					.border(Self.sunken, width: .pixels(2), style: .inset)
 					.from(.smallTablet) {
 						$0.vstack(spacing: .rootEm(0.25))
@@ -771,19 +812,19 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					.color(.white)
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#ffff00"), width: .pixels(2))
+						$0.focusRing(Color(raw: "#ffff00"), width: .pixels(2))
 					}
 					.pressed {
 						$0
-							.background(Color("#606060"))
-							.border(Color("#202020"), width: .pixels(2), style: .inset)
+							.background(Color(raw: "#606060"))
+							.border(Color(raw: "#202020"), width: .pixels(2), style: .inset)
 					}
 			case .navIcon:
 				Style()
 					.font(.large)
 					.lineHeight(1)
 			case .content:
-				Style().frame(minWidth: 0)
+				Style().frame(minWidth: .zero)
 			case .panel:
 				Style()
 					.vstack(spacing: .rootEm(0.375))
@@ -805,14 +846,14 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 				Style()
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.25))
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(1), style: .outset)
+					.border(Color(raw: "#dfdfdf"), width: .pixels(1), style: .outset)
 					.textAlign(.leading)
 					.textWrap(.nowrap)
 			case .directoryRow:
 				// A person of the directory. The person picked to call is blue, like a selection of Windows.
 				Style().when(States.selected) {
 					$0
-						.background(Color("#000080"))
+						.background(Color(raw: "#000080"))
 						.color(.white)
 				}
 			case .cell:
@@ -822,9 +863,9 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 			case .rowButton:
 				// The name, which picks the person, and a double click calls them.
 				Style()
-					.padding(0)
+					.padding(.zero)
 					.background(.transparent)
-					.border(.transparent, width: 0)
+					.border(.transparent, width: .zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 					.color(.currentColor)
@@ -835,13 +876,13 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 				// Mormor’s video is bigger than mine, side by side, also on a phone, where mine is still wide enough for “My Video” and its button on one line. They stay small, like in NetMeeting, so what to say to her fits below them in the window.
 				Style()
 					.frame(maxWidth: .rootEm(20))
-					.grid(columns: "minmax(0, 3fr) minmax(0, 2fr)")
+					.grid(columns: .flexible(fraction: 3), .flexible(fraction: 2))
 					.alignItems(.start)
 					.gap(.rootEm(0.5))
 			case .videoFigure:
 				Style()
 					.vstack(spacing: .rootEm(0.25))
-					.margin(0)
+					.margin(.zero)
 			case .video:
 				// A video of 160 × 120 in big pixels, on black, like the video window of NetMeeting.
 				Style()
@@ -877,10 +918,10 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					.textStyle(.caption, weight: .bold)
 					.color(.white)
 					.children("p") {
-						$0.margin(0)
+						$0.margin(.zero)
 					}
 					.children("p:first-child") {
-						$0.color(Color("#ffff66"))
+						$0.color(Color(raw: "#ffff66"))
 					}
 			case .sayButton:
 				Style().frame(minHeight: .rootEm(2))
@@ -888,7 +929,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 				// A small window of NetMeeting inside the call, like the Chat or the Whiteboard.
 				Style()
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+					.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 			case .toolBody:
 				Style().padding(.rootEm(0.375))
 			case .chatLog:
@@ -904,7 +945,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					.color(.black)
 					.overflowWrap(.anywhere)
 					.children("p") {
-						$0.margin(0)
+						$0.margin(.zero)
 					}
 			case .swatch:
 				Self.swatchStyle
@@ -919,19 +960,19 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					.touchAction(.none)
 					.cursor(.crosshair)
 					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(1))
+						$0.focusRing(Color(raw: "#000080"), width: .pixels(2), offset: .pixels(1))
 					}
 			case .shareScreen:
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(320.0 / 200.0)
-					.background(Color("#008080"))
+					.background(Color(raw: "#008080"))
 					.border(Self.sunken, width: .pixels(2), style: .inset)
 					.imageRendering(.pixelated)
 					.touchAction(.manipulation)
 					.focusVisible {
-						$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(1))
+						$0.focusRing(Color(raw: "#000080"), width: .pixels(2), offset: .pixels(1))
 					}
 			case .photo:
 				// The photo that arrives, in big pixels, black until its lines come in.
@@ -948,7 +989,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 			case .historyList:
 				Style()
 					.frame(minHeight: .rootEm(12))
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(1.25))
 					.background(.white)
 					.border(Self.sunken, width: .pixels(2), style: .inset)
@@ -969,7 +1010,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 		private static var swatchStyle: Style {
 			var style = Style()
 				.frame(size: .rootEm(2))
-				.padding(0)
+				.padding(.zero)
 				.border(Self.sunken, width: .pixels(2), style: .inset)
 				.handCursor()
 				.pressed {
@@ -978,7 +1019,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 
 			for color in GeoCitiesWindowsNetMeeting.colors {
 				style = style.when(Hooks.color, is: color.name) {
-					$0.background(Color(color.hex))
+					$0.background(Color(raw: color.hex))
 				}
 			}
 

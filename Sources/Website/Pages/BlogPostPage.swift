@@ -13,20 +13,20 @@ struct BlogPostPage: Page {
 	/**
 	An unlisted post is left out, as it is not indexed, like it is left out of the blog and the feeds.
 	*/
-	var sitemapEntry: SitemapEntry? {
+	var sitemapEntry: SitemapEntry {
 		SitemapEntry(lastModified: post.lastModified)
 	}
 
-	var socialCard: OpenGraphCard? {
-		OpenGraphCard(post: post, project: content.project)
+	var socialImage: SocialImage {
+		.card(OpenGraphCard(post: post, project: content.project))
 	}
 
 	var metadata: PageMetadata {
 		PageMetadata(
+			article: post,
 			title: post.title,
 			description: post.description,
-			socialTitle: post.title,
-			kind: .article(publishedAt: post.publicationDate, tags: post.tags),
+			tags: post.tags,
 			// Search engines do not index an unlisted post, like it is not in the sitemap.
 			isIndexed: post.isListed
 		)
@@ -78,7 +78,7 @@ struct BlogPostPage: Page {
 					ul {
 						for post in morePosts {
 							li {
-								BlogPostRow(post: post, isUnderHeading: true)
+								ArticleRow(.post(post), headingLevel: .h3)
 							}
 						}
 					}
@@ -99,17 +99,15 @@ struct BlogPostPage: Page {
 		Array(content.listedPosts.filter { $0.slug != post.slug }.prefix(2))
 	}
 
-	private static let morePostsTitleID = "more-posts"
+	private static let morePostsTitleID = ElementID("more-posts")
 
-	private var structuredData: Schema.BlogPosting {
-		Schema.BlogPosting(
-			headline: post.title,
+	private var structuredData: Schema.Article {
+		Schema.Article(
+			document: post,
+			type: .blogPosting,
+			title: post.title,
 			description: post.description,
-			url: path.absoluteURL,
-			datePublished: post.publicationDate.formatted(.iso8601),
-			dateModified: post.lastModified.formatted(.iso8601),
-			author: .author,
-			image: socialImageURL,
+			images: [socialImageURL],
 			keywords: post.tags.map(\.rawValue).nilIfEmpty
 		)
 	}
@@ -144,7 +142,6 @@ extension BlogPostPage {
 				Style()
 					.contentColumn(.prose)
 					.margin(.top, .rootEm(4))
-					.margin(.bottom, .rootEm(3))
 					.padding(.top, .rootEm(4))
 					.border(.top, .separator)
 					.opacity(0.8)
@@ -162,7 +159,7 @@ extension BlogPostPage {
 					.moreLink()
 			case .rule:
 				Style()
-					.margin(top: .rootEm(2), horizontal: 0, bottom: 0)
+					.margin(top: .rootEm(2), horizontal: .zero, bottom: .zero)
 					.border(.top, .separator, style: .dashed)
 			}
 		}

@@ -1,4 +1,5 @@
 import SwiftDiagnostics
+import SwiftParser
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
@@ -12,12 +13,12 @@ A property with a property wrapper, like `@NonEmpty var description: String?`, d
 
 The type of a stored property comes from its type annotation, from an empty initializer that names the type (`[String]()`, `[String: Int]()`, `OrderedMapping<URL>()`), or from a literal default value: `false` is a `Bool`, `"text"` is a `String`, `1` is an `Int`, and `1.5` is a `Double`.
 
-Limitations: A property inside an `#if` block is an error. Every attribute of a property without arguments, other than `@Key`, is taken to be a property wrapper that is generic over its wrapped value, like `NonEmpty<Value>`, written without generic arguments, and an attribute with arguments, other than `@Key`, is an error. Other default values need a type annotation, because macros cannot infer types. This includes string literals with interpolation, and literals that should be another type, like `var scale: Float = 1`.
+Limitations: A property inside an `#if` block is an error. A property supports only one validation property wrapper. Every attribute of a property without arguments, other than `@Key`, is taken to be a property wrapper that is generic over its wrapped value, like `NonEmpty<Value>`, written without generic arguments, and an attribute with arguments, other than `@Key`, is an error. Other default values need a type annotation, because macros cannot infer types. This includes string literals with interpolation, and literals that should be another type, like `var scale: Float = 1`.
 */
 public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 	struct Property {
 		let name: TokenSyntax
-		let key: ExprSyntax?
+		let key: StringLiteralExprSyntax?
 		let wrapper: TypeSyntax?
 		let type: TypeSyntax
 		let defaultValue: ExprSyntax?
@@ -42,20 +43,21 @@ public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 		}
 
 		/**
-		The statement of `init(from:)` that decodes the property. An optional property, or a property with a default value, is decoded with `decodeIfPresent`, so its key can be missing.
+		The statement of `init(from:)` that decodes the property. A missing key uses the default, while an explicit null is accepted only by an optional property.
 		*/
 		var decodingStatement: ExprSyntax {
 			let valueType = optionalWrappedType ?? type
 			let decodedType: TypeSyntax = wrapper.map { "\($0)<\(valueType)>" } ?? valueType
 
-			guard optionalWrappedType != nil || defaultValue != nil else {
-				let unwrap = wrapper == nil ? "" : ".wrappedValue"
-				return "self.\(name) = try container.decode(\(decodedType).self, forKey: .\(name))\(raw: unwrap)"
+			if optionalWrappedType != nil {
+				let unwrap = wrapper == nil ? "" : "?.wrappedValue"
+				let decode: ExprSyntax = "try container.decodeIfPresent(\(decodedType).self, forKey: .\(name))\(raw: unwrap)"
+				return defaultValue.map { "self.\(name) = container.contains(.\(name)) ? \(decode) : \($0)" } ?? "self.\(name) = \(decode)"
 			}
 
-			let unwrap = wrapper == nil ? "" : "?.wrappedValue"
-			let decode: ExprSyntax = "try container.decodeIfPresent(\(decodedType).self, forKey: .\(name))\(raw: unwrap)"
-			return defaultValue.map { "self.\(name) = \(decode) ?? \($0)" } ?? "self.\(name) = \(decode)"
+			let unwrap = wrapper == nil ? "" : ".wrappedValue"
+			let decode: ExprSyntax = "try container.decode(\(decodedType).self, forKey: .\(name))\(raw: unwrap)"
+			return defaultValue.map { "self.\(name) = container.contains(.\(name)) ? \(decode) : \($0)" } ?? "self.\(name) = \(decode)"
 		}
 	}
 
@@ -78,7 +80,8 @@ public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 
 		let access = declaration.modifiers.accessModifierForGeneratedMembers
 
-		let codingKeys = try EnumDeclSyntax("enum CodingKeys: Swift.String, Swift.CodingKey") {
+		// Declaration order is also the formatter's editorial order; do not sort the generated cases.
+		let codingKeys = try EnumDeclSyntax("\(access)enum CodingKeys: Swift.String, Swift.CodingKey, Swift.CaseIterable") {
 			for property in properties {
 				if let key = property.key {
 					DeclSyntax("case \(property.name) = \(key)")
@@ -129,29 +132,15 @@ public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 				continue
 			}
 
-			// A property wrapper is written without arguments, so the type of the wrapper is the name alone.
-			var attributeWithArguments: AttributeSyntax?
+			let isLet = variable.bindingSpecifier.tokenKind == .keyword(.let)
+			let attributes: (key: StringLiteralExprSyntax?, wrapper: TypeSyntax?)
 
-			for element in variable.attributes {
-				guard
-					case .attribute(let attribute) = element,
-					attribute.attributeName.trimmedDescription != "Key",
-					attribute.arguments != nil
-				else {
-					continue
-				}
-
-				attributeWithArguments = attribute
-				break
-			}
-
-			if let attributeWithArguments {
-				diagnostics.append(Diagnostic(node: attributeWithArguments, message: MacroExpansionErrorMessage("'@Frontmatter' supports only '@Key' and a property wrapper without arguments, like '@NonEmpty', got '\(attributeWithArguments.trimmedDescription)'.")))
+			do {
+				attributes = try variable.attributes.frontmatterAttributes()
+			} catch {
+				diagnostics += error.diagnostics
 				continue
 			}
-
-			let isLet = variable.bindingSpecifier.tokenKind == .keyword(.let)
-			let key = variable.attributes.keyArgument
 
 			if variable.bindings.count > 1 {
 				diagnostics.append(Diagnostic(node: variable, message: MacroExpansionErrorMessage("'@Frontmatter' requires one property per declaration")))
@@ -178,7 +167,15 @@ public enum FrontmatterMacro: MemberMacro, ExtensionMacro {
 				continue
 			}
 
-			properties.append(Property(name: name.trimmed, key: key, wrapper: variable.attributes.propertyWrapper, type: type.trimmed, defaultValue: binding.initializer?.value.trimmed))
+			properties.append(
+				Property(
+					name: name.trimmed,
+					key: attributes.key,
+					wrapper: attributes.wrapper,
+					type: type.trimmed,
+					defaultValue: binding.initializer?.value.trimmed
+				)
+			)
 		}
 
 		guard diagnostics.isEmpty else {
@@ -232,7 +229,14 @@ public enum KeyMacro: PeerMacro {
 		providingPeersOf declaration: some DeclSyntaxProtocol,
 		in context: some MacroExpansionContext
 	) throws -> [DeclSyntax] {
-		[]
+		guard
+			let property = declaration.as(VariableDeclSyntax.self),
+			property.isStoredInstanceProperty
+		else {
+			throw MacroExpansionErrorMessage("'@Key' can only be applied to a stored instance property.")
+		}
+
+		return []
 	}
 }
 
@@ -322,46 +326,61 @@ extension ExprSyntax {
 
 extension AttributeListSyntax {
 	/**
-	The string literal of a `@Key("name")` attribute.
+	The string literal of a `@Key("name")` attribute and the type of its single validation wrapper, like `NonEmpty` for `@NonEmpty`. Reports invalid arguments before they can become invalid raw values of `CodingKeys`. More than one wrapper is unsupported, as decoding only one would skip the other's validation.
 	*/
-	fileprivate var keyArgument: ExprSyntax? {
-		for element in self {
-			guard
-				case .attribute(let attribute) = element,
-				attribute.attributeName.trimmedDescription == "Key",
-				let argument = attribute.arguments?.as(LabeledExprListSyntax.self)?.first?.expression
-			else {
+	fileprivate func frontmatterAttributes() throws(DiagnosticsError) -> (key: StringLiteralExprSyntax?, wrapper: TypeSyntax?) {
+		var keys = [AttributeSyntax]()
+		var wrappers = [AttributeSyntax]()
+
+		// Classify once; validate keys before wrapper counts to keep diagnostic precedence stable.
+		for case .attribute(let attribute) in self {
+			if attribute.attributeName.trimmedDescription == "Key" {
+				keys.append(attribute)
 				continue
 			}
 
-			return argument.trimmed
-		}
-
-		return nil
-	}
-
-	/**
-	The type of the property wrapper: the first attribute that is not `@Key`, like `NonEmpty` for `@NonEmpty`.
-	*/
-	fileprivate var propertyWrapper: TypeSyntax? {
-		for element in self {
-			guard
-				case .attribute(let attribute) = element,
-				attribute.attributeName.trimmedDescription != "Key"
-			else {
-				continue
+			// A property wrapper is written without arguments, so the type of the wrapper is the name alone.
+			guard attribute.arguments == nil else {
+				throw DiagnosticsError(diagnostics: [Diagnostic(node: attribute, message: MacroExpansionErrorMessage("'@Frontmatter' supports only '@Key' and a property wrapper without arguments, like '@NonEmpty', got '\(attribute.trimmedDescription)'."))])
 			}
 
-			return attribute.attributeName.trimmed
+			wrappers.append(attribute)
 		}
 
-		return nil
+		guard keys.count <= 1 else {
+			throw DiagnosticsError(diagnostics: keys.dropFirst().map { Diagnostic(node: $0, message: MacroExpansionErrorMessage("'@Key' can only appear once per property.")) })
+		}
+
+		let key: StringLiteralExprSyntax?
+
+		if let attribute = keys.first {
+			guard
+				let arguments = attribute.arguments?.as(LabeledExprListSyntax.self),
+				arguments.count == 1,
+				let argument = arguments.first,
+				argument.label == nil,
+				let literal = argument.expression.as(StringLiteralExprSyntax.self),
+				literal.representedLiteralValue != nil
+			else {
+				throw DiagnosticsError(diagnostics: [Diagnostic(node: attribute, message: MacroExpansionErrorMessage("'@Key' requires one string literal without interpolation."))])
+			}
+
+			key = literal.trimmed
+		} else {
+			key = nil
+		}
+
+		guard wrappers.count <= 1 else {
+			throw DiagnosticsError(diagnostics: wrappers.dropFirst().map { Diagnostic(node: $0, message: MacroExpansionErrorMessage("'@Frontmatter' supports only one validation property wrapper per property.")) })
+		}
+
+		return (key, wrappers.first?.attributeName.trimmed)
 	}
 }
 
 extension DeclModifierListSyntax {
 	/**
-	`public` for public types, so clients can use the generated initializer.
+	`public` for public types, so clients can use the generated initializer and the diagnostic keys of the `Frontmatter` conformance.
 	*/
 	fileprivate var accessModifierForGeneratedMembers: DeclModifierSyntax? {
 		for modifier in self {

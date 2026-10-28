@@ -9,8 +9,8 @@ class GeoCitiesCasio extends GeoCitiesElement {
 		const keys = [...this.querySelectorAll('[data-casio-note]')];
 		const toneButtons = [...this.querySelectorAll('[data-casio-tone]')];
 		const rhythmButtons = [...this.querySelectorAll('[data-casio-rhythm]')];
-		const lowestNote = 60;
-		const computerKeys = ['KeyA', 'KeyW', 'KeyS', 'KeyE', 'KeyD', 'KeyF', 'KeyT', 'KeyG', 'KeyY', 'KeyH', 'KeyU', 'KeyJ', 'KeyK', 'KeyO', 'KeyL', 'KeyP', 'Semicolon', 'Quote'];
+		const {lowestNote} = this.config;
+		const computerKeys = this.config.computerKeys.map(key => key.code);
 
 		// Each tone builds its sound into the output, and has an envelope: how fast it starts, how loud, how fast it falls to its sustain level, and how fast it fades when the key is let go.
 		const tones = {

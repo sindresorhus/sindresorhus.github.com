@@ -39,7 +39,6 @@ const letterTemplate = document.querySelector('#geocities-letter');
 const sparkleSpacing = 14;
 const maximumSparkles = 40;
 let lastSparkle;
-let sparkleCount = 0;
 
 // The hue of the last sparkle, in degrees.
 let hue = 0;
@@ -49,33 +48,59 @@ const usesTrail = event => event.pointerType === 'mouse' && finePointer.matches 
 // Over a game or a drawing, like Lemmingz or Unicorn Paint, the trail would cover what the visitor plays with, so it waits outside.
 const isOverGame = event => event.target.closest?.('canvas, [role="application"]') !== null;
 
+// The sparkles and stars are made once and then reused, as starting an animation on a new element makes WebKit lay out the whole page, which made the trail lag. Each is invisible until its turn, and its animation shows it and then fades it out. About two of each five are stars, like before.
+const sparklePool = finePointer.matches && !reducedMotion.matches ? Array.from({length: maximumSparkles}, () => {
+	const isStar = Math.random() < 0.4;
+	const element = cloneTemplate(isStar ? starTemplate : sparkleTemplate);
+	element.style.visibility = 'hidden';
+	document.body.append(element);
+	return {element, isStar, isBusy: false};
+}) : [];
+
 const addSparkle = (x, y) => {
+	const sparkle = sparklePool.find(({isBusy}) => !isBusy);
+	if (!sparkle) {
+		return;
+	}
+
 	// 23 degrees is not a divisor of 360, so the colors do not repeat in a short cycle.
 	hue = (hue + 23) % 360;
-	const isStar = Math.random() < 0.4;
-	const sparkle = cloneTemplate(isStar ? starTemplate : sparkleTemplate);
+	const element = sparkle.element;
 	// Scattered up to 12 pixels around the point, and a little below it, so the trail looks like it falls from the tip of the pointer.
-	sparkle.style.left = `${x + ((Math.random() - 0.5) * 24)}px`;
-	sparkle.style.top = `${y + 12 + ((Math.random() - 0.5) * 24)}px`;
+	element.style.left = `${x + ((Math.random() - 0.5) * 24)}px`;
+	element.style.top = `${y + 12 + ((Math.random() - 0.5) * 24)}px`;
 
 	// The sparkle GIF is yellow, so turning its hue gives every color of the rainbow.
 	const glow = `hsl(${hue} 100% 60%)`;
-	if (isStar) {
-		sparkle.style.color = glow;
-		sparkle.style.textShadow = `0 0 8px ${glow}, 0 0 16px ${glow}`;
+	if (sparkle.isStar) {
+		element.style.color = glow;
+		element.style.textShadow = `0 0 8px ${glow}, 0 0 16px ${glow}`;
 	} else {
 		const size = 40 + (Math.random() * 40);
-		sparkle.style.width = `${size}px`;
-		sparkle.style.height = 'auto';
-		sparkle.style.filter = `hue-rotate(${hue - 50}deg) saturate(4) drop-shadow(0 0 6px ${glow})`;
+		element.style.width = `${size}px`;
+		element.style.height = 'auto';
+		element.style.filter = `hue-rotate(${hue - 50}deg) saturate(4) drop-shadow(0 0 6px ${glow})`;
 	}
 
-	removeWhenDone(sparkle, () => {
-		sparkleCount--;
-	});
+	// The style has the animation, so a reused sparkle only restarts it, without a new element.
+	element.style.visibility = 'visible';
+	sparkle.isBusy = true;
 
-	sparkleCount++;
-	document.body.append(sparkle);
+	const [animation] = element.getAnimations();
+	if (!animation) {
+		sparkle.isBusy = false;
+		element.style.visibility = 'hidden';
+		return;
+	}
+
+	animation.currentTime = 0;
+	animation.play();
+	animation.finished.then(() => {
+		sparkle.isBusy = false;
+		element.style.visibility = 'hidden';
+	}, () => {
+		sparkle.isBusy = false;
+	});
 };
 
 // Each letter moves a part of the way to the letter in front of it on each frame, so the word trails behind the pointer like a snake. The frames stop when the letters have caught up.
@@ -166,10 +191,7 @@ document.addEventListener('pointermove', event => {
 
 	followPointer(event.clientX, event.clientY);
 
-	if (
-		sparkleCount >= maximumSparkles
-		|| (lastSparkle && Math.hypot(event.clientX - lastSparkle.x, event.clientY - lastSparkle.y) < sparkleSpacing)
-	) {
+	if (lastSparkle && Math.hypot(event.clientX - lastSparkle.x, event.clientY - lastSparkle.y) < sparkleSpacing) {
 		return;
 	}
 
@@ -192,7 +214,7 @@ document.addEventListener('pointerdown', event => {
 		return;
 	}
 
-	for (let index = 0; index < 8 && sparkleCount < maximumSparkles; index++) {
+	for (let index = 0; index < 8; index++) {
 		const angle = (index / 8) * Math.PI * 2;
 		addSparkle(event.clientX + (Math.cos(angle) * 30), event.clientY + (Math.sin(angle) * 30));
 	}

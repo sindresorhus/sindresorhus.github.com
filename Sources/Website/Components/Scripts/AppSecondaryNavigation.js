@@ -1,3 +1,5 @@
+import {elementForFragment} from '/scripts/dom.js';
+
 class AppSecondaryNavigation extends HTMLElement {
 	// Stops the observers and the listeners of the page when the element is removed, so connecting it again does not add them twice.
 	#abortController;
@@ -48,13 +50,7 @@ class AppSecondaryNavigation extends HTMLElement {
 		const links = [...this.querySelectorAll('[data-part="sectionLink"]')];
 
 		// The heading of the section that each link goes to, found once, as the scroll spy updates often.
-		const headingOf = new Map(links.map(link => {
-			try {
-				return [link, document.getElementById(decodeURIComponent(link.hash.slice(1)))];
-			} catch {
-				return [link, undefined];
-			}
-		}));
+		const headingOf = new Map(links.map(link => [link, elementForFragment(link.hash)]));
 
 		// In the order of the page, which `findLast` needs.
 		const headings = [...new Set(headingOf.values().filter(Boolean))].sort((first, second) => first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);

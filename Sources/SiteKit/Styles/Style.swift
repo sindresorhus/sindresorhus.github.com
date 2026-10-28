@@ -29,9 +29,9 @@ public struct Style: Sendable {
 	var children = [StyleNode]()
 
 	/**
-	Whether the nested rules are in a scope of the element. See ``scoped()``.
+	The scope of the element that the nested rules are in, or `nil` when they are not scoped. See ``scoped(until:)``.
 	*/
-	private var isScoped = false
+	private var scope: Scope?
 
 	/**
 	The keyframes and the registered custom properties that the style and its conditions use, so a stylesheet with the style also has them. They are written after the rule of the style, not in it (``nodes(selector:)``).
@@ -41,26 +41,33 @@ public struct Style: Sendable {
 	public init() {}
 
 	/**
-	Sets a property. Use it for properties without a modifier.
+	Sets a property. Use it for properties without a modifier. Pass `isImportant: true` to override normal declarations; importance applies only to declarations, not conditions or animations.
 	*/
-	public func declaration(_ property: Property, _ value: CSSValue) -> Self {
+	public func declaration(_ property: Property, _ value: CSSValue, isImportant: Bool = false) -> Self {
 		var copy = self
-		copy.declarations.append(Declaration(property: property, value: value))
+		copy.declarations.append(Declaration(property: property, value: value, isImportant: isImportant))
 		return copy
 	}
 
 	/**
 	Sets a property from a typed value without converting it at the call site.
 	*/
-	public func declaration(_ property: Property, _ value: some StyleValue) -> Self {
-		declaration(property, CSSValue(value))
+	public func declaration(_ property: Property, _ value: some StyleValue, isImportant: Bool = false) -> Self {
+		declaration(property, CSSValue(value), isImportant: isImportant)
 	}
 
 	/**
 	Sets a property to a keyword, like ``Display/grid``.
 	*/
-	public func declaration(_ property: Property, _ keyword: some CSSKeyword) -> Self {
-		declaration(property, CSSValue(keyword))
+	public func declaration(_ property: Property, _ keyword: some CSSKeyword, isImportant: Bool = false) -> Self {
+		declaration(property, CSSValue(keyword), isImportant: isImportant)
+	}
+
+	/**
+	Uses the parent's value for the whole property (`inherit` in CSS). Inheritance cannot be composed inside a length, color, or font stack.
+	*/
+	public func inherits(_ property: Property) -> Self {
+		declaration(property, .inherit)
 	}
 
 	/**
@@ -86,11 +93,23 @@ public struct Style: Sendable {
 	}
 
 	/**
-	Puts the style and its nested rules in a scope of the element, like `@scope (…)` in CSS. When two scoped rules have the same specificity, the rule of the closer element wins, whatever their order. Use it for styles of markup that components do not own, like typography for Markdown, where an alert inside prose should win over the prose.
+	A scope of an element, like `@scope (…) to (…)` in CSS.
 	*/
-	public func scoped() -> Self {
+	private struct Scope: Sendable {
+		/**
+		The elements where the scope stops: the rules do not apply to them or to what is inside them.
+		*/
+		var limit: CSSSelector?
+	}
+
+	/**
+	Puts the style and its nested rules in a scope of the element, like `@scope (…)` in CSS. When two scoped rules have the same specificity, the rule of the closer element wins, whatever their order. Use it for styles of markup that components do not own, like typography for Markdown, where an alert inside prose should win over the prose.
+
+	- Parameter limit: The elements where the scope stops, like `@scope (…) to (…)` in CSS, so the rules do not apply to them or to what is inside them, like a component inside prose that has the look of a page and not of the text.
+	*/
+	public func scoped(until limit: CSSSelector? = nil) -> Self {
 		var copy = self
-		copy.isScoped = true
+		copy.scope = Scope(limit: limit)
 		return copy
 	}
 
@@ -99,24 +118,24 @@ public struct Style: Sendable {
 	*/
 	func nodes(selector: CSSSelector) -> [StyleNode] {
 		guard
-			isScoped,
+			let scope,
 			!declarations.isEmpty || !children.isEmpty
 		else {
-			return [.block(selector.description, declarations: declarations, children: children)] + definitions
+			return [.block(.selector(selector), declarations: declarations, children: children)] + definitions
 		}
 
-		return [.block("@scope (\(selector))", children: [.block(":scope", declarations: declarations, children: children)])] + definitions
+		return [.block(.scope(selector, until: scope.limit), children: [.block(.selector(":scope"), declarations: declarations, children: children)])] + definitions
 	}
 
 	/**
-	The style with the declarations and conditions of another style added, like a custom view modifier that is a value. The result is scoped when either style is scoped.
+	The style with the declarations and conditions of another style added, like a custom view modifier that is a value. The result is scoped when either style is scoped, with the scope of this style when both are.
 	*/
 	public func combined(with other: Self) -> Self {
 		var copy = self
 		copy.declarations += other.declarations
 		copy.children.append(merging: other.children)
 		copy.definitions += other.definitions
-		copy.isScoped = isScoped || other.isScoped
+		copy.scope = scope ?? other.scope
 		return copy
 	}
 
@@ -124,46 +143,34 @@ public struct Style: Sendable {
 	Styles for a nested selector, like CSS nesting: `&` is this element (`"&:first-child"`, `"& > li"`), and a selector without `&` matches descendants (`".icon"`).
 	*/
 	public func nested(_ selector: CSSSelector, _ content: (Self) -> Self) -> Self {
-		block(selector.description, content)
+		block(.selector(selector), content)
 	}
 
 	/**
 	Styles that apply when the media query matches.
 	*/
 	public func media(_ query: MediaQuery, _ content: (Self) -> Self) -> Self {
-		block("@media \(query)", content)
+		block(.media(query), content)
 	}
 
 	/**
 	Styles that apply when the browser supports a feature, like `.supports(.scrollTimeline)`.
 	*/
 	public func supports(_ feature: BrowserFeature, _ content: (Self) -> Self) -> Self {
-		block("@supports \(feature)", content)
+		block(.supports(feature), content)
 	}
 
 	/**
 	The styles an element transitions from when it appears, like when it stops being hidden.
 	*/
 	public func startingStyle(_ content: (Self) -> Self) -> Self {
-		block("@starting-style", content)
-	}
-
-	/**
-	Marks the declarations in the closure `!important`. Only plain declarations can be important, not conditions or animations.
-	*/
-	public func important(_ content: (Self) -> Self) -> Self {
-		let style = content(Self())
-		precondition(style.children.isEmpty && style.definitions.isEmpty, "Only plain declarations can be important.")
-
-		var copy = self
-		copy.declarations += style.declarations.map { Declaration(property: $0.property, value: .important($0.value)) }
-		return copy
+		block(.startingStyle, content)
 	}
 
 	/**
 	A nested block with the style of the closure: a rule for a nested selector, like `&:hover`, or a condition, like `@media (…)`. Both are blocks in CSS, with the same nesting.
 	*/
-	private func block(_ prelude: String, _ content: (Self) -> Self) -> Self {
+	private func block(_ prelude: StyleNode.Prelude, _ content: (Self) -> Self) -> Self {
 		let style = content(Self())
 		var copy = self
 		copy.children.append(merging: [.block(prelude, declarations: style.declarations, children: style.children)])
@@ -438,16 +445,32 @@ extension Style {
 	Styles for the direct children that match the selector, like `children("li")` for `& > li`. A list of selectors, like `children("p, label")`, is in `:is()`, as `& > p, label` would match a `label` at any depth. So the list cannot have a pseudo-element.
 	*/
 	public func children(_ selector: CSSSelector, _ content: (Self) -> Self) -> Self {
-		nested(selector.description.contains(",") ? "& > :is(\(selector))" : "& > \(selector)", content)
+		nested("& > \(selector.groupedForCombinator)", content)
+	}
+
+	/**
+	Styles for when the element is a direct child of an element that matches the selector, like a block directly in the text, but not in a list of it: `selector > &`. A list of selectors is in `:is()`, so it cannot have a pseudo-element.
+	*/
+	public func directlyInside(_ parent: CSSSelector, _ content: (Self) -> Self) -> Self {
+		nested("\(parent.groupedForCombinator) > &", content)
+	}
+
+	/**
+	Styles for when the element is inside an element that matches the selector, also with other elements between them, like a shortcut in a table cell: `selector &`. A list of selectors is in `:is()`, so it cannot have a pseudo-element.
+	*/
+	public func inside(_ ancestor: CSSSelector, _ content: (Self) -> Self) -> Self {
+		nested("\(ancestor.groupedForCombinator) &", content)
 	}
 
 	/**
 	Styles for the descendants that match the selector, without specificity, so a component inside wins, like the elements of prose: `& :where(selector)`. The selector can be a list, like `descendants("ul, ol")`.
 
 	The selector cannot have a pseudo-element, as `:where()` cannot match one. Style it inside, like `descendants("li") { $0.before { … } }`.
+
+	The selector is a ``DescendantSelector``: a string literal of elements and attributes, so a selector of a component, like `\(CodeBlock.Styles.root.selector)`, is a compile error here. A rule without specificity loses to the own rule of the component, so the component gets its look where it is used, with `.style { … }`. Only a style that is meant to get the rule without specificity is interpolated, with `\(class: …)`, like `"pre, \(class: CodeBlock.Styles.root)"` for a margin that a code block gets in prose, but loses to its own margin.
 	*/
-	public func descendants(_ selector: CSSSelector, _ content: (Self) -> Self) -> Self {
-		nested("& :where(\(selector))", content)
+	public func descendants(_ selector: DescendantSelector, _ content: (Self) -> Self) -> Self {
+		nested("& :where(\(selector.selector))", content)
 	}
 
 	/**
@@ -464,5 +487,39 @@ extension Style {
 	*/
 	public func onPageRoot(_ content: (Self) -> Self) -> Self {
 		nested(":root:has(&)", content)
+	}
+}
+
+/**
+The selector of ``Style/descendants(_:_:)``: elements and attributes, like `"ul, ol"` or `"img:not([src$='/icon.png'])"`. A string literal cannot interpolate a selector (``StyleSet/selector``), as the class of a component has its own rule that wins over a rule without specificity. Only a style that is meant to get styles without specificity is interpolated, with a label that says so, like `"pre, \(class: CodeBlock.Styles.root)"`. No style uses it yet.
+*/
+public struct DescendantSelector: ExpressibleByStringInterpolation, Sendable {
+	fileprivate let selector: CSSSelector
+
+	public init(stringLiteral value: String) {
+		self.selector = CSSSelector(stringLiteral: value)
+	}
+
+	public init(stringInterpolation: StringInterpolation) {
+		self.selector = "\(raw: stringInterpolation.selector)"
+	}
+
+	public struct StringInterpolation: StringInterpolationProtocol {
+		fileprivate var selector = ""
+
+		public init(literalCapacity: Int, interpolationCount: Int) {
+			selector.reserveCapacity(literalCapacity)
+		}
+
+		public mutating func appendLiteral(_ literal: String) {
+			selector += literal
+		}
+
+		/**
+		The class of a style that gets the styles without specificity, so its own rules win where they set the same property, like a code block in prose.
+		*/
+		public mutating func appendInterpolation(class style: some StyleSet) {
+			selector += style.selector.description
+		}
 	}
 }

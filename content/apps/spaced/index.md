@@ -1,12 +1,17 @@
 ---
 title: 'Spaced'
 subtitle: 'Organize your menu bar items into groups'
-publicationDate: '2023-01-20'
+publicationDate: 2023-01-20
 platforms: [
 	'macOS'
 ]
 isMenuBarApp: true
 appStoreID: 1666327168
+nonAppStoreVersion: {
+	version: '1.3.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/spty4pij7c9geahzhzubx/Spaced-1.3.0-1774258825.zip?rlkey=fboyvze8lg2boa5fcs3kai0rr&raw=1'
+}
 olderVersions: [
 	{
 		version: '1.2.0'
@@ -24,14 +29,27 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/13852708/Spaced.1.0.4.-.macOS.13.zip'
 	}
 ]
-nonAppStoreVersion: {
-	version: '1.3.0'
-	macOS: 26
-	url: 'https://www.dropbox.com/scl/fi/spty4pij7c9geahzhzubx/Spaced-1.3.0-1774258825.zip?rlkey=fboyvze8lg2boa5fcs3kai0rr&raw=1'
-}
+pressQuotes: [
+	{
+		quote: 'Developer Sindre Sorhus remains busy in the new year and has released his first project of 2023 with the menu bar app Spaced. The app aims to bring more order and clarity to the menu bar.'
+		source: 'ifun.de'
+		translatedFrom: 'German'
+		url: 'https://www.ifun.de/mini-app-spaced-bringt-ordnung-in-die-menueleiste-202673/'
+		year: 2023
+	}
+	{
+		quote: 'The (very) prolific developer Sindre Sorhus has built Spaced, an app whose job is to add separators to the menu bar to create groups of icons.'
+		source: 'Compétence Mac'
+		translatedFrom: 'French'
+		url: 'https://competencemac.com/mac-classez-les-icones-de-la-barre-des-menus-par-groupes/'
+		year: 2023
+	}
+]
 ---
 
 Add separators to your menu bar, so related items sit together in groups.
+
+Click a separator and choose “New” to add another one. To move a separator, hold ++Command++ and drag it.
 
 It is particularly beneficial on larger screens where menu bar space is ample, as opposed to smaller laptop screens with limited space.
 
@@ -46,18 +64,20 @@ It is particularly beneficial on larger screens where menu bar space is ample, a
 
 Spacer positions are saved and restored by macOS, not the app. Menu bar manager apps like Bartender, Ice, and Thaw are known to interfere with this. Try quitting any such app and see if positions are then saved correctly.
 
-### Can the app let me hide and show menu bar items?
+### Can the app let me hide and show menu bar items? {#can-the-app-let-me-hide-and-show-menu-bar-items}
 
-That is out of scope for this app. You want something like [Bartender](https://www.macbartender.com) or [Hidden Bar](https://apps.apple.com/app/hidden-bar/id1452453066?mt=12).
+That is out of scope for this app. You want something like [Thaw](https://www.getthaw.app) or [Bartender](https://www.macbartender.com).
+
+On macOS 26 and later, you can also turn off the menu bar items of apps in “System Settings › Menu Bar”, in the “Allow in the Menu Bar” section. This hides them completely, so it does not let you show them when you need them.
 
 ### Can you support more separator characters and wider spacers? {#custom-separator}
 
 Already supported, but hidden for now because of a macOS alignment bug with characters padded by spaces. Hold ++Option+Shift++ while clicking the menu bar icon to be able to specify custom separator.
 
-### Can the app support changing the distance between menu bar items?
+### Can the app support changing the distance between menu bar items? {#can-the-app-support-changing-the-distance-between-menu-bar-items}
 
 You can do that with my [Menu Bar Spacing](/menu-bar-spacing) app.
 
-### Can the app also support grouping icons in the Dock?
+### Can the app also support grouping icons in the Dock? {#can-the-app-also-support-grouping-icons-in-the-dock}
 
 You can do that with my [Supercharge](/supercharge) app.

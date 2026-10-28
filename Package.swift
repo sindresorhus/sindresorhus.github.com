@@ -23,21 +23,25 @@ let package = Package(
 		.executable(name: "website", targets: ["WebsiteCLI"]),
 	],
 	dependencies: [
-		.package(url: "https://github.com/elementary-swift/elementary.git", exact: "0.8.2"),
+		.package(url: "https://github.com/elementary-swift/elementary.git", exact: "0.8.4"),
 		// A fork with footnotes, cmark extensions like autolinks, and GitHub alerts, which upstream does not have yet.
 		.package(url: "https://github.com/sindresorhus/swift-markdown.git", branch: "sindre-improvements"),
-		.package(url: "https://github.com/soml-lang/SOMLSwift.git", exact: "0.0.1"),
+		.package(url: "https://github.com/soml-lang/SOMLSwift.git", exact: "0.0.2"),
 		.package(url: "https://github.com/apple/swift-argument-parser.git", exact: "1.8.2"),
 		.package(url: "https://github.com/swiftlang/swift-syntax.git", "600.0.0"..<"605.0.0"),
 	],
 	targets: [
 		.target(
 			name: "RSS",
+			dependencies: [
+				.product(name: "SOML", package: "SOMLSwift"),
+			],
 			swiftSettings: swiftSettings
 		),
 		.macro(
 			name: "SiteKitMacros",
 			dependencies: [
+				.product(name: "SwiftParser", package: "swift-syntax"),
 				.product(name: "SwiftSyntax", package: "swift-syntax"),
 				.product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
 				.product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
@@ -67,6 +71,7 @@ let package = Package(
 				"SiteKit",
 				.product(name: "Elementary", package: "elementary"),
 				.product(name: "Markdown", package: "swift-markdown"),
+				.product(name: "SOML", package: "SOMLSwift"),
 			],
 			// The scripts of the elements, next to their Swift files. The build reads them from the sources (`ElementScript`), so a change shows in the preview without building the tool again. Each folder must be listed, as SwiftPM has no patterns, and a list made with `FileManager` would miss new folders, since SwiftPM caches the evaluated manifest.
 			exclude: [
@@ -89,7 +94,10 @@ let package = Package(
 		),
 		.testTarget(
 			name: "RSSTests",
-			dependencies: ["RSS"],
+			dependencies: [
+				"RSS",
+				.product(name: "SOML", package: "SOMLSwift"),
+			],
 			swiftSettings: swiftSettings
 		),
 		// The helpers that several test targets use.
@@ -105,6 +113,7 @@ let package = Package(
 				"TestSupport",
 				.product(name: "Elementary", package: "elementary"),
 				.product(name: "Markdown", package: "swift-markdown"),
+				.product(name: "SOML", package: "SOMLSwift"),
 			],
 			swiftSettings: swiftSettings
 		),
@@ -129,6 +138,11 @@ let package = Package(
 				"TestSupport",
 				"Website",
 				.product(name: "Elementary", package: "elementary"),
+				.product(name: "Markdown", package: "swift-markdown"),
+				.product(name: "SOML", package: "SOMLSwift"),
+				// The guards of the sources find the declared hooks and states with the parser of Swift.
+				.product(name: "SwiftParser", package: "swift-syntax"),
+				.product(name: "SwiftSyntax", package: "swift-syntax"),
 			],
 			swiftSettings: swiftSettings
 		),

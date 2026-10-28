@@ -17,7 +17,9 @@ enum FAQDirectives {
 	*/
 	enum Platforms: HeadingDirective {
 		static let name = "faq.platforms"
-		typealias Value = [Platform]
+		static func decode(values: [String]) throws -> [Platform] {
+			try values.map { try Platform(validating: $0) }
+		}
 	}
 
 	/**
@@ -26,24 +28,18 @@ enum FAQDirectives {
 	enum Pinned: HeadingDirective {
 		static let name = "faq.pinned"
 
-		struct Value: Decodable {
-			let rank: Int
-
-			init(from decoder: any Decoder) throws {
-				var values = try decoder.unkeyedContainer()
-
-				guard values.count == 1 else {
-					throw DecodingError.dataCorruptedError(in: values, debugDescription: "It needs one rank, like `<!-- @faq.pinned 1 -->`.")
-				}
-
-				let text = try values.decode(String.self)
-
-				guard let rank = Int(text) else {
-					throw DecodingError.dataCorruptedError(in: values, debugDescription: "The rank must be a number, like `<!-- @faq.pinned 1 -->`, got “\(text)”.")
-				}
-
-				self.rank = rank
+		static func decode(values: [String]) throws -> Int {
+			guard values.count == 1 else {
+				throw ContentError(reason: "It needs one rank, like `<!-- @faq.pinned 1 -->`.")
 			}
+
+			let text = values[0]
+
+			guard let rank = Int(text) else {
+				throw ContentError(reason: "The rank must be a number, like `<!-- @faq.pinned 1 -->`, got “\(text)”.")
+			}
+
+			return rank
 		}
 	}
 

@@ -5,7 +5,7 @@ import Foundation
 Embeds an encodable value as JSON in a `<script>` element, either as data for a page script or an element, or as schema.org structured data.
 
 ```swift
-JSONScript(id: "app-data", appData)
+JSONScript(id: ElementID("app-data"), appData)
 JSONScript(part: Parts.questions, questions)
 JSONScript(structuredData: person)
 ```
@@ -18,7 +18,7 @@ public struct JSONScript: HTML, Sendable {
 	/**
 	Data for a page script to read with `JSON.parse(document.querySelector('#id').textContent)`.
 	*/
-	public init(id: String, _ value: some Encodable) {
+	public init(id: ElementID, _ value: some Encodable) {
 		self.type = "application/json"
 		self.attribute = .id(id)
 		self.json = Self.encode(value)

@@ -2,14 +2,14 @@
 isArchived: true
 title: 'Jiffy'
 subtitle: 'Discover & share the best GIFs'
-publicationDate: '2020-03-25'
+publicationDate: 2020-03-25
 platforms: [
 	'macOS'
 ]
+minimumOSVersion: '27'
 isMenuBarApp: true
 appStoreID: 1502527999
 hasSentry: true
-minimumOSVersion: 27
 # olderVersions: [
 # 	{
 # 		version: '2.5.0',
@@ -32,6 +32,15 @@ minimumOSVersion: 27
 # 		url: 'https://github.com/sindresorhus/meta/files/6626336/Jiffy.1.3.3.-.macOS.10.15.zip',
 # 	},
 # ]
+pressQuotes: [
+	{
+		quote: 'The free download searches the seemingly endless Giphy archive for your keywords, shows the animated results in a scrollable image overview, and lets you copy the images or drag and drop them into the Messages app.'
+		source: 'ifun.de'
+		translatedFrom: 'German'
+		url: 'https://www.ifun.de/jiffy-gif-schnellsuche-in-der-mac-menueleiste-153557/'
+		year: 2020
+	}
+]
 ---
 
 **Jiffy is no longer available because Giphy removed their free API.**
@@ -119,7 +128,7 @@ You can also set a global keyboard shortcut to show/hide the app in “Settings 
 
 Click the feedback button in the app or [send it here.](https://sindresorhus.com/feedback?product=Jiffy&referrer=Website-FAQ) -->
 
-### Why the name “Jiffy”?
+### Why the name “Jiffy”? {#why-the-name-jiffy}
 
 Some people incorrectly pronounce GIF as “Jif”. The name is a pun on that. Also, “Jiffy” means to do something fast, which is what the app is all about.
 

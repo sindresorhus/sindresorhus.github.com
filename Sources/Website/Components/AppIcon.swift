@@ -37,13 +37,13 @@ struct AppIcon: HTML {
 	/**
 	The ID of the image, for a script that changes the image, like the googly eyes of the Googly Eyes page.
 	*/
-	var imageID: any ScriptHookSet?
+	var imageID: ElementID?
 
 	init(
 		_ app: App,
 		size: Int,
 		isAboveFold: Bool = false,
-		imageID: any ScriptHookSet? = nil
+		imageID: ElementID? = nil
 	) {
 		self.path = app.iconPath
 		self.jpegXL = app.iconJPEGXL
@@ -81,10 +81,15 @@ struct AppIcon: HTML {
 	}
 
 	private var image: some HTML<HTMLTag.img> {
-		img(.src(path), .width(size), .height(size), .alt(title.map { "\($0) app icon" } ?? ""))
+		img(
+			.src(path),
+			.width(size),
+			.height(size),
+			.alt(title.map { "\($0) app icon" } ?? "")
+		)
 			.attributes(.fetchPriority(.high), when: isAboveFold)
 			.attributes(.lazyLoading, when: !isAboveFold)
-			.attributes(.id(imageID?.id ?? ""), when: imageID != nil)
+			.attributes(optional: imageID.map { .id($0) })
 			.style(Styles.image)
 	}
 
@@ -105,7 +110,7 @@ struct AppIcon: HTML {
 				Style()
 					.display(.block)
 					.frame(height: .auto, maxWidth: .percent(100))
-					.margin(0)
+					.margin(.zero)
 					.clipShape(inset: .percent(1.2), cornerRadius: .percent(22.5))
 			}
 		}

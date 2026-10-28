@@ -1,22 +1,28 @@
+import {cloneTemplate} from '/scripts/dom.js';
+import {searchKey, closest} from '/scripts/edit-distance.js';
+import {intendedDomain} from '/scripts/email-typos.js';
+
 const {apps} = JSON.parse(document.querySelector('#feedback-data').textContent);
 const parameters = new URLSearchParams(location.search);
 const productParameter = parameters.get('product');
 
-// The app is found by its title or its slug (the URL path), in any case, like `supercharge` for “Supercharge”.
+// The app is found by one of its names, in any case, like `supercharge` for “Supercharge”, or the name that the app sends, like “Color Picker” for “System Color Picker”.
 const productName = productParameter?.toLowerCase();
-const app = apps.find(app => app.title.toLowerCase() === productName || app.slug === productName);
+const app = apps.find(candidate => candidate.names.some(name => name.toLowerCase() === productName));
 const product = app?.title ?? productParameter;
 
-// Clones the content of a `<template>` in the page, like `'#success-template'`. The selector is written whole, so the tests find the ID.
-function cloneTemplate(selector) {
-	return document.querySelector(selector).content.firstElementChild.cloneNode(true);
-}
+// The details that the app sent, like its version. After the first load, they are only in the state of the history entry (`addHiddenFields`).
+const appMetadata = parameters.get('metadata') ?? history.state?.metadata;
+
+// The parameters that stay when the visitor picks another app, like `referrer`, but not the app and the `metadata` of the app that sent it. Limitation: the text that the visitor typed is not kept, so “Change App” loses it.
+const keptParameters = new URLSearchParams(parameters);
+keptParameters.delete('product');
+keptParameters.delete('metadata');
 
 // --- Success page ---
 
+// The page shows the message from the HTML, when the script in the head marks the page, so it does not wait for this script.
 function showSuccess() {
-	document.querySelector('#main').replaceChildren(cloneTemplate('#success-template'));
-
 	setTimeout(() => {
 		location.href = '/apps';
 	}, 10_000);
@@ -29,12 +35,17 @@ function showProduct() {
 	const productNameElement = document.querySelector('#product-name');
 	productNameElement.textContent = product;
 	productNameElement.hidden = false;
+
+	const changeAppLink = document.querySelector('#change-app-link');
+	changeAppLink.search = keptParameters;
+	changeAppLink.hidden = false;
 	document.querySelector('#app-picker').hidden = true;
 	const form = document.querySelector('#feedback-form');
-	form.hidden = false;
-	document.querySelector('#before-you-write').hidden = false;
 
-	// The form is hidden when the page loads, so `autofocus` is not reliable. Like `autofocus`, it leaves the focus where the visitor already put it. The page does not scroll to the message, so the app and the notes above it stay in view.
+	// The notes and the form show now, together with the app and its notes, which this script adds above the form, so the message field does not move after it shows. The browser does not draw before this function ends.
+	document.documentElement.setAttribute('data-product-shown', '');
+
+	// The form is hidden until the script in the head marks the page, so `autofocus` is not reliable. Like `autofocus`, it leaves the focus where the visitor already put it. The page does not scroll to the message, so the app and the notes above it stay in view.
 	if (document.activeElement === document.body) {
 		form.elements.message.focus({preventScroll: true});
 	}
@@ -46,9 +57,10 @@ function showProduct() {
 	// The suggestions include the questions of the app.
 	document.querySelector('#faq-suggestions').setAttribute('app', app.title);
 
-	const icon = document.querySelector('#app-icon');
+	const iconTemplate = document.querySelector('#app-icon-template');
+	const icon = cloneTemplate(iconTemplate);
 	icon.src = app.iconURL;
-	icon.hidden = false;
+	iconTemplate.replaceWith(icon);
 	// The browser tab shows the icon of the app.
 	document.querySelector('link[rel="icon"]')?.setAttribute('href', app.iconURL);
 
@@ -56,16 +68,16 @@ function showProduct() {
 
 	if (app.repositoryURL) {
 		const searchParameters = new URLSearchParams({
-			body: `<!--\nProvide your feedback below. Include as many details as possible.\n-->\n\n\n\n---\n${parameters.get('metadata') ?? ''}`.trim(),
+			body: `<!--\nProvide your feedback below. Include as many details as possible.\n-->\n\n\n\n---\n${appMetadata ?? ''}`.trim(),
 		});
 
-		const paragraph = cloneTemplate('#repository-template');
+		const paragraph = cloneTemplate(document.querySelector('#repository-template'));
 		paragraph.querySelector('[data-repository-link]').href = `${app.repositoryURL}/issues/new?${searchParameters}`;
 		additionalInformation.append(paragraph);
 	}
 
 	if (app.faqURL) {
-		const paragraph = cloneTemplate('#app-faq-template');
+		const paragraph = cloneTemplate(document.querySelector('#app-faq-template'));
 		paragraph.querySelector('[data-app-faq-link]').href = app.faqURL;
 		additionalInformation.append(paragraph);
 	}
@@ -73,6 +85,21 @@ function showProduct() {
 	// HTML that the site generator rendered from the Markdown of the app, not visitor input.
 	if (app.feedbackNote) {
 		additionalInformation.insertAdjacentHTML('beforeend', `<div>${app.feedbackNote}</div>`);
+	}
+}
+
+// --- The app picker ---
+
+// The links to the form of each app keep the parameters of the page, like the ones that the “Change App” link keeps, so a `referrer` of the page wins over the one of the picker.
+function keepParametersInAppPicker() {
+	for (const link of document.querySelectorAll('#app-picker a[href^="/feedback?"]')) {
+		const url = new URL(link.href);
+
+		for (const [key, value] of keptParameters) {
+			url.searchParams.set(key, value);
+		}
+
+		link.href = url;
 	}
 }
 
@@ -124,10 +151,9 @@ async function environmentInfo() {
 	// The OS name in the user agent string is frozen in modern browsers, so `userAgentData.platform` comes first.
 	const platform = navigator.userAgentData?.platform ?? detectPlatform();
 
-	// Safari 26 and later uses the OS version as its version on all Apple platforms. WebKitGTK fakes a high version to pass browser checks, so other platforms are left out.
-	const isApplePlatform = ['macOS', 'iOS'].includes(platform);
+	// On iOS, Safari 26 and later has the version of the OS. Not on macOS, as Safari 26 also comes for macOS 14 and 15. WebKitGTK fakes a high version to pass browser checks, so other platforms are left out.
 	const safari = navigator.userAgent.match(/Version\/([\d.]+).*Safari/);
-	const safariOSVersion = isApplePlatform && safari && Number.parseInt(safari[1], 10) >= 26 ? safari[1] : undefined;
+	const safariOSVersion = platform === 'iOS' && safari && Number.parseInt(safari[1], 10) >= 26 ? safari[1] : undefined;
 
 	// Windows reports the version of `Windows.Foundation.UniversalApiContract` instead of the OS version, and Linux reports nothing.
 	const platformVersion = ['macOS', 'iOS', 'Android', 'Chrome OS'].includes(platform) ? highEntropy?.platformVersion : undefined;
@@ -175,7 +201,8 @@ function addHiddenField(form, name, value) {
 }
 
 async function addHiddenFields(form) {
-	addHiddenField(form, 'timestamp', Date.now());
+	// The time is set when the form is sent.
+	addHiddenField(form, 'timestamp', '');
 
 	// Every URL parameter is sent along, and some fill in the form.
 	for (const [key, value] of parameters) {
@@ -189,128 +216,224 @@ async function addHiddenFields(form) {
 		} else if (key === 'product') {
 			// The real title of the app, also when the link has its slug or another case.
 			addHiddenField(form, key, product);
-		} else {
+		} else if (key !== 'metadata' && !form.elements.namedItem(key)) {
+			// Not a parameter with the name of a field of the form, like `email` or `timestamp`, as a second field with the name would replace the value of the visitor, and `form.elements.email` would be a list.
 			addHiddenField(form, key, value);
 		}
 	}
 
-	if (parameters.has('metadata')) {
-		// The metadata is in the form now, so it is removed from the visible URL.
-		const url = new URL(location.href);
-		url.searchParams.delete('metadata');
-		history.replaceState(history.state, '', url);
+	if (appMetadata) {
+		addHiddenField(form, 'metadata', appMetadata);
+
+		// The metadata is in the form now, so it is removed from the visible URL. It stays in the state of the history entry, so a reload, or a tab that the browser loads again, still sends it.
+		if (parameters.has('metadata')) {
+			const url = new URL(location.href);
+			url.searchParams.delete('metadata');
+			history.replaceState({...history.state, metadata: appMetadata}, '', url);
+		}
 	} else {
-		// Apps send their own metadata. Otherwise, the environment of the browser is sent. It is added last, as it waits for the browser, so the fields above are filled before the visitor starts typing.
-		addHiddenField(form, 'metadata', await environmentInfo());
+		// Apps send their own metadata. Otherwise, the environment of the browser is sent. It is added last, as it waits for the browser, so the fields above are filled before the visitor starts typing. If a detail fails, the user agent is still sent, as it has most of the details.
+		const metadata = await environmentInfo().catch(error => {
+			console.error('Could not get the environment details:', error);
+			return `User agent: ${navigator.userAgent}`;
+		});
+
+		addHiddenField(form, 'metadata', metadata);
 	}
 }
 
 // --- Email typos ---
 
 function setUpEmailTypoDetection(emailInput) {
-	const domainTypos = {
-		'gmial.com': 'gmail.com',
-		'gmal.com': 'gmail.com',
-		'gmil.com': 'gmail.com',
-		'gnail.com': 'gmail.com',
-		'gamil.com': 'gmail.com',
-		'gmai.com': 'gmail.com',
-		'gmail.co': 'gmail.com',
-		'gmail.cm': 'gmail.com',
-		'gmaill.com': 'gmail.com',
-		'gmaul.com': 'gmail.com',
-		'gmeil.com': 'gmail.com',
-		'yaho.com': 'yahoo.com',
-		'yahooo.com': 'yahoo.com',
-		'yhaoo.com': 'yahoo.com',
-		'yaoo.com': 'yahoo.com',
-		'yahol.com': 'yahoo.com',
-		'hotmial.com': 'hotmail.com',
-		'hotmai.com': 'hotmail.com',
-		'hotmil.com': 'hotmail.com',
-		'homail.com': 'hotmail.com',
-		'hotmali.com': 'hotmail.com',
-		'outlok.com': 'outlook.com',
-		'outloook.com': 'outlook.com',
-		'iclould.com': 'icloud.com',
-		'icoud.com': 'icloud.com',
-		'iclod.com': 'icloud.com',
-	};
-
-	const topLevelDomainTypos = {
-		'.con': '.com',
-		'.cmo': '.com',
-		'.ocm': '.com',
-		'.ney': '.net',
-	};
-
-	const warningFor = email => {
+	// While the visitor types, an address can look incorrect only because it is not complete yet, like `anna@fastm`, so it is judged incorrect only when the field is done (`isDone`). A likely typo, like `gmial.com`, shows at once.
+	const warningFor = (email, {isDone}) => {
 		const atIndex = email.lastIndexOf('@');
 		if (atIndex === -1) {
 			return;
 		}
 
+		const incorrectWarning = isDone ? 'Your email address looks incorrect.' : undefined;
 		const localPart = email.slice(0, atIndex);
 		if (localPart.endsWith('-') || localPart.startsWith('.') || localPart.endsWith('.') || localPart.includes('..')) {
-			return 'Your email address looks incorrect.';
+			return incorrectWarning;
 		}
 
 		const domain = email.slice(atIndex + 1).toLowerCase();
-		// Only its own keys, as `constructor` is an inherited property of every object.
-		if (Object.hasOwn(domainTypos, domain)) {
-			return `Did you mean ${email.slice(0, atIndex + 1)}${domainTypos[domain]}?`;
+		const intended = intendedDomain(domain);
+
+		if (!intended) {
+			return incorrectWarning;
 		}
 
-		for (const [typo, correction] of Object.entries(topLevelDomainTypos)) {
-			if (domain.endsWith(typo)) {
-				return `Did you mean ${email.slice(0, atIndex + 1)}${domain.slice(0, -typo.length)}${correction}?`;
-			}
+		if (intended !== domain) {
+			return suggestion(`${email.slice(0, atIndex + 1)}${intended}`);
 		}
 	};
 
 	const emailWarning = document.querySelector('#email-warning');
 	let timer;
 
+	// “Did you mean …?” with the corrected address as a button, which puts it in the field.
+	const suggestion = address => {
+		const element = cloneTemplate(document.querySelector('#email-suggestion-template'));
+		const button = element.querySelector('[data-suggested-email]');
+		button.textContent = address;
+		button.addEventListener('click', () => {
+			clearTimeout(timer);
+			emailInput.value = address;
+			emailWarning.replaceChildren();
+			// The button is gone, so the focus goes back to the field.
+			emailInput.focus();
+		});
+
+		return element;
+	};
+
+	const showWarning = ({isDone}) => {
+		clearTimeout(timer);
+		emailWarning.replaceChildren(warningFor(emailInput.value.trim(), {isDone}) ?? '');
+	};
+
 	emailInput.addEventListener('input', () => {
-		emailWarning.textContent = '';
+		emailWarning.replaceChildren();
 		clearTimeout(timer);
 
 		timer = setTimeout(() => {
-			emailWarning.textContent = warningFor(emailInput.value.trim()) ?? '';
+			showWarning({isDone: false});
 		}, 600);
+	});
+
+	// When the visitor leaves the field. A suggestion that already shows stays, as the focus can leave the field for its button, which would be gone before the click.
+	emailInput.addEventListener('change', () => {
+		if (!emailWarning.textContent) {
+			showWarning({isDone: true});
+		}
 	});
 }
 
-if (location.search === '?success') {
+// --- The filter of the app picker ---
+
+function setUpAppFilter() {
+	const filter = document.querySelector('#app-filter');
+	const status = document.querySelector('#app-filter-status');
+	const list = document.querySelector('[data-app-filter-text]').parentElement;
+
+	// The text is the name and the subtitle of the app. The item only shows the name. In the alphabetical order of the page.
+	const items = [...document.querySelectorAll('[data-app-filter-text]')].map(item => ({item, textKey: searchKey(item.dataset.appFilterText), titleKey: searchKey(item.textContent)}));
+	let shownItems = items;
+
+	/*
+	An app matches when its name or its subtitle has each word, like “menu cal” for “Menu Bar Calendar”, also without spaces, like “menubar” (`searchKey`). The apps whose name has the words come first, as visitors mostly type the name, so “menu bar” shows Menu Bar Calendar before the apps that are about the menu bar.
+
+	When no app matches, the app whose name is closest shows instead, like “Gifski” for “gifksi” (`closest`).
+	*/
+	const update = () => {
+		const words = filter.value.split(/\s+/).map(word => searchKey(word)).filter(Boolean);
+		const matches = items.filter(({textKey}) => words.every(word => textKey.includes(word)));
+		const nameMatches = matches.filter(({titleKey}) => words.every(word => titleKey.includes(word)));
+		const closestItem = matches.length === 0 ? closest(words.join(''), items, {key: ({titleKey}) => titleKey}) : undefined;
+		shownItems = matches.length > 0 ? [...nameMatches, ...matches.filter(match => !nameMatches.includes(match))] : [closestItem].filter(Boolean);
+
+		const hiddenItems = items.filter(entry => !shownItems.includes(entry));
+
+		for (const entry of hiddenItems) {
+			entry.item.hidden = true;
+		}
+
+		for (const entry of shownItems) {
+			entry.item.hidden = false;
+		}
+
+		// The shown apps in their order, and the hidden ones after them, so screen readers and the keyboard follow the order too.
+		list.append(...shownItems.map(({item}) => item), ...hiddenItems.map(({item}) => item));
+
+		status.textContent = shownItems.length > 0 ? '' : 'No app matches. Check the spelling, or try another word.';
+	};
+
+	filter.addEventListener('input', update);
+
+	// Enter opens the first app that shows, like a search. Not while an input method composes a word, or without a filter.
+	filter.addEventListener('keydown', event => {
+		if (event.key === 'Enter' && !event.isComposing && filter.value.trim()) {
+			shownItems[0]?.item.querySelector('a').click();
+		}
+	});
+
+	// Firefox restores the text of the field when the visitor comes back to the page.
+	update();
+}
+
+// The script in the head marks the page after a send.
+if (document.documentElement.hasAttribute('data-sent')) {
 	showSuccess();
 } else {
 	const form = document.querySelector('#feedback-form');
 
 	if (product) {
 		showProduct();
+	} else {
+		keepParametersInAppPicker();
+		setUpAppFilter();
 	}
 
-	addHiddenFields(form).catch(error => {
+	// It fills the fields from the link at once, like the email address, which the check below needs, and adds the environment of the browser when the browser has it.
+	const hiddenFieldsAdded = addHiddenFields(form).catch(error => {
 		console.error('Could not add the hidden fields:', error);
 	});
 	setUpEmailTypoDetection(form.elements.email);
 
-	// An address from the link, like from an app, is checked too, as setting the value fires no `input` event.
+	// An address from the link, like from an app, is checked too, as setting the value fires no `change` event.
 	if (parameters.has('emailField')) {
-		form.elements.email.dispatchEvent(new Event('input'));
+		form.elements.email.dispatchEvent(new Event('change'));
 	}
 
-	// The disabled button shows “Sending…”.
+	// The button shows “Sending…” while the form sends.
 	const submitButton = document.querySelector('#submit-button');
+	const enableSubmitButton = () => {
+		submitButton.disabled = false;
+		delete submitButton.dataset.state;
+	};
+
+	// Limitation: when the visitor stops the send, like with the Stop button of the browser, the button stays disabled with “Sending…” until the page loads again, as no event says that the navigation stopped.
 	form.addEventListener('submit', () => {
+		// The time of the send, not of the page load, as the visitor can write for a long time, and the page can come back from the back/forward cache hours later.
+		form.elements.timestamp.value = Date.now();
 		submitButton.disabled = true;
+		submitButton.dataset.state = 'sending';
 	});
 
-	// The page can come back with the button disabled, with the form state that Firefox restores (before this script runs) or from the back/forward cache. The first `pageshow` is left out, as it can come after a submit when the page loads slowly.
-	submitButton.disabled = false;
+	// The button is disabled in the HTML until this script has added the hidden fields, like the app and the environment of the browser, which waits for the browser. The page can also come back with it disabled from the back/forward cache. The first `pageshow` is left out, as it can come after a submit when the page loads slowly.
+	hiddenFieldsAdded.then(enableSubmitButton);
+
+	// The script in the head sets it when the message was sent. A page that the browser loads again, like after Back without the back/forward cache, starts without it. Limitation: a browser that puts the text of the fields back in a page that it loads again keeps the sent text there.
+	const sentKey = 'feedback-sent';
+	try {
+		sessionStorage.removeItem(sentKey);
+	} catch {
+		// Without storage, like with blocked site data, the form keeps its text after Back.
+	}
+
 	window.addEventListener('pageshow', event => {
-		if (event.persisted) {
-			submitButton.disabled = false;
+		if (!event.persisted) {
+			return;
+		}
+
+		enableSubmitButton();
+
+		// After Back from the sent message, the form is emptied, so the visitor does not send the same message again. A send that failed, like when the browser is offline, keeps the text.
+		let isSent = false;
+		try {
+			isSent = sessionStorage.getItem(sentKey) !== null;
+			sessionStorage.removeItem(sentKey);
+		} catch {
+			// Without storage, the form keeps its text.
+		}
+
+		if (isSent) {
+			form.reset();
+			// Like a change of the visitor, so the related help and the email warning go away.
+			form.elements.message.dispatchEvent(new Event('input'));
+			form.elements.email.dispatchEvent(new Event('input'));
 		}
 	});
 }

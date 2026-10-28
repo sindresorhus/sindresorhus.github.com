@@ -90,7 +90,13 @@ struct GeoCitiesWorldCup: ScriptedElement {
 
 	private var tv: some HTML {
 		div {
-			canvas(.part(Parts.canvas), .width(640), .height(480), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.canvas),
+				.width(640),
+				.height(480),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The TV in the living room, with the match and the family in the sofa. Press Space or Enter, or tap the TV, to kick, and hold it to fill a meter. The arrow keys aim a shot, set a meter, or pick where the keeper dives.")
 				.style(Styles.canvas)
 
@@ -266,11 +272,11 @@ struct GeoCitiesWorldCup: ScriptedElement {
 		case shiny
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		Which sticker a canvas of the album draws, like `flo`.
 		*/
-		case sticker = "data-world-cup-sticker"
+		case sticker = "world-cup-sticker"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -321,8 +327,8 @@ struct GeoCitiesWorldCup: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(640.0 / 480.0)
-					.border(Color("#5a3a1a"), width: .pixels(3), style: .inset)
-					.background(Color("#3a2a1a"))
+					.border(Color(raw: "#5a3a1a"), width: .pixels(3), style: .inset)
+					.background(Color(raw: "#3a2a1a"))
 					.touchAction(.manipulation)
 					.handCursor()
 					.when(States.play) {
@@ -344,7 +350,7 @@ struct GeoCitiesWorldCup: ScriptedElement {
 				// The big red button, held down to fill a meter.
 				Style()
 					.frame(minWidth: .rootEm(8), minHeight: .rootEm(2.75))
-					.background(Color("#cc0000"))
+					.background(Color(raw: "#cc0000"))
 					.color(.white)
 					.fontFamily(GeoCitiesPage.impact)
 					.letterSpacing(.em(0.05))
@@ -353,8 +359,8 @@ struct GeoCitiesWorldCup: ScriptedElement {
 					.buttonFocusRing(.white)
 					.when(States.on) {
 						$0
-							.background(Color("#800000"))
-							.border(Color("#400000"), width: .pixels(2), style: .inset)
+							.background(Color(raw: "#800000"))
+							.border(Color(raw: "#400000"), width: .pixels(2), style: .inset)
 					}
 			case .controls:
 				Style().vstack(spacing: .rootEm(0.5))
@@ -362,10 +368,10 @@ struct GeoCitiesWorldCup: ScriptedElement {
 				Style().vstack(spacing: .rootEm(0.25))
 			case .groupTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#800000"))
+					.color(Color(raw: "#800000"))
 			case .buttons:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
@@ -379,8 +385,8 @@ struct GeoCitiesWorldCup: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.375))
 					.padding(.rootEm(0.625))
-					.background(Color("#dde8ff"))
-					.border(Color("#000080"), width: .pixels(2), style: .solid)
+					.background(Color(raw: "#dde8ff"))
+					.border(Color(raw: "#000080"), width: .pixels(2), style: .solid)
 			case .stickers:
 				Style()
 					.grid(minimumColumnWidth: .rootEm(4.5))
@@ -389,18 +395,25 @@ struct GeoCitiesWorldCup: ScriptedElement {
 				// An empty place has a dashed outline, like in the album. An earned sticker sits in it, and a shiny one glows.
 				Style()
 					.vstack(spacing: .rootEm(0.25))
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.25))
 					.background(.white)
-					.border(Color("#8080a0"), width: .pixels(2), style: .dashed)
+					.border(Color(raw: "#8080a0"), width: .pixels(2), style: .dashed)
 					.when(States.earned) {
-						$0.border(Color("#cc0000"), width: .pixels(2), style: .solid)
+						$0.border(Color(raw: "#cc0000"), width: .pixels(2), style: .solid)
 					}
 					.when(States.shiny) {
 						$0
-							.border(Color("#c0a000"), width: .pixels(2), style: .solid)
-							.backgroundImage(.linearGradient("135deg", Color("#fff8c0"), Color("#ffffff"), Color("#ffe080")))
-							.shadow(Shadow(y: .pixels(0), blur: .pixels(8), color: Color("#ffd700")))
+							.border(Color(raw: "#c0a000"), width: .pixels(2), style: .solid)
+							.backgroundImage(
+								.linearGradient(
+									.angle(.degrees(135)),
+									Color(raw: "#fff8c0"),
+									Color(raw: "#ffffff"),
+									Color(raw: "#ffe080")
+								)
+							)
+							.shadow(BoxShadow(y: .pixels(0), blur: .pixels(8), color: Color(raw: "#ffd700")))
 					}
 			case .stickerCanvas:
 				Style()
@@ -416,47 +429,52 @@ struct GeoCitiesWorldCup: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.875))
-					.background(Color("#f3eedf"))
-					.color(Color("#111111"))
-					.border(Color("#999080"), width: .pixels(1), style: .solid)
-					.shadow(Shadow(x: .pixels(3), y: .pixels(3), color: Color("#00000040")))
+					.background(Color(raw: "#f3eedf"))
+					.color(Color(raw: "#111111"))
+					.border(Color(raw: "#999080"), width: .pixels(1), style: .solid)
+					.shadow(BoxShadow(x: .pixels(3), y: .pixels(3), color: Color(raw: "#00000040")))
 					.fontFamily(GeoCitiesPage.times)
 			case .masthead:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textAlign(.center)
 					.fontFamily(GeoCitiesPage.times)
 					.textStyle(.title, weight: .bold)
 					.letterSpacing(.em(0.04))
 			case .dateline:
 				Style()
-					.margin(0)
-					.padding(vertical: .rootEm(0.125), horizontal: 0)
-					.border([.top, .bottom], Color("#111111"), width: .pixels(1), style: .solid)
+					.margin(.zero)
+					.padding(vertical: .rootEm(0.125), horizontal: .zero)
+					.border(
+						[.top, .bottom],
+						Color(raw: "#111111"),
+						width: .pixels(1),
+						style: .solid
+					)
 					.textAlign(.center)
 					.textStyle(.caption)
 			case .headline:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.impact)
 					.textStyle(.largeTitle)
-					.color(Color("#c00000"))
+					.color(Color(raw: "#c00000"))
 					.textCase(.uppercase)
 					.lineHeight(1.05)
 			case .subhead:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.lead, weight: .bold)
 			case .photoFigure:
 				Style()
 					.vstack(spacing: .rootEm(0.25))
-					.margin(0)
+					.margin(.zero)
 			case .photo:
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(320.0 / 192.0)
-					.border(Color("#111111"), width: .pixels(1), style: .solid)
+					.border(Color(raw: "#111111"), width: .pixels(1), style: .solid)
 			case .photoCaption:
 				Style()
 					.textStyle(.caption, weight: .bold)
@@ -470,10 +488,10 @@ struct GeoCitiesWorldCup: ScriptedElement {
 					.padding(.leading, .rootEm(1.25))
 			case .translation:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.italic()
 					.textStyle(.caption)
-					.color(Color("#555555"))
+					.color(Color(raw: "#555555"))
 			}
 		}
 	}

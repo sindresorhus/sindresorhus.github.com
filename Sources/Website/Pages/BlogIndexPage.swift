@@ -12,6 +12,10 @@ struct BlogIndexPage: Page {
 		.blog
 	}
 
+	var sitemapEntry: SitemapEntry {
+		posts.listSitemapEntry
+	}
+
 	var metadata: PageMetadata {
 		PageMetadata(
 			title: "Blog",
@@ -21,12 +25,12 @@ struct BlogIndexPage: Page {
 
 	var body: some HTML {
 		section {
-			PageHeader(title: "Blog")
+			PageHeader(title: "Blog", intro: "Posts about open source, programming, and making apps.")
 
 			ul {
 				for post in posts {
 					li {
-						BlogPostRow(post: post)
+						ArticleRow(.post(post))
 					}
 				}
 			}

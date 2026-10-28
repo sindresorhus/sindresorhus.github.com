@@ -24,15 +24,78 @@ struct GeoCitiesMailOrder: ScriptedElement {
 	The ads, in the order of the page. The script knows them by the ID, and has what really comes in the mail.
 	*/
 	private static let ads = [
-		Ad(id: "sea-monkeys", headline: "Amazing Live Sea-Monkeys!", pitch: "Own a bowlful of happiness! A whole royal family that lives, plays, and obeys your commands. Instant life: just add water!", price: 49, finePrint: "With Water Purifier, Instant Life Eggs, and Growth Food. Guaranteed to hatch!", picture: "A happy family of Sea-Monkeys with crowns, in a fish bowl."),
-		Ad(id: "x-ray-specs", headline: "X-Ray Specs", pitch: "See the bones in your hand! See through walls, and see the HTML of any web page! Amaze your friends!", price: 29, finePrint: "Scientific optical principle really works. Not for driving.", picture: "A boy with X-Ray Specs, who sees the bones of his hand."),
-		Ad(id: "chia", headline: "Ch-ch-ch-Chia Pet!", pitch: "The pottery that grows! Spread the seeds, add water, and in days your ram has a coat of lush green hair.", price: 79, finePrint: "Handmade clay planter. Seeds included.", picture: "A clay ram with a thick coat of green hair."),
-		Ad(id: "whoopee", headline: "Whoopee Cushion", pitch: "Hide it on a chair and wait! The rudest noise in the world, when anyone sits down. Hours of fun at family dinners!", price: 15, finePrint: "Real rubber. Blow it up yourself.", picture: "A man who jumps up from a chair, with “PFFFRRT!” in big letters."),
-		Ad(id: "buzzer", headline: "Joy Buzzer", pitch: "Shake hands and SHOCK your friends! Wind it up, hide it in your palm, and BZZZT! Totally harmless!", price: 19, finePrint: "Spring power. No batteries.", picture: "Two hands that shake, with lightning bolts."),
-		Ad(id: "onion-gum", headline: "Onion Gum", pitch: "Looks like real spearmint gum. Tastes like a raw ONION! Offer a stick and watch their faces!", price: 10, finePrint: "5 sticks per pack.", picture: "A pack of gum, and a girl with a green face."),
-		Ad(id: "crystals", headline: "Grow Your Own Crystals", pitch: "A glittering crystal castle in only 24 hours! Real science on your windowsill!", price: 39, finePrint: "Magic crystal powder and growing rock included.", picture: "A tall, glittering castle of crystals."),
-		Ad(id: "draw", headline: "Draw Me!", pitch: "Do you have talent? Draw Tippy the turtle and mail it in for a FREE professional art test. You may win a scholarship!", price: 0, finePrint: "No fee. No obligation. Just a stamp.", picture: "Tippy, a turtle in a cap, with a pencil."),
-		Ad(id: "hovercraft", headline: "Real Hovercraft: Only 99 Kroner!", pitch: "Ride on a cushion of air over land, snow, and water! Faster than a moped! Complete and ready for adventure!", price: 99, finePrint: "*Plans only. Motor, plywood, skirt, and fan not included.", picture: "A boy on a hovercraft that flies over a lake, with spray."),
+		Ad(
+			id: "sea-monkeys",
+			headline: "Amazing Live Sea-Monkeys!",
+			pitch: "Own a bowlful of happiness! A whole royal family that lives, plays, and obeys your commands. Instant life: just add water!",
+			price: 49,
+			finePrint: "With Water Purifier, Instant Life Eggs, and Growth Food. Guaranteed to hatch!",
+			picture: "A happy family of Sea-Monkeys with crowns, in a fish bowl."
+		),
+		Ad(
+			id: "x-ray-specs",
+			headline: "X-Ray Specs",
+			pitch: "See the bones in your hand! See through walls, and see the HTML of any web page! Amaze your friends!",
+			price: 29,
+			finePrint: "Scientific optical principle really works. Not for driving.",
+			picture: "A boy with X-Ray Specs, who sees the bones of his hand."
+		),
+		Ad(
+			id: "chia",
+			headline: "Ch-ch-ch-Chia Pet!",
+			pitch: "The pottery that grows! Spread the seeds, add water, and in days your ram has a coat of lush green hair.",
+			price: 79,
+			finePrint: "Handmade clay planter. Seeds included.",
+			picture: "A clay ram with a thick coat of green hair."
+		),
+		Ad(
+			id: "whoopee",
+			headline: "Whoopee Cushion",
+			pitch: "Hide it on a chair and wait! The rudest noise in the world, when anyone sits down. Hours of fun at family dinners!",
+			price: 15,
+			finePrint: "Real rubber. Blow it up yourself.",
+			picture: "A man who jumps up from a chair, with “PFFFRRT!” in big letters."
+		),
+		Ad(
+			id: "buzzer",
+			headline: "Joy Buzzer",
+			pitch: "Shake hands and SHOCK your friends! Wind it up, hide it in your palm, and BZZZT! Totally harmless!",
+			price: 19,
+			finePrint: "Spring power. No batteries.",
+			picture: "Two hands that shake, with lightning bolts."
+		),
+		Ad(
+			id: "onion-gum",
+			headline: "Onion Gum",
+			pitch: "Looks like real spearmint gum. Tastes like a raw ONION! Offer a stick and watch their faces!",
+			price: 10,
+			finePrint: "5 sticks per pack.",
+			picture: "A pack of gum, and a girl with a green face."
+		),
+		Ad(
+			id: "crystals",
+			headline: "Grow Your Own Crystals",
+			pitch: "A glittering crystal castle in only 24 hours! Real science on your windowsill!",
+			price: 39,
+			finePrint: "Magic crystal powder and growing rock included.",
+			picture: "A tall, glittering castle of crystals."
+		),
+		Ad(
+			id: "draw",
+			headline: "Draw Me!",
+			pitch: "Do you have talent? Draw Tippy the turtle and mail it in for a FREE professional art test. You may win a scholarship!",
+			price: 0,
+			finePrint: "No fee. No obligation. Just a stamp.",
+			picture: "Tippy, a turtle in a cap, with a pencil."
+		),
+		Ad(
+			id: "hovercraft",
+			headline: "Real Hovercraft: Only 99 Kroner!",
+			pitch: "Ride on a cushion of air over land, snow, and water! Faster than a moped! Complete and ready for adventure!",
+			price: 99,
+			finePrint: "*Plans only. Motor, plywood, skirt, and fan not included.",
+			picture: "A boy on a hovercraft that flies over a lake, with spray."
+		),
 	]
 
 	/**
@@ -56,7 +119,12 @@ struct GeoCitiesMailOrder: ScriptedElement {
 			bank
 			comicBook
 
-			div(.part(Parts.mamma), .role("alertdialog"), .custom(name: "aria-describedby", value: "geocities-mail-order-mamma-text"), .hidden) {
+			div(
+				.part(Parts.mamma),
+				.role("alertdialog"),
+				.custom(name: "aria-describedby", value: "geocities-mail-order-mamma-text"),
+				.hidden
+			) {
 				p(.id("geocities-mail-order-mamma-text"), .part(Parts.mammaText)) {}
 					.style(Styles.mammaText)
 
@@ -176,7 +244,12 @@ struct GeoCitiesMailOrder: ScriptedElement {
 			div {
 				for ad in Self.ads {
 					article(.hook(Hooks.ad, value: ad.id), .hook(Hooks.price, value: "\(ad.price)")) {
-						canvas(.part(Parts.art), .width(480), .height(300), .role("img")) {}
+						canvas(
+							.part(Parts.art),
+							.width(480),
+							.height(300),
+							.role("img")
+						) {}
 							.accessibilityLabel(ad.picture)
 							.style(Styles.art)
 
@@ -233,7 +306,13 @@ struct GeoCitiesMailOrder: ScriptedElement {
 
 	private var kitchenTable: some HTML {
 		div {
-			canvas(.part(Parts.tableCanvas), .width(360), .height(240), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.tableCanvas),
+				.width(360),
+				.height(240),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The kitchen table. With a coupon, drag the scissors along the dashed line, or press Space to cut. With a package, press Space to tear the paper, and then the arrow keys and Space to pop the bubble wrap.")
 				.style(Styles.canvas, Styles.tableCanvas)
 
@@ -258,7 +337,13 @@ struct GeoCitiesMailOrder: ScriptedElement {
 
 	private var mailbox: some HTML {
 		div {
-			canvas(.part(Parts.mailboxCanvas), .width(360), .height(240), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.mailboxCanvas),
+				.width(360),
+				.height(240),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The mailbox outside the house, in the rain. Press Enter to check the mailbox.")
 				.style(Styles.canvas, Styles.mailboxCanvas)
 
@@ -293,7 +378,13 @@ struct GeoCitiesMailOrder: ScriptedElement {
 					.style(GeoCitiesPage.Styles.smallButton)
 			}
 
-			canvas(.part(Parts.stuffCanvas), .width(640), .height(360), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.stuffCanvas),
+				.width(640),
+				.height(360),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The thing from the mail. Use the buttons under it, drag on it, or move with the arrow keys and press Space. Hold Shift with the arrow keys to drag. To draw, press Space first.")
 				.style(Styles.canvas, Styles.stuffCanvas)
 
@@ -390,16 +481,16 @@ struct GeoCitiesMailOrder: ScriptedElement {
 		case said
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		An ad, with the ID of what it sells.
 		*/
-		case ad = "data-mail-order-ad"
+		case ad = "mail-order-ad"
 
 		/**
 		The price of an ad, in kroner.
 		*/
-		case price = "data-mail-order-price"
+		case price = "mail-order-price"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -445,8 +536,8 @@ struct GeoCitiesMailOrder: ScriptedElement {
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.75))
 					.flexWrap()
 					.padding(.rootEm(0.5))
-					.background(Color("#ffe4ec"))
-					.border(Color("#cc6688"), width: .pixels(2), style: .ridge)
+					.background(Color(raw: "#ffe4ec"))
+					.border(Color(raw: "#cc6688"), width: .pixels(2), style: .ridge)
 			case .piggy:
 				// The piggy bank shakes while it pays, or while a coin goes in.
 				Style()
@@ -457,7 +548,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 					}
 			case .bankLabel:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.body, weight: .bold)
 			case .comic:
@@ -465,9 +556,9 @@ struct GeoCitiesMailOrder: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.625))
-					.background(Color("#f6ecc8"))
+					.background(Color(raw: "#f6ecc8"))
 					.border(.black, width: .pixels(3))
-					.shadow(Shadow(x: .pixels(4), y: .pixels(4), color: Color("#00000055")))
+					.shadow(BoxShadow(x: .pixels(4), y: .pixels(4), color: Color(raw: "#00000055")))
 					.color(.black)
 			case .masthead:
 				Style()
@@ -484,14 +575,14 @@ struct GeoCitiesMailOrder: ScriptedElement {
 					.grid(minimumColumnWidth: .rootEm(12))
 					.gap(.rootEm(0.625))
 					.children("*") {
-						$0.frame(minWidth: 0)
+						$0.frame(minWidth: .zero)
 					}
 			case .ad:
 				// A box of the ad page, with a black frame like the panels of a comic.
 				Style()
 					.vstack(spacing: .rootEm(0.375))
 					.padding(.rootEm(0.5))
-					.background(Color("#fffbe8"))
+					.background(Color(raw: "#fffbe8"))
 					.border(.black, width: .pixels(2))
 			case .art:
 				Style()
@@ -502,31 +593,31 @@ struct GeoCitiesMailOrder: ScriptedElement {
 			case .headline:
 				// The loud headline of an ad.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.impact)
 					.font(.extraLarge)
 					.lineHeight(1)
 					.fontWeight(.regular)
 					.textCase(.uppercase)
-					.color(Color("#d40000"))
-					.textShadow(Shadow(x: .pixels(1), y: .pixels(1), color: Color("#ffcc00")))
+					.color(Color(raw: "#d40000"))
+					.textShadow(Shadow(x: .pixels(1), y: .pixels(1), color: Color(raw: "#ffcc00")))
 			case .pitch:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.times)
 					.textStyle(.caption)
 			case .price:
 				// A yellow price sticker, a little crooked.
 				Style()
 					.alignSelf(.start)
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-					.background(Color("#ffe100"))
-					.border(Color("#d40000"), width: .pixels(2))
+					.background(Color(raw: "#ffe100"))
+					.border(Color(raw: "#d40000"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.5))
 					.fontFamily(GeoCitiesPage.impact)
 					.textStyle(.body)
-					.color(Color("#d40000"))
+					.color(Color(raw: "#d40000"))
 					.rotationEffect(.degrees(-4))
 			case .coupon:
 				// A coupon with a dashed line to cut along. When it is cut out, a hole in the page is left, and the next page shows through.
@@ -539,43 +630,51 @@ struct GeoCitiesMailOrder: ScriptedElement {
 					.textAlign(.center)
 					.when(States.cut) {
 						$0
-							.background(Color("#c9bfa0"))
-							.border(Color("#8a7f60"), width: .pixels(2), style: .dashed)
-							.shadow(Shadow(x: .pixels(2), y: .pixels(2), blur: .pixels(4), color: Color("#00000066"), isInset: true))
+							.background(Color(raw: "#c9bfa0"))
+							.border(Color(raw: "#8a7f60"), width: .pixels(2), style: .dashed)
+							.shadow(
+								BoxShadow(
+									x: .pixels(2),
+									y: .pixels(2),
+									blur: .pixels(4),
+									color: Color(raw: "#00000066"),
+									isInset: true
+								)
+							)
 							.children("*") {
 								$0.visibility(false)
 							}
 					}
 			case .couponTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.impact)
 					.textStyle(.body)
 					.textCase(.uppercase)
-					.color(Color("#d40000"))
+					.color(Color(raw: "#d40000"))
 			case .finePrint:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.times)
 					.font(size: .rootEm(0.6875), lineHeight: 1.2)
 			case .note:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.font(size: .rootEm(0.75), lineHeight: 1.3)
 					.fontWeight(.bold)
-					.color(Color("#000080"))
+					.color(Color(raw: "#000080"))
 			case .mamma:
 				// Mamma, in a speech bubble.
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.75))
-					.background(Color("#fff0f5"))
-					.border(Color("#aa3366"), width: .pixels(3), style: .double)
+					.background(Color(raw: "#fff0f5"))
+					.border(Color(raw: "#aa3366"), width: .pixels(3), style: .double)
 					.cornerRadius(.rootEm(1))
 			case .mammaText:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.body, weight: .bold)
 			case .desk:
@@ -583,7 +682,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 					.grid(minimumColumnWidth: .rootEm(16))
 					.gap(.rootEm(1))
 					.children("*") {
-						$0.frame(minWidth: 0)
+						$0.frame(minWidth: .zero)
 					}
 			case .panel:
 				Style().vstack(spacing: .rootEm(0.5))
@@ -591,7 +690,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.background(.black)
 					.canvasFocusRing()
 			case .tableCanvas:
@@ -619,7 +718,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 			case .status:
 				// No room before the first message, so no empty gray waits under the buttons, and then room for two lines, so the window does not jump between messages.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
 					.when(States.said) {
@@ -629,7 +728,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 				// Empty until there is news of the money, so it takes no room until then.
 				Style()
 					.frame(width: .percent(100))
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
@@ -637,7 +736,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 				// Over everything, and never in the way of the pointer.
 				Style()
 					.position(.fixed)
-					.inset(0)
+					.inset(.zero)
 					.frame(size: .percent(100))
 					.zIndex(2000)
 					.allowsHitTesting(false)

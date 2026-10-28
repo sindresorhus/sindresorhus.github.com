@@ -1,8 +1,7 @@
 ---
 title: 'Text Lens'
 subtitle: 'Copy unselectable text on screen'
-publicationDate: '2025-03-29'
-isFeatured: true
+publicationDate: 2025-03-29
 platforms: [
 	'macOS'
 ]
@@ -19,7 +18,6 @@ olderVersions: [
 		url: 'https://www.dropbox.com/scl/fi/fl9johm8g2xpnkwb2476z/Text-Lens-1.2.0-macOS-15-1774364288.zip?rlkey=mz0uyd26aimispnl21uqaix32&raw=1'
 	}
 ]
-feedbackNote: '[It made a mistake or the detection quality could be improved.](/text-lens#quality)'
 pressQuotes: [
 	{
 		quote: 'There are many ways to copy text that can’t be easily selected, but few that are as simple and fast as Text Lens […]'
@@ -27,18 +25,27 @@ pressQuotes: [
 		url: 'https://lifehacker.com/tech/text-lens-can-copy-any-text-from-mac-screen'
 		year: 2025
 	}
+	{
+		quote: 'Developer Sindre Sorhus’s new app extracts text from any area where it cannot be selected. […] Text Lens brings this feature to your Mac and much more.'
+		source: 'Compétence Mac'
+		translatedFrom: 'French'
+		url: 'https://competencemac.com/macos-extraire-du-texte-depuis-nimporte-quelle-source-avec-text-lens/'
+		year: 2025
+	}
 ]
+feedbackNote: '[It made a mistake or the detection quality could be improved.](/text-lens#quality)'
 ---
 
 Copy the text you cannot select, in images, videos, PDFs, presentations, or anywhere on your screen. Select an area, and get text you can paste and edit.
 
 **Features**
 
-- Extract text from anywhere on your screen
+- Extract text from anywhere on your screen with OCR
 - Scan QR codes and barcodes
 - Capture by simply clicking the menu bar icon
 - Works completely offline
-- Global keyboard shortcut to activate capture
+- Global keyboard shortcuts to capture text, and to extract text from an image on the clipboard or in a file
+- Shortcuts action to capture text and use it in a shortcut
 - Extract text from images on clipboard or files
 - Extract text directly from photo taken with iPhone/iPad camera
 - Drag and drop images onto menu bar icon to extract text
@@ -47,7 +54,7 @@ Copy the text you cannot select, in images, videos, PDFs, presentations, or anyw
 	- Enables doing multiple captures and copy as a single text
 - [Privacy focused](#privacy)
 
-#### Supported languages
+#### Supported languages {#supported-languages}
 
 - English
 - French
@@ -94,7 +101,7 @@ Everything is done locally on your device. Nothing leaves your device. The app i
 
 You can set up a keyboard shortcut that captures text and immediately searches Google (or any service) with it:
 
-Add [this shortcut](https://www.icloud.com/shortcuts/8075578b214e48f9aa3c9b271c8084ae) to the Shortcuts app and then assign a keyboard shortcut to it in the Shortcuts app.
+Add the [“Capture & Search” shortcut](https://www.icloud.com/shortcuts/8075578b214e48f9aa3c9b271c8084ae) to the Shortcuts app and then assign a keyboard shortcut to it in the Shortcuts app.
 
 You can adapt this to search any service (DuckDuckGo, Wikipedia, translate, etc.) by changing the URL.
 
@@ -108,13 +115,13 @@ When you set the “After Capture” setting to “Show in Window” (or “Copy
 
 ## Frequently Asked Questions {#faq}
 
-### Why does the app require screen recording permission?
+### Why does the app require screen recording permission? {#why-does-the-app-require-screen-recording-permission}
 
 macOS requires screen recording permission for any app that reads pixels from the screen. The app needs this to extract text from the areas you manually select. It only captures those specific regions — never your entire screen, never continuously. Nothing ever leaves your device. The app has no network access and cannot connect to the internet.
 
 ### Why do I keep seeing screen recording permission reminders? {#screen-recording-reminders}
 
-This is a macOS 15 bug. Apple added a system that occasionally reminds you which apps have screen recording access. It’s supposed to appear every 90 days, but some users see it constantly due to a bug in macOS 15.3 and later. This affects many apps, not just this app.
+This is a bug in macOS 15.3 and later, so it only affects the [older version of Text Lens](#older-versions) for macOS 15. Apple added a system that occasionally reminds you which apps have screen recording access. It’s supposed to appear every 90 days, but because of the bug, some users see it constantly. This affects many apps, not just this app.
 
 Workaround:
 - Open the Terminal app.
@@ -127,19 +134,19 @@ defaults write ~/Library/Group\ Containers/group.com.apple.replayd/ScreenCapture
 
 Some apps block screen capture at the system level, for example DRM-protected video and Citrix Workspace. macOS then returns a blank image instead of their content, so there is no text to extract. This affects everything on macOS, including the built-in screenshot tool, and cannot be worked around by any app.
 
-### How is this different from macOS built-in Live Text?
+### How is this different from macOS built-in Live Text? {#how-is-this-different-from-macos-built-in-live-text}
 
 While macOS Live Text works well for images and photos in supported apps, Text Lens works everywhere on your screen. You can capture text from videos, webpages, presentations, or any app, even when Live Text is not available. Text Lens also works with non-image content like UI elements and rendered text that Live Text can’t detect.
 
-### Can I use the app offline?
+### Can I use the app offline? {#can-i-use-the-app-offline}
 
 Yes. Text recognition runs locally on your Mac. No internet connection is required.
 
-### Can I capture text in multiple languages at once?
+### Can I capture text in multiple languages at once? {#can-i-capture-text-in-multiple-languages-at-once}
 
 Yes. The app can extract text in different languages simultaneously from the same capture. For example, you can capture a region containing both English and Chinese text, and both will be recognized correctly. The language setting is simply a hint to improve the recognition.
 
-### Does the app preserve text formatting when copying?
+### Does the app preserve text formatting when copying? {#does-the-app-preserve-text-formatting-when-copying}
 
 No, only plain text is captured. Formatting like italics, bold, or underlines is not preserved when copying text.
 
@@ -150,6 +157,11 @@ The app uses macOS’s text recognition system, so language support is determine
 ### Can you improve the text detection quality? {#quality}
 
 The app uses macOS’s text recognition engine, so detection quality is determined by your operating system. Since this is handled by macOS, I cannot modify or improve it.
+
+You can help it in two ways:
+
+- To help it read names, brands, or technical terms, add them in “Settings › Advanced › Custom words” (one word on each line).
+- In “Settings › General”, set the “Primary language” to the language of the text.
 
 ### I already own Supercharge. Does this offer any benefits over its similar feature? {#supercharge}
 

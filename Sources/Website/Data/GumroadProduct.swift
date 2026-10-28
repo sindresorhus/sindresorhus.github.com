@@ -2,20 +2,18 @@ import Foundation
 import SiteKit
 
 /**
-The public info of an app on Gumroad (`/l/<id>.json`), like its price and its rating, for the apps that are sold there (`gumroadID`). Gumroad has the ratings of these apps, which are not on the App Store.
+The public info of an app on Gumroad (`/l/<id>.json`), like its price and its rating, for the apps that are sold there (`gumroad`). Gumroad has the ratings of these apps, which are not on the App Store.
 */
 struct GumroadProduct: Decodable {
-	struct Ratings: Decodable {
-		let count: Int
-		let average: Double
-	}
+	/**
+	The price in the currency of the product, which is USD for all the apps. For a product with a price that the buyer can raise, it is the lowest price.
+	*/
+	let price: Price?
 
 	/**
-	The price in cents, like `2000` for $20. For a product with a price that the buyer can raise, it is the lowest price.
+	The rating, when the product has ratings.
 	*/
-	let priceCents: Int
-
-	let ratings: Ratings?
+	let rating: StoreRating?
 
 	enum CodingKeys: String, CodingKey {
 		case priceCents = "price_cents"
@@ -27,22 +25,17 @@ struct GumroadProduct: Decodable {
 	*/
 	static let storeURL = #URL("https://sindresorhus.gumroad.com/l")
 
-	var price: Price {
-		Price(Decimal(priceCents) / 100)
-	}
-
-	/**
-	The rating, when the product has ratings.
-	*/
-	var rating: StoreRating? {
-		guard
-			let ratings,
-			ratings.count > 0
-		else {
-			return nil
+	init(from decoder: any Decoder) throws {
+		struct Ratings: Decodable {
+			let count: Int
+			let average: Double
 		}
 
-		return StoreRating(average: ratings.average, count: ratings.count, store: .gumroad)
+		let container = try decoder.container(keyedBy: CodingKeys.self)
+		let priceCents = try container.decode(Int.self, forKey: .priceCents)
+		let ratings = try container.decodeIfPresent(Ratings.self, forKey: .ratings)
+		self.price = try? Price(amount: Decimal(priceCents) / 100)
+		self.rating = ratings.flatMap { StoreRating(average: $0.average, count: $0.count, store: .gumroad) }
 	}
 
 	/**
@@ -51,20 +44,10 @@ struct GumroadProduct: Decodable {
 	The price is in the currency of the product, which is USD for all the apps.
 	*/
 	static func load(ids: [GumroadProductID], cache: ResponseCache, warnings: WarningCollector) async -> [GumroadProductID: Self] {
-		await withTaskGroup(of: (GumroadProductID, Self?).self) { group in
-			for id in Set(ids) {
-				group.addTask {
-					let url = storeURL.appending(path: "\(id.rawValue).json")
-					do {
-						return (id, try await cache.decoded(Self.self, from: URLRequest(url: url, timeoutInterval: 15)))
-					} catch {
-						warnings.add(Warning(message: "Could not get the Gumroad product “\(id)”, so its app page leaves out its rating: \(error)"))
-						return (id, nil)
-					}
-				}
-			}
-
-			return await group.reduce(into: [:]) { $0[$1.0] = $1.1 }
+		await warnings.values(of: ids) { id in
+			"Could not get the Gumroad product “\(id)”, so its app page leaves out its rating"
+		} request: { id in
+			try await cache.decoded(Self.self, from: storeURL.appending(path: "\(id.rawValue).json"))
 		}
 	}
 }
@@ -72,18 +55,18 @@ struct GumroadProduct: Decodable {
 /**
 The ID of a product on Gumroad, like `shortcutie` in `https://sindresorhus.gumroad.com/l/shortcutie`: lowercase letters, digits, and hyphens.
 */
-struct GumroadProductID: Hashable, CustomStringConvertible {
+struct GumroadProductID: ValidatedValue, Hashable, CustomStringConvertible {
 	let rawValue: String
 
 	/**
-	`nil` for text that is not an ID, like `Test App`.
+	Rejects text that is not an ID, like `Test App`.
 	*/
-	init?(_ rawValue: String) {
+	init(validating rawValue: String) throws(ContentError) {
 		guard
 			!rawValue.isEmpty,
 			rawValue.allSatisfy({ ($0.isASCII && ($0.isLowercase || $0.isNumber)) || $0 == "-" })
 		else {
-			return nil
+			throw ContentError(reason: "A Gumroad product ID is the ID in the link, like `shortcutie`, got `\(rawValue)`.")
 		}
 
 		self.rawValue = rawValue
@@ -98,18 +81,5 @@ struct GumroadProductID: Hashable, CustomStringConvertible {
 	*/
 	var url: URL {
 		GumroadProduct.storeURL.appending(path: rawValue)
-	}
-}
-
-extension GumroadProductID: Decodable {
-	init(from decoder: any Decoder) throws {
-		let container = try decoder.singleValueContainer()
-		let value = try container.decode(String.self)
-
-		guard let id = Self(value) else {
-			throw DecodingError.dataCorruptedError(in: container, debugDescription: "A Gumroad product ID is the ID in the link, like `shortcutie`, got `\(value)`.")
-		}
-
-		self = id
 	}
 }

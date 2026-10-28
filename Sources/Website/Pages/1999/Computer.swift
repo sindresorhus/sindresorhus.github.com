@@ -32,7 +32,12 @@ struct GeoCitiesComputer: ScriptedElement {
 					.style(Styles.ejectButton, GeoCitiesPage.Styles.scriptingOnly)
 
 					div {
-						GeoCitiesPage.GIFImage(gif: .javaCup, alt: "A cup of coffee on the tray", style: .gif, project: project)
+						GeoCitiesPage.GIFImage(
+							gif: .javaCup,
+							alt: "A cup of coffee on the tray",
+							style: .gif,
+							project: project
+						)
 					}
 					.style(Styles.tray)
 				}
@@ -106,7 +111,12 @@ struct GeoCitiesComputer: ScriptedElement {
 
 			p {
 				span {
-					GeoCitiesPage.GIFImage(gif: .computerSmash, alt: "A man fixing his computer with a hammer", style: .gif, project: project)
+					GeoCitiesPage.GIFImage(
+						gif: .computerSmash,
+						alt: "A man fixing his computer with a hammer",
+						style: .gif,
+						project: project
+					)
 				}
 				.style(GeoCitiesPage.Styles.floating, Styles.smash)
 				"Fun fact: on real PCs, the Turbo button made the computer "
@@ -125,7 +135,13 @@ struct GeoCitiesComputer: ScriptedElement {
 		.style(GeoCitiesPage.Styles.windowBody)
 
 		// The screen of the BIOS while the computer restarts. The script moves it to the end of the page, as it covers the whole window, writes the lines one after the other, and any key or click skips to the end.
-		div(.part(Parts.bios), .role("dialog"), .ariaModal, .tabindex(-1), .hidden) {
+		div(
+			.part(Parts.bios),
+			.role("dialog"),
+			.ariaModal,
+			.tabindex(-1),
+			.hidden
+		) {
 			p(.part(Parts.biosText)) {}
 		}
 		.accessibilityLabel("The computer restarts")
@@ -178,11 +194,11 @@ struct GeoCitiesComputer: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.75))
-					.backgroundImage(.linearGradient("to bottom", Color("#f0e9d2"), Color("#d9cfb0")))
-					.border(Color("#f6f0dc"), width: .pixels(3), style: .outset)
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#f0e9d2"), Color(raw: "#d9cfb0")))
+					.border(Color(raw: "#f6f0dc"), width: .pixels(3), style: .outset)
 					.cornerRadius(.rootEm(0.375))
 					.fontFamily(.system)
-					.color(Color("#333333"))
+					.color(Color(raw: "#333333"))
 			case .drive:
 				// A bay of the case, with the slot of the drive.
 				Style()
@@ -190,15 +206,15 @@ struct GeoCitiesComputer: ScriptedElement {
 					.hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(0.5))
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 					.frame(minHeight: .rootEm(2.25))
-					.backgroundImage(.linearGradient("to bottom", Color("#e2d9bc"), Color("#cbc09e")))
-					.border(Color("#a89c78"), width: .pixels(2), style: .inset)
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#e2d9bc"), Color(raw: "#cbc09e")))
+					.border(Color(raw: "#a89c78"), width: .pixels(2), style: .inset)
 					// The tray is out while the drive is open.
 					.descendantPressed {
 						$0.children("div") {
 							$0
 								.visibility(true)
 								.opacity(1)
-								.offset(y: 0)
+								.offset(y: .zero)
 						}
 					}
 			case .label:
@@ -207,14 +223,14 @@ struct GeoCitiesComputer: ScriptedElement {
 					.letterSpacing(.em(0.05))
 			case .ejectButton:
 				Style()
-					.padding(vertical: 0, horizontal: .rootEm(0.5))
-					.background(Color("#d6cba8"))
-					.border(Color("#efe6c8"), width: .pixels(2), style: .outset)
+					.padding(vertical: .zero, horizontal: .rootEm(0.5))
+					.background(Color(raw: "#d6cba8"))
+					.border(Color(raw: "#efe6c8"), width: .pixels(2), style: .outset)
 					.textStyle(.body, weight: .bold)
-					.color(Color("#333333"))
+					.color(Color(raw: "#333333"))
 					.handCursor()
 					.active {
-						$0.border(Color("#efe6c8"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#efe6c8"), width: .pixels(2), style: .inset)
 					}
 			case .tray:
 				// The tray, which is inside the drive until it opens and slides down out of it.
@@ -225,8 +241,8 @@ struct GeoCitiesComputer: ScriptedElement {
 					.zIndex(1)
 					.hstack(alignment: .center, justification: .center)
 					.frame(width: .rootEm(7), height: .rootEm(3.5))
-					.background(Color("#2a2a2a"))
-					.border(Color("#555555"), width: .pixels(2), style: .outset)
+					.background(Color(raw: "#2a2a2a"))
+					.border(Color(raw: "#555555"), width: .pixels(2), style: .outset)
 					.cornerRadius(.rootEm(0.25))
 					.visibility(false)
 					.opacity(0)
@@ -235,7 +251,12 @@ struct GeoCitiesComputer: ScriptedElement {
 						$0.frame(width: .auto, height: .rootEm(3))
 					}
 					.media(.allowsMotion) {
-						$0.transition(.offset, .opacity, .visibility, animation: .easeOut(duration: .milliseconds(400)))
+						$0.transition(
+							.offset,
+							.opacity,
+							.visibility,
+							timing: .easeOut(duration: .milliseconds(400))
+						)
 					}
 			case .front:
 				Style()
@@ -248,11 +269,18 @@ struct GeoCitiesComputer: ScriptedElement {
 				Style()
 					.justifySelf(.start)
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-					.backgroundImage(.linearGradient("to bottom", Color("#ffffff"), Color("#9aa0aa"), Color("#e4e6ea")))
-					.border(Color("#777777"), width: .pixels(1))
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#ffffff"),
+							Color(raw: "#9aa0aa"),
+							Color(raw: "#e4e6ea")
+						)
+					)
+					.border(Color(raw: "#777777"), width: .pixels(1))
 					.fontFamily(GeoCitiesPage.impact)
 					.letterSpacing(.em(0.1))
-					.color(Color("#203060"))
+					.color(Color(raw: "#203060"))
 			case .lights:
 				Style()
 					.hstack(alignment: .center, justification: .end, spacing: .rootEm(0.75))
@@ -267,36 +295,36 @@ struct GeoCitiesComputer: ScriptedElement {
 					.display(.inlineBlock)
 					.frame(size: .rootEm(0.625))
 					.cornerRadius(.percent(50))
-					.background(Color("#4a4a3a"))
-					.border(Color("#777766"), width: .pixels(1))
+					.background(Color(raw: "#4a4a3a"))
+					.border(Color(raw: "#777766"), width: .pixels(1))
 			case .powerLight:
 				Style()
-					.background(Color("#33ff33"))
-					.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#33ff33")))
+					.background(Color(raw: "#33ff33"))
+					.shadow(BoxShadow(y: .zero, blur: .pixels(6), color: Color(raw: "#33ff33")))
 			case .hardDriveLight:
 				Style().when(States.on) {
 					$0
-						.background(Color("#ffaa00"))
-						.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ffaa00")))
+						.background(Color(raw: "#ffaa00"))
+						.shadow(BoxShadow(y: .zero, blur: .pixels(6), color: Color(raw: "#ffaa00")))
 				}
 			case .turboLight:
 				Style().when(States.on) {
 					$0
-						.background(Color("#ffff33"))
-						.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ffff33")))
+						.background(Color(raw: "#ffff33"))
+						.shadow(BoxShadow(y: .zero, blur: .pixels(6), color: Color(raw: "#ffff33")))
 				}
 			case .display:
 				// The red seven-segment display of the speed.
 				Style()
 					.justifySelf(.start)
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-					.background(Color("#1a0000"))
-					.border(Color("#777766"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#1a0000"))
+					.border(Color(raw: "#777766"), width: .pixels(2), style: .inset)
 					.fontFamily(GeoCitiesPage.courier)
 					.font(.large, weight: .bold)
 					.monospacedDigit()
-					.color(Color("#ff2a1a"))
-					.textShadow(Shadow(y: 0, blur: .pixels(4), color: Color("#ff2a1a")))
+					.color(Color(raw: "#ff2a1a"))
+					.textShadow(Shadow(y: .zero, blur: .pixels(4), color: Color(raw: "#ff2a1a")))
 			case .caseButtons:
 				Style()
 					.hstack(alignment: .center, justification: .end, spacing: .rootEm(0.5))
@@ -305,19 +333,19 @@ struct GeoCitiesComputer: ScriptedElement {
 				// A chunky beige button of the case, which stays in while it is on.
 				Style()
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.75))
-					.background(Color("#d6cba8"))
-					.border(Color("#efe6c8"), width: .pixels(3), style: .outset)
+					.background(Color(raw: "#d6cba8"))
+					.border(Color(raw: "#efe6c8"), width: .pixels(3), style: .outset)
 					.textStyle(.caption, weight: .heavy)
 					.letterSpacing(.em(0.08))
-					.color(Color("#333333"))
+					.color(Color(raw: "#333333"))
 					.handCursor()
 					.active {
-						$0.border(Color("#efe6c8"), width: .pixels(3), style: .inset)
+						$0.border(Color(raw: "#efe6c8"), width: .pixels(3), style: .inset)
 					}
 					.pressed {
 						$0
-							.background(Color("#c4b890"))
-							.border(Color("#efe6c8"), width: .pixels(3), style: .inset)
+							.background(Color(raw: "#c4b890"))
+							.border(Color(raw: "#efe6c8"), width: .pixels(3), style: .inset)
 					}
 			case .smash:
 				// Smaller than the picture, next to the text.
@@ -330,14 +358,14 @@ struct GeoCitiesComputer: ScriptedElement {
 				// The screen of the BIOS: gray text on black over the whole window, above everything else.
 				Style()
 					.position(.fixed)
-					.inset(0)
+					.inset(.zero)
 					.zIndex(85)
 					.overflow(.hidden)
 					.padding(.rootEm(1.5))
 					.background(.black)
 					.fontFamily(GeoCitiesPage.courier)
 					.font(size: .clamp(.rootEm(0.75), .viewportWidth(2.6), .rootEm(1.125)), lineHeight: 1.35)
-					.color(Color("#c0c0c0"))
+					.color(Color(raw: "#c0c0c0"))
 					.preservesLineBreaks()
 					.overflowWrap(.anywhere)
 			}

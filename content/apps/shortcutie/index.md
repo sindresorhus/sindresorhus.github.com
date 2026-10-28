@@ -1,25 +1,37 @@
 ---
 title: 'Shortcutie'
 subtitle: 'Power up the Shortcuts app on Mac'
-publicationDate: '2025-02-11'
+publicationDate: 2025-02-11
 platforms: [
 	'macOS'
 ]
-isPaid: true
-price: 10
-hasSentry: true
 setappID: 1814
+gumroad: {
+	id: 'shortcutie'
+	price: 10
+}
+releasesRepository: 'sindresorhus/shortcutie-meta'
+hasSentry: true
+categories: [
+	'shortcuts'
+]
+announcement: {
+	text: 'Save 30% with the Power User Bundle: Default Browser, Shortcutie, and Supercharge'
+	link: {
+		url: 'https://sindresorhus.gumroad.com/l/power-user'
+		text: 'Get the Bundle'
+	}
+}
 sharedQuestions: [
 	'not-in-app-store'
 ]
-releasesRepository: 'sindresorhus/shortcutie-meta'
-gumroadID: 'shortcutie'
-minimumOSVersion: 26
-announcement: {
-	text: 'Save 28% with the Power User Bundle: Default Browser, Shortcutie, and Supercharge'
-	url: 'https://sindresorhus.gumroad.com/l/power-user'
-	linkText: 'Get the Bundle'
-}
+olderVersions: [
+	{
+		version: '1.5.0'
+		macOS: '15'
+		url: 'https://www.dropbox.com/scl/fi/1nny73fqfa423v87vz0q6/Shortcutie-1.5.0-macOS-15-1770752068.zip?rlkey=3fxry52nv7nflmc60r4leqlfm&raw=1'
+	}
+]
 pressQuotes: [
 	{
 		quote: 'Once you have Shortcutie, you can add these triggers to your shortcuts and execute complex automations that your Mac doesn’t otherwise support.'
@@ -33,24 +45,14 @@ pressQuotes: [
 		url: 'https://sindresorhus.gumroad.com/l/shortcutie'
 	}
 ]
-olderVersions: [
-	{
-		version: '1.5.0'
-		macOS: '15'
-		url: 'https://www.dropbox.com/scl/fi/1nny73fqfa423v87vz0q6/Shortcutie-1.5.0-macOS-15-1770752068.zip?rlkey=3fxry52nv7nflmc60r4leqlfm&raw=1'
-	}
-]
 feedbackNote:
 	'''
-	### If the actions don’t show up in the Shortcuts app or if you get a “com.apple.extensionKit.errorDomain error 2” error when running your shortcut, restart your device. You could also try setting a different device language and then back. If you just updated the operating system, give it some time to re-index all shortcut actions.
+	**If the actions don’t show up in the Shortcuts app or if you get a “com.apple.extensionKit.errorDomain error 2” error when running your shortcut, restart your device. You could also try setting a different device language and then back. If you just updated the operating system, give it some time to re-index all shortcut actions.**
 
 	Check the [Actions](/actions) app before requesting an action. It may already exist there.
 
 	This is not the place to ask general Shortcuts questions. Try [r/shortcuts](https://www.reddit.com/r/shortcuts/) instead.
 	'''
-categories: [
-	'shortcuts'
-]
 ---
 
 Adds 70+ actions to the Shortcuts app on Mac, for things the App Store does not allow, like changing the default browser without a prompt.
@@ -58,19 +60,19 @@ Adds 70+ actions to the Shortcuts app on Mac, for things the App Store does not 
 While my free [Actions](/actions) app provides useful functionality for the Shortcuts app through the App Store for macOS, iOS and visionOS, Shortcutie is a Mac-only app that offers more powerful system-level features by operating outside of Apple’s restrictions. This enables capabilities like changing the system default browser or mail app (without a prompt), getting the active browser tab, clearing notifications, etc. These are things that wouldn’t be possible under App Store rules.
 
 > [!IMPORTANT]
-> Restart your device if the actions do not show up in the Shortcuts app. [Learn more ›](#troubleshooting)
+> Restart your device if the actions do not show up in the Shortcuts app. [What to do when the actions do not show up ›](#troubleshooting)
 
 #### Included actions
 
 - Get Active Browser Tab
 	: Gets the URL and title of the active browser tab
-	:: Supports Safari, Chrome, Edge, Brave, Opera, Vivaldi, Arc, Orion, Atlas, and any Chromium-based browser. Firefox and Firefox-based browsers (including Zen) are not supported as they do not implement the required [AppleScript interface](https://bugzilla.mozilla.org/show_bug.cgi?id=125419) for getting tab info.
+	:: Supports Safari, Chrome, Edge, Brave, Opera, Vivaldi, Orion, and any Chromium-based browser (including Arc). Firefox and Firefox-based browsers (including Zen) are not supported as they do not implement the required [AppleScript interface](https://bugzilla.mozilla.org/show_bug.cgi?id=125419) for getting tab info.
 - Run JavaScript on Active Browser Tab
 	: Runs JavaScript code on the active browser tab and returns JSON
-	:: Supports the same browsers as “Get Active Browser Tab”, except ChatGPT Atlas.
+	:: Supports the same browsers as “Get Active Browser Tab”.
 - Open URLs in Private Browser Window
 	: Opens URLs in a private/incognito browser window
-	:: Supports Safari, Chrome, Edge, Brave, Opera, Vivaldi, Arc, Orion, Firefox, Zen, and any Chromium-based and Firefox-based browser. Not DuckDuckGo and ChatGPT Atlas.
+	:: Supports Safari, Chrome, Edge, Brave, Opera, Vivaldi, Orion, Firefox, Zen, and any Chromium-based and Firefox-based browser. Not DuckDuckGo.
 - Get Active Browser
 	: Gets the frontmost app if it’s a browser
 - Get Selected Text
@@ -85,7 +87,7 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 	:: Accepts both absolute paths (like “/Users/username/Documents/file.txt”) and paths with “~” (like “~/Documents/file.txt”). Returns a reference to the actual file on disk.
 - Show Alert (Extended)
 	: Shows an alert dialog with multiple buttons and returns which button was clicked
-	:: Timeout, custom icon, and up to 8 buttons. [Screenshot.](https://www.dropbox.com/scl/fi/439bkpixjwssiss0ye7ln/Screen-Shot-2025-05-20-at-18.43.32-1747756364.png?rlkey=jrq1etjed15uz66tpanokw0q6&raw=1)
+	:: Timeout, custom icon, and up to 8 buttons. [Screenshot of an extended alert.](https://www.dropbox.com/scl/fi/439bkpixjwssiss0ye7ln/Screen-Shot-2025-05-20-at-18.43.32-1747756364.png?rlkey=jrq1etjed15uz66tpanokw0q6&raw=1)
 - Join Wi-Fi <!--
 	: Join a Wi-Fi network or personal hotspot
 	:: Tip: You could use it to join your iPhone’s hotspot -->
@@ -131,7 +133,7 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 	: Returns the connected displays
 - Stash Text
 	: Shows the given text in a floating window
-	:: Multiple calls add items to the sidebar list. Intended for temporary viewing, not long-term storage. [Screenshot](https://www.dropbox.com/scl/fi/9oz7tnd24fohgasuuv6gd/Stash-Text-Screen-Shot-2026-02-01-at-23.17.36-1769962685.png?rlkey=9vd0p1c2zat89yrqssv8rhfnw&raw=1)
+	:: Multiple calls add items to the sidebar list. Intended for temporary viewing, not long-term storage. [Screenshot of the floating window](https://www.dropbox.com/scl/fi/9oz7tnd24fohgasuuv6gd/Stash-Text-Screen-Shot-2026-02-01-at-23.17.36-1769962685.png?rlkey=9vd0p1c2zat89yrqssv8rhfnw&raw=1)
 - Find Listening Port
 	: Finds TCP ports that currently have a listening process on this Mac
 	:: Useful for checking whether a local dev server is running, finding which process is using a specific port, and inspecting listeners before stopping them.
@@ -216,7 +218,7 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 	: Show, hide, or check visibility status of desktop icons
 - Get/Set Desktop Widgets Visibility
 	: Show, hide, or check visibility status of desktop widgets
-- Get/Set Function Keys Mode
+- Get/Set Function Keys Enabled
 	: Toggle or check if F1-F12 keys operate as standard function keys or media keys
 - Get/Set Hot Corner
 	: View or change the configuration for a system [hot corner](https://support.apple.com/guide/mac-help/mchlp3000/mac)
@@ -297,31 +299,31 @@ This is caused by a macOS bug.
 Some things you could try:
 
 1. Restart your device.
-1. Add [this shortcut](https://www.icloud.com/shortcuts/29943b986f934d9da5018853d4e2cc40), run it once, relaunch the Shortcuts app, and see if the actions show up in the Shortcuts app after that.
+1. Add the [“Fix Shortcuts” shortcut](https://www.icloud.com/shortcuts/29943b986f934d9da5018853d4e2cc40), run it once, relaunch the Shortcuts app, and see if the actions show up in the Shortcuts app after that.
 1. Change the device language to something else and back.
 1. Remove the app, install it again, and restart your device.
 
-### I get a “errorDomain error 2” error when running an action
+### I get a “errorDomain error 2” error when running an action {#i-get-a-errordomain-error-2-error-when-running-an-action}
 
-Same solution as above.
+Try the [steps for actions that do not show up](#troubleshooting).
 
-### Why is this paid when your Actions app is free?
+### Why is this paid when your Actions app is free? {#why-is-this-paid-when-your-actions-app-is-free}
 
 Unlike Actions, which uses public APIs, Shortcutie relies on many private APIs that require constant maintenance as macOS evolves. The app targets power users who value these advanced capabilities, and the pricing helps ensure sustainable development while keeping the support burden manageable.
 
-### Can I have this installed together with the Actions app?
+### Can I have this installed together with the Actions app? {#can-i-have-this-installed-together-with-the-actions-app}
 
 Yes, they are complementary.
 
-### Can you support iOS?
+### Can you support iOS? {#can-you-support-ios}
 
 No. The app relies on macOS-specific system features that aren’t available on iOS and requires capabilities outside of App Store restrictions. Check out [Actions](/actions) for iOS shortcuts functionality.
 
-### Do I need to keep the app running for the actions to work?
+### Do I need to keep the app running for the actions to work? {#do-i-need-to-keep-the-app-running-for-the-actions-to-work}
 
 No, once installed, the app’s actions are always available to the Shortcuts app.
 
-### I can already do some of these actions with AppleScript and the command-line, why use this app?
+### I can already do some of these actions with AppleScript and the command-line, why use this app? {#i-can-already-do-some-of-these-actions-with-applescript-and-the-command-line-why-use-this-app}
 
 Yes, but the app packages these capabilities into maintained, ready-to-use actions that integrate perfectly with Shortcuts. This lets you focus on building workflows instead of writing and maintaining scripts.
 
@@ -329,9 +331,9 @@ Yes, but the app packages these capabilities into maintained, ready-to-use actio
 
 The action can exclude the frontmost app and also close Finder windows.
 
-### What’s up with the app icon?
+### What’s up with the app icon? {#whats-up-with-the-app-icon}
 
-A bit of whimsy makes software more human and approachable. Even Apple uses a smiling Finder icon to this day. Good software can be both powerful and fun. And since the icon is only visible in the App Store and as a tiny icon in Shortcuts, its design has minimal impact on the actual utility of the app.
+A bit of whimsy makes software more human and approachable. Even Apple uses a smiling Finder icon to this day. Good software can be both powerful and fun. And since the icon is only visible when you install the app and as a tiny icon in Shortcuts, its design has minimal impact on the actual utility of the app.
 
 ### Shortcutie and Supercharge seem to have some of the same actions for Shortcuts {#supercharge}
 

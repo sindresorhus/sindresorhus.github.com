@@ -386,7 +386,12 @@ struct GeoCitiesGameRoom: ScriptedElement {
 
 			div {
 				for index in 0..<5 {
-					button(.type(.button), .part(Parts.yatzyDie), .ariaPressed(false), .disabled) {
+					button(
+						.type(.button),
+						.part(Parts.yatzyDie),
+						.ariaPressed(false),
+						.disabled
+					) {
 						"⚀"
 					}
 					.accessibilityLabel("Die \(index + 1)")
@@ -497,7 +502,14 @@ struct GeoCitiesGameRoom: ScriptedElement {
 				}
 				.style(VisuallyHidden.Styles.root)
 
-				input(.part(Parts.typingInput), .type(.text), .autocomplete("off"), .custom(name: "autocapitalize", value: "off"), .custom(name: "autocorrect", value: "off"), .custom(name: "spellcheck", value: "false"))
+				input(
+					.part(Parts.typingInput),
+					.type(.text),
+					.autocomplete("off"),
+					.autocapitalize(.none),
+					.custom(name: "autocorrect", value: "off"),
+					.spellcheck(false)
+				)
 					.style(GeoCitiesPage.Styles.field)
 			}
 			.style(Styles.typingField)
@@ -532,37 +544,42 @@ struct GeoCitiesGameRoom: ScriptedElement {
 	}
 
 	private func gif(_ gif: GeoCitiesPage.GIF, alt: String = "", style: GeoCitiesPage.Styles = .gif) -> GeoCitiesPage.GIFImage {
-		GeoCitiesPage.GIFImage(gif: gif, alt: alt, style: style, project: project)
+		GeoCitiesPage.GIFImage(
+			gif: gif,
+			alt: alt,
+			style: style,
+			project: project
+		)
 	}
 
 	/**
 	The data attributes with a value that the script reads.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The pair of a card of the memory game.
 		*/
-		case memoryCard = "data-memory-card"
+		case memoryCard = "memory-card"
 
 		/**
 		The name of the GIF of a card, which its label says when it is face up.
 		*/
-		case memoryName = "data-memory-name"
+		case memoryName = "memory-name"
 
 		/**
 		The letter of a key of Hangman.
 		*/
-		case hangmanLetter = "data-hangman-letter"
+		case hangmanLetter = "hangman-letter"
 
 		/**
 		What the visitor plays against Rocky: `rock`, `paper`, or `scissors`.
 		*/
-		case rpsMove = "data-rps-move"
+		case rpsMove = "rps-move"
 
 		/**
 		The key of a row of the score card of Yatzy.
 		*/
-		case yatzyCategory = "data-yatzy-category"
+		case yatzyCategory = "yatzy-category"
 	}
 
 	enum Parts: String, ElementPartSet {
@@ -689,46 +706,46 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					.gap(.rootEm(1.25))
 					.alignItems(.start)
 					.children("*") {
-						$0.frame(minWidth: 0)
+						$0.frame(minWidth: .zero)
 					}
 			case .windowTitle:
-				Style().margin(0)
+				Style().margin(.zero)
 			case .game:
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.625))
 					.textAlign(.center)
 					.children("p") {
-						$0.margin(0)
+						$0.margin(.zero)
 					}
 			case .status:
 				// Two lines high, so the window does not grow when a message is longer.
 				Style()
 					.frame(minHeight: .lineHeight(2))
 					.fontWeight(.bold)
-					.color(Color("#000080"))
+					.color(Color(raw: "#000080"))
 			case .reels:
 				// The window of the slot machine, with three reels side by side.
 				Style()
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.375))
 					.padding(.rootEm(0.5))
-					.background(Color("#cc0000"))
-					.border(Color("#ffcc00"), width: .pixels(4), style: .ridge)
+					.background(Color(raw: "#cc0000"))
+					.border(Color(raw: "#ffcc00"), width: .pixels(4), style: .ridge)
 					.cornerRadius(.rootEm(0.5))
 			case .reel:
 				Style()
 					.hstack(alignment: .center, justification: .center)
 					.frame(size: .rootEm(3.5))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.font(size: .rootEm(2.25), lineHeight: 1)
 					.when(States.win) {
-						$0.background(Color("#ffff66"))
+						$0.background(Color(raw: "#ffff66"))
 					}
 			case .payTable:
 				Style()
 					.grid(minimumColumnWidth: .rootEm(7.5))
 					.gap(.rootEm(0.125))
-					.padding(.leading, 0)
+					.padding(.leading, .zero)
 					.textStyle(.caption)
 					.textAlign(.leading)
 					.children("li") {
@@ -737,22 +754,27 @@ struct GeoCitiesGameRoom: ScriptedElement {
 			case .track:
 				// A green track with a white line between the lanes, and the finish line on the right.
 				Style()
-					.vstack(spacing: 0)
+					.vstack(spacing: .zero)
 					.frame(width: .percent(100))
-					.padding(.leading, 0)
-					.background(Color("#2d8a2d"))
-					.border(.trailing, .white, width: .pixels(6), style: .dashed)
+					.padding(.leading, .zero)
+					.background(Color(raw: "#2d8a2d"))
+					.border(
+						.trailing,
+						.white,
+						width: .pixels(6),
+						style: .dashed
+					)
 			case .lane:
 				Style()
 					.position(.relative)
 					.display(.block)
 					.frame(height: .rootEm(2.75))
-					.border(.bottom, Color("#ffffff66"), width: .pixels(1))
+					.border(.bottom, Color(raw: "#ffffff66"), width: .pixels(1))
 			case .laneName:
 				Style()
 					.position(.absolute)
 					.leading(.rootEm(0.25))
-					.top(0)
+					.top(.zero)
 					.fontFamily(.system)
 					.font(.extraSmall, weight: .bold)
 					.color(.white)
@@ -761,10 +783,10 @@ struct GeoCitiesGameRoom: ScriptedElement {
 				// The script moves it from the start to the finish, as a part of the width of the lane.
 				Style()
 					.position(.absolute)
-					.bottom(0)
-					.leading(0)
+					.bottom(.zero)
+					.leading(.zero)
 					.frame(width: .rootEm(3))
-					.leading(GeoCitiesGameRoom.progress.value(default: 0))
+					.leading(.length(GeoCitiesGameRoom.progress.value(default: .zero)))
 					.children("picture > img") {
 						$0
 							.display(.block)
@@ -786,23 +808,30 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					.border(.black, width: .pixels(3))
 					.fontFamily(.system)
 					.font(.large, weight: .bold)
-					.color(Color("#00000066"))
+					.color(Color(raw: "#00000066"))
 					.opacity(0.55)
 					.handCursor()
 					.buttonFocusRing(.white)
 					.when(States.lit) {
 						$0
 							.opacity(1)
-							.shadow(Shadow(x: 0, y: 0, blur: .pixels(16), color: .white))
+							.shadow(
+								BoxShadow(
+									x: .zero,
+									y: .zero,
+									blur: .pixels(16),
+									color: .white
+								)
+							)
 					}
 			case .simonGreen:
-				Style().background(Color("#00cc44"))
+				Style().background(Color(raw: "#00cc44"))
 			case .simonRed:
-				Style().background(Color("#ee2222"))
+				Style().background(Color(raw: "#ee2222"))
 			case .simonYellow:
-				Style().background(Color("#ffdd00"))
+				Style().background(Color(raw: "#ffdd00"))
 			case .simonBlue:
-				Style().background(Color("#2266ff"))
+				Style().background(Color(raw: "#2266ff"))
 			case .memoryBoard:
 				Style()
 					.grid(columns: 4)
@@ -815,8 +844,8 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					.hstack(alignment: .center, justification: .center)
 					.aspectRatio(1)
 					.padding(.rootEm(0.25))
-					.background(Color("#000080"))
-					.border(Color("#dfdfdf"), width: .pixels(3), style: .outset)
+					.background(Color(raw: "#000080"))
+					.border(Color(raw: "#dfdfdf"), width: .pixels(3), style: .outset)
 					.handCursor()
 					.buttonFocusRing()
 					// The GIFs have different sizes, so each fits in its card.
@@ -834,7 +863,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 							.position(.absolute)
 							.fontFamily(GeoCitiesPage.comicSans)
 							.font(.extraLarge2, weight: .bold)
-							.color(Color("#ffee55"))
+							.color(Color(raw: "#ffee55"))
 					}
 					.when(States.open) {
 						$0
@@ -848,8 +877,8 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					}
 					.when(States.matched) {
 						$0
-							.background(Color("#ccffcc"))
-							.border(Color("#00aa00"), width: .pixels(3), style: .inset)
+							.background(Color(raw: "#ccffcc"))
+							.border(Color(raw: "#00aa00"), width: .pixels(3), style: .inset)
 							.children("*") {
 								$0.visibility(true)
 							}
@@ -860,10 +889,10 @@ struct GeoCitiesGameRoom: ScriptedElement {
 			case .hangmanDrawing:
 				// A drawing in a notebook, in pencil.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.5), horizontal: .rootEm(1))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(GeoCitiesPage.courier)
 					.fontWeight(.bold)
 					.lineHeight(1.1)
@@ -882,23 +911,23 @@ struct GeoCitiesGameRoom: ScriptedElement {
 				Style()
 					.frame(minWidth: .rootEm(2), minHeight: .rootEm(2))
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+					.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 					.fontFamily(GeoCitiesPage.courier)
 					.fontWeight(.bold)
 					.color(.black)
 					.handCursor()
 					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .inset)
 					}
 					.when(States.hit) {
 						$0
-							.background(Color("#99ee99"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+							.background(Color(raw: "#99ee99"))
+							.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .inset)
 					}
 					.when(States.miss) {
 						$0
-							.background(Color("#ee9999"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+							.background(Color(raw: "#ee9999"))
+							.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .inset)
 					}
 					.disabled {
 						$0.cursor(GeoCitiesPage.arrowCursor, fallback: .default)
@@ -908,8 +937,8 @@ struct GeoCitiesGameRoom: ScriptedElement {
 				Style()
 					.hstack(alignment: .center, justification: .center)
 					.frame(width: .rootEm(6), height: .rootEm(4))
-					.background(Color("#8a8a8a"))
-					.border(Color("#5a5a5a"), width: .pixels(3))
+					.background(Color(raw: "#8a8a8a"))
+					.border(Color(raw: "#5a5a5a"), width: .pixels(3))
 					.cornerRadius(.percent(50))
 			case .dice:
 				Style()
@@ -920,7 +949,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 				Style()
 					.frame(size: .rootEm(3.25))
 					.background(.white)
-					.border(Color("#dfdfdf"), width: .pixels(3), style: .outset)
+					.border(Color(raw: "#dfdfdf"), width: .pixels(3), style: .outset)
 					.cornerRadius(.rootEm(0.5))
 					.font(size: .rootEm(2.5), lineHeight: 1)
 					.color(.black)
@@ -928,36 +957,36 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					.buttonFocusRing()
 					.pressed {
 						$0
-							.background(Color("#ffee55"))
-							.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
+							.background(Color(raw: "#ffee55"))
+							.border(Color(raw: "#dfdfdf"), width: .pixels(3), style: .inset)
 					}
 					.disabled {
 						$0
-							.color(Color("#00000088"))
+							.color(Color(raw: "#00000088"))
 							.cursor(GeoCitiesPage.arrowCursor, fallback: .default)
 					}
 			case .scoreCard:
 				Style()
 					.frame(width: .percent(100), maxWidth: .rootEm(22))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.textAlign(.leading)
 					.children("tbody > tr > *") {
 						$0
 							.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-							.border(.bottom, Color("#dddddd"), width: .pixels(1))
+							.border(.bottom, Color(raw: "#dddddd"), width: .pixels(1))
 					}
 			case .scoreButton:
 				// An open row shows what it would score, and a scored row keeps its score, without the look of a button.
 				Style()
 					.frame(width: .percent(100), minWidth: .rootEm(3))
-					.background(Color("#ffffcc"))
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+					.background(Color(raw: "#ffffcc"))
+					.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 					.fontFamily(GeoCitiesPage.courier)
 					.fontWeight(.bold)
-					.color(Color("#000080"))
+					.color(Color(raw: "#000080"))
 					.handCursor()
 					.buttonFocusRing()
 					.disabled {
@@ -975,14 +1004,14 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					}
 			case .sumRow:
 				Style()
-					.background(Color("#eeeeee"))
+					.background(Color(raw: "#eeeeee"))
 					.fontWeight(.bold)
 			case .reactionButton:
 				// A big button that is red while the visitor waits, and green when it is time to click.
 				Style()
 					.frame(width: .percent(100), minHeight: .rootEm(7))
-					.background(Color("#000080"))
-					.border(Color("#dfdfdf"), width: .pixels(4), style: .outset)
+					.background(Color(raw: "#000080"))
+					.border(Color(raw: "#dfdfdf"), width: .pixels(4), style: .outset)
 					.fontFamily(GeoCitiesPage.impact)
 					.font(.extraLarge2)
 					.color(.white)
@@ -990,14 +1019,14 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					// Navy on the light edge, as the ring is on the edge of the button.
 					.buttonFocusRing()
 					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(4), style: .inset)
+						$0.border(Color(raw: "#dfdfdf"), width: .pixels(4), style: .inset)
 					}
 					.when(States.wait) {
-						$0.background(Color("#cc0000"))
+						$0.background(Color(raw: "#cc0000"))
 					}
 					.when(States.go) {
 						$0
-							.background(Color("#00cc44"))
+							.background(Color(raw: "#00cc44"))
 							.color(.black)
 					}
 			case .typingField:
@@ -1008,20 +1037,20 @@ struct GeoCitiesGameRoom: ScriptedElement {
 				// The script puts each letter in a span, green when it is typed right and red when it is typed wrong.
 				Style()
 					.padding(.rootEm(0.5))
-					.background(Color("#ffffee"))
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#ffffee"))
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(GeoCitiesPage.courier)
 					.fontWeight(.bold)
 					.textAlign(.leading)
 					.children("span") {
 						$0
 							.when(States.typed) {
-								$0.color(Color("#008800"))
+								$0.color(Color(raw: "#008800"))
 							}
 							.when(States.mistyped) {
 								$0
-									.background(Color("#ffaaaa"))
-									.color(Color("#cc0000"))
+									.background(Color(raw: "#ffaaaa"))
+									.color(Color(raw: "#cc0000"))
 							}
 					}
 			}
@@ -1031,5 +1060,5 @@ struct GeoCitiesGameRoom: ScriptedElement {
 	/**
 	How far a unicorn of the Unicorn Derby has run, which the script sets.
 	*/
-	static let progress = StyleVariable<Length>("--derby-progress")
+	static let progress = StyleVariable<LengthPercentage>("derby-progress")
 }

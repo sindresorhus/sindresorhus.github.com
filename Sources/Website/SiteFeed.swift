@@ -13,11 +13,11 @@ enum SiteFeed: CaseIterable {
 	var path: RoutePath {
 		switch self {
 		case .blog:
-			"/rss.xml"
+			#path("/rss.xml")
 		case .newApps:
-			"/rss-apps.xml"
+			#path("/rss-apps.xml")
 		case .newRepositories:
-			"/rss-repos.xml"
+			#path("/rss-repos.xml")
 		}
 	}
 
@@ -83,7 +83,13 @@ enum SiteFeed: CaseIterable {
 	}
 
 	func feed(content: SiteContent) -> Feed {
-		Feed(title: title, link: Site.url, description: channelDescription, selfLink: path.absoluteURL, image: Site.feedImage, items: items(content: content))
+		Feed(
+			link,
+			link: Site.url,
+			description: channelDescription,
+			image: Site.feedImage,
+			items: items(content: content)
+		)
 	}
 
 	private func items(content: SiteContent) -> [Item] {
@@ -91,23 +97,47 @@ enum SiteFeed: CaseIterable {
 		case .blog:
 			// New blog posts and new apps.
 			let posts = content.listedPosts.map { post in
-				Item(title: post.title, link: post.absoluteURL, description: post.description, guid: post.isRedirect ? GUID.original(post.slug) : nil, publicationDate: post.publicationDate)
+				Item(
+					title: post.title,
+					link: post.absoluteURL,
+					description: post.description,
+					guid: post.isRedirect ? GUID.original(post.slug) : nil,
+					publicationDate: .date(post.publicationDate)
+				)
 			}
 
 			let apps = content.activeApps.map { app in
-				Item(title: "New App: \(app.title)", link: app.absoluteURL, description: app.subtitle, guid: app.isRedirect ? GUID.original(app.slug) : app.launchGUID, publicationDate: app.publicationDate)
+				Item(
+					title: "New App: \(app.title)",
+					link: app.absoluteURL,
+					description: app.subtitle,
+					guid: app.isRedirect ? GUID.original(app.slug) : app.launchGUID,
+					publicationDate: .date(app.publicationDate)
+				)
 			}
 
 			return (posts + apps).sorted(using: KeyPathComparator(\.publicationDate, order: .reverse))
 		case .newApps:
 			// The new apps, each with its icon.
 			return content.activeApps.map { app in
-				Item(title: app.title, link: app.absoluteURL, description: app.subtitle, guid: app.launchGUID, publicationDate: app.publicationDate, enclosure: app.iconEnclosure)
+				Item(
+					title: app.title,
+					link: app.absoluteURL,
+					description: app.subtitle,
+					guid: app.launchGUID,
+					publicationDate: .date(app.publicationDate),
+					enclosure: app.iconEnclosure
+				)
 			}
 		case .newRepositories:
 			return content.recentRepositories.map { repository in
 				// The summary, like on the now page, without emoji codes and notes.
-				Item(title: repository.displayName, link: repository.url, description: repository.summary ?? "", publicationDate: repository.createdAt)
+				Item(
+					title: repository.displayName,
+					link: repository.url,
+					description: repository.summary ?? "",
+					publicationDate: .instant(repository.createdAt)
+				)
 			}
 		}
 	}

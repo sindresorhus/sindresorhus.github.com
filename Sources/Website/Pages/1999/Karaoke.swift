@@ -30,7 +30,12 @@ struct GeoCitiesKaraoke: ScriptedElement {
 		div {
 			div {
 				div {
-					GeoCitiesPage.GIFImage(gif: .singingMicrophone, alt: "", style: .gif, project: project)
+					GeoCitiesPage.GIFImage(
+						gif: .singingMicrophone,
+						alt: "",
+						style: .gif,
+						project: project
+					)
 				}
 				.style(Styles.decoration)
 
@@ -62,7 +67,12 @@ struct GeoCitiesKaraoke: ScriptedElement {
 				.style(Styles.screen)
 
 				div {
-					GeoCitiesPage.GIFImage(gif: .boombox, alt: "", style: .gif, project: project)
+					GeoCitiesPage.GIFImage(
+						gif: .boombox,
+						alt: "",
+						style: .gif,
+						project: project
+					)
 				}
 				.style(Styles.decoration)
 			}
@@ -91,7 +101,14 @@ struct GeoCitiesKaraoke: ScriptedElement {
 			div {
 				label {
 					"🔁 Echo "
-					input(.part(Parts.echo), .type(.range), .min(0), .max(100), .step(1), .value("25"))
+					input(
+						.part(Parts.echo),
+						.type(.range),
+						.min(0),
+						.max(100),
+						.step(1),
+						.value("25")
+					)
 				}
 				.style(Styles.knob)
 
@@ -127,16 +144,16 @@ struct GeoCitiesKaraoke: ScriptedElement {
 		case on
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A line of the lyrics on the screen, the first or the second.
 		*/
-		case line = "data-karaoke-line"
+		case line = "karaoke-line"
 
 		/**
 		A button that sings a song, by its ID.
 		*/
-		case song = "data-karaoke-song"
+		case song = "karaoke-song"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -161,8 +178,8 @@ struct GeoCitiesKaraoke: ScriptedElement {
 				Style()
 					.flowSpacing(.rootEm(0.75))
 					.padding(.rootEm(0.75))
-					.background(Color("#1a0033"))
-					.border(Color("#ff33cc"), width: .pixels(4), style: .double)
+					.background(Color(raw: "#1a0033"))
+					.border(Color(raw: "#ff33cc"), width: .pixels(4), style: .double)
 					.color(.white)
 			case .machine:
 				Style()
@@ -178,17 +195,24 @@ struct GeoCitiesKaraoke: ScriptedElement {
 					.position(.relative)
 					.vstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
 					.flex(1)
-					.frame(minWidth: 0, minHeight: .rootEm(11))
+					.frame(minWidth: .zero, minHeight: .rootEm(11))
 					.padding(.rootEm(0.75))
-					.backgroundImage(.linearGradient("to bottom", Color("#000066"), Color("#3333cc"), Color("#000066")))
-					.border(Color("#888"), width: .pixels(6), style: .ridge)
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#000066"),
+							Color(raw: "#3333cc"),
+							Color(raw: "#000066")
+						)
+					)
+					.border(Color(raw: "#888"), width: .pixels(6), style: .ridge)
 					.cornerRadius(.rootEm(0.75))
 					.textAlign(.center)
 			case .songTitle:
 				Style()
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#ffff66"))
+					.color(Color(raw: "#ffff66"))
 			case .lyrics:
 				Style()
 					.position(.relative)
@@ -208,17 +232,24 @@ struct GeoCitiesKaraoke: ScriptedElement {
 					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: .black))
 					.children("span") {
 						$0.when(States.sung) {
-							$0.color(Color("#ffee00"))
+							$0.color(Color(raw: "#ffee00"))
 						}
 					}
 			case .ball:
 				// The bouncing ball, red and shiny, which the script moves over the words.
 				Style()
 					.position(.absolute)
-					.top(0)
-					.leading(0)
+					.top(.zero)
+					.leading(.zero)
 					.frame(size: .rootEm(1))
-					.backgroundImage(.radialGradient("circle at 35% 35%", Color("#ffaaaa"), Color("#ee0000"), Color("#880000")))
+					.backgroundImage(
+						.radialGradient(
+							.circle(at: .init(x: .percent(35), y: .percent(35))),
+							Color(raw: "#ffaaaa"),
+							Color(raw: "#ee0000"),
+							Color(raw: "#880000")
+						)
+					)
 					.cornerRadius(.percent(50))
 					.opacity(0)
 					.when(States.on) {
@@ -231,12 +262,12 @@ struct GeoCitiesKaraoke: ScriptedElement {
 				Style()
 					.position(.absolute)
 					.top(.percent(40))
-					.leading(0)
+					.leading(.zero)
 					.frame(width: .percent(100))
 					.fontFamily(GeoCitiesPage.impact)
 					.font(.extraLarge3)
-					.color(Color("#ff33cc"))
-					.textShadow(Shadow(x: .pixels(3), y: .pixels(3), color: Color("#ffff00")))
+					.color(Color(raw: "#ff33cc"))
+					.textShadow(Shadow(x: .pixels(3), y: .pixels(3), color: Color(raw: "#ffff00")))
 					.rotationEffect(.degrees(-6))
 			case .knob:
 				Style()
@@ -246,8 +277,8 @@ struct GeoCitiesKaraoke: ScriptedElement {
 			case .judges:
 				Style()
 					.padding(.rootEm(0.75))
-					.background(Color("#ffff99"))
-					.border(Color("#ff33cc"), width: .pixels(3))
+					.background(Color(raw: "#ffff99"))
+					.border(Color(raw: "#ff33cc"), width: .pixels(3))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.color(.black)
 					.flowSpacing(.rootEm(0.375))

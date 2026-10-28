@@ -16,7 +16,12 @@ struct GeoCitiesTheremin: ScriptedElement {
 		.style(GeoCitiesDJBooth.Styles.title)
 
 		div {
-			GeoCitiesPage.GIFImage(gif: .ufo, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .ufo,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 		}
 		.style(GeoCitiesPage.Styles.centeredText)
 
@@ -95,13 +100,13 @@ struct GeoCitiesTheremin: ScriptedElement {
 					.hstack(alignment: .end, justification: .center)
 					.frame(height: .rootEm(10))
 					.padding(.rootEm(0.5))
-					.backgroundImage(.linearGradient("to bottom", Color("#0a0030"), Color("#3a0060")))
-					.border(Color("#39ff14"), width: .pixels(2), style: .dashed)
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#0a0030"), Color(raw: "#3a0060")))
+					.border(Color(raw: "#39ff14"), width: .pixels(2), style: .dashed)
 					.overflow(.hidden)
 					.cursor(.crosshair)
 					.touchAction(.none)
 					.focusVisible {
-						$0.focusRing(Color("#39ff14"), width: .pixels(3), offset: .pixels(3))
+						$0.focusRing(Color(raw: "#39ff14"), width: .pixels(3), offset: .pixels(3))
 					}
 			case .hand:
 				// A glowing dot where the pointer is, which the script moves, and which glows brighter while the theremin plays.
@@ -111,7 +116,14 @@ struct GeoCitiesTheremin: ScriptedElement {
 					.leading(.percent(50))
 					.frame(size: .rootEm(1.5))
 					.offset(x: .percent(-50), y: .percent(-50))
-					.backgroundImage(.radialGradient("circle", Color("#ffffff"), Color("#39ff14"), Color("#39ff1400")))
+					.backgroundImage(
+						.radialGradient(
+							.circle,
+							Color(raw: "#ffffff"),
+							Color(raw: "#39ff14"),
+							Color(raw: "#39ff1400")
+						)
+					)
 					.cornerRadius(.percent(50))
 					.opacity(0.4)
 					.allowsHitTesting(false)
@@ -124,7 +136,7 @@ struct GeoCitiesTheremin: ScriptedElement {
 				Style()
 					.fontFamily(.system)
 					.textStyle(.caption)
-					.color(Color("#9999cc"))
+					.color(Color(raw: "#9999cc"))
 					.allowsHitTesting(false)
 			case .option:
 				Style()

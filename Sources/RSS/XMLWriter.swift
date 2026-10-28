@@ -21,6 +21,17 @@ struct XMLWriter {
 		line("<\(name)\(Self.render(attributes))>\(text.escapedForXML)</\(name)>")
 	}
 
+	/**
+	Omits absent optional text, while keeping a present empty value as an empty element.
+	*/
+	mutating func element(_ name: String, optionalText: String?) {
+		guard let optionalText else {
+			return
+		}
+
+		element(name, text: optionalText)
+	}
+
 	mutating func element(_ name: String, attributes: [(String, String)]) {
 		line("<\(name)\(Self.render(attributes))/>")
 	}

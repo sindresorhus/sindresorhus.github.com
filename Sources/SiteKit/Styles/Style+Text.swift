@@ -1,23 +1,32 @@
+/**
+The counters of a component. Nest an enum named `Counters` in the component and declare each counter as a case, like `case step`. Names are generated from the component and case, so counters of unrelated components cannot clash.
+*/
+public protocol CounterSet: CaseIterable, Sendable {}
+
+extension CounterSet {
+	/**
+	The counter name, like `instructions-step` for `Instructions.Counters.step`.
+	*/
+	public var name: String {
+		generatedComponentName(of: Self.self, suffix: "Counters", member: String(describing: self))
+	}
+}
+
 extension Style {
 	/**
 	The font size, and the line height as a multiple of it.
 	*/
-	public func font(size: Length, lineHeight: Double? = nil) -> Self {
-		let style = declaration(.fontSize, size)
-
-		guard let lineHeight else {
-			return style
-		}
-
-		return style.lineHeight(lineHeight)
+	public func font(size: LengthPercentage, lineHeight: CSSNumber? = nil) -> Self {
+		declaration(.fontSize, size)
+			.declaration(.lineHeight, ifPresent: lineHeight)
 	}
 
-	public func lineHeight(_ multiple: Double) -> Self {
-		declaration(.lineHeight, CSSValue(multiple))
+	public func lineHeight(_ multiple: CSSNumber) -> Self {
+		declaration(.lineHeight, multiple)
 	}
 
 	public func fontWeight(_ weight: FontWeight) -> Self {
-		declaration(.fontWeight, CSSValue(weight.value))
+		declaration(.fontWeight, weight)
 	}
 
 	/**
@@ -49,7 +58,21 @@ extension Style {
 	Digits with the same width, so changing numbers do not move, like SwiftUI's `monospacedDigit()`.
 	*/
 	public func monospacedDigit() -> Self {
-		declaration(.fontVariantNumeric, "tabular-nums")
+		fontVariantNumeric(.tabularNumbers)
+	}
+
+	/**
+	The styles of the digits, like ``FontVariantNumeric/oldstyleNumbers`` for running text in a book. Combine independent styles in a set; an empty set restores `normal`.
+	*/
+	public func fontVariantNumeric(_ variant: FontVariantNumeric) -> Self {
+		declaration(.fontVariantNumeric, CSSValue(raw: variant.description))
+	}
+
+	/**
+	Punctuation that hangs outside the box of the text, like an opening quote at the start of a paragraph, so the letters line up with the edge.
+	*/
+	public func hangingPunctuation(_ punctuation: HangingPunctuation) -> Self {
+		declaration(.hangingPunctuation, CSSValue(raw: punctuation.description))
 	}
 
 	public func letterSpacing(_ length: Length) -> Self {
@@ -70,7 +93,7 @@ extension Style {
 	/**
 	Raises an inline element, like an icon in text, by the length above the baseline of its line, or lowers it for a negative length, like `.verticalAlign(.capitalHeight(0.5) - .rootEm(0.5))` for an icon of `1rem` in the middle of the capital letters.
 	*/
-	public func verticalAlign(_ offset: Length) -> Self {
+	public func verticalAlign(_ offset: LengthPercentage) -> Self {
 		declaration(.verticalAlign, offset)
 	}
 
@@ -79,6 +102,13 @@ extension Style {
 	*/
 	public func preservesLineBreaks() -> Self {
 		declaration(.whiteSpace, "pre-line")
+	}
+
+	/**
+	Keeps every space of the text and keeps it on one line, like a file name that is in two parts, where the space between the parts would collapse (`white-space: pre` in CSS).
+	*/
+	public func preservesSpaces() -> Self {
+		declaration(.whiteSpace, "pre")
 	}
 
 	/**
@@ -139,10 +169,24 @@ extension Style {
 	}
 
 	/**
+	Hyphenates only words of at least `minimumWordLength` letters, with at least 3 letters before and after the hyphen, so short words, like “macOS”, do not break (`hyphens: auto` with `hyphenate-limit-chars`).
+
+	Safari has no limit for the length of a word yet, only the limits before and after the hyphen (`-webkit-hyphenate-limit-before` and `-webkit-hyphenate-limit-after`), so it does not break words of 5 letters or less.
+	*/
+	public func hyphenation(minimumWordLength: Int) -> Self {
+		let minimumLettersAroundHyphen = 3
+
+		return hyphenation(true)
+			.declaration(.hyphenateLimitChars, CSSValue([minimumWordLength, minimumLettersAroundHyphen, minimumLettersAroundHyphen], separator: " "))
+			.declaration(.webkitHyphenateLimitBefore, CSSValue(minimumLettersAroundHyphen))
+			.declaration(.webkitHyphenateLimitAfter, CSSValue(minimumLettersAroundHyphen))
+	}
+
+	/**
 	The font of the parent, with its size, line height, and weight, like for a heading that looks like the text around it.
 	*/
 	public func inheritsFont() -> Self {
-		declaration(.font, .inherit)
+		inherits(.font)
 	}
 
 	/**
@@ -166,8 +210,8 @@ extension Style {
 		_ isActive: Bool = true,
 		style: UnderlineStyle? = nil,
 		color: Color? = nil,
-		thickness: Length? = nil,
-		offset: Length? = nil
+		thickness: LengthPercentage? = nil,
+		offset: LengthPercentage? = nil
 	) -> Self {
 		guard isActive else {
 			return declaration(.textDecoration, .none)
@@ -191,11 +235,11 @@ extension Style {
 		declaration(.textDecorationColor, color)
 	}
 
-	public func underlineThickness(_ thickness: Length) -> Self {
+	public func underlineThickness(_ thickness: LengthPercentage) -> Self {
 		declaration(.textDecorationThickness, thickness)
 	}
 
-	public func underlineOffset(_ offset: Length) -> Self {
+	public func underlineOffset(_ offset: LengthPercentage) -> Self {
 		declaration(.textUnderlineOffset, offset)
 	}
 
@@ -213,9 +257,10 @@ extension Style {
 		between start: Breakpoint,
 		and end: Breakpoint
 	) -> Self {
+		precondition(start.minimumWidthInRem < end.minimumWidthInRem, "Fluid font breakpoints must have strictly increasing widths.")
 		let slope = (maximum - minimum) / (end.minimumWidthInRem - start.minimumWidthInRem)
 		let intercept = minimum - (slope * start.minimumWidthInRem)
-		return declaration(.fontSize, Length.clamp(.rootEm(minimum), .rootEm(intercept) + .viewportWidth(slope * 100), .rootEm(maximum)))
+		return declaration(.fontSize, LengthPercentage.clamp(.rootEm(minimum), .rootEm(intercept) + .viewportWidth(slope * 100), .rootEm(maximum)))
 	}
 
 	/**
@@ -223,23 +268,23 @@ extension Style {
 
 	The element must be a block container, like `inline-block`, as `text-box` does not trim the text of a flex container.
 	*/
-	public func trimmedText(verticalPadding: Length = 0) -> Self {
+	public func trimmedText(verticalPadding: LengthPercentage = .zero) -> Self {
 		declaration(.textBox, "trim-both cap alphabetic")
 			.padding(.vertical, verticalPadding + .lineHeight(0.5) - .capitalHeight(0.5))
 	}
 
 	/**
-	Shadows of the text, like a glow. Text shadows have no spread and cannot be inset, so the spread and ``Shadow/isInset`` of the shadows are not used.
+	Shadows of the text, like a glow. Text shadows use ``Shadow``, which has no spread and cannot be inset.
 	*/
 	public func textShadow(_ shadows: Shadow...) -> Self {
-		declaration(.textShadow, shadows.isEmpty ? .none : CSSValue(shadows.map(\.descriptionWithoutSpread), separator: ", "))
+		declaration(.textShadow, CSSValue(shadows, separator: ", ", emptyValue: .none))
 	}
 
 	/**
 	An outline around the letters (`-webkit-text-stroke` in CSS). It is drawn below the letters (`paint-order: stroke fill`), so only the outer half of its width shows. A stroke on top would also draw lines inside the letters of a variable font, like the system font, as the shapes of a letter overlap.
 	*/
 	public func textStroke(_ color: Color, width: Length = .pixels(1)) -> Self {
-		declaration(.webkitTextStroke, CSSValue("\(width) \(color)"))
+		declaration(.webkitTextStroke, CSSValue(raw: "\(width) \(color)"))
 			.declaration(.paintOrder, "stroke fill")
 	}
 
@@ -257,16 +302,16 @@ extension Style {
 
 	```swift
 	Style()
-		.counterIncrement("step")
+		.counterIncrement(Counters.step)
 		.before {
-			$0.content(counter: "step", style: .decimalLeadingZero)
+			$0.content(counter: Counters.step, style: .decimalLeadingZero)
 		}
 	```
 
 	- Parameter alternativeText: What screen readers say instead, like an empty string for a number that only decorates a heading.
 	*/
-	public func content(counter name: String, style: CounterStyle = .decimal, alternativeText: String? = nil) -> Self {
-		let counter = CSSValue("counter(\(name), \(style.rawValue))")
+	public func content(counter value: some CounterSet, style: CounterStyle = .decimal, alternativeText: String? = nil) -> Self {
+		let counter = CSSValue(raw: "counter(\(value.name), \(style.rawValue))")
 
 		guard let alternativeText else {
 			return declaration(.content, counter)
@@ -278,15 +323,15 @@ extension Style {
 	/**
 	Adds 1 to the counter for each element with the style, like for each item of a list. A counter that no element resets starts at 0 for the page.
 	*/
-	public func counterIncrement(_ name: String) -> Self {
-		declaration(.counterIncrement, CSSValue(name))
+	public func counterIncrement(_ counter: some CounterSet) -> Self {
+		declaration(.counterIncrement, CSSValue(raw: counter.name))
 	}
 
 	/**
 	Starts the counter at 0 for the element, so the counter of each list starts over.
 	*/
-	public func counterReset(_ name: String) -> Self {
-		declaration(.counterReset, CSSValue(name))
+	public func counterReset(_ counter: some CounterSet) -> Self {
+		declaration(.counterReset, CSSValue(raw: counter.name))
 	}
 
 	/**

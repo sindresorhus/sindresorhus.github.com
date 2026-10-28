@@ -68,7 +68,7 @@ struct Badge: HTML {
 	/**
 	The font size of the badges inside, which a parent can set, like for a larger badge.
 	*/
-	static let fontSize = StyleVariable<Length>("--badge-font-size")
+	static let fontSize = StyleVariable<LengthPercentage>("badge-font-size")
 
 	enum Styles: StyleSet {
 		case root

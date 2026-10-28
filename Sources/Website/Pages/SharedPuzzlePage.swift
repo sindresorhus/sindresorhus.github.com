@@ -24,16 +24,17 @@ struct SharedPuzzlePage: Page {
 	}
 
 	var navigation: SiteHeader.Variant {
-		.appSubpage
-	}
-
-	var tint: Color? {
-		app.tint
+		.appSubpage(app)
 	}
 
 	var metadata: PageMetadata {
 		// The puzzle is in the query, so search engines would only see the message for a missing puzzle.
-		PageMetadata(title: "Shared \(app.title) Puzzle", description: "A sudoku puzzle shared from \(app.title).", isIndexed: false, appStoreID: app.appStoreID)
+		PageMetadata(
+			title: "Shared \(app.title) Puzzle",
+			description: "A sudoku puzzle shared from \(app.title).",
+			isIndexed: false,
+			appStoreID: app.appStoreID
+		)
 	}
 
 	var body: some HTML {
@@ -47,9 +48,6 @@ struct SharedPuzzlePage: Page {
 			}
 
 			SudokuBoard()
-		}
-		.style {
-			$0.padding(.bottom, .rootEm(4))
 		}
 	}
 
@@ -87,7 +85,7 @@ struct SharedPuzzlePage: Page {
 				.init(
 					appIDs: ["YG56YK5RN5.com.sindresorhus.Pipoku"],
 					// `?*` is one or more characters. The app checks the code.
-					components: [.init(path: path.description, query: ["p": "?*"])]
+					components: [.init(path: path.description, query: [SudokuBoard.queryName: "?*"])]
 				),
 			])
 		)

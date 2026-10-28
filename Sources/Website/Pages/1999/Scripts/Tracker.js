@@ -12,9 +12,8 @@ class GeoCitiesTracker extends GeoCitiesElement {
 		const muteButtons = [...this.querySelectorAll('[data-tracker-mute]')];
 		const instrumentButtons = [...this.querySelectorAll('[data-tracker-instrument]')];
 		const rowCount = rows.length;
-		const channelCount = 4;
+		const {channelCount, instruments: instrumentNames} = this.config;
 		const stepLength = 60 / 125 / 4;
-		const instrumentNames = ['Kick', 'Snare', 'HiHat', 'Bass', 'Lead', 'Pad'];
 
 		// The keys of the computer as the keys of a piano, like in FastTracker 2: the bottom row is one octave (Z is C, S is C sharp), and the row of Q the next.
 		const pianoKeys = {
@@ -68,14 +67,14 @@ class GeoCitiesTracker extends GeoCitiesElement {
 		if (Array.isArray(storedPattern)) {
 			song = song.map((row, rowIndex) => row.map((_, channel) => {
 				const cell = storedPattern[rowIndex]?.[channel];
-				return Number.isInteger(cell?.note) && Number.isInteger(cell?.instrument) && cell.instrument >= 1 && cell.instrument <= 6 ? {note: clamp(cell.note, 12, 107), instrument: cell.instrument} : undefined;
+				return Number.isInteger(cell?.note) && Number.isInteger(cell?.instrument) && cell.instrument >= 1 && cell.instrument <= instrumentNames.length ? {note: clamp(cell.note, 12, 107), instrument: cell.instrument} : undefined;
 			}));
 		}
 
 		let cursor = {row: 0, channel: 0};
 		let octave = 4;
 		let instrument = 1;
-		const muted = [false, false, false, false];
+		const muted = Array.from({length: channelCount}, () => false);
 
 		const hex = number => number.toString(16).toUpperCase().padStart(2, '0');
 		const trackerNote = note => `${['C-', 'C#', 'D-', 'D#', 'E-', 'F-', 'F#', 'G-', 'G#', 'A-', 'A#', 'B-'][note % 12]}${Math.floor(note / 12) - 1}`;

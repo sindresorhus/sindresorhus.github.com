@@ -21,8 +21,18 @@ struct CareerQuiltPage: Page {
 		PageMetadata(title: "Career Quilt", description: "Every GitHub contribution of Sindre Sorhus since \(ContributionYear.firstYear), one calendar per year, like the patches of a quilt.")
 	}
 
+	/**
+	The patches of the quilt, as a shared link is most often about them.
+	*/
+	var socialImage: SocialImage {
+		.card(OpenGraphCard(page: self, artwork: .calendars(of: years.map(\.days), scale: years.contributionScale)))
+	}
+
 	var body: some HTML {
-		section {
+		// The scale of all the years, so a day has the same color in every year.
+		let scale = years.contributionScale
+
+		return section {
 			PageHeader(title: "Career Quilt", intro: "\(years.totalCount.formatted(counting: "contribution")) on GitHub since \(ContributionYear.firstYear), one patch for each year.")
 
 			ol {
@@ -40,25 +50,31 @@ struct CareerQuiltPage: Page {
 
 						// The summary says what the squares show. The squares are the ones of the contributions on the now page.
 						div {
-							ContributionHeatmap.Days(days: year.days)
+							ContributionHeatmap.Days(days: year.days, scale: scale)
 						}
 						.accessibilityHidden()
-						.style(Styles.calendar)
+						.style(Styles.calendar, ContributionHeatmap.Styles.cells)
 					}
 					.style(Styles.patch)
 				}
 			}
 			.vstack(spacing: .rootEm(1))
 
+			// The contributions of a day for each color.
 			div {
-				"Less"
+				"Contributions a day:"
 
-				for level in ContributionCalendar.Day.Level.allCases {
-					span {}
-						.style(ContributionHeatmap.Styles.cell, ContributionHeatmap.Styles.level(level))
+				for level in ContributionScale.Level.allCases {
+					if let countText = scale.countText(of: level) {
+						span {
+							span {}
+								.style(ContributionHeatmap.Styles.level(level))
+
+							countText
+						}
+						.style(Styles.legendItem, ContributionHeatmap.Styles.cells)
+					}
 				}
-
-				"More"
 			}
 			.accessibilityHidden()
 			.style(Styles.legend)
@@ -75,6 +91,7 @@ extension CareerQuiltPage {
 		case summary
 		case calendar
 		case legend
+		case legendItem
 
 		var style: Style {
 			switch self {
@@ -113,8 +130,13 @@ extension CareerQuiltPage {
 					}
 			case .legend:
 				Style()
-					.hstack(alignment: .center, justification: .end, spacing: .rootEm(0.25))
+					.hstack(alignment: .center, justification: .end, spacing: .rootEm(0.75))
+					.flexWrap()
 					.secondaryText(.extraSmall)
+			// A color next to its count, so they stay on one line.
+			case .legendItem:
+				Style()
+					.hstack(alignment: .center, spacing: .rootEm(0.25))
 					.children("span") {
 						$0.frame(width: .rootEm(0.75))
 					}

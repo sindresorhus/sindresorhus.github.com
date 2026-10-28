@@ -6,19 +6,16 @@ import SiteKit
 A number with what it counts, like “59 pull requests merged”.
 */
 struct Stat {
-	/**
-	How many things the number is about, like 59 pull requests, the number of ratings of an average rating, or the contributions of the busiest weekday. A page can leave out the numbers with a count of zero.
-	*/
-	let count: Int
-
 	let value: Value
 	let label: String
 
 	enum Value {
 		/**
 		A number or text that does not change, like “3467”, “22B+”, or “Fri”.
+
+		The count says how many things the number is about, like 59 pull requests, the number of ratings of an average rating, or the contributions of the busiest weekday. A page can leave out the numbers with a count of zero.
 		*/
-		case text(String)
+		case text(String, count: Int)
 
 		/**
 		A count that starts at 0 when the page is opened and goes up by the rate each second (``RunningCount``).
@@ -34,6 +31,18 @@ struct Stat {
 			} else {
 				false
 			}
+		}
+	}
+
+	/**
+	Whether the statistic has a positive count or a positive finite running rate. A tiny positive rate is meaningful even before its first whole count.
+	*/
+	var hasValue: Bool {
+		switch value {
+		case .text(_, let count):
+			count > 0
+		case .running(let perSecond):
+			perSecond.isFinite && perSecond > 0
 		}
 	}
 
@@ -73,15 +82,14 @@ struct Stat {
 	The busiest day of contributions, like “383” and “busiest day, September 19”.
 	*/
 	init(busiestDay day: ContributionCalendar.Day, format: Date.FormatStyle) {
-		self.init(count: day.count, label: "busiest day, \(day.date.formatted(format))")
+		self.init(count: day.count, label: "busiest day, \(day.date.foundationDate.formatted(format))")
 	}
 
 	/**
 	A count that is shown as text, like “Fri” and “busiest weekday” for the contributions on Fridays.
 	*/
 	init(count: Int, value: String, label: String) {
-		self.count = count
-		self.value = .text(value)
+		self.value = .text(value, count: count)
 		self.label = label
 	}
 
@@ -89,8 +97,7 @@ struct Stat {
 	A count that starts at 0 when the page is opened and goes up at the rate, like the npm downloads while the visitor has been on the page (``RunningCount``).
 	*/
 	init(perSecond: Double, label: String) {
-		// Rounded up, so a page that leaves out the numbers with a count of zero keeps a slow count.
-		self.count = Int(perSecond.rounded(.up))
+		// A positive finite rate keeps even a slow count, without inventing an integer count.
 		self.value = .running(perSecond: perSecond)
 		self.label = label
 	}
@@ -108,7 +115,7 @@ struct StatCard: HTML {
 				li {
 					span {
 						switch stat.value {
-						case .text(let text):
+						case .text(let text, _):
 							text
 						case .running(let perSecond):
 							RunningCount(perSecond: perSecond)
@@ -146,8 +153,8 @@ struct StatCard: HTML {
 					.display(.grid)
 					.gridColumns(2)
 					.gap(row: .rootEm(1.25), column: .rootEm(1))
-					.margin(0)
-					.padding(.rootEm(1.25))
+					.margin(.zero)
+					.padding(.cardPadding)
 					.cardSurface(isInteractive: false)
 					.textStyle(.body)
 					.below(.tablet) {
@@ -166,8 +173,8 @@ struct StatCard: HTML {
 				Style()
 					.vstack(spacing: .rootEm(0.25))
 					.frame(minWidth: .rootEm(4))
-					.margin(0)
-					.padding(0)
+					.margin(.zero)
+					.padding(.zero)
 			case .runningStat:
 				Style()
 					.below(.tablet) {

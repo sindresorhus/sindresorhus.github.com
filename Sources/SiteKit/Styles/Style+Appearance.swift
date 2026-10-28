@@ -16,24 +16,62 @@ extension Style {
 	}
 
 	/**
-	A background image, like a gradient from ``CSSValue/linearGradient(_:_:in:)``. Several images are layers, and the first one is on top.
+	A background image, like a gradient from ``CSSImage/linearGradient(_:_:_:_:in:)``. Several images are layers, and the first one is on top.
 	*/
-	public func backgroundImage(_ image: CSSValue, _ moreImages: CSSValue...) -> Self {
+	public func backgroundImage(_ image: CSSImage, _ moreImages: CSSImage...) -> Self {
 		declaration(.backgroundImage, CSSValue([image] + moreImages, separator: ", "))
+	}
+
+	/**
+	A background image, with another image in dark mode, by the color scheme of the element (`light-dark()` in CSS), like a gradient that is stronger on a dark card.
+	*/
+	public func backgroundImage(_ image: CSSImage, dark: CSSImage) -> Self {
+		declaration(.backgroundImage, CSSValue(raw: "light-dark(\(image), \(dark))"))
 	}
 
 	/**
 	The size of each background image tile.
 	*/
-	public func backgroundSize(width: Length, height: Length) -> Self {
+	public func backgroundSize(width: LengthPercentage, height: LengthPercentage) -> Self {
 		declaration(.backgroundSize, [CSSValue(width), CSSValue(height)])
 	}
 
 	/**
 	Images that hide the element where they are transparent, like a radial gradient that fades the edges of a photo. Several images are layers, and the element shows where any of them is opaque.
 	*/
-	public func maskImage(_ image: CSSValue, _ moreImages: CSSValue...) -> Self {
+	public func maskImage(_ image: CSSImage, _ moreImages: CSSImage...) -> Self {
 		declaration(.maskImage, CSSValue([image] + moreImages, separator: ", "))
+	}
+
+	/**
+	The size of each tile of the mask images.
+	*/
+	public func maskSize(width: LengthPercentage, height: LengthPercentage) -> Self {
+		declaration(.maskSize, [CSSValue(width), CSSValue(height)])
+	}
+
+	/**
+	Draws the SVG shapes inside with lines only, like line icons: no fill, and lines in the color, with these ends and corners (`fill`, `stroke`, `stroke-linecap`, and `stroke-linejoin` in CSS). The shapes inherit it, and a shape with its own `fill` or `stroke` attribute keeps it.
+	*/
+	public func strokedShapes(_ color: Color = .currentColor, lineCap: LineCap = .round, lineJoin: LineJoin = .round) -> Self {
+		declaration(.fill, CSSValue.none)
+			.declaration(.stroke, color)
+			.declaration(.strokeLinecap, lineCap)
+			.declaration(.strokeLinejoin, lineJoin)
+	}
+
+	/**
+	Whether forced colors, like Windows High Contrast, change the colors of the element, like `.none` for a background that draws a shape, which forced colors would remove.
+	*/
+	public func forcedColorAdjust(_ value: ForcedColorAdjust) -> Self {
+		declaration(.forcedColorAdjust, value)
+	}
+
+	/**
+	How the mask images repeat, like `.space` for a row of shapes with even gaps.
+	*/
+	public func maskRepeat(_ repeat: ImageRepeat) -> Self {
+		declaration(.maskRepeat, `repeat`)
 	}
 
 	/**
@@ -47,7 +85,12 @@ extension Style {
 	A border around the element. A style like `.outset` draws a raised edge in shades of the color, like the windows and buttons of old operating systems.
 	*/
 	public func border(_ color: Color = .currentColor, width: Length = .pixels(1), style: BorderStyle = .solid) -> Self {
-		border(.all, color, width: width, style: style)
+		border(
+			.all,
+			color,
+			width: width,
+			style: style
+		)
 	}
 
 	public func border(
@@ -77,7 +120,7 @@ extension Style {
 		declaration(.borderCollapse, value)
 	}
 
-	public func cornerRadius(_ radius: Length) -> Self {
+	public func cornerRadius(_ radius: LengthPercentage) -> Self {
 		declaration(.borderRadius, radius)
 	}
 
@@ -90,8 +133,8 @@ extension Style {
 
 	It also clips the filters of the element, like a drop shadow, so put a shadow on a parent.
 	*/
-	public func clipShape(inset: Length, cornerRadius: Length) -> Self {
-		declaration(.clipPath, CSSValue("inset(\(inset) round \(cornerRadius))"))
+	public func clipShape(inset: LengthPercentage, cornerRadius: LengthPercentage) -> Self {
+		declaration(.clipPath, CSSValue(raw: "inset(\(inset) round \(cornerRadius))"))
 	}
 
 	/**
@@ -104,11 +147,11 @@ extension Style {
 	/**
 	Box shadows, drawn from the first to the last. No shadows removes them.
 	*/
-	public func shadow(_ shadows: [Shadow]) -> Self {
-		declaration(.boxShadow, shadows.isEmpty ? .none : CSSValue(shadows, separator: ", "))
+	public func shadow(_ shadows: [BoxShadow]) -> Self {
+		declaration(.boxShadow, CSSValue(shadows, separator: ", ", emptyValue: .none))
 	}
 
-	public func shadow(_ shadows: Shadow...) -> Self {
+	public func shadow(_ shadows: BoxShadow...) -> Self {
 		shadow(shadows)
 	}
 
@@ -124,7 +167,12 @@ extension Style {
 		offset: Length? = nil,
 		style lineStyle: BorderStyle = .solid
 	) -> Self {
-		outline(color, width: width, offset: offset, style: lineStyle)
+		outline(
+			color,
+			width: width,
+			offset: offset,
+			style: lineStyle
+		)
 	}
 
 	/**
@@ -157,8 +205,8 @@ extension Style {
 		declaration(.mixBlendMode, mode)
 	}
 
-	public func opacity(_ opacity: Double) -> Self {
-		declaration(.opacity, CSSValue(opacity))
+	public func opacity(_ opacity: CSSNumber) -> Self {
+		declaration(.opacity, opacity)
 	}
 
 	public func cursor(_ cursor: Cursor) -> Self {
@@ -179,14 +227,14 @@ extension Style {
 		y: Int = 0,
 		fallback: Cursor = .auto
 	) -> Self {
-		declaration(.cursor, CSSValue("\(CSSValue.url(image)) \(x) \(y), \(fallback.rawValue)"))
+		declaration(.cursor, CSSValue(raw: "\(CSSValue.url(image)) \(x) \(y), \(fallback.rawValue)"))
 	}
 
 	/**
 	The colors of the scroll bars of the element, for browsers without ``scrollbar(_:_:)``, like Firefox. Browsers with both use these colors instead of the parts, so put it in `.supports(!.webKitScrollbar)` to use the parts where they work.
 	*/
 	public func scrollbarColor(thumb: Color, track: Color) -> Self {
-		declaration(.scrollbarColor, CSSValue("\(thumb) \(track)"))
+		declaration(.scrollbarColor, CSSValue(raw: "\(thumb) \(track)"))
 	}
 
 	/**
@@ -249,15 +297,22 @@ extension Style {
 	/**
 	Scales the element from its center, like SwiftUI's `scaleEffect(_:)`.
 	*/
-	public func scaleEffect(_ scale: Double) -> Self {
-		declaration(.scale, CSSValue(scale))
+	public func scaleEffect(_ scale: CSSNumber) -> Self {
+		declaration(.scale, scale)
+	}
+
+	/**
+	Scales each axis independently, like `.scaleEffect(x: -1, y: 1)` to mirror an element horizontally.
+	*/
+	public func scaleEffect(x: CSSNumber, y: CSSNumber) -> Self {
+		declaration(.scale, [CSSValue(x), CSSValue(y)])
 	}
 
 	/**
 	Moves the element without affecting the layout, like SwiftUI's `offset(x:y:)`.
 	*/
-	public func offset(x: Length = 0, y: Length = 0) -> Self {
-		declaration(.translate, y == 0 ? CSSValue(x) : [CSSValue(x), CSSValue(y)])
+	public func offset(x: LengthPercentage = .zero, y: LengthPercentage = .zero) -> Self {
+		declaration(.translate, y == .zero ? CSSValue(x) : [CSSValue(x), CSSValue(y)])
 	}
 
 	/**
@@ -268,10 +323,24 @@ extension Style {
 	}
 
 	/**
-	A transform, for what the effect modifiers cannot express, like a 3D rotation.
+	A transform function that the code builds itself, for what the typed transforms cannot express, like a `matrix`.
 	*/
-	public func transform(_ value: CSSValue) -> Self {
+	public func transform(raw value: CSSValue) -> Self {
 		declaration(.transform, value)
+	}
+
+	/**
+	Transform functions applied in their written order. An empty list resets the transform.
+	*/
+	public func transform(_ transforms: Transform...) -> Self {
+		transform(transforms)
+	}
+
+	/**
+	An ordered list of transform functions, or `none` when the list is empty.
+	*/
+	public func transform(_ transforms: [Transform]) -> Self {
+		declaration(.transform, CSSValue(transforms, separator: " ", emptyValue: .none))
 	}
 
 	/**
@@ -282,6 +351,20 @@ extension Style {
 	}
 
 	/**
+	The origin of transforms, with an optional length-only depth.
+	*/
+	public func transformOrigin(_ position: CSSPosition, depth: Length? = nil) -> Self {
+		declaration(.transformOrigin, CSSValue(raw: position.description + (depth.map { " \($0)" } ?? "")))
+	}
+
+	/**
+	The two-dimensional position of the background image.
+	*/
+	public func backgroundPosition(_ position: CSSPosition) -> Self {
+		declaration(.backgroundPosition, CSSValue(raw: position.description))
+	}
+
+	/**
 	The distance from the viewer to a three-dimensional scene (`perspective` in CSS).
 	*/
 	public func perspective(_ distance: Length) -> Self {
@@ -289,25 +372,31 @@ extension Style {
 	}
 
 	/**
-	Filters for the element, applied in order, like `.filter(.blur(radius: .pixels(2)), .brightness(1.1))`. Use `.filter(.none)` to remove them.
+	Filters for the element, applied in order, like `.filter(.blur(radius: .pixels(2)), .brightness(1.1))`. Passing no filters removes them.
 	*/
-	public func filter(_ filter: Filter, _ moreFilters: Filter...) -> Self {
-		self.filter([filter] + moreFilters)
+	public func filter(_ filters: Filter...) -> Self {
+		filter(filters)
 	}
 
 	/**
-	Filters from a list, like a drop shadow that an element always has and the brightness of a state. Use `.filter(.none)` to remove them.
+	Filters from a list, like a drop shadow that an element always has and the brightness of a state. An empty list removes them.
 	*/
 	public func filter(_ filters: [Filter]) -> Self {
-		precondition(!filters.isEmpty, "A filter needs at least one function.")
-		return declaration(.filter, CSSValue(filters, separator: " "))
+		declaration(.filter, CSSValue(filters, separator: " ", emptyValue: .none))
 	}
 
 	/**
-	Filters for the area behind the element, like `.backdropFilter(.blur(radius: .pixels(14)))` for frosted glass. Use `.backdropFilter(.none)` to remove them.
+	Filters for the area behind the element, like `.backdropFilter(.blur(radius: .pixels(14)))` for frosted glass. Passing no filters removes them.
 	*/
-	public func backdropFilter(_ filter: Filter, _ moreFilters: Filter...) -> Self {
-		declaration(.backdropFilter, CSSValue([filter] + moreFilters, separator: " "))
+	public func backdropFilter(_ filters: Filter...) -> Self {
+		backdropFilter(filters)
+	}
+
+	/**
+	Filters for the area behind the element from a list. An empty list removes them.
+	*/
+	public func backdropFilter(_ filters: [Filter]) -> Self {
+		declaration(.backdropFilter, CSSValue(filters, separator: " ", emptyValue: .none))
 	}
 
 	/**
@@ -318,13 +407,13 @@ extension Style {
 		guard
 			let index = declarations.lastIndex(where: { $0.property == property }),
 			declarations[index].value != .none,
-			!declarations[index].value.description.hasSuffix("!important")
+			!declarations[index].isImportant
 		else {
-			return declaration(property, CSSValue(value))
+			return declaration(property, CSSValue(raw: value))
 		}
 
 		var copy = self
-		copy.declarations[index] = Declaration(property: property, value: CSSValue("\(declarations[index].value)\(separator)\(value)"))
+		copy.declarations[index] = Declaration(property: property, value: CSSValue(raw: "\(declarations[index].value)\(separator)\(value)"))
 		return copy
 	}
 }
@@ -333,22 +422,27 @@ extension Style {
 
 extension Style {
 	/**
+	Whether transitions and animations can go to and from size keywords, like `auto`, so the content of a `<details>` element can open smoothly. It is inherited, so it is set on the root.
+	*/
+	public func interpolateSize(_ interpolation: SizeInterpolation) -> Self {
+		declaration(.interpolateSize, interpolation)
+	}
+
+	/**
 	Animates changes of the properties. Transitions add up, so properties can have different durations:
 
 	```swift
 	Style()
-		.transition(.colors, animation: .default(duration: .milliseconds(150)))
-		.transition(.scaleEffect, animation: .easeOut(duration: .milliseconds(300)))
+		.transition(.colors, timing: .default(duration: .milliseconds(150)))
+		.transition(.scaleEffect, timing: .easeOut(duration: .milliseconds(300)))
 	```
 	*/
-	public func transition(_ properties: TransitionProperty..., animation: Animation) -> Self {
-		precondition(!animation.repeatsForever, "A transition runs once.")
-
+	public func transition(_ properties: TransitionProperty..., timing: AnimationTiming) -> Self {
 		var style = self
 
 		for property in properties {
 			for name in property.properties {
-				let transition = "\(name) \(animation.timing)" + (property.isDiscrete ? " allow-discrete" : "")
+				let transition = "\(name) \(timing)" + (property.isDiscrete ? " allow-discrete" : "")
 				style = style.appending(transition, to: .transition, separator: ", ")
 			}
 		}
@@ -379,15 +473,7 @@ extension Style {
 		fillMode: AnimationFillMode? = nil,
 		isEssential: Bool = false
 	) -> Self {
-		let parts = [
-			keyframes.name,
-			animation.timing,
-			animation.repeatsForever ? "infinite" : nil,
-			animation.autoreverses ? "alternate" : nil,
-			fillMode?.rawValue,
-		]
-
-		let value = CSSValue(parts.compactMap(\.self), separator: " ")
+		let value = animation.cssValue(name: keyframes.name, fillMode: fillMode)
 
 		var style = if isEssential {
 			declaration(.animation, value)
@@ -406,12 +492,28 @@ extension Style {
 
 	It also runs with reduced motion, as it follows the scrolling of the visitor instead of moving by itself.
 
-	- Parameter range: The part of the scrolling that runs the animation, like `exit 90% exit 100%`.
+	- Parameters:
+		- start: The offset where the animation starts.
+		- end: The offset where the animation ends.
 	*/
-	public func animation(_ keyframes: some KeyframeSet, timeline: AnimationTimeline, range: String) -> Self {
-		var style = declaration(.animation, CSSValue("\(keyframes.name) linear both"))
-			.declaration(.animationTimeline, CSSValue(timeline.description))
-			.declaration(.animationRange, CSSValue(range))
+	public func animation(_ keyframes: some KeyframeSet, timeline: AnimationTimeline, from start: LengthPercentage, to end: LengthPercentage) -> Self {
+		animation(keyframes, timeline: timeline, rawRange: "\(start) \(end)")
+	}
+
+	/**
+	A scroll-driven animation between named timeline boundaries, like `from: .entry(.percent(10)), to: .exit(.percent(90))`.
+	*/
+	public func animation(_ keyframes: some KeyframeSet, timeline: AnimationTimeline, from start: AnimationRangeBoundary, to end: AnimationRangeBoundary) -> Self {
+		animation(keyframes, timeline: timeline, rawRange: "\(start) \(end)")
+	}
+
+	/**
+	A scroll-driven animation with an explicit unchecked CSS attachment range, for named ranges and other forms beyond plain offsets.
+	*/
+	public func animation(_ keyframes: some KeyframeSet, timeline: AnimationTimeline, rawRange: String) -> Self {
+		var style = declaration(.animation, CSSValue(raw: "\(keyframes.name) linear both"))
+			.declaration(.animationTimeline, CSSValue(raw: timeline.description))
+			.declaration(.animationRange, CSSValue(raw: rawRange))
 
 		style.definitions += keyframes.nodes
 		return style
@@ -421,14 +523,14 @@ extension Style {
 	Names the progress of the element through the view, for scroll-driven animations of other elements. An ancestor of those elements needs the timeline in ``timelineScope(_:)``.
 	*/
 	public func viewTimeline(_ timeline: ViewTimeline) -> Self {
-		declaration(.viewTimelineName, CSSValue(timeline.name))
+		declaration(.viewTimelineName, CSSValue(raw: timeline.name.description))
 	}
 
 	/**
 	Makes a view timeline of a descendant available to all descendants, like a view timeline of a section for the header.
 	*/
 	public func timelineScope(_ timeline: ViewTimeline) -> Self {
-		declaration(.timelineScope, CSSValue(timeline.name))
+		declaration(.timelineScope, CSSValue(raw: timeline.name.description))
 	}
 
 	/**
@@ -446,6 +548,6 @@ extension CSSValue {
 	A line of a border or an outline, like `1px solid red`.
 	*/
 	fileprivate static func line(_ color: Color, width: Length, style: BorderStyle) -> Self {
-		Self("\(width) \(style.rawValue) \(color)")
+		Self(raw: "\(width) \(style.rawValue) \(color)")
 	}
 }

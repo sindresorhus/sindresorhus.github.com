@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-Four similar apps as cards: the best matches by platform, menu bar, and price, shuffled among the top eight. The page leaves it out when there are none.
+Four similar apps as cards: the best matches by platform, menu bar, and price, with a daily shuffle among equally good matches. The page leaves it out when there are none.
 */
 struct RelatedApps: HTML {
 	let relatedApps: [App]
@@ -16,12 +16,12 @@ struct RelatedApps: HTML {
 			}
 			.style(SectionStyles.label)
 
-			AppGrid(apps: relatedApps, content: content)
+			AppGrid(apps: relatedApps, buildDate: content.buildDate)
 		}
 		.style {
 			$0.contentColumn(.page)
 		}
 	}
 
-	private static let titleID = "related-apps"
+	private static let titleID = ElementID("related-apps")
 }

@@ -5,7 +5,7 @@ import SiteKit
 A page that is a column of prose, like `/about`, optionally with a title and a link back to the app it is about.
 
 ```swift
-ProsePage(title: "Privacy Policy for Dato", backTo: app) {
+ProsePage(app: app, title: "Privacy Policy") {
 	p {
 		"No data is collected."
 	}
@@ -13,8 +13,16 @@ ProsePage(title: "Privacy Policy for Dato", backTo: app) {
 ```
 */
 struct ProsePage<Content: HTML, Accessory: HTML>: HTML {
-	private let title: String?
-	private let photo: LinkDestination?
+	/**
+	Only this component can pair an app heading with its back link.
+	*/
+	private enum Header {
+		case plain(ProsePageTitle)
+		case app(App, String)
+	}
+
+	private let title: Header?
+	private let photo: ImageSource?
 	private let app: App?
 	private let content: Content
 	private let accessory: Accessory
@@ -25,14 +33,30 @@ struct ProsePage<Content: HTML, Accessory: HTML>: HTML {
 	- Parameter accessory: Shown next to the back link, like an RSS feed link.
 	*/
 	init(
-		title: String? = nil,
-		photo: LinkDestination? = nil,
+		title: ProsePageTitle? = nil,
+		photo: ImageSource? = nil,
 		backTo app: App? = nil,
 		@ContentBuilder content: () -> Content, @ContentBuilder accessory: () -> Accessory
 	) {
-		self.title = title
+		self.title = title.map(Header.plain)
 		self.photo = photo
 		self.app = app
+		self.content = content()
+		self.accessory = accessory()
+	}
+
+	/**
+	Creates an app section whose title and optional back link identify the same app.
+	*/
+	init(
+		app: App,
+		title: String,
+		linksBack: Bool = true,
+		@ContentBuilder content: () -> Content, @ContentBuilder accessory: () -> Accessory
+	) {
+		self.title = .app(app, title)
+		self.photo = nil
+		self.app = linksBack ? app : nil
 		self.content = content()
 		self.accessory = accessory()
 	}
@@ -49,17 +73,28 @@ struct ProsePage<Content: HTML, Accessory: HTML>: HTML {
 						.style(ProsePageStyles.backRow)
 					}
 
-					if let title {
-						PageHeader(title: title)
+					switch title {
+					case .plain(let title):
+						PageHeader(title: title.text, intro: title.intro)
+					case .app(let app, let title):
+						AppHeader(app: app, title: title)
+					case nil:
+						EmptyHTML()
 					}
 				}
 				.style(ProsePageStyles.header)
 			}
 
 			Prose {
-				// In the prose, so the text flows around it.
+				// In the prose, so the text flows around it. Lazy, so phones, where it is hidden, do not download it. On larger screens, it is in view at once, so it still loads at once.
 				if let photo {
-					img(.src(photo.description), .alt(""), .width(112), .height(112))
+					img(
+						.src(photo),
+						.alt(""),
+						.width(112),
+						.height(112),
+						.lazyLoading
+					)
 						.style(ProsePageStyles.photo)
 				}
 
@@ -71,15 +106,63 @@ struct ProsePage<Content: HTML, Accessory: HTML>: HTML {
 }
 
 extension ProsePage where Accessory == EmptyHTML {
+	/**
+	Creates an app section without accessory content.
+	*/
 	init(
-		title: String? = nil,
-		photo: LinkDestination? = nil,
+		app: App,
+		title: String,
+		linksBack: Bool = true,
+		@ContentBuilder content: () -> Content
+	) {
+		self.init(
+			app: app,
+			title: title,
+			linksBack: linksBack,
+			content: content
+		) {
+			EmptyHTML()
+		}
+	}
+
+	init(
+		title: ProsePageTitle? = nil,
+		photo: ImageSource? = nil,
 		backTo app: App? = nil,
 		@ContentBuilder content: () -> Content
 	) {
-		self.init(title: title, photo: photo, backTo: app, content: content) {
+		self.init(
+			title: title,
+			photo: photo,
+			backTo: app,
+			content: content
+		) {
 			EmptyHTML()
 		}
+	}
+}
+
+/**
+The title of a ``ProsePage``. A string literal is a plain title.
+*/
+struct ProsePageTitle: ExpressibleByStringInterpolation {
+	let text: String
+	let intro: String?
+
+	/**
+	A title, like “Older Versions”, with an optional introduction below it. App headings use ProsePage's app initializer instead.
+	*/
+	static func plain(_ text: String, intro: String? = nil) -> Self {
+		Self(text: text, intro: intro)
+	}
+
+	init(stringLiteral value: String) {
+		self = .plain(value)
+	}
+
+	private init(text: String, intro: String?) {
+		self.text = text
+		self.intro = intro
 	}
 }
 
@@ -104,9 +187,6 @@ private enum ProsePageStyles: StyleSet {
 			Style()
 				.centeredColumn(.prose)
 				.pagePadding()
-				.from(.tablet) {
-					$0.frame(minHeight: .smallViewportHeight(100))
-				}
 		case .header:
 			// Lines up with the text of the prose. The space below is the same as below the `#` title of Markdown pages.
 			Style()

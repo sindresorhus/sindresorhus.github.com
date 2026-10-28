@@ -1,13 +1,13 @@
 {
-  "originHash" : "6d1ce6faef7d8f3335f2a61b2e73602016dfa8c148f8125057fd6f089e506e1c",
+  "originHash" : "642955a14b2b2defcfc5eb51746c12606366fd90012669d56ef79149ce419b52",
   "pins" : [
     {
       "identity" : "elementary",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/elementary-swift/elementary.git",
       "state" : {
-        "revision" : "9a66ebc5f8a2586f2a94893fc6e22d833c8e2ae5",
-        "version" : "0.8.2"
+        "revision" : "a565afcb8d70d9b54d06cedc4f4c61944501768f",
+        "version" : "0.8.4"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soml-lang/SOMLSwift.git",
       "state" : {
-        "revision" : "77213a19f8732283c7f039e33b1b79d9bc2f7bb6",
-        "version" : "0.0.1"
+        "revision" : "476db6343dab93cf802d1b6e44fe5a688943df3b",
+        "version" : "0.0.2"
       }
     },
     {

@@ -4,17 +4,17 @@ extension ProseStyles {
 	/**
 	The space between list items, and between the items of nested lists. It is less than the space below a heading, so a heading stays with the text below it, and less than the space between paragraphs, so the items of a list read as one block.
 	*/
-	static let listItemSpacing = Length.em(0.375)
+	static let listItemSpacing = LengthPercentage.em(0.375)
 
 	/**
 	The space above and below a block that is set off from the text, like code, an image, a quote, a table, or an alert. It is more than the space between paragraphs.
 	*/
-	static let blockSpacing = Length.em(1.75)
+	static let blockSpacing = LengthPercentage.em(1.75)
 
 	/**
 	The size of smaller text in prose, like code and captions: 16px next to the 18px of the text.
 	*/
-	static let smallTextSize = Length.em(0.8889)
+	static let smallTextSize = LengthPercentage.em(0.8889)
 
 	/**
 	Typography based on the Tailwind Typography plugin (`prose prose-lg dark:prose-invert`), with shorter lines (about 78 characters, see ``Style/ColumnWidth/prose``) and a calmer heading scale.
@@ -25,17 +25,17 @@ extension ProseStyles {
 		.contentColumn(.prose)
 		.frame(width: .percent(100))
 		.font(size: .rootEm(1.125), lineHeight: 1.65)
-		.letterSpacing(0)
+		.letterSpacing(.zero)
 		.overflowWrap(.breakWord)
 		.color(.bodyText)
-		// Long words break with a hyphen only on phones, where the column is narrow, like the long answers of an FAQ. An opening quote hangs outside the column, so the text lines up. Like in a book, for all prose, not only blog posts.
+		// Long words break with a hyphen only on phones, where the column is narrow, like the long answers of an FAQ. Only words of 8 letters or more, as a short word with a hyphen, like “mac-OS” or “al-ways”, is harder to read than a shorter line. An opening quote hangs outside the column, so the text lines up. Like in a book, for all prose, not only blog posts.
 		.below(.smallTablet) {
-			$0.hyphenation(true)
+			$0.hyphenation(minimumWordLength: 8)
 		}
-		.declaration(.hangingPunctuation, "first")
+		.hangingPunctuation(.first)
 		// A list has the space of a paragraph around it.
 		.descendants("p, ul, ol") {
-			$0.margin(vertical: .em(1), horizontal: 0)
+			$0.margin(vertical: .em(1), horizontal: .zero)
 		}
 		.descendants("a") {
 			$0.textLink()
@@ -54,34 +54,34 @@ extension ProseStyles {
 		// The title of Markdown pages, the same as the title of other pages (``PageHeader``) and the space below it (``ProsePage``).
 		.descendants("h1") {
 			$0
-				.margin(top: 0, horizontal: 0, bottom: .rootEm(2.5))
+				.margin(top: .zero, horizontal: .zero, bottom: .rootEm(2.5))
 				.textStyle(.largeTitle)
 		}
 		// A paragraph right below the title is its introduction, with the look and the space of the introduction of other pages (``PageHeader``).
 		.descendants("h1:has(+ p)") {
-			$0.margin(.bottom, .rootEm(0.5))
+			$0.margin(.bottom, .length(PageHeaderStyles.introSpacing))
 		}
 		.descendants("h1 + p") {
 			$0
-				.margin(top: .rootEm(0.5), horizontal: 0, bottom: .rootEm(2.5))
+				.margin(top: .length(PageHeaderStyles.introSpacing), horizontal: .zero, bottom: .rootEm(2.5))
 				.secondaryText(.lead)
 		}
 		// Larger headings, up to `h3`, get tighter letter spacing, like the system fonts of Apple platforms.
 		.descendants("h2") {
 			$0
-				.margin(top: .rootEm(5), horizontal: 0, bottom: .rootEm(1.5))
+				.margin(top: .rootEm(5), horizontal: .zero, bottom: .rootEm(1.5))
 				.textStyle(.sectionTitle)
 		}
 		// Each level is clearly smaller than the one above it: 22px, then the 18px of the text, and then 16px.
 		.descendants("h3") {
 			$0
-				.margin(top: .rootEm(2.5), horizontal: 0, bottom: .rootEm(1))
+				.margin(top: .rootEm(2.5), horizontal: .zero, bottom: .rootEm(1))
 				.font(size: .em(1.2222), lineHeight: 1.3)
 				.letterSpacing(.em(-0.015))
 		}
 		.descendants("h4, h5, h6") {
 			$0
-				.margin(top: .rootEm(2), horizontal: 0, bottom: .rootEm(1))
+				.margin(top: .rootEm(2), horizontal: .zero, bottom: .rootEm(1))
 				.lineHeight(1.5)
 		}
 		.descendants("h5, h6") {
@@ -91,8 +91,13 @@ extension ProseStyles {
 		.descendants(":is(h2, h3, h4, h5, h6) + br") {
 			$0.hidden()
 		}
+		// On phones, a smaller indent, so the narrow column has more room for the text of a list, also in a nested list. The markers still hang clearly.
 		.descendants("ul, ol") {
-			$0.padding(.leading, .em(1.5556))
+			$0
+				.padding(.leading, .em(1.5556))
+				.below(.smallTablet) {
+					$0.padding(.leading, .em(1.125))
+				}
 		}
 		.descendants("ul") {
 			$0.listStyle(.disc)
@@ -102,13 +107,17 @@ extension ProseStyles {
 		}
 		// List items, nested lists, and the paragraphs of a loose list, where Markdown wraps each item in a paragraph, have the space of list items.
 		.descendants("li, li > :is(p, ul, ol)") {
-			$0.margin(vertical: listItemSpacing, horizontal: 0)
+			$0.margin(vertical: .length(listItemSpacing), horizontal: .zero)
 		}
 		.descendants("li") {
-			$0.padding(.leading, .em(0.4444))
+			$0
+				.padding(.leading, .em(0.4444))
+				.below(.smallTablet) {
+					$0.padding(.leading, .em(0.25))
+				}
 		}
 		// In a list with `: ` and `:: ` lines, like the features of an app, a nested list is details of its item, so it looks like the `:: ` lines, and not heavier than them.
-		.descendants(":is(ul, ol):has(> li > :is(\(ProseStyles.listSubtitle.selector), \(ProseStyles.listDescription.selector))) > li > :is(ul, ol)") {
+		.descendants(":is(ul, ol):has(> li > :is(\(class: ProseStyles.listSubtitle), \(class: ProseStyles.listDescription))) > li > :is(ul, ol)") {
 			$0.listDetailText()
 		}
 		.nested(":where(ol > li)::marker") {
@@ -117,16 +126,16 @@ extension ProseStyles {
 		.nested(":where(ul > li)::marker") {
 			$0.color(.gray(300), dark: .gray(600))
 		}
-		// The margins are with the element rules, so the spacing rules after them, like no space below a heading, win.
-		.descendants("blockquote, pre, img, video, picture, figure, \(ProseStyles.tableContainer.selector), \(CodeBlock.Styles.root.selector)") {
+		// The margins are with the element rules, so the spacing rules after them, like no space below a heading, win. Without specificity, like the element rules, also for the table container and the code block, as their margins are only for prose.
+		.descendants("blockquote, pre, img, video, picture, figure, \(class: ProseStyles.tableContainer), \(class: CodeBlock.Styles.root)") {
 			$0.proseBlockMargin()
 		}
-		.descendants(CodeBlock.Styles.root.selector) {
+		.descendants("\(class: CodeBlock.Styles.root)") {
 			$0.widerThanProse()
 		}
 		.descendants("hr") {
 			$0
-				.margin(vertical: .em(3), horizontal: 0)
+				.margin(vertical: .em(3), horizontal: .zero)
 				.border(.top, .separator)
 		}
 		.descendants("blockquote") {
@@ -169,7 +178,7 @@ extension ProseStyles {
 		}
 		// Strong text and code in links, quotes, headings, and table headers have the color of the text around them.
 		.descendants(":is(a, blockquote, h1, h2, h3, h4, h5, h6, th) :is(strong, code)") {
-			$0.color(.inherit)
+			$0.inherits(.color)
 		}
 		// Code that is not a `CodeBlock`, like in release notes.
 		.descendants("pre") {
@@ -179,7 +188,7 @@ extension ProseStyles {
 		.descendants("pre code") {
 			$0
 				.inheritsFont()
-				.color(.inherit)
+				.inherits(.color)
 		}
 
 	/**
@@ -188,14 +197,14 @@ extension ProseStyles {
 	static let spacing = Style()
 		// Also after a line break that follows a heading, which takes no space.
 		.descendants(":is(hr, h2, h3, h4, h5, h6) + *, :is(h2, h3, h4, h5, h6) + br + *") {
-			$0.margin(.top, 0)
+			$0.margin(.top, .zero)
 		}
 		// Low specificity, so a block that sets its own margin, like an alert, keeps it.
 		.children(":where(:first-child)") {
-			$0.margin(.top, 0)
+			$0.margin(.top, .zero)
 		}
 		.children(":where(:last-child)") {
-			$0.margin(.bottom, 0)
+			$0.margin(.bottom, .zero)
 		}
 
 	/**
@@ -235,7 +244,7 @@ extension ProseStyles {
 	static let articleStyle = Style()
 		.padding(.bottom, .rootEm(5))
 		// Oldstyle numerals. Ligatures and kerning are on by default.
-		.declaration(.fontVariantNumeric, "oldstyle-nums")
+		.fontVariantNumeric(.oldstyleNumbers)
 		.declaration(.textRendering, "optimizeLegibility")
 		.descendants("a") {
 			$0
@@ -268,7 +277,7 @@ extension ProseStyles {
 		.positionTryFallbacks(.flipBlock)
 		.inset(.auto)
 		.margin(.pixels(8))
-		.frame(maxWidth: .min(.rootEm(24), .viewportWidth(100) - .rootEm(2)))
+		.frame(maxWidth: .length(.min(.rootEm(24), .viewportWidth(100) - .rootEm(2))))
 		.padding(vertical: .rootEm(0.75), horizontal: .rootEm(1))
 		.popoverSurface()
 		.font(size: .rootEm(0.9375), lineHeight: 1.5)
@@ -282,8 +291,8 @@ extension Style {
 	An image in prose that does not look like an image of prose, like an app icon or a logo in a card: without the margins, the rounded corners, and the shadow.
 	*/
 	func plainImage() -> Self {
-		margin(0)
-			.cornerRadius(0)
+		margin(.zero)
+			.cornerRadius(.zero)
 			.shadow([])
 	}
 
@@ -291,13 +300,13 @@ extension Style {
 	A list in prose that does not look like a list of prose, like the details below a card or a step: without the space of a list, and with items that are blocks, so they have no bullets. Put it first, so the styles after it win.
 	*/
 	func plainList() -> Self {
-		margin(0)
-			.padding(0)
+		margin(.zero)
+			.padding(.zero)
 			.children("li") {
 				$0
 					.display(.block)
-					.margin(0)
-					.padding(0)
+					.margin(.zero)
+					.padding(.zero)
 			}
 	}
 
@@ -313,15 +322,16 @@ extension Style {
 	The space of a block in prose above and below the element (``ProseStyles/blockSpacing``), like code, an alert, or a card, so it is set off from the text.
 	*/
 	func proseBlockMargin() -> Self {
-		margin(vertical: ProseStyles.blockSpacing, horizontal: 0)
+		margin(vertical: .length(ProseStyles.blockSpacing), horizontal: .zero)
 	}
 
 	/**
-	A card that is set off from the text of prose, like a quick answer or a trial, with the space of a block around it.
+	A card that is set off from the text of prose, like a quick answer or a trial, with the space of a block around it. Its text starts where the paragraphs start (``widerThanProse()``).
 	*/
 	func proseCard() -> Self {
 		proseBlockMargin()
-			.padding(.rootEm(1.75))
+			.padding(vertical: .rootEm(1.75), horizontal: .boxInset)
+			.widerThanProse()
 			.cardSurface(isInteractive: false)
 			.trimmingChildMargins()
 	}

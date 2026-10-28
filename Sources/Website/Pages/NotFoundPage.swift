@@ -54,9 +54,9 @@ struct NotFoundPage: Page {
 					.style(Styles.message)
 
 					// `not-found.js` shows it when a page is close to the requested path.
-					p(.id(Hooks.closestPage), .hidden) {
+					p(.id(IDs.closestPage), .hidden) {
 						"Did you mean "
-						a(.id(Hooks.closestPageLink), .href(.root)) {}
+						a(.id(IDs.closestPageLink), .href(.root)) {}
 						"?"
 					}
 					.style(Styles.closestPage)
@@ -81,7 +81,7 @@ struct NotFoundPage: Page {
 						}
 						.style(SectionStyles.label)
 
-						AppGrid(apps: apps, content: content)
+						AppGrid(apps: apps, buildDate: content.buildDate)
 					}
 					.style(Styles.apps)
 				}
@@ -90,17 +90,58 @@ struct NotFoundPage: Page {
 		}
 		.style(Styles.root)
 
-		// Not the home page, which is close to every short path, and already has a button.
-		JSONScript(id: Hooks.data, suggestedPaths.filter { $0 != .root })
-		ModuleScript("/scripts/not-found.js")
+		JSONScript(id: IDs.data, ScriptData(suggestedPaths: suggestedPaths, apps: content.activeAppsWithPages))
+		ModuleScript(#path("/scripts/not-found.js"))
 	}
 }
 
 extension NotFoundPage {
 	/**
-	The IDs and data attributes that the scripts of the page find elements by.
+	The data of `not-found.js`.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	struct ScriptData: Encodable {
+		/**
+		The help of an app, for a path like `/dato/support` or `/dato/faq`.
+		*/
+		struct AppHelp: Encodable {
+			let feedback: LinkDestination
+			let faq: LinkDestination
+		}
+
+		/**
+		The pages that the visitor may have meant. Not the home page, which is close to every short path, and already has a button.
+		*/
+		let paths: [RoutePath]
+
+		/**
+		The feedback form, for a path like `/support`.
+		*/
+		let feedback: RoutePath
+
+		/**
+		The help of each app, by its slug.
+		*/
+		let apps: [String: AppHelp]
+
+		init(suggestedPaths: [RoutePath], apps: [App]) {
+			self.paths = suggestedPaths.filter { $0 != .root }
+			self.feedback = .feedback
+			self.apps = Dictionary(uniqueKeysWithValues: apps.map { app in
+				(
+					app.slug,
+					AppHelp(
+						feedback: App.feedbackURL(appTitle: app.title),
+						faq: app.faqDestination ?? .path(app.path)
+					)
+				)
+			})
+		}
+	}
+
+	/**
+	The IDs that the scripts of the page find elements by.
+	*/
+	enum IDs: String, ScriptIDSet {
 		case closestPage = "closest-page"
 		case closestPageLink = "closest-page-link"
 		case data = "not-found-data"
@@ -124,7 +165,7 @@ extension NotFoundPage {
 				Style()
 					.hstack(alignment: .center)
 					.frame(minHeight: .smallViewportHeight(75))
-					.padding(vertical: .rootEm(4), horizontal: 0)
+					.padding(vertical: .rootEm(4), horizontal: .zero)
 			case .container:
 				// As wide as the content of the header, so the app cards line up with it, like on the other pages with app cards.
 				Style()
@@ -140,7 +181,12 @@ extension NotFoundPage {
 				// Large, in the rounded font, like a sign.
 				Style()
 					.margin(.bottom, .rootEm(1.5))
-					.fluidFontSize(fromRem: 6, toRem: 9, between: .phone, and: .smallTablet)
+					.fluidFontSize(
+						fromRem: 6,
+						toRem: 9,
+						between: .phone,
+						and: .smallTablet
+					)
 					.lineHeight(1)
 					.fontFamily(.rounded)
 					.bold()
@@ -158,7 +204,7 @@ extension NotFoundPage {
 					.color(.primaryText)
 			case .message:
 				Style()
-					.margin(top: .rootEm(0.75), horizontal: 0, bottom: .rootEm(2))
+					.margin(top: .rootEm(0.75), horizontal: .zero, bottom: .rootEm(2))
 					.secondaryText(.lead)
 			case .closestPage:
 				Style()
@@ -173,7 +219,7 @@ extension NotFoundPage {
 				// More space below than other sections, as the footer follows.
 				Style()
 					.frame(width: .percent(100))
-					.margin(top: .rootEm(6), horizontal: 0, bottom: .rootEm(4))
+					.margin(top: .rootEm(6), horizontal: .zero, bottom: .rootEm(4))
 			}
 		}
 	}

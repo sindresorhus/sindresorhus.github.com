@@ -1,17 +1,28 @@
 ---
 title: 'Amazing AI'
 subtitle: 'Generate images from text using Stable Diffusion'
-publicationDate: '2022-12-21'
+publicationDate: 2022-12-21
 platforms: [
 	'macOS'
 	'iOS'
 	'visionOS'
 ]
 appStoreID: 1660147028
+hasSentry: true
+nonAppStoreVersion: {
+	version: '1.7.0'
+	macOS: 26
+	url: 'https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Amazing.AI.1.7.0.zip'
+}
 sharedQuestions: [
 	'suggested-filenames'
+	'ai-custom-models'
+	'ai-inpainting'
+	'ai-adult-images'
+	'ai-slow'
+	'ai-model-size'
+	'ai-marking'
 ]
-hasSentry: true
 olderVersions: [
 	{
 		version: '1.6.0'
@@ -29,11 +40,15 @@ olderVersions: [
 		url: 'https://drive.google.com/file/d/1mcEhAKhmQGYzmSS-zlejt3_qsKFzqm0h/view?usp=sharing'
 	}
 ]
-nonAppStoreVersion: {
-	version: '1.7.0'
-	macOS: 26
-	url: 'https://github.com/sindresorhus/sindresorhus.github.com/releases/download/v1.0.0/Amazing.AI.1.7.0.zip'
-}
+pressQuotes: [
+	{
+		quote: 'Like the already available free competitors DiffusionBee and AI Photo, Amazing AI has no cloud dependencies and runs completely locally.'
+		source: 'ifun.de'
+		translatedFrom: 'German'
+		url: 'https://www.ifun.de/amazing-ai-neuer-deep-learning-bildgenerator-fuer-den-mac-200992/'
+		year: 2022
+	}
+]
 ---
 
 Describe the image you want, and the app makes it for you.
@@ -78,63 +93,30 @@ On macOS, when you save a generated image, it includes a lot of useful metadata 
 
 ## Frequently Asked Questions {#faq}
 
-### Why not use Stable Diffusion 3?
+### Why not use Stable Diffusion 3? {#why-not-use-stable-diffusion-3}
 
 When I tried it, it gave worse results than 1.5. For a better model, check out my [Imago](/imago) app.
 
-### Why does the app require Apple silicon for Macs?
+### Why does the app require Apple silicon for Macs? {#why-does-the-app-require-apple-silicon-for-macs}
 
 The app takes advantage of recent [optimizations by Apple](https://machinelearning.apple.com/research/stable-diffusion-coreml-apple-silicon).
 
-### Why does the app require at least iPhone 15 Pro and iPad M1?
+### Why does the app require at least iPhone 15 Pro and iPad M1? {#why-does-the-app-require-at-least-iphone-15-pro-and-ipad-m1}
 
 Generating images with Stable Diffusion requires a lot of system resources. It would not be a good experience on older devices. It could probably run fine on iPhone 15 and iPhone 14 Pro, but Apple does not let us do such a fine-grained requirement. Either I require these devices, or I have to support all devices that can run the app, including those that are not nearly powerful enough.
 
-### What are the usage restrictions for the generated images?
+### What are the usage restrictions for the generated images? {#what-are-the-usage-restrictions-for-the-generated-images}
 
 You can use the images for commercial or non-commercial purposes, but you must adhere to the [Creative ML OpenRAIL-M license’s usage restrictions](https://github.com/CompVis/stable-diffusion/blob/21f890f9da3cfbeaba8e2ac3c425ee9e998d5229/LICENSE#L69-L82). These restrictions include not using the images for illegal activity, false information, discrimination, or medical advice.
 
-### Can you support custom models?
-
-I don’t plan to support this. This app is intentionally simple. There are many other apps that support custom models.
-
-### Can you support inpainting/outpainting?
-
-I don’t plan to support this. [DiffusionBee](https://diffusionbee.com) supports this (see below for comparison).
-
-### Can it generate images with aspect ratios other than a square?
+### Can it generate images with aspect ratios other than a square? {#can-it-generate-images-with-aspect-ratios-other-than-a-square}
 
 The Stable Diffusion library used by this app only supports squares.
 
-### Why can it not generate adult images?
+### Why is the first image slow? {#why-is-the-first-image-slow}
 
-The app would not be allowed on the App Store if it allowed creating such images.
+The first generation after installing the app may take longer due to model validation.
 
-### Why does it take so long to generate?
+### The image was “deemed not safe for all ages”, but my prompt is harmless {#not-safe-for-all-ages}
 
-Several factors can affect the speed of image generation, including the performance of your device and the amount of available memory and CPU. Try closing down other apps or restarting your device before generating images.
-
-And bear in mind that the initial generation after installing the app may take longer due to model validation.
-
-### Why does the app take up so much space on disk and memory?
-
-The AI model used to generate images is large. This is reasonable given the model’s capabilities.
-
-### How does it compare to DiffusionBee? {#diffusionbee}
-
-**Amazing AI benefits**
-
-- Faster and more energy-efficient as it uses the [Apple Neural Engine](https://apple.fandom.com/wiki/Neural_Engine) and recent [macOS optimizations](https://machinelearning.apple.com/research/stable-diffusion-coreml-apple-silicon)
-- Native user interface (DiffusionBee is a web app wrapped with Electron which does not follow platform conventions)
-- Batch generation of different prompts (DiffusionBee supports batch for the same prompt only)
-- Shortcuts support
-- Automatic upscaling (DiffusionBee requires you to manually click an upscale button for each image)
-- Sandboxed (More secure)
-- Available on the App Store
-
-**[DiffusionBee](https://github.com/divamgupta/diffusionbee-stable-diffusion-ui) benefits**
-
-- Inpainting
-- Outpainting
-- Image-to-image
-- Custom models
+The safety check sometimes also blocks harmless images. Generate again, or change some words of the prompt. If you set a “Seed”, remove it first, as the same seed makes the same image.

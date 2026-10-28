@@ -7,7 +7,11 @@ The ID of an app on the App Store, like 1607635845 in `https://apps.apple.com/ap
 struct AppStoreID: Hashable, CustomStringConvertible, ExpressibleByIntegerLiteral {
 	let value: Int
 
+	/**
+	A positive, code-owned App Store ID. Use `init(validating:)` for untrusted numbers.
+	*/
 	init(_ value: Int) {
+		precondition(value > 0, "An App Store ID must be positive.")
 		self.value = value
 	}
 
@@ -24,6 +28,17 @@ struct AppStoreID: Hashable, CustomStringConvertible, ExpressibleByIntegerLitera
 	*/
 	var url: URL {
 		#URL("https://apps.apple.com/app").appending(path: "id\(value)")
+	}
+
+	/**
+	The App Store page with the campaign for its placement on the website, or the plain link without a provider token.
+	*/
+	func url(placement: App.AppStorePlacement) -> URL {
+		guard let campaignQueryItems = placement.campaignQueryItems else {
+			return url
+		}
+
+		return url.appending(queryItems: campaignQueryItems)
 	}
 }
 
@@ -60,39 +75,39 @@ struct AppStoreInfo: Decodable {
 	let currentVersionReleaseDate: Date?
 
 	/**
-	The amount of the price, in ``currencyCode``. Use ``price``.
+	The price to download the app, with its currency.
 	*/
-	let priceAmount: Decimal?
-
-	let currencyCode: String?
-
-	let averageUserRating: Double?
-	let userRatingCount: Int?
+	let price: Price?
 
 	/**
-	`mac-software` for Mac apps, and `software` for iPhone, iPad, and Apple Vision apps, which can run on the Mac too.
+	The rating, when the app has ratings. Mac App Store apps have none.
 	*/
-	let kind: String?
+	let rating: StoreRating?
+
+	/**
+	Whether the App Store lists a native Mac app (`mac-software`), rather than an iPhone, iPad, or Apple Vision app that may also run on the Mac.
+	*/
+	let isMacApp: Bool
 
 	/**
 	The lowest version of macOS for Mac apps, of visionOS for Apple Vision apps, or else of iOS, like `26.0`.
 	*/
-	let minimumOsVersion: String?
+	let minimumOSVersion: OSVersion?
 
 	/**
-	The devices that can run an app that is not a Mac app, like `iPhone5s-iPhone5s` and `MacDesktop-MacDesktop`.
+	The platforms that the App Store lists for the app, decoded from device strings like `iPhone5s-iPhone5s` and `MacDesktop-MacDesktop`. It does not list where iPad apps also run, like on Apple Vision and Macs with Apple silicon.
 	*/
-	let supportedDevices: [String]?
+	let listedPlatforms: Set<Platform>
 
 	/**
-	The download size in bytes, as text, like `"19244046"`. Use ``fileSize``.
+	The download size in bytes, decoded from the text of `fileSizeBytes`, like `"19244046"`.
 	*/
-	var fileSizeBytes: String? = nil
+	let fileSize: Int64?
 
 	/**
 	The main category of the app on the App Store, like `Developer Tools`.
 	*/
-	var primaryGenreName: String? = nil
+	let primaryGenreName: String?
 
 	enum CodingKeys: String, CodingKey {
 		case id = "trackId"
@@ -103,81 +118,43 @@ struct AppStoreInfo: Decodable {
 		case averageUserRating
 		case userRatingCount
 		case kind
-		case minimumOsVersion
+		case minimumOSVersion = "minimumOsVersion"
 		case supportedDevices
 		case fileSizeBytes
 		case primaryGenreName
 	}
 
-	/**
-	The rating, when the app has ratings. Mac App Store apps have none.
-	*/
-	var rating: StoreRating? {
-		guard
-			let userRatingCount,
-			userRatingCount > 0,
-			let averageUserRating
-		else {
-			return nil
-		}
+	init(from decoder: any Decoder) throws {
+		let container = try decoder.container(keyedBy: CodingKeys.self)
+		self.id = try container.decode(AppStoreID.self, forKey: .id)
+		self.version = try container.decodeIfPresent(String.self, forKey: .version)
+		self.currentVersionReleaseDate = try container.decodeIfPresent(Date.self, forKey: .currentVersionReleaseDate)
 
-		return StoreRating(average: averageUserRating, count: userRatingCount)
-	}
-
-	/**
-	The download size in bytes.
-	*/
-	var fileSize: Int64? {
-		fileSizeBytes.flatMap { Int64($0) }
-	}
-
-	/**
-	The App Store category as a category of structured data, like `DeveloperApplication` for `Developer Tools`, from the list that Google supports. `nil` for a category without a match, like `Productivity`.
-	*/
-	var schemaApplicationCategory: String? {
-		switch primaryGenreName {
-		case "Developer Tools":
-			"DeveloperApplication"
-		case "Graphics & Design":
-			"DesignApplication"
-		case "Photo & Video", "Music":
-			"MultimediaApplication"
-		case "Games":
-			"GameApplication"
-		case "Entertainment":
-			"EntertainmentApplication"
-		case "Lifestyle":
-			"LifestyleApplication"
-		case "Health & Fitness", "Medical":
-			"HealthApplication"
-		case "Education":
-			"EducationalApplication"
-		case "Finance":
-			"FinanceApplication"
-		case "Business":
-			"BusinessApplication"
-		case "Reference":
-			"ReferenceApplication"
-		case "Travel":
-			"TravelApplication"
-		case "Social Networking":
-			"SocialNetworkingApplication"
-		case "Sports":
-			"SportsApplication"
-		default:
+		let priceAmount = try container.decodeIfPresent(Decimal.self, forKey: .priceAmount)
+		let currencyCode = try container.decodeIfPresent(String.self, forKey: .currencyCode)
+		self.price = if
+			let priceAmount,
+			let currencyCode
+		{
+			try? Price(amount: priceAmount, currency: Locale.Currency(currencyCode))
+		} else {
 			nil
 		}
-	}
 
-	var isMacApp: Bool {
-		kind == "mac-software"
-	}
+		let average = try container.decodeIfPresent(Double.self, forKey: .averageUserRating)
+		let count = try container.decodeIfPresent(Int.self, forKey: .userRatingCount)
+		self.rating = if
+			let average,
+			let count
+		{
+			StoreRating(average: average, count: count, store: .appStore)
+		} else {
+			nil
+		}
 
-	/**
-	The platforms that the App Store lists for the app. It does not list where iPad apps also run, like on Apple Vision and Macs with Apple silicon.
-	*/
-	var listedPlatforms: Set<Platform> {
-		let devices = supportedDevices ?? []
+		self.isMacApp = try container.decodeIfPresent(String.self, forKey: .kind) == "mac-software"
+		self.minimumOSVersion = (try? container.decode(String.self, forKey: .minimumOSVersion)).flatMap(OSVersion.init)
+		let devices = try container.decodeIfPresent([String].self, forKey: .supportedDevices) ?? []
 		var platforms = Set<Platform>()
 
 		if isMacApp || devices.contains(where: { $0.hasPrefix("MacDesktop") }) {
@@ -192,36 +169,47 @@ struct AppStoreInfo: Decodable {
 			platforms.insert(.visionOS)
 		}
 
-		return platforms
+		self.listedPlatforms = platforms
+		self.fileSize = try container.decodeIfPresent(String.self, forKey: .fileSizeBytes).flatMap(Int64.init)
+		self.primaryGenreName = try container.decodeIfPresent(String.self, forKey: .primaryGenreName)
 	}
 
 	/**
-	The price to download the app.
+	The App Store category as a category of structured data, like `DeveloperApplication` for `Developer Tools`, from the list that Google supports. `nil` for a category without a match, like `Productivity`.
 	*/
-	var price: Price? {
-		guard
-			let priceAmount,
-			let currencyCode
-		else {
-			return nil
+	var schemaApplicationCategory: Schema.SoftwareApplication.Category? {
+		switch primaryGenreName {
+		case "Developer Tools":
+			.developer
+		case "Graphics & Design":
+			.design
+		case "Photo & Video", "Music":
+			.multimedia
+		case "Games":
+			.game
+		case "Entertainment":
+			.entertainment
+		case "Lifestyle":
+			.lifestyle
+		case "Health & Fitness", "Medical":
+			.health
+		case "Education":
+			.educational
+		case "Finance":
+			.finance
+		case "Business":
+			.business
+		case "Reference":
+			.reference
+		case "Travel":
+			.travel
+		case "Social Networking":
+			.socialNetworking
+		case "Sports":
+			.sports
+		default:
+			nil
 		}
-
-		return Price(priceAmount, currency: Locale.Currency(currencyCode))
-	}
-
-	/**
-	The price for the app page, like “$4.99, one-time purchase” or “Free”. A paid app that is free to download has an in-app purchase.
-	*/
-	func priceText(isPaid: Bool) -> String? {
-		guard let price else {
-			return nil
-		}
-
-		guard !price.isFree else {
-			return isPaid ? "Free to download, with an in-app purchase" : "Free"
-		}
-
-		return price.oneTimePurchaseText
 	}
 
 	/**
@@ -238,7 +226,7 @@ struct AppStoreInfo: Decodable {
 
 		let url = #URL("https://itunes.apple.com/lookup").appending(queryItems: [URLQueryItem(name: "id", value: ids.uniqued(by: \.self).map(\.description).joined(separator: ","))])
 
-		let response = try await cache.decoded(Response.self, from: URLRequest(url: url, timeoutInterval: 15))
+		let response = try await cache.decoded(Response.self, from: url)
 		return Dictionary(response.results.map { ($0.id, $0) }) { first, _ in first }
 	}
 }
@@ -257,7 +245,7 @@ extension Sequence<AppStoreInfo> {
 
 		// Summed in a fixed order, as the sum of floating point numbers depends on the order, which would make the number on the about page change between builds of the same content.
 		let average = ratings.sorted(using: [KeyPathComparator(\.average), KeyPathComparator(\.count)]).map { $0.average * Double($0.count) }.sum / Double(count)
-		return StoreRating(average: average, count: count)
+		return StoreRating(average: average, count: count, store: .appStore)
 	}
 }
 
@@ -292,7 +280,24 @@ struct StoreRating {
 	/**
 	The store of the ratings.
 	*/
-	var store = Store.appStore
+	let store: Store
+
+	/**
+	A rating on the five-star scale, or `nil` for an invalid average or a store without ratings.
+	*/
+	init?(average: Double, count: Int, store: Store) {
+		guard
+			average.isFinite,
+			(1...5).contains(average),
+			count > 0
+		else {
+			return nil
+		}
+
+		self.average = average
+		self.count = count
+		self.store = store
+	}
 
 	/**
 	The average rounded to one decimal, like 4.6, for the places that show it, like the rating sentence and structured data, so a value just below a tie, like 4.64999, reads as 4.6 and not 4.7.
@@ -302,9 +307,23 @@ struct StoreRating {
 	}
 
 	/**
+	The rounded average with one decimal, like “4.6”.
+	*/
+	var formattedAverage: String {
+		roundedAverage.formatted(.number.locale(.site).precision(.fractionLength(1)))
+	}
+
+	/**
+	The number of ratings and the store, like “565 ratings on the App Store”.
+	*/
+	var countText: String {
+		"\(count.formatted(counting: "rating")) on \(store.name)"
+	}
+
+	/**
 	The rating as a sentence, like “Rated 4.6 out of 5 from 565 ratings on the App Store”.
 	*/
 	var text: String {
-		"Rated \(roundedAverage.formatted(.number.locale(.site).precision(.fractionLength(1)))) out of 5 from \(count.formatted(counting: "rating")) on \(store.name)"
+		"Rated \(formattedAverage) out of 5 from \(countText)"
 	}
 }

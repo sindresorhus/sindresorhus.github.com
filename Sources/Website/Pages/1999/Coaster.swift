@@ -90,7 +90,13 @@ struct GeoCitiesCoaster: ScriptedElement {
 				div {
 					Toolbar()
 
-					canvas(.part(Parts.canvas), .width(640), .height(360), .tabindex(0), .role("application")) {}
+					canvas(
+						.part(Parts.canvas),
+						.width(640),
+						.height(360),
+						.tabindex(0),
+						.role("application")
+					) {}
 						.accessibilityLabel("Fløyen Park, with my roller coaster. Click a guest to read what they think. Keys: B builds the selected piece, Backspace demolishes the last piece, T tests the ride, O opens it, X closes it, C turns on the ride camera, G reads the thoughts of the next guest, and Space moves one step while paused.")
 						.style(Styles.canvas)
 
@@ -279,7 +285,13 @@ struct GeoCitiesCoaster: ScriptedElement {
 				div {
 					label {
 						"Name: "
-						input(.part(Parts.name), .type(.text), .maxlength(24), .autocomplete("off"), .value("Roller Coaster 1"))
+						input(
+							.part(Parts.name),
+							.type(.text),
+							.maxlength(24),
+							.autocomplete("off"),
+							.value("Roller Coaster 1")
+						)
 							.style(GeoCitiesPage.Styles.field)
 					}
 					.style(Styles.label)
@@ -441,16 +453,16 @@ struct GeoCitiesCoaster: ScriptedElement {
 		case thoughts
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A light of the ride status, with its ID, like `open`.
 		*/
-		case rideStatus = "data-coaster-status"
+		case rideStatus = "coaster-status"
 
 		/**
 		A button of a track piece in the construction window, with its ID, like `steepUp`.
 		*/
-		case piece = "data-coaster-piece"
+		case piece = "coaster-piece"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -536,10 +548,10 @@ struct GeoCitiesCoaster: ScriptedElement {
 					.pressed {
 						$0
 							.background(GeoCitiesPage.windowGray)
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+							.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 					}
 					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .inset)
 					}
 			case .light:
 				// A round lamp, dark until its status is on, like the lights of the ride window of the game.
@@ -547,28 +559,35 @@ struct GeoCitiesCoaster: ScriptedElement {
 					.display(.inlineBlock)
 					.frame(size: .rootEm(0.75))
 					.margin(.trailing, .rootEm(0.25))
-					.border(Color("#404040"), width: .pixels(1), style: .solid)
+					.border(Color(raw: "#404040"), width: .pixels(1), style: .solid)
 					.cornerRadius(.capsule)
 					.opacity(0.35)
 					.ancestorPressed {
 						$0
 							.opacity(1)
-							.shadow(Shadow(x: 0, y: 0, blur: .pixels(4), color: Color("#ffff99")))
+							.shadow(
+								BoxShadow(
+									x: .zero,
+									y: .zero,
+									blur: .pixels(4),
+									color: Color(raw: "#ffff99")
+								)
+							)
 					}
 			case .lightClosed:
-				Style().background(Color("#ff2020"))
+				Style().background(Color(raw: "#ff2020"))
 			case .lightTest:
-				Style().background(Color("#ffd800"))
+				Style().background(Color(raw: "#ffd800"))
 			case .lightOpen:
-				Style().background(Color("#20e020"))
+				Style().background(Color(raw: "#20e020"))
 			case .canvas:
 				// A tap on a guest reads their thoughts, so a finger on the park does not zoom the page.
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(640.0 / 360.0)
-					.background(Color("#8fb8d8"))
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
+					.background(Color(raw: "#8fb8d8"))
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
 					.imageRendering(.pixelated)
 					.touchAction(.manipulation)
 					.handCursor()
@@ -577,8 +596,8 @@ struct GeoCitiesCoaster: ScriptedElement {
 				// The news ticker at the bottom of the screen of the game, two lines high so the page does not jump.
 				Style()
 					.frame(minHeight: .lineHeight(2))
-					.margin(0)
-					.background(Color("#ffffcc"))
+					.margin(.zero)
+					.background(Color(raw: "#ffffcc"))
 					.textStyle(.caption, weight: .bold)
 			case .windows:
 				// The windows of the game sit side by side, or below each other on a phone. Three columns would squeeze the slope buttons and the ticket price on the narrow page.
@@ -595,18 +614,18 @@ struct GeoCitiesCoaster: ScriptedElement {
 				}
 			case .gameWindow:
 				Style()
-					.background(Color("#c8b89a"))
-					.border(Color("#efe4cf"), width: .pixels(3), style: .outset)
+					.background(Color(raw: "#c8b89a"))
+					.border(Color(raw: "#efe4cf"), width: .pixels(3), style: .outset)
 			case .windowContent:
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.5))
 			case .groupTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#402000"))
+					.color(Color(raw: "#402000"))
 			case .slopes:
 				Style()
 					.grid(columns: 5)
@@ -623,7 +642,7 @@ struct GeoCitiesCoaster: ScriptedElement {
 					.disabled {
 						$0.opacity(0.5)
 					}
-					.pressedIn(Color("#fff8d0"))
+					.pressedIn(Color(raw: "#fff8d0"))
 			case .arrow:
 				Style()
 					.display(.block)
@@ -637,10 +656,10 @@ struct GeoCitiesCoaster: ScriptedElement {
 				// The cost of the next piece, or the error of the game, like “Too high!”.
 				Style()
 					.frame(minHeight: .lineHeight(2))
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#800000"))
+					.color(Color(raw: "#800000"))
 			case .row:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
@@ -660,24 +679,24 @@ struct GeoCitiesCoaster: ScriptedElement {
 				Style()
 					.grid(columns: 2)
 					.gap(.rootEm(0.125))
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.375))
-					.background(Color("#fffbe0"))
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#fffbe0"))
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 					.children("dd") {
-						$0.margin(0)
+						$0.margin(.zero)
 					}
 			case .stats:
 				Style()
 					.grid(columns: 2)
 					.gap(.rootEm(0.0625))
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.font(.extraSmall)
 					.children("dd") {
-						$0.margin(0).fontWeight(.bold)
+						$0.margin(.zero).fontWeight(.bold)
 					}
 			case .graph:
 				Style()
@@ -685,21 +704,21 @@ struct GeoCitiesCoaster: ScriptedElement {
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(320.0 / 110.0)
 					.background(.black)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			case .money:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.preservesLineBreaks()
 					.textStyle(.caption)
 			case .thoughts:
 				// The thoughts of the guests, newest first, like the thoughts tab of the park window of the game.
 				Style()
 					.frame(minHeight: .rootEm(6))
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.375))
 					.padding(.leading, .rootEm(1.25))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(.system)
 					.font(.extraSmall)
 			}

@@ -5,17 +5,15 @@ import SiteKit
 A list item with a link and a description, like “Dato — Menu bar calendar”.
 */
 struct LinkRow: HTML {
-	let title: String
-	let destination: LinkDestination
-	let description: String?
+	let link: LabeledLink
 
 	var body: some HTML<HTMLTag.li> {
 		li {
-			a(.href(destination)) {
-				title
+			a(.href(link.destination)) {
+				link.title
 			}
 
-			if let description {
+			if let description = link.description {
 				span {
 					" — \(description)"
 				}
@@ -38,10 +36,6 @@ extension LinkRow {
 	The app with its subtitle.
 	*/
 	init(app: App, destination: LinkDestination? = nil) {
-		self.init(title: app.title, destination: destination ?? app.url, description: app.subtitle)
-	}
-
-	init(link: LabeledLink) {
-		self.init(title: link.title, destination: link.destination, description: link.description)
+		self.init(link: LabeledLink(app.title, destination: destination ?? app.url, description: app.subtitle))
 	}
 }

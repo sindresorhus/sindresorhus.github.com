@@ -72,7 +72,13 @@ struct GeoCitiesMarbles: ScriptedElement {
 
 	private var stage: some HTML {
 		div {
-			canvas(.part(Parts.canvas), .width(640), .height(440), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.canvas),
+				.width(640),
+				.height(440),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The gravel of the school yard, seen from above. Drag back from your marble and let go to flick it. Or use the keys: Left and Right aim, Up and Down set the power, A and D move along the line, N picks the next marble, and Space or Enter flicks. After a game, a click or Space starts the next one.")
 				.style(Styles.canvas)
 
@@ -183,31 +189,31 @@ struct GeoCitiesMarbles: ScriptedElement {
 	/**
 	The buttons that carry a value, which the script reads in one listener for clicks. The script makes the buttons of the bag and of the trade stand.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The game that a button picks, like `ring`.
 		*/
-		case game = "data-marbles-game"
+		case game = "marbles-game"
 
 		/**
 		The kid that a button picks to play against, like `trond`.
 		*/
-		case opponent = "data-marbles-opponent"
+		case opponent = "marbles-opponent"
 
 		/**
 		The spin of the flick that a button picks, like `left`.
 		*/
-		case spin = "data-marbles-spin"
+		case spin = "marbles-spin"
 
 		/**
 		The kind of marble of a button of the bag, which the script makes, like `steel`.
 		*/
-		case kind = "data-marbles-kind"
+		case kind = "marbles-kind"
 
 		/**
 		The trade of a button of the trade stand, which the script makes, by its place in the list.
 		*/
-		case trade = "data-marbles-trade"
+		case trade = "marbles-trade"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -246,8 +252,8 @@ struct GeoCitiesMarbles: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(640.0 / 440.0)
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
-					.background(Color("#a89a80"))
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
+					.background(Color(raw: "#a89a80"))
 					.touchAction(.none)
 					.handCursor()
 					.canvasFocusRing()
@@ -259,10 +265,10 @@ struct GeoCitiesMarbles: ScriptedElement {
 				Style().vstack(spacing: .rootEm(0.25))
 			case .groupTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#006600"))
+					.color(Color(raw: "#006600"))
 			case .buttons:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
@@ -274,8 +280,8 @@ struct GeoCitiesMarbles: ScriptedElement {
 					.pressedIn(.white)
 					.when(States.urgent) {
 						$0
-							.background(Color("#ffff00"))
-							.color(Color("#cc0000"))
+							.background(Color(raw: "#ffff00"))
+							.color(Color(raw: "#cc0000"))
 					}
 			case .panel:
 				Style()
@@ -289,22 +295,22 @@ struct GeoCitiesMarbles: ScriptedElement {
 			case .lcd:
 				// The lines of the screen, like “RING  MEG 2  TROND 1”.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.preservesLineBreaks()
 					.textStyle(.caption, weight: .bold)
 			case .cardTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#800080"))
+					.color(Color(raw: "#800080"))
 			case .bagCard:
 				// A bag of blue cloth with a drawstring, like the one Mormor sewed.
 				Style()
 					.vstack(spacing: .rootEm(0.375))
 					.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.625))
-					.background(Color("#dde8ff"))
-					.border(Color("#3355aa"), width: .pixels(2), style: .dashed)
+					.background(Color(raw: "#dde8ff"))
+					.border(Color(raw: "#3355aa"), width: .pixels(2), style: .dashed)
 			case .bag:
 				// The script fills in a button for each kind of marble, with a drawing of it and how many there are.
 				Style()
@@ -314,8 +320,8 @@ struct GeoCitiesMarbles: ScriptedElement {
 							.hstack(alignment: .center, spacing: .rootEm(0.375))
 							.frame(minHeight: .rootEm(2.25))
 							.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.375))
-							.background(Color("#ffffff"))
-							.border(Color("#8899cc"), width: .pixels(2), style: .outset)
+							.background(Color(raw: "#ffffff"))
+							.border(Color(raw: "#8899cc"), width: .pixels(2), style: .outset)
 							.fontFamily(.system)
 							.textStyle(.caption)
 							.textAlign(.leading)
@@ -325,12 +331,12 @@ struct GeoCitiesMarbles: ScriptedElement {
 								$0.opacity(0.5)
 							}
 							.focusVisible {
-								$0.focusRing(Color("#000080"), width: .pixels(2), offset: .pixels(1))
+								$0.focusRing(Color(raw: "#000080"), width: .pixels(2), offset: .pixels(1))
 							}
 							.pressed {
 								$0
-									.background(Color("#ffff99"))
-									.border(Color("#cc9900"), width: .pixels(2), style: .inset)
+									.background(Color(raw: "#ffff99"))
+									.border(Color(raw: "#cc9900"), width: .pixels(2), style: .inset)
 									.fontWeight(.bold)
 							}
 					}
@@ -344,24 +350,24 @@ struct GeoCitiesMarbles: ScriptedElement {
 				Style()
 					.vstack(alignment: .start, spacing: .rootEm(0.375))
 					.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.625))
-					.background(Color("#f3e3c3"))
-					.border(Color("#8a5a2b"), width: .pixels(3), style: .ridge)
+					.background(Color(raw: "#f3e3c3"))
+					.border(Color(raw: "#8a5a2b"), width: .pixels(3), style: .ridge)
 			case .drawerText:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption)
 			case .tradeCard:
 				// A cardboard box turned upside down, with the trades on it.
 				Style()
 					.vstack(spacing: .rootEm(0.375))
 					.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.625))
-					.background(Color("#e8cfa0"))
-					.border(Color("#a07840"), width: .pixels(2), style: .solid)
+					.background(Color(raw: "#e8cfa0"))
+					.border(Color(raw: "#a07840"), width: .pixels(2), style: .solid)
 			case .trades:
 				Style()
 					.vstack(spacing: .rootEm(0.375))
-					.margin(0)
-					.padding(0)
+					.margin(.zero)
+					.padding(.zero)
 					.textStyle(.caption)
 					.children("li") {
 						$0.vstack(alignment: .start, spacing: .rootEm(0.25))

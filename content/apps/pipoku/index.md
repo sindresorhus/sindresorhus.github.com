@@ -3,11 +3,11 @@ isDraft: true
 title: 'Pipoku'
 subtitle: 'Minimal sudoku game'
 # TODO: Update
-publicationDate: '2026-10-22'
+publicationDate: 2026-10-22
 platforms: [
 	'iOS'
 ]
-minimumOSVersion: 27
+minimumOSVersion: '27'
 ---
 
 Classic sudoku on a clean, full-width board. No mistake limit, no streaks, and no notifications. Just you and the puzzle.

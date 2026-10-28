@@ -13,7 +13,11 @@ public struct OrderedMapping<Value: Decodable & Sendable>: Decodable, Sendable, 
 
 	private let elements: [Element]
 
+	/**
+	Creates a mapping with the elements in their given order. The keys must be unique.
+	*/
 	public init(_ elements: [Element] = []) {
+		precondition(Set(elements.map(\.key)).count == elements.count, "An ordered mapping must have unique keys.")
 		self.elements = elements
 	}
 

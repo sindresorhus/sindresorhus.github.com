@@ -2,7 +2,7 @@ name: External links
 
 on:
   schedule:
-    - cron: '0 6 * * 1' # Every Monday
+    - cron: '23 6 * * 1' # Every Monday, not on the full hour, when GitHub delays and drops more scheduled runs
   workflow_dispatch:
 
 permissions:
@@ -18,15 +18,28 @@ jobs:
         with:
           # The full history, for the dates of the sources.
           fetch-depth: 0
+      # Like CI, for the key of the build cache.
+      - name: Runner image version
+        id: image
+        run: echo "version=${ImageVersion:-unknown}" >> "$GITHUB_OUTPUT"
       # The build of the CI workflow, so only what changed since compiles.
       - uses: actions/cache/restore@v6
         with:
           path: |
             .build
-            .cache/responses
             .cache/jpeg-xl
-          key: build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-${{ github.sha }}
-          restore-keys: build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-
+            ~/Library/Caches/org.swift.swiftpm/manifests
+          key: build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-${{ steps.image.outputs.version }}-${{ github.sha }}
+          # The build of the same image first, and after a new image, the newest build, which still has the package checkouts.
+          restore-keys: |
+            build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-${{ steps.image.outputs.version }}-
+            build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-
+      # The newest responses of the CI workflow, so the build does not ask the App Store again for all of them.
+      - uses: actions/cache/restore@v6
+        with:
+          path: .cache/responses
+          key: responses-${{ github.run_id }}
+          restore-keys: responses-
       # Like CI, as the build makes the JPEG XL copies of the images.
       - name: Install JPEG XL
         run: brew install jpeg-xl
@@ -40,7 +53,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          swift build --build-tests -Xswiftc -Xfrontend -Xswiftc -warn-long-expression-type-checking=200
+          swift build --build-tests --disable-index-store -Xswiftc -Xfrontend -Xswiftc -warn-long-expression-type-checking=200
           .build/debug/website build
       - uses: actions/upload-artifact@v7
         with:

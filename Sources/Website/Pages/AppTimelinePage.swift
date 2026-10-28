@@ -1,6 +1,7 @@
 import Elementary
 import Foundation
 import SiteKit
+import SOML
 
 /**
 Every listed app by the year it came out, newest first.
@@ -12,6 +13,10 @@ struct AppTimelinePage: Page {
 		.appTimeline
 	}
 
+	var socialImage: SocialImage {
+		.card(OpenGraphCard(page: self, project: content.project))
+	}
+
 	var metadata: PageMetadata {
 		PageMetadata(title: "App Timeline", description: "Every app by Sindre Sorhus, by the year it came out.")
 	}
@@ -21,18 +26,19 @@ struct AppTimelinePage: Page {
 			PageHeader(title: "App Timeline", intro: years.last.map { "\(content.listedApps.count.formatted(counting: "app")) since \($0.number), newest first." })
 
 			ol {
-				for year in years {
+				for (yearIndex, year) in years.enumerated() {
 					li {
-						h2(.id(String(year.number))) {
+						h2(.id(ElementID(String(year.number)))) {
 							String(year.number)
 						}
 						.style(Styles.year)
 
 						ul {
-							for app in year.apps {
+							for (index, app) in year.apps.enumerated() {
 								li {
 									a(.href(app.url)) {
-										AppIcon(decorative: app, size: 48)
+										// The first icons are in view on a phone. Only a few, as they also load before other images.
+										AppIcon(decorative: app, size: 48, isAboveFold: yearIndex == 0 && index < 3)
 
 										span {
 											span {
@@ -91,7 +97,7 @@ struct AppTimelinePage: Page {
 		var years = [Year]()
 
 		for app in content.listedApps {
-			let year = app.publicationDate.siteYear
+			let year = app.publicationDate.year
 
 			if years.last?.number == year {
 				years[years.count - 1].apps.append(app)
@@ -133,7 +139,7 @@ extension AppTimelinePage {
 					.padding(.bottom, .rootEm(2.5))
 					// The line ends at the last app, like the line of the steps.
 					.lastChild {
-						$0.padding(.bottom, 0)
+						$0.padding(.bottom, .zero)
 					}
 					.before {
 						$0
@@ -152,8 +158,9 @@ extension AppTimelinePage {
 					.monospacedDigit()
 					.color(.primaryText)
 			case .app:
+				// The icon is at the top, next to the title, so it stays with its app when the subtitle wraps to many lines, like with large text.
 				Style()
-					.hstack(alignment: .center, spacing: .rootEm(0.875))
+					.hstack(alignment: .start, spacing: .rootEm(0.875))
 					.margin(.horizontal, .rootEm(-0.5))
 					.padding(.rootEm(0.5))
 					.cornerRadius(.fieldRadius)

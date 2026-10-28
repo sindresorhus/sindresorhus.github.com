@@ -29,7 +29,13 @@ struct GeoCitiesWindowsHover: ScriptedElement {
 	]
 
 	var content: some HTML {
-		canvas(.part(Parts.screen), .width(320), .height(200), .tabindex(0), .role("application")) {}
+		canvas(
+			.part(Parts.screen),
+			.width(320),
+			.height(200),
+			.tabindex(0),
+			.role("application")
+		) {}
 			.accessibilityLabel("Hover! The arrow keys or W, A, S, and D steer the hovercraft, Space uses a power-up, and Enter starts.")
 			.style(Styles.screen, GeoCitiesPage.Styles.scriptingOnly)
 
@@ -102,11 +108,11 @@ struct GeoCitiesWindowsHover: ScriptedElement {
 	/**
 	The buttons for touch, which carry their control.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A button for touch, by the control, like `forward`.
 		*/
-		case control = "data-hover-control"
+		case control = "hover-control"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -126,7 +132,7 @@ struct GeoCitiesWindowsHover: ScriptedElement {
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(16.0 / 10.0)
 					.background(.black)
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
 					.imageRendering(.pixelated)
 					.touchAction(.manipulation)
 			case .controls:
@@ -137,12 +143,12 @@ struct GeoCitiesWindowsHover: ScriptedElement {
 			case .control:
 				// Pressed in while it is held down, like with a finger.
 				GeoCitiesPage.Styles.retroButton.style
-					.padding(vertical: .rootEm(0.375), horizontal: 0)
+					.padding(vertical: .rootEm(0.375), horizontal: .zero)
 					.font(.large)
 					.touchAction(.none)
 					.textSelection(.disabled)
 					.when(States.held) {
-						$0.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
+						$0.border(Color(raw: "#dfdfdf"), width: .pixels(3), style: .inset)
 					}
 			}
 		}

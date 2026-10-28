@@ -59,25 +59,30 @@ struct InlineNote: ScriptedElement {
 	/**
 	The ID of the popover with the note.
 	*/
-	let noteID: String
+	let noteID: ElementID
 
 	/**
 	The HTML of the text of a note, for ``SiteKit/MarkdownDocument/Options/inlineNote``.
 	*/
 	@Sendable
-	static func render(textHTML: String, noteID: String) -> String {
+	static func render(textHTML: String, noteID: ElementID) -> String {
 		Self(textHTML: textHTML, noteID: noteID).render()
 	}
 
 	var content: some HTML {
 		// The text as it is, with a dotted underline, which is solid under the pointer and while the note is open.
-		a(.href("#\(noteID)"), .ariaExpanded(false)) {
+		a(.href(.fragment(noteID)), .ariaExpanded(false)) {
 			HTMLRaw(textHTML)
 		}
 		.style {
 			$0
-				.color(.inherit)
-				.underline(style: .dotted, color: .secondaryText, thickness: .pixels(1.5), offset: .em(0.2))
+				.inherits(.color)
+				.underline(
+					style: .dotted,
+					color: .secondaryText,
+					thickness: .pixels(1.5),
+					offset: .em(0.2)
+				)
 				.hoverOrFocusVisible(Self.solidUnderline)
 				.expanded(Self.solidUnderline)
 		}

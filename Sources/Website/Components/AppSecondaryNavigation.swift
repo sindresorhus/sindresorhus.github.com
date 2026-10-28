@@ -24,9 +24,7 @@ struct AppSecondaryNavigation: ScriptedElement {
 
 		nav {
 			for link in app.links {
-				a(.href(link.destination)) {
-					link.title
-				}
+				Link(link)
 				.attributes(.part(Parts.sectionLink), when: link.destination.isFragment)
 				.style(Styles.link)
 			}
@@ -36,10 +34,10 @@ struct AppSecondaryNavigation: ScriptedElement {
 			}
 			.style(Styles.overflow)
 
-			// With one download option, “Get” links to it. With more, it goes up to the download options.
+			// With one place to get the app, “Get” links to it, also when the app has a trial. With more, it goes up to the download options.
 			if app.isDownloadable {
 				// The name of the app is only for screen readers, so the link says what it gets in a list of the links of the page.
-				Link(destination: app.downloadOptions.count == 1 ? app.downloadOptions[0].url : .fragment(AppHero.Hooks.hero.id)) {
+				Link(destination: app.placesToGet.count == 1 ? app.placesToGet[0].url : .fragment(AppHero.IDs.hero.id)) {
 					"Get"
 					VisuallyHidden(" \(app.title)")
 				}
@@ -54,8 +52,8 @@ struct AppSecondaryNavigation: ScriptedElement {
 	/**
 	The data attribute that the script sets on the site header while the app header has scrolled away, so the navigation of the app replaces the site navigation.
 	*/
-	enum Hooks: String, ScriptHookSet {
-		case appHeroScrolledAway = "data-app-hero-scrolled-away"
+	enum Hooks: String, ScriptDataAttributeSet {
+		case appHeroScrolledAway = "app-hero-scrolled-away"
 	}
 
 	enum Parts: String, ElementPartSet {
@@ -73,14 +71,14 @@ struct AppSecondaryNavigation: ScriptedElement {
 		var style: Style {
 			switch self {
 			case .root:
-				// It fades in when the app header scrolls away (the script sets the attribute on the site header), and the fade finishes also when the scrolling stops. On phones, the site navigation stays, so the menu is always there, and the bar only adds the “Get” button next to the menu button, so buying is always one tap away on a long page.
+				// It fades in when the app header scrolls away (the script sets the attribute on the site header), and the fade finishes also when the scrolling stops. On phones, the site navigation stays, so the menu is always there, and the bar only adds the icon and the name of the app in place of the site name, and the “Get” button next to the menu button, so a visitor who came from a link to a section sees which app it is, and buying is always one tap away on a long page.
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.hstack(alignment: .center, justification: .spaceBetween)
 					.filter(.opacity(0))
 					.visibility(false)
-					.transition(.filter, .visibility, animation: SiteHeader.navigationSwap)
+					.transition(.filter, .visibility, timing: SiteHeader.navigationSwap)
 					.when(ancestorHas: Hooks.appHeroScrolledAway) {
 						$0
 							.filter(.opacity(1))
@@ -89,10 +87,10 @@ struct AppSecondaryNavigation: ScriptedElement {
 					.pageWidth()
 					.padding(.rootEm(0.75))
 					.color(.gray(600), dark: .gray(200))
-					// Taps go through to the site navigation below it, except on the button. The space at the end is for the menu button.
+					// Taps go through to the site navigation below it, except on the app and the button. The space at the end is for the menu button. The icon lines up with the site name, which it replaces.
 					.below(.tablet) {
 						$0
-							.justifyContent(.end)
+							.padding(.leading, .pageGutter)
 							.padding(.trailing, .rootEm(4.25))
 							.allowsHitTesting(false)
 					}
@@ -107,7 +105,13 @@ struct AppSecondaryNavigation: ScriptedElement {
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 					.margin(vertical: .rootEm(-0.25), horizontal: .rootEm(-0.5))
 					.focusFill()
-					.hidden(below: .tablet)
+					// On phones, the name can be cut off, but never pushes the “Get” button out.
+					.below(.tablet) {
+						$0
+							.flexShrink(1)
+							.frame(minWidth: .zero)
+							.allowsHitTesting(true)
+					}
 			case .name:
 				Style()
 					.display(.inline)
@@ -116,6 +120,15 @@ struct AppSecondaryNavigation: ScriptedElement {
 					.color(.primaryText)
 					// Between tablets and laptops, the section links need the space.
 					.media(.from(.tablet) && .below(.laptop)) {
+						$0.hidden()
+					}
+					.below(.tablet) {
+						$0
+							.overflow(.hidden)
+							.textOverflow(.ellipsis)
+					}
+					// Where the name would be cut off, like on narrow phones or with large text, only the icon shows. The link keeps the name as its label.
+					.below(Self.nameWidth) {
 						$0.hidden()
 					}
 			case .link:
@@ -139,5 +152,10 @@ struct AppSecondaryNavigation: ScriptedElement {
 					.allowsHitTesting(true)
 			}
 		}
+
+		/**
+		The width from which the bar shows the name of the app next to its icon. A rem breakpoint, so it follows the text size. At 100% text, the longest names, like “System Color Picker”, fit from a 390 px wide phone (24.375 rem).
+		*/
+		static let nameWidth = Breakpoint(minimumWidthInRem: 24.375)
 	}
 }

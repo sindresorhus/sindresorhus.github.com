@@ -43,7 +43,7 @@ struct GeoCitiesNavigator: HTML {
 		.accessibilityHidden()
 		.style(Styles.frameTop)
 
-		div(.id(Hooks.toolbar)) {
+		div(.id(IDs.toolbar)) {
 			div {
 				div(.role("group")) {
 					for item in Self.buttons {
@@ -66,7 +66,7 @@ struct GeoCitiesNavigator: HTML {
 				.style(Styles.buttons)
 
 				// The N of Netscape on a planet, where meteors rain down while the page loads.
-				div(.id(Hooks.throbber)) {
+				div(.id(IDs.throbber)) {
 					span {}
 					span {}
 					span {}
@@ -89,19 +89,24 @@ struct GeoCitiesNavigator: HTML {
 				.style(Styles.location)
 
 				span {
-					GeoCitiesPage.GIFImage(gif: .buttonNetscapeNow4, alt: "Netscape Now! 4.0", style: .gif, project: project)
+					GeoCitiesPage.GIFImage(
+						gif: .buttonNetscapeNow4,
+						alt: "Netscape Now! 4.0",
+						style: .gif,
+						project: project
+					)
 				}
 				.style(Styles.netscapeNow)
 			}
 			.style(Styles.locationBar)
 
 			// The certificate of the dot matrix printer, on paper with green bars and the holes of the tractor feed. `geocities-effects.js` prints it line by line.
-			div(.id(Hooks.printout), .hidden) {
-				div(.id(Hooks.printoutPaper), .tabindex(-1)) {}
+			div(.id(IDs.printout), .hidden) {
+				div(.id(IDs.printoutPaper), .tabindex(-1)) {}
 					.accessibilityLabel("Printout")
 					.style(Styles.paper)
 
-				button(.id(Hooks.tearOff), .type(.button), .hidden) {
+				button(.id(IDs.tearOff), .type(.button), .hidden) {
 					"✂ Tear off"
 				}
 				.style(GeoCitiesPage.Styles.retroButton)
@@ -110,20 +115,22 @@ struct GeoCitiesNavigator: HTML {
 		}
 		.style(Styles.toolbar, GeoCitiesPage.Styles.scriptingOnly)
 
-		ModuleScript("/scripts/geocities-effects.js")
+		ModuleScript(#path("/scripts/geocities-effects.js"))
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum IDs: String, ScriptIDSet {
 		case toolbar = "geocities-navigator"
 		case throbber = "geocities-navigator-throbber"
 		case printout = "geocities-navigator-printout"
 		case printoutPaper = "geocities-navigator-paper"
 		case tearOff = "geocities-navigator-tear-off"
+	}
 
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		What a button of the toolbar does: `back`, `forward`, `reload`, `home`, `search`, `print`, `security`, or `stop`.
 		*/
-		case button = "data-navigator-button"
+		case button = "navigator-button"
 	}
 
 	enum States: String, ElementStateSet {
@@ -174,8 +181,8 @@ struct GeoCitiesNavigator: HTML {
 					.frame(maxWidth: .rootEm(46))
 					.margin(.horizontal, .auto)
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#e0e0e0"), width: .pixels(4), style: .outset)
-					.border(.bottom, Color("#e0e0e0"), width: 0)
+					.border(Color(raw: "#e0e0e0"), width: .pixels(4), style: .outset)
+					.border(.bottom, Color(raw: "#e0e0e0"), width: .zero)
 			case .menuBar:
 				Style()
 					.hstack(spacing: .rootEm(1))
@@ -192,15 +199,19 @@ struct GeoCitiesNavigator: HTML {
 					.margin(.horizontal, .auto)
 					.padding(.rootEm(0.25))
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#e0e0e0"), width: .pixels(4), style: .outset)
-					.border(.vertical, Color("#808080"), width: .pixels(1))
+					.border(Color(raw: "#e0e0e0"), width: .pixels(4), style: .outset)
+					.border(.vertical, Color(raw: "#808080"), width: .pixels(1))
 					.fontFamily(.system)
 					.color(.black)
 					.from(.smallTablet) {
 						$0
 							.position(.sticky)
-							.top(SiteHeader.height + .pixels(1))
+							.top(.length(SiteHeader.height + .pixels(1)))
 							.zIndex(50)
+					}
+					// The site header is not sticky on a short screen, so nothing is above it.
+					.media(.shortScreen) {
+						$0.top(.zero)
 					}
 					.media(.print) {
 						$0.hidden()
@@ -211,13 +222,13 @@ struct GeoCitiesNavigator: HTML {
 				Style()
 					.hstack()
 					.flex(1)
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 			case .button:
 				// Flat until the pointer is over it, like the buttons of Netscape 4, and pressed in while it is held down. On phones only the icon shows.
 				Style()
 					.vstack(alignment: .center, justification: .center, spacing: .rootEm(0.125))
 					.flex(1)
-					.frame(minWidth: 0, minHeight: .rootEm(2.75))
+					.frame(minWidth: .zero, minHeight: .rootEm(2.75))
 					.padding(.pixels(2))
 					.background(.transparent)
 					.border(.transparent, width: .pixels(2), style: .outset)
@@ -228,10 +239,10 @@ struct GeoCitiesNavigator: HTML {
 					.handCursor()
 					.buttonFocusRing()
 					.hover {
-						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+						$0.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 					}
 					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .inset)
 					}
 			case .icon:
 				Style()
@@ -239,17 +250,17 @@ struct GeoCitiesNavigator: HTML {
 					.font(size: .rootEm(1.25), lineHeight: 1)
 			case .iconBack:
 				Self.icon.style
-					.color(Color("#008000"))
+					.color(Color(raw: "#008000"))
 					.textShadow(Shadow(x: .pixels(1), y: .pixels(1), color: .white))
 			case .iconStop:
 				Self.icon.style
 					.bold()
-					.color(Color("#cc0000"))
+					.color(Color(raw: "#cc0000"))
 					.textShadow(Shadow(x: .pixels(1), y: .pixels(1), color: .white))
 			case .iconReload:
 				Self.icon.style
 					.bold()
-					.color(Color("#000080"))
+					.color(Color(raw: "#000080"))
 					.textShadow(Shadow(x: .pixels(1), y: .pixels(1), color: .white))
 			case .buttonLabel:
 				Style().below(.smallTablet) {
@@ -263,20 +274,28 @@ struct GeoCitiesNavigator: HTML {
 					.frame(size: .rootEm(2.75))
 					.flexShrink(0)
 					.overflow(.hidden)
-					.backgroundImage(.radialGradient("ellipse 120% 45% at 50% 115%", Color("#3a6ad8"), Color("#14306e"), .transparent), .linearGradient("to bottom", Color("#000010"), Color("#101850")))
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.backgroundImage(
+						.radialGradient(
+							.ellipse(radiusX: .percent(120), radiusY: .percent(45), at: .init(x: .percent(50), y: .percent(115))),
+							Color(raw: "#3a6ad8"),
+							Color(raw: "#14306e"),
+							.transparent
+						),
+						.linearGradient(.toBottom, Color(raw: "#000010"), Color(raw: "#101850"))
+					)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(GeoCitiesPage.times)
 					.font(size: .rootEm(2), lineHeight: 1)
 					.bold()
 					.color(.white)
-					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#000040")), Shadow(y: 0, blur: .pixels(4), color: Color("#6699ff")))
+					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#000040")), Shadow(y: .zero, blur: .pixels(4), color: Color(raw: "#6699ff")))
 					.children("span") {
 						$0
 							.position(.absolute)
 							.top(.percent(-30))
 							.leading(.percent(25))
 							.frame(width: .pixels(2), height: .rootEm(1))
-							.backgroundImage(.linearGradient("to bottom", .transparent, .white))
+							.backgroundImage(.linearGradient(.toBottom, .transparent, .white))
 							.rotationEffect(.degrees(35))
 							.opacity(0)
 					}
@@ -312,11 +331,11 @@ struct GeoCitiesNavigator: HTML {
 				// Like a text field, on one line.
 				Style()
 					.flex(1)
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 					.overflow(.hidden)
 					.padding(vertical: .pixels(2), horizontal: .rootEm(0.25))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(GeoCitiesPage.courier)
 					.textWrap(.nowrap)
 			case .netscapeNow:
@@ -332,17 +351,22 @@ struct GeoCitiesNavigator: HTML {
 					.trailing(.rootEm(0.5))
 					.zIndex(1)
 					.vstack(alignment: .center, spacing: .rootEm(0.5))
-					.frame(maxWidth: .percent(100) - .rootEm(1))
+					.frame(maxWidth: .length(.percent(100) - .rootEm(1)))
 			case .paper:
 				// The paper of a dot matrix printer: green bars every two lines, and the holes of the tractor feed down both sides.
 				Style()
 					.padding(vertical: .rootEm(0.5), horizontal: .rootEm(1.25))
 					.background(.white)
-					.border(.horizontal, Color("#bbbbbb"), width: .pixels(10), style: .dotted)
-					.shadow(Shadow(x: .pixels(4), y: .pixels(4), color: Color("#00000066")))
+					.border(
+						.horizontal,
+						Color(raw: "#bbbbbb"),
+						width: .pixels(10),
+						style: .dotted
+					)
+					.shadow(BoxShadow(x: .pixels(4), y: .pixels(4), color: Color(raw: "#00000066")))
 					.fontFamily(GeoCitiesPage.courier)
 					.font(size: .rootEm(0.75), lineHeight: 1.5)
-					.color(Color("#333366"))
+					.color(Color(raw: "#333366"))
 					.preservesLineBreaks()
 					.children("span") {
 						$0
@@ -350,7 +374,7 @@ struct GeoCitiesNavigator: HTML {
 							.textWrap(.nowrap)
 					}
 					.children("span:nth-child(4n + 1), span:nth-child(4n + 2)") {
-						$0.background(Color("#d8f0d8"))
+						$0.background(Color(raw: "#d8f0d8"))
 					}
 			}
 		}
@@ -363,7 +387,7 @@ struct GeoCitiesNavigator: HTML {
 			switch self {
 			case .meteor:
 				[
-					.from(Style().offset(x: .rootEm(1.5), y: 0).opacity(1)),
+					.from(Style().offset(x: .rootEm(1.5), y: .zero).opacity(1)),
 					.to(Style().offset(x: .rootEm(-1.5), y: .rootEm(3.5)).opacity(0)),
 				]
 			}
@@ -377,30 +401,30 @@ The status bar at the bottom of the window of Netscape Navigator 4: the padlock,
 struct GeoCitiesStatusBar: HTML {
 	var body: some HTML {
 		div {
-			span(.id(Hooks.lock)) {
+			span(.id(IDs.lock)) {
 				"🔓"
 			}
 			.style(Styles.lock)
 
 			span {
-				span(.id(Hooks.progress)) {}
+				span(.id(IDs.progress)) {}
 					.style(Styles.progressFill)
 			}
 			.style(Styles.progress)
 
-			span(.id(Hooks.text)) {
+			span(.id(IDs.text)) {
 				"Document: Done"
 			}
 			.style(Styles.text)
 
-			span(.id(Hooks.clock)) {}
+			span(.id(IDs.clock)) {}
 				.style(Styles.clock)
 		}
 		.accessibilityHidden()
 		.style(Styles.root, GeoCitiesPage.Styles.scriptingOnly)
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum IDs: String, ScriptIDSet {
 		case lock = "geocities-status-lock"
 		case progress = "geocities-status-progress"
 		case text = "geocities-status-text"
@@ -421,14 +445,14 @@ struct GeoCitiesStatusBar: HTML {
 				// Stuck to the bottom of the window, under the toasts.
 				Style()
 					.position(.sticky)
-					.bottom(0)
+					.bottom(.zero)
 					.zIndex(50)
 					.hstack(alignment: .center, spacing: .rootEm(0.25))
 					.frame(maxWidth: .rootEm(46))
 					.margin(.horizontal, .auto)
 					.padding(.pixels(2))
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#e0e0e0"), width: .pixels(2), style: .outset)
+					.border(Color(raw: "#e0e0e0"), width: .pixels(2), style: .outset)
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.lineHeight(1.4)
@@ -439,33 +463,33 @@ struct GeoCitiesStatusBar: HTML {
 			case .lock:
 				Style()
 					.padding(.horizontal, .rootEm(0.25))
-					.border(Color("#808080"), width: .pixels(1), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(1), style: .inset)
 			case .progress:
 				Style()
 					.display(.block)
 					.frame(width: .rootEm(4), height: .rootEm(0.75))
 					.flexShrink(0)
-					.border(Color("#808080"), width: .pixels(1), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(1), style: .inset)
 					.hidden(below: .smallTablet)
 			case .progressFill:
 				// `geocities-effects.js` sets its width while the page loads.
 				Style()
 					.display(.block)
-					.frame(width: 0, height: .percent(100))
-					.background(Color("#000080"))
+					.frame(width: .zero, height: .percent(100))
+					.background(Color(raw: "#000080"))
 			case .text:
 				Style()
 					.flex(1)
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 					.overflow(.hidden)
 					.padding(.horizontal, .rootEm(0.25))
-					.border(Color("#808080"), width: .pixels(1), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(1), style: .inset)
 					.textWrap(.nowrap)
 			case .clock:
 				Style()
 					.flexShrink(0)
 					.padding(.horizontal, .rootEm(0.25))
-					.border(Color("#808080"), width: .pixels(1), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(1), style: .inset)
 					.monospacedDigit()
 					.textWrap(.nowrap)
 			}

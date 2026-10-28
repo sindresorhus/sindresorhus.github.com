@@ -1,17 +1,18 @@
 ---
 title: 'Folder Peek'
 subtitle: 'Put folders in your menu bar'
-publicationDate: '2022-04-05'
+publicationDate: 2022-04-05
 platforms: [
 	'macOS'
 ]
 isPaid: true
 isMenuBarApp: true
 appStoreID: 1615988943
+downloadCount: 50000
+hasSentry: true
 sharedQuestions: [
 	'backup-settings'
 ]
-hasSentry: true
 olderVersions: [
 	{
 		version: '1.12.0'
@@ -41,10 +42,18 @@ pressQuotes: [
 		url: 'https://eshop.macsales.com/blog/97227-folder-peek-instantly-access-your-most-used-mac-files-and-folders-right-from-the-menu-bar/'
 		year: 2025
 	}
+	{
+		quote: 'I recently discovered another useful app called Folder Peek, which lets you place any folder from your Mac on the menu bar. You can use this in many different ways, but my favorite is using it as an app launcher.'
+		source: 'Lifehacker'
+		url: 'https://lifehacker.com/tech/use-folder-peak-to-turn-mac-menu-into-app-launcher'
+		year: 2024
+	}
 ]
 ---
 
 Open the files in your favorite folders with one click from the menu bar. Useful for project folders, downloads, screenshots, or anything else you use often.
+
+It also works as an [app launcher](#app-launcher), now that macOS 26 has removed Launchpad.
 
 <br>
 
@@ -62,7 +71,11 @@ Open the files in your favorite folders with one click from the menu bar. Useful
 
 ### Guide {#guide}
 
-Folder Peek lets you put one or more folders in the menu bar.
+@Steps {
+1. Click “Add Folder” in the settings, or choose “Add Folder…” in the menu bar menu.
+1. In the settings, set “Show folders” to “as individual menu bar items”, where each folder has its own menu bar item, or to “in a single menu bar item”, where all folders share one menu.
+1. Click the folder in the menu bar to see its files, and click a file to open it.
+}
 
 Make sure you read the below tips and FAQ.
 
@@ -91,15 +104,15 @@ You could add the “Desktop” folder to Folder Peek and then [hide the desktop
 
 ## Frequently Asked Questions {#faq}
 
-### Why is the app suddenly paid? It used to be free.
+### Why is the app suddenly paid? It used to be free. {#why-is-the-app-suddenly-paid-it-used-to-be-free}
 
 While I love making free apps that are available to anyone, the high volume of support requests became unsustainable. After providing the app for free for 4 years with more than 50K downloads, I made the decision to make it paid. This isn’t about revenue. It’s about managing my time more effectively by reducing the support burden to a sustainable level.
 
-### Some folders are suddenly missing from the menu bar
+### Some folders are suddenly missing from the menu bar {#some-folders-are-suddenly-missing-from-the-menu-bar}
 
-When the menu bar has no space left, macOS hides overflowing items. Try quitting some menu bar apps.
+When the menu bar has no space left, macOS hides items, like some of your folders. The same fixes apply as when an app does not show up in the menu bar. [See the steps.](/apps/faq#app-not-showing-in-menu-bar)
 
-### The menu bar icon is not perfectly vertically centered
+### The menu bar icon is not perfectly vertically centered {#the-menu-bar-icon-is-not-perfectly-vertically-centered}
 
 This is a macOS bug on non-Retina displays. There is unfortunately not much I can do about this.
 
@@ -109,25 +122,31 @@ You can create a folder that contains aliases to the files and folders you want 
 
 Create a folder to put aliases in and add that folder to the app. Make aliases for the files and folders you want in the menu and move the aliases into the folder you just made.
 
-### What is an alias?
+Or use [Super Menu](/super-menu), my app that puts files, folders, apps, and links from anywhere in one menu, without an alias folder.
+
+### What is an alias? {#what-is-an-alias}
 
 An [alias](https://support.apple.com/guide/mac-help/create-and-remove-aliases-on-mac-mchlp1046/mac) is a shortcut to an app, file, or folder that you can keep anywhere on your Mac. Right-click an item in Finder and select “Make Alias” to make one.
 
-### How can I use this as an app launcher? {#app-launcher}
+### How can I use this as an app launcher, like Launchpad? {#app-launcher}
 
 Just add the “Applications” folder to the app if you want to show all your apps.
 
 If you want to show only certain apps, create a normal folder anywhere, for example on your Desktop. Then open the “Applications” folder in Finder, right-click each app you want, choose “Make Alias”, and move those aliases into the new folder. Finally, add that new folder to Folder Peek.
 
+For a menu of apps mixed with files, folders, and links, see [Super Menu](/super-menu).
+
 ### How can I show multiple folders at the top level in a single menu? {#show-multiple-folders}
 
-See the “Can I show specific files and folders from various places?” answer.
+In single menu bar item mode, set “Show folder contents in” to “Section” for each folder. That lists the contents of every folder directly in the menu, below the folder’s own item.
+
+To mix files and folders from different places into one listing, see [How can I show specific files and folders from various places?](#show-specific-items)
 
 ### How can I show certain folders in the menu bar depending on what I’m working on? {#faq-shortcuts}
 
 You can create a shortcut in the Shortcuts app using the “Set Folder Visibility” action where you show only certain folders. For example, you could make a shortcut named “Start Work” which hides your personal folders in the menu bar and shows folders for your work projects. Use Shortcuts automations to run this shortcut at a certain time or on any other condition.
 
-### How can I drag & drop a file from the menu?
+### How can I drag & drop a file from the menu? {#how-can-i-drag--drop-a-file-from-the-menu}
 
 You can drag & drop files directly from the menu. Press the ++Option++ key while dragging to copy instead of moving.
 
@@ -135,15 +154,15 @@ You can drag & drop files directly from the menu. Press the ++Option++ key while
 
 Press the ++Option++ key while viewing a file to reveal a “Copy Path” button.
 
-### How can I copy the image/video dimensions?
+### How can I copy the image/video dimensions? {#how-can-i-copy-the-imagevideo-dimensions}
 
 Press the ++Option++ key while viewing an image or video to reveal a “Copy Dimensions” button.
 
-### How can I change the sort order for a subfolder?
+### How can I change the sort order for a subfolder? {#how-can-i-change-the-sort-order-for-a-subfolder}
 
 Press the ++Shift++ key while viewing a subfolder to reveal more actions, including a sort order setting.
 
-### How can I have a menu bar folder with my most recent screenshots?
+### How can I have a menu bar folder with my most recent screenshots? {#how-can-i-have-a-menu-bar-folder-with-my-most-recent-screenshots}
 
 Make a folder to hold the screenshots and add the folder to the app. Open the Screenshot app, click “Options”, then “Other Location”, and choose the folder you just made. In Folder Peek, open the folder config, change the sort order to “Date Created”, and set “Max Items” to something like 20.
 
@@ -151,14 +170,14 @@ You may also want to [disable the screenshot preview](https://osxdaily.com/2019/
 
 ### How can I add a Smart Folder? {#smart-folder}
 
-A [Smart Folder](https://support.apple.com/guide/mac-help/create-or-change-a-smart-folder-on-mac-mchlp2804/mac) is a special feature in Finder that allows you to create a virtual folder based on specific search criteria. The files within the Smart Folder are not physically stored in one location, but rather are located in different areas of your computer. Unfortunately, it is not possible to add a Smart Folder to Folder Peek as the functionality cannot be replicated.
+A [Smart Folder](https://support.apple.com/guide/mac-help/create-or-change-a-smart-folder-on-mac-mchlp2804/mac) is a special feature in Finder that allows you to create a virtual folder based on specific search criteria. The files within the Smart Folder are not physically stored in one location, but rather are located in different areas of your computer. Unfortunately, it is not possible to add a Smart Folder to Folder Peek as the functionality cannot be replicated. [Super Menu](/super-menu) can show the results of a Finder Smart Folder.
 
-### How do I remove a folder from Folder Peek?
+### How do I remove a folder from Folder Peek? {#how-do-i-remove-a-folder-from-folder-peek}
 
 - **Individual menu bar items mode:** Click the menu bar item, go to the first menu item (which is named after your folder), go to its submenu, and then select “Remove Folder”.
 - **Single menu bar item mode:** In Settings, right-click the folder to reveal the “Remove” option.
 
-### Can I navigate to a folder multiple levels deep and then drop a file into it?
+### Can I navigate to a folder multiple levels deep and then drop a file into it? {#can-i-navigate-to-a-folder-multiple-levels-deep-and-then-drop-a-file-into-it}
 
 No, that is unfortunately not possible. Folder Peek is built as a system menu, and a menu cannot be kept open if it’s not focused. Instead, first, navigate to the nested folder, click to open it in Finder, and then drag & drop the file into the Finder window.
 
@@ -170,7 +189,7 @@ No. The app supports dragging files *out* of the menu, but not dropping files *i
 
 No, this is not possible because of [sandboxing](/apps/faq#macos-sandbox). To use a network volume in the app, you need to either mount it manually first or use a tool like [AutoMounter](https://pixeleyes.co.nz/automounter/) to keep it always mounted.
 
-### Can it support adding a tag instead of a folder?
+### Can it support adding a tag instead of a folder? {#can-it-support-adding-a-tag-instead-of-a-folder}
 
 No. This is not planned.
 
@@ -198,9 +217,9 @@ Folder Peek opens the default app that handles folders, which is Finder by defau
 - **Path Finder:** Enable the “Set as the default file browser” setting in Path Finder.
 - **ForkLift:** [Follow this guide.](https://binarynights.com/manual#fileviewer)
 
-For other apps, follow [this guide](https://binarynights.com/manual#fileviewer), but replace `com.binarynights.ForkLift-3` with the bundle identifier of the app you want.
+For other apps, follow [this guide](https://binarynights.com/manual#fileviewer), but replace `com.binarynights.ForkLift` with the bundle identifier of the app you want.
 
-### How can I hide the `…` menu item?
+### How can I hide the `…` menu item? {#how-can-i-hide-the--menu-item}
 
 There is a hidden setting for it. Run the following command in the Terminal app:
 
@@ -231,7 +250,6 @@ Compared to [XMenu](https://apps.apple.com/app/xmenu/id419332741):
 
 - You can choose any folder and as many as you want, not just a few predefined ones and a single custom folder.
 - Each folder can be individually customized.
-- Sandboxed app (more secure).
 - Custom menu bar icon.
 - File preview.
 - Copy, share, and drag & drop a file.
@@ -242,6 +260,8 @@ Compared to [XMenu](https://apps.apple.com/app/xmenu/id419332741):
 - Limit the number of items shown in the menu.
 - Shortcuts support.
 
+XMenu is free, and its last update was in August 2021.
+
 ### Can I add shortcuts or scripts to the menu? {#short-run}
 
-The app is for folders only. However, I have an app for exactly this: [Short Run](/short-run), which lets you run shortcuts from the menu bar.
+The app is for folders only. However, I have an app for exactly this: [Short Run](/short-run), which lets you run shortcuts from the menu bar. For one menu with both shortcuts and folders, see [Super Menu](/super-menu).

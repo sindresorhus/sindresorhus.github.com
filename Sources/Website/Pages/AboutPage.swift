@@ -15,7 +15,7 @@ struct AboutPage: Page {
 		page.path
 	}
 
-	var sitemapEntry: SitemapEntry? {
+	var sitemapEntry: SitemapEntry {
 		page.sitemapEntry
 	}
 
@@ -28,11 +28,11 @@ struct AboutPage: Page {
 			// Close to the title, like the intro below the title of other pages, and set apart from the text below. The margin of the header above is 2.5rem.
 			StatList(stats: stats)
 				.style {
-					$0.margin(top: .rootEm(-2), horizontal: 0, bottom: .rootEm(1.75))
+					$0.margin(top: .rootEm(-2), horizontal: .zero, bottom: .rootEm(1.75))
 				}
 
 			// What I am working on now ends the introduction. The numbers and the projects of the day are before the section about how I make an app. The projects are before the section about support, as they are the work that it supports.
-			if let parts = page.markdown.contentSeparated(beforeHeadings: [Self.nowNextHeadingID, Self.numbersNextHeadingID, Self.projectsNextHeadingID]) {
+			if let parts = page.markdown.contentSeparated(beforeHeadings: Self.splitHeadingIDs) {
 				parts[0]
 				now
 				parts[1]
@@ -59,29 +59,34 @@ struct AboutPage: Page {
 	/**
 	The ID of the heading that what I am working on now is above.
 	*/
-	static let nowNextHeadingID = "some-things-about-me"
+	static let nowNextHeadingID = ElementID("some-things-about-me")
 
 	/**
 	The ID of the heading that the numbers are above.
 	*/
-	static let numbersNextHeadingID = "how-i-make-an-app"
+	static let numbersNextHeadingID = ElementID("how-i-make-an-app")
 
 	/**
 	The ID of the heading that the popular projects are above.
 	*/
-	static let projectsNextHeadingID = "support-my-work"
+	static let projectsNextHeadingID = ElementID("support-my-work")
+
+	/**
+	The IDs of the level 2 headings that the page is split before, in their order, so the about page needs them (``MarkdownPage/Kind/requiredHeadingIDs``).
+	*/
+	static let splitHeadingIDs = [nowNextHeadingID, numbersNextHeadingID, projectsNextHeadingID]
 
 	/**
 	The ID of the heading of the numbers, so the now page can link to them.
 	*/
-	static let numbersID = "stats"
+	static let numbersID = ElementID("stats")
 
 	/**
-	The status of the now page, like “Making apps and maintaining my open-source projects.”, as a card that links to the page. Left out when the now page has no status.
+	The status of the now page, like “Making apps and maintaining my open-source projects.”, as a card that links to the page. Left out when the now page has no status. The card is a link, so the links of the status are only their text, as a link inside a link is invalid.
 	*/
 	@HTMLBuilder
 	private var now: some HTML {
-		if let status = content.page(.now)?.frontmatter.status {
+		if let status = content.page(.now)?.status?.introduction {
 			a(.href(.path(.now))) {
 				span {
 					// The dot is like the status light of the now page.
@@ -95,11 +100,12 @@ struct AboutPage: Page {
 							.statusLight()
 					}
 
+					// Text, not a title, as the status is a sentence of a few lines, like on the now page.
 					span {
 						status
 					}
 					.style {
-						$0.textStyle(.headline)
+						$0.textStyle(.body)
 					}
 				}
 				.vstack(spacing: .rootEm(0.25))
@@ -152,17 +158,22 @@ struct AboutPage: Page {
 	*/
 	private var appStats: [Stat] {
 		// All the apps on the App Store, also the archived ones, as their ratings are part of all the years.
-		let rating = content.appStoreInfo.values.combinedRating
+		let rating = content.appStoreInfo.combinedRating
 
 		let stats: [Stat?] = [
 			// All the apps that were made, also the archived ones, like the years of craft.
 			Stat(count: content.listedApps.count, noun: "app"),
 			Stat(count: AppCategory.free.apps(in: content).count, noun: "free app"),
-			Stat(count: Site.appUserCount, noun: "user", isApproximate: true),
+			Stat(count: content.settings.appUserCount, noun: "user", isApproximate: true),
 			content.yearsOfCraft.map { Stat(count: $0, noun: "year", suffix: "of craft") },
 			rating.map { Stat(count: $0.count, noun: "App Store rating", isApproximate: true) },
 			rating.map { Stat(rating: $0) },
-			Stat(count: Site.supportEmailCount, noun: "support email", suffix: "answered", isApproximate: true),
+			Stat(
+				count: content.settings.supportEmailCount,
+				noun: "support email",
+				suffix: "answered",
+				isApproximate: true
+			),
 		]
 
 		return stats.compactMap(\.self)
@@ -180,8 +191,18 @@ struct AboutPage: Page {
 				Stat(count: account.repositoryCount, noun: "repo", isApproximate: true),
 				Stat(count: account.starCount, label: "stars on my repos", isApproximate: true),
 				Stat(count: account.followerCount, noun: "follower", isApproximate: true),
-				Stat(count: account.maintenance.closedIssueCount, noun: "issue", suffix: "closed", isApproximate: true),
-				Stat(count: account.maintenance.mergedPullRequestCount, noun: "pull request", suffix: "merged from others", isApproximate: true),
+				Stat(
+					count: account.maintenance.closedIssueCount,
+					noun: "issue",
+					suffix: "closed",
+					isApproximate: true
+				),
+				Stat(
+					count: account.maintenance.mergedPullRequestCount,
+					noun: "pull request",
+					suffix: "merged from others",
+					isApproximate: true
+				),
 			]
 		} ?? []
 
@@ -189,13 +210,18 @@ struct AboutPage: Page {
 			// The career quilt has every year, so their sum is all the contributions.
 			Stat(count: years.totalCount, noun: "contribution", isApproximate: true),
 			Stat(count: years.total(\.commitCount), noun: "commit", isApproximate: true),
-			Stat(count: years.total(\.pullRequestCount), noun: "pull request", suffix: "opened", isApproximate: true),
+			Stat(
+				count: years.total(\.pullRequestCount),
+				noun: "pull request",
+				suffix: "opened",
+				isApproximate: true
+			),
 			Stat(count: years.total(\.reviewCount), noun: "code review", isApproximate: true),
-			content.recentActivity.commentCount.map { Stat(count: $0, noun: "comment", isApproximate: true) },
+			content.recentActivity.profile.map { Stat(count: $0.commentCount, noun: "comment", isApproximate: true) },
 			Stat(count: years.longestStreak, noun: "day", suffix: "in a row with contributions"),
 			years.busiestDay.map { Stat(busiestDay: $0, format: .siteDay) },
 			// The short name, like “Fri”, as a long one, like “Wednesday”, does not fit a column on phones.
-			years.busiestWeekday.map { Stat(count: $0.count, value: Calendar.site.shortWeekdaySymbols[$0.weekday], label: "busiest weekday") },
+			years.busiestWeekday.map { Stat(count: $0.count, value: Calendar.site.shortWeekdaySymbols[$0.weekday.index], label: "busiest weekday") },
 		]
 
 		return [Stat(count: content.yearsOfOpenSource, noun: "year", suffix: "of open source")] + accountStats + contributionStats.compactMap(\.self)
@@ -211,13 +237,23 @@ struct AboutPage: Page {
 			npm.packageCount.map { Stat(count: $0, noun: "package", isApproximate: true) },
 			npm.dependentCount.map { Stat(count: $0, noun: "dependent", isApproximate: true) },
 			npm.mostDownloadedCount(of: 10).map { Stat(count: $0, label: "of the 10 most-downloaded packages") },
-			npm.weeklyDownloads.map { Stat(count: $0, noun: "download", suffix: "a week", isApproximate: true) },
-			npm.downloadsPerSecond.map { Stat(count: Int($0), noun: "download", suffix: "a second", isApproximate: true) },
+			npm.weeklyDownloads.map { Stat(
+				count: $0,
+				noun: "download",
+				suffix: "a week",
+				isApproximate: true
+			) },
+			npm.downloadsPerSecond.map { Stat(
+				count: Int($0),
+				noun: "download",
+				suffix: "a second",
+				isApproximate: true
+			) },
 			// A whole percent, like “10%”, as the weeks of the two numbers differ a little.
 			npm.downloadShare.map { Stat(count: Int(($0 * 100).rounded()), value: $0.formatted(.percent.precision(.fractionLength(0)).locale(.site)), label: "of all npm downloads") },
 		]
 
-		return stats.compactMap(\.self).filter { $0.count > 0 }
+		return stats.compactMap(\.self).filter(\.hasValue)
 	}
 
 	/**
@@ -226,7 +262,7 @@ struct AboutPage: Page {
 	@HTMLBuilder
 	private var popularProjects: some HTML {
 		if !content.popularRepositories.isEmpty {
-			Section("Popular Projects", id: "popular-projects") {
+			Section("Popular Projects", id: ElementID("popular-projects")) {
 				ul {
 					for repository in content.popularRepositories {
 						li {
@@ -263,11 +299,11 @@ struct AboutPage: Page {
 	*/
 	@HTMLBuilder
 	private var projectsOfTheDay: some HTML {
-		let package = ProjectOfTheDay(title: "Package of the Day", randomTitle: "Random Package", listPath: .npmPackages, projects: content.discoverablePackages, date: content.buildDate)
-		let repository = ProjectOfTheDay(title: "Repo of the Day", randomTitle: "Random Repo", listPath: .repositories, projects: content.discoverableRepositories, date: content.buildDate)
+		let package = ProjectOfTheDay(source: .packages, content: content)
+		let repository = ProjectOfTheDay(source: .repositories, content: content)
 
 		if package != nil || repository != nil {
-			Section("Discover", id: "discover") {
+			Section("Discover", id: ElementID("discover")) {
 				div {
 					package
 					repository
@@ -313,12 +349,12 @@ extension AboutPage {
 					.plainList()
 					.grid(minimumColumnWidth: .rootEm(16))
 					.gap(.rootEm(1))
-					.margin(top: .rootEm(1.5), horizontal: 0, bottom: 0)
+					.margin(top: .rootEm(1.5), horizontal: .zero, bottom: .zero)
 			case .project:
 				Style()
 					.vstack(spacing: .rootEm(0.375))
 					.frame(height: .percent(100))
-					.padding(.rootEm(1.5))
+					.padding(.cardPadding)
 					.cardSurface()
 					// Not the medium weight of the links of the prose around it.
 					.fontWeight(.regular)

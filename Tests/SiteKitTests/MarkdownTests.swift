@@ -4,6 +4,48 @@ import Testing
 @testable import SiteKit
 
 struct MarkdownTests {
+	@Test
+	func `typed descendants preserve document order and exclude the receiver`() throws {
+		let document = Document(parsing: "@Outer {\n@Inner {\nText.\n}\n}\n\n@Last", options: .parseBlockDirectives)
+		let outer = try #require(document.child(at: 0) as? BlockDirective)
+		#expect(document.descendants(of: BlockDirective.self).map(\.name) == ["Outer", "Inner", "Last"])
+		#expect(outer.descendants(of: BlockDirective.self).map(\.name) == ["Inner"])
+		#expect(outer.blockDirectives.map(\.name) == ["Inner"])
+		#expect(document.descendants(of: Markdown.Text.self).map(\.string) == ["Text."])
+	}
+
+	@Test(arguments: HeadingLevel.allCases)
+	func `parsed heading metadata retains its valid comparable level`(level: HeadingLevel) {
+		let document = MarkdownDocument(parsing: "\(String(repeating: "#", count: level.rawValue)) Title")
+		#expect(document.headings.first?.level == level)
+		#expect(document.blocks.first?.headingLevel == level)
+		#expect((level > .h3) == (level.rawValue > 3))
+	}
+
+	@Test
+	func `a heading directive can parse a scalar value directly`() throws {
+		enum Rank: HeadingDirective {
+			static let name = "rank"
+
+			static func decode(values: [String]) throws -> Int {
+				guard
+					values.count == 1,
+					let rank = Int(values[0])
+				else {
+					throw ContentError(reason: "Expected one integer.")
+				}
+
+				return rank
+			}
+		}
+
+		let document = MarkdownDocument(parsing: "## First\n<!-- @rank 2 -->\n\n## Second\n<!-- @rank 1 2 -->\n\n## Third\n<!-- @rank nope -->", options: .init(headingDirectives: [Rank.self]))
+		#expect(document.headings[0][Rank.self] == 2)
+		#expect(document.headings[1][Rank.self] == nil)
+		#expect(document.headings[2][Rank.self] == nil)
+		#expect(document.problems.map(\.reason) == Array(repeating: "The values of `@rank` are invalid: Expected one integer.", count: 2))
+	}
+
 	/**
 	A cell that a span covers has no cell of its own, like in GitHub’s tables.
 	*/
@@ -31,9 +73,9 @@ struct MarkdownTests {
 	@Test
 	func `a heading that ends in inline code has no custom ID`() {
 		let document = MarkdownDocument(parsing: "## Use `{#id}`")
-		#expect(document.headings.map(\.id) == ["use-id"])
+		#expect(document.headings.map(\.id.rawValue) == ["use-id"])
 		#expect(document.html.contains(#"id="use-id""#))
-		#expect(MarkdownDocument(parsing: "## Install {#setup}").headings.map(\.id) == ["setup"])
+		#expect(MarkdownDocument(parsing: "## Install {#setup}").headings.map(\.id.rawValue) == ["setup"])
 	}
 
 	/**
@@ -42,9 +84,75 @@ struct MarkdownTests {
 	@Test
 	func `a custom ID can have double hyphens`() {
 		let document = MarkdownDocument(parsing: "## Copy and Paste {#cut--paste}\n\n## Other {#a---b}")
-		#expect(document.headings.map(\.id) == ["cut--paste", "a---b"])
+		#expect(document.headings.map(\.id.rawValue) == ["cut--paste", "a---b"])
 		#expect(document.headings.map(\.text) == ["Copy and Paste", "Other"])
 		#expect(document.html.contains(#"<h2 id="cut--paste">Copy and Paste</h2>"#))
+	}
+
+	/**
+	An invalid custom ID, like one with a space or a dot, would otherwise be visible text and a part of the slug, like `with-gifski-with-gifski`.
+	*/
+	@Test
+	func `an invalid custom ID is a problem, not text`() throws {
+		let document = MarkdownDocument(parsing: "Text.\n\n## With Gifski {#with gifski}\n\n## Version {#v1.2}")
+		#expect(document.problems.map(\.line) == [3, 5])
+		#expect(document.problems.first?.reason == "The custom ID `with gifski` can only have letters, digits, underscores, and hyphens, like `{#with-gifski}`.")
+		// The suggestion leaves out a space at the end, which is a typo, so it is the ID that the links use.
+		#expect(MarkdownDocument(parsing: "## A question? {#a-question }").problems.map(\.reason) == ["The custom ID `a-question ` can only have letters, digits, underscores, and hyphens, like `{#a-question}`."])
+		#expect(document.headings.map(\.text) == ["With Gifski", "Version"])
+		#expect(!document.html.contains("{#"))
+	}
+
+	@Test
+	func `an empty custom ID is a problem that says so`() {
+		let document = MarkdownDocument(parsing: "## Features {#}")
+		#expect(document.problems.map(\.reason) == ["The custom ID `{#}` is empty. Write it like `{#features}`."])
+	}
+
+	/**
+	The custom ID of a heading that code adds, which the renderer and ``Markdown/Heading/customID`` read back.
+	*/
+	@Test
+	func `a heading made with an ID has it as its custom ID`() {
+		let heading = Markdown.Heading(level: .h2, "Older Versions", id: "older")
+		#expect(heading.title == "Older Versions")
+		#expect(heading.customID == "older")
+		#expect(Markdown.Heading(level: 2, Markdown.Text("Install {#with gifski}")).customID == nil)
+		#expect(Markdown.Heading(level: 2, Markdown.Text("Install")).customID == nil)
+	}
+
+	@Test
+	func `rendered heading IDs remain typed through section splitting and links`() throws {
+		let document = MarkdownDocument(parsing: "Introduction.\n\n## Æøå\n\nText.", options: .init(addsHeadingAnchors: true))
+		let heading = try #require(document.headings.first)
+		let id: ElementID = heading.id
+
+		#expect(id.rawValue == "æøå")
+		#expect(document.html.contains("href=\"#%C3%A6%C3%B8%C3%A5\""))
+		#expect(document.contentSeparated(beforeHeading: id)?.after.html.contains(#"id="æøå""#) == true)
+	}
+
+	@Test(arguments: HeadingLevel.allCases)
+	func `generated headings render at their typed level`(level: HeadingLevel) {
+		let document = MarkdownDocument(parsing: "", options: .init(rewrite: { _ in
+			Document([Markdown.Heading(level: level, "Generated", id: "generated")])
+		}))
+
+		#expect(document.problems.isEmpty)
+		#expect(document.headings.first?.level == level)
+		#expect(document.blocks.first?.headingLevel == level)
+		#expect(document.html == "<h\(level.rawValue) id=\"generated\">Generated</h\(level.rawValue)>\n")
+	}
+
+	@Test(arguments: HeadingLevel.allCases)
+	func `collapsible sections use their typed heading level`(level: HeadingLevel) {
+		let source = "\(String(repeating: "#", count: level.rawValue)) Question\n\nAnswer."
+		let options = MarkdownDocument.Options(collapsibleSections: .init(level: level))
+		let document = MarkdownDocument(parsing: source, options: options)
+
+		#expect(document.problems.isEmpty)
+		#expect(document.html.contains(#"<h\#(level.rawValue) class="collapsible-title">Question</h\#(level.rawValue)>"#))
+		#expect(document.html.contains(#"<details id="question""#))
 	}
 
 	/**
@@ -52,7 +160,7 @@ struct MarkdownTests {
 	*/
 	@Test
 	func `footnote syntax in inline code stays in the plain text`() {
-		#expect(MarkdownDocument(parsing: "## The `[^1]` syntax").headings.map(\.id) == ["the-1-syntax"])
+		#expect(MarkdownDocument(parsing: "## The `[^1]` syntax").headings.map(\.id.rawValue) == ["the-1-syntax"])
 		#expect(MarkdownDocument(parsing: "Write `[^1]` for a footnote.").introduction == "Write [^1] for a footnote.")
 		#expect(MarkdownDocument(parsing: "A note[^1].\n\n[^1]: Text.").introduction == "A note.")
 	}
@@ -79,7 +187,7 @@ struct MarkdownTests {
 	func `custom heading IDs are used and removed from the text`() {
 		let document = MarkdownDocument(parsing: "## Hello World {#custom-id}\n\nText")
 		#expect(document.headings.map(\.text) == ["Hello World"])
-		#expect(document.headings.map(\.id) == ["custom-id"])
+		#expect(document.headings.map(\.id.rawValue) == ["custom-id"])
 		#expect(document.headings.map(\.line) == [1])
 		#expect(document.html.contains(#"<h2 id="custom-id">Hello World</h2>"#))
 	}
@@ -89,6 +197,68 @@ struct MarkdownTests {
 		#expect(MarkdownDocument(parsing: "Hello *world*").inlineHTML == "Hello <em>world</em>")
 		#expect(MarkdownDocument(parsing: "First\n\nSecond").inlineHTML == "<p>First</p>\n<p>Second</p>")
 		#expect(MarkdownDocument(parsing: #"First\#n\#n<p class="note">Second</p>"#).inlineHTML == #"<p>First</p>\#n<p class="note">Second</p>"#)
+	}
+
+	@Test(arguments: ["# Heading", "First\n\nSecond", "- Item", "```swift\nlet value = 1\n```", "<!-- Only a comment -->", "", "Text[^1].\n\n[^1]: A note.", #"A ^[term](note: "A note.")"#])
+	func `checked inline arguments reject blocks and popovers`(source: String) {
+		let context = MarkdownDocument.Options.BlockDirectiveRenderer.Context(documentOptions: .init())
+
+		#expect(throws: ContentError.self) {
+			try context.inlineDocument(parsing: source)
+		}
+	}
+
+	@Test
+	func `checked inline arguments preserve bold text and ignore comment blocks`() throws {
+		let context = MarkdownDocument.Options.BlockDirectiveRenderer.Context(documentOptions: .init())
+		let document = try context.inlineDocument(parsing: "<!-- An author note -->\n\n**Highlights**\n\n<!-- Another note -->")
+
+		#expect(document.inlineHTML == "<strong>Highlights</strong>")
+		#expect(document.html.contains("<p class=\"bold-label\"><strong>Highlights</strong></p>"))
+		#expect(try context.inlineDocument(parsing: "Hello *world* <span>!</span>").inlineHTML == "Hello <em>world</em> <span>!</span>")
+	}
+
+	@Test
+	func `checked bold inline arguments retain link resolution and attribute validation`() throws {
+		let context = MarkdownDocument.Options.BlockDirectiveRenderer.Context(documentOptions: .init(
+			inlineAttributes: .init { (attributes: BadgeAttributes, contentHTML) in
+				guard attributes.platform == "macOS" else {
+					throw ContentError(reason: "Unsupported platform.")
+				}
+
+				return "<span>\(contentHTML)</span>"
+			},
+			resolveLink: { destination in
+				guard destination != "missing.md" else {
+					throw ContentError(reason: "Missing destination.")
+				}
+
+				return "/" + destination.replacing(".md", with: "")
+			}
+		))
+		let document = try context.inlineDocument(parsing: #"**[Guide](guide.md) ^[Mac](platform: "macOS")**"#)
+
+		#expect(document.inlineHTML == #"<strong><a href="/guide">Guide</a> <span>Mac</span></strong>"#)
+		#expect(document.links.map(\.destination) == ["/guide"])
+
+		let linkError = try #require(throws: ContentError.self) {
+			try context.inlineDocument(parsing: #"**[Guide](missing.md) ^[Mac](platform: "macOS")**"#)
+		}
+		#expect(linkError.reason.contains("Missing destination."))
+
+		let attributesError = try #require(throws: ContentError.self) {
+			try context.inlineDocument(parsing: #"**[Guide](guide.md) ^[Mac](platform: "iOS")**"#)
+		}
+		#expect(attributesError.reason.contains("Unsupported platform."))
+	}
+
+	@Test
+	func `duplicate heading directive registrations fail after options are mutated`() async {
+		await #expect(processExitsWith: .failure) {
+			var options = MarkdownDocument.Options(headingDirectives: [Keywords.self])
+			options.headingDirectives.append(OtherKeywords.self)
+			_ = MarkdownDocument(parsing: "## Title", options: options)
+		}
 	}
 
 	@Test
@@ -126,7 +296,7 @@ struct MarkdownTests {
 	@Test
 	func `custom heading IDs do not affect generated slugs, and a repeated ID is a problem`() throws {
 		let document = MarkdownDocument(parsing: "## First {#same}\n\n## Same\n\n## Same")
-		#expect(document.headings.map(\.id) == ["same", "same", "same-1"])
+		#expect(document.headings.map(\.id.rawValue) == ["same", "same", "same-1"])
 		#expect(document.problems.map(\.line) == [3])
 		let reason = try #require(document.problems.first).reason
 		#expect(reason.contains("`same`"))
@@ -135,14 +305,14 @@ struct MarkdownTests {
 	@Test
 	func `two headings with the same custom ID are a problem`() {
 		let document = MarkdownDocument(parsing: "## First {#x}\n\n## Second {#x}\n\n## Third {#y}")
-		#expect(document.headings.map(\.id) == ["x", "x", "y"])
+		#expect(document.headings.map(\.id.rawValue) == ["x", "x", "y"])
 		#expect(document.problems.map(\.line) == [3])
 	}
 
 	@Test
 	func `heading slug collisions match GitHub`() {
 		let document = MarkdownDocument(parsing: "## Same\n## Same\n## Same-1\n## Same")
-		#expect(document.headings.map(\.id) == ["same", "same-1", "same-1-1", "same-2"])
+		#expect(document.headings.map(\.id.rawValue) == ["same", "same-1", "same-1-1", "same-2"])
 	}
 
 	@Test
@@ -159,7 +329,7 @@ struct MarkdownTests {
 	@Test
 	func `heading slugs use code text but not image descriptions`() {
 		let document = MarkdownDocument(parsing: "## Use `npx` ![icon](icon.png) now")
-		#expect(document.headings.first?.id == "use-npx--now")
+		#expect(document.headings.first?.id.rawValue == "use-npx--now")
 	}
 
 	@Test
@@ -209,14 +379,21 @@ struct MarkdownTests {
 	*/
 	@Test
 	func `markup that a rewrite adds from another file has no lines`() {
-		let document = MarkdownDocument(parsing: "### Own {#own}\n\n[Own link](https://example.com/own)", options: .init(headingDirectives: [Keywords.self], rewrite: { document in
-			let added = Document(parsing: "Text.\n\n### Added {#added}\n<!-- @faq.keywords launch -->\n<!-- @faq.unknown -->\n\n[Link](https://example.com)", file: URL(filePath: "/shared.md"), options: .init())
-			return Document(Array(document.blockChildren) + Array(added.blockChildren.dropFirst()))
-		}))
+		let document = MarkdownDocument(
+			parsing: "### Own {#own}\n\n[Own link](https://example.com/own)",
+			options: .init(
+				headingDirectives: [Keywords.self],
+				rewrite: { document in
+					let added = Document(parsing: "Text.\n\n### Added {#added}\n<!-- @faq.keywords launch -->\n<!-- @faq.unknown -->\n\n[Link](https://example.com)", file: URL(filePath: "/shared.md"), options: .init())
+					return Document(Array(document.blockChildren) + Array(added.blockChildren.dropFirst()))
+				}
+			)
+		)
 
 		#expect(document.headings.map(\.line) == [1, nil])
 		#expect(document.headings[1][Keywords.self] == ["launch"])
-		#expect(document.links.map(\.line) == [3, nil])
+		#expect(document.links.map(\.line) == [3, 7])
+		#expect(document.links.map(\.otherFile) == [nil, URL(filePath: "/shared.md")])
 		#expect(document.problems.map(\.line) == [nil])
 	}
 
@@ -269,39 +446,84 @@ struct MarkdownTests {
 
 	@Test
 	func `the introduction can be separated from the rest of the HTML`() throws {
-		let document = MarkdownDocument(parsing: "<!-- Hidden. -->\n\nUse [Dato](/dato) daily.\n\nSecond paragraph.")
-		let separated = try #require(document.htmlSeparatingIntroduction)
-		#expect(separated.introduction == #"Use <a href="/dato">Dato</a> daily."#)
-		#expect(separated.remainder == "<p>Second paragraph.</p>\n")
+		let document = MarkdownDocument(parsing: "<!-- Hidden. -->\n\nUse [Dato](/dato) daily.\n\nSecond paragraph.[^1]\n\n[^1]: A note.")
+		let separated = try #require(document.contentSeparatingIntroduction)
+		#expect(separated.introduction.html == #"Use <a href="/dato">Dato</a> daily."#)
+		#expect(separated.remainder.html.hasPrefix("<p>Second paragraph."))
+		// The popover of the footnote stays with the rest.
+		#expect(document.html.hasSuffix(separated.remainder.html))
+		#expect(separated.remainder.html.contains("A note."))
 
-		#expect(MarkdownDocument(parsing: "## Heading\n\nParagraph.").htmlSeparatingIntroduction == nil)
-		#expect(MarkdownDocument(parsing: "![Screenshot](screenshot.png)\n\nParagraph.").htmlSeparatingIntroduction == nil)
+		#expect(MarkdownDocument(parsing: "## Heading\n\nParagraph.").contentSeparatingIntroduction == nil)
+		#expect(MarkdownDocument(parsing: "![Screenshot](screenshot.png)\n\nParagraph.").contentSeparatingIntroduction == nil)
 	}
 
 	@Test
 	func `a document can be separated before a heading`() throws {
 		let document = MarkdownDocument(parsing: "First.\n\n## Section\n\n`<h2 id=\"end\">`\n\n## End\n\nMore.")
-		let separated = try #require(document.htmlSeparated(beforeHeading: "end"))
-		#expect(separated.before.contains("Section"))
+		let separated = try #require(document.contentSeparated(beforeHeading: ElementID("end")))
+		#expect(separated.before.html.contains("Section"))
 		// The heading in code is not a heading.
-		#expect(separated.before.contains(#"<code translate="no">"#))
-		#expect(separated.after.hasPrefix(#"<h2 id="end""#))
-		#expect(separated.after.contains("More."))
+		#expect(separated.before.html.contains(#"<code translate="no">"#))
+		#expect(separated.after.html.hasPrefix(#"<h2 id="end""#))
+		#expect(separated.after.html.contains("More."))
 
-		#expect(document.htmlSeparated(beforeHeading: "missing") == nil)
+		#expect(document.contentSeparated(beforeHeading: ElementID("missing")) == nil)
+	}
+
+	/**
+	A heading inside a block directive is not a place to split, as the HTML of the directive would be cut in two.
+	*/
+	@Test
+	func `a heading inside a block directive is not a place to split`() {
+		var options = MarkdownDocument.Options()
+		options.blockDirectives["Box"] = .init { "<div>\($0)</div>" }
+		let document = MarkdownDocument(parsing: "First.\n\n@Box {\n  Intro.\n\n  ## Inside {#inside}\n\n  Text.\n}", options: options)
+
+		#expect(document.headings.map(\.id.rawValue) == ["inside"])
+		#expect(document.html.contains("<div><p>Intro.</p>\n<h2 id=\"inside\">"))
+		#expect(document.contentSeparated(beforeHeading: ElementID("inside")) == nil)
 	}
 
 	@Test
 	func `a document can be separated before several headings, in their order`() throws {
 		let document = MarkdownDocument(parsing: "First.\n\n## Middle\n\nSecond.\n\n## End\n\nThird.")
-		let parts = try #require(document.htmlSeparated(beforeHeadings: ["middle", "end"]))
+		let parts = try #require(document.contentSeparated(beforeHeadings: [ElementID("middle"), ElementID("end")])).map(\.html)
 		try #require(parts.count == 3)
 		#expect(parts[0].contains("First.") && !parts[0].contains("Second."))
 		#expect(parts[1].hasPrefix(#"<h2 id="middle""#) && parts[1].contains("Second.") && !parts[1].contains("Third."))
 		#expect(parts[2].hasPrefix(#"<h2 id="end""#) && parts[2].contains("Third."))
 
-		#expect(document.htmlSeparated(beforeHeadings: ["end", "middle"]) == nil)
-		#expect(document.htmlSeparated(beforeHeadings: ["middle", "missing"]) == nil)
+		#expect(document.contentSeparated(beforeHeadings: [ElementID("end"), ElementID("middle")]) == nil)
+		#expect(document.contentSeparated(beforeHeadings: [ElementID("middle"), ElementID("missing")]) == nil)
+	}
+
+	@Test
+	func `splitting content preserves empty leading parts and puts popovers only in the final part`() throws {
+		let document = MarkdownDocument(parsing: "## First\n\nA ^[note](note: \"Body.\").\n\n## End\n\nEnd.")
+		let parts = try #require(document.content.separated(beforeHeadings: [ElementID("first"), ElementID("end")]))
+		#expect(parts.count == 3)
+		#expect(parts[0].html.isEmpty)
+		#expect(!parts[1].html.contains("<div popover "))
+		#expect(parts[2].html.ranges(of: "<div popover ").count == 1)
+		#expect(parts.map(\.html).joined() == document.content.html)
+		let first = try #require(document.content.separatedBeforeFirstSection)
+		#expect(first.before.html.isEmpty)
+		#expect(first.after.html == document.content.html)
+	}
+
+	@Test
+	func `directive block parsing keeps line positions and eligibility in one result`() {
+		let block = HTMLBlock("<!-- @one value -->\n\n<!-- @two -->\n")
+		let parsed = block.parsedDirectiveComments
+		#expect(parsed.isOnlyDirectives)
+		#expect(parsed.comments.map { $0?.name } == ["one", nil, "two", nil])
+		#expect(parsed.comments[0]?.values == ["value"])
+	}
+
+	@Test(arguments: ["<!-- @one x --><!-- @two y -->", "Text <!-- @one x -->", "<!-- @one x -->\nText"])
+	func `directive block parsing rejects lines with other content`(source: String) {
+		#expect(!HTMLBlock(source).parsedDirectiveComments.isOnlyDirectives)
 	}
 
 	@Test
@@ -350,9 +572,14 @@ struct MarkdownTests {
 
 		#expect(plain.contains(#"<pre tabindex="0"><code class="language-sh">ls &lt;a&gt;\#n</code></pre>"#))
 
-		let rendered = MarkdownDocument(parsing: "```swift title\nlet a = 1\n```\n\n```\nplain\n```", options: .init(codeBlock: { code, language in
-			"<x-code>\(language ?? "none"): \(code)</x-code>"
-		})).html
+		let rendered = MarkdownDocument(
+			parsing: "```swift title\nlet a = 1\n```\n\n```\nplain\n```",
+			options: .init(
+				codeBlock: { code, language in
+					"<x-code>\(language ?? "none"): \(code)</x-code>"
+				}
+			)
+		).html
 
 		#expect(rendered.contains("<x-code>swift: let a = 1\n</x-code>"))
 		#expect(rendered.contains("<x-code>none: plain\n</x-code>"))
@@ -409,7 +636,7 @@ struct MarkdownTests {
 
 	@Test
 	func `soml code is split into the parts that the lexer of SOML classifies, with the whitespace between them`() {
-		let source = "# A comment.\nname: \"é😀\\t\"\n\"is enabled\": true\ntags: [1, 1h30m, 2026-09-19T14:00:00Z]\n"
+		let source = "# A comment.\nname: \"é😀\\t\"\n\"is enabled\": true\ntags: [1, 1h30m, 2026-09-19, 2026-09-19T14:00:00Z]\n"
 		let parts = source.somlCodeParts
 
 		#expect(parts.map(\.text).joined() == source)
@@ -424,6 +651,7 @@ struct MarkdownTests {
 			"declaration tags",
 			"number 1",
 			"number 1h30m",
+			"number 2026-09-19",
 			"number 2026-09-19T14:00:00Z",
 		])
 	}
@@ -541,6 +769,12 @@ struct MarkdownTests {
 	func `kbd elements in raw HTML blocks are split into keys`() {
 		let html = MarkdownDocument(parsing: "<div><kbd>Cmd+K</kbd> and <kbd>A</kbd></div>").html
 		#expect(html.contains(#"<div><kbd class="keyboard-shortcut" translate="no"><kbd>Cmd</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>K</kbd></kbd> and <kbd>A</kbd></div>"#))
+
+		// Like a shortcut in the Markdown: a glyph key has its name for screen readers, and the plus key is `+`. The text is HTML, so an escape is not escaped again.
+		let glyphHTML = MarkdownDocument(parsing: "<div><kbd>Command+◀</kbd> <kbd>Command+Plus</kbd> <kbd>Option+&amp;</kbd></div>").html
+		#expect(glyphHTML.contains(#"<kbd><span role="img" aria-label="Left Arrow">◀</span></kbd>"#))
+		#expect(glyphHTML.contains(#"<kbd>Command</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>+</kbd>"#))
+		#expect(glyphHTML.contains("<kbd>&amp;</kbd>"))
 	}
 
 	@Test
@@ -599,8 +833,9 @@ struct MarkdownTests {
 
 	@Test
 	func `release notes link bare URLs and emails without other extensions`() {
-		let document = MarkdownDocument(parsing: "## Fixes\n\nContact support@example.com or https://example.com/help. <kbd>Command+Delete</kbd>", style: .releaseNotes)
-		#expect(document.html.contains("<h2>Fixes</h2>"))
+		let document = MarkdownDocument(parsing: "# Big\n\n## Fixes\n\n##### Small\n\nContact support@example.com or https://example.com/help. <kbd>Command+Delete</kbd>", style: .releaseNotes)
+		// The page shows each release below a heading of its version (`<h2>`), so the headings go two levels down.
+		#expect(document.html.contains("<h3>Big</h3>\n<h4>Fixes</h4>\n<h6>Small</h6>"))
 		#expect(document.html.contains(#"<a href="mailto:support@example.com">support@example.com</a>"#))
 		#expect(document.html.contains(#"<a href="https://example.com/help">https://example.com/help</a>."#))
 		#expect(document.html.contains("<kbd>Command+Delete</kbd>"))
@@ -632,7 +867,16 @@ struct MarkdownTests {
 
 	@Test
 	func `headings of a level after a heading become collapsible sections`() throws {
-		let options = MarkdownDocument.Options(collapsibleSections: .init(level: 4, startHeadingID: "faq", name: "faq", moreLink: .init(title: "More", destination: .path("/faq"))), addsHeadingAnchors: true, headingDirectives: [Keywords.self])
+		let options = MarkdownDocument.Options(
+			collapsibleSections: .init(
+				level: .h4,
+				startHeadingID: ElementID("faq"),
+				name: "faq",
+				moreLink: .init(title: "More", destination: .path(#path("/faq")))
+			),
+			addsHeadingAnchors: true,
+			headingDirectives: [Keywords.self]
+		)
 		let document = MarkdownDocument(parsing: """
 		#### Before
 
@@ -659,7 +903,7 @@ struct MarkdownTests {
 		#expect(document.html.contains("<a href=\"/faq\" class=\"collapsible-more-link\">More</a>\n</div>\n<h2 id=\"after\" class=\"anchored-heading\" aria-label=\"After\">"))
 		#expect(document.html.contains(#"<h4 id="before" class="anchored-heading" aria-label="Before">Before<a"#))
 		#expect(document.html.contains(#"<h4 id="not-a-section" class="anchored-heading" aria-label="Not a section">Not a section<a"#))
-		try #require(document.headings.map(\.id) == ["before", "faq", "first", "second", "after", "not-a-section"])
+		try #require(document.headings.map(\.id.rawValue) == ["before", "faq", "first", "second", "after", "not-a-section"])
 		#expect(document.headings[2][Keywords.self] == ["one"])
 	}
 
@@ -668,7 +912,7 @@ struct MarkdownTests {
 	*/
 	@Test
 	func `links to sections are named after their headings, which are named by their text`() {
-		let options = MarkdownDocument.Options(collapsibleSections: .init(level: 3, startHeadingID: "faq"), addsHeadingAnchors: true)
+		let options = MarkdownDocument.Options(collapsibleSections: .init(level: .h3, startHeadingID: ElementID("faq")), addsHeadingAnchors: true)
 		let html = MarkdownDocument(parsing: "## Use `Cmd` & “Shift” {#faq}\n\n### Why?\n\nBecause.", options: options).html
 		#expect(html.contains(##"<h2 id="faq" class="anchored-heading" aria-label="Use Cmd &amp; “Shift”">Use <code translate="no">Cmd</code> &amp; “Shift”<a href="#faq" class="heading-anchor" data-copy-link="" aria-label="Copy link to section: Use Cmd &amp; “Shift”">"##))
 		#expect(html.contains(##"<a href="#why" class="heading-anchor" data-copy-link="" aria-label="Copy link to section: Why?">"##))
@@ -680,7 +924,7 @@ struct MarkdownTests {
 	*/
 	@Test
 	func `the links of a collapsible section heading are plain text and a problem, as a summary cannot have links`() {
-		let options = MarkdownDocument.Options(collapsibleSections: .init(level: 4, startHeadingID: "faq"))
+		let options = MarkdownDocument.Options(collapsibleSections: .init(level: .h4, startHeadingID: ElementID("faq")))
 		let document = MarkdownDocument(parsing: """
 		## FAQ {#faq}
 
@@ -699,7 +943,7 @@ struct MarkdownTests {
 	*/
 	@Test
 	func `a bare URL in a collapsible section heading is not a problem`() {
-		let options = MarkdownDocument.Options(collapsibleSections: .init(level: 4, startHeadingID: "faq"))
+		let options = MarkdownDocument.Options(collapsibleSections: .init(level: .h4, startHeadingID: ElementID("faq")))
 		let document = MarkdownDocument(parsing: "## FAQ {#faq}\n\n#### Is https://example.com or hi@example.com ok?\n\nYes.", options: options)
 		#expect(document.problems.isEmpty)
 		#expect(document.html.contains(#"<h4 class="collapsible-title">Is https://example.com or hi@example.com ok?</h4>"#))
@@ -761,14 +1005,16 @@ struct MarkdownTests {
 
 	@Test
 	func `heading directive values are decoded strictly`() throws {
-		enum Size: String, Decodable {
+		enum Size: String, ContentEnum {
 			case small
 			case large
 		}
 
 		enum Sizes: HeadingDirective {
 			static let name = "faq.sizes"
-			typealias Value = [Size]
+			static func decode(values: [String]) throws -> [Size] {
+				try values.map { try Size(validating: $0) }
+			}
 		}
 
 		let document = MarkdownDocument(parsing: """
@@ -785,10 +1031,10 @@ struct MarkdownTests {
 		try #require(document.headings.count == 3)
 		#expect(document.headings[0][Sizes.self] == [.small, .large])
 		#expect(document.headings[1][Sizes.self] == nil)
-		#expect(document.headings[2][Sizes.self] == [])
-		#expect(document.problems.map(\.line) == [5])
-		let reason = try #require(document.problems.first).reason
-		#expect(reason.hasPrefix("The values of `@faq.sizes` are invalid:"))
+		#expect(document.headings[2][Sizes.self] == nil)
+		try #require(document.problems.map(\.line) == [5, 8])
+		#expect(document.problems[0].reason.hasPrefix("The values of `@faq.sizes` are invalid:"))
+		#expect(document.problems[1].reason == "`@faq.sizes` needs at least one value.")
 	}
 
 	@Test
@@ -801,18 +1047,18 @@ struct MarkdownTests {
 	@Test
 	func `plus signs around keys make a keyboard shortcut`() {
 		let html = MarkdownDocument(parsing: "Press ++Option+◀++, not C++ and C++.").html
-		#expect(html.contains(#"<kbd>Option</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>◀</kbd>"#))
+		#expect(html.contains(#"<kbd>Option</kbd><span class="key-separator" aria-hidden="true">+</span><kbd><span role="img" aria-label="Left Arrow">◀</span>"#))
 		#expect(html.contains("not C++ and C++."))
 	}
 
 	@Test
 	func `content can be separated before a level 2 heading`() throws {
 		let content = MarkdownDocument(parsing: "Intro.\n\n## First {#first}\n\nText.").content
-		let parts = try #require(content.separated(beforeHeading: "first"))
+		let parts = try #require(content.separated(beforeHeading: ElementID("first")))
 
 		#expect(parts.before.html == "<p>Intro.</p>\n")
 		#expect(parts.after.html.hasPrefix(#"<h2 id="first""#))
-		#expect(content.separated(beforeHeading: "missing") == nil)
+		#expect(content.separated(beforeHeading: ElementID("missing")) == nil)
 	}
 
 	@Test
@@ -823,6 +1069,179 @@ struct MarkdownTests {
 		#expect(document.html.contains(#"or <kbd translate="no">Q</kbd>."#))
 		#expect(document.problems.map(\.reason) == ["The modifiers of the keyboard shortcut `Command+Shift+V` must be in the order of Apple: Shift, Command, like `Shift+Command+V`."])
 		#expect(MarkdownDocument(parsing: "Press ++Control+Option+Shift+Command+K++.").problems.isEmpty)
+	}
+
+	@Test
+	func `the closing punctuation after a shortcut of more than one key stays on its line`() {
+		let html = MarkdownDocument(parsing: "Press ++Shift+Command+V++), ++Q++, or ++Control+C++ to stop.").html
+
+		#expect(html.contains(#"Press <span class="keyboard-shortcut-with-punctuation"><kbd class="keyboard-shortcut" translate="no"><kbd>Shift</kbd>"#))
+		#expect(html.contains(#"<kbd>V</kbd></kbd>),</span> <kbd translate="no">Q</kbd>, or <kbd class="keyboard-shortcut" translate="no">"#))
+		#expect(html.contains(#"<kbd>C</kbd></kbd> to stop."#))
+	}
+
+	@Test
+	func `shortcut parts own punctuation without requiring alternating text fragments`() {
+		let parts = "++Command+K++), ++Q++!"[...].keyboardShortcutParts
+		let fragments = parts.map { part in
+			switch part {
+			case .text(let text):
+				"text: \(text)"
+			case .shortcut(let text, let punctuation):
+				"shortcut: \(text) punctuation: \(punctuation)"
+			}
+		}
+
+		#expect(fragments == ["shortcut: Command+K punctuation: ),", "text:  ", "shortcut: Q punctuation: !"])
+		#expect(MarkdownDocument(parsing: "++Command+K++), ++Q++!").introduction == "Command+K), Q!")
+	}
+
+	@Test
+	func `link suppression is restored for following sibling links`() {
+		let source = #"^[Term](note: "Note.") [Following](/after)"#
+		let document = MarkdownDocument(parsing: source)
+		#expect(document.problems.isEmpty)
+		#expect(document.html.contains(#"<a href="/after">Following</a>"#))
+
+		let sections = MarkdownDocument(parsing: "## Question\n\n[Inside](/inside)\n\n# After\n\n[Following](/after)", options: .init(collapsibleSections: .init(level: .h2)))
+		#expect(sections.problems.isEmpty)
+		#expect(sections.links.map(\.destination) == ["/inside", "/after"])
+		#expect(sections.html.contains(#"<a href="/inside">Inside</a>"#))
+		#expect(sections.html.contains(#"<a href="/after">Following</a>"#))
+	}
+
+	@Test
+	func `a rejected note inside a link restores sibling notes and their links`() throws {
+		let document = MarkdownDocument(parsing: #"[Link ^[inside](note: "Ignored.")](/outer) ^[Term](note: "See [Note link](/inside).") [Following](/after)"#)
+
+		#expect(document.problems.count == 1)
+		let problem = try #require(document.problems.first)
+		#expect(problem.reason.contains("inside a link"))
+		#expect(document.html.contains(#"<a href="/outer">Link inside</a>"#))
+		#expect(!document.html.contains("Ignored."))
+		#expect(document.html.contains(#"See <a href="/inside">Note link</a>."#))
+		#expect(document.html.contains(#"<a href="/after">Following</a>"#))
+		#expect(document.links.map(\.destination) == ["/outer", "/inside", "/after"])
+	}
+
+	@Test
+	func `the keys of a shortcut have their names on the keyboard of a Mac`() {
+		let reasons = MarkdownDocument(parsing: "Press ++Cmd+K++, ++⌥⌘V++, ++command+k++, or ++Command+⌫++.").problems.map(\.reason)
+
+		#expect(reasons == [
+			"Write the key `Cmd` of the keyboard shortcut `Cmd+K` as `Command`, its name on the keyboard of a Mac.",
+			"Write the key `⌥⌘V` of the keyboard shortcut `⌥⌘V` as `Option+Command+V`, its name on the keyboard of a Mac.",
+			"Write the key `command` of the keyboard shortcut `command+k` as `Command`, its name on the keyboard of a Mac.",
+			"Write the key `k` of the keyboard shortcut `command+k` as `K`, its name on the keyboard of a Mac.",
+		])
+		#expect(MarkdownDocument(parsing: "Press ++Esc++, ++Fn++, ++Option+◀++, or ++Shift+Command+,++.").problems.isEmpty)
+
+		// A common name of another keyboard gets the name of the key, not a hint to add a key.
+		#expect(MarkdownDocument(parsing: "Press ++Escape++, ++Command+Spacebar++, or ++Command+Up Arrow++.").problems.map(\.reason) == [
+			"Write the key `Escape` of the keyboard shortcut `Escape` as `Esc`, its name on the keyboard of a Mac.",
+			"Write the key `Spacebar` of the keyboard shortcut `Command+Spacebar` as `Space`, its name on the keyboard of a Mac.",
+			"Write the key `Up Arrow` of the keyboard shortcut `Command+Up Arrow` as `▲`, its name on the keyboard of a Mac.",
+		])
+	}
+
+	/**
+	A suggestion is always the name of a key, so a misspelled key is not suggested with a capital letter.
+	*/
+	@Test
+	func `a key in another case gets its name, and a misspelled key gets no name`() {
+		#expect(MarkdownDocument(parsing: "Press ++page up++, ++ESC++, ++Command+plus++, or ++enterr++.").problems.map(\.reason) == [
+			"Write the key `page up` of the keyboard shortcut `page up` as `Page Up`, its name on the keyboard of a Mac.",
+			"Write the key `ESC` of the keyboard shortcut `ESC` as `Esc`, its name on the keyboard of a Mac.",
+			"Write the key `plus` of the keyboard shortcut `Command+plus` as `Plus`, its name on the keyboard of a Mac.",
+			"`enterr` of the keyboard shortcut `enterr` is not a key of a Mac keyboard. Write the name on the key, like `Return` or `K`, or add the key to `KeyboardKey.keyNames`.",
+		])
+	}
+
+	@Test
+	func `a shortcut with modifier glyphs is corrected with the name of its key too`() {
+		let reasons = MarkdownDocument(parsing: "Press ++⌘c++.").problems.map(\.reason)
+
+		#expect(reasons == ["Write the key `⌘c` of the keyboard shortcut `⌘c` as `Command+C`, its name on the keyboard of a Mac."])
+		#expect(KeyboardKey.correctedShortcut("cmd+c") == "Command+C")
+		#expect(KeyboardKey.correctedShortcut("⌥⌘v") == "Option+Command+V")
+		#expect(KeyboardKey.correctedShortcut("Command+") == "Command+Plus")
+	}
+
+	/**
+	The corrected shortcut must pass the check of the order of the modifiers, or following the suggestion would be another problem.
+	*/
+	@Test
+	func `a corrected shortcut has the modifiers in the order of Apple`() {
+		#expect(KeyboardKey.correctedShortcut("cmd+shift+k") == "Shift+Command+K")
+		#expect(KeyboardKey.correctedShortcut("⌘⇧k") == "Shift+Command+K")
+		#expect(KeyboardKey.correctedShortcut("ctrl+alt+del") == "Control+Option+Delete")
+		#expect(KeyboardKey.correctedShortcut("opt+esc") == "Option+Esc")
+		#expect(MarkdownDocument(parsing: "Press ++⌘⇧K++.").problems.map(\.reason).contains { $0.contains("as `Shift+Command+K`") })
+	}
+
+	/**
+	Smart punctuation makes a quote typographic, but the key is the straight quote on the keyboard, which is not a glyph without a name.
+	*/
+	@Test
+	func `a quote key is the straight quote of the keyboard`() {
+		let document = MarkdownDocument(parsing: "Press ++Command+'++ or ++Shift+Command+\"++.")
+
+		#expect(document.problems.isEmpty)
+		#expect(document.html.contains("<kbd>'</kbd>"))
+		#expect(document.html.contains("<kbd>&quot;</kbd>"))
+	}
+
+	/**
+	A screen reader would read the Unicode name of the glyph, like “black left-pointing triangle”.
+	*/
+	@Test
+	func `a glyph key has its name for screen readers, and a glyph without a name is a problem`() {
+		let document = MarkdownDocument(parsing: "Press ++Command+◀++, <kbd>▶</kbd>, or ++★++.")
+
+		#expect(document.html.contains(#"<kbd>Command</kbd><span class="key-separator" aria-hidden="true">+</span><kbd><span role="img" aria-label="Left Arrow">◀</span></kbd>"#))
+		#expect(document.html.contains(#"<kbd translate="no"><span role="img" aria-label="Right Arrow">▶</span></kbd>"#))
+		#expect(document.problems.map(\.reason) == ["The key `★` of the keyboard shortcut `★` is a glyph without a name for screen readers. Write the name of the key, or add the glyph to `KeyboardKey.Glyph`."])
+	}
+
+	@Test
+	func `a key that a Mac keyboard does not have is a problem`() {
+		let document = MarkdownDocument(parsing: "Press ++Command+Enterr++, ++Shift+F12++, ++Option+Page Down++, ++Command+/++, or ++Win+R++.")
+
+		#expect(document.problems.map(\.reason) == ["`Enterr` of the keyboard shortcut `Command+Enterr` is not a key of a Mac keyboard. Write the name on the key, like `Return` or `K`, or add the key to `KeyboardKey.keyNames`."])
+	}
+
+	@Test
+	func `a shortcut without its closing plus signs is a problem, but C++ is text`() {
+		let document = MarkdownDocument(parsing: "Press ++Command+N to make an event.\n\nWrite C++ and C++17, add a ++ b, or press ++Q++.")
+
+		#expect(document.problems.map(\.line) == [1])
+		#expect(document.problems.first?.reason == "The text has a `++` without its closing `++`, so the page shows the plus signs. Write a keyboard shortcut like `++Command+N++`.")
+	}
+
+	@Test
+	func `a table without its delimiter row is a problem`() {
+		let document = MarkdownDocument(parsing: "| A | B |\n| 1 | 2 |\n\n| A | B |\n| - | - |\n| 1 | 2 |\n\nA | B")
+
+		#expect(document.problems.map(\.line) == [1])
+		#expect(document.problems.first?.reason == "The table has no delimiter row below its header, like `| --- | --- |`, so the page shows the pipes.")
+	}
+
+	@Test
+	func `the plus key is written as Plus`() {
+		let document = MarkdownDocument(parsing: "Press ++Command+Plus++.")
+		#expect(document.html.contains(#"<kbd>Command</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>+</kbd>"#))
+		#expect(document.problems.isEmpty)
+	}
+
+	@Test
+	func `raw details and summary are a problem when there is a Details directive`() {
+		let options = MarkdownDocument.Options(blockDirectives: ["Details": .init { (contentHTML: String) in contentHTML }])
+		#expect(MarkdownDocument(parsing: "Text.\n\n<details>\n<summary>Why?</summary>\n\nBecause.\n\n</details>", options: options).problems.map(\.line) == [3])
+		#expect(MarkdownDocument(parsing: "Text.\n\n<!-- <details></details> -->", options: options).problems.isEmpty)
+		#expect(MarkdownDocument(parsing: "<details><summary>Why?</summary></details>").problems.isEmpty)
+		#expect(MarkdownDocument(parsing: "Text <!-- <details> --> more.", options: options).problems.isEmpty)
+		#expect(MarkdownDocument(parsing: "Text <details-panel>more</details-panel>.", options: options).problems.isEmpty)
+		#expect(!MarkdownDocument(parsing: "Text <details open>more</details>.", options: options).problems.isEmpty)
 	}
 
 	@Test
@@ -841,13 +1260,18 @@ struct MarkdownTests {
 
 	@Test
 	func `links can be resolved and keep their lines`() {
-		let document = MarkdownDocument(parsing: "Intro.\n\nSee [Dato](dato.md) and [broken](nope.md).", options: .init(resolveLink: { destination in
-			guard destination != "nope.md" else {
-				throw CocoaError(.fileNoSuchFile)
-			}
+		let document = MarkdownDocument(
+			parsing: "Intro.\n\nSee [Dato](dato.md) and [broken](nope.md).",
+			options: .init(
+				resolveLink: { destination in
+					guard destination != "nope.md" else {
+						throw CocoaError(.fileNoSuchFile)
+					}
 
-			return destination == "dato.md" ? "/dato" : destination
-		}))
+					return destination == "dato.md" ? "/dato" : destination
+				}
+			)
+		)
 
 		#expect(document.html.contains(#"<a href="/dato">Dato</a>"#))
 		#expect(document.links.map(\.destination) == ["/dato", "nope.md"])
@@ -862,7 +1286,7 @@ struct MarkdownTests {
 	func `a heading without text has an ID`() {
 		let document = MarkdownDocument(parsing: "## 🎉\n\n## 🎉")
 		#expect(!document.html.contains(#"id="""#))
-		#expect(document.headings.map(\.id) == ["section", "section-1"])
+		#expect(document.headings.map(\.id.rawValue) == ["section", "section-1"])
 	}
 
 	@Test
@@ -927,7 +1351,7 @@ struct MarkdownTests {
 
 	@Test
 	func `a footnote in a collapsible heading is a problem that names the heading`() throws {
-		let options = MarkdownDocument.Options(collapsibleSections: .init(level: 3))
+		let options = MarkdownDocument.Options(collapsibleSections: .init(level: .h3))
 		let reason = try #require(MarkdownDocument(parsing: "### Question[^1]\n\nAnswer.\n\n[^1]: Note.", options: options).problems.first).reason
 		#expect(reason.contains("collapsible section"))
 	}
@@ -991,6 +1415,23 @@ struct MarkdownTests {
 	}
 
 	@Test
+	func `directive content rewrites return blocks and keep their rendered links`() {
+		let options = MarkdownDocument.Options(blockDirectives: [
+			"Box": .init(
+				rewriteContent: { content -> [any BlockMarkup] in
+					[BlockQuote(content)]
+				},
+				render: { "<section>\($0)</section>" }
+			),
+		])
+		let document = MarkdownDocument(parsing: "@Box {\n[Inside](/inside)\n}", options: options)
+
+		#expect(document.problems.isEmpty)
+		#expect(document.html == "<section><blockquote>\n<p><a href=\"/inside\">Inside</a></p>\n</blockquote>\n</section>\n")
+		#expect(document.links.map(\.destination) == ["/inside"])
+	}
+
+	@Test
 	func `block directives and inline attributes render with their typed arguments`() throws {
 		let options = MarkdownDocument.Options(
 			inlineAttributes: .init { (attributes: BadgeAttributes, html) in
@@ -1042,6 +1483,73 @@ struct MarkdownTests {
 	}
 
 	/**
+	A check of the content reads the arguments like the renderer, also of a directive inside another one.
+	*/
+	@Test
+	func `the typed arguments of directives can be read from the tree`() throws {
+		let document = Document(parsing: "@Box(title: \"One\") {\n  Text.\n}\n\n@Plain {\n  @Box(title: \"Two\") {\n    Text.\n  }\n}\n\n@Box(name: \"Invalid\") {\n  Text.\n}", options: .parseBlockDirectives)
+		let boxes = document.blockDirectives.filter { $0.name == "Box" }
+
+		#expect(try boxes.prefix(2).map { try $0.arguments(as: BoxArguments.self).title } == ["One", "Two"])
+		#expect(boxes.map { $0.range?.lowerBound.line } == [1, 6, 11])
+		#expect(throws: ContentErrors.self) {
+			try boxes[2].arguments(as: BoxArguments.self)
+		}
+	}
+
+	/**
+	A directive that shows a list as steps or cards needs one list. Indented content is the usual mistake: swift-markdown removes the indentation of the first line from each line, so a nested list becomes part of the outer list, which is split.
+	*/
+	@Test
+	func `a block directive can require one list or no content`() {
+		let options = MarkdownDocument.Options(blockDirectives: [
+			"Steps": .init(content: .orderedList) { html in "<div>\(html)</div>" },
+			"Cards": .init(content: .unorderedList) { html in "<div>\(html)</div>" },
+			"Links": .init(content: .empty) { _ in "<ul></ul>" },
+		])
+
+		func reasons(_ markdown: String) -> [String] {
+			MarkdownDocument(parsing: markdown, options: options).problems.map(\.reason)
+		}
+
+		let hint = " A nested list must be indented more than its item, and the content of the directive must not be indented."
+		#expect(reasons("@Steps {\n1. One\n   - Detail\n2. Two\n}").isEmpty)
+		// A comment is not shown, so it does not count.
+		#expect(reasons("@Cards {\n<!-- Draft -->\n\n- One\n}").isEmpty)
+		#expect(reasons("@Links").isEmpty)
+		#expect(reasons("@Steps {\n\t1. One\n\t\t- Detail\n\t2. Two\n}") == ["`@Steps` must contain one numbered list, and it has 3 blocks." + hint])
+		#expect(reasons("@Steps {\nFirst:\n\n1. One\n}") == ["`@Steps` must contain one numbered list, and it has 2 blocks."])
+		#expect(reasons("@Steps {\n- One\n}") == ["`@Steps` must contain one numbered list, and it has a bulleted list."])
+		#expect(reasons("@Cards {\nText.\n}") == ["`@Cards` must contain one bulleted list, and it has a paragraph."])
+		#expect(reasons("@Cards {\n}") == ["`@Cards` must contain one bulleted list, and it has no content."])
+		#expect(reasons("@Links {\nText.\n}") == ["`@Links` takes no content."])
+		#expect(MarkdownDocument(parsing: "@Cards {\nText.\n}", options: options).html == "<p>Text.</p>\n")
+	}
+
+	/**
+	An empty directive is a lost edit, like a deleted list, but a directive without braces has no content.
+	*/
+	@Test
+	func `a block directive with empty braces is a problem`() {
+		let options = MarkdownDocument.Options(blockDirectives: [
+			"Tips": .init { html in "<aside>\(html)</aside>" },
+			"Box": .init { (_: BoxArguments, html) in "<section>\(html)</section>" },
+		])
+
+		func reasons(_ markdown: String) -> [String] {
+			MarkdownDocument(parsing: markdown, options: options).problems.map(\.reason)
+		}
+
+		let reason = "has no content. Write it between the braces, or remove the directive."
+		#expect(reasons("@Tips {\n}") == ["`@Tips` \(reason)"])
+		#expect(reasons("@Tips {\n<!-- Later -->\n}") == ["`@Tips` \(reason)"])
+		#expect(reasons("@Box(title: \"Hi\") {\n\n}") == ["`@Box` \(reason)"])
+		#expect(reasons("@Box(title: \"Hi\")").isEmpty)
+		#expect(reasons("@Box(\n\ttitle: \"Hi\"\n)").isEmpty)
+		#expect(reasons("@Tips {\n- Tip\n}").isEmpty)
+	}
+
+	/**
 	The parser gives several errors for one mistake, and the arguments that it reads after the mistake are wrong.
 	*/
 	@Test
@@ -1073,7 +1581,7 @@ struct MarkdownTests {
 	@Test
 	func `headings and list subtitles get footnotes and keyboard shortcuts`() {
 		let document = MarkdownDocument(parsing: """
-		## Press ++Cmd+K++[^heading] {#press}
+		## Press ++Command+K++[^heading] {#press}
 
 		- Item
 			: Subtitle[^list]
@@ -1082,7 +1590,7 @@ struct MarkdownTests {
 		[^list]: List note.
 		""")
 
-		#expect(document.html.contains("<kbd>Cmd</kbd>"))
+		#expect(document.html.contains("<kbd>Command</kbd>"))
 		#expect(document.html.contains(##"popovertarget="user-content-fn-1""##))
 		#expect(document.html.contains(##"popovertarget="user-content-fn-2""##))
 		#expect(!document.html.contains("[^"))
@@ -1121,10 +1629,59 @@ struct MarkdownTests {
 	}
 }
 
+struct PlainMarkdownRewriterTests {
+	private static func plain(_ markdown: String) -> (markdown: String, didChange: Bool) {
+		var rewriter = PlainMarkdownRewriter { directive in
+			[Paragraph(Strong(Markdown.Text(directive.name)))] + Array(directive.blockChildren)
+		}
+
+		let markdown = rewriter.visit(Document(parsing: markdown, options: .parseBlockDirectives))?.format() ?? ""
+		return (markdown, rewriter.didChange)
+	}
+
+	@Test
+	func `the syntax of the site becomes plain Markdown`() {
+		let result = Self.plain("## Shortcuts {#shortcuts}\n<!-- @faq.keywords keys -->\n\nPress ++Shift+Command+N++ in ^[Spotlight](note: \"The *search* of macOS.\") to add a ^[macOS only](platform: \"macOS\") note.\n\n@Feature(title: \"Fast\") {\nPress ++Q++.\n}")
+
+		#expect(result.didChange)
+		#expect(result.markdown == "## Shortcuts\n\nPress Shift+Command+N in Spotlight (The *search* of macOS.) to add a (macOS only) note.\n\n**Feature**\n\nPress Q.")
+	}
+
+	@Test
+	func `Markdown without the syntax of the site is not changed`() {
+		let result = Self.plain("## Install\n\nRun `++x++` and C++.")
+
+		#expect(!result.didChange)
+		#expect(result.markdown == "## Install\n\nRun `++x++` and C++.")
+	}
+
+	@Test
+	func `a platform badge in the text of a note becomes plain text too`() {
+		let result = Self.plain(#"The ^[^[Spotlight](platform: "macOS") search](note: "The search.") app."#)
+
+		#expect(result.markdown == "The (Spotlight) search (The search.) app.")
+	}
+
+	@Test
+	func `inline comments are removed, and a note with several paragraphs is one parenthesis`() {
+		let result = Self.plain(#"Text <!-- @faq.keywords x --> and ^[A](note: "One.\n\nTwo.")."#)
+
+		#expect(result.didChange)
+		#expect(result.markdown == "Text  and A (One. Two.).")
+	}
+
+	@Test
+	func `a heading loses an invalid ID too`() {
+		#expect(Self.plain("## Install {#with gifski}").markdown == "## Install")
+	}
+}
+
 struct MarkdownLinkTests {
-	private static let options = MarkdownDocument.Options(resolveLink: { destination in
-		destination.hasSuffix(".md") ? "/" + destination.dropLast(3) : destination
-	})
+	private static let options = MarkdownDocument.Options(
+		resolveLink: { destination in
+			destination.hasSuffix(".md") ? "/" + destination.dropLast(3) : destination
+		}
+	)
 
 	@Test
 	func `links in the first paragraph of an alert are resolved and listed`() {
@@ -1159,9 +1716,11 @@ struct MarkdownLinkTests {
 
 	@Test
 	func `inline notes can have their text rendered by the options`() {
-		let options = MarkdownDocument.Options(inlineNote: { textHTML, noteID in
-			"<x-note for=\"\(noteID)\">\(textHTML)</x-note>"
-		})
+		let options = MarkdownDocument.Options(
+			inlineNote: { textHTML, noteID in
+				"<x-note for=\"\(noteID)\">\(textHTML)</x-note>"
+			}
+		)
 
 		#expect(MarkdownDocument(parsing: #"A ^[*term*](note: "Note.")."#, options: options).html.contains(#"<p>A <x-note for="user-content-note-1-3"><em>term</em></x-note>.</p>"#))
 	}
@@ -1190,13 +1749,15 @@ struct MarkdownLinkTests {
 		^[Page footnote](note: "A footnote of the page[^page].").
 
 		[^page]: Text.
-		"""#, options: .init(resolveLink: { destination in
-			guard destination != "missing.md" else {
-				throw ContentError(reason: "Missing.")
-			}
+		"""#, options: .init(
+			resolveLink: { destination in
+				guard destination != "missing.md" else {
+					throw ContentError(reason: "Missing.")
+				}
 
-			return destination
-		}))
+				return destination
+			}
+		))
 
 		try #require(document.problems.map(\.line) == [1, 3, 5, 7, 9, 11, 13, 17, 19])
 		#expect(document.problems[5].reason.contains("cannot have headings"))
@@ -1254,7 +1815,7 @@ struct MarkdownLinkTests {
 
 	@Test
 	func `an inline note in the heading of a collapsible section is a problem`() throws {
-		let options = MarkdownDocument.Options(collapsibleSections: .init(level: 3))
+		let options = MarkdownDocument.Options(collapsibleSections: .init(level: .h3))
 		let document = MarkdownDocument(parsing: #"### Question ^[term](note: "The note.")\#n\#nAnswer."#, options: options)
 
 		#expect(document.problems.map(\.line) == [1])
@@ -1292,7 +1853,7 @@ private let plainDirectiveOptions = MarkdownDocument.Options(blockDirectives: ["
 /**
 The colored parts of highlighted code, each as the name of its token and its text, like `keyword let`.
 */
-private func tokens(of parts: [(text: String, token: CodeToken?)]) -> [String] {
+private func tokens(of parts: [CodePart]) -> [String] {
 	parts.compactMap { part in
 		part.token.map { "\($0.rawValue) \(part.text)" }
 	}
@@ -1301,6 +1862,11 @@ private func tokens(of parts: [(text: String, token: CodeToken?)]) -> [String] {
 private enum Keywords: HeadingDirective {
 	static let name = "faq.keywords"
 	typealias Value = [String]
+}
+
+private enum OtherKeywords: HeadingDirective {
+	static let name = Keywords.name
+	typealias Value = HeadingDirectiveFlag
 }
 
 private enum Platforms: HeadingDirective {
@@ -1358,5 +1924,85 @@ struct ReleaseNotesSecurityTests {
 		#expect(html.contains("<strong>Fixed</strong>"))
 		#expect(html.contains("href=\"https://github.com/test/repo/issues/1\""))
 		#expect(html.contains("src=\"https://example.com/image.png\""))
+	}
+}
+
+extension MarkdownTests {
+	@Test
+	func `heading metadata belongs to its registered directive type`() throws {
+		enum Registered: HeadingDirective {
+			static let name = "test.words"
+			typealias Value = [String]
+		}
+
+		enum Unregistered: HeadingDirective {
+			static let name = "test.words"
+			typealias Value = [String]
+		}
+
+		let document = MarkdownDocument(parsing: "## Heading {#heading}\n<!-- @test.words one two -->", options: .init(headingDirectives: [Registered.self]))
+		let heading = try #require(document.headings.first)
+		#expect(document.problems.isEmpty)
+		#expect(heading[Registered.self] == ["one", "two"])
+		#expect(heading[Unregistered.self] == nil)
+		#expect(!heading.contains(Unregistered.self))
+	}
+
+	@Test
+	func `heading provenance stays attached to its identifier`() throws {
+		let headings = MarkdownDocument(parsing: "## Authored {#fixed}\n\n## Generated").headings
+		let authored = try #require(headings.first)
+		let generated = try #require(headings.last)
+		guard
+			case .authored(let authoredID) = authored.identity,
+			case .generated(let generatedID) = generated.identity
+		else {
+			Issue.record("Heading ID provenance was lost")
+			return
+		}
+
+		#expect(authoredID.rawValue == "fixed")
+		#expect(generatedID.rawValue == "generated")
+		#expect(authored.hasCustomID)
+		#expect(!generated.hasCustomID)
+	}
+
+	@Test
+	func `comment detection distinguishes HTML following a comment`() {
+		#expect(HTMLBlock("<!-- author note -->\n\t<!-- another -->").isCommentOnly)
+		#expect(!HTMLBlock("<!-- author note --><div>Visible</div>").isCommentOnly)
+		#expect(!Paragraph(Markdown.Text("Text")).isCommentOnly)
+	}
+
+	@Test
+	func `paragraph blocks keep inline markup without parsing their wrapper`() throws {
+		let document = MarkdownDocument(parsing: "A <span title=\"a > b\">value</span> and `</p>`.\n\n## Next")
+		guard case .paragraph(let inlineHTML, let attributes) = document.blocks.first else {
+			Issue.record("Expected a structured paragraph")
+			return
+		}
+
+		#expect(attributes.isEmpty)
+		#expect(inlineHTML.contains("<span title=\"a > b\">value</span>"))
+		let separated = try #require(document.contentSeparatingIntroduction)
+		#expect(separated.introduction.html == inlineHTML)
+		#expect(document.blocks.first?.html == "<p>\(inlineHTML)</p>\n")
+	}
+
+	@Test
+	func `typed Markdown links serialize destinations and escape their labels`() {
+		let link = Markdown.Link(destination: .path(#path("/guide"), query: [URLQueryItem(name: "q", value: "a&b")], fragment: "steps"), text: "<Guide> & help")
+		let source = Document([Paragraph(link)])
+		let rendered = MarkdownDocument(rendering: source, source: "")
+		#expect(rendered.inlineHTML == #"<a href="/guide?q=a%26b#steps">&lt;Guide&gt; &amp; help</a>"#)
+	}
+
+	@Test
+	func `single section split keeps trailing popovers only with the remainder`() throws {
+		let document = MarkdownDocument(parsing: "## Start {#start}\n\nText[^note].\n\n[^note]: A note.")
+		let split = try #require(document.content.separated(beforeHeading: ElementID("start")))
+		#expect(split.before.html.isEmpty)
+		#expect(split.after.html == document.html)
+		#expect(document.content.separated(beforeHeading: ElementID("missing")) == nil)
 	}
 }

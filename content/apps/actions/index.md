@@ -1,15 +1,23 @@
 ---
 title: 'Actions'
 subtitle: 'Additional actions for the Shortcuts app'
-publicationDate: '2021-10-28'
+publicationDate: 2021-10-28
 platforms: [
 	'macOS'
 	'iOS'
 	'visionOS'
 ]
-hasSentry: true
 appStoreID: 1586435171
 testFlightURL: 'https://testflight.apple.com/join/fJGUrsZx'
+hasSentry: true
+categories: [
+	'shortcuts'
+]
+nonAppStoreVersion: {
+	version: '4.0.1'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/7mt9uvbmn589y4qobdpe9/Actions-4.0.1-1774194992.zip?rlkey=7tg0zlun69c19t6m5lmn2ph0q&raw=1'
+}
 olderVersions: [
 	{
 		version: '3.8.0'
@@ -32,21 +40,6 @@ olderVersions: [
 		url: 'https://www.dropbox.com/scl/fi/9iqfn8airygpk0la4gv1u/Actions-1.13.1-1731826428.zip?rlkey=y4u5ni2pn28rp3lse08lv96k6&raw=1'
 	}
 ]
-feedbackNote:
-	'''
-	### If you just updated to iOS 26, it may take some time for iOS to re-index all the Shortcuts actions. Give it some time.
-
-	### If the actions don’t show up in the Shortcuts app or you get a “com.apple.extensionKit.errorDomain error 2”, [see this](/actions#actions-not-showing-up).<br><br>
-
-	Tip: To pass a variable to a file input in Shortcuts, tap-and-hold (iOS) or right-click (macOS) the input and select the variable.
-
-	**Some actions that are not possible: orientation lock status, flashlight status, ambient sensor info, flight mode status, [and more](/actions#impossible-actions).**
-
-	This is not the place to ask general Shortcuts questions. Try [r/shortcuts](https://www.reddit.com/r/shortcuts/) instead.
-	'''
-categories: [
-	'shortcuts'
-]
 pressQuotes: [
 	{
 		quote: '[…] my shortcut uses an action from the excellent free (and aptly-named) Actions utility by Sindre Sorhus.'
@@ -54,20 +47,33 @@ pressQuotes: [
 		url: 'https://daringfireball.net/2023/09/the_iphones_15_pro'
 		year: 2023
 	}
+	{
+		quote: "Apple Shortcuts is a powerful tool for automation, but the number of built-in actions is a little lacking. It's easy while building something to feel stuck when you realize something isn't possible. The free application Actions now helps by adding 141 actions, many of which Apple really should have included in the first place."
+		source: 'Lifehacker'
+		url: 'https://lifehacker.com/tech/actions-app-adds-new-features-to-apple-shortcuts'
+		year: 2024
+	}
 ]
-nonAppStoreVersion: {
-	version: '4.0.1'
-	macOS: 26
-	url: 'https://www.dropbox.com/scl/fi/7mt9uvbmn589y4qobdpe9/Actions-4.0.1-1774194992.zip?rlkey=7tg0zlun69c19t6m5lmn2ph0q&raw=1'
-}
+feedbackNote:
+	'''
+	**After a major iOS update, it may take some time for iOS to re-index all the Shortcuts actions. Give it some time.**
+
+	**If the actions don’t show up in the Shortcuts app or you get a “com.apple.extensionKit.errorDomain error 2”, [see this](/actions#actions-not-showing-up).**<br><br>
+
+	Tip: To pass a variable to a file input in Shortcuts, tap-and-hold (iOS) or right-click (macOS) the input and select the variable.
+
+	**Some actions that are not possible: orientation lock status, flashlight status, ambient sensor info, flight mode status, [and more](/actions#impossible-actions).**
+
+	This is not the place to ask general Shortcuts questions. Try [r/shortcuts](https://www.reddit.com/r/shortcuts/) instead.
+	'''
 ---
 
 Adds 180+ free actions to the Shortcuts app on macOS, iOS, and visionOS. They do what the built-in actions cannot, and turn long shortcuts into a few steps.
 
 > [!IMPORTANT]
-> Restart your device if the actions do not show up in the Shortcuts app. [Learn more ›](#actions-not-showing-up)
+> Restart your device if the actions do not show up in the Shortcuts app. [What to do when the actions do not show up ›](#actions-not-showing-up)
 
-If you have any questions about how to use the different actions or for what, try asking the [Actions GPT bot](https://chatgpt.com/g/g-6746353a017881918cceb0761aea3bfe-actions-app-companion). And if you want to feed your own AI, [here is the source data](https://gist.githubusercontent.com/sindresorhus/fbba65a774fb9da915e624807a02a6d2/raw/7be21a65977b6dd82d1a6cc34be4476df057ea06/actions.md).
+If you have any questions about how to use the different actions or for what, try asking the [Actions GPT bot](https://chatgpt.com/g/g-6746353a017881918cceb0761aea3bfe-actions-app-companion). And if you want to feed your own AI, [here is the source data](https://gist.githubusercontent.com/sindresorhus/fbba65a774fb9da915e624807a02a6d2/raw/actions.md).
 
 ---
 
@@ -189,7 +195,6 @@ If you have any questions about how to use the different actions or for what, tr
 - Get Device Motion Activity
 	:: (stationary, walking, running, cycling, automotive, etc.)
 - Get Device Motion Data ^[iOS only](platform: "iOS")
-- Get Device Orientation
 - Get Dominant Colors of Image
 - Get Barometric Pressure ^[iOS only](platform: "iOS")
 	:: Returns the current barometric pressure from the device’s built-in barometer.
@@ -338,12 +343,8 @@ If you have any questions about how to use the different actions or for what, tr
 - Scan QR Codes in Image
 - Send Distributed Notification ^[macOS only](platform: "macOS")
 	- [What are distributed notifications?](/apps/faq#distributed-notifications)
-- Set Capture Date of Photos
-	:: Change the capture date of photos and videos directly in your Photos library.
 - Set Creation and Modification Date of File
 - Set Dictionary Value Using [JSONPath](https://en.wikipedia.org/wiki/JSONPath)
-- Set Location of Photos
-	:: Change the location of photos and videos directly in your Photos library.
 - Show Black Screen ^[iOS only](platform: "iOS")
 - Show Notification
 - Show Overlay
@@ -464,21 +465,30 @@ Some things you could try:
 
 1. Restart your device.
 1. Change the device language to something else and back.
-1. Add [this shortcut](https://www.icloud.com/shortcuts/14315b9af3774a0c8cb439718a67fb2f), run it once, relaunch Shortcuts, and see if the actions show up in the Shortcuts app after that.
-1. Add [this shortcut](https://www.icloud.com/shortcuts/e3b39e37d8d6439db9119ebbff626958), copy the action, paste it into a new shortcut, and relaunch Shortcuts.
+1. Add [a shortcut that opens the app](https://www.icloud.com/shortcuts/14315b9af3774a0c8cb439718a67fb2f), run it once, relaunch Shortcuts, and see if the actions show up in the Shortcuts app after that.
+1. Add [a shortcut with an action of the app](https://www.icloud.com/shortcuts/e3b39e37d8d6439db9119ebbff626958), copy the action, paste it into a new shortcut, and relaunch Shortcuts.
 1. Remove the app, install it again, and restart your device.
 
 *Please don’t contact me about this issue. This is a problem with iOS/macOS and out of my control.*
 
-### I get a “errorDomain error 2” error when running an action
+### I get a “errorDomain error 2” error when running an action {#i-get-a-errordomain-error-2-error-when-running-an-action}
 
-Same solution as above.
+Try the [steps for actions that do not show up](#actions-not-showing-up).
 
-### How can I prevent the app from being offloaded when I have “app offloading” enabled on iOS?
+### Why does the Actions app open when my shortcut runs? {#app-opens}
+
+Some actions show something on the screen or need the app in front, like “Show Overlay”, “Scan Documents”, “Pick Color”, and “Ask for Text with Timeout”. iOS opens the Actions app while they run. All other actions run in the background. An app cannot return you to the previous app by itself.
+
+### How can I prevent the app from being offloaded when I have “app offloading” enabled on iOS? {#how-can-i-prevent-the-app-from-being-offloaded-when-i-have-app-offloading-enabled-on-ios}
 
 iOS does not have a way to prevent individual apps from being offloaded (even though it should!) and there is no way for apps to tell iOS not to offload them. I recommend [sending feedback to Apple](https://feedbackassistant.apple.com) about this. You could try [this workaround](https://www.reddit.com/r/ios/comments/85k8b5/disable_offloading_for_specific_apps/).
 
-### Can the “Show Notification” action send critical alerts?
+### How can the Action button do different things depending on how I hold the iPhone? {#action-button}
+<!-- @faq.keywords orientation tilt landscape portrait sideways -->
+
+Make a shortcut with an “If” block that checks the result of the “Is Device Orientation” action, and choose the shortcut for the Action button in the Settings app. For example, the button can open the camera when you hold the iPhone sideways, and record a voice memo when you hold it upright.
+
+### Can the “Show Notification” action send critical alerts? {#can-the-show-notification-action-send-critical-alerts}
 
 No. I applied for Apple’s [Critical Alerts entitlement](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.developer.usernotifications.critical-alerts), but it was declined.
 Critical Alerts are reserved for very limited use cases such as medical, health, home security, and public safety notifications. General-purpose automation apps like Actions are not eligible.

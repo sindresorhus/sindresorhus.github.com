@@ -24,6 +24,16 @@ extension ProseStyles {
 				.padding(vertical: .em(0.75), horizontal: .em(1))
 				.textAlign(.leading)
 		}
+		// From tablets, the table hangs into the space at the sides of the text (``Style/widerThanProse()``), and the text of its first column starts where the paragraphs start, inside the border of the container.
+		.from(.tablet) {
+			$0
+				.descendants(":is(th, td):first-child") {
+					$0.padding(.leading, .boxInset - LengthPercentage(tableContainerBorderWidth))
+				}
+				.descendants(":is(th, td):last-child") {
+					$0.padding(.trailing, .boxInset - LengthPercentage(tableContainerBorderWidth))
+				}
+		}
 		// The look of a heading is with the headings in ``typography``.
 		.descendants("th") {
 			$0.verticalAlign(.bottom)
@@ -42,13 +52,18 @@ extension ProseStyles {
 	private static let tableBorder = Color.lightDark(.gray(200), .white.opacity(0.1))
 
 	/**
+	The width of the border around a table, which the padding of its outer cells leaves out, so their text lines up with the paragraphs.
+	*/
+	private static let tableContainerBorderWidth = Length.pixels(1)
+
+	/**
 	A table that is wider than the content scrolls horizontally instead of making the page scroll. A thin border around it, like a box, which has the color of the secondary text while the container has the focus of the keyboard (it is focusable, so keyboard users can scroll a wide table).
 	*/
 	static let tableContainerStyle = Style()
 		.overflow(horizontal: .auto)
 		.widerThanProse()
-		.border(tableBorder)
-		.cornerRadius(.rootEm(1))
+		.border(tableBorder, width: tableContainerBorderWidth)
+		.cornerRadius(.boxRadius)
 		.focusVisible {
 			$0.borderColor(.secondaryText)
 		}

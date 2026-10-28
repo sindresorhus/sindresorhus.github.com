@@ -1,18 +1,16 @@
 ---
-isUnlisted: true
 title: 'Bare'
 subtitle: 'Minimal grocery shopping list'
-# TODO: Update
-publicationDate: '2026-10-25'
-isPaid: true
-appStoreID: 6825378510
+publicationDate: 2026-10-31
 platforms: [
 	'macOS'
 	'iOS'
 	'visionOS'
 	'watchOS'
 ]
-minimumOSVersion: 27
+minimumOSVersion: '27'
+isPaid: true
+appStoreID: 6825378510
 sharedQuestions: [
 	'widget-missing'
 	'lock-screen-widget-disappears'

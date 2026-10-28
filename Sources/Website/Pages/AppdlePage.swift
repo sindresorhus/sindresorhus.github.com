@@ -20,12 +20,12 @@ struct AppdlePage: Page {
 	/**
 	The ID of the list of app names that the guess input suggests.
 	*/
-	private static let namesID = "appdle-names"
+	private static let namesID = ElementID("appdle-names")
 
 	/**
 	The ID of the guess input, for its label.
 	*/
-	private static let guessID = "appdle-guess"
+	private static let guessID = ElementID("appdle-guess")
 
 	var path: RoutePath {
 		.appdle
@@ -57,17 +57,21 @@ struct AppdlePage: Page {
 			div {
 				p {
 					"Puzzle "
-					span(.id(Hooks.number)) {}
+					span(.id(IDs.number)) {}
 				}
 				.style(Styles.meta)
 
-				// `appdle.js` draws the part of the icon, and the whole icon when the game ends, with the `revealed` state.
-				canvas(.id(Hooks.canvas), .custom(name: "width", value: "480"), .custom(name: "height", value: "480"), .role("img")) {}
+				// `appdle.js` draws the part of the icon, and the whole icon when the game ends, with the `revealed` state. Its positive, code-owned bitmap dimensions cannot fail validation.
+				canvas(
+					.id(IDs.canvas),
+					.role("img")
+				) {}
+					.bitmapSize(PixelSize(width: 480, height: 480)!)
 					.accessibilityLabel("A pixelated part of the icon of today’s app")
 					.style(Styles.canvas)
 
 				// One slot for each guess, which `appdle.js` marks as `correct` or `wrong`, like the squares of the shared result.
-				div(.id(Hooks.slots)) {
+				div(.id(IDs.slots)) {
 					for _ in 0..<Self.maximumGuesses {
 						span {}
 							.style(Styles.slot)
@@ -77,16 +81,24 @@ struct AppdlePage: Page {
 				.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.375))
 
 				// How many guesses are left, or why a guess did not count. When the game ends, it is the headline of the result, like “You got it in 2 guesses!”.
-				p(.id(Hooks.status), .role("status")) {}
+				p(.id(IDs.status), .role("status")) {}
 					.style(Styles.status)
 
-				form(.id(Hooks.form)) {
+				form(.id(IDs.form)) {
 					label(.for(Self.guessID)) {
 						"App name"
 					}
 					.style(VisuallyHidden.Styles.root)
 
-					input(.id(Self.guessID), .type(.text), .name("guess"), .custom(name: "list", value: Self.namesID), .autocomplete("off"), .custom(name: "enterkeyhint", value: "send"), .placeholder("Type an app name"))
+					input(
+						.id(Self.guessID),
+						.type(.text),
+						.name("guess"),
+						.list(id: Self.namesID),
+						.autocomplete("off"),
+						.enterKeyHint(.send),
+						.placeholder("Type an app name")
+					)
 						.style(Styles.input)
 
 					button(.type(.submit)) {
@@ -97,11 +109,11 @@ struct AppdlePage: Page {
 				.style(Styles.form)
 
 				// Replaces the form when the game ends. `appdle.js` focuses it, so it can have focus, but not from the keyboard.
-				div(.id(Hooks.result), .hidden, .tabindex(-1)) {
+				div(.id(IDs.result), .hidden, .tabindex(-1)) {
 					// `appdle.js` sets the start, like “The app is ”, and the link to the app.
 					p {
-						span(.id(Hooks.answerStart)) {}
-						a(.id(Hooks.answer)) {}
+						span(.id(IDs.answerStart)) {}
+						a(.id(IDs.answer)) {}
 						"."
 					}
 					.style(Styles.answer)
@@ -109,10 +121,10 @@ struct AppdlePage: Page {
 					div {
 						// `appdle.js` sets the result to copy.
 						CopyButton(title: "Copy Result", text: "")
-							.attributes(.id(Hooks.copyResult))
+							.attributes(.id(IDs.copyResult))
 
 						// Clears the guesses of today, to play the puzzle again.
-						button(.id(Hooks.restart), .type(.button)) {
+						button(.id(IDs.restart), .type(.button)) {
 							"Start Over"
 						}
 						.buttonStyle(.secondary, size: .small)
@@ -126,11 +138,23 @@ struct AppdlePage: Page {
 				}
 				.style(Styles.result)
 
-				ol(.id(Hooks.attempts)) {}
+				ol(.id(IDs.attempts)) {}
 					.accessibilityLabel("Guesses")
 					.style(Styles.attempts)
 			}
 			.style(Styles.game)
+
+			// The message for a name that is close to the name of an app, like “Gifsky”. A click on the name guesses it, which is easier than finding the wrong letters, especially on a phone. The suggestion costs no guess.
+			template(.id(IDs.suggestionTemplate)) {
+				span {
+					"Did you mean "
+					button(.type(.button), .hook(Hooks.suggestedName)) {}
+						.style {
+							$0.linkButton()
+						}
+					"?"
+				}
+			}
 
 			datalist(.id(Self.namesID)) {
 				for title in puzzles.map(\.title).sorted(using: .localizedStandard) {
@@ -149,8 +173,8 @@ struct AppdlePage: Page {
 		}
 		.style(Styles.root)
 
-		JSONScript(id: Hooks.data, ScriptData(firstDay: Self.firstDay, maximumGuesses: Self.maximumGuesses, puzzles: puzzles))
-		ModuleScript("/scripts/appdle.js")
+		JSONScript(id: IDs.data, ScriptData(firstDay: Self.firstDay, maximumGuesses: Self.maximumGuesses, puzzles: puzzles))
+		ModuleScript(#path("/scripts/appdle.js"))
 	}
 }
 
@@ -179,9 +203,9 @@ extension AppdlePage {
 
 extension AppdlePage {
 	/**
-	The IDs and data attributes that the scripts of the page find elements by.
+	The IDs that the scripts of the page find elements by.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum IDs: String, ScriptIDSet {
 		case data = "appdle-data"
 		case number = "appdle-number"
 		case copyResult = "appdle-copy-result"
@@ -199,6 +223,17 @@ extension AppdlePage {
 		case answerStart = "appdle-answer-start"
 
 		case answer = "appdle-answer"
+		case suggestionTemplate = "appdle-suggestion-template"
+	}
+
+	/**
+	The data attributes that `appdle.js` finds elements by.
+	*/
+	enum Hooks: String, ScriptDataAttributeSet {
+		/**
+		The name in the suggestion for a name that is not one of the apps.
+		*/
+		case suggestedName = "suggested-name"
 	}
 
 	enum States: String, ElementStateSet {
@@ -247,13 +282,13 @@ extension AppdlePage {
 					.shadow(.window)
 					.when(States.revealed) {
 						$0
-							.cornerRadius(0)
+							.cornerRadius(.zero)
 							.shadow([])
 					}
 			case .slot:
-				// A neutral gray for the guesses left, a little stronger than a card, so they show on a white page.
+				// A neutral gray for the guesses left, a little stronger than a card, so they show on a white page. Narrower on a phone with large text, so the five slots fit on the screen.
 				Style()
-					.frame(width: .rootEm(1.75), height: .rootEm(0.5))
+					.frame(width: .length(.min(.rootEm(1.75), .viewportWidth(12))), height: .rootEm(0.5))
 					.cornerRadius(.capsule)
 					.background(.gray(200), dark: .gray(800))
 					.when(States.wrong) {
@@ -271,13 +306,11 @@ extension AppdlePage {
 				// A form field, but round like the button next to it, so the two look like one set, like a search field. Without the arrow that Chrome shows for the list of names on focus, as the list opens while typing. Chrome shows the arrow with `!important`.
 				FormFieldStyles.control.style
 					.flex(1)
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 					.cornerRadius(.capsule)
 					.padding(.horizontal, .rootEm(1.125))
 					.nested("&::-webkit-calendar-picker-indicator") {
-						$0.important {
-							$0.hidden()
-						}
+						$0.declaration(.display, Display.none, isImportant: true)
 					}
 			case .status:
 				// The height of one line while it is empty, so the form below does not move when a message shows. When the game ends, it is the headline of the result.

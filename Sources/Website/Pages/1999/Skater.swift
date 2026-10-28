@@ -13,7 +13,7 @@ struct GeoCitiesSkater: ScriptedElement {
 	/**
 	A named gap of the level, with the ID that `Skater.js` knows it by.
 	*/
-	struct Gap {
+	struct Gap: Encodable {
 		let id: String
 		let name: String
 		let points: Int
@@ -22,28 +22,95 @@ struct GeoCitiesSkater: ScriptedElement {
 		Where the gap is and how to get it, so the visitor knows what to try.
 		*/
 		let hint: String
+
+		private enum CodingKeys: String, CodingKey {
+			case id
+			case name
+			case points
+		}
 	}
 
 	/**
 	The gaps of the level, from the garage to the fish market.
 	*/
 	static let gaps = [
-		Gap(id: "transfer", name: "Plan 2 Transfer", points: 250, hint: "Air out of the half-pipe and land on a deck, by holding ▲ in a vert air."),
-		Gap(id: "big-air", name: "Bygarasjen Big Air", points: 300, hint: "Fly higher than two of me above the coping of the half-pipe."),
-		Gap(id: "garage-ramp", name: "Garage Ramp Gap", points: 200, hint: "Ollie off the deck and clear the whole ramp down to the street."),
-		Gap(id: "bryggen-rail", name: "Hanseatic Rail", points: 200, hint: "Grind the rail along Bryggen from one end to the other."),
-		Gap(id: "bryggen", name: "Bryggen Gap", points: 500, hint: "Jump the fish crates and clear the water of Vågen."),
-		Gap(id: "stairs", name: "Fish Market Stair Set", points: 300, hint: "Ollie the whole stair set down to the fish market."),
-		Gap(id: "handrail", name: "Fish Market Handrail", points: 400, hint: "Grind the handrail of the stairs all the way down."),
-		Gap(id: "mormor", name: "Over Mormor", points: 350, hint: "Jump over Mormor on her bench. She knits, so do not hit her."),
-		Gap(id: "puddle", name: "Bergen Puddle Gap", points: 100, hint: "Ollie over a rain puddle without a splash. It always rains in Bergen."),
+		Gap(
+			id: "transfer",
+			name: "Plan 2 Transfer",
+			points: 250,
+			hint: "Air out of the half-pipe and land on a deck, by holding ▲ in a vert air."
+		),
+		Gap(
+			id: "big-air",
+			name: "Bygarasjen Big Air",
+			points: 300,
+			hint: "Fly higher than two of me above the coping of the half-pipe."
+		),
+		Gap(
+			id: "garage-ramp",
+			name: "Garage Ramp Gap",
+			points: 200,
+			hint: "Ollie off the deck and clear the whole ramp down to the street."
+		),
+		Gap(
+			id: "bryggen-rail",
+			name: "Hanseatic Rail",
+			points: 200,
+			hint: "Grind the rail along Bryggen from one end to the other."
+		),
+		Gap(
+			id: "bryggen",
+			name: "Bryggen Gap",
+			points: 500,
+			hint: "Jump the fish crates and clear the water of Vågen."
+		),
+		Gap(
+			id: "stairs",
+			name: "Fish Market Stair Set",
+			points: 300,
+			hint: "Ollie the whole stair set down to the fish market."
+		),
+		Gap(
+			id: "handrail",
+			name: "Fish Market Handrail",
+			points: 400,
+			hint: "Grind the handrail of the stairs all the way down."
+		),
+		Gap(
+			id: "mormor",
+			name: "Over Mormor",
+			points: 350,
+			hint: "Jump over Mormor on her bench. She knits, so do not hit her."
+		),
+		Gap(
+			id: "puddle",
+			name: "Bergen Puddle Gap",
+			points: 100,
+			hint: "Ollie over a rain puddle without a splash. It always rains in Bergen."
+		),
 	]
+
+	struct Config: Encodable {
+		let gaps = GeoCitiesSkater.gaps
+	}
+
+	let config: Config? = Config()
 
 	var content: some HTML {
 		h2 {
-			GeoCitiesPage.GIFImage(gif: .cool, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .cool,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 			" Sindre Hawk’s Pro Skater "
-			GeoCitiesPage.GIFImage(gif: .cool, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .cool,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 		}
 		.style(GeoCitiesPage.Styles.heading, GeoCitiesPage.Styles.centeredText)
 
@@ -80,7 +147,13 @@ struct GeoCitiesSkater: ScriptedElement {
 		div {
 			div {
 				// The screen is 400 × 240 pixels, made bigger with sharp pixels, like a game of the PlayStation on a TV.
-				canvas(.part(Parts.screen), .width(400), .height(240), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.screen),
+					.width(400),
+					.height(240),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("The screen of Sindre Hawk’s Pro Skater. The left and right arrows push and spin, Space ollies (hold it to jump higher), Z flips, X grabs, C grinds, and V does a special trick when the meter is full. Up and then down starts a manual. Enter or a click starts a run.")
 					.style(Styles.screen)
 			}
@@ -162,18 +235,38 @@ struct GeoCitiesSkater: ScriptedElement {
 			// The four buttons of the PlayStation, in a diamond: Grind on top, Flip on the left, Grab on the right, and Ollie at the bottom.
 			div {
 				div {
-					trickButton("grind", label: "Grind", symbol: "▲", style: .grindButton)
+					trickButton(
+						"grind",
+						label: "Grind",
+						symbol: "▲",
+						style: .grindButton
+					)
 				}
 				.style(Styles.trickRow)
 
 				div {
-					trickButton("flip", label: "Flip", symbol: "■", style: .flipButton)
-					trickButton("grab", label: "Grab", symbol: "●", style: .grabButton)
+					trickButton(
+						"flip",
+						label: "Flip",
+						symbol: "■",
+						style: .flipButton
+					)
+					trickButton(
+						"grab",
+						label: "Grab",
+						symbol: "●",
+						style: .grabButton
+					)
 				}
 				.style(Styles.trickRow)
 
 				div {
-					trickButton("ollie", label: "Ollie", symbol: "✕", style: .ollieButton)
+					trickButton(
+						"ollie",
+						label: "Ollie",
+						symbol: "✕",
+						style: .ollieButton
+					)
 				}
 				.style(Styles.trickRow)
 			}
@@ -364,16 +457,16 @@ struct GeoCitiesSkater: ScriptedElement {
 		case found
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The control of a touch button, like `left` or `ollie`.
 		*/
-		case control = "data-skater-control"
+		case control = "skater-control"
 
 		/**
 		The gap of an item of the checklist, like `mormor`.
 		*/
-		case gap = "data-skater-gap"
+		case gap = "skater-gap"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -429,8 +522,8 @@ struct GeoCitiesSkater: ScriptedElement {
 					.below(.smallTablet) {
 						$0.padding(.rootEm(0.375))
 					}
-					.background(Color("#2b2b33"))
-					.border(Color("#5a5a66"), width: .pixels(3), style: .outset)
+					.background(Color(raw: "#2b2b33"))
+					.border(Color(raw: "#5a5a66"), width: .pixels(3), style: .outset)
 					.cornerRadius(.rootEm(0.5))
 			case .bezel:
 				Style()
@@ -440,7 +533,7 @@ struct GeoCitiesSkater: ScriptedElement {
 						$0.padding(.rootEm(0.25))
 					}
 					.background(.black)
-					.border(Color("#444444"), width: .pixels(3), style: .inset)
+					.border(Color(raw: "#444444"), width: .pixels(3), style: .inset)
 					.cornerRadius(.rootEm(0.75))
 			case .screen:
 				// A finger on the screen does not zoom or scroll by a double tap, as the game is played with the buttons below it.
@@ -452,18 +545,18 @@ struct GeoCitiesSkater: ScriptedElement {
 					.background(.black)
 					.touchAction(.manipulation)
 					.focusVisible {
-						$0.focusRing(Color("#ffdd00"), width: .pixels(2), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffdd00"), width: .pixels(2), offset: .pixels(2))
 					}
 			case .status:
 				// Two lines high, so the console does not grow when a combo is longer.
 				Style()
 					.frame(width: .percent(100), minHeight: .lineHeight(2))
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
 					.lineHeight(1.2)
 					.textAlign(.center)
-					.color(Color("#ffdd00"))
+					.color(Color(raw: "#ffdd00"))
 			case .controls:
 				Style()
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(1.5))
@@ -480,8 +573,8 @@ struct GeoCitiesSkater: ScriptedElement {
 			case .padButton:
 				Style()
 					.frame(size: .rootEm(3))
-					.background(Color("#6a6a74"))
-					.border(Color("#9a9aa4"), width: .pixels(3), style: .outset)
+					.background(Color(raw: "#6a6a74"))
+					.border(Color(raw: "#9a9aa4"), width: .pixels(3), style: .outset)
 					.cornerRadius(.rootEm(0.5))
 					.fontFamily(.system)
 					.font(.large, weight: .bold)
@@ -489,26 +582,26 @@ struct GeoCitiesSkater: ScriptedElement {
 					.touchAction(.none)
 					.handCursor()
 					.active {
-						$0.border(Color("#9a9aa4"), width: .pixels(3), style: .inset)
+						$0.border(Color(raw: "#9a9aa4"), width: .pixels(3), style: .inset)
 					}
 			case .trickButtons:
-				Style().vstack(alignment: .center, spacing: 0)
+				Style().vstack(alignment: .center, spacing: .zero)
 			case .trickRow:
 				// Flip and Grab have the width of a button between them.
 				Style().hstack(alignment: .center, justification: .center, spacing: .rootEm(3.25))
 			case .trickButton:
 				Style()
-					.vstack(alignment: .center, justification: .center, spacing: 0)
+					.vstack(alignment: .center, justification: .center, spacing: .zero)
 					.frame(size: .rootEm(3.25))
-					.background(Color("#3a3a44"))
-					.border(Color("#77778a"), width: .pixels(3), style: .outset)
+					.background(Color(raw: "#3a3a44"))
+					.border(Color(raw: "#77778a"), width: .pixels(3), style: .outset)
 					.cornerRadius(.percent(50))
 					.fontFamily(.system)
 					.color(.white)
 					.touchAction(.none)
 					.handCursor()
 					.active {
-						$0.border(Color("#77778a"), width: .pixels(3), style: .inset)
+						$0.border(Color(raw: "#77778a"), width: .pixels(3), style: .inset)
 					}
 			case .trickSymbol:
 				Style()
@@ -519,19 +612,19 @@ struct GeoCitiesSkater: ScriptedElement {
 					.textStyle(.caption, weight: .bold)
 					.lineHeight(1)
 			case .ollieButton:
-				Style().color(Color("#9ab8ff"))
+				Style().color(Color(raw: "#9ab8ff"))
 			case .flipButton:
-				Style().color(Color("#ff9ad8"))
+				Style().color(Color(raw: "#ff9ad8"))
 			case .grabButton:
-				Style().color(Color("#ff7a6a"))
+				Style().color(Color(raw: "#ff7a6a"))
 			case .grindButton:
-				Style().color(Color("#7aee9a"))
+				Style().color(Color(raw: "#7aee9a"))
 			case .specialButton:
 				Style()
 					.frame(minHeight: .rootEm(3))
 					.padding(.horizontal, .rootEm(0.75))
-					.background(Color("#cc8800"))
-					.border(Color("#ffcc55"), width: .pixels(3), style: .outset)
+					.background(Color(raw: "#cc8800"))
+					.border(Color(raw: "#ffcc55"), width: .pixels(3), style: .outset)
 					.cornerRadius(.rootEm(1.5))
 					.fontFamily(GeoCitiesPage.impact)
 					.textStyle(.body)
@@ -539,12 +632,12 @@ struct GeoCitiesSkater: ScriptedElement {
 					.touchAction(.none)
 					.handCursor()
 					.active {
-						$0.border(Color("#ffcc55"), width: .pixels(3), style: .inset)
+						$0.border(Color(raw: "#ffcc55"), width: .pixels(3), style: .inset)
 					}
 			case .nowPlaying:
 				Style()
 					.frame(width: .percent(100))
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
 			case .info:
@@ -555,31 +648,31 @@ struct GeoCitiesSkater: ScriptedElement {
 				Style()
 					.flowSpacing(.rootEm(0.5))
 					.padding(.rootEm(0.5))
-					.background(Color("#ffffff"))
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#ffffff"))
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			case .recordList:
 				Style()
-					.grid(columns: "auto 1fr")
+					.grid(columns: .auto, .fraction(1))
 					.gap(row: .rootEm(0.25), column: .rootEm(0.75))
-					.margin(0)
+					.margin(.zero)
 			case .recordLabel:
 				Style().fontWeight(.bold)
 			case .recordValue:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.courier)
 			case .gapList:
 				Style()
 					.vstack(spacing: .rootEm(0.25))
-					.margin(0)
-					.padding(0)
+					.margin(.zero)
+					.padding(.zero)
 					.textStyle(.caption)
 			case .gap:
 				Style()
 					.hstack(alignment: .start, spacing: .rootEm(0.375))
-					.color(Color("#666666"))
+					.color(Color(raw: "#666666"))
 					.when(States.found) {
-						$0.color(Color("#006600"))
+						$0.color(Color(raw: "#006600"))
 					}
 			case .gapMark:
 				Style()
@@ -588,14 +681,14 @@ struct GeoCitiesSkater: ScriptedElement {
 			case .keys:
 				// On a phone, each key is above what it does, so the descriptions get the whole width instead of a narrow column.
 				Style()
-					.grid(columns: "auto 1fr")
+					.grid(columns: .auto, .fraction(1))
 					.gap(row: .rootEm(0.25), column: .rootEm(0.75))
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption)
 					.below(.smallTablet) {
 						$0
 							.gridColumns(1)
-							.gap(row: 0)
+							.gap(row: .zero)
 					}
 			case .key:
 				Style()
@@ -603,7 +696,7 @@ struct GeoCitiesSkater: ScriptedElement {
 					.fontWeight(.bold)
 			case .keyAction:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.below(.smallTablet) {
 						$0.margin(.bottom, .rootEm(0.5))
 					}

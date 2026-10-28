@@ -1,6 +1,7 @@
 import Elementary
 import Foundation
 import SiteKit
+import SOML
 import TestSupport
 import Testing
 @testable import Website
@@ -48,21 +49,33 @@ struct NowPageTests {
 	@Test
 	func `on this day lists the apps, releases, and posts of this day in earlier years`() async throws {
 		func post(_ slug: String, date: String) async throws -> BlogPost {
-			try await BlogPost(markdown: "---\ntitle: '\(slug)'\npublicationDate: '\(date)'\n---\n\nText.", slug: slug)
+			try await BlogPost(markdown: "---\ntitle: '\(slug)'\npublicationDate: \(date)\n---\n\nText.", slug: slug)
 		}
 
-		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: 'Test app'\npublicationDate: '2019-10-07'\nplatforms: ['macOS']\n---\n\nText.")
+		let app = try await App(publicationDate: "2019-10-07", frontmatter: "releasesRepository: 'sindresorhus/test-meta'")
 		let posts = try await [post("same-day", date: "2021-10-07"), post("other-day", date: "2021-10-08"), post("this-year", date: "2026-10-07")]
 		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
 
 		// 2026-10-07 12:00 UTC.
-		let content = SiteContent(apps: [app], posts: posts, pages: [page], buildDate: Date(timeIntervalSince1970: 1_791_374_400), project: .empty)
+		let content = SiteContent(
+			apps: [app],
+			posts: posts,
+			pages: [page],
+			appData: SiteContent.AppData(releases: [
+				#repository("sindresorhus/test-meta"): [
+					GitHubRelease(tagName: "v2.0.0", publishedAt: try Date("2021-10-07T08:00:00Z", strategy: .iso8601), notesHTML: ""),
+					GitHubRelease(tagName: "v3.0.0", publishedAt: try Date("2021-10-07T09:00:00Z", strategy: .iso8601), notesHTML: ""),
+				],
+			]),
+			buildDate: Date(timeIntervalSince1970: 1_791_374_400),
+			project: .empty
+		)
 		let html = try NowPage(page: page, content: content).renderedHTML()
 		let section = try #require(html.firstMatch(of: /<h2 id="on-this-day".*?<\/section>/.dotMatchesNewlines())).output
 		let rows = section.matches(of: /<a href="[^"]*">([^<]*)<\/a><span[^>]*>([^<]*)<\/span>/)
 
-		#expect(rows.map(\.output.1) == ["same-day", "Test"])
-		#expect(rows.map(\.output.2) == ["posted in 2021", "launched in 2019"])
+		#expect(rows.map(\.output.1) == ["Test 3.0.0", "Test 2.0.0", "same-day", "Test"])
+		#expect(rows.map(\.output.2) == ["released in 2021", "released in 2021", "posted in 2021", "launched in 2019"])
 	}
 
 	/**
@@ -82,7 +95,14 @@ struct NowPageTests {
 		let cache = try ResponseCache.npm(search: search)
 		let statistics = await NPMStatistics.load(cache: cache, warnings: WarningCollector())
 		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
-		let content = SiteContent(apps: [], posts: [], pages: [page], npmStatistics: statistics, buildDate: Date(timeIntervalSince1970: 1_791_374_400), project: .empty)
+		let content = SiteContent(
+			apps: [],
+			posts: [],
+			pages: [page],
+			npmStatistics: statistics,
+			buildDate: Date(timeIntervalSince1970: 1_791_374_400),
+			project: .empty
+		)
 
 		let html = try NowPage(page: page, content: content).renderedHTML()
 
@@ -91,7 +111,7 @@ struct NowPageTests {
 		// The owner of a link with capitals is the same owner.
 		#expect(html.contains("npmjs.com/package/capital-owner"))
 		// The repo is read from a link in another form, without its `.git`.
-		#expect(statistics.packages.first { $0.name == "pid-port" }?.repository == "sindresorhus/pid-port")
+		#expect(statistics.packages?.first { $0.name == "pid-port" }?.repository == #repository("sindresorhus/pid-port"))
 		#expect(!html.contains("yeoman-generator"))
 		#expect(!html.contains("no-repository"))
 	}
@@ -103,11 +123,26 @@ struct NowPageTests {
 	func `the npm downloads while the visitor is on the page run at the rate of the last week`() async throws {
 		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
 		var npmStatistics = NPMStatistics()
-		npmStatistics.packages = [NPMStatistics.Package(name: "chalk", version: "6.0.0", description: nil, date: .now, weeklyDownloads: 604_800, dependentCount: nil, repository: "chalk/chalk")]
+		npmStatistics.search = .complete(total: 1, packages: [NPMStatistics.Package(
+			name: "chalk",
+			version: "6.0.0",
+			description: nil,
+			date: .now,
+			weeklyDownloads: 604_800,
+			dependentCount: nil,
+			repository: #repository("chalk/chalk")
+		)])
 
 		// The section, and whether it is hidden.
 		func buildingNow(npmStatistics: NPMStatistics) throws -> (html: Substring, isHidden: Bool) {
-			let content = SiteContent(apps: [], posts: [], pages: [page], npmStatistics: npmStatistics, buildDate: .now, project: .empty)
+			let content = SiteContent(
+				apps: [],
+				posts: [],
+				pages: [page],
+				npmStatistics: npmStatistics,
+				buildDate: .now,
+				project: .empty
+			)
 			let html = try NowPage(page: page, content: content).renderedHTML()
 			let section = try #require(html.firstMatch(of: /<section([^>]*)><h2 id="building-now".*?<\/section>/.dotMatchesNewlines()))
 			return (section.output.0, section.output.1.contains("hidden"))
@@ -137,14 +172,27 @@ struct NowPageTests {
 		let statistics = await NPMStatistics.load(cache: cache, warnings: WarningCollector())
 
 		func release(_ repository: GitHubRepositoryName, _ tagName: String, day: Int) throws -> OpenSourceRelease {
-			OpenSourceRelease(repository: repository, tagName: tagName, url: try #require(URL(string: "https://github.com/\(repository)/releases/tag/\(tagName)")), date: Date(timeIntervalSince1970: 1_791_374_400 - Double(day * 86_400)))
+			OpenSourceRelease(
+				repository: repository,
+				tagName: tagName,
+				url: try #require(URL(string: "https://github.com/\(repository)/releases/tag/\(tagName)")),
+				date: Date(timeIntervalSince1970: 1_791_374_400 - Double(day * 86_400))
+			)
 		}
 
 		var activity = RecentActivity()
-		activity.releases = try [release("sindresorhus/execa", "v10.1.0", day: 1), release("sindresorhus/execa", "v10.0.0", day: 2), release("sindresorhus/is", "v7.1.0", day: 3), release("sindresorhus/got", "v16.0.0", day: 4)]
+		activity.releases = try [release(#repository("sindresorhus/execa"), "v10.1.0", day: 1), release(#repository("sindresorhus/execa"), "v10.0.0", day: 2), release(#repository("sindresorhus/is"), "v7.1.0", day: 3), release(#repository("sindresorhus/got"), "v16.0.0", day: 4)]
 
 		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
-		let content = SiteContent(apps: [], posts: [], pages: [page], npmStatistics: statistics, recentActivity: activity, buildDate: Date(timeIntervalSince1970: 1_791_374_400), project: .empty)
+		let content = SiteContent(
+			apps: [],
+			posts: [],
+			pages: [page],
+			npmStatistics: statistics,
+			recentActivity: activity,
+			buildDate: Date(timeIntervalSince1970: 1_791_374_400),
+			project: .empty
+		)
 
 		let html = try NowPage(page: page, content: content).renderedHTML()
 
@@ -164,7 +212,7 @@ struct NowPageTests {
 		let html = try NowPage(page: page, content: content).renderedHTML()
 
 		#expect(html.contains("<h1"))
-		#expect(html.contains(try #require(page.frontmatter.status)))
+		#expect(html.contains(try #require(page.status?.inlineHTML)))
 		#expect(html.contains("Newest App"))
 		// The commits load in the browser, so the group is there, with placeholder rows that screen readers skip, and the hidden link to GitHub for when they cannot load.
 		#expect(html.contains(#"id="latest-commits""#))
@@ -209,7 +257,19 @@ struct NowPageTests {
 			]
 		}
 		"""#)
-		let content = SiteContent(apps: [], posts: [], pages: [page], contributionYears: [ContributionYear(year: 2026, calendar: calendar, totals: totals, until: buildDate)], buildDate: buildDate, project: .empty)
+		let content = SiteContent(
+			apps: [],
+			posts: [],
+			pages: [page],
+			contributionYears: [ContributionYear(
+				year: 2026,
+				calendar: calendar,
+				totals: totals,
+				until: buildDate
+			)],
+			buildDate: buildDate,
+			project: .empty
+		)
 
 		let html = try NowPage(page: page, content: content).renderedHTML()
 
@@ -235,16 +295,22 @@ struct NowPageTests {
 	}
 
 	/**
-	The two reviews are of two different apps, so they do not say the same. The newest review is the last change of the page.
+	The page shows only the newest review, so the column of the reviews ends with the column of the updates. The newest review is the last change of the page.
 	*/
 	@Test
-	func `the page shows the two newest reviews of two different apps, with a link to the wall of love`() async throws {
+	func `the page shows the newest review, with a link to the wall of love`() async throws {
 		func app(_ title: String, id: Int) async throws -> App {
-			try await App(markdown: "---\ntitle: '\(title)'\nsubtitle: 'An app'\npublicationDate: '2020-01-01'\nplatforms: ['iOS']\nappStoreID: \(id)\n---\n\nText.", slug: title.lowercased())
+			try await App(title: title, publicationDate: "2020-01-01", platforms: [.iOS], frontmatter: "appStoreID: \(id)", slug: title.lowercased())
 		}
 
 		func review(_ title: String, date: String) throws -> AppStoreReview {
-			AppStoreReview(title: title, text: "A review that is long enough to be shown on the page of the app.", author: "A reviewer", rating: 5, date: try Date(date, strategy: .iso8601))
+			AppStoreReview(
+				title: title,
+				text: "A review that is long enough to be shown on the page of the app.",
+				author: "A reviewer",
+				rating: .five,
+				date: try Date(date, strategy: .iso8601)
+			)
 		}
 
 		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
@@ -252,20 +318,21 @@ struct NowPageTests {
 			apps: [try await app("First", id: 1), try await app("Second", id: 2)],
 			posts: [],
 			pages: [page],
-			appStoreReviews: [
+			appData: SiteContent.AppData(appStoreReviews: [
 				1: [try review("Review of the first app", date: "2026-10-06T00:00:00Z"), try review("Older review of the first app", date: "2026-10-05T00:00:00Z")],
 				2: [try review("Review of the second app", date: "2026-10-01T00:00:00Z")],
-			],
+			]),
 			buildDate: try Date("2026-10-07T12:00:00Z", strategy: .iso8601),
 			project: .empty
 		)
 
 		let nowPage = NowPage(page: page, content: content)
 		let html = try nowPage.renderedHTML()
-		#expect(nowPage.sitemapEntry?.lastModified == (try Date("2026-10-06T00:00:00Z", strategy: .iso8601)))
-		#expect(html.contains("Recent Reviews"))
+		let lastModified = try #require(SOML.Date("2026-10-06"))
+		#expect(nowPage.sitemapEntry.lastModified == lastModified)
+		#expect(html.contains("A Recent Review"))
 		#expect(html.contains("Review of the first app"))
-		#expect(html.contains("Review of the second app"))
+		#expect(!html.contains("Review of the second app"))
 		#expect(!html.contains("Older review of the first app"))
 		#expect(html.contains(#"More on the <a href="/apps/reviews">Wall of Love</a>"#))
 	}
@@ -276,11 +343,11 @@ struct NowPageTests {
 	@Test
 	func `the latest updates leave out the version that an app launched with`() async throws {
 		func app(_ title: String, id: Int, publicationDate: String) async throws -> App {
-			try await App(markdown: "---\ntitle: '\(title)'\nsubtitle: 'An app'\npublicationDate: '\(publicationDate)'\nplatforms: ['iOS']\nappStoreID: \(id)\n---\n\nText.", slug: title.lowercased())
+			try await App(title: title, publicationDate: publicationDate, platforms: [.iOS], frontmatter: "appStoreID: \(id)", slug: title.lowercased())
 		}
 
 		func info(id: AppStoreID, version: String, date: String) throws -> AppStoreInfo {
-			AppStoreInfo(id: id, version: version, currentVersionReleaseDate: try Date(date, strategy: .iso8601), priceAmount: nil, currencyCode: nil, averageUserRating: nil, userRatingCount: nil, kind: "software", minimumOsVersion: "26.0", supportedDevices: nil)
+			try AppStoreInfo(json: #"{"trackId": \#(id.value), "version": "\#(version)", "currentVersionReleaseDate": "\#(date)", "kind": "software", "minimumOsVersion": "26.0"}"#)
 		}
 
 		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
@@ -288,10 +355,10 @@ struct NowPageTests {
 			apps: [try await app("Launched", id: 1, publicationDate: "2026-10-01"), try await app("Updated", id: 2, publicationDate: "2020-01-01")],
 			posts: [],
 			pages: [page],
-			appStoreInfo: [
+			appData: SiteContent.AppData(appStoreInfo: [
 				1: try info(id: 1, version: "1.0", date: "2026-10-01T15:00:00Z"),
 				2: try info(id: 2, version: "2.1", date: "2026-10-05T15:00:00Z"),
-			],
+			]),
 			buildDate: try Date("2026-10-07T12:00:00Z", strategy: .iso8601),
 			project: .empty
 		)
@@ -319,7 +386,14 @@ struct NowPageTests {
 		var activity = RecentActivity()
 		activity.weekMaintenance = GitHub.Maintenance(closedIssueCount: 83, mergedPullRequestCount: 61)
 		activity.weekActivity = GitHub.Activity(contributionCount: 245, commitCount: 171, commentCount: 32)
-		let content = SiteContent(apps: [], posts: [], pages: [page], recentActivity: activity, buildDate: try Date("2026-10-13T12:00:00Z", strategy: .iso8601), project: .empty)
+		let content = SiteContent(
+			apps: [],
+			posts: [],
+			pages: [page],
+			recentActivity: activity,
+			buildDate: try Date("2026-10-13T12:00:00Z", strategy: .iso8601),
+			project: .empty
+		)
 
 		let html = try NowPage(page: page, content: content).renderedHTML()
 		#expect(html.contains("This Week in Open Source"))
@@ -338,14 +412,53 @@ struct NowPageTests {
 		var activity = RecentActivity()
 		activity.yearMaintenance = GitHub.Maintenance(closedIssueCount: 2146, mergedPullRequestCount: 303)
 		var npmStatistics = NPMStatistics()
-		npmStatistics.packages = [
-			NPMStatistics.Package(name: "chalk", version: "6.0.0", description: nil, date: try Date("2026-03-01T00:00:00Z", strategy: .iso8601), weeklyDownloads: 1000, dependentCount: nil, repository: "chalk/chalk"),
-			NPMStatistics.Package(name: "ora", version: "9.0.0", description: nil, date: try Date("2025-12-31T00:00:00Z", strategy: .iso8601), weeklyDownloads: 5, dependentCount: nil, repository: "sindresorhus/ora"),
-			NPMStatistics.Package(name: "new-thing", version: "1.0.0", description: nil, date: try Date("2026-05-01T00:00:00Z", strategy: .iso8601), weeklyDownloads: 5, dependentCount: nil, repository: "sindresorhus/New-Thing"),
-		]
-		let repositories = try [GitHubRepository](json: #"[{"name": "new-thing", "description": null, "html_url": "https://github.com/sindresorhus/new-thing", "created_at": "2026-04-30T00:00:00Z", "archived": false, "fork": false, "stargazers_count": 1, "language": "JavaScript"}, {"name": "ora", "description": null, "html_url": "https://github.com/sindresorhus/ora", "created_at": "2016-04-30T00:00:00Z", "archived": false, "fork": false, "stargazers_count": 1, "language": "JavaScript"}]"#)
-		let account = GitHub.Account(repositoryCount: 2, followerCount: 1, starCount: 2, maintenance: GitHub.Maintenance(closedIssueCount: 1, mergedPullRequestCount: 1), repositories: repositories)
-		let content = SiteContent(apps: [], posts: [], pages: [page], gitHubAccount: account, npmStatistics: npmStatistics, recentActivity: activity, buildDate: try Date("2026-10-13T12:00:00Z", strategy: .iso8601), project: .empty)
+		npmStatistics.search = .complete(total: 3, packages: [
+			NPMStatistics.Package(
+				name: "chalk",
+				version: "6.0.0",
+				description: nil,
+				date: try Date("2026-03-01T00:00:00Z", strategy: .iso8601),
+				weeklyDownloads: 1000,
+				dependentCount: nil,
+				repository: #repository("chalk/chalk")
+			),
+			NPMStatistics.Package(
+				name: "ora",
+				version: "9.0.0",
+				description: nil,
+				date: try Date("2025-12-31T00:00:00Z", strategy: .iso8601),
+				weeklyDownloads: 5,
+				dependentCount: nil,
+				repository: #repository("sindresorhus/ora")
+			),
+			NPMStatistics.Package(
+				name: "new-thing",
+				version: "1.0.0",
+				description: nil,
+				date: try Date("2026-05-01T00:00:00Z", strategy: .iso8601),
+				weeklyDownloads: 5,
+				dependentCount: nil,
+				repository: #repository("sindresorhus/New-Thing")
+			),
+		])
+		let repositories = try [GitHubRepository](json: #"[{"name": "new-thing", "full_name": "sindresorhus/new-thing", "description": null, "html_url": "https://github.com/sindresorhus/new-thing", "created_at": "2026-04-30T00:00:00Z", "archived": false, "fork": false, "stargazers_count": 1, "language": "JavaScript"}, {"name": "ora", "full_name": "sindresorhus/ora", "description": null, "html_url": "https://github.com/sindresorhus/ora", "created_at": "2016-04-30T00:00:00Z", "archived": false, "fork": false, "stargazers_count": 1, "language": "JavaScript"}]"#)
+		let account = GitHub.Account(
+			repositoryCount: 2,
+			followerCount: 1,
+			starCount: 2,
+			maintenance: GitHub.Maintenance(closedIssueCount: 1, mergedPullRequestCount: 1),
+			repositories: repositories
+		)
+		let content = SiteContent(
+			apps: [],
+			posts: [],
+			pages: [page],
+			gitHubAccount: account,
+			npmStatistics: npmStatistics,
+			recentActivity: activity,
+			buildDate: try Date("2026-10-13T12:00:00Z", strategy: .iso8601),
+			project: .empty
+		)
 
 		let html = try NowPage(page: page, content: content).renderedHTML()
 		let year = try #require(html.split(separator: #"id="year""#).last)
@@ -380,11 +493,56 @@ struct NowPageTests {
 	}
 
 	@Test
-	func `the sparkline goes from zero at the bottom to the highest number at the top, with a dot at the last number`() {
-		let html = Sparkline(values: [0, 5, 10], label: "A label").render()
+	func `the sparkline goes from zero at the bottom to the highest number at the top, with a dot at the last number`() throws {
+		let html = try #require(Sparkline(values: [0, 5, 10], label: "A label")).render()
 
 		#expect(html.contains(#"aria-label="A label""#))
 		#expect(html.contains(#"d="M0 100L1 50L2 0""#))
 		#expect(html.contains(#"d="M2 0h0""#))
+	}
+
+	@Test(arguments: [[], [1]])
+	func `a sparkline requires at least two samples`(values: [Int]) {
+		#expect(Sparkline(values: values, label: "Too short") == nil)
+	}
+
+	@Test
+	func `two samples draw a complete sparkline without an empty width`() throws {
+		let html = try #require(Sparkline(values: [0, 1], label: "Two samples")).render()
+
+		#expect(html.contains(#"viewBox="0 0 1 100""#))
+		#expect(html.contains(#"d="M0 100L1 0""#))
+	}
+
+	@Test(.temporaryDirectory, arguments: [
+		(feature: #"{"$type":"app.bsky.richtext.facet#link","uri":"https://example.com"}"#, link: "https://example.com" as String?),
+		(feature: #"{"$type":"app.bsky.richtext.facet#mention","did":"did:plc:test"}"#, link: "https://bsky.app/profile/did:plc:test"),
+		(feature: #"{"$type":"app.bsky.richtext.facet#tag","tag":"swift"}"#, link: "https://bsky.app/hashtag/swift"),
+		(feature: #"{"$type":"future#feature","uri":"https://example.com"}"#, link: nil),
+		(feature: #"{"$type":"app.bsky.richtext.facet#link"}"#, link: nil),
+		(feature: #"{"$type":"app.bsky.richtext.facet#mention"}"#, link: nil),
+		(feature: #"{"$type":"app.bsky.richtext.facet#tag"}"#, link: nil),
+		(feature: #"{"$type":"app.bsky.richtext.facet#link","uri":"javascript:alert(1)"}"#, link: nil),
+	])
+	func `the Bluesky feature variants link only complete supported payloads`(feature: String, link: String?) async throws {
+		let feed = #"{"feed":[{"post":{"uri":"at://did:plc:test/app.bsky.feed.post/test","record":{"text":"Link","createdAt":"2026-10-01T18:04:23Z","facets":[{"index":{"byteStart":0,"byteEnd":4},"features":[\#(feature)]}]}}}]}"#
+		let cache = try ResponseCache(responses: ["https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=sindresorhus.com&limit=5&filter=posts_no_replies": feed])
+		let post = try #require(try await BlueskyPost.latest(cache: cache))
+
+		#expect(post.segments == [BlueskyPost.Segment(text: "Link", link: link.flatMap(URL.init(string:)))])
+	}
+
+	@Test(.temporaryDirectory, arguments: [
+		#"{"$type":"future#feature","uri":123}"#,
+		#"{"$type":"app.bsky.richtext.facet#link","uri":"https://example.com","did":123}"#,
+		#"{"$type":"app.bsky.richtext.facet#mention","did":"did:plc:test","tag":123}"#,
+	])
+	func `a Bluesky feature with a wrongly typed known field still fails decoding`(feature: String) async throws {
+		let feed = #"{"feed":[{"post":{"uri":"at://did:plc:test/app.bsky.feed.post/test","record":{"text":"Link","createdAt":"2026-10-01T18:04:23Z","facets":[{"index":{"byteStart":0,"byteEnd":4},"features":[\#(feature)]}]}}}]}"#
+		let cache = try ResponseCache(responses: ["https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=sindresorhus.com&limit=5&filter=posts_no_replies": feed])
+
+		await #expect(throws: DecodingError.self) {
+			try await BlueskyPost.latest(cache: cache)
+		}
 	}
 }

@@ -1,13 +1,18 @@
 ---
 title: 'Plash'
 subtitle: 'Make any website your desktop wallpaper'
-publicationDate: '2020-01-09'
+publicationDate: 2020-01-09
 platforms: [
 	'macOS'
 ]
 isMenuBarApp: true
 appStoreID: 1494023538
 hasSentry: true
+nonAppStoreVersion: {
+	version: '2.17.2'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/fye9v3csnxpgk7o81vacq/Plash-2.17.2-1777967935.zip?rlkey=14wtfv7vew49om93lcss5qtac&raw=1'
+}
 olderVersions: [
 	{
 		version: '2.16.0'
@@ -53,15 +58,28 @@ pressQuotes: [
 		url: 'https://lifehacker.com/tech/turn-any-website-into-your-mac-wallpaper'
 		year: 2024
 	}
+	{
+		quote: "Plash is a free macOS app that allows you to take any web page and use it as your wallpaper, effectively pinning it behind all other open windows and applications. Let's explore how to use it and why it's a worthy addition to your app arsenal."
+		source: 'How-To Geek'
+		url: 'https://www.howtogeek.com/how-to-use-a-website-as-your-macs-desktop-wallpaper/'
+		year: 2024
+	}
+	{
+		quote: 'Plash is a simple menu bar app that lets you set any website as your Mac wallpaper – and even lets you browse it! Plash enables you to have a highly dynamic desktop wallpaper.'
+		source: '9to5Mac'
+		url: 'https://9to5mac.com/2020/01/09/plash/'
+		year: 2020
+	}
+	{
+		quote: 'A unique third party Mac app allows you to turn any web page, including YouTube videos and links to animated GIFs, into your Mac desktop wallpaper. Sound like fun? Well it definitely is, and depending on how creative you want to be, you can accomplish some really fascinating wallpaper experiences on the Mac with this free tool, called Plash.'
+		source: 'OSXDaily'
+		url: 'https://osxdaily.com/2024/04/20/make-website-mac-wallpaper-plash/'
+		year: 2024
+	}
 ]
-nonAppStoreVersion: {
-	version: '2.17.2'
-	macOS: 26
-	url: 'https://www.dropbox.com/scl/fi/fye9v3csnxpgk7o81vacq/Plash-2.17.2-1777967935.zip?rlkey=14wtfv7vew49om93lcss5qtac&raw=1'
-}
 ---
 
-Show your calendar, a dashboard, the Bing photo of the day, or an animated GIF as your desktop wallpaper.
+Show your calendar, a dashboard, the Bing photo of the day, or an animated GIF as your desktop wallpaper. Like Active Desktop in Windows 98, for any website.
 
 Add several websites, switch between them, and turn on Browsing Mode when you want to click around in the page.
 
@@ -96,6 +114,7 @@ Add several websites, switch between them, and turn on Browsing Mode when you wa
 - Audio is muted
 - Single image will be aspect-filled to your screen
 - Hide menu bar icon
+- Global keyboard shortcuts to reload the website, go to the next, previous, or a random website, toggle browsing mode, and turn Plash on or off
 - Shortcuts support
 - [Scriptable](#scripting)
 - [Share extension](#share-extension)
@@ -110,13 +129,23 @@ Plash injects a CSS class named `plash-is-browsing-mode` on the `<html>` element
 
 If clicking a link opens it in a new window, you can hold the ++Option++ key while clicking the link to open it in the main Plash window.
 
+### Sign in to a website {#sign-in}
+
+For example, to show Google Calendar or a Google Sheets dashboard:
+
+1. Add the website to Plash.
+1. Turn on “Browsing Mode”, and sign in. If “Open external links in default browser” is on in the settings, turn it off while you sign in.
+1. Turn off “Browsing Mode”.
+
+Plash keeps you signed in. If the website shows a page inside another one (an iframe), like a sheet in a Google Site, add the inner website and sign in there first.
+
 ### Zoom in website
 
 To zoom in the website, activate “Browsing Mode”, right-click the website, and then select “Zoom In”.
 
 ### URL placeholders for screen width and height
 
-Use `[[screenWidth]]` and `[[screenHeight]]` in any URL and Plash will substitute the right values for you. For example, `https://source.unsplash.com/random/[[screenWidth]]x[[screenHeight]]?puppy`.
+Use `[[screenWidth]]` and `[[screenHeight]]` in any URL and Plash will substitute the right values for you. For example, `https://picsum.photos/[[screenWidth]]/[[screenHeight]]` shows a random photo that fits your screen.
 
 ### Scroll to position
 
@@ -152,41 +181,63 @@ Plash comes bundled with a [share extension](https://support.apple.com/guide/mac
 
 ## Frequently Asked Questions {#faq}
 
-### Can it automatically switch websites every 10 minutes?
+### Can it automatically switch websites every 10 minutes? {#can-it-automatically-switch-websites-every-10-minutes}
 
 Plash can be automated with the built-in Shortcuts app, for example, using the “Switch to Next Website” action. Shortcuts automations cannot run at an interval, so use the [Shortery](https://apps.apple.com/app/id1594183810) app to run the shortcut every 10 minutes.
 
-### Does it support multiple displays?
+### Does it support multiple displays? {#does-it-support-multiple-displays}
 
-Support for multiple displays is currently limited to the ability to choose which display to show the website on. Support for setting a separate website for each display is [planned](https://github.com/sindresorhus/Plash/issues/2).
+Plash shows the website on one display, which you choose in the “Show on” setting. A separate website for each display is not supported.
 
 However, there is a [workaround](https://github.com/sindresorhus/Plash/issues/2#issuecomment-653891524).
 
-### Can Plash display multiple websites at the same time?
+### Can it show on all Spaces? {#spaces}
+
+Yes. Enable “Show on all spaces” in the settings.
+
+### Can I click links without turning on Browsing Mode? {#click-links}
+
+No. Outside Browsing Mode, Plash lets clicks through to the desktop, so you can use the files on it. Turn on Browsing Mode to click links. To open them in your browser, turn on “Open external links in default browser” in the settings, or right-click a link and choose “Open in Browser”.
+
+### Google Calendar shows “This browser version is no longer supported” {#google-calendar-banner}
+
+Google Calendar still works. To hide the banner, add this to the “CSS” field in the website settings:
+
+```css
+.V8Lvo {
+	display: none !important;
+}
+```
+
+Google can change the name of this class, and then the banner shows again.
+
+### Can Plash display multiple websites at the same time? {#can-plash-display-multiple-websites-at-the-same-time}
 
 No. Plash only shows one website at a time. Displaying multiple websites simultaneously is out of scope.
 
-### Why does Plash use so much memory?
+### Why does Plash use so much memory? {#why-does-plash-use-so-much-memory}
 
 Plash uses very little memory. Usually around 40 MB. However, the websites you display can take up a lot of memory, and sometimes even have memory leaks.
 
-### The menu bar does not adapt to the Plash wallpaper
+### The menu bar does not adapt to the Plash wallpaper {#the-menu-bar-does-not-adapt-to-the-plash-wallpaper}
 
 The menu bar adapts its color from the actual system wallpaper. Plash is not actually a wallpaper, but rather runs right above the wallpaper. So Plash cannot influence the menu bar color.
 
-### Can Plash block ads?
+To show the website behind the menu bar instead, turn off “Show menu bar background” in “System Settings › Menu Bar”, and enable “Extend below menu bar” in the Plash settings.
+
+### Can Plash block ads? {#can-plash-block-ads}
 
 Not built-in, but you can block ads system-wide with a [DNS ad-blocker](https://alternate-dns.com).
 
-### How can I switch to a specific website with a keyboard shortcut?
+### How can I switch to a specific website with a keyboard shortcut? {#how-can-i-switch-to-a-specific-website-with-a-keyboard-shortcut}
 
 Make a shortcut in the Shortcuts app that uses the “Set Current Website” action and then set a keyboard shortcut for the shortcut.
 
-### Can it also show on the Lock Screen?
+### Can it also show on the Lock Screen? {#can-it-also-show-on-the-lock-screen}
 
 No. This is not possible.
 
-### What does “Plash” mean?
+### What does “Plash” mean? {#what-does-plash-mean}
 
 “a sound produced by liquid striking something or being struck”
 

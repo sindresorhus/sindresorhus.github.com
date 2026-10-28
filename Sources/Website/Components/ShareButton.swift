@@ -5,39 +5,15 @@ import SiteKit
 /**
 A “Share…” button that shows the share sheet of the browser for a page, and closes the popover it is in, as the share sheet replaces it.
 
-The page is the `share-title` and `share-url` attributes of the element, which the script reads on click.
+The page is in the attributes of the element (``SharedPage/attributes()``), which the script reads on click.
 */
 struct ShareButton: ScriptedElement {
-	static let script = ElementScript(inline: #"""
-	export default class extends HTMLElement {
-		connectedCallback() {
-			// The same function, so connecting the element again does not add a second listener.
-			this.addEventListener('click', this.#share);
-		}
+	static let script = ElementScript()
 
-		#share = async () => {
-			this.closest('[popover]')?.hidePopover();
-
-			try {
-				await navigator.share({title: this.getAttribute('share-title'), url: this.getAttribute('share-url')});
-			} catch (error) {
-				if (error.name !== 'AbortError') {
-					console.error('Share failed:', error.message);
-				}
-			}
-		};
-	}
-	"""#)
-
-	/**
-	The title of the shared page.
-	*/
-	let pageTitle: String
-
-	let url: URL
+	let page: SharedPage
 
 	var rootAttributes: [HTMLAttribute<ElementTag<Self>>] {
-		[.custom(name: "share-title", value: pageTitle), .custom(name: "share-url", value: url.absoluteString)]
+		page.attributes()
 	}
 
 	var content: some HTML {
@@ -57,5 +33,20 @@ struct ShareButton: ScriptedElement {
 				Style().display(.contents)
 			}
 		}
+	}
+}
+
+/**
+A page to share with the share sheet of the browser, like an app on the App Store. The elements that share it, ``ShareButton`` and ``OverflowMenu``, have it in their attributes, which their scripts read with `sharedPage(element)` of `dom.js`.
+*/
+struct SharedPage {
+	let title: String
+	let url: URL
+
+	/**
+	The attributes of the element that shares the page.
+	*/
+	func attributes<Tag: HTMLTrait.Attributes.Global>() -> [HTMLAttribute<Tag>] {
+		[.custom(name: "share-title", value: title), .custom(name: "share-url", value: url.absoluteString)]
 	}
 }

@@ -100,13 +100,28 @@ struct GeoCitiesPrintShop: ScriptedElement {
 
 				menuStep
 
-				choiceStep("border", prompt: "Choose a border", options: Self.borders, hook: .border)
+				choiceStep(
+					"border",
+					prompt: "Choose a border",
+					options: Self.borders,
+					hook: .border
+				)
 
-				choiceStep("graphic", prompt: "Choose a graphic", options: Self.graphics, hook: .graphic)
+				choiceStep(
+					"graphic",
+					prompt: "Choose a graphic",
+					options: Self.graphics,
+					hook: .graphic
+				)
 
 				layoutStep
 
-				choiceStep("font", prompt: "Choose a font", options: Self.fonts, hook: .font)
+				choiceStep(
+					"font",
+					prompt: "Choose a font",
+					options: Self.fonts,
+					hook: .font
+				)
 
 				textStep
 
@@ -241,7 +256,12 @@ struct GeoCitiesPrintShop: ScriptedElement {
 				span(.part(Parts.firstLabel)) {
 					"Message:"
 				}
-				input(.part(Parts.firstLine), .type(.text), .autocomplete("off"), .maxlength(40))
+				input(
+					.part(Parts.firstLine),
+					.type(.text),
+					.autocomplete("off"),
+					.maxlength(40)
+				)
 					.style(Styles.screenField)
 			}
 			.style(Styles.screenLabel)
@@ -250,7 +270,12 @@ struct GeoCitiesPrintShop: ScriptedElement {
 				span(.part(Parts.secondLabel)) {
 					"Small line:"
 				}
-				input(.part(Parts.secondLine), .type(.text), .autocomplete("off"), .maxlength(26))
+				input(
+					.part(Parts.secondLine),
+					.type(.text),
+					.autocomplete("off"),
+					.maxlength(26)
+				)
 					.style(Styles.screenField)
 			}
 			.style(Styles.screenLabel)
@@ -270,7 +295,12 @@ struct GeoCitiesPrintShop: ScriptedElement {
 			}
 			.style(Styles.prompt)
 
-			canvas(.part(Parts.preview), .width(320), .height(200), .role("img")) {}
+			canvas(
+				.part(Parts.preview),
+				.width(320),
+				.height(200),
+				.role("img")
+			) {}
 				.accessibilityLabel("The preview of what will be printed")
 				.style(Styles.preview)
 
@@ -329,7 +359,13 @@ struct GeoCitiesPrintShop: ScriptedElement {
 	*/
 	private var printer: some HTML {
 		div {
-			canvas(.part(Parts.printerCanvas), .width(600), .height(560), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.printerCanvas),
+				.width(600),
+				.height(560),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The dot matrix printer on the desk, with the paper coming out of the top and piling up on the floor. To tear off the printout, drag sideways along the top of the printer, or press T.")
 				.style(Styles.printerCanvas)
 
@@ -441,7 +477,13 @@ struct GeoCitiesPrintShop: ScriptedElement {
 				.style(GeoCitiesPage.Styles.caption)
 
 			div {
-				canvas(.part(Parts.printoutCanvas), .width(400), .height(300), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.printoutCanvas),
+					.width(400),
+					.height(300),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("The printout. Drag a strip with the holes sideways to peel it off, or press P.")
 					.style(Styles.printoutCanvas)
 			}
@@ -479,11 +521,21 @@ struct GeoCitiesPrintShop: ScriptedElement {
 	private var card: some HTML {
 		div(.part(Parts.card), .hidden) {
 			div {
-				canvas(.part(Parts.cardFront), .width(320), .height(208), .role("img")) {}
+				canvas(
+					.part(Parts.cardFront),
+					.width(320),
+					.height(208),
+					.role("img")
+				) {}
 					.accessibilityLabel("The front of the card")
 					.style(Styles.cardFace, Styles.cardFront)
 
-				canvas(.part(Parts.cardInside), .width(320), .height(208), .role("img")) {}
+				canvas(
+					.part(Parts.cardInside),
+					.width(320),
+					.height(208),
+					.role("img")
+				) {}
 					.accessibilityLabel("The other half of the card, with the message")
 					.style(Styles.cardFace, Styles.cardInside)
 			}
@@ -505,7 +557,12 @@ struct GeoCitiesPrintShop: ScriptedElement {
 	*/
 	private var hanging: some HTML {
 		div(.part(Parts.hanging), .hidden) {
-			canvas(.part(Parts.hangingCanvas), .width(680), .height(120), .role("img")) {}
+			canvas(
+				.part(Parts.hangingCanvas),
+				.width(680),
+				.height(120),
+				.role("img")
+			) {}
 				.accessibilityLabel("A banner that I printed on The Print Shop, hanging across the top of the page")
 				.style(Styles.hangingCanvas)
 
@@ -581,21 +638,21 @@ struct GeoCitiesPrintShop: ScriptedElement {
 	/**
 	The steps and the choices of the program, which carry a value, like `font` or `banner`, that a part cannot have, so they stay data attributes.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A step of the program on the screen, like `font`. The script shows one at a time.
 		*/
-		case step = "data-print-shop-step"
+		case step = "print-shop-step"
 
 		/**
 		A choice of the main menu, like `banner`.
 		*/
-		case mode = "data-print-shop-mode"
+		case mode = "print-shop-mode"
 
-		case border = "data-print-shop-border"
-		case graphic = "data-print-shop-graphic"
-		case layout = "data-print-shop-layout"
-		case font = "data-print-shop-font"
+		case border = "print-shop-border"
+		case graphic = "print-shop-graphic"
+		case layout = "print-shop-layout"
+		case font = "print-shop-font"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -649,9 +706,9 @@ struct GeoCitiesPrintShop: ScriptedElement {
 		/**
 		The colors of CGA, which the DOS version of The Print Shop used: black, cyan, magenta, and white.
 		*/
-		private static let cyan = Color("#55ffff")
-		private static let magenta = Color("#ff55ff")
-		private static let beige = Color("#d8d0b8")
+		private static let cyan = Color(raw: "#55ffff")
+		private static let magenta = Color(raw: "#ff55ff")
+		private static let beige = Color(raw: "#d8d0b8")
 
 		var style: Style {
 			switch self {
@@ -665,10 +722,17 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.vstack(spacing: .rootEm(0.5))
 					.frame(width: .rootEm(32), maxWidth: .percent(100))
 					.padding(top: .rootEm(1), horizontal: .rootEm(1), bottom: .rootEm(0.5))
-					.backgroundImage(.linearGradient("to bottom", Color("#e6dfca"), Self.beige, Color("#c2b99e")))
-					.border(Color("#a39a80"), width: .pixels(2))
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#e6dfca"),
+							Self.beige,
+							Color(raw: "#c2b99e")
+						)
+					)
+					.border(Color(raw: "#a39a80"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.75))
-					.shadow(Shadow(x: .pixels(4), y: .pixels(6), color: Color("#00000059")))
+					.shadow(BoxShadow(x: .pixels(4), y: .pixels(6), color: Color(raw: "#00000059")))
 					.color(.black)
 			case .screen:
 				// The screen in the colors of CGA, with a blocky font in capital letters, like the DOS version.
@@ -677,17 +741,24 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.frame(minHeight: .rootEm(22))
 					.padding(.rootEm(0.75))
 					.background(.black)
-					.border(Color("#4a4636"), width: .pixels(6), style: .inset)
+					.border(Color(raw: "#4a4636"), width: .pixels(6), style: .inset)
 					.cornerRadius(.rootEm(0.75))
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
 					.textCase(.uppercase)
 					.color(.white)
-					.shadow(Shadow(y: 0, blur: .pixels(14), color: Color("#55ffff33"), isInset: true))
+					.shadow(
+						BoxShadow(
+							y: .zero,
+							blur: .pixels(14),
+							color: Color(raw: "#55ffff33"),
+							isInset: true
+						)
+					)
 			case .screenBar:
 				// The bar at the top of each screen of The Print Shop, in inverse.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
 					.background(Self.magenta)
 					.color(.black)
@@ -700,7 +771,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 			case .logo:
 				// The logo of the title screen, big and blocky.
 				Style()
-					.margin(top: .rootEm(0.5), bottom: 0)
+					.margin(top: .rootEm(0.5), bottom: .zero)
 					.font(.extraLarge2, weight: .heavy)
 					.lineHeight(1)
 					.letterSpacing(.em(0.05))
@@ -709,12 +780,12 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.textShadow(Shadow(x: .pixels(3), y: .pixels(3), color: Self.magenta))
 			case .screenSmall:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textAlign(.center)
 					.color(Self.cyan)
 			case .prompt:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textAlign(.center)
 					.color(.white)
 			case .menuList:
@@ -758,7 +829,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.vstack(alignment: .center, spacing: .rootEm(0.25))
 					.padding(.rootEm(0.25))
 					.background(.black)
-					.border(Color("#555555"), width: .pixels(2))
+					.border(Color(raw: "#555555"), width: .pixels(2))
 					.inheritsFont()
 					.textStyle(.caption, weight: .bold)
 					.textCase(.uppercase)
@@ -769,7 +840,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					}
 					.focusVisible {
 						$0
-							.background(Color("#003a3a"))
+							.background(Color(raw: "#003a3a"))
 							.border(Self.cyan, width: .pixels(2))
 							.focusRing(Self.magenta, width: .pixels(2), offset: .pixels(1))
 					}
@@ -827,8 +898,13 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(0.5))
 					.flexWrap()
 					.padding(.top, .rootEm(0.375))
-					.border(.top, Color("#555555"), width: .pixels(2), style: .dashed)
-					.color(Color("#aaaaaa"))
+					.border(
+						.top,
+						Color(raw: "#555555"),
+						width: .pixels(2),
+						style: .dashed
+					)
+					.color(Color(raw: "#aaaaaa"))
 			case .preview:
 				// The page on the screen, in big pixels.
 				Style()
@@ -853,22 +929,22 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.flexWrap()
 			case .monitorBrand:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
 					.letterSpacing(.em(0.2))
-					.color(Color("#6e6650"))
+					.color(Color(raw: "#6e6650"))
 			case .sticker:
 				// The note that the teacher taped on every computer.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-					.background(Color("#fff27a"))
-					.border(Color("#c9b400"), width: .pixels(1))
+					.background(Color(raw: "#fff27a"))
+					.border(Color(raw: "#c9b400"), width: .pixels(1))
 					.rotationEffect(.degrees(-3))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#cc0000"))
+					.color(Color(raw: "#cc0000"))
 			case .printerArea:
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.75))
@@ -890,9 +966,9 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.margin(.top, .rootEm(-0.75))
 					.padding(vertical: .rootEm(0.5), horizontal: .rootEm(0.75))
 					.background(Self.beige)
-					.border(Color("#a39a80"), width: .pixels(2))
+					.border(Color(raw: "#a39a80"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.375))
-					.color(Color("#333333"))
+					.color(Color(raw: "#333333"))
 			case .lights:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.75))
@@ -907,23 +983,23 @@ struct GeoCitiesPrintShop: ScriptedElement {
 				// A small light, dark while it is off.
 				Style()
 					.frame(size: .rootEm(0.625))
-					.background(Color("#3a3a2a"))
-					.border(Color("#222222"), width: .pixels(1))
+					.background(Color(raw: "#3a3a2a"))
+					.border(Color(raw: "#222222"), width: .pixels(1))
 					.cornerRadius(.circle)
 					.when(States.on) {
 						$0
-							.background(Color("#44ff44"))
-							.shadow(Shadow(y: 0, blur: .pixels(5), color: Color("#44ff44")))
+							.background(Color(raw: "#44ff44"))
+							.shadow(BoxShadow(y: .zero, blur: .pixels(5), color: Color(raw: "#44ff44")))
 					}
 					.when(States.warning) {
 						$0
-							.background(Color("#ffaa00"))
-							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ff8800")))
+							.background(Color(raw: "#ffaa00"))
+							.shadow(BoxShadow(y: .zero, blur: .pixels(6), color: Color(raw: "#ff8800")))
 					}
 					.when(States.blink) {
 						$0
-							.background(Color("#ffaa00"))
-							.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(0.6)).repeatForever(autoreverses: false))
+							.background(Color(raw: "#ffaa00"))
+							.animation(GeoCitiesPage.Animations.blink, .steps(1, duration: .seconds(0.6)).repeatForever(autoreverses: false))
 					}
 			case .panelButtons:
 				Style()
@@ -934,8 +1010,8 @@ struct GeoCitiesPrintShop: ScriptedElement {
 				Style()
 					.frame(minWidth: .rootEm(4.5), minHeight: .rootEm(2.5))
 					.padding(.horizontal, .rootEm(0.375))
-					.background(Color("#8c8672"))
-					.border(Color("#bdb59a"), width: .pixels(2), style: .outset)
+					.background(Color(raw: "#8c8672"))
+					.border(Color(raw: "#bdb59a"), width: .pixels(2), style: .outset)
 					.cornerRadius(.rootEm(0.25))
 					.fontFamily(.system)
 					.font(.extraSmall, weight: .heavy)
@@ -943,20 +1019,20 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.color(.white)
 					.handCursor()
 					.active {
-						$0.border(Color("#bdb59a"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#bdb59a"), width: .pixels(2), style: .inset)
 					}
 					.canvasFocusRing()
 			case .printerBrand:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
 					.italic()
 					.letterSpacing(.em(0.1))
-					.color(Color("#1a3a8a"))
+					.color(Color(raw: "#1a3a8a"))
 			case .supplies:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
 			case .status:
@@ -974,8 +1050,8 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.frame(maxWidth: .percent(100))
 					.overflow(horizontal: .auto)
 					.padding(.rootEm(0.5))
-					.background(Color("#7a6a55"))
-					.border(Color("#5a4a35"), width: .pixels(3), style: .ridge)
+					.background(Color(raw: "#7a6a55"))
+					.border(Color(raw: "#5a4a35"), width: .pixels(3), style: .ridge)
 			case .printoutCanvas:
 				// A sideways drag peels a strip, and the page still scrolls up and down over it. A page fits the width, and a banner keeps its height and scrolls sideways in its box, where the script drags it, as a finger cannot scroll it sideways over the canvas.
 				Style()
@@ -987,18 +1063,26 @@ struct GeoCitiesPrintShop: ScriptedElement {
 						$0.frame(width: .percent(100), height: .auto, maxWidth: .rootEm(24))
 					}
 					.when(States.banner) {
-						$0.frame(width: .auto, height: .rootEm(12), maxWidth: .none)
+						$0.frame(width: .auto, height: .rootEm(12), maxWidth: nil)
 					}
 			case .card:
 				Style().vstack(alignment: .center, spacing: .rootEm(0.75))
 			case .cardStage:
 				// The desk that the card stands on.
 				Style()
-					.vstack(alignment: .center, spacing: 0)
+					.vstack(alignment: .center, spacing: .zero)
 					.frame(width: .rootEm(22), maxWidth: .percent(100))
 					.padding(top: .rootEm(1.5), horizontal: .rootEm(1), bottom: .rootEm(1))
-					.backgroundImage(.linearGradient("to bottom", Color("#cfe3f0"), Color("#cfe3f0"), Color("#a07850"), Color("#7a5a3a")))
-					.border(Color("#5a4028"), width: .pixels(2))
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#cfe3f0"),
+							Color(raw: "#cfe3f0"),
+							Color(raw: "#a07850"),
+							Color(raw: "#7a5a3a")
+						)
+					)
+					.border(Color(raw: "#5a4028"), width: .pixels(2))
 			case .cardFace:
 				// A half of the printed page, which folds at the line between them.
 				Style()
@@ -1006,7 +1090,12 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(320.0 / 208.0)
 					.background(.white)
-					.transition(.transform, .opacity, .shadow, animation: .easeInOut(duration: .seconds(0.7)))
+					.transition(
+						.transform,
+						.opacity,
+						.shadow,
+						timing: .easeInOut(duration: .seconds(0.7))
+					)
 					.reducedMotion {
 						$0.noTransition()
 					}
@@ -1014,11 +1103,18 @@ struct GeoCitiesPrintShop: ScriptedElement {
 				Style()
 					.when(ancestorHas: States.standing) {
 						$0
-							.transform("perspective(700px) translateY(50%) rotateX(22deg) translateY(-50%)")
-							.shadow(Shadow(x: .pixels(10), y: .pixels(14), blur: .pixels(10), color: Color("#00000066")))
+							.transform(.perspective(.pixels(700)), .translateY(.percent(50)), .rotateX(.degrees(22)), .translateY(.percent(-50)))
+							.shadow(
+								BoxShadow(
+									x: .pixels(10),
+									y: .pixels(14),
+									blur: .pixels(10),
+									color: Color(raw: "#00000066")
+								)
+							)
 					}
 					.when(ancestorHas: States.turning) {
-						$0.transform("perspective(700px) translateY(50%) rotateX(22deg) translateY(-50%) rotateY(90deg)")
+						$0.transform(.perspective(.pixels(700)), .translateY(.percent(50)), .rotateX(.degrees(22)), .translateY(.percent(-50)), .rotateY(.degrees(90)))
 					}
 					.when(ancestorHas: States.back) {
 						$0.hidden()
@@ -1028,7 +1124,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 				Style()
 					.when(ancestorHas: States.folding) {
 						$0
-							.transform("perspective(700px) translateY(-50%) rotateX(-90deg) translateY(50%)")
+							.transform(.perspective(.pixels(700)), .translateY(.percent(-50)), .rotateX(.degrees(-90)), .translateY(.percent(50)))
 							.opacity(0.4)
 					}
 					.when(ancestorHas: States.standing) {
@@ -1039,8 +1135,15 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					}
 					.when(ancestorHas: States.back) {
 						$0
-							.transform("perspective(700px) translateY(50%) rotateX(22deg) translateY(-50%) rotate(180deg)")
-							.shadow(Shadow(x: .pixels(10), y: .pixels(14), blur: .pixels(10), color: Color("#00000066")))
+							.transform(.perspective(.pixels(700)), .translateY(.percent(50)), .rotateX(.degrees(22)), .translateY(.percent(-50)), .rotate(.degrees(180)))
+							.shadow(
+								BoxShadow(
+									x: .pixels(10),
+									y: .pixels(14),
+									blur: .pixels(10),
+									color: Color(raw: "#00000066")
+								)
+							)
 					}
 			case .hanging:
 				// The banner, taped up across the top of the page.

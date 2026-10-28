@@ -152,6 +152,13 @@ func generatedComponentName(of type: Any.Type, suffix: String) -> String {
 }
 
 /**
+The name of a component member, with the same component naming rule for counters and animations.
+*/
+func generatedComponentName(of type: Any.Type, suffix: String, member: String) -> String {
+	"\(generatedComponentName(of: type, suffix: suffix))-\(member.kebabCased)"
+}
+
+/**
 The names of a type and the types that enclose it, without the module, like `["FeedCard", "Styles"]` for `FeedCard.Styles`.
 */
 func typePath(of type: Any.Type) -> [Substring] {

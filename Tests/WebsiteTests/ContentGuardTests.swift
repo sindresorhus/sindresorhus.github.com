@@ -1,6 +1,8 @@
 import Elementary
 import Foundation
 import SiteKit
+import SwiftParser
+import SwiftSyntax
 import Testing
 @testable import Website
 
@@ -111,8 +113,6 @@ struct ContentGuardTests {
 Checks the source of the site.
 */
 struct SourceGuardTests {
-	private static let sourceDirectory = Project.website.root.appending(path: "Sources/Website")
-
 	/**
 	Components style their own markup with style sets, so a style cannot drift from its markup. Selector rules are only for markup that components do not own.
 	*/
@@ -126,81 +126,145 @@ struct SourceGuardTests {
 	]
 
 	@Test
-	func `selector rules are only where components do not own the markup`() throws {
-		let files = try Self.sourceDirectory.filesRecursively().filter { $0.pathExtension == "swift" }
+	func `selector rules are only where components do not own the markup`() async throws {
+		let files = try await SwiftSourceFile.all.value
 		#expect(!files.isEmpty)
 
-		let filesWithRules = try Set(files
-			.filter { try String(contentsOf: $0, encoding: .utf8).contains(/\bRule\(/) }
-			.map { $0.path(relativeTo: Self.sourceDirectory) })
+		let filesWithRules = Set(
+			files
+				.filter { !$0.syntax.calls(named: "Rule").isEmpty }
+				.map { $0.url.path(relativeTo: SwiftSourceFile.directory) }
+		)
 
 		#expect(filesWithRules.subtracting(Self.filesWithSelectorRules).isEmpty, "Use a style set instead of a selector rule in: \(filesWithRules.subtracting(Self.filesWithSelectorRules).sorted())")
 		#expect(Self.filesWithSelectorRules.subtracting(filesWithRules).isEmpty, "Remove the files without selector rules from the allowlist.")
 	}
 
 	/**
+	A call that writes CSS as a string (``escapeHatchBudgets``), found with the parser of Swift, so a call in a doc comment, like an example, does not count.
+	*/
+	private struct EscapeHatch: Hashable, CustomStringConvertible {
+		let name: String
+
+		/**
+		A method or a static member, like `.declaration(…)`, not an initializer, like `LengthPercentage(…)`.
+		*/
+		let isMember: Bool
+
+		/**
+		Only a call with a string literal as its first argument counts, like `.nested("…")`, as a call with a typed value is not an escape hatch.
+		*/
+		let takesString: Bool
+
+		static func member(_ name: String, takesString: Bool = false) -> Self {
+			Self(name: name, isMember: true, takesString: takesString)
+		}
+
+		/**
+		An initializer with a string, like `LengthPercentage(raw: "…")`.
+		*/
+		static func initializer(_ name: String) -> Self {
+			Self(name: name, isMember: false, takesString: true)
+		}
+
+		/**
+		The call as it starts in the source, like `.nested("`.
+		*/
+		var description: String {
+			"\(isMember ? "." : "")\(name)(\(takesString ? "\"" : "")"
+		}
+
+		func count(in syntax: SourceFileSyntax) -> Int {
+			syntax.calls(named: name).count { call in
+				call.isMemberCall == isMember
+					&& (!takesString || call.firstStringLiteral != nil)
+			}
+		}
+	}
+
+	/**
 	The escape hatches that write CSS as a string, with the number of uses that the source may have. Typed modifiers and values catch mistakes when the code compiles, so the counts must not grow. Lower a budget when uses are removed.
 	*/
-	private static let escapeHatchBudgets = [
-		".declaration(": 34,
-		"Length(\"": 0,
-		"CSSValue(\"": 4,
+	private static let escapeHatchBudgets: [EscapeHatch: Int] = [
+		.member("declaration"): 22,
+		.initializer("Length"): 0,
+		.initializer("LengthPercentage"): 0,
+		.initializer("CSSValue"): 2,
+		// The contact page computes each letter’s hue from its index and custom properties.
+		.initializer("CSSNumber"): 1,
+		// The card light uses a registered strength in color-mix(), and the NetMeeting meter has a repeating gradient.
+		.initializer("CSSImage"): 2,
 		// The prose styles need selectors for the Markdown markup that no component owns, like the introduction below the title of a Markdown page, the space above a bold label, the column of the shortcuts in a table, and the copy link of a closed question, which depends on the state of the `<details>` next to it.
-		".nested(\"": 34,
+		.member("nested", takesString: true): 33,
 	]
 
 	@Test
-	func `escape hatches stay within their budgets`() throws {
-		let source = try Self.swiftSources().joined(separator: "\n")
-		#expect(!source.isEmpty)
+	func `escape hatches stay within their budgets`() async throws {
+		let files = try await SwiftSourceFile.all.value
+		#expect(!files.isEmpty)
 
 		for (escapeHatch, budget) in Self.escapeHatchBudgets {
-			let count = source.ranges(of: escapeHatch).count
-			#expect(count <= budget, "`\(escapeHatch)` is used \(count) times, which is more than its budget of \(budget). Use a typed modifier or value instead, like `.frame(maxWidth:)` or `Length.clamp()`, or add one to SiteKit. If a string is the only way, raise the budget in `escapeHatchBudgets` with a comment that tells why.")
+			let count = files.map { escapeHatch.count(in: $0.syntax) }.sum
+			#expect(count <= budget, "`\(escapeHatch)` is used \(count) times, which is more than its budget of \(budget). Use a typed modifier or value instead, like `.frame(maxWidth:)` or `LengthPercentage.clamp()`, or add one to SiteKit. If a string is the only way, raise the budget in `escapeHatchBudgets` with a comment that tells why.")
 		}
 	}
 
 	/**
 	The text of each Swift source file.
 	*/
-	private static func swiftSources() throws -> [String] {
-		try sourceDirectory.filesRecursively()
-			.filter { $0.pathExtension == "swift" }
-			.map { try String(contentsOf: $0, encoding: .utf8) }
+	private static func swiftSources() async throws -> [String] {
+		try await SwiftSourceFile.all.value.map(\.text)
 	}
 
 	/**
-	The hooks that a Swift source declares in its `ScriptHookSet` enums, like the nested `Hooks` of a component, by the name of the case. Doc comments are left out, so a code example is not a declaration.
+	The syntax of each Swift source file, with the IDs that it declares in its `ScriptIDSet` enums and the data attributes that it declares in its `ScriptDataAttributeSet` enums, like the nested `IDs` and `Hooks` of a component, by the name of the case, and the states that it declares in its `ElementStateSet` enums, like the nested `States` of a component, by their raw values.
 	*/
-	private static func declaredHooks(in source: String) -> [String: String] {
-		let enums = source.replacing(/\/\*\*.*?\*\//.dotMatchesNewlines(), with: "").matches(of: /enum \w+:[^{\n]*\bScriptHookSet\b[^{\n]*\{(.*?)\n\t*\}\n/.dotMatchesNewlines()).map(\.1)
-		let cases = enums.flatMap { $0.matches(of: /case (\w+) = "([^"]+)"/) }
-		return Dictionary(cases.map { (String($0.1), String($0.2)) }, uniquingKeysWith: { first, _ in first })
+	private static let declarations = Task {
+		try await SwiftSourceFile.all.value.map { file in
+			(
+				syntax: file.syntax,
+				ids: declaredHooks(in: file.syntax, conformingTo: "ScriptIDSet"),
+				// The raw value of a data attribute is the name after `data-` (`attributeName`).
+				attributes: declaredHooks(in: file.syntax, conformingTo: "ScriptDataAttributeSet").mapValues { "data-\($0)" },
+				states: declaredStates(in: file.syntax)
+			)
+		}
 	}
 
 	/**
-	The states that a Swift source declares in its `ElementStateSet` enums, like the nested `States` of a component, by their raw values. Doc comments are left out, so a code example is not a declaration.
+	The inline scripts of a source, as they are written: the string literals of `ElementScript(inline:)`, and of `HTMLRaw(…)` in `script { … }`.
 	*/
-	private static func declaredStates(in source: String) -> Set<String> {
-		let enums = source.replacing(/\/\*\*.*?\*\//.dotMatchesNewlines(), with: "").matches(of: /enum \w+:[^{\n]*\bElementStateSet\b[^{\n]*\{(.*?)\n\t*\}\n/.dotMatchesNewlines()).map(\.1)
-		return Set(enums.flatMap { $0.matches(of: /case `?(\w+)`?(?: = "([^"]+)")?/).map { String($0.2 ?? $0.1) } })
+	private static func inlineScripts(in syntax: SourceFileSyntax) -> [String] {
+		let elementScripts = syntax.calls(named: "ElementScript").filter { $0.arguments.first?.label?.text == "inline" }
+		let pageScripts = syntax.calls(named: "HTMLRaw").filter { $0.enclosingCallName == "script" }
+		return (elementScripts + pageScripts).compactMap(\.firstStringLiteral?.sourceContent)
+	}
+
+	private static func declaredHooks(in syntax: SourceFileSyntax, conformingTo protocolName: String) -> [String: String] {
+		Dictionary(syntax.enums(conformingTo: protocolName).flatMap(\.cases), uniquingKeysWith: { first, _ in first })
+	}
+
+	private static func declaredStates(in syntax: SourceFileSyntax) -> Set<String> {
+		Set(syntax.enums(conformingTo: "ElementStateSet").flatMap(\.cases).map(\.rawValue))
 	}
 
 	/**
-	The text of every script: the files in `public/scripts`, the scripts of content files, like the script of an app page, the scripts of elements next to their Swift files, and the inline scripts in the Swift sources. Inline scripts refer to hooks with `Hooks.x.id`, which is replaced with the hook. Comment lines are left out, so an example in a comment, like `#id`, is not a hook.
+	The text of every script: the files in `public/scripts`, the scripts of content files, like the script of an app page, the scripts of elements next to their Swift files, and the inline scripts in the Swift sources. Inline scripts refer to hooks with `IDs.x.id` and `Hooks.x.attributeName`, which are replaced with the ID and the data attribute. Comment lines are left out, so an example in a comment, like `#id`, is not a hook.
 	*/
-	private static func scripts() throws -> String {
-		let files = try (Project.website.publicDirectory.appending(path: "scripts").filesRecursively() + Project.website.contentDirectory.filesRecursively() + sourceDirectory.filesRecursively())
+	private static func scripts() async throws -> String {
+		let files = try (Project.website.publicDirectory.appending(path: "scripts").filesRecursively() + Project.website.contentDirectory.filesRecursively() + SwiftSourceFile.directory.filesRecursively())
 			.filter { $0.pathExtension == "js" }
 			.map { try String(contentsOf: $0, encoding: .utf8) }
 
-		let sources = try swiftSources()
-		let inlineScripts = sources.flatMap { source in
-			let hooks = declaredHooks(in: source)
-			return source.matches(of: /(?:script \{\s*HTMLRaw|ElementScript)\((?:inline: )?#\"\"\"(.*?)\"\"\"#\)/.dotMatchesNewlines()).map { match in
-				String(match.1).replacing(/\\#\(Hooks\.(\w+)\.id\)/) { reference in
-					hooks[String(reference.1)] ?? String(reference.0)
-				}
+		let inlineScripts = try await declarations.value.flatMap { syntax, ids, attributes, _ in
+			Self.inlineScripts(in: syntax).map { script in
+				script
+					.replacing(/\\#\(IDs\.(\w+)\.id\)/) { reference in
+						ids[String(reference.1)] ?? String(reference.0)
+					}
+					.replacing(/\\#\(Hooks\.(\w+)\.attributeName\)/) { reference in
+						attributes[String(reference.1)] ?? String(reference.0)
+					}
 			}
 		}
 
@@ -222,33 +286,42 @@ struct SourceGuardTests {
 	private static let elementHooks: Set = ["data-part"]
 
 	/**
-	The hooks of all the `ScriptHookSet` enums in the Swift sources.
+	The IDs of all the `ScriptIDSet` enums in the Swift sources.
 	*/
-	private static func allDeclaredHooks() throws -> Set<String> {
-		Set(try swiftSources().flatMap { declaredHooks(in: $0).values })
+	private static func allDeclaredIDs() async throws -> Set<String> {
+		Set(try await declarations.value.flatMap(\.ids.values))
+	}
+
+	/**
+	The data attributes of all the `ScriptDataAttributeSet` enums in the Swift sources.
+	*/
+	private static func allDeclaredAttributes() async throws -> Set<String> {
+		Set(try await declarations.value.flatMap(\.attributes.values))
 	}
 
 	@Test
-	func `every script hook is used by a script`() throws {
-		let scripts = try Self.scripts()
+	func `every script hook is used by a script`() async throws {
+		let scripts = try await Self.scripts()
 		#expect(!scripts.isEmpty)
 
-		let hooks = try Self.allDeclaredHooks()
-		#expect(hooks.count > 50)
+		let ids = try await Self.allDeclaredIDs()
+		let attributes = try await Self.allDeclaredAttributes()
+		#expect(ids.count > 50)
+		#expect(attributes.count > 50)
 
 		// The whole names that the scripts use, found once, so a longer name, like `#geocities-defrag-start` for `geocities-defrag`, is not a use of the shorter one.
 		let usedNames = Set(scripts.matches(of: /[#'"`\[]([a-zA-Z][\w-]*)/).map { String($0.1) })
 		let usedDatasetNames = Set(scripts.matches(of: /dataset\.(\w+)/).map { String($0.1) })
 
-		for hook in hooks {
-			if hook.hasPrefix("data-") {
-				let parts = hook.dropFirst("data-".count).split(separator: "-")
-				let datasetName = String(parts.first ?? "") + parts.dropFirst().map(\.capitalized).joined()
-				let isUsed = usedNames.contains(hook) || usedDatasetNames.contains(datasetName)
-				#expect(isUsed, "No script uses the attribute \(hook). Remove it, or fix the script.")
-			} else {
-				#expect(usedNames.contains(hook), "No script uses the ID \(hook). Remove it, or fix the script.")
-			}
+		for id in ids {
+			#expect(usedNames.contains(id), "No script uses the ID \(id). Remove it, or fix the script.")
+		}
+
+		for attribute in attributes {
+			let parts = attribute.dropFirst("data-".count).split(separator: "-")
+			let datasetName = String(parts.first ?? "") + parts.dropFirst().map(\.capitalized).joined()
+			let isUsed = usedNames.contains(attribute) || usedDatasetNames.contains(datasetName)
+			#expect(isUsed, "No script uses the attribute \(attribute). Remove it, or fix the script.")
 		}
 	}
 
@@ -256,47 +329,46 @@ struct SourceGuardTests {
 	The other direction: a script that finds an element by an ID or a data attribute that the Swift code no longer sets would silently do nothing. Custom properties that scripts set must be declared as a `StyleVariable` or `RegisteredProperty`, and states that scripts set, also the page scripts, must be a case of the `States` of a component (`ElementStateSet`). Limitation: A page script is not tied to a component, so its states only need to be a case of any `States`. The `ScriptedElementTests` check the states of each element against its own `States`, and that they are styled.
 	*/
 	@Test
-	func `every hook that a script uses is declared in Swift`() throws {
-		let scripts = try Self.scripts()
-		let swift = try Self.swiftSources().joined(separator: "\n")
-		let hooks = try Self.allDeclaredHooks()
+	func `every hook that a script uses is declared in Swift`() async throws {
+		let scripts = try await Self.scripts()
+		let swift = try await Self.swiftSources().joined(separator: "\n")
+		let declaredIDs = try await Self.allDeclaredIDs()
+		let declaredAttributes = try await Self.allDeclaredAttributes()
 
 		let ids = Set(scripts.matches(of: /getElementById\('([\w-]+)'\)|['"`]#([a-zA-Z][\w-]*)/).compactMap { match -> String? in (match.1 ?? match.2).map { String($0) } })
 			// Hex colors, like `'#ec4899'`, look like IDs.
 			.filter { $0.wholeMatch(of: /[0-9a-fA-F]{3,8}/) == nil }
-		#expect(ids.subtracting(hooks).sorted() == [], "Scripts use these IDs, but no `Hooks` of a component has them.")
+		#expect(ids.subtracting(declaredIDs).sorted() == [], "Scripts use these IDs, but no `IDs` of a component has them.")
 
 		let attributes = Set(scripts.matches(of: /\[(data-[\w-]+)/).map { String($0.1) })
-		let undeclaredAttributes = attributes.subtracting(hooks).subtracting(Self.markdownHooks).subtracting(Self.elementHooks)
+		let undeclaredAttributes = attributes.subtracting(declaredAttributes).subtracting(Self.markdownHooks).subtracting(Self.elementHooks)
 		#expect(undeclaredAttributes.sorted() == [], "Scripts use these data attributes, but no `Hooks` of a component has them.")
 
 		let variables = Set(scripts.matches(of: /setProperty\('(--[\w-]+)'/).map { String($0.1) })
-		let declaredVariables = Set(swift.matches(of: /(?:StyleVariable|RegisteredProperty)<[^>]+>\("(--[\w-]+)"/).map { String($0.1) })
+		let declaredVariables = Set(swift.matches(of: /(?:StyleVariable|RegisteredProperty)<[^>]+>\("([\w-]+)"/).map { "--\($0.1)" })
 		#expect(variables.count > 10)
 		#expect(variables.subtracting(declaredVariables).sorted() == [], "Scripts set these custom properties, but no `StyleVariable` declares them.")
 
-		let states = try Set(Self.swiftSources().flatMap { Self.declaredStates(in: $0) })
+		let states = try await Set(Self.declarations.value.flatMap(\.states))
 		#expect(states.count > 100)
 		#expect(scripts.assignedDataStates.count > 50)
 		#expect(scripts.assignedDataStates.subtracting(states).sorted() == [], "Scripts set these states, but no `States` of a component has them.")
 	}
 
+	/**
+	An ID must not start with `data-`, so it does not look like a data attribute. A data attribute gets its `data-` from `attributeName`, so its raw value does not repeat it.
+	*/
 	@Test
-	func `a hook used as the other kind stops the build`() async throws {
-		let result = try #require(await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) {
-			_ = div(.id(ContactPage.Hooks.leaving)) {}.render()
-		})
-		#expect(String(decoding: result.standardErrorContent, as: UTF8.self).contains("is a data attribute, not an ID"))
-
-		await #expect(processExitsWith: .failure) {
-			_ = div(.hook(AppHero.Hooks.hero)) {}.render()
-		}
-
-		await #expect(processExitsWith: .failure) {
-			_ = AppHero.Hooks.hero.selector()
-		}
+	func `the IDs and the raw values of the data attributes do not start with data-`() async throws {
+		let ids = try await Self.allDeclaredIDs()
+		let attributes = try await Self.allDeclaredAttributes()
+		#expect(ids.filter { $0.hasPrefix("data-") }.sorted() == [], "These IDs start with `data-`. Move them to the `Hooks` of the component.")
+		#expect(attributes.filter { $0.hasPrefix("data-data-") }.sorted() == [], "The raw values of these data attributes start with `data-`, which `attributeName` already adds.")
 	}
 
+	/**
+	A code example in a doc comment is not a declaration, and the layout of the cases does not matter.
+	*/
 	@Test
 	func `the declared states are the cases of the state enums, by their raw values`() {
 		let source = """
@@ -314,11 +386,14 @@ struct SourceGuardTests {
 				case on
 				case signingOn = "signing-on"
 				case `default`
+				case away, idle = "is-idle"
 			}
 		}
-
 		"""
 
-		#expect(Self.declaredStates(in: source) == ["on", "signing-on", "default"])
+		#expect(Self.declaredStates(in: Parser.parse(source: source)) == ["on", "signing-on", "default", "away", "is-idle"])
+		let hooks = Parser.parse(source: "enum IDs: String, ScriptIDSet { case menu = \"site-menu\" }; enum Hooks: String, ScriptDataAttributeSet { case theme = \"mac-theme\" }")
+		#expect(Self.declaredHooks(in: hooks, conformingTo: "ScriptIDSet") == ["menu": "site-menu"])
+		#expect(Self.declaredHooks(in: hooks, conformingTo: "ScriptDataAttributeSet") == ["theme": "mac-theme"])
 	}
 }

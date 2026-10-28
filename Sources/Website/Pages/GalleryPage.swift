@@ -9,7 +9,7 @@ struct GalleryPage: Page {
 	let content: SiteContent
 
 	var path: RoutePath {
-		"/_gallery"
+		#path("/_gallery")
 	}
 
 	var metadata: PageMetadata {
@@ -20,7 +20,7 @@ struct GalleryPage: Page {
 		section {
 			PageHeader(title: "Component Gallery", intro: "Every component of the site. Switch the appearance of the system to see dark mode.")
 
-			Section("Buttons", id: "buttons") {
+			Section("Buttons", id: ElementID("buttons")) {
 				div {
 					for fill in ButtonStyles.Fill.allCases {
 						div {
@@ -35,7 +35,7 @@ struct GalleryPage: Page {
 				.vstack(spacing: .rootEm(1))
 			}
 
-			Section("Badges", id: "badges") {
+			Section("Badges", id: ElementID("badges")) {
 				div {
 					Badge("Free")
 					Badge("New", kind: .new)
@@ -45,7 +45,7 @@ struct GalleryPage: Page {
 				.style(Styles.row)
 			}
 
-			Section("Icons", id: "icons") {
+			Section("Icons", id: ElementID("icons")) {
 				ul {
 					for icon in Icon.allCases {
 						li {
@@ -60,7 +60,7 @@ struct GalleryPage: Page {
 				.style(Styles.icons)
 			}
 
-			Section("Labels and Icon Links", id: "labels") {
+			Section("Labels and Icon Links", id: ElementID("labels")) {
 				div {
 					a(.href(.fragment("labels"))) {
 						Label("Leading icon", icon: .arrowLeft)
@@ -78,23 +78,31 @@ struct GalleryPage: Page {
 				.style(Styles.row)
 			}
 
-			Section("Overflow Menu", id: "overflow-menu") {
+			Section("Overflow Menu", id: ElementID("overflow-menu")) {
 				div {
-					OverflowMenu(label: "Gallery menu", links: [LabeledLink("First", path: "/_gallery"), LabeledLink("Second", path: "/_gallery")], [LabeledLink("After a rule", path: "/_gallery")])
-					OverflowMenu(label: "Gallery title menu", groups: [LinkGroup(title: "Group", links: [LabeledLink("Link", path: "/_gallery")])], variant: .title)
+					OverflowMenu(label: "Gallery menu", links: [LabeledLink("First", path: #path("/_gallery")), LabeledLink("Second", path: #path("/_gallery"))], [LabeledLink("After a rule", path: #path("/_gallery"))])
+					OverflowMenu(label: "Gallery title menu", groups: [LinkGroup(title: "Group", links: [LabeledLink("Link", path: #path("/_gallery"))])], variant: .title)
 				}
 				.style(Styles.row)
 			}
 
-			Section("Form Field", id: "form-field") {
-				FormField(label: "Email", controlID: "gallery-email", hint: "A hint", errorMessage: "Shown after an invalid value is entered.") {
-					input(.id("gallery-email"), .type(.email), .required, .placeholder("Type and leave the field"), .ariaDescribedBy("gallery-email-hint gallery-email-error"))
-						.style(FormFieldStyles.control)
+			Section("Form Field", id: ElementID("form-field")) {
+				FormField(
+					label: "Email",
+					controlID: ElementID("gallery-email"),
+					hint: "A hint",
+					errorMessage: "Shown after an invalid value is entered."
+				) {
+					input(
+						.type(.email),
+						.required,
+						.placeholder("Type and leave the field")
+					)
 				}
 			}
 
 			if let app = content.activeApps.first {
-				Section("Apps", id: "apps") {
+				Section("Apps", id: ElementID("apps")) {
 					div {
 						AppIcon(app, size: 64)
 						AppIcon(decorative: app, size: 32)
@@ -108,24 +116,24 @@ struct GalleryPage: Page {
 					}
 
 					p {
-						DateText(app.publicationDate, format: .siteDay)
+						DateText(day: app.publicationDate, format: .siteDay)
 					}
 
 					BackLink(app: app)
 				}
 
-				Section("Related Apps", id: "related") {
+				Section("Related Apps", id: ElementID("related")) {
 					RelatedApps(relatedApps: Array(content.activeApps.prefix(4)), content: content)
 				}
 			}
 
 			if let announcement = content.activeApps.lazy.compactMap(\.announcement).first {
-				Section("Announcement", id: "announcement") {
+				Section("Announcement", id: ElementID("announcement")) {
 					AnnouncementBanner(announcement: announcement)
 				}
 			}
 
-			Section("Text", id: "text") {
+			Section("Text", id: ElementID("text")) {
 				p {
 					GradientText("Gradient text")
 				}
@@ -137,8 +145,8 @@ struct GalleryPage: Page {
 				}
 			}
 
-			if let tiers = content.pages.lazy.map(\.frontmatter.sponsorTiers).first(where: { !$0.isEmpty }) {
-				Section("Sponsors", id: "sponsors") {
+			if let tiers = content.pages.lazy.map(\.sponsorTiers).first(where: { !$0.isEmpty }) {
+				Section("Sponsors", id: ElementID("sponsors")) {
 					Prose {
 						SponsorList(tiers: tiers)
 					}
@@ -146,36 +154,73 @@ struct GalleryPage: Page {
 			}
 
 			if let app = content.activeApps.first(where: { !$0.pressQuotes.isEmpty }) {
-				Section("Press Quotes", id: "press-quotes") {
+				Section("Press Quotes", id: ElementID("press-quotes")) {
 					PressQuotes(quotes: app.pressQuotes)
 				}
 			}
 
-			Section("Reviews", id: "reviews") {
-				AppReviews(reviews: [
-					AppStoreReview(title: "Exactly what I needed", text: "A review that is long enough to show how the text wraps across a few lines in the card.", author: "A reviewer", rating: 5, date: content.buildDate),
-					AppStoreReview(title: "Great", text: "A shorter review, with\na line break.", author: "Another reviewer", rating: 5, date: content.buildDate),
-					AppStoreReview(title: Self.longWord, text: "A title with a long word that cannot break must not overflow the card: \(Self.longWord)", author: "A reviewer with a very long name", rating: 4, date: content.buildDate),
-				], rating: StoreRating(average: 4.6, count: 1234))
+			Section("Reviews", id: ElementID("reviews")) {
+				AppReviews(
+					reviews: [
+						AppStoreReview(
+							title: "Exactly what I needed",
+							text: "A review that is long enough to show how the text wraps across a few lines in the card.",
+							author: "A reviewer",
+							rating: .five,
+							date: content.buildDate
+						),
+						AppStoreReview(
+							title: "Great",
+							text: "A shorter review, with\na line break.",
+							author: "Another reviewer",
+							rating: .five,
+							date: content.buildDate
+						),
+						AppStoreReview(
+							title: Self.longWord,
+							text: "A title with a long word that cannot break must not overflow the card: \(Self.longWord)",
+							author: "A reviewer with a very long name",
+							rating: .four,
+							date: content.buildDate
+						),
+					],
+					rating: StoreRating(average: 4.6, count: 1234, store: .appStore).map(AppRating.store)
+				)
 
-				AppReviews(reviews: [], rating: StoreRating(average: 4.6, count: 1234))
+				AppReviews(reviews: [], rating: StoreRating(average: 4.6, count: 1234, store: .appStore).map(AppRating.store))
+
+				// A rating on Setapp, which has no stars.
+				AppReviews(reviews: [], rating: SetappRating(ratingValue: 99, bestRating: 100, count: 877).map(AppRating.setapp))
 			}
 
 			// With sample data, as the pages only show these with the data of npm and GitHub.
-			Section("Stats and Projects", id: "stats") {
-				StatCard(stats: [
-					Stat(count: 1234, noun: "package"),
-					Stat(perSecond: 30_000, label: "downloads of my packages while you have been here"),
-				])
+			Section("Stats and Projects", id: ElementID("stats")) {
+				StatCard(
+					stats: [
+						Stat(count: 1234, noun: "package"),
+						Stat(perSecond: 30_000, label: "downloads of my packages while you have been here"),
+					]
+				)
 
-				ProjectOfTheDay(title: "Package of the Day", randomTitle: "Random Package", listPath: .npmPackages, projects: [ProjectOfTheDay.Project(name: "ky", description: "Tiny and elegant HTTP client based on the Fetch API", detail: "4.2M+ downloads a week", url: #URL("https://www.npmjs.com/package/ky"))], date: content.buildDate)
+				ProjectOfTheDay(
+					title: "Package of the Day",
+					randomTitle: "Random Package",
+					listPath: .npmPackages,
+					projects: [ProjectOfTheDay.Project(
+						name: "ky",
+						description: "Tiny and elegant HTTP client based on the Fetch API",
+						detail: "4.2M+ downloads a week",
+						url: #URL("https://www.npmjs.com/package/ky")
+					)],
+					date: content.buildDate
+				)
 			}
 
-			Section("Prose", id: "prose") {
+			Section("Prose", id: ElementID("prose")) {
 				Prose(markdown: MarkdownDocument(parsing: Self.markdownSample, options: .gallery).content)
 			}
 
-			Section("Sudoku", id: "sudoku") {
+			Section("Sudoku", id: ElementID("sudoku")) {
 				p {
 					// The code of `53..7....6..195....98....6.8...6...34..8.3..17...2...6.6....28....419..5....8..79`.
 					a(.href(.path(path, query: [URLQueryItem(name: "p", value: "yE4YURlMRQw5CYBTdhlZhoY0gxcmYoQZWHkZ")], fragment: "sudoku"))) {
@@ -187,7 +232,7 @@ struct GalleryPage: Page {
 			}
 
 			// Without footnotes and notes, as their IDs would be the same as the ones of the sample above.
-			Section("Article Prose", id: "article-prose") {
+			Section("Article Prose", id: ElementID("article-prose")) {
 				Prose(markdown: MarkdownDocument(parsing: "“The text of a blog post”, with an opening quote that hangs into the margin in Safari, a [colored link](#article-prose), and oldstyle numerals, like 1234567890.", options: .gallery).content, variant: .article)
 			}
 		}
@@ -272,7 +317,7 @@ struct GalleryPage: Page {
 	}
 
 	@QuickAnswer {
-		The short answer of a how-to post.
+		The short answer at the top of a guide.
 	}
 
 	@Feature(title: "A main feature") {
@@ -283,7 +328,7 @@ struct GalleryPage: Page {
 		The second main feature.
 	}
 
-	@Trial(url: "https://example.com/App-trial.zip") {
+	@Trial(url: "https://example.com/App-trial.zip", macOS: "26") {
 		The trial of an app, with a download button. The only limitation is that it shows a reminder once a day.
 	}
 
@@ -291,7 +336,7 @@ struct GalleryPage: Page {
 		A trial with another title on its button.
 	}
 
-	@TinyApp(title: "A tiny app", download: "https://example.com/Tiny-App.zip", source: "https://github.com/sindresorhus", requirement: "Requires macOS 26 or later") {
+	@TinyApp(title: "A tiny app", download: "https://example.com/Tiny-App.zip", source: "https://github.com/sindresorhus", macOS: "26") {
 		A small app without a page of its own, with the placeholder icon.
 	}
 

@@ -33,7 +33,13 @@ struct GeoCitiesLemmings: ScriptedElement {
 
 			// On phones, the screen scrolls sideways, like the levels of Lemmings, so a finger can pick a lemming.
 			div {
-				canvas(.part(Parts.screen), .width(512), .height(288), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.screen),
+					.width(512),
+					.height(288),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("The lemmings. The arrow keys pick a lemming, the keys 1 to 6 pick a job, Space gives the job, and P pauses.")
 					.style(Styles.screen)
 			}
@@ -121,16 +127,16 @@ struct GeoCitiesLemmings: ScriptedElement {
 		case status
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The button of a job, with its ID, like `dig`.
 		*/
-		case skill = "data-lemmings-skill"
+		case skill = "lemmings-skill"
 
 		/**
 		How many of a job are left, with its ID.
 		*/
-		case skillCount = "data-lemmings-count"
+		case skillCount = "lemmings-count"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -159,13 +165,13 @@ struct GeoCitiesLemmings: ScriptedElement {
 					.frame(width: .percent(100), height: .auto, minWidth: .pixels(512))
 					.aspectRatio(16.0 / 9.0)
 					.background(.black)
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
 					.imageRendering(.pixelated)
 					.touchAction(.manipulation)
 					.cursor(.crosshair)
 					// The focus ring is inside the edge, as the box of the screen scrolls sideways and cuts off a ring outside it.
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(-4))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(2), offset: .pixels(-4))
 					}
 			case .skills:
 				// The panel of jobs at the bottom of the screen, like in Lemmings.
@@ -173,36 +179,36 @@ struct GeoCitiesLemmings: ScriptedElement {
 					.grid(columns: 4)
 					.gap(.pixels(2))
 					.padding(.pixels(2))
-					.background(Color("#202060"))
+					.background(Color(raw: "#202060"))
 					.from(.smallTablet) {
 						$0.grid(columns: 7)
 					}
 			case .skill:
 				// A job, with how many are left above its name. It is pressed in while it is picked.
 				Style()
-					.vstack(alignment: .center, spacing: 0)
+					.vstack(alignment: .center, spacing: .zero)
 					.padding(.rootEm(0.25))
-					.background(Color("#4040a0"))
-					.border(Color("#8080ff"), width: .pixels(2), style: .outset)
+					.background(Color(raw: "#4040a0"))
+					.border(Color(raw: "#8080ff"), width: .pixels(2), style: .outset)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 					.color(.white)
 					.handCursor()
 					.active {
-						$0.border(Color("#8080ff"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#8080ff"), width: .pixels(2), style: .inset)
 					}
 					.pressed {
 						$0
-							.background(Color("#8080ff"))
-							.border(Color("#c0c0ff"), width: .pixels(2), style: .inset)
+							.background(Color(raw: "#8080ff"))
+							.border(Color(raw: "#c0c0ff"), width: .pixels(2), style: .inset)
 					}
 			case .skillCount:
 				Style()
 					.fontFamily(GeoCitiesPage.courier)
 					.font(.large, weight: .heavy)
-					.color(Color("#66ff66"))
+					.color(Color(raw: "#66ff66"))
 			case .nuke:
-				Style().background(Color("#a02020"))
+				Style().background(Color(raw: "#a02020"))
 			case .status:
 				Style()
 					.fontFamily(GeoCitiesPage.courier)

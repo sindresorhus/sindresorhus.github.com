@@ -3,18 +3,27 @@ import Foundation
 import SiteKit
 
 struct HomePage: Page {
+	let content: SiteContent
+
 	var path: RoutePath {
 		.root
 	}
 
+	/**
+	The description says what Sindre makes, with the number of apps and their platforms, as the tagline of the page (``Site/description``) says little in search results. It counts the apps that a visitor can get, like the apps page lists them, not the archived ones.
+	*/
 	var metadata: PageMetadata {
-		PageMetadata(title: Site.name, description: Site.description, kind: .home)
+		PageMetadata(
+			title: Site.name,
+			description: "Full-time open-source developer and app maker: \(content.activeApps.count.formatted(counting: "app")) for \(AppCategory.platformList(in: content)), and Node.js packages and CLI tools.",
+			kind: .home
+		)
 	}
 
 	var body: some HTML {
 		section {
 			// `home.js` loads `nebula.js` in dark mode, which draws a galaxy on it.
-			canvas(.id(Hooks.nebula)) {}
+			canvas(.id(IDs.nebula)) {}
 				.accessibilityHidden()
 				.style(Styles.nebula)
 
@@ -22,7 +31,13 @@ struct HomePage: Page {
 				div {
 					div {
 						// The small photo is sharp up to two pixels for each CSS pixel, so screens with three, like most phones, get the large one.
-						img(.src(Site.author.smallPhotoPath), .custom(name: "srcset", value: "\(Site.author.smallPhotoPath) 2x, \(Site.author.photoPath) 3x"), .alt("\(Site.author.name) profile photo"), .width(144), .height(144))
+						img(
+							.src(Site.author.smallPhotoPath),
+							.custom(name: "srcset", value: "\(Site.author.smallPhotoPath) 2x, \(Site.author.photoPath) 3x"),
+							.alt("\(Site.author.name) profile photo"),
+							.width(144),
+							.height(144)
+						)
 							.style(Styles.profilePhoto)
 					}
 					.style(Styles.profileRing)
@@ -45,7 +60,7 @@ struct HomePage: Page {
 							}
 							.style(Styles.button, Styles.glass, Styles.glassPrimary)
 
-							a(.href(.url(Site.author.gitHubURL))) {
+							a(.href(.openSource)) {
 								Label("Code", icon: .github)
 							}
 							.style(Styles.button, Styles.glass, Styles.glassDark)
@@ -61,7 +76,7 @@ struct HomePage: Page {
 		}
 		.style(Styles.root)
 
-		ModuleScript("/scripts/home.js")
+		ModuleScript(#path("/scripts/home.js"))
 
 		JSONScript(schema: Schema.Person.authorProfile)
 
@@ -72,9 +87,9 @@ struct HomePage: Page {
 
 extension HomePage {
 	/**
-	The IDs and data attributes that the scripts of the page find elements by.
+	The IDs that the scripts of the page find elements by.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum IDs: String, ScriptIDSet {
 		case nebula = "nebula"
 	}
 
@@ -103,7 +118,7 @@ extension HomePage {
 			case .nebula:
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.hidden()
 					.frame(size: .percent(100))
 					.allowsHitTesting(false)
@@ -119,19 +134,25 @@ extension HomePage {
 				Style()
 					.display(.flex)
 					.contentColumn(.page)
+					// On phones, the margins are smaller with large text, so the name has more space.
+					.below(.smallTablet) {
+						$0.padding(.horizontal, .min(.pageGutter, .viewportWidth(6)))
+					}
 					.from(.tablet) {
 						$0
 							.frame(height: .smallViewportHeight(100))
 							.margin(.top, .rootEm(-5))
 					}
 			case .content:
+				// It can be narrower than its content, so with large text, the content wraps instead of going past the screen.
 				Style()
+					.frame(minWidth: .zero)
 					.margin(.auto)
-					.padding(top: .rootEm(3), horizontal: 0, bottom: .rootEm(5.5))
+					.padding(top: .rootEm(3), horizontal: .zero, bottom: .rootEm(5.5))
 					.textAlign(.center)
 					.from(.tablet) {
 						$0
-							.padding(top: .rootEm(5), horizontal: 0, bottom: .rootEm(9))
+							.padding(top: .rootEm(5), horizontal: .zero, bottom: .rootEm(9))
 					}
 			case .profileRing:
 				Style()
@@ -142,14 +163,22 @@ extension HomePage {
 					// A rotating ring in the galaxy colors.
 					.dark {
 						$0
-							.filter(.dropShadow(Shadow(y: 0, blur: .pixels(14), color: .primary(500).opacity(0.5))), .dropShadow(Shadow(y: 0, blur: .pixels(40), color: .violet(500).opacity(0.28))))
+							.filter(.dropShadow(Shadow(y: .zero, blur: .pixels(14), color: .primary(500).opacity(0.5))), .dropShadow(Shadow(y: .zero, blur: .pixels(40), color: .violet(500).opacity(0.28))))
 							.before {
 								$0
 									.content("")
 									.position(.absolute)
 									.inset(.pixels(-3))
 									.cornerRadius(.circle)
-									.backgroundImage(.conicGradient(.primary(500), .violet(500), .secondary(500), .violet(500), .primary(500)))
+									.backgroundImage(
+										.conicGradient(
+											.primary(500),
+											.violet(500),
+											.secondary(500),
+											.violet(500),
+											.primary(500)
+										)
+									)
 									.animation(Animations.ringRotate, .linear(duration: .seconds(10)).repeatForever(autoreverses: false))
 							}
 					}
@@ -158,8 +187,8 @@ extension HomePage {
 					.position(.relative)
 					.zIndex(1)
 					.cornerRadius(.circle)
-					.transition(.scaleEffect, animation: .default(duration: .milliseconds(350)))
-					.maskImage(.radialGradient("circle", Color.black.at(.percent(80)), Color.transparent.at(.percent(100))))
+					.transition(.scaleEffect, timing: .default(duration: .milliseconds(350)))
+					.maskImage(.radialGradient(.circle, Color.black.at(.percent(80)), Color.transparent.at(.percent(100))))
 					.hover {
 						$0.scaleEffect(1.03)
 					}
@@ -168,21 +197,37 @@ extension HomePage {
 				Style()
 					.margin(.bottom, .rootEm(1))
 					.expandedFont()
-					.fluidFontSize(fromRem: 3, toRem: 3.5, between: .smallTablet, and: .tablet)
+					.fluidFontSize(
+						fromRem: 3,
+						toRem: 3.5,
+						between: .smallTablet,
+						and: .tablet
+					)
 					.lineHeight(1)
 					.bold()
 					.letterSpacing(.em(-0.05))
 					.color(.transparent)
 					.setting(HomePage.gradientStart, to: .primary(500))
 					.setting(HomePage.gradientEnd, to: Self.gradientColor(at: 25))
-					.backgroundImage(.linearGradient("to right", HomePage.gradientStart.value, HomePage.gradientEnd.value, in: .oklch))
+					.backgroundImage(
+						.linearGradient(
+							.toRight,
+							HomePage.gradientStart.value,
+							HomePage.gradientEnd.value,
+							in: .oklch
+						)
+					)
 					.backgroundClip(.text)
 					.animation(Animations.gradientShift, .default(duration: .seconds(4)).repeatForever(autoreverses: false))
 					.from(.smallTablet) {
 						$0.textWrap(.nowrap)
 					}
+					// On phones, as large as fits, so with large text, the longest word, “Sorhus” (3.64 em), stays on the screen.
+					.below(.smallTablet) {
+						$0.font(size: .min(.rootEm(3), .viewportWidth(24)))
+					}
 					.dark {
-						$0.filter(.dropShadow(Shadow(y: 0, blur: .pixels(12), color: .primary(500).opacity(0.55))), .dropShadow(Shadow(y: 0, blur: .pixels(32), color: .violet(500).opacity(0.3))), .dropShadow(Shadow(y: 0, blur: .pixels(60), color: .secondary(500).opacity(0.15))))
+						$0.filter(.dropShadow(Shadow(y: .zero, blur: .pixels(12), color: .primary(500).opacity(0.55))), .dropShadow(Shadow(y: .zero, blur: .pixels(32), color: .violet(500).opacity(0.3))), .dropShadow(Shadow(y: .zero, blur: .pixels(60), color: .secondary(500).opacity(0.15))))
 					}
 			case .text:
 				Style()
@@ -193,16 +238,18 @@ extension HomePage {
 					.margin(.bottom, .rootEm(2.5))
 					.expandedFont()
 					.font(.extraLarge2, weight: 350)
+					// With large text, the longest word, “Open‑Sourcerer” (9.22 em), stays on the screen.
+					.font(size: .min(TextSize.extraLarge2.size, .viewportWidth(9.5)))
 					.letterSpacing(.em(0.06))
 					.textWrap(.balance)
 					.color(.gray(600), dark: .gray(200).opacity(0.82))
 					.dark {
-						$0.textShadow(Shadow(y: 0, blur: .pixels(28), color: Color.violet(500).opacity(0.28)))
+						$0.textShadow(Shadow(y: .zero, blur: .pixels(28), color: Color.violet(500).opacity(0.28)))
 					}
 			case .actions:
 				Style()
 					.vstack(spacing: .rootEm(1.5))
-					.margin(vertical: .rootEm(0.5), horizontal: 0)
+					.margin(vertical: .rootEm(0.5), horizontal: .zero)
 					.padding(.horizontal, .rootEm(1.5))
 					.from(.smallTablet) {
 						$0
@@ -237,22 +284,34 @@ extension HomePage {
 					.position(.relative)
 					.overflow(.hidden)
 					.color(.white)
-					.transition(.background, .shadow, .borderColor, animation: .default(duration: .milliseconds(250)))
-					.transition(.offset, animation: .default(duration: .milliseconds(200)))
+					.transition(
+						.background,
+						.shadow,
+						.borderColor,
+						timing: .default(duration: .milliseconds(250))
+					)
+					.transition(.offset, timing: .default(duration: .milliseconds(200)))
 					.dark {
 						$0
 							.backdropFilter(.blur(radius: .pixels(20)), .saturation(1.8))
 							// The solid backgrounds for reduced transparency are in the fills, as their backgrounds come later.
 							.reducedTransparency {
-								$0.backdropFilter(.none)
+								$0.backdropFilter()
 							}
 							.before {
 								$0
 									.content("")
 									.position(.absolute)
-									.inset(0)
-									.cornerRadius(.inherit)
-									.backgroundImage(.linearGradient("175deg", Color.white.opacity(0.28).at(.percent(0)), Color.white.opacity(0.06).at(.percent(40)), Color.transparent.at(.percent(70))))
+									.inset(.zero)
+									.inherits(.borderRadius)
+									.backgroundImage(
+										.linearGradient(
+											.angle(.degrees(175)),
+											Color.white.opacity(0.28).at(.percent(0)),
+											Color.white.opacity(0.06).at(.percent(40)),
+											Color.transparent.at(.percent(70))
+										)
+									)
 									.allowsHitTesting(false)
 							}
 							.hoverOrFocusVisible {
@@ -273,9 +332,19 @@ extension HomePage {
 					}
 					.dark {
 						$0
-							.shadow(Shadow(y: .pixels(1.5), color: .white.opacity(0.4), isInset: true), Shadow(y: .pixels(-1), color: .black.opacity(0.1), isInset: true), Shadow(y: .pixels(4), blur: .pixels(24), color: .primary(500).opacity(0.25)), Shadow(y: .pixels(1), blur: .pixels(4), color: .black.opacity(0.15)))
+							.shadow(
+								BoxShadow(y: .pixels(1.5), color: .white.opacity(0.4), isInset: true),
+								BoxShadow(y: .pixels(-1), color: .black.opacity(0.1), isInset: true),
+								BoxShadow(y: .pixels(4), blur: .pixels(24), color: .primary(500).opacity(0.25)),
+								BoxShadow(y: .pixels(1), blur: .pixels(4), color: .black.opacity(0.15))
+							)
 							.hoverOrFocusVisible {
-								$0.shadow(Shadow(y: .pixels(1.5), color: .white.opacity(0.5), isInset: true), Shadow(y: .pixels(-1), color: .black.opacity(0.1), isInset: true), Shadow(y: .pixels(8), blur: .pixels(32), color: .primary(500).opacity(0.35)), Shadow(y: .pixels(2), blur: .pixels(6), color: .black.opacity(0.15)))
+								$0.shadow(
+									BoxShadow(y: .pixels(1.5), color: .white.opacity(0.5), isInset: true),
+									BoxShadow(y: .pixels(-1), color: .black.opacity(0.1), isInset: true),
+									BoxShadow(y: .pixels(8), blur: .pixels(32), color: .primary(500).opacity(0.35)),
+									BoxShadow(y: .pixels(2), blur: .pixels(6), color: .black.opacity(0.15))
+								)
 							}
 					}
 			case .glassDark:
@@ -292,9 +361,19 @@ extension HomePage {
 					}
 					.dark {
 						$0
-							.shadow(Shadow(y: .pixels(1.5), color: .white.opacity(0.25), isInset: true), Shadow(y: .pixels(-1), color: .black.opacity(0.15), isInset: true), Shadow(y: .pixels(4), blur: .pixels(20), color: .black.opacity(0.3)), Shadow(y: .pixels(1), blur: .pixels(4), color: .black.opacity(0.2)))
+							.shadow(
+								BoxShadow(y: .pixels(1.5), color: .white.opacity(0.25), isInset: true),
+								BoxShadow(y: .pixels(-1), color: .black.opacity(0.15), isInset: true),
+								BoxShadow(y: .pixels(4), blur: .pixels(20), color: .black.opacity(0.3)),
+								BoxShadow(y: .pixels(1), blur: .pixels(4), color: .black.opacity(0.2))
+							)
 							.hoverOrFocusVisible {
-								$0.shadow(Shadow(y: .pixels(1.5), color: .white.opacity(0.35), isInset: true), Shadow(y: .pixels(-1), color: .black.opacity(0.15), isInset: true), Shadow(y: .pixels(8), blur: .pixels(28), color: .black.opacity(0.4)), Shadow(y: .pixels(2), blur: .pixels(6), color: .black.opacity(0.2)))
+								$0.shadow(
+									BoxShadow(y: .pixels(1.5), color: .white.opacity(0.35), isInset: true),
+									BoxShadow(y: .pixels(-1), color: .black.opacity(0.15), isInset: true),
+									BoxShadow(y: .pixels(8), blur: .pixels(28), color: .black.opacity(0.4)),
+									BoxShadow(y: .pixels(2), blur: .pixels(6), color: .black.opacity(0.2))
+								)
 							}
 					}
 			}
@@ -311,8 +390,18 @@ extension HomePage {
 	/**
 	The colors at the ends of the gradient of the name. They are registered properties, so they can animate: the gradient moves from the blue end of the brand gradient to the pink end and back.
 	*/
-	fileprivate static let gradientStart = RegisteredProperty<Color>("--gradient-start", syntax: .color, initialValue: .black, inherits: false)
-	fileprivate static let gradientEnd = RegisteredProperty<Color>("--gradient-end", syntax: .color, initialValue: .black, inherits: false)
+	fileprivate static let gradientStart = RegisteredProperty<Color>(
+		"gradient-start",
+		syntax: .color,
+		initialValue: .black,
+		inherits: false
+	)
+	fileprivate static let gradientEnd = RegisteredProperty<Color>(
+		"gradient-end",
+		syntax: .color,
+		initialValue: .black,
+		inherits: false
+	)
 
 	enum Animations: KeyframeSet {
 		case nebulaFadeIn

@@ -1,16 +1,17 @@
 import Foundation
 import Markdown
-import SOML
 
 /**
 Metadata about a section, in an HTML comment directly below its heading, like `<!-- @faq.platforms macOS iOS -->`. Other directive comments may be in between.
 
-The values are separated by whitespace, and are decoded as a list of strings, strictly like frontmatter. So `[Platform]` rejects an unknown platform, and a number, like a rank, is decoded from its string. A directive without values is an empty list. `Value` must decode from a list, like an array or a set. A single value, like `Int`, never decodes.
+The values are separated by whitespace and passed to ``decode(values:)``, which checks their shape and returns the value. A directive without values is a problem, unless it is a flag (``HeadingDirectiveFlag``), as an empty directive is a leftover that reads as if it has values. String lists and flags have default parsers; other values define their own parser, such as a rank that needs one integer.
 
 ```swift
 enum Platforms: HeadingDirective {
 	static let name = "faq.platforms"
-	typealias Value = [Platform]
+	static func decode(values: [String]) throws -> [Platform] {
+		try values.map { try Platform(validating: $0) }
+	}
 }
 
 heading[Platforms.self] // [.macOS, .iOS]
@@ -19,12 +20,17 @@ heading[Platforms.self] // [.macOS, .iOS]
 Add the type to ``MarkdownDocument/Options/headingDirectives``, and the renderer reports unknown directives and invalid values with their lines.
 */
 public protocol HeadingDirective: Sendable {
-	associatedtype Value: Decodable & Sendable
+	associatedtype Value: Sendable
 
 	/**
 	The name after the `@`, like `faq.platforms`.
 	*/
 	static var name: String { get }
+
+	/**
+	Checks and decodes the whitespace-separated values of a directive comment.
+	*/
+	static func decode(values: [String]) throws -> Value
 }
 
 /**
@@ -37,19 +43,38 @@ enum General: HeadingDirective {
 }
 ```
 */
-public struct HeadingDirectiveFlag: Decodable, Sendable {
-	public init(from decoder: any Decoder) throws {
-		let values = try decoder.unkeyedContainer()
-
-		guard values.isAtEnd else {
-			throw DecodingError.dataCorruptedError(in: values, debugDescription: "It is a flag, so it takes no values.")
-		}
-	}
+public struct HeadingDirectiveFlag: Sendable {
+	public init() {}
 }
 
 extension HeadingDirective {
-	static func decode(_ values: [String]) throws -> any Sendable {
-		try SOML.Decoder.frontmatter.decode(Value.self, from: .array(values.map { .string($0) }))
+	/**
+	Whether the directive is a flag, which takes no values (``HeadingDirectiveFlag``).
+	*/
+	static var isFlag: Bool {
+		Value.self == HeadingDirectiveFlag.self
+	}
+}
+
+extension HeadingDirective where Value == [String] {
+	/**
+	A string-list directive keeps its values as written.
+	*/
+	public static func decode(values: [String]) -> [String] {
+		values
+	}
+}
+
+extension HeadingDirective where Value == HeadingDirectiveFlag {
+	/**
+	A flag accepts no values.
+	*/
+	public static func decode(values: [String]) throws -> HeadingDirectiveFlag {
+		guard values.isEmpty else {
+			throw ContentError(reason: "It is a flag, so it takes no values.")
+		}
+
+		return HeadingDirectiveFlag()
 	}
 }
 
@@ -102,19 +127,26 @@ struct DirectiveComment {
 
 extension HTMLBlock {
 	/**
-	The directive comment of each line, or `nil` for a line without one.
+	The directive comment of each line, or `nil` for a line without one, together with whether all nonempty lines are directives. Parse once so placement and rendering use the same interpretation.
 	*/
-	var directiveComments: [DirectiveComment?] {
-		rawHTML.split(separator: "\n", omittingEmptySubsequences: false).map(DirectiveComment.init(line:))
+	var parsedDirectiveComments: (comments: [DirectiveComment?], isOnlyDirectives: Bool) {
+		var comments = [DirectiveComment?]()
+		var isOnlyDirectives = true
+
+		for line in rawHTML.split(separator: "\n", omittingEmptySubsequences: false) {
+			let comment = DirectiveComment(line: line)
+			comments.append(comment)
+			isOnlyDirectives = isOnlyDirectives && (comment?.isOnOwnLine ?? line.allSatisfy(\.isWhitespace))
+		}
+
+		return (comments, isOnlyDirectives)
 	}
 
 	/**
 	Whether every line that is not empty is a directive comment on its own line.
 	*/
 	public var isOnlyDirectives: Bool {
-		rawHTML.split(separator: "\n", omittingEmptySubsequences: false).allSatisfy { line in
-			DirectiveComment(line: line)?.isOnOwnLine ?? line.allSatisfy(\.isWhitespace)
-		}
+		parsedDirectiveComments.isOnlyDirectives
 	}
 
 	/**

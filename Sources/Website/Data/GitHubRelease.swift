@@ -1,25 +1,14 @@
 import Foundation
 import SiteKit
 
-struct GitHubRelease: Decodable {
+struct GitHubRelease {
 	let tagName: String
 	let publishedAt: Date
-	let body: String?
-	let isDraft: Bool
-	let isPrerelease: Bool
 
 	/**
 	The release notes rendered as HTML, once when the releases load. Empty when there are no notes.
 	*/
-	var notesHTML = ""
-
-	enum CodingKeys: String, CodingKey {
-		case tagName = "tag_name"
-		case publishedAt = "published_at"
-		case body
-		case isDraft = "draft"
-		case isPrerelease = "prerelease"
-	}
+	let notesHTML: String
 
 	/**
 	The version without the `v` prefix, like `1.2.0`.
@@ -29,14 +18,21 @@ struct GitHubRelease: Decodable {
 	}
 
 	/**
-	A release in a response of the API. The release is `nil` when it has no publication date, like a draft.
+	A response of the API, before its notes are rendered. A missing publication date means it is not published, like a draft.
 	*/
-	struct Entry: Decodable {
-		let release: GitHubRelease?
+	struct Response: Decodable {
+		let tagName: String
+		let publishedAt: Date?
+		let body: String?
+		let isDraft: Bool
+		let isPrerelease: Bool
 
-		init(from decoder: any Decoder) throws {
-			let isPublished = try !decoder.container(keyedBy: CodingKeys.self).decodeNil(forKey: .publishedAt)
-			self.release = isPublished ? try GitHubRelease(from: decoder) : nil
+		enum CodingKeys: String, CodingKey {
+			case tagName = "tag_name"
+			case publishedAt = "published_at"
+			case body
+			case isDraft = "draft"
+			case isPrerelease = "prerelease"
 		}
 	}
 }

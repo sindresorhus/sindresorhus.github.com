@@ -1,12 +1,15 @@
 ---
 title: 'Small Focused Modules'
 description: 'Make small focused modules for reusability and to make it possible to build larger more advanced things that are easier to reason about.'
-publicationDate: '2018-10-26'
+publicationDate: 2018-10-26
 tags: [
 	'open-source'
 	'javascript'
 ]
 ---
+
+> [!NOTE]
+> **Update, October 2026:** Some facts in this post have changed. Chalk now bundles `supports-color` and `ansi-styles`, so it has no dependencies. `user-home` and `os-homedir` are archived, as Node.js has [`os.homedir()`](https://nodejs.org/api/os.html#oshomedir).
 
 *This was originally an [answer](https://github.com/sindresorhus/ama/issues/10#issuecomment-117766328) on my AMA (Ask Me Anything) about why I make small Node.js modules. My answer applies to Node.js and might not be applicable to your platform. The reason this works so well on Node.js is that you can have [nested dependencies](https://maxogden.com/nested-dependencies.html), so they never conflict.*
 

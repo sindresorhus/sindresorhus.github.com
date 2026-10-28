@@ -27,11 +27,11 @@ struct GeoCitiesPage: Page {
 	var body: some HTML {
 		HTMLComment(" Hi! You found my source! Steal my GIFs, not my HTML. Greetings from Norway, Sindre ")
 
-		div(.id(Hooks.root)) {
+		div(.id(IDs.root)) {
 			Deferred(GeoCitiesNavigator(project: content.project))
 
 			// `geocities.js` shakes it when the Y2K bug strikes at the midnight party.
-			div(.id(Hooks.panel)) {
+			div(.id(IDs.panel)) {
 				// The panel is in four parts, so rendering the page does not nest too deep for the stack of a thread.
 				Deferred(topParts)
 
@@ -49,25 +49,30 @@ struct GeoCitiesPage: Page {
 			Deferred(certificate)
 
 			// `geocities.js` adds a copy for each sparkle and star of the rainbow trail behind the mouse pointer, and one copy of the letter for each letter that follows the pointer.
-			template(.id(Hooks.sparkleTemplate)) {
-				img(.src(GIF.sparkle.path), .alt(""), .width(60), .height(56))
+			template(.id(IDs.sparkleTemplate)) {
+				img(
+					.src(GIF.sparkle.path),
+					.alt(""),
+					.width(60),
+					.height(56)
+				)
 					.style(Styles.sparkle)
 			}
 
-			template(.id(Hooks.starTemplate)) {
+			template(.id(IDs.starTemplate)) {
 				span {
 					"★"
 				}
 				.style(Styles.sparkle, Styles.trailStar)
 			}
 
-			template(.id(Hooks.letterTemplate)) {
+			template(.id(IDs.letterTemplate)) {
 				span {}
 					.style(Styles.trailLetter)
 			}
 
 			// `geocities.js` adds a copy that runs across the bottom of the window when the visitor types the Konami code, unless the visitor prefers reduced motion.
-			template(.id(Hooks.paradeTemplate)) {
+			template(.id(IDs.paradeTemplate)) {
 				div {
 					div {
 						for _ in 0..<5 {
@@ -81,7 +86,7 @@ struct GeoCitiesPage: Page {
 			}
 
 			// `geocities.js` shows a copy when the visitor leaves the page alone, or presses Preview, unless the visitor prefers reduced motion.
-			template(.id(Hooks.saverTemplate)) {
+			template(.id(IDs.saverTemplate)) {
 				div {
 					for _ in 0..<8 {
 						gif(.unicornGallop, style: .saverUnicorn)
@@ -99,7 +104,7 @@ struct GeoCitiesPage: Page {
 			Deferred(effectTemplates)
 
 			// `geocities.js` adds a copy for each snowflake.
-			template(.id(Hooks.snowTemplate)) {
+			template(.id(IDs.snowTemplate)) {
 				// The variation selector shows the snowflake as text, not as the blue emoji, so it is white.
 				span {
 					"❄\u{FE0E}"
@@ -109,21 +114,21 @@ struct GeoCitiesPage: Page {
 			}
 
 			// `geocities.js` shows a copy for the falling green code of the Matrix.
-			template(.id(Hooks.matrixTemplate)) {
+			template(.id(IDs.matrixTemplate)) {
 				canvas {}
 					.accessibilityHidden()
 					.style(Styles.matrixRain)
 			}
 
 			// A message at the bottom of the window, like when the visitor right-clicks a GIF.
-			p(.id(Hooks.toast), .role("status"), .hidden) {}
+			p(.id(IDs.toast), .role("status"), .hidden) {}
 				.style(Styles.toast)
 
-			JSONScript(id: Hooks.data, ScriptData(facts: Self.funFacts, tunes: Self.tunes, quiz: quizQuestions))
+			JSONScript(id: IDs.data, ScriptData(facts: Self.funFacts, tunes: Self.tunes, quiz: quizQuestions))
 		}
 		.style(Styles.root)
 
-		ModuleScript("/scripts/geocities.js")
+		ModuleScript(#path("/scripts/geocities.js"))
 	}
 
 	/**
@@ -139,7 +144,7 @@ struct GeoCitiesPage: Page {
 			gif(.globe, style: .globe)
 
 			// `geocities.js` focuses it when the visitor enters from the splash.
-			h1(.id(Hooks.welcome), .tabindex(-1)) {
+			h1(.id(IDs.welcome), .tabindex(-1)) {
 				"Welcome to Sindre’s Home Page!!!"
 			}
 			.style(Styles.title)
@@ -162,7 +167,12 @@ struct GeoCitiesPage: Page {
 		section {
 			// The photo loads line by line, like over a modem in 1999, as a gray cover moves down from the top of it.
 			div {
-				img(.src(Site.author.photoPath), .alt("\(Site.author.name) profile photo"), .width(96), .height(96))
+				img(
+					.src(Site.author.photoPath),
+					.alt("\(Site.author.name) profile photo"),
+					.width(96),
+					.height(96)
+				)
 					.style(Styles.photo)
 
 				div {}
@@ -714,7 +724,7 @@ struct GeoCitiesPage: Page {
 			}
 
 			p {
-				a(.href(.fragment(Hooks.welcome.id))) {
+				a(.href(.fragment(IDs.welcome.id))) {
 					gif(.topArrow)
 					" Back to the top"
 				}
@@ -745,7 +755,7 @@ struct GeoCitiesPage: Page {
 			.style(Styles.caption)
 
 			// `geocities.js` fills it with the size of the page and how long it would take to load over a modem.
-			p(.id(Hooks.loadTime)) {}
+			p(.id(IDs.loadTime)) {}
 				.style(Styles.caption, Styles.scriptingOnly)
 
 			p {
@@ -753,14 +763,14 @@ struct GeoCitiesPage: Page {
 					"Tell a friend about my page!"
 				}
 				" ★ "
-				button(.id(Hooks.bookmark), .type(.button)) {
+				button(.id(IDs.bookmark), .type(.button)) {
 					"Bookmark me!"
 				}
 				.style(Styles.retroButton, Styles.scriptingOnly)
 			}
 
 			// `geocities.js` shows it when the visitor types the Konami code.
-			p(.id(Hooks.secret), .hidden, .tabindex(-1)) {
+			p(.id(IDs.secret), .hidden, .tabindex(-1)) {
 				gif(.unicorn, style: .centered)
 				"Cheat code accepted! You have unlocked 30 extra unicorns."
 			}
@@ -775,7 +785,12 @@ struct GeoCitiesPage: Page {
 	- Parameter alt: The text of the image, or nothing when it is only decoration.
 	*/
 	func gif(_ gif: GIF, alt: String = "", style: Styles = .gif) -> GIFImage {
-		GIFImage(gif: gif, alt: alt, style: style, project: content.project)
+		GIFImage(
+			gif: gif,
+			alt: alt,
+			style: style,
+			project: content.project
+		)
 	}
 }
 

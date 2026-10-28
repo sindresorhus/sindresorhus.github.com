@@ -88,7 +88,13 @@ struct GeoCitiesWindowsGoo: ScriptedElement {
 			.accessibilityLabel("Tools")
 			.style(Styles.tools)
 
-			canvas(.part(Parts.canvas), .width(256), .height(256), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.canvas),
+				.width(256),
+				.height(256),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The face. Drag on it to goo it with the tool. With the keyboard, the arrow keys move the brush, and holding Space down goos.")
 				.style(Styles.canvas)
 
@@ -139,11 +145,11 @@ struct GeoCitiesWindowsGoo: ScriptedElement {
 	/**
 	The tool buttons, with the tool that each one picks.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A tool of Power Goo, with its ID, like `twirl`.
 		*/
-		case tool = "data-goo-tool"
+		case tool = "goo-tool"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -166,10 +172,17 @@ struct GeoCitiesWindowsGoo: ScriptedElement {
 				// The dark, stony panel of Power Goo, with light text, like the interfaces of Kai Krause.
 				Style()
 					.padding(.rootEm(0.5))
-					.backgroundImage(.radialGradient("circle at 30% 20%", Color("#5a5048"), Color("#2a2420"), Color("#141010")))
-					.border(Color("#000000"), width: .pixels(2), style: .solid)
+					.backgroundImage(
+						.radialGradient(
+							.circle(at: .init(x: .percent(30), y: .percent(20))),
+							Color(raw: "#5a5048"),
+							Color(raw: "#2a2420"),
+							Color(raw: "#141010")
+						)
+					)
+					.border(Color(raw: "#000000"), width: .pixels(2), style: .solid)
 					.cornerRadius(.rootEm(0.75))
-					.color(Color("#f0e6d8"))
+					.color(Color(raw: "#f0e6d8"))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 			case .options:
@@ -180,7 +193,7 @@ struct GeoCitiesWindowsGoo: ScriptedElement {
 				// A white field with black text on the dark panel, so its menu reads well too.
 				Style()
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.color(.black)
@@ -195,29 +208,57 @@ struct GeoCitiesWindowsGoo: ScriptedElement {
 					.frame(minWidth: .rootEm(3))
 					.padding(.rootEm(0.125))
 					.background(.transparent)
-					.border(.transparent, width: 0)
+					.border(.transparent, width: .zero)
 					.fontFamily(.system)
 					.textStyle(.caption)
-					.color(Color("#c8bcae"))
+					.color(Color(raw: "#c8bcae"))
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#ffd27a"), width: .pixels(2), offset: .pixels(1))
+						$0.focusRing(Color(raw: "#ffd27a"), width: .pixels(2), offset: .pixels(1))
 					}
 					.pressed {
-						$0.color(Color("#ffd27a"))
+						$0.color(Color(raw: "#ffd27a"))
 					}
 			case .toolBall:
 				Style()
 					.hstack(alignment: .center, justification: .center)
 					.frame(size: .rootEm(2.25))
-					.backgroundImage(.radialGradient("circle at 35% 30%", Color("#a89a8a"), Color("#4a4038"), Color("#1a1410")))
+					.backgroundImage(
+						.radialGradient(
+							.circle(at: .init(x: .percent(35), y: .percent(30))),
+							Color(raw: "#a89a8a"),
+							Color(raw: "#4a4038"),
+							Color(raw: "#1a1410")
+						)
+					)
 					.cornerRadius(.circle)
-					.shadow(Shadow(x: 0, y: .pixels(2), blur: .pixels(3), color: .black))
+					.shadow(
+						BoxShadow(
+							x: .zero,
+							y: .pixels(2),
+							blur: .pixels(3),
+							color: .black
+						)
+					)
 					.font(.large)
 					.ancestorPressed {
 						$0
-							.backgroundImage(.radialGradient("circle at 35% 30%", Color("#fff2b0"), Color("#e8a020"), Color("#7a3a00")))
-							.shadow(Shadow(x: 0, y: 0, blur: .pixels(10), color: Color("#ffb040")))
+							.backgroundImage(
+								.radialGradient(
+									.circle(at: .init(x: .percent(35), y: .percent(30))),
+									Color(raw: "#fff2b0"),
+									Color(raw: "#e8a020"),
+									Color(raw: "#7a3a00")
+								)
+							)
+							.shadow(
+								BoxShadow(
+									x: .zero,
+									y: .zero,
+									blur: .pixels(10),
+									color: Color(raw: "#ffb040")
+								)
+							)
 					}
 			case .canvas:
 				// The face, square, which a finger goos instead of scrolling the page.
@@ -227,12 +268,12 @@ struct GeoCitiesWindowsGoo: ScriptedElement {
 					.aspectRatio(1)
 					.margin(horizontal: .auto)
 					.background(.black)
-					.border(Color("#000000"), width: .pixels(3), style: .solid)
+					.border(Color(raw: "#000000"), width: .pixels(3), style: .solid)
 					.cornerRadius(.rootEm(0.5))
 					.touchAction(.none)
 					.cursor(.crosshair)
 					.focusVisible {
-						$0.focusRing(Color("#ffd27a"), width: .pixels(2), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffd27a"), width: .pixels(2), offset: .pixels(2))
 					}
 			case .status:
 				Style()

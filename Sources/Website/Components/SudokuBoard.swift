@@ -7,6 +7,11 @@ The starting grid of a shared sudoku puzzle, which its script reads from the `p`
 The code is base64url without padding of 11 bytes with a bit for each cell in reading order (from the high bit, 1 for a digit), then each digit in 4 bits (from the high bits, with 4 zero bits after an odd count), then the CRC-8 of the bytes before it. A grid has only one code. The readme of Pipoku has the details. The script must accept exactly the codes that the app accepts, so change both together.
 */
 struct SudokuBoard: ScriptedElement {
+	/**
+	The shared puzzle query item used by Pipoku and the universal-link association.
+	*/
+	static let queryName = "p"
+
 	static let script = ElementScript(inline: #"""
 	const maskByteCount = 11;
 
@@ -74,7 +79,7 @@ struct SudokuBoard: ScriptedElement {
 				return;
 			}
 
-			const cells = decode(new URLSearchParams(location.search).get('p') ?? '');
+			const cells = decode(new URLSearchParams(location.search).get('\#(queryName)') ?? '');
 
 			if (!cells) {
 				this.querySelector('[data-part="invalid"]').hidden = false;

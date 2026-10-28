@@ -2,11 +2,11 @@
 isUnlisted: true
 title: 'Wordtail'
 subtitle: 'Crossword-style word game'
-publicationDate: '2026-10-23'
+publicationDate: 2026-10-23
 platforms: [
 	'iOS'
 ]
-minimumOSVersion: 27
+minimumOSVersion: '27'
 ---
 
 Make words on a 15×15 board against a lemur, by yourself, or with a friend. Learn the meanings of the words you meet along the way.
@@ -25,7 +25,7 @@ Make words on a 15×15 board against a lemur, by yourself, or with a friend. Lea
 
 ## Frequently Asked Questions {#faq}
 
-### How do I see the meaning of a word on the board?
+### How do I see the meaning of a word on the board? {#how-do-i-see-the-meaning-of-a-word-on-the-board}
 
 Touch and hold a played tile, then choose “Show Meanings”. It shows the words through that tile, across and down. To see every word on the board, choose “Words on Board” in the ⋯ menu. Turn History in the same menu shows the words of each turn.
 

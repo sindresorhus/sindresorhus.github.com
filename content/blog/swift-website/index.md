@@ -1,7 +1,7 @@
 ---
 title: 'This Website Is Now Made in Swift'
 description: 'SwiftUI-like components, styles as modifiers, and a compiler that catches broken links before visitors do. How this site is made, and why I love working on it.'
-publicationDate: '2026-10-11'
+publicationDate: 2026-10-11
 tags: [
 	'swift'
 ]
@@ -102,7 +102,7 @@ Each page only gets the CSS of the components it shows. Under the hood, it's mod
 CSS custom properties are just strings. Here, they have a type:
 
 ```swift
-static let color = StyleVariable<Color>("--overflow-menu-color")
+static let color = StyleVariable<Color>("overflow-menu-color")
 
 // The menu uses it, with a default.
 .color(OverflowMenu.color.value(default: .link))
@@ -114,7 +114,7 @@ static let color = StyleVariable<Color>("--overflow-menu-color")
 Setting it to a length doesn't compile. With `RegisteredProperty`, the page also gets the `@property` rule, so the browser can animate it, like the gradient on the home page:
 
 ```swift
-static let gradientStart = RegisteredProperty<Color>("--gradient-start", syntax: .color, initialValue: .black)
+static let gradientStart = RegisteredProperty<Color>("gradient-start", syntax: .color, initialValue: .black)
 ```
 
 ## Responsive and accessible
@@ -161,7 +161,7 @@ A component with behavior is a custom element. Swift renders the HTML, and the s
 
 ## Small and fast
 
-A blog post is about 14 KB compressed: 6.6 KB of HTML, 5.4 KB of CSS, and 1.8 KB of JavaScript. An app page, like the one for Lungo, is about 29 KB before the screenshots. Besides a small shared stylesheet, a page only gets the styles and scripts of its own components, there are no web fonts, and images below the fold load lazily. In Chrome, resting the pointer on a link loads the page in the background, so it often opens instantly.
+A blog post is about 16 KB compressed: about 5.5 KB of HTML, 7.5 KB of CSS, and 3 KB of JavaScript. An app page, like the one for Lungo, is about 33 KB before the screenshots. Besides a small shared stylesheet, a page only gets the styles and scripts of its own components, there are no web fonts, and images below the fold load lazily. In Chrome, resting the pointer on a link loads the page in the background, so it often opens instantly.
 
 ## Content as data
 
@@ -172,13 +172,13 @@ Each app is a Markdown file with typed metadata:
 struct Frontmatter {
 	@NonEmpty var title: String
 	@NonEmpty var subtitle: String
-	@CalendarDay var publicationDate: Date
+	var publicationDate: SOML.Date
 	var platforms: [Platform]
 	var isPaid = false
 }
 ```
 
-[`@Frontmatter`](https://github.com/sindresorhus/sindresorhus.github.com/blob/main/Sources/SiteKitMacros/FrontmatterMacro.swift) is a Swift macro that writes the decoder at compile time. `@NonEmpty` rejects an empty value, and `@CalendarDay` turns `'2017-07-26'` into a `Date` and rejects days like `'2026-02-30'`. A mistake, like an unknown platform or a misspelled key, is an error with the file and the line, sometimes with a “Did you mean” suggestion.
+[`@Frontmatter`](https://github.com/sindresorhus/sindresorhus.github.com/blob/main/Sources/SiteKitMacros/FrontmatterMacro.swift) is a Swift macro that writes the decoder at compile time. `@NonEmpty` rejects an empty value, and `SOML.Date` reads a native SOML date like `2017-07-26` and rejects days like `2026-02-30`. A mistake, like an unknown platform or a misspelled key, is an error with the file and the line, sometimes with a “Did you mean” suggestion.
 
 The build also gets the ratings, prices, and reviews of each app from the App Store, and the numbers on the [about page](/about#stats) and the [now page](/now) from GitHub and npm, like the stars and the weekly downloads. The responses are cached, so a build usually costs nothing, and a request that fails only leaves its number out. `swift run website check` catches what the compiler can't, like spelling mistakes, or a page that says an app needs macOS 14 when the App Store says macOS 15.
 
@@ -192,4 +192,4 @@ The [source code](https://github.com/sindresorhus/sindresorhus.github.com) is op
 
 ## One more thing
 
-The best stress test of all this is [my home page, 1999 edition](/1999): the site reimagined as a personal home page from back then, with a guestbook, an alien game, a virtual unicorn, and a MIDI jukebox. It has 81 custom elements, made with the same components and styles as the rest of the site. Go sign the guestbook.
+The best stress test of all this is [my home page, 1999 edition](/1999): the site reimagined as a personal home page from back then, with a guestbook, an alien game, a virtual unicorn, and a MIDI jukebox. It has more than 80 custom elements, made with the same components and styles as the rest of the site. Go sign the guestbook.

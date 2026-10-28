@@ -1,15 +1,20 @@
 ---
 title: 'Speediness'
 subtitle: 'Check your internet speed'
-publicationDate: '2021-11-23'
+publicationDate: 2021-11-23
 platforms: [
 	'macOS'
 ]
 appStoreID: 1596706466
+hasSentry: true
+nonAppStoreVersion: {
+	version: '2.0.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/xt04xgqt32n6ekqdao10b/Speediness-2.0.0-1770359964.zip?rlkey=d16dzbs51ys756sb2cw49merv&raw=1'
+}
 sharedQuestions: [
 	'native'
 ]
-hasSentry: true
 olderVersions: [
 	{
 		version: '1.8.1'
@@ -32,22 +37,33 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/10847708/Speediness.1.5.0.-.macOS.12.zip'
 	}
 ]
-nonAppStoreVersion: {
-	version: '2.0.0'
-	macOS: 26
-	url: 'https://www.dropbox.com/scl/fi/xt04xgqt32n6ekqdao10b/Speediness-2.0.0-1770359964.zip?rlkey=d16dzbs51ys756sb2cw49merv&raw=1'
-}
+pressQuotes: [
+	{
+		quote: 'To let less technical Mac users run Apple’s speed test too, developer Sindre Sorhus has released the free Mac app Speediness. It can start Apple’s test at the push of a button and repeat it easily, quickly backing up with numbers whether your gut feeling about a particularly bad connection today is valid or not.'
+		source: 'ifun.de'
+		translatedFrom: 'German'
+		url: 'https://www.ifun.de/speediness-die-beste-oberflaeche-fuer-apples-netzwerk-speedtest-179074/'
+		year: 2021
+	}
+]
 ---
 
 Quickly check your internet connection speed, ping, and [RPM](#rpm).
+
+**Features**
+
+- A history of your tests, which you can filter by Wi-Fi network
+- Add a note to a test, like where you were
+- Export the history as CSV or JSON
+- The “Get Internet Speed” action in the Shortcuts app
 
 ## Tips
 
 ### Show the current internet speed in the menu bar {#menu-bar-output}
 
-<img src="https://github.com/sindresorhus/meta/assets/170270/a7ffaf8f-6fb0-4c90-822f-446ec5ff8960" alt="Speediness output in the menu bar" width="230">
+<img src="https://github.com/sindresorhus/meta/assets/170270/a7ffaf8f-6fb0-4c90-822f-446ec5ff8960" alt="Speediness output in the menu bar" width="230" height="66">
 
-You will need the [One Thing](/one-thing) app. Add [this shortcut](https://www.icloud.com/shortcuts/d073ad4fd89f4c9cb110795780ed2377) and then use the [Shortery](https://apps.apple.com/app/id1594183810) app to run it at an interval, as Shortcuts automations cannot do that. I would recommend an interval higher than 10 minutes.
+You will need the [One Thing](/one-thing) app. Add the [“Internet Speed in Menu Bar” shortcut](https://www.icloud.com/shortcuts/d073ad4fd89f4c9cb110795780ed2377) and then use the [Shortery](https://apps.apple.com/app/id1594183810) app to run it at an interval, as Shortcuts automations cannot do that. I would recommend an interval higher than 10 minutes.
 
 Tip: If you have limited space in the menu bar, you could switch the info shown in One Thing at an interval too. For example, you could show the internet speed for 10 minutes and then the weather for the next 10 minutes.
 
@@ -69,19 +85,19 @@ The problem with fast.com is that it’s run by Netflix, and Netflix’s servers
 
 It’s a measurement called Round-trips Per Minute (RPM) — the number of sequential round-trips a network can do in one minute under normal working conditions.
 
-[Learn more](https://support.apple.com/HT212313)
+[Learn more about RPM](https://support.apple.com/HT212313)
 
-### What does the ping value mean?
+### What does the ping value mean? {#what-does-the-ping-value-mean}
 
 It’s a measurement of the round-trip time for messages sent from the originating host to a destination computer that are echoed back to the source. `ms` is the symbol for milliseconds.
 
-[Learn more](https://xtrium.com/what-is-a-good-ping-speed/)
+[Learn more about ping](https://xtrium.com/what-is-a-good-ping-speed/)
 
-### Why should I trust the results?
+### Why should I trust the results? {#why-should-i-trust-the-results}
 
 The app makes use of the built-in [`networkQuality` command-line tool](https://support.apple.com/HT212313) under the hood, which is provided by Apple.
 
-### Can it show a progress bar instead of a spinner?
+### Can it show a progress bar instead of a spinner? {#can-it-show-a-progress-bar-instead-of-a-spinner}
 
 No, a progress bar would not accurately reflect progress due to the variability in testing time, which depends on factors like network speed and other unknown conditions.
 
@@ -93,9 +109,13 @@ No. The app relies on Apple’s built-in `networkQuality` tool, which does not m
 
 No. Jitter sounds useful, but it rarely adds actionable insight. If jitter is bad, you’ll see it immediately through unstable latency and low responsiveness. If responsiveness is high, jitter is already in a safe range. A separate jitter number wouldn’t change what you can do with the result.
 
-### How can I run it from the menu bar?
+### How can I run it from the menu bar? {#how-can-i-run-it-from-the-menu-bar}
 
 Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet Speed” action into the shortcut editor. Enable the “Pin in Menu Bar” shortcut setting. You can now run speed tests directly from the Shortcuts icon in the menu bar.
+
+### Is there a widget? {#widget}
+
+No. To see the speed at a glance, [show it in the menu bar](#menu-bar-output). You can also [run a speed test from the menu bar](#how-can-i-run-it-from-the-menu-bar).
 
 ### How can I run the speed test automatically every hour? {#scheduled}
 
@@ -105,6 +125,6 @@ Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet
 
 This is unfortunately not possible at this time as the app relies on the built-in [`networkQuality` command-line tool](https://support.apple.com/HT212313), which does not exist on iOS. Someone would have to implement the [“Responsiveness under Working Conditions” RFC](https://datatracker.ietf.org/doc/draft-ietf-ippm-responsiveness/) in Swift. [Reference implementation in Go.](https://github.com/network-quality/goresponsiveness) Let me know if you end up making a Swift package for this.
 
-### Can you make a command-line tool for this app?
+### Can you make a command-line tool for this app? {#can-you-make-a-command-line-tool-for-this-app}
 
 This app uses the built-in [`networkQuality` command-line tool](https://support.apple.com/HT212313) under the hood. You can use it too.

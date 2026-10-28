@@ -7,7 +7,11 @@ JezzBall, like the one of the Microsoft Entertainment Pack (Dima Pavlovsky, 1992
 */
 struct GeoCitiesWindowsJezzBall: ScriptedElement {
 	static let script = ElementScript()
-	let config = Config()
+	private let configuration = Config()
+
+	var config: Config? {
+		configuration
+	}
 
 	var content: some HTML {
 		div {
@@ -29,7 +33,13 @@ struct GeoCitiesWindowsJezzBall: ScriptedElement {
 		}
 		.style(GeoCitiesWindows.Styles.wrapRow, GeoCitiesPage.Styles.scriptingOnly)
 
-		canvas(.part(Parts.screen), .width(480), .height(300), .tabindex(0), .role("application")) {}
+		canvas(
+			.part(Parts.screen),
+			.width(480),
+			.height(300),
+			.tabindex(0),
+			.role("application")
+		) {}
 			.accessibilityLabel("JezzBall. The arrow keys move the crosshair, Space or Enter builds a wall, R turns the wall, and P pauses.")
 			.style(Styles.screen, GeoCitiesPage.Styles.scriptingOnly)
 
@@ -48,7 +58,7 @@ struct GeoCitiesWindowsJezzBall: ScriptedElement {
 		.style(GeoCitiesWindows.Styles.wrapRow, GeoCitiesPage.Styles.scriptingOnly)
 
 		p(.part(Parts.status), .role("status")) {
-			"Click in the room to build a wall. Box in the atoms, and clear \(config.goal)% of the room!"
+			"Click in the room to build a wall. Box in the atoms, and clear \(configuration.goal)% of the room!"
 		}
 		.style(GeoCitiesPage.Styles.statusBar, GeoCitiesPage.Styles.scriptingOnly)
 
@@ -92,7 +102,7 @@ struct GeoCitiesWindowsJezzBall: ScriptedElement {
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(480.0 / 300.0)
 					.background(.black)
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
 					.imageRendering(.pixelated)
 					.touchAction(.manipulation)
 					.cursor(.crosshair)

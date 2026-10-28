@@ -11,7 +11,7 @@ struct GeoCitiesLego: ScriptedElement {
 	/**
 	The ID of the element, which the LEGO shelf in my room leads to.
 	*/
-	static let rootID = "geocities-lego"
+	static let rootID = ElementID("geocities-lego")
 
 	/**
 	The bricks, by the size that the script knows them by, with their names.
@@ -92,7 +92,13 @@ struct GeoCitiesLego: ScriptedElement {
 				.style(Styles.toolbar)
 
 				// The plate is drawn at twice the size of the canvas on the page, so the studs are round and sharp.
-				canvas(.part(Parts.canvas), .width(640), .height(480), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.canvas),
+					.width(640),
+					.height(480),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("The LEGO baseplate. Move with the arrow keys, press Enter to put the brick on, R to turn it, and Delete to take the top brick off.")
 					.style(Styles.canvas)
 
@@ -151,21 +157,21 @@ struct GeoCitiesLego: ScriptedElement {
 		case status
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The size of a brick button, like `2x4`.
 		*/
-		case piece = "data-lego-piece"
+		case piece = "lego-piece"
 
 		/**
 		The color of a color button, like `red`.
 		*/
-		case color = "data-lego-color"
+		case color = "lego-color"
 
 		/**
 		What a button of the builder does, like `swoosh`.
 		*/
-		case action = "data-lego-action"
+		case action = "lego-action"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -207,53 +213,60 @@ struct GeoCitiesLego: ScriptedElement {
 				// A raised button, pressed in while its brick is chosen.
 				GeoCitiesPage.Styles.smallButton.style
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-					.pressedIn(Color("#ffffff"))
+					.pressedIn(Color(raw: "#ffffff"))
 			case .swatch:
 				// A square of the color, with a thick black edge while it is chosen.
 				Style()
 					.frame(size: .rootEm(2))
-					.border(Color("#555555"), width: .pixels(2), style: .outset)
+					.border(Color(raw: "#555555"), width: .pixels(2), style: .outset)
 					.handCursor()
 					.pressed {
 						$0.border(.black, width: .pixels(4), style: .solid)
 					}
 			case .red:
-				Style().background(Color("#c91a09"))
+				Style().background(Color(raw: "#c91a09"))
 			case .blue:
-				Style().background(Color("#0055bf"))
+				Style().background(Color(raw: "#0055bf"))
 			case .yellow:
-				Style().background(Color("#f2cd37"))
+				Style().background(Color(raw: "#f2cd37"))
 			case .green:
-				Style().background(Color("#237841"))
+				Style().background(Color(raw: "#237841"))
 			case .white:
-				Style().background(Color("#f4f4f4"))
+				Style().background(Color(raw: "#f4f4f4"))
 			case .gray:
-				Style().background(Color("#a0a5a9"))
+				Style().background(Color(raw: "#a0a5a9"))
 			case .black:
-				Style().background(Color("#2a2a2a"))
+				Style().background(Color(raw: "#2a2a2a"))
 			case .clear:
 				// Transparent, like the windows of the spaceships.
-				Style().backgroundImage(.linearGradient("135deg", Color("#e8f8ff"), Color("#9fd4e8"), Color("#e8f8ff")))
+				Style().backgroundImage(
+					.linearGradient(
+						.angle(.degrees(135)),
+						Color(raw: "#e8f8ff"),
+						Color(raw: "#9fd4e8"),
+						Color(raw: "#e8f8ff")
+					)
+				)
 			case .swatchName:
 				Style().visuallyHidden()
 			case .toggle:
-				Style().pressedIn(Color("#ffcc66"))
+				Style().pressedIn(Color(raw: "#ffcc66"))
 			case .canvas:
 				// A tap puts a brick on, and a finger can still scroll the page over the plate, as the bricks go on with a click.
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(640.0 / 480.0)
-					.background(Color("#9cc3e6"))
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#9cc3e6"))
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.touchAction(.manipulation)
 					.canvasFocusRing()
 			case .step:
 				// A page of the instructions, in the blue of the LEGO books of the 1990s.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
-					.background(Color("#0055bf"))
+					.background(Color(raw: "#0055bf"))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 					.color(.white)

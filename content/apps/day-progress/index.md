@@ -1,7 +1,7 @@
 ---
 title: 'Day Progress'
 subtitle: 'Time remaining today in your menu bar'
-publicationDate: '2023-06-18'
+publicationDate: 2023-06-18
 platforms: [
 	'macOS'
 ]
@@ -36,6 +36,19 @@ pressQuotes: [
 		url: 'https://9to5mac.com/2023/06/20/day-progress-mac-app/'
 		year: 2023
 	}
+	{
+		quote: 'Day Progress aims to help users see how much time is left in their day at a glance. The app runs in the macOS Menu Bar, so it’s always visible to the user.'
+		source: '9to5Mac'
+		url: 'https://9to5mac.com/2024/08/28/mac-utilities/'
+		year: 2024
+	}
+	{
+		quote: 'The app installs in the menu bar. By clicking its icon and going to Settings, you enter your schedule (this also works for the kids’ school), and the progress is shown right in front of you.'
+		source: 'Compétence Mac'
+		translatedFrom: 'French'
+		url: 'https://competencemac.com/macos-gardez-un-oeil-sur-le-temps-restant-dune-tache-depuis-la-barre-des-menus/'
+		year: 2023
+	}
 ]
 ---
 
@@ -45,7 +58,9 @@ You can customize your day’s start and end times per day, even allowing for a 
 
 You can set up multiple time ranges to run one after another throughout your day. The menu bar shows a single progress at a time. Perfect for tracking different parts of your day like work hours and personal time.
 
-Choose between a progress pie or bar, showing percentage, remaining time, or minutes left.
+Choose from 7 progress styles (a pie, circles, and bars), and show the percentage, the time, or the minutes, elapsed or remaining.
+
+With the Shortcuts app, you can add a custom duration, enable or schedule a duration, and get the progress of the active duration.
 
 ## Tips
 
@@ -69,7 +84,7 @@ A shortcut can be run from the menu bar, using a global keyboard shortcut, from 
 
 You could use Day Progress as an abstract clock instead of the system clock, to minimize anxiety and distraction from time, enhancing focus and productivity.
 
-Unfortunately, it’s not possible to fully hide the built-in menu bar clock. However, you could make it an analog clock, which makes it a lot less visible. In “System Settings › Control Center › Clock Options”, choose the analog clock and disable showing the date.
+Unfortunately, it’s not possible to fully hide the built-in menu bar clock. However, you could make it an analog clock, which makes it a lot less visible. In “System Settings › Menu Bar › Clock Options”, choose the analog clock and disable showing the date.
 
 ### Events
 
@@ -77,30 +92,30 @@ The [distributed notification](/apps/faq#distributed-notifications) `com.sindres
 
 ## Frequently Asked Questions {#faq}
 
-### Can you add widgets?
+### Can you add widgets? {#can-you-add-widgets}
 
 I plan to do that at some point, but I cannot say when.
 
-### Can you add support for iOS?
+### Can you add support for iOS? {#can-you-add-support-for-ios}
 
 I plan to do that at some point, but I cannot say when.
 
-### Can you support more countdown ranges, like until the end of the week or a certain date?
+### Can you support more countdown ranges, like until the end of the week or a certain date? {#can-you-support-more-countdown-ranges-like-until-the-end-of-the-week-or-a-certain-date}
 
 There are already lots of apps for counting down to a specific date. I wanted to make something more unique. Also, the app name is “Day Progress”.
 
-### Can you support specifying different day ranges for different days of the week?
+### Can you support specifying different day ranges for different days of the week? {#can-you-support-specifying-different-day-ranges-for-different-days-of-the-week}
 
 You can set up multiple schedules with different time ranges, both for different days and within the same day. Each time range runs its progress one after another in the menu bar. For even more flexibility, use the “Set Duration Schedule” and “Set Duration Enabled” actions in the Shortcuts app.
 
-### Does the app provide end-of-day notifications?
+### Does the app provide end-of-day notifications? {#does-the-app-provide-end-of-day-notifications}
 
 At this time, the app doesn’t support this. Considering the wide-ranging user preferences of notifications, from system alerts to fullscreen notifications and differing “do not disturb” settings, I’ve opted to keep the app straightforward and not include notifications for now.
 
-### Can you add Pomodoro features?
+### Can you add Pomodoro features? {#can-you-add-pomodoro-features}
 
 This is outside the scope of the app. Day Progress is meant as a general day progress indicator, not a task timer. There are many dedicated Pomodoro apps available in the App Store.
 
-### Can it show a progress bar for how much time I have left in my life?
+### Can it show a progress bar for how much time I have left in my life? {#can-it-show-a-progress-bar-for-how-much-time-i-have-left-in-my-life}
 
 This is out of scope for this app, and there are existing apps for that already.

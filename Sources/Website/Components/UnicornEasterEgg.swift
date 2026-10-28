@@ -6,7 +6,7 @@ A unicorn that gallops across the page after the Konami code (↑ ↑ ↓ ↓ �
 */
 struct UnicornEasterEgg: HTML {
 	var body: some HTML {
-		template(.id(Hooks.unicornTemplate)) {
+		template(.id(IDs.unicornTemplate)) {
 			span {
 				span {
 					"🦄"
@@ -19,9 +19,9 @@ struct UnicornEasterEgg: HTML {
 	}
 
 	/**
-	The IDs and data attributes that the scripts of the component find elements by.
+	The IDs that the scripts of the component find elements by.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum IDs: String, ScriptIDSet {
 		case unicornTemplate = "unicorn-template"
 	}
 
@@ -36,7 +36,7 @@ struct UnicornEasterEgg: HTML {
 				Style()
 					.position(.fixed)
 					.bottom(.percent(12))
-					.leading(0)
+					.leading(.zero)
 					.zIndex(50)
 					.font(size: .rootEm(6), lineHeight: 1)
 					.allowsHitTesting(false)
@@ -48,7 +48,7 @@ struct UnicornEasterEgg: HTML {
 				// A hop at each stride, six in the run. The emoji faces left, so it is mirrored to run to the right.
 				Style()
 					.display(.inlineBlock)
-					.declaration(.scale, "-1 1")
+					.scaleEffect(x: -1, y: 1)
 					.animation(Animations.hop, .easeInOut(duration: .milliseconds(233)).repeatForever())
 			}
 		}

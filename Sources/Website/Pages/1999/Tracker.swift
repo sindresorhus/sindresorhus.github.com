@@ -26,6 +26,13 @@ struct GeoCitiesTracker: ScriptedElement {
 		("hamster", "hampster.mod"),
 	]
 
+	struct Config: Encodable {
+		let channelCount = GeoCitiesTracker.channelCount
+		let instruments = GeoCitiesTracker.instruments
+	}
+
+	let config: Config? = Config()
+
 	var content: some HTML {
 		h2 {
 			"WaffleTracker 2"
@@ -189,41 +196,41 @@ struct GeoCitiesTracker: ScriptedElement {
 		case cursor
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A button that loads a module, by its ID.
 		*/
-		case module = "data-tracker-module"
+		case module = "tracker-module"
 
 		/**
 		A button of an instrument, by its number.
 		*/
-		case instrument = "data-tracker-instrument"
+		case instrument = "tracker-instrument"
 
 		/**
 		A button that mutes a channel, by its index.
 		*/
-		case mute = "data-tracker-mute"
+		case mute = "tracker-mute"
 
 		/**
 		The meter of a channel, by its index, which lights up when the channel plays a note.
 		*/
-		case meter = "data-tracker-meter"
+		case meter = "tracker-meter"
 
 		/**
 		A row of the pattern, by its index.
 		*/
-		case row = "data-tracker-row"
+		case row = "tracker-row"
 
 		/**
 		A spot of the pattern, as the row and the channel, like `4-2`.
 		*/
-		case cell = "data-tracker-cell"
+		case cell = "tracker-cell"
 
 		/**
 		A button that enters a note (by its index from C) at the cursor, or `delete`, `up`, or `down` for the octave.
 		*/
-		case note = "data-tracker-note"
+		case note = "tracker-note"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -252,9 +259,9 @@ struct GeoCitiesTracker: ScriptedElement {
 		/**
 		The colors of FastTracker 2: a blue-gray panel with light edges, and the pattern in black.
 		*/
-		private static let panelColor = Color("#49577a")
-		private static let lightColor = Color("#9aaacd")
-		private static let darkColor = Color("#262f44")
+		private static let panelColor = Color(raw: "#49577a")
+		private static let lightColor = Color(raw: "#9aaacd")
+		private static let darkColor = Color(raw: "#262f44")
 
 		var style: Style {
 			switch self {
@@ -297,31 +304,31 @@ struct GeoCitiesTracker: ScriptedElement {
 					.flexWrap()
 			case .instrument:
 				Style()
-					.padding(vertical: 0, horizontal: .rootEm(0.375))
+					.padding(vertical: .zero, horizontal: .rootEm(0.375))
 					.background(Self.darkColor)
 					.border(Self.lightColor, width: .pixels(1))
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption)
-					.color(Color("#ffff88"))
+					.color(Color(raw: "#ffff88"))
 					.handCursor()
 					.pressed {
 						$0
-							.background(Color("#ffff88"))
+							.background(Color(raw: "#ffff88"))
 							.color(.black)
 					}
 			case .row:
 				// The number of the row, and one column for each channel.
 				Style()
-					.grid(columns: "2.5ch repeat(4, 1fr)")
+					.grid(columns: .fixed(.characterWidth(2.5)), repeating: .fraction(1), count: GeoCitiesTracker.channelCount)
 					.gap(.rootEm(0.25))
 					.padding(.horizontal, .rootEm(0.25))
 					.when(States.now) {
-						$0.background(Color("#3a4f8f"))
+						$0.background(Color(raw: "#3a4f8f"))
 					}
 			case .beatRow:
-				Style().color(Color("#ffffaa"))
+				Style().color(Color(raw: "#ffffaa"))
 			case .plainRow:
-				Style().color(Color("#d0d8f0"))
+				Style().color(Color(raw: "#d0d8f0"))
 			case .header:
 				Style().padding(.bottom, .rootEm(0.125))
 			case .channel:
@@ -340,7 +347,7 @@ struct GeoCitiesTracker: ScriptedElement {
 					}
 					.pressed {
 						$0
-							.color(Color("#ff8888"))
+							.color(Color(raw: "#ff8888"))
 							.underline()
 					}
 			case .meter:
@@ -348,10 +355,10 @@ struct GeoCitiesTracker: ScriptedElement {
 				Style()
 					.frame(height: .pixels(4))
 					.background(Self.darkColor)
-					.transition(.background, animation: .easeOut(duration: .milliseconds(200)))
+					.transition(.background, timing: .easeOut(duration: .milliseconds(200)))
 					.when(States.hit) {
 						$0
-							.background(Color("#33ff66"))
+							.background(Color(raw: "#33ff66"))
 							.noTransition()
 					}
 			case .pattern:
@@ -367,10 +374,10 @@ struct GeoCitiesTracker: ScriptedElement {
 					.fontWeight(.bold)
 					.overflow(.auto)
 					.focusVisible {
-						$0.focusRing(Color("#ffff88"), width: .pixels(2), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffff88"), width: .pixels(2), offset: .pixels(2))
 					}
 			case .rowNumber:
-				Style().color(Color("#8899cc"))
+				Style().color(Color(raw: "#8899cc"))
 			case .cell:
 				// The cursor is a box around the spot, which shows while the pattern has the focus, or after a tap.
 				Style()
@@ -379,7 +386,7 @@ struct GeoCitiesTracker: ScriptedElement {
 					.handCursor()
 					.when(States.cursor) {
 						$0
-							.background(Color("#cccccc"))
+							.background(Color(raw: "#cccccc"))
 							.color(.black)
 					}
 			case .notes:
@@ -388,7 +395,7 @@ struct GeoCitiesTracker: ScriptedElement {
 					.gap(.rootEm(0.25))
 			case .noteButton:
 				Style()
-					.padding(vertical: .rootEm(0.25), horizontal: 0)
+					.padding(vertical: .rootEm(0.25), horizontal: .zero)
 					.background(Self.darkColor)
 					.border(Self.lightColor, width: .pixels(1), style: .outset)
 					.fontFamily(GeoCitiesPage.courier)
@@ -405,7 +412,7 @@ struct GeoCitiesTracker: ScriptedElement {
 					.frame(minHeight: .lineHeight(1))
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption)
-					.color(Color("#ffff88"))
+					.color(Color(raw: "#ffff88"))
 			}
 		}
 	}

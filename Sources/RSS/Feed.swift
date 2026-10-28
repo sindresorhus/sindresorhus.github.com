@@ -10,7 +10,7 @@ let feed = Feed(
 	description: "Posts about Swift"
 ) {
 	for post in posts {
-		Item(title: post.title, link: post.url, publicationDate: post.date)
+		Item(title: post.title, link: post.url, publicationDate: .instant(post.date))
 	}
 }
 
@@ -41,7 +41,7 @@ public struct Feed: Hashable, Sendable {
 	/**
 	The last time the content of the channel changed.
 	*/
-	public var lastBuildDate: Date?
+	public var lastBuildDate: Item.PublicationDate?
 
 	/**
 	The absolute URL of the feed itself, written as `atom:link` with `rel="self"`, which feed validators recommend.
@@ -60,7 +60,7 @@ public struct Feed: Hashable, Sendable {
 		link: URL,
 		description: String,
 		language: String? = nil,
-		lastBuildDate: Date? = nil,
+		lastBuildDate: Item.PublicationDate? = nil,
 		selfLink: URL? = nil,
 		image: URL? = nil,
 		items: [Item]
@@ -80,7 +80,7 @@ public struct Feed: Hashable, Sendable {
 		link: URL,
 		description: String,
 		language: String? = nil,
-		lastBuildDate: Date? = nil,
+		lastBuildDate: Item.PublicationDate? = nil,
 		selfLink: URL? = nil,
 		image: URL? = nil,
 		@ItemBuilder items: () -> [Item]
@@ -100,7 +100,7 @@ public struct Feed: Hashable, Sendable {
 
 extension Feed {
 	/**
-	Checks the requirements of the RSS 2.0 specification that the type system cannot express, and that each item has its own GUID, which feed readers need to tell items apart. Errors name the item by its title, or else by its link, its GUID, or its position.
+	Checks the requirements of the RSS 2.0 specification that the type system cannot express, and that each item has its own GUID, which feed readers need to tell items apart. Errors name the item by its title.
 	*/
 	public func validate() throws(FeedValidationError) {
 		guard !title.isEmpty else {
@@ -119,14 +119,14 @@ extension Feed {
 
 		var guids = Set<String>()
 
-		for (index, item) in items.enumerated() {
-			try item.validate(index: index)
+		for item in items {
+			try item.validate()
 
 			if
 				let guid = item.resolvedGUID,
 				!guids.insert(guid.value).inserted
 			{
-				throw .duplicateGUID(guid.value, item: item.name(index: index))
+				throw .duplicateGUID(guid.value, item: item.title)
 			}
 		}
 	}
@@ -157,13 +157,8 @@ extension Feed {
 				writer.element("link", text: link.absoluteString)
 				writer.element("description", text: description)
 
-				if let language {
-					writer.element("language", text: language)
-				}
-
-				if let lastBuildDate {
-					writer.element("lastBuildDate", text: lastBuildDate.rfc822String)
-				}
+				writer.element("language", optionalText: language)
+				writer.element("lastBuildDate", optionalText: lastBuildDate?.rfc822String)
 
 				if let selfLink {
 					writer.element("atom:link", attributes: [("href", selfLink.absoluteString), ("rel", "self"), ("type", "application/rss+xml")])

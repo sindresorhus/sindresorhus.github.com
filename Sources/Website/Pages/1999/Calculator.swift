@@ -32,58 +32,282 @@ struct GeoCitiesCalculator: ScriptedElement {
 	}
 
 	static let topKeys = [
-		Key(id: "y=", label: "Y=", second: "STAT PLOT", kind: .top),
-		Key(id: "window", label: "WINDOW", second: "TBLSET", kind: .top),
-		Key(id: "zoom", label: "ZOOM", second: "FORMAT", kind: .top),
-		Key(id: "trace", label: "TRACE", second: "CALC", kind: .top),
-		Key(id: "graph", label: "GRAPH", second: "TABLE", kind: .top),
+		Key(
+			id: "y=",
+			label: "Y=",
+			second: "STAT PLOT",
+			kind: .top
+		),
+		Key(
+			id: "window",
+			label: "WINDOW",
+			second: "TBLSET",
+			kind: .top
+		),
+		Key(
+			id: "zoom",
+			label: "ZOOM",
+			second: "FORMAT",
+			kind: .top
+		),
+		Key(
+			id: "trace",
+			label: "TRACE",
+			second: "CALC",
+			kind: .top
+		),
+		Key(
+			id: "graph",
+			label: "GRAPH",
+			second: "TABLE",
+			kind: .top
+		),
 	]
 
 	static let upperKeys = [
 		Key(id: "2nd", label: "2nd", kind: .second),
 		Key(id: "mode", label: "MODE", second: "QUIT"),
 		Key(id: "del", label: "DEL", second: "INS"),
-		Key(id: "alpha", label: "ALPHA", second: "A-LOCK", kind: .alpha),
-		Key(id: "xt", label: "X,T,θ", second: "LINK", name: "X, T, theta"),
+		Key(
+			id: "alpha",
+			label: "ALPHA",
+			second: "A-LOCK",
+			kind: .alpha
+		),
+		Key(
+			id: "xt",
+			label: "X,T,θ",
+			second: "LINK",
+			name: "X, T, theta"
+		),
 		Key(id: "stat", label: "STAT", second: "LIST"),
 	]
 
 	static let lowerKeys = [
-		Key(id: "math", label: "MATH", second: "TEST", alpha: "A"),
-		Key(id: "matrx", label: "MATRX", second: "ANGLE", alpha: "B"),
-		Key(id: "prgm", label: "PRGM", second: "DRAW", alpha: "C"),
-		Key(id: "vars", label: "VARS", second: "DISTR", alpha: "D"),
+		Key(
+			id: "math",
+			label: "MATH",
+			second: "TEST",
+			alpha: "A"
+		),
+		Key(
+			id: "matrx",
+			label: "MATRX",
+			second: "ANGLE",
+			alpha: "B"
+		),
+		Key(
+			id: "prgm",
+			label: "PRGM",
+			second: "DRAW",
+			alpha: "C"
+		),
+		Key(
+			id: "vars",
+			label: "VARS",
+			second: "DISTR",
+			alpha: "D"
+		),
 		Key(id: "clear", label: "CLEAR"),
-		Key(id: "inverse", label: "x⁻¹", second: "", alpha: "E", name: "x inverse"),
-		Key(id: "sin", label: "SIN", second: "SIN⁻¹", alpha: "F"),
-		Key(id: "cos", label: "COS", second: "COS⁻¹", alpha: "G"),
-		Key(id: "tan", label: "TAN", second: "TAN⁻¹", alpha: "H"),
-		Key(id: "power", label: "^", second: "π", alpha: "I", name: "power"),
-		Key(id: "square", label: "x²", second: "√", alpha: "J", name: "x squared"),
-		Key(id: "comma", label: ",", second: "EE", alpha: "K", name: "comma"),
-		Key(id: "open", label: "(", second: "{", alpha: "L", name: "open parenthesis"),
-		Key(id: "close", label: ")", second: "}", alpha: "M", name: "close parenthesis"),
-		Key(id: "divide", label: "÷", second: "e", alpha: "N", name: "divide"),
-		Key(id: "log", label: "LOG", second: "10ˣ", alpha: "O"),
-		Key(id: "7", label: "7", second: "u", alpha: "P", kind: .light),
-		Key(id: "8", label: "8", second: "v", alpha: "Q", kind: .light),
-		Key(id: "9", label: "9", second: "w", alpha: "R", kind: .light),
-		Key(id: "multiply", label: "×", second: "[", alpha: "S", name: "multiply"),
-		Key(id: "ln", label: "LN", second: "eˣ", alpha: "T"),
-		Key(id: "4", label: "4", second: "L4", alpha: "U", kind: .light),
-		Key(id: "5", label: "5", second: "L5", alpha: "V", kind: .light),
-		Key(id: "6", label: "6", second: "L6", alpha: "W", kind: .light),
-		Key(id: "subtract", label: "−", second: "]", alpha: "X", name: "minus"),
-		Key(id: "store", label: "STO▶", second: "RCL", alpha: "Y", name: "store"),
-		Key(id: "1", label: "1", second: "L1", alpha: "Z", kind: .light),
-		Key(id: "2", label: "2", second: "L2", alpha: "θ", kind: .light),
-		Key(id: "3", label: "3", second: "L3", kind: .light),
-		Key(id: "add", label: "+", second: "MEM", alpha: "“", name: "plus"),
+		Key(
+			id: "inverse",
+			label: "x⁻¹",
+			second: "",
+			alpha: "E",
+			name: "x inverse"
+		),
+		Key(
+			id: "sin",
+			label: "SIN",
+			second: "SIN⁻¹",
+			alpha: "F"
+		),
+		Key(
+			id: "cos",
+			label: "COS",
+			second: "COS⁻¹",
+			alpha: "G"
+		),
+		Key(
+			id: "tan",
+			label: "TAN",
+			second: "TAN⁻¹",
+			alpha: "H"
+		),
+		Key(
+			id: "power",
+			label: "^",
+			second: "π",
+			alpha: "I",
+			name: "power"
+		),
+		Key(
+			id: "square",
+			label: "x²",
+			second: "√",
+			alpha: "J",
+			name: "x squared"
+		),
+		Key(
+			id: "comma",
+			label: ",",
+			second: "EE",
+			alpha: "K",
+			name: "comma"
+		),
+		Key(
+			id: "open",
+			label: "(",
+			second: "{",
+			alpha: "L",
+			name: "open parenthesis"
+		),
+		Key(
+			id: "close",
+			label: ")",
+			second: "}",
+			alpha: "M",
+			name: "close parenthesis"
+		),
+		Key(
+			id: "divide",
+			label: "÷",
+			second: "e",
+			alpha: "N",
+			name: "divide"
+		),
+		Key(
+			id: "log",
+			label: "LOG",
+			second: "10ˣ",
+			alpha: "O"
+		),
+		Key(
+			id: "7",
+			label: "7",
+			second: "u",
+			alpha: "P",
+			kind: .light
+		),
+		Key(
+			id: "8",
+			label: "8",
+			second: "v",
+			alpha: "Q",
+			kind: .light
+		),
+		Key(
+			id: "9",
+			label: "9",
+			second: "w",
+			alpha: "R",
+			kind: .light
+		),
+		Key(
+			id: "multiply",
+			label: "×",
+			second: "[",
+			alpha: "S",
+			name: "multiply"
+		),
+		Key(
+			id: "ln",
+			label: "LN",
+			second: "eˣ",
+			alpha: "T"
+		),
+		Key(
+			id: "4",
+			label: "4",
+			second: "L4",
+			alpha: "U",
+			kind: .light
+		),
+		Key(
+			id: "5",
+			label: "5",
+			second: "L5",
+			alpha: "V",
+			kind: .light
+		),
+		Key(
+			id: "6",
+			label: "6",
+			second: "L6",
+			alpha: "W",
+			kind: .light
+		),
+		Key(
+			id: "subtract",
+			label: "−",
+			second: "]",
+			alpha: "X",
+			name: "minus"
+		),
+		Key(
+			id: "store",
+			label: "STO▶",
+			second: "RCL",
+			alpha: "Y",
+			name: "store"
+		),
+		Key(
+			id: "1",
+			label: "1",
+			second: "L1",
+			alpha: "Z",
+			kind: .light
+		),
+		Key(
+			id: "2",
+			label: "2",
+			second: "L2",
+			alpha: "θ",
+			kind: .light
+		),
+		Key(
+			id: "3",
+			label: "3",
+			second: "L3",
+			kind: .light
+		),
+		Key(
+			id: "add",
+			label: "+",
+			second: "MEM",
+			alpha: "“",
+			name: "plus"
+		),
 		Key(id: "on", label: "ON", second: "OFF"),
-		Key(id: "0", label: "0", second: "CATALOG", alpha: "␣", kind: .light),
-		Key(id: ".", label: ".", second: "i", alpha: ":", kind: .light, name: "decimal point"),
-		Key(id: "negate", label: "(−)", second: "ANS", alpha: "?", kind: .light, name: "negative"),
-		Key(id: "enter", label: "ENTER", second: "ENTRY", alpha: "SOLVE"),
+		Key(
+			id: "0",
+			label: "0",
+			second: "CATALOG",
+			alpha: "␣",
+			kind: .light
+		),
+		Key(
+			id: ".",
+			label: ".",
+			second: "i",
+			alpha: ":",
+			kind: .light,
+			name: "decimal point"
+		),
+		Key(
+			id: "negate",
+			label: "(−)",
+			second: "ANS",
+			alpha: "?",
+			kind: .light,
+			name: "negative"
+		),
+		Key(
+			id: "enter",
+			label: "ENTER",
+			second: "ENTRY",
+			alpha: "SOLVE"
+		),
 	]
 
 	/**
@@ -103,15 +327,26 @@ struct GeoCitiesCalculator: ScriptedElement {
 	/**
 	The programs on Trond’s calculator, which he sends over the link cable, with their size in bytes.
 	*/
-	static let trondPrograms: [(name: String, size: Int)] = [
-		("FALLDOWN", 2348),
-		("CATPIC", 4116),
-		("RPGQUEST", 18400),
-		("PHOENIX", 8977),
-		("WAFFLRUN", 3312),
-		("SNAKE", 1560),
-		("QUIZ", 921),
+	struct Program: Encodable {
+		let name: String
+		let byteCount: Int
+	}
+
+	static let trondPrograms = [
+		Program(name: "FALLDOWN", byteCount: 2348),
+		Program(name: "CATPIC", byteCount: 4116),
+		Program(name: "RPGQUEST", byteCount: 18400),
+		Program(name: "PHOENIX", byteCount: 8977),
+		Program(name: "WAFFLRUN", byteCount: 3312),
+		Program(name: "SNAKE", byteCount: 1560),
+		Program(name: "QUIZ", byteCount: 921),
 	]
+
+	struct Config: Encodable {
+		let programs = GeoCitiesCalculator.trondPrograms
+	}
+
+	let config: Config? = Config()
 
 	var content: some HTML {
 		h2 {
@@ -207,26 +442,26 @@ struct GeoCitiesCalculator: ScriptedElement {
 		case dead
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A key of the calculator, by its ID, like `enter` or `7`.
 		*/
-		case key = "data-ti83-key"
+		case key = "ti83-key"
 
 		/**
 		A number on the sticky note, which the button types on the calculator.
 		*/
-		case number = "data-ti83-number"
+		case number = "ti83-number"
 
 		/**
 		A program on Trond’s calculator, by its name, which the button sends over the link cable.
 		*/
-		case send = "data-ti83-send"
+		case send = "ti83-send"
 
 		/**
 		A slot of an AAA battery in the battery door, by its index.
 		*/
-		case battery = "data-ti83-battery"
+		case battery = "ti83-battery"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -299,40 +534,56 @@ struct GeoCitiesCalculator: ScriptedElement {
 					.vstack(spacing: .rootEm(0.625))
 					.frame(width: .rootEm(19.5), maxWidth: .percent(100))
 					.padding(top: .rootEm(0.75), horizontal: .rootEm(0.75), bottom: .rootEm(1.25))
-					.backgroundImage(.linearGradient("to right", Color("#3c3d42"), Color("#4b4c52"), Color("#3c3d42")))
-					.border(Color("#1f2023"), width: .pixels(2))
+					.backgroundImage(
+						.linearGradient(
+							.toRight,
+							Color(raw: "#3c3d42"),
+							Color(raw: "#4b4c52"),
+							Color(raw: "#3c3d42")
+						)
+					)
+					.border(Color(raw: "#1f2023"), width: .pixels(2))
 					.cornerRadius(.rootEm(1.25))
-					.shadow(Shadow(x: .pixels(4), y: .pixels(6), color: Color("#00000066")), Shadow(x: .pixels(-2), y: .pixels(-2), blur: .pixels(4), color: Color("#00000055"), isInset: true))
+					.shadow(
+						BoxShadow(x: .pixels(4), y: .pixels(6), color: Color(raw: "#00000066")),
+						BoxShadow(
+							x: .pixels(-2),
+							y: .pixels(-2),
+							blur: .pixels(4),
+							color: Color(raw: "#00000055"),
+							isInset: true
+						)
+					)
 					.color(.white)
 					.when(States.flipped) {
 						$0.rotationEffect(.degrees(180))
 					}
 					.media(.allowsMotion) {
-						$0.transition(.rotationEffect, animation: .easeInOut(duration: .milliseconds(800)))
+						$0.transition(.rotationEffect, timing: .easeInOut(duration: .milliseconds(800)))
 					}
 			case .brand:
 				Style().hstack(alignment: .baseline, justification: .spaceBetween, spacing: .rootEm(0.5))
 			case .brandName:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.font(.large, weight: .heavy)
 					.italic()
-					.color(Color("#f0f0f0"))
+					.color(Color(raw: "#f0f0f0"))
 			case .brandMaker:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.font(size: .rootEm(0.625))
 					.letterSpacing(.em(0.1))
 					.fontWeight(.bold)
-					.color(Color("#c8c8cc"))
+					.color(Color(raw: "#c8c8cc"))
 			case .bezel:
 				// The black frame around the screen.
 				Style()
 					.padding(.rootEm(0.625))
-					.background(Color("#1b1c1f"))
-					.border(Color("#0e0e10"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#1b1c1f"))
+					.border(Color(raw: "#0e0e10"), width: .pixels(2), style: .inset)
 					.cornerRadius(.rootEm(0.5))
 			case .screen:
 				// The screen of 96 × 64 pixels, drawn four times as big, in the gray-green of the LCD. The glass has a margin around the pixels, like on the real one, so the top line and the left column are not cut by the frame. The canvas keeps its own aspect ratio, so the padding does not stretch the pixels.
@@ -340,11 +591,11 @@ struct GeoCitiesCalculator: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.padding(.rootEm(0.25))
-					.background(Color("#a9b597"))
+					.background(Color(raw: "#a9b597"))
 					.imageRendering(.pixelated)
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#ffd23f"), width: .pixels(2), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffd23f"), width: .pixels(2), offset: .pixels(2))
 					}
 			case .keypad:
 				Style().vstack(spacing: .rootEm(0.25))
@@ -362,7 +613,7 @@ struct GeoCitiesCalculator: ScriptedElement {
 			case .keyCell:
 				Style()
 					.vstack(spacing: .pixels(1))
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 			case .keyLabels:
 				// The 2nd function in yellow on the left, and the letter of ALPHA in green on the right, printed above the key.
 				Style()
@@ -374,22 +625,22 @@ struct GeoCitiesCalculator: ScriptedElement {
 					.textWrap(.nowrap)
 					.textSelection(.disabled)
 			case .secondLabel:
-				Style().color(Color("#f2c94c"))
+				Style().color(Color(raw: "#f2c94c"))
 			case .alphaLabel:
-				Style().color(Color("#5fd38a"))
+				Style().color(Color(raw: "#5fd38a"))
 			case .key:
 				// A dark rubber key, which moves down while it is pressed.
 				Style()
 					.frame(width: .percent(100), minHeight: .rootEm(2.125))
-					.padding(vertical: 0, horizontal: .pixels(1))
-					.background(Color("#232427"))
-					.border(Color("#0c0c0d"), width: .pixels(1))
+					.padding(vertical: .zero, horizontal: .pixels(1))
+					.background(Color(raw: "#232427"))
+					.border(Color(raw: "#0c0c0d"), width: .pixels(1))
 					.cornerRadius(.rootEm(0.375))
-					.shadow(Shadow(y: .pixels(2), color: Color("#101012")))
+					.shadow(BoxShadow(y: .pixels(2), color: Color(raw: "#101012")))
 					.fontFamily(.system)
 					.font(size: .rootEm(0.6875))
 					.fontWeight(.bold)
-					.color(Color("#f4f4f4"))
+					.color(Color(raw: "#f4f4f4"))
 					.textWrap(.nowrap)
 					.touchAction(.manipulation)
 					.textSelection(.disabled)
@@ -397,45 +648,45 @@ struct GeoCitiesCalculator: ScriptedElement {
 					.active {
 						$0
 							.offset(y: .pixels(2))
-							.shadow(Shadow(y: 0, color: Color("#101012")))
+							.shadow(BoxShadow(y: .zero, color: Color(raw: "#101012")))
 					}
 					.when(States.down) {
 						$0
 							.offset(y: .pixels(2))
-							.shadow(Shadow(y: 0, color: Color("#101012")))
+							.shadow(BoxShadow(y: .zero, color: Color(raw: "#101012")))
 					}
 					.pressed {
-						$0.focusRing(Color("#ffffff"), width: .pixels(2), offset: .pixels(1))
+						$0.focusRing(Color(raw: "#ffffff"), width: .pixels(2), offset: .pixels(1))
 					}
 					// The dotted ring of the page is dark on the light keys, so it would not show on the dark plastic.
 					.focusVisible {
-						$0.focusRing(Color("#ffd23f"), width: .pixels(2), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffd23f"), width: .pixels(2), offset: .pixels(2))
 					}
 			case .darkKey:
 				// Most keys are black, with white text.
 				Style()
-					.background(Color("#1d1e21"))
-					.color(Color("#f4f4f4"))
+					.background(Color(raw: "#1d1e21"))
+					.color(Color(raw: "#f4f4f4"))
 			case .topKey:
 				// The slim light keys under the screen.
 				Style()
 					.frame(minHeight: .rootEm(1.625))
-					.background(Color("#c9cacd"))
+					.background(Color(raw: "#c9cacd"))
 					.font(size: .rootEm(0.5625))
-					.color(Color("#1b1b1d"))
+					.color(Color(raw: "#1b1b1d"))
 			case .lightKey:
 				Style()
-					.background(Color("#b9babe"))
+					.background(Color(raw: "#b9babe"))
 					.font(size: .rootEm(0.9375))
-					.color(Color("#111"))
+					.color(Color(raw: "#111"))
 			case .secondKey:
 				Style()
-					.background(Color("#f2c94c"))
-					.color(Color("#1b1b1d"))
+					.background(Color(raw: "#f2c94c"))
+					.color(Color(raw: "#1b1b1d"))
 			case .alphaKey:
 				Style()
-					.background(Color("#4fbf78"))
-					.color(Color("#0b1f12"))
+					.background(Color(raw: "#4fbf78"))
+					.color(Color(raw: "#0b1f12"))
 			case .arrowPad:
 				// The four arrow keys in a round cluster, like on the real one.
 				Style()
@@ -443,40 +694,40 @@ struct GeoCitiesCalculator: ScriptedElement {
 					.flex(2)
 					.frame(height: .rootEm(6))
 					.padding(.pixels(2))
-					.background(Color("#2c2d31"))
+					.background(Color(raw: "#2c2d31"))
 					.cornerRadius(.circle)
 			case .arrowKey:
 				Style()
-					.background(Color("#9fa0a5"))
-					.border(Color("#555"), width: .pixels(1))
+					.background(Color(raw: "#9fa0a5"))
+					.border(Color(raw: "#555"), width: .pixels(1))
 					.cornerRadius(.rootEm(0.375))
 					.fontFamily(.system)
 					.font(size: .rootEm(0.75))
-					.color(Color("#1b1b1d"))
+					.color(Color(raw: "#1b1b1d"))
 					.touchAction(.manipulation)
 					.textSelection(.disabled)
 					.handCursor()
 					.active {
-						$0.background(Color("#7d7e83"))
+						$0.background(Color(raw: "#7d7e83"))
 					}
 					.when(States.down) {
-						$0.background(Color("#7d7e83"))
+						$0.background(Color(raw: "#7d7e83"))
 					}
 					.focusVisible {
-						$0.focusRing(Color("#ffd23f"), width: .pixels(2), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffd23f"), width: .pixels(2), offset: .pixels(2))
 					}
 			case .note:
 				// A yellow sticky note, a little crooked, with the numbers that make words upside down.
 				Style()
 					.padding(.rootEm(0.75))
-					.background(Color("#fff27a"))
-					.shadow(Shadow(x: .pixels(2), y: .pixels(3), color: Color("#00000040")))
+					.background(Color(raw: "#fff27a"))
+					.shadow(BoxShadow(x: .pixels(2), y: .pixels(3), color: Color(raw: "#00000040")))
 					.rotationEffect(.degrees(-1.5))
 					.fontFamily(GeoCitiesPage.comicSans)
-					.color(Color("#222"))
+					.color(Color(raw: "#222"))
 			case .noteTitle:
 				Style()
-					.margin(top: 0, bottom: .rootEm(0.5))
+					.margin(top: .zero, bottom: .rootEm(0.5))
 					.textStyle(.caption, weight: .bold)
 			case .noteButtons:
 				Style()
@@ -486,22 +737,22 @@ struct GeoCitiesCalculator: ScriptedElement {
 				Style()
 					.frame(minHeight: .rootEm(2.25))
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.25))
-					.background(Color("#fffbd0"))
-					.border(Color("#c9b400"), width: .pixels(1), style: .dashed)
+					.background(Color(raw: "#fffbd0"))
+					.border(Color(raw: "#c9b400"), width: .pixels(1), style: .dashed)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#222"))
+					.color(Color(raw: "#222"))
 					.handCursor()
 					.active {
-						$0.background(Color("#ffe94a"))
+						$0.background(Color(raw: "#ffe94a"))
 					}
 			case .trond:
 				// Trond’s TI-83, smaller, at the other end of the link cable.
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.75))
-					.background(Color("#3c3d42"))
-					.border(Color("#1f2023"), width: .pixels(2))
+					.background(Color(raw: "#3c3d42"))
+					.border(Color(raw: "#1f2023"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.75))
 					.color(.white)
 					.fontFamily(.system)
@@ -509,20 +760,20 @@ struct GeoCitiesCalculator: ScriptedElement {
 			case .cable:
 				// The black link cable, with its gray plug.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(.leading, .rootEm(0.5))
-					.border(.leading, Color("#111"), width: .pixels(6))
+					.border(.leading, Color(raw: "#111"), width: .pixels(6))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#ddd"))
+					.color(Color(raw: "#ddd"))
 			case .trondScreen:
 				// The same margin of the glass as on my screen.
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.padding(.rootEm(0.25))
-					.background(Color("#a9b597"))
-					.border(Color("#1b1c1f"), width: .pixels(4))
+					.background(Color(raw: "#a9b597"))
+					.border(Color(raw: "#1b1c1f"), width: .pixels(4))
 					.cornerRadius(.rootEm(0.25))
 					.imageRendering(.pixelated)
 			case .trondButtons:
@@ -539,8 +790,8 @@ struct GeoCitiesCalculator: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.75))
-					.background(Color("#2c2d31"))
-					.border(Color("#111"), width: .pixels(2), style: .dashed)
+					.background(Color(raw: "#2c2d31"))
+					.border(Color(raw: "#111"), width: .pixels(2), style: .dashed)
 					.cornerRadius(.rootEm(0.5))
 					.color(.white)
 					.fontFamily(.system)
@@ -554,33 +805,33 @@ struct GeoCitiesCalculator: ScriptedElement {
 				Style()
 					.frame(minHeight: .rootEm(2.5))
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.375))
-					.background(Color("#8a6d3b"))
-					.border(Color("#000"), width: .pixels(2))
+					.background(Color(raw: "#8a6d3b"))
+					.border(Color(raw: "#000"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.5))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 					.color(.white)
 					.handCursor()
 					.when(States.old) {
-						$0.background(Color("#7a5a2a"))
+						$0.background(Color(raw: "#7a5a2a"))
 					}
 					.when(States.out) {
 						$0
-							.background(Color("#1b1b1d"))
-							.border(Color("#777"), width: .pixels(2), style: .dashed)
-							.color(Color("#bbb"))
+							.background(Color(raw: "#1b1b1d"))
+							.border(Color(raw: "#777"), width: .pixels(2), style: .dashed)
+							.color(Color(raw: "#bbb"))
 					}
 					.when(States.new) {
 						$0
-							.background(Color("#d4a017"))
+							.background(Color(raw: "#d4a017"))
 							.color(.black)
 					}
 			case .backup:
 				Style()
 					.frame(minHeight: .rootEm(2.5))
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-					.background(Color("#c0c0c8"))
-					.border(Color("#555"), width: .pixels(2))
+					.background(Color(raw: "#c0c0c8"))
+					.border(Color(raw: "#555"), width: .pixels(2))
 					.cornerRadius(.capsule)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
@@ -588,9 +839,9 @@ struct GeoCitiesCalculator: ScriptedElement {
 					.handCursor()
 					.when(States.out) {
 						$0
-							.background(Color("#1b1b1d"))
-							.border(Color("#777"), width: .pixels(2), style: .dashed)
-							.color(Color("#ff8080"))
+							.background(Color(raw: "#1b1b1d"))
+							.border(Color(raw: "#777"), width: .pixels(2), style: .dashed)
+							.color(Color(raw: "#ff8080"))
 					}
 			case .buttons:
 				Style().margin(top: .rootEm(0.75))
@@ -600,35 +851,35 @@ struct GeoCitiesCalculator: ScriptedElement {
 					.frame(minHeight: .rootEm(2.75))
 					.pressed {
 						$0
-							.background(Color("#ffff99"))
-							.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
+							.background(Color(raw: "#ffff99"))
+							.border(Color(raw: "#dfdfdf"), width: .pixels(3), style: .inset)
 					}
 			case .teacher:
 				// Pressed in and green while Herr Olsen is here.
 				Style().when(States.on) {
 					$0
-						.background(Color("#ccffcc"))
-						.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
+						.background(Color(raw: "#ccffcc"))
+						.border(Color(raw: "#dfdfdf"), width: .pixels(3), style: .inset)
 				}
 			case .batteries:
 				// Orange while the batteries are low, and red when they are dead.
 				Style()
 					.when(States.low) {
-						$0.background(Color("#ffcc66"))
+						$0.background(Color(raw: "#ffcc66"))
 					}
 					.when(States.dead) {
 						$0
-							.background(Color("#ff6666"))
+							.background(Color(raw: "#ff6666"))
 							.color(.white)
 					}
 			case .upsideDown:
 				// What the number says upside down, big, like Trond reads it out loud.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.font(.extraLarge2, weight: .bold)
 					.textAlign(.center)
-					.color(Color("#000080"))
+					.color(Color(raw: "#000080"))
 			case .status:
 				Style()
 					.toyStatus()
@@ -661,7 +912,13 @@ extension GeoCitiesCalculator {
 
 				div {
 					// The screen is drawn at four times 96 × 64 pixels, so each pixel of the LCD can have a gap and a shadow.
-					canvas(.part(Parts.screen), .width(384), .height(256), .tabindex(0), .role("application")) {}
+					canvas(
+						.part(Parts.screen),
+						.width(384),
+						.height(256),
+						.tabindex(0),
+						.role("application")
+					) {}
 						.accessibilityLabel("The screen of the TI-83. Type numbers and + − * / ^ ( ), Enter to calculate, Backspace for DEL, Escape for CLEAR, the arrow keys to move, F1 to F5 for Y=, WINDOW, ZOOM, TRACE, and GRAPH, F6 for MODE, F7 for PRGM, F8 for MATH, Home for ON, letters for ALPHA, and Shift for 2nd. In the games, the arrow keys move, and Space or Enter shoots or jumps.")
 						.style(Styles.screen)
 				}
@@ -840,7 +1097,7 @@ extension GeoCitiesCalculator {
 						button(.type(.button), .hook(Hooks.send, value: program.name)) {
 							"Send \(program.name)"
 						}
-						.help("\(program.size) bytes")
+						.help("\(program.byteCount) bytes")
 						.style(GeoCitiesPage.Styles.smallButton)
 					}
 				}

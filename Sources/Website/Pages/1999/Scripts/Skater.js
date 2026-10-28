@@ -119,18 +119,7 @@ const letterSpots = [
 
 const tapeSpot = {x: 2057, y: 108};
 
-// The named gaps, with the zones to jump from and to. A gap counts both ways, unless it has a direction.
-const gaps = {
-	transfer: {name: 'Plan 2 Transfer', points: 250},
-	'big-air': {name: 'Bygarasjen Big Air', points: 300},
-	'garage-ramp': {name: 'Garage Ramp Gap', points: 200},
-	'bryggen-rail': {name: 'Hanseatic Rail', points: 200},
-	bryggen: {name: 'Bryggen Gap', points: 500},
-	stairs: {name: 'Fish Market Stair Set', points: 300},
-	handrail: {name: 'Fish Market Handrail', points: 400},
-	mormor: {name: 'Over Mormor', points: 350},
-	puddle: {name: 'Bergen Puddle Gap', points: 100},
-};
+// The zones to jump from and to for the named gaps. A gap counts both ways, unless it has a direction.
 
 const jumpGaps = [
 	{id: 'garage-ramp', from: [318, 392], to: [541, 760], direction: 1},
@@ -229,6 +218,7 @@ const distortionCurve = amount => {
 };
 
 class GeoCitiesSkater extends GeoCitiesElement {
+	#gaps;
 	#context;
 	#loop;
 	#state;
@@ -254,6 +244,7 @@ class GeoCitiesSkater extends GeoCitiesElement {
 	#nextNoteTime = 0;
 
 	connected() {
+		this.#gaps = Object.fromEntries(this.config.gaps.map(gap => [gap.id, gap]));
 		const {screen, status, sound, music, track, step, start, freeSkate, clear} = this.parts;
 		this.#context = screen.getContext('2d');
 
@@ -287,7 +278,7 @@ class GeoCitiesSkater extends GeoCitiesElement {
 			mormorMood: {mood: 'knit', until: 0},
 			highScore: this.stored('highScore', 0),
 			bestCombo: validBestCombo(this.stored('bestCombo')),
-			foundGaps: new Set(this.stored('gaps', []).filter(id => Object.hasOwn(gaps, id))),
+			foundGaps: new Set(this.stored('gaps', []).filter(id => Object.hasOwn(this.#gaps, id))),
 			foundTape: this.stored('tape', false),
 			lastRun: validLastRun(this.stored('lastRun')),
 		};
@@ -926,7 +917,7 @@ class GeoCitiesSkater extends GeoCitiesElement {
 	}
 
 	#awardGap(id) {
-		const gap = gaps[id];
+		const gap = this.#gaps[id];
 		if (!gap) {
 			return;
 		}
@@ -940,7 +931,7 @@ class GeoCitiesSkater extends GeoCitiesElement {
 			this.store('gaps', [...this.#state.foundGaps]);
 			this.#showGaps();
 			this.toast(`🛹 New gap found: ${gap.name}!`);
-			if (this.#state.foundGaps.size === Object.keys(gaps).length) {
+			if (this.#state.foundGaps.size === Object.keys(this.#gaps).length) {
 				this.toast('🛹 All the gaps of Bergen! You are a pro this.#skater now.');
 				this.celebrate();
 			}

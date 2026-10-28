@@ -8,26 +8,94 @@ struct GitHub {
 	let token: String?
 	let cache: ResponseCache
 
-	init(token: String? = ProcessInfo.processInfo.environment["GITHUB_TOKEN"], cache: ResponseCache) {
+	init(token: String?, cache: ResponseCache) {
 		self.token = token
 		self.cache = cache
 	}
 
 	/**
-	The published releases of a repo, newest first, from all the pages (``allPages(_:query:expectedCount:)``).
+	The token of `GITHUB_TOKEN`, or else the token of the GitHub CLI (`gh auth token`) when it is logged in, so a local build has the rate limit of a token (5,000 requests an hour instead of 60) without setting it. It is resolved once for the process, as `website serve` builds repeatedly.
+	*/
+	static func defaultToken() async -> String? {
+		await defaultTokenTask.value
+	}
+
+	private static let defaultTokenTask = Task {
+		await defaultToken(environment: ProcessInfo.processInfo.environment)
+	}
+
+	/**
+	The token of an environment, which a test supplies instead of the one of the process.
+	*/
+	static func defaultToken(environment: [String: String]) async -> String? {
+		if let token = environment["GITHUB_TOKEN"] {
+			return token
+		}
+
+		return await gitHubCLIToken(environment: environment)
+	}
+
+	/**
+	The token of the GitHub CLI, or `nil` when it is not installed or not logged in.
+	*/
+	private static func gitHubCLIToken(environment: [String: String]) async -> String? {
+		let process = Process()
+		let output = Pipe()
+		process.executableURL = URL(filePath: "/usr/bin/env")
+		process.arguments = ["gh", "auth", "token"]
+		process.environment = environment
+		process.standardOutput = output
+		process.standardError = FileHandle.nullDevice
+
+		var data = Data()
+
+		let termination = try? await process.runUntilExit {
+			data = try await output.fileHandleForReading.readDataToEnd()
+		}
+
+		guard termination == .exit(0) else {
+			return nil
+		}
+
+		let token = String(decoding: data, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+		return token.nilIfEmpty
+	}
+
+	/**
+	The published releases of a repo, newest publication date first, from all the pages (``allPages(_:query:expectedCount:)``).
 	*/
 	func releases(repository: GitHubRepositoryName) async throws -> [GitHubRelease] {
-		let entries: [GitHubRelease.Entry] = try await allPages("repos/\(repository)/releases")
+		let entries: [GitHubRelease.Response] = try await allPages("repos/\(repository)/releases")
 
-		return entries
-			.compactMap(\.release)
-			.filter { !$0.isDraft && !$0.isPrerelease }
-			.map { release in
-				var release = release
-				// The site's classes, so a table is in the scrolling container of the prose.
-				release.notesHTML = release.body.map { MarkdownDocument(parsing: $0, style: .releaseNotes, options: .site).html } ?? ""
-				return release
+		return entries.compactMap { release -> GitHubRelease? in
+			guard
+				let publishedAt = release.publishedAt,
+				!release.isDraft,
+				!release.isPrerelease
+			else {
+				return nil
 			}
+
+			// The site's classes, so a table is in the scrolling container of the prose.
+			var options = MarkdownDocument.Options.site
+			let page = repository.url.appending(path: "releases/tag/\(release.tagName)")
+
+			// A relative link is resolved against the page of the release on GitHub, like a browser there would, so a link that is written for GitHub, like `../../issues/12`, is not a broken link of the site, which would fail a scheduled build. A link to a section, like `#usage`, stays.
+			options.resolveLink = { destination in
+				guard
+					!destination.hasPrefix("#"),
+					let url = URL(string: destination, relativeTo: page)
+				else {
+					return destination
+				}
+
+				return url.absoluteString
+			}
+
+			let notesHTML = release.body.map { MarkdownDocument(parsing: $0, style: .releaseNotes, options: options).html } ?? ""
+			return GitHubRelease(tagName: release.tagName, publishedAt: publishedAt, notesHTML: notesHTML)
+		}
+		.sorted(using: KeyPathComparator(\.publishedAt, order: .reverse))
 	}
 
 	/**
@@ -62,7 +130,7 @@ struct GitHub {
 	/**
 	The popular repos that the about page does not show, with their owners.
 	*/
-	private static let hiddenPopularRepositories: Set<GitHubRepositoryName> = ["avajs/ava", "sindresorhus/pageres", "sindresorhus/github-markdown-css"]
+	private static let hiddenPopularRepositories: Set<GitHubRepositoryName> = [#repository("avajs/ava"), #repository("sindresorhus/pageres"), #repository("sindresorhus/github-markdown-css")]
 
 	/**
 	The account of the site, in lowercase, whose repos, contributions, and releases the pages show. It is the account of the GitHub profile of the author, so the links and the data are of one account.
@@ -77,7 +145,7 @@ struct GitHub {
 	/**
 	The search qualifiers of the repos of the ``owners``, like `user:sindresorhus user:chalk`.
 	*/
-	private static let ownerQualifiers = owners.lazy.map { "user:\($0)" }.joined(separator: " ")
+	static let ownerQualifiers = owners.lazy.map { "user:\($0)" }.joined(separator: " ")
 
 	/**
 	The numbers of the account, for the about page, and the repos of the account and the organizations (``owners``), for the about page and the now page.
@@ -157,15 +225,15 @@ struct GitHub {
 		let owners = try await Self.owners.concurrentMap { owner in
 			let user: User = try await get("users/\(owner)")
 			let repositories: [GitHubRepository] = try await allPages("users/\(owner)/repos", query: [URLQueryItem(name: "type", value: "owner")], expectedCount: user.publicRepositoryCount)
-			return (user: user, repositories: repositories)
+			return (owner: owner, user: user, repositories: repositories)
 		}
 
 		let repositories = owners.flatMap(\.repositories)
 
 		return Account(
 			repositoryCount: owners.map(\.user.publicRepositoryCount).sum,
-			// The account is the first owner.
-			followerCount: owners.first?.user.followerCount ?? 0,
+			// Select the personal account by identity while keeping the repositories in owner order.
+			followerCount: owners.first { $0.owner == Self.account }?.user.followerCount ?? 0,
 			starCount: repositories.filter { !$0.isFork }.map(\.stars).sum,
 			maintenance: try await allTimeMaintenance,
 			repositories: repositories
@@ -177,7 +245,7 @@ struct GitHub {
 	*/
 	func issueCount(matching query: String) async throws -> Int {
 		// Only the count is read.
-		struct Issue: Decodable {}
+		struct Issue: Decodable, Sendable {}
 
 		let result: SearchResult<Issue> = try await get("search/issues", query: [URLQueryItem(name: "q", value: query), URLQueryItem(name: "per_page", value: "1")])
 		return result.totalCount
@@ -186,7 +254,7 @@ struct GitHub {
 	/**
 	The result of a search. GitHub stops a search that takes too long and returns what it found until then, like too low a count. So an incomplete result cannot be read: it is not saved, and the cached result is used.
 	*/
-	private struct SearchResult<Item: Decodable>: Decodable {
+	private struct SearchResult<Item: Decodable & Sendable>: Decodable, Sendable {
 		let totalCount: Int
 		let items: [Item]
 
@@ -212,7 +280,7 @@ struct GitHub {
 	The published releases in the latest 100 public events of the account, newest first. The events cover a few days.
 	*/
 	func latestReleases() async throws -> [OpenSourceRelease] {
-		struct Event: Decodable {
+		enum Event: Decodable {
 			struct Repository: Decodable {
 				let name: GitHubRepositoryName
 			}
@@ -236,10 +304,8 @@ struct GitHub {
 				let release: Release?
 			}
 
-			let type: String
-			let repository: Repository
-			let createdAt: Date
-			let payload: Payload
+			case publishedRelease(OpenSourceRelease)
+			case ignored
 
 			enum CodingKeys: String, CodingKey {
 				case type
@@ -247,54 +313,85 @@ struct GitHub {
 				case createdAt = "created_at"
 				case payload
 			}
-		}
 
-		let events: [Event] = try await get("users/\(Self.account)/events/public", query: [URLQueryItem(name: "per_page", value: "100")])
+			init(from decoder: any Decoder) throws {
+				let container = try decoder.container(keyedBy: CodingKeys.self)
+				let type = try container.decode(String.self, forKey: .type)
+				let repository = try container.decode(Repository.self, forKey: .repository)
+				let date = try container.decode(Date.self, forKey: .createdAt)
+				// Decode known fields before filtering, so malformed payloads remain decoding failures even for ignored events.
+				let payload = try container.decode(Payload.self, forKey: .payload)
 
-		return events
-			.filter { $0.type == "ReleaseEvent" && $0.payload.action == "published" }
-			.compactMap { event in
 				guard
-					let release = event.payload.release,
+					type == "ReleaseEvent",
+					payload.action == "published",
+					let release = payload.release,
 					!release.isDraft,
 					!release.isPrerelease
 				else {
+					self = .ignored
+					return
+				}
+
+				self = .publishedRelease(
+					OpenSourceRelease(
+						repository: repository.name,
+						tagName: release.tagName,
+						url: release.url,
+						date: date
+					)
+				)
+			}
+
+			/**
+			The complete published release carried by this event, if supported.
+			*/
+			var release: OpenSourceRelease? {
+				guard case .publishedRelease(let release) = self else {
 					return nil
 				}
 
-				return OpenSourceRelease(repository: event.repository.name, tagName: release.tagName, url: release.url, date: event.createdAt)
+				return release
 			}
-			.sorted(using: KeyPathComparator(\.date, order: .reverse))
+		}
+
+		let events: [Event] = try await get("users/\(Self.account)/events/public", query: [URLQueryItem(name: "per_page", value: "100")])
+		return events.compactMap(\.release).sorted(using: KeyPathComparator(\.date, order: .reverse))
+	}
+
+	/**
+	The contributions of the last year and the all-time counts returned together by the profile request.
+	*/
+	struct Profile {
+		let contributions: ContributionCalendar
+		let sponsorCount: Int
+
+		/**
+		The comments on issues and pull requests of all time, for the about page.
+		*/
+		let commentCount: Int
 	}
 
 	/**
 	The contributions of the last year, the number of sponsors, and the number of comments on issues and pull requests of all time, from the GraphQL API, which needs a token. `nil` without a token.
 	*/
-	func profile() async throws -> (contributions: ContributionCalendar, sponsorCount: Int, commentCount: Int)? {
-		struct Content: Decodable {
-			struct User: Decodable {
-				struct Count: Decodable {
-					let totalCount: Int
-				}
-
-				struct Contributions: Decodable {
-					let contributionCalendar: ContributionCalendar
-				}
-
-				let sponsors: Count
-				let issueComments: Count
-				let contributionsCollection: Contributions
+	func profile() async throws -> Profile? {
+		struct User: Decodable {
+			struct Contributions: Decodable {
+				let contributionCalendar: ContributionCalendar
 			}
 
-			let user: User
+			let sponsors: GraphQL.Count
+			let issueComments: GraphQL.Count
+			let contributionsCollection: Contributions
 		}
 
-		guard token != nil else {
+		guard let graphQL else {
 			return nil
 		}
 
-		let user = try await graphQL(Content.self, query: "{ user(login: \"\(Self.account)\") { sponsors { totalCount } issueComments { totalCount } contributionsCollection { contributionCalendar { totalContributions weeks { contributionDays { date contributionCount contributionLevel } } } } } }").user
-		return (user.contributionsCollection.contributionCalendar, user.sponsors.totalCount, user.issueComments.totalCount)
+		let user = try await graphQL.data(GraphQL.UserResponse<User>.self, query: "{ user(login: \"\(Self.account)\") { sponsors { totalCount } issueComments { totalCount } contributionsCollection { \(ContributionCalendar.selection) } } }").user
+		return Profile(contributions: user.contributionsCollection.contributionCalendar, sponsorCount: user.sponsors.totalCount, commentCount: user.issueComments.totalCount)
 	}
 
 	/**
@@ -316,55 +413,50 @@ struct GitHub {
 	The comments are newest updated first, 100 at a time, so it asks for pages until a page has a comment that was last updated before the date, as the comments on the next pages were last updated even earlier, so they were also made before the date. Usually one page has a week of comments.
 	*/
 	func activity(since start: Date) async throws -> Activity? {
-		struct Content: Decodable {
-			struct User: Decodable {
-				struct Contributions: Decodable {
-					struct Calendar: Decodable {
-						let totalContributions: Int
-					}
-
-					let totalCommitContributions: Int
-					let contributionCalendar: Calendar
+		struct User: Decodable {
+			struct Contributions: Decodable {
+				struct Calendar: Decodable {
+					let totalContributions: Int
 				}
 
-				struct Comments: Decodable {
-					struct Comment: Decodable {
-						let createdAt: Date
-						let updatedAt: Date
-					}
-
-					struct PageInfo: Decodable {
-						let hasNextPage: Bool
-						let endCursor: String?
-					}
-
-					let nodes: [Comment]
-					let pageInfo: PageInfo
-				}
-
-				let contributionsCollection: Contributions
-				let issueComments: Comments
+				let totalCommitContributions: Int
+				let contributionCalendar: Calendar
 			}
 
-			let user: User
+			struct Comments: Decodable {
+				struct Comment: Decodable {
+					let createdAt: Date
+					let updatedAt: Date
+				}
+
+				let nodes: [Comment]
+				let pageInfo: GraphQL.Continuation
+			}
+
+			let contributionsCollection: Contributions
+			let issueComments: Comments
 		}
 
-		guard token != nil else {
+		struct Variables: Encodable, Sendable {
+			let from: Date
+			var after: String?
+		}
+
+		guard let graphQL else {
 			return nil
 		}
 
 		let query = "query($from: DateTime!, $after: String) { user(login: \"\(Self.account)\") { contributionsCollection(from: $from) { totalCommitContributions contributionCalendar { totalContributions } } issueComments(first: 100, after: $after, orderBy: {field: UPDATED_AT, direction: DESC}) { nodes { createdAt updatedAt } pageInfo { hasNextPage endCursor } } } }"
-		var variables = ["from": start.formatted(.iso8601)]
+		var variables = Variables(from: start)
 		var commentCount = 0
 
 		while true {
-			let user = try await graphQL(Content.self, query: query, variables: variables).user
+			let user = try await graphQL.data(GraphQL.UserResponse<User>.self, query: query, variables: variables).user
 			let comments = user.issueComments
 			commentCount += comments.nodes.count { $0.createdAt >= start }
 
 			guard
-				comments.pageInfo.hasNextPage,
-				let cursor = comments.pageInfo.endCursor,
+				case .after(let cursor) = comments.pageInfo,
 				comments.nodes.allSatisfy({ $0.updatedAt >= start })
 			else {
 				// Each page has the same contributions.
@@ -372,45 +464,108 @@ struct GitHub {
 				return Activity(contributionCount: contributions.contributionCalendar.totalContributions, commitCount: contributions.totalCommitContributions, commentCount: commentCount)
 			}
 
-			variables["after"] = cursor
+			variables.after = cursor
 		}
 	}
 
 	/**
-	The `data` of a GraphQL query. The GraphQL API needs a token. The callers leave their data out without one, so a call without one is a mistake in the code.
-
-	- Parameter maximumAge: How long the cached response is used, like a long time for data that never changes.
+	The GraphQL API, which needs a token, so it is `nil` without one, and a query without a token does not compile.
 	*/
-	func graphQL<Value: Decodable>(
-		_ type: Value.Type,
-		query: String,
-		variables: [String: String]? = nil,
-		maximumAge: Duration? = nil
-	) async throws -> Value {
-		guard let token else {
-			preconditionFailure("The GraphQL API needs a token. Check `token` before the query.")
+	var graphQL: GraphQL? {
+		token.map { GraphQL(token: $0, cache: cache) }
+	}
+
+	/**
+	The GraphQL API, with the token that it needs (``GitHub/graphQL``).
+	*/
+	struct GraphQL {
+		/**
+		The exact count envelope shared by GraphQL nodes, such as sponsors, comments, and contributions to a repository.
+		*/
+		struct Count: Decodable, Sendable {
+			let totalCount: Int
 		}
 
-		// Sorted keys, so the body, which is part of the cache key, is the same each time.
-		let encoder = JSONEncoder()
-		encoder.outputFormatting = .sortedKeys
+		fileprivate let token: String
+		fileprivate let cache: ResponseCache
 
-		var request = URLRequest(url: #URL("https://api.github.com/graphql"), timeoutInterval: 30)
-		request.httpMethod = "POST"
-		request.httpBody = try encoder.encode(GraphQLRequest(query: query, variables: variables))
-		request = request.forGitHub(token: token)
-		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		/**
+		The required user envelope shared by account queries. Query-specific fields stay on their local user type.
+		*/
+		struct UserResponse<User: Decodable & Sendable>: Decodable, Sendable {
+			let user: User
+		}
 
-		return try await cache.decoded(GraphQLResponse<Value>.self, from: request, maximumAge: maximumAge).data
-	}
+		/**
+		The continuation of a connection. A next page must have the cursor needed to request it.
+		*/
+		enum Continuation: Decodable, Sendable {
+			case end
+			case after(String)
 
-	private struct GraphQLRequest: Encodable {
-		let query: String
-		let variables: [String: String]?
-	}
+			enum CodingKeys: CodingKey {
+				case hasNextPage
+				case endCursor
+			}
 
-	private struct GraphQLResponse<Value: Decodable>: Decodable {
-		let data: Value
+			init(from decoder: any Decoder) throws {
+				let container = try decoder.container(keyedBy: CodingKeys.self)
+				let hasNextPage = try container.decode(Bool.self, forKey: .hasNextPage)
+				let cursor = try container.decodeIfPresent(String.self, forKey: .endCursor)
+
+				guard hasNextPage else {
+					self = .end
+					return
+				}
+
+				guard let cursor else {
+					throw DecodingError.dataCorruptedError(forKey: .endCursor, in: container, debugDescription: "A next page needs an end cursor.")
+				}
+
+				self = .after(cursor)
+			}
+		}
+
+		/**
+		The `data` of a query without variables. The absent variables field is omitted from the request body.
+		*/
+		func data<Value: Decodable & Sendable>(_ type: Value.Type, query: String, maximumAge: Duration? = nil) async throws -> Value {
+			try await data(type, query: query, variables: Optional<Never>.none, maximumAge: maximumAge)
+		}
+
+		/**
+		The `data` of a query, with its query-owned variables.
+
+		- Parameter maximumAge: How long the cached response is used, like a long time for data that never changes.
+		*/
+		func data<Value: Decodable & Sendable, Variables: Encodable & Sendable>(
+			_ type: Value.Type,
+			query: String,
+			variables: Variables?,
+			maximumAge: Duration? = nil
+		) async throws -> Value {
+			// Sorted keys, so the body, which is part of the cache key, is the same each time.
+			let encoder = JSONEncoder()
+			encoder.outputFormatting = .sortedKeys
+			encoder.dateEncodingStrategy = .iso8601
+
+			var request = URLRequest(url: #URL("https://api.github.com/graphql"), timeoutInterval: 30)
+			request.httpMethod = "POST"
+			request.httpBody = try encoder.encode(Request(query: query, variables: variables))
+			request = request.forGitHub(token: token)
+			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+			return try await cache.decoded(Response<Value>.self, from: request, maximumAge: maximumAge).data
+		}
+
+		private struct Request<Variables: Encodable & Sendable>: Encodable {
+			let query: String
+			let variables: Variables?
+		}
+
+		private struct Response<Value: Decodable & Sendable>: Decodable, Sendable {
+			let data: Value
+		}
 	}
 
 	/**
@@ -448,7 +603,7 @@ struct GitHub {
 		return elements
 	}
 
-	private func get<Value: Decodable>(_ path: String, query: [URLQueryItem] = []) async throws -> Value {
+	private func get<Value: Decodable & Sendable>(_ path: String, query: [URLQueryItem] = []) async throws -> Value {
 		let url = #URL("https://api.github.com").appending(path: path).appending(formQueryItems: query)
 		let request = URLRequest(url: url, timeoutInterval: 20).forGitHub(token: token)
 		return try await cache.decoded(from: request)

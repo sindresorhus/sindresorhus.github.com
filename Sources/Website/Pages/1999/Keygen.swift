@@ -115,7 +115,14 @@ struct GeoCitiesKeygen: ScriptedElement {
 						}
 						.style(GeoCitiesPage.Styles.label)
 
-						input(.id("geocities-nag-name"), .part(Parts.nagName), .type(.text), .autocomplete("off"), .maxlength(24), .required)
+						input(
+							.id("geocities-nag-name"),
+							.part(Parts.nagName),
+							.type(.text),
+							.autocomplete("off"),
+							.maxlength(24),
+							.required
+						)
 							.style(GeoCitiesPage.Styles.field)
 
 						label(.for("geocities-nag-serial")) {
@@ -123,7 +130,16 @@ struct GeoCitiesKeygen: ScriptedElement {
 						}
 						.style(GeoCitiesPage.Styles.label)
 
-						input(.id("geocities-nag-serial"), .part(Parts.nagSerial), .type(.text), .autocomplete("off"), .maxlength(24), .required, .custom(name: "spellcheck", value: "false"), .placeholder("TWF-0000-0000-0000"))
+						input(
+							.id("geocities-nag-serial"),
+							.part(Parts.nagSerial),
+							.type(.text),
+							.autocomplete("off"),
+							.maxlength(24),
+							.required,
+							.spellcheck(false),
+							.placeholder("TWF-0000-0000-0000")
+						)
 							.style(GeoCitiesPage.Styles.field, Styles.serial)
 
 						div {
@@ -207,7 +223,15 @@ struct GeoCitiesKeygen: ScriptedElement {
 					}
 					.style(Styles.keygenLabel)
 
-					input(.id("geocities-keygen-name"), .part(Parts.name), .type(.text), .autocomplete("off"), .maxlength(24), .required, .value("Sindre"))
+					input(
+						.id("geocities-keygen-name"),
+						.part(Parts.name),
+						.type(.text),
+						.autocomplete("off"),
+						.maxlength(24),
+						.required,
+						.value("Sindre")
+					)
 						.style(Styles.keygenField)
 
 					label(.for("geocities-keygen-serial")) {
@@ -215,7 +239,13 @@ struct GeoCitiesKeygen: ScriptedElement {
 					}
 					.style(Styles.keygenLabel)
 
-					input(.id("geocities-keygen-serial"), .part(Parts.serial), .type(.text), .readonly, .value("Press Generate"))
+					input(
+						.id("geocities-keygen-serial"),
+						.part(Parts.serial),
+						.type(.text),
+						.readonly,
+						.value("Press Generate")
+					)
 						.style(Styles.keygenField, Styles.serial)
 
 					div {
@@ -318,11 +348,11 @@ struct GeoCitiesKeygen: ScriptedElement {
 		case notepad
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The speed of the modem that types the NFO file, in bits a second.
 		*/
-		case speed = "data-nfo-speed"
+		case speed = "nfo-speed"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -357,7 +387,7 @@ struct GeoCitiesKeygen: ScriptedElement {
 					.gap(.rootEm(1.25))
 					.alignItems(.start)
 					.children("*") {
-						$0.frame(minWidth: 0)
+						$0.frame(minWidth: .zero)
 					}
 			case .nag:
 				// It shakes when the serial is wrong.
@@ -368,7 +398,7 @@ struct GeoCitiesKeygen: ScriptedElement {
 				Style()
 					.fontFamily(GeoCitiesPage.comicSans)
 					.fontWeight(.bold)
-					.color(Color("#800000"))
+					.color(Color(raw: "#800000"))
 			case .form:
 				Style().vstack(spacing: .rootEm(0.375))
 			case .serial:
@@ -390,7 +420,17 @@ struct GeoCitiesKeygen: ScriptedElement {
 				// The border of the keygen goes around the colors of the rainbow.
 				Style()
 					.stackedInGrid()
-					.backgroundImage(.linearGradient("135deg", Color("#ff0000"), Color("#ffcc00"), Color("#33ff00"), Color("#00ccff"), Color("#6600ff"), Color("#ff00cc")))
+					.backgroundImage(
+						.linearGradient(
+							.angle(.degrees(135)),
+							Color(raw: "#ff0000"),
+							Color(raw: "#ffcc00"),
+							Color(raw: "#33ff00"),
+							Color(raw: "#00ccff"),
+							Color(raw: "#6600ff"),
+							Color(raw: "#ff00cc")
+						)
+					)
 					.cornerRadius(.rootEm(0.5))
 					.animation(Animations.rainbow, .linear(duration: .seconds(3)).repeatForever(autoreverses: false))
 			case .keygen:
@@ -399,27 +439,27 @@ struct GeoCitiesKeygen: ScriptedElement {
 					.stackedInGrid()
 					.position(.relative)
 					.margin(.pixels(5))
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.75))
-					.background(Color("#0b0b1a"))
+					.background(Color(raw: "#0b0b1a"))
 					.cornerRadius(.rootEm(0.25))
 					.fontFamily(GeoCitiesPage.courier)
-					.color(Color("#c8c8ff"))
+					.color(Color(raw: "#c8c8ff"))
 			case .keygenTitle:
 				Style()
 					.hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(0.5))
 					.flexWrap()
 					.fontWeight(.bold)
-					.color(Color("#ffcc00"))
+					.color(Color(raw: "#ffcc00"))
 			case .keygenLogo:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.overflow(horizontal: .auto)
 					.fontFamily(GeoCitiesPage.courier)
 					.fontWeight(.bold)
 					.textAlign(.center)
-					.color(Color("#ff66cc"))
+					.color(Color(raw: "#ff66cc"))
 			case .scroller:
 				Style()
 					.display(.block)
@@ -429,41 +469,41 @@ struct GeoCitiesKeygen: ScriptedElement {
 			case .keygenLabel:
 				Style()
 					.fontWeight(.bold)
-					.color(Color("#33ff66"))
+					.color(Color(raw: "#33ff66"))
 			case .keygenField:
 				Style()
 					.frame(width: .percent(100))
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.375))
 					.background(.black)
-					.border(Color("#6666cc"), width: .pixels(2))
+					.border(Color(raw: "#6666cc"), width: .pixels(2))
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.body)
-					.color(Color("#33ff66"))
+					.color(Color(raw: "#33ff66"))
 			case .keygenButton:
 				Style()
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.75))
-					.background(Color("#1a1a4a"))
-					.border(Color("#6666cc"), width: .pixels(2), style: .outset)
+					.background(Color(raw: "#1a1a4a"))
+					.border(Color(raw: "#6666cc"), width: .pixels(2), style: .outset)
 					.fontFamily(GeoCitiesPage.courier)
 					.fontWeight(.bold)
-					.color(Color("#ffcc00"))
+					.color(Color(raw: "#ffcc00"))
 					.handCursor()
 					.active {
-						$0.border(Color("#6666cc"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#6666cc"), width: .pixels(2), style: .inset)
 					}
 			case .nfoWindow:
 				Style().margin(.top, .rootEm(1.25))
 			case .nfo:
 				// Light gray on black, like a DOS window. The lines are at most 40 characters, so they fit on a phone.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.frame(minHeight: .rootEm(12))
 					.padding(.rootEm(0.75))
 					.overflow(horizontal: .auto)
 					.background(.black)
 					.fontFamily(GeoCitiesPage.courier)
 					.font(size: .clamp(.pixels(10), .viewportWidth(2.6), .pixels(15)), lineHeight: 1.15)
-					.color(Color("#c0c0c0"))
+					.color(Color(raw: "#c0c0c0"))
 					// Black on white in Notepad.
 					.when(States.notepad) {
 						$0

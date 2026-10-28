@@ -1,7 +1,7 @@
 ---
 title: 'Plain Text Editor'
 subtitle: 'Simple distraction-free notepad'
-publicationDate: '2022-10-25'
+publicationDate: 2022-10-25
 platforms: [
 	'macOS'
 	'iOS'
@@ -11,6 +11,8 @@ isPaid: true
 appStoreID: 1572202501
 sharedQuestions: [
 	'suggested-filenames'
+	'text-jumps'
+	'why-is-it-suddenly-showing-a-scrollbar'
 ]
 olderVersions: [
 	{
@@ -29,6 +31,15 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/14232390/Plain.Text.Editor.1.3.2.-.macOS.13.zip'
 	}
 ]
+pressQuotes: [
+	{
+		quote: 'Unlike TextEdit, Plain Text Editor supports automatic counting of words, characters, and lines, takes care of optimal spacing of lines and margins for the best possible readability, and can be configured to float above all other open apps.'
+		source: 'ifun.de'
+		translatedFrom: 'German'
+		url: 'https://www.ifun.de/plain-text-editor-neue-mac-freeware-macht-textedit-konkurrenz-197512/'
+		year: 2022
+	}
+]
 ---
 
 Simple text editor without any rich text nonsense. The simplicity is a feature.
@@ -39,7 +50,7 @@ It won’t handle your 1 million line log file, but it is a nice way to write do
 
 ## Frequently Asked Questions {#faq}
 
-### How is the macOS version better than TextEdit?
+### How is the macOS version better than TextEdit? {#how-is-the-macos-version-better-than-textedit}
 
 - Editor padding
 - Optimal line spacing and length
@@ -50,21 +61,17 @@ It won’t handle your 1 million line log file, but it is a nice way to write do
 - Force dark/light mode
 - Brain dump mode
 
-### Spellchecking does not work
+### Spellchecking does not work {#spellchecking-does-not-work}
 
 This is a macOS bug. You can see the same problem in the built-in TextEdit app too.
 
-### Can you add Markdown syntax highlighting?
+### Can you add Markdown syntax highlighting? {#can-you-add-markdown-syntax-highlighting}
 
 I don’t plan to add that as I want to keep the app simple. I do plan to make a proper Markdown editor at some point, but that’s not this app.
 
-### Can you add a typewriter mode (centered text)?
+### Can you add a typewriter mode (centered text)? {#can-you-add-a-typewriter-mode-centered-text}
 
 I don’t plan to add that.
-
-### The text sometimes jumps when I write fast
-
-This is a macOS bug. There is unfortunately nothing I can do about it.
 
 ### Does the app support window tabs on macOS? {#tabs}
 
@@ -72,39 +79,39 @@ Yes. Click “View › Show Tab Bar” in the menu bar and then click the plus b
 
 You can also press ++Command+N++ if you have [tabs enabled for document apps](https://support.apple.com/guide/mac-help/mchla4695cce/mac).
 
-### Can I keep it in the menu bar?
+### Can I keep it in the menu bar? {#can-i-keep-it-in-the-menu-bar}
 
 No, that’s not supported. However, you may be interested in my [Scratchpad](/scratchpad) app.
 
-### What’s the difference between Plain Text Editor and Scratchpad?
+### What’s the difference between Plain Text Editor and Scratchpad? {#whats-the-difference-between-plain-text-editor-and-scratchpad}
 
-[Learn more](/scratchpad#plain-text-editor-comparison)
+[See the comparison on the Scratchpad page](/scratchpad#plain-text-editor-comparison)
 
-### How can I make the app preserve open documents when I quit on macOS?
+### How can I make the app preserve open documents when I quit on macOS? {#how-can-i-make-the-app-preserve-open-documents-when-i-quit-on-macos}
 
 This is already how it works. Actually, it’s how all document-based apps on macOS work. Make sure you don’t have “System Settings › Desktop & Dock › Close windows when quitting an application” enabled.
 
-### How can I make the app not open previously opened documents when I launch the app?
+### How can I make the app not open previously opened documents when I launch the app? {#how-can-i-make-the-app-not-open-previously-opened-documents-when-i-launch-the-app}
 
-Disable the setting mentioned above.
+Enable “System Settings › Desktop & Dock › Close windows when quitting an application”.
 
-### I have enabled the translucent setting on the macOS app, why is the title bar not translucent?
+### I have enabled the translucent setting on the macOS app, why is the title bar not translucent? {#i-have-enabled-the-translucent-setting-on-the-macos-app-why-is-the-title-bar-not-translucent}
 
 Making the title bar translucent is not supported by macOS. I’m hoping to find a workaround in the future.
 
-### How does “brain dump mode” help with creativity?
+### How does “brain dump mode” help with creativity? {#how-does-brain-dump-mode-help-with-creativity}
 
-It helps you focus on the actual writing, instead of getting distracted with editing and nitpicking. [Learn more.](https://writingcooperative.com/how-the-brain-dump-method-can-boost-your-writing-output-881089bb897a)
+It helps you focus on the actual writing, instead of getting distracted with editing and nitpicking. [Learn more about the brain dump method.](https://writingcooperative.com/how-the-brain-dump-method-can-boost-your-writing-output-881089bb897a)
 
-### When I save a file using the popover in the title bar on macOS, it always appends `.txt` when I choose a different file extension
+### When I save a file using the popover in the title bar on macOS, it always appends `.txt` when I choose a different file extension {#when-i-save-a-file-using-the-popover-in-the-title-bar-on-macos-it-always-appends-txt-when-i-choose-a-different-file-extension}
 
 This is a macOS bug. Instead, save the file from the “File” menu or by pressing ++Command+S++.
 
-### How can I toggle “Stay on Top” with a keyboard shortcut on macOS?
+### How can I toggle “Stay on Top” with a keyboard shortcut on macOS? {#how-can-i-toggle-stay-on-top-with-a-keyboard-shortcut-on-macos}
 
 The keyboard shortcut is listed in the “Window” menu in the menu bar.
 
-### Can I open a text file directly from the command-line?
+### Can I open a text file directly from the command-line? {#can-i-open-a-text-file-directly-from-the-command-line}
 
 Make a [shell alias](https://shapeshed.com/unix-alias/):
 
@@ -118,15 +125,15 @@ Usage:
 pte unicorn.txt
 ```
 
-### Can you add a text color setting?
+### Can you add a text color setting? {#can-you-add-a-text-color-setting}
 
 I don’t plan to add that. It’s not essential and I’m trying to keep the app simple.
 
-### The text flickers a little bit when it wraps on a new line
+### The text flickers a little bit when it wraps on a new line {#the-text-flickers-a-little-bit-when-it-wraps-on-a-new-line}
 
 This is unfortunately a macOS bug and out of my control.
 
-### The window size and position is not preserved
+### The window size and position is not preserved {#the-window-size-and-position-is-not-preserved}
 
 For document-based apps, which this app is, window size and position are stored per document. macOS is in charge of persisting window size and position for apps, so this is not something the app controls.
 
@@ -134,20 +141,16 @@ For document-based apps, which this app is, window size and position are stored 
 
 The app is made using Apple’s latest technologies (SwiftUI) and they have not added print support there yet. If you need to print, open the document in TextEdit instead. Sorry for the inconvenience.
 
-### Why is it suddenly showing a scrollbar?
-
-You either have a system setting set to always show scrollbars or you have an external mouse connected. This is simply how macOS works. You can see the behavior in other text editing apps too. See the “Appearance › Show scroll bars” system setting.
-
-### The “Check Spelling While Typing” setting in the context menu does not work
+### The “Check Spelling While Typing” setting in the context menu does not work {#the-check-spelling-while-typing-setting-in-the-context-menu-does-not-work}
 
 This is unfortunately a macOS bug and not something I can fix.
 
 *If you work at Apple → [FB13607434](https://github.com/feedback-assistant/reports/issues/467)*
 
-### Can you add line numbers?
+### Can you add line numbers? {#can-you-add-line-numbers}
 
 This is out of scope for this app.
 
-### Can you add a setting to turn off line wrapping?
+### Can you add a setting to turn off line wrapping? {#can-you-add-a-setting-to-turn-off-line-wrapping}
 
 This is out of scope for this app.

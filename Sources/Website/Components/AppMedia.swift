@@ -18,31 +18,31 @@ struct AppMedia: ScriptedElement {
 				// The item has the sizes of its media (`--max-width` and `--phone-width`), so it has its width before the media loads.
 				div(.role("group"), .ariaRoleDescription("slide")) {
 					// The width and height attributes give the natural size and the aspect ratio, so the media reserves its space before it loads, and is never shown larger than its natural size. On wider screens, it is at most 640px tall.
-					switch asset.kind {
-					case .video:
-						// The script plays it while it is visible, unless the visitor prefers reduced motion. It can be paused with a click or the keyboard. The time in the URL makes iOS draw the first frame, which it otherwise does not with `preload="metadata"`.
+					switch asset {
+					case .video(let videoAsset):
+						// The script plays it while it is visible, unless the visitor prefers reduced motion. It can be paused with a click or the keyboard. The poster is its first frame, which shows while the video loads, and is the still frame with reduced motion. It also replaces the time in the URL (`#t=0.001`) that made iOS draw the first frame, which it otherwise does not with `preload="metadata"`.
 						video(
-							.src("\(asset.path)#t=0.001"),
+							.src(asset.path),
 							.width(asset.size.width),
 							.height(asset.size.height),
 							.loop,
 							.muted,
 							.playsInline,
 							.preload(.metadata),
+							.poster(videoAsset.poster),
 							.tabindex(0)
 						) {}
 						.accessibilityLabel("\(app.title) demo video. Press to pause or play.")
 						.style(Styles.media)
-					case .image:
+					case .image(let screenshot):
 						// Numbered without the videos, which have their own label. The first item is in view when the page loads on a computer, so it loads at once instead of lazily. Not with a high priority, as on phones it is below the first screen, and the icon of the app is the largest image there.
-						let image = img(.src(asset.path), .width(asset.size.width), .height(asset.size.height), .alt("\(app.title) screenshot \(app.media[..<index].count { $0.kind == .image } + 1)"))
-							.attributes(.lazyLoading, when: index > 0)
-							.attributes(.asyncDecoding)
-							.style(Styles.media)
-
 						// The smaller JPEG XL copy, for browsers that show it.
-						JPEGXLPicture(copy: asset.jpegXL) {
-							image
+						ScreenshotImage(
+							asset: screenshot,
+							alternativeText: "\(app.title) screenshot \(app.media[..<index].count(where: \.isImage) + 1)",
+							loadsImmediately: index == 0
+						) {
+							$0.style(Styles.media)
 						}
 					}
 				}
@@ -85,12 +85,12 @@ struct AppMedia: ScriptedElement {
 	/**
 	The width of an item at a height of at most 640 pixels, which each item sets for wider screens.
 	*/
-	fileprivate static let maximumWidth = StyleVariable<Length>("--max-width")
+	fileprivate static let maximumWidth = StyleVariable<LengthPercentage>("max-width")
 
 	/**
 	The width of an item on phones, which each item sets.
 	*/
-	fileprivate static let phoneWidth = StyleVariable<Length>("--phone-width")
+	fileprivate static let phoneWidth = StyleVariable<LengthPercentage>("phone-width")
 
 	/**
 	The maximum width of an item on phones, in percent of the width of the screen, so the next item shows at the side.
@@ -149,7 +149,7 @@ struct AppMedia: ScriptedElement {
 				Style()
 					.hstack(alignment: .start, spacing: .rootEm(1))
 					.padding(top: .rootEm(1.5), horizontal: .rootEm(1.5), bottom: .rootEm(4))
-					.margin(top: .rootEm(-1.5), horizontal: 0, bottom: .rootEm(-4))
+					.margin(top: .rootEm(-1.5), horizontal: .zero, bottom: .rootEm(-4))
 					.overflow(horizontal: .auto)
 					.scrollSnapType(.horizontal, isMandatory: true)
 					.scrollIndicators(.hidden)
@@ -175,7 +175,7 @@ struct AppMedia: ScriptedElement {
 					}
 					// On phones, the width of its media, so the next item shows at the side, also after a narrower item.
 					.flexShrink(0)
-					.frame(width: AppMedia.phoneWidth.value)
+					.frame(width: .length(AppMedia.phoneWidth.value))
 					.scrollSnapAlign(.center)
 					.from(.tablet) {
 						$0
@@ -184,11 +184,11 @@ struct AppMedia: ScriptedElement {
 					}
 			case .media:
 				Style()
-					.margin(vertical: 0, horizontal: .auto)
+					.margin(vertical: .zero, horizontal: .auto)
 					.cornerRadius(.windowRadius)
 					.shadow(.window)
 					.from(.tablet) {
-						$0.frame(maxWidth: .min(.percent(100), AppMedia.maximumWidth.value))
+						$0.frame(maxWidth: .length(.min(.percent(100), AppMedia.maximumWidth.value)))
 					}
 			case .control:
 				Style()
@@ -203,7 +203,7 @@ struct AppMedia: ScriptedElement {
 					.shadow(.medium)
 					.opacity(0)
 					.offset(y: .percent(-50))
-					.transition(.opacity, .backgroundColor, animation: .stateChange)
+					.transition(.opacity, .backgroundColor, timing: .stateChange)
 					// A stronger fill under the pointer, also when the visitor prefers reduced transparency.
 					.hoverOrFocusVisible {
 						$0.frostedBackground(.lightDark(.white.opacity(0.6), .gray(900).opacity(0.6)), opaque: .lightDark(.gray(100), .gray(800)), blur: .pixels(8))
@@ -240,7 +240,7 @@ struct AppMedia: ScriptedElement {
 							.margin(.auto)
 							.cornerRadius(.circle)
 							.background(.gray(300), dark: .gray(600))
-							.transition(.backgroundColor, animation: .stateChange)
+							.transition(.backgroundColor, timing: .stateChange)
 					}
 					.current {
 						$0.before {
@@ -254,13 +254,18 @@ struct AppMedia: ScriptedElement {
 
 extension MediaAsset {
 	/**
-	The width at a height of at most 640 pixels, for wider screens, and the width on phones: at most 85% of the screen, and at most as tall as 70% of the screen and the maximum height of the carousel, so a tall item is not taller than most of the screen, nor much taller than the other items.
+	The width at the largest height (``MediaAsset/maximumDisplayHeight``), for wider screens, and the width on phones: at most 85% of the screen, and at most as tall as 70% of the screen and the maximum height of the carousel, so a tall item is not taller than most of the screen, nor much taller than the other items.
 
 	- Parameter phoneMaximumHeight: The maximum height on phones, in percent of the width of the screen.
 	*/
 	fileprivate func settingSizes(on style: Style, phoneMaximumHeight: Double) -> Style {
-		let maximumWidth = Length.pixels(min(Double(size.width), 640 * size.aspectRatio))
-		let phoneWidth = Length.min(.viewportWidth(AppMedia.phoneItemWidth), .viewportWidth(phoneMaximumHeight * size.aspectRatio), .smallViewportHeight(70 * size.aspectRatio), maximumWidth)
+		let maximumWidth = LengthPercentage.pixels(maximumDisplayWidth)
+		let phoneWidth = LengthPercentage.min(
+			.viewportWidth(AppMedia.phoneItemWidth),
+			.viewportWidth(phoneMaximumHeight * size.aspectRatio),
+			.smallViewportHeight(70 * size.aspectRatio),
+			maximumWidth
+		)
 
 		return style
 			.setting(AppMedia.maximumWidth, to: maximumWidth)

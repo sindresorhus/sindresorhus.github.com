@@ -3,11 +3,292 @@ import Foundation
 // MARK: Lengths and colors
 
 /**
-A CSS length, like `1rem`, `50%`, or `auto`: a number and a unit, or a CSS expression.
-
-The integer literal `0` is a length without a unit. Lengths with the same unit add up to one length, and other lengths add up to a `calc()` expression.
+A unitless CSS number, kept distinct from lengths, percentages, colors, and images. Raw expressions are explicitly unchecked.
 */
-public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
+public struct CSSNumber: StyleValue, Hashable, ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral {
+	public let description: String
+
+	/**
+	A finite number, rounded with the same rules as other CSS numbers.
+	*/
+	public init(_ value: Double) {
+		self.description = CSSValue.format(value)
+	}
+
+	/**
+	A whole number without a floating-point conversion.
+	*/
+	public init(_ value: Int) {
+		self.description = String(value)
+	}
+
+	/**
+	An explicit unchecked number-valued CSS expression.
+	*/
+	public init(raw css: String) {
+		self.description = css
+	}
+
+	public init(integerLiteral value: Int) {
+		self.init(value)
+	}
+
+	public init(floatLiteral value: Double) {
+		self.init(value)
+	}
+
+	/**
+	The sum of two number-valued expressions, as a `calc` function.
+	*/
+	public static func + (lhs: Self, rhs: Self) -> Self {
+		Self(raw: "calc(\(lhs) + \(rhs))")
+	}
+
+	/**
+	The difference of two number-valued expressions.
+	*/
+	public static func - (lhs: Self, rhs: Self) -> Self {
+		Self(raw: "calc(\(lhs) - \(rhs))")
+	}
+
+	/**
+	The product of two number-valued expressions.
+	*/
+	public static func * (lhs: Self, rhs: Self) -> Self {
+		Self(raw: "calc(\(lhs) * \(rhs))")
+	}
+}
+
+/**
+A CSS percentage, like `35%`, kept distinct from physical lengths and unitless numbers.
+*/
+public struct Percentage: StyleValue, Hashable {
+	public let description: String
+
+	/**
+	An explicit unchecked percentage-valued CSS expression.
+	*/
+	public init(raw css: String) {
+		self.description = css
+	}
+
+	/**
+	A percentage, like `.percent(35)` for `35%`. The argument is a percentage, not a fraction.
+	*/
+	public static func percent(_ value: Double) -> Self {
+		Self(raw: CSSValue.format(value) + "%")
+	}
+}
+
+/**
+A CSS length with a unit, like `1rem` or `2px`. Percentages and mixed calculations belong to ``LengthPercentage``. This type is used where CSS does not accept percentages, like border widths, shadow offsets, and blur radii.
+*/
+public struct Length: StyleValue, Hashable {
+	fileprivate let value: LengthPercentage
+
+	private init(_ value: LengthPercentage) {
+		self.value = value
+	}
+
+	/**
+	An explicit unchecked CSS expression, like a length-valued custom property reference.
+	*/
+	public init(raw css: String) {
+		self.value = LengthPercentage(raw: css)
+	}
+
+	public var description: String {
+		value.description
+	}
+
+	/**
+	The unitless length zero.
+	*/
+	public static let zero = Self(.zero)
+
+	/**
+	A multiple of the font size of the root element (`rem` in CSS).
+	*/
+	public static func rootEm(_ value: Double) -> Self {
+		Self(.rootEm(value))
+	}
+
+	/**
+	A multiple of the font size of the element (`em` in CSS).
+	*/
+	public static func em(_ value: Double) -> Self {
+		Self(.em(value))
+	}
+
+	/**
+	Pixels (`px` in CSS).
+	*/
+	public static func pixels(_ value: Double) -> Self {
+		Self(.pixels(value))
+	}
+
+	/**
+	A multiple of the advance width of the `0` glyph of the font (`ch` in CSS).
+	*/
+	public static func characterWidth(_ value: Double) -> Self {
+		Self(.characterWidth(value))
+	}
+
+	/**
+	A percentage of the viewport height (`vh` in CSS).
+	*/
+	public static func viewportHeight(_ value: Double) -> Self {
+		Self(.viewportHeight(value))
+	}
+
+	/**
+	A percentage of the viewport width (`vw` in CSS).
+	*/
+	public static func viewportWidth(_ value: Double) -> Self {
+		Self(.viewportWidth(value))
+	}
+
+	/**
+	A percentage of the dynamic viewport height, which follows the browser toolbars on phones (`dvh` in CSS).
+	*/
+	public static func dynamicViewportHeight(_ value: Double) -> Self {
+		Self(.dynamicViewportHeight(value))
+	}
+
+	/**
+	A percentage of the small viewport height, which is the height with the browser toolbars shown (`svh` in CSS).
+	*/
+	public static func smallViewportHeight(_ value: Double) -> Self {
+		Self(.smallViewportHeight(value))
+	}
+
+	/**
+	A multiple of the line height of the element (`lh` in CSS), like `.lineHeight(1)` for the height of one line of text.
+	*/
+	public static func lineHeight(_ value: Double) -> Self {
+		Self(.lineHeight(value))
+	}
+
+	/**
+	A multiple of the height of the capital letters of the font of the element (`cap` in CSS), like `.capitalHeight(1)` to line up an icon with the top of the capital letters.
+	*/
+	public static func capitalHeight(_ value: Double) -> Self {
+		Self(.capitalHeight(value))
+	}
+
+	/**
+	A percentage of the inline size of the nearest container (`cqi` in CSS), which is the width for horizontal text, like `.containerInlineSize(100)` for the width of the content of a card with ``Style/containerType(_:)``. Unlike a percentage, it is the same for all descendants of the container, and it works in properties where a percentage is of something else, like `translate`, where it is of the element itself, and `font-size`.
+
+	Without a container, the container units use the small viewport, like ``smallViewportHeight(_:)``.
+	*/
+	public static func containerInlineSize(_ value: Double) -> Self {
+		Self(.containerInlineSize(value))
+	}
+
+	/**
+	A percentage of the block size of the nearest container with ``ContainerType/size`` (`cqb` in CSS), which is the height for horizontal text. See ``containerInlineSize(_:)``.
+	*/
+	public static func containerBlockSize(_ value: Double) -> Self {
+		Self(.containerBlockSize(value))
+	}
+
+	/**
+	A percentage of the width of the nearest container (`cqw` in CSS). See ``containerInlineSize(_:)``.
+	*/
+	public static func containerWidth(_ value: Double) -> Self {
+		Self(.containerWidth(value))
+	}
+
+	/**
+	A percentage of the height of the nearest container with ``ContainerType/size`` (`cqh` in CSS). See ``containerInlineSize(_:)``.
+	*/
+	public static func containerHeight(_ value: Double) -> Self {
+		Self(.containerHeight(value))
+	}
+
+	/**
+	A percentage of the smaller of ``containerInlineSize(_:)`` and ``containerBlockSize(_:)`` (`cqmin` in CSS). Its block size needs a container with ``ContainerType/size``, like ``containerBlockSize(_:)``.
+	*/
+	public static func containerMinimum(_ value: Double) -> Self {
+		Self(.containerMinimum(value))
+	}
+
+	/**
+	A percentage of the larger of ``containerInlineSize(_:)`` and ``containerBlockSize(_:)`` (`cqmax` in CSS). Its block size needs a container with ``ContainerType/size``, like ``containerBlockSize(_:)``.
+	*/
+	public static func containerMaximum(_ value: Double) -> Self {
+		Self(.containerMaximum(value))
+	}
+
+	/**
+	The preferred length within the minimum and maximum.
+	*/
+	public static func clamp(_ minimum: Self, _ preferred: Self, _ maximum: Self) -> Self {
+		Self(.clamp(minimum.value, preferred.value, maximum.value))
+	}
+
+	/**
+	The smallest of one or more lengths.
+	*/
+	public static func min(_ first: Self, _ remaining: Self...) -> Self {
+		Self(.function("min", ([first] + remaining).map(\.value)))
+	}
+
+	/**
+	The largest of one or more lengths.
+	*/
+	public static func max(_ first: Self, _ remaining: Self...) -> Self {
+		Self(.function("max", ([first] + remaining).map(\.value)))
+	}
+
+	public static func + (lhs: Self, rhs: Self) -> Self {
+		Self(lhs.value + rhs.value)
+	}
+
+	public static func - (lhs: Self, rhs: Self) -> Self {
+		Self(lhs.value - rhs.value)
+	}
+
+	public static func * (lhs: Self, rhs: Double) -> Self {
+		Self(lhs.value * rhs)
+	}
+
+	/**
+	Scales a length by a number-valued CSS expression, like a pointer strength custom property.
+	*/
+	public func scaled(by number: CSSNumber) -> Self {
+		Self(value.scaled(by: number))
+	}
+
+	public static func / (lhs: Self, rhs: Double) -> Self {
+		Self(lhs.value / rhs)
+	}
+
+	public static prefix func - (value: Self) -> Self {
+		Self(-value.value)
+	}
+}
+
+/**
+A CSS length or percentage, like `1rem` or `50%`: a number and a unit, or a CSS expression. Sizing keywords belong to ``BoxSize`` and automatic margins and insets to ``AutoLength``.
+
+`LengthPercentage.zero` is a length without a unit. Lengths with the same unit add up to one length, and other lengths add up to a `calc()` expression.
+*/
+public struct LengthPercentage: StyleValue, Hashable {
+	/**
+	A length promoted to the percentage-capable dimension domain.
+	*/
+	public init(_ length: Length) {
+		self = length.value
+	}
+
+	/**
+	A percentage promoted to the dimension domain, including a percentage-valued custom property reference.
+	*/
+	public init(_ percentage: Percentage) {
+		self.init(storage: .expression(percentage.description))
+	}
+
 	private enum Unit: String {
 		/**
 		No unit, like `0`.
@@ -28,6 +309,11 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 		Pixels (`px` in CSS).
 		*/
 		case pixels = "px"
+
+		/**
+		The advance width of the `0` glyph of the font (`ch` in CSS).
+		*/
+		case characterWidth = "ch"
 
 		/**
 		A percentage (`%` in CSS).
@@ -99,7 +385,7 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 		case value(Double, Unit)
 
 		/**
-		A length written as CSS, like `auto` or `var(--size)`.
+		A length written as CSS, like `var(--size)`.
 		*/
 		case expression(String)
 
@@ -120,19 +406,16 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 	}
 
 	/**
-	A length written as CSS, like `fit-content(20rem)`. Prefer the typed lengths and functions, like ``clamp(_:_:_:)``.
+	A length or percentage written as CSS, like `var(--size)`. Prefer the typed lengths and functions, like ``clamp(_:_:_:)``.
 	*/
-	public init(_ css: String) {
+	public init(raw css: String) {
 		self.init(storage: .expression(css))
 	}
 
 	/**
 	The length `0`. Another number needs a unit, like `.pixels(1)`, as the browser ignores a length like `1`.
 	*/
-	public init(integerLiteral value: Int) {
-		precondition(value == 0, "A length without a unit must be 0, but it is \(value). Write it with a unit, like `.pixels(\(value))`.")
-		self.init(0, .unitless)
-	}
+	public static let zero = Self(0, .unitless)
 
 	public var description: String {
 		switch storage {
@@ -164,6 +447,13 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 	*/
 	public static func pixels(_ value: Double) -> Self {
 		Self(value, .pixels)
+	}
+
+	/**
+	A multiple of the advance width of the `0` glyph of the font (`ch` in CSS).
+	*/
+	public static func characterWidth(_ value: Double) -> Self {
+		Self(value, .characterWidth)
 	}
 
 	/**
@@ -259,18 +549,11 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 		Self(value, .containerMaximum)
 	}
 
-	public static let auto = Self("auto")
-
-	/**
-	The value of the parent for the property, like `.letterSpacing(.inherit)` for a control with the letter spacing of the text around it.
-	*/
-	public static let inherit = Self("inherit")
-
 	/**
 	The preferred length, but not less than the minimum or more than the maximum, like `clamp()` in CSS. Good for sizes that follow the viewport within limits.
 
 	```swift
-	Length.clamp(.rootEm(2), .viewportWidth(10), .rootEm(4))
+	LengthPercentage.clamp(.rootEm(2), .viewportWidth(10), .rootEm(4))
 	//=> clamp(2rem, 10vw, 4rem)
 	```
 	*/
@@ -282,50 +565,31 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 	The smallest of the lengths, like `min()` in CSS.
 
 	```swift
-	Length.min(.rootEm(24), .viewportWidth(100) - .rootEm(2))
+	LengthPercentage.min(.rootEm(24), .viewportWidth(100) - .rootEm(2))
 	//=> min(24rem, 100vw - 2rem)
 	```
 	*/
-	public static func min(_ lengths: Self...) -> Self {
-		function("min", lengths)
+	public static func min(_ first: Self, _ remaining: Self...) -> Self {
+		function("min", [first] + remaining)
 	}
 
 	/**
 	The largest of the lengths, like `max()` in CSS.
 
 	```swift
-	Length.max(.percent(100), .rootEm(2.75))
+	LengthPercentage.max(.percent(100), .rootEm(2.75))
 	//=> max(100%, 2.75rem)
 	```
 	*/
-	public static func max(_ lengths: Self...) -> Self {
-		function("max", lengths)
-	}
-
-	/**
-	The position of a side of an anchor, for an inset of a positioned element, like `top(.anchor(header, .bottom))` for an element that starts below the header.
-
-	```swift
-	Length.anchor(Anchor("--site-header"), .bottom)
-	//=> anchor(--site-header bottom)
-	```
-	*/
-	public static func anchor(_ anchor: Anchor, _ side: AnchorSide) -> Self {
-		Self("anchor(\(anchor.name) \(side.rawValue))")
-	}
-
-	/**
-	The position of a side of the default anchor of the element: the anchor of ``Style/positionAnchor(_:)``, or the button that opened a popover. See ``anchor(_:_:)``.
-	*/
-	public static func anchor(_ side: AnchorSide) -> Self {
-		Self("anchor(\(side.rawValue))")
+	public static func max(_ first: Self, _ remaining: Self...) -> Self {
+		function("max", [first] + remaining)
 	}
 
 	/**
 	A CSS function of lengths, like `min(1rem, 5vw)`. An argument is a sum without `calc()` around it, like `min(24rem, 100vw - 2rem)`, as the arguments of the math functions are calculations.
 	*/
-	private static func function(_ name: String, _ arguments: [Self]) -> Self {
-		Self("\(name)(\(arguments.map(\.calculationSum).joined(separator: ", ")))")
+	fileprivate static func function(_ name: String, _ arguments: [Self]) -> Self {
+		Self(raw: "\(name)(\(arguments.map(\.calculationSum).joined(separator: ", ")))")
 	}
 
 	/**
@@ -342,7 +606,12 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 	/**
 	The length in a calculation without `calc()` around it: as the first operand of an addition or a subtraction, which needs no parentheses, as they are evaluated from left to right, or as an argument of a math function, like `min()`.
 	*/
-	private var calculationSum: String {
+	fileprivate var calculationSum: String {
+		// In a math function, a unitless zero is a number rather than a length.
+		if isUnitlessZero {
+			return "0px"
+		}
+
 		guard case .calculation(let expression) = storage else {
 			return description
 		}
@@ -383,7 +652,12 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 			return rhs
 		}
 
-		return combine(lhs, rhs, operator: "+", +)
+		return combine(
+			lhs,
+			rhs,
+			operator: "+",
+			+
+		)
 	}
 
 	public static func - (lhs: Self, rhs: Self) -> Self {
@@ -391,7 +665,12 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 			return -rhs
 		}
 
-		return combine(lhs, rhs, operator: "-", -)
+		return combine(
+			lhs,
+			rhs,
+			operator: "-",
+			-
+		)
 	}
 
 	public static func * (lhs: Self, rhs: Double) -> Self {
@@ -402,9 +681,273 @@ public struct Length: StyleValue, Hashable, ExpressibleByIntegerLiteral {
 		return Self(value * rhs, unit)
 	}
 
+	/**
+	Scales a length or a percentage by a number-valued CSS expression, like a pointer strength custom property.
+	*/
+	public func scaled(by number: CSSNumber) -> Self {
+		Self(storage: .calculation("\(isUnitlessZero ? "0px" : calculationOperand) * \(number)"))
+	}
+
+	/**
+	The length divided by a number, like `(100% - 1rem) / 3`. Exact, unlike multiplying by a rounded fraction.
+	*/
+	public static func / (lhs: Self, rhs: Double) -> Self {
+		guard case .value(let value, let unit) = lhs.storage else {
+			return Self(storage: .calculation("\(lhs.calculationOperand) / \(CSSValue.format(rhs))"))
+		}
+
+		return Self(value / rhs, unit)
+	}
+
 	public static prefix func - (length: Self) -> Self {
 		length * -1
 	}
+}
+
+/**
+A value that can express a measurable length. ``AutoLength`` and ``BoxSize`` share the length constructors while keeping their keywords out of length arithmetic.
+*/
+public protocol LengthValue: StyleValue {
+	/**
+	Wraps a measurable length or calculation.
+	*/
+	init(_ length: LengthPercentage)
+}
+
+extension LengthValue {
+	/**
+	An existing length or calculation, serialized identically for automatic lengths and box sizes.
+	*/
+	public init(_ length: LengthPercentage) {
+		self.init(raw: length.description)
+	}
+
+	/**
+	An existing length or calculation.
+	*/
+	public static func length(_ length: LengthPercentage) -> Self {
+		Self(length)
+	}
+
+	/**
+	The unitless length zero.
+	*/
+	public static var zero: Self {
+		Self(.zero)
+	}
+
+	/**
+	A multiple of the root font size (`rem` in CSS).
+	*/
+	public static func rootEm(_ value: Double) -> Self {
+		Self(.rootEm(value))
+	}
+
+	/**
+	A multiple of the element font size (`em` in CSS).
+	*/
+	public static func em(_ value: Double) -> Self {
+		Self(.em(value))
+	}
+
+	/**
+	Pixels (`px` in CSS).
+	*/
+	public static func pixels(_ value: Double) -> Self {
+		Self(.pixels(value))
+	}
+
+	/**
+	A multiple of the advance width of the `0` glyph of the font (`ch` in CSS).
+	*/
+	public static func characterWidth(_ value: Double) -> Self {
+		Self(.characterWidth(value))
+	}
+
+	/**
+	A percentage (`%` in CSS).
+	*/
+	public static func percent(_ value: Double) -> Self {
+		Self(.percent(value))
+	}
+
+	/**
+	A percentage of viewport height (`vh` in CSS).
+	*/
+	public static func viewportHeight(_ value: Double) -> Self {
+		Self(.viewportHeight(value))
+	}
+
+	/**
+	A percentage of viewport width (`vw` in CSS).
+	*/
+	public static func viewportWidth(_ value: Double) -> Self {
+		Self(.viewportWidth(value))
+	}
+
+	/**
+	A percentage of dynamic viewport height (`dvh` in CSS).
+	*/
+	public static func dynamicViewportHeight(_ value: Double) -> Self {
+		Self(.dynamicViewportHeight(value))
+	}
+
+	/**
+	A percentage of small viewport height (`svh` in CSS).
+	*/
+	public static func smallViewportHeight(_ value: Double) -> Self {
+		Self(.smallViewportHeight(value))
+	}
+
+	/**
+	A multiple of the line height (`lh` in CSS).
+	*/
+	public static func lineHeight(_ value: Double) -> Self {
+		Self(.lineHeight(value))
+	}
+
+	/**
+	A multiple of capital-letter height (`cap` in CSS).
+	*/
+	public static func capitalHeight(_ value: Double) -> Self {
+		Self(.capitalHeight(value))
+	}
+
+	/**
+	A percentage of container inline size (`cqi` in CSS).
+	*/
+	public static func containerInlineSize(_ value: Double) -> Self {
+		Self(.containerInlineSize(value))
+	}
+
+	/**
+	A percentage of container block size (`cqb` in CSS).
+	*/
+	public static func containerBlockSize(_ value: Double) -> Self {
+		Self(.containerBlockSize(value))
+	}
+
+	/**
+	A percentage of container width (`cqw` in CSS).
+	*/
+	public static func containerWidth(_ value: Double) -> Self {
+		Self(.containerWidth(value))
+	}
+
+	/**
+	A percentage of container height (`cqh` in CSS).
+	*/
+	public static func containerHeight(_ value: Double) -> Self {
+		Self(.containerHeight(value))
+	}
+
+	/**
+	A percentage of the smaller container dimension (`cqmin` in CSS).
+	*/
+	public static func containerMinimum(_ value: Double) -> Self {
+		Self(.containerMinimum(value))
+	}
+
+	/**
+	A percentage of the larger container dimension (`cqmax` in CSS).
+	*/
+	public static func containerMaximum(_ value: Double) -> Self {
+		Self(.containerMaximum(value))
+	}
+
+	/**
+	The preferred length within the minimum and maximum (`clamp()` in CSS).
+	*/
+	public static func clamp(_ minimum: LengthPercentage, _ preferred: LengthPercentage, _ maximum: LengthPercentage) -> Self {
+		Self(.clamp(minimum, preferred, maximum))
+	}
+}
+
+/**
+A margin or positional inset: a measurable length or `auto`. Keywords cannot participate in length arithmetic; wrap a calculation with ``length(_:)``.
+*/
+public struct AutoLength: LengthValue, Hashable {
+	public let description: String
+
+	/**
+	A raw CSS value. Prefer the typed constructors.
+	*/
+	public init(raw css: String) {
+		self.description = css
+	}
+
+	/**
+	The automatic margin or position (`auto` in CSS).
+	*/
+	public static let auto = Self(raw: "auto")
+}
+
+/**
+A width or height: a measurable length, an automatic size, or a size determined by the content. Keywords cannot participate in length arithmetic; wrap a calculation with ``length(_:)``.
+*/
+public struct BoxSize: LengthValue, Hashable {
+	public let description: String
+
+	/**
+	A raw CSS value. Prefer the typed constructors.
+	*/
+	public init(raw css: String) {
+		self.description = css
+	}
+
+	/**
+	The automatic width or height (`auto` in CSS).
+	*/
+	public static let auto = Self(raw: "auto")
+
+	/**
+	As wide as the content, but not wider than the space, like a label that is a block of its own line but has its background only behind its text (`fit-content` in CSS).
+	*/
+	public static let fitContent = Self(raw: "fit-content")
+
+	/**
+	The smallest intrinsic size (`min-content` in CSS).
+	*/
+	public static let minimumContent = Self(raw: "min-content")
+
+	/**
+	The preferred intrinsic size (`max-content` in CSS).
+	*/
+	public static let maximumContent = Self(raw: "max-content")
+}
+
+/**
+A maximum width or height: a measurable length, an intrinsic size, or `none` for no limit. Unlike ``BoxSize``, it cannot be `auto`.
+*/
+public struct MaximumBoxSize: LengthValue, Hashable {
+	public let description: String
+
+	/**
+	An explicit unchecked CSS maximum size. Prefer the typed constructors.
+	*/
+	public init(raw css: String) {
+		self.description = css
+	}
+
+	/**
+	No maximum size (`none` in CSS). Named `unlimited` to distinguish it from an omitted optional maximum.
+	*/
+	public static let unlimited = Self(raw: "none")
+
+	/**
+	The available size, limited by the content (`fit-content` in CSS).
+	*/
+	public static let fitContent = Self(raw: "fit-content")
+
+	/**
+	The smallest intrinsic size (`min-content` in CSS).
+	*/
+	public static let minimumContent = Self(raw: "min-content")
+
+	/**
+	The preferred intrinsic size (`max-content` in CSS).
+	*/
+	public static let maximumContent = Self(raw: "max-content")
 }
 
 /**
@@ -413,12 +956,12 @@ A CSS color, like `#2563eb` or `oklch(55.1% .027 264.364)`.
 public struct Color: StyleValue, Hashable, ExpressibleByStringLiteral {
 	public let description: String
 
-	public init(_ css: String) {
+	public init(raw css: String) {
 		self.description = css
 	}
 
 	public init(stringLiteral value: String) {
-		self.init(value)
+		self.init(raw: value)
 	}
 
 	/**
@@ -430,19 +973,19 @@ public struct Color: StyleValue, Hashable, ExpressibleByStringLiteral {
 		// Black and white are plain `rgb()`, which is shorter and easier to read.
 		switch self {
 		case .black:
-			return Self("rgb(0 0 0 / \(percent))")
+			return Self(raw: "rgb(0 0 0 / \(percent))")
 		case .white:
-			return Self("rgb(255 255 255 / \(percent))")
+			return Self(raw: "rgb(255 255 255 / \(percent))")
 		default:
-			return Self("color-mix(in oklab, \(self) \(percent), transparent)")
+			return Self(raw: "color-mix(in oklab, \(self) \(percent), transparent)")
 		}
 	}
 
 	/**
-	A color from a hue, a saturation, and a lightness, like `hsl(200 100% 65%)`. The saturation and the lightness are from 0 to 1. The hue is in degrees, and can be a CSS value, like a custom property, so it can change in CSS.
+	A color from a hue, a saturation, and a lightness, like `hsl(200 100% 65%)`. The saturation and the lightness are percentages. The hue is in degrees, and can be a CSS value, like a custom property, so it can change in CSS.
 	*/
-	public static func hsl(hue: CSSValue, saturation: Double, lightness: Double) -> Self {
-		Self("hsl(\(hue) \(percentage(ofFraction: saturation)) \(percentage(ofFraction: lightness)))")
+	public static func hsl(hue: CSSNumber, saturation: Percentage, lightness: Percentage) -> Self {
+		Self(raw: "hsl(\(hue) \(saturation) \(lightness))")
 	}
 
 	/**
@@ -455,43 +998,64 @@ public struct Color: StyleValue, Hashable, ExpressibleByStringLiteral {
 	/**
 	The color mixed with another color in OKLCH, like `color-mix(in oklch, blue, pink 30%)`. The amount is how much of the other color there is, like `.percent(30)`, or a custom property.
 	*/
-	public func mix(with other: Self, amount: CSSValue) -> Self {
-		Self("color-mix(in oklch, \(self), \(other) \(amount))")
+	public func mix(with other: Self, amount: Percentage) -> Self {
+		Self(raw: "color-mix(in oklch, \(self), \(other) \(amount))")
 	}
 
 	/**
 	The color, with another color in dark mode, like `light-dark()` in CSS.
 	*/
 	public static func lightDark(_ light: Self, _ dark: Self) -> Self {
-		Self("light-dark(\(light), \(dark))")
+		Self(raw: "light-dark(\(light), \(dark))")
 	}
 
 	/**
 	The color made lighter (positive amount) or darker (negative amount) in OKLCH, where the lightness goes from 0 to 1. Good for hover shades.
 	*/
 	public func lighter(_ amount: Double) -> Self {
-		Self("oklch(from \(self) calc(l + \(CSSValue.format(amount))) c h)")
+		Self(raw: "oklch(from \(self) calc(l + \(CSSValue.format(amount))) c h)")
 	}
 
 	/**
 	The color at a position of a gradient, like `Color.white.at(.percent(40))`, instead of colors that are spread evenly.
 	*/
-	public func at(_ position: Length) -> GradientStop {
+	public func at(_ position: LengthPercentage) -> GradientStop {
 		GradientStop(color: self, position: position)
+	}
+
+	/**
+	A solid color between two positions of a gradient, like `.black.at(.zero, through: .pixels(12))`.
+	*/
+	public func at(_ position: LengthPercentage, through endPosition: LengthPercentage) -> GradientStop {
+		GradientStop(color: self, position: position, endPosition: endPosition)
 	}
 
 	/**
 	White. Its ``opacity(_:)`` is plain `rgb()`.
 	*/
-	public static let white = Self("#fff")
+	public static let white = Self(raw: "#fff")
 
 	/**
 	Black. Its ``opacity(_:)`` is plain `rgb()`.
 	*/
-	public static let black = Self("#000")
-	public static let transparent = Self("transparent")
-	public static let currentColor = Self("currentColor")
-	public static let inherit = Self("inherit")
+	public static let black = Self(raw: "#000")
+	public static let transparent = Self(raw: "transparent")
+	public static let currentColor = Self(raw: "currentColor")
+
+	/**
+	The color of links in forced colors, like Windows High Contrast (`LinkText` in CSS), for something that forced colors would otherwise paint in the background color.
+	*/
+	public static let linkText = Self(raw: "LinkText")
+
+	/**
+	The background color of forced colors, like Windows High Contrast (`Canvas` in CSS).
+	*/
+	public static let canvas = Self(raw: "Canvas")
+
+	/**
+	The text color of forced colors, like Windows High Contrast (`CanvasText` in CSS).
+	*/
+	public static let canvasText = Self(raw: "CanvasText")
 }
 
 /**
@@ -499,10 +1063,107 @@ A color at a position of a gradient, like `Color.white.at(.percent(40))`. See ``
 */
 public struct GradientStop: Hashable, Sendable, CustomStringConvertible {
 	public let color: Color
-	public let position: Length
+	public let position: LengthPercentage
+	public let endPosition: LengthPercentage?
+
+	/**
+	A color at one position, or solid between two positions.
+	*/
+	public init(color: Color, position: LengthPercentage, endPosition: LengthPercentage? = nil) {
+		self.color = color
+		self.position = position
+		self.endPosition = endPosition
+	}
 
 	public var description: String {
-		"\(color) \(position)"
+		"\(color) \(position)" + (endPosition.map { " \($0)" } ?? "")
+	}
+}
+
+/**
+A two-dimensional CSS position, measured from the top-left corner of its positioning area. The meaning of percentages depends on the property, such as the element’s dimensions for a gradient.
+*/
+public struct CSSPosition: Hashable, Sendable, CustomStringConvertible {
+	/**
+	The center of the positioning area.
+	*/
+	public static let center = Self(x: .percent(50), y: .percent(50))
+
+	public let x: LengthPercentage
+	public let y: LengthPercentage
+
+	/**
+	A position in lengths or percentages, like `.init(x: .percent(20), y: .percent(40))`.
+	*/
+	public init(x: LengthPercentage, y: LengthPercentage) {
+		self.x = x
+		self.y = y
+	}
+
+	public var description: String {
+		"\(x) \(y)"
+	}
+}
+
+/**
+The size keywords of a radial gradient, measured from its center to the sides or corners of the element.
+*/
+public enum RadialGradientExtent: String, CSSKeyword {
+	case closestSide = "closest-side"
+	case closestCorner = "closest-corner"
+	case farthestSide = "farthest-side"
+	case farthestCorner = "farthest-corner"
+}
+
+/**
+The shape, size, and center of a radial gradient. A circle has one radius and an ellipse has two. Without a radius or extent, it reaches the farthest corner; without a position, it is centered.
+*/
+public struct RadialGradientShape: Hashable, Sendable, CustomStringConvertible {
+	public let description: String
+
+	/**
+	An explicit escape for uncommon CSS shapes that the typed constructors cannot express.
+	*/
+	public init(raw: String) {
+		self.description = raw
+	}
+
+	public static let circle = Self.circle()
+	public static let ellipse = Self.ellipse()
+
+	/**
+	A circle, optionally with an explicit radius and center. A circle radius is a length, not a percentage.
+	*/
+	public static func circle(radius: Length? = nil, at position: CSSPosition? = nil) -> Self {
+		shape("circle", size: radius?.description, position: position)
+	}
+
+	/**
+	An ellipse with horizontal and vertical radii and an optional center. Radii may be percentages.
+	*/
+	public static func ellipse(radiusX: LengthPercentage, radiusY: LengthPercentage, at position: CSSPosition? = nil) -> Self {
+		shape("ellipse", size: "\(radiusX) \(radiusY)", position: position)
+	}
+
+	/**
+	An ellipse, optionally sized to a side or corner, with an optional center.
+	*/
+	public static func ellipse(extent: RadialGradientExtent? = nil, at position: CSSPosition? = nil) -> Self {
+		shape("ellipse", size: extent?.rawValue, position: position)
+	}
+
+	/**
+	A circle sized to a side or corner, with an optional center.
+	*/
+	public static func circle(extent: RadialGradientExtent, at position: CSSPosition? = nil) -> Self {
+		shape("circle", size: extent.rawValue, position: position)
+	}
+
+	/**
+	The shape with its optional size and position as CSS.
+	*/
+	private static func shape(_ name: String, size: String?, position: CSSPosition?) -> Self {
+		Self(raw: [name, size, position.map { "at \($0)" }].compactMap(\.self).joined(separator: " "))
 	}
 }
 
@@ -519,9 +1180,33 @@ public enum ColorSpace: String, CSSKeyword {
 }
 
 /**
-A box shadow.
+A shadow of text or the shape of content, for `text-shadow` and `drop-shadow()`, which have no spread and cannot be inset. A ``BoxShadow`` is a shadow of an element's box.
 */
 public struct Shadow: Hashable, Sendable, CustomStringConvertible {
+	public let x: Length
+	public let y: Length
+	public let blur: Length
+	public let color: Color
+
+	/**
+	A shadow offset from the text or content, with a blur radius and color.
+	*/
+	public init(x: Length = .zero, y: Length, blur: Length = .zero, color: Color) {
+		self.x = x
+		self.y = y
+		self.blur = blur
+		self.color = color
+	}
+
+	public var description: String {
+		"\(x) \(y) \(blur) \(color)"
+	}
+}
+
+/**
+A box shadow, with a spread radius and an optional inset inside the element. Text and drop shadows use ``Shadow``, which does not have these box-only values.
+*/
+public struct BoxShadow: Hashable, Sendable, CustomStringConvertible {
 	public let x: Length
 	public let y: Length
 	public let blur: Length
@@ -529,11 +1214,14 @@ public struct Shadow: Hashable, Sendable, CustomStringConvertible {
 	public let color: Color
 	public let isInset: Bool
 
+	/**
+	A shadow offset from the box, with blur and spread radii, a color, and whether it is inset.
+	*/
 	public init(
-		x: Length = 0,
+		x: Length = .zero,
 		y: Length,
-		blur: Length = 0,
-		spread: Length = 0,
+		blur: Length = .zero,
+		spread: Length = .zero,
 		color: Color,
 		isInset: Bool = false
 	) {
@@ -548,13 +1236,6 @@ public struct Shadow: Hashable, Sendable, CustomStringConvertible {
 	public var description: String {
 		"\(isInset ? "inset " : "")\(x) \(y) \(blur) \(spread) \(color)"
 	}
-
-	/**
-	The shadow without the spread and the inset, for `text-shadow` and `drop-shadow()`, which do not have them.
-	*/
-	var descriptionWithoutSpread: String {
-		"\(x) \(y) \(blur) \(color)"
-	}
 }
 
 // MARK: Conditions
@@ -568,11 +1249,15 @@ public struct Breakpoint: Hashable, Sendable {
 	*/
 	public let minimumWidthInRem: Double
 
+	/**
+	Creates a breakpoint at a finite nonnegative width in root-font units.
+	*/
 	public init(minimumWidthInRem: Double) {
+		precondition(minimumWidthInRem.isFinite && minimumWidthInRem >= 0, "A breakpoint width must be finite and nonnegative.")
 		self.minimumWidthInRem = minimumWidthInRem
 	}
 
-	public var minimumWidth: Length {
+	public var minimumWidth: LengthPercentage {
 		.rootEm(minimumWidthInRem)
 	}
 }
@@ -651,6 +1336,23 @@ public enum FlexDirection: String, CSSKeyword {
 	case column
 }
 
+/**
+Whether the items of a flex container wrap onto more lines when they do not fit (`flex-wrap` in CSS).
+*/
+public enum FlexWrap: String, CSSKeyword {
+	case wrap
+
+	/**
+	Each new line goes above the last one instead of below it, like a pile that grows from the bottom.
+	*/
+	case wrapReversed = "wrap-reverse"
+
+	/**
+	Keeps the items on one line, like a row that scrolls sideways, also inside an element that wraps them.
+	*/
+	case nowrap
+}
+
 public enum Alignment: String, CSSKeyword {
 	case start = "flex-start"
 	case center
@@ -674,27 +1376,95 @@ public struct GridTrack: StyleValue, Hashable {
 	/**
 	A grid track written as CSS, like `minmax(0, 1fr)`.
 	*/
-	public init(_ css: String) {
+	public init(raw css: String) {
 		self.description = css
 	}
 
 	/**
 	The size of the content.
 	*/
-	public static let auto = Self("auto")
+	public static let auto = Self(raw: "auto")
 
 	/**
 	A fixed size, like `.fixed(.rootEm(0.625))`.
 	*/
-	public static func fixed(_ size: Length) -> Self {
-		Self(size.description)
+	public static func fixed(_ size: LengthPercentage) -> Self {
+		Self(raw: size.description)
 	}
 
 	/**
 	A share of the free space, like `.fraction(1)` for tracks that share it equally (`1fr`).
 	*/
 	public static func fraction(_ share: Double) -> Self {
-		Self(CSSValue.format(share) + "fr")
+		precondition(share.isFinite && share >= 0, "A grid fraction must be finite and nonnegative.")
+		return Self(raw: CSSValue.format(share) + "fr")
+	}
+
+	/**
+	A flexible track with a length-or-percentage minimum and a fractional share of the remaining space, like `minmax(0, 1fr)`. Other valid track grammars remain available with `init(raw:)`.
+	*/
+	public static func flexible(minimum: LengthPercentage = .zero, fraction: Double = 1) -> Self {
+		Self(raw: "minmax(\(minimum), \(Self.fraction(fraction)))")
+	}
+}
+
+/**
+A list of grid tracks. Fixed repeats accept tracks rather than lists, so typed composition cannot accidentally nest `repeat()`. Raw CSS remains an explicit escape for other grid grammars.
+*/
+public struct GridTrackList: StyleValue, Hashable {
+	public let description: String
+
+	/**
+	A track list written as unchecked CSS.
+	*/
+	public init(raw css: String) {
+		self.description = css
+	}
+
+	/**
+	One or more tracks in their written order.
+	*/
+	public init(_ first: GridTrack, _ remaining: GridTrack...) {
+		self.init([first] + remaining)
+	}
+
+	/**
+	A nonempty collection of tracks, such as a grid assembled from data.
+	*/
+	public init(_ tracks: [GridTrack]) {
+		precondition(!tracks.isEmpty, "A grid track list must not be empty.")
+		self.description = tracks.map(\.description).joined(separator: " ")
+	}
+
+	/**
+	A positive fixed number of copies of a track.
+	*/
+	public static func repeating(_ track: GridTrack, count: Int) -> Self {
+		precondition(count > 0, "A repeated grid track needs a positive count.")
+		return Self(raw: "repeat(\(count), \(track))")
+	}
+
+	/**
+	A leading track followed by fixed repetitions, such as a row label and its data columns. Keeping this constructor separate from adaptive lists avoids combining incompatible automatic repetitions.
+	*/
+	public init(_ leading: GridTrack, repeating track: GridTrack, count: Int) {
+		self.init(raw: "\(leading) \(Self.repeating(track, count: count))")
+	}
+
+	/**
+	As many flexible columns as fit, each at least the minimum width and never wider than the container. The fixed minimum keeps automatic repetition valid CSS.
+	*/
+	public static func adaptive(minimum: LengthPercentage) -> Self {
+		Self(raw: "repeat(auto-fill, minmax(\(LengthPercentage.min(.percent(100), minimum)), 1fr))")
+	}
+
+	/**
+	Adaptive tracks with a column limit. Their minimum accounts for the gaps, so the maximum number fits exactly without introducing another column.
+	*/
+	public static func adaptive(minimum: LengthPercentage, maximumColumns: Int, spacing: LengthPercentage) -> Self {
+		precondition(maximumColumns > 0, "A grid or column count must be positive.")
+		let narrowestColumn = LengthPercentage.max(.min(.percent(100), minimum), (.percent(100) - spacing * Double(maximumColumns - 1)) / Double(maximumColumns))
+		return Self(raw: "repeat(auto-fill, minmax(\(narrowestColumn), 1fr))")
 	}
 }
 
@@ -741,7 +1511,7 @@ public enum ObjectFit: String, CSSKeyword {
 }
 
 /**
-What a container measures for the container units of its descendants, like ``Length/containerInlineSize(_:)``. See ``Style/containerType(_:)``.
+What a container measures for the container units of its descendants, like ``LengthPercentage/containerInlineSize(_:)``. See ``Style/containerType(_:)``.
 */
 public enum ContainerType: String, CSSKeyword {
 	/**
@@ -775,22 +1545,21 @@ public enum Position: String, CSSKeyword {
 }
 
 /**
-An element that other elements are positioned next to, like a menu below the header. Give it to the element with ``Style/anchorName(_:)``, and position the other elements with ``Style/positionAnchor(_:)`` and ``Style/positionArea(_:)``, or with ``Length/anchor(_:_:)``.
+An element that other elements are positioned next to, like a menu below the header. Give it to the element with ``Style/anchorName(_:)``, and position the other elements with ``Style/positionAnchor(_:)`` and ``Style/positionArea(_:)``, or with ``Style/top(anchor:side:)``.
 */
 public struct Anchor: Hashable, Sendable {
-	let name: String
+	let name: DashedIdentifier
 
 	/**
-	- Parameter name: A custom property name, like `--site-header`.
+	- Parameter name: The name without the CSS `--` prefix, like `site-header`.
 	*/
-	public init(_ name: String) {
-		precondition(name.hasPrefix("--"), "An anchor name starts with two hyphens: \(name)")
+	public init(_ name: DashedIdentifier) {
 		self.name = name
 	}
 }
 
 /**
-A side of an anchor, for ``Length/anchor(_:_:)``.
+A side of an anchor, for ``Style/top(anchor:side:)``.
 */
 public enum AnchorSide: String, CSSKeyword {
 	/**
@@ -935,11 +1704,33 @@ public enum ScrollBehavior: String, CSSKeyword {
 
 // MARK: Text
 
-public struct FontWeight: Hashable, Sendable, ExpressibleByIntegerLiteral {
-	public let value: Int
+/**
+The weight of a font, like ``bold`` or `650` for a weight between two named ones.
+*/
+public struct FontWeight: StyleValue, Hashable, ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral {
+	public let description: String
+
+	/**
+	A weight written as CSS, like `var(--weight)`.
+	*/
+	public init(raw css: String) {
+		self.description = css
+	}
+
+	/**
+	A numeric weight in the CSS range from 1 through 1000, including fractional variable-font weights.
+	*/
+	public init(_ value: Double) {
+		precondition(value.isFinite && (1...1000).contains(value), "A font weight must be finite and between 1 and 1000.")
+		self.init(raw: CSSValue.format(value))
+	}
 
 	public init(integerLiteral value: Int) {
-		self.value = value
+		self.init(Double(value))
+	}
+
+	public init(floatLiteral value: Double) {
+		self.init(value)
 	}
 
 	public static let regular: Self = 400
@@ -947,6 +1738,78 @@ public struct FontWeight: Hashable, Sendable, ExpressibleByIntegerLiteral {
 	public static let semibold: Self = 600
 	public static let bold: Self = 700
 	public static let heavy: Self = 800
+
+	/**
+	A weight bolder than the weight of the parent (`bolder` in CSS), like the default weight of `<b>` and `<strong>`.
+	*/
+	public static let bolder = Self(raw: "bolder")
+
+	/**
+	The weight of the parent (`inherit` in CSS), like for a link in a bold summary.
+	*/
+	public static let inherit = Self(raw: "inherit")
+}
+
+/**
+The style of the digits, for ``Style/fontVariantNumeric(_:)``.
+*/
+public struct FontVariantNumeric: OptionSet, Hashable, Sendable, CustomStringConvertible {
+	public let rawValue: Int
+
+	public init(rawValue: Int) {
+		self.rawValue = rawValue
+	}
+
+	/**
+	Digits with the same width, so the digits of numbers in a column line up (`tabular-nums` in CSS).
+	*/
+	public static let tabularNumbers = Self(rawValue: 1 << 0)
+
+	/**
+	Digits with ascenders and descenders, like lowercase letters, so numbers blend into running text (`oldstyle-nums` in CSS).
+	*/
+	public static let oldstyleNumbers = Self(rawValue: 1 << 1)
+
+	public var description: String {
+		let keywords = [
+			contains(.tabularNumbers) ? "tabular-nums" : nil,
+			contains(.oldstyleNumbers) ? "oldstyle-nums" : nil
+		]
+		.compactMap(\.self)
+
+		return keywords.isEmpty ? "normal" : keywords.joined(separator: " ")
+	}
+}
+
+/**
+The punctuation that hangs outside the box of the text, for ``Style/hangingPunctuation(_:)``.
+*/
+public struct HangingPunctuation: OptionSet, Hashable, Sendable, CustomStringConvertible {
+	public let rawValue: Int
+
+	public init(rawValue: Int) {
+		self.rawValue = rawValue
+	}
+
+	/**
+	An opening quote or bracket at the start of the first line.
+	*/
+	public static let first = Self(rawValue: 1 << 0)
+
+	/**
+	A closing quote or bracket at the end of the last line.
+	*/
+	public static let last = Self(rawValue: 1 << 1)
+
+	public var description: String {
+		let keywords = [
+			contains(.first) ? "first" : nil,
+			contains(.last) ? "last" : nil
+		]
+		.compactMap(\.self)
+
+		return keywords.isEmpty ? "none" : keywords.joined(separator: " ")
+	}
 }
 
 /**
@@ -958,18 +1821,47 @@ public struct FontFamily: StyleValue, Hashable, ExpressibleByStringLiteral {
 	/**
 	A font stack written as CSS.
 	*/
-	public init(_ css: String) {
+	public init(raw css: String) {
 		self.description = css
 	}
 
 	public init(stringLiteral value: String) {
-		self.init(value)
+		self.init(raw: value)
 	}
 
 	/**
-	The font of the parent, like for a `<kbd>` or `<code>`, which browsers show in a monospaced font.
+	A named font, quoted and escaped as a CSS string.
 	*/
-	public static let inherit = Self("inherit")
+	public static func named(_ name: String) -> Self {
+		Self(raw: CSSValue.string(name).description)
+	}
+
+	/**
+	One or more fallback families in preference order. Generic families stay unquoted.
+	*/
+	public static func stack(_ first: Self, _ remaining: Self...) -> Self {
+		Self(raw: ([first] + remaining).map(\.description).joined(separator: ", "))
+	}
+
+	/**
+	The generic serif family (`serif` in CSS).
+	*/
+	public static let genericSerif = Self(raw: "serif")
+
+	/**
+	The generic sans-serif family (`sans-serif` in CSS).
+	*/
+	public static let genericSansSerif = Self(raw: "sans-serif")
+
+	/**
+	The generic monospaced family (`monospace` in CSS).
+	*/
+	public static let genericMonospace = Self(raw: "monospace")
+
+	/**
+	The generic cursive family (`cursive` in CSS).
+	*/
+	public static let genericCursive = Self(raw: "cursive")
 }
 
 public enum FontWidth: String, CSSKeyword {
@@ -1031,6 +1923,11 @@ public enum TextWrap: String, CSSKeyword {
 	Keeps the text on one line.
 	*/
 	case nowrap
+
+	/**
+	Wraps the text again, like inside an element that keeps its text on one line.
+	*/
+	case wrap
 }
 
 /**
@@ -1105,6 +2002,52 @@ public enum ListStyle: String, CSSKeyword {
 // MARK: Background, border, and shadow
 
 /**
+The ends of the lines of SVG shapes, for ``Style/strokedShapes(_:lineCap:lineJoin:)``.
+*/
+public enum LineCap: String, CSSKeyword {
+	case butt
+	case round
+	case square
+}
+
+/**
+The corners of the lines of SVG shapes, for ``Style/strokedShapes(_:lineCap:lineJoin:)``.
+*/
+public enum LineJoin: String, CSSKeyword {
+	case miter
+	case round
+	case bevel
+}
+
+/**
+Whether forced colors change the colors of an element, for ``Style/forcedColorAdjust(_:)``.
+*/
+public enum ForcedColorAdjust: String, CSSKeyword {
+	case auto
+	case none
+	case preserveParentColor = "preserve-parent-color"
+}
+
+/**
+How an image repeats in its area, like for ``Style/maskRepeat(_:)``.
+*/
+public enum ImageRepeat: String, CSSKeyword {
+	case `repeat`
+
+	/**
+	Repeats only whole images, with even gaps between them, and the first and the last at the edges.
+	*/
+	case space
+
+	/**
+	Repeats only whole images, scaled to fill the area.
+	*/
+	case round
+
+	case noRepeat = "no-repeat"
+}
+
+/**
 What a background is drawn in, for ``Style/backgroundClip(_:)``. `text` draws it only in the letters, like for gradient text.
 */
 public enum BackgroundClip: String, CSSKeyword {
@@ -1147,7 +2090,7 @@ public enum RoundedShape: Sendable {
 
 	case circle
 
-	var radius: Length {
+	var radius: LengthPercentage {
 		switch self {
 		case .capsule:
 			.pixels(9999)
@@ -1303,17 +2246,151 @@ public struct Angle: StyleValue, Hashable {
 	/**
 	An angle written as CSS, like a custom property reference.
 	*/
-	public init(_ css: String) {
+	public init(raw css: String) {
 		self.description = css
 	}
 
 	public static func degrees(_ degrees: Double) -> Self {
-		Self(CSSValue.format(degrees) + "deg")
+		Self(raw: CSSValue.format(degrees) + "deg")
+	}
+
+	/**
+	Scales an angle by a number-valued CSS expression, like the tilt strength of an element.
+	*/
+	public func scaled(by number: CSSNumber) -> Self {
+		Self(raw: "calc(\(self) * \(number))")
 	}
 }
 
 /**
-A filter for ``Style/filter(_:_:)`` and ``Style/backdropFilter(_:_:)``, like a blur.
+One transform function. A list retains function order, which affects the result. The raw initializer is an explicit escape for uncommon functions.
+*/
+public struct Transform: StyleValue, Hashable {
+	public let description: String
+
+	/**
+	An explicit unchecked transform function, such as a matrix that code computes elsewhere.
+	*/
+	public init(raw css: String) {
+		self.description = css
+	}
+
+	/**
+	The distance of the viewer from a three-dimensional scene.
+	*/
+	public static func perspective(_ distance: Length) -> Self {
+		Self(raw: "perspective(\(distance))")
+	}
+
+	/**
+	Moves horizontally by a length or a percentage of the element's width.
+	*/
+	public static func translateX(_ distance: LengthPercentage) -> Self {
+		Self(raw: "translateX(\(distance))")
+	}
+
+	/**
+	Moves vertically by a length or a percentage of the element's height.
+	*/
+	public static func translateY(_ distance: LengthPercentage) -> Self {
+		Self(raw: "translateY(\(distance))")
+	}
+
+	/**
+	Moves in depth by a length, without a percentage.
+	*/
+	public static func translateZ(_ distance: Length) -> Self {
+		Self(raw: "translateZ(\(distance))")
+	}
+
+	/**
+	Rotates in the plane of the element.
+	*/
+	public static func rotate(_ angle: Angle) -> Self {
+		Self(raw: "rotate(\(angle))")
+	}
+
+	/**
+	Rotates about the horizontal axis.
+	*/
+	public static func rotateX(_ angle: Angle) -> Self {
+		Self(raw: "rotateX(\(angle))")
+	}
+
+	/**
+	Rotates about the vertical axis.
+	*/
+	public static func rotateY(_ angle: Angle) -> Self {
+		Self(raw: "rotateY(\(angle))")
+	}
+
+	/**
+	Scales both axes equally by a number-valued expression.
+	*/
+	public static func scale(_ number: CSSNumber) -> Self {
+		Self(raw: "scale(\(number))")
+	}
+}
+
+/**
+Which sizes transitions and animations can go between, for ``Style/interpolateSize(_:)``.
+*/
+public enum SizeInterpolation: String, CSSKeyword {
+	/**
+	Only between numbers, like `0` and `20rem`. The default.
+	*/
+	case numericOnly = "numeric-only"
+
+	/**
+	Also to and from size keywords, like `auto` and `fit-content`.
+	*/
+	case allowKeywords = "allow-keywords"
+}
+
+/**
+The direction of a linear gradient, like ``toBottom`` or `.angle(.degrees(135))`. The sides are physical, like in CSS, so a gradient to the right goes to the right also in right-to-left text.
+*/
+public enum GradientDirection: Hashable, Sendable, CustomStringConvertible {
+	case toTop
+	case toBottom
+	case toLeft
+	case toRight
+	case toTopLeft
+	case toTopRight
+	case toBottomLeft
+	case toBottomRight
+
+	/**
+	The angle of the gradient line, clockwise from the top, so `.degrees(90)` is the same as ``toRight``.
+	*/
+	case angle(Angle)
+
+	public var description: String {
+		switch self {
+		case .toTop:
+			"to top"
+		case .toBottom:
+			"to bottom"
+		case .toLeft:
+			"to left"
+		case .toRight:
+			"to right"
+		case .toTopLeft:
+			"to top left"
+		case .toTopRight:
+			"to top right"
+		case .toBottomLeft:
+			"to bottom left"
+		case .toBottomRight:
+			"to bottom right"
+		case .angle(let angle):
+			angle.description
+		}
+	}
+}
+
+/**
+A filter for ``Style/filter(_:)`` and ``Style/backdropFilter(_:)``, like a blur.
 */
 public struct Filter: Hashable, Sendable, CustomStringConvertible {
 	public let description: String
@@ -1321,83 +2398,78 @@ public struct Filter: Hashable, Sendable, CustomStringConvertible {
 	/**
 	A filter written as CSS, like a `drop-shadow()` with `calc()`.
 	*/
-	public init(_ css: String) {
+	public init(raw css: String) {
 		self.description = css
 	}
-
-	/**
-	No filters.
-	*/
-	public static let none = Self("none")
 
 	/**
 	Blurs the element, like SwiftUI's `blur(radius:)`.
 	*/
 	public static func blur(radius: Length) -> Self {
-		Self("blur(\(radius))")
+		Self(raw: "blur(\(radius))")
 	}
 
 	/**
 	Brightens (above 1) or darkens (below 1) the element, with 1 as no change, as in CSS.
 	*/
-	public static func brightness(_ amount: Double) -> Self {
-		Self("brightness(\(CSSValue.format(amount)))")
+	public static func brightness(_ amount: CSSNumber) -> Self {
+		Self(raw: "brightness(\(amount))")
 	}
 
 	/**
 	Makes the colors more (above 1) or less (below 1) intense, like SwiftUI's `saturation(_:)`.
 	*/
-	public static func saturation(_ amount: Double) -> Self {
-		Self("saturate(\(CSSValue.format(amount)))")
+	public static func saturation(_ amount: CSSNumber) -> Self {
+		Self(raw: "saturate(\(amount))")
 	}
 
 	/**
 	Turns the colors around the color wheel by the angle, like SwiftUI's `hueRotation(_:)`.
 	*/
 	public static func hueRotation(_ angle: Angle) -> Self {
-		Self("hue-rotate(\(angle))")
+		Self(raw: "hue-rotate(\(angle))")
 	}
 
 	/**
 	Removes the colors (1) or part of them (between 0 and 1), like SwiftUI's `grayscale(_:)`.
 	*/
-	public static func grayscale(_ amount: Double) -> Self {
-		Self("grayscale(\(CSSValue.format(amount)))")
+	public static func grayscale(_ amount: CSSNumber) -> Self {
+		Self(raw: "grayscale(\(amount))")
 	}
 
 	/**
 	Makes the difference between light and dark larger (above 1) or smaller (below 1), like SwiftUI's `contrast(_:)`.
 	*/
-	public static func contrast(_ amount: Double) -> Self {
-		Self("contrast(\(CSSValue.format(amount)))")
+	public static func contrast(_ amount: CSSNumber) -> Self {
+		Self(raw: "contrast(\(amount))")
 	}
 
 	/**
 	Inverts the colors (1) or part of the way (between 0 and 1), like SwiftUI's `colorInvert()`, where black becomes white.
 	*/
-	public static func invert(_ amount: Double) -> Self {
-		Self("invert(\(CSSValue.format(amount)))")
+	public static func invert(_ amount: CSSNumber) -> Self {
+		Self(raw: "invert(\(amount))")
 	}
 
 	/**
 	Tints the colors brown like an old photo (1), or part of the way (between 0 and 1).
 	*/
-	public static func sepia(_ amount: Double) -> Self {
-		Self("sepia(\(CSSValue.format(amount)))")
+	public static func sepia(_ amount: CSSNumber) -> Self {
+		Self(raw: "sepia(\(amount))")
 	}
 
 	/**
 	Makes the element transparent, where `1` is opaque. Unlike the `opacity` property, it can be in a list of filters.
 	*/
-	public static func opacity(_ opacity: Double) -> Self {
-		Self("opacity(\(CSSValue.format(opacity)))")
+	public static func opacity(_ opacity: CSSNumber) -> Self {
+		Self(raw: "opacity(\(opacity))")
 	}
 
 	/**
 	A shadow that follows the shape of the content, like transparent parts of an image.
 	*/
 	public static func dropShadow(_ shadow: Shadow) -> Self {
-		Self("drop-shadow(\(shadow.descriptionWithoutSpread))")
+		Self(raw: "drop-shadow(\(shadow.description))")
 	}
 }
 
@@ -1430,7 +2502,7 @@ public struct TransitionProperty: Hashable, Sendable {
 	A registered custom property, which can transition, as the browser knows its type.
 	*/
 	public init(_ property: RegisteredProperty<some StyleValue>) {
-		self.init(Property(property.variable.name))
+		self.init(Property(property.variable.name.description))
 	}
 
 	private init(properties: [Property], isDiscrete: Bool = false) {
@@ -1492,13 +2564,13 @@ public struct TransitionProperty: Hashable, Sendable {
 }
 
 /**
-How long an animation or a transition takes, and how it speeds up and slows down, like SwiftUI's `Animation`:
+How long one run of an animation or a transition takes, and how it speeds up and slows down:
 
 ```swift
-.easeInOut(duration: .seconds(18)).repeatForever()
+.easeInOut(duration: .seconds(18))
 ```
 */
-public struct Animation: Hashable, Sendable {
+public struct AnimationTiming: Hashable, Sendable, CustomStringConvertible {
 	let duration: Duration
 
 	/**
@@ -1506,8 +2578,11 @@ public struct Animation: Hashable, Sendable {
 	*/
 	private let timingFunction: String?
 
-	private(set) var repeatsForever = false
-	private(set) var autoreverses = false
+	private init(duration: Duration, timingFunction: String?) {
+		precondition(duration >= .zero, "An animation duration must be nonnegative.")
+		self.duration = duration
+		self.timingFunction = timingFunction
+	}
 
 	/**
 	The CSS default, `ease`, which starts a little slowly, is fastest early on, and slows down gently at the end.
@@ -1533,7 +2608,15 @@ public struct Animation: Hashable, Sendable {
 	}
 
 	/**
-	A cubic Bézier timing curve with two control points, like SwiftUI's `timingCurve(_:_:_:_:duration:)`. Control points above 1 overshoot, like a spring.
+	A timing function that advances in discrete steps. The count must be positive, or at least two for `.jumpNone`.
+	*/
+	public static func steps(_ count: Int, position: StepPosition = .end, duration: Duration) -> Self {
+		precondition(count > (position == .jumpNone ? 1 : 0), "A step timing function needs a positive count, or at least two steps for jump-none.")
+		return Self(duration: duration, timingFunction: "steps(\(count), \(position.rawValue))")
+	}
+
+	/**
+	A cubic Bézier timing curve with two control points, like SwiftUI’s `timingCurve(_:_:_:_:duration:)`. The y coordinates may overshoot, like a spring; the x coordinates stay within 0...1.
 	*/
 	public static func timingCurve(
 		_ c0x: Double,
@@ -1542,33 +2625,119 @@ public struct Animation: Hashable, Sendable {
 		_ c1y: Double,
 		duration: Duration
 	) -> Self {
-		Self(duration: duration, timingFunction: "cubic-bezier(\([c0x, c0y, c1x, c1y].map(CSSValue.format).joined(separator: ", ")))")
+		precondition((0...1).contains(c0x) && (0...1).contains(c1x), "The x coordinates of a cubic Bézier curve must be between 0 and 1.")
+		return Self(duration: duration, timingFunction: "cubic-bezier(\([c0x, c0y, c1x, c1y].map(CSSValue.format).joined(separator: ", ")))")
 	}
 
 	/**
 	A timing function written as CSS, like `linear(0, .5 7.7%, 1.06 23.7%, 1)` for a spring that bounces.
 	*/
-	public static func timingCurve(_ timingFunction: String, duration: Duration) -> Self {
+	public static func timingCurve(raw timingFunction: String, duration: Duration) -> Self {
 		Self(duration: duration, timingFunction: timingFunction)
-	}
-
-	/**
-	The animation, repeated forever.
-
-	- Parameter autoreverses: Whether every other run plays backwards.
-	*/
-	public func repeatForever(autoreverses: Bool = true) -> Self {
-		var copy = self
-		copy.repeatsForever = true
-		copy.autoreverses = autoreverses
-		return copy
 	}
 
 	/**
 	The duration and the timing function, like `.2s ease-out`.
 	*/
-	var timing: String {
+	public var description: String {
 		[duration.cssValue, timingFunction].compactMap(\.self).joined(separator: " ")
+	}
+}
+
+/**
+An animation’s one-run timing together with its repeat and direction configuration. Transitions accept only ``AnimationTiming``.
+*/
+public struct Animation: Hashable, Sendable {
+	private let timing: AnimationTiming
+
+	/**
+	These are the supported combinations; an alternating animation that runs only once is not representable.
+	*/
+	private enum Repetition: String {
+		case once = ""
+		case forever = "infinite"
+		case alternating = "infinite alternate"
+	}
+
+	private var repetition = Repetition.once
+
+	/**
+	An animation with the given one-run timing.
+	*/
+	public init(timing: AnimationTiming) {
+		self.timing = timing
+	}
+
+	/**
+	An animation with the default timing curve.
+	*/
+	public static func `default`(duration: Duration) -> Self {
+		Self(timing: .`default`(duration: duration))
+	}
+
+	/**
+	An animation with the linear timing curve.
+	*/
+	public static func linear(duration: Duration) -> Self {
+		Self(timing: .linear(duration: duration))
+	}
+
+	/**
+	An animation that eases in.
+	*/
+	public static func easeIn(duration: Duration) -> Self {
+		Self(timing: .easeIn(duration: duration))
+	}
+
+	/**
+	An animation that eases out.
+	*/
+	public static func easeOut(duration: Duration) -> Self {
+		Self(timing: .easeOut(duration: duration))
+	}
+
+	/**
+	An animation that eases in and out.
+	*/
+	public static func easeInOut(duration: Duration) -> Self {
+		Self(timing: .easeInOut(duration: duration))
+	}
+
+	/**
+	An animation that advances in discrete steps. The count must be positive, or at least two for `.jumpNone`.
+	*/
+	public static func steps(_ count: Int, position: StepPosition = .end, duration: Duration) -> Self {
+		Self(timing: .steps(count, position: position, duration: duration))
+	}
+
+	/**
+	An animation with a cubic Bézier curve. Only the y coordinates may overshoot outside 0...1.
+	*/
+	public static func timingCurve(_ c0x: Double, _ c0y: Double, _ c1x: Double, _ c1y: Double, duration: Duration) -> Self {
+		Self(timing: .timingCurve(c0x, c0y, c1x, c1y, duration: duration))
+	}
+
+	/**
+	An animation with an explicitly unchecked CSS timing function.
+	*/
+	public static func timingCurve(raw timingFunction: String, duration: Duration) -> Self {
+		Self(timing: .timingCurve(raw: timingFunction, duration: duration))
+	}
+
+	/**
+	Repeats the animation forever, optionally alternating its direction.
+	*/
+	public func repeatForever(autoreverses: Bool = true) -> Self {
+		var copy = self
+		copy.repetition = autoreverses ? .alternating : .forever
+		return copy
+	}
+
+	/**
+	The animation shorthand. Placement under the reduced-motion condition and registration of keyframes remain responsibilities of the style.
+	*/
+	func cssValue(name: String, fillMode: AnimationFillMode?) -> CSSValue {
+		CSSValue([name, timing.description, repetition.rawValue.nilIfEmpty, fillMode?.rawValue].compactMap(\.self), separator: " ")
 	}
 }
 
@@ -1578,6 +2747,50 @@ extension Duration {
 	*/
 	var cssValue: String {
 		CSSValue.format(self / .seconds(1)) + "s"
+	}
+}
+
+/**
+Where the jumps of a step easing function occur (`<step-position>` in CSS).
+*/
+public enum StepPosition: String, CSSKeyword {
+	case start
+	case end
+	case jumpStart = "jump-start"
+	case jumpEnd = "jump-end"
+	case jumpNone = "jump-none"
+	case jumpBoth = "jump-both"
+}
+
+/**
+A boundary of a scroll-driven animation: a plain offset or an offset within a named view-timeline range.
+*/
+public enum AnimationRangeBoundary: Hashable, Sendable, CustomStringConvertible {
+	case offset(LengthPercentage)
+	case entry(LengthPercentage)
+	case exit(LengthPercentage)
+	case cover(LengthPercentage)
+	case contain(LengthPercentage)
+	case entryCrossing(LengthPercentage)
+	case exitCrossing(LengthPercentage)
+
+	public var description: String {
+		switch self {
+		case .offset(let offset):
+			offset.description
+		case .entry(let offset):
+			"entry \(offset)"
+		case .exit(let offset):
+			"exit \(offset)"
+		case .cover(let offset):
+			"cover \(offset)"
+		case .contain(let offset):
+			"contain \(offset)"
+		case .entryCrossing(let offset):
+			"entry-crossing \(offset)"
+		case .exitCrossing(let offset):
+			"exit-crossing \(offset)"
+		}
 	}
 }
 
@@ -1605,7 +2818,7 @@ public enum AnimationTimeline: Hashable, Sendable, CustomStringConvertible {
 		case .scroll:
 			"scroll()"
 		case .view(let timeline):
-			timeline.name
+			timeline.name.description
 		}
 	}
 }
@@ -1614,13 +2827,12 @@ public enum AnimationTimeline: Hashable, Sendable, CustomStringConvertible {
 The progress of an element through the view, which scroll-driven animations of other elements can follow. Give it to the element with ``Style/viewTimeline(_:)``.
 */
 public struct ViewTimeline: Hashable, Sendable {
-	let name: String
+	let name: DashedIdentifier
 
 	/**
-	- Parameter name: A custom property name, like `--hero`.
+	- Parameter name: The name without the CSS `--` prefix, like `hero`.
 	*/
-	public init(_ name: String) {
-		precondition(name.hasPrefix("--"), "A timeline name starts with two hyphens: \(name)")
+	public init(_ name: DashedIdentifier) {
 		self.name = name
 	}
 }

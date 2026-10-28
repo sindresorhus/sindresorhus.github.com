@@ -57,6 +57,7 @@ enum ProseStyles: StyleSet {
 	case popover
 	case keySeparator
 	case keyboardShortcut
+	case keyboardShortcutWithPunctuation
 	case tableContainer
 	case alert
 	case alertNote
@@ -76,17 +77,17 @@ enum ProseStyles: StyleSet {
 	case anchoredHeading
 	case anchoredSection
 	case headingAnchor
-	case headingAnchorLinkIcon
-	case headingAnchorCheckIcon
 	case listSubtitle
 	case listDescription
 	case boldLabel
 
 	/**
 	Every style is scoped, so the closest one wins over the prose root, like an alert inside prose, as the nearest scope wins when specificity is equal.
+
+	The prose stops at the box to get an app, which a guide shows between its paragraphs, so the box looks like at the end of the app page, and the images and text of the prose do not change its badges and spacing.
 	*/
 	var style: Style {
-		definition.scoped()
+		definition.scoped(until: AppCallToAction.Styles.root.selector)
 	}
 
 	private var definition: Style {
@@ -106,6 +107,8 @@ enum ProseStyles: StyleSet {
 			Self.keySeparatorStyle
 		case .keyboardShortcut:
 			Self.keyboardShortcutStyle
+		case .keyboardShortcutWithPunctuation:
+			Self.keyboardShortcutWithPunctuationStyle
 		case .tableContainer:
 			Self.tableContainerStyle
 		case .alert:
@@ -144,10 +147,6 @@ enum ProseStyles: StyleSet {
 			Self.anchoredSectionStyle
 		case .headingAnchor:
 			Self.headingAnchorStyle
-		case .headingAnchorLinkIcon:
-			Style()
-		case .headingAnchorCheckIcon:
-			Self.headingAnchorCheckIconStyle
 		case .listSubtitle:
 			Self.listSubtitleStyle
 		case .listDescription:
@@ -182,6 +181,8 @@ extension MarkdownTheme {
 			ProseStyles.keySeparator.className
 		case .keyboardShortcut:
 			ProseStyles.keyboardShortcut.className
+		case .keyboardShortcutWithPunctuation:
+			ProseStyles.keyboardShortcutWithPunctuation.className
 		case .tableContainer:
 			ProseStyles.tableContainer.className
 		case .collapsibleSections:
@@ -204,10 +205,6 @@ extension MarkdownTheme {
 			ProseStyles.anchoredSection.className
 		case .headingAnchor:
 			ProseStyles.headingAnchor.className
-		case .headingAnchorLinkIcon:
-			ProseStyles.headingAnchorLinkIcon.className
-		case .headingAnchorCheckIcon:
-			ProseStyles.headingAnchorCheckIcon.className
 		case .listSubtitle:
 			ProseStyles.listSubtitle.className
 		case .listDescription:

@@ -51,11 +51,11 @@ struct GeoCitiesBigButtons: HTML {
 		.style(Styles.panel, GeoCitiesPage.Styles.scriptingOnly)
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		What a big button does to the page, like `hamster`.
 		*/
-		case effect = "data-big-button"
+		case effect = "big-button"
 	}
 
 	enum Styles: StyleSet {
@@ -73,15 +73,15 @@ struct GeoCitiesBigButtons: HTML {
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.75))
 					.padding(.rootEm(1))
-					.background(Color("#4a4a4a"))
-					.border(Color("#ffcc00"), width: .pixels(6), style: .dashed)
+					.background(Color(raw: "#4a4a4a"))
+					.border(Color(raw: "#ffcc00"), width: .pixels(6), style: .dashed)
 					.color(.white)
 					.textAlign(.center)
 			case .title:
 				Style()
 					.fontFamily(GeoCitiesPage.impact)
 					.font(.extraLarge2)
-					.color(Color("#ff3333"))
+					.color(Color(raw: "#ff3333"))
 					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: .black))
 			case .desk:
 				// Two rows of three, also on phones, where three buttons fit side by side.
@@ -95,16 +95,23 @@ struct GeoCitiesBigButtons: HTML {
 				// A big round red arcade button that sinks in when pressed.
 				Style()
 					.frame(size: .rootEm(4.5))
-					.backgroundImage(.radialGradient("circle at 35% 30%", Color("#ff8888"), Color("#dd0000"), Color("#880000")))
-					.border(Color("#333333"), width: .pixels(5))
+					.backgroundImage(
+						.radialGradient(
+							.circle(at: .init(x: .percent(35), y: .percent(30))),
+							Color(raw: "#ff8888"),
+							Color(raw: "#dd0000"),
+							Color(raw: "#880000")
+						)
+					)
+					.border(Color(raw: "#333333"), width: .pixels(5))
 					.cornerRadius(.percent(50))
-					.shadow(Shadow(y: .pixels(6), color: Color("#550000")))
+					.shadow(BoxShadow(y: .pixels(6), color: Color(raw: "#550000")))
 					.handCursor()
-					.transition(.offset, animation: .easeOut(duration: .milliseconds(80)))
+					.transition(.offset, timing: .easeOut(duration: .milliseconds(80)))
 					.active {
 						$0
 							.offset(y: .pixels(4))
-							.shadow(Shadow(y: .pixels(2), color: Color("#550000")))
+							.shadow(BoxShadow(y: .pixels(2), color: Color(raw: "#550000")))
 					}
 					.reducedMotion {
 						$0.noTransition()
@@ -113,7 +120,7 @@ struct GeoCitiesBigButtons: HTML {
 				// A label of tape under the button, like on a control desk.
 				Style()
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-					.background(Color("#ffffcc"))
+					.background(Color(raw: "#ffffcc"))
 					.border(.black, width: .pixels(1))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)

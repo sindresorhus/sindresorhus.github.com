@@ -8,18 +8,24 @@
 
 The site is generated with Swift. Content is Markdown in `content/`, and static files are in `public/`. A page with files of its own, like images, is a directory with an `index.md`, and its files are published next to the page, like `/dato/icon.png` for `content/apps/dato/icon.png`. A draft (`isDraft: true`) publishes neither its page nor its files.
 
+Frontmatter publication dates are unquoted SOML dates, like `publicationDate: 2026-02-23`.
+
 ```sh
 swift run website build # Writes the site to `dist`
 swift run website build --verbose # Also prints how long each step of the build takes
+swift run website format # Formats frontmatter and orders app and blog properties with publication status first
 swift run website serve # Serves the site, and rebuilds and reloads it on changes
+swift run website serve --no-open # Also does not open the site in the browser, which it never does when the output is not a terminal
 swift run website serve --local-network # Also serves the site on the local network, to test on other devices, like an iPhone
-swift run website check # Builds the site, and prints possible mistakes, like spelling mistakes (`content/spelling-allowlist.txt` has the known words)
+swift run website check # Builds the site to `.build/check`, and prints possible mistakes, like spelling mistakes (`content/spelling-allowlist.txt` has the known words)
 swift run website check --strict # Also fails when there is a warning, like a failed request or a spelling mistake (`build --strict` too)
 swift run website routes # Lists every route
 swift test
 ```
 
 The preview server also has a gallery of every component at `/_gallery`.
+
+`website serve` formats frontmatter on startup and after edits. It puts publication flags first (`isDraft`, `isUnlisted`, and `isArchived` for apps), followed by the title and publication information, and expands objects and arrays. `website build` and `website check` accept any property order and leave source files unchanged.
 
 To run the tests before each push, like CI, enable the hook in `.githooks` once with `git config core.hooksPath .githooks`.
 
@@ -42,6 +48,6 @@ Pushes to `main`, manual runs, and the nightly run build, test, and publish the 
 
 After a deploy that is not the nightly one, the workflow sends the URLs in the sitemap to [IndexNow](https://www.indexnow.org) (Bing and other search engines), with the key in `public/indexnow.txt`.
 
-Cloudflare can cache the HTML too, with a cache rule for `sindresorhus.com/*` (“Cache everything”). The workflow purges the cache after each deploy when the `CLOUDFLARE_API_TOKEN` (with the “Cache Purge” permission) and `CLOUDFLARE_ZONE_ID` secrets are set.
+Cloudflare can cache the HTML too, with a cache rule for `sindresorhus.com/*` (“Cache everything”). The workflow purges the changed files from the cache after each deploy (`build-files.txt` has the hash of each file) when the `CLOUDFLARE_API_TOKEN` (with the “Cache Purge” permission) and `CLOUDFLARE_ZONE_ID` secrets are set.
 
 The stylesheet, the icons, and the scripts have a hash of their content in the URL, like `/assets/site.css?v=1a2b3c4d`, so they can be cached for a year. In Cloudflare, a cache rule for requests where `starts_with(http.request.uri.query, "v=")` sets the edge TTL to a year, and a response header transform rule for the same requests sets `Cache-Control: public, max-age=31536000, immutable`. Other files keep the default cache time, as their URLs do not change with their content.

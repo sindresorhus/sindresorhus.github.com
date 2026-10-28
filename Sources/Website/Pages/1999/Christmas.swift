@@ -26,9 +26,19 @@ struct GeoCitiesChristmas: ScriptedElement {
 
 	var content: some HTML {
 		h2 {
-			GeoCitiesPage.GIFImage(gif: .candle, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .candle,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 			" God Jul fra Bergen!!! "
-			GeoCitiesPage.GIFImage(gif: .candle, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .candle,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 		}
 		.style(GeoCitiesPage.Styles.heading, GeoCitiesPage.Styles.centeredText)
 
@@ -136,7 +146,13 @@ struct GeoCitiesChristmas: ScriptedElement {
 	private struct HouseBoard: HTML {
 		var body: some HTML {
 			div {
-				canvas(.part(Parts.house), .width(360), .height(270), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.house),
+					.width(360),
+					.height(270),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("My gingerbread house on the cake board. Pick a piece or a candy, and click or tap the board to put it there. With the piping bag, drag to pipe icing on the seams. With the keys, the arrow keys move the piping bag, and Space or Enter puts the piece or the candy there. Hold Space while you move to pipe icing.")
 					.style(Styles.house)
 
@@ -181,7 +197,14 @@ struct GeoCitiesChristmas: ScriptedElement {
 				}
 				.style(Styles.inlineLabel)
 
-				input(.id("geocities-christmas-name"), .part(Parts.houseName), .type(.text), .maxlength(18), .autocomplete("off"), .placeholder("Sindre, 11 år"))
+				input(
+					.id("geocities-christmas-name"),
+					.part(Parts.houseName),
+					.type(.text),
+					.maxlength(18),
+					.autocomplete("off"),
+					.placeholder("Sindre, 11 år")
+				)
 					.style(GeoCitiesPage.Styles.field, Styles.nameField)
 			}
 			.style(Styles.row)
@@ -235,7 +258,12 @@ struct GeoCitiesChristmas: ScriptedElement {
 	*/
 	private struct Town: HTML {
 		var body: some HTML {
-			canvas(.part(Parts.town), .width(360), .height(180), .role("img")) {}
+			canvas(
+				.part(Parts.town),
+				.width(360),
+				.height(180),
+				.role("img")
+			) {}
 				.accessibilityLabel("Pepperkakebyen, the gingerbread town of Bergen, with Bryggen, the church, the houses of other kids, my houses with their signs, and a little train that goes around.")
 				.style(Styles.town)
 
@@ -265,7 +293,13 @@ struct GeoCitiesChristmas: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.caption)
 
-				canvas(.part(Parts.lane), .width(320), .height(400), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.lane),
+					.width(320),
+					.height(400),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("The bowling lane, with Julenissen at the front and ten nisser at the end. The left and right arrow keys move Julenissen, and steer the ball while it rolls. A and D set the spin, and Space or Enter bowls.")
 					.style(Styles.lane)
 
@@ -368,7 +402,12 @@ struct GeoCitiesChristmas: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.caption)
 
-				canvas(.part(Parts.barn), .width(320), .height(200), .role("img")) {}
+				canvas(
+					.part(Parts.barn),
+					.width(320),
+					.height(200),
+					.role("img")
+				) {}
 					.accessibilityLabel("The kitchen at Mormor’s farm on Christmas Eve, the table, and the barn in the snow, where the nisse lives.")
 					.style(Styles.barn)
 
@@ -463,36 +502,36 @@ struct GeoCitiesChristmas: ScriptedElement {
 		case piping
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A button that plays a Christmas song: `bjelleklang` or `glade-jul`.
 		*/
-		case music = "data-christmas-music"
+		case music = "christmas-music"
 
 		/**
 		A button that picks a piece, the piping bag, or a candy, like `roof` or `smarties`.
 		*/
-		case tool = "data-christmas-tool"
+		case tool = "christmas-tool"
 
 		/**
 		A button that does something with the whole house: `snow`, `bite`, `bryggen`, `undo`, `clear`, `dry`, `bring`, or `empty-town`.
 		*/
-		case houseAction = "data-christmas-house-action"
+		case houseAction = "christmas-house-action"
 
 		/**
 		A button of the bowling: `left`, `right`, `spin-left`, `spin-right`, `bowl`, or `new`.
 		*/
-		case bowl = "data-christmas-bowl"
+		case bowl = "christmas-bowl"
 
 		/**
 		A button of the porridge, like `stir`, `butter`, or `carry`.
 		*/
-		case porridgeAction = "data-christmas-porridge"
+		case porridgeAction = "christmas-porridge"
 
 		/**
 		The title bar of a window, by its toy: `gingerbread`, `bowling`, or `porridge`.
 		*/
-		case titleBar = "data-christmas-title-bar"
+		case titleBar = "christmas-title-bar"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -550,7 +589,7 @@ struct GeoCitiesChristmas: ScriptedElement {
 					.grid(minimumColumnWidth: .rootEm(18))
 					.gap(.rootEm(0.75))
 					.children("*") {
-						$0.frame(minWidth: 0)
+						$0.frame(minWidth: .zero)
 					}
 			case .house:
 				// The kitchen table under the cake board. With the piping bag, a finger pipes icing on it instead of scrolling the page.
@@ -558,7 +597,7 @@ struct GeoCitiesChristmas: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(360.0 / 270.0)
-					.border(Color("#6b3a1a"), width: .pixels(4), style: .ridge)
+					.border(Color(raw: "#6b3a1a"), width: .pixels(4), style: .ridge)
 					.touchAction(.manipulation)
 					.when(States.piping) {
 						$0.touchAction(.none)
@@ -578,7 +617,7 @@ struct GeoCitiesChristmas: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(360.0 / 180.0)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			case .lane:
 				// A tap on the lane bowls, so a finger on it does not zoom the page.
 				Style()
@@ -586,21 +625,21 @@ struct GeoCitiesChristmas: ScriptedElement {
 					.frame(width: .percent(100), height: .auto, maxWidth: .rootEm(22))
 					.margin(.horizontal, .auto)
 					.aspectRatio(320.0 / 400.0)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.touchAction(.manipulation)
 					.canvasFocusRing()
 			case .spin:
 				Style()
 					.frame(minWidth: .rootEm(7))
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption)
 					.textAlign(.center)
 			case .sheet:
 				// The score sheet of the bowling alley: the number of the frame, the balls, and the total.
 				Style()
 					.grid(columns: 10)
-					.margin(0)
-					.padding(0)
+					.margin(.zero)
+					.padding(.zero)
 					.background(.white)
 					.border(.black, width: .pixels(2))
 					.fontFamily(GeoCitiesPage.courier)
@@ -609,26 +648,26 @@ struct GeoCitiesChristmas: ScriptedElement {
 					.textAlign(.center)
 					.children("li") {
 						$0
-							.vstack(spacing: 0)
-							.frame(minWidth: 0)
+							.vstack(spacing: .zero)
+							.frame(minWidth: .zero)
 							.border(.black, width: .pixels(1))
 					}
 					.children("li span:first-child") {
 						$0
-							.background(Color("#cc0000"))
+							.background(Color(raw: "#cc0000"))
 							.color(.white)
 					}
 					.children("li span + span") {
 						$0
 							.frame(minHeight: .lineHeight(1))
-							.color(Color("#000080"))
+							.color(Color(raw: "#000080"))
 					}
 					.children("li strong") {
 						$0.frame(minHeight: .lineHeight(1))
 					}
 			case .best:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
 			case .barn:
@@ -636,10 +675,10 @@ struct GeoCitiesChristmas: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(320.0 / 200.0)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			case .pigs:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption)
 					.textAlign(.center)
 			case .status:
@@ -647,26 +686,26 @@ struct GeoCitiesChristmas: ScriptedElement {
 				Style()
 					.toyStatus()
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
-					.background(Color("#fff68f"))
-					.shadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#00000040")))
+					.background(Color(raw: "#fff68f"))
+					.shadow(BoxShadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#00000040")))
 					.color(.black)
 			case .pranks:
 				// A note from the angry nisse, on red paper.
 				Style()
 					.vstack(spacing: .rootEm(0.375))
 					.padding(.rootEm(0.5))
-					.background(Color("#ffdddd"))
-					.border(Color("#cc0000"), width: .pixels(3), style: .dashed)
+					.background(Color(raw: "#ffdddd"))
+					.border(Color(raw: "#cc0000"), width: .pixels(3), style: .dashed)
 					.color(.black)
 			case .pranksTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
 			case .prankList:
 				Style()
 					.vstack(spacing: .rootEm(0.25))
-					.margin(0)
+					.margin(.zero)
 					.padding(.leading, .rootEm(1))
 					.textStyle(.caption)
 					// The buttons that scroll to each prank, made by `Christmas.js`, raised and gray like the other buttons.
@@ -674,9 +713,9 @@ struct GeoCitiesChristmas: ScriptedElement {
 						$0
 							.margin(.leading, .rootEm(0.375))
 							.frame(minHeight: .rootEm(2))
-							.padding(vertical: 0, horizontal: .rootEm(0.5))
+							.padding(vertical: .zero, horizontal: .rootEm(0.5))
 							.background(GeoCitiesPage.windowGray)
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+							.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 							.fontFamily(.system)
 							.textStyle(.caption, weight: .bold)
 							.color(.black)
@@ -684,7 +723,7 @@ struct GeoCitiesChristmas: ScriptedElement {
 							.handCursor()
 							.buttonFocusRing()
 							.active {
-								$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+								$0.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .inset)
 							}
 					}
 			}

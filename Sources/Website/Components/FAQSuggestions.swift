@@ -4,7 +4,9 @@ import SiteKit
 /**
 Help below the feedback message, which its script shows while the visitor types: a request for a crash report when the message is about a crash, and the FAQ questions that the message is about. The script fills the list with the suggestion template.
 
-The message field is the `for` attribute of the element, like the `for` of a label. The page script sets the `app` attribute to the title of the selected app, so its questions are suggested too.
+The message field is the `for` attribute of the element, like the `for` of a label, and the questions are its `questions` attribute. The page script sets the `app` attribute to the title of the selected app, so its questions are suggested too.
+
+The page has the questions (``Questions``) at its end, not in the element, as they are large data, and the element is in a form, whose fields below it would wait for the data to load. The script reads them on the first input.
 */
 struct FAQSuggestions: ScriptedElement {
 	static let script = ElementScript()
@@ -12,12 +14,18 @@ struct FAQSuggestions: ScriptedElement {
 	/**
 	The ID of the message field, whose text the suggestions are about.
 	*/
-	let messageID: String
+	let messageID: ElementID
 
-	let questions: Questions
+	/**
+	The ID of the questions (``Questions``), which the `questions` attribute of the element names, so the script does not find them on the page by a fixed ID.
+	*/
+	static let questionsID = ElementID("faq-questions")
 
 	var rootAttributes: [HTMLAttribute<ElementTag<Self>>] {
-		[.custom(name: "for", value: messageID)]
+		[
+			.custom(name: "for", value: messageID.rawValue),
+			.custom(name: "questions", value: Self.questionsID.rawValue)
+		]
 	}
 
 	var content: some HTML {
@@ -59,7 +67,7 @@ struct FAQSuggestions: ScriptedElement {
 
 		template(.part(Parts.template)) {
 			li {
-				Link(destination: nil, opensInNewTab: true) {
+				a(.target(.blank), .rel("noopener noreferrer")) {
 					span {
 						Icon.chevronRight.size(.rootEm(0.75))
 					}
@@ -67,19 +75,19 @@ struct FAQSuggestions: ScriptedElement {
 
 					span(.part(Parts.question)) {}
 						.style(Styles.question)
+
+					VisuallyHidden(" (opens in a new tab)")
 				}
 				.attributes(.part(Parts.link))
 				.style(Styles.link)
 			}
 		}
-
-		JSONScript(part: Parts.questions, questions)
 	}
 
 	/**
-	The questions that the script suggests, and the words that it leaves out of the message.
+	The questions that the script suggests, and the words that it leaves out of the message, as JSON that the script finds by the ID in the `questions` attribute of the element.
 	*/
-	struct Questions: Encodable {
+	struct Questions: HTML, Encodable {
 		struct AppQuestions: Encodable {
 			let title: String
 			let platforms: [Platform]
@@ -93,6 +101,10 @@ struct FAQSuggestions: ScriptedElement {
 		The words that are left out of the message, as ``SuggestedQuestion`` leaves them out of the questions.
 		*/
 		let stopwords = SuggestedQuestion.stopwords.sorted()
+
+		var body: some HTML {
+			JSONScript(id: FAQSuggestions.questionsID, self)
+		}
 
 		/**
 		- Parameter faq: The general FAQ page, for the questions that are useful for every app (`<!-- @faq.general -->`).
@@ -125,7 +137,6 @@ struct FAQSuggestions: ScriptedElement {
 		case template
 		case link
 		case question
-		case questions
 	}
 
 	enum Styles: ElementStyleSet {
@@ -159,7 +170,12 @@ struct FAQSuggestions: ScriptedElement {
 					.textStyle(.caption)
 					// Less round than a card, like the fields above and below it.
 					.fieldBox()
-					.transition(.opacity, .offset, .display, animation: .easeOut(duration: .milliseconds(150)))
+					.transition(
+						.opacity,
+						.offset,
+						.display,
+						timing: .easeOut(duration: .milliseconds(150))
+					)
 					.startingStyle {
 						$0
 							.opacity(0)

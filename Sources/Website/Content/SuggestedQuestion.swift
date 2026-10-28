@@ -24,7 +24,7 @@ struct SuggestedQuestion: Encodable {
 	let questionWords: [String]
 
 	/**
-	The words of the keywords and the synonyms that are not in ``questionWords``. Together, they are the words that a message can match.
+	The words of the keywords, the synonyms, and the words without their last “s”, like “quit” for “quits”, that are not in ``questionWords``. Together, they are the words that a message can match.
 	*/
 	let extraWords: [String]
 
@@ -50,7 +50,10 @@ struct SuggestedQuestion: Encodable {
 			let singulars = word.hasSuffix("s") ? [String(word.dropLast()), word.hasSuffix("es") ? String(word.dropLast(2)) : nil].compactMap(\.self) : []
 			let synonyms = Self.synonyms[word] ?? singulars.lazy.compactMap { Self.synonyms[$0] }.first ?? []
 
-			for match in [word] + synonyms where seenWords.insert(match).inserted {
+			// A word that ends in “s”, like “quits”, also gets the word without it, so its other forms match, like “quitting”. Not a word that ends in “ss”, like “access”, which is not a plural.
+			let singular = word.hasSuffix("s") && !word.hasSuffix("ss") && word.count > 3 ? [String(word.dropLast())] : []
+
+			for match in [word] + singular + synonyms where seenWords.insert(match).inserted {
 				words.append(match)
 			}
 		}
@@ -130,7 +133,9 @@ struct SuggestedQuestion: Encodable {
 			"broken": ["bug", "error", "crash"],
 			"slow": ["performance", "battery"],
 			"buy": ["purchase", "subscription"],
-			"stuck": ["freeze"],
+			// A widget that is stuck or needs a refresh does not update.
+			"stuck": ["freeze", "update"],
+			"refresh": ["update"],
 			"wifi": ["network", "connection"],
 			"password": ["authentication"],
 		]
@@ -155,7 +160,7 @@ extension SuggestedQuestion {
 			url: url,
 			keywords: heading[FAQDirectives.Keywords.self] ?? [],
 			platforms: heading[FAQDirectives.Platforms.self]?.nilIfEmpty,
-			pinnedRank: heading[FAQDirectives.Pinned.self]?.rank
+			pinnedRank: heading[FAQDirectives.Pinned.self]
 		)
 	}
 }

@@ -43,7 +43,12 @@ struct GeoCitiesCracktro: ScriptedElement {
 
 		div {
 			div {
-				canvas(.part(Parts.screen), .width(320), .height(200), .role("img")) {}
+				canvas(
+					.part(Parts.screen),
+					.width(320),
+					.height(200),
+					.role("img")
+				) {}
 					.accessibilityLabel("The intro of TEAM WAFFLE, with copper bars, plasma, a tunnel, a spinning unicorn, and a scroller with greetings")
 					.style(Styles.screen)
 
@@ -86,7 +91,15 @@ struct GeoCitiesCracktro: ScriptedElement {
 			.style(GeoCitiesPage.Styles.label)
 
 			div {
-				input(.id("geocities-cracktro-text"), .part(Parts.text), .type(.text), .autocomplete("off"), .maxlength(140), .custom(name: "spellcheck", value: "false"), .placeholder("Greetings to my cat and all elite web masters"))
+				input(
+					.id("geocities-cracktro-text"),
+					.part(Parts.text),
+					.type(.text),
+					.autocomplete("off"),
+					.maxlength(140),
+					.spellcheck(false),
+					.placeholder("Greetings to my cat and all elite web masters")
+				)
 					.style(GeoCitiesPage.Styles.field)
 
 				button(.type(.submit)) {
@@ -122,7 +135,12 @@ struct GeoCitiesCracktro: ScriptedElement {
 	}
 
 	private func gif(_ gif: GeoCitiesPage.GIF, alt: String = "") -> GeoCitiesPage.GIFImage {
-		GeoCitiesPage.GIFImage(gif: gif, alt: alt, style: .gif, project: project)
+		GeoCitiesPage.GIFImage(
+			gif: gif,
+			alt: alt,
+			style: .gif,
+			project: project
+		)
 	}
 
 	enum Parts: String, ElementPartSet {
@@ -165,8 +183,8 @@ struct GeoCitiesCracktro: ScriptedElement {
 					.frame(maxWidth: .pixels(680))
 					.margin(.horizontal, .auto)
 					.padding(.rootEm(0.75))
-					.background(Color("#2b2b2b"))
-					.border(Color("#555555"), width: .pixels(4), style: .outset)
+					.background(Color(raw: "#2b2b2b"))
+					.border(Color(raw: "#555555"), width: .pixels(4), style: .outset)
 					.cornerRadius(.rootEm(1))
 			case .stack:
 				Style()
@@ -190,15 +208,15 @@ struct GeoCitiesCracktro: ScriptedElement {
 					.vstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
 					.padding(.rootEm(0.75))
 					.background(.black)
-					.border(Color("#ff2200"), width: .pixels(6))
+					.border(Color(raw: "#ff2200"), width: .pixels(6))
 					.fontFamily(GeoCitiesPage.courier)
 					.font(size: .clamp(.pixels(12), .viewportWidth(2.6), .pixels(20)))
 					.fontWeight(.bold)
-					.color(Color("#ff2200"))
+					.color(Color(raw: "#ff2200"))
 					.textAlign(.center)
 					.handCursor()
 					.buttonFocusRing(.white)
-					.animation(Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
+					.animation(Animations.blink, .steps(1, duration: .seconds(1)).repeatForever(autoreverses: false))
 			case .part:
 				Style()
 					.frame(width: .percent(100))

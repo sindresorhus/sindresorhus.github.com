@@ -1,0 +1,15 @@
+# The values of the whole site that are content, not code (`SiteSettings`).
+
+# The main apps, which the apps page shows first, in an order that changes every day, and `llms.txt` lists first, in this order. At most 4.
+featuredApps: [
+	'text-lens'
+	'supercharge'
+	'camera-preview'
+	'velja'
+]
+
+# About how many people use the apps, updated by hand. The pages show it rounded down, like “6M+ users”.
+appUserCount: 6_000_000
+
+# About how many support emails I have answered, updated by hand. The pages show it rounded down, like “10K+”.
+supportEmailCount: 10_000

@@ -1,7 +1,7 @@
 import SiteKit
 
 extension Stylesheet {
-	static let sitePath: RoutePath = "/assets/site.css"
+	static let sitePath = #path("/assets/site.css")
 
 	/**
 	The ``sitePath`` with the hash of the stylesheet, so browsers can cache it for a year.
@@ -71,7 +71,7 @@ extension Stylesheet {
 			.combined(with: SemanticColor.customProperties)
 			.colorScheme(.lightDark)
 			// Lets `::details-content` animate to `auto`, so the collapsible sections open and close smoothly, in browsers that support it.
-			.declaration(.interpolateSize, "allow-keywords")
+			.interpolateSize(.allowKeywords)
 		)
 
 		// A small reset: elements have no spacing or borders until a component styles them.
@@ -79,8 +79,8 @@ extension Stylesheet {
 			"*, ::before, ::after",
 			Style()
 			.boxSizing(.borderBox)
-			.margin(0)
-			.padding(0)
+			.margin(.zero)
+			.padding(.zero)
 			.declaration(.border, "0 solid")
 		)
 
@@ -89,8 +89,8 @@ extension Stylesheet {
 		Rule(
 			"h1, h2, h3, h4, h5, h6",
 			Style()
-			.font(size: .inherit)
-			.declaration(.fontWeight, .inherit)
+			.inherits(.fontSize)
+			.fontWeight(.inherit)
 			// Lines of a heading get similar lengths, instead of a last line with one word.
 			.textWrap(.balance)
 		)
@@ -109,26 +109,26 @@ extension Stylesheet {
 		Rule(
 			"::target-text",
 			Style()
-			.color(.inherit)
+			.inherits(.color)
 			.background(Color.pageAccent.opacity(0.35), dark: Color.darkModeAccent.opacity(0.5))
 		)
 
 		Rule(
 			"a",
 			Style()
-			.color(.inherit)
-			.declaration(.textDecoration, .inherit)
+			.inherits(.color)
+			.inherits(.textDecoration)
 		)
 
 		Rule(
 			"hr",
 			Style()
-			.frame(height: 0)
-			.color(.inherit)
+			.frame(height: .zero)
+			.inherits(.color)
 			.border(.top, width: .pixels(1))
 		)
 
-		Rule("b, strong", Style().declaration(.fontWeight, "bolder"))
+		Rule("b, strong", Style().fontWeight(.bolder))
 
 		Rule("code, kbd, samp, pre", Style().fontFamily(.monospace))
 
@@ -143,12 +143,15 @@ extension Stylesheet {
 
 		Rule("img, video", Style().frame(height: .auto, maxWidth: .percent(100)))
 
+		// The lines of the icons (``Icon``), once for all of them, instead of attributes on each one. The width of the lines stays an attribute, as some icons have thicker lines.
+		Rule(Icon.selector, Style().strokedShapes())
+
 		Rule(
 			"button, input, select, optgroup, textarea",
 			Style()
 			.inheritsFont()
-			.color(.inherit)
-			.letterSpacing(.inherit)
+			.inherits(.color)
+			.inherits(.letterSpacing)
 			.background(.transparent)
 		)
 
@@ -157,9 +160,7 @@ extension Stylesheet {
 		Rule(
 			"[hidden]",
 			Style()
-			.important {
-				$0.hidden()
-			}
+			.declaration(.display, Display.none, isImportant: true)
 		)
 	}
 }

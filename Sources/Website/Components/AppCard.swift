@@ -1,4 +1,5 @@
 import Elementary
+import Foundation
 import SiteKit
 
 /**
@@ -18,7 +19,7 @@ struct AppCard: HTML {
 	/**
 	The level of the heading of the name: 3 below a section heading, or 2 right below the title of the page.
 	*/
-	var headingLevel = 3
+	var headingLevel = ItemHeadingLevel.h3
 
 	var body: some HTML {
 		// `apps.js` filters the cards by `data-slug`.
@@ -28,16 +29,8 @@ struct AppCard: HTML {
 				.style(Styles.icon)
 
 			div {
-				if headingLevel == 2 {
-					h2(.notTranslated) {
-						titleLink
-					}
-					.style(Styles.title)
-				} else {
-					h3(.notTranslated) {
-						titleLink
-					}
-					.style(Styles.title)
+				headingLevel.heading(style: Styles.title, isNotTranslated: true) {
+					titleLink
 				}
 
 				div {
@@ -88,10 +81,10 @@ struct AppCard: HTML {
 	}
 
 	/**
-	The IDs and data attributes that the scripts of the component find elements by.
+	The data attributes that the scripts of the component find elements by.
 	*/
-	enum Hooks: String, ScriptHookSet {
-		case slug = "data-slug"
+	enum Hooks: String, ScriptDataAttributeSet {
+		case slug
 	}
 
 	/**
@@ -118,41 +111,65 @@ struct AppCard: HTML {
 					.hstack(alignment: .center, spacing: .rootEm(1))
 					.padding(.rootEm(1.25))
 					.cardSurface()
+					// On phones, the apps are rows without a fill, with a thin line between them, like a list, so more apps fit on the screen. The fill still shows under the pointer and with the focus of the keyboard. The rows reach into the space at the sides of the page (``AppGrid``), so the icon and the line start where the text of the page starts.
+					.below(.smallTablet) {
+						$0
+							.padding(vertical: .rootEm(1.5), horizontal: AppGrid.phoneOutset)
+							.background(.transparent)
+							.shadow([])
+							.before {
+								$0
+									.content("")
+									.position(.absolute)
+									.top(.zero)
+									.leading(.length(AppGrid.phoneOutset))
+									.trailing(.length(AppGrid.phoneOutset))
+									.border(.top, .separator)
+							}
+							.firstChild {
+								$0.before {
+									$0.hidden()
+								}
+							}
+					}
 					.from(.laptop) {
 						$0
 							.gap(.rootEm(1.5))
 							.padding(.rootEm(1.75))
 					}
 			case .icon:
-				// The negative margin makes the icon take a little less space than its size, so it is nearer to the edges of the card and to the text.
+				// The negative margin makes the icon take a little less space than its size, so it is nearer to the edges of the card and to the text. In pixels, like the icons of lists on iOS, so it does not grow with larger text, which needs the room more than the icon.
 				Style()
-					.frame(size: .rootEm(5))
-					.margin(.rootEm(-0.25))
+					.frame(size: .pixels(80))
+					.margin(.pixels(-4))
 					.filter(AppCard.iconShadow)
 					.from(.laptop) {
-						$0.frame(size: .rootEm(6.5))
+						$0.frame(size: .pixels(104))
 					}
 			case .text:
+				// A word that is wider than the card breaks, like on a phone with large text.
 				Style()
 					.vstack(spacing: .rootEm(0.25))
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
+					.overflowWrap(.breakWord)
 			case .title:
 				Style()
 					.textStyle(.headline)
 					.color(.primaryText)
+					.breaksLongWords()
 					.from(.laptop) {
 						$0.font(size: .rootEm(1.375), lineHeight: 1.25)
 					}
 			case .link:
 				// It covers the card, so the whole card is the link, like before, but its name is only the name of the app.
 				Style()
-					.color(.inherit)
+					.inherits(.color)
 					.underline(false)
 					.after {
 						$0
 							.content("")
 							.position(.absolute)
-							.inset(0)
+							.inset(.zero)
 							.cornerRadius(.cardRadius)
 					}
 			case .subtitle:
@@ -171,6 +188,7 @@ struct AppCard: HTML {
 			case .platforms:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.25))
+					.flexWrap()
 					.margin(.leading, .rootEm(0.125))
 					.color(.secondaryText)
 			}
@@ -183,7 +201,7 @@ A grid of app cards: one column on phones, and two from small tablets. Every pag
 */
 struct AppGrid: HTML {
 	let apps: [App]
-	let content: SiteContent
+	let buildDate: Date
 
 	/**
 	Whether the grid is at the top of the page, so the icons of the first cards load at once. Grids further down load their icons lazily.
@@ -193,28 +211,41 @@ struct AppGrid: HTML {
 	/**
 	The level of the headings of the names of the apps (``AppCard/headingLevel``).
 	*/
-	var headingLevel = 3
+	var headingLevel = ItemHeadingLevel.h3
 
 	var body: some HTML {
 		div {
 			// The first cards fill the screen on most devices.
 			for (index, app) in apps.enumerated() {
-				AppCard(app: app, isNew: app.isNew(at: content.buildDate), isAboveFold: isAtTop && index < 6, headingLevel: headingLevel)
+				AppCard(
+					app: app,
+					isNew: app.isNew(at: buildDate),
+					isAboveFold: isAtTop && index < 6,
+					headingLevel: headingLevel
+				)
 			}
 		}
 		.style(Styles.root)
 	}
 
+	/**
+	How far the rows of apps on phones reach into the space at the sides of the page: half of it.
+	*/
+	static let phoneOutset = LengthPercentage.pageGutter * 0.5
+
 	enum Styles: StyleSet {
 		case root
 
 		var style: Style {
-			// At most two columns, so the cards have room. On phones, the cards reach halfway into the space at the sides of the page, so they use more of the narrow screen.
+			// At most two columns, so the cards have room. On phones, the apps are rows (``AppCard``) that reach halfway into the space at the sides of the page, so the fill under the pointer has room around the icon. One column that is not wider than the page, also when a card has a long word, like on a phone with large text.
 			Style()
 				.display(.grid)
+				.gridColumns(1)
 				.gap(.rootEm(1.25))
 				.below(.smallTablet) {
-					$0.margin(.horizontal, -(Length.pageGutter * 0.5))
+					$0
+						.gap(.zero)
+						.margin(.horizontal, .length(-AppGrid.phoneOutset))
 				}
 				.from(.smallTablet) {
 					$0.gridColumns(2)
@@ -234,6 +265,35 @@ extension HTML where Tag: HTMLTrait.Attributes.Global {
 
 		return style(fileID: fileID) {
 			$0.setting(Color.accent, to: color)
+		}
+	}
+}
+
+/**
+The level of the heading of an item in a list, like the name of an app in a grid or the title of a post in a list: 2 right below the title of the page, or 3 below a section heading. A list has no other levels, so the type has no others.
+*/
+enum ItemHeadingLevel {
+	case h2
+	case h3
+
+	/**
+	Renders the item's title at its selected level, applying root attributes before the concrete tag is erased.
+	*/
+	@ContentBuilder
+	func heading(style: some StyleSet, isNotTranslated: Bool = false, @ContentBuilder content: () -> some HTML) -> some HTML {
+		switch self {
+		case .h2:
+			Elementary.h2 {
+				content()
+			}
+			.attributes(.notTranslated, when: isNotTranslated)
+			.style(style)
+		case .h3:
+			Elementary.h3 {
+				content()
+			}
+			.attributes(.notTranslated, when: isNotTranslated)
+			.style(style)
 		}
 	}
 }

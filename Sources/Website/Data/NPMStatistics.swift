@@ -12,12 +12,36 @@ struct NPMStatistics {
 	/**
 	The number of packages that `sindresorhus` maintains.
 	*/
-	var packageCount: Int?
+	var packageCount: Int? {
+		switch search {
+		case .unavailable:
+			nil
+		case .countOnly(let count), .complete(let count, _):
+			count
+		}
+	}
 
 	/**
-	All the packages, from the npm search. Empty when a request failed, as the totals of some packages would be wrong.
+	All the packages, from a complete npm search. `nil` when a request failed or a nonzero search returned an empty page, as partial totals would be wrong.
 	*/
-	var packages = [Package]()
+	var packages: [Package]? {
+		guard case .complete(_, let packages) = search else {
+			return nil
+		}
+
+		return packages
+	}
+
+	/**
+	Whether the search is unavailable, has only its advertised count, or returned all pages. A complete search can omit packages with unreadable dates.
+	*/
+	enum Search {
+		case unavailable
+		case countOnly(Int)
+		case complete(total: Int, packages: [Package])
+	}
+
+	var search = Search.unavailable
 
 	/**
 	The downloads of all the packages on npm in the last week, like 183,646,517,192.
@@ -81,7 +105,7 @@ struct NPMStatistics {
 	The downloads of all the packages in the last week, when the search worked. A package without the downloads does not count, so the total is a lower bound.
 	*/
 	var weeklyDownloads: Int? {
-		packages.compactMap(\.weeklyDownloads).nilIfEmpty?.sum
+		packages?.compactMap(\.weeklyDownloads).nilIfEmpty?.sum
 	}
 
 	/**
@@ -95,7 +119,7 @@ struct NPMStatistics {
 	The dependents of all the packages, when the search worked and has them. A package that depends on several of the packages counts once for each, so it is the sum of the dependents of each package, not the number of packages that depend on them.
 	*/
 	var dependentCount: Int? {
-		packages.compactMap(\.dependentCount).nilIfEmpty?.sum
+		packages?.compactMap(\.dependentCount).nilIfEmpty?.sum
 	}
 
 	/**
@@ -103,14 +127,14 @@ struct NPMStatistics {
 	*/
 	func packageCount(inRepositories repositories: [GitHubRepositoryName]) -> Int? {
 		let repositories = Set(repositories)
-		return packages.nilIfEmpty?.count { $0.repository.map(repositories.contains) ?? false }
+		return packages?.count { $0.repository.map(repositories.contains) ?? false }
 	}
 
 	/**
 	How many packages have a version since the date, like the start of the week. `nil` when the search did not give the packages. The search only has the date of the latest version, so a new package counts as updated too.
 	*/
 	func updatedPackageCount(since start: Date) -> Int? {
-		packages.nilIfEmpty?.count { $0.date >= start }
+		packages?.count { $0.date >= start }
 	}
 
 	/**
@@ -133,6 +157,7 @@ struct NPMStatistics {
 	*/
 	func mostDownloadedCount(of count: Int) -> Int? {
 		guard
+			let packages,
 			!packages.isEmpty,
 			!mostDownloadedPackageNames.isEmpty
 		else {
@@ -158,21 +183,21 @@ struct NPMStatistics {
 
 			for offset in stride(from: 0, to: Int.max, by: SearchResult.pageSize) {
 				let url = #URL("https://registry.npmjs.org/-/v1/search").appending(formQueryItems: [URLQueryItem(name: "text", value: "maintainer:sindresorhus"), URLQueryItem(name: "size", value: String(SearchResult.pageSize)), URLQueryItem(name: "from", value: String(offset))])
-				let page = try await cache.decoded(SearchResult.self, from: URLRequest(url: url, timeoutInterval: 15))
-				// Read once, as each read parses the dates and the repository links of the page again.
-				let pagePackages = page.packages
-				statistics.packageCount = statistics.packageCount ?? page.total
-				packages += pagePackages
+				let page = try await cache.decoded(SearchResult.self, from: url)
+				let total = statistics.packageCount ?? page.total
+				statistics.search = .countOnly(total)
+				// An empty wire page with a nonzero total is incomplete, even if all earlier pages loaded.
+				guard page.entryCount > 0 || page.total == 0 else {
+					break
+				}
 
-				guard
-					!pagePackages.isEmpty,
-					offset + SearchResult.pageSize < page.total
-				else {
+				packages += page.packages
+
+				guard offset + SearchResult.pageSize < page.total else {
+					statistics.search = .complete(total: total, packages: packages)
 					break
 				}
 			}
-
-			statistics.packages = packages
 		} catch {
 			// Without all the pages, the packages are left out, and only the number of packages can remain.
 			var missing = ["their dependents", "their weekly downloads", "their share of all the downloads", "how many of the most-downloaded packages are his"]
@@ -181,7 +206,7 @@ struct NPMStatistics {
 				missing.insert("their number", at: 0)
 			}
 
-			warnings.add(Warning(message: "Could not get the npm packages, so the about page leaves out \(missing.formatted(.list(type: .and).locale(.site))), and the now page leaves out the npm releases and the numbers of new and updated packages: \(error)"))
+			warnings.add(Warning(.failedRequest, "Could not get the npm packages, so the about page leaves out \(missing.formatted(.list(type: .and).locale(.site))), and the now page leaves out the npm releases and the numbers of new and updated packages: \(error)"))
 		}
 
 		statistics.registryWeeklyDownloads = await registryWeeklyDownloads
@@ -198,7 +223,7 @@ struct NPMStatistics {
 		}
 
 		return await warnings.value(warning: "Could not get the downloads of all of npm, so the about page leaves out the share of the downloads") {
-			try await cache.decoded(Downloads.self, from: URLRequest(url: #URL("https://api.npmjs.org/downloads/point/last-week"), timeoutInterval: 15)).downloads
+			try await cache.decoded(Downloads.self, from: #URL("https://api.npmjs.org/downloads/point/last-week")).downloads
 		}
 	}
 
@@ -207,7 +232,7 @@ struct NPMStatistics {
 	*/
 	private static func mostDownloadedPackageNames(cache: ResponseCache, warnings: WarningCollector) async -> [String] {
 		await warnings.value(warning: "Could not get the most-downloaded npm packages, so the about page leaves out how many of them are his") {
-			try await cache.decoded(from: URLRequest(url: #URL("https://unpkg.com/npm-high-impact/lib/top-download.js"), timeoutInterval: 15)) { data in
+			try await cache.decoded(from: #URL("https://unpkg.com/npm-high-impact/lib/top-download.js")) { data in
 				// Only whole lines, so a quote elsewhere in the file, like in a comment, is not a name.
 				let names = String(decoding: data, as: UTF8.self).matches(of: /^\s*'([^']+)',?$/.anchorsMatchLineEndings()).map { String($0.1) }
 
@@ -266,13 +291,29 @@ private struct SearchResult: Decodable {
 	static let pageSize = 250
 
 	let total: Int
-	private let objects: [Object]
+
+	/**
+	The number of wire entries, including packages omitted because their dates cannot be read, for pagination.
+	*/
+	let entryCount: Int
+
+	enum CodingKeys: String, CodingKey {
+		case total
+		case objects
+	}
 
 	/**
 	The packages of the page. A package with a date that cannot be read is left out.
 	*/
-	var packages: [NPMStatistics.Package] {
-		objects.compactMap { object in
+	let packages: [NPMStatistics.Package]
+
+	init(from decoder: any Decoder) throws {
+		let container = try decoder.container(keyedBy: CodingKeys.self)
+		self.total = try container.decode(Int.self, forKey: .total)
+		let objects = try container.decode([Object].self, forKey: .objects)
+		self.entryCount = objects.count
+		// Parse the dates and repository links once, while decoding the page.
+		self.packages = objects.compactMap { object in
 			// Read here, not by the decoder, so one date that cannot be read leaves out its package, not the page.
 			guard let date = try? Date(object.package.date, strategy: .iso8601) else {
 				return nil
@@ -283,7 +324,15 @@ private struct SearchResult: Decodable {
 			// Without the backticks of code, which some descriptions have, as the description is shown as text.
 			let description = object.package.description?.replacing("`", with: "").trimmingCharacters(in: .whitespaces)
 
-			return NPMStatistics.Package(name: object.package.name, version: object.package.version, description: description?.isEmpty == false ? description : nil, date: date, weeklyDownloads: object.downloads?.weekly, dependentCount: object.dependents?.count, repository: repository)
+			return NPMStatistics.Package(
+				name: object.package.name,
+				version: object.package.version,
+				description: description?.nilIfEmpty,
+				date: date,
+				weeklyDownloads: object.downloads?.weekly,
+				dependentCount: object.dependents?.count,
+				repository: repository
+			)
 		}
 	}
 }

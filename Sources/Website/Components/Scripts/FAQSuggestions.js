@@ -1,6 +1,24 @@
+import {cloneTemplate} from '/scripts/dom.js';
+
 /*
-FAQ suggestions: while the visitor types, the message is split into words (three or more letters, without stopwords), and each question is scored by the words it shares with the message. Rare words count more (TF-IDF). The site generator prepares the words of each question, with synonyms. Pinned questions come first, then questions with more matching words, then app questions, then higher scores. A question needs two matching words, or one for messages with only one known word.
+FAQ suggestions: while the visitor types, the message is split into words (three or more letters, without stopwords), and each question is scored by the words it shares with the message. Rare words count more (TF-IDF). The site generator prepares the words of each question, with synonyms. Pinned questions come first when they match as many words as the best other question, then questions with more matching words, then app questions, then higher scores. A question needs two matching words, or one for messages with only one known word.
 */
+
+/*
+The lines of a log that the visitor pasted, like the diagnostic report that the form asks for: a field, like `Command:   Actions` (a colon and two or more spaces), a field of the JSON of a crash report, like `"procName" : "Dato",`, a line of a stack with its count of samples, like `  127  <e-core>`, and a line with a memory address, like a stack frame (`[0x10939e154]`). Their words are not the words of the visitor, so they would push the right answer down.
+*/
+const logLinePattern = /^(?:[\w \t./()-]+:\s{2,}|[\s{[]*"[^"]+"\s*:|\s*\d+\s{2,})|\b0x[\da-f]{4,}/i;
+
+const withoutLogLines = text => text.split('\n').filter(line => !logLinePattern.test(line)).join('\n');
+
+// A line that only a crash report has, in the text format, like `Exception Type:  EXC_CRASH`, or in the JSON format of an `.ips` file, like `"bug_type":"309"`.
+const crashReportPattern = /^(?:Incident Identifier|Crashed Thread|Exception Type):|"bug_type"/m;
+
+// The endings of the forms of a word, and no ending, for the same word.
+const wordEndings = new Set(['', 's', 'es', 'ed', 'ing', 'er', 'ly']);
+
+// The endings that a word without its last “e” takes, like “freezing” for “freeze”.
+const vowelEndings = new Set(['es', 'ed', 'ing', 'er']);
 
 // The function that finds the questions a message is about, among the general questions and the questions of the app with the title.
 function questionMatcher(data, appTitle) {
@@ -23,8 +41,13 @@ function questionMatcher(data, appTitle) {
 	// Apostrophes are removed first, as in the site generator, so “doesn't” becomes “doesnt”.
 	const wordsIn = text => (text.toLowerCase().replaceAll(/['’]/g, '').match(/[a-z\d_]{3,}/g) ?? []).filter(word => !stopwords.has(word));
 
-	// Words with the same start match, like “sync” and “syncing”.
-	const wordsMatch = (first, second) => first.startsWith(second) || second.startsWith(first);
+	// Another form of the same word matches: the word with an ending, like “syncs”, “synced”, and “syncing” for “sync”, also with a doubled last letter, like “quitting” for “quit”, or without a last “e”, like “freezing” for “freeze”. Not a longer word with the same start, like “freezing” for “free”.
+	const wordsMatch = (first, second) => {
+		const [shorter, longer] = first.length <= second.length ? [first, second] : [second, first];
+		// Without its last “e”, a word only takes an ending that starts with a vowel, so “one” does not match “only”.
+		const stems = [[shorter, wordEndings], [shorter + shorter.at(-1), wordEndings], ...(shorter.endsWith('e') ? [[shorter.slice(0, -1), vowelEndings]] : [])];
+		return stems.some(([stem, endings]) => longer.startsWith(stem) && endings.has(longer.slice(stem.length)));
+	};
 
 	// Jaccard similarity of all the words of two questions, to leave out a general question that repeats an app question.
 	const similarity = (first, second) => {
@@ -33,10 +56,8 @@ function questionMatcher(data, appTitle) {
 		return firstWords.intersection(secondWords).size / firstWords.union(secondWords).size;
 	};
 
-	const pinnedRank = question => question.pinnedRank ?? Number.POSITIVE_INFINITY;
-
 	const matchingQuestions = message => {
-		const messageWords = [...new Set(wordsIn(message))];
+		const messageWords = [...new Set(wordsIn(withoutLogLines(message)))];
 
 		// Words that no question has, like “didnt”, do not raise the number of words a question needs.
 		const knownWords = messageWords.filter(messageWord => allWords.values().some(word => wordsMatch(messageWord, word)));
@@ -48,7 +69,7 @@ function questionMatcher(data, appTitle) {
 			return [messageWord, Math.log((questions.length + 1) / (questionCount + 1))];
 		}));
 
-		const results = questions
+		const scoredQuestions = questions
 			.map(question => {
 				let score = 0;
 				let matchCount = 0;
@@ -62,10 +83,16 @@ function questionMatcher(data, appTitle) {
 
 				return {question, score, matchCount};
 			})
-			.filter(({score, matchCount}) => score > 0 && matchCount >= minimumMatchCount)
+			.filter(({score, matchCount}) => score > 0 && matchCount >= minimumMatchCount);
+
+		// A pinned question only goes first when it matches as many words as the best other question, so it does not push down an exact match.
+		const bestUnpinnedMatchCount = Math.max(0, ...scoredQuestions.filter(({question}) => question.pinnedRank === undefined).map(({matchCount}) => matchCount));
+		const pinnedRank = ({question, matchCount}) => matchCount >= bestUnpinnedMatchCount ? question.pinnedRank ?? Number.POSITIVE_INFINITY : Number.POSITIVE_INFINITY;
+
+		const results = scoredQuestions
 			.sort((first, second) => {
-				if (first.question.pinnedRank !== undefined || second.question.pinnedRank !== undefined) {
-					return pinnedRank(first.question) - pinnedRank(second.question);
+				if (pinnedRank(first) !== pinnedRank(second)) {
+					return pinnedRank(first) - pinnedRank(second);
 				}
 
 				if (first.matchCount !== second.matchCount) {
@@ -121,14 +148,15 @@ class FAQSuggestions extends HTMLElement {
 		clearTimeout(this.#timer);
 
 		this.#timer = setTimeout(() => {
-			crashWarning.hidden = !/\bcrash/i.test(textarea.value);
+			// A word that starts with “crash”, or the text of the crash dialog of macOS, like “Dato quit unexpectedly.”, which visitors often copy. Not when the message already has a crash report, which has “Crashed” in it.
+			crashWarning.hidden = !/\bcrash|\bquits? unexpectedly/i.test(textarea.value) || crashReportPattern.test(textarea.value);
 
 			// After a dismiss, only the crash warning still follows the text.
 			if (this.#isDismissed) {
 				return;
 			}
 
-			this.#matchingQuestions ??= questionMatcher(JSON.parse(this.querySelector('[data-part="questions"]').textContent), this.getAttribute('app'));
+			this.#matchingQuestions ??= questionMatcher(JSON.parse(document.getElementById(this.getAttribute('questions')).textContent), this.getAttribute('app'));
 
 			const matches = this.#matchingQuestions(textarea.value);
 			if (matches.length === 0) {
@@ -143,7 +171,7 @@ class FAQSuggestions extends HTMLElement {
 			if (urls !== this.#renderedURLs) {
 				this.#renderedURLs = urls;
 				list.replaceChildren(...matches.map(({question, url}) => {
-					const item = this.querySelector('[data-part="template"]').content.firstElementChild.cloneNode(true);
+					const item = cloneTemplate(this.querySelector('[data-part="template"]'));
 					item.querySelector('[data-part="link"]').href = url;
 					item.querySelector('[data-part="question"]').textContent = question;
 					return item;

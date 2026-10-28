@@ -1,6 +1,7 @@
+import {cloneTemplate, prefersReducedMotion} from '/scripts/dom.js';
+
 const email = document.querySelector('#contact-email');
 const letters = [...email.querySelectorAll('[data-letter]')];
-const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Letters lift toward the pointer, and the neighbors of a lifted letter follow, like a wave. The styles turn `--strength` into the lift, and the rainbow turns while the pointer is on the page.
 if (!prefersReducedMotion) {
@@ -117,7 +118,7 @@ if (!prefersReducedMotion) {
 		const startY = event.detail === 0 ? rect.top + (rect.height / 2) : event.clientY;
 
 		for (let index = 0; index < 26; index++) {
-			const sparkle = sparkleTemplate.content.firstElementChild.cloneNode(true);
+			const sparkle = cloneTemplate(sparkleTemplate);
 			const angle = ((index / 26) * Math.PI * 2) + (Math.random() * 0.35);
 			const distance = 55 + (Math.random() * 110);
 

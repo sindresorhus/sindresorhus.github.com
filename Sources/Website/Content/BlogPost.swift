@@ -1,11 +1,12 @@
 import Foundation
 import SiteKit
+import SOML
 
 /**
 A blog post, loaded from `content/blog/<slug>.md`.
 */
 struct BlogPost: ContentDocument {
-	enum Tag: String, Codable {
+	enum Tag: String, ContentEnum, Encodable {
 		case programming
 		case openSource = "open-source"
 		case swift
@@ -22,12 +23,17 @@ struct BlogPost: ContentDocument {
 	*/
 	let readingTime: Int
 
+	/**
+	The root frontmatter order follows the declarations, with status first and related facts together. Missing properties stay absent.
+	*/
+	static var formattingKeys: [any CodingKey] {
+		Frontmatter.CodingKeys.allCases
+	}
+
 	static let directory = "content/blog"
 
 	// The slug is one component of the path of the page, so the file cannot be in a subdirectory.
 	static let allowsSubdirectories = false
-
-	static let sortOrder = [KeyPathComparator(\BlogPost.frontmatter.publicationDate, order: .reverse)]
 
 	init(file: MarkdownFile, frontmatter: Frontmatter, project: Project) throws {
 		self.frontmatter = frontmatter
@@ -38,40 +44,19 @@ struct BlogPost: ContentDocument {
 			frontmatter.redirectURL != nil,
 			!file.body.allSatisfy(\.isWhitespace)
 		{
-			throw ContentError(file: file.url, line: file.bodyStartLine, reason: "A post with `redirectURL` has no page, so it cannot have text.")
+			throw file.error(line: file.bodyStartLine, "A post with `redirectURL` has no page, so it cannot have text.")
 		}
 
 		self.markdown = try MarkdownDocument(parsing: file, options: .content(file, project: project))
+
+		if let error = markdown.titleHeadingError(in: file) {
+			throw error
+		}
+
 		self.readingTime = Int((Double(file.body.split(whereSeparator: \.isWhitespace).count) / 200).rounded(.up))
 	}
 
-	var isDraft: Bool {
-		frontmatter.isDraft
-	}
-
-	/**
-	When the post last changed: the last commit of the content file, but never before the post was published.
-	*/
-	var lastModified: Date {
-		max(lastCommitDate ?? frontmatter.publicationDate, frontmatter.publicationDate)
-	}
-
 	static let pageRoute = RoutePath.blog
-
-	var redirectURL: URL? {
-		frontmatter.redirectURL
-	}
-
-	var redirectFrom: [RoutePath] {
-		frontmatter.redirectFrom
-	}
-
-	/**
-	Whether the post is shown in the blog, the feeds, and the sitemap. An unlisted post still has its page.
-	*/
-	var isListed: Bool {
-		!frontmatter.isUnlisted
-	}
 
 	/**
 	Whether the post is on another site, like a redirect to an article on Medium.
@@ -83,16 +68,17 @@ struct BlogPost: ContentDocument {
 
 extension BlogPost {
 	@Frontmatter
-	struct Frontmatter {
+	struct Frontmatter: PublishedFrontmatter {
 		var isDraft = false
 		var isUnlisted = false
-		@NonEmpty var title: String
-		@NonEmpty var description: String?
+		@PlainText var title: String
+		@Snippet var description: String?
 
 		/**
-		When the post was published, at midnight UTC.
+		The calendar date when the post was published.
 		*/
-		@CalendarDay var publicationDate: Date
+		var publicationDate: SOML.Date
+		static let publicationDateKey = CodingKeys.publicationDate
 
 		var tags = [Tag]()
 
@@ -105,5 +91,10 @@ extension BlogPost {
 		Old paths of the post, like `/blog/old-name`. They redirect to the post.
 		*/
 		var redirectFrom = [RoutePath]()
+		static let redirectFromKey = CodingKeys.redirectFrom
+
+		func validate(into problems: inout FrontmatterProblems<Self>) {
+			validatePublicationDate(into: &problems)
+		}
 	}
 }

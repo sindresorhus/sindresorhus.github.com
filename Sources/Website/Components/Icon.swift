@@ -12,7 +12,7 @@ a(.href(.feeds)) {
 }
 ```
 */
-enum Icon: HTML, CaseIterable {
+enum Icon: HTML, CaseIterable, Encodable {
 	case menu
 	case rss
 	case apps
@@ -65,18 +65,26 @@ enum Icon: HTML, CaseIterable {
 	/**
 	The icon in a size other than the default 1.25rem, and optionally with thicker or thinner lines. The size is a presentation attribute, so a style can still change it.
 
-	The shapes are in the sprite at ``spritePath``, which browsers download once for all pages. The stroke attributes here apply to the shapes in it.
+	The shapes are in the sprite at ``spritePath``, which browsers download once for all pages, and each symbol of it has its own `viewBox`. The width of the lines here, and the rest of the look of the lines in the stylesheet of the site, apply to the shapes in it. Inline SVG in HTML needs no `xmlns`.
 
 	- Parameter strokeWidth: The width of the lines, in units of the 24-point grid of the icons. A thicker line is easier to see in a small icon, like the checkmark of a copy button.
 	*/
-	func size(_ size: Length, strokeWidth: Double = 2) -> HTMLRaw {
-		HTMLRaw(#"<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="\#(size)" height="\#(size)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="\#(CSSValue(strokeWidth))" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="\#(Self.versionedSpritePath)#\#(symbolID)"/></svg>"#)
+	func size(_ size: LengthPercentage, strokeWidth: Double = 2) -> SVG.svg<SVG.use<EmptyHTML>> {
+		SVG.svg(
+			SVGAttribute(name: "class", value: "icon"),
+			SVGAttribute(name: "width", value: size.description),
+			SVGAttribute(name: "height", value: size.description),
+			SVGAttribute(name: "stroke-width", value: CSSValue(strokeWidth).description),
+			SVGAttribute(name: "aria-hidden", value: "true")
+		) {
+			SVG.use(.href("\(Self.versionedSpritePath)#\(symbolID)"))
+		}
 	}
 
 	/**
 	The file with every icon as a symbol.
 	*/
-	static let spritePath: RoutePath = "/assets/icons.svg"
+	static let spritePath = #path("/assets/icons.svg")
 
 	/**
 	The ``spritePath`` with the hash of the sprite, so browsers can cache it for a year.
@@ -91,8 +99,22 @@ enum Icon: HTML, CaseIterable {
 		return #"<svg xmlns="http://www.w3.org/2000/svg">\#(symbols.joined())</svg>"#
 	}
 
-	private var symbolID: String {
+	/**
+	The icon as an SVG file of its own, like for a mask in a style.
+	*/
+	var standaloneSVG: String {
+		#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">\#(shapes)</svg>"#
+	}
+
+	var symbolID: String {
 		Self.symbolIDs[self]!
+	}
+
+	/**
+	Encodes the sprite symbol ID for component configurations.
+	*/
+	func encode(to encoder: any Encoder) throws {
+		try symbolID.encode(to: encoder)
 	}
 
 	/**

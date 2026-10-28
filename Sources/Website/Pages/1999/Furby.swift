@@ -63,7 +63,13 @@ struct GeoCitiesFurby: ScriptedElement {
 		div {
 			div {
 				div {
-					canvas(.part(Parts.canvas), .width(480), .height(360), .tabindex(0), .role("application")) {}
+					canvas(
+						.part(Parts.canvas),
+						.width(480),
+						.height(360),
+						.tabindex(0),
+						.role("application")
+					) {}
 						.accessibilityLabel("My Furby. Stroke its back to pet it, press its tummy to tickle it, and its tongue to feed it. Or use the keys: F feeds, T tickles, P pets, U turns it upside down, S shakes, C claps, L turns the light off or on, and M plays music.")
 						.style(Styles.canvas)
 
@@ -86,7 +92,13 @@ struct GeoCitiesFurby: ScriptedElement {
 					div {
 						label {
 							"Its name: "
-							input(.part(Parts.name), .type(.text), .maxlength(16), .autocomplete("off"), .placeholder("Tee-Loo"))
+							input(
+								.part(Parts.name),
+								.type(.text),
+								.maxlength(16),
+								.autocomplete("off"),
+								.placeholder("Tee-Loo")
+							)
 								.style(GeoCitiesPage.Styles.field, Styles.nameField)
 						}
 						.style(Styles.label)
@@ -239,15 +251,15 @@ struct GeoCitiesFurby: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.flex(3)
-					.frame(minWidth: .min(.rootEm(20), .percent(100)))
+					.frame(minWidth: .length(.min(.rootEm(20), .percent(100))))
 			case .canvas:
 				// A finger on the wall or the floor scrolls the page. A finger on the Furby strokes and tickles it, as the script stops the scroll there.
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(480.0 / 360.0)
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
-					.background(Color("#9fd3e6"))
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
+					.background(Color(raw: "#9fd3e6"))
 					.touchAction(.manipulation)
 					.handCursor()
 					.canvasFocusRing()
@@ -262,10 +274,10 @@ struct GeoCitiesFurby: ScriptedElement {
 				Style().vstack(spacing: .rootEm(0.25))
 			case .groupTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#800080"))
+					.color(Color(raw: "#800080"))
 			case .buttons:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
@@ -277,13 +289,13 @@ struct GeoCitiesFurby: ScriptedElement {
 					.pressedIn(.white)
 					.when(States.urgent) {
 						$0
-							.background(Color("#ffff00"))
-							.color(Color("#cc0000"))
+							.background(Color(raw: "#ffff00"))
+							.color(Color(raw: "#cc0000"))
 					}
 			case .lcd:
 				// The lines of the screen, like “TUMMY ███░░”.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.preservesLineBreaks()
 					.textStyle(.caption, weight: .bold)
 			case .fields:
@@ -298,8 +310,8 @@ struct GeoCitiesFurby: ScriptedElement {
 				// A card from the box of the Furby, where the words fill in as it says them.
 				Style()
 					.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.625))
-					.background(Color("#fffbe0"))
-					.border(Color("#c0a000"), width: .pixels(2), style: .dashed)
+					.background(Color(raw: "#fffbe0"))
+					.border(Color(raw: "#c0a000"), width: .pixels(2), style: .dashed)
 			case .summary:
 				Style()
 					.fontFamily(GeoCitiesPage.comicSans)
@@ -315,24 +327,24 @@ struct GeoCitiesFurby: ScriptedElement {
 						$0.fontFamily(GeoCitiesPage.courier).fontWeight(.bold)
 					}
 					.children("dd") {
-						$0.margin(0)
+						$0.margin(.zero)
 					}
 			case .nsa:
 				// A page from a typewriter, stamped secret.
 				Style()
 					.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.625))
 					.background(.white)
-					.border(Color("#cc0000"), width: .pixels(3), style: .double)
+					.border(Color(raw: "#cc0000"), width: .pixels(3), style: .double)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption)
 			case .nsaTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontWeight(.bold)
-					.color(Color("#cc0000"))
+					.color(Color(raw: "#cc0000"))
 			case .nsaLog:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(.leading, .rootEm(1.25))
 			}
 		}

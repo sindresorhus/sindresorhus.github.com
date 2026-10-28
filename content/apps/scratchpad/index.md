@@ -1,7 +1,7 @@
 ---
 title: 'Scratchpad'
 subtitle: 'Quick notes, always available'
-publicationDate: '2024-08-30'
+publicationDate: 2024-08-30
 platforms: [
 	'macOS'
 	'iOS'
@@ -13,14 +13,6 @@ isMenuBarApp: true
 appStoreID: 6504040051
 sharedQuestions: [
 	'menu-bar-icons'
-]
-pressQuotes: [
-	{
-		quote: 'One of the best indicators of how sticky a cross-device utility will be in my setup is how quickly I install it everywhere. For Scratchpad, the answer was “very sticky”.'
-		source: 'MacStories'
-		url: 'https://www.macstories.net/reviews/scratchpad-the-cross-device-text-utility-that-pairs-perfectly-with-your-clipboard-manager/'
-		year: 2025
-	}
 ]
 olderVersions: [
 	{
@@ -39,9 +31,23 @@ olderVersions: [
 		url: 'https://github.com/user-attachments/files/18575785/Scratchpad.1.2.8.-.macOS.14.zip'
 	}
 ]
+pressQuotes: [
+	{
+		quote: 'One of the best indicators of how sticky a cross-device utility will be in my setup is how quickly I install it everywhere. For Sindre Sorhus’ Scratchpad, the answer was “very sticky.”'
+		source: 'MacStories'
+		url: 'https://www.macstories.net/reviews/scratchpad-the-cross-device-text-utility-that-pairs-perfectly-with-your-clipboard-manager/'
+		year: 2025
+	}
+	{
+		quote: 'Scratchpad is exactly what I’ve been looking for and has joined my ‘must-have’ list. It’s easy to use and is made by a trusted developer.'
+		source: 'MacSources'
+		url: 'https://macsources.com/scratchpad-app-review-quickly-draft-notes-and-ideas/'
+		year: 2025
+	}
+]
 feedbackNote:
 	'''
-	If you are having problems with the scroll jumping on macOS, try out the next update on TestFlight: https://testflight.apple.com/join/6W5NZf7N
+	If you are having problems with the scroll jumping on macOS, update to version 1.5.0 or later (requires macOS 27).
 	If you are having problems with sync, [read this](/scratchpad#troubleshooting).
 	'''
 ---
@@ -73,9 +79,7 @@ The app uses iCloud syncing to securely sync your text across devices. This feat
 
 ## Trial {#trial}
 
-@Trial(url: "https://www.dropbox.com/scl/fi/af7ry35naarkttdq6d6fr/Scratchpad-1.5.0-trial-1792017662.zip?rlkey=q6lxjpekmfh0lvt42txvthat6&raw=1", macOS: "27") {
-	The trial of the macOS app is fully functional. The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.
-}
+@Trial(url: "https://www.dropbox.com/scl/fi/af7ry35naarkttdq6d6fr/Scratchpad-1.5.0-trial-1792017662.zip?rlkey=q6lxjpekmfh0lvt42txvthat6&raw=1", macOS: "27")
 
 There is no trial for the iOS version.
 
@@ -84,7 +88,7 @@ There is no trial for the iOS version.
 ### Troubleshoot syncing {#troubleshooting}
 
 - After enabling sync, try writing some more text on all the devices.
-- [More…](/apps/faq#icloud-sync)
+- [More iCloud sync troubleshooting…](/apps/faq#icloud-sync)
 
 ### Back up and restore your note {#backup}
 
@@ -103,7 +107,7 @@ Backups are created on changes (about every 10 minutes) and when the app moves t
 - Copy text ++Shift+Command+C++
 - Share text ++Shift+Command+S++
 - Select all text ++Command+A++
-- Increase text size: <kbd>⌘+</kbd>
+- Increase text size: ++Command+Plus++
 - Decrease text size: ++Command+-++
 - Reset text size: ++Command+0++
 
@@ -118,7 +122,7 @@ Quickly open the app using the built-in Lock Screen widget. For more customizati
 1. iOS: Select some text in any app, tap “Share › Add to Scratchpad”.
 1. Use the [Shortcuts action](#scripting)
 1. Use the [custom URL scheme](#scripting)
-1. Use [this shortcut](https://www.icloud.com/shortcuts/caa5fd4f5a7240cf951ef9a4184b0522) directly from a share sheet
+1. Use the [“Add to Scratchpad” shortcut](https://www.icloud.com/shortcuts/caa5fd4f5a7240cf951ef9a4184b0522) directly from a share sheet
 
 ### PopClip integration {#popclip}
 
@@ -145,91 +149,95 @@ url: scratchpad:append?text={popclip text}
 
 ## Frequently Asked Questions {#faq}
 
-### The app does not show up in the menu bar
+### The app does not show up in the menu bar {#the-app-does-not-show-up-in-the-menu-bar}
 
-[Try this](/apps/faq#app-not-showing-in-menu-bar)
+[Try the steps in the general FAQ](/apps/faq#app-not-showing-in-menu-bar)
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to show the main window.
 
-### Why is my note not syncing between devices?
+### Why is my note not syncing between devices? {#why-is-my-note-not-syncing-between-devices}
 
 Refer to the [troubleshooting section](#troubleshooting) above to resolve syncing issues.
 
-### How do I restore a previous version of my note?
+### How do I restore a previous version of my note? {#how-do-i-restore-a-previous-version-of-my-note}
 
 The app keeps automatic local backups. Open the “…” menu and choose “Backups”, select one, and tap “Restore”. See [Back up and restore](#backup) for details.
 
-### Why is “Clear Text” tucked inside a menu instead of being directly accessible?
+### Why do I get sync conflicts, and which version should I keep? {#sync-conflicts}
+
+A conflict happens when the note changes on two devices before iCloud syncs the change, for example, when you write on your iPhone while your Mac is offline. iCloud then keeps both versions, and the app shows “Resolve Conflicts…”. Compare the current version with the conflict version, and choose “Keep Current”, “Keep Conflict”, or “Keep Both”, which puts the two texts one after the other. If you are not sure, choose “Keep Both”, or use “Copy…” to copy the text you need.
+
+Before it resolves the conflict, the app makes a [backup](#backup) of the current text. The version that you do not keep is not backed up, so “Keep Current” removes the conflict version.
+
+To get fewer conflicts, give the app a moment to sync before you write on another device.
+
+### Why is “Clear Text” tucked inside a menu instead of being directly accessible? {#why-is-clear-text-tucked-inside-a-menu-instead-of-being-directly-accessible}
 
 It clears your entire note in a single action, so it’s placed one step away to prevent accidental deletion. A confirmation dialog would add even more friction every time, so the menu is the simpler middle ground. On macOS, you can also clear instantly with ++Shift+Command+N++. And if you ever clear by mistake, just undo to bring it back (something many people don’t realize you can do here).
 
-### Can you add Markdown syntax highlighting?
+### Can you add Markdown syntax highlighting? {#can-you-add-markdown-syntax-highlighting}
 
 I don’t plan to add that as I want to keep the app simple. I do plan to make a proper minimal Markdown editor at some point, but that’s not this app.
 
-### Does the app support text formatting?
+### Does the app support text formatting? {#does-the-app-support-text-formatting}
 
 No, it supports plain text only.
 
-### Can I add images to the note?
+### Can I add images to the note? {#can-i-add-images-to-the-note}
 
 No, it supports plain text only.
 
-### Does the app support multiple notes?
+### Does the app support multiple notes? {#does-the-app-support-multiple-notes}
 
 No, it is designed for a single, persistent note. You could try out my [Plain Text Editor](/plain-text-editor) app for this, which can open multiple files. Also check out [Tot](https://tot.rocks) (not mine, but good).
 
-### How can I make the macOS app show up right below the menu bar icon?
+### How can I make the macOS app show up right below the menu bar icon? {#how-can-i-make-the-macos-app-show-up-right-below-the-menu-bar-icon}
 
 Move the window to below the menu bar icon. It remembers its position.
 
-### Can I open and save an external file?
+### Can I open and save an external file? {#can-i-open-and-save-an-external-file}
 
 No, see my [Plain Text Editor](/plain-text-editor) app for that.
 
-### Does it support Advanced Data Protection for iCloud?
+### Does it support Advanced Data Protection for iCloud? {#does-it-support-advanced-data-protection-for-icloud}
 
 No. The app stores the note in iCloud Drive, which is covered by [Advanced Data Protection](https://support.apple.com/102651). But it also syncs using [`NSUbiquitousKeyValueStore`](https://developer.apple.com/documentation/foundation/nsubiquitouskeyvaluestore) to be able to support watchOS, and this is not covered by Advanced Data Protection. I also don’t want to commit to Advanced Data Protection support because I could potentially change how syncing works in the future.
 
-### Why doesn’t the app appear in my Dock?
+### Why doesn’t the app appear in my Dock? {#why-doesnt-the-app-appear-in-my-dock}
 
 By default, it only appears in the menu bar. You can enable the Dock icon in the settings.
 
-### Can it show the text in a widget?
+### Can it show the text in a widget? {#can-it-show-the-text-in-a-widget}
 
 No, but check out my [Any Text](/any-text) app for that.
 
-### Can it show the text in the macOS menu bar?
+### Can it show the text in the macOS menu bar? {#can-it-show-the-text-in-the-macos-menu-bar}
 
 No, but check out my [One Thing](/one-thing) app for that.
 
-### The text sometimes jumps when I write fast
-
-This is a macOS bug. There is unfortunately nothing I can do about it.
-
-### How can I toggle “Stay on Top” with a keyboard shortcut in the macOS app?
+### How can I toggle “Stay on Top” with a keyboard shortcut in the macOS app? {#how-can-i-toggle-stay-on-top-with-a-keyboard-shortcut-in-the-macos-app}
 
 The keyboard shortcut is listed in the “…” menu. When in menu bar mode, it’s always on top.
 
-### Can you add a color setting?
+### Can you add a color setting? {#can-you-add-a-color-setting}
 
 I don’t plan to add that. It’s not essential and I’m trying to keep the app simple.
 
-### Why is it suddenly showing a scrollbar in the macOS app?
+### Why is it suddenly showing a scrollbar in the macOS app? {#why-is-it-suddenly-showing-a-scrollbar-in-the-macos-app}
 
 You either have a system setting set to always show scrollbars or you have an external mouse connected. This is simply how macOS works. You can see the behavior in other text editing apps too. See the “Appearance › Show scroll bars” system setting.
 
-### Why is the scrollbar still white even with window translucency enabled?
+### Why is the scrollbar still white even with window translucency enabled? {#why-is-the-scrollbar-still-white-even-with-window-translucency-enabled}
 
 macOS does not let apps style the scrollbar. Its background remains solid regardless of translucency.
 
-### Why is there no way to print?
+### Why is there no way to print? {#why-is-there-no-way-to-print}
 
 The app is made using Apple’s latest technologies (SwiftUI) and they have not added print support there yet. If you need to print, copy-paste the text over to TextEdit instead.
 
-### On iOS, the item in the share sheet opens the app, how can I add text to the app in the background?
+### On iOS, the item in the share sheet opens the app, how can I add text to the app in the background? {#on-ios-the-item-in-the-share-sheet-opens-the-app-how-can-i-add-text-to-the-app-in-the-background}
 
-Add [this shortcut](https://www.icloud.com/shortcuts/caa5fd4f5a7240cf951ef9a4184b0522). You can then tap the “Add to Scratchpad” action in a share sheet to add text to Scratchpad in the background.
+Add the [“Add to Scratchpad” shortcut](https://www.icloud.com/shortcuts/caa5fd4f5a7240cf951ef9a4184b0522). You can then tap the “Add to Scratchpad” action in a share sheet to add text to Scratchpad in the background.
 
 ### What’s the difference between Plain Text Editor and Scratchpad? {#plain-text-editor-comparison}
 
@@ -245,7 +253,7 @@ Scratchpad advantages:
 
 - Simpler, focused design: A single plain text note for minimal distraction.
 - iCloud sync is optional. [Tot](https://tot.rocks) does not have a setting to turn off iCloud sync.
-- More affordable pricing: $8 vs $20 for Tot.
+- More affordable pricing than the full version of Tot.
 - Unlimited note size. Tot is limited to 100,000 characters per dot.
 - 30+ customizable menu bar icons.
 - visionOS support.
@@ -296,7 +304,7 @@ You can also prepend:
 open --background 'scratchpad:prepend?text=Hello'
 ```
 
-*Don’t forget to [URL encode](https://www.urlencoder.org) the value for the `text=` search parameter. For example, using [this](https://gist.github.com/cdown/1163649) Bash function.*
+*Don’t forget to [URL encode](https://www.urlencoder.org) the value for the `text=` search parameter. For example, using [this Bash function](https://gist.github.com/cdown/1163649).*
 
 You can also use the custom URL scheme on iOS.
 

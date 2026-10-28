@@ -44,7 +44,12 @@ struct GeoCitiesHamsterBand: ScriptedElement {
 			ul {
 				for member in Self.members {
 					li(.hook(Hooks.member, value: member.part)) {
-						GeoCitiesPage.GIFImage(gif: member.gif, alt: "", style: .gif, project: project)
+						GeoCitiesPage.GIFImage(
+							gif: member.gif,
+							alt: "",
+							style: .gif,
+							project: project
+						)
 
 						button(.type(.button), .hook(Hooks.part, value: member.part), .ariaPressed(false)) {
 							strong {
@@ -81,7 +86,12 @@ struct GeoCitiesHamsterBand: ScriptedElement {
 
 					for speed in Self.speeds {
 						label {
-							input(.type(.radio), .name("geocities-hamster-speed"), .value(speed.rpm), .hook(Hooks.speed))
+							input(
+								.type(.radio),
+								.name("geocities-hamster-speed"),
+								.value(speed.rpm),
+								.hook(Hooks.speed)
+							)
 								.attributes(.checked, when: speed.rpm == "33")
 							" \(speed.title)"
 						}
@@ -106,21 +116,21 @@ struct GeoCitiesHamsterBand: ScriptedElement {
 		case status
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The button that turns a part on and off, by the part.
 		*/
-		case part = "data-hamster-part"
+		case part = "hamster-part"
 
 		/**
 		A hamster of the band, by its part, which dances while its part plays.
 		*/
-		case member = "data-hamster-member"
+		case member = "hamster-member"
 
 		/**
 		A radio button of a speed of the record player.
 		*/
-		case speed = "data-hamster-speed"
+		case speed = "hamster-speed"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -145,28 +155,36 @@ struct GeoCitiesHamsterBand: ScriptedElement {
 					.textAlign(.center)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.font(.extraLarge2, weight: .bold)
-					.color(Color("#ff6600"))
-					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#ffff00")))
+					.color(Color(raw: "#ff6600"))
+					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#ffff00")))
 			case .box:
 				// A stage with a red curtain at the top and a wooden floor.
 				Style()
 					.flowSpacing(.rootEm(0.75))
 					.padding(.rootEm(0.75))
-					.backgroundImage(.linearGradient("to bottom", Color("#aa1111"), Color("#aa1111"), Color("#ffe9b0"), Color("#d9a35f")))
-					.border(Color("#661100"), width: .pixels(4), style: .ridge)
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#aa1111"),
+							Color(raw: "#aa1111"),
+							Color(raw: "#ffe9b0"),
+							Color(raw: "#d9a35f")
+						)
+					)
+					.border(Color(raw: "#661100"), width: .pixels(4), style: .ridge)
 			case .stage:
 				Style()
 					.grid(minimumColumnWidth: .rootEm(6.5))
 					.gap(.rootEm(0.5))
-					.margin(0)
-					.padding(0)
+					.margin(.zero)
+					.padding(.zero)
 			case .member:
 				// A hamster is gray and small while it does not play, and grows when it joins the band.
 				Style()
 					.vstack(alignment: .center, justification: .end, spacing: .rootEm(0.375))
 					.padding(.rootEm(0.375))
-					.background(Color("#fff8e1"))
-					.border(Color("#d9a35f"), width: .pixels(2))
+					.background(Color(raw: "#fff8e1"))
+					.border(Color(raw: "#d9a35f"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.5))
 					.children("picture img") {
 						$0
@@ -175,8 +193,8 @@ struct GeoCitiesHamsterBand: ScriptedElement {
 					}
 					.descendantPressed {
 						$0
-							.background(Color("#ffff99"))
-							.border(Color("#ff6600"), width: .pixels(2))
+							.background(Color(raw: "#ffff99"))
+							.border(Color(raw: "#ff6600"), width: .pixels(2))
 							.children("picture img") {
 								$0
 									.filter(.grayscale(0))
@@ -189,25 +207,25 @@ struct GeoCitiesHamsterBand: ScriptedElement {
 					.frame(width: .percent(100))
 					.padding(.rootEm(0.25))
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+					.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.color(.black)
 					.handCursor()
 					.buttonFocusRing()
-					.pressedIn(Color("#ffcc00"))
+					.pressedIn(Color(raw: "#ffcc00"))
 			case .controls:
 				Style()
 					.padding(.rootEm(0.5))
-					.background(Color("#fff8e1"))
-					.border(Color("#d9a35f"), width: .pixels(2))
+					.background(Color(raw: "#fff8e1"))
+					.border(Color(raw: "#d9a35f"), width: .pixels(2))
 			case .speeds:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.5))
 					.flexWrap()
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-					.border(Color("#d9a35f"), width: .pixels(1))
+					.border(Color(raw: "#d9a35f"), width: .pixels(1))
 			case .legend:
 				Style()
 					.fontFamily(.system)
@@ -221,11 +239,11 @@ struct GeoCitiesHamsterBand: ScriptedElement {
 				Style()
 					.frame(minHeight: .lineHeight(1))
 					.padding(.rootEm(0.25))
-					.background(Color("#fff8e1"))
+					.background(Color(raw: "#fff8e1"))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.fontWeight(.bold)
 					.textAlign(.center)
-					.color(Color("#aa1111"))
+					.color(Color(raw: "#aa1111"))
 			}
 		}
 	}

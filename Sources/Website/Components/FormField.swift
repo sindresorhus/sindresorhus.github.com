@@ -2,34 +2,74 @@ import Elementary
 import SiteKit
 
 /**
-A labeled form control, with an optional hint next to the label. When the control is invalid after the visitor used it (`:user-invalid`), the field shows the error message, without JavaScript.
+The tags that a form field can label and describe directly.
+*/
+protocol FormFieldControlTag: HTMLTagDefinition, HTMLTrait.Attributes.Global {}
+
+extension HTMLTag.input: FormFieldControlTag {}
+extension HTMLTag.textarea: FormFieldControlTag {}
+extension HTMLTag.select: FormFieldControlTag {}
+
+/**
+A labeled input or text area, with an optional hint next to the label. The field owns the control's base style, ID and descriptions. When the control is invalid after the visitor used it (`:user-invalid`), the field shows the error message, without JavaScript.
 
 ```swift
-FormField(label: "Email", controlID: "email", hint: "Only used for replying to you", errorMessage: "Enter a valid email address.") {
-	input(.id("email"), .type(.email), .required, .ariaDescribedBy("email-hint email-error"))
-		.style(FormFieldStyles.control)
+FormField(label: "Email", controlID: ElementID("email"), hint: "Only used for replying to you", errorMessage: "Enter a valid email address.") {
+	input(.type(.email), .required)
 }
 ```
 */
-struct FormField<Content: HTML>: HTML {
+struct FormField<Control: HTML, Accessory: HTML>: HTML where Control.Tag: FormFieldControlTag {
 	let label: String
-	let controlID: String
-	var hint: String?
-	var errorMessage: String?
-	@ContentBuilder var content: Content
+	let controlID: ElementID
+	let hint: String?
+	let errorMessage: String?
+	let additionalDescriptionIDs: [ElementID]
+	let control: Control
+	let accessory: Accessory
+
+	/**
+	Creates a field with a single root control and separate content next to it, like suggestions or a live warning.
+	*/
+	init(label: String, controlID: ElementID, hint: String? = nil, errorMessage: String? = nil, additionalDescriptionIDs: [ElementID] = [], @ContentBuilder control: () -> Control, @ContentBuilder accessory: () -> Accessory) {
+		self.label = label
+		self.controlID = controlID
+		self.hint = hint
+		self.errorMessage = errorMessage
+		self.additionalDescriptionIDs = additionalDescriptionIDs
+		self.control = control()
+		self.accessory = accessory()
+	}
 
 	/**
 	The ID of the hint, for the `aria-describedby` of the control.
 	*/
-	var hintID: String {
-		"\(controlID)-hint"
+	private var hintID: ElementID {
+		ElementID("\(controlID)-hint")
 	}
 
 	/**
 	The ID of the error message, for the `aria-describedby` of the control, so screen readers say what a valid value is, like “Write at least 20 characters.”, also while the message is hidden. It is the ID of the control with `-error`.
 	*/
-	var errorID: String {
-		"\(controlID)-error"
+	private var errorID: ElementID {
+		ElementID("\(controlID)-error")
+	}
+
+	/**
+	The descriptions that exist in this field, followed by any additional descriptions of the control.
+	*/
+	private var descriptionIDs: [ElementID] {
+		var ids = [ElementID]()
+
+		if hint != nil {
+			ids.append(hintID)
+		}
+
+		if errorMessage != nil {
+			ids.append(errorID)
+		}
+
+		return ids + additionalDescriptionIDs
 	}
 
 	var body: some HTML {
@@ -40,7 +80,7 @@ struct FormField<Content: HTML>: HTML {
 				}
 				.style(FormFieldStyles.label)
 
-				// The control can name it in `aria-describedby`, with ``hintID``, like the error message below, with ``errorID``.
+				// The control names it in `aria-describedby`, with ``hintID``, like the error message below, with ``errorID``.
 				if let hint {
 					span(.id(hintID)) {
 						hint
@@ -50,7 +90,12 @@ struct FormField<Content: HTML>: HTML {
 			}
 			.style(FormFieldStyles.labelRow)
 
-			content
+			control
+				.style(FormFieldStyles.control)
+				.attributes(.id(controlID))
+				.attributes(optional: .ariaDescribedBy(descriptionIDs))
+
+			accessory
 
 			if let errorMessage {
 				p(.id(errorID)) {
@@ -60,6 +105,17 @@ struct FormField<Content: HTML>: HTML {
 			}
 		}
 		.style(FormFieldStyles.root)
+	}
+}
+
+extension FormField where Accessory == EmptyHTML {
+	/**
+	Creates a field without accessory content.
+	*/
+	init(label: String, controlID: ElementID, hint: String? = nil, errorMessage: String? = nil, additionalDescriptionIDs: [ElementID] = [], @ContentBuilder control: () -> Control) {
+		self.init(label: label, controlID: controlID, hint: hint, errorMessage: errorMessage, additionalDescriptionIDs: additionalDescriptionIDs, control: control) {
+			EmptyHTML()
+		}
 	}
 }
 

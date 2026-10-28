@@ -7,13 +7,44 @@ The video recorder under the TV in our living room in Bergen, with the TV on top
 */
 struct GeoCitiesVCR: ScriptedElement {
 	static let script = ElementScript()
-	let config = Config()
+	let config: Config? = Config()
 
 	/**
 	A program in the TV guide of the newspaper. The script shows the programs of a channel live, one after the other, and records one with its ShowView code.
 	*/
 	struct Program: Encodable {
-		let channel: Int
+		/**
+		The three broadcast channels, separate from the AV input.
+		*/
+		enum Channel: Int, CaseIterable, Encodable {
+			case nrk1 = 1
+			case tv2
+			case tvNorge
+
+			var name: String {
+				switch self {
+				case .nrk1: "NRK1"
+				case .tv2: "TV 2"
+				case .tvNorge: "TVNorge"
+				}
+			}
+		}
+
+		/**
+		The eight live drawings, separate from tape-only scenes.
+		*/
+		enum Scene: String, CaseIterable, Encodable {
+			case children
+			case news
+			case weather
+			case derrick
+			case simpsons
+			case soap
+			case shop
+			case beach
+		}
+
+		let channel: Channel
 		let time: String
 		let title: String
 		let code: String
@@ -21,7 +52,7 @@ struct GeoCitiesVCR: ScriptedElement {
 		/**
 		The drawing of the program in the script.
 		*/
-		let scene: String
+		let scene: Scene
 
 		let blurb: String
 	}
@@ -36,24 +67,99 @@ struct GeoCitiesVCR: ScriptedElement {
 		let accessibilityLabel: String
 	}
 
-	static let channels = ["NRK1", "TV 2", "TVNorge"]
 
 	static let programs: [Program] = [
-		Program(channel: 1, time: "18.00", title: "Barne-TV", code: "18342", scene: "children", blurb: "Solbabyen smiler igjen."),
-		Program(channel: 1, time: "19.00", title: "Dagsrevyen", code: "40931", scene: "news", blurb: "Nyheter. Er datamaskinene klare for år 2000?"),
-		Program(channel: 1, time: "19.25", title: "Været", code: "2264", scene: "weather", blurb: "Regn på Vestlandet."),
-		Program(channel: 1, time: "19.30", title: "Derrick", code: "51226", scene: "derrick", blurb: "Tysk krim. Derrick og Harry finner morderen."),
-		Program(channel: 2, time: "18.30", title: "The Simpsons", code: "7740", scene: "simpsons", blurb: "Amerikansk tegnefilm."),
-		Program(channel: 2, time: "19.00", title: "Hotel Cæsar", code: "31909", scene: "soap", blurb: "Hvem er faren til barnet?"),
-		Program(channel: 3, time: "18.00", title: "TV-Shop", code: "6021", scene: "shop", blurb: "Ring nå!"),
-		Program(channel: 3, time: "19.00", title: "Baywatch", code: "66410", scene: "beach", blurb: "Livredderne på stranden."),
+		Program(
+			channel: .nrk1,
+			time: "18.00",
+			title: "Barne-TV",
+			code: "18342",
+			scene: .children,
+			blurb: "Solbabyen smiler igjen."
+		),
+		Program(
+			channel: .nrk1,
+			time: "19.00",
+			title: "Dagsrevyen",
+			code: "40931",
+			scene: .news,
+			blurb: "Nyheter. Er datamaskinene klare for år 2000?"
+		),
+		Program(
+			channel: .nrk1,
+			time: "19.25",
+			title: "Været",
+			code: "2264",
+			scene: .weather,
+			blurb: "Regn på Vestlandet."
+		),
+		Program(
+			channel: .nrk1,
+			time: "19.30",
+			title: "Derrick",
+			code: "51226",
+			scene: .derrick,
+			blurb: "Tysk krim. Derrick og Harry finner morderen."
+		),
+		Program(
+			channel: .tv2,
+			time: "18.30",
+			title: "The Simpsons",
+			code: "7740",
+			scene: .simpsons,
+			blurb: "Amerikansk tegnefilm."
+		),
+		Program(
+			channel: .tv2,
+			time: "19.00",
+			title: "Hotel Cæsar",
+			code: "31909",
+			scene: .soap,
+			blurb: "Hvem er faren til barnet?"
+		),
+		Program(
+			channel: .tvNorge,
+			time: "18.00",
+			title: "TV-Shop",
+			code: "6021",
+			scene: .shop,
+			blurb: "Ring nå!"
+		),
+		Program(
+			channel: .tvNorge,
+			time: "19.00",
+			title: "Baywatch",
+			code: "66410",
+			scene: .beach,
+			blurb: "Livredderne på stranden."
+		),
 	]
 
 	private static let tapes = [
-		Tape(id: "may", label: "17. MAI 1998", note: "VHS-C · Pappa’s camcorder", accessibilityLabel: "Tape: the 17th of May 1998, our home video"),
-		Tape(id: "wedding", label: "SIMPSONS!!! (Sindre)", note: "Bryllupet 1985 · IKKE TA OPP OVER", accessibilityLabel: "Tape: the Simpsons, which I recorded over the wedding of Mamma and Pappa"),
-		Tape(id: "rental", label: "TITANIC · Kassett 1 av 2", note: "Vær snill og spol tilbake! Be kind, please rewind", accessibilityLabel: "Tape: Titanic, tape 1 of 2, rented from the video store"),
-		Tape(id: "blank", label: "TOM · E-180", note: "Blank tape, for taping", accessibilityLabel: "Tape: a blank tape"),
+		Tape(
+			id: "may",
+			label: "17. MAI 1998",
+			note: "VHS-C · Pappa’s camcorder",
+			accessibilityLabel: "Tape: the 17th of May 1998, our home video"
+		),
+		Tape(
+			id: "wedding",
+			label: "SIMPSONS!!! (Sindre)",
+			note: "Bryllupet 1985 · IKKE TA OPP OVER",
+			accessibilityLabel: "Tape: the Simpsons, which I recorded over the wedding of Mamma and Pappa"
+		),
+		Tape(
+			id: "rental",
+			label: "TITANIC · Kassett 1 av 2",
+			note: "Vær snill og spol tilbake! Be kind, please rewind",
+			accessibilityLabel: "Tape: Titanic, tape 1 of 2, rented from the video store"
+		),
+		Tape(
+			id: "blank",
+			label: "TOM · E-180",
+			note: "Blank tape, for taping",
+			accessibilityLabel: "Tape: a blank tape"
+		),
 	]
 
 	private static let transport: [(id: String, symbol: String, label: String)] = [
@@ -87,7 +193,13 @@ struct GeoCitiesVCR: ScriptedElement {
 
 		div {
 			div {
-				canvas(.part(Parts.antenna), .width(400), .height(130), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.antenna),
+					.width(400),
+					.height(130),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("The rabbit ears on top of the TV. Drag the end of a rod to turn it for a better picture. With the keyboard, the left and right arrows turn a rod, and Space changes the rod.")
 					.style(Styles.antenna)
 
@@ -123,7 +235,8 @@ struct GeoCitiesVCR: ScriptedElement {
 		/**
 		The programs of the TV guide, which the script shows live and records with their ShowView codes.
 		*/
-		var programs = GeoCitiesVCR.programs
+		let programs = GeoCitiesVCR.programs
+		let channelNames = Dictionary(uniqueKeysWithValues: Program.Channel.allCases.map { ($0.rawValue, $0.name) })
 	}
 
 	/**
@@ -132,7 +245,13 @@ struct GeoCitiesVCR: ScriptedElement {
 	private var television: some HTML {
 		div {
 			div {
-				canvas(.part(Parts.screen), .width(640), .height(480), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.screen),
+					.width(640),
+					.height(480),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("The screen of the TV. The up and down arrows change the channel, and Space shows the next picture.")
 					.style(Styles.screen)
 			}
@@ -236,12 +355,24 @@ struct GeoCitiesVCR: ScriptedElement {
 			div {
 				label {
 					"Tracking "
-					input(.part(Parts.tracking), .type(.range), .min(0), .max(100), .step(1), .value("50"))
+					input(
+						.part(Parts.tracking),
+						.type(.range),
+						.min(0),
+						.max(100),
+						.step(1),
+						.value("50")
+					)
 						.style(Styles.trackingSlider)
 				}
 				.style(Styles.tracking)
 
-				button(.part(Parts.flapToggle), .type(.button), .ariaExpanded(false), .ariaControls(Self.flapID)) {
+				button(
+					.part(Parts.flapToggle),
+					.type(.button),
+					.ariaExpanded(false),
+					.ariaControls(Self.flapID)
+				) {
 					"▼ Open the flap"
 				}
 				.style(Styles.flapToggle)
@@ -291,7 +422,13 @@ struct GeoCitiesVCR: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.caption)
 
-			canvas(.part(Parts.rescueCanvas), .width(240), .height(150), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.rescueCanvas),
+				.width(240),
+				.height(150),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The tape that the VCR ate, with a pencil in the reel. Drag around in circles to turn the pencil, or press the right arrow.")
 				.style(Styles.rescueCanvas)
 
@@ -372,14 +509,14 @@ struct GeoCitiesVCR: ScriptedElement {
 			.style(Styles.paperTitle)
 
 			div {
-				for (index, channel) in Self.channels.enumerated() {
+				for channel in Program.Channel.allCases {
 					div {
 						p {
-							channel
+							channel.name
 						}
 						.style(Styles.paperChannel)
 
-						for program in Self.programs where program.channel == index + 1 {
+						for program in Self.programs where program.channel == channel {
 							button(.type(.button), .hook(Hooks.program, value: program.code)) {
 								span {
 									"\(program.time) \(program.title)"
@@ -407,14 +544,14 @@ struct GeoCitiesVCR: ScriptedElement {
 	/**
 	How far the tape is dragged from its place on the shelf, which the script sets while the visitor drags it to the slot.
 	*/
-	static let dragX = StyleVariable<Length>("--vcr-drag-x")
+	static let dragX = StyleVariable<LengthPercentage>("vcr-drag-x")
 
-	static let dragY = StyleVariable<Length>("--vcr-drag-y")
+	static let dragY = StyleVariable<LengthPercentage>("vcr-drag-y")
 
 	/**
 	The ID of the flap, for the `aria-controls` of its toggle.
 	*/
-	private static let flapID = "geocities-vcr-flap"
+	private static let flapID = ElementID("geocities-vcr-flap")
 
 	enum Parts: String, ElementPartSet {
 		case antenna
@@ -457,26 +594,26 @@ struct GeoCitiesVCR: ScriptedElement {
 	/**
 	The lists of the same kind of element, with a value for the script.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A button of the VCR, like `play` or `clock`.
 		*/
-		case button = "data-vcr-button"
+		case button = "vcr-button"
 
 		/**
 		A number key under the flap of the VCR, with its digit.
 		*/
-		case digit = "data-vcr-digit"
+		case digit = "vcr-digit"
 
 		/**
 		A tape on the shelf, with its ID, like `rental`.
 		*/
-		case tape = "data-vcr-tape"
+		case tape = "vcr-tape"
 
 		/**
 		A program in the TV guide of the newspaper, with its ShowView code.
 		*/
-		case program = "data-vcr-program"
+		case program = "vcr-program"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -541,7 +678,7 @@ struct GeoCitiesVCR: ScriptedElement {
 			case .stack:
 				// The rabbit ears, the TV, and the VCR stand on top of each other, like in our living room.
 				Style()
-					.vstack(alignment: .center, spacing: 0)
+					.vstack(alignment: .center, spacing: .zero)
 					.frame(width: .rootEm(32), maxWidth: .percent(100))
 			case .antenna:
 				// The rods reach out over the TV, and a drag on them does not scroll the page.
@@ -553,7 +690,7 @@ struct GeoCitiesVCR: ScriptedElement {
 					.touchAction(.none)
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(2), offset: .pixels(2))
 					}
 			case .television:
 				// A black TV of the 1990s, with a thick frame around the round glass and the buttons under it.
@@ -561,15 +698,23 @@ struct GeoCitiesVCR: ScriptedElement {
 					.vstack(spacing: .rootEm(0.5))
 					.frame(width: .percent(100))
 					.padding(top: .rootEm(0.875), horizontal: .rootEm(0.875), bottom: .rootEm(0.5))
-					.backgroundImage(.linearGradient("to bottom", Color("#4a4a4f"), Color("#26262a")))
-					.border(Color("#141416"), width: .pixels(3))
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#4a4a4f"), Color(raw: "#26262a")))
+					.border(Color(raw: "#141416"), width: .pixels(3))
 					.cornerRadius(.rootEm(1.25))
-					.shadow(Shadow(x: .pixels(4), y: .pixels(6), color: Color("#00000066")), Shadow(y: .pixels(2), blur: .pixels(2), color: Color("#ffffff33"), isInset: true))
+					.shadow(
+						BoxShadow(x: .pixels(4), y: .pixels(6), color: Color(raw: "#00000066")),
+						BoxShadow(
+							y: .pixels(2),
+							blur: .pixels(2),
+							color: Color(raw: "#ffffff33"),
+							isInset: true
+						)
+					)
 			case .bezel:
 				Style()
 					.padding(.rootEm(0.5))
-					.background(Color("#121214"))
-					.border(Color("#000000"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#121214"))
+					.border(Color(raw: "#000000"), width: .pixels(2), style: .inset)
 					.cornerRadius(.rootEm(1.25))
 			case .screen:
 				// The glass of the CRT is rounded at the corners and bulges a bit, so it has a shine at the top.
@@ -577,10 +722,10 @@ struct GeoCitiesVCR: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(4.0 / 3.0)
-					.background(Color("#0d120f"))
+					.background(Color(raw: "#0d120f"))
 					.cornerRadius(.rootEm(1.5))
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(2), offset: .pixels(2))
 					}
 			case .tvPanel:
 				Style()
@@ -588,11 +733,11 @@ struct GeoCitiesVCR: ScriptedElement {
 					.flexWrap()
 			case .brand:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
 					.letterSpacing(.em(0.3))
-					.color(Color("#c8c8c8"))
+					.color(Color(raw: "#c8c8c8"))
 			case .tvButtons:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
@@ -603,26 +748,26 @@ struct GeoCitiesVCR: ScriptedElement {
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.375))
 					.frame(minWidth: .rootEm(2.75), minHeight: .rootEm(2.5))
 					.padding(.horizontal, .rootEm(0.5))
-					.background(Color("#1b1b1d"))
-					.border(Color("#5a5a60"), width: .pixels(2), style: .outset)
+					.background(Color(raw: "#1b1b1d"))
+					.border(Color(raw: "#5a5a60"), width: .pixels(2), style: .outset)
 					.cornerRadius(.rootEm(0.375))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#dddddd"))
+					.color(Color(raw: "#dddddd"))
 					.handCursor()
 					.active {
-						$0.border(Color("#5a5a60"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#5a5a60"), width: .pixels(2), style: .inset)
 					}
 			case .led:
 				// Red in standby, and green while the TV is on.
 				Style()
 					.frame(size: .rootEm(0.5))
-					.background(Color("#aa1111"))
+					.background(Color(raw: "#aa1111"))
 					.cornerRadius(.circle)
 					.when(States.on) {
 						$0
-							.background(Color("#33ff55"))
-							.shadow(Shadow(y: 0, blur: .pixels(5), color: Color("#33ff55")))
+							.background(Color(raw: "#33ff55"))
+							.shadow(BoxShadow(y: .zero, blur: .pixels(5), color: Color(raw: "#33ff55")))
 					}
 			case .vcr:
 				// A silver VCR, a bit narrower than the TV on top of it.
@@ -630,10 +775,17 @@ struct GeoCitiesVCR: ScriptedElement {
 					.vstack(spacing: .rootEm(0.5))
 					.frame(width: .percent(96))
 					.padding(vertical: .rootEm(0.625), horizontal: .rootEm(0.75))
-					.backgroundImage(.linearGradient("to bottom", Color("#e4e4e8"), Color("#b4b4bc"), Color("#9a9aa2")))
-					.border(Color("#77777f"), width: .pixels(2))
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#e4e4e8"),
+							Color(raw: "#b4b4bc"),
+							Color(raw: "#9a9aa2")
+						)
+					)
+					.border(Color(raw: "#77777f"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.375))
-					.shadow(Shadow(x: .pixels(3), y: .pixels(5), color: Color("#00000059")))
+					.shadow(BoxShadow(x: .pixels(3), y: .pixels(5), color: Color(raw: "#00000059")))
 					.color(.black)
 			case .vcrTop:
 				Style()
@@ -645,35 +797,35 @@ struct GeoCitiesVCR: ScriptedElement {
 					.flex(1)
 					.frame(minWidth: .rootEm(9), minHeight: .rootEm(2.75))
 					.padding(.rootEm(0.25))
-					.background(Color("#1a1a1c"))
-					.border(Color("#555555"), width: .pixels(3), style: .inset)
+					.background(Color(raw: "#1a1a1c"))
+					.border(Color(raw: "#555555"), width: .pixels(3), style: .inset)
 					.cornerRadius(.rootEm(0.25))
 					.handCursor()
 					.when(States.target) {
 						$0
-							.background(Color("#34446a"))
-							.shadow(Shadow(y: 0, blur: .pixels(8), color: Color("#66aaff")))
+							.background(Color(raw: "#34446a"))
+							.shadow(BoxShadow(y: .zero, blur: .pixels(8), color: Color(raw: "#66aaff")))
 					}
 					.when(States.loaded) {
-						$0.border(Color("#333333"), width: .pixels(3), style: .inset)
+						$0.border(Color(raw: "#333333"), width: .pixels(3), style: .inset)
 					}
 					.when(States.eaten) {
-						$0.background(Color("#5a3010"))
+						$0.background(Color(raw: "#5a3010"))
 					}
 			case .slotFlap:
 				Style()
 					.display(.block)
 					.padding(.vertical, .rootEm(0.25))
-					.backgroundImage(.linearGradient("to bottom", Color("#3b3b40"), Color("#222225")))
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#3b3b40"), Color(raw: "#222225")))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
 					.italic()
 					.letterSpacing(.em(0.2))
-					.color(Color("#77777f"))
+					.color(Color(raw: "#77777f"))
 					.when(ancestorHas: States.loaded) {
 						$0
-							.backgroundImage(.linearGradient("to bottom", Color("#111111"), Color("#000000")))
-							.color(Color("#444444"))
+							.backgroundImage(.linearGradient(.toBottom, Color(raw: "#111111"), Color(raw: "#000000")))
+							.color(Color(raw: "#444444"))
 					}
 			case .display:
 				// The blue-green glowing display of the VCR, like a vacuum fluorescent display.
@@ -682,13 +834,13 @@ struct GeoCitiesVCR: ScriptedElement {
 					.frame(minWidth: .rootEm(13), minHeight: .rootEm(2.75))
 					.flex(1)
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
-					.background(Color("#071410"))
-					.border(Color("#444448"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#071410"))
+					.border(Color(raw: "#444448"), width: .pixels(2), style: .inset)
 					.cornerRadius(.rootEm(0.25))
 					.fontFamily(GeoCitiesPage.courier)
 					.fontWeight(.bold)
-					.color(Color("#5ff5d2"))
-					.textShadow(Shadow(y: 0, blur: .pixels(4), color: Color("#2fe0b0")))
+					.color(Color(raw: "#5ff5d2"))
+					.textShadow(Shadow(y: .zero, blur: .pixels(4), color: Color(raw: "#2fe0b0")))
 			case .displayMode:
 				Style()
 					.frame(minWidth: .rootEm(2.5))
@@ -700,7 +852,7 @@ struct GeoCitiesVCR: ScriptedElement {
 			case .displayDigits:
 				Style()
 					.when(States.blink) {
-						$0.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
+						$0.animation(GeoCitiesPage.Animations.blink, .steps(1, duration: .seconds(1)).repeatForever(autoreverses: false))
 					}
 			case .displayInfo:
 				Style()
@@ -710,12 +862,12 @@ struct GeoCitiesVCR: ScriptedElement {
 			case .recordLamp:
 				Style()
 					.textStyle(.caption, weight: .heavy)
-					.color(Color("#3a1010"))
-					.textShadow(Shadow(y: 0, color: .transparent))
+					.color(Color(raw: "#3a1010"))
+					.textShadow(Shadow(y: .zero, color: .transparent))
 					.when(States.on) {
 						$0
-							.color(Color("#ff3b3b"))
-							.textShadow(Shadow(y: 0, blur: .pixels(5), color: Color("#ff0000")))
+							.color(Color(raw: "#ff3b3b"))
+							.textShadow(Shadow(y: .zero, blur: .pixels(5), color: Color(raw: "#ff0000")))
 					}
 			case .transport:
 				Style()
@@ -726,23 +878,23 @@ struct GeoCitiesVCR: ScriptedElement {
 				Style()
 					.frame(minWidth: .rootEm(2.5), minHeight: .rootEm(2.5))
 					.padding(.horizontal, .rootEm(0.375))
-					.backgroundImage(.linearGradient("to bottom", Color("#f4f4f6"), Color("#c4c4ca")))
-					.border(Color("#7a7a82"), width: .pixels(2), style: .outset)
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#f4f4f6"), Color(raw: "#c4c4ca")))
+					.border(Color(raw: "#7a7a82"), width: .pixels(2), style: .outset)
 					.cornerRadius(.rootEm(0.25))
 					.fontFamily(.system)
 					.textStyle(.body, weight: .bold)
-					.color(Color("#222222"))
+					.color(Color(raw: "#222222"))
 					.handCursor()
 					.active {
-						$0.border(Color("#7a7a82"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#7a7a82"), width: .pixels(2), style: .inset)
 					}
 					.when(States.on) {
 						$0
-							.border(Color("#2bbf8f"), width: .pixels(2), style: .inset)
-							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#33ffaa")))
+							.border(Color(raw: "#2bbf8f"), width: .pixels(2), style: .inset)
+							.shadow(BoxShadow(y: .zero, blur: .pixels(6), color: Color(raw: "#33ffaa")))
 					}
 			case .recordButton:
-				Style().color(Color("#cc0000"))
+				Style().color(Color(raw: "#cc0000"))
 			case .vcrBottom:
 				Style()
 					.hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(0.5))
@@ -752,7 +904,7 @@ struct GeoCitiesVCR: ScriptedElement {
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#333333"))
+					.color(Color(raw: "#333333"))
 			case .trackingSlider:
 				// Tall enough for a finger on a phone.
 				Style()
@@ -762,23 +914,23 @@ struct GeoCitiesVCR: ScriptedElement {
 				Style()
 					.frame(minHeight: .rootEm(2.25))
 					.padding(.horizontal, .rootEm(0.5))
-					.background(Color("#a8a8b0"))
-					.border(Color("#77777f"), width: .pixels(2), style: .outset)
+					.background(Color(raw: "#a8a8b0"))
+					.border(Color(raw: "#77777f"), width: .pixels(2), style: .outset)
 					.cornerRadius(.rootEm(0.25))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#222222"))
+					.color(Color(raw: "#222222"))
 					.handCursor()
 					.active {
-						$0.border(Color("#77777f"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#77777f"), width: .pixels(2), style: .inset)
 					}
 			case .flap:
 				// The panel under the flap, with the buttons that nobody in the family understands.
 				Style()
 					.vstack(spacing: .rootEm(0.375))
 					.padding(.rootEm(0.5))
-					.background(Color("#8a8a92"))
-					.border(Color("#66666e"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#8a8a92"))
+					.border(Color(raw: "#66666e"), width: .pixels(2), style: .inset)
 					.cornerRadius(.rootEm(0.25))
 			case .flapRow:
 				Style()
@@ -788,8 +940,8 @@ struct GeoCitiesVCR: ScriptedElement {
 				Style()
 					.frame(minWidth: .rootEm(2.75), minHeight: .rootEm(2.5))
 					.padding(.horizontal, .rootEm(0.375))
-					.background(Color("#2a2a2e"))
-					.border(Color("#111111"), width: .pixels(2))
+					.background(Color(raw: "#2a2a2e"))
+					.border(Color(raw: "#111111"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.375))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
@@ -802,7 +954,7 @@ struct GeoCitiesVCR: ScriptedElement {
 					}
 					.when(States.on) {
 						$0
-							.background(Color("#2bbf8f"))
+							.background(Color(raw: "#2bbf8f"))
 							.color(.black)
 					}
 			case .digitKey:
@@ -811,32 +963,32 @@ struct GeoCitiesVCR: ScriptedElement {
 					.cornerRadius(.circle)
 			case .vcrBrand:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
 					.letterSpacing(.em(0.12))
 					.textAlign(.center)
-					.color(Color("#55555c"))
+					.color(Color(raw: "#55555c"))
 			case .rescue:
 				// A note from Pappa about the rescue, on a brown piece of paper, like the tape.
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.5))
 					.frame(maxWidth: .rootEm(24))
 					.padding(.rootEm(0.75))
-					.background(Color("#fff3d6"))
-					.border(Color("#8a5a2a"), width: .pixels(3), style: .dashed)
+					.background(Color(raw: "#fff3d6"))
+					.border(Color(raw: "#8a5a2a"), width: .pixels(3), style: .dashed)
 					.color(.black)
 			case .rescueCanvas:
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto, maxWidth: .rootEm(18))
 					.aspectRatio(240.0 / 150.0)
-					.background(Color("#d8c8a8"))
-					.border(Color("#8a5a2a"), width: .pixels(2))
+					.background(Color(raw: "#d8c8a8"))
+					.border(Color(raw: "#8a5a2a"), width: .pixels(2))
 					.touchAction(.none)
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#cc6600"), width: .pixels(2), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#cc6600"), width: .pixels(2), offset: .pixels(2))
 					}
 			case .shelf:
 				// The shelf under the VCR, of wood, with the tapes standing on it.
@@ -845,14 +997,21 @@ struct GeoCitiesVCR: ScriptedElement {
 					.flexWrap()
 					.frame(width: .rootEm(32), maxWidth: .percent(100))
 					.padding(top: .rootEm(0.5), horizontal: .rootEm(0.5), bottom: .rootEm(0.75))
-					.backgroundImage(.linearGradient("to bottom", Color("#00000000"), Color("#00000000"), Color("#8b5a2b")))
-					.border(.bottom, Color("#5a3a1a"), width: .rootEm(0.5))
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#00000000"),
+							Color(raw: "#00000000"),
+							Color(raw: "#8b5a2b")
+						)
+					)
+					.border(.bottom, Color(raw: "#5a3a1a"), width: .rootEm(0.5))
 					// On a phone, the tapes stand in two rows, so the shelf is a cabinet of wood behind both rows, and the top row does not float in the air.
 					.below(.smallTablet) {
 						$0
-							.backgroundImage(.linearGradient("to bottom", Color("#6b4423"), Color("#8b5a2b")))
-							.border(Color("#5a3a1a"), width: .rootEm(0.375))
-							.border(.bottom, Color("#5a3a1a"), width: .rootEm(0.5))
+							.backgroundImage(.linearGradient(.toBottom, Color(raw: "#6b4423"), Color(raw: "#8b5a2b")))
+							.border(Color(raw: "#5a3a1a"), width: .rootEm(0.375))
+							.border(.bottom, Color(raw: "#5a3a1a"), width: .rootEm(0.5))
 					}
 			case .tape:
 				// A black VHS cassette with a paper label, which the visitor drags to the slot.
@@ -861,37 +1020,44 @@ struct GeoCitiesVCR: ScriptedElement {
 					.vstack(alignment: .center, spacing: .rootEm(0.125))
 					.frame(width: .rootEm(7), minHeight: .rootEm(4.5))
 					.padding(.rootEm(0.25))
-					.background(Color("#161618"))
-					.border(Color("#000000"), width: .pixels(2))
+					.background(Color(raw: "#161618"))
+					.border(Color(raw: "#000000"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.25))
-					.shadow(Shadow(x: .pixels(2), y: .pixels(3), color: Color("#00000066")))
+					.shadow(BoxShadow(x: .pixels(2), y: .pixels(3), color: Color(raw: "#00000066")))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.color(.black)
 					.touchAction(.none)
 					.textSelection(.disabled)
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(2), offset: .pixels(2))
 					}
 					.when(States.dragging) {
 						$0
-							.offset(x: GeoCitiesVCR.dragX.value(default: 0), y: GeoCitiesVCR.dragY.value(default: 0))
+							.offset(x: GeoCitiesVCR.dragX.value(default: .zero), y: GeoCitiesVCR.dragY.value(default: .zero))
 							.zIndex(2)
-							.shadow(Shadow(x: .pixels(6), y: .pixels(10), blur: .pixels(6), color: Color("#00000080")))
+							.shadow(
+								BoxShadow(
+									x: .pixels(6),
+									y: .pixels(10),
+									blur: .pixels(6),
+									color: Color(raw: "#00000080")
+								)
+							)
 					}
 					.when(States.inserted) {
 						$0
 							.opacity(0.25)
-							.border(Color("#000000"), width: .pixels(2), style: .dashed)
+							.border(Color(raw: "#000000"), width: .pixels(2), style: .dashed)
 					}
 			case .rentalTape:
 				Style()
-					.background(Color("#20304a"))
+					.background(Color(raw: "#20304a"))
 			case .tapeLabel:
 				Style()
 					.frame(width: .percent(100))
 					.padding(.horizontal, .rootEm(0.125))
-					.background(Color("#fdfbf0"))
+					.background(Color(raw: "#fdfbf0"))
 					.textStyle(.caption, weight: .bold)
 					.lineHeight(1.15)
 					.rotationEffect(.degrees(-1.5))
@@ -899,7 +1065,7 @@ struct GeoCitiesVCR: ScriptedElement {
 				Style()
 					.frame(width: .percent(100))
 					.padding(.horizontal, .rootEm(0.125))
-					.background(Color("#ffe14a"))
+					.background(Color(raw: "#ffe14a"))
 					.fontFamily(.system)
 					.font(.extraSmall)
 					.lineHeight(1.1)
@@ -907,7 +1073,7 @@ struct GeoCitiesVCR: ScriptedElement {
 				Style()
 					.fontFamily(.system)
 					.textStyle(.caption)
-					.color(Color("#77777f"))
+					.color(Color(raw: "#77777f"))
 			case .status:
 				Style()
 					.toyStatus(lines: 3)
@@ -918,17 +1084,22 @@ struct GeoCitiesVCR: ScriptedElement {
 				Style()
 					.frame(width: .rootEm(32), maxWidth: .percent(100))
 					.padding(.rootEm(0.75))
-					.background(Color("#efece2"))
-					.border(Color("#b8b4a8"), width: .pixels(1))
-					.shadow(Shadow(x: .pixels(3), y: .pixels(4), color: Color("#00000040")))
+					.background(Color(raw: "#efece2"))
+					.border(Color(raw: "#b8b4a8"), width: .pixels(1))
+					.shadow(BoxShadow(x: .pixels(3), y: .pixels(4), color: Color(raw: "#00000040")))
 					.rotationEffect(.degrees(-0.6))
 					.fontFamily(GeoCitiesPage.times)
-					.color(Color("#1a1a1a"))
+					.color(Color(raw: "#1a1a1a"))
 			case .paperTitle:
 				Style()
-					.margin(top: 0, bottom: .rootEm(0.5))
+					.margin(top: .zero, bottom: .rootEm(0.5))
 					.padding(.bottom, .rootEm(0.25))
-					.border(.bottom, Color("#1a1a1a"), width: .pixels(3), style: .double)
+					.border(
+						.bottom,
+						Color(raw: "#1a1a1a"),
+						width: .pixels(3),
+						style: .double
+					)
 					.font(.large, weight: .heavy)
 					.textAlign(.center)
 			case .paperColumns:
@@ -939,30 +1110,30 @@ struct GeoCitiesVCR: ScriptedElement {
 				Style().vstack(spacing: .rootEm(0.25))
 			case .paperChannel:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(.horizontal, .rootEm(0.375))
-					.background(Color("#1a1a1a"))
+					.background(Color(raw: "#1a1a1a"))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
-					.color(Color("#efece2"))
+					.color(Color(raw: "#efece2"))
 			case .program:
 				// A program, which Pappa circles with a red pen.
 				Style()
 					.display(.block)
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.375))
-					.border(Color("#00000000"), width: .pixels(2))
+					.border(Color(raw: "#00000000"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.75))
 					.inheritsFont()
 					.textStyle(.caption)
 					.textAlign(.leading)
-					.color(Color("#1a1a1a"))
+					.color(Color(raw: "#1a1a1a"))
 					.handCursor()
 					.hover {
-						$0.background(Color("#e2ddcc"))
+						$0.background(Color(raw: "#e2ddcc"))
 					}
 					.when(States.circled) {
 						$0
-							.border(Color("#d01010"), width: .pixels(2))
+							.border(Color(raw: "#d01010"), width: .pixels(2))
 							.rotationEffect(.degrees(-1))
 					}
 			case .programTitle:
@@ -972,7 +1143,7 @@ struct GeoCitiesVCR: ScriptedElement {
 					.display(.block)
 					.fontFamily(GeoCitiesPage.courier)
 					.font(.extraSmall, weight: .bold)
-					.color(Color("#555555"))
+					.color(Color(raw: "#555555"))
 			}
 		}
 	}

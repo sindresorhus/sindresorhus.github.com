@@ -8,14 +8,14 @@ A link. A link that opens in a new tab gets `rel="noopener noreferrer"`, so the 
 Link("crash report", destination: .crashReportQuestion, opensInNewTab: true)
 ```
 
-Without a destination, a script sets it, like in a template.
+A destination is required. A template whose destination a script fills uses a plain anchor instead.
 */
 struct Link<Content: HTML>: HTML {
-	let destination: LinkDestination?
+	let destination: LinkDestination
 	let opensInNewTab: Bool
 	let content: Content
 
-	init(destination: LinkDestination?, opensInNewTab: Bool = false, @ContentBuilder content: () -> Content) {
+	init(destination: LinkDestination, opensInNewTab: Bool = false, @ContentBuilder content: () -> Content) {
 		self.destination = destination
 		self.opensInNewTab = opensInNewTab
 		self.content = content()
@@ -29,13 +29,20 @@ struct Link<Content: HTML>: HTML {
 				VisuallyHidden(" (opens in a new tab)")
 			}
 		}
-		.attributes(.href(destination?.description ?? ""), when: destination != nil)
+		.attributes(.href(destination))
 		.attributes(.target(.blank), .rel("noopener noreferrer"), when: opensInNewTab)
 	}
 }
 
 extension Link where Content == HTMLText {
-	init(_ title: String, destination: LinkDestination?, opensInNewTab: Bool = false) {
+	/**
+	Creates the link from its paired title and destination.
+	*/
+	init(_ link: LabeledLink, opensInNewTab: Bool = false) {
+		self.init(link.title, destination: link.destination, opensInNewTab: opensInNewTab)
+	}
+
+	init(_ title: String, destination: LinkDestination, opensInNewTab: Bool = false) {
 		self.init(destination: destination, opensInNewTab: opensInNewTab) {
 			HTMLText(title)
 		}

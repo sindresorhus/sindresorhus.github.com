@@ -27,7 +27,7 @@ extension KeyframeSet {
 	The animation name, like `spinner-spin`.
 	*/
 	public var name: String {
-		"\(generatedComponentName(of: Self.self, suffix: "Animations"))-\(String(describing: self).kebabCased)"
+		generatedComponentName(of: Self.self, suffix: "Animations", member: String(describing: self))
 	}
 
 	static var nodes: [StyleNode] {
@@ -38,8 +38,7 @@ extension KeyframeSet {
 	The keyframes and the registered properties they animate, built from the same frames.
 	*/
 	var nodes: [StyleNode] {
-		let frames = keyframes
-		return [StyleNode(kind: .keyframes(name: name, frames: frames.map(\.node)))] + frames.flatMap(\.definitions)
+		Keyframes(name, keyframes).nodes
 	}
 }
 
@@ -51,7 +50,8 @@ public struct Keyframe: Sendable {
 	let definitions: [StyleNode]
 
 	private init(selector: String, style: Style) {
-		self.node = .block(selector, declarations: style.declarations, children: style.children)
+		precondition(style.children.isEmpty, "A keyframe only accepts declarations, not nested selectors or conditions.")
+		self.node = .block(.selector("\(raw: selector)"), declarations: style.declarations, children: [])
 		self.definitions = style.definitions
 	}
 
@@ -67,6 +67,7 @@ public struct Keyframe: Sendable {
 	The styles at a percentage of the animation, like `at(50, …)` for the middle.
 	*/
 	public static func at(_ percentage: Double, _ style: Style) -> Self {
-		Self(selector: CSSValue.percent(percentage).description, style: style)
+		precondition(percentage.isFinite && (0...100).contains(percentage), "A keyframe offset must be finite and between 0 and 100 percent.")
+		return Self(selector: CSSValue.percent(percentage).description, style: style)
 	}
 }

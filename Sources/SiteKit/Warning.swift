@@ -8,27 +8,49 @@ It is printed after where it is, like `content/apps/dato/index.md:12: Unknown wo
 */
 public struct Warning: Hashable, Sendable, CustomStringConvertible {
 	/**
-	Where the problem is, like `content/apps/dato/index.md:12`, `content/apps/dato/icon.png`, or a page path. `nil` when it is not in a file or page, like a failed request.
+	What kind of problem it is, like a vague link text, so `website check` can count the warnings of each kind. The code that finds a kind of problem declares it as a static member, like ``failedRequest``, and the warnings use the member, so the kinds are not misspelled.
 	*/
-	public let location: String?
+	public struct Kind: Hashable, Sendable, CustomStringConvertible {
+		/**
+		What the problem is, in the singular, like “Vague link text”, for the summary of `website check`.
+		*/
+		public let description: String
+
+		public init(_ description: String) {
+			self.description = description
+		}
+	}
+
+	public let kind: Kind
+
+	/**
+	`nil` when it is not in a file or page, like a failed request.
+	*/
+	public let location: SourceLocation?
 
 	public let message: String
 
-	public init(location: String? = nil, message: String) {
+	public init(_ kind: Kind, at location: SourceLocation? = nil, _ message: String) {
+		self.kind = kind
 		self.location = location
 		self.message = message
-	}
-
-	/**
-	A warning about a file, or a line of it, with the path like in content errors (``Foundation/URL/location(ofLine:)``).
-	*/
-	public init(file: URL, line: Int? = nil, message: String) {
-		self.init(location: file.location(ofLine: line), message: message)
 	}
 
 	public var description: String {
 		location.map { "\($0): \(message)" } ?? message
 	}
+}
+
+extension Warning.Kind {
+	/**
+	A request for extra data that failed, so the pages leave the data out.
+	*/
+	public static let failedRequest = Self("Failed request")
+
+	/**
+	A cached response that was used because its request failed, so the data may be old.
+	*/
+	public static let staleResponse = Self("Cached response of a failed request")
 }
 
 /**
@@ -62,8 +84,42 @@ public final class WarningCollector: Sendable {
 		do {
 			return try await request()
 		} catch {
-			add(Warning(message: "\(message): \(error)"))
+			add(Warning(.failedRequest, "\(message): \(error)"))
 			return nil
+		}
+	}
+
+	/**
+	The values of the keys, like the ratings of apps by their IDs, each from one request, and the requests run at the same time. A request that fails is a warning, like in ``value(warning:_:)``, and its key is left out, so the others still have their values.
+
+	```swift
+	let ratings = await warnings.values(of: ids) { id in
+		"Could not get the rating of \(id), so its page leaves it out"
+	} request: { id in
+		try await cache.decoded(Rating.self, from: URLRequest(url: url(of: id)))
+	}
+	```
+	*/
+	public func values<Key: Hashable & Sendable, Value: Sendable>(
+		of keys: some Sequence<Key>,
+		warning message: @escaping @Sendable (Key) -> String,
+		request: @escaping @Sendable (Key) async throws -> Value
+	) async -> [Key: Value] {
+		await withTaskGroup(of: (Key, Value?).self) { group in
+			for key in Set(keys) {
+				group.addTask {
+					await (key, self.value(warning: message(key)) { try await request(key) })
+				}
+			}
+
+			// The keys whose request failed are left out.
+			var values = [Key: Value]()
+
+			for await case (let key, let value?) in group {
+				values[key] = value
+			}
+
+			return values
 		}
 	}
 }

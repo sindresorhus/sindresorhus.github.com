@@ -1,12 +1,11 @@
 ---
 title: 'Mailway'
 subtitle: 'Route mailto links to any email app or webmail'
-publicationDate: '2026-06-12'
+publicationDate: 2026-06-12
 platforms: [
 	'macOS'
 ]
 isPaid: true
-isMenuBarApp: true
 appStoreID: 6766044904
 # olderVersions: [
 # 	{
@@ -15,6 +14,15 @@ appStoreID: 6766044904
 # 		url: '',
 # 	},
 # ]
+pressQuotes: [
+	{
+		quote: 'Mailway is a small Mac utility from developer Sindre Sorhus that forwards mailto links to webmail services like Gmail, Outlook 365, and others. Rules for individual apps and domains, plus optional default clients, let you adapt the behavior flexibly.'
+		source: 'Techgedöns'
+		translatedFrom: 'German'
+		url: 'https://tchgdns.de/macos-mailway-mailto-links-email-apps-webmail/'
+		year: 2026
+	}
+]
 ---
 
 Click an email address on a website or in an app, and it opens in the email app or webmail you use, like Gmail, instead of Apple Mail.
@@ -66,7 +74,7 @@ Don’t want to open anything? Set the target to “Copy to Clipboard” and cli
 
 ### Alternative email app
 
-Hold a ++Fn++ key when clicking a `mailto:` link to use an alternative email app, bypassing all rules.
+Hold the ++Fn++ key when clicking a `mailto:` link to use your alternative email app, bypassing all rules. You can change the modifier to Command, Option, or Shift in the settings, which is useful if your keyboard has no Fn key.
 
 ### Shortcuts
 
@@ -74,51 +82,51 @@ The app provides Shortcuts actions for composing emails, getting and setting the
 
 ## Frequently Asked Questions {#faq}
 
-### Why do I need to set the app as the default email app?
+### Why do I need to set the app as the default email app? {#why-do-i-need-to-set-the-app-as-the-default-email-app}
 
 The app works by being the system default email app. This is the only way macOS allows an app to intercept and route mailto links.
 
-### Do I need to create rules?
+### Do I need to create rules? {#do-i-need-to-create-rules}
 
 No. If you just want all mailto links to open in a single email app or webmail service, set it as your primary target and you’re done. Rules are optional.
 
-### Can I set different email apps for work and personal use?
+### Can I set different email apps for work and personal use? {#can-i-set-different-email-apps-for-work-and-personal-use}
 
 Yes. Create a rule that matches your work domain (e.g., `company.com`) and set it to open in your work email app. Everything else goes to your primary email app.
 
-### Does it work with third-party email apps like Spark or Airmail?
+### Does it work with third-party email apps like Spark or Airmail? {#does-it-work-with-third-party-email-apps-like-spark-or-airmail}
 
 Yes. The app works with any email app installed on your Mac that handles mailto links.
 
-### Can you provide an interactive picker to choose the email app each time?
+### Can you provide an interactive picker to choose the email app each time? {#can-you-provide-an-interactive-picker-to-choose-the-email-app-each-time}
 
 No. The app is designed to be set-and-forget. You configure your primary email app and rules once, and it routes mailto links automatically. There are no plans for an interactive prompt.
 
-### How can I open a mailto link in a specific browser or browser profile?
+### How can I open a mailto link in a specific browser or browser profile? {#how-can-i-open-a-mailto-link-in-a-specific-browser-or-browser-profile}
 
 Use [Velja](/velja) and create a rule with Mailway as the source app to open webmail links in a specific browser or browser profile.
 
-### Can I use different email apps for different recipients?
+### Can I use different email apps for different recipients? {#can-i-use-different-email-apps-for-different-recipients}
 
 Yes. Create rules in the Rules tab to route emails by recipient address, domain, or subdomain.
 
-### Can I route based on which app the link was clicked in?
+### Can I route based on which app the link was clicked in? {#can-i-route-based-on-which-app-the-link-was-clicked-in}
 
 Yes. When creating a rule, you can add source apps as a condition. For example, route all mailto links clicked in Slack to Gmail. A rule doesn’t need recipient matchers, so you can match by source app alone.
 
-### Does it handle mailto links with multiple recipients?
+### Does it handle mailto links with multiple recipients? {#does-it-handle-mailto-links-with-multiple-recipients}
 
 Yes. All recipients, including CC and BCC, are passed through to the email app or webmail service.
 
-### Does it work with “Contact us” buttons on websites?
+### Does it work with “Contact us” buttons on websites? {#does-it-work-with-contact-us-buttons-on-websites}
 
 Only if the button uses a `mailto:` link. Some websites use web forms instead, which the app cannot intercept.
 
 ### I clicked an email address but nothing happened {#troubleshooting}
 
-Make sure the app is set as the default email app in the settings. Also verify the link is an actual `mailto:` link and not a web form or a plain text email address.
+Make sure Mailway is set as the default email app. Open Mail and go to “Mail › Settings › General”, then select Mailway in the “Default email reader” menu. Also verify the link is an actual `mailto:` link and not a web form or a plain text email address.
 
-### My webmail opens with an empty compose window
+### My webmail opens with an empty compose window {#my-webmail-opens-with-an-empty-compose-window}
 
 The webmail service may not support all URL parameters. Try a different webmail option or use the “Custom URL” option to adjust the compose URL for your service.
 
@@ -128,31 +136,31 @@ The app already supports any webmail service through the “Custom URL” option
 
 If your service doesn’t have a public compose URL, there’s unfortunately nothing the app can do. Contact them and ask for one.
 
-### Does it work with Proton Mail?
+### Does it work with Proton Mail? {#does-it-work-with-proton-mail}
 
 If you have the [Proton Mail desktop app](https://proton.me/mail/download) installed, you can select it as your email app in the settings. Proton Mail does not provide a public web compose URL, so the webmail option is not available. [Vote for it here.](https://protonmail.uservoice.com/forums/284483-proton-mail-calendar/suggestions/7158477-mailto-links-direct-to-protonmail)
 
-### Can I match rules by the email subject or body?
+### Can I match rules by the email subject or body? {#can-i-match-rules-by-the-email-subject-or-body}
 
 No. Rules can only match by recipient (email address, domain, or subdomain) and source app.
 
-### Can I use regex in rules?
+### Can I use regex in rules? {#can-i-use-regex-in-rules}
 
 No. Rules use exact email matching, domain matching, or domain suffix matching. For most use-cases, domain matching is sufficient.
 
-### Does the app collect any data?
+### Does the app collect any data? {#does-the-app-collect-any-data}
 
 No. The app is sandboxed and does not collect, store, or transmit any data.
 
-### How do I go back to Apple Mail?
+### How do I go back to Apple Mail? {#how-do-i-go-back-to-apple-mail}
 
-Change the default email app back to Apple Mail in “System Settings › Default Apps”.
+Open Mail and go to “Mail › Settings › General”, then select Mail in the “Default email reader” menu.
 
 ### Can you support iOS? {#ios}
 
 No. iOS does not allow apps to intercept `mailto:` links the way macOS does.
 
-### Can you add a “Launch at login” setting?
+### Can you add a “Launch at login” setting? {#can-you-add-a-launch-at-login-setting}
 
 It’s not needed. Unlike [Velja](/velja), Mailway does not run in the background. It launches only when you click a `mailto:` link, routes it, and quits right away. There’s nothing to keep running, so there’s no “Launch at login” setting.
 
@@ -172,4 +180,6 @@ Mailway benefits:
 
 [Open In Webmail](https://apps.apple.com/app/id1451552749) benefits:
 
-- Built-in support for choosing browser. Mailways defers to [Velja](/velja) for that.
+- Built-in support for choosing browser. Mailway defers to [Velja](/velja) for that.
+
+Open In Webmail costs $1.99, and its last update was in January 2021.

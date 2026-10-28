@@ -20,7 +20,13 @@ struct GeoCitiesWindowsPinball: ScriptedElement {
 	var content: some HTML {
 		div {
 			div {
-				canvas(.part(Parts.table), .width(400), .height(640), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.table),
+					.width(400),
+					.height(640),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("The pinball table. Z or the left arrow flips the left flipper, slash or the right arrow flips the right one. Hold Space or the down arrow to pull the plunger, and let go to launch. X, period, or the up arrow nudges the table. F2 starts a new game, and P pauses.")
 					.style(Styles.table)
 
@@ -134,11 +140,11 @@ struct GeoCitiesWindowsPinball: ScriptedElement {
 		case down
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A button under the table for a finger, with its ID: `left`, `launch`, or `right`.
 		*/
-		case control = "data-pinball-control"
+		case control = "pinball-control"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -161,7 +167,7 @@ struct GeoCitiesWindowsPinball: ScriptedElement {
 		/**
 		The dark blue of the panel of Space Cadet.
 		*/
-		private static let panelBlue = Color("#0a0a3a")
+		private static let panelBlue = Color(raw: "#0a0a3a")
 
 		var style: Style {
 			switch self {
@@ -190,8 +196,8 @@ struct GeoCitiesWindowsPinball: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(400.0 / 640.0)
-					.background(Color("#05051a"))
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
+					.background(Color(raw: "#05051a"))
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
 					.touchAction(.none)
 					.textSelection(.disabled)
 			case .controls:
@@ -208,44 +214,44 @@ struct GeoCitiesWindowsPinball: ScriptedElement {
 					.textSelection(.disabled)
 					.when(States.down) {
 						$0
-							.background(Color("#a0a0a0"))
-							.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
+							.background(Color(raw: "#a0a0a0"))
+							.border(Color(raw: "#dfdfdf"), width: .pixels(3), style: .inset)
 					}
 			case .panel:
 				// The panel of Space Cadet: dark blue, with yellow and green letters.
 				Style()
 					.vstack(spacing: .rootEm(0.375))
 					.flex(1)
-					.frame(width: .percent(100), minWidth: 0)
+					.frame(width: .percent(100), minWidth: .zero)
 					.padding(.rootEm(0.5))
 					.background(Self.panelBlue)
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#ffd23f"))
+					.color(Color(raw: "#ffd23f"))
 			case .logo:
 				Style()
 					.fontFamily(GeoCitiesPage.impact)
 					.font(.large)
 					.textAlign(.center)
 					.lineHeight(1.1)
-					.color(Color("#ff5a3c"))
-					.textShadow(Shadow(x: .pixels(1), y: .pixels(1), color: Color("#ffd23f")))
+					.color(Color(raw: "#ff5a3c"))
+					.textShadow(Shadow(x: .pixels(1), y: .pixels(1), color: Color(raw: "#ffd23f")))
 			case .logoSubtitle:
 				Style()
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#7fd8ff"))
-					.textShadow(Shadow(x: 0, y: 0, color: .transparent))
+					.color(Color(raw: "#7fd8ff"))
+					.textShadow(Shadow(x: .zero, y: .zero, color: .transparent))
 			case .score:
 				// Big digits on a black screen.
 				Style()
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 					.background(.black)
-					.border(Color("#3a3a8a"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#3a3a8a"), width: .pixels(2), style: .inset)
 					.font(.large, weight: .heavy)
 					.textAlign(.trailing)
-					.color(Color("#33ff66"))
+					.color(Color(raw: "#33ff66"))
 			case .infoRow:
 				Style().hstack(justification: .spaceBetween, spacing: .rootEm(0.5))
 			case .info:
@@ -256,8 +262,8 @@ struct GeoCitiesWindowsPinball: ScriptedElement {
 					.frame(minHeight: .lineHeight(4))
 					.padding(.rootEm(0.25))
 					.background(.black)
-					.border(Color("#3a3a8a"), width: .pixels(2), style: .inset)
-					.color(Color("#7fd8ff"))
+					.border(Color(raw: "#3a3a8a"), width: .pixels(2), style: .inset)
+					.color(Color(raw: "#7fd8ff"))
 					.overflowWrap(.anywhere)
 			case .buttons:
 				Style()
@@ -267,7 +273,7 @@ struct GeoCitiesWindowsPinball: ScriptedElement {
 				Style()
 					.fontFamily(.system)
 					.textStyle(.caption)
-					.color(Color("#c0c0ff"))
+					.color(Color(raw: "#c0c0ff"))
 			}
 		}
 	}

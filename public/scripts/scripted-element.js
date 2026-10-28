@@ -3,15 +3,15 @@
 // An element overrides the methods it needs: `connected()` and `disconnected()`, `visibilityChanged(isVisible)`, `reducedMotionChanged(isReduced)`, and `focusReplacement(control)`, and the getters `visibilityTarget` and `focusFallback`. The rest are helpers, so elements do not copy them: `parts` and `clone()`, `config`, `on()` and `signal`, `timeout()`, `interval()`, and `wait()`, `observe()`, `isVisible` and `watchVisibility()`, `loop()`, `reducedMotion`, `stored()` and `store()`, `say()`, and `sound()`. The module also exports `cloneTemplate()` and `prerendered`, like `import ScriptedElement, {cloneTemplate} from '/scripts/scripted-element.js';`.
 //
 // An element shows a state to its styles with `data-state` on itself or a part, like `button.dataset.state = 'copied'`, where the state is a case of the `States` of the Swift component, which styles it with `.when(States.copied)`. A toggle button sets `aria-pressed` instead, which the styles read with `.pressed` (or `.descendantPressed` for the element around it), and a radio button needs no script, as the styles read `:checked` with `.descendantChecked`.
+import {cloneTemplate, prerendered} from '/scripts/dom.js';
+
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
-// A copy of the element of a template, like a row for a list. The template has one element, which is the whole copy. It is not a method, so the page scripts of the 1999 page can use it too.
-export const cloneTemplate = template => template.content.firstElementChild.cloneNode(true);
+// A copy of the element of a template, like a row for a list (`dom.js`). It is not a method, so the page scripts of the 1999 page can use it too.
+export {cloneTemplate};
 
-// The speculation rules of the site can prerender the page. The elements start when the visitor opens it, and so do the page scripts of the 1999 page, with `await prerendered;`. It is `undefined` when the page was not prerendered, so nothing waits.
-export const prerendered = document.prerendering ? new Promise(resolve => {
-	document.addEventListener('prerenderingchange', resolve, {once: true});
-}) : undefined;
+// The speculation rules of the site can prerender the page (`dom.js`). The elements start when the visitor opens it, and so do the page scripts of the 1999 page, with `await prerendered;`.
+export {prerendered};
 
 export default class ScriptedElement extends HTMLElement {
 	#controller;

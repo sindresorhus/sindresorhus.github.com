@@ -11,7 +11,12 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 
 	var content: some HTML {
 		h2 {
-			GeoCitiesPage.GIFImage(gif: .bookCandle, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .bookCandle,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 			" My Linking Book "
 		}
 		.style(GeoCitiesPage.Styles.heading, GeoCitiesPage.Styles.centeredText)
@@ -50,7 +55,13 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 			.style(Styles.openBook)
 
 			div(.part(Parts.view), .hidden) {
-				canvas(.part(Parts.canvas), .width(480), .height(300), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.canvas),
+					.width(480),
+					.height(300),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("The view in the Brunost Age. Use the buttons below to look around.")
 					.style(Styles.ageCanvas)
 
@@ -111,11 +122,11 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 		case on
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A direction to go in the Brunost Age, like `forward`.
 		*/
-		case move = "data-age-move"
+		case move = "age-move"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -150,25 +161,25 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 					}
 					.gap(.rootEm(0.5))
 					.padding(.rootEm(0.75))
-					.background(Color("#5a2a14"))
-					.border(Color("#3a1a0a"), width: .pixels(4), style: .ridge)
+					.background(Color(raw: "#5a2a14"))
+					.border(Color(raw: "#3a1a0a"), width: .pixels(4), style: .ridge)
 					.cornerRadius(.rootEm(0.375))
-					.shadow(Shadow(x: .pixels(4), y: .pixels(6), color: Color("#00000077")))
+					.shadow(BoxShadow(x: .pixels(4), y: .pixels(6), color: Color(raw: "#00000077")))
 			case .journalPage:
 				Style()
 					.vstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
 					.padding(.rootEm(0.75))
-					.background(Color("#efe2c0"))
+					.background(Color(raw: "#efe2c0"))
 					.fontFamily(GeoCitiesPage.times)
-					.color(Color("#3a2a1a"))
+					.color(Color(raw: "#3a2a1a"))
 			case .journalTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.font(.large, weight: .bold)
 					.italic()
 			case .journalText:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption)
 					.italic()
 			case .linkPanel:
@@ -176,12 +187,12 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 				Style()
 					.display(.block)
 					.frame(width: .percent(100))
-					.padding(0)
-					.border(Color("#2a1a0a"), width: .pixels(3), style: .solid)
+					.padding(.zero)
+					.border(Color(raw: "#2a1a0a"), width: .pixels(3), style: .solid)
 					.background(.black)
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(3), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(3), offset: .pixels(2))
 					}
 			case .panelCanvas:
 				Style()
@@ -196,30 +207,30 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(480.0 / 300.0)
 					.background(.black)
-					.border(Color("#2a1a0a"), width: .pixels(4), style: .ridge)
+					.border(Color(raw: "#2a1a0a"), width: .pixels(4), style: .ridge)
 					.touchAction(.manipulation)
 					.handCursor()
 					.canvasFocusRing()
 			case .ageStatus:
 				Style()
 					.frame(minHeight: .lineHeight(3))
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.5))
-					.background(Color("#1a1410"))
+					.background(Color(raw: "#1a1410"))
 					.fontFamily(GeoCitiesPage.times)
 					.textStyle(.body)
 					.italic()
-					.color(Color("#efe2c0"))
+					.color(Color(raw: "#efe2c0"))
 			case .flash:
 				// The white light of a link, which fades in and out over the book.
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.background(.white)
 					.opacity(0)
 					.allowsHitTesting(false)
 					.media(.allowsMotion) {
-						$0.transition(.opacity, animation: .easeInOut(duration: .milliseconds(600)))
+						$0.transition(.opacity, timing: .easeInOut(duration: .milliseconds(600)))
 					}
 					.when(States.on) {
 						$0.opacity(1)

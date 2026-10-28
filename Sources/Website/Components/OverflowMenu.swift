@@ -3,7 +3,7 @@ import Elementary
 import SiteKit
 
 /**
-A menu of links behind a “…” button. It is a native `<select>`, so it works with the keyboard and on touch devices, and looks native. Its script opens the chosen link, or shows the popover that a `#id` option points to, like the QR code of an app.
+A menu of links behind a “…” button. It is a native `<select>`, so it works with the keyboard and on touch devices, and looks native. Its script opens the chosen link, or shows an explicitly marked popover option, like the QR code of an app.
 
 Search engines do not follow the options, so a page also links the pages somewhere else, like ``AppFooterLinks``.
 
@@ -37,8 +37,33 @@ struct OverflowMenu: ScriptedElement {
 	The links of a menu: sections separated by a rule, or titled groups.
 	*/
 	private enum Links {
-		case sections([[LabeledLink]])
+		case sections([[Item]])
 		case groups([LinkGroup])
+	}
+
+	/**
+	A menu action distinguishes navigation from opening a named popover.
+	*/
+	enum Item: HTML {
+		case link(LabeledLink)
+		case popover(title: String, id: ElementID)
+
+		/**
+		Serializes explicit popover intent while leaving navigation destinations unchanged.
+		*/
+		var body: some HTML<HTMLTag.option> {
+			let (title, destination, isPopover) = switch self {
+			case .link(let link):
+				(link.title, link.destination.description, false)
+			case .popover(let title, let id):
+				(title, "#\(id)", true)
+			}
+
+			return Elementary.option(.value(destination)) {
+				title
+			}
+			.attributes(.hook(Hooks.popover), when: isPopover)
+		}
 	}
 
 	let label: String
@@ -48,12 +73,20 @@ struct OverflowMenu: ScriptedElement {
 	/**
 	The page that the “Share…” option shares, and the ID of the popover that shows instead when the browser refuses to share from the menu, like Safari on the Mac.
 	*/
-	private var sharedPage: (title: String, url: URL, popoverID: String)?
+	private var sharing: (page: SharedPage, popoverID: ElementID)?
 
 	init(label: String, links: [LabeledLink]...) {
 		self.label = label
 		// An empty section would add a separator without links.
-		self.links = .sections(links.filter { !$0.isEmpty })
+		self.links = .sections(links.filter { !$0.isEmpty }.map { $0.map(Item.link) })
+	}
+
+	/**
+	Creates explicit action sections, including non-navigation popovers.
+	*/
+	init(label: String, items: [Item]...) {
+		self.label = label
+		self.links = .sections(items.filter { !$0.isEmpty })
 	}
 
 	init(label: String, groups: [LinkGroup], variant: Variant) {
@@ -66,27 +99,34 @@ struct OverflowMenu: ScriptedElement {
 	The menu of an app page: the pages about the app, a random app, and then the ways to pass the app on, the QR code and sharing. The random app is in its own group, as it is not about this app. An archived app is no longer available, so it is not passed on.
 	*/
 	static func appPage(_ app: App, variant: Variant = .inline) -> Self {
-		let passingOn = app.shareURL == nil ? [] : [LabeledLink("Show QR Code", destination: .fragment(AppHero.qrCodeID))]
+		let passingOn: [Item] = app.sharedPage == nil ? [] : [.popover(title: "Show QR Code", id: AppHero.qrCodeID)]
 
 		// “Share…” comes after the QR code, as the menu adds it at the end.
-		var menu = Self(label: "More about \(app.title)", links: app.pageOverflowLinks, [LabeledLink("Show Random App", path: .randomApp)], passingOn)
+		var menu = Self(
+			label: "More about \(app.title)",
+			items: app.pageOverflowLinks.map(Item.link),
+			[.link(LabeledLink("Show Random App", path: .randomApp))],
+			passingOn
+		)
 		menu.variant = variant
-		menu.sharedPage = app.shareURL.map { (app.title, $0, AppHero.sharePopoverID) }
+		menu.sharing = app.sharedPage.map { ($0, AppHero.sharePopoverID) }
 		return menu
 	}
 
 	var rootAttributes: [HTMLAttribute<ElementTag<Self>>] {
-		guard let sharedPage else {
-			return []
-		}
-
-		return [.custom(name: "share-title", value: sharedPage.title), .custom(name: "share-url", value: sharedPage.url.absoluteString)]
+		sharing?.page.attributes() ?? []
 	}
 
 	var content: some HTML {
 		div {
 			select {
-				option(.value(""), .disabled, .selected) {
+				// Selected, so choosing any link changes the value. An option without text must have a label (HTML spec), and a short one, as screen readers read it after the label of the menu.
+				option(
+					.value(""),
+					.label("More"),
+					.disabled,
+					.selected
+				) {
 					""
 				}
 
@@ -97,27 +137,29 @@ struct OverflowMenu: ScriptedElement {
 							hr()
 						}
 
-						for link in section {
-							option(.value(link.destination.description)) {
-								link.title
-							}
+						for item in section {
+							item
 						}
 					}
 				case .groups(let groups):
 					for group in groups {
 						optgroup(.label(group.title)) {
 							for link in group.links {
-								option(.value(link.destination.description)) {
-									link.title
-								}
+								Item.link(link)
 							}
 						}
 					}
 				}
 
 				// Disabled too, as Safari on iOS shows hidden options. Its value is the popover that shows when the browser refuses to share from the menu. The script reads the shared page from the attributes of the element.
-				if let sharedPage {
-					option(.value("#\(sharedPage.popoverID)"), .hidden, .disabled, .part(Parts.share)) {
+				if let sharing {
+					option(
+						.value("#\(sharing.popoverID)"),
+						.hidden,
+						.disabled,
+						.part(Parts.share),
+						.hook(Hooks.popover)
+					) {
 						"Share…"
 					}
 				}
@@ -140,7 +182,14 @@ struct OverflowMenu: ScriptedElement {
 	/**
 	The color of the “…” icon, which a parent can set, like to match the links next to it.
 	*/
-	static let color = StyleVariable<Color>("--overflow-menu-color")
+	static let color = StyleVariable<Color>("overflow-menu-color")
+
+	/**
+	The explicit non-navigation action that the script opens as a popover.
+	*/
+	enum Hooks: String, ScriptDataAttributeSet {
+		case popover = "menu-popover"
+	}
 
 	enum Parts: String, ElementPartSet {
 		case share
@@ -198,14 +247,14 @@ struct OverflowMenu: ScriptedElement {
 				// The whole chip opens the menu, as the select covers it. The chip is a large enough target for fingers, so it does not get the negative margin of the root, which would make it overlap the chip before it.
 				Style()
 					.chip(hasIcon: true)
-					.margin(0)
+					.margin(.zero)
 					.setting(OverflowMenu.color, to: .currentColor)
 			case .select:
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.frame(size: .percent(100))
-					.padding(0)
+					.padding(.zero)
 					.opacity(0)
 					.cursor(.pointer)
 					.fontFamily("system-ui")

@@ -10,7 +10,7 @@ JPEGXLPicture(copy: app.iconJPEGXL) {
 }
 ```
 */
-struct JPEGXLPicture<Image: HTML>: HTML {
+struct JPEGXLPicture<Image: HTML>: HTML where Image.Tag == HTMLTag.img {
 	let copy: JPEGXLCopy?
 	@HTMLBuilder let image: Image
 
@@ -25,6 +25,39 @@ struct JPEGXLPicture<Image: HTML>: HTML {
 				$0.display(.contents)
 			}
 		} else {
+			image
+		}
+	}
+}
+
+/**
+A screenshot with its intrinsic dimensions and optional JPEG XL source. The caller owns its layout; the same asset markup serves a carousel and a guide.
+*/
+struct ScreenshotImage<Image: HTML>: HTML where Image.Tag == HTMLTag.img {
+	private let copy: JPEGXLCopy?
+	private let image: Image
+
+	/**
+	Creates the image before the caller styles it, preserving named component styles and one-off element styles alike.
+	*/
+	init(asset: ScreenshotAsset, alternativeText: String, loadsImmediately: Bool = false, @ContentBuilder styling: (Elementary.img) -> Image) {
+		var attributes: [HTMLAttribute<HTMLTag.img>] = [
+			.src(asset.path),
+			.width(asset.size.width),
+			.height(asset.size.height),
+			.alt(alternativeText),
+			.asyncDecoding,
+		]
+		if !loadsImmediately {
+			attributes.append(.lazyLoading)
+		}
+
+		self.copy = asset.jpegXL
+		self.image = styling(img(attributes: attributes))
+	}
+
+	var body: some HTML {
+		JPEGXLPicture(copy: copy) {
 			image
 		}
 	}

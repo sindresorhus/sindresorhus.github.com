@@ -7,12 +7,12 @@ extension GeoCitiesPage {
 	A note at the top for visitors who come back, like “You have new mail!”, from my mom or Glitter. `geocities.js` shows it from the second visit, and the close button hides it.
 	*/
 	var newMail: some HTML {
-		div(.id(Hooks.newMail), .hidden) {
+		div(.id(IDs.newMail), .hidden) {
 			gif(.envelope)
 
-			p(.id(Hooks.newMailText), .role("status")) {}
+			p(.id(IDs.newMailText), .role("status")) {}
 
-			button(.id(Hooks.newMailClose), .type(.button)) {
+			button(.id(IDs.newMailClose), .type(.button)) {
 				"×"
 			}
 			.accessibilityLabel("Close the message")
@@ -150,8 +150,8 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.centeredText)
 
-			div(.id(Hooks.lake)) {
-				div(.id(Hooks.lakeLoading)) {
+			div(.id(IDs.lake)) {
+				div(.id(IDs.lakeLoading)) {
 					gif(.javaCup, alt: "A hot cup of Java")
 
 					p {
@@ -159,7 +159,7 @@ extension GeoCitiesPage {
 					}
 
 					div {
-						div(.id(Hooks.lakeBar)) {}
+						div(.id(IDs.lakeBar)) {}
 							.style(Styles.progressFill)
 					}
 					.accessibilityHidden()
@@ -167,11 +167,17 @@ extension GeoCitiesPage {
 				}
 				.style(Styles.appletLoading)
 
-				canvas(.id(Hooks.lakeCanvas), .width(320), .height(240), .hidden, .role("img")) {}
+				canvas(
+					.id(IDs.lakeCanvas),
+					.width(320),
+					.height(240),
+					.hidden,
+					.role("img")
+				) {}
 					.accessibilityLabel("A fjord in Norway at sunset, with Glitter on the shore, and its reflection in rippling water")
 					.style(Styles.lakeCanvas)
 
-				p(.id(Hooks.lakeStatus), .role("status")) {
+				p(.id(IDs.lakeStatus), .role("status")) {
 					"Applet Lake: waiting…"
 				}
 				.style(Styles.appletStatus)
@@ -218,11 +224,16 @@ extension GeoCitiesPage {
 						.style(Styles.webcamScene)
 					}
 
-					canvas(.id(Hooks.camStatic), .width(160), .height(120), .hidden) {}
+					canvas(
+						.id(IDs.camStatic),
+						.width(160),
+						.height(120),
+						.hidden
+					) {}
 						.accessibilityHidden()
 						.style(Styles.webcamStatic)
 
-					p(.id(Hooks.camTime)) {
+					p(.id(IDs.camTime)) {
 						"12/31/1999 11:59 PM"
 					}
 					.style(Styles.webcamTime)
@@ -230,12 +241,12 @@ extension GeoCitiesPage {
 				.style(Styles.webcamScreen)
 
 				div {
-					p(.id(Hooks.camCountdown)) {
+					p(.id(IDs.camCountdown)) {
 						"Next picture in 30 seconds"
 					}
 					.style(Styles.caption)
 
-					button(.id(Hooks.camRefresh), .type(.button)) {
+					button(.id(IDs.camRefresh), .type(.button)) {
 						"Refresh Now"
 					}
 					.style(Styles.smallButton)
@@ -280,12 +291,12 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.facts)
 
-			button(.id(Hooks.weatherCheck), .type(.button)) {
+			button(.id(IDs.weatherCheck), .type(.button)) {
 				"Check Again"
 			}
 			.style(Styles.retroButton, Styles.scriptingOnly)
 
-			p(.id(Hooks.weatherStatus), .role("status")) {
+			p(.id(IDs.weatherStatus), .role("status")) {
 				"Now: 7 °C and rain."
 			}
 			.style(Styles.lcd)
@@ -324,13 +335,13 @@ extension GeoCitiesPage {
 					.style(Styles.factLabel)
 
 					dd {
-						span(.id(Hooks.icqLight)) {
+						span(.id(IDs.icqLight)) {
 							gif(.flower, style: .icqFlower)
 						}
 						.style(Styles.icqLight)
 
 						" "
-						span(.id(Hooks.icqStatus)) {
+						span(.id(IDs.icqStatus)) {
 							"Online"
 						}
 					}
@@ -346,7 +357,7 @@ extension GeoCitiesPage {
 					dd {
 						gif(.happy)
 						" "
-						span(.id(Hooks.mood)) {
+						span(.id(IDs.mood)) {
 							"Hyper (I had three waffles)"
 						}
 					}
@@ -355,12 +366,12 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.facts)
 
-			button(.id(Hooks.icqMessage), .type(.button)) {
+			button(.id(IDs.icqMessage), .type(.button)) {
 				"Send Me a Message"
 			}
 			.style(Styles.retroButton, Styles.scriptingOnly)
 
-			p(.id(Hooks.icqReply), .role("status")) {}
+			p(.id(IDs.icqReply), .role("status")) {}
 		}
 		.style(Styles.section)
 	}
@@ -416,14 +427,14 @@ extension GeoCitiesPage {
 			.style(Styles.figure)
 
 			p {
-				button(.id(Hooks.candleLight), .type(.button)) {
+				button(.id(IDs.candleLight), .type(.button)) {
 					"Light a Candle for the Waffles"
 				}
 				.style(Styles.retroButton, Styles.scriptingOnly)
 			}
 			.style(Styles.centeredText)
 
-			p(.id(Hooks.candleStatus), .role("status")) {}
+			p(.id(IDs.candleStatus), .role("status")) {}
 				.style(Styles.centeredText)
 		}
 		.style(Styles.shrine)
@@ -476,7 +487,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.buttonRow, Styles.scriptingOnly)
 
-			p(.id(Hooks.rockStatus), .role("status")) {}
+			p(.id(IDs.rockStatus), .role("status")) {}
 		}
 		.style(Styles.section)
 	}
@@ -496,12 +507,12 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.centeredText)
 
-			p(.id(Hooks.fortuneText), .role("status")) {
+			p(.id(IDs.fortuneText), .role("status")) {
 				"The wizard sees your future in a fortune cookie. Crack one!"
 			}
 			.style(Styles.speech)
 
-			button(.id(Hooks.fortuneCrack), .type(.button)) {
+			button(.id(IDs.fortuneCrack), .type(.button)) {
 				"Crack a Fortune Cookie"
 			}
 			.style(Styles.retroButton, Styles.scriptingOnly)
@@ -553,7 +564,7 @@ extension GeoCitiesPage {
 			.style(Styles.heading, Styles.centeredText)
 
 			dl {
-				for (label, hook) in [("Best alien zapper", Hooks.fameScore), ("Most loyal visitor", Hooks.fameVisits), ("Best unicorn parent", Hooks.fameCare)] {
+				for (label, hook) in [("Best alien zapper", IDs.fameScore), ("Most loyal visitor", IDs.fameVisits), ("Best unicorn parent", IDs.fameCare)] {
 					div {
 						dt {
 							"\(label):"
@@ -642,7 +653,7 @@ extension GeoCitiesPage {
 				gif(.dj, alt: "A record that spins")
 				gif(.flames, alt: "Flames")
 
-				button(.id(Hooks.skull), .type(.button)) {
+				button(.id(IDs.skull), .type(.button)) {
 					gif(.skull)
 				}
 				.accessibilityLabel("Do not click the skull")
@@ -662,11 +673,11 @@ extension GeoCitiesPage {
 	A helper like the paper clip of Office 97, but a floppy disk, who offers help when the visitor starts to write a guestbook entry. `geocities.js` shows it, unless the visitor asked it to never come back, which it keeps in the browser.
 	*/
 	var guestbookHelper: some HTML {
-		div(.id(Hooks.helper), .hidden) {
+		div(.id(IDs.helper), .hidden) {
 			gif(.floppy, alt: "Floppy, the helper")
 
 			div {
-				p(.id(Hooks.helperText), .role("status")) {}
+				p(.id(IDs.helperText), .role("status")) {}
 					.style(Styles.speech)
 
 				div {
@@ -696,7 +707,7 @@ extension GeoCitiesPage {
 
 			gif(.iMac, alt: "An iMac")
 
-			p(.id(Hooks.certificateText)) {
+			p(.id(IDs.certificateText)) {
 				"This certifies that you printed my page instead of catching the star. No iMac for you, but here is a picture of one."
 			}
 

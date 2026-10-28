@@ -11,7 +11,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 	/**
 	The ID of the adventure, which the site map links to.
 	*/
-	static let rootID = "geocities-adventure"
+	static let rootID = ElementID("geocities-adventure")
 
 	let project: Project
 
@@ -78,9 +78,19 @@ struct GeoCitiesAdventure: ScriptedElement {
 
 	var content: some HTML {
 		h2 {
-			GeoCitiesPage.GIFImage(gif: .turnBook, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .turnBook,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 			" Sindre’s Adventure Games "
-			GeoCitiesPage.GIFImage(gif: .turnBook, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .turnBook,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 		}
 		.style(GeoCitiesPage.Styles.heading, GeoCitiesPage.Styles.centeredText)
 
@@ -136,7 +146,12 @@ struct GeoCitiesAdventure: ScriptedElement {
 			}
 			.style(Styles.box)
 
-			button(.part(Parts.openBox), .type(.button), .ariaExpanded(false), .ariaControls("geocities-adventure-contents")) {
+			button(
+				.part(Parts.openBox),
+				.type(.button),
+				.ariaExpanded(false),
+				.ariaControls(ElementID("geocities-adventure-contents"))
+			) {
 				"📦 Open the Box"
 			}
 			.style(GeoCitiesPage.Styles.retroButton, GeoCitiesPage.Styles.scriptingOnly)
@@ -271,7 +286,13 @@ struct GeoCitiesAdventure: ScriptedElement {
 			div {
 				div {
 					// The scene is drawn at 320 × 160 pixels, about the size of a scene of a game with 256 colors in 1990.
-					canvas(.part(Parts.scene), .width(320), .height(160), .tabindex(0), .role("application")) {}
+					canvas(
+						.part(Parts.scene),
+						.width(320),
+						.height(160),
+						.tabindex(0),
+						.role("application")
+					) {}
 						.accessibilityLabel("The scene of the game. Pick a verb, then use the left and right arrow keys to pick a thing and press Enter.")
 						.style(Styles.scene)
 
@@ -302,7 +323,15 @@ struct GeoCitiesAdventure: ScriptedElement {
 						}
 
 						div {
-							input(.id("geocities-adventure-copy-answer"), .part(Parts.copyAnswer), .type(.text), .autocomplete("off"), .maxlength(24), .required, .custom(name: "spellcheck", value: "false"))
+							input(
+								.id("geocities-adventure-copy-answer"),
+								.part(Parts.copyAnswer),
+								.type(.text),
+								.autocomplete("off"),
+								.maxlength(24),
+								.required,
+								.spellcheck(false)
+							)
 								.style(GeoCitiesPage.Styles.field, Styles.copyField)
 
 							button(.type(.submit)) {
@@ -317,7 +346,13 @@ struct GeoCitiesAdventure: ScriptedElement {
 					}
 					.style(Styles.panel)
 
-					div(.part(Parts.death), .hidden, .role("alertdialog"), .ariaLabel("You have died"), .ariaDescribedBy("geocities-adventure-death-text")) {
+					div(
+						.part(Parts.death),
+						.hidden,
+						.role("alertdialog"),
+						.ariaLabel("You have died"),
+						.ariaDescribedBy(ElementID("geocities-adventure-death-text"))
+					) {
 						h4 {
 							"☠ You have died!"
 						}
@@ -345,7 +380,12 @@ struct GeoCitiesAdventure: ScriptedElement {
 					}
 					.style(Styles.panel, Styles.deathPanel)
 
-					div(.part(Parts.saves), .hidden, .role("dialog"), .ariaLabelledBy("geocities-adventure-saves-title")) {
+					div(
+						.part(Parts.saves),
+						.hidden,
+						.role("dialog"),
+						.ariaLabelledBy(ElementID("geocities-adventure-saves-title"))
+					) {
 						h4(.id("geocities-adventure-saves-title"), .part(Parts.savesTitle)) {
 							"Save Game"
 						}
@@ -368,7 +408,12 @@ struct GeoCitiesAdventure: ScriptedElement {
 					}
 					.style(Styles.panel)
 
-					div(.part(Parts.hintLine), .hidden, .role("dialog"), .ariaLabel("Sindresoft Hint Line")) {
+					div(
+						.part(Parts.hintLine),
+						.hidden,
+						.role("dialog"),
+						.ariaLabel("Sindresoft Hint Line")
+					) {
 						h4 {
 							"☎ Sindresoft Hint Line"
 						}
@@ -543,36 +588,36 @@ struct GeoCitiesAdventure: ScriptedElement {
 		case narrator
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A thing in the box, like `sticker`.
 		*/
-		case feelie = "data-adventure-feelie"
+		case feelie = "adventure-feelie"
 
 		/**
 		The number of a floppy disk in the box.
 		*/
-		case disk = "data-adventure-disk"
+		case disk = "adventure-disk"
 
 		/**
 		The number of a page of the manual.
 		*/
-		case page = "data-adventure-page"
+		case page = "adventure-page"
 
 		/**
 		A verb of the verb bar, like `look`.
 		*/
-		case verb = "data-adventure-verb"
+		case verb = "adventure-verb"
 
 		/**
 		A thing in the inventory, like `slicer`.
 		*/
-		case item = "data-adventure-item"
+		case item = "adventure-item"
 
 		/**
 		What a button of the game does, like `save`.
 		*/
-		case action = "data-adventure-action"
+		case action = "adventure-action"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -648,57 +693,64 @@ struct GeoCitiesAdventure: ScriptedElement {
 					.vstack(alignment: .center, spacing: .rootEm(0.25))
 					.frame(width: .rootEm(17), maxWidth: .percent(100))
 					.padding(.rootEm(0.75))
-					.backgroundImage(.linearGradient("160deg", Color("#1a1040"), Color("#5a1a6a"), Color("#d0602a")))
-					.border(Color("#ffd700"), width: .pixels(3), style: .ridge)
-					.shadow(Shadow(x: .pixels(4), y: .pixels(4), color: Color("#3a0a3a")), Shadow(x: .pixels(8), y: .pixels(8), color: Color("#2a062a")), Shadow(x: .pixels(12), y: .pixels(12), color: Color("#00000055")))
+					.backgroundImage(
+						.linearGradient(
+							.angle(.degrees(160)),
+							Color(raw: "#1a1040"),
+							Color(raw: "#5a1a6a"),
+							Color(raw: "#d0602a")
+						)
+					)
+					.border(Color(raw: "#ffd700"), width: .pixels(3), style: .ridge)
+					.shadow(BoxShadow(x: .pixels(4), y: .pixels(4), color: Color(raw: "#3a0a3a")), BoxShadow(x: .pixels(8), y: .pixels(8), color: Color(raw: "#2a062a")), BoxShadow(x: .pixels(12), y: .pixels(12), color: Color(raw: "#00000055")))
 					.color(.white)
 					.textAlign(.center)
 			case .boxPresents:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 					.letterSpacing(.em(0.2))
-					.color(Color("#ffd700"))
+					.color(Color(raw: "#ffd700"))
 			case .boxTitle:
 				// The title in gold letters with a hard shadow, like the logo of a LucasArts game.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.times)
 					.font(.extraLarge2, weight: .heavy)
 					.italic()
 					.lineHeight(1)
-					.color(Color("#ffd700"))
-					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#8a2000")), Shadow(x: .pixels(4), y: .pixels(4), color: .black))
+					.color(Color(raw: "#ffd700"))
+					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#8a2000")), Shadow(x: .pixels(4), y: .pixels(4), color: .black))
 			case .boxSubtitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.times)
 					.font(.large, weight: .bold)
 					.italic()
-					.color(Color("#ffeeaa"))
+					.color(Color(raw: "#ffeeaa"))
 			case .cover:
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(160.0 / 100.0)
-					.border(Color("#ffd700"), width: .pixels(2))
-					.background(Color("#304070"))
+					.border(Color(raw: "#ffd700"), width: .pixels(2))
+					.background(Color(raw: "#304070"))
 					.imageRendering(.pixelated)
 			case .boxBadges:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.impact)
 					.textStyle(.caption)
 					.letterSpacing(.em(0.05))
-					.color(Color("#ffffff"))
+					.color(Color(raw: "#ffffff"))
 			case .contents:
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.5))
 					.frame(width: .percent(100))
 			case .contentsText:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textAlign(.center)
 					.textStyle(.caption)
 			case .feelies:
@@ -716,11 +768,11 @@ struct GeoCitiesAdventure: ScriptedElement {
 			case .disk:
 				// A floppy disk with its number on the label, large enough for a finger.
 				Style()
-					.vstack(alignment: .center, spacing: 0)
+					.vstack(alignment: .center, spacing: .zero)
 					.frame(minWidth: .rootEm(3), minHeight: .rootEm(3))
 					.padding(.rootEm(0.25))
-					.background(Color("#222233"))
-					.border(Color("#555566"), width: .pixels(2), style: .outset)
+					.background(Color(raw: "#222233"))
+					.border(Color(raw: "#555566"), width: .pixels(2), style: .outset)
 					.font(.large)
 					.color(.white)
 					.handCursor()
@@ -734,7 +786,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 			case .installStatus:
 				Style()
 					.frame(width: .percent(100), minHeight: .lineHeight(2))
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption)
 					.preservesLineBreaks()
 			case .manual:
@@ -744,29 +796,29 @@ struct GeoCitiesAdventure: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.75))
-					.background(Color("#fffbe8"))
+					.background(Color(raw: "#fffbe8"))
 			case .manualPage:
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.frame(minHeight: .rootEm(13))
 					.padding(.rootEm(0.75))
-					.border(Color("#c8b890"), width: .pixels(1))
-					.background(Color("#fffef6"))
+					.border(Color(raw: "#c8b890"), width: .pixels(1))
+					.background(Color(raw: "#fffef6"))
 					.fontFamily(GeoCitiesPage.times)
-					.color(Color("#222222"))
+					.color(Color(raw: "#222222"))
 			case .manualTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.font(.large, weight: .bold)
-					.color(Color("#5a1a6a"))
+					.color(Color(raw: "#5a1a6a"))
 			case .manualText:
-				Style().margin(0)
+				Style().margin(.zero)
 			case .pageNumber:
 				Style()
 					.margin(top: .auto)
 					.textAlign(.center)
 					.textStyle(.caption)
-					.color(Color("#666666"))
+					.color(Color(raw: "#666666"))
 			case .manualNavigation:
 				Style()
 					.fontFamily(.system)
@@ -793,12 +845,12 @@ struct GeoCitiesAdventure: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(320.0 / 160.0)
-					.background(Color("#000000"))
+					.background(Color(raw: "#000000"))
 					.imageRendering(.pixelated)
 					.touchAction(.manipulation)
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(-2))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(2), offset: .pixels(-2))
 					}
 			case .speech:
 				// The words of whoever talks, at the top of the scene in their color, with a black edge so they can be read on any picture, like in the LucasArts games.
@@ -807,50 +859,61 @@ struct GeoCitiesAdventure: ScriptedElement {
 					.top(.rootEm(0.25))
 					.leading(.rootEm(0.5))
 					.trailing(.rootEm(0.5))
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.courier)
-					.fluidFontSize(fromRem: 0.875, toRem: 1.125, between: .phone, and: .tablet)
+					.fluidFontSize(
+						fromRem: 0.875,
+						toRem: 1.125,
+						between: .phone,
+						and: .tablet
+					)
 					.fontWeight(.bold)
 					.lineHeight(1.25)
 					.textAlign(.center)
 					.color(.white)
-					.textShadow(Shadow(x: .pixels(-2), y: 0, color: .black), Shadow(x: .pixels(2), y: 0, color: .black), Shadow(x: 0, y: .pixels(-2), color: .black), Shadow(x: 0, y: .pixels(2), color: .black), Shadow(x: .pixels(2), y: .pixels(2), color: .black))
+					.textShadow(
+						Shadow(x: .pixels(-2), y: .zero, color: .black),
+						Shadow(x: .pixels(2), y: .zero, color: .black),
+						Shadow(x: .zero, y: .pixels(-2), color: .black),
+						Shadow(x: .zero, y: .pixels(2), color: .black),
+						Shadow(x: .pixels(2), y: .pixels(2), color: .black)
+					)
 					.allowsHitTesting(false)
 					.when(States.sindre) {
-						$0.color(Color("#ffffff"))
+						$0.color(Color(raw: "#ffffff"))
 					}
 					.when(States.mamma) {
-						$0.color(Color("#ff9ad5"))
+						$0.color(Color(raw: "#ff9ad5"))
 					}
 					.when(States.mormor) {
-						$0.color(Color("#ffd27a"))
+						$0.color(Color(raw: "#ffd27a"))
 					}
 					.when(States.kevin) {
-						$0.color(Color("#7ad7ff"))
+						$0.color(Color(raw: "#7ad7ff"))
 					}
 					.when(States.troll) {
-						$0.color(Color("#9cff7a"))
+						$0.color(Color(raw: "#9cff7a"))
 					}
 					.when(States.seagull) {
-						$0.color(Color("#d0d0d0"))
+						$0.color(Color(raw: "#d0d0d0"))
 					}
 					.when(States.fishmonger) {
-						$0.color(Color("#ffa060"))
+						$0.color(Color(raw: "#ffa060"))
 					}
 					.when(States.glitter) {
-						$0.color(Color("#e6a0ff"))
+						$0.color(Color(raw: "#e6a0ff"))
 					}
 					.when(States.conductor) {
-						$0.color(Color("#ff7070"))
+						$0.color(Color(raw: "#ff7070"))
 					}
 					.when(States.narrator) {
-						$0.color(Color("#ffff66"))
+						$0.color(Color(raw: "#ffff66"))
 					}
 			case .titleScreen:
 				Style()
 					.position(.absolute)
-					.leading(0)
-					.trailing(0)
+					.leading(.zero)
+					.trailing(.zero)
 					.bottom(.rootEm(0.5))
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
 					.flexWrap()
@@ -858,37 +921,37 @@ struct GeoCitiesAdventure: ScriptedElement {
 				// A window of a Sierra game on top of the scene: white, with a double edge. It covers at least the scene, and on a phone, where its text is taller than the scene, it grows down over the verbs, which wait anyway.
 				Style()
 					.position(.absolute)
-					.top(0)
-					.leading(0)
-					.trailing(0)
+					.top(.zero)
+					.leading(.zero)
+					.trailing(.zero)
 					.zIndex(1)
 					.frame(minHeight: .percent(100))
 					.vstack(alignment: .center, justification: .center, spacing: .rootEm(0.375))
 					.padding(.rootEm(0.5))
-					.background(Color("#f4f4f4"))
-					.border(Color("#a00000"), width: .pixels(4), style: .double)
+					.background(Color(raw: "#f4f4f4"))
+					.border(Color(raw: "#a00000"), width: .pixels(4), style: .double)
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.color(.black)
 					.textAlign(.center)
 			case .panelTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.font(.regular, weight: .heavy)
-					.color(Color("#a00000"))
+					.color(Color(raw: "#a00000"))
 			case .panelNote:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.frame(minHeight: .lineHeight(1))
 					.italic()
 			case .copyField:
 				Style().frame(width: .rootEm(9))
 			case .deathPanel:
 				Style()
-					.background(Color("#d8d8d8"))
-					.border(Color("#000080"), width: .pixels(4), style: .double)
+					.background(Color(raw: "#d8d8d8"))
+					.border(Color(raw: "#000080"), width: .pixels(4), style: .double)
 			case .deathTitle:
-				Style().color(Color("#000080"))
+				Style().color(Color(raw: "#000080"))
 			case .slots:
 				Style()
 					.vstack(spacing: .rootEm(0.25))
@@ -897,24 +960,24 @@ struct GeoCitiesAdventure: ScriptedElement {
 				Style()
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.leading)
 					.color(.black)
 					.handCursor()
 					.hover {
-						$0.background(Color("#ffffcc"))
+						$0.background(Color(raw: "#ffffcc"))
 					}
 			case .sentence:
 				// The sentence line, in the light blue of The Secret of Monkey Island.
 				Style()
 					.frame(minHeight: .lineHeight(1))
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.body, weight: .bold)
 					.textAlign(.center)
-					.color(Color("#7fd4ff"))
+					.color(Color(raw: "#7fd4ff"))
 			case .controls:
 				// The verbs on the left and the inventory on the right on a wide screen, and the inventory below the verbs on a phone.
 				Style()
@@ -935,23 +998,23 @@ struct GeoCitiesAdventure: ScriptedElement {
 				Style()
 					.frame(minHeight: .rootEm(2.75))
 					.padding(.rootEm(0.25))
-					.background(Color("#101010"))
-					.border(Color("#2a5a2a"), width: .pixels(1))
+					.background(Color(raw: "#101010"))
+					.border(Color(raw: "#2a5a2a"), width: .pixels(1))
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.body, weight: .bold)
-					.color(Color("#3cb043"))
+					.color(Color(raw: "#3cb043"))
 					.handCursor()
 					.hover {
-						$0.color(Color("#9cff9c"))
+						$0.color(Color(raw: "#9cff9c"))
 					}
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(-2))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(2), offset: .pixels(-2))
 					}
 					.pressed {
 						$0
-							.background(Color("#1f3f1f"))
-							.color(Color("#b6ffb6"))
-							.border(Color("#9cff9c"), width: .pixels(1))
+							.background(Color(raw: "#1f3f1f"))
+							.color(Color(raw: "#b6ffb6"))
+							.border(Color(raw: "#9cff9c"), width: .pixels(1))
 					}
 			case .inventory:
 				Style()
@@ -964,24 +1027,24 @@ struct GeoCitiesAdventure: ScriptedElement {
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
 					.frame(minHeight: .rootEm(2.75))
 					.padding(.rootEm(0.25))
-					.background(Color("#14002a"))
-					.border(Color("#4a2a7a"), width: .pixels(1))
+					.background(Color(raw: "#14002a"))
+					.border(Color(raw: "#4a2a7a"), width: .pixels(1))
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.leading)
-					.color(Color("#d0a0ff"))
+					.color(Color(raw: "#d0a0ff"))
 					.handCursor()
 					.hover {
-						$0.color(Color("#ffffff"))
+						$0.color(Color(raw: "#ffffff"))
 					}
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(-2))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(2), offset: .pixels(-2))
 					}
 					.pressed {
 						$0
-							.background(Color("#3a1a6a"))
-							.color(Color("#ffffff"))
-							.border(Color("#d0a0ff"), width: .pixels(1))
+							.background(Color(raw: "#3a1a6a"))
+							.color(Color(raw: "#ffffff"))
+							.border(Color(raw: "#d0a0ff"), width: .pixels(1))
 					}
 			case .itemIcon:
 				Style()
@@ -990,11 +1053,11 @@ struct GeoCitiesAdventure: ScriptedElement {
 					.imageRendering(.pixelated)
 			case .empty:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.gridColumnSpan(2)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption)
-					.color(Color("#8a6aaa"))
+					.color(Color(raw: "#8a6aaa"))
 			case .choices:
 				Style()
 					.vstack(spacing: .rootEm(0.125))
@@ -1003,19 +1066,19 @@ struct GeoCitiesAdventure: ScriptedElement {
 				// A line to say, in purple, and yellow under the pointer, like the conversations of Monkey Island.
 				Style()
 					.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.5))
-					.background(Color("#000000"))
+					.background(Color(raw: "#000000"))
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.body, weight: .bold)
 					.textAlign(.leading)
-					.color(Color("#c070ff"))
+					.color(Color(raw: "#c070ff"))
 					.handCursor()
 					.hover {
-						$0.color(Color("#ffff66"))
+						$0.color(Color(raw: "#ffff66"))
 					}
 					.focusVisible {
 						$0
-							.color(Color("#ffff66"))
-							.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(-2))
+							.color(Color(raw: "#ffff66"))
+							.focusRing(Color(raw: "#ffcc00"), width: .pixels(2), offset: .pixels(-2))
 					}
 			}
 		}

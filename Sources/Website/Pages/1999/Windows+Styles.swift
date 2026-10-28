@@ -137,13 +137,13 @@ extension GeoCitiesWindows {
 		/**
 		The gray edge of a sunken part, like the screen of Calculator.
 		*/
-		private static let sunken = Color("#808080")
+		private static let sunken = Color(raw: "#808080")
 
 		/**
 		The height of a card of FreeCell, and how much of each card shows in a column, where the cards overlap.
 		*/
-		private static let cardHeight = Length.rootEm(3.5)
-		private static let cardOverlap = Length.rootEm(-2.4)
+		private static let cardHeight = LengthPercentage.rootEm(3.5)
+		private static let cardOverlap = LengthPercentage.rootEm(-2.4)
 
 		var style: Style {
 			switch self {
@@ -153,7 +153,12 @@ extension GeoCitiesWindows {
 					.frame(width: .rootEm(32))
 					.when(ancestorHas: Hooks.dosMode) {
 						// In MS-DOS mode, the MS-DOS Prompt is the whole screen, as Windows is gone.
-						$0.frame(width: .percent(100), height: .percent(100), maxWidth: .percent(100), maxHeight: .percent(100))
+						$0.frame(
+							width: .percent(100),
+							height: .percent(100),
+							maxWidth: .percent(100),
+							maxHeight: .percent(100)
+						)
 					}
 			case .stack:
 				Style().vstack(spacing: .rootEm(0.5))
@@ -168,7 +173,7 @@ extension GeoCitiesWindows {
 					.children("input") {
 						$0
 							.flex(1)
-							.frame(minWidth: 0)
+							.frame(minWidth: .zero)
 					}
 			case .grow:
 				Style()
@@ -178,9 +183,19 @@ extension GeoCitiesWindows {
 				// The hourglass while Windows is busy, like while a page loads.
 				Style().when(Hooks.busy) {
 					$0
-						.cursor(GeoCitiesPage.GIF.hourglass.stillPath, x: 14, y: 16, fallback: .wait)
+						.cursor(
+							GeoCitiesPage.GIF.hourglass.stillPath,
+							x: 14,
+							y: 16,
+							fallback: .wait
+						)
 						.children("*") {
-							$0.cursor(GeoCitiesPage.GIF.hourglass.stillPath, x: 14, y: 16, fallback: .wait)
+							$0.cursor(
+								GeoCitiesPage.GIF.hourglass.stillPath,
+								x: 14,
+								y: 16,
+								fallback: .wait
+							)
 						}
 				}
 			case .fileList:
@@ -199,7 +214,7 @@ extension GeoCitiesWindows {
 					.frame(width: .percent(100))
 					.padding(.rootEm(0.25))
 					.background(.transparent)
-					.border(.transparent, width: 0)
+					.border(.transparent, width: .zero)
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.overflowWrap(.anywhere)
@@ -208,7 +223,7 @@ extension GeoCitiesWindows {
 					.handCursor()
 					.focusVisible {
 						$0
-							.background(Color("#000080"))
+							.background(Color(raw: "#000080"))
 							.color(.white)
 					}
 			case .submenuItem:
@@ -218,7 +233,12 @@ extension GeoCitiesWindows {
 				Style()
 					.vstack()
 					.padding(.leading, .rootEm(0.75))
-					.border(.leading, Self.sunken, width: .pixels(2), style: .groove)
+					.border(
+						.leading,
+						Self.sunken,
+						width: .pixels(2),
+						style: .groove
+					)
 					.from(.laptop) {
 						$0
 							.position(.absolute)
@@ -228,8 +248,8 @@ extension GeoCitiesWindows {
 							.frame(minWidth: .rootEm(12))
 							.padding(.rootEm(0.25))
 							.background(GeoCitiesPage.windowGray)
-							.border(Color("#dfdfdf"), width: .pixels(3), style: .outset)
-							.shadow(Shadow(x: .pixels(4), y: .pixels(4), color: Color("#00000066")))
+							.border(Color(raw: "#dfdfdf"), width: .pixels(3), style: .outset)
+							.shadow(BoxShadow(x: .pixels(4), y: .pixels(4), color: Color(raw: "#00000066")))
 							.textWrap(.nowrap)
 					}
 			case .submenuArrow:
@@ -239,7 +259,12 @@ extension GeoCitiesWindows {
 			case .menuSeparator:
 				Style()
 					.margin(.vertical, .rootEm(0.25))
-					.border(.top, Self.sunken, width: .pixels(2), style: .groove)
+					.border(
+						.top,
+						Self.sunken,
+						width: .pixels(2),
+						style: .groove
+					)
 			case .menuIcon:
 				Style()
 					.fontFamily(.system)
@@ -249,7 +274,7 @@ extension GeoCitiesWindows {
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.25))
 					.flex(1)
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 					.overflow(.hidden)
 			case .taskButton:
 				// Pressed in while its window is in front, like on the taskbar of Windows.
@@ -259,7 +284,7 @@ extension GeoCitiesWindows {
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.375))
 					.overflow(.hidden)
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+					.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.textWrap(.nowrap)
@@ -269,8 +294,8 @@ extension GeoCitiesWindows {
 					.buttonFocusRing()
 					.when(Hooks.selected) {
 						$0
-							.background(Color("#e0e0e0"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+							.background(Color(raw: "#e0e0e0"))
+							.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .inset)
 							.fontWeight(.bold)
 					}
 			case .tray:
@@ -283,26 +308,26 @@ extension GeoCitiesWindows {
 				Style()
 					.padding(.pixels(2))
 					.background(.transparent)
-					.border(.transparent, width: 0)
+					.border(.transparent, width: .zero)
 					.fontFamily(.system)
 					.font(size: .rootEm(1), lineHeight: 1)
 					.handCursor()
 					.buttonFocusRing()
 					// Show Desktop stays lit while the windows are hidden.
 					.pressed {
-						$0.background(Color("#e0e0e0"))
+						$0.background(Color(raw: "#e0e0e0"))
 					}
 			case .volumePopup:
 				// Above the tray, like the volume of Windows.
 				Style()
 					.position(.absolute)
 					.bottom(.percent(100))
-					.trailing(0)
+					.trailing(.zero)
 					.vstack(alignment: .center, spacing: .rootEm(0.25))
 					.margin(.bottom, .rootEm(0.5))
 					.padding(.rootEm(0.5))
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(3), style: .outset)
+					.border(Color(raw: "#dfdfdf"), width: .pixels(3), style: .outset)
 					.textStyle(.caption)
 					.textWrap(.nowrap)
 			case .volumeSlider:
@@ -321,7 +346,7 @@ extension GeoCitiesWindows {
 					.font(.extraLarge, weight: .bold)
 					.textAlign(.trailing)
 					.overflowWrap(.anywhere)
-					.transition(.rotationEffect, animation: .easeInOut(duration: .milliseconds(600)))
+					.transition(.rotationEffect, timing: .easeInOut(duration: .milliseconds(600)))
 					.when(Hooks.flipped) {
 						$0.rotationEffect(.degrees(180))
 					}
@@ -348,16 +373,16 @@ extension GeoCitiesWindows {
 			case .calcRedKey:
 				// The keys are small, so six fit in a row on a phone.
 				GeoCitiesPage.Styles.retroButton.style
-					.padding(vertical: .rootEm(0.25), horizontal: 0)
+					.padding(vertical: .rootEm(0.25), horizontal: .zero)
 					.textStyle(.caption, weight: .bold)
 					.textWrap(.nowrap)
-					.color(Color("#cc0000"))
+					.color(Color(raw: "#cc0000"))
 			case .calcBlueKey:
 				// Like the red keys, in blue.
-				Self.calcRedKey.style.color(Color("#0000cc"))
+				Self.calcRedKey.style.color(Color(raw: "#0000cc"))
 			case .dos:
 				Style()
-					.vstack(spacing: 0)
+					.vstack(spacing: .zero)
 					.padding(.rootEm(0.5))
 					.background(.black)
 					.when(ancestorHas: Hooks.dosMode) {
@@ -365,7 +390,7 @@ extension GeoCitiesWindows {
 					}
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#c0c0c0"))
+					.color(Color(raw: "#c0c0c0"))
 			case .dosOutput:
 				// The last lines of the screen of DOS, which scrolls.
 				Style()
@@ -386,13 +411,18 @@ extension GeoCitiesWindows {
 				Style()
 					.flex(1)
 					.frame(minWidth: .rootEm(6))
-					.padding(0)
+					.padding(.zero)
 					.background(.transparent)
-					.border(.transparent, width: 0)
+					.border(.transparent, width: .zero)
 					.inheritsFont()
-					.color(Color("#c0c0c0"))
+					.color(Color(raw: "#c0c0c0"))
 					.focusVisible {
-						$0.focusRing(Color("#c0c0c0"), width: .pixels(1), offset: .pixels(1), style: .dotted)
+						$0.focusRing(
+							Color(raw: "#c0c0c0"),
+							width: .pixels(1),
+							offset: .pixels(1),
+							style: .dotted
+						)
 					}
 			case .toolbar:
 				Style()
@@ -466,23 +496,23 @@ extension GeoCitiesWindows {
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.5))
-					.background(Color("#ffffcc"))
+					.background(Color(raw: "#ffffcc"))
 					.border(.black, width: .pixels(1))
 					.cornerRadius(.rootEm(0.5))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption)
 					.color(.black)
-					.shadow(Shadow(x: .pixels(3), y: .pixels(3), color: Color("#00000066")))
+					.shadow(BoxShadow(x: .pixels(3), y: .pixels(3), color: Color(raw: "#00000066")))
 			case .assistantChoice:
 				// The links of the balloon of the Office Assistant, with blue bullets.
 				Style()
-					.padding(0)
+					.padding(.zero)
 					.background(.transparent)
-					.border(.transparent, width: 0)
+					.border(.transparent, width: .zero)
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.textAlign(.leading)
-					.color(Color("#0000ff"))
+					.color(Color(raw: "#0000ff"))
 					.underline()
 					.handCursor()
 					.before {
@@ -497,7 +527,7 @@ extension GeoCitiesWindows {
 					.font(.extraLarge, weight: .bold)
 					.italic()
 					.lineHeight(1)
-					.color(Color("#1e5bd6"))
+					.color(Color(raw: "#1e5bd6"))
 					.when(ancestorHas: Hooks.loading) {
 						$0.animation(GeoCitiesPage.Animations.spin, .linear(duration: .seconds(1)).repeatForever(autoreverses: false))
 					}
@@ -508,7 +538,7 @@ extension GeoCitiesWindows {
 					.children("input") {
 						$0
 							.flex(1)
-							.frame(minWidth: 0)
+							.frame(minWidth: .zero)
 					}
 			case .iePage:
 				Style()
@@ -526,19 +556,19 @@ extension GeoCitiesWindows {
 				Style()
 					.fontFamily(GeoCitiesPage.comicSans)
 					.font(.large, weight: .bold)
-					.color(Color("#000080"))
+					.color(Color(raw: "#000080"))
 			case .ieLinks:
 				Style().vstack(spacing: .rootEm(0.25))
 			case .ieLink:
 				// A blue, underlined link, like the links of 1999.
 				Style()
-					.padding(0)
+					.padding(.zero)
 					.background(.transparent)
-					.border(.transparent, width: 0)
+					.border(.transparent, width: .zero)
 					.fontFamily(GeoCitiesPage.times)
 					.textStyle(.body)
 					.textAlign(.leading)
-					.color(Color("#0000ee"))
+					.color(Color(raw: "#0000ee"))
 					.underline()
 					.handCursor()
 			case .ieErrorTitle:
@@ -550,7 +580,7 @@ extension GeoCitiesWindows {
 				Style()
 					.hstack(alignment: .center, justification: .center)
 					.padding(.rootEm(0.5))
-					.background(Color("#008080"))
+					.background(Color(raw: "#008080"))
 					.border(GeoCitiesPage.windowGray, width: .pixels(4), style: .outset)
 					.font(.large)
 			case .ieStatusBar:
@@ -566,12 +596,12 @@ extension GeoCitiesWindows {
 				// The blue bar of a progress bar of Windows. `geocities-windows.js` sets how far it is.
 				Style()
 					.display(.block)
-					.frame(width: 0, height: .percent(100))
-					.background(Color("#000080"))
+					.frame(width: .zero, height: .percent(100))
+					.background(Color(raw: "#000080"))
 			case .addressField:
 				GeoCitiesPage.Styles.field.style
 					.flex(1)
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 					.textStyle(.caption)
 			case .mediaScreen:
 				Style()
@@ -586,19 +616,19 @@ extension GeoCitiesWindows {
 			case .mediaBuffering:
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.hstack(alignment: .center, justification: .center)
 					.background(.black)
 					.fontFamily(GeoCitiesPage.courier)
 					.fontWeight(.bold)
-					.color(Color("#33ff66"))
+					.color(Color(raw: "#33ff66"))
 			case .lcdSmall:
 				Style()
 					.padding(.horizontal, .rootEm(0.25))
 					.background(.black)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#33ff66"))
+					.color(Color(raw: "#33ff66"))
 					.textWrap(.nowrap)
 			case .soundTop:
 				Style().hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(0.5))
@@ -617,20 +647,20 @@ extension GeoCitiesWindows {
 					.grid(columns: 5)
 					.gap(.rootEm(0.25))
 			case .soundButton:
-				GeoCitiesPage.Styles.retroButton.style.padding(vertical: .rootEm(0.25), horizontal: 0)
+				GeoCitiesPage.Styles.retroButton.style.padding(vertical: .rootEm(0.25), horizontal: .zero)
 			case .recordButton:
-				Self.soundButton.style.color(Color("#cc0000"))
+				Self.soundButton.style.color(Color(raw: "#cc0000"))
 			case .freecellTable:
 				// The green of FreeCell, under the cells and the columns.
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.375))
-					.background(Color("#008000"))
+					.background(Color(raw: "#008000"))
 					.border(Self.sunken, width: .pixels(2), style: .inset)
 			case .freecellTop:
 				// The free cells on the left and the home cells on the right, with the king between them, on the green of FreeCell.
 				Style()
-					.grid(columns: "1fr auto 1fr")
+					.grid(columns: .fraction(1), .auto, .fraction(1))
 					.alignItems(.center)
 					.gap(.rootEm(0.25))
 			case .cardSlots:
@@ -641,19 +671,19 @@ extension GeoCitiesWindows {
 				// An empty place for a card, with a dark edge on the green. A card in it fills it.
 				Style()
 					.hstack(alignment: .center, justification: .center)
-					.frame(width: .percent(100), height: Self.cardHeight)
-					.padding(0)
+					.frame(width: .percent(100), height: .length(Self.cardHeight))
+					.padding(.zero)
 					.background(.transparent)
-					.border(Color("#004000"), width: .pixels(1))
+					.border(Color(raw: "#004000"), width: .pixels(1))
 					.fontFamily(.system)
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#ffff00"), width: .pixels(2), offset: .pixels(1))
+						$0.focusRing(Color(raw: "#ffff00"), width: .pixels(2), offset: .pixels(1))
 					}
 			case .slotSuit:
 				Style()
 					.font(.large)
-					.color(Color("#004000"))
+					.color(Color(raw: "#004000"))
 			case .freecellKing:
 				// The king between the free cells and the home cells, who looks to the side of the pointer, like in FreeCell.
 				Style()
@@ -671,21 +701,21 @@ extension GeoCitiesWindows {
 				Style()
 					.vstack(alignment: .center)
 					.frame(minHeight: .rootEm(12))
-					.padding(0)
+					.padding(.zero)
 					.background(.transparent)
-					.border(.transparent, width: 0)
+					.border(.transparent, width: .zero)
 					.handCursor()
 					.children("* + *") {
-						$0.margin(.top, Self.cardOverlap)
+						$0.margin(.top, .length(Self.cardOverlap))
 					}
 					.focusVisible {
-						$0.focusRing(Color("#ffff00"), width: .pixels(2), offset: .pixels(1))
+						$0.focusRing(Color(raw: "#ffff00"), width: .pixels(2), offset: .pixels(1))
 					}
 			case .card:
 				// A card of FreeCell, with its rank and suit in the corner. Red for hearts and diamonds, and dark while it is picked up, like in FreeCell.
 				Style()
 					.display(.block)
-					.frame(width: .percent(100), height: Self.cardHeight)
+					.frame(width: .percent(100), height: .length(Self.cardHeight))
 					.flexShrink(0)
 					.padding(.pixels(2))
 					.background(.white)
@@ -699,7 +729,7 @@ extension GeoCitiesWindows {
 					.textWrap(.nowrap)
 					.overflow(.hidden)
 					.when(Hooks.cardRed) {
-						$0.color(Color("#cc0000"))
+						$0.color(Color(raw: "#cc0000"))
 					}
 					.when(Hooks.selected) {
 						$0.filter(.invert(1))
@@ -727,7 +757,7 @@ extension GeoCitiesWindows {
 					.monospacedDigit()
 					.when(Hooks.today) {
 						$0
-							.background(Color("#000080"))
+							.background(Color(raw: "#000080"))
 							.color(.white)
 					}
 			case .jackBox:
@@ -757,8 +787,8 @@ extension GeoCitiesWindows {
 					.font(.extraLarge)
 					.lineHeight(1)
 					.textAlign(.center)
-					.color(Color("#cc0000"))
-					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#ffcc00")))
+					.color(Color(raw: "#cc0000"))
+					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#ffcc00")))
 			case .findAnimation:
 				Style()
 					.position(.relative)
@@ -780,7 +810,7 @@ extension GeoCitiesWindows {
 			case .welcomeLogo:
 				Style()
 					.fontFamily(GeoCitiesPage.impact)
-					.color(Color("#000080"))
+					.color(Color(raw: "#000080"))
 			case .welcomeColumns:
 				Style()
 					.grid(minimumColumnWidth: .rootEm(10))
@@ -789,15 +819,15 @@ extension GeoCitiesWindows {
 				Style()
 					.frame(width: .percent(100))
 					.padding(.rootEm(0.375))
-					.background(Color("#000080"))
-					.border(Color("#4040c0"), width: .pixels(2), style: .outset)
+					.background(Color(raw: "#000080"))
+					.border(Color(raw: "#4040c0"), width: .pixels(2), style: .outset)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.leading)
 					.color(.white)
 					.handCursor()
 					.active {
-						$0.border(Color("#4040c0"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#4040c0"), width: .pixels(2), style: .inset)
 					}
 			case .welcomePane:
 				Style()
@@ -833,7 +863,7 @@ extension GeoCitiesWindows {
 				// The wallpaper and the web page of the Active Desktop, behind the icons and the windows. `geocities-windows.js` draws the wallpaper. It turns gray behind Shut Down Windows.
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.zIndex(-1)
 					.overflow(.hidden)
 					.when(ancestorHas: Hooks.dimmed) {
@@ -842,7 +872,7 @@ extension GeoCitiesWindows {
 			case .webPage:
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.vstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
 					.padding(.rootEm(1))
 					.background(.white)
@@ -853,22 +883,22 @@ extension GeoCitiesWindows {
 				Style()
 					.fontFamily(GeoCitiesPage.impact)
 					.font(.extraLarge3)
-					.color(Color("#c0c0ff"))
+					.color(Color(raw: "#c0c0ff"))
 			case .recoveryPage:
 				// The white page that Windows showed when the Active Desktop crashed, which happened a lot.
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.vstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
 					.padding(.rootEm(1))
 					.background(.white)
 					.fontFamily(.system)
 					.textAlign(.center)
-					.color(Color("#999999"))
+					.color(Color(raw: "#999999"))
 			case .recoveryTitle:
 				Style()
 					.font(.extraLarge2, weight: .bold)
-					.color(Color("#000080"))
+					.color(Color(raw: "#000080"))
 			case .channels:
 				// The Channel Bar of Internet Explorer 4, on the right of the desktop, over the icons.
 				Style()
@@ -879,7 +909,7 @@ extension GeoCitiesWindows {
 					.vstack(spacing: .rootEm(0.25))
 					.frame(width: .rootEm(7.5))
 					.padding(.rootEm(0.25))
-					.background(Color("#000033"))
+					.background(Color(raw: "#000033"))
 					.border(GeoCitiesPage.windowGray, width: .pixels(2), style: .outset)
 			case .channelTitle:
 				Style()
@@ -890,14 +920,14 @@ extension GeoCitiesWindows {
 			case .channelButton:
 				Style()
 					.padding(.rootEm(0.25))
-					.background(Color("#3366cc"))
-					.border(Color("#99ccff"), width: .pixels(2), style: .outset)
+					.background(Color(raw: "#3366cc"))
+					.border(Color(raw: "#99ccff"), width: .pixels(2), style: .outset)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 					.color(.white)
 					.handCursor()
 					.active {
-						$0.border(Color("#99ccff"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#99ccff"), width: .pixels(2), style: .inset)
 					}
 			case .ticker:
 				// The news ticker of the Active Desktop, above the taskbar.
@@ -913,7 +943,7 @@ extension GeoCitiesWindows {
 					.border(GeoCitiesPage.windowGray, width: .pixels(2), style: .outset)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#ffff00"))
+					.color(Color(raw: "#ffff00"))
 			case .tickerText:
 				Style()
 					.textWrap(.nowrap)
@@ -927,24 +957,24 @@ extension GeoCitiesWindows {
 					.frame(minWidth: .rootEm(11))
 					.padding(.rootEm(0.25))
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(3), style: .outset)
-					.shadow(Shadow(x: .pixels(4), y: .pixels(4), color: Color("#00000066")))
+					.border(Color(raw: "#dfdfdf"), width: .pixels(3), style: .outset)
+					.shadow(BoxShadow(x: .pixels(4), y: .pixels(4), color: Color(raw: "#00000066")))
 			case .boot:
 				// The screen of the computer while Windows starts, over the desktop.
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.zIndex(2000)
 					.hstack(alignment: .center, justification: .center)
 					.overflow(.hidden)
 					.background(.black)
-					.color(Color("#c0c0c0"))
+					.color(Color(raw: "#c0c0c0"))
 					.focusVisible {
 						$0.focusRing(.white, width: .pixels(2), offset: .pixels(-4))
 					}
 					.when(States.scandisk) {
 						// ScanDisk after Windows was not shut down properly, on the blue screen of DOS.
-						$0.background(Color("#0000aa"))
+						$0.background(Color(raw: "#0000aa"))
 					}
 			case .bootText:
 				Style()
@@ -959,16 +989,16 @@ extension GeoCitiesWindows {
 				// The clouds of the startup screen of Windows 98, with the logo, and the moving bar at the bottom.
 				Style()
 					.position(.absolute)
-					.inset(0)
-					.vstack(alignment: .center, justification: .center, spacing: 0)
+					.inset(.zero)
+					.vstack(alignment: .center, justification: .center, spacing: .zero)
 					.backgroundImage(
-						.radialGradient("ellipse 30% 12% at 20% 30%", Color("#ffffffcc"), Color("#ffffff00")),
-						.radialGradient("ellipse 35% 14% at 75% 22%", Color("#ffffffb3"), Color("#ffffff00")),
-						.radialGradient("ellipse 40% 15% at 60% 75%", Color("#ffffffb3"), Color("#ffffff00")),
-						.linearGradient("to bottom", Color("#3a6fd8"), Color("#9cc3f5"))
+						.radialGradient(.ellipse(radiusX: .percent(30), radiusY: .percent(12), at: .init(x: .percent(20), y: .percent(30))), Color(raw: "#ffffffcc"), Color(raw: "#ffffff00")),
+						.radialGradient(.ellipse(radiusX: .percent(35), radiusY: .percent(14), at: .init(x: .percent(75), y: .percent(22))), Color(raw: "#ffffffb3"), Color(raw: "#ffffff00")),
+						.radialGradient(.ellipse(radiusX: .percent(40), radiusY: .percent(15), at: .init(x: .percent(60), y: .percent(75))), Color(raw: "#ffffffb3"), Color(raw: "#ffffff00")),
+						.linearGradient(.toBottom, Color(raw: "#3a6fd8"), Color(raw: "#9cc3f5"))
 					)
 					.color(.white)
-					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#00000066")))
+					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#00000066")))
 			case .bootMicrosoft:
 				Style()
 					.fontFamily(.system)
@@ -981,21 +1011,32 @@ extension GeoCitiesWindows {
 				// The bar of colors that moves along the bottom while Windows starts. It is twice as wide as the screen, with its colors twice, so it seems to never end.
 				Style()
 					.position(.absolute)
-					.leading(0)
-					.bottom(0)
+					.leading(.zero)
+					.bottom(.zero)
 					.frame(width: .percent(200), height: .rootEm(0.75))
-					.backgroundImage(.linearGradient("to right", Color("#000080"), Color("#00ffff"), Color("#ff00ff"), Color("#000080"), Color("#00ffff"), Color("#ff00ff"), Color("#000080")))
+					.backgroundImage(
+						.linearGradient(
+							.toRight,
+							Color(raw: "#000080"),
+							Color(raw: "#00ffff"),
+							Color(raw: "#ff00ff"),
+							Color(raw: "#000080"),
+							Color(raw: "#00ffff"),
+							Color(raw: "#ff00ff"),
+							Color(raw: "#000080")
+						)
+					)
 					.animation(Animations.bootBar, .linear(duration: .seconds(2)).repeatForever(autoreverses: false))
 			case .bsod:
 				// The blue screen of the launch of Windows 98, over the desktop only.
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.zIndex(2000)
 					.vstack(justification: .center, spacing: .rootEm(1))
 					.overflow(.auto)
 					.padding(.rootEm(1))
-					.background(Color("#0000aa"))
+					.background(Color(raw: "#0000aa"))
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.body, weight: .bold)
 					.color(.white)
@@ -1009,11 +1050,11 @@ extension GeoCitiesWindows {
 					.background(.white)
 					.fontFamily(GeoCitiesPage.times)
 					.italic()
-					.color(Color("#0000aa"))
+					.color(Color(raw: "#0000aa"))
 			case .maze:
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.zIndex(2000)
 					.vstack(alignment: .center, justification: .center)
 					.background(.black)
@@ -1034,18 +1075,23 @@ extension GeoCitiesWindows {
 					.color(Self.sunken)
 			case .plainFieldset:
 				Style()
-					.padding(0)
-					.border(.transparent, width: 0)
+					.padding(.zero)
+					.border(.transparent, width: .zero)
 			case .quickLaunch:
 				// The small buttons next to the Start button, behind a groove, like the Quick Launch bar of Windows 98.
 				Style()
-					.hstack(alignment: .center, spacing: 0)
+					.hstack(alignment: .center, spacing: .zero)
 					.padding(.leading, .rootEm(0.25))
-					.border(.leading, Self.sunken, width: .pixels(2), style: .groove)
+					.border(
+						.leading,
+						Self.sunken,
+						width: .pixels(2),
+						style: .groove
+					)
 			case .beginHint:
 				// The arrow of Windows 95 that slides toward the Start button, until the first click on it. It leaves room for the buttons of the windows, and only shows where the taskbar has room for all of it.
 				Style()
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 					.flex(1)
 					.overflow(.hidden)
 					.textWrap(.nowrap)
@@ -1077,7 +1123,7 @@ extension GeoCitiesWindows {
 				// A point under the icon of the Recycle Bin, which the paper is placed from, so it moves with the icon.
 				Style()
 					.position(.relative)
-					.frame(height: 0)
+					.frame(height: .zero)
 			}
 		}
 	}
@@ -1091,13 +1137,13 @@ extension GeoCitiesWindows {
 		var keyframes: [Keyframe] {
 			switch self {
 			case .bob:
-				[.from(Style().offset(y: 0)), .to(Style().offset(y: .pixels(-4)))]
+				[.from(Style().offset(y: .zero)), .to(Style().offset(y: .pixels(-4)))]
 			case .circle:
 				[.from(Style().rotationEffect(.degrees(0))), .to(Style().rotationEffect(.degrees(360)))]
 			case .bootBar:
-				[.from(Style().offset(x: .percent(-50))), .to(Style().offset(x: 0))]
+				[.from(Style().offset(x: .percent(-50))), .to(Style().offset(x: .zero))]
 			case .nudge:
-				[.from(Style().offset(x: 0)), .to(Style().offset(x: .rootEm(-0.5)))]
+				[.from(Style().offset(x: .zero)), .to(Style().offset(x: .rootEm(-0.5)))]
 			}
 		}
 	}

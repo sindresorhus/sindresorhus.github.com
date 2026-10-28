@@ -19,7 +19,12 @@ struct GeoCitiesNeonSign: ScriptedElement {
 	]
 
 	var content: some HTML {
-		GeoCitiesPage.GIFImage(gif: .skullSmoking, alt: "A cool skull with sunglasses, hanging out by the sign", style: .gif, project: project)
+		GeoCitiesPage.GIFImage(
+			gif: .skullSmoking,
+			alt: "A cool skull with sunglasses, hanging out by the sign",
+			style: .gif,
+			project: project
+		)
 
 		p(.part(Parts.sign)) {
 			VisuallyHidden("A neon sign: Sindre’s Home Page")
@@ -39,7 +44,12 @@ struct GeoCitiesNeonSign: ScriptedElement {
 		}
 		.style(Styles.sign)
 
-		GeoCitiesPage.GIFImage(gif: .neonOpen, alt: "Open 24 hours", style: .gif, project: project)
+		GeoCitiesPage.GIFImage(
+			gif: .neonOpen,
+			alt: "Open 24 hours",
+			style: .gif,
+			project: project
+		)
 
 		button(.part(Parts.kick), .type(.button)) {
 			"Kick the sign"
@@ -77,8 +87,15 @@ struct GeoCitiesNeonSign: ScriptedElement {
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.75))
 					.padding(.rootEm(1))
-					.backgroundImage(.radialGradient("ellipse at 50% 35%", Color("#5a2a3a"), Color("#2a1418"), Color("#140a0c")))
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
+					.backgroundImage(
+						.radialGradient(
+							.ellipse(at: .init(x: .percent(50), y: .percent(35))),
+							Color(raw: "#5a2a3a"),
+							Color(raw: "#2a1418"),
+							Color(raw: "#140a0c")
+						)
+					)
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
 					.textAlign(.center)
 					.color(.white)
 			case .sign:
@@ -86,11 +103,20 @@ struct GeoCitiesNeonSign: ScriptedElement {
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.25))
 					.padding(vertical: .rootEm(0.75), horizontal: .rootEm(1.25))
-					.border(Color("#552222"), width: .pixels(3))
+					.border(Color(raw: "#552222"), width: .pixels(3))
 					.cornerRadius(.rootEm(0.75))
-					.background(Color("#1a0a0a"))
+					.background(Color(raw: "#1a0a0a"))
 					.media(.allowsMotion) {
-						$0.transition(.rotationEffect, animation: .timingCurve(0.3, 1.6, 0.5, 1, duration: .milliseconds(600)))
+						$0.transition(
+							.rotationEffect,
+							timing: .timingCurve(
+								0.3,
+								1.6,
+								0.5,
+								1,
+								duration: .milliseconds(600)
+							)
+						)
 					}
 					.when(States.crooked) {
 						$0.rotationEffect(.degrees(-9))
@@ -104,16 +130,16 @@ struct GeoCitiesNeonSign: ScriptedElement {
 						$0
 							.display(.inlineBlock)
 							.media(.allowsMotion) {
-								$0.transition(.offset, .rotationEffect, animation: .easeIn(duration: .milliseconds(500)))
+								$0.transition(.offset, .rotationEffect, timing: .easeIn(duration: .milliseconds(500)))
 							}
 							.when(States.off) {
 								$0
-									.color(Color("#4a2a3a"))
+									.color(Color(raw: "#4a2a3a"))
 									.textShadow()
 							}
 							.when(States.fallen) {
 								$0
-									.color(Color("#4a2a3a"))
+									.color(Color(raw: "#4a2a3a"))
 									.textShadow()
 									.offset(y: .em(1.2))
 									.rotationEffect(.degrees(70))
@@ -122,17 +148,27 @@ struct GeoCitiesNeonSign: ScriptedElement {
 			case .pinkTube:
 				Style()
 					.fontFamily(GeoCitiesPage.comicSans)
-					.fluidFontSize(fromRem: 2, toRem: 3, between: .phone, and: .tablet)
+					.fluidFontSize(
+						fromRem: 2,
+						toRem: 3,
+						between: .phone,
+						and: .tablet
+					)
 					.italic()
-					.color(Color("#ffe6f6"))
-					.textShadow(Shadow(y: 0, blur: .pixels(4), color: Color("#ff4fc4")), Shadow(y: 0, blur: .pixels(12), color: Color("#ff1aa8")), Shadow(y: 0, blur: .pixels(24), color: Color("#ff1aa8")))
+					.color(Color(raw: "#ffe6f6"))
+					.textShadow(Shadow(y: .zero, blur: .pixels(4), color: Color(raw: "#ff4fc4")), Shadow(y: .zero, blur: .pixels(12), color: Color(raw: "#ff1aa8")), Shadow(y: .zero, blur: .pixels(24), color: Color(raw: "#ff1aa8")))
 			case .blueTube:
 				Style()
 					.fontFamily(GeoCitiesPage.impact)
-					.fluidFontSize(fromRem: 1.5, toRem: 2.25, between: .phone, and: .tablet)
+					.fluidFontSize(
+						fromRem: 1.5,
+						toRem: 2.25,
+						between: .phone,
+						and: .tablet
+					)
 					.letterSpacing(.em(0.12))
-					.color(Color("#e6fbff"))
-					.textShadow(Shadow(y: 0, blur: .pixels(4), color: Color("#33ccff")), Shadow(y: 0, blur: .pixels(12), color: Color("#0099ff")), Shadow(y: 0, blur: .pixels(24), color: Color("#0066ff")))
+					.color(Color(raw: "#e6fbff"))
+					.textShadow(Shadow(y: .zero, blur: .pixels(4), color: Color(raw: "#33ccff")), Shadow(y: .zero, blur: .pixels(12), color: Color(raw: "#0099ff")), Shadow(y: .zero, blur: .pixels(24), color: Color(raw: "#0066ff")))
 			case .status:
 				Style()
 					.frame(minHeight: .lineHeight(1))

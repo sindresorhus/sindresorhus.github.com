@@ -11,7 +11,7 @@ struct GeoCitiesMusic: ScriptedElement {
 	/**
 	The ID of the element, which the Discman and the Walkman on the desk in my room lead to.
 	*/
-	static let rootID = "geocities-discman"
+	static let rootID = ElementID("geocities-discman")
 
 	let project: Project
 
@@ -21,7 +21,12 @@ struct GeoCitiesMusic: ScriptedElement {
 
 	var content: some HTML {
 		h2 {
-			GeoCitiesPage.GIFImage(gif: .compactDisc, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .compactDisc,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 			" My Discman and My Walkman"
 		}
 		.style(GeoCitiesPage.Styles.heading, GeoCitiesPage.Styles.centeredText)
@@ -47,7 +52,13 @@ struct GeoCitiesMusic: ScriptedElement {
 				.style(GeoCitiesPage.Styles.titleBar)
 
 				div {
-					canvas(.part(Parts.discmanCanvas), .width(240), .height(240), .tabindex(0), .role("application")) {}
+					canvas(
+						.part(Parts.discmanCanvas),
+						.width(240),
+						.height(240),
+						.tabindex(0),
+						.role("application")
+					) {}
 						.accessibilityLabel("My Discman. Drag it around to shake it, or press the arrow keys to bump it.")
 						.style(Styles.discman)
 
@@ -89,7 +100,13 @@ struct GeoCitiesMusic: ScriptedElement {
 				.style(GeoCitiesPage.Styles.titleBar)
 
 				div {
-					canvas(.part(Parts.walkmanCanvas), .width(280), .height(200), .tabindex(0), .role("application")) {}
+					canvas(
+						.part(Parts.walkmanCanvas),
+						.width(280),
+						.height(200),
+						.tabindex(0),
+						.role("application")
+					) {}
 						.accessibilityLabel("My Walkman. With the pencil in, drag around the pencil in circles to wind the tape in, or press the arrow keys.")
 						.style(Styles.walkman)
 
@@ -140,16 +157,16 @@ struct GeoCitiesMusic: ScriptedElement {
 		case walkmanStatus
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		What a button of the Discman does, like `play` or `esp`.
 		*/
-		case discmanAction = "data-discman-action"
+		case discmanAction = "discman-action"
 
 		/**
 		What a button of the Walkman does, like `pencil`.
 		*/
-		case walkmanAction = "data-walkman-action"
+		case walkmanAction = "walkman-action"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -192,19 +209,19 @@ struct GeoCitiesMusic: ScriptedElement {
 				// A silver button of a player of the 1990s.
 				Style()
 					.frame(minWidth: .rootEm(2.75), minHeight: .rootEm(2.25))
-					.backgroundImage(.linearGradient("to bottom", Color("#f4f4f4"), Color("#b8b8c0")))
-					.border(Color("#77777f"), width: .pixels(1))
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#f4f4f4"), Color(raw: "#b8b8c0")))
+					.border(Color(raw: "#77777f"), width: .pixels(1))
 					.cornerRadius(.rootEm(0.375))
 					.textStyle(.body)
-					.color(Color("#222222"))
+					.color(Color(raw: "#222222"))
 					.handCursor()
 					.active {
-						$0.backgroundImage(.linearGradient("to bottom", Color("#b8b8c0"), Color("#e4e4e4")))
+						$0.backgroundImage(.linearGradient(.toBottom, Color(raw: "#b8b8c0"), Color(raw: "#e4e4e4")))
 					}
 			case .toggle:
 				// Green while it is on. The shared style of the button sinks it in.
 				Style().pressed {
-					$0.background(Color("#99ff99"))
+					$0.background(Color(raw: "#99ff99"))
 				}
 			case .status:
 				Style().toyStatus()

@@ -47,7 +47,7 @@ struct StatList: HTML {
 						$0
 							.flexDirection(.row)
 							.flexWrap()
-							.gap(row: .rootEm(0.25), column: 0)
+							.gap(row: .rootEm(0.25), column: .zero)
 					}
 			case .centered:
 				Style()
@@ -62,11 +62,88 @@ struct StatList: HTML {
 						$0.nested("& + &::before") {
 							$0
 								.content("·", alternativeText: "")
-								.margin(vertical: 0, horizontal: .rootEm(0.5))
+								.margin(vertical: .zero, horizontal: .rootEm(0.5))
 								.opacity(0.5)
 						}
 					}
 			}
+		}
+	}
+}
+
+/**
+A line of short facts in text, like “May 2023 · 4 min read”, with a dot and an en space at each side between them. Each fact is an element, like a `span` or a `time`, and the line breaks only between the facts. A link that is not the last fact is in a `span`, so the dot after it is not part of the link. The dot is at the end of the fact before it, so no line starts with a dot. With `isStackedBelowDesktops`, each fact is on its own line below desktops, without dots, like in a centered header with long facts, which would otherwise wrap after a dot.
+
+Limitation: the dots and the spaces are drawn by the styles, so copied text has no space between the facts.
+
+```swift
+FactLine {
+	span {
+		"2021"
+	}
+
+	span {
+		"Translated from German"
+	}
+}
+```
+*/
+struct FactLine<Content: HTML>: HTML {
+	/**
+	Plain-text facts before any richer content, each wrapped as one item.
+	*/
+	var facts = [String]()
+	var isStackedBelowDesktops = false
+	@HTMLBuilder let content: Content
+
+	var body: some HTML<HTMLTag.span> {
+		span {
+			for fact in facts {
+				span {
+					fact
+				}
+			}
+
+			content
+		}
+		.style(FactLineStyles.root)
+		.style(FactLineStyles.stackedBelowDesktops, when: isStackedBelowDesktops)
+	}
+}
+
+/**
+The styles of ``FactLine``, outside of it, as a generic type cannot have a static style set.
+*/
+enum FactLineStyles: StyleSet {
+	case root
+	case stackedBelowDesktops
+
+	var style: Style {
+		switch self {
+		case .root:
+			// Each fact is a box, so a line only breaks between the facts, or inside a fact that is longer than the line. Screen readers skip the dots, as their alternative text is empty.
+			Style()
+				.children("*") {
+					$0.display(.inlineBlock)
+				}
+				.children(":not(:last-child)") {
+					$0.after {
+						$0.content("\u{2002}·\u{2002}", alternativeText: "")
+					}
+				}
+		case .stackedBelowDesktops:
+			Style()
+				.below(.desktop) {
+					$0
+						.children("*") {
+							$0.display(.block)
+						}
+						.children(":not(:last-child)") {
+							$0.after {
+								$0.hidden()
+							}
+						}
+				}
 		}
 	}
 }

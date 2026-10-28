@@ -105,7 +105,14 @@ struct GeoCitiesBuddyList: ScriptedElement {
 						}
 						.style(GeoCitiesPage.Styles.label)
 
-						input(.id(Self.awayTextID), .part(Parts.awayText), .type(.text), .autocomplete("off"), .maxlength(80), .custom(name: "list", value: Self.awayPresetsID))
+						input(
+							.id(Self.awayTextID),
+							.part(Parts.awayText),
+							.type(.text),
+							.autocomplete("off"),
+							.maxlength(80),
+							.custom(name: "list", value: Self.awayPresetsID)
+						)
 							.style(GeoCitiesPage.Styles.field)
 
 						datalist(.id(Self.awayPresetsID)) {
@@ -155,7 +162,13 @@ struct GeoCitiesBuddyList: ScriptedElement {
 					}
 
 					form(.part(Parts.form)) {
-						input(.part(Parts.input), .type(.text), .autocomplete("off"), .maxlength(120), .disabled)
+						input(
+							.part(Parts.input),
+							.type(.text),
+							.autocomplete("off"),
+							.maxlength(120),
+							.disabled
+						)
 							.accessibilityLabel("Message")
 							.style(GeoCitiesPage.Styles.field)
 
@@ -248,18 +261,18 @@ struct GeoCitiesBuddyList: ScriptedElement {
 					.textStyle(.caption)
 			case .list:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.25))
 					.frame(minHeight: .rootEm(12))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			case .group:
 				Style()
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 			case .members:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(.leading, .rootEm(0.5))
 			case .buddy:
 				// A buddy in the list: gray and italic while away, and highlighted for a moment while signing on or off, like the open and closed doors of the real list. A buddy with a new message is white on blue.
@@ -273,32 +286,32 @@ struct GeoCitiesBuddyList: ScriptedElement {
 					.color(.black)
 					.handCursor()
 					.hover {
-						$0.background(Color("#e0e0ff"))
+						$0.background(Color(raw: "#e0e0ff"))
 					}
 					.when(States.away) {
 						$0
 							.italic()
-							.color(Color("#666666"))
+							.color(Color(raw: "#666666"))
 					}
 					.when(States.signingOn) {
 						$0
-							.background(Color("#ffff99"))
+							.background(Color(raw: "#ffff99"))
 							.fontWeight(.bold)
 					}
 					.when(States.signingOff) {
 						$0
-							.background(Color("#dddddd"))
-							.color(Color("#808080"))
+							.background(Color(raw: "#dddddd"))
+							.color(Color(raw: "#808080"))
 					}
 					.when(States.message) {
 						$0
-							.background(Color("#000080"))
+							.background(Color(raw: "#000080"))
 							.color(.white)
 							.fontWeight(.bold)
 					}
 					.disabled {
 						$0
-							.color(Color("#999999"))
+							.color(Color(raw: "#999999"))
 							.cursor(GeoCitiesPage.arrowCursor, fallback: .default)
 					}
 			case .icon:
@@ -310,9 +323,9 @@ struct GeoCitiesBuddyList: ScriptedElement {
 				// Gray, and light on the blue of a buddy with a new message.
 				Style()
 					.margin(.leading, .auto)
-					.color(Color("#808080"))
+					.color(Color(raw: "#808080"))
 					.when(ancestorHas: States.message) {
-						$0.color(Color("#ccccff"))
+						$0.color(Color(raw: "#ccccff"))
 					}
 			case .log:
 				// The chat, which scrolls, with the newest message at the bottom.
@@ -321,7 +334,7 @@ struct GeoCitiesBuddyList: ScriptedElement {
 					.overflow(.auto)
 					.padding(.rootEm(0.5))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(GeoCitiesPage.times)
 					.textStyle(.body)
 					.overflowWrap(.breakWord)
@@ -333,7 +346,7 @@ struct GeoCitiesBuddyList: ScriptedElement {
 					}
 					.when(States.system) {
 						$0
-							.color(Color("#808080"))
+							.color(Color(raw: "#808080"))
 							.fontFamily(.system)
 							.textStyle(.caption)
 					}
@@ -341,9 +354,9 @@ struct GeoCitiesBuddyList: ScriptedElement {
 				// The screen name before each message: red for the buddy and blue for the visitor, like in the real chat window.
 				Style()
 					.margin(.trailing, .rootEm(0.25))
-					.color(Color("#cc0000"))
+					.color(Color(raw: "#cc0000"))
 					.when(States.mine) {
-						$0.color(Color("#0000cc"))
+						$0.color(Color(raw: "#0000cc"))
 					}
 			}
 		}

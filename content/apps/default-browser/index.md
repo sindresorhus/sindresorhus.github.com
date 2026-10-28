@@ -1,25 +1,34 @@
 ---
 title: 'Default Browser'
 subtitle: 'Switch default browser from your menu bar'
-publicationDate: '2025-01-13'
+publicationDate: 2025-01-13
 platforms: [
 	'macOS'
 ]
+isMenuBarApp: true
+gumroad: {
+	id: 'default-browser'
+	price: 6
+}
+releasesRepository: 'sindresorhus/default-browser-meta'
+announcement: {
+	text: 'Save 30% with the Power User Bundle: Default Browser, Shortcutie, and Supercharge'
+	link: {
+		url: 'https://sindresorhus.gumroad.com/l/power-user'
+		text: 'Get the Bundle'
+	}
+}
 sharedQuestions: [
 	'not-in-app-store'
 	'menu-bar-icons'
 ]
-isPaid: true
-price: 6
-isMenuBarApp: true
-releasesRepository: 'sindresorhus/default-browser-meta'
-gumroadID: 'default-browser'
-minimumOSVersion: 26
-announcement: {
-	text: 'Save 28% with the Power User Bundle: Default Browser, Shortcutie, and Supercharge'
-	url: 'https://sindresorhus.gumroad.com/l/power-user'
-	linkText: 'Get the Bundle'
-}
+olderVersions: [
+	{
+		version: '1.1.0'
+		macOS: '15'
+		url: 'https://www.dropbox.com/scl/fi/u9c9gzh7l8jseuga9v2eg/Default-Browser-1.1.0-macOS-15-1771002988.zip?rlkey=37e8ck6g0x3pc3z132olqc8n9&raw=1'
+	}
+]
 pressQuotes: [
 	{
 		quote: '[…] it makes it easy to quickly switch between browsers whether you’re testing them like me, you’re a developer testing code in different browsers, or you simply prefer certain browsers for certain tasks.'
@@ -28,7 +37,7 @@ pressQuotes: [
 		year: 2025
 	}
 	{
-		quote: 'Sindre Sorhus is a serial indie app developer that specializes in creating niche apps that solve a particularly nagging problem in an often seamless way. Default Browser is one of my favorites.'
+		quote: 'Sindre Sorhus is a serial indie app developer that specializes in creating niche apps that solve a particularly nagging problem in an often seamless way. Default Browser is one of my favorites […]'
 		source: 'Lifehacker'
 		url: 'https://lifehacker.com/tech/finally-an-easier-way-to-change-your-default-browser-on-mac'
 		year: 2025
@@ -38,17 +47,10 @@ pressQuotes: [
 		source: 'Petar Stoyanov'
 	}
 ]
-olderVersions: [
-	{
-		version: '1.1.0'
-		macOS: '15'
-		url: 'https://www.dropbox.com/scl/fi/u9c9gzh7l8jseuga9v2eg/Default-Browser-1.1.0-macOS-15-1771002988.zip?rlkey=37e8ck6g0x3pc3z132olqc8n9&raw=1'
-	}
-]
 feedbackNote: '[Focus Filters are broken on macOS 26.5 and later.](https://developer.apple.com/forums/thread/826766) Only Apple can fix this.'
 ---
 
-Change the system default browser from your menu bar or with a keyboard shortcut, or let your Focus mode or the Shortcuts app change it for you.
+Change the default browser of your Mac from your menu bar or with a keyboard shortcut, or let your Focus mode or the Shortcuts app change it for you.
 
 Useful if you use one browser for work and another for everything else.
 
@@ -101,9 +103,9 @@ Use the [Focus Filter](#focus-filter) to switch browser based on the active Focu
 
 ## Frequently Asked Questions {#faq}
 
-### The app does not show up in the menu bar
+### The app does not show up in the menu bar {#the-app-does-not-show-up-in-the-menu-bar}
 
-[Try this](/apps/faq#app-not-showing-in-menu-bar)
+[Try the steps in the general FAQ](/apps/faq#app-not-showing-in-menu-bar)
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to show the menu bar icon.
 
@@ -117,7 +119,13 @@ Same answer as the above.
 
 With the exception of Orion, which implements profiles as separate apps.
 
-### How is it different from your Velja app?
+### Can macOS do this without an app? {#built-in}
+
+Yes. Go to “System Settings › Desktop & Dock”, and change “Default web browser”.
+
+Default Browser lets you change it from the menu bar or with a keyboard shortcut, without the confirmation prompt of macOS, and it can change it automatically with your Focus mode or the Shortcuts app.
+
+### How is it different from your Velja app? {#how-is-it-different-from-your-velja-app}
 
 [Velja](/velja) works by acting as a browser and forwarding URLs to other browsers, enabling features like rules, interactive browser prompt, desktop app handling, and URL tracking parameter cleaning. This app is simpler: it just changes the system default browser directly.
 

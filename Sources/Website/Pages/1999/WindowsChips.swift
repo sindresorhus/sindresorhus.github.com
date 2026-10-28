@@ -39,7 +39,13 @@ struct GeoCitiesWindowsChips: ScriptedElement {
 
 		// The board and the panel are one canvas, like the window of Chip’s Challenge, so they fit on a phone above the direction pad.
 		div {
-			canvas(.part(Parts.screen), .width(416), .height(288), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.screen),
+				.width(416),
+				.height(288),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("Chip’s Challenge. The arrow keys move Chip one tile, and P pauses. A swipe or a tap on the board moves him too.")
 				.style(Styles.screen)
 
@@ -76,7 +82,15 @@ struct GeoCitiesWindowsChips: ScriptedElement {
 				"Password:"
 			}
 
-			input(.id("geocities-chips-password"), .part(Parts.password), .type(.text), .autocomplete("off"), .maxlength(4), .custom(name: "autocapitalize", value: "characters"), .custom(name: "spellcheck", value: "false"))
+			input(
+				.id("geocities-chips-password"),
+				.part(Parts.password),
+				.type(.text),
+				.autocomplete("off"),
+				.maxlength(4),
+				.autocapitalize(.characters),
+				.spellcheck(false)
+			)
 				.style(Styles.password)
 
 			button(.type(.submit)) {
@@ -103,11 +117,11 @@ struct GeoCitiesWindowsChips: ScriptedElement {
 		case status
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A button of the direction pad, with its direction, like `up`.
 		*/
-		case move = "data-chips-move"
+		case move = "chips-move"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -132,10 +146,15 @@ struct GeoCitiesWindowsChips: ScriptedElement {
 				Style()
 					.display(.block)
 					.flex(1)
-					.frame(width: .rootEm(20), height: .auto, minWidth: .rootEm(15), maxWidth: .rootEm(26))
+					.frame(
+						width: .rootEm(20),
+						height: .auto,
+						minWidth: .rootEm(15),
+						maxWidth: .rootEm(26)
+					)
 					.aspectRatio(416.0 / 288.0)
 					.background(.black)
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
 					.imageRendering(.pixelated)
 					.touchAction(.none)
 			case .pad:
@@ -146,7 +165,7 @@ struct GeoCitiesWindowsChips: ScriptedElement {
 			case .padButton:
 				GeoCitiesPage.Styles.retroButton.style
 					.frame(size: .rootEm(2.75))
-					.padding(0)
+					.padding(.zero)
 					.touchAction(.manipulation)
 			case .password:
 				// A short white field with a sunken edge, for four letters.
@@ -154,7 +173,7 @@ struct GeoCitiesWindowsChips: ScriptedElement {
 					.frame(width: .rootEm(4.5))
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.375))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.body, weight: .bold)
 					.color(.black)

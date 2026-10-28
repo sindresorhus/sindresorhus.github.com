@@ -1,5 +1,4 @@
-// Read once, when the page loads, like on the rest of the site.
-const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+import {prefersReducedMotion} from '/scripts/dom.js';
 
 class AppMedia extends HTMLElement {
 	// Stops the observer and the listeners when the element is removed, so connecting it again does not add them twice.
@@ -122,7 +121,13 @@ class AppMedia extends HTMLElement {
 
 		const scrollTo = index => {
 			currentIndex = Math.max(0, Math.min(items.length - 1, index));
-			items[currentIndex].scrollIntoView({behavior: prefersReducedMotion ? 'instant' : 'smooth', block: 'nearest', inline: 'center'});
+			// Only the carousel scrolls, not the page, as `scrollIntoView()` would, so the buttons stay under the pointer or the finger. The item is centered, like its snap position.
+			const item = items[currentIndex].getBoundingClientRect();
+			const scroller = carousel.getBoundingClientRect();
+			carousel.scrollTo({
+				left: carousel.scrollLeft + item.left - scroller.left - ((carousel.clientWidth - item.width) / 2),
+				behavior: prefersReducedMotion ? 'instant' : 'smooth',
+			});
 			updateButtons();
 		};
 

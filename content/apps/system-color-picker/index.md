@@ -2,13 +2,21 @@
 title: 'System Color Picker'
 subtitle: 'The familiar color picker supercharged'
 description: 'The familiar macOS color picker supercharged. Pick a color from anywhere and copy it as Hex, HSL, RGB, OKLCH, and more. Includes palettes and Shortcuts support.'
-publicationDate: '2021-05-01'
+publicationDate: 2021-05-01
 platforms: [
 	'macOS'
 ]
 isMenuBarApp: true
 appStoreID: 1545870783
 hasSentry: true
+feedbackNames: [
+	'Color Picker'
+]
+nonAppStoreVersion: {
+	version: '2.2.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/kk4c8p47uj791k5t0nj0n/Color-Picker-2.2.0-1767305140.zip?rlkey=jivahp9p4k5f24q76473zrnkd&raw=1'
+}
 olderVersions: [
 	{
 		version: '2.1.4'
@@ -36,17 +44,21 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/System-Color-Picker/releases/download/older-releases/Color.Picker.1.9.6.-.macOS.11.zip'
 	}
 ]
+pressQuotes: [
+	{
+		quote: 'At first glance it looks a lot like Apple’s regular color picker, but it adds a handful of extra features that can be very helpful in the daily work of developers and designers.'
+		source: 'ifun.de'
+		translatedFrom: 'German'
+		url: 'https://www.ifun.de/system-color-picker-farben-waehlen-farbwerte-kopieren-173486/'
+		year: 2021
+	}
+]
 feedbackNote:
 	'''
-	## On macOS 26, there is a bug with the color sampler where it does not always pick the color you want. The app uses the system color sampler and has no control over how it works. Apple will need to fix this.
+	**On macOS 26, there is a bug with the color sampler where it does not always pick the color you want. The app uses the system color sampler and has no control over how it works. Apple will need to fix this.**
 
-	Note that the app wraps the macOS color picker as an app and adds some features. I have no control over how most things work though, like the tabs, color palettes, etc. Bugs with these must be fixed by macOS, not me. To see how it differs: select an image in Finder, open Quick Look, click the markup button, click the color button, and then click "Show Colors".
+	Note that the app wraps the macOS color picker as an app and adds some features. I have no control over how most things work though, like the tabs, color palettes, etc. Bugs with these must be fixed by macOS, not me. To see how it differs: select an image in Finder, open Quick Look, click the markup button, click the color button, and then click “Show Colors”.
 	'''
-nonAppStoreVersion: {
-	version: '2.2.0'
-	macOS: 26
-	url: 'https://www.dropbox.com/scl/fi/kk4c8p47uj791k5t0nj0n/Color-Picker-2.2.0-1767305140.zip?rlkey=jivahp9p4k5f24q76473zrnkd&raw=1'
-}
 ---
 
 The macOS color picker as an app, with more features. Pick a color from anywhere on the screen, and copy it as Hex, HSL, RGB, OKLCH, and more.
@@ -105,46 +117,45 @@ You can quickly switch between different color picker tabs:
 
 ### Plugins
 
-The built-in color picker supports plugins:
+The built-in color picker supports plugins. These plugins are old, and they only work on Intel Macs:
 
-- [Skala Color](https://bjango.com/mac/skalacolor/)
 - [Pro Picker](https://formulae.brew.sh/cask/colorpicker-propicker)
 - [Material Design](https://github.com/johnyanarella/MaterialDesignColorPicker)
 - [Color Picker Plus](https://github.com/viktorstrate/color-picker-plus)
 
 ## Frequently Asked Questions {#faq}
 
-### Can the color sampler show Hex values?
+### Can the color sampler show Hex values? {#can-the-color-sampler-show-hex-values}
 
 No. The color sampler in the app is provided by macOS and only supports showing RGB values when you press the ++Space++ key. To show Hex (or other formats) directly in the sampler would require a completely custom sampler, which in turn would need extra system permissions like “Screen Recording”. For now, the fastest workflow is to pick a color with the sampler and then copy it in Hex format from the app.
 
-### What is OKLCH color?
+### What is OKLCH color? {#what-is-oklch-color}
 
 [It’s a more human-friendly color format.](https://evilmartians.com/chronicles/oklch-in-css-why-quit-rgb-hsl) Prefer this format.
 
-### How is OKLCH better than LCH?
+### How is OKLCH better than LCH? {#how-is-oklch-better-than-lch}
 
 [OKLCH](https://evilmartians.com/chronicles/oklch-in-css-why-quit-rgb-hsl) improves upon [LCH](https://lea.verou.me/2020/04/lch-colors-in-css-what-why-and-how/) by providing more accurate and consistent colors, particularly in very bright or very saturated areas.
 
-### What is Unit RGB?
+### What is Unit RGB? {#what-is-unit-rgb}
 
 It represents RGB values in the range 0-1 instead of 0-255. This format is commonly used for programming (SwiftUI, AppKit, UIKit, etc.) and other graphics programming contexts. For example, `0.5, 0.5, 0.5` in [Unit RGB](https://rgbcolorpicker.com/0-1) is equivalent to `rgb(128, 128, 128)` in standard RGB. It accepts values in the format `0.1, 0.1, 0.1` and `0.1 0.1 0.1`, including with opacity `0.1, 0.1, 0.1, 0.5`.
 
-### Can you support HSB?
+### Can you support HSB? {#can-you-support-hsb}
 
 You can copy a color as HSB by clicking the `(…)` button in the window and selecting “Copy as HSB”. You can also see live HSB values in the “Sliders” tab by selecting “HSB Sliders”.
 
 HSB is intentionally not one of the main formats. HSB has no CSS syntax, while all the main formats can be pasted directly into CSS. HSL is also easier to reason about: lightness goes from black (0%) through the pure color (50%) to white (100%), so making a tint or shade means changing a single value. In HSB, making a color lighter requires both increasing brightness and decreasing saturation. If you want perceptual control, prefer OKLCH.
 
-### The color changes if I copy and then paste it
+### The color changes if I copy and then paste it {#the-color-changes-if-i-copy-and-then-paste-it}
 
-That is because the default color space in the picker is [Display P3](https://en.wikipedia.org/wiki/DCI-P3), which is [part of CSS Color 4](https://drafts.csswg.org/css-color-4/#valdef-color-display-p3), but the color space used for the legacy CSS color formats is [sRGB](https://en.wikipedia.org/wiki/SRGB) (browsers are starting to [handle color spaces](https://css-tricks.com/the-expanding-gamut-of-color-on-the-web/) but they are not all there yet).
+That is because the default color space in the picker is [Display P3](https://en.wikipedia.org/wiki/DCI-P3), which is [part of CSS Color 4](https://drafts.csswg.org/css-color-4/#valdef-color-display-p3), but the color space used for the legacy CSS color formats is [sRGB](https://en.wikipedia.org/wiki/SRGB). A Display P3 color outside of sRGB changes when you copy it as Hex, HSL, or RGB. To keep the color in CSS, copy it as OKLCH or LCH, which all current browsers support.
 
-### How do I clear the list of recently picked colors?
+### How do I clear the list of recently picked colors? {#how-do-i-clear-the-list-of-recently-picked-colors}
 
 In the main app window, click the clock icon in the middle toolbar.
 
-### How do I use palettes?
+### How do I use palettes? {#how-do-i-use-palettes}
 
 You can manage palettes by selecting the third tab in the window toolbar.
 
@@ -152,34 +163,34 @@ The fastest way to add a color to a palette is to paste a Hex color value into t
 
 Palettes can be accessed both from the app and the menu bar icon (if enabled). You can even access them in other apps that use the system color picker.
 
-You can find palettes on [Coolors](https://coolors.co/palettes/trending). Download the ASE palette type, right-click the file, and select “Open In › Color Picker”.
+You can find palettes on [Coolors](https://coolors.co/palettes/trending). Download the ASE palette type. Then click the `(…)` button in the window and select “Import Palette…” (also in the “File” menu), or right-click the file in Finder and select “Open With › Color Picker”.
 
-### How can I remove a color in a palette or swatch?
+### How can I remove a color in a palette or swatch? {#how-can-i-remove-a-color-in-a-palette-or-swatch}
 
 Select the color and press the ++Delete++ key or drag and drop the color onto the trash icon in the Dock.
 
-### How can I remove all the swatch colors at once?
+### How can I remove all the swatch colors at once? {#how-can-i-remove-all-the-swatch-colors-at-once}
 
 Unfortunately, this is not possible as swatches are managed by macOS. You will need to delete them individually.
 
-### How can I change the color space?
+### How can I change the color space? {#how-can-i-change-the-color-space}
 
 Right-click the color wheel. You want to select “Display P3” if you use LCH or “sRGB” if you use Hex, HSL, or RGB.
 
 Note that the HSL and RGB formats will always be clamped to [sRGB](https://en.wikipedia.org/wiki/SRGB) color space.
 
-### Can you support `SwiftUI.Color` / `UIColor` / `NSColor` formats?
+### Can you support `SwiftUI.Color` / `UIColor` / `NSColor` formats? {#can-you-support-swiftuicolor--uicolor--nscolor-formats}
 
-The best practice is to use [Asset Catalog for colors](https://devblog.xero.com/managing-ui-colours-with-ios-11-asset-catalogs-16500ba48205) instead of hard-coding the values in code. If you really want to hard-code colors, the [Skala color picker plugin](https://bjango.com/mac/skalacolor/) supports `UIColor` and `NSColor`.
+The best practice is to use [Asset Catalog for colors](https://devblog.xero.com/managing-ui-colours-with-ios-11-asset-catalogs-16500ba48205) instead of hard-coding the values in code. If you really want to hard-code colors, [Pinwheel](https://bjango.com/mac/pinwheel/) can export colors as SwiftUI code.
 
-### Why does the OKLCH chroma value differ from other sources?
+### Why does the OKLCH chroma value differ from other sources? {#why-does-the-oklch-chroma-value-differ-from-other-sources}
 
 The app displays the OKLCH chroma value as a percentage instead of an absolute value for better user-friendliness. For example, `oklch(70% 25% 135)` in the app corresponds to `oklch(70% 0.1 135)` on [oklch.com](https://oklch.com). Both are correct: the percentage form (0-100%) and the decimal form (0-0.4) are standard ways to express [OKLCH chroma](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch#c).
 
-### How can I export color palettes?
+### How can I export color palettes? {#how-can-i-export-color-palettes}
 
 **[Simple Color Palette](https://simplecolorpalette.com) format**
-1. Click the `(…)` button in the window and select “Export Palettes”
+1. Click the `(…)` button in the window and select “Export Palette › All Palettes…”, or one palette (also in the “File” menu)
 
 **CLR format**
 1. Open Finder
@@ -187,7 +198,7 @@ The app displays the OKLCH chroma value as a percentage instead of an absolute v
 1. Enter `~/Library/Colors`
 1. Copy the desired palette files
 
-### How can I export swatches?
+### How can I export swatches? {#how-can-i-export-swatches}
 
 1. Go to the color palettes folder (see above)
 1. Copy `NSColorPanelSwatches.plist`

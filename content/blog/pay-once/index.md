@@ -2,7 +2,7 @@
 isDraft: true
 title: 'Why My Apps Are Pay Once'
 description: 'No subscriptions, no in-app purchases, and no $1.99. Why I sell my apps the old way.'
-publicationDate: '2026-10-07'
+publicationDate: 2026-10-07
 ---
 
 Most of my apps are free. The paid ones cost a few dollars, once. You buy the app, and it’s yours, with the updates included. <!-- TODO: confirm: updates are included for all paid apps -->

@@ -4,18 +4,13 @@ import SiteKit
 
 extension GeoCitiesPage {
 	/**
-	The IDs and data attributes that `geocities.js` finds elements by.
+	The IDs that `geocities.js` finds elements by.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum IDs: String, ScriptIDSet {
 		case game = "geocities-game"
 		case start = "geocities-start"
 		case clock = "geocities-clock"
 		case score = "geocities-score"
-
-		/**
-		The number of a hole of the game, from 1 to 9, which is also its number key.
-		*/
-		case hole = "data-hole"
 
 		case sparkleTemplate = "geocities-sparkle"
 		case starTemplate = "geocities-star"
@@ -51,11 +46,6 @@ extension GeoCitiesPage {
 		case petFun = "geocities-pet-fun"
 		case petStatus = "geocities-pet-status"
 
-		/**
-		What a button of Glitter does: `feed`, `play`, `brush`, `clean`, `trick`, `hat`, or `light`.
-		*/
-		case petAction = "data-pet-action"
-
 		case petScreen = "geocities-pet-screen"
 		case petStats = "geocities-pet-stats"
 		case petBubble = "geocities-pet-bubble"
@@ -68,16 +58,6 @@ extension GeoCitiesPage {
 		case petButtons = "geocities-pet-buttons"
 		case petHeartTemplate = "geocities-pet-heart"
 
-		/**
-		The guess of the visitor in the game of Glitter: `left` or `right`.
-		*/
-		case petGuess = "data-pet-guess"
-
-		/**
-		How grown up Glitter is, on her screen: `baby`, `teen`, `grown-up`, or `legend`.
-		*/
-		case petStage = "data-pet-stage"
-
 		case butlerForm = "geocities-butler-form"
 		case butlerQuestion = "geocities-butler-question"
 		case butlerAnswer = "geocities-butler-answer"
@@ -89,29 +69,14 @@ extension GeoCitiesPage {
 		case pollStatus = "geocities-poll-status"
 		case pollResults = "geocities-poll-results"
 
-		/**
-		The made-up votes of an option of the poll.
-		*/
-		case votes = "data-votes"
-
 		case counter = "geocities-counter"
 		case guestbookForm = "geocities-guestbook-form"
 		case guestbookStatus = "geocities-guestbook-status"
 		case guestbookEntries = "geocities-guestbook-entries"
 		case entryTemplate = "geocities-entry"
 
-		/**
-		A field of a guestbook entry, like `name` or `message`.
-		*/
-		case field = "data-field"
-
 		case secret = "geocities-secret"
 		case paradeTemplate = "geocities-parade"
-
-		/**
-		The effect of a big red button that is on now, on the panel: `spin` spins the GIFs, and `rainbow` turns the colors of the page.
-		*/
-		case effect = "data-effect"
 
 		case root = "geocities-root"
 		case toast = "geocities-toast"
@@ -128,16 +93,6 @@ extension GeoCitiesPage {
 		case quizStatus = "geocities-quiz-status"
 		case quizStart = "geocities-quiz-start"
 
-		/**
-		The index of an answer of the quiz, from 0 to 3.
-		*/
-		case quizAnswer = "data-quiz-answer"
-
-		/**
-		A lifeline of the quiz: `fifty`, `phone`, or `audience`.
-		*/
-		case quizLifeline = "data-quiz-lifeline"
-
 		case reportBrowser = "geocities-report-browser"
 		case reportSystem = "geocities-report-system"
 		case reportScreen = "geocities-report-screen"
@@ -145,18 +100,8 @@ extension GeoCitiesPage {
 		case reportOnline = "geocities-report-online"
 		case reportBill = "geocities-report-bill"
 
-		/**
-		The pill of the Matrix: `red` or `blue`.
-		*/
-		case pill = "data-pill"
-
 		case matrixStatus = "geocities-matrix-status"
 		case matrixTemplate = "geocities-matrix"
-
-		/**
-		The file that a download button downloads, like `sindre.scr`.
-		*/
-		case download = "data-download"
 
 		case downloadWindow = "geocities-download"
 		case downloadTitle = "geocities-download-title"
@@ -191,11 +136,6 @@ extension GeoCitiesPage {
 		case lakeCanvas = "geocities-lake-canvas"
 		case lakeStatus = "geocities-lake-status"
 
-		/**
-		The number of a picture of SindreCam, from 0.
-		*/
-		case camScene = "data-cam-scene"
-
 		case camStatic = "geocities-cam-static"
 		case camTime = "geocities-cam-time"
 		case camCountdown = "geocities-cam-countdown"
@@ -213,11 +153,6 @@ extension GeoCitiesPage {
 		case candleLight = "geocities-candle-light"
 		case candleStatus = "geocities-candle-status"
 
-		/**
-		What a button of Rocky does: `feed`, `pet`, `walk`, or `trick`.
-		*/
-		case rockAction = "data-rock-action"
-
 		case rockStatus = "geocities-rock-status"
 		case fortuneText = "geocities-fortune-text"
 		case fortuneCrack = "geocities-fortune-crack"
@@ -230,11 +165,6 @@ extension GeoCitiesPage {
 		case helper = "geocities-helper"
 		case helperText = "geocities-helper-text"
 
-		/**
-		The answer of the visitor to the helper of the guestbook: `yes`, `no`, or `never`.
-		*/
-		case helperAnswer = "data-helper-answer"
-
 		case panel = "geocities-panel"
 
 		case snakePhone = "geocities-snake-phone"
@@ -242,53 +172,13 @@ extension GeoCitiesPage {
 		case snakeScreen = "geocities-snake-screen"
 		case snakeStatus = "geocities-snake-status"
 
-		/**
-		A key of the phone of Snake, like `2`, `*`, or `#`.
-		*/
-		case snakeKey = "data-snake-key"
-
 		case desktop = "geocities-desktop"
-
-		/**
-		The window that a desktop icon or an item of the Start menu opens, like `paint`.
-		*/
-		case desktopOpen = "data-desktop-open"
-
-		/**
-		A window of the desktop, by the name of its program, like `paint`.
-		*/
-		case desktopWindow = "data-desktop-window"
-
-		/**
-		The title bar of a window of the desktop, which drags the window.
-		*/
-		case desktopTitleBar = "data-desktop-title-bar"
-
-		/**
-		The close button of a window of the desktop.
-		*/
-		case desktopClose = "data-desktop-close"
 
 		case startMenu = "geocities-start-menu"
 		case startButton = "geocities-start-button"
 		case taskbarClock = "geocities-taskbar-clock"
 		case shutDown = "geocities-shut-down"
 		case shutDownTemplate = "geocities-shut-down-screen"
-
-		/**
-		A tool of Unicorn Paint, like `pencil` or `stamp`.
-		*/
-		case paintTool = "data-paint-tool"
-
-		/**
-		The picture that a stamp of Unicorn Paint stamps.
-		*/
-		case paintStamp = "data-paint-stamp"
-
-		/**
-		A color of the palette of Unicorn Paint, like `#ff0000`.
-		*/
-		case paintColor = "data-paint-color"
 
 		case paintStamps = "geocities-paint-stamps"
 		case paintUndo = "geocities-paint-undo"
@@ -305,37 +195,17 @@ extension GeoCitiesPage {
 		case sweeperFlag = "geocities-sweeper-flag"
 		case sweeperStatus = "geocities-sweeper-status"
 
-		/**
-		The number of a square of Y2K Bugsweeper, from 0 at the top left.
-		*/
-		case sweeperCell = "data-sweeper-cell"
-
-		/**
-		The number of bugs that touch an open square of Y2K Bugsweeper, from 1 to 8, which gives the number its color.
-		*/
-		case sweeperCount = "data-sweeper-count"
-
 		case diaryLock = "geocities-diary-lock"
 		case diaryPassword = "geocities-diary-password"
 		case diaryHint = "geocities-diary-hint"
 		case diaryStatus = "geocities-diary-status"
 		case diaryText = "geocities-diary-text"
 
-		/**
-		A pile of Solitaire, which the cards of the win jump off.
-		*/
-		case solitairePile = "data-solitaire-pile"
-
 		case solitaireWin = "geocities-solitaire-win"
 		case solitaireStatus = "geocities-solitaire-status"
 
 		case defragStart = "geocities-defrag-start"
 		case defragStatus = "geocities-defrag-status"
-
-		/**
-		A block of the hard drive in the defragmenter, by its number.
-		*/
-		case defragBlock = "data-defrag-block"
 
 		case recycleList = "geocities-recycle-list"
 		case recycleEmpty = "geocities-recycle-empty"
@@ -354,5 +224,140 @@ extension GeoCitiesPage {
 		case saverKind = "geocities-saver-kind"
 		case saverMonitor = "geocities-saver-monitor"
 		case trailKind = "geocities-trail-kind"
+	}
+
+	/**
+	The data attributes that `geocities.js` finds elements by.
+	*/
+	enum Hooks: String, ScriptDataAttributeSet {
+		/**
+		The number of a hole of the game, from 1 to 9, which is also its number key.
+		*/
+		case hole
+
+		/**
+		What a button of Glitter does: `feed`, `play`, `brush`, `clean`, `trick`, `hat`, or `light`.
+		*/
+		case petAction = "pet-action"
+
+		/**
+		The guess of the visitor in the game of Glitter: `left` or `right`.
+		*/
+		case petGuess = "pet-guess"
+
+		/**
+		How grown up Glitter is, on her screen: `baby`, `teen`, `grown-up`, or `legend`.
+		*/
+		case petStage = "pet-stage"
+
+		/**
+		The made-up votes of an option of the poll.
+		*/
+		case votes
+
+		/**
+		A field of a guestbook entry, like `name` or `message`.
+		*/
+		case field
+
+		/**
+		The effect of a big red button that is on now, on the panel: `spin` spins the GIFs, and `rainbow` turns the colors of the page.
+		*/
+		case effect
+
+		/**
+		The index of an answer of the quiz, from 0 to 3.
+		*/
+		case quizAnswer = "quiz-answer"
+
+		/**
+		A lifeline of the quiz: `fifty`, `phone`, or `audience`.
+		*/
+		case quizLifeline = "quiz-lifeline"
+
+		/**
+		The pill of the Matrix: `red` or `blue`.
+		*/
+		case pill
+
+		/**
+		The file that a download button downloads, like `sindre.scr`.
+		*/
+		case download
+
+		/**
+		The number of a picture of SindreCam, from 0.
+		*/
+		case camScene = "cam-scene"
+
+		/**
+		What a button of Rocky does: `feed`, `pet`, `walk`, or `trick`.
+		*/
+		case rockAction = "rock-action"
+
+		/**
+		The answer of the visitor to the helper of the guestbook: `yes`, `no`, or `never`.
+		*/
+		case helperAnswer = "helper-answer"
+
+		/**
+		A key of the phone of Snake, like `2`, `*`, or `#`.
+		*/
+		case snakeKey = "snake-key"
+
+		/**
+		The window that a desktop icon or an item of the Start menu opens, like `paint`.
+		*/
+		case desktopOpen = "desktop-open"
+
+		/**
+		A window of the desktop, by the name of its program, like `paint`.
+		*/
+		case desktopWindow = "desktop-window"
+
+		/**
+		The title bar of a window of the desktop, which drags the window.
+		*/
+		case desktopTitleBar = "desktop-title-bar"
+
+		/**
+		The close button of a window of the desktop.
+		*/
+		case desktopClose = "desktop-close"
+
+		/**
+		A tool of Unicorn Paint, like `pencil` or `stamp`.
+		*/
+		case paintTool = "paint-tool"
+
+		/**
+		The picture that a stamp of Unicorn Paint stamps.
+		*/
+		case paintStamp = "paint-stamp"
+
+		/**
+		A color of the palette of Unicorn Paint, like `#ff0000`.
+		*/
+		case paintColor = "paint-color"
+
+		/**
+		The number of a square of Y2K Bugsweeper, from 0 at the top left.
+		*/
+		case sweeperCell = "sweeper-cell"
+
+		/**
+		The number of bugs that touch an open square of Y2K Bugsweeper, from 1 to 8, which gives the number its color.
+		*/
+		case sweeperCount = "sweeper-count"
+
+		/**
+		A pile of Solitaire, which the cards of the win jump off.
+		*/
+		case solitairePile = "solitaire-pile"
+
+		/**
+		A block of the hard drive in the defragmenter, by its number.
+		*/
+		case defragBlock = "defrag-block"
 	}
 }

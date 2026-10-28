@@ -25,13 +25,23 @@ struct GeoCitiesDJBooth: HTML {
 
 		var content: some HTML {
 			h2 {
-				GeoCitiesPage.GIFImage(gif: .turntableScratch, alt: "", style: .gif, project: project)
+				GeoCitiesPage.GIFImage(
+					gif: .turntableScratch,
+					alt: "",
+					style: .gif,
+					project: project
+				)
 				" DJ Sindre"
 			}
 			.style(GeoCitiesDJBooth.Styles.title)
 
 			div {
-				GeoCitiesPage.GIFImage(gif: .alienDJ, alt: "An alien DJ", style: .gif, project: project)
+				GeoCitiesPage.GIFImage(
+					gif: .alienDJ,
+					alt: "An alien DJ",
+					style: .gif,
+					project: project
+				)
 			}
 			.style(GeoCitiesPage.Styles.centeredText)
 
@@ -97,22 +107,34 @@ struct GeoCitiesDJBooth: HTML {
 					Style()
 						.hstack(alignment: .center, justification: .center)
 						.padding(.rootEm(0.75))
-						.backgroundImage(.linearGradient("to bottom right", Color("#d8d8d8"), Color("#9a9a9a")))
-						.border(Color("#555"), width: .pixels(2))
+						.backgroundImage(.linearGradient(.toBottomRight, Color(raw: "#d8d8d8"), Color(raw: "#9a9a9a")))
+						.border(Color(raw: "#555"), width: .pixels(2))
 						.cornerRadius(.rootEm(0.5))
 				case .record:
 					// A black record with grooves. The script turns it.
 					Style()
 						.hstack(alignment: .center, justification: .center)
 						.frame(size: .rootEm(12))
-						.backgroundImage(.radialGradient("circle", Color("#cc0000"), Color("#111111"), Color("#2a2a2a"), Color("#111111"), Color("#2a2a2a"), Color("#111111"), Color("#2a2a2a"), Color("#111111")))
-						.border(Color("#000"), width: .pixels(3))
+						.backgroundImage(
+							.radialGradient(
+								.circle,
+								Color(raw: "#cc0000"),
+								Color(raw: "#111111"),
+								Color(raw: "#2a2a2a"),
+								Color(raw: "#111111"),
+								Color(raw: "#2a2a2a"),
+								Color(raw: "#111111"),
+								Color(raw: "#2a2a2a"),
+								Color(raw: "#111111")
+							)
+						)
+						.border(Color(raw: "#000"), width: .pixels(3))
 						.cornerRadius(.percent(50))
-						.shadow(Shadow(y: .pixels(3), blur: .pixels(6), color: Color("#00000099")))
+						.shadow(BoxShadow(y: .pixels(3), blur: .pixels(6), color: Color(raw: "#00000099")))
 						.handCursor()
 						.touchAction(.none)
 						.focusVisible {
-							$0.focusRing(Color("#39ff14"), width: .pixels(3), offset: .pixels(3))
+							$0.focusRing(Color(raw: "#39ff14"), width: .pixels(3), offset: .pixels(3))
 						}
 				case .label:
 					// The red label in the middle, with the text of the record.
@@ -120,7 +142,7 @@ struct GeoCitiesDJBooth: HTML {
 						.hstack(alignment: .center, justification: .center)
 						.frame(size: .rootEm(4.5))
 						.padding(.rootEm(0.5))
-						.background(Color("#cc0000"))
+						.background(Color(raw: "#cc0000"))
 						.cornerRadius(.percent(50))
 						.fontFamily(.system)
 						.font(size: .rootEm(0.4375))
@@ -148,16 +170,16 @@ struct GeoCitiesDJBooth: HTML {
 				Style()
 					.flowSpacing(.rootEm(0.75))
 					.padding(.rootEm(0.75))
-					.background(Color("#111111"))
-					.border(Color("#39ff14"), width: .pixels(3))
+					.background(Color(raw: "#111111"))
+					.border(Color(raw: "#39ff14"), width: .pixels(3))
 					.color(.white)
 			case .title:
 				Style()
 					.textAlign(.center)
 					.fontFamily(GeoCitiesPage.impact)
 					.font(.extraLarge2)
-					.color(Color("#39ff14"))
-					.textShadow(Shadow(y: 0, blur: .pixels(8), color: Color("#39ff14")))
+					.color(Color(raw: "#39ff14"))
+					.textShadow(Shadow(y: .zero, blur: .pixels(8), color: Color(raw: "#39ff14")))
 			}
 		}
 	}

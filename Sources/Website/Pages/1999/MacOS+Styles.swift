@@ -6,10 +6,10 @@ extension GeoCitiesMacOS {
 	/**
 	The colors of the theme of the Appearance, which the screen sets for its theme, and the windows, the menus, and the title bars read, so a Kaleidoscope scheme recolors all of the desktop.
 	*/
-	static let face = StyleVariable<Color>("--mac-face")
-	static let titleColor = StyleVariable<Color>("--mac-title")
-	static let titleText = StyleVariable<Color>("--mac-title-text")
-	static let highlight = StyleVariable<Color>("--mac-highlight")
+	static let face = StyleVariable<Color>("mac-face")
+	static let titleColor = StyleVariable<Color>("mac-title")
+	static let titleText = StyleVariable<Color>("mac-title-text")
+	static let highlight = StyleVariable<Color>("mac-highlight")
 
 	/**
 	The font of Mac OS 8 was Charcoal, which only Macs of that time have, so the bold system font stands in.
@@ -19,12 +19,12 @@ extension GeoCitiesMacOS {
 	/**
 	The Platinum gray of Mac OS 8.
 	*/
-	static let platinum = Color("#dddddd")
+	static let platinum = Color(raw: "#dddddd")
 
 	/**
 	The lines of a Platinum title bar, a light and a dark line that repeat over the color of the title bar.
 	*/
-	static let stripes: RoutePath = "/1999/mac-stripes.png"
+	static let stripes = #path("/1999/mac-stripes.png")
 
 	enum States: String, ElementStateSet {
 		case on
@@ -178,18 +178,48 @@ extension GeoCitiesMacOS {
 					.vstack(alignment: .center, spacing: .rootEm(0.5))
 					.frame(width: .rootEm(44), maxWidth: .percent(100))
 					.padding(top: .rootEm(1), horizontal: .rootEm(0.75), bottom: .rootEm(0.75))
-					.backgroundImage(.radialGradient("ellipse at 30% 15%", Color("#9fe4ef"), Color("#2bb3cc"), Color("#0095b6"), Color("#00667d")))
-					.border(Color("#005466"), width: .pixels(2))
+					.backgroundImage(
+						.radialGradient(
+							.ellipse(at: .init(x: .percent(30), y: .percent(15))),
+							Color(raw: "#9fe4ef"),
+							Color(raw: "#2bb3cc"),
+							Color(raw: "#0095b6"),
+							Color(raw: "#00667d")
+						)
+					)
+					.border(Color(raw: "#005466"), width: .pixels(2))
 					.cornerRadius(.rootEm(2))
-					.shadow(Shadow(x: .pixels(0), y: .pixels(8), blur: .pixels(16), color: Color("#00000055")), Shadow(x: .pixels(4), y: .pixels(4), blur: .pixels(12), color: Color("#ffffff66"), isInset: true))
+					.shadow(
+						BoxShadow(
+							x: .pixels(0),
+							y: .pixels(8),
+							blur: .pixels(16),
+							color: Color(raw: "#00000055")
+						),
+						BoxShadow(
+							x: .pixels(4),
+							y: .pixels(4),
+							blur: .pixels(12),
+							color: Color(raw: "#ffffff66"),
+							isInset: true
+						)
+					)
 			case .bezel:
 				// The dark glass around the screen.
 				Style()
 					.frame(width: .percent(100))
 					.padding(.rootEm(0.75))
-					.background(Color("#20282c"))
+					.background(Color(raw: "#20282c"))
 					.cornerRadius(.rootEm(1))
-					.shadow(Shadow(x: .pixels(0), y: .pixels(0), blur: .pixels(0), spread: .pixels(3), color: Color("#d8f4f8aa")))
+					.shadow(
+						BoxShadow(
+							x: .pixels(0),
+							y: .pixels(0),
+							blur: .pixels(0),
+							spread: .pixels(3),
+							color: Color(raw: "#d8f4f8aa")
+						)
+					)
 			case .chin:
 				Style()
 					.hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(0.5))
@@ -200,20 +230,20 @@ extension GeoCitiesMacOS {
 				Style()
 					.fontFamily(.system)
 					.textStyle(.body, weight: .bold)
-					.color(Color("#e8fbff"))
-					.textShadow(Shadow(x: .pixels(0), y: .pixels(1), color: Color("#004a5a")))
+					.color(Color(raw: "#e8fbff"))
+					.textShadow(Shadow(x: .pixels(0), y: .pixels(1), color: Color(raw: "#004a5a")))
 			case .tray:
 				// The CD tray, out of the iMac.
 				Style()
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
-					.background(Color("#e9f6f8"))
-					.border(Color("#7fb6c2"), width: .pixels(2))
+					.background(Color(raw: "#e9f6f8"))
+					.border(Color(raw: "#7fb6c2"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.25))
 			case .trayCD:
 				Style()
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
 					.background(.white)
-					.border(Color("#9ab"), width: .pixels(1))
+					.border(Color(raw: "#9ab"), width: .pixels(1))
 					.cornerRadius(.capsule)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
@@ -224,56 +254,63 @@ extension GeoCitiesMacOS {
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
 					.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.75))
-					.background(Color("#e9f6f8"))
-					.border(Color("#4d8f9e"), width: .pixels(2))
+					.background(Color(raw: "#e9f6f8"))
+					.border(Color(raw: "#4d8f9e"), width: .pixels(2))
 					.cornerRadius(.capsule)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#003b46"))
+					.color(Color(raw: "#003b46"))
 					.handCursor()
 					.active {
-						$0.background(Color("#c5e6ec"))
+						$0.background(Color(raw: "#c5e6ec"))
 					}
 			case .led:
 				// The light of the power button: green while it is on, and amber, breathing slowly, while it sleeps.
 				Style()
 					.frame(size: .rootEm(0.625))
-					.background(Color("#335544"))
+					.background(Color(raw: "#335544"))
 					.cornerRadius(.circle)
 					.when(States.on) {
 						$0
-							.background(Color("#33ff66"))
-							.shadow(Shadow(x: .pixels(0), y: .pixels(0), blur: .pixels(6), color: Color("#33ff66")))
+							.background(Color(raw: "#33ff66"))
+							.shadow(
+								BoxShadow(
+									x: .pixels(0),
+									y: .pixels(0),
+									blur: .pixels(6),
+									color: Color(raw: "#33ff66")
+								)
+							)
 					}
 					.when(Hooks.sleeping) {
 						$0
-							.background(Color("#ffaa22"))
+							.background(Color(raw: "#ffaa22"))
 							.animation(GeoCitiesPage.Animations.blink, .easeInOut(duration: .seconds(3)).repeatForever(autoreverses: true))
 					}
 			case .printer:
 				Style()
-					.vstack(alignment: .center, spacing: 0)
+					.vstack(alignment: .center, spacing: .zero)
 					.frame(width: .rootEm(16), maxWidth: .percent(100))
 			case .printout:
 				Style()
 					.display(.block)
 					.frame(width: .percent(80), height: .auto)
 					.background(.white)
-					.border(Color("#bbbbbb"), width: .pixels(1))
-					.shadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#00000033")))
+					.border(Color(raw: "#bbbbbb"), width: .pixels(1))
+					.shadow(BoxShadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#00000033")))
 			case .printerBody:
 				// The StyleWriter II, a small gray printer.
 				Style()
 					.frame(width: .percent(100))
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.5))
-					.background(Color("#cfcfc8"))
-					.border(Color("#77776f"), width: .pixels(2))
+					.background(Color(raw: "#cfcfc8"))
+					.border(Color(raw: "#77776f"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.375))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
-					.color(Color("#444444"))
+					.color(Color(raw: "#444444"))
 			case .below:
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.5))
@@ -287,10 +324,10 @@ extension GeoCitiesMacOS {
 				// A key of the keyboard of the iMac, pressed down while it is held for the next startup.
 				Style()
 					.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.625))
-					.background(Color("#f4f8f9"))
-					.border(Color("#7fa9b3"), width: .pixels(1))
+					.background(Color(raw: "#f4f8f9"))
+					.border(Color(raw: "#7fa9b3"), width: .pixels(1))
 					.cornerRadius(.rootEm(0.375))
-					.shadow(Shadow(x: .pixels(0), y: .pixels(3), color: Color("#5d8c97")))
+					.shadow(BoxShadow(x: .pixels(0), y: .pixels(3), color: Color(raw: "#5d8c97")))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 					.color(.black)
@@ -298,8 +335,8 @@ extension GeoCitiesMacOS {
 					.pressed {
 						$0
 							.offset(y: .pixels(3))
-							.background(Color("#bfe6ee"))
-							.shadow(Shadow(x: .pixels(0), y: .pixels(0), color: Color("#5d8c97")))
+							.background(Color(raw: "#bfe6ee"))
+							.shadow(BoxShadow(x: .pixels(0), y: .pixels(0), color: Color(raw: "#5d8c97")))
 					}
 			case .status:
 				Style().toyStatus(lines: 1)
@@ -316,36 +353,36 @@ extension GeoCitiesMacOS {
 					.color(.black)
 					.textAlign(.leading)
 					.setting(GeoCitiesMacOS.face, to: GeoCitiesMacOS.platinum)
-					.setting(GeoCitiesMacOS.titleColor, to: Color("#cccccc"))
+					.setting(GeoCitiesMacOS.titleColor, to: Color(raw: "#cccccc"))
 					.setting(GeoCitiesMacOS.titleText, to: .black)
-					.setting(GeoCitiesMacOS.highlight, to: Color("#3c3cb4"))
+					.setting(GeoCitiesMacOS.highlight, to: Color(raw: "#3c3cb4"))
 					.when(Hooks.theme, is: "bondi") {
 						$0
-							.setting(GeoCitiesMacOS.face, to: Color("#d4eef2"))
-							.setting(GeoCitiesMacOS.titleColor, to: Color("#4fc3d8"))
-							.setting(GeoCitiesMacOS.titleText, to: Color("#003b46"))
-							.setting(GeoCitiesMacOS.highlight, to: Color("#0095b6"))
+							.setting(GeoCitiesMacOS.face, to: Color(raw: "#d4eef2"))
+							.setting(GeoCitiesMacOS.titleColor, to: Color(raw: "#4fc3d8"))
+							.setting(GeoCitiesMacOS.titleText, to: Color(raw: "#003b46"))
+							.setting(GeoCitiesMacOS.highlight, to: Color(raw: "#0095b6"))
 					}
 					.when(Hooks.theme, is: "waffle") {
 						$0
-							.setting(GeoCitiesMacOS.face, to: Color("#f6e2b3"))
-							.setting(GeoCitiesMacOS.titleColor, to: Color("#d9a441"))
-							.setting(GeoCitiesMacOS.titleText, to: Color("#4a2a00"))
-							.setting(GeoCitiesMacOS.highlight, to: Color("#8b4513"))
+							.setting(GeoCitiesMacOS.face, to: Color(raw: "#f6e2b3"))
+							.setting(GeoCitiesMacOS.titleColor, to: Color(raw: "#d9a441"))
+							.setting(GeoCitiesMacOS.titleText, to: Color(raw: "#4a2a00"))
+							.setting(GeoCitiesMacOS.highlight, to: Color(raw: "#8b4513"))
 					}
 					.when(Hooks.theme, is: "copland") {
 						$0
-							.setting(GeoCitiesMacOS.face, to: Color("#cdc6e3"))
-							.setting(GeoCitiesMacOS.titleColor, to: Color("#8f86c0"))
-							.setting(GeoCitiesMacOS.titleText, to: Color("#1b1440"))
-							.setting(GeoCitiesMacOS.highlight, to: Color("#5a2d91"))
+							.setting(GeoCitiesMacOS.face, to: Color(raw: "#cdc6e3"))
+							.setting(GeoCitiesMacOS.titleColor, to: Color(raw: "#8f86c0"))
+							.setting(GeoCitiesMacOS.titleText, to: Color(raw: "#1b1440"))
+							.setting(GeoCitiesMacOS.highlight, to: Color(raw: "#5a2d91"))
 					}
 					.when(Hooks.theme, is: "windows") {
 						$0
 							.setting(GeoCitiesMacOS.face, to: GeoCitiesPage.windowGray)
-							.setting(GeoCitiesMacOS.titleColor, to: Color("#000080"))
+							.setting(GeoCitiesMacOS.titleColor, to: Color(raw: "#000080"))
 							.setting(GeoCitiesMacOS.titleText, to: .white)
-							.setting(GeoCitiesMacOS.highlight, to: Color("#000080"))
+							.setting(GeoCitiesMacOS.highlight, to: Color(raw: "#000080"))
 					}
 					.when(Hooks.theme, is: "system7") {
 						$0
@@ -366,23 +403,23 @@ extension GeoCitiesMacOS {
 			case .off:
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.display(.flex)
 					.alignItems(.center)
 					.justifyContent(.center)
 					.padding(.rootEm(1))
-					.background(Color("#050607"))
+					.background(Color(raw: "#050607"))
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.textAlign(.center)
-					.color(Color("#556066"))
+					.color(Color(raw: "#556066"))
 			case .boot:
 				// The gray screen of the startup.
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.vstack(alignment: .center, justification: .center, spacing: .rootEm(1))
-					.background(Color("#999999"))
+					.background(Color(raw: "#999999"))
 			case .bootIcon:
 				Style()
 					.frame(width: .rootEm(4.5), height: .auto)
@@ -395,32 +432,40 @@ extension GeoCitiesMacOS {
 					.padding(.rootEm(1))
 					.background(GeoCitiesMacOS.platinum)
 					.border(.black, width: .pixels(1))
-					.shadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#00000066")), Shadow(x: .pixels(1), y: .pixels(1), color: .white, isInset: true))
+					.shadow(
+						BoxShadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#00000066")),
+						BoxShadow(
+							x: .pixels(1),
+							y: .pixels(1),
+							color: .white,
+							isInset: true
+						)
+					)
 			case .face:
 				Style().frame(size: .rootEm(4))
 			case .welcomeText:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.font(size: .rootEm(1.25))
 					.fontWeight(.bold)
 			case .progressTrack:
 				Style()
 					.frame(width: .percent(90), height: .rootEm(0.75))
-					.background(Color("#eeeeee"))
-					.border(Color("#555555"), width: .pixels(1))
+					.background(Color(raw: "#eeeeee"))
+					.border(Color(raw: "#555555"), width: .pixels(1))
 			case .progressBar:
 				Style()
-					.frame(width: 0, height: .percent(100))
-					.backgroundImage(.linearGradient("to bottom", Color("#9c9cff"), Color("#4040c0")))
+					.frame(width: .zero, height: .percent(100))
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#9c9cff"), Color(raw: "#4040c0")))
 			case .bootNote:
 				Style()
 					.frame(minHeight: .lineHeight(1))
-					.margin(0)
+					.margin(.zero)
 					.font(size: .rootEm(0.75))
 			case .bootMessage:
 				Style()
 					.frame(maxWidth: .rootEm(20))
-					.margin(0)
+					.margin(.zero)
 					.padding(.horizontal, .rootEm(1))
 					.textAlign(.center)
 			case .extensionRow:
@@ -440,21 +485,21 @@ extension GeoCitiesMacOS {
 			case .desktop:
 				Style()
 					.position(.absolute)
-					.inset(0)
-					.background(Color("#6666aa"))
+					.inset(.zero)
+					.background(Color(raw: "#6666aa"))
 			case .picture:
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.frame(size: .percent(100))
 					.imageRendering(.pixelated)
 			case .icons:
 				Style()
 					.position(.absolute)
 					.top(.rootEm(1.375))
-					.leading(0)
-					.trailing(0)
-					.bottom(0)
+					.leading(.zero)
+					.trailing(.zero)
+					.bottom(.zero)
 			case .icon:
 				// An icon of the desktop or of a Finder window: the picture, with the name below it on white, black while it is selected.
 				Style()
@@ -500,19 +545,26 @@ extension GeoCitiesMacOS {
 				// The menu bar of Mac OS 8, light gray with a black line under it, always over the windows.
 				Style()
 					.position(.absolute)
-					.top(0)
-					.leading(0)
-					.trailing(0)
+					.top(.zero)
+					.leading(.zero)
+					.trailing(.zero)
 					.zIndex(900)
 					.hstack(alignment: .center, justification: .spaceBetween)
 					.frame(height: .rootEm(1.375))
 					.background(GeoCitiesMacOS.face.value)
 					.border(.bottom, .black, width: .pixels(1))
-					.shadow(Shadow(x: .pixels(0), y: .pixels(1), color: Color("#ffffff"), isInset: true))
+					.shadow(
+						BoxShadow(
+							x: .pixels(0),
+							y: .pixels(1),
+							color: Color(raw: "#ffffff"),
+							isInset: true
+						)
+					)
 			case .menus:
 				Style()
 					.hstack(alignment: .center)
-					.margin(0)
+					.margin(.zero)
 					.padding(.horizontal, .rootEm(0.25))
 			case .menuSlot:
 				Style().position(.relative)
@@ -552,7 +604,12 @@ extension GeoCitiesMacOS {
 				Style()
 					.display(.inlineBlock)
 					.flexShrink(0)
-					.frame(width: .pixels(16), height: .pixels(16), minWidth: .pixels(16), maxWidth: .pixels(16))
+					.frame(
+						width: .pixels(16),
+						height: .pixels(16),
+						minWidth: .pixels(16),
+						maxWidth: .pixels(16)
+					)
 					.imageRendering(.pixelated)
 					.verticalAlign(.middle)
 			case .menu:
@@ -560,18 +617,18 @@ extension GeoCitiesMacOS {
 				Style()
 					.position(.absolute)
 					.top(.percent(100))
-					.leading(0)
+					.leading(.zero)
 					.zIndex(901)
 					.frame(minWidth: .rootEm(12), maxWidth: .rootEm(18))
-					.margin(0)
-					.padding(vertical: .pixels(3), horizontal: 0)
+					.margin(.zero)
+					.padding(vertical: .pixels(3), horizontal: .zero)
 					.background(GeoCitiesMacOS.face.value)
 					.border(.black, width: .pixels(1))
-					.shadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#00000066")))
+					.shadow(BoxShadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#00000066")))
 			case .menuAtRight:
 				Style()
 					.leading(.auto)
-					.trailing(0)
+					.trailing(.zero)
 			case .menuItem:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
@@ -597,33 +654,33 @@ extension GeoCitiesMacOS {
 					.disabled {
 						$0
 							.background(.transparent)
-							.color(Color("#999999"))
+							.color(Color(raw: "#999999"))
 							.cursor(.default)
 					}
 			case .menuSeparator:
 				Style()
-					.margin(vertical: .pixels(3), horizontal: 0)
-					.border(.top, Color("#999999"), width: .pixels(1))
+					.margin(vertical: .pixels(3), horizontal: .zero)
+					.border(.top, Color(raw: "#999999"), width: .pixels(1))
 			case .submenuSlot:
 				Style().position(.relative)
 			case .submenu:
 				// A submenu opens to the side of its item, and under it on a narrow screen.
 				Style()
 					.position(.absolute)
-					.top(0)
+					.top(.zero)
 					.leading(.percent(100))
 					.zIndex(902)
 					.frame(minWidth: .rootEm(11))
-					.margin(0)
-					.padding(vertical: .pixels(3), horizontal: 0)
+					.margin(.zero)
+					.padding(vertical: .pixels(3), horizontal: .zero)
 					.background(GeoCitiesMacOS.face.value)
 					.border(.black, width: .pixels(1))
-					.shadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#00000066")))
+					.shadow(BoxShadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#00000066")))
 					.below(.smallTablet) {
 						$0
 							.position(.static)
 							.margin(.leading, .rootEm(1))
-							.shadow(Shadow(x: 0, y: 0, color: .transparent))
+							.shadow(BoxShadow(x: .zero, y: .zero, color: .transparent))
 					}
 			case .submenuArrow:
 				Style()
@@ -637,7 +694,7 @@ extension GeoCitiesMacOS {
 				// The Control Strip at the bottom left, which collapses to its tab.
 				Style()
 					.position(.absolute)
-					.leading(0)
+					.leading(.zero)
 					.bottom(.rootEm(0.375))
 					.zIndex(800)
 					.hstack()
@@ -650,19 +707,19 @@ extension GeoCitiesMacOS {
 				Style()
 					.frame(width: .rootEm(1.75), height: .rootEm(1.5))
 					.background(.transparent)
-					.border(.trailing, Color("#999999"), width: .pixels(1))
+					.border(.trailing, Color(raw: "#999999"), width: .pixels(1))
 					.font(size: .rootEm(0.75))
 					.handCursor()
 					.active {
-						$0.background(Color("#aaaaaa"))
+						$0.background(Color(raw: "#aaaaaa"))
 					}
 					.pressed {
-						$0.background(Color("#bbbbee"))
+						$0.background(Color(raw: "#bbbbee"))
 					}
 			case .stripTab:
 				Style()
 					.frame(width: .rootEm(1.25))
-					.background(Color("#bbbbbb"))
+					.background(Color(raw: "#bbbbbb"))
 					.font(size: .rootEm(0.625))
 					.handCursor()
 			case .balloon:
@@ -671,19 +728,19 @@ extension GeoCitiesMacOS {
 					.position(.absolute)
 					.zIndex(1900)
 					.frame(maxWidth: .rootEm(14))
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.5), horizontal: .rootEm(0.75))
 					.background(.white)
 					.border(.black, width: .pixels(1))
 					.cornerRadius(.rootEm(1))
-					.shadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#00000055")))
+					.shadow(BoxShadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#00000055")))
 					.font(size: .rootEm(0.75), lineHeight: 1.3)
 					.fontWeight(.regular)
 					.allowsHitTesting(false)
 			case .saver:
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.zIndex(1950)
 					.frame(size: .percent(100))
 					.background(.black)
@@ -692,8 +749,8 @@ extension GeoCitiesMacOS {
 				Style()
 					.position(.absolute)
 					.top(.percent(14))
-					.leading(0)
-					.trailing(0)
+					.leading(.zero)
+					.trailing(.zero)
 					.zIndex(2000)
 					.vstack(spacing: .rootEm(0.75))
 					.frame(width: .rootEm(24), maxWidth: .percent(94))
@@ -701,7 +758,23 @@ extension GeoCitiesMacOS {
 					.padding(.rootEm(1))
 					.background(GeoCitiesMacOS.face.value)
 					.border(.black, width: .pixels(1))
-					.shadow(Shadow(x: .pixels(0), y: .pixels(0), spread: .pixels(3), color: Color("#bbbbbb"), isInset: true), Shadow(x: .pixels(0), y: .pixels(0), spread: .pixels(4), color: .black, isInset: true), Shadow(x: .pixels(3), y: .pixels(3), color: Color("#00000077")))
+					.shadow(
+						BoxShadow(
+							x: .pixels(0),
+							y: .pixels(0),
+							spread: .pixels(3),
+							color: Color(raw: "#bbbbbb"),
+							isInset: true
+						),
+						BoxShadow(
+							x: .pixels(0),
+							y: .pixels(0),
+							spread: .pixels(4),
+							color: .black,
+							isInset: true
+						),
+						BoxShadow(x: .pixels(3), y: .pixels(3), color: Color(raw: "#00000077"))
+					)
 					.when(Hooks.low) {
 						$0
 							.top(.auto)
@@ -716,7 +789,7 @@ extension GeoCitiesMacOS {
 					.imageRendering(.pixelated)
 			case .alertText:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontWeight(.bold)
 			case .alertDetail:
 				Style()
@@ -732,12 +805,25 @@ extension GeoCitiesMacOS {
 				Style()
 					.position(.absolute)
 					.vstack()
-					.frame(maxWidth: .percent(98), maxHeight: .percent(100) - .rootEm(1.75))
+					.frame(maxWidth: .percent(98), maxHeight: .length(.percent(100) - .rootEm(1.75)))
 					.background(GeoCitiesMacOS.face.value)
 					.border(.black, width: .pixels(1))
-					.shadow(Shadow(x: .pixels(1), y: .pixels(1), color: .white, isInset: true), Shadow(x: .pixels(2), y: .pixels(2), color: Color("#00000066")))
+					.shadow(
+						BoxShadow(
+							x: .pixels(1),
+							y: .pixels(1),
+							color: .white,
+							isInset: true
+						),
+						BoxShadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#00000066"))
+					)
 					.when(Hooks.zoomed) {
-						$0.frame(width: .percent(100), height: .percent(100) - .rootEm(1.375), maxWidth: .percent(100), maxHeight: .percent(100))
+						$0.frame(
+							width: .percent(100),
+							height: .length(.percent(100) - .rootEm(1.375)),
+							maxWidth: .percent(100),
+							maxHeight: .percent(100)
+						)
 					}
 					// A rolled-up window keeps only its title bar, also while it is zoomed.
 					.when(Hooks.collapsed) {
@@ -761,7 +847,7 @@ extension GeoCitiesMacOS {
 					}
 					.padding(.horizontal, .rootEm(0.375))
 					.background(GeoCitiesMacOS.face.value)
-					.border(.bottom, Color("#888888"), width: .pixels(1))
+					.border(.bottom, Color(raw: "#888888"), width: .pixels(1))
 					.touchAction(.none)
 					.textSelection(.disabled)
 					.cursor(.move)
@@ -783,18 +869,47 @@ extension GeoCitiesMacOS {
 						$0.frame(size: .rootEm(1.25))
 					}
 					.background(GeoCitiesMacOS.face.value)
-					.border(Color("#333333"), width: .pixels(1))
-					.shadow(Shadow(x: .pixels(1), y: .pixels(1), color: .white, isInset: true), Shadow(x: .pixels(-1), y: .pixels(-1), color: Color("#999999"), isInset: true))
+					.border(Color(raw: "#333333"), width: .pixels(1))
+					.shadow(
+						BoxShadow(
+							x: .pixels(1),
+							y: .pixels(1),
+							color: .white,
+							isInset: true
+						),
+						BoxShadow(
+							x: .pixels(-1),
+							y: .pixels(-1),
+							color: Color(raw: "#999999"),
+							isInset: true
+						)
+					)
 					.handCursor()
 					.active {
-						$0.background(Color("#888888"))
+						$0.background(Color(raw: "#888888"))
 					}
 			case .zoomBox:
 				Style()
 					.margin(.leading, .auto)
-					.backgroundImage(.linearGradient("to bottom right", Color("#ffffff00"), Color("#ffffff00"), Color("#33333366")))
+					.backgroundImage(
+						.linearGradient(
+							.toBottomRight,
+							Color(raw: "#ffffff00"),
+							Color(raw: "#ffffff00"),
+							Color(raw: "#33333366")
+						)
+					)
 			case .collapseBox:
-				Style().backgroundImage(.linearGradient("to bottom", Color("#ffffff00"), Color("#ffffff00"), Color("#333333"), Color("#ffffff00"), Color("#ffffff00")))
+				Style().backgroundImage(
+					.linearGradient(
+						.toBottom,
+						Color(raw: "#ffffff00"),
+						Color(raw: "#ffffff00"),
+						Color(raw: "#333333"),
+						Color(raw: "#ffffff00"),
+						Color(raw: "#ffffff00")
+					)
+				)
 			case .windowTitle:
 				// The title sits on a plain patch in the middle of the stripes.
 				Style()
@@ -809,14 +924,14 @@ extension GeoCitiesMacOS {
 					.allowsHitTesting(false)
 					.when(ancestorHas: Hooks.theme, is: "windows") {
 						$0
-							.margin(.leading, 0)
+							.margin(.leading, .zero)
 							.background(.transparent)
 							.color(GeoCitiesMacOS.titleText.value)
 					}
 			case .windowBody:
 				Style()
 					.flex(1)
-					.frame(minHeight: 0)
+					.frame(minHeight: .zero)
 					.overflow(.auto)
 					.padding(.rootEm(0.625))
 					.flowSpacing(.rootEm(0.5))
@@ -827,14 +942,21 @@ extension GeoCitiesMacOS {
 			case .windowStatus:
 				Style()
 					.frame(minHeight: .lineHeight(1))
-					.margin(0)
+					.margin(.zero)
 					.font(size: .rootEm(0.75))
 					.fontWeight(.regular)
 			case .button:
 				// A Platinum push button: rounded, light at the top, darker at the bottom.
 				Style()
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.875))
-					.backgroundImage(.linearGradient("to bottom", Color("#ffffff"), Color("#dddddd"), Color("#bbbbbb")))
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#ffffff"),
+							Color(raw: "#dddddd"),
+							Color(raw: "#bbbbbb")
+						)
+					)
 					.border(.black, width: .pixels(1))
 					.cornerRadius(.rootEm(0.3125))
 					.fontFamily(GeoCitiesMacOS.charcoal)
@@ -844,36 +966,49 @@ extension GeoCitiesMacOS {
 					.handCursor()
 					.active {
 						$0
-							.backgroundImage(.linearGradient("to bottom", Color("#555555"), Color("#777777")))
+							.backgroundImage(.linearGradient(.toBottom, Color(raw: "#555555"), Color(raw: "#777777")))
 							.color(.white)
 					}
 					.disabled {
 						$0
-							.color(Color("#999999"))
+							.color(Color(raw: "#999999"))
 							.cursor(.default)
 					}
 					.focusVisible {
 						$0.focusRing(GeoCitiesMacOS.highlight.value, width: .pixels(2), offset: .pixels(2))
 					}
 					.when(States.default) {
-						$0.shadow(Shadow(x: 0, y: 0, spread: .pixels(2), color: GeoCitiesMacOS.face.value), Shadow(x: 0, y: 0, spread: .pixels(3), color: .black))
+						$0.shadow(
+							BoxShadow(
+								x: .zero,
+								y: .zero,
+								spread: .pixels(2),
+								color: GeoCitiesMacOS.face.value
+							),
+							BoxShadow(
+								x: .zero,
+								y: .zero,
+								spread: .pixels(3),
+								color: .black
+							)
+						)
 					}
 					// The front program in the Application Switcher, which is a state, and the Shift and Option keys of Key Caps, which are toggle buttons.
 					.when(States.on) {
 						$0
-							.backgroundImage(.linearGradient("to bottom", Color("#9999cc"), Color("#7777bb")))
+							.backgroundImage(.linearGradient(.toBottom, Color(raw: "#9999cc"), Color(raw: "#7777bb")))
 							.color(.white)
 					}
 					.pressed {
 						$0
-							.backgroundImage(.linearGradient("to bottom", Color("#9999cc"), Color("#7777bb")))
+							.backgroundImage(.linearGradient(.toBottom, Color(raw: "#9999cc"), Color(raw: "#7777bb")))
 							.color(.white)
 					}
 			case .smallButton:
 				Style()
 					.padding(vertical: .pixels(2), horizontal: .rootEm(0.5))
-					.backgroundImage(.linearGradient("to bottom", Color("#ffffff"), Color("#cccccc")))
-					.border(Color("#333333"), width: .pixels(1))
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#ffffff"), Color(raw: "#cccccc")))
+					.border(Color(raw: "#333333"), width: .pixels(1))
 					.cornerRadius(.rootEm(0.25))
 					.fontFamily(GeoCitiesMacOS.charcoal)
 					.font(size: .rootEm(0.6875))
@@ -893,16 +1028,16 @@ extension GeoCitiesMacOS {
 				Style()
 					.font(size: .rootEm(0.6875))
 					.fontWeight(.regular)
-					.color(Color("#333333"))
+					.color(Color(raw: "#333333"))
 			case .field:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
 					.flexWrap()
 			case .fieldset:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.5))
-					.border(Color("#888888"), width: .pixels(1))
+					.border(Color(raw: "#888888"), width: .pixels(1))
 					.flowSpacing(.rootEm(0.25))
 			case .choice:
 				Style()
@@ -928,12 +1063,12 @@ extension GeoCitiesMacOS {
 				Style()
 					.hstack(alignment: .end, spacing: .pixels(2))
 					.flexWrap()
-					.border(.bottom, Color("#555555"), width: .pixels(1))
+					.border(.bottom, Color(raw: "#555555"), width: .pixels(1))
 			case .tab:
 				Style()
 					.padding(vertical: .pixels(3), horizontal: .rootEm(0.625))
-					.background(Color("#c4c4c4"))
-					.border([.top, .leading, .trailing], Color("#555555"), width: .pixels(1))
+					.background(Color(raw: "#c4c4c4"))
+					.border([.top, .leading, .trailing], Color(raw: "#555555"), width: .pixels(1))
 					.cornerRadius(.rootEm(0.25))
 					.fontFamily(GeoCitiesMacOS.charcoal)
 					.font(size: .rootEm(0.75))
@@ -952,7 +1087,7 @@ extension GeoCitiesMacOS {
 					.frame(minHeight: .rootEm(5))
 					.padding(.rootEm(0.375))
 					.background(.white)
-					.border(Color("#777777"), width: .pixels(1))
+					.border(Color(raw: "#777777"), width: .pixels(1))
 			case .row:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
@@ -976,12 +1111,12 @@ extension GeoCitiesMacOS {
 			case .meter:
 				Style()
 					.frame(height: .rootEm(0.75))
-					.background(Color("#eeeeee"))
-					.border(Color("#555555"), width: .pixels(1))
+					.background(Color(raw: "#eeeeee"))
+					.border(Color(raw: "#555555"), width: .pixels(1))
 			case .meterFill:
 				Style()
-					.frame(width: 0, height: .percent(100))
-					.backgroundImage(.linearGradient("to bottom", Color("#9c9cff"), Color("#4040c0")))
+					.frame(width: .zero, height: .percent(100))
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#9c9cff"), Color(raw: "#4040c0")))
 			case .aboutHeader:
 				Style().hstack(alignment: .center, spacing: .rootEm(0.75))
 			case .aboutFace:
@@ -990,15 +1125,15 @@ extension GeoCitiesMacOS {
 					.frame(size: .rootEm(3))
 			case .aboutVersion:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.font(size: .rootEm(1.375))
 					.fontWeight(.heavy)
 			case .memoryList:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.25))
 					.background(.white)
-					.border(Color("#777777"), width: .pixels(1))
+					.border(Color(raw: "#777777"), width: .pixels(1))
 			case .memoryRow:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
@@ -1017,27 +1152,27 @@ extension GeoCitiesMacOS {
 				Style()
 					.display(.block)
 					.frame(width: .rootEm(5), height: .rootEm(0.625))
-					.background(Color("#eeeeee"))
-					.border(Color("#555555"), width: .pixels(1))
+					.background(Color(raw: "#eeeeee"))
+					.border(Color(raw: "#555555"), width: .pixels(1))
 			case .memoryFill:
 				Style()
 					.display(.block)
 					.frame(height: .percent(100))
-					.background(Color("#6666cc"))
+					.background(Color(raw: "#6666cc"))
 			case .infoHeader:
 				Style().hstack(alignment: .center, spacing: .rootEm(0.5))
 			case .infoName:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontWeight(.heavy)
 			case .extensionList:
 				Style()
 					.frame(maxHeight: .rootEm(12))
 					.overflow(.auto)
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.25))
 					.background(.white)
-					.border(Color("#777777"), width: .pixels(1))
+					.border(Color(raw: "#777777"), width: .pixels(1))
 					.font(size: .rootEm(0.75))
 			case .clipCanvas:
 				Style()
@@ -1045,14 +1180,14 @@ extension GeoCitiesMacOS {
 					.frame(width: .percent(100), height: .auto)
 					.margin(.horizontal, .auto)
 					.background(.white)
-					.border(Color("#777777"), width: .pixels(1))
+					.border(Color(raw: "#777777"), width: .pixels(1))
 					.imageRendering(.pixelated)
 			case .clipText:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.5))
 					.background(.white)
-					.border(Color("#777777"), width: .pixels(1))
+					.border(Color(raw: "#777777"), width: .pixels(1))
 					.fontFamily(GeoCitiesPage.times)
 					.font(size: .rootEm(1))
 					.fontWeight(.regular)
@@ -1086,8 +1221,8 @@ extension GeoCitiesMacOS {
 					.display(.block)
 					.frame(width: .percent(100))
 					.padding(.rootEm(0.5))
-					.background(Color("#fffbd0"))
-					.border(Color("#888888"), width: .pixels(1))
+					.background(Color(raw: "#fffbd0"))
+					.border(Color(raw: "#888888"), width: .pixels(1))
 					.fontFamily(GeoCitiesPage.courier)
 					.font(size: .rootEm(0.8125))
 					.color(.black)
@@ -1101,14 +1236,14 @@ extension GeoCitiesMacOS {
 					.frame(width: .percent(100))
 					.padding(.rootEm(0.375))
 					.background(.transparent)
-					.border(.transparent, width: 0)
+					.border(.transparent, width: .zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.font(size: .rootEm(0.8125))
 					.color(.black)
 			case .keyCapsDisplay:
 				Style()
 					.frame(minHeight: .lineHeight(1.5))
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.375))
 					.background(.white)
 					.border(.black, width: .pixels(1))
@@ -1120,18 +1255,18 @@ extension GeoCitiesMacOS {
 				Style()
 					.vstack(spacing: .pixels(2))
 					.padding(.rootEm(0.375))
-					.background(Color("#bbbbbb"))
-					.border(Color("#555555"), width: .pixels(1))
+					.background(Color(raw: "#bbbbbb"))
+					.border(Color(raw: "#555555"), width: .pixels(1))
 					.children("div") {
 						$0.hstack(spacing: .pixels(2))
 					}
 			case .keyCapsKey:
 				Style()
 					.flex(1)
-					.frame(height: .rootEm(1.75), minWidth: 0)
-					.padding(0)
+					.frame(height: .rootEm(1.75), minWidth: .zero)
+					.padding(.zero)
 					.background(.white)
-					.border(Color("#555555"), width: .pixels(1))
+					.border(Color(raw: "#555555"), width: .pixels(1))
 					.cornerRadius(.pixels(3))
 					.fontFamily(GeoCitiesPage.times)
 					.font(size: .rootEm(0.9375))
@@ -1149,10 +1284,10 @@ extension GeoCitiesMacOS {
 			case .chooserList:
 				Style()
 					.frame(minHeight: .rootEm(5))
-					.margin(0)
+					.margin(.zero)
 					.padding(.pixels(2))
 					.background(.white)
-					.border(Color("#777777"), width: .pixels(1))
+					.border(Color(raw: "#777777"), width: .pixels(1))
 			case .searchForm:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
@@ -1160,16 +1295,16 @@ extension GeoCitiesMacOS {
 			case .sites:
 				Style()
 					.grid(columns: 2)
-					.gap(row: 0, column: .rootEm(0.5))
+					.gap(row: .zero, column: .rootEm(0.5))
 					.font(size: .rootEm(0.6875))
 			case .results:
 				Style()
 					.frame(minHeight: .rootEm(4), maxHeight: .rootEm(10))
 					.overflow(.auto)
-					.margin(0)
+					.margin(.zero)
 					.padding(.pixels(2))
 					.background(.white)
-					.border(Color("#777777"), width: .pixels(1))
+					.border(Color(raw: "#777777"), width: .pixels(1))
 			case .result:
 				Style()
 					.hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(0.5))
@@ -1198,8 +1333,8 @@ extension GeoCitiesMacOS {
 				Style()
 					.flexShrink(0)
 					.frame(width: .rootEm(3), height: .rootEm(0.5))
-					.background(Color("#eeeeee"))
-					.border(Color("#555555"), width: .pixels(1))
+					.background(Color(raw: "#eeeeee"))
+					.border(Color(raw: "#555555"), width: .pixels(1))
 			case .equation:
 				Style()
 					.frame(width: .rootEm(12), maxWidth: .percent(100))
@@ -1214,12 +1349,12 @@ extension GeoCitiesMacOS {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.background(.white)
-					.border(Color("#777777"), width: .pixels(1))
+					.border(Color(raw: "#777777"), width: .pixels(1))
 			case .game:
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
-					.background(Color("#2f6b2f"))
+					.background(Color(raw: "#2f6b2f"))
 					.border(.black, width: .pixels(1))
 					.imageRendering(.pixelated)
 					.focusVisible {
@@ -1234,7 +1369,7 @@ extension GeoCitiesMacOS {
 				// Big enough for a thumb.
 				Style()
 					.frame(height: .rootEm(2.5), minWidth: .rootEm(2.5))
-					.backgroundImage(.linearGradient("to bottom", Color("#ffffff"), Color("#bbbbbb")))
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#ffffff"), Color(raw: "#bbbbbb")))
 					.border(.black, width: .pixels(1))
 					.cornerRadius(.rootEm(0.375))
 					.font(size: .rootEm(1))
@@ -1243,7 +1378,7 @@ extension GeoCitiesMacOS {
 					.textSelection(.disabled)
 					.handCursor()
 					.active {
-						$0.backgroundImage(.linearGradient("to bottom", Color("#888888"), Color("#aaaaaa")))
+						$0.backgroundImage(.linearGradient(.toBottom, Color(raw: "#888888"), Color(raw: "#aaaaaa")))
 					}
 			case .rollButton:
 				Style()
@@ -1258,8 +1393,8 @@ extension GeoCitiesMacOS {
 			case .browserButton:
 				Style()
 					.padding(vertical: .pixels(1), horizontal: .pixels(4))
-					.background(Color("#cccccc"))
-					.border(Color("#666666"), width: .pixels(1))
+					.background(Color(raw: "#cccccc"))
+					.border(Color(raw: "#666666"), width: .pixels(1))
 					.font(size: .rootEm(0.625))
 			case .throbber:
 				// The N of Netscape, with a meteor while it loads.
@@ -1269,28 +1404,28 @@ extension GeoCitiesMacOS {
 					.display(.flex)
 					.alignItems(.center)
 					.justifyContent(.center)
-					.background(Color("#000066"))
+					.background(Color(raw: "#000066"))
 					.fontFamily(GeoCitiesPage.times)
 					.font(size: .rootEm(1.25))
 					.fontWeight(.heavy)
-					.color(Color("#66ccff"))
+					.color(Color(raw: "#66ccff"))
 					.when(States.on) {
 						$0.animation(GeoCitiesPage.Animations.blink, .linear(duration: .seconds(0.4)).repeatForever(autoreverses: true))
 					}
 			case .location:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(.pixels(2))
 					.background(.white)
-					.border(Color("#777777"), width: .pixels(1))
+					.border(Color(raw: "#777777"), width: .pixels(1))
 					.font(size: .rootEm(0.6875))
 					.overflowWrap(.anywhere)
 			case .browserPage:
 				Style()
 					.frame(minHeight: .rootEm(8))
 					.padding(.rootEm(0.5))
-					.background(Color("#c0c0c0"))
-					.border(Color("#777777"), width: .pixels(1))
+					.background(Color(raw: "#c0c0c0"))
+					.border(Color(raw: "#777777"), width: .pixels(1))
 					.fontFamily(GeoCitiesPage.times)
 					.font(size: .rootEm(0.875))
 					.fontWeight(.regular)
@@ -1301,7 +1436,7 @@ extension GeoCitiesMacOS {
 					.overflow(.auto)
 					.padding(.rootEm(0.5))
 					.background(.white)
-					.border(Color("#777777"), width: .pixels(1))
+					.border(Color(raw: "#777777"), width: .pixels(1))
 					.fontFamily(GeoCitiesPage.times)
 					.font(size: .rootEm(0.9375))
 					.fontWeight(.regular)

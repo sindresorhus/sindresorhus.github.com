@@ -1,13 +1,11 @@
 // The galaxy on the home page, drawn with WebGL. `home.js` loads it in dark mode, for visitors who allow motion.
+import {startShader} from '/scripts/webgl.js';
+
 const canvas = document.querySelector('#nebula');
-const gl = canvas.getContext('webgl', {alpha: true, premultipliedAlpha: false});
+// Only with a hardware renderer, as a software renderer blocks the page for hundreds of milliseconds. Without WebGL, the page keeps its still background.
+const gl = canvas.getContext('webgl', {alpha: true, premultipliedAlpha: false, failIfMajorPerformanceCaveat: true});
 
 if (gl) {
-	const vertexShaderSource = `
-		attribute vec2 a_pos;
-		void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }
-	`;
-
 	const fragmentShaderSource = `
 		precision highp float;
 		uniform float u_time;
@@ -280,42 +278,32 @@ if (gl) {
 		}
 	`;
 
-	function compileShader(type, source) {
-		const shader = gl.createShader(type);
-		gl.shaderSource(shader, source);
-		gl.compileShader(shader);
-		return shader;
-	}
+	let timeLocation;
+	let resolutionLocation;
+	let pointerLocation;
+	let pointerVelocityLocation;
+	let rippleLocation;
 
-	// Compile and link the shader program
-	const program = gl.createProgram();
-	gl.attachShader(program, compileShader(gl.VERTEX_SHADER, vertexShaderSource));
-	gl.attachShader(program, compileShader(gl.FRAGMENT_SHADER, fragmentShaderSource));
-	gl.linkProgram(program);
+	// Whether the program is set up, and the canvas can draw. It is not after the GPU loses the canvas, until the shaders compile and link again (`startShader`).
+	let isProgramSetUp = false;
+
+	// Again after the GPU gives back a lost canvas, as the canvas loses all of it (`startShader`).
+	const setUp = program => {
+		timeLocation = gl.getUniformLocation(program, 'u_time');
+		resolutionLocation = gl.getUniformLocation(program, 'u_res');
+		pointerLocation = gl.getUniformLocation(program, 'u_mouse');
+		pointerVelocityLocation = gl.getUniformLocation(program, 'u_mouse_vel');
+		rippleLocation = gl.getUniformLocation(program, 'u_ripple');
+
+		// Alpha blending so the galaxy composites over the dark page background
+		gl.enable(gl.BLEND);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		gl.clearColor(0, 0, 0, 0);
+		isProgramSetUp = true;
+	};
 
 	// The shaders do not compile on some devices, like one without high precision. Then nothing is drawn, so the animation never starts.
-	const isLinked = gl.getProgramParameter(program, gl.LINK_STATUS);
-	gl.useProgram(program);
-
-	// Full-screen quad: two triangles covering clip space [-1,1]
-	const buffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-
-	const positionLocation = gl.getAttribLocation(program, 'a_pos');
-	gl.enableVertexAttribArray(positionLocation);
-	gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
-	const timeLocation = gl.getUniformLocation(program, 'u_time');
-	const resolutionLocation = gl.getUniformLocation(program, 'u_res');
-	const pointerLocation = gl.getUniformLocation(program, 'u_mouse');
-	const pointerVelocityLocation = gl.getUniformLocation(program, 'u_mouse_vel');
-	const rippleLocation = gl.getUniformLocation(program, 'u_ripple');
-
-	// Alpha blending so the galaxy composites over the dark page background
-	gl.enable(gl.BLEND);
-	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-	gl.clearColor(0, 0, 0, 0);
+	const isLinked = startShader(gl, {fragment: fragmentShaderSource, setUp});
 
 	// Scale render resolution by DPR (capped) for sharper arms on retina screens
 	const scale = Math.min(window.devicePixelRatio, 2) * 0.45;
@@ -416,11 +404,23 @@ if (gl) {
 
 	document.addEventListener('visibilitychange', update);
 
-	// The GPU can lose the canvas, like after the device sleeps. The galaxy stops, as it cannot draw anymore.
+	// The GPU can lose the canvas, like after the device sleeps. The galaxy stops until the browser gives the canvas back (`startShader`).
 	canvas.addEventListener('webglcontextlost', () => {
 		isContextLost = true;
+		isProgramSetUp = false;
 		update();
-	}, {once: true});
+	});
+
+	canvas.addEventListener('webglcontextrestored', () => {
+		// The shaders did not compile again, so the galaxy stays stopped.
+		if (!isProgramSetUp) {
+			return;
+		}
+
+		isContextLost = false;
+		resize();
+		update();
+	});
 
 	new IntersectionObserver(([entry]) => {
 		isOnScreen = entry.isIntersecting;

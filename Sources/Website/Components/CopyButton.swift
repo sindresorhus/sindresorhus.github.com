@@ -7,46 +7,18 @@ A button that copies a text, like an email address or a link, and shows a checkm
 The text is the `text` attribute of the element, which the script reads on click, so another script can change it, like Appdle does with the result.
 */
 struct CopyButton: ScriptedElement {
-	static let script = ElementScript(inline: #"""
-	export default class extends HTMLElement {
-		// The pending timer that removes the copied state, so a second click restarts it.
-		#copiedStateTimer;
-
-		connectedCallback() {
-			// Without clipboard access, the button stays hidden, as the visitor can still select the text.
-			if (!navigator.clipboard) {
-				return;
-			}
-
-			this.hidden = false;
-			// The same function, so connecting the element again does not add a second listener.
-			this.addEventListener('click', this.#copy);
-		}
-
-		#copy = async () => {
-			try {
-				await navigator.clipboard.writeText(this.getAttribute('text'));
-			} catch {
-				return;
-			}
-
-			this.dataset.state = 'copied';
-			// On the button, as the element itself has no box. Older browsers, like Safari 26, have no `ariaNotify`. They say nothing, but the copied state still goes away.
-			this.firstElementChild.ariaNotify?.('Copied');
-
-			clearTimeout(this.#copiedStateTimer);
-			this.#copiedStateTimer = setTimeout(() => {
-				delete this.dataset.state;
-			}, 1500);
-		};
-	}
-	"""#)
+	static let script = ElementScript()
 
 	enum Look {
 		/**
 		A small secondary button, which shows a checkmark instead of its title for a moment after copying.
 		*/
 		case standard
+
+		/**
+		A small square button with a copy icon, on the dark bar of a code block, which shows a checkmark instead of the icon for a moment after copying. The title is only its name for screen readers.
+		*/
+		case icon
 
 		/**
 		The raised gray button of the 1999 page.
@@ -82,6 +54,21 @@ struct CopyButton: ScriptedElement {
 				.style(Styles.labels)
 			}
 			.buttonStyle(.secondary, size: .small)
+		case .icon:
+			// The icon and the checkmark share one grid cell.
+			button(.type(.button)) {
+				span {
+					Icon.copy.size(.rootEm(0.875))
+				}
+				.style(Styles.icon)
+
+				span {
+					Icon.check.size(.rootEm(0.875), strokeWidth: 2.75)
+				}
+				.style(Styles.iconCheckmark)
+			}
+			.accessibilityLabel(title)
+			.style(Styles.iconButton)
 		case .retro:
 			button(.type(.button)) {
 				title
@@ -99,6 +86,9 @@ struct CopyButton: ScriptedElement {
 		case labels
 		case label
 		case checkmark
+		case iconButton
+		case icon
+		case iconCheckmark
 
 		var style: Style {
 			switch self {
@@ -112,6 +102,26 @@ struct CopyButton: ScriptedElement {
 				Style().copyLabel(hiddenWhen: States.copied)
 			case .checkmark:
 				Style().copiedCheckmark(when: States.copied)
+			case .iconButton:
+				// After copying, the icon fades out, and a green checkmark grows in.
+				Style()
+					.display(.grid)
+					.frame(size: .rootEm(1.75))
+					.cornerRadius(CodeBlock.Styles.barRadius)
+					.color(.gray(300))
+					.background(.white.opacity(0.08))
+					.shadow(.edge(.white.opacity(0.1)))
+					.hoverFill(.white.opacity(0.16), color: .white)
+					.minimumTapArea()
+			case .icon:
+				Style()
+					.hstack(alignment: .center, justification: .center)
+					.copyLabel(hiddenWhen: States.copied)
+			case .iconCheckmark:
+				// Lighter than the checkmark of the standard look, for the dark bar.
+				Style()
+					.color(.emerald(400))
+					.copiedCheckmark(when: States.copied)
 			}
 		}
 	}

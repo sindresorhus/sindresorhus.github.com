@@ -1,4 +1,7 @@
 // Appdle: the visitor guesses the app of the day from a pixelated part of its icon. Each wrong guess shows more of the icon, sharper.
+import {cloneTemplate} from '/scripts/dom.js';
+import {searchKey, closest} from '/scripts/edit-distance.js';
+
 const {firstDay, maximumGuesses, puzzles} = JSON.parse(document.querySelector('#appdle-data').textContent);
 const canvas = document.querySelector('#appdle-canvas');
 const form = document.querySelector('#appdle-form');
@@ -13,9 +16,23 @@ const restartButton = document.querySelector('#appdle-restart');
 const pixelatedLabel = canvas.ariaLabel;
 
 // The local date as days since 1970, like the daily seed of the build, so the app changes at midnight for the visitor, and everybody gets the same app on the same date.
-const today = new Date();
-// A clock before the first puzzle gets the first puzzle.
-const day = Math.max(firstDay, Math.floor(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) / 86_400_000));
+const currentDay = () => {
+	const today = new Date();
+	// A clock before the first puzzle gets the first puzzle.
+	return Math.max(firstDay, Math.floor(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) / 86_400_000));
+};
+
+const day = currentDay();
+
+// A phone can keep the page open for days, so the page loads again with the puzzle of the new day when the visitor comes back to it on another day, like from the back/forward cache or another tab. A reload, as the whole game depends on the day.
+const reloadOnNewDay = () => {
+	if (document.visibilityState === 'visible' && currentDay() !== day) {
+		location.reload();
+	}
+};
+
+window.addEventListener('pageshow', reloadOnNewDay);
+document.addEventListener('visibilitychange', reloadOnNewDay);
 const puzzle = puzzles[day % puzzles.length];
 const number = day - firstDay + 1;
 
@@ -33,8 +50,11 @@ const steps = [
 const offsetCandidates = [-0.15, 0, 0.15].flatMap(y => [-0.15, 0, 0.15].map(x => ({x, y})));
 let offset;
 
-const normalize = name => name.trim().toLocaleLowerCase('en');
-const names = new Map([...input.list.options].map(option => [normalize(option.value), option.value]));
+// Without case, accents, spaces, and punctuation (`searchKey`), so “Quick GPT” is QuickGPT, and “DS Store Inspector” is DS_Store Inspector.
+const names = new Map([...input.list.options].map(option => [searchKey(option.value), option.value]));
+
+// The name of the app that is closest to a name that is not one of the apps, like Gifski for “Gifsky” (`closest`).
+const closestName = name => names.get(closest(searchKey(name), names.keys()));
 const storageKey = 'appdle';
 
 const load = () => {
@@ -215,13 +235,28 @@ const render = () => {
 	}
 };
 
-// A message after a guess that was not counted. It is cleared first, so screen readers say the same message again, like after the same mistake twice.
-const sayAgain = text => {
-	status.textContent = '';
+// A message after a guess that was not counted, as text or an element. It is cleared first, so screen readers say the same message again, like after the same mistake twice.
+const sayAgain = message => {
+	status.replaceChildren();
 
 	requestAnimationFrame(() => {
-		status.textContent = text;
+		status.replaceChildren(message);
 	});
+};
+
+// “Did you mean Gifski?”, with the name as a button, which guesses it.
+const suggestion = name => {
+	const element = cloneTemplate(document.querySelector('#appdle-suggestion-template'));
+	const button = element.querySelector('[data-suggested-name]');
+	button.textContent = name;
+	button.addEventListener('click', () => {
+		input.value = name;
+		// The button is gone, so the focus goes back to the field, or to the result when the guess ends the game.
+		input.focus();
+		form.requestSubmit();
+	});
+
+	return element;
 };
 
 const remainingText = () => `${guessCount(maximumGuesses - guesses.length)} left.`;
@@ -233,10 +268,11 @@ form.addEventListener('submit', event => {
 		return;
 	}
 
-	const name = names.get(normalize(input.value));
+	const name = names.get(searchKey(input.value));
 
 	if (!name) {
-		sayAgain(`“${input.value.trim()}” is not one of the apps. Pick a name from the list.`);
+		const suggestedName = closestName(input.value);
+		sayAgain(suggestedName ? suggestion(suggestedName) : `“${input.value.trim()}” is not one of the apps. Pick a name from the list.`);
 		return;
 	}
 

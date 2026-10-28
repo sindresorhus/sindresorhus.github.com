@@ -1,12 +1,17 @@
 ---
 title: 'Menu Bar Calendar'
 subtitle: 'A monthly calendar, one click away'
-publicationDate: '2023-08-31'
+publicationDate: 2023-08-31
 platforms: [
 	'macOS'
 ]
 isMenuBarApp: true
 appStoreID: 1558360383
+nonAppStoreVersion: {
+	version: '1.7.1'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/up9hlj2ooxxarugsusr69/Menu-Bar-Calendar-1.7.1-1781624290.zip?rlkey=5k0n02u6gwqm94gd8mvezgqxx&raw=1'
+}
 sharedQuestions: [
 	'week-53'
 	'december-week-1'
@@ -30,11 +35,15 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/13922546/Menu.Bar.Calendar.1.2.0.-.macOS.13.zip'
 	}
 ]
-nonAppStoreVersion: {
-	version: '1.7.1'
-	macOS: 26
-	url: 'https://www.dropbox.com/scl/fi/up9hlj2ooxxarugsusr69/Menu-Bar-Calendar-1.7.1-1781624290.zip?rlkey=5k0n02u6gwqm94gd8mvezgqxx&raw=1'
-}
+pressQuotes: [
+	{
+		quote: 'With Menu Bar Calendar, developer Sindre Sorhus presents his latest free project. […] Sorhus’s Menu Bar Calendar does no more and no less than provide this monthly overview.'
+		source: 'ifun.de'
+		translatedFrom: 'German'
+		url: 'https://www.ifun.de/menu-bar-calendar-schlichtes-monats-kalenderblatt-fuer-die-menueleiste-217230/'
+		year: 2023
+	}
+]
 ---
 
 Click the menu bar icon to see a monthly calendar. Click a date to open it in the Calendar app or Google Calendar, or right-click a day to create an event.
@@ -49,6 +58,8 @@ The calendar displays dates and days in your language, but the rest of the app i
 - **Switch months:** Press arrow keys or swipe horizontally on the calendar.
 - **Switch years:** While holding the ++Option++ key, click the `‹` / `›` button, press arrow keys, or swipe horizontally on the calendar.
 - **Close calendar window:** Press the ++Esc++ key.
+- **Open the calendar from any app:** Set the “Toggle calendar” keyboard shortcut in the settings.
+- **Show the date in the menu bar:** Choose a “Menu bar style” with the date in the settings.
 - **Open date in the Calendar app (or Google Calendar):** Click a date in the calendar.
 - **Open week in the Calendar app (or Google Calendar):** Click a week number in the calendar.
 - **Go to a specific date:** Right-click the month name or press ++G++.
@@ -57,25 +68,33 @@ The calendar displays dates and days in your language, but the rest of the app i
 
 ## Frequently Asked Questions {#faq}
 
-### Does it show calendar events?
+### Does it show calendar events? {#does-it-show-calendar-events}
 
 No. That is outside the scope of the app. My [Today](/today) (free) and [Dato](/dato) (paid) apps have that.
 
-### Does it support highlighting certain days of the week?
+### Can macOS do this without an app? {#built-in}
 
-No. Check out my [Dato](/dato) app for that.
+Partly. Click the date and time in the menu bar to open Notification Center, and add the Calendar widget to it. The widget shows the current month, but you cannot go to other months.
 
-The app does support dimming the weekend though.
+Menu Bar Calendar shows a monthly calendar with one click, lets you go to any month or year, and opens a date in the Calendar app or Google Calendar.
 
-### Does it include widgets?
+### What does Dato add? {#dato}
+<!-- @faq.keywords highlight widgets time format events -->
 
-No. Check out my [Dato](/dato) app for that.
+My [Dato](/dato) app adds:
 
-### Does it support showing a time in the menu bar with a custom format?
+- Highlighting certain days of the week (this app can dim the weekend)
+- Widgets
+- The time in the menu bar, with a custom format
+- Your calendar events and reminders
+- World clocks
 
-No. Check out my [Dato](/dato) app for that.
+### Why does it open on another month? {#another-month}
+<!-- @faq.keywords reopen previous today current -->
 
-### Does it have a 3-month view?
+The calendar shows the month that you looked at last. To go back to the current month, click the month name or press the ++Space++ key.
+
+### Does it have a 3-month view? {#does-it-have-a-3-month-view}
 
 No.
 
@@ -83,11 +102,11 @@ No.
 
 No. Zoho Calendar does not support opening to a specific date via URL, so this integration is not possible. You can, however, [sync your Zoho Calendar to the macOS Calendar app](https://www.zoho.com/calendar/help/setup-caldav-sync.html) and then use the “Show in Calendar” click action.
 
-### How can I open Google Calendar in a specific browser?
+### How can I open Google Calendar in a specific browser? {#how-can-i-open-google-calendar-in-a-specific-browser}
 
 Use my [Velja app](/velja). You can create a rule to open any link clicked in this app in your chosen browser.
 
-### How can I scroll to switch months?
+### How can I scroll to switch months? {#how-can-i-scroll-to-switch-months}
 
 You can swipe horizontally to switch months.
 

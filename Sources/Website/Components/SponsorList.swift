@@ -8,7 +8,10 @@ The sponsors on the supporters page, by tier: logos, or a list of names for a ti
 The Markdown of the page places it with `@Sponsors`, so it is rendered with the Markdown, and the document collects its styles, like the styles of the other block directives.
 */
 struct SponsorList: HTML {
-	let tiers: [MarkdownPage.SponsorTier]
+	/**
+	Each tier's display requirements were resolved when the Markdown page loaded.
+	*/
+	let tiers: [MarkdownPage.SponsorTier.Resolved]
 
 	var body: some HTML {
 		for tier in tiers {
@@ -21,14 +24,16 @@ struct SponsorList: HTML {
 				.style(Styles.price)
 			}
 
-			if tier.sponsors.contains(where: { $0.logo != nil }) {
+			switch tier.presentation {
+			case .logos(let sponsors):
 				div {
-					// A sponsor without a URL gets a link without a destination, which is not a link, but has the same look.
-					for sponsor in tier.sponsors {
-						Link(destination: sponsor.url.map(LinkDestination.url)) {
+					// Every sponsor in the logo grid has a destination, checked before rendering.
+					for linked in sponsors {
+						let sponsor = linked.sponsor
+						a(.href(.url(linked.url)), .rel("nofollow")) {
 							if let logo = sponsor.logo {
 								// When the name is shown next to it, the logo is decorative, so screen readers read the name once.
-								img(.src(logo.path), .alt(sponsor.showsName ? "" : sponsor.name), .width(logo.width))
+								img(.src(logo.path), .alt(sponsor.showsName ? "" : sponsor.name), .width(logo.width.value))
 							}
 
 							if sponsor.logo == nil || sponsor.showsName {
@@ -38,14 +43,13 @@ struct SponsorList: HTML {
 								.style(Styles.name)
 							}
 						}
-						.attributes(.rel("nofollow"), when: sponsor.url != nil)
 						.style(Styles.sponsor)
 					}
 				}
 				.style(Styles.logos)
-			} else {
+			case .text(let sponsors):
 				ul {
-					for sponsor in tier.sponsors {
+					for sponsor in sponsors {
 						li {
 							if let url = sponsor.url {
 								a(.href(.url(url))) {
@@ -93,7 +97,12 @@ struct SponsorList: HTML {
 					.nested("img") {
 						$0
 							.plainImage()
-							.frame(width: .auto, height: .percent(100), minWidth: 0, maxWidth: .percent(100))
+							.frame(
+								width: .auto,
+								height: .percent(100),
+								minWidth: .zero,
+								maxWidth: .percent(100)
+							)
 							.objectFit(.contain)
 							// The plate shows through the white or light background that some logos have.
 							.blendMode(.darken)
@@ -109,7 +118,7 @@ struct SponsorList: HTML {
 			case .price:
 				Style()
 					.font(.small)
-					.letterSpacing(0)
+					.letterSpacing(.zero)
 			}
 		}
 	}

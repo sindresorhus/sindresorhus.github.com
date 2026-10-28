@@ -5,7 +5,7 @@ import SiteKit
 A group of content under a heading, like the apps of a macOS version.
 
 ```swift
-Section("macOS 14", id: "14") {
+Section("macOS 14", id: ElementID("14")) {
 	ul {
 		…
 	}
@@ -18,11 +18,11 @@ struct Section<Content: HTML>: HTML {
 	/**
 	The ID of the heading, so links can point to the section.
 	*/
-	let id: String?
+	let id: ElementID?
 
 	let content: Content
 
-	init(_ title: String, id: String? = nil, @ContentBuilder content: () -> Content) {
+	init(_ title: String, id: ElementID? = nil, @ContentBuilder content: () -> Content) {
 		self.title = title
 		self.id = id
 		self.content = content()
@@ -33,7 +33,7 @@ struct Section<Content: HTML>: HTML {
 			h2 {
 				title
 			}
-			.attributes(.id(id ?? ""), when: id != nil)
+			.attributes(optional: id.map { .id($0) })
 			.style(SectionStyles.title)
 
 			content
@@ -59,6 +59,7 @@ enum SectionStyles: StyleSet {
 				.margin(.bottom, .rootEm(1.5))
 				.textStyle(.sectionTitle)
 				.color(.primaryText)
+				.breaksLongWords()
 		case .label:
 			Style()
 				.margin(.bottom, .rootEm(1.5))

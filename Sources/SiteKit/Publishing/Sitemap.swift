@@ -1,20 +1,21 @@
 import Foundation
+import SOML
 
 /**
 How a page is listed in the sitemap.
 */
 public struct SitemapEntry: Sendable {
 	/**
-	When the content of the page last changed.
+	The UTC day on which the content of the page last changed.
 	*/
-	public var lastModified: Date?
+	public var lastModified: SOML.Date?
 
 	/**
 	The important images of the page, like screenshots.
 	*/
 	public var images: [URL]
 
-	public init(lastModified: Date? = nil, images: [URL] = []) {
+	public init(lastModified: SOML.Date? = nil, images: [URL] = []) {
 		self.lastModified = lastModified
 		self.images = images
 	}
@@ -27,14 +28,14 @@ public struct Sitemap {
 	/**
 	The path to link to, like in `robots.txt`.
 	*/
-	public static let indexPath: RoutePath = "/sitemap-index.xml"
+	public static let indexPath = #path("/sitemap-index.xml")
 
 	/**
 	The path of the sitemap that the index points to.
 	*/
-	public static let contentPath: RoutePath = "/sitemap-0.xml"
+	public static let contentPath = #path("/sitemap-0.xml")
 
-	let site: URL
+	let site: SiteOrigin
 
 	/**
 	The routes to list. Routes without a sitemap entry are left out.
@@ -49,7 +50,7 @@ public struct Sitemap {
 					return nil
 				}
 
-				let lastModified = entry.lastModified.map { "<lastmod>\($0.isoDay)</lastmod>" } ?? ""
+				let lastModified = entry.lastModified.map { "<lastmod>\($0)</lastmod>" } ?? ""
 				let images = entry.images.map { "<image:image><image:loc>\($0.absoluteString.escapedForHTML)</image:loc></image:image>" }.joined()
 				return "<url><loc>\(page.path.absoluteURL(site: site).absoluteString.escapedForHTML)</loc>\(lastModified)\(images)</url>"
 			}

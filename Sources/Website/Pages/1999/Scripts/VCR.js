@@ -4,9 +4,6 @@ import {canvasPoint, fillEllipse, fillPolygon, makeCanvas, drawPixelText} from '
 
 const now = () => performance.now() / 1000;
 
-const channelNames = ['AV', 'NRK1', 'TV 2', 'TVNorge'];
-const channelName = channel => channelNames[channel] ?? `channel ${channel}`;
-
 // Each live program runs for this many seconds before the next program of the channel, so a visitor sees them all.
 const programLength = 24;
 const tapeLength = 240;
@@ -917,8 +914,6 @@ const vcrLabels = {
 	eaten: 'ERROR',
 };
 
-const channelLabel = channel => channel === 0 ? 'AV' : `P${String(channel).padStart(2, '0')} ${channelNames[channel] ?? ''}`.trim();
-
 const rodLength = 116;
 const rodBase = side => ({x: 200 + (side === 'left' ? -5 : 5), y: 110});
 
@@ -961,6 +956,14 @@ const reelCenter = {x: 86, y: 70};
 const rescueTurns = 3;
 
 class GeoCitiesVCR extends GeoCitiesElement {
+	#channelName(channel) {
+		return channel === 0 ? 'AV' : this.config.channelNames[channel] ?? `channel ${channel}`;
+	}
+
+	#channelLabel(channel) {
+		return channel === 0 ? 'AV' : `P${String(channel).padStart(2, '0')} ${this.config.channelNames[channel] ?? ''}`.trim();
+	}
+
 	#programs;
 	#memory;
 	#screenContext;
@@ -1352,7 +1355,7 @@ class GeoCitiesVCR extends GeoCitiesElement {
 				const program = this.#programs.find(item => item.code === button.dataset.vcrProgram);
 				this.#circle(program.code);
 				if (vcr.entry === undefined) {
-					this.say(`Pappa circles ${program.title} (${channelNames[program.channel]}, kl. ${program.time}) with a red pen. To tape it: open the flap of the VCR, press ShowView, type ${program.code}, and press ShowView again. The clock must be set first.`);
+					this.say(`Pappa circles ${program.title} (${this.config.channelNames[program.channel]}, kl. ${program.time}) with a red pen. To tape it: open the flap of the VCR, press ShowView, type ${program.code}, and press ShowView again. The clock must be set first.`);
 				} else {
 					vcr.entry = program.code;
 					this.say(`Pappa reads the code out loud while you type: ${[...program.code].join(' ')}. Now press ShowView again.`);
@@ -2108,7 +2111,7 @@ class GeoCitiesVCR extends GeoCitiesElement {
 		const best = reception[channel].best;
 		let text;
 		if (signal >= best - 0.02) {
-			text = channel === 3 ? 'That is as good as TVNorge gets in Bergen: a little snow, always.' : `A perfect picture on ${channelName(channel)}! Nobody move.`;
+			text = channel === 3 ? 'That is as good as TVNorge gets in Bergen: a little snow, always.' : `A perfect picture on ${this.#channelName(channel)}! Nobody move.`;
 		} else if (signal > 0.7) {
 			text = 'Almost clear. There is a little ghost to the right.';
 		} else if (signal > 0.4) {
@@ -2137,7 +2140,7 @@ class GeoCitiesVCR extends GeoCitiesElement {
 		}
 
 		const hint = this.#signalOf(tv.channel, {isHeld: false}) <= 0.7 ? 'Drag the rabbit ears on top of the TV.' : '';
-		return sentences(`${channelName(tv.channel)}: ${live.program.title}.`, this.#describeSignal(tv.channel), hint);
+		return sentences(`${this.#channelName(tv.channel)}: ${live.program.title}.`, this.#describeSignal(tv.channel), hint);
 	}
 
 	#togglePower() {
@@ -2154,7 +2157,7 @@ class GeoCitiesVCR extends GeoCitiesElement {
 			tv.channel = 0;
 		}
 
-		this.#showOsd(channelLabel(tv.channel));
+		this.#showOsd(this.#channelLabel(tv.channel));
 		this.say(`The TV warms up with a hum and a crackle. ${this.#describeChannel()}`);
 	}
 
@@ -2167,7 +2170,7 @@ class GeoCitiesVCR extends GeoCitiesElement {
 
 		const order = [1, 2, 3, 4, 5, 6, 0];
 		tv.channel = order.at((order.indexOf(tv.channel) + direction) % order.length);
-		this.#showOsd(channelLabel(tv.channel));
+		this.#showOsd(this.#channelLabel(tv.channel));
 		this.#sounds.burst(0.15, {volume: 0.08, frequency: 3000, type: 'highpass'});
 		this.say(this.#describeChannel());
 	}
@@ -2410,7 +2413,7 @@ class GeoCitiesVCR extends GeoCitiesElement {
 			this.#setMode('record');
 			vcr.recording = {from: position, to: position, channel: vcr.tuner, offset: liveClock(vcr.tuner) - position, signal: Math.round(this.#signalOf(vcr.tuner) * 100) / 100};
 			this.#tapeMemory().recordings.push(vcr.recording);
-			const what = reception[vcr.tuner] ? channelName(vcr.tuner) : 'nothing but snow';
+			const what = reception[vcr.tuner] ? this.#channelName(vcr.tuner) : 'nothing but snow';
 			this.say(`Recording P${vcr.tuner} (${what}) from the tuner of the VCR. It records its own channel, not the one on the TV: change it with Ch + and Ch − under the flap. Press Stop to end.`);
 		},
 		eject: () => {
@@ -2498,7 +2501,7 @@ class GeoCitiesVCR extends GeoCitiesElement {
 			vcr.program = program;
 			this.#flash('OK');
 			this.#circle(program.code);
-			this.say(`OK! The timer tapes ${program.title} on ${channelNames[program.channel]} at ${program.time}. Put in a tape that can be taped on, and press Timer to put the VCR to sleep.`);
+			this.say(`OK! The timer tapes ${program.title} on ${this.config.channelNames[program.channel]} at ${program.time}. Put in a tape that can be taped on, and press Timer to put the VCR to sleep.`);
 		},
 		timer: () => {
 			const vcr = this.#vcr;
@@ -2537,7 +2540,7 @@ class GeoCitiesVCR extends GeoCitiesElement {
 			this.#setMode('stop');
 			vcr.isTimerArmed = true;
 			tonight.hidden = false;
-			this.say(`Zzz. The VCR is asleep and waits for ${vcr.program.time}, when ${vcr.program.title} starts on ${channelNames[vcr.program.channel]}. Now we wait until tonight.`);
+			this.say(`Zzz. The VCR is asleep and waits for ${vcr.program.time}, when ${vcr.program.title} starts on ${this.config.channelNames[vcr.program.channel]}. Now we wait until tonight.`);
 		},
 		reset: () => {
 			const vcr = this.#vcr;
@@ -2562,7 +2565,7 @@ class GeoCitiesVCR extends GeoCitiesElement {
 		}
 
 		vcr.tuner = (((vcr.tuner - 1 + direction) % 6) + 6) % 6 + 1;
-		this.say(`The tuner of the VCR is on P${vcr.tuner}: ${reception[vcr.tuner] ? channelName(vcr.tuner) : 'nothing but snow'}. The VCR records this channel, whatever the TV shows.`);
+		this.say(`The tuner of the VCR is on P${vcr.tuner}: ${reception[vcr.tuner] ? this.#channelName(vcr.tuner) : 'nothing but snow'}. The VCR records this channel, whatever the TV shows.`);
 	}
 
 	#startClockSetting() {

@@ -16,6 +16,37 @@ struct FrontmatterMacroTests {
 	]
 
 	@Test
+	func `a renamed key and validation wrapper are parsed together`() {
+		assertMacroExpansion(
+			"""
+			@Frontmatter
+			struct Metadata {
+				@Key("name") @NonEmpty var title: String?
+			}
+			""",
+			expandedSource: """
+			struct Metadata {
+				@NonEmpty var title: String?
+
+				enum CodingKeys: Swift.String, Swift.CodingKey, Swift.CaseIterable {
+					case title = "name"
+				}
+
+				init(from decoder: any Swift.Decoder) throws {
+					let container = try decoder.container(keyedBy: CodingKeys.self)
+					self.title = try container.decodeIfPresent(NonEmpty<String>.self, forKey: .title)?.wrappedValue
+				}
+			}
+
+			extension Metadata: SiteKit.Frontmatter {
+			}
+			""",
+			macroSpecs: macros,
+			indentationWidth: .tab
+		)
+	}
+
+	@Test
 	func `generates strict decoding with defaults and renamed keys`() {
 		assertMacroExpansion(
 			"""
@@ -52,7 +83,7 @@ struct FrontmatterMacroTests {
 
 				static let directory = "posts"
 
-				enum CodingKeys: Swift.String, Swift.CodingKey {
+				public enum CodingKeys: Swift.String, Swift.CodingKey, Swift.CaseIterable {
 					case title
 					case description
 					case tags
@@ -66,15 +97,46 @@ struct FrontmatterMacroTests {
 					let container = try decoder.container(keyedBy: CodingKeys.self)
 					self.title = try container.decode(String.self, forKey: .title)
 					self.description = try container.decodeIfPresent(String.self, forKey: .description)
-					self.tags = try container.decodeIfPresent([String].self, forKey: .tags) ?? [String]()
-					self.counts = try container.decodeIfPresent([String: Int].self, forKey: .counts) ?? [String: Int]()
-					self.links = try container.decodeIfPresent(OrderedMapping<URL>.self, forKey: .links) ?? OrderedMapping<URL>()
+					self.tags = container.contains(.tags) ? try container.decode([String].self, forKey: .tags) : [String]()
+					self.counts = container.contains(.counts) ? try container.decode([String: Int].self, forKey: .counts) : [String: Int]()
+					self.links = container.contains(.links) ? try container.decode(OrderedMapping<URL>.self, forKey: .links) : OrderedMapping<URL>()
 					self.publicationDate = try container.decode(Date.self, forKey: .publicationDate)
-					self.isPinned = try container.decodeIfPresent(Bool.self, forKey: .isPinned) ?? false
+					self.isPinned = container.contains(.isPinned) ? try container.decodeIfPresent(Bool.self, forKey: .isPinned) : false
 				}
 			}
 
 			extension Post: SiteKit.Frontmatter {
+			}
+			""",
+			macroSpecs: macros,
+			indentationWidth: .tab
+		)
+	}
+
+	@Test(arguments: ["", "public ", "package "])
+	func `diagnostic keys have the access of their frontmatter type`(access: String) {
+		assertMacroExpansion(
+			"""
+			@Frontmatter
+			\(access)struct Metadata {
+				@Key("name") var title: String
+			}
+			""",
+			expandedSource: """
+			\(access)struct Metadata {
+				var title: String
+
+				\(access)enum CodingKeys: Swift.String, Swift.CodingKey, Swift.CaseIterable {
+					case title = "name"
+				}
+
+				\(access)init(from decoder: any Swift.Decoder) throws {
+					let container = try decoder.container(keyedBy: CodingKeys.self)
+					self.title = try container.decode(String.self, forKey: .title)
+				}
+			}
+
+			extension Metadata: SiteKit.Frontmatter {
 			}
 			""",
 			macroSpecs: macros,
@@ -109,7 +171,7 @@ struct FrontmatterMacroTests {
 				var scale = 1.5
 				var adjustment = -0.5
 
-				enum CodingKeys: Swift.String, Swift.CodingKey {
+				enum CodingKeys: Swift.String, Swift.CodingKey, Swift.CaseIterable {
 					case isDraft
 					case isPinned
 					case title
@@ -122,14 +184,14 @@ struct FrontmatterMacroTests {
 
 				init(from decoder: any Swift.Decoder) throws {
 					let container = try decoder.container(keyedBy: CodingKeys.self)
-					self.isDraft = try container.decodeIfPresent(Bool.self, forKey: .isDraft) ?? false
-					self.isPinned = try container.decodeIfPresent(Bool.self, forKey: .isPinned) ?? true
-					self.title = try container.decodeIfPresent(String.self, forKey: .title) ?? "Untitled"
-					self.subtitle = try container.decodeIfPresent(String.self, forKey: .subtitle) ?? #"A "quoted" title"#
-					self.count = try container.decodeIfPresent(Int.self, forKey: .count) ?? 3
-					self.offset = try container.decodeIfPresent(Int.self, forKey: .offset) ?? -2
-					self.scale = try container.decodeIfPresent(Double.self, forKey: .scale) ?? 1.5
-					self.adjustment = try container.decodeIfPresent(Double.self, forKey: .adjustment) ?? -0.5
+					self.isDraft = container.contains(.isDraft) ? try container.decode(Bool.self, forKey: .isDraft) : false
+					self.isPinned = container.contains(.isPinned) ? try container.decode(Bool.self, forKey: .isPinned) : true
+					self.title = container.contains(.title) ? try container.decode(String.self, forKey: .title) : "Untitled"
+					self.subtitle = container.contains(.subtitle) ? try container.decode(String.self, forKey: .subtitle) : #"A "quoted" title"#
+					self.count = container.contains(.count) ? try container.decode(Int.self, forKey: .count) : 3
+					self.offset = container.contains(.offset) ? try container.decode(Int.self, forKey: .offset) : -2
+					self.scale = container.contains(.scale) ? try container.decode(Double.self, forKey: .scale) : 1.5
+					self.adjustment = container.contains(.adjustment) ? try container.decode(Double.self, forKey: .adjustment) : -0.5
 				}
 			}
 
@@ -153,7 +215,7 @@ struct FrontmatterMacroTests {
 				@NonEmpty var category = "General"
 
 				@Key("date")
-				@CalendarDay var publicationDate: Date
+				var publicationDate: SOML.Date
 			}
 			""",
 			expandedSource: """
@@ -162,9 +224,9 @@ struct FrontmatterMacroTests {
 				@NonEmpty var description: String?
 				@Absolute var url: Optional<URL>
 				@NonEmpty var category = "General"
-				@CalendarDay var publicationDate: Date
+				var publicationDate: SOML.Date
 
-				enum CodingKeys: Swift.String, Swift.CodingKey {
+				enum CodingKeys: Swift.String, Swift.CodingKey, Swift.CaseIterable {
 					case title
 					case description
 					case url
@@ -177,14 +239,70 @@ struct FrontmatterMacroTests {
 					self.title = try container.decode(NonEmpty<String>.self, forKey: .title).wrappedValue
 					self.description = try container.decodeIfPresent(NonEmpty<String>.self, forKey: .description)?.wrappedValue
 					self.url = try container.decodeIfPresent(Absolute<URL>.self, forKey: .url)?.wrappedValue
-					self.category = try container.decodeIfPresent(NonEmpty<String>.self, forKey: .category)?.wrappedValue ?? "General"
-					self.publicationDate = try container.decode(CalendarDay<Date>.self, forKey: .publicationDate).wrappedValue
+					self.category = container.contains(.category) ? try container.decode(NonEmpty<String>.self, forKey: .category).wrappedValue : "General"
+					self.publicationDate = try container.decode(SOML.Date.self, forKey: .publicationDate)
 				}
 			}
 
 			extension Post: SiteKit.Frontmatter {
 			}
 			""",
+			macroSpecs: macros,
+			indentationWidth: .tab
+		)
+	}
+
+	@Test
+	func `renamed keys preserve string literal escapes`() {
+		assertMacroExpansion(
+			#"""
+			@Frontmatter
+			struct Post {
+				@Key("d\u{61}te") var publicationDate: Date
+			}
+			"""#,
+			expandedSource: #"""
+			struct Post {
+				var publicationDate: Date
+
+				enum CodingKeys: Swift.String, Swift.CodingKey, Swift.CaseIterable {
+					case publicationDate = "d\u{61}te"
+				}
+
+				init(from decoder: any Swift.Decoder) throws {
+					let container = try decoder.container(keyedBy: CodingKeys.self)
+					self.publicationDate = try container.decode(Date.self, forKey: .publicationDate)
+				}
+			}
+
+			extension Post: SiteKit.Frontmatter {
+			}
+			"""#,
+			macroSpecs: macros,
+			indentationWidth: .tab
+		)
+	}
+
+	@Test(arguments: ["@Key", "@Key()", #"@Key("date", "other")"#, #"@Key(name: "date")"#, "@Key(name)", #"@Key("date\(suffix)")"#])
+	func `renamed keys require one string literal without interpolation`(attribute: String) {
+		assertMacroExpansion(
+			"""
+			@Frontmatter
+			struct Post {
+				\(attribute) var publicationDate: Date
+			}
+			""",
+			expandedSource: """
+			struct Post {
+				var publicationDate: Date
+			}
+
+			extension Post: SiteKit.Frontmatter {
+			}
+			""",
+			diagnostics: [
+				DiagnosticSpec(message: "'@Key' requires one string literal without interpolation.", line: 3, column: 2),
+			],
 			macroSpecs: macros,
 			indentationWidth: .tab
 		)
@@ -288,6 +406,34 @@ struct FrontmatterMacroTests {
 	}
 
 	@Test
+	func `rejects stacked validation wrappers instead of ignoring one`() {
+		assertMacroExpansion(
+			"""
+			@Frontmatter
+			struct Metadata {
+				@Key("name")
+				@First
+				@Second
+				var title: String
+			}
+			""",
+			expandedSource: """
+			struct Metadata {
+				@First
+				@Second
+				var title: String
+			}
+
+			extension Metadata: SiteKit.Frontmatter {
+			}
+			""",
+			diagnostics: [DiagnosticSpec(message: "'@Frontmatter' supports only one validation property wrapper per property.", line: 5, column: 2)],
+			macroSpecs: macros,
+			indentationWidth: .tab
+		)
+	}
+
+	@Test
 	func `rejects an attribute with arguments`() {
 		assertMacroExpansion(
 			"""
@@ -309,6 +455,51 @@ struct FrontmatterMacroTests {
 			diagnostics: [
 				DiagnosticSpec(message: "'@Frontmatter' supports only '@Key' and a property wrapper without arguments, like '@NonEmpty', got '@Environment(\\.locale)'.", line: 4, column: 2),
 			],
+			macroSpecs: macros,
+			indentationWidth: .tab
+		)
+	}
+
+	@Test(arguments: ["static var title: String", "var title: String { \"Text\" }", "func title() {}"])
+	func `a key rejects declarations that are not stored instance properties`(declaration: String) {
+		assertMacroExpansion(
+			"""
+			struct Metadata {
+				@Key("title")
+				\(declaration)
+			}
+			""",
+			expandedSource: """
+			struct Metadata {
+				\(declaration)
+			}
+			""",
+			diagnostics: [DiagnosticSpec(message: "'@Key' can only be applied to a stored instance property.", line: 2, column: 2)],
+			macroSpecs: macros,
+			indentationWidth: .tab
+		)
+	}
+
+	@Test
+	func `a property can only declare one wire key`() {
+		assertMacroExpansion(
+			"""
+			@Frontmatter
+			struct Metadata {
+				@Key("first")
+				@Key("second")
+				var title: String
+			}
+			""",
+			expandedSource: """
+			struct Metadata {
+				var title: String
+			}
+
+			extension Metadata: SiteKit.Frontmatter {
+			}
+			""",
+			diagnostics: [DiagnosticSpec(message: "'@Key' can only appear once per property.", line: 4, column: 2)],
 			macroSpecs: macros,
 			indentationWidth: .tab
 		)

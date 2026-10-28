@@ -11,12 +11,12 @@ struct GeoCitiesRoomToys: ScriptedElement {
 	/**
 	The ID of the window under the bed, which the bed in my room leads to.
 	*/
-	static let underBedID = "geocities-under-bed"
+	static let underBedID = ElementID("geocities-under-bed")
 
 	/**
 	The ID of the window of the glow stars, which the stars over the bed in my room lead to.
 	*/
-	static let ceilingID = "geocities-ceiling"
+	static let ceilingID = ElementID("geocities-ceiling")
 
 	var content: some HTML {
 		div {
@@ -47,7 +47,13 @@ struct GeoCitiesRoomToys: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.caption)
 
-			canvas(.part(Parts.bedCanvas), .width(320), .height(180), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.bedCanvas),
+				.width(320),
+				.height(180),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("Under my bed, in the dark. Move the flashlight with the arrow keys, and press Enter to pick up what it shines on.")
 				.style(Styles.canvas, Styles.bedCanvas)
 
@@ -81,7 +87,13 @@ struct GeoCitiesRoomToys: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.caption)
 
-			canvas(.part(Parts.ceilingCanvas), .width(320), .height(200), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.ceilingCanvas),
+				.width(320),
+				.height(200),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The ceiling over my bed. Move with the arrow keys, and press Enter to stick on a star, or in the dark, to join it to the last one.")
 				.style(Styles.canvas, Styles.ceilingCanvas)
 
@@ -100,7 +112,13 @@ struct GeoCitiesRoomToys: ScriptedElement {
 
 			label {
 				"My constellation is called: "
-				input(.part(Parts.ceilingName), .type(.text), .maxlength(30), .autocomplete("off"), .placeholder("The Great Waffle"))
+				input(
+					.part(Parts.ceilingName),
+					.type(.text),
+					.maxlength(30),
+					.autocomplete("off"),
+					.placeholder("The Great Waffle")
+				)
 					.style(GeoCitiesPage.Styles.field)
 			}
 			.style(Styles.nameLabel)
@@ -118,7 +136,13 @@ struct GeoCitiesRoomToys: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.caption)
 
-			canvas(.part(Parts.sketchCanvas), .width(280), .height(220), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.sketchCanvas),
+				.width(280),
+				.height(220),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The Magic Screen. The left and right arrow keys turn the left knob, and the up and down arrow keys turn the right knob.")
 				.style(Styles.sketchCanvas)
 
@@ -139,7 +163,7 @@ struct GeoCitiesRoomToys: ScriptedElement {
 	/**
 	A window of a toy. A window with an ID, which a thing in my room leads to, can have the focus, so the keyboard goes on from there.
 	*/
-	private func window(_ title: String, id: String? = nil, @HTMLBuilder content: () -> some HTML) -> some HTML {
+	private func window(_ title: String, id: ElementID? = nil, @HTMLBuilder content: () -> some HTML) -> some HTML {
 		section {
 			h3 {
 				title
@@ -151,7 +175,7 @@ struct GeoCitiesRoomToys: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.windowBody)
 		}
-		.attributes(.id(id ?? ""), .tabindex(-1), when: id != nil)
+		.attributes(contentsOf: id.map { [.id($0), .tabindex(-1)] } ?? [])
 		.style(GeoCitiesPage.Styles.window)
 	}
 
@@ -195,7 +219,7 @@ struct GeoCitiesRoomToys: ScriptedElement {
 					.grid(minimumColumnWidth: .rootEm(17))
 					.gap(.rootEm(1.25))
 					.children("*") {
-						$0.frame(minWidth: 0)
+						$0.frame(minWidth: .zero)
 					}
 			case .toy:
 				Style().vstack(spacing: .rootEm(0.5))
@@ -205,7 +229,7 @@ struct GeoCitiesRoomToys: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.imageRendering(.pixelated)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.background(.black)
 					.canvasFocusRing()
 			case .bedCanvas:
@@ -224,14 +248,14 @@ struct GeoCitiesRoomToys: ScriptedElement {
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.25))
 					.flexWrap()
-					.margin(0)
-					.padding(0)
+					.margin(.zero)
+					.padding(.zero)
 					.textStyle(.caption)
 					.children("li") {
 						$0
-							.padding(vertical: 0, horizontal: .rootEm(0.375))
+							.padding(vertical: .zero, horizontal: .rootEm(0.375))
 							.background(.white)
-							.border(Color("#808080"), width: .pixels(1))
+							.border(Color(raw: "#808080"), width: .pixels(1))
 					}
 			case .status:
 				Style().toyStatus()

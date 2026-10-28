@@ -13,10 +13,71 @@ struct NPMStatisticsTests {
 		let statistics = await NPMStatistics.load(cache: cache, warnings: warnings)
 
 		#expect(statistics.packageCount == 1068)
+		#expect(statistics.packages == nil)
+		guard case .countOnly(1068) = statistics.search else {
+			Issue.record("An empty nonzero search must retain only its advertised count.")
+			return
+		}
 		// Without packages, there is no share and no count of the most downloaded.
 		#expect(statistics.downloadShare == nil)
 		#expect(statistics.mostDownloadedCount(of: 10) == nil)
 		#expect(warnings.all.isEmpty)
+	}
+
+	@Test(.temporaryDirectory)
+	func `an invalid date on a nonempty search page does not stop pagination`() async throws {
+		let cache = try ResponseCache.npm(
+			search: #"{"objects":[{"package":{"name":"bad-date","version":"1.0.0","date":"yesterday"}}],"total":251}"#,
+			searchPages: [250: #"{"objects":[{"package":{"name":"chalk","version":"6.0.0","date":"2026-10-05T14:57:36.835Z"},"downloads":{"weekly":100}}],"total":251}"#]
+		)
+		let warnings = WarningCollector()
+		let statistics = await NPMStatistics.load(cache: cache, warnings: warnings)
+
+		#expect(statistics.packages?.map(\.name) == ["chalk"])
+		#expect(statistics.weeklyDownloads == 100)
+		#expect(statistics.packageCount == 251)
+		guard case .complete(total: 251, packages: let packages) = statistics.search else {
+			Issue.record("All wire pages loaded, even though one package date was invalid.")
+			return
+		}
+		#expect(packages.count == 1)
+		#expect(warnings.all.isEmpty)
+	}
+
+	@Test(.temporaryDirectory)
+	func `a successful empty search has zero package counts but no measured downloads or ranking`() async throws {
+		let statistics = await NPMStatistics.load(cache: try ResponseCache.npm(search: #"{"objects":[],"total":0}"#), warnings: WarningCollector())
+
+		#expect(statistics.packages?.isEmpty == true)
+		#expect(statistics.packageCount(inRepositories: []) == 0)
+		#expect(statistics.updatedPackageCount(since: .distantPast) == 0)
+		#expect(statistics.weeklyDownloads == nil)
+		#expect(statistics.dependentCount == nil)
+		#expect(statistics.downloadShare == nil)
+		#expect(statistics.mostDownloadedCount(of: 10) == nil)
+	}
+
+	@Test(.temporaryDirectory, arguments: [
+		(page: #"{"error":"Unavailable"}"#, warningCount: 1),
+		(page: #"{"objects":[],"total":251}"#, warningCount: 0),
+	])
+	func `an incomplete later search discards partial packages but preserves the advertised total`(page: String, warningCount: Int) async throws {
+		let cache = try ResponseCache.npm(
+			search: #"{"objects":[{"package":{"name":"chalk","version":"6.0.0","date":"2026-10-05T14:57:36.835Z"},"downloads":{"weekly":100}}],"total":251}"#,
+			searchPages: [250: page]
+		)
+		let warnings = WarningCollector()
+		let statistics = await NPMStatistics.load(cache: cache, warnings: warnings)
+
+		#expect(statistics.packages == nil)
+		#expect(statistics.packageCount == 251)
+		#expect(statistics.weeklyDownloads == nil)
+		guard case .countOnly(251) = statistics.search else {
+			Issue.record("A partial search must not carry packages as complete results.")
+			return
+		}
+		#expect(statistics.updatedPackageCount(since: .distantPast) == nil)
+		#expect(warnings.all.count == warningCount)
 	}
 
 	/**
@@ -48,12 +109,12 @@ struct NPMStatisticsTests {
 		#expect(statistics.weeklyDownloads == 1505)
 		// The dependents are a string or a number, and a package without them is left out of the sum.
 		#expect(statistics.dependentCount == 4000)
-		#expect(statistics.packages.map(\.version) == ["6.0.0", "10.1.0", "9.0.0"])
+		#expect(statistics.packages?.map(\.version) == ["6.0.0", "10.1.0", "9.0.0"])
 		// 1505 of the 15050 downloads of all of npm, and chalk and execa are among the most downloaded.
 		#expect(statistics.downloadShare == 0.1)
 		#expect(statistics.mostDownloadedCount(of: 10) == 2)
 		#expect(statistics.mostDownloadedCount(of: 1) == 0)
-		#expect(statistics.packages.last?.date == Date(timeIntervalSince1970: 1_791_302_889))
+		#expect(statistics.packages?.last?.date == Date(timeIntervalSince1970: 1_791_302_889))
 		#expect(warnings.all.isEmpty)
 	}
 
@@ -66,7 +127,7 @@ struct NPMStatisticsTests {
 		let warnings = WarningCollector()
 		let statistics = await NPMStatistics.load(cache: cache, warnings: warnings)
 
-		#expect(statistics.packages.map(\.dependentCount) == [nil, nil])
+		#expect(statistics.packages?.map(\.dependentCount) == [nil, nil])
 		#expect(statistics.dependentCount == nil)
 		#expect(statistics.downloadShare == nil)
 		#expect(warnings.all.isEmpty)
@@ -80,8 +141,21 @@ struct NPMStatisticsTests {
 		let cache = try ResponseCache.npm(search: #"{"objects": [{"package": {"name": "p-map", "version": "7.0.0", "description": "Map over `promises` concurrently ", "date": "2026-10-05T14:57:36.835Z"}, "downloads": {"weekly": 4200000}}, {"package": {"name": "empty", "version": "1.0.0", "description": " `` ", "date": "2026-10-05T14:57:36.835Z"}, "downloads": {"weekly": 1}}, {"package": {"name": "none", "version": "1.0.0", "date": "2026-10-05T14:57:36.835Z"}, "downloads": {"weekly": 0}}], "total": 3}"#)
 		let statistics = await NPMStatistics.load(cache: cache, warnings: WarningCollector())
 
-		#expect(statistics.packages.map(\.description) == ["Map over promises concurrently", nil, nil])
-		#expect(statistics.packages.map(\.weeklyDownloadsLabel) == ["4.2M+ downloads a week", "1 download a week", "0 downloads a week"])
+		#expect(statistics.packages?.map(\.description) == ["Map over promises concurrently", nil, nil])
+		#expect(statistics.packages?.map(\.weeklyDownloadsLabel) == ["4.2M+ downloads a week", "1 download a week", "0 downloads a week"])
+	}
+
+	@Test(.temporaryDirectory)
+	func `an unreadable package date omits only that package`() async throws {
+		let cache = try ResponseCache.npm(search: #"{"objects":[{"package":{"name":"bad-date","version":"1.0.0","date":"yesterday"},"downloads":{"weekly":900}},{"package":{"name":"chalk","version":"6.0.0","date":"2026-10-05T14:57:36.835Z","links":{"repository":"git+https://github.com/chalk/chalk.git"}},"downloads":{"weekly":100}}],"total":2}"#)
+		let warnings = WarningCollector()
+		let statistics = await NPMStatistics.load(cache: cache, warnings: warnings)
+
+		#expect(statistics.packageCount == 2)
+		#expect(statistics.packages?.map(\.name) == ["chalk"])
+		#expect(statistics.packages?.first?.repository == #repository("chalk/chalk"))
+		#expect(statistics.weeklyDownloads == 100)
+		#expect(warnings.all.isEmpty)
 	}
 
 	@Test(.temporaryDirectory)
@@ -92,7 +166,12 @@ struct NPMStatisticsTests {
 		let statistics = await NPMStatistics.load(cache: cache, warnings: warnings)
 
 		#expect(statistics.packageCount == nil)
+		#expect(statistics.packages == nil)
 		#expect(statistics.weeklyDownloads == nil)
+		guard case .unavailable = statistics.search else {
+			Issue.record("A failed first page has no search result.")
+			return
+		}
 		#expect(warnings.all.count == 1)
 	}
 

@@ -10,7 +10,17 @@ struct Price: Hashable {
 	let amount: Decimal
 	let currency: Locale.Currency
 
-	init(_ amount: Decimal, currency: Locale.Currency = "USD") {
+	/**
+	An imported amount, including zero for a free app. Authored US-dollar prices use the stricter `init(validating:)`.
+	*/
+	init(amount: Decimal, currency: Locale.Currency = "USD") throws(ContentError) {
+		guard
+			!amount.isNaN,
+			amount >= 0
+		else {
+			throw ContentError(reason: "A price must be a nonnegative amount, got \(amount).")
+		}
+
 		self.amount = amount
 		self.currency = currency
 	}
@@ -18,7 +28,7 @@ struct Price: Hashable {
 	/**
 	Free, like for the offer of an app that costs nothing. Frontmatter prices are positive, so only the build makes this one.
 	*/
-	static let free = Self(0)
+	static let free = try! Self(amount: 0)
 
 	var isFree: Bool {
 		amount == 0
@@ -50,6 +60,6 @@ extension Price: ValidatedValue {
 			throw ContentError(reason: "Must be a positive number of US dollars with at most two decimals, like `20` or `4.99`, got \(rawValue).")
 		}
 
-		self.init(amount)
+		try self.init(amount: amount)
 	}
 }

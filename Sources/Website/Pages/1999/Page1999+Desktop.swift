@@ -9,7 +9,7 @@ extension GeoCitiesPage {
 	@HTMLBuilder
 	var effectTemplates: some HTML {
 		// `geocities.js` shows a copy for the screen savers that are drawn on a canvas, like 3D Pipes.
-		template(.id(Hooks.saverCanvasTemplate)) {
+		template(.id(IDs.saverCanvasTemplate)) {
 			div {
 				canvas {}
 					.style(Styles.saverCanvas)
@@ -24,22 +24,28 @@ extension GeoCitiesPage {
 		}
 
 		// `geocities.js` adds a copy for the cards of the Solitaire win and for the fireworks of the year 2000, unless the visitor prefers reduced motion.
-		template(.id(Hooks.effectTemplate)) {
+		template(.id(IDs.effectTemplate)) {
 			canvas {}
 				.accessibilityHidden()
 				.style(Styles.effectCanvas)
 		}
 
 		// `geocities.js` adds a copy for each ball of the elastic trail and each number and dot of the clock that follow the mouse pointer.
-		template(.id(Hooks.trailDotTemplate)) {
+		template(.id(IDs.trailDotTemplate)) {
 			span {}
 				.accessibilityHidden()
 				.style(Styles.trailDot)
 		}
 
 		// `geocities.js` shows a copy when the visitor clicks the skull: the blue screen of Windows 98, or the bomb of the Mac, until a key or a click.
-		template(.id(Hooks.blueScreenTemplate)) {
-			div(.role("alertdialog"), .ariaModal, .tabindex(-1), .ariaLabelledBy("geocities-blue-screen-title"), .ariaDescribedBy("geocities-blue-screen-text")) {
+		template(.id(IDs.blueScreenTemplate)) {
+			div(
+				.role("alertdialog"),
+				.ariaModal,
+				.tabindex(-1),
+				.ariaLabelledBy(ElementID("geocities-blue-screen-title")),
+				.ariaDescribedBy(ElementID("geocities-blue-screen-text"))
+			) {
 				div {
 					p(.id("geocities-blue-screen-title")) {
 						"Windows"
@@ -76,9 +82,15 @@ extension GeoCitiesPage {
 			.style(Styles.blueScreen)
 		}
 
-		template(.id(Hooks.bombTemplate)) {
+		template(.id(IDs.bombTemplate)) {
 			div {
-				div(.role("alertdialog"), .ariaModal, .tabindex(-1), .ariaLabelledBy("geocities-bomb-title"), .ariaDescribedBy("geocities-bomb-text")) {
+				div(
+					.role("alertdialog"),
+					.ariaModal,
+					.tabindex(-1),
+					.ariaLabelledBy(ElementID("geocities-bomb-title")),
+					.ariaDescribedBy(ElementID("geocities-bomb-text"))
+				) {
 					gif(.bomb)
 
 					div {
@@ -109,8 +121,13 @@ extension GeoCitiesPage {
 		}
 
 		// `geocities.js` shows a copy when the visitor shuts down the computer of the desktop, until a key or a click turns it on again.
-		template(.id(Hooks.shutDownTemplate)) {
-			div(.role("dialog"), .ariaModal, .tabindex(-1), .ariaLabelledBy("geocities-shut-down-text")) {
+		template(.id(IDs.shutDownTemplate)) {
+			div(
+				.role("dialog"),
+				.ariaModal,
+				.tabindex(-1),
+				.ariaLabelledBy(ElementID("geocities-shut-down-text"))
+			) {
 				p(.id("geocities-shut-down-text")) {
 					"It’s now safe to turn off your computer."
 				}
@@ -141,7 +158,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.centeredText)
 
-			div(.id(Hooks.snakePhone)) {
+			div(.id(IDs.snakePhone)) {
 				p {
 					"PAPPA"
 				}
@@ -149,16 +166,21 @@ extension GeoCitiesPage {
 				.style(Styles.phoneBrand)
 
 				div {
-					p(.id(Hooks.snakeScore)) {
+					p(.id(IDs.snakeScore)) {
 						"Score: 0 ★ Best: 0"
 					}
 					.style(Styles.phoneScore)
 
-					canvas(.id(Hooks.snakeScreen), .width(84), .height(48), .role("img")) {}
+					canvas(
+						.id(IDs.snakeScreen),
+						.width(84),
+						.height(48),
+						.role("img")
+					) {}
 						.accessibilityLabel("The screen of the phone, with the snake")
 						.style(Styles.phoneCanvas)
 
-					p(.id(Hooks.snakeStatus), .role("status")) {
+					p(.id(IDs.snakeStatus), .role("status")) {
 						"Press 5 to play!"
 					}
 					.style(Styles.phoneStatus)
@@ -215,11 +237,11 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.centeredText)
 
-			div(.id(Hooks.desktop)) {
+			div(.id(IDs.desktop)) {
 				ul {
 					for app in Self.desktopApps {
 						li {
-							button(.type(.button), .hook(Hooks.desktopOpen, value: app.id)) {
+							button(.type(.button), .hook(Hooks.desktopOpen, value: app.program.rawValue)) {
 								span {
 									app.icon
 								}
@@ -238,33 +260,33 @@ extension GeoCitiesPage {
 				.accessibilityLabel("Desktop")
 				.style(Styles.desktopIcons)
 
-				GeoCitiesWindows.window("paint", title: "untitled - Unicorn Paint") {
+				GeoCitiesWindows.window(.paint, title: "untitled - Unicorn Paint") {
 					Deferred(paint)
 				}
 
-				GeoCitiesWindows.window("sweeper", title: "Y2K Bugsweeper") {
+				GeoCitiesWindows.window(.sweeper, title: "Y2K Bugsweeper") {
 					Deferred(sweeper)
 				}
 
-				GeoCitiesWindows.window("notepad", title: "SECRET.TXT - Notepad") {
+				GeoCitiesWindows.window(.notepad, title: "SECRET.TXT - Notepad") {
 					Deferred(notepad)
 				}
 
-				GeoCitiesWindows.window("solitaire", title: "Solitaire") {
+				GeoCitiesWindows.window(.solitaire, title: "Solitaire") {
 					Deferred(solitaire)
 				}
 
-				GeoCitiesWindows.window("computer", title: "System Properties") {
+				GeoCitiesWindows.window(.computer, title: "System Properties") {
 					Deferred(systemProperties)
 				}
 
-				GeoCitiesWindows.window("recycle", title: "Recycle Bin") {
+				GeoCitiesWindows.window(.recycle, title: "Recycle Bin") {
 					Deferred(recycleBin)
 				}
 
 				Deferred(GeoCitiesWindows())
 
-				div(.id(Hooks.startMenu), .hidden) {
+				div(.id(IDs.startMenu), .hidden) {
 					p {
 						"Windows98"
 					}
@@ -275,7 +297,7 @@ extension GeoCitiesPage {
 						GeoCitiesWindows.startMenuItems
 
 						li {
-							button(.id(Hooks.shutDown), .type(.button)) {
+							button(.id(IDs.shutDown), .type(.button)) {
 								span {
 									"⏻"
 								}
@@ -293,7 +315,12 @@ extension GeoCitiesPage {
 				.style(Styles.startMenu)
 
 				div {
-					button(.id(Hooks.startButton), .type(.button), .ariaExpanded(false), .ariaControls(Hooks.startMenu.id)) {
+					button(
+						.id(IDs.startButton),
+						.type(.button),
+						.ariaExpanded(false),
+						.ariaControls(IDs.startMenu.id)
+					) {
 						span {
 							"⊞"
 						}
@@ -309,7 +336,7 @@ extension GeoCitiesPage {
 
 					GeoCitiesWindows.Tray()
 
-					p(.id(Hooks.taskbarClock)) {
+					p(.id(IDs.taskbarClock)) {
 						"11:59 PM"
 					}
 					.style(Styles.taskbarClock)
@@ -341,13 +368,13 @@ extension GeoCitiesPage {
 					.style(Styles.paintButton)
 				}
 
-				button(.id(Hooks.paintUndo), .type(.button)) {
+				button(.id(IDs.paintUndo), .type(.button)) {
 					"Oops!"
 				}
 				.help("Undo")
 				.style(Styles.paintButton)
 
-				button(.id(Hooks.paintClear), .type(.button)) {
+				button(.id(IDs.paintClear), .type(.button)) {
 					gif(.dynamite)
 					"Boom!"
 				}
@@ -355,7 +382,7 @@ extension GeoCitiesPage {
 				.help("Blow up the picture")
 				.style(Styles.paintButton)
 
-				button(.id(Hooks.paintSave), .type(.button)) {
+				button(.id(IDs.paintSave), .type(.button)) {
 					"💾"
 				}
 				.accessibilityLabel("Save the picture")
@@ -365,7 +392,7 @@ extension GeoCitiesPage {
 			.accessibilityLabel("Tools")
 			.style(Styles.paintTools)
 
-			div(.id(Hooks.paintStamps), .role("group"), .hidden) {
+			div(.id(IDs.paintStamps), .role("group"), .hidden) {
 				for (index, stamp) in Self.paintStamps.enumerated() {
 					button(.type(.button), .hook(Hooks.paintStamp, value: stamp.gif.stillPath.description), .ariaPressed(index == 0)) {
 						gif(stamp.gif, style: .paintStampPicture)
@@ -378,11 +405,17 @@ extension GeoCitiesPage {
 			.style(Styles.paintTools)
 
 			div {
-				canvas(.id(Hooks.paintCanvas), .width(320), .height(200), .tabindex(0), .role("img")) {}
+				canvas(
+					.id(IDs.paintCanvas),
+					.width(320),
+					.height(200),
+					.tabindex(0),
+					.role("img")
+				) {}
 					.accessibilityLabel("Your picture. Draw with the mouse or a finger, or move the brush with the arrow keys and paint with Space.")
 					.style(Styles.paintCanvas)
 
-				span(.id(Hooks.paintCursor), .hidden) {}
+				span(.id(IDs.paintCursor), .hidden) {}
 					.accessibilityHidden()
 					.style(Styles.paintCursor)
 			}
@@ -399,7 +432,7 @@ extension GeoCitiesPage {
 			.accessibilityLabel("Colors")
 			.style(Styles.paintPalette)
 
-			p(.id(Hooks.paintStatus), .role("status")) {
+			p(.id(IDs.paintStatus), .role("status")) {
 				"Pick a tool and draw a unicorn!"
 			}
 			.style(Styles.statusBar)
@@ -413,19 +446,19 @@ extension GeoCitiesPage {
 	var sweeper: some HTML {
 		div {
 			div {
-				p(.id(Hooks.sweeperBugs), .role("img")) {
+				p(.id(IDs.sweeperBugs), .role("img")) {
 					"010"
 				}
 				.accessibilityLabel("10 bugs left")
 				.style(Styles.sweeperLED)
 
-				button(.id(Hooks.sweeperFace), .type(.button)) {
+				button(.id(IDs.sweeperFace), .type(.button)) {
 					"🙂"
 				}
 				.accessibilityLabel("New game")
 				.style(Styles.sweeperFace)
 
-				p(.id(Hooks.sweeperTime)) {
+				p(.id(IDs.sweeperTime)) {
 					"000"
 				}
 				.accessibilityHidden()
@@ -433,7 +466,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.sweeperBar)
 
-			div(.id(Hooks.sweeperGrid), .role("group")) {
+			div(.id(IDs.sweeperGrid), .role("group")) {
 				for index in 0..<(Self.sweeperSize * Self.sweeperSize) {
 					button(.type(.button), .hook(Hooks.sweeperCell, value: "\(index)"), .tabindex(index == 0 ? 0 : -1)) {}
 						.accessibilityLabel("Row \(index / Self.sweeperSize + 1), column \(index % Self.sweeperSize + 1)")
@@ -443,12 +476,12 @@ extension GeoCitiesPage {
 			.accessibilityLabel("Minefield of 9 by 9 squares")
 			.style(Styles.sweeperGrid)
 
-			button(.id(Hooks.sweeperFlag), .type(.button), .ariaPressed(false)) {
+			button(.id(IDs.sweeperFlag), .type(.button), .ariaPressed(false)) {
 				"🚩 Flag Mode"
 			}
 			.style(Styles.smallButton)
 
-			p(.id(Hooks.sweeperStatus), .role("status")) {
+			p(.id(IDs.sweeperStatus), .role("status")) {
 				"Find the 10 Y2K bugs before midnight! Right-click, press F, hold a finger on a square, or use Flag Mode to flag a bug."
 			}
 			.style(Styles.statusBar)
@@ -461,7 +494,7 @@ extension GeoCitiesPage {
 	*/
 	var notepad: some HTML {
 		div {
-			form(.id(Hooks.diaryLock)) {
+			form(.id(IDs.diaryLock)) {
 				p {
 					gif(.diary)
 				}
@@ -472,11 +505,17 @@ extension GeoCitiesPage {
 				}
 
 				div {
-					label(.for(Hooks.diaryPassword.id)) {
+					label(.for(IDs.diaryPassword.id)) {
 						"Password:"
 					}
 
-					input(.id(Hooks.diaryPassword), .type(.password), .autocomplete("off"), .required, .maxlength(30))
+					input(
+						.id(IDs.diaryPassword),
+						.type(.password),
+						.autocomplete("off"),
+						.required,
+						.maxlength(30)
+					)
 						.style(Styles.field, Styles.select)
 				}
 				.style(Styles.formRow)
@@ -487,7 +526,7 @@ extension GeoCitiesPage {
 					}
 					.style(Styles.retroButton)
 
-					button(.id(Hooks.diaryHint), .type(.button)) {
+					button(.id(IDs.diaryHint), .type(.button)) {
 						"Hint"
 					}
 					.style(Styles.retroButton)
@@ -499,14 +538,19 @@ extension GeoCitiesPage {
 				$0.flowSpacing(.rootEm(0.75))
 			}
 
-			p(.id(Hooks.diaryStatus), .role("status")) {}
+			p(.id(IDs.diaryStatus), .role("status")) {}
 
-			label(.for(Hooks.diaryText.id)) {
+			label(.for(IDs.diaryText.id)) {
 				"My diary"
 			}
 			.style(VisuallyHidden.Styles.root)
 
-			textarea(.id(Hooks.diaryText), .rows(12), .readonly, .hidden) {
+			textarea(
+				.id(IDs.diaryText),
+				.rows(12),
+				.readonly,
+				.hidden
+			) {
 				Self.diary
 			}
 			.style(Styles.field, Styles.notepad)
@@ -533,12 +577,12 @@ extension GeoCitiesPage {
 			"I already won! It took me 4 hours. The best part is the end, so here it is."
 		}
 
-		button(.id(Hooks.solitaireWin), .type(.button)) {
+		button(.id(IDs.solitaireWin), .type(.button)) {
 			"Watch the Cards Jump!"
 		}
 		.style(Styles.retroButton)
 
-		p(.id(Hooks.solitaireStatus), .role("status")) {}
+		p(.id(IDs.solitaireStatus), .role("status")) {}
 	}
 
 	/**
@@ -563,7 +607,7 @@ extension GeoCitiesPage {
 		}
 		.style(Styles.facts)
 
-		button(.id(Hooks.defragStart), .type(.button)) {
+		button(.id(IDs.defragStart), .type(.button)) {
 			"Defragment Drive C:"
 		}
 		.style(Styles.retroButton)
@@ -577,7 +621,7 @@ extension GeoCitiesPage {
 		.accessibilityHidden()
 		.style(Styles.defrag)
 
-		p(.id(Hooks.defragStatus), .role("status")) {
+		p(.id(IDs.defragStatus), .role("status")) {
 			"Drive C: is 61% fragmented. Ouch."
 		}
 		.style(Styles.statusBar)
@@ -588,7 +632,7 @@ extension GeoCitiesPage {
 	*/
 	@HTMLBuilder
 	var recycleBin: some HTML {
-		ul(.id(Hooks.recycleList)) {
+		ul(.id(IDs.recycleList)) {
 			for (file, note) in Self.recycledFiles {
 				li {
 					strong {
@@ -604,11 +648,11 @@ extension GeoCitiesPage {
 		}
 		.style(Styles.facts)
 
-		button(.id(Hooks.recycleEmpty), .type(.button)) {
+		button(.id(IDs.recycleEmpty), .type(.button)) {
 			"Empty Recycle Bin"
 		}
 		.style(Styles.retroButton)
 
-		p(.id(Hooks.recycleStatus), .role("status")) {}
+		p(.id(IDs.recycleStatus), .role("status")) {}
 	}
 }

@@ -122,7 +122,14 @@ struct GeoCitiesComicChat: ScriptedElement {
 					.style(GeoCitiesPage.Styles.label)
 
 					div {
-						input(.id(Self.inputID), .part(Parts.input), .type(.text), .autocomplete("off"), .maxlength(80), .placeholder("Hi Sindre! I LOVE your page!!!"))
+						input(
+							.id(Self.inputID),
+							.part(Parts.input),
+							.type(.text),
+							.autocomplete("off"),
+							.maxlength(80),
+							.placeholder("Hi Sindre! I LOVE your page!!!")
+						)
 							.style(Styles.input)
 
 						button(.type(.submit), .hook(Hooks.mode, value: "say")) {
@@ -208,16 +215,16 @@ struct GeoCitiesComicChat: ScriptedElement {
 		case think
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		Whether a button says or thinks the line: `say` or `think`.
 		*/
-		case mode = "data-comic-mode"
+		case mode = "comic-mode"
 
 		/**
 		The side of the panel of the speaker of a balloon, `right` for the one on the right, so its tail points there.
 		*/
-		case side = "data-comic-side"
+		case side = "comic-side"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -248,7 +255,7 @@ struct GeoCitiesComicChat: ScriptedElement {
 					.gap(.rootEm(0.5))
 					.padding(.rootEm(0.5))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.from(.smallTablet) {
 						$0.grid(columns: 2)
 					}
@@ -261,11 +268,27 @@ struct GeoCitiesComicChat: ScriptedElement {
 					.position(.relative)
 					.vstack(justification: .spaceBetween)
 					.aspectRatio(1)
-					.margin(0)
-					.backgroundImage(.linearGradient("to bottom", Color("#fff7d6"), Color("#fff7d6"), Color("#ffe6a8"), Color("#d9a066"), Color("#c08040")))
+					.margin(.zero)
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#fff7d6"),
+							Color(raw: "#fff7d6"),
+							Color(raw: "#ffe6a8"),
+							Color(raw: "#d9a066"),
+							Color(raw: "#c08040")
+						)
+					)
 					.border(.black, width: .pixels(3))
 					.when(States.mom) {
-						$0.backgroundImage(.linearGradient("to bottom", Color("#ffd6d6"), Color("#ffb0b0"), Color("#d96666")))
+						$0.backgroundImage(
+							.linearGradient(
+								.toBottom,
+								Color(raw: "#ffd6d6"),
+								Color(raw: "#ffb0b0"),
+								Color(raw: "#d96666")
+							)
+						)
 					}
 			case .balloons:
 				Style()
@@ -277,7 +300,7 @@ struct GeoCitiesComicChat: ScriptedElement {
 				Style()
 					.position(.relative)
 					.frame(maxWidth: .percent(92))
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 					.background(.white)
 					.border(.black, width: .pixels(2))
@@ -309,15 +332,15 @@ struct GeoCitiesComicChat: ScriptedElement {
 					}
 					.when(States.shout) {
 						$0
-							.background(Color("#ffff99"))
+							.background(Color(raw: "#ffff99"))
 							.border(.black, width: .pixels(3))
-							.cornerRadius(0)
+							.cornerRadius(.zero)
 							.fontWeight(.bold)
 							.font(size: .rootEm(0.8), lineHeight: 1.2)
 							.rotationEffect(.degrees(-2))
 							.after {
 								$0
-									.background(Color("#ffff99"))
+									.background(Color(raw: "#ffff99"))
 									.border([.bottom, .trailing], .black, width: .pixels(3))
 							}
 					}
@@ -353,9 +376,9 @@ struct GeoCitiesComicChat: ScriptedElement {
 					.frame(width: .percent(100))
 			case .fieldset:
 				Style()
-					.margin(0)
-					.padding(0)
-					.border(.transparent, width: 0)
+					.margin(.zero)
+					.padding(.zero)
+					.border(.transparent, width: .zero)
 			case .legend:
 				Style()
 					.fontFamily(.system)
@@ -366,8 +389,15 @@ struct GeoCitiesComicChat: ScriptedElement {
 					.grid(columns: 3)
 					.frame(size: .rootEm(11))
 					.padding(.rootEm(1.25))
-					.backgroundImage(.radialGradient("circle", Color("#ffffff"), Color("#ffffcc"), Color("#ffcc66")))
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.backgroundImage(
+						.radialGradient(
+							.circle,
+							Color(raw: "#ffffff"),
+							Color(raw: "#ffffcc"),
+							Color(raw: "#ffcc66")
+						)
+					)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.cornerRadius(.percent(50))
 			case .emotion:
 				// A smiley of the wheel, which is pressed in while it is picked.
@@ -381,15 +411,20 @@ struct GeoCitiesComicChat: ScriptedElement {
 					.color(.black)
 					.handCursor()
 					.hover {
-						$0.background(Color("#ffffff"))
+						$0.background(Color(raw: "#ffffff"))
 					}
 					.focusWithin {
-						$0.focusRing(.black, width: .pixels(1), offset: .pixels(-2), style: .dotted)
+						$0.focusRing(
+							.black,
+							width: .pixels(1),
+							offset: .pixels(-2),
+							style: .dotted
+						)
 					}
 					// The radio button is hidden, so the smiley shows that it is picked.
 					.descendantChecked {
 						$0
-							.background(Color("#000080"))
+							.background(Color(raw: "#000080"))
 							.color(.white)
 					}
 			case .inputRow:
@@ -402,7 +437,7 @@ struct GeoCitiesComicChat: ScriptedElement {
 					.frame(minWidth: .rootEm(10))
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.375))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(.system)
 			}
 		}

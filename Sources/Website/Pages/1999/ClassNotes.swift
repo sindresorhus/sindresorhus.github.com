@@ -106,7 +106,13 @@ struct GeoCitiesClassNotes: ScriptedElement {
 	private struct Notebook: HTML {
 		var body: some HTML {
 			div {
-				canvas(.part(Parts.paper), .width(320), .height(240), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.paper),
+					.width(320),
+					.height(240),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("The note, on a page torn out of my school notebook. Drag on it, or press the arrow keys, to doodle with the pencil. The text, the doodles, and the folds are next to it.")
 					.style(Styles.paper)
 
@@ -150,7 +156,14 @@ struct GeoCitiesClassNotes: ScriptedElement {
 			}
 			.style(Styles.inlineLabel)
 
-			textarea(.id("geocities-class-notes-text"), .part(Parts.text), .rows(3), .maxlength(120), .autocomplete("off"), .placeholder("Hei! Kjedelig time, eller hva?")) {}
+			textarea(
+				.id("geocities-class-notes-text"),
+				.part(Parts.text),
+				.rows(3),
+				.maxlength(120),
+				.autocomplete("off"),
+				.placeholder("Hei! Kjedelig time, eller hva?")
+			) {}
 				.style(GeoCitiesPage.Styles.field, Styles.text)
 
 			div {
@@ -221,7 +234,13 @@ struct GeoCitiesClassNotes: ScriptedElement {
 				p(.part(Parts.bubble)) {}
 					.style(Styles.bubble)
 
-				canvas(.part(Parts.room), .width(480), .height(400), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.room),
+					.width(480),
+					.height(400),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("My classroom from above, with the teacher at the blackboard. Click a desk next to the note to pass it there, or press an arrow key to pass it that way. With the paper airplane, click a desk to throw it there, or press Enter to throw it to the one the note is for.")
 					.style(Styles.room)
 
@@ -288,21 +307,21 @@ struct GeoCitiesClassNotes: ScriptedElement {
 		case shown
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A button that picks a lesson, like `matte`.
 		*/
-		case lesson = "data-class-notes-lesson"
+		case lesson = "class-notes-lesson"
 
 		/**
 		A button that draws a doodle on the note, like `heart`, or `erase` to erase them.
 		*/
-		case doodle = "data-class-notes-doodle"
+		case doodle = "class-notes-doodle"
 
 		/**
 		A button that folds the note, like `football`.
 		*/
-		case fold = "data-class-notes-fold"
+		case fold = "class-notes-fold"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -336,8 +355,8 @@ struct GeoCitiesClassNotes: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(1))
 					.padding(.rootEm(0.75))
-					.background(Color("#cfc9b8"))
-					.border(Color("#8a8370"), width: .pixels(4), style: .ridge)
+					.background(Color(raw: "#cfc9b8"))
+					.border(Color(raw: "#8a8370"), width: .pixels(4), style: .ridge)
 					.color(.black)
 			case .toolbar:
 				Style()
@@ -352,7 +371,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 					.grid(minimumColumnWidth: .rootEm(16))
 					.gap(.rootEm(0.75))
 					.children("*") {
-						$0.frame(minWidth: 0)
+						$0.frame(minWidth: .zero)
 					}
 			case .paper:
 				// A page torn out of a school notebook. A finger doodles on it instead of scrolling the page.
@@ -360,7 +379,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(320.0 / 240.0)
-					.shadow(Shadow(x: .pixels(3), y: .pixels(3), color: Color("#00000040")))
+					.shadow(BoxShadow(x: .pixels(3), y: .pixels(3), color: Color(raw: "#00000040")))
 					.touchAction(.none)
 					.cursor(.crosshair)
 					.canvasFocusRing()
@@ -373,7 +392,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 			case .select:
 				Style()
 					.flex(1)
-					.frame(minWidth: 0, minHeight: .rootEm(2.25))
+					.frame(minWidth: .zero, minHeight: .rootEm(2.25))
 			case .text:
 				Style()
 					.fontFamily(GeoCitiesPage.comicSans)
@@ -388,7 +407,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 					.children("input") {
 						$0
 							.flexShrink(0)
-							.margin(0)
+							.margin(.zero)
 							.media(.coarsePointer) {
 								$0.frame(size: .rootEm(1.5))
 							}
@@ -406,17 +425,17 @@ struct GeoCitiesClassNotes: ScriptedElement {
 					.leading(.rootEm(0.5))
 					.trailing(.rootEm(0.5))
 					.zIndex(1)
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.75))
 					.background(.white)
 					.border(.black, width: .pixels(3))
 					.cornerRadius(.rootEm(1.25))
-					.shadow(Shadow(x: .pixels(4), y: .pixels(4), color: Color("#00000066")))
+					.shadow(BoxShadow(x: .pixels(4), y: .pixels(4), color: Color(raw: "#00000066")))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.headline, weight: .bold)
 					.overflowWrap(.anywhere)
 					.textAlign(.center)
-					.color(Color("#990000"))
+					.color(Color(raw: "#990000"))
 					.children("strong") {
 						$0
 							.display(.block)
@@ -432,19 +451,19 @@ struct GeoCitiesClassNotes: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto, maxWidth: .rootEm(36))
 					.aspectRatio(480.0 / 400.0)
-					.border(Color("#5a4630"), width: .pixels(4), style: .ridge)
+					.border(Color(raw: "#5a4630"), width: .pixels(4), style: .ridge)
 					.touchAction(.manipulation)
 					.handCursor()
 					.canvasFocusRing()
 			case .legend:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption)
 					.textAlign(.center)
 			case .stats:
 				Style()
 					.frame(width: .percent(100), maxWidth: .rootEm(36))
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption)
 					.textAlign(.center)
 			case .status:
@@ -453,20 +472,27 @@ struct GeoCitiesClassNotes: ScriptedElement {
 					.toyStatus()
 					.frame(width: .percent(100), maxWidth: .rootEm(36))
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
-					.background(Color("#fff68f"))
-					.shadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#00000040")))
+					.background(Color(raw: "#fff68f"))
+					.shadow(BoxShadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#00000040")))
 			case .pencilCase:
 				// A pencil case of blue cloth, with a zipper all around.
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.75))
-					.backgroundImage(.linearGradient("to bottom", Color("#4466bb"), Color("#3355aa"), Color("#22397a")))
-					.border(Color("#c0c0c0"), width: .pixels(4), style: .dashed)
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#4466bb"),
+							Color(raw: "#3355aa"),
+							Color(raw: "#22397a")
+						)
+					)
+					.border(Color(raw: "#c0c0c0"), width: .pixels(4), style: .dashed)
 					.cornerRadius(.rootEm(1))
 					.color(.white)
 			case .caseTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.body, weight: .bold)
 			case .caseList:
@@ -474,8 +500,8 @@ struct GeoCitiesClassNotes: ScriptedElement {
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
 					.flexWrap()
-					.margin(0)
-					.padding(0)
+					.margin(.zero)
+					.padding(.zero)
 					.frame(minHeight: .rootEm(2))
 					.children("li") {
 						$0.display(.block)
@@ -484,8 +510,8 @@ struct GeoCitiesClassNotes: ScriptedElement {
 						$0
 							.frame(minHeight: .rootEm(2.25))
 							.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-							.background(Color("#fffef2"))
-							.border(Color("#9db4d8"), width: .pixels(1))
+							.background(Color(raw: "#fffef2"))
+							.border(Color(raw: "#9db4d8"), width: .pixels(1))
 							.fontFamily(GeoCitiesPage.comicSans)
 							.textStyle(.caption)
 							.color(.black)

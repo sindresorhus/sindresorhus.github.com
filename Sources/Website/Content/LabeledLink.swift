@@ -20,6 +20,13 @@ struct LabeledLink: Hashable {
 		self.init(title, destination: .url(url))
 	}
 
+	/**
+	Creates a link without discarding its validated absolute destination.
+	*/
+	init(_ title: String, url: AbsoluteURL) {
+		self.init(title, destination: .url(url))
+	}
+
 	init(_ title: String, path: RoutePath) {
 		self.init(title, destination: .path(path))
 	}
@@ -35,6 +42,7 @@ extension LabeledLink {
 	static let olderVersions = Self("Older Versions", destination: .path(.olderVersions), description: "Apps for older macOS versions")
 	static let discounts = Self("Discounts", destination: .path(.discounts), description: "Student discounts and special offers for my apps")
 	static let termsOfUse = Self("Terms of Use", destination: .path(.terms), description: "Guidelines and conditions for using my apps")
+	static let privacyPolicy = Self("Privacy Policy", destination: .path(.privacy), description: "The data this website and the feedback form get, and who gets it")
 }
 
 /**

@@ -20,26 +20,97 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 	]
 
 	/**
+	A cell of the budget, with the formula that my father wrote in it.
+	*/
+	private struct BudgetCell {
+		let value: Int
+		var formula: String?
+	}
+
+	/**
 	A row of the budget of my father for the first quarter of 1999, in kroner, with the formula of a cell where he wrote one, and his note.
 	*/
 	private struct BudgetRow {
 		let name: String
-		let values: [Int]
-		var formulas: [String?] = [nil, nil, nil]
+		let january: BudgetCell
+		let february: BudgetCell
+		let march: BudgetCell
 		var note = ""
+
+		/**
+		The three authored cells of the quarter, in month order.
+		*/
+		var cells: [BudgetCell] {
+			[january, february, march]
+		}
 	}
 
 	private static let budget: [BudgetRow] = [
-		BudgetRow(name: "Husleie", values: [6500, 6500, 6500]),
-		BudgetRow(name: "Strøm", values: [1240, 1385, 1110], note: "Regn. Mye regn."),
-		BudgetRow(name: "Telefon (Telenor)", values: [450, 2870, 610], formulas: [nil, "=450+2420", nil], note: "SINDRE!!! INTERNETT!!!"),
-		BudgetRow(name: "Mat", values: [4200, 4050, 4300]),
-		BudgetRow(name: "Brunost", values: [189, 189, 378], formulas: [nil, nil, "=189*2"], note: "Mormor på besøk"),
-		BudgetRow(name: "Bensin (Volvo 240)", values: [900, 850, 980]),
-		BudgetRow(name: "NRK-lisens", values: [0, 0, 1015]),
-		BudgetRow(name: "Pianotimer, Lillesøster", values: [480, 480, 480]),
-		BudgetRow(name: "Tamagotchi-batterier", values: [0, 45, 45], note: "Igjen?!"),
-		BudgetRow(name: "Lommepenger, Sindre", values: [100, 100, 50], formulas: [nil, nil, "=100-50"], note: "Minus telefonen"),
+		BudgetRow(
+			name: "Husleie",
+			january: BudgetCell(value: 6500),
+			february: BudgetCell(value: 6500),
+			march: BudgetCell(value: 6500)
+		),
+		BudgetRow(
+			name: "Strøm",
+			january: BudgetCell(value: 1240),
+			february: BudgetCell(value: 1385),
+			march: BudgetCell(value: 1110),
+			note: "Regn. Mye regn."
+		),
+		BudgetRow(
+			name: "Telefon (Telenor)",
+			january: BudgetCell(value: 450),
+			february: BudgetCell(value: 2870, formula: "=450+2420"),
+			march: BudgetCell(value: 610),
+			note: "SINDRE!!! INTERNETT!!!"
+		),
+		BudgetRow(
+			name: "Mat",
+			january: BudgetCell(value: 4200),
+			february: BudgetCell(value: 4050),
+			march: BudgetCell(value: 4300)
+		),
+		BudgetRow(
+			name: "Brunost",
+			january: BudgetCell(value: 189),
+			february: BudgetCell(value: 189),
+			march: BudgetCell(value: 378, formula: "=189*2"),
+			note: "Mormor på besøk"
+		),
+		BudgetRow(
+			name: "Bensin (Volvo 240)",
+			january: BudgetCell(value: 900),
+			february: BudgetCell(value: 850),
+			march: BudgetCell(value: 980)
+		),
+		BudgetRow(
+			name: "NRK-lisens",
+			january: BudgetCell(value: 0),
+			february: BudgetCell(value: 0),
+			march: BudgetCell(value: 1015)
+		),
+		BudgetRow(
+			name: "Pianotimer, Lillesøster",
+			january: BudgetCell(value: 480),
+			february: BudgetCell(value: 480),
+			march: BudgetCell(value: 480)
+		),
+		BudgetRow(
+			name: "Tamagotchi-batterier",
+			january: BudgetCell(value: 0),
+			february: BudgetCell(value: 45),
+			march: BudgetCell(value: 45),
+			note: "Igjen?!"
+		),
+		BudgetRow(
+			name: "Lommepenger, Sindre",
+			january: BudgetCell(value: 100),
+			february: BudgetCell(value: 100),
+			march: BudgetCell(value: 50, formula: "=100-50"),
+			note: "Minus telefonen"
+		),
 	]
 
 	private static let months = ["Januar", "Februar", "Mars"]
@@ -92,7 +163,15 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 							"Game #"
 						}
 
-						input(.id("geocities-taipei-number"), .part(Parts.number), .type(.number), .min("1"), .max("99999"), .value("1"), .autocomplete("off"))
+						input(
+							.id("geocities-taipei-number"),
+							.part(Parts.number),
+							.type(.number),
+							.min("1"),
+							.max("99999"),
+							.value("1"),
+							.autocomplete("off")
+						)
 							.style(Styles.number)
 
 						toolButton(.play, "Go")
@@ -107,7 +186,13 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 				}
 				.style(Styles.options)
 
-				canvas(.part(Parts.screen), .width(1200), .height(780), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.screen),
+					.width(1200),
+					.height(780),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("Taipei. Pick two free tiles that match to take them off. The arrow keys move the cursor, Space or Enter picks the tile, H shows a hint, U undoes, P peeks under the tile while Peek is on, Escape lets go of the tile, and B is the boss key.")
 					.style(Styles.screen)
 
@@ -265,11 +350,25 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 			let number = index + 2
 			var row = [SheetCell(name: "A\(number)", value: post.name)]
 
-			for (month, value) in post.values.enumerated() {
-				row.append(SheetCell(name: "\(columnLetters[month + 1])\(number)", value: kroner(value), formula: post.formulas[month], isNumber: true))
+			for (month, cell) in post.cells.enumerated() {
+				row.append(
+					SheetCell(
+						name: "\(columnLetters[month + 1])\(number)",
+						value: kroner(cell.value),
+						formula: cell.formula,
+						isNumber: true
+					)
+				)
 			}
 
-			row.append(SheetCell(name: "E\(number)", value: kroner(post.values.sum), formula: "=SUM(B\(number):D\(number))", isNumber: true))
+			row.append(
+				SheetCell(
+					name: "E\(number)",
+					value: kroner(post.cells.map(\.value).sum),
+					formula: "=SUM(B\(number):D\(number))",
+					isNumber: true
+				)
+			)
 			row.append(SheetCell(name: "F\(number)", value: post.note, isNote: true))
 			rows.append(row)
 		}
@@ -278,8 +377,16 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 
 		for column in 1...4 {
 			let letter = columnLetters[column]
-			let total = column == 4 ? budget.flatMap(\.values).sum : budget.map { $0.values[column - 1] }.sum
-			totals.append(SheetCell(name: "\(letter)\(totalRow)", value: kroner(total), formula: "=SUM(\(letter)2:\(letter)\(totalRow - 1))", isNumber: true, isBold: true))
+			let total = column == 4 ? budget.flatMap(\.cells).map(\.value).sum : budget.map { $0.cells[column - 1].value }.sum
+			totals.append(
+				SheetCell(
+					name: "\(letter)\(totalRow)",
+					value: kroner(total),
+					formula: "=SUM(\(letter)2:\(letter)\(totalRow - 1))",
+					isNumber: true,
+					isBold: true
+				)
+			)
 		}
 
 		totals.append(SheetCell(name: "F\(totalRow)", value: ""))
@@ -332,21 +439,21 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 		case selected
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A cell of the spreadsheet, by its name, like B4.
 		*/
-		case cell = "data-taipei-cell"
+		case cell = "taipei-cell"
 
 		/**
 		The formula of a cell of the spreadsheet, where it has one.
 		*/
-		case formulaText = "data-taipei-formula"
+		case formulaText = "taipei-formula"
 
 		/**
 		The tab of a sheet of the spreadsheet, by its ID.
 		*/
-		case tab = "data-taipei-tab"
+		case tab = "taipei-tab"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -402,7 +509,7 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 				Style()
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.25))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.color(.black)
@@ -413,15 +520,15 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 				// The text field of Windows, narrow enough for a game number.
 				GeoCitiesPage.Styles.field.style
 					.frame(width: .rootEm(4.75))
-					.padding(vertical: 0, horizontal: .rootEm(0.25))
+					.padding(vertical: .zero, horizontal: .rootEm(0.25))
 			case .screen:
 				// The table of the tiles. A tap picks a tile and a long press peeks, so a finger on it does not zoom the page or select text.
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(1200.0 / 780.0)
-					.background(Color("#0f4a2c"))
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#0f4a2c"))
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.touchAction(.manipulation)
 					.textSelection(.disabled)
 					.handCursor()
@@ -434,19 +541,19 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 				Style()
 					.flex(1)
 					.frame(minWidth: .rootEm(12))
-					.margin(0)
+					.margin(.zero)
 			case .stats:
 				// The green screen of the page, small, with two short lines.
 				GeoCitiesPage.Styles.lcd.style
-					.margin(0)
-					.padding(vertical: 0, horizontal: .rootEm(0.5))
+					.margin(.zero)
+					.padding(vertical: .zero, horizontal: .rootEm(0.5))
 					.textStyle(.caption)
 					.monospacedDigit()
 					.preservesLineBreaks()
 					.textWrap(.nowrap)
 			case .sheet:
 				Style()
-					.vstack(spacing: 0)
+					.vstack(spacing: .zero)
 					.background(GeoCitiesPage.windowGray)
 					.fontFamily(.system)
 					.textStyle(.caption)
@@ -454,11 +561,11 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 			case .excelToolbar:
 				// The standard toolbar of Excel 97, under its menus.
 				Style()
-					.border(.top, Color("#ffffff"))
+					.border(.top, Color(raw: "#ffffff"))
 					.letterSpacing(.em(0.2))
 			case .excelMenu:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.375))
 					.preservesLineBreaks()
 					.overflow(.hidden)
@@ -472,14 +579,14 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 					.frame(minWidth: .rootEm(3))
 					.padding(.horizontal, .rootEm(0.25))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			case .formula:
 				Style()
 					.flex(1)
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 					.padding(.horizontal, .rootEm(0.25))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.overflow(.hidden)
 					.textWrap(.nowrap)
 			case .gridScroll:
@@ -487,18 +594,18 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 				Style()
 					.overflow(.auto)
 					.frame(maxHeight: .rootEm(16.5))
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.background(.white)
 			case .grid:
 				Style()
 					.frame(minWidth: .percent(100))
-					.background(Color("#c8c8c8"))
+					.background(Color(raw: "#c8c8c8"))
 					.textAlign(.leading)
 			case .header:
 				Style()
 					.padding(.horizontal, .rootEm(0.25))
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(1), style: .outset)
+					.border(Color(raw: "#dfdfdf"), width: .pixels(1), style: .outset)
 					.fontWeight(.regular)
 					.textAlign(.center)
 			case .cell:
@@ -519,11 +626,11 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 				Style().fontWeight(.bold)
 			case .noteCell:
 				Style()
-					.color(Color("#cc0000"))
+					.color(Color(raw: "#cc0000"))
 					.fontWeight(.bold)
 			case .tabs:
 				Style()
-					.hstack(alignment: .start, spacing: 0)
+					.hstack(alignment: .start, spacing: .zero)
 					.padding(.horizontal, .rootEm(0.375))
 			case .tab:
 				// The tabs of the sheets hang below the sheet, and the open one is white.
@@ -531,7 +638,7 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 					.frame(minHeight: .rootEm(2))
 					.padding(.horizontal, .rootEm(0.625))
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#808080"), width: .pixels(1))
+					.border(Color(raw: "#808080"), width: .pixels(1))
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.color(.black)

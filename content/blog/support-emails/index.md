@@ -2,7 +2,7 @@
 isDraft: true
 title: 'What 10,000 Support Emails Taught Me'
 description: 'I make my apps alone, and I answer the support email myself. Some lessons from the first 10,000 replies.'
-publicationDate: '2026-10-07'
+publicationDate: 2026-10-07
 ---
 
 If anyone wonders what it takes to maintain some popular apps: I recently replied to my 10,000th support email.

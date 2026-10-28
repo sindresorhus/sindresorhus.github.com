@@ -1,11 +1,20 @@
 ---
+isArchived: true
 title: 'Front Flash'
 subtitle: 'Selfies in the dark'
-publicationDate: '2013-11-17'
-isArchived: true
-isPaid: true
+publicationDate: 2013-11-17
 platforms: [
 	'iOS'
+]
+isPaid: true
+pressQuotes: [
+	{
+		quote: 'In poor lighting, Front Flash uses the screen as an area flash to illuminate the subject. It works better than you might think.'
+		source: 'Mac Life'
+		translatedFrom: 'German'
+		url: 'https://www.maclife.de/apps/front-flash-app-test-10056168.html'
+		year: 2013
+	}
 ]
 ---
 

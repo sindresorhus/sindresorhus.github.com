@@ -12,6 +12,46 @@ extension Sequence<UInt8> {
 	}
 }
 
+extension UInt8 {
+	/**
+	Whether the byte is an ASCII letter, from `A` through `Z` or from `a` through `z`.
+	*/
+	var isASCIILetter: Bool {
+		(65...90).contains(self) || (97...122).contains(self)
+	}
+
+	/**
+	Whether the byte is an ASCII digit, from `0` through `9`.
+	*/
+	var isASCIIDigit: Bool {
+		(48...57).contains(self)
+	}
+}
+
+/**
+Shared operations on collections, including strings and arrays.
+*/
+extension Collection {
+	/**
+	`nil` for an empty collection, like for leaving an empty list out of JSON.
+	*/
+	public var nilIfEmpty: Self? {
+		isEmpty ? nil : self
+	}
+}
+
+/**
+Text normalization shared by the Markdown and CSS readers.
+*/
+extension String {
+	/**
+	Replaces Windows CRLF line endings with LF, preserving lone CR characters and trailing newlines.
+	*/
+	public var normalizingWindowsLineEndings: String {
+		replacing("\r\n", with: "\n")
+	}
+}
+
 extension Error {
 	/**
 	The localized message of a Foundation error or `LocalizedError`, or the description of another Swift error, so diagnostics keep the details that a generic localized description would discard.
@@ -131,6 +171,13 @@ extension URL {
 	}
 
 	/**
+	Whether the URL is the same file as the other one, also when one of them is relative or has symbolic links of the directories, like `/tmp` and `/private/tmp`.
+	*/
+	public func isSameFile(as other: URL) -> Bool {
+		pathWithResolvedParent == other.pathWithResolvedParent
+	}
+
+	/**
 	The path relative to the directory, like `apps/dato.html`. Symbolic links of the directories are resolved first, so `/tmp` and `/private/tmp` match. A symbolic link to a file keeps its own name and place, as its target can be anywhere. A file outside the directory gives its file name.
 	*/
 	public func path(relativeTo directory: URL) -> String {
@@ -168,7 +215,7 @@ extension URL {
 	*/
 	public func servedFile(forPath urlPath: String) -> URL? {
 		urlPath.servedFileCandidates.lazy
-			.map { self.appending(path: $0) }
+			.map { $0.fileURL(in: self) }
 			.first { $0.resolvingSymlinksInPath().isInside(self) && $0.isFile }
 	}
 }
@@ -183,11 +230,14 @@ extension String {
 	"/apps".servedFileCandidates // ["apps", "apps.html", "apps/index.html"]
 	```
 	*/
-	public var servedFileCandidates: [String] {
+	public var servedFileCandidates: [PublishedFilePath] {
 		let urlPath = removingPercentEncoding ?? self
 		let components = urlPath.split(separator: "/", omittingEmptySubsequences: true).filter { $0 != "." }
 
-		guard !components.contains("..") else {
+		guard
+			!urlPath.contains("\0"),
+			!components.contains("..")
+		else {
 			return []
 		}
 
@@ -197,10 +247,10 @@ extension String {
 			!relative.isEmpty,
 			!urlPath.hasSuffix("/")
 		else {
-			return [relative.isEmpty ? "index.html" : "\(relative)/index.html"]
+			return [PublishedFilePath(relative.isEmpty ? "index.html" : "\(relative)/index.html")]
 		}
 
-		return [relative, "\(relative).html", "\(relative)/index.html"]
+		return [relative, "\(relative).html", "\(relative)/index.html"].map { PublishedFilePath($0) }
 	}
 }
 
@@ -220,7 +270,17 @@ public struct PixelSize: Hashable, Sendable, CustomStringConvertible {
 	public let width: Int
 	public let height: Int
 
-	public init(width: Int, height: Int) {
+	/**
+	Creates a size with positive dimensions. Zero or negative dimensions are invalid.
+	*/
+	public init?(width: Int, height: Int) {
+		guard
+			width > 0,
+			height > 0
+		else {
+			return nil
+		}
+
 		self.width = width
 		self.height = height
 	}
@@ -247,6 +307,30 @@ public struct PixelSize: Hashable, Sendable, CustomStringConvertible {
 	}
 
 	/**
+	The display width constrained by a maximum height, without enlarging the source.
+	*/
+	public func displayWidth(maximumHeight: Double) -> Double {
+		precondition(maximumHeight.isFinite && maximumHeight > 0, "The maximum display height must be finite and positive.")
+		return min(Double(width), maximumHeight * aspectRatio)
+	}
+
+	/**
+	The source width needed for two pixels per display pixel inside the given display bounds, rounded up so a fractional pixel never makes the image less sharp.
+	*/
+	public func retinaWidth(maximumHeight: Double, maximumWidth: Double) -> Int {
+		precondition(maximumHeight.isFinite && maximumHeight > 0 && maximumWidth.isFinite && maximumWidth > 0, "The display bounds must be finite and positive.")
+		return Int((2 * min(maximumHeight * aspectRatio, maximumWidth)).rounded(.up))
+	}
+
+	/**
+	Whether the source has approximately two pixels per display pixel within the bounds. The tolerance allows a small shortfall that is not visibly less sharp.
+	*/
+	public func isSharpOnRetina(maximumHeight: Double, maximumWidth: Double, tolerance: Double = 0.95) -> Bool {
+		precondition((0...1).contains(tolerance), "The Retina tolerance must be between zero and one.")
+		return Double(width) >= tolerance * Double(retinaWidth(maximumHeight: maximumHeight, maximumWidth: maximumWidth))
+	}
+
+	/**
 	Like `1280×800`.
 	*/
 	public var description: String {
@@ -254,9 +338,42 @@ public struct PixelSize: Hashable, Sendable, CustomStringConvertible {
 	}
 }
 
+/**
+The header metadata of an image, decoded once at the ImageIO boundary instead of passing its untyped property dictionary to callers.
+*/
+public struct ImageMetadata: Sendable {
+	public let size: PixelSize
+	public let horizontalDPI: Double?
+	public let bitDepth: Int?
+
+	/**
+	Reads the supported facts together. A header without valid dimensions cannot describe an image of the site.
+	*/
+	fileprivate init?(properties: [CFString: Any]) {
+		guard let size = PixelSize(imageProperties: properties) else {
+			return nil
+		}
+
+		self.size = size
+		self.horizontalDPI = properties[kCGImagePropertyDPIWidth] as? Double
+		self.bitDepth = properties[kCGImagePropertyDepth] as? Int
+	}
+
+	/**
+	The size in CSS pixels. Only the 144 DPI convention identifies a Retina screenshot; a photo's arbitrary print DPI does not change its display size.
+	*/
+	public var displaySize: PixelSize {
+		guard horizontalDPI == 144 else {
+			return size
+		}
+
+		return PixelSize(width: max(1, size.width / 2), height: max(1, size.height / 2))!
+	}
+}
+
 extension URL {
 	/**
-	A JPEG XL copy of a PNG or JPEG image, or `nil` when the copy is not smaller. A PNG is encoded losslessly, and a JPEG is wrapped losslessly, so the JPEG can be restored bit for bit. So the copy looks exactly like the image.
+	A JPEG XL copy of a PNG or JPEG image, or `nil` when the copy is not smaller. A PNG, like an app icon, is encoded at quality 90, which looks the same as the image, and is about a sixth of a lossless copy (the icons of the apps are 1.6 MB instead of 9.5 MB). A JPEG is wrapped losslessly, so the JPEG can be restored bit for bit, as a lossy copy of a JPEG is only a little smaller.
 
 	It runs `cjxl` (`brew install jpeg-xl`), which throws when it is missing. The copy is cached in the directory by a hash of the bytes of the image and the options, so an image is only encoded again when it changes.
 	*/
@@ -264,7 +381,7 @@ extension URL {
 		let data = try Data(contentsOf: self)
 		let isJPEG = ["jpg", "jpeg"].contains(pathExtension.lowercased())
 		// The options are part of the key, so a change of them encodes the images again.
-		let options = isJPEG ? ["--lossless_jpeg=1"] : ["--distance=0"]
+		let options = isJPEG ? ["--lossless_jpeg=1"] : ["--quality=90"]
 		let key = SHA256.hash(data: data + Data(options.joined(separator: " ").utf8)).hexString
 		let output = cacheDirectory.appending(path: "\(key).jxl")
 
@@ -292,17 +409,15 @@ extension URL {
 		var errorOutput = Data()
 
 		let status = try await process.runUntilExit {
-			for try await byte in errorPipe.fileHandleForReading.bytes {
-				errorOutput.append(byte)
-			}
+			errorOutput = try await errorPipe.fileHandleForReading.readDataToEnd()
 		}
 
 		// `env` exits with 127 when it cannot find the command.
-		guard status != 127 else {
+		guard status != .exit(127) else {
 			throw ContentError(file: self, reason: "`cjxl` is missing, which makes the JPEG XL copies of the images. Install it with `brew install jpeg-xl`.")
 		}
 
-		guard status == 0 else {
+		guard status == .exit(0) else {
 			try? temporaryOutput.removeIfExists()
 			throw ContentError(file: self, reason: "`cjxl` could not make a JPEG XL copy of the image: \(String(decoding: errorOutput, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines))")
 		}
@@ -333,43 +448,35 @@ extension URL {
 	The pixel size of an image, or `nil` when it cannot be read, like for the `width` and `height` of an image, so the layout does not move while it loads. Only the header of the image is read. For a video, use ``videoSize``.
 	*/
 	public var imageSize: PixelSize? {
-		imageProperties.flatMap(PixelSize.init(imageProperties:))
+		imageMetadata?.size
 	}
 
 	/**
-	The size of an image on a page, in CSS pixels, or `nil` when it cannot be read. It is the pixel size, or half of it for an image with 144 DPI, like a screenshot of a Retina display on macOS, so the image is sharp. Other DPI values, like 300 from a photo editor, say nothing about the screen, so those images keep their pixel size.
+	The size of an image on a page, in CSS pixels, or `nil` when it cannot be read. It is the pixel size, or half of it for an image with 144 DPI, like a screenshot of a Retina display on macOS, so the image is sharp. Each dimension is at least one pixel. Other DPI values, like 300 from a photo editor, say nothing about the screen, so those images keep their pixel size.
 	*/
 	public var displaySize: PixelSize? {
-		guard
-			let properties = imageProperties,
-			let size = PixelSize(imageProperties: properties)
-		else {
-			return nil
-		}
-
-		guard properties[kCGImagePropertyDPIWidth] as? Double == 144 else {
-			return size
-		}
-
-		return PixelSize(width: size.width / 2, height: size.height / 2)
+		imageMetadata?.displaySize
 	}
 
 	/**
 	The bits per channel of an image, like 8 or 16, or `nil` when it cannot be read. Only the header of the image is read.
 	*/
 	public var imageBitDepth: Int? {
-		imageProperties?[kCGImagePropertyDepth] as? Int
+		imageMetadata?.bitDepth
 	}
 
 	/**
-	The properties of an image, like its pixel size. Only the header of the image is read.
+	The properties of an image, like its pixel size. Only the header of the image is read, and callers that need several facts can keep this value.
 	*/
-	private var imageProperties: [CFString: Any]? {
-		guard let source = CGImageSourceCreateWithURL(self as CFURL, nil) else {
+	public var imageMetadata: ImageMetadata? {
+		guard
+			let source = CGImageSourceCreateWithURL(self as CFURL, nil),
+			let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
+		else {
 			return nil
 		}
 
-		return CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
+		return ImageMetadata(properties: properties)
 	}
 
 	/**
@@ -382,11 +489,15 @@ extension URL {
 			return nil
 		}
 
-		return CGImageSourceCreateThumbnailAtIndex(source, 0, [
-			kCGImageSourceCreateThumbnailFromImageAlways: true,
-			kCGImageSourceCreateThumbnailWithTransform: true,
-			kCGImageSourceThumbnailMaxPixelSize: maximumPixelSize,
-		] as CFDictionary)
+		return CGImageSourceCreateThumbnailAtIndex(
+			source,
+			0,
+			[
+				kCGImageSourceCreateThumbnailFromImageAlways: true,
+				kCGImageSourceCreateThumbnailWithTransform: true,
+				kCGImageSourceThumbnailMaxPixelSize: maximumPixelSize,
+			] as CFDictionary
+		)
 	}
 
 	/**
@@ -455,6 +566,21 @@ extension String {
 	}
 
 	/**
+	The text of an HTML attribute value or element, with the escapes that HTML writes decoded, like `&amp;` to `&`. `&amp;` is last, so `&amp;lt;` is `&lt;`, not `<`.
+	*/
+	public var decodingHTMLEscapes: String {
+		guard contains("&") else {
+			return self
+		}
+
+		return replacing("&lt;", with: "<")
+			.replacing("&gt;", with: ">")
+			.replacing("&quot;", with: "\"")
+			.replacing("&#39;", with: "'")
+			.replacing("&amp;", with: "&")
+	}
+
+	/**
 	The text with typographic quotes and apostrophes instead of straight ones, like “it’s” for "it's", for text from others that is not Markdown, like an App Store review. A quote at the start or after a space or an opening bracket opens, and any other closes, so an apostrophe in a word is ’.
 
 	```swift
@@ -501,9 +627,32 @@ extension String {
 	}
 }
 
+extension FileHandle {
+	/**
+	Collects bytes asynchronously until the handle reaches EOF. Read a process pipe while the process is running, as waiting for its exit first can fill the pipe and stop it.
+	*/
+	public func readDataToEnd() async throws -> Data {
+		var data = Data()
+
+		for try await byte in bytes {
+			data.append(byte)
+		}
+
+		return data
+	}
+}
+
 extension Process {
 	/**
-	Runs the process, and returns its exit status when it exits. Waiting does not block a thread of the concurrency pool.
+	How a process finished: by exiting with a status code or by receiving an uncaught signal.
+	*/
+	public enum Termination: Hashable, Sendable {
+		case exit(Int32)
+		case signal(Int32)
+	}
+
+	/**
+	Runs the process, and returns how it terminated. Waiting does not block a thread of the concurrency pool.
 
 	`whileRunning` runs after the process started, like reading its output from a pipe, which must be read while it runs, as a full pipe stops the process.
 
@@ -517,11 +666,12 @@ extension Process {
 
 	Throws when the process cannot start, when `whileRunning` throws, or with `CancellationError` when the task is cancelled before the process exits. The process keeps running in the last two cases.
 	*/
-	public func runUntilExit(whileRunning: () async throws -> Void = {}) async throws -> Int32 {
-		let (exitStatus, exitStatusContinuation) = AsyncStream.makeStream(of: Int32.self)
+	public func runUntilExit(whileRunning: () async throws -> Void = {}) async throws -> Termination {
+		let (exitStatus, exitStatusContinuation) = AsyncStream.makeStream(of: Termination.self)
 
 		terminationHandler = { process in
-			exitStatusContinuation.yield(process.terminationStatus)
+			let termination: Termination = process.terminationReason == .exit ? .exit(process.terminationStatus) : .signal(process.terminationStatus)
+			exitStatusContinuation.yield(termination)
 			exitStatusContinuation.finish()
 		}
 
@@ -545,6 +695,16 @@ static let sourceURL = #URL("https://github.com/sindresorhus/sindresorhus.github
 */
 @freestanding(expression)
 public macro URL(_ string: StaticString) -> URL = #externalMacro(module: "SiteKitMacros", type: "URLMacro")
+
+/**
+A route path from a string literal, which is checked when the code compiles, so a typo, like a missing `/` or one at the end, is a compile error instead of a crash when a page first uses it.
+
+```swift
+let faq = #path("/apps/faq")
+```
+*/
+@freestanding(expression)
+public macro path(_ string: StaticString) -> RoutePath = #externalMacro(module: "SiteKitMacros", type: "RoutePathMacro")
 
 extension JSONEncoder {
 	/**
@@ -603,5 +763,52 @@ extension URL {
 		}
 
 		return url
+	}
+}
+
+extension Locale {
+	/**
+	English, the language of the site, so numbers, dates, and lists do not depend on the build machine.
+	*/
+	public static let site = Self(identifier: "en_US")
+}
+
+extension Sequence where Element: Sendable {
+	/**
+	The results of the transform of each element, in the order of the elements. The transforms run at the same time, like a request for each element, and the first error stops them.
+
+	```
+	let pages = try await urls.concurrentMap { try await download($0) }
+	```
+	*/
+	public func concurrentMap<Transformed: Sendable>(_ transform: @escaping @Sendable (Element) async throws -> Transformed) async throws -> [Transformed] {
+		try await withThrowingTaskGroup { group in
+			for (index, element) in enumerated() {
+				group.addTask {
+					(index: index, value: try await transform(element))
+				}
+			}
+
+			return try await group.reduce(into: []) { $0.append($1) }
+				.sorted(using: KeyPathComparator(\.index))
+				.map(\.value)
+		}
+	}
+
+	/**
+	The ordered results of concurrent transforms that cannot fail.
+	*/
+	public func concurrentMap<Transformed: Sendable>(_ transform: @escaping @Sendable (Element) async -> Transformed) async -> [Transformed] {
+		await withTaskGroup { group in
+			for (index, element) in enumerated() {
+				group.addTask {
+					(index: index, value: await transform(element))
+				}
+			}
+
+			return await group.reduce(into: []) { $0.append($1) }
+				.sorted(using: KeyPathComparator(\.index))
+				.map(\.value)
+		}
 	}
 }

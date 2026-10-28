@@ -10,7 +10,7 @@ struct StylesheetTests {
 				Style()
 				.display(.flex)
 				.padding(vertical: .rootEm(0.5), horizontal: .rootEm(1.5))
-				.color(Color("red").opacity(0.06))
+				.color(Color(raw: "red").opacity(0.06))
 				.declaration(.webkitBackdropFilter, "blur(14px)")
 				.declaration(Property("--accent"), "#2563eb")
 				.zIndex(40)
@@ -41,7 +41,7 @@ struct StylesheetTests {
 					$0.color("blue")
 				}
 				.nested("span") {
-					$0.margin(0)
+					$0.margin(.zero)
 				}
 				.media(.dark && .hover) {
 					$0.color("white")
@@ -52,9 +52,7 @@ struct StylesheetTests {
 				Rule(".c", Style().gap(.rootEm(1)))
 			}
 
-			Keyframes("spin") {
-				Rule("to", Style().transform("rotate(360deg)"))
-			}
+			Keyframes("spin", .to(Style().transform(.rotate(.degrees(360)))))
 		}.css
 
 		#expect(css == """
@@ -172,6 +170,6 @@ struct StylesheetTests {
 	func `black and white with opacity are plain rgb`() {
 		#expect(Color.black.opacity(0.5).description == "rgb(0 0 0 / 50%)")
 		#expect(Color.white.opacity(0.035).description == "rgb(255 255 255 / 3.5%)")
-		#expect(Color("red").opacity(0.5).description == "color-mix(in oklab, red 50%, transparent)")
+		#expect(Color(raw: "red").opacity(0.5).description == "color-mix(in oklab, red 50%, transparent)")
 	}
 }

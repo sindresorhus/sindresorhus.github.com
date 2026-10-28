@@ -123,7 +123,13 @@ struct GeoCitiesRingtones: ScriptedElement {
 					}
 					.style(GeoCitiesPage.Styles.label)
 
-					textarea(.id("geocities-nokia-text"), .part(Parts.text), .rows(3), .autocomplete("off"), .custom(name: "spellcheck", value: "false")) {}
+					textarea(
+						.id("geocities-nokia-text"),
+						.part(Parts.text),
+						.rows(3),
+						.autocomplete("off"),
+						.spellcheck(false)
+					) {}
 						.style(GeoCitiesPage.Styles.field, Styles.text)
 
 					div {
@@ -249,16 +255,16 @@ struct GeoCitiesRingtones: ScriptedElement {
 		case held
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A key of the phone, like `1` or `#`, or `c` for the clear key.
 		*/
-		case key = "data-nokia-key"
+		case key = "nokia-key"
 
 		/**
 		A ringtone of the ad, by its ID.
 		*/
-		case tone = "data-nokia-tone"
+		case tone = "nokia-tone"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -308,9 +314,16 @@ struct GeoCitiesRingtones: ScriptedElement {
 					.vstack(alignment: .center, spacing: .rootEm(0.5))
 					.frame(width: .rootEm(11))
 					.padding(vertical: .rootEm(1), horizontal: .rootEm(0.75))
-					.backgroundImage(.linearGradient("to right", Color("#1b2a4a"), Color("#2e4677"), Color("#1b2a4a")))
+					.backgroundImage(
+						.linearGradient(
+							.toRight,
+							Color(raw: "#1b2a4a"),
+							Color(raw: "#2e4677"),
+							Color(raw: "#1b2a4a")
+						)
+					)
 					.cornerRadius(.rootEm(3))
-					.shadow(Shadow(x: .pixels(3), y: .pixels(5), color: Color("#00000080")))
+					.shadow(BoxShadow(x: .pixels(3), y: .pixels(5), color: Color(raw: "#00000080")))
 					.when(States.ringing) {
 						$0.animation(Animations.buzz, .linear(duration: .milliseconds(90)).repeatForever())
 					}
@@ -319,24 +332,24 @@ struct GeoCitiesRingtones: ScriptedElement {
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
 					.letterSpacing(.em(0.2))
-					.color(Color("#c8d0e0"))
+					.color(Color(raw: "#c8d0e0"))
 			case .screen:
 				// The green screen with its light on, and black pixels.
 				Style()
 					.position(.relative)
 					.frame(width: .percent(100), height: .rootEm(6.5))
 					.padding(.rootEm(0.375))
-					.background(Color("#9bbc4f"))
-					.border(Color("#0e1a30"), width: .pixels(4))
+					.background(Color(raw: "#9bbc4f"))
+					.border(Color(raw: "#0e1a30"), width: .pixels(4))
 					.cornerRadius(.rootEm(0.5))
 					.fontFamily(GeoCitiesPage.courier)
-					.color(Color("#102000"))
+					.color(Color(raw: "#102000"))
 					.overflow(.hidden)
 			case .screenTitle:
 				Style()
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
-					.border(.bottom, Color("#102000"), width: .pixels(1))
+					.border(.bottom, Color(raw: "#102000"), width: .pixels(1))
 			case .screenCode:
 				// The newest notes are at the bottom, like on the phone, where the text scrolls up.
 				Style()
@@ -349,9 +362,9 @@ struct GeoCitiesRingtones: ScriptedElement {
 			case .call:
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.vstack(alignment: .center, justification: .center)
-					.background(Color("#9bbc4f"))
+					.background(Color(raw: "#9bbc4f"))
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
 			case .callIcon:
@@ -365,8 +378,8 @@ struct GeoCitiesRingtones: ScriptedElement {
 			case .softKey:
 				Style()
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-					.background(Color("#c8d0e0"))
-					.border(Color("#0e1a30"), width: .pixels(1))
+					.background(Color(raw: "#c8d0e0"))
+					.border(Color(raw: "#0e1a30"), width: .pixels(1))
 					.cornerRadius(.rootEm(1))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
@@ -381,26 +394,26 @@ struct GeoCitiesRingtones: ScriptedElement {
 				// A rubbery gray key, with its number and, below, what it does in the Composer.
 				Style()
 					.vstack(alignment: .center)
-					.padding(vertical: .rootEm(0.125), horizontal: 0)
-					.background(Color("#d6dae3"))
-					.border(Color("#0e1a30"), width: .pixels(1))
+					.padding(vertical: .rootEm(0.125), horizontal: .zero)
+					.background(Color(raw: "#d6dae3"))
+					.border(Color(raw: "#0e1a30"), width: .pixels(1))
 					.cornerRadius(.rootEm(0.75))
 					.fontFamily(.system)
 					.color(.black)
 					.lineHeight(1.1)
 					.handCursor()
 					.active {
-						$0.background(Color("#9bbc4f"))
+						$0.background(Color(raw: "#9bbc4f"))
 					}
 					.when(States.held) {
-						$0.background(Color("#9bbc4f"))
+						$0.background(Color(raw: "#9bbc4f"))
 					}
 			case .wideKey:
 				Style().gridColumnSpan(3)
 			case .keyLabel:
 				Style()
 					.font(size: .rootEm(0.625))
-					.color(Color("#334"))
+					.color(Color(raw: "#334"))
 			case .editor:
 				Style()
 					.vstack(spacing: .rootEm(0.5))
@@ -414,14 +427,14 @@ struct GeoCitiesRingtones: ScriptedElement {
 				Style()
 					.frame(minHeight: .lineHeight(1))
 					.fontWeight(.bold)
-					.color(Color("#000080"))
+					.color(Color(raw: "#000080"))
 			case .ad:
 				// An ad from the back pages of a magazine for teenagers: loud colors and small print.
 				Style()
 					.flowSpacing(.rootEm(0.5))
 					.padding(.rootEm(0.75))
-					.background(Color("#ffff66"))
-					.border(Color("#ff0099"), width: .pixels(4), style: .dashed)
+					.background(Color(raw: "#ffff66"))
+					.border(Color(raw: "#ff0099"), width: .pixels(4), style: .dashed)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.color(.black)
 					.rotationEffect(.degrees(1))
@@ -430,12 +443,12 @@ struct GeoCitiesRingtones: ScriptedElement {
 					.fontFamily(GeoCitiesPage.impact)
 					.font(.extraLarge2)
 					.textAlign(.center)
-					.color(Color("#ff0099"))
-					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#0066ff")))
+					.color(Color(raw: "#ff0099"))
+					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#0066ff")))
 			case .adList:
 				Style()
-					.margin(0)
-					.padding(0)
+					.margin(.zero)
+					.padding(.zero)
 					.flowSpacing(.rootEm(0.25))
 			case .adItem:
 				Style()
@@ -445,7 +458,7 @@ struct GeoCitiesRingtones: ScriptedElement {
 				Style()
 					.flexShrink(0)
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.375))
-					.background(Color("#0066ff"))
+					.background(Color(raw: "#0066ff"))
 					.border(.black, width: .pixels(1))
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
@@ -458,7 +471,7 @@ struct GeoCitiesRingtones: ScriptedElement {
 				Style()
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#cc0000"))
+					.color(Color(raw: "#cc0000"))
 			}
 		}
 	}

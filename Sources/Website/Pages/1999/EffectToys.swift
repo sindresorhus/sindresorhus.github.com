@@ -23,8 +23,7 @@ struct GeoCitiesEffectToys: ScriptedElement {
 		*/
 		let label: String
 
-		let width: Int
-		let height: Int
+		let size: PixelSize
 
 		/**
 		How the toy takes a finger: `.none` for a toy to draw on, and `.panY` for a toy that a finger taps or drags sideways, so the page still scrolls over it.
@@ -48,21 +47,121 @@ struct GeoCitiesEffectToys: ScriptedElement {
 	}
 
 	/**
-	The toys, in the order of the box.
+	The toys, in the order of the box. Each bitmap size is a positive code-owned constant, so its forced initialization cannot fail.
 	*/
 	static let toys: [Toy] = [
-		Toy(id: .lava, title: "Lava Lamp", caption: "The hot wax rises, cools at the top, and sinks. Tap a blob to heat it, or tap the lamp to add one.", label: "A lava lamp with blobs of wax that rise and sink", width: 80, height: 120, touch: .panY, actions: [("color", "Color")]),
-		Toy(id: .kaleidoscope, title: "Kaleidoscope", caption: "Draw with the pointer or a finger. It draws by itself when you stop.", label: "A kaleidoscope that mirrors what you draw", width: 240, height: 240, touch: .none, isPixelArt: false, actions: [("mirrors", "More Mirrors"), ("clear", "Shake It")]),
-		Toy(id: .fire, title: "Fire!", caption: "Draw flames with the pointer, or burn a word.", label: "A fire that you can draw flames in", width: 160, height: 100, touch: .none, actions: [("gasoline", "Gasoline"), ("water", "Put It Out")]),
-		Toy(id: .plasma, title: "Plasma", caption: "Stir it with the pointer or a finger.", label: "A plasma of colors that moves like a lava of light", width: 160, height: 100, touch: .panY, actions: [("colors", "Colors")]),
-		Toy(id: .bump, title: "Flashlight", caption: "A bump map, like in the demos of 1996. Shine the light on it with the pointer.", label: "A waffle and my name in metal, lit by a flashlight", width: 160, height: 100, touch: .panY, actions: [("color", "Light Color")]),
-		Toy(id: .fractal, title: "Fractint", caption: "Click to zoom into the Mandelbrot set. My 486 needed all night for this.", label: "The Mandelbrot set. Use the arrow keys to move the cross, and Enter to zoom in.", width: 160, height: 120, touch: .panY, takesKeys: true, actions: [("in", "Zoom In"), ("out", "Zoom Out"), ("cycle", "Color Cycling")]),
-		Toy(id: .voxel, title: "Fly Over the Fjord", caption: "Fly a helicopter over a fjord, like in Comanche (1992). Steer with the pointer or the arrow keys.", label: "A landscape of mountains and a fjord, seen from a helicopter. Use the arrow keys to steer and to fly higher or lower.", width: 160, height: 100, touch: .panY, takesKeys: true, actions: [("time", "Time of Day")]),
-		Toy(id: .shadebobs, title: "Shadebobs", caption: "Draw with the pointer. The colors go around and around.", label: "Shadebobs that leave trails of colors", width: 160, height: 120, touch: .none, actions: [("bobs", "More Bobs"), ("clear", "Clear")]),
-		Toy(id: .disco, title: "Disco Floor", caption: "Dance on it with the pointer or a finger, like in Saturday Night Fever.", label: "A disco floor with tiles that light up", width: 160, height: 160, touch: .panY, actions: [("dance", "Next Dance")]),
-		Toy(id: .moire, title: "Moiré", caption: "Move the rings with the pointer. Do not stare at it for too long.", label: "Two sets of rings that make a moiré pattern", width: 160, height: 160, touch: .panY, actions: [("rings", "More Rings")]),
-		Toy(id: .cube, title: "Cube of GIFs", caption: "Six GIFs of my page on a cube. Drag it to spin it.", label: "A spinning cube with a GIF of the page on each face", width: 240, height: 240, touch: .panY, isPixelArt: false, actions: [("spin", "Spin!")]),
-		Toy(id: .bounce, title: "Bouncing Logo", caption: "It changes color at every wall. Wait for it to hit the corner.", label: "A logo that bounces around the screen", width: 256, height: 192, touch: .panY, actions: [("nudge", "Nudge")]),
+		Toy(
+			id: .lava,
+			title: "Lava Lamp",
+			caption: "The hot wax rises, cools at the top, and sinks. Tap a blob to heat it, or tap the lamp to add one.",
+			label: "A lava lamp with blobs of wax that rise and sink",
+			size: PixelSize(width: 80, height: 120)!,
+			touch: .panY,
+			actions: [("color", "Color")]
+		),
+		Toy(
+			id: .kaleidoscope,
+			title: "Kaleidoscope",
+			caption: "Draw with the pointer or a finger. It draws by itself when you stop.",
+			label: "A kaleidoscope that mirrors what you draw",
+			size: PixelSize(width: 240, height: 240)!,
+			touch: .none,
+			isPixelArt: false,
+			actions: [("mirrors", "More Mirrors"), ("clear", "Shake It")]
+		),
+		Toy(
+			id: .fire,
+			title: "Fire!",
+			caption: "Draw flames with the pointer, or burn a word.",
+			label: "A fire that you can draw flames in",
+			size: PixelSize(width: 160, height: 100)!,
+			touch: .none,
+			actions: [("gasoline", "Gasoline"), ("water", "Put It Out")]
+		),
+		Toy(
+			id: .plasma,
+			title: "Plasma",
+			caption: "Stir it with the pointer or a finger.",
+			label: "A plasma of colors that moves like a lava of light",
+			size: PixelSize(width: 160, height: 100)!,
+			touch: .panY,
+			actions: [("colors", "Colors")]
+		),
+		Toy(
+			id: .bump,
+			title: "Flashlight",
+			caption: "A bump map, like in the demos of 1996. Shine the light on it with the pointer.",
+			label: "A waffle and my name in metal, lit by a flashlight",
+			size: PixelSize(width: 160, height: 100)!,
+			touch: .panY,
+			actions: [("color", "Light Color")]
+		),
+		Toy(
+			id: .fractal,
+			title: "Fractint",
+			caption: "Click to zoom into the Mandelbrot set. My 486 needed all night for this.",
+			label: "The Mandelbrot set. Use the arrow keys to move the cross, and Enter to zoom in.",
+			size: PixelSize(width: 160, height: 120)!,
+			touch: .panY,
+			takesKeys: true,
+			actions: [("in", "Zoom In"), ("out", "Zoom Out"), ("cycle", "Color Cycling")]
+		),
+		Toy(
+			id: .voxel,
+			title: "Fly Over the Fjord",
+			caption: "Fly a helicopter over a fjord, like in Comanche (1992). Steer with the pointer or the arrow keys.",
+			label: "A landscape of mountains and a fjord, seen from a helicopter. Use the arrow keys to steer and to fly higher or lower.",
+			size: PixelSize(width: 160, height: 100)!,
+			touch: .panY,
+			takesKeys: true,
+			actions: [("time", "Time of Day")]
+		),
+		Toy(
+			id: .shadebobs,
+			title: "Shadebobs",
+			caption: "Draw with the pointer. The colors go around and around.",
+			label: "Shadebobs that leave trails of colors",
+			size: PixelSize(width: 160, height: 120)!,
+			touch: .none,
+			actions: [("bobs", "More Bobs"), ("clear", "Clear")]
+		),
+		Toy(
+			id: .disco,
+			title: "Disco Floor",
+			caption: "Dance on it with the pointer or a finger, like in Saturday Night Fever.",
+			label: "A disco floor with tiles that light up",
+			size: PixelSize(width: 160, height: 160)!,
+			touch: .panY,
+			actions: [("dance", "Next Dance")]
+		),
+		Toy(
+			id: .moire,
+			title: "Moiré",
+			caption: "Move the rings with the pointer. Do not stare at it for too long.",
+			label: "Two sets of rings that make a moiré pattern",
+			size: PixelSize(width: 160, height: 160)!,
+			touch: .panY,
+			actions: [("rings", "More Rings")]
+		),
+		Toy(
+			id: .cube,
+			title: "Cube of GIFs",
+			caption: "Six GIFs of my page on a cube. Drag it to spin it.",
+			label: "A spinning cube with a GIF of the page on each face",
+			size: PixelSize(width: 240, height: 240)!,
+			touch: .panY,
+			isPixelArt: false,
+			actions: [("spin", "Spin!")]
+		),
+		Toy(
+			id: .bounce,
+			title: "Bouncing Logo",
+			caption: "It changes color at every wall. Wait for it to hit the corner.",
+			label: "A logo that bounces around the screen",
+			size: PixelSize(width: 256, height: 192)!,
+			touch: .panY,
+			actions: [("nudge", "Nudge")]
+		),
 	]
 
 	/**
@@ -111,7 +210,12 @@ struct GeoCitiesEffectToys: ScriptedElement {
 	}
 
 	private func gif(_ gif: GeoCitiesPage.GIF, alt: String = "") -> GeoCitiesPage.GIFImage {
-		GeoCitiesPage.GIFImage(gif: gif, alt: alt, style: .gif, project: project)
+		GeoCitiesPage.GIFImage(
+			gif: gif,
+			alt: alt,
+			style: .gif,
+			project: project
+		)
 	}
 
 	/**
@@ -128,7 +232,11 @@ struct GeoCitiesEffectToys: ScriptedElement {
 				.style(GeoCitiesPage.Styles.titleBar, Styles.windowTitle)
 
 				div {
-					canvas(.part(toy.id), .width(toy.width), .height(toy.height), .role(toy.takesKeys ? "application" : "img")) {}
+					canvas(
+						.part(toy.id),
+						.role(toy.takesKeys ? "application" : "img")
+					) {}
+						.bitmapSize(toy.size)
 						.attributes(.tabindex(0), when: toy.takesKeys)
 						.accessibilityLabel(toy.label)
 						.style(Styles.canvas, toy.isPixelArt ? Styles.pixelArt : Styles.smooth, toy.touch == .none ? Styles.drawing : Styles.steering)
@@ -161,7 +269,16 @@ struct GeoCitiesEffectToys: ScriptedElement {
 								VisuallyHidden("A word to burn")
 							}
 
-							input(.id("geocities-toys-fire-word"), .part(Parts.fireWord), .type(.text), .autocomplete("off"), .maxlength(10), .required, .value("WAFFLE"), .custom(name: "spellcheck", value: "false"))
+							input(
+								.id("geocities-toys-fire-word"),
+								.part(Parts.fireWord),
+								.type(.text),
+								.autocomplete("off"),
+								.maxlength(10),
+								.required,
+								.value("WAFFLE"),
+								.spellcheck(false)
+							)
 								.style(GeoCitiesPage.Styles.field, Styles.word)
 
 							button(.type(.submit)) {
@@ -209,16 +326,16 @@ struct GeoCitiesEffectToys: ScriptedElement {
 		case fireWord
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		What a button of a toy does, as the part of the toy and the action, like `fire:gasoline`.
 		*/
-		case action = "data-demo-action"
+		case action = "demo-action"
 
 		/**
 		The still frame of a GIF of the cube.
 		*/
-		case still = "data-demo-still"
+		case still = "demo-still"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -248,10 +365,10 @@ struct GeoCitiesEffectToys: ScriptedElement {
 					.gap(.rootEm(1.25))
 					.alignItems(.start)
 			case .window:
-				Style().frame(minWidth: 0)
+				Style().frame(minWidth: .zero)
 			case .windowTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.font(.regular, weight: .bold)
 			case .body:
 				Style().textAlign(.center)
@@ -260,7 +377,7 @@ struct GeoCitiesEffectToys: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100))
 					.background(.black)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.cursor(.crosshair)
 			case .pixelArt:
 				Style().imageRendering(.pixelated)

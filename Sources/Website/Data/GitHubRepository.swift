@@ -1,4 +1,5 @@
 import Foundation
+import SiteKit
 
 struct GitHubRepository: Decodable {
 	let name: String
@@ -9,6 +10,11 @@ struct GitHubRepository: Decodable {
 	let isFork: Bool
 	let stars: Int
 
+	// The immutable programs are compiled once for all repository descriptions.
+	nonisolated(unsafe) private static let bracketedNote = /\[+[^\]]*\]+/
+	nonisolated(unsafe) private static let emojiCode = /(^|\W)(?::[a-z0-9_+-]+:)+(?!\w)/
+	nonisolated(unsafe) private static let whitespace = /\s+/
+
 	/**
 	The main language of the code, like `TypeScript`. `nil` for a repo without code, like a list of links.
 	*/
@@ -17,9 +23,7 @@ struct GitHubRepository: Decodable {
 	/**
 	The owner and the name, like `sindresorhus/ky`.
 	*/
-	var nameWithOwner: GitHubRepositoryName {
-		GitHubRepositoryName(owner: url.deletingLastPathComponent().lastPathComponent, name: name)
-	}
+	let nameWithOwner: GitHubRepositoryName
 
 	/**
 	The name to show, with the owner only when it is not the account, like `ky` or `chalk/chalk` (``GitHubRepositoryName/displayName``).
@@ -38,20 +42,21 @@ struct GitHubRepository: Decodable {
 
 		let summary = String(description.filter { !$0.isEmoji })
 			// One or more brackets, so a note in double brackets, like `[[Slow to reply]]`, is removed whole.
-			.replacing(/\[+[^\]]*\]+/, with: "")
+			.replacing(Self.bracketedNote, with: "")
 			// A whole word, so the `:30:` in `12:30:45` stays.
 			// TODO: Use a lookbehind, `(?<!\w)`, instead of capturing the character before the code, when Swift Regex supports lookbehinds.
 			// Codes next to each other, like `:unicorn::sparkles:`, are one match, as the character before the second code is the colon of the first.
-			.replacing(/(^|\W)(?::[a-z0-9_+-]+:)+(?!\w)/) { $0.output.1 }
+			.replacing(Self.emojiCode) { $0.output.1 }
 			.replacing("`", with: "")
-			.replacing(/\s+/, with: " ")
+			.replacing(Self.whitespace, with: " ")
 			.trimmingCharacters(in: .whitespaces)
 
-		return summary.isEmpty ? nil : summary
+		return summary.nilIfEmpty
 	}
 
 	enum CodingKeys: String, CodingKey {
 		case name
+		case nameWithOwner = "full_name"
 		case description
 		case url = "html_url"
 		case createdAt = "created_at"
@@ -63,9 +68,19 @@ struct GitHubRepository: Decodable {
 }
 
 /**
+A GitHub repo from a string literal, which is checked when the code compiles, so a repo without its owner, like `ky`, is a compile error.
+
+```swift
+let ky = #repository("sindresorhus/ky")
+```
+*/
+@freestanding(expression)
+macro repository(_ nameWithOwner: StaticString) -> GitHubRepositoryName = #externalMacro(module: "SiteKitMacros", type: "GitHubRepositoryMacro")
+
+/**
 The owner and the name of a GitHub repo, like `sindresorhus/ky`. GitHub ignores their case, so equality does too, as the link of an npm package can have capitals, like `SindreSorhus/ky`.
 */
-struct GitHubRepositoryName: Hashable, CustomStringConvertible, ExpressibleByStringLiteral {
+struct GitHubRepositoryName: ValidatedValue, Hashable, CustomStringConvertible {
 	/**
 	The owner and the name in the link of an npm package, and the `.git` extension after the name. Not literals in ``init(npmRepositoryLink:)``, as Swift parses a regex literal each time the code runs, and it runs for each package.
 	*/
@@ -97,9 +112,12 @@ struct GitHubRepositoryName: Hashable, CustomStringConvertible, ExpressibleByStr
 		self.init(owner: String(parts[0]), name: String(parts[1]))
 	}
 
-	init(stringLiteral value: String) {
+	/**
+	From a string like `sindresorhus/ky`, like the `nameWithOwner` of the GraphQL API. Preserves its spelling and the diagnostic at its coding path.
+	*/
+	init(validating value: String) throws(ContentError) {
 		guard let repository = Self(nameWithOwner: value) else {
-			preconditionFailure("A GitHub repo is an owner and a name, like `sindresorhus/ky`, got `\(value)`.")
+			throw ContentError(reason: "A GitHub repo is an owner and a name, like `sindresorhus/ky`, got `\(value)`.")
 		}
 
 		self = repository
@@ -121,10 +139,24 @@ struct GitHubRepositoryName: Hashable, CustomStringConvertible, ExpressibleByStr
 	}
 
 	/**
+	The page of the repo on GitHub, like `https://github.com/sindresorhus/ky`.
+	*/
+	var url: URL {
+		#URL("https://github.com").appending(path: description)
+	}
+
+	/**
 	The name to show, with the owner only when it is not `sindresorhus`, like `ky` for `sindresorhus/ky`, or `chalk/chalk`.
 	*/
 	var displayName: String {
-		owner.lowercased() == GitHub.account ? name : description
+		isOfAccount ? name : description
+	}
+
+	/**
+	Whether the repo is of my account (``GitHub/account``), like `sindresorhus/ky`, not of an organization, like `chalk/chalk`.
+	*/
+	var isOfAccount: Bool {
+		owner.lowercased() == GitHub.account
 	}
 
 	/**
@@ -142,22 +174,6 @@ struct GitHubRepositoryName: Hashable, CustomStringConvertible, ExpressibleByStr
 	func hash(into hasher: inout Hasher) {
 		hasher.combine(owner.lowercased())
 		hasher.combine(name.lowercased())
-	}
-}
-
-extension GitHubRepositoryName: Decodable {
-	/**
-	From a string like `sindresorhus/ky`, like the `nameWithOwner` of the GraphQL API.
-	*/
-	init(from decoder: any Decoder) throws {
-		let container = try decoder.singleValueContainer()
-		let value = try container.decode(String.self)
-
-		guard let repository = Self(nameWithOwner: value) else {
-			throw DecodingError.dataCorruptedError(in: container, debugDescription: "A GitHub repo is an owner and a name, like `sindresorhus/ky`, got `\(value)`.")
-		}
-
-		self = repository
 	}
 }
 

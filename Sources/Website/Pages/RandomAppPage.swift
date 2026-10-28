@@ -20,12 +20,12 @@ struct RandomAppPage: Page {
 	A classic script in the head redirects before the page shows, so the visitor never sees this page. It skips the app the visitor comes from, and `#another-random-app` shows the “Another Random App” button on the app page.
 	*/
 	var head: some HTML {
-		JSONScript(id: Hooks.apps, content.activeAppsWithPages.map { AppTarget(slug: $0.slug, path: $0.path) })
+		JSONScript(id: IDs.apps, content.activeAppsWithPages.map { AppTarget(slug: $0.slug, path: $0.path) })
 
 		script {
 			HTMLRaw(#"""
 			{
-				const apps = JSON.parse(document.querySelector('#\#(Hooks.apps.id)').textContent);
+				const apps = JSON.parse(document.querySelector('#\#(IDs.apps.id)').textContent);
 				const referrerApp = URL.parse(document.referrer)?.pathname.split('/')[1];
 				const candidates = apps.filter(app => app.slug !== referrerApp);
 
@@ -52,9 +52,9 @@ struct RandomAppPage: Page {
 	}
 
 	/**
-	The IDs and data attributes that the scripts of the page find elements by.
+	The IDs that the scripts of the page find elements by.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum IDs: String, ScriptIDSet {
 		case apps = "random-apps"
 	}
 

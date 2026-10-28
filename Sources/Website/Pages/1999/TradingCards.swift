@@ -72,24 +72,204 @@ struct GeoCitiesTradingCards: ScriptedElement {
 	}
 
 	static let cards: [Card] = [
-		Card(id: "glitter", name: "Glitter", gif: .unicorn, kind: .rainbow, hitPoints: 120, attack: "Glitter Blast", damage: "80", text: "Loves waffles. Afraid of the Y2K bug.", rarity: .rare),
-		Card(id: "pegasus", name: "Pegasus", gif: .pegasus, kind: .rainbow, hitPoints: 100, attack: "Sky Gallop", damage: "60", text: "A unicorn that traded its horn for wings. Bad trade.", rarity: .rare),
-		Card(id: "imac", name: "iMac", gif: .iMac, kind: .electric, hitPoints: 99, attack: "Bondi Blue Beam", damage: "60", text: "Comes in five fruity flavors. Has no floppy drive.", rarity: .rare),
-		Card(id: "y2k", name: "Y2K Bug", gif: .bomb, kind: .electric, hitPoints: 2000, attack: "Millennium Crash", damage: "∞", text: "Ticks until midnight on December 31, 1999.", rarity: .rare),
-		Card(id: "purple", name: "Purple Unicorn", gif: .purpleUnicorn, kind: .rainbow, hitPoints: 70, attack: "Sparkle", damage: "30", text: "Nobody has seen one. Except me.", rarity: .uncommon),
-		Card(id: "gallop", name: "Galloping Unicorn", gif: .unicornGallop, kind: .rainbow, hitPoints: 80, attack: "Stampede", damage: "50", text: "Has never stopped running since 1996.", rarity: .uncommon),
-		Card(id: "pig", name: "Flying Pig", gif: .flyingPig, kind: .normal, hitPoints: 40, attack: "When Pigs Fly", damage: "0", text: "This card does nothing. When pigs fly, it does.", rarity: .uncommon),
-		Card(id: "wizard", name: "Wizard", gif: .wizard, kind: .space, hitPoints: 70, attack: "Abracadabra", damage: "30", text: "Knows HTML. Some say even JavaScript.", rarity: .uncommon),
-		Card(id: "ufo", name: "UFO", gif: .ufo, kind: .space, hitPoints: 60, attack: "Beam Me Up", damage: "40", text: "Lives in the Area51 neighborhood of GeoCities.", rarity: .uncommon),
-		Card(id: "alien", name: "Alien", gif: .alien, kind: .space, hitPoints: 50, attack: "Zap", damage: "30", text: "Came for the aliens game. Stayed for the waffles.", rarity: .common),
-		Card(id: "dolphin", name: "Dolphin", gif: .dolphin, kind: .water, hitPoints: 60, attack: "Splash", damage: "20", text: "The unicorn of the sea.", rarity: .common),
-		Card(id: "fish", name: "Fishbowl", gif: .fishbowl, kind: .water, hitPoints: 20, attack: "Bubble", damage: "10", text: "Remembers nothing for longer than a modem stays online.", rarity: .common),
-		Card(id: "hamster", name: "Hamster", gif: .hamster, kind: .normal, hitPoints: 30, attack: "Hampster Dance", damage: "10×", text: "Dee doo dee doo. Dee doo dee doo.", rarity: .common),
-		Card(id: "cow", name: "Cool Cow", gif: .coolCow, kind: .normal, hitPoints: 50, attack: "Moo", damage: "10", text: "Wears sunglasses indoors.", rarity: .common),
-		Card(id: "monkey", name: "Monkey", gif: .monkey, kind: .normal, hitPoints: 50, attack: "Banana Toss", damage: "20", text: "Typed the first draft of my home page.", rarity: .common),
-		Card(id: "toaster", name: "Toaster", gif: .toaster, kind: .electric, hitPoints: 40, attack: "Flying Toast", damage: "20", text: "Escaped from a screen saver.", rarity: .common),
-		Card(id: "floppy", name: "Floppy", gif: .floppy, kind: .electric, hitPoints: 14, attack: "Save", damage: "1.44", text: "Holds 1.44 MB. Wow.", rarity: .common),
-		Card(id: "skeleton", name: "Skeleton", gif: .skeleton, kind: .space, hitPoints: 30, attack: "Bone Dance", damage: "20", text: "Danced so long that nothing is left.", rarity: .common),
+		Card(
+			id: "glitter",
+			name: "Glitter",
+			gif: .unicorn,
+			kind: .rainbow,
+			hitPoints: 120,
+			attack: "Glitter Blast",
+			damage: "80",
+			text: "Loves waffles. Afraid of the Y2K bug.",
+			rarity: .rare
+		),
+		Card(
+			id: "pegasus",
+			name: "Pegasus",
+			gif: .pegasus,
+			kind: .rainbow,
+			hitPoints: 100,
+			attack: "Sky Gallop",
+			damage: "60",
+			text: "A unicorn that traded its horn for wings. Bad trade.",
+			rarity: .rare
+		),
+		Card(
+			id: "imac",
+			name: "iMac",
+			gif: .iMac,
+			kind: .electric,
+			hitPoints: 99,
+			attack: "Bondi Blue Beam",
+			damage: "60",
+			text: "Comes in five fruity flavors. Has no floppy drive.",
+			rarity: .rare
+		),
+		Card(
+			id: "y2k",
+			name: "Y2K Bug",
+			gif: .bomb,
+			kind: .electric,
+			hitPoints: 2000,
+			attack: "Millennium Crash",
+			damage: "∞",
+			text: "Ticks until midnight on December 31, 1999.",
+			rarity: .rare
+		),
+		Card(
+			id: "purple",
+			name: "Purple Unicorn",
+			gif: .purpleUnicorn,
+			kind: .rainbow,
+			hitPoints: 70,
+			attack: "Sparkle",
+			damage: "30",
+			text: "Nobody has seen one. Except me.",
+			rarity: .uncommon
+		),
+		Card(
+			id: "gallop",
+			name: "Galloping Unicorn",
+			gif: .unicornGallop,
+			kind: .rainbow,
+			hitPoints: 80,
+			attack: "Stampede",
+			damage: "50",
+			text: "Has never stopped running since 1996.",
+			rarity: .uncommon
+		),
+		Card(
+			id: "pig",
+			name: "Flying Pig",
+			gif: .flyingPig,
+			kind: .normal,
+			hitPoints: 40,
+			attack: "When Pigs Fly",
+			damage: "0",
+			text: "This card does nothing. When pigs fly, it does.",
+			rarity: .uncommon
+		),
+		Card(
+			id: "wizard",
+			name: "Wizard",
+			gif: .wizard,
+			kind: .space,
+			hitPoints: 70,
+			attack: "Abracadabra",
+			damage: "30",
+			text: "Knows HTML. Some say even JavaScript.",
+			rarity: .uncommon
+		),
+		Card(
+			id: "ufo",
+			name: "UFO",
+			gif: .ufo,
+			kind: .space,
+			hitPoints: 60,
+			attack: "Beam Me Up",
+			damage: "40",
+			text: "Lives in the Area51 neighborhood of GeoCities.",
+			rarity: .uncommon
+		),
+		Card(
+			id: "alien",
+			name: "Alien",
+			gif: .alien,
+			kind: .space,
+			hitPoints: 50,
+			attack: "Zap",
+			damage: "30",
+			text: "Came for the aliens game. Stayed for the waffles.",
+			rarity: .common
+		),
+		Card(
+			id: "dolphin",
+			name: "Dolphin",
+			gif: .dolphin,
+			kind: .water,
+			hitPoints: 60,
+			attack: "Splash",
+			damage: "20",
+			text: "The unicorn of the sea.",
+			rarity: .common
+		),
+		Card(
+			id: "fish",
+			name: "Fishbowl",
+			gif: .fishbowl,
+			kind: .water,
+			hitPoints: 20,
+			attack: "Bubble",
+			damage: "10",
+			text: "Remembers nothing for longer than a modem stays online.",
+			rarity: .common
+		),
+		Card(
+			id: "hamster",
+			name: "Hamster",
+			gif: .hamster,
+			kind: .normal,
+			hitPoints: 30,
+			attack: "Hampster Dance",
+			damage: "10×",
+			text: "Dee doo dee doo. Dee doo dee doo.",
+			rarity: .common
+		),
+		Card(
+			id: "cow",
+			name: "Cool Cow",
+			gif: .coolCow,
+			kind: .normal,
+			hitPoints: 50,
+			attack: "Moo",
+			damage: "10",
+			text: "Wears sunglasses indoors.",
+			rarity: .common
+		),
+		Card(
+			id: "monkey",
+			name: "Monkey",
+			gif: .monkey,
+			kind: .normal,
+			hitPoints: 50,
+			attack: "Banana Toss",
+			damage: "20",
+			text: "Typed the first draft of my home page.",
+			rarity: .common
+		),
+		Card(
+			id: "toaster",
+			name: "Toaster",
+			gif: .toaster,
+			kind: .electric,
+			hitPoints: 40,
+			attack: "Flying Toast",
+			damage: "20",
+			text: "Escaped from a screen saver.",
+			rarity: .common
+		),
+		Card(
+			id: "floppy",
+			name: "Floppy",
+			gif: .floppy,
+			kind: .electric,
+			hitPoints: 14,
+			attack: "Save",
+			damage: "1.44",
+			text: "Holds 1.44 MB. Wow.",
+			rarity: .common
+		),
+		Card(
+			id: "skeleton",
+			name: "Skeleton",
+			gif: .skeleton,
+			kind: .space,
+			hitPoints: 30,
+			attack: "Bone Dance",
+			damage: "20",
+			text: "Danced so long that nothing is left.",
+			rarity: .common
+		),
 	]
 
 	let project: Project
@@ -113,7 +293,12 @@ struct GeoCitiesTradingCards: ScriptedElement {
 					}
 					.style(Styles.packTitle)
 
-					GeoCitiesPage.GIFImage(gif: .unicorn, alt: "", style: .gif, project: project)
+					GeoCitiesPage.GIFImage(
+						gif: .unicorn,
+						alt: "",
+						style: .gif,
+						project: project
+					)
 
 					span {
 						"Booster Pack ★ 5 Cards"
@@ -207,7 +392,12 @@ struct GeoCitiesTradingCards: ScriptedElement {
 				.style(Styles.cardTop)
 
 				div {
-					GeoCitiesPage.GIFImage(gif: card.gif, alt: card.name, style: .gif, project: project)
+					GeoCitiesPage.GIFImage(
+						gif: card.gif,
+						alt: card.name,
+						style: .gif,
+						project: project
+					)
 				}
 				.style(Styles.art)
 
@@ -244,7 +434,7 @@ struct GeoCitiesTradingCards: ScriptedElement {
 	/**
 	Where the shine of a holo card is, from `-50%` to `50%`, which the script sets from the pointer over the card.
 	*/
-	static let shinePosition = StyleVariable<Length>("--unimon-shine")
+	static let shinePosition = StyleVariable<LengthPercentage>("unimon-shine")
 
 	enum Parts: String, ElementPartSet {
 		case pack
@@ -264,21 +454,21 @@ struct GeoCitiesTradingCards: ScriptedElement {
 		case filled
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A place in the binder, with the ID of its card.
 		*/
-		case slot = "data-unimon-slot"
+		case slot = "unimon-slot"
 
 		/**
 		The template of a card, with its ID.
 		*/
-		case card = "data-unimon-card"
+		case card = "unimon-card"
 
 		/**
 		How rare a card is.
 		*/
-		case rarity = "data-unimon-rarity"
+		case rarity = "unimon-rarity"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -321,10 +511,19 @@ struct GeoCitiesTradingCards: ScriptedElement {
 					.vstack(alignment: .center, spacing: .rootEm(0.25))
 					.frame(width: .rootEm(10))
 					.padding(.rootEm(0.75))
-					.backgroundImage(.linearGradient("135deg", Color("#ff66cc"), Color("#9966ff"), Color("#33ccff"), Color("#66ffcc"), Color("#ffcc33")))
-					.border(Color("#ffffff"), width: .pixels(3), style: .ridge)
+					.backgroundImage(
+						.linearGradient(
+							.angle(.degrees(135)),
+							Color(raw: "#ff66cc"),
+							Color(raw: "#9966ff"),
+							Color(raw: "#33ccff"),
+							Color(raw: "#66ffcc"),
+							Color(raw: "#ffcc33")
+						)
+					)
+					.border(Color(raw: "#ffffff"), width: .pixels(3), style: .ridge)
 					.cornerRadius(.rootEm(0.5))
-					.shadow(Shadow(x: .pixels(4), y: .pixels(4), color: Color("#00000066")))
+					.shadow(BoxShadow(x: .pixels(4), y: .pixels(4), color: Color(raw: "#00000066")))
 					.color(.white)
 					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: .black))
 					.handCursor()
@@ -356,9 +555,9 @@ struct GeoCitiesTradingCards: ScriptedElement {
 					.vstack(spacing: .rootEm(0.25))
 					.frame(width: .rootEm(7.5))
 					.padding(.rootEm(0.3125))
-					.border(Color("#f5d000"), width: .pixels(5))
+					.border(Color(raw: "#f5d000"), width: .pixels(5))
 					.cornerRadius(.rootEm(0.5))
-					.shadow(Shadow(x: .pixels(2), y: .pixels(3), color: Color("#00000055")))
+					.shadow(BoxShadow(x: .pixels(2), y: .pixels(3), color: Color(raw: "#00000055")))
 					.fontFamily(.system)
 					.font(size: .rootEm(0.6875))
 					.lineHeight(1.2)
@@ -367,24 +566,24 @@ struct GeoCitiesTradingCards: ScriptedElement {
 						$0.animation(Animations.flip, .easeOut(duration: .seconds(0.5)))
 					}
 			case .rainbow:
-				Style().background(Color("#ffd6f0"))
+				Style().background(Color(raw: "#ffd6f0"))
 			case .water:
-				Style().background(Color("#cfe8ff"))
+				Style().background(Color(raw: "#cfe8ff"))
 			case .electric:
-				Style().background(Color("#fff3a8"))
+				Style().background(Color(raw: "#fff3a8"))
 			case .space:
-				Style().background(Color("#e3d4ff"))
+				Style().background(Color(raw: "#e3d4ff"))
 			case .normal:
-				Style().background(Color("#f2f2e8"))
+				Style().background(Color(raw: "#f2f2e8"))
 			case .cardTop:
 				Style()
 					.hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(0.25))
-					.margin(0)
+					.margin(.zero)
 			case .hitPoints:
 				Style()
 					.flexShrink(0)
 					.fontWeight(.bold)
-					.color(Color("#cc0000"))
+					.color(Color(raw: "#cc0000"))
 			case .art:
 				// The picture of the card, in a frame.
 				Style()
@@ -392,7 +591,7 @@ struct GeoCitiesTradingCards: ScriptedElement {
 					.frame(height: .rootEm(4.5))
 					.overflow(.hidden)
 					.background(.white)
-					.border(Color("#b0b0b0"), width: .pixels(3), style: .ridge)
+					.border(Color(raw: "#b0b0b0"), width: .pixels(3), style: .ridge)
 					.children("picture") {
 						$0.frame(maxWidth: .percent(100), maxHeight: .percent(100))
 					}
@@ -403,24 +602,36 @@ struct GeoCitiesTradingCards: ScriptedElement {
 					}
 			case .flavor:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.italic()
-					.color(Color("#444444"))
+					.color(Color(raw: "#444444"))
 			case .rarity:
 				Style()
 					.margin(.top, .auto)
 					.font(size: .rootEm(0.5625))
-					.color(Color("#666666"))
+					.color(Color(raw: "#666666"))
 			case .shine:
 				// The rainbow foil of a holo card, which the script moves with the pointer.
 				Style()
 					.position(.absolute)
-					.top(0)
-					.bottom(0)
+					.top(.zero)
+					.bottom(.zero)
 					.leading(.percent(-100))
 					.frame(width: .percent(300))
 					.allowsHitTesting(false)
-					.backgroundImage(.linearGradient("110deg", .transparent, Color("#ff000055"), Color("#ffff0066"), Color("#00ff0055"), Color("#00ffff66"), Color("#0000ff55"), Color("#ff00ff66"), .transparent))
+					.backgroundImage(
+						.linearGradient(
+							.angle(.degrees(110)),
+							.transparent,
+							Color(raw: "#ff000055"),
+							Color(raw: "#ffff0066"),
+							Color(raw: "#00ff0055"),
+							Color(raw: "#00ffff66"),
+							Color(raw: "#0000ff55"),
+							Color(raw: "#ff00ff66"),
+							.transparent
+						)
+					)
 					.blendMode(.overlay)
 					.offset(x: GeoCitiesTradingCards.shinePosition.value(default: .percent(0)))
 			case .trade:
@@ -428,7 +639,7 @@ struct GeoCitiesTradingCards: ScriptedElement {
 				Style()
 					.flowSpacing(.rootEm(0.5))
 					.padding(.rootEm(0.75))
-					.background(Color("#ffffcc"))
+					.background(Color(raw: "#ffffcc"))
 					.border(.black, width: .pixels(2))
 					.cornerRadius(.rootEm(1))
 					.fontFamily(GeoCitiesPage.comicSans)
@@ -445,10 +656,10 @@ struct GeoCitiesTradingCards: ScriptedElement {
 						$0.gridColumns(3)
 					}
 					.gap(.rootEm(0.375))
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.5))
-					.background(Color("#202060"))
-					.border(Color("#808080"), width: .pixels(3), style: .ridge)
+					.background(Color(raw: "#202060"))
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .ridge)
 					.textAlign(.center)
 			case .slot:
 				// An empty pocket shows a question mark. A pocket with a card shows its picture, its name, and how many the visitor has, with a gold edge for a holo card.
@@ -456,10 +667,10 @@ struct GeoCitiesTradingCards: ScriptedElement {
 					.vstack(alignment: .center, justification: .center, spacing: .rootEm(0.125))
 					.frame(minHeight: .rootEm(6.5))
 					.padding(.rootEm(0.25))
-					.border(Color("#6060a0"), width: .pixels(2), style: .dashed)
+					.border(Color(raw: "#6060a0"), width: .pixels(2), style: .dashed)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.font(.extraLarge2, weight: .bold)
-					.color(Color("#6060a0"))
+					.color(Color(raw: "#6060a0"))
 					.overflow(.hidden)
 					.children("picture > img") {
 						$0
@@ -468,15 +679,22 @@ struct GeoCitiesTradingCards: ScriptedElement {
 					}
 					.when(States.filled) {
 						$0
-							.background(Color("#f2f2e8"))
-							.border(Color("#f5d000"), width: .pixels(3))
+							.background(Color(raw: "#f2f2e8"))
+							.border(Color(raw: "#f5d000"), width: .pixels(3))
 							.fontFamily(.system)
 							.textStyle(.caption, weight: .bold)
 							.lineHeight(1.1)
 							.color(.black)
 					}
 					.when(Hooks.rarity, is: "rare") {
-						$0.backgroundImage(.linearGradient("135deg", Color("#fff6c0"), Color("#ffd6f0"), Color("#cfe8ff")))
+						$0.backgroundImage(
+							.linearGradient(
+								.angle(.degrees(135)),
+								Color(raw: "#fff6c0"),
+								Color(raw: "#ffd6f0"),
+								Color(raw: "#cfe8ff")
+							)
+						)
 					}
 			}
 		}
@@ -495,8 +713,8 @@ struct GeoCitiesTradingCards: ScriptedElement {
 				]
 			case .flip:
 				[
-					.from(Style().transform("perspective(600px) rotateY(90deg)").opacity(0)),
-					.to(Style().transform("perspective(600px) rotateY(0deg)").opacity(1)),
+					.from(Style().transform(.perspective(.pixels(600)), .rotateY(.degrees(90))).opacity(0)),
+					.to(Style().transform(.perspective(.pixels(600)), .rotateY(.degrees(0))).opacity(1)),
 				]
 			}
 		}

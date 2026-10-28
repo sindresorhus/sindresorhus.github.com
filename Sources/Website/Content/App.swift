@@ -3,6 +3,7 @@ import ImageIO
 import Markdown
 import RSS
 import SiteKit
+import SOML
 
 /**
 An app, loaded from `content/apps/<slug>/index.md`.
@@ -11,6 +12,8 @@ struct App: ContentDocument {
 	let frontmatter: Frontmatter
 	let markdown: MarkdownDocument
 	let file: MarkdownFile
+	let purchase: Purchase
+	let pressQuotes: [PressQuote.Resolved]
 
 	/**
 	The questions of `content/shared-questions.md` that the app picks, which the build adds to its FAQ section.
@@ -30,44 +33,109 @@ struct App: ContentDocument {
 	/**
 	The `icon.png` of the app, or a placeholder when the app has no icon yet, so a new app can be previewed before its icon is done. `website check` warns about the placeholder.
 	*/
-	let iconPath: RoutePath
+	var iconPath: RoutePath {
+		icon?.path ?? Self.placeholderIconPath
+	}
 
 	/**
 	The icon as a feed enclosure, with its file size. `nil` when the icon is missing, so the placeholder icon is not an enclosure.
 	*/
-	let iconEnclosure: Enclosure?
+	var iconEnclosure: Enclosure? {
+		icon?.enclosure
+	}
 
 	/**
 	The JPEG XL copy of the icon, when the app has its own icon.
 	*/
-	let iconJPEGXL: JPEGXLCopy?
+	var iconJPEGXL: JPEGXLCopy? {
+		icon?.jpegXL
+	}
 
 	/**
 	The accent of the app: the most common vivid color of the icon, like `#1e88e5`, which the app page uses as its accent (``Color/accent``), for ``Page/tint`` and ``Elementary/HTML/tint(_:)``. `nil` for a gray icon.
 	*/
-	let tint: Color?
+	var tint: Color? {
+		icon?.tint
+	}
+
+	private let icon: Icon?
+
+	/**
+	The root frontmatter order follows the declarations, with status first and related facts together. Missing properties stay absent.
+	*/
+	static var formattingKeys: [any CodingKey] {
+		Frontmatter.CodingKeys.allCases
+	}
 
 	static let directory = "content/apps"
 
 	// The slug is one component of the path of the page and of the asset directory, so the file cannot be in a subdirectory.
 	static let allowsSubdirectories = false
 
-	static let sortOrder = [KeyPathComparator(\App.frontmatter.publicationDate, order: .reverse)]
-
+	/**
+	An app that reads `content/shared-questions.md` itself when it picks shared questions, like in a test. The site reads the file once for all the apps (``init(file:frontmatter:sharedQuestions:project:)``).
+	*/
 	init(file: MarkdownFile, frontmatter: Frontmatter, project: Project) async throws {
+		try await self.init(
+			file: file,
+			frontmatter: frontmatter,
+			sharedQuestions: frontmatter.sharedQuestions.isEmpty ? .empty : SharedQuestions.Library(project: project),
+			project: project
+		)
+	}
+
+	/**
+	- Parameter sharedQuestions: The questions of `content/shared-questions.md`, which the app picks from.
+	*/
+	init(
+		file: MarkdownFile,
+		frontmatter: Frontmatter,
+		sharedQuestions library: SharedQuestions.Library,
+		project: Project
+	) async throws {
 		self.frontmatter = frontmatter
 		self.file = file
-		self.sharedQuestions = try SharedQuestions(pickedBy: file, frontmatter: frontmatter, project: project)
-		self.markdown = try MarkdownDocument(parsing: file, options: .appPage(file, project: project, frontmatter: frontmatter, sharedQuestions: sharedQuestions))
+
+		do {
+			self.purchase = try frontmatter.purchase
+		} catch {
+			throw file.error(at: Frontmatter.CodingKeys.gumroad, error.reason)
+		}
+
+		self.pressQuotes = try frontmatter.pressQuotes.enumerated().map { index, quote in
+			do throws(ContentError) {
+				return try quote.resolved
+			} catch {
+				throw file.error(at: Frontmatter.CodingKeys.pressQuotes, index: index, error.reason)
+			}
+		}
+
+		self.sharedQuestions = try SharedQuestions(pickedBy: file, frontmatter: frontmatter, from: library)
+		self.markdown = try MarkdownDocument(
+			parsing: file,
+			options: .appPage(
+				file,
+				project: project,
+				frontmatter: frontmatter,
+				sharedQuestions: sharedQuestions
+			)
+		)
+
+		// The mistakes of the text are reported together, so an app with two mistakes shows both at once.
+		var problems = [ContentError]()
+
+		if let error = markdown.titleHeadingError(in: file) {
+			problems.append(error)
+		}
 
 		for heading in markdown.headings {
 			// The FAQ section is found by its ID, so a FAQ heading without it would silently be a plain section.
 			if
-				heading.level == 2,
-				heading.text == Self.faqHeadingTitle,
-				heading.id != Self.faqSectionID
+				heading.level == .h2,
+				heading.text == Section.faq.title,
+				heading.id != Section.faq.id
 			{
-				throw ContentError(file: file.url, line: heading.line, reason: "The “\(Self.faqHeadingTitle)” heading needs the ID `\(Self.faqSectionID)`: `## \(Self.faqHeadingTitle) {#\(Self.faqSectionID)}`.")
+				problems.append(file.error(line: heading.line, "The “\(Section.faq.title)” heading needs the ID `\(Section.faq.id)`: `\(Section.faq.markdown)`."))
 			}
 		}
 
@@ -76,73 +144,144 @@ struct App: ContentDocument {
 			!frontmatter.sharedQuestions.isEmpty,
 			!markdown.headings.hasFAQSection
 		{
-			throw ContentError(file: file.url, line: file.line(of: Frontmatter.CodingKeys.sharedQuestions), reason: "The shared questions are added to the FAQ section, but the page has none: `## \(Self.faqHeadingTitle) {#\(Self.faqSectionID)}`.")
+			problems.append(file.error(at: Frontmatter.CodingKeys.sharedQuestions, "The shared questions are added to the FAQ section, but the page has none: `\(Section.faq.markdown)`."))
 		}
 
 		// The app page knows the directive, as the picked questions have it, but a question of the file goes where it is written. The picked questions have no lines, so a heading with a line is in the file.
 		if let heading = markdown.headings.first(where: { $0.line != nil && $0.contains(SharedQuestions.First.self) }) {
-			throw ContentError(file: file.url, line: heading.line, reason: "`@\(SharedQuestions.First.name)` is only for the questions in `\(SharedQuestions.path)`. A question of the app goes where it is written.")
+			problems.append(file.error(line: heading.line, "`@\(SharedQuestions.First.name)` is only for the questions in `\(SharedQuestions.path)`. A question of the app goes where it is written."))
 		}
 
 		// The questions are level 3 headings, so a level 4 heading would silently be a heading in the answer above it.
-		if let heading = markdown.headings.faqSection.first(where: { $0.level > 3 }) {
-			throw ContentError(file: file.url, line: heading.line, reason: "The questions of the FAQ section are level 3 headings: `### \(heading.text)`.")
+		if let heading = markdown.headings.faqSection.first(where: { $0.level > .h3 }) {
+			problems.append(file.error(line: heading.line, "The questions of the FAQ section are level 3 headings: `### \(heading.text)`."))
 		}
 
 		// The note is shown on the feedback page, so its links are resolved and checked like the text of the page. Its problems are reported at its key, as the lines of the SOML value are not the lines of the note.
-		let feedbackNote = frontmatter.feedbackNote.map { MarkdownDocument(parsing: $0, options: .content(file, project: project)) }
+		var feedbackNoteHTML: String?
 
-		if let problems = feedbackNote?.problems, !problems.isEmpty {
-			let line = file.line(of: Frontmatter.CodingKeys.feedbackNote)
-			throw ContentErrors(problems.map { ContentError(file: file.url, line: line, reason: "`feedbackNote`: \($0.reason)") })
+		if let note = frontmatter.feedbackNote {
+			do {
+				let document = try MarkdownDocument(parsing: note, at: Frontmatter.CodingKeys.feedbackNote, of: file, project: project)
+
+				// The note is a box on the feedback page, so a heading would be larger than the title of the page, and a whole sentence in the list of headings of a screen reader.
+				if let heading = document.headings.first {
+					problems.append(file.error(at: Frontmatter.CodingKeys.feedbackNote, "`feedbackNote` cannot have headings, as it is a box on the feedback page. Write a warning as bold text: `**\(heading.text)**`."))
+				}
+
+				feedbackNoteHTML = document.html
+			} catch {
+				problems += error.errors
+			}
 		}
-
-		self.feedbackNoteHTML = feedbackNote?.html
 
 		if
 			let script = frontmatter.script,
 			project.existingPublicFile(script) == nil
 		{
-			throw ContentError(file: file.url, line: file.line(of: Frontmatter.CodingKeys.script), reason: "The `script` \(script) does not exist in `public` or next to the page.")
+			problems.append(file.error(at: Frontmatter.CodingKeys.script, "The `script` \(script) does not exist in `public` or next to the page."))
 		}
+
+		guard problems.isEmpty else {
+			throw ContentErrors(problems)
+		}
+
+		self.feedbackNoteHTML = feedbackNoteHTML
 
 		self.media = try await MediaAsset.discover(in: Self.assetDirectory(slug: file.slug), project: project)
 
-		let icon = project.existingPublicFile(Self.iconPath(slug: file.slug))
-		let iconPath = icon == nil ? Self.placeholderIconPath : Self.iconPath(slug: file.slug)
-		self.iconPath = iconPath
-		self.tint = CGImageSourceCreateWithURL(project.publicFile(iconPath) as CFURL, nil)
-			.flatMap { CGImageSourceCreateImageAtIndex($0, 0, nil) }?
-			.accentColor
-		self.iconJPEGXL = icon == nil ? nil : try await JPEGXLCopy(of: iconPath, project: project)
-		let iconSize = icon.flatMap { try? $0.resourceValues(forKeys: [.fileSizeKey]).fileSize }
-		self.iconEnclosure = iconSize.map { Enclosure(url: iconPath.absoluteURL, length: $0, mimeType: "image/png") }
-	}
-
-	var isDraft: Bool {
-		frontmatter.isDraft
+		self.icon = try await Icon(path: Self.iconPath(slug: file.slug), project: project)
 	}
 }
 
 extension App {
-	var redirectURL: URL? {
-		frontmatter.redirectURL
-	}
+	/**
+	The primary purchase source, keeping Gumroad separate from App Store and free app metadata. Setapp and download links remain independent.
+	*/
+	enum Purchase: Sendable {
+		case appStore(AppStoreID, isPaid: Bool)
+		case gumroad(Gumroad)
+		case other(isPaid: Bool)
 
-	var redirectFrom: [RoutePath] {
-		frontmatter.redirectFrom
-	}
+		/**
+		Whether the app requires a purchase, including an App Store in-app purchase.
+		*/
+		var isPaid: Bool {
+			switch self {
+			case .appStore(_, let isPaid), .other(let isPaid):
+				isPaid
+			case .gumroad:
+				true
+			}
+		}
 
-	var iconURL: URL {
-		iconPath.absoluteURL
+		/**
+		The authored Gumroad product and price, available only for that purchase source.
+		*/
+		var gumroad: Gumroad? {
+			guard case .gumroad(let product) = self else {
+				return nil
+			}
+
+			return product
+		}
+
+		/**
+		The App Store identity, available only for that purchase source.
+		*/
+		var appStoreID: AppStoreID? {
+			guard case .appStore(let identifier, _) = self else {
+				return nil
+			}
+
+			return identifier
+		}
 	}
 
 	/**
-	Whether the press quotes show their years, like “MacStories, 2021”: when the years of the quotes span more than one year, as years of praise show that the app has been good for long. One year says nothing, so it is left out. A quote without a year, like one from a person, shows no year.
+	The validated payment requirement, resolved when the app loads.
 	*/
-	var showsPressQuoteYears: Bool {
-		// A quote without a year, like one from a person, does not turn the years off for the others.
-		Set(frontmatter.pressQuotes.compactMap(\.year)).count > 1
+	var isPaid: Bool {
+		purchase.isPaid
+	}
+
+	/**
+	The App Store identity belongs to the resolved purchase source, independently of Setapp and download links.
+	*/
+	var appStoreID: AppStoreID? {
+		purchase.appStoreID
+	}
+}
+
+extension App.Frontmatter {
+	/**
+	Resolves the primary purchase source without changing the authored frontmatter shape.
+	*/
+	var purchase: App.Purchase {
+		get throws(ContentError) {
+			if let gumroad {
+				guard
+					appStoreID == nil,
+					writtenIsPaid != false
+				else {
+					throw ContentError(reason: "`gumroad` is only for paid apps that are not on the App Store. App Store apps get their price from the App Store.")
+				}
+
+				return .gumroad(gumroad)
+			}
+
+			if let appStoreID {
+				return .appStore(appStoreID, isPaid: isPaid)
+			}
+
+			return .other(isPaid: isPaid)
+		}
+	}
+}
+
+extension App {
+	var iconURL: URL {
+		iconPath.absoluteURL
 	}
 
 	/**
@@ -153,10 +292,17 @@ extension App {
 	}
 
 	/**
-	The screenshots, without the videos.
+	The screenshots, without the videos, like `screenshot1.png`.
+	*/
+	var screenshots: [ScreenshotAsset] {
+		media.compactMap(\.screenshot)
+	}
+
+	/**
+	The URLs of the screenshots, without the videos.
 	*/
 	var screenshotURLs: [URL] {
-		media.filter { $0.kind == .image }.map(\.path.absoluteURL)
+		screenshots.map(\.path.absoluteURL)
 	}
 
 	/**
@@ -170,10 +316,10 @@ extension App {
 		assetDirectory(slug: slug).appending("icon.png")
 	}
 
-	static let placeholderIconPath: RoutePath = "/assets/app-icon-placeholder.png"
+	static let placeholderIconPath = #path("/assets/app-icon-placeholder.png")
 
 	var hasPlaceholderIcon: Bool {
-		iconPath == Self.placeholderIconPath
+		icon == nil
 	}
 
 	/**
@@ -201,18 +347,14 @@ extension App {
 	The App Store link with a campaign token for where on the site it is. Without the provider token, it is the plain link.
 	*/
 	func appStoreURL(placement: AppStorePlacement) -> URL? {
-		guard let campaignQueryItems = placement.campaignQueryItems else {
-			return appStoreURL
-		}
-
-		return appStoreURL?.appending(queryItems: campaignQueryItems)
+		appStoreID?.url(placement: placement)
 	}
 
 	/**
-	The App Store link for a QR code, which opens the App Store page on an iPhone. Apple Watch apps are installed from the iPhone too, so they count, unlike for the App Store banner, which is only for apps that run on the device.
+	The App Store link for a QR code, which opens the App Store page on an iPhone (``Platform/installsFromPhone``).
 	*/
 	var qrCodeURL: URL? {
-		guard frontmatter.platforms.contains(where: [.iOS, .watchOS, .visionOS].contains) else {
+		guard frontmatter.platforms.contains(where: \.installsFromPhone) else {
 			return nil
 		}
 
@@ -231,40 +373,29 @@ extension App {
 	}
 
 	var appStoreURL: URL? {
-		frontmatter.appStoreID?.url
+		appStoreID?.url
 	}
 
 	/**
 	The page that sharing the app shares: the App Store page, or the app page for apps that are not on the App Store. `nil` for an archived app, which is no longer available, so its page has no sharing and no QR code.
 	*/
-	var shareURL: URL? {
+	var sharedPage: SharedPage? {
 		guard !frontmatter.isArchived else {
 			return nil
 		}
 
-		return appStoreURL ?? path.absoluteURL
+		return SharedPage(title: frontmatter.title, url: appStoreURL ?? path.absoluteURL)
 	}
 
 	/**
 	The Gumroad page of the app, which opens the checkout (`wanted=true`).
 	*/
 	var gumroadURL: URL? {
-		frontmatter.gumroadID.map { $0.url.appending(queryItems: [URLQueryItem(name: "wanted", value: "true")]) }
+		purchase.gumroad.map { $0.id.url.appending(queryItems: [URLQueryItem(name: "wanted", value: "true")]) }
 	}
 
 	var setappURL: URL? {
 		frontmatter.setappURL
-	}
-
-	/**
-	The list of older versions in the readme of the repo. Frontmatter with `olderMacOSVersions` needs `repositoryURL`.
-	*/
-	var olderVersionsURL: URL? {
-		frontmatter.repositoryURL.map {
-			var components = URLComponents(url: $0, resolvingAgainstBaseURL: true)
-			components?.fragment = "download"
-			return components?.url ?? $0
-		}
 	}
 
 	/**
@@ -278,11 +409,7 @@ extension App {
 			return nil
 		}
 
-		return ReleaseNotes(
-			repository: repository,
-			path: path.appending("release-notes"),
-			feed: FeedLink(title: "\(frontmatter.title) Release Notes", path: path.appending("rss.xml"))
-		)
+		return ReleaseNotes(repository: repository, appPath: path, title: frontmatter.title)
 	}
 
 	var privacyPolicyPath: RoutePath {
@@ -325,48 +452,36 @@ extension App {
 	}
 
 	/**
-	For search results and link previews: the custom description, or the introduction, shortened to 160 characters. The title of the page already has the subtitle, so the description does not begin with it.
+	For search results and link previews: the custom description, which fits a snippet (``SnippetText``), or the introduction, shortened to 160 characters. The title of the page already has the subtitle, so the description does not begin with it.
 	*/
 	var description: String {
-		(frontmatter.description ?? markdown.introduction ?? frontmatter.subtitle)
-			.shortenedForSnippet
+		frontmatter.description ?? (markdown.introduction ?? frontmatter.subtitle).shortenedForSnippet
 	}
 
 	/**
-	The lowest OS version, like “Requires macOS 26 or later”. An app on several platforms says “version”, as the platforms share their version numbers.
+	The Sparkle appcast that the app checks for updates, in the GitHub Pages of its releases repo or of the repo of its download, like `https://sindresorhus.com/quickgpt-meta/appcast.xml`, which is the `SUFeedURL` of the app. Only for apps that are not on the App Store, not archived, and not a redirect to a page elsewhere, as the others have none. The pages of a repo are on the domain of the site, so it assumes a repo of Sindre.
 	*/
-	var requirementSentence: String? {
-		frontmatter.minimumOSVersion.map { version in
-			let system = platforms.count == 1 ? platforms[0].rawValue : "version"
-			return "Requires \(system) \(version) or later"
+	var appcastURL: URL? {
+		guard
+			appStoreID == nil,
+			!frontmatter.isArchived,
+			!isRedirect,
+			let repository = frontmatter.releasesRepository ?? frontmatter.gitHubDownload?.repository
+		else {
+			return nil
 		}
-	}
 
-	/**
-	The lowest version of each platform, like “macOS 26 or later, iOS 26 or later”, for places without the platforms next to it, like the facts at the end of the page and the structured data.
-	*/
-	var minimumVersionsByPlatform: String? {
-		frontmatter.minimumOSVersion.map { version in
-			platforms.map { "\($0.rawValue) \(version) or later" }.joined(separator: ", ")
-		}
-	}
-
-	/**
-	The platforms and the requirement, like “Available on macOS, iOS — Requires version 26 or later”. The platforms are left out when the requirement already names the one platform, like “Requires macOS 26 or later”.
-	*/
-	var availabilityText: String {
-		let platformList = requirementSentence != nil && platforms.count == 1 ? nil : "Available on \(operatingSystems)"
-		return [platformList, requirementSentence].compactMap(\.self).joined(separator: " — ")
+		return Site.url.appending(path: "\(repository.name)/appcast.xml")
 	}
 
 	/**
 	Whether one purchase on the App Store is for the app on the Mac and on iPhone, iPad, or Apple Vision. An app on several platforms with one App Store ID is one app on the App Store, so it is bought once.
 	*/
 	var isUniversalPurchase: Bool {
-		frontmatter.isPaid
-			&& frontmatter.appStoreID != nil
+		isPaid
+			&& appStoreID != nil
 			&& platforms.contains(.macOS)
-			&& (platforms.contains(.iOS) || platforms.contains(.visionOS))
+			&& platforms.contains(where: \.hasAppStoreBanner)
 	}
 
 	/**
@@ -392,40 +507,18 @@ extension App {
 	}
 
 	/**
-	When the app page last changed: the last commit of the content file, but never before the app was published.
-	*/
-	var lastModified: Date {
-		max(lastCommitDate ?? frontmatter.publicationDate, frontmatter.publicationDate)
-	}
-
-	/**
-	Whether the app page shows the App Store banner. Safari shows it on iOS, so only apps that run there get it.
+	Whether the app page shows the App Store banner (``Platform/hasAppStoreBanner``).
 	*/
 	var showsAppStoreBanner: Bool {
-		!frontmatter.isArchived && frontmatter.platforms.contains { $0 == .iOS || $0 == .visionOS }
-	}
-
-	/**
-	The price for the app page, like “$4.99, one-time purchase” or “Free”, from the App Store or the `price` frontmatter. A free app that is not on the App Store is “Free” too. A universal purchase says that the purchase is for all the platforms, like “$4.99, one-time purchase for all platforms”.
-	*/
-	func priceText(info: AppStoreInfo?) -> String? {
-		let text = info?.priceText(isPaid: frontmatter.isPaid) ?? frontmatter.price?.oneTimePurchaseText ?? (frontmatter.isPaid ? nil : "Free")
-
-		guard isUniversalPurchase else {
-			return text
-		}
-
-		return text.map { "\($0) for all platforms" }
+		!frontmatter.isArchived && frontmatter.platforms.contains(where: \.hasAppStoreBanner)
 	}
 
 	/**
 	Whether the page has a trial section (`## Trial {#trial}`), which the download buttons link to.
 	*/
 	var hasTrial: Bool {
-		markdown.headings.contains { $0.id == Self.trialSectionID }
+		markdown.headings.contains { Section.trial.isHeading(level: $0.level, id: $0.id) }
 	}
-
-	static let trialSectionID = "trial"
 
 	/**
 	The most characters of the introduction, which the hero of the app page shows under the name, so it is at most two lines.
@@ -441,11 +534,11 @@ extension App {
 	How long the app has been available, like “Since 2019”, for an app that is at least two years old, as a sign that it is maintained. A newer app says nothing, as a recent year is not a sign of anything. It is next to “Available on macOS”, so it does not say “available” again.
 	*/
 	func availableSinceText(at date: Date) -> String? {
-		guard date.duration(since: frontmatter.publicationDate) >= .days(365 * 2) else {
+		guard date.duration(since: frontmatter.publicationDate.foundationDate) >= .days(365 * 2) else {
 			return nil
 		}
 
-		return "Since \(frontmatter.publicationDate.siteYear)"
+		return "Since \(frontmatter.publicationDate.year)"
 	}
 
 	/**
@@ -456,34 +549,21 @@ extension App {
 	Do not add a lower bound to the range, like `(.zero..<Duration.days(30))`: then an app has no badge for the first hours of its launch day, when the build runs between local midnight and UTC midnight.
 	*/
 	func isNew(at date: Date) -> Bool {
-		date.duration(since: frontmatter.publicationDate) < .days(30)
+		date.duration(since: frontmatter.publicationDate.foundationDate) < .days(30)
 	}
 
 	/**
-	Whether the app is shown in app lists. Archived apps are still shown in the archive.
-	*/
-	var isListed: Bool {
-		!frontmatter.isUnlisted
-	}
-
-	/**
-	Whether the app is listed and maintained.
+	Whether the app is listed and maintained. Archived apps are still shown in the archive.
 	*/
 	var isActive: Bool {
 		isListed && !frontmatter.isArchived
 	}
 
-	/**
-	The macOS versions that have a free older version of the app.
-	*/
-	var olderMacOSVersions: [MacOSVersion] {
-		frontmatter.olderVersions.map(\.macOS) + frontmatter.olderMacOSVersions
-	}
 }
 
 extension App {
 	/**
-	Four similar apps: the eight most similar (shared platforms, menu bar, price), shuffled. The shuffle changes daily, but builds on the same day are the same.
+	The four most similar apps (shared platforms, menu bar, price). Many apps are equally similar, so a daily shuffle picks among them, not the publication date, which would show the same few newest apps on most pages. The shuffle changes daily, but builds on the same day are the same.
 	*/
 	func relatedApps(from candidates: [App], on date: Date) -> [App] {
 		struct Candidate {
@@ -491,8 +571,12 @@ extension App {
 			let score: Int
 		}
 
-		let similar = candidates
+		var generator = SeededRandomNumberGenerator.daily(slug, on: date)
+
+		// The sort is stable, so equally similar apps keep the shuffled order.
+		return candidates
 			.filter { $0.slug != slug && !$0.isRedirect }
+			.shuffled(using: &generator)
 			.map { candidate in
 				var score = candidate.platforms.count(where: frontmatter.platforms.contains) * 3
 
@@ -509,13 +593,7 @@ extension App {
 
 				return Candidate(app: candidate, score: score)
 			}
-			.sorted(using: [KeyPathComparator(\.score, order: .reverse), KeyPathComparator(\.app.frontmatter.publicationDate, order: .reverse)])
-			.prefix(8)
-
-		var generator = SeededRandomNumberGenerator.daily(slug, on: date)
-
-		return similar
-			.shuffled(using: &generator)
+			.sorted(using: KeyPathComparator(\.score, order: .reverse))
 			.prefix(4)
 			.map(\.app)
 	}
@@ -523,53 +601,54 @@ extension App {
 
 extension App {
 	@Frontmatter
-	struct Frontmatter {
+	struct Frontmatter: PublishedFrontmatter {
 		var isDraft = false
 		var isUnlisted = false
 		var isArchived = false
-		@NonEmpty var title: String
+		@PlainText var title: String
 
 		/**
 		Has no ending punctuation, because `llms.txt` and `llms-full.txt` add a period after it.
 		*/
-		@NonEmpty var subtitle: String
+		@PlainText var subtitle: String
 
 		/**
 		For search results and link previews. Defaults to the introduction, as the title already has the subtitle.
 		*/
-		@NonEmpty var description: String?
+		@Snippet var description: String?
 
 		/**
-		When the app was published, at midnight UTC.
+		The calendar date when the app was published.
 		*/
-		@CalendarDay var publicationDate: Date
+		var publicationDate: SOML.Date
+		static let publicationDateKey = CodingKeys.publicationDate
 
-		var platforms: [Platform]
-		@Absolute var repositoryURL: URL?
-		var appStoreID: AppStoreID?
-		@JavaScriptSafe var setappID: Int?
-		var isPaid = false
+		var platforms: Set<Platform>
+
+		// TODO: When all apps require version 27, remove the text about Apple silicon Macs from the app pages, like in `any-text`, `memo-widget`, `photo-widget`, `ai-actions`, `amazing-ai`, and `imago`, as macOS 27 only runs on Apple silicon.
+
+		/**
+		The lowest OS version that the app runs on, like `'26'` for “Requires macOS 26 or later”, or `'26.1'`. All the platforms have the same version numbers from 26, so one version is enough, and it must be 26 or later. Only for an app whose version the build cannot get (``AppListing/minimumOSVersion``): an app that is not on the App Store and has no appcast, like an iOS app that is not released yet, or an App Store app while the App Store has no version of 26 or later for it, like before it is released. The other apps get it from the App Store or from their appcast, and `website check` warns when they have it.
+		*/
+		var minimumOSVersion: OSVersion?
+
+		/**
+		Whether the app is paid: `isPaid` when it is written, else whether it is sold on Gumroad (``gumroad``), so a Gumroad app does not need to repeat it.
+		*/
+		var isPaid: Bool {
+			writtenIsPaid ?? (gumroad != nil)
+		}
+
+		@Key("isPaid") private var writtenIsPaid: Bool?
+
 		var isMenuBarApp = false
+		var appStoreID: AppStoreID?
+		var setappID: SetappID?
 
 		/**
-		One of the main apps, which the apps page shows first.
+		The product of a paid app that is not on the App Store on Gumroad, where it is sold, like `{id: 'shortcutie', price: 10}`. The page gets a “Buy” button and the price. App Store apps get their price from the App Store.
 		*/
-		var isFeatured = false
-
-		/**
-		Hand-picked categories, which is only `shortcuts`. The other categories come from fields like `isPaid`.
-		*/
-		var categories = [AppCategory]()
-
-		/**
-		The IDs of the questions in `content/shared-questions.md` that the app has, like `suggested-filenames` for apps that save files. The build adds them to the FAQ section (``App/SharedQuestions``).
-		*/
-		var sharedQuestions = [String]()
-
-		/**
-		The product of the app on Gumroad, like `shortcutie` in `https://sindresorhus.gumroad.com/l/shortcutie`, for a paid app that is sold there. The page gets a “Buy” button.
-		*/
-		var gumroadID: GumroadProductID?
+		var gumroad: Gumroad?
 
 		/**
 		A file of the latest release of a GitHub repo, for a free app that is downloaded there. The page gets a “Download” button.
@@ -579,11 +658,30 @@ extension App {
 		/**
 		The public beta of the app on TestFlight, like `https://testflight.apple.com/join/fJGUrsZx`. The page links to it.
 		*/
-		@Absolute var testFlightURL: URL?
+		@Key("testFlightURL") var testFlight: TestFlightInvitation?
+
+		var repositoryURL: AbsoluteURL?
+
+		/**
+		The GitHub repo with the release notes, like `sindresorhus/dato-meta`.
+		*/
+		var releasesRepository: GitHubRepositoryName?
+
+		@JavaScriptSafe var downloadCount: Int?
+		var hasSentry = false
+
+		/**
+		A script for the app page, like a demo, as the path of a file in `public` or of the page bundle, like `/googly-eyes/eyes.js`.
+		*/
+		var script: RoutePath?
+
+		/**
+		Hand-picked categories, which is only `shortcuts`. The other categories come from fields, like `isPaid`, `platforms`, and `isMenuBarApp`, so the type has no case for them.
+		*/
+		var categories = [HandPickedCategory]()
 
 		var links = OrderedMapping<AbsoluteURL>()
 		var overflowLinks = OrderedMapping<AbsoluteURL>()
-		var showsSupportLink = true
 
 		/**
 		Makes the app link to another page, like a GitHub repo, instead of having a page.
@@ -591,146 +689,105 @@ extension App {
 		@Absolute var redirectURL: URL?
 
 		/**
-		The GitHub repo with the release notes, like `sindresorhus/dato-meta`.
+		Old paths of the app page, like `/old-name`. They redirect to the app page.
 		*/
-		var releasesRepository: GitHubRepositoryName?
+		var redirectFrom = [RoutePath]()
+		static let redirectFromKey = CodingKeys.redirectFrom
 
 		/**
-		Free older versions for older macOS versions, newest first. The app page shows them in an “Older Versions” section.
+		The other names that the app sends to the feedback page, like `['Color Picker']`, so the page finds the app. The apps send their name (`CFBundleDisplayName`, or else `CFBundleName`), which can be shorter than the title, like “Color Picker” for “System Color Picker”. The page also finds the app by its title and its slug, so only a name that differs from the title belongs here. A name of another app, its title, slug, or one of its `feedbackNames`, in any case, is an error, as the page would open one app for both.
 		*/
-		var olderVersions = [OlderVersion]()
-
-		/**
-		The macOS versions that have an older version listed elsewhere, like in the readme of the repo (`olderVersionsURL`). Apps with `olderVersions` do not need it.
-		*/
-		var olderMacOSVersions = [MacOSVersion]()
+		var feedbackNames = [String]()
 
 		/**
 		A free version of the app for users that cannot access the App Store, which the build adds as the “Non-App Store Version” section at the end of the page.
 		*/
 		var nonAppStoreVersion: NonAppStoreVersion?
 
-		// TODO: When all apps require version 27, remove the text about Apple silicon Macs from the app pages, like in `any-text`, `memo-widget`, `photo-widget`, `ai-actions`, `amazing-ai`, and `imago`, as macOS 27 only runs on Apple silicon.
+		var announcement: Announcement?
 
 		/**
-		The lowest OS version that the app runs on, like `26` for “Requires macOS 26 or later”. All the platforms have the same version numbers from 26, so one version is enough.
+		The IDs of the questions in `content/shared-questions.md` that the app has, like `suggested-filenames` for apps that save files. The build adds them to the FAQ section (``App/SharedQuestions``).
 		*/
-		var minimumOSVersion: Int?
-		@JavaScriptSafe var downloads: Int?
+		var sharedQuestions = [ElementID]()
 
 		/**
-		The price in US dollars of a paid app that is not on the App Store, like `20` or `4.99`. App Store apps get their price from the App Store.
+		Free older versions for older macOS versions, newest first, which the app page shows in an “Older Versions” section, like `[{version: '1.2.0', macOS: '13', url: '…'}]`.
 		*/
-		var price: Price?
+		var olderVersions = [OlderVersion]()
+
+		var pressQuotes = [PressQuote]()
+
+		/**
+		What the app sends to other services, like the text sent to an AI service. The privacy policy shows it instead of saying that no data is collected. Plain text, not Markdown.
+		*/
+		@PlainText var privacyNote: String?
 
 		/**
 		Markdown shown on the feedback page when the app is selected.
 		*/
 		var feedbackNote: String?
 
-		/**
-		What the app sends to other services, like the text sent to an AI service. The privacy policy shows it instead of saying that no data is collected. Plain text, not Markdown.
-		*/
-		@NonEmpty var privacyNote: String?
+		func validate(into problems: inout FrontmatterProblems<Self>) {
+			validatePublicationDate(into: &problems)
 
-		/**
-		Old paths of the app page, like `/old-name`. They redirect to the app page.
-		*/
-		var redirectFrom = [RoutePath]()
-
-		/**
-		A script for the app page, like a demo, as the path of a file in `public` or of the page bundle, like `/googly-eyes/eyes.js`.
-		*/
-		var script: RoutePath?
-
-		var hasSentry = false
-		var pressQuotes = [PressQuote]()
-		var announcement: Announcement?
-
-		func validate() throws(ContentError) {
 			if
 				let last = subtitle.last,
 				".!?".contains(last)
 			{
-				throw ContentError(reason: "`subtitle` must not end with punctuation, because the default description adds a period after it.")
+				problems.add("`subtitle` must not end with punctuation, because the default description adds a period after it.", at: .subtitle)
 			}
 
 			if platforms.isEmpty {
-				throw ContentError(reason: "`platforms` must have at least one platform.")
+				problems.add("`platforms` must have at least one platform.", at: .platforms)
 			}
 
-			// The other categories come from fields, so they would silently do nothing here.
-			if categories.contains(where: { $0 != .shortcuts }) {
-				throw ContentError(reason: "`categories` can only have `shortcuts`. The other categories come from fields, like `isPaid`, `platforms`, and `isMenuBarApp`.")
+			do {
+				_ = try purchase
+			} catch {
+				problems.add(error.reason, at: .gumroad)
 			}
 
-			if
-				announcement?.linkText != nil,
-				announcement?.url == nil
-			{
-				throw ContentError(reason: "`announcement.linkText` needs `announcement.url`.")
+			problems.validate(pressQuotes, at: .pressQuotes)
+
+			// An article about the app is not older than the app, so an earlier year is likely the year of another article.
+			for (index, pressQuote) in pressQuotes.enumerated() {
+				if
+					let year = pressQuote.year,
+					year < publicationDate.year
+				{
+					problems.add("The quote of \(pressQuote.source) in `pressQuotes` has the year \(year), which is before the app was published in \(publicationDate.year).", at: .pressQuotes, index: index)
+				}
+			}
+			problems.addRepeatedItems(of: sharedQuestions, at: .sharedQuestions)
+			// In any case, as the feedback page finds the app by a name in any case.
+			problems.addRepeatedItems(of: feedbackNames.map(\.feedbackLookupKey), at: .feedbackNames)
+
+			if feedbackNames.contains(where: { $0.feedbackLookupKey == title.feedbackLookupKey }) {
+				problems.add("`feedbackNames` has the title, which the feedback page already finds the app by.", at: .feedbackNames)
 			}
 
-			if
-				price != nil,
-				appStoreID != nil || !isPaid
-			{
-				throw ContentError(reason: "`price` is only for paid apps that are not on the App Store. App Store apps get their price from the App Store.")
-			}
+			// The app page lists the older versions in the order of the frontmatter, so a new version at the end would silently break the order.
+			let macOSVersions = olderVersions.map(\.macOS)
 
-			if
-				!olderVersions.isEmpty,
-				!olderMacOSVersions.isEmpty
-			{
-				throw ContentError(reason: "`olderMacOSVersions` is only for older versions that are listed elsewhere. The macOS versions of `olderVersions` are already known.")
-			}
-
-			if
-				!olderMacOSVersions.isEmpty,
-				repositoryURL == nil
-			{
-				throw ContentError(reason: "`olderMacOSVersions` needs `repositoryURL`, which has the list of older versions.")
-			}
-
-			if let year = pressQuotes.compactMap(\.year).first(where: { !(2000...2100).contains($0) }) {
-				throw ContentError(reason: "`pressQuotes` has the year \(year), which is not the year of an article.")
-			}
-
-			if Set(olderVersions.map(\.macOS)).count < olderVersions.count {
-				throw ContentError(reason: "`olderVersions` must have one version for each macOS version.")
+			if macOSVersions != MacOSVersion.allCases.reversed().filter(macOSVersions.contains) {
+				problems.add("`olderVersions` must be newest first, with one version for each macOS version.", at: .olderVersions)
 			}
 
 			if
 				let minimumOSVersion,
-				minimumOSVersion < App.firstSharedOSVersion
+				minimumOSVersion.major < App.firstSharedOSVersion
 			{
-				throw ContentError(reason: "`minimumOSVersion` must be \(App.firstSharedOSVersion) or later, as the platforms only share their version numbers from \(App.firstSharedOSVersion), got \(minimumOSVersion).")
+				problems.add("`minimumOSVersion` must be \(App.firstSharedOSVersion) or later, as the platforms only share their version numbers from \(App.firstSharedOSVersion), got \(minimumOSVersion).", at: .minimumOSVersion)
 			}
 
-			if
-				let nonAppStoreVersion,
-				nonAppStoreVersion.macOS < App.firstSharedOSVersion
-			{
-				throw ContentError(reason: "`nonAppStoreVersion.macOS` must be \(App.firstSharedOSVersion) or later, got \(nonAppStoreVersion.macOS). An older version goes in `olderVersions`.")
-			}
+			problems.validate(nonAppStoreVersion, at: .nonAppStoreVersion)
 
 			if
 				nonAppStoreVersion != nil,
 				appStoreID == nil
 			{
-				throw ContentError(reason: "`nonAppStoreVersion` is for apps on the App Store, for users that cannot access it.")
-			}
-
-			// The product is sold for the price, so one without the other would show a “Buy” button without a price, or a price without a place to buy.
-			if (gumroadID == nil) != (price == nil) {
-				throw ContentError(reason: "`gumroadID` and `price` need each other, as an app that is not on the App Store is sold on Gumroad.")
-			}
-
-			if
-				let testFlightURL,
-				testFlightURL.scheme != "https" || testFlightURL.host() != "testflight.apple.com" || testFlightURL.pathComponents.count != 3 || testFlightURL.pathComponents[1] != "join"
-			{
-				throw ContentError(reason: "`testFlightURL` must be a link to join a beta, like `https://testflight.apple.com/join/fJGUrsZx`, got \(testFlightURL).")
+				problems.add("`nonAppStoreVersion` is for apps on the App Store, for users that cannot access it.", at: .nonAppStoreVersion)
 			}
 		}
 	}
@@ -756,6 +813,12 @@ extension App {
 		The download, usually a zip file.
 		*/
 		@Absolute var url: URL
+
+		func validate(into problems: inout FrontmatterProblems<Self>) {
+			if macOS < App.firstSharedOSVersion {
+				problems.add("`nonAppStoreVersion.macOS` must be \(App.firstSharedOSVersion) or later, got \(macOS). An older version goes in `olderVersions`.", at: .macOS)
+			}
+		}
 	}
 
 	/**
@@ -764,13 +827,13 @@ extension App {
 	@Frontmatter
 	struct GitHubDownload {
 		var repository: GitHubRepositoryName
-		@NonEmpty var file: String
+		var file: GitHubReleaseAssetName
 
 		/**
 		The link that always downloads the file of the latest release.
 		*/
 		var url: URL {
-			#URL("https://github.com").appending(path: "\(repository)/releases/latest/download/\(file)")
+			repository.url.appending(path: "releases/latest/download/\(file.value)")
 		}
 	}
 
@@ -795,17 +858,157 @@ extension App {
 		@Absolute var url: URL
 	}
 
+	/**
+	A product on Gumroad and its price.
+	*/
+	@Frontmatter
+	struct Gumroad {
+		/**
+		The product, like `shortcutie` in `https://sindresorhus.gumroad.com/l/shortcutie`.
+		*/
+		var id: GumroadProductID
+
+		/**
+		The price in US dollars, like `20` or `4.99`, which the page shows. `website check` warns when Gumroad has another price.
+		*/
+		var price: Price
+	}
+
 	@Frontmatter
 	struct PressQuote {
-		@NonEmpty var quote: String
-		@NonEmpty var source: String
+		@PlainText var quote: String
+
+		/**
+		The publication or the person, like `MacStories`, without the language of a translated quote (``translatedFrom``).
+		*/
+		@PlainText var source: String
+
 		@Absolute var url: URL?
 		var isStarRating = false
 
 		/**
-		The year of the article, like `2021`, which the source shows when the quotes of an app span years (``App/showsPressQuoteYears``).
+		The year of the article, like `2021`, which the source shows.
 		*/
 		var year: Int?
+
+		/**
+		The language of the article, like `German`, when the quote is translated to English.
+		*/
+		var translatedFrom: Language?
+
+		/**
+		The key phrase of a long quote, like `Dato has stuck around because of its flexibility`, which is marked in the quote, so a reader who skims gets the point. It must be in the quote. Use it rarely, as a page with many marks has none that stands out.
+		*/
+		@PlainText var highlight: String?
+
+		/**
+		Whether the quote is a review of a buyer on Gumroad, which is by a person, like a quote without a link, not an article of a site.
+		*/
+		var isBuyerReview: Bool {
+			url?.host() == GumroadProduct.storeURL.host()
+		}
+
+		/**
+		The quote ready for display, with an article's required date carried by its attribution.
+		*/
+		var resolved: Resolved {
+			get throws(ContentError) {
+				let attribution: Attribution
+
+				if let url {
+					if isBuyerReview {
+						attribution = .buyer(source: source, url: url, year: year)
+					} else {
+						guard let year else {
+							throw ContentError(reason: "The quote of \(source) in `pressQuotes` has a `url`, but no `year`. Add the year of the article.")
+						}
+
+						attribution = .article(source: source, url: url, year: year)
+					}
+				} else {
+					attribution = .person(source: source, year: year)
+				}
+
+				return Resolved(quote: self, attribution: attribution)
+			}
+		}
+
+		func validate(into problems: inout FrontmatterProblems<Self>) {
+			// The real year, not the year of the build, which the tests fix.
+			if
+				let year,
+				!(2000...Date.now.siteYear).contains(year)
+			{
+				problems.add("`pressQuotes` has the year \(year), which is not the year of an article.", at: .year)
+			}
+
+			// A quote copied with its marks would show them twice, as the page adds them.
+			if
+				let first = quote.first,
+				let last = quote.last,
+				first.isQuotationMark,
+				last.isQuotationMark
+			{
+				problems.add("The quote of \(source) in `pressQuotes` starts and ends with a quotation mark. Remove them, as the page adds them.", at: .quote)
+			}
+
+			// The page shows the language after the year, like “2023 · Translated from German”.
+			if
+				source.localizedStandardContains("translated")
+					|| Language.allCases.contains(where: { source.contains("(\($0.rawValue))") })
+			{
+				problems.add("The `source` “\(source)” in `pressQuotes` has the language of the article. Remove it, and use `translatedFrom`, like `translatedFrom: 'German'`.", at: .source)
+			}
+
+			// A link to an article dates it, so the page can show its year, which many links have too, like `https://9to5mac.com/2020/01/09/plash/`. A link to Gumroad is a review of a buyer, which has no year, like a quote from a person.
+			if
+				let year,
+				let url,
+				!isBuyerReview,
+				let urlYear = url.pathComponents.lazy.compactMap({ Int($0) }).first(where: { (2000...2100).contains($0) }),
+				urlYear != year
+			{
+				problems.add("The quote of \(source) in `pressQuotes` has the year \(year), but its `url` has the year \(urlYear).", at: .year)
+			}
+
+			do {
+				_ = try resolved
+			} catch {
+				problems.add(error.reason, at: .url)
+			}
+
+			if
+				let highlight,
+				!quote.contains(highlight)
+			{
+				problems.add("The `highlight` of the `pressQuotes` quote from \(source) is not in its quote.", at: .highlight)
+			}
+		}
+
+		/**
+		The language of a translated article.
+		*/
+		enum Language: String, ContentEnum {
+			case german = "German"
+			case french = "French"
+		}
+
+		/**
+		An article has a publication year; a buyer or an unlinked person may have one.
+		*/
+		enum Attribution: Sendable {
+			case article(source: String, url: URL, year: Int)
+			case buyer(source: String, url: URL, year: Int?)
+			case person(source: String, year: Int?)
+		}
+
+		/**
+		A quote whose source-specific requirements were resolved before rendering.
+		*/
+		struct Resolved: Sendable {
+			let quote: PressQuote
+			let attribution: Attribution
+		}
 	}
 
 	@Frontmatter
@@ -813,10 +1016,18 @@ extension App {
 		/**
 		Plain text, not Markdown.
 		*/
-		@NonEmpty var text: String
+		@PlainText var text: String
 
-		var url: LinkDestination?
-		@NonEmpty var linkText: String?
+		var link: Link?
+
+		/**
+		The button of an announcement, like `{url: 'https://example.com/bundle', text: 'Get the Bundle'}`.
+		*/
+		@Frontmatter
+		struct Link {
+			var url: LinkDestination
+			@NonEmpty var text = "Learn More"
+		}
 	}
 }
 
@@ -834,37 +1045,21 @@ extension App {
 		let feed: FeedLink
 
 		/**
+		Derives the page and feed from the app’s route so their destinations cannot disagree.
+		*/
+		init(repository: GitHubRepositoryName, appPath: RoutePath, title: String) {
+			self.repository = repository
+			self.path = appPath.appending("release-notes")
+			self.feed = FeedLink(title: "\(title) Release Notes", path: appPath.appending("rss.xml"))
+		}
+
+		/**
 		The release on the release notes page, which has the version as the ID of its heading.
 		*/
 		func destination(of release: GitHubRelease) -> LinkDestination {
 			.path(path, fragment: release.version)
 		}
 	}
-
-	/**
-	The ID of the feedback question that every FAQ section gets.
-	*/
-	static let feedbackHeadingID = "feedback"
-
-	/**
-	The ID of the menu bar question that the build adds to menu bar apps, which is also the ID of the general question that its answer links to (``LinkDestination/menuBarQuestion``). Its answer only links to the general question, so the feedback page suggests the general question instead.
-	*/
-	static let addedMenuBarQuestionID = "app-not-showing-in-menu-bar"
-
-	/**
-	The ID of the level 2 heading of the FAQ section, which the page, the links, and the feedback page find the section by.
-	*/
-	static let faqSectionID = "faq"
-
-	/**
-	The title of the feedback question that the FAQ of an app gets. A question with this title in the file gets the answer instead.
-	*/
-	static let feedbackQuestionTitle = "I have a feature request, bug report, or some feedback"
-
-	/**
-	The title of the level 2 heading of the FAQ section.
-	*/
-	static let faqHeadingTitle = "Frequently Asked Questions"
 }
 
 extension App {
@@ -888,365 +1083,88 @@ extension App.Frontmatter {
 	The Setapp page of the app, with the referral of the vendor program. The trial of the app page links to it too, so it is on the frontmatter, which the Markdown options have.
 	*/
 	var setappURL: URL? {
-		setappID.map { #URL("https://go.setapp.com/stp181").appending(queryItems: [URLQueryItem(name: "refAppID", value: String($0)), URLQueryItem(name: "utm_medium", value: "vendor_program"), URLQueryItem(name: "utm_content", value: "button")]) }
-	}
-
-	/**
-	The Markdown of the app page with what the build adds from the facts of the app: the common questions that apply to it (``CommonQuestion``), the shared questions that it picks, and, unless the app is archived, the feedback question in the FAQ section, and the “Older Versions” and “Non-App Store Version” sections.
-	*/
-	func addingGeneratedSections(to document: Document, sharedQuestions: App.SharedQuestions) -> Document {
-		var blocks = Array(document.blockChildren)
-		blocks.addCommonQuestions(CommonQuestion.questions(for: self, sharedQuestions: sharedQuestions))
-
-		// An archived app gets no support, and the feedback page does not list it.
-		if !isArchived {
-			blocks.addFeedbackQuestion(appTitle: title)
-		}
-
-		// Before the older versions, which go before it.
-		if let nonAppStoreVersion {
-			blocks += nonAppStoreVersion.markdownSection(isOnSeveralPlatforms: platforms.count > 1)
-		}
-
-		blocks.addOlderVersions(olderVersions, isPaid: isPaid)
-		return Document(blocks)
+		setappID?.referralURL
 	}
 }
 
-extension App.NonAppStoreVersion {
+extension Character {
 	/**
-	The “Non-App Store Version” section of an app page. It says “macOS version” for an app on several platforms, as the version is only for the Mac.
+	Whether the character is a quotation mark, like `"`, `“`, or `«` (the Unicode property `Quotation_Mark`).
 	*/
-	func markdownSection(isOnSeveralPlatforms: Bool) -> [any BlockMarkup] {
-		[
-			Markdown.Heading(level: 2, Markdown.Text(App.nonAppStoreVersionTitle)),
-			Paragraph(Markdown.Text("A special \(isOnSeveralPlatforms ? "macOS " : "")version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.")),
-			Paragraph(
-				Markdown.Link(destination: url.absoluteString, Markdown.Text("Download")),
-				Markdown.Text(" "),
-				Markdown.Emphasis(Markdown.Text("(\(version))"))
-			),
-			Paragraph(Markdown.Emphasis(Markdown.Text("Requires macOS \(macOS) or later"))),
-		]
+	fileprivate var isQuotationMark: Bool {
+		unicodeScalars.allSatisfy(\.properties.isQuotationMark)
 	}
 }
 
 /**
-A question that many apps have, like “Can you localize the app into my language?”, or a shared question that an app picks (``App/SharedQuestions``). The build adds it to the FAQ section of each app that it applies to, so the app files do not repeat it. A file that has a question with the same text in its FAQ section keeps its own answer, like one with more details about the app.
+The name of one GitHub release asset, preserving spaces and Unicode while rejecting path components.
 */
-private struct CommonQuestion {
-	let title: String
+struct GitHubReleaseAssetName: PlainValidatedValue, Hashable, Sendable {
+	let value: String
 
-	/**
-	The question and its answer, as a level 3 heading and the blocks below it, like the questions in the files.
-	*/
-	let blocks: [any BlockMarkup]
+	init(validating value: String) throws(ContentError) {
+		_ = try NonEmptyString(validating: value)
 
-	/**
-	Whether the question goes before the questions of the file instead of after them, as visitors with a problem look for it. The feedback question still goes first.
-	*/
-	var isFirst = false
-
-	/**
-	The questions that apply to the app: the menu bar question for menu bar apps, the free question for free apps on the App Store that are not archived, the shared questions that the app picks, and the localization question for all apps.
-	*/
-	static func questions(for frontmatter: App.Frontmatter, sharedQuestions: App.SharedQuestions) -> [Self] {
-		var questions = [Self]()
-
-		if frontmatter.isMenuBarApp {
-			questions.append(Self(
-				title: "The app does not show up in the menu bar",
-				answer: Paragraph(Markdown.Link(destination: LinkDestination.menuBarQuestion.description, Markdown.Text("How to make the app show up in the menu bar"))),
-				isFirst: true,
-				id: App.addedMenuBarQuestionID
-			))
+		guard
+			!value.contains("/"),
+			value != ".",
+			value != ".."
+		else {
+			throw ContentError(reason: "Must be one release asset filename, without slashes or dot segments.")
 		}
 
-		// The answer asks for a review on the App Store, so archived apps and apps that are not there do not get it.
-		if
-			!frontmatter.isPaid,
-			!frontmatter.isArchived,
-			frontmatter.appStoreID != nil
-		{
-			questions.append(Self(
-				title: "Why is this free without ads?",
-				answer: Paragraph(Markdown.Text("I just enjoy making apps. Consider leaving a nice review on the App Store."))
-			))
-		}
-
-		questions += sharedQuestions.questions
-
-		questions.append(Self(
-			title: "Can you localize the app into my language?",
-			answer: Paragraph(Markdown.Text("I don’t plan to localize the app."))
-		))
-
-		return questions
+		self.value = value
 	}
 }
 
-extension CommonQuestion {
-	/**
-	A question with a one-paragraph answer.
+/**
+A public TestFlight invitation, validated before it becomes a link on an app page.
+*/
+struct TestFlightInvitation: ValidatedValue, Hashable {
+	let url: URL
 
-	- Parameter id: The ID of the heading, instead of the slug of the title, for a question that code finds.
+	/**
+	Creates an invitation from an HTTPS join link on TestFlight.
 	*/
-	init(
-		title: String,
-		answer: Paragraph,
-		isFirst: Bool = false,
-		id: String? = nil
-	) {
-		self.init(
-			title: title,
-			blocks: [Markdown.Heading(level: 3, Markdown.Text(title + (id.map { " {#\($0)}" } ?? ""))), answer],
-			isFirst: isFirst
-		)
+	init(validating url: URL) throws(ContentError) {
+		_ = try AbsoluteURL(validating: url)
+
+		guard
+			url.scheme == "https",
+			url.host() == "testflight.apple.com",
+			url.pathComponents.count == 3,
+			url.pathComponents[1] == "join"
+		else {
+			throw ContentError(reason: "Must be a link to join a beta, like `https://testflight.apple.com/join/fJGUrsZx`, got \(url).")
+		}
+
+		self.url = url
 	}
 }
 
 extension App {
 	/**
-	The questions that an app picks (`sharedQuestions`) from the questions that some apps share, like how to turn off the suggested filenames when saving, in `content/shared-questions.md`. Each question is a level 3 heading, followed by its answer, like in the FAQ of an app, and the answer is Markdown. An app adds a question to its FAQ section with the ID of its heading in `sharedQuestions`, so each heading has a short ID, like `{#suggested-filenames}`. Text before the first question is not shown, so it can explain the file.
-
-	The answers are shown on the app pages, so their links are site paths, like `/apps/faq#refund`, or URLs, not relative links. A mistake in the file is reported for each app that picks a question from it.
-
-	The picked questions go after the questions of the app, but a question with `<!-- @faq.first -->` (``First``) goes before them, like a question about a problem, as visitors with a problem look for it.
-
-	An answer cannot have headings, also not in a block directive, like `@Details`, as the questions are found by their headings, so a heading in an answer is an error.
-
-	Limitation: An answer cannot have inline notes, as their IDs come from their lines, which the added answers do not have, or footnotes, as the parser moves their definitions to the end of the file, which is the last answer.
+	The icon of the app and the assets derived from it. `nil` when the app has no icon yet, so its page shows the placeholder.
 	*/
-	struct SharedQuestions {
-		/**
-		The path of the file, relative to the root of the project.
-		*/
-		static let path = "content/shared-questions.md"
+	private struct Icon: Sendable {
+		let path: RoutePath
+		let enclosure: Enclosure?
+		let jpegXL: JPEGXLCopy?
+		let tint: Color?
 
 		/**
-		The question goes before the questions of the app instead of after them, like `<!-- @faq.first -->` below a question about a problem. Only the shared questions have it, as a question of the app goes where it is written.
+		Loads the icon and its derivatives once. A missing icon is `nil`, so a placeholder has no feed enclosure or JPEG XL copy.
 		*/
-		enum First: HeadingDirective {
-			static let name = "faq.first"
-			typealias Value = HeadingDirectiveFlag
-		}
-
-		/**
-		The picked questions, in the order of `sharedQuestions`. The file is the source of their Markdown, so they have no lines in the app page.
-		*/
-		fileprivate let questions: [CommonQuestion]
-
-		/**
-		The questions that the app picks. An app that picks none does not read the file. An ID that is not the ID of a question, or that is picked twice, is an error at the `sharedQuestions` key.
-		*/
-		init(pickedBy file: MarkdownFile, frontmatter: Frontmatter, project: Project) throws {
-			guard !frontmatter.sharedQuestions.isEmpty else {
-				self.questions = []
-				return
+		init?(path: RoutePath, project: Project) async throws {
+			guard let file = project.existingPublicFile(path) else {
+				return nil
 			}
 
-			let questionsByID = try Self.questionsByID(project: project)
-			let line = file.line(of: Frontmatter.CodingKeys.sharedQuestions)
-			var pickedIDs = Set<String>()
-
-			self.questions = try frontmatter.sharedQuestions.map { id in
-				guard let question = questionsByID[id] else {
-					throw ContentError(file: file.url, line: line, reason: "`sharedQuestions` has `\(id)`, which is not the ID of a question in `\(Self.path)`.")
-				}
-
-				guard pickedIDs.insert(id).inserted else {
-					throw ContentError(file: file.url, line: line, reason: "`sharedQuestions` has `\(id)` twice.")
-				}
-
-				return question
-			}
+			let fileSize = try? file.resourceValues(forKeys: [.fileSizeKey]).fileSize
+			self.path = path
+			self.enclosure = fileSize.flatMap { Enclosure(url: path.absoluteURL, length: $0, mimeType: "image/png") }
+			self.jpegXL = try await JPEGXLCopy(of: path, project: project)
+			self.tint = CGImage.read(file)?.accentColor
 		}
-
-		/**
-		All the questions of the file, by the IDs of their headings.
-		*/
-		private static func questionsByID(project: Project) throws -> [String: CommonQuestion] {
-			let file = try MarkdownFile(url: project.root.appending(path: Self.path))
-			var options = MarkdownDocument.Options.content(file, project: project)
-			options.headingDirectives.append(First.self)
-			let headings = try MarkdownDocument(parsing: file, options: options).headings
-
-			// Each question is a top-level heading and the blocks up to the next one, by the line of the heading.
-			var sectionsByLine = [Int: [any BlockMarkup]]()
-			var sectionLine: Int?
-
-			for block in Document(parsing: file.body, file: file.url, options: options).blockChildren {
-				if block is Markdown.Heading {
-					sectionLine = file.line(of: block)
-				}
-
-				if let sectionLine {
-					sectionsByLine[sectionLine, default: []].append(block)
-				}
-			}
-
-			var questionsByID = [String: CommonQuestion]()
-			var errors = [ContentError]()
-
-			for heading in headings {
-				guard heading.level == 3 else {
-					errors.append(ContentError(file: file.url, line: heading.line, reason: "The questions are level 3 headings: `### \(heading.text)`."))
-					continue
-				}
-
-				// A heading in a block directive is not the heading of a question, so it would silently give the questions after it the wrong answers.
-				guard
-					let line = heading.line,
-					let blocks = sectionsByLine[line]
-				else {
-					errors.append(ContentError(file: file.url, line: heading.line, reason: "An answer cannot have headings, also not in a block directive."))
-					continue
-				}
-
-				// The IDs are unique, as the parse of the file reports a heading ID that is used twice.
-				questionsByID[heading.id] = CommonQuestion(title: heading.text, blocks: blocks, isFirst: heading.contains(First.self))
-			}
-
-			guard errors.isEmpty else {
-				throw ContentErrors(errors)
-			}
-
-			return questionsByID
-		}
-	}
-}
-
-// swift-markdown does not mark its nodes as `Sendable`, but they are immutable values: a node only reads its tree, and a change to a node makes a new tree. The only mutable state is the source ranges, which the parser sets while it parses, before the nodes get here. So the questions can be used on other threads, like the shared questions in the `rewrite` closure of the app page, which must be `@Sendable`. Check this again when swift-markdown is updated.
-extension CommonQuestion: @unchecked Sendable {}
-
-extension [any BlockMarkup] {
-	/**
-	The blocks of the FAQ section of an app page, after its heading. `nil` when the page has no FAQ section.
-	*/
-	fileprivate var faqSection: Range<Int>? {
-		guard let headingIndex = firstIndex(where: { block in
-			guard let heading = block as? Markdown.Heading else {
-				return false
-			}
-
-			// The custom ID is still in the text, as the IDs are read while rendering.
-			return heading.level == 2 && heading.plainText.hasSuffix("{#\(App.faqSectionID)}")
-		}) else {
-			return nil
-		}
-
-		let start = headingIndex + 1
-		return start..<(self[start...].firstIndex { (($0 as? Markdown.Heading)?.level ?? 3) <= 2 } ?? endIndex)
-	}
-
-	/**
-	Where the questions of the FAQ section start: at its first heading, after any text under the FAQ heading.
-	*/
-	fileprivate func faqQuestionsStart(in section: Range<Int>) -> Int {
-		self[section].firstIndex { $0 is Markdown.Heading } ?? section.upperBound
-	}
-
-	/**
-	Adds the common questions that the FAQ section does not have yet: the first ones before the other questions, and the rest after them.
-	*/
-	fileprivate mutating func addCommonQuestions(_ questions: [CommonQuestion]) {
-		guard let section = faqSection else {
-			return
-		}
-
-		let questionsStart = faqQuestionsStart(in: section)
-		let existingTitles = Set(self[section].compactMap { ($0 as? Markdown.Heading)?.plainText.removingCustomHeadingID })
-		let newQuestions = questions.filter { !existingTitles.contains($0.title) }
-		// The later position first, so the earlier one stays the same.
-		insert(contentsOf: newQuestions.filter { !$0.isFirst }.flatMap(\.blocks), at: section.upperBound)
-		insert(contentsOf: newQuestions.filter(\.isFirst).flatMap(\.blocks), at: questionsStart)
-	}
-
-	/**
-	Adds the feedback question to the FAQ section, or adds the answer to an existing question with the same title.
-	*/
-	fileprivate mutating func addFeedbackQuestion(appTitle: String) {
-		guard let section = faqSection else {
-			return
-		}
-
-		let answer = Paragraph(
-			Markdown.Text("Click the feedback button in the app or "),
-			Markdown.Link(destination: App.feedbackURL(appTitle: appTitle, referrer: .faq).absoluteURL.absoluteString, Markdown.Text("send it here."))
-		)
-
-		let customID = Markdown.Text(" {#\(App.feedbackHeadingID)}")
-
-		if let questionIndex = self[section].firstIndex(where: { block in
-			guard let heading = block as? Markdown.Heading else {
-				return false
-			}
-
-			return heading.level == 3 && heading.plainText.removingCustomHeadingID == App.feedbackQuestionTitle
-		}), let question = self[questionIndex] as? Markdown.Heading {
-			// The question gets the feedback ID instead of its own.
-			let content = question.inlineChildren.map { child -> any InlineMarkup in
-				guard let text = child as? Markdown.Text else {
-					return child
-				}
-
-				return Markdown.Text(text.string.removingCustomHeadingID)
-			}
-
-			self[questionIndex] = Markdown.Heading(level: question.level, content + [customID])
-
-			// After the directives of the question, which must be directly below it.
-			let answerIndex = self[(questionIndex + 1)...].firstIndex { !(($0 as? HTMLBlock)?.isOnlyDirectives ?? false) } ?? endIndex
-			insert(answer, at: answerIndex)
-		} else {
-			let question = Markdown.Heading(level: 3, [Markdown.Text(App.feedbackQuestionTitle), customID])
-			insert(contentsOf: [question, answer] as [any BlockMarkup], at: faqQuestionsStart(in: section))
-		}
-	}
-
-	/**
-	Adds the “Older Versions” section before the “Non-App Store Version” section, or at the end.
-	*/
-	fileprivate mutating func addOlderVersions(_ olderVersions: [App.OlderVersion], isPaid: Bool) {
-		guard !olderVersions.isEmpty else {
-			return
-		}
-
-		let nonAppStoreVersionIndex = firstIndex { block in
-			guard let heading = block as? Markdown.Heading else {
-				return false
-			}
-
-			return heading.level == 2 && heading.plainText == App.nonAppStoreVersionTitle
-		}
-
-		insert(contentsOf: olderVersions.markdownSection(isPaid: isPaid), at: nonAppStoreVersionIndex ?? endIndex)
-	}
-}
-
-extension [App.OlderVersion] {
-	/**
-	The “Older Versions” section of an app page.
-
-	The versions of paid apps are free, but they only run on their macOS version, so they do not say “or later” (`+`).
-	*/
-	func markdownSection(isPaid: Bool) -> [any BlockMarkup] {
-		let items = map { olderVersion in
-			ListItem(Paragraph(
-				Markdown.Link(destination: olderVersion.url.absoluteString, Markdown.Text(olderVersion.version)),
-				Markdown.Text(" for macOS \(olderVersion.macOS.rawValue)\(isPaid ? "" : "+")")
-			))
-		}
-
-		var section: [any BlockMarkup] = [
-			Markdown.Heading(level: 2, Markdown.Text("Older Versions")),
-			UnorderedList(items),
-		]
-
-		if isPaid {
-			section.append(Paragraph(Markdown.Text("These are free for everyone but they will not run on newer macOS versions.")))
-		}
-
-		return section
 	}
 }

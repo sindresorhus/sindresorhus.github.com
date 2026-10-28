@@ -26,7 +26,12 @@ struct GeoCitiesInsultFight: ScriptedElement {
 			.style(GeoCitiesPage.Styles.titleBar)
 
 			div {
-				canvas(.part(Parts.canvas), .width(200), .height(80), .role("img")) {}
+				canvas(
+					.part(Parts.canvas),
+					.width(200),
+					.height(80),
+					.role("img")
+				) {}
 					.accessibilityLabel("Sindre with an umbrella and a seagull with a mackerel, fighting on the quay of the fish market.")
 					.style(Styles.fightCanvas)
 
@@ -117,26 +122,26 @@ struct GeoCitiesInsultFight: ScriptedElement {
 					.frame(maxWidth: .pixels(560))
 					.margin(.horizontal, .auto)
 			case .fightBody:
-				Style().background(Color("#101828"))
+				Style().background(Color(raw: "#101828"))
 			case .fightCanvas:
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(200.0 / 80.0)
 					.imageRendering(.pixelated)
-					.border(Color("#5a6a8a"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#5a6a8a"), width: .pixels(2), style: .inset)
 			case .tally:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.body, weight: .bold)
 					.textAlign(.center)
-					.color(Color("#ffd27a"))
+					.color(Color(raw: "#ffd27a"))
 			case .fightLine:
 				// The words of the fight, in the colors of Monkey Island: white for Sindre and the seagulls, on black.
 				Style()
 					.frame(minHeight: .lineHeight(3))
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.5))
 					.background(.black)
 					.fontFamily(GeoCitiesPage.courier)
@@ -152,15 +157,15 @@ struct GeoCitiesInsultFight: ScriptedElement {
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.body, weight: .bold)
 					.textAlign(.leading)
-					.color(Color("#c070ff"))
+					.color(Color(raw: "#c070ff"))
 					.handCursor()
 					.hover {
-						$0.color(Color("#ffff66"))
+						$0.color(Color(raw: "#ffff66"))
 					}
 					.focusVisible {
 						$0
-							.color(Color("#ffff66"))
-							.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(-2))
+							.color(Color(raw: "#ffff66"))
+							.focusRing(Color(raw: "#ffcc00"), width: .pixels(2), offset: .pixels(-2))
 					}
 			case .masterButton:
 				// Locked until the visitor knows enough comebacks, but still there to see, so the visitor knows what to aim for.
@@ -169,11 +174,11 @@ struct GeoCitiesInsultFight: ScriptedElement {
 				}
 			case .known:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption)
 					.textAlign(.center)
-					.color(Color("#b0c0e0"))
+					.color(Color(raw: "#b0c0e0"))
 			}
 		}
 	}

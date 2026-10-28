@@ -1,5 +1,6 @@
 import Foundation
 import SiteKit
+import SOML
 
 /**
 The GitHub contributions of one year, for the career quilt.
@@ -71,10 +72,6 @@ struct ContributionYear {
 			let isPrivate: Bool
 		}
 
-		private struct Contributions: Decodable {
-			let totalCount: Int
-		}
-
 		enum CodingKeys: CodingKey {
 			case repository
 			case contributions
@@ -86,7 +83,7 @@ struct ContributionYear {
 			self.repository = repository.nameWithOwner
 			self.url = repository.url
 			self.isPrivate = repository.isPrivate
-			self.count = try container.decode(Contributions.self, forKey: .contributions).totalCount
+			self.count = try container.decode(GitHub.GraphQL.Count.self, forKey: .contributions).totalCount
 		}
 	}
 
@@ -99,7 +96,8 @@ struct ContributionYear {
 		self.year = year
 		self.calendar = calendar
 		self.totals = totals
-		self.days = calendar.days.filter { Calendar.site.component(.year, from: $0.date) == year && $0.date <= date }
+		let today = SOML.Date(date)
+		self.days = calendar.days.filter { $0.date.year == year && $0.date <= today }
 	}
 
 	/**
@@ -126,7 +124,7 @@ struct ContributionYear {
 			return total
 		}
 
-		return "\(total) The busiest day was \(busiestDay.date.formatted(.siteDayWithoutYear)), with \(busiestDay.count.formatted(.number.locale(.site)))."
+		return "\(total) The busiest day was \(busiestDay.date.foundationDate.formatted(.siteDayWithoutYear)), with \(busiestDay.count.formatted(.number.locale(.site)))."
 	}
 
 	/**
@@ -135,7 +133,7 @@ struct ContributionYear {
 	A past year does not change once its last contributions show, which takes GitHub up to a day, so a response fetched more than a week after the year ended is used for good: its maximum age is the time since then, so only a response fetched earlier is asked for again. The current year asks with only a start date, so its response has another cache key, and a past year that was cached as the current year is asked for again.
 	*/
 	static func load(github: GitHub, until date: Date) async throws -> [Self] {
-		guard github.token != nil else {
+		guard let graphQL = github.graphQL else {
 			return []
 		}
 
@@ -143,8 +141,18 @@ struct ContributionYear {
 
 		return try await (firstYear...currentYear).concurrentMap { year in
 			let timeSinceSettled = date.duration(since: Date(year: year + 1, month: 1, day: 8))
-			let contributions = try await contributions(of: year, isPastYear: year < currentYear, maximumAge: timeSinceSettled > .zero ? timeSinceSettled : nil, github: github)
-			return Self(year: year, calendar: contributions.contributionCalendar, totals: contributions.totals, until: date)
+			let contributions = try await contributions(
+				of: year,
+				buildDate: date,
+				maximumAge: timeSinceSettled > .zero ? timeSinceSettled : nil,
+				graphQL: graphQL
+			)
+			return Self(
+				year: year,
+				calendar: contributions.contributionCalendar,
+				totals: contributions.totals,
+				until: date
+			)
 		}
 	}
 
@@ -168,30 +176,33 @@ struct ContributionYear {
 
 	private static func contributions(
 		of year: Int,
-		isPastYear: Bool,
+		buildDate: Date,
 		maximumAge: Duration?,
-		github: GitHub
+		graphQL: GitHub.GraphQL
 	) async throws -> Contributions {
-		struct Content: Decodable {
-			struct User: Decodable {
-				let contributionsCollection: Contributions
-			}
-
-			let user: User
+		struct User: Decodable {
+			let contributionsCollection: Contributions
 		}
 
-		let fields = "contributionCalendar { totalContributions weeks { contributionDays { date contributionCount contributionLevel } } } totalCommitContributions totalPullRequestContributions totalPullRequestReviewContributions totalRepositoryContributions totalRepositoriesWithContributedCommits commitContributionsByRepository(maxRepositories: 5) { repository { nameWithOwner url isPrivate } contributions { totalCount } }"
+		struct Variables: Encodable, Sendable {
+			let from: Date
+			let to: Date?
+		}
+
+		let isPastYear = year < buildDate.siteYear
+		let fields = "\(ContributionCalendar.selection) totalCommitContributions totalPullRequestContributions totalPullRequestReviewContributions totalRepositoryContributions totalRepositoriesWithContributedCommits commitContributionsByRepository(maxRepositories: 5) { repository { nameWithOwner url isPrivate } contributions { totalCount } }"
 		let query = isPastYear
 			? "query($from: DateTime!, $to: DateTime!) { user(login: \"\(GitHub.account)\") { contributionsCollection(from: $from, to: $to) { \(fields) } } }"
 			: "query($from: DateTime!) { user(login: \"\(GitHub.account)\") { contributionsCollection(from: $from) { \(fields) } } }"
 
-		var variables = ["from": "\(year)-01-01T00:00:00Z"]
+		let variables = Variables(from: Date(year: year, month: 1, day: 1), to: isPastYear ? Date(year: year + 1, month: 1, day: 1).addingTimeInterval(-1) : nil)
 
-		if isPastYear {
-			variables["to"] = "\(year)-12-31T23:59:59Z"
-		}
-
-		return try await github.graphQL(Content.self, query: query, variables: variables, maximumAge: maximumAge).user.contributionsCollection
+		return try await graphQL.data(
+			GitHub.GraphQL.UserResponse<User>.self,
+			query: query,
+			variables: variables,
+			maximumAge: maximumAge
+		).user.contributionsCollection
 	}
 }
 
@@ -201,6 +212,13 @@ extension [ContributionYear] {
 	*/
 	var totalCount: Int {
 		map(\.calendar.totalCount).sum
+	}
+
+	/**
+	The scale of the colors of the days of all the years, so a day has the same color in every year.
+	*/
+	var contributionScale: ContributionScale {
+		ContributionScale(days: flatMap(\.days))
 	}
 
 	/**
@@ -225,13 +243,13 @@ extension [ContributionYear] {
 	}
 
 	/**
-	The weekday with the most contributions in all the years, from 0 for Sunday to 6 for Saturday (``ContributionCalendar/Day/weekday``), and its contributions. The earliest in the week when several have the same count. `nil` without contributions.
+	The weekday with the most contributions in all the years (``ContributionCalendar/Day/weekday``), and its contributions. The earliest in the week when several have the same count. `nil` without contributions.
 	*/
-	var busiestWeekday: (weekday: Int, count: Int)? {
+	var busiestWeekday: (weekday: ContributionCalendar.Weekday, count: Int)? {
 		var counts = [Int](repeating: 0, count: 7)
 
 		for day in flatMap(\.days) {
-			counts[day.weekday] += day.count
+			counts[day.weekday.index] += day.count
 		}
 
 		guard
@@ -242,7 +260,7 @@ extension [ContributionYear] {
 			return nil
 		}
 
-		return (weekday, highest)
+		return (ContributionCalendar.Weekday.allCases[weekday], highest)
 	}
 }
 

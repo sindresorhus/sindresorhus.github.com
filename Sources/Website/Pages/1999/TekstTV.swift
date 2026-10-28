@@ -114,21 +114,21 @@ struct GeoCitiesTekstTV: ScriptedElement {
 		case translate
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A number key of the remote, with its digit.
 		*/
-		case digit = "data-tekst-tv-digit"
+		case digit = "tekst-tv-digit"
 
 		/**
 		A button that goes to the page before or after, with `-1` or `1`.
 		*/
-		case step = "data-tekst-tv-step"
+		case step = "tekst-tv-step"
 
 		/**
 		A colored button of the remote, with the page that it jumps to.
 		*/
-		case jump = "data-tekst-tv-jump"
+		case jump = "tekst-tv-jump"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -158,13 +158,13 @@ struct GeoCitiesTekstTV: ScriptedElement {
 				// A gray TV of the 1990s, with a thick frame around the black screen. Its font size sets the size of the screen, and so of the TV, which is as wide as the screen in it.
 				Style()
 					.vstack(alignment: .center, spacing: .em(0.25))
-					.frame(width: .em(26.5) + .pixels(14), maxWidth: .percent(100))
+					.frame(width: .length(.em(26.5) + .pixels(14)), maxWidth: .percent(100))
 					.margin(.horizontal, .auto)
 					.padding(.em(0.75))
-					.backgroundImage(.linearGradient("to bottom", Color("#5a5a5a"), Color("#2e2e2e")))
-					.border(Color("#1a1a1a"), width: .pixels(3))
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#5a5a5a"), Color(raw: "#2e2e2e")))
+					.border(Color(raw: "#1a1a1a"), width: .pixels(3))
 					.cornerRadius(.rootEm(1))
-					.shadow(Shadow(x: .pixels(4), y: .pixels(4), color: Color("#00000066")))
+					.shadow(BoxShadow(x: .pixels(4), y: .pixels(4), color: Color(raw: "#00000066")))
 					.fontFamily(GeoCitiesPage.courier)
 					.font(size: .clamp(.pixels(8), .viewportWidth(2.5), .pixels(16)))
 			case .screen:
@@ -172,7 +172,7 @@ struct GeoCitiesTekstTV: ScriptedElement {
 				Style()
 					.padding(.em(0.5))
 					.background(.black)
-					.border(Color("#111111"), width: .pixels(4), style: .inset)
+					.border(Color(raw: "#111111"), width: .pixels(4), style: .inset)
 					.cornerRadius(.rootEm(0.5))
 					.fontWeight(.bold)
 					.lineHeight(1.15)
@@ -180,7 +180,7 @@ struct GeoCitiesTekstTV: ScriptedElement {
 			case .line:
 				// Each line of teletext is 40 letters, which never wrap. The colored parts fill the whole height of the line, so the bands and the block graphics have no gaps between the lines.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.frame(width: .em(24))
 					.textWrap(.nowrap)
 					.overflow(.hidden)
@@ -197,11 +197,11 @@ struct GeoCitiesTekstTV: ScriptedElement {
 					}
 			case .brand:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
 					.letterSpacing(.em(0.3))
-					.color(Color("#bbbbbb"))
+					.color(Color(raw: "#bbbbbb"))
 			case .remote:
 				// A black remote, held sideways.
 				Style()
@@ -209,8 +209,8 @@ struct GeoCitiesTekstTV: ScriptedElement {
 					.frame(maxWidth: .rootEm(24))
 					.margin(.horizontal, .auto)
 					.padding(.rootEm(0.75))
-					.background(Color("#222222"))
-					.border(Color("#555555"), width: .pixels(2), style: .outset)
+					.background(Color(raw: "#222222"))
+					.border(Color(raw: "#555555"), width: .pixels(2), style: .outset)
 					.cornerRadius(.rootEm(1.5))
 			case .keypad:
 				Style()
@@ -226,8 +226,8 @@ struct GeoCitiesTekstTV: ScriptedElement {
 				Style()
 					.frame(minWidth: .rootEm(2.75), minHeight: .rootEm(2.75))
 					.padding(.horizontal, .rootEm(0.5))
-					.background(Color("#4a4a4a"))
-					.border(Color("#111111"), width: .pixels(2))
+					.background(Color(raw: "#4a4a4a"))
+					.border(Color(raw: "#111111"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.75))
 					.fontFamily(.system)
 					.textStyle(.body, weight: .bold)
@@ -238,22 +238,22 @@ struct GeoCitiesTekstTV: ScriptedElement {
 					}
 					.pressed {
 						$0
-							.background(Color("#ffff00"))
+							.background(Color(raw: "#ffff00"))
 							.color(.black)
 					}
 			case .fastextRed:
 				Style()
-					.background(Color("#cc0000"))
+					.background(Color(raw: "#cc0000"))
 			case .fastextGreen:
 				Style()
-					.background(Color("#008800"))
+					.background(Color(raw: "#008800"))
 			case .fastextYellow:
 				Style()
-					.background(Color("#bbaa00"))
+					.background(Color(raw: "#bbaa00"))
 					.color(.black)
 			case .fastextBlue:
 				Style()
-					.background(Color("#0033cc"))
+					.background(Color(raw: "#0033cc"))
 			}
 		}
 	}

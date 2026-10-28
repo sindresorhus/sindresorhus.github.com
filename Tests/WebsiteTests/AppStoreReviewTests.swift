@@ -5,18 +5,60 @@ import Testing
 @testable import Website
 
 struct AppStoreReviewTests {
+	@Test(arguments: [1, 2, 3, 4, 5])
+	func `individual review stars encode and decode as whole numbers`(count: Int) throws {
+		let stars = try #require(ReviewStars(rawValue: count))
+		let encoded = try JSONEncoder().encode(Schema.Rating(ratingValue: stars))
+		let object = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+		#expect(object["ratingValue"] as? Int == count)
+		#expect(try JSONDecoder().decode(ReviewStars.self, from: JSONEncoder().encode(count)) == stars)
+	}
+
+	@Test(arguments: [0, 6, -1])
+	func `individual review stars reject counts outside one through five`(count: Int) throws {
+		#expect(ReviewStars(rawValue: count) == nil)
+		#expect(throws: DecodingError.self) {
+			try JSONDecoder().decode(ReviewStars.self, from: JSONEncoder().encode(count))
+		}
+	}
+
 	@Test(.temporaryDirectory)
-	func `reviews come from all the App Stores, newest first, without duplicates, and a malformed feed gives a warning`() async throws {
+	func `invalid review stars are skipped without discarding the feed or stopping pagination`() async throws {
+		func entry(stars: String, title: String) -> String {
+			#"{"author": {"name": {"label": "A reviewer"}}, "title": {"label": "\#(title)"}, "content": {"label": "A review that is long enough to be shown on the page of the app."}, "im:rating": {"label": "\#(stars)"}, "updated": {"label": "2026-01-01T00:00:00Z"}}"#
+		}
+
+		let invalidEntries = (0..<50).map { index in
+			entry(stars: ["0", "6", "invalid", "-1", "3.5"][index % 5], title: "Invalid")
+		}
+		var responses = [
+			"https://itunes.apple.com/us/rss/customerreviews/page=1/id=1/sortBy=mostRecent/json": #"{"feed": {"entry": [\#(invalidEntries.joined(separator: ","))]}}"#,
+			"https://itunes.apple.com/us/rss/customerreviews/page=2/id=1/sortBy=mostRecent/json": #"{"feed": {"entry": [\#(entry(stars: "5", title: "Valid"))]}}"#,
+		]
+		for storefront in ["gb", "ca", "au", "nz", "ie"] {
+			responses["https://itunes.apple.com/\(storefront)/rss/customerreviews/page=1/id=1/sortBy=mostRecent/json"] = #"{"feed": {}}"#
+		}
+
+		let warnings = WarningCollector()
+		let reviews = await AppStoreReview.recentFiveStar(appIDs: [1], cache: try ResponseCache(responses: responses), warnings: warnings)
+		#expect(reviews[1]?.map(\.title) == ["Valid"])
+		#expect(reviews[1]?.first?.rating == .five)
+		#expect(warnings.all.isEmpty)
+	}
+
+	@Test(.temporaryDirectory)
+	func `reviews come from all the App Stores, newest first, without duplicates or other languages, and a malformed feed gives a warning`() async throws {
 		func entry(title: String, day: Int) -> String {
 			#"{"author": {"name": {"label": "A reviewer"}}, "title": {"label": "\#(title)"}, "content": {"label": "A review that is long enough to be shown on the page of the app."}, "im:rating": {"label": "5"}, "updated": {"label": "2026-01-\#(day < 10 ? "0\(day)" : "\(day)")T00:00:00-07:00"}}"#
 		}
 
 		let malformedEntry = #"{"author": {"name": {"label": "Another reviewer"}}}"#
+		let frenchEntry = #"{"author": {"name": {"label": "Un client"}}, "title": {"label": "Fantastique et simple"}, "content": {"label": "Une application très simple et très utile, je la recommande à tout le monde sans hésiter."}, "im:rating": {"label": "5"}, "updated": {"label": "2026-01-20T00:00:00-07:00"}}"#
 
 		let feeds = [
 			"us": [entry(title: "Valid", day: 1), malformedEntry],
 			"gb": (1...12).map { entry(title: "Review \($0)", day: $0 + 1) },
-			"ca": [entry(title: "Review 12", day: 13)],
+			"ca": [entry(title: "Review 12", day: 13), frenchEntry],
 			"au": [],
 			"nz": [],
 			"ie": [],
@@ -31,7 +73,7 @@ struct AppStoreReviewTests {
 		let warnings = WarningCollector()
 		let reviews = await AppStoreReview.recentFiveStar(appIDs: [1], cache: cache, warnings: warnings)
 
-		// The same review in two App Stores is shown once, and the malformed feed is left out.
+		// The same review in two App Stores is shown once, and the malformed feed and the review in French are left out.
 		#expect(reviews[1]?.map(\.title) == (1...12).reversed().map { "Review \($0)" })
 		#expect(warnings.all.count == 1)
 	}

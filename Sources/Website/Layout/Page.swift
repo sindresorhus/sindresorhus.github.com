@@ -42,6 +42,11 @@ protocol Page: RouteConvertible, Sendable {
 	var navigation: SiteHeader.Variant { get }
 
 	/**
+	The app that the “Feedback” link of the footer opens the form for, so the visitor does not pick it again. Defaults to the app of ``navigation``, like on an app page or its release notes. A page about an app that is not in the “Apps” section, like a guide, gives its app here.
+	*/
+	var feedbackApp: App? { get }
+
+	/**
 	The accent of the page, like `tint(_:)` in SwiftUI, for the links and the buttons, also in the header, like the color of the icon on an app page. `nil` keeps the accent of the site.
 	*/
 	var tint: Color? { get }
@@ -54,12 +59,12 @@ protocol Page: RouteConvertible, Sendable {
 	/**
 	How the page is listed in the sitemap, like when its content last changed. Defaults to a plain entry. A page that search engines may not index (``PageMetadata/isIndexed``) is left out of the sitemap, whatever its entry, as the sitemap asks them to index its pages.
 	*/
-	var sitemapEntry: SitemapEntry? { get }
+	var sitemapEntry: SitemapEntry { get }
 
 	/**
-	The preview image for social media, which is published with the page. `nil` uses the site card.
+	The preview image for social media. Defaults to the site card. A page that people share on its own, like the discounts page, has a card with its title (``OpenGraphCard/init(page:project:)``), so the preview does not look like the home page.
 	*/
-	var socialCard: OpenGraphCard? { get }
+	var socialImage: SocialImage { get }
 }
 
 extension Page where Head == EmptyHTML {
@@ -73,27 +78,34 @@ extension Page {
 		.standard
 	}
 
+	var feedbackApp: App? {
+		navigation.app
+	}
+
 	var headerBackground: SiteHeader.Background {
 		.standard
 	}
 
+	/**
+	The color of the icon as the accent of the page, for the buttons and the links, also in the header.
+	*/
 	var tint: Color? {
-		nil
+		navigation.app?.tint
 	}
 
-	var sitemapEntry: SitemapEntry? {
+	var sitemapEntry: SitemapEntry {
 		SitemapEntry()
 	}
 
-	var socialCard: OpenGraphCard? {
-		nil
+	var socialImage: SocialImage {
+		.site
 	}
 
 	/**
-	The URL of the preview image for social media: the card of the page, or the site card.
+	The URL of the preview image for social media.
 	*/
 	var socialImageURL: URL {
-		(socialCard?.path ?? OpenGraphCard.sitePath).absoluteURL
+		socialImage.path.absoluteURL
 	}
 
 	/**
@@ -108,17 +120,22 @@ extension Page {
 
 			let inlineScripts = try resources.inlineScriptElements.map { try $0.generatedScript() }
 
-			return SiteLayout(page: self, bodyHTML: body, resources: resources, inlineScripts: inlineScripts).render()
+			return SiteLayout(
+				page: self,
+				bodyHTML: body,
+				resources: resources,
+				inlineScripts: inlineScripts
+			).render()
 		}
 	}
 }
 
 extension RouteBuilder {
 	/**
-	The page and its social card. It is more specific than the `RouteConvertible` overload, so it is used for pages.
+	The page and its own social card. It is more specific than the `RouteConvertible` overload, so it is used for pages.
 	*/
 	static func buildExpression(_ page: some Page) -> [Route] {
-		[page.route] + [page.socialCard?.route].compactMap(\.self)
+		[page.route] + [page.socialImage.publishedCard?.route].compactMap(\.self)
 	}
 
 	static func buildExpression(_ pages: [some Page]) -> [Route] {

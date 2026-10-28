@@ -90,11 +90,11 @@ struct GeoCitiesY2KKit: ScriptedElement {
 		case comment
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The points of a thing on the checklist.
 		*/
-		case points = "data-y2k-points"
+		case points = "y2k-points"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -115,15 +115,15 @@ struct GeoCitiesY2KKit: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.25))
 					.frame(width: .percent(100))
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.75))
-					.background(Color("#fffff0"))
-					.border(Color("#808080"), width: .pixels(2), style: .groove)
+					.background(Color(raw: "#fffff0"))
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .groove)
 			case .item:
 				Style()
 					.hstack(alignment: .start, spacing: .rootEm(0.5))
 					.padding(.bottom, .rootEm(0.25))
-					.border(.bottom, Color("#aaccee"))
+					.border(.bottom, Color(raw: "#aaccee"))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.body)
 					.children("input") {
@@ -137,30 +137,30 @@ struct GeoCitiesY2KKit: ScriptedElement {
 					.hstack(alignment: .center, spacing: .rootEm(1))
 					.frame(width: .percent(100))
 					.padding(.rootEm(1))
-					.background(Color("#fdf5e6"))
-					.border(Color("#996633"), width: .pixels(3), style: .double)
+					.background(Color(raw: "#fdf5e6"))
+					.border(Color(raw: "#996633"), width: .pixels(3), style: .double)
 					.rotationEffect(.degrees(-1))
 			case .cardTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.times)
 					.textStyle(.caption, weight: .bold)
 					.textCase(.uppercase)
 					.letterSpacing(.em(0.2))
 			case .grade:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.flexShrink(0)
 					.font(size: .rootEm(4), lineHeight: 1)
 					.fontWeight(.bold)
-					.color(Color("#dd0000"))
+					.color(Color(raw: "#dd0000"))
 					.rotationEffect(.degrees(-8))
 			case .comment:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
-					.color(Color("#dd0000"))
+					.color(Color(raw: "#dd0000"))
 			}
 		}
 	}

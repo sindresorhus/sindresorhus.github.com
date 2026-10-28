@@ -19,8 +19,14 @@ struct Person {
 	let name: String
 	let givenName: String
 	let familyName: String
+
+	/**
+	The name of the person on the web, like on GitHub.
+	*/
+	let username: String
+
 	let twitterHandle: String
-	let fediverseHandle: String
+	let fediverseHandle: FediverseHandle
 	let email: String
 
 	/**
@@ -40,35 +46,93 @@ struct Person {
 
 	let socialLinks: [SocialLink]
 
+	/**
+	The item of the person on Wikidata, which search engines know.
+	*/
+	let wikidataURL: URL
+
 	static let sindreSorhus: Self = {
 		let gitHubURL = #URL("https://github.com/sindresorhus")
+		let fediverseHandle = FediverseHandle(user: "sindresorhus", server: #URL("https://mastodon.social"))
 
 		return Self(
 			name: "Sindre Sorhus",
 			givenName: "Sindre",
 			familyName: "Sorhus",
+			username: "sindresorhus",
 			twitterHandle: "@sindresorhus",
-			fediverseHandle: "@sindresorhus@mastodon.social",
+			fediverseHandle: fediverseHandle,
 			email: "sindresorhus@gmail.com",
-			photoPath: "/assets/sindre-sorhus.jpg",
-			smallPhotoPath: "/assets/sindre-sorhus-small.jpg",
+			photoPath: #path("/assets/sindre-sorhus.jpg"),
+			smallPhotoPath: #path("/assets/sindre-sorhus-small.jpg"),
 			gitHubURL: gitHubURL,
 			socialLinks: [
 				SocialLink(name: "X (Twitter)", url: #URL("https://x.com/sindresorhus"), icon: .x),
-				SocialLink(name: "Mastodon", url: #URL("https://mastodon.social/@sindresorhus"), icon: .mastodon),
+				SocialLink(name: "Mastodon", url: fediverseHandle.profileURL, icon: .mastodon),
 				SocialLink(name: "Bluesky", url: #URL("https://bsky.app/profile/sindresorhus.com"), icon: .bluesky),
-				SocialLink(name: "Instagram", url: #URL("https://instagram.com/sindresorhus"), icon: .instagram, isIdentity: false),
-				SocialLink(name: "Unsplash", url: #URL("https://unsplash.com/@sindresorhus"), icon: .unsplash, isIdentity: false),
+				SocialLink(
+					name: "Instagram",
+					url: #URL("https://instagram.com/sindresorhus"),
+					icon: .instagram,
+					isIdentity: false
+				),
+				SocialLink(
+					name: "Unsplash",
+					url: #URL("https://unsplash.com/@sindresorhus"),
+					icon: .unsplash,
+					isIdentity: false
+				),
 				SocialLink(name: "GitHub", url: gitHubURL, icon: .github),
-			]
+			],
+			wikidataURL: #URL("https://www.wikidata.org/wiki/Q103411228")
 		)
 	}()
 
 	/**
-	The profiles that identify the person in structured data, with GitHub first.
+	The profiles that identify the person in structured data, with GitHub first, and the item on Wikidata.
 	*/
 	var sameAs: [URL] {
 		let profiles = socialLinks.filter(\.isIdentity)
-		return (profiles.filter { $0.icon == .github } + profiles.filter { $0.icon != .github }).map(\.url)
+		return (profiles.filter { $0.icon == .github } + profiles.filter { $0.icon != .github }).map(\.url) + [wikidataURL]
+	}
+}
+
+/**
+An account on a server of the fediverse, like `@sindresorhus@mastodon.social` on Mastodon.
+*/
+struct FediverseHandle: CustomStringConvertible {
+	let user: String
+
+	/**
+	The server of the account, like `https://mastodon.social`.
+	*/
+	let server: URL
+
+	/**
+	Like `@sindresorhus@mastodon.social`.
+	*/
+	var description: String {
+		"@\(account)"
+	}
+
+	/**
+	The handle without the first `@`, like `sindresorhus@mastodon.social`, for a WebFinger `acct:` URI.
+	*/
+	var account: String {
+		"\(user)@\(server.host() ?? "")"
+	}
+
+	/**
+	The profile page, like `https://mastodon.social/@sindresorhus`.
+	*/
+	var profileURL: URL {
+		server.appending(path: "@\(user)")
+	}
+
+	/**
+	The ActivityPub actor of the account, like `https://mastodon.social/users/sindresorhus`. The path is the one of Mastodon, so it is only right for a server that runs Mastodon.
+	*/
+	var actorURL: URL {
+		server.appending(path: "users").appending(path: user)
 	}
 }

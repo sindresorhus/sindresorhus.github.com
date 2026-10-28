@@ -1,11 +1,16 @@
 ---
 title: 'Shareful'
 subtitle: 'Give the macOS share menu superpowers'
-publicationDate: '2020-09-08'
+publicationDate: 2020-09-08
 platforms: [
 	'macOS'
 ]
 appStoreID: 1522267256
+nonAppStoreVersion: {
+	version: '1.12.0'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/aq893jnt65u57xr70yjoo/Shareful-1.12.0-1777048683.zip?rlkey=ikakp6yyejrgjigc9cd9ki4zd&raw=1'
+}
 sharedQuestions: [
 	'suggested-filenames'
 ]
@@ -41,34 +46,43 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/7119520/Shareful.1.4.0.-.macOS.10.15.zip'
 	}
 ]
-nonAppStoreVersion: {
-	version: '1.12.0'
-	macOS: 26
-	url: 'https://www.dropbox.com/scl/fi/aq893jnt65u57xr70yjoo/Shareful-1.12.0-1777048683.zip?rlkey=ikakp6yyejrgjigc9cd9ki4zd&raw=1'
-}
+pressQuotes: [
+	{
+		quote: 'Developer Sindre Sorhus offers Shareful, a noteworthy extension for the Mac’s share menu. The app, free on the Mac App Store, adds the “Copy”, “Open In”, “Save As”, and “Save to Downloads” commands to the menu.'
+		source: 'ifun.de'
+		translatedFrom: 'German'
+		url: 'https://www.ifun.de/shareful-bringt-neue-befehle-ins-teilen-menue-von-macos-159276/'
+		year: 2020
+	}
+]
 ---
 
-Shareful makes the system share menu even more useful by providing some commonly needed share services like copy and save.
+Shareful makes the system share menu even more useful by providing some commonly needed share services:
+
+- **Copy**: Copy the shared item, so you can paste it in another app.
+- **Save to Downloads**: Save the shared item to the Downloads folder.
+- **Save As**: Choose a folder to save the shared item in.
+- **Open In**: Open the shared item in any app, like the current Safari page in another browser.
+
+The services work in any app that has a share button, like Finder, Safari, Notes, and Photos. Turn on the ones you want in “System Settings › General › Login Items & Extensions”: click the info button next to “Sharing”. You can also click “Edit Extensions” at the bottom of a share menu.
 
 ## Frequently Asked Questions {#faq}
 
-### The share services do not show up in System Settings
+### The share services do not show up in System Settings {#the-share-services-do-not-show-up-in-system-settings}
 
 Shareful provides share services (Copy, Open In, etc.) which macOS is supposed to pick up. Shareful has no control over how it works. In some rare cases, macOS can fail to pick up these share services. This is a problem with macOS not Shareful.
 
 Here are some things you could try:
 - Restart your computer
 - Reinstall the app
-- [Reset NVRAM](https://support.apple.com/HT204063)
-- [Reset the share services registry](https://web.archive.org/web/20180711015728/https://support.apple.com/en-us/HT203129)
 
 If you are on a work computer, it could also be that your company has blocked third-party share services.
 
-### Can you add a “Move” or “Delete” action?
+### Can you add a “Move” or “Delete” action? {#can-you-add-a-move-or-delete-action}
 
 This is unfortunately not possible. [Share extensions](https://support.apple.com/guide/mac-help/use-the-share-menu-on-mac-mh40614/mac) (for example, the “Copy” action), usually only receive a copy of the file. They have no guaranteed access to the original file.
 
-### Can you add a “Copy Path” action for use in Finder?
+### Can you add a “Copy Path” action for use in Finder? {#can-you-add-a-copy-path-action-for-use-in-finder}
 
 That would be moot. Right-click a file in Finder, press the ++Option++ key, and select “Copy as Pathname”.
 

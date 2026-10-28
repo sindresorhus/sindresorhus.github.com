@@ -24,13 +24,17 @@ public struct QRCode: HTML {
 		div {
 			SVG.svg(
 				.xmlns(),
-				.viewBox(0, 0, .init(integerLiteral: modules.count), .init(integerLiteral: modules.count)),
-				SVGAttribute(name: "shape-rendering", value: "crispEdges"),
-				SVGAttribute(name: "role", value: "img"),
-				SVGAttribute(name: "aria-label", value: label)
+				.viewBox(
+					0,
+					0,
+					.init(integerLiteral: modules.count),
+					.init(integerLiteral: modules.count)
+				),
+				SVGAttribute(name: "shape-rendering", value: "crispEdges")
 			) {
 				SVG.path(.fill("currentColor"), .d(path))
 			}
+			.accessibleImage(label)
 		}
 	}
 
@@ -123,8 +127,24 @@ public struct QRCode: HTML {
 		var pixels = [UInt8](repeating: 0, count: size * size)
 
 		pixels.withUnsafeMutableBytes { buffer in
-			let context = CGContext(data: buffer.baseAddress, width: size, height: size, bitsPerComponent: 8, bytesPerRow: size, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue)
-			context?.draw(cgImage, in: CGRect(x: 0, y: 0, width: size, height: size))
+			let context = CGContext(
+				data: buffer.baseAddress,
+				width: size,
+				height: size,
+				bitsPerComponent: 8,
+				bytesPerRow: size,
+				space: CGColorSpaceCreateDeviceGray(),
+				bitmapInfo: CGImageAlphaInfo.none.rawValue
+			)
+			context?.draw(
+				cgImage,
+				in: CGRect(
+					x: 0,
+					y: 0,
+					width: size,
+					height: size
+				)
+			)
 		}
 
 		return (0..<size).map { y in
@@ -132,5 +152,17 @@ public struct QRCode: HTML {
 				pixels[(y * size) + x] < 128
 			}
 		}
+	}
+}
+
+/**
+Accessibility for an informative SVG root, with its image role and accessible name together.
+*/
+extension SVGElement where Tag == SVGTag.svg {
+	func accessibleImage(_ label: String) -> Self {
+		attributes(
+			SVGAttribute(name: "role", value: "img"),
+			SVGAttribute(name: "aria-label", value: label)
+		)
 	}
 }

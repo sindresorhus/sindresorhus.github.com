@@ -1,7 +1,7 @@
 ---
 title: 'Black Out'
 subtitle: 'Hide sensitive parts of an image'
-publicationDate: '2017-12-01'
+publicationDate: 2017-12-01
 platforms: [
 	'macOS'
 ]
@@ -50,18 +50,18 @@ For example, hide the names in a Slack conversation you want to post on X (Twitt
 
 ## Frequently Asked Questions {#faq}
 
-### Can you support blurring and pixelation?
+### Can you support blurring and pixelation? {#can-you-support-blurring-and-pixelation}
 
 Blurring and pixelation are intentionally not supported as they can sometimes [be reversed](https://dheera.net/projects/blur). The only reliable way to redact something is to put a black box over it.
 
-### I can already do this in the Preview app!
+### I can already do this in the Preview app! {#i-can-already-do-this-in-the-preview-app}
 
 You can do this in any graphics app. The point of this app is to make the task super easy to do. Most graphics apps, like Preview, Pixelmator, and Photoshop, preserve metadata, which means you could accidentally leak information like the capture location. Black Out strips out all metadata. It can also be run directly from Finder as a [Quick Action](https://support.apple.com/guide/mac-help/mchl97ff9142/mac).
 
-### Does it support PDF?
+### Does it support PDF? {#does-it-support-pdf}
 
-You can open a PDF document, but you have to export it as a PNG image. It’s almost impossible to reliably export redacted PDFs.
+You can open a PDF document, but only its first page, and you have to export it as a PNG image. It’s almost impossible to reliably export redacted PDFs.
 
-### What is the text in the icon?
+### What is the text in the icon? {#what-is-the-text-in-the-icon}
 
 It’s from Apple’s inspirational [“Here’s to the Crazy Ones” TV commercial](https://www.youtube.com/watch?v=-z4NS2zdrZc).

@@ -68,12 +68,17 @@ extension HTML where Tag: HTMLTrait.Attributes.Global {
 	public func vstack(
 		alignment: Alignment? = nil,
 		justification: Justification? = nil,
-		spacing: Length? = nil,
+		spacing: LengthPercentage? = nil,
 		isInline: Bool = false,
 		fileID: String = #fileID
 	) -> _AttributedContent<Self> {
 		style(fileID: fileID) {
-			$0.vstack(alignment: alignment, justification: justification, spacing: spacing, isInline: isInline)
+			$0.vstack(
+				alignment: alignment,
+				justification: justification,
+				spacing: spacing,
+				isInline: isInline
+			)
 		}
 	}
 
@@ -83,12 +88,17 @@ extension HTML where Tag: HTMLTrait.Attributes.Global {
 	public func hstack(
 		alignment: Alignment? = nil,
 		justification: Justification? = nil,
-		spacing: Length? = nil,
+		spacing: LengthPercentage? = nil,
 		isInline: Bool = false,
 		fileID: String = #fileID
 	) -> _AttributedContent<Self> {
 		style(fileID: fileID) {
-			$0.hstack(alignment: alignment, justification: justification, spacing: spacing, isInline: isInline)
+			$0.hstack(
+				alignment: alignment,
+				justification: justification,
+				spacing: spacing,
+				isInline: isInline
+			)
 		}
 	}
 }

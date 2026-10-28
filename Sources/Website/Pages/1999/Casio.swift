@@ -18,7 +18,39 @@ struct GeoCitiesCasio: ScriptedElement {
 	/**
 	The keys of the computer that play the keys, from the lowest, by `KeyboardEvent.code`, with the letter printed on the key. The keys under the white keys play white keys, and the keys of the row above play black keys, like on the keyboards of tracker programs.
 	*/
-	static let computerKeys = ["A", "W", "S", "E", "D", "F", "T", "G", "Y", "H", "U", "J", "K", "O", "L", "P", ";", "'"]
+	struct ComputerKey: Encodable {
+		let code: String
+		let label: String
+	}
+
+	static let computerKeys = [
+		ComputerKey(code: "KeyA", label: "A"),
+		ComputerKey(code: "KeyW", label: "W"),
+		ComputerKey(code: "KeyS", label: "S"),
+		ComputerKey(code: "KeyE", label: "E"),
+		ComputerKey(code: "KeyD", label: "D"),
+		ComputerKey(code: "KeyF", label: "F"),
+		ComputerKey(code: "KeyT", label: "T"),
+		ComputerKey(code: "KeyG", label: "G"),
+		ComputerKey(code: "KeyY", label: "Y"),
+		ComputerKey(code: "KeyH", label: "H"),
+		ComputerKey(code: "KeyU", label: "U"),
+		ComputerKey(code: "KeyJ", label: "J"),
+		ComputerKey(code: "KeyK", label: "K"),
+		ComputerKey(code: "KeyO", label: "O"),
+		ComputerKey(code: "KeyL", label: "L"),
+		ComputerKey(code: "KeyP", label: "P"),
+		ComputerKey(code: "Semicolon", label: ";"),
+		ComputerKey(code: "Quote", label: "'"),
+	]
+
+	struct Config: Encodable {
+		let lowestNote = GeoCitiesCasio.lowestNote
+		let computerKeys = GeoCitiesCasio.computerKeys
+	}
+
+	let config: Config? = Config()
+
 
 	/**
 	The tones, by their ID in the script, with their number, like on the printed list of a Casio.
@@ -57,7 +89,12 @@ struct GeoCitiesCasio: ScriptedElement {
 
 	var content: some HTML {
 		h2 {
-			GeoCitiesPage.GIFImage(gif: .crazyPianist, alt: "", style: .floating, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .crazyPianist,
+				alt: "",
+				style: .floating,
+				project: project
+			)
 			"My Casio Keyboard"
 		}
 		.style(GeoCitiesPage.Styles.heading)
@@ -204,21 +241,21 @@ struct GeoCitiesCasio: ScriptedElement {
 		case lit
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A key, by its MIDI note.
 		*/
-		case note = "data-casio-note"
+		case note = "casio-note"
 
 		/**
 		A button of a tone, by its ID.
 		*/
-		case tone = "data-casio-tone"
+		case tone = "casio-tone"
 
 		/**
 		A button of a rhythm, by its ID.
 		*/
-		case rhythm = "data-casio-rhythm"
+		case rhythm = "casio-rhythm"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -253,10 +290,10 @@ struct GeoCitiesCasio: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.75))
 					.padding(.rootEm(1))
-					.backgroundImage(.linearGradient("to bottom", Color("#4a4a4f"), Color("#2a2a2e")))
-					.border(Color("#18181a"), width: .pixels(3))
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#4a4a4f"), Color(raw: "#2a2a2e")))
+					.border(Color(raw: "#18181a"), width: .pixels(3))
 					.cornerRadius(.rootEm(1))
-					.shadow(Shadow(x: .pixels(4), y: .pixels(6), color: Color("#00000066")))
+					.shadow(BoxShadow(x: .pixels(4), y: .pixels(6), color: Color(raw: "#00000066")))
 					.color(.white)
 			case .top:
 				Style()
@@ -267,12 +304,12 @@ struct GeoCitiesCasio: ScriptedElement {
 					.fontFamily(.system)
 					.font(.extraLarge2, weight: .heavy)
 					.letterSpacing(.em(0.15))
-					.color(Color("#e8e8e8"))
+					.color(Color(raw: "#e8e8e8"))
 			case .model:
 				Style()
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#ff9933"))
+					.color(Color(raw: "#ff9933"))
 			case .display:
 				Style()
 					.frame(minHeight: .lineHeight(1))
@@ -287,19 +324,19 @@ struct GeoCitiesCasio: ScriptedElement {
 					.hstack(alignment: .center, spacing: .rootEm(0.25))
 					.flexWrap()
 					.padding(.rootEm(0.5))
-					.border(Color("#88888c"), width: .pixels(1))
+					.border(Color(raw: "#88888c"), width: .pixels(1))
 			case .panelTitle:
 				Style()
 					.frame(width: .percent(100))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
-					.color(Color("#ff9933"))
+					.color(Color(raw: "#ff9933"))
 			case .panelButton:
 				// A small rubber button that lights up orange while it is chosen.
 				Style()
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.375))
-					.background(Color("#1a1a1c"))
-					.border(Color("#666"), width: .pixels(1))
+					.background(Color(raw: "#1a1a1c"))
+					.border(Color(raw: "#666"), width: .pixels(1))
 					.cornerRadius(.rootEm(0.25))
 					.fontFamily(.system)
 					.textStyle(.caption)
@@ -307,7 +344,7 @@ struct GeoCitiesCasio: ScriptedElement {
 					.handCursor()
 					.pressed {
 						$0
-							.background(Color("#ff9933"))
+							.background(Color(raw: "#ff9933"))
 							.color(.black)
 					}
 			case .controls:
@@ -317,32 +354,32 @@ struct GeoCitiesCasio: ScriptedElement {
 			case .control:
 				Style()
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.625))
-					.background(Color("#d8d8d8"))
-					.border(Color("#555"), width: .pixels(2), style: .outset)
+					.background(Color(raw: "#d8d8d8"))
+					.border(Color(raw: "#555"), width: .pixels(2), style: .outset)
 					.cornerRadius(.rootEm(0.375))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 					.color(.black)
 					.handCursor()
 					.active {
-						$0.border(Color("#555"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#555"), width: .pixels(2), style: .inset)
 					}
 					.pressed {
-						$0.background(Color("#ffcc33"))
+						$0.background(Color(raw: "#ffcc33"))
 					}
 					.disabled {
 						$0
-							.color(Color("#808080"))
+							.color(Color(raw: "#808080"))
 							.cursor(GeoCitiesPage.arrowCursor, fallback: .default)
 					}
 			case .demo:
-				Style().background(Color("#66ccff"))
+				Style().background(Color(raw: "#66ccff"))
 			case .record:
 				Style()
-					.color(Color("#cc0000"))
+					.color(Color(raw: "#cc0000"))
 					.pressed {
 						$0
-							.background(Color("#ff3333"))
+							.background(Color(raw: "#ff3333"))
 							.color(.white)
 					}
 			case .keyboard:
@@ -355,44 +392,44 @@ struct GeoCitiesCasio: ScriptedElement {
 					.cornerRadius(.rootEm(0.25))
 					.touchAction(.none)
 					.focusVisible {
-						$0.focusRing(Color("#ff9933"), width: .pixels(3), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ff9933"), width: .pixels(3), offset: .pixels(2))
 					}
 			case .whiteKeySlot:
 				// A white key, with the black key to its right on top of it.
 				Style()
 					.position(.relative)
 					.flex(1)
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 			case .whiteKey:
 				Style()
 					.vstack(alignment: .center, justification: .end)
 					.frame(size: .percent(100))
 					.padding(.bottom, .rootEm(0.25))
-					.background(Color("#fafafa"))
-					.border(Color("#999"), width: .pixels(1))
+					.background(Color(raw: "#fafafa"))
+					.border(Color(raw: "#999"), width: .pixels(1))
 					.cornerRadius(.pixels(3))
-					.color(Color("#999"))
+					.color(Color(raw: "#999"))
 					.handCursor()
 					.when(States.lit) {
-						$0.background(Color("#ffcc66"))
+						$0.background(Color(raw: "#ffcc66"))
 					}
 			case .blackKey:
 				// Narrower and shorter, between this white key and the next.
 				Style()
 					.position(.absolute)
-					.top(0)
+					.top(.zero)
 					.trailing(.percent(-30))
 					.zIndex(1)
 					.vstack(alignment: .center, justification: .end)
 					.frame(size: .percent(60))
 					.padding(.bottom, .rootEm(0.125))
-					.background(Color("#111"))
-					.border(Color("#000"), width: .pixels(1))
+					.background(Color(raw: "#111"))
+					.border(Color(raw: "#000"), width: .pixels(1))
 					.cornerRadius(.pixels(2))
-					.color(Color("#bbb"))
+					.color(Color(raw: "#bbb"))
 					.handCursor()
 					.when(States.lit) {
-						$0.background(Color("#ff9933"))
+						$0.background(Color(raw: "#ff9933"))
 					}
 			case .keyLetter:
 				Style()
@@ -422,7 +459,7 @@ extension GeoCitiesCasio {
 		var body: some HTML {
 			let note = GeoCitiesCasio.lowestNote + index
 			let names = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
-			let letter = index < GeoCitiesCasio.computerKeys.count ? GeoCitiesCasio.computerKeys[index] : ""
+			let letter = index < GeoCitiesCasio.computerKeys.count ? GeoCitiesCasio.computerKeys[index].label : ""
 
 			return button(.type(.button), .tabindex(-1), .hook(Hooks.note, value: "\(note)")) {
 				span {

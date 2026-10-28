@@ -44,7 +44,12 @@ struct GeoCitiesCoolText: ScriptedElement {
 
 		div {
 			p {
-				GeoCitiesPage.GIFImage(gif: .skullFlaming, alt: "", style: .floating, project: project)
+				GeoCitiesPage.GIFImage(
+					gif: .skullFlaming,
+					alt: "",
+					style: .floating,
+					project: project
+				)
 				"Make your own logo for your home page! No Photoshop needed. (Flaming skull not included.)"
 			}
 
@@ -55,7 +60,15 @@ struct GeoCitiesCoolText: ScriptedElement {
 					}
 					.style(GeoCitiesPage.Styles.label)
 
-					input(.id(Self.inputID), .part(Parts.input), .type(.text), .value("Sindre"), .autocomplete("off"), .maxlength(20), .custom(name: "spellcheck", value: "false"))
+					input(
+						.id(Self.inputID),
+						.part(Parts.input),
+						.type(.text),
+						.value("Sindre"),
+						.autocomplete("off"),
+						.maxlength(20),
+						.spellcheck(false)
+					)
 						.style(GeoCitiesPage.Styles.field)
 				}
 
@@ -84,7 +97,12 @@ struct GeoCitiesCoolText: ScriptedElement {
 			}
 			.style(Styles.preview, GeoCitiesPage.Styles.scriptingOnly)
 
-			GeoCitiesPage.GIFImage(gif: .dividerLaser, alt: "", style: .centered, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .dividerLaser,
+				alt: "",
+				style: .centered,
+				project: project
+			)
 
 			div {
 				button(.part(Parts.title), .type(.button)) {
@@ -108,7 +126,12 @@ struct GeoCitiesCoolText: ScriptedElement {
 
 			p {
 				for (gif, text) in [(GeoCitiesPage.GIF.buttonFlamingText, "FlamingText"), (.buttonCoolText, "Cool Text"), (.buttonJavaScript, "JavaScript Now!"), (.buttonDHTML, "Free DHTML scripts at 24fun.com")] {
-					GeoCitiesPage.GIFImage(gif: gif, alt: text, style: .gif, project: project)
+					GeoCitiesPage.GIFImage(
+						gif: gif,
+						alt: text,
+						style: .gif,
+						project: project
+					)
 					" "
 				}
 			}
@@ -117,8 +140,13 @@ struct GeoCitiesCoolText: ScriptedElement {
 		.style(GeoCitiesPage.Styles.windowBody)
 
 		// `geocities-effects.js` adds copies that twinkle over the title of the page, like the sparkle scripts of 1999, also over a logo that the visitor put there.
-		template(.id(Hooks.sparkleTemplate)) {
-			img(.src(GeoCitiesPage.GIF.sparkle.path), .alt(""), .width(60), .height(56))
+		template(.id(IDs.sparkleTemplate)) {
+			img(
+				.src(GeoCitiesPage.GIF.sparkle.path),
+				.alt(""),
+				.width(60),
+				.height(56)
+			)
 				.style(Styles.sparkle)
 		}
 	}
@@ -156,16 +184,18 @@ struct GeoCitiesCoolText: ScriptedElement {
 	*/
 	typealias States = Effect
 
-	enum Hooks: String, ScriptHookSet {
+	enum IDs: String, ScriptIDSet {
 		/**
 		The sparkle that `geocities-effects.js` copies over the title of the page.
 		*/
 		case sparkleTemplate = "geocities-cool-text-sparkle"
+	}
 
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		On the letters of a logo while they are in view, also on the copy at the top of the page, which is outside the element.
 		*/
-		case onScreen = "data-cool-text-on-screen"
+		case onScreen = "cool-text-on-screen"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -185,9 +215,9 @@ struct GeoCitiesCoolText: ScriptedElement {
 			case .fieldset:
 				Style()
 					.frame(width: .percent(100))
-					.margin(0)
-					.padding(0)
-					.border(.transparent, width: 0)
+					.margin(.zero)
+					.padding(.zero)
+					.border(.transparent, width: .zero)
 			case .effects:
 				Style()
 					.grid(minimumColumnWidth: .rootEm(7))
@@ -198,11 +228,11 @@ struct GeoCitiesCoolText: ScriptedElement {
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 					.descendantChecked {
-						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .inset)
 					}
 			case .radio:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.handCursor()
 			case .sparkle:
 				// A sparkle that grows, turns, and shrinks away, once. `geocities-effects.js` puts it on a letter of the title and removes it when the animation ends.
@@ -226,9 +256,14 @@ struct GeoCitiesCoolText: ScriptedElement {
 					.frame(minHeight: .rootEm(6))
 					.padding(.rootEm(0.75))
 					.background(.black)
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
 					.textAlign(.center)
-					.fluidFontSize(fromRem: 2, toRem: 3.25, between: .phone, and: .tablet)
+					.fluidFontSize(
+						fromRem: 2,
+						toRem: 3.25,
+						between: .phone,
+						and: .tablet
+					)
 					.lineHeight(1.2)
 					.overflowWrap(.anywhere)
 			case .letters:
@@ -243,8 +278,8 @@ struct GeoCitiesCoolText: ScriptedElement {
 					}
 					.when(Effect.fire) {
 						$0
-							.color(Color("#ffee66"))
-							.textShadow(Shadow(y: .pixels(-2), blur: .pixels(4), color: Color("#ffcc00")), Shadow(y: .pixels(-6), blur: .pixels(10), color: Color("#ff6600")), Shadow(y: .pixels(-12), blur: .pixels(18), color: Color("#cc0000")))
+							.color(Color(raw: "#ffee66"))
+							.textShadow(Shadow(y: .pixels(-2), blur: .pixels(4), color: Color(raw: "#ffcc00")), Shadow(y: .pixels(-6), blur: .pixels(10), color: Color(raw: "#ff6600")), Shadow(y: .pixels(-12), blur: .pixels(18), color: Color(raw: "#cc0000")))
 							// The flames move only while the script sees them in view, as an animated shadow costs the whole page a layout on each frame.
 							.when(Hooks.onScreen) {
 								$0.animation(Animations.fire, .easeInOut(duration: .milliseconds(180)).repeatForever())
@@ -253,18 +288,27 @@ struct GeoCitiesCoolText: ScriptedElement {
 					.when(Effect.neon) {
 						$0
 							.fontFamily(GeoCitiesPage.comicSans)
-							.color(Color("#ffe0ff"))
-							.textShadow(Shadow(y: 0, blur: .pixels(4), color: Color("#ff66ff")), Shadow(y: 0, blur: .pixels(12), color: Color("#ff00cc")), Shadow(y: 0, blur: .pixels(24), color: Color("#ff00cc")))
+							.color(Color(raw: "#ffe0ff"))
+							.textShadow(Shadow(y: .zero, blur: .pixels(4), color: Color(raw: "#ff66ff")), Shadow(y: .zero, blur: .pixels(12), color: Color(raw: "#ff00cc")), Shadow(y: .zero, blur: .pixels(24), color: Color(raw: "#ff00cc")))
 							.animation(Animations.neon, .linear(duration: .seconds(3)).repeatForever(autoreverses: false))
 					}
 					// Shiny metal, with a light top, a dark line in the middle, and a blue shadow, like the chrome logos of 1999. Each letter clips the metal to itself, as Safari does not paint the letters of its children through the clip of the parent. The metal is bright, so it shows on the black box.
 					.when(Effect.chrome) {
 						$0.children("*") {
 							$0
-								.backgroundImage(.linearGradient("to bottom", Color("#ffffff"), Color("#dde3ee"), Color("#8f9bb0"), Color("#ffffff"), Color("#b8c2d4")))
+								.backgroundImage(
+									.linearGradient(
+										.toBottom,
+										Color(raw: "#ffffff"),
+										Color(raw: "#dde3ee"),
+										Color(raw: "#8f9bb0"),
+										Color(raw: "#ffffff"),
+										Color(raw: "#b8c2d4")
+									)
+								)
 								.backgroundClip(.text)
 								.color(.transparent)
-								.filter(.dropShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#3366ff"))))
+								.filter(.dropShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#3366ff"))))
 						}
 					}
 					.when(Effect.rainbow) {
@@ -272,16 +316,16 @@ struct GeoCitiesCoolText: ScriptedElement {
 					}
 					.when(Effect.wavy) {
 						$0
-							.color(Color("#66ffff"))
-							.textShadow(Shadow(x: .pixels(3), y: .pixels(3), color: Color("#0000cc")))
+							.color(Color(raw: "#66ffff"))
+							.textShadow(Shadow(x: .pixels(3), y: .pixels(3), color: Color(raw: "#0000cc")))
 							.children("span") {
 								$0.animation(Animations.wave, .easeInOut(duration: .milliseconds(600)).repeatForever())
 							}
 					}
 					.when(Effect.earthquake) {
 						$0
-							.color(Color("#ff9933"))
-							.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#663300")))
+							.color(Color(raw: "#ff9933"))
+							.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#663300")))
 							.children("span") {
 								$0.animation(Animations.quake, .linear(duration: .milliseconds(120)).repeatForever())
 							}
@@ -290,19 +334,19 @@ struct GeoCitiesCoolText: ScriptedElement {
 						$0
 							.fontFamily(GeoCitiesPage.courier)
 							.fontWeight(.bold)
-							.color(Color("#33ff66"))
+							.color(Color(raw: "#33ff66"))
 							.after {
 								$0
 									.content("_")
-									.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
+									.animation(GeoCitiesPage.Animations.blink, .steps(1, duration: .seconds(1)).repeatForever(autoreverses: false))
 							}
 					}
 					.when(Effect.blink) {
 						$0
 							.fontFamily(GeoCitiesPage.times)
 							.fontWeight(.bold)
-							.color(Color("#ffff00"))
-							.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .seconds(1)).repeatForever(autoreverses: false))
+							.color(Color(raw: "#ffff00"))
+							.animation(GeoCitiesPage.Animations.blink, .steps(1, duration: .seconds(1)).repeatForever(autoreverses: false))
 					}
 			}
 		}
@@ -319,7 +363,7 @@ struct GeoCitiesCoolText: ScriptedElement {
 			switch self {
 			case .fire:
 				// The flames get taller and shorter.
-				[.to(Style().textShadow(Shadow(y: .pixels(-3), blur: .pixels(5), color: Color("#ffdd00")), Shadow(y: .pixels(-9), blur: .pixels(14), color: Color("#ff7700")), Shadow(y: .pixels(-16), blur: .pixels(24), color: Color("#dd0000"))))]
+				[.to(Style().textShadow(Shadow(y: .pixels(-3), blur: .pixels(5), color: Color(raw: "#ffdd00")), Shadow(y: .pixels(-9), blur: .pixels(14), color: Color(raw: "#ff7700")), Shadow(y: .pixels(-16), blur: .pixels(24), color: Color(raw: "#dd0000"))))]
 			case .neon:
 				// Mostly on, with a quick stutter now and then, like an old tube. Never more than two flashes a second.
 				[

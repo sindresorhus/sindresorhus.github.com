@@ -13,42 +13,90 @@ struct FeedbackPage: Page {
 	*/
 	let faq: MarkdownPage?
 
+	/**
+	For the photo on the card of the page.
+	*/
+	let project: Project
+
 	var path: RoutePath {
 		.feedback
+	}
+
+	var socialImage: SocialImage {
+		.card(OpenGraphCard(page: self, project: project))
 	}
 
 	var metadata: PageMetadata {
 		PageMetadata(
 			title: "Feedback & Support",
 			description: "Send feedback, report a bug, or get support for apps by Sindre Sorhus.",
-			preconnectOrigins: [#URL("https://formcarry.com")]
+			preconnectOrigins: [SiteOrigin(#URL("https://formcarry.com"))]
 		)
 	}
 
-	var body: some HTML {
-		div(.id(Hooks.main)) {
-			// With a selected app, its icon is next to its name and the title, like a heading for the app.
-			div {
-				// `feedback.js` sets and shows the icon of the selected app.
-				img(.id(Hooks.appIcon), .alt(""), .width(128), .height(128), .hidden)
-					.style(Styles.appIcon)
+	/**
+	A classic script in the head marks the page when the URL selects an app, before the body is parsed, so the browser does not show the picker or load its icons. It also marks the page after a send (`?success`, where Formcarry sends the visitor back), so the page shows the message and not the picker, and it notes the send for the form, which empties itself when Back brings it back (`feedback.js`). `feedback.js` is a module, which runs only after the whole page is parsed.
+	*/
+	var head: some HTML {
+		script {
+			HTMLRaw(#"""
+			if (location.search === '?success') {
+				document.documentElement.setAttribute('\#(Hooks.sent.attributeName)', '');
 
-				div {
-					// `feedback.js` shows the name of the selected app above the title.
-					p(.id(Hooks.productName), .hidden) {}
-						.style(Styles.productName)
-
-					PageHeader(title: "Feedback & Support")
+				try {
+					sessionStorage.setItem('feedback-sent', '');
+				} catch {
+					// Without storage, the form keeps its text after Back.
 				}
-				.style(Styles.headerText)
+			} else if (new URLSearchParams(location.search).get('product')) {
+				document.documentElement.setAttribute('\#(Hooks.hasProduct.attributeName)', '');
 			}
-			.style(Styles.header)
+			"""#)
+		}
+	}
 
-			// Without a selected app, the app is picked first, so the message says which app it is about. `feedback.js` hides the picker and shows the form when an app is selected.
+	var body: some HTML {
+		div {
+			// With a selected app, `feedback.js` shows its icon next to its name and the title, like a heading for the app. The link to pick another app goes to the picker, and `feedback.js` keeps the other parameters of the URL in it.
+			AppHeader.selectedByScript(title: "Feedback & Support") {
+				a(.id(IDs.changeAppLink), .href(.feedback), .hidden) {
+					"Change App"
+				}
+				.style {
+					$0.moreLink()
+				}
+			}
+			// The space below the title of the other pages.
+			.style {
+				$0
+					.margin(.bottom, .rootEm(2.5))
+					.when(ancestorHas: Hooks.sent) {
+						$0.hidden()
+					}
+			}
+
+			// After a send, in place of the title of the form, which it hides, so its `<h2>` follows the `<h1>`. In the HTML, so it shows as soon as the page does, not after `feedback.js`, which only goes to the apps page after a while.
+			FeedbackSuccess()
+				.style {
+					$0
+						.hidden()
+						.when(ancestorHas: Hooks.sent) {
+							$0.display(.flex)
+						}
+				}
+
+			// Without a selected app, the app is picked first, so the message says which app it is about. The script in the head marks the page when an app is selected, and the styles hide the picker and show the form.
+			// Without JavaScript, the picker shows, but not the form, so the note is above the picker, where it is seen. Not in the prose, so it lines up with the picker, and the address does not break with a hyphen.
+			// A warning alert with a title that says what is wrong, not only “WARNING”. The text only has a link, so it uses no styles or scripts of the Markdown that the page would need to add.
+			div {
+				HTMLRaw(MarkdownTheme.site.alert(.warning, title: "JavaScript is off", contentHTML: MarkdownDocument(parsing: "The form needs JavaScript. Turn it on and reload the page, or email [\(Site.author.email)](mailto:\(Site.author.email)) and say which app it is about. With a content blocker, allow the scripts of this site.", options: .site).html))
+			}
+			.style(Styles.scriptingNotice)
+
 			appPicker
 
-			// The notes for the selected app. `feedback.js` shows them when an app is selected.
-			section(.id(Hooks.beforeYouWrite), .hidden) {
+			// The notes for the selected app. The styles show them when `feedback.js` has added the app, like the form.
+			section {
 				// In the prose, so it lines up with the notes.
 				div {
 					h2 {
@@ -57,7 +105,7 @@ struct FeedbackPage: Page {
 					.style(Styles.notesTitle)
 
 					// `feedback.js` adds the help for the selected app.
-					div(.id(Hooks.additionalInformation)) {}
+					div(.id(IDs.additionalInformation)) {}
 
 					ul {
 						li {
@@ -79,14 +127,17 @@ struct FeedbackPage: Page {
 				}
 				.style(ProseStyles.root, Styles.notesContent)
 			}
-			.style(Styles.notes)
+			.style(Styles.notes, Styles.shownWithSelectedApp)
 
-			p {
-				"JavaScript is required for this form to work correctly. If you have a content blocker, you may need to allow scripts from this site."
-			}
-			.style(Styles.scriptingNotice)
-
-			form(.id(Hooks.form), .action("https://formcarry.com/s/UBfgr97yfY"), .method(.post), .enctype(.multipartFormData), .hidden) {
+			form(
+				.id(IDs.form),
+				.action("https://formcarry.com/s/UBfgr97yfY"),
+				.method(.post),
+				.enctype(.multipartFormData),
+				// The declarative WebMCP API of Chrome (an origin trial) lets an AI agent fill the form as a tool. Without `toolautosubmit`, the visitor still sends it.
+				.custom(name: "toolname", value: "sendFeedback"),
+				.custom(name: "tooldescription", value: "Send feedback, a bug report, or a question about an app to the developer, Sindre Sorhus. The visitor reviews the message and sends it.")
+			) {
 				input(.type(.hidden), .name("_gotcha"))
 				messageField
 				emailField
@@ -94,8 +145,8 @@ struct FeedbackPage: Page {
 				input(.type(.hidden), .name("g-recaptcha-response"))
 
 				div {
-					// The two labels share one grid cell, so the button keeps its width while it sends.
-					button(.id(Hooks.submitButton), .type(.submit)) {
+					// The two labels share one grid cell, so the button keeps its width while it sends. It is disabled until `feedback.js` has added the app and the other hidden fields, so a form that shows before the script runs, or without it, is not sent without them.
+					button(.id(IDs.submitButton), .type(.submit), .disabled) {
 						span {
 							span {
 								"Send Feedback"
@@ -113,35 +164,55 @@ struct FeedbackPage: Page {
 					.style(Styles.submit)
 
 					p {
-						"If you haven’t received a reply for two weeks, check your spam folder. When you get a reply, respond in that email thread instead of sending a new message."
+						"If you haven’t received a reply within \(Site.supportReplyTime), check your spam folder. When you get a reply, respond in that email thread instead of sending a new message."
 					}
 					.style(Styles.fineprint)
 				}
 				.style(Styles.actions)
 			}
-			.style(Styles.form)
+			.style(Styles.form, Styles.shownWithSelectedApp)
 		}
 		.style(Styles.root)
 
 		templates
 
-		JSONScript(id: Hooks.data, FeedbackData(apps: apps))
-		ModuleScript("/scripts/feedback.js")
+		JSONScript(id: IDs.data, FeedbackData(apps: apps))
+		// After the form, so the browser shows the fields below the message before it has the large data of the questions, which the suggestions only read when the visitor starts to type.
+		FAQSuggestions.Questions(apps: apps, faq: faq)
+		ModuleScript(#path("/scripts/feedback.js"))
 	}
 
 	/**
-	The apps to pick from, by name, each a link to the form for the app.
+	The apps to pick from, by name, each a link to the form for the app. Not the unlisted apps, like an app before its launch, which the picker would announce. Their form still works with `?product=`, like for App Review.
 	*/
 	private var appPicker: some HTML {
-		section(.id(Hooks.appPicker)) {
+		section(.id(IDs.appPicker)) {
 			h2 {
 				"Which app is it about?"
 			}
 			.style(Styles.appPickerTitle)
 
+			// `feedback.js` hides the apps whose name and subtitle do not have the text, and Enter opens the first app. Without JavaScript, there is no filter.
+			input(
+				.id(IDs.appFilter),
+				.type(.search),
+				.placeholder("Filter apps"),
+				.autocomplete("off"),
+				.enterKeyHint(.go),
+				.spellcheck(false)
+			)
+			.accessibilityLabel("Filter apps")
+			.style(FormFieldStyles.control)
+			// On the element, so it wins over the display of the field.
+			.style {
+				$0
+					.margin(.bottom, .rootEm(1))
+					.hiddenWithoutScripting()
+			}
+
 			ul {
-				for app in apps.sorted(using: KeyPathComparator(\.title, comparator: .localizedStandard)) {
-					li {
+				for app in apps.filter(\.isListed).sorted(using: KeyPathComparator(\.title, comparator: .localizedStandard)) {
+					li(.hook(Hooks.appFilterText, value: "\(app.title) \(app.subtitle)")) {
 						a(.href(App.feedbackURL(appTitle: app.title, referrer: .appPicker))) {
 							AppIcon(decorative: app, size: 32)
 
@@ -155,6 +226,17 @@ struct FeedbackPage: Page {
 			}
 			.style(Styles.appPickerList)
 
+			// `feedback.js` says when no app matches the filter. A polite live region that is always on the page, so screen readers announce the text without interrupting the typing.
+			p(.id(IDs.appFilterStatus), .role("status")) {}
+				.style {
+					$0
+						.margin(.bottom, .rootEm(1.5))
+						.empty {
+							$0.margin(.zero)
+						}
+						.color(.secondaryText)
+				}
+
 			p {
 				"Not about an app? See "
 				a(.href(.contact)) {
@@ -164,36 +246,57 @@ struct FeedbackPage: Page {
 			}
 			.style(Styles.appNotice)
 		}
+		.style {
+			$0
+				.when(ancestorHas: Hooks.hasProduct) {
+					$0.hidden()
+				}
+				.when(ancestorHas: Hooks.sent) {
+					$0.hidden()
+				}
+		}
 	}
 
 	private var messageField: some HTML {
-		FormField(label: "Message", controlID: "message", errorMessage: "Write at least 20 characters.") {
+		FormField(label: "Message", controlID: ElementID("message"), errorMessage: "Write at least 20 characters.") {
 			textarea(
-				.id("message"),
 				.placeholder("I’m a human. Please be nice."),
 				.name("message"),
 				.minlength(20),
-				.rows(7),
+				.rows(4),
 				.required,
-				.ariaDescribedBy("message-error"),
-				.custom(name: "autocapitalize", value: "sentences"),
+				.custom(name: "toolparamdescription", value: "The message, in the language of the visitor. Include the steps to reproduce a bug."),
+				.autocapitalize(.sentences),
 				// Right-to-left messages, like Arabic, show in their own direction.
 				.dir(.auto)
 			) {}
-			.style(FormFieldStyles.control, Styles.message)
-
-			FAQSuggestions(messageID: "message", questions: FAQSuggestions.Questions(apps: apps, faq: faq))
-				.attributes(.id(Hooks.faqSuggestions))
+			.style(Styles.message)
+		} accessory: {
+			FAQSuggestions(messageID: ElementID("message"))
+				.attributes(.id(IDs.faqSuggestions))
 		}
 	}
 
 	private var emailField: some HTML {
-		FormField(label: "Email", controlID: "email", hint: "Only used for replying to you", errorMessage: "Enter a valid email address.") {
-			input(.id("email"), .type(.email), .name("email"), .autocomplete("email"), .custom(name: "enterkeyhint", value: "send"), .required, .ariaDescribedBy("email-hint email-error"))
-				.style(FormFieldStyles.control)
-
+		FormField(
+			label: "Email",
+			controlID: ElementID("email"),
+			hint: "Only used for replying to you",
+			errorMessage: "Enter a valid email address.",
+			// The warning too, so a screen reader says it again when the visitor comes back to the field, as a wrong address is the one mistake that stops the reply.
+			additionalDescriptionIDs: [IDs.emailWarning.id]
+		) {
+			input(
+				.type(.email),
+				.name("email"),
+				.autocomplete("email"),
+				.custom(name: "toolparamdescription", value: "The email address of the visitor, for the reply."),
+				.enterKeyHint(.send),
+				.required
+			)
+		} accessory: {
 			// `feedback.js` fills it for likely typos, like `gmial.com`. A polite live region that is always on the page, so screen readers announce the text without interrupting the typing.
-			p(.id(Hooks.emailWarning), .role("status")) {}
+			p(.id(IDs.emailWarning), .role("status")) {}
 				.style(Styles.emailWarning)
 		}
 	}
@@ -203,20 +306,30 @@ struct FeedbackPage: Page {
 	*/
 	@ContentBuilder
 	private var templates: some HTML {
-		template(.id(Hooks.successTemplate)) {
-			FeedbackSuccess()
+		// The warning for an address with a likely typo. A click on the corrected address puts it in the field, which is easier than finding the wrong letters, especially on a phone.
+		template(.id(IDs.emailSuggestionTemplate)) {
+			span {
+				"Did you mean "
+				button(.type(.button), .hook(Hooks.suggestedEmail)) {}
+					.style {
+						$0.linkButton()
+					}
+				"?"
+			}
 		}
 
-		template(.id(Hooks.repositoryTemplate)) {
+		template(.id(IDs.repositoryTemplate)) {
 			p {
 				"If you have a GitHub account, "
-				Link("open an issue on the repo", destination: nil, opensInNewTab: true)
-					.attributes(.hook(Hooks.repositoryLink))
+				a(.hook(Hooks.repositoryLink), .target(.blank), .rel("noopener noreferrer")) {
+					"open an issue on the repo"
+					VisuallyHidden(" (opens in a new tab)")
+				}
 				" instead."
 			}
 		}
 
-		template(.id(Hooks.appFAQTemplate)) {
+		template(.id(IDs.appFAQTemplate)) {
 			p {
 				"See the "
 				a(.hook(Hooks.appFAQLink)) {
@@ -238,39 +351,65 @@ struct FeedbackPage: Page {
 
 extension FeedbackPage {
 	/**
-	The IDs and data attributes that the scripts of the page find elements by.
+	The IDs that the scripts of the page find elements by.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum IDs: String, ScriptIDSet {
 		case additionalInformation = "additional-information"
-		case appFAQLink = "data-app-faq-link"
 		case appFAQTemplate = "app-faq-template"
-		case appIcon = "app-icon"
+		case appFilter = "app-filter"
+		case appFilterStatus = "app-filter-status"
 		case appPicker = "app-picker"
-		case beforeYouWrite = "before-you-write"
+		case changeAppLink = "change-app-link"
+		case emailSuggestionTemplate = "email-suggestion-template"
 		case emailWarning = "email-warning"
 		case faqSuggestions = "faq-suggestions"
 		case data = "feedback-data"
 		case form = "feedback-form"
-		case main = "main"
-		case productName = "product-name"
-		case repositoryLink = "data-repository-link"
 		case repositoryTemplate = "repository-template"
 		case submitButton = "submit-button"
-		case successTemplate = "success-template"
+	}
+
+	/**
+	The data attributes that the scripts of the page find elements by.
+	*/
+	enum Hooks: String, ScriptDataAttributeSet {
+		case appFAQLink = "app-faq-link"
+		case appFilterText = "app-filter-text"
+		case hasProduct = "has-product"
+		case repositoryLink = "repository-link"
+
+		/**
+		On the root element after a send (`?success`), so the page shows the message and nothing else.
+		*/
+		case sent
+
+		/**
+		On the root element when `feedback.js` has added the selected app and its notes, so the notes and the form show only then, and the message field does not move down when the notes come in on a slow network.
+		*/
+		case productShown = "product-shown"
+
+		case suggestedEmail = "suggested-email"
+	}
+
+	/**
+	The states that `feedback.js` sets.
+	*/
+	enum States: String, ElementStateSet {
+		/**
+		The submit button while the form sends.
+		*/
+		case sending
 	}
 
 	enum Styles: StyleSet {
 		case root
-		case header
-		case headerText
-		case appIcon
-		case productName
 		case appPickerTitle
 		case appPickerList
 		case appPickerLink
 		case appNotice
 		case notes
 		case notesTitle
+		case shownWithSelectedApp
 		case notesContent
 		case scriptingNotice
 		case form
@@ -286,47 +425,26 @@ extension FeedbackPage {
 		var style: Style {
 			switch self {
 			case .root:
-				// The column of prose pages, so the title lines up with theirs.
+				// The column of prose pages, so the title lines up with theirs. While the page waits for `feedback.js` to show the form of the selected app, it keeps the height of the screen, so the footer does not show and then move down.
 				Style()
 					.vstack()
 					.contentColumn(.prose)
 					.pagePadding()
-					.from(.tablet) {
+					.when(ancestorHas: Hooks.hasProduct) {
 						$0.frame(minHeight: .smallViewportHeight(100))
 					}
-			case .header:
-				// The space below the title of the other pages.
-				Style()
-					.hstack(alignment: .center, spacing: .rootEm(1.25))
-					.margin(.bottom, .rootEm(2.5))
-			case .headerText:
-				Style().frame(minWidth: 0)
-			case .appIcon:
-				// About as tall as the name and the title next to it.
-				Style()
-					.frame(width: .rootEm(5.5), height: .rootEm(5.5), minWidth: .rootEm(5.5))
-					.below(.smallTablet) {
-						$0.frame(width: .rootEm(4), height: .rootEm(4), minWidth: .rootEm(4))
+					.when(ancestorHas: Hooks.productShown) {
+						$0.frame(minHeight: .auto)
 					}
-			case .productName:
-				// Above the title, like the date of a blog post.
-				Style()
-					.margin(.bottom, .rootEm(0.25))
-					.textStyle(.body, weight: .semibold)
-					.color(.secondaryText)
 			case .appPickerTitle:
 				Style()
 					.margin(.bottom, .rootEm(1))
 					.textStyle(.headline)
 			case .appPickerList:
-				// Two columns on phones, and three from small tablets.
+				// Up to three columns, and fewer when a name does not fit, like with large text: two on phones, and three from small tablets.
 				Style()
-					.grid(columns: 2)
-					.gap(.rootEm(0.5))
+					.grid(minimumColumnWidth: .rootEm(9), maximumColumns: 3, spacing: .rootEm(0.5))
 					.margin(.bottom, .rootEm(1.5))
-					.from(.smallTablet) {
-						$0.gridColumns(3)
-					}
 			case .appPickerLink:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.75))
@@ -349,6 +467,13 @@ extension FeedbackPage {
 					.padding(.vertical, .rootEm(1.25))
 					.border(.separator)
 					.cornerRadius(.fieldRadius)
+			case .shownWithSelectedApp:
+				// The notes and the form show when `feedback.js` has added the app and its notes above the form. Before, on a slow network, the form would show first and then move down by the height of the notes while the visitor types. Without JavaScript, they stay hidden, and the notice shows instead.
+				Style()
+					.hidden()
+					.when(ancestorHas: Hooks.productShown) {
+						$0.display(.block)
+					}
 			case .notesTitle:
 				Style()
 					.margin(.bottom, .rootEm(0.5))
@@ -361,24 +486,24 @@ extension FeedbackPage {
 				// Only shown when JavaScript is turned off.
 				Style()
 					.shownOnlyWithoutScripting()
-					.margin(.top, .rootEm(1.5))
-					.textAlign(.center)
-					.font(.extraLarge2)
+					.margin(.bottom, .rootEm(2))
+					// It is not in the prose, which underlines the links.
+					.textLinks()
 			case .form:
 				// The native controls, like the file picker, get the brand color.
 				Style()
 					.margin(.top, .rootEm(2))
 					.accentColor(.primary(600))
 			case .message:
-				// Grows with the text. The minimum height keeps seven lines, as the empty field would otherwise shrink to one line.
+				// Grows with the text. The minimum height keeps four lines, as the empty field would otherwise shrink to one line. Not more, so on a phone, the related help below it shows above the keyboard.
 				Style()
 					.fieldSizing(.content)
-					.frame(minHeight: .lineHeight(7) + .rootEm(1.25) + .pixels(2))
+					.frame(minHeight: .length(.lineHeight(4) + .rootEm(1.25) + .pixels(2)))
 			case .emailWarning:
 				Style()
 					.margin(.top, .rootEm(0.375))
 					.empty {
-						$0.margin(0)
+						$0.margin(.zero)
 					}
 					.textStyle(.caption)
 					// Dark enough to read on white, like the stars on the about page.
@@ -393,7 +518,7 @@ extension FeedbackPage {
 							.gap(.rootEm(1.25))
 					}
 			case .submit:
-				// The disabled button, while the form sends, shows the second label.
+				// The button is disabled until the script runs, and while the form sends, when it shows the second label.
 				Style()
 					.flexShrink(0)
 					.frame(width: .percent(100))
@@ -411,19 +536,20 @@ extension FeedbackPage {
 			case .submitLabel:
 				Style()
 					.stackedInGrid()
-					.ancestorDisabled {
+					.when(ancestorHas: States.sending) {
 						$0.visibility(false)
 					}
 			case .sendingLabel:
 				Style()
 					.stackedInGrid()
 					.visibility(false)
-					.ancestorDisabled {
+					.when(ancestorHas: States.sending) {
 						$0.visibility(true)
 					}
 			case .fineprint:
 				Style()
 					.secondaryText(.extraSmall)
+					.textLinks()
 					.textAlign(.center)
 					.from(.smallTablet) {
 						$0.textAlign(.leading)

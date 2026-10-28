@@ -3,6 +3,23 @@ import Testing
 
 struct EscapingTests {
 	@Test
+	func `empty collections become nil without trimming their elements`() {
+		let empty: [Int] = []
+		#expect(empty.nilIfEmpty == nil)
+		#expect([1, 2].nilIfEmpty == [1, 2])
+		#expect("".nilIfEmpty == nil)
+		#expect(" ".nilIfEmpty == " ")
+		#expect("text".nilIfEmpty == "text")
+	}
+
+	@Test
+	func `Windows line normalization preserves lone CR and trailing newlines`() {
+		#expect("a\r\nb\rc\n".normalizingWindowsLineEndings == "a\nb\rc\n")
+		#expect("".normalizingWindowsLineEndings == "")
+		#expect("a\nb\n".normalizingWindowsLineEndings == "a\nb\n")
+	}
+
+	@Test
 	func `text is escaped, and text without special characters stays the same`() {
 		#expect(#"Tom & “Jerry” <3 "quoted" >"#.escapedForHTML == "Tom &amp; “Jerry” &lt;3 &quot;quoted&quot; &gt;")
 		#expect("&amp;".escapedForHTML == "&amp;amp;")

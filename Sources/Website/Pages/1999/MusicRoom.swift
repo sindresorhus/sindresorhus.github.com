@@ -29,7 +29,7 @@ struct GeoCitiesMusicRoom: HTML {
 		GeoCitiesPage.Deferred(GeoCitiesDJBooth(project: project))
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum IDs: String, ScriptIDSet {
 		/**
 		The ID of the mixer, which the “Music Room” button of the site map jumps to.
 		*/
@@ -45,14 +45,24 @@ struct GeoCitiesMusicRoom: HTML {
 		let project: Project
 
 		var rootAttributes: [HTMLAttribute<ElementTag<Self>>] {
-			[.id(GeoCitiesMusicRoom.Hooks.root)]
+			[.id(GeoCitiesMusicRoom.IDs.root)]
 		}
 
 		var content: some HTML {
 			h2 {
-				GeoCitiesPage.GIFImage(gif: .speakerNotes, alt: "", style: .gif, project: project)
+				GeoCitiesPage.GIFImage(
+					gif: .speakerNotes,
+					alt: "",
+					style: .gif,
+					project: project
+				)
 				" Sindre’s Music Room "
-				GeoCitiesPage.GIFImage(gif: .speakerNotes, alt: "", style: .gif, project: project)
+				GeoCitiesPage.GIFImage(
+					gif: .speakerNotes,
+					alt: "",
+					style: .gif,
+					project: project
+				)
 			}
 			.style(Styles.title)
 
@@ -126,16 +136,16 @@ struct GeoCitiesMusicRoom: HTML {
 			case stopAll
 		}
 
-		enum Hooks: String, ScriptHookSet {
+		enum Hooks: String, ScriptDataAttributeSet {
 			/**
 			A button that plays the test sound in one speaker, `left` or `right`.
 			*/
-			case speaker = "data-music-speaker"
+			case speaker = "music-speaker"
 
 			/**
 			An answer to “Did you hear it?”, `yes` or `no`.
 			*/
-			case answer = "data-music-answer"
+			case answer = "music-answer"
 		}
 
 		enum Styles: ElementStyleSet {
@@ -154,8 +164,8 @@ struct GeoCitiesMusicRoom: HTML {
 						.textAlign(.center)
 						.fontFamily(GeoCitiesPage.impact)
 						.font(.extraLarge3)
-						.color(Color("#6600cc"))
-						.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#ffcc00")))
+						.color(Color(raw: "#6600cc"))
+						.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#ffcc00")))
 				case .mixer:
 					Style()
 						.frame(maxWidth: .rootEm(30))
@@ -164,7 +174,7 @@ struct GeoCitiesMusicRoom: HTML {
 					Style()
 						.frame(minHeight: .lineHeight(1))
 						.fontWeight(.bold)
-						.color(Color("#000080"))
+						.color(Color(raw: "#000080"))
 				}
 			}
 		}
@@ -181,17 +191,24 @@ struct GeoCitiesMusicVolume: HTML {
 				"🔊 Volume"
 			}
 
-			input(.type(.range), .min(0), .max(100), .step(1), .value("30"), .hook(Hooks.volume))
+			input(
+				.type(.range),
+				.min(0),
+				.max(100),
+				.step(1),
+				.value("30"),
+				.hook(Hooks.volume)
+			)
 				.style(Styles.slider)
 		}
 		.style(Styles.volume)
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A volume slider, from 0 to 100.
 		*/
-		case volume = "data-music-volume"
+		case volume = "music-volume"
 	}
 
 	enum Styles: StyleSet {
@@ -207,7 +224,7 @@ struct GeoCitiesMusicVolume: HTML {
 					.textStyle(.caption, weight: .bold)
 			case .slider:
 				Style()
-					.frame(width: .rootEm(8), minWidth: 0)
+					.frame(width: .rootEm(8), minWidth: .zero)
 					.flexShrink(1)
 					.handCursor()
 			}

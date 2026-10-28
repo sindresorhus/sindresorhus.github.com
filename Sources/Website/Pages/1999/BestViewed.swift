@@ -33,13 +33,23 @@ struct GeoCitiesBestViewed: ScriptedElement {
 			"…all of these! Press a button to see my page the way it was meant to be seen."
 		}
 
-		GeoCitiesPage.GIFImage(gif: .dividerArrows, alt: "", style: .centered, project: project)
+		GeoCitiesPage.GIFImage(
+			gif: .dividerArrows,
+			alt: "",
+			style: .centered,
+			project: project
+		)
 
 		ul {
 			for (index, view) in Self.views.enumerated() {
 				li {
 					button(.type(.button), .hook(Hooks.button, value: view.id), .ariaPressed(index == 0)) {
-						GeoCitiesPage.GIFImage(gif: view.gif, alt: view.text, style: .gif, project: project)
+						GeoCitiesPage.GIFImage(
+							gif: view.gif,
+							alt: view.text,
+							style: .gif,
+							project: project
+						)
 					}
 					.style(Styles.button)
 				}
@@ -48,9 +58,19 @@ struct GeoCitiesBestViewed: ScriptedElement {
 		.style(Styles.buttons, GeoCitiesPage.Styles.scriptingOnly)
 
 		p {
-			GeoCitiesPage.GIFImage(gif: .constructionLightning, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .constructionLightning,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 			" More views coming soon: Mosaic, WebTV, and a fridge. "
-			GeoCitiesPage.GIFImage(gif: .constructionLightning, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .constructionLightning,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 		}
 		.style(GeoCitiesPage.Styles.caption)
 
@@ -70,16 +90,16 @@ struct GeoCitiesBestViewed: ScriptedElement {
 		case lynxTemplate
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The view of a button: `eyes`, `lynx`, `monitor`, `16-bit`, `3d`, `shades`, or `australia`.
 		*/
-		case button = "data-best-viewed"
+		case button = "best-viewed"
 
 		/**
 		The view on the panel of the page, like `lynx`. Normal without it.
 		*/
-		case view = "data-best-viewed-view"
+		case view = "best-viewed-view"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -96,7 +116,7 @@ struct GeoCitiesBestViewed: ScriptedElement {
 				Style()
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
 					.flexWrap()
-					.padding(.leading, 0)
+					.padding(.leading, .zero)
 			case .button:
 				// Only the button image, which is pressed in while its view is on.
 				Style()
@@ -107,12 +127,12 @@ struct GeoCitiesBestViewed: ScriptedElement {
 					.lineHeight(0)
 					.handCursor()
 					.hover {
-						$0.border(Color("#000080"), width: .pixels(2), style: .dotted)
+						$0.border(Color(raw: "#000080"), width: .pixels(2), style: .dotted)
 					}
 					.pressed {
 						$0
-							.background(Color("#ffff00"))
-							.border(Color("#808080"), width: .pixels(2), style: .inset)
+							.background(Color(raw: "#ffff00"))
+							.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					}
 			case .lynxImage:
 				// The text of an image in brackets, like `[INLINE]` in Lynx.

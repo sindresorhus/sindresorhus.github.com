@@ -64,9 +64,9 @@ A custom element is inline by default, so the root style sets the display. A sma
 public protocol ScriptedElement: HTML, SendableMetatype {
 	associatedtype Content: HTML
 	associatedtype Styles: ElementStyleSet
-	associatedtype Parts: ElementPartSet = NoElementParts
-	associatedtype States: ElementStateSet = NoElementStates
-	associatedtype Config: Encodable = Never?
+	associatedtype Parts: ElementPartSet = NoElementValues
+	associatedtype States: ElementStateSet = NoElementValues
+	associatedtype Config: Encodable = Never
 
 	/**
 	The script of the element, in the `Scripts` folder next to the Swift file: `static let script = ElementScript()`.
@@ -80,16 +80,16 @@ public protocol ScriptedElement: HTML, SendableMetatype {
 	var content: Content { get }
 
 	/**
-	Values for the script, which it reads as `this.config`, like the size of a board that the markup uses too. The element has none by default.
+	Values for the script, which it reads as `this.config`, like the size of a board that the markup uses too. The element has none by default. Return `nil` to omit the attribute; a present configuration is encoded as it is, including an explicit JSON null.
 	*/
-	var config: Config { get }
+	var config: Config? { get }
 
 	/**
 	More attributes of the element itself, like an `id` that links on the page jump to, a `tabindex`, or a `role` and an `aria-label` for the element that was a `section` before. The element has none by default. A class is added to the class of the root style, and `data-config` is for ``config``.
 
 	```swift
 	var rootAttributes: [HTMLAttribute<ElementTag<Self>>] {
-		[.id("feed"), .role("region"), .ariaLabelledBy("feed-title")]
+		[.id("feed"), .role("region"), .ariaLabelledBy(ElementID("feed-title"))]
 	}
 	```
 
@@ -98,7 +98,7 @@ public protocol ScriptedElement: HTML, SendableMetatype {
 	var rootAttributes: [HTMLAttribute<ElementTag<Self>>] { get }
 }
 
-extension ScriptedElement where Config == Never? {
+extension ScriptedElement where Config == Never {
 	public var config: Never? {
 		nil
 	}
@@ -130,8 +130,11 @@ extension ScriptedElement {
 	*/
 	private var configJSON: String? {
 		// Encoding a config of plain values only fails for a mistake, like a `Double.nan`, which stops the build, like in ``JSONScript``, so the script never runs without its config.
-		let json = JSONEncoder.pageJSON(config)
-		return json == "null" ? nil : json
+		guard let config else {
+			return nil
+		}
+
+		return JSONEncoder.pageJSON(config)
 	}
 
 	/**
@@ -141,7 +144,9 @@ extension ScriptedElement {
 	*/
 	public static var tagName: String {
 		cached(for: Self.self) {
-			typePath(of: Self.self).joined().kebabCased
+			let name = typePath(of: Self.self).joined().kebabCased
+			precondition(name.isSupportedCustomElementName, "A custom element name must start with a lowercase ASCII letter, contain a hyphen, and not be a reserved HTML name: \(name)")
+			return name
 		}
 	}
 
@@ -194,7 +199,7 @@ public struct ElementScript: Sendable {
 	The path that the build publishes a script file at, like `/scripts/elements/Clock.js` for `Scripts/Clock.js` (``Project/elementScripts()``).
 	*/
 	static func publishedPath(of file: URL) -> RoutePath {
-		RoutePath("/scripts/elements").appending(file.lastPathComponent)
+		#path("/scripts/elements").appending(file.lastPathComponent)
 	}
 
 	/**
@@ -219,6 +224,7 @@ public struct ElementScript: Sendable {
 	The page writes it in a `<script>` element as it is, so it must not contain `</script`.
 	*/
 	public init(inline source: String) {
+		precondition(!source.lowercased().contains("</script"), "An inline element script must not contain </script, in any letter case.")
 		self.location = .inline(source)
 	}
 
@@ -291,9 +297,9 @@ Use parts instead of IDs. Only use an ID where HTML needs one, like for `label(f
 public protocol ElementPartSet: RawRepresentable<String>, CaseIterable, Sendable {}
 
 /**
-The parts of an element without parts.
+The parts of an element without parts, and the states of an element without states.
 */
-public enum NoElementParts: ElementPartSet {
+public enum NoElementValues: ElementPartSet, ElementStateSet {
 	public init?(rawValue: String) {
 		nil
 	}
@@ -317,20 +323,7 @@ extension ElementStateSet {
 	The attribute selector of the state, like `[data-state="copied"]`, for a selector that a style builds itself, like `&:has(> [data-state="copied"])`.
 	*/
 	public var selector: CSSSelector {
-		"[data-state=\"\(raw: rawValue)\"]"
-	}
-}
-
-/**
-The states of an element without states.
-*/
-public enum NoElementStates: ElementStateSet {
-	public init?(rawValue: String) {
-		nil
-	}
-
-	public var rawValue: String {
-		switch self {}
+		.attribute("data-state", value: rawValue)
 	}
 }
 
@@ -347,5 +340,20 @@ extension HTMLAttribute where Tag: HTMLTrait.Attributes.Global {
 	*/
 	public static func state(_ state: some ElementStateSet) -> Self {
 		.custom(name: "data-state", value: state.rawValue)
+	}
+}
+
+/**
+The simple ASCII spelling supported by generated autonomous custom-element names, excluding the reserved names in HTML.
+*/
+extension String {
+	fileprivate var isSupportedCustomElementName: Bool {
+		let reserved = ["annotation-xml", "color-profile", "font-face", "font-face-src", "font-face-uri", "font-face-format", "font-face-name", "missing-glyph"]
+		let isLowercaseLetter = { (byte: UInt8) in (97...122).contains(byte) }
+		guard let firstByte = utf8.first else {
+			return false
+		}
+
+		return isLowercaseLetter(firstByte) && contains("-") && utf8.allSatisfy { isLowercaseLetter($0) || $0.isASCIIDigit || $0 == 45 || $0 == 95 || $0 == 46 } && !reserved.contains(self)
 	}
 }

@@ -2,29 +2,38 @@
 title: 'Supercharge'
 subtitle: 'Elevate your Mac experience'
 description: 'Dozens of fixes for macOS: cut and paste files in Finder, close apps in Mission Control, make the green button fill the window, and more. Each one is opt-in.'
-publicationDate: '2024-09-29'
-isFeatured: true
+publicationDate: 2024-09-29
 platforms: [
 	'macOS'
 ]
-isPaid: true
-price: 20
 isMenuBarApp: true
-hasSentry: true
 setappID: 742
+gumroad: {
+	id: 'supercharge'
+	price: 20
+}
+releasesRepository: 'sindresorhus/supercharge-meta'
+downloadCount: 13000
+hasSentry: true
+announcement: {
+	text: 'Save 30% with the Power User Bundle: Default Browser, Shortcutie, and Supercharge'
+	link: {
+		url: 'https://sindresorhus.gumroad.com/l/power-user'
+		text: 'Get the Bundle'
+	}
+}
 sharedQuestions: [
 	'not-in-app-store'
 	'menu-bar-icons'
+	'why-cut-and-paste'
 ]
-releasesRepository: 'sindresorhus/supercharge-meta'
-gumroadID: 'supercharge'
-minimumOSVersion: 26
-downloads: 13000
-announcement: {
-	text: 'Save 28% with the Power User Bundle: Default Browser, Shortcutie, and Supercharge'
-	url: 'https://sindresorhus.gumroad.com/l/power-user'
-	linkText: 'Get the Bundle'
-}
+olderVersions: [
+	{
+		version: '1.26.0'
+		macOS: '15'
+		url: 'https://www.dropbox.com/scl/fi/ih52hpepe7ksavzdtsjvl/Supercharge-1.26-0-macOS-15-1777112330.zip?rlkey=1oslvlblu593qi23hs35hpusb&raw=1'
+	}
+]
 pressQuotes: [
 	{
 		quote: 'Ultimately, though, Supercharge’s utility isn’t any one of its features; it’s the collection itself that brings disparate functionality together under one easily accessible roof.'
@@ -45,6 +54,24 @@ pressQuotes: [
 		year: 2024
 	}
 	{
+		quote: 'Every once in a while, you come across an app that fundamentally changes how you use your Mac. Over the past year, Supercharge has been that app for me. It packs hundreds of tweaks and features that solve macOS’s several annoyances and add improvements that upgrade the experience.'
+		source: 'Digital Trends'
+		url: 'https://www.digitaltrends.com/computing/this-one-app-has-single-handedly-improved-my-mac-experience/'
+		year: 2026
+	}
+	{
+		quote: 'Supercharge by developer Sindre Sorhus, is a Mac app that promises to “elevate your Mac experience.” That’s quite a claim, and one that I have put to the test over the past few weeks. Supercharge is a collection of tools, tweaks and shortcuts that aims to improve your overall macOS experience.'
+		source: 'OWC Rocket Yard'
+		url: 'https://eshop.macsales.com/blog/97215-supercharge-refines-your-macos-experience-with-more-options-in-more-places/'
+		year: 2025
+	}
+	{
+		quote: 'Supercharge for Mac is a robust tool that enhances the macOS experience by unlocking advanced features and offering deep system customizations. Its sleek interface and thoughtful design make it easy to use, while the price offers great value for the level of customization and performance it delivers.'
+		source: 'MacSources'
+		url: 'https://macsources.com/supercharge-macos-app-review/'
+		year: 2025
+	}
+	{
 		quote: 'Once you try the app, you’ll see it was created by a developer using macOS to solve those minor yet never truly minor annoyances. It packs a lot of functionality into one app. It’s a really great app.'
 		source: 'MJay Le'
 	}
@@ -53,16 +80,11 @@ pressQuotes: [
 		source: 'Saksham Bind'
 	}
 ]
-olderVersions: [
-	{
-		version: '1.26.0'
-		macOS: '15'
-		url: 'https://www.dropbox.com/scl/fi/ih52hpepe7ksavzdtsjvl/Supercharge-1.26-0-macOS-15-1777112330.zip?rlkey=1oslvlblu593qi23hs35hpusb&raw=1'
-	}
-]
 feedbackNote:
 	'''
-	### If you get a “Failed to listen to system events” error or getting continuously re-prompted about permissions after updating to macOS 27, try [resetting privacy permissions](/apps/faq#mac-reset-permissions) and then restart your system. macOS sometimes corrupts these when updating...
+	“Dim icons of hidden apps in the Dock” tweak no longer works on macOS 27.2 or later because Apple removed the hidden setting.
+
+	**If you get a “Failed to listen to system events” error or getting continuously re-prompted about permissions after updating to macOS 27, try [resetting privacy permissions](/apps/faq#mac-reset-permissions) and then restart your system. macOS sometimes corrupts these when updating...*
 
 	If you have moved to a new Mac and need to download the app again, you can download it from your [Gumroad receipt email or Gumroad account](https://gumroad.com/help/article/199-how-do-i-access-my-purchase).
 
@@ -85,15 +107,15 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 }
 
 @Feature(title: "Close windows from Mission Control") {
-	Right-click a window in Mission Control to close it or quit its app, or press ++Command+W++, ++Command+Q++, ++Command+H++, or ++Command+M++ on the window you point at. You do not have to leave Mission Control first. [Learn more.](#mission-control-improvements)
+	Right-click a window in Mission Control to close it or quit its app, or press ++Command+W++, ++Command+Q++, ++Command+H++, or ++Command+M++ on the window you point at. You do not have to leave Mission Control first. [More about Mission Control.](#mission-control-improvements)
 
-	The green window button can [fill the screen](#green-traffic-light-button-fill) instead of going fullscreen, and the yellow one can [hide the app](#yellow-traffic-light-button-hide).
+	The green window button can [fill the screen](#green-traffic-light-button-fill) instead of going fullscreen (when “Displays have separate Spaces” is on), and the yellow one can [hide the app](#yellow-traffic-light-button-hide).
 }
 
 @Feature(title: "Click the Dock to hide apps") {
 	Clicking the Dock icon of the active app does nothing by default. Make it [hide the app, minimize its windows, or cycle through them](#dock-icon-click-behavior). Middle-click any running app to do the same, or to quit it.
 
-	Hidden apps can get dimmed icons, the Dock can show without a delay, and you can add [spacers](#dock-spacers) to group your apps.
+	The Dock can show without a delay, and you can add [spacers](#dock-spacers) to group your apps.
 }
 
 **Features**
@@ -116,11 +138,11 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 
 <br>
 
-#### All Features
+### All Features
 
 [Finder](#finder) · [Windows](#windows) · [Dock](#dock) · [Apps](#apps) · [Keyboard](#keyboard) · [Screen capture](#screen-capture) · [Screenshots](#screenshots) · [Audio](#audio) · [Clipboard](#clipboard) · [Utilities](#utilities) · [Mouse and trackpad](#mouse-and-trackpad) · [Menu bar](#menu-bar) · [Notifications](#notifications) · [AirDrop and sharing](#airdrop) · [Files](#files) · [Toggles](#toggles) · [Apple apps](#apple-apps) · [System](#system)
 
-##### Finder {#finder}
+#### Finder {#finder}
 
 - Move files by ^[cutting](note: "Without this feature, you have to first copy (++Command+C++) and then remember to move (++Option+Command+V++). The feature works by overriding the normal cut ++Command+X++ keyboard shortcut when Finder is active and executes a copy ++Command+C++ instead. When you then paste ++Command+V++, it executes the native move ++Option+Command+V++ keyboard shortcut. So really, it’s Finder moving the files. This app just makes the keyboard shortcuts more intuitive. If you don’t paste, the files just stay in place. This feature also works with the Forklift app.") (++Command+X++) and pasting (++Command+V++)
 - Open files with ++Return++ (you can then rename with ++Shift+Return++ or ++F2++)
@@ -144,7 +166,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 - Move or copy selected files with a keyboard shortcut
 	:: Shows a system file dialog to choose where to move files.
 - Open new window when activating without windows
-	:: By default, when you ++Command-Tab++ to Finder without any windows open, nothing happens. This ensures a new window opens automatically.
+	:: By default, when you ++Command+Tab++ to Finder without any windows open, nothing happens. This ensures a new window opens automatically.
 - Make ++Command+Q++ close all windows
 	:: By default, ++Command+Q++ does nothing in Finder.
 - Customize clicking Finder icon in Dock
@@ -154,14 +176,14 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 - Toggle Finder with a keyboard shortcut <sup>(aka. [visor mode](https://totalfinder.binaryage.com/visor))</sup>
 - Add [Finder sidebar spacers](#finder-sidebar-spacers)
 
-##### Windows {#windows}
+#### Windows {#windows}
 
 - [Close & minimize windows and hide & quit apps directly from Mission Control](#mission-control-improvements)
 - Unminimizes an app’s windows (all or one) when activated <sup>(e.g., via ++Command+Tab++)</sup>
 - Hide all windows <sup>(aka. boss mode)</sup>
 - [Isolate window](#isolate-window)
-- Prevent accidental ⌘W window closes
-	:: Adds a safety layer to ⌘W so you don’t nuke the wrong window (perfect for Safari web apps and standalone sites). Pick your gesture: ⇧⌘W, press W twice while holding ⌘, or press-and-hold ⌘W with a visual timer. Works per-app with an inclusion filter, so you can guard only the apps that matter.
+- Prevent accidental ++Command+W++ window closes
+	:: Adds a safety layer to ++Command+W++ so you don’t nuke the wrong window (perfect for Safari web apps and standalone sites). Pick your gesture: ++Shift+Command+W++, press ++W++ twice while holding ++Command++, or press-and-hold ++Command+W++ with a visual timer. Works per-app with an inclusion filter, so you can guard only the apps that matter.
 - [Clicking green traffic light button fills window instead of entering fullscreen](#green-traffic-light-button-fill)
 - [Clicking yellow traffic light button hides app instead of minimizing window](#yellow-traffic-light-button-hide)
 <!-- - Quit apps when closing their last window (clicking the red traffic light button or <kbd>Command+W</kbd>) (similar to Swift Quit and RedQuits apps)
@@ -175,24 +197,23 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 	:: Instantly jumps to an adjacent Space without the macOS slide animation.
 - Show [poof animation](https://substack.techreflect.org/p/origin-on-macos-cloud-poof-animation) when closing a window by clicking the red traffic light button
 
-##### Dock {#dock}
+#### Dock {#dock}
 
 - [Clicking an active app’s Dock icon hides the app, minimizes its windows, or cycles through its windows](#dock-icon-click-behavior)
 	- You can also middle-click any running app for the same actions, plus quit.
 - Prevent Dock from showing when moving the mouse pointer to screen edge
 	:: Useful if you want to hide the Dock entirely or only show it with a keyboard shortcut. Does not apply to fullscreen.
 - Open new window by Shift+clicking a running app in the Dock
-	:: Makes it easy to open a new window for an app, similar to Windows. Works by simulating Command+N in the app, so it may not work correctly in all apps.
+	:: Makes it easy to open a new window for an app, similar to Windows. Works by simulating ++Command+N++ in the app, so it may not work correctly in all apps.
 	- (beta)
 - Launch alternative app when clicking Finder icon in the Dock (e.g., Bloom, QSpace, Path Finder).
 - Disable delay when showing Dock.
 	:: Does not apply to fullscreen.
-- Dim icons of hidden apps in the Dock
 - [Clicking a Dock folder reveals it in Finder instead of showing its contents](#dock-folder-click)
 - Add [Dock spacers](#dock-spacers)
 <!-- - [Show seconds hand in the Clock app's Dock icon](https://github.com/user-attachments/assets/b1d025dc-0465-4d0f-adf8-48bc079ad438) -->
 
-##### Apps {#apps}
+#### Apps {#apps}
 
 - [Automatically quit or hide apps after inactivity](#auto-quit-apps)
 - Prevent ^[accidental app quits](note: "The ++Q++ key is next to ++W++, making it easy to accidentally hit ++Command+Q++ (quit) when reaching for ++Command+W++ (close window).") by instead using ++Shift+Command+Q++, pressing ++Q++ twice while holding ++Command++, or [press and hold ++Command+Q++](https://github.com/user-attachments/assets/0515e50f-2a93-4369-836e-085ad462fdf8)
@@ -207,32 +228,32 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 	:: Optionally exclude specific apps.
 - Reset [privacy permissions](https://support.apple.com/guide/mac-help/mchl211c911f/mac) for any apps
 
-##### Keyboard {#keyboard}
+#### Keyboard {#keyboard}
 
 - [Hyper key](#hyper-key)
 <!-- - [Remap dedicated function keys](#remap-dedicated-function-keys) — Make the dedicated Mission Control, Spotlight, Dictation, and Do Not Disturb keys keyboard shortcuts, Supercharge actions, or run shortcuts. -->
 <!-- - [Double-tap modifier keys (Fn, Shift, Control, Option, Command) to trigger keyboard shortcuts, actions, or run shortcuts](#double-tap-modifier) -->
 - Trigger specific Spotlight tabs directly with keyboard shortcuts
-	:: Jump straight to Apps, Shortcuts, Files, or Clipboard History in Spotlight with customizable keyboard shortcuts.
+	:: Jump straight to Apps, Files, Actions, or Clipboard in Spotlight with customizable keyboard shortcuts.
 - Play a sound when a specified keyboard shortcut is triggered
 	:: Works for keyboard shortcuts handled by other apps, without changing how that shortcut behaves. Useful to add some fun sounds to your favorite keyboard shortcuts.
 - [Make brightness and volume key adjustments more precise with half and quarter-step increments](https://github.com/user-attachments/assets/e994755b-94ca-4e3c-8f70-5d3bffc3aed1)
 - Control keyboard brightness with customizable keyboard shortcuts
 	:: Only supported for the built-in MacBook keyboard.
 - [Keyboard shortcut inspector](#keyboard-shortcut-inspector)
-- Disable Command+Tab app switcher
+- Disable ++Command+Tab++ app switcher
 	:: Useful to prevent accidental activation if you don’t use the app switcher.
 - Remove Caps Lock activation delay
 	:: Makes Caps Lock respond instantly.
 
-##### Screen capture {#screen-capture}
+#### Screen capture {#screen-capture}
 
 - [Capture text from anywhere on screen](#capture-text)
 - [Capture and translate text from anywhere on screen](#capture-translate-text)
 - [Scan QR codes and barcodes from anywhere on screen](#scan-qr-codes)
 - Pick color on screen and copy (menu action and keyboard shortcut) (Hex, RGB, OKLCH)
 
-##### Screenshots {#screenshots}
+#### Screenshots {#screenshots}
 
 - Auto-copy screenshots to clipboard.
 	:: Useful if you want screenshots saved and also instantly available to paste. Works with the built-in screenshot tool.
@@ -244,7 +265,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 - Archive old screenshots automatically
 	:: Keeps your screenshots folder tidy by moving old screenshots to a separate location. Works with third-party screenshot apps too.
 
-##### Audio {#audio}
+#### Audio {#audio}
 
 - Prevent the Music app from auto-opening when you don’t want to.
 	:: For example, when pressing Play/Pause on your keyboard or AirPods. You can also have it launch another app like Spotify instead. Similar to apps like noTunes and Overkill.
@@ -261,26 +282,26 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 - Toggle mute sound
 	:: Mute or unmute your Mac sound with a keyboard shortcut, from the menu, or using Shortcuts.
 - Toggle mute microphone
-	:: Mute or unmute your microphone with a keyboard shortcut, from the menu, or using Shortcuts. Can show a menu bar icon for the current state. [Screenshot.](https://www.dropbox.com/scl/fi/dh8qprcekcjftnjc1hy2l/Mute-microphone-Screen-Shot-2025-07-31-at-19.16.08-1753983397.mp4?rlkey=i9c1ehd348v07g72t2ahpqcsz&raw=1)
+	:: Mute or unmute your microphone with a keyboard shortcut, from the menu, or using Shortcuts. Can show a menu bar icon for the current state. [Video of muting the microphone.](https://www.dropbox.com/scl/fi/dh8qprcekcjftnjc1hy2l/Mute-microphone-Screen-Shot-2025-07-31-at-19.16.08-1753983397.mp4?rlkey=i9c1ehd348v07g72t2ahpqcsz&raw=1)
 - Mute microphone while typing
 	:: Automatically mutes the microphone input while you’re typing and unmutes shortly after you stop. Only activates when the microphone is in use. Useful for video calls with loud keyboards. Similar to the discontinued Unclack app.
 - Cycle audio output and input devices
 	:: Switch the default sound output or input device to the next one with a keyboard shortcut or using Shortcuts, cycling back to the first at the end. Useful for quickly jumping between speakers, headphones, and microphones. Similar to the SoundSwitch app on Windows.
 - [Only show sound menu bar icon when either muted or unmuted](https://github.com/user-attachments/assets/10447e39-f288-406b-a504-6ab7b8fcf261)
 
-##### Clipboard {#clipboard}
+#### Clipboard {#clipboard}
 
 - [Automatically clear clipboard for improved privacy](#automatic-clipboard-clearing)
 - Clear clipboard *(menu action and keyboard shortcut)*
 - Disable [Universal Clipboard](https://support.apple.com/102430) without disabling [Handoff](https://support.apple.com/102426)
 	:: Useful if clipboard syncing feels slow or annoying.
 
-##### Utilities {#utilities}
+#### Utilities {#utilities}
 
 - Cleaning Mode
-	:: Makes your screen black and disables keyboard and mouse to let you safely clean your device. [Screenshot.](https://www.dropbox.com/scl/fi/6vm94elcusix6oqe5su78/434266737-572f4e43-d42a-49c2-925f-4db90ebbfd06-1748011610.mp4?rlkey=r538vzwv0k9ba5rjqhw4goaa7&raw=1)
+	:: Makes your screen black and disables keyboard and mouse to let you safely clean your device. [Video of Cleaning Mode.](https://www.dropbox.com/scl/fi/6vm94elcusix6oqe5su78/434266737-572f4e43-d42a-49c2-925f-4db90ebbfd06-1748011610.mp4?rlkey=r538vzwv0k9ba5rjqhw4goaa7&raw=1)
 - Cat Mode
-	:: Disables keyboard and mouse to prevent cats and other cute creatures from interfering with your computer. Similar to Cleaning Mode but without blacking out the screen. [Screenshot.](https://www.dropbox.com/scl/fi/tpxsx5i9r1vkjlf2recad/Cat-Mode-1756829427.mp4?rlkey=wfyu7192971mnu19p3i2mmqs4&raw=1)
+	:: Disables keyboard and mouse to prevent cats and other cute creatures from interfering with your computer. Similar to Cleaning Mode but without blacking out the screen. [Video of Cat Mode.](https://www.dropbox.com/scl/fi/tpxsx5i9r1vkjlf2recad/Cat-Mode-1756829427.mp4?rlkey=wfyu7192971mnu19p3i2mmqs4&raw=1)
 - [Run shortcuts from the menu](#run-shortcuts)
 	:: Show your favorite shortcuts from the Shortcuts app in the menu.
 	- Also available in [Short Run](/short-run)
@@ -289,18 +310,18 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 	- Also available as an [independent app](/default-browser).
 - Shortcuts actions
 
-##### Mouse and trackpad {#mouse-and-trackpad}
+#### Mouse and trackpad {#mouse-and-trackpad}
 
 - Simulate middle-click with a trackpad gesture
 	:: Detects a multi-finger tap or physical click (3, 4, or 5 fingers) on the trackpad and synthesizes a middle-click, making all middle-click features work without a physical middle mouse button. The click variant is handy if you have “Tap to click” disabled or want a more deliberate gesture. Lift all fingers to reset recognition before the next gesture.
 - Adjust volume and display brightness with trackpad gestures
-	:: Slide along the left or right side of the trackpad, or use a 3, 4, or 5-finger swipe. Adjust the sensitivity to make changes more or less precise, and optionally require holding ⇧ for side slides to prevent accidental triggering while typing.
+	:: Slide along the left or right side of the trackpad, or use a 3, 4, or 5-finger swipe. Adjust the sensitivity to make changes more or less precise, and optionally require holding ++Shift++ for side slides to prevent accidental triggering while typing.
 - Center mouse pointer on primary display when waking and unlocking
 	:: Helps you quickly locate the mouse pointer after returning to your Mac. Also available via keyboard shortcut.
 - Hide mouse pointer automatically after a period of inactivity or with keyboard shortcut (like Cursorcerer)
 	:: Reappears on movement or when the shortcut is pressed again.
 
-##### Menu bar {#menu-bar}
+#### Menu bar {#menu-bar}
 
 - Show the [menu bar window](https://github.com/user-attachments/assets/1b8e2e12-187a-4d32-8ba3-c13f154de9e0) for the Passwords app with a keyboard shortcut
 - Show the [menu bar window](https://github.com/user-attachments/assets/567bbbf5-12a1-45be-8ffa-93712574d4a0) for the Weather app with a keyboard shortcut
@@ -310,14 +331,14 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 <!-- - Replace the Apple logo in the menu bar with the classic six-color Apple logo
 	:: Shows the original rainbow-striped Apple logo from the classic Mac era across all connected displays. -->
 
-##### Notifications {#notifications}
+#### Notifications {#notifications}
 
 - Clear notifications with a keyboard shortcut or from the menu
 - Click top visible notification with a keyboard shortcut
 - Auto-dismiss Shortcuts “Running your automation” notifications
 	:: Automatically dismisses the “Running your automation” notifications that appear when running Shortcuts automations.
 
-##### AirDrop and sharing {#airdrop}
+#### AirDrop and sharing {#airdrop}
 
 - Automatically select AirDrop target
 	:: Enter a device name to automatically select it when the AirDrop dialog appears.
@@ -326,9 +347,9 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 - Prevent Finder window from opening when receiving through AirDrop
 	:: Stops Finder from opening a new window and stealing focus when you receive AirDropped files.
 - Exclude AirDrop, Mail, and Messages from the system Share menu
-  :: These are usually forced to be shown by macOS.
+	:: These are usually forced to be shown by macOS.
 
-##### Files {#files}
+#### Files {#files}
 
 - Archive old items in the Downloads folder automatically
 	:: Keeps your Downloads folder tidy by moving older items to a separate location based on when they were added.
@@ -339,7 +360,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 - Eject all disks (menu action and keyboard shortcut) (optionally exclude some)
 - Empty trash *(menu action and keyboard shortcut)*
 
-##### Toggles {#toggles}
+#### Toggles {#toggles}
 
 - Toggle dark mode
 - Toggle [Night Shift](https://support.apple.com/102191)
@@ -353,7 +374,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 - Toggle iOS notifications
 	:: Only works if your Mac supports notifications from iOS.
 
-##### Apple apps {#apple-apps}
+#### Apple apps {#apple-apps}
 
 - [Mail: Copy message link](#mail-copy-message-link)
 - [Notes: Copy note link](#notes-copy-note-link)
@@ -362,7 +383,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 - Override Maps app language
 	:: macOS doesn’t allow changing the Maps app language in System Settings. This fixes that. Useful when search doesn’t work well with your system language.
 
-##### System {#system}
+#### System {#system}
 
 - Sleep displays (menu action and keyboard shortcut)
 	:: Puts all your Mac’s screens to sleep.
@@ -373,7 +394,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 	- Private Relay
 	- VPN & Filters
 - Access hidden iMac and MacBook Neo accent colors
-	:: Apply the special accent colors from iMac and MacBook Neo models on any Mac. These colors are normally only available on their respective models. Note: iMac computers have a fixed model accent color that cannot be modified through this feature. [Screenshot.](https://www.dropbox.com/scl/fi/oq8v03kvqj8kq4tnipqsz/Screen-Shot-2025-10-06-at-20.40.35-1759751136.png?rlkey=756uo6hmfepec095ibzcbw1pb&raw=1)
+	:: Apply the special accent colors from iMac and MacBook Neo models on any Mac. These colors are normally only available on their respective models. Note: iMac computers have a fixed model accent color that cannot be modified through this feature. [Screenshot of the accent colors.](https://www.dropbox.com/scl/fi/oq8v03kvqj8kq4tnipqsz/Screen-Shot-2025-10-06-at-20.40.35-1759751136.png?rlkey=756uo6hmfepec095ibzcbw1pb&raw=1)
 - Prevent text clippings by disabling text dragging
 - Flush DNS cache
 
@@ -401,7 +422,7 @@ You can even configure shortcuts to only show up when specific apps are active.
 
 Launch apps, run scripts, automate tasks — anything Shortcuts can do, now just one click away.
 
-[Screenshot](https://www.dropbox.com/scl/fi/ny886w93chpav0b325ioi/441329057-67290c47-4d78-490f-b0b8-f263ebc1022d-1748012141.png?rlkey=kf2ha9ygkvd4iu3zme8a0wo07&raw=1)
+[Screenshot of shortcuts in the menu](https://www.dropbox.com/scl/fi/ny886w93chpav0b325ioi/441329057-67290c47-4d78-490f-b0b8-f263ebc1022d-1748012141.png?rlkey=kf2ha9ygkvd4iu3zme8a0wo07&raw=1)
 
 Example shortcuts:
 - [Presentation Mode](https://www.icloud.com/shortcuts/c559563486a74b1dafb6ca2cb05e2cb5): Turns on “Do Not Disturb”, keeps screen awake, and hides desktop icons.
@@ -447,7 +468,7 @@ You can also choose to unminimize all windows instead of just one when clicking 
 
 Makes clicking the green traffic light button fill the window to fit the screen instead of entering fullscreen mode. Hold ++Option++ while clicking for the default fullscreen behavior. Click again to restore the previous window size.
 
-[Screenshot](https://github.com/user-attachments/assets/41dd0f46-05f7-46f2-b9a5-a5ae441da8a9)
+[Screenshot of the green traffic light button setting](https://github.com/user-attachments/assets/41dd0f46-05f7-46f2-b9a5-a5ae441da8a9)
 
 *It requires the “Displays have separate Spaces” system setting to be enabled because it relies on the window tile functionality, which is only available then.*
 
@@ -467,7 +488,7 @@ Detects which apps are listening to or have registered a certain global keyboard
 
 It is able to detect most shortcuts, but not all. Modifier-only double-tap shortcuts, like double Command or double Option, cannot be detected because macOS does not expose those registrations.
 
-[Screenshot](https://github.com/user-attachments/assets/0f3ddfaa-caf5-471d-a880-93c97952dada)
+[Screenshot of the keyboard shortcut inspector](https://github.com/user-attachments/assets/0f3ddfaa-caf5-471d-a880-93c97952dada)
 
 #### Automatic clipboard clearing {#automatic-clipboard-clearing}
 
@@ -503,7 +524,7 @@ Perfect for quickly clearing away distractions when you have many windows open (
 
 Available as a menu action, a customizable keyboard shortcut, and as a Shortcuts action for automations.
 
-##### Hyper key {#hyper-key}
+#### Hyper key {#hyper-key}
 
 Remaps ++Caps Lock++ to function as a Hyper key — a single key that simultaneously activates all standard modifiers (Control + Option + Shift + Command). This enables the creation of highly unique shortcuts that are unlikely to conflict with existing ones, making them both easy to remember and quick to use.
 
@@ -515,7 +536,7 @@ Set up rules per app: quit or hide after a certain amount of inactivity. You mig
 
 Pauses a rule while that app is using the microphone, while any camera is in use, or while the screen is being captured. You can opt a rule into quitting or hiding even during calls or recording. Won’t affect the active app. Menu bar-only apps won’t be affected since they never become active or inactive.
 
-[Screenshot](https://www.dropbox.com/scl/fi/am443hh5uuglk8fiwmdqk/Auto-quit-feature-Screen-Shot-2025-11-06-at-15.45.16-1762418767.png?rlkey=fbbdi22wsdclq1cxeiwiijlam&raw=1)
+[Screenshot of the auto quit rules](https://www.dropbox.com/scl/fi/am443hh5uuglk8fiwmdqk/Auto-quit-feature-Screen-Shot-2025-11-06-at-15.45.16-1762418767.png?rlkey=fbbdi22wsdclq1cxeiwiijlam&raw=1)
 
 > [!TIP]
 > To enable only during specific times, places, or Focus modes, you can automate it with the Shortcuts app.
@@ -535,7 +556,7 @@ Creates visual separators in the Finder sidebar to help organize your folders in
 > [!NOTE]
 > The spacer still shows a folder icon. It’s not possible to hide this.
 
-[Screenshot](https://www.dropbox.com/scl/fi/7ndp0sdiocgf0n7xdbolz/441615369-d929e3fe-6605-46f6-a99f-6f0f3486a88e-1748012169.png?rlkey=xr7716dr9xiyim0pu80qv6n5x&raw=1)
+[Screenshot of spacers in the Finder sidebar](https://www.dropbox.com/scl/fi/7ndp0sdiocgf0n7xdbolz/441615369-d929e3fe-6605-46f6-a99f-6f0f3486a88e-1748012169.png?rlkey=xr7716dr9xiyim0pu80qv6n5x&raw=1)
 
 #### Finder context menu additions {#finder-context-menu}
 
@@ -544,7 +565,7 @@ Adds the following actions (can be customized) directly in the right-click menu 
 - New Text File
 	:: Shown only when right-clicking an empty area in Finder.
 - New From Template
-	:: Creates new files from templates. For example, a Markdown or Excel file. Templates can be organized in subfolders. Click a folder to copy its entire structure, or navigate into it to select individual files. Shown only when right-clicking an empty area in Finder, not a file. Supports dynamic placeholders in filenames (like `Diary {datetime-fixed}` → `Diary 2025-02-14 15.30`). And you can even have the file automatically open after naming it. [Screenshot.](https://github.com/user-attachments/assets/cb401a0e-2e40-4714-9493-b91563a7b387)
+	:: Creates new files from templates. For example, a Markdown or Excel file. Templates can be organized in subfolders. Click a folder to copy its entire structure, or navigate into it to select individual files. Shown only when right-clicking an empty area in Finder, not a file. Supports dynamic placeholders in filenames (like `Diary {datetime-fixed}` → `Diary 2025-02-14 15.30`). And you can even have the file automatically open after naming it. [Screenshot of New From Template.](https://github.com/user-attachments/assets/cb401a0e-2e40-4714-9493-b91563a7b387)
 - Open in New Window
 	:: Opens the folder in a new window instead of a tab, even if you have set new windows to open as tabs. This action also shows up in the context menu for sidebar items. Useful when you want to view multiple folders side by side or drag items between locations.
 - Image/Video Dimensions
@@ -587,9 +608,9 @@ Adds the following actions (can be customized) directly in the right-click menu 
 - Share
 	:: Shows the old-style Share item that is a submenu instead of a separate popover, which is faster to access. You can exclude AirDrop, Messages, and Mail from the menu, which are normally forced to be shown. However, there is no way to hide the existing Share item.
 - Inline Share Services
-	:: Shows selected share extensions directly in the context menu for faster sharing. Customize which services appear in settings. [Screenshot](https://www.dropbox.com/scl/fi/wqlofapn6k11s3x2atmcp/Screen-Shot-2025-10-19-at-23.52.14-1760892902.png?rlkey=ek55ijtrjufe6if922cll2k2j&raw=1)
+	:: Shows selected share extensions directly in the context menu for faster sharing. Customize which services appear in settings. [Screenshot of the share services in the context menu](https://www.dropbox.com/scl/fi/wqlofapn6k11s3x2atmcp/Screen-Shot-2025-10-19-at-23.52.14-1760892902.png?rlkey=ek55ijtrjufe6if922cll2k2j&raw=1)
 - Open in App
-	:: Adds menu items like “Open in Visual Studio Code” directly to the Finder context menu. Text editors show up for folders and text files, while other apps only show up for types they support. [Screenshot.](https://github.com/user-attachments/assets/980340bc-a257-475c-9a02-7b98853df9a7)
+	:: Adds menu items like “Open in Visual Studio Code” directly to the Finder context menu. Text editors show up for folders and text files, while other apps only show up for types they support. [Screenshot of Open in App.](https://github.com/user-attachments/assets/980340bc-a257-475c-9a02-7b98853df9a7)
 - Open in Terminal
 	:: Shown only when right-clicking a folder or an empty area in Finder. Supports Terminal, iTerm, Ghostty, kitty, WezTerm, Alacritty, Warp, and Prompt.
 - AirDrop
@@ -600,7 +621,7 @@ Adds the following actions (can be customized) directly in the right-click menu 
 	:: Shares files with a shortcut from the Shortcuts app.
 - Update Modified Date
 - Folder Color
-	:: Changes the color of folders. [Screenshot.](https://github.com/user-attachments/assets/0687455b-61d3-4fdd-a863-1e378a3701d5)
+	:: Changes the color of folders. [Screenshot of Folder Color.](https://github.com/user-attachments/assets/0687455b-61d3-4fdd-a863-1e378a3701d5)
 - Toggle Hidden Files
 	:: Toggles visibility of hidden files.
 - New Folder Inside
@@ -642,7 +663,7 @@ Adds the following actions (can be customized) directly in the right-click menu 
 - Is Identical
 	:: Shows whether two or more selected files are identical.
 - Is Identical (Interactive)
-	:: Opens a comparison window showing whether selected files are identical. Supports drag-and-drop to add more files. Groups identical files together and lists unique files separately. [Screenshot.](https://www.dropbox.com/scl/fi/cctbogzq60huyxceoa5xh/Is-Identical-Supercharge-Screen-Shot-2025-12-11-at-04.59.12-1765425592.png?rlkey=gzwhyzvgmakzz5r14nvrkko1s&raw=1)
+	:: Opens a comparison window showing whether selected files are identical. Supports drag-and-drop to add more files. Groups identical files together and lists unique files separately. [Screenshot of the comparison window.](https://www.dropbox.com/scl/fi/cctbogzq60huyxceoa5xh/Is-Identical-Supercharge-Screen-Shot-2025-12-11-at-04.59.12-1765425592.png?rlkey=gzwhyzvgmakzz5r14nvrkko1s&raw=1)
 - Copy Folder Tree
 	:: Copies the folder’s tree structure to the clipboard using a visual tree format with box-drawing characters. Useful for documentation, sharing folder layouts, or pasting into chat.
 - Combine Contents of Folders
@@ -733,54 +754,24 @@ Select any region of your screen to instantly copy the text, even if it’s unse
 
 Powered by macOS’ built-in OCR. Text quality and language support depend on the system, not the app.
 
-[Screenshot](https://www.dropbox.com/scl/fi/6t4hst8wtbnm9k5hvrg1q/Capture-Text-Screen-Shot-2025-09-02-at-21.32.17-1756825559.mp4?rlkey=hztcfyrcba7v7hn7ex34tjy2y&raw=1)
+[Video of capturing text](https://www.dropbox.com/scl/fi/6t4hst8wtbnm9k5hvrg1q/Capture-Text-Screen-Shot-2025-09-02-at-21.32.17-1756825559.mp4?rlkey=hztcfyrcba7v7hn7ex34tjy2y&raw=1)
 
 *Check out my [Text Lens](/text-lens) app for more features.*
 
-**Supported languages**
-
-- English
-- French
-- Italian
-- German
-- Spanish
-- Portuguese
-- Chinese, Simplified
-- Chinese, Traditional
-- Cantonese, Simplified
-- Cantonese, Traditional
-- Korean
-- Japanese
-- Russian
-- Ukrainian
-- Thai
-- Vietnamese
-- Arabic
-- Arabic, Najdi
-- Turkish
-- Indonesian
-- Czech
-- Danish
-- Dutch
-- Norwegian Nynorsk
-- Norwegian Bokmål
-- Malay
-- Polish
-- Romanian
-- Swedish
+[Supported languages](/text-lens#supported-languages)
 
 #### Capture and translate text from anywhere on screen {#capture-translate-text}
 
 Select any region of your screen to instantly translate text, even from images or unselectable text.
 
-- [Screenshot](https://github.com/user-attachments/assets/e7c6b336-6b70-4dfe-bba1-ba6ca18907c0)
+- [Screenshot of capturing and translating text](https://github.com/user-attachments/assets/e7c6b336-6b70-4dfe-bba1-ba6ca18907c0)
 - [Supported languages](https://www.apple.com/macos/feature-availability/#translate-system-wide-translation) (except Hindi)
 
 #### Scan QR codes and barcodes {#scan-qr-codes}
 
 Select any region of your screen or use an image from your clipboard to instantly scan QR codes and barcodes and copy their content to the clipboard. Supports scanning multiple codes at once.
 
-- [Screenshot](https://github.com/user-attachments/assets/caa5aed9-5db2-460e-bbbb-15fae45a5195)
+- [Screenshot of scanning a QR code](https://github.com/user-attachments/assets/caa5aed9-5db2-460e-bbbb-15fae45a5195)
 - [Supported barcodes](https://developer.apple.com/documentation/vision/vnbarcodesymbology#Supported-Symbologies)
 
 #### Copy message link in Mail {#mail-copy-message-link}
@@ -793,7 +784,7 @@ When you are in the Notes app, you can [open the Supercharge menu](https://githu
 
 #### Close and minimize windows and hide and quit apps directly from Mission Control {#mission-control-improvements}
 
-Enhances Mission Control by letting you close windows or quit apps by right-clicking the hovered window and use keyboard shortcuts (⌘W, ⌘Q, ⌘H, ⌘M) on the window you are hovering over. This makes window management more efficient as you don’t have to exit Mission Control to perform these actions. [Example](https://github.com/user-attachments/assets/23c71431-4d3b-4913-b484-3a3f0b7b2b07)
+Enhances Mission Control by letting you close windows or quit apps by right-clicking the hovered window and use keyboard shortcuts (++Command+W++, ++Command+Q++, ++Command+H++, ++Command+M++) on the window you are hovering over. This makes window management more efficient as you don’t have to exit Mission Control to perform these actions. [Example](https://github.com/user-attachments/assets/23c71431-4d3b-4913-b484-3a3f0b7b2b07)
 
 You can also navigate windows with arrow keys.
 
@@ -857,9 +848,7 @@ Make macOS feel less foreign — and more powerful.
 
 ## Trial {#trial}
 
-@Trial(url: "https://www.dropbox.com/scl/fi/58ujynvqo09r1ni8ywl0n/Supercharge-1.30.1-trial-1790570015.zip?rlkey=bgo4hf47jnmqqrxxleilcferf&raw=1", macOS: "26") {
-	The trial is fully functional. The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
-}
+@Trial(url: "https://www.dropbox.com/scl/fi/58ujynvqo09r1ni8ywl0n/Supercharge-1.30.1-trial-1790570015.zip?rlkey=bgo4hf47jnmqqrxxleilcferf&raw=1", macOS: "26.4")
 
 ## Tips
 
@@ -870,11 +859,17 @@ Make macOS feel less foreign — and more powerful.
 - Try closing any anti-virus app you have running as it may [interfere with the app](/apps/faq#secure-input-problem) (or at least disable any Secure Keyboard Entry type setting it may have). And if you don’t have any anti-virus app, try closing down all apps and menu bar items, just to rule out some other app interfering. If it’s a work computer, your company may have something installed that prevents the app from working.
 - Reset permissions: Try clicking “… › Debug › Reset Permissions” in the Supercharge menu.
 
+#### Mouse or keyboard stops responding
+
+If possible, capture a sample of Supercharge in Activity Monitor while the problem is happening, before quitting apps. Include the approximate time, what you were doing, and “Debug › Copy Debug Info” from the Supercharge menu in your report.
+
+If Supercharge reports that an input tweak was paused after repeated timeouts, turn that tweak off and on in Settings, or relaunch Supercharge, to retry. Include the debug info if it happens again.
+
 #### Accidental quit troubleshooting
 
 A common issue is that macOS corrupts the privacy permissions. Try resetting permissions (see above).
 
-If the Supercharge menu reports `loginwindow` as blocking keyboard shortcuts, lock your screen with Control+Command+Q, then unlock it. This is a known macOS bug. Do not try to quit `loginwindow`.
+If the Supercharge menu reports `loginwindow` as blocking keyboard shortcuts, lock your screen with ++Control+Command+Q++, then unlock it. This is a known macOS bug. Do not try to quit `loginwindow`.
 
 #### Cut and paste files troubleshooting
 
@@ -901,7 +896,7 @@ Some things you can already do that you may not know about:
 
 - Hide an app by ++Option++-clicking on the app’s Dock icon.
 - Show Control Center by pressing ++Fn+C++.
-- Toggle a specific VPN using a keyboard shortcut with Shortcuts. Add [this shortcut](https://www.icloud.com/shortcuts/a0c3171fe98a4379b8197299a84b060e) and set the VPN parameter and a keyboard shortcut.
+- Toggle a specific VPN using a keyboard shortcut with Shortcuts. Add the [“Toggle VPN” shortcut](https://www.icloud.com/shortcuts/a0c3171fe98a4379b8197299a84b060e) and set the VPN parameter and a keyboard shortcut.
 - [Make Finder remember its size and position.](https://apple.stackexchange.com/a/171274/2363)
 - [Prevent opening apps when clicking links that are Universal Links.](https://lapcatsoftware.com/articles/universal-links2.html)
 - [Change the keyboard shortcut for menu item actions in a specific app.](https://support.apple.com/guide/mac-help/create-keyboard-shortcuts-for-apps-mchlp2271/mac)
@@ -911,7 +906,6 @@ Some things you can already do that you may not know about:
 - Option-click the sound menu bar icon to be able to also choose input device. Or use the tweak in Supercharge to see it by default.
 - In open/save dialogs, navigate to a copied absolute path by pressing ++Command+V++.
 - [Translate website in Safari using a keyboard shortcut.](https://www.reddit.com/r/Safari/comments/1auqjjc/how_to_make_safari_full_page_translation_by/)
-- In Safari, enter Picture-in-Picture by pressing ++Shift+Command+R++.
 - In Finder, select a file, and then press ++Option+Command+C++ to copy its path.
 
 ## Frequently Asked Questions {#faq}
@@ -942,9 +936,9 @@ Some things are not planned:
 - App thinner
 	- I recommend [Pearcleaner](https://github.com/alienator88/Pearcleaner)
 
-### The app does not show up in the menu bar
+### The app does not show up in the menu bar {#the-app-does-not-show-up-in-the-menu-bar}
 
-[Try this](/apps/faq#app-not-showing-in-menu-bar)
+[Try the steps in the general FAQ](/apps/faq#app-not-showing-in-menu-bar)
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to show the main window.
 
@@ -957,7 +951,7 @@ If you purchased it on [Gumroad](https://gumroad.com), you can download the app 
 
 The two versions use different bundle identifiers, so settings don’t carry over automatically. Transfer them with Supercharge’s own [Export/import app settings](#export-import-app-settings) feature. Export from the Setapp copy, then import into the direct copy. You can also use my [App Buddy](/app-buddy) app.
 
-### The tweaks like Finder cut & paste no longer work
+### The tweaks like Finder cut & paste no longer work {#the-tweaks-like-finder-cut--paste-no-longer-work}
 
 This usually happens when an app [blocks keyboard input reading](/apps/faq#secure-input-problem).
 
@@ -982,51 +976,46 @@ This usually happens when an app [blocks keyboard input reading](/apps/faq#secur
 
 Try the [trial](#trial) and see for yourself.
 
-### I can already do this with the command-line, BetterTouchTool, Keyboard Maestro, etc.
+### I can already do this with the command-line, BetterTouchTool, Keyboard Maestro, etc. {#i-can-already-do-this-with-the-command-line-bettertouchtool-keyboard-maestro-etc}
 
 Supercharge offers a simpler, more user-friendly approach. It’s designed for users who want quick access to useful features without the complexity of scripting or configuring advanced tools. Supercharge provides a curated set of enhancements that work right out of the box, saving you time and effort in setup and maintenance. If you prefer more granular control and don’t mind the setup process, those other tools might be a better fit for you.
-
-### Why ++Command+X++? I can already move files with ++Command+C++ and ++Option+Command+V++
-
-- It’s more logical to cut & paste than copy & move.
-- Consistency and muscle memory benefits if you also use Linux or Windows.
 
 ### What are Dock spacers? {#dock-spacers}
 
 Dock spacers are [invisible gaps](https://res.cloudinary.com/cpenned/image/upload/f_auto,w_auto/v1636732613/Blog/post-images/20211112-dock.jpg) you can add to your Mac’s Dock. They help organize your apps into groups, improving visual clarity. Supercharge lets you easily add these spacers, giving you better control over your Dock’s layout.
 
-### How do I exit Cat Mode and Cleaning Mode?
+### How do I exit Cat Mode and Cleaning Mode? {#how-do-i-exit-cat-mode-and-cleaning-mode}
 
 Press ++Command++ six times.
 
-### Can I add custom actions to the app?
+### Can I add custom actions to the app? {#can-i-add-custom-actions-to-the-app}
 
 As of now, the app focuses on providing a curated set of built-in features for enhancing your Mac experience. I’m happy to consider requests.
 
-### Can you add a certain toggle?
+### Can you add a certain toggle? {#can-you-add-a-certain-toggle}
 
 I’m happy to consider requests, but I don’t intend for this app to turn into a “toggler” app. I have just provided some commonly needed toggles.
 
 Some toggles I don’t plan to add:
 
 - AirPods
-- Keep awake *(check out [Lungo](/lungo))*
+- A duration for “Keep Awake” *(check out [Lungo](/lungo))*
 
-### Does the app consume a lot of system resources?
+### Does the app consume a lot of system resources? {#does-the-app-consume-a-lot-of-system-resources}
 
 No, the app is optimized to run efficiently in the background with minimal CPU, memory, and battery usage. Most features are event-driven and only activate when needed.
 
-### Why doesn’t the “Prevent accidental quit” tweak apply in the Command+Tab app switcher?
+### Why doesn’t the “Prevent accidental quit” tweak apply in the Command+Tab app switcher? {#why-doesnt-the-prevent-accidental-quit-tweak-apply-in-the-commandtab-app-switcher}
 
 This is intentional. The feature exists for one specific slip: ++Q++ sits right next to ++W++, so it’s easy to hit ++Command+Q++ (quit) when you meant ++Command+W++ (close window). That mix-up can’t happen in the app switcher, because there’s no window to close there in the first place.
 
 Quitting from the switcher is also already a deliberate, multi-step act: you hold ++Command++, tab to a specific app, and only then press ++Q++. It’s very hard to do by accident. And forcing a press-and-hold or double-tap there would defeat the purpose of the switcher, which is to quit apps quickly while cycling through them.
 
-### I cannot use ++Control+Space++ or ++Control+Shift+Space++ as a keyboard shortcut
+### I cannot use ++Control+Space++ or ++Control+Shift+Space++ as a keyboard shortcut {#i-cannot-use-controlspace-or-controlshiftspace-as-a-keyboard-shortcut}
 
 Go to “System Settings › Keyboard › Keyboard Shortcuts › Input Sources” and disable them all.
 
-### Why would I want to clear my clipboard?
+### Why would I want to clear my clipboard? {#why-would-i-want-to-clear-my-clipboard}
 
 Clearing the clipboard helps protect privacy by removing potentially sensitive information (like passwords or personal data) that might otherwise remain available for pasting. Any app can silently read the clipboard. And you could also accidentally paste it somewhere you didn’t intend to.
 
@@ -1059,19 +1048,19 @@ The developer will need to add `public.folder` to `LSItemContentTypes` in their 
 
 If you know the app supports opening folders but it doesn’t show up, it may be that the app has not properly declared support for it. Contact the app developer about adding the above. You could also [contact me](/feedback?product=Supercharge), and I can manually add the app.
 
-### Can you add support for keyboard shortcuts to change default browser?
+### Can you add support for keyboard shortcuts to change default browser? {#can-you-add-support-for-keyboard-shortcuts-to-change-default-browser}
 
 Maybe. For now, you can make a shortcut in the Shortcuts app, give it a keyboard shortcut, and use the “Set Default Browser” Shortcuts action that comes with Supercharge.
 
-### Can you add more features to changing the default browser, like rules?
+### Can you add more features to changing the default browser, like rules? {#can-you-add-more-features-to-changing-the-default-browser-like-rules}
 
 Features like rules require the app to intercept and forward URLs by acting as the default browser. This is out of scope for this app. Check out my [Velja](/velja) app for that.
 
-### Why do some tweaks have a list of pre-defined keyboard shortcuts instead of a shortcut recorder?
+### Why do some tweaks have a list of pre-defined keyboard shortcuts instead of a shortcut recorder? {#why-do-some-tweaks-have-a-list-of-pre-defined-keyboard-shortcuts-instead-of-a-shortcut-recorder}
 
 The pre-defined shortcuts are intentionally curated to help users quickly select sensible shortcuts that won’t conflict with built-in app shortcuts. This approach reduces potential support issues. Missing a useful key combination? Let me know, and I will consider adding it.
 
-### Can you add a Finder keyboard shortcut to move selected items into a new folder?
+### Can you add a Finder keyboard shortcut to move selected items into a new folder? {#can-you-add-a-finder-keyboard-shortcut-to-move-selected-items-into-a-new-folder}
 
 This is already supported natively. See the “File › New Folder with Selection” menu item. Select some items and then press ++Control+Command+N++. You can change the keyboard shortcut in the [System Settings](https://support.apple.com/guide/mac-help/create-keyboard-shortcuts-for-apps-mchlp2271/mac).
 
@@ -1079,19 +1068,19 @@ This is already supported natively. See the “File › New Folder with Selectio
 
 Check out my [Pure Paste](/pure-paste) app for this. I think it makes more sense as a separate app.
 
-### Can it play a sound when pressing one of the keyboard shortcuts?
+### Can it play a sound when pressing one of the keyboard shortcuts? {#can-it-play-a-sound-when-pressing-one-of-the-keyboard-shortcuts}
 
-Use the “Play a sound when a specified keyboard shortcut is triggered” feature in the “Shortcuts”. Set it to the same shortcut to get audible feedback without changing how the shortcut behaves.
+Use “Keyboard shortcut sounds” in the “Shortcuts” settings. Set it to the same shortcut to get audible feedback without changing how the shortcut behaves.
 
-### How can I copy the original text in the translate popover?
+### How can I copy the original text in the translate popover? {#how-can-i-copy-the-original-text-in-the-translate-popover}
 
 The translate popover is provided by macOS and does not support copying the original text. As a workaround, select the same language as the destination language, and then click “Copy Translation”.
 
-### How can I run the actions from Raycast or Alfred?
+### How can I run the actions from Raycast or Alfred? {#how-can-i-run-the-actions-from-raycast-or-alfred}
 
 Most of the actions are exposed as Shortcuts actions, so create a shortcut with the action and run it from Raycast or Alfred.
 
-### Can I trigger the actions using a custom URL scheme?
+### Can I trigger the actions using a custom URL scheme? {#can-i-trigger-the-actions-using-a-custom-url-scheme}
 
 It’s something I plan to support at some point, but for now, you can use Shortcuts, as mentioned above.
 
@@ -1099,13 +1088,13 @@ It’s something I plan to support at some point, but for now, you can use Short
 
 No, the app is English-only.
 
-### Can the app support hiding menu bar items?
+### Can the app support hiding menu bar items? {#can-the-app-support-hiding-menu-bar-items}
 
-No, that’s out of scope for this app. I recommend [Ice](https://icemenubar.app).
+No, that’s out of scope for this app. I recommend [Thaw](https://www.getthaw.app).
 
-### Can you add Alt-Tab functionality like Windows?
+### Can you add Alt-Tab functionality like Windows? {#can-you-add-alt-tab-functionality-like-windows}
 
-No, this would be very complex to implement well and there is already an excellent free app called [AltTab](https://alt-tab-macos.netlify.app) that does exactly this.
+No, this would be very complex to implement well and there is already an excellent free app called [AltTab](https://alt-tab.app) that does exactly this.
 
 ### Supercharge and Shortcutie seem to have some of the same actions for Shortcuts {#shortcutie}
 

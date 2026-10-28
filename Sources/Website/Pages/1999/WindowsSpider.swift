@@ -33,8 +33,20 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 
 	var content: some HTML {
 		div(.role("group")) {
-			menu("Game", button: .gameMenuButton, list: .gameMenu, id: "geocities-spider-game-menu", commands: Self.gameCommands)
-			menu("Help", button: .helpMenuButton, list: .helpMenu, id: "geocities-spider-help-menu", commands: Self.helpCommands)
+			menu(
+				"Game",
+				button: .gameMenuButton,
+				list: .gameMenu,
+				id: ElementID("geocities-spider-game-menu"),
+				commands: Self.gameCommands
+			)
+			menu(
+				"Help",
+				button: .helpMenuButton,
+				list: .helpMenu,
+				id: ElementID("geocities-spider-help-menu"),
+				commands: Self.helpCommands
+			)
 		}
 		.accessibilityLabel("Menu bar")
 		.style(Styles.menuBar, GeoCitiesPage.Styles.scriptingOnly)
@@ -149,11 +161,16 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 		_ title: String,
 		button buttonPart: Parts,
 		list: Parts,
-		id: String,
+		id: ElementID,
 		commands: [(command: String, title: String, key: String)?]
 	) -> some HTML {
 		div {
-			button(.part(buttonPart), .type(.button), .ariaExpanded(false), .ariaControls(id)) {
+			button(
+				.part(buttonPart),
+				.type(.button),
+				.ariaExpanded(false),
+				.ariaControls(id)
+			) {
 				title
 			}
 			.style(Styles.menuTitle)
@@ -216,46 +233,46 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 	/**
 	The columns and the commands of the menus, which carry a value, and the marks that the script sets on the cards and the columns.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A column of cards, by its number from the left.
 		*/
-		case column = "data-spider-column"
+		case column = "spider-column"
 
 		/**
 		A command of a menu, like `new` for New Game.
 		*/
-		case command = "data-spider-command"
+		case command = "spider-command"
 
 		/**
 		On a red card, a heart or a diamond.
 		*/
-		case red = "data-spider-red"
+		case red = "spider-red"
 
 		/**
 		On a card that is face down.
 		*/
-		case faceDown = "data-spider-down"
+		case faceDown = "spider-down"
 
 		/**
 		On the cards that the keyboard picked, which are dark, like the picked cards of Solitaire.
 		*/
-		case selected = "data-spider-selected"
+		case selected = "spider-selected"
 
 		/**
 		On the cards of a hint, and the card they can go on.
 		*/
-		case hinted = "data-spider-hint"
+		case hinted = "spider-hint"
 
 		/**
 		On the cards that follow the pointer while they are dragged.
 		*/
-		case dragging = "data-spider-dragging"
+		case dragging = "spider-dragging"
 
 		/**
 		On the column that the dragged cards would drop on.
 		*/
-		case dropTarget = "data-spider-target"
+		case dropTarget = "spider-target"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -283,7 +300,7 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 		/**
 		The dark green of the edges of the empty places on the felt.
 		*/
-		private static let darkFelt = Color("#004000")
+		private static let darkFelt = Color(raw: "#004000")
 
 		var style: Style {
 			switch self {
@@ -301,31 +318,31 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 				Style()
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
 					.background(.transparent)
-					.border(.transparent, width: 0)
+					.border(.transparent, width: .zero)
 					.fontFamily(.system)
 					.textStyle(.body)
 					.color(.black)
 					.handCursor()
 					.hover {
 						$0
-							.background(Color("#000080"))
+							.background(Color(raw: "#000080"))
 							.color(.white)
 					}
 					.focusVisible {
 						$0
-							.background(Color("#000080"))
+							.background(Color(raw: "#000080"))
 							.color(.white)
 					}
 					.expanded {
 						$0
-							.background(Color("#000080"))
+							.background(Color(raw: "#000080"))
 							.color(.white)
 					}
 			case .menuList:
 				Style()
 					.top(.percent(100))
-					.leading(0)
-					.margin(0)
+					.leading(.zero)
+					.margin(.zero)
 					.frame(minWidth: .rootEm(14))
 			case .menuLabel:
 				Style()
@@ -338,8 +355,8 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 					.position(.relative)
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.375))
-					.background(Color("#008000"))
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#008000"))
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(.system)
 					.textSelection(.disabled)
 			case .columns:
@@ -351,29 +368,29 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 				// A column of cards, which the script lays out, with the face-down cards closer together than the face-up ones. An empty column shows its place on the felt.
 				Style()
 					.position(.relative)
-					.frame(minWidth: 0, minHeight: .rootEm(2.5))
-					.padding(0)
+					.frame(minWidth: .zero, minHeight: .rootEm(2.5))
+					.padding(.zero)
 					.background(.transparent)
 					.border(.transparent, width: .pixels(1))
 					.cornerRadius(.pixels(3))
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#ffff00"), width: .pixels(2), offset: .pixels(1))
+						$0.focusRing(Color(raw: "#ffff00"), width: .pixels(2), offset: .pixels(1))
 					}
 					.when(States.empty) {
 						$0.border(Self.darkFelt, width: .pixels(1))
 					}
 					.when(Hooks.dropTarget) {
 						$0
-							.background(Color("#00b000"))
-							.border(Color("#ffff00"), width: .pixels(1))
+							.background(Color(raw: "#00b000"))
+							.border(Color(raw: "#ffff00"), width: .pixels(1))
 					}
 			case .card:
 				// A card, with its rank and suit in the corner and a big suit at the bottom, red for hearts and diamonds. The back is the blue of the cards of Windows. A finger on a face-up card drags it, and on a face-down card it scrolls the page.
 				Style()
 					.position(.absolute)
-					.top(0)
-					.leading(0)
+					.top(.zero)
+					.leading(.zero)
 					.padding(.pixels(2))
 					.background(.white)
 					.border(.black, width: .pixels(1))
@@ -386,12 +403,19 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 					.overflow(.hidden)
 					.touchAction(.none)
 					.when(Hooks.red) {
-						$0.color(Color("#cc0000"))
+						$0.color(Color(raw: "#cc0000"))
 					}
 					.when(Hooks.faceDown) {
 						$0
-							.backgroundImage(.radialGradient("circle at 50% 40%", Color("#6d8ff0"), Color("#1a3a9e")))
-							.shadow(Shadow(y: 0, spread: .pixels(2), color: .white, isInset: true))
+							.backgroundImage(.radialGradient(.circle(at: .init(x: .percent(50), y: .percent(40))), Color(raw: "#6d8ff0"), Color(raw: "#1a3a9e")))
+							.shadow(
+								BoxShadow(
+									y: .zero,
+									spread: .pixels(2),
+									color: .white,
+									isInset: true
+								)
+							)
 							.touchAction(.auto)
 					}
 					.when(Hooks.selected) {
@@ -399,13 +423,13 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 					}
 					.when(Hooks.hinted) {
 						$0
-							.background(Color("#ffff99"))
-							.border(Color("#0000cc"), width: .pixels(2))
+							.background(Color(raw: "#ffff99"))
+							.border(Color(raw: "#0000cc"), width: .pixels(2))
 					}
 					.when(Hooks.dragging) {
 						$0
 							.zIndex(30)
-							.shadow(Shadow(x: .pixels(3), y: .pixels(3), color: Color("#00000066")))
+							.shadow(BoxShadow(x: .pixels(3), y: .pixels(3), color: Color(raw: "#00000066")))
 							.allowsHitTesting(false)
 					}
 			case .corner:
@@ -431,7 +455,7 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 				Style()
 					.position(.relative)
 					.flexShrink(0)
-					.margin(0)
+					.margin(.zero)
 					.when(States.empty) {
 						$0
 							.border(Self.darkFelt, width: .pixels(1))
@@ -444,13 +468,13 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 					.alignSelf(.center)
 			case .mormorFace:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.font(.extraLarge)
 					.lineHeight(1)
 			case .balloon:
 				Style()
 					.position(.absolute)
-					.bottom(0)
+					.bottom(.zero)
 					.leading(.percent(100))
 					.zIndex(25)
 					.frame(width: .rootEm(11))
@@ -469,7 +493,7 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 				Style()
 					.alignSelf(.center)
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
-					.background(Color("#006000"))
+					.background(Color(raw: "#006000"))
 					.border(Self.darkFelt, width: .pixels(2))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
@@ -479,20 +503,20 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 					.color(.white)
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#ffff00"), width: .pixels(2), offset: .pixels(1))
+						$0.focusRing(Color(raw: "#ffff00"), width: .pixels(2), offset: .pixels(1))
 					}
 			case .stock:
 				// The stock at the bottom right, one card back for each deal that is left.
 				Style()
 					.position(.relative)
 					.flexShrink(0)
-					.padding(0)
+					.padding(.zero)
 					.background(.transparent)
 					.border(.transparent, width: .pixels(1))
 					.cornerRadius(.pixels(3))
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#ffff00"), width: .pixels(2), offset: .pixels(1))
+						$0.focusRing(Color(raw: "#ffff00"), width: .pixels(2), offset: .pixels(1))
 					}
 					.when(States.empty) {
 						$0.border(Self.darkFelt, width: .pixels(1))
@@ -501,7 +525,7 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 				// The fireworks of a win, over the felt. A click goes through to the table, which stops them.
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.zIndex(40)
 					.frame(size: .percent(100))
 					.allowsHitTesting(false)

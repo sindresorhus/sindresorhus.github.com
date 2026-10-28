@@ -1,7 +1,7 @@
 ---
 title: 'The Micro-Benchmark Fallacy'
 description: 'It’s a trap.'
-publicationDate: '2024-08-13'
+publicationDate: 2024-08-13
 tags: [
 	'programming'
 ]

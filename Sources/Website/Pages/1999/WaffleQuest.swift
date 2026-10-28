@@ -64,7 +64,16 @@ struct GeoCitiesWaffleQuest: ScriptedElement {
 				.accessibilityHidden()
 				.style(Styles.mirror)
 
-				input(.id("geocities-waffle-quest-input"), .part(Parts.input), .type(.text), .autocomplete("off"), .maxlength(80), .custom(name: "spellcheck", value: "false"), .custom(name: "autocapitalize", value: "off"), .custom(name: "enterkeyhint", value: "send"))
+				input(
+					.id("geocities-waffle-quest-input"),
+					.part(Parts.input),
+					.type(.text),
+					.autocomplete("off"),
+					.maxlength(80),
+					.spellcheck(false),
+					.autocapitalize(.none),
+					.custom(name: "enterkeyhint", value: "send")
+				)
 					.accessibilityLabel("Command")
 					.style(Styles.input)
 			}
@@ -100,11 +109,11 @@ struct GeoCitiesWaffleQuest: ScriptedElement {
 		case after
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The command of a quick button, like `n`.
 		*/
-		case command = "data-waffle-quest-command"
+		case command = "waffle-quest-command"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -130,22 +139,22 @@ struct GeoCitiesWaffleQuest: ScriptedElement {
 					.frame(maxWidth: .pixels(720))
 					.margin(.horizontal, .auto)
 					.background(.black)
-					.border(Color("#555555"), width: .pixels(10), style: .ridge)
+					.border(Color(raw: "#555555"), width: .pixels(10), style: .ridge)
 					.fontFamily(#""Perfect DOS VGA 437", "Lucida Console", "Courier New", monospace"#)
 					.textStyle(.body)
 					.lineHeight(1.35)
-					.color(Color("#c0c0c0"))
+					.color(Color(raw: "#c0c0c0"))
 					.focusWithin {
-						$0.border(Color("#777777"), width: .pixels(10), style: .ridge)
+						$0.border(Color(raw: "#777777"), width: .pixels(10), style: .ridge)
 					}
 			case .statusLine:
 				// The status line of the Infocom games: the room on the left and the score on the right, in reverse.
 				Style()
 					.hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(1))
 					.flexWrap()
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-					.background(Color("#c0c0c0"))
+					.background(Color(raw: "#c0c0c0"))
 					.color(.black)
 			case .screen:
 				Style()
@@ -154,7 +163,7 @@ struct GeoCitiesWaffleQuest: ScriptedElement {
 					.overflow(.auto)
 					.preservesLineBreaks()
 					.overflowWrap(.breakWord)
-					.scrollbarColor(thumb: Color("#808080"), track: .black)
+					.scrollbarColor(thumb: Color(raw: "#808080"), track: .black)
 			case .form:
 				// The input is on top of a copy of what is typed, with a blinking cursor like DOS, so a click or a tap anywhere on the line types.
 				Style()
@@ -163,19 +172,19 @@ struct GeoCitiesWaffleQuest: ScriptedElement {
 					.padding(top: .rootEm(0.25), horizontal: .rootEm(0.5), bottom: .rootEm(0.5))
 			case .prompt:
 				Style()
-					.color(Color("#ffffff"))
+					.color(Color(raw: "#ffffff"))
 			case .mirror:
 				Style()
 					.flex(1)
 					.preservesLineBreaks()
 					.overflowWrap(.breakWord)
-					.color(Color("#ffffff"))
+					.color(Color(raw: "#ffffff"))
 			case .cursor:
-				Style().color(Color("#ffffff"))
+				Style().color(Color(raw: "#ffffff"))
 			case .input:
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.frame(width: .percent(100))
 					.opacity(0)
 					.inheritsFont()

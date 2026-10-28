@@ -21,13 +21,27 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 	/**
 	The tools of the studio, like the toolbar of the real one, each with a panel of its own, by the ID the script knows them by.
 	*/
-	private static let tools: [(id: String, name: String, icon: String)] = [
-		("scenes", "Scenes", "🎬"),
-		("actors", "Actors", "🎭"),
-		("words", "Words", "🔤"),
-		("sounds", "Sounds", "🔔"),
-		("portfolio", "Portfolio", "📁"),
-	]
+	enum Tool: String, CaseIterable {
+		case scenes
+		case actors
+		case words
+		case sounds
+		case portfolio
+
+		var name: String {
+			rawValue.capitalized
+		}
+
+		var icon: String {
+			switch self {
+			case .scenes: "🎬"
+			case .actors: "🎭"
+			case .words: "🔤"
+			case .sounds: "🔔"
+			case .portfolio: "📁"
+			}
+		}
+	}
 
 	/**
 	The actors of the cast list, by the ID the script knows them by.
@@ -88,12 +102,24 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 	*/
 	@HTMLBuilder
 	private var stage: some HTML {
-		canvas(.part(Parts.screen), .width(480), .height(300), .tabindex(0), .role("application")) {}
+		canvas(
+			.part(Parts.screen),
+			.width(480),
+			.height(300),
+			.tabindex(0),
+			.role("application")
+		) {}
 			.accessibilityLabel("The movie. Click an actor to pick it, and drag it on the floor to record its path while the clock runs. The arrow keys move the picked actor and record one frame, N picks the next actor, Delete removes it, comma and period go back and forward a frame, and Space plays the movie.")
 			.style(Styles.screen)
 
 		div {
-			input(.part(Parts.frame), .type(.range), .min(0), .max(0), .value("0"))
+			input(
+				.part(Parts.frame),
+				.type(.range),
+				.min(0),
+				.max(0),
+				.value("0")
+			)
 				.accessibilityLabel("Frame")
 				.style(Styles.slider)
 
@@ -148,8 +174,8 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 	@HTMLBuilder
 	private var toolbar: some HTML {
 		div(.role("group")) {
-			for tool in Self.tools {
-				button(.type(.button), .hook(Hooks.tool, value: tool.id), .ariaPressed(tool.id == "scenes")) {
+			for tool in Tool.allCases {
+				button(.type(.button), .hook(Hooks.tool, value: tool.rawValue), .ariaPressed(tool == .scenes)) {
 					span {
 						tool.icon
 					}
@@ -166,11 +192,21 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 	}
 
 	/**
+	A tool drawer, initially visible only for the selected Scenes tool.
+	*/
+	private func panel<Content: HTML>(_ tool: Tool, @HTMLBuilder content: () -> Content) -> some HTML<HTMLTag.div> {
+		div(.hook(Hooks.panel, value: tool.rawValue)) {
+			content()
+		}
+		.attributes(.hidden, when: tool != .scenes)
+	}
+
+	/**
 	The drawer of the scenes: the set, the camera angles, and the scenes of the movie.
 	*/
 	@HTMLBuilder
 	private var scenesPanel: some HTML {
-		div(.hook(Hooks.panel, value: "scenes")) {
+		panel(.scenes) {
 			div {
 				label {
 					"Set: "
@@ -229,7 +265,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 	*/
 	@HTMLBuilder
 	private var actorsPanel: some HTML {
-		div(.hook(Hooks.panel, value: "actors"), .hidden) {
+		panel(.actors) {
 			div {
 				label {
 					"Cast: "
@@ -285,13 +321,20 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 	*/
 	@HTMLBuilder
 	private var wordsPanel: some HTML {
-		div(.hook(Hooks.panel, value: "words"), .hidden) {
+		panel(.words) {
 			form(.part(Parts.sayForm)) {
 				label(.for("geocities-moviemaker-say-text")) {
 					"💬 Say:"
 				}
 
-				input(.id("geocities-moviemaker-say-text"), .part(Parts.sayText), .type(.text), .maxlength(50), .autocomplete("off"), .placeholder("Uff da!"))
+				input(
+					.id("geocities-moviemaker-say-text"),
+					.part(Parts.sayText),
+					.type(.text),
+					.maxlength(50),
+					.autocomplete("off"),
+					.placeholder("Uff da!")
+				)
 					.style(GeoCitiesPage.Styles.field)
 
 				button(.type(.submit)) {
@@ -306,7 +349,14 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 					"🔠 Title:"
 				}
 
-				input(.id("geocities-moviemaker-title-text"), .part(Parts.titleText), .type(.text), .maxlength(24), .autocomplete("off"), .placeholder("THE END?"))
+				input(
+					.id("geocities-moviemaker-title-text"),
+					.part(Parts.titleText),
+					.type(.text),
+					.maxlength(24),
+					.autocomplete("off"),
+					.placeholder("THE END?")
+				)
 					.style(GeoCitiesPage.Styles.field)
 
 				button(.type(.submit)) {
@@ -324,7 +374,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 	*/
 	@HTMLBuilder
 	private var soundsPanel: some HTML {
-		div(.hook(Hooks.panel, value: "sounds"), .hidden) {
+		panel(.sounds) {
 			div {
 				label {
 					"Sound effect: "
@@ -354,7 +404,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 	*/
 	@HTMLBuilder
 	private var portfolioPanel: some HTML {
-		div(.hook(Hooks.panel, value: "portfolio"), .hidden) {
+		panel(.portfolio) {
 			div {
 				button(.part(Parts.save), .type(.button)) {
 					"💾 Save"
@@ -442,21 +492,21 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 	/**
 	The lists of the same kind of button, with a value for the script.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A tool of the toolbar, by the ID of its panel.
 		*/
-		case tool = "data-moviemaker-tool"
+		case tool = "moviemaker-tool"
 
 		/**
 		The panel of a tool, by its ID.
 		*/
-		case panel = "data-moviemaker-panel"
+		case panel = "moviemaker-panel"
 
 		/**
 		A camera angle of the set, by its number from 0.
 		*/
-		case camera = "data-moviemaker-camera"
+		case camera = "moviemaker-camera"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -489,11 +539,11 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(480.0 / 300.0)
 					.background(.black)
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
 					.touchAction(.none)
 					.cursor(.pointer)
 					.focusVisible {
-						$0.focusRing(Color("#ffd23f"), width: .pixels(2), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffd23f"), width: .pixels(2), offset: .pixels(2))
 					}
 			case .timeline:
 				// The frame slider, with the film counter beside it, like the counter of a VCR.
@@ -505,14 +555,14 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 				Style()
 					.flex(1)
 					.frame(minWidth: .rootEm(8))
-					.margin(0)
+					.margin(.zero)
 					.below(.smallTablet) {
 						$0.frame(minHeight: .rootEm(1.75))
 					}
 			case .counter:
 				Style()
 					.flexShrink(0)
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
 					.textStyle(.caption)
 					.monospacedDigit()
@@ -538,10 +588,10 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 			case .toolButton:
 				// A tool of the studio, which stays pressed in while its panel is open.
 				GeoCitiesPage.Styles.smallButton.style
-					.vstack(alignment: .center, justification: .center, spacing: 0)
+					.vstack(alignment: .center, justification: .center, spacing: .zero)
 					.frame(minWidth: .rootEm(2.25), minHeight: .rootEm(2.5))
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.25))
-					.pressedIn(Color("#ffffcc"))
+					.pressedIn(Color(raw: "#ffffcc"))
 			case .toolIcon:
 				Style().font(.large)
 			case .panel:
@@ -549,7 +599,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.375))
 					.padding(.rootEm(0.375))
-					.border(Color("#808080"), width: .pixels(2), style: .groove)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .groove)
 			case .sceneStrip:
 				// The scenes of the movie, one after the other, like the scene sorter of the real one.
 				Style()
@@ -559,28 +609,28 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 				// A scene, like a frame of film. The scene on the stage is yellow.
 				Style()
 					.frame(minWidth: .rootEm(2.5), minHeight: .rootEm(2))
-					.padding(vertical: 0, horizontal: .rootEm(0.25))
-					.background(Color("#202020"))
-					.border(Color("#808080"), width: .pixels(2), style: .dashed)
+					.padding(vertical: .zero, horizontal: .rootEm(0.25))
+					.background(Color(raw: "#202020"))
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .dashed)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 					.color(.white)
 					.handCursor()
 					.pressed {
 						$0
-							.background(Color("#ffff99"))
+							.background(Color(raw: "#ffff99"))
 							.color(.black)
 					}
 			case .guideRow:
 				// McZee, with what he says in a balloon beside him.
 				Style()
-					.grid(columns: "auto 1fr")
+					.grid(columns: .auto, .fraction(1))
 					.alignItems(.center)
 					.gap(.rootEm(0.375))
 			case .guideButton:
 				// McZee himself, who gives a tip when he is clicked.
 				GeoCitiesPage.Styles.smallButton.style
-					.vstack(alignment: .center, spacing: 0)
+					.vstack(alignment: .center, spacing: .zero)
 					.padding(.rootEm(0.125))
 			case .guide:
 				Style()
@@ -589,7 +639,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 			case .balloon:
 				// A speech balloon of a comic, for McZee.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 					.frame(minHeight: .rootEm(3))
 					.background(.white)

@@ -5,15 +5,27 @@ import SiteKit
 /**
 A small line chart of numbers without axes, like the contributions of each week, to show a trend at a glance. The last number has a dot, as it is the newest. It is in the accent of the page, and fills the width of its container.
 
-Limitation: It needs at least two numbers to draw a line.
+Initialization fails without at least two numbers to draw a line.
 */
 struct Sparkline: HTML {
-	let values: [Int]
+	private let values: [Int]
 
 	/**
 	What the chart shows, for screen readers, like the lowest, the highest, and the last number.
 	*/
 	let label: String
+
+	/**
+	Creates a line chart when the values contain at least two samples.
+	*/
+	init?(values: [Int], label: String) {
+		guard values.count >= 2 else {
+			return nil
+		}
+
+		self.values = values
+		self.label = label
+	}
 
 	var body: some HTML<HTMLTag.div> {
 		let points = points
@@ -24,19 +36,36 @@ struct Sparkline: HTML {
 			// The scale of the drawing is not uniform, so it fills any width, and the lines keep their width (`vector-effect`).
 			SVG.svg(
 				.xmlns(),
-				.viewBox(0, 0, .init(Swift.max(values.count - 1, 1)), 100),
-				SVGAttribute(name: "preserveAspectRatio", value: "none"),
-				SVGAttribute(name: "role", value: "img"),
-				SVGAttribute(name: "aria-label", value: label)
+				.viewBox(
+					0,
+					0,
+					.init(values.count - 1),
+					100
+				),
+				SVGAttribute(name: "preserveAspectRatio", value: "none")
 			) {
 				SVG.path(.fill("currentColor"), .fillOpacity(0.12), .d("\(line)L\(values.count - 1) 100L0 100Z"))
-				SVG.path(.fill("none"), .stroke("currentColor"), .strokeWidth(2), .strokeLinejoin(.round), SVGAttribute(name: "vector-effect", value: "non-scaling-stroke"), .d(line))
+				SVG.path(
+					.fill("none"),
+					.stroke("currentColor"),
+					.strokeWidth(2),
+					.strokeLinejoin(.round),
+					SVGAttribute(name: "vector-effect", value: "non-scaling-stroke"),
+					.d(line)
+				)
 
 				// A round cap on a line without length is a dot.
 				if let last = points.last {
-					SVG.path(.stroke("currentColor"), .strokeWidth(7), .strokeLinecap(.round), SVGAttribute(name: "vector-effect", value: "non-scaling-stroke"), .d("M\(last.x) \(last.y)h0"))
+					SVG.path(
+						.stroke("currentColor"),
+						.strokeWidth(7),
+						.strokeLinecap(.round),
+						SVGAttribute(name: "vector-effect", value: "non-scaling-stroke"),
+						.d("M\(last.x) \(last.y)h0")
+					)
 				}
 			}
+			.accessibleImage(label)
 		}
 		.style(Styles.root)
 	}

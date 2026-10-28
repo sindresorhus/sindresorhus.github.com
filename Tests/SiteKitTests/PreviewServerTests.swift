@@ -50,8 +50,8 @@ struct PreviewServerTests {
 
 	private func get(_ path: String, port: UInt16) async throws -> (status: Int, body: String) {
 		let url = try #require(URL(string: "http://127.0.0.1:\(port)\(path)"))
-		let (data, response) = try await URLSession.shared.data(from: url)
-		return ((response as? HTTPURLResponse)?.statusCode ?? 0, String(decoding: data, as: UTF8.self))
+		let (data, response) = try await URLSession.shared.httpData(for: URLRequest(url: url))
+		return (response.statusCode, String(decoding: data, as: UTF8.self))
 	}
 
 	private func state(since revision: String, port: UInt16) async throws -> State {
@@ -70,6 +70,54 @@ struct PreviewServerTests {
 				#expect(response.status == status, "\(path)")
 				#expect(response.body == body, "\(path)")
 			}
+		}
+	}
+
+	@Test(.timeLimit(.minutes(1)), .temporaryDirectory)
+	func `answers a request for a range of bytes, like Safari for a video`() async throws {
+		let directory = try URL.temporaryDirectory(files: ["video.mp4": "0123456789"])
+
+		try await running(PreviewServer(directory: directory, port: 0)) { port in
+			// An invalid range, or several ranges, get the whole file.
+			for (range, status, body, contentRange) in [
+				(nil, 200, "0123456789", nil),
+				("bytes=2-4", 206, "234", "bytes 2-4/10"),
+				("bytes=7-", 206, "789", "bytes 7-9/10"),
+				("bytes=-3", 206, "789", "bytes 7-9/10"),
+				("bytes=-30", 206, "0123456789", "bytes 0-9/10"),
+				("bytes=8-100", 206, "89", "bytes 8-9/10"),
+				("bytes=0-0", 206, "0", "bytes 0-0/10"),
+				("bytes=9-9", 206, "9", "bytes 9-9/10"),
+				("bytes=10-", 416, "", "bytes */10"),
+				("bytes=-0", 416, "", "bytes */10"),
+				("bytes=4-2", 200, "0123456789", nil),
+				("bytes=0-1,4-5", 200, "0123456789", nil)
+			] as [(String?, Int, String, String?)] {
+				var request = URLRequest(url: try #require(URL(string: "http://127.0.0.1:\(port)/video.mp4")))
+				request.setValue(range, forHTTPHeaderField: "Range")
+				let (data, httpResponse) = try await URLSession.shared.httpData(for: request)
+				let label = range ?? "no range"
+				#expect(httpResponse.statusCode == status, "\(label)")
+				#expect(String(decoding: data, as: UTF8.self) == body, "\(label)")
+				#expect(httpResponse.value(forHTTPHeaderField: "Content-Length") == String(data.count), "\(label)")
+				#expect(httpResponse.value(forHTTPHeaderField: "Content-Range") == contentRange, "\(label)")
+				#expect(httpResponse.value(forHTTPHeaderField: "Accept-Ranges") == (status == 416 ? nil : "bytes"), "\(label)")
+			}
+		}
+	}
+
+	@Test(.timeLimit(.minutes(1)), .temporaryDirectory)
+	func `a byte range of an empty file is unsatisfied`() async throws {
+		let directory = try URL.temporaryDirectory(files: ["empty.mp4": ""])
+
+		try await running(PreviewServer(directory: directory, port: 0)) { port in
+			var request = URLRequest(url: try #require(URL(string: "http://127.0.0.1:\(port)/empty.mp4")))
+			request.setValue("bytes=0-", forHTTPHeaderField: "Range")
+			let (data, httpResponse) = try await URLSession.shared.httpData(for: request)
+			#expect(httpResponse.statusCode == 416)
+			#expect(data.isEmpty)
+			#expect(httpResponse.value(forHTTPHeaderField: "Content-Range") == "bytes */0")
+			#expect(httpResponse.value(forHTTPHeaderField: "Content-Length") == "0")
 		}
 	}
 
@@ -102,5 +150,15 @@ struct PreviewServerTests {
 			let reloaded = try await state(since: errorState.revision, port: port)
 			#expect(reloaded.version != initial.version)
 		}
+	}
+}
+
+extension URLSession {
+	/**
+	The data and checked HTTP response of a request to the local preview server.
+	*/
+	fileprivate func httpData(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+		let (data, response) = try await data(for: request)
+		return (data, try #require(response as? HTTPURLResponse))
 	}
 }

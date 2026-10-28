@@ -12,7 +12,16 @@ struct GeoCitiesPets: HTML {
 	A pet of the control panel, with the ID that the script knows it by.
 	*/
 	private struct Pet {
-		let id: String
+		enum Kind: String {
+			case neko
+			case sheep
+			case birds
+			case mouse
+			case ufo
+			case worm
+		}
+
+		let kind: Kind
 		let name: String
 		let text: String
 
@@ -23,16 +32,46 @@ struct GeoCitiesPets: HTML {
 	}
 
 	private static let pets = [
-		Pet(id: "neko", name: "Neko the kitten", text: "Neko chases your mouse pointer (or your finger) all over my page. Let the pointer rest and Neko falls asleep. Pick Neko up and drop it, if you dare.", actions: [("neko-pet", "Pet Neko"), ("neko-yarn", "Throw yarn"), ("neko-home", "Send Neko to the basket")]),
-		Pet(id: "sheep", name: "Dolly the sheep", text: "Dolly walks on top of my windows and falls off the edges. Drag her somewhere nicer. Scientists cloned a sheep in 1996, so I can too.", actions: [("sheep-clone", "Clone Dolly"), ("sheep-baa", "Say mæ")]),
-		Pet(id: "birds", name: "The sparrows", text: "They sit on my windows. Move the pointer close and they fly away. Bread brings them back. Watch out for the seagulls of Bergen.", actions: [("birds-crumbs", "Throw bread crumbs")]),
-		Pet(id: "mouse", name: "The mouse (not that kind)", text: "A real mouse lives at the bottom of the window. It loves brown cheese. Neko loves the mouse. The mouse does not love Neko.", actions: [("mouse-cheese", "Put out brown cheese")]),
-		Pet(id: "ufo", name: "The UFO", text: "Now and then it flies over my page and beams up a GIF. Click the UFO before it gets away!", actions: [("ufo-call", "Call the UFO"), ("ufo-zap", "Zap the UFO"), ("ufo-return", "Ask Area 51 for the GIFs")]),
-		Pet(id: "worm", name: "The bookworm", text: "It eats holes in my windows. Luckily my page is always under construction, so a worker fixes them.", actions: [("worm-call", "Call the bookworm")]),
+		Pet(
+			kind: .neko,
+			name: "Neko the kitten",
+			text: "Neko chases your mouse pointer (or your finger) all over my page. Let the pointer rest and Neko falls asleep. Pick Neko up and drop it, if you dare.",
+			actions: [("neko-pet", "Pet Neko"), ("neko-yarn", "Throw yarn"), ("neko-home", "Send Neko to the basket")]
+		),
+		Pet(
+			kind: .sheep,
+			name: "Dolly the sheep",
+			text: "Dolly walks on top of my windows and falls off the edges. Drag her somewhere nicer. Scientists cloned a sheep in 1996, so I can too.",
+			actions: [("sheep-clone", "Clone Dolly"), ("sheep-baa", "Say mæ")]
+		),
+		Pet(
+			kind: .birds,
+			name: "The sparrows",
+			text: "They sit on my windows. Move the pointer close and they fly away. Bread brings them back. Watch out for the seagulls of Bergen.",
+			actions: [("birds-crumbs", "Throw bread crumbs")]
+		),
+		Pet(
+			kind: .mouse,
+			name: "The mouse (not that kind)",
+			text: "A real mouse lives at the bottom of the window. It loves brown cheese. Neko loves the mouse. The mouse does not love Neko.",
+			actions: [("mouse-cheese", "Put out brown cheese")]
+		),
+		Pet(
+			kind: .ufo,
+			name: "The UFO",
+			text: "Now and then it flies over my page and beams up a GIF. Click the UFO before it gets away!",
+			actions: [("ufo-call", "Call the UFO"), ("ufo-zap", "Zap the UFO"), ("ufo-return", "Ask Area 51 for the GIFs")]
+		),
+		Pet(
+			kind: .worm,
+			name: "The bookworm",
+			text: "It eats holes in my windows. Luckily my page is always under construction, so a worker fixes them.",
+			actions: [("worm-call", "Call the bookworm")]
+		),
 	]
 
 	var body: some HTML {
-		section(.id(Hooks.root)) {
+		section(.id(IDs.root)) {
 			h2 {
 				"Sindre’s Desktop Pets 1.0"
 			}
@@ -40,7 +79,12 @@ struct GeoCitiesPets: HTML {
 
 			div {
 				p {
-					GeoCitiesPage.GIFImage(gif: .cat, alt: "", style: .floating, project: project)
+					GeoCitiesPage.GIFImage(
+						gif: .cat,
+						alt: "",
+						style: .floating,
+						project: project
+					)
 					"My page is "
 					strong {
 						"ALIVE"
@@ -56,7 +100,12 @@ struct GeoCitiesPets: HTML {
 				}
 				.style(Styles.grid, GeoCitiesPage.Styles.scriptingOnly)
 
-				GeoCitiesPage.GIFImage(gif: .worm, alt: "", style: .centered, project: project)
+				GeoCitiesPage.GIFImage(
+					gif: .worm,
+					alt: "",
+					style: .centered,
+					project: project
+				)
 
 				div {
 					button(.type(.button), .hook(Hooks.action, value: "shoo")) {
@@ -71,7 +120,7 @@ struct GeoCitiesPets: HTML {
 				}
 				.style(GeoCitiesPage.Styles.buttonRow, GeoCitiesPage.Styles.scriptingOnly)
 
-				p(.id(Hooks.status), .role("status")) {}
+				p(.id(IDs.status), .role("status")) {}
 					.style(GeoCitiesPage.Styles.centeredText, GeoCitiesPage.Styles.scriptingOnly)
 
 				p {
@@ -85,7 +134,7 @@ struct GeoCitiesPets: HTML {
 		}
 		.style(GeoCitiesPage.Styles.window)
 
-		ModuleScript("/scripts/geocities-life.js")
+		ModuleScript(#path("/scripts/geocities-life.js"))
 	}
 
 	/**
@@ -111,13 +160,13 @@ struct GeoCitiesPets: HTML {
 				.style(Styles.text)
 
 				// The live counts of the pet, like how many sheep there are, which the script fills.
-				p(.hook(Hooks.count, value: pet.id)) {}
+				p(.hook(Hooks.count, value: pet.kind.rawValue)) {}
 					.style(Styles.count)
 
-				if pet.id == "neko" {
+				if pet.kind == .neko {
 					label {
 						"Your pointer: "
-						select(.id(Hooks.prey)) {
+						select(.id(IDs.prey)) {
 							for (value, title) in [("arrow", "Arrow"), ("mouse", "Mouse"), ("fish", "Fish"), ("bird", "Bird")] {
 								Elementary.option(.value(value)) {
 									title
@@ -130,7 +179,7 @@ struct GeoCitiesPets: HTML {
 				}
 
 				label {
-					input(.type(.checkbox), .hook(Hooks.toggle, value: pet.id))
+					input(.type(.checkbox), .hook(Hooks.toggle, value: pet.kind.rawValue))
 						.attributes(.checked)
 					" Lives on my page"
 				}
@@ -156,20 +205,31 @@ struct GeoCitiesPets: HTML {
 	*/
 	@HTMLBuilder
 	private func petPicture(for pet: Pet) -> some HTML {
-		if pet.id == "neko" {
+		switch pet.kind {
+		case .neko:
 			// The basket, where Neko sleeps while it is home. The script shows Neko awake in it when it is poked, and an empty basket while Neko is out.
-			div(.id(Hooks.basket)) {
+			div(.id(IDs.basket)) {
 				div {
-					img(.src(GeoCitiesPage.GIF.neko.path), .alt(""), .width(256), .height(128))
+					img(
+						.src(GeoCitiesPage.GIF.neko.path),
+						.alt(""),
+						.width(256),
+						.height(128)
+					)
 						.style(Styles.nekoSheet)
 				}
 				.style(Styles.nekoFrame)
 			}
 			.style(Styles.basket)
-		} else if pet.id == "ufo" {
-			GeoCitiesPage.GIFImage(gif: .ufo, alt: "", style: .gif, project: project)
-		} else {
-			canvas(.hook(Hooks.picture, value: pet.id), .width(48), .height(48)) {}
+		case .ufo:
+			GeoCitiesPage.GIFImage(
+				gif: .ufo,
+				alt: "",
+				style: .gif,
+				project: project
+			)
+		case .sheep, .birds, .mouse, .worm:
+			canvas(.hook(Hooks.picture, value: pet.kind.rawValue), .width(48), .height(48)) {}
 				.style(Styles.pixels)
 		}
 	}
@@ -179,31 +239,36 @@ struct GeoCitiesPets: HTML {
 	*/
 	private var templates: some HTML {
 		div {
-			template(.id(Hooks.pageLayerTemplate)) {
+			template(.id(IDs.pageLayerTemplate)) {
 				div {}
 					.accessibilityHidden()
 					.style(Styles.pageLayer)
 			}
 
-			template(.id(Hooks.screenLayerTemplate)) {
+			template(.id(IDs.screenLayerTemplate)) {
 				div {}
 					.accessibilityHidden()
 					.style(Styles.screenLayer)
 			}
 
-			template(.id(Hooks.critterTemplate)) {
+			template(.id(IDs.critterTemplate)) {
 				div {}
 					.style(Styles.critter)
 			}
 
-			template(.id(Hooks.bubbleTemplate)) {
+			template(.id(IDs.bubbleTemplate)) {
 				span {}
 					.style(Styles.bubble)
 			}
 
-			template(.id(Hooks.nekoTemplate)) {
+			template(.id(IDs.nekoTemplate)) {
 				div {
-					img(.src(GeoCitiesPage.GIF.neko.path), .alt(""), .width(256), .height(128))
+					img(
+						.src(GeoCitiesPage.GIF.neko.path),
+						.alt(""),
+						.width(256),
+						.height(128)
+					)
 						.style(Styles.nekoSheet)
 				}
 				.style(Styles.critter, Styles.nekoFrame)
@@ -211,7 +276,7 @@ struct GeoCitiesPets: HTML {
 		}
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum IDs: String, ScriptIDSet {
 		case root = "geocities-pets"
 		case status = "geocities-pets-status"
 		case prey = "geocities-pets-prey"
@@ -221,26 +286,28 @@ struct GeoCitiesPets: HTML {
 		case critterTemplate = "geocities-pets-critter"
 		case bubbleTemplate = "geocities-pets-bubble"
 		case nekoTemplate = "geocities-pets-neko"
+	}
 
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		What a button of the panel does, like `neko-yarn`.
 		*/
-		case action = "data-critter-action"
+		case action = "critter-action"
 
 		/**
 		The checkbox of a pet that lives on the page, with the ID of the pet.
 		*/
-		case toggle = "data-critter-toggle"
+		case toggle = "critter-toggle"
 
 		/**
 		The counts of a pet, with the ID of the pet.
 		*/
-		case count = "data-critter-count"
+		case count = "critter-count"
 
 		/**
 		The canvas where the script draws a pet for its card, with the ID of the pet.
 		*/
-		case picture = "data-critter-picture"
+		case picture = "critter-picture"
 	}
 
 	enum States: String, ElementStateSet {
@@ -279,14 +346,14 @@ struct GeoCitiesPets: HTML {
 					.hstack(alignment: .start, spacing: .rootEm(0.75))
 					.padding(.rootEm(0.625))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			case .picture:
 				Style()
 					.hstack(alignment: .center, justification: .center)
 					.frame(size: .rootEm(4))
 					.flexShrink(0)
-					.background(Color("#000033"))
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#000033"))
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.children("picture img") {
 						$0.frame(width: .rootEm(3.5), height: .auto, maxHeight: .rootEm(3.5))
 							.objectFit(.contain)
@@ -299,25 +366,25 @@ struct GeoCitiesPets: HTML {
 			case .body:
 				Style()
 					.vstack(alignment: .start, spacing: .rootEm(0.375))
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 					.flex(1)
 			case .name:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.body, weight: .bold)
-					.color(Color("#800000"))
+					.color(Color(raw: "#800000"))
 			case .text:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption)
 			case .count:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#006600"))
+					.color(Color(raw: "#006600"))
 			case .select:
 				Style()
 					.fontFamily(.system)
@@ -344,8 +411,8 @@ struct GeoCitiesPets: HTML {
 							.trailing(.percent(8))
 							.bottom(.pixels(2))
 							.frame(height: .rootEm(1))
-							.background(Color("#b5651d"))
-							.border(Color("#8b4513"), width: .pixels(3), style: .ridge)
+							.background(Color(raw: "#b5651d"))
+							.border(Color(raw: "#8b4513"), width: .pixels(3), style: .ridge)
 							.cornerRadius(.rootEm(0.25))
 					}
 					.when(States.out) {
@@ -364,16 +431,16 @@ struct GeoCitiesPets: HTML {
 				Style()
 					.display(.block)
 					.frame(width: .pixels(256), height: .pixels(128), maxWidth: .pixels(256))
-					.offset(x: .pixels(-64), y: 0)
+					.offset(x: .pixels(-64), y: .zero)
 					.imageRendering(.pixelated)
 					.allowsHitTesting(false)
 			case .pageLayer:
 				// It covers the page from the top, as high as the page, so the pets on the windows scroll with it, under the header of the site and the toolbar of the browser. It cuts off what goes past the sides, so nothing makes the page wider.
 				Style()
 					.position(.absolute)
-					.top(0)
-					.leading(0)
-					.frame(width: .percent(100), height: 0)
+					.top(.zero)
+					.leading(.zero)
+					.frame(width: .percent(100), height: .zero)
 					.overflow(horizontal: .clip)
 					.zIndex(39)
 					.allowsHitTesting(false)
@@ -381,7 +448,7 @@ struct GeoCitiesPets: HTML {
 				// The pets on the glass are over everything, like the desktop pets of 1990s, but under the toasts.
 				Style()
 					.position(.fixed)
-					.inset(0)
+					.inset(.zero)
 					.overflow(.clip)
 					.zIndex(58)
 					.allowsHitTesting(false)
@@ -389,8 +456,8 @@ struct GeoCitiesPets: HTML {
 				// A pet, which the script moves. A finger drags it instead of scrolling the page.
 				Style()
 					.position(.absolute)
-					.top(0)
-					.leading(0)
+					.top(.zero)
+					.leading(.zero)
 					.allowsHitTesting(true)
 					.touchAction(.none)
 					.imageRendering(.pixelated)
@@ -403,8 +470,8 @@ struct GeoCitiesPets: HTML {
 				// A small speech bubble of a pet, like “Mæ!”, which the script puts above it.
 				Style()
 					.position(.absolute)
-					.top(0)
-					.leading(0)
+					.top(.zero)
+					.leading(.zero)
 					.padding(vertical: .pixels(1), horizontal: .pixels(6))
 					.background(.white)
 					.border(.black, width: .pixels(2))

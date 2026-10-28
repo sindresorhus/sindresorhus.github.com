@@ -6,10 +6,34 @@ import SiteKit
 
 struct ScriptedElementTests {
 	@Test
+	func `uninhabited defaults have no part or state values`() {
+		#expect(NoElementValues.allCases.isEmpty)
+		#expect(NoElementValues(rawValue: "anything") == nil)
+	}
+
+	@Test
+	func `generated element names reject single words and reserved HTML spellings`() async {
+		await #expect(processExitsWith: .failure) {
+			_ = Clock.tagName
+		}
+		await #expect(processExitsWith: .failure) {
+			_ = FontFace.tagName
+		}
+		#expect(PlainTicker.tagName == "plain-ticker")
+	}
+
+	@Test(arguments: ["</script>", "</SCRIPT>", "text </ScRiPt suffix"])
+	func `inline element scripts reject HTML closing tags at construction`(source: String) async {
+		await #expect(processExitsWith: .failure) { [source] in
+			_ = ElementScript(inline: source)
+		}
+	}
+
+	@Test
 	func `the tag name comes from the type, like the class name of the root style, and the path of the script from its file`() {
 		#expect(FeedTicker.tagName == "feed-ticker")
 		#expect(FeedTicker.tagName == FeedTicker.Styles.root.className)
-		#expect(FeedTicker.script.path == "/scripts/elements/FeedTicker.js")
+		#expect(FeedTicker.script.path == #path("/scripts/elements/FeedTicker.js"))
 		#expect(InlineTicker.script.path == nil)
 	}
 
@@ -18,18 +42,20 @@ struct ScriptedElementTests {
 	*/
 	@Test(.temporaryDirectory)
 	func `the project finds the scripts of the elements in the Scripts folders of the sources`() throws {
-		let root = try URL.temporaryDirectory(files: [
-			"Sources/Website/Scripts/Clock.js": "",
-			"Sources/Website/Pages/Scripts/Game.js": "",
-			"Sources/Website/Scripts/notes.txt": "",
-			"Sources/Website/helper.js": "",
-			"Sources/Website/Scripts/Nested/Deep.js": "",
-			"public/scripts/site.js": "",
-		])
+		let root = try URL.temporaryDirectory(
+			files: [
+				"Sources/Website/Scripts/Clock.js": "",
+				"Sources/Website/Pages/Scripts/Game.js": "",
+				"Sources/Website/Scripts/notes.txt": "",
+				"Sources/Website/helper.js": "",
+				"Sources/Website/Scripts/Nested/Deep.js": "",
+				"public/scripts/site.js": "",
+			]
+		)
 
 		let scripts = Project(root: root).elementScripts()
 
-		#expect(scripts.map(\.path) == ["/scripts/elements/Game.js", "/scripts/elements/Clock.js"])
+		#expect(scripts.map(\.path) == [#path("/scripts/elements/Game.js"), #path("/scripts/elements/Clock.js")])
 		#expect(scripts.map(\.source.lastPathComponent) == ["Game.js", "Clock.js"])
 		#expect(Project(root: root.appending(path: "missing")).elementScripts().isEmpty)
 	}
@@ -54,6 +80,17 @@ struct ScriptedElementTests {
 	@Test
 	func `an element without a config has no data attribute for it`() {
 		#expect(PlainTicker().render() == #"<plain-ticker class="plain-ticker"></plain-ticker>"#)
+	}
+
+	@Test
+	func `a configured element can omit its optional config without encoding it`() {
+		#expect(!FeedTicker(config: nil).render().contains("data-config"))
+	}
+
+	@Test
+	func `an explicitly encoded null remains a present configuration`() {
+		#expect(NullableTicker(config: .some(nil)).render().contains(#"data-config="null""#))
+		#expect(!NullableTicker(config: nil).render().contains("data-config"))
 	}
 
 	@Test
@@ -128,7 +165,7 @@ private struct FeedTicker: ScriptedElement {
 		ElementScript(swiftFile: (TemporaryDirectoryTrait.current ?? FileManager.default.temporaryDirectory).appending(path: "FeedTicker.swift").path(percentEncoded: false))
 	}
 
-	let config: Config
+	let config: Config?
 
 	var content: some HTML {
 		button(.part(Parts.refresh), .state(States.idle)) {
@@ -271,5 +308,38 @@ private struct LabeledTicker: ScriptedElement {
 		var style: Style {
 			Style().display(.block)
 		}
+	}
+}
+
+/**
+An element whose configuration can explicitly encode JSON null.
+*/
+private struct NullableTicker: ScriptedElement {
+	static let script = ElementScript()
+	typealias Config = String?
+	typealias Styles = PlainTicker.Styles
+
+	let config: Config?
+
+	var content: some HTML {
+		EmptyHTML()
+	}
+}
+
+private struct Clock: ScriptedElement {
+	static let script = ElementScript(inline: "export default class extends HTMLElement {}")
+	typealias Styles = PlainTicker.Styles
+
+	var content: some HTML {
+		EmptyHTML()
+	}
+}
+
+private struct FontFace: ScriptedElement {
+	static let script = ElementScript(inline: "export default class extends HTMLElement {}")
+	typealias Styles = PlainTicker.Styles
+
+	var content: some HTML {
+		EmptyHTML()
 	}
 }

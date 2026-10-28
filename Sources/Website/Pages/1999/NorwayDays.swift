@@ -11,17 +11,17 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 	/**
 	The ID of the window of the matpakke, which the school bag in my room leads to.
 	*/
-	static let lunchID = "geocities-lunch"
+	static let lunchID = ElementID("geocities-lunch")
 
 	/**
 	The ID of the window of the weather, which the rain gear in my room leads to.
 	*/
-	static let weatherID = "geocities-dress"
+	static let weatherID = ElementID("geocities-dress")
 
 	/**
 	The ID of the window of the crab fishing, which the crab bucket in my room leads to.
 	*/
-	static let crabsID = "geocities-crabs"
+	static let crabsID = ElementID("geocities-crabs")
 
 	/**
 	What can go on a slice of bread, by the name that the script knows it by, with its name.
@@ -202,7 +202,13 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.caption)
 
-			canvas(.part(Parts.crabCanvas), .width(400), .height(200), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.crabCanvas),
+				.width(400),
+				.height(200),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The dock and the sea. Press Enter to lower the line, and hold Space or the up arrow to reel it in.")
 				.style(Styles.canvas)
 
@@ -237,7 +243,13 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.caption)
 
-			canvas(.part(Parts.cheeseCanvas), .width(320), .height(180), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.cheeseCanvas),
+				.width(320),
+				.height(180),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The brown cheese and the cheese slicer. Press the up and down arrow keys to tilt the slicer, and Enter to cut a slice.")
 				.style(Styles.canvas, Styles.cheeseCanvas)
 
@@ -311,7 +323,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 	/**
 	A window of a toy. A window with an ID, which a thing in my room leads to, can have the focus, so the keyboard goes on from there.
 	*/
-	private func window(_ title: String, id: String? = nil, @HTMLBuilder content: () -> some HTML) -> some HTML {
+	private func window(_ title: String, id: ElementID? = nil, @HTMLBuilder content: () -> some HTML) -> some HTML {
 		section {
 			h3 {
 				title
@@ -323,7 +335,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.windowBody)
 		}
-		.attributes(.id(id ?? ""), .tabindex(-1), when: id != nil)
+		.attributes(contentsOf: id.map { [.id($0), .tabindex(-1)] } ?? [])
 		.style(GeoCitiesPage.Styles.window)
 	}
 
@@ -356,21 +368,21 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 		case candyStatus
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		What a button puts on a slice of bread, like `brunost`.
 		*/
-		case topping = "data-lunch-topping"
+		case topping = "lunch-topping"
 
 		/**
 		The clothing of a checkbox of the wardrobe, like `sydvest`.
 		*/
-		case clothing = "data-dress-clothing"
+		case clothing = "dress-clothing"
 
 		/**
 		The candy that a button puts in the bag, like `seigmenn`.
 		*/
-		case candyKind = "data-candy-kind"
+		case candyKind = "candy-kind"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -402,11 +414,11 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.imageRendering(.pixelated)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.canvasFocusRing()
 			case .list:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption)
 			case .choices:
 				Style()
@@ -422,7 +434,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 				Style()
 					.frame(width: .rootEm(7.5))
 					.flexShrink(0)
-					.background(Color("#9ab"))
+					.background(Color(raw: "#9ab"))
 			case .wardrobe:
 				// Two columns of clothes, like a wardrobe with two doors.
 				Style()
@@ -430,9 +442,9 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 					.gap(row: .rootEm(0.125), column: .rootEm(0.5))
 					.flex(1)
 					.frame(minWidth: .rootEm(10))
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.375))
-					.border(Color("#808080"), width: .pixels(2), style: .groove)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .groove)
 			case .legend:
 				Style()
 					.padding(.horizontal, .rootEm(0.25))
@@ -450,8 +462,8 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 				// Held down to reel in, so a long press on a phone does not select the text.
 				Style()
 					.padding(vertical: .rootEm(0.5), horizontal: .rootEm(1))
-					.background(Color("#ffcc33"))
-					.border(Color("#cc9900"), width: .pixels(3), style: .outset)
+					.background(Color(raw: "#ffcc33"))
+					.border(Color(raw: "#cc9900"), width: .pixels(3), style: .outset)
 					.cornerRadius(.rootEm(0.375))
 					.fontFamily(.system)
 					.textStyle(.body, weight: .bold)
@@ -460,7 +472,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 					.textSelection(.disabled)
 					.handCursor()
 					.active {
-						$0.border(Color("#cc9900"), width: .pixels(3), style: .inset)
+						$0.border(Color(raw: "#cc9900"), width: .pixels(3), style: .inset)
 					}
 			}
 		}

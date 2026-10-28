@@ -12,14 +12,39 @@ struct AppsPage: Page {
 		.apps
 	}
 
-	private static let description = "Quality crafted apps by Sindre Sorhus"
+	var sitemapEntry: SitemapEntry {
+		(content.dailyFeaturedApps + otherApps).listSitemapEntry
+	}
+
+	/**
+	For search results, the structured data, and the card of the page: the number of apps that a visitor can get, their platforms, and the best known apps, like “55 apps for Mac, iPhone & iPad, Apple Watch, and Apple Vision, like Gifski, Dato, Velja, and Plash, by Sindre Sorhus.”
+	*/
+	private var description: String {
+		// The apps that a visitor can get, like the list of the page and its structured data, not the archived ones, which the stats count.
+		"\(content.activeApps.count.formatted(counting: "app")) for \(AppCategory.platformList(in: content))\(content.activeApps.examples(featuring: content.featuredApps)), by \(Site.name)."
+	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: "Apps", description: Self.description)
+		PageMetadata(title: "Apps", description: description)
 	}
 
 	var headerBackground: SiteHeader.Background {
 		.transparentAtTop
+	}
+
+	/**
+	The icons of the apps in the order of the page, and the description of the page.
+	*/
+	var socialImage: SocialImage {
+		.card(
+			OpenGraphCard(
+				path: OpenGraphCard.path(ofPage: path),
+				title: "Quality Crafted Apps",
+				subtitle: description,
+				artwork: .icons(of: content.dailyFeaturedApps + otherApps, project: content.project),
+				description: "Quality Crafted Apps"
+			)
+		)
 	}
 
 	var body: some HTML {
@@ -28,14 +53,14 @@ struct AppsPage: Page {
 				// The main page of the apps keeps its own centered title, unlike the other pages (``PageHeader``).
 				header {
 					// `apps-glass.js` draws liquid glass on it in the colors of the featured apps. Without WebGL, and until it draws, the colors are a still gradient.
-					canvas(.id(Hooks.glass)) {}
+					canvas(.id(IDs.glass)) {}
 						// The colors are data of the build, like the accent of an app card, so they are custom properties in a style of the element.
 						.style(settingGlassColors(on:))
 						.accessibilityHidden()
 						.style(Styles.glass)
 
 					// On phones, “Apps” is larger on its own line, below “Quality Crafted”.
-					h1(.id(Hooks.title)) {
+					h1(.id(IDs.title)) {
 						span {
 							"Quality Crafted"
 						}
@@ -66,8 +91,8 @@ struct AppsPage: Page {
 				.style(Styles.hero)
 
 				// `apps.js` shows it with the count when the URL has an `exclude` parameter, like from the “More apps” menu of an app.
-				p(.id(Hooks.filterNotice), .hidden) {
-					span(.id(Hooks.filterCount)) {}
+				p(.id(IDs.filterNotice), .hidden) {
+					span(.id(IDs.filterCount)) {}
 					" "
 					a(.href(.apps)) {
 						"Show All"
@@ -75,28 +100,28 @@ struct AppsPage: Page {
 				}
 				.style(Styles.filterNotice)
 
-				if !content.featuredApps.isEmpty {
+				if !content.dailyFeaturedApps.isEmpty {
 					section {
 						h2 {
 							"Featured"
 						}
 						.style(SectionStyles.label)
 
-						AppGrid(apps: content.featuredApps, content: content, isAtTop: true)
+						AppGrid(apps: content.dailyFeaturedApps, buildDate: content.buildDate, isAtTop: true)
 					}
 					.hiddenFromSearchSnippets()
 					.style(Styles.grid)
 				}
 
 				section {
-					if !content.featuredApps.isEmpty {
+					if !content.dailyFeaturedApps.isEmpty {
 						h2 {
 							"More Apps"
 						}
 						.style(SectionStyles.label)
 					}
 
-					AppGrid(apps: otherApps, content: content, isAtTop: content.featuredApps.isEmpty)
+					AppGrid(apps: otherApps, buildDate: content.buildDate, isAtTop: content.dailyFeaturedApps.isEmpty)
 				}
 				.hiddenFromSearchSnippets()
 				.style(Styles.grid)
@@ -106,18 +131,18 @@ struct AppsPage: Page {
 			.style(Styles.container)
 		}
 
-		JSONScript(schema: Schema.ItemList(
-			name: "Sindre Sorhus Apps",
-			description: Self.description,
-			url: path.absoluteURL,
-			items: content.activeApps.map { app in
-				Schema.SoftwareApplication(app: app, info: content.appStoreInfo(of: app))
-			}
-		))
+		JSONScript(
+			schema: Schema.ItemList(
+				name: "Sindre Sorhus Apps",
+				description: description,
+				url: path.absoluteURL,
+				itemURLs: content.activeAppsWithPages.map(\.path.absoluteURL)
+			)
+		)
 
-		ModuleScript("/scripts/apps.js")
+		ModuleScript(#path("/scripts/apps.js"))
 		// A page script, not imported by `apps.js`, so it gets the content hash in its URL, and a browser does not keep an old copy after a deploy.
-		ModuleScript("/scripts/apps-glass.js")
+		ModuleScript(#path("/scripts/apps-glass.js"))
 	}
 
 	/**
@@ -135,7 +160,7 @@ struct AppsPage: Page {
 					.style {
 						$0
 							.textAlign(.leading)
-							.letterSpacing(0)
+							.letterSpacing(.zero)
 					}
 
 					ul {
@@ -146,7 +171,7 @@ struct AppsPage: Page {
 				}
 				// The section already has the space at the sides of the page.
 				.style {
-					$0.padding(.horizontal, 0)
+					$0.padding(.horizontal, .zero)
 				}
 			}
 		}
@@ -187,7 +212,7 @@ struct AppsPage: Page {
 	The apps below the featured apps, newest first.
 	*/
 	private var otherApps: [App] {
-		let featuredSlugs = Set(content.featuredApps.map(\.slug))
+		let featuredSlugs = Set(content.dailyFeaturedApps.map(\.slug))
 		return content.activeApps.filter { !featuredSlugs.contains($0.slug) }
 	}
 
@@ -195,7 +220,7 @@ struct AppsPage: Page {
 	Sets the colors of the glass behind the title, as custom properties: the accent colors of the featured apps, between the violet and the pink of the brand gradient, so the glass matches “Apps”. A missing accent color is the blue of the brand.
 	*/
 	private func settingGlassColors(on style: Style) -> Style {
-		let accentColors = content.featuredApps.compactMap(\.tint)
+		let accentColors = content.dailyFeaturedApps.compactMap(\.tint)
 
 		func accentColor(_ index: Int) -> Color {
 			accentColors.indices.contains(index) ? accentColors[index] : .primary(500)
@@ -215,8 +240,8 @@ struct AppsPage: Page {
 			// All the apps that were made, also the archived ones, like the years of craft.
 			content.listedApps.count.formatted(counting: "app"),
 			content.yearsOfCraft.map { "\($0.formatted(counting: "year")) of craft" },
-			Site.appUserCount.approximateCount(counting: "user"),
-			"\(Site.supportEmailCount.approximateCount) answered support emails",
+			content.settings.appUserCount.approximateCount(counting: "user"),
+			"\(content.settings.supportEmailCount.approximateCount) answered support emails",
 		]
 		.compactMap(\.self)
 	}
@@ -226,23 +251,23 @@ extension AppsPage {
 	/**
 	The colors of the glass behind the title, from left to right. `apps-glass.js` reads them.
 	*/
-	fileprivate static let glassColors = (1...5).map { StyleVariable<Color>("--glass-color-\($0)") }
+	fileprivate static let glassColors = (1...5).map { StyleVariable<Color>("glass-color-\($0)") }
 
 	/**
 	How strong the light on the title is. It is registered, so it fades in and out.
 	*/
-	fileprivate static let titleLight = RegisteredProperty<CSSValue>("--title-light", syntax: .percentage, initialValue: .percent(0))
+	fileprivate static let titleLight = RegisteredProperty<Percentage>("title-light", syntax: .percentage, initialValue: .percent(0))
 
 	/**
 	Where the pointer is on a part of the title, for the light. `apps.js` sets them.
 	*/
-	fileprivate static let lightX = StyleVariable<Length>("--light-x")
-	fileprivate static let lightY = StyleVariable<Length>("--light-y")
+	fileprivate static let lightX = StyleVariable<LengthPercentage>("light-x")
+	fileprivate static let lightY = StyleVariable<LengthPercentage>("light-y")
 
 	/**
-	The IDs and data attributes that the scripts of the page find elements by.
+	The IDs that the scripts of the page find elements by.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum IDs: String, ScriptIDSet {
 		case filterCount = "apps-filter-count"
 		case filterNotice = "apps-filter-notice"
 		case glass = "apps-glass"
@@ -288,11 +313,11 @@ extension AppsPage {
 				// It starts at the top of the page, behind the site header and the space above the title, and ends above the app grid. The glass and the still gradient fade out before its sides and its bottom.
 				Style()
 					.position(.absolute)
-					.top(-Self.topPadding - SiteHeader.height)
-					.leading(0)
-					.trailing(0)
+					.top(.length(-Self.topPadding - SiteHeader.height))
+					.leading(.zero)
+					.trailing(.zero)
 					.zIndex(-1)
-					.frame(width: .percent(100), height: .percent(100) + Self.topPadding + SiteHeader.height, maxWidth: .rootEm(110))
+					.frame(width: .percent(100), height: .length(.percent(100) + Self.topPadding + SiteHeader.height), maxWidth: .rootEm(110))
 					.margin(.horizontal, .auto)
 					.allowsHitTesting(false)
 					.backgroundImage(
@@ -307,11 +332,11 @@ extension AppsPage {
 					}
 					.from(.laptop) {
 						$0
-							.top(-Self.laptopTopPadding - SiteHeader.height)
-							.frame(height: .percent(100) + Self.laptopTopPadding + SiteHeader.height)
+							.top(.length(-Self.laptopTopPadding - SiteHeader.height))
+							.frame(height: .length(.percent(100) + Self.laptopTopPadding + SiteHeader.height))
 					}
 			case .title:
-				// The expanded width of SF Pro on Apple platforms, like the name on the home page. On phones, the size makes “Quality Crafted” fill the line. With the zoom of the browser, the line gets narrower in CSS pixels, so the minimum, half the maximum, keeps the title at least as large at 200% zoom as without zoom. Then it is wider than the line, and with more zoom on a narrow window, wider than the screen, but only when the screen is narrower than the 320 CSS pixels that WCAG asks to work.
+				// The expanded width of SF Pro on Apple platforms, like the name on the home page. On phones, the size makes “Quality Crafted” fill the line. With the zoom of the browser, the line gets narrower in CSS pixels, so the minimum, half the maximum, keeps the title at least as large at 200% zoom as without zoom. Then it is wider than the line, so it wraps (``titleText``).
 				Style()
 					.vstack(alignment: .center, spacing: .em(0.12))
 					.margin(.bottom, .rootEm(1.5))
@@ -329,7 +354,7 @@ extension AppsPage {
 						.dropShadow(Shadow(y: .pixels(5), blur: .pixels(10), color: .lightDark(.black.opacity(0.07), .black.opacity(0.3))))
 					)
 					.setting(AppsPage.titleLight, to: .percent(0))
-					.transition(TransitionProperty(AppsPage.titleLight), animation: .default(duration: .milliseconds(500)))
+					.transition(TransitionProperty(AppsPage.titleLight), timing: .default(duration: .milliseconds(500)))
 					.media(Self.litTitle) {
 						$0.hover {
 							$0.setting(AppsPage.titleLight, to: .percent(35))
@@ -345,22 +370,27 @@ extension AppsPage {
 							.flexDirection(.row)
 							.justifyContent(.center)
 							.gap(.em(0.22))
-							.fluidFontSize(fromRem: 3.25, toRem: 4.5, between: .smallTablet, and: .laptop)
+							.fluidFontSize(
+								fromRem: 3.25,
+								toRem: 4.5,
+								between: .smallTablet,
+								and: .laptop
+							)
 					}
 			case .titleText:
-				// One plain color, so the color comes from the glass behind it.
+				// One plain color, so the color comes from the glass behind it. It is one line at every width, as its size follows the width, but it wraps when the letters are wider, like with the larger letter spacing that some readers set.
 				Style()
-					.textWrap(.nowrap)
+					.textWrap(.balance)
 					.color(.primaryText)
 					.media(Self.litTitle) {
 						$0
 							.color(.transparent)
 							// The letters are the text color, as a background layer below the light. The light is tinted, like light through the glass, as a white light would not show on the white letters of dark mode.
-							.backgroundImage(Self.light(.lightDark(.primary(500).mix(with: .secondary(500), amount: .percent(30)), .primary(300).mix(with: .secondary(400), amount: .percent(40)))), .linearGradient("to right", .primaryText, .primaryText))
+							.backgroundImage(Self.light(.lightDark(.primary(500).mix(with: .secondary(500), amount: .percent(30)), .primary(300).mix(with: .secondary(400), amount: .percent(40)))), .linearGradient(.toRight, .primaryText, .primaryText))
 							.backgroundClip(.text)
 							// The background only fills the box, and with the tight lines and letters, the descenders and the last letter of some fonts, like Segoe UI on Windows, reach out of it and would be cut off. The padding makes the box larger, and the negative margin keeps the layout.
 							.padding(vertical: .em(0.2), horizontal: .em(0.1))
-							.margin(vertical: -.em(0.2), horizontal: -.em(0.1))
+							.margin(vertical: .length(-.em(0.2)), horizontal: .length(-.em(0.1)))
 					}
 			case .titleApps:
 				Style()
@@ -378,7 +408,7 @@ extension AppsPage {
 				Style()
 					.contentColumn(.page)
 					// The padding of the container is the space below.
-					.margin(top: .rootEm(7.5), horizontal: .auto, bottom: 0)
+					.margin(top: .rootEm(7.5), horizontal: .auto, bottom: .zero)
 					.grid(columns: 1)
 					.gap(.rootEm(2.5))
 					.from(.tablet) {
@@ -397,8 +427,8 @@ extension AppsPage {
 		/**
 		The space above the title, which the glass extends into. The container has the same space below the content.
 		*/
-		private static let topPadding = Length.rootEm(4)
-		private static let laptopTopPadding = Length.rootEm(5)
+		private static let topPadding = LengthPercentage.rootEm(4)
+		private static let laptopTopPadding = LengthPercentage.rootEm(5)
 
 		/**
 		Devices where a light follows the pointer over the title: a mouse or a trackpad, for visitors who allow motion.
@@ -408,44 +438,26 @@ extension AppsPage {
 		/**
 		A soft light at the pointer, like light on glass, as the top background layer of the letters. It is as strong as ``AppsPage/titleLight``.
 		*/
-		private static func light(_ color: Color) -> CSSValue {
-			.radialGradient("circle 2.5em at \(AppsPage.lightX.value(default: .percent(50))) \(AppsPage.lightY.value(default: .percent(50)))", Color.transparent.mix(with: color, amount: AppsPage.titleLight.value), .transparent)
+		private static func light(_ color: Color) -> CSSImage {
+			.radialGradient(.circle(radius: .em(2.5), at: .init(x: AppsPage.lightX.value(default: .percent(50)), y: AppsPage.lightY.value(default: .percent(50)))), Color.transparent.mix(with: color, amount: AppsPage.titleLight.value), .transparent)
 		}
 
 		/**
 		A soft field in one of the colors of the glass, for the still gradient.
 		*/
-		private static func glassField(_ index: Int, x: Double, y: Double) -> CSSValue {
+		private static func glassField(_ index: Int, x: Double, y: Double) -> CSSImage {
 			let color = AppsPage.glassColors[index].value(default: .primary(500))
-			return .radialGradient("ellipse 24% 46% at \(CSSValue.percent(x)) \(CSSValue.percent(y))", .lightDark(color.opacity(0.28), color.opacity(0.4)), .transparent)
+			return .radialGradient(.ellipse(radiusX: .percent(24), radiusY: .percent(46), at: .init(x: .percent(x), y: .percent(y))), .lightDark(color.opacity(0.28), color.opacity(0.4)), .transparent)
 		}
 	}
 }
 
 extension SiteContent {
 	/**
-	The most apps that the apps page features.
+	The featured apps (``featuredApps``), which the apps page shows first, in an order that changes every day, so each of them is sometimes first.
 	*/
-	static let maximumFeaturedAppCount = 4
-
-	/**
-	The active apps with `isFeatured`, which the apps page shows first, in an order that changes every day. When more apps are featured than ``maximumFeaturedAppCount``, the first ones by title are kept, so the same apps are left out on every build, and `website check` warns about the others (``extraFeaturedApps``).
-	*/
-	var featuredApps: [App] {
+	var dailyFeaturedApps: [App] {
 		var generator = SeededRandomNumberGenerator.daily("featured-apps", on: buildDate)
-		return Array(featuredAppsByTitle.prefix(Self.maximumFeaturedAppCount)).shuffled(using: &generator)
-	}
-
-	/**
-	The apps with `isFeatured` that the apps page leaves out, as more than ``maximumFeaturedAppCount`` apps are featured. They are in the list of the other apps.
-	*/
-	var extraFeaturedApps: [App] {
-		Array(featuredAppsByTitle.dropFirst(Self.maximumFeaturedAppCount))
-	}
-
-	private var featuredAppsByTitle: [App] {
-		activeApps
-			.filter(\.isFeatured)
-			.sorted(using: KeyPathComparator(\.title, comparator: .localizedStandard))
+		return featuredApps.shuffled(using: &generator)
 	}
 }

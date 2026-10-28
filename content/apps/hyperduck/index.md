@@ -1,13 +1,14 @@
 ---
 title: 'Hyperduck'
 subtitle: 'Send links from your iOS & visionOS devices to your Mac'
-publicationDate: '2023-01-27'
+publicationDate: 2023-01-27
 platforms: [
 	'macOS'
 	'iOS'
 	'visionOS'
 ]
 isPaid: true
+isMenuBarApp: true
 appStoreID: 6444667067
 olderVersions: [
 	{
@@ -26,10 +27,9 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/14292936/Hyperduck.1.0.7.-.macOS.13.zip'
 	}
 ]
-feedbackNote: 'If you are having problems with sync, [read this](/hyperduck#troubleshooting).'
 pressQuotes: [
 	{
-		quote: 'I love Hyperduck. […] It does a great job bridging iOS and iPadOS to macOS, which Shortcuts doesn’t do very well yet. […] Hyperduck has become one of my primary tools for controlling my Mac remotely.'
+		quote: 'Overall, I love Hyperduck. […] it does a great job bridging iOS and iPadOS to macOS, which Shortcuts doesn’t do very well yet. […] Hyperduck has become one of my primary tools for controlling my Mac remotely.'
 		source: 'MacStories'
 		url: 'https://www.macstories.net/reviews/automation-april-hyperduck-leverages-the-power-of-url-schemes-to-control-your-mac-from-an-iphone-or-ipad/'
 		year: 2023
@@ -41,6 +41,7 @@ pressQuotes: [
 		year: 2023
 	}
 ]
+feedbackNote: 'If you are having problems with sync, [read this](/hyperduck#troubleshooting).'
 ---
 
 Share a link from Safari on your iPhone, iPad, or Apple Vision, and it opens in the default browser on your Mac moments later.
@@ -67,11 +68,13 @@ The app uses iCloud syncing to securely send links from your iOS/visionOS device
 - If the “Send to Mac” button is not showing up in share sheets, you may have to enable it at the bottom of the share sheet with the “Edit Actions” button. You may even have to restart your device for it to show up (iOS bugs…).
 - Ensure Hyperduck is running on the Mac.
 - Hyperduck opens links in the background. Ensure you didn’t miss it.
+- If you enabled the “Pause receiving URLs while computer is locked” setting, links that you send while the Mac is locked open when you unlock it.
 - Try opening the Hyperduck iOS app to force a sync.
-- In the iOS app, if you triple-tap the text, it will show the most recently shared URLs, which may aid debugging. Also check the history in the macOS app.
+- In the iOS app, if you triple-tap the text, it will show the most recently shared URLs, which may aid debugging.
+- On the Mac, the history is off by default. Enable “History” in the settings, and click “View” to see the last 30 links. It only has the links that come after you enable it.
 - For a few users, initial sync took up to 24 hours due to weird iCloud syncing behavior.
   - This is controlled by Apple’s iCloud system and outside the app’s control.
-- [More…](/apps/faq#icloud-sync)
+- [More iCloud sync troubleshooting…](/apps/faq#icloud-sync)
 
 ## Tips
 
@@ -85,11 +88,13 @@ On your iOS device, make a new shortcut, add the “Run Shortcut on Mac” actio
 
 You can now run this shortcut on your iOS device to trigger the `Unicorn` shortcut on your Mac.
 
-[Learn more](https://www.macstories.net/reviews/automation-april-hyperduck-leverages-the-power-of-url-schemes-to-control-your-mac-from-an-iphone-or-ipad/) in the Hyperduck review by MacStories.
+By default, the Shortcuts app comes to the front on your Mac when the shortcut runs. To run it in the background, turn on “Open Shortcuts URLs in the background” in the settings.
+
+Learn more in the [Hyperduck review by MacStories](https://www.macstories.net/reviews/automation-april-hyperduck-leverages-the-power-of-url-schemes-to-control-your-mac-from-an-iphone-or-ipad/).
 
 ### Shut down Mac
 
-You can use the Shortcuts support mentioned above to shut down your computer remotely from your iOS device. Just follow the above steps and use the “Shut Down” action (requires macOS 13.3) in the Shortcuts app or the AppleScript action with the following: `tell app "System Events" to shut down`.
+You can use the Shortcuts support mentioned above to shut down your computer remotely from your iOS device. Just follow the above steps and use the “Shut Down” action in the Shortcuts app or the AppleScript action with the following: `tell app "System Events" to shut down`.
 
 ### Trigger Raycast deeplinks {#raycast}
 
@@ -164,7 +169,7 @@ You can then tap “Download on Mac” in the share sheet on your iOS device, an
 - No need to spend time looking for the link in a long list of links
 - Supports any browser on your Mac
 
-### How is it better than remembering the URL and typing it out on your Mac?
+### How is it better than remembering the URL and typing it out on your Mac? {#how-is-it-better-than-remembering-the-url-and-typing-it-out-on-your-mac}
 
 - Works with every human
 - Does not strain fingers and brain
@@ -205,7 +210,7 @@ Compared to [Universal Clipboard](https://support.apple.com/HT209460):
 - [Pushbullet](https://www.pushbullet.com) does not have an iOS or macOS app
 - Does not require signing up for another account
 
-### How is it better than the Firefox Send Tabs feature?
+### How is it better than the Firefox Send Tabs feature? {#how-is-it-better-than-the-firefox-send-tabs-feature}
 
 Compared to the Firefox [Send Tabs](https://support.mozilla.org/kb/send-tab-firefox-ios-another-device) feature:
 
@@ -213,7 +218,7 @@ Compared to the Firefox [Send Tabs](https://support.mozilla.org/kb/send-tab-fire
 - Supports any browser on your Mac
 - Requires fewer taps
 
-### How is it better than the Firefox tab sync?
+### How is it better than the Firefox tab sync? {#how-is-it-better-than-the-firefox-tab-sync}
 
 - Works in any app with a share sheet, not just Firefox
 - Supports any browser on your Mac
@@ -225,35 +230,37 @@ You can use my [Velja app](/velja) for this. Create a custom rule where you set 
 
 [It’s not possible to open in Safari profiles.](/velja#safari-profiles)
 
-### The link did not open on my Mac right away
+### The link did not open on my Mac right away {#the-link-did-not-open-on-my-mac-right-away}
 
 The app works by syncing the link over iCloud from your iOS device to your Mac. This is usually instantaneous, but there can be situations that delay it (iCloud problems, network issues, Low Power Mode, etc). This is unfortunately completely out of my control.
 
-### I don’t see the “Send to Mac” action in the share sheet
+### I don’t see the “Send to Mac” action in the share sheet {#i-dont-see-the-send-to-mac-action-in-the-share-sheet}
 
 Try restarting your device. Because of an iOS bug, it sometimes only appears after a restart.
 
-### The “Send to Mac” button does not appear when viewing a PDF file in Safari
+### The “Send to Mac” button does not appear when viewing a PDF file in Safari {#the-send-to-mac-button-does-not-appear-when-viewing-a-pdf-file-in-safari}
 
 Safari tries to share the PDF file itself, not the URL to the PDF, and Hyperduck can only handle URLs. Instead, go back, long-press the link to the PDF, and tap “Share”.
 
-### I use the Arc browser and I am not receiving all links
+### I use the Arc browser and I am not receiving all links {#i-use-the-arc-browser-and-i-am-not-receiving-all-links}
 
-The Arc browser does not support opening multiple URLs at a time. I suggest sending feedback to the Arc team about this. There is nothing Hyperduck can do about it.
+The Arc browser does not support opening multiple URLs at a time. There is nothing Hyperduck can do about it.
 
 As a workaround, you could use my [Velja app](/velja) to make such links open in a different browser. Create a custom rule where you set Hyperduck as the source app and set the destination app to a different browser than Arc.
 
-### Can Hyperduck lose a shared link if my internet goes down?
+Arc stops working on 22 December 2026, so you may want to move to another browser anyway.
+
+### Can Hyperduck lose a shared link if my internet goes down? {#can-hyperduck-lose-a-shared-link-if-my-internet-goes-down}
 
 No. Hyperduck stores your link in iCloud, ensuring it’s available until successfully opened on your Mac, regardless of your internet connection quality.
 
-### Can you add a history screen to the iOS app?
+### Can you add a history screen to the iOS app? {#can-you-add-a-history-screen-to-the-ios-app}
 
 I don’t plan to add this. I would like to keep the app focused on one thing and do it well. The app is for sending links from iOS to Mac. That’s it.
 
 If you really need to see what URLs were shared, you can triple-tap on the text in the iOS app to get a list of recently shared URLs.
 
-### Can you support multiple Macs?
+### Can you support multiple Macs? {#can-you-support-multiple-macs}
 
 No. I would like to keep the app simple. However, you could [do it with Shortcuts](#send-to-specific-mac).
 
@@ -261,6 +268,6 @@ No. I would like to keep the app simple. However, you could [do it with Shortcut
 
 No. I’m not planning to support it. There is just not enough demand and it would make the app much more complicated. Also, it would not be possible to open the URL directly in the browser like it does on macOS, so the experience would not be great.
 
-### Can you support sending from one Mac to another?
+### Can you support sending from one Mac to another? {#can-you-support-sending-from-one-mac-to-another}
 
 No. I’m not planning to support it. It would add a lot of complexity for a very niche use-case.

@@ -50,7 +50,13 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 	private var monitor: some HTML {
 		div {
 			div(.part(Parts.monitor)) {
-				canvas(.part(Parts.canvas), .width(280), .height(160), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.canvas),
+					.width(280),
+					.height(160),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("The picture of the trip. Press Enter or Space for the main choice of the screen: to continue, to stop the car and size up the situation (or with reduced motion, to drive on for a day), and while fishing, to pull the line when the float goes under. The number keys pick a choice, and Escape keeps the trip when “Start a New Trip” asks.")
 					.style(Styles.canvas)
 
@@ -91,7 +97,7 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 	/**
 	The white, green, and black of the Apple II.
 	*/
-	private static let green = Color("#14f53c")
+	private static let green = Color(raw: "#14f53c")
 
 	enum Styles: ElementStyleSet {
 		case root
@@ -114,8 +120,8 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 					.frame(maxWidth: .rootEm(38))
 					.margin(.horizontal, .auto)
 					.padding(top: .rootEm(1), horizontal: .rootEm(1), bottom: .rootEm(0.25))
-					.background(Color("#d6ccb0"))
-					.border(Color("#ece4cc"), width: .pixels(3), style: .outset)
+					.background(Color(raw: "#d6ccb0"))
+					.border(Color(raw: "#ece4cc"), width: .pixels(3), style: .outset)
 					.cornerRadius(.rootEm(1))
 					.below(.smallTablet) {
 						$0.padding(top: .rootEm(0.5), horizontal: .rootEm(0.5), bottom: .rootEm(0.125))
@@ -126,11 +132,19 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 					.padding(.rootEm(0.75))
 					.background(.black)
 					.cornerRadius(.rootEm(0.75))
-					.shadow(Shadow(y: 0, blur: .pixels(14), spread: .pixels(2), color: Color("#000000aa"), isInset: true))
+					.shadow(
+						BoxShadow(
+							y: .zero,
+							blur: .pixels(14),
+							spread: .pixels(2),
+							color: Color(raw: "#000000aa"),
+							isInset: true
+						)
+					)
 					.fontFamily(#""Monaco", "Lucida Console", "Courier New", monospace"#)
 					.font(size: .rootEm(1), lineHeight: 1.35)
 					.color(.white)
-					.textShadow(Shadow(y: 0, blur: .pixels(3), color: Color("#ffffff66")))
+					.textShadow(Shadow(y: .zero, blur: .pixels(3), color: Color(raw: "#ffffff66")))
 					.below(.smallTablet) {
 						$0
 							.padding(.rootEm(0.5))
@@ -156,21 +170,21 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 					.overflowWrap(.breakWord)
 					.children("h3") {
 						$0
-							.margin(vertical: .rootEm(0.25), horizontal: 0)
+							.margin(vertical: .rootEm(0.25), horizontal: .zero)
 							.textAlign(.center)
 							.font(size: .rootEm(1), lineHeight: 1.35)
 							.fontWeight(.bold)
 							.color(GeoCitiesBergenTrail.green)
 					}
 					.children("p") {
-						$0.margin(vertical: .rootEm(0.25), horizontal: 0)
+						$0.margin(vertical: .rootEm(0.25), horizontal: .zero)
 					}
 					.children("p b") {
 						$0.color(GeoCitiesBergenTrail.green)
 					}
 					.children("p strong") {
 						$0
-							.padding(vertical: 0, horizontal: .rootEm(0.25))
+							.padding(vertical: .zero, horizontal: .rootEm(0.25))
 							.background(.white)
 							.color(.black)
 							.textShadow()
@@ -178,8 +192,8 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 					.children("ol") {
 						$0
 							.vstack(spacing: .rootEm(0.125))
-							.margin(vertical: .rootEm(0.5), horizontal: 0)
-							.padding(0)
+							.margin(vertical: .rootEm(0.5), horizontal: .zero)
+							.padding(.zero)
 					}
 					.children("ol > li > button") {
 						$0
@@ -187,7 +201,7 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 							.frame(width: .percent(100), minHeight: .rootEm(2.25))
 							.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 							.background(.black)
-							.border(.black, width: 0)
+							.border(.black, width: .zero)
 							.textAlign(.leading)
 							.inheritsFont()
 							.color(.white)
@@ -210,7 +224,7 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 						// Smaller letters on a phone, so the prices of the store fit next to the buttons without breaking into many lines.
 						$0
 							.frame(width: .percent(100))
-							.margin(vertical: .rootEm(0.25), horizontal: 0)
+							.margin(vertical: .rootEm(0.25), horizontal: .zero)
 							.below(.smallTablet) {
 								$0.font(size: .rootEm(0.8125), lineHeight: 1.3)
 							}
@@ -278,16 +292,16 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 			case .prompt:
 				Style()
 					.frame(minHeight: .lineHeight(1))
-					.margin(top: .rootEm(0.25), horizontal: 0, bottom: 0)
+					.margin(top: .rootEm(0.25), horizontal: .zero, bottom: .zero)
 					.color(GeoCitiesBergenTrail.green)
 			case .badge:
 				// The name plate on the beige plastic below the glass.
 				Style()
-					.margin(vertical: .rootEm(0.25), horizontal: 0)
+					.margin(vertical: .rootEm(0.25), horizontal: .zero)
 					.textAlign(.trailing)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#7a705a"))
+					.color(Color(raw: "#7a705a"))
 			case .controls:
 				Style()
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))

@@ -94,7 +94,13 @@ struct GeoCitiesWorms: ScriptedElement {
 			}
 			.style(Styles.toolbar, GeoCitiesPage.Styles.scriptingOnly)
 
-			canvas(.part(Parts.screen), .width(320), .height(200), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.screen),
+				.width(320),
+				.height(200),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The island of Wurms ’99. The left and right arrow keys walk, the up and down arrow keys aim, hold Space to charge and let go to fire, Enter jumps, Backspace does a backflip, the keys 1 to 5 set the fuse, and W picks the next weapon. Drag to look around.")
 				.style(Styles.screen, GeoCitiesPage.Styles.scriptingOnly)
 
@@ -194,7 +200,13 @@ struct GeoCitiesWorms: ScriptedElement {
 					for (index, name) in Self.defaultNames.enumerated() {
 						label {
 							"Worm \(index + 1): "
-							input(.type(.text), .hook(Hooks.name, value: "\(index)"), .maxlength(12), .autocomplete("off"), .placeholder(name))
+							input(
+								.type(.text),
+								.hook(Hooks.name, value: "\(index)"),
+								.maxlength(12),
+								.autocomplete("off"),
+								.placeholder(name)
+							)
 								.style(GeoCitiesPage.Styles.field)
 						}
 						.style(Styles.nameLabel)
@@ -227,31 +239,31 @@ struct GeoCitiesWorms: ScriptedElement {
 		case empty
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The button of a weapon, with its ID, like `bazooka`.
 		*/
-		case weapon = "data-worms-weapon"
+		case weapon = "worms-weapon"
 
 		/**
 		How many of a weapon the team in turn has left, with its ID.
 		*/
-		case ammo = "data-worms-ammo"
+		case ammo = "worms-ammo"
 
 		/**
 		A button for walking, jumping, or aiming, with its ID, like `left`.
 		*/
-		case control = "data-worms-control"
+		case control = "worms-control"
 
 		/**
 		A button that sets the fuse, with its seconds.
 		*/
-		case fuse = "data-worms-fuse"
+		case fuse = "worms-fuse"
 
 		/**
 		The field of the name of a worm of Team Sindre, with its index.
 		*/
-		case name = "data-worms-name"
+		case name = "worms-name"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -290,8 +302,8 @@ struct GeoCitiesWorms: ScriptedElement {
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
-					.background(Color("#4a5a6a"))
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
+					.background(Color(raw: "#4a5a6a"))
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
 					.imageRendering(.pixelated)
 					.touchAction(.none)
 					.cursor(.crosshair)
@@ -301,26 +313,26 @@ struct GeoCitiesWorms: ScriptedElement {
 					.grid(columns: 5)
 					.gap(.pixels(2))
 					.padding(.pixels(2))
-					.background(Color("#101030"))
+					.background(Color(raw: "#101030"))
 			case .weapon:
 				// A weapon, with its picture, its name, and how many are left. It is pressed in while it is picked, and gray when the team has none left.
 				Style()
-					.vstack(alignment: .center, spacing: 0)
+					.vstack(alignment: .center, spacing: .zero)
 					.padding(.rootEm(0.25))
-					.background(Color("#303070"))
-					.border(Color("#7070d0"), width: .pixels(2), style: .outset)
+					.background(Color(raw: "#303070"))
+					.border(Color(raw: "#7070d0"), width: .pixels(2), style: .outset)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 					.lineHeight(1.1)
 					.color(.white)
 					.handCursor()
 					.active {
-						$0.border(Color("#7070d0"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#7070d0"), width: .pixels(2), style: .inset)
 					}
 					.pressed {
 						$0
-							.background(Color("#c08020"))
-							.border(Color("#ffd060"), width: .pixels(2), style: .inset)
+							.background(Color(raw: "#c08020"))
+							.border(Color(raw: "#ffd060"), width: .pixels(2), style: .inset)
 					}
 					.when(States.empty) {
 						$0.opacity(0.45)
@@ -330,7 +342,7 @@ struct GeoCitiesWorms: ScriptedElement {
 			case .ammo:
 				Style()
 					.fontFamily(GeoCitiesPage.courier)
-					.color(Color("#66ff66"))
+					.color(Color(raw: "#66ff66"))
 			case .pad:
 				// Big buttons for a thumb, as a phone has no arrow keys.
 				Style()
@@ -338,10 +350,10 @@ struct GeoCitiesWorms: ScriptedElement {
 					.gap(.pixels(4))
 			case .control:
 				GeoCitiesPage.Styles.retroButton.style
-					.vstack(alignment: .center, justification: .center, spacing: 0)
+					.vstack(alignment: .center, justification: .center, spacing: .zero)
 					.frame(minHeight: .rootEm(2.75))
 					// No padding at the sides, so the longest names, like “Walk right”, stay on one line in the narrow buttons of a phone.
-					.padding(vertical: .rootEm(0.25), horizontal: 0)
+					.padding(vertical: .rootEm(0.25), horizontal: .zero)
 					.lineHeight(1.1)
 					.textSelection(.disabled)
 					.touchAction(.none)
@@ -355,18 +367,18 @@ struct GeoCitiesWorms: ScriptedElement {
 				// The big red button, two buttons wide.
 				Style()
 					.gridColumnSpan(2)
-					.background(Color("#c02020"))
-					.border(Color("#ff8080"), width: .pixels(3), style: .outset)
+					.background(Color(raw: "#c02020"))
+					.border(Color(raw: "#ff8080"), width: .pixels(3), style: .outset)
 					.color(.white)
 					// The navy ring of the other buttons does not show on the red.
 					.buttonFocusRing(.white)
 					.active {
-						$0.border(Color("#ff8080"), width: .pixels(3), style: .inset)
+						$0.border(Color(raw: "#ff8080"), width: .pixels(3), style: .inset)
 					}
 			case .fuse:
 				Style()
 					.frame(minWidth: .rootEm(2.75), minHeight: .rootEm(2.75))
-					.pressedIn(Color("#ffd060"))
+					.pressedIn(Color(raw: "#ffd060"))
 			case .fuses:
 				// The five fuse buttons stay together on one line, also when the label above them wraps on a phone.
 				Style().hstack(alignment: .center, spacing: .rootEm(0.5))

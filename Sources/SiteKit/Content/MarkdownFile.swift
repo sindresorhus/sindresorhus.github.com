@@ -5,7 +5,7 @@ import SOML
 /**
 A Markdown file split into its SOML frontmatter and body.
 */
-public struct MarkdownFile: Sendable {
+public struct MarkdownFile: SOMLValueFile, Sendable {
 	public let url: URL
 
 	/**
@@ -17,6 +17,28 @@ public struct MarkdownFile: Sendable {
 	The SOML between the `---` lines. Empty when the file has no frontmatter.
 	*/
 	public let frontmatter: String
+
+	/**
+	The parsed ``frontmatter``, read once for decoding and for the lines of its keys, or the mistake when it is not valid SOML, which decoding throws (``decodeFrontmatter(as:)``).
+	*/
+	private let parsedFrontmatter: ParsedFrontmatter
+
+	/**
+	The result of parsing the ``frontmatter``.
+	*/
+	private enum ParsedFrontmatter {
+		case document(SOML.Document)
+		case error(SOML.ParseError)
+
+		init(parsing frontmatter: String) {
+			do {
+				// A frontmatter with only blank lines is empty too, but SOML needs a value.
+				self = .document(try SOML.Document(parsing: frontmatter.allSatisfy(\.isWhitespace) ? "{}" : frontmatter))
+			} catch {
+				self = .error(error)
+			}
+		}
+	}
 
 	public let body: String
 
@@ -57,11 +79,12 @@ public struct MarkdownFile: Sendable {
 		self.slug = Self.slug(of: url, relativeTo: directory ?? url.deletingLastPathComponent())
 
 		// A byte order mark, which editors on Windows can add, is already removed when the file is read as UTF-8.
-		let contents = contents.replacing("\r\n", with: "\n")
+		let contents = contents.normalizingWindowsLineEndings
 		let lines = contents.split(separator: "\n", omittingEmptySubsequences: false)
 
 		guard lines.first?.isFrontmatterFence == true else {
 			self.frontmatter = ""
+			self.parsedFrontmatter = ParsedFrontmatter(parsing: frontmatter)
 			self.body = contents
 			self.bodyStartLine = 1
 			return
@@ -72,9 +95,41 @@ public struct MarkdownFile: Sendable {
 		}
 
 		self.frontmatter = lines[1..<closingIndex].joined(separator: "\n")
+		self.parsedFrontmatter = ParsedFrontmatter(parsing: frontmatter)
 		let bodyLines = lines[(closingIndex + 1)...].drop { $0.isEmpty }
 		self.body = bodyLines.joined(separator: "\n").trimmingCharacters(in: .newlines)
 		self.bodyStartLine = (bodyLines.startIndex - lines.startIndex) + 1
+	}
+
+	/**
+	Formats fenced SOML frontmatter, expanding containers and ordering the root properties by the given coding keys. Other keys keep their relative order after those keys. Comments and value spelling are preserved, and the Markdown body and fence lines stay byte-identical. Missing or blank frontmatter stays unchanged.
+	*/
+	public static func formattingFrontmatter(in contents: String, orderedKeys: [any CodingKey] = []) throws -> String {
+		let lines = contents.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
+
+		guard lines.first?.isFrontmatterFence == true else {
+			return contents
+		}
+
+		guard let closingIndex = lines.dropFirst().firstIndex(where: \.isFrontmatterFence) else {
+			throw ContentError(reason: "The frontmatter is missing its closing `---`.")
+		}
+
+		let start = contents.index(after: lines[0].endIndex)
+		let end = lines[closingIndex].startIndex
+		let frontmatter = String(contents[start..<end]).normalizingWindowsLineEndings
+
+		guard !frontmatter.allSatisfy(\.isWhitespace) else {
+			return contents
+		}
+
+		do {
+			let document = try SOML.Document(parsing: frontmatter)
+			let formatted = try document.formatted(orderedKeys: orderedKeys.map(\.stringValue))
+			return String(contents[..<start]) + formatted + contents[end...]
+		} catch let error as SOML.ParseError {
+			throw ContentError(line: error.location.line + 1, reason: error.message)
+		}
 	}
 
 	/**
@@ -93,38 +148,64 @@ public struct MarkdownFile: Sendable {
 	nonisolated(unsafe) private static let indexComponent = /\/index$/
 
 	/**
+	A valid slug: lowercase letters, digits, and hyphens, in each component of the path, like `apps/faq`.
+	*/
+	nonisolated(unsafe) static let slugPattern = /[a-z0-9-]+(?:\/[a-z0-9-]+)*/
+
+	/**
 	Decodes and validates the frontmatter.
 	*/
-	public func decodeFrontmatter<Value: Frontmatter>(as type: Value.Type = Value.self) throws(ContentError) -> Value {
-		let document = try parseFrontmatter()
+	public func decodeFrontmatter<Value: Frontmatter>(as type: Value.Type = Value.self) throws(ContentErrors) -> Value {
+		let document: SOML.Document
 
-		do {
-			return try Value.decode(from: document.value, root: "frontmatter") { frontmatterLine(of: $0, in: document) }
-		} catch var error {
-			error.file = url
-			throw error
-		}
-	}
-
-	private func parseFrontmatter() throws(ContentError) -> SOML.Document {
-		do {
-			// A frontmatter with only blank lines is empty too, but SOML needs a value.
-			return try SOML.Document(parsing: frontmatter.allSatisfy(\.isWhitespace) ? "{}" : frontmatter)
-		} catch {
+		switch parsedFrontmatter {
+		case .document(let parsedDocument):
+			document = parsedDocument
+		case .error(let error):
 			// The frontmatter starts on the line after the opening `---`.
-			throw ContentError(file: url, line: error.location.line + 1, reason: error.message)
+			throw ContentErrors([ContentError(file: url, line: error.location.line + 1, reason: error.message + apostropheHint(for: error))])
+		}
+
+		do {
+			return try Value.decode(from: document.value, root: "frontmatter") { Self.line(ofValueAt: $0, in: document) }
+		} catch {
+			throw ContentErrors(converting: error, file: url)
 		}
 	}
 
 	/**
-	The line in the file of a top-level frontmatter key, like `Frontmatter.CodingKeys.script`, for a mistake in its value. The key is a coding key of the frontmatter type, so a renamed key (`@Key`) cannot silently miss.
+	Explains a straight apostrophe in a single-quoted string, like `'Sindre's app'`. It ends the string, so the parser only says that the letter after it is unexpected.
 	*/
-	public func line(of key: some CodingKey) -> Int? {
-		guard let document = try? parseFrontmatter() else {
+	private func apostropheHint(for error: SOML.ParseError) -> String {
+		let utf8 = frontmatter.utf8
+
+		guard
+			error.message.hasSuffix(" after a value"),
+			let index = utf8.index(utf8.startIndex, offsetBy: error.location.offset, limitedBy: utf8.endIndex),
+			index != frontmatter.endIndex,
+			frontmatter[index].isLetter,
+			let quoteIndex = frontmatter.index(index, offsetBy: -1, limitedBy: frontmatter.startIndex),
+			frontmatter[quoteIndex] == "'",
+			let letterIndex = frontmatter.index(quoteIndex, offsetBy: -1, limitedBy: frontmatter.startIndex),
+			frontmatter[letterIndex].isLetter
+		else {
+			return ""
+		}
+
+		return ". A straight apostrophe ends a single-quoted string, so write it as ’, like 'Sindre’s app'."
+	}
+
+	public func line(ofValueAt codingPath: [any CodingKey]) -> Int? {
+		guard case .document(let document) = parsedFrontmatter else {
 			return nil
 		}
 
-		return frontmatterLine(of: [key], in: document)
+		return Self.line(ofValueAt: codingPath, in: document)
+	}
+
+	private static func line(ofValueAt codingPath: [any CodingKey], in frontmatter: SOML.Document) -> Int {
+		// The frontmatter starts on the line after the opening `---`.
+		frontmatter.location(of: codingPath).line + 1
 	}
 
 	/**
@@ -133,27 +214,39 @@ public struct MarkdownFile: Sendable {
 	public func line(of markup: any Markup) -> Int {
 		bodyStartLine + (markup.range?.lowerBound.line ?? 1) - 1
 	}
-
-	/**
-	The line in the file of the key or item at the coding path, or of the closest one that exists, like the parent of a missing key.
-	*/
-	private func frontmatterLine(of codingPath: [any CodingKey], in document: SOML.Document) -> Int {
-		// The frontmatter starts on the line after the opening `---`.
-		document.location(of: codingPath).line + 1
-	}
 }
 
-extension URL {
+extension SOML.Document {
 	/**
-	A line of the file as a location in a message, like `content/apps/dato/index.md:12`, or the file alone without a line. The path is relative to the current directory when the file is in it, else it is the full path. The site is built in its project root, so the paths are relative to the project, for the content errors, the warnings, and the broken links.
+	Formats frontmatter and orders its root properties with SOML's validated moves, which preserve scalar spelling and keep attached comments with their values. Nested property and item order stays unchanged. A document comment is separated from the first key by a blank line.
 	*/
-	public func location(ofLine line: Int?) -> String {
-		let shownPath = isInside(.currentDirectory()) ? path(relativeTo: .currentDirectory()) : path(percentEncoded: false)
-		return line.map { "\(shownPath):\($0)" } ?? shownPath
+	fileprivate func formatted(orderedKeys: [String]) throws -> String {
+		let formatted = formatted(expandingContainers: true)
+
+		guard
+			!orderedKeys.isEmpty,
+			let object = value.objectValue,
+			!object.isEmpty
+		else {
+			return formatted
+		}
+
+		let document = try Self(parsing: formatted)
+		// Listed keys first in their editorial order, then the unlisted keys in their authored order.
+		let keys = orderedKeys.filter { object.keys.contains($0) } + object.keys.filter { !orderedKeys.contains($0) }
+		return try document.reordering(keys.map { SOML.KeyPath([.key($0)]) }).formatted(expandingContainers: true)
 	}
 }
 
 extension MarkdownDocument {
+	/**
+	Renders a parsed content file and reports its mistakes at their original lines, without parsing it again.
+	*/
+	public init(rendering document: Document, of file: MarkdownFile, options: Options) throws(ContentErrors) {
+		self.init(rendering: document, source: file.body, firstLine: file.bodyStartLine, options: options)
+		try checkProblems(in: file)
+	}
+
 	/**
 	Renders the body of a content file, and throws its problems, with their lines in the file.
 
@@ -161,9 +254,15 @@ extension MarkdownDocument {
 	*/
 	public init(parsing file: MarkdownFile, options: Options) throws(ContentErrors) {
 		self.init(parsing: file.body, firstLine: file.bodyStartLine, options: options)
+		try checkProblems(in: file)
+	}
 
+	/**
+	Reports rendered problems at their original lines in the content file.
+	*/
+	private func checkProblems(in file: MarkdownFile) throws(ContentErrors) {
 		guard problems.isEmpty else {
-			throw ContentErrors(problems.map { ContentError(file: file.url, line: $0.line, reason: $0.reason) })
+			throw ContentErrors(problems.map { file.error(line: $0.line, $0.reason) })
 		}
 	}
 }
@@ -171,7 +270,7 @@ extension MarkdownDocument {
 /**
 A mistake in the content, like an invalid frontmatter value or a broken link, with the file and line where it is.
 
-Throw it for every content mistake, so all of them are reported the same way. A check that does not know the file, like ``Frontmatter/validate()``, leaves it out, and loading adds it.
+Throw it for every content mistake, so all of them are reported the same way. A check that does not know the file, like ``ValidatedValue/init(validating:)``, leaves it out, and loading adds it.
 */
 public struct ContentError: Error, CustomStringConvertible {
 	public var file: URL?
@@ -190,10 +289,24 @@ public struct ContentError: Error, CustomStringConvertible {
 	}
 
 	/**
-	The mistake after where it is, like `content/apps/dato/index.md:12: …` (see ``Foundation/URL/location(ofLine:)``).
+	Orders diagnostics by optional file path and then optional line, preserving the order of ties.
+	*/
+	public static var locationOrder: [KeyPathComparator<Self>] {
+		[KeyPathComparator(\.file?.path, comparator: String.StandardComparator.lexical), KeyPathComparator(\.line)]
+	}
+
+	/**
+	The file and the line. `nil` when the file is not known, like in a check that does not know it.
+	*/
+	public var location: SourceLocation? {
+		file.map { .file($0, line: line) }
+	}
+
+	/**
+	The mistake after where it is, like `content/apps/dato/index.md:12: …` (see ``SourceLocation/description``).
 	*/
 	public var description: String {
-		guard let location = file?.location(ofLine: line) ?? line.map(String.init) else {
+		guard let location = location?.description ?? line.map(String.init) else {
 			return reason
 		}
 

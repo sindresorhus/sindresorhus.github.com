@@ -72,7 +72,13 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 			.accessibilityHidden()
 			.style(Styles.marquee)
 
-			canvas(.part(Parts.screen), .width(320), .height(240), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.screen),
+				.width(320),
+				.height(240),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The screen of the dance machine. Press Enter to start. Step with the arrow keys or with W, A, S, and D when the arrows reach the target arrows at the top.")
 				.style(Styles.screen)
 		}
@@ -317,36 +323,36 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 		case on
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		An arrow of the dance pad, with its lane: `0` for left, `1` for down, `2` for up, and `3` for right, like on the screen.
 		*/
-		case lane = "data-ddr-lane"
+		case lane = "ddr-lane"
 
 		/**
 		A button that picks a song, with the ID of the song.
 		*/
-		case song = "data-ddr-song"
+		case song = "ddr-song"
 
 		/**
 		The best grade and score of a song, which the script writes, with the ID of the song.
 		*/
-		case best = "data-ddr-best"
+		case best = "ddr-best"
 
 		/**
 		A button that picks a difficulty: `basic`, `trick`, or `maniac`.
 		*/
-		case difficulty = "data-ddr-difficulty"
+		case difficulty = "ddr-difficulty"
 
 		/**
 		The rating in feet of a difficulty for the picked song, which the script writes.
 		*/
-		case feet = "data-ddr-feet"
+		case feet = "ddr-feet"
 
 		/**
 		A button that picks the dancer: `sindre`, `mormor`, or `rocky`.
 		*/
-		case dancer = "data-ddr-dancer"
+		case dancer = "ddr-dancer"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -378,7 +384,7 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 		/**
 		The steel of the dance pad.
 		*/
-		private static let steel = Color("#8a8f98")
+		private static let steel = Color(raw: "#8a8f98")
 
 		var style: Style {
 			switch self {
@@ -393,18 +399,18 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 					.gap(.rootEm(1.25))
 					.alignItems(.start)
 					.children("*") {
-						$0.frame(minWidth: 0)
+						$0.frame(minWidth: .zero)
 					}
 					.from(.tablet) {
-						$0.grid(columns: "minmax(0, 2fr) minmax(0, 3fr)")
+						$0.grid(columns: .flexible(fraction: 2), .flexible(fraction: 3))
 					}
 			case .platform:
 				// The floor in front of the machine, with the pad on it.
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.625))
-					.backgroundImage(.linearGradient("to bottom", Color("#3a3a44"), Color("#15151c")))
-					.border(Color("#c0c0c0"), width: .pixels(4), style: .ridge)
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#3a3a44"), Color(raw: "#15151c")))
+					.border(Color(raw: "#c0c0c0"), width: .pixels(4), style: .ridge)
 					.color(.white)
 			case .cabinet:
 				// The cabinet of the arcade: black plastic with a lit marquee on top of the screen. The screen is big, so the pixels read.
@@ -413,22 +419,29 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 					.frame(width: .percent(100), maxWidth: .rootEm(44))
 					.margin(.horizontal, .auto)
 					.padding(.rootEm(0.625))
-					.backgroundImage(.linearGradient("to bottom", Color("#2a1a3a"), Color("#0a0a12")))
-					.border(Color("#c0c0c0"), width: .pixels(4), style: .ridge)
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#2a1a3a"), Color(raw: "#0a0a12")))
+					.border(Color(raw: "#c0c0c0"), width: .pixels(4), style: .ridge)
 			case .marquee:
 				// The backlit sign on top of the machine.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.5))
-					.backgroundImage(.linearGradient("to right", Color("#ff2fa8"), Color("#ffcc00"), Color("#33ccff")))
-					.border(Color("#ffffff"), width: .pixels(2), style: .outset)
+					.backgroundImage(
+						.linearGradient(
+							.toRight,
+							Color(raw: "#ff2fa8"),
+							Color(raw: "#ffcc00"),
+							Color(raw: "#33ccff")
+						)
+					)
+					.border(Color(raw: "#ffffff"), width: .pixels(2), style: .outset)
 					.fontFamily(GeoCitiesPage.impact)
 					.textStyle(.headline)
 					.textCase(.uppercase)
 					.letterSpacing(.pixels(2))
 					.textAlign(.center)
 					.color(.white)
-					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#330044")), Shadow(y: 0, blur: .pixels(6), color: Color("#ff00cc")))
+					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#330044")), Shadow(y: .zero, blur: .pixels(6), color: Color(raw: "#ff00cc")))
 			case .screen:
 				// Big pixels, like the monitor of the arcade, and a tap on it starts the song.
 				Style()
@@ -436,11 +449,11 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(320.0 / 240.0)
 					.imageRendering(.pixelated)
-					.border(Color("#444444"), width: .pixels(3), style: .inset)
+					.border(Color(raw: "#444444"), width: .pixels(3), style: .inset)
 					.background(.black)
 					.touchAction(.manipulation)
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(2), offset: .pixels(2))
 					}
 			case .pad:
 				// The dance pad on the floor: the four arrows in a cross of steel plates. A finger on an arrow steps instead of scrolling the page, and a finger on a steel plate still scrolls the page, so the big pad does not trap the scroll on a phone. A double tap does not zoom.
@@ -450,49 +463,49 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 					.frame(width: .percent(100), maxWidth: .rootEm(20))
 					.margin(.horizontal, .auto)
 					.padding(.pixels(6))
-					.backgroundImage(.linearGradient("to bottom", Color("#b8bcc4"), Color("#5a5e66")))
-					.border(Color("#d8d8d8"), width: .pixels(3), style: .outset)
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#b8bcc4"), Color(raw: "#5a5e66")))
+					.border(Color(raw: "#d8d8d8"), width: .pixels(3), style: .outset)
 					.touchAction(.manipulation)
 					.textSelection(.disabled)
 			case .plate:
 				Style()
 					.aspectRatio(1)
-					.backgroundImage(.linearGradient("to bottom right", Color("#c8ccd4"), Styles.steel))
-					.border(Color("#6a6e76"), width: .pixels(2), style: .inset)
+					.backgroundImage(.linearGradient(.toBottomRight, Color(raw: "#c8ccd4"), Styles.steel))
+					.border(Color(raw: "#6a6e76"), width: .pixels(2), style: .inset)
 			case .padArrow:
 				// A panel of the pad, which lights up from inside on a step, like the real one.
 				Style()
 					.aspectRatio(1)
 					.frame(width: .percent(100), minHeight: .rootEm(3))
-					.padding(0)
-					.background(Color("#1a2140"))
-					.border(Color("#3a4a7a"), width: .pixels(3), style: .outset)
+					.padding(.zero)
+					.background(Color(raw: "#1a2140"))
+					.border(Color(raw: "#3a4a7a"), width: .pixels(3), style: .outset)
 					.fontFamily(.system)
 					.textStyle(.largeTitle)
-					.color(Color("#55aaff"))
+					.color(Color(raw: "#55aaff"))
 					.handCursor()
 					.touchAction(.none)
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(1))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(2), offset: .pixels(1))
 					}
 					.when(States.on) {
 						$0
-							.backgroundImage(.radialGradient("circle", Color("#ffffff"), Color("#ff66cc")))
-							.border(Color("#ffccee"), width: .pixels(3), style: .inset)
-							.color(Color("#660044"))
-							.shadow(Shadow(y: 0, blur: .pixels(12), color: Color("#ff66cc")))
+							.backgroundImage(.radialGradient(.circle, Color(raw: "#ffffff"), Color(raw: "#ff66cc")))
+							.border(Color(raw: "#ffccee"), width: .pixels(3), style: .inset)
+							.color(Color(raw: "#660044"))
+							.shadow(BoxShadow(y: .zero, blur: .pixels(12), color: Color(raw: "#ff66cc")))
 					}
 			case .window:
-				Style().frame(minWidth: 0)
+				Style().frame(minWidth: .zero)
 			case .stack:
 				Style().vstack(spacing: .rootEm(0.625))
 			case .fieldset:
 				Style()
-					.margin(0)
-					.padding(0)
-					.border(.transparent, width: 0)
+					.margin(.zero)
+					.padding(.zero)
+					.border(.transparent, width: .zero)
 					.flowSpacing(.rootEm(0.375))
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 			case .songs:
 				Style().vstack(spacing: .rootEm(0.375))
 			case .triple:
@@ -502,11 +515,11 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 			case .choice:
 				// A chunky toggle, which lights up like the song wheel of the machine when it is picked.
 				Style()
-					.vstack(alignment: .start, spacing: 0)
+					.vstack(alignment: .start, spacing: .zero)
 					.frame(width: .percent(100), minHeight: .rootEm(2.75))
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(3), style: .outset)
+					.border(Color(raw: "#dfdfdf"), width: .pixels(3), style: .outset)
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.textAlign(.leading)
@@ -514,12 +527,12 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 					.handCursor()
 					.buttonFocusRing()
 					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
+						$0.border(Color(raw: "#dfdfdf"), width: .pixels(3), style: .inset)
 					}
 					.pressed {
 						$0
-							.backgroundImage(.linearGradient("to right", Color("#ff66cc"), Color("#9933ff")))
-							.border(Color("#ffccee"), width: .pixels(3), style: .inset)
+							.backgroundImage(.linearGradient(.toRight, Color(raw: "#ff66cc"), Color(raw: "#9933ff")))
+							.border(Color(raw: "#ffccee"), width: .pixels(3), style: .inset)
 							.color(.white)
 					}
 			case .dancerChoice:
@@ -536,7 +549,7 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 			case .toggle:
 				Style()
 					.frame(minHeight: .rootEm(2.25))
-					.pressedIn(Color("#ffff99"))
+					.pressedIn(Color(raw: "#ffff99"))
 			case .calibration:
 				Style().alignItems(.center)
 			case .delay:
@@ -547,7 +560,7 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 				Style().toyStatus(lines: 3)
 			case .coins:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption, weight: .bold)
 			}
 		}

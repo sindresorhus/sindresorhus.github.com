@@ -1,6 +1,7 @@
 import Elementary
 import Foundation
 import SiteKit
+import SOML
 
 /**
 What Sindre is working on now, like the pages on https://nownownow.com: the hand-written status, focus, reading, and listening of `content/pages/now.md`, and what the build gets, so the rest never goes stale: the newest app, app updates, two reviews, GitHub and npm activity, and the latest posts.
@@ -19,12 +20,12 @@ struct NowPage: Page {
 		page.metadata
 	}
 
-	var sitemapEntry: SitemapEntry? {
+	var sitemapEntry: SitemapEntry {
 		SitemapEntry(lastModified: lastChange)
 	}
 
 	var body: some HTML {
-		ProsePage(title: page.title) {
+		ProsePage(title: .plain(page.title)) {
 			// The chips are in a row, which wraps on small screens.
 			div {
 				if let lastChange {
@@ -32,7 +33,7 @@ struct NowPage: Page {
 					p {
 						span {
 							"Updated "
-							DateText(lastChange, format: .siteDay)
+							DateText(day: lastChange, format: .siteDay)
 						}
 					}
 					.style(Styles.updated)
@@ -46,9 +47,9 @@ struct NowPage: Page {
 					.flexWrap()
 			}
 
-			if let status = page.frontmatter.status {
+			if let status = page.status {
 				p {
-					status
+					status.inlineContent
 				}
 				.style(Styles.status)
 			}
@@ -75,7 +76,7 @@ struct NowPage: Page {
 			footerRow
 		}
 
-		ModuleScript("/scripts/now.js")
+		ModuleScript(#path("/scripts/now.js"))
 	}
 
 	/**
@@ -112,22 +113,25 @@ struct NowPage: Page {
 	/**
 	The contributions of each week of the last year as a sparkline, so this week can be seen next to the others.
 	*/
+	@ContentBuilder
 	private func weeklyContributions(_ counts: [Int]) -> some HTML {
-		figure {
-			// The caption says what the chart is, and the label what it shows.
-			Sparkline(values: counts, label: "Lowest week: \(counts.min() ?? 0). Highest week: \(counts.max() ?? 0). Last 7 days: \(counts.last ?? 0).")
+		if let sparkline = Sparkline(values: counts, label: "Lowest week: \(counts.min() ?? 0). Highest week: \(counts.max() ?? 0). Last 7 days: \(counts.last ?? 0).") {
+			figure {
+				// The caption says what the chart is, and the label what it shows.
+				sparkline
 
-			figcaption {
-				"Contributions a week in the last year"
+				figcaption {
+					"Contributions a week in the last year"
+				}
+				.style(Styles.caption)
 			}
-			.style(Styles.caption)
+			.vstack(spacing: .rootEm(0.75))
+			.style(Styles.card)
 		}
-		.vstack(spacing: .rootEm(0.75))
-		.style(Styles.card)
 	}
 
 	/**
-	The widths of the repo and the message of each placeholder commit, in `em` of the root. They are different, like real commits. There are five, as `now.js` gets five commits (`per_page=5`).
+	The widths of the repo and the message of each placeholder commit, in `em` of the root. They are different, like real commits. There are five, as `now.js` shows at most five commits (`.slice(0, 5)`).
 	*/
 	private static let placeholderCommitWidths: [(repository: Double, message: Double)] = [(5.5, 24), (4, 17), (7, 21), (5, 12), (6, 19)]
 
@@ -187,7 +191,7 @@ struct NowPage: Page {
 	/**
 	A section of parts (``group(_:isWide:content:)``), in two columns on larger screens.
 	*/
-	private func groupedSection(_ title: String, id: String, @HTMLBuilder content: () -> some HTML) -> some HTML<HTMLTag.section> {
+	private func groupedSection(_ title: String, id: ElementID, @HTMLBuilder content: () -> some HTML) -> some HTML<HTMLTag.section> {
 		Section(title, id: id) {
 			div {
 				content()
@@ -224,14 +228,14 @@ struct NowPage: Page {
 	The latest commits, the npm downloads while the visitor has been on the page, the numbers of the week, and the contributions. The latest commits are only loaded in the browser, so without the other parts, the section is hidden until they load.
 	*/
 	private var buildingNow: some HTML {
-		let contributions = content.recentActivity.contributions
+		let contributions = content.recentActivity.profile?.contributions
 		let weekStats = weekStats
 		// From the average of the last week, so it is not live downloads.
 		let downloadStat = content.npmStatistics.downloadsPerSecond.map { Stat(perSecond: $0, label: "downloads of my packages while you have been here") }
 
-		return groupedSection("Building Now", id: "building-now") {
+		return groupedSection("Building Now", id: ElementID("building-now")) {
 			// `now.js` fills in the commits, or shows a link to GitHub when it cannot get them. Without scripts, there are no commits to show.
-			div(.id(Hooks.latestCommits)) {
+			div(.id(IDs.latestCommits)) {
 				h3 {
 					"Right Now on GitHub"
 				}
@@ -246,7 +250,7 @@ struct NowPage: Page {
 				.style(Styles.card, Styles.rows)
 
 				// `now.js` shows it instead of the commits when GitHub does not send them, like when the visitor has made too many searches. Without a token, GitHub allows 10 searches a minute.
-				p(.id(Hooks.latestCommitsError), .hidden) {
+				p(.id(IDs.latestCommitsError), .hidden) {
 					"GitHub did not send the latest commits right now. "
 					a(.href(.url(Site.author.gitHubURL))) {
 						"See them on GitHub"
@@ -256,18 +260,20 @@ struct NowPage: Page {
 				.style(Styles.card)
 
 				// `now.js` fills in the repo, the message, and when it was committed.
-				template(.id(Hooks.commitTemplate)) {
+				template(.id(IDs.commitTemplate)) {
 					li {
 						span {
 							span(.hook(Hooks.commitRepository)) {}
 								.style(Styles.rowLabel)
 
-							time(.hook(Hooks.commitTime)) {}
+							// Not a `time`, as an empty `time` without a `datetime` is invalid HTML, and the template has no date for it.
+							span(.hook(Hooks.commitTime)) {}
 								.style(Styles.rowDate)
 						}
 						.style(Styles.rowHeader)
 
 						a(.hook(Hooks.commitLink), .href(.url(Site.author.gitHubURL))) {}
+							.style(Styles.commitLink)
 					}
 					.style(Styles.row, Styles.stackedRow)
 				}
@@ -287,10 +293,7 @@ struct NowPage: Page {
 				group("This Week in Open Source", isWide: true) {
 					StatCard(stats: weekStats)
 
-					if
-						let counts = contributions?.weeklyCounts,
-						counts.count > 1
-					{
+					if let counts = contributions?.weeklyCounts {
 						weeklyContributions(counts)
 					}
 				}
@@ -299,9 +302,9 @@ struct NowPage: Page {
 			if let contributions {
 				group("Contributions", isWide: true) {
 					div {
-						ContributionHeatmap(calendar: contributions)
+						ContributionHeatmap(calendar: contributions, scale: content.contributionScale)
 							.style {
-								$0.margin(vertical: .rootEm(1.5), horizontal: 0)
+								$0.margin(vertical: .rootEm(1.5), horizontal: .zero)
 							}
 
 						p {
@@ -333,7 +336,7 @@ struct NowPage: Page {
 		let updateDateFormat = dayFormat(for: updates.map(\.date))
 
 		if !updates.isEmpty || !reviews.isEmpty {
-			groupedSection("Apps", id: "apps") {
+			groupedSection("Apps", id: ElementID("apps")) {
 				if !updates.isEmpty {
 					group("Latest Updates") {
 						ul {
@@ -353,7 +356,7 @@ struct NowPage: Page {
 											.style(Styles.version)
 										}
 
-										DateText(update.date, format: updateDateFormat)
+										DateText(day: SOML.Date(update.date), format: updateDateFormat)
 											.style(Styles.caption)
 									}
 									.style(Styles.text)
@@ -366,7 +369,7 @@ struct NowPage: Page {
 				}
 
 				if !reviews.isEmpty {
-					group(reviews.count == 1 ? "A Recent Review" : "Recent Reviews") {
+					group("A Recent Review") {
 						for review in reviews {
 							QuoteFigure(kind: .review(review.review), app: review.app)
 						}
@@ -393,7 +396,7 @@ struct NowPage: Page {
 		let releases = latestReleases
 		let releaseDateFormat = dayFormat(for: releases.map(\.date))
 		if !repositories.isEmpty || !releases.isEmpty {
-			groupedSection("Open Source", id: "open-source") {
+			groupedSection("Open Source", id: ElementID("open-source")) {
 				if !releases.isEmpty {
 					group("Latest Releases") {
 						ul {
@@ -411,7 +414,7 @@ struct NowPage: Page {
 									}
 									.style(Styles.rowLink)
 
-									DateText(release.date, format: releaseDateFormat)
+									DateText(day: SOML.Date(release.date), format: releaseDateFormat)
 										.style(Styles.rowDate)
 								}
 								.style(Styles.row)
@@ -436,7 +439,7 @@ struct NowPage: Page {
 		let blogPost = latestBlogPost
 
 		if blueskyPost != nil || blogPost != nil {
-			groupedSection("Latest Posts", id: "posts") {
+			groupedSection("Latest Posts", id: ElementID("posts")) {
 				if let blueskyPost {
 					group("On Social Media") {
 						div {
@@ -447,8 +450,8 @@ struct NowPage: Page {
 							.style(Styles.postSource)
 
 							// `now.js` replaces the text, the link, and the date with a newer post.
-							blockquote(.id(Hooks.blueskyPost)) {
-								p(.id(Hooks.blueskyPostText)) {
+							blockquote(.id(IDs.blueskyPost)) {
+								p(.id(IDs.blueskyPostText)) {
 									for segment in blueskyPost.segments {
 										if let link = segment.link {
 											a(.href(.url(link))) {
@@ -463,17 +466,19 @@ struct NowPage: Page {
 							}
 							.style(QuoteFigure.Styles.text)
 
-							// The date links to the post. `now.js` changes the link and the date for a newer post.
+							// The date links to the post. `now.js` changes the link and the date for a newer post. The other services are on a line of their own, as the card is too narrow for both on one line.
 							p {
-								a(.id(Hooks.blueskyPostLink), .href(.url(blueskyPost.url))) {
+								a(.id(IDs.blueskyPostLink), .href(.url(blueskyPost.url))) {
 									// With the year, like the date that `now.js` writes for a newer post. The `datetime` has the time, so `now.js` only shows a post that is newer.
-									time(.id(Hooks.blueskyPostTime), .custom(name: "datetime", value: blueskyPost.date.ISO8601Format())) {
+									time(.id(IDs.blueskyPostTime), .dateTime(blueskyPost.date)) {
 										blueskyPost.date.formatted(.siteDay)
 									}
 								}
 								.style(Styles.postFooterLink)
 
-								" · Also on "
+								br()
+
+								"Also on "
 
 								for (index, link) in socialLinks.enumerated() {
 									Self.listSeparator(before: index, count: socialLinks.count)
@@ -507,16 +512,16 @@ struct NowPage: Page {
 
 		return footer {
 			if !anniversaries.isEmpty {
-				Section("On This Day", id: "on-this-day") {
+				Section("On This Day", id: ElementID("on-this-day")) {
 					rows(anniversaries.map { LabeledLink($0.title, destination: $0.destination, description: $0.description) })
 				}
 			}
 
 			yearSection
 
-			// Apart from the cards above, as they are not about the year. The link to the numbers of all the years is last and a little larger than the sponsors, as it leads on from the page.
+			// Apart from the cards above, as they are not about the year. The link to the numbers of all the years is last, as it leads on from the page. Both are captions, as they are notes of the same kind.
 			div {
-				if let sponsorCount = content.recentActivity.sponsorCount {
+				if let sponsorCount = content.recentActivity.profile?.sponsorCount {
 					p {
 						"\(sponsorCount.formatted(.number.locale(.site))) people and companies "
 						a(.href(.path(.supporters))) {
@@ -529,16 +534,12 @@ struct NowPage: Page {
 
 				p {
 					"All-time numbers are on the "
-					a(.href(.path(.about, fragment: AboutPage.numbersID))) {
+					a(.href(.path(.about, fragment: AboutPage.numbersID.rawValue))) {
 						"About"
 					}
 					" page."
 				}
-				.style {
-					$0
-						.margin(0)
-						.secondaryText(.body)
-				}
+				.style(Styles.caption)
 			}
 			.vstack(spacing: .rootEm(0.5))
 			.style {
@@ -567,7 +568,7 @@ struct NowPage: Page {
 		let npmStats = yearNPMStats
 
 		if !appStats.isEmpty || !openSourceStats.isEmpty || !npmStats.isEmpty {
-			groupedSection("\(currentYear) So Far", id: "year") {
+			groupedSection("\(currentYear) So Far", id: ElementID("year")) {
 				if !appStats.isEmpty {
 					group("Apps and Blog", isWide: true) {
 						StatCard(stats: appStats)
@@ -652,41 +653,20 @@ struct NowPage: Page {
 		content.recentRepositories.prefix(5)
 	}
 
-	private struct AppUpdate {
-		let app: App
-		let version: String
-		let date: Date
-		let destination: LinkDestination
-	}
-
 	/**
-	The two newest five-star reviews of the apps, of two different apps, so they do not say the same.
+	The newest five-star review of the apps. Only one, so the column of the reviews ends with the column of the updates next to it.
 	*/
 	private var recentReviews: [SiteContent.AppReview] {
-		Array(content.activeAppReviews.uniqued(by: \.app.path).prefix(2))
+		Array(content.activeAppReviews.prefix(1))
 	}
 
 	/**
 	The five apps that were updated last, each with its latest version: the newer of the App Store version and the latest release of its releases repo. A version from the day of the launch or before is the launch, and like in the numbers of the year, a launch is not an update.
 	*/
-	private var appUpdates: [AppUpdate] {
+	private var appUpdates: [AppListing.VersionRelease] {
 		let updates = content.activeApps.compactMap { app in
-			let release = app.releaseNotes.flatMap { releaseNotes in
-				content.releases(of: app)
-					.sorted(using: KeyPathComparator(\.publishedAt, order: .reverse))
-					.first
-					.map { AppUpdate(app: app, version: $0.version, date: $0.publishedAt, destination: releaseNotes.destination(of: $0)) }
-			}
-
-			let appStoreVersion = content.appStoreInfo(of: app).flatMap { info in
-				info.version.flatMap { version in
-					info.currentVersionReleaseDate.map { AppUpdate(app: app, version: version, date: $0, destination: app.url) }
-				}
-			}
-
-			return [release, appStoreVersion]
-				.compactMap(\.self)
-				.filter { $0.date.duration(since: app.publicationDate) >= .days(1) }
+			content.listing(of: app).versionReleases
+				.filter { SOML.Date($0.date) > app.publicationDate }
 				.sorted(using: KeyPathComparator(\.date, order: .reverse))
 				.first
 		}
@@ -695,6 +675,18 @@ struct NowPage: Page {
 	}
 
 	private struct Release {
+		/**
+		The paired project and version identity, without a private delimiter encoding.
+		*/
+		struct Identity: Hashable {
+			let name: String
+			let version: String
+		}
+
+		var identity: Identity {
+			Identity(name: name, version: version)
+		}
+
 		/**
 		The name of the project, like `execa`, without the scope of an npm package, like `is` for `@sindresorhus/is`, so a project is listed once.
 		*/
@@ -717,17 +709,29 @@ struct NowPage: Page {
 		let gitHubReleases = content.recentActivity.releases
 			.filter(\.repository.isOwners)
 			.map { release in
-				Release(name: release.repository.name, displayName: release.repository.displayName, version: release.version, url: release.url, date: release.date)
+				Release(
+					name: release.repository.name,
+					displayName: release.repository.displayName,
+					version: release.version,
+					url: release.url,
+					date: release.date
+				)
 			}
 
 		// A package version that has a GitHub release is shown as the release, which has the release notes. A newer version without a release is shown as the package.
-		let gitHubVersions = Set(gitHubReleases.map { "\($0.name)@\($0.version)" })
+		let gitHubVersions = Set(gitHubReleases.map(\.identity))
 
 		// Only the packages of repositories that the same owners have, as the npm search also finds packages that he only helps maintain, like `yeoman-generator`.
-		let npmReleases = content.npmStatistics.packages
+		let npmReleases = (content.npmStatistics.packages ?? [])
 			.filter { $0.repository?.isOwners ?? false }
-			.map { Release(name: $0.unscopedName, displayName: $0.name, version: $0.version, url: $0.url, date: $0.date) }
-			.filter { !gitHubVersions.contains("\($0.name)@\($0.version)") }
+			.map { Release(
+				name: $0.unscopedName,
+				displayName: $0.name,
+				version: $0.version,
+				url: $0.url,
+				date: $0.date
+			) }
+			.filter { !gitHubVersions.contains($0.identity) }
 
 		return Array(
 			(gitHubReleases + npmReleases)
@@ -771,6 +775,10 @@ struct NowPage: Page {
 		let title: String
 		let destination: LinkDestination
 		let description: String
+
+		/**
+		The instant for ordering releases within a day. App and post dates use midnight UTC.
+		*/
 		let date: Date
 	}
 
@@ -778,27 +786,42 @@ struct NowPage: Page {
 	The apps that launched, the app versions that were released, and the blog posts that were published on this day in earlier years (UTC), newest first, at most six.
 	*/
 	private var onThisDay: [Anniversary] {
-		let today = Calendar.site.dateComponents([.month, .day], from: content.buildDate)
+		let today = SOML.Date(content.buildDate)
 
-		func isAnniversary(_ date: Date) -> Bool {
-			date.siteYear < currentYear && Calendar.site.dateComponents([.month, .day], from: date) == today
+		func isAnniversary(_ date: SOML.Date) -> Bool {
+			date.year < today.year && date.month == today.month && date.day == today.day
 		}
 
 		let apps = content.listedApps
 			.filter { !$0.isRedirect && isAnniversary($0.publicationDate) }
-			.map { Anniversary(title: $0.title, destination: $0.url, description: "launched in \($0.publicationDate.siteYear)", date: $0.publicationDate) }
+			.map { Anniversary(
+				title: $0.title,
+				destination: $0.url,
+				description: "launched in \($0.publicationDate.year)",
+				date: $0.publicationDate.foundationDate
+			) }
 
 		let releases = content.activeApps.flatMap { app in
 			app.releaseNotes.map { releaseNotes in
-				content.releases(of: app)
-					.filter { isAnniversary($0.publishedAt) }
-					.map { Anniversary(title: "\(app.title) \($0.version)", destination: releaseNotes.destination(of: $0), description: "released in \($0.publishedAt.siteYear)", date: $0.publishedAt) }
+				content.listing(of: app).releases
+					.filter { isAnniversary(SOML.Date($0.publishedAt)) }
+					.map { Anniversary(
+						title: "\(app.title) \($0.version)",
+						destination: releaseNotes.destination(of: $0),
+						description: "released in \($0.publishedAt.siteYear)",
+						date: $0.publishedAt
+					) }
 			} ?? []
 		}
 
 		let posts = content.listedPosts
 			.filter { isAnniversary($0.publicationDate) }
-			.map { Anniversary(title: $0.title, destination: $0.url, description: "posted in \($0.publicationDate.siteYear)", date: $0.publicationDate) }
+			.map { Anniversary(
+				title: $0.title,
+				destination: $0.url,
+				description: "posted in \($0.publicationDate.year)",
+				date: $0.publicationDate.foundationDate
+			) }
 
 		return Array((apps + releases + posts).sorted(using: [KeyPathComparator(\.date, order: .reverse), KeyPathComparator(\.title, comparator: .localizedStandard)]).prefix(6))
 	}
@@ -836,19 +859,19 @@ struct NowPage: Page {
 	The new apps, app updates, and blog posts of the year of the build. Counts of zero are left out.
 	*/
 	private var yearAppStats: [Stat] {
-		let appCount = content.listedApps.count { isThisYear($0.publicationDate) }
+		let appCount = content.listedApps.count { $0.publicationDate.year == currentYear }
 		// The App Store only has the date of the current version, so this counts the apps with an update this year, not the updates. The apps that launched this year are new apps, not updated ones.
 		let updatedAppCount = content.activeApps.count { app in
-			!isThisYear(app.publicationDate) && (content.appStoreInfo(of: app)?.currentVersionReleaseDate.map(isThisYear) ?? false)
+			app.publicationDate.year != currentYear && (content.listing(of: app).appStoreVersionDate.map(isThisYear) ?? false)
 		}
-		let postCount = content.listedPosts.count { isThisYear($0.publicationDate) }
+		let postCount = content.listedPosts.count { $0.publicationDate.year == currentYear }
 
 		return [
 			Stat(count: appCount, noun: "new app"),
 			Stat(count: updatedAppCount, noun: "app", suffix: "updated"),
 			Stat(count: postCount, noun: "blog post"),
 		]
-		.filter { $0.count > 0 }
+		.filter(\.hasValue)
 	}
 
 	/**
@@ -866,7 +889,12 @@ struct NowPage: Page {
 			// Short enough for one line, also with the longest month.
 			year?.busiestDay.map { Stat(busiestDay: $0, format: .siteDayWithoutYear) },
 			totals.map { Stat(count: $0.commitCount, noun: "commit") },
-			totals.map { Stat(count: $0.committedRepositoryCount, noun: "repository", pluralNoun: "repositories", suffix: "committed to") },
+			totals.map { Stat(
+				count: $0.committedRepositoryCount,
+				noun: "repository",
+				pluralNoun: "repositories",
+				suffix: "committed to"
+			) },
 			totals.map { Stat(count: $0.pullRequestCount, noun: "pull request", suffix: "opened") },
 			totals.map { Stat(count: $0.reviewCount, noun: "code review") },
 			totals.map { Stat(count: $0.repositoryCount, noun: "new repository", pluralNoun: "new repositories") },
@@ -874,7 +902,7 @@ struct NowPage: Page {
 			maintenance.map { Stat(count: $0.mergedPullRequestCount, noun: "pull request", suffix: "merged from others") },
 		]
 
-		return stats.compactMap(\.self).filter { $0.count > 0 }
+		return stats.compactMap(\.self).filter(\.hasValue)
 	}
 
 	/**
@@ -890,21 +918,22 @@ struct NowPage: Page {
 			npm.updatedPackageCount(since: Date(year: currentYear, month: 1, day: 1)).map { Stat(count: $0, noun: "package", suffix: "updated") },
 		]
 
-		return stats.compactMap(\.self).filter { $0.count > 0 }
+		return stats.compactMap(\.self).filter(\.hasValue)
 	}
 
 	/**
 	When the newest of the things on the page happened, or the hand-written part changed, so the date only changes when the page does.
 	*/
-	private var lastChange: Date? {
-		let dates: [Date?] = [page.lastCommitDate, content.newestApp?.publicationDate, latestBlogPost?.publicationDate, content.recentActivity.blueskyPost?.date]
-		return (dates.compactMap(\.self) + appUpdates.map(\.date) + recentReviews.map(\.review.date) + latestReleases.map(\.date) + newProjects.map(\.createdAt)).max()
+	private var lastChange: SOML.Date? {
+		let publicationDates = [content.newestApp?.publicationDate, latestBlogPost?.publicationDate].compactMap(\.self)
+		let dates = [page.lastCommitDate, content.recentActivity.blueskyPost?.date].compactMap(\.self) + appUpdates.map(\.date) + recentReviews.map(\.review.date) + latestReleases.map(\.date) + newProjects.map(\.createdAt)
+		return (publicationDates + dates.map(SOML.Date.init)).max()
 	}
 
 	/**
-	The IDs and data attributes that the scripts of the page find elements by.
+	The IDs that the scripts of the page find elements by.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum IDs: String, ScriptIDSet {
 		case blueskyPost = "bluesky-post"
 		case blueskyPostText = "bluesky-post-text"
 		case blueskyPostLink = "bluesky-post-link"
@@ -912,21 +941,26 @@ struct NowPage: Page {
 		case commitTemplate = "commit-template"
 		case latestCommits = "latest-commits"
 		case latestCommitsError = "latest-commits-error"
+	}
 
+	/**
+	The data attributes that the scripts of the page find elements by.
+	*/
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The repo of a commit in its template, which `now.js` fills in.
 		*/
-		case commitRepository = "data-commit-repository"
+		case commitRepository = "commit-repository"
 
 		/**
 		The link to a commit in its template, with its message.
 		*/
-		case commitLink = "data-commit-link"
+		case commitLink = "commit-link"
 
 		/**
 		When a commit was made, in its template.
 		*/
-		case commitTime = "data-commit-time"
+		case commitTime = "commit-time"
 	}
 
 	enum Styles: StyleSet {
@@ -948,6 +982,7 @@ struct NowPage: Page {
 		case rowHeader
 		case rowLabel
 		case rowLink
+		case commitLink
 		case rowDate
 		case placeholderRow
 		case placeholder
@@ -968,19 +1003,19 @@ struct NowPage: Page {
 					.statusLight()
 			case .status:
 				Style()
-					.margin(top: .rootEm(1.5), horizontal: 0, bottom: .rootEm(2))
+					.margin(top: .rootEm(1.5), horizontal: .zero, bottom: .rootEm(2))
 					.font(.extraLarge)
 					.color(.primaryText)
 			case .newestApp:
 				Style()
 					.linkCard()
-					.margin(top: .rootEm(2), horizontal: 0, bottom: .rootEm(1))
+					.margin(top: .rootEm(2), horizontal: .zero, bottom: .rootEm(1))
 			case .text:
 				// The text next to an icon, like the title of the newest app.
 				Style()
 					.vstack(spacing: .rootEm(0.125))
 					.flex(1)
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 			case .eyebrow:
 				Style().eyebrow()
 			case .newestAppTitle:
@@ -1006,7 +1041,7 @@ struct NowPage: Page {
 			case .group:
 				Style()
 					.vstack(spacing: .rootEm(0.75))
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 			case .wideGroup:
 				Style()
 					.from(.tablet) {
@@ -1014,14 +1049,14 @@ struct NowPage: Page {
 					}
 			case .groupTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.body, weight: .semibold)
-					.letterSpacing(0)
+					.letterSpacing(.zero)
 					.color(.primaryText)
 			case .card:
 				Style()
-					.margin(0)
-					.padding(.rootEm(1.25))
+					.margin(.zero)
+					.padding(.cardPadding)
 					.cardSurface(isInteractive: false)
 					.textStyle(.body)
 					.trimmingChildMargins()
@@ -1033,11 +1068,11 @@ struct NowPage: Page {
 			case .row:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.75))
-					.margin(0)
-					.padding(vertical: .rootEm(0.875), horizontal: 0)
+					.margin(.zero)
+					.padding(vertical: .rootEm(0.875), horizontal: .zero)
 					.border(.bottom, .separator)
 					.lastChild {
-						$0.border(.bottom, width: 0)
+						$0.border(.bottom, width: .zero)
 					}
 			// The children are not wider than the row, so a long word, like a URL in a commit message, breaks instead of overflowing.
 			case .stackedRow:
@@ -1059,7 +1094,20 @@ struct NowPage: Page {
 			case .rowLink:
 				Style()
 					.flex(1)
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
+			case .commitLink:
+				// Each row is one link, so the message does not need the underline of a link in text, which would make the card a stack of underlines. It has the weight of a title, and the color of links under the pointer.
+				Style()
+					.underline(false)
+					.fontWeight(.semibold)
+					.color(.primaryText)
+					.hoverColor(.link)
+					// The code of the message is lighter and smaller than the message, as a monospaced font in semibold is much heavier than the text around it.
+					.descendants("code") {
+						$0
+							.font(size: .em(0.875))
+							.fontWeight(.medium)
+					}
 			case .rowDate:
 				Style()
 					.flexShrink(0)
@@ -1084,7 +1132,7 @@ struct NowPage: Page {
 				// After the link, so the underline of the link does not go under it.
 				Style()
 					.display(.inlineBlock)
-					.padding(vertical: 0, horizontal: .rootEm(0.375))
+					.padding(vertical: .zero, horizontal: .rootEm(0.375))
 					.cornerRadius(.rootEm(0.375))
 					.fontFamily(.monospace)
 					.font(size: .rootEm(0.75), lineHeight: 1.6)
@@ -1093,7 +1141,7 @@ struct NowPage: Page {
 					.background(.card)
 			case .colophon:
 				Style()
-					.margin(top: .rootEm(5), horizontal: 0, bottom: 0)
+					.margin(top: .rootEm(5), horizontal: .zero, bottom: .zero)
 					.padding(.top, .rootEm(1.5))
 					.border(.top, .separator)
 					.textAlign(.center)
@@ -1101,7 +1149,7 @@ struct NowPage: Page {
 			// Less important text, like the description of a row.
 			case .caption:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.secondaryText()
 			case .post:
 				Style()
@@ -1118,20 +1166,20 @@ struct NowPage: Page {
 			case .postFooter:
 				// More space above the line than the gap between the other parts of the card.
 				Style()
-					.margin(top: .rootEm(0.5), horizontal: 0, bottom: 0)
+					.margin(top: .rootEm(0.5), horizontal: .zero, bottom: .zero)
 					.padding(.top, .rootEm(0.75))
 					.border(.top, .separator)
 					.secondaryText(.extraSmall)
 			case .postFooterLink:
 				// Without the look of a link in prose.
 				Style()
-					.color(.inherit)
+					.inherits(.color)
 					.fontWeight(.regular)
 					.quietLink()
 			case .postText:
 				// The paragraphs of the post are lines in its text.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.preservesLineBreaks()
 			}
 		}

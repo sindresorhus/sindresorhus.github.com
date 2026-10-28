@@ -60,7 +60,15 @@ struct GeoCitiesWindowsTerminal: ScriptedElement {
 					"Name:"
 				}
 
-				input(.id("geocities-term-name"), .part(Parts.name), .type(.text), .value("Fjordnet"), .autocomplete("off"), .maxlength(20), .custom(name: "spellcheck", value: "false"))
+				input(
+					.id("geocities-term-name"),
+					.part(Parts.name),
+					.type(.text),
+					.value("Fjordnet"),
+					.autocomplete("off"),
+					.maxlength(20),
+					.spellcheck(false)
+				)
 					.style(GeoCitiesPage.Styles.field)
 			}
 			.style(GeoCitiesWindows.Styles.nowrapRow)
@@ -133,7 +141,17 @@ struct GeoCitiesWindowsTerminal: ScriptedElement {
 			}
 			.style(VisuallyHidden.Styles.root)
 
-			input(.id("geocities-term-input"), .part(Parts.input), .type(.text), .autocomplete("off"), .maxlength(60), .disabled, .custom(name: "autocapitalize", value: "off"), .custom(name: "autocorrect", value: "off"), .custom(name: "spellcheck", value: "false"))
+			input(
+				.id("geocities-term-input"),
+				.part(Parts.input),
+				.type(.text),
+				.autocomplete("off"),
+				.maxlength(60),
+				.disabled,
+				.autocapitalize(.none),
+				.custom(name: "autocorrect", value: "off"),
+				.spellcheck(false)
+			)
 				.style(Styles.input)
 
 			button(.type(.submit)) {
@@ -192,11 +210,11 @@ struct GeoCitiesWindowsTerminal: ScriptedElement {
 		case keyTemplate
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The color of a piece of text on the screen, as a number of the 16 colors of ANSI, like `14` for yellow.
 		*/
-		case color = "data-term-color"
+		case color = "term-color"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -227,7 +245,7 @@ struct GeoCitiesWindowsTerminal: ScriptedElement {
 
 			for (number, color) in palette.enumerated() {
 				style = style.when(Hooks.color, is: "\(number)") {
-					$0.color(Color(color))
+					$0.color(Color(raw: color))
 				}
 			}
 
@@ -243,17 +261,17 @@ struct GeoCitiesWindowsTerminal: ScriptedElement {
 				Style()
 					.padding(.rootEm(0.5))
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+					.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 			case .icons:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.25))
 					.flexWrap()
 					.padding(.rootEm(0.25))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			case .iconChoice:
 				Style()
-					.hstack(alignment: .center, spacing: 0)
+					.hstack(alignment: .center, spacing: .zero)
 					.handCursor()
 			case .legend:
 				Style().padding(horizontal: .rootEm(0.25))
@@ -266,11 +284,11 @@ struct GeoCitiesWindowsTerminal: ScriptedElement {
 					.overflow(.auto)
 					.padding(.rootEm(0.5))
 					.background(.black)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(GeoCitiesPage.courier)
 					.font(size: .rootEm(0.8125), lineHeight: 1)
 					.fontWeight(.bold)
-					.color(Color("#aaaaaa"))
+					.color(Color(raw: "#aaaaaa"))
 			case .screen:
 				// The script turns the spaces that line up the art into no-break spaces, and the single spaces between words still wrap.
 				Style()
@@ -278,7 +296,12 @@ struct GeoCitiesWindowsTerminal: ScriptedElement {
 					.preservesLineBreaks()
 					.overflowWrap(.anywhere)
 					.focusVisible {
-						$0.focusRing(Color("#55ffff"), width: .pixels(1), offset: .pixels(2), style: .dotted)
+						$0.focusRing(
+							Color(raw: "#55ffff"),
+							width: .pixels(1),
+							offset: .pixels(2),
+							style: .dotted
+						)
 					}
 			case .text:
 				Self.colors
@@ -288,15 +311,15 @@ struct GeoCitiesWindowsTerminal: ScriptedElement {
 					.display(.block)
 					.imageRendering(.pixelated)
 			case .cursor:
-				Style().color(Color("#aaaaaa"))
+				Style().color(Color(raw: "#aaaaaa"))
 			case .input:
 				Style()
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.25))
 					.background(.black)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.body, weight: .bold)
-					.color(Color("#55ff55"))
+					.color(Color(raw: "#55ff55"))
 			case .key:
 				Style()
 					.fontFamily(GeoCitiesPage.courier)

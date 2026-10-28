@@ -14,6 +14,10 @@ struct ReviewsPage: Page {
 		.reviews
 	}
 
+	var socialImage: SocialImage {
+		.card(OpenGraphCard(page: self, project: content.project))
+	}
+
 	var metadata: PageMetadata {
 		PageMetadata(title: "Wall of Love", description: "What the press and App Store reviewers say about the apps by Sindre Sorhus.")
 	}
@@ -30,9 +34,9 @@ struct ReviewsPage: Page {
 			}
 
 			// The script shows it when the page shows the quotes of one app.
-			p(.id(Hooks.filterNotice), .hidden) {
+			p(.id(IDs.filterNotice), .hidden) {
 				"Showing what people say about "
-				strong(.id(Hooks.filterApp)) {}
+				strong(.id(IDs.filterApp)) {}
 				". "
 				a(.href(.reviews)) {
 					"Show All"
@@ -40,11 +44,11 @@ struct ReviewsPage: Page {
 			}
 			.style(Styles.filterNotice)
 
-			div(.id(Hooks.wall)) {
+			div(.id(IDs.wall)) {
 				for quote in quotes {
 					// The space below each card is padding of a wrapper, not a margin, as Safari moves the bottom margin of the last card in a column to the top of the next column, so the columns would not line up.
-					div(.hook(Hooks.app, value: quote.app?.slug ?? "")) {
-						quote
+					div(.hook(Hooks.app, value: quote.app.slug)) {
+						QuoteFigure(kind: quote.kind, app: quote.app)
 					}
 					.style(Styles.cardWrapper)
 				}
@@ -55,7 +59,7 @@ struct ReviewsPage: Page {
 			script {
 				HTMLRaw(#"""
 				{
-					const wall = document.querySelector('#\#(Hooks.wall.id)');
+					const wall = document.querySelector('#\#(IDs.wall.id)');
 					const reviews = [...wall.children].slice(\#(pressQuotes.count));
 
 					for (let index = reviews.length - 1; index > 0; index--) {
@@ -73,8 +77,8 @@ struct ReviewsPage: Page {
 							card.hidden = !cards.includes(card);
 						}
 
-						const notice = document.querySelector('#\#(Hooks.filterNotice.id)');
-						document.querySelector('#\#(Hooks.filterApp.id)').textContent = \#(Self.appTitlesJSON(quotes))[app];
+						const notice = document.querySelector('#\#(IDs.filterNotice.id)');
+						document.querySelector('#\#(IDs.filterApp.id)').textContent = \#(Self.appTitlesJSON(quotes))[app];
 						notice.hidden = false;
 					}
 				}
@@ -85,40 +89,43 @@ struct ReviewsPage: Page {
 	}
 
 	/**
+	A wall entry always belongs to the app that its filter and title identify.
+	*/
+	private struct Entry {
+		let app: App
+		let kind: QuoteFigure.Kind
+	}
+
+	/**
 	The titles of the apps with quotes, by slug, for the filter notice.
 	*/
-	private static func appTitlesJSON(_ quotes: [QuoteFigure]) -> String {
-		JSONEncoder.pageJSON(Dictionary(quotes.compactMap(\.app).map { ($0.slug, $0.title) }) { first, _ in first })
+	private static func appTitlesJSON(_ quotes: [Entry]) -> String {
+		JSONEncoder.pageJSON(Dictionary(quotes.map(\.app).map { ($0.slug, $0.title) }) { first, _ in first })
 	}
 
 	/**
 	The press quotes in the order of the apps. They are before the reviews.
 	*/
-	private var pressQuotes: [QuoteFigure] {
+	private var pressQuotes: [Entry] {
 		content.activeApps.flatMap { app in
-			// The wall of love has the quotes of many apps and years, so each shows its year, when it has one.
-			app.pressQuotes.map { QuoteFigure(kind: .press($0), app: app, showsYear: true) }
+			// The wall of love has the quotes of many apps and years, and each shows its year, when it has one (``QuoteFigure``).
+			app.pressQuotes.map { Entry(app: app, kind: .press($0)) }
 		}
 	}
 
 	/**
 	The reviews, newest first. Reviews of the same date are in the order of the app titles and the review titles.
 	*/
-	private var reviews: [QuoteFigure] {
-		content.activeAppReviews.map { QuoteFigure(kind: .review($0.review), app: $0.app) }
+	private var reviews: [Entry] {
+		content.activeAppReviews.map { Entry(app: $0.app, kind: .review($0.review)) }
 	}
 }
 
 extension ReviewsPage {
 	/**
-	The IDs and data attributes that the scripts of the page find elements by.
+	The IDs that the scripts of the page find elements by.
 	*/
-	enum Hooks: String, ScriptHookSet {
-		/**
-		The app of a card on the wall of love, by its slug, so the page can show only the reviews of one app with `?app=velja`.
-		*/
-		case app = "data-app"
-
+	enum IDs: String, ScriptIDSet {
 		case filterNotice = "reviews-filter-notice"
 
 		/**
@@ -127,6 +134,16 @@ extension ReviewsPage {
 		case filterApp = "reviews-filter-app"
 
 		case wall = "reviews-wall"
+	}
+
+	/**
+	The data attributes that the scripts of the page find elements by.
+	*/
+	enum Hooks: String, ScriptDataAttributeSet {
+		/**
+		The app of a card on the wall of love, by its slug, so the page can show only the reviews of one app with `?app=velja`.
+		*/
+		case app
 	}
 
 	enum Styles: StyleSet {
@@ -142,10 +159,13 @@ extension ReviewsPage {
 				Style()
 					.pageColumn(.page)
 			case .wall:
-				// Columns that the cards flow through, so cards of different heights fit together.
+				// Columns that the cards flow through, so cards of different heights fit together. On phones, the cards are one plain column, as a multi-column box of one very tall column can put the last card in a second column at the side, with large text.
 				Style()
-					.columns(3, minimumWidth: .rootEm(18))
-					.gap(column: .rootEm(1.25))
+					.from(.tablet) {
+						$0
+							.columns(3, minimumWidth: .rootEm(18))
+							.gap(column: .rootEm(1.25))
+					}
 			case .cardWrapper:
 				Style()
 					.padding(.bottom, .rootEm(1.25))

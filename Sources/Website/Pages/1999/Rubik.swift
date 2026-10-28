@@ -9,6 +9,17 @@ struct GeoCitiesRubik: ScriptedElement {
 	static let script = ElementScript()
 
 	/**
+	The groups of pieces that the script can highlight for the booklet.
+	*/
+	enum Highlight: String, CaseIterable {
+		case cross
+		case corners
+		case middle
+		case yellowCross
+		case yellowCorners
+	}
+
+	/**
 	A page of the instruction booklet, with an algorithm to try and the pieces to show on the cube.
 	*/
 	private struct Page {
@@ -19,7 +30,7 @@ struct GeoCitiesRubik: ScriptedElement {
 		/**
 		The pieces that the script shows on the cube, like `cross`.
 		*/
-		var highlight: String?
+		var highlight: Highlight?
 
 		/**
 		What Pappa wrote on the page with a pencil, in 1981.
@@ -36,49 +47,49 @@ struct GeoCitiesRubik: ScriptedElement {
 		Page(
 			title: "Step 1: Solve the first layer cross",
 			text: "Hold the cube with the white center on top. Find the four edges with white on them, and put them around the white center, so that the other color of each edge matches the center on the side.",
-			highlight: "cross",
+			highlight: .cross,
 			note: "Hvordan?! (How?!)"
 		),
 		Page(
 			title: "Step 2: The white corners",
 			text: "Find a white corner, and turn the bottom until the corner is under its place, in front on the right. Then repeat R’ D’ R D until it goes up in its place, with white on top. Do not worry about the rest, it comes back.",
 			algorithms: ["R’ D’ R D"],
-			highlight: "corners",
+			highlight: .corners,
 			note: "Fikk 1 hjørne. (Got 1 corner.)"
 		),
 		Page(
 			title: "Step 3: The middle layer",
 			text: "Turn the cube over, so yellow is on top. Find an edge on top without yellow, and turn the top until it matches the center in front. Then move it down to the right or to the left.",
 			algorithms: ["U R U’ R’ U’ F’ U F", "U’ L’ U L U F U’ F’"],
-			highlight: "middle",
+			highlight: .middle,
 			note: "Her ble det rot. (Here it got messy.)"
 		),
 		Page(
 			title: "Step 4: The yellow cross",
 			text: "Do F R U R’ U’ F’ until there is a yellow cross on top. Hold a yellow line from left to right, or a yellow L in the back on the left.",
 			algorithms: ["F R U R’ U’ F’"],
-			highlight: "yellowCross",
+			highlight: .yellowCross,
 			note: ""
 		),
 		Page(
 			title: "Step 5: The yellow edges",
 			text: "Turn the top until two edges match their centers. This algorithm swaps the edge in front and the edge on the left.",
 			algorithms: ["R U R’ U R U2 R’ U"],
-			highlight: "yellowCross",
+			highlight: .yellowCross,
 			note: ""
 		),
 		Page(
 			title: "Step 6: The yellow corners in their places",
 			text: "This algorithm moves three corners around, and keeps the one in front on the right. Repeat until every corner is in its place, even if it is twisted.",
 			algorithms: ["U R U’ L’ U R’ U’ L"],
-			highlight: "yellowCorners",
+			highlight: .yellowCorners,
 			note: ""
 		),
 		Page(
 			title: "Step 7: Twist the yellow corners",
 			text: "Do R’ D’ R D two or four times, until the corner in front on the right is yellow on top. Then turn only the top, with U, to bring the next corner there. The cube looks broken in the middle of this step. Do not stop!",
 			algorithms: ["R’ D’ R D R’ D’ R D", "U"],
-			highlight: "yellowCorners",
+			highlight: .yellowCorners,
 			note: "Her ga jeg opp. 1981. (Here I gave up.)"
 		),
 	]
@@ -101,7 +112,13 @@ struct GeoCitiesRubik: ScriptedElement {
 		}
 
 		div {
-			canvas(.part(Parts.canvas), .width(1080), .height(810), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.canvas),
+				.width(1080),
+				.height(810),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("Pappa’s Rubik’s Cube. Drag a face to turn that layer, or drag beside the cube to turn the whole cube. The keys R, L, U, D, F, B, M, E, and S turn the layers, and X, Y, and Z turn the whole cube, with Shift for the other way. The arrow keys turn the cube in the hand, Home shows the front, and Backspace undoes a turn.")
 				.style(Styles.canvas)
 
@@ -195,7 +212,15 @@ struct GeoCitiesRubik: ScriptedElement {
 					}
 					.style(Styles.formLabel)
 
-					input(.id("geocities-rubik-algorithm"), .part(Parts.algorithm), .type(.text), .autocomplete("off"), .maxlength(200), .placeholder("(R U R’ U’)6"), .value("(R U R’ U’)6"))
+					input(
+						.id("geocities-rubik-algorithm"),
+						.part(Parts.algorithm),
+						.type(.text),
+						.autocomplete("off"),
+						.maxlength(200),
+						.placeholder("(R U R’ U’)6"),
+						.value("(R U R’ U’)6")
+					)
 						.style(GeoCitiesPage.Styles.field, Styles.algorithmField)
 
 					button(.type(.submit)) {
@@ -371,7 +396,7 @@ struct GeoCitiesRubik: ScriptedElement {
 				if !page.algorithms.isEmpty || page.highlight != nil {
 					div {
 						if let highlight = page.highlight {
-							button(.type(.button), .hook(Hooks.highlight, value: highlight)) {
+							button(.type(.button), .hook(Hooks.highlight, value: highlight.rawValue)) {
 								"👆 Show Me"
 							}
 							.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
@@ -468,36 +493,36 @@ struct GeoCitiesRubik: ScriptedElement {
 		case done
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A step of the solution, with its number.
 		*/
-		case step = "data-rubik-step"
+		case step = "rubik-step"
 
 		/**
 		A best time on the score card, with its place.
 		*/
-		case bestTime = "data-rubik-time"
+		case bestTime = "rubik-time"
 
 		/**
 		A page of the booklet, with its number.
 		*/
-		case page = "data-rubik-page"
+		case page = "rubik-page"
 
 		/**
 		A button that plays an algorithm of the booklet, with the algorithm.
 		*/
-		case algorithmButton = "data-rubik-algorithm"
+		case algorithmButton = "rubik-algorithm"
 
 		/**
 		A button that shows the pieces of a step on the cube, like `cross`.
 		*/
-		case highlight = "data-rubik-highlight"
+		case highlight = "rubik-highlight"
 
 		/**
 		A button that makes a pattern, with its algorithm.
 		*/
-		case pattern = "data-rubik-pattern"
+		case pattern = "rubik-pattern"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -544,13 +569,13 @@ struct GeoCitiesRubik: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto, maxWidth: .rootEm(40))
 					.aspectRatio(4.0 / 3.0)
-					.background(Color("#2b3756"))
-					.border(Color("#5a3a1a"), width: .pixels(4), style: .ridge)
+					.background(Color(raw: "#2b3756"))
+					.border(Color(raw: "#5a3a1a"), width: .pixels(4), style: .ridge)
 					.touchAction(.none)
 					.textSelection(.disabled)
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(3), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(3), offset: .pixels(2))
 					}
 			case .display:
 				Style()
@@ -562,18 +587,18 @@ struct GeoCitiesRubik: ScriptedElement {
 				Style()
 					.font(.large, weight: .bold)
 					.when(States.running) {
-						$0.color(Color("#ffee55"))
+						$0.color(Color(raw: "#ffee55"))
 					}
 					.when(States.solved) {
 						$0
-							.color(Color("#66ffff"))
-							.textShadow(Shadow(y: 0, blur: .pixels(6), color: Color("#33ffff")))
+							.color(Color(raw: "#66ffff"))
+							.textShadow(Shadow(y: .zero, blur: .pixels(6), color: Color(raw: "#33ffff")))
 					}
 			case .notation:
 				// The notation of the last turns, typed on the typewriter of Mormor.
 				Style()
 					.frame(width: .percent(100), maxWidth: .rootEm(40), minHeight: .lineHeight(2))
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
@@ -597,7 +622,7 @@ struct GeoCitiesRubik: ScriptedElement {
 			case .status:
 				Style()
 					.frame(maxWidth: .rootEm(40), minHeight: .lineHeight(3))
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.body, weight: .bold)
 					.textAlign(.center)
@@ -607,29 +632,29 @@ struct GeoCitiesRubik: ScriptedElement {
 					.vstack(spacing: .rootEm(0.5))
 					.frame(width: .percent(100), maxWidth: .rootEm(40))
 					.padding(.rootEm(0.75))
-					.background(Color("#fbfbf4"))
-					.border(Color("#9db4d6"), width: .pixels(2))
-					.shadow(Shadow(x: .pixels(3), y: .pixels(4), color: Color("#00000040")))
+					.background(Color(raw: "#fbfbf4"))
+					.border(Color(raw: "#9db4d6"), width: .pixels(2))
+					.shadow(BoxShadow(x: .pixels(3), y: .pixels(4), color: Color(raw: "#00000040")))
 					.fontFamily(GeoCitiesPage.comicSans)
-					.color(Color("#1a1a6a"))
+					.color(Color(raw: "#1a1a6a"))
 			case .paperTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.font(.large, weight: .bold)
 					.textAlign(.center)
 			case .steps:
 				Style()
 					.vstack(spacing: .rootEm(0.375))
-					.margin(0)
+					.margin(.zero)
 					.padding(.leading, .rootEm(1.5))
 			case .step:
 				Style()
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.25))
-					.border(Color("#00000000"), width: .pixels(2))
+					.border(Color(raw: "#00000000"), width: .pixels(2))
 					.when(States.current) {
 						$0
-							.background(Color("#fff6a8"))
-							.border(Color("#d0a000"), width: .pixels(2), style: .dashed)
+							.background(Color(raw: "#fff6a8"))
+							.border(Color(raw: "#d0a000"), width: .pixels(2), style: .dashed)
 					}
 					.when(States.done) {
 						$0.opacity(0.55)
@@ -641,7 +666,7 @@ struct GeoCitiesRubik: ScriptedElement {
 					.display(.block)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#222222"))
+					.color(Color(raw: "#222222"))
 			case .papers:
 				Style()
 					.grid(minimumColumnWidth: .rootEm(15))
@@ -652,26 +677,26 @@ struct GeoCitiesRubik: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.75))
-					.background(Color("#f6edd2"))
-					.border(Color("#b9a77a"), width: .pixels(1))
-					.border(.leading, Color("#c8102e"), width: .rootEm(0.5))
-					.shadow(Shadow(x: .pixels(3), y: .pixels(4), color: Color("#00000040")))
+					.background(Color(raw: "#f6edd2"))
+					.border(Color(raw: "#b9a77a"), width: .pixels(1))
+					.border(.leading, Color(raw: "#c8102e"), width: .rootEm(0.5))
+					.shadow(BoxShadow(x: .pixels(3), y: .pixels(4), color: Color(raw: "#00000040")))
 					.rotationEffect(.degrees(-0.8))
 					.fontFamily(GeoCitiesPage.times)
-					.color(Color("#1a1a1a"))
+					.color(Color(raw: "#1a1a1a"))
 			case .page:
 				Style()
 					.vstack(spacing: .rootEm(0.375))
 					.frame(minHeight: .rootEm(12))
 			case .pageTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(.bottom, .rootEm(0.25))
-					.border(.bottom, Color("#1a1a1a"), width: .pixels(2))
+					.border(.bottom, Color(raw: "#1a1a1a"), width: .pixels(2))
 					.font(.large, weight: .heavy)
 			case .pageText:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.body)
 			case .pageActions:
 				Style()
@@ -680,11 +705,11 @@ struct GeoCitiesRubik: ScriptedElement {
 			case .pencil:
 				// Pappa’s pencil, gray and a bit crooked.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption)
 					.italic()
-					.color(Color("#666666"))
+					.color(Color(raw: "#666666"))
 					.rotationEffect(.degrees(-2))
 			case .pageButtons:
 				Style()
@@ -699,26 +724,26 @@ struct GeoCitiesRubik: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.75))
-					.background(Color("#ffffff"))
-					.border(.top, Color("#d0102a"), width: .pixels(3))
-					.shadow(Shadow(x: .pixels(3), y: .pixels(4), color: Color("#00000040")))
+					.background(Color(raw: "#ffffff"))
+					.border(.top, Color(raw: "#d0102a"), width: .pixels(3))
+					.shadow(BoxShadow(x: .pixels(3), y: .pixels(4), color: Color(raw: "#00000040")))
 					.rotationEffect(.degrees(0.8))
 					.fontFamily(GeoCitiesPage.comicSans)
-					.color(Color("#1a1a6a"))
+					.color(Color(raw: "#1a1a6a"))
 			case .cardTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.font(.large, weight: .bold)
 			case .times:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(.leading, .rootEm(1.5))
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.body, weight: .bold)
 					.monospacedDigit()
 			case .cardText:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption)
 			}
 		}

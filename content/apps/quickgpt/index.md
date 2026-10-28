@@ -1,15 +1,16 @@
 ---
 title: 'QuickGPT'
 subtitle: 'Easy access to ChatGPT'
-publicationDate: '2023-04-12'
+publicationDate: 2023-04-12
 platforms: [
 	'macOS'
 ]
-isPaid: true
 isMenuBarApp: true
-price: 6
+gumroad: {
+	id: 'quickgpt'
+	price: 6
+}
 releasesRepository: 'sindresorhus/quickgpt-meta'
-gumroadID: 'quickgpt'
 olderVersions: [
 	{
 		version: '1.7.0'
@@ -27,8 +28,17 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/14156246/QuickGPT.1.4.11.zip'
 	}
 ]
-feedbackNote: 'If you are having problems with copying text, that’s a problem with ChatGPT and not the app. The same problem can be seen on https://chatgpt.com'
+pressQuotes: [
+	{
+		quote: 'For Mac users, Sorhus has released the new download QuickGPT. It can be downloaded and used completely free of charge and wraps ChatGPT’s web interface in an easy-to-use Mac app.'
+		source: 'iphone-ticker.de'
+		translatedFrom: 'German'
+		url: 'https://www.iphone-ticker.de/ask-ai-fuer-apple-watch-serioese-chatgpt-app-zum-einmalkauf-210711/'
+		year: 2023
+	}
+]
 privacyNote: 'ChatGPT is covered by OpenAI’s privacy policy. The app itself collects no data or personal information.'
+feedbackNote: 'If you are having problems with copying text, that’s a problem with ChatGPT and not the app. The same problem can be seen on https://chatgpt.com'
 ---
 
 Open ChatGPT in its own window with a keyboard shortcut, from the menu bar, or from the Dock.
@@ -45,7 +55,7 @@ It uses the ChatGPT website, with some design tweaks, and you can add your own C
 
 ## Frequently Asked Questions {#faq}
 
-### Why this when ChatGPT has an official macOS app?
+### Why this when ChatGPT has an official macOS app? {#why-this-when-chatgpt-has-an-official-macos-app}
 
 The web version (used by this app) sometimes gets features before the macOS app.
 
@@ -53,26 +63,26 @@ This app is just a browser, so it has a lot less access to your system than the 
 
 This app supports tabs (as long as you have enabled the “prefer tabs” system setting)
 
-### Is the app native?
+### Is the app native? {#is-the-app-native}
 
 It is a native app with a web view. It adds a lot of extra functionality to the ChatGPT web UI.
 
-### Why does it add a newline when pressing the Return key instead of submitting the prompt?
+### Why does it add a newline when pressing the Return key instead of submitting the prompt? {#why-does-it-add-a-newline-when-pressing-the-return-key-instead-of-submitting-the-prompt}
 
 This is a bug in ChatGPT. It changes behavior when the window is narrow (sidebar becomes hidden). It happens in Safari too. I recommend reporting this bug to the [ChatGPT team](mailto:support@openai.com).
 
-### Can you add a certain feature?
+### Can you add a certain feature? {#can-you-add-a-certain-feature}
 
 I’m happy to consider it. If it’s about the web interface, I recommend also [sending a request](mailto:support@openai.com) to the ChatGPT team.
 
-### Can you fix a bug in the ChatGPT web interface?
+### Can you fix a bug in the ChatGPT web interface? {#can-you-fix-a-bug-in-the-chatgpt-web-interface}
 
 I have fixed many bugs in the ChatGPT web interface in the past. However, they constantly change the web interface, which breaks my fixes. It’s just too much wasted time. Send bug reports to the [OpenAI team](mailto:support@openai.com) instead.
 
-### Can you support the ChatGPT API?
+### Can you support the ChatGPT API? {#can-you-support-the-chatgpt-api}
 
 I personally prefer the ChatGPT web UI as it’s cheaper for me to pay monthly for unlimited use than to pay per token for the API.
 
-### Why is this not in the App Store?
+### Why is this not in the App Store? {#why-is-this-not-in-the-app-store}
 
 Apple generally rejects website wrappers even if they add useful additional functionality. Apple has also rejected apps with GPT in the name.

@@ -42,6 +42,15 @@ If there is no [crash report](/apps/faq#crash-report), macOS most likely quit th
 
 No. iCloud sync is unreliable and causes a huge support burden. It’s not worth the effort for this app.
 
+### The text sometimes jumps when I write fast {#text-jumps}
+<!-- @faq.first -->
+
+This is a macOS bug. There is unfortunately nothing I can do about it.
+
+### Why is it suddenly showing a scrollbar? {#why-is-it-suddenly-showing-a-scrollbar}
+
+You either have a system setting set to always show scrollbars or you have an external mouse connected. This is simply how macOS works. You can see the behavior in other text editing apps too. See the “Appearance › Show scroll bars” system setting.
+
 ### Can you add another menu bar icon option? {#menu-bar-icons}
 <!-- @faq.keywords emoji symbol -->
 
@@ -54,7 +63,7 @@ Sure! Find an icon you like in the [SF Symbols app](https://developer.apple.com/
 
 ### Why does it not show week 53? {#week-53}
 
-You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar). You can change it with [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
+You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar). You can change it in “System Settings › General › Language & Region”: set “Calendar” to ISO 8601 for ISO week numbers, or to Gregorian for Gregorian week numbers. With Gregorian, the “First Day of Week” setting in the same pane also changes the week numbers.
 
 ### Why does it show the last days of December as week 1? {#december-week-1}
 
@@ -62,11 +71,11 @@ That is called [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date)
 
 ### It shows the incorrect week number {#incorrect-week-number}
 
-You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar), or the inverse. You can change it with [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340).
+You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar), or the inverse. You can change it in “System Settings › General › Language & Region”: set “Calendar” to ISO 8601 for ISO week numbers, or to Gregorian for Gregorian week numbers. With Gregorian, the “First Day of Week” setting in the same pane also changes the week numbers.
 
 ### How can I change the week number to ISO 8601 format? {#iso-week-number}
 
-Change [this system setting](https://apple.stackexchange.com/questions/191445/standard-iso-8601-week-number-in-calendar-app/209340#209340) to use [ISO 8601](https://en.wikipedia.org/wiki/ISO_week_date) week numbers.
+Go to “System Settings › General › Language & Region”, and set “Calendar” to [ISO 8601](https://en.wikipedia.org/wiki/ISO_week_date).
 
 ### The widget does not show up in the widget picker, is stuck, or is missing {#widget-missing}
 <!-- @faq.keywords home lock screen -->
@@ -123,3 +132,60 @@ This is an iOS limitation and is out of my control. It shows a placeholder until
 <!-- @faq.first -->
 
 Make sure Lock Screen widgets are allowed when locked: “Settings › Face ID & Passcode › Allow Access When Locked › Lock Screen Widgets”. If it’s “off”, iOS may hide the widget until you unlock.
+
+### Can you support custom models? {#ai-custom-models}
+
+I don’t plan to support this. This app is intentionally simple. There are many other apps that support custom models.
+
+### Can you support inpainting/outpainting? {#ai-inpainting}
+
+I don’t plan to support this. [Draw Things](https://drawthings.ai) supports inpainting, outpainting, and custom models.
+
+### Why can it not generate adult images? {#ai-adult-images}
+
+The app would not be allowed on the App Store if it allowed creating such images.
+
+### Why does it take so long to generate? {#ai-slow}
+
+Several factors can affect the speed of image generation, including the performance of your device and the amount of available memory and CPU. Try closing down other apps or restarting your device before generating images.
+
+### Why does the app take up so much space on disk and memory? {#ai-model-size}
+
+The AI model used to generate images is large. This is reasonable given the model’s capabilities.
+
+### Are the generated images marked as AI-generated? {#ai-marking}
+
+Yes. Images that you save, share, drag out, or get from Shortcuts have the [IPTC digital source type](https://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia) “trainedAlgorithmicMedia” in their metadata (the XMP property `Iptc4xmpExt:DigitalSourceType`). This machine-readable mark tells other software that the image was made by AI. It is there because of the EU AI Act (Article 50(2)). The app adds it even when “Include prompt in image metadata” is off. To see it, use a metadata viewer such as [ExifTool](https://exiftool.org): `exiftool -DigitalSourceType image.png`.
+
+The mark is metadata only. Copied images do not have it. It is lost when you take a screenshot of the image, and it can be lost when you convert the image to a different format or upload it to a website that removes metadata. The app does not add C2PA Content Credentials or an invisible watermark.
+
+### How can I make the app detect the link of any video call service? {#any-video-call-link}
+
+The app can detect the link of any video call service if you correctly add it in the Calendar app:
+- Create a new event.
+- Paste the video call link into the location field.
+- Accept the dropdown suggestion about it being a video call.
+
+If you don’t use the Calendar app, you can add the following to the notes field of an event:
+
+```
+----( Video Call )----
+https://some-video-call-service.com/join/23423
+---===---
+```
+
+### What are tracking parameters and why would I want to remove them? {#tracking-parameters}
+
+Removing tracking parameters improves privacy and also makes URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Learn more about UTM parameters.](https://en.wikipedia.org/wiki/UTM_parameters)
+
+The app supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to X (Twitter), Facebook, and TikTok.
+
+Before: `https://foo.com?utm_content=buffercf3b2&utm_source=snapchat.com`\
+After: `https://foo.com`
+
+Did you know that if you click a TikTok link that someone shared with you, they will be able to see that you watched it? The app anonymizes TikTok links so that you will not be tracked.
+
+### Why ++Command+X++? I can already move files with ++Command+C++ and ++Option+Command+V++ {#why-cut-and-paste}
+
+- It’s more logical to cut & paste than copy & move.
+- Consistency and muscle memory benefits if you also use Linux or Windows.

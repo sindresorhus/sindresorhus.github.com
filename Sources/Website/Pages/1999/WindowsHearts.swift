@@ -20,7 +20,7 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 	/**
 	The ID of the score sheet, for the `aria-controls` of its button.
 	*/
-	private static let sheetID = "geocities-hearts-sheet"
+	private static let sheetID = ElementID("geocities-hearts-sheet")
 
 	var content: some HTML {
 		div {
@@ -65,7 +65,12 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.retroButton)
 
-			button(.part(Parts.sheetToggle), .type(.button), .ariaExpanded(false), .ariaControls(Self.sheetID)) {
+			button(
+				.part(Parts.sheetToggle),
+				.type(.button),
+				.ariaExpanded(false),
+				.ariaControls(Self.sheetID)
+			) {
 				"Score Sheet"
 			}
 			.style(GeoCitiesPage.Styles.smallButton)
@@ -220,31 +225,31 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 	/**
 	The places of each player, which carry the seat, and the mark that the script sets on the red cards.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The score of a player, by the seat, where 0 is me.
 		*/
-		case score = "data-hearts-score"
+		case score = "hearts-score"
 
 		/**
 		The speech balloon of an opponent, by the seat.
 		*/
-		case balloon = "data-hearts-balloon"
+		case balloon = "hearts-balloon"
 
 		/**
 		The place of the card that a player played in the trick, by the seat.
 		*/
-		case trickSlot = "data-hearts-trick"
+		case trickSlot = "hearts-trick"
 
 		/**
 		The total of a player on the score sheet, by the seat.
 		*/
-		case total = "data-hearts-total"
+		case total = "hearts-total"
 
 		/**
 		On a red card, a heart or a diamond.
 		*/
-		case red = "data-hearts-red"
+		case red = "hearts-red"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -266,8 +271,8 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 		/**
 		The size of a card, in my hand and on the table.
 		*/
-		private static let cardWidth = Length.rootEm(2)
-		private static let cardHeight = Length.rootEm(2.875)
+		private static let cardWidth = LengthPercentage.rootEm(2)
+		private static let cardHeight = LengthPercentage.rootEm(2.875)
 
 		var style: Style {
 			switch self {
@@ -276,12 +281,12 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 			case .table:
 				// The green felt of Hearts, with the opponents around the trick, and me at the bottom.
 				Style()
-					.grid(columns: "1fr auto 1fr")
+					.grid(columns: .fraction(1), .auto, .fraction(1))
 					.alignItems(.center)
 					.gap(.rootEm(0.25))
 					.padding(.rootEm(0.375))
-					.background(Color("#008000"))
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#008000"))
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.color(.white)
 					.textAlign(.center)
 					.fontFamily(.system)
@@ -290,7 +295,7 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.125))
 					.position(.relative)
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 			case .face:
 				Style()
 					.font(.extraLarge)
@@ -300,8 +305,8 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 				Style()
 					.position(.absolute)
 					.zIndex(1)
-					.frame(width: .max(.percent(100), .rootEm(7)), maxWidth: .rootEm(9))
-					.margin(0)
+					.frame(width: .length(.max(.percent(100), .rootEm(7))), maxWidth: .rootEm(9))
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.375))
 					.background(.white)
 					.border(.black, width: .pixels(1))
@@ -317,7 +322,7 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 					.offset(x: .percent(-50))
 			case .balloonBeside:
 				Style()
-					.top(0)
+					.top(.zero)
 					.leading(.percent(100))
 					.margin(.leading, .rootEm(0.25))
 			case .yourName:
@@ -331,8 +336,8 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 				// An empty place on the felt, until a card is played on it. The card that takes the trick is outlined in yellow.
 				Style()
 					.vstack(alignment: .center, justification: .center)
-					.frame(width: Self.cardWidth, height: Self.cardHeight)
-					.border(Color("#004000"), width: .pixels(1))
+					.frame(width: .length(Self.cardWidth), height: .length(Self.cardHeight))
+					.border(Color(raw: "#004000"), width: .pixels(1))
 					.cornerRadius(.pixels(3))
 					.fontFamily(.system)
 					.textStyle(.body, weight: .bold)
@@ -346,10 +351,10 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 					.when(States.winner) {
 						$0
 							.background(.white)
-							.border(Color("#ffff00"), width: .pixels(3))
+							.border(Color(raw: "#ffff00"), width: .pixels(3))
 					}
 					.when(Hooks.red) {
-						$0.color(Color("#cc0000"))
+						$0.color(Color(raw: "#cc0000"))
 					}
 			case .hand:
 				// My cards, in as many rows as they need on a phone.
@@ -358,15 +363,15 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 					.flexWrap()
 					.frame(minHeight: .rootEm(4))
 					.padding(.rootEm(0.375))
-					.background(Color("#006000"))
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#006000"))
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			case .card:
 				// A card of my hand, with the rank above the suit. A card picked to pass sticks up, a card that cannot be played now is gray, and the cards that I got passed are yellow for a moment.
 				Style()
 					.vstack(alignment: .center, justification: .center, spacing: .rootEm(0.125))
-					.frame(width: Self.cardWidth, height: Self.cardHeight)
+					.frame(width: .length(Self.cardWidth), height: .length(Self.cardHeight))
 					.flexShrink(0)
-					.padding(0)
+					.padding(.zero)
 					.background(.white)
 					.border(.black, width: .pixels(1))
 					.cornerRadius(.pixels(3))
@@ -376,23 +381,23 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 					.color(.black)
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#ffff00"), width: .pixels(3), offset: .pixels(1))
+						$0.focusRing(Color(raw: "#ffff00"), width: .pixels(3), offset: .pixels(1))
 					}
 					.when(Hooks.red) {
-						$0.color(Color("#cc0000"))
+						$0.color(Color(raw: "#cc0000"))
 					}
 					.pressed {
 						$0
 							.offset(y: .rootEm(-0.5))
-							.background(Color("#c0d8ff"))
+							.background(Color(raw: "#c0d8ff"))
 					}
 					.when(States.illegal) {
 						$0
-							.background(Color("#b0b0b0"))
+							.background(Color(raw: "#b0b0b0"))
 							.opacity(0.75)
 					}
 					.when(States.received) {
-						$0.background(Color("#ffff99"))
+						$0.background(Color(raw: "#ffff99"))
 					}
 			case .sheet:
 				// The score sheet scrolls when the game has many hands.
@@ -400,7 +405,7 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 					.frame(maxHeight: .rootEm(10))
 					.overflow(.auto)
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			case .sheetTable:
 				Style()
 					.frame(width: .percent(100))

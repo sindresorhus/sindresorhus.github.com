@@ -49,15 +49,60 @@ struct GeoCitiesArcade: ScriptedElement {
 	The prizes, from the cheapest to the giant unicorn on the top shelf, which nobody ever gets.
 	*/
 	static let prizes = [
-		Prize(emoji: "💿", name: "An AOL CD with 500 free hours", price: 5, line: "Take two. We have boxes of them."),
-		Prize(emoji: "🕷️", name: "A plastic spider ring", price: 15, line: "Scare your sister with it!"),
-		Prize(emoji: "🦄", name: "A Pog with a unicorn", price: 30, line: "A rare one. Do not play for keeps."),
-		Prize(emoji: "🌈", name: "A slap bracelet", price: 50, line: "Slap it on! They are banned at school, so wear it at home."),
-		Prize(emoji: "🟢", name: "A glow stick", price: 80, line: "It glows for 6 hours. Then it is a stick."),
-		Prize(emoji: "🔋", name: "A battery for a Tamagotchi", price: 120, line: "Glitter would like that too."),
-		Prize(emoji: "🪶", name: "A Furby feather (probably)", price: 200, line: "We think it is from a Furby. We do not ask."),
-		Prize(emoji: "💾", name: "A floppy disk that says “GAMES”", price: 300, line: "Nobody knows what is on it. Do not put it in your dad’s computer."),
-		Prize(emoji: "🧸", name: "The giant stuffed unicorn from the top shelf", price: 2000, line: "Nobody has ever won it. You did it! I need a ladder."),
+		Prize(
+			emoji: "💿",
+			name: "An AOL CD with 500 free hours",
+			price: 5,
+			line: "Take two. We have boxes of them."
+		),
+		Prize(
+			emoji: "🕷️",
+			name: "A plastic spider ring",
+			price: 15,
+			line: "Scare your sister with it!"
+		),
+		Prize(
+			emoji: "🦄",
+			name: "A Pog with a unicorn",
+			price: 30,
+			line: "A rare one. Do not play for keeps."
+		),
+		Prize(
+			emoji: "🌈",
+			name: "A slap bracelet",
+			price: 50,
+			line: "Slap it on! They are banned at school, so wear it at home."
+		),
+		Prize(
+			emoji: "🟢",
+			name: "A glow stick",
+			price: 80,
+			line: "It glows for 6 hours. Then it is a stick."
+		),
+		Prize(
+			emoji: "🔋",
+			name: "A battery for a Tamagotchi",
+			price: 120,
+			line: "Glitter would like that too."
+		),
+		Prize(
+			emoji: "🪶",
+			name: "A Furby feather (probably)",
+			price: 200,
+			line: "We think it is from a Furby. We do not ask."
+		),
+		Prize(
+			emoji: "💾",
+			name: "A floppy disk that says “GAMES”",
+			price: 300,
+			line: "Nobody knows what is on it. Do not put it in your dad’s computer."
+		),
+		Prize(
+			emoji: "🧸",
+			name: "The giant stuffed unicorn from the top shelf",
+			price: 2000,
+			line: "Nobody has ever won it. You did it! I need a ladder."
+		),
 	]
 
 	/**
@@ -68,7 +113,7 @@ struct GeoCitiesArcade: ScriptedElement {
 		let prizes: [Prize]
 	}
 
-	var config: Config {
+	var config: Config? {
 		Config(games: Dictionary(uniqueKeysWithValues: Self.games.map { ($0.id, $0.title) }), prizes: Self.prizes)
 	}
 
@@ -151,7 +196,13 @@ struct GeoCitiesArcade: ScriptedElement {
 
 			div {
 				// The screen is twice the size of the games, which are 224 × 288 pixels, like the screens of the arcade machines of 1981, so the text is sharp.
-				canvas(.part(Parts.screen), .width(448), .height(576), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.screen),
+					.width(448),
+					.height(576),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("The screen of the arcade. Use the arrow keys to move, Space to fire, and Enter to start.")
 					.style(Styles.screen)
 			}
@@ -348,37 +399,42 @@ struct GeoCitiesArcade: ScriptedElement {
 	}
 
 	private func gif(_ gif: GeoCitiesPage.GIF, alt: String = "") -> GeoCitiesPage.GIFImage {
-		GeoCitiesPage.GIFImage(gif: gif, alt: alt, style: .gif, project: project)
+		GeoCitiesPage.GIFImage(
+			gif: gif,
+			alt: alt,
+			style: .gif,
+			project: project
+		)
 	}
 
 	/**
 	The data attributes with a value that the script finds elements by, and the coins and the sound buttons, which the Game Room has too.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A button of the joystick, or the fire button: `up`, `down`, `left`, `right`, or `a`.
 		*/
-		case control = "data-arcade-control"
+		case control = "arcade-control"
 
 		/**
 		The coins of the visitor, which the arcade and the coin games of the Game Room show.
 		*/
-		case coins = "data-arcade-coins"
+		case coins = "arcade-coins"
 
 		/**
 		A button that turns the sound of the arcade on and off, in the arcade and in the games of the Game Room that make sounds.
 		*/
-		case sound = "data-arcade-sound"
+		case sound = "arcade-sound"
 
 		/**
 		The ID of a game of the menu.
 		*/
-		case game = "data-arcade-game"
+		case game = "arcade-game"
 
 		/**
 		The index of a prize of the Prize Counter.
 		*/
-		case prize = "data-arcade-prize"
+		case prize = "arcade-prize"
 	}
 
 	enum Parts: String, ElementPartSet {
@@ -466,10 +522,25 @@ struct GeoCitiesArcade: ScriptedElement {
 					.frame(minWidth: .rootEm(14), maxWidth: .rootEm(26))
 					.margin(.horizontal, .auto)
 					.padding(.rootEm(0.375))
-					.backgroundImage(.linearGradient("to right", Color("#3a0a5e"), Color("#111111"), Color("#111111"), Color("#3a0a5e")))
-					.border(Color("#000000"), width: .pixels(3))
+					.backgroundImage(
+						.linearGradient(
+							.toRight,
+							Color(raw: "#3a0a5e"),
+							Color(raw: "#111111"),
+							Color(raw: "#111111"),
+							Color(raw: "#3a0a5e")
+						)
+					)
+					.border(Color(raw: "#000000"), width: .pixels(3))
 					.cornerRadius(.rootEm(0.5))
-					.shadow(Shadow(x: .pixels(4), y: .pixels(6), blur: .pixels(6), color: Color("#00000066")))
+					.shadow(
+						BoxShadow(
+							x: .pixels(4),
+							y: .pixels(6),
+							blur: .pixels(6),
+							color: Color(raw: "#00000066")
+						)
+					)
 					.color(.white)
 					.when(States.kicked) {
 						$0.animation(GeoCitiesPage.Animations.y2kShake, .linear(duration: .milliseconds(400)))
@@ -479,20 +550,27 @@ struct GeoCitiesArcade: ScriptedElement {
 				Style()
 					.frame(width: .percent(100))
 					.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.5))
-					.backgroundImage(.linearGradient("to bottom", Color("#ffee55"), Color("#ff9900")))
-					.border(Color("#ffcc00"), width: .pixels(3), style: .ridge)
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#ffee55"), Color(raw: "#ff9900")))
+					.border(Color(raw: "#ffcc00"), width: .pixels(3), style: .ridge)
 					.fontFamily(GeoCitiesPage.impact)
 					.font(.extraLarge)
 					.letterSpacing(.em(0.05))
 					.textAlign(.center)
-					.color(Color("#cc0000"))
-					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), blur: 0, color: Color("#660000")))
+					.color(Color(raw: "#cc0000"))
+					.textShadow(
+						Shadow(
+							x: .pixels(2),
+							y: .pixels(2),
+							blur: .zero,
+							color: Color(raw: "#660000")
+						)
+					)
 			case .bezel:
 				Style()
 					.frame(width: .percent(100))
 					.padding(.rootEm(0.5))
 					.background(.black)
-					.border(Color("#444444"), width: .pixels(3), style: .inset)
+					.border(Color(raw: "#444444"), width: .pixels(3), style: .inset)
 					.cornerRadius(.rootEm(0.75))
 			case .screen:
 				// While a game is on, a finger on the screen moves the paddle instead of scrolling the page.
@@ -513,7 +591,7 @@ struct GeoCitiesArcade: ScriptedElement {
 					.textStyle(.caption, weight: .bold)
 					.lineHeight(1.2)
 					.textAlign(.center)
-					.color(Color("#ffee55"))
+					.color(Color(raw: "#ffee55"))
 			case .controlPanel:
 				// The buttons go below the joystick when the cabinet is too narrow for both.
 				Style()
@@ -521,8 +599,8 @@ struct GeoCitiesArcade: ScriptedElement {
 					.flexWrap()
 					.frame(width: .percent(100))
 					.padding(.rootEm(0.75))
-					.background(Color("#222222"))
-					.border(Color("#555555"), width: .pixels(3), style: .outset)
+					.background(Color(raw: "#222222"))
+					.border(Color(raw: "#555555"), width: .pixels(3), style: .outset)
 					.cornerRadius(.rootEm(0.5))
 					.textSelection(.disabled)
 			case .stick:
@@ -533,8 +611,8 @@ struct GeoCitiesArcade: ScriptedElement {
 			case .stickButton:
 				Style()
 					.frame(size: .rootEm(2.5))
-					.background(Color("#cc0000"))
-					.border(Color("#ff6666"), width: .pixels(3), style: .outset)
+					.background(Color(raw: "#cc0000"))
+					.border(Color(raw: "#ff6666"), width: .pixels(3), style: .outset)
 					.cornerRadius(.rootEm(0.5))
 					.fontFamily(.system)
 					.font(.large, weight: .bold)
@@ -542,37 +620,37 @@ struct GeoCitiesArcade: ScriptedElement {
 					.touchAction(.none)
 					.handCursor()
 					.active {
-						$0.border(Color("#ff6666"), width: .pixels(3), style: .inset)
+						$0.border(Color(raw: "#ff6666"), width: .pixels(3), style: .inset)
 					}
 			case .buttons:
 				Style().hstack(alignment: .center, spacing: .rootEm(0.75))
 			case .startButton:
 				Style()
 					.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.625))
-					.background(Color("#ffffff"))
-					.border(Color("#cccccc"), width: .pixels(3), style: .outset)
+					.background(Color(raw: "#ffffff"))
+					.border(Color(raw: "#cccccc"), width: .pixels(3), style: .outset)
 					.cornerRadius(.capsule)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
 					.color(.black)
 					.handCursor()
 					.active {
-						$0.border(Color("#cccccc"), width: .pixels(3), style: .inset)
+						$0.border(Color(raw: "#cccccc"), width: .pixels(3), style: .inset)
 					}
 			case .fireButton:
 				// The big round button.
 				Style()
 					.frame(size: .rootEm(3.5))
-					.background(Color("#ffcc00"))
-					.border(Color("#ffee88"), width: .pixels(4), style: .outset)
+					.background(Color(raw: "#ffcc00"))
+					.border(Color(raw: "#ffee88"), width: .pixels(4), style: .outset)
 					.cornerRadius(.percent(50))
 					.fontFamily(GeoCitiesPage.impact)
 					.font(.extraLarge)
-					.color(Color("#663300"))
+					.color(Color(raw: "#663300"))
 					.touchAction(.none)
 					.handCursor()
 					.active {
-						$0.border(Color("#ffee88"), width: .pixels(4), style: .inset)
+						$0.border(Color(raw: "#ffee88"), width: .pixels(4), style: .inset)
 					}
 			case .coinDoor:
 				// The metal door at the bottom, with the coin slot.
@@ -580,24 +658,31 @@ struct GeoCitiesArcade: ScriptedElement {
 					.vstack(alignment: .center, spacing: .rootEm(0.5))
 					.frame(width: .percent(100))
 					.padding(.rootEm(0.75))
-					.backgroundImage(.linearGradient("to bottom", Color("#8a8a8a"), Color("#5a5a5a")))
-					.border(Color("#b0b0b0"), width: .pixels(3), style: .outset)
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#8a8a8a"), Color(raw: "#5a5a5a")))
+					.border(Color(raw: "#b0b0b0"), width: .pixels(3), style: .outset)
 					.cornerRadius(.rootEm(0.375))
 			case .coinDisplay:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textAlign(.center)
 			case .coinSlot:
 				// A coin slot that lights up red, like on the coin doors of the arcade machines.
 				Style()
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.75))
-					.background(Color("#220000"))
-					.border(Color("#ff3333"), width: .pixels(3), style: .inset)
+					.background(Color(raw: "#220000"))
+					.border(Color(raw: "#ff3333"), width: .pixels(3), style: .inset)
 					.cornerRadius(.rootEm(0.25))
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#ff5555"))
-					.textShadow(Shadow(x: 0, y: 0, blur: .pixels(4), color: Color("#ff0000")))
+					.color(Color(raw: "#ff5555"))
+					.textShadow(
+						Shadow(
+							x: .zero,
+							y: .zero,
+							blur: .pixels(4),
+							color: Color(raw: "#ff0000")
+						)
+					)
 					.handCursor()
 			case .panel:
 				Style().padding(.rootEm(0.75))
@@ -605,23 +690,23 @@ struct GeoCitiesArcade: ScriptedElement {
 				Style()
 					.fontFamily(GeoCitiesPage.comicSans)
 					.font(.large, weight: .bold)
-					.color(Color("#000080"))
+					.color(Color(raw: "#000080"))
 			case .menu:
 				Style()
 					.vstack(spacing: .rootEm(0.375))
-					.padding(.leading, 0)
-					.margin(top: .rootEm(0.5), bottom: 0)
+					.padding(.leading, .zero)
+					.margin(top: .rootEm(0.5), bottom: .zero)
 					.children("li") {
 						$0.display(.block)
 					}
 			case .gameButton:
 				// The chosen game is pressed in, with a black background, like a selection of a menu on a screen.
 				Style()
-					.vstack(alignment: .start, spacing: 0)
+					.vstack(alignment: .start, spacing: .zero)
 					.frame(width: .percent(100))
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+					.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.textAlign(.leading)
@@ -629,39 +714,39 @@ struct GeoCitiesArcade: ScriptedElement {
 					.handCursor()
 					.buttonFocusRing()
 					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .inset)
 					}
 					.pressed {
 						$0
 							.background(.black)
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
-							.color(Color("#ffee55"))
+							.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .inset)
+							.color(Color(raw: "#ffee55"))
 							// Yellow on the black, as navy does not show on it.
-							.buttonFocusRing(Color("#ffee55"))
+							.buttonFocusRing(Color(raw: "#ffee55"))
 					}
 			case .tagline:
 				Style().font(.extraSmall)
 			case .scores:
 				Style()
-					.margin(top: .rootEm(0.5), bottom: 0)
+					.margin(top: .rootEm(0.5), bottom: .zero)
 					.padding(vertical: .rootEm(0.5), horizontal: .rootEm(0.5))
 					.padding(.leading, .rootEm(2))
 					.background(.black)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(GeoCitiesPage.courier)
 					.fontWeight(.bold)
-					.color(Color("#33ffff"))
+					.color(Color(raw: "#33ffff"))
 					.children("li") {
 						$0.hstack(justification: .spaceBetween, spacing: .rootEm(1))
 					}
 					.children("li:first-child") {
-						$0.color(Color("#ffee55"))
+						$0.color(Color(raw: "#ffee55"))
 					}
 			case .prizes:
 				Style()
 					.grid(minimumColumnWidth: .rootEm(16))
 					.gap(.rootEm(0.5))
-					.padding(.leading, 0)
+					.padding(.leading, .zero)
 					.children("li") {
 						$0.display(.flex)
 					}
@@ -676,14 +761,14 @@ struct GeoCitiesArcade: ScriptedElement {
 						$0.flex(1)
 					}
 					.background(.white)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+					.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.color(.black)
 					.handCursor()
 					.buttonFocusRing()
 					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .inset)
 					}
 			case .prizeEmoji:
 				Style().font(.extraLarge2)
@@ -692,7 +777,7 @@ struct GeoCitiesArcade: ScriptedElement {
 					.textWrap(.nowrap)
 					.fontFamily(GeoCitiesPage.courier)
 					.fontWeight(.bold)
-					.color(Color("#cc0000"))
+					.color(Color(raw: "#cc0000"))
 			case .shelf:
 				// A wooden shelf.
 				Style()
@@ -700,8 +785,8 @@ struct GeoCitiesArcade: ScriptedElement {
 					.flexWrap()
 					.frame(minHeight: .rootEm(3))
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.75))
-					.background(Color("#fff8e8"))
-					.border(.bottom, Color("#8b5a2b"), width: .pixels(8))
+					.background(Color(raw: "#fff8e8"))
+					.border(.bottom, Color(raw: "#8b5a2b"), width: .pixels(8))
 					.font(.extraLarge2)
 					.children("li") {
 						$0.display(.block)

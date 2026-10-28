@@ -47,7 +47,7 @@ public enum CodeToken: String, CaseIterable, Sendable {
 	}
 
 	/**
-	The kind of a token that the lexer of SOML classified, or `nil` for a token that is not colored, like punctuation. A key has the color of the name of a declaration, and an instant and a duration have the color of a number.
+	The kind of a token that the lexer of SOML classified, or `nil` for a token that is not colored, like punctuation. A key has the color of the name of a declaration, and a date, an instant, and a duration have the color of a number.
 	*/
 	init?(_ kind: SOML.Token.Kind) {
 		switch kind {
@@ -57,7 +57,7 @@ public enum CodeToken: String, CaseIterable, Sendable {
 			self = .declaration
 		case .string, .escape:
 			self = .string
-		case .number, .instant, .duration:
+		case .number, .date, .instant, .duration:
 			self = .number
 		case .keyword:
 			self = .keyword
@@ -124,6 +124,22 @@ public enum CodeToken: String, CaseIterable, Sendable {
 	}
 }
 
+/**
+A fragment of highlighted source code. A missing token keeps the text uncolored, including whitespace between tokens.
+*/
+public struct CodePart: Sendable {
+	public var text: String
+	public let token: CodeToken?
+
+	/**
+	Creates a fragment with the source text and its optional highlighting kind.
+	*/
+	public init(text: String, token: CodeToken?) {
+		self.text = text
+		self.token = token
+	}
+}
+
 extension String {
 	/**
 	The parts of Swift code for syntax highlighting, in order, with the kind of each part that is colored. Together, the parts are the whole code, also the whitespace.
@@ -143,11 +159,11 @@ extension String {
 	}
 	```
 	*/
-	public var swiftCodeParts: [(text: String, token: CodeToken?)] {
+	public var swiftCodeParts: [CodePart] {
 		let bytes = Array(utf8)
 		let tree = Parser.parse(source: self)
 
-		var parts = [(text: String, token: CodeToken?)]()
+		var parts = [CodePart]()
 
 		for classifiedRange in tree.classifications {
 			var text = String(decoding: bytes[classifiedRange.range.lowerBound.utf8Offset..<classifiedRange.range.upperBound.utf8Offset], as: UTF8.self)
@@ -159,7 +175,7 @@ extension String {
 
 			// A name gets its kind from where it is, like a member after a period.
 			guard classifiedRange.kind == .identifier else {
-				parts.append((text, CodeToken(classifiedRange.kind)))
+				parts.append(CodePart(text: text, token: CodeToken(classifiedRange.kind)))
 				continue
 			}
 
@@ -179,7 +195,7 @@ extension String {
 				}
 			}
 
-			parts.append((text, token))
+			parts.append(CodePart(text: text, token: token))
 		}
 
 		return parts
@@ -190,15 +206,15 @@ extension String {
 
 	The lexer of SOML never fails, so it also highlights a part of a document.
 	*/
-	public var somlCodeParts: [(text: String, token: CodeToken?)] {
-		// TODO: Use `SOML.Token.parts(in:)` when a version of SOMLSwift with it is out. It gives the text between the tokens too, so this only maps the kinds: `SOML.Token.parts(in: self).map { (String($0.text), $0.kind.flatMap(CodeToken.init)) }`.
+	public var somlCodeParts: [CodePart] {
+		// TODO: Use `SOML.Token.parts(in:)` when a version of SOMLSwift with it is out. It gives the text between the tokens too, so this only maps the kinds: `SOML.Token.parts(in: self).map { CodePart(text: String($0.text), token: $0.kind.flatMap(CodeToken.init)) }`.
 		let bytes = Array(utf8)
 
-		var parts = [(text: String, token: CodeToken?)]()
+		var parts = [CodePart]()
 		var end = 0
 
 		func append(_ range: Range<Int>, _ token: CodeToken?) {
-			parts.append((String(decoding: bytes[range], as: UTF8.self), token))
+			parts.append(CodePart(text: String(decoding: bytes[range], as: UTF8.self), token: token))
 		}
 
 		// The tokens do not cover the whitespace, so the text between them is a part without a kind.

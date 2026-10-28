@@ -1,18 +1,26 @@
 ---
 title: 'Super Menu'
 subtitle: 'Your files, folders, apps, links, and shortcuts in one menu'
-publicationDate: '2026-10-28'
+publicationDate: 2026-10-28
 platforms: [
 	'macOS'
 ]
+isPaid: true
+isMenuBarApp: true
+appStoreID: 6806784705
 sharedQuestions: [
 	'menu-bar-icons'
 	'backup-settings'
 ]
-isPaid: true
-appStoreID: 6806784705
-isMenuBarApp: true
-minimumOSVersion: 27
+pressQuotes: [
+	{
+		quote: 'Developer Sindre Sorhus has released Super Menu, a new Mac app meant to make quick access to frequently used files, folders, apps, and websites easier. The app adds a customizable menu to the macOS menu bar, from which Shortcuts can also be run.'
+		source: 'ifun.de'
+		translatedFrom: 'German'
+		url: 'https://www.ifun.de/super-menu-schneller-zugriff-auf-dateien-und-programme-293579/'
+		year: 2026
+	}
+]
 ---
 
 Build one fast, personal menu for everything you open often, like your project folders, your work apps, a few websites, and the shortcuts you run every day.
@@ -286,11 +294,27 @@ The link editor shows mistakes in a placeholder, like a typo, and suggests a fix
 
 ### How is this different from Folder Peek? {#folder-peek}
 
-[Folder Peek](/folder-peek) puts folders directly in the menu bar. Super Menu is one menu that mixes folders with files, apps, links, shortcuts, and more. They work well together.
+[Folder Peek](/folder-peek) is for folders only: it shows them in the menu bar, either as a separate menu bar item for each folder or as one shared menu, where each folder is a submenu or a section. You can drag files out of its menus.
+
+Super Menu is one menu for everything, and super customizable:
+
+- Files, apps, links, shortcuts, and scripts next to your folders
+- Groups as sections or submenus, shown only in some apps or only while you hold Option
+- Filtering, flattened subfolders, smart folders, and Finder Saved Searches in a folder
+- Links with placeholders, “Paste” into a folder, and Recent Files
+
+Both apps are fully maintained. Choose Folder Peek for a menu bar item per folder, each with its own icon, also a custom one, and its own keyboard shortcut. Choose Super Menu for one menu with everything. They work well together.
 
 ### How is this different from Short Run? {#short-run}
 
-[Short Run](/short-run) is a dedicated menu of shortcuts. Super Menu mixes shortcuts with files, folders, apps, and links.
+[Short Run](/short-run) is a menu of only shortcuts, and has two things for them that Super Menu does not have:
+
+- Quick keys: press ++1++ to ++9++, or a letter, to run a shortcut while the menu is open
+- A `shortrun://` URL scheme to run a shortcut in the background, for automation
+
+Super Menu runs shortcuts too, next to files, folders, apps, links, and scripts.
+
+Both apps are fully maintained. Choose Short Run for a menu of only shortcuts. Choose Super Menu to have your shortcuts next to everything else. You can use both.
 
 ### How is this better than CustomMenu 3? {#custommenu3}
 <!-- @faq.keywords discontinued intel rosetta -->
@@ -314,10 +338,10 @@ Those are search tools: you type, and they find anything. Super Menu is a menu t
 
 No. Add items from anywhere, and organize them with groups. An alias folder you already have still works.
 
-### Can I use it as an app launcher? {#app-launcher}
+### Can I use it as an app launcher, like Launchpad? {#app-launcher}
 <!-- @faq.keywords applications -->
 
-Yes. Add the apps you want, or choose “Apps” in the presets of the “Add” menu to show all of them.
+Yes. Add the apps you want, or choose “Apps” in the presets of the “Add” menu to show all of them. Unlike the Apps view that replaced Launchpad, you choose the apps and arrange them yourself.
 
 ### Can I add a Smart Folder from Finder? {#smart-folder}
 <!-- @faq.keywords saved search -->
@@ -338,6 +362,11 @@ Yes, with a Smart Folder from Finder. For example, an “Inbox” with the files
 <!-- @faq.keywords latest newest -->
 
 Choose “Recent Screenshots…” in the presets of the “Add” menu, and choose the folder where your screenshots are saved. It lists your 20 newest screenshots and screen recordings, even on a busy desktop.
+
+### Can Super Menu show the system’s recent files? {#system-recent-files}
+<!-- @faq.keywords system flat list submenu dropdown -->
+
+No. macOS does not let an App Store app read the system’s recent files, so the menu cannot show the files that other apps opened. It can show the files that you opened through Super Menu: add Recent Files directly to the main menu for a flat list, or to a group or submenu, and rename it there.
 
 ### Can I have more than one menu? {#multiple-menus}
 <!-- @faq.keywords multiple several -->
@@ -446,9 +475,11 @@ Only the files you open through Super Menu, so Recent Files can show them. The h
 Only when you ask it to, with “Move to Trash” in the submenu of a file, or “Paste” in the submenu of a folder, which adds files and never replaces one. Otherwise, the only thing it edits is the menu.
 
 ### Can you add sync? {#sync}
-<!-- @faq.keywords macs computers -->
+<!-- @faq.keywords icloud macs computers multiple -->
 
-No. The access to the files that you add only works on the Mac where you added them.
+No. The file access that you give only works on the Mac where you added the items. iCloud sync is also unreliable and adds a large support burden, so sync is not planned.
+
+You can [export the settings](/apps/faq#export-settings) to another Mac, but you must give access to each file and folder again there.
 
 ### Can I run scripts or add plug-ins? {#scripts}
 <!-- @faq.keywords plugin shell applescript -->

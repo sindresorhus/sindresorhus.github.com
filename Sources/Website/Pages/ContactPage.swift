@@ -37,7 +37,7 @@ struct ContactPage: Page {
 
 				div {
 					div {
-						a(.id(Hooks.email), .href("mailto:\(Site.author.email)")) {
+						a(.id(IDs.email), .href("mailto:\(Site.author.email)")) {
 							// Each letter animates on its own (`contact.js`). The parts do not break across lines.
 							for part in Self.emailParts {
 								span {
@@ -81,12 +81,12 @@ struct ContactPage: Page {
 		.style(Styles.root)
 
 		// The sparkles of a click on the email address.
-		template(.id(Hooks.sparkleTemplate)) {
+		template(.id(IDs.sparkleTemplate)) {
 			span {}
 				.style(Styles.sparkle)
 		}
 
-		ModuleScript("/scripts/contact.js")
+		ModuleScript(#path("/scripts/contact.js"))
 	}
 
 	/**
@@ -103,56 +103,62 @@ extension ContactPage {
 	/**
 	The hue of the rainbow, which turns while the pointer is on the page. Each letter adds its place in the address, so the colors go around once across it.
 	*/
-	fileprivate static let hue = RegisteredProperty<CSSValue>("--hue", syntax: .number, initialValue: 0)
+	fileprivate static let hue = RegisteredProperty<CSSNumber>("hue", syntax: .number, initialValue: 0)
 
 	/**
 	The hue of a letter: the hue of the rainbow, plus the place of the letter in the address.
 	*/
-	fileprivate static let letterHue = StyleVariable<CSSValue>("--letter-hue")
+	fileprivate static let letterHue = StyleVariable<CSSNumber>("letter-hue")
 
 	/**
 	The number of letters before the part of the address, so the letters after the `@` continue the count.
 	*/
-	fileprivate static let letterOffset = StyleVariable<CSSValue>("--offset")
+	fileprivate static let letterOffset = StyleVariable<CSSNumber>("offset")
 
 	/**
 	Where the click of a sparkle was, and its size. `contact.js` sets them.
 	*/
-	fileprivate static let sparkleStartX = StyleVariable<Length>("--start-x")
-	fileprivate static let sparkleStartY = StyleVariable<Length>("--start-y")
-	fileprivate static let sparkleSize = StyleVariable<Length>("--size")
+	fileprivate static let sparkleStartX = StyleVariable<LengthPercentage>("start-x")
+	fileprivate static let sparkleStartY = StyleVariable<LengthPercentage>("start-y")
+	fileprivate static let sparkleSize = StyleVariable<Length>("size")
 
 	/**
 	Where a sparkle flies, from the click. `contact.js` sets them.
 	*/
-	fileprivate static let sparkleX = StyleVariable<Length>("--x")
-	fileprivate static let sparkleY = StyleVariable<Length>("--y")
+	fileprivate static let sparkleX = StyleVariable<LengthPercentage>("x")
+	fileprivate static let sparkleY = StyleVariable<LengthPercentage>("y")
 
 	/**
 	How far between blue and pink the color of a sparkle is, like `30%`. `contact.js` sets it.
 	*/
-	fileprivate static let sparkleColorMix = StyleVariable<CSSValue>("--mix")
+	fileprivate static let sparkleColorMix = StyleVariable<Percentage>("mix")
 
 	/**
 	How much the address tilts toward the pointer, from -0.5 to 0.5 on each axis. `contact.js` sets them.
 	*/
-	fileprivate static let tiltX = StyleVariable<CSSValue>("--tilt-x")
-	fileprivate static let tiltY = StyleVariable<CSSValue>("--tilt-y")
+	fileprivate static let tiltX = StyleVariable<CSSNumber>("tilt-x")
+	fileprivate static let tiltY = StyleVariable<CSSNumber>("tilt-y")
 
 	/**
 	How close the pointer is to a letter, from 0 to 1. `contact.js` sets it.
 	*/
-	fileprivate static let letterStrength = StyleVariable<CSSValue>("--strength")
+	fileprivate static let letterStrength = StyleVariable<CSSNumber>("strength")
 
 	/**
-	The IDs and data attributes that the scripts of the page find elements by.
+	The IDs that the scripts of the page find elements by.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum IDs: String, ScriptIDSet {
 		case email = "contact-email"
-		case leaving = "data-leaving"
-		case letter = "data-letter"
-		case rainbow = "data-rainbow"
 		case sparkleTemplate = "sparkle-template"
+	}
+
+	/**
+	The data attributes that the scripts of the page find elements by.
+	*/
+	enum Hooks: String, ScriptDataAttributeSet {
+		case leaving
+		case letter
+		case rainbow
 	}
 
 	enum Styles: StyleSet {
@@ -179,7 +185,7 @@ extension ContactPage {
 		/**
 		How far the light of an orb reaches past its circle on each side. It is about where the blur of 140 pixels that the gradient replaced ended.
 		*/
-		private static let orbFade = Length.pixels(280)
+		private static let orbFade = LengthPercentage.pixels(280)
 
 		/**
 		How the rainbow of the email address turns, under the pointer, or all the time on touch screens.
@@ -189,15 +195,21 @@ extension ContactPage {
 		/**
 		The size of the email address, which grows with the screen, so it fills most of the line, up to 5 rem on very wide screens. The `rem` part grows with the zoom of the browser, and the maximum is at most 2.5 times the minimum, also with the larger root size of large screens, so the text reaches 200% within the zoom of browsers (up to 500%), as WCAG asks. With zoom on a narrow window, the part before the `@` can be wider than the screen, as it does not break, but not at the 320 CSS pixels that WCAG asks to work.
 		*/
-		private static func emailSize(viewportWidth: Double) -> Length {
+		private static func emailSize(viewportWidth: Double) -> LengthPercentage {
 			.clamp(.rootEm(2.125), .rootEm(0.5) + .viewportWidth(viewportWidth), .rootEm(5))
 		}
 
 		/**
 		A fast start and a long, soft end, for the parts that fade in and the sparkles.
 		*/
-		private static func revealCurve(duration: Duration) -> Animation {
-			.timingCurve(0.22, 1, 0.36, 1, duration: duration)
+		private static func revealCurve(duration: Duration) -> AnimationTiming {
+			.timingCurve(
+				0.22,
+				1,
+				0.36,
+				1,
+				duration: duration
+			)
 		}
 
 		var style: Style {
@@ -207,8 +219,8 @@ extension ContactPage {
 				Style()
 					.position(.relative)
 					.hstack(alignment: .center, justification: .center)
-					.frame(minHeight: Length.smallViewportHeight(100) - SiteHeader.height)
-					.padding(top: 0, horizontal: .pageGutter, bottom: SiteHeader.height)
+					.frame(minHeight: .length(LengthPercentage.smallViewportHeight(100) - SiteHeader.height))
+					.padding(top: .zero, horizontal: .pageGutter, bottom: SiteHeader.height)
 					.overflow(.hidden)
 			case .orb:
 				// Colored light in the background. A gradient that fades out, not a blurred circle, as a blur this large made the page slow on slower graphics hardware, where it is drawn again in every frame while the orb drifts.
@@ -223,17 +235,17 @@ extension ContactPage {
 			case .blueOrb:
 				// Each orb drifts on its own path, at its own speed.
 				Style()
-					.top(.percent(-20) - Self.orbFade)
-					.trailing(.percent(-20) - Self.orbFade)
-					.frame(size: .pixels(700) + Self.orbFade * 2)
-					.backgroundImage(.radialGradient("closest-side", .primary(500), .transparent))
+					.top(.length(.percent(-20) - Self.orbFade))
+					.trailing(.length(.percent(-20) - Self.orbFade))
+					.frame(size: .length(.pixels(700) + Self.orbFade * 2))
+					.backgroundImage(.radialGradient(.ellipse(extent: .closestSide), .primary(500), .transparent))
 					.animation(Animations.driftA, .easeInOut(duration: .seconds(18)).repeatForever())
 			case .pinkOrb:
 				Style()
-					.bottom(.percent(-20) - Self.orbFade)
-					.leading(.percent(-20) - Self.orbFade)
-					.frame(size: .pixels(600) + Self.orbFade * 2)
-					.backgroundImage(.radialGradient("closest-side", .secondary(500), .transparent))
+					.bottom(.length(.percent(-20) - Self.orbFade))
+					.leading(.length(.percent(-20) - Self.orbFade))
+					.frame(size: .length(.pixels(600) + Self.orbFade * 2))
+					.backgroundImage(.radialGradient(.ellipse(extent: .closestSide), .secondary(500), .transparent))
 					.animation(Animations.driftB, .easeInOut(duration: .seconds(13)).repeatForever())
 			case .center:
 				Style()
@@ -245,7 +257,7 @@ extension ContactPage {
 			case .reveal:
 				// The parts fade in one after the other. The first part is the second child, after the hidden title.
 				Style()
-					.animation(Animations.reveal, Self.revealCurve(duration: .milliseconds(800)), fillMode: .both)
+					.animation(Animations.reveal, Animation(timing: Self.revealCurve(duration: .milliseconds(800))), fillMode: .both)
 					// In the media query after the animation, as its shorthand resets the delay.
 					.media(.allowsMotion) {
 						$0.declaration(.animationDelay, "calc((sibling-index() - 2) * 100ms)")
@@ -272,11 +284,11 @@ extension ContactPage {
 					.expandedFont()
 					.bold()
 					.letterSpacing(.em(-0.025))
-					.color(.inherit)
+					.inherits(.color)
 					// Only the outer half of the stroke shows, so it is twice as wide.
 					.textStroke(.black.opacity(0.18), width: .pixels(2))
 					.transformStyle(.preserveDepth)
-					.transform(CSSValue("rotateX(calc(\(ContactPage.tiltX.value(default: 0)) * 1deg)) rotateY(calc(\(ContactPage.tiltY.value(default: 0)) * 1deg))"))
+					.transform(.rotateX(.degrees(1).scaled(by: ContactPage.tiltX.value(default: 0))), .rotateY(.degrees(1).scaled(by: ContactPage.tiltY.value(default: 0))))
 					.setting(ContactPage.hue, to: 0)
 					// The rainbow only turns when the visitor allows motion.
 					.when(Hooks.rainbow) {
@@ -300,19 +312,19 @@ extension ContactPage {
 					.display(.inlineBlock)
 					.textWrap(.nowrap)
 					.lastChild {
-						$0.setting(ContactPage.letterOffset, to: CSSValue(ContactPage.emailParts.first?.count ?? 0))
+						$0.setting(ContactPage.letterOffset, to: CSSNumber(ContactPage.emailParts.first?.count ?? 0))
 					}
 			case .letter:
 				// `contact.js` sets `--strength` (0 to 1) by how close the pointer is, which lifts and grows the letter, and `data-leaving` when the pointer moves away, which springs it back.
 				Style()
 					.display(.inlineBlock)
-					.declaration(.transformOrigin, [.percent(50), .percent(85)])
-					.transform(CSSValue("translateY(calc(\(ContactPage.letterStrength.value(default: 0)) * -22px)) scale(calc(1 + \(ContactPage.letterStrength.value(default: 0)) * 0.8)) translateZ(calc(\(ContactPage.letterStrength.value(default: 0)) * 55px))"))
-					.transition(.transform, animation: .pop(duration: .milliseconds(80))).transition(.color, .textShadow, animation: .default(duration: .milliseconds(80)))
+					.transformOrigin(.init(x: .percent(50), y: .percent(85)))
+					.transform(.translateY(.pixels(-22).scaled(by: ContactPage.letterStrength.value(default: 0))), .scale(1 + ContactPage.letterStrength.value(default: 0) * 0.8), .translateZ(.pixels(55).scaled(by: ContactPage.letterStrength.value(default: 0))))
+					.transition(.transform, timing: .pop(duration: .milliseconds(80))).transition(.color, .textShadow, timing: .default(duration: .milliseconds(80)))
 					.declaration(.willChange, "transform")
-					.setting(ContactPage.letterHue, to: CSSValue("calc(\(ContactPage.hue.value) + (sibling-index() - 1 + \(ContactPage.letterOffset.value(default: 0))) * \(CSSValue(360 / Double(max(Self.letterCount, 1)))))"))
+					.setting(ContactPage.letterHue, to: ContactPage.hue.value + (CSSNumber(raw: "sibling-index()") - 1 + ContactPage.letterOffset.value(default: 0)) * CSSNumber(360 / Double(max(Self.letterCount, 1))))
 					.when(Hooks.leaving) {
-						$0.transition(.transform, animation: .timingCurve("linear(0, .5 7.7%, .9 14.4%, 1.04 19.4%, 1.06 23.7%, 1.02 30%, 1 35%, .99 45%, 1)", duration: .milliseconds(600))).transition(.color, .textShadow, animation: .default(duration: .milliseconds(500)))
+						$0.transition(.transform, timing: .timingCurve(raw: "linear(0, .5 7.7%, .9 14.4%, 1.04 19.4%, 1.06 23.7%, 1.02 30%, 1 35%, .99 45%, 1)", duration: .milliseconds(600))).transition(.color, .textShadow, timing: .default(duration: .milliseconds(500)))
 					}
 					// The rainbow only turns when the visitor allows motion (`contact.js` only sets `data-rainbow` then). The focus of the keyboard shows the colors also with reduced motion, as they do not move then.
 					.nested(":is(\(Hooks.rainbow.selector()), \(Self.email.selector):focus-visible) &") {
@@ -346,17 +358,17 @@ extension ContactPage {
 				// `contact.js` sets where the click was (`--start-x`, `--start-y`), where the sparkle flies (`--x`, `--y`), its size, and how far between blue and pink its color is (`--mix`). It flies out from the click as it appears.
 				Style()
 					.position(.fixed)
-					.leading(ContactPage.sparkleStartX.value)
-					.top(ContactPage.sparkleStartY.value)
+					.leading(.length(ContactPage.sparkleStartX.value))
+					.top(.length(ContactPage.sparkleStartY.value))
 					.zIndex(50)
-					.frame(size: ContactPage.sparkleSize.value)
+					.frame(size: .length(LengthPercentage(ContactPage.sparkleSize.value)))
 					.cornerRadius(.circle)
 					.background(Self.sparkleColor)
-					.shadow(Shadow(y: 0, blur: ContactPage.sparkleSize.value * 2, color: Self.sparkleColor))
+					.shadow(BoxShadow(y: .zero, blur: ContactPage.sparkleSize.value * 2, color: Self.sparkleColor))
 					.allowsHitTesting(false)
 					.offset(x: .percent(-50) + ContactPage.sparkleX.value, y: .percent(-50) + ContactPage.sparkleY.value)
 					.opacity(0)
-					.transition(.offset, animation: Self.revealCurve(duration: .milliseconds(750))).transition(.opacity, animation: .default(duration: .milliseconds(750)))
+					.transition(.offset, timing: Self.revealCurve(duration: .milliseconds(750))).transition(.opacity, timing: .default(duration: .milliseconds(750)))
 					.startingStyle {
 						$0
 							.offset(x: .percent(-50), y: .percent(-50))
@@ -373,11 +385,11 @@ extension ContactPage {
 		The color of a letter in the rainbow, with a glow.
 		*/
 		private static var rainbowLetter: Style {
-			let color = Color.hsl(hue: ContactPage.letterHue.value, saturation: 1, lightness: 0.65)
+			let color = Color.hsl(hue: ContactPage.letterHue.value, saturation: .percent(100), lightness: .percent(65))
 
 			return Style()
 				.color(color)
-				.textShadow(Shadow(y: 0, blur: .pixels(20), color: color.opacity(0.65)), Shadow(y: 0, blur: .pixels(44), color: color.opacity(0.3)))
+				.textShadow(Shadow(y: .zero, blur: .pixels(20), color: color.opacity(0.65)), Shadow(y: .zero, blur: .pixels(44), color: color.opacity(0.3)))
 		}
 	}
 
@@ -395,10 +407,11 @@ extension ContactPage {
 				[.to(Style().offset(x: .pixels(-50), y: .pixels(-40)).scaleEffect(1.08))]
 			case .reveal:
 				[
-					.from(Style()
-						.opacity(0)
-						.offset(y: .pixels(20))
-						.filter(.blur(radius: .pixels(8)))
+					.from(
+						Style()
+							.opacity(0)
+							.offset(y: .pixels(20))
+							.filter(.blur(radius: .pixels(8)))
 					),
 				]
 			case .turnHue:

@@ -163,12 +163,48 @@ extension GeoCitiesPage {
 	The entries of the guestbook from 1999, written like the real ones of that time: typos, lowercase, too many exclamation marks, and a request to sign their guestbook back.
 	*/
 	static let guestbookEntries = [
-		GuestbookEntry(name: "Jessica", place: "Ohio, USA", date: "12/30/1999", via: "Yahoo!", message: "hi!! i found ur page when i was looking for unicorn pictures. i saved the rainbow one for my desktop, hope thats ok :) please visit my page too, it has a backstreet boys section"),
-		GuestbookEntry(name: "Trond", place: "Trondheim, Norway", date: "12/27/1999", via: "A friend", message: "Hei Sindre! Kul side. The alien game is very hard on my trackball. Godt nytt år!"),
-		GuestbookEntry(name: "mamma", place: "hjemme", date: "12/24/1999", via: "My son told me", message: "Hei det er mamma. Er det her jeg skal skrive? Veldig fin side. Middagen er klar om 10 min. Klem fra mamma"),
-		GuestbookEntry(name: "DarkAngel", place: "Somewhere in Texas", date: "12/12/1999", via: "A webring", message: "cool site!!! how did u get the flames to move?? i have been trying for 3 days. sign my guestbook back plz!!!"),
-		GuestbookEntry(name: "Kristin", place: "Bergen", date: "11/30/1999", via: "AltaVista", message: "Your page took 4 minutes to load on our modem but it was worth it. The MIDI is stuck in my head now."),
-		GuestbookEntry(name: "Webmaster of The Pixel Palace", place: "GeoCities, Hollywood", date: "10/15/1999", via: "A webring", message: "Nice page. Your counter is broken, it says 1999 every time. Want to exchange 88x31 buttons?"),
+		GuestbookEntry(
+			name: "Jessica",
+			place: "Ohio, USA",
+			date: "12/30/1999",
+			via: "Yahoo!",
+			message: "hi!! i found ur page when i was looking for unicorn pictures. i saved the rainbow one for my desktop, hope thats ok :) please visit my page too, it has a backstreet boys section"
+		),
+		GuestbookEntry(
+			name: "Trond",
+			place: "Trondheim, Norway",
+			date: "12/27/1999",
+			via: "A friend",
+			message: "Hei Sindre! Kul side. The alien game is very hard on my trackball. Godt nytt år!"
+		),
+		GuestbookEntry(
+			name: "mamma",
+			place: "hjemme",
+			date: "12/24/1999",
+			via: "My son told me",
+			message: "Hei det er mamma. Er det her jeg skal skrive? Veldig fin side. Middagen er klar om 10 min. Klem fra mamma"
+		),
+		GuestbookEntry(
+			name: "DarkAngel",
+			place: "Somewhere in Texas",
+			date: "12/12/1999",
+			via: "A webring",
+			message: "cool site!!! how did u get the flames to move?? i have been trying for 3 days. sign my guestbook back plz!!!"
+		),
+		GuestbookEntry(
+			name: "Kristin",
+			place: "Bergen",
+			date: "11/30/1999",
+			via: "AltaVista",
+			message: "Your page took 4 minutes to load on our modem but it was worth it. The MIDI is stuck in my head now."
+		),
+		GuestbookEntry(
+			name: "Webmaster of The Pixel Palace",
+			place: "GeoCities, Hollywood",
+			date: "10/15/1999",
+			via: "A webring",
+			message: "Nice page. Your counter is broken, it says 1999 every time. Want to exchange 88x31 buttons?"
+		),
 	]
 
 	/**
@@ -208,30 +244,30 @@ extension GeoCitiesPage {
 	/**
 	The buttons of the site map, like the navigation frame of a home page from 1999, with the ID of the part that each one jumps to.
 	*/
-	static let siteMapItems: [(gif: GIF, title: String, anchor: String)] = [
-		(.navHome, "Home", Hooks.welcome.id),
-		(.musicNotes, "Jukebox", "geocities-jukebox"),
-		(.buttonAmigaDemo, "Demos", "geocities-cracktro"),
-		(.newStuff, "New Stuff", "geocities-java"),
-		(.cat, "My Pets", GeoCitiesPets.Hooks.root.id),
-		(.pacman, "Games", "geocities-games"),
-		(.mobilePhone, "Snake", "geocities-snake"),
+	static let siteMapItems: [(gif: GIF, title: String, anchor: ElementID)] = [
+		(.navHome, "Home", IDs.welcome.id),
+		(.musicNotes, "Jukebox", ElementID("geocities-jukebox")),
+		(.buttonAmigaDemo, "Demos", ElementID("geocities-cracktro")),
+		(.newStuff, "New Stuff", ElementID("geocities-java")),
+		(.cat, "My Pets", GeoCitiesPets.IDs.root.id),
+		(.pacman, "Games", ElementID("geocities-games")),
+		(.mobilePhone, "Snake", ElementID("geocities-snake")),
 		(.skiSlope, "Winter Games", GeoCitiesWinterGames.rootID),
-		(.heart, "Glitter", "geocities-glitter"),
-		(.question, "Quiz", "geocities-quiz"),
-		(.computerGame, "Arcade", "geocities-arcade"),
+		(.heart, "Glitter", ElementID("geocities-glitter")),
+		(.question, "Quiz", ElementID("geocities-quiz")),
+		(.computerGame, "Arcade", ElementID("geocities-arcade")),
 		(.turnBook, "Adventures", GeoCitiesAdventure.rootID),
-		(.computerSmall, "My PC", "geocities-pc"),
-		(.buttonMacVsWindows, "My iMac", GeoCitiesMacOS.Hooks.root.id),
+		(.computerSmall, "My PC", ElementID("geocities-pc")),
+		(.buttonMacVsWindows, "My iMac", GeoCitiesMacOS.IDs.root.id),
 		(.iMac, "My Room", GeoCitiesRoom.rootID),
-		(.hotSites, "Cool Links", "geocities-links"),
-		(.candle, "Shrine", "geocities-shrine"),
-		(.speakerNotes, "Music Room", GeoCitiesMusicRoom.Hooks.root.id),
-		(.signGuestbook, "Guestbook", "geocities-guestbook"),
+		(.hotSites, "Cool Links", ElementID("geocities-links")),
+		(.candle, "Shrine", ElementID("geocities-shrine")),
+		(.speakerNotes, "Music Room", GeoCitiesMusicRoom.IDs.root.id),
+		(.signGuestbook, "Guestbook", ElementID("geocities-guestbook")),
 		(.mailbox, "WaffleMail", GeoCitiesInbox.rootID),
 		(.computerGame, "Make a Page", GeoCitiesPageMaker.rootID),
-		(.floppy, "Downloads", "geocities-downloads"),
-		(.envelope, "E-mail Me", "geocities-mail"),
+		(.floppy, "Downloads", ElementID("geocities-downloads")),
+		(.envelope, "E-mail Me", ElementID("geocities-mail")),
 	]
 
 	/**
@@ -321,28 +357,28 @@ extension GeoCitiesPage {
 	/**
 	The programs of the desktop, with the ID of the window that each opens, and its icon.
 	*/
-	static let desktopApps: [(id: String, title: String, icon: String)] = [
-		("paint", "Unicorn Paint", "🎨"),
-		("sweeper", "Y2K Bugsweeper", "🐛"),
-		("notepad", "SECRET.TXT", "📝"),
-		("solitaire", "Solitaire", "🃏"),
-		("computer", "My Computer", "🖥️"),
-		("recycle", "Recycle Bin", "🗑️"),
-		("documents", "My Documents", "📁"),
-		("ie", "Internet Explorer", "🌐"),
-		("network", "Network Neighborhood", "🏘️"),
-		("control", "Control Panel", "🎛️"),
-		("calc", "Calculator", "🧮"),
-		("dos", "MS-DOS Prompt", "⬛"),
-		("freecell", "FreeCell", "♠️"),
-		("wordpad", "LETTER TO SANTA 2000.DOC", "📄"),
-		("fixer", "Y2K FIX.EXE", "🩹"),
-		("pinball", "3D Pinball", "🚀"),
-		("hearts", "Hearts", "♥️"),
-		("cdrom", "Windows 95 CD (D:)", "💿"),
-		("bonzi", "BonziBUDDY", "🦍"),
-		("bob", "Microsoft Bob", "🤓"),
-		("happy", "Happy99.exe", "🎆"),
+	static let desktopApps: [GeoCitiesWindows.DesktopItem] = [
+		.init(program: .paint),
+		.init(program: .sweeper),
+		.init(program: .notepad),
+		.init(program: .solitaire),
+		.init(program: .computer, title: "My Computer", icon: "🖥️"),
+		.init(program: .recycle),
+		.init(program: .documents),
+		.init(program: .internetExplorer),
+		.init(program: .network),
+		.init(program: .controlPanel),
+		.init(program: .calculator),
+		.init(program: .msDosPrompt),
+		.init(program: .freeCell),
+		.init(program: .wordPad, title: "LETTER TO SANTA 2000.DOC"),
+		.init(program: .fixer, title: "Y2K FIX.EXE"),
+		.init(program: .pinball),
+		.init(program: .hearts),
+		.init(program: .cdRom),
+		.init(program: .bonzi),
+		.init(program: .bob),
+		.init(program: .happy),
 	]
 
 	/**

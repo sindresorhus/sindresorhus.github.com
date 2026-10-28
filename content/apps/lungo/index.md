@@ -1,7 +1,7 @@
 ---
 title: 'Lungo'
 subtitle: 'Prevent your Mac from going to sleep'
-publicationDate: '2017-07-26'
+publicationDate: 2017-07-26
 platforms: [
 	'macOS'
 ]
@@ -54,27 +54,34 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/4556911/Lungo-1.6.0-High-Sierra.zip'
 	}
 ]
+pressQuotes: [
+	{
+		quote: '[…] Lungo is the perfect app to have on your Mac if you need a simple and straightforward way to prevent your Mac from going to sleep and its screen from dimming with a couple of mouse clicks.'
+		source: 'Softpedia'
+		url: 'https://mac.softpedia.com/get/Utilities/Lungo.shtml'
+		year: 2020
+	}
+]
 ---
 
 Keep your Mac awake and the screen on, for a set time or until you turn it off. Useful for presentations, downloads, and reading without touching the keyboard.
 
 ## Frequently Asked Questions {#faq}
 
-### Lungo did not keep my computer awake
+### Lungo did not keep my computer awake {#lungo-did-not-keep-my-computer-awake}
 
 - If you have the “Allow display to sleep while keeping computer awake” setting enabled, the computer is still awake even if it looks like it’s sleeping because the screen is off.
 - If you close the lid (clamshell mode), Lungo is only able to keep your Mac awake if it’s connected to a charger and an external display. This is a macOS limitation.
-- If you have the “Pause while screen is locked” setting enabled, you may have locked the screen before leaving it, which would cause Lungo to not keep your computer awake.
+- If you have the “Allow sleep while screen is locked” setting enabled, you may have locked the screen before leaving it, which would cause Lungo to not keep your computer awake.
 - If you have the “Deactivate when switching to battery” setting enabled and you disconnect the power adapter, Lungo would not keep your computer awake. You might have accidentally unplugged it or there might have been a power failure.
-- If you have set a sleep schedule in “System Settings › Battery › Schedule”, it will take priority over Lungo. This is out of Lungo’s control.
+- If your computer has a sleep schedule, it will take priority over Lungo. This is out of Lungo’s control. [See below.](#scheduled-sleep)
 - If you have set the computer to log out after a certain amount of time in “System Settings › Privacy & Security › Advanced”, it will take priority over Lungo. This is out of Lungo’s control.
-- If you see apps open again when you wake up your computer, it means your computer was restarted for some reason. Lungo cannot keep your computer from restarting. Some common reasons it may have restarted are a power outage, macOS crash, or scheduled shutdown/restart (in Battery system settings).
+- If you see apps open again when you wake up your computer, it means your computer was restarted for some reason. Lungo cannot keep your computer from restarting. Some common reasons it may have restarted are a power outage, macOS crash, or a scheduled shutdown or restart ([see below](#scheduled-sleep)).
 	+ You can [check how long your computer has been awake and when it was last rebooted](https://www.macobserver.com/tips/quick-tip/mac-system-uptime-terminal/) to narrow down the problem. You can also check when the computer was last logged in by typing the command `last` in the Terminal app.
 
 Some things you could try:
 - Make sure you are on the latest macOS and Lungo versions.
-- [Reset NVRAM](https://support.apple.com/HT204063)
-- [Reset SMC](https://support.apple.com/HT201295)
+- Restart your Mac.
 
 ### Does it work when the lid is closed? {#lid-closed}
 
@@ -82,17 +89,19 @@ No, that’s not allowed for apps on the App Store, for good reasons. Imagine yo
 
 The exception to this is if it’s connected to a charger and an external display.
 
-However, if you want this, there are some solutions [here](https://apple.stackexchange.com/questions/2389/is-there-any-way-to-set-a-macbook-pro-to-not-sleep-when-you-close-the-lid?rq=1).
+However, if you want this, there are some solutions [on Ask Different](https://apple.stackexchange.com/questions/2389/is-there-any-way-to-set-a-macbook-pro-to-not-sleep-when-you-close-the-lid?rq=1).
 
-### Does Lungo keep my Mac awake even if there is a scheduled sleep?
+### Does Lungo keep my Mac awake even if there is a scheduled sleep? {#scheduled-sleep}
 
-If you have set a sleep schedule in “System Settings › Battery › Schedule”, it will take priority over Lungo. This is out of Lungo’s control.
+No. A sleep, shutdown, or restart schedule takes priority over Lungo. This is out of Lungo’s control.
 
-### Can I left-click the icon to toggle it like with Caffeine?
+macOS no longer shows the schedule in System Settings, but a schedule that you set on an older macOS version, or with the `pmset` command, still works. To see the schedule, run `pmset -g sched` in the Terminal app. To remove a repeating schedule, run `sudo pmset repeat cancel`.
+
+### Can I left-click the icon to toggle it like with Caffeine? {#can-i-left-click-the-icon-to-toggle-it-like-with-caffeine}
 
 Yes, choose “Activate on Left-click” in the settings.
 
-### Can Lungo automatically activate when I open a certain app?
+### Can Lungo automatically activate when I open a certain app? {#can-lungo-automatically-activate-when-i-open-a-certain-app}
 
 I don’t plan to support this. It’s a lot of work to implement and only a few people have requested it.
 
@@ -100,17 +109,17 @@ However, you can achieve it using the Shortcuts app. Create a new shortcut with 
 
 You could also use BetterTouchTool or Keyboard Maestro.
 
-### Can Lungo automatically activate on a set schedule?
+### Can Lungo automatically activate on a set schedule? {#can-lungo-automatically-activate-on-a-set-schedule}
 
 I don’t plan to do this built-in, but you can achieve it with Shortcuts automations.
 
-### Can Lungo automatically activate when I switch to a specific focus mode?
+### Can Lungo automatically activate when I switch to a specific focus mode? {#can-lungo-automatically-activate-when-i-switch-to-a-specific-focus-mode}
 
 I don’t plan to do this built-in, but you can achieve it with Shortcuts automations.
 
-### How can I make Lungo be activated until a specific time?
+### How can I make Lungo be activated until a specific time? {#how-can-i-make-lungo-be-activated-until-a-specific-time}
 
-This is not supported built-in, but you can use the Shortcuts app to achieve it. Get [this shortcut](https://www.icloud.com/shortcuts/9aa69e6db4ba48289e59214d10a405b2) and either pin it to the menu bar or add a global keyboard shortcut to trigger it. You could also use Raycast, BetterTouchTool, or Keyboard Maestro to trigger it.
+This is not supported built-in, but you can use the Shortcuts app to achieve it. Get the [“Enable Lungo until time” shortcut](https://www.icloud.com/shortcuts/9aa69e6db4ba48289e59214d10a405b2) and either pin it to the menu bar or add a global keyboard shortcut to trigger it. You could also use Raycast, BetterTouchTool, or Keyboard Maestro to trigger it.
 
 ### Can I use a custom duration? {#custom-duration}
 
@@ -118,11 +127,11 @@ Lungo comes with a set of commonly used durations, which should be enough for mo
 
 However, power users can take advantage of the Shortcuts app to use custom durations. Drag the “Set Enabled State” Lungo action into the shortcut editor in the Shortcuts app. Click “Show more” and then choose a custom duration. You can pin the shortcut workflow to the menu bar for easy access or set a global keyboard shortcut for it.
 
-### Can it keep my status on Slack, Microsoft Teams, etc, show as active?
+### Can it keep my status on Slack, Microsoft Teams, etc, show as active? {#can-it-keep-my-status-on-slack-microsoft-teams-etc-show-as-active}
 
 No, that’s not the purpose of this app. Different apps use different techniques for detecting active status, which could change at any time.
 
-### How can I transfer my settings from the App Store version to the Setapp version?
+### How can I transfer my settings from the App Store version to the Setapp version? {#how-can-i-transfer-my-settings-from-the-app-store-version-to-the-setapp-version}
 
 Run this command in the Terminal app:
 
@@ -136,15 +145,23 @@ And to transfer the other way:
 defaults export com.sindresorhus.Lungo-setapp - | defaults import com.sindresorhus.Lungo -
 ```
 
-### How is it different from Amphetamine?
+### Can macOS do this without an app? {#built-in}
 
-Amphetamine has lots of features. Most of which I would never use. It ships with a myriad of menu bar icons to choose from, but none that looks good. With Lungo, I wanted a focused and simple app with great defaults.
+Yes. Run `caffeinate -di` in the Terminal app, and your Mac and the screen stay awake until you press ++Control+C++. Add `-t 3600` to stop after an hour.
+
+Lungo adds a menu bar icon to turn it on and off with one click, preset durations (and custom ones with Shortcuts), and settings like “Deactivate when switching to battery” and “Allow display to sleep while keeping computer awake”.
+
+### How is it different from Amphetamine? {#how-is-it-different-from-amphetamine}
+
+Amphetamine is free and has many more features, like triggers that keep your Mac awake automatically, and keeping a MacBook awake with the lid closed. If you need those, use Amphetamine. Its last update was in November 2023.
+
+Lungo has a few presets with good defaults, is made for the latest macOS, and supports Shortcuts and a URL scheme. With Lungo, I wanted a focused and simple app with great defaults.
 
 ## Scripting
 
 You can control Lungo using anything that supports opening a URL with a custom scheme.
 
-*Lungo also comes with support for Shortcuts.*
+*Lungo also comes with support for Shortcuts. For example, on macOS 27, the “Adjust Time” action adds or subtracts time from the current countdown.*
 
 > [!TIP]
 > You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).

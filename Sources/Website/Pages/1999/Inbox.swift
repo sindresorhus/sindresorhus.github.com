@@ -10,7 +10,7 @@ struct GeoCitiesInbox: ScriptedElement {
 	/**
 	The ID of WaffleMail, which the site map links to.
 	*/
-	static let rootID = "geocities-wafflemail"
+	static let rootID = ElementID("geocities-wafflemail")
 
 	let project: Project
 
@@ -20,9 +20,19 @@ struct GeoCitiesInbox: ScriptedElement {
 
 	var content: some HTML {
 		h2 {
-			GeoCitiesPage.GIFImage(gif: .mailbox, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .mailbox,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 			" WaffleMail "
-			GeoCitiesPage.GIFImage(gif: .emailSpin, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .emailSpin,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 		}
 		.style(GeoCitiesPage.Styles.heading, GeoCitiesPage.Styles.centeredText)
 
@@ -186,19 +196,19 @@ struct GeoCitiesInbox: ScriptedElement {
 			case .list:
 				// A white list of messages, which scrolls when the inbox is full.
 				Style()
-					.margin(0)
-					.padding(0)
+					.margin(.zero)
+					.padding(.zero)
 					.frame(maxHeight: .rootEm(14))
 					.overflow(.auto)
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			case .row:
 				// A message in the list, bold while it is unread, and blue while it is open.
 				Style()
 					.vstack(alignment: .start)
 					.frame(width: .percent(100))
 					.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.5))
-					.border(.bottom, Color("#dddddd"))
+					.border(.bottom, Color(raw: "#dddddd"))
 					.background(.white)
 					.fontFamily(.system)
 					.textStyle(.caption)
@@ -207,22 +217,27 @@ struct GeoCitiesInbox: ScriptedElement {
 					.handCursor()
 					// A dotted line inside the row, as the list cuts off a ring around it.
 					.focusVisible {
-						$0.focusRing(.currentColor, width: .pixels(1), offset: .pixels(-3), style: .dotted)
+						$0.focusRing(
+							.currentColor,
+							width: .pixels(1),
+							offset: .pixels(-3),
+							style: .dotted
+						)
 					}
 					.when(States.unread) {
 						$0.fontWeight(.bold)
 					}
 					.current {
 						$0
-							.background(Color("#000080"))
+							.background(Color(raw: "#000080"))
 							.color(.white)
 					}
 			case .from:
 				// Gray, and light on the blue of an open message.
 				Style()
-					.color(Color("#555555"))
+					.color(Color(raw: "#555555"))
 					.ancestorCurrent {
-						$0.color(Color("#ccccff"))
+						$0.color(Color(raw: "#ccccff"))
 					}
 			case .reader:
 				// The open message, like a letter on white paper.
@@ -230,14 +245,14 @@ struct GeoCitiesInbox: ScriptedElement {
 					.flowSpacing(.rootEm(0.5))
 					.padding(.rootEm(0.75))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(.system)
 					.textStyle(.body)
 					.overflowWrap(.breakWord)
 			case .readerHeader:
 				Style()
 					.padding(.bottom, .rootEm(0.5))
-					.border(.bottom, Color("#cccccc"))
+					.border(.bottom, Color(raw: "#cccccc"))
 					.textStyle(.caption)
 			case .body:
 				// The text of an e-mail of 1999, in a font like the plain text of Outlook Express, with its line breaks.
@@ -249,12 +264,12 @@ struct GeoCitiesInbox: ScriptedElement {
 				Style()
 					.textStyle(.caption)
 					.fontWeight(.bold)
-					.color(Color("#800000"))
+					.color(Color(raw: "#800000"))
 			case .composer:
 				Style()
 					.flowSpacing(.rootEm(0.5))
 					.padding(.rootEm(0.75))
-					.border(Color("#808080"), width: .pixels(2), style: .groove)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .groove)
 			}
 		}
 	}

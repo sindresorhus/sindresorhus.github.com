@@ -143,28 +143,28 @@ struct GeoCitiesWaffleClues: ScriptedElement {
 					.frame(maxWidth: .pixels(820))
 					.margin(.horizontal, .auto)
 					.padding(.rootEm(1))
-					.background(Color("#fff4b8"))
-					.border(Color("#8a6a1a"), width: .pixels(3), style: .double)
-					.shadow(Shadow(x: .pixels(4), y: .pixels(4), color: Color("#00000055")))
+					.background(Color(raw: "#fff4b8"))
+					.border(Color(raw: "#8a6a1a"), width: .pixels(3), style: .double)
+					.shadow(BoxShadow(x: .pixels(4), y: .pixels(4), color: Color(raw: "#00000055")))
 					.fontFamily(GeoCitiesPage.times)
-					.color(Color("#222222"))
+					.color(Color(raw: "#222222"))
 					.flowSpacing(.rootEm(0.75))
 			case .bookCover:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.5))
-					.background(Color("#2a2a6a"))
+					.background(Color(raw: "#2a2a6a"))
 					.fontFamily(GeoCitiesPage.impact)
 					.textStyle(.body)
 					.textAlign(.center)
 					.letterSpacing(.em(0.05))
-					.color(Color("#ffd700"))
+					.color(Color(raw: "#ffd700"))
 			case .bookGame:
 				Style()
-					.padding(vertical: .rootEm(0.25), horizontal: 0)
-					.border(.bottom, Color("#8a6a1a"), width: .pixels(2))
+					.padding(vertical: .rootEm(0.25), horizontal: .zero)
+					.border(.bottom, Color(raw: "#8a6a1a"), width: .pixels(2))
 					.font(.large, weight: .bold)
-					.color(Color("#5a1a6a"))
+					.color(Color(raw: "#5a1a6a"))
 					.handCursor()
 			case .bookChapter:
 				Style()
@@ -174,7 +174,7 @@ struct GeoCitiesWaffleClues: ScriptedElement {
 				Style().vstack(spacing: .rootEm(0.375))
 			case .bookQuestion:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.font(.regular, weight: .bold)
 			case .inks:
 				Style()
@@ -185,31 +185,31 @@ struct GeoCitiesWaffleClues: ScriptedElement {
 				Style()
 					.frame(minHeight: .rootEm(2.25))
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
-					.background(Color("#fff8d0"))
-					.border(Color("#c8b060"), width: .pixels(1), style: .dashed)
+					.background(Color(raw: "#fff8d0"))
+					.border(Color(raw: "#c8b060"), width: .pixels(1), style: .dashed)
 					.fontFamily(GeoCitiesPage.times)
 					.textStyle(.body)
 					.textAlign(.leading)
-					.color(Color("#fff8d0"))
+					.color(Color(raw: "#fff8d0"))
 					.touchAction(.panY)
 					.textSelection(.disabled)
 					.handCursor()
-					.transition(.colors, animation: .easeOut(duration: .milliseconds(300)))
+					.transition(.colors, timing: .easeOut(duration: .milliseconds(300)))
 					.when(States.faint) {
 						$0
-							.background(Color("#f2f0c8"))
-							.color(Color("#b8d0a8"))
+							.background(Color(raw: "#f2f0c8"))
+							.color(Color(raw: "#b8d0a8"))
 					}
 					.when(States.shown) {
 						$0
-							.background(Color("#e8f0c0"))
-							.color(Color("#1a5a2a"))
+							.background(Color(raw: "#e8f0c0"))
+							.color(Color(raw: "#1a5a2a"))
 							.textSelection(.enabled)
 					}
 			case .cluesStatus:
 				Style()
 					.frame(minHeight: .lineHeight(1))
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption)
 			}
 		}

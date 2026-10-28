@@ -6,6 +6,8 @@ import SiteKit
 The windows of the desktop of my iMac (``GeoCitiesMacOS``): the Finder windows, the control panels, the desk accessories, the applications, and the game. Each is hidden until `geocities-mac.js` opens it, and moves by its striped title bar, with the close box at the left, and the zoom box and the collapse box of WindowShade at the right.
 */
 struct GeoCitiesMacOSWindows: HTML {
+	typealias IDs = GeoCitiesMacOS.IDs
+	typealias Program = GeoCitiesMacOS.Program
 	typealias Hooks = GeoCitiesMacOS.Hooks
 	typealias Styles = GeoCitiesMacOS.Styles
 
@@ -29,27 +31,44 @@ struct GeoCitiesMacOSWindows: HTML {
 	A window of the desktop, with the hooks that the window manager of `geocities-mac.js` finds: the title bar that drags it, the close box, the collapse box of WindowShade, and the zoom box.
 	*/
 	static func window(
-		_ name: String,
-		title: String,
+		_ program: Program,
+		title: String? = nil,
 		width: WindowWidth = .medium,
 		@HTMLBuilder content: () -> some HTML
 	) -> some HTML {
-		section(.hook(Hooks.window, value: name), .hidden, .tabindex(-1), .ariaLabelledBy("geocities-mac-title-\(name)")) {
+		let title = title ?? program.title
+
+		return section(
+			.hook(Hooks.window, value: program.rawValue),
+			.hidden,
+			.tabindex(-1),
+			.ariaLabelledBy(program.windowTitleID)
+		) {
 			div(.hook(Hooks.titleBar)) {
 				button(.type(.button), .hook(Hooks.close), .hook(Hooks.balloonText, value: "The close box. Click it to close the window. When the last window of a program closes, the program quits.")) {}
 					.accessibilityLabel("Close \(title)")
 					.style(Styles.titleBox)
 
-				h3(.id("geocities-mac-title-\(name)")) {
+				h3(.id(program.windowTitleID)) {
 					title
 				}
 				.style(Styles.windowTitle)
 
-				button(.type(.button), .hook(Hooks.zoom), .ariaPressed(false), .hook(Hooks.balloonText, value: "The zoom box. Click it to make the window as big as the screen, and again to make it small.")) {}
+				button(
+					.type(.button),
+					.hook(Hooks.zoom),
+					.ariaPressed(false),
+					.hook(Hooks.balloonText, value: "The zoom box. Click it to make the window as big as the screen, and again to make it small.")
+				) {}
 					.accessibilityLabel("Zoom \(title)")
 					.style(Styles.titleBox, Styles.zoomBox)
 
-				button(.type(.button), .hook(Hooks.collapse), .ariaPressed(false), .hook(Hooks.balloonText, value: "The collapse box of WindowShade. It rolls the window up like a blind, so only the title bar is left. Double-clicking the title bar does it too.")) {}
+				button(
+					.type(.button),
+					.hook(Hooks.collapse),
+					.ariaPressed(false),
+					.hook(Hooks.balloonText, value: "The collapse box of WindowShade. It rolls the window up like a blind, so only the title bar is left. Double-clicking the title bar does it too.")
+				) {}
 					.accessibilityLabel("Collapse \(title)")
 					.style(Styles.titleBox, Styles.collapseBox)
 			}
@@ -88,7 +107,7 @@ struct GeoCitiesMacOSWindows: HTML {
 
 	@HTMLBuilder
 	private var finderWindows: some HTML {
-		GeoCitiesPage.Deferred(Self.window("about", title: "About This Computer", width: .large) {
+		GeoCitiesPage.Deferred(Self.window(.about, width: .large) {
 			div {
 				canvas(.width(48), .height(48), .hook(Hooks.part, value: "face")) {}
 					.accessibilityHidden()
@@ -148,9 +167,14 @@ struct GeoCitiesMacOSWindows: HTML {
 			.style(Styles.fine)
 		})
 
-		GeoCitiesPage.Deferred(Self.window("info", title: "Get Info") {
+		GeoCitiesPage.Deferred(Self.window(.info) {
 			div {
-				img(.alt(""), .width(32), .height(32), .hook(Hooks.part, value: "icon"))
+				img(
+					.alt(""),
+					.width(32),
+					.height(32),
+					.hook(Hooks.part, value: "icon")
+				)
 					.style(Styles.iconImage)
 				p(.hook(Hooks.part, value: "name")) {}
 					.style(Styles.infoName)
@@ -185,7 +209,13 @@ struct GeoCitiesMacOSWindows: HTML {
 
 				label {
 					"Minimum Size: "
-					input(.type(.number), .min("100"), .max("60000"), .step(100), .hook(Hooks.part, value: "minimum"))
+					input(
+						.type(.number),
+						.min("100"),
+						.max("60000"),
+						.step(100),
+						.hook(Hooks.part, value: "minimum")
+					)
 						.style(Styles.numberField)
 					"K"
 				}
@@ -193,7 +223,13 @@ struct GeoCitiesMacOSWindows: HTML {
 
 				label {
 					"Preferred Size: "
-					input(.type(.number), .min("100"), .max("60000"), .step(100), .hook(Hooks.part, value: "preferred"))
+					input(
+						.type(.number),
+						.min("100"),
+						.max("60000"),
+						.step(100),
+						.hook(Hooks.part, value: "preferred")
+					)
 						.style(Styles.numberField)
 					"K"
 				}
@@ -205,19 +241,19 @@ struct GeoCitiesMacOSWindows: HTML {
 				.style(Styles.windowStatus)
 		})
 
-		GeoCitiesPage.Deferred(Self.window("hd", title: "Macintosh HD", width: .large) {
+		GeoCitiesPage.Deferred(Self.window(.hardDrive, width: .large) {
 			Self.iconGrid()
 		})
 
-		GeoCitiesPage.Deferred(Self.window("apps", title: "Applications", width: .large) {
+		GeoCitiesPage.Deferred(Self.window(.applications, width: .large) {
 			Self.iconGrid()
 		})
 
-		GeoCitiesPage.Deferred(Self.window("trash", title: "Trash") {
+		GeoCitiesPage.Deferred(Self.window(.trash) {
 			Self.iconGrid()
 		})
 
-		GeoCitiesPage.Deferred(Self.window("clipboard", title: "Clipboard", width: .small) {
+		GeoCitiesPage.Deferred(Self.window(.clipboard, width: .small) {
 			p(.hook(Hooks.part, value: "kind")) {}
 				.style(Styles.windowStatus)
 
@@ -229,13 +265,13 @@ struct GeoCitiesMacOSWindows: HTML {
 				.style(Styles.clipText)
 		})
 
-		GeoCitiesPage.Deferred(Self.window("switcher", title: "Application Switcher", width: .small) {
+		GeoCitiesPage.Deferred(Self.window(.switcher, width: .small) {
 			div(.hook(Hooks.part, value: "apps"), .role("group")) {}
 				.accessibilityLabel("Running programs")
 				.style(Styles.switcherApps)
 		})
 
-		GeoCitiesPage.Deferred(Self.window("installer", title: "Mac OS 8.6 Install") {
+		GeoCitiesPage.Deferred(Self.window(.installer) {
 			p {
 				"Click Start to install Mac OS 8.6 on “Macintosh HD”. It puts back the System Folder, and everything on the desktop that went in the Trash. It takes about 40 minutes. (On this iMac, a little less.)"
 			}
@@ -259,7 +295,7 @@ struct GeoCitiesMacOSWindows: HTML {
 
 	@HTMLBuilder
 	private var controlPanels: some HTML {
-		GeoCitiesPage.Deferred(Self.window("extensions", title: "Extensions Manager", width: .large) {
+		GeoCitiesPage.Deferred(Self.window(.extensions, width: .large) {
 			label {
 				"Selected Set: "
 				select(.hook(Hooks.part, value: "set")) {
@@ -289,7 +325,7 @@ struct GeoCitiesMacOSWindows: HTML {
 			.style(Styles.buttons)
 		})
 
-		GeoCitiesPage.Deferred(Self.window("appearance", title: "Appearance", width: .large) {
+		GeoCitiesPage.Deferred(Self.window(.appearance, width: .large) {
 			div(.role("group")) {
 				for (part, title) in [("themes", "Themes"), ("desktop", "Desktop"), ("sound", "Sound")] {
 					Elementary.button(.type(.button), .hook(Hooks.part, value: "tab-\(part)"), .ariaPressed(part == "themes")) {
@@ -309,7 +345,12 @@ struct GeoCitiesMacOSWindows: HTML {
 
 					for (value, title) in Self.themes {
 						label {
-							input(.type(.radio), .name("geocities-mac-theme"), .value(value), .hook(Hooks.part, value: "theme"))
+							input(
+								.type(.radio),
+								.name("geocities-mac-theme"),
+								.value(value),
+								.hook(Hooks.part, value: "theme")
+							)
 							" \(title)"
 						}
 						.style(Styles.choice)
@@ -332,7 +373,12 @@ struct GeoCitiesMacOSWindows: HTML {
 
 					for (value, title) in Self.desktopPictures {
 						label {
-							input(.type(.radio), .name("geocities-mac-desktop"), .value(value), .hook(Hooks.part, value: "picture"))
+							input(
+								.type(.radio),
+								.name("geocities-mac-desktop"),
+								.value(value),
+								.hook(Hooks.part, value: "picture")
+							)
 							" \(title)"
 						}
 						.style(Styles.choice)
@@ -381,7 +427,7 @@ struct GeoCitiesMacOSWindows: HTML {
 			.style(Styles.panel)
 		})
 
-		GeoCitiesPage.Deferred(Self.window("speech", title: "Speech") {
+		GeoCitiesPage.Deferred(Self.window(.speech) {
 			label {
 				"Voice: "
 				select(.hook(Hooks.part, value: "voice")) {
@@ -396,7 +442,14 @@ struct GeoCitiesMacOSWindows: HTML {
 
 			label {
 				"Rate: "
-				input(.type(.range), .min("0.5"), .max("2"), .step(0.1), .value("1"), .hook(Hooks.part, value: "rate"))
+				input(
+					.type(.range),
+					.min("0.5"),
+					.max("2"),
+					.step(0.1),
+					.value("1"),
+					.hook(Hooks.part, value: "rate")
+				)
 			}
 			.style(Styles.field)
 
@@ -432,8 +485,14 @@ struct GeoCitiesMacOSWindows: HTML {
 
 	@HTMLBuilder
 	private var accessories: some HTML {
-		GeoCitiesPage.Deferred(Self.window("puzzle", title: "Puzzle", width: .small) {
-			canvas(.width(160), .height(160), .tabindex(0), .role("application"), .hook(Hooks.part, value: "board")) {}
+		GeoCitiesPage.Deferred(Self.window(.puzzle, width: .small) {
+			canvas(
+				.width(160),
+				.height(160),
+				.tabindex(0),
+				.role("application"),
+				.hook(Hooks.part, value: "board")
+			) {}
 				.accessibilityLabel("The Puzzle. Use the arrow keys to slide a piece into the empty place, or click a piece next to it.")
 				.style(Styles.puzzleBoard)
 
@@ -450,8 +509,13 @@ struct GeoCitiesMacOSWindows: HTML {
 			.style(Styles.windowStatus)
 		})
 
-		GeoCitiesPage.Deferred(Self.window("notepad", title: "Note Pad", width: .small) {
-			textarea(.rows(9), .maxlength(1200), .autocomplete("off"), .hook(Hooks.part, value: "text")) {}
+		GeoCitiesPage.Deferred(Self.window(.notePad, width: .small) {
+			textarea(
+				.rows(9),
+				.maxlength(1200),
+				.autocomplete("off"),
+				.hook(Hooks.part, value: "text")
+			) {}
 				.accessibilityLabel("Page of the Note Pad")
 				.style(Styles.notePage)
 
@@ -474,7 +538,7 @@ struct GeoCitiesMacOSWindows: HTML {
 			.style(Styles.notePadFooter)
 		})
 
-		GeoCitiesPage.Deferred(Self.window("scrapbook", title: "Scrapbook") {
+		GeoCitiesPage.Deferred(Self.window(.scrapbook) {
 			canvas(.width(240), .height(150), .hook(Hooks.part, value: "clip")) {}
 				.accessibilityLabel("The picture of the clipping")
 				.style(Styles.clipCanvas)
@@ -487,7 +551,13 @@ struct GeoCitiesMacOSWindows: HTML {
 					"Clipping"
 				}
 				.style(VisuallyHidden.Styles.root)
-				input(.type(.range), .min("0"), .max("1"), .value("0"), .hook(Hooks.part, value: "scroll"))
+				input(
+					.type(.range),
+					.min("0"),
+					.max("1"),
+					.value("0"),
+					.hook(Hooks.part, value: "scroll")
+				)
 					.style(Styles.scroll)
 			}
 
@@ -502,7 +572,7 @@ struct GeoCitiesMacOSWindows: HTML {
 			.style(Styles.buttons)
 		})
 
-		GeoCitiesPage.Deferred(Self.window("keycaps", title: "Key Caps", width: .large) {
+		GeoCitiesPage.Deferred(Self.window(.keyCaps, width: .large) {
 			p(.hook(Hooks.part, value: "display"), .role("status")) {}
 				.accessibilityLabel("What you typed")
 				.style(Styles.keyCapsDisplay)
@@ -532,7 +602,7 @@ struct GeoCitiesMacOSWindows: HTML {
 			.style(Styles.fine)
 		})
 
-		GeoCitiesPage.Deferred(Self.window("chooser", title: "Chooser", width: .large) {
+		GeoCitiesPage.Deferred(Self.window(.chooser, width: .large) {
 			div {
 				ul {
 					for (driver, title) in [("stylewriter", "🖨️ StyleWriter II"), ("laserwriter", "🖨️ LaserWriter 8"), ("appleshare", "🗄️ AppleShare")] {
@@ -565,13 +635,23 @@ struct GeoCitiesMacOSWindows: HTML {
 				}
 
 				label {
-					input(.type(.radio), .name("geocities-mac-appletalk"), .value("on"), .hook(Hooks.part, value: "appletalk"))
+					input(
+						.type(.radio),
+						.name("geocities-mac-appletalk"),
+						.value("on"),
+						.hook(Hooks.part, value: "appletalk")
+					)
 					" Active"
 				}
 				.style(Styles.choice)
 
 				label {
-					input(.type(.radio), .name("geocities-mac-appletalk"), .value("off"), .hook(Hooks.part, value: "appletalk"))
+					input(
+						.type(.radio),
+						.name("geocities-mac-appletalk"),
+						.value("off"),
+						.hook(Hooks.part, value: "appletalk")
+					)
 					" Inactive"
 				}
 				.style(Styles.choice)
@@ -582,7 +662,7 @@ struct GeoCitiesMacOSWindows: HTML {
 				.style(Styles.windowStatus)
 		})
 
-		GeoCitiesPage.Deferred(Self.window("pagesetup", title: "Page Setup Options", width: .small) {
+		GeoCitiesPage.Deferred(Self.window(.pageSetup, width: .small) {
 			canvas(.width(160), .height(120), .hook(Hooks.part, value: "dogcow")) {}
 				.accessibilityLabel("Clarus the dogcow, on the page")
 				.style(Styles.clipCanvas)
@@ -607,7 +687,7 @@ struct GeoCitiesMacOSWindows: HTML {
 			.style(Styles.windowStatus)
 		})
 
-		GeoCitiesPage.Deferred(Self.window("stickies", title: "Stickies", width: .small) {
+		GeoCitiesPage.Deferred(Self.window(.stickies, width: .small) {
 			p {
 				"Stickies keeps my notes on the screen, even after a restart. Drag them by the top."
 			}
@@ -621,7 +701,7 @@ struct GeoCitiesMacOSWindows: HTML {
 
 	@HTMLBuilder
 	private var applications: some HTML {
-		GeoCitiesPage.Deferred(Self.window("sherlock", title: "Sherlock", width: .large) {
+		GeoCitiesPage.Deferred(Self.window(.sherlock, width: .large) {
 			div(.role("group")) {
 				for (part, title) in [("internet", "🌐 Search Internet"), ("content", "📄 Find by Content")] {
 					Elementary.button(.type(.button), .hook(Hooks.part, value: "tab-\(part)"), .ariaPressed(part == "internet")) {
@@ -636,7 +716,12 @@ struct GeoCitiesMacOSWindows: HTML {
 			form(.hook(Hooks.part, value: "form")) {
 				label {
 					"Words: "
-					input(.type(.search), .maxlength(40), .autocomplete("off"), .hook(Hooks.part, value: "query"))
+					input(
+						.type(.search),
+						.maxlength(40),
+						.autocomplete("off"),
+						.hook(Hooks.part, value: "query")
+					)
 						.style(Styles.textField)
 				}
 				.style(Styles.field)
@@ -651,7 +736,12 @@ struct GeoCitiesMacOSWindows: HTML {
 			div(.hook(Hooks.part, value: "sites")) {
 				for site in ["AltaVista", "Excite", "Infoseek", "Lycos", "Amazon.com", "Apple Tech Info Library"] {
 					label {
-						input(.type(.checkbox), .checked, .value(site), .hook(Hooks.part, value: "site"))
+						input(
+							.type(.checkbox),
+							.checked,
+							.value(site),
+							.hook(Hooks.part, value: "site")
+						)
 						" \(site)"
 					}
 					.style(Styles.choice)
@@ -679,14 +769,21 @@ struct GeoCitiesMacOSWindows: HTML {
 				.style(Styles.windowStatus)
 		})
 
-		GeoCitiesPage.Deferred(Self.window("graphing", title: "Graphing Calculator", width: .large) {
+		GeoCitiesPage.Deferred(Self.window(.graphing, width: .large) {
 			form(.hook(Hooks.part, value: "form")) {
 				label {
 					span {
 						"Equation"
 					}
 					.style(VisuallyHidden.Styles.root)
-					input(.type(.text), .value("y = sin(x) * x"), .maxlength(60), .autocomplete("off"), .custom(name: "spellcheck", value: "false"), .hook(Hooks.part, value: "equation"))
+					input(
+						.type(.text),
+						.value("y = sin(x) * x"),
+						.maxlength(60),
+						.autocomplete("off"),
+						.spellcheck(false),
+						.hook(Hooks.part, value: "equation")
+					)
 						.style(Styles.equation)
 				}
 
@@ -709,8 +806,14 @@ struct GeoCitiesMacOSWindows: HTML {
 			.style(Styles.windowStatus)
 		})
 
-		GeoCitiesPage.Deferred(Self.window("bugdom", title: "Bugdom Jr.", width: .large) {
-			canvas(.width(320), .height(240), .tabindex(0), .role("application"), .hook(Hooks.part, value: "game")) {}
+		GeoCitiesPage.Deferred(Self.window(.bugdom, width: .large) {
+			canvas(
+				.width(320),
+				.height(240),
+				.tabindex(0),
+				.role("application"),
+				.hook(Hooks.part, value: "game")
+			) {}
 				.accessibilityLabel("Bugdom Jr. Use the arrow keys to walk, and the space bar to roll up into a ball.")
 				.style(Styles.game)
 
@@ -744,7 +847,7 @@ struct GeoCitiesMacOSWindows: HTML {
 			.style(Styles.windowStatus)
 		})
 
-		GeoCitiesPage.Deferred(Self.window("netscape", title: "Netscape: Sindre’s Home Page", width: .large) {
+		GeoCitiesPage.Deferred(Self.window(.netscape, width: .large) {
 			div {
 				for title in ["Back", "Forward", "Reload", "Home", "Search", "Stop"] {
 					span {
@@ -774,7 +877,7 @@ struct GeoCitiesMacOSWindows: HTML {
 				.style(Styles.windowStatus)
 		})
 
-		GeoCitiesPage.Deferred(Self.window("simpletext", title: "Read Me!", width: .large) {
+		GeoCitiesPage.Deferred(Self.window(.simpleText, title: "Read Me!", width: .large) {
 			div(.hook(Hooks.part, value: "text"), .tabindex(0)) {
 				for paragraph in Self.readMe {
 					p {

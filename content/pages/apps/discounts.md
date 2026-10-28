@@ -7,7 +7,7 @@ description: 'Discounts on apps by Sindre Sorhus: the Power User Bundle, and off
 
 <!-- ## Black friday
 
-Apps are on sale from 28. November to 1. December:
+Apps are on sale from 27. November to 30. November:
 
 **App Store:**
 - [Dato](/dato): 30% off
@@ -23,25 +23,26 @@ Apps are on sale from 28. November to 1. December:
 - [Favorites Widget](/favorites-widget): 50% off
 
 **Gumroad, everything 40% off:**
-- [Supercharge](https://sindresorhus.gumroad.com/l/supercharge/BLACKFRIDAY2025)
-- [Default Browser](https://sindresorhus.gumroad.com/l/default-browser/BLACKFRIDAY2025)
-- [Shortcutie](https://sindresorhus.gumroad.com/l/shortcutie/BLACKFRIDAY2025)
-- [QuickGPT](https://sindresorhus.gumroad.com/l/quickgpt/BLACKFRIDAY2025)
-- [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user/BLACKFRIDAY2025) -->
+
+- [Supercharge](https://sindresorhus.gumroad.com/l/supercharge/BLACKFRIDAY)
+- [Default Browser](https://sindresorhus.gumroad.com/l/default-browser/BLACKFRIDAY)
+- [Shortcutie](https://sindresorhus.gumroad.com/l/shortcutie/BLACKFRIDAY)
+- [QuickGPT](https://sindresorhus.gumroad.com/l/quickgpt/BLACKFRIDAY)
+- [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user/BLACKFRIDAY) -->
 
 <!-- My [paid apps](/apps/paid) (except Dato, Lungo, Aiko, and Supercharge) are 50% off for Black Friday. From now until December 2nd. -->
 
 ## Power user bundle
 
-Get [Default Browser](/default-browser), [Shortcutie](/shortcutie), and [Supercharge](/supercharge) together for 28% off with the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user).
+Get [Default Browser](/default-browser), [Shortcutie](/shortcutie), and [Supercharge](/supercharge) together for 30% off with the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user).
+
+## Lower prices in many countries
+
+On Gumroad, the price is automatically lower in many countries with a lower cost of living ([purchasing power parity](https://gumroad.com/help/article/327-purchasing-power-parity)). It does not add to a discount code: [you get the larger of the two](https://gumroad.com/help/article/128-discount-codes).
 
 ## Students and open source maintainers
 
-*Update: I’m pausing this for now. I get 20–30 emails daily about promo codes and need time to focus on work. I’ll resume sharing promo codes in the future. Thanks for understanding.*
-
-~~If you’re a student or an open source maintainer, you can get any of my [paid apps](/apps/paid) for free. **Max one app per person.**~~
-
-~~[Reach out to me](mailto:sindresorhus@gmail.com?subject=Free%20promo%20code%20for%20%5Bapp%5D&body=Mention%20which%20paid%20apps%20you%20want) to request a free promo code.~~
+*Update: I’m pausing the free promo codes for students and open source maintainers for now. I get 20–30 emails daily about promo codes and need time to focus on work. I’ll resume sharing promo codes in the future. Thanks for understanding.*
 
 ## Student App Centre
 

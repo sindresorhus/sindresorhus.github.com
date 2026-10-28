@@ -17,24 +17,27 @@ struct AppPage: Page {
 	/**
 	With the icon and the screenshots. An unlisted app is left out, as it is not indexed, like it is left out of the app lists, and like an unlisted post.
 	*/
-	var sitemapEntry: SitemapEntry? {
+	var sitemapEntry: SitemapEntry {
 		SitemapEntry(lastModified: app.lastModified, images: [app.iconURL] + app.screenshotURLs)
 	}
 
-	var socialCard: OpenGraphCard? {
-		OpenGraphCard(app: app, project: content.project)
+	var socialImage: SocialImage {
+		.card(OpenGraphCard(app: app, project: content.project))
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(
-			title: "\(app.title): \(app.subtitle)",
+		let title = "\(app.title): \(app.subtitle)"
+
+		return PageMetadata(
+			title: title,
 			description: app.description,
-			socialTitle: app.title,
+			// With the subtitle, as compact link previews, like in Messages, show only the title and the domain, but without the site name, which is already in `og:site_name`.
+			socialTitle: title,
 			// Search engines do not index an unlisted app, like it is not in the sitemap.
 			isIndexed: app.isListed,
 			appStoreID: app.showsAppStoreBanner ? app.appStoreID : nil,
 			favicon: app.iconPath,
-			video: app.media.first { $0.kind == .video },
+			video: app.media.lazy.compactMap(\.video).first,
 			feeds: app.releaseNotes.map { [$0.feed] } ?? []
 		)
 	}
@@ -45,13 +48,13 @@ struct AppPage: Page {
 			article(.id(AppHero.anotherRandomAppID)) {
 				let separatedContent = app.markdown.contentSeparatingIntroduction
 
-				AppHero(app: app, info: appStoreInfo, introduction: separatedContent?.introduction, buildDate: content.buildDate)
+				AppHero(listing: listing, introduction: separatedContent?.introduction, buildDate: content.buildDate)
 
 				// The space below is the space between the parts, so the screenshots are not far from it.
 				if let announcement = app.announcement {
 					AnnouncementBanner(announcement: announcement)
 						.style {
-							$0.margin(.top, .rootEm(4.5))
+							$0.margin(.top, .length(.partSpacing(rootEm: 4.5)))
 						}
 				}
 
@@ -60,29 +63,29 @@ struct AppPage: Page {
 				}
 
 				if !app.pressQuotes.isEmpty {
-					PressQuotes(quotes: app.pressQuotes, showsYears: app.showsPressQuoteYears)
+					PressQuotes(quotes: app.pressQuotes)
 						.style {
 							$0
-								.margin(.top, .rootEm(7))
-								.margin(.bottom, .rootEm(6))
+								.margin(.top, .length(.partSpacing(rootEm: 7)))
+								.margin(.bottom, .length(.partSpacing(rootEm: 6)))
 						}
 				}
 
 				// The reviews come after the description of the app and before its first section, like the trial or the FAQ, so visitors know what the app does before they read what others think of it.
 				let remainder = separatedContent?.remainder ?? app.markdown.content
-				let sections = app.markdown.headings.first { $0.level == 2 }.flatMap { remainder.separated(beforeHeading: $0.id) }
+				let sections = remainder.separatedBeforeFirstSection
 				let description = sections?.before ?? remainder
 
 				if !description.html.allSatisfy(\.isWhitespace) {
 					Prose(markdown: description)
 				}
 
-				// The rating is in the structured data, so it is shown without reviews too.
-				if !reviews.isEmpty || content.rating(of: app) != nil {
+				// The rating of a store is in the structured data, so it is shown without reviews too, and so is a rating on Setapp, which is the only rating of some apps.
+				if let reviews = AppReviews(listing: listing) {
 					// The wall of love only has the reviews of the active apps, so another app, or an app without reviews, has no link to it.
-					AppReviews(reviews: reviews, rating: content.rating(of: app), app: app.isActive && !reviews.isEmpty ? app : nil)
+					reviews
 						.style {
-							$0.margin(.vertical, .rootEm(6))
+							$0.margin(.vertical, .length(.partSpacing(rootEm: 6)))
 						}
 				}
 
@@ -92,24 +95,30 @@ struct AppPage: Page {
 
 				// The end of the page is set apart from the text above it, like the FAQ.
 				if app.isDownloadable {
-					AppCallToAction(app: app, info: appStoreInfo)
+					AppCallToAction(listing: listing)
 						.style {
-							$0.margin(.top, .rootEm(9))
+							$0.margin(.top, .length(.partSpacing(rootEm: 9)))
 						}
 				}
 
-				if !app.isArchived {
-					AppFacts(app: app, info: appStoreInfo)
+				// The box to get the app has the facts, so an app that cannot be downloaded yet shows them alone.
+				if
+					!app.isDownloadable,
+					!app.isArchived
+				{
+					AppFacts(listing: listing)
 						.style {
-							$0.margin(.vertical, .rootEm(9))
+							$0.margin(.vertical, .length(.partSpacing(rootEm: 9)))
 						}
 				}
 
 				// The links about the app belong to the app, so they come before the other apps. An archived app can have none.
-				if !app.pageOverflowLinks.isEmpty {
-					AppFooterLinks(app: app)
+				let footerLinks = AppFooterLinks(app: app, guides: content.guides(about: app))
+
+				if !footerLinks.isEmpty {
+					footerLinks
 						.style {
-							$0.margin(.top, .rootEm(5))
+							$0.margin(.top, .length(.partSpacing(rootEm: 5)))
 						}
 				}
 
@@ -118,7 +127,7 @@ struct AppPage: Page {
 				if !relatedApps.isEmpty {
 					RelatedApps(relatedApps: relatedApps, content: content)
 						.style {
-							$0.margin(.top, .rootEm(8))
+							$0.margin(.top, .length(.partSpacing(rootEm: 8)))
 						}
 				}
 			}
@@ -126,33 +135,15 @@ struct AppPage: Page {
 		}
 		.style(Styles.root)
 
-		JSONScript(schema: structuredData)
+		JSONScript(schema: Schema.SoftwareApplication(listing: listing))
 
 		if let script = app.script {
 			ModuleScript(script)
 		}
 	}
 
-	private var appStoreInfo: AppStoreInfo? {
-		content.appStoreInfo(of: app)
-	}
-
-	/**
-	The four newest reviews, which fill two rows of two, so none is alone in a row. The wall of love has more.
-	*/
-	private var reviews: [AppStoreReview] {
-		Array(content.appStoreReviews(of: app).prefix(4))
-	}
-
-	/**
-	The color of the icon as the accent of the page, for the buttons and the links, also in the header.
-	*/
-	var tint: Color? {
-		app.tint
-	}
-
-	private var structuredData: Schema.SoftwareApplication {
-		Schema.SoftwareApplication(app: app, info: appStoreInfo, reviews: reviews, latestRelease: content.releases(of: app).first, gumroadRating: content.gumroadProduct(of: app)?.rating)
+	private var listing: AppListing {
+		content.listing(of: app)
 	}
 }
 

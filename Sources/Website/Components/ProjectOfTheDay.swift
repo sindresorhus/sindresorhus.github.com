@@ -51,6 +51,60 @@ struct ProjectOfTheDay: ScriptedElement {
 	"""#)
 
 	/**
+	The production project collections, each paired with the route and labels of its discovery card.
+	*/
+	enum Source: CaseIterable {
+		case packages
+		case repositories
+
+		var path: RoutePath {
+			switch self {
+			case .packages:
+				.npmPackages
+			case .repositories:
+				.repositories
+			}
+		}
+
+		var title: String {
+			switch self {
+			case .packages:
+				"Package of the Day"
+			case .repositories:
+				"Repo of the Day"
+			}
+		}
+
+		var randomTitle: String {
+			switch self {
+			case .packages:
+				"Random Package"
+			case .repositories:
+				"Random Repo"
+			}
+		}
+
+		/**
+		The projects published at the source's route and used for its initial daily selection.
+		*/
+		func projects(in content: SiteContent) -> [Project] {
+			switch self {
+			case .packages:
+				content.discoverablePackages
+			case .repositories:
+				content.discoverableRepositories
+			}
+		}
+	}
+
+	/**
+	The daily card of one production collection, sharing the identity of its published JSON file.
+	*/
+	init?(source: Source, content: SiteContent) {
+		self.init(title: source.title, randomTitle: source.randomTitle, listPath: source.path, projects: source.projects(in: content), date: content.buildDate)
+	}
+
+	/**
 	A project that the card can show.
 	*/
 	struct Project: Encodable {
@@ -112,7 +166,7 @@ struct ProjectOfTheDay: ScriptedElement {
 		Data(JSONEncoder.pageJSON(projects).utf8)
 	}
 
-	var config: Config {
+	var config: Config? {
 		Config(listPath: listPath, randomTitle: randomTitle)
 	}
 
@@ -124,7 +178,7 @@ struct ProjectOfTheDay: ScriptedElement {
 			}
 			.style {
 				$0
-					.margin(0)
+					.margin(.zero)
 					.eyebrow()
 			}
 
@@ -164,7 +218,7 @@ struct ProjectOfTheDay: ScriptedElement {
 			}
 			.style {
 				$0
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.body)
 					.color(.bodyText)
 			}
@@ -174,7 +228,7 @@ struct ProjectOfTheDay: ScriptedElement {
 			}
 			.style {
 				$0
-					.margin(top: .rootEm(0.25), horizontal: 0, bottom: 0)
+					.margin(top: .rootEm(0.25), horizontal: .zero, bottom: .zero)
 					.secondaryText()
 			}
 		}
@@ -203,7 +257,7 @@ struct ProjectOfTheDay: ScriptedElement {
 				// A card, with the title and the button above the project. The padding is like the cards of the popular projects.
 				Style()
 					.vstack(alignment: .start, spacing: .rootEm(1))
-					.padding(.rootEm(1.5))
+					.padding(.cardPadding)
 					.cardSurface(isInteractive: false)
 			}
 		}
@@ -220,7 +274,12 @@ extension ProjectOfTheDay.Project {
 			return nil
 		}
 
-		self.init(name: package.name, description: description, detail: downloads, url: package.url)
+		self.init(
+			name: package.name,
+			description: description,
+			detail: downloads,
+			url: package.url
+		)
 	}
 
 	init?(repository: GitHubRepository) {
@@ -228,7 +287,12 @@ extension ProjectOfTheDay.Project {
 			return nil
 		}
 
-		self.init(name: repository.displayName, description: summary, detail: repository.stars.approximateCount(counting: "star"), url: repository.url)
+		self.init(
+			name: repository.displayName,
+			description: summary,
+			detail: repository.stars.approximateCount(counting: "star"),
+			url: repository.url
+		)
 	}
 }
 
@@ -242,7 +306,7 @@ extension SiteContent {
 		let excludedOwners: Set = ["yeoman", "imagemin"]
 		let archivedRepositories = Set((gitHubAccount?.repositories ?? []).filter(\.isArchived).map(\.nameWithOwner))
 
-		return npmStatistics.packages
+		return (npmStatistics.packages ?? [])
 			.filter { package in
 				// The repository is like `yeoman/environment`.
 				guard let repository = package.repository else {
@@ -259,7 +323,7 @@ extension SiteContent {
 	The repos for ``ProjectOfTheDay``: the ones with a description that are not forks or archived. The repos of npm packages are left out, as the packages have their own card, so the repos are the other projects, like Swift packages and lists. Repos for settings, like `.github`, are not projects.
 	*/
 	var discoverableRepositories: [ProjectOfTheDay.Project] {
-		let packageRepositories = Set(npmStatistics.packages.compactMap(\.repository))
+		let packageRepositories = Set((npmStatistics.packages ?? []).compactMap(\.repository))
 
 		return (gitHubAccount?.repositories ?? [])
 			.filter {

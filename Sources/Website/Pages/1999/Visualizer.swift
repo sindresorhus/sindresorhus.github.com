@@ -45,7 +45,12 @@ struct GeoCitiesVisualizer: ScriptedElement {
 			.style(GeoCitiesPage.Styles.titleBar)
 
 			div {
-				canvas(.part(Parts.canvas), .width(320), .height(200), .role("img")) {}
+				canvas(
+					.part(Parts.canvas),
+					.width(320),
+					.height(200),
+					.role("img")
+				) {}
 					.accessibilityLabel("The visualizer")
 					.style(Styles.screen)
 
@@ -101,16 +106,16 @@ struct GeoCitiesVisualizer: ScriptedElement {
 		case status
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A button of a preset, by its ID.
 		*/
-		case preset = "data-visualizer-preset"
+		case preset = "visualizer-preset"
 
 		/**
 		A checkbox of an effect, by its ID.
 		*/
-		case effect = "data-visualizer-effect"
+		case effect = "visualizer-effect"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -135,25 +140,25 @@ struct GeoCitiesVisualizer: ScriptedElement {
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(16.0 / 10.0)
 					.background(.black)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.imageRendering(.pixelated)
 			case .preset:
 				// A small dark button with green text, like the buttons of Winamp, lit while it is the preset.
 				Style()
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-					.background(Color("#29293d"))
-					.border(Color("#5a5a7a"), width: .pixels(2), style: .outset)
+					.background(Color(raw: "#29293d"))
+					.border(Color(raw: "#5a5a7a"), width: .pixels(2), style: .outset)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#00e000"))
+					.color(Color(raw: "#00e000"))
 					.handCursor()
 					.active {
-						$0.border(Color("#5a5a7a"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#5a5a7a"), width: .pixels(2), style: .inset)
 					}
 					.pressed {
 						$0
-							.border(Color("#5a5a7a"), width: .pixels(2), style: .inset)
-							.color(Color("#ffff66"))
+							.border(Color(raw: "#5a5a7a"), width: .pixels(2), style: .inset)
+							.color(Color(raw: "#ffff66"))
 					}
 			case .effect:
 				Style()

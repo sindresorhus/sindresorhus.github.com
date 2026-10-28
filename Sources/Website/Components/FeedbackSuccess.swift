@@ -2,10 +2,10 @@ import Elementary
 import SiteKit
 
 /**
-The message after the feedback is sent. `feedback.js` shows it in place of the form, and then goes to the apps page.
+The message after the feedback is sent. The feedback page shows it in place of the form after a send, and `feedback.js` then goes to the apps page.
 */
 struct FeedbackSuccess: HTML {
-	var body: some HTML {
+	var body: some HTML<HTMLTag.div> {
 		div {
 			div {
 				Icon.check.size(.rootEm(2.5))
@@ -13,13 +13,14 @@ struct FeedbackSuccess: HTML {
 			.style(Styles.icon)
 
 			div {
-				h1 {
+				// Not a second `<h1>`, as the page has the title of the form, which it hides after a send.
+				h2 {
 					"Message sent!"
 				}
 				.style(Styles.title)
 
 				p {
-					"Thanks for reaching out. I read every message and will get back to you soon. When you get my reply, please respond in that email thread instead of sending a new message."
+					"Thanks for reaching out. I read every message and reply within \(Site.supportReplyTime). When you get my reply, please respond in that email thread instead of sending a new message."
 				}
 				.style(Styles.message)
 			}
@@ -45,7 +46,7 @@ struct FeedbackSuccess: HTML {
 				Style()
 					.vstack(alignment: .center, justification: .center, spacing: .rootEm(1.5))
 					.frame(minHeight: .smallViewportHeight(60))
-					.padding(vertical: .rootEm(4), horizontal: 0)
+					.padding(vertical: .rootEm(4), horizontal: .zero)
 					.textAlign(.center)
 			case .icon:
 				Style()
@@ -62,7 +63,7 @@ struct FeedbackSuccess: HTML {
 			case .message:
 				Style()
 					.frame(maxWidth: .rootEm(24))
-					.margin(vertical: 0, horizontal: .auto)
+					.margin(vertical: .zero, horizontal: .auto)
 					.color(.secondaryText)
 			case .redirect:
 				Style().secondaryText()

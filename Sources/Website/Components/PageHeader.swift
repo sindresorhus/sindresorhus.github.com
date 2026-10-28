@@ -61,12 +61,17 @@ extension PageHeader where Intro == StringContent {
 }
 
 /**
-The styles of ``PageHeader``, outside the generic type, so the class names are the same for every introduction.
+The styles of ``PageHeader``, outside the generic type, so the class names are the same for every introduction. ``AppHeader`` uses the title too, so the titles look the same.
 */
-private enum PageHeaderStyles: StyleSet {
+enum PageHeaderStyles: StyleSet {
 	case title
 	case intro
 	case centered
+
+	/**
+	The space between the title and the introduction, also below the `#` title of Markdown pages (``ProseStyles``).
+	*/
+	static let introSpacing = LengthPercentage.rootEm(1)
 
 	var style: Style {
 		switch self {
@@ -74,9 +79,10 @@ private enum PageHeaderStyles: StyleSet {
 			Style()
 				.textStyle(.largeTitle)
 				.color(.primaryText)
+				.breaksLongWords()
 		case .intro:
 			Style()
-				.margin(.top, .rootEm(0.5))
+				.margin(.top, .length(Self.introSpacing))
 				.secondaryText(.lead)
 				.textLinks()
 		case .centered:

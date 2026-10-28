@@ -25,9 +25,9 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 	]
 
 	// The labels of the Pinpointer and the group of the question of MindMaze refer to these IDs.
-	private static let searchID = "geocities-encarta-search"
-	private static let categoryID = "geocities-encarta-category"
-	private static let questionTextID = "geocities-encarta-maze-question-text"
+	private static let searchID = ElementID("geocities-encarta-search")
+	private static let categoryID = ElementID("geocities-encarta-category")
+	private static let questionTextID = ElementID("geocities-encarta-maze-question-text")
 
 	var content: some HTML {
 		MenuBar()
@@ -136,7 +136,14 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					}
 					.style(VisuallyHidden.Styles.root)
 
-					input(.id(GeoCitiesWindowsEncarta.searchID), .part(Parts.search), .type(.search), .placeholder("🔍 Pinpointer: type a word"), .autocomplete("off"), .custom(name: "spellcheck", value: "false"))
+					input(
+						.id(GeoCitiesWindowsEncarta.searchID),
+						.part(Parts.search),
+						.type(.search),
+						.placeholder("🔍 Pinpointer: type a word"),
+						.autocomplete("off"),
+						.spellcheck(false)
+					)
 						.style(GeoCitiesPage.Styles.field)
 
 					div {
@@ -238,7 +245,12 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 				.style(GeoCitiesWindows.Styles.wrapRow)
 
 				figure {
-					canvas(.part(Parts.media), .width(240), .height(150), .role("img")) {}
+					canvas(
+						.part(Parts.media),
+						.width(240),
+						.height(150),
+						.role("img")
+					) {}
 						.style(Styles.mediaCanvas)
 
 					div(.part(Parts.mediaActions)) {}
@@ -377,18 +389,34 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 				.style(GeoCitiesWindows.Styles.wrapRow)
 
 				div {
-					canvas(.part(Parts.mazeScreen), .width(480), .height(236), .tabindex(0), .role("application")) {}
+					canvas(
+						.part(Parts.mazeScreen),
+						.width(480),
+						.height(236),
+						.tabindex(0),
+						.role("application")
+					) {}
 						.accessibilityLabel("MindMaze castle. The Left, Up, and Right arrow keys pick the door on that wall, Down turns around, 1 to 4 answer a question, H asks the jester, T talks, M shows the map, and Escape steps back.")
 						.style(Styles.mazeScreen)
 
-					canvas(.part(Parts.mazeMap), .width(120), .height(120), .role("img")) {}
+					canvas(
+						.part(Parts.mazeMap),
+						.width(120),
+						.height(120),
+						.role("img")
+					) {}
 						.accessibilityLabel("Map of the castle")
 						.style(Styles.mazeMap)
 
 					p(.part(Parts.mazeBalloon), .hidden) {}
 						.style(Styles.balloon)
 
-					div(.part(Parts.mazeQuestion), .hidden, .role("group"), .ariaLabelledBy(GeoCitiesWindowsEncarta.questionTextID)) {
+					div(
+						.part(Parts.mazeQuestion),
+						.hidden,
+						.role("group"),
+						.ariaLabelledBy(GeoCitiesWindowsEncarta.questionTextID)
+					) {
 						p(.part(Parts.mazeAsker)) {}
 							.style(Styles.asker)
 
@@ -520,26 +548,26 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 		case right
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A button of the bar that goes to a place: `home`, `timeline`, or `maze`.
 		*/
-		case go = "data-encarta-go"
+		case go = "encarta-go"
 
 		/**
 		A button that jumps the timeline to an era, by the index of its first event.
 		*/
-		case era = "data-encarta-era"
+		case era = "encarta-era"
 
 		/**
 		A button for a door of the room in MindMaze, by its wall: `left`, `front`, `right`, or `back`.
 		*/
-		case door = "data-encarta-door"
+		case door = "encarta-door"
 
 		/**
 		An answer to the question of a door, by its index.
 		*/
-		case answer = "data-encarta-answer"
+		case answer = "encarta-answer"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -591,9 +619,9 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 		/**
 		The deep blue and the gold of Encarta 99.
 		*/
-		private static let navy = Color("#0b1a4a")
-		private static let gold = Color("#e8c36a")
-		private static let paper = Color("#fffdf3")
+		private static let navy = Color(raw: "#0b1a4a")
+		private static let gold = Color(raw: "#e8c36a")
+		private static let paper = Color(raw: "#fffdf3")
 
 		var style: Style {
 			switch self {
@@ -604,13 +632,13 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					.hstack(alignment: .center, spacing: .rootEm(0.25))
 					.flexWrap()
 					.padding(.rootEm(0.25))
-					.backgroundImage(.linearGradient("to bottom", Color("#2a2a78"), Self.navy))
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#2a2a78"), Self.navy))
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			case .menuButton:
 				// The places of Encarta are gold words on the dark bar, outlined when the pointer is on them, and lit while the visitor is there.
 				Style()
 					.frame(minHeight: .rootEm(2))
-					.padding(vertical: 0, horizontal: .rootEm(0.5))
+					.padding(vertical: .zero, horizontal: .rootEm(0.5))
 					.background(.transparent)
 					.border(.transparent, width: .pixels(1))
 					.fontFamily(.system)
@@ -623,11 +651,11 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					// Sound is sunk in on the bar while it is on.
 					.pressed {
 						$0
-							.background(Color("#3b3b9a"))
+							.background(Color(raw: "#3b3b9a"))
 							.border(Self.gold, width: .pixels(1), style: .inset)
 					}
 					.focusVisible {
-						$0.focusRing(Color("#ffff00"), width: .pixels(2), offset: .pixels(1))
+						$0.focusRing(Color(raw: "#ffff00"), width: .pixels(2), offset: .pixels(1))
 					}
 					.disabled {
 						$0
@@ -636,7 +664,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					}
 					.when(States.current) {
 						$0
-							.background(Color("#3b3b9a"))
+							.background(Color(raw: "#3b3b9a"))
 							.border(Self.gold, width: .pixels(1))
 							.color(.white)
 					}
@@ -645,12 +673,19 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 				Style()
 					.frame(height: .rootEm(20))
 					.overflow(.auto)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			case .splash:
 				Style()
 					.vstack(alignment: .center, justification: .center, spacing: .rootEm(0.375))
 					.padding(.rootEm(0.75))
-					.backgroundImage(.radialGradient("circle at 50% 35%", Color("#4b3c9a"), Color("#1b1458"), Color("#070722")))
+					.backgroundImage(
+						.radialGradient(
+							.circle(at: .init(x: .percent(50), y: .percent(35))),
+							Color(raw: "#4b3c9a"),
+							Color(raw: "#1b1458"),
+							Color(raw: "#070722")
+						)
+					)
 					.color(.white)
 					.textAlign(.center)
 			case .splashMaker:
@@ -684,7 +719,14 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.5))
-					.backgroundImage(.linearGradient("160deg", Color("#1b1458"), Color("#0b1a4a"), Color("#2a1040")))
+					.backgroundImage(
+						.linearGradient(
+							.angle(.degrees(160)),
+							Color(raw: "#1b1458"),
+							Color(raw: "#0b1a4a"),
+							Color(raw: "#2a1040")
+						)
+					)
 					.color(.white)
 			case .pinpointer:
 				// The Pinpointer is a gray panel of Windows over the blue of Encarta.
@@ -693,12 +735,12 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					.flex(1)
 					.padding(.rootEm(0.375))
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+					.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 					.color(.black)
 			case .grow:
 				Style()
 					.flex(1)
-					.frame(minWidth: 0, minHeight: .rootEm(2))
+					.frame(minWidth: .zero, minHeight: .rootEm(2))
 			case .resultsFrame:
 				// The list of articles takes the room that the fact under it leaves, so the fact fits on a computer, and its text fits on a phone. The list is out of the flow in it, so its rows do not make the Pinpointer taller.
 				Style()
@@ -709,20 +751,20 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 				// The list of articles scrolls by itself.
 				Style()
 					.position(.absolute)
-					.top(0)
-					.bottom(0)
-					.leading(0)
-					.trailing(0)
+					.top(.zero)
+					.bottom(.zero)
+					.leading(.zero)
+					.trailing(.zero)
 					.overflow(.auto)
-					.margin(0)
-					.padding(0)
+					.margin(.zero)
+					.padding(.zero)
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			case .result:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
 					.frame(width: .percent(100), minHeight: .rootEm(2))
-					.padding(vertical: 0, horizontal: .rootEm(0.375))
+					.padding(vertical: .zero, horizontal: .rootEm(0.375))
 					.background(.white)
 					.border(.transparent, width: .pixels(1))
 					.fontFamily(.system)
@@ -732,14 +774,14 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					.handCursor()
 					.hover {
 						$0
-							.background(Color("#000080"))
+							.background(Color(raw: "#000080"))
 							.color(.white)
 					}
 					.focusVisible {
 						$0
-							.background(Color("#000080"))
+							.background(Color(raw: "#000080"))
 							.color(.white)
-							.border(Color("#ffff00"), width: .pixels(1), style: .dotted)
+							.border(Color(raw: "#ffff00"), width: .pixels(1), style: .dotted)
 					}
 			case .resultCategory:
 				Style()
@@ -755,8 +797,8 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 				Style()
 					.vstack(alignment: .start, spacing: .rootEm(0.25))
 					.padding(.rootEm(0.5))
-					.background(Color("#fff4b0"))
-					.border(Color("#b08a20"), width: .pixels(1))
+					.background(Color(raw: "#fff4b0"))
+					.border(Color(raw: "#b08a20"), width: .pixels(1))
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.color(.black)
@@ -773,7 +815,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					.textStyle(.caption, weight: .bold)
 					.textCase(.uppercase)
 					.letterSpacing(.em(0.08))
-					.color(Color("#8a6a10"))
+					.color(Color(raw: "#8a6a10"))
 			case .articleTitle:
 				Style()
 					.fontFamily(GeoCitiesPage.times)
@@ -785,17 +827,17 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.25))
 					.frame(width: .percent(100), maxWidth: .rootEm(18))
-					.margin(vertical: 0, horizontal: .auto)
+					.margin(vertical: .zero, horizontal: .auto)
 					.padding(.rootEm(0.375))
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+					.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 			case .mediaCanvas:
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(240.0 / 150.0)
 					.background(.black)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			case .articleBody:
 				Style()
 					.vstack(spacing: .rootEm(0.5))
@@ -805,22 +847,22 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 				// The links of Encarta are blue, underlined words, as big as a finger.
 				Style()
 					.frame(minHeight: .rootEm(2))
-					.padding(vertical: 0, horizontal: .rootEm(0.25))
+					.padding(vertical: .zero, horizontal: .rootEm(0.25))
 					.background(.transparent)
 					.border(.transparent, width: .pixels(1))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#0000cc"))
+					.color(Color(raw: "#0000cc"))
 					.underline()
 					.handCursor()
 					.hover {
-						$0.color(Color("#cc0000"))
+						$0.color(Color(raw: "#cc0000"))
 					}
 			case .timeline:
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.padding(.rootEm(0.5))
-					.backgroundImage(.linearGradient("to bottom", Color("#1b1458"), Self.navy))
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#1b1458"), Self.navy))
 					.color(.white)
 			case .timelineStrip:
 				// The events are in a row that scrolls sideways, like the timeline of Encarta.
@@ -828,12 +870,12 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					.hstack(spacing: .rootEm(0.5))
 					.flexShrink(0)
 					.overflow(horizontal: .auto)
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.5))
-					.background(Color("#0a0a30"))
+					.background(Color(raw: "#0a0a30"))
 					.border(Self.gold, width: .pixels(1))
 					.focusVisible {
-						$0.focusRing(Color("#ffff00"), width: .pixels(2), offset: .pixels(1))
+						$0.focusRing(Color(raw: "#ffff00"), width: .pixels(2), offset: .pixels(1))
 					}
 			case .event:
 				// An event is a card on the strip, and the event the visitor is at is gold.
@@ -843,13 +885,13 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					.flexShrink(0)
 					.padding(.rootEm(0.375))
 					.background(Self.paper)
-					.border(Color("#808080"), width: .pixels(2), style: .outset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .outset)
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.color(.black)
 					.when(States.current) {
 						$0
-							.background(Color("#fff4b0"))
+							.background(Color(raw: "#fff4b0"))
 							.border(Self.gold, width: .pixels(3), style: .solid)
 					}
 			case .eventIcon:
@@ -880,11 +922,11 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(480.0 / 236.0)
 					.background(.black)
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
 					.touchAction(.manipulation)
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#ffff00"), width: .pixels(2), offset: .pixels(1))
+						$0.focusRing(Color(raw: "#ffff00"), width: .pixels(2), offset: .pixels(1))
 					}
 			case .mazeMap:
 				// The map is in the corner of the room, small enough to leave the doors free.
@@ -903,7 +945,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					.top(.rootEm(0.375))
 					.leading(.rootEm(0.375))
 					.frame(maxWidth: .percent(70))
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 					.background(.white)
 					.border(.black, width: .pixels(2))
@@ -920,11 +962,11 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					.trailing(.rootEm(0.375))
 					.bottom(.rootEm(0.375))
 					.vstack(spacing: .rootEm(0.25))
-					.frame(maxHeight: .percent(100) - .rootEm(0.75))
+					.frame(maxHeight: .length(.percent(100) - .rootEm(0.75)))
 					.overflow(.auto)
 					.padding(.rootEm(0.375))
-					.background(Color("#f3e3b5"))
-					.border(Color("#7a5520"), width: .pixels(3), style: .double)
+					.background(Color(raw: "#f3e3b5"))
+					.border(Color(raw: "#7a5520"), width: .pixels(3), style: .double)
 					.color(.black)
 					.below(.smallTablet) {
 						// A phone has too small a room to cover, so the question goes below it.
@@ -936,7 +978,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 				Style()
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#7a3a10"))
+					.color(Color(raw: "#7a3a10"))
 			case .questionText:
 				Style()
 					.fontFamily(GeoCitiesPage.times)
@@ -957,11 +999,11 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					}
 					.when(States.wrong) {
 						$0
-							.background(Color("#ff9999"))
+							.background(Color(raw: "#ff9999"))
 							.opacity(0.8)
 					}
 					.when(States.right) {
-						$0.background(Color("#99ff99"))
+						$0.background(Color(raw: "#99ff99"))
 					}
 			}
 		}

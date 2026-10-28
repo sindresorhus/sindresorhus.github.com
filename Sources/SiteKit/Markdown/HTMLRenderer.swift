@@ -1,6 +1,5 @@
 import Foundation
 import Markdown
-import SOML
 
 /**
 Renders a Markdown tree as HTML, like GitHub-flavored Markdown renderers do.
@@ -22,6 +21,11 @@ struct HTMLRenderer: MarkupWalker {
 	nonisolated(unsafe) private static let footnoteReferencePattern = /\[\^([^\]\s]+)\]/
 
 	/**
+	The start tag of a raw collapsible section, like `<details>` or `<summary class="a">`.
+	*/
+	nonisolated(unsafe) private static let collapsibleSectionTag = /(?i)<(?:details|summary)(?=[\s>\/])/
+
+	/**
 	The popovers of the footnotes and the inline notes, which the document adds at the end, as they can have paragraphs, which a paragraph cannot contain.
 	*/
 	private(set) var popovers = [String]()
@@ -38,6 +42,12 @@ struct HTMLRenderer: MarkupWalker {
 
 	private(set) var problems = [ContentError]()
 	private(set) var links = [MarkdownDocument.Link]()
+
+	/**
+	The top-level blocks of the document with their HTML, in document order, so a page can split the document by its blocks (``MarkdownDocument/blocks``). A group of collapsible sections is one block.
+	*/
+	private(set) var blocks = [MarkdownDocument.Block]()
+
 	private var slugger = HeadingSlugger()
 	private var tableColumnAlignments = [Table.ColumnAlignment?]()
 
@@ -73,16 +83,24 @@ struct HTMLRenderer: MarkupWalker {
 
 	private let origin: Origin
 
+	// A parsed document can keep its file URL; only nodes from a different file are foreign.
+	private let sourceURL: URL?
+
 	init(
 		style: MarkdownDocument.Style,
 		options: MarkdownDocument.Options = .init(),
 		footnoteDefinitions: [String: FootnoteDefinition] = [:],
-		origin: Origin = .document(lineOffset: 0)
+		origin: Origin = .document(lineOffset: 0),
+		sourceURL: URL? = nil
 	) {
+		let directiveNames = options.headingDirectives.map { $0.name }
+		precondition(Set(directiveNames).count == directiveNames.count, "Heading directive registrations must have unique names.")
+
 		self.style = style
 		self.options = options
 		self.footnoteDefinitions = footnoteDefinitions
 		self.origin = origin
+		self.sourceURL = sourceURL
 	}
 
 	/**
@@ -91,10 +109,24 @@ struct HTMLRenderer: MarkupWalker {
 	private func line(of markup: any Markup) -> Int? {
 		switch origin {
 		case .document(let lineOffset):
-			markup.range.flatMap { $0.lowerBound.source == nil ? $0.lowerBound.line + lineOffset : nil }
+			markup.range.flatMap { $0.lowerBound.source == sourceURL ? $0.lowerBound.line + lineOffset : nil }
 		case .inlineNote(let line):
 			line
 		}
+	}
+
+	/**
+	The lines of a directive in the document, from its first line to its last.
+	*/
+	private func lines(of directive: BlockDirective) -> ClosedRange<Int>? {
+		guard
+			let firstLine = line(of: directive),
+			let range = directive.range
+		else {
+			return nil
+		}
+
+		return firstLine...(firstLine + range.upperBound.line - range.lowerBound.line)
 	}
 
 	/**
@@ -119,20 +151,23 @@ struct HTMLRenderer: MarkupWalker {
 			style == .extended,
 			let sections = options.collapsibleSections
 		else {
-			descendInto(document)
+			for block in document.blockChildren {
+				visitTopLevel(block)
+			}
+
 			return
 		}
 
-		let blocks = Array(document.blockChildren)
+		let children = Array(document.blockChildren)
 		var isInSections = sections.startHeadingID == nil
 		var index = 0
 
 		func sectionHeading(at index: Int) -> Markdown.Heading? {
 			guard
 				isInSections,
-				index < blocks.count,
-				let heading = blocks[index] as? Markdown.Heading,
-				heading.level == sections.level
+				index < children.count,
+				let heading = children[index] as? Markdown.Heading,
+				heading.level == sections.level.rawValue
 			else {
 				return nil
 			}
@@ -140,18 +175,18 @@ struct HTMLRenderer: MarkupWalker {
 			return heading
 		}
 
-		while index < blocks.count {
+		while index < children.count {
 			guard sectionHeading(at: index) != nil else {
-				visit(blocks[index])
+				visitTopLevel(children[index])
 
 				// When the sections follow a heading, they start after it, and end at the next heading with a lower level.
 				if
-					let heading = blocks[index] as? Markdown.Heading,
+					let heading = children[index] as? Markdown.Heading,
 					let startHeadingID = sections.startHeadingID
 				{
 					if headings.last?.id == startHeadingID {
 						isInSections = true
-					} else if heading.level < sections.level {
+					} else if heading.level < sections.level.rawValue {
 						isInSections = false
 					}
 				}
@@ -161,20 +196,58 @@ struct HTMLRenderer: MarkupWalker {
 			}
 
 			// The sections up to the next heading with a lower level are one group. Each section ends at the next heading with its level or a lower one.
-			html += "<div\(theme.classAttribute(.collapsibleSections))>\n"
+			let groupHTML = capturingHTML { renderer in
+				renderer.html += "<div\(renderer.theme.classAttribute(.collapsibleSections))>\n"
 
-			while let heading = sectionHeading(at: index) {
-				let end = blocks[(index + 1)...].firstIndex { ($0 as? Markdown.Heading).map { $0.level <= sections.level } ?? false } ?? blocks.count
-				renderCollapsibleSection(heading, content: blocks[(index + 1)..<end], name: sections.name)
-				index = end
+				while let heading = sectionHeading(at: index) {
+					let end = children[(index + 1)...].firstIndex { ($0 as? Markdown.Heading).map { $0.level <= sections.level.rawValue } ?? false } ?? children.count
+					renderer.renderCollapsibleSection(heading, content: children[(index + 1)..<end], name: sections.name)
+					index = end
+				}
+
+				if let moreLink = sections.moreLink {
+					renderer.html += renderer.theme.collapsibleMoreLink(moreLink) + "\n"
+				}
+
+				renderer.html += "</div>\n"
 			}
 
-			if let moreLink = sections.moreLink {
-				html += theme.collapsibleMoreLink(moreLink) + "\n"
-			}
-
-			html += "</div>\n"
+			html += groupHTML
+			blocks.append(.other(groupHTML))
 		}
+	}
+
+	/**
+	Renders a top-level block, and records it with its HTML (``blocks``).
+	*/
+	private mutating func visitTopLevel(_ block: any BlockMarkup) {
+		if let paragraph = block as? Paragraph {
+			let inlineHTML = capturingHTML { $0.renderParagraphContent(paragraph) }
+			let attributes = isBoldLabel(paragraph) ? theme.classAttribute(.boldLabel) : ""
+			let rendered = MarkdownDocument.Block.paragraph(inlineHTML: inlineHTML, attributes: attributes)
+			html += rendered.html
+			blocks.append(rendered)
+			return
+		}
+
+		let blockHTML = capturingHTML {
+			$0.visit(block)
+		}
+
+		html += blockHTML
+
+		let rendered: MarkdownDocument.Block = switch block {
+		case is Markdown.Heading:
+			headings.last.map { .heading(level: $0.level, id: $0.id, html: blockHTML) } ?? .other(blockHTML)
+		case let directive as BlockDirective:
+			.directive(name: directive.name, lines: lines(of: directive), html: blockHTML)
+		case is HTMLBlock:
+			.html(blockHTML)
+		default:
+			.other(blockHTML)
+		}
+
+		blocks.append(rendered)
 	}
 
 	/**
@@ -189,9 +262,9 @@ struct HTMLRenderer: MarkupWalker {
 		}
 
 		let titleHTML = capturingHTML {
-			$0.linkDepth += 1
-			$0.renderInlineChildren(of: heading, removingCustomID: true)
-			$0.linkDepth -= 1
+			$0.renderingInsideLink {
+				$0.renderInlineChildren(of: heading, removingCustomID: true)
+			}
 		}
 
 		let contentHTML = capturingHTML { renderer in
@@ -200,7 +273,13 @@ struct HTMLRenderer: MarkupWalker {
 			}
 		}
 
-		let section = theme.collapsibleSection(id: recorded.id, name: name, headingLevel: heading.level, titleHTML: titleHTML, contentHTML: "\n" + contentHTML)
+		let section = theme.collapsibleSection(
+			id: recorded.id,
+			name: name,
+			headingLevel: recorded.level,
+			titleHTML: titleHTML,
+			contentHTML: "\n" + contentHTML
+		)
 
 		guard options.addsHeadingAnchors else {
 			html += section + "\n"
@@ -212,9 +291,11 @@ struct HTMLRenderer: MarkupWalker {
 
 	mutating func visitHeading(_ heading: Markdown.Heading) {
 		guard style == .extended else {
-			html += "<h\(heading.level)>"
+			// Release notes are below the heading of their version (`<h2>`), so the page has one `<h1>`, and a heading is not at the level of the versions.
+			let level = min(heading.level + 2, 6)
+			html += "<h\(level)>"
 			renderInlineChildren(of: heading)
-			html += "</h\(heading.level)>\n"
+			html += "</h\(level)>\n"
 			return
 		}
 
@@ -222,7 +303,7 @@ struct HTMLRenderer: MarkupWalker {
 		let hasAnchor = options.addsHeadingAnchors && (2...4).contains(heading.level)
 		// The link is inside the heading, so the heading is named by its text, as the name of the link would otherwise be part of the name of the heading, like “Tips Copy link to section: Tips”.
 		let attributes = hasAnchor ? #"\#(theme.classAttribute(.anchoredHeading)) aria-label="\#(recorded.text.escapedForHTML)""# : ""
-		html += #"<h\#(heading.level) id="\#(recorded.id.escapedForHTML)"\#(attributes)>"#
+		html += #"<h\#(heading.level) id="\#(recorded.id.rawValue.escapedForHTML)"\#(attributes)>"#
 		renderInlineChildren(of: heading, removingCustomID: true)
 
 		if hasAnchor {
@@ -236,14 +317,50 @@ struct HTMLRenderer: MarkupWalker {
 	Adds the heading to the list of headings and returns it. Its ID is the custom ID (`{#id}`), or a slug of the text. An ID that another heading already has is a problem, like a custom ID that is the slug of another heading. The slugs do not change to avoid it, so the URLs of the sections keep working.
 	*/
 	private mutating func recordHeading(_ heading: Markdown.Heading) -> Heading {
-		let (text, customID) = heading.plainTextAndCustomID
-		let id = customID ?? slugger.slug(for: text)
+		let (text, parsedCustomID) = heading.titleAndCustomID
+		var customID: String?
 
-		if headings.contains(where: { $0.id == id }) {
-			reportProblem("The heading ID `\(id)` is already the ID of another heading, so links to it are ambiguous. Give one of the headings another custom ID, like `{#\(id)-2}`.", line: line(of: heading))
+		switch parsedCustomID {
+		case .valid(let id):
+			customID = id
+		case .invalid(let invalidID):
+			if invalidID.isEmpty {
+				let slug = HeadingSlugger.slug(text)
+				reportProblem("The custom ID `{#}` is empty\(slug.isEmpty ? "" : ". Write it like `{#\(slug)}`").", line: line(of: heading))
+			} else {
+				// Whitespace around the ID is a typo, like `{#a-question }`, so the suggestion is the ID that the author meant, not one with a hyphen at the end, which would break the links to it.
+				let slug = HeadingSlugger.slug(invalidID.trimmingCharacters(in: .whitespaces))
+				reportProblem("The custom ID `\(invalidID)` can only have letters, digits, underscores, and hyphens\(slug.isEmpty ? "" : ", like `{#\(slug)}`").", line: line(of: heading))
+			}
+		case nil:
+			break
 		}
 
-		let recorded = Heading(level: heading.level, text: text, id: id, line: line(of: heading))
+		let id = ElementID(customID ?? slugger.slug(for: text))
+
+		// The error names both headings. A heading that the build adds, like a shared question, has no line, so the error is then at the other heading, which is the one to change.
+		if let other = headings.first(where: { $0.id == id }) {
+			if
+				line(of: heading) == nil,
+				let otherLine = other.line
+			{
+				reportProblem("The heading ID `\(id)` is also the ID of “\(text)”, which the build adds to the page, like a shared question, so links to it are ambiguous. Give this heading another custom ID, like `{#\(id)-2}`.", line: otherLine)
+			} else {
+				let otherPlace = other.line.map { " at line \($0)" } ?? ""
+				reportProblem("The heading ID `\(id)` is already the ID of “\(other.text)”\(otherPlace), so links to it are ambiguous. Give one of the headings another custom ID, like `{#\(id)-2}`.", line: line(of: heading))
+			}
+		}
+
+		guard let level = HeadingLevel(rawValue: heading.level) else {
+			preconditionFailure("A Markdown heading must have a level from 1 through 6, got \(heading.level).")
+		}
+
+		let recorded = Heading(
+			level: level,
+			text: text,
+			identity: customID == nil ? .generated(id) : .authored(id),
+			line: line(of: heading)
+		)
 		headings.append(recorded)
 		return recorded
 	}
@@ -254,7 +371,7 @@ struct HTMLRenderer: MarkupWalker {
 			let listItem = paragraph.parent as? ListItem,
 			listItem.isInTightList
 		else {
-			let isLabel = style == .extended && paragraph.parent is ListItem == false && paragraph.childCount == 1 && paragraph.child(at: 0) is Strong
+			let isLabel = isBoldLabel(paragraph)
 			html += isLabel ? "<p\(theme.classAttribute(.boldLabel))>" : "<p>"
 			renderParagraphContent(paragraph)
 			html += "</p>\n"
@@ -269,9 +386,23 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	/**
+	Whether a paragraph is a standalone bold label rather than prose.
+	*/
+	private func isBoldLabel(_ paragraph: Paragraph) -> Bool {
+		style == .extended && paragraph.parent is ListItem == false && paragraph.childCount == 1 && paragraph.child(at: 0) is Strong
+	}
+
+	/**
 	Renders the inline content. In a list item, a line that starts with `: ` is a subtitle, and a line that starts with `:: ` is a description.
 	*/
 	private mutating func renderParagraphContent(_ paragraph: Paragraph) {
+		if
+			style == .extended,
+			paragraph.isTableWithoutDelimiterRow
+		{
+			reportProblem("The table has no delimiter row below its header, like `| --- | --- |`, so the page shows the pipes.", line: line(of: paragraph))
+		}
+
 		guard
 			style == .extended,
 			paragraph.parent is ListItem
@@ -348,8 +479,12 @@ struct HTMLRenderer: MarkupWalker {
 		let language = codeBlock.language?.split(whereSeparator: \.isWhitespace).first.map(String.init)
 
 		if let render = options.codeBlock {
-			html += render(codeBlock.code, language) + "\n"
-			return
+			do {
+				html += try render(codeBlock.code, language) + "\n"
+				return
+			} catch {
+				reportProblem("The code block is invalid: \(error.reason)", line: line(of: codeBlock))
+			}
 		}
 
 		let languageClass = language.map { #" class="language-\#($0.escapedForHTML)""# } ?? ""
@@ -374,6 +509,8 @@ struct HTMLRenderer: MarkupWalker {
 		guard !rawHTML.allSatisfy(\.isWhitespace) else {
 			return
 		}
+
+		reportRawCollapsibleSection(in: rawHTML, line: line(of: htmlBlock))
 
 		// The `<kbd>` elements of raw HTML are split into keys too. Like the HTML, they are not parsed, so a regex finds them.
 		if style == .extended {
@@ -582,17 +719,25 @@ struct HTMLRenderer: MarkupWalker {
 	- Parameter line: The line of the text, for the problems of its keyboard shortcuts.
 	*/
 	private mutating func renderText(_ text: Substring, line: Int? = nil) {
-		// Keyboard shortcuts written as `++Cmd+K++` become one `<kbd>` per key.
+		// Keyboard shortcuts written as `++Command+K++` become one `<kbd>` per key.
 		guard style == .extended else {
 			renderPlainText(text)
 			return
 		}
 
 		for part in text.keyboardShortcutParts {
-			if part.isShortcut {
-				html += keyboardShortcutHTML(String(part.text), line: line)
-			} else {
-				renderPlainText(part.text)
+			switch part {
+			case .text(let text):
+				// The page would show the plus signs.
+				if text.hasUnclosedKeyboardShortcut {
+					reportProblem("The text has a `++` without its closing `++`, so the page shows the plus signs. Write a keyboard shortcut like `++Command+N++`.", line: line)
+				}
+
+				renderPlainText(text)
+			case .shortcut(let text, let punctuation):
+				// The closing punctuation right after a shortcut is rendered with the shortcut, so it stays on its line.
+				reportWrongKeyNames(in: String(text), line: line)
+				html += keyboardShortcutHTML(String(text), punctuation: punctuation, line: line)
 			}
 		}
 	}
@@ -615,7 +760,12 @@ struct HTMLRenderer: MarkupWalker {
 
 		if footnoteNumbers[id] == nil {
 			footnoteNumbers[id] = number
-			addPopover(id: popoverID, element: .footnotePopover, content: definition.children, origin: origin)
+			addPopover(
+				id: popoverID,
+				element: .footnotePopover,
+				content: definition.children,
+				origin: origin
+			)
 		}
 
 		return theme.footnoteReference(number: number, popoverID: popoverID)
@@ -624,20 +774,20 @@ struct HTMLRenderer: MarkupWalker {
 	/**
 	The ID of the popover with a footnote. The numbers of a document are unique, so the ID is from the number, like `user-content-fn-1`, which is the ID of GitHub without the name of the footnote. Limitation: two documents on one page with footnotes give their first footnotes the same ID.
 	*/
-	private static func footnotePopoverID(number: Int) -> String {
-		"user-content-fn-\(number)"
+	private static func footnotePopoverID(number: Int) -> ElementID {
+		ElementID("user-content-fn-\(number)")
 	}
 
 	/**
 	Adds a popover at the end of the document with Markdown inside the document, like the definition of a footnote or an inline note. It renders with the options for nested Markdown (``MarkdownDocument/Options/forNestedMarkdown``), and its problems, links, and popovers are those of the document. A heading in it is a problem, as its ID could be the same as another ID of the page.
 	*/
 	private mutating func addPopover(
-		id: String,
+		id: ElementID,
 		element: MarkdownElement,
 		content: some Sequence<any Markup>,
 		origin: Origin
 	) {
-		var renderer = HTMLRenderer(style: style, options: options.forNestedMarkdown, origin: origin)
+		var renderer = HTMLRenderer(style: style, options: options.forNestedMarkdown, origin: origin, sourceURL: sourceURL)
 
 		for block in content {
 			renderer.visit(block)
@@ -693,9 +843,9 @@ struct HTMLRenderer: MarkupWalker {
 
 		let title = link.title.map { #" title="\#($0.escapedForHTML)""# } ?? ""
 		html += #"<a href="\#(resolvedDestination(destination, of: link).escapedForHTML)"\#(title)>"#
-		linkDepth += 1
-		descendInto(link)
-		linkDepth -= 1
+		renderingInsideLink {
+			$0.descendInto(link)
+		}
 		html += "</a>"
 	}
 
@@ -734,12 +884,7 @@ struct HTMLRenderer: MarkupWalker {
 			!destination.isSafeReleaseNotesDestination(isImage: markup is Image)
 		{
 			resolved = ""
-		}
-
-		if
-			style == .extended,
-			let resolveLink = options.resolveLink
-		{
+		} else if let resolveLink = options.resolveLink {
 			do {
 				resolved = try resolveLink(destination)
 			} catch {
@@ -747,39 +892,57 @@ struct HTMLRenderer: MarkupWalker {
 			}
 		}
 
-		links.append(MarkdownDocument.Link(destination: resolved, line: line(of: markup)))
+		if
+			let otherFile = markup.range?.lowerBound.source,
+			otherFile != sourceURL
+		{
+			links.append(MarkdownDocument.Link(destination: resolved, source: .file(otherFile, line: markup.range?.lowerBound.line)))
+		} else {
+			links.append(MarkdownDocument.Link(destination: resolved, source: .document(line: line(of: markup))))
+		}
 		return resolved
 	}
 
 	mutating func visitInlineAttributes(_ attributes: InlineAttributes) {
-		// An inline note is part of the extended style. Other attributes are for the renderer of the options.
-		if
-			style == .extended,
-			let value = try? SOML.Value(parsing: "{\(attributes.attributes)}"),
-			value["note"] != nil
-		{
-			renderInlineNote(attributes, value: value)
+		// Release notes have no inline attributes, so the text is only its content.
+		guard style == .extended else {
+			descendInto(attributes)
 			return
 		}
 
-		let contentHTML = capturingHTML {
-			$0.descendInto(attributes)
-		}
-
-		guard
-			style == .extended,
-			let renderer = options.inlineAttributes
-		else {
-			html += contentHTML
-			return
-		}
+		let parsed: InlineAttributes.Parsed
 
 		do {
-			html += try renderer.render(attributes.attributes, contentHTML)
+			parsed = try attributes.parsed
 		} catch {
-			reportProblem("The inline attributes `\(attributes.attributes)` are invalid: \(error)", line: line(of: attributes))
-			html += contentHTML
+			reportInvalidAttributes(attributes, error: error)
+			descendInto(attributes)
+			return
 		}
+
+		switch parsed {
+		// An inline note is part of the extended style. Other attributes are for the renderer of the options.
+		case .note(let note):
+			renderInlineNote(attributes, note: note)
+		case .attributes(let value):
+			let contentHTML = capturingHTML {
+				$0.descendInto(attributes)
+			}
+
+			do {
+				html += try options.inlineAttributes?.render(value, contentHTML) ?? contentHTML
+			} catch {
+				reportInvalidAttributes(attributes, error: error)
+				html += contentHTML
+			}
+		}
+	}
+
+	/**
+	Reports inline attributes that cannot be parsed or decoded, like a missing quote or an unknown key, with the error, which says what is wrong.
+	*/
+	private mutating func reportInvalidAttributes(_ attributes: InlineAttributes, error: any Error) {
+		reportProblem("The inline attributes `\(attributes.attributes)` are invalid: \(error)", line: line(of: attributes))
 	}
 
 	/**
@@ -787,82 +950,113 @@ struct HTMLRenderer: MarkupWalker {
 
 	Limitations: a note in a short text that is shown inline, like a frontmatter field, is not supported, as its popover is not inline HTML (``MarkdownDocument/inlineHTML``). A note cannot have headings, footnotes, or other notes, as their IDs could be the same as other IDs of the page, so they are problems.
 	*/
-	private mutating func renderInlineNote(_ attributes: InlineAttributes, value: SOML.Value) {
+	private mutating func renderInlineNote(_ attributes: InlineAttributes, note: String) {
 		// The text opens the note, so its links are only text, like in the heading of a collapsible section.
 		let contentHTML = capturingHTML {
-			$0.linkDepth += 1
-			$0.descendInto(attributes)
-			$0.linkDepth -= 1
+			$0.renderingInsideLink {
+				$0.descendInto(attributes)
+			}
 		}
 
-		guard let note = noteMarkdown(of: attributes, value: value) else {
+		guard canHaveNote(attributes) else {
 			html += contentHTML
 			return
 		}
 
 		// The ID is from the place of the note in the file, so it is the same in each build. Limitation: two documents on one page with a note at the same line and column give their notes the same ID.
 		let noteLine = line(of: attributes)
-		let id = "user-content-note-\(noteLine ?? 0)-\(attributes.range?.lowerBound.column ?? 0)"
+		let id = ElementID("user-content-note-\(noteLine ?? 0)-\(attributes.range?.lowerBound.column ?? 0)")
 
 		html += options.inlineNote?(contentHTML, id) ?? theme.inlineNote(textHTML: contentHTML, popoverID: id)
 
 		let noteDocument = Document(parsing: note, convertOptions: ConvertOptions(style: style, options: options))
-		addPopover(id: id, element: .inlineNotePopover, content: noteDocument.children, origin: .inlineNote(line: noteLine))
+		addPopover(
+			id: id,
+			element: .inlineNotePopover,
+			content: noteDocument.children,
+			origin: .inlineNote(line: noteLine)
+		)
 	}
 
 	/**
-	The Markdown of an inline note, or `nil` when the note cannot be here, or its attributes are invalid, which are problems. A link in the text of the note is only a problem, as the note still opens.
+	Whether the inline note can be here, which is a problem when it cannot. A link in the text of the note is only a problem, as the note still opens.
 	*/
-	private mutating func noteMarkdown(of attributes: InlineAttributes, value: SOML.Value) -> String? {
+	private mutating func canHaveNote(_ attributes: InlineAttributes) -> Bool {
 		guard linkDepth == 0 else {
 			reportProblem("The note is inside a link, the heading of a collapsible section, or the text of another note, which cannot contain the text that opens it. Put it after the link or the note, or in the text below the heading.", line: line(of: attributes))
-			return nil
+			return false
 		}
 
 		guard !isInlineNote else {
 			reportProblem("A note cannot have another note, as their IDs could be the same. Put its text in the note.", line: line(of: attributes))
-			return nil
+			return false
 		}
 
 		if attributes.containsLink {
 			reportProblem("The text of a note cannot have a link, as it opens the note. Put the link in the note.", line: line(of: attributes))
 		}
 
-		do {
-			return try InlineNoteAttributes.decode(from: value, root: "attributes").note
-		} catch {
-			reportProblem("The inline attributes `\(attributes.attributes)` are invalid: \(error)", line: line(of: attributes))
-			return nil
-		}
+		return true
 	}
 
 	mutating func visitBlockDirective(_ blockDirective: BlockDirective) {
-		let contentHTML = capturingHTML {
-			$0.descendInto(blockDirective)
-		}
-
 		guard let renderer = options.blockDirectives[blockDirective.name] else {
 			reportProblem("Unknown block directive `@\(blockDirective.name)`. Known directives: \(options.blockDirectives.keys.sorted().lazy.map { "`@\($0)`" }.joined(separator: ", ")).", line: line(of: blockDirective))
-			html += contentHTML
+			descendInto(blockDirective)
 			return
 		}
 
-		var parseErrors = [DirectiveArgumentText.ParseError]()
-		let arguments = blockDirective.argumentText.parseNameValueArguments(parseErrors: &parseErrors)
+		// A problem with the arguments or the content makes the directive only its content.
+		let arguments: [DirectiveArgument]
 
-		// One mistake, like a missing quote, gives several parse errors and arguments that are read wrong, so only the first error is reported, and the directive is only its content.
-		if let parseError = parseErrors.first {
-			reportProblem("The arguments of `@\(blockDirective.name)` are invalid: \(parseError.message). Write them like `name: \"Value\"`, with a comma between them.", line: line(of: blockDirective))
-			html += contentHTML
+		do {
+			arguments = try blockDirective.parsedArguments()
+		} catch {
+			reportProblem(error.reason, line: line(of: blockDirective))
+			descendInto(blockDirective)
 			return
+		}
+
+		if let mistake = blockDirective.contentMistake(for: renderer.content) {
+			reportProblem("`@\(blockDirective.name)` \(mistake)", line: line(of: blockDirective))
+			descendInto(blockDirective)
+			return
+		}
+
+		let content: [any BlockMarkup]
+
+		do {
+			content = try renderer.rewriteContent?(Array(blockDirective.blockChildren)) ?? Array(blockDirective.blockChildren)
+		} catch {
+			reportProblem("`@\(blockDirective.name)`: \(error)", line: line(of: blockDirective))
+			descendInto(blockDirective)
+			return
+		}
+
+		let contentHTML = capturingHTML { renderer in
+			for block in content {
+				renderer.visit(block)
+			}
 		}
 
 		do {
-			html += try renderer.render(arguments, contentHTML) + "\n"
+			html += try renderer.render(arguments, contentHTML, .init(documentOptions: options)) + "\n"
 		} catch {
 			reportProblem("`@\(blockDirective.name)`: \(error)", line: line(of: blockDirective))
 			html += contentHTML
 		}
+	}
+
+	/**
+	Renders content whose links must be plain text, restoring the enclosing link depth afterward.
+	*/
+	private mutating func renderingInsideLink(_ render: (inout Self) -> Void) {
+		linkDepth += 1
+		defer {
+			linkDepth -= 1
+		}
+
+		render(&self)
 	}
 
 	/**
@@ -878,21 +1072,47 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	/**
-	A keyboard shortcut, like `Cmd+K`, as one `<kbd>` per key. Smart punctuation changed keys like quotes, but a key is the character on the keyboard.
-
-	The modifiers must be in the order of Apple: Control, Option, Shift, Command, like in the menus of macOS, so a shortcut on a page looks like the one in the app. Another order is a problem.
+	The keys of a shortcut written as `++Command+K++` must have their names on the keyboard of a Mac, so all the shortcuts of the site look the same: not a glyph, like `⌘`, an abbreviation, like `Cmd`, or a lowercase name, like `command` or `k`. Keys without a name are fine as glyphs, like `⌫` and `◀`. A raw `<kbd>` is not checked, as `website check` already asks to rewrite it as a shortcut.
 	*/
-	private mutating func keyboardShortcutHTML(_ shortcut: String, line: Int?) -> String {
-		let keys = shortcut.removingSmartPunctuation.keyboardKeys
-		let modifierOrder = ["Control", "Option", "Shift", "Command"]
-		let modifiers = keys.filter(modifierOrder.contains)
-		let orderedModifiers = modifierOrder.filter(modifiers.contains)
+	private mutating func reportWrongKeyNames(in shortcut: String, line: Int?) {
+		for key in KeyboardKey.keys(of: shortcut) {
+			if let mistake = key.mistake(in: shortcut) {
+				reportProblem(mistake, line: line)
+			}
+		}
+	}
 
-		if modifiers != orderedModifiers {
-			reportProblem("The modifiers of the keyboard shortcut `\(shortcut)` must be in the order of Apple: \(orderedModifiers.joined(separator: ", ")), like `\((orderedModifiers + keys.filter { !modifierOrder.contains($0) }).joined(separator: "+"))`.", line: line)
+	/**
+	Raw `<details>` and `<summary>` do not get the look of the collapsible sections of the site, so they are a problem when the options have a `Details` block directive.
+	*/
+	private mutating func reportRawCollapsibleSection(in rawHTML: String, line: Int?) {
+		guard
+			style == .extended,
+			options.blockDirectives["Details"] != nil,
+			rawHTML.contains(Self.collapsibleSectionTag)
+		else {
+			return
 		}
 
-		return theme.keyboardShortcut(keysHTML: keys.map(\.escapedForHTML))
+		reportProblem("Write a collapsible section with `@Details(summary: \"…\") { … }`, not with raw `<details>` and `<summary>`, so it has the look of the site.", line: line)
+	}
+
+	/**
+	A keyboard shortcut, like `Command+K`, as one `<kbd>` per key (``KeyboardKey``).
+
+	The modifiers must be in the order of Apple (``KeyboardKey/Modifier``), like in the menus of macOS, so a shortcut on a page looks like the one in the app. Another order is a problem.
+	*/
+	private mutating func keyboardShortcutHTML(_ shortcut: String, punctuation: Substring = "", line: Int?) -> String {
+		let keys = KeyboardKey.keys(of: shortcut)
+		let modifiers = keys.compactMap(\.modifier)
+		let orderedKeys = keys.inAppleOrder
+		let orderedModifiers = orderedKeys.compactMap(\.modifier)
+
+		if modifiers != orderedModifiers {
+			reportProblem("The modifiers of the keyboard shortcut `\(shortcut)` must be in the order of Apple: \(orderedModifiers.map(\.rawValue).joined(separator: ", ")), like `\(orderedKeys.map(\.name).joined(separator: "+"))`.", line: line)
+		}
+
+		return theme.keyboardShortcut(keys, punctuation: punctuation)
 	}
 
 	mutating func visitInlineHTML(_ inlineHTML: InlineHTML) {
@@ -927,6 +1147,9 @@ struct HTMLRenderer: MarkupWalker {
 
 			return
 		}
+
+		// After the comments, as a comment inside a line, like `<!-- <details> -->`, is one node.
+		reportRawCollapsibleSection(in: rawHTML, line: line(of: inlineHTML))
 
 		// Release notes keep only keyboard keys, like `<kbd>Delete</kbd>`.
 		html += style == .releaseNotes && !["<kbd>", "</kbd>"].contains(rawHTML) ? rawHTML.escapedForHTML : rawHTML
@@ -969,13 +1192,13 @@ struct HTMLRenderer: MarkupWalker {
 	Adds the values of the directive comments in the block to the heading above it. Unknown directives, invalid values, and directives that are not directly below a heading are problems.
 	*/
 	private mutating func readDirectives(in htmlBlock: HTMLBlock) {
-		let comments = htmlBlock.directiveComments
+		let (comments, isOnlyDirectives) = htmlBlock.parsedDirectiveComments
 
 		guard comments.contains(where: { $0 != nil }) else {
 			return
 		}
 
-		let isBelowHeading = htmlBlock.isOnlyDirectives && htmlBlock.followsHeading && !headings.isEmpty
+		let isBelowHeading = isOnlyDirectives && htmlBlock.followsHeading && !headings.isEmpty
 		let firstLine = line(of: htmlBlock)
 
 		for (index, comment) in comments.enumerated() {
@@ -997,13 +1220,19 @@ struct HTMLRenderer: MarkupWalker {
 			}
 
 			// A second directive with the name would replace the values of the first, like keywords on two lines.
-			guard headings[headings.count - 1].directives[comment.name] == nil else {
+			guard !headings[headings.count - 1].contains(directive) else {
 				reportProblem("The heading already has `@\(comment.name)`. Put all its values in one directive.", line: line)
 				continue
 			}
 
+			// An empty directive is a leftover or a lost edit, which reads as if the heading has values.
+			guard directive.isFlag || !comment.values.isEmpty else {
+				reportProblem("`@\(comment.name)` needs at least one value.", line: line)
+				continue
+			}
+
 			do {
-				headings[headings.count - 1].directives[comment.name] = try directive.decode(comment.values)
+				try headings[headings.count - 1].setDirective(directive, values: comment.values)
 			} catch {
 				reportProblem("The values of `@\(comment.name)` are invalid: \((error as? DecodingError)?.reason ?? "\(error)")", line: line)
 			}
@@ -1031,11 +1260,72 @@ struct HTMLRenderer: MarkupWalker {
 	}
 }
 
+/**
+The level of a heading, from the page title (`h1`) to the deepest subheading (`h6`). Levels from the Markdown parser are checked when recorded.
+*/
+public enum HeadingLevel: Int, CaseIterable, Comparable, Sendable {
+	case h1 = 1
+	case h2
+	case h3
+	case h4
+	case h5
+	case h6
+
+	public static func < (lhs: Self, rhs: Self) -> Bool {
+		lhs.rawValue < rhs.rawValue
+	}
+}
+
 extension Markdown.Heading {
 	/**
-	The plain text and the ID from a trailing `{#custom-id}`.
+	A heading with a custom ID, like `## Install {#install}`, for a heading that code adds. The ID is in the last text of the heading, where the renderer reads it.
 	*/
-	fileprivate var plainTextAndCustomID: (text: String, id: String?) {
+	public init(level: HeadingLevel, _ title: String, id: String) {
+		self.init(level: level.rawValue)
+		setTitle(title, id: id)
+	}
+
+	/**
+	Replaces the text of the heading with the title and a custom ID, like ``init(level:_:id:)``. The heading keeps its place in the file, like its line.
+	*/
+	public mutating func setTitle(_ title: String, id: String) {
+		setInlineChildren([Text("\(title) {#\(id)}")])
+	}
+
+	/**
+	The plain text of the heading without its custom ID, like `Install` for `## Install {#install}`.
+	*/
+	public var title: String {
+		titleAndCustomID.title
+	}
+
+	/**
+	The custom ID of the heading, like `install` for `## Install {#install}`. `nil` when the heading has none, or an invalid one, which rendering reports.
+	*/
+	public var customID: String? {
+		guard case .valid(let id) = titleAndCustomID.customID else {
+			return nil
+		}
+
+		return id
+	}
+
+	/**
+	The trailing `{#custom-id}` of a heading.
+	*/
+	fileprivate enum CustomID {
+		case valid(String)
+
+		/**
+		The text between the braces of an ID that is not valid, like `with gifski` for `{#with gifski}`.
+		*/
+		case invalid(String)
+	}
+
+	/**
+	The plain text and the trailing `{#custom-id}`, or `nil` for a heading without one.
+	*/
+	fileprivate var titleAndCustomID: (title: String, customID: CustomID?) {
 		let text = plainText(includingImageDescriptions: false)
 
 		// Only in text, like when rendering, as code like `` `{#id}` `` is shown as written.
@@ -1047,7 +1337,14 @@ extension Markdown.Heading {
 			return (text.trimmingCharacters(in: .whitespaces), nil)
 		}
 
-		return (String(text[..<match.range.lowerBound]).trimmingCharacters(in: .whitespaces), String(match.1).removingSmartPunctuation)
+		let title = String(text[..<match.range.lowerBound]).trimmingCharacters(in: .whitespaces)
+		let id = match.1
+
+		guard id.wholeMatch(of: String.customHeadingIDCharacters) != nil else {
+			return (title, .invalid(String(id)))
+		}
+
+		return (title, .valid(String(id).removingSmartPunctuation))
 	}
 }
 
@@ -1074,9 +1371,14 @@ extension String {
 	nonisolated(unsafe) private static let htmlComment = /(?s)<!--.*?-->/
 
 	/**
-	A custom heading ID at the end of a heading, like ` {#install}`. Smart punctuation makes the `--` and `---` of an ID dashes, like of the slug `cut--paste` of “Cut & Paste”, so the ID can have dashes, which are hyphens in the ID.
+	A custom heading ID at the end of a heading, like ` {#install}`, with any text between the braces, so an invalid ID is found too, like `{#with gifski}`.
 	*/
-	nonisolated(unsafe) fileprivate static let customHeadingID = /\s*\{#([\w–—-]+)\}\s*$/
+	nonisolated(unsafe) fileprivate static let customHeadingID = /\s*\{#([^}]*)\}\s*$/
+
+	/**
+	The characters of a valid custom heading ID: letters, digits, underscores, and hyphens. Smart punctuation makes the `--` and `---` of an ID dashes, like of the slug `cut--paste` of “Cut & Paste”, so the ID can have dashes, which are hyphens in the ID.
+	*/
+	nonisolated(unsafe) fileprivate static let customHeadingIDCharacters = /[\w–—-]+/
 
 	/**
 	The heading text without its custom ID, like `Install` for `Install {#install}`.
@@ -1105,7 +1407,7 @@ extension Link {
 
 extension String {
 	/**
-	The HTML with each `<kbd>` that contains `+` split into one `<kbd>` per key, for raw HTML, which is not parsed.
+	The HTML with each `<kbd>` that contains `+` split into one `<kbd>` per key, like a shortcut in the Markdown, for raw HTML, which is not parsed. Limitation: only the escapes of ``Swift/String/decodingHTMLEscapes`` are decoded, so another entity in a key, like `&nbsp;`, is shown as written. Write the shortcut in Markdown instead, like `++Command+K++`.
 	*/
 	fileprivate func separatingKeyboardKeys(theme: MarkdownTheme) -> String {
 		guard contains("<kbd>") else {
@@ -1113,7 +1415,8 @@ extension String {
 		}
 
 		return replacing(/<kbd>([^<]*\+[^<]*)<\/kbd>/) { match in
-			theme.keyboardShortcut(keysHTML: String(match.1).keyboardKeys)
+			// The text is HTML, so its escapes are decoded first, as each key escapes its name again.
+			theme.keyboardShortcut(KeyboardKey.keys(of: String(match.1).decodingHTMLEscapes))
 		}
 	}
 }
@@ -1138,6 +1441,32 @@ extension String {
 	}
 }
 
+extension Paragraph {
+	/**
+	Whether each line of the paragraph starts and ends with `|`, like a table without its delimiter row (`| --- |`), which Markdown does not read as a table, so the page shows the pipes.
+	*/
+	fileprivate var isTableWithoutDelimiterRow: Bool {
+		var lines = [""]
+
+		for child in children {
+			switch child {
+			case is SoftBreak, is LineBreak:
+				lines.append("")
+			case let text as Text:
+				lines[lines.count - 1] += text.string
+			default:
+				// Other markup, like code, is not a pipe.
+				lines[lines.count - 1] += " "
+			}
+		}
+
+		return lines.allSatisfy { line in
+			let line = line.trimmingCharacters(in: .whitespaces)
+			return line.count > 1 && line.hasPrefix("|") && line.hasSuffix("|")
+		}
+	}
+}
+
 extension Markup {
 	/**
 	Whether the markup has a link that is not a bare URL. A bare URL is only text in a button, like the heading of a collapsible section, so it is not a lost link.
@@ -1154,26 +1483,63 @@ extension Markup {
 	}
 }
 
-extension DirectiveArgumentText.ParseError {
+extension BlockDirective {
 	/**
-	The mistake in the arguments of a block directive, like “a `:` is missing”.
+	What is wrong with the content for the rule of the directive, like “must contain one numbered list, and it has 3 blocks”, or `nil` when it follows the rule. HTML comments do not count, as the page does not show them, so a directive with braces and only a comment has no content.
 	*/
-	fileprivate var message: String {
-		switch self {
-		case .duplicateArgument(let name, _, _):
-			"`\(name)` is given twice"
-		case .missingExpectedCharacter(let character, _):
-			"a `\(character)` is missing"
-		case .unexpectedCharacter(let character, _):
-			"a `\(character)` is not expected"
-		}
-	}
-}
+	fileprivate func contentMistake(for rule: MarkdownDocument.Options.BlockDirectiveRenderer.Content) -> String? {
+		let blocks = visibleBlockChildren
+		let expected: String
+		let isExpected: (any BlockMarkup) -> Bool
 
-/**
-The inline attributes of a note, like `^[Spotlight](note: "The search of macOS.")`.
-*/
-@Frontmatter
-private struct InlineNoteAttributes {
-	@NonEmpty var note: String
+		switch rule {
+		case .blocks:
+			// An empty directive is a lost edit, like a deleted list. A directive without braces, like `@Trial(…)`, is on one line, so it is fine without content. Limitation: the parser does not keep the braces, so empty braces on the line of the directive, like `@Tips {}`, are not found, and neither are the empty braces of a directive whose arguments span lines, as its `)` can end it too.
+			guard
+				blocks.isEmpty,
+				let range,
+				argumentText.segments.allSatisfy({ $0.range?.lowerBound.line == range.lowerBound.line }),
+				range.upperBound.line > range.lowerBound.line
+			else {
+				return nil
+			}
+
+			return "has no content. Write it between the braces, or remove the directive."
+		case .empty:
+			return blocks.isEmpty ? nil : "takes no content."
+		case .orderedList:
+			expected = "one numbered list"
+			isExpected = { $0 is OrderedList }
+		case .unorderedList:
+			expected = "one bulleted list"
+			isExpected = { $0 is UnorderedList }
+		}
+
+		guard !blocks.isEmpty else {
+			return "must contain \(expected), and it has no content."
+		}
+
+		guard blocks.count == 1 else {
+			// Several lists are usually indented content, which swift-markdown reads with the indentation of its first line removed from each line, so a nested list becomes part of the outer list, and the list is split.
+			let hint = blocks.allSatisfy { $0 is any ListItemContainer } ? " A nested list must be indented more than its item, and the content of the directive must not be indented." : ""
+			return "must contain \(expected), and it has \(blocks.count) blocks.\(hint)"
+		}
+
+		guard !isExpected(blocks[0]) else {
+			return nil
+		}
+
+		let kind = switch blocks[0] {
+		case is OrderedList:
+			"a numbered list"
+		case is UnorderedList:
+			"a bulleted list"
+		case is Paragraph:
+			"a paragraph"
+		default:
+			"another block"
+		}
+
+		return "must contain \(expected), and it has \(kind)."
+	}
 }

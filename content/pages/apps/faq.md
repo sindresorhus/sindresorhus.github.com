@@ -1,11 +1,11 @@
 ---
 title: 'Frequently Asked Questions'
-description: 'Common questions about apps by Sindre Sorhus, including bug reports, privacy, refunds, Family Sharing, and moving between the App Store, Gumroad, and Setapp.'
+description: 'Common questions about apps by Sindre Sorhus: bug reports, privacy, refunds, Family Sharing, and moving between the App Store, Gumroad, and Setapp.'
 ---
 
 # Frequently Asked Questions
 
-*See the page of each app for app-specific FAQs.*
+See the page of each app for app-specific FAQs.
 
 ## Purchases {#purchases}
 
@@ -32,12 +32,24 @@ Most trials are the full app, with a reminder to buy it every 12 hours and no au
 
 Apps that are on Setapp can also be tried for free for 7 days on Setapp.
 
+### How can I pay for an app? {#payment-methods}
+<!-- @faq.keywords card credit debit currency method -->
+<!-- @faq.general -->
+
+**App Store:** With the payment method of your Apple Account, or with its balance, like from a gift card. The methods depend on your country or region. See [the payment methods of the Apple Account](https://support.apple.com/111741).
+
+**Gumroad:** With a credit or debit card, with PayPal, or with Apple Pay or Google Pay when your device has it. The checkout shows the price in your local currency, and you can select a different currency. When Gumroad charges VAT or GST, a business can enter its tax ID, like a VAT ID or an ABN, at checkout to not pay it, or use the link in the receipt later to get it back.
+
+**Setapp:** With your Setapp membership, or with a one-time purchase of some apps, like [Supercharge](https://setapp.com/apps/supercharge). See [Setapp pricing](https://setapp.com/pricing).
+
 ### How many devices can I install an app on? {#device-limit}
 <!-- @faq.general -->
 
-Apps purchased on the Apple App Store can be installed on up to 10 devices, with a maximum of 5 computers. [Learn more.](https://support.apple.com/HT204074)
+Apps purchased on the Apple App Store can be installed on up to 10 devices, with a maximum of 5 computers. [Learn more about the device limit.](https://support.apple.com/HT204074)
 
 Apps purchased on Gumroad can be used by one user on unlimited computers.
+
+On Setapp, the number of Macs and iOS devices depends on your [Setapp plan](https://setapp.com/pricing).
 
 ### Can I use your paid apps with Family Sharing? {#family-sharing}
 <!-- @faq.keywords share household spouse kids children -->
@@ -45,17 +57,23 @@ Apps purchased on Gumroad can be used by one user on unlimited computers.
 
 Yes, all paid apps on the App Store support [Family Sharing](https://support.apple.com/108380) by default. Once one family member purchases the app, everyone in the family group can download it at no additional cost. Make sure Purchase Sharing is enabled in your family group settings.
 
+Family Sharing is a feature of the App Store, so it does not apply to apps purchased on Gumroad. A purchase on Gumroad is for a single user, on unlimited computers.
+
+On Setapp, it depends on your [Setapp plan](https://setapp.com/pricing).
+
 ### I previously bought the app on the App Store but it still says I need to pay {#restore-purchase}
 <!-- @faq.keywords restore purchased redownload -->
 <!-- @faq.general -->
 
-App Store purchases are tied to your Apple Account. Make sure you are signed in with the same Apple Account you used for the original purchase. You can verify this in App Store › tap your profile › Purchased. If the app does not appear there, you may be signed into a different account. Also check for any outstanding billing issues in your Apple Account settings, as unresolved payment problems can prevent access to previous purchases.
+App Store purchases are tied to your Apple Account. Make sure you are signed in with the same Apple Account you used for the original purchase. You can verify this in the App Store: on iPhone or iPad, tap your photo, then “Apps & Purchase History › Your Apps”, and on Mac, click your name in the sidebar, then “Apps & Purchase History”. If the app does not appear there, you may be signed into a different account. Also check for any outstanding billing issues in your Apple Account settings, as unresolved payment problems can prevent access to previous purchases.
 
 ### How can I download an app I bought on Gumroad again? {#gumroad-download}
-<!-- @faq.keywords redownload reinstall purchased receipt -->
+<!-- @faq.keywords redownload reinstall purchased receipt license lost -->
 <!-- @faq.general -->
 
 You can download the app again from the Gumroad receipt email or from your Gumroad account. See [how to access a Gumroad purchase](https://gumroad.com/help/article/199-how-do-i-access-my-purchase).
+
+The app does not need a license key. The download from Gumroad is the full app.
 
 ### App Store won’t download or redownload an app of yours {#app-store-download-problem}
 <!-- @faq.general -->
@@ -87,6 +105,8 @@ No. The App Store, Gumroad, and Setapp are completely separate platforms with no
 
 Install the app from the Setapp app, and open it from there. Your Setapp membership activates the app, so there is nothing to buy or restore in the app.
 
+Setapp also sells some apps on their own, without a membership, for a one-time price, like [Supercharge](https://setapp.com/apps/supercharge) from $22. Setapp is then also required for the app to work and get updates. Such a purchase is for the Setapp version only, and it does not carry over to the App Store or Gumroad.
+
 The Setapp version is a separate app from the App Store or Gumroad version and the trial, and the settings do not carry over between them. If the app asks you to buy it, make sure you opened the Setapp version.
 
 For problems with your Setapp account or membership, [contact Setapp](https://support.setapp.com/hc/en-us/articles/4950254561052-How-to-contact-Setapp-team).
@@ -95,6 +115,16 @@ For problems with your Setapp account or membership, [contact Setapp](https://su
 <!-- @faq.general -->
 
 Setapp curates apps based on demand, so if you’d like to see an app of mine on Setapp, [email them](https://support.setapp.com/hc/en-us/articles/4950254561052-How-to-contact-Setapp-team#:~:text=to%20your%20issue.-,Send%20an%20email,%3A%20support%40setapp.com.) and request its inclusion.
+
+### Can I give an app as a gift? {#gift}
+<!-- @faq.keywords present birthday christmas -->
+<!-- @faq.general -->
+
+**App Store:** On an iPhone or iPad, open the app in the App Store, tap the share button, and then tap “Gift App”. The person gets an email to redeem it, and must have an Apple Account in the same country or region as you. You cannot gift a free app, and gifts of apps only work on an iPhone or iPad, not on a Mac. See [Apple’s guide to gifts](https://support.apple.com/118401).
+
+**Gumroad:** At checkout, turn on “Give as a gift”, and enter the email address of the person. They get an email with the download link.
+
+**Setapp:** Give a [Setapp gift card](https://setapp.com/gift-cards). It is a Setapp membership for 1, 3, or 12 months, with all the apps on Setapp. Setapp also sells some apps one by one, like [Supercharge](https://setapp.com/apps/supercharge), but its gift cards are only for a membership.
 
 ### Can I get an invoice? {#invoice}
 <!-- @faq.keywords receipt purchase -->
@@ -109,7 +139,7 @@ Apps purchased on:
 <!-- @faq.keywords free student -->
 <!-- @faq.general -->
 
-Yes. See the [discounts](/apps/discounts) page.
+Yes, like the Power User Bundle and discounts for educational institutions. The free promo codes for students are paused for now, but students can get Supercharge at 50% off at Student App Centre. On Gumroad, the price is automatically lower in many countries with a lower cost of living ([purchasing power parity](https://gumroad.com/help/article/327-purchasing-power-parity)). See the [discounts](/apps/discounts) page.
 
 ### What is Universal Purchase on the App Store? {#universal-purchase}
 <!-- @faq.general -->
@@ -154,7 +184,16 @@ All my maintained Mac apps run natively on Apple silicon. They do not need Roset
 
 If macOS shows the “Support Ending for Intel-based Apps” notification for one of my apps, or shows it in the “Intel-based Apps” list in System Settings, it is a macOS bug. You can ignore it.
 
-To check, select the app in Finder and press Command+I. “Kind” shows “Universal” or “Apple silicon”. If “Open using Rosetta” is checked there, uncheck it.
+To check, select the app in Finder and press ++Command+I++. “Kind” shows “Universal” or “Apple silicon”. If “Open using Rosetta” is checked there, uncheck it.
+
+### Do your apps work on my Intel Mac? {#intel-mac}
+<!-- @faq.keywords older imac macbook compatible -->
+<!-- @faq.platforms macOS -->
+<!-- @faq.general -->
+
+macOS 26 is the last version of macOS for Intel Macs. My apps that require macOS 27 or later do not work on an Intel Mac. The page of each app says which macOS version it requires.
+
+For an older version of macOS, use the [older versions](/apps/older-versions) of my apps.
 
 ### macOS says the app can’t be opened or is damaged {#app-cant-be-opened}
 <!-- @faq.keywords corrupt quarantine gatekeeper xattr unquarantine malware virus verify installing download trash -->
@@ -198,7 +237,7 @@ macOS handles the replication of menu bar items onto secondary displays, so what
 ### I have enabled “launch at login” but the app does not launch when I start my computer {#launch-at-login-not-working}
 <!-- @faq.general -->
 
-When you enable that setting, the app simply tells macOS to launch it at login, so if it’s not working, it’s a problem with macOS or your system. Try disabling launch at login in the app, restart your computer, and then enable it again. As a workaround, you can manually add it: Open System Settings, go to “General › Login Items”, and click the “+” button, and choose the app.
+When you enable that setting, the app simply tells macOS to launch it at login, so if it’s not working, it’s a problem with macOS or your system. Try disabling launch at login in the app, restart your computer, and then enable it again. As a workaround, you can manually add it: Open System Settings, go to “General › Login Items & Extensions”, and click the “+” button, and choose the app.
 
 ### The macOS app randomly quits {#randomly-quits}
 <!-- @faq.general -->
@@ -217,7 +256,7 @@ This is a [common problem](https://bitsplitting.org/2022/06/18/purgeable-mac-app
 
 If you notice high CPU usage for one of my apps in Activity Monitor, don’t be alarmed. [CPU usage numbers can be misleading](https://eclecticlight.co/2022/02/24/cpu-percentage-is-misleading-on-m1-macs/), especially on modern Apple silicon Macs. Here’s why:
 
-- The percentage shown is the total across all CPU cores. For example, on an 8-core Mac, 10% usage of a single core only represents about 1.5% of total capacity
+- The “% CPU” column counts each core as 100%, so an 8-core Mac can show up to 800%. An app at 10% uses one tenth of one core, which is about 1.25% of the whole Mac
 - Activity Monitor doesn’t distinguish between efficiency (E) and performance (P) cores
 - Many background tasks run on efficient low-power cores, minimizing battery impact
 - The CPU percentage updates every 5 seconds by default, so even brief spikes appear longer
@@ -238,7 +277,7 @@ For a more accurate assessment, look at the “CPU Time” column in Activity Mo
 - Ensure Low Power Mode is not enabled on the devices. It can cause iCloud to delay syncing.
 - Ensure you are on the latest operating system version and app version.
 - On iOS, ensure the app is not disabled in “Settings › Apple Account › iCloud › Apps Using iCloud”.
-- On macOS, ensure the app is not disabled in “System Settings › Apple Account › iCloud › Saved to iCloud” and “System Settings › Apple Account › iCloud › iCloud Drive › Apps syncing to iCloud Drive”.
+- On macOS, ensure the app is not disabled in “System Settings › Apple Account › iCloud › Saved to iCloud” and “System Settings › Apple Account › iCloud › iCloud Drive › Apps Syncing to iCloud Drive”.
 - If using a VPN, try disconnecting it, as some VPNs can interfere with iCloud syncing.
 - If it’s a work device, make sure there are no restrictions in place that prevent iCloud or iCloud Drive.
 - Check the [iCloud system status](https://www.apple.com/support/systemstatus/) to ensure the service is not experiencing issues.
@@ -257,11 +296,11 @@ You can try:
 1. If nothing else works, restart your computer.
 1. Use the “Get Apps Using Secure Input” action from [Shortcutie](/shortcutie) to identify the problematic app and quit it.
 
-If a diagnostic reports `loginwindow` as using Secure Input, this is a known macOS bug. Lock your screen with Control+Command+Q, then unlock it. Do not try to quit `loginwindow`.
+If a diagnostic reports `loginwindow` as using Secure Input, this is a known macOS bug. Lock your screen with ++Control+Command+Q++, then unlock it. Do not try to quit `loginwindow`.
 
 The issue often occurs when an app requests Secure Input while in the background, causing it to get “stuck” in secure mode.
 
-[Learn more ›](https://espanso.org/docs/troubleshooting/secure-input/)
+[More about Secure Input ›](https://espanso.org/docs/troubleshooting/secure-input/)
 
 ### The widget does not show up, is stuck, or is missing {#widget-not-showing}
 <!-- @faq.keywords picker gallery blank disappeared home lock -->
@@ -276,13 +315,25 @@ Try this:
 - Change the language of the device to something else and then back.
 - iOS: Offload the app and reinstall it. Open the Settings app, go to “General › iPhone/iPad Storage”, tap the app, tap “Offload App”, and then tap “Reinstall App”. This keeps the data of the app.
 
-### How can I install one of your iOS apps on an older version of iOS? {#older-ios-version}
+### The app requires a newer version of iOS than my device has {#older-ios-version}
+<!-- @faq.keywords older install compatible incompatible iphone ipad -->
+<!-- @faq.platforms iOS -->
+<!-- @faq.general -->
 
 If the current version of the app requires a newer iOS version than your device supports, the App Store can offer the last compatible version. When you tap “Get” or the download button, you should see a prompt asking if you want to download an older version of the app. Tap “Download” to install it.
 
-This only works if the app has been previously downloaded with your Apple Account (even for free apps). If you have not previously downloaded the app, first download it on a device running a supported iOS version, which adds it to your purchase history. Then, on your older device, go to App Store › tap your profile › Purchased, find the app, and download it from there.
+This only works if the app has been previously downloaded with your Apple Account (even for free apps). If you have not previously downloaded the app, first download it on a device running a supported iOS version, which adds it to your purchase history. Then, on your older device, open the App Store, tap your photo, and tap “Purchased” (on newer iOS versions: “Apps & Purchase History › Your Apps › Not on this iPhone”). Find the app, and download it from there.
 
-[Learn more ›](https://apple.stackexchange.com/questions/195074/how-do-i-install-an-older-version-of-an-app-on-an-iphone)
+[More about installing an older version ›](https://apple.stackexchange.com/questions/195074/how-do-i-install-an-older-version-of-an-app-on-an-iphone)
+
+### Where is the “Accessibility” permission in System Settings? {#device-control-access}
+<!-- @faq.keywords device control -->
+<!-- @faq.platforms macOS -->
+<!-- @faq.general -->
+
+On macOS 27, it is named “Device Control and Data Access”: “System Settings › Privacy & Security › Device Control and Data Access”. On macOS 13 to 26, it is “System Settings › Privacy & Security › Accessibility”.
+
+When an app asks for this access, turn on the app in the list. If the app is turned on but it still does not work, turn it off and on again, or [reset the permissions of the app](#mac-reset-permissions).
 
 ### How can I reset all permissions for your Mac app? {#mac-reset-permissions}
 <!-- @faq.keywords accessibility prompt -->
@@ -457,7 +508,7 @@ The macOS app sandbox is like putting each app in a fenced yard. It keeps the ap
 <!-- @faq.keywords privacy tracking analytics -->
 <!-- @faq.general -->
 
-My apps prioritize user privacy and do not collect any personal data.
+Most of my apps collect no data. Some send crash reports to Sentry, without your name or email, and Sentry does not store your IP address. Some send your input to an AI service, like OpenAI. The privacy policy of each app, linked on its page, says exactly what.
 
 ### Are your apps native? {#native-apps}
 
@@ -465,7 +516,7 @@ Yes, all my apps are native. They are built using Swift and SwiftUI and are desi
 
 ### Are your apps “vibe coded”? {#vibe-coded}
 
-No. I have been developing Mac apps for over a decade, long before AI existed. Every app is intentionally designed and hand-crafted. I do use AI as a tool for brainstorming, planning, catching bugs, writing tests, and generating elements for app icons, but the architecture, code, and user experience are all my own work.
+No. I released my first iPhone app in 2013 and my first Mac app in 2017. I use AI every day as a tool: to brainstorm, fix bugs, and write the first version of a feature, which I then polish by hand. But I design every app myself, and I read every line of code. The design, the decisions, and the quality bar are all mine.
 
 ### Why are most of your apps free? {#free-apps}
 
@@ -475,7 +526,7 @@ I love making apps and I want them to be available to as many people as possible
 
 Free apps often raise doubts about privacy and intentions. I don’t sell your data, you’re not the product, and there are no ads. I make apps because I enjoy it.
 
-Over 6 million users trust my apps, and tens of thousands of developers rely on [my open source code](https://github.com/sindresorhus). Don’t just take my word for it; check the reviews on the App Store. Feel free to [contact me](/contact) if you have any questions.
+Over 6 million users trust my apps, and [my open source packages](/about#stats) are downloaded billions of times a week on npm. Don’t just take my word for it; check the reviews on the App Store. Feel free to [contact me](/contact) if you have any questions.
 
 ### What’s your policy on ads in your apps? {#no-ads}
 

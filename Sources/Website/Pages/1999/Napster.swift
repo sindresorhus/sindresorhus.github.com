@@ -16,9 +16,19 @@ struct GeoCitiesNapster: ScriptedElement {
 
 	var content: some HTML {
 		h2 {
-			GeoCitiesPage.GIFImage(gif: .spinningCD, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .spinningCD,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 			" Free Music!!! "
-			GeoCitiesPage.GIFImage(gif: .musicNotes, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .musicNotes,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 		}
 		.style(GeoCitiesPage.Styles.heading, GeoCitiesPage.Styles.centeredText)
 
@@ -40,7 +50,14 @@ struct GeoCitiesNapster: ScriptedElement {
 					.style(GeoCitiesPage.Styles.label)
 
 					div {
-						input(.id("geocities-napster-query"), .part(Parts.query), .type(.search), .autocomplete("off"), .maxlength(40), .required)
+						input(
+							.id("geocities-napster-query"),
+							.part(Parts.query),
+							.type(.search),
+							.autocomplete("off"),
+							.maxlength(40),
+							.required
+						)
 							.style(GeoCitiesPage.Styles.field, GeoCitiesPage.Styles.select)
 
 						button(.type(.submit)) {
@@ -179,7 +196,14 @@ struct GeoCitiesNapster: ScriptedElement {
 					}
 					.style(GeoCitiesPage.Styles.label)
 
-					input(.id("geocities-burner-label"), .part(Parts.label), .type(.text), .autocomplete("off"), .maxlength(24), .value("Sindre’s Mix ’99"))
+					input(
+						.id("geocities-burner-label"),
+						.part(Parts.label),
+						.type(.text),
+						.autocomplete("off"),
+						.maxlength(24),
+						.value("Sindre’s Mix ’99")
+					)
 						.style(GeoCitiesPage.Styles.field)
 				}
 
@@ -287,11 +311,11 @@ struct GeoCitiesNapster: ScriptedElement {
 		case coaster
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A button that searches for its text.
 		*/
-		case suggestion = "data-napster-suggestion"
+		case suggestion = "napster-suggestion"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -317,15 +341,15 @@ struct GeoCitiesNapster: ScriptedElement {
 				Style()
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(1))
+					.border(Color(raw: "#808080"), width: .pixels(1))
 					.fontFamily(.system)
 					.textStyle(.caption)
-					.color(Color("#0000ee"))
+					.color(Color(raw: "#0000ee"))
 					.handCursor()
 			case .list:
 				Style()
-					.margin(0)
-					.padding(0)
+					.margin(.zero)
+					.padding(.zero)
 					.flowSpacing(.rootEm(0.375))
 			case .result:
 				// A file that the search found, with its button to the right.
@@ -333,13 +357,13 @@ struct GeoCitiesNapster: ScriptedElement {
 					.hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(0.5))
 					.padding(.rootEm(0.375))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(1))
+					.border(Color(raw: "#808080"), width: .pixels(1))
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.children("div") {
 						$0
 							.vstack(alignment: .start)
-							.frame(minWidth: 0)
+							.frame(minWidth: .zero)
 					}
 			case .fileName:
 				Style()
@@ -354,22 +378,22 @@ struct GeoCitiesNapster: ScriptedElement {
 					.vstack(spacing: .rootEm(0.25))
 					.padding(.rootEm(0.375))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(1))
+					.border(Color(raw: "#808080"), width: .pixels(1))
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.children("button") {
 						$0.alignSelf(.start)
 					}
 					.when(States.failed) {
-						$0.background(Color("#ffdddd"))
+						$0.background(Color(raw: "#ffdddd"))
 					}
 					.when(States.done) {
-						$0.background(Color("#ddffdd"))
+						$0.background(Color(raw: "#ddffdd"))
 					}
 			case .status:
 				Style()
 					.fontWeight(.bold)
-					.color(Color("#800000"))
+					.color(Color(raw: "#800000"))
 			case .song:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
@@ -378,8 +402,8 @@ struct GeoCitiesNapster: ScriptedElement {
 			case .warning:
 				Style()
 					.padding(.rootEm(0.5))
-					.background(Color("#ffff00"))
-					.border(Color("#cc0000"), width: .pixels(2), style: .dashed)
+					.background(Color(raw: "#ffff00"))
+					.border(Color(raw: "#cc0000"), width: .pixels(2), style: .dashed)
 					.fontFamily(.system)
 					.textStyle(.caption)
 			case .burner:
@@ -388,9 +412,9 @@ struct GeoCitiesNapster: ScriptedElement {
 				// The buffer of the burner, green while it is full and red when it runs low.
 				Style()
 					.frame(size: .percent(100))
-					.background(Color("#00aa00"))
+					.background(Color(raw: "#00aa00"))
 					.when(States.low) {
-						$0.background(Color("#cc0000"))
+						$0.background(Color(raw: "#cc0000"))
 					}
 			case .disc:
 				// A CD-R, gold with a silver middle, and the label written on its lower half with a marker. A coaster is dull.
@@ -400,13 +424,23 @@ struct GeoCitiesNapster: ScriptedElement {
 					.frame(size: .rootEm(12))
 					.margin(.horizontal, .auto)
 					.padding(.rootEm(1.5))
-					.backgroundImage(.radialGradient("circle", Color("#c0c0c0"), Color("#f7efc4"), Color("#d8c060"), Color("#f4e7a1"), Color("#c9a83e"), Color("#efe0a0")))
-					.border(Color("#9c8a3a"), width: .pixels(2))
+					.backgroundImage(
+						.radialGradient(
+							.circle,
+							Color(raw: "#c0c0c0"),
+							Color(raw: "#f7efc4"),
+							Color(raw: "#d8c060"),
+							Color(raw: "#f4e7a1"),
+							Color(raw: "#c9a83e"),
+							Color(raw: "#efe0a0")
+						)
+					)
+					.border(Color(raw: "#9c8a3a"), width: .pixels(2))
 					.cornerRadius(.percent(50))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.body, weight: .bold)
 					.textAlign(.center)
-					.color(Color("#1a1aa0"))
+					.color(Color(raw: "#1a1aa0"))
 					.rotationEffect(.degrees(-8))
 					.when(States.coaster) {
 						$0.filter(.grayscale(0.8), .brightness(0.8))

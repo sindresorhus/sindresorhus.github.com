@@ -77,6 +77,11 @@ public enum MarkdownElement: Hashable, Sendable {
 	case keyboardShortcut
 
 	/**
+	A keyboard shortcut of more than one key and the punctuation right after it, like the comma in “Press Control+C, or close the window”, which stay on one line, so the next line does not start with the punctuation.
+	*/
+	case keyboardShortcutWithPunctuation
+
+	/**
 	The container of a table, which scrolls a table that is wider than the content. It has keyboard focus and a label, so keyboard and screen reader users can scroll it too.
 	*/
 	case tableContainer
@@ -115,9 +120,6 @@ public enum MarkdownElement: Hashable, Sendable {
 	The link to a heading, which copies its URL.
 	*/
 	case headingAnchor
-
-	case headingAnchorLinkIcon
-	case headingAnchorCheckIcon
 
 	/**
 	A `: ` line in a list item.
@@ -177,24 +179,30 @@ extension MarkdownTheme {
 	- Parameter titleHTML: The HTML of the summary.
 	*/
 	public func collapsibleSection(titleHTML: String, contentHTML: String) -> String {
-		collapsibleSection(id: nil, name: nil, headingLevel: nil, titleHTML: titleHTML, contentHTML: contentHTML)
+		collapsibleSection(
+			id: nil,
+			name: nil,
+			headingLevel: nil,
+			titleHTML: titleHTML,
+			contentHTML: contentHTML
+		)
 	}
 
 	/**
 	A collapsible section (`<details>`).
 
-	- Parameter headingLevel: The level of the heading that is the title in the summary, like `3` for a question of a FAQ. The heading is like the headings of the document (``HTMLRenderer/visitHeading(_:)``). Without it, the title is a `span`.
+	- Parameter headingLevel: The level of the heading that is the title in the summary, like `.h3` for a question of a FAQ. The heading is like the headings of the document (``HTMLRenderer/visitHeading(_:)``). Without it, the title is a `span`.
 	*/
 	func collapsibleSection(
-		id: String?,
+		id: ElementID?,
 		name: String?,
-		headingLevel: Int?,
+		headingLevel: HeadingLevel?,
 		titleHTML: String,
 		contentHTML: String
 	) -> String {
-		let idAttribute = id.map { #" id="\#($0.escapedForHTML)""# } ?? ""
+		let idAttribute = id.map { #" id="\#($0.rawValue.escapedForHTML)""# } ?? ""
 		let nameAttribute = name.map { #" name="\#($0.escapedForHTML)""# } ?? ""
-		let titleTag = headingLevel.map { "h\($0)" } ?? "span"
+		let titleTag = headingLevel.map { "h\($0.rawValue)" } ?? "span"
 		return #"<details\#(idAttribute)\#(nameAttribute)\#(classAttribute(.collapsibleSection))><summary\#(classAttribute(.collapsibleSummary))><\#(titleTag)\#(classAttribute(.collapsibleTitle))>\#(titleHTML)</\#(titleTag)><span\#(classAttribute(.collapsibleChevron)) aria-hidden="true"></span></summary><div\#(classAttribute(.collapsibleContent))>\#(contentHTML)</div></details>"#
 	}
 
@@ -208,15 +216,15 @@ extension MarkdownTheme {
 	/**
 	The numbered reference to a footnote in the text: a button that opens the popover with the footnote.
 	*/
-	func footnoteReference(number: Int, popoverID: String) -> String {
-		#"<sup><button type="button" popovertarget="\#(popoverID.escapedForHTML)"\#(classAttribute(.footnoteReference)) aria-label="Footnote \#(number)">\#(number)</button></sup>"#
+	func footnoteReference(number: Int, popoverID: ElementID) -> String {
+		#"<sup><button type="button" popovertarget="\#(popoverID.rawValue.escapedForHTML)"\#(classAttribute(.footnoteReference)) aria-label="Footnote \#(number)">\#(number)</button></sup>"#
 	}
 
 	/**
 	The text of an inline note: a button that opens the popover with the note.
 	*/
-	func inlineNote(textHTML: String, popoverID: String) -> String {
-		#"<button type="button" popovertarget="\#(popoverID.escapedForHTML)"\#(classAttribute(.inlineNote))>\#(textHTML)</button>"#
+	func inlineNote(textHTML: String, popoverID: ElementID) -> String {
+		#"<button type="button" popovertarget="\#(popoverID.rawValue.escapedForHTML)"\#(classAttribute(.inlineNote))>\#(textHTML)</button>"#
 	}
 
 	/**
@@ -224,8 +232,8 @@ extension MarkdownTheme {
 
 	The popover gets the focus when it opens, as it is after the text, at the end of the document, so screen readers read it, and Tab goes to its links. Escape gives the focus back to what opened it.
 	*/
-	func popover(id: String, element: MarkdownElement, contentHTML: String) -> String {
-		#"<div popover id="\#(id.escapedForHTML)" role="note" tabindex="-1" autofocus\#(classAttribute(element))>\#(contentHTML)</div>"#
+	func popover(id: ElementID, element: MarkdownElement, contentHTML: String) -> String {
+		#"<div popover id="\#(id.rawValue.escapedForHTML)" role="note" tabindex="-1" autofocus\#(classAttribute(element))>\#(contentHTML)</div>"#
 	}
 
 	/**
@@ -240,7 +248,7 @@ extension MarkdownTheme {
 	/**
 	A keyboard shortcut as one `<kbd>` per key, with a `+` between them that screen readers skip, like GitHub. A shortcut of more than one key is in another `<kbd>`, which HTML defines as a key combination. Keys are not translated, as they are the names on the keyboard.
 
-	- Parameter keysHTML: The HTML of each key, like `Cmd` and `K`.
+	- Parameter keysHTML: The HTML of each key, like `Command` and `K`.
 	*/
 	func keyboardShortcut(keysHTML: [String]) -> String {
 		guard keysHTML.count > 1 else {
@@ -254,12 +262,28 @@ extension MarkdownTheme {
 	}
 
 	/**
-	A link to the section, with a link icon and a check icon that the script shows after copying the URL (`data-copy-link`). Its name has the text of the heading, so each link in a list of the links of the page has its own name.
+	A keyboard shortcut as one `<kbd>` per key (``keyboardShortcut(keysHTML:)``), with the HTML of each key (``KeyboardKey/html``).
+
+	- Parameter punctuation: The closing punctuation right after the shortcut, like `,`, which stays on the line of a shortcut of more than one key (``MarkdownElement/keyboardShortcutWithPunctuation``). A browser can break a line after the inline block of the shortcut, also before a comma.
+	*/
+	func keyboardShortcut(_ keys: [KeyboardKey], punctuation: Substring = "") -> String {
+		let shortcutHTML = keyboardShortcut(keysHTML: keys.map(\.html))
+
+		guard
+			keys.count > 1,
+			!punctuation.isEmpty
+		else {
+			return shortcutHTML + String(punctuation).escapedForHTML
+		}
+
+		return #"<span\#(classAttribute(.keyboardShortcutWithPunctuation))>\#(shortcutHTML)\#(String(punctuation).escapedForHTML)</span>"#
+	}
+
+	/**
+	A link to the section, with a link icon, or a check icon after the script copied the URL (`data-copy-link`). The icons are in the styles, so a page with many headings has no copies of them. Its name has the text of the heading, so each link in a list of the links of the page has its own name.
 	*/
 	func headingAnchor(for heading: Heading) -> String {
-		let linkIcon = #"<svg\#(classAttribute(.headingAnchorLinkIcon)) width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-.025 9.45a.75.75 0 01-1.06-1.06l-1.25 1.25a2 2 0 01-2.83-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25z"/></svg>"#
-		let checkIcon = #"<svg\#(classAttribute(.headingAnchorCheckIcon)) width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"/></svg>"#
-		return ##"<a href="#\##(heading.id.escapedForHTML)"\##(classAttribute(.headingAnchor)) data-copy-link="" aria-label="\##("Copy link to section: \(heading.text)".escapedForHTML)">\##(linkIcon)\##(checkIcon)</a>"##
+		##"<a href="\##(LinkDestination.fragment(heading.id).description.escapedForHTML)"\##(classAttribute(.headingAnchor)) data-copy-link="" aria-label="\##("Copy link to section: \(heading.text)".escapedForHTML)"></a>"##
 	}
 
 	/**

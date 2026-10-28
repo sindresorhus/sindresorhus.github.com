@@ -1,7 +1,7 @@
 ---
 title: 'Empathy in Open Source'
 description: 'Open source is not just about code, it’s about people.'
-publicationDate: '2023-05-23'
+publicationDate: 2023-05-23
 tags: [
 	'open-source'
 ]

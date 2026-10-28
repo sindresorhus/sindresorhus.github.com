@@ -5,7 +5,8 @@ on:
   pull_request:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *' # Every night at midnight UTC, for new App Store data and releases.
+    # Every night at 00:37 UTC, for new App Store data and releases. Not on the full hour, when GitHub delays and drops more scheduled runs.
+    - cron: '37 0 * * *'
 
 # A new run on `main` waits instead of cancelling the earlier run, as that could stop a deploy before the Cloudflare cache is purged.
 concurrency:
@@ -21,6 +22,7 @@ jobs:
       contents: read
     outputs:
       changed: ${{ steps.compare.outputs.changed }}
+      hash: ${{ steps.compare.outputs.hash }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -33,36 +35,75 @@ jobs:
         run: brew install jpeg-xl
         env:
           HOMEBREW_NO_AUTO_UPDATE: 1
+      # The version of the runner image, like `20261026.0314.1`, for the key of the build cache. A new image has a new SDK, so everything compiles again, and the build is then saved, instead of the nightly runs restoring the build of the commit by its exact key, which does not save the new build. The same step is in `links.yml`, as the keys must match.
+      - name: Runner image version
+        id: image
+        run: echo "version=${ImageVersion:-unknown}" >> "$GITHUB_OUTPUT"
       - uses: actions/cache@v6
         with:
-          # The build, the package checkouts with the prebuilt swift-syntax, the App Store and GitHub responses, which are revalidated with ETags, and the JPEG XL copies of the images, which are made again only for a changed image.
+          # The build, the package checkouts with the prebuilt swift-syntax, the compiled package manifests, which SwiftPM otherwise compiles again before each build, and the JPEG XL copies of the images, which are made again only for a changed image. The paths are the same in `links.yml`, as they are part of the cache version.
           path: |
             .build
-            .cache/responses
             .cache/jpeg-xl
-          key: build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-${{ github.sha }}
-          restore-keys: build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-
+            ~/Library/Caches/org.swift.swiftpm/manifests
+          key: build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-${{ steps.image.outputs.version }}-${{ github.sha }}
+          # The build of the same image first, and after a new image, the newest build, which still has the package checkouts.
+          restore-keys: |
+            build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-${{ steps.image.outputs.version }}-
+            build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-
+      # The App Store and GitHub responses, which are revalidated with ETags, or used when a request fails. They are saved after each run, as they change without a commit, while the cache above has the commit in its key, so the nightly runs restore it exactly and do not save it.
+      - uses: actions/cache@v6
+        with:
+          path: .cache/responses
+          key: responses-${{ github.run_id }}
+          restore-keys: responses-
       # A checkout gives each file the current date, so the build would compile every target of the project again. The date of the last commit of a file only changes with the file, so only what changed since the cached build compiles. A merge commit dates the files it changes against the first parent. Limitation: SwiftPM compiles a file again only when its date changes, so a file changed by two commits in the same second could stay stale.
       - name: Date the sources by their last commit
         run: git -c core.quotePath=false log --format=date:%ct --name-only --diff-merges=first-parent -- Package.swift Package.resolved Sources Tests | perl -nle 'if (/^date:(\d+)$/) { $date = $1 } elsif ($_ ne "" && !$seen{$_}++ && -e) { utime $date, $date, $_ }'
-      # Debug, like the tests, so one build serves both. A release build takes 8–10 s longer to compile on CI and saves only about 1 s when building the site. Keep it debug.
+      # Debug, like the tests, so one build serves both. A release build takes 8–10 s longer to compile on CI and saves only about 1 s when building the site. Keep it debug. Without the index store, which only editors use, so the build is faster and the cache smaller. `links.yml` has the same flags, as other flags would compile everything again.
       - name: Build
-        run: swift build --build-tests -Xswiftc -Xfrontend -Xswiftc -warn-long-expression-type-checking=200
+        run: swift build --build-tests --disable-index-store -Xswiftc -Xfrontend -Xswiftc -warn-long-expression-type-checking=200
       # The tests use Swift Testing only, so the XCTest runner is skipped.
       - name: Test
         run: swift test --skip-build --disable-xctest
+      # To debug a test run that fails or hangs without a message: the output is unbuffered, so the last line before a hang stays in the log, and the crash reports and a sample of the hung process show what it was doing. `gh run view --log` leaves the end of a long step out, so download the log with `gh api repos/sindresorhus/sindresorhus.github.com/actions/jobs/<job id>/logs`.
+      # - name: Test
+      #   env:
+      #     NSUnbufferedIO: YES
+      #     SWIFT_BACKTRACE: enable=yes
+      #   run: |
+      #     swift test --skip-build --disable-xctest &
+      #     test_pid=$!
+      #     sleep 60
+      #     child="$(pgrep -P "$test_pid" | head -1)"
+      #     if [ -n "$child" ]; then
+      #       sample "$child" 2 -file "$RUNNER_TEMP/sample.txt" || true
+      #       head -c 60000 "$RUNNER_TEMP/sample.txt" || true
+      #     fi
+      #     wait "$test_pid"
+      # - name: Crash reports
+      #   if: failure()
+      #   run: |
+      #     ls -la ~/Library/Logs/DiagnosticReports || true
+      #     for report in ~/Library/Logs/DiagnosticReports/*; do
+      #       echo "=== $report"
+      #       head -c 20000 "$report"
+      #     done
       # The executable runs directly, as `swift run` first spends seconds checking the build.
       - name: Build site
         env:
           # Authenticated requests have a much higher GitHub API rate limit.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: .build/debug/website build --verbose
-      # A deploy is skipped when the site is the same as the published one. The related apps rotate daily, so the nightly build changes the app pages once a day.
+      # A deploy is skipped when the site is the same as the published one. The related apps rotate daily, so the nightly build changes the app pages once a day. The hash of each file is in `build-files.txt`, so the deploy purges only the changed files from Cloudflare.
       - name: Compare with the published site
         id: compare
         run: |
-          hash="$(cd dist && find . -type f -print0 | sort -z | xargs -0 shasum -a 256 | shasum -a 256 | cut -d ' ' -f 1)"
+          (cd dist && find . -type f -print0 | sort -z | xargs -0 shasum -a 256) > "$RUNNER_TEMP/build-files.txt"
+          hash="$(shasum -a 256 < "$RUNNER_TEMP/build-files.txt" | cut -d ' ' -f 1)"
+          mv "$RUNNER_TEMP/build-files.txt" dist/build-files.txt
           echo "$hash" > dist/build-hash.txt
+          echo "hash=$hash" >> "$GITHUB_OUTPUT"
           published="$(curl --fail --silent --location https://sindresorhus.com/build-hash.txt || true)"
           if [ "$hash" = "$published" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -98,24 +139,43 @@ jobs:
         if: github.event_name != 'schedule'
         continue-on-error: true
         run: curl --fail --silent --show-error https://sindresorhus.com/sitemap-0.xml --output "$RUNNER_TEMP/published-sitemap.xml"
+      # The files and their hashes before the deploy, so only the changed files are purged from Cloudflare. The query skips the caches.
+      - name: Save the published files
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ZONE_ID != ''
+        continue-on-error: true
+        run: curl --fail --silent --show-error "https://sindresorhus.com/build-files.txt?deploy=$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --output "$RUNNER_TEMP/published-files.txt"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
-      # Cloudflare caches the HTML (see the readme), so the cache is purged after a deploy. Skipped when the secrets are not set.
-      - name: Purge the Cloudflare cache
-        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ZONE_ID != ''
+      # The deploy step only waits until GitHub reports the deploy as done. This checks that `sindresorhus.com` serves the new site, through Cloudflare like for visitors, for up to 5 minutes. Each request has its own query, as the CDN of GitHub Pages caches a response for 10 minutes, so an early request with the old hash would hide the new one.
+      - name: Check that the site is live
+        timeout-minutes: 6
+        env:
+          BUILD_HASH: ${{ needs.build.outputs.hash }}
         run: |
-          curl --fail --silent --show-error --request POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" \
-            --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-            --header "Content-Type: application/json" \
-            --data '{"purge_everything":true}'
-      # Tells Bing and the other IndexNow search engines (they feed ChatGPT search, Copilot, and DuckDuckGo) about the pages that changed, so they find the changes sooner: new pages, pages with another `lastmod`, and removed pages, compared with the sitemap before the deploy. IndexNow asks for only the changed pages, and sending all of them each time can look like spam. Without the earlier sitemap, it sends all of them. The key is the published `indexnow.txt`. A failure does not fail the deploy. Not for the nightly deploys, which mostly change the rotating related apps.
+          # The last request starts before 5 minutes and 10 seconds, so the step ends with the error below before its timeout.
+          attempt=0
+          while true; do
+            attempt=$((attempt + 1))
+            published="$(curl --fail --silent --location --max-time 10 "https://sindresorhus.com/build-hash.txt?deploy=$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-$attempt" || true)"
+            if [ "$published" = "$BUILD_HASH" ]; then
+              echo "The site is live."
+              exit 0
+            fi
+            if [ "$SECONDS" -ge 300 ]; then
+              break
+            fi
+            sleep 10
+          done
+          echo "::error::After 5 minutes, the published site is not this build: build-hash.txt is “$published”, not “$BUILD_HASH”."
+          exit 1
+      # Tells Bing and the other IndexNow search engines (they feed ChatGPT search, Copilot, and DuckDuckGo) about the pages that changed, so they find the changes sooner, after the site is live: new pages, pages with another `lastmod`, and removed pages, compared with the sitemap before the deploy. IndexNow asks for only the changed pages, and sending all of them each time can look like spam. Without the earlier sitemap, it sends all of them. The key is the published `indexnow.txt`. A failure does not fail the deploy. Not for the nightly deploys, which mostly change the rotating related apps.
       - name: Notify IndexNow
         if: github.event_name != 'schedule'
         continue-on-error: true
         run: |
           key="$(curl --fail --silent --show-error https://sindresorhus.com/indexnow.txt)"
-          # The query skips the cache of Cloudflare, so the sitemap is the deployed one, even when the purge has not reached the edge yet, which would look like no changes.
+          # The query skips the caches of Cloudflare and GitHub Pages, so the sitemap is the deployed one, as the purge comes later.
           curl --fail --silent --show-error "https://sindresorhus.com/sitemap-0.xml?deploy=$GITHUB_SHA" --output "$RUNNER_TEMP/sitemap.xml"
           urls="$(python3 - "$RUNNER_TEMP/published-sitemap.xml" "$RUNNER_TEMP/sitemap.xml" <<'PYTHON'
           import json, os, re, sys
@@ -137,3 +197,45 @@ jobs:
           fi
           jq --null-input --arg key "$key" --argjson urls "$urls" '{host: "sindresorhus.com", key: $key, keyLocation: "https://sindresorhus.com/indexnow.txt", urlList: $urls}' \
             | curl --fail --silent --show-error --request POST https://api.indexnow.org/indexnow --header "Content-Type: application/json; charset=utf-8" --data @-
+      # Cloudflare caches the files (see the readme), so the changed and removed files are purged after the site is live, as an earlier purge could cache the old files again. A page is also at its URL without `.html`, like `/dato`, and an `index.html` at its folder, like `/feedback/`. The Free plan takes 100 URLs in each request. Without the earlier or the new list, or when more than 500 URLs changed (5 requests), it purges everything. Limitation: a URL with a query, like `/feedback?product=Dato`, is a separate entry in the cache of Cloudflare, so it is not purged and stays until its cache ends. Limitation: when the check that the site is live fails, this step is skipped, and the next deploy compares with the files that are now published, so it does not purge the files of the failed run. They stay until their cache ends, which is short (the HTML is not cached). Skipped when the secrets are not set.
+      - name: Purge the changed files from the Cloudflare cache
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ZONE_ID != ''
+        run: |
+          purge() {
+            curl --fail --silent --show-error --output /dev/null --request POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" \
+              --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              --header "Content-Type: application/json" \
+              --data "$1"
+          }
+          if [ ! -s "$RUNNER_TEMP/published-files.txt" ]; then
+            echo "No list of the published files, so everything is purged."
+            purge '{"purge_everything":true}'
+            exit 0
+          fi
+          if ! curl --fail --silent --show-error "https://sindresorhus.com/build-files.txt?deploy=$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-live" --output "$RUNNER_TEMP/files.txt"; then
+            echo "Could not get the list of the new files, so everything is purged."
+            purge '{"purge_everything":true}'
+            exit 0
+          fi
+          # Each line is a hash, two spaces, and the path, like `./dato.html`, the text mode of `shasum -a 256`, which escapes a path with a backslash or a new line, so the paths of the site must not have them.
+          awk '
+            NR == FNR { published[substr($0, 67)] = $1; next }
+            published[substr($0, 67)] != $1 { print substr($0, 67) }
+            { delete published[substr($0, 67)] }
+            END { for (path in published) print path }
+          ' "$RUNNER_TEMP/published-files.txt" "$RUNNER_TEMP/files.txt" \
+            | sed 's|^\.||' \
+            | awk '{ print; if (sub(/\/index\.html$/, "/")) print; else if (sub(/\.html$/, "")) print }' \
+            | sed 's|^|https://sindresorhus.com|' > "$RUNNER_TEMP/purge-urls.txt"
+          # The lists are written after the files are hashed, so they are not in them, but they change with each deploy.
+          printf '%s\n' https://sindresorhus.com/build-hash.txt https://sindresorhus.com/build-files.txt >> "$RUNNER_TEMP/purge-urls.txt"
+          count="$(wc -l < "$RUNNER_TEMP/purge-urls.txt")"
+          echo "$count URLs changed."
+          if [ "$count" -gt 500 ]; then
+            purge '{"purge_everything":true}'
+            exit 0
+          fi
+          jq --raw-input --slurp --compact-output 'split("\n") | map(select(. != "")) | range(0; length; 100) as $start | {files: .[$start:$start + 100]}' "$RUNNER_TEMP/purge-urls.txt" \
+            | while read -r request; do
+              purge "$request"
+            done

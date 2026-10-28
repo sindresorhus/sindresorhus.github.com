@@ -11,7 +11,7 @@ struct GeoCitiesNorwayHolidays: ScriptedElement {
 	/**
 	The ID of the window of the ski trip, which the skis in my room lead to.
 	*/
-	static let skiID = "geocities-ski"
+	static let skiID = ElementID("geocities-ski")
 
 	/**
 	The grip waxes of the ski trip, from the hardest, for the coldest snow, by the name that the script knows them by, with the temperatures of new snow that each is for.
@@ -26,9 +26,19 @@ struct GeoCitiesNorwayHolidays: ScriptedElement {
 
 	var content: some HTML {
 		h2 {
-			GeoCitiesPage.GIFImage(gif: .norwayFlag, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .norwayFlag,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 			" Easter in the Mountains "
-			GeoCitiesPage.GIFImage(gif: .norwayFlag, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .norwayFlag,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 		}
 		.style(GeoCitiesPage.Styles.heading, GeoCitiesPage.Styles.centeredText)
 
@@ -81,14 +91,25 @@ struct GeoCitiesNorwayHolidays: ScriptedElement {
 				.style(Styles.waxBox)
 			}
 
-			GeoCitiesPage.GIFImage(gif: .skier, alt: "A skier on the way down", style: .floating, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .skier,
+				alt: "A skier on the way down",
+				style: .floating,
+				project: project
+			)
 
 			p {
 				"2. Kick and glide to the cabin before Dad: kick with the left and the right ski, one after the other, in a steady rhythm. Too fast, and you fall. Eat a Kvikk Lunsj when you run out of energy."
 			}
 			.style(Styles.stepTitle)
 
-			canvas(.part(Parts.skiCanvas), .width(400), .height(160), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.skiCanvas),
+				.width(400),
+				.height(160),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The ski track to the cabin. Press the left and right arrow keys one after the other to kick, and K to eat a Kvikk Lunsj.")
 				.style(Styles.canvas)
 
@@ -131,7 +152,7 @@ struct GeoCitiesNorwayHolidays: ScriptedElement {
 	/**
 	A window of a game, with an ID, which a thing in my room leads to. It can have the focus, so the keyboard goes on from there.
 	*/
-	private func window(_ title: String, id: String, @HTMLBuilder content: () -> some HTML) -> some HTML {
+	private func window(_ title: String, id: ElementID, @HTMLBuilder content: () -> some HTML) -> some HTML {
 		section {
 			h3 {
 				title
@@ -155,16 +176,16 @@ struct GeoCitiesNorwayHolidays: ScriptedElement {
 		case skiWrapper
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The grip wax of a button of the wax box, like `blue`.
 		*/
-		case wax = "data-ski-wax"
+		case wax = "ski-wax"
 
 		/**
 		What a button of the ski trip does: `left`, `right`, or `kvikk`.
 		*/
-		case skiControl = "data-ski-control"
+		case skiControl = "ski-control"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -196,13 +217,13 @@ struct GeoCitiesNorwayHolidays: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.imageRendering(.pixelated)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.canvasFocusRing()
 			case .status:
 				Style().toyStatus()
 			case .stepTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption, weight: .bold)
 			case .waxBox:
 				Style()
@@ -212,35 +233,35 @@ struct GeoCitiesNorwayHolidays: ScriptedElement {
 			case .wax:
 				// A tube of grip wax, in the color of its tube, with a thick edge while it is on the skis.
 				Style()
-					.vstack(alignment: .center, spacing: 0)
+					.vstack(alignment: .center, spacing: .zero)
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
-					.border(Color("#333333"), width: .pixels(2), style: .outset)
+					.border(Color(raw: "#333333"), width: .pixels(2), style: .outset)
 					.cornerRadius(.rootEm(0.25))
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.color(.white)
 					.handCursor()
 					.active {
-						$0.border(Color("#333333"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#333333"), width: .pixels(2), style: .inset)
 					}
 					.pressed {
 						$0
-							.border(Color("#ffcc00"), width: .pixels(4), style: .solid)
-							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ffcc00")))
+							.border(Color(raw: "#ffcc00"), width: .pixels(4), style: .solid)
+							.shadow(BoxShadow(y: .zero, blur: .pixels(6), color: Color(raw: "#ffcc00")))
 					}
 			case .waxRange:
 				Style().font(size: .rootEm(0.7))
 			case .waxGreen:
-				Style().background(Color("#1f7a3a"))
+				Style().background(Color(raw: "#1f7a3a"))
 			case .waxBlue:
-				Style().background(Color("#1f4fa0"))
+				Style().background(Color(raw: "#1f4fa0"))
 			case .waxViolet:
-				Style().background(Color("#6a2c91"))
+				Style().background(Color(raw: "#6a2c91"))
 			case .waxRed:
-				Style().background(Color("#b3122a"))
+				Style().background(Color(raw: "#b3122a"))
 			case .waxKlister:
 				Style()
-					.background(Color("#c0c0c0"))
+					.background(Color(raw: "#c0c0c0"))
 					.color(.black)
 			case .kick:
 				// Big buttons for the thumbs, for the left and the right ski.
@@ -251,10 +272,10 @@ struct GeoCitiesNorwayHolidays: ScriptedElement {
 			case .wrapper:
 				// The red wrapper of a Kvikk Lunsj, with the mountain code on the back.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.5))
-					.background(Color("#d0021b"))
-					.border(Color("#ffffff"), width: .pixels(3), style: .double)
+					.background(Color(raw: "#d0021b"))
+					.border(Color(raw: "#ffffff"), width: .pixels(3), style: .double)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 					.color(.white)

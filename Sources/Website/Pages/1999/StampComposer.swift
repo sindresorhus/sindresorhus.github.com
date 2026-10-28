@@ -33,9 +33,19 @@ struct GeoCitiesStampComposer: ScriptedElement {
 
 	var content: some HTML {
 		h2 {
-			GeoCitiesPage.GIFImage(gif: .musicStaff, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .musicStaff,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 			" Stamp Composer "
-			GeoCitiesPage.GIFImage(gif: .musicStaff, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .musicStaff,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 		}
 		.style(GeoCitiesPage.Styles.heading, GeoCitiesPage.Styles.centeredText)
 
@@ -72,7 +82,13 @@ struct GeoCitiesStampComposer: ScriptedElement {
 				.accessibilityHidden()
 				.style(Styles.runner)
 
-				canvas(.part(Parts.staff), .width(1872), .height(340), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.staff),
+					.width(1872),
+					.height(340),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("Staff. Arrow keys move, Enter stamps, Delete erases.")
 					.style(Styles.staff)
 			}
@@ -101,7 +117,14 @@ struct GeoCitiesStampComposer: ScriptedElement {
 			div {
 				label {
 					"🐢 Tempo "
-					input(.part(Parts.tempo), .type(.range), .min(60), .max(300), .step(10), .value("150"))
+					input(
+						.part(Parts.tempo),
+						.type(.range),
+						.min(60),
+						.max(300),
+						.step(10),
+						.value("150")
+					)
 					" 🐇"
 				}
 				.style(Styles.tempo)
@@ -125,16 +148,16 @@ struct GeoCitiesStampComposer: ScriptedElement {
 		case status
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A button of a stamp, by its ID, or `eraser`.
 		*/
-		case stamp = "data-stamps-stamp"
+		case stamp = "stamps-stamp"
 
 		/**
 		A button that loads a song, by its ID.
 		*/
-		case song = "data-stamps-song"
+		case song = "stamps-song"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -156,8 +179,8 @@ struct GeoCitiesStampComposer: ScriptedElement {
 				Style()
 					.flowSpacing(.rootEm(0.75))
 					.padding(.rootEm(0.75))
-					.background(Color("#cfe8ff"))
-					.border(Color("#ff6f3c"), width: .pixels(4))
+					.background(Color(raw: "#cfe8ff"))
+					.border(Color(raw: "#ff6f3c"), width: .pixels(4))
 					.cornerRadius(.rootEm(0.75))
 			case .stamps:
 				Style()
@@ -168,17 +191,17 @@ struct GeoCitiesStampComposer: ScriptedElement {
 					.hstack(alignment: .center, justification: .center)
 					.frame(size: .rootEm(2.5))
 					.background(.white)
-					.border(Color("#888"), width: .pixels(2), style: .outset)
+					.border(Color(raw: "#888"), width: .pixels(2), style: .outset)
 					.cornerRadius(.rootEm(0.5))
 					.font(.large)
 					.handCursor()
 					.active {
-						$0.border(Color("#888"), width: .pixels(2), style: .inset)
+						$0.border(Color(raw: "#888"), width: .pixels(2), style: .inset)
 					}
 					.pressed {
 						$0
-							.background(Color("#ffeb3b"))
-							.border(Color("#ff6f3c"), width: .pixels(3))
+							.background(Color(raw: "#ffeb3b"))
+							.border(Color(raw: "#ff6f3c"), width: .pixels(3))
 					}
 			case .scroller:
 				// The staff is wider than a phone, so it scrolls sideways inside its box, like in that painting game.
@@ -186,14 +209,14 @@ struct GeoCitiesStampComposer: ScriptedElement {
 					.position(.relative)
 					.padding(.top, .rootEm(1.75))
 					.background(.white)
-					.border(Color("#888"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#888"), width: .pixels(2), style: .inset)
 					.overflow(horizontal: .auto)
 			case .runner:
 				// Glitter, who runs along the top of the staff while the song plays, as the script moves it.
 				Style()
 					.position(.absolute)
-					.top(0)
-					.leading(0)
+					.top(.zero)
+					.leading(.zero)
 					.font(.large)
 					.lineHeight(1)
 					.allowsHitTesting(false)
@@ -206,7 +229,7 @@ struct GeoCitiesStampComposer: ScriptedElement {
 					.frame(width: .pixels(936), height: .pixels(170))
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#ff6f3c"), width: .pixels(3), offset: .pixels(-3))
+						$0.focusRing(Color(raw: "#ff6f3c"), width: .pixels(3), offset: .pixels(-3))
 					}
 			case .tempo:
 				Style()

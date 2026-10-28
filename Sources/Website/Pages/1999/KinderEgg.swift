@@ -61,7 +61,13 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 					}
 					.style(GeoCitiesPage.Styles.lcd, Styles.lcdLine)
 
-					canvas(.part(Parts.egg), .width(320), .height(260), .tabindex(0), .role("application")) {}
+					canvas(
+						.part(Parts.egg),
+						.width(320),
+						.height(260),
+						.tabindex(0),
+						.role("application")
+					) {}
 						.accessibilityLabel("The kitchen table with my Kinderegg. Drag over the foil to peel it, click to break and to bite, drag around the capsule to twist it open, and drag the parts together. Or use the keys: Enter or Space does the next step, B takes a bite, the number keys add a part, Escape folds away the paper, and P plays with the new toy.")
 						.style(Styles.canvas, Styles.eggCanvas)
 
@@ -152,7 +158,13 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 					}
 					.style(GeoCitiesPage.Styles.lcd, Styles.lcdLine)
 
-					canvas(.part(Parts.yoyo), .width(320), .height(320), .tabindex(0), .role("application")) {}
+					canvas(
+						.part(Parts.yoyo),
+						.width(320),
+						.height(320),
+						.tabindex(0),
+						.role("application")
+					) {}
 						.accessibilityLabel("My yo-yo on my finger. Drag down to throw it (further is harder), and click or tap to tug it back. Or use the keys: Down Arrow or S throws, Up Arrow or Enter tugs, Space throws or tugs, D walks the dog, W goes around the world, B rocks the baby, and U untangles.")
 						.style(Styles.canvas, Styles.yoyoCanvas)
 
@@ -280,7 +292,12 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 				.style(GeoCitiesPage.Styles.titleBar)
 
 				div {
-					canvas(.part(Parts.shelf), .width(320), .height(250), .role("img")) {}
+					canvas(
+						.part(Parts.shelf),
+						.width(320),
+						.height(250),
+						.role("img")
+					) {}
 						.accessibilityLabel("The shelf over my bed with my Kinderegg toys: a row for the Happy Hippos, a row for the crocodiles, and a row for the other toys.")
 						.style(Styles.canvas, Styles.shelfCanvas)
 
@@ -376,16 +393,16 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 		case locked
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A trick of the trick list, with its ID in the script, which the script marks as learned or locked.
 		*/
-		case trick = "data-kinder-egg-trick"
+		case trick = "kinder-egg-trick"
 
 		/**
 		The trade button of a double, which the script makes, with the ID of the toy.
 		*/
-		case trade = "data-kinder-egg-trade"
+		case trade = "kinder-egg-trade"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -420,7 +437,7 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 					.gap(.rootEm(1.25))
 					.alignItems(.start)
 					.children("*") {
-						$0.frame(minWidth: 0)
+						$0.frame(minWidth: .zero)
 					}
 			case .eggColumn:
 				Style().vstack(spacing: .rootEm(1.25))
@@ -431,8 +448,8 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
-					.background(Color("#f3e3c3"))
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#f3e3c3"))
 					.touchAction(.none)
 					.cursor(.pointer)
 					.canvasFocusRing()
@@ -454,18 +471,18 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 					.cursor(.default)
 			case .lcdLine:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
 					.overflowWrap(.anywhere)
 			case .toggle:
 				Style()
 					.frame(minHeight: .rootEm(2.25))
-					.pressedIn(Color("#ffff99"))
+					.pressedIn(Color(raw: "#ffff99"))
 			case .urgent:
 				Style()
 					.frame(minHeight: .rootEm(2.25))
-					.background(Color("#ffcc66"))
+					.background(Color(raw: "#ffcc66"))
 			case .wide:
 				Style().frame(width: .percent(100), minHeight: .rootEm(2.5))
 			case .pair:
@@ -479,12 +496,12 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.375))
 					.padding(.rootEm(0.5))
-					.background(Color("#ffffcc"))
-					.border(Color("#000000"), width: .pixels(2), style: .dashed)
+					.background(Color(raw: "#ffffcc"))
+					.border(Color(raw: "#000000"), width: .pixels(2), style: .dashed)
 					.color(.black)
 			case .speech:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.body, weight: .bold)
 			case .subheading:
@@ -495,18 +512,18 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 			case .trickList:
 				// Lined paper from my school planner, where I keep my tricks.
 				Style()
-					.vstack(spacing: 0)
-					.margin(0)
+					.vstack(spacing: .zero)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.75))
-					.backgroundImage(.linearGradient("to bottom", Color("#fffef6"), Color("#fdf8e2")))
-					.border(.leading, Color("#e05555"), width: .pixels(3))
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#fffef6"), Color(raw: "#fdf8e2")))
+					.border(.leading, Color(raw: "#e05555"), width: .pixels(3))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption)
-					.color(Color("#333344"))
+					.color(Color(raw: "#333344"))
 			case .trick:
 				Style()
-					.padding(vertical: .rootEm(0.125), horizontal: 0)
-					.border(.bottom, Color("#9ec3e6"), width: .pixels(1))
+					.padding(vertical: .rootEm(0.125), horizontal: .zero)
+					.border(.bottom, Color(raw: "#9ec3e6"), width: .pixels(1))
 					.overflowWrap(.anywhere)
 					.opacity(0.85)
 					.children("strong") {
@@ -514,19 +531,19 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 					}
 					.when(States.learned) {
 						$0
-							.color(Color("#006600"))
+							.color(Color(raw: "#006600"))
 							.opacity(1)
 					}
 					.when(States.locked) {
 						$0
-							.color(Color("#888888"))
+							.color(Color(raw: "#888888"))
 							.opacity(0.7)
 					}
 			case .doubles:
 				Style()
 					.vstack(spacing: .rootEm(0.375))
-					.margin(0)
-					.padding(0)
+					.margin(.zero)
+					.padding(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
 					.children("li") {
@@ -534,22 +551,22 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 							.hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(0.5))
 							.flexWrap()
 							.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
-							.background(Color("#ffffff"))
-							.border(Color("#808080"), width: .pixels(1), style: .solid)
+							.background(Color(raw: "#ffffff"))
+							.border(Color(raw: "#808080"), width: .pixels(1), style: .solid)
 					}
 					.children("li button") {
 						$0
 							.frame(minHeight: .rootEm(2.25))
 							.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
 							.background(GeoCitiesPage.windowGray)
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+							.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 							.fontFamily(GeoCitiesPage.comicSans)
 							.textStyle(.caption, weight: .bold)
 							.color(.black)
 							.handCursor()
 							.buttonFocusRing()
 							.active {
-								$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+								$0.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .inset)
 							}
 					}
 			}

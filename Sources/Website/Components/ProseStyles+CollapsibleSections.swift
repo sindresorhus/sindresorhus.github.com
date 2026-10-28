@@ -19,25 +19,23 @@ extension ProseStyles {
 		.below(.smallTablet) {
 			$0
 				.gap(.rootEm(0.2))
-				.margin(.horizontal, -.pageGutter)
+				.margin(.horizontal, .length(-.pageGutter))
 		}
 
 	static let collapsibleSectionStyle = Style()
 		.cardSurface(isInteractive: false)
 		.cornerRadius(.boxRadius)
 		// A little more see-through than a card in dark mode, as a long list of questions is a lot of fill.
-		.dark {
-			$0.background(.white.opacity(0.05))
-		}
+		.background(.card, dark: .white.opacity(0.05))
 		// Animates opening and closing, in browsers that can animate to `auto`.
 		.supports(.interpolateSize) {
 			$0
 				.detailsContent {
 					$0
 						.overflow(.hidden)
-						.frame(height: 0)
+						.frame(height: .zero)
 						// The discrete transition of `content-visibility` keeps the content shown while it closes.
-						.transition(.height, .contentVisibility, animation: .disclosure)
+						.transition(.height, .contentVisibility, timing: .disclosure)
 				}
 				.open {
 					$0.detailsContent {
@@ -46,7 +44,7 @@ extension ProseStyles {
 				}
 		}
 		.below(.smallTablet) {
-			$0.cornerRadius(0)
+			$0.cornerRadius(.zero)
 		}
 		.target {
 			$0.targetHighlight()
@@ -61,7 +59,7 @@ extension ProseStyles {
 		.cornerRadius(.boxRadius)
 		// Full width on small screens, like the questions.
 		.below(.smallTablet) {
-			$0.cornerRadius(0)
+			$0.cornerRadius(.zero)
 		}
 
 	/**
@@ -76,7 +74,7 @@ extension ProseStyles {
 		.textSelection(.disabled)
 		.hoverFill(.cardHover)
 		.nested("a") {
-			$0.declaration(.fontWeight, .inherit)
+			$0.fontWeight(.inherit)
 		}
 
 	/**
@@ -84,11 +82,11 @@ extension ProseStyles {
 	*/
 	static let collapsibleTitleStyle = Style()
 		.flex(1)
-		.frame(minWidth: 0)
-		.margin(0)
+		.frame(minWidth: .zero)
+		.margin(.zero)
 		.inheritsFont()
-		.letterSpacing(.inherit)
-		.color(.inherit)
+		.inherits(.letterSpacing)
+		.inherits(.color)
 		// Like a paragraph, so a question that wraps does not end with one word on its last line.
 		.textWrap(.pretty)
 		// The font has more space above the capitals than below the baseline, so the text would look a little low next to the chevron. Trimming the text to the capitals and the baseline centers it at every size and zoom, and the padding keeps the height of the line.
@@ -104,7 +102,7 @@ extension ProseStyles {
 				.frame(size: .rootEm(0.5))
 				.border([.trailing, .bottom], .secondaryText, width: .pixels(2))
 				.rotationEffect(.degrees(-45))
-				.transition(.rotationEffect, animation: .disclosure)
+				.transition(.rotationEffect, timing: .disclosure)
 		}
 		.nested("details:open > * > &::after") {
 			$0.rotationEffect(.degrees(45))
@@ -143,20 +141,41 @@ extension ProseStyles {
 		.children(ProseStyles.headingAnchor.selector) {
 			$0
 				.bottom(.auto)
-				.frame(height: .lineHeight(1) + .rootEm(2))
+				.frame(height: .length(.lineHeight(1) + .rootEm(2)))
 				// The sections are full width on small screens, so the link is in the padding of the summary, not outside the screen.
 				.below(.smallTablet) {
-					$0.leading(0)
+					$0.leading(.zero)
+				}
+				// Touch screens have no hover, so the link is a chip at the end of the open section (``headingAnchorStyle``).
+				.media(.cannotHover) {
+					$0
+						.top(.auto)
+						.bottom(.length(Self.touchCopyLinkInset))
+						.leading(.length(.pageGutter))
+						.frame(height: .auto)
 				}
 		}
+		// The content has room for the chip of the link below its text on touch screens.
+		.media(.cannotHover) {
+			$0.children(ProseStyles.collapsibleSection.selector) {
+				$0.children(ProseStyles.collapsibleContent.selector) {
+					$0.padding(.bottom, Self.touchCopyLinkInset + .rootEm(3))
+				}
+			}
+		}
+
+	/**
+	The space below the chip that copies the link to an open section on touch screens, the bottom padding of the content of a section.
+	*/
+	private static let touchCopyLinkInset = LengthPercentage.rootEm(1.25)
 
 	/**
 	The link to a section, shown while the pointer is over the section. `site.js` copies its URL on click and sets `data-state`.
 	*/
 	static let headingAnchorStyle = Style()
 		.position(.absolute)
-		.top(0)
-		.bottom(0)
+		.top(.zero)
+		.bottom(.zero)
 		.leading(.pixels(-28))
 		.hstack(alignment: .center, justification: .center)
 		.frame(width: .pixels(24))
@@ -167,7 +186,7 @@ extension ProseStyles {
 		.opacity(0)
 		.color(.secondaryText)
 		.allowsHitTesting(false)
-		.transition(.opacity, .color, animation: .stateChange)
+		.transition(.opacity, .color, timing: .stateChange)
 		// The link of a closed question is not in the tab order, so a keyboard user does not press Tab twice for each question of a long FAQ, like the 75 of Dato. It is there when the question is open, and under the pointer. In `:where()`, so it adds no specificity, and the hovered section below wins.
 		.nested(":where(\(ProseStyles.anchoredSection.selector):not(:has(> details[open]))) > &") {
 			$0.visibility(false)
@@ -177,6 +196,20 @@ extension ProseStyles {
 				.content("")
 				.position(.absolute)
 				.inset(.pixels(-8))
+		}
+		// The icon, in the color of the link. It is in the styles, so a page with many headings has no copies of it.
+		.after {
+			$0
+				.content("")
+				.frame(size: .pixels(16))
+				.background(.currentColor)
+				.maskImage(.url(#path("/assets/link.svg")))
+				// Forced colors would paint the background, which is the icon, in the color of the page, so it has the color of links there.
+				.media(.forcedColors) {
+					$0
+						.forcedColorAdjust(.none)
+						.background(.linkText)
+				}
 		}
 		.media(.hover) {
 			$0
@@ -208,11 +241,8 @@ extension ProseStyles {
 				.opacity(1)
 				.color(.accentMark)
 				.allowsHitTesting(false)
-				.nested(ProseStyles.headingAnchorLinkIcon.selector) {
-					$0.hidden()
-				}
-				.nested(ProseStyles.headingAnchorCheckIcon.selector) {
-					$0.display(.block)
+				.after {
+					$0.maskImage(.url(#path("/assets/check.svg")))
 				}
 		}
 		.when(States.hidden) {
@@ -220,9 +250,33 @@ extension ProseStyles {
 				.opacity(0)
 				.allowsHitTesting(false)
 		}
-
-	static let headingAnchorCheckIconStyle = Style()
-		.hidden()
+		// On touch screens, the link of an open section is a chip with a title at the end of the answer, so visitors can copy the link to share the answer, also from a phone. The link of a closed section stays invisible (above). It stays after a copy, as there is no pointer to leave the section. After the states, so it wins over the hidden state.
+		.media(.cannotHover) {
+			$0.directlyInside(ProseStyles.anchoredSection.selector) {
+				$0
+					.chip(hasIcon: true)
+					.frame(width: .auto)
+					.opacity(1)
+					.allowsHitTesting(true)
+					// The title, after the icon. The name of the link, for screen readers, has it too.
+					.before {
+						$0
+							.content("Copy Link", alternativeText: "")
+							.position(.static)
+							.order(1)
+					}
+					.when(States.copied) {
+						$0.before {
+							$0.content("Copied", alternativeText: "")
+						}
+					}
+					.when(States.hidden) {
+						$0
+							.opacity(1)
+							.allowsHitTesting(true)
+					}
+			}
+		}
 }
 
 /**

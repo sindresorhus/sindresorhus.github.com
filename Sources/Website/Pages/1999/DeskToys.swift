@@ -25,7 +25,13 @@ struct GeoCitiesDeskToys: ScriptedElement {
 
 		var body: some HTML {
 			div {
-				Elementary.canvas(.part(canvas), .width(480), .height(360), .tabindex(0), .role("application")) {}
+				Elementary.canvas(
+					.part(canvas),
+					.width(480),
+					.height(360),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel(accessibilityLabel)
 					.style(Styles.canvas, touch)
 
@@ -218,11 +224,11 @@ struct GeoCitiesDeskToys: ScriptedElement {
 		case perpetual
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A button of a toy, with its ID, like `cradle-one`.
 		*/
-		case button = "data-desk-button"
+		case button = "desk-button"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -256,10 +262,21 @@ struct GeoCitiesDeskToys: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(1))
 					.padding(.rootEm(0.75))
-					.backgroundImage(.linearGradient("100deg", Color("#5a3418"), Color("#6e4220"), Color("#5d361a"), Color("#7a4a26"), Color("#603a1c"), Color("#6a3f1f"), Color("#553117")))
-					.border(Color("#3a210e"), width: .pixels(6), style: .ridge)
+					.backgroundImage(
+						.linearGradient(
+							.angle(.degrees(100)),
+							Color(raw: "#5a3418"),
+							Color(raw: "#6e4220"),
+							Color(raw: "#5d361a"),
+							Color(raw: "#7a4a26"),
+							Color(raw: "#603a1c"),
+							Color(raw: "#6a3f1f"),
+							Color(raw: "#553117")
+						)
+					)
+					.border(Color(raw: "#3a210e"), width: .pixels(6), style: .ridge)
 					.cornerRadius(.rootEm(0.5))
-					.shadow(Shadow(x: .pixels(4), y: .pixels(6), color: Color("#00000066")))
+					.shadow(BoxShadow(x: .pixels(4), y: .pixels(6), color: Color(raw: "#00000066")))
 					.color(.black)
 			case .blotter:
 				// The green desk blotter, where the note from Pappa lies. It sticks above the status bar of the page while the desk is on the screen, so the note shows what the toy in use does, even on a phone, where the desk is long. The sound button is not on it, so the note has the whole width and fewer lines on a phone.
@@ -268,15 +285,15 @@ struct GeoCitiesDeskToys: ScriptedElement {
 					.bottom(.rootEm(2.5))
 					.zIndex(1)
 					.padding(.rootEm(0.5))
-					.background(Color("#2e5a3a"))
-					.border(Color("#1a3322"), width: .pixels(3), style: .ridge)
+					.background(Color(raw: "#2e5a3a"))
+					.border(Color(raw: "#1a3322"), width: .pixels(3), style: .ridge)
 			case .status:
 				// A yellow sticky note from Pappa, where the toys say what they do.
 				Style()
 					.toyStatus()
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
-					.background(Color("#fff68f"))
-					.shadow(Shadow(x: .pixels(2), y: .pixels(2), color: Color("#00000059")))
+					.background(Color(raw: "#fff68f"))
+					.shadow(BoxShadow(x: .pixels(2), y: .pixels(2), color: Color(raw: "#00000059")))
 					.color(.black)
 			case .toys:
 				Style()
@@ -287,7 +304,7 @@ struct GeoCitiesDeskToys: ScriptedElement {
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.5))
 					.padding(.rootEm(0.5))
-					.background(Color("#00000026"))
+					.background(Color(raw: "#00000026"))
 					.cornerRadius(.rootEm(0.375))
 			case .canvas:
 				Style()
@@ -299,7 +316,7 @@ struct GeoCitiesDeskToys: ScriptedElement {
 					.textSelection(.disabled)
 					.handCursor()
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(3), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(3), offset: .pixels(2))
 					}
 			case .drags:
 				// A drag on a toy plays with it and does not scroll the page.
@@ -313,25 +330,32 @@ struct GeoCitiesDeskToys: ScriptedElement {
 			case .nameplate:
 				// A brass nameplate, engraved, like the one on the door of Pappa. The small size keeps the long names, like Executive Decision Maker, on one short line.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.75))
-					.backgroundImage(.linearGradient("to bottom", Color("#f6e08a"), Color("#c9a13a"), Color("#a67c1e")))
-					.border(Color("#6b4e10"), width: .pixels(2), style: .outset)
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#f6e08a"),
+							Color(raw: "#c9a13a"),
+							Color(raw: "#a67c1e")
+						)
+					)
+					.border(Color(raw: "#6b4e10"), width: .pixels(2), style: .outset)
 					.cornerRadius(.rootEm(0.125))
 					.fontFamily(GeoCitiesPage.times)
 					.font(.small, weight: .bold)
 					.textCase(.uppercase)
 					.letterSpacing(.em(0.08))
 					.textAlign(.center)
-					.color(Color("#3a2a06"))
-					.textShadow(Shadow(x: 0, y: .pixels(1), color: Color("#ffffff80")))
+					.color(Color(raw: "#3a2a06"))
+					.textShadow(Shadow(x: .zero, y: .pixels(1), color: Color(raw: "#ffffff80")))
 			case .caption:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption)
 					.italic()
 					.textAlign(.center)
-					.color(Color("#f3e6d0"))
+					.color(Color(raw: "#f3e6d0"))
 			case .button:
 				// Big enough for a finger.
 				Style()

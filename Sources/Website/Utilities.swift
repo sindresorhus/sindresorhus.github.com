@@ -1,6 +1,9 @@
 import CoreGraphics
+import Elementary
 import Foundation
+import ImageIO
 import SiteKit
+import SOML
 
 /**
 A random number generator that gives the same numbers for the same seed (SplitMix64).
@@ -28,12 +31,66 @@ struct SeededRandomNumberGenerator: RandomNumberGenerator {
 	}
 }
 
+/**
+Text in frontmatter that is shown as it is written, like a title, which goes in the `<title>`, the link previews, and the hero: not empty, and without Markdown, like `**bold**`, `*emphasis*`, `code`, or a link, as the page would show the syntax.
+*/
+struct PlainTextString: PlainValidatedValue, Hashable, Sendable {
+	/**
+	Markdown syntax: strong text, emphasis, code, and a link.
+	*/
+	nonisolated(unsafe) private static let markdownSyntax = /\*\*|`|\]\(|\*[^\s*][^*]*\*/
+
+	let value: String
+
+	init(validating value: String) throws(ContentError) {
+		let text = try NonEmptyString(validating: value).value
+
+		guard !text.contains(Self.markdownSyntax) else {
+			throw ContentError(reason: "This field is plain text, so Markdown is not rendered here, like `**`, `*`, a backtick, or a link. Write it without Markdown.")
+		}
+
+		self.value = text
+	}
+}
+
+/**
+Plain text in frontmatter, like `@PlainText var title: String`. See ``PlainTextString``.
+*/
+typealias PlainText<Value> = Validated<PlainTextString, Value>
+
+/**
+A description in frontmatter for search results and link previews: plain text (``PlainTextString``), and short enough that a search result shows all of it.
+*/
+struct SnippetText: PlainValidatedValue, Hashable, Sendable {
+	/**
+	The most characters of a description that a search result shows.
+	*/
+	static let maximumLength = 160
+
+	let value: String
+
+	init(validating value: String) throws(ContentError) {
+		let text = try PlainTextString(validating: value).value
+
+		guard text.count <= Self.maximumLength else {
+			throw ContentError(reason: "Must be at most \(Self.maximumLength) characters, so search results show all of it, got \(text.count).")
+		}
+
+		self.value = text
+	}
+}
+
+/**
+A description in frontmatter, like `@Snippet var description: String?`. See ``SnippetText``.
+*/
+typealias Snippet<Value> = Validated<SnippetText, Value>
+
 extension String {
 	/**
-	Shortens the text to fit a search result snippet (160 characters), cutting at a word boundary.
+	Shortens the text to fit a search result snippet (``SnippetText/maximumLength``), cutting at a word boundary.
 	*/
 	var shortenedForSnippet: String {
-		let maximumLength = 160
+		let maximumLength = SnippetText.maximumLength
 
 		guard count > maximumLength else {
 			return self
@@ -100,17 +157,13 @@ extension Decimal {
 	var isWholeNumber: Bool {
 		var value = self
 		var rounded = Decimal()
-		NSDecimalRound(&rounded, &value, 0, .plain)
+		NSDecimalRound(
+			&rounded,
+			&value,
+			0,
+			.plain
+		)
 		return rounded == self
-	}
-}
-
-extension Array {
-	/**
-	`nil` for an empty array, like for leaving an empty list out of JSON.
-	*/
-	var nilIfEmpty: Self? {
-		isEmpty ? nil : self
 	}
 }
 
@@ -126,29 +179,6 @@ extension Sequence {
 	func uniqued<Key: Hashable>(by key: (Element) -> Key) -> [Element] {
 		var keys = Set<Key>()
 		return filter { keys.insert(key($0)).inserted }
-	}
-}
-
-extension Sequence where Element: Sendable {
-	/**
-	The results of the transform of each element, in the order of the elements. The transforms run at the same time, like a request for each element, and the first error stops them.
-
-	```
-	let pages = try await urls.concurrentMap { try await download($0) }
-	```
-	*/
-	func concurrentMap<Transformed: Sendable>(_ transform: @escaping @Sendable (Element) async throws -> Transformed) async throws -> [Transformed] {
-		try await withThrowingTaskGroup { group in
-			for (index, element) in enumerated() {
-				group.addTask {
-					(index: index, value: try await transform(element))
-				}
-			}
-
-			return try await group.reduce(into: []) { $0.append($1) }
-				.sorted(using: KeyPathComparator(\.index))
-				.map(\.value)
-		}
 	}
 }
 
@@ -189,6 +219,12 @@ enum Schema {
 		var name: String?
 		var givenName: String?
 		var familyName: String?
+
+		/**
+		Another name of the person, like a username.
+		*/
+		var alternateName: String?
+
 		var url: URL?
 		var image: URL?
 		var jobTitle: String?
@@ -198,18 +234,31 @@ enum Schema {
 	}
 
 	/**
-	A blog post. Dates are ISO 8601 with the time.
+	An article, like a blog post or a guide. The dates are days, like `2026-10-05`.
 	*/
-	struct BlogPosting: Object {
+	struct Article: Object {
+		/**
+		The schema.org type, like `Article` for a guide and `BlogPosting` for a post.
+		*/
+		enum Kind: String, Encodable {
+			case article = "Article"
+			case blogPosting = "BlogPosting"
+		}
+
 		var context: String?
-		let type = "BlogPosting"
+		let type: Kind
 		let headline: String
 		var description: String?
 		let url: URL
-		let datePublished: String
-		let dateModified: String
+		let datePublished: SOML.Date
+		let dateModified: SOML.Date
 		let author: Person
-		let image: URL
+
+		/**
+		The social card, and more images of the article, like the screenshot of a guide.
+		*/
+		let image: [URL]
+
 		var keywords: [String]?
 	}
 
@@ -236,20 +285,49 @@ enum Schema {
 	An app. The type is `MobileApplication` for an app that does not run on the Mac.
 	*/
 	struct SoftwareApplication: Object {
+		/**
+		The schema.org type of the app, based on its platforms.
+		*/
+		enum Kind: String, Encodable {
+			case softwareApplication = "SoftwareApplication"
+			case mobileApplication = "MobileApplication"
+		}
+
+		/**
+		The categories emitted in structured data, from the App Store category or the utilities fallback.
+		*/
+		enum Category: String, Encodable {
+			case developer = "DeveloperApplication"
+			case design = "DesignApplication"
+			case multimedia = "MultimediaApplication"
+			case game = "GameApplication"
+			case entertainment = "EntertainmentApplication"
+			case lifestyle = "LifestyleApplication"
+			case health = "HealthApplication"
+			case educational = "EducationalApplication"
+			case finance = "FinanceApplication"
+			case business = "BusinessApplication"
+			case reference = "ReferenceApplication"
+			case travel = "TravelApplication"
+			case socialNetworking = "SocialNetworkingApplication"
+			case sports = "SportsApplication"
+			case utilities = "UtilitiesApplication"
+		}
+
 		var context: String?
-		let type: String
+		let type: Kind
 		let name: String
 		let description: String
 		let url: URL
-		let applicationCategory: String
+		let applicationCategory: Category
 		let operatingSystem: String
 		let author: Person
-		var datePublished: String?
+		var datePublished: SOML.Date?
 
 		/**
 		When the current version was released.
 		*/
-		var dateModified: String?
+		var dateModified: SOML.Date?
 
 		var image: URL?
 		var screenshot: [URL]?
@@ -297,12 +375,20 @@ enum Schema {
 		let type = "AggregateRating"
 		let ratingValue: Double
 		let ratingCount: Int
+
+		/**
+		The same validated and rounded rating that the page shows.
+		*/
+		init(rating: StoreRating) {
+			self.ratingValue = rating.roundedAverage
+			self.ratingCount = rating.count
+		}
 	}
 
 	struct Review: Encodable {
 		let type = "Review"
 		let author: Person
-		let datePublished: String
+		let datePublished: SOML.Date
 		let name: String
 		let reviewBody: String
 		let reviewRating: Rating
@@ -310,15 +396,18 @@ enum Schema {
 
 	struct Rating: Encodable {
 		let type = "Rating"
-		let ratingValue: Int
+		let ratingValue: ReviewStars
 		let bestRating = 5
 	}
 
-	struct ItemList<Item: Encodable>: Object {
+	/**
+	A list of links to the pages of its items, like the apps of the apps page. Each item is only its position and URL, as each page has the full structured data of its item, which Google asks for on such a summary page.
+	*/
+	struct ItemList: Object {
 		struct ListItem: Encodable {
 			let type = "ListItem"
 			let position: Int
-			let item: Item
+			let url: URL
 		}
 
 		var context: String?
@@ -333,13 +422,13 @@ enum Schema {
 			name: String,
 			description: String,
 			url: URL,
-			items: [Item]
+			itemURLs: [URL]
 		) {
 			self.name = name
 			self.description = description
 			self.url = url
-			self.numberOfItems = items.count
-			self.itemListElement = items.enumerated().map { ListItem(position: $0.offset + 1, item: $0.element) }
+			self.numberOfItems = itemURLs.count
+			self.itemListElement = itemURLs.enumerated().map { ListItem(position: $0.offset + 1, url: $0.element) }
 		}
 	}
 }
@@ -357,78 +446,58 @@ extension JSONScript {
 
 extension Schema.SoftwareApplication {
 	/**
-	An app, with the version, price, size, and rating from the App Store when there is info. A free app that is downloaded from its own site, like from GitHub, gets an offer with the price 0.
+	An app, with the version and the size from the App Store or the appcast (``AppListing/version`` and ``AppListing/fileSize``), and the price and the rating that the page shows (``AppListing/price`` and ``AppListing/storeRating``), as Google treats a rating that the page does not show as spam. A free app that is downloaded from its own site, like from GitHub, gets an offer with the price 0.
 
-	The reviews are only included when there is a rating, as Google requires an `aggregateRating` with reviews (“Multiple reviews without aggregateRating object”). The rating is not computed from the reviews, as they are only the newest five-star ones.
-
-	- Parameter latestRelease: The newest release on GitHub, for the date of the current version of an app that is not on the App Store.
-	- Parameter gumroadRating: The rating of an app that is sold on Gumroad.
+	The reviews are only included when there is a rating, as Google requires an `aggregateRating` with reviews (“Multiple reviews without aggregateRating object”). The rating is not computed from the reviews, as they are only the newest five-star ones. They are the reviews that the app page shows (``AppListing/newestReviews``).
 	*/
-	init(
-		app: App,
-		info: AppStoreInfo?,
-		reviews: [AppStoreReview] = [],
-		latestRelease: GitHubRelease? = nil,
-		gumroadRating: StoreRating? = nil
-	) {
+	init(listing: AppListing) {
+		let app = listing.app
+		let info = listing.appStoreInfo
+
 		self.init(
-			type: app.platforms.contains(.macOS) ? "SoftwareApplication" : "MobileApplication",
+			type: app.platforms.contains(.macOS) ? .softwareApplication : .mobileApplication,
 			name: app.title,
 			description: app.description,
 			url: app.path.absoluteURL,
 			// The category of the App Store, or else a utility, as most of the apps are. A category is required, and `MobileApplication` is a type, not a category.
-			applicationCategory: info?.schemaApplicationCategory ?? "UtilitiesApplication",
+			applicationCategory: info?.schemaApplicationCategory ?? .utilities,
 			operatingSystem: app.operatingSystems,
 			author: .author,
-			datePublished: app.publicationDate.isoDay,
+			datePublished: app.publicationDate,
 			image: app.iconURL
 		)
 
 		screenshot = app.screenshotURLs.nilIfEmpty
-		softwareRequirements = app.minimumVersionsByPlatform
+		softwareRequirements = listing.minimumVersionsByPlatform
 		releaseNotes = app.releaseNotes?.path.absoluteURL
-		dateModified = (info?.currentVersionReleaseDate ?? latestRelease?.publishedAt)?.isoDay
-		fileSize = info?.fileSize?.formatted(.byteCount(style: .file).locale(.site))
-		// Not the Setapp link, as it is a referral link.
-		sameAs = [app.appStoreURL, app.frontmatter.repositoryURL].compactMap(\.self).nilIfEmpty
+		dateModified = listing.currentVersionDate
+		fileSize = listing.fileSize?.formatted(.byteCount(style: .file).locale(.site))
+		// The plain pages of the stores, not the Setapp link, as it is a referral link, and not the Gumroad link, as it opens the checkout.
+		sameAs = [app.appStoreURL, app.frontmatter.gumroad?.id.url, app.frontmatter.setappID?.pageURL, app.frontmatter.repositoryURL?.value].compactMap(\.self).nilIfEmpty
 
-		if
-			let info,
-			let appStoreURL = app.appStoreURL
-		{
-			softwareVersion = info.version
+		softwareVersion = listing.version
 
-			// The page has no App Store download for an archived app.
-			if !app.frontmatter.isArchived {
-				downloadUrl = appStoreURL
+		// The App Store, or else the own link of an app that is not on the App Store, like the download on GitHub or the purchase on Gumroad. The page has no App Store download for an archived app.
+		let storeURL = if let appStoreURL = app.appStoreURL {
+			app.frontmatter.isArchived ? nil : appStoreURL
+		} else {
+			app.ownDownloadURL
+		}
 
-				if let price = info.price {
-					offers = Schema.Offer(url: appStoreURL, seller: .authorName, price: price)
-				}
+		if let storeURL {
+			// A paid app that is not on the App Store is bought on its own site, not downloaded.
+			if app.appStoreURL != nil || !app.isPaid {
+				downloadUrl = storeURL
 			}
 
-			if let rating = info.rating {
-				aggregateRating = Schema.AggregateRating(ratingValue: rating.roundedAverage, ratingCount: rating.count)
+			// The product page on Gumroad, which has the price and the ratings, not the checkout of the Buy button.
+			let offerURL = app.frontmatter.gumroad?.id.url ?? storeURL
+			offers = listing.price.map { Schema.Offer(url: offerURL, seller: .authorName, price: $0) }
+		}
 
-				if !reviews.isEmpty {
-					review = reviews.map(Schema.Review.init)
-				}
-			}
-		} else if
-			app.appStoreURL == nil,
-			let url = app.ownDownloadURL
-		{
-			// A free app that is downloaded from its own site, or a paid app that is sold there.
-			if !app.isPaid {
-				downloadUrl = url
-				offers = Schema.Offer(url: url, seller: .authorName, price: .free)
-			} else if let price = app.frontmatter.price {
-				offers = Schema.Offer(url: url, seller: .authorName, price: price)
-			}
-
-			if let gumroadRating {
-				aggregateRating = Schema.AggregateRating(ratingValue: gumroadRating.roundedAverage, ratingCount: gumroadRating.count)
-			}
+		if let rating = listing.storeRating {
+			aggregateRating = Schema.AggregateRating(rating: rating)
+			review = listing.newestReviews.map(Schema.Review.init).nilIfEmpty
 		}
 	}
 }
@@ -440,7 +509,7 @@ extension Schema.Review {
 	init(_ review: AppStoreReview) {
 		self.init(
 			author: Schema.Person(name: review.author),
-			datePublished: review.date.isoDay,
+			datePublished: SOML.Date(review.date),
 			name: review.title,
 			reviewBody: review.text,
 			reviewRating: Schema.Rating(ratingValue: review.rating)
@@ -453,11 +522,23 @@ extension CGColor {
 	An sRGB color from a hex value, like `0x0F172A`.
 	*/
 	static func hex(_ value: Int) -> CGColor {
-		CGColor(srgbRed: Double((value >> 16) & 0xFF) / 255, green: Double((value >> 8) & 0xFF) / 255, blue: Double(value & 0xFF) / 255, alpha: 1)
+		CGColor(
+			srgbRed: Double((value >> 16) & 0xFF) / 255,
+			green: Double((value >> 8) & 0xFF) / 255,
+			blue: Double(value & 0xFF) / 255,
+			alpha: 1
+		)
 	}
 }
 
 extension CGImage {
+	/**
+	The first image of a PNG or JPEG file, or `nil` when it cannot be read.
+	*/
+	static func read(_ url: URL) -> CGImage? {
+		CGImageSourceCreateWithURL(url as CFURL, nil).flatMap { CGImageSourceCreateImageAtIndex($0, 0, nil) }
+	}
+
 	/**
 	The most common vivid color of the image, like the blue of a blue app icon, written as hex, like `#1e88e5`. `nil` when the image has almost no vivid colors, like a gray icon.
 
@@ -475,13 +556,29 @@ extension CGImage {
 
 		guard
 			let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
-			let context = CGContext(data: nil, width: side, height: side, bitsPerComponent: 8, bytesPerRow: side * 4, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+			let context = CGContext(
+				data: nil,
+				width: side,
+				height: side,
+				bitsPerComponent: 8,
+				bytesPerRow: side * 4,
+				space: colorSpace,
+				bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+			)
 		else {
 			return nil
 		}
 
 		context.interpolationQuality = .medium
-		context.draw(self, in: CGRect(x: 0, y: 0, width: side, height: side))
+		context.draw(
+			self,
+			in: CGRect(
+				x: 0,
+				y: 0,
+				width: side,
+				height: side
+			)
+		)
 
 		guard let data = context.data else {
 			return nil
@@ -546,7 +643,7 @@ extension CGImage {
 			return (byte < 16 ? "0" : "") + String(byte, radix: 16)
 		}
 
-		return Color("#\(hex(largest.red))\(hex(largest.green))\(hex(largest.blue))")
+		return Color(raw: "#\(hex(largest.red))\(hex(largest.green))\(hex(largest.blue))")
 	}
 }
 
@@ -559,31 +656,17 @@ extension Duration {
 	}
 }
 
-extension Locale {
-	/**
-	English, the language of the site, so numbers and dates do not depend on the build machine.
-	*/
-	static let site = Self(identifier: "en_US")
-}
-
-extension Calendar {
-	/**
-	The Gregorian calendar in UTC and in the language of the site, so the year or the day of a date and the names of the weekdays do not depend on the build machine.
-	*/
-	static let site: Self = {
-		var calendar = Self(identifier: .gregorian)
-		calendar.timeZone = .gmt
-		calendar.locale = .site
-		return calendar
-	}()
-}
-
 extension Date {
 	/**
 	The start of a day in UTC (``Calendar/site``), for a date in the code, like `Date(year: 2011, month: 9, day: 6)`.
 	*/
 	init(year: Int, month: Int, day: Int) {
-		guard let date = Calendar.site.date(from: DateComponents(year: year, month: month, day: day)) else {
+		let components = DateComponents(year: year, month: month, day: day)
+
+		guard
+			let date = Calendar.site.date(from: components),
+			Calendar.site.dateComponents([.year, .month, .day], from: date) == components
+		else {
 			preconditionFailure("\(year)-\(month)-\(day) is not a date.")
 		}
 
@@ -609,5 +692,34 @@ extension Date {
 	*/
 	func duration(since date: Date) -> Duration {
 		.seconds(timeIntervalSince(date))
+	}
+}
+
+/**
+Sets the validated bitmap dimensions of a canvas.
+*/
+extension HTML where Tag == HTMLTag.canvas {
+	/**
+	Sets the intrinsic bitmap dimensions, independently of the display size in CSS.
+	*/
+	func bitmapSize(_ size: PixelSize) -> _AttributedContent<Self> {
+		attributes(.width(size.width), .height(size.height))
+	}
+}
+
+/**
+Scoped drawing operations on a graphics context.
+*/
+extension CGContext {
+	/**
+	Runs the closure with saved graphics state and restores that state when it returns or throws. The current path is not part of the saved state.
+	*/
+	func withSavedState<Value>(_ body: () throws -> Value) rethrows -> Value {
+		saveGState()
+		defer {
+			restoreGState()
+		}
+
+		return try body()
 	}
 }

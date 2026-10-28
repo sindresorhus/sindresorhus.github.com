@@ -1,9 +1,17 @@
 import Elementary
 import SiteKit
 
-extension HTML where Tag == HTMLTag.a {
+/**
+The tags that support the site's button appearance, without making that modifier available on unrelated elements.
+*/
+protocol ButtonStyleTag: HTMLTagDefinition, HTMLTrait.Attributes.Global {}
+
+extension HTMLTag.a: ButtonStyleTag {}
+extension HTMLTag.button: ButtonStyleTag {}
+
+extension HTML where Tag: ButtonStyleTag {
 	/**
-	Makes the link look like a button, with white text on a fill. It sets no margins, so the parent places it.
+	Makes a link or button look like a button, with white text on a fill. It sets no margins, so the parent places it. A button, like the submit button of a form, uses the same appearance as a link.
 
 	```swift
 	Link(destination: .path(.randomApp)) {
@@ -11,15 +19,6 @@ extension HTML where Tag == HTMLTag.a {
 	}
 	.buttonStyle(.gradient)
 	```
-	*/
-	func buttonStyle(_ fill: ButtonStyles.Fill = .primary, size: ButtonStyles.Size = .regular) -> _AttributedContent<Self> {
-		style(ButtonStyles.root, fill.style, size.style)
-	}
-}
-
-extension HTML where Tag == HTMLTag.button {
-	/**
-	Makes the button look like the button links, like the submit button of a form. It sets no margins, so the parent places it.
 	*/
 	func buttonStyle(_ fill: ButtonStyles.Fill = .primary, size: ButtonStyles.Size = .regular) -> _AttributedContent<Self> {
 		style(ButtonStyles.root, fill.style, size.style)
@@ -110,23 +109,35 @@ enum ButtonStyles: StyleSet {
 		switch self {
 		case .root:
 			Style()
-				.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5), isInline: true)
+				.hstack(
+					alignment: .center,
+					justification: .center,
+					spacing: .rootEm(0.5),
+					isInline: true
+				)
 				.cornerRadius(.capsule)
 				.textAlign(.center)
-				.textWrap(.nowrap)
+				// On one line, unless it is wider than its container, like on a phone with large text, where even a long word breaks.
+				.textWrap(.balance)
+				.overflowWrap(.breakWord)
 				.textSelection(.disabled)
 				.color(.white)
 				// Also in prose, where links are underlined.
 				.underline(false)
-				.transition(.backgroundColor, .shadow, animation: .stateChange)
+				.transition(.backgroundColor, .shadow, timing: .stateChange)
 		case .primary:
 			// The accent of the page, like the color of the icon on an app page. It is dark enough for the white text. A soft light at the top, a thin light edge, and a small shadow in the accent give it some depth, like the glass of the cards.
 			Style()
 				.background(Self.primaryFill)
-				.backgroundImage(.linearGradient("to bottom", .white.opacity(0.16), .transparent))
+				.backgroundImage(.linearGradient(.toBottom, .white.opacity(0.16), .transparent))
 				.shadow(
-					Shadow(y: .pixels(6), blur: .pixels(16), spread: .pixels(-6), color: Self.primaryFill.opacity(0.6)),
-					Shadow(y: .pixels(1), color: .white.opacity(0.25), isInset: true),
+					BoxShadow(
+						y: .pixels(6),
+						blur: .pixels(16),
+						spread: .pixels(-6),
+						color: Self.primaryFill.opacity(0.6)
+					),
+					BoxShadow(y: .pixels(1), color: .white.opacity(0.25), isInset: true),
 					// A thin edge, like the edge of the App Store and Setapp badges next to it.
 					.edge(.white.opacity(0.12))
 				)
@@ -137,10 +148,15 @@ enum ButtonStyles: StyleSet {
 			// A light tint of the accent of the page, with the depth of the primary button, but softer.
 			Style()
 				.background(Color.pageAccent.opacity(0.16))
-				.backgroundImage(.linearGradient("to bottom", .lightDark(.white.opacity(0.5), .white.opacity(0.06)), .transparent))
+				.backgroundImage(.linearGradient(.toBottom, .lightDark(.white.opacity(0.5), .white.opacity(0.06)), .transparent))
 				.shadow(
-					Shadow(y: .pixels(4), blur: .pixels(12), spread: .pixels(-6), color: Color.pageAccent.opacity(0.3)),
-					Shadow(y: .pixels(1), color: .lightDark(.white.opacity(0.8), .white.opacity(0.1)), isInset: true),
+					BoxShadow(
+						y: .pixels(4),
+						blur: .pixels(12),
+						spread: .pixels(-6),
+						color: Color.pageAccent.opacity(0.3)
+					),
+					BoxShadow(y: .pixels(1), color: .lightDark(.white.opacity(0.8), .white.opacity(0.1)), isInset: true),
 					.edge(.lightDark(Color.pageAccent.opacity(0.15), .white.opacity(0.1)))
 				)
 				.color(.accent(fallback: .primary(700), maximumLightness: 0.5), dark: .primary(200))
@@ -158,7 +174,7 @@ enum ButtonStyles: StyleSet {
 		case .gradient:
 			Style()
 				.backgroundImage(.brandGradient)
-				.shadow(Shadow(y: .pixels(1), blur: .pixels(2), color: .black.opacity(0.05)))
+				.shadow(BoxShadow(y: .pixels(1), blur: .pixels(2), color: .black.opacity(0.05)))
 				.hoverOrFocusVisible {
 					$0
 						.backgroundImage(.brandGradientHover)
@@ -180,7 +196,7 @@ enum ButtonStyles: StyleSet {
 				.cornerRadius(.rootEm(0.75))
 				.font(.extraLarge, weight: .bold)
 				// All the transitions of the button, as this list replaces the one of the root.
-				.transition(.backgroundColor, .shadow, animation: .stateChange)
+				.transition(.backgroundColor, .shadow, timing: .stateChange)
 				.pressEffect()
 		}
 	}

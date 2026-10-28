@@ -108,7 +108,13 @@ struct GeoCitiesWindowsRodent: ScriptedElement {
 	*/
 	private var play: some HTML {
 		div {
-			canvas(.part(Parts.screen), .width(736), .height(800), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.screen),
+				.width(736),
+				.height(800),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("Rodent’s Revenge. The arrow keys move the mouse. The number pad, or Q, E, Z, and C, move it on the diagonals. P pauses, and F2 starts a new game. A tap on the field moves the mouse toward it.")
 				.style(Styles.screen)
 
@@ -158,11 +164,11 @@ struct GeoCitiesWindowsRodent: ScriptedElement {
 		case status
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A button of the arrow pad, by the step it moves the mouse across and down, like `"-1 1"`. `"0 0"` waits a turn.
 		*/
-		case move = "data-rodent-move"
+		case move = "rodent-move"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -189,10 +195,15 @@ struct GeoCitiesWindowsRodent: ScriptedElement {
 				Style()
 					.display(.block)
 					.flex(3)
-					.frame(width: .percent(100), height: .auto, minWidth: .rootEm(15), maxWidth: .rootEm(21))
+					.frame(
+						width: .percent(100),
+						height: .auto,
+						minWidth: .rootEm(15),
+						maxWidth: .rootEm(21)
+					)
 					.aspectRatio(736.0 / 800.0)
-					.background(Color("#c8c88a"))
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
+					.background(Color(raw: "#c8c88a"))
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
 					.touchAction(.none)
 					.handCursor()
 			case .side:
@@ -211,7 +222,7 @@ struct GeoCitiesWindowsRodent: ScriptedElement {
 				// Big enough for a thumb, which holds it down to keep running, so it does not select the arrow.
 				Style()
 					.frame(size: .rootEm(2.75))
-					.padding(0)
+					.padding(.zero)
 					.lineHeight(1)
 					.touchAction(.manipulation)
 					.textSelection(.disabled)

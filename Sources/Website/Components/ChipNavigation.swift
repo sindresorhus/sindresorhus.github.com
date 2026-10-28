@@ -2,7 +2,7 @@ import Elementary
 import SiteKit
 
 /**
-Links as quiet chips, with an overflow menu as the last chip, like the section links of an app page and the app categories of the apps page. The menu has the chip variant.
+Links as quiet chips, with an optional overflow menu as the last chip, like the section links of an app page and the app categories of the apps page. The menu has the chip variant. With `scrollsOnPhones`, the chips are one row that scrolls sideways on phones, like the many groups of a long page.
 
 ```swift
 ChipNavigation(label: "App categories", links: AppCategory.browsable.map(\.link), menu: OverflowMenu(label: "More app pages", groups: groups, variant: .chip))
@@ -11,25 +11,28 @@ ChipNavigation(label: "App categories", links: AppCategory.browsable.map(\.link)
 struct ChipNavigation: HTML {
 	let label: String
 	let links: [LabeledLink]
-	let menu: OverflowMenu
+	var menu: OverflowMenu?
+	var scrollsOnPhones = false
 
 	var body: some HTML<HTMLTag.nav> {
 		nav {
 			for link in links {
-				a(.href(link.destination)) {
-					link.title
-				}
+				Link(link)
 				.style(Styles.link)
 			}
 
-			menu
+			if let menu {
+				menu
+			}
 		}
 		.accessibilityLabel(label)
 		.style(Styles.root)
+		.style(Styles.scrollingOnPhones, when: scrollsOnPhones)
 	}
 
 	enum Styles: StyleSet {
 		case root
+		case scrollingOnPhones
 		case link
 
 		var style: Style {
@@ -39,6 +42,19 @@ struct ChipNavigation: HTML {
 				Style()
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
 					.flexWrap()
+			case .scrollingOnPhones:
+				// On phones, one row that scrolls sideways, as many chips would fill the screen with large text. The row reaches the edges of the screen, so a chip that is cut off at the edge shows that it scrolls.
+				Style()
+					.below(.smallTablet) {
+						$0
+							// From the start, as the start of a centered row that overflows cannot be scrolled to.
+							.justifyContent(.start)
+							.flexWrap(.nowrap)
+							.overflow(horizontal: .auto)
+							// A horizontal swipe on a trackpad at the end does not go back in the history.
+							.overscrollBehavior(horizontal: .contain)
+							.fullBleed()
+					}
 			case .link:
 				Style().chip()
 			}

@@ -29,7 +29,15 @@ struct QRCodeTests {
 		}
 
 		let image = try #require(pixels.withUnsafeMutableBytes { buffer in
-			CGContext(data: buffer.baseAddress, width: size * scale, height: size * scale, bitsPerComponent: 8, bytesPerRow: size * scale, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue)?.makeImage()
+			CGContext(
+				data: buffer.baseAddress,
+				width: size * scale,
+				height: size * scale,
+				bitsPerComponent: 8,
+				bytesPerRow: size * scale,
+				space: CGColorSpaceCreateDeviceGray(),
+				bitmapInfo: CGImageAlphaInfo.none.rawValue
+			)?.makeImage()
 		})
 
 		let detector = try #require(CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: [CIDetectorAccuracy: CIDetectorAccuracyHigh]))

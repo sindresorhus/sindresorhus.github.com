@@ -18,46 +18,46 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 
 	@HTMLBuilder
 	private var programs: some HTML {
-		GeoCitiesWindows.window("bonzi", title: "BonziBUDDY Setup") {
+		GeoCitiesWindows.window(.bonzi, title: "BonziBUDDY Setup") {
 			bonziSetup
 		}
 
-		GeoCitiesWindows.window("bob", title: "Microsoft Bob", size: .wide) {
+		GeoCitiesWindows.window(.bob, title: "Microsoft Bob", size: .wide) {
 			bob
 		}
 
-		GeoCitiesWindows.window("cdrom", title: "Windows 95 CD-ROM (D:)", size: .wide) {
+		GeoCitiesWindows.window(.cdRom, title: "Windows 95 CD-ROM (D:)", size: .wide) {
 			cdrom
 		}
 
-		GeoCitiesWindows.window("movie", title: "ActiveMovie Control") {
+		GeoCitiesWindows.window(.movie, title: "ActiveMovie Control") {
 			movie
 		}
 
-		GeoCitiesWindows.window("happy", title: "Happy99") {
+		GeoCitiesWindows.window(.happy, title: "Happy99") {
 			happy
 		}
 	}
 
 	@HTMLBuilder
 	private var tools: some HTML {
-		GeoCitiesWindows.window("antivirus", title: "Nordmann AntiVirus 99", size: .wide) {
+		GeoCitiesWindows.window(.antivirus, title: "Nordmann AntiVirus 99", size: .wide) {
 			antivirus
 		}
 
-		GeoCitiesWindows.window("winzip", title: "WinZip (Unregistered Version)", size: .wide) {
+		GeoCitiesWindows.window(.winZip, title: "WinZip (Unregistered Version)", size: .wide) {
 			winZip
 		}
 
-		GeoCitiesWindows.window("dialer", title: "Phone Dialer") {
+		GeoCitiesWindows.window(.dialer, title: "Phone Dialer") {
 			dialer
 		}
 
-		GeoCitiesWindows.window("scandisk", title: "ScanDisk - (C:)") {
+		GeoCitiesWindows.window(.scanDisk, title: "ScanDisk - (C:)") {
 			scanDisk
 		}
 
-		GeoCitiesWindows.window("cleanup", title: "Disk Cleanup for (C:)") {
+		GeoCitiesWindows.window(.diskCleanup, title: "Disk Cleanup for (C:)") {
 			diskCleanup
 		}
 	}
@@ -128,7 +128,12 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 			}
 			.style(GeoCitiesWindows.Styles.assistantBalloon, Styles.bonziBalloon)
 
-			button(.part(Parts.bonziButton), .type(.button), .ariaExpanded(false), .ariaControls("geocities-fun-bonzi-balloon")) {
+			button(
+				.part(Parts.bonziButton),
+				.type(.button),
+				.ariaExpanded(false),
+				.ariaControls(ElementID("geocities-fun-bonzi-balloon"))
+			) {
 				canvas(.part(Parts.bonziCanvas), .width(48), .height(56)) {}
 					.accessibilityHidden()
 					.style(Styles.bonziCanvas)
@@ -155,7 +160,13 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 						"Password for Sindre:"
 					}
 
-					input(.id("geocities-fun-bob-password"), .part(Parts.bobPassword), .type(.password), .autocomplete("off"), .maxlength(20))
+					input(
+						.id("geocities-fun-bob-password"),
+						.part(Parts.bobPassword),
+						.type(.password),
+						.autocomplete("off"),
+						.maxlength(20)
+					)
 						.style(GeoCitiesPage.Styles.field)
 				}
 				.style(GeoCitiesWindows.Styles.nowrapRow)
@@ -244,9 +255,9 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 					}
 				}
 
-				for (program, title, icon) in [("hover", "HOVER.EXE", "🛸"), ("pinball", "PINBALL.EXE", "🚀")] {
+				for (program, title, icon) in [(GeoCitiesWindows.Program.hover, "HOVER.EXE", "🛸"), (.pinball, "PINBALL.EXE", "🚀")] {
 					li {
-						button(.type(.button), .hook(GeoCitiesPage.Hooks.desktopOpen, value: program)) {
+						button(.type(.button), .hook(GeoCitiesPage.Hooks.desktopOpen, value: program.rawValue)) {
 							span {
 								icon
 							}
@@ -289,7 +300,12 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 	private var movie: some HTML {
 		div {
 			div {
-				canvas(.part(Parts.movieCanvas), .width(160), .height(120), .role("img")) {}
+				canvas(
+					.part(Parts.movieCanvas),
+					.width(160),
+					.height(120),
+					.role("img")
+				) {}
 					.accessibilityLabel("The video")
 					.style(Styles.movieCanvas)
 			}
@@ -333,7 +349,12 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 	*/
 	private var happy: some HTML {
 		div {
-			canvas(.part(Parts.happyCanvas), .width(240), .height(160), .role("img")) {}
+			canvas(
+				.part(Parts.happyCanvas),
+				.width(240),
+				.height(160),
+				.role("img")
+			) {}
 				.accessibilityLabel("Fireworks, and the words Happy New Year 1999 !!")
 				.style(Styles.happyCanvas)
 
@@ -489,7 +510,13 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 				.style(GeoCitiesPage.Styles.label)
 
 				div {
-					input(.id("geocities-fun-dialer-number"), .part(Parts.dialerNumber), .type(.tel), .autocomplete("off"), .maxlength(16))
+					input(
+						.id("geocities-fun-dialer-number"),
+						.part(Parts.dialerNumber),
+						.type(.tel),
+						.autocomplete("off"),
+						.maxlength(16)
+					)
 						.style(GeoCitiesPage.Styles.field)
 
 					button(.type(.submit)) {
@@ -562,7 +589,12 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 
 				for (test, title) in [("standard", "Standard (checks files and folders for errors)"), ("thorough", "Thorough (also scans the disk surface, takes until 2000)")] {
 					label {
-						input(.type(.radio), .name("geocities-fun-scandisk-test"), .value(test), .hook(Hooks.scandiskTest, value: test))
+						input(
+							.type(.radio),
+							.name("geocities-fun-scandisk-test"),
+							.value(test),
+							.hook(Hooks.scandiskTest, value: test)
+						)
 							.attributes(.checked, when: test == "thorough")
 						" \(title)"
 					}
@@ -728,51 +760,51 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 	/**
 	The lists of the same kind of element, with a value for the script.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		What a choice of the balloon of BonziBUDDY does, like `joke`.
 		*/
-		case bonziAction = "data-fun-bonzi-action"
+		case bonziAction = "fun-bonzi-action"
 
 		/**
 		A video of the CD, by its ID, like `buddy`.
 		*/
-		case video = "data-fun-video"
+		case video = "fun-video"
 
 		/**
 		What a button of a virus that was found does, like `delete`.
 		*/
-		case antivirusAction = "data-fun-antivirus-action"
+		case antivirusAction = "fun-antivirus-action"
 
 		/**
 		A button of the nag screen of WinZip, like `agree`.
 		*/
-		case winzipChoice = "data-fun-winzip-choice"
+		case winzipChoice = "fun-winzip-choice"
 
 		/**
 		A key of the keypad of Phone Dialer, like `5`.
 		*/
-		case dialerKey = "data-fun-dialer-key"
+		case dialerKey = "fun-dialer-key"
 
 		/**
 		A speed dial button, by the person it calls, like `mamma`.
 		*/
-		case dialerSpeed = "data-fun-dialer-speed"
+		case dialerSpeed = "fun-dialer-speed"
 
 		/**
 		A radio button of the type of test of ScanDisk.
 		*/
-		case scandiskTest = "data-fun-scandisk-test"
+		case scandiskTest = "fun-scandisk-test"
 
 		/**
 		A cluster of the hard drive in ScanDisk, by its number.
 		*/
-		case scandiskCluster = "data-fun-scandisk-cluster"
+		case scandiskCluster = "fun-scandisk-cluster"
 
 		/**
 		A kind of files that Disk Cleanup can delete, like `gifs`.
 		*/
-		case cleanupItem = "data-fun-cleanup-item"
+		case cleanupItem = "fun-cleanup-item"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -813,8 +845,8 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 				// Over the icons and under the windows, where the script walks him, with his balloon above him. While he talks, he comes in front of the windows, under the Start menu and the taskbar, as he wants to be heard.
 				Style()
 					.position(.absolute)
-					.top(0)
-					.leading(0)
+					.top(.zero)
+					.leading(.zero)
 					.zIndex(0)
 					.vstack(alignment: .center, spacing: .rootEm(0.25))
 					.when(States.talking) {
@@ -830,14 +862,19 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 			case .bonziButton:
 				// The gorilla himself, which drags and opens his balloon.
 				Style()
-					.padding(0)
+					.padding(.zero)
 					.background(.transparent)
-					.border(.transparent, width: 0)
+					.border(.transparent, width: .zero)
 					.lineHeight(0)
 					.handCursor()
 					.touchAction(.none)
 					.focusVisible {
-						$0.focusRing(.white, width: .pixels(1), offset: .pixels(2), style: .dotted)
+						$0.focusRing(
+							.white,
+							width: .pixels(1),
+							offset: .pixels(2),
+							style: .dotted
+						)
 					}
 			case .bonziCanvas:
 				Style()
@@ -847,25 +884,33 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 				// The front door of the house of Bob, with the yellow of his smile.
 				Style()
 					.padding(.rootEm(0.75))
-					.background(Color("#fff3a8"))
-					.border(Color("#c08000"), width: .pixels(2))
+					.background(Color(raw: "#fff3a8"))
+					.border(Color(raw: "#c08000"), width: .pixels(2))
 					.fontFamily(GeoCitiesPage.comicSans)
 			case .bobTitle:
 				Style()
 					.fontFamily(GeoCitiesPage.comicSans)
 					.font(.large, weight: .bold)
-					.color(Color("#7a3d00"))
+					.color(Color(raw: "#7a3d00"))
 			case .bobRoom:
 				// A room of the house, with wallpaper above and a wooden floor below, and the things of the room on it.
 				Style()
 					.grid(columns: 4)
 					.gap(.rootEm(0.25))
 					.padding(.rootEm(0.5))
-					.backgroundImage(.linearGradient("to bottom", Color("#f6d7a7"), Color("#f6d7a7"), Color("#b5793b"), Color("#8a5626")))
-					.border(Color("#7a3d00"), width: .pixels(3), style: .ridge)
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#f6d7a7"),
+							Color(raw: "#f6d7a7"),
+							Color(raw: "#b5793b"),
+							Color(raw: "#8a5626")
+						)
+					)
+					.border(Color(raw: "#7a3d00"), width: .pixels(3), style: .ridge)
 			case .bobItem:
 				Style()
-					.vstack(alignment: .center, spacing: 0)
+					.vstack(alignment: .center, spacing: .zero)
 					.frame(width: .percent(100))
 					.padding(.rootEm(0.25))
 					.background(.transparent)
@@ -876,10 +921,10 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 					.color(.black)
 					.handCursor()
 					.hover {
-						$0.border(Color("#ffcc00"), width: .pixels(2))
+						$0.border(Color(raw: "#ffcc00"), width: .pixels(2))
 					}
 					.focusVisible {
-						$0.border(Color("#ff6600"), width: .pixels(2))
+						$0.border(Color(raw: "#ff6600"), width: .pixels(2))
 					}
 			case .bobItemPicture:
 				Style()
@@ -896,13 +941,13 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 				// The Autorun screen of the CD, with the clouds of Windows 95.
 				Style()
 					.padding(.rootEm(0.5))
-					.backgroundImage(.linearGradient("to bottom", Color("#2f63c9"), Color("#9fc4f2")))
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#2f63c9"), Color(raw: "#9fc4f2")))
 					.fontFamily(GeoCitiesPage.impact)
 					.font(.extraLarge2)
 					.color(.white)
 					.textShadow(Shadow(x: .pixels(2), y: .pixels(2), color: .black))
 			case .cdNumber:
-				Style().color(Color("#ffcc00"))
+				Style().color(Color(raw: "#ffcc00"))
 			case .movieCanvas:
 				Style()
 					.display(.block)
@@ -925,7 +970,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 			case .antivirusLogo:
 				Style()
 					.padding(.rootEm(0.375))
-					.backgroundImage(.linearGradient("to right", Color("#ffcc00"), Color("#ffee88")))
+					.backgroundImage(.linearGradient(.toRight, Color(raw: "#ffcc00"), Color(raw: "#ffee88")))
 					.fontFamily(.system)
 					.font(.large, weight: .bold)
 					.color(.black)
@@ -938,8 +983,8 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.25))
 					.padding(.rootEm(0.375))
-					.background(Color("#ffe0e0"))
-					.border(Color("#cc0000"), width: .pixels(1))
+					.background(Color(raw: "#ffe0e0"))
+					.border(Color(raw: "#cc0000"), width: .pixels(1))
 			case .keypad:
 				Style()
 					.grid(columns: 3)
@@ -955,7 +1000,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 					.overflow(.auto)
 					.padding(.rootEm(0.375))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption)
 					.preservesLineBreaks()
@@ -963,7 +1008,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 				Style()
 					.vstack(spacing: .rootEm(0.25))
 					.padding(.rootEm(0.375))
-					.border(Color("#808080"), width: .pixels(2), style: .groove)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .groove)
 			case .clusters:
 				// The clusters of the hard drive, like the surface scan of ScanDisk.
 				Style()
@@ -975,19 +1020,19 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 				// Gray until it is checked, then blue, and red with a B when it is bad.
 				Style()
 					.frame(height: .rootEm(0.6))
-					.background(Color("#808080"))
+					.background(Color(raw: "#808080"))
 					.fontFamily(GeoCitiesPage.courier)
 					.font(size: .rootEm(0.5), lineHeight: 1.2)
 					.textAlign(.center)
 					.color(.white)
 					.when(States.checked) {
-						$0.background(Color("#0000aa"))
+						$0.background(Color(raw: "#0000aa"))
 					}
 					.when(States.bad) {
-						$0.background(Color("#cc0000"))
+						$0.background(Color(raw: "#cc0000"))
 					}
 					.when(States.reading) {
-						$0.background(Color("#ffff00"))
+						$0.background(Color(raw: "#ffff00"))
 					}
 			}
 		}

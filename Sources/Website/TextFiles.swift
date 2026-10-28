@@ -8,15 +8,15 @@ The plain files for crawlers, AI assistants, and other tools: `robots.txt`, `hum
 extension Site {
 	@RouteBuilder
 	var textFileRoutes: [Route] {
-		Route.text("/robots.txt") {
+		Route.text(#path("/robots.txt")) {
 			Self.robots
 		}
 
-		Route.text("/humans.txt") {
+		Route.text(#path("/humans.txt")) {
 			Self.humans
 		}
 
-		Route.text("/llms.txt") {
+		Route.text(#path("/llms.txt")) {
 			llms
 		}
 
@@ -24,38 +24,33 @@ extension Site {
 			llmsFull
 		}
 
-		Route.file("/apps.json") {
+		Route.file(#path("/apps.json")) {
 			try appsJSON()
 		}
 
-		Route.file("/.well-known/webfinger") {
+		Route.file(#path("/.well-known/webfinger")) {
 			Self.webFinger()
 		}
 
 		if let sharedPuzzlePage = SharedPuzzlePage(apps: content.apps) {
-			Route.file("/.well-known/apple-app-site-association") {
+			Route.file(#path("/.well-known/apple-app-site-association")) {
 				sharedPuzzlePage.appSiteAssociation
 			}
 		}
 
 		// Without projects, the about page has no card for them, so its button needs no file.
-		let packages = content.discoverablePackages
-		let repositories = content.discoverableRepositories
+		for source in ProjectOfTheDay.Source.allCases {
+			let projects = source.projects(in: content)
 
-		if !packages.isEmpty {
-			Route.file(.npmPackages) {
-				ProjectOfTheDay.listJSON(packages)
-			}
-		}
-
-		if !repositories.isEmpty {
-			Route.file(.repositories) {
-				ProjectOfTheDay.listJSON(repositories)
+			if !projects.isEmpty {
+				Route.file(source.path) {
+					ProjectOfTheDay.listJSON(projects)
+				}
 			}
 		}
 	}
 
-	private static let llmsFullPath: RoutePath = "/llms-full.txt"
+	private static let llmsFullPath = #path("/llms-full.txt")
 
 	/**
 	The AI crawlers that are explicitly allowed. Every other crawler is allowed too, but naming them makes the policy clear.
@@ -128,41 +123,74 @@ extension Site {
 			"",
 		]
 
-		lines += content.activeAppsWithPages.map { app in
-			"- [\(app.title)](\(app.path.absoluteURL.absoluteString)): \(app.subtitle). \(app.operatingSystems)."
+		// The featured apps first, in the order of `content/site.soml`, as they are the main apps.
+		let apps = content.activeAppsWithPages.startingWith(content.featuredApps)
+
+		lines += apps.map { app in
+			Self.llmsLink(app.title, url: app.path.absoluteURL, description: "\(app.subtitle). \(content.listing(of: app).llmsFacts)")
 		}
 
 		lines += ["", "## Pages", ""]
 		lines += content.pages.map { page in
-			"- [\(page.title)](\(page.path.absoluteURL.absoluteString))\(page.description.map { ": \($0)" } ?? "")"
+			Self.llmsLink(page.title, url: page.path.absoluteURL, description: page.description)
+		}
+
+		lines += swiftPages.map { page in
+			Self.llmsLink(page.metadata.title, url: page.path.absoluteURL, description: page.metadata.description)
 		}
 
 		lines += ["", "## Blog", ""]
 		lines += content.listedPosts.map { post in
-			"- [\(post.title)](\(post.absoluteURL.absoluteString))\(post.description.map { ": \($0)" } ?? "")"
+			Self.llmsLink(post.title, url: post.absoluteURL, description: post.description)
 		}
 
-		lines += ["", "## Optional", "", "- [Everything](\(Self.llmsFullPath.absoluteURL.absoluteString)): All the app pages, pages, and blog posts as Markdown, in one file."]
+		lines += ["", "## Guides", ""]
+		lines += content.guides.map { guide in
+			Self.llmsLink(guide.title, url: guide.path.absoluteURL, description: guide.description)
+		}
+
+		lines += ["", "## Optional", "", Self.llmsLink("Everything", url: Self.llmsFullPath.absoluteURL, description: "All the app pages, guides, pages, open-source projects, and blog posts as Markdown, in one file.")]
 		return lines.joined(separator: "\n") + "\n"
 	}
 
 	/**
-	All the app pages, pages, and blog posts as Markdown, in one file.
+	An item of a list of links in `llms.txt`, like `- [Dato](https://sindresorhus.com/dato): Calendar in the menu bar.`, without the colon when there is no description.
+	*/
+	private static func llmsLink(_ title: String, url: URL, description: String?) -> String {
+		"- [\(title)](\(url.absoluteString))\(description.map { ": \($0)" } ?? "")"
+	}
+
+	/**
+	The indexed pages that are written in Swift, not in Markdown, like the open-source page and the older versions of the apps. The home page is the summary at the top, and the apps, the posts, and the guides have their own sections.
+	*/
+	private var swiftPages: [any Page] {
+		specialPages.filter { $0.path != .root && $0.metadata.isIndexed }
+	}
+
+	/**
+	All the app pages, guides, pages, open-source projects, and blog posts as Markdown, in one file.
 	*/
 	private var llmsFull: String {
 		let apps = content.activeAppsWithPages.map { app in
-			"# \(app.title)\n\n\(app.subtitle).\n\nURL: \(app.path.absoluteURL.absoluteString)\n\n\(app.file.withAbsoluteLinks(app.fullMarkdown, page: app.path.absoluteURL, project: content.project))"
+			app.exportedMarkdown(body: app.fullMarkdown, introduction: "\(app.subtitle).", project: content.project)
+		}
+
+		let guides = content.guides.map { guide in
+			guide.exportedMarkdown(body: guide.file.plainMarkdown, project: content.project)
 		}
 
 		let pages = content.pages.map { page in
-			"# \(page.title)\n\nURL: \(page.path.absoluteURL.absoluteString)\n\n\(page.file.withAbsoluteLinks(page.fullMarkdown, page: page.path.absoluteURL, project: content.project))"
+			page.exportedMarkdown(body: page.fullMarkdown, project: content.project)
 		}
+
+		// The projects of the open-source page, grouped like on the page.
+		let openSource = OpenSourcePage(content: content).plainMarkdown
 
 		let posts = content.listedPosts.filter { !$0.isRedirect }.map { post in
-			"# \(post.title)\n\nURL: \(post.absoluteURL.absoluteString)\n\n\(post.file.withAbsoluteLinks(post.file.body, page: post.absoluteURL, project: content.project))"
+			post.exportedMarkdown(body: post.file.plainMarkdown, project: content.project)
 		}
 
-		return (["# \(Self.name)\n\n> \(Self.description)"] + apps + pages + posts).joined(separator: "\n\n---\n\n") + "\n"
+		return (["# \(Self.name)\n\n> \(Self.description)"] + apps + guides + pages + [openSource] + posts).joined(separator: "\n\n---\n\n") + "\n"
 	}
 
 	/**
@@ -200,12 +228,7 @@ extension Site {
 	WebFinger for the Mastodon account, so searching for `@sindre@sindresorhus.com` (any name) finds it. A static file answers every query with the same account.
 	*/
 	private static func webFinger() -> Data {
-		let handle = author.fediverseHandle.drop { $0 == "@" }
-		let parts = handle.split(separator: "@")
-
-		guard parts.count == 2 else {
-			preconditionFailure("A fediverse handle is a user and a server, like `@sindresorhus@mastodon.social`, got `\(author.fediverseHandle)`.")
-		}
+		let handle = author.fediverseHandle
 
 		struct Resource: Encodable {
 			struct Link: Encodable {
@@ -220,18 +243,16 @@ extension Site {
 			let links: [Link]
 		}
 
-		let user = parts[0]
-		let server = parts[1]
-		let profile = "https://\(server)/@\(user)"
-		let actor = "https://\(server)/users/\(user)"
+		let profile = handle.profileURL.absoluteString
+		let actor = handle.actorURL.absoluteString
 
 		let resource = Resource(
-			subject: "acct:\(handle)",
+			subject: "acct:\(handle.account)",
 			aliases: [profile, actor],
 			links: [
 				.init(rel: "http://webfinger.net/rel/profile-page", type: "text/html", href: profile),
 				.init(rel: "self", type: "application/activity+json", href: actor),
-				.init(rel: "http://ostatus.org/schema/1.0/subscribe", template: "https://\(server)/authorize_interaction?uri={uri}"),
+				.init(rel: "http://ostatus.org/schema/1.0/subscribe", template: "\(handle.server.absoluteString)/authorize_interaction?uri={uri}"),
 			]
 		)
 
@@ -239,25 +260,75 @@ extension Site {
 	}
 }
 
+extension AppListing {
+	/**
+	The facts of the app for `llms.txt`, like “Price: Free. Platforms: macOS, iOS. Get it from: App Store. Requires version 26 or later.”, as assistants otherwise quote wrong facts from other sites. An app that is in no store is downloaded from its page. The price is left out when it is unknown, like for a paid app when the App Store did not answer.
+	*/
+	fileprivate var llmsFacts: String {
+		var stores = [
+			app.appStoreURL.map { _ in "App Store" },
+			app.setappURL.map { _ in "Setapp" },
+			app.gumroadURL.map { _ in "Gumroad" },
+		]
+		.compactMap(\.self)
+
+		if
+			stores.isEmpty,
+			app.ownDownloadURL != nil
+		{
+			stores.append("the app page")
+		}
+
+		return [
+			priceText.map { "Price: \($0)." },
+			"Platforms: \(app.operatingSystems).",
+			stores.isEmpty ? nil : "Get it from: \(stores.joined(separator: ", ")).",
+			requirementSentence.map { "\($0)." },
+		]
+		.compactMap(\.self)
+		.joined(separator: " ")
+	}
+}
+
 extension App {
 	/**
-	The Markdown of the page with what the build adds from the facts of the app, like the common and shared questions and the older versions, where the page shows them (``App/Frontmatter/addingGeneratedSections(to:sharedQuestions:)``). The blocks of the file keep their source, and the added blocks are formatted.
-
-	Limitation: the parser leaves link reference definitions and footnote definitions out of the blocks, so they are left out, and it gives a setext heading (underlined with `=` or `-`) directly followed by text a range that has the next line, so that line is there twice. The app files have none.
+	The Markdown of the page with what the build adds from the facts of the app, like the common and shared questions and the older versions, where the page shows them (``App/Frontmatter/addingGeneratedSections(to:sharedQuestions:page:)``), without the syntax of the site (``Markdown/Document/plainMarkdown(source:)``).
 	*/
 	fileprivate var fullMarkdown: String {
-		let lines = file.body.split(separator: "\n", omittingEmptySubsequences: false)
-		let document = frontmatter.addingGeneratedSections(to: Document(parsing: file.body, options: .parseBlockDirectives), sharedQuestions: sharedQuestions)
+		frontmatter.addingGeneratedSections(to: Document(parsing: file.body, options: .parseBlockDirectives), sharedQuestions: sharedQuestions, page: path)
+			.plainMarkdown(source: file.body)
+	}
+}
 
-		return document.blockChildren.map { block in
+extension Document {
+	/**
+	The Markdown of the document without the syntax of the site, like block directives, keyboard shortcuts, and heading IDs (``PlainMarkdownRewriter``), as the file is read outside the site. The blocks without it keep their source, and the others, and the blocks that the build added, are formatted.
+
+	Limitation: the parser leaves link reference definitions and footnote definitions out of the blocks, so they are left out, and it gives a setext heading (underlined with `=` or `-`) directly followed by text a range that has the next line, so that line is there twice. The content files have none.
+
+	- Parameter source: The Markdown that the document was parsed from.
+	*/
+	fileprivate func plainMarkdown(source: String, blockDirective: @escaping (BlockDirective) -> [any BlockMarkup] = { $0.plainBlocks }) -> String {
+		let lines = source.split(separator: "\n", omittingEmptySubsequences: false)
+
+		return blockChildren.compactMap { block -> String? in
+			var rewriter = PlainMarkdownRewriter(blockDirective: blockDirective)
+
+			// The rewriter changes the children of the document it gets, so a block directive at the top can be several blocks.
+			guard let plainBlock = rewriter.visit(Document(block)) else {
+				return nil
+			}
+
 			guard
+				!rewriter.didChange,
 				// Raw HTML is formatted as it is written, and the parser ends the range of an HTML comment of several lines a line early.
 				!(block is HTMLBlock),
 				// The added blocks have no range, or the source of their own file, like the shared questions.
 				let range = block.range,
 				range.lowerBound.source == nil
 			else {
-				return block.format()
+				let markdown = plainBlock.format()
+				return markdown.allSatisfy(\.isWhitespace) ? nil : markdown
 			}
 
 			// A top-level block has whole lines.
@@ -271,21 +342,33 @@ extension App {
 
 extension MarkdownFile {
 	/**
+	The Markdown of the file without the syntax of the site (``Markdown/Document/plainMarkdown(source:)``).
+	*/
+	fileprivate var plainMarkdown: String {
+		Document(parsing: body, options: .parseBlockDirectives).plainMarkdown(source: body)
+	}
+
+	// Stored, as this runs for each document of `llms-full.txt`.
+	// The root-relative URLs of raw HTML, like `<img src="/dato/icon.png">` and `href="/"`, but not `//example.com`, which is another host.
+	nonisolated(unsafe) private static let rootRelativeHTMLURL = /\b(src|href)="(\/(?:[^"\/][^"]*)?)"/
+
+	/**
 	The Markdown with the destinations of its links and images, and the root-relative URLs of its raw HTML, as absolute URLs, as the file is read outside the site. A link to a content file, like `donate.md`, goes to its page.
 	*/
 	fileprivate func withAbsoluteLinks(_ markdown: String, page: URL, project: Project) -> String {
-		let markdown = markdown.replacing(/\]\(([^()\s]+)\)/) { match in
-			let destination = (try? resolvingLink(String(match.1), project: project)) ?? String(match.1)
-			return "](\(URL(string: destination, relativeTo: page)?.absoluteString ?? destination))"
+		let document = Document(parsing: markdown, options: .parseBlockDirectives)
+		let replacements = document.linkReplacements { destination in
+			let destination = (try? resolvingLink(destination, project: project)) ?? destination
+			return URL(string: destination, relativeTo: page)?.absoluteString ?? destination
 		}
+		let resolved = markdown.replacingSource(replacements)
 
 		// Most files have no root-relative URL in raw HTML, and the word boundary makes the search slow (about 0.1 s for all the files).
-		guard markdown.contains(#"="/"#) else {
-			return markdown
+		guard resolved.contains(#"="/"#) else {
+			return resolved
 		}
 
-		// The root-relative URLs of raw HTML, like `<img src="/dato/icon.png">` and `href="/"`, but not `//example.com`, which is another host.
-		return markdown.replacing(/\b(src|href)="(\/(?:[^"\/][^"]*)?)"/) { match in
+		return resolved.replacing(Self.rootRelativeHTMLURL) { match in
 			#"\#(match.1)="\#(URL(string: String(match.2), relativeTo: page)?.absoluteString ?? String(match.2))""#
 		}
 	}
@@ -293,10 +376,17 @@ extension MarkdownFile {
 
 extension MarkdownPage {
 	/**
-	The Markdown of the page with the sponsors from the frontmatter, where the page shows them.
+	The Markdown of the page with the sponsors from the frontmatter, where the page shows them, without the syntax of the site. The parsed `@Sponsors` directive places its tiers, so code examples remain literal.
 	*/
 	fileprivate var fullMarkdown: String {
-		file.body.replacing(Self.sponsorsDirective, with: frontmatter.sponsorTiers.map(\.markdown).joined(separator: "\n\n"))
+		Document(parsing: file.body, options: .parseBlockDirectives).plainMarkdown(source: file.body, blockDirective: { directive in
+			guard directive.siteName == .sponsors else {
+				return directive.plainBlocks
+			}
+
+			let sponsors = frontmatter.sponsorTiers.map(\.markdown).joined(separator: "\n\n")
+			return Array(Document(parsing: sponsors).blockChildren)
+		})
 	}
 }
 
@@ -310,5 +400,61 @@ extension MarkdownPage.SponsorTier {
 		}
 
 		return "## \(title) \(price)\n\n\(sponsors.joined(separator: "\n"))"
+	}
+}
+
+extension ContentDocument {
+	/**
+	Frames a document export with its canonical identity, keeping type-specific introductions and bodies at the call site.
+	*/
+	fileprivate func exportedMarkdown(body: String, introduction: String? = nil, project: Project) -> String {
+		let introduction = introduction.map { "\($0)\n\n" } ?? ""
+		return "# \(frontmatter.title)\n\n\(introduction)URL: \(absoluteURL.absoluteString)\n\n\(file.withAbsoluteLinks(body, page: absoluteURL, project: project))"
+	}
+}
+
+extension Markup {
+	/**
+	The outermost parsed link/image edits. Rewriting a whole subtree handles linked images without overlapping source replacements.
+	*/
+	fileprivate func linkReplacements(resolving destination: @escaping (String) -> String) -> [Replacement] {
+		guard self is Markdown.Link || self is Markdown.Image else {
+			return children.flatMap { $0.linkReplacements(resolving: destination) }
+		}
+
+		var rewriter = PlainMarkdownRewriter(linkDestination: destination, blockDirective: \.plainBlocks)
+		guard
+			let range,
+			let rewritten = rewriter.visit(self),
+			rewriter.didChange
+		else {
+			return []
+		}
+
+		// Formatting an inline replacement must not inherit its surrounding list’s indentation.
+		return [Replacement(range: range, replacementText: rewritten.detachedFromParent.format())]
+	}
+}
+
+extension String {
+	/**
+	Applies parser-owned UTF-8 ranges from last to first, preserving every byte outside the changed nodes, including authored list numbers.
+	*/
+	fileprivate func replacingSource(_ replacements: [Replacement]) -> String {
+		var bytes = Array(utf8)
+		var lineOffsets = [0]
+
+		for (index, byte) in bytes.enumerated() where byte == 10 {
+			lineOffsets.append(index + 1)
+		}
+
+		for replacement in replacements.reversed() {
+			let range = replacement.range
+			let lower = lineOffsets[range.lowerBound.line - 1] + range.lowerBound.column - 1
+			let upper = lineOffsets[range.upperBound.line - 1] + range.upperBound.column - 1
+			bytes.replaceSubrange(lower..<upper, with: replacement.replacementText.utf8)
+		}
+
+		return String(decoding: bytes, as: UTF8.self)
 	}
 }

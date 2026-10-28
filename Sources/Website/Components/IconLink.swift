@@ -13,13 +13,13 @@ struct IconLink: HTML {
 	let label: String
 	let icon: Icon
 	let destination: LinkDestination
-	let iconSize: Length
+	let iconSize: LengthPercentage
 
 	init(
 		_ label: String,
 		icon: Icon,
 		destination: LinkDestination,
-		iconSize: Length = .rootEm(1.25)
+		iconSize: LengthPercentage = .rootEm(1.25)
 	) {
 		self.label = label
 		self.icon = icon

@@ -54,7 +54,13 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 							.style(Styles.groupTitle)
 
 							for sample in group.samples {
-								button(.type(.button), .hook(Hooks.sample, value: sample.id), .hook(Hooks.group, value: group.id), .hook(Hooks.short, value: sample.short), .ariaPressed(false)) {
+								button(
+									.type(.button),
+									.hook(Hooks.sample, value: sample.id),
+									.hook(Hooks.group, value: group.id),
+									.hook(Hooks.short, value: sample.short),
+									.ariaPressed(false)
+								) {
 									sample.title
 								}
 								.style(Styles.sample)
@@ -125,7 +131,15 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 					.style(GeoCitiesPage.Styles.label)
 
 					div {
-						input(.id("geocities-jay-title"), .part(Parts.songTitle), .type(.text), .autocomplete("off"), .maxlength(40), .value("Waffle Dance (Radio Edit)"), .required)
+						input(
+							.id("geocities-jay-title"),
+							.part(Parts.songTitle),
+							.type(.text),
+							.autocomplete("off"),
+							.maxlength(40),
+							.value("Waffle Dance (Radio Edit)"),
+							.required
+						)
 							.style(GeoCitiesPage.Styles.field, Styles.songTitle)
 
 						button(.type(.submit)) {
@@ -179,31 +193,31 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 		case target
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A sample of the palette, by its ID.
 		*/
-		case sample = "data-jay-sample"
+		case sample = "jay-sample"
 
 		/**
 		The group of a sample, or of the sample on a track, for its color.
 		*/
-		case group = "data-jay-group"
+		case group = "jay-group"
 
 		/**
 		The short name of a sample, for its block on a track.
 		*/
-		case short = "data-jay-short"
+		case short = "jay-short"
 
 		/**
 		A spot on the tracks, as the track and the bar, like `0-3`.
 		*/
-		case cell = "data-jay-cell"
+		case cell = "jay-cell"
 
 		/**
 		The number above a bar, which lights up while the bar plays.
 		*/
-		case bar = "data-jay-bar"
+		case bar = "jay-bar"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -226,11 +240,11 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 		The colors of the groups, like the colored blocks of Dance eJay.
 		*/
 		private static let colors: [(group: String, color: Color)] = [
-			("beats", Color("#ff6666")),
-			("bass", Color("#6699ff")),
-			("synth", Color("#66dd66")),
-			("voice", Color("#ffdd44")),
-			("fx", Color("#cc77ff")),
+			("beats", Color(raw: "#ff6666")),
+			("bass", Color(raw: "#6699ff")),
+			("synth", Color(raw: "#66dd66")),
+			("voice", Color(raw: "#ffdd44")),
+			("fx", Color(raw: "#cc77ff")),
 		]
 
 		private func colored(_ style: Style) -> Style {
@@ -249,7 +263,7 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 				Style()
 					.fontFamily(GeoCitiesPage.impact)
 					.textStyle(.body)
-					.color(Color("#ff00cc"))
+					.color(Color(raw: "#ff00cc"))
 			case .palette:
 				// The groups side by side, and in two columns on phones.
 				Style()
@@ -266,7 +280,7 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 				colored(
 					Style()
 						.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.375))
-						.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+						.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 						.fontFamily(.system)
 						.textStyle(.caption, weight: .bold)
 						.textAlign(.leading)
@@ -275,7 +289,7 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 						// Black, as the navy ring does not show well on the blue and the violet.
 						.buttonFocusRing(.black)
 						.active {
-							$0.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+							$0.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .inset)
 						}
 						.pressed {
 							$0
@@ -286,20 +300,20 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 			case .tracks:
 				// The tracks as a grid: a narrow column for the numbers of the tracks, and one column for each bar.
 				Style()
-					.grid(columns: "1.25rem repeat(8, 1fr)")
+					.grid(columns: .fixed(.rootEm(1.25)), repeating: .fraction(1), count: 8)
 					.gap(.pixels(2))
 					.padding(.pixels(4))
-					.background(Color("#202040"))
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#202040"))
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 			case .barNumber:
 				Style()
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
-					.color(Color("#8888cc"))
+					.color(Color(raw: "#8888cc"))
 					.when(States.now) {
 						$0
-							.background(Color("#ffff00"))
+							.background(Color(raw: "#ffff00"))
 							.color(.black)
 					}
 			case .trackNumber:
@@ -308,15 +322,15 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 					.frame(minWidth: .rootEm(1))
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#8888cc"))
+					.color(Color(raw: "#8888cc"))
 			case .cell:
 				// An empty spot is dark, and a spot with a sample has the color of its group and its short name.
 				colored(
 					Style()
-						.frame(minWidth: 0, minHeight: .rootEm(2))
-						.padding(0)
-						.background(Color("#303060"))
-						.border(Color("#505090"), width: .pixels(1))
+						.frame(minWidth: .zero, minHeight: .rootEm(2))
+						.padding(.zero)
+						.background(Color(raw: "#303060"))
+						.border(Color(raw: "#505090"), width: .pixels(1))
 						.fontFamily(GeoCitiesPage.courier)
 						.font(size: .rootEm(0.625))
 						.fontWeight(.bold)
@@ -327,15 +341,15 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 							$0.filter(.brightness(1.4))
 						}
 						.when(States.target) {
-							$0.border(Color("#ffff00"), width: .pixels(2))
+							$0.border(Color(raw: "#ffff00"), width: .pixels(2))
 						}
 				)
 			case .ghost:
 				// The block that follows the pointer while the visitor drags a sample.
 				Style()
 					.position(.fixed)
-					.top(0)
-					.leading(0)
+					.top(.zero)
+					.leading(.zero)
 					.zIndex(1000)
 					.hstack(alignment: .center, justification: .center)
 					.frame(width: .rootEm(3))
@@ -350,7 +364,7 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 				// Like the chart page of a newspaper.
 				Style()
 					.padding(.rootEm(0.75))
-					.background(Color("#fffbe6"))
+					.background(Color(raw: "#fffbe6"))
 					.border(.black, width: .pixels(2))
 					.fontFamily(GeoCitiesPage.times)
 					.flowSpacing(.rootEm(0.5))
@@ -358,7 +372,7 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 				Style()
 					.fontFamily(GeoCitiesPage.impact)
 					.font(.extraLarge)
-					.color(Color("#cc0000"))
+					.color(Color(raw: "#cc0000"))
 			}
 		}
 	}

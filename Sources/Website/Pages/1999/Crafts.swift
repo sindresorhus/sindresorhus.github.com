@@ -158,7 +158,13 @@ struct GeoCitiesCrafts: ScriptedElement {
 
 			hamaTub
 
-			canvas(.part(Parts.hamaCanvas), .width(640), .height(640), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.hamaCanvas),
+				.width(640),
+				.height(640),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The Hama pegboard on the kitchen table. Move with the arrow keys and press Enter to put on a bead or, with the tweezers, to take one off. While ironing, the arrow keys move the iron.")
 				.style(Styles.canvas, Styles.drawingCanvas)
 
@@ -167,7 +173,13 @@ struct GeoCitiesCrafts: ScriptedElement {
 			p(.part(Parts.hamaStatus), .role("status")) {}
 				.style(Styles.status)
 
-			canvas(.part(Parts.fridge), .width(640), .height(220), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.fridge),
+				.width(640),
+				.height(220),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The fridge door, with the finished Hama pieces. Press Delete to take down the newest one.")
 				.style(Styles.canvas, Styles.displayCanvas)
 		}
@@ -278,7 +290,13 @@ struct GeoCitiesCrafts: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.formRow)
 
-			canvas(.part(Parts.snowCanvas), .width(640), .height(640), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.snowCanvas),
+				.width(640),
+				.height(640),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The folded paper. Move the scissors with the arrow keys, and press Enter to add a corner of the cut. Press Enter on the first corner again to finish the cut, Escape to stop cutting, and Backspace to undo.")
 				.style(Styles.canvas, Styles.drawingCanvas)
 
@@ -293,7 +311,13 @@ struct GeoCitiesCrafts: ScriptedElement {
 			p(.part(Parts.snowStatus), .role("status")) {}
 				.style(Styles.status)
 
-			canvas(.part(Parts.kitchenWindow), .width(640), .height(300), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.kitchenWindow),
+				.width(640),
+				.height(300),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The kitchen window, with the snowflakes hanging in it, and the rain outside. Press Delete to take down the newest one.")
 				.style(Styles.canvas, Styles.displayCanvas)
 		}
@@ -377,7 +401,13 @@ struct GeoCitiesCrafts: ScriptedElement {
 			.accessibilityLabel("Pen color")
 			.style(Styles.swatches)
 
-			canvas(.part(Parts.spiroCanvas), .width(640), .height(640), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.spiroCanvas),
+				.width(640),
+				.height(640),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The Spirograph, pinned to the table. Hold the right arrow key to turn the wheel one way, and the left arrow key to turn it back. If the wheel flies out, an arrow key puts it back.")
 				.style(Styles.canvas, Styles.drawingCanvas)
 
@@ -444,7 +474,13 @@ struct GeoCitiesCrafts: ScriptedElement {
 			.accessibilityLabel("Tool")
 			.style(GeoCitiesPage.Styles.buttonRow)
 
-			canvas(.part(Parts.shrinkCanvas), .width(640), .height(560), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.shrinkCanvas),
+				.width(640),
+				.height(560),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("The sheet of shrink plastic, or the oven. Move with the arrow keys, and hold Space to draw or cut. Press Enter to punch the hole, or to look in the oven.")
 				.style(Styles.canvas, Styles.drawingCanvas)
 
@@ -458,7 +494,13 @@ struct GeoCitiesCrafts: ScriptedElement {
 			p(.part(Parts.shrinkStatus), .role("status")) {}
 				.style(Styles.status)
 
-			canvas(.part(Parts.keyring), .width(640), .height(220), .tabindex(0), .role("application")) {}
+			canvas(
+				.part(Parts.keyring),
+				.width(640),
+				.height(220),
+				.tabindex(0),
+				.role("application")
+			) {}
 				.accessibilityLabel("My school bag, with the shrink plastic charms on the keyring. Press Delete to take off the newest one.")
 				.style(Styles.canvas, Styles.displayCanvas)
 		}
@@ -493,7 +535,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 	/**
 	The color of a swatch, which the script sets from its `data-crafts-color`.
 	*/
-	static let swatchColor = StyleVariable<Color>("--crafts-swatch")
+	static let swatchColor = StyleVariable<Color>("crafts-swatch")
 
 	enum Parts: String, ElementPartSet {
 		case sound
@@ -526,21 +568,21 @@ struct GeoCitiesCrafts: ScriptedElement {
 		case keyring
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The color of a swatch, like `#c81f2b`, or `mixed` for a handful of beads from the tub, or `four` for the four-color pen.
 		*/
-		case color = "data-crafts-color"
+		case color = "crafts-color"
 
 		/**
 		A tool of a craft, like `tweezers` or `punch`.
 		*/
-		case tool = "data-crafts-tool"
+		case tool = "crafts-tool"
 
 		/**
 		What a button of a craft does, like `hama-iron`.
 		*/
-		case action = "data-crafts-action"
+		case action = "crafts-action"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -571,7 +613,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 					.grid(minimumColumnWidth: .rootEm(20))
 					.gap(.rootEm(1.25))
 					.children("*") {
-						$0.frame(minWidth: 0)
+						$0.frame(minWidth: .zero)
 					}
 			case .toy:
 				Style().vstack(spacing: .rootEm(0.5))
@@ -587,7 +629,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 					.position(.relative)
 					.frame(size: .rootEm(2))
 					.background(GeoCitiesCrafts.swatchColor.value(default: .white))
-					.border(Color("#00000066"), width: .pixels(1))
+					.border(Color(raw: "#00000066"), width: .pixels(1))
 					.handCursor()
 					.canvasFocusRing()
 					.pressed {
@@ -600,25 +642,56 @@ struct GeoCitiesCrafts: ScriptedElement {
 				Style()
 					.cornerRadius(.circle)
 					.backgroundImage(
-						.radialGradient("circle at 35% 30%", Color("#ffffffcc"), .transparent, .transparent, .transparent),
-						.radialGradient("circle", Color("#00000080"), Color("#00000080"), .transparent, .transparent, .transparent, .transparent, .transparent)
+						.radialGradient(
+							.circle(at: .init(x: .percent(35), y: .percent(30))),
+							Color(raw: "#ffffffcc"),
+							.transparent,
+							.transparent,
+							.transparent
+						),
+						.radialGradient(
+							.circle,
+							Color(raw: "#00000080"),
+							Color(raw: "#00000080"),
+							.transparent,
+							.transparent,
+							.transparent,
+							.transparent,
+							.transparent
+						)
 					)
 			case .pen:
 				// A ballpoint pen seen from the end.
 				Style()
 					.cornerRadius(.circle)
-					.border(Color("#555555"), width: .pixels(3), style: .double)
+					.border(Color(raw: "#555555"), width: .pixels(3), style: .double)
 			case .marker:
 				// The cap of a marker.
 				Style()
 					.cornerRadius(.rootEm(0.5))
-					.backgroundImage(.linearGradient("to right", Color("#ffffff55"), .transparent, Color("#00000033")))
+					.backgroundImage(
+						.linearGradient(
+							.toRight,
+							Color(raw: "#ffffff55"),
+							.transparent,
+							Color(raw: "#00000033")
+						)
+					)
 			case .mixed:
-				Style().backgroundImage(.linearGradient("135deg", Color("#c81f2b"), Color("#f6cf1d"), Color("#1f8a3d"), Color("#1f3f96"), Color("#f39cbf")))
+				Style().backgroundImage(
+					.linearGradient(
+						.angle(.degrees(135)),
+						Color(raw: "#c81f2b"),
+						Color(raw: "#f6cf1d"),
+						Color(raw: "#1f8a3d"),
+						Color(raw: "#1f3f96"),
+						Color(raw: "#f39cbf")
+					)
+				)
 			case .swatchName:
 				Style().visuallyHidden()
 			case .toggle:
-				Style().pressedIn(Color("#ffcc66"))
+				Style().pressedIn(Color(raw: "#ffcc66"))
 			case .holdButton:
 				// A finger that moves a little while it holds the button keeps turning the wheel, instead of scrolling the page and letting go.
 				Style()
@@ -628,8 +701,8 @@ struct GeoCitiesCrafts: ScriptedElement {
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
-					.background(Color("#e9e6dc"))
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#e9e6dc"))
 					.canvasFocusRing()
 			case .drawingCanvas:
 				// A finger draws, cuts, and irons on the canvas instead of scrolling the page.

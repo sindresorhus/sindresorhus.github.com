@@ -3533,48 +3533,45 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 	// The programs that exist, mine and Trond’s, with their size in bytes, whether they are in TI-BASIC (which shows the busy indicator) or assembly, and their code for PRGM EDIT.
 	const programCatalog = {
 		PHOENIX: {
-			size: 8977,
 			isBasic: false,
 			make: makePhoenix,
 			source: ['3E01CD7C47CD4C40', '210000227F86CD9A', '45C9FD7E0EE60228', '0BCD5848AF32C186', 'C3C247F5C5D5E5CD', 'B248E1D1C1F1C9DB', '00E6033E00D30021', 'End', '0000', 'End'],
 		},
 		WAFFLRUN: {
-			size: 3312,
 			isBasic: true,
 			make: makeWaffleRun,
 			source: ['ClrHome', 'Disp "WAFFLE RUN"', 'Disp "BY SINDRE 1999"', '0→S:55→F:0→V', 'Lbl A', 'getKey→K', 'If K=21 and F=55', '⁻3.6→V', 'V+.32→V', 'F+V→F', 'If F>55:55→F', 'S+1→S', 'Pt-On(12,F)', 'If pxl-Test(F,X)', 'Goto B', 'Goto A', 'Lbl B', 'Disp "AU! ROCKY!"', 'Disp S'],
 		},
 		SNAKE: {
-			size: 1560,
 			isBasic: true,
 			make: makeSnake,
 			source: ['ClrDraw', 'AxesOff', '8→X:9→Y:1→D', '0→S', 'Lbl 1', 'getKey→K', 'If K=24:3→D', 'If K=26:1→D', 'If K=25:4→D', 'If K=34:2→D', 'X+(D=1)-(D=3)→X', 'Y+(D=2)-(D=4)→Y', 'Pt-On(X,Y)', 'Goto 1'],
 		},
 		QUIZ: {
-			size: 921,
 			isBasic: true,
 			make: makeQuiz,
 			source: ['ClrHome', 'Disp "HOMEWORK HELPER"', 'Input "PROBLEM?",A', 'randInt(1,8)→R', 'If R=1:Disp A+1', 'If R=2:Disp 10A', 'If R=3:Disp 42', 'If R=7', 'Disp "BLUE"', 'Disp "(I THINK)"'],
 		},
 		FALLDOWN: {
-			size: 2348,
 			isBasic: true,
 			make: makeFallDown,
 			source: ['ClrDraw', 'AxesOff', '46→X:10→Y', 'Lbl A', 'getKey→K', 'X-2(K=24)+2(K=26)→X', 'Y+1→Y', 'Pt-On(X,Y)', 'If Y<0:Goto B', 'Goto A', 'Lbl B', 'Disp "SQUISHED!"'],
 		},
 		CATPIC: {
-			size: 4116,
 			isBasic: true,
 			make: makeCatPicture,
 			source: ['ClrDraw', 'AxesOff', 'RecallPic 1', 'Text(57,1,"PUS")', 'Pause', 'ClrDraw', 'AxesOn'],
 		},
 		RPGQUEST: {
-			size: 18_400,
 			isBasic: true,
 			make: makeRpgQuest,
 			source: ['ClrHome', 'Disp "RPG QUEST V0.3"', 'Disp "BY TROND"', '100→H', 'Lbl M', 'Menu("A WILD TEACHER!","FIGHT",F,"RUN",R)', 'Lbl F', 'H-5→H', 'Goto E', 'Lbl R', 'Goto M', 'Lbl E', 'Disp "TO BE CONTINUED"'],
 		},
 	};
+
+	for (const {name, byteCount} of ti83.config.programs) {
+		programCatalog[name].size = byteCount;
+	}
 
 	// The bytes that the programs use, and a little for the variables and the functions of Y=.
 	const usedMemory = () => {
@@ -3872,7 +3869,7 @@ const setUpCalculator = (ti83, {calculator: calculatorElement, screen: canvas, f
 	const trond = {mode: 'select', program: undefined};
 
 	// The programs on Trond’s calculator, in the order of his link menu.
-	const trondPrograms = ['FALLDOWN', 'CATPIC', 'RPGQUEST', 'PHOENIX', 'WAFFLRUN', 'SNAKE', 'QUIZ'];
+	const trondPrograms = ti83.config.programs.map(program => program.name);
 
 	const drawTrond = target => {
 		if (trond.mode === 'transmitting') {

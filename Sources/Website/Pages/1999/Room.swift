@@ -11,7 +11,7 @@ struct GeoCitiesRoom: ScriptedElement {
 	/**
 	The ID of the element, which the links to my room on the page lead to.
 	*/
-	static let rootID = "geocities-room"
+	static let rootID = ElementID("geocities-room")
 
 	/**
 	The ID of the Polaroid camera, which the camera on the desk in the room leads to.
@@ -23,12 +23,12 @@ struct GeoCitiesRoom: ScriptedElement {
 	/**
 	The things in the room that the visitor can click, by the name that the script knows them by, with the section further down that they lead to, if any.
 	*/
-	static let hotspots: [(id: String, name: String, target: String?)] = [
+	static let hotspots: [(id: String, name: String, target: ElementID?)] = [
 		("imac", "My iMac", nil),
 		("poster", "Unicorn poster", nil),
 		("lava", "Lava lamp", nil),
 		("music", "Discman and Walkman", GeoCitiesMusic.rootID),
-		("polaroid", "Polaroid camera", cameraID),
+		("polaroid", "Polaroid camera", ElementID(cameraID)),
 		("raincoat", "Rain gear", GeoCitiesNorwayDays.weatherID),
 		("window", "Window", nil),
 		("plush", "Unicorn plush", nil),
@@ -50,9 +50,19 @@ struct GeoCitiesRoom: ScriptedElement {
 
 	var content: some HTML {
 		h2(.tabindex(-1)) {
-			GeoCitiesPage.GIFImage(gif: .computerSmall, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .computerSmall,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 			" My Room in QuickTime VR "
-			GeoCitiesPage.GIFImage(gif: .buttonQuickTime, alt: "Made with QuickTime", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .buttonQuickTime,
+				alt: "Made with QuickTime",
+				style: .gif,
+				project: project
+			)
 		}
 		.style(GeoCitiesPage.Styles.heading, GeoCitiesPage.Styles.centeredText)
 
@@ -70,7 +80,13 @@ struct GeoCitiesRoom: ScriptedElement {
 
 			div {
 				// The room is drawn at 480 × 270 pixels, in big pixels, like a QuickTime VR movie of 1999 that was made for a 14-inch monitor.
-				canvas(.part(Parts.view), .width(480), .height(270), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.view),
+					.width(480),
+					.height(270),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("My room. Use the arrow keys to look around, plus and minus to zoom, and the buttons below to look at things.")
 					.style(Styles.view)
 
@@ -120,7 +136,7 @@ struct GeoCitiesRoom: ScriptedElement {
 						button(.type(.button), .hook(Hooks.hotspot, value: hotspot.id)) {
 							hotspot.name
 						}
-						.attributes(.hook(Hooks.target, value: hotspot.target ?? ""), when: hotspot.target != nil)
+						.attributes(.hook(Hooks.target, value: hotspot.target?.rawValue ?? ""), when: hotspot.target != nil)
 						.style(GeoCitiesPage.Styles.smallButton)
 					}
 				}
@@ -199,7 +215,13 @@ struct GeoCitiesRoom: ScriptedElement {
 						canvas(.part(Parts.photoCanvas), .width(160), .height(160)) {}
 							.style(Styles.photoPicture)
 
-						input(.part(Parts.photoCaption), .type(.text), .maxlength(30), .autocomplete("off"), .placeholder("Write on it"))
+						input(
+							.part(Parts.photoCaption),
+							.type(.text),
+							.maxlength(30),
+							.autocomplete("off"),
+							.placeholder("Write on it")
+						)
 							.accessibilityLabel("Write on the picture")
 							.style(Styles.photoCaption)
 					}
@@ -238,21 +260,21 @@ struct GeoCitiesRoom: ScriptedElement {
 		case right
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		What a button of the QuickTime controller does, like `zoom-in`.
 		*/
-		case action = "data-room-action"
+		case action = "room-action"
 
 		/**
 		The thing in the room that a button looks at.
 		*/
-		case hotspot = "data-room-hotspot"
+		case hotspot = "room-hotspot"
 
 		/**
 		The ID of the section further down that a thing in the room leads to.
 		*/
-		case target = "data-room-target"
+		case target = "room-target"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -290,17 +312,28 @@ struct GeoCitiesRoom: ScriptedElement {
 				Style()
 					.frame(maxWidth: .pixels(720))
 					.margin(.horizontal, .auto)
-					.background(Color("#dddddd"))
-					.border(Color("#666666"), width: .pixels(1))
-					.shadow(Shadow(x: .pixels(3), y: .pixels(3), color: Color("#00000080")))
+					.background(Color(raw: "#dddddd"))
+					.border(Color(raw: "#666666"), width: .pixels(1))
+					.shadow(BoxShadow(x: .pixels(3), y: .pixels(3), color: Color(raw: "#00000080")))
 					.color(.black)
 			case .playerTitle:
 				// The title bar of Mac OS 8, with its fine lines.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-					.backgroundImage(.linearGradient("to bottom", Color("#eeeeee"), Color("#bbbbbb"), Color("#eeeeee"), Color("#bbbbbb"), Color("#eeeeee"), Color("#bbbbbb"), Color("#eeeeee")))
-					.border(.bottom, Color("#888888"), width: .pixels(1))
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#eeeeee"),
+							Color(raw: "#bbbbbb"),
+							Color(raw: "#eeeeee"),
+							Color(raw: "#bbbbbb"),
+							Color(raw: "#eeeeee"),
+							Color(raw: "#bbbbbb"),
+							Color(raw: "#eeeeee")
+						)
+					)
+					.border(.bottom, Color(raw: "#888888"), width: .pixels(1))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
@@ -318,7 +351,7 @@ struct GeoCitiesRoom: ScriptedElement {
 					.touchAction(.none)
 					.cursor(.move)
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(3), offset: .pixels(-3))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(3), offset: .pixels(-3))
 					}
 					.when(States.hotspot) {
 						$0.cursor(.pointer)
@@ -327,7 +360,7 @@ struct GeoCitiesRoom: ScriptedElement {
 				// It shows for a moment when the Polaroid camera takes a picture, and never for visitors who prefer reduced motion.
 				Style()
 					.position(.absolute)
-					.inset(0)
+					.inset(.zero)
 					.background(.white)
 					.opacity(0)
 					.allowsHitTesting(false)
@@ -340,35 +373,42 @@ struct GeoCitiesRoom: ScriptedElement {
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.25))
 					.padding(.rootEm(0.25))
-					.backgroundImage(.linearGradient("to bottom", Color("#eeeeee"), Color("#bbbbbb")))
-					.border(.top, Color("#888888"), width: .pixels(1))
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#eeeeee"), Color(raw: "#bbbbbb")))
+					.border(.top, Color(raw: "#888888"), width: .pixels(1))
 			case .controllerButton:
 				Style()
 					.frame(minWidth: .rootEm(2), minHeight: .rootEm(1.75))
-					.background(Color("#dddddd"))
-					.border(Color("#777777"), width: .pixels(1))
+					.background(Color(raw: "#dddddd"))
+					.border(Color(raw: "#777777"), width: .pixels(1))
 					.cornerRadius(.pixels(3))
-					.shadow(Shadow(x: .pixels(1), y: .pixels(1), color: .white, isInset: true))
+					.shadow(
+						BoxShadow(
+							x: .pixels(1),
+							y: .pixels(1),
+							color: .white,
+							isInset: true
+						)
+					)
 					.fontFamily(.system)
 					.textStyle(.body, weight: .bold)
 					.color(.black)
 					.handCursor()
 					.active {
-						$0.background(Color("#999999"))
+						$0.background(Color(raw: "#999999"))
 					}
 					.pressed {
-						$0.background(Color("#9999ff"))
+						$0.background(Color(raw: "#9999ff"))
 					}
 			case .label:
 				Style()
 					.flex(1)
-					.margin(0)
+					.margin(.zero)
 					.padding(.horizontal, .rootEm(0.375))
 					.fontFamily(.system)
 					.textStyle(.caption)
 			case .lookTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.body, weight: .bold)
 					.textAlign(.center)
@@ -377,7 +417,7 @@ struct GeoCitiesRoom: ScriptedElement {
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.375))
 					.flexWrap()
 					.margin(top: .rootEm(0.375))
-					.padding(0)
+					.padding(.zero)
 			case .cameraArea:
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.75))
@@ -389,39 +429,62 @@ struct GeoCitiesRoom: ScriptedElement {
 					.vstack(spacing: .rootEm(0.5))
 					.frame(width: .rootEm(14), maxWidth: .percent(100))
 					.padding(.rootEm(0.75))
-					.backgroundImage(.linearGradient("to bottom", Color("#3a3a3a"), Color("#111111")))
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#3a3a3a"), Color(raw: "#111111")))
 					.cornerRadius(.rootEm(0.75))
-					.shadow(Shadow(x: .pixels(4), y: .pixels(4), color: Color("#00000080")))
+					.shadow(BoxShadow(x: .pixels(4), y: .pixels(4), color: Color(raw: "#00000080")))
 					.color(.white)
 			case .cameraFront:
 				Style().hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(0.5))
 			case .cameraLens:
 				Style()
 					.frame(size: .rootEm(4))
-					.backgroundImage(.radialGradient("circle at 40% 35%", Color("#8899cc"), Color("#223355"), Color("#000000")))
-					.border(Color("#777777"), width: .pixels(5))
+					.backgroundImage(
+						.radialGradient(
+							.circle(at: .init(x: .percent(40), y: .percent(35))),
+							Color(raw: "#8899cc"),
+							Color(raw: "#223355"),
+							Color(raw: "#000000")
+						)
+					)
+					.border(Color(raw: "#777777"), width: .pixels(5))
 					.cornerRadius(.circle)
 			case .cameraCounter:
 				// The film counter, which counts down from 10, like the counter of a Polaroid 600.
 				Style()
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.375))
-					.background(Color("#330000"))
-					.border(Color("#555555"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#330000"))
+					.border(Color(raw: "#555555"), width: .pixels(2), style: .inset)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#ff5533"))
+					.color(Color(raw: "#ff5533"))
 			case .cameraStripe:
 				// The rainbow stripe of Polaroid.
 				Style()
 					.frame(height: .rootEm(0.75))
-					.backgroundImage(.linearGradient("to bottom", Color("#e8313a"), Color("#f7941d"), Color("#ffde17"), Color("#3ab54a"), Color("#1b75bc")))
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#e8313a"),
+							Color(raw: "#f7941d"),
+							Color(raw: "#ffde17"),
+							Color(raw: "#3ab54a"),
+							Color(raw: "#1b75bc")
+						)
+					)
 			case .cameraButtons:
 				Style().hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
 			case .shutter:
 				Style()
 					.frame(size: .rootEm(2.75))
-					.backgroundImage(.radialGradient("circle at 35% 30%", Color("#ff8877"), Color("#dd1100"), Color("#881100")))
-					.border(Color("#222222"), width: .pixels(3))
+					.backgroundImage(
+						.radialGradient(
+							.circle(at: .init(x: .percent(35), y: .percent(30))),
+							Color(raw: "#ff8877"),
+							Color(raw: "#dd1100"),
+							Color(raw: "#881100")
+						)
+					)
+					.border(Color(raw: "#222222"), width: .pixels(3))
 					.cornerRadius(.circle)
 					.handCursor()
 					.active {
@@ -433,11 +496,18 @@ struct GeoCitiesRoom: ScriptedElement {
 					.hstack(alignment: .start, justification: .center, spacing: .rootEm(1))
 					.flexWrap()
 					.frame(width: .percent(100), minHeight: .rootEm(6))
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(1))
-					.background(Color("#c49a6c"))
-					.backgroundImage(.radialGradient("circle at 30% 40%", Color("#d8b48a"), Color("#b5895a"), Color("#a07447")))
-					.border(Color("#7a4f24"), width: .pixels(8), style: .ridge)
+					.background(Color(raw: "#c49a6c"))
+					.backgroundImage(
+						.radialGradient(
+							.circle(at: .init(x: .percent(30), y: .percent(40))),
+							Color(raw: "#d8b48a"),
+							Color(raw: "#b5895a"),
+							Color(raw: "#a07447")
+						)
+					)
+					.border(Color(raw: "#7a4f24"), width: .pixels(8), style: .ridge)
 			case .photoItem:
 				Style().vstack(alignment: .center, spacing: .rootEm(0.25))
 			case .photo:
@@ -446,8 +516,8 @@ struct GeoCitiesRoom: ScriptedElement {
 					.vstack(spacing: .rootEm(0.25))
 					.frame(width: .rootEm(8.5))
 					.padding(top: .rootEm(0.5), horizontal: .rootEm(0.5), bottom: .rootEm(0.25))
-					.background(Color("#fbfbf5"))
-					.shadow(Shadow(x: .pixels(2), y: .pixels(3), color: Color("#00000066")))
+					.background(Color(raw: "#fbfbf5"))
+					.shadow(BoxShadow(x: .pixels(2), y: .pixels(3), color: Color(raw: "#00000066")))
 					.rotationEffect(.degrees(-2))
 					.when(States.right) {
 						$0.rotationEffect(.degrees(3))
@@ -457,18 +527,18 @@ struct GeoCitiesRoom: ScriptedElement {
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(1)
-					.background(Color("#1d2b2e"))
+					.background(Color(raw: "#1d2b2e"))
 			case .photoCaption:
 				// Handwriting with a black marker on the white edge.
 				Style()
 					.frame(width: .percent(100))
 					.padding(.pixels(2))
 					.background(.transparent)
-					.border(.transparent, width: 0)
+					.border(.transparent, width: .zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.body, weight: .bold)
 					.textAlign(.center)
-					.color(Color("#1a1a66"))
+					.color(Color(raw: "#1a1a66"))
 			}
 		}
 	}

@@ -44,7 +44,14 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.label)
 
-				input(.id("geocities-eight-ball-question"), .part(Parts.question), .type(.text), .autocomplete("off"), .maxlength(80), .placeholder("Will I get an iMac for Christmas?"))
+				input(
+					.id("geocities-eight-ball-question"),
+					.part(Parts.question),
+					.type(.text),
+					.autocomplete("off"),
+					.maxlength(80),
+					.placeholder("Will I get an iMac for Christmas?")
+				)
 					.style(GeoCitiesPage.Styles.field)
 
 				div(.part(Parts.ball)) {
@@ -164,7 +171,7 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 	/**
 	The color of the stone of the mood ring, which the script sets.
 	*/
-	static let moodColor = StyleVariable<Color>("--mood-ring-color")
+	static let moodColor = StyleVariable<Color>("mood-ring-color")
 
 	enum Parts: String, ElementPartSet {
 		case eightBallForm
@@ -188,11 +195,11 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 		case vertical
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A flap of the paper fortune teller, with its color.
 		*/
-		case flap = "data-catcher-flap"
+		case flap = "catcher-flap"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -225,15 +232,15 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 				// A box with a dashed edge, like a cut-out coupon.
 				Style()
 					.padding(.rootEm(0.75))
-					.background(Color("#ffffee"))
-					.border(Color("#800080"), width: .pixels(2), style: .dashed)
+					.background(Color(raw: "#ffffee"))
+					.border(Color(raw: "#800080"), width: .pixels(2), style: .dashed)
 			case .title:
 				Style()
 					.margin(.bottom, .rootEm(0.5))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.font(.extraLarge, weight: .bold)
 					.textAlign(.center)
-					.color(Color("#800080"))
+					.color(Color(raw: "#800080"))
 			case .toy:
 				Style().vstack(alignment: .center, spacing: .rootEm(0.5))
 			case .ball:
@@ -241,9 +248,16 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 				Style()
 					.hstack(alignment: .center, justification: .center)
 					.frame(size: .rootEm(10))
-					.backgroundImage(.radialGradient("circle at 35% 30%", Color("#666666"), Color("#111111"), Color("#000000")))
+					.backgroundImage(
+						.radialGradient(
+							.circle(at: .init(x: .percent(35), y: .percent(30))),
+							Color(raw: "#666666"),
+							Color(raw: "#111111"),
+							Color(raw: "#000000")
+						)
+					)
 					.cornerRadius(.percent(50))
-					.shadow(Shadow(x: .pixels(3), y: .pixels(5), color: Color("#00000066")))
+					.shadow(BoxShadow(x: .pixels(3), y: .pixels(5), color: Color(raw: "#00000066")))
 					.when(States.shaking) {
 						$0.animation(Animations.shake, .linear(duration: .seconds(0.12)).repeatForever())
 					}
@@ -252,22 +266,22 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 					.hstack(alignment: .center, justification: .center)
 					.frame(size: .rootEm(5))
 					.padding(.rootEm(0.375))
-					.background(Color("#0a0a40"))
-					.border(Color("#333333"), width: .pixels(3))
+					.background(Color(raw: "#0a0a40"))
+					.border(Color(raw: "#333333"), width: .pixels(3))
 					.cornerRadius(.percent(50))
 			case .answer:
 				// The answer on the blue triangle that floats up in the window, or the 8 before the first question.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.font(size: .rootEm(0.625))
 					.fontWeight(.bold)
 					.lineHeight(1.1)
 					.textAlign(.center)
 					.textCase(.uppercase)
-					.color(Color("#88bbff"))
+					.color(Color(raw: "#88bbff"))
 					.media(.allowsMotion) {
-						$0.transition(.opacity, animation: .easeIn(duration: .seconds(0.8)))
+						$0.transition(.opacity, timing: .easeIn(duration: .seconds(0.8)))
 					}
 					.when(States.hidden) {
 						$0.opacity(0)
@@ -289,16 +303,16 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 				Style()
 					.position(.relative)
 					.hstack(alignment: .center, justification: .center)
-					.border(Color("#999999"))
+					.border(Color(raw: "#999999"))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
 					.color(.black)
 					.media(.allowsMotion) {
-						$0.transition(.offset, animation: .easeInOut(duration: .seconds(0.25)))
+						$0.transition(.offset, timing: .easeInOut(duration: .seconds(0.25)))
 					}
 			case .topLeft:
 				Style()
-					.background(Color("#ee3333"))
+					.background(Color(raw: "#ee3333"))
 					.cornerRadius(.rootEm(0.25))
 					.when(States.horizontal) {
 						$0.offset(x: .rootEm(-0.75))
@@ -308,7 +322,7 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 					}
 			case .topRight:
 				Style()
-					.background(Color("#3366ff"))
+					.background(Color(raw: "#3366ff"))
 					.cornerRadius(.rootEm(0.25))
 					.when(States.horizontal) {
 						$0.offset(x: .rootEm(0.75))
@@ -318,7 +332,7 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 					}
 			case .bottomLeft:
 				Style()
-					.background(Color("#33bb33"))
+					.background(Color(raw: "#33bb33"))
 					.cornerRadius(.rootEm(0.25))
 					.when(States.horizontal) {
 						$0.offset(x: .rootEm(-0.75))
@@ -328,7 +342,7 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 					}
 			case .bottomRight:
 				Style()
-					.background(Color("#ffdd00"))
+					.background(Color(raw: "#ffdd00"))
 					.cornerRadius(.rootEm(0.25))
 					.when(States.horizontal) {
 						$0.offset(x: .rootEm(0.75))
@@ -367,18 +381,18 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 				Style()
 					.hstack(alignment: .center, justification: .center)
 					.frame(size: .rootEm(9))
-					.border(Color("#c0c0c0"), width: .rootEm(0.75), style: .ridge)
+					.border(Color(raw: "#c0c0c0"), width: .rootEm(0.75), style: .ridge)
 					.cornerRadius(.percent(50))
 					.touchAction(.none)
 			case .stone:
 				Style()
 					.frame(width: .rootEm(5), height: .rootEm(3.75))
-					.background(GeoCitiesFortuneToys.moodColor.value(default: Color("#111111")))
-					.border(Color("#c0c0c0"), width: .pixels(4), style: .outset)
+					.background(GeoCitiesFortuneToys.moodColor.value(default: Color(raw: "#111111")))
+					.border(Color(raw: "#c0c0c0"), width: .pixels(4), style: .outset)
 					.cornerRadius(.percent(50))
-					.shadow(Shadow(y: 0, blur: .rootEm(1), color: GeoCitiesFortuneToys.moodColor.value(default: Color("#111111"))))
+					.shadow(BoxShadow(y: .zero, blur: .rootEm(1), color: GeoCitiesFortuneToys.moodColor.value(default: Color(raw: "#111111"))))
 					.media(.allowsMotion) {
-						$0.transition(.backgroundColor, .shadow, animation: .easeInOut(duration: .seconds(0.6)))
+						$0.transition(.backgroundColor, .shadow, timing: .easeInOut(duration: .seconds(0.6)))
 					}
 			}
 		}

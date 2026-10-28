@@ -96,34 +96,17 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 
 					div {
 						// The screen is drawn at 160 × 144 pixels, the size of the real screen, and a photo is the 128 × 112 pixels in the middle of it.
-						canvas(.part(Parts.screen), .width(160), .height(144), .tabindex(0), .role("application")) {}
+						canvas(
+							.part(Parts.screen),
+							.width(160),
+							.height(144),
+							.tabindex(0),
+							.role("application")
+						) {}
 							.accessibilityLabel("The screen of the camera. The arrow keys are the D-pad, X or Space is A, Z is B, Enter is Start, and Backspace is Select. In Shoot, A takes a photo, up and down change the brightness, and left and right the contrast.")
 							.style(Styles.screen)
 
-						p {
-							span {
-								"C"
-							}
-							.style(GeoCitiesHandheld.Styles.red)
-							span {
-								"O"
-							}
-							.style(GeoCitiesHandheld.Styles.purple)
-							span {
-								"L"
-							}
-							.style(GeoCitiesHandheld.Styles.green)
-							span {
-								"O"
-							}
-							.style(GeoCitiesHandheld.Styles.yellow)
-							span {
-								"R"
-							}
-							.style(GeoCitiesHandheld.Styles.blue)
-						}
-						.accessibilityHidden()
-						.style(GeoCitiesHandheld.Styles.brand)
+						GeoCitiesHandheld.Brand()
 					}
 					.style(GeoCitiesHandheld.Styles.bezel)
 
@@ -163,13 +146,13 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 		var body: some HTML {
 			div {
 				div {
-					for row in [[("up", "Up", "▲")], [("left", "Left", "◀"), ("right", "Right", "▶")], [("down", "Down", "▼")]] {
+					for row in GeoCitiesHandheld.Direction.rows {
 						div {
-							for (control, label, symbol) in row {
-								button(.type(.button), .tabindex(-1), .hook(Hooks.button, value: control)) {
-									symbol
+							for direction in row {
+								button(.type(.button), .tabindex(-1), .hook(Hooks.button, value: direction.rawValue)) {
+									direction.symbol
 								}
-								.accessibilityLabel(label)
+								.accessibilityLabel(direction.label)
 								.style(GeoCitiesHandheld.Styles.padButton)
 							}
 						}
@@ -220,7 +203,12 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 				div(.part(Parts.paperHolder)) {
 					div(.part(Parts.paperClip)) {
 						div {
-							canvas(.part(Parts.print), .width(176), .height(176), .role("img")) {}
+							canvas(
+								.part(Parts.print),
+								.width(176),
+								.height(176),
+								.role("img")
+							) {}
 								.accessibilityLabel("The paper of the printer")
 								.style(Styles.printCanvas)
 						}
@@ -674,14 +662,14 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 	/**
 	How much of the paper is out of the printer, from `0%` to `100%`, which the script sets while it prints.
 	*/
-	static let paperOut = StyleVariable<Length>("--gb-camera-paper")
+	static let paperOut = StyleVariable<LengthPercentage>("gb-camera-paper")
 
 	/**
 	Where a sticker is inside the wardrobe door, in percent of its width and height, which the script sets while the visitor drags it.
 	*/
-	static let stickerX = StyleVariable<Length>("--gb-camera-sticker-x")
+	static let stickerX = StyleVariable<LengthPercentage>("gb-camera-sticker-x")
 
-	static let stickerY = StyleVariable<Length>("--gb-camera-sticker-y")
+	static let stickerY = StyleVariable<LengthPercentage>("gb-camera-sticker-y")
 
 	enum Parts: String, ElementPartSet {
 		case handheld
@@ -743,46 +731,46 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 		case right
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A button of the game console, like `a` or `left`.
 		*/
-		case button = "data-gb-camera-button"
+		case button = "gb-camera-button"
 
 		/**
 		A mode of the camera, like `shoot` or `music`.
 		*/
-		case mode = "data-gb-camera-mode"
+		case mode = "gb-camera-mode"
 
 		/**
 		The panel of buttons of a mode, which is shown while the camera is in that mode.
 		*/
-		case panel = "data-gb-camera-panel"
+		case panel = "gb-camera-panel"
 
 		/**
 		A drawn scene for the camera, like `rocky`.
 		*/
-		case scene = "data-gb-camera-scene"
+		case scene = "gb-camera-scene"
 
 		/**
 		A stamp, like `mustache`.
 		*/
-		case stamp = "data-gb-camera-stamp"
+		case stamp = "gb-camera-stamp"
 
 		/**
 		A paper of the printer, like `yellow`.
 		*/
-		case paperColor = "data-gb-camera-paper-color"
+		case paperColor = "gb-camera-paper-color"
 
 		/**
 		A place in the album, from `0` to `29`.
 		*/
-		case slot = "data-gb-camera-slot"
+		case slot = "gb-camera-slot"
 
 		/**
 		A sticker inside the wardrobe door, with its number.
 		*/
-		case sticker = "data-gb-camera-sticker"
+		case sticker = "gb-camera-sticker"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -853,7 +841,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 			case .console:
 				// On a phone, the room above it is for the eye, which sticks out of the top of the cartridge.
 				Style()
-					.vstack(alignment: .center, spacing: 0)
+					.vstack(alignment: .center, spacing: .zero)
 					.frame(maxWidth: .percent(100))
 					.below(.smallTablet) {
 						$0.margin(.top, .rootEm(1.5))
@@ -865,8 +853,8 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					.frame(width: .rootEm(9))
 					.margin(.bottom, .rootEm(-0.5))
 					.padding(top: .rootEm(0.25), horizontal: .rootEm(0.5), bottom: .rootEm(0.75))
-					.backgroundImage(.linearGradient("to bottom", Color("#4a6fd8"), Color("#2c4aa8")))
-					.border(Color("#1c2f70"), width: .pixels(2))
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#4a6fd8"), Color(raw: "#2c4aa8")))
+					.border(Color(raw: "#1c2f70"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.5))
 			case .eyeBall:
 				// The round eye, which turns around on the cartridge.
@@ -874,19 +862,33 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					.hstack(alignment: .center, justification: .center)
 					.frame(size: .rootEm(3.25))
 					.margin(.top, .rootEm(-1.75))
-					.backgroundImage(.radialGradient("circle at 35% 30%", Color("#9fb4f0"), Color("#3e5cc0"), Color("#1c2f70")))
-					.border(Color("#1c2f70"), width: .pixels(2))
+					.backgroundImage(
+						.radialGradient(
+							.circle(at: .init(x: .percent(35), y: .percent(30))),
+							Color(raw: "#9fb4f0"),
+							Color(raw: "#3e5cc0"),
+							Color(raw: "#1c2f70")
+						)
+					)
+					.border(Color(raw: "#1c2f70"), width: .pixels(2))
 					.cornerRadius(.circle)
-					.shadow(Shadow(y: .pixels(3), color: Color("#00000055")))
+					.shadow(BoxShadow(y: .pixels(3), color: Color(raw: "#00000055")))
 			case .lens:
 				// The lens, black with a glint. When the eye is turned toward me, the lens goes around to the back.
 				Style()
 					.frame(size: .rootEm(1.5))
-					.backgroundImage(.radialGradient("circle at 35% 30%", Color("#8899aa"), Color("#111122"), Color("#000000")))
-					.border(Color("#cc2222"), width: .pixels(3))
+					.backgroundImage(
+						.radialGradient(
+							.circle(at: .init(x: .percent(35), y: .percent(30))),
+							Color(raw: "#8899aa"),
+							Color(raw: "#111122"),
+							Color(raw: "#000000")
+						)
+					)
+					.border(Color(raw: "#cc2222"), width: .pixels(3))
 					.cornerRadius(.circle)
 					.media(.allowsMotion) {
-						$0.transition(.offset, .opacity, animation: .easeInOut(duration: .milliseconds(400)))
+						$0.transition(.offset, .opacity, timing: .easeInOut(duration: .milliseconds(400)))
 					}
 					.when(States.turned) {
 						$0
@@ -895,36 +897,36 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					}
 			case .cartridgeLabel:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
 					.italic()
 					.letterSpacing(.em(0.05))
-					.color(Color("#e8eeff"))
+					.color(Color(raw: "#e8eeff"))
 			case .screen:
 				// The screen, in big pixels. A drag to the side points the camera, and a finger that moves up or down still scrolls the page, as the screen is most of the width of a phone.
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(160.0 / 144.0)
-					.background(Color("#2a2f22"))
+					.background(Color(raw: "#2a2f22"))
 					.imageRendering(.pixelated)
 					.touchAction(.panY)
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(2), offset: .pixels(2))
 					}
 			case .cable:
 				// The gray link cable between the game console and the printer, only where they are side by side.
 				Style()
 					.frame(width: .rootEm(1.5), height: .rootEm(0.375))
 					.margin(.bottom, .rootEm(6))
-					.background(Color("#555555"))
+					.background(Color(raw: "#555555"))
 					.cornerRadius(.capsule)
 					.hidden(below: .smallTablet)
 			case .printerColumn:
 				// On a phone, the printer is below the buttons of the camera and the sound (the script scrolls it into view when it prints), so the screen and the buttons of the camera fit on the screen together. It is wider there, so its buttons need fewer rows.
 				Style()
-					.vstack(alignment: .center, spacing: 0)
+					.vstack(alignment: .center, spacing: .zero)
 					.frame(width: .rootEm(14), maxWidth: .percent(100))
 					.below(.smallTablet) {
 						$0
@@ -941,7 +943,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					.aspectRatio(1)
 					.below(.smallTablet) {
 						$0
-							.frame(height: 0)
+							.frame(height: .zero)
 							.when(States.open) {
 								$0.frame(height: .auto)
 							}
@@ -949,14 +951,14 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 			case .paperClip:
 				// The part of the paper that is out of the printer. The rest is still inside.
 				Style()
-					.frame(width: .percent(100), height: GeoCitiesHandheldCamera.paperOut.value(default: .percent(0)))
+					.frame(width: .percent(100), height: .length(GeoCitiesHandheldCamera.paperOut.value(default: .percent(0))))
 					.overflow(.hidden)
 			case .paper:
 				// Thermal paper, or a sticker of the colors of the sticker paper.
 				Style()
 					.frame(width: .percent(100))
 					.aspectRatio(1)
-					.shadow(Shadow(x: .pixels(1), y: .pixels(1), color: Color("#00000033")))
+					.shadow(BoxShadow(x: .pixels(1), y: .pixels(1), color: Color(raw: "#00000033")))
 			case .printCanvas:
 				Style()
 					.display(.block)
@@ -967,16 +969,16 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.375))
 					.frame(width: .percent(100))
-					.padding(top: 0, horizontal: .rootEm(0.75), bottom: .rootEm(0.75))
-					.backgroundImage(.linearGradient("to bottom", Color("#d8d8d2"), Color("#b8b8b0")))
-					.border(Color("#77776f"), width: .pixels(2))
+					.padding(top: .zero, horizontal: .rootEm(0.75), bottom: .rootEm(0.75))
+					.backgroundImage(.linearGradient(.toBottom, Color(raw: "#d8d8d2"), Color(raw: "#b8b8b0")))
+					.border(Color(raw: "#77776f"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.625))
-					.shadow(Shadow(x: .pixels(3), y: .pixels(5), color: Color("#00000055")))
+					.shadow(BoxShadow(x: .pixels(3), y: .pixels(5), color: Color(raw: "#00000055")))
 			case .slot:
 				Style()
 					.display(.block)
 					.frame(width: .percent(85), height: .rootEm(0.375))
-					.background(Color("#33332f"))
+					.background(Color(raw: "#33332f"))
 					.cornerRadius(.rootEm(0.1875))
 			case .printerTop:
 				Style()
@@ -984,38 +986,38 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					.frame(width: .percent(100))
 			case .printerPower:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#5a5a55"))
+					.color(Color(raw: "#5a5a55"))
 			case .printerLight:
 				// The power light, red while the printer is on, and blinking while it prints.
 				Style()
 					.frame(size: .rootEm(0.625))
-					.background(Color("#441111"))
+					.background(Color(raw: "#441111"))
 					.cornerRadius(.circle)
 					.when(States.on) {
 						$0
-							.background(Color("#ff2222"))
-							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ff3333")))
+							.background(Color(raw: "#ff2222"))
+							.shadow(BoxShadow(y: .zero, blur: .pixels(6), color: Color(raw: "#ff3333")))
 					}
 					.when(States.busy) {
 						$0
-							.background(Color("#ff2222"))
-							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ff3333")))
-							.animation(GeoCitiesPage.Animations.blink, .timingCurve("steps(1, end)", duration: .milliseconds(400)).repeatForever(autoreverses: false))
+							.background(Color(raw: "#ff2222"))
+							.shadow(BoxShadow(y: .zero, blur: .pixels(6), color: Color(raw: "#ff3333")))
+							.animation(GeoCitiesPage.Animations.blink, .steps(1, duration: .milliseconds(400)).repeatForever(autoreverses: false))
 					}
 			case .printerBrand:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
 					.italic()
 					.letterSpacing(.em(0.05))
-					.color(Color("#2b2f8a"))
+					.color(Color(raw: "#2b2f8a"))
 			case .paperLeft:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption)
 			case .printerButtons:
 				Style()
@@ -1030,7 +1032,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 				// Big enough for a thumb, and pressed in while it is on.
 				Style()
 					.frame(minHeight: .rootEm(2.5))
-					.pressedIn(Color("#ffff99"))
+					.pressedIn(Color(raw: "#ffff99"))
 			case .bigSmallButton:
 				Style().frame(minHeight: .rootEm(2.5))
 			case .panel:
@@ -1049,7 +1051,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 						$0
 							.padding(.pixels(2))
 							.background(GeoCitiesPage.windowGray)
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+							.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 							.handCursor()
 							.disabled {
 								$0
@@ -1058,8 +1060,8 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 							}
 							.pressed {
 								$0
-									.background(Color("#ffff66"))
-									.border(Color("#cc0000"), width: .pixels(2), style: .solid)
+									.background(Color(raw: "#ffff66"))
+									.border(Color(raw: "#cc0000"), width: .pixels(2), style: .solid)
 							}
 					}
 			case .slotCanvas:
@@ -1070,7 +1072,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					.imageRendering(.pixelated)
 			case .runBest:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption)
 			case .status:
 				Style()
@@ -1079,7 +1081,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 			case .help:
 				// On a phone, the keys are last, below the printer.
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(.leading, .rootEm(1))
 					.textStyle(.caption)
 					.below(.smallTablet) {
@@ -1091,27 +1093,43 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					.position(.relative)
 					.frame(minHeight: .rootEm(18))
 					.overflow(.hidden)
-					.backgroundImage(.linearGradient("100deg", Color("#c89a63"), Color("#b5844f"), Color("#d2a873"), Color("#b07d48"), Color("#c99c66")))
-					.border(Color("#6b4423"), width: .pixels(4), style: .ridge)
+					.backgroundImage(
+						.linearGradient(
+							.angle(.degrees(100)),
+							Color(raw: "#c89a63"),
+							Color(raw: "#b5844f"),
+							Color(raw: "#d2a873"),
+							Color(raw: "#b07d48"),
+							Color(raw: "#c99c66")
+						)
+					)
+					.border(Color(raw: "#6b4423"), width: .pixels(4), style: .ridge)
 			case .wallEmpty:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(1))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
-					.color(Color("#4a2e14"))
+					.color(Color(raw: "#4a2e14"))
 			case .sticker:
 				// A sticker, a little crooked, which the visitor drags to a place on the door.
 				Style()
 					.position(.absolute)
-					.leading(GeoCitiesHandheldCamera.stickerX.value(default: .percent(50)))
-					.top(GeoCitiesHandheldCamera.stickerY.value(default: .percent(50)))
+					.leading(.length(GeoCitiesHandheldCamera.stickerX.value(default: .percent(50))))
+					.top(.length(GeoCitiesHandheldCamera.stickerY.value(default: .percent(50))))
 					.frame(width: .rootEm(6.5))
-					.padding(0)
+					.padding(.zero)
 					.background(.white)
-					.border(Color("#00000022"), width: .pixels(1))
-					.shadow(Shadow(x: .pixels(2), y: .pixels(3), blur: .pixels(2), color: Color("#00000066")))
+					.border(Color(raw: "#00000022"), width: .pixels(1))
+					.shadow(
+						BoxShadow(
+							x: .pixels(2),
+							y: .pixels(3),
+							blur: .pixels(2),
+							color: Color(raw: "#00000066")
+						)
+					)
 					.offset(x: .percent(-50), y: .percent(-50))
 					.touchAction(.none)
 					.cursor(.move)
@@ -1124,10 +1142,17 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					.active {
 						$0
 							.scaleEffect(1.08)
-							.shadow(Shadow(x: .pixels(5), y: .pixels(8), blur: .pixels(4), color: Color("#00000066")))
+							.shadow(
+								BoxShadow(
+									x: .pixels(5),
+									y: .pixels(8),
+									blur: .pixels(4),
+									color: Color(raw: "#00000066")
+								)
+							)
 					}
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(3), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(3), offset: .pixels(2))
 					}
 			case .stickerCanvas:
 				Style()

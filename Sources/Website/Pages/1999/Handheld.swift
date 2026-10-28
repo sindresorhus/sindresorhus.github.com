@@ -11,7 +11,7 @@ struct GeoCitiesHandheld: ScriptedElement {
 	/**
 	The ID of the element, which the game console on the bed in my room leads to.
 	*/
-	static let rootID = "geocities-handheld"
+	static let rootID = ElementID("geocities-handheld")
 
 	var rootAttributes: [HTMLAttribute<ElementTag<Self>>] {
 		[.id(Self.rootID), .tabindex(-1)]
@@ -44,47 +44,30 @@ struct GeoCitiesHandheld: ScriptedElement {
 
 			div {
 				// The screen is drawn at 160 × 144 pixels, the size of the real screen.
-				canvas(.part(Parts.screen), .width(160), .height(144), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.screen),
+					.width(160),
+					.height(144),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("The screen of the game console. Use the arrow keys to run, the up arrow or X to jump, Z to run faster, and Enter to start or pause.")
 					.style(Styles.screen)
 
-				p {
-					span {
-						"C"
-					}
-					.style(Styles.red)
-					span {
-						"O"
-					}
-					.style(Styles.purple)
-					span {
-						"L"
-					}
-					.style(Styles.green)
-					span {
-						"O"
-					}
-					.style(Styles.yellow)
-					span {
-						"R"
-					}
-					.style(Styles.blue)
-				}
-				.accessibilityHidden()
-				.style(Styles.brand)
+				GeoCitiesHandheld.Brand()
 			}
 			.style(Styles.bezel)
 
 			div {
 				// The D-pad, as four buttons around a cross. The keyboard plays with the arrow keys on the screen instead, so the buttons are not in the order of the Tab key.
 				div {
-					for row in [[("up", "Up", "▲")], [("left", "Left", "◀"), ("right", "Right", "▶")], [("down", "Down", "▼")]] {
+					for row in GeoCitiesHandheld.Direction.rows {
 						div {
-							for (control, label, symbol) in row {
-								button(.type(.button), .tabindex(-1), .hook(Hooks.button, value: control)) {
-									symbol
+							for direction in row {
+								button(.type(.button), .tabindex(-1), .hook(Hooks.button, value: direction.rawValue)) {
+									direction.symbol
 								}
-								.accessibilityLabel(label)
+								.accessibilityLabel(direction.label)
 								.style(Styles.padButton)
 							}
 						}
@@ -156,11 +139,11 @@ struct GeoCitiesHandheld: ScriptedElement {
 		case on
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		The button of the game console, like `a` or `left`.
 		*/
-		case button = "data-handheld-button"
+		case button = "handheld-button"
 	}
 
 	/**
@@ -204,96 +187,112 @@ struct GeoCitiesHandheld: ScriptedElement {
 					.frame(width: .rootEm(19), maxWidth: .percent(100))
 					.margin(.horizontal, .auto)
 					.padding(top: .rootEm(0.75), horizontal: .rootEm(1), bottom: .rootEm(1.25))
-					.backgroundImage(.radialGradient("ellipse at 30% 20%", Color("#a48ad6e6"), Color("#6a4fa3e6"), Color("#45307ae6")))
-					.border(Color("#3a2866"), width: .pixels(2))
+					.backgroundImage(
+						.radialGradient(
+							.ellipse(at: .init(x: .percent(30), y: .percent(20))),
+							Color(raw: "#a48ad6e6"),
+							Color(raw: "#6a4fa3e6"),
+							Color(raw: "#45307ae6")
+						)
+					)
+					.border(Color(raw: "#3a2866"), width: .pixels(2))
 					.cornerRadius(.rootEm(1))
-					.shadow(Shadow(x: .pixels(4), y: .pixels(6), color: Color("#00000066")), Shadow(x: .pixels(-3), y: .pixels(-3), blur: .pixels(6), color: Color("#00000040"), isInset: true))
+					.shadow(
+						BoxShadow(x: .pixels(4), y: .pixels(6), color: Color(raw: "#00000066")),
+						BoxShadow(
+							x: .pixels(-3),
+							y: .pixels(-3),
+							blur: .pixels(6),
+							color: Color(raw: "#00000040"),
+							isInset: true
+						)
+					)
 			case .top:
 				Style().hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(0.5))
 			case .power:
 				// The power switch on the top edge.
 				Style()
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-					.background(Color("#4a3580"))
-					.border(Color("#2a1a55"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#4a3580"))
+					.border(Color(raw: "#2a1a55"), width: .pixels(2), style: .inset)
 					.cornerRadius(.rootEm(0.25))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#e8dcff"))
+					.color(Color(raw: "#e8dcff"))
 					.handCursor()
-					.buttonFocusRing(Color("#ffcc00"))
+					.buttonFocusRing(Color(raw: "#ffcc00"))
 					.pressed {
-						$0.background(Color("#6a50b0"))
+						$0.background(Color(raw: "#6a50b0"))
 					}
 			case .led:
 				// The power light, red while it is on.
 				Style()
 					.frame(size: .rootEm(0.625))
-					.background(Color("#441111"))
+					.background(Color(raw: "#441111"))
 					.cornerRadius(.circle)
 					.when(States.on) {
 						$0
-							.background(Color("#ff2222"))
-							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ff3333")))
+							.background(Color(raw: "#ff2222"))
+							.shadow(BoxShadow(y: .zero, blur: .pixels(6), color: Color(raw: "#ff3333")))
 					}
 			case .bezel:
 				// The dark glass around the screen.
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.375))
 					.padding(top: .rootEm(0.75), horizontal: .rootEm(1), bottom: .rootEm(0.5))
-					.background(Color("#2b2b38"))
+					.background(Color(raw: "#2b2b38"))
 					.cornerRadius(.rootEm(0.5))
 			case .screen:
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(160.0 / 144.0)
-					.background(Color("#1a1a10"))
+					.background(Color(raw: "#1a1a10"))
 					.imageRendering(.pixelated)
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(2), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(2), offset: .pixels(2))
 					}
 			case .brand:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
 					.italic()
 					.letterSpacing(.em(0.05))
-					.color(Color("#ccccdd"))
+					.color(Color(raw: "#ccccdd"))
 			case .red:
-				Style().color(Color("#ff4444"))
+				Style().color(Color(raw: "#ff4444"))
 			case .purple:
-				Style().color(Color("#cc66ff"))
+				Style().color(Color(raw: "#cc66ff"))
 			case .green:
-				Style().color(Color("#44dd66"))
+				Style().color(Color(raw: "#44dd66"))
 			case .yellow:
-				Style().color(Color("#ffdd33"))
+				Style().color(Color(raw: "#ffdd33"))
 			case .blue:
-				Style().color(Color("#4499ff"))
+				Style().color(Color(raw: "#4499ff"))
 			case .controls:
 				Style().hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(1))
 			case .pad:
-				Style().vstack(alignment: .center, spacing: 0)
+				Style().vstack(alignment: .center, spacing: .zero)
 			case .padRow:
 				// The cross of the D-pad: left and right have the width of a button between them, where the middle of the cross is.
 				Style()
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(2.5))
-					.background(Color("#222222"))
+					.background(Color(raw: "#222222"))
 			case .padButton:
 				// Big enough for a thumb, and pressed in while it is held down.
 				Style()
 					.frame(size: .rootEm(2.5))
-					.background(Color("#222222"))
-					.border(Color("#111111"), width: .pixels(1))
+					.background(Color(raw: "#222222"))
+					.border(Color(raw: "#111111"), width: .pixels(1))
 					.fontFamily(.system)
 					.textStyle(.caption)
-					.color(Color("#888888"))
+					.color(Color(raw: "#888888"))
 					.touchAction(.none)
 					.textSelection(.disabled)
 					.handCursor()
 					.active {
-						$0.background(Color("#000000"))
+						$0.background(Color(raw: "#000000"))
 					}
 			case .ab:
 				// The A and B buttons, at a slant.
@@ -303,20 +302,20 @@ struct GeoCitiesHandheld: ScriptedElement {
 			case .roundButton:
 				Style()
 					.frame(size: .rootEm(3.25))
-					.background(Color("#c8c8d8"))
-					.border(Color("#555566"), width: .pixels(2))
+					.background(Color(raw: "#c8c8d8"))
+					.border(Color(raw: "#555566"), width: .pixels(2))
 					.cornerRadius(.circle)
-					.shadow(Shadow(y: .pixels(3), color: Color("#2a1a55")))
+					.shadow(BoxShadow(y: .pixels(3), color: Color(raw: "#2a1a55")))
 					.fontFamily(.system)
 					.textStyle(.body, weight: .bold)
-					.color(Color("#333344"))
+					.color(Color(raw: "#333344"))
 					.touchAction(.none)
 					.textSelection(.disabled)
 					.handCursor()
 					.active {
 						$0
 							.offset(y: .pixels(2))
-							.shadow(Shadow(y: .pixels(1), color: Color("#2a1a55")))
+							.shadow(BoxShadow(y: .pixels(1), color: Color(raw: "#2a1a55")))
 					}
 			case .buttonA:
 				Style().margin(.bottom, .rootEm(1.25))
@@ -328,19 +327,19 @@ struct GeoCitiesHandheld: ScriptedElement {
 				// The small slanted Select and Start buttons.
 				Style()
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.75))
-					.background(Color("#3a2a66"))
-					.border(Color("#22184a"), width: .pixels(1))
+					.background(Color(raw: "#3a2a66"))
+					.border(Color(raw: "#22184a"), width: .pixels(1))
 					.cornerRadius(.capsule)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#d8ccff"))
+					.color(Color(raw: "#d8ccff"))
 					.rotationEffect(.degrees(-20))
 					.touchAction(.none)
 					.textSelection(.disabled)
 					.handCursor()
 					// The flat rubber has no raised edge, so it gets as dark as its edge while it is held down, like the buttons of the cross.
 					.active {
-						$0.background(Color("#22184a"))
+						$0.background(Color(raw: "#22184a"))
 					}
 			case .below:
 				Style()
@@ -351,6 +350,55 @@ struct GeoCitiesHandheld: ScriptedElement {
 					.toyStatus()
 					.textAlign(.center)
 			}
+		}
+	}
+}
+
+extension GeoCitiesHandheld {
+	/**
+	The directions and printed labels shared by both consoles. The two scripts retain their own hook names.
+	*/
+	enum Direction: String, CaseIterable {
+		case up
+		case left
+		case right
+		case down
+
+		static let rows: [[Self]] = [[.up], [.left, .right], [.down]]
+
+		var label: String {
+			rawValue.capitalized
+		}
+
+		var symbol: String {
+			switch self {
+			case .up:
+				"▲"
+			case .left:
+				"◀"
+			case .right:
+				"▶"
+			case .down:
+				"▼"
+			}
+		}
+	}
+
+	/**
+	The decorative multicolored name printed on both handheld consoles.
+	*/
+	struct Brand: HTML {
+		var body: some HTML<HTMLTag.p> {
+			p {
+				for (letter, color) in [("C", Styles.red), ("O", .purple), ("L", .green), ("O", .yellow), ("R", .blue)] {
+					span {
+						letter
+					}
+					.style(color)
+				}
+			}
+			.accessibilityHidden()
+			.style(Styles.brand)
 		}
 	}
 }

@@ -7,7 +7,7 @@ extension GeoCitiesPage {
 	A splash at the top, like the ones that came before so many home pages: “Click here to enter”. The link goes to the title below it, so the page works without scripts, and `geocities.js` first dials up to the Internet, with the steps in a status and the sound of a modem, and then hides the splash and focuses the title. It never covers the page, as the page is right below it.
 	*/
 	var splash: some HTML {
-		div(.id(Hooks.splash)) {
+		div(.id(IDs.splash)) {
 			p {
 				"You have reached"
 			}
@@ -18,14 +18,14 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.wordArt)
 
-			a(.id(Hooks.enter), .href(.fragment(Hooks.welcome.id))) {
+			a(.id(IDs.enter), .href(.fragment(IDs.welcome.id))) {
 				"Click here to enter"
 			}
 			.style(Styles.enter)
 
 			gif(.modem, alt: "A modem with blinking lights")
 
-			p(.id(Hooks.dialUp), .role("status")) {}
+			p(.id(IDs.dialUp), .role("status")) {}
 				.style(Styles.dialUp)
 
 			p {
@@ -47,7 +47,7 @@ extension GeoCitiesPage {
 				}
 				.style(Styles.bannerText)
 
-				button(.id(Hooks.bannerStar), .type(.button)) {
+				button(.id(IDs.bannerStar), .type(.button)) {
 					"★"
 				}
 				.accessibilityLabel("Catch the star")
@@ -55,13 +55,13 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.banner)
 
-			p(.id(Hooks.bannerStatus), .role("status")) {
+			p(.id(IDs.bannerStatus), .role("status")) {
 				"Advertisement"
 			}
 			.style(Styles.caption)
 
 			// `geocities.js` shows it when the visitor catches the star.
-			button(.id(Hooks.bannerPrint), .type(.button), .hidden) {
+			button(.id(IDs.bannerPrint), .type(.button), .hidden) {
 				"Print My iMac!"
 			}
 			.style(Styles.retroButton)
@@ -76,14 +76,54 @@ extension GeoCitiesPage {
 		let appCount = content.activeApps.count
 
 		return [
-			QuizQuestion(prize: "$100", question: "What does “WWW” stand for?", answers: ["Wild Wild West", "World Wide Web", "Wonderful Waffle World", "Windows Will Work"], correct: 1),
-			QuizQuestion(prize: "$500", question: "What is the national animal of Scotland?", answers: ["The haggis", "The sheep", "The unicorn", "The Loch Ness Monster"], correct: 2),
-			QuizQuestion(prize: "$1,000", question: "Which web browser is made in Norway?", answers: ["Opera", "Netscape Navigator", "Mosaic", "Lynx"], correct: 0),
-			QuizQuestion(prize: "$8,000", question: "What sound does a 56k modem make when it connects?", answers: ["Beep", "Screech", "Bong", "All of them, at the same time"], correct: 3),
-			QuizQuestion(prize: "$32,000", question: "What do Norwegians call brown cheese?", answers: ["Lefse", "Brunost", "Pølse", "Smørbrød"], correct: 1),
-			QuizQuestion(prize: "$125,000", question: "In what year did the Tamagotchi come out in Japan?", answers: ["1989", "1993", "1996", "1999"], correct: 2),
-			QuizQuestion(prize: "$500,000", question: "After 99 comes 00. Which year do some old computers think that is?", answers: ["2000", "1900", "3000", "1066"], correct: 1),
-			QuizQuestion(prize: "$1,000,000", question: "How many apps has Sindre made?", answers: ["3", "\(appCount)", "\(appCount + 11)", "Infinity"], correct: 1),
+			QuizQuestion(
+				prize: "$100",
+				question: "What does “WWW” stand for?",
+				answers: ["Wild Wild West", "World Wide Web", "Wonderful Waffle World", "Windows Will Work"],
+				correct: 1
+			),
+			QuizQuestion(
+				prize: "$500",
+				question: "What is the national animal of Scotland?",
+				answers: ["The haggis", "The sheep", "The unicorn", "The Loch Ness Monster"],
+				correct: 2
+			),
+			QuizQuestion(
+				prize: "$1,000",
+				question: "Which web browser is made in Norway?",
+				answers: ["Opera", "Netscape Navigator", "Mosaic", "Lynx"],
+				correct: 0
+			),
+			QuizQuestion(
+				prize: "$8,000",
+				question: "What sound does a 56k modem make when it connects?",
+				answers: ["Beep", "Screech", "Bong", "All of them, at the same time"],
+				correct: 3
+			),
+			QuizQuestion(
+				prize: "$32,000",
+				question: "What do Norwegians call brown cheese?",
+				answers: ["Lefse", "Brunost", "Pølse", "Smørbrød"],
+				correct: 1
+			),
+			QuizQuestion(
+				prize: "$125,000",
+				question: "In what year did the Tamagotchi come out in Japan?",
+				answers: ["1989", "1993", "1996", "1999"],
+				correct: 2
+			),
+			QuizQuestion(
+				prize: "$500,000",
+				question: "After 99 comes 00. Which year do some old computers think that is?",
+				answers: ["2000", "1900", "3000", "1066"],
+				correct: 1
+			),
+			QuizQuestion(
+				prize: "$1,000,000",
+				question: "How many apps has Sindre made?",
+				answers: ["3", "\(appCount)", "\(appCount + 11)", "Infinity"],
+				correct: 1
+			),
 		]
 	}
 
@@ -103,15 +143,20 @@ extension GeoCitiesPage {
 			.style(Styles.centeredText)
 
 			div {
-				p(.id(Hooks.quizPrize)) {
+				p(.id(IDs.quizPrize)) {
 					"Press Play to start!"
 				}
 				.style(Styles.quizPrize)
 
-				p(.id(Hooks.quizQuestion), .hidden) {}
+				p(.id(IDs.quizQuestion), .hidden) {}
 					.style(Styles.quizQuestion)
 
-				div(.id(Hooks.quizAnswers), .hidden, .role("group"), .ariaLabelledBy(Hooks.quizQuestion.id)) {
+				div(
+					.id(IDs.quizAnswers),
+					.hidden,
+					.role("group"),
+					.ariaLabelledBy(IDs.quizQuestion.id)
+				) {
 					for (index, letter) in ["A", "B", "C", "D"].enumerated() {
 						button(.type(.button), .hook(Hooks.quizAnswer, value: "\(index)")) {
 							"\(letter): "
@@ -121,7 +166,7 @@ extension GeoCitiesPage {
 				}
 				.style(Styles.quizAnswers)
 
-				div(.id(Hooks.quizLifelines), .hidden) {
+				div(.id(IDs.quizLifelines), .hidden) {
 					for (lifeline, title) in [("fifty", "50:50"), ("phone", "Phone a Friend"), ("audience", "Ask the Audience")] {
 						button(.type(.button), .hook(Hooks.quizLifeline, value: lifeline)) {
 							title
@@ -131,10 +176,10 @@ extension GeoCitiesPage {
 				}
 				.style(Styles.buttonRow)
 
-				p(.id(Hooks.quizStatus), .role("status")) {}
+				p(.id(IDs.quizStatus), .role("status")) {}
 					.style(Styles.quizStatus)
 
-				button(.id(Hooks.quizStart), .type(.button)) {
+				button(.id(IDs.quizStart), .type(.button)) {
 					"Play!"
 				}
 				.style(Styles.quizButton)
@@ -165,7 +210,7 @@ extension GeoCitiesPage {
 			}
 
 			dl {
-				for (label, hook) in [("Browser", Hooks.reportBrowser), ("Computer", Hooks.reportSystem), ("Screen", Hooks.reportScreen), ("Colors", Hooks.reportColors), ("Online for", Hooks.reportOnline), ("Phone bill", Hooks.reportBill)] {
+				for (label, hook) in [("Browser", IDs.reportBrowser), ("Computer", IDs.reportSystem), ("Screen", IDs.reportScreen), ("Colors", IDs.reportColors), ("Online for", IDs.reportOnline), ("Phone bill", IDs.reportBill)] {
 					div {
 						dt {
 							"\(label):"
@@ -216,7 +261,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.buttonRow, Styles.scriptingOnly)
 
-			p(.id(Hooks.matrixStatus), .role("status")) {}
+			p(.id(IDs.matrixStatus), .role("status")) {}
 
 			p {
 				"The pills need JavaScript. You are stuck in the Matrix."
@@ -261,26 +306,26 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.scriptingDisabledOnly)
 
-			div(.id(Hooks.downloadWindow), .hidden) {
-				h3(.id(Hooks.downloadTitle)) {
+			div(.id(IDs.downloadWindow), .hidden) {
+				h3(.id(IDs.downloadTitle)) {
 					"Downloading…"
 				}
 				.style(Styles.titleBar)
 
 				div {
-					p(.id(Hooks.downloadText), .role("status")) {}
+					p(.id(IDs.downloadText), .role("status")) {}
 
 					div {
-						div(.id(Hooks.downloadBar)) {}
+						div(.id(IDs.downloadBar)) {}
 							.style(Styles.progressFill)
 					}
 					.accessibilityHidden()
 					.style(Styles.progressTrack)
 
-					p(.id(Hooks.downloadTime)) {}
+					p(.id(IDs.downloadTime)) {}
 						.style(Styles.caption)
 
-					button(.id(Hooks.downloadCancel), .type(.button)) {
+					button(.id(IDs.downloadCancel), .type(.button)) {
 						"Cancel"
 					}
 					.style(Styles.retroButton)
@@ -304,11 +349,11 @@ extension GeoCitiesPage {
 
 			div {
 				div {
-					label(.for(Hooks.wallpaper.id)) {
+					label(.for(IDs.wallpaper.id)) {
 						"Wallpaper:"
 					}
 
-					select(.id(Hooks.wallpaper)) {
+					select(.id(IDs.wallpaper)) {
 						for (color, name) in [("#000033", "Starry Night"), ("#008080", "Teal (like Windows 95)"), ("#ff1493", "Hot Pink"), ("#4b0082", "Purple Haze"), ("#003300", "The Matrix")] {
 							option(.value(color)) {
 								name
@@ -321,18 +366,18 @@ extension GeoCitiesPage {
 
 				// A monitor that shows the screen saver, like the preview of Windows.
 				div {
-					canvas(.id(Hooks.saverMonitor), .width(160), .height(120)) {}
+					canvas(.id(IDs.saverMonitor), .width(160), .height(120)) {}
 						.style(Styles.monitorScreen)
 				}
 				.accessibilityHidden()
 				.style(Styles.monitor)
 
 				div {
-					label(.for(Hooks.saverKind.id)) {
+					label(.for(IDs.saverKind.id)) {
 						"Screen saver:"
 					}
 
-					select(.id(Hooks.saverKind)) {
+					select(.id(IDs.saverKind)) {
 						for (kind, name) in [("unicorns", "Flying Unicorns"), ("pipes", "3D Pipes"), ("starfield", "Starfield"), ("mystify", "Mystify"), ("none", "(None)")] {
 							option(.value(kind)) {
 								name
@@ -344,11 +389,11 @@ extension GeoCitiesPage {
 				.style(Styles.formRow)
 
 				div {
-					label(.for(Hooks.saverWait.id)) {
+					label(.for(IDs.saverWait.id)) {
 						"Wait:"
 					}
 
-					select(.id(Hooks.saverWait)) {
+					select(.id(IDs.saverWait)) {
 						for (seconds, name) in [("60", "1 minute"), ("120", "2 minutes"), ("300", "5 minutes")] {
 							option(.value(seconds)) {
 								name
@@ -360,7 +405,7 @@ extension GeoCitiesPage {
 				}
 				.style(Styles.formRow)
 
-				button(.id(Hooks.saverPreview), .type(.button)) {
+				button(.id(IDs.saverPreview), .type(.button)) {
 					"Preview Screen Saver"
 				}
 				.style(Styles.retroButton)
@@ -368,11 +413,11 @@ extension GeoCitiesPage {
 				div {
 					gif(.mouse, style: .mouseGIF)
 
-					label(.for(Hooks.trailKind.id)) {
+					label(.for(IDs.trailKind.id)) {
 						"Mouse trail:"
 					}
 
-					select(.id(Hooks.trailKind)) {
+					select(.id(IDs.trailKind)) {
 						for (kind, name) in [("sparkles", "Sparkles"), ("elastic", "Elastic balls"), ("clock", "Clock"), ("none", "(None)")] {
 							option(.value(kind)) {
 								name
@@ -384,18 +429,18 @@ extension GeoCitiesPage {
 				.style(Styles.formRow)
 
 				div {
-					input(.id(Hooks.snow), .type(.checkbox), .checked)
+					input(.id(IDs.snow), .type(.checkbox), .checked)
 
-					label(.for(Hooks.snow.id)) {
+					label(.for(IDs.snow.id)) {
 						"Let it snow (it is always December 1999 here!)"
 					}
 				}
 				.style(Styles.choice)
 
 				div {
-					input(.id(Hooks.titleScroll), .type(.checkbox), .checked)
+					input(.id(IDs.titleScroll), .type(.checkbox), .checked)
 
-					label(.for(Hooks.titleScroll.id)) {
+					label(.for(IDs.titleScroll.id)) {
 						"Scroll the title in the tab"
 					}
 				}
@@ -428,13 +473,13 @@ extension GeoCitiesPage {
 			div {
 				gif(.sound, alt: "Sound!", style: .centered)
 
-				p(.id(Hooks.midiStatus), .role("status")) {
+				p(.id(IDs.midiStatus), .role("status")) {
 					"Ready to rock! Turn your speakers down first."
 				}
 				.style(Styles.lcd)
 
 				// Bars like the spectrum of Winamp, which `geocities.js` makes bounce while a tune plays.
-				div(.id(Hooks.spectrum)) {
+				div(.id(IDs.spectrum)) {
 					for _ in 0..<16 {
 						span {}
 							.style(Styles.spectrumBar)
@@ -444,11 +489,11 @@ extension GeoCitiesPage {
 				.style(Styles.spectrum, Styles.scriptingOnly)
 
 				div {
-					label(.for(Hooks.midiTune.id)) {
+					label(.for(IDs.midiTune.id)) {
 						"Song:"
 					}
 
-					select(.id(Hooks.midiTune)) {
+					select(.id(IDs.midiTune)) {
 						for tune in Self.tunes {
 							option(.value(tune.file)) {
 								tune.file
@@ -460,7 +505,7 @@ extension GeoCitiesPage {
 				.style(Styles.formRow, Styles.scriptingOnly)
 
 				div {
-					button(.id(Hooks.midiPlay), .type(.button)) {
+					button(.id(IDs.midiPlay), .type(.button)) {
 						span {
 							"▶"
 						}
@@ -469,7 +514,7 @@ extension GeoCitiesPage {
 					}
 					.style(Styles.retroButton)
 
-					button(.id(Hooks.midiStop), .type(.button), .disabled) {
+					button(.id(IDs.midiStop), .type(.button), .disabled) {
 						span {
 							"■"
 						}
@@ -522,13 +567,13 @@ extension GeoCitiesPage {
 	*/
 	var popUp: some HTML {
 		div {
-			div(.id(Hooks.popUp)) {
+			div(.id(IDs.popUp)) {
 				div {
 					h2 {
 						"Congratulations!!!"
 					}
 
-					button(.id(Hooks.popUpClose), .type(.button)) {
+					button(.id(IDs.popUpClose), .type(.button)) {
 						"×"
 					}
 					.accessibilityLabel("Close pop-up")
@@ -550,7 +595,7 @@ extension GeoCitiesPage {
 						"!"
 					}
 
-					button(.id(Hooks.popUpClaim), .type(.button)) {
+					button(.id(IDs.popUpClaim), .type(.button)) {
 						"Claim My Unicorn!"
 					}
 					.style(Styles.retroButton, Styles.scriptingOnly)
@@ -565,7 +610,7 @@ extension GeoCitiesPage {
 			.style(Styles.window, Styles.popUp)
 
 			// `geocities.js` shows it instead of the pop-up when the visitor closes it, and focuses it.
-			p(.id(Hooks.popUpClosed), .hidden, .tabindex(-1)) {
+			p(.id(IDs.popUpClosed), .hidden, .tabindex(-1)) {
 				"Pop-up closed. Phew!"
 			}
 			.style(Styles.centeredText)
@@ -592,7 +637,7 @@ extension GeoCitiesPage {
 			div {
 				p {
 					"Only "
-					strong(.id(Hooks.y2kDays)) {
+					strong(.id(IDs.y2kDays)) {
 						days.formatted(.number.locale(.site)).replacing("-", with: "−")
 					}
 					" days left until the year 2000!"
@@ -601,13 +646,13 @@ extension GeoCitiesPage {
 
 				p {
 					"Is your computer ready? Mine says today is "
-					strong(.id(Hooks.y2kToday)) {
+					strong(.id(IDs.y2kToday)) {
 						"\(month) \(buildDate.day ?? 1), 19\((buildDate.year ?? 2000) - 1900)"
 					}
 					". I think it already has the bug."
 				}
 
-				button(.id(Hooks.y2kCheck), .type(.button)) {
+				button(.id(IDs.y2kCheck), .type(.button)) {
 					"Check My Computer for the Y2K Bug"
 				}
 				.style(Styles.retroButton, Styles.scriptingOnly)
@@ -617,7 +662,7 @@ extension GeoCitiesPage {
 				}
 				.style(Styles.scriptingDisabledOnly)
 
-				p(.id(Hooks.y2kStatus), .role("status")) {
+				p(.id(IDs.y2kStatus), .role("status")) {
 					"Ready."
 				}
 				.style(Styles.lcd)
@@ -625,7 +670,7 @@ extension GeoCitiesPage {
 				div {
 					gif(.champagne, style: .partyGIF)
 
-					button(.id(Hooks.partyStart), .type(.button)) {
+					button(.id(IDs.partyStart), .type(.button)) {
 						"Party Like It’s 1999! Count Down to 2000"
 					}
 					.style(Styles.retroButton, Styles.scriptingOnly)
@@ -635,11 +680,11 @@ extension GeoCitiesPage {
 				.style(Styles.row)
 
 				// The big numbers of the countdown, which the status also says, but only at the start and the end.
-				p(.id(Hooks.partyCount), .hidden) {}
+				p(.id(IDs.partyCount), .hidden) {}
 					.accessibilityHidden()
 					.style(Styles.partyCount)
 
-				p(.id(Hooks.partyStatus), .role("status")) {}
+				p(.id(IDs.partyStatus), .role("status")) {}
 			}
 			.style(Styles.alertBox)
 		}
@@ -669,42 +714,42 @@ extension GeoCitiesPage {
 			.style(Styles.centeredText)
 
 			div {
-				div(.id(Hooks.petScreen)) {
-					p(.id(Hooks.petStats)) {
+				div(.id(IDs.petScreen)) {
+					p(.id(IDs.petStats)) {
 						"Baby Glitter ★ Age: 0 days"
 					}
 					.style(Styles.petStats)
 
 					div {
-						p(.id(Hooks.petBubble)) {
+						p(.id(IDs.petBubble)) {
 							"Neigh!"
 						}
 						.accessibilityHidden()
 						.style(Styles.petBubble)
 
 						// Disabled until `geocities.js` runs, as petting needs it.
-						button(.id(Hooks.petSprite), .type(.button), .disabled) {
+						button(.id(IDs.petSprite), .type(.button), .disabled) {
 							gif(.unicorn, alt: "", style: .petSprite)
 
-							span(.id(Hooks.petHat)) {}
+							span(.id(IDs.petHat)) {}
 								.accessibilityHidden()
 								.style(Styles.petHat)
 						}
 						.accessibilityLabel("Pet Glitter")
 						.style(Styles.petSpriteButton)
 
-						span(.id(Hooks.petZzz), .hidden) {
+						span(.id(IDs.petZzz), .hidden) {
 							"Z z z"
 						}
 						.accessibilityHidden()
 						.style(Styles.petZzz)
 
-						p(.id(Hooks.petMess), .role("img"), .hidden) {}
+						p(.id(IDs.petMess), .role("img"), .hidden) {}
 							.style(Styles.petMess)
 					}
 					.style(Styles.petScene)
 
-					p(.id(Hooks.petFace)) {
+					p(.id(IDs.petFace)) {
 						"(-_-)"
 					}
 					.accessibilityHidden()
@@ -717,7 +762,7 @@ extension GeoCitiesPage {
 							.style(Styles.factLabel)
 
 							dd {
-								span(.id(Hooks.petFood), .role("img")) {
+								span(.id(IDs.petFood), .role("img")) {
 									"♥♥♡♡"
 								}
 								.accessibilityLabel("2 of 4 hearts")
@@ -732,7 +777,7 @@ extension GeoCitiesPage {
 							.style(Styles.factLabel)
 
 							dd {
-								span(.id(Hooks.petFun), .role("img")) {
+								span(.id(IDs.petFun), .role("img")) {
 									"♥♥♡♡"
 								}
 								.accessibilityLabel("2 of 4 hearts")
@@ -744,8 +789,8 @@ extension GeoCitiesPage {
 				}
 				.style(Styles.petScreen)
 
-				div(.id(Hooks.petGame), .hidden) {
-					p(.id(Hooks.petGameStatus), .role("status")) {
+				div(.id(IDs.petGame), .hidden) {
+					p(.id(IDs.petGameStatus), .role("status")) {
 						"Which way will Glitter turn?"
 					}
 
@@ -764,7 +809,7 @@ extension GeoCitiesPage {
 				}
 				.style(Styles.petGame)
 
-				div(.id(Hooks.petButtons)) {
+				div(.id(IDs.petButtons)) {
 					for (action, title) in [("feed", "Feed"), ("play", "Play"), ("brush", "Brush"), ("clean", "Clean"), ("trick", "Trick"), ("hat", "Hat"), ("light", "Light")] {
 						button(.type(.button), .hook(Hooks.petAction, value: action)) {
 							title
@@ -776,7 +821,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.egg)
 
-			p(.id(Hooks.petStatus), .role("status"), .tabindex(-1)) {}
+			p(.id(IDs.petStatus), .role("status"), .tabindex(-1)) {}
 				.style(Styles.centeredText)
 
 			p {
@@ -785,7 +830,7 @@ extension GeoCitiesPage {
 			.style(Styles.scriptingDisabledOnly, Styles.centeredText)
 
 			// `geocities.js` adds a copy that floats up from Glitter when the visitor pets her.
-			template(.id(Hooks.petHeartTemplate)) {
+			template(.id(IDs.petHeartTemplate)) {
 				span {
 					"♥"
 				}
@@ -845,13 +890,20 @@ extension GeoCitiesPage {
 				"He knows almost everything. Ask him a question!"
 			}
 
-			form(.id(Hooks.butlerForm)) {
-				label(.for(Hooks.butlerQuestion.id)) {
+			form(.id(IDs.butlerForm)) {
+				label(.for(IDs.butlerQuestion.id)) {
 					"Your question:"
 				}
 				.style(Styles.label)
 
-				input(.id(Hooks.butlerQuestion), .type(.text), .autocomplete("off"), .required, .maxlength(100), .placeholder("Are unicorns real?"))
+				input(
+					.id(IDs.butlerQuestion),
+					.type(.text),
+					.autocomplete("off"),
+					.required,
+					.maxlength(100),
+					.placeholder("Are unicorns real?")
+				)
 					.style(Styles.field)
 
 				button(.type(.submit)) {
@@ -861,7 +913,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.form, Styles.scriptingOnly)
 
-			p(.id(Hooks.butlerAnswer), .role("status")) {
+			p(.id(IDs.butlerAnswer), .role("status")) {
 				"Good day! How may I help you surf the web?"
 			}
 			.style(Styles.speech)
@@ -885,12 +937,12 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.heading)
 
-			p(.id(Hooks.fact), .role("status")) {
+			p(.id(IDs.fact), .role("status")) {
 				Self.funFacts[0]
 			}
 			.style(Styles.speech)
 
-			button(.id(Hooks.nextFact), .type(.button)) {
+			button(.id(IDs.nextFact), .type(.button)) {
 				"Another Fun Fact!"
 			}
 			.style(Styles.retroButton, Styles.scriptingOnly)
@@ -908,7 +960,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.heading)
 
-			form(.id(Hooks.pollForm)) {
+			form(.id(IDs.pollForm)) {
 				fieldset {
 					legend {
 						"Pick one:"
@@ -917,7 +969,14 @@ extension GeoCitiesPage {
 
 					for (index, option) in Self.pollOptions.enumerated() {
 						div {
-							input(.id("geocities-poll-\(index)"), .type(.radio), .name("browser"), .value(option.name), .required, .hook(Hooks.votes, value: "\(option.votes)"))
+							input(
+								.id("geocities-poll-\(index)"),
+								.type(.radio),
+								.name("browser"),
+								.value(option.name),
+								.required,
+								.hook(Hooks.votes, value: "\(option.votes)")
+							)
 
 							label(.for("geocities-poll-\(index)")) {
 								option.name
@@ -940,9 +999,9 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.form, Styles.scriptingOnly)
 
-			p(.id(Hooks.pollStatus), .role("status"), .tabindex(-1)) {}
+			p(.id(IDs.pollStatus), .role("status"), .tabindex(-1)) {}
 
-			ol(.id(Hooks.pollResults), .hidden) {}
+			ol(.id(IDs.pollResults), .hidden) {}
 				.style(Styles.pollResults)
 
 			p {
@@ -1003,7 +1062,7 @@ extension GeoCitiesPage {
 
 			p {
 				"You are visitor number "
-				span(.id(Hooks.counter), .role("img")) {
+				span(.id(IDs.counter), .role("img")) {
 					for digit in "001999" {
 						span {
 							String(digit)
@@ -1031,9 +1090,9 @@ extension GeoCitiesPage {
 
 			guestbookHelper
 
-			p(.id(Hooks.guestbookStatus), .role("status")) {}
+			p(.id(IDs.guestbookStatus), .role("status")) {}
 
-			ol(.id(Hooks.guestbookEntries)) {
+			ol(.id(IDs.guestbookEntries)) {
 				for entry in Self.guestbookEntries {
 					entry
 				}
@@ -1042,8 +1101,14 @@ extension GeoCitiesPage {
 			.style(Styles.entries)
 
 			// `geocities.js` fills a copy for each entry of the visitor.
-			template(.id(Hooks.entryTemplate)) {
-				GuestbookEntry(name: "", place: "", date: "", via: "", message: "")
+			template(.id(IDs.entryTemplate)) {
+				GuestbookEntry(
+					name: "",
+					place: "",
+					date: "",
+					via: "",
+					message: ""
+				)
 			}
 
 			p {
@@ -1074,14 +1139,21 @@ extension GeoCitiesPage {
 	The form that adds an entry to the guestbook, in the browser. `geocities.js` runs it.
 	*/
 	var guestbookForm: some HTML {
-		form(.id(Hooks.guestbookForm)) {
+		form(.id(IDs.guestbookForm)) {
 			div {
 				label(.for("geocities-name")) {
 					"Your name:"
 				}
 				.style(Styles.label)
 
-				input(.id("geocities-name"), .type(.text), .name("name"), .autocomplete("off"), .required, .maxlength(40))
+				input(
+					.id("geocities-name"),
+					.type(.text),
+					.name("name"),
+					.autocomplete("off"),
+					.required,
+					.maxlength(40)
+				)
 					.style(Styles.field)
 			}
 
@@ -1091,7 +1163,13 @@ extension GeoCitiesPage {
 				}
 				.style(Styles.label)
 
-				input(.id("geocities-place"), .type(.text), .name("place"), .autocomplete("off"), .maxlength(40))
+				input(
+					.id("geocities-place"),
+					.type(.text),
+					.name("place"),
+					.autocomplete("off"),
+					.maxlength(40)
+				)
 					.style(Styles.field)
 			}
 
@@ -1117,7 +1195,13 @@ extension GeoCitiesPage {
 				}
 				.style(Styles.label)
 
-				textarea(.id("geocities-message"), .name("message"), .rows(3), .required, .maxlength(300)) {}
+				textarea(
+					.id("geocities-message"),
+					.name("message"),
+					.rows(3),
+					.required,
+					.maxlength(300)
+				) {}
 					.style(Styles.field)
 			}
 
@@ -1307,9 +1391,9 @@ extension GeoCitiesPage {
 				"Aliens from Area 51 have landed on my home page! Zap as many as you can before the year 2000. Click or tap them, or press the number keys 1 to 9. A miss costs a point, and do NOT zap Glitter (🦄), or you lose 3!"
 			}
 
-			div(.id(Hooks.game)) {
+			div(.id(IDs.game)) {
 				div {
-					button(.id(Hooks.start), .type(.button)) {
+					button(.id(IDs.start), .type(.button)) {
 						"Start"
 					}
 					.style(Styles.retroButton)
@@ -1317,7 +1401,7 @@ extension GeoCitiesPage {
 					p {
 						gif(.hourglass)
 						" "
-						span(.id(Hooks.clock)) {
+						span(.id(IDs.clock)) {
 							"11:59:30 PM"
 						}
 					}
@@ -1325,7 +1409,7 @@ extension GeoCitiesPage {
 				}
 				.style(Styles.gameBar)
 
-				p(.id(Hooks.score), .role("status")) {
+				p(.id(IDs.score), .role("status")) {
 					"Press Start to play."
 				}
 				.style(Styles.score)

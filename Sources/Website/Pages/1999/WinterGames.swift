@@ -11,7 +11,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 	/**
 	The ID of the Games, which the site map links to.
 	*/
-	static let rootID = "geocities-winter"
+	static let rootID = ElementID("geocities-winter")
 
 	let project: Project
 
@@ -19,7 +19,21 @@ struct GeoCitiesWinterGames: ScriptedElement {
 	An event of the Games, with the ID that `WinterGames.js` knows it by.
 	*/
 	struct Event {
-		let id: String
+		/**
+		The finite event IDs shared with the game script. Metadata remains in the table below.
+		*/
+		enum ID: String, CaseIterable {
+			case skijump
+			case biathlon
+			case skating
+			case slalom
+			case bobsleigh
+			case curling
+			case hockey
+			case figure
+		}
+
+		let id: ID
 		let title: String
 		let venue: String
 
@@ -49,49 +63,49 @@ struct GeoCitiesWinterGames: ScriptedElement {
 	*/
 	static let events = [
 		Event(
-			id: "skijump",
+			id: .skijump,
 			title: "Ski Jump",
 			venue: "Holmenkollen, Oslo, K110",
 			howTo: "Two jumps from the big hill in Oslo. Hold ▼ on the inrun to crouch and go faster. Press Jump right at the end of the table: too early or too late, and you fly short. In the air, keep the needle of the balance meter in the green with ▲ and ▼, as the wind pushes you around. When the ground comes close, press Jump again to land in a telemark, with one ski in front of the other. A jump to the K-point of 110 meters gives 60 points, and each meter more or less gives 1.8 points more or less. Five judges give up to 20 points each for the style, and the highest and the lowest marks do not count. A head wind lifts you, and a tail wind pushes you down.",
 			controls: [("▼ (hold)", "Crouch on the inrun"), ("Space or the Jump button", "Take off, and land in a telemark"), ("▲ and ▼", "Lean forward and back in the air")]
 		),
 		Event(
-			id: "biathlon",
+			id: .biathlon,
 			title: "Biathlon",
 			venue: "Birkebeineren, Lillehammer",
 			howTo: "Ski to the shooting range, shoot five targets, and ski to the finish. Press ◀ and ▶ one after the other to ski: the faster, the faster you go, but your heart rate goes up too. At the range, the higher your heart rate, the more the rifle sight shakes, so slow down before you get there, or wait a moment at the range. Move the sight with the arrow keys, and press Fire. The wind flag shows where the wind blows your bullets, so aim a little against it. Each miss sends you around the penalty loop, which is 150 meters in real biathlon and shorter here.",
 			controls: [("◀ ▶ ◀ ▶", "Ski"), ("The arrow keys", "Move the sight at the range"), ("Space or the Fire button", "Shoot")]
 		),
 		Event(
-			id: "skating",
+			id: .skating,
 			title: "Speed Skating 500 m",
 			venue: "Vikingskipet, Hamar",
 			howTo: "Race 500 meters against the ghost of the best race: the record at first, then your own best. Wait for the gun, and press Go when it fires. Two false starts, and you are out. Then skate with ◀ and ▶ in the rhythm of the stride meter: press ◀ when the marker swings to the left end, and ▶ when it swings to the right end. The faster you go, the faster it swings. In the curves, the ends are smaller, so be careful.",
 			controls: [("Space or the Go button", "Start at the gun"), ("◀ and ▶", "Skate, in the rhythm of the stride meter")]
 		),
 		Event(
-			id: "slalom",
+			id: .slalom,
 			title: "Slalom",
 			venue: "Hafjell, Øyer",
 			howTo: "Ski down through 20 gates, red and blue, as fast as you can. Steer with ◀ and ▶. Hold ▼ to crouch, which is faster, but you turn slower. Hold ▲ to brake. Go between the two poles of each gate: a missed gate costs 5 seconds (in real slalom, you would be out). Fog and new snow make it harder, so check the weather.",
 			controls: [("◀ and ▶", "Steer"), ("▼ (hold)", "Crouch for speed"), ("▲ (hold)", "Brake")]
 		),
 		Event(
-			id: "bobsleigh",
+			id: .bobsleigh,
 			title: "Bobsleigh",
 			venue: "Hunderfossen, Lillehammer",
 			howTo: "Push the sled with ◀ ▶ ◀ ▶ as fast as you can, and press Jump In when the light is green, before the line. Then steer down the ice: in the curves, the sled climbs the wall, more the faster you go. Keep it on the green line with ◀ and ▶. Too low, and it scrapes and slows down; too high, and it tips over. The sign at the top tells which way the next curve goes. Cold ice is fast ice.",
 			controls: [("◀ ▶ ◀ ▶", "Push at the start"), ("Space or the Jump In button", "Jump into the sled"), ("◀ and ▶", "Steer on the wall of the curves")]
 		),
 		Event(
-			id: "curling",
+			id: .curling,
 			title: "Curling",
 			venue: "Hamar Curling Hall",
 			howTo: "Four stones, and red stones in the house. Aim with ◀ and ▶, and pick the turn of the stone with ▲ and ▼, which makes it curl to the left or the right as it slows down. Press Throw to start the weight meter, and press it again to let go: too hard, and the stone slides through the house. While the stone slides, press ◀ and ▶ one after the other to sweep: it goes further and straighter. Hurry hard! A stone on the button gives 4 points, in the next rings 3, 2, and 1. Each red stone you knock out of the house gives 2 points, and the stone closest to the middle gives 2 more.",
 			controls: [("◀ and ▶", "Aim, and sweep while the stone slides"), ("▲ and ▼", "Turn the stone to curl left or right"), ("Space or the Throw button", "Start the weight meter, and let go")]
 		),
 		Event(
-			id: "hockey",
+			id: .hockey,
 			title: "Ice Hockey Shootout",
 			venue: "Håkons Hall, Lillehammer",
 			howTo: "Five shots, and five saves. When you shoot, the crosshair moves over the goal by itself: press Shoot when it is where the goalie is not. Press ◀ or ▶ first to fake a shot to that side, and the goalie moves there. When you are the goalie, watch the shooter: move with ◀ and ▶, hold ▲ for a high save with the glove, and hold ▼ to go down and cover the ice. Each goal and each save is a point.",
@@ -100,7 +114,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 			gifStyle: .centered
 		),
 		Event(
-			id: "figure",
+			id: .figure,
 			title: "Figure Skating",
 			venue: "Nordlyshallen, Hamar",
 			howTo: "Skate to In the Hall of the Mountain King by Edvard Grieg, which gets faster and faster. Arrows slide to the line on the left: press the arrow key when an arrow is on the line. A star is a jump: press Jump for it, or you fall on the ice. Five judges give two marks of up to 6.0 each, as in 1999: one for the technical merit, mostly the jumps, and one for the artistic impression, which likes long runs without a miss. With the sound on, you hear the music.",
@@ -139,9 +153,19 @@ struct GeoCitiesWinterGames: ScriptedElement {
 
 	var content: some HTML {
 		h2 {
-			GeoCitiesPage.GIFImage(gif: .skiSlope, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .skiSlope,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 			" Sindre’s Winter Games ’99 "
-			GeoCitiesPage.GIFImage(gif: .skiSlope, alt: "", style: .gif, project: project)
+			GeoCitiesPage.GIFImage(
+				gif: .skiSlope,
+				alt: "",
+				style: .gif,
+				project: project
+			)
 		}
 		.style(GeoCitiesPage.Styles.heading, GeoCitiesPage.Styles.centeredText)
 
@@ -177,7 +201,13 @@ struct GeoCitiesWinterGames: ScriptedElement {
 		div {
 			div {
 				// The screen is 320 × 200 pixels, like the VGA games of the 1990s, made bigger with sharp pixels.
-				canvas(.part(Parts.screen), .width(320), .height(200), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.screen),
+					.width(320),
+					.height(200),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("The screen of the Winter Games. Use the arrow keys, and Space for the button of the event. Escape leaves an event.")
 					.style(Styles.screen)
 			}
@@ -264,7 +294,14 @@ struct GeoCitiesWinterGames: ScriptedElement {
 				}
 				.style(Styles.fieldLabel)
 
-				input(.id("geocities-winter-name"), .part(Parts.name), .type(.text), .autocomplete("off"), .maxlength(14), .value("Sindre"))
+				input(
+					.id("geocities-winter-name"),
+					.part(Parts.name),
+					.type(.text),
+					.autocomplete("off"),
+					.maxlength(14),
+					.value("Sindre")
+				)
 					.style(GeoCitiesPage.Styles.field)
 
 				label(.for("geocities-winter-initials")) {
@@ -272,7 +309,14 @@ struct GeoCitiesWinterGames: ScriptedElement {
 				}
 				.style(Styles.fieldLabel)
 
-				input(.id("geocities-winter-initials"), .part(Parts.initials), .type(.text), .autocomplete("off"), .maxlength(3), .value("SSO"))
+				input(
+					.id("geocities-winter-initials"),
+					.part(Parts.initials),
+					.type(.text),
+					.autocomplete("off"),
+					.maxlength(3),
+					.value("SSO")
+				)
 					.style(GeoCitiesPage.Styles.field, Styles.initials)
 			}
 			.style(Styles.fields)
@@ -285,7 +329,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 
 				for (index, country) in Self.countries.enumerated() {
 					label {
-						input(.type(.radio), .name(Hooks.country.rawValue), .value(country.code))
+						input(.type(.radio), .name(FieldNames.country.rawValue), .value(country.code))
 							.attributes(.checked, when: index == 0)
 						canvas(.hook(Hooks.flag, value: country.code), .width(22), .height(16)) {}
 							.accessibilityHidden()
@@ -305,7 +349,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 
 				for (index, mascot) in Self.mascots.enumerated() {
 					label {
-						input(.type(.radio), .name(Hooks.mascot.rawValue), .value(mascot.id))
+						input(.type(.radio), .name(FieldNames.mascot.rawValue), .value(mascot.id))
 							.attributes(.checked, when: index == 0)
 						" \(mascot.name)"
 					}
@@ -360,7 +404,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 			ol {
 				for event in Self.events {
 					li {
-						button(.type(.button), .hook(Hooks.event, value: event.id)) {
+						button(.type(.button), .hook(Hooks.event, value: event.id.rawValue)) {
 							strong {
 								event.title
 							}
@@ -370,7 +414,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 							}
 							.style(Styles.venue)
 
-							span(.hook(Hooks.medal, value: event.id)) {}
+							span(.hook(Hooks.medal, value: event.id.rawValue)) {}
 								.style(Styles.medal)
 						}
 						.style(Styles.eventButton)
@@ -414,9 +458,14 @@ struct GeoCitiesWinterGames: ScriptedElement {
 				.style(GeoCitiesPage.Styles.subheading)
 
 			for event in Self.events {
-				div(.hook(Hooks.howToText, value: event.id), .hidden) {
+				div(.hook(Hooks.howToText, value: event.id.rawValue), .hidden) {
 					if let gif = event.gif {
-						GeoCitiesPage.GIFImage(gif: gif, alt: "", style: event.gifStyle, project: project)
+						GeoCitiesPage.GIFImage(
+							gif: gif,
+							alt: "",
+							style: event.gifStyle,
+							project: project
+						)
 					}
 
 					p {
@@ -505,7 +554,13 @@ struct GeoCitiesWinterGames: ScriptedElement {
 					"🏆 A new world record! Enter your initials: "
 				}
 
-				input(.id("geocities-winter-record-initials"), .part(Parts.recordInitials), .type(.text), .autocomplete("off"), .maxlength(3))
+				input(
+					.id("geocities-winter-record-initials"),
+					.part(Parts.recordInitials),
+					.type(.text),
+					.autocomplete("off"),
+					.maxlength(3)
+				)
 					.style(GeoCitiesPage.Styles.field, Styles.initials)
 
 				button(.type(.submit)) {
@@ -687,12 +742,10 @@ struct GeoCitiesWinterGames: ScriptedElement {
 		.style(Styles.panel)
 	}
 
-	enum Hooks: String, ScriptHookSet {
-		/**
-		The control of a touch button, like `left` or `action`.
-		*/
-		case control = "data-winter-control"
-
+	/**
+	The names of the radio buttons, which the script reads from the data of the form.
+	*/
+	enum FieldNames: String {
 		/**
 		The name of the radio buttons of the country, which is also how the script finds them.
 		*/
@@ -702,31 +755,38 @@ struct GeoCitiesWinterGames: ScriptedElement {
 		The name of the radio buttons of the mascot.
 		*/
 		case mascot = "geocities-winter-mascot"
+	}
+
+	enum Hooks: String, ScriptDataAttributeSet {
+		/**
+		The control of a touch button, like `left` or `action`.
+		*/
+		case control = "winter-control"
 
 		/**
 		The country of a small canvas that shows its flag, like `NOR`.
 		*/
-		case flag = "data-winter-flag"
+		case flag = "winter-flag"
 
 		/**
 		The event of a button of the menu, like `skijump`.
 		*/
-		case event = "data-winter-event"
+		case event = "winter-event"
 
 		/**
 		The event whose best medal a part of a button of the menu shows.
 		*/
-		case medal = "data-winter-medal"
+		case medal = "winter-medal"
 
 		/**
 		The event that a text of how to play is for.
 		*/
-		case howToText = "data-winter-howto"
+		case howToText = "winter-howto"
 
 		/**
 		The answer of a button of the interview, as its index.
 		*/
-		case answer = "data-winter-answer"
+		case answer = "winter-answer"
 	}
 
 	enum Parts: String, ElementPartSet {
@@ -843,8 +903,8 @@ struct GeoCitiesWinterGames: ScriptedElement {
 					.below(.smallTablet) {
 						$0.padding(.rootEm(0.375))
 					}
-					.background(Color("#2a2a3a"))
-					.border(Color("#555566"), width: .pixels(3), style: .outset)
+					.background(Color(raw: "#2a2a3a"))
+					.border(Color(raw: "#555566"), width: .pixels(3), style: .outset)
 					.cornerRadius(.rootEm(0.5))
 			case .bezel:
 				Style()
@@ -854,7 +914,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 						$0.padding(.rootEm(0.25))
 					}
 					.background(.black)
-					.border(Color("#444444"), width: .pixels(3), style: .inset)
+					.border(Color(raw: "#444444"), width: .pixels(3), style: .inset)
 					.cornerRadius(.rootEm(0.75))
 			case .screen:
 				// A double tap on the screen does not zoom, as the events are played with the buttons below it. A finger on the screen still scrolls the page.
@@ -866,18 +926,18 @@ struct GeoCitiesWinterGames: ScriptedElement {
 					.background(.black)
 					.touchAction(.manipulation)
 					.focusVisible {
-						$0.focusRing(Color("#ffee55"), width: .pixels(2), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffee55"), width: .pixels(2), offset: .pixels(2))
 					}
 			case .commentary:
 				// Two lines high, so the console does not grow when a line of the commentator is longer.
 				Style()
 					.frame(width: .percent(100), minHeight: .lineHeight(2))
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
 					.lineHeight(1.2)
 					.textAlign(.center)
-					.color(Color("#ffee55"))
+					.color(Color(raw: "#ffee55"))
 			case .controls:
 				Style()
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(2))
@@ -890,8 +950,8 @@ struct GeoCitiesWinterGames: ScriptedElement {
 			case .padButton:
 				Style()
 					.frame(size: .rootEm(3))
-					.background(Color("#3a5a9a"))
-					.border(Color("#7a9ada"), width: .pixels(3), style: .outset)
+					.background(Color(raw: "#3a5a9a"))
+					.border(Color(raw: "#7a9ada"), width: .pixels(3), style: .outset)
 					.cornerRadius(.rootEm(0.5))
 					.fontFamily(.system)
 					.font(.large, weight: .bold)
@@ -899,14 +959,14 @@ struct GeoCitiesWinterGames: ScriptedElement {
 					.touchAction(.none)
 					.handCursor()
 					.active {
-						$0.border(Color("#7a9ada"), width: .pixels(3), style: .inset)
+						$0.border(Color(raw: "#7a9ada"), width: .pixels(3), style: .inset)
 					}
 			case .actionButton:
 				// The big round button, which says what it does in the event, like JUMP.
 				Style()
 					.frame(size: .rootEm(5))
-					.background(Color("#cc1a2a"))
-					.border(Color("#ff7a7a"), width: .pixels(4), style: .outset)
+					.background(Color(raw: "#cc1a2a"))
+					.border(Color(raw: "#ff7a7a"), width: .pixels(4), style: .outset)
 					.cornerRadius(.percent(50))
 					.fontFamily(GeoCitiesPage.impact)
 					.textStyle(.body)
@@ -914,12 +974,12 @@ struct GeoCitiesWinterGames: ScriptedElement {
 					.touchAction(.none)
 					.handCursor()
 					.active {
-						$0.border(Color("#ff7a7a"), width: .pixels(4), style: .inset)
+						$0.border(Color(raw: "#ff7a7a"), width: .pixels(4), style: .inset)
 					}
 			case .wear:
 				Style()
 					.frame(width: .percent(100))
-					.margin(0)
+					.margin(.zero)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
 			case .panels:
@@ -943,9 +1003,9 @@ struct GeoCitiesWinterGames: ScriptedElement {
 				Style()
 					.grid(minimumColumnWidth: .rootEm(10))
 					.gap(row: .rootEm(0.25), column: .rootEm(0.75))
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.5))
-					.border(Color("#808080"), width: .pixels(2), style: .groove)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .groove)
 			case .legend:
 				Style()
 					.padding(.horizontal, .rootEm(0.25))
@@ -958,24 +1018,24 @@ struct GeoCitiesWinterGames: ScriptedElement {
 				Style()
 					.frame(width: .pixels(22), height: .pixels(16))
 					.imageRendering(.pixelated)
-					.border(Color("#404040"), width: .pixels(1))
+					.border(Color(raw: "#404040"), width: .pixels(1))
 			case .eventList:
 				Style()
 					.grid(minimumColumnWidth: .rootEm(13))
 					.gap(.rootEm(0.375))
-					.margin(0)
-					.padding(0)
+					.margin(.zero)
+					.padding(.zero)
 					// Without the numbers of the list, as each button says what it is.
 					.children("li") {
 						$0.display(.block)
 					}
 			case .eventButton:
 				Style()
-					.vstack(alignment: .start, spacing: 0)
+					.vstack(alignment: .start, spacing: .zero)
 					.frame(size: .percent(100))
 					.padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.625))
-					.background(Color("#ffffff"))
-					.border(Color("#dfdfdf"), width: .pixels(3), style: .outset)
+					.background(Color(raw: "#ffffff"))
+					.border(Color(raw: "#dfdfdf"), width: .pixels(3), style: .outset)
 					.fontFamily(.system)
 					.textStyle(.caption)
 					.textAlign(.leading)
@@ -983,46 +1043,46 @@ struct GeoCitiesWinterGames: ScriptedElement {
 					.handCursor()
 					.buttonFocusRing()
 					.hover {
-						$0.background(Color("#ffffcc"))
+						$0.background(Color(raw: "#ffffcc"))
 					}
 					.active {
-						$0.border(Color("#dfdfdf"), width: .pixels(3), style: .inset)
+						$0.border(Color(raw: "#dfdfdf"), width: .pixels(3), style: .inset)
 					}
 			case .venue:
-				Style().color(Color("#555555"))
+				Style().color(Color(raw: "#555555"))
 			case .medal:
 				Style().fontWeight(.bold)
 			case .keys:
 				Style()
-					.grid(columns: "auto 1fr")
+					.grid(columns: .auto, .fraction(1))
 					.gap(row: .rootEm(0.25), column: .rootEm(0.75))
-					.margin(0)
+					.margin(.zero)
 			case .key:
 				Style()
 					.fontFamily(GeoCitiesPage.courier)
 					.fontWeight(.bold)
 			case .keyAction:
-				Style().margin(0)
+				Style().margin(.zero)
 			case .tip:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
 			case .table:
 				Style()
 					.frame(width: .percent(100))
-					.background(Color("#ffffff"))
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.background(Color(raw: "#ffffff"))
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.textStyle(.caption)
 					.children("* > tr > *") {
 						$0
 							.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.375))
-							.border(.bottom, Color("#dddddd"), width: .pixels(1))
+							.border(.bottom, Color(raw: "#dddddd"), width: .pixels(1))
 							.textAlign(.leading)
 					}
 					.children("thead > tr > th") {
 						$0
-							.background(Color("#000080"))
+							.background(Color(raw: "#000080"))
 							.color(.white)
 					}
 			case .recordForm:
@@ -1030,17 +1090,17 @@ struct GeoCitiesWinterGames: ScriptedElement {
 					.hstack(alignment: .center, spacing: .rootEm(0.5))
 					.flexWrap()
 					.padding(.rootEm(0.5))
-					.background(Color("#ffffcc"))
-					.border(Color("#cc9900"), width: .pixels(2), style: .dashed)
+					.background(Color(raw: "#ffffcc"))
+					.border(Color(raw: "#cc9900"), width: .pixels(2), style: .dashed)
 					.fontWeight(.bold)
 			case .interview:
 				Style()
 					.vstack(spacing: .rootEm(0.375))
 					.padding(.rootEm(0.5))
-					.border(Color("#808080"), width: .pixels(2), style: .groove)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .groove)
 			case .question:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontWeight(.bold)
 			case .answers:
 				Style()

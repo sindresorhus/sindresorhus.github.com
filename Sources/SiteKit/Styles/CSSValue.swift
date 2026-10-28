@@ -1,7 +1,9 @@
+import Foundation
+
 /**
 A CSS value for ``Style/declaration(_:_:)``, like `1rem`, `auto`, or `var(--accent)`.
 
-Typed modifiers take typed values, like ``Length`` and ``Color``. Use a `CSSValue` for the rest: a string literal, an array for space-separated values, or a constructor:
+Typed modifiers take typed values, like ``LengthPercentage`` and ``Color``. Use a `CSSValue` for the rest: a string literal, an array for space-separated values, or a constructor:
 
 ```swift
 Style()
@@ -13,47 +15,50 @@ Style()
 public struct CSSValue: StyleValue, Hashable, ExpressibleByStringLiteral, ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
 	public let description: String
 
-	public init(_ value: String) {
+	/**
+	An explicit unchecked CSS expression at the declaration boundary.
+	*/
+	public init(raw value: String) {
 		self.description = value
 	}
 
 	/**
-	A typed value, like a ``Length`` or a ``Color``.
+	A typed value, like a ``LengthPercentage`` or a ``Color``.
 	*/
 	public init(_ value: some StyleValue) {
-		self.init(value.description)
+		self.init(raw: value.description)
 	}
 
 	/**
 	A keyword, like ``Display/grid``.
 	*/
 	public init(_ keyword: some CSSKeyword) {
-		self.init(keyword.rawValue)
+		self.init(raw: keyword.rawValue)
 	}
 
 	/**
 	A number, like `1.5` for a line height, without unneeded digits. A number that is not whole is rounded to 4 decimals.
 	*/
 	public init(_ number: Double) {
-		self.init(Self.format(number))
+		self.init(raw: Self.format(number))
 	}
 
 	/**
 	A whole number, like `700` for a font weight.
 	*/
 	public init(_ number: Int) {
-		self.init(String(number))
+		self.init(raw: String(number))
 	}
 
 	/**
-	Values with the separator between them, like `", "` for the layers of a background.
+	Values with the separator between them, like `", "` for the layers of a background. An empty list uses `emptyValue`, so a list of effects can reset them with `none`.
 	*/
-	public init(_ values: [some CustomStringConvertible], separator: String) {
-		self.init(values.map(\.description).joined(separator: separator))
+	public init(_ values: [some CustomStringConvertible], separator: String, emptyValue: Self = Self(raw: "")) {
+		self = values.isEmpty ? emptyValue : Self(raw: values.map(\.description).joined(separator: separator))
 	}
 
 	public init(stringLiteral value: String) {
-		self.init(value)
+		self.init(raw: value)
 	}
 
 	public init(integerLiteral value: Int) {
@@ -94,42 +99,42 @@ extension CSSValue {
 	A multiple of the font size of the root element (`rem` in CSS).
 	*/
 	public static func rootEm(_ value: Double) -> Self {
-		Self(Length.rootEm(value))
+		Self(LengthPercentage.rootEm(value))
 	}
 
 	/**
 	A multiple of the font size of the element (`em` in CSS).
 	*/
 	public static func em(_ value: Double) -> Self {
-		Self(Length.em(value))
+		Self(LengthPercentage.em(value))
 	}
 
 	/**
 	Pixels (`px` in CSS).
 	*/
 	public static func pixels(_ value: Double) -> Self {
-		Self(Length.pixels(value))
+		Self(LengthPercentage.pixels(value))
 	}
 
 	/**
 	A percentage (`%` in CSS).
 	*/
 	public static func percent(_ value: Double) -> Self {
-		Self(Length.percent(value))
+		Self(LengthPercentage.percent(value))
 	}
 
 	/**
 	A percentage of the viewport height (`vh` in CSS).
 	*/
 	public static func viewportHeight(_ value: Double) -> Self {
-		Self(Length.viewportHeight(value))
+		Self(LengthPercentage.viewportHeight(value))
 	}
 
 	/**
 	A percentage of the viewport width (`vw` in CSS).
 	*/
 	public static func viewportWidth(_ value: Double) -> Self {
-		Self(Length.viewportWidth(value))
+		Self(LengthPercentage.viewportWidth(value))
 	}
 }
 
@@ -139,68 +144,22 @@ extension CSSValue {
 	/**
 	A custom property reference, like `var(--text)`.
 	*/
-	public static func variable(_ name: String, fallback: Self? = nil) -> Self {
-		Self("var(\(name)\(fallback.map { ", \($0)" } ?? ""))")
+	public static func variable(_ name: DashedIdentifier, fallback: Self? = nil) -> Self {
+		Self(raw: "var(\(name)\(fallback.map { ", \($0)" } ?? ""))")
 	}
 
 	/**
-	A linear gradient, like `linearGradient("to right", .blue, .pink)`.
-
-	- Parameter colorSpace: The color space the colors are mixed in, like ``ColorSpace/oklch``, which avoids the gray middle of gradients between distant colors.
-	*/
-	public static func linearGradient(_ direction: String, _ colors: Color..., in colorSpace: ColorSpace? = nil) -> Self {
-		gradient("linear-gradient", direction, colors.map(\.description), in: colorSpace)
-	}
-
-	/**
-	A linear gradient with the colors at positions, like `linearGradient("175deg", Color.white.at(.percent(0)), Color.transparent.at(.percent(70)))`.
-	*/
-	public static func linearGradient(_ direction: String, _ stops: GradientStop..., in colorSpace: ColorSpace? = nil) -> Self {
-		gradient("linear-gradient", direction, stops.map(\.description), in: colorSpace)
-	}
-
-	/**
-	A radial gradient, like `radialGradient("circle at 20% 40%", .blue, .transparent)`. The colors are spread evenly, so a color twice in a row is solid between them, like `.black, .black, .transparent` for a shape that is solid to the middle of its radius and then fades.
-	*/
-	public static func radialGradient(_ shape: String, _ colors: Color..., in colorSpace: ColorSpace? = nil) -> Self {
-		gradient("radial-gradient", shape, colors.map(\.description), in: colorSpace)
-	}
-
-	/**
-	A radial gradient with the colors at positions, like `radialGradient("circle", Color.black.at(.percent(80)), Color.transparent.at(.percent(100)))` for a shape that fades at its edge.
-	*/
-	public static func radialGradient(_ shape: String, _ stops: GradientStop..., in colorSpace: ColorSpace? = nil) -> Self {
-		gradient("radial-gradient", shape, stops.map(\.description), in: colorSpace)
-	}
-
-	/**
-	A conic gradient, with the colors around the center, like `conicGradient(.blue, .pink, .blue)` for a ring. The colors are spread evenly.
-
-	- Parameter angle: Where the first color is, clockwise from the top.
-	*/
-	public static func conicGradient(_ colors: Color..., from angle: Angle? = nil, in colorSpace: ColorSpace? = nil) -> Self {
-		gradient("conic-gradient", angle.map { "from \($0)" }, colors.map(\.description), in: colorSpace)
-	}
-
-	/**
-	A gradient function, like `linear-gradient(to right in oklch, blue, pink)`. The shape and the color space are the first argument, which is left out when there are none.
-	*/
-	private static func gradient(
-		_ name: String,
-		_ shape: String?,
-		_ colors: [String],
-		in colorSpace: ColorSpace?
-	) -> Self {
-		let prelude = [shape, colorSpace.map { "in \($0.rawValue)" }].compactMap(\.self).joined(separator: " ")
-		let arguments = prelude.isEmpty ? colors : [prelude] + colors
-		return Self("\(name)(\(arguments.joined(separator: ", ")))")
-	}
-
-	/**
-	A file of the site, like an image for a background or a cursor: `url("/images/star.png")`. The path is escaped as a CSS string.
+	A URL serialized at the raw CSS declaration boundary, including non-image uses such as cursors.
 	*/
 	public static func url(_ path: RoutePath) -> Self {
-		Self("url(\(string(path.description)))")
+		Self(CSSImage.url(path))
+	}
+
+	/**
+	An SVG data URL serialized at the raw CSS declaration boundary.
+	*/
+	public static func url(svg: String) -> Self {
+		Self(CSSImage.url(svg: svg))
 	}
 
 	/**
@@ -211,7 +170,7 @@ extension CSSValue {
 		result.reserveCapacity(text.utf8.count + 2)
 
 		// A line break ends a CSS string, so it is the escape `\A`, with a space that ends the escape. A Windows line break (`\r\n`) is one line break.
-		for scalar in text.replacing("\r\n", with: "\n").unicodeScalars {
+		for scalar in text.normalizingWindowsLineEndings.unicodeScalars {
 			switch scalar {
 			case "\"", "\\":
 				result.append("\\")
@@ -228,11 +187,7 @@ extension CSSValue {
 		}
 
 		result.append("\"")
-		return Self(result)
-	}
-
-	public static func important(_ value: Self) -> Self {
-		Self("\(value) !important")
+		return Self(raw: result)
 	}
 }
 
@@ -241,6 +196,11 @@ extension CSSValue {
 extension CSSValue {
 	public static let auto: Self = "auto"
 	public static let none: Self = "none"
+	/**
+	The value of the parent for the whole property, including inherited lengths and letter spacing of surrounding text. Use `.inherits(.letterSpacing)` instead of composing inheritance with lengths or colors.
+
+	For a `<kbd>` or `<code>`, which browsers show in a monospaced font, `.inherits(.fontFamily)` uses the font of the parent.
+	*/
 	public static let inherit: Self = "inherit"
 	public static let transparent: Self = "transparent"
 	public static let currentColor: Self = "currentColor"
@@ -248,16 +208,139 @@ extension CSSValue {
 }
 
 /**
-A typed CSS value, like a ``Length`` or a ``Color``, which can also be written as CSS, like a reference to a ``StyleVariable``.
+A typed CSS value, like a ``LengthPercentage`` or a ``Color``, which can also be written as CSS, like a reference to a ``StyleVariable``.
 */
 public protocol StyleValue: Sendable, CustomStringConvertible {
 	/**
 	A value written as CSS, like `var(--size)` or `calc(1rem + 2px)`.
 	*/
-	init(_ css: String)
+	init(raw css: String)
 }
 
 /**
 A CSS keyword, like ``Display/grid``, whose raw value is how it is written in CSS. Enums of keywords conform, not enums of selectors, like ``ScrollbarPart``.
 */
 public protocol CSSKeyword: RawRepresentable<String>, Sendable {}
+
+/**
+An image value for backgrounds and masks: an image URL, a gradient, or an explicit raw CSS escape. Numeric CSS values cannot be used as images.
+*/
+public struct CSSImage: StyleValue, Hashable {
+	public let description: String
+
+	/**
+	An explicit unchecked image expression, like an uncommon CSS image function.
+	*/
+	public init(raw css: String) {
+		self.description = css
+	}
+
+	/**
+	No image in this layer.
+	*/
+	public static let none = Self(raw: "none")
+
+	/**
+	A linear gradient, like `linearGradient(.toRight, .blue, .pink)`.
+
+	- Parameter colorSpace: The color space the colors are mixed in, like ``ColorSpace/oklch``, which avoids the gray middle of gradients between distant colors.
+	*/
+	public static func linearGradient(_ direction: GradientDirection, _ first: Color, _ second: Color, _ remaining: Color..., in colorSpace: ColorSpace? = nil) -> Self {
+		gradient(
+			"linear-gradient",
+			direction.description,
+			([first, second] + remaining).map(\.description),
+			in: colorSpace
+		)
+	}
+
+	/**
+	A linear gradient with the colors at positions, like `linearGradient(.angle(.degrees(175)), Color.white.at(.percent(0)), Color.transparent.at(.percent(70)))`.
+	*/
+	public static func linearGradient(_ direction: GradientDirection, _ first: GradientStop, _ second: GradientStop, _ remaining: GradientStop..., in colorSpace: ColorSpace? = nil) -> Self {
+		gradient(
+			"linear-gradient",
+			direction.description,
+			([first, second] + remaining).map(\.description),
+			in: colorSpace
+		)
+	}
+
+	/**
+	A repeating linear gradient with at least two stops, including solid intervals like `.black.at(.zero, through: .pixels(12))`.
+	*/
+	public static func repeatingLinearGradient(_ direction: GradientDirection, _ first: GradientStop, _ second: GradientStop, _ remaining: GradientStop..., in colorSpace: ColorSpace? = nil) -> Self {
+		gradient(
+			"repeating-linear-gradient",
+			direction.description,
+			([first, second] + remaining).map(\.description),
+			in: colorSpace
+		)
+	}
+
+	/**
+	A radial gradient, like `radialGradient(.circle(at: .init(x: .percent(20), y: .percent(40))), .blue, .transparent)`. At least two colors are required. The colors are spread evenly, so a color twice in a row is solid between them, like `.black, .black, .transparent` for a shape that is solid to the middle of its radius and then fades.
+	*/
+	public static func radialGradient(_ shape: RadialGradientShape, _ first: Color, _ second: Color, _ remaining: Color..., in colorSpace: ColorSpace? = nil) -> Self {
+		gradient(
+			"radial-gradient",
+			shape.description,
+			([first, second] + remaining).map(\.description),
+			in: colorSpace
+		)
+	}
+
+	/**
+	A radial gradient with the colors at positions, like `radialGradient(.circle, Color.black.at(.percent(80)), Color.transparent.at(.percent(100)))` for a shape that fades at its edge.
+	*/
+	public static func radialGradient(_ shape: RadialGradientShape, _ first: GradientStop, _ second: GradientStop, _ remaining: GradientStop..., in colorSpace: ColorSpace? = nil) -> Self {
+		gradient(
+			"radial-gradient",
+			shape.description,
+			([first, second] + remaining).map(\.description),
+			in: colorSpace
+		)
+	}
+
+	/**
+	A conic gradient, with the colors around the center, like `conicGradient(.blue, .pink, .blue)` for a ring. The colors are spread evenly.
+
+	- Parameter angle: Where the first color is, clockwise from the top.
+	*/
+	public static func conicGradient(_ first: Color, _ second: Color, _ remaining: Color..., from angle: Angle? = nil, in colorSpace: ColorSpace? = nil) -> Self {
+		gradient(
+			"conic-gradient",
+			angle.map { "from \($0)" },
+			([first, second] + remaining).map(\.description),
+			in: colorSpace
+		)
+	}
+
+	/**
+	A gradient function, like `linear-gradient(to right in oklch, blue, pink)`. The shape and the color space are the first argument, which is left out when there are none.
+	*/
+	private static func gradient(
+		_ name: String,
+		_ shape: String?,
+		_ colors: [String],
+		in colorSpace: ColorSpace?
+	) -> Self {
+		let prelude = [shape, colorSpace.map { "in \($0.rawValue)" }].compactMap(\.self).joined(separator: " ")
+		let arguments = prelude.isEmpty ? colors : [prelude] + colors
+		return Self(raw: "\(name)(\(arguments.joined(separator: ", ")))")
+	}
+
+	/**
+	A file of the site, like an image for a background or a cursor: `url("/images/star.png")`. The path is escaped as a CSS string.
+	*/
+	public static func url(_ path: RoutePath) -> Self {
+		Self(raw: "url(\(CSSValue.string(path.description)))")
+	}
+
+	/**
+	An SVG image in the style itself, so it needs no request, like the shape of a mask: `url("data:image/svg+xml,…")`. The markup is percent-encoded.
+	*/
+	public static func url(svg: String) -> Self {
+		Self(raw: "url(\(CSSValue.string("data:image/svg+xml," + (svg.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? svg))))")
+	}
+}

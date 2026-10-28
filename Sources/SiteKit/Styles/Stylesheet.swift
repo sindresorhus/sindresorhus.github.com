@@ -13,9 +13,7 @@ let stylesheet = Stylesheet {
 		Rule(".prose a", Style().color(.white))
 	}
 
-	Keyframes("fade-in") {
-		Rule("from", Style().opacity(0))
-	}
+	Keyframes("fade-in", .from(Style().opacity(0)))
 }
 ```
 */
@@ -34,7 +32,7 @@ public struct Stylesheet: StyleContent {
 	*/
 	public init(@StyleBuilder _ content: () -> [StyleNode]) {
 		let nodes = content().uniqueDefinitions
-		var layerNames = [String]()
+		var layerNames = [CascadeLayer]()
 
 		for node in nodes {
 			if
@@ -70,19 +68,53 @@ public protocol StyleContent: Sendable {
 A part of a stylesheet: a rule, a conditional group, a layer, keyframes, a registered property, the order of the layers, or a record of a style set.
 */
 public struct StyleNode: Sendable {
+	/**
+	The supported block forms retain their meaning until rendering; CSS text is never inspected to decide whether a block is a selector or a conditional group.
+	*/
+	enum Prelude: Hashable, CustomStringConvertible {
+		case selector(CSSSelector)
+		case media(MediaQuery)
+		case supports(BrowserFeature)
+		case scope(CSSSelector, until: CSSSelector?)
+		case startingStyle
+
+		var isSelector: Bool {
+			if case .selector = self {
+				return true
+			}
+
+			return false
+		}
+
+		var description: String {
+			switch self {
+			case .selector(let selector):
+				selector.description
+			case .media(let query):
+				"@media \(query)"
+			case .supports(let feature):
+				"@supports \(feature)"
+			case .scope(let selector, let limit):
+				"@scope (\(selector))" + (limit.map { " to (\($0))" } ?? "")
+			case .startingStyle:
+				"@starting-style"
+			}
+		}
+	}
+
 	enum Kind {
 		/**
 		A rule, like `.a { … }`, or a conditional group, like `@media (…) { … }`, with its declarations and nested nodes. The prelude is the selector of a rule. A conditional group only has declarations when it is nested in a rule.
 		*/
-		case block(prelude: String, declarations: [Declaration], children: [StyleNode])
-		case layer(name: String, children: [StyleNode])
+		case block(prelude: Prelude, declarations: [Declaration], children: [StyleNode])
+		case layer(name: CascadeLayer, children: [StyleNode])
 		case keyframes(name: String, frames: [StyleNode])
 		case property(name: String, declarations: [Declaration])
 
 		/**
 		The order of the cascade layers, like `@layer base, components;`.
 		*/
-		case layerOrder([String])
+		case layerOrder([CascadeLayer])
 
 		/**
 		A record that the style set is in the stylesheet. It renders nothing, as the rules of the style set are the nodes after it.
@@ -92,7 +124,7 @@ public struct StyleNode: Sendable {
 
 	let kind: Kind
 
-	static func block(_ prelude: String, declarations: [Declaration] = [], children: [StyleNode]) -> Self {
+	static func block(_ prelude: Prelude, declarations: [Declaration] = [], children: [StyleNode]) -> Self {
 		Self(kind: .block(prelude: prelude, declarations: declarations, children: children))
 	}
 
@@ -215,6 +247,17 @@ extension StyleNode {
 struct Declaration: Hashable {
 	let property: Property
 	let value: CSSValue
+
+	/**
+	Whether the declaration overrides normal declarations (`!important` in CSS).
+	*/
+	let isImportant: Bool
+
+	init(property: Property, value: CSSValue, isImportant: Bool = false) {
+		self.property = property
+		self.value = value
+		self.isImportant = isImportant
+	}
 }
 
 /**
@@ -234,23 +277,40 @@ A selector, like `.feed-card-title` or `& > li`. Write it as a literal, and put 
 public struct CSSSelector: Hashable, Sendable, CustomStringConvertible, ExpressibleByStringInterpolation {
 	public let description: String
 
-	private init(_ selector: String) {
+	private init(raw selector: String) {
 		self.description = selector
+	}
+
+	/**
+	An attribute selector with an optional quoted value. Names start with an ASCII letter or underscore and contain only ASCII letters, digits, underscores, and hyphens; values use CSS string escaping.
+	*/
+	public static func attribute(_ name: String, value: String? = nil) -> Self {
+		let hasValidStart = name.utf8.first.map { $0.isASCIILetter || $0 == 95 } ?? false
+		let hasValidRest = name.utf8.allSatisfy { $0.isASCIILetter || $0.isASCIIDigit || $0 == 95 || $0 == 45 }
+		precondition(hasValidStart && hasValidRest, "A CSS attribute name must start with an ASCII letter or underscore and contain only ASCII letters, digits, underscores, and hyphens, got: \(name)")
+		return Self(raw: "[\(name)\(value.map { "=\(CSSValue.string($0))" } ?? "")]")
 	}
 
 	/**
 	The class selector of the class name, like `.feed-card` for `feed-card`.
 	*/
 	init(className: String) {
-		self.init(".\(className)")
+		self.init(raw: ".\(className)")
 	}
 
 	public init(stringLiteral value: String) {
-		self.init(value)
+		self.init(raw: value)
+	}
+
+	/**
+	The selector, in `:is()` when it is a list, so a combinator applies to each selector of the list, like `:is(td, th) &`, not `td, th &`.
+	*/
+	var groupedForCombinator: Self {
+		description.contains(",") ? ":is(\(self))" : self
 	}
 
 	public init(stringInterpolation: StringInterpolation) {
-		self.init(stringInterpolation.selector)
+		self.init(raw: stringInterpolation.selector)
 	}
 
 	public struct StringInterpolation: StringInterpolationProtocol {
@@ -284,7 +344,7 @@ public struct Media: StyleContent {
 	public let nodes: [StyleNode]
 
 	public init(_ query: MediaQuery, @StyleBuilder rules: () -> [StyleNode]) {
-		self.nodes = [.block("@media \(query)", children: rules())]
+		self.nodes = [.block(.media(query), children: rules())]
 	}
 }
 
@@ -299,7 +359,7 @@ extension CascadeLayer {
 
 Stylesheet {
 	Layer(.base) {
-		Rule("a", Style().color(.inherit))
+		Rule("a", Style().inherits(.color))
 	}
 
 	Layer(.components) {
@@ -312,7 +372,7 @@ public struct Layer: StyleContent {
 	public let nodes: [StyleNode]
 
 	public init(_ layer: CascadeLayer, @StyleBuilder rules: () -> [StyleNode]) {
-		self.nodes = [StyleNode(kind: .layer(name: layer.name, children: rules()))]
+		self.nodes = [StyleNode(kind: .layer(name: layer, children: rules()))]
 	}
 }
 
@@ -328,13 +388,23 @@ public struct CascadeLayer: Hashable, Sendable {
 }
 
 /**
-An animation. Use rules with keyframe selectors (`from`, `to`, `50%`) inside.
+An animation with typed keyframes (`from`, `to`, or a percentage).
 */
 public struct Keyframes: StyleContent {
 	public let nodes: [StyleNode]
 
-	public init(_ name: String, @StyleBuilder frames: () -> [StyleNode]) {
-		self.nodes = [StyleNode(kind: .keyframes(name: name, frames: frames()))]
+	/**
+	Creates a named animation from its keyframes.
+	*/
+	public init(_ name: String, _ frames: Keyframe...) {
+		self.init(name, frames)
+	}
+
+	/**
+	Creates a named animation from a list of keyframes, including the registered properties the frames use.
+	*/
+	public init(_ name: String, _ frames: [Keyframe]) {
+		self.nodes = [StyleNode(kind: .keyframes(name: name, frames: frames.map(\.node)))] + frames.flatMap(\.definitions)
 	}
 }
 
@@ -389,6 +459,11 @@ public struct MediaQuery: Hashable, Sendable, CustomStringConvertible, Expressib
 	JavaScript is turned off, like `<noscript>` for styles.
 	*/
 	public static let scriptingDisabled: Self = "(scripting: none)"
+
+	/**
+	A short screen, like a phone in landscape, or with the text at 200%, where a sticky bar would cover much of the page.
+	*/
+	public static let shortScreen: Self = "(height < 30rem)"
 
 	/**
 	Screens at least as wide as the breakpoint, like `(width >= 40rem)`.
@@ -472,14 +547,14 @@ private struct CSSRenderer {
 					continue
 				}
 
-				precondition(depth > 0 || declarations.isEmpty || !prelude.hasPrefix("@"), "Top-level \(prelude) declarations must be inside a rule.")
+				precondition(depth > 0 || declarations.isEmpty || prelude.isSelector, "Top-level \(prelude) declarations must be inside a rule.")
 
-				block(prelude) { renderer in
+				block(prelude.description) { renderer in
 					renderer.write(declarations)
 					renderer.render(children)
 				}
 			case .layer(let name, let children):
-				block("@layer \(name)") { renderer in
+				block("@layer \(name.name)") { renderer in
 					renderer.render(children)
 				}
 			case .keyframes(let name, let frames):
@@ -491,7 +566,7 @@ private struct CSSRenderer {
 					renderer.write(declarations)
 				}
 			case .layerOrder(let names):
-				line("@layer \(names.joined(separator: ", "));")
+				line("@layer \(names.map(\.name).joined(separator: ", "));")
 			case .styleSet:
 				continue
 			}
@@ -500,7 +575,8 @@ private struct CSSRenderer {
 
 	private mutating func write(_ declarations: [Declaration]) {
 		for declaration in declarations {
-			line("\(declaration.property): \(declaration.value);")
+			let importance = declaration.isImportant ? " !important" : ""
+			line("\(declaration.property): \(declaration.value)\(importance);")
 		}
 	}
 

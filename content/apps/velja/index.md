@@ -2,17 +2,18 @@
 title: 'Velja'
 subtitle: 'Powerful browser picker'
 description: 'A browser picker for Mac. Open Google Meet links in Chrome, Figma links in the Figma app, and work links in your work profile, or pick a browser from a prompt.'
-publicationDate: '2022-04-21'
-isFeatured: true
+publicationDate: 2022-04-21
 platforms: [
 	'macOS'
 ]
 isPaid: true
 isMenuBarApp: true
-hasSentry: true
 appStoreID: 1607635845
+downloadCount: 130000
+hasSentry: true
 sharedQuestions: [
 	'menu-bar-icons'
+	'tracking-parameters'
 ]
 olderVersions: [
 	{
@@ -36,23 +37,6 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/10895250/Velja.1.12.4.-.macOS.12.zip'
 	}
 ]
-feedbackNote:
-	'''
-	### If you are on macOS 27, to use browser profiles, you need to allow access to browsers in “System Settings › Privacy & Security › Files & Folders › Velja”.<br><br>
-
-
-	[Can you support Safari profiles?](/velja#safari-profiles)
-
-	[Can you support Arc/Dia spaces/profiles?](/velja#arc)
-
-	[Can you support ChatGPT Atlas profiles?](/velja#atlas-profiles)
-
-	[Support for opening links directly in Slack is not possible.](/velja#slack)
-
-	**If you’re requesting an addition to the “Apps” list, [please read this](/velja#builtin-apps-requests).**
-
-	If you are missing a browser in the browser prompt, ensure you have enabled it in the “Shown browsers” setting. Also try restarting your computer.
-	'''
 pressQuotes: [
 	{
 		quote: 'If you ever need to use more than one browser on your Mac, you need to try Velja, a utility that lets you control which links open in which browsers.'
@@ -66,7 +50,41 @@ pressQuotes: [
 		url: 'https://www.cultofmac.com/reviews/best-mac-utilities'
 		year: 2025
 	}
+	{
+		quote: "Velja is a browser and app picker for Mac that lets you open links in your preferred browser or native apps. It works by tricking macOS into believing it's the default browser, which allows it to push the link you click on to a different browser or a site's desktop app."
+		source: 'How-To Geek'
+		url: 'https://www.howtogeek.com/how-to-open-links-in-a-different-browser-mac/'
+		year: 2024
+	}
+	{
+		quote: 'On a recent episode of the Mac Geek Gab, listener John sent in a suggestion to try an app called Velja from open source developer Sindre Sorhus, which was described as a browser picker. I decided to go check it out and I am pleased to say that this app solves some real problems.'
+		source: 'Podfeet Podcasts'
+		url: 'https://www.podfeet.com/blog/2022/11/velja/'
+		year: 2022
+	}
+	{
+		quote: 'Sindre Sorhus offers Velja, a solution that lets you juggle all these browsers.'
+		source: 'Compétence Mac'
+		translatedFrom: 'French'
+		url: 'https://competencemac.com/macos-ouvrez-un-lien-dans-nimporte-quel-navigateur-web-installe/'
+		year: 2024
+	}
 ]
+feedbackNote:
+	'''
+	**If you are on macOS 27, to use browser profiles, you need to allow access to browsers in “System Settings › Privacy & Security › Files & Folders › Velja”.**<br><br>
+
+
+	[Can you support Safari profiles?](/velja#safari-profiles)
+
+	[Can you support Dia profiles?](/velja#dia-profiles)
+
+	[Support for opening links directly in Slack is not possible.](/velja#slack)
+
+	**If you’re requesting an addition to the “Apps” list, [please read this](/velja#builtin-apps-requests).**
+
+	If you are missing a browser in the browser prompt, ensure you have enabled it in the “Shown browsers” setting. Also try restarting your computer.
+	'''
 ---
 
 Open each link in the right browser, profile, or app, automatically, or pick one from a prompt when you hold ++Fn++.
@@ -74,8 +92,6 @@ Open each link in the right browser, profile, or app, automatically, or pick one
 For example, Google Meet links open in Chrome, Figma links in the Figma app, and links from Slack in your work profile.
 
 [In-depth review of Velja.](https://www.podfeet.com/blog/2022/11/velja/)
-
-[*Trusted by more than 100K users.*](https://github.com/user-attachments/assets/011c6bda-186c-4ee7-868a-b71cc6f49a0b)
 
 @Feature(title: "Open each link in the right place") {
 	Make a rule for a website or for the app you click links in, and choose the browser, browser profile, or app that opens them. Some links need no rule at all: Velja can open Google Meet links in Chrome, and Zoom, Microsoft Teams, and Figma links in their desktop apps.
@@ -91,6 +107,14 @@ For example, Google Meet links open in Chrome, Figma links in the Figma app, and
 	See which browsers support [profiles](#supported-browsers-for-profiles) and [private windows](#supported-browsers-for-private-browsing).
 }
 
+### Get started
+
+@Steps {
+1. Open Velja and click “Get Started”. Velja works by being the default browser, so it asks to become it.
+1. Choose the browser that opens your links in “Primary Browser” in the menu bar menu.
+1. Optionally, add a rule in “Settings › Rules”, like Google Meet links in Chrome.
+}
+
 <br>
 
 > [!TIP]
@@ -98,7 +122,7 @@ For example, Google Meet links open in Chrome, Figma links in the Figma app, and
 
 <br>
 
-#### Example use-cases
+### Example use-cases
 
 - Use Safari as your primary browser but open Google Meet links in Chrome
 - Open links to figma.com directly in the Figma desktop app
@@ -108,11 +132,11 @@ For example, Google Meet links open in Chrome, Figma links in the Figma app, and
 
 <br>
 
-#### Supported browsers
+### Supported browsers
 
 Any browser.
 
-#### Supported browsers for profiles {#supported-browsers-for-profiles}
+### Supported browsers for profiles {#supported-browsers-for-profiles}
 
 - Chrome *(and Beta, Canary, Dev)*
 - Edge *(and Beta, Canary, Dev)*
@@ -129,7 +153,9 @@ Any browser.
 
 \* Only supports [new-style profiles](https://support.mozilla.org/en-US/kb/profile-management), not ones created with `about:profiles`. [How to migrate.](#firefox-migrate-profiles)
 
-#### Supported browsers for private browsing {#supported-browsers-for-private-browsing}
+Not supported: [Safari](#safari-profiles), [Dia](#dia-profiles), Arc, and Opera.
+
+### Supported browsers for private browsing {#supported-browsers-for-private-browsing}
 
 - Chrome *(and Beta, Canary, Dev)*
 - Edge *(and Beta, Canary, Dev)*
@@ -142,13 +168,11 @@ Any browser.
 - Zen
 - LibreWolf
 
-Safari is not supported built-in, but can be supported by doing [this](https://github.com/sindresorhus/Safari-Private).
+Safari is not supported built-in, but can be supported with [Safari-Private](https://github.com/sindresorhus/Safari-Private).
 
 ## Trial {#trial}
 
-@Trial(url: "https://www.dropbox.com/scl/fi/4qmbgqvgr5x3oiupm7ekz/Velja-3.2.4-trial-1789044969.zip?rlkey=vwh6ptvawi4sn5oh7sh7lmssg&raw=1", macOS: "26") {
-	The trial is fully functional. The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.
-}
+@Trial(url: "https://www.dropbox.com/scl/fi/4qmbgqvgr5x3oiupm7ekz/Velja-3.2.4-trial-1789044969.zip?rlkey=vwh6ptvawi4sn5oh7sh7lmssg&raw=1", macOS: "26")
 
 ## Tips
 
@@ -186,6 +210,12 @@ For example, to open all links you click in Slack in Chrome:
 - Create a new “Source Apps” matcher and select the app you want. For example, Slack.
 - Click “Save”.
 
+### Run a shortcut for a link {#shortcut-rule}
+
+A rule can run a shortcut instead of opening a browser, for example to save the link to a reading list. In the rule, choose “Shortcut” in “Open in”, and then choose the shortcut.
+
+The shortcut gets the link and details about it, like the app that the link was clicked in. Use the “Parse Velja Shortcut Context” action in the shortcut to get them.
+
 ### Transform URLs before matching rules {#global-url-transformation}
 
 In the “Advanced” settings, enable “Transform all URLs before matching rules” to run JavaScript on every link before custom rules are matched. Velja first resolves known redirect wrappers and applies enabled short URL expansion and tracking parameter removal. It then runs your script, and rules match against the resulting URL.
@@ -219,7 +249,7 @@ For Safari, use [Safari Private](https://github.com/sindresorhus/Safari-Private)
 
 ### Open multiple URLs
 
-If you have a document with many URLs you want to open, select them, right-click, go to “Services”, and click “Open URLs with Velja”. [Learn more.](#macos-services)
+If you have a document with many URLs you want to open, select them, right-click, go to “Services”, and click “Open URLs with Velja”. [More about the system services.](#macos-services)
 
 ### Open links in a website-wrapper app
 
@@ -233,11 +263,11 @@ Let’s say you have generated a website wrapper app for facebook.com using an a
 
 ### Open default browser
 
-You can use [this shortcut](https://www.icloud.com/shortcuts/c0104150c4054ff2a577237056aad083) to open the default browser.
+You can use the [“Open Default Browser” shortcut](https://www.icloud.com/shortcuts/c0104150c4054ff2a577237056aad083) to open the default browser.
 
 ### System services {#macos-services}
 
-The app comes with [system services](https://macreports.com/what-is-the-services-menu-in-macos/?utm_source=chatgpt.com) to open URLs with Velja. This lets you open URLs with Velja from anywhere.
+The app comes with [system services](https://macreports.com/what-is-the-services-menu-in-macos/) to open URLs with Velja. This lets you open URLs with Velja from anywhere.
 
 For example, select some text with URLs, right-click, go to “Services”, and click “Open URLs with Velja”.
 
@@ -262,12 +292,12 @@ For example, you are surfing a website in Safari and want to open it in Chrome.
 You could enable the Velja browser extension and then click the toolbar icon in your browser to show the Velja browser prompt.
 
 You could also show the browser prompt when pressing a keyboard shortcut:
-- Add [this shortcut](https://www.icloud.com/shortcuts/6c2d3793f101447dad449e83bde8d967).
+- Add the [“Open Safari URL in other browser” shortcut](https://www.icloud.com/shortcuts/6c2d3793f101447dad449e83bde8d967).
 	- If your browser is not Safari, change the app name in the shortcut.
 - Add a keyboard shortcut to the shortcut config.
 - Pressing the configured keyboard shortcut will now show the browser prompt.
 
-If you want to open the website in a specific browser directly instead of showing the browser prompt, add [this shortcut](https://www.icloud.com/shortcuts/d3f833d1a1334d169ccefe26fa0ec240) instead.
+If you want to open the website in a specific browser directly instead of showing the browser prompt, add the [“Open Safari URL in Arc” shortcut](https://www.icloud.com/shortcuts/d3f833d1a1334d169ccefe26fa0ec240) instead, and change Arc to your browser in the shortcut. Arc stops working on 22 December 2026.
 
 ### Open links clicked in a browser or PWA in a specific browser
 
@@ -318,21 +348,21 @@ Say you use different browser profiles for work and home and want them to switch
 
 ## Frequently Asked Questions {#faq}
 
-### The app does not show up in the menu bar
+### The app does not show up in the menu bar {#the-app-does-not-show-up-in-the-menu-bar}
 
-[Try this](/apps/faq#app-not-showing-in-menu-bar)
+[Try the steps in the general FAQ](/apps/faq#app-not-showing-in-menu-bar)
 
 You may also have disabled the “Show menu bar icon” setting, which hides the menu bar icon. Launch the app again to reveal the menu bar item for 5 seconds.
 
-### Can I assign single-letter shortcuts to browsers in the prompt?
+### Can I assign single-letter shortcuts to browsers in the prompt? {#can-i-assign-single-letter-shortcuts-to-browsers-in-the-prompt}
 
 Yes. In “Settings › Browsers”, open “Shown Browsers” and assign a **Prompt Shortcut** (`a`–`z`) to each browser. This enables one-key selection, for example `s` for Safari, `c` for Chrome. When the prompt is shown, press the key to open instantly.
 
 If no shortcut is set, browsers are selected by their number in the list.
 
-### Why is the app suddenly paid? It used to be free.
+### Why is the app suddenly paid? It used to be free. {#why-is-the-app-suddenly-paid-it-used-to-be-free}
 
-While I love making free apps that are available to anyone, the high volume of support requests became unsustainable. After providing Velja for free for 3 years with nearly 130K downloads, I made the decision to make it paid. This isn’t about revenue. It’s about managing my time more effectively by reducing the support burden to a sustainable level.
+While I love making free apps that are available to anyone, the high volume of support requests became unsustainable. After providing Velja for free for 3 years with 130K downloads, I made the decision to make it paid. This isn’t about revenue. It’s about managing my time more effectively by reducing the support burden to a sustainable level.
 
 ### Can this app be available on Setapp? {#setapp}
 
@@ -342,7 +372,7 @@ Setapp curates apps based on demand, so if you’d like to see this app on Setap
 
 No. Velja handles browser links (URLs). For routing mailto links to different email apps or webmail services, check out my [Mailway](/mailway) app.
 
-### Velja does not work
+### Velja does not work {#velja-does-not-work}
 
 First, make sure that the problem is Velja. Go to “System Settings › Desktop & Dock” and change the “Default web browser” setting to Safari. Then try clicking the link again. If the problem persists, it’s not caused by Velja.
 
@@ -354,7 +384,7 @@ If you use a browser where Velja does not have a browser extension, you could al
 
 \* *Chrome (and Edge, Brave, etc.) does not have a “Share” item in its context menu. Please [star this issue](https://bugs.chromium.org/p/chromium/issues/detail?id=916291).*
 
-Velja also comes with a [system service](https://www.computerworld.com/article/2476298/os-x-a-quick-guide-to-services-on-your-mac.html). However, neither Safari ([issue](https://github.com/feedback-assistant/reports/issues/304)) nor Chrome ([issue](https://bugs.chromium.org/p/chromium/issues/detail?id=1325557)) correctly sends links to a system service, so it cannot be used for this purpose.
+Velja also comes with a [system service](#macos-services), but it only works with selected text. Neither Safari ([issue](https://github.com/feedback-assistant/reports/issues/304)) nor Chrome ([issue](https://bugs.chromium.org/p/chromium/issues/detail?id=1325557)) sends a right-clicked link to a system service.
 
 **The prompt does not show**
 
@@ -366,7 +396,7 @@ VS Code may be set to not use the system default browser. Because of this, Velja
 
 **I clicked a short URL**
 
-If the link is a [short URL](https://en.wikipedia.org/wiki/URL_shortening), make sure the “Expand short URLs” setting is enabled and the URL shortening service is either in the built-in list or added by you. Velja is only able to do its matching when it receives the resolved URL.
+If the link is a [short URL](https://en.wikipedia.org/wiki/URL_shortening), make sure the “Expand redirect and short URLs” setting is enabled and the URL shortening service is either in the built-in list or added by you. Velja is only able to do its matching when it receives the resolved URL.
 
 **I clicked a button in the Dropbox app**
 
@@ -390,36 +420,29 @@ Known apps where Velja cannot reliably identify the source:
 - Terminal apps
 - AWS VPN Client
 
+### The browser opens, but not the link {#browser-opens-without-link}
+
+The browser most likely opened the link in a window you cannot see. Browsers open links from other apps in their most recently used window, which could be a private window, a minimized window, a window on another desktop or in full screen, or a window that belongs to another profile. Check the browser’s “Window” menu, close the windows you don’t need, and try again. The [log](#debug) shows which browser Velja opened the link in.
+
 ### Why is my custom rule not matching? {#custom-rule-problem}
 
 Make sure you have added a “Sample URL” to the rule to confirm your match pattern is correct.
 
-Open the log (in the menu bar “…” menu) to see which rules matched and how URLs were transformed. This is the easiest way to understand what Velja did with a URL. See also [this](#debug) for more debug info.
+Open the log (in the menu bar “More” menu) to see which rules matched and how URLs were transformed. This is the easiest way to understand what Velja did with a URL. See also [how to see what URL Velja received](#debug) for more debug info.
 
 When an enabled global URL transformation script runs, the log records whether the script changed the URL, made no changes, or failed. When rule matching runs after a change, rules match against the URL on the right side of the “Global URL transformation changed the URL” entry, not the URL on the left. [Learn more about global URL transformation.](#global-url-transformation)
 
-If your rule uses a “source app” condition, make sure Velja correctly identifies the source app (see the FAQ entry on that). If the link is a short URL, make sure the “Expand short URLs” setting is enabled.
+If your rule uses a “source app” condition, make sure Velja correctly identifies the source app (see the FAQ entry on that). If the link is a short URL, make sure the “Expand redirect and short URLs” setting is enabled.
 
 Some apps use a redirect URL for tracking purposes. Velja has built-in support for a lot of redirect services and it also tries to resolve URLs to their final destination. However, some redirects cannot be resolved by Velja. This is the case with some links clicked in Slack as they require the login token to be able to redirect. There is unfortunately nothing I can do about that.
 
 If the redirect URL contains the destination URL (usually in a search parameter), contact me and I will add support for it.
 
-### What are tracking parameters and why would I want to remove them?
-
-Removing tracking parameters improves privacy and also makes URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Learn more.](https://en.wikipedia.org/wiki/UTM_parameters)
-
-Velja supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to X (Twitter), Facebook, and TikTok.
-
-Before: `https://foo.com?utm_content=buffercf3b2&utm_source=snapchat.com`\
-After: `https://foo.com`
-
-Did you know that if you click a TikTok link that someone shared with you, they will be able to see that you watched it? Velja anonymizes TikTok links so that you will not be tracked.
-
 ### Tracking parameters are not removed {#tracking-parameters-not-removed}
 
 First, make sure the setting to remove tracking parameters is enabled.
 
-If the clicked/copied link is a short URL, Velja is only able to remove the tracking parameters if the “Expand short URLs” setting is enabled and it’s a known short URL service or you added the short URL service in the “Advanced” settings pane.
+If the clicked/copied link is a short URL, Velja is only able to remove the tracking parameters if the “Expand redirect and short URLs” setting is enabled and it’s a known short URL service or you added the short URL service in the “Advanced” settings pane.
 
 The app contains a list of tracking parameters to remove, but there may be site-specific tracking parameters it doesn’t know about. If you encounter any tracking parameters not being removed, [let me know](/feedback?product=Velja&referrer=Website-FAQ) and I’ll add support for them.
 
@@ -480,13 +503,13 @@ $.url.href = 'clickup://' + $.url.pathname.slice(1) + $.url.search;
 
 Then set “Open in” to your default browser. macOS will route the `clickup://` URL to the ClickUp desktop app.
 
-### Can Velja override Universal Links?
+### Can Velja override Universal Links? {#can-velja-override-universal-links}
 
-No. There is a way to do it, but it requires a special entitlement from Apple. I applied for it a year ago and haven’t heard anything.
+No. There is a way to do it, but it requires a special entitlement from Apple. I applied for it years ago and haven’t heard anything.
 
 There are some ways to [disable Universal Links](https://mjtsai.com/blog/2022/04/19/disabling-universal-links/).
 
-### How can I add a browser profile to the prompt?
+### How can I add a browser profile to the prompt? {#how-can-i-add-a-browser-profile-to-the-prompt}
 
 First, make sure you grant access to profiles in the settings and then enable them in the “Shown Browsers” setting.
 
@@ -503,6 +526,12 @@ Brave exposes its built-in avatars as Chromium theme resources such as `brave://
 ### How can I open specific URLs in a Safari PWA (website added to the Dock)? {#safari-dock-app}
 
 Websites added to the Dock from Safari are just normal apps located in `~/Applications`. You could create a custom rule to match certain URLs and have them open in one of these web-wrapper apps.
+
+### Why do some links from a Safari web app open in another browser? {#safari-web-app-links}
+
+Safari web apps may send links outside their website, including some download links, to the default browser. Velja avoids automatically sending them back to the same app to prevent a loop.
+
+For these links, set your Velja rule’s “Open in” field to Safari, Chrome, or another regular browser instead of the web app.
 
 ### How can I open specific URLs in a Chromium browser PWA? {#chromium-pwa}
 
@@ -585,11 +614,11 @@ open --background 'https://sindresorhus.com'
 
 Please star [the Chrome issue about opening links in the background](https://issues.chromium.org/issues/41182587) and [the Chrome issue about Chrome coming to the front when asked not to](https://issues.chromium.org/issues/40246767).
 
-### The link takes a long time to open
+### The link takes a long time to open {#the-link-takes-a-long-time-to-open}
 
-This is most likely not caused by Velja. Some users reported it was a problem with Microsoft Office and happened without Velja too.
+If the link is from a known short URL service, Velja asks the service for the full URL first, and it can wait up to 5 seconds for each redirect. The log (“More › Log” in the menu) shows “URL Expanded” for these links. If this is too slow for you, disable the “Expand redirect and short URLs” setting in the “Advanced” settings.
 
-Also try to disable the “Expand redirect and short URLs” setting.
+Otherwise, this is most likely not caused by Velja. Some users reported it was a problem with Microsoft Office and happened without Velja too.
 
 To confirm Velja is not the problem: Go to “System Settings › Desktop & Dock” and change the “Default web browser” setting to Safari. Then try clicking the link again. If the problem persists, it’s not caused by Velja.
 
@@ -605,11 +634,11 @@ You can use the [Focus Filter](https://support.apple.com/HT212608) that comes wi
 
 Alternatively, you can use the Shortcuts app for this. Make a shortcut for each [focus mode](https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac) you want to handle, where you use the “Set Default Browser” action that Velja provides. Then use Shortcuts automations to run these shortcuts when the focus mode changes.
 
-### Can the default browser change depending on whether I’m at work or not?
+### Can the default browser change depending on whether I’m at work or not? {#can-the-default-browser-change-depending-on-whether-im-at-work-or-not}
 
 See the above answer. You just create a work focus mode.
 
-### Can the default browser change depending on whether the computer is on battery?
+### Can the default browser change depending on whether the computer is on battery? {#can-the-default-browser-change-depending-on-whether-the-computer-is-on-battery}
 
 See the above answer. Use a Shortcuts automation that runs when the charger is connected or disconnected.
 
@@ -623,7 +652,7 @@ No. iCloud syncing is unreliable, opaque, and significantly increases my support
 
 You can already export and import rules manually.
 
-### Can you add a vertical or circular browser prompt?
+### Can you add a vertical or circular browser prompt? {#can-you-add-a-vertical-or-circular-browser-prompt}
 
 I don’t plan to add this. I recommend giving the horizontal prompt a try. A lot of users found it to work better than vertical/circular.
 
@@ -633,13 +662,13 @@ Yes. It will open the handoff in the chosen primary browser.
 
 Note that it shows the Velja app icon for [Handoff](https://support.apple.com/102426), not the chosen primary browser. There is no way to work around this.
 
-### How can I set the last active browser as the default browser?
+### How can I set the last active browser as the default browser? {#how-can-i-set-the-last-active-browser-as-the-default-browser}
 
-You can use the [Shortery](https://apps.apple.com/app/id1594183810) and Shortcuts apps for this. Create a shortcut ([example](https://www.icloud.com/shortcuts/cca638ad5d8548dca7f2cbc8e7eb967b)) for each browser you use. The shortcut should use the “Set Default Browser” action to set the default browser in Velja. In Shortery, create an “Application” trigger for each browser, where you choose the corresponding shortcut and app in the “Application” field ([screenshot](https://www.dropbox.com/scl/fi/pjbimgvq3wtuvp0265vk6/Screenshot-2024-06-30-at-17.41.45-1719762112.png?rlkey=7qgwyxq2woz4zaeib1cs2r5w0&raw=1)). The default browser in Velja will now change when you focus one of those browsers.
+You can use the [Shortery](https://apps.apple.com/app/id1594183810) and Shortcuts apps for this. Create a shortcut ([example](https://www.icloud.com/shortcuts/cca638ad5d8548dca7f2cbc8e7eb967b)) for each browser you use. The shortcut should use the “Set Default Browser” action to set the default browser in Velja. In Shortery, create an “Application” trigger for each browser, where you choose the corresponding shortcut and app in the “Application” field ([screenshot of the trigger](https://www.dropbox.com/scl/fi/pjbimgvq3wtuvp0265vk6/Screenshot-2024-06-30-at-17.41.45-1719762112.png?rlkey=7qgwyxq2woz4zaeib1cs2r5w0&raw=1)). The default browser in Velja will now change when you focus one of those browsers.
 
 ### How can I see what URL Velja received? {#debug}
 
-Open the log (in the menu bar “…” menu) to see exactly what Velja did: which URL was received, what transformations were applied, which rules matched, and which browser was opened. The log is only active while the log window is open.
+Open the log (in the menu bar “More” menu) to see exactly what Velja did: which URL was received, what transformations were applied, which rules matched, and which browser was opened. The log is only active while the log window is open.
 
 Keep the log window open, click the problematic link, and read the entries in order. Global URL transformation entries show whether the script changed the URL, made no changes, or failed. When it changes the URL, the detail shows the URL before and after transformation. When rule matching runs, rules receive the URL on the right.
 
@@ -653,11 +682,11 @@ If a rule with a “source app” condition isn’t working, check the history t
 
 Safari does not provide any way to achieve this. You will have to send a [feature request to Apple](https://feedbackassistant.apple.com). Tell them they need to add support for opening a URL in a specific Safari Tab Group from AppleScript and Shortcuts.
 
-### Some browsers are missing
+### Some browsers are missing {#some-browsers-are-missing}
 
 If the browsers are in the “~/Applications” folder or are browser profiles, see below.
 
-### Velja does not show browsers from the user “~/Applications” folder
+### Velja does not show browsers from the user “~/Applications” folder {#velja-does-not-show-browsers-from-the-user-applications-folder}
 
 Apple generally recommends putting apps in the global “/Applications” folder. Third-party apps like Velja get automatic access to this one, but not to the user “~/Applications” folder.
 
@@ -667,9 +696,9 @@ Try clicking the “More › Reset Access” button in the Velja menu.
 
 Ivory supports [Universal Links](https://developer.apple.com/ios/universal-links/) for some Mastodon instances and Velja cannot override Universal Links. Universal Links is an annoying feature as it gives users (and other developers) no control over how it works.
 
-As of Ivory 1.0.0, it supports [these Mastodon instances](https://github.com/sindresorhus/meta/assets/170270/e256c5e1-5048-4cbc-8df2-aa09c969b639).
+As of Ivory 1.0.0 (2023), it supports [these Mastodon instances](https://github.com/sindresorhus/meta/assets/170270/e256c5e1-5048-4cbc-8df2-aa09c969b639).
 
-### How can I export, import, sync, transfer, or back up the settings?
+### How can I export, import, sync, transfer, or back up the settings? {#how-can-i-export-import-sync-transfer-or-back-up-the-settings}
 
 You can export and import rules in the settings. See the bottom of the “Rules” settings tab.
 
@@ -679,49 +708,25 @@ For all settings, [see this](/apps/faq#export-settings).
 
 Safari does not expose any way to open URLs in a specific profile. I recommend [sending feedback](https://feedbackassistant.apple.com) to Apple that they should add Shortcuts and AppleScript support for this. More feedback increases the chances of it happening.
 
-*This is still the case on macOS 26.*
+*This is still the case on macOS 27.*
 
 Feel free to duplicate my feedback reports:
 
 - [FB12320822](https://github.com/feedback-assistant/reports/issues/398)
 - [FB12320895](https://github.com/feedback-assistant/reports/issues/399)
 
-You can submit it [here](https://feedbackassistant.apple.com).
+You can submit it in [Feedback Assistant](https://feedbackassistant.apple.com).
 
+<!-- Remove this question when the Velja app no longer links to `/velja#arc` (the “Can you support Arc spaces and profiles?” link in the Browsers settings). -->
 ### Can you support spaces for the Arc browser? {#arc}
 
-I would love to support [Arc](https://thebrowser.company), but it’s currently missing some required functionality.
+No. Arc stops working on 22 December 2026, and The Browser Company no longer develops it. Arc also never had a way to get its spaces when no Arc window is open, which Velja needs to show the spaces in its settings.
 
-> [!NOTE]
-> They now support [something similar to Velja built in](https://x.com/browsercompany/status/1654525608305491984).
+### Can you support browser profiles for the Dia browser? {#dia-profiles}
 
-Arc supports fetching the spaces of a specific Arc window using AppleScript. However, Velja needs to be able to fetch the spaces even when Arc has no open windows, so that it can show a list of spaces in the Velja settings.
+The [Dia](https://www.diabrowser.com) browser is based on Chrome, so you may think that it should just work with browser profiles in Velja. However, Dia doesn’t support the `--profile-directory` command-line flag. So while Velja can fetch the profiles, it’s not able to actually use them.
 
-I recommend sending them feedback about this. Either through the feedback button in Arc or at [hello@thebrowser.company](mailto:hello@thebrowser.company).
-
-I have prepared a ready-made feature request text you can use:
-
-> It would be great if Arc could support getting a list of all the spaces with AppleScript. Currently, it’s possible to get the spaces of a specific window, but this only works when Arc has any windows open. Being able to get all spaces regardless of whether any Arc window is open is required for integration with apps like browser pickers (for example, Velja), which need to fetch all spaces and store them, so users can pick which space to use for different situations. I imagine it would be a top-level command like `tabs` and `windows`.
-
-If you want to help out more. This is another feature request. Nice to have, but not required:
-
-> It would be useful if it were possible to open a URL in a specific Arc space from the command-line. This would make it easier to integrate Arc with things like browser pickers and scripts. I imagine it could be something like this: `open -b company.thebrowser.Browser --new --args --space "F0366664-F475-40EC-9530-45CC511CE9A6" https://arc.net` Where the `--space` argument would accept a space identifier.
-
-*It’s true that it would be possible to implement a somewhat working solution with the current functionality, but that would not be a great user-experience and I don’t want to ship something that is not great.*
-
-### Can you support browser profiles for the Arc/Dia browser? {#arc-profiles}
-
-The [Arc](https://thebrowser.company)/[Dia](https://www.diabrowser.com) browser is based on Chrome, so you may think that it should just work with browser profiles in Velja. However, Arc/Dia doesn’t support the `--profile-directory` command-line flag. So while Velja can fetch the profiles, it’s not able to actually use them.
-
-**Arc works differently from other browsers. In Arc, you use spaces. Each space can be assigned a certain profile. So it makes more sense to support spaces rather than profiles in Velja. See the above FAQ.**
-
-### Can you support browser profiles for the Atlas browser? {#atlas-profiles}
-
-The [Atlas](https://thebrowser.company) browser is based on Chrome, so you may think that it should just work with browser profiles in Velja. However, unlike Chrome, Atlas stores the profile names in an encrypted file that Velja cannot access.
-
-**I encourage you to send feedback to Atlas about exposing the profiles names unencrypted so other tools can read them.**
-
-### Can it open a specific browser when I double-click a file in the Google Drive folder in Finder?
+### Can it open a specific browser when I double-click a file in the Google Drive folder in Finder? {#can-it-open-a-specific-browser-when-i-double-click-a-file-in-the-google-drive-folder-in-finder}
 
 You can use the rules feature in the settings for this.
 1. Create a rule with the source app set to `Finder` and the “URL Prefix” set to `google.com/open`.
@@ -735,15 +740,15 @@ No. macOS does not expose the active [Space](https://support.apple.com/guide/mac
 
 Create a custom rule where you set the Spotlight app as “Source Apps”. The app is located at `/System/Library/CoreServices/Spotlight.app`.
 
-### How can I open Google Meet links in a desktop app?
+### How can I open Google Meet links in a desktop app? {#how-can-i-open-google-meet-links-in-a-desktop-app}
 
 You can choose an app to open Google Meet links in the “Apps” tab in the settings. The app must support these URLs. For example, create a Safari PWA from `https://meet.google.com/` using “Add to Dock”, then select the generated app in `~/Applications/Google Meet` in Velja. Chromium PWAs also work if you have the “open.sh” helper script set up (Settings › Advanced).
 
-### I have both Firefox and Firefox Beta installed, but only one of them is showing up in Velja
+### I have both Firefox and Firefox Beta installed, but only one of them is showing up in Velja {#i-have-both-firefox-and-firefox-beta-installed-but-only-one-of-them-is-showing-up-in-velja}
 
 Firefox and Firefox Beta use the same [identifier](https://cocoacasts.com/what-are-app-ids-and-bundle-identifiers/). Velja uses the identifier to uniquely identify different apps. This means there cannot be multiple apps with the same identifier in Velja. This is not a problem with Velja. It’s just how macOS works.
 
-### How do I disable Velja?
+### How do I disable Velja? {#how-do-i-disable-velja}
 
 [Change the system default browser back to Safari.](https://support.apple.com/HT201607)
 
@@ -751,7 +756,7 @@ Firefox and Firefox Beta use the same [identifier](https://cocoacasts.com/what-a
 
 Some apps support opening a URL but they don’t declare support for it. Velja must then use an alternative method to open the URL, which causes the cog icon to appear.
 
-If you notice the cog icon when opening a URL with an app, I recommend sending feedback to the developer of the app. Right-click and copy [this link](#url-support-infoplist) to send to them.
+If you notice the cog icon when opening a URL with an app, I recommend sending feedback to the developer of the app. Right-click and copy [the link to this answer](#url-support-infoplist) to send to them.
 
 **To the developer. You must include this in the Info.plist of your app:**
 
@@ -782,7 +787,7 @@ You can verify this with the [Key Codes](https://apps.apple.com/app/id414568915)
 
 This is a keyboard firmware problem. Contact the keyboard manufacturer about it. As a workaround, use a different modifier key (like Option) for the alternative browser trigger. Click the `(?)` button in the Velja settings.
 
-### What does “Velja” mean?
+### What does “Velja” mean? {#what-does-velja-mean}
 
 It means [“to choose”](https://en.wiktionary.org/wiki/velja) in [Old Norse](https://www.discovermagazine.com/planet-earth/what-language-did-the-vikings-speak) (also Icelandic and Faroese). Hence the Viking hat.
 
@@ -811,7 +816,7 @@ Velja benefits:
 - Can choose menu bar icon
 - Convert copied links to [Songlink](https://odesli.co) for easy sharing
 
-[Choosy](https://www.choosyosx.com) benefits:
+[Choosy](https://choosy.app) benefits:
 
 - More options for custom rules
 
@@ -845,6 +850,8 @@ Velja benefits:
 
 - Supports configuring the primary email app
 
+For email links, use my [Mailway](/mailway) app together with Velja.
+
 ### How does it compare to OpenIn? {#openin}
 
 Velja benefits:
@@ -857,10 +864,6 @@ Velja benefits:
 - The user interface is more macOS-like and better follows the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/designing-for-macos)
 - You can open copied links from the menu bar menu
 - You can quickly switch the primary browser
-- You can press a keyboard shortcut to use an alternative browser for a specific link
-- Open links in a private Safari window
-- Browser extensions
-- Shortcuts support
 - Services support
 - Can choose menu bar icon
 - Convert copied links to [Songlink](https://odesli.co) for easy sharing
@@ -869,46 +872,33 @@ Velja benefits:
 
 - Supports configuring the primary app for more types, like email clients
 
-### How does it compare to Browserosaurus? {#browserosaurus}
+For email links, use my [Mailway](/mailway) app together with Velja.
+
+### How does it compare to Finicky? {#finicky}
 
 Velja benefits:
 
-- Native app written in Swift (Browserosaurus is an Electron app — a web app)
-- Lower memory usage (Velja uses 36 MB and Browserosaurus uses 300 MB)
-- Lower CPU usage (Velja uses 0% CPU when idle and Browserosaurus uses 0.1-0.2%)
+- Settings window instead of a JavaScript config file
+- Browser prompt to pick a browser when you click a link
+- It can open Google Meet links in Chrome without any manual setup
+- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- Safari browser extension
+- Shortcuts support
 - Available in the App Store
 - Sandboxed (more secure)
-- It can open Google Meet links in Chrome without any manual setup
-- It can open Mastodon links directly in a native Mastodon app
-- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
-- Browser profile support
-- Can show the icon of the active default browser in the menu bar
-- Custom rules, like the ability to open a certain link based on what app the link was clicked in
-- Expands [short URLs](https://en.wikipedia.org/wiki/URL_shortening) for better matching
-- Can [transform URLs before matching custom rules](#global-url-transformation), so wrapped links can be routed based on their actual destination
-- Removes tracking parameters on clicked and copied links
-- The user interface is more macOS-like and follows the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/designing-for-macos)
-- You can open copied links from the menu bar menu
-- You can quickly switch the primary browser
-- You can press a keyboard shortcut to use an alternative browser for a specific link
-- Finds new browsers automatically (Browserosaurus has to manually scan for new browsers)
-- Setting to hide the menu bar icon
-- Open links in a private Safari window
-- Browser extensions
-- Shortcuts support
-- Handoff support
-- Services support
-- Share extension
-- Can choose menu bar icon
-- Convert copied links to [Songlink](https://odesli.co) for easy sharing
 
-[Browserosaurus](https://github.com/will-stone/browserosaurus) benefits:
+[Finicky](https://github.com/johnste/finicky) benefits:
 
-- Open source
+- Free and open source
+- Rules are JavaScript or TypeScript, so they can do anything you can write in code
+
+*[Browserosaurus](https://github.com/will-stone/browserosaurus) is no longer maintained.*
 
 ## Scripting {#scripting}
 
 The app can be automated using the Shortcuts app or with a custom URL scheme.
+
+Its Shortcuts actions include “Open URLs”, “Open Browser Profile”, “Set Default Browser”, “Set Alternative Browser”, and “Remove Tracking Parameters from URLs”. A rule can also [run a shortcut](#shortcut-rule) with the link.
 
 ### Custom URL scheme
 
@@ -922,7 +912,7 @@ open 'velja:open?url=https%3A%2F%2Fsindresorhus.com&prompt'
 
 Leave out `&prompt` to not show the browser prompt.
 
-*Don’t forget to [URL encode](https://www.urlencoder.org) the value for the `url=` parameter. For example, using [this](https://gist.github.com/cdown/1163649) Bash function.*
+*Don’t forget to [URL encode](https://www.urlencoder.org) the value for the `url=` parameter. For example, using [this Bash function](https://gist.github.com/cdown/1163649).*
 
 > [!TIP]
 > You can specify the `url` parameter multiple times to open multiple URLs.

@@ -16,15 +16,12 @@ public struct Site: Sendable {
 	static let name = author.name
 
 	/**
-	About how many people use the apps. No service counts this, so it is updated by hand. The apps page and the about page show it rounded down, like “6M+ users”.
+	The longest time that a reply to a support message takes, which the feedback form and its message after sending promise. The terms of use (`content/pages/apps/terms.md`) say the same time.
 	*/
-	static let appUserCount = 6_000_000
+	static let supportReplyTime = "two weeks"
 
-	/**
-	About how many support emails Sindre has answered. No service counts this, so it is updated by hand. The apps page and the about page show it rounded down, like “10K+”.
-	*/
-	static let supportEmailCount = 10_000
 	static let url = #URL("https://sindresorhus.com")
+	static let origin = SiteOrigin(url)
 	static let description = "Full-Time Open-Sourcerer & App Maker"
 	static let author = Person.sindreSorhus
 
@@ -54,7 +51,15 @@ extension Schema.Person {
 	/**
 	The author with the profiles that identify him.
 	*/
-	static let author = Self(id: authorID, name: Site.author.name, givenName: Site.author.givenName, familyName: Site.author.familyName, url: Site.url, sameAs: Site.author.sameAs)
+	static let author = Self(
+		id: authorID,
+		name: Site.author.name,
+		givenName: Site.author.givenName,
+		familyName: Site.author.familyName,
+		alternateName: Site.author.username,
+		url: Site.url,
+		sameAs: Site.author.sameAs
+	)
 
 	/**
 	The author by name only, for nested mentions like the seller of an app.
@@ -72,6 +77,7 @@ extension Schema.Person {
 	static let authorProfile = Self(
 		id: authorID,
 		name: Site.author.name,
+		alternateName: Site.author.username,
 		url: Site.url,
 		image: Site.author.photoPath.absoluteURL,
 		jobTitle: Site.description,
@@ -89,63 +95,93 @@ extension Site {
 	*/
 	@RouteBuilder
 	public func routes(includesGallery: Bool = false) -> [Route] {
-		let routes = pageRoutes + appRoutes + blogRoutes + redirectRoutes + feedRoutes + textFileRoutes + assetRoutes
-		routes
+		let routes = pageRoutes + appRoutes + blogRoutes + guideRoutes + redirectRoutes + feedRoutes + textFileRoutes + assetRoutes
 
-		// The 404 page suggests the closest page, so it is made from the other routes.
-		NotFoundPage(suggestedPaths: routes.filter { $0.sitemapEntry != nil }.map(\.path), content: content)
+		// The page of a content file names the file, so a redirect that writes the same file names both files to change.
+		routes.map { route in
+			guard
+				route.source == nil,
+				let file = content.contentFile(ofPage: route.path)
+			else {
+				return route
+			}
+
+			return route.source("the page of", .file(file))
+		}
+
+		// The 404 page suggests the closest page, so it is made from the other routes: the pages in the sitemap, and the privacy policies, which are not indexed, but visitors guess their paths from the links of the App Store, like `/dato/privacy`. Not the policy of an unlisted app, which the 404 page would announce.
+		let privacyPolicyPaths = content.apps.filter(\.isActive).map(\.privacyPolicyPath)
+		NotFoundPage(suggestedPaths: routes.filter { $0.sitemapEntry != nil }.map(\.path) + privacyPolicyPaths, content: content)
 
 		if includesGallery {
 			GalleryPage(content: content)
 		}
 	}
 
-	@RouteBuilder
-	private var pageRoutes: [Route] {
-		HomePage()
-		ContactPage()
-		FeedbackPage(apps: content.maintainedApps, faq: content.page(.faq))
-		FeedsPage(apps: content.maintainedApps)
-		GeoCitiesPage(content: content)
+	/**
+	The Swift-authored pages, shared by publication and discovery. Content pages and redirects have their own inventories.
+	*/
+	var specialPages: [any Page] {
+		var pages: [any Page] = [
+			HomePage(content: content),
+			ContactPage(),
+			FeedbackPage(apps: content.maintainedApps, faq: content.page(.faq), project: content.project),
+			FeedsPage(apps: content.maintainedApps),
+			OpenSourcePage(content: content),
+			GeoCitiesPage(content: content),
+			AppsPage(content: content),
+			OlderVersionsPage(content: content),
+			AppTimelinePage(content: content),
+			ReviewsPage(content: content),
+			RandomAppPage(content: content),
+			AppdlePage(content: content),
+			BlogIndexPage(posts: content.listedPosts),
+			GuidesPage(content: content),
+		]
+
+		pages += AppCategory.allCases.map { AppCategoryPage(category: $0, content: content) }
 
 		// The quilt needs the contributions, which need a GitHub token.
 		if !content.contributionYears.isEmpty {
-			CareerQuiltPage(years: content.contributionYears)
+			pages.append(CareerQuiltPage(years: content.contributionYears))
+		}
+
+		return pages
+	}
+
+	@RouteBuilder
+	private var pageRoutes: [Route] {
+		for page in specialPages {
+			page
 		}
 
 		for page in content.pages {
-			if page.path == .about {
+			switch page.kind {
+			case .about:
 				AboutPage(page: page, content: content)
-			} else if page.path == .now {
+			case .now:
 				NowPage(page: page, content: content)
-			} else {
-				MarkdownContentPage(page: page)
+			case .faq, .standard:
+				MarkdownContentPage(page: page, project: content.project)
 			}
 		}
 	}
 
 	/**
-	The old paths of the apps, posts, and pages.
+	The old paths of the apps, posts, guides, and pages.
 	*/
 	@RouteBuilder
 	private var redirectRoutes: [Route] {
 		for document in content.documents {
 			for oldPath in document.redirectFrom {
 				Route.redirect(oldPath, to: document.path)
+					.source("`redirectFrom` of", document.redirectFromLocation)
 			}
 		}
 	}
 
 	@RouteBuilder
 	private var appRoutes: [Route] {
-		AppsPage(content: content)
-		AppCategory.allCases.map { AppCategoryPage(category: $0, content: content) }
-		OlderVersionsPage(content: content)
-		AppTimelinePage(content: content)
-		ReviewsPage(content: content)
-		RandomAppPage(content: content)
-		AppdlePage(content: content)
-
 		for app in content.apps {
 			// The app lists show the icon also of an app with a page elsewhere.
 			for copy in app.jpegXLCopies {
@@ -164,9 +200,9 @@ extension Site {
 			}
 
 			if let releaseNotes = app.releaseNotes {
-				let releases = content.releases(of: app)
+				let releases = content.listing(of: app).releases
 				ReleaseNotesPage(app: app, releaseNotes: releaseNotes, releases: releases)
-				Route.feed(releaseNotes.feed.path, .releaseNotes(of: app, at: releaseNotes, releases: releases))
+				Route.feed(releaseNotes.feed, .releaseNotes(of: app, at: releaseNotes, releases: releases))
 			}
 		}
 
@@ -177,8 +213,6 @@ extension Site {
 
 	@RouteBuilder
 	private var blogRoutes: [Route] {
-		BlogIndexPage(posts: content.listedPosts)
-
 		// A post on another site has no page. Its URL sends visitors there, as it was published as a page before. An unlisted post keeps its page, as its URL may already be shared.
 		for post in content.posts {
 			if let redirectURL = post.redirectURL {
@@ -189,10 +223,20 @@ extension Site {
 		}
 	}
 
+	/**
+	The guides are not in the blog or its feed, so they have their own list.
+	*/
+	@RouteBuilder
+	private var guideRoutes: [Route] {
+		for guide in content.resolvedGuides {
+			GuidePage(guide: guide, content: content)
+		}
+	}
+
 	@RouteBuilder
 	private var feedRoutes: [Route] {
 		for feed in SiteFeed.allCases {
-			Route.feed(feed.path, feed.feed(content: content))
+			Route.feed(feed.link, feed.feed(content: content))
 		}
 	}
 
@@ -211,10 +255,10 @@ extension Site {
 			Icon.sprite
 		}
 
-		// Published unchanged. Each one defines its element itself.
-		for (path, source) in content.project.elementScripts() {
-			Route.file(path) {
-				try Data(contentsOf: source)
+		// Published unchanged, as the build read them for their hashes (``Scripts``). Each one defines its element itself.
+		for asset in content.project.elementScripts() {
+			Route.file(asset.path) {
+				try Scripts.published.elementScript(at: asset.path)
 			}
 		}
 	}
@@ -227,57 +271,69 @@ extension RoutePath {
 	/**
 	The npm packages for the button of ``ProjectOfTheDay``.
 	*/
-	static let npmPackages: Self = "/npm-packages.json"
+	static let npmPackages = #path("/npm-packages.json")
 
 	/**
 	The repos for the button of ``ProjectOfTheDay``.
 	*/
-	static let repositories: Self = "/repos.json"
+	static let repositories = #path("/repos.json")
 
-	static let apps: Self = "/apps"
-	static let randomApp: Self = "/apps/random"
-	static let olderVersions: Self = "/apps/older-versions"
-	static let appTimeline: Self = "/apps/timeline"
+	static let apps = #path("/apps")
+	static let randomApp = #path("/apps/random")
+	static let olderVersions = #path("/apps/older-versions")
+	static let appTimeline = #path("/apps/timeline")
 
 	/**
 	The daily game where visitors guess an app from a part of its icon.
 	*/
-	static let appdle: Self = "/apps/guess"
+	static let appdle = #path("/apps/guess")
 
 	/**
 	The general FAQ for the apps.
 	*/
-	static let faq: Self = "/apps/faq"
+	static let faq = #path("/apps/faq")
 
-	static let terms: Self = "/apps/terms"
-	static let affiliates: Self = "/apps/affiliates"
-	static let tinyApps: Self = "/tiny-apps"
-	static let discounts: Self = "/apps/discounts"
+	static let terms = #path("/apps/terms")
+
+	/**
+	The privacy policy of the website. Each app has its own (`App.privacyPolicyPath`).
+	*/
+	static let privacy = #path("/privacy")
+
+	static let affiliates = #path("/apps/affiliates")
+	static let tinyApps = #path("/tiny-apps")
+	static let openSource = #path("/open-source")
+	static let discounts = #path("/apps/discounts")
 
 	/**
 	The wall of love: press quotes and App Store reviews of the apps.
 	*/
-	static let reviews: Self = "/apps/reviews"
+	static let reviews = #path("/apps/reviews")
 
-	static let about: Self = "/about"
-	static let donate: Self = "/donate"
-	static let supporters: Self = "/supporters"
-	static let blog: Self = "/blog"
-	static let contact: Self = "/contact"
-	static let feedback: Self = "/feedback"
-	static let feeds: Self = "/feeds"
-	static let notFound: Self = "/404"
-	static let now: Self = "/now"
+	static let about = #path("/about")
+	static let donate = #path("/donate")
+	static let supporters = #path("/supporters")
+	static let blog = #path("/blog")
+
+	/**
+	The how-to guides, like `/guides/convert-video-to-gif-mac`.
+	*/
+	static let guides = #path("/guides")
+	static let contact = #path("/contact")
+	static let feedback = #path("/feedback")
+	static let feeds = #path("/feeds")
+	static let notFound = #path("/404")
+	static let now = #path("/now")
 
 	/**
 	One GitHub contribution calendar for each year since 2010. It exists only when the build has a GitHub token.
 	*/
-	static let careerQuilt: Self = "/quilt"
+	static let careerQuilt = #path("/quilt")
 
 	/**
 	The home page and the about page as a personal home page from 1999.
 	*/
-	static let geoCities: Self = "/1999"
+	static let geoCities = #path("/1999")
 }
 
 /**
@@ -287,7 +343,7 @@ extension LinkDestination {
 	static let crashReportQuestion = path(.faq, fragment: "crash-report")
 	static let refundQuestion = path(.faq, fragment: "refund")
 	static let resetPermissionsQuestion = path(.faq, fragment: "mac-reset-permissions")
-	static let menuBarQuestion = path(.faq, fragment: App.addedMenuBarQuestionID)
+	static let menuBarQuestion = path(.faq, fragment: App.Section.menuBarQuestion.id)
 }
 
 extension RoutePath {
@@ -295,16 +351,16 @@ extension RoutePath {
 	The whole URL of the path on the site, like `https://sindresorhus.com/apps`, for places outside the page, like feeds and structured data.
 	*/
 	var absoluteURL: URL {
-		absoluteURL(site: Site.url)
+		absoluteURL(site: Site.origin)
 	}
 }
 
 extension LinkDestination {
 	/**
-	The whole URL, like `https://sindresorhus.com/feedback?product=Dato`, for places outside the page, like feeds. A fragment of the same page has none.
+	The whole URL on the site, like `https://sindresorhus.com/feedback?product=Dato`, with a fragment resolved against the current page.
 	*/
-	var absoluteURL: URL {
-		absoluteURL(site: Site.url)
+	func absoluteURL(on page: RoutePath) -> URL {
+		absoluteURL(site: Site.origin, page: page)
 	}
 }
 

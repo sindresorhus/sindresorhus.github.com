@@ -1,14 +1,10 @@
 // The liquid glass behind the title of the apps page, drawn with WebGL: soft fields in the colors of the featured apps, seen through slowly moving frosted glass. It draws one still frame for visitors who prefer reduced motion, and pauses while it is off screen or the tab is hidden. Without WebGL, the canvas keeps its still gradient (`AppsPage`).
+import {prefersReducedMotion} from '/scripts/dom.js';
+import {startShader} from '/scripts/webgl.js';
+
 const canvas = document.querySelector('#apps-glass');
-const gl = canvas.getContext('webgl', {antialias: false, depth: false, powerPreference: 'low-power'});
-
-const vertexShader = `
-	attribute vec2 position;
-
-	void main() {
-		gl_Position = vec4(position, 0.0, 1.0);
-	}
-`;
+// Only with a hardware renderer, as a software renderer blocks the page for hundreds of milliseconds.
+const gl = canvas.getContext('webgl', {antialias: false, depth: false, powerPreference: 'low-power', failIfMajorPerformanceCaveat: true});
 
 const fragmentShader = `
 	precision highp float;
@@ -104,35 +100,15 @@ const fragmentShader = `
 	}
 `;
 
-// The shader program, or `undefined` when the shaders do not compile on the device, like one without high precision. Then the canvas keeps its still gradient.
-const createProgram = () => {
-	const program = gl.createProgram();
+// The locations of the uniforms.
+let uniforms;
 
-	for (const [type, source] of [[gl.VERTEX_SHADER, vertexShader], [gl.FRAGMENT_SHADER, fragmentShader]]) {
-		const shader = gl.createShader(type);
-		gl.shaderSource(shader, source);
-		gl.compileShader(shader);
-		gl.attachShader(program, shader);
-	}
+// Whether the program is set up, and the canvas can draw. It is not after the GPU loses the canvas, until the shaders compile and link again (`startShader`).
+let isProgramSetUp = false;
 
-	gl.linkProgram(program);
-
-	return gl.getProgramParameter(program, gl.LINK_STATUS) ? program : undefined;
-};
-
-const program = gl ? createProgram() : undefined;
-
-if (program) {
-	gl.useProgram(program);
-
-	// Two triangles that cover the canvas.
-	gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-	const position = gl.getAttribLocation(program, 'position');
-	gl.enableVertexAttribArray(position);
-	gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-
-	const uniforms = Object.fromEntries(['resolution', 'time', 'pointer', 'pointerStrength', 'isDark', 'colors'].map(name => [name, gl.getUniformLocation(program, name)]));
+// Gets the locations of the uniforms, and sets the colors. Again after the GPU gives back a lost canvas, as the canvas loses all of them (`startShader`).
+const setUp = program => {
+	uniforms = Object.fromEntries(['resolution', 'time', 'pointer', 'pointerStrength', 'isDark', 'colors'].map(name => [name, gl.getUniformLocation(program, name)]));
 
 	// The colors are custom properties of the canvas, like `--glass-color-1: #527cea`. A 2D canvas turns each into red, green, and blue, whatever the CSS color is.
 	const style = getComputedStyle(canvas);
@@ -144,13 +120,15 @@ if (program) {
 		return [...colorContext.getImageData(0, 0, 1, 1).data.slice(0, 3)].map(value => value / 255);
 	});
 	gl.uniform3fv(uniforms.colors, colors);
+	isProgramSetUp = true;
+};
 
+// When the shaders do not compile on the device, like one without high precision, the canvas keeps its still gradient.
+if (gl && startShader(gl, {fragment: fragmentShader, setUp})) {
 	// The glass replaces the still gradient. The first frame is drawn when the size of the canvas is known, before the page shows.
 	canvas.dataset.state = 'drawing';
 
 	const darkQuery = matchMedia('(prefers-color-scheme: dark)');
-	// Read once, when the page loads (AGENTS.md).
-	const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 	const finePointerQuery = matchMedia('(hover: hover) and (pointer: fine)');
 
 	// The glass is soft, so half the CSS pixels in each direction is enough, and it saves battery. The browser scales it up smoothly.
@@ -252,12 +230,26 @@ if (program) {
 
 	document.addEventListener('visibilitychange', update);
 
-	// The GPU can lose the canvas, like after the device sleeps. The glass stops, and the still gradient comes back, as the canvas is empty.
+	// The GPU can lose the canvas, like after the device sleeps. The glass stops, and the still gradient comes back, as the canvas is empty, until the browser gives the canvas back (`startShader`).
 	canvas.addEventListener('webglcontextlost', () => {
 		isContextLost = true;
+		isProgramSetUp = false;
 		update();
 		delete canvas.dataset.state;
-	}, {once: true});
+	});
+
+	canvas.addEventListener('webglcontextrestored', () => {
+		// The shaders did not compile again, so the glass stays stopped, with the still gradient.
+		if (!isProgramSetUp) {
+			return;
+		}
+
+		isContextLost = false;
+		canvas.dataset.state = 'drawing';
+		resize();
+		draw();
+		update();
+	});
 
 	// A still frame in the new colors, or with the time where it is now.
 	darkQuery.addEventListener('change', draw);

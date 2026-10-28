@@ -9,14 +9,19 @@ struct GeoCitiesMacOS: HTML {
 	let project: Project
 
 	var body: some HTML {
-		section(.id(Hooks.root), .tabindex(-1)) {
+		section(.id(IDs.root), .tabindex(-1)) {
 			h2 {
 				"My iMac (the Real One)"
 			}
 			.style(GeoCitiesPage.Styles.heading, GeoCitiesPage.Styles.centeredText)
 
 			p {
-				GeoCitiesPage.GIFImage(gif: .buttonMacVsWindows, alt: "The Apple logo with a water pistol aimed at the Windows logo", style: .gif, project: project)
+				GeoCitiesPage.GIFImage(
+					gif: .buttonMacVsWindows,
+					alt: "The Apple logo with a water pistol aimed at the Windows logo",
+					style: .gif,
+					project: project
+				)
 			}
 			.style(GeoCitiesPage.Styles.centeredText)
 
@@ -40,16 +45,16 @@ struct GeoCitiesMacOS: HTML {
 						.style(Styles.badge)
 
 						// The tray of the CD drive, under the screen, which slides out with the CD in it.
-						div(.id(Hooks.tray), .hidden) {
-							button(.id(Hooks.trayCD), .type(.button)) {
+						div(.id(IDs.tray), .hidden) {
+							button(.id(IDs.trayCD), .type(.button)) {
 								"💿 Mac OS 8.6 CD (push the tray in)"
 							}
 							.style(Styles.trayCD)
 						}
 						.style(Styles.tray)
 
-						button(.id(Hooks.power), .type(.button), .ariaPressed(false)) {
-							span(.id(Hooks.led)) {}
+						button(.id(IDs.power), .type(.button), .ariaPressed(false)) {
+							span(.id(IDs.led)) {}
 								.accessibilityHidden()
 								.style(Styles.led)
 							"⏻ Power"
@@ -61,8 +66,8 @@ struct GeoCitiesMacOS: HTML {
 				.style(Styles.imac)
 
 				// The StyleWriter II on the desk, next to the iMac, which prints what the visitor prints, when it has ink.
-				div(.id(Hooks.printer), .hidden) {
-					canvas(.id(Hooks.printout), .width(240), .height(300)) {}
+				div(.id(IDs.printer), .hidden) {
+					canvas(.id(IDs.printout), .width(240), .height(300)) {}
 						.accessibilityLabel("The printed page")
 						.style(Styles.printout)
 
@@ -77,7 +82,7 @@ struct GeoCitiesMacOS: HTML {
 			.style(Styles.desk, GeoCitiesPage.Styles.scriptingOnly)
 
 			div {
-				button(.id(Hooks.speakers), .type(.button), .ariaPressed(false)) {
+				button(.id(IDs.speakers), .type(.button), .ariaPressed(false)) {
 					"🔈 Turn on the speakers (the chime, beeps, sounds, and Talking Alerts)"
 				}
 				.style(GeoCitiesPage.Styles.retroButton)
@@ -98,7 +103,7 @@ struct GeoCitiesMacOS: HTML {
 				.accessibilityLabel("Keys to hold at startup")
 				.style(Styles.keyRow)
 
-				p(.id(Hooks.status), .role("status")) {}
+				p(.id(IDs.status), .role("status")) {}
 					.style(Styles.status)
 			}
 			.style(Styles.below, GeoCitiesPage.Styles.scriptingOnly)
@@ -110,7 +115,7 @@ struct GeoCitiesMacOS: HTML {
 		}
 		.style(GeoCitiesPage.Styles.section)
 
-		ModuleScript("/scripts/geocities-mac.js")
+		ModuleScript(#path("/scripts/geocities-mac.js"))
 	}
 
 	/**
@@ -128,21 +133,21 @@ struct GeoCitiesMacOS: HTML {
 	*/
 	@HTMLBuilder
 	static var screen: some HTML {
-		div(.id(Hooks.screen)) {
-			div(.id(Hooks.off)) {
-				p(.id(Hooks.offText)) {
+		div(.id(IDs.screen)) {
+			div(.id(IDs.off)) {
+				p(.id(IDs.offText)) {
 					"Press the power button below the screen."
 				}
 			}
 			.style(Styles.off)
 
-			div(.id(Hooks.boot), .hidden) {
-				canvas(.id(Hooks.bootIcon), .width(96), .height(108)) {}
+			div(.id(IDs.boot), .hidden) {
+				canvas(.id(IDs.bootIcon), .width(96), .height(108)) {}
 					.accessibilityHidden()
 					.style(Styles.bootIcon)
 
-				div(.id(Hooks.welcome), .hidden) {
-					canvas(.id(Hooks.face), .width(64), .height(64)) {}
+				div(.id(IDs.welcome), .hidden) {
+					canvas(.id(IDs.face), .width(64), .height(64)) {}
 						.accessibilityHidden()
 						.style(Styles.face)
 
@@ -152,34 +157,34 @@ struct GeoCitiesMacOS: HTML {
 					.style(Styles.welcomeText)
 
 					div {
-						div(.id(Hooks.progress)) {}
+						div(.id(IDs.progress)) {}
 							.style(Styles.progressBar)
 					}
 					.accessibilityHidden()
 					.style(Styles.progressTrack)
 
-					p(.id(Hooks.bootNote)) {}
+					p(.id(IDs.bootNote)) {}
 						.style(Styles.bootNote)
 				}
 				.style(Styles.welcome)
 
-				p(.id(Hooks.bootMessage), .role("status")) {}
+				p(.id(IDs.bootMessage), .role("status")) {}
 					.style(Styles.bootMessage)
 
-				div(.id(Hooks.extensionRow)) {}
+				div(.id(IDs.extensionRow)) {}
 					.accessibilityHidden()
 					.style(Styles.extensionRow)
 			}
 			.style(Styles.boot)
 
-			div(.id(Hooks.desktop), .hidden) {
-				canvas(.id(Hooks.picture)) {}
+			div(.id(IDs.desktop), .hidden) {
+				canvas(.id(IDs.picture)) {}
 					.accessibilityHidden()
 					.style(Styles.picture)
 
 				GeoCitiesPage.Deferred(menuBar)
 
-				div(.id(Hooks.icons), .role("group")) {}
+				div(.id(IDs.icons), .role("group")) {}
 					.accessibilityLabel("Desktop")
 					.style(Styles.icons)
 
@@ -187,33 +192,40 @@ struct GeoCitiesMacOS: HTML {
 
 				GeoCitiesPage.Deferred(controlStrip)
 
-				p(.id(Hooks.balloon), .hidden, .role("tooltip")) {}
+				p(.id(IDs.balloon), .hidden, .role("tooltip")) {}
 					.style(Styles.balloon)
 
 				// The Flying Toasters of After Dark, when the desktop is left alone.
-				canvas(.id(Hooks.saver), .hidden) {}
+				canvas(.id(IDs.saver), .hidden) {}
 					.accessibilityHidden()
 					.style(Styles.saver)
 			}
 			.style(Styles.desktop)
 
-			div(.id(Hooks.alert), .hidden, .role("alertdialog"), .ariaModal, .tabindex(-1), .ariaDescribedBy(Hooks.alertText.id)) {
+			div(
+				.id(IDs.alert),
+				.hidden,
+				.role("alertdialog"),
+				.ariaModal,
+				.tabindex(-1),
+				.ariaDescribedBy(IDs.alertText.id)
+			) {
 				div {
-					canvas(.id(Hooks.alertIcon), .width(32), .height(32)) {}
+					canvas(.id(IDs.alertIcon), .width(32), .height(32)) {}
 						.accessibilityHidden()
 						.style(Styles.alertIcon)
 
 					div {
-						p(.id(Hooks.alertText)) {}
+						p(.id(IDs.alertText)) {}
 							.style(Styles.alertText)
 
-						p(.id(Hooks.alertDetail)) {}
+						p(.id(IDs.alertDetail)) {}
 							.style(Styles.alertDetail)
 					}
 				}
 				.style(Styles.alertMessage)
 
-				div(.id(Hooks.alertButtons)) {}
+				div(.id(IDs.alertButtons)) {}
 					.style(Styles.alertButtons)
 			}
 			.accessibilityLabel("Alert")
@@ -229,7 +241,7 @@ struct GeoCitiesMacOS: HTML {
 	*/
 	@HTMLBuilder
 	static var templates: some HTML {
-		template(.id(Hooks.iconTemplate)) {
+		template(.id(IDs.iconTemplate)) {
 			button(.type(.button)) {
 				img(.alt(""), .width(32), .height(32))
 					.style(Styles.iconImage)
@@ -239,19 +251,19 @@ struct GeoCitiesMacOS: HTML {
 			.style(Styles.icon)
 		}
 
-		template(.id(Hooks.buttonTemplate)) {
+		template(.id(IDs.buttonTemplate)) {
 			button(.type(.button)) {}
 				.style(Styles.button)
 		}
 
-		template(.id(Hooks.menuItemTemplate)) {
+		template(.id(IDs.menuItemTemplate)) {
 			li {
 				button(.type(.button)) {}
 					.style(Styles.menuItem)
 			}
 		}
 
-		template(.id(Hooks.rowTemplate)) {
+		template(.id(IDs.rowTemplate)) {
 			li {
 				label {
 					input(.type(.checkbox))
@@ -261,7 +273,7 @@ struct GeoCitiesMacOS: HTML {
 			}
 		}
 
-		template(.id(Hooks.resultTemplate)) {
+		template(.id(IDs.resultTemplate)) {
 			li {
 				button(.type(.button)) {
 					span {}
@@ -274,13 +286,13 @@ struct GeoCitiesMacOS: HTML {
 			}
 		}
 
-		template(.id(Hooks.keyTemplate)) {
+		template(.id(IDs.keyTemplate)) {
 			button(.type(.button), .tabindex(-1)) {}
 				.style(Styles.keyCapsKey)
 		}
 
-		template(.id(Hooks.stickyTemplate)) {
-			GeoCitiesMacOSWindows.window("sticky", title: "Stickies", width: .small) {
+		template(.id(IDs.stickyTemplate)) {
+			GeoCitiesMacOSWindows.window(.sticky, width: .small) {
 				div {
 					button(.type(.button), .hook(Hooks.part, value: "new")) {
 						"+ New Note"
@@ -294,7 +306,12 @@ struct GeoCitiesMacOS: HTML {
 				}
 				.style(Styles.toolbar)
 
-				textarea(.rows(5), .maxlength(500), .autocomplete("off"), .hook(Hooks.part, value: "text")) {}
+				textarea(
+					.rows(5),
+					.maxlength(500),
+					.autocomplete("off"),
+					.hook(Hooks.part, value: "text")
+				) {}
 					.accessibilityLabel("Sticky note")
 					.style(Styles.stickyText)
 			}
@@ -310,9 +327,19 @@ struct GeoCitiesMacOS: HTML {
 			ul {
 				for menu in MenuBarMenu.all {
 					li {
-						button(.type(.button), .hook(Hooks.menu, value: menu.id), .ariaExpanded(false), .ariaControls("geocities-mac-menu-\(menu.id)")) {
+						button(
+							.type(.button),
+							.hook(Hooks.menu, value: menu.id),
+							.ariaExpanded(false),
+							.ariaControls(ElementID("geocities-mac-menu-\(menu.id)"))
+						) {
 							if menu.id == "apple" {
-								img(.alt("Apple menu"), .width(16), .height(16), .hook(Hooks.part, value: "apple-logo"))
+								img(
+									.alt("Apple menu"),
+									.width(16),
+									.height(16),
+									.hook(Hooks.part, value: "apple-logo")
+								)
 									.style(Styles.menuIcon)
 							} else {
 								menu.title
@@ -334,12 +361,17 @@ struct GeoCitiesMacOS: HTML {
 			.style(Styles.menus)
 
 			div {
-				button(.id(Hooks.clock), .type(.button)) {}
+				button(.id(IDs.clock), .type(.button)) {}
 					.accessibilityLabel("Clock")
 					.style(Styles.menuTitle)
 
 				div {
-					button(.id(Hooks.appMenuButton), .type(.button), .ariaExpanded(false), .ariaControls(Hooks.appMenu.id)) {
+					button(
+						.id(IDs.appMenuButton),
+						.type(.button),
+						.ariaExpanded(false),
+						.ariaControls(IDs.appMenu.id)
+					) {
 						img(.alt(""), .width(16), .height(16))
 							.style(Styles.menuIcon)
 						span {
@@ -349,7 +381,7 @@ struct GeoCitiesMacOS: HTML {
 					.accessibilityLabel("Application menu")
 					.style(Styles.menuTitle)
 
-					ul(.id(Hooks.appMenu), .hidden) {}
+					ul(.id(IDs.appMenu), .hidden) {}
 						.style(Styles.menu, Styles.menuAtRight)
 				}
 				.style(Styles.menuSlot)
@@ -364,19 +396,24 @@ struct GeoCitiesMacOS: HTML {
 	*/
 	@HTMLBuilder
 	static var controlStrip: some HTML {
-		div(.id(Hooks.strip)) {
-			div(.id(Hooks.stripModules)) {
-				for (module, icon, label) in [("volume", "🔊", "Volume"), ("depth", "🖥️", "Monitor colors"), ("appletalk", "🔗", "AppleTalk"), ("sharing", "📂", "File Sharing"), ("speech", "🗣️", "Talking Alerts")] {
-					button(.type(.button), .hook(Hooks.stripModule, value: module), .hook(Hooks.balloonText, value: Self.stripBalloons[module] ?? "")) {
-						icon
+		div(.id(IDs.strip)) {
+			div(.id(IDs.stripModules)) {
+				for module in ControlStripModule.all {
+					button(.type(.button), .hook(Hooks.stripModule, value: module.id), .hook(Hooks.balloonText, value: module.help)) {
+						module.icon
 					}
-					.accessibilityLabel(label)
+					.accessibilityLabel(module.label)
 					.style(Styles.stripModule)
 				}
 			}
 			.style(Styles.stripModules)
 
-			button(.id(Hooks.stripTab), .type(.button), .ariaExpanded(true), .ariaControls(Hooks.stripModules.id)) {
+			button(
+				.id(IDs.stripTab),
+				.type(.button),
+				.ariaExpanded(true),
+				.ariaControls(IDs.stripModules.id)
+			) {
 				"▸"
 			}
 			.accessibilityLabel("Control Strip")
@@ -388,15 +425,23 @@ struct GeoCitiesMacOS: HTML {
 	/**
 	What Balloon Help says about each module of the Control Strip.
 	*/
-	static let stripBalloons = [
-		"volume": "Changes the volume of the speakers. Click it to go up a step. After 7 comes 0, like on my stereo.",
-		"depth": "Changes the colors of the monitor, from Millions down to Black & White. Black & White is how my dad says computers looked when he was young.",
-		"appletalk": "Turns AppleTalk on or off. The LaserWriter at Dad’s office needs it. Dad’s office is 40 km away, so it does not help.",
-		"sharing": "Shares my iMac with the network. There is no network. It is me and my iMac.",
-		"speech": "Turns Talking Alerts on or off, so the iMac reads the alerts out loud.",
-	]
+	struct ControlStripModule {
+		let id: String
+		let icon: String
+		let label: String
+		let help: String
 
-	enum Hooks: String, ScriptHookSet {
+		// Help is required beside its label; there is no second ID-keyed table to keep in sync.
+		static let all = [
+			Self(id: "volume", icon: "🔊", label: "Volume", help: "Changes the volume of the speakers. Click it to go up a step. After 7 comes 0, like on my stereo."),
+			Self(id: "depth", icon: "🖥️", label: "Monitor colors", help: "Changes the colors of the monitor, from Millions down to Black & White. Black & White is how my dad says computers looked when he was young."),
+			Self(id: "appletalk", icon: "🔗", label: "AppleTalk", help: "Turns AppleTalk on or off. The LaserWriter at Dad’s office needs it. Dad’s office is 40 km away, so it does not help."),
+			Self(id: "sharing", icon: "📂", label: "File Sharing", help: "Shares my iMac with the network. There is no network. It is me and my iMac."),
+			Self(id: "speech", icon: "🗣️", label: "Talking Alerts", help: "Turns Talking Alerts on or off, so the iMac reads the alerts out loud."),
+		]
+	}
+
+	enum IDs: String, ScriptIDSet {
 		case root = "geocities-mac"
 		case screen = "geocities-mac-screen"
 		case power = "geocities-mac-power"
@@ -440,111 +485,224 @@ struct GeoCitiesMacOS: HTML {
 		case resultTemplate = "geocities-mac-result-template"
 		case keyTemplate = "geocities-mac-key-template"
 		case stickyTemplate = "geocities-mac-sticky-template"
+	}
 
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A key to hold at startup, like `shift`.
 		*/
-		case startupKey = "data-mac-startup-key"
+		case startupKey = "mac-startup-key"
 
 		/**
 		A window, by its name, like `puzzle`.
 		*/
-		case window = "data-mac-window"
+		case window = "mac-window"
 
-		case titleBar = "data-mac-title-bar"
-		case close = "data-mac-close"
-		case collapse = "data-mac-collapse"
-		case zoom = "data-mac-zoom"
+		case titleBar = "mac-title-bar"
+		case close = "mac-close"
+		case collapse = "mac-collapse"
+		case zoom = "mac-zoom"
 
 		/**
 		On a window while it is rolled up to its title bar, with WindowShade.
 		*/
-		case collapsed = "data-mac-collapsed"
+		case collapsed = "mac-collapsed"
 
 		/**
 		On a window while it fills the screen.
 		*/
-		case zoomed = "data-mac-zoomed"
+		case zoomed = "mac-zoomed"
 
 		/**
 		On the window in front.
 		*/
-		case front = "data-mac-front"
+		case front = "mac-front"
 
 		/**
 		An icon of the desktop or a Finder window, by the item it shows, like `trash`. `geocities-mac.js` makes the icons.
 		*/
-		case icon = "data-mac-icon"
+		case icon = "mac-icon"
 
 		/**
 		A command of a menu or a button, like `empty-trash`.
 		*/
-		case action = "data-mac-action"
+		case action = "mac-action"
 
 		/**
 		A part of a window that the script finds by its name, like the canvas of the Puzzle.
 		*/
-		case part = "data-mac-part"
+		case part = "mac-part"
 
 		/**
 		The title of a menu of the menu bar, by its name, like `apple`.
 		*/
-		case menu = "data-mac-menu"
+		case menu = "mac-menu"
 
 		/**
 		The list of a menu, by its name.
 		*/
-		case menuList = "data-mac-menu-list"
+		case menuList = "mac-menu-list"
 
 		/**
 		A module of the Control Strip, like `volume`.
 		*/
-		case stripModule = "data-mac-strip-module"
+		case stripModule = "mac-strip-module"
 
 		/**
 		What Balloon Help says about the element.
 		*/
-		case balloonText = "data-mac-balloon"
+		case balloonText = "mac-balloon"
 
 		/**
 		The theme of the Appearance, on the screen, like `bondi`.
 		*/
-		case theme = "data-mac-theme"
+		case theme = "mac-theme"
 
 		/**
 		The colors of the monitor, on the screen, like `gray`.
 		*/
-		case depth = "data-mac-depth"
+		case depth = "mac-depth"
 
 		/**
 		On an icon while it is selected, or while something is dragged over it.
 		*/
-		case selected = "data-mac-selected"
+		case selected = "mac-selected"
 
 		/**
 		On a desktop icon while the desktop file has forgotten its icon, until the desktop is rebuilt.
 		*/
-		case generic = "data-mac-generic"
+		case generic = "mac-generic"
 
 		/**
 		On the alert while it shows at the bottom of the screen, so the screen behind it shows, like the Sad Mac.
 		*/
-		case low = "data-mac-low"
+		case low = "mac-low"
 
 		/**
 		On the power light while the iMac sleeps.
 		*/
-		case sleeping = "data-mac-sleeping"
+		case sleeping = "mac-sleeping"
 	}
 }
 
 extension GeoCitiesMacOS {
 	/**
+	The code-owned window catalog. Launchers and windows select the same entry rather than spelling IDs independently.
+	*/
+	struct Program: Hashable, Sendable {
+		let rawValue: String
+		let title: String
+		let icon: String?
+
+		private init(_ rawValue: String, title: String, icon: String? = nil) {
+			self.rawValue = rawValue
+			self.title = title
+			self.icon = icon
+		}
+
+		static let about = Self("about", title: "About This Computer")
+		static let info = Self("info", title: "Get Info")
+		static let hardDrive = Self("hd", title: "Macintosh HD")
+		static let applications = Self("apps", title: "Applications")
+		static let trash = Self("trash", title: "Trash")
+		static let clipboard = Self("clipboard", title: "Clipboard")
+		static let switcher = Self("switcher", title: "Application Switcher")
+		static let installer = Self("installer", title: "Mac OS 8.6 Install")
+		static let extensions = Self("extensions", title: "Extensions Manager", icon: "extension")
+		static let appearance = Self("appearance", title: "Appearance", icon: "appearance")
+		static let speech = Self("speech", title: "Speech", icon: "speech")
+		static let puzzle = Self("puzzle", title: "Puzzle", icon: "puzzle")
+		static let notePad = Self("notepad", title: "Note Pad", icon: "notepad")
+		static let scrapbook = Self("scrapbook", title: "Scrapbook", icon: "scrapbook")
+		static let keyCaps = Self("keycaps", title: "Key Caps", icon: "keycaps")
+		static let chooser = Self("chooser", title: "Chooser", icon: "chooser")
+		static let pageSetup = Self("pagesetup", title: "Page Setup Options")
+		static let stickies = Self("stickies", title: "Stickies", icon: "stickies")
+		static let sherlock = Self("sherlock", title: "Sherlock", icon: "sherlock")
+		static let graphing = Self("graphing", title: "Graphing Calculator", icon: "graphing")
+		static let bugdom = Self("bugdom", title: "Bugdom Jr.", icon: "bugdom")
+		static let netscape = Self("netscape", title: "Netscape: Sindre’s Home Page")
+		static let simpleText = Self("simpletext", title: "SimpleText", icon: "simpletext")
+		static let sticky = Self("sticky", title: "Stickies")
+
+		/**
+		The heading ID shared by the window and its accessible name.
+		*/
+		var windowTitleID: ElementID {
+			ElementID("geocities-mac-title-\(rawValue)")
+		}
+	}
+
+	/**
+	The supported script commands. Only program actions accept an argument, and it must come from the catalog.
+	*/
+	struct Action: Sendable {
+		let value: String
+
+		private init(_ value: String) {
+			self.value = value
+		}
+
+		/**
+		Launches a catalog program using the script's existing wire format.
+		*/
+		static func launch(_ program: Program) -> Self {
+			Self("launch-\(program.rawValue)")
+		}
+
+		/**
+		Opens a catalog window without launching a separate application.
+		*/
+		static func open(_ program: Program) -> Self {
+			Self("open-\(program.rawValue)")
+		}
+
+		static let newFolder = Self("new-folder")
+		static let openSelected = Self("open-selected")
+		static let closeWindow = Self("close-window")
+		static let getInfo = Self("get-info")
+		static let moveToTrash = Self("move-to-trash")
+		static let putAway = Self("put-away")
+		static let pageSetup = Self("page-setup")
+		static let print = Self("print")
+		static let quit = Self("quit")
+		static let undo = Self("undo")
+		static let copy = Self("copy")
+		static let paste = Self("paste")
+		static let clear = Self("clear")
+		static let showClipboard = Self("show-clipboard")
+		static let cleanUp = Self("clean-up")
+		static let arrange = Self("arrange")
+		static let emptyTrash = Self("empty-trash")
+		static let eject = Self("eject")
+		static let sleep = Self("sleep")
+		static let restart = Self("restart")
+		static let shutDown = Self("shut-down")
+		static let balloons = Self("balloons")
+	}
+
+	/**
+	A leaf command, also used directly by submenus: deeper submenu nesting is not supported.
+	*/
+	struct Command {
+		let title: String
+		let action: Action
+		var icon: String?
+
+		/**
+		Uses the catalog's label and icon. A contextual title uses explicit Command construction.
+		*/
+		static func launch(_ program: Program) -> Self {
+			Self(title: program.title, action: .launch(program), icon: program.icon)
+		}
+	}
+
+	/**
 	An item of a menu of the menu bar: a command, a submenu, like Control Panels in the Apple menu, or a line.
 	*/
-	indirect enum MenuItem: Sendable {
-		case command(String, action: String, icon: String? = nil)
-		case submenu(String, id: String, icon: String? = nil, items: [MenuItem])
+	enum MenuItem {
+		case command(Command)
+		case submenu(String, id: String, icon: String? = nil, commands: [Command])
 		case separator
 	}
 
@@ -557,66 +715,95 @@ extension GeoCitiesMacOS {
 		let items: [MenuItem]
 
 		static let all = [
-			Self(id: "apple", title: "Apple", items: [
-				.command("About This Computer", action: "open-about"),
-				.separator,
-				.command("Bugdom Jr.", action: "launch-bugdom", icon: "bugdom"),
-				.command("Chooser", action: "launch-chooser", icon: "chooser"),
-				.submenu("Control Panels", id: "control-panels", icon: "folder", items: [
-					.command("Appearance", action: "launch-appearance", icon: "appearance"),
-					.command("Extensions Manager", action: "launch-extensions", icon: "extension"),
-					.command("Speech", action: "launch-speech", icon: "speech"),
-				]),
-				.command("Graphing Calculator", action: "launch-graphing", icon: "graphing"),
-				.command("Key Caps", action: "launch-keycaps", icon: "keycaps"),
-				.command("Note Pad", action: "launch-notepad", icon: "notepad"),
-				.command("Puzzle", action: "launch-puzzle", icon: "puzzle"),
-				.command("Scrapbook", action: "launch-scrapbook", icon: "scrapbook"),
-				.command("Sherlock", action: "launch-sherlock", icon: "sherlock"),
-				.command("SimpleText", action: "launch-simpletext", icon: "simpletext"),
-				.command("Stickies", action: "launch-stickies", icon: "stickies"),
-			]),
-			Self(id: "file", title: "File", items: [
-				.command("New Folder", action: "new-folder"),
-				.command("Open", action: "open-selected"),
-				.command("Close Window", action: "close-window"),
-				.command("Get Info", action: "get-info"),
-				.command("Move To Trash", action: "move-to-trash"),
-				.command("Put Away", action: "put-away"),
-				.separator,
-				.command("Find…", action: "launch-sherlock"),
-				.separator,
-				.command("Page Setup…", action: "page-setup"),
-				.command("Print…", action: "print"),
-				.separator,
-				.command("Quit", action: "quit"),
-			]),
-			Self(id: "edit", title: "Edit", items: [
-				.command("Undo", action: "undo"),
-				.separator,
-				.command("Copy", action: "copy"),
-				.command("Paste", action: "paste"),
-				.command("Clear", action: "clear"),
-				.separator,
-				.command("Show Clipboard", action: "show-clipboard"),
-			]),
-			Self(id: "view", title: "View", items: [
-				.command("Clean Up", action: "clean-up"),
-				.command("Arrange by Name", action: "arrange"),
-			]),
-			Self(id: "special", title: "Special", items: [
-				.command("Empty Trash…", action: "empty-trash"),
-				.separator,
-				.command("Eject", action: "eject"),
-				.separator,
-				.command("Sleep", action: "sleep"),
-				.command("Restart", action: "restart"),
-				.command("Shut Down", action: "shut-down"),
-			]),
-			Self(id: "help", title: "Help", items: [
-				.command("Show Balloons", action: "balloons"),
-				.command("Mac OS Help (Read Me!)", action: "launch-simpletext"),
-			]),
+			Self(
+				id: "apple",
+				title: "Apple",
+				items: [
+					.command(.init(title: Program.about.title, action: .open(.about))),
+					.separator,
+					.command(.launch(.bugdom)),
+					.command(.launch(.chooser)),
+					.submenu(
+						"Control Panels",
+						id: "control-panels",
+						icon: "folder",
+						commands: [
+							.launch(.appearance),
+							.launch(.extensions),
+							.launch(.speech),
+						]
+					),
+					.command(.launch(.graphing)),
+					.command(.launch(.keyCaps)),
+					.command(.launch(.notePad)),
+					.command(.launch(.puzzle)),
+					.command(.launch(.scrapbook)),
+					.command(.launch(.sherlock)),
+					.command(.launch(.simpleText)),
+					.command(.launch(.stickies)),
+				]
+			),
+			Self(
+				id: "file",
+				title: "File",
+				items: [
+					.command(.init(title: "New Folder", action: .newFolder)),
+					.command(.init(title: "Open", action: .openSelected)),
+					.command(.init(title: "Close Window", action: .closeWindow)),
+					.command(.init(title: "Get Info", action: .getInfo)),
+					.command(.init(title: "Move To Trash", action: .moveToTrash)),
+					.command(.init(title: "Put Away", action: .putAway)),
+					.separator,
+					.command(.init(title: "Find…", action: .launch(.sherlock))),
+					.separator,
+					.command(.init(title: "Page Setup…", action: .pageSetup)),
+					.command(.init(title: "Print…", action: .print)),
+					.separator,
+					.command(.init(title: "Quit", action: .quit)),
+				]
+			),
+			Self(
+				id: "edit",
+				title: "Edit",
+				items: [
+					.command(.init(title: "Undo", action: .undo)),
+					.separator,
+					.command(.init(title: "Copy", action: .copy)),
+					.command(.init(title: "Paste", action: .paste)),
+					.command(.init(title: "Clear", action: .clear)),
+					.separator,
+					.command(.init(title: "Show Clipboard", action: .showClipboard)),
+				]
+			),
+			Self(
+				id: "view",
+				title: "View",
+				items: [
+					.command(.init(title: "Clean Up", action: .cleanUp)),
+					.command(.init(title: "Arrange by Name", action: .arrange)),
+				]
+			),
+			Self(
+				id: "special",
+				title: "Special",
+				items: [
+					.command(.init(title: "Empty Trash…", action: .emptyTrash)),
+					.separator,
+					.command(.init(title: "Eject", action: .eject)),
+					.separator,
+					.command(.init(title: "Sleep", action: .sleep)),
+					.command(.init(title: "Restart", action: .restart)),
+					.command(.init(title: "Shut Down", action: .shutDown)),
+				]
+			),
+			Self(
+				id: "help",
+				title: "Help",
+				items: [
+					.command(.init(title: "Show Balloons", action: .balloons)),
+					.command(.init(title: "Mac OS Help (Read Me!)", action: .launch(.simpleText))),
+				]
+			),
 		]
 	}
 
@@ -627,23 +814,19 @@ extension GeoCitiesMacOS {
 		let item: MenuItem
 
 		var body: some HTML {
-			if case .command(let title, let action, let icon) = item {
+			switch item {
+			case .command(let command):
+				CommandItem(command: command)
+			case .submenu(let title, let id, let icon, let commands):
 				li {
-					button(.type(.button), .hook(Hooks.action, value: action)) {
+					button(
+						.type(.button),
+						.hook(Hooks.action, value: "submenu"),
+						.ariaExpanded(false),
+						.ariaControls(ElementID("geocities-mac-menu-\(id)"))
+					) {
 						if let icon {
-							img(.alt(""), .width(16), .height(16), .hook(Hooks.part, value: "icon-\(icon)"))
-								.style(Styles.menuIcon)
-						}
-						title
-					}
-					.style(Styles.menuItem)
-				}
-			} else if case .submenu(let title, let id, let icon, let items) = item {
-				li {
-					button(.type(.button), .hook(Hooks.action, value: "submenu"), .ariaExpanded(false), .ariaControls("geocities-mac-menu-\(id)")) {
-						if let icon {
-							img(.alt(""), .width(16), .height(16), .hook(Hooks.part, value: "icon-\(icon)"))
-								.style(Styles.menuIcon)
+							MenuIcon(name: icon)
 						}
 						title
 						span {
@@ -655,29 +838,49 @@ extension GeoCitiesMacOS {
 					.style(Styles.menuItem)
 
 					ul(.id("geocities-mac-menu-\(id)"), .hidden) {
-						for item in items {
-							if case .command(let title, let action, let icon) = item {
-								li {
-									button(.type(.button), .hook(Hooks.action, value: action)) {
-										if let icon {
-											img(.alt(""), .width(16), .height(16), .hook(Hooks.part, value: "icon-\(icon)"))
-												.style(Styles.menuIcon)
-										}
-										title
-									}
-									.style(Styles.menuItem)
-								}
-							}
+						for command in commands {
+							CommandItem(command: command)
 						}
 					}
 					.style(Styles.submenu)
 				}
 				.style(Styles.submenuSlot)
-			} else {
+			case .separator:
 				li {}
 					.accessibilityHidden()
 					.style(Styles.menuSeparator)
 			}
+		}
+	}
+
+	/**
+	The same leaf markup at both menu levels, so script actions and accessible labels cannot drift.
+	*/
+	private struct CommandItem: HTML {
+		let command: Command
+
+		var body: some HTML<HTMLTag.li> {
+			li {
+				button(.type(.button), .hook(Hooks.action, value: command.action.value)) {
+					if let icon = command.icon {
+						MenuIcon(name: icon)
+					}
+					command.title
+				}
+				.style(Styles.menuItem)
+			}
+		}
+	}
+
+	/**
+	A menu icon filled by the desktop script, with the same dimensions for commands and submenus.
+	*/
+	private struct MenuIcon: HTML {
+		let name: String
+
+		var body: some HTML<HTMLTag.img> {
+			img(.alt(""), .width(16), .height(16), .hook(Hooks.part, value: "icon-\(name)"))
+				.style(Styles.menuIcon)
 		}
 	}
 }

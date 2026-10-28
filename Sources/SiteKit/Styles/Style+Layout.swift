@@ -55,7 +55,7 @@ extension Style {
 	public func visuallyHidden() -> Self {
 		position(.absolute)
 			.frame(width: .pixels(1), height: .pixels(1))
-			.padding(0)
+			.padding(.zero)
 			.margin(.pixels(-1))
 			.overflow(.hidden)
 			.declaration(.clipPath, "inset(50%)")
@@ -71,10 +71,16 @@ extension Style {
 	public func hstack(
 		alignment: Alignment? = nil,
 		justification: Justification? = nil,
-		spacing: Length? = nil,
+		spacing: LengthPercentage? = nil,
 		isInline: Bool = false
 	) -> Self {
-		stack(direction: nil, alignment: alignment, justification: justification, spacing: spacing, isInline: isInline)
+		stack(
+			direction: .row,
+			alignment: alignment,
+			justification: justification,
+			spacing: spacing,
+			isInline: isInline
+		)
 	}
 
 	/**
@@ -85,21 +91,27 @@ extension Style {
 	public func vstack(
 		alignment: Alignment? = nil,
 		justification: Justification? = nil,
-		spacing: Length? = nil,
+		spacing: LengthPercentage? = nil,
 		isInline: Bool = false
 	) -> Self {
-		stack(direction: .column, alignment: alignment, justification: justification, spacing: spacing, isInline: isInline)
+		stack(
+			direction: .column,
+			alignment: alignment,
+			justification: justification,
+			spacing: spacing,
+			isInline: isInline
+		)
 	}
 
 	private func stack(
-		direction: FlexDirection?,
+		direction: FlexDirection,
 		alignment: Alignment?,
 		justification: Justification?,
-		spacing: Length?,
+		spacing: LengthPercentage?,
 		isInline: Bool
 	) -> Self {
 		display(isInline ? .inlineFlex : .flex)
-			.declaration(.flexDirection, ifPresent: direction)
+			.declaration(.flexDirection, direction)
 			.declaration(.alignItems, ifPresent: alignment)
 			.declaration(.justifyContent, ifPresent: justification)
 			.declaration(.gap, ifPresent: spacing)
@@ -110,12 +122,10 @@ extension Style {
 	}
 
 	/**
-	Wraps the items onto more lines when they do not fit.
-
-	- Parameter isReversed: Whether each new line goes above the last one instead of below it, like a pile that grows from the bottom.
+	Wraps the items onto more lines when they do not fit, or with `.nowrap`, keeps them on one line.
 	*/
-	public func flexWrap(isReversed: Bool = false) -> Self {
-		declaration(.flexWrap, isReversed ? "wrap-reverse" : "wrap")
+	public func flexWrap(_ wrap: FlexWrap = .wrap) -> Self {
+		declaration(.flexWrap, wrap)
 	}
 
 	/**
@@ -144,11 +154,11 @@ extension Style {
 		declaration(.justifyContent, justification)
 	}
 
-	public func gap(_ length: Length) -> Self {
+	public func gap(_ length: LengthPercentage) -> Self {
 		declaration(.gap, length)
 	}
 
-	public func gap(row: Length? = nil, column: Length? = nil) -> Self {
+	public func gap(row: LengthPercentage? = nil, column: LengthPercentage? = nil) -> Self {
 		declaration(.rowGap, ifPresent: row)
 			.declaration(.columnGap, ifPresent: column)
 	}
@@ -156,12 +166,12 @@ extension Style {
 	/**
 	How much the element grows to fill the free space of a stack, like `flex: 1`.
 	*/
-	public func flex(_ grow: Double) -> Self {
-		declaration(.flex, CSSValue(grow))
+	public func flex(_ grow: CSSNumber) -> Self {
+		declaration(.flex, grow)
 	}
 
-	public func flexShrink(_ value: Double) -> Self {
-		declaration(.flexShrink, CSSValue(value))
+	public func flexShrink(_ value: CSSNumber) -> Self {
+		declaration(.flexShrink, value)
 	}
 
 	/**
@@ -186,17 +196,51 @@ extension Style {
 	}
 
 	/**
+	A grid with one or more typed tracks, including fixed, automatic, and flexible tracks.
+	*/
+	public func grid(columns first: GridTrack, _ remaining: GridTrack...) -> Self {
+		grid(columns: GridTrackList([first] + remaining))
+	}
+
+	/**
+	A grid composed from a typed track list, including fixed repetitions and adaptive columns.
+	*/
+	public func grid(columns: GridTrackList) -> Self {
+		display(.grid).gridColumns(columns)
+	}
+
+	/**
+	A grid with a leading column followed by repeated tracks, like a row number and one column for each channel.
+	*/
+	public func grid(columns first: GridTrack, repeating track: GridTrack, count: Int) -> Self {
+		grid(columns: GridTrackList(first, repeating: track, count: count))
+	}
+
+	/**
 	A grid with as many equal-width columns as fit, each at least the minimum width, like `GridItem(.adaptive(minimum:))` in SwiftUI. A column is never wider than the grid, so one column fits on narrow screens.
 	*/
-	public func grid(minimumColumnWidth: Length) -> Self {
-		grid(columns: CSSValue("repeat(auto-fill, minmax(min(100%, \(minimumColumnWidth)), 1fr))"))
+	public func grid(minimumColumnWidth: LengthPercentage) -> Self {
+		grid(columns: GridTrackList.adaptive(minimum: minimumColumnWidth))
+	}
+
+	/**
+	A grid like ``grid(minimumColumnWidth:)``, with at most the maximum number of columns, so the columns are wider when they have space, and fewer when their content needs the minimum width, like with large text. It also sets the spacing, as the widest columns depend on it.
+
+	```swift
+	Style().grid(minimumColumnWidth: .rootEm(9), maximumColumns: 3, spacing: .rootEm(0.5))
+	//=> grid-template-columns: repeat(auto-fill, minmax(max(min(100%, 9rem), (100% - 1rem) / 3), 1fr)); gap: .5rem
+	```
+	*/
+	public func grid(minimumColumnWidth: LengthPercentage, maximumColumns: Int, spacing: LengthPercentage) -> Self {
+		grid(columns: GridTrackList.adaptive(minimum: minimumColumnWidth, maximumColumns: maximumColumns, spacing: spacing))
+			.gap(spacing)
 	}
 
 	/**
 	The number of equal-width columns, without making the element a grid, like for a breakpoint.
 	*/
 	public func gridColumns(_ count: Int) -> Self {
-		gridColumns(CSSValue("repeat(\(count), minmax(0, 1fr))"))
+		gridColumns(GridTrackList.repeating(.flexible(), count: count))
 	}
 
 	/**
@@ -210,21 +254,40 @@ extension Style {
 	How many columns the element spans in a grid.
 	*/
 	public func gridColumnSpan(_ count: Int) -> Self {
-		declaration(.gridColumn, CSSValue("span \(count) / span \(count)"))
+		precondition(count > 0, "A grid or column count must be positive.")
+		return declaration(.gridColumn, CSSValue(raw: "span \(count) / span \(count)"))
+	}
+
+	/**
+	Spans every column of the grid, also when the number of columns changes, like a footer below the columns of a grid with as many columns as fit.
+	*/
+	public func gridColumnSpanAll() -> Self {
+		declaration(.gridColumn, "1 / -1")
+	}
+
+	/**
+	How many columns the element spans in a grid, from the column with the number, like `gridColumnSpan(2, from: 2)` for the second and third columns. The columns count from 1, like in CSS.
+	*/
+	public func gridColumnSpan(_ count: Int, from start: Int) -> Self {
+		precondition(count > 0, "A grid or column count must be positive.")
+		precondition(start != 0, "A grid line index must not be zero.")
+		return declaration(.gridColumn, CSSValue(raw: "\(start) / span \(count)"))
 	}
 
 	/**
 	How many rows the element spans in a grid.
 	*/
 	public func gridRowSpan(_ count: Int) -> Self {
-		declaration(.gridRow, CSSValue("span \(count) / span \(count)"))
+		precondition(count > 0, "A grid or column count must be positive.")
+		return declaration(.gridRow, CSSValue(raw: "span \(count) / span \(count)"))
 	}
 
 	/**
 	Flows the content through columns, like a newspaper: as many columns as fit, each at least the minimum width, and at most the maximum count. Children of different heights fit together, like cards. Use ``keepsTogether()`` on the children, so each stays in one column, and ``gap(row:column:)`` for the space between the columns.
 	*/
 	public func columns(_ maximumCount: Int, minimumWidth: Length) -> Self {
-		declaration(.columns, CSSValue("\(minimumWidth) \(maximumCount)"))
+		precondition(maximumCount > 0, "A grid or column count must be positive.")
+		return declaration(.columns, CSSValue(raw: "\(minimumWidth) \(maximumCount)"))
 	}
 
 	/**
@@ -237,9 +300,9 @@ extension Style {
 	/**
 	The space between the children of a block, as a top margin on each child after the first, like the spacing of a `VStack` for flowing content, which can mix text and blocks.
 	*/
-	public func flowSpacing(_ spacing: Length) -> Self {
+	public func flowSpacing(_ spacing: LengthPercentage) -> Self {
 		nested("& > * + *") {
-			$0.margin(.top, spacing)
+			$0.margin(.top, .length(spacing))
 		}
 	}
 
@@ -248,10 +311,10 @@ extension Style {
 	*/
 	public func trimmingChildMargins() -> Self {
 		children(":first-child") {
-			$0.margin(.top, 0)
+			$0.margin(.top, .zero)
 		}
 		.children(":last-child") {
-			$0.margin(.bottom, 0)
+			$0.margin(.bottom, .zero)
 		}
 	}
 
@@ -263,17 +326,24 @@ extension Style {
 	}
 
 	/**
+	The typed column list, without changing the element's display mode.
+	*/
+	public func gridColumns(_ columns: GridTrackList) -> Self {
+		declaration(.gridTemplateColumns, columns)
+	}
+
+	/**
 	The size of each column, without making the element a grid, like `gridColumns(.auto, .fraction(1))` for a column as wide as its content and a column with the rest of the space.
 	*/
 	public func gridColumns(_ first: GridTrack, _ others: GridTrack...) -> Self {
-		gridColumns(CSSValue([first] + others, separator: " "))
+		gridColumns(GridTrackList([first] + others))
 	}
 
 	/**
 	The number of rows, each with the size, like `gridRows(7, size: .auto)` for rows as tall as their content.
 	*/
 	public func gridRows(_ count: Int, size: GridTrack) -> Self {
-		declaration(.gridTemplateRows, CSSValue("repeat(\(count), \(size))"))
+		declaration(.gridTemplateRows, GridTrackList.repeating(size, count: count))
 	}
 
 	/**
@@ -297,7 +367,7 @@ extension Style {
 	/**
 	The same width and height, like for a square icon or a circle.
 	*/
-	public func frame(size: Length) -> Self {
+	public func frame(size: BoxSize) -> Self {
 		frame(width: size, height: size)
 	}
 
@@ -305,12 +375,12 @@ extension Style {
 	The size constraints, like SwiftUI's `frame` modifier.
 	*/
 	public func frame(
-		width: Length? = nil,
-		height: Length? = nil,
-		minWidth: Length? = nil,
-		maxWidth: Length? = nil,
-		minHeight: Length? = nil,
-		maxHeight: Length? = nil
+		width: BoxSize? = nil,
+		height: BoxSize? = nil,
+		minWidth: BoxSize? = nil,
+		maxWidth: MaximumBoxSize? = nil,
+		minHeight: BoxSize? = nil,
+		maxHeight: MaximumBoxSize? = nil
 	) -> Self {
 		declaration(.width, ifPresent: width)
 			.declaration(.height, ifPresent: height)
@@ -335,7 +405,7 @@ extension Style {
 	}
 
 	/**
-	Makes the element a container, so the container units of its descendants, like ``Length/containerInlineSize(_:)``, are percentages of its content box.
+	Makes the element a container, so the container units of its descendants, like ``LengthPercentage/containerInlineSize(_:)``, are percentages of its content box.
 	*/
 	public func containerType(_ type: ContainerType) -> Self {
 		declaration(.containerType, type)
@@ -348,59 +418,69 @@ extension Style {
 		declaration(.boxSizing, value)
 	}
 
-	public func padding(_ length: Length) -> Self {
+	public func padding(_ length: LengthPercentage) -> Self {
 		declaration(.padding, length)
 	}
 
-	public func padding(_ edges: Edge.Set, _ length: Length) -> Self {
+	public func padding(_ edges: Edge.Set, _ length: LengthPercentage) -> Self {
 		declaration(.padding, length, edges: edges)
 	}
 
-	public func padding(vertical: Length, horizontal: Length) -> Self {
-		declaration(.padding, CSSValue("\(vertical) \(horizontal)"))
+	public func padding(vertical: LengthPercentage, horizontal: LengthPercentage) -> Self {
+		declaration(.padding, CSSValue(raw: "\(vertical) \(horizontal)"))
 	}
 
 	/**
 	The padding of the given edges. The other edges keep their padding.
 	*/
-	public func padding(top: Length? = nil, horizontal: Length? = nil, bottom: Length? = nil) -> Self {
-		sides(top: top, horizontal: horizontal, bottom: bottom, property: .padding)
+	public func padding(top: LengthPercentage? = nil, horizontal: LengthPercentage? = nil, bottom: LengthPercentage? = nil) -> Self {
+		sides(
+			top: top,
+			horizontal: horizontal,
+			bottom: bottom,
+			property: .padding
+		)
 	}
 
-	public func margin(_ length: Length) -> Self {
+	public func margin(_ length: AutoLength) -> Self {
 		declaration(.margin, length)
 	}
 
-	public func margin(_ edges: Edge.Set, _ length: Length) -> Self {
+	public func margin(_ edges: Edge.Set, _ length: AutoLength) -> Self {
 		declaration(.margin, length, edges: edges)
 	}
 
-	public func margin(vertical: Length, horizontal: Length) -> Self {
-		declaration(.margin, CSSValue("\(vertical) \(horizontal)"))
+	public func margin(vertical: AutoLength, horizontal: AutoLength) -> Self {
+		declaration(.margin, CSSValue(raw: "\(vertical) \(horizontal)"))
 	}
 
 	/**
-	The margins of the given edges, like `margin(top: 0, horizontal: .auto, bottom: .rootEm(5))`. The other edges keep their margins.
+	The margins of the given edges, like `margin(top: .zero, horizontal: .auto, bottom: .rootEm(5))`. The other edges keep their margins.
 	*/
-	public func margin(top: Length? = nil, horizontal: Length? = nil, bottom: Length? = nil) -> Self {
-		sides(top: top, horizontal: horizontal, bottom: bottom, property: .margin)
+	public func margin(top: AutoLength? = nil, horizontal: AutoLength? = nil, bottom: AutoLength? = nil) -> Self {
+		sides(
+			top: top,
+			horizontal: horizontal,
+			bottom: bottom,
+			property: .margin
+		)
 	}
 
 	/**
 	Sets the shorthand when all three are given, and each given side otherwise.
 	*/
-	private func sides(
-		top: Length?,
-		horizontal: Length?,
-		bottom: Length?,
-		property: Property
+	private func sides<Value: StyleValue>(
+		top: Value?,
+		horizontal: Value?,
+		bottom: Value?,
+		property: BoxProperty
 	) -> Self {
 		if
 			let top,
 			let horizontal,
 			let bottom
 		{
-			return declaration(property, CSSValue("\(top) \(horizontal) \(bottom)"))
+			return declaration(property.property, CSSValue(raw: "\(top) \(horizontal) \(bottom)"))
 		}
 
 		var style = self
@@ -418,44 +498,54 @@ extension Style {
 		declaration(.position, position)
 	}
 
-	public func inset(_ length: Length) -> Self {
+	public func inset(_ length: AutoLength) -> Self {
 		declaration(.inset, length)
 	}
 
-	public func top(_ length: Length) -> Self {
+	public func top(_ length: AutoLength) -> Self {
 		declaration(.top, length)
 	}
 
-	public func bottom(_ length: Length) -> Self {
+	/**
+	The position of a side of an anchor, like `.top(anchor: header, side: .bottom)` for an element that starts below the header (`anchor(--site-header bottom)` in CSS).
+
+	Without an explicit anchor, uses the default anchor from ``positionAnchor(_:)`` or the button that opened a popover. The side must be valid for this inset's axis.
+	*/
+	public func top(anchor: Anchor? = nil, side: AnchorSide) -> Self {
+		let arguments = [anchor?.name.description, side.rawValue].compactMap(\.self).joined(separator: " ")
+		return declaration(.top, CSSValue(raw: "anchor(\(arguments))"))
+	}
+
+	public func bottom(_ length: AutoLength) -> Self {
 		declaration(.bottom, length)
 	}
 
 	/**
 	The distance from the leading edge, like `inset-inline-start`.
 	*/
-	public func leading(_ length: Length) -> Self {
+	public func leading(_ length: AutoLength) -> Self {
 		declaration(.insetInlineStart, length)
 	}
 
 	/**
 	The distance from the trailing edge, like `inset-inline-end`.
 	*/
-	public func trailing(_ length: Length) -> Self {
+	public func trailing(_ length: AutoLength) -> Self {
 		declaration(.insetInlineEnd, length)
 	}
 
 	/**
-	Makes the element an anchor that positioned elements can be next to, with ``positionAnchor(_:)`` or ``Length/anchor(_:_:)``.
+	Makes the element an anchor that positioned elements can be next to, with ``positionAnchor(_:)`` or ``top(anchor:side:)``.
 	*/
 	public func anchorName(_ anchor: Anchor) -> Self {
-		declaration(.anchorName, CSSValue(anchor.name))
+		declaration(.anchorName, CSSValue(raw: anchor.name.description))
 	}
 
 	/**
-	The anchor that ``positionArea(_:)`` and ``Length/anchor(_:)`` position the element next to. Without it, a popover is next to the button that opened it.
+	The anchor that ``positionArea(_:)`` and ``top(anchor:side:)`` position the element next to. Without it, a popover is next to the button that opened it.
 	*/
 	public func positionAnchor(_ anchor: Anchor) -> Self {
-		declaration(.positionAnchor, CSSValue(anchor.name))
+		declaration(.positionAnchor, CSSValue(raw: anchor.name.description))
 	}
 
 	/**
@@ -495,11 +585,12 @@ extension Style {
 	}
 
 	/**
-	The areas at the top and the bottom of a scrolling element, like the page, that sticky bars cover, so links and focused controls scroll into view between the bars.
+	The areas at the top and the bottom of a scrolling element, like the page, that sticky bars cover, so links and focused controls scroll into view between the bars. The area at the sides is for a row that scrolls sideways, like the space of the page in front of its first item, which the items then snap to.
 	*/
-	public func scrollPadding(top: Length? = nil, bottom: Length? = nil) -> Self {
+	public func scrollPadding(top: LengthPercentage? = nil, bottom: LengthPercentage? = nil, horizontal: LengthPercentage? = nil) -> Self {
 		declaration(.scrollPaddingTop, ifPresent: top)
 			.declaration(.scrollPaddingBottom, ifPresent: bottom)
+			.declaration(.scrollPaddingInline, ifPresent: horizontal)
 	}
 
 	/**
@@ -530,7 +621,7 @@ extension Style {
 	- Parameter isMandatory: Whether the scrolling always stops at a child, instead of only when it stops near one.
 	*/
 	public func scrollSnapType(_ axis: ScrollSnapAxis, isMandatory: Bool = false) -> Self {
-		declaration(.scrollSnapType, CSSValue(isMandatory ? "\(axis.rawValue) mandatory" : axis.rawValue))
+		declaration(.scrollSnapType, CSSValue(raw: isMandatory ? "\(axis.rawValue) mandatory" : axis.rawValue))
 	}
 
 	/**
@@ -557,17 +648,30 @@ extension Style {
 	/**
 	Sets a typed box value for the selected edges.
 	*/
-	func declaration(_ property: Property, _ value: some StyleValue, edges: Edge.Set) -> Self {
+	func declaration(_ property: BoxProperty, _ value: some StyleValue, edges: Edge.Set) -> Self {
 		declaration(property, CSSValue(value), edges: edges)
 	}
 
 	/**
 	Sets a box property, like `padding`, for the edges. See ``Edge/Set/declarations(_:property:)``.
 	*/
-	func declaration(_ property: Property, _ value: CSSValue, edges: Edge.Set) -> Self {
+	func declaration(_ property: BoxProperty, _ value: CSSValue, edges: Edge.Set) -> Self {
 		var copy = self
 		copy.declarations += edges.declarations(value, property: property)
 		return copy
+	}
+}
+
+/**
+Only these property families support the box edge suffixes. Arbitrary CSS properties cannot enter the expansion path.
+*/
+enum BoxProperty: String {
+	case padding
+	case margin
+	case border
+
+	var property: Property {
+		Property(rawValue)
 	}
 }
 
@@ -575,26 +679,26 @@ extension Edge.Set {
 	/**
 	The declarations of a box property, like `padding`, for the edges: the shorthand for all edges, `padding-inline` and `padding-block` for an axis, and a property for each other edge. The leading and trailing edges follow the writing direction.
 	*/
-	func declarations(_ value: CSSValue, property: Property) -> [Declaration] {
+	func declarations(_ value: CSSValue, property: BoxProperty) -> [Declaration] {
 		if self == .all {
-			return [Declaration(property: property, value: value)]
+			return [Declaration(property: property.property, value: value)]
 		}
 
 		var declarations = [Declaration]()
 
 		if isSuperset(of: .vertical) {
-			declarations.append(Declaration(property: Property("\(property)-block"), value: value))
+			declarations.append(Declaration(property: Property("\(property.rawValue)-block"), value: value))
 		} else {
 			for (edge, name) in [(Self.top, "top"), (.bottom, "bottom")] where contains(edge) {
-				declarations.append(Declaration(property: Property("\(property)-\(name)"), value: value))
+				declarations.append(Declaration(property: Property("\(property.rawValue)-\(name)"), value: value))
 			}
 		}
 
 		if isSuperset(of: .horizontal) {
-			declarations.append(Declaration(property: Property("\(property)-inline"), value: value))
+			declarations.append(Declaration(property: Property("\(property.rawValue)-inline"), value: value))
 		} else {
 			for (edge, name) in [(Self.leading, "inline-start"), (.trailing, "inline-end")] where contains(edge) {
-				declarations.append(Declaration(property: Property("\(property)-\(name)"), value: value))
+				declarations.append(Declaration(property: Property("\(property.rawValue)-\(name)"), value: value))
 			}
 		}
 

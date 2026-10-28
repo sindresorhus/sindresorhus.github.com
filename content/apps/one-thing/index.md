@@ -1,12 +1,17 @@
 ---
 title: 'One Thing'
 subtitle: 'Put a single task or goal in your menu bar'
-publicationDate: '2022-01-12'
+publicationDate: 2022-01-12
 platforms: [
 	'macOS'
 ]
 isMenuBarApp: true
 appStoreID: 1604176982
+nonAppStoreVersion: {
+	version: '2.0.2'
+	macOS: 26
+	url: 'https://www.dropbox.com/scl/fi/4d3zqtuj4j2erm6ck80ei/One-Thing-2.0.2-1778696587.zip?rlkey=s2h6g802mi674wkg7s5olfb9l&raw=1'
+}
 sharedQuestions: [
 	'blurry-secondary-display'
 	'backup-settings'
@@ -47,12 +52,13 @@ pressQuotes: [
 		url: 'https://lifehacker.com/tech/one-thing-app-turns-your-macs-menu-bar-into-sticky-note'
 		year: 2024
 	}
+	{
+		quote: "I'm not much of a multitasker, so I only need one reminder: what I'm working on right now. One Thing does just that, putting that one important reminder in your menu bar. The app is completely free to use and is ideal for keeping focused on your current task, reminding yourself to take breaks, or simply just putting a motivational mantra on your screen at all times."
+		source: 'How-To Geek'
+		url: 'https://www.howtogeek.com/how-i-made-the-mac-menu-bar-useful-with-these-free-apps/'
+		year: 2024
+	}
 ]
-nonAppStoreVersion: {
-	version: '2.0.2'
-	macOS: 26
-	url: 'https://www.dropbox.com/scl/fi/4d3zqtuj4j2erm6ck80ei/One-Thing-2.0.2-1778696587.zip?rlkey=s2h6g802mi674wkg7s5olfb9l&raw=1'
-}
 ---
 
 Write the one task or goal that matters most today, and see it in your menu bar all day. A quiet reminder to focus on one thing at a time.
@@ -91,6 +97,8 @@ However, what you use this space for is really up to you.
 - Press ++Return++/++Esc++ or click the menu bar item to close the edit window.
 - Click the menu bar item while pressing ++Shift++ to clear the text.
 - Right-click the menu bar item to be able to quit the app quickly.
+- In the “Shortcuts” settings, set keyboard shortcuts to toggle the edit window, clear the text, or set the text from the clipboard.
+- Enable “Track history” in the settings to keep a dated log of your previous entries (the most recent 1000). Click “History” to see it, and export it.
 - If the menu bar item text is truncated, hover over it to see the full text in a tooltip.
 - You can use [Markdown](https://www.markdownguide.org/basic-syntax/#emphasis) to [style the text](https://x.com/sindresorhus/status/1481818533294407680) (supports bold, italic, and strikethrough) and add links.
 - You can [drag & drop text](https://x.com/sindresorhus/status/1481862243755376642) onto the menu bar item to set it. For example, you could drag a todo item from the Reminders app or Things.
@@ -98,23 +106,26 @@ However, what you use this space for is really up to you.
 
 ## Frequently Asked Questions {#faq}
 
-### The menu bar item has disappeared!
+### The menu bar item has disappeared! {#the-menu-bar-item-has-disappeared}
 
-macOS hides menu bar items that do not fit. [Click here](one-thing:?text=) to reset the text.
+macOS hides menu bar items that do not fit. [Reset the text](one-thing:?text=). Then set “Settings › Appearance › Maximum width”, so the menu bar item always fits.
 
-### I made the text too long and now the menu bar item is hidden
+[More tips](/apps/faq#app-not-showing-in-menu-bar)
 
-[Click here](one-thing:?text=) to reset the text.
+### I made the text too long and now the menu bar item is hidden {#text-too-long}
+<!-- @faq.keywords notch -->
+
+[Reset the text](one-thing:?text=). Then set “Settings › Appearance › Maximum width”, so the menu bar item always fits, also with long text.
 
 ### How is this different from your One Task app? {#one-task-difference}
 
 See [this answer](/one-task#one-thing-difference).
 
-### Can I execute an action when I click the text?
+### Can I execute an action when I click the text? {#can-i-execute-an-action-when-i-click-the-text}
 
 You can add a [link using Markdown](https://www.markdownguide.org/basic-syntax/#links).
 
-### What if I have two things?
+### What if I have two things? {#what-if-i-have-two-things}
 
 The point is to focus on one thing at a time. [Humans work best this way.](https://dariusforoux.com/one-thing/) However, nothing is stopping you from writing two things, for example, with a `·` character in-between.
 
@@ -122,7 +133,7 @@ The point is to focus on one thing at a time. [Humans work best this way.](https
 
 I have made a special version of One Thing with a different identifier. You can run this together with the App Store version. It also has separate Shortcuts actions and URL scheme: `one-thing2:`. This version will not receive updates.
 
-[Download](https://www.dropbox.com/scl/fi/pn3k0r6edea21my7beqz3/One-Thing-2-1.11.0-1684349283-1701610241.zip?rlkey=qgv6rmx9bitjki4xbh05tn2ty&raw=1)
+[Download One Thing 2](https://www.dropbox.com/scl/fi/pn3k0r6edea21my7beqz3/One-Thing-2-1.11.0-1684349283-1701610241.zip?rlkey=qgv6rmx9bitjki4xbh05tn2ty&raw=1)
 
 ### How can I show the next task in the “Today” list in Things in One Thing? {#things}
 
@@ -136,7 +147,7 @@ You can use the Shortcuts app for this. Here is an [example shortcut](https://ww
 
 To have the shown todo stay in sync with Reminders, use the [Shortery](https://apps.apple.com/app/id1594183810) app to run the shortcut when Reminders becomes inactive. Alternatively, place the shortcut in the menu bar and run it manually, or use [Short Run](/short-run).
 
-### How can I show a todo from my favorite todo app in One Thing?
+### How can I show a todo from my favorite todo app in One Thing? {#how-can-i-show-a-todo-from-my-favorite-todo-app-in-one-thing}
 
 Do something similar to the above answer.
 
@@ -146,15 +157,15 @@ You can use the Shortcuts app for this. Here is an [example shortcut](https://ww
 
 Use a Shortcuts automation to run the shortcut at certain times to change the quote.
 
-### How can I put spacing on the sides of the text?
+### How can I put spacing on the sides of the text? {#how-can-i-put-spacing-on-the-sides-of-the-text}
 
 You can add some horizontal padding around the text by adding multiple spaces to the “Prefix” and “Suffix” settings.
 
-### How can I show different text for each day of the week?
+### How can I show different text for each day of the week? {#how-can-i-show-different-text-for-each-day-of-the-week}
 
 You can use the macOS Shortcuts app for this. Make a shortcut for each piece of text you want to be shown by using the “Set Text” action provided by One Thing. Then use Shortcuts automations to run these shortcuts on the specific days.
 
-### Can you add iOS / watchOS support?
+### Can you add iOS / watchOS support? {#can-you-add-ios--watchos-support}
 
 I plan to do it if the app takes off. So tell your friends.
 
@@ -190,7 +201,7 @@ For example, in your terminal:
 open --background 'one-thing:?text=Exercise'
 ```
 
-*Don’t forget to [URL encode](https://www.urlencoder.org) the value for the `text=` search parameter. For example, using [this](https://gist.github.com/cdown/1163649) Bash function.*
+*Don’t forget to [URL encode](https://www.urlencoder.org) the value for the `text=` search parameter. For example, using [this Bash function](https://gist.github.com/cdown/1163649).*
 
 There is no way to get the text using the URL scheme, but if you are in the terminal, you can run this command:
 

@@ -36,7 +36,12 @@ struct GeoCitiesTown: ScriptedElement {
 
 		div {
 			p {
-				GeoCitiesPage.GIFImage(gif: .underConstructionCrane, alt: "", style: .floating, project: project)
+				GeoCitiesPage.GIFImage(
+					gif: .underConstructionCrane,
+					alt: "",
+					style: .floating,
+					project: project
+				)
 				"I am the mayor of my own town! Pick something to build, then click an empty lot. Click the GeoCities tower again for one more floor. The taxes pay for everything, even while you are away. It rains a lot. It is near Bergen."
 			}
 
@@ -147,11 +152,11 @@ struct GeoCitiesTown: ScriptedElement {
 		case news
 	}
 
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A lot of the town, with its number from 0 on the left.
 		*/
-		case lot = "data-town-lot"
+		case lot = "town-lot"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -177,9 +182,9 @@ struct GeoCitiesTown: ScriptedElement {
 				GeoCitiesPage.Styles.window.style.display(.block)
 			case .fieldset:
 				Style()
-					.margin(0)
-					.padding(0)
-					.border(.transparent, width: 0)
+					.margin(.zero)
+					.padding(.zero)
+					.border(.transparent, width: .zero)
 			case .tools:
 				Style()
 					.grid(minimumColumnWidth: .rootEm(10.5))
@@ -190,25 +195,30 @@ struct GeoCitiesTown: ScriptedElement {
 					.display(.block)
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.375))
 					.background(GeoCitiesPage.windowGray)
-					.border(Color("#dfdfdf"), width: .pixels(2), style: .outset)
+					.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .outset)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 					.handCursor()
 					.focusWithin {
-						$0.focusRing(.black, width: .pixels(1), offset: .pixels(-4), style: .dotted)
+						$0.focusRing(
+							.black,
+							width: .pixels(1),
+							offset: .pixels(-4),
+							style: .dotted
+						)
 					}
 					// The tool that is picked is pressed in.
 					.descendantChecked {
 						$0
-							.background(Color("#ffffff"))
-							.border(Color("#dfdfdf"), width: .pixels(2), style: .inset)
+							.background(Color(raw: "#ffffff"))
+							.border(Color(raw: "#dfdfdf"), width: .pixels(2), style: .inset)
 					}
 			case .price:
-				Style().color(Color("#006600"))
+				Style().color(Color(raw: "#006600"))
 			case .frame:
 				Style()
 					.overflow(horizontal: .auto)
-					.border(Color("#808080"), width: .pixels(3), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(3), style: .inset)
 					.lineHeight(0)
 			case .land:
 				Style()
@@ -224,8 +234,8 @@ struct GeoCitiesTown: ScriptedElement {
 				// The lots cover the land in the lower part of the picture, above the road.
 				Style()
 					.position(.absolute)
-					.leading(0)
-					.trailing(0)
+					.leading(.zero)
+					.trailing(.zero)
 					.top(.percent(25))
 					.bottom(.percent(22))
 					.grid(columns: GeoCitiesTown.lotCount)
@@ -234,18 +244,18 @@ struct GeoCitiesTown: ScriptedElement {
 				Style()
 					.background(.transparent)
 					.border(.transparent, width: .pixels(2), style: .dashed)
-					.font(size: 0)
+					.font(size: .zero)
 					.color(.transparent)
 					.handCursor()
 					.hover {
-						$0.border(Color("#ffff00"), width: .pixels(2), style: .dashed)
+						$0.border(Color(raw: "#ffff00"), width: .pixels(2), style: .dashed)
 					}
 					.focusVisible {
-						$0.border(Color("#ffff00"), width: .pixels(2), style: .dashed)
+						$0.border(Color(raw: "#ffff00"), width: .pixels(2), style: .dashed)
 					}
 			case .stats:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.courier)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)
@@ -253,12 +263,12 @@ struct GeoCitiesTown: ScriptedElement {
 				// A newspaper with a black masthead.
 				Style()
 					.padding(.rootEm(0.5))
-					.background(Color("#f4f0e0"))
-					.border(Color("#808080"), width: .pixels(1))
+					.background(Color(raw: "#f4f0e0"))
+					.border(Color(raw: "#808080"), width: .pixels(1))
 					.textAlign(.center)
 			case .masthead:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.times)
 					.font(.large, weight: .heavy)
 					.italic()

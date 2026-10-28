@@ -46,26 +46,61 @@ struct GeoCitiesCommodore: ScriptedElement {
 			+ "1234567890+-".map { Key(value: String($0), label: String($0)) }
 			+ [
 				Key(value: "pound", label: "£", accessibilityLabel: "Pound"),
-				Key(value: "clear-home", label: "CLR HOME", accessibilityLabel: "CLR/HOME", width: .wide),
-				Key(value: "delete", label: "INST DEL", accessibilityLabel: "INST/DEL", width: .wide),
-				Key(value: "f1", label: "f1", accessibilityLabel: "F1", width: .function),
+				Key(
+					value: "clear-home",
+					label: "CLR HOME",
+					accessibilityLabel: "CLR/HOME",
+					width: .wide
+				),
+				Key(
+					value: "delete",
+					label: "INST DEL",
+					accessibilityLabel: "INST/DEL",
+					width: .wide
+				),
+				Key(
+					value: "f1",
+					label: "f1",
+					accessibilityLabel: "F1",
+					width: .function
+				),
 			],
 		[Key(value: "control", label: "CTRL", width: .wide)]
 			+ "QWERTYUIOP@*".map { Key(value: String($0), label: String($0)) }
 			+ [
 				Key(value: "up-arrow", label: "↑", accessibilityLabel: "Up arrow"),
 				// A soft hyphen breaks it on a phone, where the key is narrow.
-				Key(value: "restore", label: "RE\u{00AD}STORE", accessibilityLabel: "RESTORE", width: .wide),
-				Key(value: "f3", label: "f3", accessibilityLabel: "F3", width: .function),
+				Key(
+					value: "restore",
+					label: "RE\u{00AD}STORE",
+					accessibilityLabel: "RESTORE",
+					width: .wide
+				),
+				Key(
+					value: "f3",
+					label: "f3",
+					accessibilityLabel: "F3",
+					width: .function
+				),
 			],
 		[
-			Key(value: "run-stop", label: "RUN STOP", accessibilityLabel: "RUN/STOP", width: .wide),
+			Key(
+				value: "run-stop",
+				label: "RUN STOP",
+				accessibilityLabel: "RUN/STOP",
+				width: .wide
+			),
 			Key(value: "shift-lock", label: "SHIFT LOCK", width: .wide),
 		]
 			+ "ASDFGHJKL:;=".map { Key(value: String($0), label: String($0)) }
 			+ [
 				Key(value: "return", label: "RETURN", width: .wide),
-				Key(value: "f5", label: "f5", accessibilityLabel: "F5", width: .function),
+				Key(
+					value: "f5",
+					label: "f5",
+					accessibilityLabel: "F5",
+					width: .function
+				),
 			],
 		[
 			Key(value: "commodore", label: "C=", accessibilityLabel: "Commodore key"),
@@ -76,10 +111,20 @@ struct GeoCitiesCommodore: ScriptedElement {
 				Key(value: "shift", label: "SHIFT", width: .wide),
 				Key(value: "cursor-down", label: "CRSR ⇕", accessibilityLabel: "Cursor down"),
 				Key(value: "cursor-right", label: "CRSR ⇔", accessibilityLabel: "Cursor right"),
-				Key(value: "f7", label: "f7", accessibilityLabel: "F7", width: .function),
+				Key(
+					value: "f7",
+					label: "f7",
+					accessibilityLabel: "F7",
+					width: .function
+				),
 			],
 		[
-			Key(value: "space", label: "", accessibilityLabel: "Space", width: .space),
+			Key(
+				value: "space",
+				label: "",
+				accessibilityLabel: "Space",
+				width: .space
+			),
 		],
 	]
 
@@ -156,7 +201,13 @@ struct GeoCitiesCommodore: ScriptedElement {
 		div(.part(Parts.television)) {
 			div {
 				// The screen is drawn at 384 × 272 pixels: the 320 × 200 pixels of the C64 and its border, like on a PAL TV.
-				canvas(.part(Parts.screen), .width(384), .height(272), .tabindex(0), .role("application")) {}
+				canvas(
+					.part(Parts.screen),
+					.width(384),
+					.height(272),
+					.tabindex(0),
+					.role("application")
+				) {}
 					.accessibilityLabel("The screen of the Commodore 64. Click it and type. Enter is RETURN, Backspace is DEL, Escape is RUN/STOP, Page Up is RESTORE, and the arrow keys move the cursor. In a game, the arrow keys are the joystick, and Space fires.")
 					.style(Styles.screen, Styles.aboveStatus)
 			}
@@ -273,7 +324,16 @@ struct GeoCitiesCommodore: ScriptedElement {
 			}
 			.style(Styles.formLabel)
 
-			input(.id("geocities-c64-field"), .part(Parts.field), .type(.text), .autocomplete("off"), .maxlength(80), .custom(name: "spellcheck", value: "false"), .custom(name: "autocapitalize", value: "characters"), .placeholder("PRINT \"HELLO\""))
+			input(
+				.id("geocities-c64-field"),
+				.part(Parts.field),
+				.type(.text),
+				.autocomplete("off"),
+				.maxlength(80),
+				.spellcheck(false),
+				.autocapitalize(.characters),
+				.placeholder("PRINT \"HELLO\"")
+			)
 				.style(GeoCitiesPage.Styles.field, Styles.field, Styles.betweenStickyParts)
 
 			button(.type(.submit)) {
@@ -479,26 +539,26 @@ struct GeoCitiesCommodore: ScriptedElement {
 	/**
 	The lists of the same kind of element, with a value for the script.
 	*/
-	enum Hooks: String, ScriptHookSet {
+	enum Hooks: String, ScriptDataAttributeSet {
 		/**
 		A key of the keyboard of the C64, like `A` or `run-stop`.
 		*/
-		case key = "data-c64-key"
+		case key = "c64-key"
 
 		/**
 		A button of the Datassette, like `play`.
 		*/
-		case tape = "data-c64-tape"
+		case tape = "c64-tape"
 
 		/**
 		A direction of the joystick, or `fire`.
 		*/
-		case joystick = "data-c64-joystick"
+		case joystick = "c64-joystick"
 
 		/**
 		A line of Pappa’s notebook, which the script types in.
 		*/
-		case type = "data-c64-type"
+		case type = "c64-type"
 	}
 
 	enum Styles: ElementStyleSet {
@@ -567,7 +627,7 @@ struct GeoCitiesCommodore: ScriptedElement {
 		/**
 		The brown beige of the plastic of the C64, the breadbin.
 		*/
-		private static let breadbin = Color("#9a8c76")
+		private static let breadbin = Color(raw: "#9a8c76")
 
 		var style: Style {
 			switch self {
@@ -583,16 +643,23 @@ struct GeoCitiesCommodore: ScriptedElement {
 					.vstack(alignment: .center, spacing: .rootEm(0.5))
 					.frame(width: .rootEm(40), maxWidth: .percent(100))
 					.padding(.rootEm(0.875))
-					.backgroundImage(.linearGradient("to bottom", Color("#7a4e2a"), Color("#5a361b"), Color("#4a2b14")))
-					.border(Color("#2e1a0b"), width: .pixels(3))
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#7a4e2a"),
+							Color(raw: "#5a361b"),
+							Color(raw: "#4a2b14")
+						)
+					)
+					.border(Color(raw: "#2e1a0b"), width: .pixels(3))
 					.cornerRadius(.rootEm(0.75))
-					.shadow(Shadow(x: .pixels(4), y: .pixels(6), color: Color("#00000066")))
+					.shadow(BoxShadow(x: .pixels(4), y: .pixels(6), color: Color(raw: "#00000066")))
 					// On a phone, the TV sticks under the header of the site while the tape plays and while a game runs, so the screen and the Datassette or the joystick far below it fit on the screen together.
 					.below(.tablet) {
 						$0.when(States.game) {
 							$0
 								.position(.sticky)
-								.top(SiteHeader.height)
+								.top(.length(SiteHeader.height))
 								.zIndex(1)
 						}
 					}
@@ -601,20 +668,20 @@ struct GeoCitiesCommodore: ScriptedElement {
 				Style()
 					.frame(width: .percent(100))
 					.padding(.rootEm(0.625))
-					.background(Color("#151515"))
-					.border(Color("#3a3a3a"), width: .pixels(3), style: .inset)
+					.background(Color(raw: "#151515"))
+					.border(Color(raw: "#3a3a3a"), width: .pixels(3), style: .inset)
 					.cornerRadius(.rootEm(1.25))
 			case .screen:
 				Style()
 					.display(.block)
 					.frame(width: .percent(100), height: .auto)
 					.aspectRatio(384.0 / 272.0)
-					.background(Color("#0d100d"))
+					.background(Color(raw: "#0d100d"))
 					.cornerRadius(.rootEm(0.875))
 					.imageRendering(.pixelated)
 					.touchAction(.manipulation)
 					.focusVisible {
-						$0.focusRing(Color("#ffcc00"), width: .pixels(3), offset: .pixels(2))
+						$0.focusRing(Color(raw: "#ffcc00"), width: .pixels(3), offset: .pixels(2))
 					}
 			case .tvPanel:
 				Style()
@@ -623,16 +690,16 @@ struct GeoCitiesCommodore: ScriptedElement {
 					.flexWrap()
 			case .tvBrand:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
 					.letterSpacing(.em(0.25))
-					.color(Color("#e8d8b8"))
+					.color(Color(raw: "#e8d8b8"))
 			case .knob:
 				Style()
 					.frame(size: .rootEm(1.5))
-					.backgroundImage(.radialGradient("circle at 35% 35%", Color("#d0d0d0"), Color("#555555")))
-					.border(Color("#222222"), width: .pixels(2))
+					.backgroundImage(.radialGradient(.circle(at: .init(x: .percent(35), y: .percent(35))), Color(raw: "#d0d0d0"), Color(raw: "#555555")))
+					.border(Color(raw: "#222222"), width: .pixels(2))
 					.cornerRadius(.circle)
 			case .computerArea:
 				Style()
@@ -644,10 +711,17 @@ struct GeoCitiesCommodore: ScriptedElement {
 					.vstack(spacing: .rootEm(0.5))
 					.frame(width: .percent(100))
 					.padding(top: .rootEm(0.625), horizontal: .rootEm(0.625), bottom: .rootEm(0.875))
-					.backgroundImage(.linearGradient("to bottom", Color("#a89a83"), Self.breadbin, Color("#857761")))
-					.border(Color("#5e5241"), width: .pixels(2))
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#a89a83"),
+							Self.breadbin,
+							Color(raw: "#857761")
+						)
+					)
+					.border(Color(raw: "#5e5241"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.875))
-					.shadow(Shadow(x: .pixels(3), y: .pixels(5), color: Color("#00000055")))
+					.shadow(BoxShadow(x: .pixels(3), y: .pixels(5), color: Color(raw: "#00000055")))
 			case .computerTop:
 				Style().hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(0.5))
 			case .badge:
@@ -655,63 +729,77 @@ struct GeoCitiesCommodore: ScriptedElement {
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
 					.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.5))
-					.background(Color("#2b2620"))
+					.background(Color(raw: "#2b2620"))
 					.cornerRadius(.rootEm(0.25))
 			case .badgeName:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#e8e0d0"))
+					.color(Color(raw: "#e8e0d0"))
 			case .badgeModel:
 				Style()
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
-					.color(Color("#e8e0d0"))
+					.color(Color(raw: "#e8e0d0"))
 			case .rainbow:
 				Style()
 					.frame(width: .rootEm(2), height: .rootEm(0.75))
-					.backgroundImage(.linearGradient("to bottom", Color("#e33b2e"), Color("#e33b2e"), Color("#f08a24"), Color("#f08a24"), Color("#f2d22e"), Color("#f2d22e"), Color("#4caf50"), Color("#4caf50"), Color("#2f7dd1"), Color("#2f7dd1")))
+					.backgroundImage(
+						.linearGradient(
+							.toBottom,
+							Color(raw: "#e33b2e"),
+							Color(raw: "#e33b2e"),
+							Color(raw: "#f08a24"),
+							Color(raw: "#f08a24"),
+							Color(raw: "#f2d22e"),
+							Color(raw: "#f2d22e"),
+							Color(raw: "#4caf50"),
+							Color(raw: "#4caf50"),
+							Color(raw: "#2f7dd1"),
+							Color(raw: "#2f7dd1")
+						)
+					)
 					.rotationEffect(.degrees(-20))
 			case .powerLabel:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#3a3226"))
+					.color(Color(raw: "#3a3226"))
 			case .powerLight:
 				// The red light, on while the C64 is on.
 				Style()
 					.frame(width: .rootEm(0.75), height: .rootEm(0.375))
-					.background(Color("#4a1612"))
+					.background(Color(raw: "#4a1612"))
 					.cornerRadius(.rootEm(0.125))
 					.when(States.on) {
 						$0
-							.background(Color("#ff3322"))
-							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ff4433")))
+							.background(Color(raw: "#ff3322"))
+							.shadow(BoxShadow(y: .zero, blur: .pixels(6), color: Color(raw: "#ff4433")))
 					}
 			case .keyboard:
 				Style()
 					.vstack(spacing: .pixels(3))
 					.padding(.rootEm(0.375))
-					.background(Color("#3d342a"))
+					.background(Color(raw: "#3d342a"))
 					.cornerRadius(.rootEm(0.25))
 			case .keyRow:
 				Style().hstack(spacing: .pixels(3))
 			case .keyBase:
 				// A brown key, with the letters on the top, pressed in while it is held down.
 				Style()
-					.frame(minWidth: 0, minHeight: .rootEm(1.75))
+					.frame(minWidth: .zero, minHeight: .rootEm(1.75))
 					.padding(.pixels(1))
-					.background(Color("#4e4237"))
-					.border(Color("#2a221b"), width: .pixels(1))
+					.background(Color(raw: "#4e4237"))
+					.border(Color(raw: "#2a221b"), width: .pixels(1))
 					.cornerRadius(.pixels(3))
-					.shadow(Shadow(y: .pixels(2), color: Color("#1e1813")))
+					.shadow(BoxShadow(y: .pixels(2), color: Color(raw: "#1e1813")))
 					.fontFamily(.system)
 					.font(size: .rootEm(0.5625), lineHeight: 1.05)
 					.fontWeight(.bold)
-					.color(Color("#efe6d6"))
+					.color(Color(raw: "#efe6d6"))
 					.textAlign(.center)
 					// The labels get smaller on a phone, where the keys are narrow.
 					.overflow(.hidden)
@@ -726,10 +814,10 @@ struct GeoCitiesCommodore: ScriptedElement {
 					.active {
 						$0
 							.offset(y: .pixels(2))
-							.shadow(Shadow(y: 0, color: Color("#1e1813")))
+							.shadow(BoxShadow(y: .zero, color: Color(raw: "#1e1813")))
 					}
 					.pressed {
-						$0.background(Color("#8a6d3b"))
+						$0.background(Color(raw: "#8a6d3b"))
 					}
 			case .key:
 				Style().flex(1)
@@ -749,8 +837,8 @@ struct GeoCitiesCommodore: ScriptedElement {
 							.flex(1)
 							.margin(.leading, .pixels(2))
 					}
-					.background(Color("#c9bda6"))
-					.color(Color("#3a3226"))
+					.background(Color(raw: "#c9bda6"))
+					.color(Color(raw: "#3a3226"))
 			case .side:
 				Style()
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.75))
@@ -760,12 +848,12 @@ struct GeoCitiesCommodore: ScriptedElement {
 				Style()
 					.frame(maxWidth: .rootEm(14))
 					.padding(vertical: .rootEm(0.5), horizontal: .rootEm(0.75))
-					.background(Color("#fff27a"))
-					.border(.top, Color("#e8d860"), width: .rootEm(0.5))
-					.shadow(Shadow(x: .pixels(2), y: .pixels(3), color: Color("#00000040")))
+					.background(Color(raw: "#fff27a"))
+					.border(.top, Color(raw: "#e8d860"), width: .rootEm(0.5))
+					.shadow(BoxShadow(x: .pixels(2), y: .pixels(3), color: Color(raw: "#00000040")))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#1a2a8a"))
+					.color(Color(raw: "#1a2a8a"))
 					.textAlign(.leading)
 					.rotationEffect(.degrees(-3))
 					.handCursor()
@@ -780,7 +868,7 @@ struct GeoCitiesCommodore: ScriptedElement {
 			case .field:
 				Style()
 					.flex(1)
-					.frame(minWidth: 0)
+					.frame(minWidth: .zero)
 					.fontFamily(GeoCitiesPage.courier)
 					.textCase(.uppercase)
 			case .peripherals:
@@ -792,80 +880,80 @@ struct GeoCitiesCommodore: ScriptedElement {
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.5))
 					.padding(.rootEm(0.625))
-					.border(Color("#5e5241"), width: .pixels(2))
+					.border(Color(raw: "#5e5241"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.5))
-					.shadow(Shadow(x: .pixels(2), y: .pixels(3), color: Color("#00000040")))
+					.shadow(BoxShadow(x: .pixels(2), y: .pixels(3), color: Color(raw: "#00000040")))
 			case .deviceTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .heavy)
 					.textAlign(.center)
 			case .deviceNote:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.textAlign(.center)
 			case .drive:
 				// The 1541 floppy drive, in its light beige.
 				Style()
-					.background(Color("#d6ccb4"))
-					.color(Color("#3a3226"))
+					.background(Color(raw: "#d6ccb4"))
+					.color(Color(raw: "#3a3226"))
 			case .driveSlot:
 				// The slot, with the disk half in it.
 				Style()
 					.frame(width: .percent(100))
 					.padding(top: .rootEm(0.375), horizontal: .rootEm(0.5), bottom: .rootEm(0.125))
-					.background(Color("#1d1a16"))
+					.background(Color(raw: "#1d1a16"))
 					.cornerRadius(.rootEm(0.25))
 					.textAlign(.center)
 			case .disk:
 				Style()
 					.display(.inlineBlock)
 					.padding(vertical: .pixels(1), horizontal: .rootEm(0.5))
-					.background(Color("#f4f0e6"))
-					.border(.top, Color("#2a2a2a"), width: .rootEm(0.375))
+					.background(Color(raw: "#f4f0e6"))
+					.border(.top, Color(raw: "#2a2a2a"), width: .rootEm(0.375))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.font(size: .rootEm(0.625))
 					.fontWeight(.bold)
-					.color(Color("#c0261c"))
+					.color(Color(raw: "#c0261c"))
 			case .lightLabel:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
 			case .driveLight:
 				// The red light of the drive, on while it reads or writes.
 				Style()
 					.frame(width: .rootEm(0.75), height: .rootEm(0.375))
-					.background(Color("#4a1612"))
+					.background(Color(raw: "#4a1612"))
 					.cornerRadius(.rootEm(0.125))
 					.when(States.on) {
 						$0
-							.background(Color("#ff3322"))
-							.shadow(Shadow(y: 0, blur: .pixels(6), color: Color("#ff4433")))
+							.background(Color(raw: "#ff3322"))
+							.shadow(BoxShadow(y: .zero, blur: .pixels(6), color: Color(raw: "#ff4433")))
 					}
 			case .datassette:
 				Style()
 					.background(Self.breadbin)
-					.color(Color("#1e1a14"))
+					.color(Color(raw: "#1e1a14"))
 			case .tapeWindow:
 				Style()
 					.hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(0.5))
 					.frame(width: .percent(100))
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
-					.background(Color("#2b2620"))
+					.background(Color(raw: "#2b2620"))
 					.cornerRadius(.rootEm(0.25))
 			case .reels:
 				Style()
 					.fontFamily(.system)
 					.textStyle(.body, weight: .bold)
 					.letterSpacing(.em(0.5))
-					.color(Color("#bbbbbb"))
+					.color(Color(raw: "#bbbbbb"))
 			case .counter:
 				Style()
-					.margin(0)
-					.padding(vertical: 0, horizontal: .rootEm(0.375))
+					.margin(.zero)
+					.padding(vertical: .zero, horizontal: .rootEm(0.375))
 					.monospacedDigit()
 			case .tapeButtons:
 				Style().hstack(alignment: .center, justification: .center, spacing: .pixels(3))
@@ -873,24 +961,24 @@ struct GeoCitiesCommodore: ScriptedElement {
 				// The piano keys of the Datassette, which stay down while they play.
 				Style()
 					.frame(minWidth: .rootEm(1.875), minHeight: .rootEm(2))
-					.background(Color("#3a3128"))
-					.border(Color("#1d1813"), width: .pixels(1))
+					.background(Color(raw: "#3a3128"))
+					.border(Color(raw: "#1d1813"), width: .pixels(1))
 					.cornerRadius(.pixels(3))
-					.shadow(Shadow(y: .pixels(3), color: Color("#1d1813")))
+					.shadow(BoxShadow(y: .pixels(3), color: Color(raw: "#1d1813")))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#efe6d6"))
+					.color(Color(raw: "#efe6d6"))
 					.handCursor()
 					.pressed {
 						$0
 							.offset(y: .pixels(3))
-							.shadow(Shadow(y: 0, color: Color("#1d1813")))
-							.background(Color("#5a4a3a"))
+							.shadow(BoxShadow(y: .zero, color: Color(raw: "#1d1813")))
+							.background(Color(raw: "#5a4a3a"))
 					}
 			case .joystick:
 				Style()
-					.background(Color("#2a2a2a"))
-					.color(Color("#eeeeee"))
+					.background(Color(raw: "#2a2a2a"))
+					.color(Color(raw: "#eeeeee"))
 			case .stick:
 				Style().vstack(alignment: .center, spacing: .pixels(3))
 			case .stickRow:
@@ -898,26 +986,26 @@ struct GeoCitiesCommodore: ScriptedElement {
 			case .stickButton:
 				Style()
 					.frame(size: .rootEm(2.5))
-					.background(Color("#111111"))
-					.border(Color("#555555"), width: .pixels(1))
+					.background(Color(raw: "#111111"))
+					.border(Color(raw: "#555555"), width: .pixels(1))
 					.cornerRadius(.rootEm(0.375))
 					.fontFamily(.system)
 					.textStyle(.caption)
-					.color(Color("#bbbbbb"))
+					.color(Color(raw: "#bbbbbb"))
 					.touchAction(.none)
 					.textSelection(.disabled)
 					.handCursor()
 					.active {
-						$0.background(Color("#444444"))
+						$0.background(Color(raw: "#444444"))
 					}
 			case .fireButton:
 				// The red fire button.
 				Style()
 					.frame(size: .rootEm(2.75))
-					.background(Color("#d42a1e"))
-					.border(Color("#7a120c"), width: .pixels(2))
+					.background(Color(raw: "#d42a1e"))
+					.border(Color(raw: "#7a120c"), width: .pixels(2))
 					.cornerRadius(.circle)
-					.shadow(Shadow(y: .pixels(3), color: Color("#7a120c")))
+					.shadow(BoxShadow(y: .pixels(3), color: Color(raw: "#7a120c")))
 					.fontFamily(.system)
 					.font(size: .rootEm(0.625))
 					.fontWeight(.heavy)
@@ -928,34 +1016,34 @@ struct GeoCitiesCommodore: ScriptedElement {
 					.active {
 						$0
 							.offset(y: .pixels(2))
-							.shadow(Shadow(y: .pixels(1), color: Color("#7a120c")))
+							.shadow(BoxShadow(y: .pixels(1), color: Color(raw: "#7a120c")))
 					}
 			case .brickBox:
 				Style()
-					.background(Color("#4a4038"))
-					.color(Color("#eeeeee"))
+					.background(Color(raw: "#4a4038"))
+					.color(Color(raw: "#eeeeee"))
 			case .brick:
 				// The black power brick, which gets warm and then hot.
 				Style()
 					.vstack(alignment: .center, spacing: .rootEm(0.25))
 					.frame(width: .percent(100), minHeight: .rootEm(4))
 					.padding(.rootEm(0.5))
-					.background(Color("#1e1b18"))
-					.border(Color("#000000"), width: .pixels(2))
+					.background(Color(raw: "#1e1b18"))
+					.border(Color(raw: "#000000"), width: .pixels(2))
 					.cornerRadius(.rootEm(0.375))
 					.fontFamily(.system)
 					.textStyle(.caption, weight: .bold)
-					.color(Color("#dddddd"))
+					.color(Color(raw: "#dddddd"))
 					.handCursor()
 					.when(States.warm) {
 						$0
-							.background(Color("#4a2a18"))
-							.shadow(Shadow(y: 0, blur: .pixels(10), color: Color("#ff8a3380")))
+							.background(Color(raw: "#4a2a18"))
+							.shadow(BoxShadow(y: .zero, blur: .pixels(10), color: Color(raw: "#ff8a3380")))
 					}
 					.when(States.hot) {
 						$0
-							.background(Color("#7a2010"))
-							.shadow(Shadow(y: 0, blur: .pixels(16), color: Color("#ff3311cc")))
+							.background(Color(raw: "#7a2010"))
+							.shadow(BoxShadow(y: .zero, blur: .pixels(16), color: Color(raw: "#ff3311cc")))
 					}
 			case .brickReading:
 				Style()
@@ -967,41 +1055,41 @@ struct GeoCitiesCommodore: ScriptedElement {
 					.frame(width: .rootEm(40), maxWidth: .percent(100))
 					.padding(vertical: .rootEm(0.75), horizontal: .rootEm(1))
 					.padding(.leading, .rootEm(1.75))
-					.background(Color("#fffdf0"))
-					.border(.leading, Color("#e05050"), width: .pixels(3))
-					.shadow(Shadow(x: .pixels(2), y: .pixels(3), color: Color("#00000033")))
-					.color(Color("#1a2a6a"))
+					.background(Color(raw: "#fffdf0"))
+					.border(.leading, Color(raw: "#e05050"), width: .pixels(3))
+					.shadow(BoxShadow(x: .pixels(2), y: .pixels(3), color: Color(raw: "#00000033")))
+					.color(Color(raw: "#1a2a6a"))
 			case .notebookTitle:
 				Style()
-					.margin(0)
+					.margin(.zero)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.body, weight: .bold)
 			case .notebookList:
 				Style()
 					.vstack(spacing: .rootEm(0.25))
-					.margin(top: .rootEm(0.5), horizontal: 0, bottom: 0)
-					.padding(0)
+					.margin(top: .rootEm(0.5), horizontal: .zero, bottom: .zero)
+					.padding(.zero)
 			case .notebookButton:
 				// A line of the notebook, in Pappa’s handwriting next to the code.
 				Style()
-					.vstack(alignment: .start, spacing: 0)
+					.vstack(alignment: .start, spacing: .zero)
 					.frame(width: .percent(100), minHeight: .rootEm(2.75))
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 					.background(.transparent)
-					.border(.bottom, Color("#b8c8e8"), width: .pixels(1))
+					.border(.bottom, Color(raw: "#b8c8e8"), width: .pixels(1))
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption)
-					.color(Color("#1a2a6a"))
+					.color(Color(raw: "#1a2a6a"))
 					.textAlign(.leading)
 					.handCursor()
 					.hover {
-						$0.background(Color("#fff6b0"))
+						$0.background(Color(raw: "#fff6b0"))
 					}
 			case .notebookCode:
 				Style()
 					.fontFamily(GeoCitiesPage.courier)
 					.fontWeight(.bold)
-					.color(Color("#000000"))
+					.color(Color(raw: "#000000"))
 					.overflowWrap(.anywhere)
 			case .status:
 				// It sticks above the status bar of the page while the C64 is on the screen, so what the computer, the drive, or the joystick says shows next to the thing that was clicked, even on a phone.
@@ -1010,10 +1098,10 @@ struct GeoCitiesCommodore: ScriptedElement {
 					.bottom(.rootEm(2.5))
 					.zIndex(1)
 					.frame(width: .rootEm(40), maxWidth: .percent(100), minHeight: .lineHeight(2))
-					.margin(0)
+					.margin(.zero)
 					.padding(.rootEm(0.375))
 					.background(.white)
-					.border(Color("#808080"), width: .pixels(2), style: .inset)
+					.border(Color(raw: "#808080"), width: .pixels(2), style: .inset)
 					.fontFamily(GeoCitiesPage.comicSans)
 					.textStyle(.caption, weight: .bold)
 					.textAlign(.center)

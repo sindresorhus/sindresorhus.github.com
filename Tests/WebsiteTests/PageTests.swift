@@ -1,8 +1,10 @@
 import Elementary
 import Foundation
 import ImageIO
+import RegexBuilder
 import RSS
 import SiteKit
+import SOML
 import TestSupport
 import Testing
 @testable import Website
@@ -11,6 +13,117 @@ import Testing
 Renders every page of the site from the real content, without the network: there is no App Store or GitHub data.
 */
 struct PageTests {
+	@Test(arguments: [false, true])
+	func `screenshot rendering keeps dimensions alternatives and its loading policy`(loadsImmediately: Bool) throws {
+		let size = try #require(PixelSize(width: 640, height: 480))
+		let asset = ScreenshotAsset(path: #path("/test/screenshot1.png"), size: size, jpegXL: nil)
+		let html = ScreenshotImage(asset: asset, alternativeText: "A result & its settings", loadsImmediately: loadsImmediately) {
+			$0.style(AppMedia.Styles.media)
+		}.render()
+
+		#expect(html.contains("src=\"/test/screenshot1.png\""))
+		#expect(html.contains("width=\"640\" height=\"480\""))
+		#expect(html.contains("alt=\"A result &amp; its settings\""))
+		#expect(html.contains("decoding=\"async\""))
+		#expect(html.contains("loading=\"lazy\"") == !loadsImmediately)
+		#expect(!html.contains("<picture"))
+	}
+
+	@Test
+	func `button appearance stays available on links and buttons`() {
+		let link = a(.href("/apps")) {
+			"Apps"
+		}.buttonStyle(.secondary, size: .small).render()
+		let button = Elementary.button(.type(.submit)) {
+			"Send"
+		}.buttonStyle(.secondary, size: .small).render()
+
+		for html in [link, button] {
+			#expect(html.contains(ButtonStyles.root.className))
+			#expect(html.contains(ButtonStyles.secondary.className))
+			#expect(html.contains(ButtonStyles.small.className))
+		}
+		#expect(button.contains("type=\"submit\""))
+	}
+
+	@Test
+	func `an app review section owns visibility and wall link eligibility`() async throws {
+		let app = try await App(title: "A reviewable app")
+		#expect(AppReviews(listing: AppListing(app: app)) == nil)
+
+		let rating = try #require(SetappRating(ratingValue: 99, bestRating: 100, count: 30))
+		let onlyRating = try #require(AppReviews(listing: AppListing(app: app, setappRating: rating)))
+		#expect(onlyRating.app == nil)
+		#expect(onlyRating.render().contains(">99%</p>"))
+
+		let review = AppStoreReview(title: "Useful", text: "Works well.", author: "A reader", rating: .five, date: .now)
+		let reviews = try #require(AppReviews(listing: AppListing(app: app, appStoreReviews: [review])))
+		#expect(reviews.app?.slug == app.slug)
+		#expect(reviews.render().contains("Wall of Love"))
+
+		let archived = try await App(frontmatter: "isArchived: true")
+		let archivedReviews = try #require(AppReviews(listing: AppListing(app: archived, appStoreReviews: [review])))
+		#expect(archivedReviews.app == nil)
+		#expect(!archivedReviews.render().contains("Wall of Love"))
+	}
+
+	@Test
+	func `press presentation changes only press quotes while reviews retain cards`() async throws {
+		let app = try await App(frontmatter: "pressQuotes: [{quote: 'A useful app', source: 'Publication'}]")
+		let quote = try #require(app.pressQuotes.first)
+		let card = QuoteFigure(kind: .press(quote)).render()
+		let pullQuote = QuoteFigure(kind: .press(quote, presentation: .pullQuote)).render()
+		let review = AppStoreReview(title: "Useful", text: "Works well.", author: "A reader", rating: .five, date: .now)
+		let reviewCard = QuoteFigure(kind: .review(review)).render()
+
+		#expect(card.contains(QuoteFigure.Styles.card.className))
+		#expect(!pullQuote.contains(QuoteFigure.Styles.card.className))
+		#expect(pullQuote.contains(QuoteFigure.Styles.quotationMark.className))
+		#expect(reviewCard.contains(QuoteFigure.Styles.card.className))
+	}
+
+	@Test
+	func `app prose headings and optional back links identify the same app`() async throws {
+		let app = try await App(title: "Named App", slug: "named-app")
+		let linked = ProsePage(app: app, title: "Privacy") {
+			"Policy."
+		}.render()
+		let unlinked = ProsePage(app: app, title: "Privacy", linksBack: false) {
+			"Policy."
+		}.render()
+		let guide = ProsePage(title: .plain("A guide", intro: "Steps"), backTo: app) {
+			"Content."
+		}.render()
+
+		for html in [linked, unlinked] {
+			#expect(html.contains("Privacy"))
+			#expect(html.contains("for Named App"))
+		}
+		#expect(linked.contains("href=\"/named-app\""))
+		#expect(!unlinked.contains("href=\"/named-app\""))
+		#expect(guide.contains("A guide"))
+		#expect(guide.contains("Steps"))
+		#expect(guide.contains("href=\"/named-app\""))
+	}
+
+	@Test
+	func `app grid new badges use the supplied build date`() async throws {
+		let app = try await App(publicationDate: "2026-01-01")
+		let recent = try Date("2026-01-15T00:00:00Z", strategy: .iso8601)
+		let later = try Date("2026-02-15T00:00:00Z", strategy: .iso8601)
+
+		#expect(AppGrid(apps: [app], buildDate: recent).render().contains(">New</span>"))
+		#expect(!AppGrid(apps: [app], buildDate: later).render().contains(">New</span>"))
+	}
+
+	@Test
+	func `day text formats the normalized UTC day for people and machines`() throws {
+		let day = SOML.Date(try Date("2026-03-01T00:30:00+02:00", strategy: .iso8601))
+		let html = DateText(day: day, format: .siteDay).render()
+
+		#expect(html == #"<time datetime="2026-02-28">February 28, 2026</time>"#)
+	}
+
 	private static func site() async throws -> Site {
 		try await Site(content: .website)
 	}
@@ -23,11 +136,12 @@ struct PageTests {
 		#expect(hasOneHeading, "The page must have one <h1>.")
 
 		let description = page.html.firstMatch(of: /<meta name="description" content="([^"]*)">/).map { String($0.1).replacing("&amp;", with: "&").replacing("&quot;", with: "\"").replacing("&lt;", with: "<").replacing("&gt;", with: ">") }
-		let hasShortDescription = (description?.count ?? 0) <= 160
-		#expect(hasShortDescription, "The description is longer than 160 characters.")
+		// The frontmatter checks the descriptions of the content (`SnippetText`), so this catches the descriptions that code makes, like the one of a privacy policy.
+		let hasShortDescription = (description?.count ?? 0) <= SnippetText.maximumLength
+		#expect(hasShortDescription, "The description is longer than \(SnippetText.maximumLength) characters.")
 
 		if !hasOneHeading || !hasShortDescription {
-			Attachment.record(page.html, named: "\(page.route.outputFile.replacing("/", with: "_"))")
+			Attachment.record(page.html, named: "\(page.route.outputFile.description.replacing("/", with: "_"))")
 		}
 	}
 
@@ -187,7 +301,7 @@ struct PageTests {
 	func `the about page shows the status of the now page before the first section`() async throws {
 		let content = try await SiteContent.website
 		let page = try #require(content.page(.about))
-		let status = try #require(content.page(.now)?.frontmatter.status)
+		let status = try #require(content.page(.now)?.status?.introduction)
 
 		let html = try AboutPage(page: page, content: content).renderedHTML()
 		let parts = html.split(separator: #"id="\#(AboutPage.nowNextHeadingID)""#)
@@ -196,6 +310,24 @@ struct PageTests {
 		let card = try #require(introduction.split(separator: #"<a href="/now""#).last)
 
 		#expect(card.contains(status))
+		#expect(!card.contains("]("))
+	}
+
+	/**
+	The descriptions count the apps that a visitor can get, like the list of the apps page, not the archived apps, which the stats count.
+	*/
+	@Test
+	func `the descriptions of the home and apps pages count the active apps`() async throws {
+		let content = SiteContent(
+			apps: [try await App(title: "Active", slug: "active"), try await App(title: "Old", frontmatter: "isArchived: true", slug: "old")],
+			posts: [],
+			pages: [],
+			buildDate: .now,
+			project: .empty
+		)
+
+		#expect(HomePage(content: content).metadata.description?.contains(": 1 app for Mac") == true)
+		#expect(AppsPage(content: content).metadata.description?.hasPrefix("1 app for Mac") == true)
 	}
 
 	/**
@@ -205,7 +337,20 @@ struct PageTests {
 	func `the about page has the numbers below the title in the numbers section too`() async throws {
 		let loadedContent = try await SiteContent.website
 		let repositoryCount = 1144
-		let content = SiteContent(apps: loadedContent.apps, posts: loadedContent.posts, pages: loadedContent.pages, gitHubAccount: GitHub.Account(repositoryCount: repositoryCount, followerCount: 84_740, starCount: 1_099_747, maintenance: GitHub.Maintenance(closedIssueCount: 22_815, mergedPullRequestCount: 13_831), repositories: []), buildDate: loadedContent.buildDate, project: .website)
+		let content = SiteContent(
+			apps: loadedContent.apps,
+			posts: loadedContent.posts,
+			pages: loadedContent.pages,
+			gitHubAccount: GitHub.Account(
+				repositoryCount: repositoryCount,
+				followerCount: 84_740,
+				starCount: 1_099_747,
+				maintenance: GitHub.Maintenance(closedIssueCount: 22_815, mergedPullRequestCount: 13_831),
+				repositories: []
+			),
+			buildDate: loadedContent.buildDate,
+			project: .website
+		)
 		let page = try #require(content.page(.about))
 
 		let html = try AboutPage(page: page, content: content).renderedHTML()
@@ -231,8 +376,20 @@ struct PageTests {
 		let page = try #require(loadedContent.page(.about))
 		let json = #"{"totalContributions": 13, "weeks": [{"contributionDays": [{"date": "2026-01-01", "contributionCount": 9, "contributionLevel": "FOURTH_QUARTILE"}, {"date": "2026-01-02", "contributionCount": 4, "contributionLevel": "FIRST_QUARTILE"}]}]}"#
 		let calendar = try ContributionCalendar(json: json)
-		let year = ContributionYear(year: 2026, calendar: calendar, totals: .zero, until: try Date("2026-12-31T12:00:00Z", strategy: .iso8601))
-		let content = SiteContent(apps: loadedContent.apps, posts: loadedContent.posts, pages: loadedContent.pages, contributionYears: [year], buildDate: loadedContent.buildDate, project: .website)
+		let year = ContributionYear(
+			year: 2026,
+			calendar: calendar,
+			totals: .zero,
+			until: try Date("2026-12-31T12:00:00Z", strategy: .iso8601)
+		)
+		let content = SiteContent(
+			apps: loadedContent.apps,
+			posts: loadedContent.posts,
+			pages: loadedContent.pages,
+			contributionYears: [year],
+			buildDate: loadedContent.buildDate,
+			project: .website
+		)
 
 		let html = try AboutPage(page: page, content: content).renderedHTML()
 		#expect(html.contains(#">Thu</span> <span class="\#(StatCard.Styles.label.className)">busiest weekday</span>"#))
@@ -248,9 +405,24 @@ struct PageTests {
 
 		func html(mostDownloadedPackageNames: [String]) throws -> String {
 			var npmStatistics = NPMStatistics()
-			npmStatistics.packages = [NPMStatistics.Package(name: "chalk", version: "6.0.0", description: nil, date: .now, weeklyDownloads: 1000, dependentCount: nil, repository: "chalk/chalk")]
+			npmStatistics.search = .complete(total: 1, packages: [NPMStatistics.Package(
+				name: "chalk",
+				version: "6.0.0",
+				description: nil,
+				date: .now,
+				weeklyDownloads: 1000,
+				dependentCount: nil,
+				repository: #repository("chalk/chalk")
+			)])
 			npmStatistics.mostDownloadedPackageNames = mostDownloadedPackageNames
-			let content = SiteContent(apps: loadedContent.apps, posts: loadedContent.posts, pages: loadedContent.pages, npmStatistics: npmStatistics, buildDate: loadedContent.buildDate, project: .website)
+			let content = SiteContent(
+				apps: loadedContent.apps,
+				posts: loadedContent.posts,
+				pages: loadedContent.pages,
+				npmStatistics: npmStatistics,
+				buildDate: loadedContent.buildDate,
+				project: .website
+			)
 			return try AboutPage(page: page, content: content).renderedHTML()
 		}
 
@@ -265,28 +437,50 @@ struct PageTests {
 	@Test
 	func `the projects of the day leave out the packages and repos that are not worth finding`() throws {
 		func package(_ name: String, description: String? = "Does a thing", repository: GitHubRepositoryName?) -> NPMStatistics.Package {
-			NPMStatistics.Package(name: name, version: "1.0.0", description: description, date: .now, weeklyDownloads: 10, dependentCount: nil, repository: repository)
+			NPMStatistics.Package(
+				name: name,
+				version: "1.0.0",
+				description: description,
+				date: .now,
+				weeklyDownloads: 10,
+				dependentCount: nil,
+				repository: repository
+			)
 		}
 
 		var npmStatistics = NPMStatistics()
-		npmStatistics.packages = [
+		npmStatistics.search = .complete(total: 6, packages: [
 			// The link of a package can have capitals, like `SindreSorhus/Ky`, and it is the same repo.
-			package("ky", repository: "SindreSorhus/Ky"),
-			package("no-description", description: nil, repository: "sindresorhus/no-description"),
-			package("yeoman-environment", repository: "yeoman/environment"),
-			package("imagemin-svgo", repository: "imagemin/imagemin-svgo"),
-			package("old-thing", repository: "sindresorhus/Old-Thing"),
+			package("ky", repository: #repository("SindreSorhus/Ky")),
+			package("no-description", description: nil, repository: #repository("sindresorhus/no-description")),
+			package("yeoman-environment", repository: #repository("yeoman/environment")),
+			package("imagemin-svgo", repository: #repository("imagemin/imagemin-svgo")),
+			package("old-thing", repository: #repository("sindresorhus/Old-Thing")),
 			package("no-repo", repository: nil),
-		]
+		])
 
 		let repositories = try ["Defaults", "ky", "old-thing", "forked", ".github"].map { name in
 			let isArchived = name == "old-thing"
 			let isFork = name == "forked"
-			return try GitHubRepository(json: #"{"name": "\#(name)", "description": "Does a thing", "html_url": "https://github.com/sindresorhus/\#(name)", "created_at": "2020-01-01T00:00:00Z", "archived": \#(isArchived), "fork": \#(isFork), "stargazers_count": 1, "language": "Swift"}"#)
+			return try GitHubRepository(json: #"{"name": "\#(name)", "full_name": "sindresorhus/\#(name)", "description": "Does a thing", "html_url": "https://github.com/sindresorhus/\#(name)", "created_at": "2020-01-01T00:00:00Z", "archived": \#(isArchived), "fork": \#(isFork), "stargazers_count": 1, "language": "Swift"}"#)
 		}
 
-		let account = GitHub.Account(repositoryCount: repositories.count, followerCount: 1, starCount: 1, maintenance: GitHub.Maintenance(closedIssueCount: 1, mergedPullRequestCount: 1), repositories: repositories)
-		let content = SiteContent(apps: [], posts: [], pages: [], gitHubAccount: account, npmStatistics: npmStatistics, buildDate: .now, project: .empty)
+		let account = GitHub.Account(
+			repositoryCount: repositories.count,
+			followerCount: 1,
+			starCount: 1,
+			maintenance: GitHub.Maintenance(closedIssueCount: 1, mergedPullRequestCount: 1),
+			repositories: repositories
+		)
+		let content = SiteContent(
+			apps: [],
+			posts: [],
+			pages: [],
+			gitHubAccount: account,
+			npmStatistics: npmStatistics,
+			buildDate: .now,
+			project: .empty
+		)
 
 		#expect(content.discoverablePackages.map(\.name) == ["ky", "no-repo"])
 		#expect(content.discoverableRepositories.map(\.name) == ["Defaults"])
@@ -328,8 +522,17 @@ struct PageTests {
 	*/
 	@Test
 	func `an unlisted post is not in the sitemap and not indexed`() async throws {
-		let post = try await BlogPost(markdown: "---\nisUnlisted: true\ntitle: 'Hidden'\npublicationDate: '2026-01-01'\n---\n\nText.", slug: "hidden")
-		let page = BlogPostPage(post: post, content: SiteContent(apps: [], posts: [post], pages: [], buildDate: .now, project: .empty))
+		let post = try await BlogPost(markdown: "---\nisUnlisted: true\ntitle: 'Hidden'\npublicationDate: 2026-01-01\n---\n\nText.", slug: "hidden")
+		let page = BlogPostPage(
+			post: post,
+			content: SiteContent(
+				apps: [],
+				posts: [post],
+				pages: [],
+				buildDate: .now,
+				project: .empty
+			)
+		)
 
 		#expect(page.route.sitemapEntry == nil)
 		#expect(try page.renderedHTML().contains(#"<meta name="robots" content="noindex">"#))
@@ -340,8 +543,8 @@ struct PageTests {
 	*/
 	@Test
 	func `a blog post row leaves out a missing description and the reading time of a post on another site`() async throws {
-		let post = try await BlogPost(markdown: "---\ntitle: 'Elsewhere'\npublicationDate: '2026-01-01'\nredirectURL: 'https://example.com/post'\n---\n", slug: "elsewhere")
-		let html = BlogPostRow(post: post).render()
+		let post = try await BlogPost(markdown: "---\ntitle: 'Elsewhere'\npublicationDate: 2026-01-01\nredirectURL: 'https://example.com/post'\n---\n", slug: "elsewhere")
+		let html = ArticleRow(.post(post)).render()
 
 		#expect(!html.contains("<p"))
 		#expect(!html.contains("min read"))
@@ -362,14 +565,94 @@ struct PageTests {
 	}
 
 	/**
+	The “Code” button of the home page and “popular projects” on the about page go to the Open Source page, which links to my GitHub profile and to the repos of its projects.
+	*/
+	@Test
+	func `the home page and the about page link to the open source page, which links to the GitHub profile`() async throws {
+		let pages = try await RenderedPage.website
+		let html = { (path: RoutePath) in try #require(pages.first { $0.route.path == path }).html }
+		let openSourceLink = #"href="\#(RoutePath.openSource)""#
+
+		#expect(try html(.root).contains(openSourceLink))
+		#expect(try html(.about).contains(openSourceLink))
+		#expect(try html(.openSource).contains(#"href="\#(Site.author.gitHubURL)""#))
+
+		for project in OpenSourceProject.all {
+			#expect(project.repository.isOwners, "\(project.name) is not a repo of my account or my organizations.")
+			#expect(try html(.openSource).contains(#"href="\#(project.repository.url)""#))
+		}
+	}
+
+	@Test
+	func `no open source project is on the page twice`() {
+		let repositories = OpenSourceProject.all.map(\.repository)
+		let duplicates = Dictionary(grouping: repositories, by: \.self).filter { $0.value.count > 1 }.keys
+		#expect(duplicates.isEmpty, "\(duplicates.map(\.description)) are repeated in the catalog.")
+	}
+
+	/**
+	The cards of a group fill the rows of the grid, which has two or four columns, or three for a group of three.
+	*/
+	@Test(arguments: OpenSourceProject.Group.allCases)
+	func `each open source group has three projects or a multiple of four`(group: OpenSourceProject.Group) {
+		let count = group.projects.count
+		#expect(count == 3 || (count > 0 && count.isMultiple(of: 4)), "\(group.title) has \(count) projects.")
+	}
+
+	/**
+	The profile card has the contributions of the last year, with their number as text, as screen readers skip the heatmap. Without a GitHub token, the build has no contributions, so the card leaves them out.
+	*/
+	@Test
+	func `the open source page shows the contributions only when the build has them`() throws {
+		let json = #"{"totalContributions": 13, "weeks": [{"contributionDays": [{"date": "2026-01-01", "contributionCount": 9, "contributionLevel": "FOURTH_QUARTILE"}, {"date": "2026-01-02", "contributionCount": 4, "contributionLevel": "FIRST_QUARTILE"}]}]}"#
+		var activity = RecentActivity()
+		activity.profile = try GitHub.Profile(contributions: ContributionCalendar(json: json), sponsorCount: 0, commentCount: 0)
+		let withContributions = try OpenSourcePage(content: SiteContent(apps: [], posts: [], pages: [], recentActivity: activity, buildDate: .now, project: .empty)).renderedHTML()
+		let withoutContributions = try OpenSourcePage(content: SiteContent(apps: [], posts: [], pages: [], buildDate: .now, project: .empty)).renderedHTML()
+		let cell = ContributionHeatmap.Styles.cells.className
+
+		#expect(withContributions.contains(cell))
+		#expect(withContributions.contains("13 contributions on GitHub in the last year."))
+		#expect(!withoutContributions.contains(cell))
+		#expect(!withoutContributions.contains("contributions on GitHub"))
+	}
+
+	/**
+	The quote in the footer is from Apple, so its credit is in its tooltip.
+	*/
+	@Test
+	func `the quote in the footer is credited`() {
+		#expect(SiteFooter().render().contains(#"<q title="Apple, “Think Different” (1997)""#))
+	}
+
+	/**
+	On an app page and a guide, the “Feedback” link of the footer opens the form for the app, so the visitor does not pick the app again. Other pages link to the picker.
+	*/
+	@Test
+	func `the footer of an app page links to the feedback form of the app`() async throws {
+		let pages = try await RenderedPage.website
+		let appPage = try #require(pages.first { $0.route.path == #path("/dato") }).html
+		let guidePage = try #require(pages.first { $0.route.path == Guide.path(slug: "convert-video-to-gif-mac") }).html
+		let otherPage = try #require(pages.first { $0.route.path == .root }).html
+
+		#expect(appPage.contains(#"<a href="/feedback?product=Dato" class="site-footer-link">Feedback</a>"#))
+		#expect(guidePage.contains(#"<a href="/feedback?product=Gifski" class="site-footer-link">Feedback</a>"#))
+		#expect(otherPage.contains(#"<a href="/feedback" class="site-footer-link">Feedback</a>"#))
+	}
+
+	/**
 	The 404 page suggests the closest page to a mistyped path, so it must only suggest pages that exist and that visitors look for.
 	*/
 	@Test
 	func `the 404 page suggests only indexed pages, without the home page and old paths`() async throws {
 		let page = try #require(try await RenderedPage.website.first { $0.route.path == .notFound })
 
-		let json = try #require(page.html.firstMatch(of: /<script[^>]*id="not-found-data"[^>]*>(.*?)<\/script>/)?.1)
-		let paths = try JSONDecoder().decode([String].self, from: Data(json.utf8))
+		let json = try #require(page.html.scriptTags.first { $0.id == "not-found-data" }?.body)
+		struct NotFoundData: Decodable {
+			let paths: [String]
+		}
+
+		let paths = try JSONDecoder().decode(NotFoundData.self, from: Data(json.utf8)).paths
 		let oldPaths = Set(try await SiteContent.website.documents.flatMap(\.redirectFrom).map(\.description))
 
 		#expect(paths.contains(RoutePath.apps.description))
@@ -378,6 +661,36 @@ struct PageTests {
 		#expect(!paths.contains(RoutePath.notFound.description))
 		#expect(!paths.contains(RoutePath.randomApp.description))
 		#expect(oldPaths.isDisjoint(with: paths))
+	}
+
+	/**
+	Google asks a page that links to the pages of its items to give each item only its position and URL, as each app page has the full structured data of its app.
+	*/
+	@Test
+	func `the structured data of the apps page is a list of links to the app pages`() async throws {
+		let page = try #require(try await RenderedPage.website.first { $0.route.path == RoutePath.apps })
+		let json = try #require(page.html.scriptTags.first { $0.type == "application/ld+json" }?.body)
+		let list = try #require(try JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any])
+		let items = try #require(list["itemListElement"] as? [[String: Any]])
+		let apps = try await SiteContent.website.activeAppsWithPages
+
+		#expect(items.count == apps.count)
+		#expect(items.allSatisfy { Set($0.keys) == ["@type", "position", "url"] })
+		#expect(items.first?["url"] as? String == apps.first?.path.absoluteURL.absoluteString)
+	}
+
+	/**
+	A page is fetched when the pointer rests on a link to it, and only prerendered when the link is pressed, as a prerender also loads the images. The 1999 page is too large for either, and files, like photos, are not pages.
+	*/
+	@Test
+	func `the speculation rules prefetch on hover and prerender on press, but not the 1999 page or files`() async throws {
+		let page = try #require(try await RenderedPage.website.first { $0.route.path == .root })
+		let json = try #require(page.html.scriptTags.first { $0.type == "speculationrules" }?.body)
+		let rules = try #require(try JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: [[String: Any]]])
+
+		#expect(rules["prefetch"]?.first?["eagerness"] as? String == "moderate")
+		#expect(rules["prerender"]?.first?["eagerness"] as? String == "conservative")
+		#expect(json.ranges(of: #"{"not":{"href_matches":["/*.*","\#(RoutePath.geoCities)""#).count == 2)
 	}
 
 	/**
@@ -390,7 +703,7 @@ struct PageTests {
 
 		#expect(report.brokenLinks == [])
 		#expect(report.warnings == [])
-		#expect(report.routeCount > 200)
+		#expect(report.routes.count > 200)
 
 		// The files that every page loads have their content hash in the URL, so they can be cached for a year.
 		let home = try String(contentsOf: output.appending(path: "index.html"), encoding: .utf8)
@@ -400,13 +713,17 @@ struct PageTests {
 
 		// Also in Markdown, which renders before the pages, like the icons of the copy button of a code block.
 		let appPage = try String(contentsOf: output.appending(path: "lungo.html"), encoding: .utf8)
-		#expect(appPage.contains("<code-block"))
+		#expect(appPage.contains(#"class="code-block""#))
 		#expect(!appPage.contains(#"href="/assets/icons.svg#"#))
 
-		// An element with an inline script, like the copy button, has its script in the page, once, and no script file.
+		// An element with an inline script, like the header of the site, has its script in the page, once, and no script file.
+		#expect(appPage.ranges(of: "customElements.define('site-header'").count == 1)
+		#expect(!output.appending(path: "scripts/elements/SiteHeader.js").exists)
+
+		// An element with a script file, like the copy button, loads the published file once.
 		let contact = try String(contentsOf: output.appending(path: "contact.html"), encoding: .utf8)
-		#expect(contact.ranges(of: "customElements.define('copy-button'").count == 1)
-		#expect(!output.appending(path: "scripts/elements/CopyButton.js").exists)
+		#expect(contact.ranges(of: "/scripts/elements/CopyButton.js?v=").count == 1)
+		#expect(output.appending(path: "scripts/elements/CopyButton.js").exists)
 
 		// Every social card is a 1200×630 image. Only the header of each file is read.
 		let cards = try output.appending(path: "og").filesRecursively()
@@ -418,7 +735,7 @@ struct PageTests {
 			#expect(hasCardSize, "\(card.lastPathComponent) is not a 1200×630 image.")
 		}
 
-		// Each page has one import map, before its module scripts, as browsers only use an import map that comes first, and every script in it is published with the hash it maps to.
+		// Each page has at most one import map, with only the scripts that its scripts import, before its module scripts, as browsers only use an import map that comes first, and every script in it is published with the hash it maps to.
 		for page in try output.filesRecursively() where page.pathExtension == "html" {
 			let html = try String(contentsOf: page, encoding: .utf8)
 
@@ -431,17 +748,37 @@ struct PageTests {
 			}
 
 			// Every script that the page loads from `/scripts` has its hash, also the scripts of the elements, which the build finds in the `Scripts` folders.
-			for match in html.matches(of: /<script\b[^>]*\bsrc="(\/scripts\/[^"]+)"/) {
-				#expect(match.1.contains("?v="), "\(page.lastPathComponent) loads \(match.1) without its hash.")
+			let scripts = html.scriptTags
+			for source in scripts.compactMap(\.source) where source.hasPrefix("/scripts/") {
+				#expect(source.contains("?v="), "\(page.lastPathComponent) loads \(source) without its hash.")
 			}
 
-			let importMaps = html.matches(of: /<script type="importmap">(.*?)<\/script>/)
-			try #require(importMaps.count == 1, "\(page.lastPathComponent) must have one import map.")
-			let firstModule = try #require(html.firstRange(of: #"type="module""#))
-			#expect(importMaps[0].range.upperBound <= firstModule.lowerBound, "The import map of \(page.lastPathComponent) must come before its module scripts.")
+			let importMaps = scripts.filter { $0.type == "importmap" }
+			try #require(importMaps.count <= 1, "\(page.lastPathComponent) must have at most one import map.")
 
-			let imports = try JSONDecoder().decode([String: [String: String]].self, from: Data(importMaps[0].1.utf8))["imports"] ?? [:]
-			#expect(imports.keys.contains("/scripts/geocities-element.js"))
+			// A page whose scripts import nothing has none.
+			guard let importMap = importMaps.first else {
+				continue
+			}
+
+			let firstModule = try #require(scripts.first { $0.type == "module" }?.range)
+			#expect(importMap.range.upperBound <= firstModule.lowerBound, "The import map of \(page.lastPathComponent) must come before its module scripts.")
+
+			let imports = try JSONDecoder().decode(Site.Scripts.ImportMap.self, from: Data(importMap.body.utf8)).imports
+
+			if page.lastPathComponent == "1999.html" {
+				#expect(imports.keys.contains("/scripts/geocities-element.js"))
+			}
+
+			// Every script that a script of the page imports is in the map, so it loads with its hash.
+			for source in scripts.compactMap(\.source) where source.hasPrefix("/scripts/") {
+				let path = source.prefix { $0 != "?" }
+				let script = try String(contentsOf: output.appending(path: String(path.dropFirst())), encoding: .utf8)
+
+				for imported in script.matches(of: /^import\b[^;'\n]*'(\/scripts\/[^']+)'/.anchorsMatchLineEndings()) {
+					#expect(imports.keys.contains(String(imported.1)), "The import map of \(page.lastPathComponent) does not have \(imported.1), which \(path) imports.")
+				}
+			}
 
 			for (path, url) in imports {
 				#expect(url.hasPrefix(path + "?v="), "The import map of \(page.lastPathComponent) maps \(path) to \(url).")
@@ -460,7 +797,7 @@ struct PageTests {
 
 		for page in try await RenderedPage.website {
 			let pageClasses = Set(page.html.matches(of: /\sclass="([^"]*)"/).flatMap { $0.1.split(separator: " ").map(String.init) })
-			let definedClasses = page.html.matches(of: /<style>(.*?)<\/style>/.dotMatchesNewlines()).reduce(into: sharedClasses) { $0.formUnion(Self.classNames(inCSS: String($1.1))) }
+			let definedClasses = page.embeddedStyles.reduce(into: sharedClasses) { $0.formUnion(Self.classNames(inCSS: String($1))) }
 			let undefinedClasses = pageClasses.subtracting(definedClasses).filter { !Self.classesWithoutRules.contains($0) && !$0.hasPrefix("language-") }
 
 			#expect(undefinedClasses.isEmpty, "\(page.route.path) uses classes without rules: \(undefinedClasses.sorted())")
@@ -501,7 +838,7 @@ struct PageTests {
 		var animationCount = 0
 
 		for page in try await RenderedPage.website {
-			stylesheets += page.html.matches(of: /<style>(.*?)<\/style>/.dotMatchesNewlines()).map { String($0.1) }
+			stylesheets += page.embeddedStyles.map(String.init)
 		}
 
 		for css in stylesheets {
@@ -551,14 +888,14 @@ struct PageTests {
 	}
 
 	/**
-	Markdown renders before the pages, so the page gets the script of the code blocks from the resources of the document.
+	Markdown renders before the pages, so the page gets the script of the copy buttons of the code blocks from the resources of the document.
 	*/
 	@Test
-	func `code blocks in Markdown are highlighted, and the page gets their script once`() async throws {
-		let html = try #require(try await RenderedPage.website.first { $0.route.path == "/_gallery" }).html
-		#expect(html.contains(#"<code data-part="code" class="code-block-code"><span class="code-block-attribute">@MainActor</span>"#))
-		#expect(html.contains(#"<code data-part="code" class="code-block-code"><span class="code-block-comment"># Every kind of highlighted token.</span>"#))
-		#expect(html.ranges(of: "customElements.define('code-block'").count == 1)
+	func `code blocks in Markdown are highlighted, and the page gets the script of their copy button once`() async throws {
+		let html = try #require(try await RenderedPage.website.first { $0.route.path == #path("/_gallery") }).html
+		#expect(html.contains(#"<code class="code-block-code"><span class="code-block-attribute">@MainActor</span>"#))
+		#expect(html.contains(#"<code class="code-block-code"><span class="code-block-comment"># Every kind of highlighted token.</span>"#))
+		#expect(html.ranges(of: "/scripts/elements/CopyButton.js").count == 1)
 	}
 
 	/**
@@ -566,41 +903,146 @@ struct PageTests {
 	*/
 	@Test
 	func `icons have the hash of the sprite without a build`() {
-		let html = CodeBlock(source: "ls\n", language: "console").render()
+		let html = CodeBlock(source: "ls\n", language: .console).render()
 
 		#expect(html.contains(/href="\/assets\/icons\.svg\?v=[0-9a-f]+#/))
 	}
 
+	/**
+	The bar shows the language as it is written, so a typo would show as the label.
+	*/
+	@Test
+	func `a code block with an unknown language is a problem`() {
+		let document = MarkdownDocument(parsing: "Text.\n\n```swfit\nlet a = 1\n```", options: .gallery)
+
+		#expect(document.problems.map(\.line) == [3])
+		#expect(document.problems.first?.reason.hasPrefix("The code block is invalid: Must be one of `applescript`, `console`,") == true)
+		#expect(document.problems.first?.reason.hasSuffix("or `yaml`, not “swfit”.") == true)
+	}
+
 	@Test
 	func `each line of a console code block is an element, for the prompt of the styles`() {
-		let html = CodeBlock(source: "open -g 'a<b'\n\nls\n", language: "console").render()
+		let html = CodeBlock(source: "open -g 'a<b'\n\nls\n", language: .console).render()
 
-		#expect(html.contains(#"<code data-part="code" class="code-block-code code-block-console"><span>open -g 'a&lt;b'</span>\#n\#n<span>ls</span>\#n</code>"#))
+		#expect(html.contains(#"<code class="code-block-code code-block-console"><span>open -g 'a&lt;b'</span>\#n\#n<span>ls</span>\#n</code>"#))
 	}
 
 	@Test
 	func `llms-full.txt has the older versions, the shared questions, and the sponsors from the frontmatter`() async throws {
-		let route = try #require(try await Self.site().routes().first { $0.path == "/llms-full.txt" })
+		let route = try #require(try await Self.site().routes().first { $0.path == #path("/llms-full.txt") })
 		let text = String(decoding: try await route.renderedFile(), as: UTF8.self)
 		#expect(text.contains("## Older Versions\n\n- ["))
-		#expect(text.contains("### Why does it not show week 53? {#week-53}\n\nYou are probably expecting"))
+		#expect(text.contains("### Why does it not show week 53?\n\nYou are probably expecting"))
 		#expect(text.contains("- [GitHub](https://github.com)"))
 		#expect(!text.contains("@Sponsors"))
 	}
 
 	/**
-	The blocks of the file keep their source, and the build only adds blocks, except for the feedback question, which gets its ID. Lines with links are left out, as the links are absolute.
+	The blocks of the file keep their source, and the build only adds blocks, except for the feedback question, which gets its ID. Lines with links are left out, as the links are absolute. A block with the syntax of the site is formatted without it, so its lines with the syntax, indented lines, and table rows are left out, and smart punctuation makes its quotes typographic. HTML comments are removed.
 	*/
 	@Test
 	func `llms-full.txt has each line of the app files`() async throws {
-		let route = try #require(try await Self.site().routes().first { $0.path == "/llms-full.txt" })
-		let lines = Set(String(decoding: try await route.renderedFile(), as: UTF8.self).split(separator: "\n"))
+		let route = try #require(try await Self.site().routes().first { $0.path == #path("/llms-full.txt") })
+		let lines = Set(String(decoding: try await route.renderedFile(), as: UTF8.self).replacing("’", with: "'").split(separator: "\n"))
 
 		for app in try await SiteContent.website.activeAppsWithPages {
-			for line in app.file.body.split(separator: "\n") where !line.allSatisfy(\.isWhitespace) && !line.contains("](") && !line.contains(#"="/"#) && !line.hasPrefix("### \(App.feedbackQuestionTitle)") {
-				#expect(lines.contains(line), "\(app.file.slug): \(line)")
+			let body = app.file.body.replacing(/(?s)<!--.*?-->/, with: "")
+
+			for line in body.split(separator: "\n") where !line.allSatisfy(\.isWhitespace) && !line.contains("](") && !line.contains(#"="/"#) && !line.hasPrefix("### \(App.Section.feedbackQuestion.title)") && line.firstMatch(of: /^[\s|}@]|\+\+|\^\[|\{#/) == nil {
+				#expect(lines.contains(Substring(line.replacing("’", with: "'"))), "\(app.file.slug): \(line)")
 			}
 		}
+	}
+
+	/**
+	The file is for readers outside the site, so it has none of the syntax of the site, like block directives, keyboard shortcuts, inline notes, heading IDs, and heading directives.
+	*/
+	@Test
+	func `llms-full.txt has no syntax of the site`() async throws {
+		let route = try #require(try await Self.site().routes().first { $0.path == #path("/llms-full.txt") })
+		let text = String(decoding: try await route.renderedFile(), as: UTF8.self)
+		#expect(BlockDirectiveName.allCases.allSatisfy { name in text.firstMatch(of: Regex { "@\(name.rawValue)"; Anchor.wordBoundary }) == nil })
+		#expect(text.firstMatch(of: /\+\+[A-Z]\w*\+/) == nil)
+		#expect(!text.contains("^["))
+		#expect(text.firstMatch(of: /\{#[\w-]+\}/) == nil)
+		#expect(!text.contains("<!-- @"))
+		#expect(text.contains("## Open each link in the right place\n"))
+		#expect(text.contains("Shift+Command+N"))
+		#expect(text.contains("## Copy URL\n\nAdds copy functionality to browser picker apps.\n\n"))
+		#expect(text.firstMatch(of: /\*Requires macOS [\d.]+ or later\*/) != nil)
+
+		for guide in try await SiteContent.website.guides {
+			#expect(text.contains("# \(guide.title)\n\nURL: \(guide.path.absoluteURL.absoluteString)\n\n"))
+		}
+	}
+
+	/**
+	Mastodon finds the account by the WebFinger file, so searching for an account on the domain of the site finds the Mastodon account.
+	*/
+	@Test
+	func `WebFinger points to the Mastodon account`() async throws {
+		struct Resource: Decodable {
+			struct Link: Decodable {
+				let rel: String
+				let href: String?
+				let template: String?
+			}
+
+			let subject: String
+			let aliases: [String]
+			let links: [Link]
+		}
+
+		let route = try #require(try await Self.site().routes().first { $0.path == #path("/.well-known/webfinger") })
+		let resource = try JSONDecoder().decode(Resource.self, from: try await route.renderedFile())
+
+		#expect(resource.subject == "acct:sindresorhus@mastodon.social")
+		#expect(resource.aliases == ["https://mastodon.social/@sindresorhus", "https://mastodon.social/users/sindresorhus"])
+		#expect(resource.links.first { $0.rel == "self" }?.href == "https://mastodon.social/users/sindresorhus")
+		#expect(resource.links.first { $0.rel == "http://ostatus.org/schema/1.0/subscribe" }?.template == "https://mastodon.social/authorize_interaction?uri={uri}")
+	}
+
+	/**
+	Assistants quote the facts of llms.txt, so each app has them, and the featured apps come first.
+	*/
+	@Test
+	func `llms.txt has the facts of each app, with the featured apps first`() async throws {
+		let route = try #require(try await Self.site().routes().first { $0.path == #path("/llms.txt") })
+		let lines = String(decoding: try await route.renderedFile(), as: UTF8.self).split(separator: "\n")
+		let content = try await SiteContent.website
+		let appLines = lines.filter { line in content.activeAppsWithPages.contains { line.hasPrefix("- [\($0.title)](\($0.path.absoluteURL.absoluteString))") } }
+
+		#expect(appLines.count == content.activeAppsWithPages.count)
+		#expect(appLines.allSatisfy { $0.contains(" Platforms: ") })
+		#expect(zip(appLines, content.featuredApps).allSatisfy { line, app in line.hasPrefix("- [\(app.title)]") })
+		#expect(!content.featuredApps.isEmpty)
+		#expect(appLines.contains { $0.hasPrefix("- [Gifski]") && $0.contains("Price: Free. Platforms: macOS. Get it from: App Store.") })
+		// The tests have no App Store data and no appcasts, so only the apps with `minimumOSVersion` have a requirement.
+		#expect(content.activeAppsWithPages.allSatisfy { app in
+			appLines.contains { $0.hasPrefix("- [\(app.title)]") && $0.contains(". Requires ") == (content.listing(of: app).minimumOSVersion != nil) }
+		})
+
+		for guide in content.guides {
+			#expect(lines.contains("- [\(guide.title)](\(guide.path.absoluteURL.absoluteString)): \(guide.description)"))
+		}
+	}
+
+	/**
+	Assistants find the pages of the site in llms.txt, so it has every indexed page, also the pages that are written in Swift, like the open-source page. The privacy policies and the release notes are left out, as the app pages have the facts, the archived apps, as they are no longer available, and the home page, as it is the summary at the top.
+	*/
+	@Test
+	func `llms.txt has every indexed page, and llms-full.txt the open-source projects`() async throws {
+		let routes = try await Self.site().routes()
+		let content = try await SiteContent.website
+		let llms = String(decoding: try #require(try await routes.first { $0.path == #path("/llms.txt") }?.renderedFile()), as: UTF8.self)
+		let leftOut = Set(content.apps.map(\.privacyPolicyPath) + content.apps.compactMap(\.releaseNotes?.path) + content.apps.filter(\.isArchived).map(\.path) + [.root])
+
+		for route in routes where route.sitemapEntry != nil && !leftOut.contains(route.path) {
+			#expect(llms.contains("](\(route.path.absoluteURL.absoluteString))"), "\(route.path) is not in llms.txt.")
+		}
+
+		let llmsFull = String(decoding: try #require(try await routes.first { $0.path == #path("/llms-full.txt") }?.renderedFile()), as: UTF8.self)
+		#expect(llmsFull.contains("## Promises and Async\n\nSmall packages for async code in JavaScript.\n\n- [p-limit](https://github.com/sindresorhus/p-limit): Run promise-returning and async functions with limited concurrency. (JavaScript)"))
 	}
 
 	/**
@@ -608,7 +1050,7 @@ struct PageTests {
 	*/
 	@Test
 	func `llms-full.txt has absolute links`() async throws {
-		let route = try #require(try await Self.site().routes().first { $0.path == "/llms-full.txt" })
+		let route = try #require(try await Self.site().routes().first { $0.path == #path("/llms-full.txt") })
 		let text = String(decoding: try await route.renderedFile(), as: UTF8.self)
 		#expect(!text.contains("](donate.md)"))
 		#expect(!text.contains("](../"))
@@ -630,16 +1072,62 @@ struct PageTests {
 	}
 
 	/**
+	Compact link previews, like in Messages, show only the title and the domain, so the title of an app has its subtitle.
+	*/
+	@Test
+	func `the social title of an app page has the subtitle`() async throws {
+		let page = try #require(try await RenderedPage.website.first { $0.route.path == #path("/dato") })
+		let app = try #require(try await SiteContent.website.apps.first { $0.slug == "dato" })
+		#expect(page.html.contains(#"<meta property="og:title" content="\#(app.title): \#(app.subtitle)">"#))
+	}
+
+	/**
 	Feed readers know the items by their GUIDs, so the GUIDs of redirect posts and of the launch of Super Menu must not change. The real content has no listed redirect posts, and Super Menu is a draft.
 	*/
 	@Test
 	func `the blog feed keeps the GUIDs of redirect posts and of the launch of Super Menu`() async throws {
-		let post = try await BlogPost(markdown: "---\ntitle: 'Elsewhere'\npublicationDate: '2026-01-01'\nredirectURL: 'https://example.com/post'\n---\n", slug: "elsewhere")
-		let app = try await App(markdown: "---\ntitle: 'Super Menu'\nsubtitle: 'A menu'\npublicationDate: '2026-01-02'\nplatforms: ['macOS']\n---\n\nText.", slug: "super-menu")
-		let content = SiteContent(apps: [app], posts: [post], pages: [], buildDate: .now, project: .empty)
+		let post = try await BlogPost(markdown: "---\ntitle: 'Elsewhere'\npublicationDate: 2026-01-01\nredirectURL: 'https://example.com/post'\n---\n", slug: "elsewhere")
+		let app = try await App(title: "Super Menu", publicationDate: "2026-01-02", slug: "super-menu")
+		let content = SiteContent(
+			apps: [app],
+			posts: [post],
+			pages: [],
+			buildDate: .now,
+			project: .empty
+		)
 		let xml = try SiteFeed.blog.feed(content: content).xmlString()
 
 		#expect(xml.contains(#"<guid isPermaLink="false">https://sindresorhus.com/blog/elsewhere</guid>"#))
 		#expect(xml.contains(#"<guid isPermaLink="false">https://sindresorhus.com/super-menu#launch</guid>"#))
+	}
+}
+
+/**
+Small layout components that can be rendered without loading every page.
+*/
+struct PageComponentTests {
+	@Test
+	func `a JPEG XL picture without a copy renders its image with its attributes`() {
+		let html = JPEGXLPicture(copy: nil) {
+			img(.src("/image.png"), .alt("An image"), .width(40), .height(30))
+		}.render()
+
+		#expect(html == #"<img src="/image.png" alt="An image" width="40" height="30">"#)
+	}
+
+	private struct MetadataPage: Page {
+		let path = RoutePath.root
+		let metadata = PageMetadata(title: "Test")
+
+		var body: some HTML {
+			EmptyHTML()
+		}
+	}
+
+	@Test
+	func `typed speculation predicates retain their JSON`() throws {
+		let html = SiteLayout(page: MetadataPage(), bodyHTML: "", resources: PageResources(), inlineScripts: []).head.render()
+		let json = try #require(html.firstMatch(of: /<script type="speculationrules">(.*?)<\/script>/)?.1)
+		#expect(String(json) == #"{"prefetch":[{"eagerness":"moderate","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/*.*","/1999"]}}]}}],"prerender":[{"eagerness":"conservative","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/*.*","/1999","/apps/random","/feedback"]}}]}}]}"#)
 	}
 }

@@ -21,10 +21,10 @@ struct AnnouncementBanner: HTML {
 				}
 				.style(Styles.text)
 
-				if let url = announcement.url {
-					a(.href(url)) {
+				if let link = announcement.link {
+					a(.href(link.url)) {
 						span {
-							announcement.linkText ?? "Learn More"
+							link.text
 						}
 
 						Icon.arrowRight.size(.rootEm(1))
@@ -59,7 +59,14 @@ struct AnnouncementBanner: HTML {
 					.padding(vertical: .rootEm(1), horizontal: .rootEm(1.25))
 					.border(.lightDark(.primary(200).opacity(0.4), .primary(700).opacity(0.3)))
 					.cornerRadius(.boxRadius)
-					.backgroundImage(.linearGradient("to bottom right", .lightDark(.primary(100).opacity(0.5), .primary(900).opacity(0.25)), .lightDark(.secondary(50).opacity(0.4), .secondary(900).opacity(0.2)), .lightDark(.primary(50).opacity(0.5), .primary(950).opacity(0.25))))
+					.backgroundImage(
+						.linearGradient(
+							.toBottomRight,
+							.lightDark(.primary(100).opacity(0.5), .primary(900).opacity(0.25)),
+							.lightDark(.secondary(50).opacity(0.4), .secondary(900).opacity(0.2)),
+							.lightDark(.primary(50).opacity(0.5), .primary(950).opacity(0.25))
+						)
+					)
 					.shadow(.small)
 					.textAlign(.center)
 					.from(.smallTablet) {

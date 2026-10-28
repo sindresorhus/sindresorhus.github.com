@@ -19,7 +19,7 @@ extension GeoCitiesWindows {
 	var calculator: some HTML {
 		div {
 			div {
-				output(.id(Hooks.calcDisplay)) {
+				output(.id(IDs.calcDisplay)) {
 					"0."
 				}
 				.accessibilityLabel("Display")
@@ -28,7 +28,7 @@ extension GeoCitiesWindows {
 			.style(Styles.calcScreen)
 
 			div {
-				p(.id(Hooks.calcMemory)) {}
+				p(.id(IDs.calcMemory)) {}
 					.accessibilityHidden()
 					.style(Styles.calcMemory)
 
@@ -54,12 +54,12 @@ extension GeoCitiesWindows {
 			.accessibilityLabel("Keys")
 			.style(Styles.calcKeys)
 
-			button(.id(Hooks.calcFlip), .type(.button), .ariaPressed(false)) {
+			button(.id(IDs.calcFlip), .type(.button), .ariaPressed(false)) {
 				"🙃 Turn Upside Down"
 			}
 			.style(GeoCitiesPage.Styles.smallButton)
 
-			p(.id(Hooks.calcStatus), .role("status")) {
+			p(.id(IDs.calcStatus), .role("status")) {
 				"Click the keys, or type. Try 2 + 2, or 1999 + 1."
 			}
 			.style(GeoCitiesPage.Styles.statusBar)
@@ -72,17 +72,25 @@ extension GeoCitiesWindows {
 	*/
 	var dosPrompt: some HTML {
 		div {
-			div(.id(Hooks.dosOutput), .role("log")) {
+			div(.id(IDs.dosOutput), .role("log")) {
 				"Microsoft(R) Windows 98\n   (C)Copyright Microsoft Corp 1981-1999.\n\nType HELP for a list of commands.\n"
 			}
 			.style(Styles.dosOutput)
 
-			form(.id(Hooks.dosForm)) {
-				label(.id(Hooks.dosPrompt), .for(Hooks.dosInput.id)) {
+			form(.id(IDs.dosForm)) {
+				label(.id(IDs.dosPrompt), .for(IDs.dosInput.id)) {
 					"C:\\WINDOWS>"
 				}
 
-				input(.id(Hooks.dosInput), .type(.text), .autocomplete("off"), .maxlength(80), .custom(name: "autocapitalize", value: "off"), .custom(name: "autocorrect", value: "off"), .custom(name: "spellcheck", value: "false"))
+				input(
+					.id(IDs.dosInput),
+					.type(.text),
+					.autocomplete("off"),
+					.maxlength(80),
+					.autocapitalize(.none),
+					.custom(name: "autocorrect", value: "off"),
+					.spellcheck(false)
+				)
 					.style(Styles.dosInput)
 			}
 			.style(Styles.dosLine)
@@ -98,7 +106,7 @@ extension GeoCitiesWindows {
 			div {
 				GeoCitiesWindows.hiddenLabel("Font", for: .wordpadFont)
 
-				select(.id(Hooks.wordpadFont)) {
+				select(.id(IDs.wordpadFont)) {
 					for font in ["Times New Roman", "Arial", "Comic Sans MS", "Courier New", "Wingdings"] {
 						option(.value(font)) {
 							font
@@ -109,7 +117,7 @@ extension GeoCitiesWindows {
 
 				GeoCitiesWindows.hiddenLabel("Font size", for: .wordpadSize)
 
-				select(.id(Hooks.wordpadSize)) {
+				select(.id(IDs.wordpadSize)) {
 					for size in ["10", "12", "18", "24", "36", "72"] {
 						option(.value(size)) {
 							size
@@ -132,16 +140,16 @@ extension GeoCitiesWindows {
 			div {
 				GeoCitiesWindows.hiddenLabel("My letter to Santa", for: .wordpadText)
 
-				textarea(.id(Hooks.wordpadText), .rows(12)) {
+				textarea(.id(IDs.wordpadText), .rows(12)) {
 					Self.letterToSanta
 				}
 				.style(Styles.wordpadText)
 
-				p(.id(Hooks.wordpadWingdings), .hidden, .role("img")) {}
+				p(.id(IDs.wordpadWingdings), .hidden, .role("img")) {}
 					.accessibilityLabel("My letter to Santa, in Wingdings")
 					.style(Styles.wordpadText, Styles.wingdings)
 
-				div(.id(Hooks.assistant), .hidden) {
+				div(.id(IDs.assistant), .hidden) {
 					p {
 						"📎"
 						span {
@@ -153,7 +161,7 @@ extension GeoCitiesWindows {
 					.style(Styles.assistantClip)
 
 					div {
-						p(.id(Hooks.assistantText), .role("status")) {}
+						p(.id(IDs.assistantText), .role("status")) {}
 
 						div {
 							for (choice, title) in [("help", "Get help with writing the letter"), ("alone", "Just type the letter without help"), ("never", "Don’t show me this tip again")] {
@@ -171,7 +179,7 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.wordpadPage)
 
-			p(.id(Hooks.wordpadStatus), .role("status")) {
+			p(.id(IDs.wordpadStatus), .role("status")) {
 				"For Help, press F1. (F1 does nothing.)"
 			}
 			.style(GeoCitiesPage.Styles.statusBar)
@@ -209,12 +217,19 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.toolbar)
 
-			form(.id(Hooks.ieForm)) {
-				label(.for(Hooks.ieAddress.id)) {
+			form(.id(IDs.ieForm)) {
+				label(.for(IDs.ieAddress.id)) {
 					"Address"
 				}
 
-				input(.id(Hooks.ieAddress), .type(.text), .value("about:home"), .autocomplete("off"), .custom(name: "autocapitalize", value: "off"), .custom(name: "spellcheck", value: "false"))
+				input(
+					.id(IDs.ieAddress),
+					.type(.text),
+					.value("about:home"),
+					.autocomplete("off"),
+					.autocapitalize(.none),
+					.spellcheck(false)
+				)
 					.style(GeoCitiesPage.Styles.field)
 
 				button(.type(.submit)) {
@@ -224,17 +239,22 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.ieAddressBar)
 
-			div(.id(Hooks.iePage), .role("region"), .tabindex(-1), .ariaLive(.polite)) {}
+			div(
+				.id(IDs.iePage),
+				.role("region"),
+				.tabindex(-1),
+				.ariaLive(.polite)
+			) {}
 				.accessibilityLabel("Web page")
 				.style(Styles.iePage)
 
 			div {
-				p(.id(Hooks.ieStatus)) {
+				p(.id(IDs.ieStatus)) {
 					"Done"
 				}
 
 				span {
-					span(.id(Hooks.ieProgress)) {}
+					span(.id(IDs.ieProgress)) {}
 						.style(Styles.progressFill)
 				}
 				.accessibilityHidden()
@@ -515,19 +535,19 @@ extension GeoCitiesWindows {
 			.style(GeoCitiesPage.Styles.facts)
 
 			div {
-				button(.id(Hooks.dialUpConnect), .type(.button)) {
+				button(.id(IDs.dialUpConnect), .type(.button)) {
 					"Connect"
 				}
 				.style(GeoCitiesPage.Styles.retroButton)
 
-				button(.id(Hooks.dialUpDisconnect), .type(.button), .hidden) {
+				button(.id(IDs.dialUpDisconnect), .type(.button), .hidden) {
 					"Disconnect"
 				}
 				.style(GeoCitiesPage.Styles.retroButton)
 			}
 			.style(GeoCitiesPage.Styles.row)
 
-			p(.id(Hooks.dialUpStatus), .role("status")) {
+			p(.id(IDs.dialUpStatus), .role("status")) {
 				"Not connected."
 			}
 			.style(GeoCitiesPage.Styles.statusBar)
@@ -541,23 +561,23 @@ extension GeoCitiesWindows {
 	var networkNeighborhood: some HTML {
 		div {
 			div {
-				button(.id(Hooks.networkUp), .type(.button), .disabled) {
+				button(.id(IDs.networkUp), .type(.button), .disabled) {
 					"⬆️ Up"
 				}
 				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
-				p(.id(Hooks.networkPath)) {
+				p(.id(IDs.networkPath)) {
 					"Network Neighborhood"
 				}
 				.style(Styles.addressField)
 			}
 			.style(Styles.toolbar)
 
-			ul(.id(Hooks.networkList)) {}
+			ul(.id(IDs.networkList)) {}
 				.accessibilityLabel("Computers")
 				.style(Styles.fileList)
 
-			p(.id(Hooks.networkStatus), .role("status")) {}
+			p(.id(IDs.networkStatus), .role("status")) {}
 				.style(GeoCitiesPage.Styles.statusBar)
 		}
 		.style(Styles.stack)
@@ -570,7 +590,7 @@ extension GeoCitiesWindows {
 		div {
 			GeoCitiesWindows.hiddenLabel("The text of the file", for: .viewerText)
 
-			textarea(.id(Hooks.viewerText), .rows(12), .readonly) {}
+			textarea(.id(IDs.viewerText), .rows(12), .readonly) {}
 				.style(GeoCitiesPage.Styles.field, GeoCitiesPage.Styles.notepad)
 		}
 	}
@@ -581,10 +601,17 @@ extension GeoCitiesWindows {
 	var mediaPlayer: some HTML {
 		div {
 			div {
-				img(.id(Hooks.mediaVideo), .src(GeoCitiesPage.GIF.dancingBaby.stillPath), .alt("The dancing baby"), .width(160), .height(120), .hook(Hooks.mediaAnimated, value: GeoCitiesPage.GIF.dancingBaby.path.description))
+				img(
+					.id(IDs.mediaVideo),
+					.src(GeoCitiesPage.GIF.dancingBaby.stillPath),
+					.alt("The dancing baby"),
+					.width(160),
+					.height(120),
+					.hook(Hooks.mediaAnimated, value: GeoCitiesPage.GIF.dancingBaby.path.description)
+				)
 					.style(Styles.mediaVideo)
 
-				p(.id(Hooks.mediaBuffering), .hidden) {}
+				p(.id(IDs.mediaBuffering), .hidden) {}
 					.style(Styles.mediaBuffering)
 			}
 			.style(Styles.mediaScreen)
@@ -599,20 +626,20 @@ extension GeoCitiesWindows {
 				}
 
 				span {
-					span(.id(Hooks.mediaProgress)) {}
+					span(.id(IDs.mediaProgress)) {}
 						.style(Styles.progressFill)
 				}
 				.accessibilityHidden()
 				.style(Styles.progressTrack, Styles.grow)
 
-				span(.id(Hooks.mediaTime)) {
+				span(.id(IDs.mediaTime)) {
 					"00:00 / 00:15"
 				}
 				.style(Styles.lcdSmall)
 			}
 			.style(Styles.toolbar)
 
-			p(.id(Hooks.mediaStatus), .role("status")) {
+			p(.id(IDs.mediaStatus), .role("status")) {
 				"Stopped"
 			}
 			.style(GeoCitiesPage.Styles.statusBar)
@@ -629,20 +656,25 @@ extension GeoCitiesWindows {
 				p {
 					"Position:"
 					br()
-					span(.id(Hooks.soundPosition)) {
+					span(.id(IDs.soundPosition)) {
 						"0.00 sec."
 					}
 				}
 				.style(Styles.soundLabel)
 
-				canvas(.id(Hooks.soundWave), .width(160), .height(48), .role("img")) {}
+				canvas(
+					.id(IDs.soundWave),
+					.width(160),
+					.height(48),
+					.role("img")
+				) {}
 					.accessibilityLabel("The green line of the sound")
 					.style(Styles.soundWave)
 
 				p {
 					"Length:"
 					br()
-					span(.id(Hooks.soundLength)) {
+					span(.id(IDs.soundLength)) {
 						"0.00 sec."
 					}
 				}
@@ -674,7 +706,7 @@ extension GeoCitiesWindows {
 			.accessibilityLabel("Effects")
 			.style(Styles.wrapRow)
 
-			p(.id(Hooks.soundStatus), .role("status")) {
+			p(.id(IDs.soundStatus), .role("status")) {
 				"Press ⏺ to record your voice with the microphone, or ▶ to play TADA.WAV (with sound)."
 			}
 			.style(GeoCitiesPage.Styles.statusBar)
@@ -699,7 +731,7 @@ extension GeoCitiesWindows {
 					.accessibilityLabel("Free cells")
 					.style(Styles.cardSlots)
 
-					span(.id(Hooks.freecellKing)) {
+					span(.id(IDs.freecellKing)) {
 						"🤴"
 					}
 					.accessibilityHidden()
@@ -733,23 +765,29 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.freecellTable)
 
-			template(.id(Hooks.cardTemplate)) {
+			template(.id(IDs.cardTemplate)) {
 				span {}
 					.accessibilityHidden()
 					.style(Styles.card)
 			}
 
-			form(.id(Hooks.freecellForm)) {
-				button(.id(Hooks.freecellUndo), .type(.button), .disabled) {
+			form(.id(IDs.freecellForm)) {
+				button(.id(IDs.freecellUndo), .type(.button), .disabled) {
 					"Undo"
 				}
 				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 
-				label(.for(Hooks.freecellNumber.id)) {
+				label(.for(IDs.freecellNumber.id)) {
 					"Game #"
 				}
 
-				input(.id(Hooks.freecellNumber), .type(.number), .min(1), .max(32000), .value("1"))
+				input(
+					.id(IDs.freecellNumber),
+					.type(.number),
+					.min(1),
+					.max(32000),
+					.value("1")
+				)
 					.style(Styles.numberField)
 
 				button(.type(.submit)) {
@@ -757,14 +795,14 @@ extension GeoCitiesWindows {
 				}
 				.style(GeoCitiesPage.Styles.smallButton)
 
-				button(.id(Hooks.freecellRandom), .type(.button)) {
+				button(.id(IDs.freecellRandom), .type(.button)) {
 					"New Game"
 				}
 				.style(GeoCitiesPage.Styles.smallButton)
 			}
 			.style(Styles.wrapRow)
 
-			p(.id(Hooks.freecellStatus), .role("status")) {}
+			p(.id(IDs.freecellStatus), .role("status")) {}
 				.style(GeoCitiesPage.Styles.statusBar)
 		}
 		.style(Styles.stack)
@@ -775,7 +813,7 @@ extension GeoCitiesWindows {
 	*/
 	var controlPanel: some HTML {
 		div {
-			ul(.id(Hooks.controlHome)) {
+			ul(.id(IDs.controlHome)) {
 				for (pane, title, icon) in [("display", "Display", "🖥️"), ("themes", "Desktop Themes", "🎭"), ("date", "Date/Time", "📅"), ("mouse", "Mouse", "🖱️"), ("hardware", "Add New Hardware", "🔌"), ("programs", "Add/Remove Programs", "📦")] {
 					li {
 						button(.type(.button), .hook(Hooks.controlOpen, value: pane)) {
@@ -797,12 +835,12 @@ extension GeoCitiesWindows {
 			.style(Styles.fileList)
 
 			controlPane("display", title: "Display Properties") {
-				label(.for(Hooks.wallpaperPicker.id)) {
+				label(.for(IDs.wallpaperPicker.id)) {
 					"Wallpaper:"
 				}
 				.style(GeoCitiesPage.Styles.label)
 
-				select(.id(Hooks.wallpaperPicker)) {
+				select(.id(IDs.wallpaperPicker)) {
 					for (value, title) in Self.wallpapers {
 						option(.value(value)) {
 							title
@@ -811,12 +849,12 @@ extension GeoCitiesWindows {
 				}
 				.style(GeoCitiesPage.Styles.field)
 
-				label(.for(Hooks.scheme.id)) {
+				label(.for(IDs.scheme.id)) {
 					"Appearance:"
 				}
 				.style(GeoCitiesPage.Styles.label)
 
-				select(.id(Hooks.scheme)) {
+				select(.id(IDs.scheme)) {
 					for scheme in Self.schemes {
 						option(.value(scheme)) {
 							scheme
@@ -826,11 +864,11 @@ extension GeoCitiesWindows {
 				.style(GeoCitiesPage.Styles.field)
 
 				div {
-					label(.for(Hooks.saver.id)) {
+					label(.for(IDs.saver.id)) {
 						"Screen Saver:"
 					}
 
-					select(.id(Hooks.saver)) {
+					select(.id(IDs.saver)) {
 						for (saver, title) in [("maze", "3D Maze"), ("flying", "Flying Windows"), ("marquee", "Scrolling Marquee")] {
 							option(.value(saver)) {
 								title
@@ -838,41 +876,47 @@ extension GeoCitiesWindows {
 						}
 					}
 
-					button(.id(Hooks.saverPreview), .type(.button)) {
+					button(.id(IDs.saverPreview), .type(.button)) {
 						"Preview"
 					}
 					.style(GeoCitiesPage.Styles.smallButton)
 				}
 				.style(Styles.wrapRow)
 
-				label(.for(Hooks.marqueeText.id)) {
+				label(.for(IDs.marqueeText.id)) {
 					"Text of the Scrolling Marquee:"
 				}
 				.style(GeoCitiesPage.Styles.label)
 
-				input(.id(Hooks.marqueeText), .type(.text), .value("Sindre’s computer. Hands off, little sister!"), .maxlength(60), .autocomplete("off"))
+				input(
+					.id(IDs.marqueeText),
+					.type(.text),
+					.value("Sindre’s computer. Hands off, little sister!"),
+					.maxlength(60),
+					.autocomplete("off")
+				)
 					.style(GeoCitiesPage.Styles.field)
 
 				label {
-					input(.id(Hooks.largeIconsToggle), .type(.checkbox))
+					input(.id(IDs.largeIconsToggle), .type(.checkbox))
 					" Use large icons"
 				}
 				.style(GeoCitiesPage.Styles.label)
 
 				label {
-					input(.id(Hooks.webToggle), .type(.checkbox))
+					input(.id(IDs.webToggle), .type(.checkbox))
 					" View my Active Desktop as a web page"
 				}
 				.style(GeoCitiesPage.Styles.label)
 			}
 
 			controlPane("themes", title: "Desktop Themes (Microsoft Plus! 98)") {
-				label(.for(Hooks.theme.id)) {
+				label(.for(IDs.theme.id)) {
 					"Theme:"
 				}
 				.style(GeoCitiesPage.Styles.label)
 
-				select(.id(Hooks.theme)) {
+				select(.id(IDs.theme)) {
 					for (value, title) in Self.themes {
 						option(.value(value)) {
 							title
@@ -887,7 +931,7 @@ extension GeoCitiesWindows {
 				.style(GeoCitiesPage.Styles.caption)
 
 				label {
-					input(.id(Hooks.themeSounds), .type(.checkbox))
+					input(.id(IDs.themeSounds), .type(.checkbox))
 					" Sound events (plays a sound when a window opens)"
 				}
 				.style(GeoCitiesPage.Styles.label)
@@ -897,7 +941,7 @@ extension GeoCitiesWindows {
 				div {
 					GeoCitiesWindows.hiddenLabel("Month", for: .dateMonth)
 
-					select(.id(Hooks.dateMonth)) {
+					select(.id(IDs.dateMonth)) {
 						for (index, month) in ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].enumerated() {
 							option(.value("\(index)")) {
 								month
@@ -908,7 +952,13 @@ extension GeoCitiesWindows {
 
 					GeoCitiesWindows.hiddenLabel("Year", for: .dateYear)
 
-					input(.id(Hooks.dateYear), .type(.number), .min(1980), .max(2099), .value("1999"))
+					input(
+						.id(IDs.dateYear),
+						.type(.number),
+						.min(1980),
+						.max(2099),
+						.value("1999")
+					)
 						.style(Styles.numberField)
 				}
 				.style(Styles.wrapRow)
@@ -929,7 +979,7 @@ extension GeoCitiesWindows {
 				.accessibilityHidden()
 				.style(Styles.calendar)
 
-				button(.id(Hooks.dateApply), .type(.button)) {
+				button(.id(IDs.dateApply), .type(.button)) {
 					"Apply"
 				}
 				.style(GeoCitiesPage.Styles.retroButton)
@@ -940,40 +990,46 @@ extension GeoCitiesWindows {
 					"Double-click speed: double-click the box to test it."
 				}
 
-				button(.id(Hooks.jackBox), .type(.button)) {
+				button(.id(IDs.jackBox), .type(.button)) {
 					"🎁"
 				}
 				.accessibilityLabel("Test area: double-click the box, or press Enter twice")
 				.style(Styles.jackBox)
 
-				label(.for(Hooks.doubleClickSpeed.id)) {
+				label(.for(IDs.doubleClickSpeed.id)) {
 					"Double-click speed: Slow to Fast"
 				}
 				.style(GeoCitiesPage.Styles.label)
 
-				input(.id(Hooks.doubleClickSpeed), .type(.range), .min(0), .max(4), .value("2"))
+				input(
+					.id(IDs.doubleClickSpeed),
+					.type(.range),
+					.min(0),
+					.max(4),
+					.value("2")
+				)
 					.style(Styles.volumeSlider)
 
 				label {
-					input(.id(Hooks.shyIcons), .type(.checkbox))
+					input(.id(IDs.shyIcons), .type(.checkbox))
 					" Shy icons: the icons run away from the pointer (the keyboard still catches them)"
 				}
 				.style(GeoCitiesPage.Styles.label)
 			}
 
 			controlPane("hardware", title: "Add New Hardware Wizard") {
-				p(.id(Hooks.hardwareText)) {
+				p(.id(IDs.hardwareText)) {
 					"This wizard installs the software for a new hardware device. Plug in your new scanner now, then click Next."
 				}
 
 				span {
-					span(.id(Hooks.hardwareProgress)) {}
+					span(.id(IDs.hardwareProgress)) {}
 						.style(Styles.progressFill)
 				}
 				.accessibilityHidden()
 				.style(Styles.progressTrack)
 
-				button(.id(Hooks.hardwareNext), .type(.button)) {
+				button(.id(IDs.hardwareNext), .type(.button)) {
 					"Next >"
 				}
 				.style(GeoCitiesPage.Styles.retroButton)
@@ -1002,7 +1058,7 @@ extension GeoCitiesWindows {
 				.style(Styles.stack)
 			}
 
-			p(.id(Hooks.controlStatus), .role("status")) {}
+			p(.id(IDs.controlStatus), .role("status")) {}
 				.style(GeoCitiesPage.Styles.statusBar)
 		}
 		.style(Styles.stack)
@@ -1074,18 +1130,18 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.fixerLogo)
 
-			p(.id(Hooks.fixerText)) {
+			p(.id(IDs.fixerText)) {
 				"Is your computer ready for the year 2000? 99% of computers are not! Y2K Fixer 2000 fixes all your dates in minutes."
 			}
 
 			span {
-				span(.id(Hooks.fixerProgress)) {}
+				span(.id(IDs.fixerProgress)) {}
 					.style(Styles.progressFill)
 			}
 			.accessibilityHidden()
 			.style(Styles.progressTrack)
 
-			button(.id(Hooks.fixerStart), .type(.button)) {
+			button(.id(IDs.fixerStart), .type(.button)) {
 				"Fix My Computer!"
 			}
 			.style(GeoCitiesPage.Styles.retroButton)
@@ -1098,13 +1154,19 @@ extension GeoCitiesWindows {
 	*/
 	var findFiles: some HTML {
 		div {
-			form(.id(Hooks.findForm)) {
-				label(.for(Hooks.findName.id)) {
+			form(.id(IDs.findForm)) {
+				label(.for(IDs.findName.id)) {
 					"Named:"
 				}
 				.style(GeoCitiesPage.Styles.label)
 
-				input(.id(Hooks.findName), .type(.text), .autocomplete("off"), .maxlength(40), .custom(name: "spellcheck", value: "false"))
+				input(
+					.id(IDs.findName),
+					.type(.text),
+					.autocomplete("off"),
+					.maxlength(40),
+					.spellcheck(false)
+				)
 					.style(GeoCitiesPage.Styles.field)
 
 				div {
@@ -1113,7 +1175,7 @@ extension GeoCitiesWindows {
 					}
 					.style(GeoCitiesPage.Styles.retroButton)
 
-					p(.id(Hooks.findAnimation), .hidden) {
+					p(.id(IDs.findAnimation), .hidden) {
 						span {
 							"📁"
 						}
@@ -1130,11 +1192,11 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.stack)
 
-			ul(.id(Hooks.findResults)) {}
+			ul(.id(IDs.findResults)) {}
 				.accessibilityLabel("Files found")
 				.style(Styles.fileList)
 
-			p(.id(Hooks.findStatus), .role("status")) {
+			p(.id(IDs.findStatus), .role("status")) {
 				"Type a name, like homework, unicorn, or *."
 			}
 			.style(GeoCitiesPage.Styles.statusBar)
@@ -1146,17 +1208,24 @@ extension GeoCitiesWindows {
 	The Run dialog, which runs programs and commands by their names, like `calc`, `winver`, and `format c:`, and says what all others say: “Cannot find the file”.
 	*/
 	var runDialog: some HTML {
-		form(.id(Hooks.runForm)) {
+		form(.id(IDs.runForm)) {
 			p {
 				"Type the name of a program, folder, or document, and Windows will open it for you."
 			}
 
 			div {
-				label(.for(Hooks.runInput.id)) {
+				label(.for(IDs.runInput.id)) {
 					"Open:"
 				}
 
-				input(.id(Hooks.runInput), .type(.text), .autocomplete("off"), .maxlength(60), .custom(name: "autocapitalize", value: "off"), .custom(name: "spellcheck", value: "false"))
+				input(
+					.id(IDs.runInput),
+					.type(.text),
+					.autocomplete("off"),
+					.maxlength(60),
+					.autocapitalize(.none),
+					.spellcheck(false)
+				)
 					.style(GeoCitiesPage.Styles.field)
 			}
 			.style(Styles.nowrapRow)
@@ -1174,7 +1243,7 @@ extension GeoCitiesWindows {
 
 				GeoCitiesWindows.closeButton()
 
-				button(.id(Hooks.runBrowse), .type(.button)) {
+				button(.id(IDs.runBrowse), .type(.button)) {
 					"Browse…"
 				}
 				.style(GeoCitiesPage.Styles.retroButton)
@@ -1191,7 +1260,7 @@ extension GeoCitiesWindows {
 		div {
 			GeoCitiesWindows.hiddenLabel("Programs that are running", for: .tasksList)
 
-			select(.id(Hooks.tasksList), .size(7)) {}
+			select(.id(IDs.tasksList), .size(7)) {}
 				.style(GeoCitiesPage.Styles.field, Styles.taskList)
 
 			p {
@@ -1200,12 +1269,12 @@ extension GeoCitiesWindows {
 			.style(GeoCitiesPage.Styles.caption)
 
 			div {
-				button(.id(Hooks.tasksEnd), .type(.button)) {
+				button(.id(IDs.tasksEnd), .type(.button)) {
 					"End Task"
 				}
 				.style(GeoCitiesPage.Styles.retroButton)
 
-				button(.id(Hooks.tasksShutDown), .type(.button)) {
+				button(.id(IDs.tasksShutDown), .type(.button)) {
 					"Shut Down"
 				}
 				.style(GeoCitiesPage.Styles.retroButton)
@@ -1214,7 +1283,7 @@ extension GeoCitiesWindows {
 			}
 			.style(GeoCitiesPage.Styles.row)
 
-			p(.id(Hooks.tasksStatus), .role("status")) {}
+			p(.id(IDs.tasksStatus), .role("status")) {}
 				.style(GeoCitiesPage.Styles.statusBar)
 		}
 		.style(Styles.stack)
@@ -1248,11 +1317,11 @@ extension GeoCitiesWindows {
 				.style(Styles.stack)
 
 				div {
-					p(.id(Hooks.welcomeText), .role("status")) {
+					p(.id(IDs.welcomeText), .role("status")) {
 						"Click a topic to start. Discover Windows 98 takes 4 hours, or 1 minute if you click fast."
 					}
 
-					button(.id(Hooks.welcomeNext), .type(.button), .hidden) {
+					button(.id(IDs.welcomeNext), .type(.button), .hidden) {
 						"Next >"
 					}
 					.style(GeoCitiesPage.Styles.retroButton)
@@ -1262,7 +1331,7 @@ extension GeoCitiesWindows {
 			.style(Styles.welcomeColumns)
 
 			label {
-				input(.id(Hooks.welcomeShow), .type(.checkbox), .checked)
+				input(.id(IDs.welcomeShow), .type(.checkbox), .checked)
 				" Show this screen each time Windows 98 starts."
 			}
 		}
@@ -1273,27 +1342,38 @@ extension GeoCitiesWindows {
 	The log on of Windows 98, where Cancel logs on too.
 	*/
 	var logOn: some HTML {
-		form(.id(Hooks.logOnForm)) {
+		form(.id(IDs.logOnForm)) {
 			p {
 				"🔑 Type a user name and password to log on to Windows."
 			}
 
 			div {
-				label(.for(Hooks.logOnUser.id)) {
+				label(.for(IDs.logOnUser.id)) {
 					"User name:"
 				}
 
-				input(.id(Hooks.logOnUser), .type(.text), .value("Sindre"), .autocomplete("off"), .maxlength(20))
+				input(
+					.id(IDs.logOnUser),
+					.type(.text),
+					.value("Sindre"),
+					.autocomplete("off"),
+					.maxlength(20)
+				)
 					.style(GeoCitiesPage.Styles.field)
 			}
 			.style(Styles.nowrapRow)
 
 			div {
-				label(.for(Hooks.logOnPassword.id)) {
+				label(.for(IDs.logOnPassword.id)) {
 					"Password:"
 				}
 
-				input(.id(Hooks.logOnPassword), .type(.password), .autocomplete("off"), .maxlength(20))
+				input(
+					.id(IDs.logOnPassword),
+					.type(.password),
+					.autocomplete("off"),
+					.maxlength(20)
+				)
 					.style(GeoCitiesPage.Styles.field)
 			}
 			.style(Styles.nowrapRow)
@@ -1304,7 +1384,7 @@ extension GeoCitiesWindows {
 				}
 				.style(GeoCitiesPage.Styles.retroButton)
 
-				button(.id(Hooks.logOnCancel), .type(.button)) {
+				button(.id(IDs.logOnCancel), .type(.button)) {
 					"Cancel"
 				}
 				.style(GeoCitiesPage.Styles.retroButton)
@@ -1323,7 +1403,7 @@ extension GeoCitiesWindows {
 	Shut Down Windows, with the choices of Windows 98. Stand by never wakes up properly, and MS-DOS mode is a black screen with a prompt, until `win`.
 	*/
 	var shutDownDialog: some HTML {
-		form(.id(Hooks.shutDownForm)) {
+		form(.id(IDs.shutDownForm)) {
 			p {
 				"💻 What do you want the computer to do?"
 			}
@@ -1336,7 +1416,12 @@ extension GeoCitiesWindows {
 
 				for (choice, title) in [("standby", "Stand by"), ("shutdown", "Shut down"), ("restart", "Restart"), ("dos", "Restart in MS-DOS mode")] {
 					label {
-						input(.type(.radio), .name("geocities-win-shut-down"), .value(choice), .hook(Hooks.shutDownChoice, value: choice))
+						input(
+							.type(.radio),
+							.name("geocities-win-shut-down"),
+							.value(choice),
+							.hook(Hooks.shutDownChoice, value: choice)
+						)
 							.attributes(.checked, when: choice == "shutdown")
 						" \(title)"
 					}
@@ -1364,18 +1449,18 @@ extension GeoCitiesWindows {
 	var messageBox: some HTML {
 		div {
 			div {
-				p(.id(Hooks.messageIcon)) {
+				p(.id(IDs.messageIcon)) {
 					"⚠️"
 				}
 				.accessibilityHidden()
 				.style(Styles.messageIcon)
 
-				p(.id(Hooks.messageText)) {}
+				p(.id(IDs.messageText)) {}
 					.style(Styles.messageText)
 			}
 			.style(Styles.messageRow)
 
-			pre(.id(Hooks.messageDetails), .hidden) {}
+			pre(.id(IDs.messageDetails), .hidden) {}
 				.style(Styles.messageDetails)
 
 			div {
@@ -1395,8 +1480,8 @@ extension GeoCitiesWindows {
 	@HTMLBuilder
 	var overlays: some HTML {
 		// The wallpaper and the web page of the Active Desktop, behind the icons.
-		div(.id(Hooks.layer)) {
-			div(.id(Hooks.webPage), .hidden) {
+		div(.id(IDs.layer)) {
+			div(.id(IDs.webPage), .hidden) {
 				p {
 					"My Active Desktop™"
 				}
@@ -1408,10 +1493,15 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.webPage)
 
-			canvas(.id(Hooks.cat), .width(48), .height(112), .hidden) {}
+			canvas(
+				.id(IDs.cat),
+				.width(48),
+				.height(112),
+				.hidden
+			) {}
 				.style(Styles.cat)
 
-			div(.id(Hooks.recoveryPage), .hidden) {
+			div(.id(IDs.recoveryPage), .hidden) {
 				p {
 					"Active Desktop Recovery"
 				}
@@ -1426,7 +1516,7 @@ extension GeoCitiesWindows {
 		.accessibilityHidden()
 		.style(Styles.layer)
 
-		div(.id(Hooks.channels), .hidden) {
+		div(.id(IDs.channels), .hidden) {
 			p {
 				"Channels"
 			}
@@ -1441,18 +1531,18 @@ extension GeoCitiesWindows {
 		}
 		.style(Styles.channels)
 
-		div(.id(Hooks.ticker), .hidden) {
-			p(.id(Hooks.tickerText)) {
+		div(.id(IDs.ticker), .hidden) {
+			p(.id(IDs.tickerText)) {
 				"BREAKING: Y2K is 0 days away ★ Brunost up 3% ★ Unicorns spotted in Bergen ★ Your Active Desktop is using 98% of your memory ★ "
 			}
 			.style(Styles.tickerText)
 
-			div(.id(Hooks.recovery), .hidden) {
+			div(.id(IDs.recovery), .hidden) {
 				p {
 					"Your Active Desktop has crashed."
 				}
 
-				button(.id(Hooks.recoveryRestore), .type(.button)) {
+				button(.id(IDs.recoveryRestore), .type(.button)) {
 					"Restore my Active Desktop"
 				}
 				.style(GeoCitiesPage.Styles.smallButton)
@@ -1466,9 +1556,14 @@ extension GeoCitiesWindows {
 		}
 		.style(Styles.ticker)
 
-		div(.id(Hooks.contextMenu), .role("menu"), .hidden) {
+		div(.id(IDs.contextMenu), .role("menu"), .hidden) {
 			for (command, title, target) in [("open", "Open", "icon"), ("delete", "Delete", "icon"), ("arrange", "Arrange Icons", "desktop"), ("refresh", "Refresh", "desktop"), ("new-folder", "New Folder", "desktop"), ("web", "Active Desktop: View as Web Page", "desktop"), ("properties", "Properties", "desktop")] {
-				button(.type(.button), .role("menuitem"), .hook(Hooks.contextCommand, value: command), .hook(Hooks.contextTarget, value: target)) {
+				button(
+					.type(.button),
+					.role("menuitem"),
+					.hook(Hooks.contextCommand, value: command),
+					.hook(Hooks.contextTarget, value: target)
+				) {
 					title
 				}
 				.style(GeoCitiesPage.Styles.startMenuItem)
@@ -1476,13 +1571,18 @@ extension GeoCitiesWindows {
 		}
 		.style(Styles.contextMenu)
 
-		div(.id(Hooks.boot), .hidden, .role("dialog"), .tabindex(-1)) {
-			p(.id(Hooks.bootText)) {
+		div(
+			.id(IDs.boot),
+			.hidden,
+			.role("dialog"),
+			.tabindex(-1)
+		) {
+			p(.id(IDs.bootText)) {
 				"Starting Windows 98…"
 			}
 			.style(Styles.bootText)
 
-			div(.id(Hooks.bootLogo), .hidden) {
+			div(.id(IDs.bootLogo), .hidden) {
 				p {
 					"Microsoft®"
 				}
@@ -1501,7 +1601,13 @@ extension GeoCitiesWindows {
 		.accessibilityLabel("Windows 98 is starting")
 		.style(Styles.boot)
 
-		div(.id(Hooks.bsod), .hidden, .role("alertdialog"), .tabindex(-1), .ariaLabelledBy("geocities-win-bsod-title")) {
+		div(
+			.id(IDs.bsod),
+			.hidden,
+			.role("alertdialog"),
+			.tabindex(-1),
+			.ariaLabelledBy(ElementID("geocities-win-bsod-title"))
+		) {
 			p(.id("geocities-win-bsod-title")) {
 				"Windows"
 			}
@@ -1521,19 +1627,24 @@ extension GeoCitiesWindows {
 			}
 			.style(GeoCitiesPage.Styles.centeredText)
 
-			p(.id(Hooks.bsodQuote), .hidden) {
+			p(.id(IDs.bsodQuote), .hidden) {
 				"“That must be why we’re not shipping Windows 98 yet.” Bill Gates, on stage at COMDEX in Chicago, April 20, 1998, when Windows 98 crashed like this as he plugged in a scanner."
 			}
 			.style(Styles.bsodQuote)
 		}
 		.style(Styles.bsod)
 
-		div(.id(Hooks.maze), .hidden, .role("dialog"), .tabindex(-1)) {
-			canvas(.id(Hooks.mazeCanvas), .width(320), .height(200)) {}
+		div(
+			.id(IDs.maze),
+			.hidden,
+			.role("dialog"),
+			.tabindex(-1)
+		) {
+			canvas(.id(IDs.mazeCanvas), .width(320), .height(200)) {}
 				.accessibilityHidden()
 				.style(Styles.mazeCanvas)
 
-			p(.id(Hooks.mazeText)) {
+			p(.id(IDs.mazeText)) {
 				"Press any key or tap to stop the screen saver."
 			}
 			.style(Styles.mazeText)
@@ -1541,7 +1652,7 @@ extension GeoCitiesWindows {
 		.accessibilityLabel("The 3D Maze screen saver")
 		.style(Styles.maze)
 
-		template(.id(Hooks.fileTemplate)) {
+		template(.id(IDs.fileTemplate)) {
 			li {
 				button(.type(.button)) {
 					span {}
@@ -1555,7 +1666,7 @@ extension GeoCitiesWindows {
 		}
 
 		// The trash that spills out of the Recycle Bin when it is too full: a pile under its icon, with a sheet of paper to copy.
-		template(.id(Hooks.paperTemplate)) {
+		template(.id(IDs.paperTemplate)) {
 			div {
 				span {
 					"📄"
@@ -1566,7 +1677,7 @@ extension GeoCitiesWindows {
 			.style(Styles.paperPile)
 		}
 
-		template(.id(Hooks.restoreTemplate)) {
+		template(.id(IDs.restoreTemplate)) {
 			li {
 				strong {}
 				" "
@@ -1577,7 +1688,7 @@ extension GeoCitiesWindows {
 			}
 		}
 
-		template(.id(Hooks.iconTemplate)) {
+		template(.id(IDs.iconTemplate)) {
 			li {
 				button(.type(.button)) {
 					span {}

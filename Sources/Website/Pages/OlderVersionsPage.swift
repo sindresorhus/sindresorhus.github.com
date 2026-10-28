@@ -12,29 +12,24 @@ struct OlderVersionsPage: Page {
 		.olderVersions
 	}
 
+	var socialImage: SocialImage {
+		.card(OpenGraphCard(page: self, project: content.project))
+	}
+
 	var metadata: PageMetadata {
 		PageMetadata(title: "Older Versions — Apps", description: "Free older versions of apps by Sindre Sorhus for older macOS versions.")
 	}
 
 	var body: some HTML {
-		ProsePage(title: "Older Versions") {
-			p {
-				"My macOS apps with an older version compatible with the following macOS versions."
-			}
-
-			p {
-				"Even my paid apps are free for these older versions."
-			}
-
+		ProsePage(title: .plain("Older Versions", intro: "Free older versions of my macOS apps for older macOS versions, also of my paid apps.")) {
 			for version in versions {
-				Section("macOS \(version.rawValue)", id: version.id) {
+				Section("macOS \(version.rawValue)", id: ElementID(version.id)) {
 					ul {
-						for app in content.listedApps where app.olderMacOSVersions.contains(version) {
-							// A direct download when the version is known, else the list elsewhere, like the readme of the repo.
-							if let olderVersion = app.olderVersions.first(where: { $0.macOS == version }) {
-								LinkRow(title: "\(app.title) \(olderVersion.version)", destination: .url(olderVersion.url), description: app.subtitle)
-							} else if let olderVersionsURL = app.olderVersionsURL {
-								LinkRow(app: app, destination: .url(olderVersionsURL))
+						for app in content.listedApps {
+							if let olderVersion = content.listing(of: app).olderVersion(for: version) {
+								// A version for an older macOS version says so, as the section is for a newer one.
+								let title = "\(app.title) \(olderVersion.version)" + (olderVersion.macOS == version ? "" : " (for macOS \(olderVersion.macOS.rawValue) or later)")
+								LinkRow(link: LabeledLink(title, destination: .url(olderVersion.url), description: app.subtitle))
 							}
 						}
 					}
@@ -47,6 +42,6 @@ struct OlderVersionsPage: Page {
 	The versions that have older app versions, newest first.
 	*/
 	private var versions: [MacOSVersion] {
-		MacOSVersion.allCases.reversed().filter(Set(content.listedApps.flatMap(\.olderMacOSVersions)).contains)
+		MacOSVersion.allCases.reversed().filter(Set(content.listedApps.flatMap(\.olderVersions).map(\.macOS)).contains)
 	}
 }
