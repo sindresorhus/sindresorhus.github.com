@@ -176,15 +176,15 @@ enum BlockDirectiveName: String, CaseIterable {
 		case .quickAnswer:
 			.init(render: renderQuickAnswer)
 		case .trial:
-			.init { (arguments: TrialArguments, contentHTML: String) in
+			.init { (arguments: App.Trial, contentHTML: String) in
 				guard case .appPage(let setappURL) = trial else {
-					throw ContentError(reason: "It is only for app pages, below the “Trial” heading (`{#trial}`), as it does not name the app.")
+					throw ContentError(reason: "It is only for app pages, where the build adds it for `trial` in the frontmatter, as it does not name the app.")
 				}
 
 				return renderTrial(arguments: arguments, contentHTML: contentHTML, setappURL: setappURL)
 			} plain: { arguments, content in
-				let link = Paragraph(Markdown.Link(destination: .url(arguments.url), text: arguments.title))
-				let requirement = arguments.macOS.map { Paragraph(Emphasis(Markdown.Text($0.requirementSentence(for: [.macOS])))) }
+				let link = Paragraph(Markdown.Link(destination: .url(arguments.url), text: arguments.buttonTitle))
+				let requirement = arguments.requirementSentence.map { Paragraph(Emphasis(Markdown.Text($0))) }
 				return content + [link, requirement].compactMap(\.self)
 			}
 		case .tinyApp:
@@ -436,44 +436,26 @@ private enum QuickAnswerStyles: StyleSet {
 }
 
 /**
-The arguments of `@Trial(url: "https://example.com/App-trial.zip") { … }`.
-*/
-@Frontmatter
-struct TrialArguments {
-	@Absolute var url: URL
-
-	/**
-	The text of the button, like “Try on TestFlight”.
-	*/
-	@PlainText var title = "Download Free Trial"
-
-	/**
-	The oldest macOS version that the trial runs on, like `macOS: "26"` or `macOS: "26.4"`, which the trial shows below the card. The trial can need a newer version than the app on the App Store, so it is not the `minimumOSVersion` of the app. The arguments of a directive are text, so it is an ``OSVersion``, not a number.
-	*/
-	var macOS: OSVersion?
-}
-
-/**
-The trial of an app, like `@Trial(url: "https://example.com/App-trial.zip", macOS: "26")`: a card with the text, a download button, the macOS version that it needs, and how to install a download (a zip file, not a link to TestFlight). It goes below the “Trial” heading, which the “Free Trial” button of the app links to, so the card is highlighted when the visitor comes from there. On an app page, a trial without content gets the standard text (``App/Frontmatter/trialText``).
+The trial of an app, like `@Trial(url: "https://example.com/App-trial.zip", macOS: "26") { … }`: a card with the text, a download button (“Try on TestFlight” for a trial on TestFlight), the macOS version that it needs, and how to install a download (a zip file, not a link to TestFlight). The build adds it below the “Trial” heading for the `trial` of an app (``App/Frontmatter/trial``), which the “Free Trial” button of the app links to, so the card is highlighted when the visitor comes from there.
 
 The end of the card has the trial on Setapp, when the app is there.
 
 - Parameter setappURL: The app on Setapp, which has its own trial.
 */
 @Sendable
-private func renderTrial(arguments: TrialArguments, contentHTML: String, setappURL: URL?) -> String {
+private func renderTrial(arguments: App.Trial, contentHTML: String, setappURL: URL?) -> String {
 	// Not an aside, as the trial is part of the page about the app.
 	div {
 		HTMLRaw(contentHTML)
 
 		// The requirement is next to the button, as it decides whether the download is any use.
 		div {
-			Link(arguments.title, destination: .url(arguments.url))
+			Link(arguments.buttonTitle, destination: .url(arguments.url))
 				.buttonStyle()
 
-			if let macOS = arguments.macOS {
+			if let requirement = arguments.requirementSentence {
 				span {
-					macOS.requirementSentence(for: [.macOS])
+					requirement
 				}
 				.style(TrialStyles.requirement)
 			}

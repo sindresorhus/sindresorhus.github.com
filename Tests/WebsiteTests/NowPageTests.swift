@@ -47,7 +47,7 @@ struct NowPageTests {
 	}
 
 	@Test
-	func `on this day lists the apps, releases, and posts of this day in earlier years`() async throws {
+	func `on this day lists the app launches and posts of this day in earlier years, not the app updates`() async throws {
 		func post(_ slug: String, date: String) async throws -> BlogPost {
 			try await BlogPost(markdown: "---\ntitle: '\(slug)'\npublicationDate: \(date)\n---\n\nText.", slug: slug)
 		}
@@ -74,8 +74,8 @@ struct NowPageTests {
 		let section = try #require(html.firstMatch(of: /<h2 id="on-this-day".*?<\/section>/.dotMatchesNewlines())).output
 		let rows = section.matches(of: /<a href="[^"]*">([^<]*)<\/a><span[^>]*>([^<]*)<\/span>/)
 
-		#expect(rows.map(\.output.1) == ["Test 3.0.0", "Test 2.0.0", "same-day", "Test"])
-		#expect(rows.map(\.output.2) == ["released in 2021", "released in 2021", "posted in 2021", "launched in 2019"])
+		#expect(rows.map(\.output.1) == ["same-day", "Test"])
+		#expect(rows.map(\.output.2) == ["posted 5 years ago", "launched 7 years ago"])
 	}
 
 	/**

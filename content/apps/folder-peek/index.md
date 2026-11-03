@@ -61,6 +61,7 @@ It also works as an [app launcher](#app-launcher), now that macOS 26 has removed
 
 - Add multiple folders to the menu bar
 - Each folder can be individually customized
+- Show a folder’s contents as a submenu or directly in the menu
 - File preview
 - View and copy image & video dimensions
 - Drag & drop files directly from the menu
@@ -92,6 +93,7 @@ Make sure you read the below tips and FAQ.
 - Press the ++Option++ key while the menu is open to show the `…` menu item at the top if it normally is at the bottom.
 - Right-click or ++Option++-click the menu bar item to open the folder.
 - Press the ++Shift++ key while viewing a subfolder to reveal more actions. For example, sort order settings.
+- In single menu bar item mode, each folder has a “Show folder contents in” setting with the choices “Submenu”, “Section”, and “None”. “Section” lists the contents directly below the folder’s own item in the menu. The folder is then read each time the menu opens, so use it for small folders, and “None” for very large folders.
 - Search: Just start typing when the menu is open to find a file or folder in the menu. This is just the standard menu behavior where you can type to highlight a certain menu item. It’s not a full-blown search.
 
 ### Links

@@ -777,13 +777,13 @@ struct NowPage: Page {
 		let description: String
 
 		/**
-		The instant for ordering releases within a day. App and post dates use midnight UTC.
+		The year for ordering, like 2019.
 		*/
-		let date: Date
+		let year: Int
 	}
 
 	/**
-	The apps that launched, the app versions that were released, and the blog posts that were published on this day in earlier years (UTC), newest first, at most six.
+	The apps that launched and the blog posts that were published on this day in earlier years (UTC), newest first. App updates are left out, as they are many and not of interest years later.
 	*/
 	private var onThisDay: [Anniversary] {
 		let today = SOML.Date(content.buildDate)
@@ -792,38 +792,29 @@ struct NowPage: Page {
 			date.year < today.year && date.month == today.month && date.day == today.day
 		}
 
+		func yearsAgo(_ date: SOML.Date) -> String {
+			"\((today.year - date.year).formatted(counting: "year")) ago"
+		}
+
 		let apps = content.listedApps
 			.filter { !$0.isRedirect && isAnniversary($0.publicationDate) }
 			.map { Anniversary(
 				title: $0.title,
 				destination: $0.url,
-				description: "launched in \($0.publicationDate.year)",
-				date: $0.publicationDate.foundationDate
+				description: "launched \(yearsAgo($0.publicationDate))",
+				year: $0.publicationDate.year
 			) }
-
-		let releases = content.activeApps.flatMap { app in
-			app.releaseNotes.map { releaseNotes in
-				content.listing(of: app).releases
-					.filter { isAnniversary(SOML.Date($0.publishedAt)) }
-					.map { Anniversary(
-						title: "\(app.title) \($0.version)",
-						destination: releaseNotes.destination(of: $0),
-						description: "released in \($0.publishedAt.siteYear)",
-						date: $0.publishedAt
-					) }
-			} ?? []
-		}
 
 		let posts = content.listedPosts
 			.filter { isAnniversary($0.publicationDate) }
 			.map { Anniversary(
 				title: $0.title,
 				destination: $0.url,
-				description: "posted in \($0.publicationDate.year)",
-				date: $0.publicationDate.foundationDate
+				description: "posted \(yearsAgo($0.publicationDate))",
+				year: $0.publicationDate.year
 			) }
 
-		return Array((apps + releases + posts).sorted(using: [KeyPathComparator(\.date, order: .reverse), KeyPathComparator(\.title, comparator: .localizedStandard)]).prefix(6))
+		return (apps + posts).sorted(using: [KeyPathComparator(\.year, order: .reverse), KeyPathComparator(\.title, comparator: .localizedStandard)])
 	}
 
 	/**

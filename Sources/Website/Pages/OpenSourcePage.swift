@@ -483,7 +483,7 @@ struct OpenSourceProject {
 			case .commandLineTools:
 				"Tools to use in the terminal."
 			case .commandLineApps:
-				"Colors, spinners, boxes, and arguments for your own command-line apps."
+				"Colors, spinners, boxes, and text for your own command-line apps."
 			case .files:
 				"Find, copy, move, and delete files from Node.js."
 			case .system:
@@ -491,23 +491,23 @@ struct OpenSourceProject {
 			case .text:
 				"Change strings and show numbers in a format that people can read."
 			case .objects:
-				"Work with nested objects, and keep the results of functions."
+				"Work with nested objects, cache results, and delay function calls."
 			case .web:
 				"For web pages: URLs, the clipboard, the DOM, and CSS."
 			case .images:
 				"Screenshots of websites, and images in code and in the terminal."
 			case .linting:
-				"Linters and ESLint rules for JavaScript and TypeScript."
+				"Linters and ESLint rules for JavaScript, TypeScript, CSS, and Markdown."
 			case .testing:
 				"A test runner, and types and checks for JavaScript and TypeScript."
 			case .fileFormats:
-				"Two file formats that I made, with their specs and implementations. Both are drafts."
+				"Two file formats that I made, with their specs. Both are drafts. The Swift implementation of SOML is also listed."
 			case .swift:
 				"Packages for Swift and Mac apps."
 			case .mac:
 				"Command-line tools and packages for macOS."
 			case .apps:
-				"My apps that have their source code on GitHub."
+				"My apps on GitHub."
 			case .lists:
 				"Lists of good things about a topic, like Node.js packages and sci-fi."
 			case .fun:
@@ -519,14 +519,46 @@ struct OpenSourceProject {
 		The projects of the group, in their order in the catalog.
 		*/
 		var projects: [OpenSourceProject] {
-			OpenSourceProject.all.filter { $0.group == self }
+			switch self {
+			case .http:
+				OpenSourceProject.httpProjects
+			case .promises:
+				OpenSourceProject.promisesProjects
+			case .commandLineTools:
+				OpenSourceProject.commandLineToolsProjects
+			case .commandLineApps:
+				OpenSourceProject.commandLineAppsProjects
+			case .files:
+				OpenSourceProject.filesProjects
+			case .system:
+				OpenSourceProject.systemProjects
+			case .text:
+				OpenSourceProject.textProjects
+			case .objects:
+				OpenSourceProject.objectsProjects
+			case .web:
+				OpenSourceProject.webProjects
+			case .images:
+				OpenSourceProject.imagesProjects
+			case .linting:
+				OpenSourceProject.lintingProjects
+			case .testing:
+				OpenSourceProject.testingProjects
+			case .fileFormats:
+				OpenSourceProject.fileFormatsProjects
+			case .swift:
+				OpenSourceProject.swiftProjects
+			case .mac:
+				OpenSourceProject.macProjects
+			case .apps:
+				OpenSourceProject.appsProjects
+			case .lists:
+				OpenSourceProject.listsProjects
+			case .fun:
+				OpenSourceProject.funProjects
+			}
 		}
 	}
-
-	/**
-	The one group that the project belongs to.
-	*/
-	let group: Group
 
 	/**
 	The name of the project, like “Got”.
@@ -548,290 +580,240 @@ struct OpenSourceProject {
 	/**
 	All the projects of the page, in the order within each group. The descriptions are close to those of the repos.
 	*/
-	static let all: [Self] = [
-		httpProjects,
-		promisesProjects,
-		commandLineToolsProjects,
-		commandLineAppsProjects,
-		filesProjects,
-		systemProjects,
-		textProjects,
-		objectsProjects,
-		webProjects,
-		imagesProjects,
-		lintingProjects,
-		testingProjects,
-		fileFormatsProjects,
-		swiftProjects,
-		macProjects,
-		appsProjects,
-		listsProjects,
-		funProjects,
-	].flatMap(\.self)
+	static let all: [Self] = Group.allCases.flatMap(\.projects)
 
 	private static let httpProjects: [Self] = [
 		Self(
-			group: .http,
 			name: "Got",
 			repository: #repository("sindresorhus/got"),
 			summary: "Human-friendly and powerful HTTP requests for Node.js.",
 			language: .typeScript
 		),
 		Self(
-			group: .http,
 			name: "Ky",
 			repository: #repository("sindresorhus/ky"),
 			summary: "A tiny and elegant HTTP client based on the Fetch API.",
 			language: .typeScript
 		),
+		// The following were intentionally excluded: is-online, public-ip, is-up.
 		Self(
-			group: .http,
-			name: "is-online",
-			repository: #repository("sindresorhus/is-online"),
-			summary: "Check if the internet connection is up.",
+			name: "normalize-url",
+			repository: #repository("sindresorhus/normalize-url"),
+			summary: "Normalize a URL.",
 			language: .javaScript
 		),
 		Self(
-			group: .http,
-			name: "public-ip",
-			repository: #repository("sindresorhus/public-ip"),
-			summary: "Get your public IP address, very fast.",
+			name: "fetch-extras",
+			repository: #repository("sindresorhus/fetch-extras"),
+			summary: "Useful utilities for working with Fetch.",
 			language: .javaScript
 		),
 	]
 
 	private static let promisesProjects: [Self] = [
 		Self(
-			group: .promises,
 			name: "p-limit",
 			repository: #repository("sindresorhus/p-limit"),
 			summary: "Run promise-returning and async functions with limited concurrency.",
 			language: .javaScript
 		),
 		Self(
-			group: .promises,
 			name: "p-queue",
 			repository: #repository("sindresorhus/p-queue"),
 			summary: "Promise queue with concurrency control.",
 			language: .typeScript
 		),
 		Self(
-			group: .promises,
 			name: "p-map",
 			repository: #repository("sindresorhus/p-map"),
 			summary: "Map over promises concurrently.",
 			language: .javaScript
 		),
 		Self(
-			group: .promises,
 			name: "p-retry",
 			repository: #repository("sindresorhus/p-retry"),
 			summary: "Retry a promise-returning or async function.",
 			language: .javaScript
 		),
 		Self(
-			group: .promises,
 			name: "p-throttle",
 			repository: #repository("sindresorhus/p-throttle"),
 			summary: "Throttle promise-returning and async functions.",
 			language: .javaScript
 		),
+		// The following were intentionally excluded: pify, delay, Emittery, p-cancelable.
 		Self(
-			group: .promises,
-			name: "pify",
-			repository: #repository("sindresorhus/pify"),
-			summary: "Promisify a callback-style function.",
-			language: .javaScript
+			name: "p-progress",
+			repository: #repository("sindresorhus/p-progress"),
+			summary: "Create a promise that reports progress.",
+			language: .typeScript
 		),
 		Self(
-			group: .promises,
-			name: "delay",
-			repository: #repository("sindresorhus/delay"),
-			summary: "Delay a promise a specified amount of time.",
-			language: .javaScript
+			name: "p-memoize",
+			repository: #repository("sindresorhus/p-memoize"),
+			summary: "Memoize promise-returning and async functions.",
+			language: .typeScript
 		),
 		Self(
-			group: .promises,
-			name: "Emittery",
-			repository: #repository("sindresorhus/emittery"),
-			summary: "Simple and modern async event emitter.",
+			name: "p-event",
+			repository: #repository("sindresorhus/p-event"),
+			summary: "Promisify an event by waiting for it to be emitted.",
 			language: .javaScript
 		),
 	]
 
 	private static let commandLineToolsProjects: [Self] = [
 		Self(
-			group: .commandLineTools,
 			name: "np",
 			repository: #repository("sindresorhus/np"),
 			summary: "A better “npm publish”.",
 			language: .javaScript
 		),
 		Self(
-			group: .commandLineTools,
 			name: "Pure",
 			repository: #repository("sindresorhus/pure"),
 			summary: "Pretty, minimal, and fast Zsh prompt.",
 			language: .shell
 		),
 		Self(
-			group: .commandLineTools,
 			name: "fkill",
 			repository: #repository("sindresorhus/fkill-cli"),
 			summary: "Fabulously kill processes. Cross-platform.",
 			language: .javaScript
 		),
+		// The following were intentionally excluded: fast-cli, speed-test.
 		Self(
-			group: .commandLineTools,
-			name: "fast-cli",
-			repository: #repository("sindresorhus/fast-cli"),
-			summary: "Test your download and upload speed with fast.com.",
+			name: "emoj",
+			repository: #repository("sindresorhus/emoj"),
+			summary: "Find relevant emoji from text on the command-line.",
 			language: .typeScript
 		),
 	]
 
 	private static let commandLineAppsProjects: [Self] = [
 		Self(
-			group: .commandLineApps,
 			name: "Chalk",
 			repository: #repository("chalk/chalk"),
 			summary: "Terminal string styling done right.",
 			language: .javaScript
 		),
 		Self(
-			group: .commandLineApps,
 			name: "Ora",
 			repository: #repository("sindresorhus/ora"),
 			summary: "Elegant terminal spinner.",
 			language: .javaScript
 		),
 		Self(
-			group: .commandLineApps,
 			name: "meow",
 			repository: #repository("sindresorhus/meow"),
 			summary: "A helper for command-line apps, like for their arguments and help text.",
 			language: .javaScript
 		),
 		Self(
-			group: .commandLineApps,
 			name: "boxen",
 			repository: #repository("sindresorhus/boxen"),
 			summary: "Create boxes in the terminal.",
 			language: .javaScript
 		),
 		Self(
-			group: .commandLineApps,
 			name: "log-update",
 			repository: #repository("sindresorhus/log-update"),
 			summary: "Log by overwriting the previous output in the terminal, like for progress bars.",
 			language: .javaScript
 		),
+		// The following were intentionally excluded: terminal-link, cli-spinners, update-notifier, yoctocolors, log-symbols.
 		Self(
-			group: .commandLineApps,
-			name: "terminal-link",
-			repository: #repository("sindresorhus/terminal-link"),
-			summary: "Create clickable links in the terminal.",
+			name: "string-width",
+			repository: #repository("sindresorhus/string-width"),
+			summary: "Get the visual width of a string.",
 			language: .javaScript
 		),
 		Self(
-			group: .commandLineApps,
-			name: "cli-spinners",
-			repository: #repository("sindresorhus/cli-spinners"),
-			summary: "Spinners for use in the terminal.",
+			name: "figures",
+			repository: #repository("sindresorhus/figures"),
+			summary: "Unicode symbols with fallbacks for older terminals.",
 			language: .javaScript
 		),
 		Self(
-			group: .commandLineApps,
-			name: "update-notifier",
-			repository: #repository("sindresorhus/update-notifier"),
-			summary: "Update notifications for your command-line app.",
+			name: "cli-truncate",
+			repository: #repository("sindresorhus/cli-truncate"),
+			summary: "Truncate a string to fit a specific number of columns.",
 			language: .javaScript
 		),
 	]
 
 	private static let filesProjects: [Self] = [
 		Self(
-			group: .files,
 			name: "globby",
 			repository: #repository("sindresorhus/globby"),
 			summary: "User-friendly glob matching.",
 			language: .javaScript
 		),
 		Self(
-			group: .files,
 			name: "file-type",
 			repository: #repository("sindresorhus/file-type"),
 			summary: "Detect the file type of a file, stream, or data.",
 			language: .javaScript
 		),
 		Self(
-			group: .files,
 			name: "find-up",
 			repository: #repository("sindresorhus/find-up"),
 			summary: "Find a file or directory by walking up parent directories.",
 			language: .javaScript
 		),
 		Self(
-			group: .files,
 			name: "trash",
 			repository: #repository("sindresorhus/trash"),
 			summary: "Move files and directories to the trash.",
 			language: .javaScript
 		),
 		Self(
-			group: .files,
 			name: "del",
 			repository: #repository("sindresorhus/del"),
 			summary: "Delete files and directories.",
 			language: .javaScript
 		),
 		Self(
-			group: .files,
 			name: "cpy",
 			repository: #repository("sindresorhus/cpy"),
 			summary: "Copy files.",
 			language: .javaScript
 		),
 		Self(
-			group: .files,
 			name: "move-file",
 			repository: #repository("sindresorhus/move-file"),
 			summary: "Move a file, directory, or symlink, also to another device.",
 			language: .javaScript
 		),
+		// The following was intentionally excluded: make-dir.
 		Self(
-			group: .files,
-			name: "make-dir",
-			repository: #repository("sindresorhus/make-dir"),
-			summary: "Make a directory and its parents if needed, like “mkdir -p”.",
+			name: "tempy",
+			repository: #repository("sindresorhus/tempy"),
+			summary: "Get a random temporary file or directory path.",
 			language: .javaScript
 		),
 	]
 
 	private static let systemProjects: [Self] = [
 		Self(
-			group: .system,
 			name: "Execa",
 			repository: #repository("sindresorhus/execa"),
 			summary: "Process execution for humans.",
 			language: .javaScript
 		),
 		Self(
-			group: .system,
 			name: "open",
 			repository: #repository("sindresorhus/open"),
 			summary: "Open URLs, files, and executables. Cross-platform.",
 			language: .javaScript
 		),
 		Self(
-			group: .system,
 			name: "clipboardy",
 			repository: #repository("sindresorhus/clipboardy"),
 			summary: "Access the system clipboard (copy and paste).",
 			language: .javaScript
 		),
 		Self(
-			group: .system,
 			name: "get-port",
 			repository: #repository("sindresorhus/get-port"),
 			summary: "Get an available TCP port.",
@@ -841,28 +823,24 @@ struct OpenSourceProject {
 
 	private static let textProjects: [Self] = [
 		Self(
-			group: .text,
 			name: "slugify",
 			repository: #repository("sindresorhus/slugify"),
 			summary: "Slugify a string.",
 			language: .javaScript
 		),
 		Self(
-			group: .text,
 			name: "camelcase",
 			repository: #repository("sindresorhus/camelcase"),
 			summary: "Convert a dash, dot, underscore, or space separated string to camelCase.",
 			language: .javaScript
 		),
 		Self(
-			group: .text,
 			name: "pretty-bytes",
 			repository: #repository("sindresorhus/pretty-bytes"),
 			summary: "Convert bytes to a human-readable string: 1337 → 1.34 kB.",
 			language: .javaScript
 		),
 		Self(
-			group: .text,
 			name: "pretty-ms",
 			repository: #repository("sindresorhus/pretty-ms"),
 			summary: "Convert milliseconds to a human-readable string: 1337000000 → 15d 11h 23m 20s.",
@@ -872,28 +850,25 @@ struct OpenSourceProject {
 
 	private static let objectsProjects: [Self] = [
 		Self(
-			group: .objects,
 			name: "dot-prop",
 			repository: #repository("sindresorhus/dot-prop"),
 			summary: "Get, set, or delete a property of a nested object with a dot path.",
 			language: .javaScript
 		),
+		// The following was intentionally excluded: on-change.
 		Self(
-			group: .objects,
-			name: "on-change",
-			repository: #repository("sindresorhus/on-change"),
-			summary: "Watch an object or array for changes.",
+			name: "debounce",
+			repository: #repository("sindresorhus/debounce"),
+			summary: "Delay function calls until a set time elapses after the last invocation.",
 			language: .javaScript
 		),
 		Self(
-			group: .objects,
 			name: "quick-lru",
 			repository: #repository("sindresorhus/quick-lru"),
 			summary: "Simple “Least Recently Used” (LRU) cache.",
 			language: .javaScript
 		),
 		Self(
-			group: .objects,
 			name: "memoize",
 			repository: #repository("sindresorhus/memoize"),
 			summary: "Memoize functions, so calls with the same input are faster.",
@@ -903,28 +878,24 @@ struct OpenSourceProject {
 
 	private static let webProjects: [Self] = [
 		Self(
-			group: .web,
 			name: "query-string",
 			repository: #repository("sindresorhus/query-string"),
 			summary: "Parse and stringify URL query strings.",
 			language: .javaScript
 		),
 		Self(
-			group: .web,
 			name: "copy-text-to-clipboard",
 			repository: #repository("sindresorhus/copy-text-to-clipboard"),
 			summary: "Copy text to the clipboard in modern browsers.",
 			language: .javaScript
 		),
 		Self(
-			group: .web,
 			name: "element-ready",
 			repository: #repository("sindresorhus/element-ready"),
 			summary: "Detect when an element is ready in the DOM.",
 			language: .javaScript
 		),
 		Self(
-			group: .web,
 			name: "github-markdown-css",
 			repository: #repository("sindresorhus/github-markdown-css"),
 			summary: "The minimal amount of CSS to replicate the GitHub Markdown style.",
@@ -933,29 +904,20 @@ struct OpenSourceProject {
 	]
 
 	private static let imagesProjects: [Self] = [
+		// The following were intentionally excluded: Pageres, gulp-imagemin, image-type, term-img.
 		Self(
-			group: .images,
-			name: "Pageres",
-			repository: #repository("sindresorhus/pageres"),
-			summary: "Capture screenshots of websites in many resolutions.",
-			language: .typeScript
-		),
-		Self(
-			group: .images,
 			name: "capture-website",
 			repository: #repository("sindresorhus/capture-website"),
 			summary: "Capture screenshots of websites.",
 			language: .javaScript
 		),
 		Self(
-			group: .images,
 			name: "image-dimensions",
 			repository: #repository("sindresorhus/image-dimensions"),
 			summary: "Get the dimensions of an image.",
 			language: .javaScript
 		),
 		Self(
-			group: .images,
 			name: "terminal-image",
 			repository: #repository("sindresorhus/terminal-image"),
 			summary: "Display images in the terminal.",
@@ -965,178 +927,177 @@ struct OpenSourceProject {
 
 	private static let lintingProjects: [Self] = [
 		Self(
-			group: .linting,
 			name: "XO",
 			repository: #repository("xojs/xo"),
 			summary: "JavaScript and TypeScript linter with great defaults.",
 			language: .typeScript
 		),
 		Self(
-			group: .linting,
 			name: "eslint-plugin-unicorn",
 			repository: #repository("sindresorhus/eslint-plugin-unicorn"),
 			summary: "More than 300 powerful ESLint rules.",
 			language: .javaScript
 		),
 		Self(
-			group: .linting,
 			name: "eslint-config-xo",
 			repository: #repository("xojs/eslint-config-xo"),
 			summary: "The ESLint config of XO.",
 			language: .javaScript
 		),
+		// The following was intentionally excluded: eslint-plugin-ava.
 		Self(
-			group: .linting,
-			name: "eslint-plugin-ava",
-			repository: #repository("avajs/eslint-plugin-ava"),
-			summary: "ESLint rules for AVA.",
+			name: "eslint-package-json",
+			repository: #repository("sindresorhus/eslint-package-json"),
+			summary: "Powerful ESLint rules for package.json.",
+			language: .javaScript
+		),
+		Self(
+			name: "eslint-cssicorn",
+			repository: #repository("sindresorhus/eslint-cssicorn"),
+			summary: "Powerful ESLint rules for CSS.",
+			language: .javaScript
+		),
+		Self(
+			name: "eslint-node-test",
+			repository: #repository("sindresorhus/eslint-node-test"),
+			summary: "ESLint rules for the Node.js built-in test runner (node:test).",
+			language: .javaScript
+		),
+		Self(
+			name: "awesome-lint",
+			repository: #repository("sindresorhus/awesome-lint"),
+			summary: "Linter for Awesome lists.",
+			language: .javaScript
+		),
+		Self(
+			name: "eslint-formatter-pretty",
+			repository: #repository("sindresorhus/eslint-formatter-pretty"),
+			summary: "Pretty ESLint formatter.",
 			language: .javaScript
 		),
 	]
 
 	private static let testingProjects: [Self] = [
 		Self(
-			group: .testing,
 			name: "AVA",
 			repository: #repository("avajs/ava"),
 			summary: "Node.js test runner that lets you develop with confidence.",
 			language: .javaScript
 		),
 		Self(
-			group: .testing,
 			name: "type-fest",
 			repository: #repository("sindresorhus/type-fest"),
 			summary: "A collection of essential TypeScript types.",
 			language: .typeScript
 		),
 		Self(
-			group: .testing,
 			name: "ts-extras",
 			repository: #repository("sindresorhus/ts-extras"),
 			summary: "Essential utilities for TypeScript projects.",
 			language: .typeScript
 		),
+		// The following was intentionally excluded: ow.
 		Self(
-			group: .testing,
-			name: "ow",
-			repository: #repository("sindresorhus/ow"),
-			summary: "Function argument validation for humans.",
-			language: .typeScript
+			name: "test-extras",
+			repository: #repository("sindresorhus/test-extras"),
+			summary: "Assertions and utilities that make node:test better.",
+			language: .javaScript
 		),
 	]
 
 	private static let fileFormatsProjects: [Self] = [
+		// File formats keep the spec repos and the Swift implementation of SOML. The following were intentionally excluded: `soml` (the reference parser), `SimpleColorPalette` (a Swift implementation), and the implementations of other file formats.
 		Self(
-			group: .fileFormats,
 			name: "SOML",
 			repository: #repository("soml-lang/soml"),
 			summary: "A config format for humans. The spec is a draft."
 		),
 		Self(
-			group: .fileFormats,
-			name: "soml",
-			repository: #repository("soml-lang/soml-javascript"),
-			summary: "The reference parser, serializer, and formatter for SOML.",
-			language: .typeScript
-		),
-		Self(
-			group: .fileFormats,
 			name: "Simple Color Palette",
 			repository: #repository("simple-color-palette/spec"),
 			summary: "A minimal JSON-based file format for color palettes. The spec is a work in progress."
 		),
 		Self(
-			group: .fileFormats,
-			name: "SimpleColorPalette",
-			repository: #repository("simple-color-palette/SimpleColorPaletteSwift"),
-			summary: "A Swift implementation of the Simple Color Palette format.",
+			name: "SOML Swift",
+			repository: #repository("soml-lang/SOMLSwift"),
+			summary: "A Swift implementation of the SOML format.",
 			language: .swift
 		),
 	]
 
 	private static let swiftProjects: [Self] = [
 		Self(
-			group: .swift,
 			name: "Defaults",
 			repository: #repository("sindresorhus/Defaults"),
 			summary: "Swifty and modern UserDefaults.",
 			language: .swift
 		),
 		Self(
-			group: .swift,
 			name: "KeyboardShortcuts",
 			repository: #repository("sindresorhus/KeyboardShortcuts"),
 			summary: "Add user-customizable global keyboard shortcuts to your macOS app.",
 			language: .swift
 		),
+		// The following were intentionally excluded: Settings, CircularProgress, ExceptionCatcher, CustomButton, touch-bar-simulator.
 		Self(
-			group: .swift,
-			name: "Settings",
-			repository: #repository("sindresorhus/Settings"),
-			summary: "Add a settings window to your macOS app in minutes.",
-			language: .swift
-		),
-		Self(
-			group: .swift,
 			name: "LaunchAtLogin",
 			repository: #repository("sindresorhus/LaunchAtLogin-Modern"),
 			summary: "Add “Launch at Login” to your macOS app in seconds.",
 			language: .swift
 		),
 		Self(
-			group: .swift,
 			name: "DockProgress",
 			repository: #repository("sindresorhus/DockProgress"),
 			summary: "Show progress in the Dock icon of your app.",
 			language: .swift
 		),
 		Self(
-			group: .swift,
-			name: "CircularProgress",
-			repository: #repository("sindresorhus/CircularProgress"),
-			summary: "Circular progress indicator for your macOS app.",
+			name: "Regex",
+			repository: #repository("sindresorhus/Regex"),
+			summary: "Swifty regular expressions.",
 			language: .swift
 		),
 		Self(
-			group: .swift,
-			name: "ExceptionCatcher",
-			repository: #repository("sindresorhus/ExceptionCatcher"),
-			summary: "Catch Objective-C exceptions in Swift.",
+			name: "Percentage",
+			repository: #repository("sindresorhus/Percentage"),
+			summary: "A percentage type for Swift.",
 			language: .swift
 		),
 		Self(
-			group: .swift,
 			name: "DSStore",
 			repository: #repository("sindresorhus/DSStore"),
-			summary: "Parse and write macOS .DS_Store files from Swift.",
+			summary: "Read and write macOS .DS_Store files in Swift.",
+			language: .swift
+		),
+		Self(
+			name: "ExtendedAttributes",
+			repository: #repository("sindresorhus/ExtendedAttributes"),
+			summary: "Manage extended attributes in Swift.",
 			language: .swift
 		),
 	]
 
 	private static let macProjects: [Self] = [
 		Self(
-			group: .mac,
 			name: "create-dmg",
 			repository: #repository("sindresorhus/create-dmg"),
 			summary: "Create a good-looking DMG for your macOS app in seconds.",
 			language: .javaScript
 		),
 		Self(
-			group: .mac,
 			name: "macos-trash",
 			repository: #repository("sindresorhus/macos-trash"),
 			summary: "Move files and folders to the trash from the command line.",
 			language: .swift
 		),
+		// The following was intentionally excluded: dark-mode.
 		Self(
-			group: .mac,
-			name: "dark-mode",
-			repository: #repository("sindresorhus/dark-mode"),
-			summary: "Control the macOS dark mode from the command line.",
-			language: .swift
+			name: "wallpaper",
+			repository: #repository("sindresorhus/wallpaper"),
+			summary: "Manage the desktop wallpaper, also on Linux and Windows.",
+			language: .javaScript
 		),
 		Self(
-			group: .mac,
 			name: "macos-wallpaper",
 			repository: #repository("sindresorhus/macos-wallpaper"),
 			summary: "Manage the desktop wallpaper on macOS.",
@@ -1146,49 +1107,42 @@ struct OpenSourceProject {
 
 	private static let appsProjects: [Self] = [
 		Self(
-			group: .apps,
 			name: "Gifski",
 			repository: #repository("sindresorhus/Gifski"),
 			summary: "Convert videos to high-quality GIFs on your Mac.",
 			language: .swift
 		),
 		Self(
-			group: .apps,
 			name: "Pasteboard Viewer",
 			repository: #repository("sindresorhus/Pasteboard-Viewer"),
 			summary: "Inspect the system pasteboards.",
 			language: .swift
 		),
+		// The following was intentionally excluded: Blear.
 		Self(
-			group: .apps,
-			name: "Blear",
-			repository: #repository("sindresorhus/Blear"),
-			summary: "Transform photos into blurry wallpapers on your iPhone.",
-			language: .swift
+			name: "Plash",
+			repository: #repository("sindresorhus/Plash"),
+			summary: "Make any website your Mac desktop wallpaper."
 		),
 	]
 
 	private static let listsProjects: [Self] = [
 		Self(
-			group: .lists,
 			name: "Awesome",
 			repository: #repository("sindresorhus/awesome"),
 			summary: "Awesome lists about all kinds of interesting topics."
 		),
 		Self(
-			group: .lists,
 			name: "Awesome Node.js",
 			repository: #repository("sindresorhus/awesome-nodejs"),
 			summary: "Delightful Node.js packages and resources."
 		),
 		Self(
-			group: .lists,
 			name: "Awesome npm",
 			repository: #repository("sindresorhus/awesome-npm"),
 			summary: "Awesome npm resources and tips."
 		),
 		Self(
-			group: .lists,
 			name: "Awesome Sci-Fi",
 			repository: #repository("sindresorhus/awesome-scifi"),
 			summary: "Sci-fi worth consuming."
@@ -1197,28 +1151,24 @@ struct OpenSourceProject {
 
 	private static let funProjects: [Self] = [
 		Self(
-			group: .fun,
 			name: "cat-names",
 			repository: #repository("sindresorhus/cat-names"),
 			summary: "Get popular cat names.",
 			language: .javaScript
 		),
 		Self(
-			group: .fun,
 			name: "dog-names",
 			repository: #repository("sindresorhus/dog-names"),
 			summary: "Get popular dog names.",
 			language: .javaScript
 		),
 		Self(
-			group: .fun,
 			name: "cows",
 			repository: #repository("sindresorhus/cows"),
 			summary: "ASCII cows.",
 			language: .javaScript
 		),
 		Self(
-			group: .fun,
 			name: "superb",
 			repository: #repository("sindresorhus/superb"),
 			summary: "Get superb-like words.",

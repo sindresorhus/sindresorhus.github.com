@@ -520,45 +520,42 @@ extension SiteContent {
 	}
 
 	/**
-	Trials whose macOS version (`@Trial(macOS:)`) is not backed by the requirement of the app: the page has no requirement in the hero, or the app needs a newer macOS than the trial says. A trial can need a newer version than the app, so that is fine.
+	Trials whose macOS version (`trial.macOS`) is not backed by the requirement of the app: the page has no requirement in the hero, or the app needs a newer macOS than the trial says. A trial can need a newer version than the app, so that is fine. A trial with the version of the app does not need it, as a trial without it has the requirement of the app.
 	*/
 	private func trialRequirementWarnings() -> [Warning] {
-		var warnings = [Warning]()
-
-		for app in apps where !app.isRedirect && !app.isArchived {
-			// The trials that the page shows, also inside another directive, like `@Details`. The build already reported invalid arguments.
-			let trials = Document(parsing: app.file.body, options: .parseBlockDirectives).blockDirectives
-				.filter { $0.siteName == .trial }
-				.compactMap { directive in
-					(try? directive.arguments(as: TrialArguments.self)).map { (arguments: $0, line: app.file.line(of: directive)) }
-				}
-
-			for (trial, line) in trials {
-				guard let trialVersion = trial.macOS else {
-					continue
-				}
-
-				let listing = listing(of: app)
-
-				guard let requirement = listing.minimumOSVersion else {
-					// An app whose App Store data or appcast did not load is left out, as the build already warns about it.
-					if
-						app.appStoreID == nil || listing.appStoreInfo != nil,
-						app.appcastURL == nil || listing.appcast != nil
-					{
-						warnings.append(app.file.warning(.trialRequirement, line: line, "The trial needs macOS \(trialVersion), but the page shows no requirement for the app. Add `minimumOSVersion`."))
-					}
-
-					continue
-				}
-
-				if trialVersion < requirement {
-					warnings.append(app.file.warning(.trialRequirement, line: line, "The trial says macOS \(trialVersion), but the app needs macOS \(requirement)."))
-				}
+		apps.compactMap { app in
+			guard
+				!app.isRedirect,
+				!app.isArchived,
+				let trialVersion = app.frontmatter.trial?.macOS
+			else {
+				return nil
 			}
-		}
 
-		return warnings
+			let listing = listing(of: app)
+
+			guard let requirement = listing.minimumOSVersion else {
+				// An app whose App Store data or appcast did not load is left out, as the build already warns about it.
+				guard
+					app.appStoreID == nil || listing.appStoreInfo != nil,
+					app.appcastURL == nil || listing.appcast != nil
+				else {
+					return nil
+				}
+
+				return app.warning(.trialRequirement, at: .trial, "The trial needs macOS \(trialVersion), but the page shows no requirement for the app. Add `minimumOSVersion`.")
+			}
+
+			if trialVersion == requirement {
+				return app.warning(.trialRequirement, at: .trial, "`trial.macOS` is not needed, as it is the version of the app, \(requirement). Remove it.")
+			}
+
+			guard trialVersion < requirement else {
+				return nil
+			}
+
+			return app.warning(.trialRequirement, at: .trial, "The trial says macOS \(trialVersion), but the app needs macOS \(requirement).")
+		}
 	}
 
 	/**

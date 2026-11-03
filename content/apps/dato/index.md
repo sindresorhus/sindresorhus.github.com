@@ -11,6 +11,9 @@ isMenuBarApp: true
 appStoreID: 1470584107
 setappID: 571
 hasSentry: true
+trial: {
+	url: 'https://www.dropbox.com/scl/fi/0xedw304pw2kwe1tpdboc/Dato-5.8.4-trial-1793864419.zip?rlkey=9eeqpucwp670peb26wp8gcqzl&raw=1'
+}
 sharedQuestions: [
 	'week-53'
 	'december-week-1'
@@ -218,10 +221,6 @@ Dato is a one-time purchase on the App Store with a lifetime of updates.
 If all you need is another clock in the menu bar, check out [Second Clock](/second-clock).
 
 ---
-
-## Trial {#trial}
-
-@Trial(url: "https://www.dropbox.com/scl/fi/3x6zkdw520rornu7j1zmh/Dato-5.8.3-trial-1789044413.zip?rlkey=vwxob5o3k9eg8gl8bxyshrl1c&raw=1", macOS: "26")
 
 ## Tips
 

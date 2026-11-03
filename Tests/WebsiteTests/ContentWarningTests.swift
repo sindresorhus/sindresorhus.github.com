@@ -417,13 +417,16 @@ struct ContentWarningTests {
 	}
 
 	@Test
-	func `promises, tracking parameters, http links, copied answer blocks, and trials without a requirement are checked`() async throws {
+	func `promises, tracking parameters, http links, copied answer blocks, and trial requirements are checked`() async throws {
 		// Two copied blocks in one answer still give one warning for it.
 		let steps = "- Open the settings of the app, and go to the “Calls” tab.\n- Click the plus button.\n- Choose the service in the list, and enter the link of the meeting room that you use for your calls.\n\nThe service then shows up in the list of services of the app, and the app opens the link of the meeting room when you join a call from the menu bar.\n"
-		let first = try await App(frontmatter: "pressQuotes: [{quote: 'Love it', source: 'Buyer', url: 'https://sindresorhus.gumroad.com/l/test'}]", body: "See [the guide](https://example.com/guide?utm_source=chatgpt.com&ref=sponsor), not `https://example.com?fbclid=1`. The [old site](http://example.com) and [the preview](http://localhost:3000).\n\n## Trial {#trial}\n\n@Trial(url: \"https://example.com/Test.zip\", macOS: \"26\") {\n\tTry it.\n}\n\n## Frequently Asked Questions {#faq}\n\n### Can you add iOS?\n\nI plan to do it at some point.\n\n### Can you add widgets?\n\nIt’s not something I plan to add in the future.\n\n### How do I add a call service?\n\n\(steps)", slug: "first")
-		let second = try await App(frontmatter: "minimumOSVersion: '27'", body: "## Trial {#trial}\n\n@Details(summary: \"Older Macs\") {\n\t@Trial(url: \"https://example.com/Test.zip\", macOS: \"26\") {\n\t\tTry it.\n\t}\n}\n\n## Frequently Asked Questions {#faq}\n\n### My call service is missing\n\nTell me which one.\n\n\(steps)", slug: "second")
+		let first = try await App(frontmatter: "pressQuotes: [{quote: 'Love it', source: 'Buyer', url: 'https://sindresorhus.gumroad.com/l/test'}]\ntrial: {url: 'https://example.com/Test.zip', macOS: '26'}", body: "See [the guide](https://example.com/guide?utm_source=chatgpt.com&ref=sponsor), not `https://example.com?fbclid=1`. The [old site](http://example.com) and [the preview](http://localhost:3000).\n\n## Frequently Asked Questions {#faq}\n\n### Can you add iOS?\n\nI plan to do it at some point.\n\n### Can you add widgets?\n\nIt’s not something I plan to add in the future.\n\n### How do I add a call service?\n\n\(steps)", slug: "first")
+		let second = try await App(frontmatter: "minimumOSVersion: '27'\ntrial: {url: 'https://example.com/Test.zip', macOS: '26'}", body: "## Frequently Asked Questions {#faq}\n\n### My call service is missing\n\nTell me which one.\n\n\(steps)", slug: "second")
+		let third = try await App(frontmatter: "minimumOSVersion: '27'\ntrial: {url: 'https://example.com/Test.zip', macOS: '27'}", slug: "third")
+		// A trial can need a newer version than the app, as the trial is of a version that is not on the App Store yet.
+		let fourth = try await App(frontmatter: "minimumOSVersion: '27'\ntrial: {url: 'https://example.com/Test.zip', macOS: '28'}", slug: "fourth")
 		let content = SiteContent(
-			apps: [first, second],
+			apps: [first, second, third, fourth],
 			posts: [],
 			pages: [],
 			buildDate: .now,
@@ -433,13 +436,14 @@ struct ContentWarningTests {
 		let warnings = await content.warningTexts(of: .copiedAnswerBlock, .promise, .trackingParameter, .insecureLink, .trialRequirement)
 
 		#expect(warnings == [
-			"content/apps/first.md:27: The answer of “How do I add a call service?” has a list or paragraph that is also in the FAQ of `second`. Move the question to `content/shared-questions.md`, or link to one answer, so the copies do not get out of sync.",
-			"content/apps/second.md:19: The answer of “My call service is missing” has a list or paragraph that is also in the FAQ of `first`. Move the question to `content/shared-questions.md`, or link to one answer, so the copies do not get out of sync.",
-			"content/apps/first.md:21: The answer of “Can you add iOS?” promises something: “I plan to”. Remove the promise when the plan changed, or answer what the app does now.",
-			"content/apps/first.md:9: The link https://example.com/guide?utm_source=chatgpt.com&ref=sponsor has the tracking parameter `utm_source`. Remove it.",
-			"content/apps/first.md:9: The link http://example.com uses `http://`. Use `https://` when the site supports it.",
-			"content/apps/first.md:13: The trial needs macOS 26, but the page shows no requirement for the app. Add `minimumOSVersion`.",
-			"content/apps/second.md:12: The trial says macOS 26, but the app needs macOS 27.",
+			"content/apps/first.md:22: The answer of “How do I add a call service?” has a list or paragraph that is also in the FAQ of `second`. Move the question to `content/shared-questions.md`, or link to one answer, so the copies do not get out of sync.",
+			"content/apps/second.md:12: The answer of “My call service is missing” has a list or paragraph that is also in the FAQ of `first`. Move the question to `content/shared-questions.md`, or link to one answer, so the copies do not get out of sync.",
+			"content/apps/first.md:16: The answer of “Can you add iOS?” promises something: “I plan to”. Remove the promise when the plan changed, or answer what the app does now.",
+			"content/apps/first.md:10: The link https://example.com/guide?utm_source=chatgpt.com&ref=sponsor has the tracking parameter `utm_source`. Remove it.",
+			"content/apps/first.md:10: The link http://example.com uses `http://`. Use `https://` when the site supports it.",
+			"content/apps/first.md:7: The trial needs macOS 26, but the page shows no requirement for the app. Add `minimumOSVersion`.",
+			"content/apps/second.md:7: The trial says macOS 26, but the app needs macOS 27.",
+			"content/apps/third.md:7: `trial.macOS` is not needed, as it is the version of the app, 27. Remove it.",
 		])
 	}
 

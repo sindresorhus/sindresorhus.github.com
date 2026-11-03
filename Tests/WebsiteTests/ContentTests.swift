@@ -61,12 +61,29 @@ struct ContentTests {
 	}
 
 	/**
-	The download buttons link to the trial section, so only its level 2 heading counts, not a deeper heading with the same ID.
+	The build adds the trial section before the first level-2 heading of the file, above the level-2 sections that the file writes, and the download buttons link to it.
 	*/
 	@Test
-	func `only the trial section gives the app a trial`() async throws {
-		#expect(try await App(body: "## Trial {#trial}\n\nTry it.").hasTrial)
-		#expect(try await !App(body: "## Features\n\n### Trial\n\nTry it.").hasTrial)
+	func `the trial section goes before the first level-2 heading of the file`() async throws {
+		let app = try await App(frontmatter: "trial: {url: 'https://example.com/App-trial.zip'}", body: "The app.\n\n### Detail\n\nMore.\n\n## Tips\n\nTip.")
+
+		#expect(app.hasTrial)
+		#expect(app.markdown.headings.map(\.text) == ["Detail", "Trial", "Tips"])
+
+		let appWithoutTrial = try await App(body: "The app.\n\n## Tips\n\nTip.")
+		#expect(!appWithoutTrial.hasTrial)
+		#expect(appWithoutTrial.markdown.headings.map(\.text) == ["Tips"])
+	}
+
+	/**
+	An archived app can only be downloaded from its own links, so a `trial` in its frontmatter adds no trial.
+	*/
+	@Test
+	func `an archived app has no trial`() async throws {
+		let app = try await App(frontmatter: "isArchived: true\ntrial: {url: 'https://example.com/App-trial.zip'}", body: "The app.\n\n## Tips\n\nTip.")
+
+		#expect(!app.hasTrial)
+		#expect(app.markdown.headings.map(\.text) == ["Tips"])
 	}
 
 	@Test(arguments: [
@@ -1640,7 +1657,7 @@ struct ContentTests {
 	@Test
 	func `the own download options come before Setapp only when the app is not on the App Store`() async throws {
 		func app(store: String) async throws -> App {
-			try await App(frontmatter: "isPaid: true\nsetappID: 1\n\(store)", body: "The app.\n\n## Trial {#trial}\n\nTry it.\n")
+			try await App(frontmatter: "isPaid: true\nsetappID: 1\ntrial: {url: 'https://example.com/App-trial.zip'}\n\(store)", body: "The app.\n")
 		}
 
 		let gumroadApp = try await app(store: "gumroad: {id: 'test', price: 20}")
@@ -2321,9 +2338,10 @@ struct ContentTests {
 
 	@Test
 	func `the trial of an app page shows the requirement, how to install it, and Setapp`() async throws {
-		let app = try await App(frontmatter: "isPaid: true\nsetappID: 1", body: "## Trial {#trial}\n\n@Trial(url: \"https://example.com/App-trial.zip\", macOS: \"26\") {\n  Try it.\n}\n")
+		let app = try await App(frontmatter: "isPaid: true\nsetappID: 1\ntrial: {url: 'https://example.com/App-trial.zip', macOS: '26.4'}", body: "The app.\n")
 
-		#expect(app.markdown.html.contains("Requires macOS 26 or later</span>"))
+		#expect(app.markdown.html.contains("Download Free Trial</a>"))
+		#expect(app.markdown.html.contains("Requires macOS 26.4 or later</span>"))
 		#expect(app.markdown.html.contains("Download it to the Downloads folder, double-click to unzip, and then move it to the <code translate=\"no\">/Applications</code> folder.</p>"))
 		#expect(app.markdown.html.contains(#"<p>You can also <a href="https://go.setapp.com/stp181?refAppID=1&amp;utm_medium=vendor_program&amp;utm_content=button">try it on Setapp</a> for 7 days for free.</p>"#))
 	}
@@ -2345,25 +2363,39 @@ struct ContentTests {
 	}
 
 	/**
-	The text of a trial does not name the app, so it is only for the app pages.
+	The text of a trial does not name the app, so it is only for the app pages, and the build adds it there from `trial`, so a trial in the text would be a second one.
 	*/
 	@Test
-	func `a trial is an error outside an app page`() async throws {
-		let errors = try await #require(throws: ContentErrors.self) {
+	func `a trial in the text is an error`() async throws {
+		let postErrors = try await #require(throws: ContentErrors.self) {
 			try await BlogPost(markdown: "---\ntitle: 'Post'\ndescription: 'A post.'\npublicationDate: 2026-01-01\n---\n\n@Trial(url: \"https://example.com/App-trial.zip\", macOS: \"26\")\n")
 		}
 
-		#expect(errors.errors.map { "\($0.line ?? 0): \($0.reason)" } == ["7: `@Trial`: It is only for app pages, below the “Trial” heading (`{#trial}`), as it does not name the app."])
+		let appErrors = try await #require(throws: ContentErrors.self) {
+			try await App(body: "@Details(summary: \"Try it\") {\n\t@Trial(url: \"https://example.com/App-trial.zip\") {\n\t\tTry it.\n\t}\n}\n")
+		}
+
+		#expect(postErrors.errors.map { "\($0.line ?? 0): \($0.reason)" } == ["7: `@Trial`: It is only for app pages, where the build adds it for `trial` in the frontmatter, as it does not name the app."])
+		#expect(appErrors.errors.map(\.reason).contains("The build adds `@Trial` from `trial` in the frontmatter, like `trial: {url: '…'}`, which adds the “Trial” section. Remove the `@Trial` from the text."))
 	}
 
 	@Test
-	func `a trial without content gets the standard text, which names the App Store for an app that is there`() async throws {
-		let body = "## Trial {#trial}\n\n@Trial(url: \"https://example.com/App-trial.zip\", macOS: \"26\")\n"
-		let appStoreApp = try await App(platforms: [.macOS, .iOS], frontmatter: "isPaid: true\nappStoreID: 123", body: body)
-		let gumroadApp = try await App(frontmatter: "isPaid: true\ngumroad: {id: 'test', price: 6}", body: body)
+	func `a trial gets the standard text, which names the App Store for an app that is there`() async throws {
+		let trial = "trial: {url: 'https://example.com/App-trial.zip', macOS: '26'}"
+		let appStoreApp = try await App(platforms: [.macOS, .iOS], frontmatter: "isPaid: true\nappStoreID: 123\n\(trial)", body: "The app.\n")
+		let gumroadApp = try await App(frontmatter: "isPaid: true\ngumroad: {id: 'test', price: 6}\n\(trial)", body: "The app.\n")
+		let testFlightApp = try await App(frontmatter: "isPaid: true\nappStoreID: 123\ntrial: {url: 'https://testflight.apple.com/join/example'}", body: "The app.\n")
+		// A trial before the app is on the App Store has nothing to buy yet.
+		let testFlightAppWithoutStore = try await App(frontmatter: "isPaid: true\ntrial: {url: 'https://testflight.apple.com/join/example'}", body: "The app.\n")
 
 		#expect(appStoreApp.markdown.html.contains("<p>The trial of the macOS app is fully functional. The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it on the App Store.</p>"))
 		#expect(gumroadApp.markdown.html.contains("<p>The trial is fully functional. The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it.</p>"))
+		#expect(testFlightApp.markdown.html.contains("free for 14 days with TestFlight."))
+		#expect(testFlightApp.markdown.html.contains("Simply purchase it from the App Store after the trial"))
+		#expect(testFlightApp.markdown.html.contains("Try on TestFlight</a>"))
+		#expect(!testFlightApp.markdown.html.contains("Requires macOS"))
+		#expect(testFlightAppWithoutStore.markdown.html.contains("No auto-charges or commitment."))
+		#expect(!testFlightAppWithoutStore.markdown.html.contains("purchase it from the App Store"))
 	}
 
 	@Test

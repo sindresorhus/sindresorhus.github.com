@@ -11,6 +11,9 @@ isMenuBarApp: true
 appStoreID: 1607635845
 downloadCount: 130000
 hasSentry: true
+trial: {
+	url: 'https://www.dropbox.com/scl/fi/4qmbgqvgr5x3oiupm7ekz/Velja-3.2.4-trial-1789044969.zip?rlkey=vwh6ptvawi4sn5oh7sh7lmssg&raw=1'
+}
 sharedQuestions: [
 	'menu-bar-icons'
 	'tracking-parameters'
@@ -169,10 +172,6 @@ Not supported: [Safari](#safari-profiles), [Dia](#dia-profiles), Arc, and Opera.
 - LibreWolf
 
 Safari is not supported built-in, but can be supported with [Safari-Private](https://github.com/sindresorhus/Safari-Private).
-
-## Trial {#trial}
-
-@Trial(url: "https://www.dropbox.com/scl/fi/4qmbgqvgr5x3oiupm7ekz/Velja-3.2.4-trial-1789044969.zip?rlkey=vwh6ptvawi4sn5oh7sh7lmssg&raw=1", macOS: "26")
 
 ## Tips
 

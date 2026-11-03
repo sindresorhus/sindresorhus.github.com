@@ -373,6 +373,11 @@ No. macOS does not let an App Store app read the system’s recent files, so the
 
 No. Super Menu is deliberately one menu, but groups and submenus give you as many sections as you want. For several folders in the menu bar, use [Folder Peek](/folder-peek).
 
+### Can I have different menus for different workflows? {#workflows}
+<!-- @faq.keywords context work home profile automation -->
+
+Yes, with groups in one menu. Edit a group, and use “Add Apps…” to show it only while one of those apps is active, like your coding links only in Xcode. Or set “Show” to “Never”, and use the “Set Group Visibility” action in the Shortcuts app to show it when you need it. For example, an automation can show your work groups only at work, or a keyboard shortcut can toggle them.
+
 ### Can I rename an item in the menu? {#rename}
 <!-- @faq.keywords title label -->
 
@@ -381,6 +386,11 @@ Yes, in the organizer. The file on disk keeps its name. A shortcut uses its name
 ### Long names are cut off. Can I make the menu wider? {#menu-width}
 
 Yes. Increase “Max menu width” in Settings.
+
+### Can I use the menu with only the keyboard? {#keyboard-navigation}
+<!-- @faq.keywords navigate arrow keys launcher -->
+
+Yes. It is a normal macOS menu, so it works like the menus in the menu bar. Open it with your keyboard shortcut, use the arrow keys to move through groups and submenus, and press ++Return++ to open the item or run the shortcut. You can also type the first letters of an item’s name to select it. See [all the keyboard shortcuts](#keyboard-shortcuts).
 
 ### Can I give an item its own keyboard shortcut? {#item-keyboard-shortcuts}
 

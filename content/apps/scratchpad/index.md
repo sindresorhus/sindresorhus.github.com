@@ -11,6 +11,9 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 6504040051
+trial: {
+	url: 'https://www.dropbox.com/scl/fi/rcpvozf3lznxawpxa82po/Scratchpad-1.5.1-trial-1793883418.zip?rlkey=krfofajhimebp89ytdzlmfl00&raw=1'
+}
 sharedQuestions: [
 	'menu-bar-icons'
 ]
@@ -76,12 +79,6 @@ Perfect for brain dumps, quick drafts, and fleeting ideas. Your thoughts are jus
 #### Privacy
 
 The app uses iCloud syncing to securely sync your text across devices. This feature is opt-in. Neither the app developer nor Apple can access the text in your scratchpad. The app does not collect any personal data and contains no tracking.
-
-## Trial {#trial}
-
-@Trial(url: "https://www.dropbox.com/scl/fi/af7ry35naarkttdq6d6fr/Scratchpad-1.5.0-trial-1792017662.zip?rlkey=q6lxjpekmfh0lvt42txvthat6&raw=1", macOS: "27")
-
-There is no trial for the iOS version.
 
 ## Tips
 

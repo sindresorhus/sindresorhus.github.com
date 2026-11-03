@@ -56,7 +56,7 @@ public struct MarkdownDocument: Sendable {
 			*/
 			public enum Content: Sendable {
 				/**
-				Any blocks, but not empty braces, like `@Tips {\n}`, which are a lost edit. A directive without braces has no content, like `@Trial(…)`.
+				Any blocks, but not empty braces, like `@Tips {\n}`, which are a lost edit. A directive without braces has no content, like `@SocialLinks`.
 				*/
 				case blocks
 
@@ -818,7 +818,7 @@ extension BlockDirective {
 	The arguments decoded as the type, like the renderer of the directive decodes them (``MarkdownDocument/Options/BlockDirectiveRenderer``), for code that reads the Markdown tree without rendering it, like a plain text version of a page or a check of the content (``Markdown/Markup/blockDirectives``).
 
 	```swift
-	let trial = try directive.arguments(as: TrialArguments.self)
+	let details = try directive.arguments(as: DetailsArguments.self)
 	```
 	*/
 	public func arguments<Arguments: Frontmatter>(as type: Arguments.Type) throws(ContentErrors) -> Arguments {
@@ -850,10 +850,10 @@ extension Markup {
 	}
 
 	/**
-	The block directives inside the markup, in document order, also the ones inside other directives, like a `@Trial` inside `@Details`.
+	The block directives inside the markup, in document order, also the ones inside other directives, like a `@Tips` inside `@Details`.
 
 	```swift
-	let trials = Document(parsing: source, options: .parseBlockDirectives).blockDirectives.filter { $0.name == "Trial" }
+	let tips = Document(parsing: source, options: .parseBlockDirectives).blockDirectives.filter { $0.name == "Tips" }
 	```
 	*/
 	public var blockDirectives: [BlockDirective] {

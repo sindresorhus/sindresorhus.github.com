@@ -15,6 +15,9 @@ gumroad: {
 releasesRepository: 'sindresorhus/supercharge-meta'
 downloadCount: 13000
 hasSentry: true
+trial: {
+	url: 'https://www.dropbox.com/scl/fi/58ujynvqo09r1ni8ywl0n/Supercharge-1.30.1-trial-1790570015.zip?rlkey=bgo4hf47jnmqqrxxleilcferf&raw=1'
+}
 announcement: {
 	text: 'Save 30% with the Power User Bundle: Default Browser, Shortcutie, and Supercharge'
 	link: {
@@ -304,7 +307,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 	:: Disables keyboard and mouse to prevent cats and other cute creatures from interfering with your computer. Similar to Cleaning Mode but without blacking out the screen. [Video of Cat Mode.](https://www.dropbox.com/scl/fi/tpxsx5i9r1vkjlf2recad/Cat-Mode-1756829427.mp4?rlkey=wfyu7192971mnu19p3i2mmqs4&raw=1)
 - [Run shortcuts from the menu](#run-shortcuts)
 	:: Show your favorite shortcuts from the Shortcuts app in the menu.
-	- Also available in [Short Run](/short-run)
+	- Also available in [Short Run](/short-run) and [Super Menu](/super-menu).
 - [Keep computer awake](#keep-awake)
 - [Change default browser](https://github.com/user-attachments/assets/b58a04da-2bdc-4bd0-bed4-ba62ba456491) (without a prompt)
 	- Also available as an [independent app](/default-browser).
@@ -845,10 +848,6 @@ Make macOS feel less foreign — and more powerful.
 
 > [!TIP]
 > You may also like my [Shareful](/shareful), [Menu Bar Spacing](/menu-bar-spacing), and [Pure Paste](/pure-paste) apps.
-
-## Trial {#trial}
-
-@Trial(url: "https://www.dropbox.com/scl/fi/58ujynvqo09r1ni8ywl0n/Supercharge-1.30.1-trial-1790570015.zip?rlkey=bgo4hf47jnmqqrxxleilcferf&raw=1", macOS: "26.4")
 
 ## Tips
 

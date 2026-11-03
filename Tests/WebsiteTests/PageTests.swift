@@ -964,7 +964,8 @@ struct PageTests {
 		#expect(BlockDirectiveName.allCases.allSatisfy { name in text.firstMatch(of: Regex { "@\(name.rawValue)"; Anchor.wordBoundary }) == nil })
 		#expect(text.firstMatch(of: /\+\+[A-Z]\w*\+/) == nil)
 		#expect(!text.contains("^["))
-		#expect(text.firstMatch(of: /\{#[\w-]+\}/) == nil)
+		// Only headings, as a code block can have the syntax of an app, like `[Ana]{#00ff00}` for colored text.
+		#expect(text.firstMatch(of: /^#{1,6} .*\{#[\w-]+\}$/.anchorsMatchLineEndings()) == nil)
 		#expect(!text.contains("<!-- @"))
 		#expect(text.contains("## Open each link in the right place\n"))
 		#expect(text.contains("Shift+Command+N"))
@@ -1016,7 +1017,8 @@ struct PageTests {
 		#expect(appLines.allSatisfy { $0.contains(" Platforms: ") })
 		#expect(zip(appLines, content.featuredApps).allSatisfy { line, app in line.hasPrefix("- [\(app.title)]") })
 		#expect(!content.featuredApps.isEmpty)
-		#expect(appLines.contains { $0.hasPrefix("- [Gifski]") && $0.contains("Price: Free. Platforms: macOS. Get it from: App Store.") })
+		let gifski = try #require(content.activeAppsWithPages.first { $0.file.slug == "gifski" })
+		#expect(appLines.contains { $0.hasPrefix("- [Gifski]") && $0.contains("Price: Free. Platforms: \(gifski.operatingSystems). Get it from: App Store.") })
 		// The tests have no App Store data and no appcasts, so only the apps with `minimumOSVersion` have a requirement.
 		#expect(content.activeAppsWithPages.allSatisfy { app in
 			appLines.contains { $0.hasPrefix("- [\(app.title)]") && $0.contains(". Requires ") == (content.listing(of: app).minimumOSVersion != nil) }

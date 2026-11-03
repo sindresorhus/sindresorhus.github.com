@@ -332,8 +332,8 @@ struct GalleryPage: Page {
 		The trial of an app, with a download button. The only limitation is that it shows a reminder once a day.
 	}
 
-	@Trial(url: "https://example.com/testflight", title: "Try on TestFlight") {
-		A trial with another title on its button.
+	@Trial(url: "https://testflight.apple.com/join/example") {
+		A trial on TestFlight, which has another title on its button.
 	}
 
 	@TinyApp(title: "A tiny app", download: "https://example.com/Tiny-App.zip", source: "https://github.com/sindresorhus", macOS: "26") {

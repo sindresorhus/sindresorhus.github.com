@@ -1494,7 +1494,7 @@ extension BlockDirective {
 
 		switch rule {
 		case .blocks:
-			// An empty directive is a lost edit, like a deleted list. A directive without braces, like `@Trial(…)`, is on one line, so it is fine without content. Limitation: the parser does not keep the braces, so empty braces on the line of the directive, like `@Tips {}`, are not found, and neither are the empty braces of a directive whose arguments span lines, as its `)` can end it too.
+			// An empty directive is a lost edit, like a deleted list. A directive without braces, like `@SocialLinks`, is on one line, so it is fine without content. Limitation: the parser does not keep the braces, so empty braces on the line of the directive, like `@Tips {}`, are not found, and neither are the empty braces of a directive whose arguments span lines, as its `)` can end it too.
 			guard
 				blocks.isEmpty,
 				let range,

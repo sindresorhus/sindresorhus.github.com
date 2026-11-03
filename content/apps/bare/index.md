@@ -24,7 +24,7 @@ Type an item and press return. It goes into the right store section automaticall
 
 The app is intentionally simple. No accounts, settings, ads, recipes, meal plans, or prices. Nothing to set up. It does one thing well: your shopping list.
 
-Available in English and Norwegian. I may add more languages, but no promises.
+Available in English and Norwegian. Automatic categorization works in many other languages too, thanks to Apple Intelligence.
 
 **Highlights**
 
@@ -135,6 +135,21 @@ Yes. Your lists are on your device, so you can add and check off items without a
 <!-- @faq.keywords import bulk multiple copy -->
 
 Copy a list with one item per line, for example, from Notes or a message, and use “Paste” in the “…” menu of the list. Bullets like “- ” are removed.
+
+### How is this different from the grocery list in the Reminders app? {#reminders}
+<!-- @faq.keywords apple groceries compare comparison -->
+
+Reminders is a to-do app that can also sort groceries. Bare is made only for shopping, so it is simpler, easier to use, and more focused:
+
+- No noise: no due dates, alerts, flags, priorities, or tags, and no notification each time someone adds an item.
+- Tap anywhere on an item to check it off. In Reminders, you must hit a small circle, and a tap on the name edits it.
+- Real quantities: “2 milk” becomes “Milk ×2”, and adding milk again makes it “Milk ×3”, not a second “Milk”.
+- Swipe to increase quantity.
+- Checked items go to Done, so you see what is in the cart, and one tap puts an item back. Reminders hides completed items by default.
+- The screen stays on, so you do not have to unlock your phone in every aisle.
+- Items are A to Z in each section, so they are easy to find.
+
+If you want your own sections, your own section order, or a reminder at a time or place, use Reminders.
 
 ### Can I import my list from Reminders or another app? {#import}
 <!-- @faq.keywords anylist bring ourgroceries -->

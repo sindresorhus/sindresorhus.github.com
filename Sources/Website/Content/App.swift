@@ -139,6 +139,11 @@ struct App: ContentDocument {
 			}
 		}
 
+		// The build adds the trial from `trial`, so a trial in the text would be a second one, without the section that the “Free Trial” button links to.
+		if let directive = Document(parsing: file.body, options: .parseBlockDirectives).blockDirectives.first(where: { $0.siteName == .trial }) {
+			problems.append(file.error(line: file.line(of: directive), "The build adds `@Trial` from `trial` in the frontmatter, like `trial: {url: '…'}`, which adds the “Trial” section. Remove the `@Trial` from the text."))
+		}
+
 		// The shared questions are added to the FAQ section, so an app without one would silently not show them.
 		if
 			!frontmatter.sharedQuestions.isEmpty,
@@ -514,10 +519,10 @@ extension App {
 	}
 
 	/**
-	Whether the page has a trial section (`## Trial {#trial}`), which the download buttons link to.
+	Whether the page has a trial section (`trial`), which the download buttons link to. An archived app has no trial.
 	*/
 	var hasTrial: Bool {
-		markdown.headings.contains { Section.trial.isHeading(level: $0.level, id: $0.id) }
+		!frontmatter.isArchived && frontmatter.trial != nil
 	}
 
 	/**
@@ -704,6 +709,11 @@ extension App {
 		*/
 		var nonAppStoreVersion: NonAppStoreVersion?
 
+		/**
+		The trial of the app, like `{url: 'https://example.com/App-trial.zip'}`, which the build adds as the “Trial” section before the first level-2 heading of the page, with the standard text of a trial. The “Free Trial” button links to it. An archived app has no trial.
+		*/
+		var trial: Trial?
+
 		var announcement: Announcement?
 
 		/**
@@ -818,6 +828,56 @@ extension App {
 			if macOS < App.firstSharedOSVersion {
 				problems.add("`nonAppStoreVersion.macOS` must be \(App.firstSharedOSVersion) or later, got \(macOS). An older version goes in `olderVersions`.", at: .macOS)
 			}
+		}
+	}
+
+	/**
+	The trial of an app: a zip file, or a link to TestFlight. It is also the arguments of `@Trial`, which renders the “Trial” section that the build adds.
+	*/
+	@Frontmatter
+	struct Trial {
+		/**
+		The download, like a zip file, or the TestFlight link, like `https://testflight.apple.com/join/…`.
+		*/
+		@Absolute var url: URL
+
+		/**
+		The oldest macOS version that the trial runs on, like `'26'` or `'26.4'`, which the trial shows next to its button. Only for a trial that needs a newer version than the app, like a trial of a version that is not on the App Store yet. Without it, the trial has the requirement of the app, which the hero shows, so the card shows no requirement of its own. `website check` warns when it is the version of the app.
+		*/
+		var macOS: OSVersion?
+
+		/**
+		Whether the trial is on TestFlight, which has its own text and button title, as it is the full app for a limited time.
+		*/
+		var isTestFlight: Bool {
+			(try? TestFlightInvitation(validating: url)) != nil
+		}
+
+		/**
+		The text of the button of the trial.
+		*/
+		var buttonTitle: String {
+			isTestFlight ? "Try on TestFlight" : "Download Free Trial"
+		}
+
+		/**
+		The requirement that the trial shows next to its button, like “Requires macOS 26 or later”, or `nil` without `macOS`, as the requirement of the app is in the hero.
+		*/
+		var requirementSentence: String? {
+			macOS.map { $0.requirementSentence(for: [.macOS]) }
+		}
+
+		/**
+		The arguments of the `@Trial` directive that the build adds, like `url: "…", macOS: "26"`. The URL is percent-encoded, so it has no quotes, and it is a valid argument.
+		*/
+		var directiveArgumentText: String {
+			var arguments = ["url: \"\(url.absoluteString)\""]
+
+			if let macOS {
+				arguments.append("macOS: \"\(macOS)\"")
+			}
+
+			return arguments.joined(separator: ", ")
 		}
 	}
 

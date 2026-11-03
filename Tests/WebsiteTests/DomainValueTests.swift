@@ -792,7 +792,7 @@ extension DomainValueTests {
 	@Test
 	func `frontmatter declaration order preserves the editorial wire key order`() {
 		#expect(App.formattingKeys.map(\.stringValue) == [
-			"isDraft", "isUnlisted", "isArchived", "title", "subtitle", "description", "publicationDate", "platforms", "minimumOSVersion", "isPaid", "isMenuBarApp", "appStoreID", "setappID", "gumroad", "gitHubDownload", "testFlightURL", "repositoryURL", "releasesRepository", "downloadCount", "hasSentry", "script", "categories", "links", "overflowLinks", "redirectURL", "redirectFrom", "feedbackNames", "nonAppStoreVersion", "announcement", "sharedQuestions", "olderVersions", "pressQuotes", "privacyNote", "feedbackNote",
+			"isDraft", "isUnlisted", "isArchived", "title", "subtitle", "description", "publicationDate", "platforms", "minimumOSVersion", "isPaid", "isMenuBarApp", "appStoreID", "setappID", "gumroad", "gitHubDownload", "testFlightURL", "repositoryURL", "releasesRepository", "downloadCount", "hasSentry", "script", "categories", "links", "overflowLinks", "redirectURL", "redirectFrom", "feedbackNames", "nonAppStoreVersion", "trial", "announcement", "sharedQuestions", "olderVersions", "pressQuotes", "privacyNote", "feedbackNote",
 		])
 		#expect(BlogPost.formattingKeys.map(\.stringValue) == ["isDraft", "isUnlisted", "title", "description", "publicationDate", "tags", "redirectURL", "redirectFrom"])
 		#expect(Guide.formattingKeys.isEmpty)

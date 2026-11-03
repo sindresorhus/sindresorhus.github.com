@@ -13,7 +13,7 @@ extension App {
 		case faq
 
 		/**
-		The trial section in the file (`## Trial {#trial}`), which the download buttons link to.
+		The “Trial” section that the build adds for `trial`, which the download buttons link to.
 		*/
 		case trial
 
@@ -111,10 +111,20 @@ extension LinkDestination {
 
 extension App.Frontmatter {
 	/**
-	The Markdown of the app page with what the build adds from the facts of the app: the standard text of a trial without its own (``trialText``), the common questions that apply to it (``CommonQuestion``), the shared questions that it picks, the “Older Versions” and “Non-App Store Version” sections, and, unless the app is archived, the feedback question in the FAQ section.
+	The Markdown of the app page with what the build adds from the facts of the app: the “Trial” section, the common questions that apply to it (``CommonQuestion``), the shared questions that it picks, the “Older Versions” and “Non-App Store Version” sections, and, unless the app is archived, the feedback question in the FAQ section.
 	*/
 	func addingGeneratedSections(to document: Document, sharedQuestions: App.SharedQuestions, page: RoutePath) -> Document {
-		var blocks = Array(document.blockChildren.map(addingTrialText(to:)))
+		var blocks = Array(document.blockChildren)
+
+		// Before the first level-2 heading of the file, so the trial is above the level-2 sections that the file writes, and the sections that the build adds come after it. An archived app has no trial.
+		if
+			!isArchived,
+			let trial
+		{
+			let firstSectionIndex = blocks.firstIndex { ($0 as? Markdown.Heading)?.level == 2 } ?? blocks.endIndex
+			blocks.insert(contentsOf: trialSection(trial), at: firstSectionIndex)
+		}
+
 		blocks.addCommonQuestions(CommonQuestion.questions(for: self, sharedQuestions: sharedQuestions))
 
 		// An archived app gets no support, and the feedback page does not list it.
@@ -134,29 +144,41 @@ extension App.Frontmatter {
 
 extension App.Frontmatter {
 	/**
-	The text of the trial of the app, which a `@Trial` without content gets, so every app promises the same trial in the same words. The trial is only for the Mac, so an app on several platforms says “the macOS app”. The data carries over to the purchase on the App Store, for an app that is there.
+	The “Trial” section: the heading and the trial card (`@Trial`) with the standard text of a trial.
 	*/
-	var trialText: String {
-		let trial = platforms.count > 1 ? "The trial of the macOS app" : "The trial"
-		let store = appStoreID == nil ? "" : " on the App Store"
-		return "\(trial) is fully functional. The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it\(store)."
+	private func trialSection(_ trial: App.Trial) -> [any BlockMarkup] {
+		[
+			App.Section.trial.heading,
+			BlockDirective(
+				name: BlockDirectiveName.trial.rawValue,
+				argumentText: trial.directiveArgumentText,
+				children: trialText(of: trial)
+			),
+		]
 	}
 
 	/**
-	A `@Trial` without content with the text of the trial (``trialText``), or else the block as it is.
-
-	Limitation: Only a trial at the top level of the file, not one inside another directive, like `@Details`, as the trial goes below the “Trial” heading.
+	The text of the trial of the app, so every app promises the same trial in the same words. A trial on TestFlight is the full app for 14 days. Another trial is only for the Mac, so an app on several platforms says “the macOS app”. Its data carries over to the purchase on the App Store, for an app that is there.
 	*/
-	private func addingTrialText(to block: any BlockMarkup) -> any BlockMarkup {
-		guard
-			let trial = block as? BlockDirective,
-			trial.siteName == .trial,
-			trial.childCount == 0
-		else {
-			return block
+	private func trialText(of trial: App.Trial) -> [any BlockMarkup] {
+		if trial.isTestFlight {
+			var text = "Try \(title) free for 14 days with TestFlight. It’s the full app, no limitations. No auto-charges or commitment."
+
+			// A trial before the app is on the App Store has nothing to buy yet.
+			if appStoreID != nil {
+				text += " Simply purchase it from the App Store after the trial if you want to continue using it."
+			}
+
+			return [
+				Paragraph(Markdown.Text(text)),
+				Paragraph(Emphasis(Markdown.Text("If you get asked for a code, just click the “\(trial.buttonTitle)” button again instead."))),
+				Paragraph(Emphasis(Markdown.Text("Disregard where it says how many days there are left. It means the days left of the current TestFlight build, not how long you have left on your trial."))),
+			]
 		}
 
-		return (trial.withUncheckedChildren([Paragraph(Markdown.Text(trialText))]) as? any BlockMarkup) ?? block
+		let subject = platforms.count > 1 ? "The trial of the macOS app" : "The trial"
+		let store = appStoreID == nil ? "" : " on the App Store"
+		return [Paragraph(Markdown.Text("\(subject) is fully functional. The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it\(store)."))]
 	}
 }
 
