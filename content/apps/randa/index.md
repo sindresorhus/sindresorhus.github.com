@@ -46,6 +46,8 @@ Set a minimum and a maximum, and get a random number in that range.
 
 This can be useful for decision-making, picking stuff from a list, board games, dice rolling, coin flips, etc. For example, it’s Netflix & chill night and you cannot decide on a movie. Just generate a random number from 1 to 20 and pick the movie at that position in your watchlist. Need to make a yes or no decision (coin flip)? Just set the minimum to 0 and the maximum to 1.
 
+On iPhone and iPad, shake the device for a new number, and tap and hold the number to copy it. On Mac, press ++Return++ for a new number and ++Shift+Command+C++ to copy it, and “Window › Stay on Top” (++Control+Command+T++) keeps the small window above your other windows. On Apple Watch, tap the number.
+
 ## Frequently Asked Questions {#faq}
 
 ### Why do I get the same number twice in a row? {#same-number}

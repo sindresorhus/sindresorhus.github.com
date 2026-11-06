@@ -4,14 +4,13 @@ import SiteKit
 import SOML
 
 /**
-A short how-to for a task, like “How to Convert a Video to a GIF on Mac”, loaded from `content/guides/<slug>.md`. It names the app for the task and the built-in way. The guides are not posts, so they are not in the blog or its feed.
+A short how-to for a task, like “How to Convert a Video to a GIF on Mac”, loaded from `content/guides/<slug>.md`. It names the app for the task and the built-in way. The guides are not posts, so they are not in the blog or its feed, and they have a feed of their own (``SiteFeed/newGuides``).
 */
 struct Guide: ContentDocument {
-	let frontmatter: Frontmatter
 	let markdown: MarkdownDocument
-	let file: MarkdownFile
+	let decodedFile: DecodedMarkdownFile<Frontmatter>
 
-	static let directory = "content/guides"
+	static let directory: Project.ContentDirectory = "content/guides"
 
 	// The slug is one component of the path of the page, so the file cannot be in a subdirectory.
 	static let allowsSubdirectories = false
@@ -20,9 +19,10 @@ struct Guide: ContentDocument {
 
 	static let pageRoute = RoutePath.guides
 
-	init(file: MarkdownFile, frontmatter: Frontmatter, project: Project) throws {
-		self.frontmatter = frontmatter
-		self.file = file
+	init(file decodedFile: DecodedMarkdownFile<Frontmatter>, project: Project) throws {
+		let file = decodedFile.source
+		let frontmatter = decodedFile.frontmatter
+		self.decodedFile = decodedFile
 		self.markdown = try MarkdownDocument(parsing: file, options: .content(file, project: project))
 
 		// A draft is not published, so it can be written in any order, but its frontmatter is still checked.
@@ -36,7 +36,7 @@ struct Guide: ContentDocument {
 	/**
 	The mistakes in the shape that every guide has: it starts with the short answer (`@QuickAnswer`), it has the steps (`@Steps`), and it has an honest “Without an app” section (a level 2 heading) with text, so the app box that the page shows before it does not stand alone. The text has no level 1 heading, as the page shows the title as one. The link of the short answer to the first app is checked when the apps are loaded (``quickAnswerLinkError(to:)``).
 	*/
-	private func shapeErrors() -> [ContentError] {
+	func shapeErrors() -> [ContentError] {
 		var errors = [ContentError]()
 
 		if quickAnswerLines == nil {
@@ -51,7 +51,7 @@ struct Guide: ContentDocument {
 			errors.append(error)
 		}
 
-		if let heading = markdown.headings.first(where: { $0.level == .h2 && $0.text == Self.withoutAppTitle }) {
+		if let heading = withoutAppHeading {
 			// The blocks of the section, with its subsections, until the next section. A heading is not text, and HTML, like a comment, is a note for the author.
 			let sectionBlocks = markdown.blocks.firstIndex { $0.kind == .heading(level: heading.level, id: heading.id) }.map { index in
 				markdown.blocks.contentOfSection(afterHeadingAt: index, level: heading.level) { $0.headingLevel }
@@ -82,7 +82,7 @@ struct Guide: ContentDocument {
 	/**
 	The lines of the short answer (`@QuickAnswer`), which is the first block. HTML blocks, like comments, which are notes for the author, can come before it. `nil` when the guide does not start with it.
 	*/
-	private var quickAnswerLines: ClosedRange<Int>? {
+	private var quickAnswerLines: ClosedRange<SiteKit.SourceLocation.Line>? {
 		guard
 			let quickAnswer = markdown.blocks.first(where: { $0.kind != .html }),
 			quickAnswer.siteDirectiveName == .quickAnswer,
@@ -104,7 +104,8 @@ struct Guide: ContentDocument {
 			!markdown.links.contains(where: { link in
 				guard
 					link.otherFile == nil,
-					lines.contains(link.line ?? 0),
+					let line = link.line,
+					lines.contains(line),
 					case .path(let path, _, _) = try? LinkDestination(validating: link.destination)
 				else {
 					return false
@@ -125,10 +126,10 @@ struct Guide: ContentDocument {
 	static let withoutAppTitle = "Without an app"
 
 	/**
-	The ID of the heading of the section with the built-in way (``withoutAppTitle``), so the page can show the app before it. Every guide has it (``shapeErrors``).
+	The heading of the section with the built-in way (``withoutAppTitle``), so the shape check and the page, which shows the app before it, find the same heading. Every guide has it (``shapeErrors``).
 	*/
-	var withoutAppHeadingID: ElementID? {
-		markdown.headings.first { $0.level == .h2 && $0.text == Self.withoutAppTitle }?.id
+	var withoutAppHeading: SiteKit.Heading? {
+		markdown.headings.first { $0.level == .h2 && $0.text == Self.withoutAppTitle }
 	}
 }
 
@@ -138,7 +139,7 @@ extension Guide {
 		/**
 		A draft is not published, and neither are the files of its page bundle.
 		*/
-		var isDraft = false
+		@TrueOrAbsent var isDraft = false
 
 		@PlainText var title: String
 
@@ -156,12 +157,17 @@ extension Guide {
 		/**
 		The slugs of the apps that the guide is about, like `gifski`. The first one is the app that the page links back to.
 		*/
-		var apps: [String]
+		var apps: [ContentSlug]
 
 		/**
 		The topic of the guide, like `menu-bar`, which groups it on the list of guides.
 		*/
 		var topic: Topic
+
+		/**
+		Whether the guide is about a habit from Windows, like the Delete key that deletes a file, so the page “Mac Guides for Windows Users” lists it too (``WindowsGuidesPage``). The guide stays in its topic.
+		*/
+		@TrueOrAbsent var isForWindowsUsers = false
 
 		/**
 		Old paths of the guide, like `/guides/old-name`. They redirect to the guide.
@@ -193,6 +199,7 @@ extension Guide {
 		case menuBar = "menu-bar"
 		case finderAndDesktop = "finder-and-desktop"
 		case keyboardAndTrackpad = "keyboard-and-trackpad"
+		case windowsAppsAndDock = "windows-apps-and-dock"
 		case textImagesAndSound = "text-images-and-sound"
 		case browsersLinksAndEmail = "browsers-links-and-email"
 		case iPhone = "iphone"
@@ -206,12 +213,14 @@ extension Guide {
 				"Finder and Desktop"
 			case .keyboardAndTrackpad:
 				"Keyboard and Trackpad"
+			case .windowsAppsAndDock:
+				"Windows, Apps, and Dock"
 			case .textImagesAndSound:
 				"Text, Images, and Sound"
 			case .browsersLinksAndEmail:
 				"Browsers, Links, and Email"
 			case .iPhone:
-				"iPhone"
+				"iPhone and Apple Watch"
 			case .mac:
 				"More for the Mac"
 			}
@@ -224,7 +233,7 @@ extension Guide {
 	@Frontmatter
 	struct Screenshot {
 		/**
-		The number of the screenshot of the app, like `1` for `screenshot1.png`, counted like on the app page: in natural order, without the videos.
+		The number in the file name of the screenshot of the app, like `2` for `screenshot2.png`, not its position on the app page, so the guide keeps its image when another screenshot of the app is removed.
 		*/
 		var number: Int
 
@@ -241,20 +250,15 @@ extension Guide {
 	}
 
 	/**
-	The screenshot of the frontmatter (`screenshot`), from the screenshots of the first app of the guide. `nil` when the guide has none, or the app has no screenshot with that number, which the loader reports (``SiteContent``).
+	The screenshot of the frontmatter (`screenshot`), from the screenshots of the first app of the guide: the file with the number in its name, like `screenshot2.jpg` for `number: 2` (``ScreenshotAsset/number``). A screenshot without a number in its name, like `screenshot.jpg`, has no number. `nil` when the guide has none, or the app has no screenshot file with that number, which the loader reports (``SiteContent``).
 	*/
 	func screenshot(of app: App) -> ScreenshotAsset? {
 		guard let number = frontmatter.screenshot?.number else {
 			return nil
 		}
 
-		let screenshots = app.screenshots
-
-		guard screenshots.indices.contains(number - 1) else {
-			return nil
-		}
-
-		return screenshots[number - 1]
+		// By the name of the file, not its position, so a removed screenshot does not silently move the guide to the next image.
+		return app.screenshots.first { $0.number == number }
 	}
 }
 
@@ -282,7 +286,7 @@ extension Guide {
 			guard
 				apps.map(\.slug) == guide.apps,
 				let app = apps.first,
-				let headingID = guide.withoutAppHeadingID,
+				let headingID = guide.withoutAppHeading?.id,
 				let parts = guide.markdown.contentSeparated(beforeHeading: headingID)
 			else {
 				return nil

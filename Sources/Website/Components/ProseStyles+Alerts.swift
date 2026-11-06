@@ -12,14 +12,14 @@ extension ProseStyles {
 	private static let alertBorderWidth = Length.rootEm(0.25)
 
 	/**
-	GitHub alerts, like `> [!NOTE]`. From tablets, an alert is a box that hangs into the space at the sides of the text, so its icon and text start where the paragraphs start.
+	GitHub alerts, like `> [!NOTE]`. Where there is space at the sides of the text (``Breakpoint/proseWithGutters``), an alert is a box that hangs into it, so its icon and text start where the paragraphs start.
 	*/
 	static let alertStyle = Style()
 		.proseBlockMargin()
 		.padding(vertical: .rootEm(0.75), horizontal: .rootEm(1.125))
 		.border(.leading, width: alertBorderWidth)
 		.widerThanProse()
-		.from(.tablet) {
+		.from(.proseWithGutters) {
 			$0
 				.padding(.leading, .boxInset - LengthPercentage(alertBorderWidth))
 				.padding(.trailing, .boxInset)
@@ -32,7 +32,7 @@ extension ProseStyles {
 		// Important, as the hover style of links in the prose is more specific, and would replace the color of the alert. So the underline is thicker under the pointer and with the focus of the keyboard instead, like the links of blog posts.
 		.nested("a") {
 			$0
-				.declaration(.textDecorationColor, alertLinkColor.value, isImportant: true)
+				.declaration(raw: .textDecorationColor, alertLinkColor.value, isImportant: true)
 				.hoverOrFocusVisible {
 					$0.underlineThickness(.pixels(4))
 				}
@@ -44,7 +44,7 @@ extension ProseStyles {
 
 	static let alertIconStyle = Style()
 		.frame(size: .rootEm(1))
-		.declaration(.fill, .currentColor)
+		.declaration(raw: .fill, .currentColor)
 
 	/**
 	The colors of an alert kind.

@@ -1,6 +1,7 @@
 ---
 title: 'HEIC Converter'
 subtitle: 'Convert HEIC images to JPEG or PNG'
+description: 'A free Mac app that converts HEIC photos from your iPhone to JPEG or PNG, so you can upload them anywhere and share them with people without Apple devices.'
 publicationDate: 2017-10-09
 platforms: [
 	'macOS'
@@ -70,7 +71,7 @@ HEIC is Apple’s default image format since iOS 11, replacing JPEG. HEIC uses m
 
 If you don’t have any HEIC images, you can try the app out with [this one](heic-example.heic).
 
-You can convert up to 1,000 photos at a time, because of a macOS bug.
+You can convert up to 1000 photos at a time, because of a macOS bug.
 
 ## Frequently Asked Questions {#faq}
 

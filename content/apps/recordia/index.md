@@ -71,6 +71,8 @@ You can also set a keyboard shortcut in the settings to start and stop recording
 - Listen to the microphone while you record (input monitoring)
 - Keyboard shortcuts to start, stop, pause, and resume a recording
 - Show the duration in the menu bar while recording
+- See the audio level in the menu bar and in the menu while you record
+- Set how loud the system audio is, relative to the microphone, when you record both
 - Choose the output folder and the format of the filenames
 - Copy the recording or show it in Finder when done
 - Lossless quality (WAV) as an option
@@ -88,7 +90,7 @@ Preview the recording as described above and then click the trim button.
 
 ### How can I record system audio? {#record-system-audio}
 
-In the Recordia menu, under “Audio Source”, choose “System Audio” to capture all audio playing on your Mac, or “Microphone + System Audio” to record both into a single file.
+In the Recordia menu, under “Audio Source”, choose “System Audio” to capture all audio playing on your Mac, or “Microphone + System Audio” to record both into a single file. When you record both, use the “System audio volume” setting to make the sound of the Mac louder or quieter than your voice.
 
 Recording system audio requires macOS 26 or later. On older versions, you can [install the BlackHole audio driver](https://github.com/ExistentialAudio/BlackHole#installation-instructions), [set up a multi-output device](https://github.com/ExistentialAudio/BlackHole/wiki/Multi-Output-Device), and then select “BlackHole” as the input device in Recordia.
 
@@ -99,6 +101,10 @@ Recordia does not support transcription, but check out my [Aiko app](/aiko). Whe
 ### The app or my Mac crashed while recording. Can I get the recording back? {#recover}
 
 Maybe. Recordia records to a temporary folder first. In the Recordia menu, click “…”, and choose “Recover Recordings…” to show that folder in Finder. Do it soon, as macOS cleans up this folder regularly. A crash can also make the recording corrupt.
+
+### Can it show in the Dock with a window? {#dock-icon}
+
+No. Recordia is a menu bar app: click its icon in the menu bar, or set a keyboard shortcut in the settings to start and stop recording from any app.
 
 ### How can I sync recordings to iCloud? {#how-can-i-sync-recordings-to-icloud}
 

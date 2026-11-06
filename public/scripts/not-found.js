@@ -1,7 +1,11 @@
+import {scriptData} from '/scripts/dom.js';
 import {editDistance} from '/scripts/edit-distance.js';
 
-// The paths of the pages that the visitor may have meant, the feedback form, and the help of each app by its slug (`NotFoundPage.ScriptData`).
-const {paths, feedback, apps} = JSON.parse(document.querySelector('#not-found-data').textContent);
+// The pages that the visitor may have meant, with the text of their buttons, the feedback form, the help of each app by its slug, and the pages of the platforms by their other names (`NotFoundPage.ScriptData`).
+const {pages, feedback, apps, platformPaths} = scriptData('not-found-data');
+// The text of the button of each page by its path, in the order of the pages.
+const labels = new Map(pages.map(page => [page.path, page.label]));
+const paths = [...labels.keys()];
 
 function requestedPath() {
 	let path = location.pathname;
@@ -22,7 +26,7 @@ const lastPart = path.split('/').at(-1);
 const parent = path.slice(0, -lastPart.length);
 
 /**
-Whether a page in the same folder has a last part that is a whole word of the requested last part, or the other way around, which the edit distance misses when a word is added or left out, like `/blog/buffer` for `/blog/goodbye-nodejs-buffer`, `/dato/privacy` for `/dato/privacy-policy`, and `/about-me` for `/about`. Not a word of fewer than 3 characters, so `/x` does not find `/command-x`.
+Whether a page in the same folder has a last part with each word of the requested last part, or the other way around, which the edit distance misses when words are added or left out, like `/blog/buffer` for `/blog/goodbye-nodejs-buffer`, `/guides/flush-dns` for `/guides/flush-dns-cache-mac`, `/dato/privacy` for `/dato/privacy-policy`, and `/about-me` for `/about`. Not the words of fewer than 3 characters, so `/x` does not find `/command-x`.
 */
 function sharesWord(name) {
 	const nameLastPart = name.split('/').at(-1);
@@ -32,32 +36,43 @@ function sharesWord(name) {
 	}
 
 	const [shorter, longer] = [lastPart, nameLastPart].toSorted((first, second) => first.length - second.length);
-	return shorter.length >= 3 && longer.split('-').includes(shorter);
+	const longerWords = new Set(longer.split('-'));
+	const shorterWords = shorter.split('-').filter(word => word.length >= 3);
+	return shorterWords.length > 0 && shorterWords.every(word => longerWords.has(word));
 }
 
 // Words that visitors put in a path to find help, like `/support` or `/dato/help`, as the App Store calls the help link of each app “Support”.
 const helpWords = new Set(['support', 'help', 'feedback', 'contact']);
 
+// A help word next to an app slug, also with one typo in a longer word, like `/dato/suport`. Not in `help`, as one edit gives other words, like `hell` and `held`. A help word alone must be exact, as a typo of it can be another page, like `/contacts` for `/contact`.
+const isHelpWordOfApp = part => helpWords.values().some(word => part === word || (word.length > 4 && editDistance(part, word) <= 1));
+
 /**
-The help for a path with a help word, like the feedback form for `/support`, the form of the app for `/dato/support`, and the FAQ of the app for `/dato/faq`, or `undefined`. It comes before the closest path, which would be the page of the people who give money (`/supporters`), the opposite of what the visitor wants.
+The help for a path with a help word, like the feedback form for `/support`, the form of the app for `/dato/support`, and the FAQ of the app for `/dato/faq`, or `undefined`. The word and the slug can be in any order, and an `apps` part is left out, so `/feedback/dato` and `/apps/dato/feedback` find the form of the app too. It comes before the closest path, which would be the page of the people who give money (`/supporters`), the opposite of what the visitor wants.
 */
 function helpPath() {
-	if (helpWords.has(path)) {
-		return feedback;
+	const parts = path.split('/').filter(part => part !== 'apps');
+
+	if (parts.length === 1) {
+		return helpWords.has(parts[0]) ? feedback : undefined;
 	}
 
-	const [slug, word, ...rest] = path.split('/');
-
-	if (rest.length > 0) {
+	if (parts.length !== 2) {
 		return;
 	}
 
+	const pairs = [parts, parts.toReversed()];
+
 	// The general form for an unknown app, like a misspelled one in `/datoo/support`.
-	if (helpWords.has(word)) {
+	const helpPair = pairs.find(([word]) => isHelpWordOfApp(word));
+	if (helpPair) {
+		const [, slug] = helpPair;
 		return Object.hasOwn(apps, slug) ? apps[slug].feedback : feedback;
 	}
 
-	if (word === 'faq' && Object.hasOwn(apps, slug)) {
+	const faqPair = pairs.find(([word, slug]) => word === 'faq' && Object.hasOwn(apps, slug));
+	if (faqPair) {
+		const [, slug] = faqPair;
 		return apps[slug].faq;
 	}
 }
@@ -87,9 +102,12 @@ const lowest = (entries, ratioOf) => entries.toSorted((first, second) => ratioOf
 /*
 Only close matches, like a typo or a missing letter: at most 3 edits in 10 characters, or a page that shares a word. A name of 3 characters, like `now`, must match exactly, so `/how` and `/new` suggest nothing.
 
-A page that shares a word comes first, and of those, the closest, so `/privacy-policy` finds `/privacy`, not `/aiko/privacy-policy`. Then a page whose whole path is close, and then a page whose last part is close, so `/apps/dato` finds `/dato`, not `/apps/macos`.
+For a request of one part, the page with that last part comes first, so `/shortcuts` finds `/apps/shortcuts`, not `/shortcutie`, which is only close. Not for more parts, so `/dato/privacy` finds `/dato/privacy-policy`, not `/privacy`. Then a page that shares a word, and of those, the closest, so `/privacy-policy` finds `/privacy`, not `/aiko/privacy-policy`. Then a page whose whole path is close, and then a page whose last part is close, so `/apps/dato` finds `/dato`, not `/apps/macos`.
 */
 const suggestion = helpPath()
+	// A name of a device, like `/apps/ipad` or `/mac`, finds the page of its platform, not a path that is only close, like `/apps/paid`.
+	?? (Object.hasOwn(platformPaths, path) ? platformPaths[path] : undefined)
+	?? (parent === '' ? candidates.find(candidate => candidate.lastPartRatio === 0)?.path : undefined)
 	?? lowest(candidates.filter(candidate => candidate.sharesWord), candidate => candidate.ratio)
 	?? lowest(candidates.filter(candidate => candidate.ratio <= 0.3), candidate => candidate.ratio)
 	?? lowest(candidates.filter(candidate => candidate.lastPartRatio <= 0.3), candidate => candidate.lastPartRatio)
@@ -97,9 +115,15 @@ const suggestion = helpPath()
 	?? paths.find(candidate => candidate === `/${path.split('/')[0]}`);
 
 if (suggestion) {
+	// With the query and the fragment of the request, when the suggestion has none, so `/velja/#browser-profiles` leads to the section, and the help of an app, like `/feedback?product=Dato`, keeps its own query.
+	const url = new URL(suggestion, location.href);
+	url.search ||= location.search;
+	url.hash ||= location.hash;
+
 	const link = document.querySelector('#closest-page-link');
-	link.href = suggestion;
-	// Only the path, without the query for the form or the fragment for the section, so the address is short and the “?” of the sentence is the only one.
-	link.textContent = `sindresorhus.com${suggestion.split(/[?#]/)[0]}`;
-	document.querySelector('#closest-page').hidden = false;
+	link.href = url.pathname + url.search + url.hash;
+	// The name of the page, not its path, which is for machines. Without the query for the form or the fragment for the section, so the button is short.
+	link.textContent = labels.get(url.pathname) ?? `Go to ${url.pathname}`;
+	link.hidden = false;
+	document.querySelector('#home-link').hidden = true;
 }

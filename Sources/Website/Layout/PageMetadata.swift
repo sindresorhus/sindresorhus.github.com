@@ -7,10 +7,6 @@ What the head says about a page: title, description, social previews, and robots
 */
 struct PageMetadata {
 	enum Kind {
-		/**
-		The home page, whose title is the name of the site alone.
-		*/
-		case home
 		case website
 
 		/**
@@ -20,7 +16,7 @@ struct PageMetadata {
 
 		var openGraphType: String {
 			switch self {
-			case .home, .website:
+			case .website:
 				"website"
 			case .article:
 				"article"
@@ -29,16 +25,16 @@ struct PageMetadata {
 	}
 
 	/**
-	The title of the page, like “Apps” or “Older Versions — Apps”. The document title adds the site name.
+	The title of the page, like “Apps” or “Older Versions”. The document title adds the site name, unless the title names the page alone (`isTitleStandalone`).
 	*/
 	let title: String
 
 	var description: String?
 
 	/**
-	The title in social previews. Defaults to the document title.
+	Whether the title names the page without the site name, like the title of an app page, a guide, or a post, or the home page, whose title is the name of the site. Then the browser tab, the search results, and the social previews show the title alone, so search engines show the whole title, as they cut a long one, and they show the site name above each result anyway. A title like “Apps” gets the site name.
 	*/
-	var socialTitle: String?
+	var isTitleStandalone = false
 
 	var kind = Kind.website
 
@@ -70,15 +66,15 @@ struct PageMetadata {
 	var preconnectOrigins = [SiteOrigin]()
 
 	/**
-	The title with the site name, like “Apps — Sindre Sorhus”, for the browser tab and search results. The home page has only the site name.
+	The data of the page as a JSON file, like `/apps.json` for the apps page, which the head links to for tools.
+	*/
+	var dataFile: RoutePath?
+
+	/**
+	The title with the site name, like “Apps — Sindre Sorhus”, for the browser tab, search results, and social previews. A title that names the page alone has no site name (`isTitleStandalone`), like the home page, which has only the site name.
 	*/
 	var documentTitle: String {
-		switch kind {
-		case .home:
-			title
-		case .website, .article:
-			"\(title) — \(Site.name)"
-		}
+		isTitleStandalone ? title : "\(title) — \(Site.name)"
 	}
 }
 
@@ -100,7 +96,7 @@ extension PageMetadata {
 		self.init(
 			title: title,
 			description: description,
-			socialTitle: title,
+			isTitleStandalone: true,
 			kind: .article(publishedOn: document.frontmatter.publicationDate, modifiedOn: document.lastModified, tags: tags),
 			isIndexed: isIndexed,
 			appStoreID: appStoreID

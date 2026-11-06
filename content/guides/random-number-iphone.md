@@ -1,6 +1,6 @@
 ---
 title: 'How to Generate a Random Number on iPhone'
-description: 'Pick a random number in a range, like 1 to 100, with the free Randa app, or with the Random Number action of Shortcuts or the Calculator app.'
+description: 'Use your iPhone as a random number generator: pick a number in a range, like 1 to 100, with the free Randa app or with Shortcuts.'
 publicationDate: 2026-10-31
 topic: 'iphone'
 apps: [
@@ -29,7 +29,7 @@ To copy the number, touch and hold it. Randa is free, and also works on iPad, Ma
 @Tips {
 - For a yes or no decision, like a coin flip, use 0 and 1.
 - To pick from a list, like a movie from your watchlist, use 1 and the number of items, and take the item at that position.
-- To never get the same number two times in a row, tap the more button, and turn on “Consecutively unique numbers”.
+- For no repeats two times in a row, tap the more button, and turn on “Consecutively unique numbers”.
 }
 
 ## Without an app

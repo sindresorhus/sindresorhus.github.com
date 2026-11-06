@@ -31,24 +31,10 @@ struct AppFooterLinks: HTML {
 				.style(Styles.pageLinks)
 			}
 
+			// The “…” menu of the page links to the group (``App/Section/guides``).
 			if !guides.isEmpty {
-				div {
-					h2 {
-						"Guides"
-					}
-					.style(Styles.guidesTitle)
-
-					ul {
-						for guide in guides {
-							li {
-								a(.href(guide.url)) {
-									guide.title
-								}
-								.style(Styles.guideLink)
-							}
-						}
-					}
-					.style(Styles.guideList)
+				div(.id(App.Section.guides.id)) {
+					GuideLinks(title: App.Section.guides.title, guides: guides)
 				}
 				.style(Styles.guides)
 			}
@@ -57,7 +43,38 @@ struct AppFooterLinks: HTML {
 		.style(Styles.root)
 	}
 
-	enum Styles: StyleSet {
+}
+
+/**
+A title and the rows of some guides, like the guides at the end of an app page and the more guides at the end of a guide.
+*/
+struct GuideLinks: HTML {
+	let title: String
+	let guides: [Guide]
+
+	var body: some HTML {
+		h2 {
+			title
+		}
+		.style(AppFooterLinks.Styles.guidesTitle)
+
+		// Keep the list semantics in Safari, as the styles remove its bullets.
+		ul(.role(.list)) {
+			for guide in guides {
+				li {
+					a(.href(guide.url)) {
+						guide.title
+					}
+					.style(AppFooterLinks.Styles.guideLink)
+				}
+			}
+		}
+		.style(AppFooterLinks.Styles.guideList)
+	}
+}
+
+extension AppFooterLinks {
+	enum Styles: String, StyleSet {
 		case root
 		case pageLinks
 		case pageLink
@@ -69,8 +86,9 @@ struct AppFooterLinks: HTML {
 		var style: Style {
 			switch self {
 			case .root:
+				// The space of the page at the sides, and the page links and the guides set their own widths.
 				Style()
-					.contentColumn()
+					.padding(.horizontal, .pageGutter)
 					.secondaryText()
 					// Larger on phones, so the links are easy to read and to tap.
 					.below(.smallTablet) {
@@ -79,7 +97,8 @@ struct AppFooterLinks: HTML {
 			case .pageLinks:
 				// The space below sets the guides clearly apart, so they read as their own group. It is on the page links, so an app with only guides has no empty space above them.
 				Style()
-					.margin(.bottom, .rootEm(3.5))
+					.frame(maxWidth: .length(Style.ColumnWidth.standard.maximum - .pageGutter * 2))
+					.margin(top: .zero, horizontal: .auto, bottom: .rootEm(3.5))
 					.hstack(justification: .center)
 					.flexWrap()
 					.gap(row: .rootEm(0.5), column: .rootEm(1.5))
@@ -89,10 +108,21 @@ struct AppFooterLinks: HTML {
 			case .pageLink:
 				Style().quietLink()
 			case .guides:
-				// As wide as a guide title on one line on wider screens, and centered below the page links.
+				// As wide as a guide title on one line on wider screens, and centered below the page links. From laptops, two columns as wide as the box to get the app above them, so the many guides of an app, like Supercharge, are not a long list. The rows of each line have one height, and a last guide alone in its line is centered, like the only guide of an app.
 				Style()
 					.frame(maxWidth: .rootEm(32))
 					.margin(vertical: .zero, horizontal: .auto)
+					.wideAppPartColumn()
+					.from(.laptop) {
+						$0.children(Styles.guideList.selector) {
+							$0
+								.display(.grid)
+								.balancedColumns(2)
+								.children("li") {
+									$0.display(.grid)
+								}
+						}
+					}
 			case .guidesTitle:
 				// Like the titles of the groups of the footer.
 				Style()
@@ -109,6 +139,8 @@ struct AppFooterLinks: HTML {
 					.hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(1))
 					.padding(vertical: .rootEm(0.875), horizontal: .rootEm(1.25))
 					.textStyle(.body)
+					// A title that wraps breaks at a natural point, not before its last word.
+					.textWrap(.balance)
 					.after {
 						$0
 							.content("→", alternativeText: "")

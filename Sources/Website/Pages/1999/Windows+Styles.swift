@@ -7,7 +7,7 @@ extension GeoCitiesWindows {
 		case scandisk
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case wideWindow
 		case stack
 		case wrapRow
@@ -1128,7 +1128,7 @@ extension GeoCitiesWindows {
 		}
 	}
 
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case bob
 		case circle
 		case bootBar

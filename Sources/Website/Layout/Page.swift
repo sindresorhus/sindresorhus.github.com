@@ -65,6 +65,11 @@ protocol Page: RouteConvertible, Sendable {
 	The preview image for social media. Defaults to the site card. A page that people share on its own, like the discounts page, has a card with its title (``OpenGraphCard/init(page:project:)``), so the preview does not look like the home page.
 	*/
 	var socialImage: SocialImage { get }
+
+	/**
+	The name of the page in a link to it from a list of pages, like the suggestion of the 404 page. Defaults to the title. An app page has the name of the app, like “Dato”, as its title also has the subtitle.
+	*/
+	var linkTitle: String { get }
 }
 
 extension Page where Head == EmptyHTML {
@@ -101,11 +106,15 @@ extension Page {
 		.site
 	}
 
+	var linkTitle: String {
+		metadata.title
+	}
+
 	/**
 	The URL of the preview image for social media.
 	*/
 	var socialImageURL: URL {
-		socialImage.path.absoluteURL
+		socialImage.url
 	}
 
 	/**
@@ -113,20 +122,84 @@ extension Page {
 	*/
 	var route: Route {
 		.page(path, sitemapEntry: metadata.isIndexed ? sitemapEntry : nil) {
-			let resources = PageResources(sharedStylesheet: .site)
-			let body = try resources.collect {
-				SiteBody(page: self).render()
+			let body = try RenderedHTML(sharedStylesheet: .site) {
+				SiteBody(page: self)
 			}
-
-			let inlineScripts = try resources.inlineScriptElements.map { try $0.generatedScript() }
+			let inlineScripts = try body.resources.inlineScriptElements.map { try $0.generatedScript() }
 
 			return SiteLayout(
 				page: self,
 				bodyHTML: body,
-				resources: resources,
 				inlineScripts: inlineScripts
 			).render()
 		}
+		.title(linkTitle)
+	}
+}
+
+/**
+A draft (`isDraft: true`) in the preview of `website serve`: the page with a “Draft” label above it, which search engines may not index (``PageMetadata/isIndexed``), so it is not in the sitemap either. `website build` loads no drafts (``SiteContent/drafts``), so it never publishes one.
+*/
+struct DraftPage<Wrapped: Page>: Page {
+	let wrapped: Wrapped
+
+	init(_ wrapped: Wrapped) {
+		self.wrapped = wrapped
+	}
+
+	var path: RoutePath {
+		wrapped.path
+	}
+
+	var metadata: PageMetadata {
+		var metadata = wrapped.metadata
+		metadata.isIndexed = false
+		return metadata
+	}
+
+	var body: some HTML {
+		div {
+			Badge("Draft", kind: .archived)
+		}
+		.style {
+			$0
+				.pageColumn(.page)
+				.padding(.top, .rootEm(1))
+		}
+
+		wrapped.body
+	}
+
+	var head: Wrapped.Head {
+		wrapped.head
+	}
+
+	var navigation: SiteHeader.Variant {
+		wrapped.navigation
+	}
+
+	var feedbackApp: App? {
+		wrapped.feedbackApp
+	}
+
+	var tint: Color? {
+		wrapped.tint
+	}
+
+	var headerBackground: SiteHeader.Background {
+		wrapped.headerBackground
+	}
+
+	var sitemapEntry: SitemapEntry {
+		wrapped.sitemapEntry
+	}
+
+	var socialImage: SocialImage {
+		wrapped.socialImage
+	}
+
+	var linkTitle: String {
+		wrapped.linkTitle
 	}
 }
 
@@ -138,7 +211,7 @@ extension RouteBuilder {
 		[page.route] + [page.socialImage.publishedCard?.route].compactMap(\.self)
 	}
 
-	static func buildExpression(_ pages: [some Page]) -> [Route] {
+	static func buildExpression<Pages: Sequence>(_ pages: Pages) -> [Route] where Pages.Element: Page {
 		pages.flatMap(buildExpression)
 	}
 }

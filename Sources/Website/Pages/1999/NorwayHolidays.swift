@@ -108,7 +108,7 @@ struct GeoCitiesNorwayHolidays: ScriptedElement {
 				.width(400),
 				.height(160),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The ski track to the cabin. Press the left and right arrow keys one after the other to kick, and K to eat a Kvikk Lunsj.")
 				.style(Styles.canvas)
@@ -139,7 +139,7 @@ struct GeoCitiesNorwayHolidays: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
-			p(.part(Parts.skiStatus), .role("status")) {}
+			p(.part(Parts.skiStatus), .role(.status)) {}
 				.style(Styles.status)
 
 			// The wrapper of the Kvikk Lunsj has the mountain code on the back, so the script shows a rule of it for each bar.
@@ -188,7 +188,7 @@ struct GeoCitiesNorwayHolidays: ScriptedElement {
 		case skiControl = "ski-control"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case toy
 		case canvas

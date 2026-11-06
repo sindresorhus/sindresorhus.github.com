@@ -38,7 +38,7 @@ struct GeoCitiesLemmings: ScriptedElement {
 					.width(512),
 					.height(288),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("The lemmings. The arrow keys pick a lemming, the keys 1 to 6 pick a job, Space gives the job, and P pauses.")
 					.style(Styles.screen)
@@ -104,7 +104,7 @@ struct GeoCitiesLemmings: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow, GeoCitiesPage.Styles.scriptingOnly)
 
-			p(.part(Parts.status), .role("status")) {}
+			p(.part(Parts.status), .role(.status)) {}
 				.style(Styles.status, GeoCitiesPage.Styles.scriptingOnly)
 
 			p {
@@ -139,7 +139,7 @@ struct GeoCitiesLemmings: ScriptedElement {
 		case skillCount = "lemmings-count"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case scroller
 		case screen

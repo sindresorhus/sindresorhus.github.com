@@ -15,6 +15,11 @@ struct Link<Content: HTML>: HTML {
 	let opensInNewTab: Bool
 	let content: Content
 
+	/**
+	The name for screen readers instead of the content (``LabeledLink/accessibilityLabel``).
+	*/
+	var accessibilityLabel: String?
+
 	init(destination: LinkDestination, opensInNewTab: Bool = false, @ContentBuilder content: () -> Content) {
 		self.destination = destination
 		self.opensInNewTab = opensInNewTab
@@ -22,15 +27,21 @@ struct Link<Content: HTML>: HTML {
 	}
 
 	var body: some HTML<HTMLTag.a> {
+		let newTabNotice = opensInNewTab ? " (opens in a new tab)" : ""
+
 		a {
 			content
 
 			if opensInNewTab {
-				VisuallyHidden(" (opens in a new tab)")
+				VisuallyHidden(newTabNotice)
 			}
 		}
 		.attributes(.href(destination))
 		.attributes(.target(.blank), .rel("noopener noreferrer"), when: opensInNewTab)
+		// An empty label would name the link with nothing, which is worse than its content.
+		.attributes(optional: accessibilityLabel.flatMap { label in
+			label.isEmpty ? nil : .ariaLabel(label + newTabNotice)
+		})
 	}
 }
 
@@ -40,6 +51,7 @@ extension Link where Content == HTMLText {
 	*/
 	init(_ link: LabeledLink, opensInNewTab: Bool = false) {
 		self.init(link.title, destination: link.destination, opensInNewTab: opensInNewTab)
+		self.accessibilityLabel = link.accessibilityLabel
 	}
 
 	init(_ title: String, destination: LinkDestination, opensInNewTab: Bool = false) {

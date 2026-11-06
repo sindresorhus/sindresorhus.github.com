@@ -2,6 +2,9 @@ import AVFoundation
 import CryptoKit
 import Foundation
 import ImageIO
+import Subprocess
+import Synchronization
+import System
 
 extension Sequence<UInt8> {
 	/**
@@ -40,6 +43,33 @@ extension Collection {
 	}
 }
 
+extension Sequence {
+	/**
+	The elements without the later ones with the same key, in their order, like one release of each project.
+
+	```
+	["ky", "got", "ky"].uniqued(by: \.self)
+	//=> ["ky", "got"]
+	```
+	*/
+	public func uniqued<Key: Hashable>(by key: (Element) -> Key) -> [Element] {
+		var keys = Set<Key>()
+		return filter { keys.insert(key($0)).inserted }
+	}
+
+	/**
+	The elements by their keys, for a lookup by a key, like the apps by their slugs. The first element of a key wins.
+
+	```
+	["ky", "got", "np"].keyed(by: \.count)
+	//=> [2: "ky", 3: "got"]
+	```
+	*/
+	public func keyed<Key: Hashable>(by key: (Element) -> Key) -> [Key: Element] {
+		Dictionary(map { (key($0), $0) }) { first, _ in first }
+	}
+}
+
 /**
 Text normalization shared by the Markdown and CSS readers.
 */
@@ -49,6 +79,59 @@ extension String {
 	*/
 	public var normalizingWindowsLineEndings: String {
 		replacing("\r\n", with: "\n")
+	}
+}
+
+extension String {
+	/**
+	An error when authored content uses Windows CRLF line endings instead of LF.
+	*/
+	public func windowsLineEndingError(file: URL? = nil) -> ContentError? {
+		guard contains("\r\n") else {
+			return nil
+		}
+
+		return ContentError(file: file, reason: "CRLF line endings are not supported. Use LF line endings.")
+	}
+
+	/**
+	An error when authored content has a git conflict marker, like `<<<<<<< Updated upstream` after `git stash pop`, at the line of the first marker. Without it, the page would show both versions and the markers, or the error would be about something else, like a key of the frontmatter.
+
+	Limitation: A line of a code block that starts like a marker is an error too.
+	*/
+	public func conflictMarkerError(file: URL? = nil) -> ContentError? {
+		let lines = split(separator: "\n", omittingEmptySubsequences: false)
+
+		guard let index = lines.firstIndex(where: { $0.hasPrefix("<<<<<<< ") || $0.hasPrefix(">>>>>>> ") }) else {
+			return nil
+		}
+
+		return ContentError(file: file, line: SourceLocation.Line(index + 1), reason: "The file has a git conflict marker (`\(lines[index])`), like after `git stash pop`. Keep one of the two versions, and remove the three marker lines.")
+	}
+
+	/**
+	The candidate that is the closest to the string, for a “Did you mean …?” of a misspelled name, like `note` for `notes`. It differs in at most a third of the characters (at least one), ignoring case, so a name that is not a misspelling gets no suggestion. Of the candidates at the same distance, the one that comes first alphabetically is used, so the suggestion is the same on each run.
+
+	```swift
+	"notes".closest(in: ["note", "platform"])
+	//=> "note"
+	```
+	*/
+	public func closest(in candidates: some Sequence<String>) -> String? {
+		let lowercased = Array(lowercased())
+		let maximumDistance = max(1, count / 3)
+
+		// A changed character is a removal and an insertion, so the distance is the larger number of the two.
+		return candidates
+			.filter { $0 != self }
+			.map { candidate in
+				let difference = lowercased.difference(from: Array(candidate.lowercased()))
+				return (candidate: candidate, distance: max(difference.insertions.count, difference.removals.count))
+			}
+			.filter { $0.distance <= maximumDistance }
+			.sorted(using: [KeyPathComparator(\.distance), KeyPathComparator(\.candidate)])
+			.first?
+			.candidate
 	}
 }
 
@@ -107,25 +190,49 @@ extension URL {
 	/**
 	The files in the directory and its subdirectories, sorted by path, by the characters, so the order does not depend on the file system or the language of the machine.
 
-	Throws if the directory does not exist, so a wrong path is an error instead of an empty list.
+	Throws if the directory or any of its contents cannot be read, so a wrong path or an unreadable subdirectory is an error instead of an incomplete list.
 	*/
 	public func filesRecursively() throws -> [URL] {
-		guard isDirectory else {
-			throw CocoaError(.fileReadNoSuchFile, userInfo: [NSFilePathErrorKey: path(percentEncoded: false), NSLocalizedDescriptionKey: "The directory “\(path(percentEncoded: false))” does not exist."])
-		}
-
-		return contentsRecursively()
+		try checkedContentsRecursively()
 			.filter(\.isFile)
 			.sorted(using: KeyPathComparator(\.path, comparator: String.StandardComparator.lexical))
 	}
 
 	/**
-	The files and directories in the directory and its subdirectories, in no particular order. Empty when the directory does not exist.
+	The files and directories in the directory and its subdirectories, in no particular order. Throws the underlying file-system error when the directory or any of its contents cannot be read, instead of returning an incomplete list.
+
+	- Parameter includesHiddenFiles: Whether hidden files and directories, like `.DS_Store`, are included.
+	*/
+	public func checkedContentsRecursively(includesHiddenFiles: Bool = true) throws -> [URL] {
+		var enumerationError: (any Error)?
+		guard let enumerator = FileManager.default.enumerator(
+			at: self,
+			includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey, .fileSizeKey, .contentModificationDateKey],
+			options: includesHiddenFiles ? [] : .skipsHiddenFiles,
+			errorHandler: { _, error in
+				enumerationError = error
+				return false
+			}
+		) else {
+			throw CocoaError(.fileReadUnknown, userInfo: [NSFilePathErrorKey: path(percentEncoded: false)])
+		}
+
+		let contents = enumerator.compactMap { $0 as? URL }
+
+		if let enumerationError {
+			throw enumerationError
+		}
+
+		return contents
+	}
+
+	/**
+	The files and directories in the directory and its subdirectories, in no particular order. Empty when the directory or any of its contents cannot be read.
 
 	- Parameter includesHiddenFiles: Whether hidden files and directories, like `.DS_Store`, are included.
 	*/
 	public func contentsRecursively(includesHiddenFiles: Bool = true) -> [URL] {
-		FileManager.default.enumerator(at: self, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey, .fileSizeKey, .contentModificationDateKey], options: includesHiddenFiles ? [] : .skipsHiddenFiles)?.compactMap { $0 as? URL } ?? []
+		(try? checkedContentsRecursively(includesHiddenFiles: includesHiddenFiles)) ?? []
 	}
 
 	/**
@@ -136,10 +243,14 @@ extension URL {
 	}
 
 	/**
-	Copies the file or directory to the destination, which must not exist yet.
+	Copies the file to the destination, which must not exist yet, with its modification date.
+
+	It writes the data, as FSEvents reports an APFS clone, like `FileManager` makes, also as a change of the source, and it keeps that flag on the later events of the source. So a watcher of the source (``DirectoryWatcher``) would rebuild again after each copy, and it could not leave out the clones without also leaving out the real edits.
 	*/
 	public func copy(to destination: URL) throws {
-		try FileManager.default.copyItem(at: self, to: destination)
+		guard copyfile(path(percentEncoded: false), destination.path(percentEncoded: false), nil, copyfile_flags_t(COPYFILE_ALL | COPYFILE_EXCL)) == 0 else {
+			throw Errno(rawValue: errno)
+		}
 	}
 
 	/**
@@ -175,6 +286,13 @@ extension URL {
 	*/
 	public func isSameFile(as other: URL) -> Bool {
 		pathWithResolvedParent == other.pathWithResolvedParent
+	}
+
+	/**
+	Whether the URL is the file, or is in the directory or its subdirectories (``isInside(_:)``), like a file of the paths of `website check content/apps/dato`, which can be files or directories.
+	*/
+	public func isSameFileOrInside(_ fileOrDirectory: URL) -> Bool {
+		isSameFile(as: fileOrDirectory) || isInside(fileOrDirectory)
 	}
 
 	/**
@@ -371,15 +489,107 @@ public struct ImageMetadata: Sendable {
 	}
 }
 
+/**
+The values that were read from files (``Foundation/URL/cachedValue(using:)``), by the file, its size and modification date, and the name and type of the value.
+*/
+private let fileValues = Mutex<[FileValueKey: any Sendable]>([:])
+
+private struct FileValueKey: Hashable {
+	let file: URL
+	let stamp: FileStamp
+	let name: String
+	let valueType: ObjectIdentifier
+}
+
+/**
+A file-reading operation with its cache identity, result type, and failure type. Define reusable operations once so callers cannot independently pair a name with another reader. Include any configuration that changes the result in the name.
+*/
+public struct FileRead<Value: Sendable, Failure: Error>: Sendable {
+	fileprivate let name: String
+	fileprivate let read: @Sendable (URL) async throws(Failure) -> Value
+
+	/**
+	Defines an operation. Reads with the same name and result type share cached values for a given version of a file.
+	*/
+	public init(_ name: String, read: @escaping @Sendable (URL) async throws(Failure) -> Value) {
+		self.name = name
+		self.read = read
+	}
+}
+
+extension FileRead where Value == PixelSize?, Failure == Never {
+	/**
+	The pixel size of an image, or `nil` when the image cannot be read.
+	*/
+	public static var imageSize: Self {
+		Self("imageSize") { $0.imageSize }
+	}
+
+	/**
+	The pixel size of a video, or `nil` when the video cannot be read.
+	*/
+	public static var videoSize: Self {
+		Self("videoSize") { await $0.videoSize }
+	}
+}
+
+extension FileRead where Value == URL?, Failure == any Error {
+	/**
+	A smaller JPEG XL copy. The output directory is part of the operation identity, so another project never receives a cached path in the first project's directory.
+	*/
+	public static func jpegXLVersion(cacheDirectory: URL) -> Self {
+		let directory = cacheDirectory.standardizedFileURL
+		return Self("jpegXLVersion:\(directory.absoluteString)") { try await $0.jpegXLVersion(cacheDirectory: directory) }
+	}
+}
+
 extension URL {
 	/**
+	A value that is read from the file, like the size of an image, read once per name and value type for each version of the file (its size and modification date) in the process. `website serve` loads the content again for each rebuild, so it only reads the images that changed. A read that throws is not kept.
+
+	- Parameter operation: The operation that owns the cache identity and reader, like `.imageSize`.
+	*/
+	public func cachedValue<Value, Failure>(using operation: FileRead<Value, Failure>) async throws(Failure) -> Value {
+		let key = FileValueKey(file: self, stamp: FileStamp(self), name: operation.name, valueType: ObjectIdentifier(Value.self))
+
+		if
+			let stored = fileValues.withLock({ $0[key] }),
+			let value = stored as? Value
+		{
+			return value
+		}
+
+		let value = try await operation.read(self)
+		fileValues.withLock { $0[key] = value as any Sendable }
+		return value
+	}
+
+	/**
 	A JPEG XL copy of a PNG or JPEG image, or `nil` when the copy is not smaller. A PNG, like an app icon, is encoded at quality 90, which looks the same as the image, and is about a sixth of a lossless copy (the icons of the apps are 1.6 MB instead of 9.5 MB). A JPEG is wrapped losslessly, so the JPEG can be restored bit for bit, as a lossy copy of a JPEG is only a little smaller.
+
+	An image with the data of the other format, like a JPEG that is named `icon.png`, is a content error.
 
 	It runs `cjxl` (`brew install jpeg-xl`), which throws when it is missing. The copy is cached in the directory by a hash of the bytes of the image and the options, so an image is only encoded again when it changes.
 	*/
 	public func jpegXLVersion(cacheDirectory: URL) async throws -> URL? {
 		let data = try Data(contentsOf: self)
 		let isJPEG = ["jpg", "jpeg"].contains(pathExtension.lowercased())
+
+		// Before `cjxl`, whose error for a JPEG with the extension of a PNG is about its options, and which encodes a PNG with the extension of a JPEG without a word. A PNG starts with `89 50 4E 47`, and a JPEG with `FF D8 FF`.
+		let otherSignature: [UInt8] = isJPEG ? [0x89, 0x50, 0x4E, 0x47] : [0xFF, 0xD8, 0xFF]
+
+		if data.starts(with: otherSignature) {
+			let name = nameWithoutExtension
+
+			let reason = if isJPEG {
+				"The image is a PNG, but its extension is `.\(pathExtension)`. Export it again as a JPEG, or rename it to `\(name).png`."
+			} else {
+				"The image is a JPEG, but its extension is `.\(pathExtension)`. Export it again as a PNG, or rename it to `\(name).jpg` where the page allows a JPEG."
+			}
+
+			throw ContentError(file: self, reason: reason)
+		}
+
 		// The options are part of the key, so a change of them encodes the images again.
 		let options = isJPEG ? ["--lossless_jpeg=1"] : ["--quality=90"]
 		let key = SHA256.hash(data: data + Data(options.joined(separator: " ").utf8)).hexString
@@ -400,32 +610,31 @@ extension URL {
 
 		// To a temporary file first, so an encode that stops halfway does not leave a broken copy in the cache.
 		let temporaryOutput = cacheDirectory.appending(path: "\(key)-\(UUID().uuidString).jxl")
-		let process = Process()
-		process.executableURL = URL(filePath: "/usr/bin/env")
-		process.arguments = ["cjxl", "--quiet"] + options + [path(percentEncoded: false), temporaryOutput.path(percentEncoded: false)]
-		process.standardOutput = FileHandle.nullDevice
-		let errorPipe = Pipe()
-		process.standardError = errorPipe
-		var errorOutput = Data()
 
-		let status = try await process.runUntilExit {
-			errorOutput = try await errorPipe.fileHandleForReading.readDataToEnd()
+		defer {
+			try? temporaryOutput.removeIfExists()
 		}
 
-		// `env` exits with 127 when it cannot find the command.
-		guard status != .exit(127) else {
+		let result: ExecutionResult<Void, DiscardedOutput, StringOutput<UTF8>>
+
+		do {
+			result = try await run(
+				.name("cjxl"),
+				arguments: Arguments(["--quiet"] + options + [path(percentEncoded: false), temporaryOutput.path(percentEncoded: false)]),
+				output: .discarded,
+				error: .string(limit: 65_536)
+			)
+		} catch let error as SubprocessError where error.code == .executableNotFound {
 			throw ContentError(file: self, reason: "`cjxl` is missing, which makes the JPEG XL copies of the images. Install it with `brew install jpeg-xl`.")
 		}
 
-		guard status == .exit(0) else {
-			try? temporaryOutput.removeIfExists()
-			throw ContentError(file: self, reason: "`cjxl` could not make a JPEG XL copy of the image: \(String(decoding: errorOutput, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines))")
+		guard result.terminationStatus.isSuccess else {
+			throw ContentError(file: self, reason: "`cjxl` could not make a JPEG XL copy of the image: \(result.standardError.trimmingCharacters(in: .whitespacesAndNewlines))")
 		}
 
 		let size = try temporaryOutput.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? .max
 
 		guard size < data.count else {
-			try? temporaryOutput.removeIfExists()
 			try Data().write(to: notSmallerMarker)
 			return nil
 		}
@@ -434,8 +643,6 @@ extension URL {
 		do {
 			try FileManager.default.moveItem(at: temporaryOutput, to: output)
 		} catch {
-			try? temporaryOutput.removeIfExists()
-
 			guard output.isFile else {
 				throw error
 			}
@@ -469,35 +676,14 @@ extension URL {
 	The properties of an image, like its pixel size. Only the header of the image is read, and callers that need several facts can keep this value.
 	*/
 	public var imageMetadata: ImageMetadata? {
-		guard
-			let source = CGImageSourceCreateWithURL(self as CFURL, nil),
-			let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
-		else {
-			return nil
-		}
-
-		return ImageMetadata(properties: properties)
+		CGImageSource.read(self)?.metadata
 	}
 
 	/**
 	An image decoded at a bounded pixel size, with its orientation applied, for color sampling or previews without loading the full raster.
 	*/
 	public func imageThumbnail(maximumPixelSize: Int) -> CGImage? {
-		precondition(maximumPixelSize > 0, "A thumbnail size must be positive.")
-
-		guard let source = CGImageSourceCreateWithURL(self as CFURL, [kCGImageSourceShouldCache: false] as CFDictionary) else {
-			return nil
-		}
-
-		return CGImageSourceCreateThumbnailAtIndex(
-			source,
-			0,
-			[
-				kCGImageSourceCreateThumbnailFromImageAlways: true,
-				kCGImageSourceCreateThumbnailWithTransform: true,
-				kCGImageSourceThumbnailMaxPixelSize: maximumPixelSize,
-			] as CFDictionary
-		)
+		CGImageSource.read(self, shouldCache: false)?.thumbnail(maximumPixelSize: maximumPixelSize)
 	}
 
 	/**
@@ -514,6 +700,56 @@ extension URL {
 
 			return PixelSize(width: Int(size.width.rounded()), height: Int(size.height.rounded()))
 		}
+	}
+}
+
+/**
+Image reads that keep ImageIO's untyped properties and creation options at the source boundary.
+*/
+extension CGImageSource {
+	/**
+	Reads an image source from a file, or `nil` when the file cannot be read. Keep the source to read its metadata and images together.
+
+	- Parameter shouldCache: Pass `false` to disable ImageIO's caching of decoded pixels, like for a bounded thumbnail. The default preserves ImageIO's default options.
+	*/
+	public static func read(_ url: URL, shouldCache: Bool = true) -> CGImageSource? {
+		let options = shouldCache ? nil : [kCGImageSourceShouldCache: false] as CFDictionary
+		return CGImageSourceCreateWithURL(url as CFURL, options)
+	}
+
+	/**
+	The first image's header metadata, without decoding the raster.
+	*/
+	public var metadata: ImageMetadata? {
+		guard let properties = CGImageSourceCopyPropertiesAtIndex(self, 0, nil) as? [CFString: Any] else {
+			return nil
+		}
+
+		return ImageMetadata(properties: properties)
+	}
+
+	/**
+	The first decoded image, or `nil` when it cannot be read.
+	*/
+	public var firstImage: CGImage? {
+		CGImageSourceCreateImageAtIndex(self, 0, nil)
+	}
+
+	/**
+	The first image decoded at a bounded pixel size, with its orientation applied.
+	*/
+	public func thumbnail(maximumPixelSize: Int) -> CGImage? {
+		precondition(maximumPixelSize > 0, "A thumbnail size must be positive.")
+
+		return CGImageSourceCreateThumbnailAtIndex(
+			self,
+			0,
+			[
+				kCGImageSourceCreateThumbnailFromImageAlways: true,
+				kCGImageSourceCreateThumbnailWithTransform: true,
+				kCGImageSourceThumbnailMaxPixelSize: maximumPixelSize,
+			] as CFDictionary
+		)
 	}
 }
 
@@ -627,65 +863,6 @@ extension String {
 	}
 }
 
-extension FileHandle {
-	/**
-	Collects bytes asynchronously until the handle reaches EOF. Read a process pipe while the process is running, as waiting for its exit first can fill the pipe and stop it.
-	*/
-	public func readDataToEnd() async throws -> Data {
-		var data = Data()
-
-		for try await byte in bytes {
-			data.append(byte)
-		}
-
-		return data
-	}
-}
-
-extension Process {
-	/**
-	How a process finished: by exiting with a status code or by receiving an uncaught signal.
-	*/
-	public enum Termination: Hashable, Sendable {
-		case exit(Int32)
-		case signal(Int32)
-	}
-
-	/**
-	Runs the process, and returns how it terminated. Waiting does not block a thread of the concurrency pool.
-
-	`whileRunning` runs after the process started, like reading its output from a pipe, which must be read while it runs, as a full pipe stops the process.
-
-	```swift
-	let status = try await process.runUntilExit {
-		for try await line in pipe.fileHandleForReading.bytes.lines {
-			print(line)
-		}
-	}
-	```
-
-	Throws when the process cannot start, when `whileRunning` throws, or with `CancellationError` when the task is cancelled before the process exits. The process keeps running in the last two cases.
-	*/
-	public func runUntilExit(whileRunning: () async throws -> Void = {}) async throws -> Termination {
-		let (exitStatus, exitStatusContinuation) = AsyncStream.makeStream(of: Termination.self)
-
-		terminationHandler = { process in
-			let termination: Termination = process.terminationReason == .exit ? .exit(process.terminationStatus) : .signal(process.terminationStatus)
-			exitStatusContinuation.yield(termination)
-			exitStatusContinuation.finish()
-		}
-
-		try run()
-		try await whileRunning()
-
-		for await status in exitStatus {
-			return status
-		}
-
-		throw CancellationError()
-	}
-}
-
 /**
 A URL from a string literal, which is checked when the code compiles, so a typo is a compile error instead of a crash when it runs.
 
@@ -710,10 +887,9 @@ extension JSONEncoder {
 	/**
 	The value as JSON for a page, with sorted keys, so the output is the same in every build, and with slashes as they are. Encoding plain values only fails for a mistake, like a `Double.nan`, which stops the build, so a page never has a script without its data.
 	*/
-	public static func pageJSON(_ value: some Encodable, keyEncodingStrategy: KeyEncodingStrategy = .useDefaultKeys) -> String {
+	public static func pageJSON(_ value: some Encodable) -> String {
 		let encoder = JSONEncoder()
 		encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
-		encoder.keyEncodingStrategy = keyEncodingStrategy
 
 		do {
 			return String(decoding: try encoder.encode(value), as: UTF8.self)
@@ -773,6 +949,60 @@ extension Locale {
 	public static let site = Self(identifier: "en_US")
 }
 
+extension URL {
+	/**
+	The name of the file without its extension, like `screenshot2` for `screenshot2.jpg`.
+	*/
+	public var nameWithoutExtension: String {
+		deletingPathExtension().lastPathComponent
+	}
+}
+
+extension FormatStyle where Self == IntegerFormatStyle<Int> {
+	/**
+	A whole number in the language of the site, without a thousands separator, like “1234”, as the site writes no number with one.
+	*/
+	public static var siteNumber: Self {
+		.number.grouping(.never).locale(.site)
+	}
+}
+
+extension FormatStyle where Self == ByteCountFormatStyle {
+	/**
+	The size of a file in the language of the site, like “12.3 MB”.
+	*/
+	public static var siteFileSize: Self {
+		.byteCount(style: .file).locale(.site)
+	}
+}
+
+extension Sequence<String> {
+	/**
+	The strings as a list in the language of the site, like “a, b, and c” for `.and`, or “a, b, or c” for `.or`.
+	*/
+	public func formattedList(_ type: ListFormatStyle<StringStyle, [String]>.ListType) -> String {
+		Array(self).formatted(.list(type: type).locale(.site))
+	}
+}
+
+extension String {
+	/**
+	The noun for the count: as it is for 1, else in the plural, like “day” and “days”. The plural adds an “s”, unless it is given, like “repositories”.
+	*/
+	public func pluralized(for count: Int, plural: String? = nil) -> String {
+		count == 1 ? self : plural ?? self + "s"
+	}
+}
+
+extension Int {
+	/**
+	The count with the noun, in the plural when the count is not 1, like “1 day” or “1234 days”, without a thousands separator, as the site writes no count with one. The plural adds an “s”.
+	*/
+	public func formatted(counting noun: String) -> String {
+		"\(formatted(.siteNumber)) \(noun.pluralized(for: self))"
+	}
+}
+
 extension Sequence where Element: Sendable {
 	/**
 	The results of the transform of each element, in the order of the elements. The transforms run at the same time, like a request for each element, and the first error stops them.
@@ -780,11 +1010,13 @@ extension Sequence where Element: Sendable {
 	```
 	let pages = try await urls.concurrentMap { try await download($0) }
 	```
+
+	- Parameter name: The name of the task of an element, like the path of a page, which a debugger, a crash report, and Instruments show, so a crash or a slow element shows which element it is.
 	*/
-	public func concurrentMap<Transformed: Sendable>(_ transform: @escaping @Sendable (Element) async throws -> Transformed) async throws -> [Transformed] {
+	public func concurrentMap<Transformed: Sendable>(name: ((Element) -> String)? = nil, _ transform: @escaping @Sendable (Element) async throws -> Transformed) async throws -> [Transformed] {
 		try await withThrowingTaskGroup { group in
 			for (index, element) in enumerated() {
-				group.addTask {
+				group.addTask(name: name?(element)) {
 					(index: index, value: try await transform(element))
 				}
 			}
@@ -798,10 +1030,10 @@ extension Sequence where Element: Sendable {
 	/**
 	The ordered results of concurrent transforms that cannot fail.
 	*/
-	public func concurrentMap<Transformed: Sendable>(_ transform: @escaping @Sendable (Element) async -> Transformed) async -> [Transformed] {
+	public func concurrentMap<Transformed: Sendable>(name: ((Element) -> String)? = nil, _ transform: @escaping @Sendable (Element) async -> Transformed) async -> [Transformed] {
 		await withTaskGroup { group in
 			for (index, element) in enumerated() {
-				group.addTask {
+				group.addTask(name: name?(element)) {
 					(index: index, value: await transform(element))
 				}
 			}

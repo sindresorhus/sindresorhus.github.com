@@ -191,13 +191,13 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 					.width(1200),
 					.height(780),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("Taipei. Pick two free tiles that match to take them off. The arrow keys move the cursor, Space or Enter picks the tile, H shows a hint, U undoes, P peeks under the tile while Peek is on, Escape lets go of the tile, and B is the boss key.")
 					.style(Styles.screen)
 
 				div {
-					p(.part(Parts.status), .role("status")) {
+					p(.part(Parts.status), .role(.status)) {
 						"Pick two free tiles that match. A tile is free when nothing lies on it, and its left or right side is open."
 					}
 					.style(GeoCitiesPage.Styles.statusBar, Styles.status)
@@ -306,7 +306,7 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 			}
 			.style(Styles.gridScroll)
 
-			div(.role("group")) {
+			div(.role(.group)) {
 				for (tab, title) in [("ark1", "Budsjett 1999"), ("ark2", "Ark2"), ("taipei", "Taipei")] {
 					button(.type(.button), .hook(Hooks.tab, value: tab)) {
 						title
@@ -318,7 +318,7 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 			.accessibilityLabel("Sheets")
 			.style(Styles.tabs)
 
-			p(.part(Parts.sheetStatus), .role("status")) {
+			p(.part(Parts.sheetStatus), .role(.status)) {
 				"Klar"
 			}
 			.style(GeoCitiesPage.Styles.statusBar)
@@ -456,7 +456,7 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 		case tab = "taipei-tab"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case game
 		case tool

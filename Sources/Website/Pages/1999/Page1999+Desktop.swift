@@ -40,7 +40,7 @@ extension GeoCitiesPage {
 		// `geocities.js` shows a copy when the visitor clicks the skull: the blue screen of Windows 98, or the bomb of the Mac, until a key or a click.
 		template(.id(IDs.blueScreenTemplate)) {
 			div(
-				.role("alertdialog"),
+				.role(.alertDialog),
 				.ariaModal,
 				.tabindex(-1),
 				.ariaLabelledBy(ElementID("geocities-blue-screen-title")),
@@ -85,7 +85,7 @@ extension GeoCitiesPage {
 		template(.id(IDs.bombTemplate)) {
 			div {
 				div(
-					.role("alertdialog"),
+					.role(.alertDialog),
 					.ariaModal,
 					.tabindex(-1),
 					.ariaLabelledBy(ElementID("geocities-bomb-title")),
@@ -123,7 +123,7 @@ extension GeoCitiesPage {
 		// `geocities.js` shows a copy when the visitor shuts down the computer of the desktop, until a key or a click turns it on again.
 		template(.id(IDs.shutDownTemplate)) {
 			div(
-				.role("dialog"),
+				.role(.dialog),
 				.ariaModal,
 				.tabindex(-1),
 				.ariaLabelledBy(ElementID("geocities-shut-down-text"))
@@ -146,7 +146,7 @@ extension GeoCitiesPage {
 	Snake on the mobile phone of my dad, like the Snake of 1997 on a screen of 84 × 48 pixels. The keys 2, 4, 6, and 8 of the keypad steer, and 5 starts and pauses. `geocities.js` runs it on the canvas, where the arrow keys and swipes on the screen steer too. With reduced motion, the snake moves one step for each key press, so nothing moves by itself.
 	*/
 	var snake: some HTML {
-		section(.id("geocities-snake")) {
+		section(.id(SiteMapSection.snake.id)) {
 			h2 {
 				gif(.mobilePhone)
 				" Snake on My Dad’s Mobile Phone"
@@ -175,12 +175,12 @@ extension GeoCitiesPage {
 						.id(IDs.snakeScreen),
 						.width(84),
 						.height(48),
-						.role("img")
+						.role(.image)
 					) {}
 						.accessibilityLabel("The screen of the phone, with the snake")
 						.style(Styles.phoneCanvas)
 
-					p(.id(IDs.snakeStatus), .role("status")) {
+					p(.id(IDs.snakeStatus), .role(.status)) {
 						"Press 5 to play!"
 					}
 					.style(Styles.phoneStatus)
@@ -225,7 +225,7 @@ extension GeoCitiesPage {
 	My computer, a desktop of Windows 98 with icons, a Start menu with submenus, and a taskbar with buttons for the open windows, a tray, and a clock. Each icon opens a window with a program: Unicorn Paint, Y2K Bugsweeper, my secret diary in Notepad, Solitaire, the System Properties, the Recycle Bin, and the programs of ``GeoCitiesWindows``. `geocities.js` opens, closes, and drags the windows, and runs its programs. Shut Down leaves the visitor with the black screen of Windows 95, until any key turns the computer on again.
 	*/
 	var desktop: some HTML {
-		section(.id("geocities-pc")) {
+		section(.id(SiteMapSection.pc.id)) {
 			h2 {
 				gif(.computerGame)
 				" My Computer"
@@ -358,7 +358,7 @@ extension GeoCitiesPage {
 	*/
 	var paint: some HTML {
 		div {
-			div(.role("group")) {
+			div(.role(.group)) {
 				for tool in Self.paintTools {
 					button(.type(.button), .hook(Hooks.paintTool, value: tool.id), .ariaPressed(tool.id == "pencil")) {
 						tool.icon
@@ -392,7 +392,7 @@ extension GeoCitiesPage {
 			.accessibilityLabel("Tools")
 			.style(Styles.paintTools)
 
-			div(.id(IDs.paintStamps), .role("group"), .hidden) {
+			div(.id(IDs.paintStamps), .role(.group), .hidden) {
 				for (index, stamp) in Self.paintStamps.enumerated() {
 					button(.type(.button), .hook(Hooks.paintStamp, value: stamp.gif.stillPath.description), .ariaPressed(index == 0)) {
 						gif(stamp.gif, style: .paintStampPicture)
@@ -410,7 +410,7 @@ extension GeoCitiesPage {
 					.width(320),
 					.height(200),
 					.tabindex(0),
-					.role("img")
+					.role(.image)
 				) {}
 					.accessibilityLabel("Your picture. Draw with the mouse or a finger, or move the brush with the arrow keys and paint with Space.")
 					.style(Styles.paintCanvas)
@@ -421,7 +421,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.paintCanvasFrame)
 
-			div(.role("group")) {
+			div(.role(.group)) {
 				for color in Self.paintColors {
 					button(.type(.button), .hook(Hooks.paintColor, value: color.hex), .ariaPressed(color.hex == "#000000")) {}
 						.accessibilityLabel(color.name)
@@ -432,7 +432,7 @@ extension GeoCitiesPage {
 			.accessibilityLabel("Colors")
 			.style(Styles.paintPalette)
 
-			p(.id(IDs.paintStatus), .role("status")) {
+			p(.id(IDs.paintStatus), .role(.status)) {
 				"Pick a tool and draw a unicorn!"
 			}
 			.style(Styles.statusBar)
@@ -446,7 +446,7 @@ extension GeoCitiesPage {
 	var sweeper: some HTML {
 		div {
 			div {
-				p(.id(IDs.sweeperBugs), .role("img")) {
+				p(.id(IDs.sweeperBugs), .role(.image)) {
 					"010"
 				}
 				.accessibilityLabel("10 bugs left")
@@ -466,7 +466,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.sweeperBar)
 
-			div(.id(IDs.sweeperGrid), .role("group")) {
+			div(.id(IDs.sweeperGrid), .role(.group)) {
 				for index in 0..<(Self.sweeperSize * Self.sweeperSize) {
 					button(.type(.button), .hook(Hooks.sweeperCell, value: "\(index)"), .tabindex(index == 0 ? 0 : -1)) {}
 						.accessibilityLabel("Row \(index / Self.sweeperSize + 1), column \(index % Self.sweeperSize + 1)")
@@ -481,7 +481,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.smallButton)
 
-			p(.id(IDs.sweeperStatus), .role("status")) {
+			p(.id(IDs.sweeperStatus), .role(.status)) {
 				"Find the 10 Y2K bugs before midnight! Right-click, press F, hold a finger on a square, or use Flag Mode to flag a bug."
 			}
 			.style(Styles.statusBar)
@@ -538,7 +538,7 @@ extension GeoCitiesPage {
 				$0.flowSpacing(.rootEm(0.75))
 			}
 
-			p(.id(IDs.diaryStatus), .role("status")) {}
+			p(.id(IDs.diaryStatus), .role(.status)) {}
 
 			label(.for(IDs.diaryText.id)) {
 				"My diary"
@@ -564,7 +564,7 @@ extension GeoCitiesPage {
 	var solitaire: some HTML {
 		div {
 			for suit in [(symbol: "♠", name: "spades", isRed: false), (symbol: "♥", name: "hearts", isRed: true), (symbol: "♣", name: "clubs", isRed: false), (symbol: "♦", name: "diamonds", isRed: true)] {
-				p(.hook(Hooks.solitairePile), .role("img")) {
+				p(.hook(Hooks.solitairePile), .role(.image)) {
 					"K\(suit.symbol)"
 				}
 				.accessibilityLabel("King of \(suit.name)")
@@ -582,7 +582,7 @@ extension GeoCitiesPage {
 		}
 		.style(Styles.retroButton)
 
-		p(.id(IDs.solitaireStatus), .role("status")) {}
+		p(.id(IDs.solitaireStatus), .role(.status)) {}
 	}
 
 	/**
@@ -621,7 +621,7 @@ extension GeoCitiesPage {
 		.accessibilityHidden()
 		.style(Styles.defrag)
 
-		p(.id(IDs.defragStatus), .role("status")) {
+		p(.id(IDs.defragStatus), .role(.status)) {
 			"Drive C: is 61% fragmented. Ouch."
 		}
 		.style(Styles.statusBar)
@@ -653,6 +653,6 @@ extension GeoCitiesPage {
 		}
 		.style(Styles.retroButton)
 
-		p(.id(IDs.recycleStatus), .role("status")) {}
+		p(.id(IDs.recycleStatus), .role(.status)) {}
 	}
 }

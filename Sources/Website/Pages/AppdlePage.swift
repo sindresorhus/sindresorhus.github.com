@@ -64,7 +64,7 @@ struct AppdlePage: Page {
 				// `appdle.js` draws the part of the icon, and the whole icon when the game ends, with the `revealed` state. Its positive, code-owned bitmap dimensions cannot fail validation.
 				canvas(
 					.id(IDs.canvas),
-					.role("img")
+					.role(.image)
 				) {}
 					.bitmapSize(PixelSize(width: 480, height: 480)!)
 					.accessibilityLabel("A pixelated part of the icon of today’s app")
@@ -81,7 +81,7 @@ struct AppdlePage: Page {
 				.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.375))
 
 				// How many guesses are left, or why a guess did not count. When the game ends, it is the headline of the result, like “You got it in 2 guesses!”.
-				p(.id(IDs.status), .role("status")) {}
+				p(.id(IDs.status), .role(.status)) {}
 					.style(Styles.status)
 
 				form(.id(IDs.form)) {
@@ -96,6 +96,10 @@ struct AppdlePage: Page {
 						.name("guess"),
 						.list(id: Self.namesID),
 						.autocomplete("off"),
+						// The names of the apps are not in a dictionary, so the keyboard of a phone would correct a name, like “Plash” to “Flash”, when the visitor sends it.
+						.autocapitalize(.none),
+						.custom(name: "autocorrect", value: "off"),
+						.spellcheck(false),
 						.enterKeyHint(.send),
 						.placeholder("Type an app name")
 					)
@@ -243,7 +247,7 @@ extension AppdlePage {
 		case done
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case game
 		case meta
@@ -310,7 +314,7 @@ extension AppdlePage {
 					.cornerRadius(.capsule)
 					.padding(.horizontal, .rootEm(1.125))
 					.nested("&::-webkit-calendar-picker-indicator") {
-						$0.declaration(.display, Display.none, isImportant: true)
+						$0.declaration(raw: .display, Display.none, isImportant: true)
 					}
 			case .status:
 				// The height of one line while it is empty, so the form below does not move when a message shows. When the game ends, it is the headline of the result.

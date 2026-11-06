@@ -1,5 +1,6 @@
 import Foundation
 import SiteKit
+import Subprocess
 
 /**
 The GitHub API for the `sindresorhus` account and the organizations of its projects. A token raises the rate limit.
@@ -7,11 +8,6 @@ The GitHub API for the `sindresorhus` account and the organizations of its proje
 struct GitHub {
 	let token: String?
 	let cache: ResponseCache
-
-	init(token: String?, cache: ResponseCache) {
-		self.token = token
-		self.cache = cache
-	}
 
 	/**
 	The token of `GITHUB_TOKEN`, or else the token of the GitHub CLI (`gh auth token`) when it is logged in, so a local build has the rate limit of a token (5,000 requests an hour instead of 60) without setting it. It is resolved once for the process, as `website serve` builds repeatedly.
@@ -39,26 +35,19 @@ struct GitHub {
 	The token of the GitHub CLI, or `nil` when it is not installed or not logged in.
 	*/
 	private static func gitHubCLIToken(environment: [String: String]) async -> String? {
-		let process = Process()
-		let output = Pipe()
-		process.executableURL = URL(filePath: "/usr/bin/env")
-		process.arguments = ["gh", "auth", "token"]
-		process.environment = environment
-		process.standardOutput = output
-		process.standardError = FileHandle.nullDevice
-
-		var data = Data()
-
-		let termination = try? await process.runUntilExit {
-			data = try await output.fileHandleForReading.readDataToEnd()
-		}
-
-		guard termination == .exit(0) else {
+		guard
+			let result = try? await run(
+				.name("gh"),
+				arguments: ["auth", "token"],
+				environment: .custom(Dictionary(uniqueKeysWithValues: environment.map { (Environment.Key(stringLiteral: $0.key), $0.value) })),
+				output: .string(limit: 4096)
+			),
+			result.terminationStatus.isSuccess
+		else {
 			return nil
 		}
 
-		let token = String(decoding: data, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
-		return token.nilIfEmpty
+		return result.standardOutput.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
 	}
 
 	/**
@@ -77,7 +66,7 @@ struct GitHub {
 			}
 
 			// The site's classes, so a table is in the scrolling container of the prose.
-			var options = MarkdownDocument.Options.site
+			var options = MarkdownDocument.ReleaseNotesOptions(theme: .site)
 			let page = repository.url.appending(path: "releases/tag/\(release.tagName)")
 
 			// A relative link is resolved against the page of the release on GitHub, like a browser there would, so a link that is written for GitHub, like `../../issues/12`, is not a broken link of the site, which would fail a scheduled build. A link to a section, like `#usage`, stays.
@@ -92,7 +81,7 @@ struct GitHub {
 				return url.absoluteString
 			}
 
-			let notesHTML = release.body.map { MarkdownDocument(parsing: $0, style: .releaseNotes, options: options).html } ?? ""
+			let notesHTML = release.body.map { MarkdownDocument(releaseNotes: $0, options: options).html } ?? ""
 			return GitHubRelease(tagName: release.tagName, publishedAt: publishedAt, notesHTML: notesHTML)
 		}
 		.sorted(using: KeyPathComparator(\.publishedAt, order: .reverse))
@@ -529,8 +518,8 @@ struct GitHub {
 		/**
 		The `data` of a query without variables. The absent variables field is omitted from the request body.
 		*/
-		func data<Value: Decodable & Sendable>(_ type: Value.Type, query: String, maximumAge: Duration? = nil) async throws -> Value {
-			try await data(type, query: query, variables: Optional<Never>.none, maximumAge: maximumAge)
+		func data<Value: Decodable & Sendable>(_ type: Value.Type, query: String) async throws -> Value {
+			try await data(type, query: query, variables: Optional<Never>.none)
 		}
 
 		/**

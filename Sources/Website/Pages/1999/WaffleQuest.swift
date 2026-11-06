@@ -44,7 +44,7 @@ struct GeoCitiesWaffleQuest: ScriptedElement {
 			}
 			.style(Styles.statusLine)
 
-			div(.part(Parts.screen), .role("log")) {}
+			div(.part(Parts.screen), .role(.log)) {}
 				.style(Styles.screen)
 
 			form(.part(Parts.form)) {
@@ -90,7 +90,7 @@ struct GeoCitiesWaffleQuest: ScriptedElement {
 			}
 		}
 		.accessibilityLabel("Quick commands")
-		.attributes(.role("group"))
+		.attributes(.role(.group))
 		.style(GeoCitiesPage.Styles.buttonRow, GeoCitiesPage.Styles.scriptingOnly)
 
 		p {
@@ -116,7 +116,7 @@ struct GeoCitiesWaffleQuest: ScriptedElement {
 		case command = "waffle-quest-command"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case monitor
 		case statusLine
@@ -140,7 +140,7 @@ struct GeoCitiesWaffleQuest: ScriptedElement {
 					.margin(.horizontal, .auto)
 					.background(.black)
 					.border(Color(raw: "#555555"), width: .pixels(10), style: .ridge)
-					.fontFamily(#""Perfect DOS VGA 437", "Lucida Console", "Courier New", monospace"#)
+					.fontFamily(.stack(.named("Perfect DOS VGA 437"), .named("Lucida Console"), .named("Courier New"), .genericMonospace))
 					.textStyle(.body)
 					.lineHeight(1.35)
 					.color(Color(raw: "#c0c0c0"))

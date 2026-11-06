@@ -44,7 +44,7 @@ struct GuidePage: Page {
 	private let screenshot: (asset: ScreenshotAsset, description: String)?
 
 	var sitemapEntry: SitemapEntry {
-		SitemapEntry(lastModified: guide.lastModified, images: [screenshot?.asset.path.absoluteURL].compactMap(\.self))
+		SitemapEntry(lastModified: guide.lastModified, images: [screenshot?.asset.path.absoluteURL].compactMap(\.self).map { AbsoluteURL($0) })
 	}
 
 	var metadata: PageMetadata {
@@ -64,20 +64,27 @@ struct GuidePage: Page {
 				parts.before
 
 				// After the steps of the app, so the reader sees the result before deciding to get it. Not taller than on the app page, so a screenshot of a phone is not several screens tall.
+				// The frame of the screenshots of the app page, so the same image looks the same in both places. From tablets, it hangs into the space at the sides of the text, like the boxes around it.
 				if let (screenshot, description) = screenshot {
-					ScreenshotImage(asset: screenshot, alternativeText: description) {
-						$0.style {
-							$0
-								.display(.block)
-								.frame(width: .auto, maxHeight: .pixels(MediaAsset.maximumDisplayHeight))
-								.margin(.horizontal, .auto)
+					div {
+						ScreenshotImage(asset: screenshot, alternativeText: description) {
+							$0.style {
+								$0
+									.display(.block)
+									.frame(width: .auto, maxWidth: .percent(100), maxHeight: .pixels(MediaAsset.maximumDisplayHeight))
+									.margin(.horizontal, .auto)
+									.windowSurface()
+							}
 						}
+					}
+					.style {
+						$0.widerThanProse()
 					}
 				}
 
-				AppCallToAction(listing: content.listing(of: app))
+				AppCallToAction(listing: content.listing(of: app), buildDate: content.buildDate, appStorePlacement: .guide(guide.slug))
 					.style {
-						// From tablets, the box hangs into the space at the sides of the text, like the other boxes of prose, like the code. Below tablets, it is as wide as the screen, like at the end of the app page, so it goes into the space at the sides of the page.
+						// Where there is space at the sides of the text (``Breakpoint/proseWithGutters``), the box hangs into it, like the other boxes of prose, like the code. Until then, from tablets, it is as wide as the text, like the other boxes. Below tablets, it is as wide as the screen, like at the end of the app page, so it goes into the space at the sides of the page. Between tablets and that width, the page has its largest width, so the space at its sides is not only the gutter.
 						$0
 							.margin(.top, .rootEm(3))
 							.widerThanProse()
@@ -86,13 +93,16 @@ struct GuidePage: Page {
 							}
 					}
 
-				// Below the box, as a reader who decides to get the app often wants the screenshots, the reviews, and the FAQ of the app first, and the link back at the top is out of view.
-				p {
+				// Below the box, as a reader who decides to get the app often wants the screenshots, the reviews, and the FAQ of the app first, and the link back at the top is out of view. The box above shows the app, so the link shows no preview of it.
+				p(.hook(LinkPreview.Hooks.noLinkPreview)) {
 					a(.href(app.path)) {
-						"More about \(app.title) →"
+						"More about \(app.title)"
 					}
+					// The arrow is only on the screen, so the name of the link is its text.
 					.style {
-						$0.moreLink()
+						$0
+							.moreLink()
+							.trailingArrow()
 					}
 				}
 				.style {
@@ -123,19 +133,56 @@ struct GuidePage: Page {
 			}
 		}
 
+		// After the guide, like the footer, so “Without an app” stays the last word of the guide. The rows of the guides at the end of an app page.
+		let moreGuides = self.moreGuides
+
+		if !moreGuides.isEmpty {
+			section {
+				GuideLinks(title: "More Guides", guides: moreGuides)
+			}
+			.style(AppFooterLinks.Styles.root, AppFooterLinks.Styles.guides)
+			// The space below the guide, and a little more, so the list reads as navigation after the guide, not as a part of it.
+			.style {
+				$0.margin(top: .rootEm(1), horizontal: .auto, bottom: .length(.partSpacing(rootEm: 5)))
+			}
+		}
+
 		JSONScript(schema: structuredData)
 	}
 
 	/**
-	The images are the card, the icon of the app, and the screenshot, as Google asks for images in several aspect ratios, and the card is wide.
+	Up to 4 other guides of the topic of the guide, in the order of the list of guides. The guides of other apps come first, one for each app, and then more guides of the same apps, so a topic with many guides about one app, like Supercharge, also shows the other apps.
+	*/
+	private var moreGuides: [Guide] {
+		// The apps that already have a guide in the list, starting with the app of this guide.
+		var listedApps: Set = [app.slug]
+		var firstGuidesOfApps = [Guide]()
+		var otherGuides = [Guide]()
+
+		for other in content.resolvedGuides where other.guide.frontmatter.topic == guide.frontmatter.topic && other.guide.path != guide.path {
+			if listedApps.insert(other.app.slug).inserted {
+				firstGuidesOfApps.append(other.guide)
+			} else {
+				otherGuides.append(other.guide)
+			}
+		}
+
+		return Array((firstGuidesOfApps + otherGuides).prefix(4))
+	}
+
+	/**
+	The images are the card, the icon of the app, and the screenshot, as Google asks for images in several aspect ratios, and the card is wide. The article is about the first app, which the structured data of the app page has (``App/structuredDataID``).
 	*/
 	private var structuredData: Schema.Article {
-		Schema.Article(
+		var article = Schema.Article(
 			document: guide,
 			type: .article,
 			title: guide.title,
 			description: guide.description,
 			images: [socialImageURL, app.iconURL, screenshot?.asset.path.absoluteURL].compactMap(\.self)
 		)
+
+		article.about = Schema.Reference(id: app.structuredDataID)
+		return article
 	}
 }

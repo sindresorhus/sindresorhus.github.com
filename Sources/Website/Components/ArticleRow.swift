@@ -96,7 +96,7 @@ struct ArticleRow: HTML {
 		.style(Styles.externalLink, when: isExternal)
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case title
 		case link
 		case externalLink
@@ -138,18 +138,19 @@ struct ArticleRow: HTML {
 					.margin(.top, .rootEm(1))
 					.color(.secondaryText)
 			case .description:
+				// A long word, like a keyboard shortcut, breaks with large text, instead of making the page wider than the screen.
 				Style()
 					.margin(.top, .rootEm(0.5))
 					.textStyle(.lead)
 					.color(.bodyText)
+					.overflowWrap(.breakWord)
 					.from(.smallTablet) {
 						$0.font(.extraLarge)
 					}
 			case .iconRow:
 				// On phones, the icon is next to the title, and the description is below them at the full width, so it is not a narrow column below the title. The article is a part of the grid there (``guide``). From small tablets, the icon is at the start of the title, and the text is in the rest of the row.
 				Style()
-					.display(.grid)
-					.gridColumns(.auto, .fraction(1))
+					.grid(columns: .auto, .fraction(1))
 					.alignItems(.center)
 					.gap(row: .zero, column: .rootEm(1))
 					.from(.smallTablet) {

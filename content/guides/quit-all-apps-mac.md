@@ -2,7 +2,7 @@
 title: 'How to Quit All Apps on Mac at Once'
 description: 'Quit all open apps with one click or a keyboard shortcut in Supercharge, or with the Quit App action of the Shortcuts app.'
 publicationDate: 2026-10-31
-topic: 'mac'
+topic: 'windows-apps-and-dock'
 apps: [
 	'supercharge'
 ]

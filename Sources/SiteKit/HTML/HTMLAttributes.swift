@@ -3,6 +3,81 @@ import Foundation
 import SOML
 
 /**
+A bare MIME media type shared by HTML resource hints and HTTP responses. Parameters such as `charset` belong to the response header, not this value.
+*/
+public struct MediaType: Hashable, Sendable, CustomStringConvertible, ValidatedValue {
+	public let rawValue: String
+
+	/**
+	Creates a media type for a programmer-authored constant. Use ``init(validating:)`` for dynamic input.
+	*/
+	public init(_ rawValue: String) {
+		do {
+			try self.init(validating: rawValue)
+		} catch {
+			preconditionFailure(error.reason)
+		}
+	}
+
+	/**
+	Validates a bare `type/subtype` spelling and normalizes its ASCII letter case. Whitespace, wildcards, and parameters are not media types.
+	*/
+	public init(validating rawValue: String) throws(ContentError) {
+		let parts = rawValue.split(separator: "/", omittingEmptySubsequences: false)
+		let punctuation = "!#$%&'+-.^_`|~".utf8
+		guard
+			parts.count == 2,
+			parts.allSatisfy({ part in
+				!part.isEmpty && part.utf8.allSatisfy { byte in
+					byte.isASCIILetter || byte.isASCIIDigit || punctuation.contains(byte)
+				}
+			})
+		else {
+			throw ContentError(reason: "A media type must be a bare type/subtype, got “\(rawValue)”.")
+		}
+
+		self.rawValue = rawValue.lowercased()
+	}
+
+	public var description: String {
+		rawValue
+	}
+
+	public static let html = Self("text/html")
+	public static let plainText = Self("text/plain")
+	public static let markdown = Self("text/markdown")
+	public static let css = Self("text/css")
+	public static let javascript = Self("application/javascript")
+	public static let json = Self("application/json")
+	public static let rss = Self("application/rss+xml")
+	public static let png = Self("image/png")
+	public static let jpeg = Self("image/jpeg")
+	public static let jpegXL = Self("image/jxl")
+	public static let mpeg4 = Self("video/mp4")
+	public static let octetStream = Self("application/octet-stream")
+}
+
+/**
+Concrete ARIA roles used by site components, on Elementary's existing role value.
+*/
+extension MarkupAttributeValue.Role {
+	public static let alertDialog = Self(rawValue: "alertdialog")
+	public static let application = Self(rawValue: "application")
+	public static let dialog = Self(rawValue: "dialog")
+	public static let group = Self(rawValue: "group")
+	public static let image = Self(rawValue: "img")
+	public static let list = Self(rawValue: "list")
+	public static let log = Self(rawValue: "log")
+	public static let menu = Self(rawValue: "menu")
+	public static let menuItem = Self(rawValue: "menuitem")
+	public static let region = Self(rawValue: "region")
+	public static let status = Self(rawValue: "status")
+	public static let timer = Self(rawValue: "timer")
+	public static let toolbar = Self(rawValue: "toolbar")
+	public static let tooltip = Self(rawValue: "tooltip")
+}
+
+/**
 The ID of an HTML element, kept as a distinct type when another attribute refers to it, like `for`, `aria-labelledby`, or `popovertarget`.
 */
 public struct ElementID: Hashable, Sendable, CustomStringConvertible, ValidatedValue {
@@ -76,6 +151,64 @@ public struct ImageSource: ValidatedValue, Hashable, Sendable, CustomStringConve
 
 	public var description: String {
 		destination.description
+	}
+}
+
+/**
+A nonempty responsive image candidate list. Density and width factories keep descriptor families separate; candidate order is preserved.
+
+Sources must serialize to URL tokens without ASCII whitespace or a leading or trailing comma. Internal commas, including data-URL separators, remain unchanged. Percent-encode boundary commas explicitly when the URL's resource supports that spelling.
+*/
+public struct ImageSourceSet: Sendable, CustomStringConvertible {
+	public let description: String
+
+	private init(description: String) {
+		self.description = description
+	}
+
+	/**
+	A single image without a descriptor, equivalent to a `1x` candidate.
+	*/
+	public init(_ source: ImageSource) {
+		precondition(source.isSourceSetURL, "An image candidate URL must not contain ASCII whitespace or start or end with a comma.")
+		self.init(description: source.description)
+	}
+
+	/**
+	Images at distinct, positive finite pixel densities, like `2x` and `3x`. At least one candidate is required.
+	*/
+	public static func density(_ candidates: [(source: ImageSource, density: Double)]) -> Self {
+		precondition(!candidates.isEmpty, "An image source set must contain at least one candidate.")
+		precondition(candidates.allSatisfy { $0.density.isFinite && $0.density > 0 }, "Image candidate densities must be positive and finite.")
+		precondition(Set(candidates.map(\.density)).count == candidates.count, "Image candidate densities must be unique.")
+		precondition(candidates.allSatisfy { $0.source.isSourceSetURL }, "An image candidate URL must not contain ASCII whitespace or start or end with a comma.")
+		return Self(description: candidates.map { source, density in
+			// Keep the full precision of the descriptor, so tiny positive densities do not round to zero or distinct values to duplicates.
+			let value = String(density)
+			let descriptor = value.hasSuffix(".0") ? String(value.dropLast(2)) : value
+			return "\(source) \(descriptor)x"
+		}.joined(separator: ", "))
+	}
+
+	/**
+	Images at distinct positive intrinsic widths in pixels, like `320w` and `640w`. At least one candidate is required; callers must supply each resource's actual width.
+	*/
+	public static func width(_ candidates: [(source: ImageSource, width: Int)]) -> Self {
+		precondition(!candidates.isEmpty, "An image source set must contain at least one candidate.")
+		precondition(candidates.allSatisfy { $0.width > 0 }, "Image candidate widths must be positive.")
+		precondition(Set(candidates.map(\.width)).count == candidates.count, "Image candidate widths must be unique.")
+		precondition(candidates.allSatisfy { $0.source.isSourceSetURL }, "An image candidate URL must not contain ASCII whitespace or start or end with a comma.")
+		return Self(description: candidates.map { "\($0.source) \($0.width)w" }.joined(separator: ", "))
+	}
+}
+
+private extension ImageSource {
+	/**
+	Whether the serialized URL is one unambiguous srcset token. Commas inside the URL are allowed by HTML; boundary commas and ASCII whitespace are not.
+	*/
+	var isSourceSetURL: Bool {
+		let url = description
+		return !url.isEmpty && url.first != "," && url.last != "," && !url.unicodeScalars.contains(where: \.isHTMLWhitespace)
 	}
 }
 
@@ -203,7 +336,14 @@ extension HTMLAttribute where Tag: HTMLTrait.Attributes.Global {
 	Whether a toggle button is on, like a tool of a drawing program.
 	*/
 	public static func ariaPressed(_ isPressed: Bool) -> Self {
-		.custom(name: "aria-pressed", value: isPressed ? "true" : "false")
+		.ariaPressed(isPressed ? .on : .off)
+	}
+
+	/**
+	Whether a toggle button is on, off, or represents a mixture of pressed and unpressed items. Omit the attribute for a button that is not a toggle.
+	*/
+	public static func ariaPressed(_ state: ARIAPressed) -> Self {
+		.custom(name: "aria-pressed", value: state.rawValue)
 	}
 
 	/**
@@ -308,12 +448,24 @@ extension HTML where Tag: HTMLTrait.Attributes.Global {
 	}
 }
 
+/**
+HTML elements whose intrinsic dimensions can be set together.
+*/
+extension HTML where Tag: HTMLTrait.Attributes.dimensions & MarkupTrait.AllowsAttributes {
+	/**
+	Sets the HTML `width` and `height` attributes from a validated pixel size, independently of CSS sizing. On a canvas, these attributes also set the bitmap resolution.
+	*/
+	public func intrinsicSize(_ size: PixelSize) -> _AttributedContent<Self> {
+		attributes(.width(size.width), .height(size.height))
+	}
+}
+
 extension HTMLAttribute where Tag: HTMLTrait.Attributes.href {
 	/**
 	A link to a page of the site.
 	*/
 	public static func href(_ path: RoutePath) -> Self {
-		.href(path.description)
+		.href(path.percentEncodedPath)
 	}
 
 	/**
@@ -329,7 +481,7 @@ extension HTMLAttribute where Tag: HTMLTrait.Attributes.src {
 	A file of the site, like an image.
 	*/
 	public static func src(_ path: RoutePath) -> Self {
-		.src(path.description)
+		.src(path.percentEncodedPath)
 	}
 
 	/**
@@ -357,21 +509,47 @@ extension HTMLAttribute where Tag: HTMLTrait.Attributes.media {
 	public static func media(_ query: MediaQuery) -> Self {
 		HTMLAttribute(name: "media", value: query.description)
 	}
+
+	/**
+	The media condition that the element applies to.
+	*/
+	public static func media(_ condition: MediaCondition) -> Self {
+		.media(MediaQuery(condition))
+	}
 }
 
-extension HTMLAttribute where Tag == HTMLTag.source {
+extension HTMLTrait.Attributes {
+	/**
+	The image elements that accept responsive candidates.
+	*/
+	public protocol srcset {}
+}
+
+extension HTMLTag.img: HTMLTrait.Attributes.srcset {}
+extension HTMLTag.source: HTMLTrait.Attributes.srcset {}
+
+extension HTMLAttribute where Tag: HTMLTrait.Attributes.srcset {
 	/**
 	The image of the source of a `<picture>`, like a still image for visitors who prefer reduced motion.
 	*/
 	public static func srcset(_ path: RoutePath) -> Self {
-		.custom(name: "srcset", value: path.description)
+		.srcset(ImageSourceSet(.path(path)))
 	}
 
 	/**
+	Responsive image candidates with one consistent descriptor family.
+	*/
+	public static func srcset(_ sources: ImageSourceSet) -> Self {
+		HTMLAttribute(name: "srcset", value: sources.description)
+	}
+}
+
+extension HTMLAttribute where Tag == HTMLTag.source {
+	/**
 	The media type of the image of the source, like `image/jxl`, so a browser that cannot show it uses the next source, or the image of the `<picture>`.
 	*/
-	public static func type(_ mediaType: String) -> Self {
-		.custom(name: "type", value: mediaType)
+	public static func type(_ mediaType: MediaType) -> Self {
+		.custom(name: "type", value: mediaType.rawValue)
 	}
 }
 
@@ -454,7 +632,7 @@ extension HTMLAttribute where Tag == HTMLTag.video {
 	An image that shows until the video plays, like its first frame.
 	*/
 	public static func poster(_ path: RoutePath) -> Self {
-		.custom(name: "poster", value: path.description)
+		.custom(name: "poster", value: path.percentEncodedPath)
 	}
 }
 
@@ -500,6 +678,15 @@ public enum ARIACurrent: String, Sendable {
 }
 
 /**
+The pressed state of an ARIA toggle button. A mixed state represents an aggregate of pressed and unpressed items; omitting aria-pressed describes an ordinary button.
+*/
+public enum ARIAPressed: String, Sendable {
+	case off = "false"
+	case on = "true"
+	case mixed
+}
+
+/**
 How a live region announces its changes, for `aria-live`.
 */
 public enum ARIALive: String, Sendable {
@@ -529,4 +716,16 @@ public enum Autocapitalize: String, Sendable {
 	case sentences
 	case words
 	case characters
+}
+
+/**
+Media type hints for linked resources, such as RSS feeds.
+*/
+extension HTMLAttribute where Tag == HTMLTag.link {
+	/**
+	The bare media type of the linked resource.
+	*/
+	public static func type(_ mediaType: MediaType) -> Self {
+		.custom(name: "type", value: mediaType.rawValue)
+	}
 }

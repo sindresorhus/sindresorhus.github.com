@@ -75,7 +75,7 @@ Keep your Mac awake and the screen on, for a set time or until you turn it off. 
 - If you have the “Allow sleep while screen is locked” setting enabled, you may have locked the screen before leaving it, which would cause Lungo to not keep your computer awake.
 - If you have the “Deactivate when switching to battery” setting enabled and you disconnect the power adapter, Lungo would not keep your computer awake. You might have accidentally unplugged it or there might have been a power failure.
 - If your computer has a sleep schedule, it will take priority over Lungo. This is out of Lungo’s control. [See below.](#scheduled-sleep)
-- If you have set the computer to log out after a certain amount of time in “System Settings › Privacy & Security › Advanced”, it will take priority over Lungo. This is out of Lungo’s control.
+- If you have set the computer to log out after a certain amount of time in “[System Settings › Privacy & Security › Advanced](x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension)”, it will take priority over Lungo. This is out of Lungo’s control.
 - If you see apps open again when you wake up your computer, it means your computer was restarted for some reason. Lungo cannot keep your computer from restarting. Some common reasons it may have restarted are a power outage, macOS crash, or a scheduled shutdown or restart ([see below](#scheduled-sleep)).
 	+ You can [check how long your computer has been awake and when it was last rebooted](https://www.macobserver.com/tips/quick-tip/mac-system-uptime-terminal/) to narrow down the problem. You can also check when the computer was last logged in by typing the command `last` in the Terminal app.
 

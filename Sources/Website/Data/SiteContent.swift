@@ -56,6 +56,40 @@ public struct SiteContent: Sendable {
 	let resolvedGuides: [Guide.Resolved]
 
 	/**
+	The drafts (`isDraft: true`), which only the preview of `website serve` loads, so it shows each one at its URL (``Site/draftRoutes``). They are apart from the other content, so no list, feed, sitemap, or `llms.txt` has them. `website build` and `website check` have none.
+	*/
+	let drafts: Drafts
+
+	/**
+	The content files of the drafts by the paths of their pages, in every build, so a broken link to a draft says that it goes to a draft (``draftFile(ofLink:)``).
+	*/
+	private let draftFiles: [RoutePath: URL]
+
+	/**
+	The words of `content/spelling-allowlist.txt` in lowercase, for the spelling checker. One word per line, where a line that starts with `#` is a comment.
+	*/
+	let spellingAllowlist: Set<String>
+
+	struct Drafts: Sendable {
+		var apps = [App]()
+		var posts = [BlogPost]()
+
+		/**
+		The draft guides whose apps are published, as a guide page needs its apps. A draft guide about a draft app has no page.
+		*/
+		var guides = [Guide.Resolved]()
+
+		var pages = [MarkdownPage]()
+
+		/**
+		The content files of the drafts, for the checks of the edited files in `website serve`.
+		*/
+		var files: [MarkdownFile] {
+			apps.map(\.file) + posts.map(\.file) + guides.map(\.guide.file) + pages.map(\.file)
+		}
+	}
+
+	/**
 	The data fetched for the apps. Pages read it as the listing of an app (``listing(of:)``), so nothing else looks it up by a key.
 	*/
 	private var appData: AppData
@@ -90,6 +124,13 @@ public struct SiteContent: Sendable {
 	let buildDate: Date
 
 	/**
+	The day of the build (UTC), like for what a `@Scheduled` block shows.
+	*/
+	var today: SOML.Date {
+		SOML.Date(buildDate)
+	}
+
+	/**
 	The project the content is from, like for reading public files.
 	*/
 	let project: Project
@@ -108,6 +149,9 @@ public struct SiteContent: Sendable {
 		settings: SiteSettings = SiteSettings(),
 		featuredApps: [App] = [],
 		resolvedGuides: [Guide.Resolved] = [],
+		drafts: Drafts = Drafts(),
+		draftFiles: [RoutePath: URL] = [:],
+		spellingAllowlist: Set<String> = [],
 		appData: AppData = .none,
 		recentRepositories: [GitHubRepository] = [],
 		popularRepositories: [GitHubRepository] = [],
@@ -125,12 +169,15 @@ public struct SiteContent: Sendable {
 		self.pages = pages
 		self.documents = apps + posts + guides + pages
 		// The loader rejects two pages with the same path (``duplicatePathErrors(in:project:)``), so the first is the only one.
-		self.documentsByPath = Dictionary(documents.map { ($0.path, $0) }, uniquingKeysWith: { first, _ in first })
+		self.documentsByPath = documents.keyed(by: \.path)
 		self.sharedQuestions = sharedQuestions
 		self.settings = settings
 		// References are resolved while their diagnostics are collected, not silently filtered here.
 		self.featuredApps = featuredApps
 		self.resolvedGuides = resolvedGuides
+		self.drafts = drafts
+		self.draftFiles = draftFiles
+		self.spellingAllowlist = spellingAllowlist
 		self.appData = appData
 		self.recentRepositories = recentRepositories
 		self.popularRepositories = popularRepositories
@@ -145,8 +192,10 @@ public struct SiteContent: Sendable {
 
 	/**
 	Loads the content, and the data from the App Store, GitHub, npm, and Bluesky. Content mistakes are thrown together, as ``ContentErrors``.
+
+	- Parameter includesDrafts: Loads the drafts too (``drafts``), only for the preview of `website serve`.
 	*/
-	public static func load(from project: Project, externalData: ExternalData, buildDate: Date = .now) async throws -> Self {
+	public static func load(from project: Project, externalData: ExternalData, buildDate: Date = .now, includesDrafts: Bool = false) async throws -> Self {
 		let warnings = WarningCollector()
 		let lastCommitDates = await project.lastCommitDates()
 
@@ -169,8 +218,8 @@ public struct SiteContent: Sendable {
 
 		func entries<Entry: ContentEntry>(
 			_ type: Entry.Type,
-			making makeEntry: @escaping @Sendable (MarkdownFile, Entry.Frontmatter) async throws -> Entry = { file, frontmatter in
-				try await Entry(file: file, frontmatter: frontmatter, project: project)
+			making makeEntry: @escaping @Sendable (DecodedMarkdownFile<Entry.Frontmatter>) async throws -> Entry = { file in
+				try await Entry(file: file, project: project)
 			}
 		) async -> ContentLoad<Entry> {
 			await Entry.load(from: project, lastCommitDates: lastCommitDates, making: makeEntry)
@@ -186,15 +235,29 @@ public struct SiteContent: Sendable {
 				return .unavailable(ContentErrors(sharedQuestionsErrors))
 			}
 
-			return await entries(App.self) { file, frontmatter in
-				try await App(file: file, frontmatter: frontmatter, sharedQuestions: sharedQuestions, project: project)
+			return await entries(App.self) { file in
+				try await App(file: file, sharedQuestions: sharedQuestions, project: project) { ids in
+					// Like the App Store info, the shortcut cards only add to the pages, so without the data, the links stay links.
+					guard case .fetch(let cache) = externalData else {
+						return [:]
+					}
+
+					return await Shortcut.load(
+						ids: ids,
+						cache: cache,
+						project: project,
+						warnings: warnings
+					)
+				}
 			}
 		}
 
 		async let loadingApps = loadApps()
 		async let loadingPosts = entries(BlogPost.self)
 		async let loadingGuides = entries(Guide.self)
-		async let loadingPages = entries(MarkdownPage.self)
+		async let loadingPages = entries(MarkdownPage.self) { file in
+			try MarkdownPage(file: file, project: project, today: SOML.Date(buildDate))
+		}
 		let (loadedApps, loadedPosts, loadedGuides, loadedPages) = await (loadingApps, loadingPosts, loadingGuides, loadingPages)
 
 		let (settingsFile, settingsErrors) = loading { () throws(ContentErrors) in
@@ -204,10 +267,10 @@ public struct SiteContent: Sendable {
 		// The mistakes between the files are checked with the documents that loaded, so they show in the same run as the mistakes of each file. Without the shared questions, or without a content directory, the apps are not loaded, so these checks wait for the next run.
 		let references: (featuredApps: [App], guides: [Guide.Resolved], errors: [ContentError])
 
-		if case .loaded(let apps, let failedSlugs, _) = loadedApps {
+		if case .loaded(let apps) = loadedApps {
 			references = Self.resolveReferences(
-				apps: apps,
-				unloadedAppSlugs: failedSlugs,
+				apps: apps.entries,
+				unloadedAppSlugs: apps.failedSlugs,
 				guides: loadedGuides.validEntries,
 				settings: settingsFile
 			)
@@ -218,32 +281,66 @@ public struct SiteContent: Sendable {
 		// Path identity does not depend on whether the apps directory loaded.
 		let documents: [any ContentDocument] = loadedApps.validEntries + loadedPosts.validEntries + loadedGuides.validEntries + loadedPages.validEntries
 		let pathErrors = duplicatePathErrors(in: documents, project: project)
+		let spellingAllowlistFile = project.contentDirectory.appending(path: "spelling-allowlist.txt")
+		let spellingAllowlist = (try? String(contentsOf: spellingAllowlistFile, encoding: .utf8)) ?? ""
+		let spellingLineEndingError = spellingAllowlist.windowsLineEndingError(file: spellingAllowlistFile)
 
 		// By file and line, so the mistakes of a file are in the order of its lines, also the ones between files.
-		let errors = (loadedApps.errors + loadedPosts.errors + loadedGuides.errors + loadedPages.errors + settingsErrors + references.errors + pathErrors)
+		let errors = (loadedApps.errors + loadedPosts.errors + loadedGuides.errors + loadedPages.errors + settingsErrors + references.errors + pathErrors + [spellingLineEndingError].compactMap(\.self))
 			.sorted(using: ContentError.locationOrder)
 
 		guard
 			errors.isEmpty,
-			case .loaded(let apps, _, _) = loadedApps,
-			case .loaded(let posts, _, _) = loadedPosts,
-			case .loaded(let guides, _, _) = loadedGuides,
-			case .loaded(let pages, _, _) = loadedPages,
+			case .loaded(let apps) = loadedApps,
+			case .loaded(let posts) = loadedPosts,
+			case .loaded(let guides) = loadedGuides,
+			case .loaded(let pages) = loadedPages,
 			let sharedQuestions,
 			let settingsFile
 		else {
 			throw ContentErrors(errors)
 		}
 
+		// A draft guide can be written in any order, so the preview only shows it when it has the shape of a guide and its apps and screenshot resolve (``Guide/Resolved``), and warns about what it still needs, without stopping the preview of the other pages.
+		var draftGuides = [Guide.Resolved]()
+
+		if includesDrafts {
+			let appsBySlug = apps.entries.keyed(by: \.slug)
+
+			for guide in loadedGuides.drafts {
+				let shapeErrors = guide.shapeErrors()
+
+				for error in shapeErrors {
+					warnings.add(Warning(.unfinishedDraftGuide, at: error.file.map { .file($0, line: error.line) }, error.reason))
+				}
+
+				if let resolved = Guide.Resolved(guide: guide, apps: guide.apps.compactMap { appsBySlug[$0] }) {
+					draftGuides.append(resolved)
+				} else if shapeErrors.isEmpty {
+					warnings.add(guide.warning(.unfinishedDraftGuide, at: .apps, "An app of the draft guide or its screenshot does not exist, so the preview has no page for it."))
+				}
+			}
+		}
+
+		let draftDocuments: [any ContentDocument] = apps.drafts + posts.drafts + guides.drafts + pages.drafts
+
 		let content = Self(
-			apps: apps,
-			posts: posts,
-			guides: guides,
-			pages: pages,
+			apps: apps.entries,
+			posts: posts.entries,
+			guides: guides.entries,
+			pages: pages.entries,
 			sharedQuestions: sharedQuestions,
 			settings: settingsFile.value,
 			featuredApps: references.featuredApps,
 			resolvedGuides: references.guides,
+			drafts: includesDrafts ? Drafts(
+				apps: loadedApps.drafts,
+				posts: loadedPosts.drafts,
+				guides: draftGuides,
+				pages: loadedPages.drafts
+			) : Drafts(),
+			draftFiles: Dictionary(draftDocuments.map { ($0.path, $0.file.url) }) { first, _ in first },
+			spellingAllowlist: Set(spellingAllowlist.split(whereSeparator: \.isNewline).filter { !$0.hasPrefix("#") }.map { $0.lowercased() }),
 			buildDate: buildDate,
 			project: project,
 			warnings: warnings.all
@@ -276,7 +373,7 @@ public struct SiteContent: Sendable {
 	/**
 	The app identity mistakes and resolved recommendations between the documents, with the documents that loaded. A check that needs a document that did not load is left out, like a slug of an app in `unloadedAppSlugs`, which has its own mistakes.
 
-	Two apps with one App Store ID, which would share its price, rating, and reviews, a name in `feedbackNames` that is a name of another app, which the feedback page would open instead, a site that has two names in the press quotes, and an app of a guide or a featured app (`featuredApps` of `content/site.soml`) that does not exist, or is not active or has no page of its own. The loader reports them, so the rest of the build can assume that an App Store ID identifies one document, and that the apps of a guide and the featured apps exist and are made. A path that two redirects claim is still the publisher's check.
+	Two apps with one App Store ID, which would share its price, rating, and reviews, or with one Setapp ID, which would share its Setapp link and rating, a name in `feedbackNames` that is a name of another app, which the feedback page would open instead, a site that has two names in the press quotes, and an app of a guide or a featured app (`featuredApps` of `content/site.soml`) that does not exist, or is not active or has no page of its own. The loader reports them, so the rest of the build can assume that an App Store ID or a Setapp ID identifies one document, and that the apps of a guide and the featured apps exist and are made. A path that two redirects claim is still the publisher's check.
 	*/
 	private static func resolveReferences(
 		apps: [App],
@@ -287,26 +384,34 @@ public struct SiteContent: Sendable {
 		var errors = [ContentError]()
 		var resolvedGuides = [Guide.Resolved]()
 
-		var appsByID = [AppStoreID: App]()
+		/**
+		An error for each app that has the ID of an app before it, at its key.
+		*/
+		func addSharedIDErrors<ID: Hashable>(of appID: (App) -> ID?, at key: App.Frontmatter.CodingKeys, sharing shared: String) {
+			var appsByID = [ID: App]()
 
-		for app in apps {
-			guard let id = app.appStoreID else {
-				continue
+			for app in apps {
+				guard let id = appID(app) else {
+					continue
+				}
+
+				guard let other = appsByID[id] else {
+					appsByID[id] = app
+					continue
+				}
+
+				errors.append(app.error(at: key, "It has the same `\(key.stringValue)` as `\(SourceLocation.file(other.file.url))`, so they would share its \(shared)."))
 			}
-
-			guard let other = appsByID[id] else {
-				appsByID[id] = app
-				continue
-			}
-
-			errors.append(app.file.error("It has the same `appStoreID` as \(other.title), so they would share its price, rating, and reviews."))
 		}
+
+		addSharedIDErrors(of: \.appStoreID, at: .appStoreID, sharing: "price, rating, and reviews")
+		addSharedIDErrors(of: \.setappID, at: .setappID, sharing: "Setapp link and rating")
 
 		// The feedback page opens the first app that has a name, in any case (``FeedbackData/AppData/names``), so a name of two apps would open the wrong app for one of them.
 		var appsByFeedbackName = [String: App]()
 
 		for app in apps {
-			for name in [app.title, app.slug] {
+			for name in [app.title, app.slug.value] {
 				appsByFeedbackName[name.feedbackLookupKey] = appsByFeedbackName[name.feedbackLookupKey] ?? app
 			}
 		}
@@ -327,7 +432,7 @@ public struct SiteContent: Sendable {
 		// A site has one name, so a quote whose `source` is another name of its site, like “Cult Of Mac”, or whose `url` was copied from a quote of another site, is a mistake. The name of a site is the name of most of its quotes. The reviews of buyers on Gumroad are by people, so each has its own name. Limitation: a site where people post under their own names, like a social network, would need the same exception.
 		let pressQuotes = apps.flatMap { app in
 			app.frontmatter.pressQuotes.enumerated().filter { !$0.element.isBuyerReview }.compactMap { index, pressQuote in
-				pressQuote.url?.host().map { host in
+				pressQuote.url?.value.host().map { host in
 					// A host has no letter case, so `CultOfMac.com` is `cultofmac.com`.
 					let host = host.lowercased()
 					return (host: host.hasPrefix("www.") ? String(host.dropFirst(4)) : host, source: pressQuote.source, app: app, index: index)
@@ -353,21 +458,23 @@ public struct SiteContent: Sendable {
 			}
 		}
 
-		let appsBySlug = Self.appsBySlug(apps)
+		// The slugs are unique, as they are the paths of the files.
+		let appsBySlug = apps.keyed(by: \.slug)
 
 		/**
 		The apps of a list of slugs in a file that recommends them and links to their pages, like the apps of a guide and the featured apps, with the index of each slug. A slug that is not an app is an error, and so is an app that is archived, unlisted, or has no page of its own, like an app before its launch.
 
 		- Parameter use: What the file does with the apps, for the error, like “a guide cannot recommend it”.
+		- Parameter makeError: Creates each error with the owning model's typed key and the index of its slug.
 		*/
-		func recommendedApps(of slugs: [String], in file: some SOMLValueFile, at key: some CodingKey, use: String) -> [(index: Int, app: App)] {
+		func recommendedApps(of slugs: [ContentSlug], use: String, makeError: (_ index: Int, _ reason: String) -> ContentError) -> [(index: Int, app: App)] {
 			slugs.enumerated().compactMap { index, slug in
 				guard let app = appsBySlug[slug] else {
-					if unloadedAppSlugs.contains(slug) {
+					if unloadedAppSlugs.contains(slug.value) {
 						return nil
 					}
 
-					errors.append(file.error(line: file.line(of: key, index: index), "There is no app with the slug `\(slug)`, like `gifski` for `content/apps/gifski/index.md`."))
+					errors.append(makeError(index, "There is no app with the slug `\(slug)`, like `gifski` for `content/apps/gifski/index.md`."))
 					return nil
 				}
 
@@ -382,7 +489,7 @@ public struct SiteContent: Sendable {
 				}
 
 				if let problem {
-					errors.append(file.error(line: file.line(of: key, index: index), "\(app.title) \(problem), so \(use)."))
+					errors.append(makeError(index, "\(app.title) \(problem), so \(use)."))
 				}
 
 				return (index, app)
@@ -390,7 +497,9 @@ public struct SiteContent: Sendable {
 		}
 
 		for guide in guides {
-			let guideApps = recommendedApps(of: guide.apps, in: guide.file, at: Guide.Frontmatter.CodingKeys.apps, use: "a guide cannot recommend it")
+			let guideApps = recommendedApps(of: guide.apps, use: "a guide cannot recommend it") { index, reason in
+				guide.error(at: .apps, index: index, reason)
+			}
 
 			if let resolved = Guide.Resolved(guide: guide, apps: guideApps.map(\.app)) {
 				resolvedGuides.append(resolved)
@@ -406,13 +515,15 @@ public struct SiteContent: Sendable {
 					let number = guide.frontmatter.screenshot?.number,
 					guide.screenshot(of: firstApp) == nil
 				{
-					errors.append(guide.error(at: .screenshot, "\(firstApp.title) has no screenshot \(number). It has \(firstApp.screenshots.count), like `screenshot1.png` in `content/apps/\(firstApp.slug)`."))
+					errors.append(guide.error(at: .screenshot, "\(firstApp.title) has no screenshot \(number): no `screenshot\(number).png` or `screenshot\(number).jpg` in `content/apps/\(firstApp.slug)`."))
 				}
 			}
 		}
 
 		let featuredApps = settings.map { settings in
-			recommendedApps(of: settings.value.featuredApps, in: settings, at: SiteSettings.CodingKeys.featuredApps, use: "the apps page cannot feature it").map(\.app)
+			recommendedApps(of: settings.value.featuredApps, use: "the apps page cannot feature it") { index, reason in
+				settings.error(at: .featuredApps, index: index, reason)
+			}.map(\.app)
 		} ?? []
 
 		return (featuredApps, resolvedGuides, errors)
@@ -637,49 +748,48 @@ extension SiteContent {
 	}
 
 	/**
-	Where a link on a page is written in the content, like `content/apps/dato/index.md:12`, or `content/shared-questions.md:20` for a link in a shared answer. When the link is not in the Markdown of the page, like a link in raw HTML or in the layout, it is the page (``sourceLocation(ofPage:)``), so it is never empty.
+	The sale that the app is in on the day of the build, for the note on its page: a sale of a page (``MarkdownPage/sales(on:project:)``), like the discounts page, that links to the page of the app or to its product on Gumroad.
+	*/
+	func sale(of app: App) -> Sale? {
+		pages.flatMap { $0.sales(on: today, project: project) }.first { $0.includes(app) }
+	}
+
+	/**
+	The guides about a habit from Windows (`isForWindowsUsers`), for the page that lists them (``WindowsGuidesPage``), in the order of the guides.
+	*/
+	var guidesForWindowsUsers: [Guide.Resolved] {
+		resolvedGuides.filter(\.guide.frontmatter.isForWindowsUsers)
+	}
+
+	/**
+	Where a link on a page is written in the content, like `content/apps/dato/index.md:12`, or `content/shared-questions.md:20` for a link in a shared answer. When the link is not in the Markdown of the page, like a link in the layout, it is the page (``sourceLocation(ofPage:)``), so it is never empty.
 	*/
 	func sourceLocations(ofLink link: String, onPage page: RoutePath) -> [SourceLocation] {
-		let locations = document(at: page).map { document in
+		let documentLocations = document(at: page).map { document in
 			document.markdown.links
 				.filter { $0.destination == link }
 				.map { SourceLocation.file($0.otherFile ?? document.file.url, line: $0.line) }
 		} ?? []
 
+		// The lines of a note are not the lines of the file, so its links are at its key.
+		let feedbackNoteLocations = page == .feedback ? maintainedApps
+			.filter { $0.feedbackNote?.links.contains { $0.destination == link } == true }
+			.map { SourceLocation.file($0.file.url, line: $0.file.line(of: App.Frontmatter.CodingKeys.feedbackNote)) } : []
+
+		let locations = documentLocations + feedbackNoteLocations
+
 		return locations.isEmpty ? [sourceLocation(ofPage: page)] : locations
 	}
 
 	/**
-	The content file of the draft whose page a link of the site would go to, like `content/guides/keep-mac-awake.md` for `/guides/keep-mac-awake#steps`, or `nil` when there is none. The content leaves out the drafts, so it is a file of a type of document at the path of the link, while no document is at it.
+	The content file of the draft whose page a link of the site would go to, like `content/guides/keep-mac-awake.md` for `/guides/keep-mac-awake#steps`, or `nil` when there is none.
 	*/
 	func draftFile(ofLink link: String) -> URL? {
-		let pathText = String(link.prefix { $0 != "#" && $0 != "?" })
-
-		guard
-			pathText.hasPrefix("/"),
-			let path = try? RoutePath(validating: pathText),
-			document(at: path) == nil
-		else {
+		guard case .path(let path, _, _)? = try? LinkDestination(validating: link) else {
 			return nil
 		}
 
-		for documentType in contentDocumentTypes {
-			let directory = project.root.appending(path: documentType.directory)
-			let files = (try? directory.filesRecursively()) ?? []
-
-			if let file = files.first(where: { $0.pathExtension == "md" && documentType.path(slug: MarkdownFile.slug(of: $0, relativeTo: directory)) == path }) {
-				return file
-			}
-		}
-
-		return nil
-	}
-
-	/**
-	The apps by their slugs, which are unique, as they are the paths of the files.
-	*/
-	private static func appsBySlug(_ apps: [App]) -> [String: App] {
-		Dictionary(apps.map { ($0.slug, $0) }) { first, _ in first }
+		return draftFiles[path]
 	}
 
 	func page(_ path: RoutePath) -> MarkdownPage? {
@@ -729,4 +839,9 @@ extension SiteContent {
 extension Warning.Kind {
 	static let missingCommitDates = Self("Missing dates of the last commits")
 	static let unknownAppStoreID = Self("Unknown App Store ID")
+
+	/**
+	A draft guide without the shape of a guide yet, or with an app or a screenshot that does not exist, so the preview does not show it.
+	*/
+	static let unfinishedDraftGuide = Self("Unfinished draft guide")
 }

@@ -115,7 +115,7 @@ struct ContributionYear {
 	}
 
 	/**
-	The total of the year and its busiest day, like “4,078 contributions. The busiest day was March 3, with 92.”
+	The total of the year and its busiest day, like “4078 contributions. The busiest day was March 3, with 92.”
 	*/
 	var summary: String {
 		let total = "\(calendar.totalCount.formatted(counting: "contribution"))."
@@ -124,7 +124,7 @@ struct ContributionYear {
 			return total
 		}
 
-		return "\(total) The busiest day was \(busiestDay.date.foundationDate.formatted(.siteDayWithoutYear)), with \(busiestDay.count.formatted(.number.locale(.site)))."
+		return "\(total) The busiest day was \(busiestDay.date.foundationDate.formatted(.siteDayWithoutYear)), with \(busiestDay.count.formatted(.siteNumber))."
 	}
 
 	/**

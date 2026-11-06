@@ -232,7 +232,7 @@ const songs = {
 };
 
 class GeoCitiesChristmas extends GeoCitiesElement {
-	#music = {playing: undefined, gain: undefined, timer: undefined};
+	#music;
 	#toys = [];
 
 	connected() {
@@ -249,7 +249,7 @@ class GeoCitiesChristmas extends GeoCitiesElement {
 
 		for (const button of this.#musicButtons) {
 			this.on(button, 'click', () => {
-				if (this.#music.playing === button.dataset.christmasMusic) {
+				if (this.#music?.id === button.dataset.christmasMusic) {
 					this.#stopMusic();
 				} else {
 					this.#playSong(button.dataset.christmasMusic);
@@ -289,7 +289,7 @@ class GeoCitiesChristmas extends GeoCitiesElement {
 
 	#updateMusicButtons() {
 		for (const button of this.#musicButtons) {
-			const isPlaying = this.#music.playing === button.dataset.christmasMusic;
+			const isPlaying = this.#music?.id === button.dataset.christmasMusic;
 			button.setAttribute('aria-pressed', String(isPlaying));
 			button.textContent = `${isPlaying ? '⏹ Stop' : '🎵 Play'} ${songs[button.dataset.christmasMusic].name}`;
 		}
@@ -297,14 +297,13 @@ class GeoCitiesChristmas extends GeoCitiesElement {
 
 	#stopMusic({isQuiet = false} = {}) {
 		const music = this.#music;
-		if (!music.playing) {
+		if (!music) {
 			return;
 		}
 
-		music.playing = undefined;
+		this.#music = undefined;
 		clearTimeout(music.timer);
-		music.gain?.gain.setTargetAtTime(0, sound.context.currentTime, 0.05);
-		music.gain = undefined;
+		music.gain.gain.setTargetAtTime(0, sound.context.currentTime, 0.05);
 		this.#updateMusicButtons();
 		if (!isQuiet) {
 			this.music(false);
@@ -317,18 +316,17 @@ class GeoCitiesChristmas extends GeoCitiesElement {
 		}
 
 		this.#stopMusic({isQuiet: true});
-		const music = this.#music;
 		const song = songs[id];
-		music.playing = id;
-		music.gain = new GainNode(sound.context, {gain: 1});
+		const music = {id, gain: new GainNode(sound.context, {gain: 1})};
 		music.gain.connect(sound.output);
+		this.#music = music;
 		this.#updateMusicButtons();
 		this.music(true);
 
 		// The audio can still be waking up after the click.
 		const destination = music.gain;
 		sound.context.resume().then(() => {
-			if (music.gain !== destination) {
+			if (this.#music !== music) {
 				return;
 			}
 
@@ -350,7 +348,7 @@ class GeoCitiesChristmas extends GeoCitiesElement {
 			}
 
 			music.timer = setTimeout(() => {
-				if (music.gain === destination) {
+				if (this.#music === music) {
 					this.#stopMusic();
 				}
 			}, (when + 1) * 1000);

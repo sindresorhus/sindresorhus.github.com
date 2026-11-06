@@ -24,8 +24,12 @@ extension ProseStyles {
 				.padding(vertical: .em(0.75), horizontal: .em(1))
 				.textAlign(.leading)
 		}
-		// From tablets, the table hangs into the space at the sides of the text (``Style/widerThanProse()``), and the text of its first column starts where the paragraphs start, inside the border of the container.
-		.from(.tablet) {
+		// Long code, like a URL, breaks at any character, so it does not make its column too wide for a phone, like the URL scheme of Dato.
+		.descendants("td code") {
+			$0.overflowWrap(.anywhere)
+		}
+		// Where the table hangs into the space at the sides of the text (``Style/widerThanProse()``), the text of its first column starts where the paragraphs start, inside the border of the container.
+		.from(.proseWithGutters) {
 			$0
 				.descendants(":is(th, td):first-child") {
 					$0.padding(.leading, .boxInset - LengthPercentage(tableContainerBorderWidth))

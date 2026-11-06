@@ -32,7 +32,7 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 	]
 
 	var content: some HTML {
-		div(.role("group")) {
+		div(.role(.group)) {
 			menu(
 				"Game",
 				button: .gameMenuButton,
@@ -52,7 +52,7 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 		.style(Styles.menuBar, GeoCitiesPage.Styles.scriptingOnly)
 
 		div(.part(Parts.table)) {
-			div(.part(Parts.columns), .role("group")) {
+			div(.part(Parts.columns), .role(.group)) {
 				for index in 0..<10 {
 					button(.type(.button), .hook(Hooks.column, value: "\(index)"), .tabindex(index == 0 ? 0 : -1)) {}
 						.accessibilityLabel("Column \(index + 1)")
@@ -63,7 +63,7 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 			.style(Styles.columns)
 
 			div {
-				p(.part(Parts.foundation), .role("img")) {}
+				p(.part(Parts.foundation), .role(.image)) {}
 					.accessibilityLabel("No completed suits")
 					.style(Styles.foundation)
 
@@ -140,7 +140,7 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 		}
 		.style(GeoCitiesWindows.Styles.wrapRow, GeoCitiesPage.Styles.scriptingOnly)
 
-		p(.part(Parts.status), .role("status")) {
+		p(.part(Parts.status), .role(.status)) {
 			"Drag a card, or click it to move it to the best place."
 		}
 		.style(GeoCitiesPage.Styles.statusBar, GeoCitiesPage.Styles.scriptingOnly)
@@ -275,7 +275,7 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 		case dropTarget = "spider-target"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case menuBar
 		case menuHolder

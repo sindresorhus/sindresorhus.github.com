@@ -38,7 +38,7 @@ struct GeoCitiesWindowsJezzBall: ScriptedElement {
 			.width(480),
 			.height(300),
 			.tabindex(0),
-			.role("application")
+			.role(.application)
 		) {}
 			.accessibilityLabel("JezzBall. The arrow keys move the crosshair, Space or Enter builds a wall, R turns the wall, and P pauses.")
 			.style(Styles.screen, GeoCitiesPage.Styles.scriptingOnly)
@@ -57,7 +57,7 @@ struct GeoCitiesWindowsJezzBall: ScriptedElement {
 		}
 		.style(GeoCitiesWindows.Styles.wrapRow, GeoCitiesPage.Styles.scriptingOnly)
 
-		p(.part(Parts.status), .role("status")) {
+		p(.part(Parts.status), .role(.status)) {
 			"Click in the room to build a wall. Box in the atoms, and clear \(configuration.goal)% of the room!"
 		}
 		.style(GeoCitiesPage.Styles.statusBar, GeoCitiesPage.Styles.scriptingOnly)
@@ -85,7 +85,7 @@ struct GeoCitiesWindowsJezzBall: ScriptedElement {
 		case status
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case screen
 		case turn

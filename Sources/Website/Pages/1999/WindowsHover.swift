@@ -34,12 +34,12 @@ struct GeoCitiesWindowsHover: ScriptedElement {
 			.width(320),
 			.height(200),
 			.tabindex(0),
-			.role("application")
+			.role(.application)
 		) {}
 			.accessibilityLabel("Hover! The arrow keys or W, A, S, and D steer the hovercraft, Space uses a power-up, and Enter starts.")
 			.style(Styles.screen, GeoCitiesPage.Styles.scriptingOnly)
 
-		div(.role("group")) {
+		div(.role(.group)) {
 			for control in Self.controls {
 				button(.type(.button), .hook(Hooks.control, value: control.id)) {
 					control.symbol
@@ -78,7 +78,7 @@ struct GeoCitiesWindowsHover: ScriptedElement {
 		}
 		.style(GeoCitiesWindows.Styles.wrapRow, GeoCitiesPage.Styles.scriptingOnly)
 
-		p(.part(Parts.status), .role("status")) {
+		p(.part(Parts.status), .role(.status)) {
 			"Collect your 3 blue flags before the red hovercraft get their red ones. Bump the red one to make it spin!"
 		}
 		.style(GeoCitiesPage.Styles.statusBar, GeoCitiesPage.Styles.scriptingOnly)
@@ -115,7 +115,7 @@ struct GeoCitiesWindowsHover: ScriptedElement {
 		case control = "hover-control"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case screen
 		case controls

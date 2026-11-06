@@ -1,8 +1,8 @@
 // Appdle: the visitor guesses the app of the day from a pixelated part of its icon. Each wrong guess shows more of the icon, sharper.
-import {cloneTemplate} from '/scripts/dom.js';
+import {cloneTemplate, scriptData} from '/scripts/dom.js';
 import {searchKey, closest} from '/scripts/edit-distance.js';
 
-const {firstDay, maximumGuesses, puzzles} = JSON.parse(document.querySelector('#appdle-data').textContent);
+const {firstDay, maximumGuesses, puzzles} = scriptData('appdle-data');
 const canvas = document.querySelector('#appdle-canvas');
 const form = document.querySelector('#appdle-form');
 const input = form.elements.guess;
@@ -53,8 +53,12 @@ let offset;
 // Without case, accents, spaces, and punctuation (`searchKey`), so “Quick GPT” is QuickGPT, and “DS Store Inspector” is DS_Store Inspector.
 const names = new Map([...input.list.options].map(option => [searchKey(option.value), option.value]));
 
-// The name of the app that is closest to a name that is not one of the apps, like Gifski for “Gifsky” (`closest`).
-const closestName = name => names.get(closest(searchKey(name), names.keys()));
+// The name of the app that is closest to a name that is not one of the apps, like Gifski for “Gifsky” (`closest`), or else the one name that has the name in it, like System Color Picker for “color picker”. A part of several names, like “menu bar”, or of fewer than 3 letters suggests nothing.
+const closestName = name => {
+	const key = searchKey(name);
+	const containingKeys = key.length < 3 ? [] : [...names.keys()].filter(nameKey => nameKey.includes(key));
+	return names.get(closest(key, names.keys()) ?? (containingKeys.length === 1 ? containingKeys[0] : undefined));
+};
 const storageKey = 'appdle';
 
 const load = () => {

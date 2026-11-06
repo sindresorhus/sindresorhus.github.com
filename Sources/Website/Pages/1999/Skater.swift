@@ -152,14 +152,14 @@ struct GeoCitiesSkater: ScriptedElement {
 					.width(400),
 					.height(240),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("The screen of Sindre Hawk’s Pro Skater. The left and right arrows push and spin, Space ollies (hold it to jump higher), Z flips, X grabs, C grinds, and V does a special trick when the meter is full. Up and then down starts a manual. Enter or a click starts a run.")
 					.style(Styles.screen)
 			}
 			.style(Styles.bezel)
 
-			p(.part(Parts.status), .role("status")) {
+			p(.part(Parts.status), .role(.status)) {
 				"Click the screen or ▶ Start for a 2‑minute run. Free Skate has no clock."
 			}
 			.style(Styles.status)
@@ -469,7 +469,7 @@ struct GeoCitiesSkater: ScriptedElement {
 		case gap = "skater-gap"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case body
 		case console

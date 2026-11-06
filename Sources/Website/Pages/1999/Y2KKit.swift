@@ -59,7 +59,7 @@ struct GeoCitiesY2KKit: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.retroButton, GeoCitiesPage.Styles.scriptingOnly)
 
-			div(.part(Parts.card), .role("status"), .hidden) {
+			div(.part(Parts.card), .role(.status), .hidden) {
 				p(.part(Parts.grade)) {}
 					.style(Styles.grade)
 
@@ -97,7 +97,7 @@ struct GeoCitiesY2KKit: ScriptedElement {
 		case points = "y2k-points"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case list
 		case item

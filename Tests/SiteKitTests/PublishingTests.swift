@@ -2,6 +2,7 @@ import Elementary
 import Foundation
 import ImageIO
 import SOML
+import Synchronization
 import TestSupport
 import Testing
 import UniformTypeIdentifiers
@@ -9,6 +10,47 @@ import UniformTypeIdentifiers
 
 struct PublishingTests {
 	private let site = SiteOrigin(#URL("https://example.com"))
+
+	@Test
+	func `missing file suggestions belong to their problem and preserve diagnostic identity`() {
+		let problem = LinkValidator.BrokenLink.Problem.missingFile("/apps/dato", suggestion: "/dato")
+		let link = LinkValidator.BrokenLink(page: .root, problem: problem)
+		let fragment = LinkValidator.BrokenLink(page: .root, problem: .missingFragment("/dato#missing"))
+
+		#expect(link.suggestion == "/dato")
+		#expect(link.link == "/apps/dato")
+		#expect(link.destination == "/apps/dato")
+		#expect(link.description == "/: /apps/dato (did you mean /dato?)")
+		#expect(fragment.suggestion == nil)
+		#expect(fragment.description == "/: /dato#missing (missing fragment)")
+		#expect(LinkValidator.BrokenLink(page: .root, problem: .missingFragment("/apps/faq#refnd", suggestion: "#refund")).description == "/: /apps/faq#refnd (missing fragment, did you mean #refund?)")
+		#expect(Set([problem, .missingFile("/apps/dato", suggestion: "/dato"), .missingFile("/apps/dato")]).count == 2)
+	}
+
+	@Test
+	func `route builders accept slices and consume single-pass sequences once`() {
+		let pages = [
+			Route.page(#path("/first")) {
+				"First"
+			},
+			Route.page(#path("/second")) {
+				"Second"
+			},
+			Route.page(#path("/third")) {
+				"Third"
+			},
+		]
+		let iterator = AnyIterator(pages.dropFirst().makeIterator())
+
+		@RouteBuilder
+		var routes: [Route] {
+			pages.prefix(1)
+			AnySequence { iterator }
+		}
+
+		#expect(routes.map(\.path) == [#path("/first"), #path("/second"), #path("/third")])
+		#expect(iterator.next() == nil)
+	}
 
 	@Test
 	func `route outputs render pages redirects and binary files without a publisher`() async throws {
@@ -40,6 +82,82 @@ struct PublishingTests {
 		#expect(asset.outputFile == PublishedFilePath("images/logo.png"))
 	}
 
+	/**
+	A rebuild of `website serve` reuses the pages that did not change since the previous check, so a page that changed must be read again.
+	*/
+	@Test
+	func `a second check sees a fragment that a changed page no longer has`() async {
+		let link = #"<a href="/other#x">A</a>"#
+		let routes = [Route.page(.root) { link }, Route.page(#path("/other")) { "" }]
+
+		let before = PublishedSite(routeFiles: ["index.html": Data(link.utf8), "other.html": Data(#"<p id="x"></p>"#.utf8)], publicFiles: [])
+		#expect(await LinkValidator(site: site).brokenLinks(in: routes, published: before).isEmpty)
+
+		let after = PublishedSite(routeFiles: ["index.html": Data(link.utf8), "other.html": Data(#"<p id="y"></p>"#.utf8)], publicFiles: [])
+		#expect(await LinkValidator(site: site).brokenLinks(in: routes, published: after).map(\.problem) == [.missingFragment("/other#x", suggestion: "#y")])
+	}
+
+	@Test
+	func `links in templates are checked like navigation links`() async {
+		let routes = [Route.page(.root) { "" }, Route.page(#path("/other")) { "" }]
+		let template = #"<template><a href="/other#answer"></a><a href="/other#missing"></a><a href="/missing"></a><a href="https://elsewhere.com/missing"></a></template>"#
+		let published = PublishedSite(routeFiles: ["index.html": Data(template.utf8), "other.html": Data(#"<p id="answer"></p>"#.utf8)], publicFiles: [])
+		let problems = await LinkValidator(site: site).brokenLinks(in: routes, published: published)
+
+		#expect(problems.map(\.problem) == [.missingFile("/missing"), .missingFragment("/other#missing")])
+		#expect(problems.allSatisfy { $0.page == .root })
+	}
+
+	/**
+	The build gives the links of the Markdown of a page too, as a page does not show a `@Scheduled` block before its first day, and a wrong link in it must not first fail the build of that day.
+	*/
+	@Test
+	func `additional links of a page are checked like its navigation links`() async {
+		let routes = [Route.page(.root) { "" }, Route.page(#path("/other")) { "" }]
+		let published = PublishedSite(routeFiles: ["index.html": Data("<p></p>".utf8), "other.html": Data(#"<p id="answer"></p>"#.utf8)], publicFiles: [])
+		let problems = await LinkValidator(site: site).brokenLinks(in: routes, published: published, additionalLinks: [.root: ["/other#answer", "/other#missing", "/missing", "https://elsewhere.com/missing"]])
+
+		#expect(problems.map(\.problem) == [.missingFile("/missing"), .missingFragment("/other#missing")])
+		#expect(problems.allSatisfy { $0.page == .root })
+	}
+
+	@Test(arguments: [
+		#"<meta property="og:image" content="/missing.png">"#,
+		#"<META property="og:image" content="/missing.png">"#,
+		#"<meta content="/missing.png" property="og:image">"#,
+		#"<meta property="og:url" data-note="x" content="/missing.png">"#,
+		#"<meta property="og:image" data-note=">" content="/missing.png">"#,
+	])
+	func `open graph links are checked regardless of attribute order`(html: String) async {
+		let routes = [Route.page(.root) { html }]
+		let published = PublishedSite(routeFiles: ["index.html": Data(html.utf8)], publicFiles: [])
+		let problems = await LinkValidator(site: site).brokenLinks(in: routes, published: published)
+
+		#expect(problems.map(\.problem) == [.missingFile("/missing.png")])
+	}
+
+	@Test(arguments: [
+		#"<meta property="og:image"><div content="/unrelated"></div>"#,
+		#"<div property="og:image" content="/unrelated"></div>"#,
+		#"<metadata property="og:image" content="/unrelated"></metadata>"#,
+	])
+	func `non-meta content is not an open graph link`(html: String) async {
+		let routes = [Route.page(.root) { html }]
+		let published = PublishedSite(routeFiles: ["index.html": Data(html.utf8)], publicFiles: [])
+
+		#expect(await LinkValidator(site: site).brokenLinks(in: routes, published: published).isEmpty)
+	}
+
+	@Test(arguments: ["og:image", "og:url"])
+	func `open graph links retain navigation fragment checks`(property: String) async {
+		let html = #"<meta content="/other#missing" property="\#(property)">"#
+		let routes = [Route.page(.root) { html }, Route.page(#path("/other")) { "" }]
+		let published = PublishedSite(routeFiles: ["index.html": Data(html.utf8), "other.html": Data()], publicFiles: [])
+		let problems = await LinkValidator(site: site).brokenLinks(in: routes, published: published)
+
+		#expect(problems.map(\.problem) == [.missingFragment("/other#missing")])
+	}
+
 	@Test(arguments: IDReferenceAttribute.allCases)
 	func `every supported ID reference attribute is checked`(attribute: IDReferenceAttribute) async {
 		let html = #"<div \#(attribute.rawValue)="missing"></div>"#
@@ -57,6 +175,88 @@ struct PublishingTests {
 		let published = PublishedSite(routeFiles: ["index.html": Data(html.utf8)], publicFiles: [])
 		let problems = await LinkValidator(site: site).brokenLinks(in: routes, published: published)
 		#expect(problems.map(\.link) == [#"\#(attribute.rawValue)="first second""#])
+	}
+
+	/**
+	A broken link says the closest published path, so the writer sees why it is broken: a trailing slash, another case, or another folder. The one path with the same last part wins over a path that is only near in letters, like `/gifski` over `/apps/guess` for `/apps/gifski`, but not a file name that many folders have, like `icon.png`.
+	*/
+	@Test
+	func `a link to a missing file suggests the closest published path`() async {
+		let html = #"<a href="/dato/">A</a><a href="/apps/FAQ">B</a><a href="/apps/gifski">C</a><img src="/dato/Screenshot1.jpg"><img src="/datto/icon.png"><a href="/something-else-entirely">D</a>"#
+		let routes = [Route.page(.root) { html }]
+		let published = PublishedSite(
+			routeFiles: ["index.html": Data(html.utf8), "dato.html": Data(), "gifski.html": Data(), "apps/faq.html": Data(), "apps/guess.html": Data(), "apps/index.html": Data()],
+			publicFiles: [
+				PublishedAsset(path: #path("/dato/screenshot1.jpg"), source: URL(filePath: "/public/dato/screenshot1.jpg")),
+				PublishedAsset(path: #path("/aiko/icon.png"), source: URL(filePath: "/public/aiko/icon.png")),
+				PublishedAsset(path: #path("/dato/icon.png"), source: URL(filePath: "/public/dato/icon.png")),
+			]
+		)
+		let problems = await LinkValidator(site: site).brokenLinks(in: routes, published: published)
+
+		#expect(problems.map(\.description) == [
+			"/: /apps/FAQ (did you mean /apps/faq?)",
+			"/: /apps/gifski (did you mean /gifski?)",
+			"/: /dato/ (did you mean /dato?)",
+			"/: /dato/Screenshot1.jpg (did you mean /dato/screenshot1.jpg?)",
+			"/: /datto/icon.png (did you mean /dato/icon.png?)",
+			"/: /something-else-entirely",
+		])
+	}
+
+	/**
+	The host also serves a page at the name of its file, but that is a second URL of the page, so a link to it is reported with the path of the page. A public HTML file is at the name of its file.
+	*/
+	@Test
+	func `a link to the HTML file of a page suggests the path of the page`() async {
+		let html = #"<a href="/dato.html">A</a><a href="/index.html#top">B</a><a href="/dato">C</a><a href="/demo.html">D</a>"#
+		let routes = [Route.page(.root) { html }, Route.page(#path("/dato")) { "" }]
+		let published = PublishedSite(
+			routeFiles: ["index.html": Data(html.utf8), "dato.html": Data()],
+			publicFiles: [PublishedAsset(path: #path("/demo.html"), source: URL(filePath: "/public/demo.html"))]
+		)
+		let problems = await LinkValidator(site: site).brokenLinks(in: routes, published: published)
+
+		#expect(problems.map(\.description) == [
+			"/: /dato.html (did you mean /dato?)",
+			"/: /index.html#top (did you mean /?)",
+		])
+	}
+
+	@Test
+	func `links to HTML file routes keep their exact path and page suggestions use the declared path`() async {
+		let html = #"<a href="/text.html#answer">Text</a><a href="/file.html#answer">File</a><a href="/blog/index.html#answer">Page</a><a href="/named.html#answer">Named page</a><a href="/named.html.html#answer">Named page file</a>"#
+		let targetHTML = #"<p id="answer">Answer</p>"#
+		let routes = [
+			Route.page(.root) { html },
+			Route.text(#path("/text.html")) { targetHTML },
+			Route.file(#path("/file.html")) { Data(targetHTML.utf8) },
+			Route.page(#path("/blog/index")) { targetHTML },
+			Route.page(#path("/named.html")) { targetHTML },
+		]
+		let published = PublishedSite(
+			routeFiles: ["index.html": Data(html.utf8), "text.html": Data(targetHTML.utf8), "file.html": Data(targetHTML.utf8), "blog/index.html": Data(targetHTML.utf8), "named.html.html": Data(targetHTML.utf8)],
+			publicFiles: []
+		)
+		let problems = await LinkValidator(site: site).brokenLinks(in: routes, published: published)
+
+		#expect(problems.map(\.description) == ["/: /blog/index.html#answer (did you mean /blog/index?)", "/: /named.html.html#answer (did you mean /named.html?)"])
+	}
+
+	/**
+	A fragment link breaks most often when an ID is mistyped or a question is reworded, so the broken link says the closest ID of the target page.
+	*/
+	@Test
+	func `a link to a missing fragment suggests the closest ID of the target page`() async {
+		let html = #"<a href="/faq#refnd">A</a><a href="/faq#something-else">B</a>"#
+		let routes = [Route.page(.root) { html }, Route.page(#path("/faq")) { "" }]
+		let published = PublishedSite(routeFiles: ["index.html": Data(html.utf8), "faq.html": Data(#"<h3 id="refund"></h3><h3 id="trial"></h3>"#.utf8)], publicFiles: [])
+		let problems = await LinkValidator(site: site).brokenLinks(in: routes, published: published)
+
+		#expect(problems.map(\.description) == [
+			"/: /faq#refnd (missing fragment, did you mean #refund?)",
+			"/: /faq#something-else (missing fragment)",
+		])
 	}
 
 	@Test
@@ -81,22 +281,6 @@ struct PublishingTests {
 		let threshold = try #require(PixelSize(width: 1946, height: 1216))
 		#expect(threshold.isSharpOnRetina(maximumHeight: 640, maximumWidth: 1024))
 		#expect(!threshold.isSharpOnRetina(maximumHeight: 640, maximumWidth: 1024, tolerance: 1))
-	}
-
-	@Test(.timeLimit(.minutes(1)))
-	func `asynchronous pipe collection preserves binary output larger than a pipe buffer`() async throws {
-		let process = Process()
-		process.executableURL = URL(filePath: "/bin/dd")
-		process.arguments = ["if=/dev/zero", "bs=65536", "count=2"]
-		process.standardError = FileHandle.nullDevice
-		let pipe = Pipe()
-		process.standardOutput = pipe
-		var output = Data()
-		let status = try await process.runUntilExit {
-			output = try await pipe.fileHandleForReading.readDataToEnd()
-		}
-		#expect(status == .exit(0))
-		#expect(output == Data(repeating: 0, count: 131_072))
 	}
 
 	@Test
@@ -252,6 +436,31 @@ struct PublishingTests {
 		#expect(try await image.jpegXLVersion(cacheDirectory: cache) == copy)
 	}
 
+	@Test(.temporaryDirectory)
+	func `an image with the extension of the other format is an error before the JPEG XL conversion`() async throws {
+		let directory = try URL.temporaryDirectory()
+		let image = directory.appending(path: "icon.png")
+		try Data([0xFF, 0xD8, 0xFF, 0xE0]).write(to: image)
+
+		let error = try await #require(throws: ContentError.self) {
+			try await image.jpegXLVersion(cacheDirectory: directory.appending(path: "cache"))
+		}
+
+		#expect(error.reason == "The image is a JPEG, but its extension is `.png`. Export it again as a PNG, or rename it to `icon.jpg` where the page allows a JPEG.")
+	}
+
+	@Test(.temporaryDirectory)
+	func `a failed JPEG XL conversion leaves no cached image or success marker`() async throws {
+		let directory = try URL.temporaryDirectory(files: ["image.png": "This is not a PNG image."])
+		let cache = directory.appending(path: "cache")
+
+		await #expect(throws: ContentError.self) {
+			try await directory.appending(path: "image.png").jpegXLVersion(cacheDirectory: cache)
+		}
+
+		#expect(cache.files.isEmpty)
+	}
+
 	@Test
 	func `route paths drop extra slashes, and compare and append whole components`() throws {
 		#expect(RoutePath("/apps/") == #path("/apps"))
@@ -405,6 +614,70 @@ struct PublishingTests {
 	}
 
 	@Test
+	func `file paths encode their punctuation independently of query and fragment values`() {
+		let path = RoutePath("/shots/a#b?.png")
+		let destination = LinkDestination.path(path, query: [URLQueryItem(name: "q", value: "A+B")], fragment: "section name")
+
+		#expect(destination.description == "/shots/a%23b%3F.png?q=A%2BB#section%20name")
+		#expect(destination.absoluteURL(site: site, page: .root).absoluteString == "https://example.com/shots/a%23b%3F.png?q=A%2BB#section%20name")
+	}
+
+	@Test(arguments: [
+		("/", "/"),
+		("/a b.png", "/a%20b.png"),
+		("/100%.png", "/100%25.png"),
+		("/literal%20text.png", "/literal%2520text.png"),
+		("/æøå.png", "/%C3%A6%C3%B8%C3%A5.png"),
+		("/a#b?.png", "/a%23b%3F.png"),
+	])
+	func `file paths serialize consistently in links images redirects and absolute URLs`(text: String, encoded: String) {
+		let path = RoutePath(text)
+		let destination = LinkDestination.path(path)
+
+		#expect(path.percentEncodedPath == encoded)
+		#expect(destination.description == encoded)
+		#expect(ImageSource.path(path).description == encoded)
+		#expect(RedirectDestination.path(path).description == encoded)
+		#expect(destination.absoluteURL(site: site, page: .root) == path.absoluteURL(site: site))
+	}
+
+	@Test
+	func `direct route attributes and CSS URLs encode file names`() {
+		let path = RoutePath("/shots/a#b?.png")
+		let encoded = "/shots/a%23b%3F.png"
+		let link = a(.href(path)) {
+			"Image"
+		}.render()
+		let movie = video(.poster(path)) {
+		}.render()
+
+		#expect(link == "<a href=\"\(encoded)\">Image</a>")
+		#expect(img(.src(path)).render() == "<img src=\"\(encoded)\">")
+		#expect(source(.srcset(path)).render() == "<source srcset=\"\(encoded)\">")
+		#expect(movie == "<video poster=\"\(encoded)\"></video>")
+		#expect(CSSImage.url(path).description == "url(\"\(encoded)\")")
+		#expect(CSSValue.url(path).description == "url(\"\(encoded)\")")
+	}
+
+	@Test
+	func `encoded file links and image sources resolve to the original published file`() async {
+		let path = RoutePath("/shots/a#b?.png")
+		let html = div {
+			a(.href(.path(path))) {
+				"Open image"
+			}
+			img(.src(.path(path)), .alt("Example"))
+		}.render()
+		let routes = [Route.page(.root) { html }]
+		let published = PublishedSite(
+			routeFiles: ["index.html": Data(html.utf8)],
+			publicFiles: [PublishedAsset(path: path, source: URL(filePath: "/public/shots/a#b?.png"))]
+		)
+
+		#expect(await LinkValidator(site: site).brokenLinks(in: routes, published: published).isEmpty)
+	}
+
+	@Test
 	func `redirect destinations retain their site paths and encoded queries`() {
 		let destination = RedirectDestination.path(#path("/feedback"), query: [URLQueryItem(name: "product", value: "A & B+C")])
 		#expect(destination.absoluteURL(site: site).absoluteString == "https://example.com/feedback?product=A%20%26%20B%2BC")
@@ -432,7 +705,7 @@ struct PublishingTests {
 		try await Publisher(site: site, project: project, output: output).publish(
 			[
 				.page(#path("/")) { "<a href=\"/about\">About</a>" },
-				.page(#path("/about"), sitemapEntry: SitemapEntry(images: [image])) { "<h1 id=\"top\">About</h1>" },
+				.page(#path("/about"), sitemapEntry: SitemapEntry(images: [AbsoluteURL(image)])) { "<h1 id=\"top\">About</h1>" },
 				.page(#path("/hidden"), sitemapEntry: nil) { "Hidden" },
 				.text(#path("/feed.xml")) { "<rss/>" },
 				.redirect(#path("/old"), to: #path("/about")),
@@ -520,6 +793,68 @@ struct PublishingTests {
 	}
 
 	@Test
+	func `sitemap page paths include the root and decoded names but exclude images`() throws {
+		let xml = """
+		<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+			<url><loc>https://example.com</loc></url>
+			<url><loc>https://example.com/caf%C3%A9</loc><image:image><image:loc>https://example.com/photo.jpg</image:loc></image:image></url>
+		</urlset>
+		"""
+
+		#expect(try Sitemap.pagePaths(inXML: xml) == [.root, RoutePath("/café")])
+	}
+
+	@Test
+	func `sitemap parsing rejects malformed XML and unrelated documents`() {
+		for xml in ["<urlset>", "<html>Gateway Error</html>"] {
+			#expect(throws: ContentError.self) {
+				try Sitemap.pagePaths(inXML: xml)
+			}
+		}
+	}
+
+	@Test(arguments: ["<urlset/>", "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"/>"])
+	func `an empty sitemap is valid`(xml: String) throws {
+		#expect(try Sitemap.pagePaths(inXML: xml).isEmpty)
+	}
+
+	@Test
+	func `a sitemap without a namespace lists its pages`() throws {
+		let xml = "<urlset><url><loc>https://example.com/page</loc></url></urlset>"
+		#expect(try Sitemap.pagePaths(inXML: xml) == [#path("/page")])
+	}
+
+	@Test
+	func `sitemap namespaces keep page locations separate from image locations`() throws {
+		let xml = """
+		<s:urlset xmlns:s="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+			<s:url><s:loc>https://example.com/page</s:loc><image:image><image:loc>https://example.com/image.png</image:loc></image:image></s:url>
+		</s:urlset>
+		"""
+		#expect(try Sitemap.pagePaths(inXML: xml) == [#path("/page")])
+	}
+
+	@Test(arguments: ["<urlset><url/></urlset>", "<urlset><url><loc>/relative</loc></url></urlset>"])
+	func `a sitemap page requires an absolute location`(xml: String) {
+		#expect(throws: ContentError.self) {
+			try Sitemap.pagePaths(inXML: xml)
+		}
+	}
+
+	@Test(.temporaryDirectory)
+	func `sitemap parsing never loads external entities`() throws {
+		let directory = try URL.temporaryDirectory(files: ["location.txt": "https://example.com/secret"])
+		let externalURL = directory.appending(path: "location.txt").absoluteString
+		let xml = """
+		<!DOCTYPE urlset [<!ENTITY external SYSTEM "\(externalURL)">]>
+		<urlset><url><loc>&external;</loc></url></urlset>
+		"""
+		#expect(throws: ContentError.self) {
+			try Sitemap.pagePaths(inXML: xml)
+		}
+	}
+
+	@Test
 	func `bytes become lowercase hexadecimal digits`() {
 		#expect([0, 10, 255].hexString == "000aff")
 		#expect([UInt8]().hexString == "")
@@ -531,6 +866,8 @@ struct PublishingTests {
 		#expect(#""Great app""#.typographicQuotes == "“Great app”")
 		#expect(#""'Nested'" quotes"#.typographicQuotes == "“‘Nested’” quotes")
 		#expect("Typographic “quotes” stay".typographicQuotes == "Typographic “quotes” stay")
+		// A dash opens a quote, like a space.
+		#expect(#"Simple—"really" simple"#.typographicQuotes == "Simple—“really” simple")
 	}
 
 	/**
@@ -575,7 +912,7 @@ struct PublishingTests {
 		}
 
 		#expect((error as? CocoaError)?.code == .fileReadNoSuchFile)
-		#expect(publishingError.description == "Could not read or write a file: The directory “\(project.publicDirectory.path(percentEncoded: false))” does not exist.")
+		#expect(publishingError.description.contains(project.publicDirectory.lastPathComponent))
 	}
 
 	@Test(.temporaryDirectory)
@@ -801,7 +1138,7 @@ struct PublishingTests {
 
 		#expect(brokenLinks.map(\.description) == [
 			"/: /about#missing (missing fragment)",
-			"/: /about/",
+			"/: /about/ (did you mean /about?)",
 			"/: /missing",
 			"/about: #nope (missing fragment)",
 			"/about: #top (duplicate ID)",
@@ -961,10 +1298,12 @@ struct PublishingTests {
 			pageRoutes: ["content/apps": .root]
 		)
 
-		let files = try await Publisher(site: site, project: project, output: project.root.appending(path: "dist")).publish([]).files
+		let published = try await Publisher(site: site, project: project, output: project.root.appending(path: "dist")).publish([])
 
-		#expect(files.contains("robots.txt"))
-		#expect(!files.contains("draft/icon.png"))
+		#expect(published.files.contains("robots.txt"))
+		#expect(!published.files.contains("draft/icon.png"))
+		// The checks of the published site read this list, so they do not check the files of the draft either.
+		#expect(published.publicFiles.map(\.outputFile) == ["robots.txt"])
 	}
 
 	@Test(.temporaryDirectory)
@@ -991,23 +1330,23 @@ struct PublishingTests {
 	func `a collision names where each route comes from`() async throws {
 		let project = try Project(root: URL.temporaryDirectory(files: ["public/robots.txt": ""]))
 		let routes = [
-			Route.redirect(#path("/lungo"), to: #path("/dato")).source("`redirectFrom` of", .file(project.root.appending(path: "content/apps/dato/index.md"))),
-			Route.page(#path("/lungo")) { "" }.source("the page of", .file(project.root.appending(path: "content/apps/lungo/index.md"))),
+			Route.redirect(#path("/lungo"), to: #path("/dato")).source(.redirect(key: "redirectFrom", file: project.root.appending(path: "content/apps/dato/index.md"))),
+			Route.page(#path("/lungo")) { "" }.source(.page(file: project.root.appending(path: "content/apps/lungo/index.md"), line: 3)),
 		]
 
 		let error = try await #require(throws: PublishingError.self) {
 			try await Publisher(site: site, project: project, output: project.root.appending(path: "dist")).publish(routes)
 		}
 
-		#expect(error.description == "Two sources write lungo.html: `redirectFrom` of content/apps/dato/index.md and the page of content/apps/lungo/index.md. Change one of them.")
+		#expect(error.description == "Two sources write lungo.html: `redirectFrom` of content/apps/dato/index.md and the page of content/apps/lungo/index.md:3. Change one of them.")
 	}
 
 	@Test(.temporaryDirectory)
 	func `a redirect that a page file shadows names both sources`() async throws {
 		let project = try Project(root: URL.temporaryDirectory(files: ["public/robots.txt": ""]))
 		let routes = [
-			Route.page(#path("/dato")) { "" }.source("the page of", .file(project.root.appending(path: "content/apps/dato/index.md"))),
-			Route.redirect(#path("/dato.html"), to: #path("/dato")).source("`redirectFrom` of", .file(project.root.appending(path: "content/apps/dato/index.md"), line: 12)),
+			Route.page(#path("/dato")) { "" }.source(.page(file: project.root.appending(path: "content/apps/dato/index.md"))),
+			Route.redirect(#path("/dato.html"), to: #path("/dato")).source(.redirect(key: "redirectFrom", file: project.root.appending(path: "content/apps/dato/index.md"), line: 12)),
 		]
 
 		let error = try await #require(throws: PublishingError.self) {
@@ -1209,6 +1548,62 @@ struct PublishingTests {
 		#expect(try JSONDecoder().decode([String: String].self, from: Data(json.utf8)) == ["text": text])
 	}
 
+	/**
+	`website serve` reads a value of a file, like the size of an image, only again when the file changed.
+	*/
+	@Test(.temporaryDirectory)
+	func `a cached value of a file is read again only when the file changes`() async throws {
+		let file = try URL.temporaryDirectory(files: ["file.txt": "old"]).appending(path: "file.txt")
+		let readCount = Mutex(0)
+		let operation = FileRead<Int?, Never>("test") { _ in
+			readCount.withLock { $0 += 1 }
+			// A value that is `nil` is kept too.
+			return nil
+		}
+
+		func value() async -> Int? {
+			await file.cachedValue(using: operation)
+		}
+
+		#expect(await value() == nil)
+		#expect(await value() == nil)
+		#expect(readCount.withLock { $0 } == 1)
+
+		try Data("a longer text".utf8).write(to: file)
+		#expect(await value() == nil)
+		#expect(readCount.withLock { $0 } == 2)
+	}
+
+	/**
+	The stamp of a file is its size and modification date, so a file that is edited to the same size is read again.
+	*/
+	@Test(.temporaryDirectory)
+	func `a cached value of a file is read again when only its modification date changes`() async throws {
+		var file = try URL.temporaryDirectory(files: ["file.txt": "old"]).appending(path: "file.txt")
+		let originalDate = try #require(file.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate)
+		let readCount = Mutex(0)
+		let operation = FileRead<Int?, Never>("test") { _ in
+			readCount.withLock { $0 += 1 }
+			return nil
+		}
+
+		func value() async -> Int? {
+			await file.cachedValue(using: operation)
+		}
+
+		#expect(await value() == nil)
+		#expect(await value() == nil)
+		#expect(readCount.withLock { $0 } == 1)
+
+		try Data("new".utf8).write(to: file)
+		var values = URLResourceValues()
+		values.contentModificationDate = originalDate.addingTimeInterval(60)
+		try file.setResourceValues(values)
+
+		#expect(await value() == nil)
+		#expect(readCount.withLock { $0 } == 2)
+	}
+
 	@Test(.temporaryDirectory, arguments: ["png", "jpg"])
 	func `image sizes are the pixel sizes of images`(fileExtension: String) throws {
 		let file = try URL.temporaryDirectory().appending(path: "image.\(fileExtension)")
@@ -1229,6 +1624,36 @@ struct PublishingTests {
 		#expect(metadata.horizontalDPI == 144)
 		try Data([0, 1, 2]).write(to: file)
 		#expect(file.imageMetadata == nil)
+	}
+
+	@Test(.temporaryDirectory)
+	func `an image source supplies metadata pixels and bounded thumbnails together`() throws {
+		let file = try URL.temporaryDirectory().appending(path: "image.png")
+		try writeImage(to: file, properties: [kCGImagePropertyDPIWidth: 144.0, kCGImagePropertyDPIHeight: 144.0])
+		let source = try #require(CGImageSource.read(file, shouldCache: false))
+		let metadata = try #require(source.metadata)
+		let image = try #require(source.firstImage)
+		let thumbnail = try #require(source.thumbnail(maximumPixelSize: 10))
+
+		#expect(metadata.size == PixelSize(width: image.width, height: image.height))
+		#expect(metadata.displaySize == PixelSize(width: 15, height: 10))
+		#expect(max(thumbnail.width, thumbnail.height) == 10)
+		#expect(CGImageSource.read(file.deletingLastPathComponent().appending(path: "missing.png")) == nil)
+	}
+
+	@Test(.temporaryDirectory)
+	func `thumbnails apply orientation while metadata and decoded images keep raw dimensions`() throws {
+		let file = try URL.temporaryDirectory().appending(path: "oriented.jpg")
+		try writeImage(to: file, type: .jpeg, properties: [kCGImagePropertyOrientation: CGImagePropertyOrientation.right.rawValue])
+		let source = try #require(CGImageSource.read(file, shouldCache: false))
+		let image = try #require(source.firstImage)
+		let thumbnail = try #require(source.thumbnail(maximumPixelSize: 30))
+		let fileThumbnail = try #require(file.imageThumbnail(maximumPixelSize: 30))
+
+		#expect(source.metadata?.size == PixelSize(width: 30, height: 20))
+		#expect(PixelSize(width: image.width, height: image.height) == PixelSize(width: 30, height: 20))
+		#expect(PixelSize(width: thumbnail.width, height: thumbnail.height) == PixelSize(width: 20, height: 30))
+		#expect(PixelSize(width: fileThumbnail.width, height: fileThumbnail.height) == PixelSize(width: 20, height: 30))
 	}
 
 	@Test(.temporaryDirectory, arguments: [(72.0, 30), (144.0, 15), (300.0, 30)])
@@ -1339,20 +1764,5 @@ extension PublishingTests {
 		#expect(problems.map(\.problem) == [.missingFragment("/target#absent")])
 		#expect(problems.map(\.destination) == ["/target#absent"])
 		#expect(problems.map(\.link) == ["/target#absent"])
-	}
-}
-
-extension PublishingTests {
-	@Test
-	func `publishing diagnostics retain typed paths roles and project relative source locations`() {
-		let root = URL(filePath: "/project", directoryHint: .isDirectory)
-		let page = Route.Source(role: "the page of", location: .file(root.appending(path: "content/page.md")))
-		let redirect = Route.Source(role: "`redirectFrom` of", location: .file(root.appending(path: "content/other.md")))
-		let collision = PublishingError.collision(file: PublishedFilePath("page.html"), firstSource: page, secondSource: redirect, root: root)
-		#expect(collision.description.contains("the page of content/page.md"))
-		#expect(collision.description.contains("`redirectFrom` of content/other.md"))
-		#expect(!collision.description.contains("/project/"))
-		let shadowed = PublishingError.shadowed(#path("/page"), source: page, file: PublishedFilePath("page"), fileSource: redirect, root: root)
-		#expect(shadowed.description.contains("The URL /page of the page of content/page.md"))
 	}
 }

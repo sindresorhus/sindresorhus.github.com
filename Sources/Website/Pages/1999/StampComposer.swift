@@ -71,7 +71,7 @@ struct GeoCitiesStampComposer: ScriptedElement {
 				.help("Eraser")
 				.style(Styles.stamp)
 			}
-			.attributes(.role("group"))
+			.attributes(.role(.group))
 			.accessibilityLabel("Stamps")
 			.style(Styles.stamps)
 
@@ -87,7 +87,7 @@ struct GeoCitiesStampComposer: ScriptedElement {
 					.width(1872),
 					.height(340),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("Staff. Arrow keys move, Enter stamps, Delete erases.")
 					.style(Styles.staff)
@@ -133,7 +133,7 @@ struct GeoCitiesStampComposer: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.formRow)
 
-			p(.part(Parts.status), .role("status")) {}
+			p(.part(Parts.status), .role(.status)) {}
 				.style(GeoCitiesPage.Styles.caption)
 		}
 		.style(Styles.box, GeoCitiesPage.Styles.scriptingOnly)
@@ -160,7 +160,7 @@ struct GeoCitiesStampComposer: ScriptedElement {
 		case song = "stamps-song"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case box
 		case stamps

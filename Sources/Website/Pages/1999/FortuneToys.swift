@@ -56,7 +56,7 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 
 				div(.part(Parts.ball)) {
 					div {
-						p(.part(Parts.answer), .role("status"), .state(States.eight)) {
+						p(.part(Parts.answer), .role(.status), .state(States.eight)) {
 							"8"
 						}
 						.style(Styles.answer)
@@ -107,7 +107,7 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 				.accessibilityHidden()
 				.style(Styles.paper)
 
-				p(.part(Parts.catcherStatus), .role("status")) {
+				p(.part(Parts.catcherStatus), .role(.status)) {
 					"Pick a color!"
 				}
 				.style(GeoCitiesPage.Styles.centeredText)
@@ -153,7 +153,7 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 				.accessibilityHidden()
 				.style(Styles.ring)
 
-				p(.part(Parts.mood), .role("status")) {
+				p(.part(Parts.mood), .role(.status)) {
 					"Mood: Unknown (black)"
 				}
 				.style(GeoCitiesPage.Styles.centeredText)
@@ -202,7 +202,7 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 		case flap = "catcher-flap"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case card
 		case title
@@ -398,7 +398,7 @@ struct GeoCitiesFortuneToys: ScriptedElement {
 		}
 	}
 
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case shake
 
 		var keyframes: [Keyframe] {

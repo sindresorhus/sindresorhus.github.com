@@ -2,7 +2,7 @@
 title: 'How to Add a Spacer to the Dock on Mac'
 description: 'Group the apps in your Dock with spacers, with a button in Supercharge, or with a command in Terminal.'
 publicationDate: 2026-10-31
-topic: 'finder-and-desktop'
+topic: 'windows-apps-and-dock'
 apps: [
 	'supercharge'
 ]

@@ -68,12 +68,12 @@ struct GeoCitiesFurby: ScriptedElement {
 						.width(480),
 						.height(360),
 						.tabindex(0),
-						.role("application")
+						.role(.application)
 					) {}
 						.accessibilityLabel("My Furby. Stroke its back to pet it, press its tummy to tickle it, and its tongue to feed it. Or use the keys: F feeds, T tickles, P pets, U turns it upside down, S shakes, C claps, L turns the light off or on, and M plays music.")
 						.style(Styles.canvas)
 
-					p(.part(Parts.status), .role("status")) {}
+					p(.part(Parts.status), .role(.status)) {}
 						.style(Styles.status)
 
 					div {
@@ -213,7 +213,7 @@ struct GeoCitiesFurby: ScriptedElement {
 		case urgent
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case layout
 		case controls

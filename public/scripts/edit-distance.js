@@ -30,9 +30,9 @@ The text in the form that names are compared in: lowercase, and without accents,
 export const searchKey = text => text.normalize('NFD').replaceAll(/[\p{Diacritic}\s\p{P}]/gu, '').toLowerCase();
 
 /**
-The candidate whose key, like `searchKey(app.title)`, is closest to the query, or `undefined` when none is close: at most one edit for each 5 characters of the longer of the two (`maximumRatio`), so a short query needs an exact match. The query is already in the form of the keys, like `searchKey(text)`.
+The candidate whose key, like `searchKey(app.title)`, is closest to the query, or `undefined` when none is close: at most one edit for each 4 characters of the longer of the two (`maximumRatio`), so a name of 4 letters, like Dato, accepts one typo, like `daot`, and a name of 3 letters needs an exact match. The query is already in the form of the keys, like `searchKey(text)`.
 */
-export function closest(query, candidates, {key = candidate => candidate, maximumRatio = 0.2} = {}) {
+export function closest(query, candidates, {key = candidate => candidate, maximumRatio = 0.25} = {}) {
 	let closestCandidate;
 	let closestRatio = Number.POSITIVE_INFINITY;
 

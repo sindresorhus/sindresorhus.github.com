@@ -13,7 +13,7 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Open “System Settings › Menu Bar”, click “Clock Options…” in “Menu Bar Controls”, and set “Show date” to “Always”. macOS then shows the day and the month, but not the year, and you cannot change the format. To show the year, the week number, or your own format, use [Dato](../apps/dato/index.md).
+	Open “[System Settings › Menu Bar](x-apple.systempreferences:com.apple.ControlCenter-Settings.extension)”, click “Clock Options…” in “Menu Bar Controls”, and set “Show date” to “Always”. macOS then shows the day and the month, but not the year, and you cannot change the format. To show the year, the week number, or your own format, use [Dato](../apps/dato/index.md).
 }
 
 ## With Dato
@@ -36,10 +36,10 @@ macOS always shows its own clock in the menu bar. So that the date does not show
 The menu bar clock of macOS can show the date:
 
 @Steps {
-1. Open “System Settings › Menu Bar”.
+1. Open “[System Settings › Menu Bar](x-apple.systempreferences:com.apple.ControlCenter-Settings.extension)”.
 1. In “Menu Bar Controls”, click “Clock Options…”.
 1. Below “Date”, set “Show date” to “Always”. “When Space Allows” hides the date when the menu bar is full.
 1. To show the day of the week, turn on “Show the day of the week”.
 }
 
-The order of the day and the month comes from the region in “System Settings › General › Language & Region”. This is enough if you only want to see the day and the month. macOS cannot show the year or the week number in the menu bar, and you cannot write your own format.
+The order of the day and the month comes from the region in “[System Settings › General › Language & Region](x-apple.systempreferences:com.apple.Localization-Settings.extension)”. This is enough if you only want to see the day and the month. macOS cannot show the year or the week number in the menu bar, and you cannot write your own format.

@@ -48,7 +48,7 @@ struct GeoCitiesFishTank: ScriptedElement {
 				.width(640),
 				.height(360),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The fish tank. The fish follow your pointer or finger. Click or press Space to drop food, and move your finger with the arrow keys.")
 				.style(Styles.tank, GeoCitiesPage.Styles.scriptingOnly)
@@ -100,7 +100,7 @@ struct GeoCitiesFishTank: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow, GeoCitiesPage.Styles.scriptingOnly)
 
-			p(.part(Parts.status), .role("status")) {}
+			p(.part(Parts.status), .role(.status)) {}
 				.style(GeoCitiesPage.Styles.centeredText, GeoCitiesPage.Styles.scriptingOnly)
 
 			p {
@@ -123,7 +123,7 @@ struct GeoCitiesFishTank: ScriptedElement {
 		case status
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case tank
 		case stats

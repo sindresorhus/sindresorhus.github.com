@@ -89,11 +89,11 @@ No, that’s not supported. However, you may be interested in my [Scratchpad](/s
 
 ### How can I make the app preserve open documents when I quit on macOS? {#how-can-i-make-the-app-preserve-open-documents-when-i-quit-on-macos}
 
-This is already how it works. Actually, it’s how all document-based apps on macOS work. Make sure you don’t have “System Settings › Desktop & Dock › Close windows when quitting an application” enabled.
+This is already how it works. Actually, it’s how all document-based apps on macOS work. Make sure you don’t have “[System Settings › Desktop & Dock › Close windows when quitting an application](x-apple.systempreferences:com.apple.Desktop-Settings.extension)” enabled.
 
 ### How can I make the app not open previously opened documents when I launch the app? {#how-can-i-make-the-app-not-open-previously-opened-documents-when-i-launch-the-app}
 
-Enable “System Settings › Desktop & Dock › Close windows when quitting an application”.
+Enable “[System Settings › Desktop & Dock › Close windows when quitting an application](x-apple.systempreferences:com.apple.Desktop-Settings.extension)”.
 
 ### I have enabled the translucent setting on the macOS app, why is the title bar not translucent? {#i-have-enabled-the-translucent-setting-on-the-macos-app-why-is-the-title-bar-not-translucent}
 
@@ -101,7 +101,7 @@ Making the title bar translucent is not supported by macOS. I’m hoping to find
 
 ### How does “brain dump mode” help with creativity? {#how-does-brain-dump-mode-help-with-creativity}
 
-It helps you focus on the actual writing, instead of getting distracted with editing and nitpicking. [Learn more about the brain dump method.](https://writingcooperative.com/how-the-brain-dump-method-can-boost-your-writing-output-881089bb897a)
+In brain dump mode, you can only add text, not delete it. This helps you focus on the actual writing, instead of getting distracted with editing and nitpicking. Turn it on with “Editor › Brain Dump Mode” (++Option+Command+B++) on Mac, or in the “…” menu on iPhone and iPad. [Learn more about the brain dump method.](https://writingcooperative.com/how-the-brain-dump-method-can-boost-your-writing-output-881089bb897a)
 
 ### When I save a file using the popover in the title bar on macOS, it always appends `.txt` when I choose a different file extension {#when-i-save-a-file-using-the-popover-in-the-title-bar-on-macos-it-always-appends-txt-when-i-choose-a-different-file-extension}
 
@@ -109,7 +109,7 @@ This is a macOS bug. Instead, save the file from the “File” menu or by press
 
 ### How can I toggle “Stay on Top” with a keyboard shortcut on macOS? {#how-can-i-toggle-stay-on-top-with-a-keyboard-shortcut-on-macos}
 
-The keyboard shortcut is listed in the “Window” menu in the menu bar.
+Press ++Control+Command+T++. It is the shortcut of “Window › Stay on Top”.
 
 ### Can I open a text file directly from the command-line? {#can-i-open-a-text-file-directly-from-the-command-line}
 
@@ -150,6 +150,11 @@ This is unfortunately a macOS bug and not something I can fix.
 ### Can you add line numbers? {#can-you-add-line-numbers}
 
 This is out of scope for this app.
+
+### Can I change the line length or the line spacing? {#line-length}
+<!-- @faq.keywords height width wide narrow -->
+
+The line length, yes. Change “Line length limit” in the settings, or, on Mac and iPad, choose “Editor › Line Length Limit”: “None”, or about 56, 64, 72, or 80 characters. The default is about 64 characters. The line spacing is fixed, and it grows with the text size.
 
 ### Can you add a setting to turn off line wrapping? {#can-you-add-a-setting-to-turn-off-line-wrapping}
 

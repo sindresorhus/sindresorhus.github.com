@@ -192,17 +192,19 @@ struct NPMStatisticsTests {
 		#expect(number.roundedDown(significantDigits: significantDigits) == expected)
 	}
 
-	@Test
-	func `approximate counts are rounded down to two digits and abbreviated, so they never claim more`() {
-		#expect(2_134_519_388.approximateCount == "2.1B+")
-		#expect(21_456_789_012.approximateCount == "21B+")
-		#expect(515_161.approximateCount == "510K+")
-		#expect(1_960_000.approximateCount == "1.9M+")
-		#expect(999_999.approximateCount == "990K+")
-		#expect(2_999_999_999.approximateCount == "2.9B+")
-		#expect(1_050_000.approximateCount == "1M+")
-		#expect(49_612.approximateCount == "49K+")
-		#expect(1_520.approximateCount == "1.5K+")
-		#expect(999.approximateCount == "999")
+	@Test(arguments: [
+		(2_134_519_388, "2.1B+"),
+		(21_456_789_012, "21B+"),
+		(515_161, "510K+"),
+		(1_960_000, "1.9M+"),
+		(999_999, "990K+"),
+		(2_999_999_999, "2.9B+"),
+		(1_050_000, "1M+"),
+		(49_612, "49K+"),
+		(1_520, "1.5K+"),
+		(999, "999"),
+	])
+	func `approximate counts are rounded down to two digits and abbreviated, so they never claim more`(count: Int, expected: String) {
+		#expect(count.approximateCount == expected)
 	}
 }

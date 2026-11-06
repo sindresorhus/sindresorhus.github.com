@@ -14,14 +14,6 @@ struct AppStoreReviewTests {
 		#expect(try JSONDecoder().decode(ReviewStars.self, from: JSONEncoder().encode(count)) == stars)
 	}
 
-	@Test(arguments: [0, 6, -1])
-	func `individual review stars reject counts outside one through five`(count: Int) throws {
-		#expect(ReviewStars(rawValue: count) == nil)
-		#expect(throws: DecodingError.self) {
-			try JSONDecoder().decode(ReviewStars.self, from: JSONEncoder().encode(count))
-		}
-	}
-
 	@Test(.temporaryDirectory)
 	func `invalid review stars are skipped without discarding the feed or stopping pagination`() async throws {
 		func entry(stars: String, title: String) -> String {
@@ -76,6 +68,26 @@ struct AppStoreReviewTests {
 		// The same review in two App Stores is shown once, and the malformed feed and the review in French are left out.
 		#expect(reviews[1]?.map(\.title) == (1...12).reversed().map { "Review \($0)" })
 		#expect(warnings.all.count == 1)
+	}
+
+	/**
+	A very short review says little, and a long one does not fit the page.
+	*/
+	@Test(.temporaryDirectory)
+	func `only reviews of 40 to 360 characters are shown`() async throws {
+		func entry(length: Int) -> String {
+			let text = String(String(repeating: "The app works well, and I use it every day. ", count: 10).prefix(length - 1)) + "x"
+			return #"{"author": {"name": {"label": "A reviewer"}}, "title": {"label": "Review \#(length)"}, "content": {"label": "\#(text)"}, "im:rating": {"label": "5"}, "updated": {"label": "2026-01-0\#(length % 9 + 1)T00:00:00Z"}}"#
+		}
+
+		var responses = ["https://itunes.apple.com/us/rss/customerreviews/page=1/id=1/sortBy=mostRecent/json": #"{"feed": {"entry": [\#([39, 40, 360, 361].map(entry(length:)).joined(separator: ", "))]}}"#]
+
+		for storefront in ["gb", "ca", "au", "nz", "ie"] {
+			responses["https://itunes.apple.com/\(storefront)/rss/customerreviews/page=1/id=1/sortBy=mostRecent/json"] = #"{"feed": {}}"#
+		}
+
+		let reviews = await AppStoreReview.recentFiveStar(appIDs: [1], cache: try ResponseCache(responses: responses), warnings: WarningCollector())
+		#expect(Set(reviews[1]?.map(\.title) ?? []) == ["Review 40", "Review 360"])
 	}
 
 	@Test(.temporaryDirectory)

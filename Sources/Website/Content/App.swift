@@ -9,9 +9,8 @@ import SOML
 An app, loaded from `content/apps/<slug>/index.md`.
 */
 struct App: ContentDocument {
-	let frontmatter: Frontmatter
 	let markdown: MarkdownDocument
-	let file: MarkdownFile
+	let decodedFile: DecodedMarkdownFile<Frontmatter>
 	let purchase: Purchase
 	let pressQuotes: [PressQuote.Resolved]
 
@@ -26,9 +25,14 @@ struct App: ContentDocument {
 	let media: [MediaAsset]
 
 	/**
-	The `feedbackNote` as HTML, for the feedback page.
+	The rendered `feedbackNote`, for the feedback page, which has it in a template, so its links are checked with the links of the page.
 	*/
-	let feedbackNoteHTML: String?
+	let feedbackNote: MarkdownDocument?
+
+	/**
+	The shared shortcuts that the page links to, in a card (``ShortcutCard``) or in a sentence, whose icons the site publishes.
+	*/
+	let shortcuts: [Shortcut]
 
 	/**
 	The `icon.png` of the app, or a placeholder when the app has no icon yet, so a new app can be previewed before its icon is done. `website check` warns about the placeholder.
@@ -67,59 +71,72 @@ struct App: ContentDocument {
 		Frontmatter.CodingKeys.allCases
 	}
 
-	static let directory = "content/apps"
+	static let directory: Project.ContentDirectory = "content/apps"
 
 	// The slug is one component of the path of the page and of the asset directory, so the file cannot be in a subdirectory.
 	static let allowsSubdirectories = false
 
 	/**
-	An app that reads `content/shared-questions.md` itself when it picks shared questions, like in a test. The site reads the file once for all the apps (``init(file:frontmatter:sharedQuestions:project:)``).
+	An app that reads `content/shared-questions.md` itself when it picks shared questions, like in a test. The site reads the file once for all the apps (``init(file:sharedQuestions:project:)``).
 	*/
-	init(file: MarkdownFile, frontmatter: Frontmatter, project: Project) async throws {
+	init(file: DecodedMarkdownFile<Frontmatter>, project: Project) async throws {
 		try await self.init(
 			file: file,
-			frontmatter: frontmatter,
-			sharedQuestions: frontmatter.sharedQuestions.isEmpty ? .empty : SharedQuestions.Library(project: project),
+			sharedQuestions: file.frontmatter.sharedQuestions.isEmpty ? .empty : SharedQuestions.Library(project: project),
 			project: project
 		)
 	}
 
 	/**
 	- Parameter sharedQuestions: The questions of `content/shared-questions.md`, which the app picks from.
+	- Parameter loadShortcuts: Loads the shared shortcuts that the page links to (``Shortcut``). Without them, like in a test, the links stay links.
 	*/
 	init(
-		file: MarkdownFile,
-		frontmatter: Frontmatter,
+		file decodedFile: DecodedMarkdownFile<Frontmatter>,
 		sharedQuestions library: SharedQuestions.Library,
-		project: Project
+		project: Project,
+		loadShortcuts: (Set<Shortcut.ID>) async -> [Shortcut.ID: Shortcut] = { _ in [:] }
 	) async throws {
-		self.frontmatter = frontmatter
-		self.file = file
+		let file = decodedFile.source
+		let frontmatter = decodedFile.frontmatter
+		self.decodedFile = decodedFile
 
 		do {
 			self.purchase = try frontmatter.purchase
 		} catch {
-			throw file.error(at: Frontmatter.CodingKeys.gumroad, error.reason)
+			throw decodedFile.error(at: .gumroad, error.reason)
 		}
 
 		self.pressQuotes = try frontmatter.pressQuotes.enumerated().map { index, quote in
 			do throws(ContentError) {
 				return try quote.resolved
 			} catch {
-				throw file.error(at: Frontmatter.CodingKeys.pressQuotes, index: index, error.reason)
+				throw decodedFile.error(at: .pressQuotes, index: index, error.reason)
 			}
 		}
 
-		self.sharedQuestions = try SharedQuestions(pickedBy: file, frontmatter: frontmatter, from: library)
-		self.markdown = try MarkdownDocument(
-			parsing: file,
-			options: .appPage(
-				file,
-				project: project,
-				frontmatter: frontmatter,
-				sharedQuestions: sharedQuestions
-			)
+		self.sharedQuestions = try SharedQuestions(pickedBy: decodedFile, from: library)
+
+		// The shortcuts are loaded before the text is rendered, as the text shows them as cards.
+		let shortcuts = await loadShortcuts(Document(parsing: file.body, options: .parseBlockDirectives).shortcutIDs)
+		self.shortcuts = Array(shortcuts.values)
+
+		let options = MarkdownDocument.Options.appPage(
+			file,
+			project: project,
+			frontmatter: frontmatter,
+			sharedQuestions: sharedQuestions,
+			shortcuts: shortcuts
 		)
+		let parsed = file.parsedMarkdown(options: options)
+		let body = parsed.document
+
+		// Before the text is rendered, as a question below a level 2 heading after the FAQ heading is not in the FAQ section, so the build adds a common question with its title again, and the error of the duplicate ID would name a question that is fine.
+		if let heading = Array(body.blockChildren).headingEndingFAQSection(before: frontmatter.commonQuestionTitles(sharedQuestions: sharedQuestions)) {
+			throw file.error(line: file.line(of: heading), "`\(heading.format().trimmingCharacters(in: .whitespacesAndNewlines))` ends the FAQ section (`\(Section.faq.markdown)`), so the questions below it are not in it. Make it a question (`###`), or move it above the FAQ section.")
+		}
+
+		self.markdown = try parsed.rendered()
 
 		// The mistakes of the text are reported together, so an app with two mistakes shows both at once.
 		var problems = [ContentError]()
@@ -139,17 +156,12 @@ struct App: ContentDocument {
 			}
 		}
 
-		// The build adds the trial from `trial`, so a trial in the text would be a second one, without the section that the “Free Trial” button links to.
-		if let directive = Document(parsing: file.body, options: .parseBlockDirectives).blockDirectives.first(where: { $0.siteName == .trial }) {
-			problems.append(file.error(line: file.line(of: directive), "The build adds `@Trial` from `trial` in the frontmatter, like `trial: {url: '…'}`, which adds the “Trial” section. Remove the `@Trial` from the text."))
-		}
-
 		// The shared questions are added to the FAQ section, so an app without one would silently not show them.
 		if
 			!frontmatter.sharedQuestions.isEmpty,
 			!markdown.headings.hasFAQSection
 		{
-			problems.append(file.error(at: Frontmatter.CodingKeys.sharedQuestions, "The shared questions are added to the FAQ section, but the page has none: `\(Section.faq.markdown)`."))
+			problems.append(decodedFile.error(at: .sharedQuestions, "The shared questions are added to the FAQ section, but the page has none: `\(Section.faq.markdown)`."))
 		}
 
 		// The app page knows the directive, as the picked questions have it, but a question of the file goes where it is written. The picked questions have no lines, so a heading with a line is in the file.
@@ -157,24 +169,67 @@ struct App: ContentDocument {
 			problems.append(file.error(line: heading.line, "`@\(SharedQuestions.First.name)` is only for the questions in `\(SharedQuestions.path)`. A question of the app goes where it is written."))
 		}
 
+		// The feedback page suggests the questions of the FAQ section and the tips with a custom ID (``tipHeadings``), so the directives of another heading would silently do nothing, and so would platforms that the app is not on. The picked shared questions have no lines.
+		let questionLines = Set((markdown.headings.faqSection.filter { $0.level == .h3 } + markdown.headings.tips).compactMap(\.line))
+
+		for heading in markdown.headings {
+			guard let line = heading.line else {
+				continue
+			}
+
+			if questionLines.contains(line) {
+				// A question of the app is about the app, so a platform that the app is not on is a mistake.
+				if
+					let questionPlatforms = heading[FAQDirectives.Platforms.self],
+					frontmatter.platforms.isDisjoint(with: questionPlatforms)
+				{
+					problems.append(file.error(line: line, "`@\(FAQDirectives.Platforms.name)` of “\(heading.text)” has none of the platforms of the app. Use the platforms of the app that the question is about."))
+				}
+			} else if heading.hasFAQDirective {
+				problems.append(file.error(line: line, "“\(heading.text)” is not a question of the FAQ section or a tip with a custom ID, so the feedback page does not suggest it, and its directives, like `@\(FAQDirectives.Keywords.name)`, do nothing. Remove them."))
+			}
+		}
+
 		// The questions are level 3 headings, so a level 4 heading would silently be a heading in the answer above it.
 		if let heading = markdown.headings.faqSection.first(where: { $0.level > .h3 }) {
 			problems.append(file.error(line: heading.line, "The questions of the FAQ section are level 3 headings: `### \(heading.text)`."))
 		}
 
+		// A question without an answer would be an empty question on the page, like after a new heading was put above the answer of another question. The shared questions have the same rule in their file (``SharedQuestions``), and the questions that the build adds have no lines. The feedback question can be only a heading, as the build writes its answer.
+		let sourceHeadings = body.descendants(of: Markdown.Heading.self)
+
+		for heading in markdown.headings.faqSection where heading.level == .h3 && heading.id != Section.feedbackQuestion.id {
+			guard
+				let line = heading.line,
+				let sourceHeading = sourceHeadings.first(where: { file.line(of: $0) == line }),
+				let parent = sourceHeading.parent
+			else {
+				continue
+			}
+
+			// A directive below the question, like `<!-- @faq.keywords … -->`, is not an answer.
+			let blocks = Array(parent.children)
+			let hasAnswer = blocks.contentOfSection(afterHeadingAt: sourceHeading.indexInParent, level: heading.level) { ($0 as? Markdown.Heading)?.headingLevel }
+				.contains { !$0.isCommentOnly }
+
+			if !hasAnswer {
+				problems.append(file.error(line: line, "The question “\(heading.text)” has no answer. Write it below the heading."))
+			}
+		}
+
 		// The note is shown on the feedback page, so its links are resolved and checked like the text of the page. Its problems are reported at its key, as the lines of the SOML value are not the lines of the note.
-		var feedbackNoteHTML: String?
+		var feedbackNote: MarkdownDocument?
 
 		if let note = frontmatter.feedbackNote {
 			do {
-				let document = try MarkdownDocument(parsing: note, at: Frontmatter.CodingKeys.feedbackNote, of: file, project: project)
+				let document = try MarkdownDocument(parsing: note, at: .feedbackNote, of: decodedFile, project: project)
 
 				// The note is a box on the feedback page, so a heading would be larger than the title of the page, and a whole sentence in the list of headings of a screen reader.
 				if let heading = document.headings.first {
-					problems.append(file.error(at: Frontmatter.CodingKeys.feedbackNote, "`feedbackNote` cannot have headings, as it is a box on the feedback page. Write a warning as bold text: `**\(heading.text)**`."))
+					problems.append(decodedFile.error(at: .feedbackNote, "`feedbackNote` cannot have headings, as it is a box on the feedback page. Write a warning as bold text: `**\(heading.text)**`."))
 				}
 
-				feedbackNoteHTML = document.html
+				feedbackNote = document
 			} catch {
 				problems += error.errors
 			}
@@ -184,14 +239,14 @@ struct App: ContentDocument {
 			let script = frontmatter.script,
 			project.existingPublicFile(script) == nil
 		{
-			problems.append(file.error(at: Frontmatter.CodingKeys.script, "The `script` \(script) does not exist in `public` or next to the page."))
+			problems.append(decodedFile.error(at: .script, "The `script` \(script) does not exist in `public` or next to the page."))
 		}
 
 		guard problems.isEmpty else {
 			throw ContentErrors(problems)
 		}
 
-		self.feedbackNoteHTML = feedbackNoteHTML
+		self.feedbackNote = feedbackNote
 
 		self.media = try await MediaAsset.discover(in: Self.assetDirectory(slug: file.slug), project: project)
 
@@ -313,11 +368,11 @@ extension App {
 	/**
 	The directory with the icon, the screenshots, and the videos of an app, like `/dato`. They are files of its page bundle, so they are next to its page.
 	*/
-	static func assetDirectory(slug: String) -> RoutePath {
+	static func assetDirectory(slug: ContentSlug) -> RoutePath {
 		path(slug: slug)
 	}
 
-	private static func iconPath(slug: String) -> RoutePath {
+	private static func iconPath(slug: ContentSlug) -> RoutePath {
 		assetDirectory(slug: slug).appending("icon.png")
 	}
 
@@ -330,21 +385,62 @@ extension App {
 	/**
 	Where on the site an App Store link is, for its campaign token, like `web-download-button`, so App Analytics shows which links bring downloads.
 	*/
-	enum AppStorePlacement: String {
-		case downloadButton = "download-button"
-		case whatsNew = "whats-new"
-		case qrCode = "qr-code"
+	enum AppStorePlacement: Hashable {
+		case downloadButton
+		case whatsNew
+
+		/**
+		The “Rate or Review” link, which opens the sheet to rate or review the app in the App Store (``queryItems``).
+		*/
+		case writeReview
+
+		case qrCode
 
 		/**
 		The App Store banner in Safari on iOS.
 		*/
-		case smartBanner = "smart-banner"
+		case smartBanner
 
 		/**
-		The provider token and the campaign, or `nil` without the provider token.
+		The download button in the box to get the app of the guide with the slug (``AppCallToAction``), so App Analytics shows which guide brings downloads.
 		*/
-		var campaignQueryItems: [URLQueryItem]? {
-			Site.appStoreProviderToken.map { [URLQueryItem(name: "pt", value: $0), URLQueryItem(name: "ct", value: "web-\(rawValue)")] }
+		case guide(ContentSlug)
+
+		/**
+		The campaign token, like `web-download-button`, or `guide-convert-video-to-gif-mac` for a guide. Apple allows at most 40 characters, so the slug of a guide is cut.
+
+		Limitation: two guides whose slugs start with the same 34 characters have the same campaign.
+		*/
+		var campaign: String {
+			switch self {
+			case .downloadButton:
+				"web-download-button"
+			case .whatsNew:
+				"web-whats-new"
+			case .writeReview:
+				"web-write-review"
+			case .qrCode:
+				"web-qr-code"
+			case .smartBanner:
+				"web-smart-banner"
+			case .guide(let slug):
+				String("guide-\(slug.value)".prefix(40))
+			}
+		}
+
+		/**
+		The provider token and the campaign, or empty without the provider token.
+		*/
+		var campaignQueryItems: [URLQueryItem] {
+			Site.appStoreProviderToken.map { [URLQueryItem(name: "pt", value: $0), URLQueryItem(name: "ct", value: campaign)] } ?? []
+		}
+
+		/**
+		The query of the App Store link: the campaign, and for ``writeReview``, the action that Apple documents to open the review sheet at once (`action=write-review`).
+		*/
+		var queryItems: [URLQueryItem] {
+			let actionQueryItems = self == .writeReview ? [URLQueryItem(name: "action", value: "write-review")] : []
+			return actionQueryItems + campaignQueryItems
 		}
 	}
 
@@ -370,15 +466,25 @@ extension App {
 	The campaign of the App Store banner in Safari on iOS, for the `affiliate-data` of the `apple-itunes-app` meta tag.
 	*/
 	static var appStoreBannerCampaign: String? {
-		AppStorePlacement.smartBanner.campaignQueryItems.flatMap { items in
-			var components = URLComponents()
-			components.queryItems = items
-			return components.percentEncodedQuery
-		}
+		AppStorePlacement.smartBanner.campaignQueryItems.nilIfEmpty?.formEncodedQuery
 	}
 
 	var appStoreURL: URL? {
 		appStoreID?.url
+	}
+
+	/**
+	The ID of the app in the structured data of its page, like `https://sindresorhus.com/supercharge#app`, so the structured data of another page can refer to it, like a guide (``Schema/Reference``).
+	*/
+	var structuredDataID: URL {
+		LinkDestination.fragment("app").absoluteURL(on: path)
+	}
+
+	/**
+	The App Store link that opens the sheet to rate or review the app, for the “Rate or Review” links.
+	*/
+	var reviewURL: URL? {
+		appStoreURL(placement: .writeReview)
 	}
 
 	/**
@@ -431,7 +537,7 @@ extension App {
 	/**
 	Where on the site a link to the feedback form is, for the `referrer` that the form sends along, like `Website-FAQ`.
 	*/
-	enum FeedbackReferrer: String {
+	enum FeedbackReferrer: String, CaseIterable {
 		/**
 		The feedback question in the FAQ section of an app page.
 		*/
@@ -447,10 +553,10 @@ extension App {
 	The feedback form with the app selected, and where the visitor came from.
 	*/
 	static func feedbackURL(appTitle: String, referrer: FeedbackReferrer? = nil) -> LinkDestination {
-		var query = [URLQueryItem(name: "product", value: appTitle)]
+		var query = [URLQueryItem(name: FeedbackPage.Parameters.product.rawValue, value: appTitle)]
 
 		if let referrer {
-			query.append(URLQueryItem(name: "referrer", value: referrer.rawValue))
+			query.append(URLQueryItem(name: FeedbackPage.Parameters.referrer.rawValue, value: referrer.rawValue))
 		}
 
 		return .path(.feedback, query: query)
@@ -536,7 +642,7 @@ extension App {
 	static let firstSharedOSVersion = 26
 
 	/**
-	How long the app has been available, like “Since 2019”, for an app that is at least two years old, as a sign that it is maintained. A newer app says nothing, as a recent year is not a sign of anything. It is next to “Available on macOS”, so it does not say “available” again.
+	How long the app has been available, like “Since 2019”, for an app that is at least two years old, as a sign that it is maintained. A newer app says nothing, as a recent year is not a sign of anything. It is next to the requirement, like “Requires macOS 26 or later”, or “Available on macOS” when the requirement is unknown, so it does not say “available”.
 	*/
 	func availableSinceText(at date: Date) -> String? {
 		guard date.duration(since: frontmatter.publicationDate.foundationDate) >= .days(365 * 2) else {
@@ -576,7 +682,7 @@ extension App {
 			let score: Int
 		}
 
-		var generator = SeededRandomNumberGenerator.daily(slug, on: date)
+		var generator = SeededRandomNumberGenerator.daily(slug.value, on: date)
 
 		// The sort is stable, so equally similar apps keep the shuffled order.
 		return candidates
@@ -607,9 +713,9 @@ extension App {
 extension App {
 	@Frontmatter
 	struct Frontmatter: PublishedFrontmatter {
-		var isDraft = false
-		var isUnlisted = false
-		var isArchived = false
+		@TrueOrAbsent var isDraft = false
+		@TrueOrAbsent var isUnlisted = false
+		@TrueOrAbsent var isArchived = false
 		@PlainText var title: String
 
 		/**
@@ -636,6 +742,8 @@ extension App {
 		The lowest OS version that the app runs on, like `'26'` for “Requires macOS 26 or later”, or `'26.1'`. All the platforms have the same version numbers from 26, so one version is enough, and it must be 26 or later. Only for an app whose version the build cannot get (``AppListing/minimumOSVersion``): an app that is not on the App Store and has no appcast, like an iOS app that is not released yet, or an App Store app while the App Store has no version of 26 or later for it, like before it is released. The other apps get it from the App Store or from their appcast, and `website check` warns when they have it.
 		*/
 		var minimumOSVersion: OSVersion?
+
+		// Compatibility limits, like Menu Bar Spacing not working on macOS 27, are documented in the app page content.
 
 		/**
 		Whether the app is paid: `isPaid` when it is written, else whether it is sold on Gumroad (``gumroad``), so a Gumroad app does not need to repeat it.
@@ -672,7 +780,7 @@ extension App {
 		*/
 		var releasesRepository: GitHubRepositoryName?
 
-		@JavaScriptSafe var downloadCount: Int?
+		var downloadCount: SafeInteger?
 		var hasSentry = false
 
 		/**
@@ -691,7 +799,7 @@ extension App {
 		/**
 		Makes the app link to another page, like a GitHub repo, instead of having a page.
 		*/
-		@Absolute var redirectURL: URL?
+		var redirectURL: AbsoluteURL?
 
 		/**
 		Old paths of the app page, like `/old-name`. They redirect to the app page.
@@ -768,6 +876,14 @@ extension App {
 				{
 					problems.add("The quote of \(pressQuote.source) in `pressQuotes` has the year \(year), which is before the app was published in \(publicationDate.year).", at: .pressQuotes, index: index)
 				}
+
+				// Like the App Store reviews of a paid app (``AppListing/reviews``), as it would confuse visitors about the price.
+				if
+					isPaid,
+					pressQuote.quote.callsAppFree
+				{
+					problems.add("The quote of \(pressQuote.source) in `pressQuotes` calls the app free, but the app is paid. Cut those words with `[…]`, or use another quote.", at: .pressQuotes, index: index)
+				}
 			}
 			problems.addRepeatedItems(of: sharedQuestions, at: .sharedQuestions)
 			// In any case, as the feedback page finds the app by a name in any case.
@@ -791,7 +907,20 @@ extension App {
 				problems.add("`minimumOSVersion` must be \(App.firstSharedOSVersion) or later, as the platforms only share their version numbers from \(App.firstSharedOSVersion), got \(minimumOSVersion).", at: .minimumOSVersion)
 			}
 
+			// The name is the text of the link in the header, so an empty name gives a link that is not visible and has no name for screen readers.
+			for (key, mapping) in [(CodingKeys.links, links), (.overflowLinks, overflowLinks)] {
+				for name in mapping.map(\.key) {
+					do {
+						_ = try PlainTextString(validating: name)
+					} catch {
+						problems.add("A link in `\(key.stringValue)` needs a name, like `'Website'`, as plain text. The name “\(name)”: \(error.reason)", at: key)
+					}
+				}
+			}
+
 			problems.validate(nonAppStoreVersion, at: .nonAppStoreVersion)
+			problems.validate(trial, at: .trial)
+			problems.validate(announcement, at: .announcement)
 
 			if
 				nonAppStoreVersion != nil,
@@ -810,7 +939,7 @@ extension App {
 		/**
 		The version of the app, like `1.2.0`.
 		*/
-		@NonEmpty var version: String
+		var version: NonEmptyString
 
 		/**
 		The oldest macOS version that the app version supports, like `26`.
@@ -822,7 +951,7 @@ extension App {
 		/**
 		The download, usually a zip file.
 		*/
-		@Absolute var url: URL
+		var url: AbsoluteURL
 
 		func validate(into problems: inout FrontmatterProblems<Self>) {
 			if macOS < App.firstSharedOSVersion {
@@ -832,14 +961,14 @@ extension App {
 	}
 
 	/**
-	The trial of an app: a zip file, or a link to TestFlight. It is also the arguments of `@Trial`, which renders the “Trial” section that the build adds.
+	The trial of an app: a zip file, or a link to TestFlight. The build renders its metadata and standard text as the “Trial” section.
 	*/
 	@Frontmatter
 	struct Trial {
 		/**
 		The download, like a zip file, or the TestFlight link, like `https://testflight.apple.com/join/…`.
 		*/
-		@Absolute var url: URL
+		var url: AbsoluteURL
 
 		/**
 		The oldest macOS version that the trial runs on, like `'26'` or `'26.4'`, which the trial shows next to its button. Only for a trial that needs a newer version than the app, like a trial of a version that is not on the App Store yet. Without it, the trial has the requirement of the app, which the hero shows, so the card shows no requirement of its own. `website check` warns when it is the version of the app.
@@ -847,10 +976,40 @@ extension App {
 		var macOS: OSVersion?
 
 		/**
+		The features that the trial limits, as a sentence, like `'The keyboard shortcut inspector works 4 times.'`, which the standard text of the trial says instead of “The only limitation is …”, so the trial does not promise more than it gives. Only for a trial that is not on TestFlight, as a TestFlight trial is the full app.
+		*/
+		@PlainText var limitations: String?
+
+		func validate(into problems: inout FrontmatterProblems<Self>) {
+			// A TestFlight link that is not an invitation would silently be a download (``isTestFlight``), with the text and the button of a zip file.
+			if
+				!isTestFlight,
+				url.value.host() == "testflight.apple.com"
+			{
+				problems.add("`trial.url` is on TestFlight, but it is not a link to join a beta, like `https://testflight.apple.com/join/fJGUrsZx`, so the trial would be a download.", at: .url)
+			}
+
+			if
+				limitations != nil,
+				isTestFlight
+			{
+				problems.add("`trial.limitations` is only for a trial that is not on TestFlight, as a TestFlight trial is the full app.", at: .limitations)
+			}
+
+			// The standard text of the trial goes on with the next sentence after it (``App/Frontmatter/trialText(of:)``).
+			if
+				let limitations,
+				!limitations.hasSuffix(".")
+			{
+				problems.add("End `trial.limitations` with a period, as the trial text goes on after it.", at: .limitations)
+			}
+		}
+
+		/**
 		Whether the trial is on TestFlight, which has its own text and button title, as it is the full app for a limited time.
 		*/
 		var isTestFlight: Bool {
-			(try? TestFlightInvitation(validating: url)) != nil
+			(try? TestFlightInvitation(validating: url.value)) != nil
 		}
 
 		/**
@@ -864,20 +1023,7 @@ extension App {
 		The requirement that the trial shows next to its button, like “Requires macOS 26 or later”, or `nil` without `macOS`, as the requirement of the app is in the hero.
 		*/
 		var requirementSentence: String? {
-			macOS.map { $0.requirementSentence(for: [.macOS]) }
-		}
-
-		/**
-		The arguments of the `@Trial` directive that the build adds, like `url: "…", macOS: "26"`. The URL is percent-encoded, so it has no quotes, and it is a valid argument.
-		*/
-		var directiveArgumentText: String {
-			var arguments = ["url: \"\(url.absoluteString)\""]
-
-			if let macOS {
-				arguments.append("macOS: \"\(macOS)\"")
-			}
-
-			return arguments.joined(separator: ", ")
+			macOS.map { $0.macOSRequirementSentence }
 		}
 	}
 
@@ -905,7 +1051,7 @@ extension App {
 		/**
 		The version of the app, like `1.2.0`.
 		*/
-		@NonEmpty var version: String
+		var version: NonEmptyString
 
 		/**
 		The oldest macOS version that the app version supports.
@@ -915,7 +1061,7 @@ extension App {
 		/**
 		The download, usually a zip file.
 		*/
-		@Absolute var url: URL
+		var url: AbsoluteURL
 	}
 
 	/**
@@ -943,7 +1089,7 @@ extension App {
 		*/
 		@PlainText var source: String
 
-		@Absolute var url: URL?
+		var url: AbsoluteURL?
 		var isStarRating = false
 
 		/**
@@ -965,7 +1111,7 @@ extension App {
 		Whether the quote is a review of a buyer on Gumroad, which is by a person, like a quote without a link, not an article of a site.
 		*/
 		var isBuyerReview: Bool {
-			url?.host() == GumroadProduct.storeURL.host()
+			url?.value.host() == GumroadProduct.storeURL.host()
 		}
 
 		/**
@@ -1025,7 +1171,7 @@ extension App {
 				let year,
 				let url,
 				!isBuyerReview,
-				let urlYear = url.pathComponents.lazy.compactMap({ Int($0) }).first(where: { (2000...2100).contains($0) }),
+				let urlYear = url.value.pathComponents.lazy.compactMap({ Int($0) }).first(where: { (2000...2100).contains($0) }),
 				urlYear != year
 			{
 				problems.add("The quote of \(source) in `pressQuotes` has the year \(year), but its `url` has the year \(urlYear).", at: .year)
@@ -1057,8 +1203,8 @@ extension App {
 		An article has a publication year; a buyer or an unlinked person may have one.
 		*/
 		enum Attribution: Sendable {
-			case article(source: String, url: URL, year: Int)
-			case buyer(source: String, url: URL, year: Int?)
+			case article(source: String, url: AbsoluteURL, year: Int)
+			case buyer(source: String, url: AbsoluteURL, year: Int?)
 			case person(source: String, year: Int?)
 		}
 
@@ -1079,6 +1225,16 @@ extension App {
 		@PlainText var text: String
 
 		var link: Link?
+
+		func validate(into problems: inout FrontmatterProblems<Self>) {
+			// The Markdown copy of the page adds a period after the text (``TextFiles``).
+			if
+				let last = text.last,
+				".!?".contains(last)
+			{
+				problems.add("`announcement.text` must not end with punctuation, because the Markdown copy of the page adds a period after it.", at: .text)
+			}
+		}
 
 		/**
 		The button of an announcement, like `{url: 'https://example.com/bundle', text: 'Get the Bundle'}`.
@@ -1224,7 +1380,17 @@ extension App {
 			self.path = path
 			self.enclosure = fileSize.flatMap { Enclosure(url: path.absoluteURL, length: $0, mimeType: "image/png") }
 			self.jpegXL = try await JPEGXLCopy(of: path, project: project)
-			self.tint = CGImage.read(file)?.accentColor
+			self.tint = await file.cachedValue(using: .iconAccentColor)
 		}
+	}
+}
+
+
+extension FileRead where Value == Color?, Failure == Never {
+	/**
+	The accent derived from the icon, shared by all uses of a version of the image.
+	*/
+	fileprivate static var iconAccentColor: Self {
+		Self("iconAccentColor") { CGImage.read($0)?.accentColor }
 	}
 }

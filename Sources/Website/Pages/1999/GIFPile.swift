@@ -93,7 +93,7 @@ struct GeoCitiesGIFPile: ScriptedElement {
 			.accessibilityHidden()
 			.style(Styles.pileFrame, GeoCitiesPage.Styles.scriptingOnly)
 
-			p(.part(Parts.status), .role("status")) {
+			p(.part(Parts.status), .role(.status)) {
 				"The pile is empty. That is sad."
 			}
 			.style(GeoCitiesPage.Styles.centeredText, GeoCitiesPage.Styles.scriptingOnly)
@@ -137,7 +137,7 @@ struct GeoCitiesGIFPile: ScriptedElement {
 		case gif
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case dialog
 		case moreButton
@@ -215,7 +215,7 @@ struct GeoCitiesGIFPile: ScriptedElement {
 		}
 	}
 
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case drop
 
 		var keyframes: [Keyframe] {

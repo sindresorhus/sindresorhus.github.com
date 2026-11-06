@@ -22,7 +22,7 @@ let card = Style()
 	}
 ```
 
-Use ``declaration(_:_:)`` for properties without a modifier.
+Use ``declaration(raw:_:isImportant:)`` for properties without a modifier.
 */
 public struct Style: Sendable {
 	var declarations = [Declaration]()
@@ -43,7 +43,7 @@ public struct Style: Sendable {
 	/**
 	Sets a property. Use it for properties without a modifier. Pass `isImportant: true` to override normal declarations; importance applies only to declarations, not conditions or animations.
 	*/
-	public func declaration(_ property: Property, _ value: CSSValue, isImportant: Bool = false) -> Self {
+	func declaration(_ property: Property, _ value: CSSValue, isImportant: Bool = false) -> Self {
 		var copy = self
 		copy.declarations.append(Declaration(property: property, value: value, isImportant: isImportant))
 		return copy
@@ -52,15 +52,36 @@ public struct Style: Sendable {
 	/**
 	Sets a property from a typed value without converting it at the call site.
 	*/
-	public func declaration(_ property: Property, _ value: some StyleValue, isImportant: Bool = false) -> Self {
+	func declaration(_ property: Property, _ value: some StyleValue, isImportant: Bool = false) -> Self {
 		declaration(property, CSSValue(value), isImportant: isImportant)
 	}
 
 	/**
 	Sets a property to a keyword, like ``Display/grid``.
 	*/
-	public func declaration(_ property: Property, _ keyword: some CSSKeyword, isImportant: Bool = false) -> Self {
+	func declaration(_ property: Property, _ keyword: some CSSKeyword, isImportant: Bool = false) -> Self {
 		declaration(property, CSSValue(keyword), isImportant: isImportant)
+	}
+
+	/**
+	Sets an unchecked property/value pair. Prefer a typed modifier, which couples the property to its permitted value domain. Importance applies only to this declaration.
+	*/
+	public func declaration(raw property: Property, _ value: CSSValue, isImportant: Bool = false) -> Self {
+		declaration(property, value, isImportant: isImportant)
+	}
+
+	/**
+	Sets an unchecked property/value pair from a typed value. The raw label makes the unchecked pairing explicit.
+	*/
+	public func declaration(raw property: Property, _ value: some StyleValue, isImportant: Bool = false) -> Self {
+		declaration(property, value, isImportant: isImportant)
+	}
+
+	/**
+	Sets an unchecked property/keyword pair. Prefer the corresponding typed modifier.
+	*/
+	public func declaration(raw property: Property, _ keyword: some CSSKeyword, isImportant: Bool = false) -> Self {
+		declaration(property, keyword, isImportant: isImportant)
 	}
 
 	/**
@@ -151,6 +172,13 @@ public struct Style: Sendable {
 	*/
 	public func media(_ query: MediaQuery, _ content: (Self) -> Self) -> Self {
 		block(.media(query), content)
+	}
+
+	/**
+	Styles that apply when the media condition matches.
+	*/
+	public func media(_ condition: MediaCondition, _ content: (Self) -> Self) -> Self {
+		media(MediaQuery(condition), content)
 	}
 
 	/**

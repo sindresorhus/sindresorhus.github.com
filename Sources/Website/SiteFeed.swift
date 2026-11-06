@@ -8,6 +8,7 @@ The site-wide feeds, which every page links to, and the feeds page lists.
 enum SiteFeed: CaseIterable {
 	case blog
 	case newApps
+	case newGuides
 	case newRepositories
 
 	var path: RoutePath {
@@ -16,6 +17,8 @@ enum SiteFeed: CaseIterable {
 			#path("/rss.xml")
 		case .newApps:
 			#path("/rss-apps.xml")
+		case .newGuides:
+			#path("/rss-guides.xml")
 		case .newRepositories:
 			#path("/rss-repos.xml")
 		}
@@ -30,6 +33,8 @@ enum SiteFeed: CaseIterable {
 			"Blog"
 		case .newApps:
 			"New Apps"
+		case .newGuides:
+			"New Guides"
 		case .newRepositories:
 			"New Repos"
 		}
@@ -48,6 +53,8 @@ enum SiteFeed: CaseIterable {
 			"New writing and app launches"
 		case .newApps:
 			"New app launches"
+		case .newGuides:
+			"Short how-tos for the Mac and iPhone"
 		case .newRepositories:
 			"New open-source projects"
 		}
@@ -59,6 +66,8 @@ enum SiteFeed: CaseIterable {
 			.rss
 		case .newApps:
 			.apps
+		case .newGuides:
+			.book
 		case .newRepositories:
 			.github
 		}
@@ -77,6 +86,8 @@ enum SiteFeed: CaseIterable {
 			Site.description
 		case .newApps:
 			"New apps by Sindre Sorhus"
+		case .newGuides:
+			"How-to guides for the Mac and iPhone by Sindre Sorhus"
 		case .newRepositories:
 			"Recently created GitHub repos by Sindre Sorhus"
 		}
@@ -88,7 +99,7 @@ enum SiteFeed: CaseIterable {
 			link: Site.url,
 			description: channelDescription,
 			image: Site.feedImage,
-			items: items(content: content)
+			items: items(content: content).sorted(using: KeyPathComparator(\.publicationDate, order: .reverse))
 		)
 	}
 
@@ -116,7 +127,7 @@ enum SiteFeed: CaseIterable {
 				)
 			}
 
-			return (posts + apps).sorted(using: KeyPathComparator(\.publicationDate, order: .reverse))
+			return posts + apps
 		case .newApps:
 			// The new apps, each with its icon.
 			return content.activeApps.map { app in
@@ -127,6 +138,17 @@ enum SiteFeed: CaseIterable {
 					guid: app.launchGUID,
 					publicationDate: .date(app.publicationDate),
 					enclosure: app.iconEnclosure
+				)
+			}
+		case .newGuides:
+			// The guides are not posts, so the blog feed leaves them out, and they have this feed.
+			return content.resolvedGuides.map { resolved in
+				let guide = resolved.guide
+				return Item(
+					title: guide.title,
+					link: guide.absoluteURL,
+					description: guide.description,
+					publicationDate: .date(guide.frontmatter.publicationDate)
 				)
 			}
 		case .newRepositories:
@@ -147,7 +169,7 @@ extension GUID {
 	/**
 	For redirect posts and apps: identifies the item by a URL under `/blog`, like the old site did for both, so the item does not clash with the page it redirects to. Feed readers know the items by these GUIDs, so they stay.
 	*/
-	fileprivate static func original(_ slug: String) -> Self {
+	fileprivate static func original(_ slug: ContentSlug) -> Self {
 		.identifier(BlogPost.path(slug: slug).absoluteURL.absoluteString)
 	}
 }

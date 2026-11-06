@@ -38,6 +38,7 @@ pressQuotes: [
 		year: 2026
 	}
 ]
+privacyNote: 'The app downloads its AI model from Hugging Face.'
 ---
 
 Describe the image you want, and the app makes it for you.

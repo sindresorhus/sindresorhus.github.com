@@ -26,8 +26,10 @@ struct GeoCitiesCracktro: ScriptedElement {
 	/**
 	The ID that the “Demos” button of the site map jumps to.
 	*/
+	static let rootID = ElementID("geocities-cracktro")
+
 	var rootAttributes: [HTMLAttribute<ElementTag<Self>>] {
-		[.id("geocities-cracktro")]
+		[.id(Self.rootID)]
 	}
 
 	var content: some HTML {
@@ -47,7 +49,7 @@ struct GeoCitiesCracktro: ScriptedElement {
 					.part(Parts.screen),
 					.width(320),
 					.height(200),
-					.role("img")
+					.role(.image)
 				) {}
 					.accessibilityLabel("The intro of TEAM WAFFLE, with copper bars, plasma, a tunnel, a spinning unicorn, and a scroller with greetings")
 					.style(Styles.screen)
@@ -111,7 +113,7 @@ struct GeoCitiesCracktro: ScriptedElement {
 		}
 		.style(Styles.form, GeoCitiesPage.Styles.scriptingOnly)
 
-		p(.part(Parts.status), .role("status")) {}
+		p(.part(Parts.status), .role(.status)) {}
 			.style(GeoCitiesPage.Styles.caption, GeoCitiesPage.Styles.centeredText)
 
 		p {
@@ -160,7 +162,7 @@ struct GeoCitiesCracktro: ScriptedElement {
 		case texture
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case monitor
 		case stack
@@ -244,7 +246,7 @@ struct GeoCitiesCracktro: ScriptedElement {
 		}
 	}
 
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case blink
 
 		var keyframes: [Keyframe] {

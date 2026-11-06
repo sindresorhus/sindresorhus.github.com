@@ -93,7 +93,7 @@ struct AppIcon: HTML {
 			.style(Styles.image)
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case image
 

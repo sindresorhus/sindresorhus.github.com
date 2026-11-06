@@ -180,13 +180,13 @@ struct GeoCitiesCommodore: ScriptedElement {
 			peripherals
 			notebookView
 
-			p(.part(Parts.status), .role("status")) {
+			p(.part(Parts.status), .role(.status)) {
 				"It is off. Click the screen, or flip the power switch!"
 			}
 			.style(Styles.status)
 
 			// What the C64 prints, for screen readers, as the canvas cannot say it.
-			p(.part(Parts.output), .role("status")) {}
+			p(.part(Parts.output), .role(.status)) {}
 				.style(Styles.output)
 		}
 		.style(Styles.layout, GeoCitiesPage.Styles.scriptingOnly)
@@ -206,7 +206,7 @@ struct GeoCitiesCommodore: ScriptedElement {
 					.width(384),
 					.height(272),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("The screen of the Commodore 64. Click it and type. Enter is RETURN, Backspace is DEL, Escape is RUN/STOP, Page Up is RESTORE, and the arrow keys move the cursor. In a game, the arrow keys are the joystick, and Space fires.")
 					.style(Styles.screen, Styles.aboveStatus)
@@ -384,7 +384,8 @@ struct GeoCitiesCommodore: ScriptedElement {
 					.accessibilityHidden()
 					.style(Styles.reels)
 
-					p(.part(Parts.counter)) {
+					// A timer, as a plain paragraph cannot have a name, and a timer does not announce each change.
+					p(.part(Parts.counter), .role(.timer)) {
 						"000"
 					}
 					.accessibilityLabel("Tape counter")
@@ -561,7 +562,7 @@ struct GeoCitiesCommodore: ScriptedElement {
 		case type = "c64-type"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case layout
 		case television

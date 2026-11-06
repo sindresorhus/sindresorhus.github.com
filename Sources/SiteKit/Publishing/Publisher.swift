@@ -32,11 +32,11 @@ public struct Publisher: Sendable {
 		let pagePaths = Set(routes.map(\.path))
 		let publicFiles = try wrappingFileSystemErrors { try project.publicFiles() }
 			.filter { file in
-				guard file.source.isInside(project.contentDirectory) else {
+				guard let page = file.page(in: project) else {
 					return true
 				}
 
-				return pagePaths.contains(file.path.parent)
+				return pagePaths.contains(page)
 			}
 		try checkForCollisions(routes, publicFiles: publicFiles)
 		try wrappingFileSystemErrors { try output.createDirectory() }
@@ -52,11 +52,12 @@ public struct Publisher: Sendable {
 		// The routes render in parallel, as many at a time as the cooperative thread pool runs. Files start first, as they are the slow ones, like the social cards.
 		do {
 			let routesInWriteOrder = routes.filter(\.isFile) + routes.filter { !$0.isFile }
-			let routeFiles = try await routesInWriteOrder.concurrentMap { route in
+			// Named by their paths, so a crash or a hang in a debugger shows the page.
+			let routeFiles = try await routesInWriteOrder.concurrentMap(name: \.path.description) { route in
 				(route.outputFile, try await write(route))
 			}
 
-			return PublishedSite(routeFiles: Dictionary(uniqueKeysWithValues: routeFiles), publicFiles: publicFilePaths)
+			return PublishedSite(routeFiles: Dictionary(uniqueKeysWithValues: routeFiles), publicFiles: publicFiles)
 		} catch let error as PublishingError {
 			throw error
 		} catch {
@@ -100,7 +101,7 @@ public struct Publisher: Sendable {
 	}
 
 	/**
-	Copies the public files that are missing or changed (by size and modification date). Copies keep the modification date, and APFS clones them, so this is fast.
+	Copies the public files that are missing or changed (by size and modification date). Copies keep the modification date, and are not APFS clones, so the watcher of `website serve` does not see them as edits of the source (``Foundation/URL/copy(to:)``).
 	*/
 	private func copy(_ publicFiles: [PublishedAsset]) throws {
 		for asset in publicFiles {
@@ -128,7 +129,7 @@ public struct Publisher: Sendable {
 	private func removeFiles(except publishedFiles: Set<PublishedFilePath>) throws {
 		// Everything that is not a directory, also broken symbolic links, which are not files.
 		// Output symlinks are replaced, so neither writes nor cleanup follow them outside the site.
-		let contents = output.contentsRecursively()
+		let contents = try output.checkedContentsRecursively()
 		for file in contents where file.isSymbolicLink || (!file.isDirectory && !publishedFiles.contains(PublishedFilePath(file.path(relativeTo: output)))) {
 			try file.removeIfExists()
 		}
@@ -187,11 +188,11 @@ public struct Publisher: Sendable {
 		}
 
 		for asset in publicFiles {
-			try add(asset.outputFile, source: Route.Source(role: "the file", location: .file(asset.source)))
+			try add(asset.outputFile, source: .file(asset.source))
 		}
 
 		func source(of route: Route) -> Route.Source {
-			route.source ?? Route.Source(role: "the route", location: .page(route.path))
+			route.source ?? .route(route.path)
 		}
 
 		for route in routes {
@@ -225,9 +226,9 @@ extension Route {
 }
 
 /**
-The size and modification date of a file, which tell whether a copy is out of date.
+The size and modification date of a file, which tell whether a copy is out of date, or whether what was read from the file, like the size of an image, is still right.
 */
-struct FileStamp: Equatable, Sendable {
+public struct FileStamp: Hashable, Sendable {
 	let size: Int?
 	let modificationDate: Date?
 
@@ -239,7 +240,13 @@ struct FileStamp: Equatable, Sendable {
 		self.modificationDate = values?.contentModificationDate
 	}
 
-	init(_ file: URL) {
+	/**
+	The current size and modification date, also when the URL already read them, as a URL keeps the values that it read.
+	*/
+	public init(_ file: URL) {
+		var file = file
+		file.removeCachedResourceValue(forKey: .fileSizeKey)
+		file.removeCachedResourceValue(forKey: .contentModificationDateKey)
 		self.init(try? file.resourceValues(forKeys: [.fileSizeKey, .contentModificationDateKey]))
 	}
 }
@@ -259,11 +266,14 @@ public struct PublishedSite: Sendable {
 	public let routeFiles: [PublishedFilePath: Data]
 
 	/**
-	- Parameter publicFiles: The published public files, and the files of page bundles, relative to the output directory, like `robots.txt`.
+	The published public files, and the files of page bundles, with their sources, like `robots.txt` from `public/robots.txt`. The files of a draft are not in it, as they are only published with its page. A check uses this list, not a new walk of the project, so it checks the files that the build published.
 	*/
-	public init(routeFiles: [PublishedFilePath: Data], publicFiles: Set<PublishedFilePath>) {
-		self.files = publicFiles.union(routeFiles.keys)
+	public let publicFiles: [PublishedAsset]
+
+	public init(routeFiles: [PublishedFilePath: Data], publicFiles: [PublishedAsset]) {
+		self.files = Set(publicFiles.map(\.outputFile)).union(routeFiles.keys)
 		self.routeFiles = routeFiles
+		self.publicFiles = publicFiles
 	}
 
 	/**
@@ -274,7 +284,7 @@ public struct PublishedSite: Sendable {
 	}
 }
 
-public enum PublishingError: Error, CustomStringConvertible {
+public enum PublishingError: Error, CustomStringConvertible, LocalizedError {
 	/**
 	Two sources write the same file, like a redirect and a page, by where they come from (``Route/source``).
 	*/
@@ -293,10 +303,14 @@ public enum PublishingError: Error, CustomStringConvertible {
 	*/
 	case fileSystem(any Error)
 
+	public var errorDescription: String? {
+		description
+	}
+
 	public var description: String {
 		switch self {
 		case .collision(let file, let firstSource, let secondSource, let root):
-			"Two sources write \(file): \([firstSource, secondSource].map { $0.description(relativeTo: root) }.formatted(.list(type: .and).locale(.site))). Change one of them."
+			"Two sources write \(file): \([firstSource, secondSource].map { $0.description(relativeTo: root) }.formattedList(.and)). Change one of them."
 		case .shadowed(let path, let source, let file, let fileSource, let root):
 			"The URL \(path) of \(source.description(relativeTo: root)) is also served from \(file), \(fileSource.description(relativeTo: root)), so the host may serve that file instead. Change one of them."
 		case .renderFailed(let path, let error):

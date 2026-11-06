@@ -25,7 +25,7 @@ struct GeoCitiesTheremin: ScriptedElement {
 		}
 		.style(GeoCitiesPage.Styles.centeredText)
 
-		div(.part(Parts.pad), .tabindex(0), .role("application")) {
+		div(.part(Parts.pad), .tabindex(0), .role(.application)) {
 			span(.part(Parts.hand)) {}
 				.accessibilityHidden()
 				.style(Styles.hand)
@@ -62,7 +62,7 @@ struct GeoCitiesTheremin: ScriptedElement {
 
 		GeoCitiesMusicVolume()
 
-		p(.part(Parts.status), .role("status")) {
+		p(.part(Parts.status), .role(.status)) {
 			"Hold the box above and move around. Beware of flying saucers."
 		}
 		.style(GeoCitiesPage.Styles.caption)
@@ -81,7 +81,7 @@ struct GeoCitiesTheremin: ScriptedElement {
 		case on
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case pad
 		case hand

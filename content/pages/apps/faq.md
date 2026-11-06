@@ -5,16 +5,16 @@ description: 'Common questions about apps by Sindre Sorhus: bug reports, privacy
 
 # Frequently Asked Questions
 
-See the page of each app for app-specific FAQs.
+Questions about one app are on its page.
 
 ## Purchases {#purchases}
 
 ### How can I get a refund? {#refund}
-<!-- @faq.keywords money charged accidental mistake bought -->
+<!-- @faq.keywords money twice billed overcharged accidental mistake bought -->
 <!-- @faq.general -->
 <!-- @faq.pinned 1 -->
 
-For apps purchased on the Apple App Store, you can [request a refund](https://support.apple.com/HT204084) from Apple. App developers have no control over the purchase and refund process. Please don’t contact me about it.
+For apps purchased on the Apple App Store, you can [request a refund](https://support.apple.com/118223) from Apple. App developers have no control over the purchase and refund process. Please don’t contact me about it.
 
 For apps purchased on Gumroad (NOT on the App Store), refunds are generally not offered. You can [request a refund](mailto:sindresorhus@gmail.com?subject=Gumroad%20refund&body=Mention%20which%20app%20you%20want%20a%20refund%20for%20and%20your%20Gumroad%20account%20email) if you have a good reason (like duplicate purchase). But most purchases are final.
 
@@ -28,7 +28,7 @@ However, I would appreciate it if you [reached out](/feedback) first. I may be a
 
 Some of my paid apps have a free trial. See the “Trial” section on the page of the app, like for [Dato](/dato#trial), [Supercharge](/supercharge#trial), [Velja](/velja#trial), [Scratchpad](/scratchpad#trial), and [Aiko](/aiko#trial). If the page of the app has no “Trial” section, the app does not have a trial of its own.
 
-Most trials are the full app, with a reminder to buy it every 12 hours and no automatic updates. All data and settings carry over if you buy the app.
+Most trials are the full app, with a reminder to buy it every 12 hours and no automatic updates. All data and settings carry over if you buy the app. Move the trial to the Trash before you install the app you bought.
 
 Apps that are on Setapp can also be tried for free for 7 days on Setapp.
 
@@ -45,7 +45,7 @@ Apps that are on Setapp can also be tried for free for 7 days on Setapp.
 ### How many devices can I install an app on? {#device-limit}
 <!-- @faq.general -->
 
-Apps purchased on the Apple App Store can be installed on up to 10 devices, with a maximum of 5 computers. [Learn more about the device limit.](https://support.apple.com/HT204074)
+Apps purchased on the Apple App Store can be installed on up to 10 devices, with a maximum of 5 computers. [Learn more about the device limit.](https://support.apple.com/118412)
 
 Apps purchased on Gumroad can be used by one user on unlimited computers.
 
@@ -202,7 +202,7 @@ For an older version of macOS, use the [older versions](/apps/older-versions) of
 
 The app is most likely fine. macOS blocks a downloaded app when Gatekeeper cannot verify it, which is a security check, not a sign of damage. You do not need to move it to the Trash.
 
-Make sure the app is in the “Applications” folder. Open it, then click “Open Anyway” in “System Settings › Privacy & Security › Security” and enter your login password. macOS only shows that button for about an hour after the failed launch. On macOS 15 and later, right-clicking the app and selecting “Open” no longer works. See [Apple’s guide to opening a blocked app](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac).
+Make sure the app is in the “Applications” folder. Open it, then click “Open Anyway” in “[System Settings › Privacy & Security › Security](x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension)” and enter your login password. macOS only shows that button for about an hour after the failed launch. On macOS 15 and later, right-clicking the app and selecting “Open” no longer works. See [Apple’s guide to opening a blocked app](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac).
 
 If there is no button, or macOS still refuses, remove the quarantine flag that macOS adds to downloads. Open Terminal and run:
 
@@ -220,12 +220,14 @@ Replace `AppName` with the app name and open the app again. If it still refuses,
 
 macOS hides menu bar apps when there is no space left in the menu bar. This is a common problem on MacBooks with a notch. Try quitting some other menu bar apps to free up space. If this does not solve it, try quitting Bartender/Ice if you have it installed.
 
-If you are on macOS 26 or later, make sure it’s not disabled in “System Settings › Menu Bar › Allow in the Menu Bar”. **This can happen even if you didn’t disable it due to a macOS bug.**
+If you are on macOS 26 or later, make sure it’s not disabled in “[System Settings › Menu Bar › Allow in the Menu Bar](x-apple.systempreferences:com.apple.ControlCenter-Settings.extension)”. **This can happen even if you didn’t disable it due to a macOS bug.**
 
 Also try restarting your computer.
 
+To quit a menu bar app that you cannot see, open the Activity Monitor app, select the app, click the stop button in the toolbar, and click “Quit”.
+
 ### The menu bar item looks blurry or is not dimmed on a secondary display {#menu-bar-secondary-display}
-<!-- @faq.keywords dual monitor monitors second secondary external display screen blurry fuzzy sharp dim dimming faded transparent -->
+<!-- @faq.keywords monitor monitors second external screen fuzzy sharp dim dimming faded transparent -->
 <!-- @faq.platforms macOS -->
 <!-- @faq.general -->
 
@@ -240,6 +242,7 @@ macOS handles the replication of menu bar items onto secondary displays, so what
 When you enable that setting, the app simply tells macOS to launch it at login, so if it’s not working, it’s a problem with macOS or your system. Try disabling launch at login in the app, restart your computer, and then enable it again. As a workaround, you can manually add it: Open System Settings, go to “General › Login Items & Extensions”, and click the “+” button, and choose the app.
 
 ### The macOS app randomly quits {#randomly-quits}
+<!-- @faq.keywords crash -->
 <!-- @faq.general -->
 
 If the app vanishes and there is no [crash report](#crash-report), it’s likely macOS terminated it to free disk space during a cache purge, or free up memory. It’s more noticeable with menu bar apps that run constantly.
@@ -277,7 +280,7 @@ For a more accurate assessment, look at the “CPU Time” column in Activity Mo
 - Ensure Low Power Mode is not enabled on the devices. It can cause iCloud to delay syncing.
 - Ensure you are on the latest operating system version and app version.
 - On iOS, ensure the app is not disabled in “Settings › Apple Account › iCloud › Apps Using iCloud”.
-- On macOS, ensure the app is not disabled in “System Settings › Apple Account › iCloud › Saved to iCloud” and “System Settings › Apple Account › iCloud › iCloud Drive › Apps Syncing to iCloud Drive”.
+- On macOS, ensure the app is not disabled in “[System Settings › Apple Account › iCloud › Saved to iCloud](x-apple.systempreferences:com.apple.systempreferences.AppleIDSettings)” and “[System Settings › Apple Account › iCloud › iCloud Drive › Apps Syncing to iCloud Drive](x-apple.systempreferences:com.apple.systempreferences.AppleIDSettings)”.
 - If using a VPN, try disconnecting it, as some VPNs can interfere with iCloud syncing.
 - If it’s a work device, make sure there are no restrictions in place that prevent iCloud or iCloud Drive.
 - Check the [iCloud system status](https://www.apple.com/support/systemstatus/) to ensure the service is not experiencing issues.
@@ -331,7 +334,7 @@ This only works if the app has been previously downloaded with your Apple Accoun
 <!-- @faq.platforms macOS -->
 <!-- @faq.general -->
 
-On macOS 27, it is named “Device Control and Data Access”: “System Settings › Privacy & Security › Device Control and Data Access”. On macOS 13 to 26, it is “System Settings › Privacy & Security › Accessibility”.
+On macOS 27, it is named “Device Control and Data Access”: “[System Settings › Privacy & Security › Device Control and Data Access](x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension)”. On macOS 13 to 26, it is “[System Settings › Privacy & Security › Accessibility](x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Accessibility)”.
 
 When an app asks for this access, turn on the app in the list. If the app is turned on but it still does not work, turn it off and on again, or [reset the permissions of the app](#mac-reset-permissions).
 
@@ -390,7 +393,7 @@ iOS: Open the Settings app, go to “General › iPhone/iPad Storage”, tap the
 ### How can I uninstall your app? {#uninstall-app}
 <!-- @faq.general -->
 
-macOS: Ensure the app is not running. Open Finder, go to the “Go” menu, and select “Applications”. Find the app and drag it into the trash.
+macOS: Ensure the app is not running. To quit an app that you cannot see, like a menu bar app with a hidden icon, open the Activity Monitor app, select the app, click the stop button in the toolbar, and click “Quit”. Open Finder, go to the “Go” menu, and select “Applications”. Find the app and drag it into the trash.
 
 iOS: Tap and hold the app on the Home Screen and select “Remove App”.
 
@@ -569,9 +572,13 @@ For non-App Store apps, anyone can add to Homebrew. Feel free to [add one of my 
 
 I open source [some of my apps](https://github.com/search?q=user%3Asindresorhus+language%3Aswift+topic%3Aapp+archived%3Afalse), but not all, for a few key reasons. First, I use specialized tools (internal framework) to speed up app development, which are not suitable for sharing. Additionally, past experiences with open sourcing apps have led to clones of my apps appearing on the App Store, which is problematic. Also, community contributions, though well-intentioned, often don’t match the high quality standards I set for my apps. As a compromise, I tend to open source the [reusable building blocks](https://github.com/search?q=user%3Asindresorhus+topic%3Aswift-package+archived%3Afalse), allowing community involvement while maintaining the quality and uniqueness of my apps.
 
-### Can you support non-Apple platforms? {#non-apple}
+### Is there a Windows or Android version? {#non-apple}
+<!-- @faq.keywords linux chromebook -->
+<!-- @faq.general -->
 
-No, my expertise is exclusively in macOS, iOS, watchOS, and visionOS. Focus is key to high-quality apps.
+No, my expertise is exclusively in macOS, iOS, watchOS, and visionOS. Focus is key to high-quality apps. There are no plans for Windows, Android, or the web.
+
+For Gifski, the [gifski encoder](https://gif.ski) has a Windows app and a command-line tool for Windows, macOS, and Linux.
 
 ### Who makes your app icons? {#app-icons}
 

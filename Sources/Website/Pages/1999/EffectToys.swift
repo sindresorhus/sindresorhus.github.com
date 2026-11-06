@@ -187,7 +187,7 @@ struct GeoCitiesEffectToys: ScriptedElement {
 		}
 		.style(Styles.box, GeoCitiesPage.Styles.scriptingOnly)
 
-		p(.part(Parts.status), .role("status")) {}
+		p(.part(Parts.status), .role(.status)) {}
 			.style(GeoCitiesPage.Styles.caption, GeoCitiesPage.Styles.centeredText)
 
 		p {
@@ -338,7 +338,7 @@ struct GeoCitiesEffectToys: ScriptedElement {
 		case still = "demo-still"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case box
 		case window

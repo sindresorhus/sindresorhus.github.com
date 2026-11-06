@@ -1,8 +1,8 @@
-import {cloneTemplate} from '/scripts/dom.js';
+import {cloneTemplate, scriptData} from '/scripts/dom.js';
 import {searchKey, closest} from '/scripts/edit-distance.js';
 import {intendedDomain} from '/scripts/email-typos.js';
 
-const {apps} = JSON.parse(document.querySelector('#feedback-data').textContent);
+const {apps} = scriptData('feedback-data');
 const parameters = new URLSearchParams(location.search);
 const productParameter = parameters.get('product');
 
@@ -18,15 +18,6 @@ const appMetadata = parameters.get('metadata') ?? history.state?.metadata;
 const keptParameters = new URLSearchParams(parameters);
 keptParameters.delete('product');
 keptParameters.delete('metadata');
-
-// --- Success page ---
-
-// The page shows the message from the HTML, when the script in the head marks the page, so it does not wait for this script.
-function showSuccess() {
-	setTimeout(() => {
-		location.href = '/apps';
-	}, 10_000);
-}
 
 // --- The selected app (icon, title, extra help) ---
 
@@ -66,6 +57,20 @@ function showProduct() {
 
 	const additionalInformation = document.querySelector('#additional-information');
 
+	// A visitor on a macOS version that the current version of the app does not run on cannot update, so the last version for that macOS version comes first. The app sends its macOS version, like `OS: macOS 15.6 (24G84)`. An older version is for a major version, or for a minor version of macOS 10, like 10.15.
+	const macOSVersion = appMetadata?.match(/^OS: macOS (10\.\d+|\d+)/m)?.[1];
+	const olderVersion = app.olderVersions.find(({macOS}) => macOS === macOSVersion);
+	// Not for a visitor who already has that version or a newer one, like the current version on a newer minor version of that macOS. The app sends its version and build, like `App: Dato 5.7.2 (1234)`.
+	const appVersion = appMetadata?.match(/^App: .* (\S+) \(/m)?.[1];
+	if (olderVersion && (!appVersion || appVersion.localeCompare(olderVersion.version, undefined, {numeric: true}) < 0)) {
+		const paragraph = cloneTemplate(document.querySelector('#older-version-template'));
+		paragraph.querySelector('[data-older-version-text]').textContent = `You are on macOS ${macOSVersion}. ${app.title} ${olderVersion.version} is the last version for it.`;
+		const link = paragraph.querySelector('[data-older-version-link]');
+		link.textContent = `Download ${olderVersion.version}`;
+		link.href = olderVersion.url;
+		additionalInformation.append(paragraph);
+	}
+
 	if (app.repositoryURL) {
 		const searchParameters = new URLSearchParams({
 			body: `<!--\nProvide your feedback below. Include as many details as possible.\n-->\n\n\n\n---\n${appMetadata ?? ''}`.trim(),
@@ -82,9 +87,10 @@ function showProduct() {
 		additionalInformation.append(paragraph);
 	}
 
-	// HTML that the site generator rendered from the Markdown of the app, not visitor input.
-	if (app.feedbackNote) {
-		additionalInformation.insertAdjacentHTML('beforeend', `<div>${app.feedbackNote}</div>`);
+	// The note of the app, from its `feedbackNote`.
+	const noteTemplate = [...document.querySelectorAll('[data-feedback-note]')].find(template => template.dataset.feedbackNote === app.title);
+	if (noteTemplate) {
+		additionalInformation.append(cloneTemplate(noteTemplate));
 	}
 }
 
@@ -207,7 +213,8 @@ async function addHiddenFields(form) {
 	// Every URL parameter is sent along, and some fill in the form.
 	for (const [key, value] of parameters) {
 		if (key === 'emailField') {
-			form.elements.email.value = value;
+			// The default value, so the address of the link comes back when the form empties itself after Back from the sent message.
+			form.elements.email.defaultValue = value;
 		} else if (key === 'messageField') {
 			form.elements.message.value = value;
 			form.elements.message.setSelectionRange(0, 0);
@@ -363,10 +370,8 @@ function setUpAppFilter() {
 	update();
 }
 
-// The script in the head marks the page after a send.
-if (document.documentElement.hasAttribute('data-sent')) {
-	showSuccess();
-} else {
+// The script in the head marks the page after a send, and the page shows the message from the HTML.
+if (!document.documentElement.hasAttribute('data-sent')) {
 	const form = document.querySelector('#feedback-form');
 
 	if (product) {
@@ -396,8 +401,8 @@ if (document.documentElement.hasAttribute('data-sent')) {
 
 	// Limitation: when the visitor stops the send, like with the Stop button of the browser, the button stays disabled with “Sending…” until the page loads again, as no event says that the navigation stopped.
 	form.addEventListener('submit', () => {
-		// The time of the send, not of the page load, as the visitor can write for a long time, and the page can come back from the back/forward cache hours later.
-		form.elements.timestamp.value = Date.now();
+		// The time of the send, not of the page load, as the visitor can write for a long time, and the page can come back from the back/forward cache hours later. In seconds, like the feedback form of the apps, which sends to the same form.
+		form.elements.timestamp.value = Math.floor(Date.now() / 1000);
 		submitButton.disabled = true;
 		submitButton.dataset.state = 'sending';
 	});

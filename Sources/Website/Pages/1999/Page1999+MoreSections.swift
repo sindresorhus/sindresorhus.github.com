@@ -10,7 +10,7 @@ extension GeoCitiesPage {
 		div(.id(IDs.newMail), .hidden) {
 			gif(.envelope)
 
-			p(.id(IDs.newMailText), .role("status")) {}
+			p(.id(IDs.newMailText), .role(.status)) {}
 
 			button(.id(IDs.newMailClose), .type(.button)) {
 				"×"
@@ -137,7 +137,7 @@ extension GeoCitiesPage {
 	A Java applet, like the ones that took a minute to start in 1999: a gray box with the coffee cup of Java that loads, and then the Lake applet, which shows a picture with its reflection in rippling water. `geocities.js` loads it when it comes into view and draws the water on a canvas, like the real applet: each row of the reflection is the picture upside down, moved sideways by a wave. The water stands still for visitors who prefer reduced motion.
 	*/
 	var lakeApplet: some HTML {
-		section(.id("geocities-java")) {
+		section(.id(SiteMapSection.java.id)) {
 			h2 {
 				gif(.hotJava, alt: "Hot Java")
 				" "
@@ -172,12 +172,12 @@ extension GeoCitiesPage {
 					.width(320),
 					.height(240),
 					.hidden,
-					.role("img")
+					.role(.image)
 				) {}
 					.accessibilityLabel("A fjord in Norway at sunset, with Glitter on the shore, and its reflection in rippling water")
 					.style(Styles.lakeCanvas)
 
-				p(.id(IDs.lakeStatus), .role("status")) {
+				p(.id(IDs.lakeStatus), .role(.status)) {
 					"Applet Lake: waiting…"
 				}
 				.style(Styles.appletStatus)
@@ -296,7 +296,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.retroButton, Styles.scriptingOnly)
 
-			p(.id(IDs.weatherStatus), .role("status")) {
+			p(.id(IDs.weatherStatus), .role(.status)) {
 				"Now: 7 °C and rain."
 			}
 			.style(Styles.lcd)
@@ -371,7 +371,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.retroButton, Styles.scriptingOnly)
 
-			p(.id(IDs.icqReply), .role("status")) {}
+			p(.id(IDs.icqReply), .role(.status)) {}
 		}
 		.style(Styles.section)
 	}
@@ -380,7 +380,7 @@ extension GeoCitiesPage {
 	A shrine to waffles, like the shrines that home pages of 1999 had to a band or a TV show, with candles. The visitor lights a candle, and `geocities.js` counts the candles in the browser.
 	*/
 	var shrine: some HTML {
-		section(.id("geocities-shrine")) {
+		section(.id(SiteMapSection.shrine.id)) {
 			h2 {
 				"My Shrine to Waffles"
 			}
@@ -390,7 +390,7 @@ extension GeoCitiesPage {
 				gif(.candleTall)
 				gif(.candle)
 
-				pre(.role("img")) {
+				pre(.role(.image)) {
 					Self.asciiWaffle
 				}
 				.accessibilityLabel("A waffle in the shape of a heart, drawn with letters and symbols")
@@ -434,7 +434,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.centeredText)
 
-			p(.id(IDs.candleStatus), .role("status")) {}
+			p(.id(IDs.candleStatus), .role(.status)) {}
 				.style(Styles.centeredText)
 		}
 		.style(Styles.shrine)
@@ -454,7 +454,7 @@ extension GeoCitiesPage {
 				"Glitter too much work? Rocky needs no food, no walks, and no love. But he appreciates it."
 			}
 
-			div(.role("img")) {
+			div(.role(.image)) {
 				gif(.googlyEyes, style: .rockEyes)
 			}
 			.accessibilityLabel("Rocky, a gray rock with googly eyes")
@@ -487,7 +487,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.buttonRow, Styles.scriptingOnly)
 
-			p(.id(IDs.rockStatus), .role("status")) {}
+			p(.id(IDs.rockStatus), .role(.status)) {}
 		}
 		.style(Styles.section)
 	}
@@ -507,7 +507,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.centeredText)
 
-			p(.id(IDs.fortuneText), .role("status")) {
+			p(.id(IDs.fortuneText), .role(.status)) {
 				"The wizard sees your future in a fortune cookie. Crack one!"
 			}
 			.style(Styles.speech)
@@ -677,7 +677,7 @@ extension GeoCitiesPage {
 			gif(.floppy, alt: "Floppy, the helper")
 
 			div {
-				p(.id(IDs.helperText), .role("status")) {}
+				p(.id(IDs.helperText), .role(.status)) {}
 					.style(Styles.speech)
 
 				div {

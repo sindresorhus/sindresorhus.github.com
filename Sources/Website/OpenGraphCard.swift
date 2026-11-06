@@ -1,8 +1,10 @@
 import CoreGraphics
 import CoreText
+import CryptoKit
 import Foundation
 import ImageIO
 import SiteKit
+import Synchronization
 import UniformTypeIdentifiers
 
 /**
@@ -23,14 +25,57 @@ struct OpenGraphCard: RouteConvertible {
 
 	var route: Route {
 		.file(path) {
-			try renderJPEG()
+			try cachedJPEG()
 		}
+	}
+
+	/**
+	What a card shows: its text, and its artwork with the size and modification date of each of its files.
+	*/
+	private struct CacheKey: Hashable {
+		let title: String
+		let subtitle: String
+		let artwork: Artwork
+		let artworkFiles: [FileStamp]
+	}
+
+	/**
+	The JPEG of each card that the process drew, by what it shows, so a rebuild of `website serve` only draws the cards that changed. The drawing code does not change while the process runs, as a change of the sources restarts the tool.
+
+	Limitation: the cache keeps the old version of each changed card until the process ends, which is about 100 KB for each card.
+	*/
+	private static let drawnCards = Mutex<[CacheKey: Data]>([:])
+
+	fileprivate func cachedJPEG() throws -> Data {
+		let artworkFiles: [URL] = switch artwork {
+		case .image(let file):
+			[file]
+		case .icons(let files):
+			files
+		case .calendars:
+			[]
+		}
+
+		let key = CacheKey(
+			title: title,
+			subtitle: subtitle,
+			artwork: artwork,
+			artworkFiles: artworkFiles.map { FileStamp($0) }
+		)
+
+		if let data = Self.drawnCards.withLock({ $0[key] }) {
+			return data
+		}
+
+		let data = try renderJPEG()
+		Self.drawnCards.withLock { $0[key] = data }
+		return data
 	}
 
 	/**
 	The image of a card, from PNG or JPEG files. A file that cannot be read, like the icon of a new app that has none yet, is left out.
 	*/
-	enum Artwork {
+	enum Artwork: Hashable {
 		/**
 		An image next to the text, like the icon of an app. When it cannot be read, the space only has the shadow.
 		*/
@@ -722,10 +767,10 @@ extension OpenGraphCard {
 	}
 
 	/**
-	The text of the card of an app, for people who cannot see it. Other pages about the app share the card (``SocialImage/cardOf(_:)``).
+	The text of the card of an app, for people who cannot see it: the name and the subtitle, like the card shows them. Other pages about the app share the card (``SocialImage/cardOf(_:)``).
 	*/
 	static func description(of app: App) -> String {
-		"\(app.title) app"
+		"\(app.title): \(app.subtitle)"
 	}
 
 	init(app: App, project: Project) {
@@ -760,7 +805,7 @@ extension OpenGraphCard {
 	*/
 	init(page: some Page, artwork: Artwork) {
 		let metadata = page.metadata
-		let title = metadata.socialTitle ?? metadata.title
+		let title = metadata.title
 
 		self.init(
 			path: Self.path(ofPage: page.path),
@@ -840,6 +885,20 @@ enum SocialImage {
 	}
 
 	/**
+	The URL of the card, for `og:image`. The card of the page has the hash of its JPEG, like `https://sindresorhus.com/og/dato.jpg?v=1a2b3c4d5e6f7a8b`, as link previews keep an image by its URL, so a changed card gets a new URL at once. The file stays at its path, so old shares still work.
+
+	Limitation: the site card and the card of an app on its other pages (``cardOf(_:)``) have no hash, as the page does not draw them.
+	*/
+	var url: URL {
+		// A card that cannot be drawn fails the build in its own route.
+		guard let jpeg = try? publishedCard?.cachedJPEG() else {
+			return path.absoluteURL
+		}
+
+		return path.absoluteURL.appending(queryItems: [URLQueryItem(name: "v", value: String(SHA256.hash(data: jpeg).hexString.prefix(16)))])
+	}
+
+	/**
 	The card that the page publishes with it.
 	*/
 	var publishedCard: OpenGraphCard? {
@@ -905,11 +964,11 @@ extension SiteContent {
 	func socialCardWarnings() -> [Warning] {
 		var warnings = [Warning]()
 
-		func check(
+		func check<Value: Frontmatter>(
 			_ card: OpenGraphCard,
-			file: MarkdownFile,
-			titleKey: some CodingKey,
-			subtitleKey: some CodingKey
+			file: DecodedMarkdownFile<Value>,
+			titleKey: Value.CodingKeys,
+			subtitleKey: Value.CodingKeys
 		) {
 			guard let cutTexts = try? card.cutTexts() else {
 				return
@@ -927,7 +986,7 @@ extension SiteContent {
 		for app in apps where app.redirectURL == nil {
 			check(
 				OpenGraphCard(app: app, project: project),
-				file: app.file,
+				file: app.decodedFile,
 				titleKey: App.Frontmatter.CodingKeys.title,
 				subtitleKey: App.Frontmatter.CodingKeys.subtitle
 			)
@@ -936,7 +995,7 @@ extension SiteContent {
 		for resolved in resolvedGuides {
 			check(
 				OpenGraphCard(guide: resolved.guide, app: resolved.app, project: project),
-				file: resolved.guide.file,
+				file: resolved.guide.decodedFile,
 				titleKey: Guide.Frontmatter.CodingKeys.title,
 				subtitleKey: Guide.Frontmatter.CodingKeys.description
 			)
@@ -945,7 +1004,7 @@ extension SiteContent {
 		for post in posts where post.redirectURL == nil {
 			check(
 				OpenGraphCard(post: post, project: project),
-				file: post.file,
+				file: post.decodedFile,
 				titleKey: BlogPost.Frontmatter.CodingKeys.title,
 				subtitleKey: BlogPost.Frontmatter.CodingKeys.description
 			)
@@ -955,7 +1014,7 @@ extension SiteContent {
 		for page in pages where page.kind == .faq || page.kind == .standard {
 			check(
 				OpenGraphCard(page: MarkdownContentPage(page: page, project: project), project: project),
-				file: page.file,
+				file: page.decodedFile,
 				titleKey: MarkdownPage.Frontmatter.CodingKeys.title,
 				subtitleKey: MarkdownPage.Frontmatter.CodingKeys.description
 			)

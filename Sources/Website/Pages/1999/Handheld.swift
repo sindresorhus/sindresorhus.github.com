@@ -49,7 +49,7 @@ struct GeoCitiesHandheld: ScriptedElement {
 					.width(160),
 					.height(144),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("The screen of the game console. Use the arrow keys to run, the up arrow or X to jump, Z to run faster, and Enter to start or pause.")
 					.style(Styles.screen)
@@ -114,7 +114,7 @@ struct GeoCitiesHandheld: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.retroButton)
 
-			p(.part(Parts.status), .role("status")) {
+			p(.part(Parts.status), .role(.status)) {
 				"It is off. Slide the power switch!"
 			}
 			.style(Styles.status)
@@ -149,7 +149,7 @@ struct GeoCitiesHandheld: ScriptedElement {
 	/**
 	The styles of the game console, which ``GeoCitiesHandheldCamera`` uses for its game console too.
 	*/
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case body
 		case top

@@ -1,4 +1,5 @@
 import Foundation
+import Subprocess
 
 /**
 The source directory of a site: content, data, and the public assets that are copied as-is.
@@ -9,14 +10,10 @@ public struct Project: Sendable {
 	/**
 	The path of the pages of each content directory, keyed by the canonical path of the directory relative to the root, like `/` for `content/apps`, so the files of a page bundle are published next to its page, like `/dato/icon.png` for `content/apps/dato/icon.png`. The files of the page bundles in the other content directories are published at their path relative to the content directory. Either way, they are only published when the site publishes their page (``contentDirectory``). The directories must not be inside each other, and their paths must not have empty, `.`, or `..` components, or NUL characters.
 	*/
-	public let pageRoutes: [String: RoutePath]
+	public let pageRoutes: [ContentDirectory: RoutePath]
 
-	public init(root: URL, pageRoutes: [String: RoutePath] = [:]) {
-		let directories = pageRoutes.keys.map { directory in
-			let components = directory.split(separator: "/", omittingEmptySubsequences: false)
-			precondition(!directory.contains("\0") && !components.contains { $0.isEmpty || $0 == "." || $0 == ".." }, "A page route source directory must be a canonical relative path: \(directory)")
-			return components
-		}
+	public init(root: URL, pageRoutes: [ContentDirectory: RoutePath] = [:]) {
+		let directories = pageRoutes.keys.map { $0.value.split(separator: "/") }
 
 		for (index, directory) in directories.enumerated() {
 			precondition(!directories.dropFirst(index + 1).contains { directory.starts(with: $0) || $0.starts(with: directory) }, "Page route source directories must not be inside each other.")
@@ -47,11 +44,11 @@ public struct Project: Sendable {
 	*/
 	public func publicFile(_ path: RoutePath) -> URL {
 		let candidates = pageRoutes.compactMap { directory, route in
-			path.relative(to: route).map { root.appending(path: directory).appending(path: $0) }
+			path.relative(to: route).map { directory.fileURL(in: root).appending(path: $0) }
 		}
 		// The files of the content directories without a page route are at their path relative to the content directory.
 		let unroutedFile = contentDirectory.appending(path: path.relativePath)
-		let isUnrouted = !pageRoutes.keys.contains { unroutedFile.isInside(root.appending(path: $0)) }
+		let isUnrouted = !pageRoutes.keys.contains { unroutedFile.isInside($0.fileURL(in: root)) }
 
 		let file = (candidates + (isUnrouted ? [unroutedFile] : [])).first {
 			$0.appending(path: "index.md").isFile
@@ -81,7 +78,7 @@ public struct Project: Sendable {
 		}
 
 		for (directory, route) in pageRoutes {
-			let directoryURL = root.appending(path: directory)
+			let directoryURL = directory.fileURL(in: root)
 
 			if file.isInside(directoryURL) {
 				return RoutePath("\(route)/\(file.path(relativeTo: directoryURL))")
@@ -117,11 +114,11 @@ public struct Project: Sendable {
 	}
 
 	/**
-	The date of the last commit that changed each Markdown file, keyed by the path relative to the project root, like `content/apps/dato/index.md`. Load it once for all content types, as it runs `git log`.
+	The date of the last commit that changed each Markdown file, keyed by the standardized file URL, like the URLs of loaded Markdown files. Load it once for all content types, as it runs `git log`.
 
 	Moving a file without changing it does not count as a change, so the dates survive a reorganization. The commits in ``ignoredCommitsFile``, like a change of the syntax of all the files, do not count either, as search engines trust the dates only when they are the last real change of a page. Empty when the project is not a git repository or git is missing. A shallow clone only knows the dates of its commits.
 	*/
-	public func lastCommitDates() async -> [String: Date] {
+	public func lastCommitDates() async -> [URL: Date] {
 		let ignoredCommits = ignoredCommits
 
 		var dates = [String: Date]()
@@ -131,71 +128,63 @@ public struct Project: Sendable {
 		var currentNames = [String: String]()
 
 		// Without `core.quotePath=false`, git quotes paths with non-ASCII characters, so they would not match the files.
-		let exitStatus = try? await runGit(["-c", "core.quotePath=false", "log", "--find-renames", "--name-status", "--format=%x00%H %cI", "--relative", "--", "*.md"]) { output in
-			// Commits are newest first, so the first change of a file is its latest.
-			for try await line in output.bytes.lines {
-				if line.hasPrefix("\0") {
-					let parts = line.dropFirst().split(separator: " ")
-					let isIgnored = parts.first.map { hash in ignoredCommits.contains { hash.hasPrefix($0) } } ?? false
-					// An ignored commit has no date, so it changes no date, but its renames still count.
-					date = isIgnored ? nil : parts.last.flatMap { try? Date(String($0), strategy: .iso8601) }
-					continue
-				}
-
-				let fields = line.split(separator: "\t")
-
-				guard
-					let status = fields.first,
-					let path = fields.last.map(String.init)
-				else {
-					continue
-				}
-
-				let currentName = currentNames[path] ?? path
-
-				// `R100` is a rename without changes.
-				if
-					let date,
-					status != "R100",
-					dates[currentName] == nil
-				{
-					dates[currentName] = date
-				}
-
-				if
-					status.hasPrefix("R"),
-					fields.count == 3
-				{
-					currentNames[String(fields[1])] = currentName
-				}
-			}
-		}
-
-		guard exitStatus == .exit(0) else {
+		guard let output = try? await runGit(["-c", "core.quotePath=false", "log", "--find-renames", "--name-status", "--format=%x00%H %cI", "--relative", "--", "*.md"]) else {
 			return [:]
 		}
 
-		return dates
+		// Commits are newest first, so the first change of a file is its latest.
+		for line in output.split(separator: "\n") {
+			if line.hasPrefix("\0") {
+				let parts = line.dropFirst().split(separator: " ")
+				let isIgnored = parts.first.map { hash in ignoredCommits.contains { hash.hasPrefix($0) } } ?? false
+				// An ignored commit has no date, so it changes no date, but its renames still count.
+				date = isIgnored ? nil : parts.last.flatMap { try? Date(String($0), strategy: .iso8601) }
+				continue
+			}
+
+			let fields = line.split(separator: "\t")
+
+			guard
+				let status = fields.first,
+				let path = fields.last.map(String.init)
+			else {
+				continue
+			}
+
+			let currentName = currentNames[path] ?? path
+
+			// `R100` is a rename without changes.
+			if
+				let date,
+				status != "R100",
+				dates[currentName] == nil
+			{
+				dates[currentName] = date
+			}
+
+			if
+				status.hasPrefix("R"),
+				fields.count == 3
+			{
+				currentNames[String(fields[1])] = currentName
+			}
+		}
+
+		return Dictionary(uniqueKeysWithValues: dates.map { (root.appending(path: $0.key).standardizedFileURL, $0.value) })
 	}
 
 	/**
 	The files that git lists as changed or new, like for `website check --changed`: each file of a new directory, and both paths of a renamed file. Throws when the project is not a git repository or git is missing. Limitation: the paths are relative to the root of the repository, so the project root must be the root of the repository, like for the site.
 	*/
 	public func changedFiles() async throws -> [URL] {
-		var output = Data()
-
 		// `-z` separates the paths with NUL characters and does not quote them, and `-uall` lists each file of a new directory, not only the directory.
-		let exitStatus = try await runGit(["status", "--porcelain", "-z", "-uall"]) { handle in
-			output = try await handle.readDataToEnd()
-		}
-
-		guard exitStatus == .exit(0) else {
+		guard let output = try? await runGit(["status", "--porcelain", "-z", "-uall"]) else {
 			throw ContentError(reason: "Could not list the changed files with git.")
 		}
 
 		// Each entry is the status, a space, and the path, like `M  content/apps/dato/index.md`. A rename or copy is followed by its old path, without a status.
 		var paths = [String]()
-		var entries = output.split(separator: 0).map { String(decoding: $0, as: UTF8.self) }.makeIterator()
+		var entries = output.split(separator: "\0").map(String.init).makeIterator()
 
 		while let entry = entries.next() {
 			paths.append(String(entry.dropFirst(3)))
@@ -215,19 +204,16 @@ public struct Project: Sendable {
 	}
 
 	/**
-	Runs git in the project root with the arguments, like `["status"]`, and returns how it terminated. The closure reads the output while git runs, asynchronously, so waiting for git does not block a thread of the concurrency pool. The errors of git are left out. Throws when git cannot start, or when the closure throws.
+	Runs git in the project root with the arguments, like `["status"]`, and returns its output, or `nil` when git fails, like outside a repository. The errors of git are left out. Throws when git cannot start, like when it is missing, or when the output is more than 64 MB.
 	*/
-	private func runGit(_ arguments: [String], readingOutput read: (FileHandle) async throws -> Void) async throws -> Process.Termination {
-		let process = Process()
-		process.executableURL = URL(filePath: "/usr/bin/env")
-		process.arguments = ["git", "-C", root.path(percentEncoded: false)] + arguments
-		process.standardError = FileHandle.nullDevice
-		let pipe = Pipe()
-		process.standardOutput = pipe
+	private func runGit(_ arguments: [String]) async throws -> String? {
+		let result = try await run(
+			.name("git"),
+			arguments: Arguments(["-C", root.path(percentEncoded: false)] + arguments),
+			output: .string(limit: 64_000_000)
+		)
 
-		return try await process.runUntilExit {
-			try await read(pipe.fileHandleForReading)
-		}
+		return result.terminationStatus.isSuccess ? result.standardOutput : nil
 	}
 }
 
@@ -251,6 +237,13 @@ public struct PublishedAsset: Sendable {
 	*/
 	public var outputFile: PublishedFilePath {
 		PublishedFilePath(path.relativePath)
+	}
+
+	/**
+	The page whose page bundle has the file, like `/dato` for `/dato/icon.png` from `content/apps/dato/icon.png`, or `nil` for a file of the public directory. A file of a page bundle is only published with its page.
+	*/
+	public func page(in project: Project) -> RoutePath? {
+		source.isInside(project.contentDirectory) ? path.parent : nil
 	}
 }
 
@@ -282,5 +275,59 @@ extension URL {
 		pathExtension != "md"
 			&& isFile
 			&& deletingLastPathComponent().appending(path: "index.md").isFile
+	}
+}
+
+extension Project {
+	/**
+	A canonical content directory relative to the project root, distinct from a published path or an absolute filesystem URL.
+	*/
+	public struct ContentDirectory: Hashable, Sendable, CustomStringConvertible, ExpressibleByStringLiteral {
+		public let value: String
+
+		/**
+		Checks a code-owned content directory. Use `init(validating:)` for external input.
+		*/
+		public init(_ value: String) {
+			do {
+				try self.init(validating: value)
+			} catch {
+				preconditionFailure(error.reason)
+			}
+		}
+
+		/**
+		Checks a literal content directory.
+		*/
+		public init(stringLiteral value: String) {
+			self.init(value)
+		}
+
+		/**
+		Validates a nonempty relative directory without empty, `.` or `..` components.
+		*/
+		public init(validating value: String) throws(ContentError) {
+			let components = value.split(separator: "/", omittingEmptySubsequences: false)
+
+			guard
+				!value.contains("\0"),
+				components.allSatisfy({ !$0.isEmpty && $0 != "." && $0 != ".." })
+			else {
+				throw ContentError(reason: "A content directory must be a canonical relative path, got “\(value)”.")
+			}
+
+			self.value = value
+		}
+
+		public var description: String {
+			value
+		}
+
+		/**
+		Resolves this directory against its project root.
+		*/
+		public func fileURL(in root: URL) -> URL {
+			root.appending(path: value)
+		}
 	}
 }

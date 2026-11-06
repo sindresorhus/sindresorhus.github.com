@@ -203,8 +203,7 @@ const setUpGameRoom = (room, {slotPull, slotStatus, derbyPick, derbyBet, derbySt
 	let simonBest = count(room.stored('simonBest', 0));
 	let simonSequence = [];
 	let simonInput = 0;
-	let isSimonShowing = false;
-	let isSimonPlaying = false;
+	let simonPhase = 'idle';
 
 	const lightPad = async (index, milliseconds) => {
 		simonPads[index].dataset.state = 'lit';
@@ -214,7 +213,7 @@ const setUpGameRoom = (room, {slotPull, slotStatus, derbyPick, derbyBet, derbySt
 	};
 
 	const showSimonSequence = async () => {
-		isSimonShowing = true;
+		simonPhase = 'showing';
 
 		await room.wait(600);
 
@@ -226,7 +225,7 @@ const setUpGameRoom = (room, {slotPull, slotStatus, derbyPick, derbyBet, derbySt
 			await room.wait(120);
 		}
 
-		isSimonShowing = false;
+		simonPhase = 'input';
 		simonInput = 0;
 		room.say(`Your turn! ${plural(simonSequence.length, 'color')}.`, simonStatus);
 	};
@@ -238,7 +237,7 @@ const setUpGameRoom = (room, {slotPull, slotStatus, derbyPick, derbyBet, derbySt
 	};
 
 	const endSimon = () => {
-		isSimonPlaying = false;
+		simonPhase = 'idle';
 		const rounds = simonSequence.length - 1;
 		arcade.beep(42, 1, {type: 'sawtooth', volume: 0.08});
 		const isBest = rounds > simonBest;
@@ -254,14 +253,14 @@ const setUpGameRoom = (room, {slotPull, slotStatus, derbyPick, derbyBet, derbySt
 	};
 
 	const pressSimon = index => {
-		if (isSimonShowing) {
+		if (simonPhase === 'showing') {
 			return;
 		}
 
 		lightPad(index, 250);
 
 		// Before a game, the buttons only play their tones, like the toy.
-		if (!isSimonPlaying) {
+		if (simonPhase === 'idle') {
 			return;
 		}
 
@@ -273,7 +272,7 @@ const setUpGameRoom = (room, {slotPull, slotStatus, derbyPick, derbyBet, derbySt
 		simonInput++;
 
 		if (simonInput === simonSequence.length) {
-			isSimonShowing = true;
+			simonPhase = 'showing';
 			room.timeout(500, simonRound);
 		}
 	};
@@ -293,7 +292,6 @@ const setUpGameRoom = (room, {slotPull, slotStatus, derbyPick, derbyBet, derbySt
 	});
 
 	room.on(simonStart, 'click', () => {
-		isSimonPlaying = true;
 		simonSequence = [];
 		// The focus moves to the colors before the start button is disabled.
 		simonPads[0].focus();

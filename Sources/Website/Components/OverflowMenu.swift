@@ -16,7 +16,7 @@ A menu can also share a page, with a “Share…” option at the end. It is hid
 struct OverflowMenu: ScriptedElement {
 	static let script = ElementScript()
 
-	enum Variant {
+	enum Variant: Equatable {
 		/**
 		Next to a row of links.
 		*/
@@ -31,6 +31,11 @@ struct OverflowMenu: ScriptedElement {
 		A chip at the end of a row of chips, like the section links of an app page.
 		*/
 		case chip
+
+		/**
+		A chip with a title and a down arrow, like “Choose an app…”, for a menu that picks one of many pages, like the FAQ of an app.
+		*/
+		case picker(title: String)
 	}
 
 	/**
@@ -89,6 +94,11 @@ struct OverflowMenu: ScriptedElement {
 		self.links = .sections(items.filter { !$0.isEmpty })
 	}
 
+	init(label: String, links: [LabeledLink], variant: Variant) {
+		self.init(label: label, links: links)
+		self.variant = variant
+	}
+
 	init(label: String, groups: [LinkGroup], variant: Variant) {
 		self.label = label
 		self.links = .groups(groups)
@@ -96,15 +106,18 @@ struct OverflowMenu: ScriptedElement {
 	}
 
 	/**
-	The menu of an app page: the pages about the app, a random app, and then the ways to pass the app on, the QR code and sharing. The random app is in its own group, as it is not about this app. An archived app is no longer available, so it is not passed on.
+	The menu of an app page: the pages about the app, the guides about it at the end of the page, a random app, and then the ways to pass the app on, the QR code and sharing. The random app is in its own group, as it is not about this app. An archived app is no longer available, so it is not passed on.
+
+	- Parameter hasGuides: Whether the page has guides about the app (``AppFooterLinks/guides``), so the menu links to them.
 	*/
-	static func appPage(_ app: App, variant: Variant = .inline) -> Self {
+	static func appPage(_ app: App, hasGuides: Bool, variant: Variant = .inline) -> Self {
+		let guides: [LabeledLink] = hasGuides ? [LabeledLink(App.Section.guides.title, destination: .section(.guides))] : []
 		let passingOn: [Item] = app.sharedPage == nil ? [] : [.popover(title: "Show QR Code", id: AppHero.qrCodeID)]
 
 		// “Share…” comes after the QR code, as the menu adds it at the end.
 		var menu = Self(
 			label: "More about \(app.title)",
-			items: app.pageOverflowLinks.map(Item.link),
+			items: (app.pageOverflowLinks + guides).map(Item.link),
 			[.link(LabeledLink("Show Random App", path: .randomApp))],
 			passingOn
 		)
@@ -120,10 +133,10 @@ struct OverflowMenu: ScriptedElement {
 	var content: some HTML {
 		div {
 			select {
-				// Selected, so choosing any link changes the value. An option without text must have a label (HTML spec), and a short one, as screen readers read it after the label of the menu.
+				// Selected, so choosing any link changes the value. An option without text must have a label (HTML spec), and a short one, as screen readers read it after the label of the menu. A picker has its title, which is on the screen.
 				option(
 					.value(""),
-					.label("More"),
+					.label(pickerTitle ?? "More"),
 					.disabled,
 					.selected
 				) {
@@ -167,8 +180,24 @@ struct OverflowMenu: ScriptedElement {
 			.accessibilityLabel(label)
 			.style(Styles.select)
 
-			// A chip shows the dots without a circle, as a circle in a chip looks doubled.
-			if variant == .chip {
+			if let pickerTitle {
+				// Screen readers read the title as the selected option of the select, so not twice.
+				span {
+					pickerTitle
+				}
+				.accessibilityHidden()
+
+				// The arrow of a native menu, which the chevron of the site gives when it points down.
+				span {
+					Icon.chevronRight.size(.rootEm(0.875))
+				}
+				.style {
+					$0
+						.display(.flex)
+						.rotationEffect(.degrees(90))
+				}
+			} else if variant == .chip {
+				// A chip shows the dots without a circle, as a circle in a chip looks doubled.
 				Icon.ellipsis.size(.rootEm(1.125))
 			} else {
 				Icon.dots
@@ -176,7 +205,18 @@ struct OverflowMenu: ScriptedElement {
 		}
 		.style(Styles.container)
 		.style(Styles.title, when: variant == .title)
-		.style(Styles.chip, when: variant == .chip)
+		.style(Styles.chip, when: variant == .chip || pickerTitle != nil)
+	}
+
+	/**
+	The title of a picker (``Variant/picker(title:)``), or `nil` for the other variants.
+	*/
+	private var pickerTitle: String? {
+		guard case .picker(let title) = variant else {
+			return nil
+		}
+
+		return title
 	}
 
 	/**
@@ -195,7 +235,7 @@ struct OverflowMenu: ScriptedElement {
 		case share
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case container
 		case title
@@ -257,7 +297,7 @@ struct OverflowMenu: ScriptedElement {
 					.padding(.zero)
 					.opacity(0)
 					.cursor(.pointer)
-					.fontFamily("system-ui")
+					.fontFamily(.systemUI)
 					.fontWeight(.regular)
 					// Chrome and Firefox on Windows and Linux draw the menu with the colors of the select. The base styles make it transparent and give it the color of the text around it, so in dark mode, the options were light text on white.
 					.color("FieldText")

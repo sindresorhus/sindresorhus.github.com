@@ -77,7 +77,7 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 				.width(320),
 				.height(240),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The screen of the dance machine. Press Enter to start. Step with the arrow keys or with W, A, S, and D when the arrows reach the target arrows at the top.")
 				.style(Styles.screen)
@@ -98,7 +98,7 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 	}
 
 	private var pad: some HTML {
-		div(.role("group")) {
+		div(.role(.group)) {
 			plate
 			arrow("▲", lane: 2, name: "Up")
 			plate
@@ -141,7 +141,7 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 				buttons
 				calibration
 
-				p(.part(Parts.status), .role("status")) {
+				p(.part(Parts.status), .role(.status)) {
 					"Pick a song, and insert a coin."
 				}
 				.style(Styles.status)
@@ -355,7 +355,7 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 		case dancer = "ddr-dancer"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case machine
 		case console

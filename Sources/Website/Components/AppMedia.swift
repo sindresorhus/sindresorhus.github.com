@@ -16,15 +16,13 @@ struct AppMedia: ScriptedElement {
 		section(.part(Parts.scroller), .tabindex(-1), .ariaRoleDescription("carousel")) {
 			for (index, asset) in app.media.enumerated() {
 				// The item has the sizes of its media (`--max-width` and `--phone-width`), so it has its width before the media loads.
-				div(.role("group"), .ariaRoleDescription("slide")) {
+				div(.role(.group), .ariaRoleDescription("slide")) {
 					// The width and height attributes give the natural size and the aspect ratio, so the media reserves its space before it loads, and is never shown larger than its natural size. On wider screens, it is at most 640px tall.
 					switch asset {
 					case .video(let videoAsset):
 						// The script plays it while it is visible, unless the visitor prefers reduced motion. It can be paused with a click or the keyboard. The poster is its first frame, which shows while the video loads, and is the still frame with reduced motion. It also replaces the time in the URL (`#t=0.001`) that made iOS draw the first frame, which it otherwise does not with `preload="metadata"`.
 						video(
 							.src(asset.path),
-							.width(asset.size.width),
-							.height(asset.size.height),
 							.loop,
 							.muted,
 							.playsInline,
@@ -32,6 +30,7 @@ struct AppMedia: ScriptedElement {
 							.poster(videoAsset.poster),
 							.tabindex(0)
 						) {}
+						.intrinsicSize(asset.size)
 						.accessibilityLabel("\(app.title) demo video. Press to pause or play.")
 						.style(Styles.media)
 					case .image(let screenshot):
@@ -47,6 +46,8 @@ struct AppMedia: ScriptedElement {
 					}
 				}
 				.accessibilityLabel("\(index + 1) of \(app.media.count)")
+				// A video starts paused, so the play icon also shows without the script and with reduced motion, where it does not play. The script updates it when the video plays or pauses.
+				.attributes(.state(States.paused), when: asset.isVideo)
 				.style(Styles.item)
 				.style {
 					asset.settingSizes(on: $0, phoneMaximumHeight: phoneMaximumHeight)
@@ -112,7 +113,14 @@ struct AppMedia: ScriptedElement {
 		case dots
 	}
 
-	enum Styles: ElementStyleSet {
+	/**
+	The states of an item. Not `:paused`, which Chrome 156 does not support (`CSS.supports("selector(:paused)")` is false), and the state also shows the play icon before the script runs.
+	*/
+	enum States: String, ElementStateSet {
+		case paused
+	}
+
+	enum Styles: String, ElementStyleSet {
 		case root
 		case scroller
 		case item
@@ -162,16 +170,18 @@ struct AppMedia: ScriptedElement {
 				// A play icon over a paused video, like when the visitor prefers reduced motion. The video gets the click.
 				Style()
 					.position(.relative)
-					.nested("&:has(> video:paused)::after") {
-						$0
-							.content("")
-							.position(.absolute)
-							.top(.percent(50))
-							.leading(.percent(50))
-							.frame(size: .rootEm(4))
-							.offset(x: .percent(-50), y: .percent(-50))
-							.declaration(.backgroundImage, #"url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='rgb(0 0 0 / 50%25)'/%3E%3Cpath d='M26 20v24l19-12z' fill='white'/%3E%3C/svg%3E")"#)
-							.allowsHitTesting(false)
+					.when(States.paused) {
+						$0.after {
+							$0
+								.content("")
+								.position(.absolute)
+								.top(.percent(50))
+								.leading(.percent(50))
+								.frame(size: .rootEm(4))
+								.offset(x: .percent(-50), y: .percent(-50))
+								.declaration(raw: .backgroundImage, #"url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='rgb(0 0 0 / 50%25)'/%3E%3Cpath d='M26 20v24l19-12z' fill='white'/%3E%3C/svg%3E")"#)
+								.allowsHitTesting(false)
+						}
 					}
 					// On phones, the width of its media, so the next item shows at the side, also after a narrower item.
 					.flexShrink(0)
@@ -185,8 +195,7 @@ struct AppMedia: ScriptedElement {
 			case .media:
 				Style()
 					.margin(vertical: .zero, horizontal: .auto)
-					.cornerRadius(.windowRadius)
-					.shadow(.window)
+					.windowSurface()
 					.from(.tablet) {
 						$0.frame(maxWidth: .length(.min(.percent(100), AppMedia.maximumWidth.value)))
 					}

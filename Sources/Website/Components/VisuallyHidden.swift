@@ -20,7 +20,7 @@ struct VisuallyHidden: HTML {
 		.style(Styles.root)
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 
 		var style: Style {

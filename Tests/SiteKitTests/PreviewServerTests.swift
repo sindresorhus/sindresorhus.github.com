@@ -4,6 +4,18 @@ import Testing
 import SiteKit
 
 struct PreviewServerTests {
+	@Test(.timeLimit(.minutes(1)), .temporaryDirectory)
+	func `serves typed media types with text charset parameters at the HTTP boundary`() async throws {
+		let directory = try URL.temporaryDirectory(files: ["index.html": "Page", "style.css": "body {}", "image.jxl": "image", "feed.rss": "feed", "file.unknownextension": "bytes"])
+		try await running(PreviewServer(directory: directory, port: 0)) { port in
+			for (path, expected) in [("/", "text/html; charset=utf-8"), ("/style.css", "text/css; charset=utf-8"), ("/image.jxl", "image/jxl"), ("/feed.rss", "application/rss+xml"), ("/file.unknownextension", "application/octet-stream")] {
+				let url = try #require(URL(string: "http://127.0.0.1:\(port)\(path)"))
+				let (_, response) = try await URLSession.shared.httpData(for: URLRequest(url: url))
+				#expect(response.value(forHTTPHeaderField: "Content-Type") == expected, "\(path)")
+			}
+		}
+	}
+
 	private struct State: Decodable {
 		let version: String
 		let revision: String
@@ -70,6 +82,41 @@ struct PreviewServerTests {
 				#expect(response.status == status, "\(path)")
 				#expect(response.body == body, "\(path)")
 			}
+		}
+	}
+
+	@Test(.timeLimit(.minutes(1)), .temporaryDirectory)
+	func `an occupied preview port is rejected without stopping its server`() async throws {
+		let directory = try URL.temporaryDirectory(files: ["index.html": "Preview"])
+
+		try await running(PreviewServer(directory: directory, port: 0)) { port in
+			await #expect(throws: (any Error).self) {
+				try await PreviewServer(directory: directory, port: port).run()
+			}
+
+			// The check before the first build of `website serve` says it in plain words.
+			await #expect(throws: PreviewServer.PortInUseError.self) {
+				try await PreviewServer(directory: directory, port: port).checkPort()
+			}
+
+			let response = try await get("/", port: port)
+			#expect(response.body == "Preview")
+		}
+	}
+
+	@Test(.timeLimit(.minutes(1)), .temporaryDirectory)
+	func `cancelling the preview listener releases its port`() async throws {
+		let directory = try URL.temporaryDirectory(files: ["index.html": "Preview"])
+		var releasedPort: UInt16 = 0
+
+		try await running(PreviewServer(directory: directory, port: 0)) { port in
+			releasedPort = port
+		}
+
+		try await running(PreviewServer(directory: directory, port: releasedPort)) { port in
+			#expect(port == releasedPort)
+			let response = try await get("/", port: port)
+			#expect(response.body == "Preview")
 		}
 	}
 
@@ -150,15 +197,5 @@ struct PreviewServerTests {
 			let reloaded = try await state(since: errorState.revision, port: port)
 			#expect(reloaded.version != initial.version)
 		}
-	}
-}
-
-extension URLSession {
-	/**
-	The data and checked HTTP response of a request to the local preview server.
-	*/
-	fileprivate func httpData(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
-		let (data, response) = try await data(for: request)
-		return (data, try #require(response as? HTTPURLResponse))
 	}
 }

@@ -49,7 +49,7 @@ struct GeoCitiesVisualizer: ScriptedElement {
 					.part(Parts.canvas),
 					.width(320),
 					.height(200),
-					.role("img")
+					.role(.image)
 				) {}
 					.accessibilityLabel("The visualizer")
 					.style(Styles.screen)
@@ -62,7 +62,7 @@ struct GeoCitiesVisualizer: ScriptedElement {
 						.style(Styles.preset)
 					}
 				}
-				.attributes(.role("group"))
+				.attributes(.role(.group))
 				.accessibilityLabel("Presets")
 				.style(GeoCitiesPage.Styles.formRow)
 
@@ -91,7 +91,7 @@ struct GeoCitiesVisualizer: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.formRow)
 
-				p(.part(Parts.status), .role("status")) {}
+				p(.part(Parts.status), .role(.status)) {}
 					.style(GeoCitiesPage.Styles.caption)
 			}
 			.style(GeoCitiesPage.Styles.windowBody)
@@ -118,7 +118,7 @@ struct GeoCitiesVisualizer: ScriptedElement {
 		case effect = "visualizer-effect"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case window
 		case screen

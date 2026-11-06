@@ -7,7 +7,7 @@ tags: [
 ]
 ---
 
-![A GitHub comment that only says “any updates?”](/blog/issue-bumping/issue-bumping.jpg)
+![A GitHub comment that only says “any updates?”](issue-bumping.jpg)
 
 I frequently receive notifications on GitHub where someone comments, “Any updates?” on an old issue thread. The answer is always “No”. Updates are in the issue.
 

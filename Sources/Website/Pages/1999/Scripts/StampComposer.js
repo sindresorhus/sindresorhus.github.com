@@ -290,7 +290,7 @@ class GeoCitiesStampComposer extends GeoCitiesElement {
 						player.stop();
 						this.say('Bravo! 👏');
 					});
-					clock.isRunning = false;
+					clock.finishScheduling();
 					return;
 				}
 

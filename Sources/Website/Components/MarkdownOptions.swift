@@ -7,6 +7,7 @@ import struct Markdown.BlockDirective
 import struct Markdown.Document
 import struct Markdown.Emphasis
 import struct Markdown.Heading
+import struct Markdown.HTMLBlock
 import struct Markdown.InlineHTML
 import struct Markdown.Link
 import struct Markdown.ListItem
@@ -15,6 +16,7 @@ import struct Markdown.Strong
 import struct Markdown.Text
 import struct Markdown.UnorderedList
 import SiteKit
+import SOML
 
 extension MarkdownDocument.Options {
 	/**
@@ -23,21 +25,20 @@ extension MarkdownDocument.Options {
 	static let site = Self(theme: .site)
 
 	/**
-	The options for a content file: the features of ``contentFeatures``, the known heading directives, links to other content files (`[Dato](dato.md)`), and the sizes of local images.
+	The options for a content file: the features of ``contentFeatures``, links to other content files (`[Dato](dato.md)`), and the sizes of local images.
 
 	- Parameter sponsorTiers: The sponsors from the frontmatter, which `@Sponsors` shows.
-	- Parameter trial: Where `@Trial` is. It is only for app pages.
+	- Parameter today: The day of the build, which decides what `@Scheduled` shows. Without it, `@Scheduled` is an unknown directive.
 	*/
 	static func content(
 		_ file: MarkdownFile,
 		project: Project,
 		sponsorTiers: [MarkdownPage.SponsorTier.Resolved] = [],
-		trial: BlockDirectiveName.TrialPlacement = .unavailable
+		today: SOML.Date? = nil
 	) -> Self {
 		var options = contentFeatures
-		options.headingDirectives = FAQDirectives.all
 
-		options.resolveLink = { destination in
+		options.resolveLink = { (destination: String) throws(ContentError) in
 			try file.resolvingLink(destination, project: project)
 		}
 
@@ -47,7 +48,7 @@ extension MarkdownDocument.Options {
 		}
 
 		// The Markdown arguments of the directives, like the summary of `@Details`, get the checks of the document when they render, like the names of keys, the links, and the platforms of badges (``MarkdownDocument/Options/BlockDirectiveRenderer/Context``).
-		options.blockDirectives = .site(trial: trial, sponsorTiers: sponsorTiers)
+		options.blockDirectives = .site(sponsorTiers: sponsorTiers, today: today)
 		return options
 	}
 
@@ -56,10 +57,21 @@ extension MarkdownDocument.Options {
 	*/
 	static let gallery: Self = {
 		var options = contentFeatures
-		options.collapsibleSections = MarkdownDocument.CollapsibleSections(level: .h3, name: "gallery")
+		options.collapsibleSections = MarkdownDocument.CollapsibleSections(level: .h3)
 		options.addsHeadingAnchors = true
 		return options
 	}()
+
+	/**
+	The options of ``gallery`` with `@Scheduled`, for the samples of the gallery page.
+
+	- Parameter today: The day of the build, which decides what `@Scheduled` shows.
+	*/
+	static func gallery(today: SOML.Date) -> Self {
+		var options = gallery
+		options.blockDirectives = .site(today: today)
+		return options
+	}
 
 	/**
 	What content files and the samples of the gallery have: the site's classes, platform badges, the block directives, inline notes as `InlineNote`, and code blocks as `CodeBlock`, with a copy button and Swift and SOML highlighting.
@@ -67,27 +79,27 @@ extension MarkdownDocument.Options {
 	private static let contentFeatures = Self(
 		theme: .site,
 		inlineAttributes: .init(render: renderPlatformBadge),
-		// The samples of the gallery show the trial of an app without Setapp.
-		blockDirectives: .site(trial: .appPage(setappURL: nil)),
+		// The content directives also have examples in the gallery.
+		blockDirectives: .site(),
 		codeBlock: CodeBlock.render,
 		inlineNote: InlineNote.render
 	)
 
 	/**
-	The questions below the “Frequently Asked Questions” heading of an app page are collapsible, followed by a link to the general FAQ. A platform badge must be for a platform of the app. Each section has a link that copies its URL. The common questions that apply to the app (``CommonQuestion``), the shared questions that it picks, and, unless the app is archived, the feedback question are added to the questions, and the older versions get their section (``App/Frontmatter/addingGeneratedSections(to:sharedQuestions:page:)``).
+	The questions below the “Frequently Asked Questions” heading of an app page are collapsible, followed by a link to the general FAQ. A platform badge must be for a platform of the app. Each section has a link that copies its URL. The common questions that apply to the app (``CommonQuestion``), the shared questions that it picks, and, unless the app is archived, the feedback question are added to the questions, and the older versions get their section (``App/Frontmatter/addingGeneratedSections(to:sharedQuestions:renderDownloadCard:)``). A link that is alone in its paragraph or list item to one of the shortcuts is a card (``ShortcutCard``).
 	*/
 	static func appPage(
 		_ file: MarkdownFile,
 		project: Project,
 		frontmatter: App.Frontmatter,
-		sharedQuestions: App.SharedQuestions
+		sharedQuestions: App.SharedQuestions,
+		shortcuts: [Shortcut.ID: Shortcut]
 	) -> Self {
-		// The trial of an app links to the app on Setapp too.
-		let trial = BlockDirectiveName.TrialPlacement.appPage(setappURL: frontmatter.setappURL)
-		var options = content(file, project: project, trial: trial)
+		// Download cards come from typed metadata, rather than content directives.
+		var options = content(file, project: project)
 
 		// A badge for a platform that the app is not on would say that a part works on a platform where the app is not. The arguments of the directives get the check too.
-		options.inlineAttributes = .init { (attributes: PlatformBadgeAttributes, contentHTML: String) in
+		options.inlineAttributes = .init { (attributes: PlatformBadgeAttributes, contentHTML: String) throws(ContentError) in
 			guard frontmatter.platforms.contains(attributes.platform) else {
 				throw ContentError(reason: "The platform badge is for \(attributes.platform.rawValue), but the app is not on it. Add it to `platforms`, or remove the badge.")
 			}
@@ -95,16 +107,18 @@ extension MarkdownDocument.Options {
 			return renderPlatformBadge(attributes: attributes, contentHTML: contentHTML)
 		}
 
-		options.headingDirectives.append(App.SharedQuestions.First.self)
+		// The feedback page suggests the questions of the FAQ section. The picked shared questions have their own directives too.
+		options.headingDirectives = FAQDirectives.all + [App.SharedQuestions.First.self]
 		options.collapsibleSections = MarkdownDocument.CollapsibleSections(
 			level: .h3,
 			startHeadingID: App.Section.faq.id,
-			name: "faq",
 			moreLink: .init(title: "More FAQs", destination: .path(.faq))
 		)
 		options.addsHeadingAnchors = true
 		options.rewrite = { document in
-			frontmatter.addingGeneratedSections(to: document, sharedQuestions: sharedQuestions, page: App.path(slug: file.slug))
+			frontmatter.addingGeneratedSections(to: document.showingShortcutCards(shortcuts), sharedQuestions: sharedQuestions) { card in
+				[HTMLBlock(card.render())]
+			}
 		}
 
 		return options
@@ -115,22 +129,22 @@ extension MarkdownDocument.Options {
 	*/
 	static func faqPage(_ file: MarkdownFile, project: Project) -> Self {
 		var options = content(file, project: project)
-		options.headingDirectives.append(FAQDirectives.General.self)
-		options.collapsibleSections = MarkdownDocument.CollapsibleSections(level: .h3, name: "faq")
+		options.headingDirectives = FAQDirectives.all + [FAQDirectives.General.self]
+		options.collapsibleSections = MarkdownDocument.CollapsibleSections(level: .h3)
 		options.addsHeadingAnchors = true
 		return options
 	}
 }
 
 /**
-The block directives of the content, like `@Trial(url: "…") { … }`. The raw value is the name in the Markdown.
+The block directives of the content, like `@Details(summary: "More") { … }`. The raw value is the name in the Markdown.
 */
 enum BlockDirectiveName: String, CaseIterable {
 	case details = "Details"
 	case feature = "Feature"
 	case quickAnswer = "QuickAnswer"
-	case trial = "Trial"
 	case tinyApp = "TinyApp"
+	case liveFact = "LiveFact"
 	case tips = "Tips"
 	case cards = "Cards"
 	case columns = "Columns"
@@ -138,57 +152,26 @@ enum BlockDirectiveName: String, CaseIterable {
 	case changelog = "Changelog"
 	case socialLinks = "SocialLinks"
 	case sponsors = "Sponsors"
-
-	/**
-	Where `@Trial` is, as it is the trial of the app of the page, and its text does not name the app.
-	*/
-	enum TrialPlacement {
-		/**
-		An app page, with the app on Setapp, which the trial links to too.
-		*/
-		case appPage(setappURL: URL?)
-
-		/**
-		Another page, like a blog post or a guide, where `@Trial` is an error.
-		*/
-		case unavailable
-	}
+	case scheduled = "Scheduled"
 
 	/**
 	The renderer of the directive, or `nil` when the page cannot have it.
 
-	- Parameter trial: Where `@Trial` is.
 	- Parameter sponsorTiers: The sponsors that `@Sponsors` shows. Without them, `@Sponsors` is an unknown directive.
+	- Parameter today: The day of the build, which decides what `@Scheduled` shows. Without it, `@Scheduled` is an unknown directive.
 	*/
-	fileprivate func renderer(
-		trial: TrialPlacement,
-		sponsorTiers: [MarkdownPage.SponsorTier.Resolved]
-	) -> MarkdownDocument.Options.BlockDirectiveRenderer? {
+	fileprivate func renderer(sponsorTiers: [MarkdownPage.SponsorTier.Resolved], today: SOML.Date?) -> MarkdownDocument.Options.BlockDirectiveRenderer? {
 		switch self {
 		case .details:
-			.init(render: renderDetails) { arguments, content in
-				[Paragraph(Strong(inlineMarkup(arguments.summary)))] + content
-			}
+			DetailsArguments.renderer
 		case .feature:
-			.init(render: renderFeature) { arguments, content in
-				[Markdown.Heading(level: 2, inlineMarkup(arguments.title))] + content
-			}
+			FeatureArguments.renderer
 		case .quickAnswer:
 			.init(render: renderQuickAnswer)
-		case .trial:
-			.init { (arguments: App.Trial, contentHTML: String) in
-				guard case .appPage(let setappURL) = trial else {
-					throw ContentError(reason: "It is only for app pages, where the build adds it for `trial` in the frontmatter, as it does not name the app.")
-				}
-
-				return renderTrial(arguments: arguments, contentHTML: contentHTML, setappURL: setappURL)
-			} plain: { arguments, content in
-				let link = Paragraph(Markdown.Link(destination: .url(arguments.url), text: arguments.buttonTitle))
-				let requirement = arguments.requirementSentence.map { Paragraph(Emphasis(Markdown.Text($0))) }
-				return content + [link, requirement].compactMap(\.self)
-			}
 		case .tinyApp:
-			.init(render: renderTinyApp, plain: plainTinyApp)
+			TinyAppArguments.renderer
+		case .liveFact:
+			LiveFactArguments.renderer
 		case .tips:
 			.init(render: renderTips) { arguments, content in
 				// Without a title, the box is “Tips”, which the heading above it often says already.
@@ -209,6 +192,12 @@ enum BlockDirectiveName: String, CaseIterable {
 		case .sponsors:
 			sponsorTiers.isEmpty ? nil : .init(content: .empty) { _ in
 				SponsorList(tiers: sponsorTiers).render()
+			}
+		case .scheduled:
+			today.map { today in
+				.init { (arguments: ScheduledArguments, contentHTML: String) in
+					arguments.contains(today) ? contentHTML : ""
+				}
 			}
 		}
 	}
@@ -255,15 +244,12 @@ extension [String: MarkdownDocument.Options.BlockDirectiveRenderer] {
 	/**
 	The block directives of the site, by name (``BlockDirectiveName``).
 
-	- Parameter trial: Where `@Trial` is. It is only for app pages.
 	- Parameter sponsorTiers: The sponsors that `@Sponsors` shows. Without them, `@Sponsors` is an unknown directive.
+	- Parameter today: The day of the build, which decides what `@Scheduled` shows. Without it, `@Scheduled` is an unknown directive.
 	*/
-	static func site(
-		trial: BlockDirectiveName.TrialPlacement = .unavailable,
-		sponsorTiers: [MarkdownPage.SponsorTier.Resolved] = []
-	) -> Self {
+	static func site(sponsorTiers: [MarkdownPage.SponsorTier.Resolved] = [], today: SOML.Date? = nil) -> Self {
 		Dictionary(uniqueKeysWithValues: BlockDirectiveName.allCases.compactMap { name in
-			name.renderer(trial: trial, sponsorTiers: sponsorTiers).map { (name.rawValue, $0) }
+			name.renderer(sponsorTiers: sponsorTiers, today: today).map { (name.rawValue, $0) }
 		})
 	}
 }
@@ -303,20 +289,28 @@ struct DetailsArguments {
 /**
 A collapsible section, like `@Details(summary: "Why?") { … }`, with the look of the FAQ questions.
 */
-@Sendable
-private func renderDetails(
-	arguments: DetailsArguments,
-	contentHTML: String,
-	context: MarkdownDocument.Options.BlockDirectiveRenderer.Context
-) throws -> String {
-	let summary = try context.inlineDocument(parsing: arguments.summary)
+extension DetailsArguments: BlockDirectiveDefinition {
+	typealias Arguments = Self
+	static let name = BlockDirectiveName.details.rawValue
 
-	// A click on the summary opens the section, so a link in it could not be followed.
-	guard summary.links.isEmpty else {
-		throw ContentError(reason: "The `summary` cannot have links, as a click on it opens the section. Put the link in the section.")
+	static func render(
+		arguments: DetailsArguments,
+		contentHTML: String,
+		context: MarkdownDocument.Options.BlockDirectiveRenderer.Context
+	) throws(ContentError) -> String {
+		let summary = try context.inlineDocument(parsing: arguments.summary)
+
+		// A click on the summary opens the section, so a link in it could not be followed.
+		guard summary.links.isEmpty else {
+			throw ContentError(reason: "The `summary` cannot have links, as a click on it opens the section. Put the link in the section.")
+		}
+
+		return MarkdownTheme.site.collapsibleSection(titleHTML: summary.inlineHTML, contentHTML: contentHTML)
 	}
 
-	return MarkdownTheme.site.collapsibleSection(titleHTML: summary.inlineHTML, contentHTML: contentHTML)
+	static func plainBlocks(arguments: Self, content: [any BlockMarkup]) -> [any BlockMarkup] {
+		[Paragraph(Strong(inlineMarkup(arguments.summary)))] + content
+	}
 }
 
 /**
@@ -333,34 +327,42 @@ struct FeatureArguments {
 /**
 A main feature of an app, like `@Feature(title: "Open links in the right browser") { … }`: a section with a numbered title, like “01”, so a few main features stand out from the rest of the page.
 */
-@Sendable
-private func renderFeature(
-	arguments: FeatureArguments,
-	contentHTML: String,
-	context: MarkdownDocument.Options.BlockDirectiveRenderer.Context
-) throws -> String {
-	let titleHTML = try context.inlineDocument(parsing: arguments.title).inlineHTML
+extension FeatureArguments: BlockDirectiveDefinition {
+	typealias Arguments = Self
+	static let name = BlockDirectiveName.feature.rawValue
 
-	return section {
-		h2 {
-			HTMLRaw(titleHTML)
+	static func render(
+		arguments: FeatureArguments,
+		contentHTML: String,
+		context: MarkdownDocument.Options.BlockDirectiveRenderer.Context
+	) throws(ContentError) -> String {
+		let titleHTML = try context.inlineDocument(parsing: arguments.title).inlineHTML
+
+		return section {
+			h2 {
+				HTMLRaw(titleHTML)
+			}
+			.style(FeatureSectionStyles.title)
+
+			HTMLRaw(contentHTML)
 		}
-		.style(FeatureSectionStyles.title)
-
-		HTMLRaw(contentHTML)
+		.style(FeatureSectionStyles.root)
+		.render()
 	}
-	.style(FeatureSectionStyles.root)
-	.render()
+
+	static func plainBlocks(arguments: Self, content: [any BlockMarkup]) -> [any BlockMarkup] {
+		[Markdown.Heading(level: .h2, inlineMarkup(arguments.title))] + content
+	}
 }
 
 /**
 The styles of `@Feature` sections. The sections of a page are numbered in order with a CSS counter.
 */
-private enum FeatureSectionStyles: StyleSet {
+private enum FeatureSectionStyles: String, StyleSet {
 	case root
 	case title
 
-	enum Counters: CounterSet {
+	enum Counters: String, CounterSet {
 		case feature
 	}
 
@@ -410,7 +412,7 @@ private func renderQuickAnswer(contentHTML: String) -> String {
 /**
 The styles of `@QuickAnswer` boxes.
 */
-private enum QuickAnswerStyles: StyleSet {
+private enum QuickAnswerStyles: String, StyleSet {
 	case root
 	case label
 
@@ -429,116 +431,131 @@ private enum QuickAnswerStyles: StyleSet {
 				.cornerRadius(.capsule)
 				.font(size: .rootEm(0.8125), lineHeight: 1.5)
 				.fontWeight(.semibold)
-				.color(.link)
+				// Not the color of links, as it is not a link, but the darker one of links with more contrast, so the small text has enough contrast on the tint in light mode.
+				.color(.lightDark(.primary(700), .primary(400)))
 				.background(.primary(500).opacity(0.1))
 		}
 	}
 }
 
 /**
-The trial of an app, like `@Trial(url: "https://example.com/App-trial.zip", macOS: "26") { … }`: a card with the text, a download button (“Try on TestFlight” for a trial on TestFlight), the macOS version that it needs, and how to install a download (a zip file, not a link to TestFlight). The build adds it below the “Trial” heading for the `trial` of an app (``App/Frontmatter/trial``), which the “Free Trial” button of the app links to, so the card is highlighted when the visitor comes from there.
-
-The end of the card has the trial on Setapp, when the app is there.
-
-- Parameter setappURL: The app on Setapp, which has its own trial.
+A download card generated from the typed metadata of an app: its trial or its version outside the App Store. The text, download link, and requirement also provide the plain Markdown export.
 */
-@Sendable
-private func renderTrial(arguments: App.Trial, contentHTML: String, setappURL: URL?) -> String {
-	// Not an aside, as the trial is part of the page about the app.
-	div {
-		HTMLRaw(contentHTML)
+struct AppDownloadCard: HTML {
+	let text: [any BlockMarkup]
+	let buttonTitle: String
+	let url: AbsoluteURL
+	var requirement: String?
+	var setappURL: URL?
 
-		// The requirement is next to the button, as it decides whether the download is any use.
+	var body: some HTML<HTMLTag.div> {
+		// Not an aside, as the download is part of the page about the app.
 		div {
-			Link(arguments.buttonTitle, destination: .url(arguments.url))
-				.buttonStyle()
+			MarkdownDocument(blocks: text, options: .site).content
 
-			if let requirement = arguments.requirementSentence {
-				span {
-					requirement
-				}
-				.style(TrialStyles.requirement)
-			}
-		}
-		.style(TrialStyles.actions)
-
-		let isZip = arguments.url.pathExtension == "zip"
-
-		// How to install the download, and the trial on Setapp, which are both about how to try the app.
-		if isZip || setappURL != nil {
+			// The requirement is next to the button, as it decides whether the download is any use.
 			div {
-				if isZip {
-					p {
-						"Download it to the Downloads folder, double-click to unzip, and then move it to the "
-						code(.notTranslated) {
-							"/Applications"
-						}
-						" folder."
-					}
-				}
+				Link(buttonTitle, destination: .url(url))
+					.buttonStyle()
 
-				if let setappURL {
-					p {
-						"You can also "
-						a(.href(.url(setappURL))) {
-							"try it on Setapp"
-						}
-						" for 7 days for free."
+				if let requirement {
+					span {
+						requirement
 					}
+					.style(Styles.requirement)
 				}
 			}
-			.style(TrialStyles.footer)
-		}
-	}
-	.style(TrialStyles.root)
-	.render()
-}
+			.style(Styles.actions)
 
-/**
-The styles of `@Trial` cards. The card has a soft light of the accent of the app in its corner, so it stands out from the text around it as the place to get the app.
-*/
-private enum TrialStyles: StyleSet {
-	case root
-	case actions
-	case requirement
-	case footer
+			let isZip = url.value.pathExtension == "zip"
 
-	var style: Style {
-		switch self {
-		case .root:
-			Style()
-				.vstack(alignment: .start, spacing: .rootEm(1.25))
-				.proseCard()
-				.backgroundImage(Self.light(strength: 0.1), dark: Self.light(strength: 0.16))
-				.nested(":target + &") {
-					$0.targetHighlight()
+			// How to install the download, and the trial on Setapp, which are both about how to try the app.
+			if isZip || setappURL != nil {
+				div {
+					if isZip {
+						p {
+							"Download it to the Downloads folder, double-click to unzip, and then move it to the "
+							code(.notTranslated) {
+								"/Applications"
+							}
+							" folder."
+						}
+					}
+
+					if let setappURL {
+						p {
+							"You can also "
+							a(.href(.url(setappURL))) {
+								"try it on Setapp"
+							}
+							" for 7 days for free."
+						}
+					}
 				}
-		case .actions:
-			Style()
-				.hstack(alignment: .center)
-				.flexWrap()
-				.gap(row: .rootEm(0.75), column: .rootEm(1.25))
-		case .requirement:
-			Style().secondaryText()
-		case .footer:
-			// Below a line, as it is about what to do after the download, or another way to try the app. The margins of the paragraphs of prose are reset.
-			Style()
-				.vstack(spacing: .rootEm(0.5))
-				.frame(width: .percent(100))
-				.padding(.top, .rootEm(1))
-				.border(.top, .separator)
-				.secondaryText()
-				.children("p") {
-					$0.margin(.zero)
-				}
+				.style(Styles.footer)
+			}
 		}
+		.style(Styles.root)
 	}
 
 	/**
-	The light of the accent in the top leading corner, like the light of an interactive card under the pointer.
+	The same text, download link, and requirement as plain Markdown, without the card presentation.
 	*/
-	private static func light(strength: Double) -> CSSImage {
-		.radialGradient(.circle(at: .init(x: .percent(0), y: .percent(0))), Color.pageAccent.opacity(strength).at(.percent(0)), Color.transparent.at(.percent(60)))
+	var plainBlocks: [any BlockMarkup] {
+		text + [
+			Paragraph(Markdown.Link(destination: .url(url), text: buttonTitle)),
+			requirement.map { Paragraph(Emphasis(Markdown.Text($0))) },
+		].compactMap(\.self)
+	}
+}
+
+/**
+The styles of the generated download cards. The card has a soft light of the accent of the app in its corner, so it stands out from the text around it as the place to get the app.
+*/
+extension AppDownloadCard {
+	enum Styles: String, StyleSet {
+		case root
+		case actions
+		case requirement
+		case footer
+
+		var style: Style {
+			switch self {
+			case .root:
+				Style()
+					.vstack(alignment: .start, spacing: .rootEm(1.25))
+					.proseCard()
+					.backgroundImage(Self.light(strength: 0.1), dark: Self.light(strength: 0.16))
+					.nested(":target + &") {
+						$0.targetHighlight()
+					}
+			case .actions:
+				Style()
+					.hstack(alignment: .center)
+					.flexWrap()
+					.gap(row: .rootEm(0.75), column: .rootEm(1.25))
+			case .requirement:
+				Style().secondaryText()
+			case .footer:
+				// Below a line, as it is about what to do after the download, or another way to try the app. The margins of the paragraphs of prose are reset.
+				Style()
+					.vstack(spacing: .rootEm(0.5))
+					.frame(width: .percent(100))
+					.padding(.top, .rootEm(1))
+					.border(.top, .separator)
+					.secondaryText()
+					.children("p") {
+						$0.margin(.zero)
+					}
+			}
+		}
+
+		/**
+		The light of the accent in the top leading corner, like the light of an interactive card under the pointer.
+		*/
+		private static func light(strength: Double) -> CSSImage {
+			.radialGradient(.circle(at: .init(x: .percent(0), y: .percent(0))), Color.pageAccent.opacity(strength).at(.percent(0)), Color.transparent.at(.percent(60)))
+		}
 	}
 }
 
@@ -557,12 +574,12 @@ struct TinyAppArguments {
 	/**
 	The app, or the page of its latest release.
 	*/
-	@Absolute var download: URL
+	var download: AbsoluteURL
 
-	@Absolute var source: URL?
+	var source: AbsoluteURL?
 
 	/**
-	The oldest macOS version that the app runs on, like `macOS: "15"`, which the card shows as “Requires macOS 15 or later”, like `@Trial`.
+	The oldest macOS version that the app runs on, like `macOS: "15"`, which the card shows as “Requires macOS 15 or later”.
 	*/
 	var macOS: OSVersion?
 }
@@ -570,71 +587,74 @@ struct TinyAppArguments {
 /**
 A small app without a page of its own, like `@TinyApp(title: "Copy URL", download: "https://example.com/Copy-URL.zip") { What it does. }`: a card with the icon, the name, the text, a download button, and the requirement, like a small app card.
 */
-@Sendable
-private func renderTinyApp(arguments: TinyAppArguments, contentHTML: String) -> String {
-	section {
-		// The icons load at once, as the first one is in the first screen, and a directive does not know whether it is the first. The tiny apps page has only a few.
-		AppIcon(decorative: arguments.icon ?? App.placeholderIconPath, size: 128, isAboveFold: true)
-			.style(TinyAppStyles.icon)
+extension TinyAppArguments: BlockDirectiveDefinition {
+	typealias Arguments = Self
+	static let name = BlockDirectiveName.tinyApp.rawValue
 
-		h2 {
-			arguments.title
-		}
-		.style(TinyAppStyles.title)
+	static func render(arguments: Self, contentHTML: String, context: MarkdownDocument.Options.BlockDirectiveRenderer.Context) -> String {
+		section {
+			// The icons load at once, as the first one is in the first screen, and a directive does not know whether it is the first. The tiny apps page has only a few.
+			AppIcon(decorative: arguments.icon ?? App.placeholderIconPath, size: 128, isAboveFold: true)
+				.style(TinyAppStyles.icon)
 
-		div {
-			HTMLRaw(contentHTML)
-
-			// The name of the app is in the links for screen readers, as a page has several cards, and a list of the links would have the same names.
-			div {
-				Link(destination: .url(arguments.download)) {
-					"Download"
-					VisuallyHidden(" \(arguments.title)")
-				}
-				.buttonStyle(size: .small)
-
-				if let source = arguments.source {
-					Link(destination: .url(source)) {
-						"Source Code"
-						VisuallyHidden(" of \(arguments.title)")
-					}
-					.buttonStyle(.secondary, size: .small)
-				}
-
-				if let macOS = arguments.macOS {
-					span {
-						macOS.requirementSentence(for: [.macOS])
-					}
-					.style(TinyAppStyles.requirement)
-				}
+			h2 {
+				arguments.title
 			}
-			.style(TinyAppStyles.actions)
+			.style(TinyAppStyles.title)
+
+			div {
+				HTMLRaw(contentHTML)
+
+				// The name of the app is in the links for screen readers, as a page has several cards, and a list of the links would have the same names.
+				div {
+					Link(destination: .url(arguments.download)) {
+						"Download"
+						VisuallyHidden(" \(arguments.title)")
+					}
+					.buttonStyle(size: .small)
+
+					if let source = arguments.source {
+						Link(destination: .url(source)) {
+							"Source Code"
+							VisuallyHidden(" of \(arguments.title)")
+						}
+						.buttonStyle(.secondary, size: .small)
+					}
+
+					if let macOS = arguments.macOS {
+						span {
+							macOS.macOSRequirementSentence
+						}
+						.style(TinyAppStyles.requirement)
+					}
+				}
+				.style(TinyAppStyles.actions)
+			}
+			.style(TinyAppStyles.text)
 		}
-		.style(TinyAppStyles.text)
+		.style(TinyAppStyles.root)
+		.render()
 	}
-	.style(TinyAppStyles.root)
-	.render()
-}
 
-/**
-A `@TinyApp` card in plain Markdown: the name as a heading, the text, the links, and the requirement.
-*/
-@Sendable
-private func plainTinyApp(arguments: TinyAppArguments, content: [any BlockMarkup]) -> [any BlockMarkup] {
-	let links = [
-		Markdown.Link(destination: .url(arguments.download), text: "Download"),
-		arguments.source.map { Markdown.Link(destination: .url($0), text: "Source Code") },
-	]
-	.compactMap(\.self)
+	/**
+	A `@TinyApp` card in plain Markdown: the name as a heading, the text, the links, and the requirement.
+	*/
+	static func plainBlocks(arguments: Self, content: [any BlockMarkup]) -> [any BlockMarkup] {
+		let links = [
+			Markdown.Link(destination: .url(arguments.download), text: "Download"),
+			arguments.source.map { Markdown.Link(destination: .url($0), text: "Source Code") },
+		]
+		.compactMap(\.self)
 
-	let requirement: [any BlockMarkup] = arguments.macOS.map { [Paragraph(Emphasis(Markdown.Text($0.requirementSentence(for: [.macOS]))))] } ?? []
-	return [Markdown.Heading(level: 2, Markdown.Text(arguments.title))] + content + [UnorderedList(links.map { ListItem(Paragraph($0)) })] + requirement
+		let requirement: [any BlockMarkup] = arguments.macOS.map { [Paragraph(Emphasis(Markdown.Text($0.macOSRequirementSentence)))] } ?? []
+		return [Markdown.Heading(level: .h2, Markdown.Text(arguments.title))] + content + [UnorderedList(links.map { ListItem(Paragraph($0)) })] + requirement
+	}
 }
 
 /**
 The styles of `@TinyApp` cards.
 */
-enum TinyAppStyles: StyleSet {
+enum TinyAppStyles: String, StyleSet {
 	case root
 	case icon
 	case text
@@ -647,8 +667,7 @@ enum TinyAppStyles: StyleSet {
 		case .root:
 			// The icon is next to the title, and the text is below the title. On phones, the text is also below the icon, so it has the whole width.
 			Style()
-				.display(.grid)
-				.gridColumns(.auto, .fraction(1))
+				.grid(columns: .auto, .fraction(1))
 				.gap(row: .rootEm(1), column: .rootEm(1))
 				.alignItems(.center)
 				.proseCard()
@@ -717,12 +736,26 @@ private func renderTips(arguments: TipsArguments, contentHTML: String) -> String
 }
 
 /**
+The list of a directive, like the steps of `@Steps`, with `role="list"`, so VoiceOver in Safari still says that it is a list and how many items it has, as the styles remove its bullets. The content is the one list that the renderer checked, so the first list tag is its own.
+*/
+private func addingListRole(to contentHTML: String) -> String {
+	contentHTML.replacing(listStartTag, maxReplacements: 1) { match in
+		"<\(match.1) role=\"list\""
+	}
+}
+
+/**
+The start of the tag of a list, like `<ol` of `<ol start="2">`, for ``addingListRole(to:)``. Not a literal in the function, as Swift parses a regex literal each time the code runs, and it runs for each directive.
+*/
+nonisolated(unsafe) private let listStartTag = /<(ol|ul)\b/
+
+/**
 A list as cards, like `@Cards { - Focus is a feature }`, so a list of short points is easy to scan. The text of each item is the title of its card, and a nested list is smaller text below it. From tablets, the cards flow through two columns, so cards of different heights fit together.
 */
 @Sendable
 private func renderCards(contentHTML: String) -> String {
 	div {
-		HTMLRaw(contentHTML)
+		HTMLRaw(addingListRole(to: contentHTML))
 	}
 	.style(CardListStyles.root)
 	.render()
@@ -734,7 +767,7 @@ A list of short items in columns, like `@Columns { - Zoom }`, so a long list of 
 @Sendable
 private func renderColumns(contentHTML: String) -> String {
 	div {
-		HTMLRaw(contentHTML)
+		HTMLRaw(addingListRole(to: contentHTML))
 	}
 	.style(ColumnListStyles.root)
 	.render()
@@ -743,18 +776,18 @@ private func renderColumns(contentHTML: String) -> String {
 /**
 The styles of `@Columns` lists.
 */
-private enum ColumnListStyles: StyleSet {
+private enum ColumnListStyles: String, StyleSet {
 	case root
 
 	var style: Style {
-		// As many columns of at least 11 em as fit, at most four, so a column is not wider than its names. An item is not split across two columns.
+		// As many columns of at least 8 rem as fit, at most four, so a column is not wider than its names. An item is not split across two columns.
 		Style()
 			.proseBlockMargin()
 			.children("ul") {
 				$0
 					.margin(.zero)
-					.columns(4, minimumWidth: .rootEm(11))
-					.gap(column: .rootEm(2))
+					.columns(4, minimumWidth: .rootEm(8))
+					.gap(column: .rootEm(1.25))
 					.children("li") {
 						$0
 							.keepsTogether()
@@ -767,7 +800,7 @@ private enum ColumnListStyles: StyleSet {
 /**
 The styles of `@Cards` lists.
 */
-enum CardListStyles: StyleSet {
+enum CardListStyles: String, StyleSet {
 	case root
 
 	var style: Style {
@@ -812,7 +845,7 @@ A numbered list as steps, with each number in a circle in the accent of the page
 @Sendable
 private func renderSteps(contentHTML: String) -> String {
 	div {
-		HTMLRaw(contentHTML)
+		HTMLRaw(addingListRole(to: contentHTML))
 	}
 	.style(StepListStyles.root)
 	.render()
@@ -821,10 +854,10 @@ private func renderSteps(contentHTML: String) -> String {
 /**
 The styles of `@Steps` lists. The items are numbered with a CSS counter, like `@Feature` sections, as items that are not list items have no markers.
 */
-enum StepListStyles: StyleSet {
+enum StepListStyles: String, StyleSet {
 	case root
 
-	enum Counters: CounterSet {
+	enum Counters: String, CounterSet {
 		case step
 	}
 
@@ -896,7 +929,7 @@ A list of years with the changes of each, as a timeline, like `@Changelog { - 20
 @Sendable
 private func renderChangelog(contentHTML: String) -> String {
 	div {
-		HTMLRaw(contentHTML)
+		HTMLRaw(addingListRole(to: contentHTML))
 	}
 	.style(ChangelogStyles.root)
 	.render()
@@ -908,15 +941,15 @@ The list of `@Changelog` with the kind at the start of each change, like “Adde
 - Parameter content: One bulleted list, the years, which the renderer checked (`.unorderedList`).
 */
 @Sendable
-private func addingChangeBadges(to content: [any BlockMarkup]) throws -> [any BlockMarkup] {
-	try content.map { block in
+private func addingChangeBadges(to content: [any BlockMarkup]) throws(ContentError) -> [any BlockMarkup] {
+	try content.map { (block: any BlockMarkup) throws(ContentError) -> any BlockMarkup in
 		guard var years = block as? UnorderedList else {
 			return block
 		}
 
-		years.setListItems(try years.listItems.map { year in
+		years.setListItems(try years.listItems.map { (year: ListItem) throws(ContentError) in
 			var year = year
-			year.setBlockChildren(try year.blockChildren.map { child -> any BlockMarkup in
+			year.setBlockChildren(try year.blockChildren.map { (child: any BlockMarkup) throws(ContentError) -> any BlockMarkup in
 				guard var changes = child as? UnorderedList else {
 					return child
 				}
@@ -950,7 +983,7 @@ private enum ChangeKind: String, CaseIterable {
 
 	Limitation: the text after the kind is a new node, so a problem in it, like an invalid keyboard shortcut, is reported at the page without its line.
 	*/
-	static func addingBadge(to change: ListItem) throws -> ListItem {
+	static func addingBadge(to change: ListItem) throws(ContentError) -> ListItem {
 		// A change of a list with blank lines between the changes is a paragraph too.
 		guard
 			var paragraph = change.child(at: 0) as? Paragraph,
@@ -963,7 +996,7 @@ private enum ChangeKind: String, CaseIterable {
 		let title = String(match.1)
 
 		guard let kind = Self(rawValue: title) else {
-			throw ContentError(reason: "“\(title)” is not a kind of change. Use \(allCases.map(\.rawValue).formatted(.list(type: .or))).")
+			throw ContentError(reason: "“\(title)” is not a kind of change. Use \(allCases.map(\.rawValue).formattedList(.or)).")
 		}
 
 		let badge: [any InlineMarkup] = [
@@ -999,7 +1032,7 @@ private enum ChangeKind: String, CaseIterable {
 /**
 The styles of `@Changelog` lists, like a timeline: a line on the leading side that fades out at the oldest year, a ring at each year, and the year as a label above its changes. The newest year has a filled dot with a soft halo, like the present.
 */
-enum ChangelogStyles: StyleSet {
+enum ChangelogStyles: String, StyleSet {
 	case root
 
 	var style: Style {
@@ -1101,6 +1134,62 @@ enum ChangelogStyles: StyleSet {
 }
 
 /**
+A calendar date as an argument of a block directive, like `from: 2026-11-27`: a date of SOML, written without quotes, like in frontmatter. An argument of a directive is always text, also with quotes, so the date is read from the text.
+*/
+struct DirectiveDate: Decodable, Sendable {
+	let date: SOML.Date
+
+	init(from decoder: any Decoder) throws {
+		let container = try decoder.singleValueContainer()
+		let text = try container.decode(String.self)
+
+		guard case .date(let date)? = try? SOML.Value(parsingValue: text) else {
+			throw DecodingError.dataCorruptedError(in: container, debugDescription: "Expected a date, like 2026-11-27, but found “\(text)”.")
+		}
+
+		self.date = date
+	}
+}
+
+/**
+The arguments of `@Scheduled(from: 2026-11-27, until: 2026-11-30) { … }`, or with the name of a sale, `@Scheduled(from: 2026-11-27, until: 2026-11-30, sale: "Black Friday") { … }`.
+
+The directive shows its content only in a build from the first day through the last day, and nothing before or after, like the text of a sale. So the text shows and goes away by itself at the nightly build. The content is always rendered, so a mistake that the renderer finds, like an unknown directive or a relative link to a file that does not exist, is found before the first day, and the ID of a heading in it must be unique on the page, also while the page does not show it. Its links to other pages and to sections are always checked too, as the build checks the links of the Markdown of each page of `content/pages`, not only the links of the published page (``Site/build(project:output:externalData:buildDate:isPreview:onPublished:)``). So a wrong link does not first fail the build of the first day.
+
+Limitation: the days are days in UTC, and the text changes at the next build, not at an exact hour. The content must not have footnotes or inline notes, as their popovers stay on the page while the block is not shown. A link to a heading in the block only works while the page shows it, so it is a broken link on the other days, also when the link is in the block itself. A link in raw HTML in the block is only checked while the page shows it.
+*/
+@Frontmatter
+struct ScheduledArguments {
+	/**
+	The first day that the page shows the content.
+	*/
+	var from: DirectiveDate
+
+	/**
+	The last day that the page shows the content.
+	*/
+	var until: DirectiveDate
+
+	/**
+	The name of the sale, like `sale: "Black Friday"`, when the content is the text of a sale. Then the page of each app that the content links to, like `[Dato](/dato)` or its product on Gumroad, shows a note about the sale on the same days, with a link to the page of the block (``Sale``).
+	*/
+	@PlainText var sale: String?
+
+	func validate(into problems: inout FrontmatterProblems<Self>) {
+		if until.date < from.date {
+			problems.add("`until` must not be before `from`.", at: .until)
+		}
+	}
+
+	/**
+	Whether a build on the day shows the content.
+	*/
+	func contains(_ day: SOML.Date) -> Bool {
+		from.date <= day && day <= until.date
+	}
+}
+
+/**
 The social links of the author, the same links as the footer, as chips with icons, like `@SocialLinks`. It has no content.
 */
 @Sendable
@@ -1121,7 +1210,7 @@ private func renderSocialLinks(contentHTML: String) -> String {
 /**
 The styles of `@SocialLinks`.
 */
-private enum SocialLinksStyles: StyleSet {
+private enum SocialLinksStyles: String, StyleSet {
 	case root
 	case item
 	case link

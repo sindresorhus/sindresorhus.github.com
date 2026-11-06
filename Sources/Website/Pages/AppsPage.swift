@@ -25,7 +25,7 @@ struct AppsPage: Page {
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: "Apps", description: description)
+		PageMetadata(title: "Apps", description: description, dataFile: Site.appsJSONPath)
 	}
 
 	var headerBackground: SiteHeader.Background {
@@ -52,7 +52,7 @@ struct AppsPage: Page {
 			section {
 				// The main page of the apps keeps its own centered title, unlike the other pages (``PageHeader``).
 				header {
-					// `apps-glass.js` draws liquid glass on it in the colors of the featured apps. Without WebGL, and until it draws, the colors are a still gradient.
+					// `apps-glass.js` draws liquid glass on it in the colors of the featured apps. Without WebGL, with reduced motion, and until it draws, the colors are a still gradient.
 					canvas(.id(IDs.glass)) {}
 						// The colors are data of the build, like the accent of an app card, so they are custom properties in a style of the element.
 						.style(settingGlassColors(on:))
@@ -82,8 +82,8 @@ struct AppsPage: Page {
 							$0.color(.gray(700), dark: .gray(200))
 						}
 
-					// The categories as chips below the stats, so visitors find the kind of app they want without opening the menu. The menu is the last chip, so the heading is only the title.
-					ChipNavigation(label: "App categories", links: AppCategory.browsable.map(\.link), menu: OverflowMenu(label: "More app pages", groups: Self.linkGroups, variant: .chip))
+					// The categories as chips below the stats, so visitors find the kind of app they want without opening the menu. The menu is the last chip, so the heading is only the title. The menu leaves out the categories of the chips.
+					ChipNavigation(label: "App categories", links: AppCategory.chips.map(\.link), menu: OverflowMenu(label: "More app pages", groups: Self.linkGroups(categories: AppCategory.menuCategories), variant: .chip))
 						.style {
 							$0.margin(.top, .rootEm(2))
 						}
@@ -105,7 +105,7 @@ struct AppsPage: Page {
 						h2 {
 							"Featured"
 						}
-						.style(SectionStyles.label)
+						.style(SectionStyles.title)
 
 						AppGrid(apps: content.dailyFeaturedApps, buildDate: content.buildDate, isAtTop: true)
 					}
@@ -118,7 +118,7 @@ struct AppsPage: Page {
 						h2 {
 							"More Apps"
 						}
-						.style(SectionStyles.label)
+						.style(SectionStyles.title)
 					}
 
 					AppGrid(apps: otherApps, buildDate: content.buildDate, isAtTop: content.dailyFeaturedApps.isEmpty)
@@ -150,7 +150,7 @@ struct AppsPage: Page {
 	*/
 	private var linkGroupsSection: some HTML<HTMLTag.section> {
 		section {
-			for group in Self.linkGroups {
+			for group in Self.linkGroups(categories: AppCategory.browsable) {
 				Prose {
 					h2 {
 						group.title
@@ -181,32 +181,38 @@ struct AppsPage: Page {
 
 	/**
 	The app categories and more pages about the apps, in the menu next to the title and at the end of the page.
+
+	- Parameter categories: The categories of the “Categories” group, as the menu leaves out the categories of the chips.
 	*/
-	private static let linkGroups = [
-		LinkGroup(
-			title: "Categories",
-			links: AppCategory.browsable.map(\.link) + [
-				LabeledLink("Open Source", destination: .url(#URL("https://github.com/search?q=user%3Asindresorhus+language%3Aswift+topic%3Aapp+archived%3Afalse&type=repositories")), description: "Apps with the source code available"),
-				LabeledLink("Random", destination: .path(.randomApp), description: "Show a random app"),
-			]
-		),
-		LinkGroup(
-			title: "More",
-			links: [
-				.faq,
-				LabeledLink("Tiny Apps", destination: .path(.tinyApps), description: "Smaller utilities"),
-				.appTimeline,
-				.wallOfLove,
-				.olderVersions,
-				LabeledLink("RSS Feed for New Apps", destination: .path(.feeds), description: "Get notified about new apps I publish"),
-				.discounts,
-				// Intentionally left out for now.
-				// LabeledLink("Affiliates", destination: .path(.affiliates), description: "Earn money by promoting my apps"),
-				.termsOfUse,
-				LabeledLink(AppCategory.archived.title, destination: .path(AppCategory.archived.path), description: AppCategory.archived.summary),
-			]
-		),
-	]
+	private static func linkGroups(categories: [AppCategory]) -> [LinkGroup] {
+		[
+			LinkGroup(
+				title: "Categories",
+				links: categories.map(\.link) + [
+					LabeledLink("Open Source", destination: .url(#URL("https://github.com/search?q=user%3Asindresorhus+language%3Aswift+topic%3Aapp+archived%3Afalse&type=repositories")), description: "Apps with the source code available"),
+					LabeledLink("Random", destination: .path(.randomApp), description: "Show a random app"),
+				]
+			),
+			LinkGroup(
+				title: "More",
+				links: [
+					.faq,
+					.guides,
+					.feedback,
+					LabeledLink("Tiny Apps", destination: .path(.tinyApps), description: "Smaller utilities"),
+					.appTimeline,
+					.wallOfLove,
+					.olderVersions,
+					LabeledLink("RSS Feed for New Apps", destination: .path(.feeds), description: "Get notified about new apps I publish"),
+					.discounts,
+					// Intentionally left out for now.
+					// LabeledLink("Affiliates", destination: .path(.affiliates), description: "Earn money by promoting my apps"),
+					.termsOfUse,
+					LabeledLink(AppCategory.archived.title, destination: .path(AppCategory.archived.path), description: AppCategory.archived.summary),
+				]
+			),
+		]
+	}
 
 	/**
 	The apps below the featured apps, newest first.
@@ -256,7 +262,7 @@ extension AppsPage {
 	/**
 	How strong the light on the title is. It is registered, so it fades in and out.
 	*/
-	fileprivate static let titleLight = RegisteredProperty<Percentage>("title-light", syntax: .percentage, initialValue: .percent(0))
+	fileprivate static let titleLight = RegisteredProperty<Percentage>("title-light", initialValue: .percent(0))
 
 	/**
 	Where the pointer is on a part of the title, for the light. `apps.js` sets them.
@@ -278,7 +284,7 @@ extension AppsPage {
 		case drawing
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case container
 		case hero
 		case glass
@@ -433,7 +439,7 @@ extension AppsPage {
 		/**
 		Devices where a light follows the pointer over the title: a mouse or a trackpad, for visitors who allow motion.
 		*/
-		private static let litTitle = MediaQuery.hover && .finePointer && .allowsMotion
+		private static let litTitle = MediaCondition.hover && .finePointer && .allowsMotion
 
 		/**
 		A soft light at the pointer, like light on glass, as the top background layer of the letters. It is as strong as ``AppsPage/titleLight``.

@@ -186,7 +186,7 @@ You can then tap “Download on Mac” in the share sheet on your iOS device, an
 
 ### How is it better than Universal Clipboard? {#universal-clipboard}
 
-Compared to [Universal Clipboard](https://support.apple.com/HT209460):
+Compared to [Universal Clipboard](https://support.apple.com/102430):
 
 - No need to manually paste the link into the browser after copying it on your iOS device
 - Works when your Mac is turned off

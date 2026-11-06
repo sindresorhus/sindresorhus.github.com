@@ -6,9 +6,96 @@ import SiteKit
 
 struct ScriptedElementTests {
 	@Test
-	func `uninhabited defaults have no part or state values`() {
-		#expect(NoElementValues.allCases.isEmpty)
-		#expect(NoElementValues(rawValue: "anything") == nil)
+	func `script source alternatives expose their applicable nonoptional payload`() throws {
+		let fileScript = ElementScript(swiftFile: "/example/Widget.swift")
+		guard case .file(let file) = fileScript.location else {
+			Issue.record("Expected a script file.")
+			return
+		}
+		#expect(file.path() == "/example/Scripts/Widget.js")
+
+		let script = ElementScript(inline: "export default class extends HTMLElement {}")
+		guard case .inline(let text) = script.location else {
+			Issue.record("Expected inline script text.")
+			return
+		}
+		#expect(text == "export default class extends HTMLElement {}")
+	}
+
+	@Test
+	func `rendered element fragments replay inline and file script requirements`() throws {
+		let fragment = try RenderedHTML {
+			FeedTicker(config: nil)
+			InlineTicker()
+		}
+		let resources = PageResources()
+		_ = try resources.collect {
+			div {
+				fragment
+				fragment
+			}.render()
+		}
+		#expect(resources.elements.count == 2)
+		#expect(resources.scripts == [try #require(FeedTicker.script.path)])
+		#expect(resources.inlineScriptElements.map { ObjectIdentifier($0) } == [ObjectIdentifier(InlineTicker.self)])
+	}
+
+	@Test
+	func `a snapshot keeps its selected style cases when the collector is reused`() throws {
+		let resources = PageResources()
+		_ = try resources.collect {
+			div {
+			}
+			.style(FeedTicker.Styles.root)
+			.render()
+		}
+		let snapshot = resources.snapshot
+
+		_ = try resources.collect {
+			div {
+			}
+			.style(FeedTicker.Styles.refresh)
+			.render()
+		}
+
+		let snapshotCSS = Stylesheet {
+			snapshot.styleNodes
+		}.css
+		let currentCSS = Stylesheet {
+			resources.styleNodes
+		}.css
+
+		#expect(snapshotCSS.contains(".feed-ticker {"))
+		#expect(!snapshotCSS.contains(".feed-ticker-refresh"))
+		#expect(currentCSS.contains(".feed-ticker {"))
+		#expect(currentCSS.contains(".feed-ticker-refresh {"))
+	}
+
+	@Test
+	func `independent fragments detect conflicting style names when embedded together`() throws {
+		let element = try RenderedHTML {
+			FeedTicker(config: nil)
+		}
+		let other = try RenderedHTML {
+			div {
+			}
+			.style(FeedTickerStyles.root)
+		}
+		let resources = PageResources()
+
+		let error = try #require(throws: StyleError.self) {
+			try resources.collect {
+				div {
+					element
+					other
+				}.render()
+			}
+		}
+
+		switch error {
+		case .duplicateClassNames(let names):
+			#expect(names == ["feed-ticker"])
+		}
 	}
 
 	@Test
@@ -80,11 +167,6 @@ struct ScriptedElementTests {
 	@Test
 	func `an element without a config has no data attribute for it`() {
 		#expect(PlainTicker().render() == #"<plain-ticker class="plain-ticker"></plain-ticker>"#)
-	}
-
-	@Test
-	func `a configured element can omit its optional config without encoding it`() {
-		#expect(!FeedTicker(config: nil).render().contains("data-config"))
 	}
 
 	@Test
@@ -186,7 +268,7 @@ private struct FeedTicker: ScriptedElement {
 		case idle
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case refresh
 
@@ -198,6 +280,17 @@ private struct FeedTicker: ScriptedElement {
 				Style().opacity(1)
 			}
 		}
+	}
+}
+
+/**
+A separate style set whose generated root class conflicts with `FeedTicker.Styles`.
+*/
+private enum FeedTickerStyles: String, StyleSet {
+	case root
+
+	var style: Style {
+		Style().display(.inline)
 	}
 }
 
@@ -216,7 +309,7 @@ private struct BaseTicker: ScriptedElement {
 		EmptyHTML()
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 
 		var style: Style {
@@ -235,7 +328,7 @@ private struct NamedTicker: ScriptedElement {
 		EmptyHTML()
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 
 		var style: Style {
@@ -258,7 +351,7 @@ private struct InlineTicker: ScriptedElement {
 		EmptyHTML()
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 
 		var style: Style {
@@ -278,7 +371,7 @@ private struct PlainTicker: ScriptedElement {
 		case none
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 
 		var style: Style {
@@ -291,7 +384,7 @@ private struct LabeledTicker: ScriptedElement {
 	static let script = ElementScript()
 
 	var rootAttributes: [HTMLAttribute<ElementTag<Self>>] {
-		[.id("ticker"), .tabindex(-1), .role("region"), .custom(name: "aria-label", value: "News"), .class("wide")]
+		[.id("ticker"), .tabindex(-1), .role(.region), .custom(name: "aria-label", value: "News"), .class("wide")]
 	}
 
 	var content: some HTML {
@@ -302,7 +395,7 @@ private struct LabeledTicker: ScriptedElement {
 		case none
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 
 		var style: Style {

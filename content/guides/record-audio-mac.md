@@ -1,6 +1,6 @@
 ---
 title: 'How to Record Audio on Mac'
-description: 'Record the microphone, the sound of your Mac, or both, with Recordia in the menu bar, or with Voice Memos, QuickTime Player, and the screen recording of macOS.'
+description: 'Record the microphone, the sound of your Mac, or both, with Recordia, an alternative to Soundflower, or with Voice Memos and QuickTime Player.'
 publicationDate: 2026-10-29
 topic: 'text-images-and-sound'
 apps: [
@@ -11,6 +11,8 @@ apps: [
 @QuickAnswer {
 	Click [Recordia](../apps/recordia/index.md) in the menu bar, choose “Microphone”, “System Audio”, or “Microphone + System Audio”, and click “Record”. Without an app, Voice Memos and QuickTime Player record the microphone, and a screen recording can include the sound of the Mac.
 }
+
+Soundflower was a free audio driver that many people used to record the sound of the Mac. Its last release is 2.0b2 from December 2014, and Homebrew disabled it in November 2025 because it is not maintained. Recordia records the sound of the Mac without a driver. To send the sound of one app to another app, like for a stream, use the free [BlackHole](https://github.com/ExistentialAudio/BlackHole) driver, which is maintained.
 
 ## With Recordia
 

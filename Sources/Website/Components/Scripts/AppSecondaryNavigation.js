@@ -59,6 +59,9 @@ class AppSecondaryNavigation extends HTMLElement {
 			return;
 		}
 
+		// The menu of the site header has the sections on phones, and marks the same section when it opens.
+		const header = this.closest('site-header');
+
 		// The area above the scroll padding is behind the header. A heading above a line a little below it has been scrolled past, which includes a heading that a section link scrolled to.
 		const line = Number.parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) + 20;
 		let isAtEnd = false;
@@ -67,8 +70,20 @@ class AppSecondaryNavigation extends HTMLElement {
 			// At the end of the page, the last section may be too short to scroll past the header. The position is read here, not from the observer entries, as a jump, like with the Home key, can move a heading past the line without an entry for it.
 			const activeHeading = isAtEnd ? headings.at(-1) : headings.findLast(heading => heading.getBoundingClientRect().top < line);
 
+			const currentLink = activeHeading && links.find(link => headingOf.get(link) === activeHeading);
+
 			for (const link of links) {
-				link.ariaCurrent = activeHeading && headingOf.get(link) === activeHeading ? 'location' : null;
+				link.ariaCurrent = link === currentLink ? 'location' : null;
+			}
+
+			if (!header) {
+				return;
+			}
+
+			if (currentLink) {
+				header.dataset.currentSection = currentLink.hash;
+			} else {
+				delete header.dataset.currentSection;
 			}
 		};
 

@@ -58,7 +58,7 @@ struct GeoCitiesBopIt: ScriptedElement {
 						.width(480),
 						.height(360),
 						.tabindex(0),
-						.role("application")
+						.role(.application)
 					) {}
 						.accessibilityLabel("The Bop It. Space bops it, the left and right arrow keys twist it, Enter or the down arrow key pulls it, the up arrow key flicks it, S spins it, and Y shouts it.")
 						.style(Styles.canvas)
@@ -69,7 +69,7 @@ struct GeoCitiesBopIt: ScriptedElement {
 					.style(GeoCitiesPage.Styles.lcd, Styles.stats)
 
 					// The status is right under the toy, so a phone shows it with the toy, and not below the buttons.
-					p(.part(Parts.status), .role("status")) {
+					p(.part(Parts.status), .role(.status)) {
 						"Press Start, and do what the toy says. With sound!"
 					}
 					.style(Styles.status)
@@ -276,7 +276,7 @@ struct GeoCitiesBopIt: ScriptedElement {
 		case winner
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case toy
 		case choices

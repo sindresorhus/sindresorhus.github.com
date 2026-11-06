@@ -1,4 +1,4 @@
-import {prefersReducedMotion} from '/scripts/dom.js';
+import {parts, prefersReducedMotion} from '/scripts/dom.js';
 
 class AppMedia extends HTMLElement {
 	// Stops the observer and the listeners when the element is removed, so connecting it again does not add them twice.
@@ -51,6 +51,15 @@ class AppMedia extends HTMLElement {
 
 		for (const video of videos) {
 			observer.observe(video);
+
+			// The item shows a play icon while its video is paused.
+			video.addEventListener('play', () => {
+				delete video.parentElement.dataset.state;
+			}, {signal});
+			video.addEventListener('pause', () => {
+				video.parentElement.dataset.state = 'paused';
+			}, {signal});
+
 			video.addEventListener('click', () => toggle(video), {signal});
 			video.addEventListener('keydown', event => {
 				if (event.key === 'Enter' || event.key === ' ') {
@@ -65,10 +74,7 @@ class AppMedia extends HTMLElement {
 	// TODO: Replace this with CSS carousels (`::scroll-button` and `::scroll-marker`) when Safari and Firefox support them.
 	#setUpButtons() {
 		const {signal} = this.#abortController;
-		const carousel = this.querySelector('[data-part="scroller"]');
-		const previousButton = this.querySelector('[data-part="previous"]');
-		const nextButton = this.querySelector('[data-part="next"]');
-		const dotList = this.querySelector('[data-part="dots"]');
+		const {scroller: carousel} = parts(this);
 		const items = [...carousel.children];
 
 		// One item has no buttons.
@@ -76,6 +82,7 @@ class AppMedia extends HTMLElement {
 			return;
 		}
 
+		const {previous: previousButton, next: nextButton, dots: dotList} = parts(this);
 		const dots = [...dotList.children];
 
 		// Shows the first item, instead of the scroll position that the browser restores.

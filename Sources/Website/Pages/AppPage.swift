@@ -11,18 +11,29 @@ struct AppPage: Page {
 	}
 
 	var navigation: SiteHeader.Variant {
-		.app(app)
+		.app(app, hasGuides: hasGuides)
+	}
+
+	/**
+	Whether guides are about the app, which the end of the page lists, and the “…” menus link to.
+	*/
+	private var hasGuides: Bool {
+		!content.guides(about: app).isEmpty
 	}
 
 	/**
 	With the icon and the screenshots. An unlisted app is left out, as it is not indexed, like it is left out of the app lists, and like an unlisted post.
 	*/
 	var sitemapEntry: SitemapEntry {
-		SitemapEntry(lastModified: app.lastModified, images: [app.iconURL] + app.screenshotURLs)
+		SitemapEntry(lastModified: app.lastModified, images: ([app.iconURL] + app.screenshotURLs).map { AbsoluteURL($0) })
 	}
 
 	var socialImage: SocialImage {
 		.card(OpenGraphCard(app: app, project: content.project))
+	}
+
+	var linkTitle: String {
+		app.title
 	}
 
 	var metadata: PageMetadata {
@@ -31,8 +42,8 @@ struct AppPage: Page {
 		return PageMetadata(
 			title: title,
 			description: app.description,
-			// With the subtitle, as compact link previews, like in Messages, show only the title and the domain, but without the site name, which is already in `og:site_name`.
-			socialTitle: title,
+			// With the subtitle, as compact link previews, like in Messages, show only the title and the domain, but without the site name, which is already in `og:site_name`, and which search results show above the title.
+			isTitleStandalone: true,
 			// Search engines do not index an unlisted app, like it is not in the sitemap.
 			isIndexed: app.isListed,
 			appStoreID: app.showsAppStoreBanner ? app.appStoreID : nil,
@@ -48,11 +59,19 @@ struct AppPage: Page {
 			article(.id(AppHero.anotherRandomAppID)) {
 				let separatedContent = app.markdown.contentSeparatingIntroduction
 
-				AppHero(listing: listing, introduction: separatedContent?.introduction, buildDate: content.buildDate)
+				AppHero(
+					listing: listing,
+					introduction: separatedContent?.introduction,
+					buildDate: content.buildDate,
+					hasGuides: hasGuides
+				)
+
+				// A sale that the app is in today comes before the announcement of the app, like a bundle, as it ends soon, and one banner is enough.
+				let banner = content.sale(of: app).map { AnnouncementBanner(sale: $0, app: app) } ?? app.announcement.map(AnnouncementBanner.init(announcement:))
 
 				// The space below is the space between the parts, so the screenshots are not far from it.
-				if let announcement = app.announcement {
-					AnnouncementBanner(announcement: announcement)
+				if let banner {
+					banner
 						.style {
 							$0.margin(.top, .length(.partSpacing(rootEm: 4.5)))
 						}
@@ -80,7 +99,7 @@ struct AppPage: Page {
 					Prose(markdown: description)
 				}
 
-				// The rating of a store is in the structured data, so it is shown without reviews too, and so is a rating on Setapp, which is the only rating of some apps.
+				// Testimonials stand alone; eligible store and Setapp ratings are shown in the app information, even without reviews.
 				if let reviews = AppReviews(listing: listing) {
 					// The wall of love only has the reviews of the active apps, so another app, or an app without reviews, has no link to it.
 					reviews
@@ -95,9 +114,16 @@ struct AppPage: Page {
 
 				// The end of the page is set apart from the text above it, like the FAQ.
 				if app.isDownloadable {
-					AppCallToAction(listing: listing)
+					AppCallToAction(listing: listing, buildDate: content.buildDate)
 						.style {
-							$0.margin(.top, .length(.partSpacing(rootEm: 9)))
+							// Until there is space at its sides (``Breakpoint/proseWithGutters``), the panel is as wide as the screen, so it has no corners and no edges at its sides.
+							$0
+								.margin(.top, .length(.partSpacing(rootEm: 9)))
+								.below(.proseWithGutters) {
+									$0
+										.cornerRadius(.zero)
+										.border(.horizontal, width: .zero)
+								}
 						}
 				}
 
@@ -106,7 +132,7 @@ struct AppPage: Page {
 					!app.isDownloadable,
 					!app.isArchived
 				{
-					AppFacts(listing: listing)
+					AppFacts(listing: listing, buildDate: content.buildDate)
 						.style {
 							$0.margin(.vertical, .length(.partSpacing(rootEm: 9)))
 						}
@@ -135,7 +161,7 @@ struct AppPage: Page {
 		}
 		.style(Styles.root)
 
-		JSONScript(schema: Schema.SoftwareApplication(listing: listing))
+		JSONScript(schema: Schema.SoftwareApplication(listing: listing, buildDate: content.buildDate))
 
 		if let script = app.script {
 			ModuleScript(script)
@@ -148,7 +174,7 @@ struct AppPage: Page {
 }
 
 extension AppPage {
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case article
 

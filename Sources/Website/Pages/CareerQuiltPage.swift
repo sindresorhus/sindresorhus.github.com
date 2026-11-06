@@ -35,6 +35,25 @@ struct CareerQuiltPage: Page {
 		return section {
 			PageHeader(title: "Career Quilt", intro: "\(years.totalCount.formatted(counting: "contribution")) on GitHub since \(ContributionYear.firstYear), one patch for each year.")
 
+			// The contributions of a day for each color, below the introduction, so the colors are clear before the first patch.
+			div {
+				"Contributions a day:"
+
+				for level in ContributionScale.Level.allCases {
+					if let countText = scale.countText(of: level) {
+						span {
+							span {}
+								.style(ContributionHeatmap.Styles.level(level))
+
+							countText
+						}
+						.style(Styles.legendItem, ContributionHeatmap.Styles.cells)
+					}
+				}
+			}
+			.accessibilityHidden()
+			.style(Styles.legend)
+
 			ol {
 				for year in years {
 					li {
@@ -59,32 +78,13 @@ struct CareerQuiltPage: Page {
 				}
 			}
 			.vstack(spacing: .rootEm(1))
-
-			// The contributions of a day for each color.
-			div {
-				"Contributions a day:"
-
-				for level in ContributionScale.Level.allCases {
-					if let countText = scale.countText(of: level) {
-						span {
-							span {}
-								.style(ContributionHeatmap.Styles.level(level))
-
-							countText
-						}
-						.style(Styles.legendItem, ContributionHeatmap.Styles.cells)
-					}
-				}
-			}
-			.accessibilityHidden()
-			.style(Styles.legend)
 		}
 		.style(Styles.root)
 	}
 }
 
 extension CareerQuiltPage {
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case patch
 		case year
@@ -97,7 +97,7 @@ extension CareerQuiltPage {
 			switch self {
 			case .root:
 				Style()
-					.pageColumn(.wide)
+					.pageColumn(.page)
 			case .patch:
 				// A dashed line inside the edge, like the stitches of a quilt patch.
 				Style()
@@ -130,7 +130,7 @@ extension CareerQuiltPage {
 					}
 			case .legend:
 				Style()
-					.hstack(alignment: .center, justification: .end, spacing: .rootEm(0.75))
+					.hstack(alignment: .center, spacing: .rootEm(0.75))
 					.flexWrap()
 					.secondaryText(.extraSmall)
 			// A color next to its count, so they stay on one line.

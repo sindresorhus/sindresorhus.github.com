@@ -9,8 +9,10 @@ apps: [
 ---
 
 @QuickAnswer {
-	In the settings of [Supercharge](../apps/supercharge/index.md), set a shortcut for “Mute microphone”. Then press it in any app to mute or unmute. macOS has no such shortcut, but you can turn the input volume down in “System Settings › Sound”.
+	In the settings of [Supercharge](../apps/supercharge/index.md), set a shortcut for “Mute microphone”. Then press it in any app to mute or unmute. macOS has no such shortcut, but you can turn the input volume down in “[System Settings › Sound](x-apple.systempreferences:com.apple.Sound-Settings.extension)”.
 }
+
+Shush of Mizage is a menu bar app for a mute key and push to talk. It is still on the Mac App Store for $4.99, but its last update (1.2.1) is from October 2014.
 
 ## With Supercharge
 
@@ -31,7 +33,7 @@ In the “Tweaks” settings, “Mute microphone while typing” mutes the micro
 macOS has no keyboard shortcut to mute the microphone. To mute it:
 
 @Steps {
-1. Open “System Settings › Sound”.
+1. Open “[System Settings › Sound](x-apple.systempreferences:com.apple.Sound-Settings.extension)”.
 1. Below “Output & Input”, click “Input”.
 1. Drag the “Input volume” slider all the way to the left.
 }

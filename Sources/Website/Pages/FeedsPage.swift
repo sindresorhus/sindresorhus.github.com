@@ -10,7 +10,7 @@ struct FeedsPage: Page {
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: "RSS Feeds", description: "RSS feeds for the blog, new apps, new repos, and app release notes by Sindre Sorhus.")
+		PageMetadata(title: "RSS Feeds", description: "RSS feeds for the blog, new apps, new guides, new repos, and app release notes by Sindre Sorhus.")
 	}
 
 	var body: some HTML {
@@ -49,7 +49,7 @@ struct FeedsPage: Page {
 
 		var body: some HTML {
 			a(.href(feed.path)) {
-				feed.icon
+				feed.icon.size(.rootEm(1.5))
 
 				span {
 					feed.shortTitle
@@ -67,7 +67,7 @@ struct FeedsPage: Page {
 }
 
 extension FeedsPage {
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case primaryGrid
 		case appGrid
 		case card
@@ -79,14 +79,7 @@ extension FeedsPage {
 
 		var style: Style {
 			switch self {
-			case .primaryGrid:
-				Style()
-					.display(.grid)
-					.gap(.rootEm(1))
-					.from(.smallTablet) {
-						$0.gridColumns(3)
-					}
-			case .appGrid:
+			case .primaryGrid, .appGrid:
 				Style()
 					.display(.grid)
 					.gap(.rootEm(1))
@@ -94,15 +87,18 @@ extension FeedsPage {
 						$0.gridColumns(2)
 					}
 			case .card:
-				// The cards are links in prose, but do not look like text links.
+				// The cards are links in prose, but do not look like text links. The icon is next to the title and the subtitle, like the icon of the app cards below. It is in the middle of a column with the width of an app icon, and the padding at the sides is the one of an app card, so the icons and the text of the two kinds of cards are in line.
 				Style()
 					.cardSurface()
-					.display(.block)
+					.grid(columns: .fixed(.rootEm(2.5)), .flexible())
+					.gap(column: .rootEm(0.75))
+					.alignItems(.center)
 					.fontWeight(.regular)
-					.padding(.rootEm(1))
+					.padding(vertical: .rootEm(1), horizontal: .rootEm(0.75))
 					.nested(Icon.selector) {
 						$0
-							.margin(.bottom, .rootEm(0.75))
+							.gridRowSpan(2)
+							.justifySelf(.center)
 							.color(.primary(500))
 					}
 			case .cardTitle:

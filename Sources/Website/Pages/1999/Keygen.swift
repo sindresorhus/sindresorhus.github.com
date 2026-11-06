@@ -176,7 +176,7 @@ struct GeoCitiesKeygen: ScriptedElement {
 					.style(GeoCitiesPage.Styles.retroButton)
 				}
 
-				p(.part(Parts.nagStatus), .role("status")) {}
+				p(.part(Parts.nagStatus), .role(.status)) {}
 					.style(Styles.status)
 			}
 			.style(GeoCitiesPage.Styles.windowBody)
@@ -268,7 +268,7 @@ struct GeoCitiesKeygen: ScriptedElement {
 				}
 				.style(Styles.form)
 
-				p(.part(Parts.status), .role("status")) {}
+				p(.part(Parts.status), .role(.status)) {}
 					.style(Styles.status)
 			}
 			.style(Styles.keygen)
@@ -306,7 +306,7 @@ struct GeoCitiesKeygen: ScriptedElement {
 				}
 				.style(Styles.buttons, GeoCitiesPage.Styles.scriptingOnly)
 
-				pre(.part(Parts.nfo), .tabindex(0)) {
+				pre(.part(Parts.nfo), .role(.group), .tabindex(0)) {
 					Self.nfo
 				}
 				.accessibilityLabel("The NFO file of TEAM WAFFLE")
@@ -355,7 +355,7 @@ struct GeoCitiesKeygen: ScriptedElement {
 		case speed = "nfo-speed"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case layout
 		case nag
@@ -518,7 +518,7 @@ struct GeoCitiesKeygen: ScriptedElement {
 		}
 	}
 
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case rainbow
 		case shake
 

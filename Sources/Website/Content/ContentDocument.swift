@@ -22,12 +22,17 @@ protocol ContentDocument: ContentEntry where Frontmatter: DocumentFrontmatter {
 	/**
 	The path of the page of a file, by its slug, like `/dato` for `dato`.
 	*/
-	static func path(slug: String) -> RoutePath
+	static func path(slug: ContentSlug) -> RoutePath
 
 	/**
 	The content file, for reporting mistakes at their line.
 	*/
 	var file: MarkdownFile { get }
+
+	/**
+	The source and its validated frontmatter, kept together from decoding through rendering and keyed diagnostics.
+	*/
+	var decodedFile: DecodedMarkdownFile<Frontmatter> { get }
 
 	var frontmatter: Frontmatter { get }
 	var markdown: MarkdownDocument { get }
@@ -51,11 +56,11 @@ protocol DocumentFrontmatter: SiteKit.Frontmatter {
 	/**
 	Makes the document link to a page elsewhere, like a GitHub repo, instead of having a page. The default is `nil`, for the types without the key.
 	*/
-	var redirectURL: URL? { get }
+	var redirectURL: AbsoluteURL? { get }
 }
 
 extension DocumentFrontmatter {
-	var redirectURL: URL? {
+	var redirectURL: AbsoluteURL? {
 		nil
 	}
 }
@@ -110,6 +115,14 @@ The content types that have pages, in the order the build loads them, so the pat
 let contentDocumentTypes: [any ContentDocument.Type] = [App.self, BlogPost.self, Guide.self, MarkdownPage.self]
 
 extension ContentDocument {
+	var file: MarkdownFile {
+		decodedFile.source
+	}
+
+	var frontmatter: Frontmatter {
+		decodedFile.frontmatter
+	}
+
 	static var formattingKeys: [any CodingKey] {
 		[]
 	}
@@ -118,22 +131,22 @@ extension ContentDocument {
 	An error at one of this document’s frontmatter keys.
 	*/
 	func error(at key: Frontmatter.CodingKeys, index: Int? = nil, _ reason: String) -> ContentError {
-		file.error(at: key, index: index, reason)
+		decodedFile.error(at: key, index: index, reason)
 	}
 
 	/**
 	A warning at one of this document’s frontmatter keys.
 	*/
 	func warning(_ kind: Warning.Kind, at key: Frontmatter.CodingKeys, index: Int? = nil, _ message: String) -> Warning {
-		file.warning(kind, at: key, index: index, message)
+		decodedFile.warning(kind, at: key, index: index, message)
 	}
 
 	static var pageRoute: RoutePath {
 		.root
 	}
 
-	static func path(slug: String) -> RoutePath {
-		pageRoute.appending(path: slug)
+	static func path(slug: ContentSlug) -> RoutePath {
+		pageRoute.appending(path: slug.value)
 	}
 
 	subscript<Value>(dynamicMember keyPath: KeyPath<Frontmatter, Value>) -> Value {
@@ -143,7 +156,7 @@ extension ContentDocument {
 	/**
 	The path of the file relative to the content directory, without the extension, like `dato`.
 	*/
-	var slug: String {
+	var slug: ContentSlug {
 		file.slug
 	}
 
@@ -165,11 +178,11 @@ extension ContentDocument {
 	/**
 	Where the old paths of the document are written, like for a redirect that writes the file of another route.
 	*/
-	var redirectFromLocation: SourceLocation {
-		.file(file.url, line: file.line(of: Frontmatter.redirectFromKey))
+	var redirectSource: Route.Source {
+		.redirect(key: Frontmatter.redirectFromKey.stringValue, file: file.url, line: file.line(of: Frontmatter.redirectFromKey))
 	}
 
-	var redirectURL: URL? {
+	var redirectURL: AbsoluteURL? {
 		frontmatter.redirectURL
 	}
 
@@ -188,7 +201,7 @@ extension ContentDocument {
 	The absolute URL of the page, or of the page elsewhere.
 	*/
 	var absoluteURL: URL {
-		redirectURL ?? path.absoluteURL
+		redirectURL?.value ?? path.absoluteURL
 	}
 }
 
@@ -250,7 +263,7 @@ extension Project {
 		for file in files {
 			do {
 				// Routing and formatting recognize the same content directories.
-				let orderedKeys = contentDocumentTypes.first { file.isInside(root.appending(path: $0.directory)) }?.formattingKeys ?? []
+				let orderedKeys = contentDocumentTypes.first { file.isInside($0.directory.fileURL(in: root)) }?.formattingKeys ?? []
 
 				let contents = try String(contentsOf: file, encoding: .utf8)
 				let formatted = try MarkdownFile.formattingFrontmatter(in: contents, orderedKeys: orderedKeys)
@@ -288,7 +301,7 @@ extension RoutePath {
 	*/
 	init?(contentFile file: URL, project: Project) {
 		for type in contentDocumentTypes {
-			let directory = project.root.appending(path: type.directory)
+			let directory = type.directory.fileURL(in: project.root)
 
 			guard file.isInside(directory) else {
 				continue
@@ -296,7 +309,10 @@ extension RoutePath {
 
 			let slug = MarkdownFile.slug(of: file, relativeTo: directory)
 
-			guard type.allows(slug: slug) else {
+			guard
+				type.allows(slug: slug),
+				let slug = try? ContentSlug(validating: slug)
+			else {
 				return nil
 			}
 
@@ -360,8 +376,8 @@ extension MarkdownDocument {
 	/**
 	The Markdown of a frontmatter value of the file, like the feedback note of an app, with its links resolved and checked like the text of the file. Its problems are thrown at the key, as the lines of the SOML value are not the lines of the file.
 	*/
-	init(parsing markdown: String, at key: some CodingKey, of file: MarkdownFile, project: Project) throws(ContentErrors) {
-		self.init(parsing: markdown, options: .content(file, project: project))
+	init<Value: Frontmatter>(parsing markdown: String, at key: Value.CodingKeys, of file: DecodedMarkdownFile<Value>, project: Project) throws(ContentErrors) {
+		self.init(parsing: markdown, options: .content(file.source, project: project))
 
 		guard problems.isEmpty else {
 			throw ContentErrors(problems.map { file.error(at: key, "`\(key.stringValue)`: \($0.reason)") })

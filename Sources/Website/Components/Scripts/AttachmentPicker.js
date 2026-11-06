@@ -1,11 +1,39 @@
-import {cloneTemplate} from '/scripts/dom.js';
+import {cloneTemplate, parts} from '/scripts/dom.js';
 
-// Like “217 kB” or “1.5 MB”, in the language of the visitor. In decimal units, like Finder, so a file has the size that Finder shows, and the size limit means what the visitor expects. Files under 1 kB show as 1 kB, not 0 kB.
+// Like “217 kB” or “1.5 MB”, in the language of the visitor. In decimal units, like Finder, so a file has the size that Finder shows, and the size limit means what the visitor expects. Files under 1 kB show as 1 kB, not 0 kB, but an empty file shows as “Empty”, like a log that failed to save, so the visitor does not think it has content.
 const kilobytes = new Intl.NumberFormat(undefined, {style: 'unit', unit: 'kilobyte', maximumFractionDigits: 0});
 const megabytes = new Intl.NumberFormat(undefined, {style: 'unit', unit: 'megabyte', maximumFractionDigits: 1});
-const formatSize = bytes => bytes < 1_000_000
-	? kilobytes.format(Math.max(bytes / 1000, 1))
-	: megabytes.format(bytes / 1_000_000);
+const formatSize = bytes => {
+	if (bytes === 0) {
+		return 'Empty';
+	}
+
+	return bytes < 1_000_000
+		? kilobytes.format(Math.max(bytes / 1000, 1))
+		: megabytes.format(bytes / 1_000_000);
+};
+
+// The app, its version, and the OS of a crash report, like “Dato 5.8.1 · macOS 27.2”. The first line of an `.ips` file is JSON with them, like `{"app_name":"Dato","app_version":"5.8.1","os_version":"macOS 27.2 (26B118)",…}`. Nothing for another file, or a report without the name of the app.
+async function readCrashReport(file) {
+	if (!file.name.toLowerCase().endsWith('.ips')) {
+		return;
+	}
+
+	try {
+		// The first line is short, so only the start of the file is read.
+		const [firstLine] = (await file.slice(0, 4096).text()).split('\n');
+		const {app_name: name, app_version: version, os_version: osVersion} = JSON.parse(firstLine);
+
+		if (typeof name !== 'string' || !name) {
+			return;
+		}
+
+		// The OS without its build, like “macOS 27.2” for “macOS 27.2 (26B118)”.
+		return [[name, version].filter(Boolean).join(' '), osVersion?.replace(/\s*\(.*$/, '')].filter(Boolean).join(' · ');
+	} catch {
+		// Not a crash report in the JSON format, or a file that cannot be read.
+	}
+}
 
 class AttachmentPicker extends HTMLElement {
 	// The files of the input are rebuilt from this list, so files can be added in several picks and removed one by one.
@@ -13,7 +41,7 @@ class AttachmentPicker extends HTMLElement {
 
 	// The file input, which the label of the picker opens.
 	get #input() {
-		return this.querySelector('[data-part="input"]');
+		return parts(this).input;
 	}
 
 	connectedCallback() {
@@ -26,7 +54,7 @@ class AttachmentPicker extends HTMLElement {
 	// A reset of the form empties the input, so the chips and the list go too.
 	#clear = () => {
 		this.#files = [];
-		this.querySelector('[data-part="fileList"]').replaceChildren();
+		parts(this).fileList.replaceChildren();
 		this.#updateInput();
 	};
 
@@ -42,7 +70,7 @@ class AttachmentPicker extends HTMLElement {
 	};
 
 	#addFiles(files) {
-		const fileList = this.querySelector('[data-part="fileList"]');
+		const {fileList} = parts(this);
 
 		// Files that are already attached, by name, size, and date, are skipped, so two different screenshots with the same name and size are both kept. Only the new files get a chip, so the thumbnails of the others are not loaded again.
 		for (const file of files) {
@@ -76,21 +104,28 @@ class AttachmentPicker extends HTMLElement {
 		this.#input.setCustomValidity(tooLargeFile ? `“${tooLargeFile.name}”: ${this.#tooLargeNotice}` : '');
 
 		// Like “33 files, 15.1 MB”. One file shows its size in its chip.
-		this.querySelector('[data-part="summary"]').textContent = this.#files.length > 1 ? `${this.#files.length} files, ${formatSize(totalSize)}` : '';
+		parts(this).summary.textContent = this.#files.length > 1 ? `${this.#files.length} files, ${formatSize(totalSize)}` : '';
 	}
 
 	// The text of the notice for a file that is too large, which Swift writes with the size limit of the build.
 	get #tooLargeNotice() {
-		return cloneTemplate(this.querySelector('[data-part="template"]')).querySelector('[data-part="tooLargeNotice"]').textContent;
+		return parts(cloneTemplate(parts(this).template)).tooLargeNotice.textContent;
 	}
 
 	#chip(file) {
-		const chip = cloneTemplate(this.querySelector('[data-part="template"]'));
-		const thumbnail = chip.querySelector('[data-part="thumbnail"]');
+		const chip = cloneTemplate(parts(this).template);
+		const {
+			thumbnail,
+			fileIcon: icon,
+			nameStart,
+			nameEnd,
+			size,
+			removeButton,
+			crashReportDetails,
+		} = parts(chip);
 
 		// The type that the browser gives the file from its extension, like `image/png`.
 		if (file.type.startsWith('image/')) {
-			const icon = chip.querySelector('[data-part="fileIcon"]');
 			thumbnail.src = URL.createObjectURL(file);
 			thumbnail.addEventListener('load', () => {
 				URL.revokeObjectURL(thumbnail.src);
@@ -110,16 +145,29 @@ class AttachmentPicker extends HTMLElement {
 		// The end of the name is the extension and the 4 characters before it, or the last 4 characters of a name without an extension. It is at most 12 characters, as it does not shrink, so a long extension would overflow the chip. By the characters that people see, so an emoji or a letter with an accent is not cut in two.
 		const characters = [...new Intl.Segmenter().segment(file.name)].map(({segment}) => segment);
 		const extensionIndex = characters.lastIndexOf('.');
-		const endIndex = Math.max(0, (extensionIndex > 0 ? extensionIndex : characters.length) - 4, characters.length - 12);
-		chip.querySelector('[data-part="nameStart"]').textContent = characters.slice(0, endIndex).join('');
-		chip.querySelector('[data-part="nameEnd"]').textContent = characters.slice(endIndex).join('');
-		chip.querySelector('[data-part="size"]').textContent = formatSize(file.size);
+		let endIndex = Math.max(0, (extensionIndex > 0 ? extensionIndex : characters.length) - 4, characters.length - 12);
+
+		// A space at the start of the end goes to the end of the start, where the ellipsis replaces it when the name is cut, so there is no gap after the ellipsis, like “Screen Recordin…bug.mov”, as in Finder.
+		if (/^\s$/.test(characters[endIndex] ?? '')) {
+			endIndex++;
+		}
+
+		nameStart.textContent = characters.slice(0, endIndex).join('');
+		nameEnd.textContent = characters.slice(endIndex).join('');
+		size.textContent = formatSize(file.size);
 
 		if (file.size > this.#maximumFileSize) {
 			chip.dataset.state = 'too-large';
+		} else {
+			// The file is read after the chip shows, so the chip does not wait for it.
+			readCrashReport(file).then(details => {
+				if (details) {
+					crashReportDetails.textContent = details;
+					chip.dataset.state = 'crash-report';
+				}
+			});
 		}
 
-		const removeButton = chip.querySelector('[data-part="removeButton"]');
 		removeButton.ariaLabel = `Remove ${file.name}`;
 		removeButton.addEventListener('click', () => {
 			const fileList = chip.parentElement;
@@ -127,6 +175,9 @@ class AttachmentPicker extends HTMLElement {
 			this.#files.splice(this.#files.indexOf(file), 1);
 			chip.remove();
 			this.#updateInput();
+
+			// Setting the files of the input sends no event, so the form hears of the removal with a change event, like for a pick, for the help that follows the attachments.
+			this.dispatchEvent(new Event('change', {bubbles: true}));
 
 			// The removed chip had the focus, so it moves to the next remove button, the previous one for the last chip, or the file input.
 			const removeButtons = fileList.querySelectorAll('[data-part="removeButton"]');

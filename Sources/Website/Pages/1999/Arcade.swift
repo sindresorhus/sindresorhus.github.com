@@ -120,8 +120,10 @@ struct GeoCitiesArcade: ScriptedElement {
 	/**
 	The ID of the section that the toy was, which a button of the site map of the page jumps to.
 	*/
+	static let rootID = ElementID("geocities-arcade")
+
 	var rootAttributes: [HTMLAttribute<ElementTag<Self>>] {
-		[.id("geocities-arcade")]
+		[.id(Self.rootID)]
 	}
 
 	var content: some HTML {
@@ -201,14 +203,14 @@ struct GeoCitiesArcade: ScriptedElement {
 					.width(448),
 					.height(576),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("The screen of the arcade. Use the arrow keys to move, Space to fire, and Enter to start.")
 					.style(Styles.screen)
 			}
 			.style(Styles.bezel)
 
-			p(.part(Parts.status), .role("status")) {
+			p(.part(Parts.status), .role(.status)) {
 				"Choose a game, and press Start! It puts in a coin for you."
 			}
 			.style(Styles.status)
@@ -383,7 +385,7 @@ struct GeoCitiesArcade: ScriptedElement {
 				}
 				.style(Styles.prizes)
 
-				p(.part(Parts.prizeStatus), .role("status")) {}
+				p(.part(Parts.prizeStatus), .role(.status)) {}
 
 				h3 {
 					"My Prize Shelf"
@@ -469,7 +471,7 @@ struct GeoCitiesArcade: ScriptedElement {
 		case empty
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case layout
 		case side

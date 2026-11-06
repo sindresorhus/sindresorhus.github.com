@@ -1,6 +1,7 @@
 ---
 title: 'Text Lens'
 subtitle: 'Copy unselectable text on screen'
+description: 'Copy the text you cannot select on your Mac, in images, videos, PDFs, presentations, or anywhere on your screen. Select an area, and get text you can paste.'
 publicationDate: 2025-03-29
 platforms: [
 	'macOS'

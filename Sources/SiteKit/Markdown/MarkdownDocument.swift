@@ -16,7 +16,7 @@ public struct MarkdownDocument: Sendable {
 	/**
 	Which Markdown extensions are applied.
 	*/
-	public enum Style: Sendable {
+	enum Style: Sendable {
 		/**
 		GitHub-flavored Markdown with extensions: heading IDs (`{#id}`) and directives, GitHub alerts, footnotes and inline notes in popovers, bare URLs as links, keyboard shortcuts split into keys, and the options, like collapsible sections. The created HTML gets the classes of the theme in the options.
 
@@ -31,7 +31,7 @@ public struct MarkdownDocument: Sendable {
 	}
 
 	/**
-	Options for the extended style. Release notes use only the theme, for the container of tables, and ``resolveLink``.
+	Options for the extended style. Release notes have their own narrower ``ReleaseNotesOptions``.
 	*/
 	public struct Options: Sendable {
 		/**
@@ -94,7 +94,7 @@ public struct MarkdownDocument: Sendable {
 				/**
 				The inline Markdown of an argument, like the title of a section, with the options of the document, so it gets the same checks, like of links, keyboard shortcuts, and inline attributes, but no block directives. Requires one paragraph, ignoring comment-only blocks, without footnotes or inline notes. A problem is thrown, so the directive reports it at its line.
 
-				Limitation: The links of the argument are not in the links of the document, so a link to a page that does not exist, like `/datto`, is reported at the page, not at the line. A link that ``Options/resolveLink`` resolves is checked here.
+				The links of the rendered directive, like of the argument, are in the links of the document at the line of the directive, so a link to a page that does not exist, like `/datto`, is reported there. A link that ``Options/resolveLink`` resolves is checked here.
 				*/
 				public func inlineDocument(parsing markdown: String) throws(ContentError) -> MarkdownDocument {
 					let document = MarkdownDocument(parsing: markdown, options: inlineOptions)
@@ -113,7 +113,8 @@ public struct MarkdownDocument: Sendable {
 			}
 
 			let content: Content
-			let rewriteContent: (@Sendable (_ content: [any BlockMarkup]) throws -> [any BlockMarkup])?
+			let rewriteContent: (@Sendable (_ content: [any BlockMarkup]) throws(ContentError) -> [any BlockMarkup])?
+			// Decoding can report several ContentErrors; the public rendering callbacks throw a single ContentError.
 			let render: @Sendable (_ arguments: [DirectiveArgument], _ contentHTML: String, _ context: Context) throws -> String
 			private let plain: @Sendable (_ arguments: [DirectiveArgument], _ content: [any BlockMarkup]) throws -> [any BlockMarkup]
 
@@ -125,14 +126,14 @@ public struct MarkdownDocument: Sendable {
 			*/
 			public init<Arguments: Frontmatter>(
 				content: Content = .blocks,
-				rewriteContent: (@Sendable (_ content: [any BlockMarkup]) throws -> [any BlockMarkup])? = nil,
-				render: @escaping @Sendable (_ arguments: Arguments, _ contentHTML: String) throws -> String,
+				rewriteContent: (@Sendable (_ content: [any BlockMarkup]) throws(ContentError) -> [any BlockMarkup])? = nil,
+				render: @escaping @Sendable (_ arguments: Arguments, _ contentHTML: String) throws(ContentError) -> String,
 				plain: @escaping @Sendable (_ arguments: Arguments, _ content: [any BlockMarkup]) -> [any BlockMarkup] = { $1 }
 			) {
 				self.init(
 					content: content,
 					rewriteContent: rewriteContent,
-					render: { arguments, contentHTML, _ in
+					render: { (arguments: Arguments, contentHTML: String, _: Context) throws(ContentError) in
 						try render(arguments, contentHTML)
 					},
 					plain: plain
@@ -149,8 +150,8 @@ public struct MarkdownDocument: Sendable {
 			*/
 			public init<Arguments: Frontmatter>(
 				content: Content = .blocks,
-				rewriteContent: (@Sendable (_ content: [any BlockMarkup]) throws -> [any BlockMarkup])? = nil,
-				render: @escaping @Sendable (_ arguments: Arguments, _ contentHTML: String, _ context: Context) throws -> String,
+				rewriteContent: (@Sendable (_ content: [any BlockMarkup]) throws(ContentError) -> [any BlockMarkup])? = nil,
+				render: @escaping @Sendable (_ arguments: Arguments, _ contentHTML: String, _ context: Context) throws(ContentError) -> String,
 				plain: @escaping @Sendable (_ arguments: Arguments, _ content: [any BlockMarkup]) -> [any BlockMarkup] = { $1 }
 			) {
 				self.content = content
@@ -173,8 +174,8 @@ public struct MarkdownDocument: Sendable {
 			*/
 			public init(
 				content: Content = .blocks,
-				rewriteContent: (@Sendable (_ content: [any BlockMarkup]) throws -> [any BlockMarkup])? = nil,
-				render: @escaping @Sendable (_ contentHTML: String) throws -> String,
+				rewriteContent: (@Sendable (_ content: [any BlockMarkup]) throws(ContentError) -> [any BlockMarkup])? = nil,
+				render: @escaping @Sendable (_ contentHTML: String) throws(ContentError) -> String,
 				plain: @escaping @Sendable (_ content: [any BlockMarkup]) -> [any BlockMarkup] = { $0 }
 			) {
 				self.content = content
@@ -206,12 +207,19 @@ public struct MarkdownDocument: Sendable {
 		The attributes are decoded strictly, like frontmatter.
 		*/
 		public struct InlineAttributesRenderer: Sendable {
+			// Decoding can report several ContentErrors; the public rendering callback throws a single ContentError.
 			let render: @Sendable (_ attributes: SOML.Value, _ contentHTML: String) throws -> String
+
+			/**
+			The keys of the attributes, so an unknown key is reported before a missing one, as a misspelled key, like `notes`, is often the cause.
+			*/
+			let keys: [String]
 
 			/**
 			- Parameter render: Throw a ``ContentError`` to report a problem with the attributes.
 			*/
-			public init<Attributes: Frontmatter>(render: @escaping @Sendable (_ attributes: Attributes, _ contentHTML: String) throws -> String) {
+			public init<Attributes: Frontmatter>(render: @escaping @Sendable (_ attributes: Attributes, _ contentHTML: String) throws(ContentError) -> String) {
+				self.keys = Attributes.CodingKeys.allCases.map(\.stringValue)
 				self.render = { value, contentHTML in
 					try render(Attributes.decode(from: value, root: "attributes"), contentHTML)
 				}
@@ -251,7 +259,7 @@ public struct MarkdownDocument: Sendable {
 		/**
 		The destination of a link or image, like `/dato` for `dato.md`. Throw to report a broken link. It also applies to release notes, after their check of the destination.
 		*/
-		public var resolveLink: (@Sendable (String) throws -> String)?
+		public var resolveLink: (@Sendable (String) throws(ContentError) -> String)?
 
 		/**
 		The size of an image by its source, for the `width` and `height` attributes, so the layout does not move while the image loads.
@@ -276,7 +284,7 @@ public struct MarkdownDocument: Sendable {
 			rewrite: (@Sendable (Document) -> Document)? = nil,
 			inlineAttributes: InlineAttributesRenderer? = nil,
 			blockDirectives: [String: BlockDirectiveRenderer] = [:],
-			resolveLink: (@Sendable (String) throws -> String)? = nil,
+			resolveLink: (@Sendable (String) throws(ContentError) -> String)? = nil,
 			imageSize: (@Sendable (String) -> PixelSize?)? = nil,
 			codeBlock: (@Sendable (_ code: String, _ language: String?) throws(ContentError) -> String)? = nil,
 			inlineNote: (@Sendable (_ textHTML: String, _ noteID: ElementID) -> String)? = nil
@@ -296,6 +304,48 @@ public struct MarkdownDocument: Sendable {
 	}
 
 	/**
+	The options that apply to release notes: the table theme and resolution of safe link destinations.
+	*/
+	public struct ReleaseNotesOptions: Sendable {
+		public var theme: MarkdownTheme
+		public var resolveLink: (@Sendable (String) throws(ContentError) -> String)?
+
+		/**
+		Configures release notes without extended-only Markdown features.
+		*/
+		public init(theme: MarkdownTheme = .default, resolveLink: (@Sendable (String) throws(ContentError) -> String)? = nil) {
+			self.theme = theme
+			self.resolveLink = resolveLink
+		}
+	}
+
+	/**
+	A rendering mode together with only the options that apply to it.
+	*/
+	fileprivate enum Configuration: Sendable {
+		case extended(Options)
+		case releaseNotes(ReleaseNotesOptions)
+
+		var style: Style {
+			switch self {
+			case .extended:
+				.extended
+			case .releaseNotes:
+				.releaseNotes
+			}
+		}
+
+		var options: Options {
+			switch self {
+			case .extended(let options):
+				options
+			case .releaseNotes(let options):
+				Options(theme: options.theme, resolveLink: options.resolveLink)
+			}
+		}
+	}
+
+	/**
 	A link in the Markdown, with its line, so a broken link can be reported where it is written.
 	*/
 	public struct Link: Hashable, Sendable {
@@ -308,8 +358,8 @@ public struct MarkdownDocument: Sendable {
 		The source document of a link, retaining the distinction between the current file and inserted content.
 		*/
 		public enum Source: Hashable, Sendable {
-			case document(line: Int?)
-			case file(URL, line: Int?)
+			case document(line: SourceLocation.Line?)
+			case file(URL, line: SourceLocation.Line?)
 		}
 
 		public let source: Source
@@ -317,7 +367,7 @@ public struct MarkdownDocument: Sendable {
 		/**
 		The original source line, when available.
 		*/
-		public var line: Int? {
+		public var line: SourceLocation.Line? {
 			switch source {
 			case .document(let line), .file(_, let line):
 				line
@@ -408,7 +458,7 @@ public struct MarkdownDocument: Sendable {
 	public let problems: [ContentError]
 
 	/**
-	The links and images, in document order.
+	The links and images with their source locations. Links that a block directive renders from its arguments follow the links of its content.
 	*/
 	public let links: [Link]
 
@@ -425,9 +475,12 @@ public struct MarkdownDocument: Sendable {
 	/**
 	A top-level block of the document, with its HTML.
 	*/
-	public enum Block: Sendable {
+	public struct Block: Sendable {
 		public enum Kind: Sendable, Equatable {
-			case paragraph
+			/**
+			A paragraph, with its HTML without the `<p>` tags, and whether it is a bold label (``MarkdownElement/boldLabel``), which has a class.
+			*/
+			case paragraph(inlineHTML: String, isBoldLabel: Bool)
 
 			/**
 			A heading, with its ID, like `faq`.
@@ -437,7 +490,7 @@ public struct MarkdownDocument: Sendable {
 			/**
 			A block directive, like `@QuickAnswer`, with its lines in the file. The lines are `nil` for a directive that a rewrite adds.
 			*/
-			case directive(name: String, lines: ClosedRange<Int>?)
+			case directive(name: String, lines: ClosedRange<SourceLocation.Line>?)
 
 			/**
 			Raw HTML, like a comment. A block of only comments has no HTML.
@@ -447,41 +500,12 @@ public struct MarkdownDocument: Sendable {
 			case other
 		}
 
-		case paragraph(inlineHTML: String, attributes: String = "")
-		case heading(level: HeadingLevel, id: ElementID, html: String)
-		case directive(name: String, lines: ClosedRange<Int>?, html: String)
-		case html(String)
-		case other(String)
+		public let kind: Kind
 
 		/**
-		The structural kind, independent of the rendered content.
+		The rendered block.
 		*/
-		public var kind: Kind {
-			switch self {
-			case .paragraph:
-				.paragraph
-			case .heading(let level, let id, _):
-				.heading(level: level, id: id)
-			case .directive(let name, let lines, _):
-				.directive(name: name, lines: lines)
-			case .html:
-				.html
-			case .other:
-				.other
-			}
-		}
-
-		/**
-		The rendered block, deriving a paragraph's wrapper from its inline content.
-		*/
-		public var html: String {
-			switch self {
-			case .paragraph(let inlineHTML, let attributes):
-				"<p\(attributes)>\(inlineHTML)</p>\n"
-			case .heading(_, _, let html), .directive(_, _, let html), .html(let html), .other(let html):
-				html
-			}
-		}
+		public let html: String
 
 		/**
 		The level of the heading, or `nil` for another block.
@@ -513,13 +537,25 @@ public struct MarkdownDocument: Sendable {
 		}
 	}
 
-	public init(parsing source: String, style: Style = .extended, options: Options = Options()) {
-		self.init(
-			parsing: source,
-			firstLine: 1,
-			style: style,
-			options: options
-		)
+	/**
+	Parses and renders extended Markdown.
+	*/
+	public init(parsing source: String, options: Options = Options()) {
+		self.init(rendering: ParsedMarkdown(parsing: source, options: options))
+	}
+
+	/**
+	Renders constructed Markdown blocks without serializing and parsing them as text. The blocks have no source locations unless they came from a parsed document.
+	*/
+	public init(blocks: [any BlockMarkup], options: Options = Options()) {
+		self.init(rendering: ParsedMarkdown(blocks: blocks, options: options))
+	}
+
+	/**
+	Parses and renders GitHub release notes with their restricted HTML and link rules.
+	*/
+	public init(releaseNotes source: String, options: ReleaseNotesOptions = .init()) {
+		self.init(rendering: ParsedMarkdown(releaseNotes: source, options: options))
 	}
 
 	/**
@@ -527,38 +563,43 @@ public struct MarkdownDocument: Sendable {
 	*/
 	init(
 		parsing source: String,
-		firstLine: Int,
-		style: Style = .extended,
+		firstLine: SourceLocation.Line,
 		options: Options
 	) {
-		// Source positions and line-based extensions assume `\n` line endings, but GitHub release notes use `\r\n`.
-		let source = source.normalizingWindowsLineEndings
-		let convertOptions = ConvertOptions(style: style, options: options)
-		self.init(rendering: Document(parsing: source, convertOptions: convertOptions), source: source, firstLine: firstLine, style: style, options: options)
+		self.init(rendering: ParsedMarkdown(parsing: source, file: nil, firstLine: firstLine, options: options))
 	}
 
 	/**
-	Renders an already parsed document, keeping its source identity for diagnostics and inserted blocks. The source text is used only to preserve the introduction’s punctuation.
+	Renders a parsed document with the source and options that produced it, keeping its source identity for diagnostics and inserted blocks. The source text is used to preserve the introduction’s punctuation, and to find what the parsed tree leaves out, like an unclosed code fence or the extra cells of a table row.
 	*/
-	public init(rendering parsedDocument: Document, source: String, firstLine: Int = 1, style: Style = .extended, options: Options = Options()) {
+	fileprivate init(rendering parsed: ParsedMarkdown) {
+		let parsedDocument = parsed.document
+		let source = parsed.source
+		let firstLine = parsed.firstLine
+		let style = parsed.configuration.style
+		let options = parsed.configuration.options
 		let convertOptions = ConvertOptions(style: style, options: options)
 		var document = parsedDocument
+		// The styles and scripts of generated content are collected too, as a rewrite can render components into HTML blocks.
+		let resources = PageResources()
 
 		if
 			style == .extended,
 			let rewrite = options.rewrite
 		{
-			document = rewrite(document)
+			document = PageResources.$current.withValue(resources) {
+				rewrite(document)
+			}
 		}
 
 		// The styles and scripts that the Markdown uses, like those of its block directives. The page that shows the document adds them (``content``), like a preference in SwiftUI.
-		let resources = PageResources()
 		var renderer = HTMLRenderer(
 			style: style,
 			options: options,
 			footnoteDefinitions: document.footnoteDefinitions,
-			origin: .document(lineOffset: firstLine - 1),
-			sourceURL: parsedDocument.range?.lowerBound.source
+			origin: .document(lineOffset: firstLine.rawValue - 1),
+			sourceURL: parsedDocument.range?.lowerBound.source,
+			sourceLines: source?.split(separator: "\n", omittingEmptySubsequences: false) ?? []
 		)
 
 		PageResources.$current.withValue(resources) {
@@ -578,7 +619,88 @@ public struct MarkdownDocument: Sendable {
 		self.links = renderer.links
 		// The introduction keeps the source punctuation, while the HTML gets smart punctuation. Smart punctuation only adds typographic quotes, dashes, and ellipses, so the source is only parsed again without it when the introduction has one. Footnote references are left out, as they have no text.
 		let introduction = parsedDocument.introduction
-		self.introduction = introduction?.contains(where: "‘’“”–—…".contains) == true ? Document(parsing: source, options: convertOptions.parseOptions.union(.disableSmartOpts)).introduction : introduction
+		if
+			let source,
+			introduction?.contains(where: "‘’“”–—…".contains) == true
+		{
+			self.introduction = Document(parsing: source, options: convertOptions.parseOptions.union(.disableSmartOpts)).introduction
+		} else {
+			self.introduction = introduction
+		}
+	}
+}
+
+/**
+A parsed Markdown tree with the source, source location, style, and options that produced it. Inspect ``document`` before rendering, like to check the shape of an FAQ, without pairing the tree with another source or another set of options.
+
+```swift
+let parsed = file.parsedMarkdown(options: options)
+let headings = parsed.document.descendants(of: Markdown.Heading.self)
+let document = try parsed.rendered()
+```
+*/
+public struct ParsedMarkdown {
+	public let document: Document
+	fileprivate let source: String?
+	fileprivate let firstLine: SourceLocation.Line
+	fileprivate let configuration: MarkdownDocument.Configuration
+	private let file: URL?
+
+	/**
+	Parses source text and retains it with its parsing and rendering options. Use ``MarkdownFile/parsedMarkdown(options:)`` for a content file, so diagnostics use its original file and lines.
+	*/
+	public init(parsing source: String, options: MarkdownDocument.Options = .init()) {
+		self.init(parsing: source, file: nil, firstLine: 1, options: options)
+	}
+
+	/**
+	Parses release notes while retaining their narrow configuration for rendering.
+	*/
+	public init(releaseNotes source: String, options: MarkdownDocument.ReleaseNotesOptions = .init()) {
+		self.init(parsing: source, file: nil, firstLine: 1, configuration: .releaseNotes(options))
+	}
+
+	/**
+	Parses the body of a file at its original source location.
+	*/
+	init(parsing source: String, file: URL?, firstLine: SourceLocation.Line, options: MarkdownDocument.Options) {
+		self.init(parsing: source, file: file, firstLine: firstLine, configuration: .extended(options))
+	}
+
+	private init(parsing source: String, file: URL?, firstLine: SourceLocation.Line, configuration: MarkdownDocument.Configuration) {
+		// Source positions and line-based extensions assume `\n` line endings, but GitHub release notes use `\r\n`.
+		let source = source.normalizingWindowsLineEndings
+		self.document = Document(parsing: source, source: file, convertOptions: ConvertOptions(style: configuration.style, options: configuration.options))
+		self.source = source
+		self.firstLine = firstLine
+		self.configuration = configuration
+		self.file = file
+	}
+
+	/**
+	A document made from constructed blocks, without source text or a source location. For parsed Markdown, use ``init(parsing:options:)`` instead, so source-based checks and diagnostic lines remain available.
+	*/
+	public init(blocks: [any BlockMarkup], options: MarkdownDocument.Options = .init()) {
+		self.document = Document(blocks)
+		self.source = nil
+		self.firstLine = 1
+		self.configuration = .extended(options)
+		self.file = nil
+	}
+
+	/**
+	Renders with the original options and throws all content mistakes together, at their original file and lines when parsed from a file.
+	*/
+	public func rendered() throws(ContentErrors) -> MarkdownDocument {
+		let rendered = MarkdownDocument(rendering: self)
+
+		guard rendered.problems.isEmpty else {
+			throw ContentErrors(rendered.problems.map { problem in
+				ContentError(file: problem.file ?? file, line: problem.line, reason: problem.reason)
+			})
+		}
+
+		return rendered
 	}
 }
 
@@ -627,7 +749,7 @@ extension MarkdownDocument.Block {
 	The inline content of a paragraph, including a bold label whose class belongs to the paragraph rather than its text.
 	*/
 	fileprivate var inlineParagraphContentHTML: String? {
-		guard case .paragraph(let inlineHTML, _) = self else {
+		guard case .paragraph(let inlineHTML, _) = kind else {
 			return nil
 		}
 
@@ -638,7 +760,7 @@ extension MarkdownDocument.Block {
 	The HTML of a paragraph without its `<p>` tags. `nil` for another block, and for a paragraph with a class, like a bold label, which is not plain text.
 	*/
 	fileprivate var paragraphContentHTML: String? {
-		guard case .paragraph(let inlineHTML, attributes: "") = self else {
+		guard case .paragraph(let inlineHTML, isBoldLabel: false) = kind else {
 			return nil
 		}
 
@@ -695,7 +817,7 @@ public struct Heading: Sendable {
 	/**
 	The line in the Markdown source, starting at 1. `nil` for headings that are not in the source, like the ones that ``Options/rewrite`` adds.
 	*/
-	public let line: Int?
+	public let line: SourceLocation.Line?
 
 	/**
 	The values of the directives directly below the heading, by directive type.
@@ -705,7 +827,7 @@ public struct Heading: Sendable {
 	/**
 	Records a heading with a single source of truth for the ID and its provenance.
 	*/
-	init(level: HeadingLevel, text: String, identity: Identity, line: Int?) {
+	init(level: HeadingLevel, text: String, identity: Identity, line: SourceLocation.Line?) {
 		self.level = level
 		self.text = text
 		self.identity = identity
@@ -715,7 +837,7 @@ public struct Heading: Sendable {
 	/**
 	Decodes metadata under the identity of the type that owns its value.
 	*/
-	mutating func setDirective<Directive: HeadingDirective>(_ directive: Directive.Type, values: [String]) throws {
+	mutating func setDirective<Directive: HeadingDirective>(_ directive: Directive.Type, values: [String]) throws(ContentError) {
 		directives[ObjectIdentifier(directive)] = try Directive.decode(values: values)
 	}
 
@@ -777,9 +899,7 @@ extension Document {
 			}
 		}
 
-		return Dictionary(definitions(in: self).map { ($0.footnoteID, $0) }) { first, _ in
-			first
-		}
+		return definitions(in: self).keyed(by: \.footnoteID)
 	}
 
 	fileprivate var introduction: String? {
@@ -790,11 +910,56 @@ extension Document {
 		}
 
 		// A footnote reference has no text, and the whitespace is collapsed after, so a reference between spaces leaves one space.
-		let text = paragraph.plainText(includingImageDescriptions: false)
-			.replacing(/\s+/, with: " ")
+		return paragraph.plainText(includingImageDescriptions: false)
+			.replacing(Self.whitespaceRun, with: " ")
 			.trimmingCharacters(in: .whitespaces)
+			.nilIfEmpty
+	}
 
-		return text.isEmpty ? nil : text
+	/**
+	A run of whitespace, which the introduction collapses to one space. Stored, as the introduction is made for each document.
+	*/
+	nonisolated(unsafe) private static let whitespaceRun = /\s+/
+}
+
+/**
+A block directive's name, argument model, and rendering behavior, shared by rendering and Markdown-tree analysis.
+*/
+public protocol BlockDirectiveDefinition: SendableMetatype {
+	associatedtype Arguments: Frontmatter
+
+	static var name: String { get }
+	static var content: MarkdownDocument.Options.BlockDirectiveRenderer.Content { get }
+
+	/**
+	Renders decoded arguments and the HTML of the directive's content.
+	*/
+	static func render(arguments: Arguments, contentHTML: String, context: MarkdownDocument.Options.BlockDirectiveRenderer.Context) throws(ContentError) -> String
+
+	/**
+	The directive as ordinary Markdown, for readers without its HTML presentation.
+	*/
+	static func plainBlocks(arguments: Arguments, content: [any BlockMarkup]) -> [any BlockMarkup]
+}
+
+extension BlockDirectiveDefinition {
+	public static var content: MarkdownDocument.Options.BlockDirectiveRenderer.Content {
+		.blocks
+	}
+
+	public static func plainBlocks(arguments: Arguments, content: [any BlockMarkup]) -> [any BlockMarkup] {
+		content
+	}
+
+	/**
+	Erases a definition only after binding its renderer to its own argument model.
+	*/
+	public static var renderer: MarkdownDocument.Options.BlockDirectiveRenderer {
+		.init(content: content, render: { (arguments: Arguments, contentHTML: String, context: MarkdownDocument.Options.BlockDirectiveRenderer.Context) throws(ContentError) in
+			try render(arguments: arguments, contentHTML: contentHTML, context: context)
+		}, plain: { arguments, content in
+			plainBlocks(arguments: arguments, content: content)
+		})
 	}
 }
 
@@ -818,8 +983,19 @@ extension BlockDirective {
 	The arguments decoded as the type, like the renderer of the directive decodes them (``MarkdownDocument/Options/BlockDirectiveRenderer``), for code that reads the Markdown tree without rendering it, like a plain text version of a page or a check of the content (``Markdown/Markup/blockDirectives``).
 
 	```swift
-	let details = try directive.arguments(as: DetailsArguments.self)
+	let details = try directive.arguments(for: DetailsDirective.self)
 	```
+	*/
+	public func arguments<Definition: BlockDirectiveDefinition>(for definition: Definition.Type) throws(ContentErrors) -> Definition.Arguments {
+		guard name == Definition.name else {
+			throw ContentErrors([ContentError(reason: "Expected `@\(Definition.name)`, got `@\(name)`.")])
+		}
+
+		return try arguments(as: Definition.Arguments.self)
+	}
+
+	/**
+	Decodes the argument model after its owning definition has been selected.
 	*/
 	public func arguments<Arguments: Frontmatter>(as type: Arguments.Type) throws(ContentErrors) -> Arguments {
 		let arguments: [DirectiveArgument]
@@ -935,7 +1111,7 @@ extension InlineAttributes {
 				throw ContentErrors([ContentError(reason: "\(error.message). Write them like `note: \"…\"` or `platform: \"macOS\"`.")])
 			}
 
-			guard value["note"] != nil else {
+			guard value[InlineNoteAttributes.CodingKeys.note.stringValue] != nil else {
 				return .attributes(value)
 			}
 
@@ -948,7 +1124,7 @@ extension InlineAttributes {
 The inline attributes of a note, like `^[Spotlight](note: "The search of macOS.")`.
 */
 @Frontmatter
-private struct InlineNoteAttributes {
+struct InlineNoteAttributes {
 	@NonEmpty var note: String
 }
 
@@ -961,8 +1137,8 @@ extension Markdown.Text {
 			switch part {
 			case .text(let text):
 				String(text)
-			case .shortcut(let text, let punctuation):
-				String(text) + punctuation
+			case .shortcut(let text, let openingPunctuation, let punctuation):
+				String(openingPunctuation + text + punctuation)
 			}
 		}.joined()
 	}
@@ -970,12 +1146,17 @@ extension Markdown.Text {
 
 extension Substring {
 	/**
-	A fragment of text or a complete keyboard shortcut with the closing punctuation that stays on its line.
+	A fragment of text or a complete keyboard shortcut with the opening and closing punctuation that stays on its line.
 	*/
 	enum KeyboardShortcutPart {
 		case text(Substring)
-		case shortcut(text: Substring, trailingPunctuation: Substring)
+		case shortcut(text: Substring, openingPunctuation: Substring, closingPunctuation: Substring)
 	}
+
+	/**
+	The punctuation that must not end a line, like the parenthesis before a keyboard shortcut.
+	*/
+	private static let openingShortcutPunctuation: Set<Character> = ["(", "“", "‘"]
 
 	/**
 	The punctuation that must not start a line, like the comma after a keyboard shortcut.
@@ -1012,14 +1193,16 @@ extension Substring {
 				continue
 			}
 
-			let text = remainder[..<match.range.lowerBound]
+			let beforeShortcut = remainder[..<match.range.lowerBound]
+			let openingPunctuation = beforeShortcut.suffix(beforeShortcut.reversed().prefix { Self.openingShortcutPunctuation.contains($0) }.count)
+			let text = beforeShortcut.dropLast(openingPunctuation.count)
 			if !text.isEmpty {
 				parts.append(.text(text))
 			}
 
 			let afterShortcut = remainder[match.range.upperBound...]
 			let punctuation = afterShortcut.prefix { Self.closingShortcutPunctuation.contains($0) }
-			parts.append(.shortcut(text: match.1, trailingPunctuation: punctuation))
+			parts.append(.shortcut(text: match.1, openingPunctuation: openingPunctuation, closingPunctuation: punctuation))
 			remainder = afterShortcut.dropFirst(punctuation.count)
 		}
 
@@ -1055,7 +1238,7 @@ extension String {
 	/**
 	The text with the punctuation of the source, which smart punctuation changed: `…` to `...`, dashes to `--` and `---`, and typographic quotes to straight quotes. For text that is not prose, like a key.
 	*/
-	var removingSmartPunctuation: String {
+	public var removingSmartPunctuation: String {
 		replacing("…", with: "...")
 			.replacing("—", with: "---")
 			.replacing("–", with: "--")
@@ -1074,7 +1257,7 @@ extension Markup {
 	/**
 	The text content: text, inline code, and the text inside emphasis and links. HTML tags are left out.
 	*/
-	func plainText(includingImageDescriptions: Bool) -> String {
+	public func plainText(includingImageDescriptions: Bool) -> String {
 		switch self {
 		// A keyboard shortcut in text, like `++Command+K++`, is its keys.
 		case let text as Markdown.Text:
@@ -1159,7 +1342,7 @@ public struct MarkdownContent: HTML, Sendable {
 	Content that is not split, like a short inline text.
 	*/
 	init(html: String, resources: PageResources) {
-		self.init(blocks: [.other(html)], trailingHTML: "", resources: resources)
+		self.init(blocks: [MarkdownDocument.Block(kind: .other, html: html)], trailingHTML: "", resources: resources)
 	}
 
 	public var html: String {

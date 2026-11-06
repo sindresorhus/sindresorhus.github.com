@@ -31,14 +31,16 @@ struct AppStoreID: Hashable, CustomStringConvertible, ExpressibleByIntegerLitera
 	}
 
 	/**
-	The App Store page with the campaign for its placement on the website, or the plain link without a provider token.
+	The App Store page with the query of its placement on the website (``App/AppStorePlacement/queryItems``), or the plain link when the placement has none.
 	*/
 	func url(placement: App.AppStorePlacement) -> URL {
-		guard let campaignQueryItems = placement.campaignQueryItems else {
+		let queryItems = placement.queryItems
+
+		guard !queryItems.isEmpty else {
 			return url
 		}
 
-		return url.appending(queryItems: campaignQueryItems)
+		return url.appending(queryItems: queryItems)
 	}
 }
 
@@ -85,9 +87,28 @@ struct AppStoreInfo: Decodable {
 	let rating: StoreRating?
 
 	/**
+	The kind of app of the result. The IDs of apps, songs, and books are one number space, so the lookup of an ID with a typo can find a song, like `La patience de Winnie` for an ID of Dato with two digits swapped. `nil` for a result that is not an app.
+	*/
+	enum Kind: String {
+		/**
+		An iPhone, iPad, or Apple Vision app, which may also run on the Mac.
+		*/
+		case software
+
+		/**
+		A native Mac app.
+		*/
+		case macSoftware = "mac-software"
+	}
+
+	let kind: Kind?
+
+	/**
 	Whether the App Store lists a native Mac app (`mac-software`), rather than an iPhone, iPad, or Apple Vision app that may also run on the Mac.
 	*/
-	let isMacApp: Bool
+	var isMacApp: Bool {
+		kind == .macSoftware
+	}
 
 	/**
 	The lowest version of macOS for Mac apps, of visionOS for Apple Vision apps, or else of iOS, like `26.0`.
@@ -152,12 +173,12 @@ struct AppStoreInfo: Decodable {
 			nil
 		}
 
-		self.isMacApp = try container.decodeIfPresent(String.self, forKey: .kind) == "mac-software"
+		self.kind = try container.decodeIfPresent(String.self, forKey: .kind).flatMap(Kind.init(rawValue:))
 		self.minimumOSVersion = (try? container.decode(String.self, forKey: .minimumOSVersion)).flatMap(OSVersion.init)
 		let devices = try container.decodeIfPresent([String].self, forKey: .supportedDevices) ?? []
 		var platforms = Set<Platform>()
 
-		if isMacApp || devices.contains(where: { $0.hasPrefix("MacDesktop") }) {
+		if kind == .macSoftware || devices.contains(where: { $0.hasPrefix("MacDesktop") }) {
 			platforms.insert(.macOS)
 		}
 
@@ -213,11 +234,35 @@ struct AppStoreInfo: Decodable {
 	}
 
 	/**
-	Looks up the apps with one request.
+	Looks up the apps with one request. A result that is not an app, like a song for an ID with a typo, is left out, so the build warns that the App Store has no app with the ID.
 	*/
 	static func lookup(ids: [AppStoreID], cache: ResponseCache) async throws -> [AppStoreID: Self] {
 		struct Response: Decodable {
 			let results: [AppStoreInfo]
+
+			enum CodingKeys: CodingKey {
+				case results
+			}
+
+			init(from decoder: any Decoder) throws {
+				let container = try decoder.container(keyedBy: CodingKeys.self)
+				var results = try container.nestedUnkeyedContainer(forKey: .results)
+				var apps = [AppStoreInfo]()
+
+				while !results.isAtEnd {
+					let decoder = try results.superDecoder()
+					let fields = try decoder.container(keyedBy: AppStoreInfo.CodingKeys.self)
+
+					// Other kinds of results, like artists and albums, have no app ID or other app fields.
+					guard try fields.decodeIfPresent(String.self, forKey: .kind).flatMap(Kind.init(rawValue:)) != nil else {
+						continue
+					}
+
+					apps.append(try AppStoreInfo(from: decoder))
+				}
+
+				self.results = apps
+			}
 		}
 
 		guard !ids.isEmpty else {
@@ -227,7 +272,7 @@ struct AppStoreInfo: Decodable {
 		let url = #URL("https://itunes.apple.com/lookup").appending(queryItems: [URLQueryItem(name: "id", value: ids.uniqued(by: \.self).map(\.description).joined(separator: ","))])
 
 		let response = try await cache.decoded(Response.self, from: url)
-		return Dictionary(response.results.map { ($0.id, $0) }) { first, _ in first }
+		return response.results.keyed(by: \.id)
 	}
 }
 

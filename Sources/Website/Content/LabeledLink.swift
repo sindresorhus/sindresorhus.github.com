@@ -10,6 +10,11 @@ struct LabeledLink: Hashable {
 
 	let description: String?
 
+	/**
+	The name of the link for screen readers, when the title alone is not clear, like “Privacy Policy of Dato” next to the “Privacy Policy” of the site in the footer. It starts with the title, so the visible label is in the name (WCAG 2.5.3).
+	*/
+	var accessibilityLabel: String?
+
 	init(_ title: String, destination: LinkDestination, description: String? = nil) {
 		self.title = title
 		self.destination = destination
@@ -37,6 +42,8 @@ The pages about all the apps, which the site footer, the apps page, and the menu
 */
 extension LabeledLink {
 	static let faq = Self("FAQ", destination: .path(.faq), description: "Frequently asked questions about my apps")
+	static let guides = Self("Guides", destination: .path(.guides), description: "Short how-to guides for tasks on the Mac and iPhone")
+	static let feedback = Self("Feedback & Support", destination: .path(.feedback), description: "Ask a question or report a problem with an app")
 	static let appTimeline = Self("Timeline", destination: .path(.appTimeline), description: "Every app by the year it came out")
 	static let wallOfLove = Self("Wall of Love", destination: .path(.reviews), description: "What the press and App Store reviewers say")
 	static let olderVersions = Self("Older Versions", destination: .path(.olderVersions), description: "Apps for older macOS versions")

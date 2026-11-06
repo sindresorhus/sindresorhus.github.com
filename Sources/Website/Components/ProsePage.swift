@@ -28,7 +28,7 @@ struct ProsePage<Content: HTML, Accessory: HTML>: HTML {
 	private let accessory: Accessory
 
 	/**
-	- Parameter photo: A round photo next to the title on larger screens, like a portrait.
+	- Parameter photo: A round photo at the start of the text, like a portrait.
 	- Parameter backTo: The app to link back to, above the title.
 	- Parameter accessory: Shown next to the back link, like an RSS feed link.
 	*/
@@ -86,14 +86,13 @@ struct ProsePage<Content: HTML, Accessory: HTML>: HTML {
 			}
 
 			Prose {
-				// In the prose, so the text flows around it. Lazy, so phones, where it is hidden, do not download it. On larger screens, it is in view at once, so it still loads at once.
+				// In the prose, so the text flows around it. It is in view when the page opens, so it is not lazy.
 				if let photo {
 					img(
 						.src(photo),
 						.alt(""),
 						.width(112),
-						.height(112),
-						.lazyLoading
+						.height(112)
 					)
 						.style(ProsePageStyles.photo)
 				}
@@ -169,7 +168,7 @@ struct ProsePageTitle: ExpressibleByStringInterpolation {
 /**
 The styles of ``ProsePage``, outside the generic type, so the class names are the same for every content type.
 */
-private enum ProsePageStyles: StyleSet {
+private enum ProsePageStyles: String, StyleSet {
 	case root
 	case header
 
@@ -208,7 +207,12 @@ private enum ProsePageStyles: StyleSet {
 				.margin(.top, .pixels(4))
 				.margin(.leading, .pixels(30))
 				.cornerRadius(.circle)
-				.hidden(below: .smallTablet)
+				// Smaller on phones, where the column is narrow, so the text next to it still has room.
+				.below(.smallTablet) {
+					$0
+						.frame(width: .rootEm(4.5))
+						.margin(.leading, .rootEm(1))
+				}
 		}
 	}
 }

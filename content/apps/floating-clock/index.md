@@ -1,6 +1,7 @@
 ---
 title: 'Floating Clock'
 subtitle: 'A simple digital clock for Apple Vision'
+description: 'A free app for Apple Vision Pro that shows a digital clock anywhere in your space.'
 publicationDate: 2024-02-17
 platforms: [
 	'visionOS'
@@ -27,7 +28,7 @@ The app is simple by design.
 
 Since visionOS 26, the built-in Clock app has a widget that you can put on a wall or another flat surface, where it stays. If that is what you want, use it.
 
-Floating Clock is a window, so you can put it anywhere in your space, also in the air in front of you. It shows a simple digital clock, and you can choose to show the date and the background.
+Floating Clock is a window, so you can put it anywhere in your space, also in the air in front of you. It shows a simple digital clock, and you can choose to show the date and the background. Tap the clock to change the settings, and choose “New Window” there to add another clock.
 
 ### Can it support showing an analog clock? {#can-it-support-showing-an-analog-clock}
 

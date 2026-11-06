@@ -8,9 +8,14 @@ The download badges (App Store, Setapp), custom download buttons, and the “Sou
 struct DownloadOptions: HTML {
 	let app: App
 
+	/**
+	Where the App Store badge is, for the campaign of its link.
+	*/
+	var appStorePlacement = App.AppStorePlacement.downloadButton
+
 	var body: some HTML<HTMLTag.div> {
 		div {
-			for option in app.downloadOptions {
+			for option in app.downloadOptions(appStorePlacement: appStorePlacement) {
 				OptionLink(option: option)
 			}
 		}
@@ -60,7 +65,7 @@ struct DownloadOptions: HTML {
 		}
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case badge
 		case badgeImage
@@ -75,7 +80,7 @@ struct DownloadOptions: HTML {
 					.flexWrap()
 					.gap(.rootEm(1))
 					.below(.smallTablet) {
-						$0.declaration(.zoom, 0.9)
+						$0.declaration(raw: .zoom, 0.9)
 					}
 			case .badge:
 				// Not inline, as `scale` does not apply to inline elements, and the badge disappeared after the hover transition.

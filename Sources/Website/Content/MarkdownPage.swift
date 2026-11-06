@@ -6,9 +6,8 @@ import SOML
 A standalone Markdown page, like `/about` or `/apps/faq`, loaded from `content/pages/<path>.md`.
 */
 struct MarkdownPage: ContentDocument {
-	let frontmatter: Frontmatter
 	let markdown: MarkdownDocument
-	let file: MarkdownFile
+	let decodedFile: DecodedMarkdownFile<Frontmatter>
 	let sponsorTiers: [SponsorTier.Resolved]
 
 	/**
@@ -16,40 +15,78 @@ struct MarkdownPage: ContentDocument {
 	*/
 	let status: MarkdownDocument?
 
-	static let directory = "content/pages"
+	static let directory: Project.ContentDirectory = "content/pages"
 
 	static let sortOrder = [KeyPathComparator(\MarkdownPage.path.description)]
 
-	init(file: MarkdownFile, frontmatter: Frontmatter, project: Project) throws {
+	/**
+	Standalone pages have no draft frontmatter.
+	*/
+	var isDraft: Bool {
+		false
+	}
+
+	init(file decodedFile: DecodedMarkdownFile<Frontmatter>, project: Project) throws {
+		try self.init(file: decodedFile, project: project, today: nil)
+	}
+
+	/**
+	- Parameter today: The day of the build, which decides what `@Scheduled` shows. Without it, like in a test, `@Scheduled` is an unknown directive. The FAQ page cannot have it, as the feedback page would suggest a question that the page does not show.
+	*/
+	init(file decodedFile: DecodedMarkdownFile<Frontmatter>, project: Project, today: SOML.Date?) throws {
+		let file = decodedFile.source
+		let frontmatter = decodedFile.frontmatter
 		// Only the now page shows them, so on another page they would be silently missing.
 		let nowKeys: [(key: Frontmatter.CodingKeys, isSet: Bool)] = [(.status, frontmatter.status != nil), (.reading, !frontmatter.reading.isEmpty), (.listening, !frontmatter.listening.isEmpty)]
 
 		let kind = Kind(path: Self.path(slug: file.slug))
 
 		for (key, isSet) in nowKeys where isSet && kind != .now {
-			throw file.error(at: key, "Only `content/pages/now.md` can have `\(key.stringValue)`.")
+			throw decodedFile.error(at: key, "Only `content/pages/now.md` can have `\(key.stringValue)`.")
 		}
 
-		self.frontmatter = frontmatter
-		self.file = file
+		self.decodedFile = decodedFile
 
 		do throws(ContentError) {
 			self.sponsorTiers = try frontmatter.sponsorTiers.map { (tier: SponsorTier) throws(ContentError) in
 				try tier.resolved
 			}
 		} catch {
-			throw file.error(at: Frontmatter.CodingKeys.sponsorTiers, error.reason)
+			throw decodedFile.error(at: .sponsorTiers, error.reason)
 		}
 
-		self.status = try frontmatter.status.map { try MarkdownDocument(parsing: $0, at: Frontmatter.CodingKeys.status, of: file, project: project) }
-		self.markdown = try MarkdownDocument(parsing: file, options: kind == .faq ? .faqPage(file, project: project) : .content(file, project: project, sponsorTiers: sponsorTiers))
+		self.status = try frontmatter.status.map { try MarkdownDocument(parsing: $0, at: .status, of: decodedFile, project: project) }
+		self.markdown = try MarkdownDocument(parsing: file, options: kind == .faq ? .faqPage(file, project: project) : .content(
+			file,
+			project: project,
+			sponsorTiers: sponsorTiers,
+			today: today
+		))
+
+		// The feedback page suggests the general questions, so the directives of another heading would silently do nothing.
+		if kind == .faq {
+			let errors = markdown.headings.compactMap { heading -> ContentError? in
+				guard
+					!heading.contains(FAQDirectives.General.self),
+					heading.hasFAQDirective
+				else {
+					return nil
+				}
+
+				return file.error(line: heading.line, "The feedback page suggests only the questions with `<!-- @\(FAQDirectives.General.name) -->`, so the directives of “\(heading.text)”, like `@\(FAQDirectives.Keywords.name)`, do nothing. Add it, or remove them.")
+			}
+
+			guard errors.isEmpty else {
+				throw ContentErrors(errors)
+			}
+		}
 
 		// The page is split before the headings, so with a renamed ID, its parts would silently be at the end.
 		if
 			!kind.requiredHeadingIDs.isEmpty,
 			markdown.contentSeparated(beforeHeadings: kind.requiredHeadingIDs) == nil
 		{
-			throw file.error(line: file.bodyStartLine, "The page needs level 2 headings with the IDs \(kind.requiredHeadingIDs.map { "`\($0)`" }.formatted(.list(type: .and))), in this order and not inside a block directive, as the page shows other parts before them, like `## Some Things About Me {#\(AboutPage.nowNextHeadingID)}`.")
+			throw file.error(line: file.bodyStartLine, "The page needs level 2 headings with the IDs \(kind.requiredHeadingIDs.map { "`\($0)`" }.formattedList(.and)), in this order and not inside a block directive, as the page shows other parts before them, like `## Some Things About Me {#\(AboutPage.nowNextHeadingID)}`.")
 		}
 
 		// The sponsors are only shown where the Markdown places them, so without the directive they would be silently missing. The rendered blocks are checked, not the text, so a `@Sponsors` in a code block or a comment does not count.
@@ -57,7 +94,7 @@ struct MarkdownPage: ContentDocument {
 			frontmatter.sponsorTiers.isEmpty
 				|| markdown.blocks.contains(where: { $0.siteDirectiveName == .sponsors })
 		else {
-			throw file.error(at: Frontmatter.CodingKeys.sponsorTiers, "The page has `sponsorTiers`, so the Markdown needs a `@Sponsors` line where the sponsors are shown.")
+			throw decodedFile.error(at: .sponsorTiers, "The page has `sponsorTiers`, so the Markdown needs a `@Sponsors` line where the sponsors are shown.")
 		}
 	}
 
@@ -245,7 +282,7 @@ extension MarkdownPage {
 	@Frontmatter
 	struct Sponsor {
 		@NonEmpty var name: String
-		@Absolute var url: URL?
+		var url: AbsoluteURL?
 
 		/**
 		The logo, made for a light background, which it is shown on in both modes. Without a logo, the name is shown.
@@ -262,7 +299,7 @@ extension MarkdownPage {
 		*/
 		struct Linked: Sendable {
 			let sponsor: Sponsor
-			let url: URL
+			let url: AbsoluteURL
 		}
 
 		/**
@@ -280,30 +317,43 @@ extension MarkdownPage {
 	}
 
 	/**
-	The logo of a sponsor, with its width, which a logo needs, so the layout does not move while it loads.
+	The logo of a sponsor, with its size, which a logo needs, so the layout does not move while it loads, and the logos can have about the same area (``relativeHeight``).
 	*/
 	@Frontmatter
 	struct Logo {
 		var path: RoutePath
 
 		/**
-		The width, in pixels.
+		The width, in pixels, at the aspect ratio of the image.
 		*/
-		var width: Width
+		var width: Pixels
 
 		/**
-		A positive image width in pixels, checked when it enters the model.
+		The height, in pixels, at the aspect ratio of the image.
 		*/
-		struct Width: PlainValidatedValue, Sendable {
+		var height: Pixels
+
+		/**
+		A positive image size in pixels, checked when it enters the model.
+		*/
+		struct Pixels: PlainValidatedValue, Sendable {
 			let value: Int
 
 			init(validating value: Int) throws(ContentError) {
 				guard value > 0 else {
-					throw ContentError(reason: "The logo width must be a positive number of pixels, got \(value).")
+					throw ContentError(reason: "The size of a logo must be a positive number of pixels, got \(value).")
 				}
 
 				self.value = value
 			}
+		}
+
+		/**
+		The height of the logo in its box, from 0 to 1, so the logos have about the same area, and a wide logo does not look much larger than a square one. A logo up to twice as wide as it is high fills the height, and a wider one is lower, like a logo four times as wide as it is high at 71%.
+		*/
+		var relativeHeight: Double {
+			let aspectRatio = Double(width.value) / Double(height.value)
+			return min(1, (2 / aspectRatio).squareRoot())
 		}
 	}
 }

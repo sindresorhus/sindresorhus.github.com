@@ -85,7 +85,7 @@ struct GeoCitiesRoom: ScriptedElement {
 					.width(480),
 					.height(270),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("My room. Use the arrow keys to look around, plus and minus to zoom, and the buttons below to look at things.")
 					.style(Styles.view)
@@ -115,7 +115,7 @@ struct GeoCitiesRoom: ScriptedElement {
 				.accessibilityLabel("Show the hot spots")
 				.style(Styles.controllerButton)
 
-				p(.part(Parts.status), .role("status")) {
+				p(.part(Parts.status), .role(.status)) {
 					"Drag to look around."
 				}
 				.style(Styles.label)
@@ -200,7 +200,7 @@ struct GeoCitiesRoom: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.caption)
 
-				p(.part(Parts.cameraStatus), .role("status")) {}
+				p(.part(Parts.cameraStatus), .role(.status)) {}
 					.style(Styles.label)
 			}
 
@@ -277,7 +277,7 @@ struct GeoCitiesRoom: ScriptedElement {
 		case target = "room-target"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case player
 		case playerTitle
@@ -543,7 +543,7 @@ struct GeoCitiesRoom: ScriptedElement {
 		}
 	}
 
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case flash
 
 		var keyframes: [Keyframe] {

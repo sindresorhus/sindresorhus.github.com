@@ -52,7 +52,7 @@ struct GeoCitiesRoomToys: ScriptedElement {
 				.width(320),
 				.height(180),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("Under my bed, in the dark. Move the flashlight with the arrow keys, and press Enter to pick up what it shines on.")
 				.style(Styles.canvas, Styles.bedCanvas)
@@ -74,7 +74,7 @@ struct GeoCitiesRoomToys: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
-			p(.part(Parts.bedStatus), .role("status")) {}
+			p(.part(Parts.bedStatus), .role(.status)) {}
 				.style(Styles.status)
 		}
 		.style(Styles.toy)
@@ -92,7 +92,7 @@ struct GeoCitiesRoomToys: ScriptedElement {
 				.width(320),
 				.height(200),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The ceiling over my bed. Move with the arrow keys, and press Enter to stick on a star, or in the dark, to join it to the last one.")
 				.style(Styles.canvas, Styles.ceilingCanvas)
@@ -123,7 +123,7 @@ struct GeoCitiesRoomToys: ScriptedElement {
 			}
 			.style(Styles.nameLabel)
 
-			p(.part(Parts.ceilingStatus), .role("status")) {}
+			p(.part(Parts.ceilingStatus), .role(.status)) {}
 				.style(Styles.status)
 		}
 		.style(Styles.toy)
@@ -141,7 +141,7 @@ struct GeoCitiesRoomToys: ScriptedElement {
 				.width(280),
 				.height(220),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The Magic Screen. The left and right arrow keys turn the left knob, and the up and down arrow keys turn the right knob.")
 				.style(Styles.sketchCanvas)
@@ -154,7 +154,7 @@ struct GeoCitiesRoomToys: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
-			p(.part(Parts.sketchStatus), .role("status")) {}
+			p(.part(Parts.sketchStatus), .role(.status)) {}
 				.style(Styles.status)
 		}
 		.style(Styles.toy)
@@ -197,7 +197,7 @@ struct GeoCitiesRoomToys: ScriptedElement {
 		case sketchStatus
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case toys
 		case toy

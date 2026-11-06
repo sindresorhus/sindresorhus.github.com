@@ -23,7 +23,7 @@ struct ShareButton: ScriptedElement {
 		.buttonStyle(size: .small)
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 
 		var style: Style {

@@ -16,7 +16,7 @@ struct FeedCard: HTML {
 		.style(Styles.root)
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case title
 
@@ -39,7 +39,7 @@ The class names are `feed-card` for `root` and `feed-card-title` for `title`.
 
 Limitation: A style set in a generic type has the same class names for every specialization, but each specialization is another style set, so a page that uses two of them fails with ``StyleError/duplicateClassNames(_:)``. Declare the styles of a generic component outside it, like a top-level `FormFieldStyles` for `FormField<Content>`.
 */
-public protocol StyleSet: CaseIterable, Hashable, Sendable {
+public protocol StyleSet: RawRepresentable<String>, CaseIterable, Hashable, Sendable {
 	var style: Style { get }
 }
 
@@ -52,7 +52,7 @@ extension StyleSet {
 	}
 
 	private static func className(of style: Self, componentName: String) -> String {
-		let name = String(describing: style)
+		let name = style.rawValue
 		return name == "root" ? componentName : "\(componentName)-\(name.kebabCased)"
 	}
 

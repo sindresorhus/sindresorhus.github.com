@@ -82,9 +82,10 @@ The owner and the name of a GitHub repo, like `sindresorhus/ky`. GitHub ignores 
 */
 struct GitHubRepositoryName: ValidatedValue, Hashable, CustomStringConvertible {
 	/**
-	The owner and the name in the link of an npm package, and the `.git` extension after the name. Not literals in ``init(npmRepositoryLink:)``, as Swift parses a regex literal each time the code runs, and it runs for each package.
+	The owner and the name in the link of an npm package, also in the short form of npm for a GitHub repo, like `addyosmani/critical` or `github:addyosmani/critical`, and the `.git` extension after the name. Not literals in ``init(npmRepositoryLink:)``, as Swift parses a regex literal each time the code runs, and it runs for each package.
 	*/
 	nonisolated(unsafe) private static let npmRepositoryPattern = /github\.com[\/:]([^\/]+)\/([^\/#?]+)/
+	nonisolated(unsafe) private static let npmShortRepositoryPattern = /(?:github:)?([^\/:]+)\/([^\/#?:]+)/
 	nonisolated(unsafe) private static let gitExtension = /\.git$/
 
 	let owner: String
@@ -124,10 +125,10 @@ struct GitHubRepositoryName: ValidatedValue, Hashable, CustomStringConvertible {
 	}
 
 	/**
-	The repo in the link of an npm package, which can be written in several ways, like `git+https://github.com/owner/name.git`. `nil` for a link that is not to a GitHub repo.
+	The repo in the link of an npm package, which can be written in several ways, like `git+https://github.com/owner/name.git` or `owner/name`. `nil` for a link that is not to a GitHub repo.
 	*/
 	init?(npmRepositoryLink link: String) {
-		guard let match = link.firstMatch(of: Self.npmRepositoryPattern) else {
+		guard let match = link.firstMatch(of: Self.npmRepositoryPattern) ?? link.wholeMatch(of: Self.npmShortRepositoryPattern) else {
 			return nil
 		}
 

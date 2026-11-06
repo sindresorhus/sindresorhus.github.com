@@ -44,13 +44,13 @@ struct GeoCitiesWindowsChips: ScriptedElement {
 				.width(416),
 				.height(288),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("Chip’s Challenge. The arrow keys move Chip one tile, and P pauses. A swipe or a tap on the board moves him too.")
 				.style(Styles.screen)
 
 			// The empty corners of the grid make the shape of a plus.
-			div(.role("group")) {
+			div(.role(.group)) {
 				for direction in Self.directions {
 					if let direction {
 						button(.type(.button), .hook(Hooks.move, value: direction.id)) {
@@ -72,7 +72,7 @@ struct GeoCitiesWindowsChips: ScriptedElement {
 		p(.part(Parts.counters)) {}
 			.style(VisuallyHidden.Styles.root)
 
-		p(.part(Parts.status), .role("status")) {
+		p(.part(Parts.status), .role(.status)) {
 			"Collect all the chips, go through the chip socket, and find the exit!"
 		}
 		.style(GeoCitiesPage.Styles.statusBar, Styles.status, GeoCitiesPage.Styles.scriptingOnly)
@@ -124,7 +124,7 @@ struct GeoCitiesWindowsChips: ScriptedElement {
 		case move = "chips-move"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case board
 		case screen

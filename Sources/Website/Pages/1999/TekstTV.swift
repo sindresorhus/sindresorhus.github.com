@@ -36,7 +36,7 @@ struct GeoCitiesTekstTV: ScriptedElement {
 						.accessibilityHidden()
 						.style(Styles.line)
 
-					div(.part(Parts.page), .role("region")) {}
+					div(.part(Parts.page), .role(.region)) {}
 						.accessibilityLabel("Teletext page")
 						.style(Styles.page)
 				}
@@ -50,7 +50,7 @@ struct GeoCitiesTekstTV: ScriptedElement {
 			}
 			.style(Styles.television)
 
-			p(.part(Parts.status), .role("status")) {}
+			p(.part(Parts.status), .role(.status)) {}
 				.style(GeoCitiesPage.Styles.caption, GeoCitiesPage.Styles.centeredText)
 
 			div {
@@ -62,6 +62,7 @@ struct GeoCitiesTekstTV: ScriptedElement {
 						.style(Styles.key)
 					}
 				}
+				.attributes(.role(.group))
 				.accessibilityLabel("Page number")
 				.style(Styles.keypad)
 
@@ -93,9 +94,11 @@ struct GeoCitiesTekstTV: ScriptedElement {
 						.style(Styles.key, button.style)
 					}
 				}
+				.attributes(.role(.group))
 				.accessibilityLabel("Colored buttons")
 				.style(Styles.keyRow)
 			}
+			.attributes(.role(.group))
 			.accessibilityLabel("Remote control")
 			.style(Styles.remote)
 		}
@@ -131,7 +134,7 @@ struct GeoCitiesTekstTV: ScriptedElement {
 		case jump = "tekst-tv-jump"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case player
 		case television

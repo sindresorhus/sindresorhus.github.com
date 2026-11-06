@@ -27,6 +27,8 @@ Call, message, or email your favorite people directly from the Lock Screen or Ho
 
 A tap can also start a FaceTime video or audio call, or open the chat in WhatsApp or Telegram.
 
+The widget comes in small, medium, large, and extra large sizes for the Home Screen, and in round, rectangular, and inline sizes for the Lock Screen. To align widgets on the Lock Screen, add the empty “Spacer” widget.
+
 You can also open a URL or run a shortcut instead when tapping the widget. This opens up a lot of cool possibilities. Here are [some ideas](https://github.com/bhagyas/app-urls) of what you could open.
 
 <!-- For macOS, it's only available for Apple silicon Macs running macOS 26 or later. -->
@@ -35,12 +37,12 @@ You can also open a URL or run a shortcut instead when tapping the widget. This 
 
 ### How do I add the widget? {#how-do-i-add-the-widget}
 
-- [iOS](https://support.apple.com/HT207122)
+- [iOS](https://support.apple.com/118610)
 <!-- - [macOS](https://support.apple.com/guide/mac-help/mchl52be5da5/mac) -->
 
 ### Can I call someone by just tapping the widget without the confirmation dialog? {#can-i-call-someone-by-just-tapping-the-widget-without-the-confirmation-dialog}
 
-Yes. Enable the “Quick Call” setting in the app.
+Yes. In the app, tap “Quick Call”, add the shortcut that the screen links to, and then turn on “Quick Call”. Calls and FaceTime calls from the widgets then run through the Shortcuts app, so keep the shortcut and its name.
 
 ### How is this different from the built-in “Contacts” widget? {#how-is-this-different-from-the-built-in-contacts-widget}
 

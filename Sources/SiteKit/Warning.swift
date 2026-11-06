@@ -78,12 +78,16 @@ public final class WarningCollector: Sendable {
 	}
 
 	/**
-	The value of the request, or `nil` with a warning when it fails, so the page leaves the value out. The warning is the message followed by the error, like “Could not get the popular GitHub repos, so the about page leaves them out: …”.
+	The value of the request, or `nil` with a warning when it fails, so the page leaves the value out. A failure after task cancellation leaves out the value without a warning. The warning is the message followed by the error, like “Could not get the popular GitHub repos, so the about page leaves them out: …”.
 	*/
 	public func value<Value: Sendable>(warning message: String, _ request: @Sendable () async throws -> Value) async -> Value? {
 		do {
 			return try await request()
 		} catch {
+			guard !Task.isCancelled else {
+				return nil
+			}
+
 			add(Warning(.failedRequest, "\(message): \(error)"))
 			return nil
 		}

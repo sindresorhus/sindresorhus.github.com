@@ -41,11 +41,11 @@ Same as the above.
 
 ### How do I add a widget to the Home Screen? {#how-do-i-add-a-widget-to-the-home-screen}
 
-When on the Home Screen, long-press on the background (not on any icons) until the apps begin to jiggle, tap “Edit”, then tap “Add Widget”, and select “Photo Widget”. [Learn more about widgets.](https://support.apple.com/HT207122)
+When on the Home Screen, long-press on the background (not on any icons) until the apps begin to jiggle, tap “Edit”, then tap “Add Widget”, and select “Photo Widget”. [Learn more about widgets.](https://support.apple.com/118610)
 
 ### How do I edit a widget? {#how-do-i-edit-a-widget}
 
-When on the Home Screen, long-press on the widget, and select “Edit Widget”. [Learn more about widgets.](https://support.apple.com/HT207122)
+When on the Home Screen, long-press on the widget, and select “Edit Widget”. [Learn more about widgets.](https://support.apple.com/118610)
 
 ### Why is there no Lock Screen widget? {#why-is-there-no-lock-screen-widget}
 
@@ -70,6 +70,11 @@ This is not possible. App developers have no way to hide it. However, you can hi
 ### If I select an album in a widget, does it include new photos added to the album after I set it up? {#if-i-select-an-album-in-a-widget-does-it-include-new-photos-added-to-the-album-after-i-set-it-up}
 
 Yes. The widget fetches a list of all the photos in the album each time and picks a random one.
+
+### Can a widget show photos from a friend or a partner? {#shared-album}
+<!-- @faq.keywords couple family -->
+
+Yes, with a [Shared Album](https://support.apple.com/108314) of the Photos app. Make a Shared Album, invite the other person, and choose the album in the widget of each of you. When one of you adds a photo to the album, it can show in both widgets.
 
 ### Can I show an animated GIF in a widget? {#can-i-show-an-animated-gif-in-a-widget}
 

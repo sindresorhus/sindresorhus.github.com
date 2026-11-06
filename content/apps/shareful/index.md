@@ -64,7 +64,7 @@ Shareful makes the system share menu even more useful by providing some commonly
 - **Save As**: Choose a folder to save the shared item in.
 - **Open In**: Open the shared item in any app, like the current Safari page in another browser.
 
-The services work in any app that has a share button, like Finder, Safari, Notes, and Photos. Turn on the ones you want in “System Settings › General › Login Items & Extensions”: click the info button next to “Sharing”. You can also click “Edit Extensions” at the bottom of a share menu.
+The services work in any app that has a share button, like Finder, Safari, Notes, and Photos. Turn on the ones you want in “[System Settings › General › Login Items & Extensions](x-apple.systempreferences:com.apple.LoginItems-Settings.extension)”: click the info button next to “Sharing”. You can also click “Edit Extensions” at the bottom of a share menu.
 
 ## Frequently Asked Questions {#faq}
 

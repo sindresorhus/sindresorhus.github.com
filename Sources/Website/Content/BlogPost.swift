@@ -14,9 +14,8 @@ struct BlogPost: ContentDocument {
 		case nodejs
 	}
 
-	let frontmatter: Frontmatter
 	let markdown: MarkdownDocument
-	let file: MarkdownFile
+	let decodedFile: DecodedMarkdownFile<Frontmatter>
 
 	/**
 	Minutes to read at 200 words per minute, like the `reading-time` package.
@@ -30,14 +29,15 @@ struct BlogPost: ContentDocument {
 		Frontmatter.CodingKeys.allCases
 	}
 
-	static let directory = "content/blog"
+	static let directory: Project.ContentDirectory = "content/blog"
 
 	// The slug is one component of the path of the page, so the file cannot be in a subdirectory.
 	static let allowsSubdirectories = false
 
-	init(file: MarkdownFile, frontmatter: Frontmatter, project: Project) throws {
-		self.frontmatter = frontmatter
-		self.file = file
+	init(file decodedFile: DecodedMarkdownFile<Frontmatter>, project: Project) throws {
+		let file = decodedFile.source
+		let frontmatter = decodedFile.frontmatter
+		self.decodedFile = decodedFile
 
 		// A post on another site has no page, so its text would not be shown anywhere.
 		if
@@ -62,15 +62,15 @@ struct BlogPost: ContentDocument {
 	Whether the post is on another site, like a redirect to an article on Medium.
 	*/
 	var isExternal: Bool {
-		frontmatter.redirectURL.map { $0.host() != Site.url.host() } ?? false
+		frontmatter.redirectURL.map { $0.value.host() != Site.url.host() } ?? false
 	}
 }
 
 extension BlogPost {
 	@Frontmatter
 	struct Frontmatter: PublishedFrontmatter {
-		var isDraft = false
-		var isUnlisted = false
+		@TrueOrAbsent var isDraft = false
+		@TrueOrAbsent var isUnlisted = false
 		@PlainText var title: String
 		@Snippet var description: String?
 
@@ -85,7 +85,7 @@ extension BlogPost {
 		/**
 		Makes the post link to an article elsewhere instead of having a page.
 		*/
-		@Absolute var redirectURL: URL?
+		var redirectURL: AbsoluteURL?
 
 		/**
 		Old paths of the post, like `/blog/old-name`. They redirect to the post.

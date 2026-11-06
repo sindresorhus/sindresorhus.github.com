@@ -21,11 +21,14 @@ let markdown = rewriter.visit(document)?.format()
 public struct PlainMarkdownRewriter: MarkupRewriter {
 	private let blockDirective: (BlockDirective) -> [any BlockMarkup]
 	private let linkDestination: ((String) -> String)?
+	private var changeCount = 0
 
 	/**
 	Whether the rewriter changed anything since it was created, so a block without the syntax of the site can keep its source.
 	*/
-	public private(set) var didChange = false
+	public var didChange: Bool {
+		changeCount > 0
+	}
 
 	/**
 	- Parameter linkDestination: Resolves parsed link and image destinations, without interpreting text that only looks like a link.
@@ -40,12 +43,10 @@ public struct PlainMarkdownRewriter: MarkupRewriter {
 	Rewrites the children, and replaces block directives and inline attributes, which can be several blocks or inline elements. A node is only built again when a child changed, as most of a document has none of the syntax of the site.
 	*/
 	public mutating func defaultVisit(_ markup: any Markup) -> (any Markup)? {
-		let didChangeBefore = didChange
-		didChange = false
+		let previousChangeCount = changeCount
 		let children = markup.children.flatMap { rewritten($0) }
 
-		guard didChange else {
-			didChange = didChangeBefore
+		guard changeCount != previousChangeCount else {
 			return markup
 		}
 
@@ -55,10 +56,10 @@ public struct PlainMarkdownRewriter: MarkupRewriter {
 	private mutating func rewritten(_ markup: any Markup) -> [any Markup] {
 		switch markup {
 		case let directive as BlockDirective:
-			didChange = true
+			changeCount += 1
 			return blockDirective(directive).flatMap { rewritten($0) }
 		case let attributes as InlineAttributes:
-			didChange = true
+			changeCount += 1
 			return inlineMarkup(of: attributes)
 		default:
 			return visit(markup).map { [$0] } ?? []
@@ -72,7 +73,7 @@ public struct PlainMarkdownRewriter: MarkupRewriter {
 			return text
 		}
 
-		didChange = true
+		changeCount += 1
 		return Markdown.Text(string)
 	}
 
@@ -90,7 +91,7 @@ public struct PlainMarkdownRewriter: MarkupRewriter {
 			return heading
 		}
 
-		didChange = true
+		changeCount += 1
 		return Markdown.Heading(level: heading.level, content.dropLast() + [Markdown.Text(lastText.string.removingCustomHeadingID)])
 	}
 
@@ -107,7 +108,7 @@ public struct PlainMarkdownRewriter: MarkupRewriter {
 			let resolved = linkDestination?(destination),
 			resolved != destination
 		{
-			didChange = true
+			changeCount += 1
 			link.destination = resolved
 		}
 
@@ -127,7 +128,7 @@ public struct PlainMarkdownRewriter: MarkupRewriter {
 			let resolved = linkDestination?(source),
 			resolved != source
 		{
-			didChange = true
+			changeCount += 1
 			image.source = resolved
 		}
 
@@ -141,7 +142,7 @@ public struct PlainMarkdownRewriter: MarkupRewriter {
 			return html
 		}
 
-		didChange = true
+		changeCount += 1
 		return rawHTML.allSatisfy(\.isWhitespace) ? nil : HTMLBlock(rawHTML)
 	}
 
@@ -152,7 +153,7 @@ public struct PlainMarkdownRewriter: MarkupRewriter {
 			return html
 		}
 
-		didChange = true
+		changeCount += 1
 		return rawHTML.isEmpty ? nil : InlineHTML(rawHTML)
 	}
 

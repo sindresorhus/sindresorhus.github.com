@@ -74,13 +74,18 @@ You may also have set the “Hide menu bar item” setting, which hides the menu
 
 The number comes from macOS and the app has no control over it.
 
+### Why does it say “Charging On Hold” while plugged in? {#charging-on-hold}
+<!-- @faq.keywords stuck limit -->
+
+macOS holds the charge, for example with Optimized Battery Charging or a charge limit, to make the battery last longer. Battery Indicator reads the same charge holds as macOS. “Not Charging” means that the battery does not charge for another reason, like heat. There is no time remaining while it does not charge.
+
 ### Why does the menu bar icon show `…` when I unplug the power adapter? {#why-does-the-menu-bar-icon-show--when-i-unplug-the-power-adapter}
 
 The system needs some time to accurately calculate the time remaining estimate.
 
 ### Can macOS do this without an app? {#built-in}
 
-Partly. The battery item of macOS can show the percentage: go to “System Settings › Menu Bar”, open the options of “Battery”, and enable “Show Percentage”. It cannot show the time remaining in the menu bar.
+Partly. The battery item of macOS can show the percentage: go to “[System Settings › Menu Bar](x-apple.systempreferences:com.apple.ControlCenter-Settings.extension)”, open the options of “Battery”, and enable “Show Percentage”. It cannot show the time remaining in the menu bar.
 
 Battery Indicator shows the time remaining or the percentage, notifies you at the percentages you choose, and can hide itself while on power.
 

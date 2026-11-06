@@ -30,7 +30,7 @@ struct StatList: HTML {
 		.style(Styles.centered, when: isCentered)
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case centered
 		case stat
@@ -72,7 +72,7 @@ struct StatList: HTML {
 }
 
 /**
-A line of short facts in text, like “May 2023 · 4 min read”, with a dot and an en space at each side between them. Each fact is an element, like a `span` or a `time`, and the line breaks only between the facts. A link that is not the last fact is in a `span`, so the dot after it is not part of the link. The dot is at the end of the fact before it, so no line starts with a dot. With `isStackedBelowDesktops`, each fact is on its own line below desktops, without dots, like in a centered header with long facts, which would otherwise wrap after a dot.
+A line of short facts in text, like “May 2023 · 4 min read”, with a dot and an en space at each side between them. Each fact is an element, like a `span` or a `time`, and the line breaks only between the facts. A link that is not the last fact is in a `span`, so the dot after it is not part of the link. The dot is at the end of the fact before it, so no line starts with a dot.
 
 Limitation: the dots and the spaces are drawn by the styles, so copied text has no space between the facts.
 
@@ -93,7 +93,6 @@ struct FactLine<Content: HTML>: HTML {
 	Plain-text facts before any richer content, each wrapped as one item.
 	*/
 	var facts = [String]()
-	var isStackedBelowDesktops = false
 	@HTMLBuilder let content: Content
 
 	var body: some HTML<HTMLTag.span> {
@@ -107,16 +106,14 @@ struct FactLine<Content: HTML>: HTML {
 			content
 		}
 		.style(FactLineStyles.root)
-		.style(FactLineStyles.stackedBelowDesktops, when: isStackedBelowDesktops)
 	}
 }
 
 /**
 The styles of ``FactLine``, outside of it, as a generic type cannot have a static style set.
 */
-enum FactLineStyles: StyleSet {
+enum FactLineStyles: String, StyleSet {
 	case root
-	case stackedBelowDesktops
 
 	var style: Style {
 		switch self {
@@ -131,19 +128,22 @@ enum FactLineStyles: StyleSet {
 						$0.content("\u{2002}·\u{2002}", alternativeText: "")
 					}
 				}
-		case .stackedBelowDesktops:
-			Style()
-				.below(.desktop) {
-					$0
-						.children("*") {
-							$0.display(.block)
-						}
-						.children(":not(:last-child)") {
-							$0.after {
-								$0.hidden()
-							}
-						}
-				}
+		}
+	}
+}
+
+extension Style {
+	/**
+	Each fact of a ``FactLine`` on its own line, without the dots, for a line of facts that would otherwise wrap after a dot, like on a small screen.
+	*/
+	func stackedFacts() -> Self {
+		children("*") {
+			$0.display(.block)
+		}
+		.children(":not(:last-child)") {
+			$0.after {
+				$0.hidden()
+			}
 		}
 	}
 }

@@ -66,7 +66,7 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 						.width(320),
 						.height(260),
 						.tabindex(0),
-						.role("application")
+						.role(.application)
 					) {}
 						.accessibilityLabel("The kitchen table with my Kinderegg. Drag over the foil to peel it, click to break and to bite, drag around the capsule to twist it open, and drag the parts together. Or use the keys: Enter or Space does the next step, B takes a bite, the number keys add a part, Escape folds away the paper, and P plays with the new toy.")
 						.style(Styles.canvas, Styles.eggCanvas)
@@ -74,7 +74,7 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 					EggButtons()
 					SisterPrompt()
 
-					p(.part(Parts.eggStatus), .role("status")) {
+					p(.part(Parts.eggStatus), .role(.status)) {
 						"Mamma gave me 9 kroner. Off to Narvesen!"
 					}
 					.style(Styles.status)
@@ -121,7 +121,7 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 	private struct SisterPrompt: HTML {
 		var body: some HTML {
 			div(.part(Parts.sister), .hidden) {
-				p(.part(Parts.sisterText), .role("status")) {}
+				p(.part(Parts.sisterText), .role(.status)) {}
 					.style(Styles.speech)
 
 				div {
@@ -163,14 +163,14 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 						.width(320),
 						.height(320),
 						.tabindex(0),
-						.role("application")
+						.role(.application)
 					) {}
 						.accessibilityLabel("My yo-yo on my finger. Drag down to throw it (further is harder), and click or tap to tug it back. Or use the keys: Down Arrow or S throws, Up Arrow or Enter tugs, Space throws or tugs, D walks the dog, W goes around the world, B rocks the baby, and U untangles.")
 						.style(Styles.canvas, Styles.yoyoCanvas)
 
 					YoyoButtons()
 
-					p(.part(Parts.yoyoStatus), .role("status")) {
+					p(.part(Parts.yoyoStatus), .role(.status)) {
 						"Drag down on the yo-yo to throw it. Tug to get it back!"
 					}
 					.style(Styles.status)
@@ -296,7 +296,7 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 						.part(Parts.shelf),
 						.width(320),
 						.height(250),
-						.role("img")
+						.role(.image)
 					) {}
 						.accessibilityLabel("The shelf over my bed with my Kinderegg toys: a row for the Happy Hippos, a row for the crocodiles, and a row for the other toys.")
 						.style(Styles.canvas, Styles.shelfCanvas)
@@ -315,7 +315,7 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 
 					OfferPrompt()
 
-					p(.part(Parts.shelfStatus), .role("status")) {}
+					p(.part(Parts.shelfStatus), .role(.status)) {}
 						.style(Styles.status)
 				}
 				.style(GeoCitiesPage.Styles.windowBody, Styles.stack)
@@ -330,7 +330,7 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 	private struct OfferPrompt: HTML {
 		var body: some HTML {
 			div(.part(Parts.offer), .hidden) {
-				p(.part(Parts.offerText), .role("status")) {}
+				p(.part(Parts.offerText), .role(.status)) {}
 					.style(Styles.speech)
 
 				div {
@@ -405,7 +405,7 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 		case trade = "kinder-egg-trade"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case toys
 		case eggColumn

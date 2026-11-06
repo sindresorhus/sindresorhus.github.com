@@ -122,7 +122,7 @@ struct GeoCitiesKaraoke: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.formRow)
 
-			div(.part(Parts.judges), .hidden, .role("status")) {}
+			div(.part(Parts.judges), .hidden, .role(.status)) {}
 				.style(Styles.judges)
 		}
 		.style(Styles.box, GeoCitiesPage.Styles.scriptingOnly)
@@ -156,7 +156,7 @@ struct GeoCitiesKaraoke: ScriptedElement {
 		case song = "karaoke-song"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case box
 		case machine

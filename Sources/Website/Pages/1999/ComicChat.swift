@@ -62,7 +62,7 @@ struct GeoCitiesComicChat: ScriptedElement {
 				" and you point at yourself. SHOUT IN CAPITALS. LOL works too. Smileys like :-) change your face."
 			}
 
-			div(.part(Parts.strip), .role("log")) {}
+			div(.part(Parts.strip), .role(.log)) {}
 				.accessibilityLabel("The comic strip of the chat")
 				.style(Styles.strip, GeoCitiesPage.Styles.scriptingOnly)
 
@@ -227,7 +227,7 @@ struct GeoCitiesComicChat: ScriptedElement {
 		case side = "comic-side"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case strip
 		case panel

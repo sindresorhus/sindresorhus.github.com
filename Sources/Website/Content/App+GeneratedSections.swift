@@ -37,6 +37,26 @@ extension App {
 		*/
 		case menuBarQuestion = "app-not-showing-in-menu-bar"
 
+		/**
+		The question that the build adds for free apps on the App Store that are not archived.
+		*/
+		case freeQuestion = "why-is-this-free-without-ads"
+
+		/**
+		The localization question that the build adds unless the app has its own answer.
+		*/
+		case localizationQuestion = "can-you-localize-the-app-into-my-language"
+
+		/**
+		The group of the guides about the app at the end of the page (``AppFooterLinks``), which the “…” menu links to.
+		*/
+		case guides
+
+		/**
+		The “Tips” section that an app file writes, whose tips with a custom ID the feedback page suggests (``App/tipHeadings``).
+		*/
+		case tips
+
 		var id: ElementID {
 			ElementID(rawValue)
 		}
@@ -55,6 +75,14 @@ extension App {
 				"I have a feature request, bug report, or some feedback"
 			case .menuBarQuestion:
 				"The app does not show up in the menu bar"
+			case .freeQuestion:
+				"Why is this free without ads?"
+			case .localizationQuestion:
+				"Can you localize the app into my language?"
+			case .guides:
+				"Guides"
+			case .tips:
+				"Tips"
 			}
 		}
 
@@ -63,9 +91,9 @@ extension App {
 		*/
 		var level: HeadingLevel {
 			switch self {
-			case .faq, .trial, .olderVersions, .nonAppStoreVersion:
+			case .faq, .trial, .olderVersions, .nonAppStoreVersion, .guides, .tips:
 				.h2
-			case .feedbackQuestion, .menuBarQuestion:
+			case .feedbackQuestion, .menuBarQuestion, .freeQuestion, .localizationQuestion:
 				.h3
 			}
 		}
@@ -74,7 +102,7 @@ extension App {
 		The heading as the build adds it, with the ID.
 		*/
 		var heading: Markdown.Heading {
-			Markdown.Heading(level: level, title, id: id.rawValue)
+			Markdown.Heading(level: level, title, id: id)
 		}
 
 		/**
@@ -90,13 +118,6 @@ extension App {
 		func isHeading(level: HeadingLevel, id: ElementID?) -> Bool {
 			level == self.level && id == self.id
 		}
-
-		/**
-		Whether a heading of the level ends the section: the next heading of the same level or a lower level, like the next level 2 heading after the FAQ section.
-		*/
-		func isEnded(byHeadingOfLevel level: HeadingLevel) -> Bool {
-			level <= self.level
-		}
 	}
 }
 
@@ -111,30 +132,31 @@ extension LinkDestination {
 
 extension App.Frontmatter {
 	/**
-	The Markdown of the app page with what the build adds from the facts of the app: the “Trial” section, the common questions that apply to it (``CommonQuestion``), the shared questions that it picks, the “Older Versions” and “Non-App Store Version” sections, and, unless the app is archived, the feedback question in the FAQ section.
+	The Markdown of the app page with what the build adds from the facts of the app: the “Trial” section, the common questions that apply to it (``CommonQuestion``), the shared questions that it picks, the “Older Versions” and “Non-App Store Version” sections, and, unless the app is archived, the feedback question in the FAQ section. The download cards become plain Markdown by default; the app renderer supplies their HTML presentation.
 	*/
-	func addingGeneratedSections(to document: Document, sharedQuestions: App.SharedQuestions, page: RoutePath) -> Document {
+	func addingGeneratedSections(
+		to document: Document,
+		sharedQuestions: App.SharedQuestions,
+		renderDownloadCard: (AppDownloadCard) -> [any BlockMarkup] = { $0.plainBlocks }
+	) -> Document {
 		var blocks = Array(document.blockChildren)
 
 		// Before the first level-2 heading of the file, so the trial is above the level-2 sections that the file writes, and the sections that the build adds come after it. An archived app has no trial.
-		if
-			!isArchived,
-			let trial
-		{
-			let firstSectionIndex = blocks.firstIndex { ($0 as? Markdown.Heading)?.level == 2 } ?? blocks.endIndex
-			blocks.insert(contentsOf: trialSection(trial), at: firstSectionIndex)
+		if let trialCard {
+			let firstSectionIndex = blocks.firstIndex { ($0 as? Markdown.Heading)?.headingLevel == .h2 } ?? blocks.endIndex
+			blocks.insert(contentsOf: [App.Section.trial.heading] + renderDownloadCard(trialCard), at: firstSectionIndex)
 		}
 
 		blocks.addCommonQuestions(CommonQuestion.questions(for: self, sharedQuestions: sharedQuestions))
 
 		// An archived app gets no support, and the feedback page does not list it.
 		if !isArchived {
-			blocks.addFeedbackQuestion(appTitle: title, page: page)
+			blocks.addFeedbackQuestion(appTitle: title)
 		}
 
 		// Added before the older versions, which ``addOlderVersions(_:isPaid:)`` then inserts above it.
 		if let nonAppStoreVersion {
-			blocks += nonAppStoreVersion.markdownSection(isOnSeveralPlatforms: platforms.count > 1)
+			blocks += [App.Section.nonAppStoreVersion.heading] + renderDownloadCard(nonAppStoreVersion.downloadCard(isOnSeveralPlatforms: platforms.count > 1))
 		}
 
 		blocks.addOlderVersions(olderVersions, isPaid: isPaid)
@@ -144,21 +166,27 @@ extension App.Frontmatter {
 
 extension App.Frontmatter {
 	/**
-	The “Trial” section: the heading and the trial card (`@Trial`) with the standard text of a trial.
+	The trial card from the metadata and standard text of the app. An archived app has no trial.
 	*/
-	private func trialSection(_ trial: App.Trial) -> [any BlockMarkup] {
-		[
-			App.Section.trial.heading,
-			BlockDirective(
-				name: BlockDirectiveName.trial.rawValue,
-				argumentText: trial.directiveArgumentText,
-				children: trialText(of: trial)
-			),
-		]
+	var trialCard: AppDownloadCard? {
+		guard
+			!isArchived,
+			let trial
+		else {
+			return nil
+		}
+
+		return AppDownloadCard(
+			text: trialText(of: trial),
+			buttonTitle: trial.buttonTitle,
+			url: trial.url,
+			requirement: trial.requirementSentence,
+			setappURL: setappURL
+		)
 	}
 
 	/**
-	The text of the trial of the app, so every app promises the same trial in the same words. A trial on TestFlight is the full app for 14 days. Another trial is only for the Mac, so an app on several platforms says “the macOS app”. Its data carries over to the purchase on the App Store, for an app that is there.
+	The text of the trial of the app, so every app promises the same trial in the same words. A trial on TestFlight is the full app for 14 days. Another trial is only for the Mac, so an app on several platforms says “the macOS app”. Its data carries over to the purchase on the App Store, for an app that is there. A trial that limits some features names them (``App/Trial/limitations``) instead of “The only limitation is …”.
 	*/
 	private func trialText(of trial: App.Trial) -> [any BlockMarkup] {
 		if trial.isTestFlight {
@@ -178,25 +206,28 @@ extension App.Frontmatter {
 
 		let subject = platforms.count > 1 ? "The trial of the macOS app" : "The trial"
 		let store = appStoreID == nil ? "" : " on the App Store"
-		return [Paragraph(Markdown.Text("\(subject) is fully functional. The only limitation is a reminder to buy the app every 12 hours, and no automatic updates. All data and settings carry over if you buy it\(store)."))]
+		let text = if let limitations = trial.limitations {
+			"\(subject) has a reminder to buy the app every 12 hours, and no automatic updates. \(limitations)"
+		} else {
+			"\(subject) is fully functional. The only limitation is a reminder to buy the app every 12 hours, and no automatic updates."
+		}
+
+		return [Paragraph(Markdown.Text("\(text) All data and settings carry over if you buy it\(store). Move the trial to the Trash before you install the app you bought."))]
 	}
 }
 
 extension App.NonAppStoreVersion {
 	/**
-	The “Non-App Store Version” section of an app page. It says “macOS version” for an app on several platforms, as the version is only for the Mac.
+	The download card from the version's metadata. It says “macOS version” for an app on several platforms, as the version is only for the Mac.
 	*/
-	func markdownSection(isOnSeveralPlatforms: Bool) -> [any BlockMarkup] {
-		[
-			App.Section.nonAppStoreVersion.heading,
-			Paragraph(Markdown.Text("A special \(isOnSeveralPlatforms ? "macOS " : "")version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year.")),
-			Paragraph(
-				Markdown.Link(destination: .url(url), text: "Download"),
-				Markdown.Text(" "),
-				Markdown.Emphasis(Markdown.Text("(\(version))"))
-			),
-			Paragraph(Markdown.Emphasis(Markdown.Text(OSVersion(major: macOS).requirementSentence(for: [.macOS])))),
-		]
+	func downloadCard(isOnSeveralPlatforms: Bool) -> AppDownloadCard {
+		// Not on Setapp, as the version is for users that cannot use an app store.
+		AppDownloadCard(
+			text: [Paragraph(Markdown.Text("A special \(isOnSeveralPlatforms ? "macOS " : "")version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year."))],
+			buttonTitle: "Download \(version)",
+			url: url,
+			requirement: OSVersion(major: macOS).macOSRequirementSentence
+		)
 	}
 }
 
@@ -240,7 +271,7 @@ private struct CommonQuestion {
 		{
 			questions.append(
 				Self(
-					title: "Why is this free without ads?",
+					section: .freeQuestion,
 					answer: Paragraph(Markdown.Text("I just enjoy making apps. Consider leaving a nice review on the App Store."))
 				)
 			)
@@ -250,7 +281,7 @@ private struct CommonQuestion {
 
 		questions.append(
 			Self(
-				title: "Can you localize the app into my language?",
+				section: .localizationQuestion,
 				answer: Paragraph(Markdown.Text("I don’t plan to localize the app."))
 			)
 		)
@@ -264,7 +295,16 @@ extension App {
 	The titles of the questions that the build adds to the FAQ section of the app (``CommonQuestion``). A question in the file with one of these titles replaces the added question, like a menu bar question with a sentence about a setting of the app.
 	*/
 	var commonQuestionTitles: Set<String> {
-		Set(CommonQuestion.questions(for: frontmatter, sharedQuestions: sharedQuestions).map(\.title))
+		frontmatter.commonQuestionTitles(sharedQuestions: sharedQuestions)
+	}
+}
+
+extension App.Frontmatter {
+	/**
+	The titles of the questions that the build adds to the FAQ section of the app (``App/commonQuestionTitles``), before the app is loaded.
+	*/
+	func commonQuestionTitles(sharedQuestions: App.SharedQuestions) -> Set<String> {
+		Set(CommonQuestion.questions(for: self, sharedQuestions: sharedQuestions).map(\.title))
 	}
 }
 
@@ -273,13 +313,13 @@ extension CommonQuestion {
 	A question with a one-paragraph answer.
 	*/
 	init(title: String, answer: Paragraph) {
-		self.init(title: title, blocks: [Markdown.Heading(level: 3, Markdown.Text(title)), answer])
+		self.init(title: title, blocks: [Markdown.Heading(level: .h3, Markdown.Text(title)), answer])
 	}
 
 	/**
 	A question that code finds by its ID, with a one-paragraph answer.
 	*/
-	init(section: App.Section, answer: Paragraph, isFirst: Bool) {
+	init(section: App.Section, answer: Paragraph, isFirst: Bool = false) {
 		self.init(title: section.title, blocks: [section.heading, answer], isFirst: isFirst)
 	}
 }
@@ -306,7 +346,7 @@ extension App {
 		The question goes before the questions of the app instead of after them, like `<!-- @faq.first -->` below a question about a problem. Only the shared questions have it, as a question of the app goes where it is written.
 		*/
 		enum First: HeadingDirective {
-			static let name = "faq.first"
+			static let name: HeadingDirectiveName = "faq.first"
 			typealias Value = HeadingDirectiveFlag
 		}
 
@@ -318,10 +358,11 @@ extension App {
 		/**
 		The questions that the app picks from the questions of the file. An ID that is not the ID of a question is an error at the `sharedQuestions` key. The frontmatter rejects an ID that is picked twice (``App/Frontmatter/validate(into:)``).
 		*/
-		init(pickedBy file: MarkdownFile, frontmatter: Frontmatter, from library: Library) throws {
-			self.questions = try frontmatter.sharedQuestions.enumerated().map { index, id in
+		init(pickedBy file: DecodedMarkdownFile<Frontmatter>, from library: Library) throws {
+			self.questions = try file.frontmatter.sharedQuestions.enumerated().map { index, id in
 				guard let question = library.questionsByID[id] else {
-					throw file.error(at: Frontmatter.CodingKeys.sharedQuestions, index: index, "`sharedQuestions` has `\(id)`, which is not the ID of a question in `\(Self.path)`.")
+					let suggestion = id.rawValue.closest(in: library.questionsByID.keys.map(\.rawValue)).map { " Did you mean `\($0)`?" } ?? ""
+					throw file.error(at: .sharedQuestions, index: index, "`sharedQuestions` has `\(id)`, which is not the ID of a question in `\(Self.path)`.\(suggestion)")
 				}
 
 				return question
@@ -336,6 +377,11 @@ extension App {
 			The questions by the IDs of their headings.
 			*/
 			fileprivate let questionsByID: [ElementID: CommonQuestion]
+
+			/**
+			The headings of the questions, in the order of the file, like for the checks of `website check`.
+			*/
+			let questionHeadings: [SiteKit.Heading]
 
 			/**
 			The file, like for the checks of `website check`. `nil` when the project has no file.
@@ -355,36 +401,38 @@ extension App {
 
 				do {
 					let file = try MarkdownFile(url: url)
-					self.questionsByID = try App.SharedQuestions.questionsByID(file: file, project: project)
+					(self.questionsByID, self.questionHeadings) = try App.SharedQuestions.questions(file: file, project: project)
 					self.file = file
 				} catch {
 					throw ContentErrors(converting: error, file: url)
 				}
 			}
 
-			private init(questionsByID: [ElementID: CommonQuestion], file: MarkdownFile?) {
+			private init(questionsByID: [ElementID: CommonQuestion], questionHeadings: [SiteKit.Heading], file: MarkdownFile?) {
 				self.questionsByID = questionsByID
+				self.questionHeadings = questionHeadings
 				self.file = file
 			}
 
 			/**
 			No questions, for an app that picks none, so it does not read the file.
 			*/
-			static let empty = Self(questionsByID: [:], file: nil)
+			static let empty = Self(questionsByID: [:], questionHeadings: [], file: nil)
 		}
 
 		/**
-		All the questions of the file, by the IDs of their headings.
+		All the questions of the file, by the IDs of their headings, and their headings, in the order of the file.
 		*/
-		private static func questionsByID(file: MarkdownFile, project: Project) throws -> [ElementID: CommonQuestion] {
+		private static func questions(file: MarkdownFile, project: Project) throws -> (byID: [ElementID: CommonQuestion], headings: [SiteKit.Heading]) {
 			var options = MarkdownDocument.Options.content(file, project: project)
-			options.headingDirectives.append(First.self)
-			let document = Document(parsing: file.body, file: file.url, options: options)
-			let headings = try MarkdownDocument(rendering: document, of: file, options: options).headings
+			options.headingDirectives = FAQDirectives.all + [First.self]
+			let parsed = file.parsedMarkdown(options: options)
+			let document = parsed.document
+			let headings = try parsed.rendered().headings
 
 			// Each question is a top-level heading and the blocks up to the next one, by the line of the heading.
-			var sectionsByLine = [Int: [any BlockMarkup]]()
-			var sectionLine: Int?
+			var sectionsByLine = [SiteKit.SourceLocation.Line: [any BlockMarkup]]()
+			var sectionLine: SiteKit.SourceLocation.Line?
 
 			for block in document.blockChildren {
 				if block is Markdown.Heading {
@@ -397,8 +445,17 @@ extension App {
 			}
 
 			var questionsByID = [ElementID: CommonQuestion]()
+			var questionHeadings = [SiteKit.Heading]()
 			var titles = Set<String>()
-			var errors = [ContentError]()
+
+			// The answers are shown on the app pages, so a relative link, like `faq.md`, would go somewhere else on each page.
+			var errors = (document.descendants(of: Markdown.Link.self).map { (destination: $0.destination, markup: $0 as any Markup) } + document.descendants(of: Markdown.Image.self).map { (destination: $0.source, markup: $0) })
+				.filter { link in
+					link.destination.map { !$0.isEmpty && !$0.hasPrefix("/") && !$0.hasPrefix("#") && !$0.contains(":") } ?? false
+				}
+				.map { link in
+					file.error(line: file.line(of: link.markup), "The link `\(link.destination ?? "")` is relative, but the answer is shown on the app pages. Use a site path, like `/apps/faq#refund`.")
+				}
 
 			for heading in headings {
 				guard heading.level == .h3 else {
@@ -412,6 +469,12 @@ extension App {
 					let blocks = sectionsByLine[line]
 				else {
 					errors.append(file.error(line: heading.line, "An answer cannot have headings, also not in a block directive."))
+					continue
+				}
+
+				// An app picks a question by its ID, so without its own, the question can only be picked by an ID that changes with its text.
+				guard heading.hasCustomID else {
+					errors.append(file.error(line: heading.line, "The question “\(heading.text)” has no ID of its own, so no app can pick it. Give it a short ID, like `{#\(heading.id)}`."))
 					continue
 				}
 
@@ -429,13 +492,14 @@ extension App {
 
 				// The IDs are unique, as the parse of the file reports a heading ID that is used twice.
 				questionsByID[heading.id] = CommonQuestion(title: heading.text, blocks: blocks, isFirst: heading.contains(First.self))
+				questionHeadings.append(heading)
 			}
 
 			guard errors.isEmpty else {
 				throw ContentErrors(errors)
 			}
 
-			return questionsByID
+			return (questionsByID, questionHeadings)
 		}
 	}
 }
@@ -453,10 +517,32 @@ extension [any BlockMarkup] {
 		}
 
 		let content = contentOfSection(afterHeadingAt: headingIndex, level: App.Section.faq.level) { block in
-			(block as? Markdown.Heading).flatMap { HeadingLevel(rawValue: $0.level) }
+			(block as? Markdown.Heading)?.headingLevel
 		}
 
 		return content.startIndex..<content.endIndex
+	}
+
+	/**
+	The heading that ends the FAQ section of an app file when a question that the build adds to the FAQ section comes after it, like `## More questions` above “Can you localize the app into my language?”, as the question is then not in the FAQ section, so the build adds it again, with the same ID. `nil` when the file has no such question after the FAQ section. A section after it, like “Scripting”, can have other level 3 headings.
+
+	- Parameter questionTitles: The titles of the questions that the build adds (``App/Frontmatter/commonQuestionTitles(sharedQuestions:)``).
+	*/
+	func headingEndingFAQSection(before questionTitles: Set<String>) -> Markdown.Heading? {
+		guard
+			let section = faqSection,
+			self[section.upperBound...].contains(where: { block in
+				guard let heading = block as? Markdown.Heading else {
+					return false
+				}
+
+				return heading.headingLevel == .h3 && questionTitles.contains(heading.title)
+			})
+		else {
+			return nil
+		}
+
+		return self[section.upperBound] as? Markdown.Heading
 	}
 
 	/**
@@ -485,14 +571,14 @@ extension [any BlockMarkup] {
 	/**
 	Adds the feedback question to the FAQ section, or adds the answer to an existing question with the same title.
 	*/
-	fileprivate mutating func addFeedbackQuestion(appTitle: String, page: RoutePath) {
+	fileprivate mutating func addFeedbackQuestion(appTitle: String) {
 		guard let section = faqSection else {
 			return
 		}
 
 		let answer = Paragraph(
 			Markdown.Text("Click the feedback button in the app or "),
-			Markdown.Link(destination: .url(App.feedbackURL(appTitle: appTitle, referrer: .faq).absoluteURL(on: page)), text: "send it here.")
+			Markdown.Link(destination: App.feedbackURL(appTitle: appTitle, referrer: .faq), text: "send it here.")
 		)
 
 		let question = App.Section.feedbackQuestion
@@ -503,12 +589,12 @@ extension [any BlockMarkup] {
 					return false
 				}
 
-				return heading.level == question.level.rawValue && heading.title == question.title
+				return heading.headingLevel == question.level && heading.title == question.title
 			}),
 			var heading = self[questionIndex] as? Markdown.Heading
 		{
 			// The question gets the feedback ID instead of its own. Its title is plain text, as it is the same as the plain title. The heading is changed, not replaced, so it keeps its line, where the answer of the question above it ends (``App/faqAnswerLines(of:)``).
-			heading.setTitle(question.title, id: question.id.rawValue)
+			heading.setTitle(question.title, id: question.id)
 			self[questionIndex] = heading
 
 			// After the directives of the question, which must be directly below it.
@@ -539,7 +625,7 @@ extension [any BlockMarkup] {
 				return false
 			}
 
-			return heading.level == section.level.rawValue && heading.customID == section.id.rawValue
+			return section.isHeading(level: heading.headingLevel, id: heading.customID)
 		}
 	}
 }
@@ -554,7 +640,7 @@ extension [App.OlderVersion] {
 		let items = map { olderVersion in
 			ListItem(
 				Paragraph(
-					Markdown.Link(destination: .url(olderVersion.url), text: olderVersion.version),
+					Markdown.Link(destination: .url(olderVersion.url), text: olderVersion.version.value),
 					Markdown.Text(" for macOS \(olderVersion.macOS.rawValue)\(isPaid ? "" : "+")")
 				)
 			)

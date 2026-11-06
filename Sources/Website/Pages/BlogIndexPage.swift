@@ -27,7 +27,8 @@ struct BlogIndexPage: Page {
 		section {
 			PageHeader(title: "Blog", intro: "Posts about open source, programming, and making apps.")
 
-			ul {
+			// Keep the list semantics in Safari, as the styles remove its bullets.
+			ul(.role(.list)) {
 				for post in posts {
 					li {
 						ArticleRow(.post(post))
@@ -41,7 +42,7 @@ struct BlogIndexPage: Page {
 }
 
 extension BlogIndexPage {
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case list
 
@@ -52,11 +53,13 @@ extension BlogIndexPage {
 				Style()
 					.pageColumn(.prose)
 			case .list:
-				// A gap, not a margin below each post, so the last post adds no space above the footer.
+				// A gap, not a margin below each post, so the last post adds no space above the footer. From tablets, the space below the introduction is larger than the space between the posts, so the first post does not look like a part of the introduction.
 				Style()
 					.vstack(spacing: .rootEm(2.5))
 					.from(.tablet) {
-						$0.gap(.rootEm(4))
+						$0
+							.gap(.rootEm(4))
+							.margin(.top, .rootEm(5))
 					}
 			}
 		}

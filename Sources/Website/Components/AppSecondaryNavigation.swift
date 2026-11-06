@@ -10,6 +10,11 @@ struct AppSecondaryNavigation: ScriptedElement {
 
 	let app: App
 
+	/**
+	Whether the page has guides about the app, which the “…” menu links to.
+	*/
+	let hasGuides: Bool
+
 	var content: some HTML {
 		a(.href(app.url)) {
 			AppIcon(decorative: app, size: 32)
@@ -30,7 +35,7 @@ struct AppSecondaryNavigation: ScriptedElement {
 			}
 
 			div {
-				OverflowMenu.appPage(app)
+				OverflowMenu.appPage(app, hasGuides: hasGuides)
 			}
 			.style(Styles.overflow)
 
@@ -50,17 +55,18 @@ struct AppSecondaryNavigation: ScriptedElement {
 	}
 
 	/**
-	The data attribute that the script sets on the site header while the app header has scrolled away, so the navigation of the app replaces the site navigation.
+	The data attributes that the script sets on the site header: one while the app header has scrolled away, so the navigation of the app replaces the site navigation, and the fragment of the section that the visitor is in, like `#faq`, so the menu of the site header marks it on phones.
 	*/
 	enum Hooks: String, ScriptDataAttributeSet {
 		case appHeroScrolledAway = "app-hero-scrolled-away"
+		case currentSection = "current-section"
 	}
 
 	enum Parts: String, ElementPartSet {
 		case sectionLink
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case identity
 		case name

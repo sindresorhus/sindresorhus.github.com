@@ -15,6 +15,7 @@ enum AppCategory: String, ContentEnum, Encodable {
 	case watchOS = "watchos"
 	case visionOS = "visionos"
 	case shortcuts
+	case developerTools = "developer-tools"
 	case archived
 
 	/**
@@ -22,6 +23,20 @@ enum AppCategory: String, ContentEnum, Encodable {
 	*/
 	static var browsable: [Self] {
 		allCases.filter { $0 != .archived }
+	}
+
+	/**
+	The categories that the apps page shows as chips: all that visitors browse, except the Apple Vision apps, as there are only a few of them.
+	*/
+	static var chips: [Self] {
+		browsable.filter { $0 != .visionOS }
+	}
+
+	/**
+	The categories that visitors browse that are not chips (``chips``), which the “…” menu next to the chips has.
+	*/
+	static var menuCategories: [Self] {
+		browsable.filter { !chips.contains($0) }
 	}
 
 	var path: RoutePath {
@@ -51,6 +66,8 @@ enum AppCategory: String, ContentEnum, Encodable {
 			"Apple Vision"
 		case .shortcuts:
 			"Shortcuts"
+		case .developerTools:
+			"Dev Tools"
 		case .archived:
 			"Archived"
 		}
@@ -88,7 +105,7 @@ enum AppCategory: String, ContentEnum, Encodable {
 		allCases
 			.filter { $0.platform != nil && !$0.apps(in: content).isEmpty }
 			.map(\.name)
-			.formatted(.list(type: .and).locale(.site))
+			.formattedList(.and)
 	}
 
 	/**
@@ -114,6 +131,8 @@ enum AppCategory: String, ContentEnum, Encodable {
 			"that run on Apple Vision"
 		case .shortcuts:
 			"related to the Shortcuts app"
+		case .developerTools:
+			"for developers"
 		case .archived:
 			"that are no longer being worked on"
 		}
@@ -136,7 +155,7 @@ enum AppCategory: String, ContentEnum, Encodable {
 		case .paid:
 			"The apps of mine that are paid. One-time payment. Own forever."
 		case .setapp:
-			"Apps of mine available on **Setapp**."
+			"The apps of mine that are on [Setapp](\(SetappID.vendorProgramURL.absoluteString)), a subscription with many Mac apps and a free trial of 7 days. Each app is also a one-time purchase on its own page, without a subscription."
 		case .macOS:
 			"The apps of mine that run on the Mac."
 		case .iOS:
@@ -151,6 +170,8 @@ enum AppCategory: String, ContentEnum, Encodable {
 			"Apps that are no longer being worked on."
 		case .shortcuts:
 			"Apps related to the [Shortcuts app](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac)."
+		case .developerTools:
+			"The apps of mine for developers, from the “Developer Tools” category of the App Store."
 		}
 	}
 
@@ -167,7 +188,7 @@ enum AppCategory: String, ContentEnum, Encodable {
 			"""
 		case .paid:
 			"You can find my free apps [here](\(Self.free.path))."
-		case .setapp, .macOS, .iOS, .watchOS, .visionOS, .menuBar, .archived, .shortcuts:
+		case .setapp, .macOS, .iOS, .watchOS, .visionOS, .menuBar, .archived, .shortcuts, .developerTools:
 			nil
 		}
 	}
@@ -186,6 +207,9 @@ enum AppCategory: String, ContentEnum, Encodable {
 		switch self {
 		case .archived:
 			content.listedApps.filter(\.isArchived)
+		case .developerTools:
+			// The category of the App Store, which the build fetches, so an app that is not on the App Store is not in it.
+			content.activeApps.filter { content.listing(of: $0).appStoreInfo?.schemaApplicationCategory == .developer }
 		default:
 			content.activeApps.filter(includes)
 		}
@@ -204,8 +228,26 @@ enum AppCategory: String, ContentEnum, Encodable {
 			.watchOS
 		case .visionOS:
 			.visionOS
-		case .free, .paid, .setapp, .menuBar, .shortcuts, .archived:
+		case .free, .paid, .setapp, .menuBar, .shortcuts, .developerTools, .archived:
 			nil
+		}
+	}
+
+	/**
+	The names that visitors use for the platform of the category in a path, like `iphone` and `ipad` for the iOS apps, as the slugs are the names of the operating systems. Empty for a category that is not a platform.
+	*/
+	var otherNames: [String] {
+		switch self {
+		case .macOS:
+			["mac"]
+		case .iOS:
+			["iphone", "ipad"]
+		case .watchOS:
+			["apple-watch", "watch"]
+		case .visionOS:
+			["apple-vision", "vision-pro"]
+		case .free, .paid, .setapp, .menuBar, .shortcuts, .developerTools, .archived:
+			[]
 		}
 	}
 
@@ -223,7 +265,8 @@ enum AppCategory: String, ContentEnum, Encodable {
 			app.isMenuBarApp
 		case .shortcuts:
 			app.categories.contains(.shortcuts)
-		case .archived:
+		// The categories of the App Store and the archived apps are found in ``apps(in:)``.
+		case .developerTools, .archived:
 			false
 		}
 	}
@@ -236,7 +279,7 @@ extension [App] {
 	func examples(featuring featuredApps: [App]) -> String {
 		let titles = startingWith(featuredApps).prefix(4).map(\.title)
 
-		guard let list = titles.nilIfEmpty?.formatted(.list(type: .and).locale(.site)) else {
+		guard let list = titles.nilIfEmpty?.formattedList(.and) else {
 			return ""
 		}
 

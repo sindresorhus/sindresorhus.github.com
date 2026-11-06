@@ -98,7 +98,7 @@ struct AppCategoryPage: Page {
 		.style(Styles.root)
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case icons
 		case icon

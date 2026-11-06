@@ -25,7 +25,7 @@ struct UnicornEasterEgg: HTML {
 		case unicornTemplate = "unicorn-template"
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case unicorn
 		case hop
 
@@ -54,7 +54,7 @@ struct UnicornEasterEgg: HTML {
 		}
 	}
 
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case run
 		case hop
 

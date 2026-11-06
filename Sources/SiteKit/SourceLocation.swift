@@ -9,7 +9,7 @@ public enum SourceLocation: Hashable, Sendable, CustomStringConvertible {
 	/**
 	A file or a directory, or a line of a file, like `content/apps/dato/index.md:12`.
 	*/
-	case file(URL, line: Int? = nil)
+	case file(URL, line: Line? = nil)
 
 	/**
 	A published page, by its path, like `/apps`, for a problem that is in the page, not in a file.
@@ -45,5 +45,55 @@ public enum SourceLocation: Hashable, Sendable, CustomStringConvertible {
 		}
 
 		return url
+	}
+}
+
+extension SourceLocation {
+	/**
+	A one-based line in a source file, distinct from a zero-based offset or collection index.
+	*/
+	public struct Line: RawRepresentable, Hashable, Comparable, Sendable, CustomStringConvertible, ExpressibleByIntegerLiteral {
+		public let rawValue: Int
+
+		/**
+		Checks a line supplied by a parser or the code. A nonpositive line is a programming error.
+		*/
+		public init(_ value: Int) {
+			precondition(value > 0, "A source line starts at 1.")
+			self.rawValue = value
+		}
+
+		/**
+		Validates a one-based line from external input.
+		*/
+		public init?(rawValue: Int) {
+			guard rawValue > 0 else {
+				return nil
+			}
+
+			self.rawValue = rawValue
+		}
+
+		/**
+		Checks a literal one-based line.
+		*/
+		public init(integerLiteral value: Int) {
+			self.init(value)
+		}
+
+		/**
+		The line after moving by a signed number of lines. The result must remain positive.
+		*/
+		public func offset(by offset: Int) -> Self {
+			Self(rawValue + offset)
+		}
+
+		public var description: String {
+			rawValue.description
+		}
+
+		public static func < (lhs: Self, rhs: Self) -> Bool {
+			lhs.rawValue < rhs.rawValue
+		}
 	}
 }

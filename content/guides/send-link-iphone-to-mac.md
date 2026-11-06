@@ -41,10 +41,10 @@ Your iPhone and Mac have four ways to move a link. Universal Clipboard, iCloud T
 
 **Universal Clipboard:** Copy the link on the iPhone, and soon after, press ++Command+V++ on the Mac. The devices must be near each other, with Wi-Fi, Bluetooth, and Handoff on. [How Hyperduck compares.](../apps/hyperduck/index.md#universal-clipboard)
 
-**AirDrop:** On the iPhone, tap “Share”, tap “AirDrop”, and tap your Mac. The Mac must be awake and near you, with Wi-Fi and Bluetooth on. If the Mac does not show, set “AirDrop” to “Contacts Only” or “Everyone” in “System Settings › General › AirDrop & Continuity” on the Mac. [How Hyperduck compares.](../apps/hyperduck/index.md#airdrop)
+**AirDrop:** On the iPhone, tap “Share”, tap “AirDrop”, and tap your Mac. The Mac must be awake and near you, with Wi-Fi and Bluetooth on. If the Mac does not show, set “AirDrop” to “Contacts Only” or “Everyone” in “[System Settings › General › AirDrop & Continuity](x-apple.systempreferences:com.apple.AirDrop-Handoff-Settings.extension)” on the Mac. [How Hyperduck compares.](../apps/hyperduck/index.md#airdrop)
 
 **iCloud Tabs:** Safari shows the tabs that are open on your iPhone. In Safari on the Mac, show the sidebar, click your iPhone below “iCloud Tabs”, and click the page. The page must stay open in Safari on the iPhone, and private tabs do not show. Safari must be on in the iCloud settings of both devices. [How Hyperduck compares.](../apps/hyperduck/index.md#icloud-tabs)
 
-**Handoff:** Open the page in Safari on the iPhone, and click the Handoff icon of Safari at the end of the Dock on the Mac. The devices must be near each other. Turn on Handoff in “System Settings › General › AirDrop & Continuity” on the Mac, and in “Settings › General › AirPlay & Continuity” on the iPhone. [How Hyperduck compares.](../apps/hyperduck/index.md#handoff)
+**Handoff:** Open the page in Safari on the iPhone, and click the Handoff icon of Safari at the end of the Dock on the Mac. The devices must be near each other. Turn on Handoff in “[System Settings › General › AirDrop & Continuity](x-apple.systempreferences:com.apple.AirDrop-Handoff-Settings.extension)” on the Mac, and in “Settings › General › AirPlay & Continuity” on the iPhone. [How Hyperduck compares.](../apps/hyperduck/index.md#handoff)
 
 These work well when your Mac is next to you. Hyperduck is for links from all apps, to a Mac that can be far away or off, and it opens them in your browser, so you do not forget them.

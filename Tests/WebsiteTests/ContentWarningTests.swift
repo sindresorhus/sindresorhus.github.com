@@ -1,7 +1,10 @@
+import CoreGraphics
 import Foundation
+import ImageIO
 import SiteKit
 import TestSupport
 import Testing
+import UniformTypeIdentifiers
 @testable import Website
 
 struct ContentWarningTests {
@@ -10,14 +13,7 @@ struct ContentWarningTests {
 		let source = App.testMarkdown(platforms: [.macOS, .iOS], frontmatter: "appStoreID: 123\nminimumOSVersion: '26'", body: "The app has a shorcut. Read more [here](https://example.com) or `in` in the code. See [Velja](https://sindresorhus.com/velja#faq).\n\n*Requires macOS 15 or later*\n")
 		let app = try await App(markdown: source)
 		let info = try AppStoreInfo(json: #"{"trackId": 123, "price": 5, "currency": "USD", "kind": "mac-software", "minimumOsVersion": "27.0"}"#)
-		let content = SiteContent(
-			apps: [app],
-			posts: [],
-			pages: [],
-			appData: SiteContent.AppData(appStoreInfo: [123: info]),
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: [app], appData: SiteContent.AppData(appStoreInfo: [123: info]))
 
 		let warnings = await content.warningTexts()
 
@@ -41,13 +37,7 @@ struct ContentWarningTests {
 	func `the spelling check reads only text`() async throws {
 		let source = App.testMarkdown(body: "~~~\nsdfgh qwerty\n~~~\n\n<div\n  class=\"xyzzyq\">Text</div>\n\nThe app has a shorcut, see https://example.com/abcdefgh.\n")
 		let app = try await App(markdown: source)
-		let content = SiteContent(
-			apps: [app],
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: [app])
 
 		let warnings = await content.warningTexts(of: .unknownWord, .repeatedWord)
 
@@ -69,14 +59,7 @@ struct ContentWarningTests {
 			apps.append(try await App(frontmatter: "sharedQuestions: ['shared']", body: "## Frequently Asked Questions {#faq}\n", slug: slug, project: project))
 		}
 
-		let content = SiteContent(
-			apps: apps,
-			posts: [],
-			pages: [],
-			sharedQuestions: try App.SharedQuestions.Library(project: project),
-			buildDate: .now,
-			project: project
-		)
+		let content = SiteContent.test(apps: apps, sharedQuestions: try App.SharedQuestions.Library(project: project), project: project)
 		let warnings = await content.warningTexts(of: .vagueLinkText, .repeatedWord, .unknownWord)
 
 		#expect(warnings == [
@@ -93,13 +76,7 @@ struct ContentWarningTests {
 	func `an unknown word is reported at the line of its text`() async throws {
 		let source = App.testMarkdown(body: "It is “fast” and *has a shorcut*.\n\n- One\n- Two mispeled\n\n🎉🎉🎉🎉🎉🎉 wrod\n\nA speling.\n")
 		let app = try await App(markdown: source)
-		let content = SiteContent(
-			apps: [app],
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: [app])
 
 		let warnings = await content.warningTexts(of: .unknownWord, .repeatedWord)
 
@@ -118,7 +95,7 @@ struct ContentWarningTests {
 		}
 
 		let fetched = try await app("fetched", "releasesRepository: 'sindresorhus/fetched-meta'\nminimumOSVersion: '26'")
-		let content = SiteContent(
+		let content = SiteContent.test(
 			apps: [
 				fetched,
 				try await app("missing", "isPaid: false"),
@@ -127,11 +104,7 @@ struct ContentWarningTests {
 				try await app("manual", "minimumOSVersion: '26'"),
 				try await app("archived", "isArchived: true"),
 			],
-			posts: [],
-			pages: [],
-			appData: SiteContent.AppData(appcasts: [#URL("https://sindresorhus.com/fetched-meta/appcast.xml"): try Appcast(xml: Data("<item><sparkle:minimumSystemVersion>26.4</sparkle:minimumSystemVersion></item>".utf8))]),
-			buildDate: .now,
-			project: .empty
+			appData: SiteContent.AppData(appcasts: [#URL("https://sindresorhus.com/fetched-meta/appcast.xml"): try Appcast(xml: Data("<item><sparkle:minimumSystemVersion>26.4</sparkle:minimumSystemVersion></item>".utf8))])
 		)
 
 		#expect(content.listing(of: fetched).minimumOSVersion == OSVersion("26.4"))
@@ -143,14 +116,8 @@ struct ContentWarningTests {
 
 	@Test
 	func `a raw image with only one of its width and height is a warning`() async throws {
-		let source = App.testMarkdown(body: "<img src=\"https://example.com/a.png\" alt=\"A\" width=\"230\">\n\n<img src=\"b.png\" alt=\"B\" height=\"100\">\n\n<img src=\"https://example.com/c.png\" alt=\"C\">\n\n<img src=\"d.png\" alt=\"D\">\n\n<img src=\"https://example.com/e.png\" alt=\"E\" width=\"230\" height=\"100\">\n")
-		let content = SiteContent(
-			apps: [try await App(markdown: source)],
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let source = App.testMarkdown(body: "<img src=\"https://example.com/a.png\" alt=\"A\" width=\"230\">\n\n<img src=\"/b.png\" alt=\"B\" height=\"100\">\n\n<img src=\"https://example.com/c.png\" alt=\"C\">\n\n<img src=\"/d.png\" alt=\"D\">\n\n<img src=\"https://example.com/e.png\" alt=\"E\" width=\"230\" height=\"100\">\n")
+		let content = SiteContent.test(apps: [try await App(markdown: source)])
 
 		#expect(await content.warningTexts(of: .imageWithoutAspectRatio, .remoteImageWithoutSize) == [
 			"content/apps/test.md:8: The image has `width` but no `height`, so it has no aspect ratio before it loads, and the page shifts. Add `height`.",
@@ -166,13 +133,7 @@ struct ContentWarningTests {
 	func `vague link texts and remote images in code are not warnings`() async throws {
 		let source = App.testMarkdown(body: "Write `[here](/a)` and `![](https://example.com/a.png)`.\n\n~~~\n[here](/b)\n~~~\n\nOr [learn\nmore](/c).\n")
 		let app = try await App(markdown: source)
-		let content = SiteContent(
-			apps: [app],
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: [app])
 
 		let warnings = await content.warningTexts(of: .vagueLinkText, .absoluteSiteLink, .headingLinkWithoutID, .remoteImageWithoutSize, .imageWithoutAspectRatio)
 
@@ -183,30 +144,31 @@ struct ContentWarningTests {
 	func `finds vague link texts with trailing punctuation, but not link texts that say where the link goes`() async throws {
 		let source = App.testMarkdown(body: "[Try this.](/a) [this shortcut](/b) [Download](/c) [Screenshot.](/d) [Learn more ›](/e) [More…](/f)\n\n[Download the older version](/g) [Learn more about Shortcuts](/h) [Try this shortcut](/i)\n")
 		let app = try await App(markdown: source)
-		let content = SiteContent(
-			apps: [app],
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: [app])
 
 		let warnings = await content.warningTexts(of: .vagueLinkText)
 
 		#expect(warnings == ["Try this", "this shortcut", "Download", "Screenshot", "Learn more", "More"].map { "content/apps/test.md:8: The link text “\($0)” does not say where the link goes." })
 	}
 
+	/**
+	`website check content/apps/dato` only checks the text of the files that it shows, as the checks of the text are the slowest.
+	*/
+	@Test
+	func `the text checks can check only some files`() async throws {
+		let first = try await App(body: "The app is is fast.", slug: "first")
+		let second = try await App(body: "The app is is slow.", slug: "second")
+		let content = SiteContent.test(apps: [first, second])
+
+		#expect(await content.warningTexts(of: .repeatedWord, textFiles: [second.file.url]) == ["content/apps/second.md:8: Repeated word: “is is”."])
+		#expect(await content.warningTexts(of: .repeatedWord, textFiles: [first.file.url.deletingLastPathComponent()]).count == 2)
+	}
+
 	@Test
 	func `repeated words are warnings, also in other case, except a repeated “a”`() async throws {
 		let source = App.testMarkdown(body: "The app is is fast. Press a a b.\n\nIt syncs the the settings.\n\nThe the app is a b b c.\n")
 		let app = try await App(markdown: source)
-		let content = SiteContent(
-			apps: [app],
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: [app])
 
 		let warnings = await content.warningTexts(of: .repeatedWord)
 
@@ -226,14 +188,7 @@ struct ContentWarningTests {
 		func warnings(platforms: [Platform], devices: String) async throws -> [String] {
 			let app = try await App(platforms: platforms, frontmatter: "appStoreID: 123")
 			let info = try JSONDecoder().decode(AppStoreInfo.self, from: Data(#"{"trackId": 123, "kind": "software", "supportedDevices": \#(devices)}"#.utf8))
-			let content = SiteContent(
-				apps: [app],
-				posts: [],
-				pages: [],
-				appData: SiteContent.AppData(appStoreInfo: [123: info]),
-				buildDate: .now,
-				project: .empty
-			)
+			let content = SiteContent.test(apps: [app], appData: SiteContent.AppData(appStoreInfo: [123: info]))
 			return await content.warningTexts(of: .appStoreMismatch)
 		}
 
@@ -248,14 +203,7 @@ struct ContentWarningTests {
 	func `the lowest OS version of an Apple Vision app is for visionOS`() async throws {
 		let app = try await App(platforms: [.visionOS], frontmatter: "appStoreID: 123", body: "Requires visionOS 2 or later, like the widgets of iOS 18.\n")
 		let info = try JSONDecoder().decode(AppStoreInfo.self, from: Data(#"{"trackId": 123, "kind": "software", "minimumOsVersion": "26.0", "supportedDevices": ["AppleVisionPro-AppleVisionPro"]}"#.utf8))
-		let content = SiteContent(
-			apps: [app],
-			posts: [],
-			pages: [],
-			appData: SiteContent.AppData(appStoreInfo: [123: info]),
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: [app], appData: SiteContent.AppData(appStoreInfo: [123: info]))
 
 		let warnings = await content.warningTexts(of: .oldOSVersionMention)
 
@@ -274,13 +222,7 @@ struct ContentWarningTests {
 			try await app(slug: "third", answer: "Yes."),
 		]
 
-		let content = SiteContent(
-			apps: apps,
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: apps)
 		let warnings = await content.warningTexts(of: .sharedAnswer)
 
 		#expect(warnings == [
@@ -295,13 +237,7 @@ struct ContentWarningTests {
 	@Test
 	func `each raw key has one warning, also with glyphs or without plain text`() async throws {
 		let app = try await App(body: "Press <kbd>⌘⇧K</kbd> or <kbd>**K**</kbd>. Works on Mac <sup>macOS only</sup>.\n")
-		let content = SiteContent(
-			apps: [app],
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: [app])
 
 		#expect(await content.warningTexts(of: .rawKeyboardShortcut, .modifierGlyph, .rawPlatformBadge) == [
 			"content/apps/test.md:8: Write the keyboard shortcut “⌘⇧K” as `++Shift+Command+K++`, not with `<kbd>`.",
@@ -316,13 +252,7 @@ struct ContentWarningTests {
 	@Test
 	func `keyboard shortcuts as plain text and raw links are warnings`() async throws {
 		let app = try await App(body: "Press Command+N, or Option-Command-V, not ++Command+R++. Shift-click, Shift-JIS, <kbd>Command+C</kbd>, and [Command+K](/apps).\n\n## Use Command+Q\n\nSee <a href=\"/datto\">Datto</a>.\n")
-		let content = SiteContent(
-			apps: [app],
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: [app])
 
 		#expect(await content.warningTexts(of: .plainTextShortcut, .rawLink) == [
 			"content/apps/test.md:8: Write the keyboard shortcut “Command+N” as `++Command+N++`, so the page shows its keys.",
@@ -334,28 +264,17 @@ struct ContentWarningTests {
 	@Test
 	func `a question that one app has twice is not a shared answer`() async throws {
 		let app = try await App(body: "## Frequently Asked Questions {#faq}\n\n### Can it sync?\n\nNo, it cannot sync at all.\n\n### Can it sync?\n\nNo, it cannot sync at all.\n")
-		let content = SiteContent(
-			apps: [app],
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: [app])
 
 		#expect(await content.warningTexts(of: .sharedAnswer).isEmpty)
 	}
 
 	@Test
 	func `raw keys and platforms, links to headings without their own ID, the feedback note, and the versions of downloads are checked`() async throws {
-		let first = try await App(frontmatter: "feedbackNote: 'See [this](/apps).'\nolderVersions: [{version: '1.4.9', macOS: '14', url: 'https://example.com/App.1.14.9.zip'}]", body: "Press <kbd>Command+C</kbd>, or <kbd>Command+</kbd> to zoom, or <kbd>cmd+k</kbd>, not `⌘C`. Works on Mac <sup>(macOS-only)</sup>.\n\n### Can it sync?\n\nNo.\n", slug: "first")
+		// The name of the second download only has the macOS version, which is not a version of the app.
+		let first = try await App(frontmatter: "feedbackNote: 'See [this](/apps).'\nolderVersions: [{version: '1.4.9', macOS: '14', url: 'https://example.com/App.1.14.9.zip'}, {version: '1.2.0', macOS: '10.13', url: 'https://example.com/App-for-macOS-10.13.zip'}]", body: "Press <kbd>Command+C</kbd>, or <kbd>Command+</kbd> to zoom, or <kbd>cmd+k</kbd>, not `⌘C`. Works on Mac <sup>(macOS-only)</sup>.\n\n### Can it sync?\n\nNo.\n", slug: "first")
 		let second = try await App(body: "See [the sync answer](/first#can-it-sync).\n", slug: "second")
-		let content = SiteContent(
-			apps: [first, second],
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: [first, second])
 
 		let warnings = Set(await content.warningTexts(of: .rawKeyboardShortcut, .modifierGlyph, .rawPlatformBadge, .headingLinkWithoutID, .vagueLinkText, .downloadVersion))
 
@@ -363,12 +282,147 @@ struct ContentWarningTests {
 			"content/apps/first.md:10: Write the keyboard shortcut “Command+C” as `++Command+C++`, not with `<kbd>`.",
 			"content/apps/first.md:10: Write the keyboard shortcut “Command+” as `++Command+Plus++`, not with `<kbd>`.",
 			"content/apps/first.md:10: Write the keyboard shortcut “cmd+k” as `++Command+K++`, not with `<kbd>`.",
-			"content/apps/first.md:10: Write a keyboard shortcut with the names of its keys, like `++Option+Shift+Command+V++`, not with modifier glyphs, like “⌥⇧⌘V”.",
+			"content/apps/first.md:10: Write “⌘C” as `++Command+C++`, with the names of its keys, not with modifier glyphs.",
 			"content/apps/first.md:10: Write the platform “(macOS-only)” as a platform badge, like `^[macOS only](platform: \"macOS\")`, not with `<sup>`.",
 			"content/apps/first.md:6: The link text “this” does not say where the link goes.",
 			"content/apps/first.md:7: The version 1.4.9 is not the version in the name of its download, App.1.14.9.zip.",
 			"content/apps/second.md:8: The link goes to the heading “Can it sync?”, whose ID comes from its text, so changing the text breaks the link. Give the heading its ID: `{#can-it-sync}` (content/apps/first.md:12).",
 		])
+	}
+
+	@Test
+	func `a download with the name of another app is checked`() async throws {
+		let dato = try await App(title: "Dato", slug: "dato")
+		let velja = try await App(title: "Velja", frontmatter: "isPaid: true\nsetappID: 1\ntrial: {url: 'https://example.com/Dato-5.8.4-trial.zip'}", slug: "velja")
+		let content = SiteContent.test(apps: [dato, velja])
+
+		#expect(await content.warningTexts(of: .downloadOfOtherApp) == [
+			"content/apps/velja.md:8: The download of `trial` is `Dato-5.8.4-trial.zip`, which has the name of Dato, not of Velja. Check its `url`.",
+		])
+	}
+
+	/**
+	The subtitle and the description are the text of search results and social cards, so their spelling is checked at the line of their key. The lines of the feedback note in a block string are the lines of the file.
+	*/
+	@Test
+	func `the spelling of the frontmatter texts and the feedback note is checked at their lines`() async throws {
+		let source = "---\ntitle: 'Test'\nsubtitle: 'A notificatons app'\ndescription: '''\n\tA calender in the menu bar.\n\t'''\npublicationDate: 2026-01-01\nplatforms: ['macOS']\nfeedbackNote:\n\t'''\n\tThe first paragraph.\n\n\tThe second has a shorcut.\n\t'''\n---\n\nText.\n"
+		let app = try await App(markdown: source)
+		let content = SiteContent.test(apps: [app])
+
+		#expect(Set(await content.warningTexts(of: .unknownWord)) == [
+			"content/apps/test.md:3: Unknown word: “notificatons”.",
+			"content/apps/test.md:5: Unknown word: “calender”.",
+			"content/apps/test.md:13: Unknown word: “shorcut”.",
+		])
+	}
+
+	/**
+	The rules of the content that `ContentGuardTests` and `PageTests` check are warnings at their lines too, so `website check` shows them.
+	*/
+	@Test
+	func `footnotes, raw scripts and styles, localized Apple links, and blocks in a paragraph are warnings at their lines`() async throws {
+		let body = "Text with a footnote.[^1]\n\n[^1]: The note.\n\n<span style=\"color: red\">Red</span> and [the app](https://apps.apple.com/us/app/dato/id1234).\n\n<style>p {}</style>\n\nText <div>block</div> more.\n\n<script>alert(1)</script>\n\n<!-- <script> -->\n\n```xml\n<script></script>\n```\n"
+		let app = try await App(body: body)
+		let content = SiteContent.test(apps: [app])
+
+		#expect(Set(await content.warningTexts(of: .footnote, .rawScriptOrStyle, .localizedAppleLink, .blockInParagraph)) == [
+			"content/apps/test.md:8: Write the footnote `[^1]` as a note, like `^[text](note: \"The note.\")`, which needs no definition in another place.",
+			"content/apps/test.md:12: The content has a `style` attribute. Move the look into a style of a component.",
+			"content/apps/test.md:12: Link to Apple without the locale or storefront, like `https://apps.apple.com/app/…` or `https://support.apple.com/102426`, so Apple shows the page in the language of the visitor: https://apps.apple.com/us/app/dato/id1234",
+			"content/apps/test.md:14: The content has a raw `<style>`. Move the look into a style of a component.",
+			"content/apps/test.md:16: The `<div>` is inside a paragraph, which the HTML parser closes before it, so the page is not structured like the HTML. Put a blank line before and after it.",
+			"content/apps/test.md:18: The content has a raw `<script>`. Move the script into a component.",
+		])
+	}
+
+	@Test
+	func `Markdown that shows as text, TODO notes, and line breaks as spacers are warnings at their lines`() async throws {
+		let body = "See [Velja](/velja page) and [Dato][dato-link].\n\nThe **bold text.\n\nThe `code.\n\nText {#text}\n\n##Section\n\n`[x](y)` and **bold** are fine.\n\n<!-- TODO: Check the price. -->\n\n<br>\n\nText<br>more.\n"
+		let app = try await App(body: body)
+		let content = SiteContent.test(apps: [app])
+		let warnings = await content.warningTexts(of: .rawMarkdown, .todo, .lineBreakSpacer)
+
+		#expect(Set(warnings) == [
+			"content/apps/test.md:8: The text has `](`, as the link is not parsed, like a link with a space in its destination. Write a space in a destination as `%20`.",
+			"content/apps/test.md:8: The text has `][`, as the reference link has no definition, like `[velja-link]: /velja`. Add it, or write the link with its destination.",
+			"content/apps/test.md:10: The text has a `**` without its closing `**`, so the page shows the asterisks.",
+			"content/apps/test.md:12: The text has a backtick without its closing backtick, so the page shows it.",
+			"content/apps/test.md:14: The text ends with a heading ID, like `{#id}`, which only a heading can have, so the page shows it.",
+			"content/apps/test.md:16: The text starts with `#`, but a heading needs a space after its `#`, like `## Section`.",
+			"content/apps/test.md:20: The published page has the note “TODO: Check the price.”. Resolve it, or make the page a draft (`isDraft: true`) until it is resolved.",
+			"content/apps/test.md:22: A line break (`<br>`) alone is a spacer, but the styles set the space between the blocks of the page. Remove it.",
+		])
+	}
+
+	@Test
+	func `a published page without a page or redirect is a warning`() async throws {
+		let content = SiteContent.test(apps: [])
+		let routes = [Route.redirect(RoutePath("/kept"), to: RoutePath("/"))]
+
+		let warnings = content.removedPageWarnings(publishedPaths: [RoutePath("/kept"), RoutePath("/removed")], routes: routes)
+
+		#expect(warnings.map(\.location) == [.page(RoutePath("/removed"))])
+	}
+
+	/**
+	The build only reads content files that end in `.md`. A file of a page bundle is published as a file, so it is not a mistake. A folder with files but no Markdown file has no page.
+	*/
+	@Test(.temporaryDirectory)
+	func `a content file with another extension is a warning`() async throws {
+		let root = try URL.temporaryDirectory(
+			files: [
+				"content/guides/test-guide.MD": "",
+				"content/blog/draft-post.markdown": "",
+				"content/guides/bundle/index.MD": "",
+				"content/apps/dato/index.md": "",
+				"content/apps/dato/notes.txt": "",
+				"content/apps/dato/extra/readme.txt": "",
+				"content/apps/new-app/icon.png": "",
+				"content/apps/new-app/.DS_Store": "",
+				"content/blog/.DS_Store": "",
+				"content/pages/about.md": "",
+				"content/pages/contact.txt": "",
+			]
+		)
+		let content = SiteContent.test(project: Project.site(root: root))
+
+		#expect(await content.warningTexts(of: .ignoredContentFile) == [
+			"content/blog/draft-post.markdown: The build leaves out draft-post.markdown, as a content file ends in `.md`. Rename it to `draft-post.md`.",
+			"content/guides/bundle/index.MD: The build leaves out index.MD, as a content file ends in `.md`. Rename it to `index.md`.",
+			"content/guides/test-guide.MD: The build leaves out test-guide.MD, as a content file ends in `.md`. Rename it to `test-guide.md`.",
+			"content/pages/contact.txt: The build leaves out contact.txt, as a content file ends in `.md`. Rename it to `contact.md`.",
+		])
+
+		#expect(await content.warningTexts(of: .folderWithoutPage) == [
+			"content/apps/new-app: The folder `new-app` has files, but no `index.md`, so the site has no page for it. Add the page as `index.md`, or remove the folder.",
+		])
+	}
+
+	/**
+	The icon and the screenshots are checked by their files, and the price by the data of Gumroad.
+	*/
+	@Test(.temporaryDirectory)
+	func `a heavy icon, screenshots of different sizes, and a price that Gumroad does not agree with are warnings`() async throws {
+		let project = Project.site(root: try URL.temporaryDirectory(files: [:]))
+		let directory = project.root.appending(path: "content/apps/test")
+		try directory.createDirectory()
+		// The page of a page bundle, so the images are its files.
+		try Data().write(to: directory.appending(path: "index.md"))
+		// Noise, so the PNG cannot be compressed, and it is more than 300 KB.
+		try writePNG(to: directory.appending(path: "icon.png"), width: 320, height: 320, isNoise: true)
+		try writePNG(to: directory.appending(path: "screenshot1.png"), width: 300, height: 200)
+		try writePNG(to: directory.appending(path: "screenshot2.png"), width: 300, height: 220)
+
+		let app = try await App(frontmatter: "isPaid: true\ngumroad: {id: 'test', price: 6}", project: project)
+		let product = try GumroadProduct(json: #"{"price_cents": 499}"#)
+		let content = SiteContent.test(apps: [app], appData: SiteContent.AppData(gumroadProducts: [try GumroadProductID(validating: "test"): product]), project: project)
+		let warnings = await content.warningTexts(of: .heavyIcon, .screenshotSizes, .gumroadPrice)
+
+		#expect(warnings.count == 3, "\(warnings)")
+		#expect(warnings.contains { $0.hasPrefix("content/apps/test/icon.png: The icon is ") && $0.hasSuffix(" KB. Icons are usually less than 300 KB.") })
+		#expect(warnings.contains("content/apps/test: The screenshots have different sizes: 300×200, 300×220."))
+		#expect(warnings.contains("content/apps/test.md:7: The Gumroad price is $4.99, but `gumroad.price` is $6."))
 	}
 
 	/**
@@ -379,13 +433,7 @@ struct ContentWarningTests {
 		let app = try await App(body: "## Frequently Asked Questions {#faq}\n\n### Can it sync?\n\nNo.\n\n### Is it free? {#free}\n\nYes.\n")
 		// The general FAQ, whose questions the apps and the support emails link to the most.
 		let generalFAQ = try await MarkdownPage(markdown: "---\ntitle: 'FAQ'\n---\n\n## Purchases {#purchases}\n\n### How can I get a refund?\n\nAsk.\n\n### Is there a trial? {#trial}\n\nYes.\n", slug: "apps/faq")
-		let content = SiteContent(
-			apps: [app],
-			posts: [],
-			pages: [generalFAQ],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: [app], pages: [generalFAQ])
 
 		let warnings = await content.warningTexts(of: .questionWithoutID)
 		#expect(warnings == [
@@ -401,18 +449,24 @@ struct ContentWarningTests {
 	func `a feedback link with a product that is not an app of the feedback page is checked`() async throws {
 		let dato = try await App(title: "Dato", frontmatter: "feedbackNames: ['Dato Calendar']", slug: "dato")
 		let other = try await App(frontmatter: "feedbackNote: '[Tell me](/feedback?product=Datto).'", body: "[Send it](/feedback?product=Datto&referrer=Website-FAQ), [this](/feedback?product=dato), [the name](/feedback?product=dato%20calendar), and [that](/feedback?product=Dato%20App).\n", slug: "other")
-		let content = SiteContent(
-			apps: [dato, other],
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: [dato, other])
 
 		#expect(Set(await content.warningTexts(of: .unknownFeedbackProduct)) == [
 			"content/apps/other.md:6: The feedback link has the product “Datto”, which is not an app of the feedback page, so the form opens without the app. Did you mean “Dato”?",
 			"content/apps/other.md:9: The feedback link has the product “Datto”, which is not an app of the feedback page, so the form opens without the app. Did you mean “Dato”?",
-			"content/apps/other.md:9: The feedback link has the product “Dato App”, which is not an app of the feedback page, so the form opens without the app. Did you mean “Dato”?",
+			"content/apps/other.md:9: The feedback link has the product “Dato App”, which is not an app of the feedback page, so the form opens without the app.",
+		])
+	}
+
+	@Test
+	func `a feedback link with a parameter or a referrer that the feedback page does not know is checked`() async throws {
+		let dato = try await App(title: "Dato", slug: "dato")
+		let other = try await App(body: "[One](/feedback?product=Dato&refferer=Website-FAQ), [two](/feedback?product=Dato&referrer=Website-FAq), and [three](/feedback?product=Dato&referrer=Website-FAQ).\n", slug: "other")
+		let content = SiteContent.test(apps: [dato, other])
+
+		#expect(Set(await content.warningTexts(of: .unknownFeedbackParameter)) == [
+			"content/apps/other.md:8: The feedback link has the parameter “refferer”, which the feedback page does not know. Did you mean “referrer”?",
+			"content/apps/other.md:8: The feedback link has the referrer “Website-FAq”, which is not a referrer of the site. The referrers are “Website-FAQ” and “Website-Feedback”.",
 		])
 	}
 
@@ -420,18 +474,12 @@ struct ContentWarningTests {
 	func `promises, tracking parameters, http links, copied answer blocks, and trial requirements are checked`() async throws {
 		// Two copied blocks in one answer still give one warning for it.
 		let steps = "- Open the settings of the app, and go to the “Calls” tab.\n- Click the plus button.\n- Choose the service in the list, and enter the link of the meeting room that you use for your calls.\n\nThe service then shows up in the list of services of the app, and the app opens the link of the meeting room when you join a call from the menu bar.\n"
-		let first = try await App(frontmatter: "pressQuotes: [{quote: 'Love it', source: 'Buyer', url: 'https://sindresorhus.gumroad.com/l/test'}]\ntrial: {url: 'https://example.com/Test.zip', macOS: '26'}", body: "See [the guide](https://example.com/guide?utm_source=chatgpt.com&ref=sponsor), not `https://example.com?fbclid=1`. The [old site](http://example.com) and [the preview](http://localhost:3000).\n\n## Frequently Asked Questions {#faq}\n\n### Can you add iOS?\n\nI plan to do it at some point.\n\n### Can you add widgets?\n\nIt’s not something I plan to add in the future.\n\n### How do I add a call service?\n\n\(steps)", slug: "first")
+		let first = try await App(frontmatter: "pressQuotes: [{quote: 'Love it', source: 'Buyer', url: 'https://sindresorhus.gumroad.com/l/test'}]\ntrial: {url: 'https://example.com/Test.zip', macOS: '26'}", body: "See [the guide](https://example.com/guide?utm_source=chatgpt.com&ref=sponsor), not `https://example.com?fbclid=1`. The [old site](http://example.com).\n\n## Frequently Asked Questions {#faq}\n\n### Can you add iOS?\n\nI plan to do it at some point.\n\n### Can you add widgets?\n\nIt’s not something I plan to add in the future.\n\n### How do I add a call service?\n\n\(steps)", slug: "first")
 		let second = try await App(frontmatter: "minimumOSVersion: '27'\ntrial: {url: 'https://example.com/Test.zip', macOS: '26'}", body: "## Frequently Asked Questions {#faq}\n\n### My call service is missing\n\nTell me which one.\n\n\(steps)", slug: "second")
 		let third = try await App(frontmatter: "minimumOSVersion: '27'\ntrial: {url: 'https://example.com/Test.zip', macOS: '27'}", slug: "third")
 		// A trial can need a newer version than the app, as the trial is of a version that is not on the App Store yet.
 		let fourth = try await App(frontmatter: "minimumOSVersion: '27'\ntrial: {url: 'https://example.com/Test.zip', macOS: '28'}", slug: "fourth")
-		let content = SiteContent(
-			apps: [first, second, third, fourth],
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: [first, second, third, fourth])
 
 		let warnings = await content.warningTexts(of: .copiedAnswerBlock, .promise, .trackingParameter, .insecureLink, .trialRequirement)
 
@@ -451,13 +499,7 @@ struct ContentWarningTests {
 	func `a long introduction is a warning, as the app page shows it under the name`() async throws {
 		func warnings(introduction: String) async throws -> [String] {
 			let app = try await App(body: "\(introduction)\n\nMore text.\n")
-			let content = SiteContent(
-				apps: [app],
-				posts: [],
-				pages: [],
-				buildDate: .now,
-				project: .empty
-			)
+			let content = SiteContent.test(apps: [app])
 			return await content.warningTexts(of: .longIntroduction)
 		}
 
@@ -471,19 +513,14 @@ struct ContentWarningTests {
 	@Test
 	func `open source projects that GitHub does not agree with are warnings`() async throws {
 		let got = try GitHubRepository(json: #"{"name": "got", "description": "HTTP", "full_name": "sindresorhus/got", "html_url": "https://github.com/sindresorhus/got", "created_at": "2020-01-01T00:00:00Z", "archived": true, "fork": false, "stargazers_count": 1, "language": "JavaScript"}"#)
-		let content = SiteContent(
-			apps: [],
-			posts: [],
-			pages: [],
+		let content = SiteContent.test(
 			gitHubAccount: GitHub.Account(
 				repositoryCount: 1,
 				followerCount: 1,
 				starCount: 1,
 				maintenance: GitHub.Maintenance(closedIssueCount: 1, mergedPullRequestCount: 1),
 				repositories: [got]
-			),
-			buildDate: .now,
-			project: .empty
+			)
 		)
 
 		let warnings = await content.warningTexts(of: .openSourceProject)
@@ -494,7 +531,7 @@ struct ContentWarningTests {
 		#expect(warnings.contains("/open-source: Ky (`sindresorhus/ky`) is not a repo on GitHub. Maybe it was renamed or moved. Fix its `repository` in `OpenSourcePage.swift`."))
 
 		// Without the repos, like when the request failed, nothing is checked.
-		#expect(await SiteContent(apps: [], posts: [], pages: [], buildDate: .now, project: .empty).warningTexts(of: .openSourceProject).isEmpty)
+		#expect(await SiteContent.test().warningTexts(of: .openSourceProject).isEmpty)
 	}
 
 	/**
@@ -502,28 +539,14 @@ struct ContentWarningTests {
 	*/
 	@Test
 	func `a social card that cuts off its subtitle is a warning`() async throws {
-		let longSubtitle = String(repeating: "A sentence that is much too long for the card. ", count: 6)
+		let longSubtitle = String(repeating: "A sentence that is much too long for the card. ", count: 6) + "The end"
 		let app = try await App(markdown: "---\ntitle: 'Test'\nsubtitle: '\(longSubtitle)'\npublicationDate: 2026-01-01\nplatforms: ['macOS']\n---\n\nText.")
-		let content = SiteContent(apps: [app], posts: [], pages: [], buildDate: .now, project: .empty)
+		let content = SiteContent.test(apps: [app])
 
 		#expect(await content.warningTexts(of: .cutSocialCardText) == ["content/apps/test.md:3: The social card cuts off `subtitle` after three lines. Shorten it."])
 
 		let shortApp = try await App(slug: "short")
-		#expect(await SiteContent(apps: [shortApp], posts: [], pages: [], buildDate: .now, project: .empty).warningTexts(of: .cutSocialCardText).isEmpty)
-	}
-
-	@Test
-	func `a published page is named by its site path`() async throws {
-		let published = PublishedSite(routeTexts: ["apps.html": "<h1>Title</h1><h3>Skipped</h3>"])
-		let content = SiteContent(
-			apps: [],
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
-
-		#expect(await content.warnings(published: published, routes: Site(content: content).routes()).warnings == [Warning(.skippedHeadingLevel, at: .page(.apps), "The level 3 heading “Skipped” follows a level 1 heading.")])
+		#expect(await SiteContent.test(apps: [shortApp]).warningTexts(of: .cutSocialCardText).isEmpty)
 	}
 
 	/**
@@ -538,13 +561,7 @@ struct ContentWarningTests {
 				"old.html": skippedHeadings,
 			]
 		)
-		let content = SiteContent(
-			apps: [],
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test()
 		let routes: [Route] = [
 			.page(#path("/code")) { "" },
 			.redirect(#path("/old"), to: #path("/code")),
@@ -564,13 +581,7 @@ struct ContentWarningTests {
 				"apps.html": "<h1>Apps</h1><h4>Skipped</h4>",
 			]
 		)
-		let content = SiteContent(
-			apps: [try await App(body: "## Section\n\n#### Skipped", slug: "test")],
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: [try await App(body: "## Section\n\n#### Skipped", slug: "test")])
 
 		// At the line of the heading in the content file, when the content has it.
 		#expect(Set(await content.warningTexts(of: .skippedHeadingLevel, published: published)) == [
@@ -586,14 +597,7 @@ struct ContentWarningTests {
 	func `text about the older versions of an app may mention older OS versions`() async throws {
 		let app = try await App(frontmatter: "appStoreID: 123", body: "- [Old](https://example.com/Old.zip)\n\n*Requires macOS 15 or later*\n\nThis is a macOS 14 bug, so it only affects the [older version](#older-versions). It started in macOS 12.\n\n*Requires macOS 13 or later*\n")
 		let info = try JSONDecoder().decode(AppStoreInfo.self, from: Data(#"{"trackId": 123, "kind": "mac-software", "minimumOsVersion": "26.0"}"#.utf8))
-		let content = SiteContent(
-			apps: [app],
-			posts: [],
-			pages: [],
-			appData: SiteContent.AppData(appStoreInfo: [123: info]),
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: [app], appData: SiteContent.AppData(appStoreInfo: [123: info]))
 
 		// A line is a paragraph, so only the sentence with the link is left out.
 		#expect(await content.warningTexts(of: .oldOSVersionMention) == ["content/apps/test.md:13: Mentions macOS 12, but the App Store version needs macOS 26.", "content/apps/test.md:15: Mentions macOS 13, but the App Store version needs macOS 26."])
@@ -610,13 +614,7 @@ struct ContentWarningTests {
 			apps.append(try await App(frontmatter: "isMenuBarApp: true", body: "## Frequently Asked Questions {#faq}\n\n### \(App.Section.menuBarQuestion.title)\n\nLaunch the app again.\n", slug: slug))
 		}
 
-		let content = SiteContent(
-			apps: apps,
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: apps)
 
 		#expect(await content.warningTexts(of: .sharedAnswer).isEmpty)
 	}
@@ -638,13 +636,7 @@ struct ContentWarningTests {
 				"second.html": #"<title>Second</title><meta name="description" content="Same &amp; more.">"#,
 			]
 		)
-		let content = SiteContent(
-			apps: apps,
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(apps: apps)
 
 		#expect(await content.warningTexts(of: .duplicateTitle, .duplicateDescription, published: published) == [
 			"content/apps/first.md: The page has the same description as `/second`: “Same & more.”. Give each page its own description.",
@@ -653,29 +645,53 @@ struct ContentWarningTests {
 	}
 
 	/**
-	The files of a draft are only published with its page, so they are not unused.
+	The publisher leaves out the files of a draft (`PublishingTests`), so the check only sees the files that it publishes.
 	*/
 	@Test(.temporaryDirectory)
-	func `a published file that nothing uses is a warning, but a file that is not published is not`() async throws {
+	func `a published file that nothing uses is a warning`() async throws {
 		let root = try URL.temporaryDirectory(
 			files: [
 				"public/used.txt": "",
 				"public/unused.txt": "",
-				"content/apps/draft/index.md": "",
-				"content/apps/draft/screenshot.jpg": "",
 			]
 		)
-		let published = PublishedSite(routeTexts: ["index.html": #"<a href="/used.txt">Used</a>"#], publicFiles: ["used.txt", "unused.txt"])
 		let project = Project.site(root: root)
-		let content = SiteContent(
-			apps: [],
-			posts: [],
-			pages: [],
-			buildDate: .now,
-			project: project
-		)
+		let published = PublishedSite(routeTexts: ["index.html": #"<a href="/used.txt">Used</a>"#], publicFiles: try project.publicFiles())
+		let content = SiteContent.test(project: project)
 
 		#expect(await content.warningTexts(published: published) == ["public/unused.txt: No published page, stylesheet, or script uses the file."])
+	}
+
+	/**
+	A check of a public file reports that nothing uses it, as the check leaves out the public files only for an edit of a content file (``ContentWarnings``).
+	*/
+	@Test(.temporaryDirectory)
+	func `a check of a public file reports that nothing uses it`() async throws {
+		let root = try URL.temporaryDirectory(files: ["public/unused.txt": ""])
+		let project = Project.site(root: root)
+		let published = PublishedSite(routeTexts: ["index.html": ""], publicFiles: try project.publicFiles())
+		let content = SiteContent.test(project: project)
+
+		#expect(await content.warningTexts(of: .unusedPublicFile, published: published, textFiles: [root.appending(path: "public/unused.txt")]) == ["public/unused.txt: No published page, stylesheet, or script uses the file."])
+	}
+
+	@Test(.temporaryDirectory, arguments: ["content/apps/test", "content/apps/test/unused.txt"])
+	func `filtered checks report unused page bundle assets`(selectedPath: String) async throws {
+		let root = try URL.temporaryDirectory(files: [
+			"public/used.txt": "",
+			"content/apps/test/index.md": "",
+			"content/apps/test/unused.txt": "",
+			"content/apps/test/used.txt": "",
+		])
+		let project = Project.site(root: root)
+		// References can come from any page, also one outside the selected folder.
+		let published = PublishedSite(routeTexts: ["other.html": #"<a href="/test/used.txt">Bundle</a><a href="/used.txt">Public</a>"#], publicFiles: try project.publicFiles())
+		let content = SiteContent.test(project: project)
+		let expected = ["content/apps/test/unused.txt: No published page, stylesheet, or script uses the file."]
+		#expect(await content.warningTexts(of: .unusedPublicFile, published: published) == expected)
+		#expect(await content.warningTexts(of: .unusedPublicFile, published: published, textFiles: [root.appending(path: selectedPath)]) == expected)
+		// Editing only the Markdown still avoids checking assets.
+		#expect(await content.warningTexts(of: .unusedPublicFile, published: published, textFiles: [root.appending(path: "content/apps/test/index.md")]).isEmpty)
 	}
 
 	/**
@@ -689,7 +705,12 @@ struct ContentWarningTests {
 	])
 	func `a screenshot is sharp on Retina screens when it has two pixels for each shown pixel`(size: PixelSize?, isSharp: Bool) throws {
 		let size = try #require(size)
-		let screenshot = ScreenshotAsset(path: #path("/app/screenshot1.jpg"), size: size, jpegXL: nil)
+		let screenshot = ScreenshotAsset(
+			path: #path("/app/screenshot1.jpg"),
+			number: 1,
+			size: size,
+			jpegXL: nil
+		)
 		#expect(screenshot.isSharpOnRetina == isSharp)
 	}
 
@@ -699,7 +720,7 @@ struct ContentWarningTests {
 	@Test
 	func `a warning is at a file when it is at the file, at its page, or at a directory with the file, or the file is in its directory`() async throws {
 		let app = try await App(slug: "dato")
-		let content = SiteContent(apps: [app], posts: [], pages: [], buildDate: .now, project: .empty)
+		let content = SiteContent.test(apps: [app])
 		let appFile = app.file.url
 		let appsDirectory = appFile.deletingLastPathComponent()
 		let otherFile = appsDirectory.appending(path: "other.md")
@@ -717,4 +738,35 @@ struct ContentWarningTests {
 		#expect(!content.warning(Warning(.skippedHeadingLevel, at: .page(.apps), "A warning of a page without a file."), isAtAnyOf: [appsDirectory]))
 		#expect(!content.warning(Warning(.skippedHeadingLevel, at: nil, "A warning without a location."), isAtAnyOf: [appsDirectory]))
 	}
+}
+
+/**
+Writes a PNG of the size, black, or noise, which does not compress, for a file of a known size.
+*/
+private func writePNG(to file: URL, width: Int, height: Int, isNoise: Bool = false) throws {
+	let context = try #require(CGContext(
+		data: nil,
+		width: width,
+		height: height,
+		bitsPerComponent: 8,
+		bytesPerRow: 0,
+		space: CGColorSpaceCreateDeviceRGB(),
+		bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+	))
+
+	if
+		isNoise,
+		let data = context.data
+	{
+		let bytes = data.bindMemory(to: UInt8.self, capacity: context.bytesPerRow * height)
+
+		for index in 0..<(context.bytesPerRow * height) {
+			// Opaque, so the premultiplied colors are kept.
+			bytes[index] = index % 4 == 3 ? 255 : UInt8.random(in: 0...255)
+		}
+	}
+
+	let destination = try #require(CGImageDestinationCreateWithURL(file as CFURL, UTType.png.identifier as CFString, 1, nil))
+	CGImageDestinationAddImage(destination, try #require(context.makeImage()), nil)
+	try #require(CGImageDestinationFinalize(destination))
 }

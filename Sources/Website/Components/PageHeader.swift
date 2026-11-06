@@ -63,7 +63,7 @@ extension PageHeader where Intro == StringContent {
 /**
 The styles of ``PageHeader``, outside the generic type, so the class names are the same for every introduction. ``AppHeader`` uses the title too, so the titles look the same.
 */
-enum PageHeaderStyles: StyleSet {
+enum PageHeaderStyles: String, StyleSet {
 	case title
 	case intro
 	case centered

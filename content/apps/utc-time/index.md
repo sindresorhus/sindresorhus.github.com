@@ -56,7 +56,9 @@ pressQuotes: [
 
 See the time in UTC at a glance, in your menu bar or a widget. Useful when you work with servers, logs, or people in many time zones.
 
-Copy the time from the menu as ISO 8601 time, ISO 8601 date and time, or Unix time in seconds or milliseconds. You can also get the time with the “Get Time and Date in UTC” action in the Shortcuts app.
+@LiveFact(kind: "utc-time")
+
+Copy the time from the menu as the time, like “14:26 UTC”, ISO 8601 time, ISO 8601 date and time, or Unix time in seconds or milliseconds. While the menu is open, press ++C++, ++T++, ++D++, ++S++, or ++M++ to copy one of them. You can also get the time with the “Get Time and Date in UTC” action in the Shortcuts app.
 
 ## Frequently Asked Questions {#faq}
 

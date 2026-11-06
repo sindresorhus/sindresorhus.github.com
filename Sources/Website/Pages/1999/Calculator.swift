@@ -367,7 +367,7 @@ struct GeoCitiesCalculator: ScriptedElement {
 					.hidden(when: true)
 					.style(Styles.upsideDown)
 
-				p(.part(Parts.status), .role("status")) {
+				p(.part(Parts.status), .role(.status)) {
 					"It is on. Try 2+2 ENTER, or PRGM ENTER ENTER to play PHOENIX."
 				}
 				.style(Styles.status)
@@ -464,7 +464,7 @@ struct GeoCitiesCalculator: ScriptedElement {
 		case battery = "ti83-battery"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case desk
 		case column
@@ -917,7 +917,7 @@ extension GeoCitiesCalculator {
 						.width(384),
 						.height(256),
 						.tabindex(0),
-						.role("application")
+						.role(.application)
 					) {}
 						.accessibilityLabel("The screen of the TI-83. Type numbers and + − * / ^ ( ), Enter to calculate, Backspace for DEL, Escape for CLEAR, the arrow keys to move, F1 to F5 for Y=, WINDOW, ZOOM, TRACE, and GRAPH, F6 for MODE, F7 for PRGM, F8 for MATH, Home for ON, letters for ALPHA, and Shift for 2nd. In the games, the arrow keys move, and Space or Enter shoots or jumps.")
 						.style(Styles.screen)

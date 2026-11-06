@@ -170,6 +170,13 @@ extension Style {
 		declaration(.flex, grow)
 	}
 
+	/**
+	How much the element grows to fill the free space of its line of a stack, from its own size (`flex-grow` in CSS). Unlike ``flex(_:)``, it keeps the size of its content as its base, so a long item still wraps to a line of its own.
+	*/
+	public func flexGrow(_ value: CSSNumber) -> Self {
+		declaration(.flexGrow, value)
+	}
+
 	public func flexShrink(_ value: CSSNumber) -> Self {
 		declaration(.flexShrink, value)
 	}
@@ -189,10 +196,10 @@ extension Style {
 	}
 
 	/**
-	A grid with the column track sizes, like `repeat(auto-fill, minmax(16rem, 1fr))`.
+	A grid with unchecked column track sizes, like `subgrid`. Prefer the overloads with typed tracks.
 	*/
-	public func grid(columns: CSSValue) -> Self {
-		display(.grid).gridColumns(columns)
+	public func grid(rawColumns columns: CSSValue) -> Self {
+		display(.grid).gridColumns(raw: columns)
 	}
 
 	/**
@@ -298,6 +305,14 @@ extension Style {
 	}
 
 	/**
+	Skips the layout and the drawing of the element while it is far from the screen (`content-visibility: auto` in CSS), like a card of a long list, so a long page shows sooner. Until then, it has the estimated height (`contain-intrinsic-block-size: auto` in CSS), and after, the height that the browser last laid out, so the scroll bar does not jump. Not for the children of ``columns(_:minimumWidth:)``, as their real heights move them to other columns while the page scrolls.
+	*/
+	public func rendersOnlyNearScreen(estimatedHeight: Length) -> Self {
+		declaration(.contentVisibility, CSSValue(raw: "auto"))
+			.declaration(.containIntrinsicBlockSize, CSSValue(raw: "auto \(estimatedHeight)"))
+	}
+
+	/**
 	The space between the children of a block, as a top margin on each child after the first, like the spacing of a `VStack` for flowing content, which can mix text and blocks.
 	*/
 	public func flowSpacing(_ spacing: LengthPercentage) -> Self {
@@ -319,9 +334,9 @@ extension Style {
 	}
 
 	/**
-	The column track sizes, without making the element a grid, like for a breakpoint.
+	Unchecked column track sizes, without making the element a grid, like for a breakpoint. Prefer the overloads with typed tracks.
 	*/
-	public func gridColumns(_ columns: CSSValue) -> Self {
+	public func gridColumns(raw columns: CSSValue) -> Self {
 		declaration(.gridTemplateColumns, columns)
 	}
 
@@ -395,6 +410,13 @@ extension Style {
 	*/
 	public func aspectRatio(_ ratio: Double) -> Self {
 		declaration(.aspectRatio, CSSValue(ratio))
+	}
+
+	/**
+	An automatic ratio, a width-to-height pair, or an intrinsic ratio with a fallback.
+	*/
+	public func aspectRatio(_ ratio: AspectRatio) -> Self {
+		declaration(.aspectRatio, CSSValue(raw: ratio.description))
 	}
 
 	/**
@@ -609,6 +631,13 @@ extension Style {
 	}
 
 	/**
+	What a scroll does at the end of the element, in both directions, like `.contain` for a popover that covers the page, so a swipe on it does not scroll the page behind it.
+	*/
+	public func overscrollBehavior(_ behavior: Overscroll) -> Self {
+		declaration(.overscrollBehavior, behavior)
+	}
+
+	/**
 	What a horizontal scroll does at the end of the element, like `.contain` for a row that scrolls sideways, so a swipe on a trackpad at its end does not go back in the history.
 	*/
 	public func overscrollBehavior(horizontal behavior: Overscroll) -> Self {
@@ -622,6 +651,13 @@ extension Style {
 	*/
 	public func scrollSnapType(_ axis: ScrollSnapAxis, isMandatory: Bool = false) -> Self {
 		declaration(.scrollSnapType, CSSValue(raw: isMandatory ? "\(axis.rawValue) mandatory" : axis.rawValue))
+	}
+
+	/**
+	Disables scroll snapping, including a previously configured axis and strictness.
+	*/
+	public func noScrollSnapping() -> Self {
+		declaration(.scrollSnapType, "none")
 	}
 
 	/**
@@ -677,7 +713,7 @@ enum BoxProperty: String {
 
 extension Edge.Set {
 	/**
-	The declarations of a box property, like `padding`, for the edges: the shorthand for all edges, `padding-inline` and `padding-block` for an axis, and a property for each other edge. The leading and trailing edges follow the writing direction.
+	The declarations of a box property, like `padding`, for the edges: the shorthand for all physical edges, logical axis shorthands for `.inline` and `.block`, and a property for each other edge. Combining physical edges never changes them into logical edges.
 	*/
 	func declarations(_ value: CSSValue, property: BoxProperty) -> [Declaration] {
 		if self == .all {
@@ -686,18 +722,22 @@ extension Edge.Set {
 
 		var declarations = [Declaration]()
 
-		if isSuperset(of: .vertical) {
-			declarations.append(Declaration(property: Property("\(property.rawValue)-block"), value: value))
+		for (edge, name) in [(Self.top, "top"), (.right, "right"), (.bottom, "bottom"), (.left, "left")] where contains(edge) {
+			declarations.append(Declaration(property: Property("\(property.rawValue)-\(name)"), value: value))
+		}
+
+		if isSuperset(of: .inline) {
+			declarations.append(Declaration(property: Property("\(property.rawValue)-inline"), value: value))
 		} else {
-			for (edge, name) in [(Self.top, "top"), (.bottom, "bottom")] where contains(edge) {
+			for (edge, name) in [(Self.leading, "inline-start"), (.trailing, "inline-end")] where contains(edge) {
 				declarations.append(Declaration(property: Property("\(property.rawValue)-\(name)"), value: value))
 			}
 		}
 
-		if isSuperset(of: .horizontal) {
-			declarations.append(Declaration(property: Property("\(property.rawValue)-inline"), value: value))
+		if isSuperset(of: .block) {
+			declarations.append(Declaration(property: Property("\(property.rawValue)-block"), value: value))
 		} else {
-			for (edge, name) in [(Self.leading, "inline-start"), (.trailing, "inline-end")] where contains(edge) {
+			for (edge, name) in [(Self.blockStart, "block-start"), (.blockEnd, "block-end")] where contains(edge) {
 				declarations.append(Declaration(property: Property("\(property.rawValue)-\(name)"), value: value))
 			}
 		}

@@ -79,7 +79,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 					}
 				}
 				.accessibilityLabel("Lesson")
-				.attributes(.role("group"))
+				.attributes(.role(.group))
 				.style(Styles.row)
 
 				div {
@@ -111,7 +111,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 					.width(320),
 					.height(240),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("The note, on a page torn out of my school notebook. Drag on it, or press the arrow keys, to doodle with the pencil. The text, the doodles, and the folds are next to it.")
 					.style(Styles.paper)
@@ -201,7 +201,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 			}
 			.accessibilityLabel("Doodle on the note")
-			.attributes(.role("group"))
+			.attributes(.role(.group))
 			.style(Styles.row)
 		}
 	}
@@ -220,7 +220,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 				}
 			}
 			.accessibilityLabel("Fold the note")
-			.attributes(.role("group"))
+			.attributes(.role(.group))
 			.style(Styles.row)
 		}
 	}
@@ -239,7 +239,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 					.width(480),
 					.height(400),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("My classroom from above, with the teacher at the blackboard. Click a desk next to the note to pass it there, or press an arrow key to pass it that way. With the paper airplane, click a desk to throw it there, or press Enter to throw it to the one the note is for.")
 					.style(Styles.room)
@@ -254,7 +254,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.lcd, Styles.stats)
 
-				p(.part(Parts.status), .role("status")) {
+				p(.part(Parts.status), .role(.status)) {
 					"Write a note to Ingrid, fold it, and start the lesson."
 				}
 				.style(Styles.status)
@@ -324,7 +324,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 		case fold = "class-notes-fold"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case game
 		case toolbar

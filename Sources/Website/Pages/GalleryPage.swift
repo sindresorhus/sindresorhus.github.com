@@ -1,6 +1,7 @@
 import Elementary
 import Foundation
 import SiteKit
+import SOML
 
 /**
 Every component of the site, for checking how they look after a change. It is only published by `serve`, and is the page to compare with the computed-style tool. The dark mode styles follow the system appearance.
@@ -80,8 +81,8 @@ struct GalleryPage: Page {
 
 			Section("Overflow Menu", id: ElementID("overflow-menu")) {
 				div {
-					OverflowMenu(label: "Gallery menu", links: [LabeledLink("First", path: #path("/_gallery")), LabeledLink("Second", path: #path("/_gallery"))], [LabeledLink("After a rule", path: #path("/_gallery"))])
-					OverflowMenu(label: "Gallery title menu", groups: [LinkGroup(title: "Group", links: [LabeledLink("Link", path: #path("/_gallery"))])], variant: .title)
+					OverflowMenu(label: "Gallery menu", links: [LabeledLink("First", path: path), LabeledLink("Second", path: path)], [LabeledLink("After a rule", path: path)])
+					OverflowMenu(label: "Gallery title menu", groups: [LinkGroup(title: "Group", links: [LabeledLink("Link", path: path)])], variant: .title)
 				}
 				.style(Styles.row)
 			}
@@ -130,6 +131,19 @@ struct GalleryPage: Page {
 			if let announcement = content.activeApps.lazy.compactMap(\.announcement).first {
 				Section("Announcement", id: ElementID("announcement")) {
 					AnnouncementBanner(announcement: announcement)
+				}
+			}
+
+			Section("App Downloads", id: ElementID("app-downloads")) {
+				if let trialCard = content.activeApps.lazy.compactMap({ $0.frontmatter.trialCard }).first {
+					trialCard
+				}
+
+				if
+					let app = content.activeApps.first(where: { $0.frontmatter.nonAppStoreVersion != nil }),
+					let version = app.frontmatter.nonAppStoreVersion
+				{
+					version.downloadCard(isOnSeveralPlatforms: app.platforms.count > 1)
 				}
 			}
 
@@ -183,14 +197,13 @@ struct GalleryPage: Page {
 							rating: .four,
 							date: content.buildDate
 						),
-					],
-					rating: StoreRating(average: 4.6, count: 1234, store: .appStore).map(AppRating.store)
+					]
 				)
 
-				AppReviews(reviews: [], rating: StoreRating(average: 4.6, count: 1234, store: .appStore).map(AppRating.store))
-
-				// A rating on Setapp, which has no stars.
-				AppReviews(reviews: [], rating: SetappRating(ratingValue: 99, bestRating: 100, count: 877).map(AppRating.setapp))
+				// A rating on Setapp is a compact fact, with no stars.
+				if let app = content.activeApps.first {
+					AppFacts(listing: AppListing(app: app, setappRating: SetappRating(ratingValue: 99, bestRating: 100, count: 877)), buildDate: content.buildDate)
+				}
 			}
 
 			// With sample data, as the pages only show these with the data of npm and GitHub.
@@ -214,10 +227,33 @@ struct GalleryPage: Page {
 					)],
 					date: content.buildDate
 				)
+
+				NPMPackageList(
+					packages: [
+						NPMStatistics.Package(
+							name: "ky",
+							version: "1.0.0",
+							description: "Tiny and elegant HTTP client based on the Fetch API",
+							date: content.buildDate,
+							weeklyDownloads: 4_200_000,
+							dependentCount: nil,
+							repository: nil
+						),
+						NPMStatistics.Package(
+							name: "@sindresorhus/a-package-with-a-very-long-name-that-must-break",
+							version: "1.0.0",
+							description: nil,
+							date: content.buildDate,
+							weeklyDownloads: nil,
+							dependentCount: nil,
+							repository: nil
+						),
+					]
+				)
 			}
 
 			Section("Prose", id: ElementID("prose")) {
-				Prose(markdown: MarkdownDocument(parsing: Self.markdownSample, options: .gallery).content)
+				Prose(markdown: MarkdownDocument(parsing: Self.markdownSample, options: .gallery(today: content.today)).content)
 			}
 
 			Section("Sudoku", id: ElementID("sudoku")) {
@@ -320,20 +356,16 @@ struct GalleryPage: Page {
 		The short answer at the top of a guide.
 	}
 
+	@Scheduled(from: 2000-01-01, until: 9999-12-31) {
+		A text that the page shows only from a day through a day, like a sale.
+	}
+
 	@Feature(title: "A main feature") {
 		The first main feature of an app, with a number above its title.
 	}
 
 	@Feature(title: "Another main feature") {
 		The second main feature.
-	}
-
-	@Trial(url: "https://example.com/App-trial.zip", macOS: "26") {
-		The trial of an app, with a download button. The only limitation is that it shows a reminder once a day.
-	}
-
-	@Trial(url: "https://testflight.apple.com/join/example") {
-		A trial on TestFlight, which has another title on its button.
 	}
 
 	@TinyApp(title: "A tiny app", download: "https://example.com/Tiny-App.zip", source: "https://github.com/sindresorhus", macOS: "26") {
@@ -364,6 +396,10 @@ struct GalleryPage: Page {
 
 	@SocialLinks
 
+	@LiveFact(kind: "week-number")
+
+	@LiveFact(kind: "utc-time")
+
 	### A collapsible question
 
 	The answer, which opens like the questions of an FAQ.
@@ -375,7 +411,7 @@ struct GalleryPage: Page {
 }
 
 extension GalleryPage {
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case row
 		case icons

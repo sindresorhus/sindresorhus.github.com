@@ -4,7 +4,7 @@ import SiteKit
 /**
 A block of code, with its language and a copy button in a bar at the top right, like a fenced code block in Markdown (``SiteKit/MarkdownDocument/Options/codeBlock``).
 
-Swift code is highlighted when the site builds, by the parser of Swift itself (``String/swiftCodeParts``), in the colors of Xcode. SOML code is highlighted by the lexer of SOML (``String/somlCodeParts``), in the same colors. The code of other languages is plain. Each line of a `console` block is a command, after a `$ ` prompt that is not copied.
+Swift code is highlighted when the site builds, by the parser of Swift itself (``String/swiftCodeParts``), in the colors of Xcode. SOML code is highlighted by the lexer of SOML (``String/somlCodeParts``), in the same colors. The code of other languages is plain. Each line of a `console` block is a command, after a `$ ` prompt that is not copied. The removed and added lines of a `diff` block are red and green, and the copy button copies the new code, without the removed lines and the markers.
 
 ```swift
 CodeBlock(source: "let greeting = \"Hello\"", language: .swift)
@@ -53,7 +53,7 @@ struct CodeBlock: HTML {
 					.style(Styles.language)
 				}
 
-				CopyButton(title: "Copy code", text: source, look: .icon)
+				CopyButton(title: "Copy code", text: copiedText, look: .icon)
 			}
 			.style(Styles.bar)
 
@@ -67,7 +67,7 @@ struct CodeBlock: HTML {
 					case .soml:
 						Self.highlighted(source.somlCodeParts)
 					case .console:
-						for (index, line) in source.split(separator: "\n", omittingEmptySubsequences: false).enumerated() {
+						for (index, line) in lines.enumerated() {
 							if index > 0 {
 								"\n"
 							}
@@ -76,6 +76,27 @@ struct CodeBlock: HTML {
 								span {
 									String(line)
 								}
+							}
+						}
+					case .diff:
+						for (index, line) in lines.enumerated() {
+							if index > 0 {
+								"\n"
+							}
+
+							switch line.first {
+							case "-":
+								span {
+									String(line)
+								}
+								.style(Styles.removed)
+							case "+":
+								span {
+									String(line)
+								}
+								.style(Styles.added)
+							default:
+								String(line)
 							}
 						}
 					default:
@@ -88,6 +109,24 @@ struct CodeBlock: HTML {
 			.style(Styles.pre)
 		}
 		.style(Styles.root)
+	}
+
+	private var lines: [Substring] {
+		source.split(separator: "\n", omittingEmptySubsequences: false)
+	}
+
+	/**
+	The code that the copy button copies, without the newline at its end, which would run a pasted command in a shell without bracketed paste, and add an empty line in an editor. For a diff, the new code: without the removed lines, and without the first character of the other lines, which is the marker of an added line or the space of an unchanged line, so the copy is code that works. Limitation: a diff is only the lines of its changes, without the headers of `git diff`, like `+++ b/file` and `@@`.
+	*/
+	private var copiedText: String {
+		let code = language == .diff
+			? lines
+				.filter { !$0.hasPrefix("-") }
+				.map { $0.dropFirst() }
+				.joined(separator: "\n")
+			: source
+
+		return code.hasSuffix("\n") ? String(code.dropLast()) : code
 	}
 
 	/**
@@ -107,7 +146,7 @@ struct CodeBlock: HTML {
 		}
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case bar
 		case language
@@ -118,6 +157,16 @@ struct CodeBlock: HTML {
 		Each line is a command, after a faded `$ ` prompt. The prompt is generated content, so it is not selected or copied, and screen readers skip it.
 		*/
 		case console
+
+		/**
+		A removed line of a diff, with its `-` marker.
+		*/
+		case removed
+
+		/**
+		An added line of a diff, with its `+` marker.
+		*/
+		case added
 
 		case keyword
 		case type
@@ -220,13 +269,26 @@ struct CodeBlock: HTML {
 					.inheritsFont()
 					.inherits(.color)
 			case .console:
-				Style().children("span") {
-					$0.before {
+				// A long command wraps, so it can be read on a phone before it is pasted. The copy button copies it as one line. A wrapped line continues after the prompt, which hangs in the space at the start of the line. A line is an inline block, so it can have that space, and the line breaks between the lines stay the only breaks.
+				Style()
+					.textWrap(.wrap)
+					.overflowWrap(.anywhere)
+					.children("span") {
 						$0
-							.content("$ ", alternativeText: "")
-							.opacity(0.5)
+							.display(.inlineBlock)
+							.padding(.leading, .characterWidth(2))
+							.before {
+								$0
+									.content("$ ", alternativeText: "")
+									.margin(.leading, .characterWidth(-2))
+									.opacity(0.5)
+							}
 					}
-				}
+			// The red of the strings, and a soft green, which both have enough contrast on the dark code.
+			case .removed:
+				Style().color("#ff8170")
+			case .added:
+				Style().color("#acf2a0")
 			// The colors of the default dark theme of Xcode, as code blocks are dark in both modes, and Swift developers know them.
 			case .keyword:
 				Style()

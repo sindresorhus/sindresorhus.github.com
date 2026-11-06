@@ -2,7 +2,7 @@ import Elementary
 import SiteKit
 
 /**
-Help below the feedback message, which its script shows while the visitor types: a request for a crash report when the message is about a crash, and the FAQ questions that the message is about. The script fills the list with the suggestion template.
+Help below the feedback message, which its script shows while the visitor types: a request for a crash report when the message is about a crash, and the FAQ questions, the tips, and the guides that the message is about. The script fills the list with the suggestion template.
 
 The message field is the `for` attribute of the element, like the `for` of a label, and the questions are its `questions` attribute. The page script sets the `app` attribute to the title of the selected app, so its questions are suggested too.
 
@@ -30,7 +30,7 @@ struct FAQSuggestions: ScriptedElement {
 
 	var content: some HTML {
 		// A live region, so screen readers announce the crash warning and the number of suggestions while the visitor types. It is around it, as screen readers only announce changes in a live region that is already on the page, not one that is shown with its content.
-		div(.role("status")) {
+		div(.role(.status)) {
 			div(.part(Parts.crashWarning), .hidden) {
 				"Looks like you’re reporting a crash. It would be very helpful if you could also attach a "
 				Link("crash report", destination: .crashReportQuestion, opensInNewTab: true)
@@ -73,8 +73,14 @@ struct FAQSuggestions: ScriptedElement {
 					}
 					.style(Styles.chevron)
 
-					span(.part(Parts.question)) {}
-						.style(Styles.question)
+					// The script fills the label for a guide or a tip, like “Guide: ”, and removes it for an answer of a FAQ.
+					span {
+						span(.part(Parts.label)) {}
+							.style(Styles.label)
+
+						span(.part(Parts.question)) {}
+							.style(Styles.question)
+					}
 
 					VisuallyHidden(" (opens in a new tab)")
 				}
@@ -107,9 +113,12 @@ struct FAQSuggestions: ScriptedElement {
 		}
 
 		/**
+		The questions of an app are the questions of its FAQ section, its tips (``App/tipHeadings``), and the guides about it, which the script scores in the same way.
+
 		- Parameter faq: The general FAQ page, for the questions that are useful for every app (`<!-- @faq.general -->`).
+		- Parameter guides: The published guides.
 		*/
-		init(apps: [App], faq: MarkdownPage?) {
+		init(apps: [App], faq: MarkdownPage?, guides: [Guide] = []) {
 			self.apps = apps.map { app in
 				AppQuestions(
 					title: app.title,
@@ -117,6 +126,10 @@ struct FAQSuggestions: ScriptedElement {
 					questions: app.faqHeadings.map { heading in
 						SuggestedQuestion(heading, url: .path(app.path, fragment: heading.id))
 					}
+						+ app.tipHeadings.map { heading in
+							SuggestedQuestion(heading, url: .path(app.path, fragment: heading.id), label: .tip)
+						}
+						+ guides.filter { $0.frontmatter.apps.contains(app.slug) }.map(SuggestedQuestion.init)
 				)
 			}
 
@@ -136,10 +149,11 @@ struct FAQSuggestions: ScriptedElement {
 		case list
 		case template
 		case link
+		case label
 		case question
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 
 		/**
@@ -155,6 +169,7 @@ struct FAQSuggestions: ScriptedElement {
 		case list
 		case link
 		case chevron
+		case label
 		case question
 
 		var style: Style {
@@ -223,6 +238,11 @@ struct FAQSuggestions: ScriptedElement {
 				Style()
 					.hstack(alignment: .center)
 					.frame(height: .lineHeight(1), minWidth: .rootEm(0.75))
+					.color(.secondaryText)
+			case .label:
+				// Quieter than the title, so the titles still line up for the eye.
+				Style()
+					.fontWeight(.regular)
 					.color(.secondaryText)
 			case .question:
 				Style()

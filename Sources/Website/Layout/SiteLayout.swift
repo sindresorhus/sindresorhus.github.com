@@ -12,17 +12,21 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 	/**
 	The rendered ``SiteBody``.
 	*/
-	let bodyHTML: String
+	let bodyHTML: RenderedHTML
 
 	/**
-	The styles and scripts that the body uses.
+	The styles and scripts that stay with the rendered body.
 	*/
-	let resources: PageResources
+	private var resources: PageResources.Snapshot {
+		bodyHTML.resources
+	}
 
 	/**
 	The scripts of the elements with an inline script that the body shows (``ScriptedElement/generatedScript()``).
 	*/
 	let inlineScripts: [String]
+
+	@TaskLocalValue(requiring: Site.Scripts.$published) private var publishedScripts
 
 	/**
 	The scripts that the page loads: the script of the site, and the scripts that the body uses.
@@ -41,14 +45,14 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 
 	var head: some HTML {
 		// First, as an import map must come before any module script. Browsers other than Chrome and Safari only use one import map.
-		if let importMap = Site.Scripts.published.importMap(loading: scripts) {
+		if let importMap = publishedScripts.importMap(loading: scripts) {
 			script(.type(.importmap)) {
 				HTMLRaw(importMap)
 			}
 		}
 
 		// The scripts that the scripts of the page import, so the browser loads them at once, not only when the script that imports them has arrived. After the import map, which a module preload uses too.
-		for path in Site.Scripts.published.modulePreloads(loading: scripts) {
+		for path in publishedScripts.modulePreloads(loading: scripts) {
 			link(.rel("modulepreload"), .href(path))
 		}
 
@@ -86,10 +90,10 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 	}
 
 	var body: some HTML {
-		HTMLRaw(bodyHTML)
+		bodyHTML
 
 		for path in scripts {
-			script(.src(path.versioned.description), .type(.module)) {}
+			script(.src(publishedScripts.versioned(path).description), .type(.module)) {}
 		}
 
 		for inlineScript in inlineScripts {
@@ -145,6 +149,7 @@ struct SiteBody<Content: Page>: HTML {
 
 		SiteFooter(app: page.feedbackApp)
 		UnicornEasterEgg()
+		LinkPreview()
 	}
 }
 
@@ -161,10 +166,6 @@ private struct MetadataHead: HTML {
 		path.absoluteURL.absoluteString
 	}
 
-	private var socialTitle: String {
-		metadata.socialTitle ?? metadata.documentTitle
-	}
-
 	/**
 	The page background in light and dark mode, for the bar of the browser. Resolved once, as finding the value of a palette shade is slow and every page has it.
 	*/
@@ -178,8 +179,8 @@ private struct MetadataHead: HTML {
 	*/
 	private static let speculationRules = JSONScript(
 		speculationRules: SpeculationRules(
-			prefetch: SpeculationRules.Rule(excludedPaths: [.geoCities], eagerness: .moderate),
-			prerender: SpeculationRules.Rule(excludedPaths: [.geoCities, .randomApp, .feedback], eagerness: .conservative)
+			prefetch: [SpeculationRules.Rule(excludedPaths: [.geoCities], eagerness: .moderate)],
+			prerender: [SpeculationRules.Rule(excludedPaths: [.geoCities, .randomApp, .feedback], eagerness: .conservative)]
 		)
 	)
 
@@ -213,14 +214,26 @@ private struct MetadataHead: HTML {
 		link(.rel("apple-touch-icon"), .href(#path("/apple-touch-icon.png")))
 		link(.rel(.icon), .href(metadata.favicon))
 
-		for feed in SiteFeed.allCases.map(\.link) + metadata.feeds {
+		// The feed of the page first, like the release notes of an app, as a feed reader shows the feeds in this order, and some take the first one.
+		for feed in metadata.feeds + SiteFeed.allCases.map(\.link) {
 			link(
 				.rel("alternate"),
-				.custom(name: "type", value: "application/rss+xml"),
+				.type(.rss),
 				.title(feed.title),
 				.href(feed.path)
 			)
 		}
+
+		// The Markdown copy of the page, and `llms.txt`, which describes the site, for AI assistants, as the llms.txt proposal suggests. A copy is much smaller to read than the page.
+		if Site.pagesWithMarkdownCopies.contains(path) {
+			link(.rel("alternate"), .type(.markdown), .href(path.markdownCopy))
+		}
+
+		if let dataFile = metadata.dataFile {
+			link(.rel("alternate"), .type(.json), .href(dataFile))
+		}
+
+		link(.rel("describedby"), .href(Site.llmsPath))
 
 		for origin in metadata.preconnectOrigins {
 			link(.rel("preconnect"), .href(.url(origin.url)))
@@ -228,10 +241,10 @@ private struct MetadataHead: HTML {
 
 		Self.speculationRules
 
-		meta(.property("og:title"), .content(socialTitle))
+		meta(.property("og:title"), .content(metadata.documentTitle))
 		meta(.property("og:type"), .content(metadata.kind.openGraphType))
 		meta(.property("og:url"), .content(canonicalURL))
-		meta(.property("og:image"), .content(socialImage.path.absoluteURL.absoluteString))
+		meta(.property("og:image"), .content(socialImage.url.absoluteString))
 		meta(.property("og:image:width"), .content(String(OpenGraphCard.width)))
 		meta(.property("og:image:height"), .content(String(OpenGraphCard.height)))
 		meta(.property("og:image:alt"), .content(socialImage.description))
@@ -244,7 +257,7 @@ private struct MetadataHead: HTML {
 
 		if let video = metadata.video {
 			meta(.property("og:video"), .content(video.path.absoluteURL.absoluteString))
-			meta(.property("og:video:type"), .content("video/mp4"))
+			meta(.property("og:video:type"), .content(MediaType.mpeg4.rawValue))
 			meta(.property("og:video:width"), .content(String(video.size.width)))
 			meta(.property("og:video:height"), .content(String(video.size.height)))
 		}
@@ -289,8 +302,8 @@ extension Stylesheet {
 			Style()
 			.lineHeight(1.5)
 			.fontFamily(.system)
-			.declaration(.webkitTextSizeAdjust, .percent(100))
-			.declaration(.webkitTapHighlightColor, .transparent)
+			.declaration(raw: .webkitTextSizeAdjust, .percent(100))
+			.declaration(raw: .webkitTapHighlightColor, .transparent)
 			// Section links scroll the section a little below the header. The scroll spy of ``AppSecondaryNavigation`` reads it.
 			.scrollPadding(top: SiteHeader.height + .rootEm(0.5))
 			// On a short screen, the header is not sticky, so it covers no section.
@@ -328,8 +341,8 @@ extension Stylesheet {
 			.color(.primaryText, dark: .bodyText)
 			.background(.pageBackground)
 			.overflow(horizontal: .clip)
-			.declaration(.webkitFontSmoothing, "antialiased")
-			.declaration(.mozOSXFontSmoothing, "grayscale")
+			.declaration(raw: .webkitFontSmoothing, "antialiased")
+			.declaration(raw: .mozOSXFontSmoothing, "grayscale")
 		)
 	}
 }
@@ -337,76 +350,17 @@ extension Stylesheet {
 /**
 The speculation rules of every page: prefetch or prerender a page of the site when the visitor is about to open a link to it, except the excluded pages.
 */
-private struct SpeculationRules: Encodable {
-	struct Rule: Encodable {
-		struct Condition: Encodable {
-			struct Not: Encodable {
-				let hrefMatches: [String]
-			}
-
-			/**
-			One predicate: a path pattern to include, or a list of patterns to exclude.
-			*/
-			enum Clause: Encodable {
-				case hrefMatches(String)
-				case not(Not)
-
-				private enum CodingKeys: String, CodingKey {
-					case hrefMatches
-					case not
-				}
-
-				func encode(to encoder: any Encoder) throws {
-					var container = encoder.container(keyedBy: CodingKeys.self)
-					switch self {
-					case .hrefMatches(let pattern):
-						try container.encode(pattern, forKey: .hrefMatches)
-					case .not(let condition):
-						try container.encode(condition, forKey: .not)
-					}
-				}
-			}
-
-			let and: [Clause]
-		}
-
-		/**
-		When the browser speculates.
-		*/
-		enum Eagerness: String, Encodable {
-			/**
-			When the pointer rests on the link, or on a phone, for a large link near the last tap when the scrolling stops.
-			*/
-			case moderate
-
-			/**
-			When the link is pressed.
-			*/
-			case conservative
-		}
-
-		let `where`: Condition
-		let eagerness: Eagerness
-
-		/**
-		The links to the pages of the site, except the excluded pages. Not the links to files, like a photo, a download, or a feed, as the browser downloads the whole file, and does not use it when the visitor opens it. The paths of the pages have no dot, and the paths of the files have one. The pattern only looks for the dot in the path, not in the query or the fragment.
-		*/
-		init(excludedPaths: [RoutePath], eagerness: Eagerness) {
-			self.where = Condition(
-				and: [
-					.hrefMatches("/*"),
-					.not(Condition.Not(hrefMatches: ["/*.*"] + excludedPaths.map(\.description))),
-				]
-			)
-			self.eagerness = eagerness
-		}
-	}
-
-	let prefetch: [Rule]
-	let prerender: [Rule]
-
-	init(prefetch: Rule, prerender: Rule) {
-		self.prefetch = [prefetch]
-		self.prerender = [prerender]
+extension SpeculationRules.Rule {
+	/**
+	The links to the pages of the site, except the excluded pages. Not the links to files, like a photo, a download, or a feed, as the browser downloads the whole file, and does not use it when the visitor opens it. The paths of the pages have no dot, and the paths of the files have one. The pattern only looks for the dot in the path, not in the query or the fragment.
+	*/
+	fileprivate init(excludedPaths: [RoutePath], eagerness: Eagerness) {
+		self.init(
+			condition: Condition(all: [
+				.hrefMatches("/*"),
+				.notMatching(["/*.*"] + excludedPaths.map(\.description)),
+			]),
+			eagerness: eagerness
+		)
 	}
 }

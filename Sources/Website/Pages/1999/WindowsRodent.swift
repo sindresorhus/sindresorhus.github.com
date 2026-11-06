@@ -113,7 +113,7 @@ struct GeoCitiesWindowsRodent: ScriptedElement {
 				.width(736),
 				.height(800),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("Rodent’s Revenge. The arrow keys move the mouse. The number pad, or Q, E, Z, and C, move it on the diagonals. P pauses, and F2 starts a new game. A tap on the field moves the mouse toward it.")
 				.style(Styles.screen)
@@ -121,7 +121,7 @@ struct GeoCitiesWindowsRodent: ScriptedElement {
 			div {
 				GeoCitiesPage.Deferred(pad)
 
-				p(.part(Parts.status), .role("status")) {
+				p(.part(Parts.status), .role(.status)) {
 					"Push the blocks to trap the cats. Press an arrow key or tap the field to start."
 				}
 				.style(GeoCitiesPage.Styles.statusBar, Styles.status)
@@ -140,7 +140,7 @@ struct GeoCitiesWindowsRodent: ScriptedElement {
 	The arrow pad, for touch, with a button for each of the eight directions, and the mouse in the middle, which waits a turn.
 	*/
 	private var pad: some HTML {
-		div(.role("group")) {
+		div(.role(.group)) {
 			for button in Self.pad {
 				Elementary.button(.type(.button), .hook(Hooks.move, value: button.step)) {
 					button.arrow
@@ -171,7 +171,7 @@ struct GeoCitiesWindowsRodent: ScriptedElement {
 		case move = "rodent-move"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case play
 		case screen

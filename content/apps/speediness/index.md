@@ -85,7 +85,7 @@ The problem with fast.com is that it’s run by Netflix, and Netflix’s servers
 
 It’s a measurement called Round-trips Per Minute (RPM) — the number of sequential round-trips a network can do in one minute under normal working conditions.
 
-[Learn more about RPM](https://support.apple.com/HT212313)
+[Learn more about RPM](https://support.apple.com/101942)
 
 ### What does the ping value mean? {#what-does-the-ping-value-mean}
 
@@ -95,7 +95,7 @@ It’s a measurement of the round-trip time for messages sent from the originati
 
 ### Why should I trust the results? {#why-should-i-trust-the-results}
 
-The app makes use of the built-in [`networkQuality` command-line tool](https://support.apple.com/HT212313) under the hood, which is provided by Apple.
+The app makes use of the built-in [`networkQuality` command-line tool](https://support.apple.com/101942) under the hood, which is provided by Apple.
 
 ### Can it show a progress bar instead of a spinner? {#can-it-show-a-progress-bar-instead-of-a-spinner}
 
@@ -123,8 +123,8 @@ Open the Shortcuts app, create a new shortcut, and then drag the “Get Internet
 
 ### Can you add support for iOS? {#ios}
 
-This is unfortunately not possible at this time as the app relies on the built-in [`networkQuality` command-line tool](https://support.apple.com/HT212313), which does not exist on iOS. Someone would have to implement the [“Responsiveness under Working Conditions” RFC](https://datatracker.ietf.org/doc/draft-ietf-ippm-responsiveness/) in Swift. [Reference implementation in Go.](https://github.com/network-quality/goresponsiveness) Let me know if you end up making a Swift package for this.
+This is unfortunately not possible at this time as the app relies on the built-in [`networkQuality` command-line tool](https://support.apple.com/101942), which does not exist on iOS. Someone would have to implement the [“Responsiveness under Working Conditions” RFC](https://datatracker.ietf.org/doc/draft-ietf-ippm-responsiveness/) in Swift. [Reference implementation in Go.](https://github.com/network-quality/goresponsiveness) Let me know if you end up making a Swift package for this.
 
 ### Can you make a command-line tool for this app? {#can-you-make-a-command-line-tool-for-this-app}
 
-This app uses the built-in [`networkQuality` command-line tool](https://support.apple.com/HT212313) under the hood. You can use it too.
+This app uses the built-in [`networkQuality` command-line tool](https://support.apple.com/101942) under the hood. You can use it too.

@@ -45,7 +45,7 @@ struct ContributionCalendar: Decodable {
 	/**
 	A contribution calendar as a patch of a card, like a year of the career quilt: the level of each day, after a blank for each weekday before its first day, as the first week can start after Sunday, so each weekday is in its row. HTML and social-card renderers share this input and own their colors and layout.
 	*/
-	struct Plot {
+	struct Plot: Hashable {
 		let blankDayCount: Int
 		let levels: [ContributionScale.Level]
 

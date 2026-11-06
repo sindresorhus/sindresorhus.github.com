@@ -96,7 +96,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.row)
 
-			p(.part(Parts.bonziSetupStatus), .role("status")) {}
+			p(.part(Parts.bonziSetupStatus), .role(.status)) {}
 				.style(GeoCitiesPage.Styles.statusBar)
 		}
 		.style(GeoCitiesWindows.Styles.stack)
@@ -108,7 +108,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 	private var bonzi: some HTML {
 		div(.part(Parts.bonzi), .hidden) {
 			div(.id("geocities-fun-bonzi-balloon"), .part(Parts.bonziBalloon), .hidden) {
-				p(.part(Parts.bonziText), .role("status")) {}
+				p(.part(Parts.bonziText), .role(.status)) {}
 
 				div {
 					for (action, title) in [("joke", "Tell me a joke"), ("fact", "Tell me a fact"), ("sing", "Sing a song (with sound)"), ("search", "Search the Web"), ("leave", "Go away")] {
@@ -176,7 +176,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.retroButton)
 
-				p(.part(Parts.bobLoginStatus), .role("status")) {}
+				p(.part(Parts.bobLoginStatus), .role(.status)) {}
 			}
 			.style(GeoCitiesWindows.Styles.stack, Styles.bobLogin)
 
@@ -197,7 +197,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 					.accessibilityHidden()
 					.style(Styles.bobRover)
 
-					p(.part(Parts.bobRoverText), .role("status")) {}
+					p(.part(Parts.bobRoverText), .role(.status)) {}
 						.style(GeoCitiesWindows.Styles.assistantBalloon)
 				}
 				.style(Styles.bobRoverRow)
@@ -275,7 +275,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 			.accessibilityLabel("Fun Stuff")
 			.style(GeoCitiesWindows.Styles.fileList)
 
-			p(.part(Parts.cdromStatus), .role("status")) {
+			p(.part(Parts.cdromStatus), .role(.status)) {
 				"7 object(s). Disk free space: 0 bytes. It is a CD."
 			}
 			.style(GeoCitiesPage.Styles.statusBar)
@@ -304,7 +304,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 					.part(Parts.movieCanvas),
 					.width(160),
 					.height(120),
-					.role("img")
+					.role(.image)
 				) {}
 					.accessibilityLabel("The video")
 					.style(Styles.movieCanvas)
@@ -353,12 +353,12 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 				.part(Parts.happyCanvas),
 				.width(240),
 				.height(160),
-				.role("img")
+				.role(.image)
 			) {}
 				.accessibilityLabel("Fireworks, and the words Happy New Year 1999 !!")
 				.style(Styles.happyCanvas)
 
-			p(.part(Parts.happyStatus), .role("status")) {}
+			p(.part(Parts.happyStatus), .role(.status)) {}
 				.style(GeoCitiesPage.Styles.statusBar)
 		}
 		.style(GeoCitiesWindows.Styles.stack)
@@ -420,7 +420,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 				.style(Styles.finding)
 			}
 
-			p(.part(Parts.antivirusStatus), .role("status")) {}
+			p(.part(Parts.antivirusStatus), .role(.status)) {}
 				.style(GeoCitiesPage.Styles.statusBar)
 		}
 		.style(GeoCitiesWindows.Styles.stack)
@@ -492,7 +492,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 			}
 			.style(GeoCitiesWindows.Styles.stack)
 
-			p(.part(Parts.winzipStatus), .role("status")) {}
+			p(.part(Parts.winzipStatus), .role(.status)) {}
 				.style(GeoCitiesPage.Styles.statusBar)
 		}
 		.style(GeoCitiesWindows.Styles.stack)
@@ -529,7 +529,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 			.style(GeoCitiesWindows.Styles.stack)
 
 			div {
-				div(.role("group")) {
+				div(.role(.group)) {
 					for key in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"] {
 						button(.type(.button), .hook(Hooks.dialerKey, value: key)) {
 							key
@@ -537,10 +537,11 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 						.style(GeoCitiesPage.Styles.retroButton)
 					}
 				}
+				.attributes(.role(.group))
 				.accessibilityLabel("Keypad")
 				.style(Styles.keypad)
 
-				div(.role("group")) {
+				div(.role(.group)) {
 					p {
 						"Speed dial"
 					}
@@ -571,7 +572,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 			}
 			.style(GeoCitiesWindows.Styles.wrapRow)
 
-			div(.part(Parts.dialerLog), .role("log")) {}
+			div(.part(Parts.dialerLog), .role(.log)) {}
 				.style(Styles.dialerLog)
 		}
 		.style(GeoCitiesWindows.Styles.stack)
@@ -627,7 +628,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.row)
 
-			p(.part(Parts.scandiskStatus), .role("status")) {
+			p(.part(Parts.scandiskStatus), .role(.status)) {
 				"Select the drive(s) you want to check for errors: (C:)"
 			}
 			.style(GeoCitiesPage.Styles.statusBar)
@@ -684,7 +685,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 			.accessibilityHidden()
 			.style(GeoCitiesWindows.Styles.progressTrack)
 
-			p(.part(Parts.cleanupStatus), .role("status")) {}
+			p(.part(Parts.cleanupStatus), .role(.status)) {}
 				.style(GeoCitiesPage.Styles.statusBar)
 		}
 		.style(GeoCitiesWindows.Styles.stack)
@@ -807,7 +808,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 		case cleanupItem = "fun-cleanup-item"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case bonzi
 		case bonziBalloon

@@ -128,7 +128,7 @@ struct GeoCitiesTown: ScriptedElement {
 				}
 				.style(Styles.masthead)
 
-				p(.part(Parts.news), .role("status")) {}
+				p(.part(Parts.news), .role(.status)) {}
 					.style(Styles.headline)
 			}
 			.style(Styles.newspaper, GeoCitiesPage.Styles.scriptingOnly)
@@ -159,7 +159,7 @@ struct GeoCitiesTown: ScriptedElement {
 		case lot = "town-lot"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case fieldset
 		case tools

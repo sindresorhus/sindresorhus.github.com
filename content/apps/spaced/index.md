@@ -49,11 +49,9 @@ pressQuotes: [
 
 Add separators to your menu bar, so related items sit together in groups.
 
-Click a separator and choose “New” to add another one. To move a separator, hold ++Command++ and drag it.
+Click a separator and choose “New” to add another one, or “Remove” to delete it. Each separator has its own look, which you choose in the same menu: a line (`—`, `-`, or `|`), a dot (`·` or `•`), or empty space (a space or a tab). To move a separator, hold ++Command++ and drag it. If the separators draw too much attention, turn on “Reduced opacity” in the settings.
 
 It is particularly beneficial on larger screens where menu bar space is ample, as opposed to smaller laptop screens with limited space.
-
-<br>
 
 > [!TIP]
 > You may also like my [Menu Bar Spacing](/menu-bar-spacing) app for changing the gap between menu bar items.
@@ -68,7 +66,7 @@ Spacer positions are saved and restored by macOS, not the app. Menu bar manager 
 
 That is out of scope for this app. You want something like [Thaw](https://www.getthaw.app) or [Bartender](https://www.macbartender.com).
 
-On macOS 26 and later, you can also turn off the menu bar items of apps in “System Settings › Menu Bar”, in the “Allow in the Menu Bar” section. This hides them completely, so it does not let you show them when you need them.
+On macOS 26 and later, you can also turn off the menu bar items of apps in “[System Settings › Menu Bar](x-apple.systempreferences:com.apple.ControlCenter-Settings.extension)”, in the “Allow in the Menu Bar” section. This hides them completely, so it does not let you show them when you need them.
 
 ### Can you support more separator characters and wider spacers? {#custom-separator}
 

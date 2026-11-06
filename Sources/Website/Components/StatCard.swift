@@ -68,14 +68,14 @@ struct Stat {
 	*/
 	init(count: Int, label: String, isApproximate: Bool = false) {
 		// No thousands separator, as the large numbers read better without it, like “3467”.
-		self.init(count: count, value: isApproximate ? count.approximateCount : count.formatted(.number.grouping(.never).locale(.site)), label: label)
+		self.init(count: count, value: isApproximate ? count.approximateCount : count.formatted(.siteNumber), label: label)
 	}
 
 	/**
 	An average rating out of 5, like “4.7” and “average rating”.
 	*/
 	init(rating: StoreRating) {
-		self.init(count: rating.count, value: rating.roundedAverage.formatted(.number.locale(.site).precision(.fractionLength(1))), label: "average rating")
+		self.init(count: rating.count, value: rating.formattedAverage, label: "average rating")
 	}
 
 	/**
@@ -138,27 +138,38 @@ struct StatCard: HTML {
 		.style(Styles.root)
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case stat
 		case runningStat
 		case value
 		case label
 
+		/**
+		Three numbers without a running count, which are in three columns on phones from 22rem.
+		*/
+		private static var threeShortStats: CSSSelector {
+			"&:has(> :nth-child(3):last-child:not(\(runningStat.selector)))"
+		}
+
+		/**
+		Below it, the numbers are in one column (352px at the default text size).
+		*/
+		private static let oneColumnBreakpoint = Breakpoint(minimumWidthInRem: 22)
+
 		var style: Style {
 			switch self {
 			case .root:
 				// Two columns on phones, and three from tablets, so the numbers of all the cards line up. Three numbers are in three columns on phones too, a little smaller, as the numbers are short, so none is alone in a row, unless the third is a running count, which gets long and has its own row.
 				Style()
-					.display(.grid)
-					.gridColumns(2)
+					.grid(columns: 2)
 					.gap(row: .rootEm(1.25), column: .rootEm(1))
 					.margin(.zero)
 					.padding(.cardPadding)
 					.cardSurface(isInteractive: false)
 					.textStyle(.body)
 					.below(.tablet) {
-						$0.nested("&:has(> :nth-child(3):last-child:not(\(Self.runningStat.selector)))") {
+						$0.nested(Self.threeShortStats) {
 							$0
 								.gridColumns(3)
 								.nested(Self.value.selector) {
@@ -168,6 +179,14 @@ struct StatCard: HTML {
 					}
 					.from(.tablet) {
 						$0.gridColumns(3)
+					}
+					// One column where the numbers do not fit next to each other, like on a small phone or with a larger text size, as the numbers do not wrap. The width is in rem, so it follows the text size.
+					.below(Self.oneColumnBreakpoint) {
+						$0
+							.gridColumns(1)
+							.nested(Self.threeShortStats) {
+								$0.gridColumns(1)
+							}
 					}
 			case .stat:
 				Style()
@@ -179,6 +198,9 @@ struct StatCard: HTML {
 				Style()
 					.below(.tablet) {
 						$0.gridColumnSpan(2)
+					}
+					.below(Self.oneColumnBreakpoint) {
+						$0.gridColumnSpan(1)
 					}
 			case .value:
 				Style()

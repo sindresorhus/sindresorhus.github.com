@@ -20,7 +20,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 	*/
 	struct Event {
 		/**
-		The finite event IDs shared with the game script. Metadata remains in the table below.
+		The finite event IDs shared with the game script, in the order of the Games. The data of each event is in ``init(_:)``.
 		*/
 		enum ID: String, CaseIterable {
 			case skijump
@@ -59,69 +59,9 @@ struct GeoCitiesWinterGames: ScriptedElement {
 	}
 
 	/**
-	The events, in the order of the Games.
+	The events, in the order of the Games, which is the order of their IDs.
 	*/
-	static let events = [
-		Event(
-			id: .skijump,
-			title: "Ski Jump",
-			venue: "Holmenkollen, Oslo, K110",
-			howTo: "Two jumps from the big hill in Oslo. Hold ▼ on the inrun to crouch and go faster. Press Jump right at the end of the table: too early or too late, and you fly short. In the air, keep the needle of the balance meter in the green with ▲ and ▼, as the wind pushes you around. When the ground comes close, press Jump again to land in a telemark, with one ski in front of the other. A jump to the K-point of 110 meters gives 60 points, and each meter more or less gives 1.8 points more or less. Five judges give up to 20 points each for the style, and the highest and the lowest marks do not count. A head wind lifts you, and a tail wind pushes you down.",
-			controls: [("▼ (hold)", "Crouch on the inrun"), ("Space or the Jump button", "Take off, and land in a telemark"), ("▲ and ▼", "Lean forward and back in the air")]
-		),
-		Event(
-			id: .biathlon,
-			title: "Biathlon",
-			venue: "Birkebeineren, Lillehammer",
-			howTo: "Ski to the shooting range, shoot five targets, and ski to the finish. Press ◀ and ▶ one after the other to ski: the faster, the faster you go, but your heart rate goes up too. At the range, the higher your heart rate, the more the rifle sight shakes, so slow down before you get there, or wait a moment at the range. Move the sight with the arrow keys, and press Fire. The wind flag shows where the wind blows your bullets, so aim a little against it. Each miss sends you around the penalty loop, which is 150 meters in real biathlon and shorter here.",
-			controls: [("◀ ▶ ◀ ▶", "Ski"), ("The arrow keys", "Move the sight at the range"), ("Space or the Fire button", "Shoot")]
-		),
-		Event(
-			id: .skating,
-			title: "Speed Skating 500 m",
-			venue: "Vikingskipet, Hamar",
-			howTo: "Race 500 meters against the ghost of the best race: the record at first, then your own best. Wait for the gun, and press Go when it fires. Two false starts, and you are out. Then skate with ◀ and ▶ in the rhythm of the stride meter: press ◀ when the marker swings to the left end, and ▶ when it swings to the right end. The faster you go, the faster it swings. In the curves, the ends are smaller, so be careful.",
-			controls: [("Space or the Go button", "Start at the gun"), ("◀ and ▶", "Skate, in the rhythm of the stride meter")]
-		),
-		Event(
-			id: .slalom,
-			title: "Slalom",
-			venue: "Hafjell, Øyer",
-			howTo: "Ski down through 20 gates, red and blue, as fast as you can. Steer with ◀ and ▶. Hold ▼ to crouch, which is faster, but you turn slower. Hold ▲ to brake. Go between the two poles of each gate: a missed gate costs 5 seconds (in real slalom, you would be out). Fog and new snow make it harder, so check the weather.",
-			controls: [("◀ and ▶", "Steer"), ("▼ (hold)", "Crouch for speed"), ("▲ (hold)", "Brake")]
-		),
-		Event(
-			id: .bobsleigh,
-			title: "Bobsleigh",
-			venue: "Hunderfossen, Lillehammer",
-			howTo: "Push the sled with ◀ ▶ ◀ ▶ as fast as you can, and press Jump In when the light is green, before the line. Then steer down the ice: in the curves, the sled climbs the wall, more the faster you go. Keep it on the green line with ◀ and ▶. Too low, and it scrapes and slows down; too high, and it tips over. The sign at the top tells which way the next curve goes. Cold ice is fast ice.",
-			controls: [("◀ ▶ ◀ ▶", "Push at the start"), ("Space or the Jump In button", "Jump into the sled"), ("◀ and ▶", "Steer on the wall of the curves")]
-		),
-		Event(
-			id: .curling,
-			title: "Curling",
-			venue: "Hamar Curling Hall",
-			howTo: "Four stones, and red stones in the house. Aim with ◀ and ▶, and pick the turn of the stone with ▲ and ▼, which makes it curl to the left or the right as it slows down. Press Throw to start the weight meter, and press it again to let go: too hard, and the stone slides through the house. While the stone slides, press ◀ and ▶ one after the other to sweep: it goes further and straighter. Hurry hard! A stone on the button gives 4 points, in the next rings 3, 2, and 1. Each red stone you knock out of the house gives 2 points, and the stone closest to the middle gives 2 more.",
-			controls: [("◀ and ▶", "Aim, and sweep while the stone slides"), ("▲ and ▼", "Turn the stone to curl left or right"), ("Space or the Throw button", "Start the weight meter, and let go")]
-		),
-		Event(
-			id: .hockey,
-			title: "Ice Hockey Shootout",
-			venue: "Håkons Hall, Lillehammer",
-			howTo: "Five shots, and five saves. When you shoot, the crosshair moves over the goal by itself: press Shoot when it is where the goalie is not. Press ◀ or ▶ first to fake a shot to that side, and the goalie moves there. When you are the goalie, watch the shooter: move with ◀ and ▶, hold ▲ for a high save with the glove, and hold ▼ to go down and cover the ice. Each goal and each save is a point.",
-			controls: [("Space or the Shoot button", "Shoot"), ("◀ and ▶", "Fake a shot, or move the goalie"), ("▲ and ▼ (hold)", "High glove save, and down on the ice")],
-			gif: .slapshot,
-			gifStyle: .centered
-		),
-		Event(
-			id: .figure,
-			title: "Figure Skating",
-			venue: "Nordlyshallen, Hamar",
-			howTo: "Skate to In the Hall of the Mountain King by Edvard Grieg, which gets faster and faster. Arrows slide to the line on the left: press the arrow key when an arrow is on the line. A star is a jump: press Jump for it, or you fall on the ice. Five judges give two marks of up to 6.0 each, as in 1999: one for the technical merit, mostly the jumps, and one for the artistic impression, which likes long runs without a miss. With the sound on, you hear the music.",
-			controls: [("◀ ▼ ▲ ▶", "Skate the steps of the arrows"), ("Space or the Jump button", "Jump at a star")],
-			gif: .iceDancer
-		),
-	]
+	static let events = Event.ID.allCases.map(Event.init)
 
 	/**
 	A country of the Games, with the code that `WinterGames.js` knows it by and draws its flag for.
@@ -206,14 +146,14 @@ struct GeoCitiesWinterGames: ScriptedElement {
 					.width(320),
 					.height(200),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("The screen of the Winter Games. Use the arrow keys, and Space for the button of the event. Escape leaves an event.")
 					.style(Styles.screen)
 			}
 			.style(Styles.bezel)
 
-			p(.part(Parts.commentary), .role("status")) {
+			p(.part(Parts.commentary), .role(.status)) {
 				"Velkommen! Welcome to the Winter Games. Sign up below to start."
 			}
 			.style(Styles.commentary)
@@ -581,10 +521,10 @@ struct GeoCitiesWinterGames: ScriptedElement {
 					}
 				}
 				.accessibilityLabel("Your answer")
-				.attributes(.role("group"))
+				.attributes(.role(.group))
 				.style(Styles.answers)
 
-				p(.part(Parts.reply), .role("status")) {}
+				p(.part(Parts.reply), .role(.status)) {}
 					.style(GeoCitiesPage.Styles.caption)
 			}
 			.style(Styles.interview)
@@ -848,7 +788,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 		case newGames
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case body
 		case console
@@ -1107,6 +1047,83 @@ struct GeoCitiesWinterGames: ScriptedElement {
 					.hstack(alignment: .center, spacing: .rootEm(0.375))
 					.flexWrap()
 			}
+		}
+	}
+}
+
+extension GeoCitiesWinterGames.Event {
+	/**
+	The event with the ID, with a case for each ID, so every event is in the Games once.
+	*/
+	init(_ id: ID) {
+		switch id {
+		case .skijump:
+			self.init(
+				id: id,
+				title: "Ski Jump",
+				venue: "Holmenkollen, Oslo, K110",
+				howTo: "Two jumps from the big hill in Oslo. Hold ▼ on the inrun to crouch and go faster. Press Jump right at the end of the table: too early or too late, and you fly short. In the air, keep the needle of the balance meter in the green with ▲ and ▼, as the wind pushes you around. When the ground comes close, press Jump again to land in a telemark, with one ski in front of the other. A jump to the K-point of 110 meters gives 60 points, and each meter more or less gives 1.8 points more or less. Five judges give up to 20 points each for the style, and the highest and the lowest marks do not count. A head wind lifts you, and a tail wind pushes you down.",
+				controls: [("▼ (hold)", "Crouch on the inrun"), ("Space or the Jump button", "Take off, and land in a telemark"), ("▲ and ▼", "Lean forward and back in the air")]
+			)
+		case .biathlon:
+			self.init(
+				id: id,
+				title: "Biathlon",
+				venue: "Birkebeineren, Lillehammer",
+				howTo: "Ski to the shooting range, shoot five targets, and ski to the finish. Press ◀ and ▶ one after the other to ski: the faster, the faster you go, but your heart rate goes up too. At the range, the higher your heart rate, the more the rifle sight shakes, so slow down before you get there, or wait a moment at the range. Move the sight with the arrow keys, and press Fire. The wind flag shows where the wind blows your bullets, so aim a little against it. Each miss sends you around the penalty loop, which is 150 meters in real biathlon and shorter here.",
+				controls: [("◀ ▶ ◀ ▶", "Ski"), ("The arrow keys", "Move the sight at the range"), ("Space or the Fire button", "Shoot")]
+			)
+		case .skating:
+			self.init(
+				id: id,
+				title: "Speed Skating 500 m",
+				venue: "Vikingskipet, Hamar",
+				howTo: "Race 500 meters against the ghost of the best race: the record at first, then your own best. Wait for the gun, and press Go when it fires. Two false starts, and you are out. Then skate with ◀ and ▶ in the rhythm of the stride meter: press ◀ when the marker swings to the left end, and ▶ when it swings to the right end. The faster you go, the faster it swings. In the curves, the ends are smaller, so be careful.",
+				controls: [("Space or the Go button", "Start at the gun"), ("◀ and ▶", "Skate, in the rhythm of the stride meter")]
+			)
+		case .slalom:
+			self.init(
+				id: id,
+				title: "Slalom",
+				venue: "Hafjell, Øyer",
+				howTo: "Ski down through 20 gates, red and blue, as fast as you can. Steer with ◀ and ▶. Hold ▼ to crouch, which is faster, but you turn slower. Hold ▲ to brake. Go between the two poles of each gate: a missed gate costs 5 seconds (in real slalom, you would be out). Fog and new snow make it harder, so check the weather.",
+				controls: [("◀ and ▶", "Steer"), ("▼ (hold)", "Crouch for speed"), ("▲ (hold)", "Brake")]
+			)
+		case .bobsleigh:
+			self.init(
+				id: id,
+				title: "Bobsleigh",
+				venue: "Hunderfossen, Lillehammer",
+				howTo: "Push the sled with ◀ ▶ ◀ ▶ as fast as you can, and press Jump In when the light is green, before the line. Then steer down the ice: in the curves, the sled climbs the wall, more the faster you go. Keep it on the green line with ◀ and ▶. Too low, and it scrapes and slows down; too high, and it tips over. The sign at the top tells which way the next curve goes. Cold ice is fast ice.",
+				controls: [("◀ ▶ ◀ ▶", "Push at the start"), ("Space or the Jump In button", "Jump into the sled"), ("◀ and ▶", "Steer on the wall of the curves")]
+			)
+		case .curling:
+			self.init(
+				id: id,
+				title: "Curling",
+				venue: "Hamar Curling Hall",
+				howTo: "Four stones, and red stones in the house. Aim with ◀ and ▶, and pick the turn of the stone with ▲ and ▼, which makes it curl to the left or the right as it slows down. Press Throw to start the weight meter, and press it again to let go: too hard, and the stone slides through the house. While the stone slides, press ◀ and ▶ one after the other to sweep: it goes further and straighter. Hurry hard! A stone on the button gives 4 points, in the next rings 3, 2, and 1. Each red stone you knock out of the house gives 2 points, and the stone closest to the middle gives 2 more.",
+				controls: [("◀ and ▶", "Aim, and sweep while the stone slides"), ("▲ and ▼", "Turn the stone to curl left or right"), ("Space or the Throw button", "Start the weight meter, and let go")]
+			)
+		case .hockey:
+			self.init(
+				id: id,
+				title: "Ice Hockey Shootout",
+				venue: "Håkons Hall, Lillehammer",
+				howTo: "Five shots, and five saves. When you shoot, the crosshair moves over the goal by itself: press Shoot when it is where the goalie is not. Press ◀ or ▶ first to fake a shot to that side, and the goalie moves there. When you are the goalie, watch the shooter: move with ◀ and ▶, hold ▲ for a high save with the glove, and hold ▼ to go down and cover the ice. Each goal and each save is a point.",
+				controls: [("Space or the Shoot button", "Shoot"), ("◀ and ▶", "Fake a shot, or move the goalie"), ("▲ and ▼ (hold)", "High glove save, and down on the ice")],
+				gif: .slapshot,
+				gifStyle: .centered
+			)
+		case .figure:
+			self.init(
+				id: id,
+				title: "Figure Skating",
+				venue: "Nordlyshallen, Hamar",
+				howTo: "Skate to In the Hall of the Mountain King by Edvard Grieg, which gets faster and faster. Arrows slide to the line on the left: press the arrow key when an arrow is on the line. A star is a jump: press Jump for it, or you fall on the ice. Five judges give two marks of up to 6.0 each, as in 1999: one for the technical merit, mostly the jumps, and one for the artistic impression, which likes long runs without a miss. With the sound on, you hear the music.",
+				controls: [("◀ ▼ ▲ ▶", "Skate the steps of the arrows"), ("Space or the Jump button", "Jump at a star")],
+				gif: .iceDancer
+			)
 		}
 	}
 }

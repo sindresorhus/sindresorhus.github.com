@@ -1,8 +1,9 @@
 ---
 title: 'How to Cut and Paste Files on Mac'
-description: 'In Finder, copy files with Command+C and move them with Option+Command+V. The Command X app lets you cut and paste with Command+X and Command+V.'
+description: 'Command+X does not cut files in Finder. Copy with Command+C and move with Option+Command+V, or use the Command X app to cut and paste.'
 publicationDate: 2026-10-29
 topic: 'finder-and-desktop'
+isForWindowsUsers: true
 apps: [
 	'command-x'
 ]

@@ -123,7 +123,7 @@ struct GeoCitiesWindowsTerminal: ScriptedElement {
 		.style(GeoCitiesWindows.Styles.stack, Styles.setup, GeoCitiesPage.Styles.scriptingOnly)
 
 		div(.part(Parts.monitor)) {
-			div(.part(Parts.screen), .role("log"), .tabindex(0)) {}
+			div(.part(Parts.screen), .role(.log), .tabindex(0)) {}
 				.accessibilityLabel("The screen of the terminal")
 				.style(Styles.screen)
 
@@ -161,7 +161,7 @@ struct GeoCitiesWindowsTerminal: ScriptedElement {
 		}
 		.style(GeoCitiesWindows.Styles.nowrapRow, GeoCitiesPage.Styles.scriptingOnly)
 
-		div(.part(Parts.keys), .role("group")) {}
+		div(.part(Parts.keys), .role(.group)) {}
 			.accessibilityLabel("Keys")
 			.style(GeoCitiesWindows.Styles.wrapRow, GeoCitiesPage.Styles.scriptingOnly)
 
@@ -217,7 +217,7 @@ struct GeoCitiesWindowsTerminal: ScriptedElement {
 		case color = "term-color"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case setup
 		case icons

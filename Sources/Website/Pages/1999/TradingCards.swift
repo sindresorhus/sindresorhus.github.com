@@ -312,13 +312,13 @@ struct GeoCitiesTradingCards: ScriptedElement {
 				}
 				.style(Styles.pack)
 
-				div(.part(Parts.pull)) {}
+				div(.part(Parts.pull), .role(.group)) {}
 					.accessibilityLabel("Cards from the pack")
 					.style(Styles.pull)
 			}
 			.style(Styles.table)
 
-			p(.part(Parts.status), .role("status")) {}
+			p(.part(Parts.status), .role(.status)) {}
 				.style(GeoCitiesPage.Styles.centeredText)
 
 			div(.part(Parts.trade), .hidden) {
@@ -471,7 +471,7 @@ struct GeoCitiesTradingCards: ScriptedElement {
 		case rarity = "unimon-rarity"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case game
 		case table
@@ -700,7 +700,7 @@ struct GeoCitiesTradingCards: ScriptedElement {
 		}
 	}
 
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case shake
 		case flip
 

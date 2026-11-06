@@ -56,7 +56,7 @@ struct GeoCitiesNeonSign: ScriptedElement {
 		}
 		.style(GeoCitiesPage.Styles.retroButton, GeoCitiesPage.Styles.scriptingOnly)
 
-		p(.part(Parts.status), .role("status")) {}
+		p(.part(Parts.status), .role(.status)) {}
 			.style(Styles.status)
 	}
 
@@ -72,7 +72,7 @@ struct GeoCitiesNeonSign: ScriptedElement {
 		case fallen
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case sign
 		case line

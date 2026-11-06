@@ -39,7 +39,7 @@ struct NowPageTests {
 		(counts: [], streak: 0),
 	])
 	func `the streak counts the days in a row with contributions`(counts: [Int], streak: Int) throws {
-		let days = counts.enumerated().map { #"{"date": "2026-10-0\#($0.offset + 1)", "contributionCount": \#($0.element), "contributionLevel": "\#($0.element == 0 ? "NONE" : "FIRST_QUARTILE")"}"# }
+		let days = counts.enumerated().map { #"{"date": "2026-10-0\#($0.offset + 1)", "contributionCount": \#($0.element)}"# }
 		let json = #"{"totalContributions": \#(counts.sum), "weeks": [{"contributionDays": [\#(days.joined(separator: ","))]}]}"#
 		let calendar = try ContributionCalendar(json: json)
 
@@ -57,7 +57,7 @@ struct NowPageTests {
 		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
 
 		// 2026-10-07 12:00 UTC.
-		let content = SiteContent(
+		let content = SiteContent.test(
 			apps: [app],
 			posts: posts,
 			pages: [page],
@@ -67,8 +67,7 @@ struct NowPageTests {
 					GitHubRelease(tagName: "v3.0.0", publishedAt: try Date("2021-10-07T09:00:00Z", strategy: .iso8601), notesHTML: ""),
 				],
 			]),
-			buildDate: Date(timeIntervalSince1970: 1_791_374_400),
-			project: .empty
+			buildDate: Date(timeIntervalSince1970: 1_791_374_400)
 		)
 		let html = try NowPage(page: page, content: content).renderedHTML()
 		let section = try #require(html.firstMatch(of: /<h2 id="on-this-day".*?<\/section>/.dotMatchesNewlines())).output
@@ -95,14 +94,7 @@ struct NowPageTests {
 		let cache = try ResponseCache.npm(search: search)
 		let statistics = await NPMStatistics.load(cache: cache, warnings: WarningCollector())
 		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
-		let content = SiteContent(
-			apps: [],
-			posts: [],
-			pages: [page],
-			npmStatistics: statistics,
-			buildDate: Date(timeIntervalSince1970: 1_791_374_400),
-			project: .empty
-		)
+		let content = SiteContent.test(pages: [page], npmStatistics: statistics, buildDate: Date(timeIntervalSince1970: 1_791_374_400))
 
 		let html = try NowPage(page: page, content: content).renderedHTML()
 
@@ -135,14 +127,7 @@ struct NowPageTests {
 
 		// The section, and whether it is hidden.
 		func buildingNow(npmStatistics: NPMStatistics) throws -> (html: Substring, isHidden: Bool) {
-			let content = SiteContent(
-				apps: [],
-				posts: [],
-				pages: [page],
-				npmStatistics: npmStatistics,
-				buildDate: .now,
-				project: .empty
-			)
+			let content = SiteContent.test(pages: [page], npmStatistics: npmStatistics)
 			let html = try NowPage(page: page, content: content).renderedHTML()
 			let section = try #require(html.firstMatch(of: /<section([^>]*)><h2 id="building-now".*?<\/section>/.dotMatchesNewlines()))
 			return (section.output.0, section.output.1.contains("hidden"))
@@ -184,14 +169,11 @@ struct NowPageTests {
 		activity.releases = try [release(#repository("sindresorhus/execa"), "v10.1.0", day: 1), release(#repository("sindresorhus/execa"), "v10.0.0", day: 2), release(#repository("sindresorhus/is"), "v7.1.0", day: 3), release(#repository("sindresorhus/got"), "v16.0.0", day: 4)]
 
 		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
-		let content = SiteContent(
-			apps: [],
-			posts: [],
+		let content = SiteContent.test(
 			pages: [page],
 			npmStatistics: statistics,
 			recentActivity: activity,
-			buildDate: Date(timeIntervalSince1970: 1_791_374_400),
-			project: .empty
+			buildDate: Date(timeIntervalSince1970: 1_791_374_400)
 		)
 
 		let html = try NowPage(page: page, content: content).renderedHTML()
@@ -235,7 +217,7 @@ struct NowPageTests {
 		{
 			"totalContributions": 12,
 			"weeks": [
-				{"contributionDays": [{"date": "2026-01-01", "contributionCount": 2, "contributionLevel": "FIRST_QUARTILE"}, {"date": "2026-01-02", "contributionCount": 7, "contributionLevel": "FOURTH_QUARTILE"}, {"date": "2026-01-03", "contributionCount": 0, "contributionLevel": "NONE"}, {"date": "2026-01-04", "contributionCount": 3, "contributionLevel": "SECOND_QUARTILE"}]}
+				{"contributionDays": [{"date": "2026-01-01", "contributionCount": 2}, {"date": "2026-01-02", "contributionCount": 7}, {"date": "2026-01-03", "contributionCount": 0}, {"date": "2026-01-04", "contributionCount": 3}]}
 			]
 		}
 		"""#
@@ -257,9 +239,7 @@ struct NowPageTests {
 			]
 		}
 		"""#)
-		let content = SiteContent(
-			apps: [],
-			posts: [],
+		let content = SiteContent.test(
 			pages: [page],
 			contributionYears: [ContributionYear(
 				year: 2026,
@@ -267,8 +247,7 @@ struct NowPageTests {
 				totals: totals,
 				until: buildDate
 			)],
-			buildDate: buildDate,
-			project: .empty
+			buildDate: buildDate
 		)
 
 		let html = try NowPage(page: page, content: content).renderedHTML()
@@ -277,7 +256,7 @@ struct NowPageTests {
 		#expect(html.contains(">7</span> <span class=\"\(StatCard.Styles.label.className)\">busiest day, January 2</span>"))
 		#expect(html.contains(">2</span> <span class=\"\(StatCard.Styles.label.className)\">repositories committed to</span>"))
 		// A private repo, which a personal token can see, is left out.
-		#expect(html.contains(#"Most commits went to <a href="https://github.com/sindresorhus/ky">ky</a> (1,163), <a href="https://github.com/chalk/chalk">chalk/chalk</a> (2), and <a href="https://github.com/sindresorhus/got">got</a> (1)."#))
+		#expect(html.contains(#"Most commits went to <a href="https://github.com/sindresorhus/ky">ky</a> (1163), <a href="https://github.com/chalk/chalk">chalk/chalk</a> (2), and <a href="https://github.com/sindresorhus/got">got</a> (1)."#))
 		// The numbers of the open-source work are in their own group, so it is clear that the busiest day is of the contributions. Without apps or posts this year, the group of the apps is left out.
 		#expect(html.contains("Open Source</h3>"))
 		#expect(!html.contains("Apps and Blog"))
@@ -314,16 +293,14 @@ struct NowPageTests {
 		}
 
 		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
-		let content = SiteContent(
+		let content = SiteContent.test(
 			apps: [try await app("First", id: 1), try await app("Second", id: 2)],
-			posts: [],
 			pages: [page],
 			appData: SiteContent.AppData(appStoreReviews: [
 				1: [try review("Review of the first app", date: "2026-10-06T00:00:00Z"), try review("Older review of the first app", date: "2026-10-05T00:00:00Z")],
 				2: [try review("Review of the second app", date: "2026-10-01T00:00:00Z")],
 			]),
-			buildDate: try Date("2026-10-07T12:00:00Z", strategy: .iso8601),
-			project: .empty
+			buildDate: try Date("2026-10-07T12:00:00Z", strategy: .iso8601)
 		)
 
 		let nowPage = NowPage(page: page, content: content)
@@ -351,16 +328,14 @@ struct NowPageTests {
 		}
 
 		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
-		let content = SiteContent(
+		let content = SiteContent.test(
 			apps: [try await app("Launched", id: 1, publicationDate: "2026-10-01"), try await app("Updated", id: 2, publicationDate: "2020-01-01")],
-			posts: [],
 			pages: [page],
 			appData: SiteContent.AppData(appStoreInfo: [
 				1: try info(id: 1, version: "1.0", date: "2026-10-01T15:00:00Z"),
 				2: try info(id: 2, version: "2.1", date: "2026-10-05T15:00:00Z"),
 			]),
-			buildDate: try Date("2026-10-07T12:00:00Z", strategy: .iso8601),
-			project: .empty
+			buildDate: try Date("2026-10-07T12:00:00Z", strategy: .iso8601)
 		)
 
 		let html = try NowPage(page: page, content: content).renderedHTML()
@@ -386,14 +361,7 @@ struct NowPageTests {
 		var activity = RecentActivity()
 		activity.weekMaintenance = GitHub.Maintenance(closedIssueCount: 83, mergedPullRequestCount: 61)
 		activity.weekActivity = GitHub.Activity(contributionCount: 245, commitCount: 171, commentCount: 32)
-		let content = SiteContent(
-			apps: [],
-			posts: [],
-			pages: [page],
-			recentActivity: activity,
-			buildDate: try Date("2026-10-13T12:00:00Z", strategy: .iso8601),
-			project: .empty
-		)
+		let content = SiteContent.test(pages: [page], recentActivity: activity, buildDate: try Date("2026-10-13T12:00:00Z", strategy: .iso8601))
 
 		let html = try NowPage(page: page, content: content).renderedHTML()
 		#expect(html.contains("This Week in Open Source"))
@@ -449,15 +417,12 @@ struct NowPageTests {
 			maintenance: GitHub.Maintenance(closedIssueCount: 1, mergedPullRequestCount: 1),
 			repositories: repositories
 		)
-		let content = SiteContent(
-			apps: [],
-			posts: [],
+		let content = SiteContent.test(
 			pages: [page],
 			gitHubAccount: account,
 			npmStatistics: npmStatistics,
 			recentActivity: activity,
-			buildDate: try Date("2026-10-13T12:00:00Z", strategy: .iso8601),
-			project: .empty
+			buildDate: try Date("2026-10-13T12:00:00Z", strategy: .iso8601)
 		)
 
 		let html = try NowPage(page: page, content: content).renderedHTML()
@@ -485,7 +450,7 @@ struct NowPageTests {
 		(dayCount: 16, weeklyCounts: [42, 91]),
 	])
 	func `the weekly contributions are the sums of each 7 days up to the last day`(dayCount: Int, weeklyCounts: [Int]) throws {
-		let days = (1...dayCount).map { #"{"date": "2026-10-\#($0.formatted(.number.precision(.integerLength(2))))", "contributionCount": \#($0), "contributionLevel": "FIRST_QUARTILE"}"# }
+		let days = (1...dayCount).map { #"{"date": "2026-10-\#($0.formatted(.number.precision(.integerLength(2))))", "contributionCount": \#($0)}"# }
 		let json = #"{"totalContributions": 0, "weeks": [{"contributionDays": [\#(days.joined(separator: ","))]}]}"#
 		let calendar = try ContributionCalendar(json: json)
 

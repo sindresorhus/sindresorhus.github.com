@@ -262,6 +262,11 @@ The app tells the system not to turn off the screen. However, if you have enable
 
 I don’t plan to support any editing. Export the transcription and edit it in a proper text editor.
 
+### Can it summarize the transcription? {#summary}
+<!-- @faq.keywords summary notes minutes -->
+
+Not built in, as Aiko only transcribes. To get a summary, make a shortcut with the “Transcribe Audio” action of Aiko and the “Use Model” action of the Shortcuts app (Apple Intelligence), with a prompt like `Summarize this`. On a device with Apple Intelligence, you can also select the text in Aiko and use Writing Tools to summarize it.
+
 ### How is this better than the built-in transcription on Apple devices? {#how-is-this-better-than-the-built-in-transcription-on-apple-devices}
 
 The built-in transcription in iOS 26 and macOS 26 is fast and works well for the languages it supports. If it does what you need, use it. Aiko gives you more:

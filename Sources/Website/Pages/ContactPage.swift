@@ -103,7 +103,7 @@ extension ContactPage {
 	/**
 	The hue of the rainbow, which turns while the pointer is on the page. Each letter adds its place in the address, so the colors go around once across it.
 	*/
-	fileprivate static let hue = RegisteredProperty<CSSNumber>("hue", syntax: .number, initialValue: 0)
+	fileprivate static let hue = RegisteredProperty<CSSNumber>("hue", initialValue: 0)
 
 	/**
 	The hue of a letter: the hue of the rainbow, plus the place of the letter in the address.
@@ -161,7 +161,7 @@ extension ContactPage {
 		case rainbow
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case orb
 		case blueOrb
@@ -193,7 +193,7 @@ extension ContactPage {
 		private static let rainbowTurn = Animation.linear(duration: .seconds(6)).repeatForever(autoreverses: false)
 
 		/**
-		The size of the email address, which grows with the screen, so it fills most of the line, up to 5 rem on very wide screens. The `rem` part grows with the zoom of the browser, and the maximum is at most 2.5 times the minimum, also with the larger root size of large screens, so the text reaches 200% within the zoom of browsers (up to 500%), as WCAG asks. With zoom on a narrow window, the part before the `@` can be wider than the screen, as it does not break, but not at the 320 CSS pixels that WCAG asks to work.
+		The size of the email address, which grows with the screen, so it fills most of the line, up to 5 rem on very wide screens. The `rem` part grows with the zoom of the browser, and the maximum is at most 2.5 times the minimum, also with the larger root size of large screens, so the text reaches 200% within the zoom of browsers (up to 500%), as WCAG asks. With zoom on a narrow window, the part before the `@` can be wider than the screen, as it does not break, but not at the 320 CSS pixels that WCAG asks to work. A larger default text size in the browser settings only grows the `rem` parts, not the width, so on phones the size is also at most 12% of the width of the screen, as the longest part is about 6.9 times as wide as the size, so it stays on the screen.
 		*/
 		private static func emailSize(viewportWidth: Double) -> LengthPercentage {
 			.clamp(.rootEm(2.125), .rootEm(0.5) + .viewportWidth(viewportWidth), .rootEm(5))
@@ -202,15 +202,7 @@ extension ContactPage {
 		/**
 		A fast start and a long, soft end, for the parts that fade in and the sparkles.
 		*/
-		private static func revealCurve(duration: Duration) -> AnimationTiming {
-			.timingCurve(
-				0.22,
-				1,
-				0.36,
-				1,
-				duration: duration
-			)
-		}
+		private static let revealCurve = EasingFunction.cubicBezier(0.22, 1, 0.36, 1)
 
 		var style: Style {
 			switch self {
@@ -257,10 +249,10 @@ extension ContactPage {
 			case .reveal:
 				// The parts fade in one after the other. The first part is the second child, after the hidden title.
 				Style()
-					.animation(Animations.reveal, Animation(timing: Self.revealCurve(duration: .milliseconds(800))), fillMode: .both)
+					.animation(Animations.reveal, Animation(timing: .init(duration: .milliseconds(800), curve: Self.revealCurve)), fillMode: .both)
 					// In the media query after the animation, as its shorthand resets the delay.
 					.media(.allowsMotion) {
-						$0.declaration(.animationDelay, "calc((sibling-index() - 2) * 100ms)")
+						$0.animationDelay(.milliseconds(100), multipliedBy: .siblingIndex - 2)
 					}
 			case .eyebrow:
 				Style()
@@ -280,7 +272,7 @@ extension ContactPage {
 				// The outline helps the rainbow colors stand out on a light background. `contact.js` tilts it toward the pointer with `--tilt-x` and `--tilt-y`, and sets `data-rainbow` while the pointer is on the page. On touch screens, the rainbow always turns. The focus of the keyboard shows the rainbow too.
 				Style()
 					.display(.block)
-					.font(size: Self.emailSize(viewportWidth: 8), lineHeight: 1)
+					.font(size: .min(Self.emailSize(viewportWidth: 8), .viewportWidth(12)), lineHeight: 1)
 					.expandedFont()
 					.bold()
 					.letterSpacing(.em(-0.025))
@@ -304,7 +296,7 @@ extension ContactPage {
 						$0.font(size: Self.emailSize(viewportWidth: 5))
 					}
 					.dark {
-						$0.declaration(.webkitTextStroke, 0)
+						$0.declaration(raw: .webkitTextStroke, 0)
 					}
 			case .emailPart:
 				// The letters after the `@` continue the count of the letters before it.
@@ -321,8 +313,8 @@ extension ContactPage {
 					.transformOrigin(.init(x: .percent(50), y: .percent(85)))
 					.transform(.translateY(.pixels(-22).scaled(by: ContactPage.letterStrength.value(default: 0))), .scale(1 + ContactPage.letterStrength.value(default: 0) * 0.8), .translateZ(.pixels(55).scaled(by: ContactPage.letterStrength.value(default: 0))))
 					.transition(.transform, timing: .pop(duration: .milliseconds(80))).transition(.color, .textShadow, timing: .default(duration: .milliseconds(80)))
-					.declaration(.willChange, "transform")
-					.setting(ContactPage.letterHue, to: ContactPage.hue.value + (CSSNumber(raw: "sibling-index()") - 1 + ContactPage.letterOffset.value(default: 0)) * CSSNumber(360 / Double(max(Self.letterCount, 1))))
+					.willChange(.transform)
+					.setting(ContactPage.letterHue, to: ContactPage.hue.value + (.siblingIndex - 1 + ContactPage.letterOffset.value(default: 0)) * CSSNumber(360 / Double(max(Self.letterCount, 1))))
 					.when(Hooks.leaving) {
 						$0.transition(.transform, timing: .timingCurve(raw: "linear(0, .5 7.7%, .9 14.4%, 1.04 19.4%, 1.06 23.7%, 1.02 30%, 1 35%, .99 45%, 1)", duration: .milliseconds(600))).transition(.color, .textShadow, timing: .default(duration: .milliseconds(500)))
 					}
@@ -344,7 +336,8 @@ extension ContactPage {
 				Style()
 					.vstack(alignment: .center)
 					.gap(row: .rootEm(0.25))
-					.font(.extraSmall)
+					// Like the other secondary text of the site, not the smallest size, as the visitor must read the rules before writing.
+					.font(size: .rootEm(0.9375), lineHeight: 1.5)
 					.color(Self.smallTextColor)
 					.textLinks()
 					.from(.smallTablet) {
@@ -368,7 +361,7 @@ extension ContactPage {
 					.allowsHitTesting(false)
 					.offset(x: .percent(-50) + ContactPage.sparkleX.value, y: .percent(-50) + ContactPage.sparkleY.value)
 					.opacity(0)
-					.transition(.offset, timing: Self.revealCurve(duration: .milliseconds(750))).transition(.opacity, timing: .default(duration: .milliseconds(750)))
+					.transition(.offset, timing: .init(duration: .milliseconds(750), curve: Self.revealCurve)).transition(.opacity, timing: .default(duration: .milliseconds(750)))
 					.startingStyle {
 						$0
 							.offset(x: .percent(-50), y: .percent(-50))
@@ -382,18 +375,23 @@ extension ContactPage {
 		private static let letterCount = Site.author.email.count
 
 		/**
-		The color of a letter in the rainbow, with a glow.
+		The color of a letter in the rainbow, with a glow. In light mode, the letters have one lightness in OKLCH, so yellow and green are as easy to read on the white page as blue, which they are not with one lightness in HSL. Dark mode keeps the bright HSL colors, which all stand out on the dark page.
 		*/
 		private static var rainbowLetter: Style {
-			let color = Color.hsl(hue: ContactPage.letterHue.value, saturation: .percent(100), lightness: .percent(65))
+			let light = Color.oklch(lightness: .percent(65), chroma: 0.19, hue: .degrees(1).scaled(by: ContactPage.letterHue.value))
+			let dark = Color.hsl(hue: ContactPage.letterHue.value, saturation: .percent(100), lightness: .percent(65))
+
+			func glow(opacity: Double) -> Color {
+				.lightDark(light.opacity(opacity), dark.opacity(opacity))
+			}
 
 			return Style()
-				.color(color)
-				.textShadow(Shadow(y: .zero, blur: .pixels(20), color: color.opacity(0.65)), Shadow(y: .zero, blur: .pixels(44), color: color.opacity(0.3)))
+				.color(.lightDark(light, dark))
+				.textShadow(Shadow(y: .zero, blur: .pixels(20), color: glow(opacity: 0.65)), Shadow(y: .zero, blur: .pixels(44), color: glow(opacity: 0.3)))
 		}
 	}
 
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case driftA
 		case driftB
 		case reveal

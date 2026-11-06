@@ -242,32 +242,54 @@ extension GeoCitiesPage {
 	"""##
 
 	/**
+	The sections of the page that the site map jumps to, and that are not elements with an ID of their own, like ``GeoCitiesWinterGames/rootID``, so the button and the section use the same ID.
+	*/
+	enum SiteMapSection: String {
+		case jukebox = "geocities-jukebox"
+		case java = "geocities-java"
+		case games = "geocities-games"
+		case snake = "geocities-snake"
+		case glitter = "geocities-glitter"
+		case quiz = "geocities-quiz"
+		case pc = "geocities-pc"
+		case links = "geocities-links"
+		case shrine = "geocities-shrine"
+		case guestbook = "geocities-guestbook"
+		case downloads = "geocities-downloads"
+		case mail = "geocities-mail"
+
+		var id: ElementID {
+			ElementID(rawValue)
+		}
+	}
+
+	/**
 	The buttons of the site map, like the navigation frame of a home page from 1999, with the ID of the part that each one jumps to.
 	*/
 	static let siteMapItems: [(gif: GIF, title: String, anchor: ElementID)] = [
 		(.navHome, "Home", IDs.welcome.id),
-		(.musicNotes, "Jukebox", ElementID("geocities-jukebox")),
-		(.buttonAmigaDemo, "Demos", ElementID("geocities-cracktro")),
-		(.newStuff, "New Stuff", ElementID("geocities-java")),
+		(.musicNotes, "Jukebox", SiteMapSection.jukebox.id),
+		(.buttonAmigaDemo, "Demos", GeoCitiesCracktro.rootID),
+		(.newStuff, "New Stuff", SiteMapSection.java.id),
 		(.cat, "My Pets", GeoCitiesPets.IDs.root.id),
-		(.pacman, "Games", ElementID("geocities-games")),
-		(.mobilePhone, "Snake", ElementID("geocities-snake")),
+		(.pacman, "Games", SiteMapSection.games.id),
+		(.mobilePhone, "Snake", SiteMapSection.snake.id),
 		(.skiSlope, "Winter Games", GeoCitiesWinterGames.rootID),
-		(.heart, "Glitter", ElementID("geocities-glitter")),
-		(.question, "Quiz", ElementID("geocities-quiz")),
-		(.computerGame, "Arcade", ElementID("geocities-arcade")),
+		(.heart, "Glitter", SiteMapSection.glitter.id),
+		(.question, "Quiz", SiteMapSection.quiz.id),
+		(.computerGame, "Arcade", GeoCitiesArcade.rootID),
 		(.turnBook, "Adventures", GeoCitiesAdventure.rootID),
-		(.computerSmall, "My PC", ElementID("geocities-pc")),
+		(.computerSmall, "My PC", SiteMapSection.pc.id),
 		(.buttonMacVsWindows, "My iMac", GeoCitiesMacOS.IDs.root.id),
 		(.iMac, "My Room", GeoCitiesRoom.rootID),
-		(.hotSites, "Cool Links", ElementID("geocities-links")),
-		(.candle, "Shrine", ElementID("geocities-shrine")),
+		(.hotSites, "Cool Links", SiteMapSection.links.id),
+		(.candle, "Shrine", SiteMapSection.shrine.id),
 		(.speakerNotes, "Music Room", GeoCitiesMusicRoom.IDs.root.id),
-		(.signGuestbook, "Guestbook", ElementID("geocities-guestbook")),
+		(.signGuestbook, "Guestbook", SiteMapSection.guestbook.id),
 		(.mailbox, "WaffleMail", GeoCitiesInbox.rootID),
 		(.computerGame, "Make a Page", GeoCitiesPageMaker.rootID),
-		(.floppy, "Downloads", ElementID("geocities-downloads")),
-		(.envelope, "E-mail Me", ElementID("geocities-mail")),
+		(.floppy, "Downloads", SiteMapSection.downloads.id),
+		(.envelope, "E-mail Me", SiteMapSection.mail.id),
 	]
 
 	/**

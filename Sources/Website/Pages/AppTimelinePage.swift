@@ -111,7 +111,7 @@ struct AppTimelinePage: Page {
 }
 
 extension AppTimelinePage {
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case timeline
 		case yearItem

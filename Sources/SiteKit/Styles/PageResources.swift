@@ -39,6 +39,38 @@ public final class PageResources: Sendable {
 		var replays = [@Sendable (PageResources) -> Void]()
 	}
 
+	/**
+	An immutable record of the styles and scripts collected by a rendered fragment. Including it in another collector replays the original requirements against that collector's shared stylesheet.
+	*/
+	public struct Snapshot: Sendable {
+		public let styleNodes: [StyleNode]
+		public let elementStyleNodes: [StyleNode]
+		public let scripts: [RoutePath]
+		public let elements: [any ScriptedElement.Type]
+		fileprivate let replays: [@Sendable (PageResources) -> Void]
+
+		/**
+		Elements whose script is inline, in first-use order.
+		*/
+		public var inlineScriptElements: [any ScriptedElement.Type] {
+			elements.inlineScriptElements
+		}
+	}
+
+	/**
+	The resources collected so far, frozen independently of later use of this collector.
+	*/
+	public var snapshot: Snapshot {
+		let value = state.withLock { $0 }
+		return Snapshot(
+			styleNodes: value.styleSets.flatMap { $0.nodes(usedClassNames: value.usedStyles[ObjectIdentifier($0)] ?? []) },
+			elementStyleNodes: value.elementStyleNodes,
+			scripts: value.scripts,
+			elements: value.elements,
+			replays: value.replays
+		)
+	}
+
 	@TaskLocal static var current: PageResources?
 
 	private let state: Mutex<State>
@@ -161,11 +193,15 @@ public final class PageResources: Sendable {
 			return true
 		}
 
-		if
-			isNew,
-			let path = Element.script.path
-		{
-			require(script: path)
+		guard isNew else {
+			return
+		}
+
+		switch Element.script.location {
+		case .file(let file):
+			require(script: ElementScript.publishedPath(of: file))
+		case .inline:
+			break
 		}
 	}
 
@@ -174,6 +210,15 @@ public final class PageResources: Sendable {
 	*/
 	func include(_ other: PageResources) {
 		for replay in other.state.withLock(\.replays) {
+			replay(self)
+		}
+	}
+
+	/**
+	Adds the dependencies of an already rendered fragment, deduplicated against this collector.
+	*/
+	func include(_ snapshot: Snapshot) {
+		for replay in snapshot.replays {
 			replay(self)
 		}
 	}
@@ -211,7 +256,22 @@ public final class PageResources: Sendable {
 	The elements with an inline script (``ElementScript/init(inline:)``) that the page shows, in the order the page first showed them, each once, as an element can only be defined once.
 	*/
 	public var inlineScriptElements: [any ScriptedElement.Type] {
-		elements.filter { $0.script.path == nil }
+		elements.inlineScriptElements
+	}
+}
+
+/**
+Script classification shared by a live collector and a frozen snapshot, without generating unrelated style rules.
+*/
+extension [any ScriptedElement.Type] {
+	fileprivate var inlineScriptElements: Self {
+		filter {
+			if case .inline = $0.script.location {
+				return true
+			}
+
+			return false
+		}
 	}
 }
 
@@ -252,5 +312,29 @@ public struct ModuleScript: HTML, Sendable {
 	public var body: some HTML {
 		PageResources.current?.require(script: path)
 		return EmptyHTML()
+	}
+}
+
+/**
+Pre-rendered HTML with the immutable resource requirements of that rendering. Embedding the value in another page includes its styles and scripts automatically.
+*/
+public struct RenderedHTML: HTML, Sendable {
+	public let html: String
+	public let resources: PageResources.Snapshot
+
+	/**
+	Builds and renders a fragment inside its resource collector, so styles applied directly to its elements are collected too. An enclosing collector also receives the requirements.
+	*/
+	public init<Content: HTML>(sharedStylesheet: Stylesheet? = nil, @ContentBuilder content: () -> Content) throws {
+		let resources = PageResources(sharedStylesheet: sharedStylesheet)
+		self.html = try resources.collect {
+			content().render()
+		}
+		self.resources = resources.snapshot
+	}
+
+	public var body: HTMLRaw {
+		PageResources.current?.include(resources)
+		return HTMLRaw(html)
 	}
 }

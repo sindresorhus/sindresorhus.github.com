@@ -112,6 +112,7 @@ struct GeoCitiesRingtones: ScriptedElement {
 						.accessibilityLabel("C, delete")
 						.style(Styles.key, Styles.wideKey)
 					}
+					.attributes(.role(.group))
 					.accessibilityLabel("Keypad. Works with the number keys of the computer too.")
 					.style(Styles.keypad)
 				}
@@ -174,7 +175,7 @@ struct GeoCitiesRingtones: ScriptedElement {
 
 					GeoCitiesMusicVolume()
 
-					p(.part(Parts.status), .role("status")) {}
+					p(.part(Parts.status), .role(.status)) {}
 						.style(Styles.status)
 				}
 				.style(Styles.editor)
@@ -267,7 +268,7 @@ struct GeoCitiesRingtones: ScriptedElement {
 		case tone = "nokia-tone"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case layout
 		case composer
@@ -476,7 +477,7 @@ struct GeoCitiesRingtones: ScriptedElement {
 		}
 	}
 
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case buzz
 
 		var keyframes: [Keyframe] {

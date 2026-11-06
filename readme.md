@@ -17,6 +17,7 @@ swift run website format # Formats frontmatter and orders app and blog propertie
 swift run website serve # Serves the site, and rebuilds and reloads it on changes
 swift run website serve --no-open # Also does not open the site in the browser, which it never does when the output is not a terminal
 swift run website serve --local-network # Also serves the site on the local network, to test on other devices, like an iPhone
+swift run website serve --date 2026-11-27 # Also builds the site as on that day (UTC), like to see the text of a sale before it starts (`build` and `check` too)
 swift run website check # Builds the site to `.build/check`, and prints possible mistakes, like spelling mistakes (`content/spelling-allowlist.txt` has the known words)
 swift run website check --strict # Also fails when there is a warning, like a failed request or a spelling mistake (`build --strict` too)
 swift run website routes # Lists every route

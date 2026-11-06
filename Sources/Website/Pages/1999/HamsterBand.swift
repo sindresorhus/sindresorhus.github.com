@@ -104,7 +104,7 @@ struct GeoCitiesHamsterBand: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.formRow, Styles.controls)
 
-			p(.part(Parts.status), .role("status")) {}
+			p(.part(Parts.status), .role(.status)) {}
 				.style(Styles.status)
 		}
 		.style(Styles.box, GeoCitiesPage.Styles.scriptingOnly)
@@ -133,7 +133,7 @@ struct GeoCitiesHamsterBand: ScriptedElement {
 		case speed = "hamster-speed"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case title
 		case box

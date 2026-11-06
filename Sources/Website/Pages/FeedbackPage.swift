@@ -14,6 +14,16 @@ struct FeedbackPage: Page {
 	let faq: MarkdownPage?
 
 	/**
+	The published guides, which the form suggests for the apps that they are about.
+	*/
+	var guides = [Guide]()
+
+	/**
+	The app with the data that the build fetched for it, for the older version that fits the macOS version of a visitor.
+	*/
+	var listing: @Sendable (App) -> AppListing = { AppListing(app: $0) }
+
+	/**
 	For the photo on the card of the page.
 	*/
 	let project: Project
@@ -35,7 +45,7 @@ struct FeedbackPage: Page {
 	}
 
 	/**
-	A classic script in the head marks the page when the URL selects an app, before the body is parsed, so the browser does not show the picker or load its icons. It also marks the page after a send (`?success`, where Formcarry sends the visitor back), so the page shows the message and not the picker, and it notes the send for the form, which empties itself when Back brings it back (`feedback.js`). `feedback.js` is a module, which runs only after the whole page is parsed.
+	A classic script in the head marks the page when the URL selects an app, before the body is parsed, so the browser does not show the picker or load its icons. It also marks the page after a send (`?success`, where Formcarry sends the visitor back), so the page shows the message and not the picker, and it notes the send for the form, which empties itself when Back brings it back (`feedback.js`). `feedback.js` is a module, which runs only after the whole page is parsed. When `feedback.js` or one of its imports does not load, like with a content blocker or a dropped connection, the script marks the page too, so the page shows the note with the email address, and not only the title. Limitation: a script that loads but then fails is not noticed.
 	*/
 	var head: some HTML {
 		script {
@@ -48,9 +58,15 @@ struct FeedbackPage: Page {
 				} catch {
 					// Without storage, the form keeps its text after Back.
 				}
-			} else if (new URLSearchParams(location.search).get('product')) {
+			} else if (new URLSearchParams(location.search).get('\#(Parameters.product.rawValue)')) {
 				document.documentElement.setAttribute('\#(Hooks.hasProduct.attributeName)', '');
 			}
+
+			addEventListener('error', event => {
+				if (event.target instanceof HTMLScriptElement && event.target.src.includes('\#(Self.scriptPath)')) {
+					document.documentElement.setAttribute('\#(Hooks.formFailed.attributeName)', '');
+				}
+			}, true);
 			"""#)
 		}
 	}
@@ -75,7 +91,7 @@ struct FeedbackPage: Page {
 					}
 			}
 
-			// After a send, in place of the title of the form, which it hides, so its `<h2>` follows the `<h1>`. In the HTML, so it shows as soon as the page does, not after `feedback.js`, which only goes to the apps page after a while.
+			// After a send, in place of the title of the form, which it hides, so its `<h2>` follows the `<h1>`. In the HTML, so it shows as soon as the page does, without `feedback.js`.
 			FeedbackSuccess()
 				.style {
 					$0
@@ -86,10 +102,10 @@ struct FeedbackPage: Page {
 				}
 
 			// Without a selected app, the app is picked first, so the message says which app it is about. The script in the head marks the page when an app is selected, and the styles hide the picker and show the form.
-			// Without JavaScript, the picker shows, but not the form, so the note is above the picker, where it is seen. Not in the prose, so it lines up with the picker, and the address does not break with a hyphen.
+			// Without JavaScript, the picker shows, but not the form, so the note is above the picker, where it is seen. It also shows when `feedback.js` does not load, so its title is correct for the two causes. Not in the prose, so it lines up with the picker, and the address does not break with a hyphen.
 			// A warning alert with a title that says what is wrong, not only “WARNING”. The text only has a link, so it uses no styles or scripts of the Markdown that the page would need to add.
 			div {
-				HTMLRaw(MarkdownTheme.site.alert(.warning, title: "JavaScript is off", contentHTML: MarkdownDocument(parsing: "The form needs JavaScript. Turn it on and reload the page, or email [\(Site.author.email)](mailto:\(Site.author.email)) and say which app it is about. With a content blocker, allow the scripts of this site.", options: .site).html))
+				HTMLRaw(MarkdownTheme.site.alert(.warning, title: "The form did not load", contentHTML: MarkdownDocument(parsing: "The form needs JavaScript. Turn it on and reload the page, or email [\(Site.author.email)](mailto:\(Site.author.email)) and say which app it is about. With a content blocker, allow the scripts of this site.", options: .site).html))
 			}
 			.style(Styles.scriptingNotice)
 
@@ -176,10 +192,10 @@ struct FeedbackPage: Page {
 
 		templates
 
-		JSONScript(id: IDs.data, FeedbackData(apps: apps))
+		JSONScript(id: IDs.data, FeedbackData(listings: apps.map(listing)))
 		// After the form, so the browser shows the fields below the message before it has the large data of the questions, which the suggestions only read when the visitor starts to type.
-		FAQSuggestions.Questions(apps: apps, faq: faq)
-		ModuleScript(#path("/scripts/feedback.js"))
+		FAQSuggestions.Questions(apps: apps, faq: faq, guides: guides)
+		ModuleScript(Self.scriptPath)
 	}
 
 	/**
@@ -191,6 +207,16 @@ struct FeedbackPage: Page {
 				"Which app is it about?"
 			}
 			.style(Styles.appPickerTitle)
+
+			// Above the apps, so a visitor with another question sees the way out before the long list.
+			p {
+				"Not about an app? See "
+				a(.href(.contact)) {
+					"the contact page"
+				}
+				"."
+			}
+			.style(Styles.appNotice)
 
 			// `feedback.js` hides the apps whose name and subtitle do not have the text, and Enter opens the first app. Without JavaScript, there is no filter.
 			input(
@@ -210,7 +236,8 @@ struct FeedbackPage: Page {
 					.hiddenWithoutScripting()
 			}
 
-			ul {
+			// Keep the list semantics in Safari, as the styles remove its bullets.
+			ul(.role(.list)) {
 				for app in apps.filter(\.isListed).sorted(using: KeyPathComparator(\.title, comparator: .localizedStandard)) {
 					li(.hook(Hooks.appFilterText, value: "\(app.title) \(app.subtitle)")) {
 						a(.href(App.feedbackURL(appTitle: app.title, referrer: .appPicker))) {
@@ -227,7 +254,7 @@ struct FeedbackPage: Page {
 			.style(Styles.appPickerList)
 
 			// `feedback.js` says when no app matches the filter. A polite live region that is always on the page, so screen readers announce the text without interrupting the typing.
-			p(.id(IDs.appFilterStatus), .role("status")) {}
+			p(.id(IDs.appFilterStatus), .role(.status)) {}
 				.style {
 					$0
 						.margin(.bottom, .rootEm(1.5))
@@ -236,15 +263,6 @@ struct FeedbackPage: Page {
 						}
 						.color(.secondaryText)
 				}
-
-			p {
-				"Not about an app? See "
-				a(.href(.contact)) {
-					"the contact page"
-				}
-				"."
-			}
-			.style(Styles.appNotice)
 		}
 		.style {
 			$0
@@ -258,10 +276,10 @@ struct FeedbackPage: Page {
 	}
 
 	private var messageField: some HTML {
-		FormField(label: "Message", controlID: ElementID("message"), errorMessage: "Write at least 20 characters.") {
+		FormField(label: "Message", controlID: FieldNames.message.id, errorMessage: "Write at least 20 characters.") {
 			textarea(
 				.placeholder("I’m a human. Please be nice."),
-				.name("message"),
+				.name(FieldNames.message.rawValue),
 				.minlength(20),
 				.rows(4),
 				.required,
@@ -272,7 +290,7 @@ struct FeedbackPage: Page {
 			) {}
 			.style(Styles.message)
 		} accessory: {
-			FAQSuggestions(messageID: ElementID("message"))
+			FAQSuggestions(messageID: FieldNames.message.id)
 				.attributes(.id(IDs.faqSuggestions))
 		}
 	}
@@ -280,7 +298,7 @@ struct FeedbackPage: Page {
 	private var emailField: some HTML {
 		FormField(
 			label: "Email",
-			controlID: ElementID("email"),
+			controlID: FieldNames.email.id,
 			hint: "Only used for replying to you",
 			errorMessage: "Enter a valid email address.",
 			// The warning too, so a screen reader says it again when the visitor comes back to the field, as a wrong address is the one mistake that stops the reply.
@@ -288,7 +306,7 @@ struct FeedbackPage: Page {
 		) {
 			input(
 				.type(.email),
-				.name("email"),
+				.name(FieldNames.email.rawValue),
 				.autocomplete("email"),
 				.custom(name: "toolparamdescription", value: "The email address of the visitor, for the reply."),
 				.enterKeyHint(.send),
@@ -296,7 +314,7 @@ struct FeedbackPage: Page {
 			)
 		} accessory: {
 			// `feedback.js` fills it for likely typos, like `gmial.com`. A polite live region that is always on the page, so screen readers announce the text without interrupting the typing.
-			p(.id(IDs.emailWarning), .role("status")) {}
+			p(.id(IDs.emailWarning), .role(.status)) {}
 				.style(Styles.emailWarning)
 		}
 	}
@@ -329,6 +347,15 @@ struct FeedbackPage: Page {
 			}
 		}
 
+		// For a visitor on a macOS version that the app no longer runs on, from the details that the app sent: the last version for it (`olderVersions`). `feedback.js` fills the text and the link.
+		template(.id(IDs.olderVersionTemplate)) {
+			p {
+				strong(.hook(Hooks.olderVersionText)) {}
+				" It gets no more fixes. "
+				a(.hook(Hooks.olderVersionLink)) {}
+			}
+		}
+
 		template(.id(IDs.appFAQTemplate)) {
 			p {
 				"See the "
@@ -346,10 +373,27 @@ struct FeedbackPage: Page {
 				"."
 			}
 		}
+
+		// The note of each app that has one (`feedbackNote`), by the title of the app. In the HTML, not in the data, so the page has the styles of the note, like of a platform badge, and the check of the links finds its links. In a `div`, as a note can have more than one paragraph, and the script clones one element.
+		for app in apps {
+			if let note = app.feedbackNote {
+				template(.hook(Hooks.feedbackNote, value: app.title)) {
+					// The links of the note show a preview of what they go to, like the links of prose (``LinkPreview``).
+					div(.hook(LinkPreview.Hooks.linkPreviews)) {
+						note.content
+					}
+				}
+			}
+		}
 	}
 }
 
 extension FeedbackPage {
+	/**
+	The script of the page, which the script in the head also names, to find out when it does not load.
+	*/
+	private static let scriptPath = #path("/scripts/feedback.js")
+
 	/**
 	The IDs that the scripts of the page find elements by.
 	*/
@@ -365,6 +409,7 @@ extension FeedbackPage {
 		case faqSuggestions = "faq-suggestions"
 		case data = "feedback-data"
 		case form = "feedback-form"
+		case olderVersionTemplate = "older-version-template"
 		case repositoryTemplate = "repository-template"
 		case submitButton = "submit-button"
 	}
@@ -375,7 +420,28 @@ extension FeedbackPage {
 	enum Hooks: String, ScriptDataAttributeSet {
 		case appFAQLink = "app-faq-link"
 		case appFilterText = "app-filter-text"
+
+		/**
+		On the template of the note of an app, with the title of the app.
+		*/
+		case feedbackNote = "feedback-note"
+
+		/**
+		On the root element when `feedback.js` or one of its imports did not load, so the page shows the note with the email address.
+		*/
+		case formFailed = "form-failed"
+
 		case hasProduct = "has-product"
+
+		/**
+		The download of the last version of the app for the macOS version of the visitor.
+		*/
+		case olderVersionLink = "older-version-link"
+
+		/**
+		The sentence that names the macOS version of the visitor and the last version of the app for it.
+		*/
+		case olderVersionText = "older-version-text"
 		case repositoryLink = "repository-link"
 
 		/**
@@ -392,6 +458,48 @@ extension FeedbackPage {
 	}
 
 	/**
+	The parameters of the URL of the page that the page and `feedback.js` read. The apps send them too, so their names cannot change. `feedback.js` has them as literals.
+	*/
+	enum Parameters: String, CaseIterable {
+		/**
+		The app that the message is about, like `Dato`, by its title, its slug, or another name that the app sends (``App/feedbackLookupNames``).
+		*/
+		case product
+
+		/**
+		Where the visitor came from, like a link on the app page (``App/FeedbackReferrer``).
+		*/
+		case referrer
+
+		/**
+		The details that an app sends about itself, like its version. Only the apps send it, so no link of the site has it.
+		*/
+		case metadata
+
+		/**
+		The email address that the form starts with. The apps send it.
+		*/
+		case emailField
+
+		/**
+		The message that the form starts with. The apps send it, like Dato.
+		*/
+		case messageField
+	}
+
+	/**
+	The fields that `feedback.js` reads by name (`form.elements.message`). The ID of each field is its name.
+	*/
+	enum FieldNames: String {
+		case message
+		case email
+
+		var id: ElementID {
+			ElementID(rawValue)
+		}
+	}
+
+	/**
 	The states that `feedback.js` sets.
 	*/
 	enum States: String, ElementStateSet {
@@ -401,7 +509,7 @@ extension FeedbackPage {
 		case sending
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case appPickerTitle
 		case appPickerList
@@ -483,9 +591,12 @@ extension FeedbackPage {
 				// Smaller than the prose, which it is in. The components win over the styles of prose.
 				Style().font(size: .rootEm(1))
 			case .scriptingNotice:
-				// Only shown when JavaScript is turned off.
+				// Only shown when JavaScript is turned off, or when `feedback.js` did not load.
 				Style()
 					.shownOnlyWithoutScripting()
+					.when(ancestorHas: Hooks.formFailed) {
+						$0.display(.block)
+					}
 					.margin(.bottom, .rootEm(2))
 					// It is not in the prose, which underlines the links.
 					.textLinks()

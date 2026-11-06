@@ -151,12 +151,12 @@ struct GeoCitiesChristmas: ScriptedElement {
 					.width(360),
 					.height(270),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("My gingerbread house on the cake board. Pick a piece or a candy, and click or tap the board to put it there. With the piping bag, drag to pipe icing on the seams. With the keys, the arrow keys move the piping bag, and Space or Enter puts the piece or the candy there. Hold Space while you move to pipe icing.")
 					.style(Styles.house)
 
-				p(.part(Parts.houseStatus), .role("status")) {
+				p(.part(Parts.houseStatus), .role(.status)) {
 					"Pick a wall, and tap the cake board."
 				}
 				.style(Styles.status)
@@ -181,7 +181,7 @@ struct GeoCitiesChristmas: ScriptedElement {
 				}
 			}
 			.accessibilityLabel("Pieces and candy")
-			.attributes(.role("group"))
+			.attributes(.role(.group))
 			.style(Styles.row)
 		}
 	}
@@ -262,7 +262,7 @@ struct GeoCitiesChristmas: ScriptedElement {
 				.part(Parts.town),
 				.width(360),
 				.height(180),
-				.role("img")
+				.role(.image)
 			) {}
 				.accessibilityLabel("Pepperkakebyen, the gingerbread town of Bergen, with Bryggen, the church, the houses of other kids, my houses with their signs, and a little train that goes around.")
 				.style(Styles.town)
@@ -298,13 +298,13 @@ struct GeoCitiesChristmas: ScriptedElement {
 					.width(320),
 					.height(400),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("The bowling lane, with Julenissen at the front and ten nisser at the end. The left and right arrow keys move Julenissen, and steer the ball while it rolls. A and D set the spin, and Space or Enter bowls.")
 					.style(Styles.lane)
 
 				// Right under the lane, so a phone shows the lane, what happened, the buttons, and the score sheet together.
-				p(.part(Parts.bowlingStatus), .role("status")) {
+				p(.part(Parts.bowlingStatus), .role(.status)) {
 					"Frame 1. The nisser are waiting."
 				}
 				.style(Styles.status)
@@ -406,7 +406,7 @@ struct GeoCitiesChristmas: ScriptedElement {
 					.part(Parts.barn),
 					.width(320),
 					.height(200),
-					.role("img")
+					.role(.image)
 				) {}
 					.accessibilityLabel("The kitchen at Mormor’s farm on Christmas Eve, the table, and the barn in the snow, where the nisse lives.")
 					.style(Styles.barn)
@@ -418,7 +418,7 @@ struct GeoCitiesChristmas: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.lcd, Styles.pigs)
 
-				p(.part(Parts.porridgeStatus), .role("status")) {
+				p(.part(Parts.porridgeStatus), .role(.status)) {
 					"The rice and the milk are in the pot. Stir, so it does not burn!"
 				}
 				.style(Styles.status)
@@ -534,7 +534,7 @@ struct GeoCitiesChristmas: ScriptedElement {
 		case titleBar = "christmas-title-bar"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case windows
 		case crooked

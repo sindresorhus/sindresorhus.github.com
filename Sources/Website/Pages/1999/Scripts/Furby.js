@@ -226,7 +226,6 @@ class GeoCitiesFurby extends GeoCitiesElement {
 	#isDark = false;
 	#isUpsideDown = false;
 	#upsideDownSince = 0;
-	#isMusicPlaying = false;
 	#otherMusic = new Set();
 	#isSoundOn = false;
 	#isNsa = false;
@@ -434,6 +433,10 @@ class GeoCitiesFurby extends GeoCitiesElement {
 
 	get #isDancing() {
 		return this.#isMusicPlaying || this.#otherMusic.size > 0;
+	}
+
+	get #isMusicPlaying() {
+		return this.#musicGain !== undefined;
 	}
 
 	get #isAlarm() {
@@ -1202,7 +1205,7 @@ class GeoCitiesFurby extends GeoCitiesElement {
 
 	// The song plays into its own gain, so a song of an earlier Play stops with its gain.
 	#playSong(gain) {
-		if (!this.#isMusicPlaying || gain !== this.#musicGain || !this.#runningAudio) {
+		if (gain !== this.#musicGain || !this.#runningAudio) {
 			return;
 		}
 
@@ -1228,7 +1231,6 @@ class GeoCitiesFurby extends GeoCitiesElement {
 			return;
 		}
 
-		this.#isMusicPlaying = true;
 		this.#musicGain = new GainNode(sound.context, {gain: 1});
 		this.#musicGain.connect(sound.output);
 		this.#updateButtons();
@@ -1246,9 +1248,8 @@ class GeoCitiesFurby extends GeoCitiesElement {
 			return;
 		}
 
-		this.#isMusicPlaying = false;
 		clearTimeout(this.#musicTimer);
-		this.#musicGain?.disconnect();
+		this.#musicGain.disconnect();
 		this.#musicGain = undefined;
 		this.#updateButtons();
 		this.music(false);

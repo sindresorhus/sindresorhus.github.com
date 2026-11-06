@@ -92,7 +92,7 @@ struct GeoCitiesMacOS: HTML {
 				}
 				.style(GeoCitiesPage.Styles.caption)
 
-				div(.role("group")) {
+				div(.role(.group)) {
 					for (key, title) in Self.startupKeys {
 						button(.type(.button), .hook(Hooks.startupKey, value: key), .ariaPressed(false)) {
 							title
@@ -103,7 +103,7 @@ struct GeoCitiesMacOS: HTML {
 				.accessibilityLabel("Keys to hold at startup")
 				.style(Styles.keyRow)
 
-				p(.id(IDs.status), .role("status")) {}
+				p(.id(IDs.status), .role(.status)) {}
 					.style(Styles.status)
 			}
 			.style(Styles.below, GeoCitiesPage.Styles.scriptingOnly)
@@ -168,7 +168,7 @@ struct GeoCitiesMacOS: HTML {
 				}
 				.style(Styles.welcome)
 
-				p(.id(IDs.bootMessage), .role("status")) {}
+				p(.id(IDs.bootMessage), .role(.status)) {}
 					.style(Styles.bootMessage)
 
 				div(.id(IDs.extensionRow)) {}
@@ -184,7 +184,7 @@ struct GeoCitiesMacOS: HTML {
 
 				GeoCitiesPage.Deferred(menuBar)
 
-				div(.id(IDs.icons), .role("group")) {}
+				div(.id(IDs.icons), .role(.group)) {}
 					.accessibilityLabel("Desktop")
 					.style(Styles.icons)
 
@@ -192,7 +192,7 @@ struct GeoCitiesMacOS: HTML {
 
 				GeoCitiesPage.Deferred(controlStrip)
 
-				p(.id(IDs.balloon), .hidden, .role("tooltip")) {}
+				p(.id(IDs.balloon), .hidden, .role(.tooltip)) {}
 					.style(Styles.balloon)
 
 				// The Flying Toasters of After Dark, when the desktop is left alone.
@@ -205,7 +205,7 @@ struct GeoCitiesMacOS: HTML {
 			div(
 				.id(IDs.alert),
 				.hidden,
-				.role("alertdialog"),
+				.role(.alertDialog),
 				.ariaModal,
 				.tabindex(-1),
 				.ariaDescribedBy(IDs.alertText.id)

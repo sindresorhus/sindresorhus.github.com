@@ -99,12 +99,12 @@ struct GeoCitiesWorms: ScriptedElement {
 				.width(320),
 				.height(200),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The island of Wurms ’99. The left and right arrow keys walk, the up and down arrow keys aim, hold Space to charge and let go to fire, Enter jumps, Backspace does a backflip, the keys 1 to 5 set the fuse, and W picks the next weapon. Drag to look around.")
 				.style(Styles.screen, GeoCitiesPage.Styles.scriptingOnly)
 
-			p(.part(Parts.status), .role("status")) {
+			p(.part(Parts.status), .role(.status)) {
 				"Click or tap the island to aim, then hold Space or 🔥 Hold to Fire. Team Sindre goes first!"
 			}
 			.style(GeoCitiesPage.Styles.statusBar, GeoCitiesPage.Styles.scriptingOnly)
@@ -130,7 +130,7 @@ struct GeoCitiesWorms: ScriptedElement {
 				}
 				.style(Styles.control, Styles.fire)
 			}
-			.attributes(.role("group"))
+			.attributes(.role(.group))
 			.accessibilityLabel("Controls")
 			.style(Styles.pad, GeoCitiesPage.Styles.scriptingOnly)
 
@@ -168,7 +168,7 @@ struct GeoCitiesWorms: ScriptedElement {
 				}
 				.style(Styles.weapon)
 			}
-			.attributes(.role("group"))
+			.attributes(.role(.group))
 			.accessibilityLabel("Weapons")
 			.style(Styles.weapons, GeoCitiesPage.Styles.scriptingOnly)
 
@@ -266,7 +266,7 @@ struct GeoCitiesWorms: ScriptedElement {
 		case name = "worms-name"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case toolbar
 		case setting

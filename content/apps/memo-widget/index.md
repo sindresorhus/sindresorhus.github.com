@@ -23,7 +23,7 @@ sharedQuestions: [
 ]
 pressQuotes: [
 	{
-		quote: 'While some of them can create Post-it-like memos, there is one that does nothing but that. And it is free. Memo Widget is an app developed by Sindre Sorhus, whom we know well here at Compétence Mac.'
+		quote: 'While some of them can create Post-it-like memos, there is one that does nothing but that. […] Memo Widget is an app developed by Sindre Sorhus, whom we know well here at Compétence Mac.'
 		source: 'Compétence Mac'
 		translatedFrom: 'French'
 		url: 'https://competencemac.com/ios-ajoutez-facilement-des-post-its-a-lecran-daccueil-ou-lecran-verrouille/'
@@ -38,7 +38,7 @@ The app is simple by design.
 
 **Features**
 
-- Each widget is its own note, so you can add a widget for each thing to remember
+- Each widget is its own note, so you can add a widget for each thing to remember. Tap a widget to write or change its note
 - Choose the background color (7 colors), the font (10 fonts), and the text alignment when you edit the widget
 
 For macOS, it’s only available for Apple silicon Macs running macOS 26 or later.
@@ -47,7 +47,7 @@ For macOS, it’s only available for Apple silicon Macs running macOS 26 or late
 
 ### How do I add the widget? {#how-do-i-add-the-widget}
 
-- [iOS](https://support.apple.com/HT207122)
+- [iOS](https://support.apple.com/118610)
 - [macOS](https://support.apple.com/guide/mac-help/mchl52be5da5/mac)
 
 ### Can you add more features and settings? {#can-you-add-more-features-and-settings}
@@ -64,7 +64,7 @@ Same answer as the above.
 
 ### Can I edit text directly in the widget? {#can-i-edit-text-directly-in-the-widget}
 
-No. Widgets cannot have interactivity like that. This is a macOS/iOS limitation.
+No. A widget cannot have a text field. This is a macOS/iOS limitation. Tap the widget instead, and the app opens that note, ready to edit.
 
 ### How is this different from the built-in Stickies app on macOS? {#stickies}
 

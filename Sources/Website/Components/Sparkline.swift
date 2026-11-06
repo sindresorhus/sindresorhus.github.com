@@ -81,7 +81,7 @@ struct Sparkline: HTML {
 		}
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 
 		var style: Style {

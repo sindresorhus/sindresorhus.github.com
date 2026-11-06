@@ -278,32 +278,27 @@ if (gl) {
 		}
 	`;
 
-	let timeLocation;
-	let resolutionLocation;
-	let pointerLocation;
-	let pointerVelocityLocation;
-	let rippleLocation;
-
-	// Whether the program is set up, and the canvas can draw. It is not after the GPU loses the canvas, until the shaders compile and link again (`startShader`).
-	let isProgramSetUp = false;
+	// The uniform locations belong to one program. A lost canvas has none until the shaders compile and link again (`startShader`).
+	let uniforms;
 
 	// Again after the GPU gives back a lost canvas, as the canvas loses all of it (`startShader`).
 	const setUp = program => {
-		timeLocation = gl.getUniformLocation(program, 'u_time');
-		resolutionLocation = gl.getUniformLocation(program, 'u_res');
-		pointerLocation = gl.getUniformLocation(program, 'u_mouse');
-		pointerVelocityLocation = gl.getUniformLocation(program, 'u_mouse_vel');
-		rippleLocation = gl.getUniformLocation(program, 'u_ripple');
+		uniforms = {
+			time: gl.getUniformLocation(program, 'u_time'),
+			resolution: gl.getUniformLocation(program, 'u_res'),
+			pointer: gl.getUniformLocation(program, 'u_mouse'),
+			pointerVelocity: gl.getUniformLocation(program, 'u_mouse_vel'),
+			ripple: gl.getUniformLocation(program, 'u_ripple'),
+		};
 
 		// Alpha blending so the galaxy composites over the dark page background
 		gl.enable(gl.BLEND);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		gl.clearColor(0, 0, 0, 0);
-		isProgramSetUp = true;
 	};
 
 	// The shaders do not compile on some devices, like one without high precision. Then nothing is drawn, so the animation never starts.
-	const isLinked = startShader(gl, {fragment: fragmentShaderSource, setUp});
+	startShader(gl, {fragment: fragmentShaderSource, setUp});
 
 	// Scale render resolution by DPR (capped) for sharper arms on retina screens
 	const scale = Math.min(window.devicePixelRatio, 2) * 0.45;
@@ -341,7 +336,7 @@ if (gl) {
 
 	document.addEventListener('click', event => {
 		// The time is stopped while the galaxy is paused, so a click then would give a ripple later.
-		if (!isRunning) {
+		if (frame === undefined) {
 			return;
 		}
 
@@ -354,43 +349,48 @@ if (gl) {
 	let startTime = performance.now();
 	// Time starts at 0 when the galaxy first renders.
 	let pauseStart = startTime;
-	let frame = 0;
-	let isRunning = false;
-	let isContextLost = false;
-	let isShown = false;
+	let frame;
 	let isOnScreen = false;
+	let lastFrameTime = Number.NEGATIVE_INFINITY;
 
-	function draw() {
+	// At most 30 frames a second, like the glass of the apps page, as the galaxy turns slowly, and a frame costs much of the GPU on a large screen.
+	function draw(now = performance.now()) {
+		frame = requestAnimationFrame(draw);
+
+		if (now - lastFrameTime < 1000 / 31) {
+			return;
+		}
+
+		lastFrameTime = now;
+
 		// Smooth cursor position for natural lag
-		smoothPointerX += (targetPointerX - smoothPointerX) * 0.05;
-		smoothPointerY += (targetPointerY - smoothPointerY) * 0.05;
+		// The factors are for 30 frames a second: two steps of 0.05 and 0.90 at 60 frames, so the galaxy follows the pointer as fast as before the frame limit.
+		smoothPointerX += (targetPointerX - smoothPointerX) * 0.1;
+		smoothPointerY += (targetPointerY - smoothPointerY) * 0.1;
 
 		// Smooth velocity; decay raw to zero so flow fades when mouse stops
-		smoothVelocityX += (pointerVelocityX - smoothVelocityX) * 0.05;
-		smoothVelocityY += (pointerVelocityY - smoothVelocityY) * 0.05;
-		pointerVelocityX *= 0.90;
-		pointerVelocityY *= 0.90;
+		smoothVelocityX += (pointerVelocityX - smoothVelocityX) * 0.1;
+		smoothVelocityY += (pointerVelocityY - smoothVelocityY) * 0.1;
+		pointerVelocityX *= 0.81;
+		pointerVelocityY *= 0.81;
 
 		gl.clear(gl.COLOR_BUFFER_BIT);
 		const shaderTime = (performance.now() - startTime) / 1000;
-		gl.uniform1f(timeLocation, shaderTime);
-		gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-		gl.uniform2f(pointerLocation, smoothPointerX, smoothPointerY);
-		gl.uniform2f(pointerVelocityLocation, smoothVelocityX, smoothVelocityY);
-		gl.uniform3f(rippleLocation, rippleX, rippleY, rippleTime);
+		gl.uniform1f(uniforms.time, shaderTime);
+		gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
+		gl.uniform2f(uniforms.pointer, smoothPointerX, smoothPointerY);
+		gl.uniform2f(uniforms.pointerVelocity, smoothVelocityX, smoothVelocityY);
+		gl.uniform3f(uniforms.ripple, rippleX, rippleY, rippleTime);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		frame = requestAnimationFrame(draw);
 	}
 
 	// Pause rendering when the tab is hidden, the canvas is scrolled off screen, or the canvas is not shown (light mode) to save GPU/battery
 	function update() {
-		const shouldRun = isLinked && isShown && isOnScreen && !document.hidden && !isContextLost;
+		const shouldRun = uniforms !== undefined && canvas.clientWidth > 0 && isOnScreen && !document.hidden;
 
-		if (shouldRun === isRunning) {
+		if (shouldRun === (frame !== undefined)) {
 			return;
 		}
-
-		isRunning = shouldRun;
 
 		if (shouldRun) {
 			// Shift startTime forward by pause duration so time is continuous on resume
@@ -398,6 +398,7 @@ if (gl) {
 			draw();
 		} else {
 			cancelAnimationFrame(frame);
+			frame = undefined;
 			pauseStart = performance.now();
 		}
 	}
@@ -406,18 +407,16 @@ if (gl) {
 
 	// The GPU can lose the canvas, like after the device sleeps. The galaxy stops until the browser gives the canvas back (`startShader`).
 	canvas.addEventListener('webglcontextlost', () => {
-		isContextLost = true;
-		isProgramSetUp = false;
+		uniforms = undefined;
 		update();
 	});
 
 	canvas.addEventListener('webglcontextrestored', () => {
 		// The shaders did not compile again, so the galaxy stays stopped.
-		if (!isProgramSetUp) {
+		if (!uniforms) {
 			return;
 		}
 
-		isContextLost = false;
 		resize();
 		update();
 	});
@@ -429,7 +428,6 @@ if (gl) {
 
 	// The canvas has no size while it is hidden with `display: none`, so this also starts and pauses the galaxy when the color scheme changes.
 	new ResizeObserver(() => {
-		isShown = canvas.clientWidth > 0;
 		resize();
 		update();
 	}).observe(canvas);

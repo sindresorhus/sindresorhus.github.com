@@ -25,7 +25,8 @@ struct Prose<Content: HTML>: HTML {
 	}
 
 	var body: some HTML<HTMLTag.div> {
-		div {
+		// A link in the text to an app page, a question of an FAQ, or a shared shortcut shows a preview of it under the pointer (``LinkPreview``).
+		div(.hook(LinkPreview.Hooks.linkPreviews)) {
 			content
 		}
 		.style(ProseStyles.root)
@@ -49,7 +50,7 @@ The styles of prose and of the markup that the Markdown renderer creates, like a
 
 The styles of each topic are in their own file.
 */
-enum ProseStyles: StyleSet {
+enum ProseStyles: String, StyleSet {
 	case root
 	case article
 

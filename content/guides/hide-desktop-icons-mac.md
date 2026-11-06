@@ -9,7 +9,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	Click [Supercharge](../apps/supercharge/index.md) in the menu bar, and choose “Desktop Icons”. Choose it again to show the icons. Without an app, open “System Settings › Desktop & Dock”, and turn off “On Desktop” next to “Show items”.
+	Click [Supercharge](../apps/supercharge/index.md) in the menu bar, and choose “Desktop Icons”. Choose it again to show the icons. Without an app, open “[System Settings › Desktop & Dock](x-apple.systempreferences:com.apple.Desktop-Settings.extension)”, and turn off “On Desktop” next to “Show items”.
 }
 
 ## With Supercharge
@@ -27,7 +27,7 @@ Like the setting of macOS, the hidden icons show again in Mission Control and wh
 ## Without an app
 
 @Steps {
-1. Open “System Settings › Desktop & Dock”.
+1. Open “[System Settings › Desktop & Dock](x-apple.systempreferences:com.apple.Desktop-Settings.extension)”.
 1. Next to “Show items”, turn off “On Desktop”.
 }
 

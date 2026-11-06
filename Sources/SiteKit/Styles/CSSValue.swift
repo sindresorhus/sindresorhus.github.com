@@ -1,15 +1,15 @@
 import Foundation
 
 /**
-A CSS value for ``Style/declaration(_:_:)``, like `1rem`, `auto`, or `var(--accent)`.
+A CSS value for ``Style/declaration(raw:_:isImportant:)``, like `1rem`, `auto`, or `var(--accent)`.
 
 Typed modifiers take typed values, like ``LengthPercentage`` and ``Color``. Use a `CSSValue` for the rest: a string literal, an array for space-separated values, or a constructor:
 
 ```swift
 Style()
-	.declaration(.gridTemplateColumns, "repeat(auto-fill, minmax(16rem, 1fr))")
-	.declaration(.transformOrigin, [.percent(50), .percent(85)])
-	.declaration(.backgroundPosition, .center)
+	.declaration(raw: .gridTemplateColumns, "repeat(auto-fill, minmax(16rem, 1fr))")
+	.declaration(raw: .transformOrigin, [.percent(50), .percent(85)])
+	.declaration(raw: .backgroundPosition, .center)
 ```
 */
 public struct CSSValue: StyleValue, Hashable, ExpressibleByStringLiteral, ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
@@ -331,10 +331,10 @@ public struct CSSImage: StyleValue, Hashable {
 	}
 
 	/**
-	A file of the site, like an image for a background or a cursor: `url("/images/star.png")`. The path is escaped as a CSS string.
+	A file of the site, like an image for a background or a cursor: `url("/images/star.png")`. The path is percent-encoded and escaped as a CSS string.
 	*/
 	public static func url(_ path: RoutePath) -> Self {
-		Self(raw: "url(\(CSSValue.string(path.description)))")
+		Self(raw: "url(\(CSSValue.string(path.percentEncodedPath)))")
 	}
 
 	/**

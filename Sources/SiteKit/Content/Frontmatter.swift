@@ -12,7 +12,7 @@ struct PostFrontmatter {
 	@NonEmpty var title: String
 	@NonEmpty var description: String?
 	var tags = [String]()
-	var isDraft = false
+	@TrueOrAbsent var isDraft = false
 
 	@Key("date")
 	var publicationDate: SOML.Date
@@ -38,9 +38,9 @@ Decoding is strict: unknown keys are rejected (see `SOML.Decoder.frontmatter`), 
 */
 public protocol Frontmatter: Decodable, Sendable {
 	/**
-	The keys of this model, so its validation cannot report a mistake at another model’s key. The `@Frontmatter` macro generates them, including renamed keys.
+	The keys of this model, so its validation cannot report a mistake at another model’s key. The `@Frontmatter` macro generates them in declaration order, including renamed keys.
 	*/
-	associatedtype CodingKeys: CodingKey
+	associatedtype CodingKeys: CodingKey & CaseIterable
 
 	/**
 	Checks requirements that the types cannot express, like two keys that need each other, and adds each mistake at the key of its value, so all of them are reported at once, each at its line.
@@ -69,13 +69,13 @@ extension Frontmatter {
 	- Parameter root: What the value is, like `arguments`, for the messages.
 	- Parameter line: The line of the key or item at the coding path of a decoding error, for the error.
 	*/
-	static func decode(from somlValue: SOML.Value, root: String, line: ([any CodingKey]) -> Int? = { _ in nil }) throws(ContentErrors) -> Self {
+	static func decode(from somlValue: SOML.Value, root: String, line: ([any CodingKey]) -> SourceLocation.Line? = { _ in nil }) throws(ContentErrors) -> Self {
 		let value: Self
 
 		do {
 			value = try SOML.Decoder.frontmatter.decode(Self.self, from: somlValue)
 		} catch let error as DecodingError {
-			throw ContentErrors([error.wrongCaseKeyError(in: somlValue, line: line) ?? ContentError(line: line(error.codingPath), reason: error.readableDescription(root: root))])
+			throw ContentErrors([error.misspelledKeyError(in: somlValue, line: line) ?? ContentError(line: line(error.codingPath), reason: error.readableDescription(root: root))])
 		} catch {
 			throw ContentErrors([ContentError(reason: "\(error)")])
 		}
@@ -110,9 +110,18 @@ public struct SOMLFile<Value: Frontmatter>: SOMLValueFile, Sendable {
 		self.url = url
 
 		do {
-			self.document = try SOML.Document(parsing: String(contentsOf: url, encoding: .utf8))
+			let contents = try String(contentsOf: url, encoding: .utf8)
+
+			// Before the parser, whose error for a conflict marker is about a key.
+			if let error = contents.conflictMarkerError(file: url) {
+				throw ContentErrors([error])
+			}
+
+			self.document = try SOML.Document(parsing: contents)
 		} catch let error as SOML.ParseError {
-			throw ContentErrors([ContentError(file: url, line: error.location.line, reason: error.message)])
+			throw ContentErrors([ContentError(file: url, line: SourceLocation.Line(error.location.line), reason: error.readableMessage)])
+		} catch let errors as ContentErrors {
+			throw errors
 		} catch {
 			throw ContentErrors([ContentError(file: url, reason: "Could not read the file: \(error.localizedDescription)")])
 		}
@@ -120,14 +129,14 @@ public struct SOMLFile<Value: Frontmatter>: SOMLValueFile, Sendable {
 		let document = document
 
 		do {
-			self.value = try Value.decode(from: document.value, root: "the file") { document.location(of: $0).line }
+			self.value = try Value.decode(from: document.value, root: "the file") { SourceLocation.Line(document.location(of: $0).line) }
 		} catch {
 			throw ContentErrors(converting: error, file: url)
 		}
 	}
 
-	public func line(ofValueAt codingPath: [any CodingKey]) -> Int? {
-		document.location(of: codingPath).line
+	public func line(ofValueAt codingPath: [any CodingKey]) -> SourceLocation.Line? {
+		SourceLocation.Line(document.location(of: codingPath).line)
 	}
 }
 
@@ -140,49 +149,65 @@ public protocol SOMLValueFile {
 	/**
 	The line in the file of the key or item at the coding path, or of the closest one that exists, like the parent of a missing key. `nil` when the file has no valid SOML, which decoding reports.
 	*/
-	func line(ofValueAt codingPath: [any CodingKey]) -> Int?
+	func line(ofValueAt codingPath: [any CodingKey]) -> SourceLocation.Line?
 }
 
 extension SOMLValueFile {
 	/**
-	The line of the value of a top-level key, like `Frontmatter.CodingKeys.script`, or of an item of its list, like the third of `featuredApps` with `index: 2`. The key is a coding key of the type, so a renamed key (`@Key`) cannot silently miss.
-	*/
-	public func line(of key: some CodingKey, index: Int? = nil) -> Int? {
-		line(ofValueAt: valuePath(of: key, index: index))
-	}
-
-	/**
 	An error in the file, or at a line of it.
 	*/
-	public func error(line: Int? = nil, _ reason: String) -> ContentError {
+	public func error(line: SourceLocation.Line? = nil, _ reason: String) -> ContentError {
 		ContentError(file: url, line: line, reason: reason)
 	}
 
 	/**
 	A warning about the file, or a line of it.
 	*/
-	public func warning(_ kind: Warning.Kind, line: Int? = nil, _ message: String) -> Warning {
+	public func warning(_ kind: Warning.Kind, line: SourceLocation.Line? = nil, _ message: String) -> Warning {
 		Warning(kind, at: .file(url, line: line), message)
 	}
 }
 
 extension MarkdownFile {
 	/**
+	The line of the value of a top-level key, like `Frontmatter.CodingKeys.script`, or of an item of its list, like the third of `featuredApps` with `index: 2`. The raw file accepts any coding key; use a decoded file for model-typed lookup.
+	*/
+	public func line(of key: some CodingKey, index: Int? = nil) -> SourceLocation.Line? {
+		line(ofValueAt: valuePath(of: key, index: index))
+	}
+}
+
+extension DecodedMarkdownFile {
+	/**
+	The line of the value of a top-level key, like `Frontmatter.CodingKeys.script`, or of an item of its list, like the third of `featuredApps` with `index: 2`. Only keys of the decoded model are accepted, including renamed keys (`@Key`).
+	*/
+	public func line(of key: Value.CodingKeys, index: Int? = nil) -> SourceLocation.Line? {
+		line(ofValueAt: valuePath(of: key, index: index))
+	}
+
+	/**
 	An error at the line of the value of a top-level key, or of an item of its list, so the line and the file cannot be of different files.
 	*/
-	public func error(at key: some CodingKey, index: Int? = nil, _ reason: String) -> ContentError {
+	public func error(at key: Value.CodingKeys, index: Int? = nil, _ reason: String) -> ContentError {
 		error(line: line(of: key, index: index), reason)
 	}
 
 	/**
 	A warning at the line of the value of a top-level key, like `App.Frontmatter.CodingKeys.gumroad`, or of an item of its list, so the line and the file cannot be of different files.
 	*/
-	public func warning(_ kind: Warning.Kind, at key: some CodingKey, index: Int? = nil, _ message: String) -> Warning {
+	public func warning(_ kind: Warning.Kind, at key: Value.CodingKeys, index: Int? = nil, _ message: String) -> Warning {
 		warning(kind, line: line(of: key, index: index), message)
 	}
 }
 
 extension SOMLFile {
+	/**
+	The line of the value of a top-level key, like `Frontmatter.CodingKeys.script`, or of an item of its list, like the third of `featuredApps` with `index: 2`. Only keys of the decoded model are accepted, including renamed keys (`@Key`).
+	*/
+	public func line(of key: Value.CodingKeys, index: Int? = nil) -> SourceLocation.Line? {
+		line(ofValueAt: valuePath(of: key, index: index))
+	}
+
 	/**
 	An error at the line of the value of a top-level key, or of an item of its list, so the line and the file cannot be of different files.
 	*/
@@ -293,7 +318,22 @@ extension ContentEnum {
 	}
 
 	private static func invalidValueReason(_ value: String) -> String {
-		"Must be one of \(allCases.map { "`\($0.rawValue)`" }.formatted(.list(type: .or).locale(.site))), not “\(value)”."
+		let values = allCases.map(\.rawValue)
+		let suggestion = value.closest(in: values).map { " Did you mean `\($0)`?" } ?? ""
+		return "Must be one of \(values.map { "`\($0)`" }.formattedList(.or)), not “\(value)”.\(suggestion)"
+	}
+}
+
+extension SOML.ParseError {
+	/**
+	The message for the writer of the content, like “Duplicate key `title`.” for SOML’s “Duplicate key title”, with code marks and a period, like the other errors. Limitation: it does not name the line of the first key.
+	*/
+	var readableMessage: String {
+		guard case .duplicateKey(let key) = kind else {
+			return message
+		}
+
+		return "Duplicate key `\(key)`."
 	}
 }
 
@@ -341,10 +381,22 @@ extension DecodingError {
 		case .keyNotFound(let key, let context):
 			let parent = context.codingPath.isEmpty ? "" : " in \(path(context))"
 			return "Missing required key `\(key.stringValue)`\(parent)."
-		case .dataCorrupted(let context) where context.debugDescription.hasPrefix("Unknown key"):
-			// The message names the key, and the line of the error is the line of the key. SOML leaves out the period, except after its question “Did you mean …?”.
-			return context.debugDescription.hasSuffix("?") ? context.debugDescription : "\(context.debugDescription)."
-		case .typeMismatch(_, let context), .valueNotFound(_, let context), .dataCorrupted(let context):
+		case .dataCorrupted(let context):
+			// The message of SOML names the Swift type too, like “Unknown key titel, which TipsArguments does not read. Did you mean title?”, which the writer of the content does not know, so the message is made from the key and the suggestion. The line of the error is the line of the key.
+			guard let error = context.underlyingError as? SOML.Decoder.UnknownKeyError else {
+				return "Invalid \(path(context)): \(context.debugDescription)"
+			}
+
+			// The suggestion is the key in its canonical form, with quotes around a key that is not bare, which is what to write.
+			return switch error.suggestion {
+			case .closest(let key):
+				"Unknown key `\(error.key)`. Did you mean `\(SOML.KeyPath([key]))`?"
+			case .otherUnicodeScalars(let key):
+				"Unknown key `\(error.key)`. It looks like `\(SOML.KeyPath([key]))`, but it is written with other Unicode characters, so it is another key. Type the key again."
+			case nil:
+				"Unknown key `\(error.key)`."
+			}
+		case .typeMismatch(_, let context), .valueNotFound(_, let context):
 			return "Invalid \(path(context)): \(context.debugDescription)"
 		@unknown default:
 			return "\(self)"
@@ -352,19 +404,32 @@ extension DecodingError {
 	}
 
 	/**
-	The error of a missing key that the value has in another case, like `Subtitle` for `subtitle`, at the line of that key, as the reader sees the key in the file and does not see why it is missing. The decoder reports the missing key before the unknown key.
+	The error of a missing key that the value has misspelled, like `Subtitle` or `titel` for `subtitle` or `title`, at the line of the misspelled key, as the reader sees the key in the file and does not see why it is missing. The decoder reports the missing key before the unknown key, so without this, the same typo gets another message by the order of the keys. A key is misspelled when it is the same in another case, or else close to the missing key (``Swift/String/closest(in:)``), like the suggestion of an unknown key. A known key can be close to the missing key, like `subtitle` for a missing `title`, as the keys that a value reads are not known here, so the message asks instead of saying that the key is unknown.
 	*/
-	func wrongCaseKeyError(in value: SOML.Value, line: ([any CodingKey]) -> Int?) -> ContentError? {
+	func misspelledKeyError(in value: SOML.Value, line: ([any CodingKey]) -> SourceLocation.Line?) -> ContentError? {
 		guard
 			case .keyNotFound(let key, let context) = self,
 			// A key path needs at least one key, so a missing key at the top level is in the value itself.
-			let keys = (context.codingPath.isEmpty ? value : value[path: SOML.KeyPath(codingPath: context.codingPath)])?.objectValue?.keys,
-			let writtenKey = keys.first(where: { $0.caseInsensitiveCompare(key.stringValue) == .orderedSame })
+			let keys = (context.codingPath.isEmpty ? value : value[path: SOML.KeyPath(codingPath: context.codingPath)])?.objectValue?.keys
 		else {
 			return nil
 		}
 
-		return ContentError(line: line(context.codingPath + [AnyCodingKey(stringValue: writtenKey)]), reason: "Unknown key `\(writtenKey)`. Keys are case-sensitive: `\(key.stringValue)`.")
+		let missingKey = key.stringValue
+
+		func error(at writtenKey: String, _ reason: String) -> ContentError {
+			ContentError(line: line(context.codingPath + [AnyCodingKey(stringValue: writtenKey)]), reason: reason)
+		}
+
+		if let writtenKey = keys.first(where: { $0.caseInsensitiveCompare(missingKey) == .orderedSame }) {
+			return error(at: writtenKey, "Unknown key `\(writtenKey)`. Keys are case-sensitive: `\(missingKey)`.")
+		}
+
+		guard let writtenKey = keys.first(where: { $0.closest(in: [missingKey]) != nil }) else {
+			return nil
+		}
+
+		return error(at: writtenKey, "Missing key `\(missingKey)`. Is `\(writtenKey)` a misspelling of it?")
 	}
 }
 
@@ -410,15 +475,25 @@ extension ValidatedValue {
 A ``ValidatedValue`` with a plain value that a ``Validated`` property stores, like the `String` of a `NonEmptyString`.
 */
 public protocol PlainValidatedValue: ValidatedValue {
-	associatedtype Value
+	var value: RawValue { get }
+}
 
-	var value: Value { get }
+extension PlainValidatedValue where Self: Encodable, RawValue: Encodable {
+	/**
+	Encodes the plain value as a scalar, like a slug as its string, matching frontmatter and script data.
+	*/
+	public func encode(to encoder: any Encoder) throws {
+		var container = encoder.singleValueContainer()
+		try container.encode(value)
+	}
 }
 
 /**
 A frontmatter property that is checked when it is decoded, and stores the plain value. Use it through its aliases, like `@NonEmpty var title: String` or `@Absolute var repositoryURL: URL?`.
 
 The wrapper decodes a `Validation` value and stores its plain value, so an invalid value has the message and the line of its key. `@Frontmatter` decodes the wrapper of the non-optional type, so an optional property can be missing.
+
+Validation applies only during decoding. Store a refined value such as `AbsoluteURL`, `NonEmptyString`, or `SafeInteger` directly when later code relies on its invariant, so assigning a new value cannot discard that validation.
 */
 @propertyWrapper
 public struct Validated<Validation: PlainValidatedValue, Value> {
@@ -431,7 +506,7 @@ public struct Validated<Validation: PlainValidatedValue, Value> {
 
 extension Validated: Sendable where Value: Sendable {}
 
-extension Validated: Decodable where Value == Validation.Value {
+extension Validated: Decodable where Value == Validation.RawValue {
 	public init(from decoder: any Decoder) throws {
 		self.init(wrappedValue: try Validation(from: decoder).value)
 	}
@@ -442,7 +517,7 @@ An absolute URL in frontmatter, like `https://github.com/sindresorhus/dato`.
 
 Decoding throws for a relative URL, which is a common mistake in links.
 */
-public struct AbsoluteURL: PlainValidatedValue, Hashable, Sendable, CustomStringConvertible {
+public struct AbsoluteURL: PlainValidatedValue, Hashable, Sendable, CustomStringConvertible, Encodable {
 	public let value: URL
 
 	/**
@@ -478,14 +553,21 @@ An absolute URL in frontmatter, like `@Absolute var repositoryURL: URL?`. See ``
 public typealias Absolute<Value> = Validated<AbsoluteURL, Value>
 
 /**
-Text in frontmatter that is not empty or only whitespace, like a title.
+Text in frontmatter that is not empty or only whitespace, like a title, and has no whitespace at the start or the end, which is easy to paste and not visible in the editor, like `'Dato '`, which would make the title “Dato : …”.
 */
-public struct NonEmptyString: PlainValidatedValue, Hashable, Sendable, CustomStringConvertible {
+public struct NonEmptyString: PlainValidatedValue, Hashable, Sendable, CustomStringConvertible, Encodable {
 	public let value: String
 
 	public init(validating value: String) throws(ContentError) {
 		guard !value.allSatisfy(\.isWhitespace) else {
 			throw ContentError(reason: "Must not be empty.")
+		}
+
+		guard
+			value.first?.isWhitespace == false,
+			value.last?.isWhitespace == false
+		else {
+			throw ContentError(reason: "Remove the space at the start or the end.")
 		}
 
 		self.value = value
@@ -502,9 +584,29 @@ Text in frontmatter that is not empty or only whitespace, like `@NonEmpty var ti
 public typealias NonEmpty<Value> = Validated<NonEmptyString, Value>
 
 /**
+A flag in frontmatter that is written only when it is set, like `isDraft: true`. A `false` flag says the same as no flag, so it is a mistake, like the line that stays after a draft is published by changing `true` to `false`.
+*/
+public struct TrueFlag: PlainValidatedValue, Hashable, Sendable {
+	public let value: Bool
+
+	public init(validating value: Bool) throws(ContentError) {
+		guard value else {
+			throw ContentError(reason: "Remove the key. A flag is `true` or not there, and `false` is the same as no flag.")
+		}
+
+		self.value = value
+	}
+}
+
+/**
+A flag in frontmatter that is `true` or not there, like `@TrueOrAbsent var isDraft = false`, so the property is `false` only when the file does not have the key. See ``TrueFlag``.
+*/
+public typealias TrueOrAbsent<Value> = Validated<TrueFlag, Value>
+
+/**
 A positive integer in frontmatter that JavaScript can represent exactly (at most 2⁵³ − 1), like an App Store ID that a script reads.
 */
-public struct SafeInteger: PlainValidatedValue, Hashable, Sendable, CustomStringConvertible {
+public struct SafeInteger: PlainValidatedValue, Hashable, Sendable, CustomStringConvertible, Encodable {
 	public let value: Int
 
 	public init(validating value: Int) throws(ContentError) {

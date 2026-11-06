@@ -115,7 +115,7 @@ enum AppHeaderIDs: String, ScriptIDSet {
 /**
 The styles of ``AppHeader``, outside the generic type, so the class names are the same for every accessory.
 */
-private enum AppHeaderStyles: StyleSet {
+private enum AppHeaderStyles: String, StyleSet {
 	case root
 	case icon
 	case text
@@ -124,7 +124,10 @@ private enum AppHeaderStyles: StyleSet {
 	var style: Style {
 		switch self {
 		case .root:
-			Style().hstack(alignment: .center, spacing: .rootEm(1.25))
+			// The text goes below the icon when it has too little room next to it, like on a phone with large text (``text``).
+			Style()
+				.hstack(alignment: .center, spacing: .rootEm(1.25))
+				.flexWrap()
 		case .icon:
 			// About as tall as the name and the title next to it, with the shadow of the icons of the app cards.
 			Style()
@@ -134,14 +137,22 @@ private enum AppHeaderStyles: StyleSet {
 					$0.frame(width: .rootEm(4), height: .rootEm(4), minWidth: .rootEm(4))
 				}
 		case .text:
-			Style().frame(minWidth: .zero)
+			// Below the icon when it has less than 10em of room next to it, so the title does not break inside its words.
+			Style()
+				.flex(1)
+				.frame(minWidth: .length(.min(.em(10), .percent(100))))
 		case .name:
 			// Above the title, like the date of a blog post.
 			Style()
 				.hstack(alignment: .baseline, spacing: .rootEm(0.75))
+				.flexWrap()
 				.margin(.bottom, .rootEm(0.25))
 				.textStyle(.body, weight: .semibold)
 				.color(.secondaryText)
+				// Hidden while the script has not filled in the app (``AppHeader/selectedByScript(title:accessory:)``), so its margin does not move the title down.
+				.nested("&:not(:has(> :not([hidden])))") {
+					$0.hidden()
+				}
 		}
 	}
 }

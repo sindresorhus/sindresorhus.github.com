@@ -121,7 +121,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 				}
 			}
 			.accessibilityLabel("Put a slice in the box with")
-			.attributes(.role("group"))
+			.attributes(.role(.group))
 			.style(Styles.choices)
 
 			div {
@@ -137,7 +137,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
-			p(.part(Parts.lunchStatus), .role("status")) {}
+			p(.part(Parts.lunchStatus), .role(.status)) {}
 				.style(Styles.status)
 		}
 		.style(Styles.toy)
@@ -189,7 +189,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
-			p(.part(Parts.weatherStatus), .role("status")) {}
+			p(.part(Parts.weatherStatus), .role(.status)) {}
 				.style(Styles.status)
 		}
 		.style(Styles.toy)
@@ -207,7 +207,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 				.width(400),
 				.height(200),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The dock and the sea. Press Enter to lower the line, and hold Space or the up arrow to reel it in.")
 				.style(Styles.canvas)
@@ -230,7 +230,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
-			p(.part(Parts.crabStatus), .role("status")) {}
+			p(.part(Parts.crabStatus), .role(.status)) {}
 				.style(Styles.status)
 		}
 		.style(Styles.toy)
@@ -248,7 +248,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 				.width(320),
 				.height(180),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The brown cheese and the cheese slicer. Press the up and down arrow keys to tilt the slicer, and Enter to cut a slice.")
 				.style(Styles.canvas, Styles.cheeseCanvas)
@@ -261,7 +261,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
-			p(.part(Parts.cheeseStatus), .role("status")) {}
+			p(.part(Parts.cheeseStatus), .role(.status)) {}
 				.style(Styles.status)
 		}
 		.style(Styles.toy)
@@ -287,7 +287,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 				}
 			}
 			.accessibilityLabel("Put in the bag")
-			.attributes(.role("group"))
+			.attributes(.role(.group))
 			.style(Styles.choices)
 
 			div {
@@ -303,7 +303,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
-			p(.part(Parts.candyStatus), .role("status")) {}
+			p(.part(Parts.candyStatus), .role(.status)) {}
 				.style(Styles.status)
 		}
 		.style(Styles.toy)
@@ -385,7 +385,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 		case candyKind = "candy-kind"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case wide
 		case toy

@@ -121,7 +121,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 
 			div(
 				.part(Parts.mamma),
-				.role("alertdialog"),
+				.role(.alertDialog),
 				.custom(name: "aria-describedby", value: "geocities-mail-order-mamma-text"),
 				.hidden
 			) {
@@ -220,7 +220,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
-			p(.part(Parts.bankStatus), .role("status")) {}
+			p(.part(Parts.bankStatus), .role(.status)) {}
 				.style(Styles.bankStatus)
 		}
 		.style(Styles.bank)
@@ -248,7 +248,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 							.part(Parts.art),
 							.width(480),
 							.height(300),
-							.role("img")
+							.role(.image)
 						) {}
 							.accessibilityLabel(ad.picture)
 							.style(Styles.art)
@@ -311,7 +311,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 				.width(360),
 				.height(240),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The kitchen table. With a coupon, drag the scissors along the dashed line, or press Space to cut. With a package, press Space to tear the paper, and then the arrow keys and Space to pop the bubble wrap.")
 				.style(Styles.canvas, Styles.tableCanvas)
@@ -329,7 +329,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
-			p(.part(Parts.tableStatus), .role("status")) {}
+			p(.part(Parts.tableStatus), .role(.status)) {}
 				.style(Styles.status)
 		}
 		.style(Styles.panel)
@@ -342,7 +342,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 				.width(360),
 				.height(240),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The mailbox outside the house, in the rain. Press Enter to check the mailbox.")
 				.style(Styles.canvas, Styles.mailboxCanvas)
@@ -360,7 +360,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
-			p(.part(Parts.mailboxStatus), .role("status")) {}
+			p(.part(Parts.mailboxStatus), .role(.status)) {}
 				.style(Styles.status)
 		}
 		.style(Styles.panel)
@@ -368,7 +368,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 
 	private var stuff: some HTML {
 		div {
-			div(.part(Parts.stuffTabs), .role("group")) {}
+			div(.part(Parts.stuffTabs), .role(.group)) {}
 				.accessibilityLabel("My stuff")
 				.style(Styles.tabs)
 
@@ -383,7 +383,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 				.width(640),
 				.height(360),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The thing from the mail. Use the buttons under it, drag on it, or move with the arrow keys and press Space. Hold Shift with the arrow keys to drag. To draw, press Space first.")
 				.style(Styles.canvas, Styles.stuffCanvas)
@@ -396,7 +396,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 			}
 
-			p(.part(Parts.stuffStatus), .role("status")) {}
+			p(.part(Parts.stuffStatus), .role(.status)) {}
 				.style(Styles.status)
 		}
 		.style(Styles.panel)
@@ -493,7 +493,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 		case price = "mail-order-price"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case toy
 		case bank
@@ -744,7 +744,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 		}
 	}
 
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case shake
 
 		var keyframes: [Keyframe] {

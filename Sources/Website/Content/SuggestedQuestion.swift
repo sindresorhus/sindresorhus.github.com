@@ -9,6 +9,16 @@ struct SuggestedQuestion: Encodable {
 	let url: LinkDestination
 
 	/**
+	What the link opens when it is not an answer of a FAQ, which the suggestion shows before its text, like “Guide: Open Files with Enter in Finder on Mac”.
+	*/
+	let label: Label?
+
+	enum Label: String, Encodable {
+		case guide = "Guide"
+		case tip = "Tip"
+	}
+
+	/**
 	The platforms the question applies to. All platforms when `nil`.
 	*/
 	let platforms: [Platform]?
@@ -31,12 +41,14 @@ struct SuggestedQuestion: Encodable {
 	init(
 		question: String,
 		url: LinkDestination,
+		label: Label? = nil,
 		keywords: [String] = [],
 		platforms: [Platform]? = nil,
 		pinnedRank: Int? = nil
 	) {
 		self.question = question
 		self.url = url
+		self.label = label
 		self.platforms = platforms
 		self.pinnedRank = pinnedRank
 		let questionWords = Self.words(in: question)
@@ -47,13 +59,11 @@ struct SuggestedQuestion: Encodable {
 
 		for word in questionWords + Self.words(in: keywords.joined(separator: " ")) {
 			// A plural, like “images” or “crashes”, gets the synonyms of the singular.
-			let singulars = word.hasSuffix("s") ? [String(word.dropLast()), word.hasSuffix("es") ? String(word.dropLast(2)) : nil].compactMap(\.self) : []
+			let singulars = word.singulars
 			let synonyms = Self.synonyms[word] ?? singulars.lazy.compactMap { Self.synonyms[$0] }.first ?? []
 
-			// A word that ends in “s”, like “quits”, also gets the word without it, so its other forms match, like “quitting”. Not a word that ends in “ss”, like “access”, which is not a plural.
-			let singular = word.hasSuffix("s") && !word.hasSuffix("ss") && word.count > 3 ? [String(word.dropLast())] : []
-
-			for match in [word] + singular + synonyms where seenWords.insert(match).inserted {
+			// A plural, like “quits”, also gets the word without the “s”, so its other forms match, like “quitting”.
+			for match in [word] + singulars.prefix(1) + synonyms where seenWords.insert(match).inserted {
 				words.append(match)
 			}
 		}
@@ -64,21 +74,23 @@ struct SuggestedQuestion: Encodable {
 	}
 
 	/**
-	The words of the text that can match: lowercase, with at least three letters, and no stopwords. Apostrophes, straight and typographic, are removed first, so “doesn't” and “doesn’t” become “doesnt” instead of “doesn”.
+	The words of the text that can match: lowercase, with at least three letters, and no stopwords. Apostrophes, straight and typographic, are removed first, so “doesn't” and “doesn’t” become “doesnt” instead of “doesn”. “Menu bar” is one word, “menubar”, as many questions are about the menu bar, and its two words would be the two matching words that a question needs. The script of ``FAQSuggestions`` does the same with the message.
 	*/
 	static func words(in text: String) -> [String] {
 		text
 			.lowercased()
 			.replacing(apostrophe, with: "")
+			.replacing(menuBar, with: "menubar")
 			.matches(of: word)
 			.map { String($0.output) }
 			.filter { !stopwords.contains($0) }
 	}
 
 	/**
-	The apostrophes and the words for ``words(in:)``. Not literals in the function, as Swift parses a regex literal each time the code runs, and it runs for each question.
+	The apostrophes, the menu bar, and the words for ``words(in:)``. Not literals in the function, as Swift parses a regex literal each time the code runs, and it runs for each question.
 	*/
 	nonisolated(unsafe) private static let apostrophe = /['’]/
+	nonisolated(unsafe) private static let menuBar = /\bmenu\s+bar/
 	nonisolated(unsafe) private static let word = /[a-z0-9_]{3,}/
 
 	/**
@@ -92,11 +104,11 @@ struct SuggestedQuestion: Encodable {
 		"had", "has", "have", "her", "here", "his", "how", "into", "its",
 		"just", "keep", "know", "last", "let", "like", "look", "mac", "macos", "made", "make",
 		"many", "may", "more", "most", "much", "need", "never", "new", "not", "now",
-		"off", "often", "old", "onto", "other", "our", "over", "own",
-		"please", "said", "same", "say", "see", "seem", "should", "since",
+		"off", "often", "old", "onto", "other", "our", "over", "own", "past",
+		"please", "quite", "said", "same", "say", "says", "see", "seem", "should", "since",
 		"some", "still", "such", "take", "tell", "than", "that", "the",
 		"their", "them", "then", "there", "these", "they", "thing", "think", "this", "those",
-		"too", "try", "turn", "upon", "use", "used", "using", "very",
+		"too", "try", "turn", "upon", "use", "used", "uses", "using", "very",
 		"want", "was", "way", "were", "what", "when", "where", "which",
 		"while", "who", "why", "will", "with", "would", "yet", "you", "your",
 	]
@@ -152,15 +164,46 @@ struct SuggestedQuestion: Encodable {
 
 extension SuggestedQuestion {
 	/**
-	A FAQ question, with the words, the platforms, and the pinned rank from the directives of its heading.
+	A FAQ question, with the words, the platforms, and the pinned rank from the directives of its heading. Also a tip of an app (``App/tipHeadings``), with its label.
 	*/
-	init(_ heading: Heading, url: LinkDestination) {
+	init(_ heading: Heading, url: LinkDestination, label: Label? = nil) {
 		self.init(
 			question: heading.text,
 			url: url,
+			label: label,
 			keywords: heading[FAQDirectives.Keywords.self] ?? [],
 			platforms: heading[FAQDirectives.Platforms.self]?.nilIfEmpty,
 			pinnedRank: heading[FAQDirectives.Pinned.self]
 		)
+	}
+}
+
+extension SuggestedQuestion {
+	/**
+	A guide, as a suggestion for the apps that it is about: its title without “How to”, as the label already says that it is a guide.
+	*/
+	init(_ guide: Guide) {
+		self.init(
+			question: String(guide.frontmatter.title.trimmingPrefix("How to ")),
+			url: .path(guide.path),
+			label: .guide
+		)
+	}
+}
+
+extension String {
+	/**
+	The word without the ending of a plural, like “image” for “images”, and “crashe” and “crash” for “crashes”, as a plural can end in “s” or “es”. Empty for a word that is not a plural: one without an “s” at the end, one that ends in “ss”, like “access”, or a word of 3 letters or fewer, like “bus”.
+	*/
+	fileprivate var singulars: [String] {
+		guard
+			count > 3,
+			hasSuffix("s"),
+			!hasSuffix("ss")
+		else {
+			return []
+		}
+
+		return hasSuffix("es") ? [String(dropLast()), String(dropLast(2))] : [String(dropLast())]
 	}
 }

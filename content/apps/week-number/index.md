@@ -50,6 +50,8 @@ pressQuotes: [
 
 Always know which week it is. Useful if your work or school plans by week number.
 
+@LiveFact(kind: "week-number")
+
 **Features**
 
 - Week number in the menu bar
@@ -57,8 +59,6 @@ Always know which week it is. Useful if your work or school plans by week number
 - Find week number for a specific date
 - “Get Week Number” action in Shortcuts, for any date
 - Widget
-
-<br>
 
 ---
 

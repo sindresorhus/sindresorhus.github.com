@@ -201,14 +201,14 @@ struct GeoCitiesCasio: ScriptedElement {
 			}
 			.style(Styles.volume)
 
-			p(.part(Parts.status), .role("status")) {}
+			p(.part(Parts.status), .role(.status)) {}
 				.style(Styles.status)
 		}
 		.style(Styles.body, GeoCitiesPage.Styles.scriptingOnly)
 	}
 
 	private var keyboard: some HTML {
-		div(.part(Parts.keyboard), .tabindex(0), .role("application")) {
+		div(.part(Parts.keyboard), .tabindex(0), .role(.application)) {
 			for whiteKey in Self.whiteKeys {
 				div {
 					Key(index: whiteKey.index, isBlack: false)
@@ -258,7 +258,7 @@ struct GeoCitiesCasio: ScriptedElement {
 		case rhythm = "casio-rhythm"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case body
 		case top

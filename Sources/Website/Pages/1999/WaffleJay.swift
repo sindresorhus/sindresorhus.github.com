@@ -69,7 +69,7 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 						.style(Styles.group)
 					}
 				}
-				.attributes(.role("group"))
+				.attributes(.role(.group))
 				.accessibilityLabel("Samples")
 				.style(Styles.palette)
 
@@ -95,7 +95,7 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 						}
 					}
 				}
-				.attributes(.role("group"))
+				.attributes(.role(.group))
 				.accessibilityLabel("Tracks")
 				.style(Styles.tracks)
 
@@ -119,7 +119,7 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.formRow)
 
-				p(.part(Parts.status), .role("status")) {
+				p(.part(Parts.status), .role(.status)) {
 					"Pick a sample to start."
 				}
 				.style(GeoCitiesPage.Styles.caption)
@@ -151,7 +151,7 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.form)
 
-				div(.part(Parts.chart), .hidden, .role("status")) {
+				div(.part(Parts.chart), .hidden, .role(.status)) {
 					p(.part(Parts.place)) {}
 						.style(Styles.place)
 
@@ -220,7 +220,7 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 		case bar = "jay-bar"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case edition
 		case palette

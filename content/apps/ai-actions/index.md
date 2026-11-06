@@ -55,8 +55,6 @@ It also supports many more models through [Ollama and Groq](#alternative-provide
 
 <!-- **Apple is currently blocking updates for the iOS app, so I won't be able to submit an update for some time... I plan to get it [published to an alternative App Store](https://appleinsider.com/articles/23/08/15/setapp-plans-to-launch-eu-only-alternative-ios-app-store) in 2024.** -->
 
-<br>
-
 > [!TIP]
 > You may also like my [Actions](/actions) app.
 
@@ -66,7 +64,7 @@ It also supports many more models through [Ollama and Groq](#alternative-provide
 
 The app also supports [Ollama](https://ollama.com/blog/openai-compatibility) (local models like GGUF) and [Groq](https://console.groq.com/docs/openai) (because they have OpenAI API compatibility), making it possible to use it with a lot more models.
 
-The app sends requests to the base URL with `/v1/chat/completions` appended. For example, `https://openrouter.ai/api` becomes `https://openrouter.ai/api/v1/chat/completions`. If the server uses a custom port, include it in the base URL (e.g., `https://my-server:8080`).
+Except for Gemini, the app sends requests to the base URL with `/v1/chat/completions` appended. For example, `https://openrouter.ai/api` becomes `https://openrouter.ai/api/v1/chat/completions`. If the server uses a custom port, include it in the base URL (e.g., `https://my-server:8080`).
 
 For Ollama, set the “Base URL” to `http://localhost:11434` (or the network address of your Ollama instance). Since Ollama doesn’t require authentication, just enter any text (e.g., `ollama`) as the OpenAI API key. In the “Ask AI” action, select the “Custom” model and provide the name of the desired model (e.g., “llama3”).
 
@@ -80,7 +78,7 @@ For [LM Studio](https://lmstudio.ai/docs/developer/openai-compat), start its ser
 
 For [Open WebUI](https://openwebui.com), specify the address of your instance with `/api` appended (e.g., `https://my-server/api`), and use an Open WebUI API key as the API key.
 
-For [Gemini](https://ai.google.dev/gemini-api/docs/openai), specify `https://generativelanguage.googleapis.com/v1beta/openai/`. In the “Ask AI” action, select the “Custom” model and provide the name of the desired model.
+For [Gemini](https://ai.google.dev/gemini-api/docs/openai), specify `https://generativelanguage.googleapis.com/v1beta/openai/`. The app detects Gemini automatically and constructs its endpoint separately, without appending the `/v1/chat/completions` suffix above. In the “Ask AI” action, select the “Custom” model and provide the name of the desired model.
 
 ## Frequently Asked Questions {#faq}
 
@@ -118,7 +116,7 @@ This makes it simpler, but more importantly, it stores your API key securely in 
 
 ### Can you support the OpenAI Whisper API? {#can-you-support-the-openai-whisper-api}
 
-No. The actions send only text and images to the AI, not audio. For transcription, use my app [Aiko](/aiko). It runs Whisper locally on your device, so there are no API costs and your audio stays on your device, and it has Shortcuts actions too.
+No. The actions can send text, images, and some documents, like PDFs, to the AI, but not audio. For transcription, use my app [Aiko](/aiko). It runs Whisper locally on your device, so there are no API costs and your audio stays on your device, and it has Shortcuts actions too.
 
 ### Can you add built-in support for the Google Gemini API? {#gemini}
 

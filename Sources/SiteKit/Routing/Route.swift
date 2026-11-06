@@ -41,9 +41,14 @@ public struct Route: Sendable {
 	public let output: Output
 
 	/**
-	Where the route comes from, like “`redirectFrom` of content/apps/dato/index.md”, so a route that writes the file of another route names the files to change (``source(_:_:)``). `nil` names the route by its path.
+	Where the route comes from, like “`redirectFrom` of content/apps/dato/index.md”, so a route that writes the file of another route names the files to change (``source(_:)``). `nil` names the route by its path.
 	*/
 	public private(set) var source: Source?
+
+	/**
+	The name of a page in a link to it, like “Dato”, for a list of pages that is made from the routes, like the suggestion of the 404 page (``title(_:)``). `nil` for other routes.
+	*/
+	public private(set) var title: String?
 
 	private init(_ path: RoutePath, output: Output) {
 		self.path = path
@@ -53,31 +58,80 @@ public struct Route: Sendable {
 	/**
 	Where a route comes from: a file, and what of the file makes the route, like “`redirectFrom` of” `content/apps/dato/index.md`. The publisher writes the path of the file relative to the project, like the paths of the other messages.
 	*/
-	public struct Source: Sendable {
+	public enum Source: Sendable {
 		/**
-		What of the file makes the route, like “the page of” or “`redirectFrom` of”.
+		The page of a content file: “the page of content/apps/dato/index.md”.
 		*/
-		public let role: String
+		case page(file: URL, line: SourceLocation.Line? = nil)
 
 		/**
-		The file, like `content/apps/dato/index.md`.
+		A redirect from a key of the frontmatter, like `redirectFrom`: “`redirectFrom` of content/apps/dato/index.md”.
 		*/
-		public let location: SourceLocation
+		case redirect(key: String, file: URL, line: SourceLocation.Line? = nil)
+
+		/**
+		A file that is published as it is, like a file of `public/`: “the file public/robots.txt”.
+		*/
+		case file(URL)
+
+		/**
+		A route without a file, by its path: “the route /apps”.
+		*/
+		case route(RoutePath)
+
+		/**
+		What of the file makes the route, as the start of the phrase of a collision.
+		*/
+		private var phrase: String {
+			switch self {
+			case .page:
+				"the page of"
+			case .redirect(let key, _, _):
+				"`\(key)` of"
+			case .file:
+				"the file"
+			case .route:
+				"the route"
+			}
+		}
+
+		/**
+		The source file and its optional line, like `content/apps/dato/index.md:12`, or the path of a route without a file.
+		*/
+		public var location: SourceLocation {
+			switch self {
+			case .page(let file, let line), .redirect(_, let file, let line):
+				.file(file, line: line)
+			case .file(let file):
+				.file(file)
+			case .route(let path):
+				.page(path)
+			}
+		}
 
 		/**
 		The source as the message of a collision names it, like “`redirectFrom` of content/apps/dato/index.md”.
 		*/
 		func description(relativeTo directory: URL) -> String {
-			"\(role) \(location.description(relativeTo: directory))"
+			"\(phrase) \(location.description(relativeTo: directory))"
 		}
 	}
 
 	/**
-	The route with where it comes from, like `route.source("the page of", .file(url))`, for the message of a route that writes the file of another route.
+	The route with where it comes from, like `route.source(.page(file: url))`, for the message of a route that writes the file of another route.
 	*/
-	public func source(_ role: String, _ location: SourceLocation) -> Self {
+	public func source(_ source: Source) -> Self {
 		var route = self
-		route.source = Source(role: role, location: location)
+		route.source = source
+		return route
+	}
+
+	/**
+	The route with the name of its page, like `route.title("Dato")`.
+	*/
+	public func title(_ title: String) -> Self {
+		var route = self
+		route.title = title
 		return route
 	}
 
@@ -114,9 +168,9 @@ public struct Route: Sendable {
 		return Self(path, output: .file(render: render))
 	}
 
-	public static func text(_ path: RoutePath, render: @escaping @Sendable () throws -> String) -> Self {
+	public static func text(_ path: RoutePath, render: @escaping @Sendable () async throws -> String) -> Self {
 		file(path) {
-			try Data(render().utf8)
+			try await Data(render().utf8)
 		}
 	}
 
@@ -189,12 +243,12 @@ public enum RedirectDestination: Hashable, Sendable, CustomStringConvertible {
 	}
 
 	/**
-	The static redirect document, with the visible link and canonical URL derived from the same destination.
+	The static redirect document, with the visible link and canonical URL derived from the same destination. Its script adds the query and the fragment of the old URL to the destination of the link, like a tracking query or a section of the page, and goes there. It runs before the refresh, which waits for the page to load, and the refresh is for browsers without scripts.
 	*/
 	fileprivate func html(site: SiteOrigin) -> String {
 		let canonicalURL = absoluteURL(site: site)
 		let href = description.escapedForHTML
-		return #"<!doctype html><html lang="en"><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0; url=\#(href)"><link rel="canonical" href="\#(canonicalURL.absoluteString.escapedForHTML)"><title>Redirecting to: \#(href)</title><a href="\#(href)">Redirecting…</a>"#
+		return #"<!doctype html><html lang="en"><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0; url=\#(href)"><link rel="canonical" href="\#(canonicalURL.absoluteString.escapedForHTML)"><title>Redirecting to: \#(href)</title><a href="\#(href)">Redirecting…</a><script>const url = new URL(document.links[0].href); for (const [name, value] of new URLSearchParams(location.search)) { url.searchParams.append(name, value); } url.hash = location.hash || url.hash; location.replace(url);</script>"#
 	}
 }
 
@@ -233,7 +287,10 @@ public enum RouteBuilder {
 		[value.route]
 	}
 
-	public static func buildExpression(_ values: [some RouteConvertible]) -> [Route] {
+	/**
+	Converts a sequence once, preserving its order without requiring an intermediate array.
+	*/
+	public static func buildExpression<Values: Sequence>(_ values: Values) -> [Route] where Values.Element: RouteConvertible {
 		values.map(\.route)
 	}
 

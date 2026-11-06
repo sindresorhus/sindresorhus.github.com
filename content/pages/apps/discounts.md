@@ -1,11 +1,12 @@
 ---
 title: 'Discounts'
-description: 'Discounts on apps by Sindre Sorhus: the Power User Bundle, and offers for students, educational institutions, and reviewers.'
+description: 'Discounts on Supercharge, Dato, and other apps by Sindre Sorhus: the Black Friday sale, the Power User Bundle, and offers for schools and reviewers.'
 ---
 
 # Discounts
 
-<!-- ## Black friday
+@Scheduled(from: 2026-11-27, until: 2026-11-30, sale: "Black Friday") {
+## Black Friday
 
 Apps are on sale from 27. November to 30. November:
 
@@ -28,11 +29,14 @@ Apps are on sale from 27. November to 30. November:
 - [Default Browser](https://sindresorhus.gumroad.com/l/default-browser/BLACKFRIDAY)
 - [Shortcutie](https://sindresorhus.gumroad.com/l/shortcutie/BLACKFRIDAY)
 - [QuickGPT](https://sindresorhus.gumroad.com/l/quickgpt/BLACKFRIDAY)
-- [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user/BLACKFRIDAY) -->
+- [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user/BLACKFRIDAY)
+}
+
+Many of my paid apps are on sale each year around Black Friday. This page lists the apps and the discounts while the sale runs.
 
 <!-- My [paid apps](/apps/paid) (except Dato, Lungo, Aiko, and Supercharge) are 50% off for Black Friday. From now until December 2nd. -->
 
-## Power user bundle
+## Power User Bundle
 
 Get [Default Browser](/default-browser), [Shortcutie](/shortcutie), and [Supercharge](/supercharge) together for 30% off with the [Power User Bundle](https://sindresorhus.gumroad.com/l/power-user).
 

@@ -1,10 +1,10 @@
-// The liquid glass behind the title of the apps page, drawn with WebGL: soft fields in the colors of the featured apps, seen through slowly moving frosted glass. It draws one still frame for visitors who prefer reduced motion, and pauses while it is off screen or the tab is hidden. Without WebGL, the canvas keeps its still gradient (`AppsPage`).
+// The liquid glass behind the title of the apps page, drawn with WebGL: soft fields in the colors of the featured apps, seen through slowly moving frosted glass. It pauses while it is off screen or the tab is hidden. Without WebGL, and for visitors who prefer reduced motion, the canvas keeps its still gradient (`AppsPage`), which looks almost like a still frame of the glass, so the page does not start WebGL for nothing.
 import {prefersReducedMotion} from '/scripts/dom.js';
 import {startShader} from '/scripts/webgl.js';
 
 const canvas = document.querySelector('#apps-glass');
 // Only with a hardware renderer, as a software renderer blocks the page for hundreds of milliseconds.
-const gl = canvas.getContext('webgl', {antialias: false, depth: false, powerPreference: 'low-power', failIfMajorPerformanceCaveat: true});
+const gl = prefersReducedMotion ? undefined : canvas.getContext('webgl', {antialias: false, depth: false, powerPreference: 'low-power', failIfMajorPerformanceCaveat: true});
 
 const fragmentShader = `
 	precision highp float;
@@ -100,11 +100,8 @@ const fragmentShader = `
 	}
 `;
 
-// The locations of the uniforms.
+// The locations of the uniforms while the program is ready to draw. A lost canvas has none until the shaders compile and link again (`startShader`).
 let uniforms;
-
-// Whether the program is set up, and the canvas can draw. It is not after the GPU loses the canvas, until the shaders compile and link again (`startShader`).
-let isProgramSetUp = false;
 
 // Gets the locations of the uniforms, and sets the colors. Again after the GPU gives back a lost canvas, as the canvas loses all of them (`startShader`).
 const setUp = program => {
@@ -120,7 +117,6 @@ const setUp = program => {
 		return [...colorContext.getImageData(0, 0, 1, 1).data.slice(0, 3)].map(value => value / 255);
 	});
 	gl.uniform3fv(uniforms.colors, colors);
-	isProgramSetUp = true;
 };
 
 // When the shaders do not compile on the device, like one without high precision, the canvas keeps its still gradient.
@@ -161,7 +157,7 @@ if (gl && startShader(gl, {fragment: fragmentShader, setUp})) {
 		targetPointer.strength = 0;
 	});
 
-	// A moment in the drift that looks good as a still frame.
+	// A moment in the drift that looks good as the first frame.
 	const stillTime = 40;
 
 	// The time does not move while the glass is paused, so it continues where it stopped.
@@ -169,6 +165,10 @@ if (gl && startShader(gl, {fragment: fragmentShader, setUp})) {
 	let lastFrameTime = 0;
 
 	const draw = () => {
+		if (!uniforms) {
+			return;
+		}
+
 		gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
 		gl.uniform1f(uniforms.time, time);
 		gl.uniform2f(uniforms.pointer, pointer.x, pointer.y);
@@ -177,10 +177,8 @@ if (gl && startShader(gl, {fragment: fragmentShader, setUp})) {
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	};
 
-	let frame = 0;
-	let isRunning = false;
+	let frame;
 	let isOnScreen = false;
-	let isContextLost = false;
 
 	// At most 30 frames a second, as the glass moves slowly.
 	const animate = now => {
@@ -202,19 +200,18 @@ if (gl && startShader(gl, {fragment: fragmentShader, setUp})) {
 	};
 
 	const update = () => {
-		const shouldRun = isOnScreen && !document.hidden && !prefersReducedMotion && !isContextLost;
+		const shouldRun = isOnScreen && !document.hidden && uniforms !== undefined;
 
-		if (shouldRun === isRunning) {
+		if (shouldRun === (frame !== undefined)) {
 			return;
 		}
-
-		isRunning = shouldRun;
 
 		if (shouldRun) {
 			lastFrameTime = performance.now();
 			frame = requestAnimationFrame(animate);
 		} else {
 			cancelAnimationFrame(frame);
+			frame = undefined;
 		}
 	};
 
@@ -232,19 +229,17 @@ if (gl && startShader(gl, {fragment: fragmentShader, setUp})) {
 
 	// The GPU can lose the canvas, like after the device sleeps. The glass stops, and the still gradient comes back, as the canvas is empty, until the browser gives the canvas back (`startShader`).
 	canvas.addEventListener('webglcontextlost', () => {
-		isContextLost = true;
-		isProgramSetUp = false;
+		uniforms = undefined;
 		update();
 		delete canvas.dataset.state;
 	});
 
 	canvas.addEventListener('webglcontextrestored', () => {
 		// The shaders did not compile again, so the glass stays stopped, with the still gradient.
-		if (!isProgramSetUp) {
+		if (!uniforms) {
 			return;
 		}
 
-		isContextLost = false;
 		canvas.dataset.state = 'drawing';
 		resize();
 		draw();

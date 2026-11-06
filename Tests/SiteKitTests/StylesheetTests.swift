@@ -3,6 +3,36 @@ import SiteKit
 
 struct StylesheetTests {
 	@Test
+	func `media condition trees preserve mixed grouping and media types`() {
+		#expect(((!MediaCondition.hover || .coarsePointer) && .dark).description == "((not (hover: hover)) or (pointer: coarse)) and (prefers-color-scheme: dark)")
+		#expect((!(MediaCondition.dark && .hover)).description == "not ((prefers-color-scheme: dark) and (hover: hover))")
+		#expect((MediaQuery.print(matching: .dark || .moreContrast)).description == "print and ((prefers-color-scheme: dark) or (prefers-contrast: more))")
+		#expect((MediaCondition.dark && .hover && .allowsMotion).description == "(prefers-color-scheme: dark) and (hover: hover) and (prefers-reduced-motion: no-preference)")
+		#expect(MediaQuery(raw: "screen, print").description == "screen, print")
+	}
+
+	@Test
+	func `complete media queries and conditions render at their distinct entry points`() {
+		let condition = MediaCondition.hover || .dark
+		let css = Stylesheet {
+			Media(.print(matching: condition)) {
+				Rule(".print", Style().opacity(0.5))
+			}
+			Media(condition) {
+				Rule(".screen", Style().opacity(1))
+			}
+			Media(MediaQuery(raw: "screen, print")) {
+				Rule(".both", Style().opacity(1))
+			}
+		}.css
+		#expect(css.contains("@media print and ((hover: hover) or (prefers-color-scheme: dark)) {"))
+		#expect(css.contains("@media (hover: hover) or (prefers-color-scheme: dark) {"))
+		#expect(css.contains("@media screen, print {"))
+		#expect(MediaQuery(condition).description == condition.description)
+		#expect(MediaQuery.print(matching: !.hover).description == "print and (not (hover: hover))")
+	}
+
+	@Test
 	func `renders typed and raw declarations in order`() {
 		let css = Stylesheet {
 			Rule(
@@ -11,8 +41,8 @@ struct StylesheetTests {
 				.display(.flex)
 				.padding(vertical: .rootEm(0.5), horizontal: .rootEm(1.5))
 				.color(Color(raw: "red").opacity(0.06))
-				.declaration(.webkitBackdropFilter, "blur(14px)")
-				.declaration(Property("--accent"), "#2563eb")
+				.declaration(raw: .webkitBackdropFilter, "blur(14px)")
+				.declaration(raw: Property("--accent"), "#2563eb")
 				.zIndex(40)
 			)
 		}.css

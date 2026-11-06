@@ -92,7 +92,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 	*/
 	private var computer: some HTML {
 		div {
-			div(.part(Parts.screen), .role("group")) {
+			div(.part(Parts.screen), .role(.group)) {
 				p(.part(Parts.title)) {
 					"The Print Shop"
 				}
@@ -299,7 +299,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 				.part(Parts.preview),
 				.width(320),
 				.height(200),
-				.role("img")
+				.role(.image)
 			) {}
 				.accessibilityLabel("The preview of what will be printed")
 				.style(Styles.preview)
@@ -364,12 +364,12 @@ struct GeoCitiesPrintShop: ScriptedElement {
 				.width(600),
 				.height(560),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The dot matrix printer on the desk, with the paper coming out of the top and piling up on the floor. To tear off the printout, drag sideways along the top of the printer, or press T.")
 				.style(Styles.printerCanvas)
 
-			div(.role("group")) {
+			div(.role(.group)) {
 				div {
 					light("Power", part: nil)
 					light("On Line", part: .onlineLight)
@@ -404,7 +404,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 			.accessibilityLabel("The panel of the printer")
 			.style(Styles.panel)
 
-			p(.part(Parts.status), .role("status")) {
+			p(.part(Parts.status), .role(.status)) {
 				"The printer hums and waits. The teacher says one copy each."
 			}
 			.style(Styles.status)
@@ -482,7 +482,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.width(400),
 					.height(300),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("The printout. Drag a strip with the holes sideways to peel it off, or press P.")
 					.style(Styles.printoutCanvas)
@@ -525,7 +525,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.part(Parts.cardFront),
 					.width(320),
 					.height(208),
-					.role("img")
+					.role(.image)
 				) {}
 					.accessibilityLabel("The front of the card")
 					.style(Styles.cardFace, Styles.cardFront)
@@ -534,7 +534,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.part(Parts.cardInside),
 					.width(320),
 					.height(208),
-					.role("img")
+					.role(.image)
 				) {}
 					.accessibilityLabel("The other half of the card, with the message")
 					.style(Styles.cardFace, Styles.cardInside)
@@ -561,7 +561,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 				.part(Parts.hangingCanvas),
 				.width(680),
 				.height(120),
-				.role("img")
+				.role(.image)
 			) {}
 				.accessibilityLabel("A banner that I printed on The Print Shop, hanging across the top of the page")
 				.style(Styles.hangingCanvas)
@@ -655,7 +655,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 		case font = "print-shop-font"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case lab
 		case monitor

@@ -83,6 +83,7 @@ The app uses iCloud syncing to securely sync your text across devices. This feat
 ## Tips
 
 ### Troubleshoot syncing {#troubleshooting}
+<!-- @faq.keywords iphone ipad devices -->
 
 - After enabling sync, try writing some more text on all the devices.
 - [More iCloud sync troubleshooting…](/apps/faq#icloud-sync)

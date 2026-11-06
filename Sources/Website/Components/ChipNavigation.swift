@@ -5,7 +5,7 @@ import SiteKit
 Links as quiet chips, with an optional overflow menu as the last chip, like the section links of an app page and the app categories of the apps page. The menu has the chip variant. With `scrollsOnPhones`, the chips are one row that scrolls sideways on phones, like the many groups of a long page.
 
 ```swift
-ChipNavigation(label: "App categories", links: AppCategory.browsable.map(\.link), menu: OverflowMenu(label: "More app pages", groups: groups, variant: .chip))
+ChipNavigation(label: "App categories", links: AppCategory.chips.map(\.link), menu: OverflowMenu(label: "More app pages", groups: groups, variant: .chip))
 ```
 */
 struct ChipNavigation: HTML {
@@ -30,7 +30,7 @@ struct ChipNavigation: HTML {
 		.style(Styles.scrollingOnPhones, when: scrollsOnPhones)
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case scrollingOnPhones
 		case link
@@ -54,6 +54,8 @@ struct ChipNavigation: HTML {
 							// A horizontal swipe on a trackpad at the end does not go back in the history.
 							.overscrollBehavior(horizontal: .contain)
 							.fullBleed()
+							// The chip at the edge fades out, so it reads as more to scroll to, not as a word that is cut. At the end of the row, the fade is mostly in the space of the page, so the last chip is only a little faint.
+							.maskImage(.linearGradient(.toLeft, Color.transparent.at(.zero), Color.black.at(.rootEm(2.5))))
 					}
 			case .link:
 				Style().chip()

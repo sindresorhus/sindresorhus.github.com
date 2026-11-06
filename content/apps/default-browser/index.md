@@ -72,8 +72,6 @@ Mentions:
 - [Review in MacStories](https://www.macstories.net/reviews/default-browser-a-mac-menu-bar-utility-for-quickly-switching-browsers/)
 - [Lifehacker article](https://lifehacker.com/tech/finally-an-easier-way-to-change-your-default-browser-on-mac)
 
-<br>
-
 > [!TIP]
 > Switching the default browser is also a feature of my [Supercharge](/supercharge) app.
 
@@ -121,7 +119,7 @@ With the exception of Orion, which implements profiles as separate apps.
 
 ### Can macOS do this without an app? {#built-in}
 
-Yes. Go to “System Settings › Desktop & Dock”, and change “Default web browser”.
+Yes. Go to “[System Settings › Desktop & Dock](x-apple.systempreferences:com.apple.Desktop-Settings.extension)”, and change “Default web browser”.
 
 Default Browser lets you change it from the menu bar or with a keyboard shortcut, without the confirmation prompt of macOS, and it can change it automatically with your Focus mode or the Shortcuts app.
 
@@ -152,7 +150,7 @@ For example, you could use Shortcuts automations to switch to a certain browser 
 
 ### Focus Filter
 
-The app includes a [Focus Filter](https://support.apple.com/guide/mac-help/mchl613dc43f/mac#mchl49b73d04) to automatically switch the default browser based on the Focus mode. Enable it in “System Settings › Focus”.
+The app includes a [Focus Filter](https://support.apple.com/guide/mac-help/mchl613dc43f/mac#mchl49b73d04) to automatically switch the default browser based on the Focus mode. Enable it in “[System Settings › Focus](x-apple.systempreferences:com.apple.Focus-Settings.extension)”.
 
 Focus Filters are [broken on macOS 26.5 and later](https://developer.apple.com/forums/thread/826766) because of a macOS bug.
 

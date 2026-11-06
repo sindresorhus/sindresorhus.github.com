@@ -16,7 +16,7 @@ pressQuotes: [
 		year: 2023
 	}
 	{
-		quote: 'Ask AI is an app for the Apple Watch that offers access to ChatGPT for a one-time price of €3.49. It uses the official ChatGPT interface from OpenAI, the company behind the popular chatbot, and sends spoken questions from the Apple Watch directly to the AI.'
+		quote: 'Ask AI is an app for the Apple Watch that offers access to ChatGPT […]. It uses the official ChatGPT interface from OpenAI, the company behind the popular chatbot, and sends spoken questions from the Apple Watch directly to the AI.'
 		source: 'iphone-ticker.de'
 		translatedFrom: 'German'
 		url: 'https://www.iphone-ticker.de/ask-ai-fuer-apple-watch-serioese-chatgpt-app-zum-einmalkauf-210711/'
@@ -55,6 +55,12 @@ The app automatically uses the best voice for the language used in the answer. U
 ### Can I launch it with the action button? {#can-i-launch-it-with-the-action-button}
 
 Add the [“Open Ask AI” shortcut](https://www.icloud.com/shortcuts/6b890da159844407a6b39de454567c97) to one of your Apple devices (not the watch), and then on the watch, select the shortcut in the action button configuration.
+
+### How is this different from Siri AI on watchOS 27? {#siri-ai}
+
+watchOS 27 has [Siri AI](https://support.apple.com/127893), which also answers general questions. If it works for you, use it. Siri AI needs an Apple Watch Series 9 or later, Ultra 2 or later, or SE 3, paired with an iPhone that has Apple Intelligence. It is in English, French, Japanese, Korean, Portuguese, and Spanish, and it is not available on the Apple Watch in the EU.
+
+Ask AI works with any iPhone and in the EU, and you can ask in many more languages.
 
 ### Can you support iOS and macOS too? {#can-you-support-ios-and-macos-too}
 

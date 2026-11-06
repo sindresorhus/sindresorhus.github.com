@@ -51,14 +51,14 @@ struct StarRating: HTML {
 
 		div {}
 			// The stars are a mask, so screen readers do not see them, and a decorative row is silent without a label.
-			.attributes(.role("img"), .ariaLabel("\(rating.formatted(.number.locale(.site))) out of 5 stars"), when: !isDecorative)
+			.attributes(.role(.image), .ariaLabel("\(rating.formatted(.number.locale(.site))) out of 5 stars"), when: !isDecorative)
 			.style(Styles.root)
 			.style {
 				$0.setting(Self.fillWidth, to: .rootEm(filledEnd))
 			}
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 
 		/**

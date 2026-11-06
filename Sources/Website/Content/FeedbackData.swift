@@ -2,7 +2,7 @@ import Foundation
 import SiteKit
 
 /**
-The apps for `feedback.js`. The questions that the form suggests are in ``FAQSuggestions``.
+The apps for `feedback.js`. The questions that the form suggests are in ``FAQSuggestions``, and the notes of the apps are templates of ``FeedbackPage``.
 */
 struct FeedbackData: Encodable {
 	struct AppData: Encodable {
@@ -19,21 +19,35 @@ struct FeedbackData: Encodable {
 		The FAQ section of the app page, when it has one.
 		*/
 		let faqURL: LinkDestination?
-		let repositoryURL: URL?
-		let feedbackNote: String?
+		let repositoryURL: AbsoluteURL?
+
+		/**
+		The version of the app for each older macOS version that has one (``AppListing/olderVersion(for:)``), for a visitor whose app says that it runs on that macOS version. So the form and the older versions page give the same version.
+		*/
+		let olderVersions: [OlderVersion]
+	}
+
+	struct OlderVersion: Encodable {
+		let version: NonEmptyString
+		let macOS: MacOSVersion
+		let url: AbsoluteURL
 	}
 
 	let apps: [AppData]
 
-	init(apps: [App]) {
-		self.apps = apps.map { app in
-			AppData(
+	init(listings: [AppListing]) {
+		self.apps = listings.map { listing in
+			let app = listing.app
+
+			return AppData(
 				title: app.title,
 				names: app.feedbackLookupNames,
 				iconURL: app.iconPath,
 				faqURL: app.faqDestination,
-				repositoryURL: app.repositoryURL?.value,
-				feedbackNote: app.feedbackNoteHTML
+				repositoryURL: app.repositoryURL,
+				olderVersions: MacOSVersion.allCases.compactMap { macOS in
+					listing.olderVersion(for: macOS).map { OlderVersion(version: $0.version, macOS: macOS, url: $0.url) }
+				}
 			)
 		}
 	}
@@ -44,7 +58,7 @@ extension App {
 	The names exported to the feedback page: the title, slug, and authored aliases, preserving their spelling.
 	*/
 	var feedbackLookupNames: [String] {
-		[self.title, slug] + self.feedbackNames
+		[self.title, slug.value] + self.feedbackNames
 	}
 }
 

@@ -1,6 +1,6 @@
 ---
 title: 'How to Convert a Video to a GIF on Mac'
-description: 'Use the free Gifski app, or the “Make GIF” action of the Shortcuts app.'
+description: 'Use the free Gifski app, an alternative to GIF Brewery, or the “Make GIF” action of the Shortcuts app.'
 publicationDate: 2026-10-29
 topic: 'text-images-and-sound'
 apps: [
@@ -11,6 +11,8 @@ apps: [
 @QuickAnswer {
 	Open the video in the free [Gifski](../apps/gifski/index.md) app and click “Convert”. Finder and QuickTime Player cannot make a GIF, but the “Make GIF” action of the built-in Shortcuts app can.
 }
+
+GIF Brewery was a popular GIF maker. Gfycat bought it in 2016 and made it free. Gfycat shut down in September 2023, and GIF Brewery is no longer on the Mac App Store.
 
 ## With Gifski
 

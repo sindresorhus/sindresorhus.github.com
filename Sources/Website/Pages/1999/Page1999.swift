@@ -121,7 +121,7 @@ struct GeoCitiesPage: Page {
 			}
 
 			// A message at the bottom of the window, like when the visitor right-clicks a GIF.
-			p(.id(IDs.toast), .role("status"), .hidden) {}
+			p(.id(IDs.toast), .role(.status), .hidden) {}
 				.style(Styles.toast)
 
 			JSONScript(id: IDs.data, ScriptData(facts: Self.funFacts, tunes: Self.tunes, quiz: quizQuestions))
@@ -457,7 +457,7 @@ struct GeoCitiesPage: Page {
 
 		gif(.dividerHot, style: .centered)
 
-		section(.id("geocities-links")) {
+		section(.id(SiteMapSection.links.id)) {
 			gif(.hot, alt: "Hot!", style: .floating)
 
 			h2 {
@@ -698,7 +698,7 @@ struct GeoCitiesPage: Page {
 				gif(.sendEmail, alt: "Questions? Comments? Send email")
 			}
 
-			p(.id("geocities-mail")) {
+			p(.id(SiteMapSection.mail.id)) {
 				a(.href(.contact)) {
 					gif(.emailAtRed)
 					gif(.mailRocket)

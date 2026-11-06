@@ -1,6 +1,7 @@
 ---
 title: 'Short Run'
 subtitle: 'Run shortcuts from your menu bar'
+description: 'Run your shortcuts from the Mac menu bar, without opening the Shortcuts app. Put them in sections and submenus, and run one with a single key.'
 publicationDate: 2025-08-14
 platforms: [
 	'macOS'
@@ -45,7 +46,7 @@ Since shortcuts can open URLs, folders, apps, and run shell scripts or AppleScri
 - App-Specific Shortcuts – Show different shortcuts based on the active app
 - Linked Folders – Display folders from the Shortcuts app dynamically
 - Keyboard Shortcut – Toggle the menu with a customizable hotkey
-- Quick Keys – Assign 1-9 and a-z keys to shortcuts for instant triggering when menu is open
+- Quick Keys – Assign 0-9 and a-z keys to shortcuts for instant triggering when menu is open
 - Customizable Menu Bar Icon – Choose between multiple menu bar icons to match your style
 - Launch at Login – Always ready when you need it
 
@@ -93,7 +94,7 @@ Short Run benefits:
 - Choose the order of shortcuts
 - Organize shortcuts into sections and submenus
 - Show some shortcuts only when a specific app is active
-- Assign quick keys (1-9, a-z) to shortcuts for instant triggering when menu is open
+- Assign quick keys (0-9, a-z) to shortcuts for instant triggering when menu is open
 - Cleaner interface with just the shortcut name
 - Menu closes automatically when running a shortcut
 - Open the menu with a keyboard shortcut and navigate to shortcuts using arrow keys
@@ -104,7 +105,7 @@ Short Run benefits:
 
 In macOS 26 and later, Spotlight can run shortcuts, and you can give a shortcut a quick key, like a few letters, that you type in Spotlight. This works well when you know the name of the shortcut.
 
-Short Run is a menu that you organize and browse: you choose the order, put shortcuts into sections and submenus, show some shortcuts only when a specific app is active, and run a shortcut with one key (1-9, a-z) while the menu is open.
+Short Run is a menu that you organize and browse: you choose the order, put shortcuts into sections and submenus, show some shortcuts only when a specific app is active, and run a shortcut with one key (0-9, a-z) while the menu is open.
 
 ### How do I disable the built-in Shortcuts menu bar item to avoid duplication? {#how-do-i-disable-the-built-in-shortcuts-menu-bar-item-to-avoid-duplication}
 
@@ -166,7 +167,7 @@ I have reported it to Apple: [FB19805797](https://github.com/feedback-assistant/
 
 ### My shortcut fails when it needs “Full Disk Access” {#my-shortcut-fails-when-it-needs-full-disk-access}
 
-Give Short Run “Full Disk Access” too (“System Settings › Privacy & Security › Full Disk Access”).
+Give Short Run “Full Disk Access” too (“[System Settings › Privacy & Security › Full Disk Access](x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension)”).
 Short Run is what actually executes the shortcut, so it needs the same permission as the Shortcuts app.
 
 ### Can I assign hotkeys to individual shortcuts? {#can-i-assign-hotkeys-to-individual-shortcuts}

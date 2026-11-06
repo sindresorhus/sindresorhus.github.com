@@ -1,6 +1,7 @@
 ---
 title: 'Mailway'
 subtitle: 'Route mailto links to any email app or webmail'
+description: 'A Mac app that opens the email addresses you click in the email app or webmail you use, like Gmail, instead of Apple Mail.'
 publicationDate: 2026-06-12
 platforms: [
 	'macOS'
@@ -31,12 +32,8 @@ Pick your primary email app, add optional rules, and every mailto link goes to t
 
 Works system-wide, not just in the browser. The app doesn’t need to stay running. It launches only when you click a mailto link, routes it, and quits. Zero CPU and memory usage when idle.
 
-<br>
-
 > [!TIP]
 > You may also like my [Velja](/velja) app, which does the same but for browser links.
-
-<br>
 
 #### Example use-cases
 
@@ -80,6 +77,10 @@ Hold the ++Fn++ key when clicking a `mailto:` link to use your alternative email
 
 The app provides Shortcuts actions for composing emails, getting and setting the primary and alternative email targets, and enabling or disabling rules. You can use these to automate your email workflow.
 
+### Focus Filter
+
+The app includes a Focus Filter that lets you automatically switch your email targets when a Focus mode activates. For example, switch to your work Gmail during a “Work” Focus and back to your personal email app when the Focus turns off. Set it up in “System Settings › Focus › [Your Focus] › Focus Filters”.
+
 ## Frequently Asked Questions {#faq}
 
 ### Why do I need to set the app as the default email app? {#why-do-i-need-to-set-the-app-as-the-default-email-app}
@@ -97,6 +98,12 @@ Yes. Create a rule that matches your work domain (e.g., `company.com`) and set i
 ### Does it work with third-party email apps like Spark or Airmail? {#does-it-work-with-third-party-email-apps-like-spark-or-airmail}
 
 Yes. The app works with any email app installed on your Mac that handles mailto links.
+
+### Why is the attachment missing when another app creates an email? {#attachments}
+
+This is a macOS limitation, and Mailway cannot work around it. Many apps (for example, invoicing apps with a “Send by email” button) use the built-in macOS email sharing. macOS only includes the attachment when Apple Mail itself is the default email app. With any other default email app, like Mailway, Outlook, Spark, or Mimestream, macOS removes the attachment and only passes on the recipient and subject. The attachment never reaches Mailway. For the same reason, the “Mail” item may be missing from the Share menu.
+
+Workaround: Save the file and drag it into the email.
 
 ### Can you provide an interactive picker to choose the email app each time? {#can-you-provide-an-interactive-picker-to-choose-the-email-app-each-time}
 
@@ -176,6 +183,7 @@ Mailway benefits:
 - Rules based on recipient, domain, or source app
 - Alternative email target with modifier key
 - Shortcuts actions
+- Focus Filter support
 - Actively maintained
 
 [Open In Webmail](https://apps.apple.com/app/id1451552749) benefits:

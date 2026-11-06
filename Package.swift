@@ -26,8 +26,10 @@ let package = Package(
 		.package(url: "https://github.com/elementary-swift/elementary.git", exact: "0.8.4"),
 		// A fork with footnotes, cmark extensions like autolinks, and GitHub alerts, which upstream does not have yet.
 		.package(url: "https://github.com/sindresorhus/swift-markdown.git", branch: "sindre-improvements"),
-		.package(url: "https://github.com/soml-lang/SOMLSwift.git", exact: "0.0.2"),
+		.package(url: "https://github.com/soml-lang/SOMLSwift.git", exact: "0.0.3"),
 		.package(url: "https://github.com/apple/swift-argument-parser.git", exact: "1.8.2"),
+		// Runs git, gh, cjxl, and swift: it finds a tool by its name, collects the output with a limit, and stops the process when the task is cancelled.
+		.package(url: "https://github.com/swiftlang/swift-subprocess.git", exact: "1.0.2"),
 		.package(url: "https://github.com/swiftlang/swift-syntax.git", "600.0.0"..<"605.0.0"),
 	],
 	targets: [
@@ -61,6 +63,7 @@ let package = Package(
 				.product(name: "SwiftSyntax", package: "swift-syntax"),
 				.product(name: "SwiftParser", package: "swift-syntax"),
 				.product(name: "SwiftIDEUtils", package: "swift-syntax"),
+				.product(name: "Subprocess", package: "swift-subprocess"),
 			],
 			swiftSettings: swiftSettings
 		),
@@ -72,6 +75,7 @@ let package = Package(
 				.product(name: "Elementary", package: "elementary"),
 				.product(name: "Markdown", package: "swift-markdown"),
 				.product(name: "SOML", package: "SOMLSwift"),
+				.product(name: "Subprocess", package: "swift-subprocess"),
 			],
 			// The scripts of the elements, next to their Swift files. The build reads them from the sources (`ElementScript`), so a change shows in the preview without building the tool again. Each folder must be listed, as SwiftPM has no patterns, and a list made with `FileManager` would miss new folders, since SwiftPM caches the evaluated manifest.
 			exclude: [
@@ -89,6 +93,7 @@ let package = Package(
 				"SiteKit",
 				"Website",
 				.product(name: "ArgumentParser", package: "swift-argument-parser"),
+				.product(name: "Subprocess", package: "swift-subprocess"),
 			],
 			swiftSettings: swiftSettings
 		),
@@ -114,6 +119,7 @@ let package = Package(
 				.product(name: "Elementary", package: "elementary"),
 				.product(name: "Markdown", package: "swift-markdown"),
 				.product(name: "SOML", package: "SOMLSwift"),
+				.product(name: "Subprocess", package: "swift-subprocess"),
 			],
 			swiftSettings: swiftSettings
 		),
@@ -143,6 +149,7 @@ let package = Package(
 				// The guards of the sources find the declared hooks and states with the parser of Swift.
 				.product(name: "SwiftParser", package: "swift-syntax"),
 				.product(name: "SwiftSyntax", package: "swift-syntax"),
+				.product(name: "Subprocess", package: "swift-subprocess"),
 			],
 			swiftSettings: swiftSettings
 		),

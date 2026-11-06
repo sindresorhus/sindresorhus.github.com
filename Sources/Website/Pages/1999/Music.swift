@@ -57,7 +57,7 @@ struct GeoCitiesMusic: ScriptedElement {
 						.width(240),
 						.height(240),
 						.tabindex(0),
-						.role("application")
+						.role(.application)
 					) {}
 						.accessibilityLabel("My Discman. Drag it around to shake it, or press the arrow keys to bump it.")
 						.style(Styles.discman)
@@ -86,7 +86,7 @@ struct GeoCitiesMusic: ScriptedElement {
 					}
 					.style(GeoCitiesPage.Styles.buttonRow)
 
-					p(.part(Parts.discmanStatus), .role("status")) {}
+					p(.part(Parts.discmanStatus), .role(.status)) {}
 						.style(Styles.status)
 				}
 				.style(GeoCitiesPage.Styles.windowBody, Styles.player)
@@ -105,7 +105,7 @@ struct GeoCitiesMusic: ScriptedElement {
 						.width(280),
 						.height(200),
 						.tabindex(0),
-						.role("application")
+						.role(.application)
 					) {}
 						.accessibilityLabel("My Walkman. With the pencil in, drag around the pencil in circles to wind the tape in, or press the arrow keys.")
 						.style(Styles.walkman)
@@ -134,7 +134,7 @@ struct GeoCitiesMusic: ScriptedElement {
 					}
 					.style(GeoCitiesPage.Styles.buttonRow)
 
-					p(.part(Parts.walkmanStatus), .role("status")) {}
+					p(.part(Parts.walkmanStatus), .role(.status)) {}
 						.style(Styles.status)
 				}
 				.style(GeoCitiesPage.Styles.windowBody, Styles.player)
@@ -169,7 +169,7 @@ struct GeoCitiesMusic: ScriptedElement {
 		case walkmanAction = "walkman-action"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case player
 		case discman

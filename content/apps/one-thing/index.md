@@ -75,18 +75,12 @@ Some examples of what you could write:
 
 However, what you use this space for is really up to you.
 
-<br>
-
 > You can achieve almost anything in life — as long as you focus on achieving one thing at a time. It’s a time-tested strategy that’s been shared by many successful people.
 
 — [https://dariusforoux.com/one-thing/](https://dariusforoux.com/one-thing/)
 
-<br>
-
 > [!TIP]
 > You may also like my [Any Text](/any-text) and [One Task](/one-task) apps.
-
-<br>
 
 ### Mentions
 

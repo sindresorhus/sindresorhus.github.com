@@ -84,6 +84,11 @@ Type it with the name, like “2 milk”, “2x milk”, or “milk x2”. Text 
 
 You can also swipe right on an item to add or remove one. Adding an item that is already on the list increases its quantity.
 
+### How do I hide the keyboard? {#hide-keyboard}
+<!-- @faq.keywords dismiss close collapse -->
+
+Swipe down on the list, like in Messages. The keyboard stays open while you add items, so you can add many in a row.
+
 ### How do I edit an item? {#edit}
 <!-- @faq.keywords notes -->
 
@@ -137,15 +142,15 @@ Yes. Your lists are on your device, so you can add and check off items without a
 Copy a list with one item per line, for example, from Notes or a message, and use “Paste” in the “…” menu of the list. Bullets like “- ” are removed.
 
 ### How is this different from the grocery list in the Reminders app? {#reminders}
-<!-- @faq.keywords apple groceries compare comparison -->
+<!-- @faq.keywords compare todo -->
 
-Reminders is a to-do app that can also sort groceries. Bare is made only for shopping, so it is simpler, easier to use, and more focused:
+Reminders is a to-do app that can also keep grocery lists. Bare is made only for shopping, so it is simpler, easier to use, and more focused:
 
 - No noise: no due dates, alerts, flags, priorities, or tags, and no notification each time someone adds an item.
 - Tap anywhere on an item to check it off. In Reminders, you must hit a small circle, and a tap on the name edits it.
 - Real quantities: “2 milk” becomes “Milk ×2”, and adding milk again makes it “Milk ×3”, not a second “Milk”.
-- Swipe to increase quantity.
-- Checked items go to Done, so you see what is in the cart, and one tap puts an item back. Reminders hides completed items by default.
+- Swipe to add or remove one from an item. See [How do I set the quantity?](#quantity).
+- Checked items go to Done, so you see what is in the cart, and one tap puts an item back. Completed items stay hidden in Reminders until you turn them on.
 - The screen stays on, so you do not have to unlock your phone in every aisle.
 - Items are A to Z in each section, so they are easy to find.
 
@@ -168,6 +173,11 @@ Touch and hold the item and tap “Move to List”. If the other list has an unc
 ### Can I add details like the brand or size? {#notes}
 
 Yes. Touch and hold the item, tap “Edit”, and write it in “Notes”. Keep the name short, like “Milk”, so the app can sort and suggest it.
+
+### Can I add photos to items? {#photos}
+<!-- @faq.keywords packaging -->
+
+No. To keep Bare simple, photos are not attached directly to items.
 
 ### How can I add an item with Siri? {#siri}
 

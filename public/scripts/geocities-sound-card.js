@@ -285,12 +285,14 @@ export class Clock {
 	constructor({stepLength, onStep}) {
 		this.stepLength = stepLength;
 		this.onStep = onStep;
-		this.isRunning = false;
+	}
+
+	get isRunning() {
+		return this.#timer !== undefined;
 	}
 
 	start(delay = 0.08) {
 		this.stop();
-		this.isRunning = true;
 		this.step = 0;
 		this.nextTime = context.currentTime + delay;
 		this.#timer = setInterval(() => {
@@ -308,9 +310,14 @@ export class Clock {
 		}
 	}
 
-	stop() {
-		this.isRunning = false;
+	// Ends the lookahead while the steps already queued for the screen finish, like the last beat of a song.
+	finishScheduling() {
 		clearInterval(this.#timer);
+		this.#timer = undefined;
+	}
+
+	stop() {
+		this.finishScheduling();
 
 		for (const timer of this.#visuals) {
 			clearTimeout(timer);

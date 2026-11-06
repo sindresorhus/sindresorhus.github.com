@@ -25,7 +25,7 @@ extension GeoCitiesPage {
 
 			gif(.modem, alt: "A modem with blinking lights")
 
-			p(.id(IDs.dialUp), .role("status")) {}
+			p(.id(IDs.dialUp), .role(.status)) {}
 				.style(Styles.dialUp)
 
 			p {
@@ -55,7 +55,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.banner)
 
-			p(.id(IDs.bannerStatus), .role("status")) {
+			p(.id(IDs.bannerStatus), .role(.status)) {
 				"Advertisement"
 			}
 			.style(Styles.caption)
@@ -131,7 +131,7 @@ extension GeoCitiesPage {
 	Who Wants to Be a Unicornaire?, like the quiz show of 1999, with eight questions, two safe levels, and three lifelines: 50:50, Phone a Friend (my mom, who answers in Norwegian), and Ask the Audience. `geocities.js` runs it.
 	*/
 	var quiz: some HTML {
-		section(.id("geocities-quiz")) {
+		section(.id(SiteMapSection.quiz.id)) {
 			h2 {
 				"Who Wants to Be a Unicornaire?"
 			}
@@ -154,7 +154,7 @@ extension GeoCitiesPage {
 				div(
 					.id(IDs.quizAnswers),
 					.hidden,
-					.role("group"),
+					.role(.group),
 					.ariaLabelledBy(IDs.quizQuestion.id)
 				) {
 					for (index, letter) in ["A", "B", "C", "D"].enumerated() {
@@ -176,7 +176,7 @@ extension GeoCitiesPage {
 				}
 				.style(Styles.buttonRow)
 
-				p(.id(IDs.quizStatus), .role("status")) {}
+				p(.id(IDs.quizStatus), .role(.status)) {}
 					.style(Styles.quizStatus)
 
 				button(.id(IDs.quizStart), .type(.button)) {
@@ -261,7 +261,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.buttonRow, Styles.scriptingOnly)
 
-			p(.id(IDs.matrixStatus), .role("status")) {}
+			p(.id(IDs.matrixStatus), .role(.status)) {}
 
 			p {
 				"The pills need JavaScript. You are stuck in the Matrix."
@@ -275,7 +275,7 @@ extension GeoCitiesPage {
 	Free downloads, like the downloads pages of 1999, with a progress window that takes forever and usually fails, as somebody picks up the phone. Only the recipe arrives. `geocities.js` runs it.
 	*/
 	var downloads: some HTML {
-		section(.id("geocities-downloads")) {
+		section(.id(SiteMapSection.downloads.id)) {
 			h2 {
 				"Free Downloads!"
 			}
@@ -313,7 +313,7 @@ extension GeoCitiesPage {
 				.style(Styles.titleBar)
 
 				div {
-					p(.id(IDs.downloadText), .role("status")) {}
+					p(.id(IDs.downloadText), .role(.status)) {}
 
 					div {
 						div(.id(IDs.downloadBar)) {}
@@ -460,7 +460,7 @@ extension GeoCitiesPage {
 	A MIDI jukebox, like the background music of old home pages, but it only plays after a click on Play, and it stops when the tab is hidden. `geocities.js` plays the tune with Web Audio, as a square wave, quietly. The tunes are old enough to be in the public domain.
 	*/
 	var midiPlayer: some HTML {
-		div(.id("geocities-jukebox")) {
+		div(.id(SiteMapSection.jukebox.id)) {
 			h2 {
 				span {
 					"♫"
@@ -473,7 +473,7 @@ extension GeoCitiesPage {
 			div {
 				gif(.sound, alt: "Sound!", style: .centered)
 
-				p(.id(IDs.midiStatus), .role("status")) {
+				p(.id(IDs.midiStatus), .role(.status)) {
 					"Ready to rock! Turn your speakers down first."
 				}
 				.style(Styles.lcd)
@@ -662,7 +662,7 @@ extension GeoCitiesPage {
 				}
 				.style(Styles.scriptingDisabledOnly)
 
-				p(.id(IDs.y2kStatus), .role("status")) {
+				p(.id(IDs.y2kStatus), .role(.status)) {
 					"Ready."
 				}
 				.style(Styles.lcd)
@@ -684,7 +684,7 @@ extension GeoCitiesPage {
 					.accessibilityHidden()
 					.style(Styles.partyCount)
 
-				p(.id(IDs.partyStatus), .role("status")) {}
+				p(.id(IDs.partyStatus), .role(.status)) {}
 			}
 			.style(Styles.alertBox)
 		}
@@ -700,7 +700,7 @@ extension GeoCitiesPage {
 	Without scripts, the buttons are hidden.
 	*/
 	var pet: some HTML {
-		section(.id("geocities-glitter")) {
+		section(.id(SiteMapSection.glitter.id)) {
 			h2 {
 				gif(.heart)
 				" Adopt Glitter, My Virtual Unicorn! "
@@ -744,7 +744,7 @@ extension GeoCitiesPage {
 						.accessibilityHidden()
 						.style(Styles.petZzz)
 
-						p(.id(IDs.petMess), .role("img"), .hidden) {}
+						p(.id(IDs.petMess), .role(.image), .hidden) {}
 							.style(Styles.petMess)
 					}
 					.style(Styles.petScene)
@@ -762,7 +762,7 @@ extension GeoCitiesPage {
 							.style(Styles.factLabel)
 
 							dd {
-								span(.id(IDs.petFood), .role("img")) {
+								span(.id(IDs.petFood), .role(.image)) {
 									"♥♥♡♡"
 								}
 								.accessibilityLabel("2 of 4 hearts")
@@ -777,7 +777,7 @@ extension GeoCitiesPage {
 							.style(Styles.factLabel)
 
 							dd {
-								span(.id(IDs.petFun), .role("img")) {
+								span(.id(IDs.petFun), .role(.image)) {
 									"♥♥♡♡"
 								}
 								.accessibilityLabel("2 of 4 hearts")
@@ -790,7 +790,7 @@ extension GeoCitiesPage {
 				.style(Styles.petScreen)
 
 				div(.id(IDs.petGame), .hidden) {
-					p(.id(IDs.petGameStatus), .role("status")) {
+					p(.id(IDs.petGameStatus), .role(.status)) {
 						"Which way will Glitter turn?"
 					}
 
@@ -821,7 +821,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.egg)
 
-			p(.id(IDs.petStatus), .role("status"), .tabindex(-1)) {}
+			p(.id(IDs.petStatus), .role(.status), .tabindex(-1)) {}
 				.style(Styles.centeredText)
 
 			p {
@@ -913,7 +913,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.form, Styles.scriptingOnly)
 
-			p(.id(IDs.butlerAnswer), .role("status")) {
+			p(.id(IDs.butlerAnswer), .role(.status)) {
 				"Good day! How may I help you surf the web?"
 			}
 			.style(Styles.speech)
@@ -937,7 +937,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.heading)
 
-			p(.id(IDs.fact), .role("status")) {
+			p(.id(IDs.fact), .role(.status)) {
 				Self.funFacts[0]
 			}
 			.style(Styles.speech)
@@ -999,7 +999,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.form, Styles.scriptingOnly)
 
-			p(.id(IDs.pollStatus), .role("status"), .tabindex(-1)) {}
+			p(.id(IDs.pollStatus), .role(.status), .tabindex(-1)) {}
 
 			ol(.id(IDs.pollResults), .hidden) {}
 				.style(Styles.pollResults)
@@ -1054,7 +1054,7 @@ extension GeoCitiesPage {
 	The guestbook, with entries from 1999, a visitor counter, and a form that adds an entry. The entries of the visitor stay in the browser, as the page has no server. `geocities.js` adds them, and counts the visits of the visitor on the counter.
 	*/
 	var guestbook: some HTML {
-		section(.id("geocities-guestbook")) {
+		section(.id(SiteMapSection.guestbook.id)) {
 			h2 {
 				"Guestbook"
 			}
@@ -1062,7 +1062,7 @@ extension GeoCitiesPage {
 
 			p {
 				"You are visitor number "
-				span(.id(IDs.counter), .role("img")) {
+				span(.id(IDs.counter), .role(.image)) {
 					for digit in "001999" {
 						span {
 							String(digit)
@@ -1090,7 +1090,7 @@ extension GeoCitiesPage {
 
 			guestbookHelper
 
-			p(.id(IDs.guestbookStatus), .role("status")) {}
+			p(.id(IDs.guestbookStatus), .role(.status)) {}
 
 			ol(.id(IDs.guestbookEntries)) {
 				for entry in Self.guestbookEntries {
@@ -1236,7 +1236,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.heading)
 
-			pre(.role("img")) {
+			pre(.role(.image)) {
 				Self.asciiUnicorn
 			}
 			.accessibilityLabel("A unicorn, drawn with letters and symbols")
@@ -1379,7 +1379,7 @@ extension GeoCitiesPage {
 	Zap the Aliens: aliens appear in the holes for 30 seconds, the last 30 seconds of 1999, and each one the visitor zaps before it leaves is a point. Now and then Glitter peeks out instead, and zapping her costs 3 points, and a click on an empty hole costs one, so clicking everything does not win. `geocities.js` runs it. The holes are buttons, so a mouse, a finger, and the keyboard play it, and the number keys 1 to 9 zap the holes while the focus is in the game, like the keys of a phone. The score is a status, so screen readers announce it politely. Limitation: Screen readers do not announce where an alien appears, as the game is about seeing it.
 	*/
 	var game: some HTML {
-		section(.id("geocities-games")) {
+		section(.id(SiteMapSection.games.id)) {
 			h2 {
 				gif(.ufo)
 				" Zap\u{00A0}the\u{00A0}Aliens! "
@@ -1409,7 +1409,7 @@ extension GeoCitiesPage {
 				}
 				.style(Styles.gameBar)
 
-				p(.id(IDs.score), .role("status")) {
+				p(.id(IDs.score), .role(.status)) {
 					"Press Start to play."
 				}
 				.style(Styles.score)

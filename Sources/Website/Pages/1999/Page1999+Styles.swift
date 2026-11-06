@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 extension GeoCitiesPage {
-	enum Counters: CounterSet {
+	enum Counters: String, CounterSet {
 		case topLinks
 	}
 
@@ -112,7 +112,7 @@ extension GeoCitiesPage {
 		case write
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		// First, so the styles of the images that are not inline, like the dividers, win.
 		case gif
 		case picture
@@ -357,7 +357,7 @@ extension GeoCitiesPage {
 						$0.padding(vertical: .rootEm(1), horizontal: .rootEm(0.375))
 					}
 					.background(Color(raw: "#000033"))
-					.declaration(.backgroundImage, "radial-gradient(1px 1px at 12px 18px, #fff, transparent), radial-gradient(1px 1px at 52px 74px, #ffd, transparent), radial-gradient(2px 2px at 92px 30px, #fff, transparent), radial-gradient(1px 1px at 118px 104px, #aaf, transparent), radial-gradient(1px 1px at 30px 112px, #fff, transparent)")
+					.declaration(raw: .backgroundImage, "radial-gradient(1px 1px at 12px 18px, #fff, transparent), radial-gradient(1px 1px at 52px 74px, #ffd, transparent), radial-gradient(2px 2px at 92px 30px, #fff, transparent), radial-gradient(1px 1px at 118px 104px, #aaf, transparent), radial-gradient(1px 1px at 30px 112px, #fff, transparent)")
 					.backgroundSize(width: .pixels(128), height: .pixels(128))
 					.cursor(GeoCitiesPage.arrowCursor, fallback: .default)
 			case .panel:
@@ -2459,7 +2459,7 @@ extension GeoCitiesPage {
 		}
 	}
 
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case spin
 		case marquee
 		case stripes

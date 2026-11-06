@@ -95,12 +95,12 @@ struct GeoCitiesCoaster: ScriptedElement {
 						.width(640),
 						.height(360),
 						.tabindex(0),
-						.role("application")
+						.role(.application)
 					) {}
 						.accessibilityLabel("Fløyen Park, with my roller coaster. Click a guest to read what they think. Keys: B builds the selected piece, Backspace demolishes the last piece, T tests the ride, O opens it, X closes it, C turns on the ride camera, G reads the thoughts of the next guest, and Space moves one step while paused.")
 						.style(Styles.canvas)
 
-					p(.part(Parts.status), .role("status")) {
+					p(.part(Parts.status), .role(.status)) {
 						"Welcome to Fløyen Park! Pappa built a coaster and tested it. Click Open to let the guests in, or build your own."
 					}
 					.style(GeoCitiesPage.Styles.statusBar, Styles.ticker)
@@ -465,7 +465,7 @@ struct GeoCitiesCoaster: ScriptedElement {
 		case piece = "coaster-piece"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case layout
 		case stage

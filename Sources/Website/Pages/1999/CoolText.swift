@@ -112,7 +112,7 @@ struct GeoCitiesCoolText: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow, GeoCitiesPage.Styles.scriptingOnly)
 
-			p(.part(Parts.status), .role("status")) {}
+			p(.part(Parts.status), .role(.status)) {}
 				.style(GeoCitiesPage.Styles.centeredText)
 
 			p {
@@ -198,7 +198,7 @@ struct GeoCitiesCoolText: ScriptedElement {
 		case onScreen = "cool-text-on-screen"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case fieldset
 		case effects
@@ -352,7 +352,7 @@ struct GeoCitiesCoolText: ScriptedElement {
 		}
 	}
 
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case fire
 		case neon
 		case wave

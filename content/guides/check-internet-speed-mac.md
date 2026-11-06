@@ -1,6 +1,6 @@
 ---
 title: 'How to Check Internet Speed on Mac'
-description: 'Test the download speed, the upload speed, and the responsiveness of your internet with Speediness, or with networkQuality in Terminal.'
+description: 'Run an internet speed test on your Mac: the download speed, the upload speed, and the responsiveness, with Speediness or with networkQuality in Terminal.'
 publicationDate: 2026-10-29
 topic: 'mac'
 apps: [

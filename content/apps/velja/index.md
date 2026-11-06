@@ -75,7 +75,7 @@ pressQuotes: [
 ]
 feedbackNote:
 	'''
-	**If you are on macOS 27, to use browser profiles, you need to allow access to browsers in “System Settings › Privacy & Security › Files & Folders › Velja”.**<br><br>
+	**If you are on macOS 27, to use browser profiles, you need to allow access to browsers in “System Settings › Privacy & Security › Files & Folders › Velja”.**
 
 
 	[Can you support Safari profiles?](/velja#safari-profiles)
@@ -118,12 +118,8 @@ For example, Google Meet links open in Chrome, Figma links in the Figma app, and
 1. Optionally, add a rule in “Settings › Rules”, like Google Meet links in Chrome.
 }
 
-<br>
-
 > [!TIP]
 > You may also like my [Default Browser](/default-browser) app.
-
-<br>
 
 ### Example use-cases
 
@@ -132,8 +128,6 @@ For example, Google Meet links open in Chrome, Figma links in the Figma app, and
 - Open links to the internal company website in Firefox
 - Open Zoom meeting invitations directly in the desktop Zoom app
 - Open all links clicked in the Slack app in your Chrome work profile
-
-<br>
 
 ### Supported browsers
 
@@ -276,7 +270,7 @@ If you want to force the browser prompt, you can either press ++Option++ when ac
 
 If you want to force the link to open in the background, press ++Shift++ when activating the service. [Known issue.](#chrome-background-bug)
 
-*You may have to enable the service in “System Settings › Keyboard › Keyboard Shortcuts › Services”.*
+*You may have to enable the service in “[System Settings › Keyboard › Keyboard Shortcuts › Services](x-apple.systempreferences:com.apple.Keyboard-Settings.extension)”.*
 
 ### Browser extensions
 
@@ -373,7 +367,7 @@ No. Velja handles browser links (URLs). For routing mailto links to different em
 
 ### Velja does not work {#velja-does-not-work}
 
-First, make sure that the problem is Velja. Go to “System Settings › Desktop & Dock” and change the “Default web browser” setting to Safari. Then try clicking the link again. If the problem persists, it’s not caused by Velja.
+First, make sure that the problem is Velja. Go to “[System Settings › Desktop & Dock](x-apple.systempreferences:com.apple.Desktop-Settings.extension)” and change the “Default web browser” setting to Safari. Then try clicking the link again. If the problem persists, it’s not caused by Velja.
 
 **I clicked a link in a browser**
 
@@ -515,7 +509,7 @@ First, make sure you grant access to profiles in the settings and then enable th
 ### Browser profiles are not working {#profiles-not-working}
 <!-- @faq.keywords permission access unticked disabled files folders -->
 
-On macOS 27, the browser can untick itself in “System Settings › Privacy & Security › Files & Folders › Velja”, and browser profiles then stop working. To fix it, select Velja in that list and press “-” to remove it. Then go back to Velja and open the System Settings again from there. Velja is added again and the access works.
+On macOS 27, the browser can untick itself in “[System Settings › Privacy & Security › Files & Folders › Velja](x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_FilesAndFolders)”, and browser profiles then stop working. To fix it, select Velja in that list and press “-” to remove it. Then go back to Velja and open the System Settings again from there. Velja is added again and the access works.
 
 ### Why don’t Brave profiles show avatars in Velja? {#brave-profile-avatars}
 <!-- @faq.keywords icon image custom -->
@@ -619,7 +613,7 @@ If the link is from a known short URL service, Velja asks the service for the fu
 
 Otherwise, this is most likely not caused by Velja. Some users reported it was a problem with Microsoft Office and happened without Velja too.
 
-To confirm Velja is not the problem: Go to “System Settings › Desktop & Dock” and change the “Default web browser” setting to Safari. Then try clicking the link again. If the problem persists, it’s not caused by Velja.
+To confirm Velja is not the problem: Go to “[System Settings › Desktop & Dock](x-apple.systempreferences:com.apple.Desktop-Settings.extension)” and change the “Default web browser” setting to Safari. Then try clicking the link again. If the problem persists, it’s not caused by Velja.
 
 ### Can you add support for opening Slack links in the Slack desktop app? {#slack}
 
@@ -629,7 +623,7 @@ You can actually solve this yourself by [creating a rule in Velja](https://gist.
 
 ### Can the default browser change based on the active focus mode? {#focus-mode}
 
-You can use the [Focus Filter](https://support.apple.com/HT212608) that comes with the app. Focus Filters are [broken on macOS 26.5 and later](https://developer.apple.com/forums/thread/826766) because of a macOS bug.
+You can use the [Focus Filter](https://support.apple.com/guide/mac-help/change-focus-settings-mchlff5da36d/mac) that comes with the app. Focus Filters are [broken on macOS 26.5 and later](https://developer.apple.com/forums/thread/826766) because of a macOS bug.
 
 Alternatively, you can use the Shortcuts app for this. Make a shortcut for each [focus mode](https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac) you want to handle, where you use the “Set Default Browser” action that Velja provides. Then use Shortcuts automations to run these shortcuts when the focus mode changes.
 
@@ -643,7 +637,7 @@ See the above answer. Use a Shortcuts automation that runs when the charger is c
 
 ### Can you support Focus Filters? {#focus-filters}
 
-It is supported. [Focus Filters](https://support.apple.com/HT212608) are [broken on macOS 26.5 and later](https://developer.apple.com/forums/thread/826766) because of a macOS bug.
+It is supported. [Focus Filters](https://support.apple.com/guide/mac-help/change-focus-settings-mchlff5da36d/mac) are [broken on macOS 26.5 and later](https://developer.apple.com/forums/thread/826766) because of a macOS bug.
 
 ### Can you add iCloud syncing for the rules? {#icloud}
 
@@ -749,7 +743,7 @@ Firefox and Firefox Beta use the same [identifier](https://cocoacasts.com/what-a
 
 ### How do I disable Velja? {#how-do-i-disable-velja}
 
-[Change the system default browser back to Safari.](https://support.apple.com/HT201607)
+[Change the system default browser back to Safari.](https://support.apple.com/102362)
 
 ### Why do I sometimes see a cog icon in the menu bar when opening a link? {#url-support-infoplist}
 
@@ -803,7 +797,7 @@ Velja benefits:
 
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
-- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- It can [open links to certain services](#builtin-apps-requests) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Can [transform URLs before matching custom rules](#global-url-transformation), so wrapped links can be routed based on their actual destination
 - Can show the icon of the active default browser in the menu bar
 - Removes tracking parameters on clicked and copied links
@@ -825,7 +819,7 @@ Velja benefits:
 
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
-- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- It can [open links to certain services](#builtin-apps-requests) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Browser profile support
 - More advanced custom rules, like the ability to open a certain link based on what app the link was clicked in
 - Expands [short URLs](https://en.wikipedia.org/wiki/URL_shortening) for better matching
@@ -857,7 +851,7 @@ Velja benefits:
 
 - It can open Google Meet links in Chrome without any manual setup
 - It can open Mastodon links directly in a native Mastodon app
-- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- It can [open links to certain services](#builtin-apps-requests) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Can show the icon of the active default browser in the menu bar
 - Better user interface for browser profiles (OpenIn requires you to manually find the browser profile ID)
 - The user interface is more macOS-like and better follows the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/designing-for-macos)
@@ -880,7 +874,7 @@ Velja benefits:
 - Settings window instead of a JavaScript config file
 - Browser prompt to pick a browser when you click a link
 - It can open Google Meet links in Chrome without any manual setup
-- It can [open links to certain services](https://x.com/sindresorhus/status/1519020970027401216) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
+- It can [open links to certain services](#builtin-apps-requests) in their desktop app (Zoom, Microsoft Teams, Figma, etc.) without any manual setup and without those apps supporting such links directly
 - Safari browser extension
 - Shortcuts support
 - Available in the App Store

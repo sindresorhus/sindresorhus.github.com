@@ -30,7 +30,7 @@ struct GeoCitiesDeskToys: ScriptedElement {
 					.width(480),
 					.height(360),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel(accessibilityLabel)
 					.style(Styles.canvas, touch)
@@ -198,7 +198,7 @@ struct GeoCitiesDeskToys: ScriptedElement {
 			.style(Styles.toys)
 
 			div {
-				p(.part(Parts.status), .role("status")) {
+				p(.part(Parts.status), .role(.status)) {
 					"Pappa is in a meeting. Play with anything you like, but do not touch the fax."
 				}
 				.style(Styles.status)
@@ -231,7 +231,7 @@ struct GeoCitiesDeskToys: ScriptedElement {
 		case button = "desk-button"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case desk
 		case blotter

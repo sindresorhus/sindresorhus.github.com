@@ -45,6 +45,15 @@ The converted photos are saved next to the originals. This is enough for most us
 
 You can also open a photo in Preview, choose “File › Export”, and choose “JPEG” in “Format”.
 
+**Terminal:** To convert all the HEIC photos of a folder, go to the folder in the Terminal app, and run:
+
+```console
+mkdir jpg
+sips -s format jpeg *.HEIC --out jpg
+```
+
+The JPEG copies are saved in the `jpg` folder, which must exist before you run `sips`. The originals stay where they are. The photos of an iPhone end in `.HEIC`. For files that end in `.heic`, write that in the command.
+
 ### On iPhone
 
 The Files app converts photos too:

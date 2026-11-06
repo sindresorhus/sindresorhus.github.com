@@ -88,7 +88,7 @@ struct GeoCitiesInbox: ScriptedElement {
 						.style(GeoCitiesPage.Styles.retroButton)
 				}
 
-				p(.part(Parts.status), .role("status")) {}
+				p(.part(Parts.status), .role(.status)) {}
 					.style(Styles.status)
 
 				div {
@@ -178,7 +178,7 @@ struct GeoCitiesInbox: ScriptedElement {
 		case unread
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case list
 		case row

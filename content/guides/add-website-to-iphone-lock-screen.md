@@ -21,7 +21,7 @@ screenshot: {
 @Steps {
 1. Open [Quick Launch](../apps/quick-launch/index.md), and tap the add button.
 1. Choose “URL” as the action, and enter the website, like `https://example.com`. Choose a symbol or up to two characters as the icon.
-1. Touch and hold the Lock Screen, tap “Customize”, and tap the Lock Screen.
+1. Touch and hold the Lock Screen, and tap “Customize”.
 1. Tap the widget area below the clock, choose “Quick Launch”, and add the “Open Stuff” widget.
 1. Tap the widget, and choose the widget that you made.
 }
@@ -34,7 +34,7 @@ iOS cannot put a website on the Lock Screen, but the two buttons at the bottom o
 
 @Steps {
 1. In the Shortcuts app, make a shortcut with the “Open URLs” action and the website.
-1. Touch and hold the Lock Screen, tap “Customize”, and tap the Lock Screen.
+1. Touch and hold the Lock Screen, and tap “Customize”.
 1. Replace the flashlight or the camera button with the control that runs a shortcut, and choose your shortcut.
 }
 

@@ -120,7 +120,7 @@ struct GeoCitiesPets: HTML {
 				}
 				.style(GeoCitiesPage.Styles.buttonRow, GeoCitiesPage.Styles.scriptingOnly)
 
-				p(.id(IDs.status), .role("status")) {}
+				p(.id(IDs.status), .role(.status)) {}
 					.style(GeoCitiesPage.Styles.centeredText, GeoCitiesPage.Styles.scriptingOnly)
 
 				p {
@@ -314,7 +314,7 @@ struct GeoCitiesPets: HTML {
 		case out
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case grid
 		case card
 		case picture

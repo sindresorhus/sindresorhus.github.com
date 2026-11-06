@@ -30,7 +30,7 @@ olderVersions: [
 ]
 pressQuotes: [
 	{
-		quote: 'For Mac users, Sorhus has released the new download QuickGPT. It can be downloaded and used completely free of charge and wraps ChatGPT’s web interface in an easy-to-use Mac app.'
+		quote: 'For Mac users, Sorhus has released the new download QuickGPT. It […] wraps ChatGPT’s web interface in an easy-to-use Mac app.'
 		source: 'iphone-ticker.de'
 		translatedFrom: 'German'
 		url: 'https://www.iphone-ticker.de/ask-ai-fuer-apple-watch-serioese-chatgpt-app-zum-einmalkauf-210711/'

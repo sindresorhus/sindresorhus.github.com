@@ -13,7 +13,7 @@ struct SuggestedQuestionTests {
 
 	@Test
 	func `words leave out “app” and “mac”, which almost every question has`() {
-		#expect(SuggestedQuestion.words(in: "The Mac app does not show up in the macOS menu bar") == ["show", "menu", "bar"])
+		#expect(SuggestedQuestion.words(in: "The Mac app does not show up in the macOS menu bar") == ["show", "menubar"])
 		#expect(SuggestedQuestion.words(in: "Application settings for all apps") == ["settings"])
 	}
 
@@ -23,6 +23,16 @@ struct SuggestedQuestionTests {
 
 		#expect(question.questionWords == ["icloud", "sync", "stopped"])
 		#expect(question.extraWords == ["syncing", "backup"])
+	}
+
+	/**
+	A plural gets its singular and the synonyms of the singular, but a word that ends in “ss” is not a plural.
+	*/
+	@Test
+	func `a plural gets its singular, but not a word that ends in “ss”`() {
+		#expect(SuggestedQuestion(question: "The app quits", url: .path(#path("/a"))).extraWords == ["quit"])
+		#expect(SuggestedQuestion(question: "Random crashes", url: .path(#path("/a"))).extraWords == ["crashe", "freeze", "hang"])
+		#expect(SuggestedQuestion(question: "Full disk access", url: .path(#path("/a"))).extraWords.isEmpty)
 	}
 
 	@Test
@@ -76,7 +86,7 @@ struct SuggestedQuestionTests {
 	@Test
 	func `the script of the feedback page suggests the right answers for real messages`() async throws {
 		let content = try await SiteContent.website
-		let questions = FAQSuggestions.Questions(apps: content.maintainedApps, faq: content.page(.faq))
+		let questions = FAQSuggestions.Questions(apps: content.maintainedApps, faq: content.page(.faq), guides: content.resolvedGuides.map(\.guide))
 		let source = try FAQSuggestions.script.source
 		// Only the matching, without the custom element, which needs a page, and without the imports, which a script that is not a module cannot have.
 		let matcherSource = source[..<(try #require(source.range(of: "class FAQSuggestions")).lowerBound)]
@@ -102,6 +112,13 @@ struct SuggestedQuestionTests {
 			// Other forms of a word match, like “quitting” for “quits”, and “updating” for “update”.
 			(message: "The app keeps quitting by itself.", app: "Dato", answer: "#randomly-quits"),
 			(message: "The widget is not updating", app: "Bare", answer: "#widget-not-updating"),
+			// Two other forms of a word match each other, like “crashed” and “crashing”, and “worked” and “working”.
+			(message: "the app crashed while I recorded", app: "Recordia", answer: "#recover"),
+			(message: "AirDrop worked before but stopped", app: "Menu Drop", answer: "#airdrop-is-not-working"),
+			// A guide about the app and a tip of the app are suggested like its questions.
+			(message: "How do I make Finder open files when I press Enter, instead of renaming them?", app: "Supercharge", answer: "/guides/open-files-with-enter-finder-mac"),
+			(message: "How can I batch transcribe a folder of audio files?", app: "Aiko", answer: "/aiko#batch"),
+			(message: "Sync between my iPhone and iPad does not work", app: "Any Text", answer: "/any-text#troubleshoot-syncing"),
 		]
 
 		for (message, app, answer) in cases {
@@ -109,7 +126,7 @@ struct SuggestedQuestionTests {
 			#expect(urls.contains { $0.contains(answer) }, "“\(message)” suggests \(urls), not \(answer).")
 		}
 
-		// The pinned menu bar question matches three words, and the questions about the upcoming event match four, so they come first.
+		// The pinned menu bar question matches fewer words than the questions about the upcoming event, so they come first.
 		let urls = suggestions(for: "The upcoming event in the menu bar shows the wrong meeting", app: "Dato")
 		#expect(urls.first?.contains("upcoming-event") == true, "\(urls)")
 

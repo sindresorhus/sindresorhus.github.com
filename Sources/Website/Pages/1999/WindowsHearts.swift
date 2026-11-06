@@ -47,7 +47,7 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 		}
 		.style(Styles.table, GeoCitiesPage.Styles.scriptingOnly)
 
-		div(.part(Parts.hand), .role("group")) {}
+		div(.part(Parts.hand), .role(.group)) {}
 			.accessibilityLabel("Your cards")
 			.style(Styles.hand, GeoCitiesPage.Styles.scriptingOnly)
 
@@ -133,7 +133,7 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 		}
 		.style(Styles.sheet, GeoCitiesPage.Styles.scriptingOnly)
 
-		p(.part(Parts.status), .role("status")) {
+		p(.part(Parts.status), .role(.status)) {
 			"Pick three cards to pass to Lillesøster, then press Pass Left."
 		}
 		.style(GeoCitiesPage.Styles.statusBar, GeoCitiesPage.Styles.scriptingOnly)
@@ -179,7 +179,7 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 	The cards of the trick, each in front of the player who played it: across at the top, the left and the right at the sides, and mine at the bottom.
 	*/
 	private var trick: some HTML {
-		div(.role("group")) {
+		div(.role(.group)) {
 			div {}
 			trickSlot(2)
 			div {}
@@ -195,7 +195,7 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 	}
 
 	private func trickSlot(_ seat: Int) -> some HTML {
-		p(.hook(Hooks.trickSlot, value: "\(seat)"), .role("img")) {}
+		p(.hook(Hooks.trickSlot, value: "\(seat)"), .role(.image)) {}
 			.accessibilityLabel("No card")
 			.style(Styles.trickSlot)
 	}
@@ -252,7 +252,7 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 		case red = "hearts-red"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case table
 		case seat

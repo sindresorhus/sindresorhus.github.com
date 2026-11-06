@@ -1,5 +1,6 @@
 import Foundation
 import SOML
+import Subprocess
 import TestSupport
 import Testing
 @testable import SiteKit
@@ -21,12 +22,41 @@ struct ContentLoadingTests {
 		#expect(errors.sorted(using: ContentError.locationOrder).map(\.reason) == ["unlocated", "unlocated line", "whole file", "first tie", "second tie", "last file"])
 	}
 
+	@Test
+	func `content error aggregates reject empty validation results`() async {
+		await #expect(processExitsWith: .failure) {
+			_ = ContentErrors([])
+		}
+	}
+
+	@Test
+	func `owned diagnostics preserve canonical messages through Foundation bridging`() {
+		let file = URL(filePath: "/content/test.md")
+		let first = ContentError(file: file, line: 3, reason: "First mistake.")
+		let second = ContentError(file: file, line: 4, reason: "Second mistake.")
+		let aggregate = ContentErrors([first, second])
+		let publishing = PublishingError.renderFailed(#path("/test"), first)
+		let script = ElementScriptError.classDeclaration("The test script")
+
+		#expect(aggregate.errors.map(\.reason) == ["First mistake.", "Second mistake."])
+		#expect(aggregate.description == "/content/test.md:3: First mistake.\n/content/test.md:4: Second mistake.")
+
+		for error in [first, aggregate, publishing, script] as [any Error] {
+			#expect((error as NSError).localizedDescription == String(describing: error))
+		}
+	}
+
 	struct Frontmatter: SiteKit.Frontmatter {
 		let links: OrderedMapping<String>
 
-		enum CodingKeys: String, CodingKey {
+		enum CodingKeys: String, CodingKey, CaseIterable {
 			case links
 		}
+	}
+
+	@Frontmatter
+	struct LineSettings {
+		@Key("featured") var featuredApps: [String]
 	}
 
 	@Frontmatter
@@ -41,6 +71,30 @@ struct ContentLoadingTests {
 		#expect(metadata.title == "Title")
 		#expect(#URL("https\u{3a}//example.com").absoluteString == "https://example.com")
 		#expect(#path("\u{2f}apps") == #path("/apps"))
+	}
+
+	@Test
+	func `ordered mappings support nondecodable values and conditional sendability`() {
+		let read: @Sendable () -> String = {
+			"Value"
+		}
+		let mapping = OrderedMapping([("read", read)])
+		func requireSendable<Value: Sendable>(_ value: Value) {}
+
+		requireSendable(mapping)
+		#expect(mapping["read"]?() == "Value")
+	}
+
+	@Test
+	func `ordered mappings decode values that are not sendable`() throws {
+		final class MutableValue: Decodable {
+			var text: String
+		}
+
+		let mapping = try JSONDecoder().decode(OrderedMapping<MutableValue>.self, from: Data(#"{"entry":{"text":"Value"}}"#.utf8))
+		let value = try #require(mapping["entry"])
+		value.text = "Changed"
+		#expect(mapping["entry"]?.text == "Changed")
 	}
 
 	@Test
@@ -60,8 +114,26 @@ struct ContentLoadingTests {
 	}
 
 	@Test
+	func `dictionary literals keep ordered mapping pairs in their written order`() {
+		let mapping: OrderedMapping<String> = ["Zebra": "z", "Apple": "a", "Mango": "m"]
+		let empty: OrderedMapping<String> = [:]
+
+		#expect(mapping.map(\.key) == ["Zebra", "Apple", "Mango"])
+		#expect(mapping["Apple"] == "a")
+		#expect(empty.isEmpty)
+	}
+
+	@Test
+	func `ordered mapping literals reject duplicate keys`() async {
+		await #expect(processExitsWith: .failure) {
+			let mapping: OrderedMapping<String> = ["Apple": "a", "Apple": "b"]
+			_ = mapping
+		}
+	}
+
+	@Test
 	func `page routes allow disjoint directories before they exist`() {
-		let routes: [String: RoutePath] = [
+		let routes: [Project.ContentDirectory: RoutePath] = [
 			"content/apps": .root,
 			"content/apps-extra": #path("/extra"),
 			"content/blog": #path("/blog"),
@@ -81,7 +153,37 @@ struct ContentLoadingTests {
 	@Test(arguments: ["", "/content/apps", "content/apps/", "content//apps", "content/./apps", "content/../apps", "content/\0apps"])
 	func `page routes reject source directories that are not canonical relative paths`(directory: String) async {
 		await #expect(processExitsWith: .failure) { [directory] in
-			_ = Project(root: URL(filePath: "/site"), pageRoutes: [directory: .root])
+			_ = Project(root: URL(filePath: "/site"), pageRoutes: [Project.ContentDirectory(directory): .root])
+		}
+	}
+
+	@Test(arguments: ["", "/content/apps", "content/apps/", "content//apps", "content/./apps", "content/../apps", "content/\0apps"])
+	func `external content directories are validated before project construction`(directory: String) {
+		#expect(throws: ContentError.self) {
+			try Project.ContentDirectory(validating: directory)
+		}
+	}
+
+	@Test
+	func `content directories resolve only against the supplied project root`() throws {
+		let directory = try Project.ContentDirectory(validating: "content/apps")
+		#expect(directory.fileURL(in: URL(filePath: "/site")) == URL(filePath: "/site/content/apps"))
+	}
+
+	@Test(arguments: ["", "Dato", "a_b", "a b", "a//b", "/a", "a/", ".", ".."])
+	func `content slugs reject malformed external identities`(slug: String) {
+		#expect(throws: ContentError.self) {
+			try ContentSlug(validating: slug)
+		}
+	}
+
+	@Test
+	func `validated content slugs retain their grammar through decoding and encoding`() throws {
+		let slug = try JSONDecoder().decode(ContentSlug.self, from: Data("\"apps/faq\"".utf8))
+		#expect(slug == "apps/faq")
+		#expect(try JSONDecoder().decode(String.self, from: JSONEncoder().encode(slug)) == "apps/faq")
+		#expect(throws: DecodingError.self) {
+			try JSONDecoder().decode(ContentSlug.self, from: Data("\"Wrong_Case\"".utf8))
 		}
 	}
 
@@ -129,7 +231,7 @@ struct ContentLoadingTests {
 			try Fruit(validating: "Apple")
 		}
 
-		#expect(error.reason == "Must be one of `apple` or `mango`, not “Apple”.")
+		#expect(error.reason == "Must be one of `apple` or `mango`, not “Apple”. Did you mean `apple`?")
 	}
 
 	struct Note: ContentEntry {
@@ -140,18 +242,32 @@ struct ContentLoadingTests {
 			var isDraft = false
 		}
 
-		static let directory = "content/notes"
+		static let directory: Project.ContentDirectory = "content/notes"
 		static let sortOrder = [KeyPathComparator(\Note.title)]
 
 		let title: String
-		let slug: String
+		let slug: ContentSlug
 		let isDraft: Bool
 
-		init(file: MarkdownFile, frontmatter: Frontmatter, project: Project) {
-			self.title = frontmatter.title
-			self.slug = file.slug
-			self.isDraft = frontmatter.isDraft
+		init(file: DecodedMarkdownFile<Frontmatter>, project: Project) {
+			self.title = file.frontmatter.title
+			self.slug = file.source.slug
+			self.isDraft = file.frontmatter.isDraft
 		}
+	}
+
+	@Test(.temporaryDirectory)
+	func `content loading finds commit dates by the loaded file URL`() async throws {
+		let root = try URL.temporaryDirectory(files: ["content/notes/note.md": "---\ntitle: 'Note'\n---\nBody"])
+		let url = root.appending(path: "content/notes/note.md").standardizedFileURL
+		let date = Date(timeIntervalSince1970: 1_767_225_600)
+		let loaded = await Note.load(from: Project(root: root), lastCommitDates: [url: date]) { file in
+			#expect(file.source.lastCommitDate == date)
+			return Note(file: file, project: Project(root: root))
+		}
+
+		#expect(loaded.errors.isEmpty)
+		#expect(loaded.validEntries.map(\.slug) == ["note"])
 	}
 
 	@Test(.temporaryDirectory)
@@ -164,47 +280,47 @@ struct ContentLoadingTests {
 			"\(Note.directory)/rejected.md": "---\ntitle: 'Rejected'\n---\nBody",
 		])
 		let project = Project(root: root)
-		let loaded = await Note.load(from: project) { file, frontmatter in
-			guard file.slug != "rejected" else {
+		let loaded = await Note.load(from: project) { file in
+			guard file.source.slug != "rejected" else {
 				throw ContentError(reason: "Rejected by the entry initializer.")
 			}
 
-			return Note(file: file, frontmatter: frontmatter, project: project)
+			return Note(file: file, project: project)
 		}
 
-		guard case .loaded(let entries, let failedSlugs, let errors) = loaded else {
+		guard case .loaded(let result) = loaded else {
 			Issue.record("The existing directory must load.")
 			return
 		}
 
-		#expect(entries.map(\.slug) == ["a", "b"])
+		#expect(result.entries.map(\.slug) == ["a", "b"])
 		#expect(loaded.validEntries.map(\.slug) == ["a", "b"])
-		#expect(failedSlugs == ["broken", "rejected"])
-		#expect(errors.map(\.file?.lastPathComponent) == ["broken.md", "rejected.md"])
-		#expect(errors.last?.reason == "Rejected by the entry initializer.")
+		#expect(result.failedSlugs == ["broken", "rejected"])
+		#expect(result.errors.map(\.file?.lastPathComponent) == ["broken.md", "rejected.md"])
+		#expect(result.errors.last?.reason == "Rejected by the entry initializer.")
 	}
 
 	@Test(.temporaryDirectory)
 	func `an empty content directory is loaded while a missing directory is unavailable`() async throws {
 		let root = try URL.temporaryDirectory(files: ["content/notes/placeholder.txt": ""])
 		let project = Project(root: root)
-		let loaded = await Note.load(from: project) { file, frontmatter in
-			Note(file: file, frontmatter: frontmatter, project: project)
+		let loaded = await Note.load(from: project) { file in
+			Note(file: file, project: project)
 		}
 
-		guard case .loaded(let entries, let failedSlugs, let errors) = loaded else {
+		guard case .loaded(let result) = loaded else {
 			Issue.record("An empty directory is available.")
 			return
 		}
 
-		#expect(entries.isEmpty)
-		#expect(failedSlugs.isEmpty)
-		#expect(errors.isEmpty)
+		#expect(result.entries.isEmpty)
+		#expect(result.failedSlugs.isEmpty)
+		#expect(result.errors.isEmpty)
 		#expect(try await Note.load(from: project).isEmpty)
 
 		let missingProject = Project(root: root.appending(path: "missing"))
-		let unavailable = await Note.load(from: missingProject) { file, frontmatter in
-			Note(file: file, frontmatter: frontmatter, project: missingProject)
+		let unavailable = await Note.load(from: missingProject) { file in
+			Note(file: file, project: missingProject)
 		}
 
 		guard case .unavailable(let failure) = unavailable else {
@@ -214,10 +330,38 @@ struct ContentLoadingTests {
 
 		#expect(unavailable.validEntries.isEmpty)
 		#expect(failure.errors.count == 1)
-		#expect(failure.errors.first?.file == missingProject.root.appending(path: Note.directory))
+		#expect(failure.errors.first?.file == Note.directory.fileURL(in: missingProject.root))
 		await #expect(throws: ContentErrors.self) {
 			try await Note.load(from: missingProject)
 		}
+	}
+
+	@Test(.temporaryDirectory)
+	func `unreadable content directories preserve the file system error instead of reporting a missing directory`() async throws {
+		let root = try URL.temporaryDirectory(files: ["content/notes/blocked/note.md": "---\nlinks: {}\n---\nBody"])
+		let project = Project(root: root)
+		let directory = Note.directory.fileURL(in: root)
+		let blocked = directory.appending(path: "blocked")
+		let manager = FileManager()
+		try manager.setAttributes([.posixPermissions: 0], ofItemAtPath: blocked.path(percentEncoded: false))
+		defer {
+			try? manager.setAttributes([.posixPermissions: 0o700], ofItemAtPath: blocked.path(percentEncoded: false))
+		}
+
+		let enumerationError = try #require(throws: (any Error).self) {
+			try directory.filesRecursively()
+		}
+		let loaded = await Note.load(from: project) { file in
+			Note(file: file, project: project)
+		}
+		guard case .unavailable(let failure) = loaded else {
+			Issue.record("Unreadable content is unavailable rather than partially loaded.")
+			return
+		}
+
+		#expect(failure.errors.count == 1)
+		#expect(failure.errors.first?.file == directory)
+		#expect(failure.errors.first?.reason == enumerationError.descriptiveMessage)
 	}
 
 	@Test(.temporaryDirectory)
@@ -226,7 +370,7 @@ struct ContentLoadingTests {
 		let root = try URL.temporaryDirectory(files: Dictionary(uniqueKeysWithValues: names.map { ("\(Note.directory)/\($0).md", "---\ntitle: 'Same'\n---\nBody") }))
 
 		for _ in 0..<5 {
-			#expect(try await Note.load(from: Project(root: root)).map(\.slug) == names)
+			#expect(try await Note.load(from: Project(root: root)).map(\.slug.value) == names)
 		}
 	}
 
@@ -294,7 +438,7 @@ struct ContentLoadingTests {
 				"\(Note.directory)/c.md": "---\ntitle: 'C'\nisDraft: true\n---\nBody",
 			]
 		)
-		let directory = root.appending(path: Note.directory)
+		let directory = Note.directory.fileURL(in: root)
 
 		#expect(try await Note.load(from: Project(root: root)).map(\.title) == ["A", "B"])
 
@@ -413,12 +557,13 @@ struct ContentLoadingTests {
 		#expect(try MarkdownFile.formattingFrontmatter(in: formatted, orderedKeys: [FormattingKeys.title]) == formatted)
 	}
 
-	@Test
-	func `formatting frontmatter normalizes only frontmatter line endings`() throws {
-		let source = "--- \r\nitems: ['one', 'two']\r\n---\t\r\n\r\nBody\r\n---\r\n"
-		let formatted = try MarkdownFile.formattingFrontmatter(in: source)
+	@Test(arguments: ["---\r\nitems: []\r\n---\r\nBody", "---\nitems: []\n---\nBody\r\nText", "Body\r\nText"])
+	func `formatting rejects CRLF anywhere in the file`(source: String) throws {
+		let error = try #require(throws: ContentError.self) {
+			try MarkdownFile.formattingFrontmatter(in: source)
+		}
 
-		#expect(formatted == "--- \r\nitems: [\n\t'one'\n\t'two'\n]\n---\t\r\n\r\nBody\r\n---\r\n")
+		#expect(error.reason == "CRLF line endings are not supported. Use LF line endings.")
 	}
 
 	@Test
@@ -460,6 +605,26 @@ struct ContentLoadingTests {
 		}
 	}
 
+	/**
+	The writer of the content does not know the Swift types, so the messages leave them out, and name the key in code marks.
+	*/
+	@Test
+	func `a duplicate or unknown frontmatter key is named without the Swift type`() throws {
+		let duplicate = try MarkdownFile(contents: "---\ntitle: 'A'\ntitle: 'B'\n---\nBody", url: URL(filePath: "/content/test.md"))
+		let duplicateError = try #require(throws: ContentErrors.self) {
+			try duplicate.decodeFrontmatter(as: Note.Frontmatter.self)
+		}.errors[0]
+		#expect(duplicateError.line == 3)
+		#expect(duplicateError.reason == "Duplicate key `title`.")
+
+		let unknown = try MarkdownFile(contents: "---\ntitle: 'A'\ntitel: 'B'\n---\nBody", url: URL(filePath: "/content/test.md"))
+		let unknownError = try #require(throws: ContentErrors.self) {
+			try unknown.decodeFrontmatter(as: Note.Frontmatter.self)
+		}.errors[0]
+		#expect(!unknownError.reason.contains("does not read"))
+		#expect(unknownError.reason.hasPrefix("Unknown key `titel`."))
+	}
+
 	@Test
 	func `frontmatter errors name the line`() throws {
 		let file = try MarkdownFile(contents: "---\ntitle: 'A'\nlinks: ['a']\nunknown: true\n---\nBody", url: URL(filePath: "/content/test.md"))
@@ -477,7 +642,7 @@ struct ContentLoadingTests {
 
 		// The first unknown key in the file.
 		#expect(strict.line == 3)
-		#expect(strict.reason == "Unknown key links, which Frontmatter does not read.")
+		#expect(strict.reason == "Unknown key `links`.")
 	}
 
 	@Frontmatter
@@ -572,7 +737,7 @@ struct ContentLoadingTests {
 		}.errors[0]
 
 		#expect(error.reason == reason)
-		#expect(error.line == line)
+		#expect(error.line?.rawValue == line)
 	}
 
 	@Test
@@ -581,10 +746,65 @@ struct ContentLoadingTests {
 		#expect(file.line(of: CheckedFrontmatter.CodingKeys.publicationDate) == 3)
 	}
 
-	@Test
-	func `a body without frontmatter has the line endings of a body with frontmatter`() throws {
-		let file = try MarkdownFile(contents: "First\r\nSecond", url: URL(filePath: "/content/test.md"))
-		#expect(file.body == "First\nSecond")
+	@Test(arguments: ["First\r\nSecond", "---\r\nlinks: {}\r\n---\r\nBody", "---\nlinks: {}\n---\nBody\r\nText"])
+	func `Markdown files reject CRLF`(source: String) throws {
+		let url = URL(filePath: "/content/test.md")
+		let error = try #require(throws: ContentError.self) {
+			try MarkdownFile(contents: source, url: url)
+		}
+
+		#expect(error.file == url)
+		#expect(error.reason == "CRLF line endings are not supported. Use LF line endings.")
+	}
+
+	@Test(arguments: ["---\ntitle: 'Title'\n---\nFirst\n\n<<<<<<< Updated upstream\nOne\n=======\nTwo\n>>>>>>> Stashed changes", "---\ntitle: 'Title'\n---\nFirst\n\n>>>>>>> Stashed changes"])
+	func `Markdown files reject a git conflict marker`(source: String) throws {
+		let url = URL(filePath: "/content/test.md")
+		let error = try #require(throws: ContentError.self) {
+			try MarkdownFile(contents: source, url: url)
+		}
+
+		#expect(error.file == url)
+		#expect(error.line == 6)
+		#expect(error.reason.hasPrefix("The file has a git conflict marker (`"))
+		#expect(try MarkdownFile(contents: "---\ntitle: 'Title'\n---\nA line of `=======` and <<<<<<< in text.", url: url).body.contains("<<<<<<<"))
+	}
+
+	@Test(.temporaryDirectory)
+	func `typed SOML line lookup retains renamed keys and list item locations`() throws {
+		let directory = try URL.temporaryDirectory(files: ["settings.soml": "featured: [\n\t'first'\n\t'second'\n]"])
+		let file = try SOMLFile<LineSettings>(url: directory.appending(path: "settings.soml"))
+
+		#expect(file.line(of: .featuredApps) == 1)
+		#expect(file.line(of: .featuredApps, index: 1) == 3)
+		#expect(file.line(ofValueAt: [LineSettings.CodingKeys.featuredApps, AnyCodingKey(intValue: 1)]) == 3)
+	}
+
+	@Test(.temporaryDirectory)
+	func `SOML content files reject CRLF`() throws {
+		let directory = try URL.temporaryDirectory(files: ["settings.soml": "{\r\nlinks: {}\r\n}"])
+		let url = directory.appending(path: "settings.soml")
+		let errors = try #require(throws: ContentErrors.self) {
+			try SOMLFile<Frontmatter>(url: url)
+		}
+
+		#expect(errors.errors.count == 1)
+		#expect(errors.errors.first?.file == url)
+		#expect(errors.errors.first?.reason.contains("Use LF line endings") == true)
+	}
+
+	@Test(.temporaryDirectory)
+	func `SOML content files reject a git conflict marker`() throws {
+		let directory = try URL.temporaryDirectory(files: ["settings.soml": "links: {}\n<<<<<<< Updated upstream\nfirst: 1\n=======\nfirst: 2\n>>>>>>> Stashed changes\n"])
+		let url = directory.appending(path: "settings.soml")
+		let errors = try #require(throws: ContentErrors.self) {
+			try SOMLFile<Frontmatter>(url: url)
+		}
+
+		#expect(errors.errors.count == 1)
+		#expect(errors.errors.first?.file == url)
+		#expect(errors.errors.first?.line == 2)
+		#expect(errors.errors.first?.reason.hasPrefix("The file has a git conflict marker (`<<<<<<< Updated upstream`)") == true)
 	}
 
 	@Test
@@ -628,13 +848,6 @@ struct ContentLoadingTests {
 	}
 
 	@Test(.temporaryDirectory)
-	func `a missing content directory is an error`() async {
-		await #expect(throws: ContentErrors.self) {
-			try await Note.load(from: Project(root: try URL.temporaryDirectory()))
-		}
-	}
-
-	@Test(.temporaryDirectory)
 	func `last commit dates ignore moves without changes`() async throws {
 		let root = try URL.temporaryDirectory(files: ["old/a.md": "A", "old/b.md": "B"])
 
@@ -672,8 +885,8 @@ struct ContentLoadingTests {
 		)
 
 		let dates = await Project(root: root).lastCommitDates()
-		#expect(dates["content/a.md"] == Date(timeIntervalSince1970: 1_769_904_000))
-		#expect(dates["content/b.md"] == Date(timeIntervalSince1970: 1_767_225_600))
+		#expect(dates[root.appending(path: "content/a.md").standardizedFileURL] == Date(timeIntervalSince1970: 1_769_904_000))
+		#expect(dates[root.appending(path: "content/b.md").standardizedFileURL] == Date(timeIntervalSince1970: 1_767_225_600))
 	}
 
 	@Test(.temporaryDirectory)
@@ -715,8 +928,8 @@ struct ContentLoadingTests {
 		let dates = await project.lastCommitDates()
 
 		// The ignored commit changed both, so `b.md` keeps the date of the commit before it.
-		#expect(dates["content/a.md"] == Date(timeIntervalSince1970: 1_772_323_200))
-		#expect(dates["content/b.md"] == Date(timeIntervalSince1970: 1_767_225_600))
+		#expect(dates[root.appending(path: "content/a.md").standardizedFileURL] == Date(timeIntervalSince1970: 1_772_323_200))
+		#expect(dates[root.appending(path: "content/b.md").standardizedFileURL] == Date(timeIntervalSince1970: 1_767_225_600))
 	}
 
 	@Test(.temporaryDirectory)
@@ -765,53 +978,6 @@ struct ContentLoadingTests {
 	}
 
 	@Test
-	func `a process returns its exit status, and its output can be read while it runs`() async throws {
-		let succeeding = Process()
-		succeeding.executableURL = URL(filePath: "/usr/bin/true")
-		#expect(try await succeeding.runUntilExit() == .exit(0))
-
-		let failing = Process()
-		failing.executableURL = URL(filePath: "/usr/bin/false")
-		#expect(try await failing.runUntilExit() == .exit(1))
-
-		let echo = Process()
-		echo.executableURL = URL(filePath: "/bin/echo")
-		echo.arguments = ["Hello"]
-		let pipe = Pipe()
-		echo.standardOutput = pipe
-		var lines = [String]()
-
-		let status = try await echo.runUntilExit {
-			for try await line in pipe.fileHandleForReading.bytes.lines {
-				lines.append(line)
-			}
-		}
-
-		#expect(status == .exit(0))
-		#expect(lines == ["Hello"])
-
-		let missing = Process()
-		missing.executableURL = URL(filePath: "/nonexistent")
-
-		await #expect(throws: (any Error).self) {
-			try await missing.runUntilExit()
-		}
-	}
-
-	@Test
-	func `a process distinguishes an exit code from a signal with the same number`() async throws {
-		let exiting = Process()
-		exiting.executableURL = URL(filePath: "/bin/sh")
-		exiting.arguments = ["-c", "exit 15"]
-		#expect(try await exiting.runUntilExit() == .exit(15))
-
-		let signalled = Process()
-		signalled.executableURL = URL(filePath: "/bin/sh")
-		signalled.arguments = ["-c", "kill -TERM $$"]
-		#expect(try await signalled.runUntilExit() == .signal(15))
-	}
-
-	@Test
 	func `slugs are relative to the content directory`() throws {
 		let file = try MarkdownFile(contents: "Body", url: URL(filePath: "/content/apps/faq.md"), relativeTo: URL(filePath: "/content"))
 		#expect(file.slug == "apps/faq")
@@ -823,22 +989,18 @@ Runs git in the repository as a test user, with the date of the commits, and ret
 */
 @discardableResult
 private func git(in root: URL, _ arguments: String..., date: String = "2026-01-01T00:00:00Z") async throws -> String {
-	let process = Process()
-	process.executableURL = URL(filePath: "/usr/bin/env")
-	process.arguments = ["git", "-C", root.path(percentEncoded: false), "-c", "user.name=Test", "-c", "user.email=test@example.com"] + arguments
 	// The `PATH` of the tests, so it runs the same git as `lastCommitDates()`. A `PATH` with `/usr/bin` first runs `/usr/bin/git`, which asks `xcodebuild` where the git of Xcode is when its cache does not know it yet, like on CI, where git is the one of Homebrew. The test took 24 to 31 s on CI.
-	process.environment = ["GIT_COMMITTER_DATE": date, "GIT_AUTHOR_DATE": date, "PATH": ProcessInfo.processInfo.environment["PATH"] ?? "/usr/bin:/bin"]
-	let pipe = Pipe()
-	process.standardOutput = pipe
-	var output = ""
+	let result = try await run(
+		.name("git"),
+		arguments: Arguments(["-C", root.path(percentEncoded: false), "-c", "user.name=Test", "-c", "user.email=test@example.com"] + arguments),
+		environment: .custom(["GIT_COMMITTER_DATE": date, "GIT_AUTHOR_DATE": date, "PATH": ProcessInfo.processInfo.environment["PATH"] ?? "/usr/bin:/bin"]),
+		output: .string(limit: 1_000_000)
+	)
 
-	try #require(await process.runUntilExit {
-		for try await line in pipe.fileHandleForReading.bytes.lines {
-			output += line
-		}
-	} == .exit(0), "git \(arguments.joined(separator: " ")) failed.")
+	try #require(result.terminationStatus.isSuccess, "git \(arguments.joined(separator: " ")) failed.")
 
-	return output
+	// Without the line breaks, like the lines that were joined before.
+	return result.standardOutput.replacing("\n", with: "")
 }
 
 @Frontmatter

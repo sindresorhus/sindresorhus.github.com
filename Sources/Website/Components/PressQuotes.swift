@@ -27,7 +27,7 @@ struct PressQuotes: HTML {
 		.style(Styles.wide, when: layout.isWide)
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case row
 		case wide
@@ -56,7 +56,7 @@ struct PressQuotes: HTML {
 /**
 The layout of a grid of quotes from small tablets, from the number of quotes, so the press quotes (``PressQuotes``), the grid of reviews (``QuoteGrid``), and the parent that makes the reviews wider (``AppReviews``) agree.
 */
-enum QuoteLayout: StyleSet {
+enum QuoteLayout: String, StyleSet {
 	/**
 	One quote, which is as wide as the column of the page.
 	*/
@@ -139,10 +139,10 @@ struct QuoteGrid: HTML {
 		// A `section`, as a `div` cannot have a name.
 		section {
 			for review in reviews {
-				// The grid is on the accent band of the app page (``AppReviews``), so its cards have the page background, which stands out from the band.
+				// The grid is on the accent band of the app page (``AppReviews``), so its cards have the page background, which stands out from the band. In dark mode, a raised surface is lighter, so the cards are a light overlay, like the other dark cards, not the darker page background.
 				QuoteFigure(kind: .review(review))
 					.style {
-						$0.background(.pageBackground)
+						$0.background(.lightDark(.pageBackground, .white.opacity(0.07)))
 					}
 			}
 		}
@@ -152,7 +152,7 @@ struct QuoteGrid: HTML {
 		.style(layout, when: layout != .single)
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case row
 
@@ -165,10 +165,13 @@ struct QuoteGrid: HTML {
 					.gap(.rootEm(1.25))
 			case .row:
 				// On phones, more reviews are a row that the visitor swipes, like the press quotes, so they do not fill several screens. The row reaches the edges of the screen, out of the space of the page around the grid.
+				// The cards have the height of the row, so a short card does not end in the middle of the band next to a long one. The press quotes have no card, so they stay at the top.
 				Style()
 					.swipeRow(spacing: .rootEm(1.25))
 					.below(.smallTablet) {
-						$0.fullBleed()
+						$0
+							.fullBleed()
+							.alignItems(.stretch)
 					}
 			}
 		}
@@ -176,7 +179,7 @@ struct QuoteGrid: HTML {
 }
 
 /**
-A quote from the press or an App Store review, as a card: the stars, the quote, and the source. The reviews of the app pages and the wall of love use it, so the cards look the same everywhere. The press quotes of an app page are pull quotes instead, without a card (``hasCard``).
+A quote from the press or an App Store review, as a card: the quote and the source, with stars only for a press rating. The reviews of the app pages and the wall of love use it, so the cards look the same everywhere. The press quotes of an app page are pull quotes instead, without a card (``hasCard``).
 */
 struct QuoteFigure: HTML {
 	enum Kind {
@@ -214,7 +217,8 @@ struct QuoteFigure: HTML {
 	var body: some HTML<HTMLTag.figure> {
 		figure {
 			if let app {
-				a(.href(app.url)) {
+				// The link shows the icon and the name of the app, so it shows no preview of the app in prose, like on the now page.
+				a(.href(app.url), .hook(LinkPreview.Hooks.noLinkPreview)) {
 					AppIcon(decorative: app, size: 32)
 
 					app.title
@@ -248,7 +252,7 @@ struct QuoteFigure: HTML {
 						}
 					}
 				}
-				.attributes(optional: resolved.attribution.citationURL.map { .custom(name: "cite", value: $0.absoluteString) })
+				.attributes(optional: resolved.attribution.citationURL.map { .custom(name: "cite", value: $0.value.absoluteString) })
 				.style(Styles.text)
 				// The stars of a rating already show that it is praise.
 				.style(Styles.quotationMark, when: !hasCard && !quote.isStarRating)
@@ -270,9 +274,7 @@ struct QuoteFigure: HTML {
 				.style(Styles.source)
 				.style(Styles.attribution, when: !hasCard)
 			case .review(let review):
-				// The reviews are the five-star reviews, which the heading of the reviews says once, so screen readers do not read “5 out of 5 stars” for each.
-				StarRating(stars: review.rating, isDecorative: true)
-
+				// Selected reviews read as testimonials, with the quote and its source instead of repeated stars.
 				blockquote {
 					p {
 						review.title
@@ -297,7 +299,7 @@ struct QuoteFigure: HTML {
 		.style(Styles.card, when: hasCard)
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case card
 		case appLink
@@ -331,7 +333,7 @@ struct QuoteFigure: HTML {
 			case .appLink:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.625))
-					.underline(false)
+					.noUnderline()
 					.textStyle(.caption, weight: .semibold)
 					.color(.primaryText)
 					.hoverColor(.link)
@@ -341,9 +343,9 @@ struct QuoteFigure: HTML {
 					.vstack(spacing: .rootEm(0.25))
 					.margin(.zero)
 					.padding(.zero)
-					.declaration(.border, "none")
+					.declaration(raw: .border, "none")
 					.italic(false)
-					.declaration(.quotes, "none")
+					.declaration(raw: .quotes, "none")
 					.textStyle(.body)
 					.color(.primaryText)
 			case .reviewTitle:
@@ -409,7 +411,7 @@ extension App.PressQuote.Attribution {
 	/**
 	The cited article or buyer review; an unlinked person's quote has no citation URL.
 	*/
-	fileprivate var citationURL: URL? {
+	fileprivate var citationURL: AbsoluteURL? {
 		switch self {
 		case .article(_, let url, _), .buyer(_, let url, _):
 			url

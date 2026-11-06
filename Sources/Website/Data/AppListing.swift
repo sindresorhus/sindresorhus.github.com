@@ -20,7 +20,7 @@ struct AppListing {
 	var gumroadProduct: GumroadProduct?
 
 	/**
-	The rating on Setapp of an app that is on Setapp, which the page shows when the app has no other rating (``rating``).
+	The rating on Setapp of an app that is on Setapp, which the page shows when the app has no other rating (``rating(at:)``).
 	*/
 	var setappRating: SetappRating?
 
@@ -74,10 +74,23 @@ struct AppListing {
 	}
 
 	/**
-	The lowest OS version (``minimumOSVersion``) as a sentence, like “Requires macOS 26 or later”. An app on several platforms says “version”, as the platforms share their version numbers.
+	The lowest OS version (``minimumOSVersion``) with the platforms, like “macOS 26 or later”. An app on several platforms names them once, like “macOS, iOS, or visionOS 26 or later”, as the platforms share their version numbers.
+	*/
+	var requirement: String? {
+		guard let minimumOSVersion else {
+			return nil
+		}
+
+		let platforms = app.platforms.map(\.rawValue).formattedList(.or)
+
+		return "\(platforms) \(minimumOSVersion) or later"
+	}
+
+	/**
+	The requirement (``requirement``) as a sentence, like “Requires macOS, iOS, or visionOS 26 or later”.
 	*/
 	var requirementSentence: String? {
-		minimumOSVersion?.requirementSentence(for: app.platforms)
+		requirement.map { OSVersion.requirementPrefix + $0 }
 	}
 
 	/**
@@ -101,7 +114,7 @@ struct AppListing {
 	}
 
 	/**
-	The lowest version of each platform, like “macOS 26 or later, iOS 26 or later”, for places without the platforms next to it, like the facts at the end of the page and the structured data.
+	The lowest version of each platform, like “macOS 26 or later, iOS 26 or later”, for the structured data, which has no sentence around it.
 	*/
 	var minimumVersionsByPlatform: String? {
 		minimumOSVersion.map { version in
@@ -110,22 +123,30 @@ struct AppListing {
 	}
 
 	/**
-	The platforms and the requirement, as two facts, like “Available on macOS, iOS, and visionOS” and “Requires version 26 or later”. The platforms are left out when the requirement already names the one platform, like “Requires macOS 26 or later”.
+	The platforms and the requirement as one fact (``requirementSentence``), like “Requires macOS, iOS, or visionOS 26 or later”, or only the platforms when the requirement is unknown, like “Available on macOS and iOS”.
 	*/
-	var availabilityFacts: [String] {
-		let platformList = requirementSentence != nil && app.platforms.count == 1 ? nil : "Available on \(app.platforms.map(\.rawValue).formatted(.list(type: .and).locale(.site)))"
-		return [platformList, requirementSentence].compactMap(\.self)
+	var availabilityFact: String {
+		requirementSentence ?? "Available on \(app.platforms.map(\.rawValue).formattedList(.and))"
 	}
 
 	/**
-	The rating that the page shows: on the App Store, or on Gumroad for an app that is sold there, or else on Setapp, like for a Mac App Store app, as Apple gives no ratings for them. One source is enough, and the stores come before Setapp, as the structured data has their rating, which must be visible on the page, and Setapp cannot be in it (``SetappRating``).
+	The rating that the page shows after at least ten ratings and one whole year since publication: on the App Store, or on Gumroad for an app that is sold there, or else on Setapp, like for a Mac App Store app, as Apple gives no ratings for them. One source is enough, and the stores come before Setapp. The structured data has the same rating, as it must be visible on the page. Archived apps have no information section, so their rating is not shown.
 	*/
-	var rating: AppRating? {
-		storeRating.map(AppRating.store) ?? setappRating.map(AppRating.setapp)
+	func rating(at date: Date) -> AppRating? {
+		guard
+			!app.isArchived,
+			let rating = storeRating.map(AppRating.store) ?? setappRating.map(AppRating.setapp),
+			rating.count >= 10,
+			date.wholeYears(since: app.publicationDate.foundationDate) >= 1
+		else {
+			return nil
+		}
+
+		return rating
 	}
 
 	/**
-	The rating on a store, which the page shows (``rating``) and the structured data has: on the App Store, or else on Gumroad for an app that is sold there.
+	The fetched rating on a store, before the visibility rules of ``rating(at:)``: on the App Store, or else on Gumroad for an app that is sold there.
 	*/
 	var storeRating: StoreRating? {
 		appStoreInfo?.rating ?? gumroadProduct?.rating
@@ -136,6 +157,13 @@ struct AppListing {
 	*/
 	var price: Price? {
 		resolvedPrice?.value
+	}
+
+	/**
+	The price as text, like “$10”, or `nil` when the download is free or the price is unknown, for a place that shows a price only for an app that costs money, like `apps.json`.
+	*/
+	var paidPriceText: String? {
+		price.flatMap { $0.isFree ? nil : $0.formatted }
 	}
 
 	/**
@@ -172,6 +200,17 @@ struct AppListing {
 		}
 
 		return app.isPaid ? nil : .free
+	}
+
+	/**
+	Whether a family can share the purchase of the app with Family Sharing: an app with a price on the App Store. Not an app that is free to download with an in-app purchase, as the developer sets Family Sharing for each in-app purchase.
+	*/
+	var hasFamilySharing: Bool {
+		guard case .appStore(let price) = resolvedPrice else {
+			return false
+		}
+
+		return !price.isFree
 	}
 
 	/**
@@ -246,7 +285,7 @@ struct AppListing {
 	The calendar date when the current version was released: on the App Store, or else in the appcast, or else the newest release on GitHub, but never before the app was published, as an app can launch on the App Store a day before its page.
 	*/
 	var currentVersionDate: SOML.Date? {
-		(appStoreInfo?.currentVersionReleaseDate ?? appcast?.releaseDate ?? releases.map(\.publishedAt).max()).map { max(SOML.Date($0), app.publicationDate) }
+		(appStoreVersionDate ?? appcast?.releaseDate ?? releases.map(\.publishedAt).max()).map { max(SOML.Date($0), app.publicationDate) }
 	}
 
 	/**
@@ -265,57 +304,21 @@ struct AppListing {
 }
 
 /**
-The rating that an app page shows (``AppListing/rating``): an average of stars on a store, or the percentage of positive ratings on Setapp.
+The rating that an app page shows (``AppListing/rating(at:)``): an average of stars on a store, or the percentage of positive ratings on Setapp.
 */
 enum AppRating {
 	case store(StoreRating)
 	case setapp(SetappRating)
 
 	/**
-	The large number, like “4.6” or “99%”.
+	The number of ratings on the selected source.
 	*/
-	var formattedScore: String {
+	var count: Int {
 		switch self {
 		case .store(let rating):
-			rating.formattedAverage
+			rating.count
 		case .setapp(let rating):
-			rating.formattedPercentage
-		}
-	}
-
-	/**
-	The validated star average for the stars below the number. `nil` for Setapp, which has no stars.
-	*/
-	var storeRating: StoreRating? {
-		switch self {
-		case .store(let rating):
-			rating
-		case .setapp:
-			nil
-		}
-	}
-
-	/**
-	The number of ratings and the store, like “565 ratings on the App Store”.
-	*/
-	var countText: String {
-		switch self {
-		case .store(let rating):
-			rating.countText
-		case .setapp(let rating):
-			rating.countText
-		}
-	}
-
-	/**
-	The rating as a sentence, for screen readers.
-	*/
-	var text: String {
-		switch self {
-		case .store(let rating):
-			rating.text
-		case .setapp(let rating):
-			rating.text
+			rating.count
 		}
 	}
 }

@@ -33,7 +33,9 @@ pressQuotes: [
 ]
 ---
 
-Export and import the settings of [my apps](/apps) to back them up or move them to another Mac, reset their privacy permissions, and more.
+Export and import the settings of [my apps](/apps) to back them up or move them to another Mac, or export the settings of all apps at once.
+
+For each app, you can also reset its privacy permissions, delete its data, uninstall it, relaunch or force quit it, and copy debug info or sample the process to send with a bug report.
 
 It’s a separate app because some features are not possible in sandboxed apps, which most of my apps are.
 

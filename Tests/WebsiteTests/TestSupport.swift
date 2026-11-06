@@ -16,6 +16,20 @@ extension Project {
 	A project in a directory that does not exist, for content that a test makes without files.
 	*/
 	static let empty = Project.site(root: URL.temporaryDirectory.appending(path: "website-tests-empty-project"))
+
+	/**
+	A project of the site in a new directory of the `.temporaryDirectory` trait, with the files, and the directories of the posts, guides, and pages, and the site settings, which loading needs. A file with the path of the settings replaces them. It leaves out `content/apps`, which a test that adds an app creates with the file of the app.
+	*/
+	static func testSite(files: [String: String]) throws -> Self {
+		let requiredFiles = [
+			"content/blog/.keep": "",
+			"content/guides/.keep": "",
+			"content/pages/.keep": "",
+			SiteSettings.path: SiteSettings.testSOML,
+		]
+
+		return .site(root: try URL.temporaryDirectory(files: requiredFiles.merging(files) { _, file in file }))
+	}
 }
 
 /**
@@ -71,9 +85,10 @@ extension SiteContent {
 
 	- Parameter kinds: Only the warnings of these kinds. Default: all the warnings.
 	- Parameter published: The published site. Default: nothing.
+	- Parameter textFiles: Only check the text of these files (``SiteContent/warnings(published:routes:textFiles:)``). Default: all the files.
 	*/
-	func warningTexts(of kinds: Warning.Kind..., published: PublishedSite = PublishedSite(routeFiles: [:], publicFiles: [])) async -> [String] {
-		await warnings(published: published, routes: Site(content: self).routes())
+	func warningTexts(of kinds: Warning.Kind..., published: PublishedSite = PublishedSite(routeFiles: [:], publicFiles: []), textFiles: [URL]? = nil) async -> [String] {
+		await warnings(published: published, routes: Site(content: self).routes(), textFiles: textFiles)
 			.warnings
 			.filter { kinds.isEmpty || kinds.contains($0.kind) }
 			.map { warning in
@@ -82,11 +97,56 @@ extension SiteContent {
 	}
 }
 
+extension SiteContent {
+	/**
+	Content that a test makes without files, with no apps, posts, or pages unless given, built now, in the empty project (``SiteKit/Project/empty``).
+	*/
+	static func test(
+		apps: [App] = [],
+		posts: [BlogPost] = [],
+		guides: [Guide] = [],
+		pages: [MarkdownPage] = [],
+		sharedQuestions: App.SharedQuestions.Library = .empty,
+		settings: SiteSettings = SiteSettings(),
+		featuredApps: [App] = [],
+		resolvedGuides: [Guide.Resolved] = [],
+		appData: AppData = .none,
+		recentRepositories: [GitHubRepository] = [],
+		popularRepositories: [GitHubRepository] = [],
+		gitHubAccount: GitHub.Account? = nil,
+		npmStatistics: NPMStatistics = NPMStatistics(),
+		recentActivity: RecentActivity = RecentActivity(),
+		contributionYears: [ContributionYear] = [],
+		buildDate: Date = .now,
+		project: Project = .empty
+	) -> Self {
+		Self(
+			apps: apps,
+			posts: posts,
+			guides: guides,
+			pages: pages,
+			sharedQuestions: sharedQuestions,
+			settings: settings,
+			featuredApps: featuredApps,
+			resolvedGuides: resolvedGuides,
+			appData: appData,
+			recentRepositories: recentRepositories,
+			popularRepositories: popularRepositories,
+			gitHubAccount: gitHubAccount,
+			npmStatistics: npmStatistics,
+			recentActivity: recentActivity,
+			contributionYears: contributionYears,
+			buildDate: buildDate,
+			project: project
+		)
+	}
+}
+
 extension PublishedSite {
 	/**
 	A published site with the text of the files of the routes, by their file, like `apps.html`, and the published public files.
 	*/
-	init(routeTexts: [PublishedFilePath: String], publicFiles: Set<PublishedFilePath> = []) {
+	init(routeTexts: [PublishedFilePath: String], publicFiles: [PublishedAsset] = []) {
 		self.init(routeFiles: routeTexts.mapValues { Data($0.utf8) }, publicFiles: publicFiles)
 	}
 }
@@ -126,15 +186,25 @@ extension RenderedPage {
 				return (route, render)
 			}
 
-		return try await pages.concurrentMap { page in
-			let resources = PageResources(sharedStylesheet: .site)
-			let html = try resources.collect {
-				try page.render()
-			}
+		// Like in a build, so the pages have the hashes of their scripts and their import maps.
+		return try await Site.Scripts.$published.withValue(.website) {
+			try await pages.concurrentMap { page in
+				let resources = PageResources(sharedStylesheet: .site)
+				let html = try resources.collect {
+					try page.render()
+				}
 
-			return Self(route: page.route, html: html, elements: resources.elements)
+				return Self(route: page.route, html: html, elements: resources.elements)
+			}
 		}
 	}
+}
+
+extension Site.Scripts {
+	/**
+	The scripts of the website, read once, for the pages that the tests render like a build does (``Site/Scripts/published``).
+	*/
+	static let website = try! Self(project: .website)
 }
 
 extension ContributionYear.Totals {
@@ -156,9 +226,9 @@ extension ContentEntry {
 	An entry from the Markdown of a file in the directory of its type, like `content/apps/test.md`, or in a subdirectory of it, like `content/pages/apps/faq.md` for the slug `apps/faq`. The file is not written to disk.
 	*/
 	init(markdown: String, slug: String = "test", project: Project = .empty) async throws {
-		let directory = project.root.appending(path: Self.directory)
+		let directory = Self.directory.fileURL(in: project.root)
 		let file = try MarkdownFile(contents: markdown, url: directory.appending(path: "\(slug).md"), relativeTo: directory)
-		try await self.init(file: file, frontmatter: file.decodeFrontmatter(), project: project)
+		try await self.init(file: file.decoded(), project: project)
 	}
 }
 
@@ -216,6 +286,16 @@ extension Guide {
 	The body of a guide about the app `test`, with the shape that every guide needs.
 	*/
 	static let testBody = "@QuickAnswer {\n\tUse [Test](/test).\n}\n\n@Steps {\n1. Open Test.\n}\n\n## Without an app\n\nText."
+
+	/**
+	The Markdown of a guide file with the frontmatter that every guide needs, about the apps, then the other lines of the frontmatter, like `screenshot: {…}`, and the body. The apps are on line 6, so the other lines start at line 7.
+
+	- Parameter apps: The SOML of the `apps` value, like `['test', 'other']`.
+	*/
+	static func testMarkdown(apps: String = "['test']", frontmatter: String = "", body: String = testBody) -> String {
+		let lines = ["title: 'How to Test'", "description: 'Use Test.'", "publicationDate: 2026-01-01", "topic: 'mac'", "apps: \(apps)"] + (frontmatter.isEmpty ? [] : [frontmatter])
+		return "---\n\(lines.joined(separator: "\n"))\n---\n\n\(body)"
+	}
 }
 
 extension Decodable {
@@ -245,10 +325,10 @@ extension ResponseCache {
 	}
 
 	/**
-	Writes a cached response for the exact request, including its method and body, with optional stale-date and revalidation metadata.
+	Writes a fresh cached response for the exact request, including its method and body.
 	*/
-	static func writeFixture(for request: URLRequest, body: Data, date: Date = .now, etag: String? = nil, directory: URL) throws {
-		try JSONEncoder().encode(ResponseCacheFixture(etag: etag, date: date, body: body)).write(to: directory.appending(path: "\(request.responseCacheKey).json"))
+	static func writeFixture(for request: URLRequest, body: Data, directory: URL) throws {
+		try JSONEncoder().encode(ResponseCacheFixture(etag: nil, date: .now, body: body)).write(to: directory.appending(path: "\(request.responseCacheKey).json"))
 	}
 
 	/**
@@ -270,7 +350,7 @@ extension ResponseCache {
 }
 
 /**
-The on-disk envelope of a cached test response, shared by GET and POST fixtures.
+The on-disk envelope of a cached test response, like the one that ``ResponseCache`` writes.
 */
 private struct ResponseCacheFixture: Codable {
 	let etag: String?
@@ -292,7 +372,9 @@ extension Route {
 			throw UnexpectedOutputError()
 		}
 
-		return try render()
+		return try Site.Scripts.$published.withValue(.website) {
+			try render()
+		}
 	}
 
 	/**
@@ -303,7 +385,9 @@ extension Route {
 			throw UnexpectedOutputError()
 		}
 
-		return try await render()
+		return try await Site.Scripts.$published.withValue(.website) {
+			try await render()
+		}
 	}
 }
 

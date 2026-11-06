@@ -2,6 +2,7 @@ import Foundation
 import RSS
 @testable import SiteKit
 import SOML
+import Subprocess
 import TestSupport
 import Testing
 @testable import Website
@@ -22,10 +23,7 @@ struct GitHubTests {
 		let directory = try URL.temporaryDirectory()
 		let executable = directory.appending(path: "gh")
 		try Data("#!/bin/sh\n\(script)\n".utf8).write(to: executable)
-		let permissions = Process()
-		permissions.executableURL = URL(filePath: "/bin/chmod")
-		permissions.arguments = ["+x", executable.path(percentEncoded: false)]
-		#expect(try await permissions.runUntilExit() == .exit(0))
+		#expect(try await run(.name("chmod"), arguments: ["+x", executable.path(percentEncoded: false)], output: .discarded).terminationStatus.isSuccess)
 
 		#expect(await GitHub.defaultToken(environment: ["PATH": directory.path(percentEncoded: false)]) == expected)
 	}
@@ -84,7 +82,7 @@ struct GitHubTests {
 
 	@Test
 	func `feed routes share feed identity while retaining the distinct channel website`() async throws {
-		let content = SiteContent(apps: [], posts: [], pages: [], buildDate: .now, project: .empty)
+		let content = SiteContent.test()
 
 		for source in SiteFeed.allCases {
 			let route = Route.feed(source.link, source.feed(content: content))
@@ -538,6 +536,8 @@ struct GitHubTests {
 		#expect(name.displayName == "Ky")
 		#expect(GitHubRepositoryName(nameWithOwner: "chalk/chalk")?.displayName == "chalk/chalk")
 		#expect(GitHubRepositoryName(npmRepositoryLink: "git+ssh://git@github.com:chalk/chalk.git#main") == #repository("chalk/chalk"))
+		#expect(GitHubRepositoryName(npmRepositoryLink: "addyosmani/critical") == #repository("addyosmani/critical"))
+		#expect(GitHubRepositoryName(npmRepositoryLink: "gitlab:owner/name") == nil)
 		#expect(GitHubRepositoryName(nameWithOwner: "sindresorhus") == nil)
 		#expect(GitHubRepositoryName(nameWithOwner: "sindresorhus/ky/issues") == nil)
 	}
@@ -549,14 +549,7 @@ struct GitHubTests {
 	func `the new repositories feed describes a repository with its summary, like the now page`() throws {
 		let repository = try GitHubRepository(json: #"{"name": "which-path", "description": ":zap: Find the path of a command, like the Unix `which` command", "full_name": "sindresorhus/which-path", "html_url": "https://github.com/sindresorhus/which-path", "created_at": "2026-01-01T00:00:00Z", "archived": false, "fork": false, "stargazers_count": 1}"#)
 		let organizationRepository = try GitHubRepository(json: #"{"name": "soml", "description": "A config language", "full_name": "soml-lang/soml", "html_url": "https://github.com/soml-lang/soml", "created_at": "2026-01-01T00:00:00Z", "archived": false, "fork": false, "stargazers_count": 1}"#)
-		let content = SiteContent(
-			apps: [],
-			posts: [],
-			pages: [],
-			recentRepositories: [repository, organizationRepository],
-			buildDate: .now,
-			project: .empty
-		)
+		let content = SiteContent.test(recentRepositories: [repository, organizationRepository])
 		let xml = try SiteFeed.newRepositories.feed(content: content).xmlString()
 
 		#expect(xml.contains("<description>Find the path of a command, like the Unix which command</description>"))

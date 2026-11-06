@@ -1,6 +1,6 @@
 ---
 title: 'How to Lock the Keyboard for Cleaning on Mac'
-description: 'Turn off the keyboard, the trackpad, and the mouse, and make the screen black, with Cleaning Mode in Supercharge. Then wipe the keys and the screen.'
+description: 'Disable the keyboard, the trackpad, and the mouse to clean your MacBook without shutting it down, with Cleaning Mode in Supercharge.'
 publicationDate: 2026-10-31
 topic: 'keyboard-and-trackpad'
 apps: [
@@ -9,7 +9,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	Click [Supercharge](../apps/supercharge/index.md) in the menu bar, and choose “Cleaning Mode”. The keys, the trackpad, and the mouse do nothing, and the screen is black. To stop, press ++Command++ six times. Without an app, shut down the Mac.
+	Click [Supercharge](../apps/supercharge/index.md) in the menu bar, and choose “Cleaning Mode”. The keyboard, the trackpad, and the mouse are disabled, and the screen is black. To stop, press ++Command++ six times. Without an app, shut down the Mac.
 }
 
 ## With Supercharge

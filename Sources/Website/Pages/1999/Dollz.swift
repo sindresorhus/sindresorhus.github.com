@@ -352,12 +352,12 @@ struct GeoCitiesDollz: ScriptedElement {
 						.width(128),
 						.height(200),
 						.tabindex(0),
-						.role("application")
+						.role(.application)
 					) {}
 						.accessibilityLabel("The doll. The left and right arrow keys change the tab, the up and down arrow keys change the piece of the tab, R makes a random doll, G turns the glitter on or off, and Z undoes.")
 						.style(Styles.canvas)
 
-					p(.part(Parts.status), .role("status")) {
+					p(.part(Parts.status), .role(.status)) {
 						"Click a tab, then click the clothes to dress her up! Or try 🎲 Random."
 					}
 					.style(Styles.status)
@@ -720,7 +720,7 @@ struct GeoCitiesDollz: ScriptedElement {
 		case color = "dollz-color"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case title
 		case corner

@@ -107,7 +107,7 @@ I don’t plan to add this. You can get this feature in my [Dato app](/dato).
 
 ### Can you make the app show events for more days? {#can-you-make-the-app-show-events-for-more-days}
 
-“Today” 😁
+No, the app is for today. But with the “Next up” setting, the menu can also show your first event after today. For more days, see [Dato](/dato).
 
 ### I added a calendar to the Calendar app but it doesn’t show up in the app {#i-added-a-calendar-to-the-calendar-app-but-it-doesnt-show-up-in-the-app}
 

@@ -1,4 +1,4 @@
-import {share, sharedPage} from '/scripts/dom.js';
+import {elementForFragment, share, sharedPage} from '/scripts/dom.js';
 
 class OverflowMenu extends HTMLElement {
 	connectedCallback() {
@@ -38,7 +38,7 @@ class OverflowMenu extends HTMLElement {
 			}
 		}
 
-		const popover = isPopover ? document.getElementById(destination.slice(1)) : undefined;
+		const popover = isPopover ? elementForFragment(destination) : undefined;
 
 		if (popover?.popover) {
 			// The menu is the source, so focus goes back to it when the popover closes.

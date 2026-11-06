@@ -53,7 +53,7 @@ Some apps do not have the command at all, and the shortcut is hard to remember.
 You can give “Paste and Match Style” the ++Command+V++ shortcut in all apps:
 
 @Steps {
-1. Open “System Settings › Keyboard”, and click “Keyboard Shortcuts…”.
+1. Open “[System Settings › Keyboard](x-apple.systempreferences:com.apple.Keyboard-Settings.extension)”, and click “Keyboard Shortcuts…”.
 1. Choose “App Shortcuts”, and click the add button.
 1. Keep “All Applications”, and type `Paste and Match Style` in “Menu title”. Type it exactly like in the Edit menu.
 1. Click “Keyboard shortcut”, press ++Command+V++, and click “Done”.

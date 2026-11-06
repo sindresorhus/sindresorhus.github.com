@@ -33,7 +33,14 @@ extension Style {
 	The size of each background image tile.
 	*/
 	public func backgroundSize(width: LengthPercentage, height: LengthPercentage) -> Self {
-		declaration(.backgroundSize, [CSSValue(width), CSSValue(height)])
+		backgroundSize(.dimensions(width: .length(width), height: .length(height)))
+	}
+
+	/**
+	The background image size, including `cover`, `contain`, and automatic dimensions.
+	*/
+	public func backgroundSize(_ size: ImageSize) -> Self {
+		declaration(.backgroundSize, CSSValue(raw: size.description))
 	}
 
 	/**
@@ -47,7 +54,14 @@ extension Style {
 	The size of each tile of the mask images.
 	*/
 	public func maskSize(width: LengthPercentage, height: LengthPercentage) -> Self {
-		declaration(.maskSize, [CSSValue(width), CSSValue(height)])
+		maskSize(.dimensions(width: .length(width), height: .length(height)))
+	}
+
+	/**
+	The mask image size, including `cover`, `contain`, and automatic dimensions.
+	*/
+	public func maskSize(_ size: ImageSize) -> Self {
+		declaration(.maskSize, CSSValue(raw: size.description))
 	}
 
 	/**
@@ -441,6 +455,10 @@ extension Style {
 		var style = self
 
 		for property in properties {
+			if let registration = property.registration {
+				style.definitions.append(registration.node)
+			}
+
 			for name in property.properties {
 				let transition = "\(name) \(timing)" + (property.isDiscrete ? " allow-discrete" : "")
 				style = style.appending(transition, to: .transition, separator: ", ")
@@ -458,9 +476,30 @@ extension Style {
 	}
 
 	/**
+	The properties expected to change soon (`will-change`), like `.willChange(.transform)`. An empty list restores `auto`. Use only for an observed performance need, as preparing many elements can consume more resources.
+	*/
+	public func willChange(_ properties: Property...) -> Self {
+		declaration(.willChange, CSSValue(properties, separator: ", ", emptyValue: .auto))
+	}
+
+	/**
+	The delay before an animation starts. A negative delay starts partway through the animation.
+	*/
+	public func animationDelay(_ delay: Duration) -> Self {
+		declaration(.animationDelay, CSSValue(raw: delay.cssValue))
+	}
+
+	/**
+	A time multiplied by a number-valued expression, like `.animationDelay(.milliseconds(100), multipliedBy: .siblingIndex - 2)` for elements that appear one after another. Set it after the animation shorthand, in the same media query.
+	*/
+	public func animationDelay(_ delay: Duration, multipliedBy multiplier: CSSNumber) -> Self {
+		declaration(.animationDelay, CSSValue(raw: "calc(\(multiplier) * \(delay.cssValue))"))
+	}
+
+	/**
 	Runs the keyframes, like `.animation(Animations.spin, .linear(duration: .seconds(1)).repeatForever(autoreverses: false))`.
 
-	The animation only runs for visitors who allow motion: it is written in `@media (prefers-reduced-motion: no-preference)` (``MediaQuery/allowsMotion``). With reduced motion, the element shows its style without the animation, which must be its still frame, like the end of a fade in. Hide a decoration that only makes sense while it moves with `.reducedMotion { $0.hidden() }`. See “Motion” in `AGENTS.md`.
+	The animation only runs for visitors who allow motion: it is written in `@media (prefers-reduced-motion: no-preference)` (``MediaCondition/allowsMotion``). With reduced motion, the element shows its style without the animation, which must be its still frame, like the end of a fade in. Hide a decoration that only makes sense while it moves with `.reducedMotion { $0.hidden() }`. See “Motion” in `AGENTS.md`.
 
 	The media query comes after the declarations of the style, so the `animation` shorthand in it resets longhands like `animation-delay` that the style sets. Set them in `.media(.allowsMotion)` after the animation.
 
@@ -501,10 +540,10 @@ extension Style {
 	}
 
 	/**
-	A scroll-driven animation between named timeline boundaries, like `from: .entry(.percent(10)), to: .exit(.percent(90))`.
+	An animation between named boundaries of a view timeline, like `from: .entry(.percent(10)), to: .exit(.percent(90))`. Scroll-progress timelines use the overload with plain length or percentage offsets.
 	*/
-	public func animation(_ keyframes: some KeyframeSet, timeline: AnimationTimeline, from start: AnimationRangeBoundary, to end: AnimationRangeBoundary) -> Self {
-		animation(keyframes, timeline: timeline, rawRange: "\(start) \(end)")
+	public func animation(_ keyframes: some KeyframeSet, viewTimeline timeline: ViewTimeline, from start: AnimationRangeBoundary, to end: AnimationRangeBoundary) -> Self {
+		animation(keyframes, timeline: .view(timeline), rawRange: "\(start) \(end)")
 	}
 
 	/**

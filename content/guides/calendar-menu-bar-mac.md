@@ -3,6 +3,7 @@ title: 'How to Show a Calendar in the Mac Menu Bar'
 description: 'See a monthly calendar with one click in the menu bar with the free Menu Bar Calendar app, or your events and world clocks too with Dato.'
 publicationDate: 2026-10-31
 topic: 'menu-bar'
+isForWindowsUsers: true
 apps: [
 	'menu-bar-calendar'
 	'dato'

@@ -7,7 +7,7 @@ The color palettes of the site, mostly from the Tailwind v4 palette, in OKLCH, w
 
 Each shade is a custom property on `:root`, like `--gray-900`, so the stylesheet defines each color once. Use a shade with ``Color/gray(_:)`` and the other palette functions.
 */
-enum Palette: String, CaseIterable {
+enum Palette: String, CaseIterable, Sendable {
 	case gray
 
 	/**
@@ -35,36 +35,45 @@ enum Palette: String, CaseIterable {
 	The shades of the palette, from light (50) to dark (950).
 	*/
 	var shades: KeyValuePairs<Int, Color> {
-		switch self {
+		// The table is populated from every enum case below.
+		Self.shadesByPalette[self]!
+	}
+
+	/**
+	Builds the immutable palette values once. Constructing typed OKLCH colors formats their numeric components, so a shade lookup must not rebuild its whole palette.
+	*/
+	private static let shadesByPalette = Dictionary(uniqueKeysWithValues: allCases.map { palette in
+		let shades: KeyValuePairs<Int, Color> = switch palette {
 		case .gray:
 			// Near-neutral grays, like the system grays of Apple platforms, so gray surfaces do not look blue next to the brand blue.
-			[50: "oklch(98.5% .002 286)", 100: "oklch(97.1% .003 286)", 200: "oklch(93.2% .007 286)", 300: "oklch(87% .006 286)", 400: "oklch(71.1% .007 286)", 500: "oklch(54% .008 286)", 600: "oklch(44.5% .008 286)", 700: "oklch(37% .006 286)", 800: "oklch(27.4% .006 286)", 900: "oklch(23.2% .004 286)", 950: "oklch(18.8% .004 286)"]
+			[50: .oklch(lightness: .percent(98.5), chroma: 0.002, hue: .degrees(286)), 100: .oklch(lightness: .percent(97.1), chroma: 0.003, hue: .degrees(286)), 200: .oklch(lightness: .percent(93.2), chroma: 0.007, hue: .degrees(286)), 300: .oklch(lightness: .percent(87), chroma: 0.006, hue: .degrees(286)), 400: .oklch(lightness: .percent(71.1), chroma: 0.007, hue: .degrees(286)), 500: .oklch(lightness: .percent(54), chroma: 0.008, hue: .degrees(286)), 600: .oklch(lightness: .percent(44.5), chroma: 0.008, hue: .degrees(286)), 700: .oklch(lightness: .percent(37), chroma: 0.006, hue: .degrees(286)), 800: .oklch(lightness: .percent(27.4), chroma: 0.006, hue: .degrees(286)), 900: .oklch(lightness: .percent(23.2), chroma: 0.004, hue: .degrees(286)), 950: .oklch(lightness: .percent(18.8), chroma: 0.004, hue: .degrees(286))]
 		case .primary:
-			[50: "oklch(97% .014 254.604)", 100: "oklch(93.2% .032 255.585)", 200: "oklch(88.2% .059 254.128)", 300: "oklch(80.9% .105 251.813)", 400: "oklch(70.7% .165 254.624)", 500: "oklch(62.3% .214 259.815)", 600: "oklch(54.6% .245 262.881)", 700: "oklch(48.8% .243 264.376)", 800: "oklch(42.4% .199 265.638)", 900: "oklch(37.9% .146 265.522)", 950: "oklch(28.2% .091 267.935)"]
+			[50: .oklch(lightness: .percent(97), chroma: 0.014, hue: .degrees(254.604)), 100: .oklch(lightness: .percent(93.2), chroma: 0.032, hue: .degrees(255.585)), 200: .oklch(lightness: .percent(88.2), chroma: 0.059, hue: .degrees(254.128)), 300: .oklch(lightness: .percent(80.9), chroma: 0.105, hue: .degrees(251.813)), 400: .oklch(lightness: .percent(70.7), chroma: 0.165, hue: .degrees(254.624)), 500: .oklch(lightness: .percent(62.3), chroma: 0.214, hue: .degrees(259.815)), 600: .oklch(lightness: .percent(54.6), chroma: 0.245, hue: .degrees(262.881)), 700: .oklch(lightness: .percent(48.8), chroma: 0.243, hue: .degrees(264.376)), 800: .oklch(lightness: .percent(42.4), chroma: 0.199, hue: .degrees(265.638)), 900: .oklch(lightness: .percent(37.9), chroma: 0.146, hue: .degrees(265.522)), 950: .oklch(lightness: .percent(28.2), chroma: 0.091, hue: .degrees(267.935))]
 		case .secondary:
-			[50: "oklch(97.1% .014 343.198)", 200: "oklch(89.9% .061 343.231)", 400: "oklch(71.8% .202 349.761)", 500: "oklch(65.6% .241 354.308)", 600: "oklch(59.2% .249 .584)", 800: "oklch(45.9% .187 3.815)", 900: "oklch(40.8% .153 2.432)"]
+			[50: .oklch(lightness: .percent(97.1), chroma: 0.014, hue: .degrees(343.198)), 200: .oklch(lightness: .percent(89.9), chroma: 0.061, hue: .degrees(343.231)), 400: .oklch(lightness: .percent(71.8), chroma: 0.202, hue: .degrees(349.761)), 500: .oklch(lightness: .percent(65.6), chroma: 0.241, hue: .degrees(354.308)), 600: .oklch(lightness: .percent(59.2), chroma: 0.249, hue: .degrees(0.584)), 800: .oklch(lightness: .percent(45.9), chroma: 0.187, hue: .degrees(3.815)), 900: .oklch(lightness: .percent(40.8), chroma: 0.153, hue: .degrees(2.432))]
 		case .red:
-			[100: "oklch(93.6% .032 17.717)", 200: "oklch(88.5% .062 18.334)", 400: "oklch(70.4% .191 22.216)", 500: "oklch(63.7% .237 25.331)", 600: "oklch(57.7% .245 27.325)"]
+			[100: .oklch(lightness: .percent(93.6), chroma: 0.032, hue: .degrees(17.717)), 200: .oklch(lightness: .percent(88.5), chroma: 0.062, hue: .degrees(18.334)), 400: .oklch(lightness: .percent(70.4), chroma: 0.191, hue: .degrees(22.216)), 500: .oklch(lightness: .percent(63.7), chroma: 0.237, hue: .degrees(25.331)), 600: .oklch(lightness: .percent(57.7), chroma: 0.245, hue: .degrees(27.325))]
 		case .amber:
-			[50: "oklch(98.7% .022 95.277)", 100: "oklch(96.2% .059 95.617)", 200: "oklch(92.4% .12 95.746)", 300: "oklch(87.9% .169 91.605)", 400: "oklch(82.8% .189 84.429)", 600: "oklch(66.6% .179 58.318)", 700: "oklch(55.5% .163 48.998)", 800: "oklch(47.3% .137 46.201)", 900: "oklch(41.4% .112 45.904)", 950: "oklch(27.9% .077 45.635)"]
+			[50: .oklch(lightness: .percent(98.7), chroma: 0.022, hue: .degrees(95.277)), 100: .oklch(lightness: .percent(96.2), chroma: 0.059, hue: .degrees(95.617)), 200: .oklch(lightness: .percent(92.4), chroma: 0.12, hue: .degrees(95.746)), 300: .oklch(lightness: .percent(87.9), chroma: 0.169, hue: .degrees(91.605)), 400: .oklch(lightness: .percent(82.8), chroma: 0.189, hue: .degrees(84.429)), 600: .oklch(lightness: .percent(66.6), chroma: 0.179, hue: .degrees(58.318)), 700: .oklch(lightness: .percent(55.5), chroma: 0.163, hue: .degrees(48.998)), 800: .oklch(lightness: .percent(47.3), chroma: 0.137, hue: .degrees(46.201)), 900: .oklch(lightness: .percent(41.4), chroma: 0.112, hue: .degrees(45.904)), 950: .oklch(lightness: .percent(27.9), chroma: 0.077, hue: .degrees(45.635))]
 		case .orange:
-			[100: "oklch(95.4% .038 75.164)", 200: "oklch(90.1% .076 70.697)"]
+			[100: .oklch(lightness: .percent(95.4), chroma: 0.038, hue: .degrees(75.164)), 200: .oklch(lightness: .percent(90.1), chroma: 0.076, hue: .degrees(70.697))]
 		case .teal:
-			[100: "oklch(95.3% .051 180.801)", 200: "oklch(91% .096 180.426)"]
+			[100: .oklch(lightness: .percent(95.3), chroma: 0.051, hue: .degrees(180.801)), 200: .oklch(lightness: .percent(91), chroma: 0.096, hue: .degrees(180.426))]
 		case .sky:
-			[100: "oklch(95.1% .026 236.824)", 200: "oklch(90.1% .058 230.902)"]
+			[100: .oklch(lightness: .percent(95.1), chroma: 0.026, hue: .degrees(236.824)), 200: .oklch(lightness: .percent(90.1), chroma: 0.058, hue: .degrees(230.902))]
 		case .indigo:
-			[50: "oklch(96.2% .018 272.314)", 100: "oklch(93% .034 272.788)", 200: "oklch(87% .065 274.039)", 500: "oklch(58.5% .233 277.117)", 950: "oklch(25.7% .09 281.288)"]
+			[50: .oklch(lightness: .percent(96.2), chroma: 0.018, hue: .degrees(272.314)), 100: .oklch(lightness: .percent(93), chroma: 0.034, hue: .degrees(272.788)), 200: .oklch(lightness: .percent(87), chroma: 0.065, hue: .degrees(274.039)), 500: .oklch(lightness: .percent(58.5), chroma: 0.233, hue: .degrees(277.117)), 950: .oklch(lightness: .percent(25.7), chroma: 0.09, hue: .degrees(281.288))]
 		case .violet:
-			[500: "oklch(60.6% .25 292.717)"]
+			[500: .oklch(lightness: .percent(60.6), chroma: 0.25, hue: .degrees(292.717))]
 		case .emerald:
-			[50: "oklch(97.9% .021 166.113)", 100: "oklch(95% .052 163.051)", 200: "oklch(90.5% .093 164.15)", 400: "oklch(76.5% .177 163.223)", 700: "oklch(50.8% .118 165.612)", 950: "oklch(26.2% .051 172.552)"]
+			[50: .oklch(lightness: .percent(97.9), chroma: 0.021, hue: .degrees(166.113)), 100: .oklch(lightness: .percent(95), chroma: 0.052, hue: .degrees(163.051)), 200: .oklch(lightness: .percent(90.5), chroma: 0.093, hue: .degrees(164.15)), 400: .oklch(lightness: .percent(76.5), chroma: 0.177, hue: .degrees(163.223)), 700: .oklch(lightness: .percent(50.8), chroma: 0.118, hue: .degrees(165.612)), 950: .oklch(lightness: .percent(26.2), chroma: 0.051, hue: .degrees(172.552))]
 		case .purple:
-			[50: "oklch(97.7% .014 308.299)", 400: "oklch(71.4% .203 305.504)", 700: "oklch(49.6% .265 301.924)", 950: "oklch(29.1% .149 302.717)"]
+			[50: .oklch(lightness: .percent(97.7), chroma: 0.014, hue: .degrees(308.299)), 400: .oklch(lightness: .percent(71.4), chroma: 0.203, hue: .degrees(305.504)), 700: .oklch(lightness: .percent(49.6), chroma: 0.265, hue: .degrees(301.924)), 950: .oklch(lightness: .percent(29.1), chroma: 0.149, hue: .degrees(302.717))]
 		case .rose:
-			[50: "oklch(96.9% .015 12.422)", 400: "oklch(71.2% .194 13.428)", 700: "oklch(51.4% .222 16.935)", 950: "oklch(27.1% .105 12.094)"]
+			[50: .oklch(lightness: .percent(96.9), chroma: 0.015, hue: .degrees(12.422)), 400: .oklch(lightness: .percent(71.2), chroma: 0.194, hue: .degrees(13.428)), 700: .oklch(lightness: .percent(51.4), chroma: 0.222, hue: .degrees(16.935)), 950: .oklch(lightness: .percent(27.1), chroma: 0.105, hue: .degrees(12.094))]
 		}
-	}
+		return (palette, shades)
+	})
 
 	func color(_ shade: Int) -> Color {
 		precondition(shades.contains { $0.key == shade }, "The \(rawValue) palette has no shade \(shade).")
@@ -161,11 +170,11 @@ enum SemanticColor: String, CaseIterable {
 	/**
 	The colors when the visitor asks for more contrast, or `nil` when they are the same as the ordinary color.
 	*/
-	private var moreContrast: Color? {
+	fileprivate var moreContrast: Color? {
 		definition.moreContrast
 	}
 
-	private var variable: StyleVariable<Color> {
+	fileprivate var variable: StyleVariable<Color> {
 		StyleVariable("\(rawValue.kebabCased)")
 	}
 
@@ -203,6 +212,18 @@ extension Color {
 	static func accent(fallback: Color, maximumLightness: Double) -> Self {
 		Self(raw: "oklch(from \(accent.value(default: fallback)) min(l, \(maximumLightness)) c h)")
 	}
+
+	/**
+	A light tint of the accent, or the fallback, with at least the lightness and at most the chroma, so it works as text on a dark tint of the accent, like the text of a secondary button in dark mode.
+	*/
+	static func accent(fallback: Color, minimumLightness: Double, maximumChroma: Double) -> Self {
+		Self(raw: "oklch(from \(accent.value(default: fallback)) max(l, \(minimumLightness)) min(c, \(maximumChroma)) h)")
+	}
+
+	/**
+	The accent for text on the page background or on a tint of the accent, like the text of a secondary button and the link below the reviews of an app. It is dark in light mode, and a light tint in dark mode, so it has the contrast of text in both, also for a dark accent. The fallback in dark mode is the light blue of the site, which the tint keeps as it is.
+	*/
+	static let accentText = lightDark(.accent(fallback: .primary(700), maximumLightness: 0.5), .accent(fallback: .primary(200), minimumLightness: 0.86, maximumChroma: 0.09))
 
 	/**
 	The accent for small marks on the page background, like the numbers of steps and the current dot of a carousel. It is dark enough on white, and the accent itself in dark mode, so an app page shows the color of its icon in both.
@@ -525,23 +546,23 @@ extension Style {
 }
 
 extension FontFamily {
-	static let system: Self = #"-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji""#
-	static let monospace: Self = #"ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace"#
+	static let system = Self(raw: #"-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji""#)
+	static let monospace = Self.stack(.uiMonospace, .named("SFMono-Regular"), .named("Menlo"), .named("Monaco"), .named("Consolas"), .named("Liberation Mono"), .named("Courier New"), .genericMonospace)
 
 	/**
 	SF Pro on Apple platforms, which can be expanded with `font-stretch`.
 	*/
-	static let expandable: Self = "ui-sans-serif, -apple-system, system-ui, sans-serif"
+	static let expandable = Self.stack(.uiSansSerif, .init(raw: "-apple-system"), .systemUI, .genericSansSerif)
 
 	/**
 	SF Pro Rounded on Apple platforms, for numbers that stand out, like the numbers of feature sections.
 	*/
-	static let rounded: Self = #"ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif"#
+	static let rounded = Self.stack(.uiRounded, .named("SF Pro Rounded"), .init(raw: "-apple-system"), .systemUI, .genericSansSerif)
 
 	/**
 	New York on Apple platforms, for names in the look of a masthead, like the publications of the press quotes.
 	*/
-	static let serif: Self = #"ui-serif, "New York", Georgia, serif"#
+	static let serif = Self.stack(.uiSerif, .named("New York"), .named("Georgia"), .genericSerif)
 }
 
 // MARK: Layout
@@ -564,6 +585,11 @@ extension Breakpoint {
 	A tablet in portrait (768px).
 	*/
 	static let tablet = Self(minimumWidthInRem: 48)
+
+	/**
+	The width where prose (``Style/ColumnWidth/prose``, 48rem) has the space of the page at its sides (``LengthPercentage/pageGutter``), so its boxes can hang into that space and still keep it from the edges of the screen (816px). See ``Style/widerThanProse()``.
+	*/
+	static let proseWithGutters = Self(minimumWidthInRem: 51)
 
 	/**
 	A tablet in landscape, or a small laptop (1024px).
@@ -603,9 +629,24 @@ extension LengthPercentage {
 }
 
 extension Style {
+	/**
+	Replaces a semantic color in the element and its descendants, like a darker secondary text on a tinted background, where the ordinary one has too little contrast. The color for more contrast stays, as it is already strong.
+	*/
+	func replacing(_ semanticColor: SemanticColor, with color: Color) -> Self {
+		let style = setting(semanticColor.variable, to: color)
+
+		guard let moreContrast = semanticColor.moreContrast else {
+			return style
+		}
+
+		return style.media(.moreContrast) {
+			$0.setting(semanticColor.variable, to: moreContrast)
+		}
+	}
+
 	enum ColumnWidth {
 		/**
-		46.5rem, the width of prose, so the text is 43.5rem wide, about 78 characters per line. Headers of prose pages use it, so they line up with the text.
+		48rem, the width of prose, so the text is 45rem wide, about 87 characters per line (90 or less on most lines, measured on the general FAQ at 1440 px). The measure is longer than the common 80 characters on purpose, as the long lines suit the text of the site and use the space of large screens. Headers of prose pages use it, so they line up with the text.
 		*/
 		case prose
 
@@ -627,7 +668,7 @@ extension Style {
 		var maximum: LengthPercentage {
 			switch self {
 			case .prose:
-				.rootEm(46.5)
+				.rootEm(48)
 			case .standard:
 				.rootEm(48)
 			case .wide:
@@ -639,10 +680,10 @@ extension Style {
 	}
 
 	/**
-	Wider than the prose it is in by ``LengthPercentage/boxInset`` at each side, for boxes, like tables, code, the FAQ, and alerts. With the inset as the padding of the box, its text starts where the paragraphs start. Below tablets, the box is as wide as the text.
+	Wider than the prose it is in by ``LengthPercentage/boxInset`` at each side, for boxes, like tables, code, the FAQ, and alerts. With the inset as the padding of the box, its text starts where the paragraphs start. Below ``Breakpoint/proseWithGutters``, the box is as wide as the text, as the space at the sides of the text is then the space of the page, and a box in it would touch the edges of the screen.
 	*/
 	func widerThanProse() -> Self {
-		from(.tablet) {
+		from(.proseWithGutters) {
 			$0.margin(.horizontal, .length(-.boxInset))
 		}
 	}
@@ -947,7 +988,6 @@ How strong the light of a hovered card is, from 0 to 1. It is registered, so it 
 */
 private let cardLight = RegisteredProperty<CSSNumber>(
 	"card-light",
-	syntax: .number,
 	initialValue: 0,
 	inherits: false
 )
@@ -987,7 +1027,7 @@ extension Style {
 		}
 
 		return style
-			.underline(false)
+			.noUnderline()
 			.setting(cardLight, to: 0)
 			.backgroundImage(light(strength: 10), dark: light(strength: 17))
 			.transition(.backgroundColor, .shadow, timing: .stateChange)
@@ -1005,12 +1045,19 @@ extension Style {
 	}
 
 	/**
+	The corners and the soft shadow of a window, with its thin outline, for a picture of a window, a screenshot of an app, or a popover.
+	*/
+	func windowSurface() -> Self {
+		cornerRadius(.windowRadius)
+			.shadow(.window)
+	}
+
+	/**
 	The look of a popover, like a footnote or a QR code: an opaque background, the corners of a window, and the soft shadow and thin outline of a window.
 	*/
 	func popoverSurface() -> Self {
-		cornerRadius(.windowRadius)
+		windowSurface()
 			.background(.white, dark: .gray(900))
-			.shadow(.window)
 	}
 
 	/**
@@ -1023,7 +1070,7 @@ extension Style {
 			.font(size: ProseStyles.smallTextSize, lineHeight: 1.75)
 			.fontWeight(.regular)
 			// Code is often indented with tabs, which are 8 spaces wide by default.
-			.declaration(.tabSize, 4)
+			.declaration(raw: .tabSize, 4)
 			.color(.gray(200))
 			.background(.gray(800))
 			// The code is light on dark in both modes, so the scroll bar is too. The dark background is not `light-dark()`, as that would follow this color scheme.
@@ -1162,7 +1209,7 @@ extension Style {
 	A link that looks like the text around it, without an underline, and has the primary text color under the pointer, like the links of the footer. The parent or the style sets its color, like a secondary color.
 	*/
 	func quietLink() -> Self {
-		underline(false).hoverColor(.primaryText)
+		noUnderline().hoverColor(.primaryText)
 	}
 
 	/**
@@ -1204,10 +1251,19 @@ extension Style {
 	func moreLink() -> Self {
 		fontWeight(.semibold)
 			.color(.link)
-			.underline(false)
+			.noUnderline()
 			.hoverOrFocusVisible {
 				$0.underline()
 			}
+	}
+
+	/**
+	The arrow after a link, like “All Posts →”, only on the screen, so the name of the link is its text.
+	*/
+	func trailingArrow() -> Self {
+		after {
+			$0.content("\u{00A0}→", alternativeText: "")
+		}
 	}
 
 	/**
@@ -1239,7 +1295,7 @@ extension Style {
 			// Forced colors replace the transparent color, so only the current link keeps an underline.
 			.media(.forcedColors) {
 				$0.nested("&:not([aria-current])") {
-					$0.underline(false)
+					$0.noUnderline()
 				}
 			}
 	}
@@ -1312,7 +1368,7 @@ extension Style {
 
 		// Without the underline of links in prose.
 		return style
-			.underline(false)
+			.noUnderline()
 			.hoverFill(.cardHover, color: .primaryText)
 	}
 

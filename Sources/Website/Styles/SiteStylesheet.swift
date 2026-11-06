@@ -31,6 +31,7 @@ extension Stylesheet {
 			IconLink.Styles.self
 			SiteFooter.Styles.self
 			UnicornEasterEgg.Styles.self
+			LinkPreview.Styles.self
 		}
 
 		// The styles that only one element has, which pages add (``ElementStyle``). Empty here, so the order of the layers has it.
@@ -81,7 +82,7 @@ extension Stylesheet {
 			.boxSizing(.borderBox)
 			.margin(.zero)
 			.padding(.zero)
-			.declaration(.border, "0 solid")
+			.declaration(raw: .border, "0 solid")
 		)
 
 		document
@@ -160,7 +161,7 @@ extension Stylesheet {
 		Rule(
 			"[hidden]",
 			Style()
-			.declaration(.display, Display.none, isImportant: true)
+			.declaration(raw: .display, Display.none, isImportant: true)
 		)
 	}
 }

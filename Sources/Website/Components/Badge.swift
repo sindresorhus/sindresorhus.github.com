@@ -8,7 +8,7 @@ struct Badge: HTML {
 	/**
 	The color of the badge.
 	*/
-	enum Kind: StyleSet {
+	enum Kind: String, StyleSet {
 		case standard
 		case new
 		case platform
@@ -70,7 +70,7 @@ struct Badge: HTML {
 	*/
 	static let fontSize = StyleVariable<LengthPercentage>("badge-font-size")
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 
 		var style: Style {

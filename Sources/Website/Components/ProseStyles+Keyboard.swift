@@ -44,7 +44,7 @@ extension ProseStyles {
 		}
 
 	/**
-	A shortcut and the punctuation right after it, like a comma. A line can break after an inline block, even before a comma, so this element is the inline block instead of the shortcut, and keeps the punctuation next to the last key. A shortcut that wraps between its keys is as wide as the column, so punctuation after its inline block would be at the edge of the column, far from the last key.
+	A shortcut and the punctuation right before and after it, like a parenthesis and a comma. A line can break before and after an inline block, even after an opening parenthesis and before a comma, so this element is the inline block instead of the shortcut, and keeps the punctuation next to the first and the last key. A shortcut that wraps between its keys is as wide as the column, so punctuation after its inline block would be at the edge of the column, far from the last key.
 	*/
 	static let keyboardShortcutWithPunctuationStyle = Style()
 		.display(.inlineBlock)

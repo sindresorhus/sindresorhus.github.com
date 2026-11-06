@@ -60,7 +60,7 @@ struct PrivacyPolicyPage: Page {
 		}
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case contact
 
 		var style: Style {

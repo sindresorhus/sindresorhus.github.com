@@ -69,7 +69,7 @@ public struct RoutePath: Hashable, Sendable, CustomStringConvertible, ValidatedV
 	}
 
 	/**
-	A path from content, like `/old-name` in frontmatter. Throws if it does not start with `/`, or has a `.` or `..` component, which would publish a file outside the output directory, or a character that a link must percent-encode, which would make the `href` and the canonical URL different.
+	A path from content, like `/old-name` in frontmatter. Throws if it does not start with `/`, or has a `.` or `..` component, which would publish a file outside the output directory, or a space, `?`, `#`, or `%`, which authored route paths do not support.
 
 	A file name can have those characters, like a screenshot with a space in its name, so the check for them is here and not in ``init(_:)``, which also makes paths from file names.
 	*/
@@ -150,6 +150,15 @@ public struct RoutePath: Hashable, Sendable, CustomStringConvertible, ValidatedV
 	*/
 	public var relativePath: String {
 		String(description.dropFirst())
+	}
+
+	/**
+	The path encoded for a URL, like `/shots/a%23b.png` for the file name `a#b.png`. The stored path stays decoded, so it can also name files on disk.
+	*/
+	public var percentEncodedPath: String {
+		var components = URLComponents()
+		components.path = description
+		return components.percentEncodedPath
 	}
 
 	/**

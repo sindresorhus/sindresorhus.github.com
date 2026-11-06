@@ -9,7 +9,7 @@ public protocol ContentEntry: Sendable {
 	/**
 	The directory with the Markdown files, relative to the project root, like `content/blog`.
 	*/
-	static var directory: String { get }
+	static var directory: Project.ContentDirectory { get }
 
 	/**
 	Whether the Markdown files can be in subdirectories of ``directory``. When `false`, a file in a subdirectory is a content error, for example when the slug is one component of a path, but a page bundle, like `dato/index.md`, is allowed. The default is `true`.
@@ -21,10 +21,10 @@ public protocol ContentEntry: Sendable {
 	*/
 	static var sortOrder: [KeyPathComparator<Self>] { get }
 
-	init(file: MarkdownFile, frontmatter: Frontmatter, project: Project) async throws
+	init(file: DecodedMarkdownFile<Frontmatter>, project: Project) async throws
 
 	/**
-	Drafts are not loaded.
+	Drafts are loaded apart from the other entries (``ContentLoad/drafts``), so they are not published.
 	*/
 	var isDraft: Bool { get }
 }
@@ -34,15 +34,49 @@ The result of loading a content directory. An unavailable directory has no entri
 */
 public enum ContentLoad<Entry: ContentEntry>: Sendable {
 	case unavailable(ContentErrors)
-	case loaded(entries: [Entry], failedSlugs: Set<String>, errors: [ContentError])
+	case loaded(Loaded)
+
+	/**
+	The result of a directory that could be read. The values have names, not positions, as ``entries`` and ``drafts`` have the same type.
+	*/
+	public struct Loaded: Sendable {
+		/**
+		The entries without the drafts, which are apart, so only the preview of `website serve` shows them.
+		*/
+		public let entries: [Entry]
+
+		/**
+		The drafts that loaded successfully (`isDraft: true`).
+		*/
+		public let drafts: [Entry]
+
+		/**
+		The slugs of the files with mistakes, so the caller can leave out the checks that need an entry that did not load.
+		*/
+		public let failedSlugs: Set<String>
+
+		public let errors: [ContentError]
+	}
 
 	/**
 	The entries that loaded successfully, for checks between available documents. An unavailable directory has none; use the `.loaded` case when its availability matters.
 	*/
 	public var validEntries: [Entry] {
 		switch self {
-		case .loaded(let entries, _, _):
-			entries
+		case .loaded(let loaded):
+			loaded.entries
+		case .unavailable:
+			[]
+		}
+	}
+
+	/**
+	The drafts that loaded successfully (`isDraft: true`), for the preview of `website serve`. An unavailable directory has none.
+	*/
+	public var drafts: [Entry] {
+		switch self {
+		case .loaded(let loaded):
+			loaded.drafts
 		case .unavailable:
 			[]
 		}
@@ -55,8 +89,8 @@ public enum ContentLoad<Entry: ContentEntry>: Sendable {
 		switch self {
 		case .unavailable(let failure):
 			failure.errors
-		case .loaded(_, _, let errors):
-			errors
+		case .loaded(let loaded):
+			loaded.errors
 		}
 	}
 }
@@ -64,10 +98,6 @@ public enum ContentLoad<Entry: ContentEntry>: Sendable {
 extension ContentEntry {
 	public static var allowsSubdirectories: Bool {
 		true
-	}
-
-	public var isDraft: Bool {
-		false
 	}
 
 	/**
@@ -84,44 +114,47 @@ extension ContentEntry {
 	let posts = try await BlogPost.load(from: project, lastCommitDates: project.lastCommitDates())
 	```
 
-	Each file is decoded and validated. The mistakes of all files are thrown together as ``ContentErrors``, with file paths and lines. Drafts are left out, and the entries are sorted by ``sortOrder``.
+	Each file is decoded and validated. The mistakes of all files are thrown together as ``ContentErrors``, with file paths and lines. Drafts are left out (``ContentLoad/drafts`` has them), and the entries are sorted by ``sortOrder``.
 
 	- Parameter lastCommitDates: The dates from ``Project/lastCommitDates()``, which the files get as ``MarkdownFile/lastCommitDate``.
 	*/
-	public static func load(from project: Project, lastCommitDates: [String: Date] = [:]) async throws(ContentErrors) -> [Self] {
-		let loaded = await load(from: project, lastCommitDates: lastCommitDates) { file, frontmatter in
-			try await Self(file: file, frontmatter: frontmatter, project: project)
+	public static func load(from project: Project, lastCommitDates: [URL: Date] = [:]) async throws(ContentErrors) -> [Self] {
+		let loaded = await load(from: project, lastCommitDates: lastCommitDates) { file in
+			try await Self(file: file, project: project)
 		}
 
 		guard
-			case .loaded(let entries, _, let errors) = loaded,
-			errors.isEmpty
+			case .loaded(let result) = loaded,
+			result.errors.isEmpty
 		else {
 			throw ContentErrors(loaded.errors)
 		}
 
-		return entries
+		return result.entries
 	}
 
 	/**
 	Loads the entries like ``load(from:lastCommitDates:)``, but makes each entry with the closure, like with a value that all the entries share, which the caller loads once, and returns the mistakes instead of throwing them. A `.loaded` result contains the entries of files without mistakes; `.unavailable` means the directory could not be read, so the caller leaves out checks against it. `failedSlugs` are the slugs of the files with mistakes, so the caller can check the entries against each other in the same run, and leave out the checks that need an entry that did not load.
 
 	```swift
-	let loadedApps = await App.load(from: project) { file, frontmatter in
-		try await App(file: file, frontmatter: frontmatter, sharedQuestions: library, project: project)
+	let loadedApps = await App.load(from: project) { file in
+		try await App(file: file, sharedQuestions: library, project: project)
 	}
 	```
 	*/
 	public static func load(
 		from project: Project,
-		lastCommitDates: [String: Date] = [:],
-		making makeEntry: @escaping @Sendable (MarkdownFile, Frontmatter) async throws -> Self
+		lastCommitDates: [URL: Date] = [:],
+		making makeEntry: @escaping @Sendable (DecodedMarkdownFile<Frontmatter>) async throws -> Self
 	) async -> ContentLoad<Self> {
-		let directoryURL = project.root.appending(path: directory)
+		let directoryURL = directory.fileURL(in: project.root)
 
-		// It throws when the directory does not exist.
-		guard let files = try? directoryURL.filesRecursively() else {
-			return .unavailable(ContentErrors([ContentError(file: directoryURL, reason: "The content directory does not exist.")]))
+		// It throws when the directory does not exist or cannot be read.
+		let files: [URL]
+		do {
+			files = try directoryURL.filesRecursively()
+		} catch {
+			return .unavailable(ContentErrors(converting: error, file: directoryURL))
 		}
 
 		let markdownFiles = files.filter { $0.pathExtension == "md" }.map { (url: $0, slug: MarkdownFile.slug(of: $0, relativeTo: directoryURL)) }
@@ -131,38 +164,45 @@ extension ContentEntry {
 		var failedSlugs = Set<String>()
 		var errors = [ContentError]()
 
-		await withTaskGroup(of: (index: Int, outcome: ContentEntryOutcome<Self>).self) { group in
-			for (index, item) in markdownFiles.enumerated() {
-				let (url, slug) = item
-				group.addTask {
-					do {
-						guard allows(slug: slug) else {
-							throw ContentError(file: url, reason: "The file must be directly in `\(directory)`.")
-						}
+		let outcomes = await markdownFiles.concurrentMap { url, slug -> ContentEntryOutcome<Self> in
+			do {
+				guard allows(slug: slug) else {
+					let name = url.lastPathComponent
+					let folder = slug.split(separator: "/").dropLast().joined(separator: "/")
 
-						// The slug is the path of the page, and the paths of GitHub Pages are case-sensitive, so a link with another case would not find it.
-						guard slug.wholeMatch(of: MarkdownFile.slugPattern) != nil else {
-							throw ContentError(file: url, reason: "The path of the file is the URL of its page, so its names can only have lowercase letters, digits, and hyphens. \(renameInstruction(of: url, slug: slug))")
-						}
-
-						var file = try MarkdownFile(url: url, relativeTo: directoryURL)
-						file.lastCommitDate = lastCommitDates[url.path(relativeTo: project.root)]
-						let frontmatter = try file.decodeFrontmatter(as: Frontmatter.self)
-						return (index, .loaded(try await makeEntry(file, frontmatter)))
-					} catch {
-						return (index, .failed(ContentErrors(converting: error, file: url)))
+					// A file below the folder of a page.
+					guard !folder.contains("/") else {
+						throw ContentError(file: url, reason: "The file must be directly in `\(directory)`.")
 					}
-				}
-			}
 
-			for await result in group {
-				switch result.outcome {
-				case .loaded(let entry):
-					entriesByIndex[result.index] = entry
-				case .failed(let failure):
-					errors += failure.errors
-					failedSlugs.insert(markdownFiles[result.index].slug)
+					// By the list of the files, not the disk, which can ignore case, so `Index.md` is not the `index.md` of the folder.
+					guard markdownFiles.contains(where: { $0.slug == folder && $0.url.lastPathComponent == "index.md" }) else {
+						throw ContentError(file: url, reason: "The page of a folder is its `index.md`. Rename `\(name)` to `index.md`, or move it out of the folder.")
+					}
+
+					throw ContentError(file: url, reason: "The folder already has its page, `index.md`, and only that Markdown file is read. Move `\(name)` out of `content`, or remove it.")
 				}
+
+				// The slug is the path of the page, and the paths of GitHub Pages are case-sensitive, so a link with another case would not find it.
+				guard slug.wholeMatch(of: ContentSlug.pattern) != nil else {
+					throw ContentError(file: url, reason: "The path of the file is the URL of its page, so its names can only have lowercase letters, digits, and hyphens. \(renameInstruction(of: url, slug: slug))")
+				}
+
+				var file = try MarkdownFile(url: url, relativeTo: directoryURL)
+				file.lastCommitDate = lastCommitDates[url.standardizedFileURL]
+				return .loaded(try await makeEntry(file.decoded()))
+			} catch {
+				return .failed(ContentErrors(converting: error, file: url))
+			}
+		}
+
+		for (index, outcome) in outcomes.enumerated() {
+			switch outcome {
+			case .loaded(let entry):
+				entriesByIndex[index] = entry
+			case .failed(let failure):
+				errors += failure.errors
+				failedSlugs.insert(markdownFiles[index].slug)
 			}
 		}
 
@@ -184,10 +224,14 @@ extension ContentEntry {
 		// The sort is stable, so ties keep the path order.
 		let entries = entriesByIndex
 			.compactMap(\.self)
-			.filter { !$0.isDraft }
 			.sorted(using: sortOrder)
 
-		return .loaded(entries: entries, failedSlugs: failedSlugs, errors: errors)
+		return .loaded(ContentLoad.Loaded(
+			entries: entries.filter { !$0.isDraft },
+			drafts: entries.filter(\.isDraft),
+			failedSlugs: failedSlugs,
+			errors: errors
+		))
 	}
 
 	/**
@@ -196,7 +240,7 @@ extension ContentEntry {
 	private static func renameInstruction(of url: URL, slug: String) -> String {
 		let names = slug.split(separator: "/")
 
-		guard let index = names.firstIndex(where: { $0.wholeMatch(of: MarkdownFile.slugPattern) == nil }) else {
+		guard let index = names.firstIndex(where: { $0.wholeMatch(of: ContentSlug.pattern) == nil }) else {
 			return ""
 		}
 

@@ -99,7 +99,7 @@ struct OpenGraphCardTests {
 		let paths = Set(try await Site(content: .website).routes(includesGallery: true).map(\.path))
 
 		for page in try await RenderedPage.website {
-			let image = try #require(page.html.firstMatch(of: /<meta property="og:image" content="https:\/\/[^\/"]+([^"]*)">/), "\(page.route.path) has no social image.")
+			let image = try #require(page.html.firstMatch(of: /<meta property="og:image" content="https:\/\/[^\/"]+([^"?]*)(?:\?v=[0-9a-f]{16})?">/), "\(page.route.path) has no social image.")
 			#expect(paths.contains(RoutePath(String(image.1))), "\(page.route.path): \(image.1)")
 		}
 	}

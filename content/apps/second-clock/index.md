@@ -42,6 +42,8 @@ The clock sits next to the system clock, so you always know the time for colleag
 
 The app is simple by design.
 
+To change the clock automatically, like when a Focus turns on, use the “Set Time Zone” and “Set Prefix Text” actions in the Shortcuts app. The app also has “Get Time Zone” and “Get Prefix Text” actions.
+
 Check out [Zone Bar](/zone-bar) if you need more than one extra clock, [Dato](/dato) for more features and settings, or [UTC Time](/utc-time) if you just need the time in UTC.
 
 ## Frequently Asked Questions {#faq}

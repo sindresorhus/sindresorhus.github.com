@@ -17,7 +17,7 @@ extension ProseStyles {
 	static let smallTextSize = LengthPercentage.em(0.8889)
 
 	/**
-	Typography based on the Tailwind Typography plugin (`prose prose-lg dark:prose-invert`), with shorter lines (about 78 characters, see ``Style/ColumnWidth/prose``) and a calmer heading scale.
+	Typography based on the Tailwind Typography plugin (`prose prose-lg dark:prose-invert`), with lines of about 87 characters (see ``Style/ColumnWidth/prose``) and a calmer heading scale.
 
 	The element rules use `:where()`, so they have the specificity of the prose class alone, and later rules, like the first-child margin, win over them.
 	*/
@@ -124,7 +124,8 @@ extension ProseStyles {
 			$0.color(.secondaryText)
 		}
 		.nested(":where(ul > li)::marker") {
-			$0.color(.gray(300), dark: .gray(600))
+			// Between gray 300 and gray 400 in light mode, so the bullets have about the weight of gray 600 in dark mode.
+			$0.color(.gray(300).mix(with: .gray(400), amount: .percent(50)), dark: .gray(600))
 		}
 		// The margins are with the element rules, so the spacing rules after them, like no space below a heading, win. Without specificity, like the element rules, also for the table container and the code block, as their margins are only for prose.
 		.descendants("blockquote, pre, img, video, picture, figure, \(class: ProseStyles.tableContainer), \(class: CodeBlock.Styles.root)") {
@@ -148,12 +149,12 @@ extension ProseStyles {
 		}
 		.descendants("blockquote p:first-of-type") {
 			$0.before {
-				$0.declaration(.content, "open-quote")
+				$0.content(.openQuote)
 			}
 		}
 		.descendants("blockquote p:last-of-type") {
 			$0.after {
-				$0.declaration(.content, "close-quote")
+				$0.content(.closeQuote)
 			}
 		}
 		// App icons (`icon.png`) have their own shape and shadow.
@@ -198,6 +199,14 @@ extension ProseStyles {
 		// Also after a line break that follows a heading, which takes no space.
 		.descendants(":is(hr, h2, h3, h4, h5, h6) + *, :is(h2, h3, h4, h5, h6) + br + *") {
 			$0.margin(.top, .zero)
+		}
+		// The first heading below chips to the sections, like on the general FAQ, has the space between the parts of a page instead of the space of a new section, like the first section below the chips of the guides, so the chips read as the contents of the sections below them.
+		.descendants("\(class: ChipNavigation.Styles.root) + h2, \(class: ChipNavigation.Styles.root) + section > h2:first-child") {
+			$0.margin(.top, .rootEm(2.5))
+		}
+		// An alert after the text is a note apart from it, like the tip about other apps at the end of the features of an app, so it gets twice the space of a block above it.
+		.descendants(":is(p, ul, ol) + \(class: ProseStyles.alert)") {
+			$0.margin(.top, .length(.em(3.5)))
 		}
 		// Low specificity, so a block that sets its own margin, like an alert, keeps it.
 		.children(":where(:first-child)") {
@@ -245,7 +254,7 @@ extension ProseStyles {
 		.padding(.bottom, .rootEm(5))
 		// Oldstyle numerals. Ligatures and kerning are on by default.
 		.fontVariantNumeric(.oldstyleNumbers)
-		.declaration(.textRendering, "optimizeLegibility")
+		.declaration(raw: .textRendering, "optimizeLegibility")
 		.descendants("a") {
 			$0
 				.color(.link)
@@ -270,13 +279,13 @@ extension ProseStyles {
 		.minimumTapArea()
 
 	/**
-	A footnote or an inline note in a popover, above the reference that opened it, or below when there is no space above.
+	A footnote or an inline note in a popover, above the reference that opened it, or below when there is no space above. The margins at its sides are the rest of its largest width on a phone, so a note that is as wide as the screen has the same space at both sides.
 	*/
 	static let popoverStyle = Style()
 		.positionArea(.top)
 		.positionTryFallbacks(.flipBlock)
 		.inset(.auto)
-		.margin(.pixels(8))
+		.margin(vertical: .pixels(8), horizontal: .rootEm(1))
 		.frame(maxWidth: .length(.min(.rootEm(24), .viewportWidth(100) - .rootEm(2))))
 		.padding(vertical: .rootEm(0.75), horizontal: .rootEm(1))
 		.popoverSurface()

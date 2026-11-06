@@ -14,7 +14,7 @@ extension GeoCitiesMacOS {
 	/**
 	The font of Mac OS 8 was Charcoal, which only Macs of that time have, so the bold system font stands in.
 	*/
-	static let charcoal: FontFamily = #""Charcoal", "Chicago", "Geneva", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif"#
+	static let charcoal = FontFamily.stack(.named("Charcoal"), .named("Chicago"), .named("Geneva"), .init(raw: "-apple-system"), .init(raw: "BlinkMacSystemFont"), .named("Segoe UI"), .named("Roboto"), .named("Arial"), .genericSansSerif)
 
 	/**
 	The Platinum gray of Mac OS 8.
@@ -31,7 +31,7 @@ extension GeoCitiesMacOS {
 		case `default`
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case desk
 		case imac
 		case bezel

@@ -102,7 +102,7 @@ struct GeoCitiesBestViewed: ScriptedElement {
 		case view = "best-viewed-view"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case buttons
 		case button

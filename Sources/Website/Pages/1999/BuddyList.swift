@@ -128,7 +128,7 @@ struct GeoCitiesBuddyList: ScriptedElement {
 					}
 					.style(GeoCitiesPage.Styles.form)
 
-					p(.part(Parts.status), .role("status")) {}
+					p(.part(Parts.status), .role(.status)) {}
 						.style(GeoCitiesPage.Styles.caption)
 				}
 				.style(GeoCitiesPage.Styles.windowBody)
@@ -147,7 +147,7 @@ struct GeoCitiesBuddyList: ScriptedElement {
 					}
 					.style(GeoCitiesPage.Styles.caption)
 
-					div(.part(Parts.log), .role("log")) {}
+					div(.part(Parts.log), .role(.log)) {}
 						.accessibilityLabel("Conversation")
 						.style(Styles.log)
 
@@ -237,7 +237,7 @@ struct GeoCitiesBuddyList: ScriptedElement {
 		case mine
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case option
 		case list

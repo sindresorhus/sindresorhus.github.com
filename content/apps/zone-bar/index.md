@@ -1,6 +1,7 @@
 ---
 title: 'Zone Bar'
 subtitle: 'World clocks in your menu bar'
+description: 'Know what time it is for your team, friends, and family with a glance at your Mac menu bar. Add clocks for any time zone, and plan meetings across them.'
 publicationDate: 2025-11-20
 platforms: [
 	'macOS'
@@ -97,7 +98,7 @@ No. It updates once per minute. Negligible.
 
 ### Does it show AM/PM or 24-hour time? {#does-it-show-ampm-or-24-hour-time}
 
-It follows your macOS system time format. You can change it in “System Settings › General › Date & Time”.
+It follows your macOS system time format. You can change it in “[System Settings › General › Date & Time](x-apple.systempreferences:com.apple.Date-Time-Settings.extension)”.
 
 ### Can it show analog clocks? {#can-it-show-analog-clocks}
 

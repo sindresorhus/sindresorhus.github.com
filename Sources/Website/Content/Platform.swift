@@ -72,6 +72,13 @@ enum MacOSVersion: String, ContentEnum, Encodable {
 	}
 
 	/**
+	The name of the version, like “macOS 10.15”.
+	*/
+	var title: String {
+		"macOS \(rawValue)"
+	}
+
+	/**
 	The version as an ``OSVersion``, to compare it with another version, like a requirement.
 	*/
 	var osVersion: OSVersion {
@@ -129,15 +136,15 @@ struct OSVersion: Hashable, Comparable, CustomStringConvertible {
 	}
 
 	/**
-	The start of a requirement (``requirementSentence(for:)``), which `website check` uses to find the requirement that the content writes below a list of older versions, like `*Requires macOS 15 or later*`.
+	The start of a requirement (``macOSRequirementSentence``), which `website check` uses to find the requirement that the content writes below a list of older versions, like `*Requires macOS 15 or later*`.
 	*/
 	static let requirementPrefix = "Requires "
 
 	/**
-	The requirement of something that runs on this version or later, like “Requires macOS 26 or later”, which the app pages, the trials, and the tiny apps show. On several platforms, it says “version”, like “Requires version 26 or later”, as the platforms share their version numbers.
+	The requirement of something that runs on this version of macOS or later, like “Requires macOS 26 or later”, which the trials, the older versions, and the tiny apps show. An app page says its requirement with its platforms (``AppListing/requirementSentence``).
 	*/
-	func requirementSentence(for platforms: [Platform]) -> String {
-		"\(Self.requirementPrefix)\(platforms.count == 1 ? platforms[0].rawValue : "version") \(self) or later"
+	var macOSRequirementSentence: String {
+		"\(Self.requirementPrefix)\(Platform.macOS.rawValue) \(self) or later"
 	}
 }
 

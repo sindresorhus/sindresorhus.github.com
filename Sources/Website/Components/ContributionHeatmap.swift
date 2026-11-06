@@ -77,7 +77,7 @@ struct ContributionHeatmap: HTML {
 		}
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case grid
 		case monthName
@@ -96,6 +96,10 @@ struct ContributionHeatmap: HTML {
 					.overflow(horizontal: .auto)
 					.scrollIndicators(.hidden)
 					.direction(.rightToLeft)
+					// The older weeks fade out at the left edge, so the cut week and month read as more to scroll to, not as a broken layout, as the scroll bar is hidden. The fade stays when the visitor scrolls to the oldest week, so the first few weeks of the year are faint then.
+					.below(.tablet) {
+						$0.maskImage(.linearGradient(.toRight, Color.transparent.at(.zero), Color.black.at(.rootEm(3))))
+					}
 			case .grid:
 				// Cells that are large enough to see on phones, in a grid that is as wide as its cells. From tablets, the cells fill the width, so the whole year fits. The first row has the names of the months.
 				Style()

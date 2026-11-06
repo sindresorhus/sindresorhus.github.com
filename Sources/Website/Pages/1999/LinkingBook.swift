@@ -60,12 +60,12 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 					.width(480),
 					.height(300),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("The view in the Brunost Age. Use the buttons below to look around.")
 					.style(Styles.ageCanvas)
 
-				p(.part(Parts.status), .role("status")) {}
+				p(.part(Parts.status), .role(.status)) {}
 					.style(Styles.ageStatus)
 
 				div {
@@ -77,7 +77,7 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 					}
 				}
 				.accessibilityLabel("Directions")
-				.attributes(.role("group"))
+				.attributes(.role(.group))
 				.style(GeoCitiesPage.Styles.buttonRow)
 
 				div {
@@ -87,7 +87,7 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 					}
 				}
 				.accessibilityLabel("Things here")
-				.attributes(.role("group"))
+				.attributes(.role(.group))
 				.style(GeoCitiesPage.Styles.buttonRow)
 			}
 			.style(Styles.ageView)
@@ -129,7 +129,7 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 		case move = "age-move"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case ageFrame
 		case openBook

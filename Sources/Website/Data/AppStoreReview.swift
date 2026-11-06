@@ -147,10 +147,7 @@ struct AppStoreReview: Hashable {
 	Whether the review calls the app free, like “This is free, it’s effective”, so a paid app, which was free before, does not show it. Not words with “free” in them, like “ad-free” or “freedom”.
 	*/
 	var callsAppFree: Bool {
-		"\(title) \(text)"
-			.lowercased()
-			.split { !$0.isLetter && $0 != "-" }
-			.contains("free")
+		"\(title) \(text)".callsAppFree
 	}
 
 	/**

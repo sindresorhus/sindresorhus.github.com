@@ -7,9 +7,9 @@ The page for missing files. It suggests the closest page, like for a mistyped ap
 */
 struct NotFoundPage: Page {
 	/**
-	The pages a visitor may have meant. A script picks the closest one to the requested path.
+	The pages a visitor may have meant, with their names (``Route/title``). A script picks the closest one to the requested path.
 	*/
-	let suggestedPaths: [RoutePath]
+	let suggestedPages: [Route]
 
 	let content: SiteContent
 
@@ -53,17 +53,19 @@ struct NotFoundPage: Page {
 					}
 					.style(Styles.message)
 
-					// `not-found.js` shows it when a page is close to the requested path.
-					p(.id(IDs.closestPage), .hidden) {
-						"Did you mean "
-						a(.id(IDs.closestPageLink), .href(.root)) {}
-						"?"
-					}
-					.style(Styles.closestPage)
-
 					div {
-						Link("Back to Homepage", destination: .path(.root))
+						// `not-found.js` shows it in place of the link to the home page when a page is close to the requested path, as that page is the most likely target.
+						a(.id(IDs.closestPageLink), .href(.root), .hidden) {}
 							.buttonStyle(.primary)
+							// A long name, like the title of a guide, breaks into lines of about the same length.
+							.style {
+								$0.textWrap(.balance)
+							}
+
+						a(.id(IDs.homeLink), .href(.root)) {
+							"Back to Homepage"
+						}
+						.buttonStyle(.primary)
 
 						Link("Browse Apps", destination: .path(.apps))
 							.buttonStyle(.secondary)
@@ -90,7 +92,7 @@ struct NotFoundPage: Page {
 		}
 		.style(Styles.root)
 
-		JSONScript(id: IDs.data, ScriptData(suggestedPaths: suggestedPaths, apps: content.activeAppsWithPages))
+		JSONScript(id: IDs.data, ScriptData(suggestedPages: suggestedPages, apps: content.activeAppsWithPages))
 		ModuleScript(#path("/scripts/not-found.js"))
 	}
 }
@@ -109,9 +111,29 @@ extension NotFoundPage {
 		}
 
 		/**
+		A page that the visitor may have meant, with the text of the button that goes to it.
+		*/
+		struct SuggestedPage: Encodable {
+			let path: RoutePath
+
+			/**
+			“Go to” and the name of the page, like “Go to Dato”, or for a guide or a post only its title, which is already long, like “How to Flush the DNS Cache on Mac”.
+			*/
+			let label: String
+
+			init(route: Route) {
+				let title = route.title ?? route.path.description
+				// A guide or a post, like `/guides/flush-dns-cache-mac`, not the list of them.
+				let isArticle = [RoutePath.guides, .blog].contains { route.path != $0 && route.path.starts(with: $0) }
+				self.path = route.path
+				self.label = isArticle ? title : "Go to \(title)"
+			}
+		}
+
+		/**
 		The pages that the visitor may have meant. Not the home page, which is close to every short path, and already has a button.
 		*/
-		let paths: [RoutePath]
+		let pages: [SuggestedPage]
 
 		/**
 		The feedback form, for a path like `/support`.
@@ -123,17 +145,27 @@ extension NotFoundPage {
 		*/
 		let apps: [String: AppHelp]
 
-		init(suggestedPaths: [RoutePath], apps: [App]) {
-			self.paths = suggestedPaths.filter { $0 != .root }
+		/**
+		The page of each platform by its other names, with and without `apps/`, like `/apps/ios` for `ipad` and `apps/ipad`.
+		*/
+		let platformPaths: [String: RoutePath]
+
+		init(suggestedPages: [Route], apps: [App]) {
+			self.pages = suggestedPages.filter { $0.path != .root }.map(SuggestedPage.init(route:))
 			self.feedback = .feedback
 			self.apps = Dictionary(uniqueKeysWithValues: apps.map { app in
 				(
-					app.slug,
+					app.slug.value,
 					AppHelp(
 						feedback: App.feedbackURL(appTitle: app.title),
 						faq: app.faqDestination ?? .path(app.path)
 					)
 				)
+			})
+			self.platformPaths = Dictionary(uniqueKeysWithValues: AppCategory.allCases.flatMap { category in
+				category.otherNames.flatMap { name in
+					[(name, category.path), ("apps/\(name)", category.path)]
+				}
 			})
 		}
 	}
@@ -142,12 +174,12 @@ extension NotFoundPage {
 	The IDs that the scripts of the page find elements by.
 	*/
 	enum IDs: String, ScriptIDSet {
-		case closestPage = "closest-page"
 		case closestPageLink = "closest-page-link"
+		case homeLink = "home-link"
 		case data = "not-found-data"
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case container
 		case content
@@ -155,7 +187,6 @@ extension NotFoundPage {
 		case unicorn
 		case title
 		case message
-		case closestPage
 		case buttons
 		case apps
 
@@ -206,15 +237,20 @@ extension NotFoundPage {
 				Style()
 					.margin(top: .rootEm(0.75), horizontal: .zero, bottom: .rootEm(2))
 					.secondaryText(.lead)
-			case .closestPage:
-				Style()
-					.margin(.bottom, .rootEm(2))
-					.textStyle(.lead, weight: .medium)
-					.textLinks()
+					// The message is short and centered, so its lines have about the same length, and the last line is not only “never existed.”.
+					.textWrap(.balance)
 			case .buttons:
+				// On phones, the buttons fill their line, so a long suggestion and “Browse Apps” below it have one width, and two short buttons share the line.
 				Style()
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.75))
 					.flexWrap()
+					.below(.smallTablet) {
+						$0
+							.alignSelf(.stretch)
+							.children("*") {
+								$0.flexGrow(1)
+							}
+					}
 			case .apps:
 				// More space below than other sections, as the footer follows.
 				Style()

@@ -1,5 +1,6 @@
 import Foundation
 import Markdown
+import SOML
 
 /**
 Renders a Markdown tree as HTML, like GitHub-flavored Markdown renderers do.
@@ -49,7 +50,6 @@ struct HTMLRenderer: MarkupWalker {
 	private(set) var blocks = [MarkdownDocument.Block]()
 
 	private var slugger = HeadingSlugger()
-	private var tableColumnAlignments = [Table.ColumnAlignment?]()
 
 	/**
 	How many tables have each region name, so each name is unique.
@@ -78,7 +78,7 @@ struct HTMLRenderer: MarkupWalker {
 		/**
 		The Markdown of an inline note, which is one line of the file, so the lines of its Markdown are not lines of the file.
 		*/
-		case inlineNote(line: Int?)
+		case inlineNote(line: SourceLocation.Line?)
 	}
 
 	private let origin: Origin
@@ -86,12 +86,18 @@ struct HTMLRenderer: MarkupWalker {
 	// A parsed document can keep its file URL; only nodes from a different file are foreign.
 	private let sourceURL: URL?
 
+	/**
+	The lines of the parsed source, to read what the Markdown tree leaves out, like whether a code fence is closed, or the cells of a table row that the parser drops. Empty when the source is not known, like for an inline note, which is parsed on its own.
+	*/
+	private let sourceLines: [Substring]
+
 	init(
 		style: MarkdownDocument.Style,
 		options: MarkdownDocument.Options = .init(),
 		footnoteDefinitions: [String: FootnoteDefinition] = [:],
 		origin: Origin = .document(lineOffset: 0),
-		sourceURL: URL? = nil
+		sourceURL: URL? = nil,
+		sourceLines: [Substring] = []
 	) {
 		let directiveNames = options.headingDirectives.map { $0.name }
 		precondition(Set(directiveNames).count == directiveNames.count, "Heading directive registrations must have unique names.")
@@ -101,15 +107,32 @@ struct HTMLRenderer: MarkupWalker {
 		self.footnoteDefinitions = footnoteDefinitions
 		self.origin = origin
 		self.sourceURL = sourceURL
+		self.sourceLines = sourceLines
+	}
+
+	/**
+	The source lines of the markup, from its first line to its last, or `nil` when they are not known, like for markup that a rewrite adds from another file.
+	*/
+	private func sourceLines(of markup: any Markup) -> ArraySlice<Substring>? {
+		guard
+			let range = markup.range,
+			range.lowerBound.source == sourceURL,
+			sourceLines.indices.contains(range.lowerBound.line - 1),
+			sourceLines.indices.contains(range.upperBound.line - 1)
+		else {
+			return nil
+		}
+
+		return sourceLines[(range.lowerBound.line - 1)...(range.upperBound.line - 1)]
 	}
 
 	/**
 	The line where the markup starts, in the file of the source. `nil` for markup that a rewrite adds from another file, which was parsed with the URL of its file as its source (``MarkdownDocument/Options/rewrite``).
 	*/
-	private func line(of markup: any Markup) -> Int? {
+	private func line(of markup: any Markup) -> SourceLocation.Line? {
 		switch origin {
 		case .document(let lineOffset):
-			markup.range.flatMap { $0.lowerBound.source == sourceURL ? $0.lowerBound.line + lineOffset : nil }
+			markup.range.flatMap { $0.lowerBound.source == sourceURL ? SourceLocation.Line($0.lowerBound.line + lineOffset) : nil }
 		case .inlineNote(let line):
 			line
 		}
@@ -118,7 +141,7 @@ struct HTMLRenderer: MarkupWalker {
 	/**
 	The lines of a directive in the document, from its first line to its last.
 	*/
-	private func lines(of directive: BlockDirective) -> ClosedRange<Int>? {
+	private func lines(of directive: BlockDirective) -> ClosedRange<SourceLocation.Line>? {
 		guard
 			let firstLine = line(of: directive),
 			let range = directive.range
@@ -126,7 +149,7 @@ struct HTMLRenderer: MarkupWalker {
 			return nil
 		}
 
-		return firstLine...(firstLine + range.upperBound.line - range.lowerBound.line)
+		return firstLine...firstLine.offset(by: range.upperBound.line - range.lowerBound.line)
 	}
 
 	/**
@@ -167,7 +190,7 @@ struct HTMLRenderer: MarkupWalker {
 				isInSections,
 				index < children.count,
 				let heading = children[index] as? Markdown.Heading,
-				heading.level == sections.level.rawValue
+				heading.headingLevel == sections.level
 			else {
 				return nil
 			}
@@ -186,7 +209,7 @@ struct HTMLRenderer: MarkupWalker {
 				{
 					if headings.last?.id == startHeadingID {
 						isInSections = true
-					} else if heading.level < sections.level.rawValue {
+					} else if heading.headingLevel < sections.level {
 						isInSections = false
 					}
 				}
@@ -200,7 +223,7 @@ struct HTMLRenderer: MarkupWalker {
 				renderer.html += "<div\(renderer.theme.classAttribute(.collapsibleSections))>\n"
 
 				while let heading = sectionHeading(at: index) {
-					let end = children[(index + 1)...].firstIndex { ($0 as? Markdown.Heading).map { $0.level <= sections.level.rawValue } ?? false } ?? children.count
+					let end = children[(index + 1)...].firstIndex { ($0 as? Markdown.Heading).map { $0.headingLevel <= sections.level } ?? false } ?? children.count
 					renderer.renderCollapsibleSection(heading, content: children[(index + 1)..<end], name: sections.name)
 					index = end
 				}
@@ -213,7 +236,7 @@ struct HTMLRenderer: MarkupWalker {
 			}
 
 			html += groupHTML
-			blocks.append(.other(groupHTML))
+			blocks.append(MarkdownDocument.Block(kind: .other, html: groupHTML))
 		}
 	}
 
@@ -223,10 +246,10 @@ struct HTMLRenderer: MarkupWalker {
 	private mutating func visitTopLevel(_ block: any BlockMarkup) {
 		if let paragraph = block as? Paragraph {
 			let inlineHTML = capturingHTML { $0.renderParagraphContent(paragraph) }
-			let attributes = isBoldLabel(paragraph) ? theme.classAttribute(.boldLabel) : ""
-			let rendered = MarkdownDocument.Block.paragraph(inlineHTML: inlineHTML, attributes: attributes)
-			html += rendered.html
-			blocks.append(rendered)
+			let isLabel = isBoldLabel(paragraph)
+			let paragraphHTML = "<p\(isLabel ? theme.classAttribute(.boldLabel) : "")>\(inlineHTML)</p>\n"
+			html += paragraphHTML
+			blocks.append(MarkdownDocument.Block(kind: .paragraph(inlineHTML: inlineHTML, isBoldLabel: isLabel), html: paragraphHTML))
 			return
 		}
 
@@ -236,18 +259,18 @@ struct HTMLRenderer: MarkupWalker {
 
 		html += blockHTML
 
-		let rendered: MarkdownDocument.Block = switch block {
+		let kind: MarkdownDocument.Block.Kind = switch block {
 		case is Markdown.Heading:
-			headings.last.map { .heading(level: $0.level, id: $0.id, html: blockHTML) } ?? .other(blockHTML)
+			headings.last.map { .heading(level: $0.level, id: $0.id) } ?? .other
 		case let directive as BlockDirective:
-			.directive(name: directive.name, lines: lines(of: directive), html: blockHTML)
+			.directive(name: directive.name, lines: lines(of: directive))
 		case is HTMLBlock:
-			.html(blockHTML)
+			.html
 		default:
-			.other(blockHTML)
+			.other
 		}
 
-		blocks.append(rendered)
+		blocks.append(MarkdownDocument.Block(kind: kind, html: blockHTML))
 	}
 
 	/**
@@ -300,7 +323,7 @@ struct HTMLRenderer: MarkupWalker {
 		}
 
 		let recorded = recordHeading(heading)
-		let hasAnchor = options.addsHeadingAnchors && (2...4).contains(heading.level)
+		let hasAnchor = options.addsHeadingAnchors && (HeadingLevel.h2...HeadingLevel.h4).contains(heading.headingLevel)
 		// The link is inside the heading, so the heading is named by its text, as the name of the link would otherwise be part of the name of the heading, like “Tips Copy link to section: Tips”.
 		let attributes = hasAnchor ? #"\#(theme.classAttribute(.anchoredHeading)) aria-label="\#(recorded.text.escapedForHTML)""# : ""
 		html += #"<h\#(heading.level) id="\#(recorded.id.rawValue.escapedForHTML)"\#(attributes)>"#
@@ -336,7 +359,25 @@ struct HTMLRenderer: MarkupWalker {
 			break
 		}
 
+		// An empty heading is a leftover of an edit, and it would be an empty heading for screen readers, with an ID that the slugger makes up.
+		if text.isEmpty {
+			reportProblem("The heading has no text.", line: line(of: heading))
+		}
+
+		// The ID is made before the checks below, as a second section with the same text often has the same ID as the first, and one problem is enough.
 		let id = ElementID(customID ?? slugger.slug(for: text))
+
+		// A second section with the text of another one shows the text twice in the section navigation, and gets an ID with a number, like `tips-1`, which changes when the first section is renamed. A heading whose ID is another heading's, like a custom ID that is the slug of another heading, is reported below instead, as that error names both headings.
+		if
+			heading.headingLevel == .h2,
+			customID == nil,
+			!text.isEmpty,
+			!headings.contains(where: { $0.id == id }),
+			let other = headings.first(where: { $0.level == .h2 && $0.text == text })
+		{
+			let otherPlace = other.line.map { " (line \($0))" } ?? ""
+			reportProblem("The page already has a section “\(other.text)”\(otherPlace). Give the sections different headings.", line: line(of: heading) ?? other.line)
+		}
 
 		// The error names both headings. A heading that the build adds, like a shared question, has no line, so the error is then at the other heading, which is the one to change.
 		if let other = headings.first(where: { $0.id == id }) {
@@ -351,12 +392,8 @@ struct HTMLRenderer: MarkupWalker {
 			}
 		}
 
-		guard let level = HeadingLevel(rawValue: heading.level) else {
-			preconditionFailure("A Markdown heading must have a level from 1 through 6, got \(heading.level).")
-		}
-
 		let recorded = Heading(
-			level: level,
+			level: heading.headingLevel,
 			text: text,
 			identity: customID == nil ? .generated(id) : .authored(id),
 			line: line(of: heading)
@@ -475,6 +512,8 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	mutating func visitCodeBlock(_ codeBlock: CodeBlock) {
+		reportUnclosedFence(of: codeBlock)
+
 		// The language is the first word of the info string, like GitHub.
 		let language = codeBlock.language?.split(whereSeparator: \.isWhitespace).first.map(String.init)
 
@@ -492,9 +531,44 @@ struct HTMLRenderer: MarkupWalker {
 		html += #"<pre tabindex="0"><code\#(languageClass)>\#(codeBlock.code.escapedForHTML)</code></pre>"# + "\n"
 	}
 
+	/**
+	A fenced code block without its closing fence takes all the lines to the end of the document, like CommonMark says, so the problems of the rest of the file would be at other lines, or not found. The parser does not say whether the fence is closed, but the range of a closed block ends at its closing fence. Indented code is not fenced.
+	*/
+	private mutating func reportUnclosedFence(of codeBlock: CodeBlock) {
+		guard
+			style == .extended,
+			let lines = sourceLines(of: codeBlock),
+			let firstLine = lines.first,
+			let opening = firstLine.fenceRun,
+			// Indented code that starts with a fence has the fence as its first line of code.
+			codeBlock.code.split(separator: "\n", omittingEmptySubsequences: false).first != firstLine.blockContent
+		else {
+			return
+		}
+
+		// A closing fence has the character of the opening one, and at least as many.
+		if
+			lines.count > 1,
+			let closing = lines.last?.fenceRun,
+			closing.character == opening.character,
+			closing.count >= opening.count
+		{
+			return
+		}
+
+		let fence = String(repeating: opening.character, count: opening.count)
+		reportProblem("The code block that starts here has no closing \(fence), so the rest of the file is code.", line: line(of: codeBlock))
+	}
+
 	mutating func visitHTMLBlock(_ htmlBlock: HTMLBlock) {
 		if style == .extended {
 			readDirectives(in: htmlBlock)
+		}
+
+		// A comment that is not closed before the next comment hides all the text between them, as Markdown ends both at the `-->` of the next one.
+		for (commentLine, otherCommentLine) in htmlBlock.rawHTML.unclosedHTMLComments {
+			let otherComment = line(of: htmlBlock).map { "the comment at line \($0.offset(by: otherCommentLine))" } ?? "the next comment"
+			reportProblem("The HTML comment is not closed before \(otherComment). End it with `-->`.", line: line(of: htmlBlock)?.offset(by: commentLine))
 		}
 
 		// Comments are notes for the author, like drafts and heading directives, so they are not published.
@@ -514,7 +588,7 @@ struct HTMLRenderer: MarkupWalker {
 
 		// The `<kbd>` elements of raw HTML are split into keys too. Like the HTML, they are not parsed, so a regex finds them.
 		if style == .extended {
-			rawHTML = rawHTML.separatingKeyboardKeys(theme: theme)
+			rawHTML = resolvingRawLinks(in: rawHTML, of: htmlBlock).separatingKeyboardKeys(theme: theme)
 		}
 
 		// A table in raw HTML gets the same container as a Markdown table. Limitation: a raw table with a blank line inside is several HTML blocks, so it gets no container.
@@ -568,7 +642,6 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	mutating func visitTable(_ table: Table) {
-		tableColumnAlignments = table.columnAlignments
 		let label = tableLabel()
 
 		let tableHTML = capturingHTML {
@@ -606,9 +679,33 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	mutating func visitTableRow(_ tableRow: Table.Row) {
+		reportExtraCells(in: tableRow)
 		html += "<tr>\n"
 		descendInto(tableRow)
 		html += "</tr>\n"
+	}
+
+	/**
+	GFM leaves out the cells of a row after the columns of the header, so their text is lost. The parser drops them, so the source line of the row is read. Limitation: a cell with a `|` that is not escaped, like in code, which GFM also reads as a new cell, is counted as two.
+	*/
+	private mutating func reportExtraCells(in tableRow: Table.Row) {
+		guard
+			style == .extended,
+			let table = tableRow.parent?.parent as? Table,
+			let line = sourceLines(of: tableRow)?.first
+		else {
+			return
+		}
+
+		let columns = table.columnAlignments.count
+		let cells = line.tableRowCells
+
+		guard cells.count > columns else {
+			return
+		}
+
+		let extraText = cells[columns...].joined(separator: " | ")
+		reportProblem("The row has \(cells.count) cells, but the table has \(columns) columns, so the page leaves out “\(extraText)”.", line: self.line(of: tableRow))
 	}
 
 	mutating func visitTableCell(_ tableCell: Table.Cell) {
@@ -625,8 +722,9 @@ struct HTMLRenderer: MarkupWalker {
 		var attributes = ""
 
 		if
-			tableColumnAlignments.indices.contains(column),
-			let alignment = tableColumnAlignments[column]
+			let table = sequence(first: tableCell as any Markup, next: \.parent).first(where: { $0 is Table }) as? Table,
+			table.columnAlignments.indices.contains(column),
+			let alignment = table.columnAlignments[column]
 		{
 			attributes += #" align="\#(alignment)""#
 		}
@@ -718,7 +816,7 @@ struct HTMLRenderer: MarkupWalker {
 	/**
 	- Parameter line: The line of the text, for the problems of its keyboard shortcuts.
 	*/
-	private mutating func renderText(_ text: Substring, line: Int? = nil) {
+	private mutating func renderText(_ text: Substring, line: SourceLocation.Line? = nil) {
 		// Keyboard shortcuts written as `++Command+K++` become one `<kbd>` per key.
 		guard style == .extended else {
 			renderPlainText(text)
@@ -734,10 +832,15 @@ struct HTMLRenderer: MarkupWalker {
 				}
 
 				renderPlainText(text)
-			case .shortcut(let text, let punctuation):
-				// The closing punctuation right after a shortcut is rendered with the shortcut, so it stays on its line.
+			case .shortcut(let text, let openingPunctuation, let punctuation):
+				// The punctuation right before and after a shortcut is rendered with the shortcut, so it stays on its line.
 				reportWrongKeyNames(in: String(text), line: line)
-				html += keyboardShortcutHTML(String(text), punctuation: punctuation, line: line)
+				html += keyboardShortcutHTML(
+					String(text),
+					openingPunctuation: openingPunctuation,
+					punctuation: punctuation,
+					line: line
+				)
 			}
 		}
 	}
@@ -787,7 +890,14 @@ struct HTMLRenderer: MarkupWalker {
 		content: some Sequence<any Markup>,
 		origin: Origin
 	) {
-		var renderer = HTMLRenderer(style: style, options: options.forNestedMarkdown, origin: origin, sourceURL: sourceURL)
+		// An inline note is parsed on its own, so the lines of its Markdown are not lines of the source.
+		var renderer = HTMLRenderer(
+			style: style,
+			options: options.forNestedMarkdown,
+			origin: origin,
+			sourceURL: sourceURL,
+			sourceLines: element == .inlineNotePopover ? [] : sourceLines
+		)
 
 		for block in content {
 			renderer.visit(block)
@@ -841,8 +951,19 @@ struct HTMLRenderer: MarkupWalker {
 			return
 		}
 
+		let resolved = resolvedDestination(destination, of: link)
+
+		// Like an image without a description: the link is not visible, and screen readers have no name for it. A link with raw HTML, like an `<img>` with `alt`, has a name that the Markdown does not show, so it is not checked.
+		if
+			style == .extended,
+			link.plainText(includingImageDescriptions: true).allSatisfy(\.isWhitespace),
+			link.descendants(of: InlineHTML.self).isEmpty
+		{
+			reportProblem("The link to `\(resolved)` has no text, so it is not visible, and screen readers have no name for it. Write its text, like `[Dato](\(destination))`.", line: line(of: link))
+		}
+
 		let title = link.title.map { #" title="\#($0.escapedForHTML)""# } ?? ""
-		html += #"<a href="\#(resolvedDestination(destination, of: link).escapedForHTML)"\#(title)>"#
+		html += #"<a href="\#(resolved.escapedForHTML)"\#(title)>"#
 		renderingInsideLink {
 			$0.descendInto(link)
 		}
@@ -892,15 +1013,22 @@ struct HTMLRenderer: MarkupWalker {
 			}
 		}
 
+		recordLink(resolved, of: markup)
+		return resolved
+	}
+
+	/**
+	Adds the link to the links, at the line of the markup, or at its line in another file, for markup that a rewrite adds from that file.
+	*/
+	private mutating func recordLink(_ destination: String, of markup: any Markup) {
 		if
 			let otherFile = markup.range?.lowerBound.source,
 			otherFile != sourceURL
 		{
-			links.append(MarkdownDocument.Link(destination: resolved, source: .file(otherFile, line: markup.range?.lowerBound.line)))
+			links.append(MarkdownDocument.Link(destination: destination, source: .file(otherFile, line: markup.range.map { SourceLocation.Line($0.lowerBound.line) })))
 		} else {
-			links.append(MarkdownDocument.Link(destination: resolved, source: .document(line: line(of: markup))))
+			links.append(MarkdownDocument.Link(destination: destination, source: .document(line: line(of: markup))))
 		}
-		return resolved
 	}
 
 	mutating func visitInlineAttributes(_ attributes: InlineAttributes) {
@@ -927,6 +1055,16 @@ struct HTMLRenderer: MarkupWalker {
 		case .attributes(let value):
 			let contentHTML = capturingHTML {
 				$0.descendInto(attributes)
+			}
+
+			// The decoder reports a missing key before an unknown one, but a misspelled key, like `notes`, is the likely cause.
+			let knownKeys = InlineNoteAttributes.CodingKeys.allCases.map(\.stringValue) + (options.inlineAttributes?.keys ?? [])
+
+			if let unknownKey = value.objectValue?.keys.first(where: { !knownKeys.contains($0) }) {
+				let suggestion = unknownKey.closest(in: knownKeys).map { " Did you mean `\($0)`?" } ?? " Known attributes: \(knownKeys.map { "`\($0)`" }.joined(separator: ", "))."
+				reportProblem("Unknown attribute `\(unknownKey)` in `\(attributes.attributes)`.\(suggestion)", line: line(of: attributes))
+				html += contentHTML
+				return
 			}
 
 			do {
@@ -965,7 +1103,7 @@ struct HTMLRenderer: MarkupWalker {
 
 		// The ID is from the place of the note in the file, so it is the same in each build. Limitation: two documents on one page with a note at the same line and column give their notes the same ID.
 		let noteLine = line(of: attributes)
-		let id = ElementID("user-content-note-\(noteLine ?? 0)-\(attributes.range?.lowerBound.column ?? 0)")
+		let id = ElementID("user-content-note-\(noteLine?.rawValue ?? 0)-\(attributes.range?.lowerBound.column ?? 0)")
 
 		html += options.inlineNote?(contentHTML, id) ?? theme.inlineNote(textHTML: contentHTML, popoverID: id)
 
@@ -1000,8 +1138,19 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	mutating func visitBlockDirective(_ blockDirective: BlockDirective) {
+		// Without its `}`, a directive takes the rest of the document as its content, and the range of the parser ends at its first line.
+		if
+			let lines = sourceLines(of: blockDirective),
+			lines.first?.trimmingCharacters(in: .whitespaces).hasSuffix("{") == true,
+			lines.last?.trimmingCharacters(in: .whitespaces).hasSuffix("}") == false
+		{
+			reportProblem("The block directive `@\(blockDirective.name)` that starts here has no closing `}`, so the rest of the file is its content.", line: line(of: blockDirective))
+		}
+
 		guard let renderer = options.blockDirectives[blockDirective.name] else {
-			reportProblem("Unknown block directive `@\(blockDirective.name)`. Known directives: \(options.blockDirectives.keys.sorted().lazy.map { "`@\($0)`" }.joined(separator: ", ")).", line: line(of: blockDirective))
+			let names = options.blockDirectives.keys
+			let suggestion = blockDirective.name.closest(in: names).map { "Did you mean `@\($0)`?" } ?? "Known directives: \(names.sorted().map { "`@\($0)`" }.joined(separator: ", "))."
+			reportProblem("Unknown block directive `@\(blockDirective.name)`. \(suggestion)", line: line(of: blockDirective))
 			descendInto(blockDirective)
 			return
 		}
@@ -1040,7 +1189,14 @@ struct HTMLRenderer: MarkupWalker {
 		}
 
 		do {
-			html += try renderer.render(arguments, contentHTML, .init(documentOptions: options)) + "\n"
+			let directiveHTML = try renderer.render(arguments, contentHTML, .init(documentOptions: options))
+
+			// The links that the directive renders from its arguments, like the icon of `@TinyApp`, are at its line, so a broken one names it. The content has recorded its own links.
+			for match in (contentHTML.isEmpty ? directiveHTML : directiveHTML.replacing(contentHTML, with: "")).matches(of: Self.rawLinkAttribute) {
+				recordLink(String(match.2).decodingHTMLEscapes, of: blockDirective)
+			}
+
+			html += directiveHTML + "\n"
 		} catch {
 			reportProblem("`@\(blockDirective.name)`: \(error)", line: line(of: blockDirective))
 			html += contentHTML
@@ -1074,7 +1230,7 @@ struct HTMLRenderer: MarkupWalker {
 	/**
 	The keys of a shortcut written as `++Command+K++` must have their names on the keyboard of a Mac, so all the shortcuts of the site look the same: not a glyph, like `⌘`, an abbreviation, like `Cmd`, or a lowercase name, like `command` or `k`. Keys without a name are fine as glyphs, like `⌫` and `◀`. A raw `<kbd>` is not checked, as `website check` already asks to rewrite it as a shortcut.
 	*/
-	private mutating func reportWrongKeyNames(in shortcut: String, line: Int?) {
+	private mutating func reportWrongKeyNames(in shortcut: String, line: SourceLocation.Line?) {
 		for key in KeyboardKey.keys(of: shortcut) {
 			if let mistake = key.mistake(in: shortcut) {
 				reportProblem(mistake, line: line)
@@ -1085,7 +1241,7 @@ struct HTMLRenderer: MarkupWalker {
 	/**
 	Raw `<details>` and `<summary>` do not get the look of the collapsible sections of the site, so they are a problem when the options have a `Details` block directive.
 	*/
-	private mutating func reportRawCollapsibleSection(in rawHTML: String, line: Int?) {
+	private mutating func reportRawCollapsibleSection(in rawHTML: String, line: SourceLocation.Line?) {
 		guard
 			style == .extended,
 			options.blockDirectives["Details"] != nil,
@@ -1100,19 +1256,26 @@ struct HTMLRenderer: MarkupWalker {
 	/**
 	A keyboard shortcut, like `Command+K`, as one `<kbd>` per key (``KeyboardKey``).
 
-	The modifiers must be in the order of Apple (``KeyboardKey/Modifier``), like in the menus of macOS, so a shortcut on a page looks like the one in the app. Another order is a problem.
+	The modifiers must be in the order of Apple (``KeyboardKey/Modifier``), like in the menus of macOS, so a shortcut on a page looks like the one in the app. Another order is a problem, and so is a modifier that is given twice, which is reported instead of the order.
 	*/
-	private mutating func keyboardShortcutHTML(_ shortcut: String, punctuation: Substring = "", line: Int?) -> String {
+	private mutating func keyboardShortcutHTML(
+		_ shortcut: String,
+		openingPunctuation: Substring = "",
+		punctuation: Substring = "",
+		line: SourceLocation.Line?
+	) -> String {
 		let keys = KeyboardKey.keys(of: shortcut)
 		let modifiers = keys.compactMap(\.modifier)
 		let orderedKeys = keys.inAppleOrder
 		let orderedModifiers = orderedKeys.compactMap(\.modifier)
 
-		if modifiers != orderedModifiers {
+		if let repeatedModifier = modifiers.first(where: { modifier in modifiers.count { $0 == modifier } > 1 }) {
+			reportProblem("The keyboard shortcut `\(shortcut)` has \(repeatedModifier.rawValue) twice.", line: line)
+		} else if modifiers != orderedModifiers {
 			reportProblem("The modifiers of the keyboard shortcut `\(shortcut)` must be in the order of Apple: \(orderedModifiers.map(\.rawValue).joined(separator: ", ")), like `\(orderedKeys.map(\.name).joined(separator: "+"))`.", line: line)
 		}
 
-		return theme.keyboardShortcut(keys, punctuation: punctuation)
+		return theme.keyboardShortcut(keys, openingPunctuation: openingPunctuation, punctuation: punctuation)
 	}
 
 	mutating func visitInlineHTML(_ inlineHTML: InlineHTML) {
@@ -1152,8 +1315,31 @@ struct HTMLRenderer: MarkupWalker {
 		reportRawCollapsibleSection(in: rawHTML, line: line(of: inlineHTML))
 
 		// Release notes keep only keyboard keys, like `<kbd>Delete</kbd>`.
-		html += style == .releaseNotes && !["<kbd>", "</kbd>"].contains(rawHTML) ? rawHTML.escapedForHTML : rawHTML
+		html += style == .releaseNotes && !["<kbd>", "</kbd>"].contains(rawHTML) ? rawHTML.escapedForHTML : resolvingRawLinks(in: rawHTML, of: inlineHTML)
 	}
+
+	/**
+	The raw HTML with the `href` and `src` of its tags resolved like the destinations of Markdown links (``resolvedDestination(_:of:)``), so a file of the page bundle, like `<img src="screenshot1.jpg">`, works, and the links are recorded at the line of the HTML, which a broken link then names. Limitation: only values in double quotes are found, as the HTML is not parsed.
+	*/
+	private mutating func resolvingRawLinks(in rawHTML: String, of markup: any Markup) -> String {
+		guard
+			style == .extended,
+			rawHTML.contains("href=") || rawHTML.contains("src=")
+		else {
+			return rawHTML
+		}
+
+		return rawHTML.replacing(Self.rawLinkAttribute) { match in
+			let destination = String(match.2).decodingHTMLEscapes
+			let resolved = resolvedDestination(destination, of: markup)
+			return resolved == destination ? String(match.output.0) : "\(match.1)\(resolved.escapedForHTML)\""
+		}
+	}
+
+	/**
+	An `href` or `src` attribute of raw HTML in double quotes, like ` src="screenshot1.jpg"`, with the part before the value and the value.
+	*/
+	nonisolated(unsafe) private static let rawLinkAttribute = /(\s(?:href|src)=")([^"]*)"/
 
 	mutating func visitLineBreak(_ lineBreak: LineBreak) {
 		html += "<br>\n"
@@ -1174,6 +1360,7 @@ struct HTMLRenderer: MarkupWalker {
 			let aside = Aside(gitHubAlert: blockQuote),
 			let kind = MarkdownAlert(rawValue: aside.kind.rawValue.lowercased())
 		else {
+			reportAlertMarker(of: blockQuote)
 			return false
 		}
 
@@ -1186,6 +1373,45 @@ struct HTMLRenderer: MarkupWalker {
 
 		html += theme.alert(kind, contentHTML: contentHTML) + "\n"
 		return true
+	}
+
+	/**
+	The marker at the start of a block quote, like `[!NOTE]`, also with a name that is not a kind of alert, like `[!WARN]`.
+	*/
+	nonisolated(unsafe) private static let alertMarker = /\[!([A-Za-z]+)\]/
+
+	/**
+	Reports a block quote that starts with an alert marker but is not an alert, which would show the marker as text in a quote: an unknown kind, like `> [!WARN]`, text after the marker, like `> [!NOTE] Text`, or no text.
+	*/
+	private mutating func reportAlertMarker(of blockQuote: BlockQuote) {
+		guard
+			let paragraph = blockQuote.child(at: 0) as? Paragraph,
+			let text = paragraph.child(at: 0) as? Text,
+			let match = text.string.prefixMatch(of: Self.alertMarker)
+		else {
+			return
+		}
+
+		let marker = "`\(match.0)`"
+		let names = MarkdownAlert.allCases.map(\.title)
+
+		guard names.contains(match.1.uppercased()) else {
+			let known = names.map { "`[!\($0)]`" }.formattedList(.or)
+			let suggestion = String(match.1).closest(in: names).map { " Did you mean `[!\($0)]`?" } ?? ""
+			reportProblem("\(marker) is not an alert. Use \(known).\(suggestion)", line: line(of: blockQuote))
+			return
+		}
+
+		// The parser makes an alert of a marker that is alone on its line with text after it, so this one has text on its line, or no text.
+		guard
+			paragraph.childCount == 1,
+			text.string.count == match.0.count
+		else {
+			reportProblem("The marker \(marker) must be alone on its line. Put the text on the next line.", line: line(of: blockQuote))
+			return
+		}
+
+		reportProblem("The alert \(marker) has no text. Write the text on the next line.", line: line(of: blockQuote))
 	}
 
 	/**
@@ -1206,11 +1432,13 @@ struct HTMLRenderer: MarkupWalker {
 				continue
 			}
 
-			let line = firstLine.map { $0 + index }
+			let line = firstLine.map { $0.offset(by: index) }
 
 			guard let directive = options.headingDirectives.first(where: { $0.name == comment.name }) else {
-				let known = options.headingDirectives.map { "`@\($0.name)`" }.sorted()
-				reportProblem("Unknown directive `@\(comment.name)`.\(known.isEmpty ? "" : " Known directives: \(known.joined(separator: ", ")).")", line: line)
+				let names = options.headingDirectives.map { $0.name.rawValue }
+				let known = names.map { "`@\($0)`" }.sorted()
+				let suggestion = comment.name.rawValue.closest(in: names).map { " Did you mean `@\($0)`?" } ?? (known.isEmpty ? "" : " Known directives: \(known.joined(separator: ", ")).")
+				reportProblem("Unknown directive `@\(comment.name)`.\(suggestion)", line: line)
 				continue
 			}
 
@@ -1234,12 +1462,12 @@ struct HTMLRenderer: MarkupWalker {
 			do {
 				try headings[headings.count - 1].setDirective(directive, values: comment.values)
 			} catch {
-				reportProblem("The values of `@\(comment.name)` are invalid: \((error as? DecodingError)?.reason ?? "\(error)")", line: line)
+				reportProblem("The values of `@\(comment.name)` are invalid: \(error.reason)", line: line)
 			}
 		}
 	}
 
-	private mutating func reportProblem(_ message: String, line: Int?) {
+	private mutating func reportProblem(_ message: String, line: SourceLocation.Line?) {
 		problems.append(ContentError(line: line, reason: message))
 	}
 
@@ -1278,9 +1506,33 @@ public enum HeadingLevel: Int, CaseIterable, Comparable, Sendable {
 
 extension Markdown.Heading {
 	/**
-	A heading with a custom ID, like `## Install {#install}`, for a heading that code adds. The ID is in the last text of the heading, where the renderer reads it.
+	The level of the parsed heading, which is always 1 through 6. A code-built heading outside this range is a programmer error.
 	*/
-	public init(level: HeadingLevel, _ title: String, id: String) {
+	public var headingLevel: HeadingLevel {
+		guard let level = HeadingLevel(rawValue: level) else {
+			preconditionFailure("A Markdown heading must have a level from 1 through 6, got \(level).")
+		}
+		return level
+	}
+
+	/**
+	A heading at a typed level with a sequence of inline children.
+	*/
+	public init<Children: Sequence>(level: HeadingLevel, _ children: Children) where Children.Element == any InlineMarkup {
+		self.init(level: level.rawValue, children)
+	}
+
+	/**
+	A heading at a typed level with inline children.
+	*/
+	public init(level: HeadingLevel, _ children: any InlineMarkup...) {
+		self.init(level: level, children)
+	}
+
+	/**
+	A heading with a custom ID, like `## Install {#install}`, for a heading that code adds. The ID is in the last text of the heading, where the renderer reads it. It must contain letters, digits, underscores, and plain hyphens so it round-trips unchanged through custom-heading syntax; other element IDs are a programmer error.
+	*/
+	public init(level: HeadingLevel, _ title: String, id: ElementID) {
 		self.init(level: level.rawValue)
 		setTitle(title, id: id)
 	}
@@ -1288,7 +1540,11 @@ extension Markdown.Heading {
 	/**
 	Replaces the text of the heading with the title and a custom ID, like ``init(level:_:id:)``. The heading keeps its place in the file, like its line.
 	*/
-	public mutating func setTitle(_ title: String, id: String) {
+	public mutating func setTitle(_ title: String, id: ElementID) {
+		precondition(
+			id.rawValue.wholeMatch(of: String.customHeadingIDCharacters) != nil && id.rawValue == id.rawValue.removingSmartPunctuation,
+			"A custom heading ID must contain only letters, digits, underscores, and plain hyphens, got “\(id)”."
+		)
 		setInlineChildren([Text("\(title) {#\(id)}")])
 	}
 
@@ -1302,12 +1558,12 @@ extension Markdown.Heading {
 	/**
 	The custom ID of the heading, like `install` for `## Install {#install}`. `nil` when the heading has none, or an invalid one, which rendering reports.
 	*/
-	public var customID: String? {
+	public var customID: ElementID? {
 		guard case .valid(let id) = titleAndCustomID.customID else {
 			return nil
 		}
 
-		return id
+		return ElementID(id)
 	}
 
 	/**
@@ -1366,6 +1622,19 @@ extension String {
 	}
 
 	/**
+	The comments that have another `<!--` in them, like `<!-- Draft` before `<!-- Note -->`, as the author forgot to close them. Each is the line of the comment and the line of the other `<!--`, as offsets from the first line of the HTML.
+	*/
+	fileprivate var unclosedHTMLComments: [(commentLine: Int, otherCommentLine: Int)] {
+		matches(of: Self.htmlComment).compactMap { comment in
+			guard let otherComment = comment.output.dropFirst(4).firstRange(of: "<!--") else {
+				return nil
+			}
+
+			return (self[..<comment.range.lowerBound].count(where: \.isNewline), self[..<otherComment.lowerBound].count(where: \.isNewline))
+		}
+	}
+
+	/**
 	An HTML comment, like `<!-- Draft -->`.
 	*/
 	nonisolated(unsafe) private static let htmlComment = /(?s)<!--.*?-->/
@@ -1414,11 +1683,16 @@ extension String {
 			return self
 		}
 
-		return replacing(/<kbd>([^<]*\+[^<]*)<\/kbd>/) { match in
+		return replacing(Self.keyboardShortcutElement) { match in
 			// The text is HTML, so its escapes are decoded first, as each key escapes its name again.
 			theme.keyboardShortcut(KeyboardKey.keys(of: String(match.1).decodingHTMLEscapes))
 		}
 	}
+
+	/**
+	A `<kbd>` with a `+` in it, like `<kbd>Command+K</kbd>`. Stored, as it runs for each raw `<kbd>`.
+	*/
+	nonisolated(unsafe) private static let keyboardShortcutElement = /<kbd>([^<]*\+[^<]*)<\/kbd>/
 }
 
 extension String {
@@ -1541,5 +1815,67 @@ extension BlockDirective {
 		}
 
 		return "must contain \(expected), and it has \(kind)."
+	}
+}
+
+extension Substring {
+	/**
+	The line without its indentation and the `>` of a block quote, like `` ```swift `` for `` > ```swift ``.
+	*/
+	fileprivate var blockContent: Substring {
+		drop { $0.isWhitespace || $0 == ">" }
+	}
+
+	/**
+	The fence character and its count at the start of the line, like `` ` `` and 3 for ```` ```swift ````, after the indentation and the `>` of a block quote, or `nil` when the line does not start with a fence.
+	*/
+	fileprivate var fenceRun: (character: Character, count: Int)? {
+		let content = blockContent
+
+		guard
+			let character = content.first,
+			character == "`" || character == "~"
+		else {
+			return nil
+		}
+
+		let count = content.prefix { $0 == character }.count
+		return count >= 3 ? (character, count) : nil
+	}
+
+	/**
+	The text of the cells of a table row, like `["A", "B"]` for `| A | B |`, split at each `|` that is not escaped, after the `>` of a block quote.
+	*/
+	fileprivate var tableRowCells: [String] {
+		var row = blockContent.trimmingCharacters(in: .whitespaces)[...]
+
+		if row.hasPrefix("|") {
+			row = row.dropFirst()
+		}
+
+		if
+			row.hasSuffix("|"),
+			!row.hasSuffix("\\|")
+		{
+			row = row.dropLast()
+		}
+
+		var cells = [""]
+		var isEscaped = false
+
+		for character in row {
+			if
+				character == "|",
+				!isEscaped
+			{
+				cells.append("")
+			} else {
+				cells[cells.count - 1].append(character)
+			}
+
+			isEscaped = character == "\\" && !isEscaped
+		}
+
+		return cells.map { $0.trimmingCharacters(in: .whitespaces) }
 	}
 }

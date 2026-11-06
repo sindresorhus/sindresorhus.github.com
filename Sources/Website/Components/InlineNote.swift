@@ -97,7 +97,7 @@ struct InlineNote: ScriptedElement {
 			.underlineColor(.currentColor)
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 
 		var style: Style {

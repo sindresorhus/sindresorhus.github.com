@@ -1,12 +1,12 @@
 /**
-A CSS property name, for ``Style/declaration(_:_:)``.
+A CSS property name, for ``Style/declaration(raw:_:isImportant:)``.
 
 The properties without a typed modifier are static members, so they autocomplete, and a misspelled name does not compile. Add a static member for a new property. `Property("…")` is the escape hatch, which stands out in a review. Use a ``StyleVariable`` for a custom property:
 
 ```swift
 Style()
-	.declaration(.tableLayout, "fixed")
-	.declaration(.transformOrigin, "top left")
+	.declaration(raw: .tableLayout, "fixed")
+	.declaration(raw: .transformOrigin, "top left")
 ```
 */
 public struct Property: Hashable, Sendable, CustomStringConvertible {
@@ -53,6 +53,7 @@ extension Property {
 	public static let colorScheme = Self("color-scheme")
 	public static let columnGap = Self("column-gap")
 	public static let columns = Self("columns")
+	public static let containIntrinsicBlockSize = Self("contain-intrinsic-block-size")
 	public static let containerType = Self("container-type")
 	public static let content = Self("content")
 	public static let contentVisibility = Self("content-visibility")
@@ -66,6 +67,7 @@ extension Property {
 	public static let filter = Self("filter")
 	public static let flex = Self("flex")
 	public static let flexDirection = Self("flex-direction")
+	public static let flexGrow = Self("flex-grow")
 	public static let flexShrink = Self("flex-shrink")
 	public static let flexWrap = Self("flex-wrap")
 	public static let float = Self("float")
@@ -121,6 +123,7 @@ extension Property {
 	public static let overflowWrap = Self("overflow-wrap")
 	public static let overflowX = Self("overflow-x")
 	public static let overlay = Self("overlay")
+	public static let overscrollBehavior = Self("overscroll-behavior")
 	public static let overscrollBehaviorX = Self("overscroll-behavior-x")
 	public static let padding = Self("padding")
 	public static let paintOrder = Self("paint-order")

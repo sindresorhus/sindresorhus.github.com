@@ -69,7 +69,7 @@ struct GeoCitiesWindowsGoo: ScriptedElement {
 			}
 			.style(Styles.options)
 
-			div(.role("group")) {
+			div(.role(.group)) {
 				for tool in Self.tools {
 					button(.type(.button), .hook(Hooks.tool, value: tool.id), .ariaPressed(tool.id == "smear")) {
 						span {
@@ -93,7 +93,7 @@ struct GeoCitiesWindowsGoo: ScriptedElement {
 				.width(256),
 				.height(256),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The face. Drag on it to goo it with the tool. With the keyboard, the arrow keys move the brush, and holding Space down goos.")
 				.style(Styles.canvas)
@@ -118,7 +118,7 @@ struct GeoCitiesWindowsGoo: ScriptedElement {
 			}
 			.style(GeoCitiesWindows.Styles.wrapRow)
 
-			p(.part(Parts.status), .role("status")) {
+			p(.part(Parts.status), .role(.status)) {
 				"Pick a tool, and drag on the face. It is like liquid!"
 			}
 			.style(Styles.status)
@@ -152,7 +152,7 @@ struct GeoCitiesWindowsGoo: ScriptedElement {
 		case tool = "goo-tool"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case panel
 		case options

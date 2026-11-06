@@ -37,7 +37,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 		Timeline()
 		MindMaze()
 
-		p(.part(Parts.status), .role("status")) {
+		p(.part(Parts.status), .role(.status)) {
 			"Please wait while Encarta reads drive D:."
 		}
 		.style(GeoCitiesPage.Styles.statusBar, GeoCitiesPage.Styles.scriptingOnly)
@@ -53,7 +53,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 	*/
 	private struct MenuBar: HTML {
 		var body: some HTML {
-			div(.role("toolbar")) {
+			div(.role(.toolbar)) {
 				goButton("home", "🏠 Home")
 				goButton("timeline", "⏳ Timeline")
 				goButton("maze", "🏰 MindMaze")
@@ -249,7 +249,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 						.part(Parts.media),
 						.width(240),
 						.height(150),
-						.role("img")
+						.role(.image)
 					) {}
 						.style(Styles.mediaCanvas)
 
@@ -258,13 +258,14 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 
 					figcaption(.part(Parts.mediaCaption)) {}
 						.style(GeoCitiesPage.Styles.caption)
-
-					template(.part(Parts.actionTemplate)) {
-						button(.type(.button)) {}
-							.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
-					}
 				}
 				.style(Styles.media)
+
+				// Outside the figure, so its caption stays the last child.
+				template(.part(Parts.actionTemplate)) {
+					button(.type(.button)) {}
+						.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
+				}
 
 				div(.part(Parts.articleBody)) {}
 					.style(Styles.articleBody)
@@ -394,7 +395,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 						.width(480),
 						.height(236),
 						.tabindex(0),
-						.role("application")
+						.role(.application)
 					) {}
 						.accessibilityLabel("MindMaze castle. The Left, Up, and Right arrow keys pick the door on that wall, Down turns around, 1 to 4 answer a question, H asks the jester, T talks, M shows the map, and Escape steps back.")
 						.style(Styles.mazeScreen)
@@ -403,7 +404,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 						.part(Parts.mazeMap),
 						.width(120),
 						.height(120),
-						.role("img")
+						.role(.image)
 					) {}
 						.accessibilityLabel("Map of the castle")
 						.style(Styles.mazeMap)
@@ -414,7 +415,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					div(
 						.part(Parts.mazeQuestion),
 						.hidden,
-						.role("group"),
+						.role(.group),
 						.ariaLabelledBy(GeoCitiesWindowsEncarta.questionTextID)
 					) {
 						p(.part(Parts.mazeAsker)) {}
@@ -570,7 +571,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 		case answer = "encarta-answer"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case app
 		case menuBar
@@ -995,7 +996,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 					.when(States.cut) {
 						$0
 							.opacity(0.35)
-							.underline(false)
+							.noUnderline()
 					}
 					.when(States.wrong) {
 						$0
@@ -1009,7 +1010,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 		}
 	}
 
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case spin
 
 		var keyframes: [Keyframe] {

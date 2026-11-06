@@ -44,13 +44,9 @@ The optimal workflow in One Task is to add only the tasks you’re committed to 
 
 It syncs tasks over iCloud.
 
-<br>
-
 > You can achieve almost anything in life — as long as you focus on achieving one thing at a time. It’s a time-tested strategy that’s been shared by many successful people.
 
 — [Darius Foroux](https://dariusforoux.com/one-thing/)
-
-<br>
 
 ## Tips
 
@@ -119,7 +115,7 @@ One Task is designed for action, not endless categorization. It omits features l
 
 ### How can I turn off iCloud syncing? {#turn-off-sync}
 
-- **macOS:** Go to “System Settings › Apple Account › iCloud › Saved to iCloud” and turn off One Task.
+- **macOS:** Go to “[System Settings › Apple Account › iCloud › Saved to iCloud](x-apple.systempreferences:com.apple.systempreferences.AppleIDSettings)” and turn off One Task.
 - **iOS:** Go to “Settings › Apple Account › iCloud › Saved to iCloud” and turn off One Task.
 
 It will erase your existing items, so you may want to first back them up with the “Copy” button in the “All Tasks” section of the “…” menu.

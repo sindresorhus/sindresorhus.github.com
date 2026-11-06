@@ -1,17 +1,64 @@
 import Foundation
 import Markdown
+import RegexBuilder
+
+/**
+A heading directive's spelling after `@`. Names use word characters, dots, and single hyphens, matching the directive comment grammar.
+*/
+public struct HeadingDirectiveName: Hashable, Sendable, CustomStringConvertible, ExpressibleByStringLiteral {
+	public let rawValue: String
+
+	/**
+	The recognized name grammar, shared by validation and comment parsing. A double hyphen ends the name before the closing comment marker.
+	*/
+	nonisolated(unsafe) fileprivate static let pattern = /(?:[\w.]|-(?!-))+/
+
+	/**
+	Checks a code-owned directive name. Use `init(validating:)` for external input.
+	*/
+	public init(_ value: String) {
+		do {
+			try self.init(validating: value)
+		} catch {
+			preconditionFailure(error.reason)
+		}
+	}
+
+	/**
+	Validates the complete spelling of a directive name.
+	*/
+	public init(validating value: String) throws(ContentError) {
+		guard value.wholeMatch(of: Self.pattern) != nil else {
+			throw ContentError(reason: "A heading directive name must contain only word characters, dots, and single hyphens, and must not be empty.")
+		}
+
+		self.rawValue = value
+	}
+
+	/**
+	Checks a literal directive name.
+	*/
+	public init(stringLiteral value: String) {
+		self.init(value)
+	}
+
+	/**
+	The spelling in a directive comment, without its `@`.
+	*/
+	public var description: String {
+		rawValue
+	}
+}
 
 /**
 Metadata about a section, in an HTML comment directly below its heading, like `<!-- @faq.platforms macOS iOS -->`. Other directive comments may be in between.
 
-The values are separated by whitespace and passed to ``decode(values:)``, which checks their shape and returns the value. A directive without values is a problem, unless it is a flag (``HeadingDirectiveFlag``), as an empty directive is a leftover that reads as if it has values. String lists and flags have default parsers; other values define their own parser, such as a rank that needs one integer.
+The values are separated by whitespace and passed to ``decode(values:)``, which checks their shape and returns the value. A directive without values is a problem, unless it is a flag (``HeadingDirectiveFlag``), as an empty directive is a leftover that reads as if it has values. String lists, lists of `ContentEnum` cases, single integers, and flags have default parsers; other values define their own parser.
 
 ```swift
 enum Platforms: HeadingDirective {
-	static let name = "faq.platforms"
-	static func decode(values: [String]) throws -> [Platform] {
-		try values.map { try Platform(validating: $0) }
-	}
+	static let name: HeadingDirectiveName = "faq.platforms"
+	typealias Value = [Platform]
 }
 
 heading[Platforms.self] // [.macOS, .iOS]
@@ -25,12 +72,12 @@ public protocol HeadingDirective: Sendable {
 	/**
 	The name after the `@`, like `faq.platforms`.
 	*/
-	static var name: String { get }
+	static var name: HeadingDirectiveName { get }
 
 	/**
 	Checks and decodes the whitespace-separated values of a directive comment.
 	*/
-	static func decode(values: [String]) throws -> Value
+	static func decode(values: [String]) throws(ContentError) -> Value
 }
 
 /**
@@ -38,7 +85,7 @@ The value of a directive that is a flag, without values, like `<!-- @faq.general
 
 ```swift
 enum General: HeadingDirective {
-	static let name = "faq.general"
+	static let name: HeadingDirectiveName = "faq.general"
 	typealias Value = HeadingDirectiveFlag
 }
 ```
@@ -65,11 +112,41 @@ extension HeadingDirective where Value == [String] {
 	}
 }
 
+extension HeadingDirective {
+	/**
+	A list of content enum cases checks each value with the enum's authored-value diagnostics.
+	*/
+	public static func decode<Element: ContentEnum>(values: [String]) throws(ContentError) -> [Element] where Value == [Element] {
+		var result = [Element]()
+		for value in values {
+			result.append(try Element(validating: value))
+		}
+		return result
+	}
+}
+
+extension HeadingDirective where Value == Int {
+	/**
+	An integer directive accepts exactly one integer, like a rank.
+	*/
+	public static func decode(values: [String]) throws(ContentError) -> Int {
+		guard values.count == 1 else {
+			throw ContentError(reason: "Expected one integer, got \(values.count) values.")
+		}
+
+		guard let value = Int(values[0]) else {
+			throw ContentError(reason: "Expected an integer, got “\(values[0])”.")
+		}
+
+		return value
+	}
+}
+
 extension HeadingDirective where Value == HeadingDirectiveFlag {
 	/**
 	A flag accepts no values.
 	*/
-	public static func decode(values: [String]) throws -> HeadingDirectiveFlag {
+	public static func decode(values: [String]) throws(ContentError) -> HeadingDirectiveFlag {
 		guard values.isEmpty else {
 			throw ContentError(reason: "It is a flag, so it takes no values.")
 		}
@@ -82,7 +159,7 @@ extension HeadingDirective where Value == HeadingDirectiveFlag {
 A directive comment, like `<!-- @faq.keywords launch open -->`.
 */
 struct DirectiveComment {
-	let name: String
+	let name: HeadingDirectiveName
 	let values: [String]
 
 	/**
@@ -100,7 +177,17 @@ struct DirectiveComment {
 	/**
 	The start of a directive comment, with the name and the rest of the line. The name stops before `--`, so a flag like `<!--@faq.general-->` has no space before the end.
 	*/
-	nonisolated(unsafe) private static let pattern = /<!--\s*@((?:[\w.]|-(?!-))+)(.*)/
+	nonisolated(unsafe) private static let pattern = Regex {
+		"<!--"
+		ZeroOrMore(.whitespace)
+		"@"
+		Capture {
+			HeadingDirectiveName.pattern
+		}
+		Capture {
+			ZeroOrMore(.anyNonNewline)
+		}
+	}
 
 	nonisolated(unsafe) private static let commentEnd = /-->$/
 
@@ -117,7 +204,7 @@ struct DirectiveComment {
 
 		let rest = match.2.trimmingCharacters(in: .whitespaces)
 		let values = rest.replacing(Self.commentEnd, with: "")
-		self.name = String(match.1)
+		self.name = HeadingDirectiveName(String(match.1))
 
 		// Another comment on the line, like `<!-- @a x --><!-- @b y -->`, is not part of the values.
 		self.isOnOwnLine = line[..<match.range.lowerBound].allSatisfy(\.isWhitespace) && rest.hasSuffix("-->") && !values.contains("-->") && !values.contains("<!--")
@@ -168,7 +255,10 @@ extension HTMLBlock {
 }
 
 extension Markup {
-	fileprivate var previousSibling: any Markup? {
+	/**
+	The markup before this one in its parent, like the line break before a text. `nil` for the first child.
+	*/
+	public var previousSibling: (any Markup)? {
 		guard
 			let parent,
 			indexInParent > 0

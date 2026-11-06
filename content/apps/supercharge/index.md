@@ -17,6 +17,7 @@ downloadCount: 13000
 hasSentry: true
 trial: {
 	url: 'https://www.dropbox.com/scl/fi/58ujynvqo09r1ni8ywl0n/Supercharge-1.30.1-trial-1790570015.zip?rlkey=bgo4hf47jnmqqrxxleilcferf&raw=1'
+	limitations: 'The keyboard shortcut inspector, and the export and import of app settings, work 4 times each.'
 }
 announcement: {
 	text: 'Save 30% with the Power User Bundle: Default Browser, Shortcutie, and Supercharge'
@@ -138,8 +139,6 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 - Extras: Add Dock & Finder sidebar spacers, change default browser without prompts.
 <!-- - [Remap dedicated function keys](#remap-dedicated-function-keys) — Make the dedicated Mission Control, Spotlight, Dictation, and Do Not Disturb keys keyboard shortcuts, Supercharge actions, or run shortcuts. -->
 <!-- - [Double-tap modifier keys (Fn, Shift, Control, Option, Command) to trigger keyboard shortcuts, Supercharge actions, or run shortcuts](#double-tap-modifier) -->
-
-<br>
 
 ### All Features
 
@@ -372,6 +371,7 @@ Supercharge has fixes like these for Finder, the Dock, windows, and more.
 - Toggle ^[grayscale mode](note: "Grayscale mode on macOS can be a useful tool for various purposes. It can help reduce eye strain during long work sessions, especially in low-light environments. For designers and developers, it’s valuable for checking contrast and readability of user interfaces without the influence of color. Content creators may use it to evaluate the tonal balance of images or videos. Additionally, some users find that grayscale helps minimize distractions and improve focus by reducing the visual appeal of non-work-related apps and websites. While initially an adjustment, many users report increased productivity and a more mindful approach to computer usage when employing grayscale mode periodically.")
 - Toggle desktop icons and widgets visibility
 - Toggle [hot corners](https://support.apple.com/guide/mac-help/mchlp3000/mac)
+- Toggle menu bar auto-hide
 - Toggle function keys (switch between using F1, F2, etc., as standard function keys or media keys)
 	:: Only supported for the built-in MacBook keyboard and Magic Keyboard.
 - Toggle iOS notifications
@@ -414,8 +414,6 @@ Mentions:
 ---
 
 ### Features explained
-
-<br>
 
 #### Run shortcuts {#run-shortcuts}
 
@@ -844,8 +842,6 @@ Just moved to macOS from Windows? Supercharge helps you feel at home:
 
 Make macOS feel less foreign — and more powerful.
 
-<br>
-
 > [!TIP]
 > You may also like my [Shareful](/shareful), [Menu Bar Spacing](/menu-bar-spacing), and [Pure Paste](/pure-paste) apps.
 
@@ -1012,7 +1008,7 @@ Quitting from the switcher is also already a deliberate, multi-step act: you hol
 
 ### I cannot use ++Control+Space++ or ++Control+Shift+Space++ as a keyboard shortcut {#i-cannot-use-controlspace-or-controlshiftspace-as-a-keyboard-shortcut}
 
-Go to “System Settings › Keyboard › Keyboard Shortcuts › Input Sources” and disable them all.
+Go to “[System Settings › Keyboard › Keyboard Shortcuts › Input Sources](x-apple.systempreferences:com.apple.Keyboard-Settings.extension)” and disable them all.
 
 ### Why would I want to clear my clipboard? {#why-would-i-want-to-clear-my-clipboard}
 

@@ -1,7 +1,7 @@
-import {cloneTemplate} from '/scripts/dom.js';
+import {cloneTemplate, parts, scriptData} from '/scripts/dom.js';
 
 /*
-FAQ suggestions: while the visitor types, the message is split into words (three or more letters, without stopwords), and each question is scored by the words it shares with the message. Rare words count more (TF-IDF). The site generator prepares the words of each question, with synonyms. Pinned questions come first when they match as many words as the best other question, then questions with more matching words, then app questions, then higher scores. A question needs two matching words, or one for messages with only one known word.
+FAQ suggestions: while the visitor types, the message is split into words (three or more letters, without stopwords), and each question is scored by the words it shares with the message. Rare words count more (TF-IDF). The site generator prepares the words of each question, with synonyms. Pinned questions come first when they match as many words as the best other question, then questions with more matching words, then app questions, then higher scores. A question needs two matching words, or one for messages with only one known word. The tips of the app and the guides about it are questions of the app with a label, like “Guide”, so the same rules are for them.
 */
 
 /*
@@ -14,11 +14,22 @@ const withoutLogLines = text => text.split('\n').filter(line => !logLinePattern.
 // A line that only a crash report has, in the text format, like `Exception Type:  EXC_CRASH`, or in the JSON format of an `.ips` file, like `"bug_type":"309"`.
 const crashReportPattern = /^(?:Incident Identifier|Crashed Thread|Exception Type):|"bug_type"/m;
 
+// The name of a crash report file, like `Dato-2026-11-01-101530.ips`, or `.crash` of older macOS versions.
+const crashReportFilePattern = /\.(?:ips|crash)$/i;
+
 // The endings of the forms of a word, and no ending, for the same word.
 const wordEndings = new Set(['', 's', 'es', 'ed', 'ing', 'er', 'ly']);
 
 // The endings that a word without its last “e” takes, like “freezing” for “freeze”.
 const vowelEndings = new Set(['es', 'ed', 'ing', 'er']);
+
+// The steps from a word to its stem: “ies” and “ied” become “y”, then one ending, a doubled last letter, and a last “e” are removed.
+const stemSteps = [
+	[/ie[sd]$/, 'y'],
+	[/(?:ing|ed|es|s)$/, ''],
+	[/(.)\1$/, '$1'],
+	[/e$/, ''],
+];
 
 // The function that finds the questions a message is about, among the general questions and the questions of the app with the title.
 function questionMatcher(data, appTitle) {
@@ -38,15 +49,39 @@ function questionMatcher(data, appTitle) {
 
 	const allWords = new Set(questions.flatMap(question => question.words));
 
-	// Apostrophes are removed first, as in the site generator, so “doesn't” becomes “doesnt”.
-	const wordsIn = text => (text.toLowerCase().replaceAll(/['’]/g, '').match(/[a-z\d_]{3,}/g) ?? []).filter(word => !stopwords.has(word));
+	// Apostrophes are removed first, as in the site generator, so “doesn't” becomes “doesnt”, and “menu bar” is one word, “menubar”, like in the questions.
+	const wordsIn = text => (text.toLowerCase().replaceAll(/['’]/g, '').replaceAll(/\bmenu\s+bar/g, 'menubar').match(/[a-z\d_]{3,}/g) ?? []).filter(word => !stopwords.has(word));
+
+	// The name of the app, which visitors often write, like “Velja is great”, is left out of the message, as many questions of the app have it, so it would match them all. Only the whole name, so “calendar” still counts for Menu Bar Calendar. A limitation: for an app whose name is a common word, like Actions, the word is left out too, so the other words of the message must match.
+	const appTitlePattern = app ? new RegExp(`\\b${RegExp.escape(app.title)}\\b`, 'gi') : undefined;
+	const withoutAppTitle = text => appTitlePattern ? text.replaceAll(appTitlePattern, ' ') : text;
+
+	// The stem of a word, without one ending, a doubled last letter, and a last “e”, so two forms of a word have the same stem, like “crashed” and “crashing”, “stops” and “stopped”, and “enabled” and “enabling”. A step that would leave fewer than 3 letters is skipped, so “ads” does not match “added”. Each word is compared with many words, so its stem is computed once.
+	const wordStems = new Map();
+	const stemOf = word => {
+		if (!wordStems.has(word)) {
+			let stem = word;
+
+			for (const [pattern, replacement] of stemSteps) {
+				const shorterStem = stem.replace(pattern, replacement);
+
+				if (shorterStem.length >= 3) {
+					stem = shorterStem;
+				}
+			}
+
+			wordStems.set(word, stem);
+		}
+
+		return wordStems.get(word);
+	};
 
 	// Another form of the same word matches: the word with an ending, like “syncs”, “synced”, and “syncing” for “sync”, also with a doubled last letter, like “quitting” for “quit”, or without a last “e”, like “freezing” for “freeze”. Not a longer word with the same start, like “freezing” for “free”.
 	const wordsMatch = (first, second) => {
 		const [shorter, longer] = first.length <= second.length ? [first, second] : [second, first];
 		// Without its last “e”, a word only takes an ending that starts with a vowel, so “one” does not match “only”.
 		const stems = [[shorter, wordEndings], [shorter + shorter.at(-1), wordEndings], ...(shorter.endsWith('e') ? [[shorter.slice(0, -1), vowelEndings]] : [])];
-		return stems.some(([stem, endings]) => longer.startsWith(stem) && endings.has(longer.slice(stem.length)));
+		return stems.some(([stem, endings]) => longer.startsWith(stem) && endings.has(longer.slice(stem.length))) || stemOf(first) === stemOf(second);
 	};
 
 	// Jaccard similarity of all the words of two questions, to leave out a general question that repeats an app question.
@@ -57,7 +92,7 @@ function questionMatcher(data, appTitle) {
 	};
 
 	const matchingQuestions = message => {
-		const messageWords = [...new Set(wordsIn(withoutLogLines(message)))];
+		const messageWords = [...new Set(wordsIn(withoutAppTitle(withoutLogLines(message))))];
 
 		// Words that no question has, like “didnt”, do not raise the number of words a question needs.
 		const knownWords = messageWords.filter(messageWord => allWords.values().some(word => wordsMatch(messageWord, word)));
@@ -130,8 +165,18 @@ class FAQSuggestions extends HTMLElement {
 	connectedCallback() {
 		// The same functions, so connecting the element again does not add second listeners.
 		this.#message.addEventListener('input', this.#suggest);
-		this.querySelector('[data-part="dismiss"]').addEventListener('click', this.#dismiss);
+		// The attachments of the form, for the crash warning.
+		this.#message.form?.addEventListener('change', this.#suggest);
+		parts(this).dismiss.addEventListener('click', this.#dismiss);
+		window.addEventListener('pageshow', this.#suggestForRestoredMessage);
 	}
+
+	// When the page comes back without the back/forward cache, like after Back from an answer, the browser puts the text back in the message before the page shows, but sends no `input` event, so the related help and the crash warning would stay away until the visitor types again. Not for an empty message, so the page does not read the questions before the visitor writes.
+	#suggestForRestoredMessage = () => {
+		if (this.#message.value) {
+			this.#suggest();
+		}
+	};
 
 	// The message field, which the `for` attribute names, like the `for` of a label.
 	get #message() {
@@ -140,26 +185,35 @@ class FAQSuggestions extends HTMLElement {
 
 	#suggest = () => {
 		const textarea = this.#message;
-		const panel = this.querySelector('[data-part="panel"]');
-		const list = this.querySelector('[data-part="list"]');
-		const crashWarning = this.querySelector('[data-part="crashWarning"]');
-		const count = this.querySelector('[data-part="count"]');
+		const {
+			panel,
+			list,
+			crashWarning,
+			count,
+			template,
+		} = parts(this);
 
 		clearTimeout(this.#timer);
 
 		this.#timer = setTimeout(() => {
-			// A word that starts with “crash”, or the text of the crash dialog of macOS, like “Dato quit unexpectedly.”, which visitors often copy. Not when the message already has a crash report, which has “Crashed” in it.
-			crashWarning.hidden = !/\bcrash|\bquits? unexpectedly/i.test(textarea.value) || crashReportPattern.test(textarea.value);
+			// A word that starts with “crash”, or the text of the crash dialog of macOS, like “Dato quit unexpectedly.”, which visitors often copy. Not when the message already has a crash report, which has “Crashed” in it, or a crash report is attached.
+			const hasCrashReportFile = [...this.#message.form?.elements ?? []].some(element => element.type === 'file' && [...element.files].some(file => crashReportFilePattern.test(file.name)));
+			crashWarning.hidden = !/\bcrash|\bquits? unexpectedly/i.test(textarea.value) || crashReportPattern.test(textarea.value) || hasCrashReportFile;
 
 			// After a dismiss, only the crash warning still follows the text.
 			if (this.#isDismissed) {
 				return;
 			}
 
-			this.#matchingQuestions ??= questionMatcher(JSON.parse(document.getElementById(this.getAttribute('questions')).textContent), this.getAttribute('app'));
+			this.#matchingQuestions ??= questionMatcher(scriptData(this.getAttribute('questions')), this.getAttribute('app'));
 
 			const matches = this.#matchingQuestions(textarea.value);
 			if (matches.length === 0) {
+				// A new word can leave no question for a moment, like a second word that needs a question with both words, so the panel keeps the last questions while the visitor writes, and the fields below do not jump. It hides when the message is empty.
+				if (!panel.hidden && textarea.value.trim()) {
+					return;
+				}
+
 				panel.hidden = true;
 				count.textContent = '';
 				// The list is built again when the panel comes back, so screen readers hear its number again.
@@ -170,10 +224,19 @@ class FAQSuggestions extends HTMLElement {
 			const urls = matches.map(({url}) => url).join(' ');
 			if (urls !== this.#renderedURLs) {
 				this.#renderedURLs = urls;
-				list.replaceChildren(...matches.map(({question, url}) => {
-					const item = cloneTemplate(this.querySelector('[data-part="template"]'));
-					item.querySelector('[data-part="link"]').href = url;
-					item.querySelector('[data-part="question"]').textContent = question;
+				list.replaceChildren(...matches.map(({question, url, label}) => {
+					const item = cloneTemplate(template);
+					const {link, label: labelText, question: questionText} = parts(item);
+					link.href = url;
+					questionText.textContent = question;
+
+					// A guide or a tip says what it is, like “Guide: ”, as its link opens a how-to and not an answer.
+					if (label) {
+						labelText.textContent = `${label}: `;
+					} else {
+						labelText.remove();
+					}
+
 					return item;
 				}));
 
@@ -187,7 +250,7 @@ class FAQSuggestions extends HTMLElement {
 
 	#dismiss = () => {
 		this.#isDismissed = true;
-		this.querySelector('[data-part="panel"]').hidden = true;
+		parts(this).panel.hidden = true;
 
 		// The button had the focus, so it goes back to the message, which the suggestions are about.
 		this.#message.focus();

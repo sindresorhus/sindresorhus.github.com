@@ -69,7 +69,7 @@ struct BlogPostPage: Page {
 						.style(Styles.morePostsTitle)
 
 						a(.href(.blog)) {
-							"All Posts →"
+							"All Posts"
 						}
 						.style(Styles.allPosts)
 					}
@@ -114,7 +114,7 @@ struct BlogPostPage: Page {
 }
 
 extension BlogPostPage {
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case header
 		case meta
@@ -154,9 +154,11 @@ extension BlogPostPage {
 					.textStyle(.lead, weight: .semibold)
 					.color(.secondaryText)
 			case .allPosts:
+				// The arrow is only on the screen, so the name of the link is its text.
 				Style()
 					.textStyle(.caption)
 					.moreLink()
+					.trailingArrow()
 			case .rule:
 				Style()
 					.margin(top: .rootEm(2), horizontal: .zero, bottom: .zero)

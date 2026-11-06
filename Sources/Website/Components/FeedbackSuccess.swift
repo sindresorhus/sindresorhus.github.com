@@ -2,7 +2,7 @@ import Elementary
 import SiteKit
 
 /**
-The message after the feedback is sent. The feedback page shows it in place of the form after a send, and `feedback.js` then goes to the apps page.
+The message after the feedback is sent. The feedback page shows it in place of the form after a send. It stays until the visitor leaves, so a slow reader does not lose it, and a button leads to the apps.
 */
 struct FeedbackSuccess: HTML {
 	var body: some HTML<HTMLTag.div> {
@@ -25,20 +25,17 @@ struct FeedbackSuccess: HTML {
 				.style(Styles.message)
 			}
 
-			p {
-				"Taking you to the apps page…"
-			}
-			.style(Styles.redirect)
+			Link("Back to the Apps", destination: .path(.apps))
+				.buttonStyle(.secondary)
 		}
 		.style(Styles.root)
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case icon
 		case title
 		case message
-		case redirect
 
 		var style: Style {
 			switch self {
@@ -65,8 +62,6 @@ struct FeedbackSuccess: HTML {
 					.frame(maxWidth: .rootEm(24))
 					.margin(vertical: .zero, horizontal: .auto)
 					.color(.secondaryText)
-			case .redirect:
-				Style().secondaryText()
 			}
 		}
 	}

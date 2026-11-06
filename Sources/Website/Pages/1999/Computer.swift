@@ -106,7 +106,7 @@ struct GeoCitiesComputer: ScriptedElement {
 			}
 			.style(Styles.computerCase)
 
-			p(.part(Parts.status), .role("status")) {}
+			p(.part(Parts.status), .role(.status)) {}
 				.style(GeoCitiesPage.Styles.centeredText)
 
 			p {
@@ -137,7 +137,7 @@ struct GeoCitiesComputer: ScriptedElement {
 		// The screen of the BIOS while the computer restarts. The script moves it to the end of the page, as it covers the whole window, writes the lines one after the other, and any key or click skips to the end.
 		div(
 			.part(Parts.bios),
-			.role("dialog"),
+			.role(.dialog),
 			.ariaModal,
 			.tabindex(-1),
 			.hidden
@@ -164,7 +164,7 @@ struct GeoCitiesComputer: ScriptedElement {
 		case on
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case computerCase
 		case drive

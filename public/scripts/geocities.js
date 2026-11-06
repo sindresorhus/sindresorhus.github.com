@@ -484,28 +484,21 @@ const midiStatus = document.querySelector('#geocities-midi-status');
 // One audio context for the jukebox and the modem, made at the first click, as browsers only allow sound after one.
 let audioContext;
 
-// The volume of the music that plays now, or `undefined` when no music plays.
-let output;
-
-// The timer that schedules the next repeat of the tune.
-let repeatTimer;
+// The current Play owns its volume node and the timer that schedules the next repeat of the tune. It exists while waking the audio device too, so a stopped or replaced Play cannot start later.
+// Its identity keeps a Play that waits for the audio device from starting a second copy after another Play or a Stop.
+let music;
 
 // The jukebox and the modem share the audio device, so it is only freed when neither plays, and no Play waits for the device.
 let isModemPlaying = false;
-let isStartingMusic = false;
 
 const freeAudio = () => {
 	if (
-		!output
+		!music
 		&& !isModemPlaying
-		&& !isStartingMusic
 	) {
 		audioContext?.suspend();
 	}
 };
-
-// Counts the times the music starts and stops, so a Play that waits for the audio device does not start a second copy after another Play or a Stop.
-let playCount = 0;
 
 // Plays the tones together from the time, for the length in seconds.
 const playTones = (frequencies, time, length, destination, type = 'sine') => {
@@ -569,7 +562,8 @@ const playModemSound = async () => {
 };
 
 // Plays the tune once into its own output, starting at the time, and schedules the next time to start right where this one ends.
-const playTune = ({tune, speed, start, destination}) => {
+const playTune = ({tune, speed, start, playback}) => {
+	const destination = playback.output;
 	const secondsPerBeat = 60 / (tune.tempo * speed);
 	let time = Math.max(start, audioContext.currentTime + 0.05);
 
@@ -593,16 +587,15 @@ const playTune = ({tune, speed, start, destination}) => {
 	}
 
 	// Like the real Mountain King, some tunes get faster each time, up to twice as fast. The next repeat is scheduled 0.2 seconds before this one ends, so there is no gap, even when the timer is late.
-	repeatTimer = setTimeout(() => {
-		playTune({tune, speed: Math.min(speed * tune.speedUp, 2), start: time, destination});
+	playback.repeatTimer = setTimeout(() => {
+		playTune({tune, speed: Math.min(speed * tune.speedUp, 2), start: time, playback});
 	}, (time - audioContext.currentTime - 0.2) * 1000);
 };
 
 const stopMusic = () => {
-	playCount++;
-	clearTimeout(repeatTimer);
-	output?.disconnect();
-	output = undefined;
+	clearTimeout(music?.repeatTimer);
+	music?.output?.disconnect();
+	music = undefined;
 	document.dispatchEvent(new CustomEvent('geocities-music', {detail: {isPlaying: false, source: 'jukebox'}}));
 	// Frees the audio device until the next Play, unless the modem still plays.
 	freeAudio();
@@ -617,34 +610,41 @@ const stopMusic = () => {
 const playMusic = async () => {
 	stopMusic();
 	// Waking the audio device takes a moment, and the visitor can press Play or Stop again in the meantime. Then this Play is old, and does nothing.
-	const count = playCount;
-	audioContext ??= new AudioContext();
-	isStartingMusic = true;
+	const playback = {};
+	music = playback;
 
 	try {
+		audioContext ??= new AudioContext();
 		await audioContext.resume();
+
+		if (music !== playback) {
+			return;
+		}
+
+		if (document.hidden) {
+			music = undefined;
+			return;
+		}
+
+		// Quiet, and softer than a plain square wave.
+		const output = new GainNode(audioContext, {gain: 0.05});
+		playback.output = output;
+		output.connect(new BiquadFilterNode(audioContext, {type: 'lowpass', frequency: 1800})).connect(audioContext.destination);
+
+		const tune = tunes.find(tune => tune.file === tuneSelect.value) ?? tunes[0];
+		playTune({tune, speed: 1, start: 0, playback});
+		midiStatus.textContent = `Now playing: ${tune.file} (${tune.title}) ♪`;
+		stopButton.disabled = false;
+		document.dispatchEvent(new CustomEvent('geocities-music', {detail: {isPlaying: true, source: 'jukebox'}}));
+	} catch (error) {
+		if (music === playback) {
+			stopMusic();
+		}
+
+		throw error;
 	} finally {
-		isStartingMusic = false;
-	}
-
-	if (count !== playCount) {
-		return;
-	}
-
-	if (document.hidden) {
 		freeAudio();
-		return;
 	}
-
-	// Quiet, and softer than a plain square wave.
-	output = new GainNode(audioContext, {gain: 0.05});
-	output.connect(new BiquadFilterNode(audioContext, {type: 'lowpass', frequency: 1800})).connect(audioContext.destination);
-
-	const tune = tunes.find(tune => tune.file === tuneSelect.value) ?? tunes[0];
-	playTune({tune, speed: 1, start: 0, destination: output});
-	midiStatus.textContent = `Now playing: ${tune.file} (${tune.title}) ♪`;
-	stopButton.disabled = false;
-	document.dispatchEvent(new CustomEvent('geocities-music', {detail: {isPlaying: true, source: 'jukebox'}}));
 };
 
 playButton.addEventListener('click', playMusic);
@@ -655,13 +655,13 @@ stopButton.addEventListener('click', () => {
 });
 
 tuneSelect.addEventListener('change', () => {
-	if (output) {
+	if (music?.output) {
 		playMusic();
 	}
 });
 
 document.addEventListener('visibilitychange', () => {
-	if (document.hidden && output) {
+	if (document.hidden && music?.output) {
 		stopMusic();
 		midiStatus.textContent = 'Stopped, as you left the page.';
 	}
@@ -672,7 +672,7 @@ document.addEventListener('geocities-music', event => {
 	if (
 		event.detail.isPlaying
 		&& event.detail.source !== 'jukebox'
-		&& (output || isStartingMusic)
+		&& music
 	) {
 		stopMusic();
 		midiStatus.textContent = 'Stopped, as other music started.';

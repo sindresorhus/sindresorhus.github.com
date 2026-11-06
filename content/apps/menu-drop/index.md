@@ -61,7 +61,7 @@ macOS 27 opens Mission Control when you hold a dragged item near the top of the 
 
 Release the item as soon as the pointer reaches the menu bar icon. If Mission Control has already opened, release the item anyway and press Escape to close Mission Control. The AirDrop picker is behind it.
 
-You can also use “Share From › Files” or “Share From › Clipboard” in the menu instead.
+You can also choose “Files” or “Clipboard” below “Share From” in the menu instead.
 
 ### Can it send directly to a specific device without showing the picker? {#can-it-send-directly-to-a-specific-device-without-showing-the-picker}
 

@@ -17,6 +17,7 @@ sponsorTiers: [
 				logo: {
 					path: '/assets/thanks/github-logo.svg'
 					width: 310
+					height: 102
 				}
 			}
 			{
@@ -25,6 +26,7 @@ sponsorTiers: [
 				logo: {
 					path: '/assets/thanks/depot-logo-light.svg'
 					width: 240
+					height: 175
 				}
 			}
 		]
@@ -39,6 +41,7 @@ sponsorTiers: [
 				logo: {
 					path: '/assets/thanks/eslint-logo.png'
 					width: 200
+					height: 55
 				}
 			}
 			{
@@ -51,6 +54,7 @@ sponsorTiers: [
 				logo: {
 					path: '/assets/thanks/coderabbit-logo.png'
 					width: 280
+					height: 61
 				}
 			}
 			{
@@ -59,6 +63,7 @@ sponsorTiers: [
 				logo: {
 					path: '/assets/thanks/fame-logo-light.svg'
 					width: 200
+					height: 84
 				}
 			}
 			{
@@ -67,6 +72,7 @@ sponsorTiers: [
 				logo: {
 					path: '/assets/thanks/fetchfox-logo.svg'
 					width: 120
+					height: 155
 				}
 				showsName: true
 			}
@@ -76,6 +82,7 @@ sponsorTiers: [
 				logo: {
 					path: '/assets/thanks/nitric-logo.svg'
 					width: 240
+					height: 92
 				}
 			}
 			{
@@ -84,6 +91,7 @@ sponsorTiers: [
 				logo: {
 					path: '/assets/thanks/kruu-logo-light.svg'
 					width: 240
+					height: 90
 				}
 			}
 		]

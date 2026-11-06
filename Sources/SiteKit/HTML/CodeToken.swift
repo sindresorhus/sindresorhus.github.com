@@ -207,30 +207,6 @@ extension String {
 	The lexer of SOML never fails, so it also highlights a part of a document.
 	*/
 	public var somlCodeParts: [CodePart] {
-		// TODO: Use `SOML.Token.parts(in:)` when a version of SOMLSwift with it is out. It gives the text between the tokens too, so this only maps the kinds: `SOML.Token.parts(in: self).map { CodePart(text: String($0.text), token: $0.kind.flatMap(CodeToken.init)) }`.
-		let bytes = Array(utf8)
-
-		var parts = [CodePart]()
-		var end = 0
-
-		func append(_ range: Range<Int>, _ token: CodeToken?) {
-			parts.append(CodePart(text: String(decoding: bytes[range], as: UTF8.self), token: token))
-		}
-
-		// The tokens do not cover the whitespace, so the text between them is a part without a kind.
-		for token in SOML.Token.tokens(in: self) {
-			if token.range.lowerBound > end {
-				append(end..<token.range.lowerBound, nil)
-			}
-
-			append(token.range, CodeToken(token.kind))
-			end = token.range.upperBound
-		}
-
-		if bytes.count > end {
-			append(end..<bytes.count, nil)
-		}
-
-		return parts
+		SOML.Token.parts(in: self).map { CodePart(text: String($0.text), token: $0.kind.flatMap(CodeToken.init)) }
 	}
 }

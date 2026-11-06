@@ -22,7 +22,6 @@ sharedQuestions: [
 	'lock-screen-background-color'
 	'lock-screen-update'
 	'lock-screen-delayed-update'
-	'widget-transparent-background'
 	'lock-screen-after-restart'
 	'widget-run-shortcut'
 ]
@@ -34,7 +33,7 @@ pressQuotes: [
 		year: 2022
 	}
 	{
-		quote: 'Although there are a few widget apps here and there that let you put your own text on the iPhone Lock Screen, none of them implement it as clearly, nicely, and well structured as the completely free AnyText.'
+		quote: 'Although there are a few widget apps here and there that let you put your own text on the iPhone Lock Screen, none of them implement it as clearly, nicely, and well structured as […] AnyText.'
 		source: 'iphone-ticker.de'
 		translatedFrom: 'German'
 		url: 'https://www.iphone-ticker.de/anytext-beliebige-texte-als-sperrbildschirm-widget-auf-dem-iphone-201106/'
@@ -53,8 +52,6 @@ For macOS, it’s only available for Apple silicon Macs running macOS 26 or late
 On iOS, you can also show the text in a Live Activity.
 
 Syncs across your devices with iCloud.
-
-<br>
 
 > [!TIP]
 > You may also like my [One Thing](/one-thing) app for macOS.
@@ -82,7 +79,7 @@ With a keyboard on iPad or Mac, press ++Command+B++ to make the selected text bo
 
 ### How do I add the widget? {#how-do-i-add-the-widget}
 
-- [iOS](https://support.apple.com/HT207122)
+- [iOS](https://support.apple.com/118610)
 - [macOS](https://support.apple.com/guide/mac-help/mchl52be5da5/mac)
 - [watchOS](https://support.apple.com/guide/watch/see-widgets-in-the-smart-stack-apdecf142fb9/watchos)
 
@@ -114,6 +111,10 @@ If you work at Apple → [FB11522170](https://github.com/feedback-assistant/repo
 ### Can you make the widget bigger? {#can-you-make-the-widget-bigger}
 
 The widget sizes are controlled by Apple. The provided size is the largest it allows. On iPad and Mac, there is also an extra large size.
+
+### Can you make the widget background transparent? {#widget-transparent-background}
+
+The app cannot make its widget transparent, but iOS can make all widgets and app icons see-through: touch and hold the Home Screen, tap “Edit” › “Customize”, and choose “Clear”.
 
 ### Can you remove the title shown below the widget? {#can-you-remove-the-title-shown-below-the-widget}
 

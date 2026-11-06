@@ -12,6 +12,7 @@ deeplinks
 dirpy
 execa
 ffmpeg
+hidutil
 inpainting
 jsfiddle
 kaeng
@@ -23,6 +24,7 @@ microservices
 onsen
 outpainting
 phê
+pmset
 polyfilling
 ponyfill
 sherlocked
@@ -30,6 +32,7 @@ toggler
 unminimize
 unselectable
 upscaler
+xeyes
 zx
 
 # Weekdays in lowercase, for typed input in the examples, like “next friday” in Dato.

@@ -8,7 +8,7 @@ links: {
 }
 ```
 */
-public struct OrderedMapping<Value: Decodable & Sendable>: Decodable, Sendable, RandomAccessCollection {
+public struct OrderedMapping<Value>: RandomAccessCollection {
 	public typealias Element = (key: String, value: Value)
 
 	private let elements: [Element]
@@ -19,13 +19,6 @@ public struct OrderedMapping<Value: Decodable & Sendable>: Decodable, Sendable, 
 	public init(_ elements: [Element] = []) {
 		precondition(Set(elements.map(\.key)).count == elements.count, "An ordered mapping must have unique keys.")
 		self.elements = elements
-	}
-
-	public init(from decoder: any Decoder) throws {
-		let container = try decoder.container(keyedBy: AnyCodingKey.self)
-		self.elements = try container.allKeys.map { key in
-			(key.stringValue, try container.decode(Value.self, forKey: key))
-		}
 	}
 
 	public var startIndex: Int {
@@ -42,5 +35,31 @@ public struct OrderedMapping<Value: Decodable & Sendable>: Decodable, Sendable, 
 
 	public subscript(key: String) -> Value? {
 		elements.first { $0.key == key }?.value
+	}
+}
+
+/**
+An ordered mapping keeps the order of dictionary-literal pairs and requires unique keys.
+*/
+extension OrderedMapping: ExpressibleByDictionaryLiteral {
+	public init(dictionaryLiteral elements: (String, Value)...) {
+		self.init(elements)
+	}
+}
+
+/**
+An ordered mapping can be sent between isolation domains when its values can.
+*/
+extension OrderedMapping: Sendable where Value: Sendable {}
+
+/**
+An ordered mapping decodes its values without requiring them to be sendable.
+*/
+extension OrderedMapping: Decodable where Value: Decodable {
+	public init(from decoder: any Decoder) throws {
+		let container = try decoder.container(keyedBy: AnyCodingKey.self)
+		self.elements = try container.allKeys.map { key in
+			(key.stringValue, try container.decode(Value.self, forKey: key))
+		}
 	}
 }

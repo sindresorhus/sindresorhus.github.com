@@ -25,7 +25,7 @@ struct GeoCitiesWindowsPinball: ScriptedElement {
 					.width(400),
 					.height(640),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("The pinball table. Z or the left arrow flips the left flipper, slash or the right arrow flips the right one. Hold Space or the down arrow to pull the plunger, and let go to launch. X, period, or the up arrow nudges the table. F2 starts a new game, and P pauses.")
 					.style(Styles.table)
@@ -115,7 +115,7 @@ struct GeoCitiesWindowsPinball: ScriptedElement {
 		}
 		.style(Styles.layout)
 
-		p(.part(Parts.status), .role("status")) {}
+		p(.part(Parts.status), .role(.status)) {}
 			.style(GeoCitiesPage.Styles.statusBar, GeoCitiesPage.Styles.scriptingOnly)
 
 		p {
@@ -147,7 +147,7 @@ struct GeoCitiesWindowsPinball: ScriptedElement {
 		case control = "pinball-control"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case layout
 		case tableColumn

@@ -346,6 +346,13 @@ public struct Media: StyleContent {
 	public init(_ query: MediaQuery, @StyleBuilder rules: () -> [StyleNode]) {
 		self.nodes = [.block(.media(query), children: rules())]
 	}
+
+	/**
+	Rules that apply when the media condition matches.
+	*/
+	public init(_ condition: MediaCondition, @StyleBuilder rules: () -> [StyleNode]) {
+		self.init(MediaQuery(condition), rules: rules)
+	}
 }
 
 /**
@@ -377,12 +384,30 @@ public struct Layer: StyleContent {
 }
 
 /**
-The name of a cascade layer. Define each layer once as a static member, so a typo cannot make a new layer that wins over the others.
+The name of a cascade layer. Define each layer once as a static member, so a typo cannot make a new layer that wins over the others. Names support unescaped CSS identifiers and dot-separated sublayers; CSS escape sequences are unsupported.
 */
 public struct CascadeLayer: Hashable, Sendable {
 	public let name: String
 
 	public init(_ name: String) {
+		do {
+			try self.init(validating: name)
+		} catch {
+			preconditionFailure(error.reason)
+		}
+	}
+
+	/**
+	Checks a dynamic layer name. Each dot-separated component must be an unescaped CSS identifier other than a CSS-wide keyword.
+	*/
+	public init(validating name: String) throws(ContentError) {
+		guard
+			!name.isEmpty,
+			name.split(separator: ".", omittingEmptySubsequences: false).allSatisfy({ String($0).isCSSIdentifier })
+		else {
+			throw ContentError(reason: "A cascade layer needs a CSS identifier other than a CSS-wide keyword for each dot-separated name component, got “\(name)”.")
+		}
+
 		self.name = name
 	}
 }
@@ -401,94 +426,240 @@ public struct Keyframes: StyleContent {
 	}
 
 	/**
-	Creates a named animation from a list of keyframes, including the registered properties the frames use.
+	Creates a named animation from a list of keyframes, including the registered properties the frames use. The name must be an unescaped CSS custom identifier other than `none`; quoted names and CSS escape sequences are unsupported.
 	*/
 	public init(_ name: String, _ frames: [Keyframe]) {
+		do {
+			try self.init(validating: name, frames)
+		} catch {
+			preconditionFailure(error.reason)
+		}
+	}
+
+	/**
+	Checks a dynamic animation name, then creates its keyframes. The supported spelling is an unescaped CSS custom identifier other than `none`.
+	*/
+	public init(validating name: String, _ frames: Keyframe...) throws(ContentError) {
+		try self.init(validating: name, frames)
+	}
+
+	/**
+	Checks a dynamic animation name, then creates its list of keyframes, including the registered properties the frames use.
+	*/
+	public init(validating name: String, _ frames: [Keyframe]) throws(ContentError) {
+		guard
+			name.isCSSIdentifier,
+			!["none", "default"].contains(name.lowercased())
+		else {
+			throw ContentError(reason: "Keyframes need a CSS identifier other than a CSS-wide keyword, none, or default, got “\(name)”.")
+		}
+
 		self.nodes = [StyleNode(kind: .keyframes(name: name, frames: frames.map(\.node)))] + frames.flatMap(\.definitions)
 	}
 }
 
+private extension String {
+	/**
+	Whether the string is an unescaped CSS identifier other than a CSS-wide keyword. Non-ASCII characters follow the CSS identifier grammar; other reserved words are checked by the owning API.
+	*/
+	var isCSSIdentifier: Bool {
+		let bytes = utf8
+		guard
+			let first = bytes.first,
+			first.isCSSNameStart || (first == 45 && bytes.dropFirst().first.map { $0.isCSSNameStart || $0 == 45 } == true),
+			bytes.allSatisfy({ $0.isCSSNameStart || $0.isASCIIDigit || $0 == 45 })
+		else {
+			return false
+		}
+
+		return !["initial", "inherit", "unset", "revert", "revert-layer", "revert-rule"].contains(lowercased())
+	}
+}
+
+private extension UInt8 {
+	/**
+	A byte that can begin an unescaped CSS name: an ASCII letter, underscore, or part of a non-ASCII character in a valid Swift string.
+	*/
+	var isCSSNameStart: Bool {
+		isASCIILetter || self == 95 || self >= 128
+	}
+}
+
 /**
-A media query condition. Combine conditions with `&&`.
+A media feature or a Boolean combination of features. Combine conditions with `&&`, `||`, and `!`; complete queries such as print and opaque raw queries remain a separate type.
 */
-public struct MediaQuery: Hashable, Sendable, CustomStringConvertible, ExpressibleByStringLiteral {
-	public let description: String
+public struct MediaCondition: Hashable, Sendable, CustomStringConvertible {
+	private indirect enum Condition: Hashable, Sendable {
+		case feature(String)
+		case and(Self, Self)
+		case or(Self, Self)
+		case not(Self)
 
-	public init(_ condition: String) {
-		self.description = condition
+		var description: String {
+			switch self {
+			case .feature(let text):
+				text
+			case .and(let first, let second):
+				"\(first.operand(forConjunction: true)) and \(second.operand(forConjunction: true))"
+			case .or(let first, let second):
+				"\(first.operand(forConjunction: false)) or \(second.operand(forConjunction: false))"
+			case .not(let condition):
+				"not \(condition.grouped)"
+			}
+		}
+
+		private var grouped: String {
+			if case .feature = self {
+				return description
+			}
+
+			return "(\(description))"
+		}
+
+		/**
+		Groups a nested condition unless it uses the same connective as its parent.
+		*/
+		func operand(forConjunction isConjunction: Bool) -> String {
+			switch self {
+			case .and where isConjunction:
+				description
+			case .or where !isConjunction:
+				description
+			default:
+				grouped
+			}
+		}
 	}
 
-	public init(stringLiteral value: String) {
-		self.init(value)
+	private let condition: Condition
+
+	private init(_ condition: Condition) {
+		self.condition = condition
 	}
 
-	public static let light: Self = "(prefers-color-scheme: light)"
-	public static let dark: Self = "(prefers-color-scheme: dark)"
-	public static let reducedMotion: Self = "(prefers-reduced-motion: reduce)"
+	/**
+	A trusted media feature, including its parentheses.
+	*/
+	private init(condition: String) {
+		self.init(.feature(condition))
+	}
+
+	public var description: String {
+		condition.description
+	}
+
+	/**
+	A condition following the `and` of a media type must group a disjunction.
+	*/
+	fileprivate var mediaTypeOperand: String {
+		condition.operand(forConjunction: true)
+	}
+
+	public static let light = Self(condition: "(prefers-color-scheme: light)")
+	public static let dark = Self(condition: "(prefers-color-scheme: dark)")
+	public static let reducedMotion = Self(condition: "(prefers-reduced-motion: reduce)")
 
 	/**
 	The visitor has not asked for reduced motion, for motion that is not needed, like smooth scrolling.
 	*/
-	public static let allowsMotion: Self = "(prefers-reduced-motion: no-preference)"
-	public static let reducedTransparency: Self = "(prefers-reduced-transparency: reduce)"
+	public static let allowsMotion = Self(condition: "(prefers-reduced-motion: no-preference)")
+	public static let reducedTransparency = Self(condition: "(prefers-reduced-transparency: reduce)")
 
-	/**
-	The page is printed, or saved as a PDF.
-	*/
-	public static let print: Self = "print"
-	public static let moreContrast: Self = "(prefers-contrast: more)"
-	public static let forcedColors: Self = "(forced-colors: active)"
-	public static let hover: Self = "(hover: hover)"
+	public static let moreContrast = Self(condition: "(prefers-contrast: more)")
+	public static let forcedColors = Self(condition: "(forced-colors: active)")
+	public static let hover = Self(condition: "(hover: hover)")
 
 	/**
 	Devices whose main pointer cannot hover, like touch screens.
 	*/
-	public static let cannotHover: Self = "(hover: none)"
+	public static let cannotHover = Self(condition: "(hover: none)")
 
 	/**
 	A touch screen, where tap targets should be larger.
 	*/
-	public static let coarsePointer: Self = "(pointer: coarse)"
+	public static let coarsePointer = Self(condition: "(pointer: coarse)")
 
 	/**
 	A precise pointer, like a mouse or a trackpad, for effects that follow the pointer.
 	*/
-	public static let finePointer: Self = "(pointer: fine)"
+	public static let finePointer = Self(condition: "(pointer: fine)")
 
 	/**
 	JavaScript is turned off, like `<noscript>` for styles.
 	*/
-	public static let scriptingDisabled: Self = "(scripting: none)"
+	public static let scriptingDisabled = Self(condition: "(scripting: none)")
 
 	/**
 	A short screen, like a phone in landscape, or with the text at 200%, where a sticky bar would cover much of the page.
 	*/
-	public static let shortScreen: Self = "(height < 30rem)"
+	public static let shortScreen = Self(condition: "(height < 30rem)")
 
 	/**
 	Screens at least as wide as the breakpoint, like `(width >= 40rem)`.
 	*/
 	public static func from(_ breakpoint: Breakpoint) -> Self {
-		Self("(width >= \(breakpoint.minimumWidth))")
+		Self(condition: "(width >= \(breakpoint.minimumWidth))")
 	}
 
 	/**
 	Screens narrower than the breakpoint, like `(width < 40rem)`. It does not overlap with ``from(_:)`` of the same breakpoint.
 	*/
 	public static func below(_ breakpoint: Breakpoint) -> Self {
-		Self("(width < \(breakpoint.minimumWidth))")
+		Self(condition: "(width < \(breakpoint.minimumWidth))")
 	}
 
 	/**
-	Both queries. A query with `not` or `or` is in parentheses, as Media Queries 4 does not allow them next to `and` without them.
+	Both conditions, preserving grouping when conjunction and disjunction mix.
 	*/
 	public static func && (lhs: Self, rhs: Self) -> Self {
-		func operand(_ query: Self) -> String {
-			let text = query.description
-			return text.hasPrefix("not ") || text.contains(" or ") ? "(\(text))" : text
-		}
+		Self(.and(lhs.condition, rhs.condition))
+	}
 
-		return Self("\(operand(lhs)) and \(operand(rhs))")
+	/**
+	Either condition, preserving grouping when conjunction and disjunction mix.
+	*/
+	public static func || (lhs: Self, rhs: Self) -> Self {
+		Self(.or(lhs.condition, rhs.condition))
+	}
+
+	/**
+	The negation of a condition, with grouping preserved.
+	*/
+	public static prefix func ! (condition: Self) -> Self {
+		Self(.not(condition.condition))
+	}
+}
+
+/**
+A complete media query. Conditions have their own Boolean operations; raw whole queries are opaque and rendered unchanged.
+*/
+public struct MediaQuery: Hashable, Sendable, CustomStringConvertible {
+	public let description: String
+
+	/**
+	A complete query that tests a media condition.
+	*/
+	public init(_ condition: MediaCondition) {
+		self.description = condition.description
+	}
+
+	/**
+	An arbitrary complete media query, rendered unchanged. Raw queries are not parsed or composed.
+	*/
+	public init(raw query: String) {
+		self.description = query
+	}
+
+	/**
+	The page is printed, or saved as a PDF.
+	*/
+	public static let print = Self(raw: "print")
+
+	/**
+	The page is printed and the condition matches, like `.print(matching: .dark || .moreContrast)`.
+	*/
+	public static func print(matching condition: MediaCondition) -> Self {
+		Self(raw: "print and \(condition.mediaTypeOperand)")
 	}
 }
 

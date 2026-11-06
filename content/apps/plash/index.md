@@ -1,6 +1,7 @@
 ---
 title: 'Plash'
 subtitle: 'Make any website your desktop wallpaper'
+description: 'A Mac app that shows your calendar, a dashboard, the Bing photo of the day, or any other website as your desktop wallpaper.'
 publicationDate: 2020-01-09
 platforms: [
 	'macOS'
@@ -185,6 +186,21 @@ Plash comes bundled with a [share extension](https://support.apple.com/guide/mac
 
 Plash can be automated with the built-in Shortcuts app, for example, using the “Switch to Next Website” action. Shortcuts automations cannot run at an interval, so use the [Shortery](https://apps.apple.com/app/id1594183810) app to run the shortcut every 10 minutes.
 
+### How can I make a website dark? {#dark-mode}
+
+Edit the website, and set “Invert colors” to “When in dark mode” or “Always”. This makes a fake dark mode for websites that do not have one.
+
+For more control, add your own CSS in a media query to the “CSS” field:
+
+```css
+@media (prefers-color-scheme: dark) {
+	body {
+		background: black;
+		color: white;
+	}
+}
+```
+
 ### Does it support multiple displays? {#does-it-support-multiple-displays}
 
 Plash shows the website on one display, which you choose in the “Show on” setting. A separate website for each display is not supported.
@@ -215,6 +231,19 @@ Google can change the name of this class, and then the banner shows again.
 
 No. Plash only shows one website at a time. Displaying multiple websites simultaneously is out of scope.
 
+### How can I show a YouTube video as the wallpaper? {#youtube}
+<!-- @faq.keywords live stream -->
+
+Use the embed URL of the video, not the normal URL, and add options so the video plays by itself, without controls, and loops. Replace `VIDEO_ID` (twice) with the ID of the video, the part after `v=` in its URL:
+
+```
+https://www.youtube.com/embed/VIDEO_ID?autoplay=1&mute=1&loop=1&playlist=VIDEO_ID&controls=0
+```
+
+The video must be muted to start by itself.
+
+If the video shows a play button only when your Mac is on battery, Low Power Mode is a likely cause, as macOS can stop videos from starting by themselves in Low Power Mode. In “[System Settings › Battery](x-apple.systempreferences:com.apple.Battery-Settings.extension)”, set “Low Power Mode” to “Never”, or on a Mac with Energy Mode, set it to “Automatic” on battery.
+
 ### Why does Plash use so much memory? {#why-does-plash-use-so-much-memory}
 
 Plash uses very little memory. Usually around 40 MB. However, the websites you display can take up a lot of memory, and sometimes even have memory leaks.
@@ -223,7 +252,7 @@ Plash uses very little memory. Usually around 40 MB. However, the websites you d
 
 The menu bar adapts its color from the actual system wallpaper. Plash is not actually a wallpaper, but rather runs right above the wallpaper. So Plash cannot influence the menu bar color.
 
-To show the website behind the menu bar instead, turn off “Show menu bar background” in “System Settings › Menu Bar”, and enable “Extend below menu bar” in the Plash settings.
+To show the website behind the menu bar instead, turn off “Show menu bar background” in “[System Settings › Menu Bar](x-apple.systempreferences:com.apple.ControlCenter-Settings.extension)”, and enable “Extend below menu bar” in the Plash settings.
 
 ### Can Plash block ads? {#can-plash-block-ads}
 

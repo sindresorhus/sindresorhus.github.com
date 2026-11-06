@@ -24,7 +24,7 @@ struct AppCard: HTML {
 	var body: some HTML {
 		// `apps.js` filters the cards by `data-slug`.
 		// The accent of the card is the color of the icon, for the light while the pointer is over it.
-		div(.hook(Hooks.slug, value: app.slug)) {
+		div(.hook(Hooks.slug, value: app.slug.value)) {
 			AppIcon(decorative: app, size: 128, isAboveFold: isAboveFold)
 				.style(Styles.icon)
 
@@ -92,7 +92,7 @@ struct AppCard: HTML {
 	*/
 	static let iconShadow = Filter.dropShadow(Shadow(y: .pixels(2), blur: .pixels(2), color: .black.opacity(0.1)))
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case icon
 		case text
@@ -164,7 +164,7 @@ struct AppCard: HTML {
 				// It covers the card, so the whole card is the link, like before, but its name is only the name of the app.
 				Style()
 					.inherits(.color)
-					.underline(false)
+					.noUnderline()
 					.after {
 						$0
 							.content("")
@@ -233,14 +233,13 @@ struct AppGrid: HTML {
 	*/
 	static let phoneOutset = LengthPercentage.pageGutter * 0.5
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 
 		var style: Style {
 			// At most two columns, so the cards have room. On phones, the apps are rows (``AppCard``) that reach halfway into the space at the sides of the page, so the fill under the pointer has room around the icon. One column that is not wider than the page, also when a card has a long word, like on a phone with large text.
 			Style()
-				.display(.grid)
-				.gridColumns(1)
+				.grid(columns: 1)
 				.gap(.rootEm(1.25))
 				.below(.smallTablet) {
 					$0

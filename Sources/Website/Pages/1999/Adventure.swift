@@ -191,10 +191,10 @@ struct GeoCitiesAdventure: ScriptedElement {
 						}
 					}
 					.accessibilityLabel("Floppy disks")
-					.attributes(.role("group"))
+					.attributes(.role(.group))
 					.style(Styles.disks)
 
-					p(.part(Parts.installStatus), .role("status")) {
+					p(.part(Parts.installStatus), .role(.status)) {
 						"Type INSTALL to install. Or do not, the game runs anyway."
 					}
 					.style(GeoCitiesPage.Styles.lcd, Styles.installStatus)
@@ -291,12 +291,12 @@ struct GeoCitiesAdventure: ScriptedElement {
 						.width(320),
 						.height(160),
 						.tabindex(0),
-						.role("application")
+						.role(.application)
 					) {}
 						.accessibilityLabel("The scene of the game. Pick a verb, then use the left and right arrow keys to pick a thing and press Enter.")
 						.style(Styles.scene)
 
-					p(.part(Parts.speech), .role("status")) {}
+					p(.part(Parts.speech), .role(.status)) {}
 						.style(Styles.speech)
 
 					div(.part(Parts.titleScreen)) {
@@ -341,7 +341,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 						}
 						.style(GeoCitiesPage.Styles.formRow)
 
-						p(.part(Parts.copyStatus), .role("status")) {}
+						p(.part(Parts.copyStatus), .role(.status)) {}
 							.style(Styles.panelNote)
 					}
 					.style(Styles.panel)
@@ -349,7 +349,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 					div(
 						.part(Parts.death),
 						.hidden,
-						.role("alertdialog"),
+						.role(.alertDialog),
 						.ariaLabel("You have died"),
 						.ariaDescribedBy(ElementID("geocities-adventure-death-text"))
 					) {
@@ -383,7 +383,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 					div(
 						.part(Parts.saves),
 						.hidden,
-						.role("dialog"),
+						.role(.dialog),
 						.ariaLabelledBy(ElementID("geocities-adventure-saves-title"))
 					) {
 						h4(.id("geocities-adventure-saves-title"), .part(Parts.savesTitle)) {
@@ -411,7 +411,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 					div(
 						.part(Parts.hintLine),
 						.hidden,
-						.role("dialog"),
+						.role(.dialog),
 						.ariaLabel("Sindresoft Hint Line")
 					) {
 						h4 {
@@ -419,7 +419,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 						}
 						.style(Styles.panelTitle)
 
-						p(.part(Parts.hintText), .role("status")) {}
+						p(.part(Parts.hintText), .role(.status)) {}
 
 						p(.part(Parts.hintBill)) {}
 							.style(Styles.panelNote)
@@ -456,7 +456,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 						}
 					}
 					.accessibilityLabel("Verbs")
-					.attributes(.role("group"))
+					.attributes(.role(.group))
 					.style(Styles.verbs)
 
 					div(.part(Parts.inventory)) {
@@ -478,7 +478,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 						.style(Styles.empty)
 					}
 					.accessibilityLabel("Inventory")
-					.attributes(.role("group"))
+					.attributes(.role(.group))
 					.style(Styles.inventory)
 
 					div(.part(Parts.choices), .hidden) {
@@ -488,7 +488,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 						}
 					}
 					.accessibilityLabel("What to say")
-					.attributes(.role("group"))
+					.attributes(.role(.group))
 					.style(Styles.choices)
 				}
 				.style(Styles.controls)
@@ -620,7 +620,7 @@ struct GeoCitiesAdventure: ScriptedElement {
 		case action = "adventure-action"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case shelf
 		case boxColumn

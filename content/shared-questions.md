@@ -63,7 +63,7 @@ Sure! Find an icon you like in the [SF Symbols app](https://developer.apple.com/
 
 ### Why does it not show week 53? {#week-53}
 
-You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar). You can change it in “System Settings › General › Language & Region”: set “Calendar” to ISO 8601 for ISO week numbers, or to Gregorian for Gregorian week numbers. With Gregorian, the “First Day of Week” setting in the same pane also changes the week numbers.
+You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar). You can change it in “[System Settings › General › Language & Region](x-apple.systempreferences:com.apple.Localization-Settings.extension)”: set “Calendar” to ISO 8601 for ISO week numbers, or to Gregorian for Gregorian week numbers. With Gregorian, the “First Day of Week” setting in the same pane also changes the week numbers.
 
 ### Why does it show the last days of December as week 1? {#december-week-1}
 
@@ -71,11 +71,11 @@ That is called [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date)
 
 ### It shows the incorrect week number {#incorrect-week-number}
 
-You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar), or the inverse. You can change it in “System Settings › General › Language & Region”: set “Calendar” to ISO 8601 for ISO week numbers, or to Gregorian for Gregorian week numbers. With Gregorian, the “First Day of Week” setting in the same pane also changes the week numbers.
+You are probably expecting [ISO week-numbering](https://en.wikipedia.org/wiki/ISO_week_date) while having your system set to [Gregorian week numbering](https://en.wikipedia.org/wiki/ISO_week_date#Relation_with_the_Gregorian_calendar), or the inverse. You can change it in “[System Settings › General › Language & Region](x-apple.systempreferences:com.apple.Localization-Settings.extension)”: set “Calendar” to ISO 8601 for ISO week numbers, or to Gregorian for Gregorian week numbers. With Gregorian, the “First Day of Week” setting in the same pane also changes the week numbers.
 
 ### How can I change the week number to ISO 8601 format? {#iso-week-number}
 
-Go to “System Settings › General › Language & Region”, and set “Calendar” to [ISO 8601](https://en.wikipedia.org/wiki/ISO_week_date).
+Go to “[System Settings › General › Language & Region](x-apple.systempreferences:com.apple.Localization-Settings.extension)”, and set “Calendar” to [ISO 8601](https://en.wikipedia.org/wiki/ISO_week_date).
 
 ### The widget does not show up in the widget picker, is stuck, or is missing {#widget-missing}
 <!-- @faq.keywords home lock screen -->

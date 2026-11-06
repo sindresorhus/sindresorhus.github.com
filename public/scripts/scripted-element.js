@@ -3,7 +3,7 @@
 // An element overrides the methods it needs: `connected()` and `disconnected()`, `visibilityChanged(isVisible)`, `reducedMotionChanged(isReduced)`, and `focusReplacement(control)`, and the getters `visibilityTarget` and `focusFallback`. The rest are helpers, so elements do not copy them: `parts` and `clone()`, `config`, `on()` and `signal`, `timeout()`, `interval()`, and `wait()`, `observe()`, `isVisible` and `watchVisibility()`, `loop()`, `reducedMotion`, `stored()` and `store()`, `say()`, and `sound()`. The module also exports `cloneTemplate()` and `prerendered`, like `import ScriptedElement, {cloneTemplate} from '/scripts/scripted-element.js';`.
 //
 // An element shows a state to its styles with `data-state` on itself or a part, like `button.dataset.state = 'copied'`, where the state is a case of the `States` of the Swift component, which styles it with `.when(States.copied)`. A toggle button sets `aria-pressed` instead, which the styles read with `.pressed` (or `.descendantPressed` for the element around it), and a radio button needs no script, as the styles read `:checked` with `.descendantChecked`.
-import {cloneTemplate, prerendered} from '/scripts/dom.js';
+import {cloneTemplate, parts, prerendered} from '/scripts/dom.js';
 
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -137,49 +137,15 @@ export default class ScriptedElement extends HTMLElement {
 
 	// The elements with `.part(Parts.name)` in Swift, by name, like `this.parts.screen`. The parts of an element inside this one belong to that element. They are found once, when first read, so a part that the element later moves out of itself, like a banner that it hangs on the page, stays a part. A part that the element does not have throws, so a typo or a part that the markup lost fails at once, not later with `undefined`.
 	get parts() {
-		this.#parts ??= this.#partsIn(this, `<${this.localName}>`);
+		// `parts()` of `dom.js`, which the elements that extend `HTMLElement` use too.
+		this.#parts ??= parts(this);
 		return this.#parts;
 	}
 
 	// A copy of the element of the template part (`cloneTemplate()`), like a row for a list, and the parts in the copy, by name, like `const {element: row, parts} = this.clone('rowTemplate'); parts.name.textContent = name;`. A part in a template is a part of the element in Swift, but `this.parts` does not have it, as the content of a template is not in the element. A part that the copy does not have throws, like in `this.parts`. The element of the template itself is `element`, not a part.
 	clone(templateName) {
 		const element = cloneTemplate(this.parts[templateName]);
-		return {element, parts: this.#partsIn(element, `The copy of “${templateName}” in <${this.localName}>`)};
-	}
-
-	// The parts inside the root, without the parts of an element inside it, as a Proxy that throws for a part that the root does not have. The description names the root in the error.
-	#partsIn(root, description) {
-		const parts = {};
-
-		for (const element of root.querySelectorAll('[data-part]')) {
-			if (this.#owner(element, root) === root) {
-				parts[element.dataset.part] ??= element;
-			}
-		}
-
-		return new Proxy(parts, {
-			// `then` and `toJSON` are what `await` and `JSON.stringify()` look for, so they are not parts.
-			get: (target, part) => {
-				if (
-					typeof part === 'string'
-					&& !Object.hasOwn(target, part)
-					&& part !== 'then'
-					&& part !== 'toJSON'
-				) {
-					throw new Error(`${description} has no part “${part}”.`);
-				}
-
-				return target[part];
-			},
-		});
-	}
-
-	#owner(element, root) {
-		for (let ancestor = element.parentElement; ancestor; ancestor = ancestor.parentElement) {
-			if (ancestor === root || ancestor.localName.includes('-')) {
-				return ancestor;
-			}
-		}
+		return {element, parts: parts(element, `The copy of “${templateName}” in <${this.localName}>`)};
 	}
 
 	// The values of `config` of the Swift component, or `undefined` when it has none.

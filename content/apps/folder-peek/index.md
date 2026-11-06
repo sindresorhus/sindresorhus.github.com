@@ -55,8 +55,6 @@ Open the files in your favorite folders with one click from the menu bar. Useful
 
 It also works as an [app launcher](#app-launcher), now that macOS 26 has removed Launchpad.
 
-<br>
-
 **Features**
 
 - Add multiple folders to the menu bar
@@ -160,15 +158,20 @@ Press the ++Option++ key while viewing a file to reveal a “Copy Path” button
 
 Press the ++Option++ key while viewing an image or video to reveal a “Copy Dimensions” button.
 
+### How can I show the newest files first? {#newest-first}
+<!-- @faq.keywords sort recent latest date added -->
+
+In the menu of the folder, move the pointer to the folder name at the top, and choose “Configure Folder…”. In single menu bar item mode, click “Edit” next to the folder in the settings instead. Set “Sort order” to “Date Added”. Dates show the newest first. To show the oldest first, set “Sort direction” to “Reverse”.
+
 ### How can I change the sort order for a subfolder? {#how-can-i-change-the-sort-order-for-a-subfolder}
 
 Press the ++Shift++ key while viewing a subfolder to reveal more actions, including a sort order setting.
 
 ### How can I have a menu bar folder with my most recent screenshots? {#how-can-i-have-a-menu-bar-folder-with-my-most-recent-screenshots}
 
-Make a folder to hold the screenshots and add the folder to the app. Open the Screenshot app, click “Options”, then “Other Location”, and choose the folder you just made. In Folder Peek, open the folder config, change the sort order to “Date Created”, and set “Max Items” to something like 20.
+Make a folder to hold the screenshots and add the folder to the app. Open the Screenshot app, click “Options”, then “Other Location”, and choose the folder you just made. In Folder Peek, choose “Configure Folder…” for the folder, change “Sort order” to “Date Created”, and set “Max items” to something like 20.
 
-You may also want to [disable the screenshot preview](https://osxdaily.com/2019/08/02/disable-screenshot-thumbnail-preview-mac/) so the screenshot shows up in the screenshot folder right away.
+You may also want to turn off the preview: press ++Shift+Command+5++, click “Options”, and turn off “Show Floating Thumbnail”. The screenshot then shows up in the folder at once.
 
 ### How can I add a Smart Folder? {#smart-folder}
 
@@ -194,6 +197,10 @@ No, this is not possible because of [sandboxing](/apps/faq#macos-sandbox). To us
 ### Can it support adding a tag instead of a folder? {#can-it-support-adding-a-tag-instead-of-a-folder}
 
 No. This is not planned.
+
+### Why do I get an error when opening a file? {#file-opening-error}
+
+Try opening the same file from Finder using “Open With” and selecting the same app. If it fails there too, the issue is outside Folder Peek. Folder Peek asks macOS to open files and cannot fix errors from macOS or the app that opens them. Try restarting your Mac.
 
 ### The app I want does not show up in the “Open With” menu for a folder {#folder-open-with}
 

@@ -213,7 +213,7 @@ struct GeoCitiesPageMaker: ScriptedElement {
 					pre(.part(Parts.log), .hidden) {}
 						.style(Styles.log)
 
-					p(.part(Parts.status), .role("status")) {}
+					p(.part(Parts.status), .role(.status)) {}
 						.style(GeoCitiesPage.Styles.caption)
 				}
 				.style(Styles.previewColumn)
@@ -283,7 +283,7 @@ struct GeoCitiesPageMaker: ScriptedElement {
 		case still = "page-maker-still"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case menuBar
 		case field

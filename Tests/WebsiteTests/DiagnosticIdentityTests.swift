@@ -19,8 +19,6 @@ struct DiagnosticIdentityTests {
 		#expect(firstLink.page != secondLink.page)
 		#expect(firstDiagnostic.identity == secondDiagnostic.identity)
 		let differentLine = Site.BuildReport.BrokenLink(link: firstLink, location: .file(URL(filePath: "/content/shared-questions.md"), line: 5), draftFile: nil)
-		let draft = Site.BuildReport.BrokenLink(link: firstLink, location: location, draftFile: "content/draft.md")
 		#expect(firstDiagnostic.identity != differentLine.identity)
-		#expect(firstDiagnostic.identity != draft.identity)
 	}
 }

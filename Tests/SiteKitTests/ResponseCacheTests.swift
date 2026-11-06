@@ -18,6 +18,127 @@ struct ResponseCacheTests {
 		let date: Date
 	}
 
+	@Test
+	func `an HTTP request preserves successful and not-modified statuses`() async throws {
+		let server = try ETagServer()
+		let port = try await server.start()
+		let configuration = URLSessionConfiguration.ephemeral
+		configuration.urlCache = nil
+		let session = URLSession(configuration: configuration)
+		defer {
+			server.stop()
+			session.invalidateAndCancel()
+		}
+
+		var request = URLRequest(url: try #require(URL(string: "http://127.0.0.1:\(port)/value")))
+		let (body, response) = try await session.httpData(for: request)
+		#expect(response.statusCode == 200)
+		#expect(String(decoding: body, as: UTF8.self) == #"{"value": 1}"#)
+
+		request.setValue("\"1\"", forHTTPHeaderField: "If-None-Match")
+		let (unchangedBody, unchangedResponse) = try await session.httpData(for: request)
+		#expect(unchangedResponse.statusCode == 304)
+		#expect(unchangedBody.isEmpty)
+	}
+
+	@Test
+	func `an HTTP request rejects a non-HTTP response`() async throws {
+		let error = try await #require(throws: URLError.self) {
+			try await URLSession.shared.httpData(for: URLRequest(url: #URL("data:text/plain,Body")))
+		}
+		#expect(error.code == .badServerResponse)
+	}
+
+	@Test
+	func `an HTTP request propagates task cancellation`() async throws {
+		try await Task {
+			withUnsafeCurrentTask { $0?.cancel() }
+			let error = try await #require(throws: (any Error).self) {
+				try await URLSession.shared.httpData(for: URLRequest(url: #URL("data:text/plain,Body")))
+			}
+			#expect((error as NSError).domain == NSURLErrorDomain)
+			#expect((error as NSError).code == NSURLErrorCancelled)
+		}.value
+	}
+
+	@Test
+	func `warning collectors omit cancelled requests without a failed request warning`() async {
+		let warnings = WarningCollector()
+		let task = Task {
+			withUnsafeCurrentTask { $0?.cancel() }
+			return await warnings.value(warning: "Could not load the value") {
+				try Task.checkCancellation()
+				return 1
+			}
+		}
+
+		#expect(await task.value == nil)
+		#expect(warnings.all.isEmpty)
+	}
+
+	@Test
+	func `warning collectors omit cancelled batch requests without warnings`() async {
+		let warnings = WarningCollector()
+		let task = Task {
+			withUnsafeCurrentTask { $0?.cancel() }
+			return await warnings.values(of: [1, 2]) { "Could not load \($0)" } request: { key in
+				try Task.checkCancellation()
+				return key
+			}
+		}
+
+		#expect(await task.value.isEmpty)
+		#expect(warnings.all.isEmpty)
+	}
+
+	@Test
+	func `warning collectors retain successful batch values and warn about ordinary failures`() async {
+		let warnings = WarningCollector()
+		let values = await warnings.values(of: [1, 2, 1]) { "Could not load \($0)" } request: { key in
+			guard key == 1 else {
+				throw ContentError(reason: "Invalid response")
+			}
+
+			return key * 10
+		}
+
+		#expect(values == [1: 10])
+		#expect(warnings.all == [Warning(.failedRequest, "Could not load 2: Invalid response")])
+	}
+
+	@Test
+	func `warning collectors warn about cancellation errors in tasks that were not cancelled`() async {
+		let warnings = WarningCollector()
+		let value: Int? = await warnings.value(warning: "Could not load the value") {
+			throw CancellationError()
+		}
+
+		#expect(value == nil)
+		#expect(warnings.all.map(\.kind) == [.failedRequest])
+	}
+
+	@Test(.temporaryDirectory)
+	func `an unreadable sitemap response preserves the cached parsed sitemap`() async throws {
+		let server = try ETagServer(.etag(bodies: ["<urlset><url><loc>https://example.com/page</loc></url></urlset>", "<html>Gateway Error</html>"]))
+		let port = try await server.start()
+		defer {
+			server.stop()
+		}
+
+		let cache = ResponseCache(directory: try URL.temporaryDirectory(), maximumAge: .zero)
+		let url = try #require(URL(string: "http://127.0.0.1:\(port)/sitemap.xml"))
+		for _ in 0..<2 {
+			let paths = try await cache.decoded(from: url) { data in
+				try Sitemap.pagePaths(inXML: String(decoding: data, as: UTF8.self))
+			}
+			#expect(paths == [#path("/page")])
+		}
+
+		#expect(server.answers == ["200", "200"])
+		#expect(cache.warnings.count == 1)
+		#expect(cache.warnings.first?.message.contains("could not be read") == true)
+	}
+
 	@Test(.temporaryDirectory)
 	func `a failed cache save does not leave a successful value in memory`() async throws {
 		let server = try ETagServer(.etag(bodies: [#"{"value": 1}"#, #"{"value": 2}"#]))
@@ -37,13 +158,6 @@ struct ResponseCacheTests {
 		try directory.removeIfExists()
 		#expect(try await cache.decoded(Value.self, from: request) == Value(value: 2))
 		#expect(server.answers == ["200", "200"])
-	}
-
-	@Test
-	func `an ETag fixture requires a response body`() async {
-		await #expect(processExitsWith: .failure) {
-			_ = try ETagServer(.etag(bodies: []))
-		}
 	}
 
 	/**
@@ -223,6 +337,11 @@ struct ResponseCacheTests {
 		}
 
 		#expect(error.statusCode == nil)
+		guard case .requestFailed(let reason) = error.failure else {
+			Issue.record("Expected a failed-request cause, got \(error.failure).")
+			return
+		}
+		#expect(!reason.isEmpty)
 		let description = String(describing: error)
 		#expect(description.hasPrefix("Could not get \(url), because the request failed: "))
 		// The message of the error, not all its details.
@@ -274,6 +393,11 @@ struct ResponseCacheTests {
 		}
 
 		#expect(error.statusCode == nil)
+		guard case .unreadableBody(let reason) = error.failure else {
+			Issue.record("Expected an unreadable-body cause, got \(error.failure).")
+			return
+		}
+		#expect(reason == "Missing required values.")
 		#expect(error.description == "Could not get \(url), because the response could not be read: Missing required values.")
 		#expect(cache.warnings.isEmpty)
 	}
@@ -299,6 +423,11 @@ struct ResponseCacheTests {
 		}
 
 		#expect(error.statusCode == 403)
+		guard case .httpStatus(let status, _) = error.failure else {
+			Issue.record("Expected an HTTP-status cause, got \(error.failure).")
+			return
+		}
+		#expect(status == 403)
 		#expect(server.answers == ["403"])
 		#expect(error.description.hasSuffix("The server responded with status 403. The rate limit is used up until \(reset.formatted(date: .omitted, time: .shortened))."))
 	}

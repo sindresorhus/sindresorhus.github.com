@@ -34,7 +34,7 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 		}
 		.style(GeoCitiesPage.Styles.buttonRow, Styles.controls, GeoCitiesPage.Styles.scriptingOnly)
 
-		p(.part(Parts.status), .role("status")) {}
+		p(.part(Parts.status), .role(.status)) {}
 			.style(Styles.status, GeoCitiesPage.Styles.scriptingOnly)
 
 		p {
@@ -55,7 +55,7 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 					.width(280),
 					.height(160),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("The picture of the trip. Press Enter or Space for the main choice of the screen: to continue, to stop the car and size up the situation (or with reduced motion, to drive on for a day), and while fishing, to pull the line when the float goes under. The number keys pick a choice, and Escape keeps the trip when “Start a New Trip” asks.")
 					.style(Styles.canvas)
@@ -99,7 +99,7 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 	*/
 	private static let green = Color(raw: "#14f53c")
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case bezel
 		case glass
@@ -141,7 +141,7 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 							isInset: true
 						)
 					)
-					.fontFamily(#""Monaco", "Lucida Console", "Courier New", monospace"#)
+					.fontFamily(.stack(.named("Monaco"), .named("Lucida Console"), .named("Courier New"), .genericMonospace))
 					.font(size: .rootEm(1), lineHeight: 1.35)
 					.color(.white)
 					.textShadow(Shadow(y: .zero, blur: .pixels(3), color: Color(raw: "#ffffff66")))

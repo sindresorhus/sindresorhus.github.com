@@ -17,7 +17,7 @@ sharedQuestions: [
 ]
 pressQuotes: [
 	{
-		quote: '[…] Quick Launch, a small widget builder that lets you create custom widgets for the iOS 16 Lock Screen. The completely free app supports three different widget types, which can be placed on the Lock Screen of current iPhone models in a simple two-step process.'
+		quote: '[…] Quick Launch, a small widget builder that lets you create custom widgets for the iOS 16 Lock Screen. The […] app supports three different widget types, which can be placed on the Lock Screen of current iPhone models in a simple two-step process.'
 		source: 'iphone-ticker.de'
 		translatedFrom: 'German'
 		url: 'https://www.iphone-ticker.de/geheimtipp-quick-launch-fuer-eigene-widgets-unter-ios-16-199519/'
@@ -63,4 +63,4 @@ It can open any app, not just from a predefined list, and it has more icon choic
 
 You can replace the flashlight and camera buttons at the bottom of the Lock Screen with controls, like “Open App” or a shortcut. If two buttons are enough for you, use them.
 
-Quick Launch uses the widget area below the clock instead, so you can have up to four buttons in addition to the two controls. It can also open a website directly, and you can choose the icon of each button: a symbol or up to two characters.
+Quick Launch uses the widget area below the clock instead, so you can have up to four buttons in addition to the two controls. It can also open a website directly, and you can choose the icon of each button: the icon of the app or website, a symbol, an emoji, up to two characters, or your own image.

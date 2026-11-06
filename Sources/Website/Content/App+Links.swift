@@ -9,8 +9,19 @@ extension App {
 		markdown.headings
 			.filter { $0.level == .h2 }
 			.map { heading in
-				LabeledLink(heading.id == Section.faq.id ? "FAQ" : heading.text, destination: .fragment(heading.id))
+				let link = LabeledLink(heading.id == Section.faq.id ? "FAQ" : heading.text, destination: .fragment(heading.id))
+				// The footer has a page about all the apps with the title of these two sections.
+				return [Section.faq.id, Section.olderVersions.id].contains(heading.id) ? namingApp(link) : link
 			}
+	}
+
+	/**
+	The link with the app in its name for screen readers, like “Privacy Policy of Dato”, for a link whose title is also the title of a page about all the apps in the footer, like “Privacy Policy”, so the two are different in a list of the links of the page.
+	*/
+	private func namingApp(_ link: LabeledLink) -> LabeledLink {
+		var link = link
+		link.accessibilityLabel = "\(link.title) of \(self.title)"
+		return link
 	}
 
 	/**
@@ -67,11 +78,15 @@ extension App {
 				links.append(LabeledLink("What’s New", url: appStoreURL))
 			}
 
+			if let reviewURL {
+				links.append(LabeledLink("Rate or Review", url: reviewURL))
+			}
+
 			if let releaseNotes {
 				links.append(LabeledLink("Release Notes", path: releaseNotes.path))
 			}
 
-			links.append(LabeledLink("Privacy Policy", path: privacyPolicyPath))
+			links.append(namingApp(LabeledLink("Privacy Policy", path: privacyPolicyPath)))
 			links.append(.termsOfUse)
 
 			if frontmatter.isPaid {
@@ -100,13 +115,20 @@ extension App {
 	The places to get the app, and its trial, in the order they are shown. The stores come first when the app is on the App Store, as most visitors get it there. Otherwise, the own links, like “Buy”, and the trial come before Setapp, so the page offers its own purchase before the subscription of another company. Archived apps can only be downloaded from their own links, and have no trial.
 	*/
 	var downloadOptions: [DownloadOption] {
+		downloadOptions(appStorePlacement: .downloadButton)
+	}
+
+	/**
+	The download options (``downloadOptions``) with the App Store link of another place on the site, like the box to get the app in a guide, which has the campaign of the guide.
+	*/
+	func downloadOptions(appStorePlacement: AppStorePlacement) -> [DownloadOption] {
 		guard !frontmatter.isArchived else {
 			return ownOptions
 		}
 
 		let ownOptionsWithTrial = ownOptions + (hasTrial ? [.trial(appPath: path)] : [])
 
-		let appStoreOption = appStoreID.map { DownloadOption.appStore($0, placement: .downloadButton) }
+		let appStoreOption = appStoreID.map { DownloadOption.appStore($0, placement: appStorePlacement) }
 		let storeOptions = [appStoreOption, frontmatter.setappID.map(DownloadOption.setapp)].compactMap(\.self)
 
 		return appStoreOption == nil ? ownOptionsWithTrial + storeOptions : storeOptions + ownOptionsWithTrial
@@ -116,7 +138,7 @@ extension App {
 	The link to get the app from another site, for apps that are not only on the App Store: the download on GitHub, the purchase on Gumroad, or else the site or the repo of the app.
 	*/
 	var ownDownloadURL: URL? {
-		frontmatter.gitHubDownload?.url ?? gumroadURL ?? frontmatter.redirectURL ?? frontmatter.repositoryURL?.value
+		frontmatter.gitHubDownload?.url ?? gumroadURL ?? frontmatter.redirectURL?.value ?? frontmatter.repositoryURL?.value
 	}
 
 	var hasFAQSection: Bool {
@@ -142,6 +164,13 @@ extension App {
 	}
 
 	/**
+	The tips that the feedback form suggests: the level 3 headings of the “Tips” section that have a custom ID (`{#id}`), like “Batch transcribe” (`#batch`). The owner gives a custom ID to the tips that he links to, so the generic headings, like “Keyboard Shortcuts”, stay out.
+	*/
+	var tipHeadings: [Heading] {
+		markdown.headings.tips
+	}
+
+	/**
 	The Markdown of the answer of a question of the FAQ section, as it is in the file: the lines up to the next question or section, not to a heading in the answer, without the directives below the question, like `<!-- @faq.keywords … -->`. `nil` for a question that the build adds, which is not in the file.
 	*/
 	func faqAnswerMarkdown(of question: Heading) -> String? {
@@ -154,16 +183,17 @@ extension App {
 	/**
 	The lines of ``faqAnswerMarkdown(of:)`` with their lines in the file, like for a warning about a line of an answer.
 	*/
-	func faqAnswerLines(of question: Heading) -> [(line: Int, text: Substring)]? {
-		guard let line = question.line else {
+	func faqAnswerLines(of question: Heading) -> [(line: SiteKit.SourceLocation.Line, text: Substring)]? {
+		guard let sourceLine = question.line else {
 			return nil
 		}
 
 		let bodyLines = file.bodyLines
-		let end = markdown.headings.first { $0.level <= .h3 && ($0.line ?? 0) > line }?.line ?? file.bodyStartLine + bodyLines.count
+		let line = sourceLine.rawValue
+		let end = markdown.headings.first { $0.level <= .h3 && $0.line.map { $0 > sourceLine } == true }?.line?.rawValue ?? file.bodyStartLine.rawValue + bodyLines.count
 
 		return ((line + 1)..<end)
-			.map { (line: $0, text: bodyLines[$0 - file.bodyStartLine]) }
+			.map { (line: SiteKit.SourceLocation.Line($0), text: bodyLines[$0 - file.bodyStartLine.rawValue]) }
 			.filter { !$0.text.trimmingPrefix(while: \.isWhitespace).hasPrefix("<!--") }
 	}
 }
@@ -174,6 +204,18 @@ extension [Heading] {
 	*/
 	var hasFAQSection: Bool {
 		contains(where: \.isFAQSection)
+	}
+
+	/**
+	The tips of an app that the feedback form suggests (``App/tipHeadings``). Empty without a “Tips” section, which is found by its ID (``App/Section/tips``), like `## Tips` or `## Tips and Tricks {#tips}`.
+	*/
+	var tips: [Heading] {
+		guard let start = firstIndex(where: { App.Section.tips.isHeading(level: $0.level, id: $0.id) }) else {
+			return []
+		}
+
+		return contentOfSection(afterHeadingAt: start, level: App.Section.tips.level) { $0.level }
+			.filter { $0.level == .h3 && $0.hasCustomID }
 	}
 
 	/**

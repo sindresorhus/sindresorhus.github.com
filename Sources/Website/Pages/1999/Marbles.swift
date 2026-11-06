@@ -77,12 +77,12 @@ struct GeoCitiesMarbles: ScriptedElement {
 				.width(640),
 				.height(440),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The gravel of the school yard, seen from above. Drag back from your marble and let go to flick it. Or use the keys: Left and Right aim, Up and Down set the power, A and D move along the line, N picks the next marble, and Space or Enter flicks. After a game, a click or Space starts the next one.")
 				.style(Styles.canvas)
 
-			p(.part(Parts.status), .role("status")) {}
+			p(.part(Parts.status), .role(.status)) {}
 				.style(Styles.status)
 
 			div {
@@ -216,7 +216,7 @@ struct GeoCitiesMarbles: ScriptedElement {
 		case trade = "marbles-trade"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case layout
 		case stage

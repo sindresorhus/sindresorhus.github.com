@@ -33,7 +33,15 @@ struct SponsorList: HTML {
 						a(.href(.url(linked.url)), .rel("nofollow")) {
 							if let logo = sponsor.logo {
 								// When the name is shown next to it, the logo is decorative, so screen readers read the name once.
-								img(.src(logo.path), .alt(sponsor.showsName ? "" : sponsor.name), .width(logo.width.value))
+								img(
+									.src(logo.path),
+									.alt(sponsor.showsName ? "" : sponsor.name),
+									.width(logo.width.value),
+									.height(logo.height.value)
+								)
+								.style {
+									$0.frame(height: .percent(logo.relativeHeight * 100))
+								}
 							}
 
 							if sponsor.logo == nil || sponsor.showsName {
@@ -65,7 +73,7 @@ struct SponsorList: HTML {
 		}
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case logos
 		case sponsor
 		case name
@@ -79,7 +87,7 @@ struct SponsorList: HTML {
 					.grid(columns: 2)
 					.gap(.rootEm(1))
 			case .sponsor:
-				// Every logo is in a box of the same size, on a light plate in both modes, as the logos are made for a light background. In dark mode, the plate is a little dimmer, so it does not glare. The logo fits inside, so wide and square logos look about as large.
+				// Every logo is in a box of the same size, on a light plate in both modes, as the logos are made for a light background. In dark mode, the plate is a little dimmer, so it does not glare. Each logo has a height for its aspect ratio (``MarkdownPage/Logo/relativeHeight``), so wide and square logos look about as large.
 				Style()
 					.hstack(alignment: .center, justification: .center, spacing: .rootEm(0.5))
 					.frame(height: .rootEm(6))
@@ -91,7 +99,7 @@ struct SponsorList: HTML {
 					.color(.gray(900))
 					.background(.gray(50), dark: .gray(200))
 					.shadow(.edge(.lightDark(.black.opacity(0.06), .white.opacity(0.1))))
-					.underline(false)
+					.noUnderline()
 					// A darker plate under the pointer and with keyboard focus.
 					.hoverFill(.lightDark(.gray(200), .gray(300)))
 					.nested("img") {
@@ -99,7 +107,6 @@ struct SponsorList: HTML {
 							.plainImage()
 							.frame(
 								width: .auto,
-								height: .percent(100),
 								minWidth: .zero,
 								maxWidth: .percent(100)
 							)

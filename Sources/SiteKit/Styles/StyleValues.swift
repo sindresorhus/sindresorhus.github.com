@@ -57,6 +57,30 @@ public struct CSSNumber: StyleValue, Hashable, ExpressibleByIntegerLiteral, Expr
 	public static func * (lhs: Self, rhs: Self) -> Self {
 		Self(raw: "calc(\(lhs) * \(rhs))")
 	}
+
+	/**
+	The quotient of two number-valued expressions, evaluated by the browser.
+	*/
+	public static func / (lhs: Self, rhs: Self) -> Self {
+		Self(raw: "calc(\(lhs) / \(rhs))")
+	}
+
+	/**
+	The negation of a number-valued expression.
+	*/
+	public static prefix func - (value: Self) -> Self {
+		value * -1
+	}
+
+	/**
+	The one-based position of the element among its element siblings (`sibling-index()` in CSS).
+	*/
+	public static let siblingIndex = Self(raw: "sibling-index()")
+
+	/**
+	The number of element siblings, including the element itself (`sibling-count()` in CSS).
+	*/
+	public static let siblingCount = Self(raw: "sibling-count()")
 }
 
 /**
@@ -951,6 +975,70 @@ public struct MaximumBoxSize: LengthValue, Hashable {
 }
 
 /**
+The rendered size of a background or mask image: its dimensions, or the image scaled to cover or fit within the area.
+*/
+public enum ImageSize: Hashable, Sendable, CustomStringConvertible {
+	case cover
+	case contain
+	case dimensions(width: AutoLength, height: AutoLength)
+
+	public var description: String {
+		switch self {
+		case .cover:
+			"cover"
+		case .contain:
+			"contain"
+		case .dimensions(let width, let height):
+			"\(width) \(height)"
+		}
+	}
+}
+
+/**
+An aspect ratio that preserves width and height as number-valued CSS expressions. Components must resolve to nonnegative values; a zero component is a degenerate ratio, which CSS treats as automatic sizing.
+*/
+public enum AspectRatio: Hashable, Sendable, CustomStringConvertible {
+	case auto
+	case ratio(width: CSSNumber, height: CSSNumber)
+
+	/**
+	Uses an image's intrinsic ratio when available, with the given ratio as its fallback (`auto <ratio>` in CSS).
+	*/
+	case automatic(width: CSSNumber, height: CSSNumber)
+
+	public var description: String {
+		switch self {
+		case .auto:
+			"auto"
+		case .ratio(let width, let height):
+			"\(width) / \(height)"
+		case .automatic(let width, let height):
+			"auto \(width) / \(height)"
+		}
+	}
+}
+
+/**
+A line height: the font's normal spacing, a unitless multiplier, or a length or percentage. Multipliers and percentages remain distinct because their inheritance differs.
+*/
+public enum LineHeight: Hashable, Sendable, CustomStringConvertible {
+	case normal
+	case multiple(CSSNumber)
+	case length(LengthPercentage)
+
+	public var description: String {
+		switch self {
+		case .normal:
+			"normal"
+		case .multiple(let value):
+			value.description
+		case .length(let value):
+			value.description
+		}
+	}
+}
+
+/**
 A CSS color, like `#2563eb` or `oklch(55.1% .027 264.364)`.
 */
 public struct Color: StyleValue, Hashable, ExpressibleByStringLiteral {
@@ -986,6 +1074,27 @@ public struct Color: StyleValue, Hashable, ExpressibleByStringLiteral {
 	*/
 	public static func hsl(hue: CSSNumber, saturation: Percentage, lightness: Percentage) -> Self {
 		Self(raw: "hsl(\(hue) \(saturation) \(lightness))")
+	}
+
+	/**
+	A color with an angle-valued hue, including an angle custom property. Unitless hues use the numeric overload.
+	*/
+	public static func hsl(hue: Angle, saturation: Percentage, lightness: Percentage) -> Self {
+		Self(raw: "hsl(\(hue) \(saturation) \(lightness))")
+	}
+
+	/**
+	A color in OKLCH. The lightness is a percentage, chroma is a unitless number, and hue is an angle. Each component may be a typed CSS expression.
+	*/
+	public static func oklch(lightness: Percentage, chroma: CSSNumber, hue: Angle) -> Self {
+		Self(raw: "oklch(\(lightness) \(chroma) \(hue))")
+	}
+
+	/**
+	An opaque RGB color, with components bounded to bytes.
+	*/
+	public static func rgb(red: UInt8, green: UInt8, blue: UInt8) -> Self {
+		Self(raw: "rgb(\(red) \(green) \(blue))")
 	}
 
 	/**
@@ -1271,40 +1380,77 @@ public struct BrowserFeature: Hashable, Sendable, CustomStringConvertible {
 	*/
 	public let description: String
 
-	public init(_ condition: String) {
+	/**
+	An explicit unchecked `@supports` condition.
+	*/
+	public init(raw condition: String) {
 		self.description = condition
+	}
+
+	/**
+	Checks the single declaration produced by a typed modifier, like `.declaration { $0.interpolateSize(.allowKeywords) }`. Conditions, registrations, multiple declarations, and `!important` are not support tests.
+	*/
+	public static func declaration(_ content: (Style) -> Style) -> Self {
+		let style = content(Style())
+		precondition(style.declarations.count == 1 && style.children.isEmpty && style.definitions.isEmpty, "A support test requires exactly one plain declaration.")
+		let declaration = style.declarations[0]
+		precondition(!declaration.isImportant, "A support test cannot use !important.")
+		return Self(raw: "(\(declaration.property): \(declaration.value))")
+	}
+
+	/**
+	Checks a selector's syntax, including pseudo-elements.
+	*/
+	public static func selector(_ selector: CSSSelector) -> Self {
+		Self(raw: "selector(\(selector))")
 	}
 
 	/**
 	Transitions to and from keywords like `auto`, like the height of the content of a `details` element.
 	*/
-	public static let interpolateSize = Self("(interpolate-size: allow-keywords)")
+	public static let interpolateSize = Self.declaration {
+		$0.interpolateSize(.allowKeywords)
+	}
 
 	/**
 	Animations that follow the scrolling of the page.
 	*/
-	public static let scrollTimeline = Self("(animation-timeline: scroll())")
+	public static let scrollTimeline = Self(raw: "(animation-timeline: scroll())")
 
 	/**
 	Animations that follow an element through the view.
 	*/
-	public static let viewTimeline = Self("(animation-timeline: view())")
+	public static let viewTimeline = Self(raw: "(animation-timeline: view())")
 
 	/**
 	Trimming the space above the capital letters and below the baseline with `text-box`.
 	*/
-	public static let textBoxTrim = Self("(text-box: trim-both cap alphabetic)")
+	public static let textBoxTrim = Self(raw: "(text-box: trim-both cap alphabetic)")
 
 	/**
 	Styles for the parts of scroll bars, like ``Style/scrollbar(_:_:)``, which Chrome and Safari have.
 	*/
-	public static let webKitScrollbar = Self("selector(::-webkit-scrollbar)")
+	public static let webKitScrollbar = Self.selector("::-webkit-scrollbar")
+
+	/**
+	Checks that both conditions hold, preserving their grouping.
+	*/
+	public static func && (lhs: Self, rhs: Self) -> Self {
+		Self(raw: "(\(lhs)) and (\(rhs))")
+	}
+
+	/**
+	Checks that at least one condition holds, preserving its grouping.
+	*/
+	public static func || (lhs: Self, rhs: Self) -> Self {
+		Self(raw: "(\(lhs)) or (\(rhs))")
+	}
 
 	/**
 	The browser does not support the feature, like `.supports(!.webKitScrollbar)`.
 	*/
 	public static prefix func ! (feature: Self) -> Self {
-		Self("not (\(feature))")
+		Self(raw: "not (\(feature))")
 	}
 }
 
@@ -1358,6 +1504,11 @@ public enum Alignment: String, CSSKeyword {
 	case center
 	case end = "flex-end"
 	case baseline
+
+	/**
+	Fills the cross axis, like cards of one height in a row.
+	*/
+	case stretch
 }
 
 public enum Justification: String, CSSKeyword {
@@ -1490,12 +1641,42 @@ public enum Edge {
 		}
 
 		public static let top = Self(rawValue: 1 << 0)
-		public static let trailing = Self(rawValue: 1 << 1)
+		public static let right = Self(rawValue: 1 << 1)
 		public static let bottom = Self(rawValue: 1 << 2)
-		public static let leading = Self(rawValue: 1 << 3)
-		public static let horizontal: Self = [.leading, .trailing]
+		public static let left = Self(rawValue: 1 << 3)
+		public static let horizontal: Self = [.left, .right]
 		public static let vertical: Self = [.top, .bottom]
 		public static let all: Self = [.horizontal, .vertical]
+
+		/**
+		The start of the inline axis (`inline-start`), following the writing mode and text direction.
+		*/
+		public static let leading = Self(rawValue: 1 << 4)
+
+		/**
+		The end of the inline axis (`inline-end`), following the writing mode and text direction.
+		*/
+		public static let trailing = Self(rawValue: 1 << 5)
+
+		/**
+		The start of the block axis (`block-start`), following the writing mode.
+		*/
+		public static let blockStart = Self(rawValue: 1 << 6)
+
+		/**
+		The end of the block axis (`block-end`), following the writing mode.
+		*/
+		public static let blockEnd = Self(rawValue: 1 << 7)
+
+		/**
+		Both edges of the inline axis, following the writing mode and text direction.
+		*/
+		public static let inline: Self = [.leading, .trailing]
+
+		/**
+		Both edges of the block axis, following the writing mode.
+		*/
+		public static let block: Self = [.blockStart, .blockEnd]
 	}
 }
 
@@ -1600,6 +1781,11 @@ public enum PositionArea: String, CSSKeyword {
 	case bottom
 
 	/**
+	Below the anchor, from its left edge to the right, like a preview that starts where its link starts (`bottom span-right` in CSS). With ``PositionTryFallback/flipInline``, it ends at the right edge of the anchor when there is no space to the right.
+	*/
+	case bottomSpanRight = "bottom span-right"
+
+	/**
 	Before the anchor in the writing direction, centered on it vertically.
 	*/
 	case inlineStart = "inline-start"
@@ -1625,9 +1811,24 @@ public enum PositionTryFallback: String, CSSKeyword {
 	case flipInline = "flip-inline"
 
 	/**
+	The other side of the anchor in the two directions, like above it and to the left instead of below it and to the right (`flip-block flip-inline` in CSS).
+	*/
+	case flipBlockAndInline = "flip-block flip-inline"
+
+	/**
 	The position mirrored across the diagonal from the start corner to the end corner, like before the anchor instead of above it.
 	*/
 	case flipStart = "flip-start"
+
+	/**
+	Centered below the anchor, for when no position at an edge of the anchor fits, like in a narrow window.
+	*/
+	case bottom
+
+	/**
+	Centered above the anchor.
+	*/
+	case top
 }
 
 public enum Overflow: String, CSSKeyword {
@@ -1815,7 +2016,7 @@ public struct HangingPunctuation: OptionSet, Hashable, Sendable, CustomStringCon
 /**
 A font stack, like `ui-monospace, monospace`.
 */
-public struct FontFamily: StyleValue, Hashable, ExpressibleByStringLiteral {
+public struct FontFamily: StyleValue, Hashable {
 	public let description: String
 
 	/**
@@ -1823,10 +2024,6 @@ public struct FontFamily: StyleValue, Hashable, ExpressibleByStringLiteral {
 	*/
 	public init(raw css: String) {
 		self.description = css
-	}
-
-	public init(stringLiteral value: String) {
-		self.init(raw: value)
 	}
 
 	/**
@@ -1862,6 +2059,43 @@ public struct FontFamily: StyleValue, Hashable, ExpressibleByStringLiteral {
 	The generic cursive family (`cursive` in CSS).
 	*/
 	public static let genericCursive = Self(raw: "cursive")
+
+	/**
+	The default user-interface font (`system-ui` in CSS).
+	*/
+	public static let systemUI = Self(raw: "system-ui")
+
+	/**
+	The sans-serif user-interface font (`ui-sans-serif` in CSS).
+	*/
+	public static let uiSansSerif = Self(raw: "ui-sans-serif")
+
+	/**
+	The serif user-interface font (`ui-serif` in CSS).
+	*/
+	public static let uiSerif = Self(raw: "ui-serif")
+
+	/**
+	The monospaced user-interface font (`ui-monospace` in CSS).
+	*/
+	public static let uiMonospace = Self(raw: "ui-monospace")
+
+	/**
+	The rounded user-interface font (`ui-rounded` in CSS).
+	*/
+	public static let uiRounded = Self(raw: "ui-rounded")
+}
+
+/**
+A generated-content keyword for a pseudo-element, kept distinct from literal text.
+*/
+public enum ContentKeyword: String, CSSKeyword {
+	case none
+	case normal
+	case openQuote = "open-quote"
+	case closeQuote = "close-quote"
+	case noOpenQuote = "no-open-quote"
+	case noCloseQuote = "no-close-quote"
 }
 
 public enum FontWidth: String, CSSKeyword {
@@ -2488,6 +2722,7 @@ The properties a transition animates. The effects are named like the modifiers t
 */
 public struct TransitionProperty: Hashable, Sendable {
 	let properties: [Property]
+	let registration: RegisteredPropertyDefinition?
 
 	/**
 	Whether the property switches between values instead of changing gradually, which needs `allow-discrete`.
@@ -2499,14 +2734,17 @@ public struct TransitionProperty: Hashable, Sendable {
 	}
 
 	/**
-	A registered custom property, which can transition, as the browser knows its type.
+	A registered custom property, which can transition, as the browser knows its type. The transition brings its registration into the stylesheet.
 	*/
 	public init(_ property: RegisteredProperty<some StyleValue>) {
-		self.init(Property(property.variable.name.description))
+		self.properties = [Property(property.name.description)]
+		self.registration = property.definition
+		self.isDiscrete = false
 	}
 
 	private init(properties: [Property], isDiscrete: Bool = false) {
 		self.properties = properties
+		self.registration = nil
 		self.isDiscrete = isDiscrete
 	}
 
@@ -2564,6 +2802,42 @@ public struct TransitionProperty: Hashable, Sendable {
 }
 
 /**
+How animation progress changes over time, independently of its duration. Reuse one curve in transitions and animations with different durations.
+*/
+public struct EasingFunction: Hashable, Sendable, CustomStringConvertible {
+	public let description: String
+
+	/**
+	An explicit unchecked easing expression, like a piecewise `linear()` spring.
+	*/
+	public init(raw css: String) {
+		self.description = css
+	}
+
+	public static let ease = Self(raw: "ease")
+	public static let linear = Self(raw: "linear")
+	public static let easeIn = Self(raw: "ease-in")
+	public static let easeOut = Self(raw: "ease-out")
+	public static let easeInOut = Self(raw: "ease-in-out")
+
+	/**
+	A step easing function. The count must be positive, or at least two for `jump-none`.
+	*/
+	public static func steps(_ count: Int, position: StepPosition = .end) -> Self {
+		precondition(count > (position == .jumpNone ? 1 : 0), "A step timing function needs a positive count, or at least two steps for jump-none.")
+		return Self(raw: "steps(\(count), \(position.rawValue))")
+	}
+
+	/**
+	A cubic Bézier curve. The x coordinates stay within 0...1; the y coordinates may overshoot, like a spring.
+	*/
+	public static func cubicBezier(_ firstX: Double, _ firstY: Double, _ secondX: Double, _ secondY: Double) -> Self {
+		precondition((0...1).contains(firstX) && (0...1).contains(secondX), "The x coordinates of a cubic Bézier curve must be between 0 and 1.")
+		return Self(raw: "cubic-bezier(\([firstX, firstY, secondX, secondY].map(CSSValue.format).joined(separator: ", ")))")
+	}
+}
+
+/**
 How long one run of an animation or a transition takes, and how it speeds up and slows down:
 
 ```swift
@@ -2576,43 +2850,45 @@ public struct AnimationTiming: Hashable, Sendable, CustomStringConvertible {
 	/**
 	The timing function, or `nil` for the CSS default, `ease`.
 	*/
-	private let timingFunction: String?
+	private let timingFunction: EasingFunction?
 
-	private init(duration: Duration, timingFunction: String?) {
+	/**
+	Combines a duration with a reusable easing function. The CSS default `ease` is omitted from the shorthand.
+	*/
+	public init(duration: Duration, curve: EasingFunction = .ease) {
 		precondition(duration >= .zero, "An animation duration must be nonnegative.")
 		self.duration = duration
-		self.timingFunction = timingFunction
+		self.timingFunction = curve == .ease ? nil : curve
 	}
 
 	/**
 	The CSS default, `ease`, which starts a little slowly, is fastest early on, and slows down gently at the end.
 	*/
 	public static func `default`(duration: Duration) -> Self {
-		Self(duration: duration, timingFunction: nil)
+		Self(duration: duration)
 	}
 
 	public static func linear(duration: Duration) -> Self {
-		Self(duration: duration, timingFunction: "linear")
+		Self(duration: duration, curve: .linear)
 	}
 
 	public static func easeIn(duration: Duration) -> Self {
-		Self(duration: duration, timingFunction: "ease-in")
+		Self(duration: duration, curve: .easeIn)
 	}
 
 	public static func easeOut(duration: Duration) -> Self {
-		Self(duration: duration, timingFunction: "ease-out")
+		Self(duration: duration, curve: .easeOut)
 	}
 
 	public static func easeInOut(duration: Duration) -> Self {
-		Self(duration: duration, timingFunction: "ease-in-out")
+		Self(duration: duration, curve: .easeInOut)
 	}
 
 	/**
 	A timing function that advances in discrete steps. The count must be positive, or at least two for `.jumpNone`.
 	*/
 	public static func steps(_ count: Int, position: StepPosition = .end, duration: Duration) -> Self {
-		precondition(count > (position == .jumpNone ? 1 : 0), "A step timing function needs a positive count, or at least two steps for jump-none.")
-		return Self(duration: duration, timingFunction: "steps(\(count), \(position.rawValue))")
+		Self(duration: duration, curve: .steps(count, position: position))
 	}
 
 	/**
@@ -2625,22 +2901,21 @@ public struct AnimationTiming: Hashable, Sendable, CustomStringConvertible {
 		_ c1y: Double,
 		duration: Duration
 	) -> Self {
-		precondition((0...1).contains(c0x) && (0...1).contains(c1x), "The x coordinates of a cubic Bézier curve must be between 0 and 1.")
-		return Self(duration: duration, timingFunction: "cubic-bezier(\([c0x, c0y, c1x, c1y].map(CSSValue.format).joined(separator: ", ")))")
+		Self(duration: duration, curve: .cubicBezier(c0x, c0y, c1x, c1y))
 	}
 
 	/**
 	A timing function written as CSS, like `linear(0, .5 7.7%, 1.06 23.7%, 1)` for a spring that bounces.
 	*/
 	public static func timingCurve(raw timingFunction: String, duration: Duration) -> Self {
-		Self(duration: duration, timingFunction: timingFunction)
+		Self(duration: duration, curve: EasingFunction(raw: timingFunction))
 	}
 
 	/**
 	The duration and the timing function, like `.2s ease-out`.
 	*/
 	public var description: String {
-		[duration.cssValue, timingFunction].compactMap(\.self).joined(separator: " ")
+		[duration.cssValue, timingFunction?.description].compactMap(\.self).joined(separator: " ")
 	}
 }
 

@@ -71,7 +71,7 @@ struct GeoCitiesLego: ScriptedElement {
 						}
 					}
 					.accessibilityLabel("Brick")
-					.attributes(.role("group"))
+					.attributes(.role(.group))
 					.style(Styles.toolRow)
 
 					div {
@@ -86,7 +86,7 @@ struct GeoCitiesLego: ScriptedElement {
 						}
 					}
 					.accessibilityLabel("Color")
-					.attributes(.role("group"))
+					.attributes(.role(.group))
 					.style(Styles.toolRow)
 				}
 				.style(Styles.toolbar)
@@ -97,7 +97,7 @@ struct GeoCitiesLego: ScriptedElement {
 					.width(640),
 					.height(480),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("The LEGO baseplate. Move with the arrow keys, press Enter to put the brick on, R to turn it, and Delete to take the top brick off.")
 					.style(Styles.canvas)
@@ -138,7 +138,7 @@ struct GeoCitiesLego: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.buttonRow)
 
-				p(.part(Parts.status), .role("status")) {}
+				p(.part(Parts.status), .role(.status)) {}
 					.style(Styles.status)
 			}
 			.style(GeoCitiesPage.Styles.windowBody)
@@ -174,7 +174,7 @@ struct GeoCitiesLego: ScriptedElement {
 		case action = "lego-action"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case window
 		case toolbar

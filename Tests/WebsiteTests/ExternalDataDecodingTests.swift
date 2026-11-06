@@ -1,5 +1,4 @@
 import Foundation
-import Network
 import SiteKit
 import SOML
 import TestSupport
@@ -67,75 +66,6 @@ struct ExternalDataDecodingTests {
 		#expect(throws: DecodingError.self) {
 			try GumroadProduct(json: json)
 		}
-	}
-
-	@Test(.temporaryDirectory)
-	func `request aware fixtures retain distinct POST bodies and binary response bytes`() async throws {
-		let directory = try URL.temporaryDirectory()
-		let cache = ResponseCache(directory: directory, maximumAge: .seconds(3600))
-
-		for byte in [UInt8(0), 255] {
-			var request = URLRequest(url: #URL("https://example.com/graphql"))
-			request.httpMethod = "POST"
-			request.httpBody = Data([byte])
-			try ResponseCache.writeFixture(for: request, body: Data([byte, 128]), directory: directory)
-		}
-
-		for byte in [UInt8(0), 255] {
-			var request = URLRequest(url: #URL("https://example.com/graphql"))
-			request.httpMethod = "POST"
-			request.httpBody = Data([byte])
-			let body = try await cache.decoded(from: request) { $0 }
-			#expect(body == Data([byte, 128]))
-		}
-	}
-
-	@Test(.temporaryDirectory, .timeLimit(.minutes(1)))
-	func `a stale request fixture revalidates its ETag and preserves the cached binary body`() async throws {
-		let parameters = NWParameters.tcp
-		parameters.requiredLocalEndpoint = .hostPort(host: .ipv4(.loopback), port: .any)
-		let listener = try NWListener(using: parameters)
-		listener.newConnectionHandler = { connection in
-			connection.start(queue: .global())
-			connection.receive(minimumIncompleteLength: 1, maximumLength: 65_536) { data, _, _, _ in
-				let request = String(decoding: data ?? Data(), as: UTF8.self)
-				let hasETag = request.lowercased().contains("if-none-match: \"fixture\"")
-				#expect(hasETag)
-				let response = "HTTP/1.1 \(hasETag ? "304 Not Modified" : "500 Server Error")\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
-				connection.send(content: Data(response.utf8), completion: .contentProcessed { _ in
-					connection.cancel()
-				})
-			}
-		}
-
-		defer {
-			listener.cancel()
-		}
-
-		let port: UInt16 = try await withCheckedThrowingContinuation { continuation in
-			listener.stateUpdateHandler = { state in
-				switch state {
-				case .ready:
-					listener.stateUpdateHandler = nil
-					continuation.resume(returning: listener.port?.rawValue ?? 0)
-				case .failed(let error):
-					listener.stateUpdateHandler = nil
-					continuation.resume(throwing: error)
-				default:
-					break
-				}
-			}
-			listener.start(queue: .global())
-		}
-		let directory = try URL.temporaryDirectory()
-		let request = URLRequest(url: try #require(URL(string: "http://127.0.0.1:\(port)/fixture")))
-		let expected = Data([0, 128, 255])
-		try ResponseCache.writeFixture(for: request, body: expected, date: .distantPast, etag: "\"fixture\"", directory: directory)
-		let cache = ResponseCache(directory: directory, maximumAge: .seconds(3600))
-		let body = try await cache.decoded(from: request) { $0 }
-
-		#expect(body == expected)
-		#expect(cache.warnings.isEmpty)
 	}
 
 	/**

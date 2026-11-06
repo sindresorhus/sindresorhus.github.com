@@ -271,7 +271,7 @@ struct GeoCitiesWindows: HTML {
 			}
 			.style(GeoCitiesPage.Styles.windowBody)
 		}
-		.attributes(contentsOf: message.map { [.role("alertdialog"), .ariaDescribedBy($0.id)] } ?? [])
+		.attributes(contentsOf: message.map { [.role(.alertDialog), .ariaDescribedBy($0.id)] } ?? [])
 		.style(GeoCitiesPage.Styles.window)
 		.style(GeoCitiesPage.Styles.desktopWindow, when: size == .normal)
 		.style(Styles.wideWindow, when: size == .wide)
@@ -294,7 +294,7 @@ struct GeoCitiesWindows: HTML {
 				.accessibilityLabel("Files")
 				.style(Styles.fileList)
 
-			p(.id(status), .role("status")) {}
+			p(.id(status), .role(.status)) {}
 				.style(GeoCitiesPage.Styles.statusBar)
 		}
 		.style(Styles.stack)
@@ -550,7 +550,7 @@ extension GeoCitiesWindows {
 	*/
 	struct TaskButtons: HTML {
 		var body: some HTML {
-			div(.id(IDs.tasks), .role("group")) {}
+			div(.id(IDs.tasks), .role(.group)) {}
 				.accessibilityLabel("Open windows")
 				.style(Styles.tasks)
 
@@ -566,7 +566,7 @@ extension GeoCitiesWindows {
 	*/
 	struct QuickLaunch: HTML {
 		var body: some HTML {
-			div(.role("group")) {
+			div(.role(.group)) {
 				button(.id(IDs.showDesktop), .type(.button), .ariaPressed(false)) {
 					"🖥️"
 				}
@@ -629,7 +629,7 @@ extension GeoCitiesWindows {
 				.help("Volume")
 				.style(Styles.trayButton)
 
-				div(.id(IDs.volume), .hidden, .role("group")) {
+				div(.id(IDs.volume), .hidden, .role(.group)) {
 					GeoCitiesWindows.hiddenLabel("Volume", for: .volumeLevel)
 
 					input(

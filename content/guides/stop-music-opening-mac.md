@@ -31,6 +31,6 @@ macOS has no setting to stop this. The Play key goes to the app that played audi
 Two things help a little:
 
 - Keep your other player open, and play something in it, so the keys go to it.
-- If Music opens when you log in, open “System Settings › General › Login Items & Extensions”, select Music below “Open at Login”, and click the remove button.
+- If Music opens when you log in, open “[System Settings › General › Login Items & Extensions](x-apple.systempreferences:com.apple.LoginItems-Settings.extension)”, select Music below “Open at Login”, and click the remove button.
 
 They do not help when you press Play with no other player open, like after you connect AirPods.

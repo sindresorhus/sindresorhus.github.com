@@ -78,8 +78,7 @@ struct ContentGuardTests {
 		#expect(Self.localizedAppleLinks(in: "[Help](\(destination))") == expected)
 	}
 
-	// `support.apple.com/en-us/102426` and `apps.apple.com/us/app/…`. The whole link is matched, so the message shows it.
-	nonisolated(unsafe) private static let localizedAppleLinkPattern = /https?:\/\/(?:support|apps)\.apple\.com\/(?:[a-z]{2}-[a-z]{2}|[a-z]{2})\/[^\s)\]"'>]*/
+	// The whole link is matched, so the message shows it. `website check` warns about the same links (`String.isLocalizedAppleLink`).
 	nonisolated(unsafe) private static let linkPattern = /https?:\/\/[^\s)\]"'>]*/
 
 	/**
@@ -88,8 +87,8 @@ struct ContentGuardTests {
 	private static func localizedAppleLinks(in contents: String) -> [String] {
 		contents.matches(of: linkPattern)
 			.map(\.output)
-			.filter { $0.wholeMatch(of: localizedAppleLinkPattern) != nil }
 			.map(String.init)
+			.filter(\.isLocalizedAppleLink)
 	}
 
 	/**
@@ -194,8 +193,8 @@ struct SourceGuardTests {
 		.initializer("CSSNumber"): 1,
 		// The card light uses a registered strength in color-mix(), and the NetMeeting meter has a repeating gradient.
 		.initializer("CSSImage"): 2,
-		// The prose styles need selectors for the Markdown markup that no component owns, like the introduction below the title of a Markdown page, the space above a bold label, the column of the shortcuts in a table, and the copy link of a closed question, which depends on the state of the `<details>` next to it.
-		.member("nested", takesString: true): 33,
+		// The prose styles need selectors for the Markdown markup that no component owns, like the introduction below the title of a Markdown page, the space above a bold label, the column of the shortcuts in a table, and the copy link of a closed question, which depends on the state of the `<details>` next to it. A shortcut card removes the bullet of its list item, and the indent of a list of only cards, which are its parents in the Markdown, and it styles the note after it, which is the next element in the Markdown. The npm list hides the rows after the first batch while its element is not defined (`:not(:defined)` with `:nth-child()`), which no typed selector has.
+		.member("nested", takesString: true): 36,
 	]
 
 	@Test

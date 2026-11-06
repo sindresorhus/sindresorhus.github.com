@@ -1,22 +1,18 @@
 ---
 title: 'System Color Picker'
 subtitle: 'The familiar color picker supercharged'
-description: 'The familiar macOS color picker supercharged. Pick a color from anywhere and copy it as Hex, HSL, RGB, OKLCH, and more. Includes palettes and Shortcuts support.'
+description: 'A supercharged macOS color picker. Pick a color from anywhere and copy it as Hex, HSL, RGB, OKLCH, and more. Includes palettes and Shortcuts support.'
 publicationDate: 2021-05-01
 platforms: [
 	'macOS'
 ]
+isPaid: true
 isMenuBarApp: true
 appStoreID: 1545870783
 hasSentry: true
 feedbackNames: [
 	'Color Picker'
 ]
-nonAppStoreVersion: {
-	version: '2.2.0'
-	macOS: 26
-	url: 'https://www.dropbox.com/scl/fi/kk4c8p47uj791k5t0nj0n/Color-Picker-2.2.0-1767305140.zip?rlkey=jivahp9p4k5f24q76473zrnkd&raw=1'
-}
 olderVersions: [
 	{
 		version: '2.1.4'
@@ -71,12 +67,13 @@ The macOS color picker as an app, with more features. Pick a color from anywhere
 - Show as a normal app or in the menu bar
 - Pick a color or toggle the window from anywhere with a global keyboard shortcut
 - Make the window stay on top of all other windows
+- Copy the color in your preferred format after picking, and quit the app after picking
+- Show the color sampler when the window opens
+- Show the accessibility name of the color, like “very dark blue”
 - Launch it at login (when in the menu bar)
 - Hide menu bar icon
 - Shortcuts support
 - Import [Simple Color Palette](https://simplecolorpalette.com) and Adobe Swatch Exchange (ASE) palettes
-
-<br>
 
 > [!TIP]
 > You may also like my [Simple Color Palette](/simple-color-palette) app.
@@ -153,7 +150,7 @@ That is because the default color space in the picker is [Display P3](https://en
 
 ### How do I clear the list of recently picked colors? {#how-do-i-clear-the-list-of-recently-picked-colors}
 
-In the main app window, click the clock icon in the middle toolbar.
+In the main app window, click the clock icon in the middle toolbar, and then click “Clear”.
 
 ### How do I use palettes? {#how-do-i-use-palettes}
 
@@ -205,6 +202,10 @@ The app displays the OKLCH chroma value as a percentage instead of an absolute v
 
 This file is not viewable or editable. It can only be used for backup or transfer between Macs.
 
+### Why is the app suddenly paid? It used to be free. {#why-is-the-app-suddenly-paid-it-used-to-be-free}
+
+While I love making free apps that are available to anyone, the high volume of support requests became unsustainable. After providing the app for free for 5 years with 376K downloads, I made the decision to make it paid. This isn’t about revenue. It’s about managing my time more effectively by reducing the support burden to a sustainable level.
+
 ## Scripting
 
 ### URL scheme
@@ -224,7 +225,7 @@ This can be used to create custom keyboard shortcuts in tools like [Raycast](htt
 
 ### Shortcuts
 
-You can use the “Sample Color from Screen” action for Shortcuts to sample color from the screen and then do something with it.
+The app has the “Sample Color from Screen”, “Get Random Color”, “Import Palettes”, and “Get All Palettes” actions for Shortcuts. For example, sample a color from the screen and then do something with it.
 
 > [!TIP]
 > You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).

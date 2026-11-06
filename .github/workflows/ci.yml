@@ -20,6 +20,8 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
+      # For the passed push run of the commit, which a nightly run looks for before the tests.
+      actions: read
     outputs:
       changed: ${{ steps.compare.outputs.changed }}
       hash: ${{ steps.compare.outputs.hash }}
@@ -63,8 +65,17 @@ jobs:
       # Debug, like the tests, so one build serves both. A release build takes 8–10 s longer to compile on CI and saves only about 1 s when building the site. Keep it debug. Without the index store, which only editors use, so the build is faster and the cache smaller. `links.yml` has the same flags, as other flags would compile everything again.
       - name: Build
         run: swift build --build-tests --disable-index-store -Xswiftc -Xfrontend -Xswiftc -warn-long-expression-type-checking=200
+      # A nightly run skips the tests when the push run of the same commit passed them: the tests use no external data and a fixed build date (`Tests/WebsiteTests/TestSupport.swift`), so they test the same code with the same data. The nightly run is for new App Store data and releases, which the check below still builds and checks. A commit whose push run failed or did not finish is tested, as failed tests stop the deploy, and a failed request counts as no run. Limitation: a new runner image that breaks a test is found at the next push, not at night. The build step still compiles the tests, so a compile error of a new SDK is found at night.
+      - name: Find a passed push run of the commit
+        id: tested
+        if: github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: echo "count=$(gh run list --workflow ci.yml --commit "$GITHUB_SHA" --event push --status success --limit 1 --json databaseId --jq length || echo 0)" >> "$GITHUB_OUTPUT"
       # The tests use Swift Testing only, so the XCTest runner is skipped.
       - name: Test
+        if: steps.tested.outputs.count != '1'
         run: swift test --skip-build --disable-xctest
       # To debug a test run that fails or hangs without a message: the output is unbuffered, so the last line before a hang stays in the log, and the crash reports and a sample of the hung process show what it was doing. `gh run view --log` leaves the end of a long step out, so download the log with `gh api repos/sindresorhus/sindresorhus.github.com/actions/jobs/<job id>/logs`.
       # - name: Test
@@ -89,12 +100,12 @@ jobs:
       #       echo "=== $report"
       #       head -c 20000 "$report"
       #     done
-      # The executable runs directly, as `swift run` first spends seconds checking the build.
-      - name: Build site
+      # The executable runs directly, as `swift run` first spends seconds checking the build. The check builds the site to `dist`, which the deploy uploads, and prints its warnings, many of which come from data that changes without a commit, like the App Store data of the nightly runs. On GitHub, the warnings and the content errors are annotations at their lines. The warnings do not fail the run.
+      - name: Build and check site
         env:
           # Authenticated requests have a much higher GitHub API rate limit.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: .build/debug/website build --verbose
+        run: .build/debug/website check --output dist --verbose
       # A deploy is skipped when the site is the same as the published one. The related apps rotate daily, so the nightly build changes the app pages once a day. The hash of each file is in `build-files.txt`, so the deploy purges only the changed files from Cloudflare.
       - name: Compare with the published site
         id: compare

@@ -79,6 +79,12 @@ struct AwakeStatus: ScriptedElement {
 					"00:00 my time"
 				}
 			}
+			// The time is on its own line where the longest text and the time do not fit on one line, like on a small phone or with large text, so the line does not end with a dot. The width is in rem, so it follows the text size.
+			.style {
+				$0.below(.phone) {
+					$0.stackedFacts()
+				}
+			}
 		}
 		.style {
 			$0
@@ -101,7 +107,7 @@ struct AwakeStatus: ScriptedElement {
 		case day
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 
 		var style: Style {

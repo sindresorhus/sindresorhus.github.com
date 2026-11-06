@@ -1,6 +1,6 @@
 ---
 title: 'How to Keep Your Mac Awake'
-description: 'Stop your Mac from going to sleep with Lungo in the menu bar, the caffeinate command in Terminal, or the sleep settings of macOS.'
+description: 'Keep your Mac awake, like while an AI agent works, with Lungo (an alternative to Amphetamine), the caffeinate command, or the sleep settings of macOS.'
 publicationDate: 2026-10-29
 topic: 'mac'
 apps: [
@@ -33,6 +33,8 @@ Lungo is useful for presentations, long downloads, and reading without touching 
 
 For a duration that is not in the menu, use the “Set Enabled State” action of Lungo in the Shortcuts app.
 
+Amphetamine is a popular free app for this, with triggers and support for a closed lid. Its last update was in November 2023.
+
 ## Keep your Mac awake with the lid closed
 
 When you close the lid of a MacBook, macOS puts it to sleep. Lungo can keep it awake only when the Mac is connected to a charger and an external display, as the App Store does not allow apps to keep a closed MacBook awake. [Why Lungo does not do more.](../apps/lungo/index.md#lid-closed)
@@ -45,12 +47,12 @@ When you close the lid of a MacBook, macOS puts it to sleep. Lungo can keep it a
 caffeinate -di
 ```
 
-`-d` keeps the screen on, and `-i` keeps the Mac from going to sleep. Press ++Control+C++, or close the window, to stop it. To stop after a time, add the number of seconds, like `caffeinate -di -t 3600` for one hour. To keep the Mac awake only while a long task runs, put the command after it, like `caffeinate -i zip -r backup.zip Documents`.
+`-d` keeps the screen on, and `-i` keeps the Mac from going to sleep. Press ++Control+C++, or close the window, to stop it. To stop after a time, add the number of seconds, like `caffeinate -di -t 3600` for one hour. To keep the Mac awake only while a long task runs, put the command after it, like `caffeinate -i claude` for Claude Code. Your Mac stays awake until the command ends, like when the AI agent is done.
 
 **System Settings:** To change the sleep settings for all tasks, not only one:
 
 @Steps {
-1. Open “System Settings › Lock Screen”, and choose a longer time, or “Never”, for the time before the display turns off. A MacBook has one setting for battery and one for the power adapter.
+1. Open “[System Settings › Lock Screen](x-apple.systempreferences:com.apple.Lock-Screen-Settings.extension)”, and choose a longer time, or “Never”, for the time before the display turns off. A MacBook has one setting for battery and one for the power adapter.
 1. On a MacBook, open “System Settings › Battery”, click “Options”, and turn on “Prevent automatic sleeping on power adapter when the display is off”. On a desktop Mac, open “System Settings › Energy”, and turn on “Prevent automatic sleeping when the display is off”.
 }
 

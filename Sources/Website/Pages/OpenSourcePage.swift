@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-A list of my open-source projects that many people use, in groups, with links to my GitHub profile, all the repos, and the feed of new repos, and the GitHub contributions of the last year. The list is picked by hand and changes rarely, so it has no numbers that go stale, like stars. The contributions come from GitHub at each build, like on the now page. The about page has the most popular repos with their stars.
+A list of my open-source projects that many people use, in groups, with links to my GitHub profile, all the repos, and the feed of new repos, and the GitHub contributions of the last year, and below the groups, all my npm packages. The list is picked by hand and changes rarely, so its cards have no numbers that go stale, like stars. The numbers below the introduction, the contributions, and the npm packages come from GitHub and npm at each build, like on the about page and the now page, and the large numbers are rounded down, so they change the page less often. The about page has the most popular repos with their stars.
 */
 struct OpenSourcePage: Page {
 	let content: SiteContent
@@ -29,16 +29,29 @@ struct OpenSourcePage: Page {
 
 	var body: some HTML {
 		section {
-			PageHeader(title: "Open Source") {
-				"Some of my projects that many people use, from Node.js libraries and command-line tools to Swift packages for Mac apps. I also started "
-				a(.href(.url(#repository("sindresorhus/awesome").url))) {
-					"Awesome"
+			// The numbers are close to the introduction, like the numbers below the title of the apps page, so the header and the numbers are one block of the page.
+			div {
+				PageHeader(title: "Open Source") {
+					"Some of my projects that many people use, from Node.js libraries and command-line tools to Swift packages for Mac apps. I also started "
+					a(.href(.url(#repository("sindresorhus/awesome").url))) {
+						"Awesome"
+					}
+					", lists of good things about all kinds of topics. My code is part of Node.js itself, Apple’s Books app, the terminal UI of Claude Code and Gemini CLI, and projects of NASA and the BBC. "
+					// The about page has the sources.
+					a(.href(.path(.about, fragment: "where-my-code-ended-up"))) {
+						"See where my code ended up"
+					}
+					"."
 				}
-				", lists of good things about all kinds of topics."
+				// The page is wide for the cards, and the introduction has the width of prose, so its lines are not long.
+				.style {
+					$0.frame(maxWidth: .length(Style.ColumnWidth.prose.maximum))
+				}
+
+				StatList(stats: stats)
 			}
-			// The page is wide for the cards, and the introduction has the width of prose, so its lines are not long.
 			.style {
-				$0.frame(maxWidth: .length(Style.ColumnWidth.prose.maximum))
+				$0.vstack(spacing: .rootEm(1))
 			}
 
 			profile
@@ -53,21 +66,61 @@ struct OpenSourcePage: Page {
 				Section(group.title, id: ElementID(group.rawValue)) {
 					p {
 						group.summary
+
+						if let relatedLink = group.relatedLink {
+							" "
+							Link(relatedLink)
+							"."
+						}
 					}
 					.style(Styles.groupSummary)
 
-					ul {
+					// Keep the list semantics in Safari, as the styles remove its bullets.
+					ul(.role(.list)) {
 						for project in group.projects {
 							ProjectCard(project: project)
 						}
 					}
 					.style(group.projects.count == 3 ? Styles.gridOfThree : Styles.grid)
+					.style {
+						$0.from(.desktop) {
+							$0.gridColumns(min(group.projects.count, 4))
+						}
+					}
+				}
+			}
+
+			// Without the npm search, like without the network, there is no list.
+			if let packages = content.npmStatistics.listedPackages?.nilIfEmpty {
+				Section("All npm Packages", id: ElementID("npm-packages")) {
+					p {
+						"The \(packages.count.formatted(counting: "package")) with a repository that I maintain on npm, most downloaded first."
+					}
+					.style(Styles.groupSummary)
+
+					NPMPackageList(packages: packages)
 				}
 			}
 		}
 		.style {
 			$0.pageColumn(.page)
 		}
+	}
+
+	/**
+	The numbers of the open-source work, like on the about page, which has them all: the years, the repos and their stars, and the weekly downloads and the dependents of the npm packages. A number that the build could not get is left out.
+	*/
+	private var stats: [String] {
+		let account = content.gitHubAccount
+		let npm = content.npmStatistics
+
+		return [
+			"\(content.yearsOfOpenSource.formatted(counting: "year")) of open source",
+			account.map { $0.repositoryCount.approximateCount(counting: "repo") },
+			account.map { $0.starCount.approximateCount(counting: "star") },
+			npm.weeklyDownloads.map { "\($0.approximateCount(counting: "npm download")) a week" },
+			npm.dependentCount.map { $0.approximateCount(counting: "dependent") },
+		].compactMap(\.self)
 	}
 
 	/**
@@ -130,10 +183,17 @@ struct OpenSourcePage: Page {
 					}
 					.buttonStyle(.secondary)
 				}
+				// On phones, the buttons are rows of one width, so their edges line up.
 				.style {
 					$0
 						.hstack(alignment: .center, spacing: .rootEm(0.75))
 						.flexWrap()
+						.below(.smallTablet) {
+							$0
+								.flexDirection(.column)
+								.alignItems(.stretch)
+								.frame(width: .percent(100))
+						}
 				}
 			}
 			// The photo and the name next to the buttons on wide screens, and above them on phones.
@@ -186,7 +246,7 @@ struct OpenSourcePage: Page {
 	])
 
 	/**
-	A card that links to the repo of a project, with its name, what it does, its language, and the repo when it is not of my account, like `chalk/chalk`, as the owner is then news. The glow of the card and the dot of the language have the color of the language.
+	A card that links to the repo of a project, with its name, the repo below the name when it is not of my account, like `chalk/chalk`, as the owner is then news, what it does, and its language. The glow of the card and the dot of the language have the color of the language.
 
 	The name is a heading with the link, which covers the whole card, like on an app card (``AppCard``), so the link has a short name, like “Got”, not the text of the whole card, and screen readers can move from project to project by the headings.
 	*/
@@ -205,32 +265,28 @@ struct OpenSourcePage: Page {
 					}
 					.style(Styles.name)
 
+					// Below the name, like the owner and the name of a repo on GitHub, as it is part of what the project is.
+					if !project.repository.isOfAccount {
+						// It can break after the slash, so a long name, like `SimpleColorPaletteSwift`, stays whole in a narrow card.
+						p(.notTranslated) {
+							"\(project.repository.owner)/"
+							wbr()
+							project.repository.name
+						}
+						.style(Styles.repository)
+					}
+
 					p {
 						project.summary
 					}
 					.style(Styles.summary)
 
-					// A project of my account without a language, like an Awesome list, has no details.
-					if project.language != nil || !project.repository.isOfAccount {
-						div {
-							if let language = project.language {
-								span {
-									language.rawValue
-								}
-								.style(Styles.language)
-							}
-
-							if !project.repository.isOfAccount {
-								// It can break after the slash, so a long name, like `SimpleColorPaletteSwift`, stays whole in a narrow card.
-								span(.notTranslated) {
-									"\(project.repository.owner)/"
-									wbr()
-									project.repository.name
-								}
-								.style(Styles.repository)
-							}
+					// A project without a language, like an Awesome list, has none.
+					if let language = project.language {
+						span {
+							language.rawValue
 						}
-						.style(Styles.details)
+						.style(Styles.language)
 					}
 				}
 				.tint(project.language?.color ?? .gray(500))
@@ -258,7 +314,7 @@ extension OpenSourcePage {
 }
 
 extension OpenSourcePage {
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case groupSummary
 		case grid
 		case gridOfThree
@@ -266,7 +322,6 @@ extension OpenSourcePage {
 		case name
 		case link
 		case summary
-		case details
 		case language
 		case repository
 
@@ -277,26 +332,18 @@ extension OpenSourcePage {
 				Style()
 					.margin(top: .rootEm(-0.75), horizontal: .zero, bottom: .rootEm(1.25))
 					.secondaryText(.body)
+					.textLinks()
 			case .grid:
 				// Columns that the groups of four or eight projects fill, without a project alone in a row.
 				Style()
-					.plainList()
-					.display(.grid)
-					.gridColumns(1)
-					.gap(.rootEm(1))
+					.projectGrid()
 					.from(.smallTablet) {
 						$0.gridColumns(2)
 					}
-					.from(.desktop) {
-						$0.gridColumns(4)
-					}
 			case .gridOfThree:
-				// A group of three projects, like the apps, in one row where the cards are wide enough, so no project is alone in a row and no slot is empty.
+				// A group of three projects, like Mac Tools, in one row where the cards are wide enough, so no project is alone in a row and no slot is empty.
 				Style()
-					.plainList()
-					.display(.grid)
-					.gridColumns(1)
-					.gap(.rootEm(1))
+					.projectGrid()
 					.from(.tablet) {
 						$0.gridColumns(3)
 					}
@@ -305,10 +352,17 @@ extension OpenSourcePage {
 					.position(.relative)
 					.vstack(spacing: .rootEm(0.375))
 					.frame(height: .percent(100))
-					// Less padding on a phone with large text, so the language and the repo fit, and a long name, like `simple-color-palette/SimpleColorPaletteSwift`, breaks.
+					// Less padding in a narrow card with large text, so the language and the repo fit, and a long name, like `simple-color-palette/SimpleColorPaletteSwift`, breaks.
 					.padding(.min(.rootEm(1.25), .viewportWidth(6.25)))
 					.overflowWrap(.anywhere)
 					.cardSurface()
+					// On phones, a row of a list without the surface of a card, as cards in one column add space but no grouping. It still lights up like a card under the pointer and with the keyboard. No space at the sides, so the text starts at the ends of the lines between the rows, where the headings and the npm packages start.
+					.below(.smallTablet) {
+						$0
+							.padding(vertical: .rootEm(1), horizontal: .zero)
+							.background(.transparent)
+							.shadow([])
+					}
 			case .name:
 				Style()
 					.textStyle(.headline)
@@ -317,7 +371,7 @@ extension OpenSourcePage {
 				// It covers the card, so the whole card is the link, but its name is only the name of the project.
 				Style()
 					.inherits(.color)
-					.underline(false)
+					.noUnderline()
 					.after {
 						$0
 							.content("")
@@ -329,18 +383,13 @@ extension OpenSourcePage {
 				Style()
 					.secondaryText(.body)
 					.textWrap(.pretty)
-			case .details:
-				// At the bottom of the card, so the details of the cards in a row line up. The repo is below the language, as a long repo, like `simple-color-palette/SimpleColorPaletteSwift`, does not fit next to it in a narrow card.
-				Style()
-					.vstack(alignment: .start, spacing: .rootEm(0.25))
-					.margin(.top, .auto)
-					.padding(.top, .rootEm(0.75))
-					.textStyle(.caption)
-					.color(.secondaryText)
 			case .language:
-				// A dot in the color of the language, like on GitHub.
+				// A dot in the color of the language, like on GitHub. At the bottom of the card, so the languages of the cards in a row line up.
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.4))
+					.margin(.top, .auto)
+					.padding(.top, .rootEm(0.75))
+					.secondaryText()
 					.fontWeight(.medium)
 					.before {
 						$0
@@ -355,11 +404,31 @@ extension OpenSourcePage {
 							}
 					}
 			case .repository:
+				// Close to the name above it.
 				Style()
+					.margin(top: .rootEm(-0.25), horizontal: .zero, bottom: .zero)
+					.secondaryText()
 					.fontFamily(.monospace)
-					.font(size: .em(0.9))
 			}
 		}
+	}
+}
+
+extension Style {
+	/**
+	A list of project cards in one column: on phones, rows with thin lines between them, and from small tablets, cards with space between them.
+	*/
+	fileprivate func projectGrid() -> Self {
+		plainList()
+			.grid(columns: 1)
+			.below(.smallTablet) {
+				$0.children("* + *") {
+					$0.border(.top, .separator)
+				}
+			}
+			.from(.smallTablet) {
+				$0.gap(.rootEm(1))
+			}
 	}
 }
 
@@ -399,7 +468,7 @@ struct OpenSourceProject {
 	/**
 	A group of projects on the page, in the order of the page. The raw value is the ID of its section, which the links at the top of the page point to.
 
-	A group has three projects, or a multiple of four, so the cards fill the rows of the grid.
+		A group has two or three projects, or a multiple of four, so the cards fill the rows of the grid.
 
 	The page has no Electron projects, like `electron-store`, as Sindre does not want them on it.
 	*/
@@ -422,6 +491,13 @@ struct OpenSourceProject {
 		case apps
 		case lists
 		case fun
+
+		/**
+		A page of the site about the projects of the group, as a sentence after its summary, like the apps for developers after the apps on GitHub, for a developer who comes for the packages.
+		*/
+		var relatedLink: LabeledLink? {
+			self == .apps ? LabeledLink("See my apps for developers", path: AppCategory.developerTools.path) : nil
+		}
 
 		/**
 		The chip at the top of the page that goes to the group.
@@ -1090,13 +1166,7 @@ struct OpenSourceProject {
 			summary: "Move files and folders to the trash from the command line.",
 			language: .swift
 		),
-		// The following was intentionally excluded: dark-mode.
-		Self(
-			name: "wallpaper",
-			repository: #repository("sindresorhus/wallpaper"),
-			summary: "Manage the desktop wallpaper, also on Linux and Windows.",
-			language: .javaScript
-		),
+		// The following were intentionally excluded: dark-mode, wallpaper.
 		Self(
 			name: "macos-wallpaper",
 			repository: #repository("sindresorhus/macos-wallpaper"),
@@ -1118,12 +1188,7 @@ struct OpenSourceProject {
 			summary: "Inspect the system pasteboards.",
 			language: .swift
 		),
-		// The following was intentionally excluded: Blear.
-		Self(
-			name: "Plash",
-			repository: #repository("sindresorhus/Plash"),
-			summary: "Make any website your Mac desktop wallpaper."
-		),
+		// The following were intentionally excluded: Blear, Plash (not open source).
 	]
 
 	private static let listsProjects: [Self] = [

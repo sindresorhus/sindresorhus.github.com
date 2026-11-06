@@ -16,7 +16,7 @@ struct HomePage: Page {
 		PageMetadata(
 			title: Site.name,
 			description: "Full-time open-source developer and app maker: \(content.activeApps.count.formatted(counting: "app")) for \(AppCategory.platformList(in: content)), and Node.js packages and CLI tools.",
-			kind: .home
+			isTitleStandalone: true
 		)
 	}
 
@@ -33,7 +33,10 @@ struct HomePage: Page {
 						// The small photo is sharp up to two pixels for each CSS pixel, so screens with three, like most phones, get the large one.
 						img(
 							.src(Site.author.smallPhotoPath),
-							.custom(name: "srcset", value: "\(Site.author.smallPhotoPath) 2x, \(Site.author.photoPath) 3x"),
+							.srcset(.density([
+								(.path(Site.author.smallPhotoPath), 2),
+								(.path(Site.author.photoPath), 3),
+							])),
 							.alt("\(Site.author.name) profile photo"),
 							.width(144),
 							.height(144)
@@ -90,10 +93,10 @@ extension HomePage {
 	The IDs that the scripts of the page find elements by.
 	*/
 	enum IDs: String, ScriptIDSet {
-		case nebula = "nebula"
+		case nebula
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case nebula
 		case container
@@ -392,18 +395,16 @@ extension HomePage {
 	*/
 	fileprivate static let gradientStart = RegisteredProperty<Color>(
 		"gradient-start",
-		syntax: .color,
 		initialValue: .black,
 		inherits: false
 	)
 	fileprivate static let gradientEnd = RegisteredProperty<Color>(
 		"gradient-end",
-		syntax: .color,
 		initialValue: .black,
 		inherits: false
 	)
 
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case nebulaFadeIn
 		case ringRotate
 		case gradientShift

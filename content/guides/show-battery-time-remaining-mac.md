@@ -9,7 +9,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	The battery menu of macOS does not show the time remaining. [Battery Indicator](../apps/battery-indicator/index.md) shows it in the menu bar. Without an app, see “Time remaining” in the Energy tab of Activity Monitor, or run `pmset -g batt` in the Terminal app. To show only the battery percentage, open “System Settings › Menu Bar”, click “Battery Options” for “Battery”, and turn on “Show Percentage”.
+	The battery menu of macOS does not show the time remaining. [Battery Indicator](../apps/battery-indicator/index.md) shows it in the menu bar. Without an app, see “Time remaining” in the Energy tab of Activity Monitor, or run `pmset -g batt` in the Terminal app. To show only the battery percentage, open “[System Settings › Menu Bar](x-apple.systempreferences:com.apple.ControlCenter-Settings.extension)”, click “Battery Options” for “Battery”, and turn on “Show Percentage”.
 }
 
 ## With Battery Indicator
@@ -30,7 +30,7 @@ Battery Indicator can also notify you when the battery is full or at the percent
 The battery item of macOS can show the percentage next to its icon:
 
 @Steps {
-1. Open “System Settings › Menu Bar”.
+1. Open “[System Settings › Menu Bar](x-apple.systempreferences:com.apple.ControlCenter-Settings.extension)”.
 1. Select “Battery”, click “Battery Options”, and turn on “Show Percentage”.
 }
 

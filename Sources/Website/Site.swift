@@ -1,3 +1,4 @@
+import Elementary
 import Foundation
 import SiteKit
 
@@ -106,15 +107,44 @@ extension Site {
 				return route
 			}
 
-			return route.source("the page of", .file(file))
+			return route.source(.page(file: file))
 		}
 
 		// The 404 page suggests the closest page, so it is made from the other routes: the pages in the sitemap, and the privacy policies, which are not indexed, but visitors guess their paths from the links of the App Store, like `/dato/privacy`. Not the policy of an unlisted app, which the 404 page would announce.
-		let privacyPolicyPaths = content.apps.filter(\.isActive).map(\.privacyPolicyPath)
-		NotFoundPage(suggestedPaths: routes.filter { $0.sitemapEntry != nil }.map(\.path) + privacyPolicyPaths, content: content)
+		let privacyPolicyPaths = Set(content.apps.filter(\.isActive).map(\.privacyPolicyPath))
+		NotFoundPage(suggestedPages: routes.filter { $0.sitemapEntry != nil || privacyPolicyPaths.contains($0.path) }, content: content)
 
 		if includesGallery {
 			GalleryPage(content: content)
+		}
+
+		// Only the preview loads drafts (``SiteContent/drafts``), so this is empty for `website build`.
+		draftRoutes
+	}
+
+	/**
+	The page of each draft, with a “Draft” label, and its files (``DraftPage``), for the preview of `website serve`. The lists, the feeds, the sitemap, and `llms.txt` are made from the other content, so they leave the drafts out. Limitation: a draft page is a plain page, also one with a special layout, like the about page, and a draft guide about a draft app has no page.
+	*/
+	@RouteBuilder
+	var draftRoutes: [Route] {
+		for app in content.drafts.apps {
+			for copy in app.jpegXLCopies {
+				copy.route
+			}
+
+			DraftPage(AppPage(app: app, content: content))
+		}
+
+		for post in content.drafts.posts {
+			DraftPage(BlogPostPage(post: post, content: content))
+		}
+
+		for guide in content.drafts.guides {
+			DraftPage(GuidePage(guide: guide, content: content))
+		}
+
+		for page in content.drafts.pages {
+			DraftPage(MarkdownContentPage(page: page, project: content.project))
 		}
 	}
 
@@ -125,7 +155,13 @@ extension Site {
 		var pages: [any Page] = [
 			HomePage(content: content),
 			ContactPage(),
-			FeedbackPage(apps: content.maintainedApps, faq: content.page(.faq), project: content.project),
+			FeedbackPage(
+				apps: content.maintainedApps,
+				faq: content.page(.faq),
+				guides: content.resolvedGuides.map(\.guide),
+				listing: content.listing(of:),
+				project: content.project
+			),
 			FeedsPage(apps: content.maintainedApps),
 			OpenSourcePage(content: content),
 			GeoCitiesPage(content: content),
@@ -140,6 +176,11 @@ extension Site {
 		]
 
 		pages += AppCategory.allCases.map { AppCategoryPage(category: $0, content: content) }
+
+		// Without guides for it, like in a test, the page would be an empty list.
+		if !content.guidesForWindowsUsers.isEmpty {
+			pages.append(WindowsGuidesPage(content: content))
+		}
 
 		// The quilt needs the contributions, which need a GitHub token.
 		if !content.contributionYears.isEmpty {
@@ -161,7 +202,9 @@ extension Site {
 				AboutPage(page: page, content: content)
 			case .now:
 				NowPage(page: page, content: content)
-			case .faq, .standard:
+			case .faq:
+				FAQPage(page: page, content: content)
+			case .standard:
 				MarkdownContentPage(page: page, project: content.project)
 			}
 		}
@@ -175,7 +218,7 @@ extension Site {
 		for document in content.documents {
 			for oldPath in document.redirectFrom {
 				Route.redirect(oldPath, to: document.path)
-					.source("`redirectFrom` of", document.redirectFromLocation)
+					.source(document.redirectSource)
 			}
 		}
 	}
@@ -190,7 +233,7 @@ extension Site {
 
 			// An app with a page elsewhere has no page here. Its other pages stay, as the App Store links to the privacy policy.
 			if let redirectURL = app.redirectURL {
-				Route.redirect(app.path, to: redirectURL)
+				Route.redirect(app.path, to: .url(redirectURL))
 			} else {
 				AppPage(app: app, content: content)
 			}
@@ -216,7 +259,7 @@ extension Site {
 		// A post on another site has no page. Its URL sends visitors there, as it was published as a page before. An unlisted post keeps its page, as its URL may already be shared.
 		for post in content.posts {
 			if let redirectURL = post.redirectURL {
-				Route.redirect(post.path, to: redirectURL)
+				Route.redirect(post.path, to: .url(redirectURL))
 			} else {
 				BlogPostPage(post: post, content: content)
 			}
@@ -255,10 +298,24 @@ extension Site {
 			Icon.sprite
 		}
 
+		// The icons of the shortcut cards, as their links on iCloud expire. Also for drafts, which only the preview has. A shortcut on two pages is published once.
+		let shortcuts = (content.apps + content.drafts.apps).flatMap(\.shortcuts).uniqued(by: \.id)
+
+		for shortcut in shortcuts {
+			Route.file(shortcut.iconPath) {
+				shortcut.icon
+			}
+
+			if let copy = shortcut.iconJPEGXL {
+				copy.route
+			}
+		}
+
 		// Published unchanged, as the build read them for their hashes (``Scripts``). Each one defines its element itself.
 		for asset in content.project.elementScripts() {
 			Route.file(asset.path) {
-				try Scripts.published.elementScript(at: asset.path)
+				@TaskLocalValue(requiring: Scripts.$published) var scripts
+				return try scripts.elementScript(at: asset.path)
 			}
 		}
 	}
@@ -319,6 +376,11 @@ extension RoutePath {
 	The how-to guides, like `/guides/convert-video-to-gif-mac`.
 	*/
 	static let guides = #path("/guides")
+
+	/**
+	The guides for people who come from Windows (``WindowsGuidesPage``).
+	*/
+	static let guidesForWindowsUsers = #path("/guides/from-windows")
 	static let contact = #path("/contact")
 	static let feedback = #path("/feedback")
 	static let feeds = #path("/feeds")
@@ -342,6 +404,7 @@ The questions of the general FAQ that code links to. The link check finds a ques
 extension LinkDestination {
 	static let crashReportQuestion = path(.faq, fragment: "crash-report")
 	static let refundQuestion = path(.faq, fragment: "refund")
+	static let familySharingQuestion = path(.faq, fragment: "family-sharing")
 	static let resetPermissionsQuestion = path(.faq, fragment: "mac-reset-permissions")
 	static let menuBarQuestion = path(.faq, fragment: App.Section.menuBarQuestion.id)
 }

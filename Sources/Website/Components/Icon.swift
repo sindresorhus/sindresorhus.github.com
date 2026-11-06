@@ -42,6 +42,7 @@ enum Icon: HTML, CaseIterable, Encodable {
 	case check
 	case copy
 	case file
+	case book
 	case star
 	case deviceLaptop
 	case deviceMobile
@@ -174,6 +175,8 @@ enum Icon: HTML, CaseIterable, Encodable {
 			#"<path d="M7 9.667a2.667 2.667 0 0 1 2.667-2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1-2.667 2.667h-8.666a2.667 2.667 0 0 1-2.667-2.667z"/><path d="M4.012 16.737a2.005 2.005 0 0 1-1.012-1.737v-10c0-1.1.9-2 2-2h10c.75 0 1.158.385 1.5 1"/>"#
 		case .file:
 			#"<path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 2v7h7"/>"#
+		case .book:
+			#"<path d="M3 19a9 9 0 0 1 9 0 9 9 0 0 1 9 0M3 6a9 9 0 0 1 9 0 9 9 0 0 1 9 0M3 6v13M12 6v13M21 6v13"/>"#
 		case .deviceLaptop:
 			#"<path d="M3 19h18M5 7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7"/>"#
 		case .deviceMobile:

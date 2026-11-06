@@ -1,14 +1,14 @@
 /**
-The counters of a component. Nest an enum named `Counters` in the component and declare each counter as a case, like `case step`. Names are generated from the component and case, so counters of unrelated components cannot clash.
+The counters of a component. Nest a string-backed enum named `Counters` in the component (`enum Counters: String, CounterSet`) and declare each counter as a case, like `case step`. Names are generated from the component and case, so counters of unrelated components cannot clash.
 */
-public protocol CounterSet: CaseIterable, Sendable {}
+public protocol CounterSet: RawRepresentable<String>, CaseIterable, Sendable {}
 
 extension CounterSet {
 	/**
 	The counter name, like `instructions-step` for `Instructions.Counters.step`.
 	*/
 	public var name: String {
-		generatedComponentName(of: Self.self, suffix: "Counters", member: String(describing: self))
+		generatedComponentName(of: Self.self, suffix: "Counters", member: rawValue)
 	}
 }
 
@@ -21,6 +21,23 @@ extension Style {
 			.declaration(.lineHeight, ifPresent: lineHeight)
 	}
 
+	/**
+	The font size with a line height from the complete CSS value domain.
+	*/
+	public func font(size: LengthPercentage, lineHeight: LineHeight) -> Self {
+		font(size: size).lineHeight(lineHeight)
+	}
+
+	/**
+	The line height as normal font spacing, a multiplier, or a length or percentage.
+	*/
+	public func lineHeight(_ height: LineHeight) -> Self {
+		declaration(.lineHeight, CSSValue(raw: height.description))
+	}
+
+	/**
+	The line height as a multiple of the font size.
+	*/
 	public func lineHeight(_ multiple: CSSNumber) -> Self {
 		declaration(.lineHeight, multiple)
 	}
@@ -204,24 +221,26 @@ extension Style {
 	}
 
 	/**
-	Underlines the text, or removes the underline, like of a link, with `underline(false)`.
+	Underlines the text, with optional styling. Use ``noUnderline()`` to remove the decoration, like of a link.
 	*/
 	public func underline(
-		_ isActive: Bool = true,
 		style: UnderlineStyle? = nil,
 		color: Color? = nil,
 		thickness: LengthPercentage? = nil,
 		offset: LengthPercentage? = nil
 	) -> Self {
-		guard isActive else {
-			return declaration(.textDecoration, .none)
-		}
-
-		return declaration(.textDecoration, "underline")
+		declaration(.textDecoration, "underline")
 			.declaration(.textDecorationStyle, ifPresent: style)
 			.declaration(.textDecorationColor, ifPresent: color)
 			.declaration(.textDecorationThickness, ifPresent: thickness)
 			.declaration(.textUnderlineOffset, ifPresent: offset)
+	}
+
+	/**
+	Removes the text decoration, like the underline of a link. Uses the `text-decoration` shorthand, so its other properties reset too.
+	*/
+	public func noUnderline() -> Self {
+		declaration(.textDecoration, .none)
 	}
 
 	/**
@@ -270,7 +289,7 @@ extension Style {
 	*/
 	public func trimmedText(verticalPadding: LengthPercentage = .zero) -> Self {
 		declaration(.textBox, "trim-both cap alphabetic")
-			.padding(.vertical, verticalPadding + .lineHeight(0.5) - .capitalHeight(0.5))
+			.padding(.block, verticalPadding + .lineHeight(0.5) - .capitalHeight(0.5))
 	}
 
 	/**
@@ -295,6 +314,13 @@ extension Style {
 	*/
 	public func content(_ text: String, alternativeText: String? = nil) -> Self {
 		declaration(.content, CSSValue([text, alternativeText].compactMap(\.self).map(CSSValue.string), separator: " / "))
+	}
+
+	/**
+	Generated content with CSS meaning, like a language-aware opening quote. A string passed to ``content(_:alternativeText:)`` is always literal text.
+	*/
+	public func content(_ keyword: ContentKeyword) -> Self {
+		declaration(.content, keyword)
 	}
 
 	/**

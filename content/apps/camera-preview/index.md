@@ -47,8 +47,9 @@ Check your hair and lighting before a video call. Open the app to see your Macâ€
 - Show the built-in camera or an external camera
 - Optionally show the app in the menu bar, and show and hide the camera with a keyboard shortcut or by clicking the notch
 - Keep the camera window on top of other windows
-- Flip the image, zoom in, or make the window square
+- Flip the image or zoom in
 - Take photos as JPEG or PNG, or copy them directly
+- Choose the folder that photos are saved in
 - Show the camera and change the zoom from Shortcuts
 
 ## Tips

@@ -163,14 +163,14 @@ struct GeoCitiesCrafts: ScriptedElement {
 				.width(640),
 				.height(640),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The Hama pegboard on the kitchen table. Move with the arrow keys and press Enter to put on a bead or, with the tweezers, to take one off. While ironing, the arrow keys move the iron.")
 				.style(Styles.canvas, Styles.drawingCanvas)
 
 			hamaButtons
 
-			p(.part(Parts.hamaStatus), .role("status")) {}
+			p(.part(Parts.hamaStatus), .role(.status)) {}
 				.style(Styles.status)
 
 			canvas(
@@ -178,7 +178,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 				.width(640),
 				.height(220),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The fridge door, with the finished Hama pieces. Press Delete to take down the newest one.")
 				.style(Styles.canvas, Styles.displayCanvas)
@@ -207,7 +207,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 				}
 				.style(Styles.swatch, Styles.bead, Styles.mixed)
 			}
-			.attributes(.part(Parts.hamaColors), .role("group"))
+			.attributes(.part(Parts.hamaColors), .role(.group))
 			.accessibilityLabel("Bead color")
 			.style(Styles.swatches)
 
@@ -222,7 +222,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.smallButton, Styles.toggle)
 			}
-			.attributes(.part(Parts.hamaTools), .role("group"))
+			.attributes(.part(Parts.hamaTools), .role(.group))
 			.accessibilityLabel("Tool")
 			.style(GeoCitiesPage.Styles.buttonRow)
 		}
@@ -295,7 +295,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 				.width(640),
 				.height(640),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The folded paper. Move the scissors with the arrow keys, and press Enter to add a corner of the cut. Press Enter on the first corner again to finish the cut, Escape to stop cutting, and Backspace to undo.")
 				.style(Styles.canvas, Styles.drawingCanvas)
@@ -308,7 +308,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
-			p(.part(Parts.snowStatus), .role("status")) {}
+			p(.part(Parts.snowStatus), .role(.status)) {}
 				.style(Styles.status)
 
 			canvas(
@@ -316,7 +316,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 				.width(640),
 				.height(300),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The kitchen window, with the snowflakes hanging in it, and the rain outside. Press Delete to take down the newest one.")
 				.style(Styles.canvas, Styles.displayCanvas)
@@ -397,7 +397,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 				}
 				.style(Styles.swatch, Styles.pen, Styles.mixed)
 			}
-			.attributes(.part(Parts.spiroColors), .role("group"))
+			.attributes(.part(Parts.spiroColors), .role(.group))
 			.accessibilityLabel("Pen color")
 			.style(Styles.swatches)
 
@@ -406,7 +406,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 				.width(640),
 				.height(640),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The Spirograph, pinned to the table. Hold the right arrow key to turn the wheel one way, and the left arrow key to turn it back. If the wheel flies out, an arrow key puts it back.")
 				.style(Styles.canvas, Styles.drawingCanvas)
@@ -422,7 +422,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
-			p(.part(Parts.spiroStatus), .role("status")) {}
+			p(.part(Parts.spiroStatus), .role(.status)) {}
 				.style(Styles.status)
 		}
 		.style(Styles.toy)
@@ -448,7 +448,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 					.style(Styles.swatch, Styles.marker)
 				}
 			}
-			.attributes(.part(Parts.shrinkColors), .role("group"))
+			.attributes(.part(Parts.shrinkColors), .role(.group))
 			.accessibilityLabel("Marker color")
 			.style(Styles.swatches)
 
@@ -470,7 +470,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 
 				action("shrink-trace", "🦄 Trace Glitter")
 			}
-			.attributes(.part(Parts.shrinkTools), .role("group"))
+			.attributes(.part(Parts.shrinkTools), .role(.group))
 			.accessibilityLabel("Tool")
 			.style(GeoCitiesPage.Styles.buttonRow)
 
@@ -479,7 +479,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 				.width(640),
 				.height(560),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The sheet of shrink plastic, or the oven. Move with the arrow keys, and hold Space to draw or cut. Press Enter to punch the hole, or to look in the oven.")
 				.style(Styles.canvas, Styles.drawingCanvas)
@@ -491,7 +491,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
-			p(.part(Parts.shrinkStatus), .role("status")) {}
+			p(.part(Parts.shrinkStatus), .role(.status)) {}
 				.style(Styles.status)
 
 			canvas(
@@ -499,7 +499,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 				.width(640),
 				.height(220),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("My school bag, with the shrink plastic charms on the keyring. Press Delete to take off the newest one.")
 				.style(Styles.canvas, Styles.displayCanvas)
@@ -585,7 +585,7 @@ struct GeoCitiesCrafts: ScriptedElement {
 		case action = "crafts-action"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case toys
 		case toy

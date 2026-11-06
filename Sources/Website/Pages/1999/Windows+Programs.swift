@@ -42,7 +42,7 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.calcTopRow)
 
-			div(.role("group")) {
+			div(.role(.group)) {
 				for (key, name) in Self.calculatorKeys {
 					button(.type(.button), .hook(Hooks.calcKey, value: key)) {
 						key
@@ -59,7 +59,7 @@ extension GeoCitiesWindows {
 			}
 			.style(GeoCitiesPage.Styles.smallButton)
 
-			p(.id(IDs.calcStatus), .role("status")) {
+			p(.id(IDs.calcStatus), .role(.status)) {
 				"Click the keys, or type. Try 2 + 2, or 1999 + 1."
 			}
 			.style(GeoCitiesPage.Styles.statusBar)
@@ -72,7 +72,7 @@ extension GeoCitiesWindows {
 	*/
 	var dosPrompt: some HTML {
 		div {
-			div(.id(IDs.dosOutput), .role("log")) {
+			div(.id(IDs.dosOutput), .role(.log)) {
 				"Microsoft(R) Windows 98\n   (C)Copyright Microsoft Corp 1981-1999.\n\nType HELP for a list of commands.\n"
 			}
 			.style(Styles.dosOutput)
@@ -145,7 +145,7 @@ extension GeoCitiesWindows {
 				}
 				.style(Styles.wordpadText)
 
-				p(.id(IDs.wordpadWingdings), .hidden, .role("img")) {}
+				p(.id(IDs.wordpadWingdings), .hidden, .role(.image)) {}
 					.accessibilityLabel("My letter to Santa, in Wingdings")
 					.style(Styles.wordpadText, Styles.wingdings)
 
@@ -161,7 +161,7 @@ extension GeoCitiesWindows {
 					.style(Styles.assistantClip)
 
 					div {
-						p(.id(IDs.assistantText), .role("status")) {}
+						p(.id(IDs.assistantText), .role(.status)) {}
 
 						div {
 							for (choice, title) in [("help", "Get help with writing the letter"), ("alone", "Just type the letter without help"), ("never", "Don’t show me this tip again")] {
@@ -179,7 +179,7 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.wordpadPage)
 
-			p(.id(IDs.wordpadStatus), .role("status")) {
+			p(.id(IDs.wordpadStatus), .role(.status)) {
 				"For Help, press F1. (F1 does nothing.)"
 			}
 			.style(GeoCitiesPage.Styles.statusBar)
@@ -241,7 +241,7 @@ extension GeoCitiesWindows {
 
 			div(
 				.id(IDs.iePage),
-				.role("region"),
+				.role(.region),
 				.tabindex(-1),
 				.ariaLive(.polite)
 			) {}
@@ -547,7 +547,7 @@ extension GeoCitiesWindows {
 			}
 			.style(GeoCitiesPage.Styles.row)
 
-			p(.id(IDs.dialUpStatus), .role("status")) {
+			p(.id(IDs.dialUpStatus), .role(.status)) {
 				"Not connected."
 			}
 			.style(GeoCitiesPage.Styles.statusBar)
@@ -577,7 +577,7 @@ extension GeoCitiesWindows {
 				.accessibilityLabel("Computers")
 				.style(Styles.fileList)
 
-			p(.id(IDs.networkStatus), .role("status")) {}
+			p(.id(IDs.networkStatus), .role(.status)) {}
 				.style(GeoCitiesPage.Styles.statusBar)
 		}
 		.style(Styles.stack)
@@ -639,7 +639,7 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.toolbar)
 
-			p(.id(IDs.mediaStatus), .role("status")) {
+			p(.id(IDs.mediaStatus), .role(.status)) {
 				"Stopped"
 			}
 			.style(GeoCitiesPage.Styles.statusBar)
@@ -666,7 +666,7 @@ extension GeoCitiesWindows {
 					.id(IDs.soundWave),
 					.width(160),
 					.height(48),
-					.role("img")
+					.role(.image)
 				) {}
 					.accessibilityLabel("The green line of the sound")
 					.style(Styles.soundWave)
@@ -682,7 +682,7 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.soundTop)
 
-			div(.role("group")) {
+			div(.role(.group)) {
 				for (action, title, icon) in [("start", "Seek to Start", "⏮"), ("end", "Seek to End", "⏭"), ("play", "Play", "▶"), ("stop", "Stop", "⏹"), ("record", "Record", "⏺")] {
 					button(.type(.button), .hook(Hooks.soundAction, value: action)) {
 						icon
@@ -695,7 +695,7 @@ extension GeoCitiesWindows {
 			.accessibilityLabel("Controls")
 			.style(Styles.soundControls)
 
-			div(.role("group")) {
+			div(.role(.group)) {
 				for (effect, title) in [("louder", "Louder"), ("faster", "Faster"), ("slower", "Slower"), ("echo", "Echo"), ("reverse", "Reverse"), ("tada", "TADA.WAV")] {
 					button(.type(.button), .hook(Hooks.soundEffect, value: effect)) {
 						title
@@ -706,7 +706,7 @@ extension GeoCitiesWindows {
 			.accessibilityLabel("Effects")
 			.style(Styles.wrapRow)
 
-			p(.id(IDs.soundStatus), .role("status")) {
+			p(.id(IDs.soundStatus), .role(.status)) {
 				"Press ⏺ to record your voice with the microphone, or ▶ to play TADA.WAV (with sound)."
 			}
 			.style(GeoCitiesPage.Styles.statusBar)
@@ -721,7 +721,7 @@ extension GeoCitiesWindows {
 		div {
 			div {
 				div {
-					div(.role("group")) {
+					div(.role(.group)) {
 						for index in 0..<4 {
 							button(.type(.button), .hook(Hooks.freecellCell, value: "\(index)")) {}
 								.accessibilityLabel("Free cell \(index + 1), empty")
@@ -737,7 +737,7 @@ extension GeoCitiesWindows {
 					.accessibilityHidden()
 					.style(Styles.freecellKing)
 
-					div(.role("group")) {
+					div(.role(.group)) {
 						for (index, suit) in ["♣", "♦", "♥", "♠"].enumerated() {
 							button(.type(.button), .hook(Hooks.freecellHome, value: "\(index)")) {
 								span {
@@ -754,7 +754,7 @@ extension GeoCitiesWindows {
 				}
 				.style(Styles.freecellTop)
 
-				div(.role("group")) {
+				div(.role(.group)) {
 					for index in 0..<8 {
 						button(.type(.button), .hook(Hooks.freecellColumn, value: "\(index)")) {}
 							.style(Styles.freecellColumn)
@@ -802,7 +802,7 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.wrapRow)
 
-			p(.id(IDs.freecellStatus), .role("status")) {}
+			p(.id(IDs.freecellStatus), .role(.status)) {}
 				.style(GeoCitiesPage.Styles.statusBar)
 		}
 		.style(Styles.stack)
@@ -1058,7 +1058,7 @@ extension GeoCitiesWindows {
 				.style(Styles.stack)
 			}
 
-			p(.id(IDs.controlStatus), .role("status")) {}
+			p(.id(IDs.controlStatus), .role(.status)) {}
 				.style(GeoCitiesPage.Styles.statusBar)
 		}
 		.style(Styles.stack)
@@ -1196,7 +1196,7 @@ extension GeoCitiesWindows {
 				.accessibilityLabel("Files found")
 				.style(Styles.fileList)
 
-			p(.id(IDs.findStatus), .role("status")) {
+			p(.id(IDs.findStatus), .role(.status)) {
 				"Type a name, like homework, unicorn, or *."
 			}
 			.style(GeoCitiesPage.Styles.statusBar)
@@ -1283,7 +1283,7 @@ extension GeoCitiesWindows {
 			}
 			.style(GeoCitiesPage.Styles.row)
 
-			p(.id(IDs.tasksStatus), .role("status")) {}
+			p(.id(IDs.tasksStatus), .role(.status)) {}
 				.style(GeoCitiesPage.Styles.statusBar)
 		}
 		.style(Styles.stack)
@@ -1317,7 +1317,7 @@ extension GeoCitiesWindows {
 				.style(Styles.stack)
 
 				div {
-					p(.id(IDs.welcomeText), .role("status")) {
+					p(.id(IDs.welcomeText), .role(.status)) {
 						"Click a topic to start. Discover Windows 98 takes 4 hours, or 1 minute if you click fast."
 					}
 
@@ -1556,11 +1556,11 @@ extension GeoCitiesWindows {
 		}
 		.style(Styles.ticker)
 
-		div(.id(IDs.contextMenu), .role("menu"), .hidden) {
+		div(.id(IDs.contextMenu), .role(.menu), .hidden) {
 			for (command, title, target) in [("open", "Open", "icon"), ("delete", "Delete", "icon"), ("arrange", "Arrange Icons", "desktop"), ("refresh", "Refresh", "desktop"), ("new-folder", "New Folder", "desktop"), ("web", "Active Desktop: View as Web Page", "desktop"), ("properties", "Properties", "desktop")] {
 				button(
 					.type(.button),
-					.role("menuitem"),
+					.role(.menuItem),
 					.hook(Hooks.contextCommand, value: command),
 					.hook(Hooks.contextTarget, value: target)
 				) {
@@ -1574,7 +1574,7 @@ extension GeoCitiesWindows {
 		div(
 			.id(IDs.boot),
 			.hidden,
-			.role("dialog"),
+			.role(.dialog),
 			.tabindex(-1)
 		) {
 			p(.id(IDs.bootText)) {
@@ -1604,7 +1604,7 @@ extension GeoCitiesWindows {
 		div(
 			.id(IDs.bsod),
 			.hidden,
-			.role("alertdialog"),
+			.role(.alertDialog),
 			.tabindex(-1),
 			.ariaLabelledBy(ElementID("geocities-win-bsod-title"))
 		) {
@@ -1637,7 +1637,7 @@ extension GeoCitiesWindows {
 		div(
 			.id(IDs.maze),
 			.hidden,
-			.role("dialog"),
+			.role(.dialog),
 			.tabindex(-1)
 		) {
 			canvas(.id(IDs.mazeCanvas), .width(320), .height(200)) {}

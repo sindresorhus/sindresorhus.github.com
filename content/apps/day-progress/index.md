@@ -58,7 +58,7 @@ You can customize your day’s start and end times per day, even allowing for a 
 
 You can set up multiple time ranges to run one after another throughout your day. The menu bar shows a single progress at a time. Perfect for tracking different parts of your day like work hours and personal time.
 
-Choose from 7 progress styles (a pie, circles, and bars), and show the percentage, the time, or the minutes, elapsed or remaining.
+Choose from 7 progress styles (a pie, circles, and bars), and show the percentage, the time, or the minutes, elapsed or remaining. To keep the menu bar free outside your time ranges, turn off “Show while inactive” in the “Menu Bar” settings, and the menu bar item hides until the next time range starts.
 
 With the Shortcuts app, you can add a custom duration, enable or schedule a duration, and get the progress of the active duration.
 
@@ -84,7 +84,7 @@ A shortcut can be run from the menu bar, using a global keyboard shortcut, from 
 
 You could use Day Progress as an abstract clock instead of the system clock, to minimize anxiety and distraction from time, enhancing focus and productivity.
 
-Unfortunately, it’s not possible to fully hide the built-in menu bar clock. However, you could make it an analog clock, which makes it a lot less visible. In “System Settings › Menu Bar › Clock Options”, choose the analog clock and disable showing the date.
+Unfortunately, it’s not possible to fully hide the built-in menu bar clock. However, you could make it an analog clock, which makes it a lot less visible. In “[System Settings › Menu Bar › Clock Options](x-apple.systempreferences:com.apple.ControlCenter-Settings.extension)”, choose the analog clock and disable showing the date.
 
 ### Events
 

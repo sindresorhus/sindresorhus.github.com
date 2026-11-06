@@ -142,7 +142,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.retroButton)
 
-			p(.part(Parts.slotStatus), .role("status")) {}
+			p(.part(Parts.slotStatus), .role(.status)) {}
 				.style(Styles.status)
 
 			ul {
@@ -224,7 +224,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.retroButton)
 
-			p(.part(Parts.derbyStatus), .role("status")) {}
+			p(.part(Parts.derbyStatus), .role(.status)) {}
 				.style(Styles.status)
 		}
 		.style(Styles.game)
@@ -259,7 +259,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.buttonRow)
 
-			p(.part(Parts.simonStatus), .role("status")) {
+			p(.part(Parts.simonStatus), .role(.status)) {
 				"Watch Glitter, then press the same colors. The keys 1 to 4 work too."
 			}
 			.style(Styles.status)
@@ -283,7 +283,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 			}
 			.style(Styles.memoryBoard)
 
-			p(.part(Parts.memoryStatus), .role("status")) {
+			p(.part(Parts.memoryStatus), .role(.status)) {
 				"Find the pairs!"
 			}
 			.style(Styles.status)
@@ -306,7 +306,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 				.style(Styles.hangmanDrawing)
 
 			// The script names it with the letters and the blanks, as a screen reader would say “underscore” for each blank.
-			p(.part(Parts.hangmanWord), .role("img")) {}
+			p(.part(Parts.hangmanWord), .role(.image)) {}
 				.style(Styles.hangmanWord)
 
 			p(.part(Parts.hangmanHint)) {}
@@ -320,10 +320,11 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					.style(Styles.letterKey)
 				}
 			}
+			.attributes(.role(.group))
 			.accessibilityLabel("Letters")
 			.style(Styles.letterKeys)
 
-			p(.part(Parts.hangmanStatus), .role("status")) {}
+			p(.part(Parts.hangmanStatus), .role(.status)) {}
 				.style(Styles.status)
 
 			button(.part(Parts.hangmanNew), .type(.button)) {
@@ -363,7 +364,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.lcd)
 
-			p(.part(Parts.rpsStatus), .role("status")) {}
+			p(.part(Parts.rpsStatus), .role(.status)) {}
 				.style(Styles.status)
 
 			button(.part(Parts.rpsVisit), .type(.button)) {
@@ -405,7 +406,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.retroButton)
 
-			p(.part(Parts.yatzyStatus), .role("status")) {
+			p(.part(Parts.yatzyStatus), .role(.status)) {
 				"Press Roll to start. Click a die to keep it."
 			}
 			.style(Styles.status)
@@ -472,7 +473,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 			}
 			.style(Styles.reactionButton)
 
-			p(.part(Parts.reactionStatus), .role("status")) {
+			p(.part(Parts.reactionStatus), .role(.status)) {
 				"Click when it turns green. Not before!"
 			}
 			.style(Styles.status)
@@ -514,7 +515,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 			}
 			.style(Styles.typingField)
 
-			p(.part(Parts.typingStatus), .role("status")) {}
+			p(.part(Parts.typingStatus), .role(.status)) {}
 				.style(Styles.status)
 
 			button(.part(Parts.typingNew), .type(.button)) {
@@ -655,7 +656,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 		case mistyped
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case room
 		case windowTitle

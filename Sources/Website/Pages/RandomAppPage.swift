@@ -62,11 +62,11 @@ struct RandomAppPage: Page {
 	An app to pick: the slug that the page skips when the visitor comes from the app, and the path of its page, which content owns.
 	*/
 	private struct AppTarget: Encodable {
-		let slug: String
+		let slug: ContentSlug
 		let path: RoutePath
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		/**
 		Only shown when JavaScript is turned off. Otherwise, the page redirects before it shows.
 		*/

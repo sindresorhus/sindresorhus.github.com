@@ -13,7 +13,7 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Open “System Settings › Desktop & Dock”, and choose a browser in “Default web browser”. If you change it often, [Default Browser](../apps/default-browser/index.md) switches it from the menu bar in one click.
+	Open “[System Settings › Desktop & Dock](x-apple.systempreferences:com.apple.Desktop-Settings.extension)”, and choose a browser in “Default web browser”. If you change it often, [Default Browser](../apps/default-browser/index.md) switches it from the menu bar in one click.
 }
 
 ## With Default Browser
@@ -38,7 +38,7 @@ To open some links in one browser and other links in another, like Google Meet l
 
 @Steps {
 1. Install the browser that you want to use.
-1. Open “System Settings › Desktop & Dock”.
+1. Open “[System Settings › Desktop & Dock](x-apple.systempreferences:com.apple.Desktop-Settings.extension)”.
 1. Scroll down, and choose the browser in “Default web browser”.
 }
 

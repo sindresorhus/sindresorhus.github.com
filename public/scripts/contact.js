@@ -130,9 +130,12 @@ if (!prefersReducedMotion) {
 			sparkle.style.setProperty('--mix', `${Math.random() * 100}%`);
 			document.body.append(sparkle);
 
-			setTimeout(() => {
-				sparkle.remove();
-			}, 800);
+			// When it has flown out (`ContactPage.swift`). The offset and the opacity end at the same time. A transition that the browser cancels sends no `transitionend`, so the sparkle is also removed then.
+			for (const type of ['transitionend', 'transitioncancel']) {
+				sparkle.addEventListener(type, () => {
+					sparkle.remove();
+				}, {once: true});
+			}
 		}
 	});
 }

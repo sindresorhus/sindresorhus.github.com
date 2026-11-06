@@ -6,10 +6,10 @@ struct StyleTests {
 	@Test
 	func `declaration importance is a boolean for values typed values and keywords`() {
 		let style = Style()
-			.declaration(.opacity, CSSValue(raw: "0.25"), isImportant: true)
-			.declaration(.width, Length.pixels(2), isImportant: true)
-			.declaration(.display, Display.block, isImportant: true)
-			.declaration(.display, Display.grid)
+			.declaration(raw: .opacity, CSSValue(raw: "0.25"), isImportant: true)
+			.declaration(raw: .width, Length.pixels(2), isImportant: true)
+			.declaration(raw: .display, Display.block, isImportant: true)
+			.declaration(raw: .display, Display.grid)
 		let css = Stylesheet { Rule(".a", style) }.css
 		#expect(css == ".a {\n\topacity: 0.25 !important;\n\twidth: 2px !important;\n\tdisplay: block !important;\n\tdisplay: grid;\n}\n")
 	}
@@ -342,7 +342,7 @@ struct StyleTests {
 		#expect(css.contains("scrollbar-color: #c0c0c0 #fff"))
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case iconLink
 
@@ -392,9 +392,9 @@ struct StyleTests {
 				".card",
 				Style()
 				.display(.flex)
-				.padding(.horizontal, .rootEm(1))
+				.padding(.inline, .rootEm(1))
 				.border(.top, .currentColor)
-				.declaration(.opacity, CSSNumber(0.5), isImportant: true)
+				.declaration(raw: .opacity, CSSNumber(0.5), isImportant: true)
 				.nested(".icon") {
 					$0.font(size: .rootEm(1), lineHeight: 1.5)
 				}
@@ -402,7 +402,7 @@ struct StyleTests {
 					$0
 						.color("white")
 						.hover {
-							$0.underline(false)
+							$0.noUnderline()
 						}
 				}
 			)
@@ -786,12 +786,12 @@ struct StyleTests {
 		let width = StyleVariable<LengthPercentage>("\(name)-width")
 		#expect(width.name.description == "--hero-width")
 		#expect(width.value(default: .pixels(1)).description == "var(--hero-width, 1px)")
-		let property = RegisteredProperty<Color>("\(name)-color", syntax: .color, initialValue: .black)
+		let property = RegisteredProperty<Color>("\(name)-color", initialValue: .black)
 		#expect(property.name.description == "--hero-color")
 		#expect(property.value.description == "var(--hero-color)")
 	}
 
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case fadeIn
 
 		var keyframes: [Keyframe] {
@@ -829,6 +829,29 @@ struct StyleTests {
 	}
 
 	@Test
+	func `configured underlines retain their settings and can reset in a state`() {
+		let style = Style()
+			.underline(style: .dotted, color: .currentColor, thickness: .pixels(2), offset: .em(0.2))
+			.focusVisible {
+				$0.noUnderline()
+			}
+
+		#expect(ruleCSS(style) == """
+		.x {
+			text-decoration: underline;
+			text-decoration-style: dotted;
+			text-decoration-color: currentColor;
+			text-decoration-thickness: 2px;
+			text-underline-offset: .2em;
+			&:focus-visible {
+				text-decoration: none;
+			}
+		}
+
+		""")
+	}
+
+	@Test
 	func `a square frame sets the width and the height`() {
 		let css = Stylesheet {
 			Rule(".icon", Style().frame(size: .rootEm(2)))
@@ -863,11 +886,12 @@ struct StyleTests {
 		}.css
 
 		#expect(css.contains("transition: --hue .3s linear;"))
+		#expect(css.contains("@property --hue {"))
 	}
 
-	static let hue = RegisteredProperty<CSSNumber>("hue", syntax: .number, initialValue: 0)
+	static let hue = RegisteredProperty<CSSNumber>("hue", initialValue: 0)
 
-	enum HueAnimations: KeyframeSet {
+	enum HueAnimations: String, KeyframeSet {
 		case turnHue
 
 		var keyframes: [Keyframe] {
@@ -875,7 +899,7 @@ struct StyleTests {
 		}
 	}
 
-	enum HueStyles: StyleSet {
+	enum HueStyles: String, StyleSet {
 		case rainbow
 		case slowRainbow
 
@@ -988,25 +1012,15 @@ struct StyleTests {
 	*/
 	@Test
 	func `combining media queries keeps the meaning of not and or`() {
-		#expect((MediaQuery("not (hover: hover)") && .dark).description == "(not (hover: hover)) and (prefers-color-scheme: dark)")
-		#expect((MediaQuery("(hover: none) or (pointer: coarse)") && .dark).description == "((hover: none) or (pointer: coarse)) and (prefers-color-scheme: dark)")
-		#expect((MediaQuery.from(Breakpoint(minimumWidthInRem: 40)) && .dark).description == "(width >= 40rem) and (prefers-color-scheme: dark)")
+		#expect((!MediaCondition.hover && .dark).description == "(not (hover: hover)) and (prefers-color-scheme: dark)")
+		#expect(((MediaCondition.cannotHover || .coarsePointer) && .dark).description == "((hover: none) or (pointer: coarse)) and (prefers-color-scheme: dark)")
+		#expect((MediaCondition.from(Breakpoint(minimumWidthInRem: 40)) && .dark).description == "(width >= 40rem) and (prefers-color-scheme: dark)")
 	}
 
 	@Test
 	func `style sets in generic types are named without the generic arguments`() {
 		#expect(GenericWrapper<Int>.Styles.title.className == "generic-wrapper-title")
 		#expect(GenericWrapper<[String: Int]>.Styles.title.className == "generic-wrapper-title")
-	}
-
-	@Test
-	func `no text shadows is none, like no box shadows`() {
-		#expect(ruleCSS(Style().textShadow()) == ".x {\n\ttext-shadow: none;\n}\n")
-	}
-
-	@Test
-	func `filters can invert the colors and tint them sepia`() {
-		#expect(ruleCSS(Style().filter(.invert(1), .sepia(0.5))) == ".x {\n\tfilter: invert(1) sepia(.5);\n}\n")
 	}
 
 	@Test
@@ -1018,6 +1032,17 @@ struct StyleTests {
 	func `the scroll padding keeps links below a sticky bar`() {
 		#expect(ruleCSS(Style().scrollPadding(top: .rootEm(4) + .rootEm(0.5))) == ".x {\n\tscroll-padding-top: 4.5rem;\n}\n")
 		#expect(ruleCSS(Style().scrollPadding(bottom: .rootEm(2.5))) == ".x {\n\tscroll-padding-bottom: 2.5rem;\n}\n")
+	}
+
+	@Test
+	func `responsive scroll snapping resets follow the configured snapping`() {
+		let style = Style()
+			.scrollSnapType(.horizontal, isMandatory: true)
+			.media(.below(Breakpoint(minimumWidthInRem: 40))) {
+				$0.noScrollSnapping()
+			}
+		#expect(ruleCSS(style) == ".x {\n\tscroll-snap-type: x mandatory;\n\t@media (width < 40rem) {\n\t\tscroll-snap-type: none;\n\t}\n}\n")
+		#expect(ruleCSS(Style().noScrollSnapping()) == ".x {\n\tscroll-snap-type: none;\n}\n")
 	}
 
 	@Test
@@ -1058,7 +1083,7 @@ struct StyleTests {
 	@Test
 	func `a transition after an important one is a declaration of its own`() {
 		let style = Style()
-			.declaration(.transition, "opacity 1s", isImportant: true)
+			.declaration(raw: .transition, "opacity 1s", isImportant: true)
 			.transition(.color, timing: .linear(duration: .milliseconds(100)))
 		let css = Stylesheet {
 			Rule(".a", style)
@@ -1141,7 +1166,7 @@ struct StyleListTests {
 }
 
 enum Card {
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 
 		var style: Style {
@@ -1150,7 +1175,7 @@ enum Card {
 	}
 }
 
-enum CardStyles: StyleSet {
+enum CardStyles: String, StyleSet {
 	case root
 
 	var style: Style {
@@ -1158,7 +1183,7 @@ enum CardStyles: StyleSet {
 	}
 }
 
-enum PanelStyles: StyleSet {
+enum PanelStyles: String, StyleSet {
 	case title
 	case footer
 
@@ -1210,7 +1235,7 @@ struct PageResourcesTests {
 A private component, for the class names of style sets in private types.
 */
 private enum PrivateCard {
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 
 		var style: Style {
@@ -1222,7 +1247,7 @@ private enum PrivateCard {
 /**
 A top-level style set whose name has its suffix, “Styles”, also at the start.
 */
-enum StylesheetPreviewStyles: StyleSet {
+enum StylesheetPreviewStyles: String, StyleSet {
 	case root
 
 	var style: Style {
@@ -1233,7 +1258,7 @@ enum StylesheetPreviewStyles: StyleSet {
 /**
 An animation that two style sets in different layers use.
 */
-enum FadeAnimations: KeyframeSet {
+enum FadeAnimations: String, KeyframeSet {
 	case fade
 
 	var keyframes: [Keyframe] {
@@ -1241,7 +1266,7 @@ enum FadeAnimations: KeyframeSet {
 	}
 }
 
-enum FirstFadeStyles: StyleSet {
+enum FirstFadeStyles: String, StyleSet {
 	case root
 
 	var style: Style {
@@ -1249,7 +1274,7 @@ enum FirstFadeStyles: StyleSet {
 	}
 }
 
-enum SecondFadeStyles: StyleSet {
+enum SecondFadeStyles: String, StyleSet {
 	case root
 
 	var style: Style {
@@ -1261,7 +1286,7 @@ enum SecondFadeStyles: StyleSet {
 A component with a type parameter, like a list of any content.
 */
 enum GenericWrapper<Value> {
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case title
 
 		var style: Style {

@@ -2,15 +2,45 @@ import Elementary
 import SiteKit
 
 /**
-The sticky site navigation. On small screens, the links are in a popover behind a menu button, which works without JavaScript, and closes with the Escape key or a click outside. Its script also closes it when the keyboard focus moves out of it.
+The sticky site navigation. On small screens, the links are in a popover behind a menu button, which works without JavaScript, and closes with the Escape key or a click outside. On an app page, the popover also has the sections of the app. Its script also closes it when the keyboard focus moves out of it, after a tap on a section of the page, or when the window becomes as wide as a tablet, like a phone that rotates, and when it opens, it marks the section that the visitor is in.
 */
 struct SiteHeader: ScriptedElement {
 	static let script = ElementScript(inline: #"""
 	export default class extends HTMLElement {
 		connectedCallback() {
-			// The same function, so connecting the element again does not add a second listener.
-			this.querySelector('[data-part="menu"]').addEventListener('focusout', this.#closeMenu);
+			const menu = this.querySelector('[data-part="menu"]');
+			// The same functions, so connecting the element again does not add second listeners.
+			menu.addEventListener('focusout', this.#closeMenu);
+			menu.addEventListener('click', this.#closeForSection);
+			menu.addEventListener('beforetoggle', this.#markCurrentSection);
+
+			// From tablets, the menu is a row in the header, but a menu that is still open stays a layer on the page that takes every tap. So it closes when the window becomes wide, like when a phone rotates.
+			matchMedia('\#(MediaCondition.from(.tablet))').addEventListener('change', () => {
+				if (menu.matches(':popover-open')) {
+					menu.hidePopover();
+				}
+			});
 		}
+
+		// The scroll spy of the navigation of the app sets the section that the visitor is in on the header, so the menu marks it among the sections of the app when it opens.
+		#markCurrentSection = event => {
+			if (event.newState !== 'open') {
+				return;
+			}
+
+			for (const link of this.querySelectorAll('[data-part="appSectionLink"]')) {
+				link.ariaCurrent = link.hash === this.dataset.currentSection ? 'location' : null;
+			}
+		};
+
+		// A link to a section of the page, like the FAQ of an app, scrolls the page behind the menu, so the menu closes to show the section.
+		#closeForSection = event => {
+			const menu = event.currentTarget;
+
+			if (event.target.closest('a[href^="#"]') && menu.matches(':popover-open')) {
+				menu.hidePopover();
+			}
+		};
 
 		// The mobile menu covers the page, so it closes when keyboard focus moves out of it, like to a link behind it. Not when it moves to the menu button, which closes it itself.
 		#closeMenu = event => {
@@ -29,9 +59,9 @@ struct SiteHeader: ScriptedElement {
 		case standard
 
 		/**
-		Hides the “Donate” link, and shows the navigation of the app when its header scrolls away.
+		Hides the “Donate” link, shows the sections of the app in the menu on phones, and shows the navigation of the app when its header scrolls away. With `hasGuides`, the “…” menu of the navigation links to the guides at the end of the page.
 		*/
-		case app(App)
+		case app(App, hasGuides: Bool)
 
 		/**
 		A page about an app, like its release notes, which is in the “Apps” section, like the page of the app. It keeps the “Donate” link, like other pages.
@@ -45,7 +75,7 @@ struct SiteHeader: ScriptedElement {
 			switch self {
 			case .standard:
 				nil
-			case .app(let app), .appSubpage(let app):
+			case .app(let app, _), .appSubpage(let app):
 				app
 			}
 		}
@@ -125,6 +155,32 @@ struct SiteHeader: ScriptedElement {
 					}
 					.style(Styles.links)
 
+					// On phones, the sticky header has no room for the sections of the app, so the menu has them, below the site links. From tablets, the navigation of the app has them (``AppSecondaryNavigation``).
+					if let app {
+						div {
+							// Screen readers get the name from the label of the list.
+							p(.notTranslated) {
+								app.title
+							}
+							.accessibilityHidden()
+							.style(Styles.appSectionsTitle)
+
+							// Keep the list semantics in Safari, as the styles remove its bullets.
+							ul(.role(.list)) {
+								for link in app.links {
+									li {
+										Link(link)
+											.attributes(.part(Parts.appSectionLink))
+											.style(Styles.appSectionLink)
+									}
+								}
+							}
+							.accessibilityLabel("\(app.title) sections")
+							.style(Styles.appSectionLinks)
+						}
+						.style(Styles.appSections)
+					}
+
 					// The feeds are in the footer, and feed readers find them from the `<link>` elements of the pages.
 					div {
 						IconLink("Contact", icon: .mail, destination: .path(.contact))
@@ -139,8 +195,8 @@ struct SiteHeader: ScriptedElement {
 			.style(Styles.navigation)
 			.style(Styles.navigationReplacedByApp, when: app != nil)
 
-			if let app {
-				AppSecondaryNavigation(app: app)
+			if case .app(let app, let hasGuides) = variant {
+				AppSecondaryNavigation(app: app, hasGuides: hasGuides)
 			}
 		}
 		.hiddenFromSearchSnippets()
@@ -149,7 +205,7 @@ struct SiteHeader: ScriptedElement {
 	}
 
 	private var app: App? {
-		guard case .app(let app) = variant else {
+		guard case .app(let app, _) = variant else {
 			return nil
 		}
 
@@ -191,9 +247,10 @@ extension SiteHeader {
 
 	enum Parts: String, ElementPartSet {
 		case menu
+		case appSectionLink
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case header
 		case transparentAtTop
@@ -210,6 +267,10 @@ extension SiteHeader {
 		case mobileOnly
 		case separator
 		case iconLinks
+		case appSections
+		case appSectionsTitle
+		case appSectionLinks
+		case appSectionLink
 
 		/**
 		The space before the site name, and at the sides of the text of the links in the menu, so the text lines up with the name.
@@ -361,10 +422,13 @@ extension SiteHeader {
 					.popoverOpen {
 						$0
 							.display(.flex)
+							.flexDirection(.column)
 							.position(.fixed)
 							.inset(.zero)
 							.top(anchor: Self.anchor, side: .bottom)
 							.frame(size: .auto)
+							// A swipe on the menu does not scroll the page behind it, so the page is still at the same place when the menu closes.
+							.overscrollBehavior(.contain)
 					}
 					.from(.tablet) {
 						$0
@@ -425,6 +489,30 @@ extension SiteHeader {
 					.alignSelf(.center)
 					.margin(.leading, .rootEm(0.5))
 					.hidden(below: .tablet)
+			case .appSections:
+				Style()
+					.frame(width: .percent(100))
+					.padding(top: .rootEm(2), horizontal: Self.brandMargin, bottom: .rootEm(1))
+					.hidden(from: .tablet)
+			case .appSectionsTitle:
+				// Like the titles of the groups of the footer.
+				Style()
+					.margin(.bottom, .rootEm(0.75))
+					.textStyle(.caption, weight: .semibold)
+					.color(.secondaryText)
+			case .appSectionLinks:
+				Style()
+					.hstack(alignment: .center, spacing: .rootEm(0.5))
+					.flexWrap()
+			case .appSectionLink:
+				// Larger than the chips of the app header, so they are easy to tap.
+				Style()
+					.chip()
+					.padding(vertical: .rootEm(0.625), horizontal: .rootEm(1.125))
+					.textStyle(.body, weight: .medium)
+					.display(.block)
+					// The section that the visitor is in has the tint of the accent of the app, like the section links of the navigation of the app.
+					.currentFill(Color.pageAccent.opacity(0.16))
 			}
 		}
 	}
@@ -432,7 +520,7 @@ extension SiteHeader {
 	/**
 	The scroll-driven animations of the header, like the border that fades in as the page scrolls under it.
 	*/
-	enum Animations: KeyframeSet {
+	enum Animations: String, KeyframeSet {
 		case showBorder
 		case showFill
 

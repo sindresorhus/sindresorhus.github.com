@@ -95,7 +95,7 @@ struct GeoCitiesWorldCup: ScriptedElement {
 				.width(640),
 				.height(480),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("The TV in the living room, with the match and the family in the sofa. Press Space or Enter, or tap the TV, to kick, and hold it to fill a meter. The arrow keys aim a shot, set a meter, or pick where the keeper dives.")
 				.style(Styles.canvas)
@@ -119,7 +119,7 @@ struct GeoCitiesWorldCup: ScriptedElement {
 			}
 			.style(Styles.pad)
 
-			p(.part(Parts.status), .role("status")) {}
+			p(.part(Parts.status), .role(.status)) {}
 				.style(Styles.status)
 		}
 		.style(Styles.stage)
@@ -279,7 +279,7 @@ struct GeoCitiesWorldCup: ScriptedElement {
 		case sticker = "world-cup-sticker"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case layout
 		case stage

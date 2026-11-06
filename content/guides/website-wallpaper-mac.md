@@ -34,6 +34,6 @@ The website shows behind your windows and desktop icons, and stays up to date. T
 
 ## Without an app
 
-macOS cannot show a website as the wallpaper. In “System Settings › Wallpaper”, you can choose dynamic wallpapers, aerials that move when you lock or unlock the Mac, colors, your own photos, and a folder of photos that changes at an interval. [Apple’s instructions.](https://support.apple.com/guide/mac-help/mchlp3013/mac)
+macOS cannot show a website as the wallpaper. In “[System Settings › Wallpaper](x-apple.systempreferences:com.apple.Wallpaper-Settings.extension)”, you can choose dynamic wallpapers, aerials that move when you lock or unlock the Mac, colors, your own photos, and a folder of photos that changes at an interval. [Apple’s instructions.](https://support.apple.com/guide/mac-help/mchlp3013/mac)
 
 You can take a screenshot of a website, and use it as the wallpaper: Control-click the screenshot in Finder, and choose “Set Desktop Picture”. But it does not update, so it is only good for a page that never changes.

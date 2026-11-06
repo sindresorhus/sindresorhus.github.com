@@ -44,7 +44,7 @@ struct Section<Content: HTML>: HTML {
 /**
 The styles of ``Section``, outside the generic type, so the class names are the same for every content type. The title looks like a heading in prose, so a section in prose looks the same as one outside it.
 */
-enum SectionStyles: StyleSet {
+enum SectionStyles: String, StyleSet {
 	case title
 
 	/**

@@ -17,12 +17,15 @@ struct JPEGXLPicture<Image: HTML>: HTML where Image.Tag == HTMLTag.img {
 	var body: some HTML {
 		if let copy {
 			picture {
-				source(.srcset(copy.path), .type("image/jxl"))
+				source(.srcset(copy.path), .type(.jpegXL))
 				image
 			}
-			// Only a wrapper of the sources, so the image is laid out as if it were alone.
+			// Only a wrapper of the sources, so the image is laid out as if it were alone. The source is hidden, as it would be an empty item in a flex or grid parent, which adds one more gap. The browser still reads its `srcset`.
 			.style {
 				$0.display(.contents)
+					.children("source") {
+						$0.hidden()
+					}
 			}
 		} else {
 			image
@@ -40,11 +43,9 @@ struct ScreenshotImage<Image: HTML>: HTML where Image.Tag == HTMLTag.img {
 	/**
 	Creates the image before the caller styles it, preserving named component styles and one-off element styles alike.
 	*/
-	init(asset: ScreenshotAsset, alternativeText: String, loadsImmediately: Bool = false, @ContentBuilder styling: (Elementary.img) -> Image) {
+	init(asset: ScreenshotAsset, alternativeText: String, loadsImmediately: Bool = false, @ContentBuilder styling: (_AttributedContent<Elementary.img>) -> Image) {
 		var attributes: [HTMLAttribute<HTMLTag.img>] = [
 			.src(asset.path),
-			.width(asset.size.width),
-			.height(asset.size.height),
 			.alt(alternativeText),
 			.asyncDecoding,
 		]
@@ -53,7 +54,7 @@ struct ScreenshotImage<Image: HTML>: HTML where Image.Tag == HTMLTag.img {
 		}
 
 		self.copy = asset.jpegXL
-		self.image = styling(img(attributes: attributes))
+		self.image = styling(img(attributes: attributes).intrinsicSize(asset.size))
 	}
 
 	var body: some HTML {

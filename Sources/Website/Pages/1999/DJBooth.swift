@@ -46,7 +46,7 @@ struct GeoCitiesDJBooth: HTML {
 			.style(GeoCitiesPage.Styles.centeredText)
 
 			div {
-				div(.part(Parts.record), .tabindex(0), .role("application")) {
+				div(.part(Parts.record), .tabindex(0), .role(.application)) {
 					div {
 						"SINDRE RECORDS ★ WAFFLE BREAKS VOL. 1"
 					}
@@ -77,7 +77,7 @@ struct GeoCitiesDJBooth: HTML {
 
 			GeoCitiesMusicVolume()
 
-			p(.part(Parts.status), .role("status")) {
+			p(.part(Parts.status), .role(.status)) {
 				"Drag the record to scratch. Wikka wikka!"
 			}
 			.style(GeoCitiesPage.Styles.caption)
@@ -91,7 +91,7 @@ struct GeoCitiesDJBooth: HTML {
 			case status
 		}
 
-		enum Styles: ElementStyleSet {
+		enum Styles: String, ElementStyleSet {
 			case root
 			case deck
 			case record
@@ -159,7 +159,7 @@ struct GeoCitiesDJBooth: HTML {
 	/**
 	The styles of both instruments of the booth.
 	*/
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case booth
 		case title
 

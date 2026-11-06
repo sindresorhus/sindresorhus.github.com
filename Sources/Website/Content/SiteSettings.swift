@@ -18,7 +18,7 @@ struct SiteSettings {
 	/**
 	The slugs of the main apps, like `velja`, at most ``maximumFeaturedAppCount``. The apps page shows them first, in an order that changes every day (``SiteContent/dailyFeaturedApps``), so each of them is sometimes first, and `llms.txt` lists them first, in this order. Each must be an active app with its own page.
 	*/
-	var featuredApps = [String]()
+	var featuredApps = [ContentSlug]()
 
 	/**
 	About how many people use the apps. No service counts this, so it is updated by hand. The apps page and the about page show it rounded down, like “6M+ users”.
@@ -59,7 +59,7 @@ extension SiteSettings {
 	Settings from values, like for content that is made in code.
 	*/
 	init(
-		featuredApps: [String] = [],
+		featuredApps: [ContentSlug] = [],
 		appUserCount: Int = 0,
 		supportEmailCount: Int = 0
 	) {

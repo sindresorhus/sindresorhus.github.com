@@ -54,14 +54,19 @@ The sidebar lists the types of the current item, like `public.url`. Select a typ
 
 Use it to check that your app puts the correct data on [`NSPasteboard`](https://developer.apple.com/documentation/appkit/nspasteboard) or [`UIPasteboard`](https://developer.apple.com/documentation/uikit/uipasteboard).
 
-Note that this is not a clipboard manager. If you are not a developer, you probably don’t want this app. To only see the text or image on the clipboard, select “Edit › Show Clipboard” in Finder.
+Note that this is not a clipboard manager. If you are not a developer, you probably don’t want this app. To only see the text or image on the clipboard, select “Edit › Show Clipboard” in Finder. To see what you copied before, use Spotlight on macOS 26 or later: press ++Command+Space++, and then ++Command+4++.
 
 ## Frequently Asked Questions {#faq}
+
+### Can it show what I copied before? {#history}
+<!-- @faq.keywords history -->
+
+No, it only shows what is on the clipboard now. On macOS 26 and later, Spotlight has a clipboard history: press ++Command+Space++, and then ++Command+4++. The first time, click “Allow”.
 
 ### How do I stop the paste prompt? {#paste-prompt}
 
 The system asks before an app can read the pasteboard. To always allow it:
 
-**macOS:** Allow the app in “System Settings › Privacy & Security › Paste from Other Apps”.
+**macOS:** Allow the app in “[System Settings › Privacy & Security › Paste from Other Apps](x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Pasteboard)”.
 
 **iOS:** Go to “Settings › Apps › Pasteboard Viewer › Paste from Other Apps” and choose “Allow”.

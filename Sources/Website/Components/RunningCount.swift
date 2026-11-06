@@ -81,7 +81,7 @@ struct RunningCount: ScriptedElement {
 		let perSecond: Double
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 
 		var style: Style {

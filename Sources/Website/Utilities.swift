@@ -87,6 +87,15 @@ typealias Snippet<Value> = Validated<SnippetText, Value>
 
 extension String {
 	/**
+	Whether the text calls something free, like “This is free, it’s effective”, for the reviews and quotes of a paid app. Not words with “free” in them, like “ad-free” or “freedom”.
+	*/
+	var callsAppFree: Bool {
+		lowercased()
+			.split { !$0.isLetter && $0 != "-" }
+			.contains("free")
+	}
+
+	/**
 	Shortens the text to fit a search result snippet (``SnippetText/maximumLength``), cutting at a word boundary.
 	*/
 	var shortenedForSnippet: String {
@@ -98,15 +107,13 @@ extension String {
 
 		let shortened = prefix(maximumLength - 1)
 		let wordBoundary = shortened.lastIndex(of: " ") ?? shortened.endIndex
-		return shortened[..<wordBoundary].replacing(/[,.:;]$/, with: "") + "…"
+		return shortened[..<wordBoundary].replacing(Self.trailingPunctuation, with: "") + "…"
 	}
 
 	/**
-	The noun for the count: as it is for 1, else in the plural, like “day” and “days”. The plural adds an “s”, unless it is given, like “repositories”.
+	A punctuation mark at the end, which a shortened text leaves out before its “…”.
 	*/
-	func pluralized(for count: Int, plural: String? = nil) -> String {
-		count == 1 ? self : plural ?? self + "s"
-	}
+	nonisolated(unsafe) private static let trailingPunctuation = /[,.:;]$/
 }
 
 extension Int {
@@ -141,13 +148,6 @@ extension Int {
 	func approximateCount(counting noun: String) -> String {
 		"\(approximateCount) \(noun.pluralized(for: self))"
 	}
-
-	/**
-	The count with the noun, in the plural when the count is not 1, like “1 day” or “1,234 days”. The plural adds an “s”.
-	*/
-	func formatted(counting noun: String) -> String {
-		"\(formatted(.number.locale(.site))) \(noun.pluralized(for: self))"
-	}
 }
 
 extension Decimal {
@@ -164,21 +164,6 @@ extension Decimal {
 			.plain
 		)
 		return rounded == self
-	}
-}
-
-extension Sequence {
-	/**
-	The elements without the later ones with the same key, in their order, like one release of each project.
-
-	```
-	["ky", "got", "ky"].uniqued(by: \.self)
-	//=> ["ky", "got"]
-	```
-	*/
-	func uniqued<Key: Hashable>(by key: (Element) -> Key) -> [Element] {
-		var keys = Set<Key>()
-		return filter { keys.insert(key($0)).inserted }
 	}
 }
 
@@ -208,6 +193,22 @@ enum Schema {
 	}
 
 	struct Person: Object {
+		private enum CodingKeys: String, CodingKey {
+			case context = "@context"
+			case type = "@type"
+			case id = "@id"
+			case name
+			case givenName
+			case familyName
+			case alternateName
+			case url
+			case image
+			case jobTitle
+			case description
+			case sameAs
+			case knowsAbout
+		}
+
 		var context: String?
 		let type = "Person"
 
@@ -237,6 +238,20 @@ enum Schema {
 	An article, like a blog post or a guide. The dates are days, like `2026-10-05`.
 	*/
 	struct Article: Object {
+		private enum CodingKeys: String, CodingKey {
+			case context = "@context"
+			case type = "@type"
+			case headline
+			case description
+			case url
+			case datePublished
+			case dateModified
+			case author
+			case image
+			case keywords
+			case about
+		}
+
 		/**
 		The schema.org type, like `Article` for a guide and `BlogPosting` for a post.
 		*/
@@ -260,12 +275,34 @@ enum Schema {
 		let image: [URL]
 
 		var keywords: [String]?
+
+		/**
+		What the article is about, like the app of a guide.
+		*/
+		var about: Reference?
+	}
+
+	/**
+	A reference to an object with an `@id` in the structured data of another page, like the app of a guide.
+	*/
+	struct Reference: Encodable {
+		private enum CodingKeys: String, CodingKey {
+			case id = "@id"
+		}
+
+		let id: URL
 	}
 
 	/**
 	A page about one person, like an about page.
 	*/
 	struct ProfilePage: Object {
+		private enum CodingKeys: String, CodingKey {
+			case context = "@context"
+			case type = "@type"
+			case mainEntity
+		}
+
 		var context: String?
 		let type = "ProfilePage"
 		let mainEntity: Person
@@ -275,6 +312,13 @@ enum Schema {
 	The site, for the site name in search results.
 	*/
 	struct WebSite: Object {
+		private enum CodingKeys: String, CodingKey {
+			case context = "@context"
+			case type = "@type"
+			case name
+			case url
+		}
+
 		var context: String?
 		let type = "WebSite"
 		let name: String
@@ -285,6 +329,31 @@ enum Schema {
 	An app. The type is `MobileApplication` for an app that does not run on the Mac.
 	*/
 	struct SoftwareApplication: Object {
+		private enum CodingKeys: String, CodingKey {
+			case context = "@context"
+			case type = "@type"
+			case id = "@id"
+			case name
+			case description
+			case url
+			case applicationCategory
+			case operatingSystem
+			case author
+			case datePublished
+			case dateModified
+			case image
+			case screenshot
+			case downloadUrl
+			case softwareVersion
+			case softwareRequirements
+			case releaseNotes
+			case fileSize
+			case sameAs
+			case offers
+			case aggregateRating
+			case review
+		}
+
 		/**
 		The schema.org type of the app, based on its platforms.
 		*/
@@ -316,6 +385,12 @@ enum Schema {
 
 		var context: String?
 		let type: Kind
+
+		/**
+		The ID of the app (``App/structuredDataID``), so the structured data of other pages can refer to it, like a guide.
+		*/
+		let id: URL
+
 		let name: String
 		let description: String
 		let url: URL
@@ -356,6 +431,15 @@ enum Schema {
 	}
 
 	struct Offer: Encodable {
+		private enum CodingKeys: String, CodingKey {
+			case type = "@type"
+			case availability
+			case url
+			case seller
+			case price
+			case priceCurrency
+		}
+
 		let type = "Offer"
 		let availability = "https://schema.org/InStock"
 		let url: URL
@@ -372,20 +456,56 @@ enum Schema {
 	}
 
 	struct AggregateRating: Encodable {
+		private enum CodingKeys: String, CodingKey {
+			case type = "@type"
+			case ratingValue
+			case bestRating
+			case worstRating
+			case ratingCount
+		}
+
 		let type = "AggregateRating"
 		let ratingValue: Double
+
+		/**
+		The best rating of a scale other than the 1 to 5 stars that schema.org assumes, like 100 for a percentage.
+		*/
+		private(set) var bestRating: Int?
+
+		/**
+		The worst rating of a scale other than the 1 to 5 stars, like 0 for a percentage.
+		*/
+		private(set) var worstRating: Int?
+
 		let ratingCount: Int
 
 		/**
-		The same validated and rounded rating that the page shows.
+		The same validated and rounded rating that the page shows: the average of stars on a store, or the percentage of positive ratings on Setapp, on the 100-point scale that Setapp uses in its own structured data.
 		*/
-		init(rating: StoreRating) {
-			self.ratingValue = rating.roundedAverage
-			self.ratingCount = rating.count
+		init(rating: AppRating) {
+			switch rating {
+			case .store(let rating):
+				self.ratingValue = rating.roundedAverage
+				self.ratingCount = rating.count
+			case .setapp(let rating):
+				self.ratingValue = Double(rating.percentPositive)
+				self.bestRating = 100
+				self.worstRating = 0
+				self.ratingCount = rating.count
+			}
 		}
 	}
 
 	struct Review: Encodable {
+		private enum CodingKeys: String, CodingKey {
+			case type = "@type"
+			case author
+			case datePublished
+			case name
+			case reviewBody
+			case reviewRating
+		}
+
 		let type = "Review"
 		let author: Person
 		let datePublished: SOML.Date
@@ -395,6 +515,12 @@ enum Schema {
 	}
 
 	struct Rating: Encodable {
+		private enum CodingKeys: String, CodingKey {
+			case type = "@type"
+			case ratingValue
+			case bestRating
+		}
+
 		let type = "Rating"
 		let ratingValue: ReviewStars
 		let bestRating = 5
@@ -404,7 +530,23 @@ enum Schema {
 	A list of links to the pages of its items, like the apps of the apps page. Each item is only its position and URL, as each page has the full structured data of its item, which Google asks for on such a summary page.
 	*/
 	struct ItemList: Object {
+		private enum CodingKeys: String, CodingKey {
+			case context = "@context"
+			case type = "@type"
+			case name
+			case description
+			case url
+			case numberOfItems
+			case itemListElement
+		}
+
 		struct ListItem: Encodable {
+			private enum CodingKeys: String, CodingKey {
+				case type = "@type"
+				case position
+				case url
+			}
+
 			let type = "ListItem"
 			let position: Int
 			let url: URL
@@ -446,16 +588,17 @@ extension JSONScript {
 
 extension Schema.SoftwareApplication {
 	/**
-	An app, with the version and the size from the App Store or the appcast (``AppListing/version`` and ``AppListing/fileSize``), and the price and the rating that the page shows (``AppListing/price`` and ``AppListing/storeRating``), as Google treats a rating that the page does not show as spam. A free app that is downloaded from its own site, like from GitHub, gets an offer with the price 0.
+	An app, with the version and the size from the App Store or the appcast (``AppListing/version`` and ``AppListing/fileSize``), and the price and the eligible rating that the page shows (``AppListing/price`` and ``AppListing/rating(at:)``), as Google treats a rating that the page does not show as spam. A free app that is downloaded from its own site, like from GitHub, gets an offer with the price 0.
 
 	The reviews are only included when there is a rating, as Google requires an `aggregateRating` with reviews (“Multiple reviews without aggregateRating object”). The rating is not computed from the reviews, as they are only the newest five-star ones. They are the reviews that the app page shows (``AppListing/newestReviews``).
 	*/
-	init(listing: AppListing) {
+	init(listing: AppListing, buildDate: Date) {
 		let app = listing.app
 		let info = listing.appStoreInfo
 
 		self.init(
 			type: app.platforms.contains(.macOS) ? .softwareApplication : .mobileApplication,
+			id: app.structuredDataID,
 			name: app.title,
 			description: app.description,
 			url: app.path.absoluteURL,
@@ -471,7 +614,7 @@ extension Schema.SoftwareApplication {
 		softwareRequirements = listing.minimumVersionsByPlatform
 		releaseNotes = app.releaseNotes?.path.absoluteURL
 		dateModified = listing.currentVersionDate
-		fileSize = listing.fileSize?.formatted(.byteCount(style: .file).locale(.site))
+		fileSize = listing.fileSize?.formatted(.siteFileSize)
 		// The plain pages of the stores, not the Setapp link, as it is a referral link, and not the Gumroad link, as it opens the checkout.
 		sameAs = [app.appStoreURL, app.frontmatter.gumroad?.id.url, app.frontmatter.setappID?.pageURL, app.frontmatter.repositoryURL?.value].compactMap(\.self).nilIfEmpty
 
@@ -490,12 +633,12 @@ extension Schema.SoftwareApplication {
 				downloadUrl = storeURL
 			}
 
-			// The product page on Gumroad, which has the price and the ratings, not the checkout of the Buy button.
+			// The product page on Gumroad, which has the price and the ratings, not the checkout of the Buy button. An archived app is no longer available, so it has no offer, like the archived apps without a download.
 			let offerURL = app.frontmatter.gumroad?.id.url ?? storeURL
-			offers = listing.price.map { Schema.Offer(url: offerURL, seller: .authorName, price: $0) }
+			offers = app.isArchived ? nil : listing.price.map { Schema.Offer(url: offerURL, seller: .authorName, price: $0) }
 		}
 
-		if let rating = listing.storeRating {
+		if let rating = listing.rating(at: buildDate) {
 			aggregateRating = Schema.AggregateRating(rating: rating)
 			review = listing.newestReviews.map(Schema.Review.init).nilIfEmpty
 		}
@@ -536,7 +679,7 @@ extension CGImage {
 	The first image of a PNG or JPEG file, or `nil` when it cannot be read.
 	*/
 	static func read(_ url: URL) -> CGImage? {
-		CGImageSourceCreateWithURL(url as CFURL, nil).flatMap { CGImageSourceCreateImageAtIndex($0, 0, nil) }
+		CGImageSource.read(url)?.firstImage
 	}
 
 	/**
@@ -703,7 +846,7 @@ extension HTML where Tag == HTMLTag.canvas {
 	Sets the intrinsic bitmap dimensions, independently of the display size in CSS.
 	*/
 	func bitmapSize(_ size: PixelSize) -> _AttributedContent<Self> {
-		attributes(.width(size.width), .height(size.height))
+		intrinsicSize(size)
 	}
 }
 

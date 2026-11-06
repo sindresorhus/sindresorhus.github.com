@@ -1,6 +1,7 @@
 ---
 title: 'Gifski'
 subtitle: 'Convert videos to high-quality GIFs'
+description: 'A free app that turns a video into a GIF that still looks like the video. It uses thousands of colors per frame, so gradients stay smooth, without bands.'
 publicationDate: 2018-02-23
 platforms: [
 	'macOS'
@@ -78,3 +79,32 @@ It’s a macOS app for the [gifski encoder](https://gif.ski), which uses [pngqua
 It converts the video formats that macOS supports, like MP4 and MOV with H.264, HEVC, or ProRes.
 
 If you don’t have a video, you can try the app out with [this one](https://github.com/sindresorhus/meta/assets/170270/6606c1d2-c0ce-4b7e-9eb8-a3916e601e48).
+
+There is no Windows or Android version, but the [gifski encoder](https://gif.ski) has a Windows app and a command-line tool for Windows, macOS, and Linux.
+
+## Frequently Asked Questions {#faq}
+
+### Can it edit or optimize a GIF file? {#gif-input}
+
+No, Gifski only converts videos. However, you can add the [“Open GIF with Gifski” shortcut](https://www.icloud.com/shortcuts/075884c124b24cdd8300376152134bc0), and then right-click a GIF file in Finder and choose it in “Quick Actions”.
+
+The [gifski command-line tool](https://gif.ski) also accepts GIF files.
+
+### Can it save the GIF automatically? {#auto-save}
+
+Yes. In the settings, turn on “Automatically save GIFs to Downloads” on Mac, or “Automatically save GIFs to Photos” on iPhone and iPad.
+
+### Can it make APNG or WebP files? {#other-formats}
+
+No. Gifski makes GIFs, as GIF is the format that works everywhere.
+
+### Can it convert many videos at once? {#batch}
+<!-- @faq.keywords batch -->
+
+Not in the app yet. Until then, make a shortcut in the Shortcuts app with the “Repeat with Each” action and the “Convert Video to Animated GIF” action of Gifski inside it.
+
+You can also use the [gifski command-line tool](https://gif.ski):
+
+```console
+for file in *.mp4; do gifski -o "$file.gif" "$file"; done
+```

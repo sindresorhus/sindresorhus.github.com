@@ -92,7 +92,7 @@ struct GeoCitiesTracker: ScriptedElement {
 							.style(Styles.instrument)
 						}
 					}
-					.attributes(.role("group"))
+					.attributes(.role(.group))
 					.accessibilityLabel("Instruments")
 					.style(Styles.instruments)
 				}
@@ -114,7 +114,7 @@ struct GeoCitiesTracker: ScriptedElement {
 				}
 				.style(Styles.row, Styles.header)
 
-				div(.part(Parts.pattern), .tabindex(0), .role("application")) {
+				div(.part(Parts.pattern), .tabindex(0), .role(.application)) {
 					for row in 0..<Self.rowCount {
 						div(.hook(Hooks.row, value: "\(row)")) {
 							span {
@@ -158,7 +158,7 @@ struct GeoCitiesTracker: ScriptedElement {
 					}
 					.style(Styles.noteButton)
 				}
-				.attributes(.role("group"))
+				.attributes(.role(.group))
 				.accessibilityLabel("Notes")
 				.style(Styles.notes)
 
@@ -167,7 +167,7 @@ struct GeoCitiesTracker: ScriptedElement {
 				}
 				.style(Styles.volume)
 
-				p(.part(Parts.status), .role("status")) {}
+				p(.part(Parts.status), .role(.status)) {}
 					.style(Styles.status)
 			}
 			.style(Styles.body)
@@ -233,7 +233,7 @@ struct GeoCitiesTracker: ScriptedElement {
 		case note = "tracker-note"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case body
 		case toolbar

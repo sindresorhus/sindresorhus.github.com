@@ -15,9 +15,22 @@ struct GumroadProduct: Decodable {
 	*/
 	let rating: StoreRating?
 
+	/**
+	The requirement that the product page shows, like `macOS 26`: the value of its “Requires” attribute, written by hand on Gumroad.
+	*/
+	let requirement: String?
+
+	/**
+	The OS version of the requirement: its first word that is a version, like `26` in `macOS 26 or later`.
+	*/
+	var requiredOSVersion: OSVersion? {
+		requirement?.split(separator: " ").lazy.compactMap { OSVersion(String($0)) }.first
+	}
+
 	enum CodingKeys: String, CodingKey {
 		case priceCents = "price_cents"
 		case ratings
+		case attributes
 	}
 
 	/**
@@ -31,11 +44,18 @@ struct GumroadProduct: Decodable {
 			let average: Double
 		}
 
+		struct Attribute: Decodable {
+			let name: String
+			let value: String
+		}
+
 		let container = try decoder.container(keyedBy: CodingKeys.self)
 		let priceCents = try container.decode(Int.self, forKey: .priceCents)
 		let ratings = try container.decodeIfPresent(Ratings.self, forKey: .ratings)
+		let attributes = try container.decodeIfPresent([Attribute].self, forKey: .attributes) ?? []
 		self.price = try? Price(amount: Decimal(priceCents) / 100)
 		self.rating = ratings.flatMap { StoreRating(average: $0.average, count: $0.count, store: .gumroad) }
+		self.requirement = attributes.first { $0.name == "Requires" }?.value
 	}
 
 	/**

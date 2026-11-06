@@ -74,7 +74,7 @@ public struct ResponseCache: Sendable {
 	}
 
 	/**
-	Fetches and decodes JSON. Dates are ISO 8601. Throws for responses other than 2xx and 304.
+	Fetches and decodes JSON. Dates are ISO 8601. Responses other than 2xx and 304 use a usable cached response with a warning, or throw when none exists.
 
 	A response is decoded before it is saved. A response that cannot be decoded, like a GraphQL error with status 200, is not saved, and is handled like a failed request, so the cached response stays and the next build asks again. A cached response that cannot be decoded, like after the type changed, is removed, so the next build asks again.
 
@@ -98,9 +98,21 @@ public struct ResponseCache: Sendable {
 
 	/**
 	Fetches a body with the common 15-second data-request timeout and reads it with the function, retaining the cache behavior of the request-taking overload.
+
+	- Parameter cacheIdentity: What identifies the response in the cache instead of the URL, for a URL that changes for the same response, like a signed link that expires. Without it, a new link gives a new cache file each time.
 	*/
-	public func decoded<Value: Sendable>(from url: URL, maximumAge: Duration? = nil, decode: (Data) throws -> Value) async throws -> Value {
-		try await decoded(from: URLRequest(url: url, timeoutInterval: 15), maximumAge: maximumAge, decode: decode)
+	public func decoded<Value: Sendable>(
+		from url: URL,
+		cacheIdentity: String? = nil,
+		maximumAge: Duration? = nil,
+		decode: (Data) throws -> Value
+	) async throws -> Value {
+		try await decoded(
+			from: URLRequest(url: url, timeoutInterval: 15),
+			cacheIdentity: cacheIdentity,
+			maximumAge: maximumAge,
+			decode: decode
+		)
 	}
 
 	/**
@@ -108,7 +120,12 @@ public struct ResponseCache: Sendable {
 
 	A cached response that is used because its request failed is kept in memory with the time of the failure, so the later builds of the process, like each rebuild of `website serve`, use it without asking again until it is outdated, like a fresh response. Each of them still warns about it, as its data is still old.
 	*/
-	public func decoded<Value: Sendable>(from request: URLRequest, maximumAge: Duration? = nil, decode: (Data) throws -> Value) async throws -> Value {
+	public func decoded<Value: Sendable>(
+		from request: URLRequest,
+		cacheIdentity: String? = nil,
+		maximumAge: Duration? = nil,
+		decode: (Data) throws -> Value
+	) async throws -> Value {
 		try Task.checkCancellation()
 		let maximumAge = maximumAge ?? self.maximumAge
 
@@ -116,9 +133,9 @@ public struct ResponseCache: Sendable {
 			Date.now.timeIntervalSince(date) < maximumAge / .seconds(1)
 		}
 
-		let file = file(for: request)
 		// By the type too, as the same response could be read as another type.
-		let requestKey = request.responseCacheKey
+		let requestKey = cacheIdentity.map { SHA256.hash(data: Data($0.utf8)).hexString } ?? request.responseCacheKey
+		let file = request.url == nil ? nil : directory?.appending(path: "\(requestKey).json")
 
 		if
 			let decodedValue = decodedValues.value(for: requestKey, as: Value.self),
@@ -169,17 +186,16 @@ public struct ResponseCache: Sendable {
 		}
 
 		let data: Data
-		let response: URLResponse
+		let response: HTTPURLResponse
 
 		do {
-			(data, response) = try await Self.session.data(for: request)
+			(data, response) = try await Self.session.httpData(for: request)
 		} catch {
 			try Task.checkCancellation()
 			return try cachedValue(because: .requestFailed(error.descriptiveMessage))
 		}
 
-		let httpResponse = response as? HTTPURLResponse
-		let statusCode = httpResponse?.statusCode ?? 0
+		let statusCode = response.statusCode
 
 		if
 			statusCode == 304,
@@ -190,7 +206,7 @@ public struct ResponseCache: Sendable {
 		}
 
 		guard (200..<300).contains(statusCode) else {
-			return try cachedValue(because: .httpStatus(statusCode, hint: httpResponse?.usedUpRateLimitHint))
+			return try cachedValue(because: .httpStatus(statusCode, hint: response.usedUpRateLimitHint))
 		}
 
 		let value: Value
@@ -202,19 +218,8 @@ public struct ResponseCache: Sendable {
 			return try cachedValue(because: .unreadableBody((error as? DecodingError)?.readableDescription(root: "response") ?? error.descriptiveMessage))
 		}
 
-		let fetched = Entry(etag: httpResponse?.value(forHTTPHeaderField: "ETag"), date: .now, body: data)
+		let fetched = Entry(etag: response.value(forHTTPHeaderField: "ETag"), date: .now, body: data)
 		return try save(fetched, value: value, for: requestKey, to: file)
-	}
-
-	/**
-	The file of the cached response, by the method, the URL, and the body, as GraphQL requests have the same URL. The headers are not part of it, as the GitHub token of CI changes on each run, which would make each run miss the cache.
-	*/
-	private func file(for request: URLRequest) -> URL? {
-		guard request.url != nil else {
-			return nil
-		}
-
-		return directory?.appending(path: "\(request.responseCacheKey).json")
 	}
 
 	/**
@@ -255,12 +260,26 @@ extension ResponseCache {
 	/**
 	Why a response could not be used. Only an HTTP failure carries a status code; descriptions remain the same for errors and stale-cache warnings.
 	*/
-	fileprivate enum FailureCause: Hashable, Sendable, CustomStringConvertible {
+	public enum FailureCause: Hashable, Sendable, CustomStringConvertible {
+		/**
+		An HTTP status that cannot supply the response, with an optional explanation such as a rate limit.
+		*/
 		case httpStatus(Int, hint: String?)
+
+		/**
+		The request failed before it returned a usable HTTP response.
+		*/
 		case requestFailed(String)
+
+		/**
+		The response arrived, but its body could not be read.
+		*/
 		case unreadableBody(String)
 
-		var statusCode: Int? {
+		/**
+		The HTTP status, or `nil` for a failed request or an unreadable body.
+		*/
+		public var statusCode: Int? {
 			guard case .httpStatus(let code, _) = self else {
 				return nil
 			}
@@ -268,7 +287,7 @@ extension ResponseCache {
 			return code
 		}
 
-		var description: String {
+		public var description: String {
 			switch self {
 			case .httpStatus(let code, let hint):
 				"the request failed: The server responded with status \(code).\(hint ?? "")"
@@ -366,20 +385,38 @@ extension ResponseCache {
 		let url: URL?
 
 		/**
-		The status of the response, like `404`, or `nil` when there was no response, like when the network is off.
+		The HTTP failure status, like `404`, or `nil` for transport failures or unreadable response bodies.
 		*/
 		public var statusCode: Int? {
 			failure.statusCode
 		}
 
 		/**
-		Why there is no response, like “the request failed: Could not connect to the server.”
+		Why the request could not supply a usable value, like “the request failed: Could not connect to the server.”
 		*/
-		fileprivate let failure: FailureCause
+		public let failure: FailureCause
 
 		public var description: String {
 			"Could not get \(url, default: "an unknown URL"), because \(failure)"
 		}
+	}
+}
+
+/**
+HTTP-specific requests through Foundation's URL session.
+*/
+extension URLSession {
+	/**
+	The data and checked HTTP response of a request. Every HTTP status is returned, including errors and `304 Not Modified`, so the caller can apply its own status handling. A non-HTTP response throws `URLError.badServerResponse`; request errors and cancellation propagate unchanged.
+	*/
+	public func httpData(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+		let (data, response) = try await data(for: request)
+
+		guard let response = response as? HTTPURLResponse else {
+			throw URLError(.badServerResponse)
+		}
+
+		return (data, response)
 	}
 }
 
@@ -403,7 +440,7 @@ extension HTTPURLResponse {
 
 extension URLRequest {
 	/**
-	A stable digest of the method, the URL, and the exact bytes of the body, for the name of a cache file.
+	A stable digest of the method, the URL, and the exact bytes of the body, for the name of a cache file, as GraphQL requests have the same URL. The headers are not part of it, as the GitHub token of CI changes on each run, which would make each run miss the cache.
 	*/
 	var responseCacheKey: String {
 		struct Identity: Encodable {

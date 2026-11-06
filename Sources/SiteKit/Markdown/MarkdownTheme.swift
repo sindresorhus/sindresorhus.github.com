@@ -77,7 +77,7 @@ public enum MarkdownElement: Hashable, Sendable {
 	case keyboardShortcut
 
 	/**
-	A keyboard shortcut of more than one key and the punctuation right after it, like the comma in “Press Control+C, or close the window”, which stay on one line, so the next line does not start with the punctuation.
+	A keyboard shortcut of more than one key and the punctuation right before and after it, like the comma in “Press Control+C, or close the window” and the parentheses in “copy (Command+C)”, which stay on one line, so the next line does not start with the comma, and no line ends with the opening parenthesis.
 	*/
 	case keyboardShortcutWithPunctuation
 
@@ -264,19 +264,20 @@ extension MarkdownTheme {
 	/**
 	A keyboard shortcut as one `<kbd>` per key (``keyboardShortcut(keysHTML:)``), with the HTML of each key (``KeyboardKey/html``).
 
+	- Parameter openingPunctuation: The opening punctuation right before the shortcut, like `(`, which stays on the line of a shortcut of more than one key, like the closing punctuation. A browser can break a line before the inline block of the shortcut, also after a parenthesis.
 	- Parameter punctuation: The closing punctuation right after the shortcut, like `,`, which stays on the line of a shortcut of more than one key (``MarkdownElement/keyboardShortcutWithPunctuation``). A browser can break a line after the inline block of the shortcut, also before a comma.
 	*/
-	func keyboardShortcut(_ keys: [KeyboardKey], punctuation: Substring = "") -> String {
-		let shortcutHTML = keyboardShortcut(keysHTML: keys.map(\.html))
+	func keyboardShortcut(_ keys: [KeyboardKey], openingPunctuation: Substring = "", punctuation: Substring = "") -> String {
+		let html = String(openingPunctuation).escapedForHTML + keyboardShortcut(keysHTML: keys.map(\.html)) + String(punctuation).escapedForHTML
 
 		guard
 			keys.count > 1,
-			!punctuation.isEmpty
+			!(openingPunctuation.isEmpty && punctuation.isEmpty)
 		else {
-			return shortcutHTML + String(punctuation).escapedForHTML
+			return html
 		}
 
-		return #"<span\#(classAttribute(.keyboardShortcutWithPunctuation))>\#(shortcutHTML)\#(String(punctuation).escapedForHTML)</span>"#
+		return #"<span\#(classAttribute(.keyboardShortcutWithPunctuation))>\#(html)</span>"#
 	}
 
 	/**

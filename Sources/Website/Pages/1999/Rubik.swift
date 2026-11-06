@@ -117,7 +117,7 @@ struct GeoCitiesRubik: ScriptedElement {
 				.width(1080),
 				.height(810),
 				.tabindex(0),
-				.role("application")
+				.role(.application)
 			) {}
 				.accessibilityLabel("Pappa’s Rubik’s Cube. Drag a face to turn that layer, or drag beside the cube to turn the whole cube. The keys R, L, U, D, F, B, M, E, and S turn the layers, and X, Y, and Z turn the whole cube, with Shift for the other way. The arrow keys turn the cube in the hand, Home shows the front, and Backspace undoes a turn.")
 				.style(Styles.canvas)
@@ -130,7 +130,7 @@ struct GeoCitiesRubik: ScriptedElement {
 			.style(Styles.notation)
 
 			// The status is right under the cube, so a visitor on a phone can read what Pappa says while watching him turn it.
-			p(.part(Parts.status), .role("status")) {
+			p(.part(Parts.status), .role(.status)) {
 				"The cube is on the table, just like Pappa left it in 1981."
 			}
 			.style(Styles.status)
@@ -238,6 +238,7 @@ struct GeoCitiesRubik: ScriptedElement {
 						.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 					}
 				}
+				.attributes(.role(.group))
 				.accessibilityLabel("Patterns")
 				.style(GeoCitiesPage.Styles.buttonRow)
 
@@ -525,7 +526,7 @@ struct GeoCitiesRubik: ScriptedElement {
 		case pattern = "rubik-pattern"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case toy
 		case canvas

@@ -109,7 +109,7 @@ struct SudokuBoard: ScriptedElement {
 	"""#)
 
 	var content: some HTML {
-		div(.part(Parts.board), .role("group"), .hidden) {}
+		div(.part(Parts.board), .role(.group), .hidden) {}
 			.accessibilityLabel("Starting grid")
 			.style(Styles.board)
 
@@ -140,7 +140,7 @@ struct SudokuBoard: ScriptedElement {
 		case cellTemplate
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case board
 		case box

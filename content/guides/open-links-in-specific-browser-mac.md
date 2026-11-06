@@ -13,8 +13,10 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Use [Velja](../apps/velja/index.md) to make rules, like Google Meet links in Chrome and other links in Safari. macOS itself has only one default browser for all links, which you set in “System Settings › Desktop & Dock › Default web browser”.
+	Use [Velja](../apps/velja/index.md) to make rules, like Google Meet links in Chrome and other links in Safari. macOS itself has only one default browser for all links, which you set in “[System Settings › Desktop & Dock › Default web browser](x-apple.systempreferences:com.apple.Desktop-Settings.extension)”.
 }
+
+Browserosaurus, the free open-source browser picker, is discontinued. Its repository is archived, and Homebrew disabled it in August 2026.
 
 ## With Velja
 
@@ -31,6 +33,6 @@ A rule can also match the app that you click the link in, like all links from Sl
 
 ## Without an app
 
-macOS has one default browser, which opens all links that you click outside a browser. Change it in “System Settings › Desktop & Dock › Default web browser”. You cannot set a browser for some websites or for some apps.
+macOS has one default browser, which opens all links that you click outside a browser. Change it in “[System Settings › Desktop & Dock › Default web browser](x-apple.systempreferences:com.apple.Desktop-Settings.extension)”. You cannot set a browser for some websites or for some apps.
 
 To open one link in another browser, Control-click the link, choose “Copy Link”, and paste it in the address bar of the other browser.

@@ -6,7 +6,15 @@ import SiteKit
 A highlighted note at the top of the app page, like a sale.
 */
 struct AnnouncementBanner: HTML {
-	let announcement: App.Announcement
+	/**
+	Plain text, without punctuation at its end.
+	*/
+	let text: String
+
+	/**
+	The button.
+	*/
+	let link: LabeledLink?
 
 	var body: some HTML<HTMLTag.aside> {
 		aside {
@@ -17,14 +25,14 @@ struct AnnouncementBanner: HTML {
 				.style(Styles.icon)
 
 				p {
-					announcement.text
+					text
 				}
 				.style(Styles.text)
 
-				if let link = announcement.link {
-					a(.href(link.url)) {
+				if let link {
+					a(.href(link.destination)) {
 						span {
-							link.text
+							link.title
 						}
 
 						Icon.arrowRight.size(.rootEm(1))
@@ -40,7 +48,7 @@ struct AnnouncementBanner: HTML {
 		.style(Styles.root)
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case content
 		case icon
@@ -96,5 +104,24 @@ struct AnnouncementBanner: HTML {
 				Style().flexShrink(0)
 			}
 		}
+	}
+}
+
+extension AnnouncementBanner {
+	/**
+	The announcement of the frontmatter of an app.
+	*/
+	init(announcement: App.Announcement) {
+		self.init(text: announcement.text, link: announcement.link.map { LabeledLink($0.text, destination: $0.url) })
+	}
+
+	/**
+	The note of a sale that the app is in today, with a link to the page of the sale, like “Black Friday: Dato is on sale through November 30”. It has no price and no discount, as they are on the page of the sale.
+	*/
+	init(sale: Sale, app: App) {
+		self.init(
+			text: "\(sale.name): \(app.title) is on sale through \(sale.lastDay.foundationDate.formatted(.siteDayWithoutYear))",
+			link: LabeledLink("See the Discounts", destination: .path(sale.page))
+		)
 	}
 }

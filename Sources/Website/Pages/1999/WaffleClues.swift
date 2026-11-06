@@ -62,7 +62,7 @@ struct GeoCitiesWaffleClues: ScriptedElement {
 		}
 		.style(Styles.book)
 
-		p(.part(Parts.status), .role("status")) {}
+		p(.part(Parts.status), .role(.status)) {}
 			.style(GeoCitiesPage.Styles.centeredText, Styles.cluesStatus)
 	}
 
@@ -121,7 +121,7 @@ struct GeoCitiesWaffleClues: ScriptedElement {
 		case shown
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case book
 		case bookCover

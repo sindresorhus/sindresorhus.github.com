@@ -97,7 +97,7 @@ struct GeoCitiesMacOSWindows: HTML {
 	*/
 	@HTMLBuilder
 	static func iconGrid() -> some HTML {
-		div(.hook(Hooks.part, value: "grid"), .role("group")) {}
+		div(.hook(Hooks.part, value: "grid"), .role(.group)) {}
 			.accessibilityLabel("Items")
 			.style(Styles.grid)
 
@@ -237,7 +237,7 @@ struct GeoCitiesMacOSWindows: HTML {
 			}
 			.style(Styles.fieldset)
 
-			p(.hook(Hooks.part, value: "note"), .role("status")) {}
+			p(.hook(Hooks.part, value: "note"), .role(.status)) {}
 				.style(Styles.windowStatus)
 		})
 
@@ -266,7 +266,7 @@ struct GeoCitiesMacOSWindows: HTML {
 		})
 
 		GeoCitiesPage.Deferred(Self.window(.switcher, width: .small) {
-			div(.hook(Hooks.part, value: "apps"), .role("group")) {}
+			div(.hook(Hooks.part, value: "apps"), .role(.group)) {}
 				.accessibilityLabel("Running programs")
 				.style(Styles.switcherApps)
 		})
@@ -283,7 +283,7 @@ struct GeoCitiesMacOSWindows: HTML {
 			.accessibilityHidden()
 			.style(Styles.meter)
 
-			p(.hook(Hooks.part, value: "status"), .role("status")) {}
+			p(.hook(Hooks.part, value: "status"), .role(.status)) {}
 				.style(Styles.windowStatus)
 
 			div {
@@ -312,7 +312,7 @@ struct GeoCitiesMacOSWindows: HTML {
 				.accessibilityLabel("Extensions and control panels")
 				.style(Styles.extensionList)
 
-			p(.hook(Hooks.part, value: "info"), .role("status")) {
+			p(.hook(Hooks.part, value: "info"), .role(.status)) {
 				"Turn extensions off, then restart. One of them crashes my iMac at startup sometimes. Which one? That is the game."
 			}
 			.style(Styles.windowStatus)
@@ -326,7 +326,7 @@ struct GeoCitiesMacOSWindows: HTML {
 		})
 
 		GeoCitiesPage.Deferred(Self.window(.appearance, width: .large) {
-			div(.role("group")) {
+			div(.role(.group)) {
 				for (part, title) in [("themes", "Themes"), ("desktop", "Desktop"), ("sound", "Sound")] {
 					Elementary.button(.type(.button), .hook(Hooks.part, value: "tab-\(part)"), .ariaPressed(part == "themes")) {
 						title
@@ -476,7 +476,7 @@ struct GeoCitiesMacOSWindows: HTML {
 			}
 			.style(Styles.field)
 
-			p(.hook(Hooks.part, value: "status"), .role("status")) {
+			p(.hook(Hooks.part, value: "status"), .role(.status)) {
 				"Cellos, Good News, and Bad News sing. Zarvox is a robot from space."
 			}
 			.style(Styles.windowStatus)
@@ -490,7 +490,7 @@ struct GeoCitiesMacOSWindows: HTML {
 				.width(160),
 				.height(160),
 				.tabindex(0),
-				.role("application"),
+				.role(.application),
 				.hook(Hooks.part, value: "board")
 			) {}
 				.accessibilityLabel("The Puzzle. Use the arrow keys to slide a piece into the empty place, or click a piece next to it.")
@@ -503,7 +503,7 @@ struct GeoCitiesMacOSWindows: HTML {
 			}
 			.style(Styles.buttons)
 
-			p(.hook(Hooks.part, value: "status"), .role("status")) {
+			p(.hook(Hooks.part, value: "status"), .role(.status)) {
 				"Copied from Dad’s old System 7.5. Paste a picture from the Scrapbook to make your own puzzle."
 			}
 			.style(Styles.windowStatus)
@@ -526,7 +526,7 @@ struct GeoCitiesMacOSWindows: HTML {
 				.accessibilityLabel("Previous page")
 				.style(Styles.smallButton)
 
-				span(.hook(Hooks.part, value: "page"), .role("status")) {}
+				span(.hook(Hooks.part, value: "page"), .role(.status)) {}
 					.style(Styles.pageNumber)
 
 				Elementary.button(.type(.button), .hook(Hooks.part, value: "next")) {
@@ -561,7 +561,7 @@ struct GeoCitiesMacOSWindows: HTML {
 					.style(Styles.scroll)
 			}
 
-			p(.hook(Hooks.part, value: "info"), .role("status")) {}
+			p(.hook(Hooks.part, value: "info"), .role(.status)) {}
 				.style(Styles.windowStatus)
 
 			div {
@@ -573,11 +573,11 @@ struct GeoCitiesMacOSWindows: HTML {
 		})
 
 		GeoCitiesPage.Deferred(Self.window(.keyCaps, width: .large) {
-			p(.hook(Hooks.part, value: "display"), .role("status")) {}
+			p(.hook(Hooks.part, value: "display"), .role(.status)) {}
 				.accessibilityLabel("What you typed")
 				.style(Styles.keyCapsDisplay)
 
-			div(.hook(Hooks.part, value: "keyboard"), .role("group")) {}
+			div(.hook(Hooks.part, value: "keyboard"), .role(.group)) {}
 				.accessibilityLabel("Keyboard")
 				.style(Styles.keyboard)
 
@@ -658,7 +658,7 @@ struct GeoCitiesMacOSWindows: HTML {
 			}
 			.style(Styles.fieldset)
 
-			p(.hook(Hooks.part, value: "status"), .role("status")) {}
+			p(.hook(Hooks.part, value: "status"), .role(.status)) {}
 				.style(Styles.windowStatus)
 		})
 
@@ -681,7 +681,7 @@ struct GeoCitiesMacOSWindows: HTML {
 			}
 			.style(Styles.buttons)
 
-			p(.hook(Hooks.part, value: "status"), .role("status")) {
+			p(.hook(Hooks.part, value: "status"), .role(.status)) {
 				"This is Clarus. She is a dog and a cow. She shows how the page will print."
 			}
 			.style(Styles.windowStatus)
@@ -702,7 +702,7 @@ struct GeoCitiesMacOSWindows: HTML {
 	@HTMLBuilder
 	private var applications: some HTML {
 		GeoCitiesPage.Deferred(Self.window(.sherlock, width: .large) {
-			div(.role("group")) {
+			div(.role(.group)) {
 				for (part, title) in [("internet", "🌐 Search Internet"), ("content", "📄 Find by Content")] {
 					Elementary.button(.type(.button), .hook(Hooks.part, value: "tab-\(part)"), .ariaPressed(part == "internet")) {
 						title
@@ -765,7 +765,7 @@ struct GeoCitiesMacOSWindows: HTML {
 				.accessibilityLabel("Results")
 				.style(Styles.results)
 
-			p(.hook(Hooks.part, value: "summary"), .role("status")) {}
+			p(.hook(Hooks.part, value: "summary"), .role(.status)) {}
 				.style(Styles.windowStatus)
 		})
 
@@ -800,7 +800,7 @@ struct GeoCitiesMacOSWindows: HTML {
 				.accessibilityLabel("The graph")
 				.style(Styles.plot)
 
-			p(.hook(Hooks.part, value: "status"), .role("status")) {
+			p(.hook(Hooks.part, value: "status"), .role(.status)) {
 				"Type an equation with x, like y = x^2 or y = cos(x) / x, and press Graph. Try sqrt, abs, tan, and pi too."
 			}
 			.style(Styles.windowStatus)
@@ -811,7 +811,7 @@ struct GeoCitiesMacOSWindows: HTML {
 				.width(320),
 				.height(240),
 				.tabindex(0),
-				.role("application"),
+				.role(.application),
 				.hook(Hooks.part, value: "game")
 			) {}
 				.accessibilityLabel("Bugdom Jr. Use the arrow keys to walk, and the space bar to roll up into a ball.")
@@ -841,7 +841,7 @@ struct GeoCitiesMacOSWindows: HTML {
 			}
 			.style(Styles.buttons)
 
-			p(.hook(Hooks.part, value: "status"), .role("status")) {
+			p(.hook(Hooks.part, value: "status"), .role(.status)) {
 				"Rollie McFly must free the 5 ladybugs from the cages of the fire ants. Only a rolling pill bug breaks a cage. While you roll, ants bounce off, but rolling makes you dizzy."
 			}
 			.style(Styles.windowStatus)
@@ -873,7 +873,7 @@ struct GeoCitiesMacOSWindows: HTML {
 			div(.hook(Hooks.part, value: "page")) {}
 				.style(Styles.browserPage)
 
-			p(.hook(Hooks.part, value: "status"), .role("status")) {}
+			p(.hook(Hooks.part, value: "status"), .role(.status)) {}
 				.style(Styles.windowStatus)
 		})
 
@@ -885,6 +885,7 @@ struct GeoCitiesMacOSWindows: HTML {
 					}
 				}
 			}
+			.attributes(.role(.group))
 			.accessibilityLabel("Read Me")
 			.style(Styles.document)
 

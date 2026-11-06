@@ -1,6 +1,7 @@
 ---
 title: 'Googly Eyes'
 subtitle: 'Watchful eyes in your menu bar'
+description: 'A free app that adds playful eyes to your menu bar. They follow your cursor and blink when you click, like xeyes of old Unix desktops. Pure whimsy! 👀'
 publicationDate: 2025-03-12
 platforms: [
 	'macOS'
@@ -32,6 +33,8 @@ pressQuotes: [
 ---
 
 Add playful eyes to your menu bar that follow your cursor and blink when you click, like `xeyes` of old Unix desktops. Pure whimsy! 👀
+
+Change the size of the eyes in the settings, or make the left button blink the left eye and the right button blink the right eye, so they wink at you. The eyes also show where the cursor is when you lose it.
 
 ## Frequently Asked Questions {#faq}
 

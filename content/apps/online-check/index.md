@@ -36,7 +36,7 @@ Check if you are online directly from the menu bar. The menu bar icon turns red 
 
 Unlike just checking if Wi-Fi is connected, the app verifies actual internet connectivity through network tests.
 
-The app can also show a red border around the screen while you are offline, keep a history of the status changes that you can export as CSV, and run a shortcut when the status changes.
+The app can also show a red border around the screen while you are offline, keep a history of the status changes that you can export as CSV, and run a shortcut when the status changes. In the Shortcuts app, it has the actions “Is Online”, “Get Enabled State”, and “Set Enabled State”.
 
 ## Tips
 
@@ -60,7 +60,7 @@ A Wi-Fi connection only means you are connected to a network. The app verifies i
 
 ### How can I run this only when not connected to certain networks? {#how-can-i-run-this-only-when-not-connected-to-certain-networks}
 
-Create a shortcut in the Shortcuts app to launch and quit this app. Set up a Shortcuts automation with a “Wi-Fi” trigger to run the shortcut based on your Wi-Fi connection status. This allows the app to launch or quit when connecting to or disconnecting from specific Wi-Fi networks.
+Use the “Set Enabled State” action of Online Check in two Shortcuts automations with the “Wi-Fi” trigger: one that turns the app off when your Mac joins the network, and one that turns it on when your Mac leaves it. While it is off, the app does not check, but stays in the menu bar. You can also turn it off and on with the “Enabled” toggle in the menu.
 
 ### How does it work? {#how-does-it-work}
 
@@ -68,7 +68,7 @@ Anytime the network changes, and every 10 seconds while online (2 seconds while 
 
 ### Can you make the history persistent? {#can-you-make-the-history-persistent}
 
-It’s something I’m considering.
+Not yet. The history is lost when the app quits. To keep it, export it as CSV from the history window before you quit or restart.
 
 ### Can you make the menu bar icon green when online? {#green-icon}
 

@@ -43,9 +43,7 @@ extension ProseStyles {
 					}
 				}
 		}
-		.below(.smallTablet) {
-			$0.cornerRadius(.zero)
-		}
+		.squareInFullWidthGroup()
 		.target {
 			$0.targetHighlight()
 		}
@@ -57,10 +55,7 @@ extension ProseStyles {
 		// The horizontal padding is the padding of the page, so on small screens, where the sections are full width, the text lines up with the text around it.
 		.padding(vertical: .rootEm(1), horizontal: .pageGutter)
 		.cornerRadius(.boxRadius)
-		// Full width on small screens, like the questions.
-		.below(.smallTablet) {
-			$0.cornerRadius(.zero)
-		}
+		.squareInFullWidthGroup()
 
 	/**
 	The summary of a section, with the question and the chevron. As a flexbox, it has no disclosure marker of the browser.
@@ -87,8 +82,8 @@ extension ProseStyles {
 		.inheritsFont()
 		.inherits(.letterSpacing)
 		.inherits(.color)
-		// Like a paragraph, so a question that wraps does not end with one word on its last line.
-		.textWrap(.pretty)
+		// Balanced, so a question that wraps does not end with one word on its last line. The questions are short, and `pretty` in Chrome does not always prevent it.
+		.textWrap(.balance)
 		// The font has more space above the capitals than below the baseline, so the text would look a little low next to the chevron. Trimming the text to the capitals and the baseline centers it at every size and zoom, and the padding keeps the height of the line.
 		.trimmedText()
 
@@ -121,7 +116,7 @@ extension ProseStyles {
 		.shadow(.edge(.separator))
 		.fontWeight(.medium)
 		.color(.secondaryText)
-		.underline(false)
+		.noUnderline()
 		.after {
 			$0.content("→", alternativeText: "")
 		}
@@ -179,8 +174,8 @@ extension ProseStyles {
 		.leading(.pixels(-28))
 		.hstack(alignment: .center, justification: .center)
 		.frame(width: .pixels(24))
-		// On small screens, the link is in the padding of the page, not cut off at its edge.
-		.below(.smallTablet) {
+		// Until prose has space at its sides, the link is in the padding of the page, not cut off at its edge.
+		.below(.proseWithGutters) {
 			$0.leading(.pixels(-24))
 		}
 		.opacity(0)
@@ -282,7 +277,7 @@ extension ProseStyles {
 /**
 A short highlight of the section or heading that a link points to, like the FAQ question that a suggestion on the feedback page opens.
 */
-enum ProseAnimations: KeyframeSet {
+enum ProseAnimations: String, KeyframeSet {
 	case targetHighlight
 
 	var keyframes: [Keyframe] {
@@ -296,5 +291,16 @@ extension Style {
 	*/
 	func targetHighlight() -> Self {
 		animation(ProseAnimations.targetHighlight, .easeOut(duration: .seconds(2)), isEssential: true)
+	}
+
+	/**
+	Square corners on small screens in a group of sections, which is full width there (``ProseStyles/collapsibleSectionsStyle``), for the sections, their summaries, and the link to more questions. A section alone, like a `@Details` in a box of tips, keeps its round corners.
+	*/
+	fileprivate func squareInFullWidthGroup() -> Self {
+		below(.smallTablet) {
+			$0.inside(ProseStyles.collapsibleSections.selector) {
+				$0.cornerRadius(.zero)
+			}
+		}
 	}
 }

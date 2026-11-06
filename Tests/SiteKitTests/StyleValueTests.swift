@@ -5,7 +5,143 @@ import Testing
 @testable import SiteKit
 
 struct StyleValueTests {
-	private enum Counters: CounterSet {
+	@Test
+	func `counter and animation names use raw identity rather than display descriptions`() {
+		#expect(DescribedCounters.step.description == "Display counter")
+		#expect(DescribedCounters.step.name == "described-stable-step")
+		#expect(DescribedAnimations.fade.description == "Display animation")
+		#expect(DescribedAnimations.fade.name == "described-stable-fade")
+		let css = Stylesheet {
+			Rule(".identity", Style().counterIncrement(DescribedCounters.step).animation(DescribedAnimations.fade, .linear(duration: .seconds(1)), isEssential: true))
+		}.css
+		#expect(css.contains("counter-increment: described-stable-step;"))
+		#expect(css.contains("animation: described-stable-fade 1s linear;"))
+		#expect(css.contains("@keyframes described-stable-fade"))
+	}
+
+	@Test
+	func `aspect ratios retain dimensions automatic fallback and typed number expressions`() {
+		let width = StyleVariable<CSSNumber>("ratio-width").value
+		let style = Style()
+			.aspectRatio(.ratio(width: 16, height: 9))
+			.aspectRatio(.auto)
+			.aspectRatio(.automatic(width: 4, height: 3))
+			.aspectRatio(.ratio(width: width, height: 2))
+			.aspectRatio(.ratio(width: 0, height: 0))
+			.aspectRatio(1)
+			.aspectRatio(320.0 / 260.0)
+		#expect(style.declarations.map(\.value.description) == ["16 / 9", "auto", "auto 4 / 3", "var(--ratio-width) / 2", "0 / 0", "1", "1.2308"])
+	}
+
+	@Test
+	func `number division and negation compose without losing numeric expressions`() {
+		let progress = StyleVariable<CSSNumber>("progress").value
+		#expect((CSSNumber.siblingIndex / .siblingCount).description == "calc(sibling-index() / sibling-count())")
+		#expect((-progress).description == "calc(var(--progress) * -1)")
+		#expect((-(progress + 1) / (2 * progress)).description == "calc(calc(calc(var(--progress) + 1) * -1) / calc(2 * var(--progress)))")
+		#expect(Style().opacity(progress / 2).declarations.last?.value.description == "calc(var(--progress) / 2)")
+	}
+
+	@Test
+	func `easing functions are reused independently of animation duration`() {
+		let curve = EasingFunction.cubicBezier(0.22, 1, 0.36, 1)
+		let quick = AnimationTiming(duration: .milliseconds(150), curve: curve)
+		let slow = AnimationTiming(duration: .seconds(2), curve: curve)
+		#expect(quick.description == ".15s cubic-bezier(.22, 1, .36, 1)")
+		#expect(slow.description == "2s cubic-bezier(.22, 1, .36, 1)")
+		#expect(AnimationTiming(duration: .seconds(1), curve: .ease).description == "1s")
+		#expect(AnimationTiming(duration: .seconds(1), curve: .steps(4, position: .jumpBoth)).description == "1s steps(4, jump-both)")
+	}
+
+	@Test
+	func `easing functions reject invalid step counts and bezier coordinates`() async {
+		await #expect(processExitsWith: .failure) {
+			_ = EasingFunction.steps(0)
+		}
+		await #expect(processExitsWith: .failure) {
+			_ = EasingFunction.steps(1, position: .jumpNone)
+		}
+		await #expect(processExitsWith: .failure) {
+			_ = EasingFunction.cubicBezier(-0.1, 0, 1, 1)
+		}
+	}
+
+	@Test
+	func `image sizes express fit keywords and automatic dimensions`() {
+		let style = Style()
+			.backgroundSize(.cover)
+			.backgroundSize(.contain)
+			.backgroundSize(.dimensions(width: .auto, height: .percent(50)))
+			.maskSize(.dimensions(width: .pixels(12), height: .auto))
+			.maskSize(.cover)
+		#expect(style.declarations.map(\.value.description) == ["cover", "contain", "auto 50%", "12px auto", "cover"])
+		#expect(Style().backgroundSize(width: .pixels(8), height: .pixels(16)).declarations.last?.value.description == "8px 16px")
+	}
+
+	@Test
+	func `line heights distinguish normal multipliers lengths and percentages`() {
+		let style = Style()
+			.lineHeight(.normal)
+			.lineHeight(.multiple(1.5))
+			.lineHeight(.length(.pixels(24)))
+			.lineHeight(.length(.percent(150)))
+			.font(size: .rootEm(1), lineHeight: .normal)
+		#expect(style.declarations.map(\.value.description) == ["normal", "1.5", "24px", "150%", "1rem", "normal"])
+		#expect(Style().lineHeight(1.5).declarations.last?.value.description == "1.5")
+	}
+
+	@Test
+	func `color components retain their numeric percentage and angle domains`() {
+		let hue = StyleVariable<Angle>("typed-hue").value
+		let lightness = StyleVariable<Percentage>("typed-lightness").value
+		let chroma = StyleVariable<CSSNumber>("typed-chroma").value
+		#expect(Color.hsl(hue: .degrees(120), saturation: .percent(100), lightness: .percent(50)).description == "hsl(120deg 100% 50%)")
+		#expect(Color.hsl(hue: hue, saturation: .percent(100), lightness: lightness).description == "hsl(var(--typed-hue) 100% var(--typed-lightness))")
+		#expect(Color.hsl(hue: 120, saturation: .percent(100), lightness: .percent(50)).description == "hsl(120 100% 50%)")
+		#expect(Color.oklch(lightness: .percent(62.3), chroma: 0.214, hue: .degrees(259.815)).description == "oklch(62.3% .214 259.815deg)")
+		#expect(Color.oklch(lightness: lightness, chroma: chroma, hue: hue).description == "oklch(var(--typed-lightness) var(--typed-chroma) var(--typed-hue))")
+		#expect(Color.rgb(red: 0, green: 128, blue: 255).description == "rgb(0 128 255)")
+	}
+
+	@Test
+	func `registered initial constants infer syntax and keep unchecked syntax explicit`() {
+		let length = RegisteredProperty<Length>("independent-length", initialValue: .pixels(8))
+		let color = RegisteredProperty<Color>("independent-color", initialValue: .oklch(lightness: 62.3, chroma: 0.214, hue: 259.815))
+		let number = RegisteredProperty<CSSNumber>("independent-number", initialValue: 0.5)
+		let custom = RegisteredProperty<BoxSize>("custom-size", syntax: .init(raw: "<length> | auto"), uncheckedInitialValue: .auto)
+		let css = Stylesheet {
+			Rule(".constants", Style().setting(length, to: .rootEm(2)).setting(color, to: .white).setting(number, to: 1).setting(custom, to: .auto))
+		}.css
+		#expect(css.contains("syntax: \"<length>\";"))
+		#expect(css.contains("initial-value: 8px;"))
+		#expect(css.contains("initial-value: oklch(62.3% .214 259.815deg);"))
+		#expect(css.contains("initial-value: .5;"))
+		#expect(css.contains("syntax: \"<length> | auto\";"))
+		#expect(length.value.description == "var(--independent-length)")
+	}
+
+	@Test
+	func `feature conditions reuse typed modifiers and preserve boolean grouping`() {
+		let display = BrowserFeature.declaration { $0.display(.grid) }
+		let selector = BrowserFeature.selector(":has(> img)")
+		#expect(display.description == "(display: grid)")
+		#expect(BrowserFeature.interpolateSize.description == "(interpolate-size: allow-keywords)")
+		#expect(selector.description == "selector(:has(> img))")
+		#expect((display && (selector || !.webKitScrollbar)).description == "((display: grid)) and ((selector(:has(> img))) or (not (selector(::-webkit-scrollbar))))")
+		#expect(BrowserFeature(raw: "font-tech(color-COLRv1)").description == "font-tech(color-COLRv1)")
+	}
+
+	@Test
+	func `feature declaration checks reject style rules and multiple declarations`() async {
+		await #expect(processExitsWith: .failure) {
+			_ = BrowserFeature.declaration { $0.padding(.pixels(2)).opacity(1) }
+		}
+		await #expect(processExitsWith: .failure) {
+			_ = BrowserFeature.declaration { $0.opacity(1).hover { $0.opacity(0) } }
+		}
+	}
+
+	private enum Counters: String, CounterSet {
 		case step
 	}
 
@@ -56,7 +192,7 @@ struct StyleValueTests {
 
 	@Test
 	func `box edge modifiers retain separate property families and logical axes`() {
-		let styles = [Style().padding(.horizontal, .pixels(2)), Style().margin(.vertical, .auto), Style().border(.leading, .black)]
+		let styles = [Style().padding(.inline, .pixels(2)), Style().margin(.block, .auto), Style().border(.leading, .black)]
 		#expect(styles.flatMap(\.declarations).map(\.property.description) == ["padding-inline", "margin-block", "border-inline-start"])
 		#expect(styles.flatMap(\.declarations).map(\.value.description) == ["2px", "auto", "1px solid #000"])
 	}
@@ -149,7 +285,7 @@ struct StyleValueTests {
 
 	@Test
 	func `named keyframes retain their frames and the registered properties those frames use`() {
-		let progress = RegisteredProperty<Percentage>("progress", syntax: .percentage, initialValue: .percent(0))
+		let progress = RegisteredProperty<Percentage>("progress", initialValue: .percent(0))
 		let frames: [Keyframe] = [
 			.from(Style().setting(progress, to: .percent(0))),
 			.at(50, Style().setting(progress, to: .percent(25))),
@@ -181,7 +317,7 @@ struct StyleValueTests {
 	func `CSS strings escape controls and combining quotes without ending the value`() {
 		let text = "\"\u{301}\\\u{c}\t\n\0a"
 		#expect(CSSValue.string(text).description == "\"\\\"\u{301}\\\\\\c \\9 \\A \u{FFFD}a\"")
-		#expect(CSSValue.url(RoutePath("/a\"b\\c.png")).description == #"url("/a\"b\\c.png")"#)
+		#expect(CSSValue.url(RoutePath("/a\"b\\c.png")).description == #"url("/a%22b%5Cc.png")"#)
 		#expect(Style().content("a\r\nb", alternativeText: "").declarations.last?.value.description == #""a\A b" / """#)
 		#expect(CSSValue.string("a\r\nb\rc").description == #""a\A b\A c""#)
 	}
@@ -206,7 +342,7 @@ struct StyleValueTests {
 
 	@Test
 	func `CSS definitions with the same name occupy separate namespaces`() {
-		let property = RegisteredProperty<Length>("progress", syntax: .length, initialValue: .zero)
+		let property = RegisteredProperty<Length>("progress", initialValue: .zero)
 		let css = Stylesheet {
 			Keyframes("--progress", .to(Style().opacity(1)))
 			Rule(".a", Style().setting(property, to: .pixels(2)))
@@ -219,12 +355,12 @@ struct StyleValueTests {
 	@Test
 	func `registered property syntax matches its value type and preserves raw syntax`() {
 		let colorSyntax: PropertySyntax<Color> = .color
-		let angle = RegisteredProperty<Angle>("angle", syntax: .angle, initialValue: .degrees(0))
-		let color = RegisteredProperty<Color>("color", syntax: colorSyntax, initialValue: .black)
-		let length = RegisteredProperty<Length>("length", syntax: .length, initialValue: .pixels(1))
-		let percentage = RegisteredProperty<Percentage>("percentage", syntax: .percentage, initialValue: .percent(0))
-		let number = RegisteredProperty<CSSNumber>("number", syntax: .number, initialValue: 0)
-		let custom = RegisteredProperty<BoxSize>("custom", syntax: .init(raw: "<length> | auto"), initialValue: .auto, inherits: false)
+		let angle = RegisteredProperty<Angle>("angle", initialValue: .degrees(0))
+		let color = RegisteredProperty<Color>("color", syntax: colorSyntax, uncheckedInitialValue: .black)
+		let length = RegisteredProperty<Length>("length", initialValue: .pixels(1))
+		let percentage = RegisteredProperty<Percentage>("percentage", initialValue: .percent(0))
+		let number = RegisteredProperty<CSSNumber>("number", initialValue: 0)
+		let custom = RegisteredProperty<BoxSize>("custom", syntax: .init(raw: "<length> | auto"), uncheckedInitialValue: .auto, inherits: false)
 		let css = Stylesheet {
 			Rule(".a", Style()
 				.setting(angle, to: .degrees(45))
@@ -300,12 +436,12 @@ struct StyleValueTests {
 	@Test
 	func `typed style values and keywords share the declaration boundary`() {
 		let style = Style()
-			.declaration(.width, LengthPercentage.rootEm(2))
-			.declaration(.color, Color.white)
-			.declaration(.display, Display.grid)
-			.declaration(.rotate, Angle.degrees(45))
-			.declaration(.gridAutoColumns, GridTrack.fraction(1))
-			.declaration(.fontFamily, FontFamily(raw: "system-ui"))
+			.declaration(raw: .width, LengthPercentage.rootEm(2))
+			.declaration(raw: .color, Color.white)
+			.declaration(raw: .display, Display.grid)
+			.declaration(raw: .rotate, Angle.degrees(45))
+			.declaration(raw: .gridAutoColumns, GridTrack.fraction(1))
+			.declaration(raw: .fontFamily, FontFamily(raw: "system-ui"))
 		#expect(style.declarations.map(\.value.description) == ["2rem", "#fff", "grid", "45deg", "1fr", "system-ui"])
 		#expect(div(.ariaCurrent(.step)) { "Step" }.render().contains(#"aria-current="step""#))
 	}
@@ -383,9 +519,9 @@ struct StyleValueTests {
 
 	@Test
 	func `number percentage and mixed length registrations preserve their distinct syntax`() {
-		let number = RegisteredProperty<CSSNumber>("number", syntax: .number, initialValue: 0)
-		let percentage = RegisteredProperty<Percentage>("percentage", syntax: .percentage, initialValue: .percent(0))
-		let offset = RegisteredProperty<LengthPercentage>("offset", syntax: .lengthPercentage, initialValue: .pixels(0))
+		let number = RegisteredProperty<CSSNumber>("number", initialValue: 0)
+		let percentage = RegisteredProperty<Percentage>("percentage", initialValue: .percent(0))
+		let offset = RegisteredProperty<LengthPercentage>("offset", initialValue: .pixels(0))
 		let css = Stylesheet {
 			Rule(".x", Style()
 				.setting(number, to: 2.5)
@@ -429,7 +565,7 @@ struct StyleValueTests {
 		let css = Stylesheet {
 			Rule(".animated", Style().animation(FadeAnimations.fade, animation))
 			Rule(".scroll", Style().animation(FadeAnimations.fade, timeline: .scroll, from: .zero, to: .rootEm(2)))
-			Rule(".named", Style().animation(FadeAnimations.fade, timeline: .view(ViewTimeline("section")), from: .entry(.percent(10)), to: .exit(.percent(90))))
+			Rule(".named", Style().animation(FadeAnimations.fade, viewTimeline: ViewTimeline("section"), from: .entry(.percent(10)), to: .exit(.percent(90))))
 		}.css
 		#expect(css.contains("animation: fade-fade .25s ease-out infinite;"))
 		#expect(css.contains("animation-range: 0 2rem;"))
@@ -440,7 +576,7 @@ struct StyleValueTests {
 	@Test
 	func `color mixing retains percentage custom properties and fallbacks`() {
 		let amount = StyleVariable<Percentage>("mix")
-		let registeredAmount = RegisteredProperty<Percentage>("registered-mix", syntax: .percentage, initialValue: .percent(0))
+		let registeredAmount = RegisteredProperty<Percentage>("registered-mix", initialValue: .percent(0))
 		#expect(Color.white.mix(with: .black, amount: amount.value(default: .percent(30))).description == "color-mix(in oklch, #fff, #000 var(--mix, 30%))")
 		#expect(Color.white.mix(with: .black, amount: registeredAmount.value).description == "color-mix(in oklch, #fff, #000 var(--registered-mix))")
 	}
@@ -487,7 +623,7 @@ struct StyleValueTests {
 		let boundaries: [AnimationRangeBoundary] = [.offset(.pixels(2)), .entry(.percent(10)), .exit(.percent(90)), .cover(.percent(20)), .contain(.percent(30)), .entryCrossing(.percent(40)), .exitCrossing(.percent(50))]
 		#expect(boundaries.map(\.description) == ["2px", "entry 10%", "exit 90%", "cover 20%", "contain 30%", "entry-crossing 40%", "exit-crossing 50%"])
 		let css = Stylesheet {
-			Rule(".mixed", Style().animation(FadeAnimations.fade, timeline: .scroll, from: .offset(.zero), to: .cover(.percent(90))))
+			Rule(".mixed", Style().animation(FadeAnimations.fade, viewTimeline: ViewTimeline("section"), from: .offset(.zero), to: .cover(.percent(90))))
 			Rule(".raw", Style().animation(FadeAnimations.fade, timeline: .scroll, rawRange: "normal exit 50%"))
 		}.css
 		#expect(css.contains("animation-range: 0 cover 90%;"))
@@ -503,11 +639,11 @@ struct StyleValueTests {
 	}
 }
 
-private enum OtherCounters: CounterSet {
+private enum OtherCounters: String, CounterSet {
 	case step
 }
 
-private enum FadingStyles: StyleSet {
+private enum FadingStyles: String, StyleSet {
 	case slow
 	case fast
 
@@ -521,7 +657,7 @@ private enum FadingStyles: StyleSet {
 	}
 }
 
-private enum CountedStyles: StyleSet {
+private enum CountedStyles: String, StyleSet {
 	case first
 	case second
 
@@ -533,7 +669,7 @@ private enum CountedStyles: StyleSet {
 	}
 }
 
-private enum CountedAnimations: KeyframeSet {
+private enum CountedAnimations: String, KeyframeSet {
 	case fade
 
 	static let computations = Mutex(0)
@@ -544,11 +680,31 @@ private enum CountedAnimations: KeyframeSet {
 	}
 }
 
-private enum ReplayStyles: StyleSet {
+private enum ReplayStyles: String, StyleSet {
 	case first
 	case second
 
 	var style: Style {
 		Style().opacity(0.5)
+	}
+}
+
+private enum DescribedCounters: String, CounterSet, CustomStringConvertible {
+	case step = "stableStep"
+
+	var description: String {
+		"Display counter"
+	}
+}
+
+private enum DescribedAnimations: String, KeyframeSet, CustomStringConvertible {
+	case fade = "stableFade"
+
+	var description: String {
+		"Display animation"
+	}
+
+	var keyframes: [Keyframe] {
+		[.to(Style().opacity(0))]
 	}
 }

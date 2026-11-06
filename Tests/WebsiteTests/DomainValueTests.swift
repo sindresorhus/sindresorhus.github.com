@@ -32,7 +32,7 @@ struct DomainValueTests {
 		Keep  two spaces and `code`.
 
 		"""
-		let post = "---\ntags: ['swift', 'programming']\nredirectFrom: ['/old-post']\npublicationDate: 2026-01-02\ntitle: 'Post'\nisUnlisted: true\nisDraft: false\n---\n\nPost body.\n"
+		let post = "---\ntags: ['swift', 'programming']\nredirectFrom: ['/old-post']\npublicationDate: 2026-01-02\ntitle: 'Post'\nisUnlisted: true\nisDraft: true\n---\n\nPost body.\n"
 		let guide = "---\napps: ['sample']\ntitle: 'Guide'\nscreenshot: {description: 'The result', number: 1}\n---\n\nGuide body.\n"
 		let expectedGuide = "---\napps: [\n\t'sample'\n]\ntitle: 'Guide'\nscreenshot: {\n\tdescription: 'The result'\n\tnumber: 1\n}\n---\n\nGuide body.\n"
 		let page = "---\nlinks: {Second: 'https://example.com/b', First: 'https://example.com/a'}\ntitle: 'Page'\n---\n\nPage body.\n"
@@ -103,7 +103,7 @@ struct DomainValueTests {
 	}
 
 	@Test(.temporaryDirectory)
-	func `every document kind shares its published mapping and draft lookup`() throws {
+	func `every document kind shares its published mapping`() throws {
 		let fixtures = [
 			("content/apps/draft-app/index.md", #path("/draft-app")),
 			("content/blog/draft-post/index.md", #path("/blog/draft-post")),
@@ -112,12 +112,9 @@ struct DomainValueTests {
 		]
 		let root = try URL.temporaryDirectory(files: Dictionary(uniqueKeysWithValues: fixtures.map { ($0.0, "") }))
 		let project = Project.site(root: root)
-		let content = SiteContent(apps: [], posts: [], pages: [], buildDate: .now, project: project)
 
 		for (relativePath, path) in fixtures {
-			let file = project.root.appending(path: relativePath)
-			#expect(RoutePath(contentFile: file, project: project) == path)
-			#expect(try #require(content.draftFile(ofLink: path.description)).isSameFile(as: file))
+			#expect(RoutePath(contentFile: project.root.appending(path: relativePath), project: project) == path)
 		}
 	}
 
@@ -127,7 +124,32 @@ struct DomainValueTests {
 		let expected = ["System Color Picker", "system-color-picker", "Color Picker", "Colour Picker"]
 
 		#expect(app.feedbackLookupNames == expected)
-		#expect(FeedbackData(apps: [app]).apps.first?.names == expected)
+		#expect(FeedbackData(listings: [AppListing(app: app)]).apps.first?.names == expected)
+	}
+
+	@Test
+	func `feedback repository URLs retain their validated type without changing JSON`() async throws {
+		struct PlainAppData: Encodable {
+			let title: String
+			let names: [String]
+			let iconURL: RoutePath
+			let faqURL: LinkDestination?
+			let repositoryURL: URL?
+			let olderVersions = [String]()
+		}
+
+		let encoder = JSONEncoder()
+		encoder.outputFormatting = .sortedKeys
+
+		for frontmatter in ["repositoryURL: 'https://github.com/sindresorhus/test'", ""] {
+			let app = try await App(frontmatter: frontmatter)
+			let data = try #require(FeedbackData(listings: [AppListing(app: app)]).apps.first)
+			let repository: AbsoluteURL? = data.repositoryURL
+			let plain = PlainAppData(title: data.title, names: data.names, iconURL: data.iconURL, faqURL: data.faqURL, repositoryURL: repository?.value)
+
+			#expect(repository == app.repositoryURL)
+			#expect(try encoder.encode(data) == encoder.encode(plain))
+		}
 	}
 
 	@Test
@@ -136,7 +158,7 @@ struct DomainValueTests {
 		statistics.search = .complete(total: 1, packages: [NPMStatistics.Package(name: "chalk", version: "6", description: "Terminal styling", date: .now, weeklyDownloads: 42, dependentCount: nil, repository: #repository("chalk/chalk"))])
 		let repository = try GitHubRepository(json: #"{"name":"awesome","full_name":"sindresorhus/awesome","html_url":"https://github.com/sindresorhus/awesome","description":"Awesome lists","created_at":"2026-01-01T00:00:00Z","archived":false,"fork":false,"stargazers_count":123}"#)
 		let account = GitHub.Account(repositoryCount: 1, followerCount: 0, starCount: 123, maintenance: GitHub.Maintenance(closedIssueCount: 0, mergedPullRequestCount: 0), repositories: [repository])
-		let content = SiteContent(apps: [], posts: [], pages: [], gitHubAccount: account, npmStatistics: statistics, buildDate: .now, project: .empty)
+		let content = SiteContent.test(gitHubAccount: account, npmStatistics: statistics)
 		let routes = Site(content: content).textFileRoutes
 
 		for source in ProjectOfTheDay.Source.allCases {
@@ -217,8 +239,8 @@ struct DomainValueTests {
 		#expect(StoreRating(average: 4.8, count: 0, store: .gumroad) == nil)
 		#expect(StoreRating(average: 4.8, count: -1, store: .gumroad) == nil)
 		let rating = try #require(StoreRating(average: 4.8, count: 26, store: .gumroad))
-		#expect(Schema.AggregateRating(rating: rating).ratingValue == 4.8)
-		#expect(Schema.AggregateRating(rating: rating).ratingCount == 26)
+		#expect(Schema.AggregateRating(rating: .store(rating)).ratingValue == 4.8)
+		#expect(Schema.AggregateRating(rating: .store(rating)).ratingCount == 26)
 		#expect(StoreRating(average: 1, count: 1, store: .appStore) != nil)
 		#expect(StoreRating(average: 5, count: 1, store: .appStore) != nil)
 
@@ -327,10 +349,10 @@ struct DomainValueTests {
 
 	@Test
 	func `a guide page resolves its primary app independently of the content order`() async throws {
-		let guide = try await Guide(markdown: "---\ntitle: 'How to Test'\ndescription: 'Use Test.'\npublicationDate: 2026-01-01\ntopic: 'mac'\napps: ['test']\n---\n\n\(Guide.testBody)", slug: "how-to-test")
+		let guide = try await Guide(markdown: Guide.testMarkdown(), slug: "how-to-test")
 		let app = try await App()
 		let other = try await App(title: "Other", slug: "other")
-		let content = SiteContent(apps: [other, app], posts: [], guides: [guide], pages: [], resolvedGuides: [try #require(Guide.Resolved(guide: guide, apps: [app]))], buildDate: .now, project: .empty)
+		let content = SiteContent.test(apps: [other, app], guides: [guide], resolvedGuides: [try #require(Guide.Resolved(guide: guide, apps: [app]))])
 		#expect(GuidePage(guide: try #require(content.resolvedGuides.first), content: content).feedbackApp?.slug == app.slug)
 	}
 
@@ -390,7 +412,7 @@ struct DomainValueTests {
 		}
 
 		for (errors, line) in [(appErrors, 4), (postErrors, 3), (guideErrors, 4)] {
-			#expect(errors.errors.map(\.line) == [line])
+			#expect(errors.errors.map(\.line?.rawValue) == [line])
 			#expect(errors.errors.first?.reason.contains("publicationDate") == true)
 		}
 	}
@@ -445,7 +467,7 @@ struct DomainValueTests {
 
 	@Test
 	func `resolved guides require every app and the requested screenshot`() async throws {
-		let guide = try await Guide(markdown: "---\ntitle: 'How to Test'\ndescription: 'Use Test.'\npublicationDate: 2026-01-01\ntopic: 'mac'\napps: ['test', 'other']\n---\n\n\(Guide.testBody)", slug: "how-to-test")
+		let guide = try await Guide(markdown: Guide.testMarkdown(apps: "['test', 'other']"), slug: "how-to-test")
 		let app = try await App()
 		#expect(Guide.Resolved(guide: guide, apps: [app]) == nil)
 		let other = try await App(title: "Other", slug: "other")
@@ -454,8 +476,12 @@ struct DomainValueTests {
 		#expect(resolved.apps.map(\.slug) == ["test", "other"])
 		#expect(resolved.screenshot == nil)
 
-		let screenshotGuide = try await Guide(markdown: "---\ntitle: 'How to Test'\ndescription: 'Use Test.'\npublicationDate: 2026-01-01\ntopic: 'mac'\napps: ['test']\nscreenshot: {number: 1, description: 'The result'}\n---\n\n\(Guide.testBody)", slug: "how-to-test")
+		let screenshotGuide = try await Guide(markdown: Guide.testMarkdown(frontmatter: "screenshot: {number: 1, description: 'The result'}"), slug: "how-to-test")
 		#expect(Guide.Resolved(guide: screenshotGuide, apps: [app]) == nil)
+
+		// The number counts from 1, so the second screenshot is not the first, like for several guides.
+		let randomNumber = try #require(try await SiteContent.website.resolvedGuides.first { $0.guide.slug == "random-number-iphone" })
+		#expect(randomNumber.screenshot?.asset.path == #path("/randa/screenshot2.jpg"))
 	}
 
 	@Test(arguments: ["", "Test App", "UPPERCASE", "path/id", "é"])
@@ -671,6 +697,9 @@ struct DomainValueTests {
 		var opened = 0;
 		var focused = 0;
 		var navigator = {};
+		function elementForFragment(hash) {
+			return document.getElementById(hash.slice(1));
+		}
 		var document = {
 			getElementById() {
 				return {
@@ -698,7 +727,7 @@ struct DomainValueTests {
 			}
 		};
 		""")
-		// The first line imports the shared helpers of `dom.js`, which a plain script cannot load. The tested paths do not call them.
+		// The first line imports the shared helpers of `dom.js`, which a plain script cannot load, so the context above has a stand-in for `elementForFragment`. The tested paths do not call the others.
 		context.evaluateScript(source.split(separator: "\n").dropFirst().joined(separator: "\n"))
 		context.evaluateScript("""
 		const element = new Element();
@@ -754,7 +783,7 @@ struct DomainValueTests {
 	func `modification dates stay native and never precede publication`(commit: String?, expected: String) throws {
 		var file = try MarkdownFile(contents: "---\ntitle: 'Article'\npublicationDate: 2026-01-02\n---\nBody", url: URL(filePath: "/content/blog/article.md"))
 		file.lastCommitDate = try commit.map { try Date($0, strategy: .iso8601) }
-		let post = try BlogPost(file: file, frontmatter: file.decodeFrontmatter(), project: .empty)
+		let post = try BlogPost(file: file.decoded(), project: .empty)
 		let day: SOML.Date = post.lastModified
 
 		#expect(day.description == expected)
@@ -770,19 +799,28 @@ struct DomainValueTests {
 		let unlinked = ProsePage(app: app, title: "Privacy Policy", linksBack: false) {
 			"Body"
 		}.render()
-		#expect(linked.contains("← Back to Sample App"))
-		#expect(!unlinked.contains("← Back to"))
+		#expect(linked.contains("Back to Sample App"))
+		#expect(!unlinked.contains("Back to"))
 		#expect(linked.contains("Privacy Policy"))
 		#expect(unlinked.contains("Privacy Policy"))
 	}
 
 	@Test
+	func `app links that share a title with a footer link name the app for screen readers`() async throws {
+		let app = try await App(title: "Sample App")
+		let privacyPolicy = try #require(app.pageOverflowLinks.first { $0.title == "Privacy Policy" })
+		#expect(privacyPolicy.accessibilityLabel == "Privacy Policy of Sample App")
+		#expect(Link(privacyPolicy).render().contains(#"aria-label="Privacy Policy of Sample App""#))
+		#expect(app.pageOverflowLinks.first { $0.title == "Terms of Use" }?.accessibilityLabel == nil)
+	}
+
+	@Test
 	func `wall entries keep the required app in their filter and title data`() async throws {
 		let app = try await App(title: "Sample App", frontmatter: "pressQuotes: [{quote: 'Great', source: 'Example'}]", slug: "sample")
-		let content = SiteContent(apps: [app], posts: [], pages: [], buildDate: Date(timeIntervalSince1970: 1767225600), project: .empty)
+		let content = SiteContent.test(apps: [app], buildDate: Date(timeIntervalSince1970: 1767225600))
 		let html = ReviewsPage(content: content).body.render()
 		#expect(html.contains(#"data-app="sample""#))
-		#expect(html.contains(#""sample":"Sample App""#))
+		#expect(html.contains(#""sample":{"title":"Sample App","url":"/sample"}"#))
 		#expect(!html.contains(#"data-app="""#))
 	}
 
@@ -833,7 +871,7 @@ extension DomainValueTests {
 			"content/pages/blog/same.md": "---\ntitle: 'Page'\n---\n\nText.\n",
 			SiteSettings.path: SiteSettings.testSOML,
 		]))
-		try project.root.appending(path: Guide.directory).createDirectory()
+		try Guide.directory.fileURL(in: project.root).createDirectory()
 		let errors = try await #require(throws: ContentErrors.self) {
 			try await SiteContent.load(from: project, externalData: .none)
 		}
@@ -886,13 +924,57 @@ extension DomainValueTests {
 		[Code](/apps)
 		```
 		""")
-		let content = SiteContent(apps: [app], posts: [], pages: [], buildDate: .now, project: .empty)
+		let content = SiteContent.test(apps: [app])
 		let route = try #require(Site(content: content).textFileRoutes.first { $0.path == #path("/llms-full.txt") })
 		let markdown = String(decoding: try await route.renderedFile(), as: UTF8.self)
 		#expect(markdown.contains("1. Open [the apps](https://sindresorhus.com/apps).\n2. Keep this authored number.\n3. Keep this one too."))
 		#expect(markdown.contains("Écrit [![Preview](https://sindresorhus.com/image(1).png)](https://sindresorhus.com/apps)."))
 		#expect(markdown.contains("`[Example](/apps)`"))
 		#expect(markdown.contains("[Code](/apps)"))
+	}
+
+	@Test
+	func `Markdown export rewrites HTML links while preserving HTML code examples`() async throws {
+		let app = try await App(body: """
+		```xml
+		<a href="/apps">Apps</a>
+		```
+
+		`<a href="/apps">Apps</a>`
+
+		<a href="/apps">Apps</a>
+
+		<div>
+		<a href="/about">About</a>
+		</div>
+		""")
+		let route = try #require(Site(content: .test(apps: [app])).textFileRoutes.first { $0.path == #path("/test.md") })
+		let markdown = String(decoding: try await route.renderedFile(), as: UTF8.self)
+
+		#expect(markdown.contains("```xml\n<a href=\"/apps\">Apps</a>\n```"))
+		#expect(markdown.contains("`<a href=\"/apps\">Apps</a>`"))
+		#expect(markdown.contains("\n\n<a href=\"https://sindresorhus.com/apps\">Apps</a>"))
+		#expect(markdown.contains("<div>\n<a href=\"https://sindresorhus.com/about\">About</a>\n</div>"))
+	}
+
+	@Test
+	func `Markdown export preserves the containers of HTML blocks`() async throws {
+		let app = try await App(body: """
+		> <div>
+		> <a href="/apps">Apps</a>
+		> </div>
+
+		1. <div>
+		   <a href="/about">About</a>
+		   </div>
+
+		2. Keep this item.
+		""")
+		let route = try #require(Site(content: .test(apps: [app])).textFileRoutes.first { $0.path == #path("/test.md") })
+		let markdown = String(decoding: try await route.renderedFile(), as: UTF8.self)
+
+		#expect(markdown.contains("> <div>\n> <a href=\"https://sindresorhus.com/apps\">Apps</a>\n> </div>"))
+		#expect(markdown.contains("1. <div>\n   <a href=\"https://sindresorhus.com/about\">About</a>\n   </div>\n\n2. Keep this item."))
 	}
 
 	@Test
@@ -948,7 +1030,7 @@ extension DomainValueTests {
 	@Test
 	func `resolved guide content preserves the built in split and accepts app link queries`() async throws {
 		let body = "@QuickAnswer {\nUse [Test](/test?source=guide#faq).\n}\n\n@Steps {\n1. Open Test.\n}\n\n## Without an app\n\nUse the built-in way."
-		let guide = try await Guide(markdown: "---\ntitle: 'How to Test'\ndescription: 'Use Test.'\npublicationDate: 2026-01-01\ntopic: 'mac'\napps: ['test']\n---\n\n\(body)")
+		let guide = try await Guide(markdown: Guide.testMarkdown(body: body))
 		let app = try await App()
 		#expect(guide.quickAnswerLinkError(to: app) == nil)
 		let resolved = try #require(Guide.Resolved(guide: guide, apps: [app]))
@@ -966,7 +1048,7 @@ extension DomainValueTests {
 			return
 		}
 		#expect(source == "Article")
-		#expect(url.host() == "example.com")
+		#expect(url.value.host() == "example.com")
 		#expect(year == 2021)
 		guard case .buyer(_, _, nil) = quotes[1].attribution else {
 			Issue.record("Expected a buyer without an article date.")
@@ -985,31 +1067,31 @@ extension DomainValueTests {
 	@Test
 	func `sponsor presentations require logo tier links and retain text only sponsors`() throws {
 		let decoder = JSONDecoder()
-		let logos = try decoder.decode(MarkdownPage.SponsorTier.self, from: Data(#"{"title":"Gold","price":"$100","sponsors":[{"name":"Example","url":"https://example.com","logo":{"path":"/logo.png","width":120}}]}"#.utf8))
+		let logos = try decoder.decode(MarkdownPage.SponsorTier.self, from: Data(#"{"title":"Gold","price":"$100","sponsors":[{"name":"Example","url":"https://example.com","logo":{"path":"/logo.png","width":120,"height":40}}]}"#.utf8))
 		guard case .logos(let linked) = try logos.resolved.presentation else {
 			Issue.record("Expected linked logo sponsors.")
 			return
 		}
-		#expect(linked.first?.url == #URL("https://example.com"))
+		#expect(linked.first?.url.value == #URL("https://example.com"))
 		let html = SponsorList(tiers: [try logos.resolved]).render()
 		#expect(html.contains(#"href="https://example.com" rel="nofollow""#))
 		#expect(html.contains(#"width="120""#))
 
 		let text = try decoder.decode(MarkdownPage.SponsorTier.self, from: Data(#"{"title":"Thanks","price":"$1","sponsors":[{"name":"A reader"}]}"#.utf8))
 		#expect(SponsorList(tiers: [try text.resolved]).render().contains("<li>A reader</li>"))
-		let missingLink = try decoder.decode(MarkdownPage.SponsorTier.self, from: Data(#"{"title":"Gold","price":"$100","sponsors":[{"name":"Example","logo":{"path":"/logo.png","width":120}}]}"#.utf8))
+		let missingLink = try decoder.decode(MarkdownPage.SponsorTier.self, from: Data(#"{"title":"Gold","price":"$100","sponsors":[{"name":"Example","logo":{"path":"/logo.png","width":120,"height":40}}]}"#.utf8))
 		#expect(throws: ContentError.self) {
 			try missingLink.resolved
 		}
 	}
 
 	@Test(arguments: [0, -1])
-	func `sponsor logo widths reject invalid direct and decoded values`(width: Int) throws {
+	func `sponsor logo sizes reject invalid direct and decoded values`(width: Int) throws {
 		#expect(throws: ContentError.self) {
-			try MarkdownPage.Logo.Width(validating: width)
+			try MarkdownPage.Logo.Pixels(validating: width)
 		}
 		#expect(throws: DecodingError.self) {
-			try JSONDecoder().decode(MarkdownPage.Logo.self, from: Data("{\"path\":\"/logo.png\",\"width\":\(width)}".utf8))
+			try JSONDecoder().decode(MarkdownPage.Logo.self, from: Data("{\"path\":\"/logo.png\",\"width\":\(width),\"height\":40}".utf8))
 		}
 	}
 
@@ -1027,7 +1109,7 @@ extension DomainValueTests {
 
 		@Sponsors
 		""", slug: "supporters")
-		let content = SiteContent(apps: [], posts: [], pages: [page], buildDate: .now, project: .empty)
+		let content = SiteContent.test(pages: [page])
 		let route = try #require(Site(content: content).textFileRoutes.first { $0.path == #path("/llms-full.txt") })
 		let markdown = String(decoding: try await route.renderedFile(), as: UTF8.self)
 		#expect(markdown.contains("```\n@Sponsors\n```"))
@@ -1044,5 +1126,37 @@ extension DomainValueTests {
 		])
 		let library = try App.SharedQuestions.Library(project: .site(root: root))
 		#expect(library.file?.url.lastPathComponent == "shared-questions.md")
+	}
+}
+
+extension DomainValueTests {
+	@Test
+	func `palette shades have ordered unique keys and resolvable references`() {
+		for palette in Palette.allCases {
+			let shades = palette.shades
+			let keys = shades.map(\.key)
+			#expect(!keys.isEmpty)
+			#expect(keys == keys.sorted())
+			#expect(Set(keys).count == keys.count)
+
+			for (shade, value) in shades {
+				let reference = palette.color(shade)
+				#expect(reference.description == "var(--\(palette.rawValue)-\(shade))")
+				#expect(reference.resolved == value)
+			}
+		}
+
+		#expect(Color.gray(950).resolved.description == "oklch(18.8% .004 286deg)")
+		#expect(Color.primary(500).resolved.description == "oklch(62.3% .214 259.815deg)")
+		#expect(Color.secondary(600).resolved.description == "oklch(59.2% .249 .584deg)")
+		#expect(Color.white.resolved == .white)
+		#expect(Color(raw: "oklch(50% .2 180deg)").resolved == Color(raw: "oklch(50% .2 180deg)"))
+	}
+
+	@Test
+	func `palette lookups reject a shade absent from the authored palette`() async {
+		await #expect(processExitsWith: .failure) {
+			_ = Palette.primary.color(123)
+		}
 	}
 }

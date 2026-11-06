@@ -33,6 +33,21 @@ struct NPMStatistics {
 	}
 
 	/**
+	The packages for the list of the open-source page, without the ones that have no repository, as they have nothing to read about them, like placeholders, and without the ones of ``unlistedPackageNames``. The numbers of the about page and the now page still count them all. `nil` like ``packages``.
+	*/
+	var listedPackages: [Package]? {
+		packages?.filter { package in
+			package.repository != nil
+				&& !Self.unlistedPackageNames.contains(package.name)
+		}
+	}
+
+	/**
+	For now, the packages that the list leaves out by name, until they are fixed or deprecated on npm: `enva` is an empty placeholder, and the description of `@ava/bucklescript` is the start of its readme, with the badges.
+	*/
+	private static let unlistedPackageNames: Set = ["enva", "@ava/bucklescript"]
+
+	/**
 	Whether the search is unavailable, has only its advertised count, or returned all pages. A complete search can omit packages with unreadable dates.
 	*/
 	enum Search {
@@ -206,7 +221,7 @@ struct NPMStatistics {
 				missing.insert("their number", at: 0)
 			}
 
-			warnings.add(Warning(.failedRequest, "Could not get the npm packages, so the about page leaves out \(missing.formatted(.list(type: .and).locale(.site))), and the now page leaves out the npm releases and the numbers of new and updated packages: \(error)"))
+			warnings.add(Warning(.failedRequest, "Could not get the npm packages, so the about page leaves out \(missing.formattedList(.and)), and the now page leaves out the npm releases and the numbers of new and updated packages: \(error)"))
 		}
 
 		statistics.registryWeeklyDownloads = await registryWeeklyDownloads

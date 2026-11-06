@@ -3,6 +3,7 @@ title: 'How to Create a New Text File on Mac'
 description: 'Make an empty text file in the current Finder folder with Option+N in Supercharge, or with TextEdit or the touch command in Terminal.'
 publicationDate: 2026-10-31
 topic: 'finder-and-desktop'
+isForWindowsUsers: true
 apps: [
 	'supercharge'
 ]

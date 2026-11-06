@@ -65,7 +65,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 		AudioBar()
 
 		div {
-			div(.role("group")) {
+			div(.role(.group)) {
 				for (index, view) in GeoCitiesWindowsNetMeeting.views.enumerated() {
 					button(.type(.button), .hook(Hooks.view, value: view.value), .ariaPressed(index == 0)) {
 						span {
@@ -95,7 +95,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 		.style(Styles.main, GeoCitiesPage.Styles.scriptingOnly)
 
 		div {
-			p(.part(Parts.status), .role("status")) {
+			p(.part(Parts.status), .role(.status)) {
 				"Logging on to ils.microsoft.com…"
 			}
 			.style(GeoCitiesPage.Styles.statusBar, Styles.statusLine)
@@ -115,7 +115,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 
 	private struct Toolbar: HTML {
 		var body: some HTML {
-			div(.role("group")) {
+			div(.role(.group)) {
 				for item in GeoCitiesWindowsNetMeeting.toolbar {
 					button(.part(item.part), .type(.button)) {
 						span {
@@ -329,7 +329,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 						.part(Parts.remoteVideo),
 						.width(160),
 						.height(120),
-						.role("img")
+						.role(.image)
 					) {}
 						.accessibilityLabel("Mormor’s video")
 						.style(Styles.video)
@@ -356,7 +356,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 						.part(Parts.localVideo),
 						.width(160),
 						.height(120),
-						.role("img")
+						.role(.image)
 					) {}
 						.accessibilityLabel("My video: a drawing of Sindre")
 						.style(Styles.video)
@@ -392,14 +392,14 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 				div(.part(Parts.callArea), .hidden) {
 					Videos()
 
-					div(.role("group")) {
+					div(.role(.group)) {
 						p(.part(Parts.subtitleMormor)) {}
 						p(.part(Parts.subtitleYou)) {}
 					}
 					.accessibilityLabel("What we say")
 					.style(Styles.subtitles)
 
-					div(.role("group")) {
+					div(.role(.group)) {
 						for (value, title) in GeoCitiesWindowsNetMeeting.lines {
 							button(.type(.button), .hook(Hooks.say, value: value)) {
 								title
@@ -447,7 +447,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 	private struct ChatPanel: HTML {
 		var body: some HTML {
 			GeoCitiesWindowsNetMeeting.toolPanel("chat", title: "Chat - 2 people") {
-				div(.part(Parts.chatLog), .role("log"), .tabindex(0)) {}
+				div(.part(Parts.chatLog), .role(.log), .tabindex(0)) {}
 					.accessibilityLabel("Chat")
 					.style(Styles.chatLog)
 
@@ -484,7 +484,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 	private struct WhiteboardPanel: HTML {
 		var body: some HTML {
 			GeoCitiesWindowsNetMeeting.toolPanel("whiteboard", title: "Untitled - Whiteboard") {
-				div(.role("group")) {
+				div(.role(.group)) {
 					for (index, color) in GeoCitiesWindowsNetMeeting.colors.enumerated() {
 						button(.type(.button), .hook(Hooks.color, value: color.name), .ariaPressed(index == 0)) {}
 							.accessibilityLabel(color.name.capitalized)
@@ -505,7 +505,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					.width(320),
 					.height(200),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("Whiteboard. Draw with the mouse or a finger, or move the pen with the arrow keys. Space lifts the pen and puts it down.")
 					.style(Styles.board)
@@ -521,7 +521,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					.width(320),
 					.height(200),
 					.tabindex(0),
-					.role("application")
+					.role(.application)
 				) {}
 					.accessibilityLabel("My shared desktop, as Mormor sees it. While Mormor has the control, Escape, Enter, or a click takes it back. Otherwise, Enter or a click on the Recycle Bin gets back what she threw away.")
 					.style(Styles.shareScreen)
@@ -542,7 +542,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 						.part(Parts.photo),
 						.width(80),
 						.height(60),
-						.role("img")
+						.role(.image)
 					) {}
 						.accessibilityLabel("The photo, not received yet")
 						.style(Styles.photo)
@@ -692,7 +692,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 		case color = "netmeeting-color"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case toolbar
 		case audioBar

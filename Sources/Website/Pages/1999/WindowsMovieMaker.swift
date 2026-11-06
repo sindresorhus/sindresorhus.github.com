@@ -82,11 +82,9 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 			GeoCitiesPage.Deferred(stage)
 			GeoCitiesPage.Deferred(playbackControls)
 			GeoCitiesPage.Deferred(toolbar)
-			GeoCitiesPage.Deferred(scenesPanel)
-			GeoCitiesPage.Deferred(actorsPanel)
-			GeoCitiesPage.Deferred(wordsPanel)
-			GeoCitiesPage.Deferred(soundsPanel)
-			GeoCitiesPage.Deferred(portfolioPanel)
+			ForEach(Tool.allCases) { tool in
+				GeoCitiesPage.Deferred(panel(tool))
+			}
 			GeoCitiesPage.Deferred(guide)
 		}
 		.style(GeoCitiesWindows.Styles.stack, GeoCitiesPage.Styles.scriptingOnly)
@@ -107,7 +105,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 			.width(480),
 			.height(300),
 			.tabindex(0),
-			.role("application")
+			.role(.application)
 		) {}
 			.accessibilityLabel("The movie. Click an actor to pick it, and drag it on the floor to record its path while the clock runs. The arrow keys move the picked actor and record one frame, N picks the next actor, Delete removes it, comma and period go back and forward a frame, and Space plays the movie.")
 			.style(Styles.screen)
@@ -173,7 +171,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 	*/
 	@HTMLBuilder
 	private var toolbar: some HTML {
-		div(.role("group")) {
+		div(.role(.group)) {
 			for tool in Tool.allCases {
 				button(.type(.button), .hook(Hooks.tool, value: tool.rawValue), .ariaPressed(tool == .scenes)) {
 					span {
@@ -192,243 +190,240 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 	}
 
 	/**
-	A tool drawer, initially visible only for the selected Scenes tool.
+	The drawer of a tool, initially visible only for the selected Scenes tool. Each tool has its drawer, so every tool opens one.
 	*/
-	private func panel<Content: HTML>(_ tool: Tool, @HTMLBuilder content: () -> Content) -> some HTML<HTMLTag.div> {
+	private func panel(_ tool: Tool) -> some HTML {
 		div(.hook(Hooks.panel, value: tool.rawValue)) {
-			content()
+			switch tool {
+			case .scenes:
+				scenesDrawer
+			case .actors:
+				actorsDrawer
+			case .words:
+				wordsDrawer
+			case .sounds:
+				soundsDrawer
+			case .portfolio:
+				portfolioDrawer
+			}
 		}
 		.attributes(.hidden, when: tool != .scenes)
-	}
-
-	/**
-	The drawer of the scenes: the set, the camera angles, and the scenes of the movie.
-	*/
-	@HTMLBuilder
-	private var scenesPanel: some HTML {
-		panel(.scenes) {
-			div {
-				label {
-					"Set: "
-
-					select(.part(Parts.set)) {
-						for set in Self.sets {
-							option(.value(set.id)) {
-								set.name
-							}
-						}
-					}
-					.style(GeoCitiesWindows.Styles.toolbarSelect)
-				}
-
-				div(.role("group")) {
-					for camera in 0..<4 {
-						button(.type(.button), .hook(Hooks.camera, value: "\(camera)"), .ariaPressed(camera == 0)) {
-							"📷 \(camera + 1)"
-						}
-						.accessibilityLabel("Camera \(camera + 1)")
-						.style(Styles.toolButton)
-					}
-				}
-				.accessibilityLabel("Camera angle")
-				.style(GeoCitiesWindows.Styles.wrapRow)
-			}
-			.style(GeoCitiesWindows.Styles.wrapRow)
-
-			div {
-				div(.part(Parts.scenes), .role("group")) {}
-					.accessibilityLabel("Scenes")
-					.style(Styles.sceneStrip)
-
-				template(.part(Parts.sceneTemplate)) {
-					button(.type(.button)) {}
-						.style(Styles.sceneButton)
-				}
-
-				button(.part(Parts.addScene), .type(.button)) {
-					"➕ New Scene"
-				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
-
-				button(.part(Parts.deleteScene), .type(.button)) {
-					"✂️ Cut Scene"
-				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget, GeoCitiesPage.Styles.dimmedWhenDisabled)
-			}
-			.style(GeoCitiesWindows.Styles.wrapRow)
-		}
 		.style(Styles.panel)
 	}
 
 	/**
-	The drawer of the actors: the cast list and the actions.
+	The content of the drawer of the scenes: the set, the camera angles, and the scenes of the movie.
 	*/
 	@HTMLBuilder
-	private var actorsPanel: some HTML {
-		panel(.actors) {
-			div {
-				label {
-					"Cast: "
+	private var scenesDrawer: some HTML {
+		div {
+			label {
+				"Set: "
 
-					select(.part(Parts.cast)) {
-						for actor in Self.cast {
-							option(.value(actor.id)) {
-								actor.name
-							}
+				select(.part(Parts.set)) {
+					for set in Self.sets {
+						option(.value(set.id)) {
+							set.name
 						}
 					}
-					.style(GeoCitiesWindows.Styles.toolbarSelect)
 				}
-
-				button(.part(Parts.addActor), .type(.button)) {
-					"➕ Add Actor"
-				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesWindows.Styles.toolbarSelect)
 			}
-			.style(GeoCitiesWindows.Styles.wrapRow)
 
-			div {
-				label {
-					"Action: "
-
-					select(.part(Parts.action)) {
-						for action in Self.actions {
-							option(.value(action.id)) {
-								action.name
-							}
-						}
+			div(.role(.group)) {
+				for camera in 0..<4 {
+					button(.type(.button), .hook(Hooks.camera, value: "\(camera)"), .ariaPressed(camera == 0)) {
+						"📷 \(camera + 1)"
 					}
-					.style(GeoCitiesWindows.Styles.toolbarSelect)
+					.accessibilityLabel("Camera \(camera + 1)")
+					.style(Styles.toolButton)
 				}
-
-				button(.part(Parts.nextActor), .type(.button)) {
-					"👉 Next Actor"
-				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
-
-				button(.part(Parts.removeActor), .type(.button)) {
-					"🗑️ Remove"
-				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget, GeoCitiesPage.Styles.dimmedWhenDisabled)
 			}
+			.accessibilityLabel("Camera angle")
 			.style(GeoCitiesWindows.Styles.wrapRow)
 		}
-		.style(Styles.panel)
+		.style(GeoCitiesWindows.Styles.wrapRow)
+
+		div {
+			div(.part(Parts.scenes), .role(.group)) {}
+				.accessibilityLabel("Scenes")
+				.style(Styles.sceneStrip)
+
+			template(.part(Parts.sceneTemplate)) {
+				button(.type(.button)) {}
+					.style(Styles.sceneButton)
+			}
+
+			button(.part(Parts.addScene), .type(.button)) {
+				"➕ New Scene"
+			}
+			.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+
+			button(.part(Parts.deleteScene), .type(.button)) {
+				"✂️ Cut Scene"
+			}
+			.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget, GeoCitiesPage.Styles.dimmedWhenDisabled)
+		}
+		.style(GeoCitiesWindows.Styles.wrapRow)
 	}
 
 	/**
-	The drawer of the words: speech balloons and titles.
+	The content of the drawer of the actors: the cast list and the actions.
 	*/
 	@HTMLBuilder
-	private var wordsPanel: some HTML {
-		panel(.words) {
-			form(.part(Parts.sayForm)) {
-				label(.for("geocities-moviemaker-say-text")) {
-					"💬 Say:"
-				}
+	private var actorsDrawer: some HTML {
+		div {
+			label {
+				"Cast: "
 
-				input(
-					.id("geocities-moviemaker-say-text"),
-					.part(Parts.sayText),
-					.type(.text),
-					.maxlength(50),
-					.autocomplete("off"),
-					.placeholder("Uff da!")
-				)
-					.style(GeoCitiesPage.Styles.field)
-
-				button(.type(.submit)) {
-					"Add"
-				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
-			}
-			.style(GeoCitiesWindows.Styles.nowrapRow)
-
-			form(.part(Parts.titleForm)) {
-				label(.for("geocities-moviemaker-title-text")) {
-					"🔠 Title:"
-				}
-
-				input(
-					.id("geocities-moviemaker-title-text"),
-					.part(Parts.titleText),
-					.type(.text),
-					.maxlength(24),
-					.autocomplete("off"),
-					.placeholder("THE END?")
-				)
-					.style(GeoCitiesPage.Styles.field)
-
-				button(.type(.submit)) {
-					"Add"
-				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
-			}
-			.style(GeoCitiesWindows.Styles.nowrapRow)
-		}
-		.style(Styles.panel)
-	}
-
-	/**
-	The drawer of the sound effects.
-	*/
-	@HTMLBuilder
-	private var soundsPanel: some HTML {
-		panel(.sounds) {
-			div {
-				label {
-					"Sound effect: "
-
-					select(.part(Parts.effect)) {
-						for effect in Self.soundEffects {
-							option(.value(effect.id)) {
-								effect.name
-							}
+				select(.part(Parts.cast)) {
+					for actor in Self.cast {
+						option(.value(actor.id)) {
+							actor.name
 						}
 					}
-					.style(GeoCitiesWindows.Styles.toolbarSelect)
 				}
-
-				button(.part(Parts.addEffect), .type(.button)) {
-					"🔔 Add Sound"
-				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+				.style(GeoCitiesWindows.Styles.toolbarSelect)
 			}
-			.style(GeoCitiesWindows.Styles.wrapRow)
+
+			button(.part(Parts.addActor), .type(.button)) {
+				"➕ Add Actor"
+			}
+			.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
 		}
-		.style(Styles.panel)
+		.style(GeoCitiesWindows.Styles.wrapRow)
+
+		div {
+			label {
+				"Action: "
+
+				select(.part(Parts.action)) {
+					for action in Self.actions {
+						option(.value(action.id)) {
+							action.name
+						}
+					}
+				}
+				.style(GeoCitiesWindows.Styles.toolbarSelect)
+			}
+
+			button(.part(Parts.nextActor), .type(.button)) {
+				"👉 Next Actor"
+			}
+			.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+
+			button(.part(Parts.removeActor), .type(.button)) {
+				"🗑️ Remove"
+			}
+			.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget, GeoCitiesPage.Styles.dimmedWhenDisabled)
+		}
+		.style(GeoCitiesWindows.Styles.wrapRow)
 	}
 
 	/**
-	The drawer of the portfolio: save, open, a new movie, and the premade movie.
+	The content of the drawer of the words: speech balloons and titles.
 	*/
 	@HTMLBuilder
-	private var portfolioPanel: some HTML {
-		panel(.portfolio) {
-			div {
-				button(.part(Parts.save), .type(.button)) {
-					"💾 Save"
-				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
-
-				button(.part(Parts.open), .type(.button)) {
-					"📂 Open"
-				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
-
-				button(.part(Parts.newMovie), .type(.button)) {
-					"📄 New Movie"
-				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
-
-				button(.part(Parts.premiere), .type(.button)) {
-					"🍿 Watch “The Waffle Heist”"
-				}
-				.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+	private var wordsDrawer: some HTML {
+		form(.part(Parts.sayForm)) {
+			label(.for("geocities-moviemaker-say-text")) {
+				"💬 Say:"
 			}
-			.style(GeoCitiesWindows.Styles.wrapRow)
+
+			input(
+				.id("geocities-moviemaker-say-text"),
+				.part(Parts.sayText),
+				.type(.text),
+				.maxlength(50),
+				.autocomplete("off"),
+				.placeholder("Uff da!")
+			)
+				.style(GeoCitiesPage.Styles.field)
+
+			button(.type(.submit)) {
+				"Add"
+			}
+			.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
 		}
-		.style(Styles.panel)
+		.style(GeoCitiesWindows.Styles.nowrapRow)
+
+		form(.part(Parts.titleForm)) {
+			label(.for("geocities-moviemaker-title-text")) {
+				"🔠 Title:"
+			}
+
+			input(
+				.id("geocities-moviemaker-title-text"),
+				.part(Parts.titleText),
+				.type(.text),
+				.maxlength(24),
+				.autocomplete("off"),
+				.placeholder("THE END?")
+			)
+				.style(GeoCitiesPage.Styles.field)
+
+			button(.type(.submit)) {
+				"Add"
+			}
+			.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+		}
+		.style(GeoCitiesWindows.Styles.nowrapRow)
+	}
+
+	/**
+	The content of the drawer of the sound effects.
+	*/
+	@HTMLBuilder
+	private var soundsDrawer: some HTML {
+		div {
+			label {
+				"Sound effect: "
+
+				select(.part(Parts.effect)) {
+					for effect in Self.soundEffects {
+						option(.value(effect.id)) {
+							effect.name
+						}
+					}
+				}
+				.style(GeoCitiesWindows.Styles.toolbarSelect)
+			}
+
+			button(.part(Parts.addEffect), .type(.button)) {
+				"🔔 Add Sound"
+			}
+			.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+		}
+		.style(GeoCitiesWindows.Styles.wrapRow)
+	}
+
+	/**
+	The content of the drawer of the portfolio: save, open, a new movie, and the premade movie.
+	*/
+	@HTMLBuilder
+	private var portfolioDrawer: some HTML {
+		div {
+			button(.part(Parts.save), .type(.button)) {
+				"💾 Save"
+			}
+			.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+
+			button(.part(Parts.open), .type(.button)) {
+				"📂 Open"
+			}
+			.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+
+			button(.part(Parts.newMovie), .type(.button)) {
+				"📄 New Movie"
+			}
+			.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+
+			button(.part(Parts.premiere), .type(.button)) {
+				"🍿 Watch “The Waffle Heist”"
+			}
+			.style(GeoCitiesPage.Styles.smallButton, Styles.bigTarget)
+		}
+		.style(GeoCitiesWindows.Styles.wrapRow)
 	}
 
 	/**
@@ -447,7 +442,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 			.help("Gives a tip")
 			.style(Styles.guideButton)
 
-			p(.part(Parts.status), .role("status")) {
+			p(.part(Parts.status), .role(.status)) {
 				"McZee: Welcome to the studio! Drag Sindre across the floor to make a movie."
 			}
 			.style(Styles.balloon)
@@ -509,7 +504,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 		case camera = "moviemaker-camera"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case screen
 		case timeline

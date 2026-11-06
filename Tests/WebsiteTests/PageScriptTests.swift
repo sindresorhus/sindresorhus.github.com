@@ -74,6 +74,60 @@ struct PageScriptTests {
 		#expect(product == "System Color Picker")
 	}
 
+	@Test(arguments: ["data", "icon"])
+	func `Escape cancels a link preview while its data or icon loads`(delayedResource: String) async throws {
+		let webView = try await Self.makeWebView()
+		webView.configuration.userContentController.addUserScript(WKUserScript(source: """
+		const originalMatchMedia = window.matchMedia.bind(window);
+		window.matchMedia = query => query === '(hover: hover) and (pointer: fine)' ? {matches: true} : originalMatchMedia(query);
+		window.fetch = () => new Promise(resolve => {
+			window.finishPreviewData = () => resolve({json: async () => ({'/dato': {name: 'Dato', icon: '/dato/icon.png', facts: 'macOS'}})});
+		});
+		HTMLImageElement.prototype.decode = () => new Promise(resolve => {
+			window.finishPreviewIcon = resolve;
+		});
+		""", injectionTime: .atDocumentStart, forMainFrameOnly: true))
+		#expect(try await webView.loadingErrors(of: RoutePath.faq.description) == [])
+
+		let states: [Bool] = try await webView.result(of: """
+		const container = document.createElement('div');
+		container.setAttribute('data-link-previews', '');
+		const link = document.createElement('a');
+		link.href = '/dato';
+		link.textContent = 'Dato';
+		container.append(link);
+		document.body.append(container);
+		// Escape leaves the pointer on the link. Synthetic pointer events do not set :hover.
+		const originalMatches = link.matches.bind(link);
+		link.matches = selector => selector === ':hover' || originalMatches(selector);
+		const enter = () => link.dispatchEvent(new PointerEvent('pointerover', {bubbles: true, pointerType: 'mouse'}));
+		const wait = () => new Promise(resolve => setTimeout(resolve, 500));
+		enter();
+		await wait();
+		if (delayedResource === 'icon') {
+			finishPreviewData();
+			await wait();
+		}
+		const states = [typeof (delayedResource === 'data' ? window.finishPreviewData : window.finishPreviewIcon) === 'function'];
+		document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape'}));
+		if (delayedResource === 'data') {
+			finishPreviewData();
+			await wait();
+		}
+		window.finishPreviewIcon?.();
+		await wait();
+		states.push(Boolean(document.querySelector('[popover]:popover-open')));
+		// A new entry still opens the preview, so cancellation does not disable later previews.
+		HTMLImageElement.prototype.decode = async () => {};
+		enter();
+		await wait();
+		states.push(Boolean(document.querySelector('[popover]:popover-open')));
+		return states;
+		""", arguments: ["delayedResource": delayedResource])
+
+		#expect(states == [true, false, true])
+	}
+
 	@Test
 	func `attachments accumulate across picks and removing an oversized file makes the field valid again`() async throws {
 		let webView = try await Self.makeWebView()
@@ -110,7 +164,90 @@ struct PageScriptTests {
 		return observations;
 		""")
 
-		#expect(observations == ["first.txt|Screen Recording 👨‍👩‍👧‍👦 é.png", "false", "Screen Recording 👨‍👩‍👧‍👦 é.png", " 👨‍👩‍👧‍👦 é.png", "true", "first.txt", "true", "1"])
+		// The space before the end of the name goes to the start, so a cut name has no gap after the ellipsis.
+		#expect(observations == ["first.txt|Screen Recording 👨‍👩‍👧‍👦 é.png", "false", "Screen Recording 👨‍👩‍👧‍👦 é.png", "👨‍👩‍👧‍👦 é.png", "true", "first.txt", "true", "1"])
+	}
+
+	/**
+	A word that leaves no question, like a second word that no question has with the first, keeps the questions on screen, so the fields below do not jump while the visitor writes. An empty message hides them.
+	*/
+	@Test
+	func `the related help stays while the visitor writes`() async throws {
+		let webView = try await Self.makeWebView()
+		#expect(try await webView.loadingErrors(of: Self.feedbackPath) == [])
+
+		let isPanelShown = """
+		const message = document.querySelector('#feedback-form').elements.message;
+		message.value = text;
+		message.dispatchEvent(new Event('input'));
+		await new Promise(resolve => setTimeout(resolve, 500));
+		return !document.querySelector('faq-suggestions [data-part="panel"]').hidden;
+		"""
+
+		let withMatch: Bool = try await webView.result(of: isPanelShown, arguments: ["text": "refund"])
+		#expect(withMatch)
+		let withoutMatch: Bool = try await webView.result(of: isPanelShown, arguments: ["text": "refund calendar"])
+		#expect(withoutMatch)
+		let empty: Bool = try await webView.result(of: isPanelShown, arguments: ["text": ""])
+		#expect(!empty)
+	}
+
+	@Test
+	func `an empty attachment shows as empty, not as 1 kB`() async throws {
+		let webView = try await Self.makeWebView()
+		#expect(try await webView.loadingErrors(of: Self.feedbackPath) == [])
+
+		let sizes: [String] = try await webView.result(of: """
+		const picker = document.querySelector('attachment-picker');
+		const input = picker.querySelector('input');
+		const transfer = new DataTransfer();
+		transfer.items.add(new File([], 'empty.log'));
+		transfer.items.add(new File(['text'], 'small.log'));
+		input.files = transfer.files;
+		input.dispatchEvent(new Event('change'));
+		return [...picker.querySelectorAll('[data-part="size"]')].map(size => size.textContent);
+		""")
+
+		#expect(sizes.count == 2)
+		#expect(sizes.first == "Empty")
+		#expect(sizes.last?.contains("1") == true, "\(sizes)")
+	}
+
+	@Test
+	func `the crash report reminder follows the attached reports`() async throws {
+		let webView = try await Self.makeWebView()
+		#expect(try await webView.loadingErrors(of: Self.feedbackPath) == [])
+
+		let reminderStates: [Bool] = try await webView.result(of: """
+		const message = document.querySelector('#feedback-form').elements.message;
+		const picker = document.querySelector('attachment-picker');
+		const input = picker.querySelector('input');
+		const reminder = document.querySelector('faq-suggestions [data-part="crashWarning"]');
+		const states = [];
+		const record = async () => {
+			await new Promise(resolve => setTimeout(resolve, 500));
+			states.push(!reminder.hidden);
+		};
+		const attach = name => {
+			const transfer = new DataTransfer();
+			transfer.items.add(new File(['Report'], name));
+			input.files = transfer.files;
+			input.dispatchEvent(new Event('change', {bubbles: true}));
+		};
+
+		message.value = 'Dato quits unexpectedly.';
+		message.dispatchEvent(new Event('input'));
+		await record();
+		attach('Screenshot.png');
+		await record();
+		attach('Dato.IPS');
+		await record();
+		picker.querySelector('[data-part="fileList"]').lastElementChild.querySelector('button').click();
+		await record();
+		return states;
+		""")
+
+		#expect(reminderStates == [true, true, false, true])
 	}
 
 	@Test
@@ -121,6 +258,49 @@ struct PageScriptTests {
 		let text: String = try await webView.result(of: "return document.body.innerText")
 		#expect(text.contains("Message sent!"))
 		#expect(!text.contains("Which app is it about?"))
+		// The message stays, with a link to the apps, instead of a timer that leaves the page.
+		let appsLink: String = try await webView.result(of: "return [...document.querySelectorAll('a')].find(link => link.textContent === 'Back to the Apps')?.getAttribute('href') ?? ''")
+		#expect(appsLink == RoutePath.apps.description)
+	}
+
+	/**
+	The time of a send is in seconds, like the feedback form of the apps, which sends to the same form. A `submit` event that the test sends runs the listeners of the script without sending the form.
+	*/
+	@Test
+	func `the feedback form sends the time in seconds`() async throws {
+		let webView = try await Self.makeWebView()
+		#expect(try await webView.loadingErrors(of: Self.feedbackPath) == [])
+		let timestamp: String = try await webView.result(of: """
+		const form = document.querySelector('#feedback-form');
+		form.dispatchEvent(new Event('submit', {cancelable: true}));
+		return form.elements.timestamp.value;
+		""")
+		let seconds = try #require(Double(timestamp))
+		#expect(abs(seconds - Date.now.timeIntervalSince1970) < 60)
+	}
+
+	/**
+	When a guess is not one of the apps, Appdle suggests the closest name, also for a name of 4 letters with a typo, or the one name that has the guess in it, and nothing for a part of several names. The suggestion shows in the next frame, which an offscreen web view does not draw, so the test runs it at once.
+	*/
+	@Test
+	func `Appdle suggests the name that the visitor meant`() async throws {
+		let webView = try await Self.makeWebView()
+		#expect(try await webView.loadingErrors(of: RoutePath.appdle.description) == [])
+
+		let status = """
+		window.requestAnimationFrame = callback => callback();
+		const form = document.querySelector('#appdle-form');
+		form.elements.guess.value = name;
+		form.requestSubmit();
+		return document.querySelector('#appdle-status').textContent;
+		"""
+
+		let typo: String = try await webView.result(of: status, arguments: ["name": "daot"])
+		#expect(typo.contains("Dato"), "\(typo)")
+		let part: String = try await webView.result(of: status, arguments: ["name": "color picker"])
+		#expect(part.contains("System Color Picker"), "\(part)")
+		let partOfSeveralNames: String = try await webView.result(of: status, arguments: ["name": "menu bar"])
+		#expect(partOfSeveralNames.contains("is not one of the apps"), "\(partOfSeveralNames)")
 	}
 
 	/**
@@ -275,6 +455,12 @@ extension WKWebView {
 }
 
 /**
+The stylesheet and the scripts of the elements, made once for all the web views, as each web view has its own handler, and the handlers run on the main actor, one request after the other.
+*/
+private let siteStylesheet = Data(Stylesheet.site.css.utf8)
+private let elementScripts = Project.website.elementScripts()
+
+/**
 Serves the site to the web view like a build: the rendered pages, the stylesheet, the icons, the scripts of the elements, and the public files.
 */
 private final class SiteSchemeHandler: NSObject, WKURLSchemeHandler, WKNavigationDelegate {
@@ -288,7 +474,7 @@ private final class SiteSchemeHandler: NSObject, WKURLSchemeHandler, WKNavigatio
 	}
 
 	/**
-	A page can send the visitor on after a moment, like the message after a send, which goes back to the apps after ten seconds. The test reads the page that it asked for, so a navigation after the first page loaded is canceled.
+	A page could send the visitor on after a moment. The test reads the page that it asked for, so a navigation after the first page loaded is canceled.
 	*/
 	func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
 		hasLoadedPage ? .cancel : .allow
@@ -318,14 +504,14 @@ private final class SiteSchemeHandler: NSObject, WKURLSchemeHandler, WKNavigatio
 		}
 
 		if path == Stylesheet.sitePath {
-			return (Data(Stylesheet.site.css.utf8), "text/css")
+			return (siteStylesheet, "text/css")
 		}
 
 		if path == Icon.spritePath {
 			return (Data(Icon.sprite.utf8), "image/svg+xml")
 		}
 
-		let file = Project.website.elementScripts().first { $0.path == path }?.source ?? Project.website.publicFile(path)
+		let file = elementScripts.first { $0.path == path }?.source ?? Project.website.publicFile(path)
 		let mimeType = UTType(filenameExtension: file.pathExtension)?.preferredMIMEType ?? "application/octet-stream"
 		return (try? Data(contentsOf: file), mimeType)
 	}

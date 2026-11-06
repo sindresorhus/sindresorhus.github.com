@@ -195,16 +195,15 @@ struct ScriptedElementTests {
 		let gameImports = try JSONDecoder().decode(Site.Scripts.ImportMap.self, from: Data(try #require(scripts.importMap(loading: [#path("/scripts/game.js")])).utf8)).imports
 		#expect(gameImports.keys.sorted() == ["/scripts/base.js", "/scripts/board.js"])
 		#expect(try #require(scripts.importMap(loading: [#path("/scripts/elements/Clock.js")])).contains("/scripts/base.js?v=\(baseHash)"))
-		#expect(Site.Scripts.published.importMap(loading: [#path("/scripts/home.js")]) == nil)
 
 		// The page preloads the static imports, also through another script, but not the dynamic ones, which load only when needed.
 		#expect(scripts.modulePreloads(loading: [#path("/scripts/home.js")]).map(\.description) == ["/scripts/base.js?v=\(baseHash)"])
 		let boardHash = try #require(hashes[#path("/scripts/board.js")])
 		#expect(scripts.modulePreloads(loading: [#path("/scripts/game.js")]).map(\.description) == ["/scripts/base.js?v=\(baseHash)", "/scripts/board.js?v=\(boardHash)"])
 
-		// The pages load a script with its hash while the site is published.
-		#expect(Site.Scripts.$published.withValue(scripts) { RoutePath("/scripts/base.js").versioned.description } == "/scripts/base.js?v=\(baseHash)")
-		#expect(RoutePath("/scripts/base.js").versioned.description == "/scripts/base.js")
+		// The pages load a script with its hash, and a script without one, like of another site, with its path.
+		#expect(scripts.versioned(#path("/scripts/base.js")).description == "/scripts/base.js?v=\(baseHash)")
+		#expect(scripts.versioned(#path("/scripts/other.js")).description == "/scripts/other.js")
 	}
 
 	@Test(.temporaryDirectory)
@@ -325,7 +324,7 @@ struct ScriptedElementTests {
 	}
 
 	/**
-	Like `every state of an element is set and styled`, for the states that page scripts set. A page script is not tied to one component, so a state counts as set when any page script sets it, or a page renders it, and as styled when the site stylesheet or a page styles it.
+	Like `every state of an element is set and styled`, for the states that page scripts set. A page script is not tied to one component, so a state counts as set when any page script sets it, also an inline script in a Swift source, like the one of the wall of love, or a page renders it, and as styled when the site stylesheet or a page styles it.
 	*/
 	@Test
 	func `every state of the components of page scripts is set and styled`() async throws {
@@ -333,7 +332,8 @@ struct ScriptedElementTests {
 		let pageScripts = try Project.website.publicDirectory.appending(path: "scripts").filesRecursively()
 			.filter { $0.pathExtension == "js" }
 			.map { Self.code(of: try String(contentsOf: $0, encoding: .utf8)) }
-		let assignedStates = Set(pageScripts.flatMap(\.assignedDataStates))
+		let inlineScriptStates = try await SwiftSourceFile.all.value.flatMap { Self.code(of: $0.text).assignedDataStates }
+		let assignedStates = Set(pageScripts.flatMap(\.assignedDataStates)).union(inlineScriptStates)
 		let styles = [Stylesheet.site.css] + site.pages.flatMap { $0.html.embeddedStyles.map(String.init) }
 		let (componentCount, states) = try await Self.pageScriptStates(elements: site.elements)
 
@@ -460,7 +460,7 @@ struct ScriptedElementTests {
 	}
 
 	/**
-	The content of a template is not in the element, so `this.parts` throws for a part that is only inside a template, and `clone()` of `scripted-element.js` copies a template part, so it throws for another part. The parts are checked against the markup that the pages render, for the direct forms of ``usedParts(in:)``. A part that a script finds itself with `data-part="name"`, like in a copy in a script that extends `HTMLElement`, is not read through `this.parts`.
+	The content of a template is not in the element, so `this.parts` (and `parts(this)` of `dom.js`) throws for a part that is only inside a template, and `clone()` of `scripted-element.js` copies a template part, so it throws for another part. The parts are checked against the markup that the pages render, for the direct forms of ``usedParts(in:)``. A part that a script finds itself with `data-part="name"`, or in a copy with `parts(item)`, like in a script that extends `HTMLElement`, is not read through `this.parts`.
 	*/
 	@Test
 	func `every clone copies a template part, and no script reads a part of a template through this.parts`() async throws {
@@ -475,7 +475,7 @@ struct ScriptedElementTests {
 			let templates = markup.templates[element.tagName] ?? []
 			let templateOnlyParts = markup.onlyInTemplates[element.tagName] ?? []
 			// The used parts without the lines of the copies and the parts that the script finds itself are the parts that it reads in `this.parts`.
-			let partsReadThroughThisParts = Self.usedParts(in: script.replacing(/^.*\.clone\('\w+'\).*$|data-part="\w+"/.anchorsMatchLineEndings(), with: ""))
+			let partsReadThroughThisParts = Self.usedParts(in: script.replacing(/^.*\.clone\('\w+'\).*$|data-part="\w+"/.anchorsMatchLineEndings(), with: "").replacing(Self.copiedPartReads, with: ""))
 			cloneCount += clonedTemplates.count
 			templateOnlyPartCount += templateOnlyParts.count
 
@@ -617,18 +617,18 @@ struct ScriptedElementTests {
 	}
 
 	/**
-	The keys of the data of a page that a script reads: `const {facts, tunes} = JSON.parse(document.querySelector('#geocities-data').textContent);` and `JSON.parse(…).facts`.
+	The keys of the data of a page that a script reads: `const {pages, feedback} = scriptData('not-found-data');` and `scriptData(…).pages` (`scriptData` of `dom.js`), or the same with `JSON.parse(document.querySelector('#geocities-data').textContent)`.
 	*/
 	private static func readDataKeys(in script: String, id: String) -> Set<String> {
-		let source = "JSON.parse(document.querySelector('#\(id)').textContent)"
+		let sources = ["scriptData('\(id)')", "JSON.parse(document.querySelector('#\(id)').textContent)"]
 		var keys = Set<String>()
 
-		for line in script.split(separator: "\n") where line.contains(source) {
-			if let match = line.firstMatch(of: /\{([\w\s,:]+)\}\s*=\s*JSON\.parse/) {
+		for line in script.split(separator: "\n") where sources.contains(where: line.contains) {
+			if let match = line.firstMatch(of: /\{([\w\s,:]+)\}\s*=\s*(?:JSON\.parse|scriptData)\(/) {
 				keys.formUnion(names(in: match.1))
 			}
 
-			keys.formUnion(line.matches(of: /textContent\)\.(\w+)/).map { String($0.1) })
+			keys.formUnion(line.matches(of: /(?:textContent|scriptData\('[\w-]+')\)\.(\w+)/).map { String($0.1) })
 		}
 
 		return keys
@@ -863,13 +863,13 @@ struct ScriptedElementTests {
 	}
 
 	/**
-	The 404 page suggests the page that a mistyped or guessed path meant, also when a word is added or left out, and nothing for a path that is not close to a page. It runs the page script in `node` with the paths of the page, and only the parts of the DOM that it uses.
+	The 404 page suggests the page that a mistyped or guessed path meant, also when a word is added or left out, and nothing for a path that is not close to a page. It runs the page script in `node` with the paths of the page, a stand-in for `scriptData` of `dom.js`, and only the parts of the DOM that it uses.
 	*/
 	@Test(.enabled(if: Self.checksScripts, "Install Node.js to run the script of the 404 page."))
 	func `the 404 page suggests the closest page`() async throws {
 		let page = try #require(try await Self.site.value.pages.first { $0.path == .notFound })
 		let paths = try #require(page.html.firstMatch(of: /<script[^>]*id="not-found-data"[^>]*>(.*?)<\/script>/)?.1)
-		// Without its import, which a function body cannot have, so the harness imports the module and passes its functions.
+		// Without its imports, which a function body cannot have, so the harness imports the module of the edit distance and passes its functions.
 		let script = try String(contentsOf: Project.website.publicFile(#path("/scripts/not-found.js")), encoding: .utf8)
 			.split(separator: "\n", omittingEmptySubsequences: false)
 			.filter { !$0.hasPrefix("import ") }
@@ -885,19 +885,42 @@ struct ScriptedElementTests {
 			"/dato/privacy": "/dato/privacy-policy",
 			"/velja/index.html": "/velja",
 			"/blog/buffer": "/blog/goodbye-nodejs-buffer",
+			// Some words of a long last part, in any order.
+			"/guides/flush-dns": "/guides/flush-dns-cache-mac",
+			"/guides/video-to-gif": "/guides/convert-video-to-gif-mac",
 			"/about-me": "/about",
 			"/apps/macos-apps": "/apps/macos",
 			// A page in a folder, from its last part.
 			"/faq": "/apps/faq",
 			"/terms": "/apps/terms",
+			// The page with the requested last part, not a page that is only close, like `/shortcutie` and `/menu-bar-spacing`.
+			"/shortcuts": "/apps/shortcuts",
+			"/menu-bar": "/apps/menu-bar",
 			// Help words lead to the feedback form, not to the closest path, like `/supporters`.
 			"/support": "/feedback",
 			"/dato/support": "/feedback?product=Dato",
 			"/dato/feedback": "/feedback?product=Dato",
+			"/feedback/dato": "/feedback?product=Dato",
+			"/apps/dato/feedback": "/feedback?product=Dato",
+			"/dato/suport": "/feedback?product=Dato",
+			"/suport/dato": "/feedback?product=Dato",
 			"/datoo/support": "/feedback",
 			// A last part of several pages says nothing about the page, so the page of the app.
 			"/dato/release-notes": "/dato",
 			"/dato/faq": "/dato#faq",
+			"/apps/faq/dato": "/dato#faq",
+			// A help word alone requires an exact match, so the contact page keeps its spelling correction.
+			"/contacts": "/contact",
+			// The query and the fragment of the request stay, when the suggestion has none.
+			"/dato/#faq": "/dato#faq",
+			"/velja/?ref=newsletter#browser-profiles": "/velja?ref=newsletter#browser-profiles",
+			"/dato/support?metadata=1": "/feedback?product=Dato",
+			"/support?product=Dato": "/feedback?product=Dato",
+			// A name of a device finds the page of its platform, not a path that is only close, like `/apps/paid` for `/apps/ipad`.
+			"/apps/ipad": "/apps/ios",
+			"/iphone": "/apps/ios",
+			"/mac": "/apps/macos",
+			"/apps/apple-watch": "/apps/watchos",
 			"/how": "",
 			"/x": "",
 		]
@@ -908,13 +931,12 @@ struct ScriptedElementTests {
 
 		for (const [path, expected] of Object.entries(\(JSONEncoder.pageJSON(suggestions)))) {
 			const elements = {
-				'#not-found-data': {textContent: \(JSONEncoder.pageJSON(String(paths)))},
-				'#closest-page': {hidden: true},
-				'#closest-page-link': {},
+				'#closest-page-link': {hidden: true},
+				'#home-link': {},
 			};
 
-			new Function('document', 'location', ...Object.keys(editDistanceModule), \(JSONEncoder.pageJSON(script)))({querySelector: selector => elements[selector]}, {pathname: path}, ...Object.values(editDistanceModule));
-			const suggestion = elements['#closest-page'].hidden ? '' : elements['#closest-page-link'].href;
+			new Function('document', 'location', 'scriptData', ...Object.keys(editDistanceModule), \(JSONEncoder.pageJSON(script)))({querySelector: selector => elements[selector]}, new URL(path, 'https://sindresorhus.com'), () => JSON.parse(\(JSONEncoder.pageJSON(String(paths)))), ...Object.values(editDistanceModule));
+			const suggestion = elements['#closest-page-link'].hidden ? '' : elements['#closest-page-link'].href;
 
 			if (suggestion !== expected) {
 				failures.push(`${path} suggests ${JSON.stringify(suggestion)}, not ${JSON.stringify(expected)}`);
@@ -987,7 +1009,7 @@ struct ScriptedElementTests {
 	}
 
 	/**
-	The app picker of the feedback page and Appdle compare names without case, accents, spaces, and punctuation, and find the closest name for a typo, with at most one edit for each 5 characters.
+	The app picker of the feedback page and Appdle compare names without case, accents, spaces, and punctuation, and find the closest name for a typo, with at most one edit for each 4 characters.
 	*/
 	@Test(.enabled(if: Self.checksScripts, "Install Node.js to run the name matcher."))
 	func `the name matcher finds a name without its spaces and punctuation, and with a typo`() throws {
@@ -1005,7 +1027,8 @@ struct ScriptedElementTests {
 			'cafe cup': 'Café Cup',
 			gifksi: 'Gifski',
 			gifsky: 'Gifski',
-			daot: '',
+			// A name of 4 letters accepts one typo.
+			daot: 'Dato',
 			xyz: '',
 		};
 
@@ -1023,11 +1046,557 @@ struct ScriptedElementTests {
 		#expect(error == nil, "\(error ?? "")")
 	}
 
+	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check package pagination."))
+	func `npm packages show in batches and filtering searches the full list`() throws {
+		let harness = #"""
+		import assert from 'node:assert/strict';
+		import fs from 'node:fs';
+		import test from 'node:test';
+		import vm from 'node:vm';
+
+		const {searchKey, closest} = await import('data:text/javascript,' + encodeURIComponent(fs.readFileSync('public/scripts/edit-distance.js', 'utf8')));
+		const script = fs.readFileSync('Sources/Website/Components/Scripts/NPMPackageList.js', 'utf8').replaceAll(/^import .*\n/gm, '');
+
+		test('pagination, full-list search, and resetting the filter', () => {
+			let Component;
+			let focused;
+			let opened;
+			vm.runInNewContext(script, {
+				HTMLElement: class {},
+				customElements: {
+					define(name, component) {
+						Component = component;
+					},
+				},
+				parts: element => element.parts,
+				searchKey,
+				closest,
+			});
+			const control = () => ({
+				hidden: false,
+				value: '',
+				listeners: {},
+				addEventListener(type, listener) {
+					this.listeners[type] = listener;
+				},
+			});
+			const filter = control();
+			const showMore = control();
+			const rows = Array.from({length: 45}, (_, index) => ({
+				hidden: false,
+				parts: {
+					text: {textContent: `package-${index} ${index >= 40 ? 'unique description' : 'common description'}`},
+					link: {
+						textContent: `package-${index}`,
+						focus() {
+							focused = index;
+						},
+						click() {
+							opened = index;
+						},
+					},
+				},
+			}));
+			const element = new Component();
+			element.parts = {filter, showMore, status: {textContent: ''}};
+			element.querySelectorAll = () => rows;
+			element.connectedCallback();
+			const visible = () => rows.filter(row => !row.hidden);
+			assert.equal(visible().length, 20);
+			assert.equal(showMore.hidden, false);
+			showMore.listeners.click();
+			assert.equal(visible().length, 40);
+			assert.equal(focused, 20);
+			showMore.listeners.click();
+			assert.equal(visible().length, 45);
+			assert.equal(showMore.hidden, true);
+			assert.equal(focused, 40);
+			filter.value = 'common description';
+			filter.listeners.input();
+			assert.equal(visible().length, 20);
+			assert.equal(showMore.hidden, false);
+			showMore.listeners.click();
+			assert.equal(visible().length, 40);
+			assert.equal(showMore.hidden, true);
+			filter.value = 'unique description';
+			filter.listeners.input();
+			assert.equal(visible().length, 5);
+			assert.equal(visible()[0], rows[40]);
+			assert.equal(showMore.hidden, true);
+			filter.value = 'no match';
+			filter.listeners.input();
+			assert.equal(visible().length, 0);
+			assert.match(element.parts.status.textContent, /No package matches/);
+			// A typo shows the package with the closest name, and Enter opens the first package that shows.
+			filter.value = 'pakcage-42';
+			filter.listeners.input();
+			assert.deepEqual(visible(), [rows[42]]);
+			assert.equal(showMore.hidden, true);
+			filter.listeners.keydown({key: 'Enter', isComposing: false});
+			assert.equal(opened, 42);
+			filter.value = '';
+			filter.listeners.input();
+			assert.equal(visible().length, 20);
+			assert.equal(showMore.hidden, false);
+		});
+		"""#
+		let error = try Self.syntaxError(checking: ["--input-type=module"], input: harness)
+		#expect(error == nil, "\(error ?? "")")
+	}
+
+	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check reduced-motion behavior."))
+	func `the apps glass skips WebGL with reduced motion and keeps its fallback without a renderer`() throws {
+		let script = try String(contentsOf: Project.website.publicFile(#path("/scripts/apps-glass.js")), encoding: .utf8)
+			.split(separator: "\n", omittingEmptySubsequences: false)
+			.filter { !$0.hasPrefix("import ") }
+			.joined(separator: "\n")
+		let harness = """
+		import assert from 'node:assert/strict';
+		import test from 'node:test';
+
+		for (const prefersReducedMotion of [true, false]) {
+			test(`WebGL fallback with reduced motion ${prefersReducedMotion}`, () => {
+				let contextRequests = 0;
+				const canvas = {
+					getContext() {
+						contextRequests++;
+					},
+				};
+				const document = {querySelector: () => canvas};
+				const startShader = () => assert.fail('No shader should start without a rendering context.');
+				new Function('document', 'prefersReducedMotion', 'startShader', \(JSONEncoder.pageJSON(script)))(document, prefersReducedMotion, startShader);
+				assert.equal(contextRequests, prefersReducedMotion ? 0 : 1);
+			});
+		}
+		"""
+		let error = try Self.syntaxError(checking: ["--input-type=module"], input: harness)
+		#expect(error == nil, "\(error ?? "")")
+	}
+
+	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check audio playback."))
+	func `restarting audio stays on the page and blocked playback opens the clip`() throws {
+		let script = try String(contentsOf: Project.website.publicFile(#path("/scripts/site.js")), encoding: .utf8)
+			.split(separator: "\n", omittingEmptySubsequences: false)
+			.filter { !$0.hasPrefix("import ") }
+			.joined(separator: "\n")
+		let harness = """
+		import assert from 'node:assert/strict';
+		import test from 'node:test';
+		import vm from 'node:vm';
+
+		async function playClip(isBlocked) {
+			const listeners = [];
+			const navigations = [];
+			let pending;
+			class Audio {
+				set src(value) {
+					pending?.reject(new DOMException('New load request', 'AbortError'));
+				}
+				play() {
+					if (isBlocked) {
+						return Promise.reject(new DOMException('Playback blocked', 'NotAllowedError'));
+					}
+					pending = Promise.withResolvers();
+					return pending.promise;
+				}
+			}
+			vm.runInNewContext(\(JSONEncoder.pageJSON(script)), {
+				Audio,
+				HTMLDetailsElement: class {},
+				console: {log() {}},
+				document: {
+					querySelector() {},
+					addEventListener(type, callback) {
+						if (type === 'click') {
+							listeners.push(callback);
+						}
+					},
+				},
+				window: {addEventListener() {}},
+				matchMedia: () => ({matches: false}),
+				elementForFragment() {},
+				location: {
+					set href(value) {
+						navigations.push(value);
+					},
+				},
+			});
+			const event = {
+				target: {
+					closest(selector) {
+						return selector === 'a[href$=".m4a"]' ? {href: '/name.m4a'} : undefined;
+					},
+				},
+				button: 0,
+				preventDefault() {},
+			};
+			for (let index = 0; index < (isBlocked ? 1 : 2); index++) {
+				for (const listener of listeners) {
+					listener(event);
+				}
+			}
+			pending?.resolve();
+			await new Promise(resolve => setImmediate(resolve));
+			return navigations;
+		}
+		test('restarting pending playback does not navigate', async () => {
+			assert.deepEqual(await playClip(false), []);
+		});
+		test('blocked playback opens the clip', async () => {
+			assert.deepEqual(await playClip(true), ['/name.m4a']);
+		});
+		"""
+		let error = try Self.syntaxError(checking: ["--input-type=module"], input: harness)
+		#expect(error == nil, "\(error ?? "")")
+	}
+
+	/**
+	Checks the actual music implementations with controlled timers and audio resume promises.
+	*/
+	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check music ownership."))
+	func `music scheduling and delayed audio belong to their current playback`() throws {
+		let harness = #"""
+		import assert from 'node:assert/strict';
+		import fs from 'node:fs';
+		import test from 'node:test';
+		import vm from 'node:vm';
+
+		function timers() {
+			let nextId = 0;
+			const intervals = new Map();
+			const timeouts = new Map();
+			return {
+				intervals,
+				timeouts,
+				setInterval(callback) {
+					intervals.set(++nextId, callback);
+					return nextId;
+				},
+				clearInterval(id) {
+					intervals.delete(id);
+				},
+				setTimeout(callback) {
+					timeouts.set(++nextId, callback);
+					return nextId;
+				},
+				clearTimeout(id) {
+					timeouts.delete(id);
+				},
+				fire(id) {
+					const callback = timeouts.get(id);
+					timeouts.delete(id);
+					callback();
+				},
+			};
+		}
+
+		function clockEnvironment() {
+			const scheduled = timers();
+			const context = {currentTime: 0};
+			const source = fs.readFileSync('public/scripts/geocities-sound-card.js', 'utf8');
+			const start = source.indexOf('export class Clock {');
+			const end = source.indexOf('\n// Saves a MIDI file', start);
+			assert.ok(start >= 0 && end > start);
+			const Clock = vm.runInNewContext(`${source.slice(start, end).replace('export class Clock', 'class Clock')}\nClock`, {context, ...scheduled});
+			return {Clock, context, scheduled};
+		}
+
+		test('finishing Clock scheduling releases its interval and drains queued work', () => {
+			const {Clock, scheduled} = clockEnvironment();
+			const clock = new Clock({stepLength: () => 1, onStep() {}});
+			let calls = 0;
+			assert.equal(clock.isRunning, false);
+			clock.start();
+			clock.atTime(1, () => {
+				calls++;
+			});
+			clock.finishScheduling();
+			assert.equal(clock.isRunning, false);
+			assert.equal(scheduled.intervals.size, 0);
+			assert.equal(scheduled.timeouts.size, 1);
+			scheduled.fire(scheduled.timeouts.keys().next().value);
+			assert.equal(calls, 1);
+		});
+
+		test('Clock stop cancels scheduling and queued work, including after normal finish', () => {
+			for (const shouldFinish of [false, true]) {
+				const {Clock, scheduled} = clockEnvironment();
+				const clock = new Clock({stepLength: () => 1, onStep() {}});
+				clock.start();
+				clock.atTime(1, () => assert.fail('Canceled work must not run.'));
+				if (shouldFinish) {
+					clock.finishScheduling();
+				}
+				clock.stop();
+				clock.stop();
+				assert.equal(clock.isRunning, false);
+				assert.equal(scheduled.intervals.size, 0);
+				assert.equal(scheduled.timeouts.size, 0);
+			}
+		});
+
+		test('restarting Clock cancels old callbacks and owns one scheduler', () => {
+			const {Clock, scheduled} = clockEnvironment();
+			const steps = [];
+			const clock = new Clock({stepLength: () => 1, onStep: step => steps.push(step)});
+			clock.start();
+			clock.atTime(1, () => assert.fail('Previous playback must be canceled.'));
+			clock.start();
+			assert.equal(clock.isRunning, true);
+			assert.equal(scheduled.intervals.size, 1);
+			assert.equal(scheduled.timeouts.size, 0);
+			assert.deepEqual(steps, [0, 0]);
+		});
+
+		test('finishing from onStep immediately ends the Clock lookahead loop', () => {
+			const {Clock, scheduled} = clockEnvironment();
+			const steps = [];
+			const clock = new Clock({stepLength: () => 0.01, onStep(step) {
+				steps.push(step);
+				clock.finishScheduling();
+			}});
+			clock.start();
+			assert.deepEqual(steps, [0]);
+			assert.equal(scheduled.intervals.size, 0);
+		});
+
+		test('StampComposer releases scheduling while its final beat rings out', () => {
+			const {Clock, context, scheduled} = clockEnvironment();
+			const source = fs.readFileSync('Sources/Website/Pages/1999/Scripts/StampComposer.js', 'utf8');
+			const start = source.indexOf('const clock = new Clock({');
+			const end = source.indexOf('\n\t\tconst player =', start);
+			assert.ok(start >= 0 && end > start);
+			let stops = 0;
+			const announcements = [];
+			const columns = [];
+			const bus = {};
+			const playedNotes = [];
+			const player = {stop() {
+				stops++;
+				clock.stop();
+			}};
+			const clock = vm.runInNewContext(`${source.slice(start, end)}\nclock`, {
+				Clock,
+				tempoInput: {value: '120'},
+				lastColumn: 3,
+				song: [[{stamp: 'star', position: 4}], [], [], []],
+				bus,
+				playStamp: (stamp, position, time, destination) => playedNotes.push({stamp, position, time, destination}),
+				playingColumn: -1,
+				columnX: column => column * 10,
+				runner: {style: {}},
+				draw() {},
+				scrollTo: column => columns.push(column),
+				reducedMotion: true,
+				player,
+				say: message => announcements.push(message),
+			});
+			clock.start();
+			assert.equal(clock.isRunning, true);
+			context.currentTime = 2;
+			for (const callback of scheduled.intervals.values()) {
+				callback();
+			}
+			assert.equal(clock.isRunning, false);
+			assert.equal(scheduled.intervals.size, 0);
+			assert.equal(stops, 0);
+			assert.deepEqual(playedNotes, [{stamp: 'star', position: 4, time: 0.08, destination: bus}]);
+			assert.equal(scheduled.timeouts.size, 5);
+			for (const id of scheduled.timeouts.keys()) {
+				scheduled.fire(id);
+			}
+			assert.deepEqual(columns, [0, 1, 2, 3]);
+			assert.equal(stops, 1);
+			assert.deepEqual(announcements, ['Bravo! 👏']);
+		});
+
+		function musicEnvironment(kind, {hasAudio = true} = {}) {
+			const scheduled = timers();
+			const resumeRequests = [];
+			const notes = [];
+			const gains = [];
+			const context = {
+				state: 'running',
+				currentTime: 0,
+				sampleRate: 4,
+				resume() {
+					const request = Promise.withResolvers();
+					resumeRequests.push(request);
+					return request.promise;
+				},
+			};
+			const audio = {context, output: {}};
+			const makeControl = () => ({dataset: {}, attributes: {}, setAttribute(name, value) {
+				this.attributes[name] = value;
+			}});
+			const buttons = ['bjelleklang', 'glade-jul'].map(id => ({...makeControl(), dataset: {christmasMusic: id}}));
+			class GeoCitiesElement {
+				parts = Object.fromEntries(['light', 'music', 'sister', 'chat', 'bed', 'batteries', 'flip', 'nsa', 'sound'].map(name => [name, makeControl()]));
+				musicEvents = [];
+				sound() {
+					return hasAudio ? audio : undefined;
+				}
+				music(isPlaying) {
+					this.musicEvents.push(isPlaying);
+				}
+				querySelectorAll() {
+					return buttons;
+				}
+			}
+			class GainNode {
+				constructor() {
+					gains.push(this);
+				}
+				gain = {setValueAtTime() {}, linearRampToValueAtTime() {}, exponentialRampToValueAtTime() {}, setTargetAtTime() {}};
+				connect(destination) {
+					return destination;
+				}
+				disconnect() {
+					this.isDisconnected = true;
+				}
+			}
+			class OscillatorNode {
+				frequency = {setValueAtTime() {}, exponentialRampToValueAtTime() {}};
+				connect(destination) {
+					return destination;
+				}
+				start() {
+					notes.push(this);
+				}
+				stop() {}
+			}
+			const path = `Sources/Website/Pages/1999/Scripts/${kind}.js`;
+			const source = fs.readFileSync(path, 'utf8').replace(/^import .*\n/gm, '');
+			// Add entry points only inside the evaluated test copy; the real music methods and private fields run unchanged.
+			const bridge = kind === 'Furby' ? `
+				startMusicForTest() {
+					this.#furby = {hasBatteries: true};
+					this.#startMusic();
+				}
+				get isDancingForTest() {
+					return this.#isDancing;
+				}
+				otherMusicForTest() {
+					this.#otherMusic.add('another-toy');
+				}
+			` : `
+				startMusicForTest(id) {
+					this.#playSong(id);
+				}
+			`;
+			const end = source.lastIndexOf('\n}\n\ncustomElements.define(');
+			assert.ok(end > 0);
+			let Element;
+			vm.runInNewContext(source.slice(0, end) + bridge + source.slice(end), {
+				GeoCitiesElement,
+				GainNode,
+				OscillatorNode,
+				AudioBufferSourceNode: OscillatorNode,
+				BiquadFilterNode: OscillatorNode,
+				AudioBuffer: class {
+					getChannelData() {
+						return new Float32Array(8);
+					}
+				},
+				customElements: {define(name, value) {
+					Element = value;
+				}},
+				midiFrequency: note => 440 * (2 ** ((note - 69) / 12)),
+				randomBetween: (minimum, maximum) => (minimum + maximum) / 2,
+				...scheduled,
+			});
+			return {element: new Element(), scheduled, resumeRequests, notes, gains, buttons};
+		}
+
+		async function resume(requests) {
+			for (const request of requests.splice(0)) {
+				request.resolve();
+			}
+			await Promise.resolve();
+		}
+
+		for (const kind of ['Furby', 'Christmas']) {
+			test(`${kind} stopped before audio resumes cannot schedule notes`, async () => {
+				const {element, scheduled, resumeRequests, notes} = musicEnvironment(kind);
+				element.startMusicForTest('bjelleklang');
+				element.musicStopped();
+				await resume(resumeRequests);
+				assert.equal(notes.length, 0);
+				assert.equal(scheduled.timeouts.size, 0);
+				assert.deepEqual(element.musicEvents, [true, false]);
+			});
+
+			test(`${kind} replaced playback ignores the previous pending resume`, async () => {
+				const {element, scheduled, resumeRequests, notes} = musicEnvironment(kind);
+				element.startMusicForTest('bjelleklang');
+				const previousResume = resumeRequests.splice(0);
+				if (kind === 'Furby') {
+					element.musicStopped();
+				}
+				element.startMusicForTest('glade-jul');
+				await resume(previousResume);
+				assert.equal(notes.length, 0);
+				assert.equal(scheduled.timeouts.size, 0);
+				await resume(resumeRequests);
+				assert.ok(notes.length > 0);
+				assert.equal(scheduled.timeouts.size, 1);
+				element.musicStopped();
+				assert.equal(scheduled.timeouts.size, 0);
+			});
+
+			test(`${kind} unavailable audio leaves music idle`, () => {
+				const {element, scheduled} = musicEnvironment(kind, {hasAudio: false});
+				element.startMusicForTest('bjelleklang');
+				element.musicStopped();
+				assert.deepEqual(element.musicEvents, []);
+				assert.equal(scheduled.timeouts.size, 0);
+			});
+		}
+
+		test('Furby music controls and dancing follow its gain ownership', async () => {
+			const {element, gains, resumeRequests} = musicEnvironment('Furby');
+			element.startMusicForTest();
+			assert.equal(element.parts.music.attributes['aria-pressed'], 'true');
+			assert.equal(element.parts.music.textContent, 'Stop the Music');
+			assert.equal(element.isDancingForTest, true);
+			await resume(resumeRequests);
+			element.musicStopped();
+			assert.equal(gains[0].isDisconnected, true);
+			assert.equal(element.parts.music.attributes['aria-pressed'], 'false');
+			assert.equal(element.parts.music.textContent, 'Play Music');
+			assert.equal(element.isDancingForTest, false);
+			element.otherMusicForTest();
+			assert.equal(element.isDancingForTest, true);
+		});
+
+		test('Christmas replacement keeps one music event and stale completion cannot stop it', async () => {
+			const {element, scheduled, resumeRequests, buttons} = musicEnvironment('Christmas');
+			element.startMusicForTest('bjelleklang');
+			await resume(resumeRequests);
+			const staleCompletion = scheduled.timeouts.values().next().value;
+			element.startMusicForTest('glade-jul');
+			assert.deepEqual(element.musicEvents, [true, true]);
+			assert.equal(buttons[0].attributes['aria-pressed'], 'false');
+			assert.equal(buttons[1].attributes['aria-pressed'], 'true');
+			staleCompletion();
+			assert.equal(buttons[1].attributes['aria-pressed'], 'true');
+			await resume(resumeRequests);
+			assert.equal(scheduled.timeouts.size, 1);
+			scheduled.fire(scheduled.timeouts.keys().next().value);
+			assert.equal(buttons[1].attributes['aria-pressed'], 'false');
+			assert.deepEqual(element.musicEvents, [true, true, false]);
+		});
+		"""#
+		let error = try Self.syntaxError(checking: ["--input-type=module"], input: harness)
+		#expect(error == nil, "\(error ?? "")")
+	}
+
 	/**
 	Runs `node` with the arguments, like `--check`, and the input, and returns what it writes to the standard error when it fails, or `nil` when the script is valid.
 	*/
 	private static func syntaxError(checking arguments: [String], input: String = "") throws -> String? {
 		let process = Process()
+		process.currentDirectoryURL = Project.website.root
 		process.executableURL = URL(filePath: "/usr/bin/env")
 		process.arguments = ["node"] + arguments
 		let inputPipe = Pipe()
@@ -1112,14 +1681,18 @@ struct ScriptedElementTests {
 	}
 
 	/**
-	The parts that a script uses directly: `this.parts.screen`, `const {screen, status} = this.parts;` (also with `screen: name`), and `data-part="key"`, like in `querySelectorAll('[data-part="key"]')` for a list of the same part. Not `game.parts.filter` or `const {width} = this.parts.canvas`, which are not parts. A function that gets `this.parts`, like `setUpNapster(this, this.parts)`, counts when it destructures them in its parameters, like `const setUpNapster = (napster, {search: searchForm, query}) =>`. When it reads them in its body, they are only checked when it runs.
+	The parts that a script uses directly: `this.parts.screen`, `const {screen, status} = this.parts;` (also with `screen: name`), the same with `parts(this)` of `dom.js`, like `const {panel, list} = parts(this);`, the parts of a copy with `parts()` (``copiedPartReads``), like `parts(item).link`, and `data-part="key"`, like in `querySelectorAll('[data-part="key"]')` for a list of the same part. Not `game.parts.filter` or `const {width} = this.parts.canvas`, which are not parts. A function that gets `this.parts`, like `setUpNapster(this, this.parts)`, counts when it destructures them in its parameters, like `const setUpNapster = (napster, {search: searchForm, query}) =>`. When it reads them in its body, they are only checked when it runs.
 
 	The word boundaries are simple, as the default Unicode ones treat `this.parts.odds` as one word. A pattern starts with `(?:^|\W)` instead of a word boundary, which is about three times as slow, as it is checked at every character of the scripts.
 	*/
 	private static func usedParts(in script: String) -> Set<String> {
-		let members = script.matches(of: /(?:^|\W)this\.parts\.(\w+)/).map { String($0.1) }
+		let members = script.matches(of: /(?:^|\W)(?:this\.parts|parts\(this\))\.(\w+)/).map { String($0.1) }
 
-		let destructured = script.matches(of: /\{([\w\s,:]+)\}\s*=\s*this\.parts\b(?![.\[])/.wordBoundaryKind(.simple)).flatMap { names(in: $0.1) }
+		let destructured = script.matches(of: /\{([\w\s,:]+)\}\s*=\s*(?:this\.parts\b|parts\(this\))(?![.\[])/.wordBoundaryKind(.simple)).flatMap { names(in: $0.1) }
+
+		let copied = script.matches(of: copiedPartReads).flatMap { match in
+			match.1.map { names(in: $0) } ?? match.2.map { [String($0)] } ?? []
+		}
 
 		let selected = script.matches(of: /data-part="(\w+)"/).map { String($0.1) }
 
@@ -1130,8 +1703,13 @@ struct ScriptedElementTests {
 
 		let cloned = clonedParts(in: script)
 
-		return Set(members + destructured + selected + parameters).union(cloned)
+		return Set(members + destructured + selected + parameters + copied).union(cloned)
 	}
+
+	/**
+	The parts of a copy of a template that a script that extends `HTMLElement` reads with `parts()` of `dom.js`, like `const {link, question} = parts(item);` or `parts(item).link`, but not `parts(this)`. The member is the last one of the statement, like `tooLargeNotice` in `parts(cloneTemplate(parts(this).template)).tooLargeNotice`.
+	*/
+	nonisolated(unsafe) private static let copiedPartReads = /\{([\w\s,:]+)\}\s*=\s*parts\((?!this\))[^;]*?\)|(?:^|\W)parts\((?!this\))[^;]*\)\.(\w+)/
 
 	/**
 	The parts that a script uses through a copy of a template (`clone()` of `scripted-element.js`): the template, like `rowTemplate` in `this.clone('rowTemplate')` or `napster.clone('resultTemplate')`, the parts that it destructures from the copy, like `name` and `size` in `const {element: row, parts: {name, size}} = this.clone('rowTemplate');`, and for `const {element: row, parts} = this.clone('rowTemplate');` (also with `parts: rowParts`), the members of the parts, like `parts.name`, in the rest of the block of the copy, which ends at the first line that is indented less, so another `parts`, like a list, is not read as parts.
@@ -1277,5 +1855,369 @@ extension String {
 				.matches(of: /'([\w-]+)'/)
 				.map { String($0.1) }
 		})
+	}
+}
+
+
+extension ScriptedElementTests {
+	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check state transitions."))
+	func `WebGL backgrounds own their animation frames and restored uniforms`() throws {
+		let harness = #"""
+		import assert from 'node:assert/strict';
+		import fs from 'node:fs';
+		import test from 'node:test';
+		import vm from 'node:vm';
+
+		for (const name of ['apps-glass', 'nebula']) {
+			test(`${name} owns one animation and rebuilds its uniforms after context loss`, () => {
+				const canvas = new EventTarget();
+				const document = new EventTarget();
+				const frames = new Map();
+				let nextFrame = 0;
+				let generation = 0;
+				let links = true;
+				let draws = 0;
+				let resized;
+				let intersected;
+				canvas.dataset = {};
+				canvas.clientWidth = 800;
+				canvas.clientHeight = 600;
+				canvas.parentElement = new EventTarget();
+				document.querySelector = () => canvas;
+				document.hidden = false;
+				const gl = new Proxy({
+					canvas,
+					getProgramParameter: () => links,
+					getUniformLocation: (_, name) => ({generation, name}),
+					uniform1f(location) {
+						assert.equal(location.generation, generation);
+					},
+					uniform2f(location) {
+						assert.equal(location.generation, generation);
+					},
+					uniform3f(location) {
+						assert.equal(location.generation, generation);
+					},
+					drawArrays() {
+						draws++;
+					},
+				}, {
+					get: (target, key) => target[key] ?? (() => ({})),
+				});
+				canvas.getContext = () => gl;
+				const context = vm.createContext({
+					document, prefersReducedMotion: false,
+					window: {devicePixelRatio: 1},
+					performance: {now: () => 1000},
+					matchMedia: () => new EventTarget(),
+					getComputedStyle: () => ({getPropertyValue: () => ''}),
+					OffscreenCanvas: class {
+						getContext() {
+							return {clearRect() {}, fillRect() {}, getImageData: () => ({data: [0, 0, 0, 0]})};
+						}
+					},
+					IntersectionObserver: class {
+						constructor(callback) {
+							intersected = callback;
+						}
+						observe() {}
+					},
+					ResizeObserver: class {
+						constructor(callback) {
+							resized = callback;
+						}
+						observe() {}
+					},
+					requestAnimationFrame(callback) {
+						const frame = nextFrame++;
+						frames.set(frame, callback);
+						return frame;
+					},
+					cancelAnimationFrame(frame) {
+						frames.delete(frame);
+					},
+				});
+				vm.runInContext(fs.readFileSync('public/scripts/webgl.js', 'utf8').replace('export function', 'function'), context);
+				vm.runInContext(fs.readFileSync(`public/scripts/${name}.js`, 'utf8').replace(/^import .*\n/gm, ''), context);
+				resized();
+				intersected([{isIntersecting: true}]);
+				assert.equal(frames.size, 1);
+				intersected([{isIntersecting: true}]);
+				assert.equal(frames.size, 1);
+				const [frame, callback] = frames.entries().next().value;
+				frames.delete(frame);
+				callback(2000);
+				assert.equal(frames.size, 1);
+				assert.ok(draws > 0);
+				document.hidden = true;
+				document.dispatchEvent(new Event('visibilitychange'));
+				assert.equal(frames.size, 0);
+				document.hidden = false;
+				document.dispatchEvent(new Event('visibilitychange'));
+				assert.equal(frames.size, 1);
+				canvas.dispatchEvent(new Event('webglcontextlost', {cancelable: true}));
+				assert.equal(frames.size, 0);
+				const previousDraws = draws;
+				resized();
+				assert.equal(draws, previousDraws);
+				links = false;
+				canvas.dispatchEvent(new Event('webglcontextrestored'));
+				intersected([{isIntersecting: true}]);
+				assert.equal(frames.size, 0);
+				links = true;
+				generation++;
+				canvas.dispatchEvent(new Event('webglcontextrestored'));
+				assert.equal(frames.size, 1);
+				intersected([{isIntersecting: false}]);
+				assert.equal(frames.size, 0);
+			});
+		}
+		"""#
+		let error = try Self.syntaxError(checking: ["--input-type=module"], input: harness)
+		#expect(error == nil, "\(error ?? "")")
+	}
+}
+
+
+extension ScriptedElementTests {
+	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check state transitions."))
+	func `jukebox playback owns pending wakeups and repeat timers`() throws {
+		let harness = #"""
+		import assert from 'node:assert/strict';
+		import fs from 'node:fs';
+		import test from 'node:test';
+		import vm from 'node:vm';
+
+		const source = fs.readFileSync('public/scripts/geocities.js', 'utf8');
+		// Run the whole jukebox, including its DOM listeners and modem, without the unrelated toys of the page.
+		const script = source.slice(source.indexOf('// The jukebox plays'), source.indexOf('// The pop-up:'));
+		const setUp = () => {
+			const document = new EventTarget();
+			const parts = new Map();
+			const resumes = [];
+			const timers = new Map();
+			let nextTimer = 0;
+			let suspensions = 0;
+			let outputs = 0;
+			class AudioContext {
+				currentTime = 0;
+				resume() {
+					const pending = Promise.withResolvers();
+					resumes.push(pending);
+					return pending.promise;
+				}
+				suspend() {
+					suspensions++;
+				}
+			}
+			class GainNode {
+				gain = {setValueAtTime() {}, linearRampToValueAtTime() {}};
+				constructor(_, {gain}) {
+					if (gain === 0.05) {
+						outputs++;
+					}
+				}
+				connect() {
+					return this;
+				}
+				disconnect() {}
+			}
+			document.querySelector = selector => {
+				if (!parts.has(selector)) {
+					parts.set(selector, new EventTarget());
+				}
+				return parts.get(selector);
+			};
+			const context = vm.createContext({
+				document, AudioContext, GainNode, BiquadFilterNode: class {}, CustomEvent,
+				tunes: [{file: 'test', title: 'Test', tempo: 60, speedUp: 1, notes: [[0, 1]]}],
+				setTimeout(callback) {
+					const timer = nextTimer++;
+					timers.set(timer, callback);
+					return timer;
+				},
+				clearTimeout(timer) {
+					timers.delete(timer);
+				},
+			});
+			vm.runInContext(script, context);
+			return {
+				play: () => vm.runInContext('playMusic()', context),
+				stop: () => parts.get('#geocities-midi-stop').dispatchEvent(new Event('click')),
+				otherMusic: () => document.dispatchEvent(new CustomEvent('geocities-music', {detail: {isPlaying: true, source: 'other'}})),
+				resumes, timers,
+				get outputs() {
+					return outputs;
+				},
+				get suspensions() {
+					return suspensions;
+				},
+			};
+		};
+
+		test('an older wakeup cannot hide a newer pending Play from other music', async () => {
+			const player = setUp();
+			const first = player.play();
+			const second = player.play();
+			player.resumes[0].resolve();
+			await first;
+			player.otherMusic();
+			player.resumes[1].resolve();
+			await second;
+			assert.equal(player.outputs, 0);
+			assert.equal(player.timers.size, 0);
+		});
+
+		test('Stop during wakeup frees the device when the wakeup finishes', async () => {
+			const player = setUp();
+			const pending = player.play();
+			player.stop();
+			const suspensions = player.suspensions;
+			player.resumes[0].resolve();
+			await pending;
+			assert.equal(player.outputs, 0);
+			assert.ok(player.suspensions > suspensions);
+		});
+
+		test('replacing and stopping playback cancels its repeat timer', async () => {
+			const player = setUp();
+			const first = player.play();
+			player.resumes[0].resolve();
+			await first;
+			assert.equal(player.outputs, 1);
+			assert.equal(player.timers.size, 1);
+			const second = player.play();
+			assert.equal(player.timers.size, 0);
+			player.resumes[1].resolve();
+			await second;
+			assert.equal(player.outputs, 2);
+			assert.equal(player.timers.size, 1);
+			player.stop();
+			assert.equal(player.timers.size, 0);
+		});
+
+
+		test('a failed startup allows a retry and cannot stop a newer Play', async () => {
+			const player = setUp();
+			const first = player.play();
+			const rejection = assert.rejects(first, /cannot resume/);
+			const second = player.play();
+			player.resumes[0].reject(new Error('cannot resume'));
+			await rejection;
+			player.resumes[1].resolve();
+			await second;
+			assert.equal(player.outputs, 1);
+			assert.equal(player.timers.size, 1);
+			player.stop();
+			const third = player.play();
+			const failed = assert.rejects(third, /cannot resume/);
+			player.resumes[2].reject(new Error('cannot resume'));
+			await failed;
+			const fourth = player.play();
+			player.resumes[3].resolve();
+			await fourth;
+			assert.equal(player.outputs, 2);
+			assert.equal(player.timers.size, 1);
+		});
+		"""#
+		let error = try Self.syntaxError(checking: ["--input-type=module"], input: harness)
+		#expect(error == nil, "\(error ?? "")")
+	}
+}
+
+
+extension ScriptedElementTests {
+	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check state transitions."))
+	func `Simon keeps idle showing and input phases exclusive`() throws {
+		let harness = #"""
+		import assert from 'node:assert/strict';
+		import fs from 'node:fs';
+		import test from 'node:test';
+		import vm from 'node:vm';
+
+		test('Simon locks input while showing and between rounds, and restarts after a wrong answer', async () => {
+			const handlers = new Map();
+			const waits = [];
+			const timers = [];
+			const tones = [];
+			const node = () => ({dataset: {}, children: [], parentElement: {}, focus() {}, setAttribute() {}, replaceChildren() {}});
+			const parts = new Proxy({}, {
+				get(target, key) {
+					return target[key] ??= node();
+				},
+			});
+			const pads = Array.from({length: 4}, node);
+			const room = {
+				parts,
+				querySelectorAll: selector => selector === '[data-part="simonPad"]' ? pads : [],
+				stored: (_, fallback) => fallback,
+				store() {},
+				on(target, type, handler) {
+					if (!handlers.has(target)) {
+						handlers.set(target, {});
+					}
+					handlers.get(target)[type] = handler;
+				},
+				wait() {
+					const pending = Promise.withResolvers();
+					waits.push(pending);
+					return pending.promise;
+				},
+				timeout(_, callback) {
+					timers.push(callback);
+				},
+				say(text, target) {
+					target.textContent = text;
+				},
+			};
+			class GeoCitiesElement {}
+			let Element;
+			vm.runInNewContext(fs.readFileSync('Sources/Website/Pages/1999/Scripts/GameRoom.js', 'utf8').replace(/^import .*\n/gm, ''), {
+				GeoCitiesElement,
+				customElements: {define: (_, value) => {
+						Element = value;
+					}},
+				document: {
+					querySelector: () => ({beep: frequency => tones.push(frequency), addTickets: value => value}),
+					createElement: node,
+				},
+				randomItem: items => items[0], randomInteger: () => 0, shuffled: items => items,
+				plural: (amount, noun) => `${amount} ${noun}`,
+			});
+			Element.prototype.connected.call(room);
+			const press = index => handlers.get(pads[index]).click();
+			const start = () => handlers.get(parts.simonStart).click();
+			const finishShowing = async () => {
+				while (!parts.simonStatus.textContent.startsWith('Your turn')) {
+					assert.ok(waits.length > 0);
+					waits.shift().resolve();
+					await new Promise(resolve => setImmediate(resolve));
+				}
+			};
+			press(1);
+			assert.equal(tones.length, 1);
+			start();
+			press(1);
+			assert.equal(tones.length, 1);
+			assert.equal(parts.simonStart.disabled, true);
+			await finishShowing();
+			press(0);
+			assert.equal(timers.length, 1);
+			press(0);
+			assert.equal(timers.length, 1);
+			timers.shift()();
+			await finishShowing();
+			press(1);
+			assert.equal(parts.simonStart.disabled, false);
+			assert.match(parts.simonStatus.textContent, /^Wrong!/);
+			start();
+			assert.equal(parts.simonStart.disabled, true);
+			await finishShowing();
+			press(0);
+			assert.equal(timers.length, 1);
+		});
+		"""#
+		let error = try Self.syntaxError(checking: ["--input-type=module"], input: harness)
+		#expect(error == nil, "\(error ?? "")")
 	}
 }

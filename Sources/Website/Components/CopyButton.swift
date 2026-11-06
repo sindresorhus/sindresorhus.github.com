@@ -81,7 +81,7 @@ struct CopyButton: ScriptedElement {
 		case copied
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case labels
 		case label

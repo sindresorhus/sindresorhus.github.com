@@ -601,7 +601,7 @@ No, Apple does not expose these features to third-party apps.
 
 ### How can I make the text in Dato be more easily readable? {#how-can-i-make-the-text-in-dato-be-more-easily-readable}
 
-Try turning off the “Vibrancy” setting. You can also try increasing the text size with the “Larger text” setting.
+Try turning off the “Translucent background” setting in “Settings › Window”. You can also try increasing the text size with the “Larger text” setting.
 
 ### What does the `ⓘ` symbol in the “upcoming event in menu bar” item mean? {#what-does-the-ⓘ-symbol-in-the-upcoming-event-in-menu-bar-item-mean}
 
@@ -640,7 +640,7 @@ In the “Custom date & time format” setting, write `D` to show the [day of ye
 
 ### Can I change the background color of Dato? {#can-i-change-the-background-color-of-dato}
 
-No, but you can make it white/black by turning off the “Vibrancy” setting.
+No, but you can make it white/black by turning off the “Translucent background” setting in “Settings › Window”.
 
 ### The widgets provided by Dato do not show up in the widget picker {#the-widgets-provided-by-dato-do-not-show-up-in-the-widget-picker}
 
@@ -703,7 +703,7 @@ defaults export com.sindresorhus.Dato-setapp - | defaults import com.sindresorhu
 
 ### How is this different from Fantastical? {#how-is-this-different-from-fantastical}
 
-Fantastical is a full-blown calendar app, while Dato is a read-only view of your events. Fantastical is a replacement for the built-in Calendar app. You can use both Fantastical and Dato at the same time. Dato even has integration with Fantastical, so you can open events in Dato directly in Fantastical. Fantastical also has a menu bar item, but many people prefer the UI of Dato. Dato also shows time zones and has more customizability for what’s shown in the menu bar. Dato can replace the system date/time, for example.
+Fantastical is a full-blown calendar app, while Dato is a quick view of your events, where you can also add events and make small changes to them. Fantastical is a replacement for the built-in Calendar app. You can use both Fantastical and Dato at the same time. Dato even has integration with Fantastical, so you can open events in Dato directly in Fantastical. Fantastical also has a menu bar item, but many people prefer the UI of Dato. Dato also shows time zones and has more customizability for what’s shown in the menu bar. Dato can replace the system date/time, for example.
 
 ### How is this different from iStat Menus? {#how-is-this-different-from-istat-menus}
 

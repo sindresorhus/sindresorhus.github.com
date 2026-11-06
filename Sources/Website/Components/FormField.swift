@@ -122,7 +122,7 @@ extension FormField where Accessory == EmptyHTML {
 /**
 The styles of ``FormField``. They are not nested in the generic type, as each specialization would be another style set with the same class names (``StyleSet``).
 */
-enum FormFieldStyles: StyleSet {
+enum FormFieldStyles: String, StyleSet {
 	case root
 	case labelRow
 	case label
@@ -172,7 +172,7 @@ enum FormFieldStyles: StyleSet {
 				.textStyle(.lead)
 				.color(.primaryText)
 				.background(.white.opacity(0.6), dark: .white.opacity(0.06))
-				.declaration(.appearance, .none)
+				.declaration(raw: .appearance, .none)
 				.placeholder {
 					$0
 						.color(.secondaryText)

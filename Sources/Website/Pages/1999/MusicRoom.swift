@@ -96,7 +96,7 @@ struct GeoCitiesMusicRoom: HTML {
 					}
 					.style(GeoCitiesPage.Styles.formRow)
 
-					p(.part(Parts.status), .role("status")) {}
+					p(.part(Parts.status), .role(.status)) {}
 						.style(Styles.status)
 
 					div(.part(Parts.question), .hidden) {
@@ -148,7 +148,7 @@ struct GeoCitiesMusicRoom: HTML {
 			case answer = "music-answer"
 		}
 
-		enum Styles: ElementStyleSet {
+		enum Styles: String, ElementStyleSet {
 			case root
 			case title
 			case mixer
@@ -211,7 +211,7 @@ struct GeoCitiesMusicVolume: HTML {
 		case volume = "music-volume"
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case volume
 		case slider
 

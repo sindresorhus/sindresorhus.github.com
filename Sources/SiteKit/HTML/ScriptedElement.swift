@@ -43,7 +43,7 @@ struct FeedTicker: ScriptedElement {
 		case refresh
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case refresh
 
@@ -89,7 +89,7 @@ public protocol ScriptedElement: HTML, SendableMetatype {
 
 	```swift
 	var rootAttributes: [HTMLAttribute<ElementTag<Self>>] {
-		[.id("feed"), .role("region"), .ariaLabelledBy(ElementID("feed-title"))]
+		[.id("feed"), .role(.region), .ariaLabelledBy(ElementID("feed-title"))]
 	}
 	```
 
@@ -188,12 +188,18 @@ The script of a ``ScriptedElement``: the `.js` file with the same name as the Sw
 The build reads a file from the source directory, so the preview server shows a change to it without building the tool again. The target of the Swift file excludes the `Scripts` folder in `Package.swift`, so the scripts need no entry each. An inline script needs neither, but a change to it builds the tool again, and it has no syntax highlighting, so use it only for a few lines.
 */
 public struct ElementScript: Sendable {
-	private enum Location {
+	/**
+	The script's source, with a nonoptional payload for each alternative. Inline text has already passed the closing-script check when the enclosing script is constructed.
+	*/
+	public enum Source: Sendable {
 		case file(URL)
 		case inline(String)
 	}
 
-	private let location: Location
+	/**
+	The file or inline text that owns the script.
+	*/
+	public let location: Source
 
 	/**
 	The path that the build publishes a script file at, like `/scripts/elements/Clock.js` for `Scripts/Clock.js` (``Project/elementScripts()``).
@@ -207,7 +213,7 @@ public struct ElementScript: Sendable {
 	*/
 	public init(swiftFile: String = #filePath) {
 		let swiftFile = URL(filePath: swiftFile)
-		self.location = .file(swiftFile.deletingLastPathComponent().appending(path: "Scripts").appending(path: swiftFile.deletingPathExtension().lastPathComponent).appendingPathExtension("js"))
+		self.location = .file(swiftFile.deletingLastPathComponent().appending(path: "Scripts").appending(path: swiftFile.nameWithoutExtension).appendingPathExtension("js"))
 	}
 
 	/**
@@ -262,8 +268,12 @@ public struct ElementScript: Sendable {
 	}
 }
 
-public enum ElementScriptError: Error, CustomStringConvertible {
+public enum ElementScriptError: Error, CustomStringConvertible, LocalizedError {
 	case classDeclaration(String)
+
+	public var errorDescription: String? {
+		description
+	}
 
 	public var description: String {
 		switch self {

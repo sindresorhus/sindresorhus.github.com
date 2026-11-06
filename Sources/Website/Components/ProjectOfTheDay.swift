@@ -202,7 +202,7 @@ struct ProjectOfTheDay: ScriptedElement {
 		}
 
 		// A live region, so screen readers announce the next project after a press of the button, which keeps the focus.
-		div(.role("status")) {
+		div(.role(.status)) {
 			a(.part(Parts.name), .href(.url(project.url))) {
 				project.name
 			}
@@ -248,7 +248,7 @@ struct ProjectOfTheDay: ScriptedElement {
 		case next
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 
 		var style: Style {

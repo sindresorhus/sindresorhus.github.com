@@ -70,8 +70,6 @@ You can also choose to manually clear formatting whenever needed instead of auto
 
 You can right-click the menu bar icon to toggle automatic mode or clear formatting.
 
-<br>
-
 #### Limitations
 
 Rich text copied from a different device will not have its formatting cleared because of a bug in Universal Clipboard.

@@ -2,6 +2,7 @@
 isArchived: true
 title: 'Jiffy'
 subtitle: 'Discover & share the best GIFs'
+description: 'Search and discover GIFs from your Mac menu bar, and drag and drop the one you like into any app.'
 publicationDate: 2020-03-25
 platforms: [
 	'macOS'

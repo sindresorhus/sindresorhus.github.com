@@ -65,7 +65,7 @@ struct NowPage: Page {
 					strong {
 						"\(label): "
 					}
-					items.map(\.value).formatted(.list(type: .and).locale(.site))
+					items.map(\.value).formattedList(.and)
 				}
 			}
 
@@ -80,10 +80,10 @@ struct NowPage: Page {
 	}
 
 	/**
-	The newest app as a card that links to it. The light of the card is in the color of the icon.
+	The newest app as a card that links to it. The light of the card is in the color of the icon. The card shows the app, so it shows no preview of the app (``LinkPreview``).
 	*/
 	private func newestApp(_ app: App) -> some HTML {
-		a(.href(app.url)) {
+		a(.href(app.url), .hook(LinkPreview.Hooks.noLinkPreview)) {
 			AppIcon(decorative: app, size: 64, isAboveFold: true)
 
 			span {
@@ -103,6 +103,14 @@ struct NowPage: Page {
 				.style(Styles.newestAppSubtitle)
 			}
 			.style(Styles.text)
+			// Below the icon and the chevron on a small phone or with large text, so the subtitle is not one word on each line. The width is in rem, so it follows the text size.
+			.style {
+				$0.below(.phone) {
+					$0
+						.order(1)
+						.frame(minWidth: .percent(100))
+				}
+			}
 
 			Icon.chevronRight.size(.rootEm(1.25))
 		}
@@ -303,8 +311,9 @@ struct NowPage: Page {
 				group("Contributions", isWide: true) {
 					div {
 						ContributionHeatmap(calendar: contributions, scale: content.contributionScale)
+							// The padding of the card is the space above the heatmap.
 							.style {
-								$0.margin(vertical: .rootEm(1.5), horizontal: .zero)
+								$0.margin(.bottom, .rootEm(1.5))
 							}
 
 						p {
@@ -379,7 +388,7 @@ struct NowPage: Page {
 							// The stars of the reviews are decorative, as they are all five stars.
 							VisuallyHidden("All with five stars. ")
 							"More on the "
-							a(.href(.path(.reviews))) {
+							a(.href(.reviews)) {
 								"Wall of Love"
 							}
 						}
@@ -418,6 +427,10 @@ struct NowPage: Page {
 										.style(Styles.rowDate)
 								}
 								.style(Styles.row)
+								// The date is on the first line of a name that wraps, like `@sindresorhus/transliterate`, not between its lines.
+								.style {
+									$0.alignItems(.baseline)
+								}
 							}
 						}
 						.style(Styles.card, Styles.rows)
@@ -523,8 +536,8 @@ struct NowPage: Page {
 			div {
 				if let sponsorCount = content.recentActivity.profile?.sponsorCount {
 					p {
-						"\(sponsorCount.formatted(.number.locale(.site))) people and companies "
-						a(.href(.path(.supporters))) {
+						"\(sponsorCount.formatted(.siteNumber)) people and companies "
+						a(.href(.supporters)) {
 							"sponsor my open-source work"
 						}
 						"."
@@ -534,7 +547,7 @@ struct NowPage: Page {
 
 				p {
 					"All-time numbers are on the "
-					a(.href(.path(.about, fragment: AboutPage.numbersID.rawValue))) {
+					a(.href(.path(.about, fragment: AboutPage.numbersID))) {
 						"About"
 					}
 					" page."
@@ -592,7 +605,7 @@ struct NowPage: Page {
 	}
 
 	/**
-	The repos with the most commits of the year, like “Most commits went to ky (1,163), chalk/chalk (2), and got (1).”
+	The repos with the most commits of the year, like “Most commits went to ky (1163), chalk/chalk (2), and got (1).”
 	*/
 	@HTMLBuilder
 	private var repositoryCommitsCaption: some HTML {
@@ -609,7 +622,7 @@ struct NowPage: Page {
 						commits.repository.displayName
 					}
 
-					" (\(commits.count.formatted(.number.locale(.site))))"
+					" (\(commits.count.formatted(.siteNumber)))"
 				}
 
 				"."
@@ -786,7 +799,7 @@ struct NowPage: Page {
 	The apps that launched and the blog posts that were published on this day in earlier years (UTC), newest first. App updates are left out, as they are many and not of interest years later.
 	*/
 	private var onThisDay: [Anniversary] {
-		let today = SOML.Date(content.buildDate)
+		let today = content.today
 
 		func isAnniversary(_ date: SOML.Date) -> Bool {
 			date.year < today.year && date.month == today.month && date.day == today.day
@@ -954,7 +967,7 @@ struct NowPage: Page {
 		case commitTime = "commit-time"
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case updated
 		case status
 		case newestApp
@@ -1000,6 +1013,11 @@ struct NowPage: Page {
 			case .newestApp:
 				Style()
 					.linkCard()
+					.below(.phone) {
+						$0
+							.flexWrap()
+							.justifyContent(.spaceBetween)
+					}
 					.margin(top: .rootEm(2), horizontal: .zero, bottom: .rootEm(1))
 			case .text:
 				// The text next to an icon, like the title of the newest app.
@@ -1089,7 +1107,7 @@ struct NowPage: Page {
 			case .commitLink:
 				// Each row is one link, so the message does not need the underline of a link in text, which would make the card a stack of underlines. It has the weight of a title, and the color of links under the pointer.
 				Style()
-					.underline(false)
+					.noUnderline()
 					.fontWeight(.semibold)
 					.color(.primaryText)
 					.hoverColor(.link)
@@ -1161,12 +1179,16 @@ struct NowPage: Page {
 					.padding(.top, .rootEm(0.75))
 					.border(.top, .separator)
 					.secondaryText(.extraSmall)
+					// Tall lines, so the links, which are boxes of the line, are 24 pixels high, which is easier to tap.
+					.lineHeight(2)
 			case .postFooterLink:
-				// Without the look of a link in prose.
+				// Without the look of a link in prose, but with a thin underline in the color of the text, so the links stay quiet and still look like links.
 				Style()
+					.display(.inlineBlock)
 					.inherits(.color)
 					.fontWeight(.regular)
-					.quietLink()
+					.underline(color: Color.currentColor.opacity(0.45), offset: .pixels(2))
+					.hoverColor(.primaryText)
 			case .postText:
 				// The paragraphs of the post are lines in its text.
 				Style()

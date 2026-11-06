@@ -58,7 +58,7 @@ struct GeoCitiesBigButtons: HTML {
 		case effect = "big-button"
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case panel
 		case title
 		case desk

@@ -30,7 +30,7 @@ struct GeoCitiesInsultFight: ScriptedElement {
 					.part(Parts.canvas),
 					.width(200),
 					.height(80),
-					.role("img")
+					.role(.image)
 				) {}
 					.accessibilityLabel("Sindre with an umbrella and a seagull with a mackerel, fighting on the quay of the fish market.")
 					.style(Styles.fightCanvas)
@@ -40,7 +40,7 @@ struct GeoCitiesInsultFight: ScriptedElement {
 				}
 				.style(Styles.tally)
 
-				p(.part(Parts.line), .role("status")) {
+				p(.part(Parts.line), .role(.status)) {
 					"A seagull lands on the quay and looks at your waffle."
 				}
 				.style(Styles.fightLine)
@@ -52,7 +52,7 @@ struct GeoCitiesInsultFight: ScriptedElement {
 					}
 				}
 				.accessibilityLabel("What to say")
-				.attributes(.role("group"))
+				.attributes(.role(.group))
 				.style(Styles.fightChoices)
 
 				div {
@@ -101,7 +101,7 @@ struct GeoCitiesInsultFight: ScriptedElement {
 		case locked
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case fightWindow
 		case fightBody

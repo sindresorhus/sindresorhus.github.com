@@ -90,7 +90,7 @@ extension ButtonStyles {
 /**
 The styles of a link with ``Elementary/HTML/buttonStyle(_:size:)``. They are one style set, so a fill or size always wins over the base. They set no margins, so the parent places the button.
 */
-enum ButtonStyles: StyleSet {
+enum ButtonStyles: String, StyleSet {
 	case root
 	case primary
 	case secondary
@@ -123,7 +123,7 @@ enum ButtonStyles: StyleSet {
 				.textSelection(.disabled)
 				.color(.white)
 				// Also in prose, where links are underlined.
-				.underline(false)
+				.noUnderline()
 				.transition(.backgroundColor, .shadow, timing: .stateChange)
 		case .primary:
 			// The accent of the page, like the color of the icon on an app page. It is dark enough for the white text. A soft light at the top, a thin light edge, and a small shadow in the accent give it some depth, like the glass of the cards.
@@ -159,7 +159,7 @@ enum ButtonStyles: StyleSet {
 					BoxShadow(y: .pixels(1), color: .lightDark(.white.opacity(0.8), .white.opacity(0.1)), isInset: true),
 					.edge(.lightDark(Color.pageAccent.opacity(0.15), .white.opacity(0.1)))
 				)
-				.color(.accent(fallback: .primary(700), maximumLightness: 0.5), dark: .primary(200))
+				.color(.accentText)
 				.hoverOrFocusVisible {
 					$0.background(Color.pageAccent.opacity(0.24))
 				}

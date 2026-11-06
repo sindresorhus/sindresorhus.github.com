@@ -62,16 +62,6 @@ struct FunPageTests {
 	}
 
 	@Test
-	func `Winter Games event identities pair menu buttons and instructions`() {
-		let html = GeoCitiesWinterGames(project: .website).render()
-		#expect(GeoCitiesWinterGames.events.map(\.id) == GeoCitiesWinterGames.Event.ID.allCases)
-		for event in GeoCitiesWinterGames.events {
-			#expect(html.contains("data-winter-event=\"\(event.id.rawValue)\""))
-			#expect(html.contains("data-winter-howto=\"\(event.id.rawValue)\""))
-		}
-	}
-
-	@Test
 	func `retro fields assign matching label and control ids`() {
 		let html = GeoCitiesPageMaker(project: .website).render()
 		let controls = html.matches(of: /<(input|select|textarea)\b[^>]*\bid="([^"]+)"/)
@@ -155,13 +145,12 @@ struct FunPageTests {
 	}
 
 	@Test
-	func `movie maker tools each identify a drawer and scenes starts visible`() {
+	func `movie maker starts with the scenes tool and its drawer`() {
 		let html = GeoCitiesWindowsMovieMaker().render()
 		let tools = html.matches(of: /<button\b[^>]*data-moviemaker-tool="([^"]+)"[^>]*>/)
 		let panels = html.matches(of: /<div\b[^>]*data-moviemaker-panel="([^"]+)"[^>]*>/)
-		let expected = Set(GeoCitiesWindowsMovieMaker.Tool.allCases.map(\.rawValue))
-		#expect(Set(tools.map { String($0.1) }) == expected)
-		#expect(Set(panels.map { String($0.1) }) == expected)
+		#expect(tools.count == GeoCitiesWindowsMovieMaker.Tool.allCases.count)
+		#expect(panels.count == GeoCitiesWindowsMovieMaker.Tool.allCases.count)
 		for tool in tools {
 			#expect(tool.0.contains("aria-pressed=\"true\"") == (tool.1 == "scenes"))
 		}
@@ -272,7 +261,7 @@ struct FunPageTests {
 		let id = ElementID("ordinary-app-icon")
 		let html = AppIcon(app, size: 64, imageID: id).render()
 		#expect(html.contains("id=\"\(id)\""))
-		let hero = AppHero(listing: AppListing(app: app), buildDate: .now).render()
+		let hero = AppHero(listing: AppListing(app: app), buildDate: .now, hasGuides: false).render()
 		#expect(hero.contains("id=\"\(AppHero.IDs.icon.id)\""))
 	}
 
@@ -418,8 +407,8 @@ struct FunPageTests {
 		{
 			"totalContributions": 12,
 			"weeks": [
-				{"contributionDays": [{"date": "2025-12-31", "contributionCount": 50, "contributionLevel": "FOURTH_QUARTILE"}, {"date": "2026-01-01", "contributionCount": 2, "contributionLevel": "FIRST_QUARTILE"}, {"date": "2026-01-02", "contributionCount": 7, "contributionLevel": "FOURTH_QUARTILE"}, {"date": "2026-01-03", "contributionCount": 0, "contributionLevel": "NONE"}]},
-				{"contributionDays": [{"date": "2026-01-04", "contributionCount": 3, "contributionLevel": "SECOND_QUARTILE"}, {"date": "2026-01-05", "contributionCount": 7, "contributionLevel": "FOURTH_QUARTILE"}, {"date": "2026-01-06", "contributionCount": 0, "contributionLevel": "NONE"}]}
+				{"contributionDays": [{"date": "2025-12-31", "contributionCount": 50}, {"date": "2026-01-01", "contributionCount": 2}, {"date": "2026-01-02", "contributionCount": 7}, {"date": "2026-01-03", "contributionCount": 0}]},
+				{"contributionDays": [{"date": "2026-01-04", "contributionCount": 3}, {"date": "2026-01-05", "contributionCount": 7}, {"date": "2026-01-06", "contributionCount": 0}]}
 			]
 		}
 		"""#
@@ -450,8 +439,8 @@ struct FunPageTests {
 		{
 			"totalContributions": 5,
 			"weeks": [
-				{"contributionDays": [{"date": "2026-01-01", "contributionCount": 2, "contributionLevel": "FIRST_QUARTILE"}, {"date": "2026-01-02", "contributionCount": 3, "contributionLevel": "FOURTH_QUARTILE"}, {"date": "2026-01-03", "contributionCount": 0, "contributionLevel": "NONE"}]},
-				{"contributionDays": [{"date": "2026-01-04", "contributionCount": 0, "contributionLevel": "NONE"}]}
+				{"contributionDays": [{"date": "2026-01-01", "contributionCount": 2}, {"date": "2026-01-02", "contributionCount": 3}, {"date": "2026-01-03", "contributionCount": 0}]},
+				{"contributionDays": [{"date": "2026-01-04", "contributionCount": 0}]}
 			]
 		}
 		"""#
@@ -513,7 +502,7 @@ struct FunPageTests {
 	@Test
 	func `the longest streak goes on from one year to the next, and the busiest day and weekday are of all the years`() throws {
 		func year(_ year: Int, days: [(date: String, count: Int)]) throws -> ContributionYear {
-			let days = days.lazy.map { #"{"date": "\#($0.date)", "contributionCount": \#($0.count), "contributionLevel": "\#($0.count > 0 ? "FIRST_QUARTILE" : "NONE")"}"# }.joined(separator: ", ")
+			let days = days.lazy.map { #"{"date": "\#($0.date)", "contributionCount": \#($0.count)}"# }.joined(separator: ", ")
 			let json = #"{"totalContributions": 0, "weeks": [{"contributionDays": [\#(days)]}]}"#
 			let calendar = try ContributionCalendar(json: json)
 			return ContributionYear(

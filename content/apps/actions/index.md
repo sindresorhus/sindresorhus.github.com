@@ -58,7 +58,7 @@ feedbackNote:
 	'''
 	**After a major iOS update, it may take some time for iOS to re-index all the Shortcuts actions. Give it some time.**
 
-	**If the actions don’t show up in the Shortcuts app or you get a “com.apple.extensionKit.errorDomain error 2”, [see this](/actions#actions-not-showing-up).**<br><br>
+	**If the actions don’t show up in the Shortcuts app or you get a “com.apple.extensionKit.errorDomain error 2”, [see this](/actions#actions-not-showing-up).**
 
 	Tip: To pass a variable to a file input in Shortcuts, tap-and-hold (iOS) or right-click (macOS) the input and select the variable.
 

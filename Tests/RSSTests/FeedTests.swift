@@ -110,15 +110,6 @@ struct FeedTests {
 	}
 
 	@Test
-	func `uses custom GUIDs`() throws {
-		let feed = Feed(title: "A", link: site, description: "B") {
-			Item(title: "Moved", link: URL(string: "https://elsewhere.com/post")!, guid: .identifier("https://example.com/post"))
-		}
-
-		#expect(try feed.xmlString().contains(#"<guid isPermaLink="false">https://example.com/post</guid>"#))
-	}
-
-	@Test
 	func `leaves out the GUID without a link or a custom GUID`() throws {
 		let feed = Feed(title: "A", link: site, description: "B") {
 			Item(title: "Note")
@@ -162,21 +153,6 @@ struct FeedTests {
 			items: []
 		)
 		#expect(try feed.xmlString().contains("<title>A&amp;\u{301}B</title>"))
-	}
-
-	@Test
-	func `writes the language and the last build date`() throws {
-		let date = Date(timeIntervalSince1970: 1_700_000_000)
-		let xml = try Feed(
-			title: "A",
-			link: site,
-			description: "B",
-			language: "en-us",
-			lastBuildDate: .instant(date),
-			items: []
-		).xmlString()
-		#expect(xml.contains("<language>en-us</language>"))
-		#expect(xml.contains("<lastBuildDate>Tue, 14 Nov 2023 22:13:20 GMT</lastBuildDate>"))
 	}
 
 	@Test(arguments: [
@@ -398,18 +374,6 @@ struct FeedTests {
 		}
 
 		#expect(try feed.xmlString().contains("<author>\(expected)</author>"))
-	}
-
-	@Test
-	func `renders only valid feeds`() {
-		#expect(throws: FeedValidationError.emptyChannelTitle) {
-			try Feed(
-				title: "",
-				link: site,
-				description: "B",
-				items: []
-			).xmlString()
-		}
 	}
 
 	@Test

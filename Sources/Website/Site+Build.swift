@@ -34,25 +34,31 @@ extension Site {
 			struct Identity: Hashable {
 				let location: SourceLocation
 				let problem: LinkValidator.BrokenLink.Problem
-				let draftFile: String?
 			}
 
 			/**
 			The values that distinguish this authored problem from other diagnostics.
 			*/
 			var identity: Identity {
-				Identity(location: location, problem: link.problem, draftFile: draftFile)
+				Identity(location: location, problem: link.problem)
 			}
 
 			/**
 			The link and the problem after where it is, like `content/apps/dato/index.md:12: /missing`, or that it goes to a draft, as its file exists, so the author would otherwise look for a wrong path.
 			*/
 			public var description: String {
+				"\(location): \(message)"
+			}
+
+			/**
+			The link and the problem, without where it is, like for an annotation on GitHub, which shows it at its file and line.
+			*/
+			public var message: String {
 				guard let draftFile else {
-					return link.description(at: location)
+					return link.message
 				}
 
-				return "\(location): \(link.link) goes to `\(draftFile)`, which is a draft (`isDraft: true`), so it is not published."
+				return "\(link.link) goes to `\(draftFile)`, which is a draft (`isDraft: true`), so it is not published."
 			}
 		}
 
@@ -84,32 +90,57 @@ extension Site {
 
 	Throws for content mistakes and publishing errors. Broken links do not throw, as the site is published, so they are in the report.
 
-	- Parameter includesGallery: Publishes the component gallery too, for the preview server.
+	- Parameter buildDate: The day that the site is built for, like for what a `@Scheduled` block shows. The default is now. Another day is for a look at the site of that day, like `website serve --date 2026-11-27`.
+	- Parameter isPreview: Publishes the component gallery and the drafts too (``Site/draftRoutes``), for the preview server. It has no default, so a publish of the site never gets the drafts by a missing argument.
 	- Parameter onPublished: Called after the files are written, before the links are checked, like for reloading the open pages.
 	*/
-	public static func build(project: Project, output: URL, externalData: ExternalData, includesGallery: Bool = false, onPublished: @Sendable () -> Void = {}) async throws -> BuildReport {
+	public static func build(
+		project: Project,
+		output: URL,
+		externalData: ExternalData,
+		buildDate: Date = .now,
+		isPreview: Bool,
+		onPublished: @Sendable () -> Void = {}
+	) async throws -> BuildReport {
 		var steps = StepTimes()
 
 		// Read while the content loads, as the scripts are about 5 MB.
 		async let loadingScripts = Scripts(project: project)
 
 		let site = try await steps.measure("Load content and data") {
-			try await Site(content: SiteContent.load(from: project, externalData: externalData))
+			try await Site(content: SiteContent.load(
+				from: project,
+				externalData: externalData,
+				buildDate: buildDate,
+				includesDrafts: isPreview
+			))
 		}
 
-		let routes = site.routes(includesGallery: includesGallery)
+		let routes = site.routes(includesGallery: isPreview)
 		let scripts = try await loadingScripts
 
 		let published = try await steps.measure("Render and write \(routes.count) routes") {
 			try await Scripts.$published.withValue(scripts) {
-				try await Publisher(site: origin, project: project, output: output).publish(routes)
+				try await Site.$pagesWithMarkdownCopies.withValue(site.markdownCopyPages) {
+					try await Publisher(site: origin, project: project, output: output).publish(routes)
+				}
 			}
 		}
 
 		onPublished()
 
 		let brokenLinks = await steps.measure("Check links") {
-			await LinkValidator(site: origin).brokenLinks(in: routes, published: published)
+			// Without the pages of the drafts and the files of their page bundles, so a link to a draft or to its icon is broken in the preview too, like in `website build`. Their own links are not checked either, like in a build.
+			let draftRoutes = site.draftRoutes
+			let draftFiles = Set(draftRoutes.map(\.outputFile))
+			let draftPaths = Set(draftRoutes.map(\.path))
+			let linkedSite = PublishedSite(
+				routeFiles: published.routeFiles.filter { !draftFiles.contains($0.key) },
+				publicFiles: published.publicFiles.filter { $0.page(in: project).map { !draftPaths.contains($0) } ?? true }
+			)
+			// With the links of the Markdown of the pages, as a page does not show a `@Scheduled` block before its first day, and a wrong link in it would otherwise first fail the build of that day.
+			let markdownLinks = site.content.pages.keyed(by: \.path).mapValues { $0.markdown.links.map(\.destination) }
+			return await LinkValidator(site: origin).brokenLinks(in: routes, published: linkedSite, additionalLinks: markdownLinks)
 		}
 
 		return BuildReport(
@@ -117,11 +148,10 @@ extension Site {
 			published: published,
 			brokenLinks: brokenLinks
 				.flatMap { link in
-					let draftFile: String?
-					if case .missingFile(let destination) = link.problem {
-						draftFile = site.content.draftFile(ofLink: destination)?.path(relativeTo: project.root)
+					let draftFile: String? = if case .missingFile(let destination, _) = link.problem {
+						site.content.draftFile(ofLink: destination)?.path(relativeTo: project.root)
 					} else {
-						draftFile = nil
+						nil
 					}
 
 					let locations = link.destination.map { site.content.sourceLocations(ofLink: $0, onPage: link.page) } ?? [site.content.sourceLocation(ofPage: link.page)]
@@ -184,8 +214,17 @@ public struct StepTimes: Sendable, CustomStringConvertible {
 	*/
 	public var description: String {
 		steps
-			.map { "\($0.name): \($0.duration.formatted(.units(allowed: [.seconds, .milliseconds], width: .narrow).locale(.site)))" }
+			.map { "\($0.name): \($0.duration.formatted(.site))" }
 			.joined(separator: "\n")
+	}
+}
+
+extension FormatStyle where Self == Duration.UnitsFormatStyle {
+	/**
+	A duration of the tool in English, like `1s 234ms`, so every time that the tool prints has the same format, whatever the locale of the Mac.
+	*/
+	public static var site: Self {
+		.units(allowed: [.seconds, .milliseconds], width: .narrow).locale(.site)
 	}
 }
 
@@ -198,9 +237,9 @@ extension Site {
 	*/
 	struct Scripts {
 		/**
-		The scripts of the site that is being published. Empty outside a build.
+		The scripts of the site that is being published, which only a build sets (``Site/build(project:output:externalData:buildDate:isPreview:onPublished:)``). Read it with `@TaskLocalValue(requiring: Site.Scripts.$published)`, so a page that renders outside a build stops at once, instead of loading its scripts without the hashes.
 		*/
-		@TaskLocal static var published = Self()
+		@TaskLocal static var published: Self?
 
 		/**
 		One snapshot per published script, so its hash, imports, and retained text always describe the same read.
@@ -274,7 +313,16 @@ extension Site {
 		}
 
 		/**
-		The script of an element, as it was read for its hash. It throws outside a build (``published``), which has no scripts.
+		The path of a script with the content hash of its file, like `/scripts/site.js?v=1a2b3c4d`, or the path alone when it has no hash.
+
+		The hash changes with the content, so a cached file is never used for new pages. A script that a script imports, like `nebula.js`, gets the hash from the import map of the page (``importMap(loading:)``).
+		*/
+		func versioned(_ path: RoutePath) -> LinkDestination {
+			records[path].map { path.versioned(hash: $0.contentHash) } ?? .path(path)
+		}
+
+		/**
+		The script of an element, as it was read for its hash. It throws for a path that is not the script of an element.
 		*/
 		func elementScript(at path: RoutePath) throws -> Data {
 			guard let text = records[path]?.elementText else {
@@ -346,15 +394,6 @@ extension Site.Scripts {
 }
 
 extension RoutePath {
-	/**
-	The path of a script with the content hash of its file (``Site/Scripts/published``), like `/scripts/site.js?v=1a2b3c4d`, or the path alone when it has no hash.
-
-	The hash changes with the content, so a cached file is never used for new pages. A script that a script imports, like `nebula.js`, gets the hash from the import map of the page (``Site/Scripts/importMap(loading:)``).
-	*/
-	var versioned: LinkDestination {
-		Site.Scripts.published.records[self].map { versioned(hash: $0.contentHash) } ?? .path(self)
-	}
-
 	/**
 	The path with the hash of the content of its file, like `/assets/site.css?v=1a2b3c4d`, for a file that is a value, like the stylesheet. The hash is known without the project, so the URL is right wherever it is used, also in Markdown, which renders while the content loads.
 	*/

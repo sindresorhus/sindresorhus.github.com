@@ -4,7 +4,7 @@ The animations of a component. Each case is an animation, and its name is genera
 Nest it in the component as `Animations`, and run one with ``Style/animation(_:_:fillMode:isEssential:)``. A style that runs an animation brings its keyframes, so no stylesheet has to list them:
 
 ```swift
-enum Animations: KeyframeSet {
+enum Animations: String, KeyframeSet {
 	case spin
 
 	var keyframes: [Keyframe] {
@@ -18,7 +18,7 @@ enum Animations: KeyframeSet {
 
 The name of `spin` in `Spinner.Animations` is `spinner-spin`.
 */
-public protocol KeyframeSet: CaseIterable, Sendable {
+public protocol KeyframeSet: RawRepresentable<String>, CaseIterable, Sendable {
 	var keyframes: [Keyframe] { get }
 }
 
@@ -27,7 +27,7 @@ extension KeyframeSet {
 	The animation name, like `spinner-spin`.
 	*/
 	public var name: String {
-		generatedComponentName(of: Self.self, suffix: "Animations", member: String(describing: self))
+		generatedComponentName(of: Self.self, suffix: "Animations", member: rawValue)
 	}
 
 	static var nodes: [StyleNode] {

@@ -22,6 +22,8 @@ Open the app and start drawing. For quick sketches, brainstorming, and doodles, 
 
 The app is intentionally simple.
 
+Choose “Save” in the `…` menu to save a PNG of the drawing, which you find in the Files app. To continue a drawing later, choose “Export” in the same menu, and “Import” to open it again. On Apple Vision Pro, “Save” is a button next to the canvas.
+
 ## Frequently Asked Questions {#faq}
 
 ### I can already access these drawing tools in the Notes and Freeform app {#i-can-already-access-these-drawing-tools-in-the-notes-and-freeform-app}

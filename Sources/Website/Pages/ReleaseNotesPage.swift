@@ -87,7 +87,7 @@ struct ReleaseNotesPage: Page {
 		}
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case release
 		case releaseHeader
 		case releaseTitle
@@ -109,8 +109,7 @@ struct ReleaseNotesPage: Page {
 					.padding(.vertical, .rootEm(1.5))
 					.from(.desktop) {
 						$0
-							.display(.grid)
-							.gridColumns(.fixed(Self.versionColumnWidth), .fraction(1))
+							.grid(columns: .fixed(Self.versionColumnWidth), .fraction(1))
 							.gap(Self.versionColumnSpacing)
 							// The version and the first note share a baseline.
 							.alignItems(.baseline)

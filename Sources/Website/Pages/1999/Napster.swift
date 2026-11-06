@@ -145,7 +145,7 @@ struct GeoCitiesNapster: ScriptedElement {
 					.style(Styles.transfer)
 				}
 
-				p(.part(Parts.status), .role("status")) {}
+				p(.part(Parts.status), .role(.status)) {}
 					.style(Styles.status)
 			}
 			.style(GeoCitiesPage.Styles.windowBody)
@@ -250,10 +250,10 @@ struct GeoCitiesNapster: ScriptedElement {
 				}
 				.style(Styles.burner)
 
-				p(.part(Parts.burnStatus), .role("status")) {}
+				p(.part(Parts.burnStatus), .role(.status)) {}
 					.style(Styles.status)
 
-				div(.part(Parts.disc), .hidden, .role("img")) {
+				div(.part(Parts.disc), .hidden, .role(.image)) {
 					span(.part(Parts.discLabel)) {}
 				}
 				.style(Styles.disc)
@@ -318,7 +318,7 @@ struct GeoCitiesNapster: ScriptedElement {
 		case suggestion = "napster-suggestion"
 	}
 
-	enum Styles: ElementStyleSet {
+	enum Styles: String, ElementStyleSet {
 		case root
 		case chip
 		case list

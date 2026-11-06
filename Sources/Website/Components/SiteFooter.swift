@@ -6,7 +6,7 @@ Columns of links to the pages of the site, so pages that the header does not lin
 */
 struct SiteFooter: HTML {
 	/**
-	The app of an app page or of a page about the app, like its release notes or a guide (``Page/feedbackApp``), so the “Feedback” link opens the form for the app.
+	The app of an app page or of a page about the app, like its release notes or a guide (``Page/feedbackApp``), so the “Feedback & Support” link opens the form for the app.
 	*/
 	var app: App?
 
@@ -18,10 +18,10 @@ struct SiteFooter: HTML {
 			let app,
 			!app.isArchived
 		else {
-			return LabeledLink("Feedback", path: .feedback)
+			return .feedback
 		}
 
-		return LabeledLink("Feedback", destination: app.feedbackURL)
+		return LabeledLink(LabeledLink.feedback.title, destination: app.feedbackURL)
 	}
 
 	var body: some HTML {
@@ -98,7 +98,7 @@ struct SiteFooter: HTML {
 				title: "Help",
 				links: [
 					.faq,
-					LabeledLink("Guides", path: .guides),
+					.guides,
 					feedbackLink,
 					LabeledLink("Contact", path: .contact),
 					.olderVersions,
@@ -146,7 +146,7 @@ struct SiteFooter: HTML {
 		case sourceLink = "source-link"
 	}
 
-	enum Styles: StyleSet {
+	enum Styles: String, StyleSet {
 		case root
 		case content
 		case groups

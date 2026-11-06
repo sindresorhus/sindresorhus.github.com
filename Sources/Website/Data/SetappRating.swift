@@ -4,7 +4,7 @@ import SiteKit
 /**
 The rating of an app on Setapp, from the structured data of its page on Setapp, which the page shows for the apps that have no rating on the App Store or on Gumroad, like the Mac App Store apps, as Apple gives no ratings for them. Setapp members rate an app with a thumbs up or down, so the rating is the percentage of positive ratings, not an average of stars.
 
-It is only shown as text, never in the structured data of the app page, as Google does not accept ratings that come from another site.
+The structured data of the app page has it on the 100-point scale that Setapp uses in its own structured data (``Schema/AggregateRating``), like the ratings of the stores.
 */
 struct SetappRating {
 	/**
@@ -142,7 +142,21 @@ struct SetappID: Hashable, CustomStringConvertible {
 	The page of the app on Setapp with the referral of the vendor program, which the app page links to.
 	*/
 	var referralURL: URL {
-		#URL("https://go.setapp.com/stp181").appending(queryItems: [URLQueryItem(name: "refAppID", value: description), URLQueryItem(name: "utm_medium", value: "vendor_program"), URLQueryItem(name: "utm_content", value: "button")])
+		Self.campaignURL(queryItems: [URLQueryItem(name: "refAppID", value: description)])
+	}
+
+	/**
+	Setapp itself with the referral of the vendor program, which the list of the apps on Setapp links to.
+	*/
+	static var vendorProgramURL: URL {
+		campaignURL(queryItems: [])
+	}
+
+	/**
+	The link of the vendor program, with the query items before the ones of its campaign.
+	*/
+	private static func campaignURL(queryItems: [URLQueryItem]) -> URL {
+		#URL("https://go.setapp.com/stp181").appending(queryItems: queryItems + [URLQueryItem(name: "utm_medium", value: "vendor_program"), URLQueryItem(name: "utm_content", value: "button")])
 	}
 }
 
